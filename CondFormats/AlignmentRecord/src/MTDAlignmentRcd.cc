@@ -2,7 +2,7 @@
 //
 // Package:     MTDGeometry
 // Class  :     MTDAlignmentRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

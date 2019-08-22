@@ -25,20 +25,16 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-
 #include <vector>
 
-class NoPileUpPFMEtProducer : public edm::stream::EDProducer<>
-{
- public:
-  
+class NoPileUpPFMEtProducer : public edm::stream::EDProducer<> {
+public:
   NoPileUpPFMEtProducer(const edm::ParameterSet&);
   ~NoPileUpPFMEtProducer() override;
-  
- private:
-  
+
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
+
   std::string moduleLabel_;
 
   edm::EDGetTokenT<reco::PFMETCollection> srcMEt_;
@@ -47,8 +43,8 @@ class NoPileUpPFMEtProducer : public edm::stream::EDProducer<>
   edm::EDGetTokenT<reco::PUSubMETCandInfoCollection> srcJetInfoLeptonMatch_;
   edm::EDGetTokenT<reco::PUSubMETCandInfoCollection> srcPFCandInfo_;
   edm::EDGetTokenT<reco::PUSubMETCandInfoCollection> srcPFCandInfoLeptonMatch_;
-  typedef std::vector<edm::InputTag>  vInputTag;
-  std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
+  typedef std::vector<edm::InputTag> vInputTag;
+  std::vector<edm::EDGetTokenT<reco::CandidateView> > srcLeptons_;
 
   edm::EDGetTokenT<CorrMETData> srcType0Correction_;
 
@@ -60,7 +56,7 @@ class NoPileUpPFMEtProducer : public edm::stream::EDProducer<>
   double sfUnclNeutralCands_;
   double sfType0Correction_;
   double sfLeptonIsoCones_;
-  
+
   std::string sfLeptonsName_;
   std::string sfNoPUjetsName_;
   std::string sfNoPUjetOffsetEnCorrName_;
@@ -80,7 +76,6 @@ class NoPileUpPFMEtProducer : public edm::stream::EDProducer<>
   int verbosity_;
 
   NoPileUpMEtUtilities utils_;
-
 };
 
 #endif

@@ -32,16 +32,20 @@ class L1GtEtaPhiConversions;
 
 // class declaration
 class L1GtCorrelationCondition : public L1GtConditionEvaluation {
-
 public:
   /// constructors
   ///     default
   L1GtCorrelationCondition();
 
   ///     from base template condition (from event setup usually)
-  L1GtCorrelationCondition(const L1GtCondition *, const L1GtCondition *,
-                           const L1GtCondition *, const int, const int,
-                           const int, const int, const L1GlobalTriggerGTL *,
+  L1GtCorrelationCondition(const L1GtCondition *,
+                           const L1GtCondition *,
+                           const L1GtCondition *,
+                           const int,
+                           const int,
+                           const int,
+                           const int,
+                           const L1GlobalTriggerGTL *,
                            const L1GlobalTriggerPSB *,
                            const L1GtEtaPhiConversions *);
 
@@ -68,9 +72,7 @@ public:
   void setGtNrBinsPhi(const unsigned int);
 
   ///   get / set the pointer to a L1GtCondition
-  inline const L1GtCorrelationTemplate *gtCorrelationTemplate() const {
-    return m_gtCorrelationTemplate;
-  }
+  inline const L1GtCorrelationTemplate *gtCorrelationTemplate() const { return m_gtCorrelationTemplate; }
 
   void setGtCorrelationTemplate(const L1GtCorrelationTemplate *);
 

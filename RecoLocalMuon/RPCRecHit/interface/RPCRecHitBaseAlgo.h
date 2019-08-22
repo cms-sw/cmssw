@@ -8,7 +8,6 @@
  *  \author M. Maggi -- INFN Bari
  */
 
-
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -28,12 +27,12 @@ namespace edm {
 }
 
 class RPCRecHitBaseAlgo {
- public:
+public:
   /// Constructor
   RPCRecHitBaseAlgo(const edm::ParameterSet& config);
 
   /// Destructor
-  virtual ~RPCRecHitBaseAlgo() {};
+  virtual ~RPCRecHitBaseAlgo(){};
 
   /// Pass the Event Setup to the algo at each event
   virtual void setES(const edm::EventSetup& setup) = 0;
@@ -49,16 +48,18 @@ class RPCRecHitBaseAlgo {
                        const RPCCluster& cl,
                        LocalPoint& Point,
                        LocalError& error,
-                       float& time, float& timeErr) const = 0;
+                       float& time,
+                       float& timeErr) const = 0;
 
-  /// local recHit computation accounting for track direction and 
+  /// local recHit computation accounting for track direction and
   /// absolute position
   virtual bool compute(const RPCRoll& roll,
                        const RPCCluster& cl,
                        const float& angle,
-                       const GlobalPoint& globPos, 
+                       const GlobalPoint& globPos,
                        LocalPoint& Point,
                        LocalError& error,
-                       float& time, float& timeErr) const = 0;
+                       float& time,
+                       float& timeErr) const = 0;
 };
 #endif

@@ -17,33 +17,28 @@
 #include <iostream>
 #include <cmath>
 
-template<class T>
+template <class T>
 class HT {
-
 private:
-  double Hx,Hy;
+  double Hx, Hy;
 
- public:
+public:
   int njet;
   TVector2 v;
   double ScalarSum;
 
-  typedef typename edm::Handle< T > Handler;
-  HT( Handler jetcoll, double ptThreshold, double maxAbsEta):
-    Hx(0),
-    Hy(0),
-    ScalarSum(0)  
-  {
+  typedef typename edm::Handle<T> Handler;
+  HT(Handler jetcoll, double ptThreshold, double maxAbsEta) : Hx(0), Hy(0), ScalarSum(0) {
     typedef typename T::const_iterator Iter;
-    for (Iter jet = jetcoll->begin(); jet!=jetcoll->end(); ++jet){
-      if ((jet->pt()>ptThreshold) && (std::fabs(jet->eta())<maxAbsEta)){
-	njet++;
-	Hx += jet->px();
-	Hy += jet->py();
-	ScalarSum += jet->pt();
+    for (Iter jet = jetcoll->begin(); jet != jetcoll->end(); ++jet) {
+      if ((jet->pt() > ptThreshold) && (std::fabs(jet->eta()) < maxAbsEta)) {
+        njet++;
+        Hx += jet->px();
+        Hy += jet->py();
+        ScalarSum += jet->pt();
       }
     }
-    v=TVector2(Hx,Hy);
+    v = TVector2(Hx, Hy);
   }
 };
 

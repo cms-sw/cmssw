@@ -9,10 +9,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
-HcalShapes::HcalShapes()
-: theDbService(nullptr)
- {
-/*
+HcalShapes::HcalShapes() : theDbService(nullptr) {
+  /*
          00 - not used (reserved)
         101 - regular HPD  HB/HE/HO shape
         102 - "special" HB HPD#14 long shape
@@ -26,10 +24,10 @@ HcalShapes::HcalShapes()
         401 - regular ZDC shape
   */
 
-  std::vector<int> theHcalShapeNums = {101,102,103,104,105,123,124,125,201,202,203,205,206,207,301};
+  std::vector<int> theHcalShapeNums = {101, 102, 103, 104, 105, 123, 124, 125, 201, 202, 203, 205, 206, 207, 301};
   // use resize so vector won't invalidate pointers by reallocating memory while filling
   theHcalShapes.resize(theHcalShapeNums.size());
-  for(unsigned inum = 0; inum < theHcalShapeNums.size(); ++inum){
+  for (unsigned inum = 0; inum < theHcalShapeNums.size(); ++inum) {
     int num = theHcalShapeNums[inum];
     theHcalShapes[inum].setShape(num);
     theShapesPrecise[num] = &theHcalShapes[inum];
@@ -41,49 +39,45 @@ HcalShapes::HcalShapes()
   theShapes[ZDC] = new CaloCachedShapeIntegrator(&theZDCShape);
 }
 
-
-HcalShapes::~HcalShapes()
-{
-  for(auto& shapeItr : theShapes)
-  {
+HcalShapes::~HcalShapes() {
+  for (auto& shapeItr : theShapes) {
     delete shapeItr.second;
   }
   theShapes.clear();
 }
 
-
-const CaloVShape * HcalShapes::shape(const DetId & detId, bool precise) const
-{
-  if(!theDbService) {
+const CaloVShape* HcalShapes::shape(const DetId& detId, bool precise) const {
+  if (!theDbService) {
     return defaultShape(detId);
   }
   int shapeType = theDbService->getHcalMCParam(detId)->signalShape();
   const auto& myShapes = getShapeMap(precise);
   auto shapeMapItr = myShapes.find(shapeType);
-  if(shapeMapItr == myShapes.end()) {
-       edm::LogWarning("HcalShapes") << "HcalShapes::shape - shapeType ?  = "
-				     << shapeType << std::endl;
-    return defaultShape(detId,precise);
+  if (shapeMapItr == myShapes.end()) {
+    edm::LogWarning("HcalShapes") << "HcalShapes::shape - shapeType ?  = " << shapeType << std::endl;
+    return defaultShape(detId, precise);
   } else {
     return shapeMapItr->second;
   }
 }
 
-const CaloVShape * HcalShapes::defaultShape(const DetId & detId, bool precise) const
-{
+const CaloVShape* HcalShapes::defaultShape(const DetId& detId, bool precise) const {
   // try to figure the appropriate shape
-  const CaloVShape * result;
+  const CaloVShape* result;
   const auto& myShapes = getShapeMap(precise);
-  HcalGenericDetId::HcalGenericSubdetector subdet 
-    = HcalGenericDetId(detId).genericSubdet();
-  if(subdet == HcalGenericDetId::HcalGenBarrel 
-  || subdet == HcalGenericDetId::HcalGenEndcap) result = myShapes.find(HPD)->second;
-  else if(subdet == HcalGenericDetId::HcalGenOuter) result = myShapes.find(HPD)->second;
-  else if(subdet == HcalGenericDetId::HcalGenForward) result = myShapes.find(HF)->second;
-  else if(subdet == HcalGenericDetId::HcalGenZDC) result = myShapes.find(ZDC)->second;
-  else result = nullptr;
+  HcalGenericDetId::HcalGenericSubdetector subdet = HcalGenericDetId(detId).genericSubdet();
+  if (subdet == HcalGenericDetId::HcalGenBarrel || subdet == HcalGenericDetId::HcalGenEndcap)
+    result = myShapes.find(HPD)->second;
+  else if (subdet == HcalGenericDetId::HcalGenOuter)
+    result = myShapes.find(HPD)->second;
+  else if (subdet == HcalGenericDetId::HcalGenForward)
+    result = myShapes.find(HF)->second;
+  else if (subdet == HcalGenericDetId::HcalGenZDC)
+    result = myShapes.find(ZDC)->second;
+  else
+    result = nullptr;
 
-  edm::LogWarning("HcalShapes") << "Cannot find HCAL MC Params, so the default one is taken for subdet " << subdet;  
+  edm::LogWarning("HcalShapes") << "Cannot find HCAL MC Params, so the default one is taken for subdet " << subdet;
 
   return result;
 }

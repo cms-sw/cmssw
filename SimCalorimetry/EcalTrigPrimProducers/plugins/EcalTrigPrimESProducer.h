@@ -52,40 +52,26 @@ public:
   EcalTrigPrimESProducer(const edm::ParameterSet &);
   ~EcalTrigPrimESProducer() override;
 
-  std::unique_ptr<EcalTPGPedestals>
-  producePedestals(const EcalTPGPedestalsRcd &);
-  std::unique_ptr<EcalTPGLinearizationConst>
-  produceLinearizationConst(const EcalTPGLinearizationConstRcd &);
-  std::unique_ptr<EcalTPGSlidingWindow>
-  produceSlidingWindow(const EcalTPGSlidingWindowRcd &);
-  std::unique_ptr<EcalTPGFineGrainEBIdMap>
-  produceFineGrainEB(const EcalTPGFineGrainEBIdMapRcd &);
-  std::unique_ptr<EcalTPGFineGrainStripEE>
-  produceFineGrainEEstrip(const EcalTPGFineGrainStripEERcd &);
-  std::unique_ptr<EcalTPGFineGrainTowerEE>
-  produceFineGrainEEtower(const EcalTPGFineGrainTowerEERcd &);
+  std::unique_ptr<EcalTPGPedestals> producePedestals(const EcalTPGPedestalsRcd &);
+  std::unique_ptr<EcalTPGLinearizationConst> produceLinearizationConst(const EcalTPGLinearizationConstRcd &);
+  std::unique_ptr<EcalTPGSlidingWindow> produceSlidingWindow(const EcalTPGSlidingWindowRcd &);
+  std::unique_ptr<EcalTPGFineGrainEBIdMap> produceFineGrainEB(const EcalTPGFineGrainEBIdMapRcd &);
+  std::unique_ptr<EcalTPGFineGrainStripEE> produceFineGrainEEstrip(const EcalTPGFineGrainStripEERcd &);
+  std::unique_ptr<EcalTPGFineGrainTowerEE> produceFineGrainEEtower(const EcalTPGFineGrainTowerEERcd &);
   std::unique_ptr<EcalTPGLutIdMap> produceLUT(const EcalTPGLutIdMapRcd &);
-  std::unique_ptr<EcalTPGWeightIdMap>
-  produceWeight(const EcalTPGWeightIdMapRcd &);
-  std::unique_ptr<EcalTPGWeightGroup>
-  produceWeightGroup(const EcalTPGWeightGroupRcd &);
+  std::unique_ptr<EcalTPGWeightIdMap> produceWeight(const EcalTPGWeightIdMapRcd &);
+  std::unique_ptr<EcalTPGWeightGroup> produceWeightGroup(const EcalTPGWeightGroupRcd &);
   std::unique_ptr<EcalTPGLutGroup> produceLutGroup(const EcalTPGLutGroupRcd &);
-  std::unique_ptr<EcalTPGFineGrainEBGroup>
-  produceFineGrainEBGroup(const EcalTPGFineGrainEBGroupRcd &);
-  std::unique_ptr<EcalTPGPhysicsConst>
-  producePhysicsConst(const EcalTPGPhysicsConstRcd &);
-  std::unique_ptr<EcalTPGCrystalStatus>
-  produceBadX(const EcalTPGCrystalStatusRcd &);
-  std::unique_ptr<EcalTPGStripStatus>
-  produceBadStrip(const EcalTPGStripStatusRcd &);
-  std::unique_ptr<EcalTPGTowerStatus>
-  produceBadTT(const EcalTPGTowerStatusRcd &);
+  std::unique_ptr<EcalTPGFineGrainEBGroup> produceFineGrainEBGroup(const EcalTPGFineGrainEBGroupRcd &);
+  std::unique_ptr<EcalTPGPhysicsConst> producePhysicsConst(const EcalTPGPhysicsConstRcd &);
+  std::unique_ptr<EcalTPGCrystalStatus> produceBadX(const EcalTPGCrystalStatusRcd &);
+  std::unique_ptr<EcalTPGStripStatus> produceBadStrip(const EcalTPGStripStatusRcd &);
+  std::unique_ptr<EcalTPGTowerStatus> produceBadTT(const EcalTPGTowerStatusRcd &);
   std::unique_ptr<EcalTPGSpike> produceSpike(const EcalTPGSpikeRcd &);
 
 private:
   void parseTextFile();
-  std::vector<int> getRange(int subdet, int smNb, int towerNbInSm,
-                            int stripNbInTower = 0, int xtalNbInStrip = 0);
+  std::vector<int> getRange(int subdet, int smNb, int towerNbInSm, int stripNbInTower = 0, int xtalNbInStrip = 0);
 
   // ----------member data ---------------------------
   std::string dbFilename_;

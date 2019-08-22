@@ -7,15 +7,13 @@
 
 #include "PhysicsTools/JetMCAlgos/interface/BasePartonSelector.h"
 
+class SherpaPartonSelector : public BasePartonSelector {
+public:
+  SherpaPartonSelector();
+  ~SherpaPartonSelector() override;
 
-class SherpaPartonSelector : public BasePartonSelector
-{
-  public:
-    SherpaPartonSelector();
-    ~SherpaPartonSelector() override;
-
-    void run(const edm::Handle<reco::GenParticleCollection> & particles,
-             std::unique_ptr<reco::GenParticleRefVector> & partons) override;
+  void run(const edm::Handle<reco::GenParticleCollection>& particles,
+           std::unique_ptr<reco::GenParticleRefVector>& partons) override;
 };
 
 #endif

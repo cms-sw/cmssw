@@ -28,31 +28,28 @@ class TrackerTopology;
  * The printSummary and printDebug method return both the full list of parameters. <br>
  */
 
-class SiStripConfObject
-{
- public:
+class SiStripConfObject {
+public:
   SiStripConfObject() {}
 
   template <class valueType>
-  bool put( const std::string & name, const valueType & inputValue )
-  {
+  bool put(const std::string& name, const valueType& inputValue) {
     std::stringstream ss;
     ss << inputValue;
-    if( parameters.insert(std::make_pair(name, ss.str())).second ) return true;
+    if (parameters.insert(std::make_pair(name, ss.str())).second)
+      return true;
     return false;
   }
 
-
-  /// Updating the value stored as 'name' with 'inputValue'. 
+  /// Updating the value stored as 'name' with 'inputValue'.
   /// False if parameter 'name' does not exist (and nothing is done then - use put(..) instead!),
   /// otherwise true.
   template <class valueType>
-  bool update( const std::string & name, const valueType & inputValue )
-  {
+  bool update(const std::string& name, const valueType& inputValue) {
     parMap::iterator it = parameters.find(name);
     if (it == parameters.end()) {
       std::cout << "WARNING in SiStripConfObject::update: parameter " << name << " not found, "
-		<< "so cannot be updated to '" << inputValue << "'." << std::endl;
+                << "so cannot be updated to '" << inputValue << "'." << std::endl;
       return false;
     } else {
       std::stringstream ss;
@@ -63,52 +60,48 @@ class SiStripConfObject
   }
 
   template <class valueType>
-  valueType get( const std::string & name ) const
-  {
+  valueType get(const std::string& name) const {
     valueType returnValue = 0;
     parMap::const_iterator it = parameters.find(name);
     std::stringstream ss;
-    if( it != parameters.end() ) {
+    if (it != parameters.end()) {
       ss << it->second;
       ss >> returnValue;
-    }
-    else {
+    } else {
       std::cout << "WARNING: parameter " << name << " not found. Returning default value" << std::endl;
     }
     return returnValue;
   }
 
-  bool isParameter( const std::string & name ) const
-  {
-    return( parameters.find(name) != parameters.end() );
-  }
+  bool isParameter(const std::string& name) const { return (parameters.find(name) != parameters.end()); }
 
   /// Prints the full list of parameters
-  void printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
   /// Prints the full list of parameters
-  void printDebug(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
   typedef std::map<std::string, std::string> parMap;
 
   parMap parameters;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 template <>
-std::string SiStripConfObject::get<std::string>( const std::string & name ) const;
+std::string SiStripConfObject::get<std::string>(const std::string& name) const;
 template <>
-bool SiStripConfObject::put<std::vector<int> >( const std::string & name, const std::vector<int> & inputValue );
+bool SiStripConfObject::put<std::vector<int> >(const std::string& name, const std::vector<int>& inputValue);
 template <>
-bool SiStripConfObject::update<std::vector<int> >( const std::string & name, const std::vector<int> & inputValue );
+bool SiStripConfObject::update<std::vector<int> >(const std::string& name, const std::vector<int>& inputValue);
 template <>
-std::vector<int> SiStripConfObject::get<std::vector<int> >( const std::string & name ) const;
+std::vector<int> SiStripConfObject::get<std::vector<int> >(const std::string& name) const;
 template <>
-bool SiStripConfObject::put<std::vector<std::string> >( const std::string & name, const std::vector<std::string> & inputValue );
+bool SiStripConfObject::put<std::vector<std::string> >(const std::string& name,
+                                                       const std::vector<std::string>& inputValue);
 template <>
-bool SiStripConfObject::update<std::vector<std::string> >( const std::string & name, const std::vector<std::string> & inputValue );
+bool SiStripConfObject::update<std::vector<std::string> >(const std::string& name,
+                                                          const std::vector<std::string>& inputValue);
 template <>
-std::vector<std::string> SiStripConfObject::get<std::vector<std::string> >( const std::string & name ) const;
-
+std::vector<std::string> SiStripConfObject::get<std::vector<std::string> >(const std::string& name) const;
 
 #endif

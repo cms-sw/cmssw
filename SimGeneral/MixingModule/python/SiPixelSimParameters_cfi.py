@@ -38,6 +38,13 @@ def _modifyPixelDigitizerForPhase1Pixel( digitizer ) :
     digitizer.UseReweighting = cms.bool(True)
     digitizer.KillBadFEDChannels = cms.bool(True)
 
+def _modifyPixelDigitizerForRun3( digitizer ):
+
+    digitizer.ThresholdInElectrons_FPix = cms.double(1600.0)
+    digitizer.ThresholdInElectrons_BPix = cms.double(1600.0)
+    digitizer.ThresholdInElectrons_BPix_L1 = cms.double(1300.0)
+    digitizer.ThresholdInElectrons_BPix_L2 = cms.double(1600.0)
+
 SiPixelSimBlock = cms.PSet(
     SiPixelQualityLabel = cms.string(''),
     KillBadFEDChannels = cms.bool(False),
@@ -98,6 +105,10 @@ SiPixelSimBlock = cms.PSet(
 ###    DeadModules = cms.VPSet()
 )
 
+# activate charge reweighing for 2016 pixel detector (UL 2016)
+from Configuration.Eras.Modifier_pixel_2016_cff import pixel_2016
+pixel_2016.toModify(SiPixelSimBlock,UseReweighting=True)
+
 #
 # Apply the changes for the different Run 2 running scenarios
 #
@@ -109,6 +120,13 @@ from CalibTracker.SiPixelESProducers.SiPixelQualityESProducer_cfi import siPixel
 from Configuration.Eras.Modifier_run2_SiPixel_2018_cff import run2_SiPixel_2018
 run2_SiPixel_2018.toModify(siPixelQualityESProducer,siPixelQualityLabel = 'forDigitizer',)
 run2_SiPixel_2018.toModify(SiPixelSimBlock, SiPixelQualityLabel = 'forDigitizer',)
+
+# change the digitizer threshold for Run3
+# - new layer1 installed: expected improvement in timing alignment of L1 and L2
+# - update the rest of the detector to 1600e 
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(SiPixelSimBlock, func=_modifyPixelDigitizerForRun3)
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toModify(SiPixelSimBlock,

@@ -29,27 +29,25 @@
 
 #include <iostream>
 
-class DTLowQMatching  {
+class DTLowQMatching {
 public:
-  DTLowQMatching(L1MuDTChambPhContainer const* , L1MuDTChambPhContainer const& );
+  DTLowQMatching(L1MuDTChambPhContainer const*, L1MuDTChambPhContainer const&);
 
   void run(const edm::EventSetup& c);
 
- edm::ESHandle< L1TTwinMuxParams > tmParamsHandle;
+  edm::ESHandle<L1TTwinMuxParams> tmParamsHandle;
 
   static int noRPCHits(L1MuDTChambPhContainer inCon, int bx, int wh, int sec, int st);
 
 private:
-  int deltaPhi(int dt_phi, int rpc_strip );
+  int deltaPhi(int dt_phi, int rpc_strip);
 
   void Matching(int track_seg);
 
   L1MuDTChambPhContainer const* m_phiDTDigis;
-  L1MuDTChambPhContainer const&  m_phiRPCDigis;
-//  L1MuDTChambPhContainer m_phiRPCDigis2;
-  
-  
-  int m_DphiWindow;
+  L1MuDTChambPhContainer const& m_phiRPCDigis;
+  //  L1MuDTChambPhContainer m_phiRPCDigis2;
 
+  int m_DphiWindow;
 };
 #endif

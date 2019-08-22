@@ -7,9 +7,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class DQMStore;
-class MonitorElement;
 class PFClient : public DQMEDHarvester {
 public:
   PFClient(const edm::ParameterSet &parameterSet);

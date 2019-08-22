@@ -29,8 +29,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 // FIXME: these should come form the L1 configuration at runtime
-#define PHYSICS_BITS_SIZE    128
-#define TECHNICAL_BITS_SIZE   64
+#define PHYSICS_BITS_SIZE 128
+#define TECHNICAL_BITS_SIZE 64
 
 //
 // class declaration
@@ -38,22 +38,22 @@
 
 class HLTLevel1Activity : public edm::stream::EDFilter<> {
 public:
-  explicit HLTLevel1Activity(const edm::ParameterSet&);
+  explicit HLTLevel1Activity(const edm::ParameterSet &);
   ~HLTLevel1Activity() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   bool filter(edm::Event &, edm::EventSetup const &) final;
 
 private:
-  edm::InputTag                                  m_gtReadoutRecordTag;
+  edm::InputTag m_gtReadoutRecordTag;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_gtReadoutRecordToken;
-  std::vector<int>  m_bunchCrossings;
+  std::vector<int> m_bunchCrossings;
   std::vector<bool> m_selectPhysics;
   std::vector<bool> m_selectTechnical;
   std::vector<bool> m_maskedPhysics;
   std::vector<bool> m_maskedTechnical;
-  unsigned int      m_daqPartitions;
-  bool              m_ignoreL1Mask;
-  bool              m_invert;
+  unsigned int m_daqPartitions;
+  bool m_ignoreL1Mask;
+  bool m_invert;
 
   edm::ESWatcher<L1GtTriggerMaskAlgoTrigRcd> m_watchPhysicsMask;
   edm::ESWatcher<L1GtTriggerMaskTechTrigRcd> m_watchTechnicalMask;
@@ -67,39 +67,37 @@ private:
 //
 // constructors and destructor
 //
-HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet & config) :
-  m_gtReadoutRecordTag( config.getParameter<edm::InputTag>  ("L1GtReadoutRecordTag") ),
-  m_gtReadoutRecordToken(consumes<L1GlobalTriggerReadoutRecord>(m_gtReadoutRecordTag)),
-  m_bunchCrossings(  config.getParameter<std::vector<int>>  ("bunchCrossings") ),
-  m_selectPhysics(   PHYSICS_BITS_SIZE ),
-  m_selectTechnical( TECHNICAL_BITS_SIZE ),
-  m_maskedPhysics(   PHYSICS_BITS_SIZE ),
-  m_maskedTechnical( TECHNICAL_BITS_SIZE ),
-  m_daqPartitions(   config.getParameter<unsigned int>      ("daqPartitions") ),
-  m_ignoreL1Mask(    config.getParameter<bool>              ("ignoreL1Mask") ),
-  m_invert(          config.getParameter<bool>              ("invert") )
-{
-  unsigned long long low  = config.getParameter<unsigned long long>("physicsLoBits");
+HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet &config)
+    : m_gtReadoutRecordTag(config.getParameter<edm::InputTag>("L1GtReadoutRecordTag")),
+      m_gtReadoutRecordToken(consumes<L1GlobalTriggerReadoutRecord>(m_gtReadoutRecordTag)),
+      m_bunchCrossings(config.getParameter<std::vector<int>>("bunchCrossings")),
+      m_selectPhysics(PHYSICS_BITS_SIZE),
+      m_selectTechnical(TECHNICAL_BITS_SIZE),
+      m_maskedPhysics(PHYSICS_BITS_SIZE),
+      m_maskedTechnical(TECHNICAL_BITS_SIZE),
+      m_daqPartitions(config.getParameter<unsigned int>("daqPartitions")),
+      m_ignoreL1Mask(config.getParameter<bool>("ignoreL1Mask")),
+      m_invert(config.getParameter<bool>("invert")) {
+  unsigned long long low = config.getParameter<unsigned long long>("physicsLoBits");
   unsigned long long high = config.getParameter<unsigned long long>("physicsHiBits");
   unsigned long long tech = config.getParameter<unsigned long long>("technicalBits");
   for (unsigned int i = 0; i < 64; i++) {
-    m_selectPhysics[i]    = low  & (0x01ULL << (unsigned long long) i);
-    m_maskedPhysics[i]    = low  & (0x01ULL << (unsigned long long) i);
+    m_selectPhysics[i] = low & (0x01ULL << (unsigned long long)i);
+    m_maskedPhysics[i] = low & (0x01ULL << (unsigned long long)i);
   }
   for (unsigned int i = 0; i < 64; i++) {
-    m_selectPhysics[i+64] = high & (0x01ULL << (unsigned long long) i);
-    m_maskedPhysics[i+64] = high & (0x01ULL << (unsigned long long) i);
+    m_selectPhysics[i + 64] = high & (0x01ULL << (unsigned long long)i);
+    m_maskedPhysics[i + 64] = high & (0x01ULL << (unsigned long long)i);
   }
   for (unsigned int i = 0; i < 64; i++) {
-    m_selectTechnical[i]  = tech & (0x01ULL << (unsigned long long) i);
-    m_maskedTechnical[i]  = tech & (0x01ULL << (unsigned long long) i);
+    m_selectTechnical[i] = tech & (0x01ULL << (unsigned long long)i);
+    m_maskedTechnical[i] = tech & (0x01ULL << (unsigned long long)i);
   }
 }
 
 HLTLevel1Activity::~HLTLevel1Activity() = default;
 
-void
-HLTLevel1Activity::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTLevel1Activity::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("L1GtReadoutRecordTag", edm::InputTag("hltGtDigis"));
   desc.add<std::vector<int>>("bunchCrossings", {0, -1, 1});
@@ -117,9 +115,7 @@ HLTLevel1Activity::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 //
 
 // ------------ method called to produce the data  ------------
-bool
-HLTLevel1Activity::filter(edm::Event & event, edm::EventSetup const & setup)
-{
+bool HLTLevel1Activity::filter(edm::Event &event, edm::EventSetup const &setup) {
   /*
   // apply L1 mask to the physics bits
   //  - mask & partition == part. --> fully masked

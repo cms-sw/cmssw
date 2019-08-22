@@ -4,12 +4,11 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-
 static constexpr const double kMuonMass = 0.10566;
 
 TEST_CASE("makeMuon tests", "[makeMuon]") {
   SECTION("muon at rest") {
-    auto m1 = rawparticle::makeMuon(true,math::XYZTLorentzVector{}, math::XYZTLorentzVector{});
+    auto m1 = rawparticle::makeMuon(true, math::XYZTLorentzVector{}, math::XYZTLorentzVector{});
 
     REQUIRE(m1.charge() == -1.);
     REQUIRE(m1.mass() == kMuonMass);
@@ -27,7 +26,7 @@ TEST_CASE("makeMuon tests", "[makeMuon]") {
   }
 
   SECTION("anti-muon at rest") {
-    auto m1 = rawparticle::makeMuon(false,math::XYZTLorentzVector{}, math::XYZTLorentzVector{});
+    auto m1 = rawparticle::makeMuon(false, math::XYZTLorentzVector{}, math::XYZTLorentzVector{});
 
     REQUIRE(m1.charge() == 1.);
     REQUIRE(m1.mass() == kMuonMass);
@@ -45,7 +44,7 @@ TEST_CASE("makeMuon tests", "[makeMuon]") {
   }
 
   SECTION("muon at rest, transposed") {
-    auto m1 = rawparticle::makeMuon(true,math::XYZTLorentzVector{}, math::XYZTLorentzVector{1.,2.,3.,4.});
+    auto m1 = rawparticle::makeMuon(true, math::XYZTLorentzVector{}, math::XYZTLorentzVector{1., 2., 3., 4.});
 
     REQUIRE(m1.charge() == -1.);
     REQUIRE(m1.mass() == kMuonMass);
@@ -63,7 +62,7 @@ TEST_CASE("makeMuon tests", "[makeMuon]") {
   }
 
   SECTION("muon in motion") {
-    auto m1 = rawparticle::makeMuon(true,math::XYZTLorentzVector{1.,2.,3., 8.}, math::XYZTLorentzVector{});
+    auto m1 = rawparticle::makeMuon(true, math::XYZTLorentzVector{1., 2., 3., 8.}, math::XYZTLorentzVector{});
 
     REQUIRE(m1.charge() == -1.);
     REQUIRE(m1.mass() == kMuonMass);
@@ -79,5 +78,4 @@ TEST_CASE("makeMuon tests", "[makeMuon]") {
     //REQUIRE(m1.e() == sqrt(kMuonMass*kMuonMass+m1.px()*m1.px()+m1.py()*m1.py()+m1.pz()*m1.pz()));
     REQUIRE(m1.e() == 8.);
   }
-
 }

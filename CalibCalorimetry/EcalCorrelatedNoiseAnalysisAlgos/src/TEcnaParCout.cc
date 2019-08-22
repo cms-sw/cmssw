@@ -14,70 +14,73 @@ ClassImp(TEcnaParCout);
 //______________________________________________________________________________
 //
 
-  TEcnaParCout::~TEcnaParCout()
-{
-//destructor
- // std::cout << "[Info Management] CLASS: TEcnaParCout.       DESTROY OBJECT: this = " << this << std::endl;
+TEcnaParCout::~TEcnaParCout() {
+  //destructor
+  // std::cout << "[Info Management] CLASS: TEcnaParCout.       DESTROY OBJECT: this = " << this << std::endl;
 }
 //===================================================================
 //
 //                   Constructors
 //
 //===================================================================
-TEcnaParCout::TEcnaParCout()
-{
-// Constructor without argument
+TEcnaParCout::TEcnaParCout() {
+  // Constructor without argument
 
- // std::cout << "[Info Management] CLASS: TEcnaParCout.       CREATE OBJECT: this = " << this << std::endl;
+  // std::cout << "[Info Management] CLASS: TEcnaParCout.       CREATE OBJECT: this = " << this << std::endl;
 
   Init();
 }
 
-TEcnaParCout::TEcnaParCout(TEcnaObject* pObjectManager)
-{
-// Constructor with argument
+TEcnaParCout::TEcnaParCout(TEcnaObject* pObjectManager) {
+  // Constructor with argument
 
- // std::cout << "[Info Management] CLASS: TEcnaParCout.       CREATE OBJECT: this = " << this << std::endl;
+  // std::cout << "[Info Management] CLASS: TEcnaParCout.       CREATE OBJECT: this = " << this << std::endl;
 
   Init();
   Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaParCout", i_this);
 }
 
-void  TEcnaParCout::Init()
-{
+void TEcnaParCout::Init() {
   fgMaxCar = (Int_t)512;  // max number of characters in TStrings
   fTTBELL = '\007';
 
   //................................................... Code Print
-  fCodePrintNoComment   = GetCodePrint("NoComment");
-  fCodePrintWarnings    = GetCodePrint("Warnings ");      // => default
-  fCodePrintComments    = GetCodePrint("Comments");
+  fCodePrintNoComment = GetCodePrint("NoComment");
+  fCodePrintWarnings = GetCodePrint("Warnings ");  // => default
+  fCodePrintComments = GetCodePrint("Comments");
   fCodePrintAllComments = GetCodePrint("AllComments");
-  
+
   fFlagPrint = fCodePrintWarnings;
 
   //................ Init CNA Command and error numbering
   fCnaCommand = 0;
-  fCnaError   = 0;
-}// end of Init()
+  fCnaError = 0;
+}  // end of Init()
 
 //===========================================================================
 //
-//         GetCodePrint   
+//         GetCodePrint
 //
 //===========================================================================
-Int_t TEcnaParCout::GetCodePrint(const TString& chcode)
-{
-//Get the CodePrint values
+Int_t TEcnaParCout::GetCodePrint(const TString& chcode) {
+  //Get the CodePrint values
 
   Int_t code_print = 101;  // => default: print warnings
 
   // The  values must be different
-  if( chcode == "NoComment"   ){code_print = 100;}
-  if( chcode == "Warnings"    ){code_print = 101;}      // => default
-  if( chcode == "Comments"    ){code_print = 102;}
-  if( chcode == "AllComments" ){code_print = 103;}
+  if (chcode == "NoComment") {
+    code_print = 100;
+  }
+  if (chcode == "Warnings") {
+    code_print = 101;
+  }  // => default
+  if (chcode == "Comments") {
+    code_print = 102;
+  }
+  if (chcode == "AllComments") {
+    code_print = 103;
+  }
 
   return code_print;
 }

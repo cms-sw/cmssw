@@ -25,13 +25,13 @@
 
 // forward declarations
 namespace fireworks {
-   namespace expression {
-      std::string oldToNewFormat(const std::string& iExpression);
+  namespace expression {
+    std::string oldToNewFormat(const std::string& iExpression);
 
-      long indexFromNewFormatToOldFormat(const std::string& iNewFormat,
-                                         long iNewFormatIndex,
-                                         const std::string& iOldFormat);
-   }
-}
+    long indexFromNewFormatToOldFormat(const std::string& iNewFormat,
+                                       long iNewFormatIndex,
+                                       const std::string& iOldFormat);
+  }  // namespace expression
+}  // namespace fireworks
 
 #endif

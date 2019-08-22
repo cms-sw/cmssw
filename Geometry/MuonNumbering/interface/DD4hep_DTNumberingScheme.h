@@ -5,7 +5,7 @@
 //
 // Package:    Geometry/MuonNumbering
 // Class:      DTNumberingScheme
-// 
+//
 /**\class DTNumberingScheme
 
  Description: DTNumberingScheme converts the MuonBaseNumber
@@ -35,13 +35,12 @@ namespace cms {
     const int get(const char*, const MuonConstants&) const;
     // Decode MuonBaseNumber to id: no checking
     void decode(const MuonBaseNumber& num,
-		int& wire_id,
-		int& layer_id,
-		int& superlayer_id,
-		int& sector_id,
-		int& station_id,
-		int& wheel_id
-		) const;
+                int& wire_id,
+                int& layer_id,
+                int& superlayer_id,
+                int& sector_id,
+                int& station_id,
+                int& wheel_id) const;
 
     int theRegionLevel;
     int theWheelLevel;
@@ -50,6 +49,6 @@ namespace cms {
     int theLayerLevel;
     int theWireLevel;
   };
-}
+}  // namespace cms
 
 #endif

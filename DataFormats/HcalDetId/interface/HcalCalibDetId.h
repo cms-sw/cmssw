@@ -45,7 +45,15 @@
 class HcalCalibDetId : public HcalOtherDetId {
 public:
   /** Type identifier within calibration det ids */
-  enum CalibDetType { CalibrationBox = 1, HOCrosstalk = 2, uMNqie = 3, CastorRadFacility = 4, LASERMON = 5, HBX = 6, HEX = 7 };
+  enum CalibDetType {
+    CalibrationBox = 1,
+    HOCrosstalk = 2,
+    uMNqie = 3,
+    CastorRadFacility = 4,
+    LASERMON = 5,
+    HBX = 6,
+    HEX = 7
+  };
 
   /** Create a null det id */
   HcalCalibDetId();
@@ -66,7 +74,7 @@ public:
   HcalCalibDetId(CalibDetType dt, int value1, int value2, int value3);
 
   /// get the flavor of this calibration detid
-  CalibDetType calibFlavor() const { return (CalibDetType)((id_>>17)&0x7); }
+  CalibDetType calibFlavor() const { return (CalibDetType)((id_ >> 17) & 0x7); }
   /// get the HcalSubdetector (if relevant)
   HcalSubdetector hcalSubdet() const;
   /// get the rbx name (if relevant)
@@ -91,17 +99,17 @@ public:
   int zside() const;
 
   /// constants
-  static const int cbox_MixerHigh     = 0; // HB/HE/HO/HF
-  static const int cbox_MixerLow      = 1; // HB/HE/HO/HF
-  static const int cbox_LaserMegatile = 2; // in HB only!
-  static const int cbox_RadDam_Layer0_RM4 = 3; // in HE only!
-  static const int cbox_RadDam_Layer7_RM4 = 4; // in HE only!
-  static const int cbox_RadDam_Layer0_RM1 = 5; // in HE only!
-  static const int cbox_RadDam_Layer7_RM1 = 6; // in HE only!
-  static const int cbox_HOCrosstalkPIN = 7; // in (part of) HO only!
-  static const int cbox_HF_ScintillatorPIN = 8; // in HF only!
+  static const int cbox_MixerHigh = 0;           // HB/HE/HO/HF
+  static const int cbox_MixerLow = 1;            // HB/HE/HO/HF
+  static const int cbox_LaserMegatile = 2;       // in HB only!
+  static const int cbox_RadDam_Layer0_RM4 = 3;   // in HE only!
+  static const int cbox_RadDam_Layer7_RM4 = 4;   // in HE only!
+  static const int cbox_RadDam_Layer0_RM1 = 5;   // in HE only!
+  static const int cbox_RadDam_Layer7_RM1 = 6;   // in HE only!
+  static const int cbox_HOCrosstalkPIN = 7;      // in (part of) HO only!
+  static const int cbox_HF_ScintillatorPIN = 8;  // in HF only!
 };
 
-std::ostream& operator<<(std::ostream& s,const HcalCalibDetId& id);
+std::ostream& operator<<(std::ostream& s, const HcalCalibDetId& id);
 
 #endif

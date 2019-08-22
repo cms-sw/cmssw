@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     CTPPSBeamParametersRcd
-// 
+//
 /**\class CTPPSBeamParametersRcd CTPPSBeamParametersRcd.h CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h
 
  Description: Record for beam parameters for CTPPS

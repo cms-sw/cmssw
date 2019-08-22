@@ -22,21 +22,18 @@ namespace edm {
     typedef ProcessHistoryVector vector_type;
 
     ProcessHistoryRegistry();
-    ProcessHistoryRegistry(ProcessHistoryRegistry const&) = delete; // Disallow copying and moving
-    ProcessHistoryRegistry& operator=(ProcessHistoryRegistry const&) = delete; // Disallow copying and moving
+    ProcessHistoryRegistry(ProcessHistoryRegistry const&) = delete;             // Disallow copying and moving
+    ProcessHistoryRegistry& operator=(ProcessHistoryRegistry const&) = delete;  // Disallow copying and moving
     bool registerProcessHistory(ProcessHistory const& processHistory);
     bool getMapped(ProcessHistoryID const& key, ProcessHistory& value) const;
     ProcessHistory const* getMapped(ProcessHistoryID const& key) const;
     ProcessHistoryID const& reducedProcessHistoryID(ProcessHistoryID const& fullID) const;
-    ProcessHistoryMap::const_iterator begin() const {
-      return data_.begin();
-    }
-    ProcessHistoryMap::const_iterator end() const {
-      return data_.end();
-    }
+    ProcessHistoryMap::const_iterator begin() const { return data_.begin(); }
+    ProcessHistoryMap::const_iterator end() const { return data_.end(); }
+
   private:
     ProcessHistoryMap data_;
     std::map<ProcessHistoryID, ProcessHistoryID> extra_;
   };
-}
+}  // namespace edm
 #endif

@@ -7,7 +7,6 @@
  *  \author M. Giunta
  */
 
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -26,7 +25,7 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class TFile;
 class DTMeanTimerFitter;
@@ -41,64 +40,58 @@ public:
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   void endJob() override;
-  
+
 protected:
-
 private:
-
   std::unique_ptr<DTSegmentSelector> select_;
 
   // The class containing TMax information
   typedef DTTMax::TMax TMax;
- 
-  // class to create/manage histos for each partition (SL) 
-  class cellInfo{
+
+  // class to create/manage histos for each partition (SL)
+  class cellInfo {
   public:
-    cellInfo(const TString& name) {
-      histos = new hTMaxCell(name);
-    }  
-   
-    ~cellInfo() {
-      delete histos;
-    }
+    cellInfo(const TString& name) { histos = new hTMaxCell(name); }
+
+    ~cellInfo() { delete histos; }
 
     void add(const std::vector<const TMax*>& tMaxes);
-    void update() {addedCells.clear();}
-    hTMaxCell* getHists() {return histos;}
-    
-  private: 
+    void update() { addedCells.clear(); }
+    hTMaxCell* getHists() { return histos; }
+
+  private:
     cellInfo(){};
     cellInfo(const cellInfo&){};
-    
+
     std::vector<dttmaxenums::TMaxCells> addedCells;
     hTMaxCell* histos;
   };
 
-  h2DSegm *h2DSegmRZ;
-  h2DSegm *h2DSegmRPhi;
-  h4DSegm *h4DSegmAllCh;
+  h2DSegm* h2DSegmRZ;
+  h2DSegm* h2DSegmRPhi;
+  h4DSegm* h4DSegmAllCh;
 
   // Divide cellInfo by given granularity (to be implemented)
-  // DTVDriftCalibration::cellInfo* partition(const DTWireId& wireId); 
+  // DTVDriftCalibration::cellInfo* partition(const DTWireId& wireId);
 
   // Specify the granularity for the TMax histograms
-  enum TMaxGranularity {byChamber, bySL, byPartition};
+  enum TMaxGranularity { byChamber, bySL, byPartition };
   TMaxGranularity theGranularity;
- 
+
   // The label used to retrieve 4D segments from the event
   edm::EDGetTokenT<DTRecSegment4DCollection> theRecHits4DToken;
 
   // Debug flag
   bool debug;
-  
+
   // The label used to retrieve digis from the event
   std::string digiLabel;
-  
+
   // The file which will contain the tMax histograms
-  TFile *theFile;
+  TFile* theFile;
 
   // The fitter
   std::unique_ptr<DTMeanTimerFitter> theFitter;
@@ -117,7 +110,7 @@ private:
   //bool checkNoisyChannels;
 
   // The module for t0 subtraction
-  std::unique_ptr<DTTTrigBaseSync> theSync;//FIXME: should be const
+  std::unique_ptr<DTTTrigBaseSync> theSync;  //FIXME: should be const
 
   // parameter set for DTCalibrationMap constructor
   edm::ParameterSet theCalibFilePar;
@@ -125,7 +118,7 @@ private:
   // Maximum value for the 4D Segment chi2
   //double theMaxChi2;
 
-  // Maximum incident angle for Phi Seg 
+  // Maximum incident angle for Phi Seg
   //double theMaxPhiAngle;
 
   // Maximum incident angle for Theta Seg
@@ -133,7 +126,5 @@ private:
 
   // Choose the chamber you want to calibrate
   std::string theCalibChamber;
-
 };
 #endif
-

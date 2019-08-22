@@ -25,6 +25,7 @@
 <use name="rootinteractive"/>
 <use name="rootgraphics"/>
 <use name="sigcpp"/>
+<use name="rootged"/>
 <lib name="Thread"/>
 <lib name="Eve"/>
 <lib name="Geom"/>

@@ -143,6 +143,14 @@ transfer_output_files = ""
 
 +JobFlavour           = "{flavour:s}"
 """
+    if "cafalca" in resources:
+        job_submit_template += """\
++CAFJob              = True
++AccountingGroup     = "group_u_CMS.CAF.ALCA"
+# automatically remove the job if the submitter has no permissions to run a CAF Job
+periodic_remove       = !regexp("group_u_CMS.CAF.ALCA", AccountingGroup) && CAFJob =?= True
+"""
+
     if proxy_path is not None:
         job_submit_template += """\
 +x509userproxy        = "{proxy:s}"

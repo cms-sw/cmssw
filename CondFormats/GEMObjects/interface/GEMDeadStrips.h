@@ -6,21 +6,20 @@
 #include <iostream>
 
 class GEMDeadStrips {
-
- public:
+public:
   struct DeadItem {
     int rawId;
-    int strip;  
+    int strip;
     COND_SERIALIZABLE;
   };
-  
-  GEMDeadStrips(){}
-  ~GEMDeadStrips(){}
 
-  std::vector<DeadItem> const & getDeadVec() const {return deadVec_;}
-  void fillDeadVec(DeadItem m) {deadVec_.push_back(m);}
+  GEMDeadStrips() {}
+  ~GEMDeadStrips() {}
 
- private:
+  std::vector<DeadItem> const& getDeadVec() const { return deadVec_; }
+  void fillDeadVec(DeadItem m) { deadVec_.push_back(m); }
+
+private:
   std::vector<DeadItem> deadVec_;
 
   COND_SERIALIZABLE;

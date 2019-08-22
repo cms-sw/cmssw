@@ -10,7 +10,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class MonTTConsistencyDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   MonTTConsistencyDat();
   ~MonTTConsistencyDat() override;
@@ -38,19 +38,15 @@ class MonTTConsistencyDat : public IDataItem {
 
   inline void setTaskStatus(bool status) { m_taskStatus = status; }
   inline bool getTaskStatus() const { return m_taskStatus; }
-  
- private:
-  void prepareWrite() 
-    noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const MonTTConsistencyDat* item, MonRunIOV* iov)
-    noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeArrayDB(const std::map< EcalLogicID, MonTTConsistencyDat >* data, MonRunIOV* iov)
-    noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const MonTTConsistencyDat* item, MonRunIOV* iov) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, MonTTConsistencyDat >* fillVec, MonRunIOV* iov)
-     noexcept(false);
+  void writeArrayDB(const std::map<EcalLogicID, MonTTConsistencyDat>* data, MonRunIOV* iov) noexcept(false);
+
+  void fetchData(std::map<EcalLogicID, MonTTConsistencyDat>* fillVec, MonRunIOV* iov) noexcept(false);
 
   // User data
   int m_processedEvents;
@@ -60,7 +56,6 @@ class MonTTConsistencyDat : public IDataItem {
   int m_problemsLV1;
   int m_problemsBunchX;
   bool m_taskStatus;
-  
 };
 
 #endif

@@ -12,24 +12,24 @@ namespace reco {
   /// collection of IsolatedPFCandidates
   typedef std::vector<reco::IsolatedPFCandidate> IsolatedPFCandidateCollection;
 
-  /// iterator 
+  /// iterator
   typedef IsolatedPFCandidateCollection::const_iterator IsolatedPFCandidateConstIterator;
 
-  /// iterator 
+  /// iterator
   typedef IsolatedPFCandidateCollection::iterator IsolatedPFCandidateIterator;
 
   /// persistent reference to a IsolatedPFCandidate
   typedef edm::Ref<IsolatedPFCandidateCollection> IsolatedPFCandidateRef;
 
   /// persistent reference to a IsolatedPFCandidate
-  typedef edm::Ptr<IsolatedPFCandidate> IsolatedPFCandidatePtr;  
+  typedef edm::Ptr<IsolatedPFCandidate> IsolatedPFCandidatePtr;
 
   /// persistent reference to a IsolatedPFCandidates collection
   typedef edm::RefProd<IsolatedPFCandidateCollection> IsolatedPFCandidateRefProd;
 
   /// vector of reference to GenParticleCandidate in the same collection
   typedef edm::RefVector<IsolatedPFCandidateCollection> IsolatedPFCandidateRefVector;
-  
-}
+
+}  // namespace reco
 
 #endif

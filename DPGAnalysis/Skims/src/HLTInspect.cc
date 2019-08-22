@@ -30,58 +30,47 @@
 using namespace edm;
 using namespace std;
 
-HLTInspect::HLTInspect(const edm::ParameterSet& iConfig)
-{
-  hlTriggerResults_ = iConfig.getParameter<edm::InputTag> ("HLTriggerResults");
+HLTInspect::HLTInspect(const edm::ParameterSet& iConfig) {
+  hlTriggerResults_ = iConfig.getParameter<edm::InputTag>("HLTriggerResults");
   init_ = false;
 }
 
-HLTInspect::~HLTInspect()
-{
-}
-void HLTInspect::analyze(const edm::Event& iEvent, const edm::EventSetup& c)
-{
-
-
+HLTInspect::~HLTInspect() {}
+void HLTInspect::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {
   int ievt = iEvent.id().event();
   int irun = iEvent.id().run();
   int ils = iEvent.luminosityBlock();
   int bx = iEvent.bunchCrossing();
-//
-// trigger type
-//
-  int trigger_type=-1;
-  if (iEvent.isRealData())  trigger_type = iEvent.experimentType();
-
+  //
+  // trigger type
+  //
+  int trigger_type = -1;
+  if (iEvent.isRealData())
+    trigger_type = iEvent.experimentType();
 
   //hlt info
   edm::Handle<TriggerResults> HLTR;
-  iEvent.getByLabel(hlTriggerResults_,HLTR);
+  iEvent.getByLabel(hlTriggerResults_, HLTR);
 
-
-  if(HLTR.isValid() == false) {
-	std::cout<< " HLTInspect Error - Could not access Results with name "<<hlTriggerResults_<<std::endl;
+  if (HLTR.isValid() == false) {
+    std::cout << " HLTInspect Error - Could not access Results with name " << hlTriggerResults_ << std::endl;
   }
-  if(HLTR.isValid())
-    {
-      if (!init_) {
-	init_=true;
-	const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTR);
-	hlNames_=triggerNames.triggerNames();
+  if (HLTR.isValid()) {
+    if (!init_) {
+      init_ = true;
+      const edm::TriggerNames& triggerNames = iEvent.triggerNames(*HLTR);
+      hlNames_ = triggerNames.triggerNames();
+    }
+    std::cout << "HLTInspect: Run " << irun << " Ev " << ievt << " LB " << ils << " BX " << bx << " Type "
+              << trigger_type << " Acc: ";
+    const unsigned int n(hlNames_.size());
+    for (unsigned int i = 0; i != n; ++i) {
+      if (HLTR->accept(i)) {
+        std::cout << hlNames_[i] << ",";
       }
-      std::cout << "HLTInspect: Run " << irun << " Ev " << ievt << " LB " << ils << " BX " << bx << " Type "<<trigger_type<< " Acc: " ;
-      const unsigned int n(hlNames_.size());
-      for (unsigned int i=0; i!=n; ++i) 
-	    {
-	      if (HLTR->accept(i)) 
-		{
-		  std::cout << hlNames_[i] << ",";
-		}
-	    }
-	  std::cout << std::endl;
-	}
-      
-    
+    }
+    std::cout << std::endl;
+  }
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(HLTInspect);

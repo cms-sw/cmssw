@@ -25,59 +25,60 @@
 #include "Geometry/CommonTopologies/interface/Topology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-class DTTopology: public Topology {
- public:
-  
+class DTTopology : public Topology {
+public:
   /// Constructor: number of first wire, total # of wires in the layer and their lenght
-  DTTopology(int firstWire, int nChannels, float semilenght); 
+  DTTopology(int firstWire, int nChannels, float semilenght);
 
   ~DTTopology() override {}
-  
-  /// Conversion between measurement coordinates
-  /// and local cartesian coordinates.
-  LocalPoint localPosition( const MeasurementPoint& ) const override;
 
   /// Conversion between measurement coordinates
   /// and local cartesian coordinates.
-  LocalError localError( const MeasurementPoint&, const MeasurementError& ) const override;
+  LocalPoint localPosition(const MeasurementPoint&) const override;
+
+  /// Conversion between measurement coordinates
+  /// and local cartesian coordinates.
+  LocalError localError(const MeasurementPoint&, const MeasurementError&) const override;
 
   /// Conversion to the measurement frame.
   /// (Caveat: when converting the position of a rechit, there is no
   /// guarantee that the converted value can be interpreted as the cell
   /// where the hit belongs, see note on neighbouring cells in the class
   /// header.
-  MeasurementPoint measurementPosition( const LocalPoint&) const override;
+  MeasurementPoint measurementPosition(const LocalPoint&) const override;
 
   /// Conversion to the measurement frame.
-  MeasurementError measurementError( const LocalPoint&, const LocalError& ) const override;
+  MeasurementError measurementError(const LocalPoint&, const LocalError&) const override;
 
   /// Return the wire number, starting from a LocalPoint.
   /// This method is deprecated: when converting the position of a rechit,
   /// there is no guarantee that the converted value can be
   /// interpreted as the cell where the hit belongs, see note on
   /// neighbouring cells in the class header.
-  int channel( const LocalPoint& p) const override;
+  int channel(const LocalPoint& p) const override;
 
   /// Returns the x position in the layer of a given wire number.
   float wirePosition(int wireNumber) const;
-  
+
   //checks if a wire number is valid
-  bool isWireValid(const int wireNumber) const {return (wireNumber - (theFirstChannel - 1) <= 0 || wireNumber - lastChannel() > 0 ) ? false : true;}
+  bool isWireValid(const int wireNumber) const {
+    return (wireNumber - (theFirstChannel - 1) <= 0 || wireNumber - lastChannel() > 0) ? false : true;
+  }
 
   /// Returns the cell width.
-  float cellWidth() const {return theWidth;}
+  float cellWidth() const { return theWidth; }
   /// Returns the cell height.
-  float cellHeight() const {return theHeight;}
+  float cellHeight() const { return theHeight; }
   /// Returns the cell length. This is the length of the sensitive volume,
   /// i.e. lenght of the wire minus the lenght of the two tappini (1.55 mm each)
-  float cellLenght() const {return theLength;}
+  float cellLenght() const { return theLength; }
   /// Returns the number of wires in the layer
-  int channels() const {return theNChannels;} 
+  int channels() const { return theNChannels; }
 
   /// Returns the wire number of the first wire
-  int firstChannel() const {return theFirstChannel;} 
+  int firstChannel() const { return theFirstChannel; }
   /// Returns the wire number of the last wire
-  int lastChannel() const {return theNChannels+theFirstChannel-1;} 
+  int lastChannel() const { return theNChannels + theFirstChannel - 1; }
 
   /// Returns the width of the actual sensible volume of the cell.
   float sensibleWidth() const;
@@ -85,18 +86,18 @@ class DTTopology: public Topology {
   float sensibleHeight() const;
 
   /// Sides of the cell
-  enum Side {zMin,zMax,xMin,xMax,yMin,yMax,none}; 
+  enum Side { zMin, zMax, xMin, xMax, yMin, yMax, none };
 
-  /// Returns the side of the cell in which resides the point (x,y,z) (new cell geometry, 
+  /// Returns the side of the cell in which resides the point (x,y,z) (new cell geometry,
   /// i.e. with I-beam profiles).
   Side onWhichBorder(float x, float y, float z) const;
   /// Returns the side of the cell in which resides the point (x,y,z) (old cell geometry).
   Side onWhichBorder_old(float x, float y, float z) const;
-  
-private: 
+
+private:
   int theFirstChannel;
   int theNChannels;
-  
+
   static const float theWidth;
   static const float theHeight;
   float theLength;

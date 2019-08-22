@@ -39,62 +39,47 @@ namespace cms {
 namespace edm {
   class HandleBase {
   public:
-    HandleBase() :
-    product_(nullptr),
-    prov_(nullptr) {}
-    
-    HandleBase(void const* prod, Provenance const* prov) :
-    product_(prod), prov_(prov) {
+    HandleBase() : product_(nullptr), prov_(nullptr) {}
+
+    HandleBase(void const* prod, Provenance const* prov) : product_(prod), prov_(prov) {
       assert(prod);
       assert(prov);
     }
-    
+
     ~HandleBase() {}
-    
+
     void clear() {
       product_ = nullptr;
       prov_ = nullptr;
       whyFailedFactory_.reset();
     }
-    
-    
+
     void swap(HandleBase& other) {
       using std::swap;
       swap(product_, other.product_);
       std::swap(prov_, other.prov_);
       swap(whyFailedFactory_, other.whyFailedFactory_);
     }
-    
+
     HandleBase& operator=(HandleBase const& rhs) {
       HandleBase temp(rhs);
       this->swap(temp);
       return *this;
     }
-    
-    bool isValid() const {
-      return product_ && prov_;
-    }
-    
-    bool failedToGet() const {
-      return bool(whyFailedFactory_);
-    }
 
-    
-    Provenance const* provenance() const {
-      return prov_;
-    }
-    
+    bool isValid() const { return product_ && prov_; }
+
+    bool failedToGet() const { return bool(whyFailedFactory_); }
+
+    Provenance const* provenance() const { return prov_; }
+
     ProductID id() const;
-    
+
     HandleBase(HandleBase const&) = default;
-    
 
     ///Used when the attempt to get the data failed
-    HandleBase(std::shared_ptr<HandleExceptionFactory>&& iWhyFailed) :
-    product_(),
-    prov_(nullptr),
-    whyFailedFactory_(iWhyFailed) {}
-    
+    HandleBase(std::shared_ptr<HandleExceptionFactory>&& iWhyFailed)
+        : product_(), prov_(nullptr), whyFailedFactory_(iWhyFailed) {}
 
     HandleBase& operator=(HandleBase&& rhs) {
       product_ = rhs.product_;
@@ -104,25 +89,19 @@ namespace edm {
     }
 
     std::shared_ptr<cms::Exception> whyFailed() const {
-      if(whyFailedFactory_.get()) {
+      if (whyFailedFactory_.get()) {
         return whyFailedFactory_->make();
       }
       return std::shared_ptr<cms::Exception>();
     }
-    
-    std::shared_ptr<HandleExceptionFactory> const&
-    whyFailedFactory() const { return whyFailedFactory_;}
 
-    explicit operator bool () const {
-      return isValid();
-    }
-    
-    bool operator!() const {
-      return not isValid();
-    }
+    std::shared_ptr<HandleExceptionFactory> const& whyFailedFactory() const { return whyFailedFactory_; }
+
+    explicit operator bool() const { return isValid(); }
+
+    bool operator!() const { return not isValid(); }
 
   protected:
-
     void const* productStorage() const;
 
   private:
@@ -132,11 +111,7 @@ namespace edm {
   };
 
   // Free swap function
-  inline
-  void
-  swap(HandleBase& a, HandleBase& b) {
-    a.swap(b);
-  }
-}
+  inline void swap(HandleBase& a, HandleBase& b) { a.swap(b); }
+}  // namespace edm
 
 #endif

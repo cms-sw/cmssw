@@ -21,8 +21,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-
-
 #include <vector>
 
 class DetLayer;
@@ -30,71 +28,63 @@ class GeomDet;
 class TrajectoryMeasurement;
 
 class MTDDetLayerMeasurements {
- public:
-  typedef std::vector<TrajectoryMeasurement>          MeasurementContainer;
-  typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
+public:
+  typedef std::vector<TrajectoryMeasurement> MeasurementContainer;
+  typedef std::pair<const GeomDet*, TrajectoryStateOnSurface> DetWithState;
   typedef std::vector<GenericTransientTrackingRecHit::RecHitPointer> MTDRecHitContainer;
 
-  MTDDetLayerMeasurements(edm::InputTag mtdlabel,
-			  edm::ConsumesCollector& iC);
-  
+  MTDDetLayerMeasurements(edm::InputTag mtdlabel, edm::ConsumesCollector& iC);
+
   virtual ~MTDDetLayerMeasurements();
-  
+
   // for a given det and state.  Not clear when the fastMeasurements below
   //  should be used, since it isn't passed a GeomDet
-  MeasurementContainer
-    measurements( const DetLayer* layer,
-                  const GeomDet * det,
-                  const TrajectoryStateOnSurface& stateOnDet,
-                  const MeasurementEstimator& est,
-                  const edm::Event& iEvent);
+  MeasurementContainer measurements(const DetLayer* layer,
+                                    const GeomDet* det,
+                                    const TrajectoryStateOnSurface& stateOnDet,
+                                    const MeasurementEstimator& est,
+                                    const edm::Event& iEvent);
 
   /// returns TMeasurements in a DetLayer compatible with the TSOS.
-  MeasurementContainer
-    measurements( const DetLayer* layer,
-		  const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop,
-		  const MeasurementEstimator& est,
-		  const edm::Event& iEvent);
+  MeasurementContainer measurements(const DetLayer* layer,
+                                    const TrajectoryStateOnSurface& startingState,
+                                    const Propagator& prop,
+                                    const MeasurementEstimator& est,
+                                    const edm::Event& iEvent);
 
   /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
-  MeasurementContainer
-    fastMeasurements( const DetLayer* layer,
-		      const TrajectoryStateOnSurface& theStateOnDet,
-		      const TrajectoryStateOnSurface& startingState,
-		      const Propagator& prop,
-		      const MeasurementEstimator& est,
-		      const edm::Event& iEvent);
+  MeasurementContainer fastMeasurements(const DetLayer* layer,
+                                        const TrajectoryStateOnSurface& theStateOnDet,
+                                        const TrajectoryStateOnSurface& startingState,
+                                        const Propagator& prop,
+                                        const MeasurementEstimator& est,
+                                        const edm::Event& iEvent);
 
   /// returns TMeasurements in a DetLayer compatible with the TSOS.
-  MeasurementContainer
-    measurements( const DetLayer* layer,
-		  const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop,
-		  const MeasurementEstimator& est);
+  MeasurementContainer measurements(const DetLayer* layer,
+                                    const TrajectoryStateOnSurface& startingState,
+                                    const Propagator& prop,
+                                    const MeasurementEstimator& est);
 
   /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
-  MeasurementContainer
-    fastMeasurements( const DetLayer* layer,
-		      const TrajectoryStateOnSurface& theStateOnDet,
-		      const TrajectoryStateOnSurface& startingState,
-		      const Propagator& prop,
-		      const MeasurementEstimator& est);
+  MeasurementContainer fastMeasurements(const DetLayer* layer,
+                                        const TrajectoryStateOnSurface& theStateOnDet,
+                                        const TrajectoryStateOnSurface& startingState,
+                                        const Propagator& prop,
+                                        const MeasurementEstimator& est);
 
-  std::vector<TrajectoryMeasurementGroup>
-    groupedMeasurements( const DetLayer* layer,
-                  const TrajectoryStateOnSurface& startingState,
-                  const Propagator& prop,
-                  const MeasurementEstimator& est,
-                  const edm::Event& iEvent);
+  std::vector<TrajectoryMeasurementGroup> groupedMeasurements(const DetLayer* layer,
+                                                              const TrajectoryStateOnSurface& startingState,
+                                                              const Propagator& prop,
+                                                              const MeasurementEstimator& est,
+                                                              const edm::Event& iEvent);
 
-  std::vector<TrajectoryMeasurementGroup>
-    groupedMeasurements( const DetLayer* layer,
-                  const TrajectoryStateOnSurface& startingState,
-                  const Propagator& prop,
-                  const MeasurementEstimator& est);
- 
-  void setEvent(const edm::Event &);  
+  std::vector<TrajectoryMeasurementGroup> groupedMeasurements(const DetLayer* layer,
+                                                              const TrajectoryStateOnSurface& startingState,
+                                                              const Propagator& prop,
+                                                              const MeasurementEstimator& est);
+
+  void setEvent(const edm::Event&);
 
   /// returns the rechits which are on the layer
   MTDRecHitContainer recHits(const DetLayer* layer, const edm::Event& iEvent);
@@ -102,18 +92,15 @@ class MTDDetLayerMeasurements {
   /// returns the rechits which are on the layer
   MTDRecHitContainer recHits(const DetLayer* layer);
 
-
- private:
-
+private:
   /// obtain TrackingRecHits from a DetLayer
   MTDRecHitContainer recHits(const GeomDet*, const edm::Event& iEvent);
 
   /// check that the event is set, and throw otherwise
   void checkEvent() const;
 
-
   edm::EDGetTokenT<MTDTrackingRecHit> mtdToken_;
-  
+
   // caches that should get filled once per event
   edm::Handle<edmNew::DetSetVector<MTDTrackingRecHit>> theMTDRecHits;
 
@@ -125,4 +112,3 @@ class MTDDetLayerMeasurements {
   const edm::Event* theEvent;
 };
 #endif
-

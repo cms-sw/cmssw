@@ -11,16 +11,13 @@
 /// \date August 2008
 ///
 /// Will store four Et sums of 3 bits each
-/// 
-
+///
 
 class L1GctHFBitCounts {
+public:
+  static const unsigned N_SUMS = 4;
 
- public:
-  static const unsigned N_SUMS=4;
-
- public:
-
+public:
   /// default constructor (for vector initialisation etc.)
   L1GctHFBitCounts();
 
@@ -28,30 +25,29 @@ class L1GctHFBitCounts {
   ~L1GctHFBitCounts();
 
   /// named ctor for unpacker
-  /// note this expects a 32 bit word that also contains the 
+  /// note this expects a 32 bit word that also contains the
   /// HF ring Et sums, which are ignored
   static L1GctHFBitCounts fromConcHFBitCounts(const uint16_t capBlock,
-					      const uint16_t capIndex,
-					      const int16_t bx,
-					      const uint32_t data);
-  
+                                              const uint16_t capIndex,
+                                              const int16_t bx,
+                                              const uint32_t data);
+
   /// named ctor for GCT emulator
   static L1GctHFBitCounts fromGctEmulator(const int16_t bx,
-					  const uint16_t bitCountPosEtaRing1,
-					  const uint16_t bitCountNegEtaRing1,
-					  const uint16_t bitCountPosEtaRing2,
-					  const uint16_t bitCountNegEtaRing2);
-  
+                                          const uint16_t bitCountPosEtaRing1,
+                                          const uint16_t bitCountNegEtaRing1,
+                                          const uint16_t bitCountPosEtaRing2,
+                                          const uint16_t bitCountNegEtaRing2);
+
   // optional named ctor for GT if required
   // arguments to be defined
   // static L1GctHFBitCounts fromGtPsb()
-  
-  
+
   // getters
 
   // get number of ring sums
   static unsigned nCounts() { return N_SUMS; }
-  
+
   /// get GCT unpacker capture block
   uint16_t capBlock() const { return capBlock_; }
 
@@ -66,7 +62,7 @@ class L1GctHFBitCounts {
 
   /// the raw data
   uint16_t raw() const { return data_; }
-  
+
   /// get a bit count
   ///  index : sum
   ///    0   :  Ring 1 Positive Rapidity HF bit count
@@ -75,9 +71,8 @@ class L1GctHFBitCounts {
   ///    3   :  Ring 2 Negative Rapidity HF bit count
   uint16_t bitCount(unsigned const i) const;
 
-
   // setters
-  
+
   /// set cap block
   void setCapBlock(uint16_t capBlock) { capBlock_ = capBlock; }
 
@@ -93,17 +88,15 @@ class L1GctHFBitCounts {
   /// set the raw data
   void setData(uint32_t data) { data_ = data; }
 
-
   /// operators
 
   /// equality operator
   bool operator==(const L1GctHFBitCounts& c) const;
-  
+
   /// inequality operator
   bool operator!=(const L1GctHFBitCounts& c) const { return !(*this == c); }
- 
- private:
 
+private:
   // source of the data
   uint16_t capBlock_;
   uint16_t capIndex_;
@@ -111,8 +104,7 @@ class L1GctHFBitCounts {
 
   // the captured data
   uint16_t data_;
-
- };
+};
 
 std::ostream& operator<<(std::ostream& s, const L1GctHFBitCounts& cand);
 

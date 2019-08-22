@@ -29,16 +29,13 @@ class ExternalTemplate;
 
 namespace l1t {
 
-class L1Candidate;
+  class L1Candidate;
 
-class GlobalBoard;
+  class GlobalBoard;
 
-// class declaration
-class ExternalCondition : public ConditionEvaluation
-{
-
-public:
-
+  // class declaration
+  class ExternalCondition : public ConditionEvaluation {
+  public:
     /// constructors
     ///     default
     ExternalCondition();
@@ -55,44 +52,35 @@ public:
     // assign operator
     ExternalCondition& operator=(const ExternalCondition&);
 
-public:
-
+  public:
     /// the core function to check if the condition matches
     const bool evaluateCondition(const int bxEval) const override;
 
     /// print condition
-     void print(std::ostream& myCout) const override;
+    void print(std::ostream& myCout) const override;
 
-public:
-
+  public:
     ///   get / set the pointer to a L1GtCondition
-    inline const ExternalTemplate* gtExternalTemplate() const {
-        return m_gtExternalTemplate;
-    }
+    inline const ExternalTemplate* gtExternalTemplate() const { return m_gtExternalTemplate; }
 
     void setGtExternalTemplate(const ExternalTemplate*);
 
     ///   get / set the pointer to uGt GlobalBoard
-    inline const GlobalBoard* getuGtB() const {
-        return m_uGtB;
-    }
+    inline const GlobalBoard* getuGtB() const { return m_uGtB; }
 
     void setuGtB(const GlobalBoard*);
 
-private:
-
+  private:
     /// copy function for copy constructor and operator=
     void copy(const ExternalCondition& cp);
 
-private:
-
+  private:
     /// pointer to a ExternalTemplate
     const ExternalTemplate* m_gtExternalTemplate;
 
     /// pointer to uGt GlobalBoard, to be able to get the trigger objects
     const GlobalBoard* m_uGtB;
+  };
 
-};
-
-}
+}  // namespace l1t
 #endif

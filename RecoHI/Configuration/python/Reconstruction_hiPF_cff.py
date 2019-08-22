@@ -80,7 +80,6 @@ particleFlowBlock.elementImporters = cms.VPSet(
 
 particleFlowTmp.postMuonCleaning = cms.bool(False)
 particleFlowTmp.vertexCollection = cms.InputTag("hiSelectedVertex")
-particleFlowTmp.usePFElectrons = cms.bool(True)
 particleFlowTmp.muons = cms.InputTag("hiMuons1stStep")
 particleFlowTmp.usePFConversions = cms.bool(False)
 

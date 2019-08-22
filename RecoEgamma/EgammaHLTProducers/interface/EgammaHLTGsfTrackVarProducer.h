@@ -1,7 +1,6 @@
 #ifndef RECOEGAMMA_EGAMMAHLTPRODUCERS_EGAMMAHLTGSFTRACKVARPRODUCER
 #define RECOEGAMMA_EGAMMAHLTPRODUCERS_EGAMMAHLTGSFTRACKVARPRODUCER
 
-
 // system include files
 #include <memory>
 
@@ -39,43 +38,43 @@ namespace edm {
 }
 
 class EgammaHLTGsfTrackVarProducer : public edm::stream::EDProducer<> {
- private:
+private:
   class TrackExtrapolator {
     unsigned long long cacheIDTDGeom_;
     unsigned long long cacheIDMagField_;
-    
+
     edm::ESHandle<MagneticField> magField_;
     edm::ESHandle<TrackerGeometry> trackerHandle_;
-    
-    const MultiTrajectoryStateTransform * mtsTransform_; //we own it
-    
+
+    const MultiTrajectoryStateTransform* mtsTransform_;  //we own it
+
   public:
-  TrackExtrapolator():cacheIDTDGeom_(0),cacheIDMagField_(0),mtsTransform_(nullptr){}
+    TrackExtrapolator() : cacheIDTDGeom_(0), cacheIDMagField_(0), mtsTransform_(nullptr) {}
     TrackExtrapolator(const TrackExtrapolator& rhs);
-    ~TrackExtrapolator(){delete mtsTransform_;}
+    ~TrackExtrapolator() { delete mtsTransform_; }
     TrackExtrapolator* operator=(const TrackExtrapolator& rhs);
-      
+
     void setup(const edm::EventSetup& iSetup);
-    
-    GlobalPoint extrapolateTrackPosToPoint(const reco::GsfTrack& gsfTrack,const GlobalPoint& pointToExtrapTo);
-    GlobalVector extrapolateTrackMomToPoint(const reco::GsfTrack& gsfTrack,const GlobalPoint& pointToExtrapTo);
-    
-    edm::ESHandle<TrackerGeometry> trackerGeomHandle()const{return trackerHandle_;}
-    const MultiTrajectoryStateTransform * mtsTransform()const{return mtsTransform_;}
+
+    GlobalPoint extrapolateTrackPosToPoint(const reco::GsfTrack& gsfTrack, const GlobalPoint& pointToExtrapTo);
+    GlobalVector extrapolateTrackMomToPoint(const reco::GsfTrack& gsfTrack, const GlobalPoint& pointToExtrapTo);
+
+    edm::ESHandle<TrackerGeometry> trackerGeomHandle() const { return trackerHandle_; }
+    const MultiTrajectoryStateTransform* mtsTransform() const { return mtsTransform_; }
   };
-  
- public:
+
+public:
   explicit EgammaHLTGsfTrackVarProducer(const edm::ParameterSet&);
   ~EgammaHLTGsfTrackVarProducer() override;
-  void produce(edm::Event&, const edm::EventSetup&) override; 
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandTag_;
   const edm::EDGetTokenT<reco::ElectronCollection> inputCollectionTag1_;
   const edm::EDGetTokenT<reco::GsfTrackCollection> inputCollectionTag2_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
-  
+
   TrackExtrapolator trackExtrapolator_;
   const int upperTrackNrToRemoveCut_;
   const int lowerTrackNrToRemoveCut_;

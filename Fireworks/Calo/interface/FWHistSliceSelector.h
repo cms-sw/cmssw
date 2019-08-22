@@ -4,23 +4,21 @@
 #include "Fireworks/Calo/src/FWFromSliceSelector.h"
 class TH2F;
 
-class FWHistSliceSelector : public FWFromSliceSelector
-{
+class FWHistSliceSelector : public FWFromSliceSelector {
 public:
-   FWHistSliceSelector(TH2F* h, const FWEventItem* item);
-    ~FWHistSliceSelector() override;
+  FWHistSliceSelector(TH2F* h, const FWEventItem* item);
+  ~FWHistSliceSelector() override;
 
-   void doSelect(const TEveCaloData::CellId_t&) override;
-   void doUnselect(const TEveCaloData::CellId_t&) override;
+  void doSelect(const TEveCaloData::CellId_t&) override;
+  void doUnselect(const TEveCaloData::CellId_t&) override;
 
-   virtual bool aggregatePhiCells() const { return true; }
+  virtual bool aggregatePhiCells() const { return true; }
 
-protected: 
-   virtual void getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const = 0;
-   bool matchCell(const TEveCaloData::CellId_t& iCell, int idx) const;
+protected:
+  virtual void getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const = 0;
+  bool matchCell(const TEveCaloData::CellId_t& iCell, int idx) const;
 
-   TH2F* m_hist;
+  TH2F* m_hist;
 };
-
 
 #endif

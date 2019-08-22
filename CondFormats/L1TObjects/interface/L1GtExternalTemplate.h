@@ -36,45 +36,38 @@
 // forward declarations
 
 // class declaration
-class L1GtExternalTemplate : public L1GtCondition
-{
+class L1GtExternalTemplate : public L1GtCondition {
+public:
+  // constructor
+  L1GtExternalTemplate();
+
+  // constructor
+  L1GtExternalTemplate(const std::string&);
+
+  // constructor
+  L1GtExternalTemplate(const std::string&, const L1GtConditionType&);
+
+  // copy constructor
+  L1GtExternalTemplate(const L1GtExternalTemplate&);
+
+  // destructor
+  ~L1GtExternalTemplate() override;
+
+  // assign operator
+  L1GtExternalTemplate& operator=(const L1GtExternalTemplate&);
 
 public:
+  /// print the condition
+  void print(std::ostream& myCout) const override;
 
-    // constructor
-    L1GtExternalTemplate();
-
-    // constructor
-    L1GtExternalTemplate(const std::string&);
-
-    // constructor
-    L1GtExternalTemplate(const std::string&, const L1GtConditionType&);
-
-    // copy constructor
-    L1GtExternalTemplate(const L1GtExternalTemplate&);
-
-    // destructor
-    ~L1GtExternalTemplate() override;
-
-    // assign operator
-    L1GtExternalTemplate& operator=(const L1GtExternalTemplate&);
-
-public:
-
-    /// print the condition
-    void print(std::ostream& myCout) const override;
-
-    /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const L1GtExternalTemplate&);
-
+  /// output stream operator
+  friend std::ostream& operator<<(std::ostream&, const L1GtExternalTemplate&);
 
 private:
+  /// copy function for copy constructor and operator=
+  void copy(const L1GtExternalTemplate& cp);
 
-    /// copy function for copy constructor and operator=
-    void copy(const L1GtExternalTemplate& cp);
-
-
-    COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

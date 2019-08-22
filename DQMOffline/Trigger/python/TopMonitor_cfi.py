@@ -111,6 +111,7 @@ hltTOPmonitoring.vertices  = cms.InputTag("offlinePrimaryVertices")
 # Marina
 hltTOPmonitoring.btagalgo  = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
 hltTOPmonitoring.workingpoint     = cms.double(0.8484) # Medium
+hltTOPmonitoring.bbtagalgo = cms.InputTag("pfDeepCSVJetTags:probbb")
 
 hltTOPmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 hltTOPmonitoring.leptJetDeltaRmin = cms.double(0.4)

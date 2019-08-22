@@ -7,7 +7,6 @@
 ///    Dummy producer for L1T uGT Trigger Menu
 ///
 
-
 // system include files
 #include <memory>
 #include <iostream>
@@ -52,9 +51,7 @@ public:
   ReturnType produce(const L1TUtmTriggerMenuRcd&);
 
 private:
-
   std::string m_L1TriggerMenuFile;
-
 };
 
 //
@@ -68,13 +65,11 @@ private:
 //
 // constructors and destructor
 //
-L1TUtmTriggerMenuESProducer::L1TUtmTriggerMenuESProducer(const edm::ParameterSet& conf)
-{
+L1TUtmTriggerMenuESProducer::L1TUtmTriggerMenuESProducer(const edm::ParameterSet& conf) {
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this);
   //setWhatProduced(this, conf.getParameter<std::string>("label"));
-
 
   // def.xml file
   std::string L1TriggerMenuFile = conf.getParameter<std::string>("L1TriggerMenuFile");
@@ -82,32 +77,22 @@ L1TUtmTriggerMenuESProducer::L1TUtmTriggerMenuESProducer(const edm::ParameterSet
   edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/" + L1TriggerMenuFile);
 
   m_L1TriggerMenuFile = f1.fullPath();
-
-  
 }
 
-
-L1TUtmTriggerMenuESProducer::~L1TUtmTriggerMenuESProducer()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+L1TUtmTriggerMenuESProducer::~L1TUtmTriggerMenuESProducer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-L1TUtmTriggerMenuESProducer::ReturnType
-L1TUtmTriggerMenuESProducer::produce(const L1TUtmTriggerMenuRcd& iRecord)
-{
-  
-
-  //const L1TUtmTriggerMenu * cmenu = reinterpret_cast<const L1TUtmTriggerMenu *>(tmeventsetup::getTriggerMenu("/afs/cern.ch/user/t/tmatsush/public/tmGui/test-menu.xml"));  
-  const L1TUtmTriggerMenu * cmenu = reinterpret_cast<const L1TUtmTriggerMenu *>(tmeventsetup::getTriggerMenu(m_L1TriggerMenuFile));  
+L1TUtmTriggerMenuESProducer::ReturnType L1TUtmTriggerMenuESProducer::produce(const L1TUtmTriggerMenuRcd& iRecord) {
+  //const L1TUtmTriggerMenu * cmenu = reinterpret_cast<const L1TUtmTriggerMenu *>(tmeventsetup::getTriggerMenu("/afs/cern.ch/user/t/tmatsush/public/tmGui/test-menu.xml"));
+  const L1TUtmTriggerMenu* cmenu =
+      reinterpret_cast<const L1TUtmTriggerMenu*>(tmeventsetup::getTriggerMenu(m_L1TriggerMenuFile));
   return ReturnType(cmenu);
 }
 

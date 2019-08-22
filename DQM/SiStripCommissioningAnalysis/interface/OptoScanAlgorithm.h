@@ -16,36 +16,29 @@ class TH1;
    @brief Histogram-based analysis for opto bias/gain scan.
 */
 class OptoScanAlgorithm : public CommissioningAlgorithm {
-  
- public:
-  
-  OptoScanAlgorithm( const edm::ParameterSet & pset, OptoScanAnalysis* const );
-  
-  ~OptoScanAlgorithm() override {;}
+public:
+  OptoScanAlgorithm(const edm::ParameterSet& pset, OptoScanAnalysis* const);
+
+  ~OptoScanAlgorithm() override { ; }
 
   /** Histogram pointer and title. */
-  Histo histo( const uint16_t& gain, 
-	       const uint16_t& digital_level ) const;
-  
- private:
+  Histo histo(const uint16_t& gain, const uint16_t& digital_level) const;
 
-  OptoScanAlgorithm() {;}
-  
+private:
+  OptoScanAlgorithm() { ; }
+
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& ) override;
+  void extract(const std::vector<TH1*>&) override;
 
   /** Performs histogram anaysis. */
   void analyse() override;
 
- private:
-  
+private:
   /** Pointers and titles for histograms. */
-  std::vector< std::vector<Histo> > histos_;
+  std::vector<std::vector<Histo> > histos_;
 
   /** Analysis parameters */
   float targetGain_;
-  
 };
 
-#endif // DQM_SiStripCommissioningAnalysis_OptoScanAlgorithm_H
-
+#endif  // DQM_SiStripCommissioningAnalysis_OptoScanAlgorithm_H

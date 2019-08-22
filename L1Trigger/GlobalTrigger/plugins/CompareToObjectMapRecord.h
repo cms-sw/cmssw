@@ -25,7 +25,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 class CompareToObjectMapRecord : public edm::EDAnalyzer {
-
 public:
   explicit CompareToObjectMapRecord(const edm::ParameterSet &pset);
   ~CompareToObjectMapRecord() override;

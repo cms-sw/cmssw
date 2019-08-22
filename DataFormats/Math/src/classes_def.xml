@@ -4,7 +4,7 @@
   <class pattern="ROOT::Math::MatRepStd<*>" />
   <class pattern="ROOT::Math::RowOffsets<*>" />
   <class pattern="ROOT::Math::SVector<*>" />
-  <class pattern="std::vector<ROOT::Math::*>" />
+  <class pattern="std::vector<ROOT::Math::SMatrix<*>>" />
   <class pattern="edm::Wrapper<*>" />
   <class pattern="edm::RefVector<*>" />
   <class pattern="edm::ValueMap<*>" />

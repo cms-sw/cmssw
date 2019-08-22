@@ -16,8 +16,8 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 
-namespace pos{
-/*!  \ingroup TrimObjects "Trim Objects"
+namespace pos {
+  /*!  \ingroup TrimObjects "Trim Objects"
 *    \ingroup ConfigurationObjects "Configuration Objects"
 *    
 *  @{
@@ -28,50 +28,41 @@ namespace pos{
 *   A longer explanation will be placed here later
 *
 */
-  class PixelTrimAllPixels: public PixelTrimBase {
-
+  class PixelTrimAllPixels : public PixelTrimBase {
   public:
-
     PixelTrimAllPixels(std::string filename);
-    PixelTrimAllPixels(std::vector<std::vector<std::string> > &tableMat);  
+    PixelTrimAllPixels(std::vector<std::vector<std::string> > &tableMat);
 
     //Build the commands needed to configure ROCs
     //on control link
 
-    void generateConfiguration(PixelFECConfigInterface* pixelFEC,
-			       PixelNameTranslation* trans,
-			       const PixelMaskBase& pixelMask) const override;
+    void generateConfiguration(PixelFECConfigInterface *pixelFEC,
+                               PixelNameTranslation *trans,
+                               const PixelMaskBase &pixelMask) const override;
 
     void writeBinary(std::string filename) const override;
 
-    void 	 writeASCII(std::string filename) const override;
-    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const override {;}
-    void writeXMLHeader(pos::PixelConfigKey key, 
-				int version, 
-				std::string path, 
-				std::ofstream *out,
-				std::ofstream *out1 = nullptr,
-				std::ofstream *out2 = nullptr
-				) const override ;
-    void writeXML( std::ofstream *out,                                                              
-			   std::ofstream *out1 = nullptr ,
-			   std::ofstream *out2 = nullptr ) const override ;
-    void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 =nullptr
-				  ) const override ;
+    void writeASCII(std::string filename) const override;
+    void writeXML(pos::PixelConfigKey key, int version, std::string path) const override { ; }
+    void writeXMLHeader(pos::PixelConfigKey key,
+                        int version,
+                        std::string path,
+                        std::ofstream *out,
+                        std::ofstream *out1 = nullptr,
+                        std::ofstream *out2 = nullptr) const override;
+    void writeXML(std::ofstream *out, std::ofstream *out1 = nullptr, std::ofstream *out2 = nullptr) const override;
+    void writeXMLTrailer(std::ofstream *out,
+                         std::ofstream *out1 = nullptr,
+                         std::ofstream *out2 = nullptr) const override;
 
     PixelROCTrimBits getTrimBits(int ROCId) const override;
 
-    PixelROCTrimBits* getTrimBits(PixelROCName name) override;
-
+    PixelROCTrimBits *getTrimBits(PixelROCName name) override;
 
   private:
-
     std::vector<std::string> rocname_;
     std::vector<PixelROCTrimBits> trimbits_;
-
   };
-}
+}  // namespace pos
 /* @} */
 #endif

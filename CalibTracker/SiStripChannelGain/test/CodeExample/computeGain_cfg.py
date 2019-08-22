@@ -12,7 +12,6 @@ process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.source = cms.Source("EmptyIOVSource",
     timetype   = cms.string('runnumber'),

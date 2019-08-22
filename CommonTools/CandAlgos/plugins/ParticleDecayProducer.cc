@@ -13,11 +13,11 @@
 #include <vector>
 
 class ParticleDecayProducer : public edm::EDProducer {
- public:
+public:
   explicit ParticleDecayProducer(const edm::ParameterSet&);
   ~ParticleDecayProducer() override;
 
- private:
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   edm::EDGetTokenT<reco::CandidateCollection> genCandidatesToken_;
   int motherPdgId_;
@@ -37,25 +37,24 @@ using namespace std;
 using namespace reco;
 
 // constructors
-ParticleDecayProducer::ParticleDecayProducer(const edm::ParameterSet& iConfig) :
-  genCandidatesToken_(consumes<CandidateCollection>(iConfig.getParameter<InputTag>("src"))),
-  motherPdgId_(iConfig.getParameter<int>("motherPdgId")),
-  daughtersPdgId_(iConfig.getParameter<vector<int> >("daughtersPdgId")),
-  decayChain_(iConfig.getParameter<std::string>("decayChain")) {
+ParticleDecayProducer::ParticleDecayProducer(const edm::ParameterSet& iConfig)
+    : genCandidatesToken_(consumes<CandidateCollection>(iConfig.getParameter<InputTag>("src"))),
+      motherPdgId_(iConfig.getParameter<int>("motherPdgId")),
+      daughtersPdgId_(iConfig.getParameter<vector<int> >("daughtersPdgId")),
+      decayChain_(iConfig.getParameter<std::string>("decayChain")) {
   string alias;
-  produces<CandidateCollection >(alias = decayChain_+ "Mother").setBranchAlias(alias);
-  for (unsigned int j = 0; j < daughtersPdgId_.size(); ++ j) {
-    ostringstream index,collection;
+  produces<CandidateCollection>(alias = decayChain_ + "Mother").setBranchAlias(alias);
+  for (unsigned int j = 0; j < daughtersPdgId_.size(); ++j) {
+    ostringstream index, collection;
     index << j;
     collection << decayChain_ << "Lepton" << index.str();
     valias.push_back(collection.str());
-    produces<CandidateCollection >(valias.at(j)).setBranchAlias( valias.at(j) );
+    produces<CandidateCollection>(valias.at(j)).setBranchAlias(valias.at(j));
   }
 }
 
 // destructor
-ParticleDecayProducer::~ParticleDecayProducer() {
-}
+ParticleDecayProducer::~ParticleDecayProducer() {}
 
 void ParticleDecayProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get gen particle candidates
@@ -65,16 +64,17 @@ void ParticleDecayProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   unique_ptr<CandidateCollection> mothercands(new CandidateCollection);
   unique_ptr<CandidateCollection> daughterscands(new CandidateCollection);
   size_t daughtersize = daughtersPdgId_.size();
-  for( CandidateCollection::const_iterator p = genCandidatesCollection->begin();p != genCandidatesCollection->end(); ++ p ) {
-    if (p->pdgId() == motherPdgId_  && p->status() == 3){
+  for (CandidateCollection::const_iterator p = genCandidatesCollection->begin(); p != genCandidatesCollection->end();
+       ++p) {
+    if (p->pdgId() == motherPdgId_ && p->status() == 3) {
       mothercands->push_back(p->clone());
       size_t ndau = p->numberOfDaughters();
-      for(size_t i = 0; i < ndau; ++ i){
-	for (size_t j = 0; j < daughtersize; ++j){
-	  if (p->daughter(i)->pdgId()==daughtersPdgId_[j] && p->daughter(i)->status()==3){
-	    daughterscands->push_back(p->daughter(i)->clone());
-	  }
-	}
+      for (size_t i = 0; i < ndau; ++i) {
+        for (size_t j = 0; j < daughtersize; ++j) {
+          if (p->daughter(i)->pdgId() == daughtersPdgId_[j] && p->daughter(i)->status() == 3) {
+            daughterscands->push_back(p->daughter(i)->clone());
+          }
+        }
       }
     }
   }
@@ -82,13 +82,13 @@ void ParticleDecayProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.put(std::move(mothercands), decayChain_ + "Mother");
   daughterscands->sort(GreaterByPt<reco::Candidate>());
 
-  for (unsigned int row = 0; row < daughtersize; ++ row ){
+  for (unsigned int row = 0; row < daughtersize; ++row) {
     unique_ptr<CandidateCollection> leptonscands_(new CandidateCollection);
-    leptonscands_->push_back((daughterscands->begin()+row)->clone());
+    leptonscands_->push_back((daughterscands->begin() + row)->clone());
     iEvent.put(std::move(leptonscands_), valias.at(row));
   }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( ParticleDecayProducer );
+DEFINE_FWK_MODULE(ParticleDecayProducer);

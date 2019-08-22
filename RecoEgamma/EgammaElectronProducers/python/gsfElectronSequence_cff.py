@@ -6,7 +6,10 @@ import FWCore.ParameterSet.Config as cms
 # imported in the reco sequences since the integration with pflow.
 #==============================================================================
 
-from RecoEgamma.EgammaElectronProducers.gsfElectronModules_cff import *
+from RecoEgamma.EgammaElectronProducers.ecalDrivenGsfElectronCores_cfi import ecalDrivenGsfElectronCores
+from RecoEgamma.EgammaElectronProducers.gsfElectronCores_cfi import gsfElectronCores
+from RecoEgamma.EgammaElectronProducers.ecalDrivenGsfElectronCoresFromMultiCl_cff import ecalDrivenGsfElectronCoresFromMultiCl
+from RecoEgamma.EgammaElectronProducers.gsfElectrons_cfi import *
 gsfElectronTask = cms.Task(ecalDrivenGsfElectronCores,ecalDrivenGsfElectrons,gsfElectronCores,gsfElectrons)
 gsfElectronSequence = cms.Sequence(gsfElectronTask)
 
@@ -17,7 +20,6 @@ _gsfEcalDrivenElectronTaskFromMultiCl = gsfEcalDrivenElectronTask.copy()
 _gsfEcalDrivenElectronTaskFromMultiCl.add(cms.Task(ecalDrivenGsfElectronCoresFromMultiCl,ecalDrivenGsfElectronsFromMultiCl))
 _gsfEcalDrivenElectronSequenceFromMultiCl = cms.Sequence(_gsfEcalDrivenElectronTaskFromMultiCl)
 
-#gsfElectronMergingSequence = cms.Sequence(gsfElectronCores*gsfElectrons)
 
 from RecoEgamma.EgammaElectronProducers.edBasedElectronIso_cff import *
 from RecoEgamma.EgammaElectronProducers.pfBasedElectronIso_cff import *

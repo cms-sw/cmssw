@@ -3,7 +3,7 @@
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/global/EDProducer.h>
-                                                                                             
+
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EDProducer.h>
@@ -19,32 +19,27 @@ namespace edm {
 }
 
 class ESRecHitsMerger : public edm::global::EDProducer<> {
-
 public:
-	ESRecHitsMerger(const edm::ParameterSet& pset);
-	~ESRecHitsMerger() override;
-	void produce(edm::StreamID sid, edm::Event & e, const edm::EventSetup& c) const override;
-	void beginJob(void) override;
-	void endJob(void) override;
-	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  ESRecHitsMerger(const edm::ParameterSet& pset);
+  ~ESRecHitsMerger() override;
+  void produce(edm::StreamID sid, edm::Event& e, const edm::EventSetup& c) const override;
+  void beginJob(void) override;
+  void endJob(void) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-	edm::InputTag EgammaSourceES_;
-   	edm::InputTag MuonsSourceES_ ;
-	edm::InputTag TausSourceES_ ;
-	edm::InputTag JetsSourceES_ ;
-	edm::InputTag RestSourceES_ ;
-	edm::InputTag Pi0SourceES_ ;
-	edm::InputTag EtaSourceES_ ;
-	std::string OutputLabelES_;
+  edm::InputTag EgammaSourceES_;
+  edm::InputTag MuonsSourceES_;
+  edm::InputTag TausSourceES_;
+  edm::InputTag JetsSourceES_;
+  edm::InputTag RestSourceES_;
+  edm::InputTag Pi0SourceES_;
+  edm::InputTag EtaSourceES_;
+  std::string OutputLabelES_;
 
-	std::string InputRecHitES_;
-	
+  std::string InputRecHitES_;
 
-	bool debug_ ;
-
+  bool debug_;
 };
 
 #endif
-
-

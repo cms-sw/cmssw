@@ -5,7 +5,7 @@
 //
 // The elements' positions are calculated by means of a simple
 // linear formula.
-// 
+//
 // G4PVDivision(const G4String& pName,
 //                    G4LogicalVolume* pLogical,
 //                    G4LogicalVolume* pMother,
@@ -41,7 +41,6 @@
 // 13.04.04 - M. Case Initial DDD version.
 // ********************************************************************
 
-
 //! A DDDivision contains the parameterization that Geant4 needs in order to do its divisions.
 /** 
     A DDDivision simply holds the division information for Geant4 or other
@@ -74,52 +73,36 @@ namespace DDI {
   class Division;
 }
 
-std::ostream & operator<<( std::ostream &, const DDDivision &);
+std::ostream &operator<<(std::ostream &, const DDDivision &);
 
-class DDDivision : public DDBase<DDName, std::unique_ptr<DDI::Division> >
-{
- public:      
-  
+class DDDivision : public DDBase<DDName, std::unique_ptr<DDI::Division> > {
+public:
   //! The default constructor provides an uninitialzed reference object.
   DDDivision();
 
   //! Creates a refernce object referring to the appropriate XML specification.
-  DDDivision(const DDName & name);
-  
+  DDDivision(const DDName &name);
+
   //! Registers (creates) a reference object representing a Division
   /** ... Constructor with number of divisions and width
    */
-  DDDivision(const DDName & name,
-             const DDLogicalPart & parent,
-	     DDAxes axis,
-	     int nReplicas,
-	     double width,
-	     double offset );
+  DDDivision(const DDName &name, const DDLogicalPart &parent, DDAxes axis, int nReplicas, double width, double offset);
 
   //! Registers (creates) a reference object representing a Division
   /** ...  Constructor with number of divisions 
    */
-  DDDivision(const DDName & name,
-	     const DDLogicalPart & parent,
-	     DDAxes axis,
-	     int nReplicas,
-	     double offset );
+  DDDivision(const DDName &name, const DDLogicalPart &parent, DDAxes axis, int nReplicas, double offset);
 
-    //! Registers (creates) a reference object representing a Division
+  //! Registers (creates) a reference object representing a Division
   /** ...  Constructor with width
    */
-  DDDivision(const DDName & name,
-             const DDLogicalPart & parent,
-	     DDAxes axis,
-	     double width,
-	     double offset );
-  
+  DDDivision(const DDName &name, const DDLogicalPart &parent, DDAxes axis, double width, double offset);
+
   DDAxes axis() const;
   int nReplicas() const;
   double width() const;
   double offset() const;
-  const DDLogicalPart & parent() const;
-
+  const DDLogicalPart &parent() const;
 };
 
 #endif

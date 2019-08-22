@@ -3,11 +3,11 @@
 //   \class L1MuScale
 //
 //   Description:  A Scale for use in the L1 muon trigger
-//                 
-//                  
-//                
+//
+//
+//
 //   $Date: 2011/05/30 04:59:35 $
-//   $Revision: 1.8 $ 
+//   $Revision: 1.8 $
 //
 //   Original Author :
 //   Hannes Sakulin      HEPHY / Vienna
@@ -36,7 +36,7 @@
 */
 
 class L1MuScale {
- public:
+public:
   L1MuScale() {}
 
   virtual ~L1MuScale() {}
@@ -45,17 +45,17 @@ class L1MuScale {
   virtual float getCenter(unsigned packed) const = 0;
 
   /// get the low edge of bin represented by packed
-  virtual float getLowEdge(unsigned packed) const = 0; 
+  virtual float getLowEdge(unsigned packed) const = 0;
 
   /// get the upper edge of bin represented by packed
   virtual float getHighEdge(unsigned packed) const = 0;
-  
+
   /// get the upper edge of the last bin
   virtual float getScaleMax() const = 0;
 
   /// get the lower edge of the first bin
   virtual float getScaleMin() const = 0;
-  
+
   /// pack a value
   virtual unsigned getPacked(float value) const = 0;
 
@@ -67,15 +67,13 @@ class L1MuScale {
 
   virtual std::string print() const = 0;
 
- private:
-
- COND_SERIALIZABLE;
+private:
+  COND_SERIALIZABLE;
 };
 
 //
 // define default scale implementations
 //
-
 
 /**
  * \class L1MuBinnedScale
@@ -93,7 +91,30 @@ class L1MuScale {
 */
 
 class L1MuBinnedScale : public L1MuScale {
- public:
+public:
+  ///
+  /// constructor
+  ///
+  /// packing is a pointer to a packing object. The L1MuBinnedScale
+  /// takes ownership of the packing object and deletes it in its
+  /// destructor
+  ///
+  L1MuBinnedScale() : m_nbits(0), m_signedPacking(false), m_NBins(0), m_idxoffset(0) {}
+
+  /// NBins=number of bins, Scale[NBins+1]=bin edges, idx_offset=offeset to index (if stored as signed)
+  ///
+  //  L1MuBinnedScale(unsigned int nbits, bool signedPacking, int NBins, const float* Scale, int idx_offset=0)
+  L1MuBinnedScale(
+      unsigned int nbits, bool signedPacking, int NBins, const std::vector<double>& Scale, int idx_offset = 0)
+      : m_nbits(nbits), m_signedPacking(signedPacking) {
+    m_NBins = NBins;
+    m_idxoffset = idx_offset;
+
+    m_Scale.reserve(m_NBins + 1);
+    for (int i = 0; i < m_NBins + 1; i++)
+      //m_Scale[i] = Scale[i];
+      m_Scale.push_back(Scale[i]);
+  };
 
   ///
   /// constructor
@@ -102,90 +123,56 @@ class L1MuBinnedScale : public L1MuScale {
   /// takes ownership of the packing object and deletes it in its
   /// destructor
   ///
-  L1MuBinnedScale():
-    m_nbits( 0 ),
-    m_signedPacking( false ),
-    m_NBins( 0 ),
-    m_idxoffset( 0 )
-      {}
-
-  /// NBins=number of bins, Scale[NBins+1]=bin edges, idx_offset=offeset to index (if stored as signed)
-  ///
-	//  L1MuBinnedScale(unsigned int nbits, bool signedPacking, int NBins, const float* Scale, int idx_offset=0) 
-	L1MuBinnedScale(unsigned int nbits, bool signedPacking, int NBins, const std::vector<double>& Scale, int idx_offset=0) 
-      : m_nbits( nbits ),
-	m_signedPacking( signedPacking )
-  {
-    m_NBins = NBins;
-    m_idxoffset = idx_offset;
-
-    m_Scale.reserve(m_NBins + 1);
-    for (int i=0; i<m_NBins + 1; i++) 
-	//m_Scale[i] = Scale[i];
-	m_Scale.push_back( Scale[i] ) ;
-  };
-
-  ///
-  /// constructor 
-  ///
-  /// packing is a pointer to a packing object. The L1MuBinnedScale
-  /// takes ownership of the packing object and deletes it in its
-  /// destructor
-  ///
-  /// NBins=number of bins, xmin = low edge of first bin, 
+  /// NBins=number of bins, xmin = low edge of first bin,
   /// xmax=high edge of last bin, idx_offset=offeset to index (if stored as signed)
   ///
-  L1MuBinnedScale(unsigned int nbits, bool signedPacking, int NBins, float xmin, float xmax, int idx_offset=0)
-    : m_nbits( nbits ),
-      m_signedPacking( signedPacking )
-  {
+  L1MuBinnedScale(unsigned int nbits, bool signedPacking, int NBins, float xmin, float xmax, int idx_offset = 0)
+      : m_nbits(nbits), m_signedPacking(signedPacking) {
     m_NBins = NBins;
     m_idxoffset = idx_offset;
 
     m_Scale.reserve(m_NBins + 1);
-    for (int i=0; i<m_NBins + 1; i++) 
+    for (int i = 0; i < m_NBins + 1; i++)
       //      m_Scale[i] = xmin + i * (xmax-xmin) / m_NBins;
-      m_Scale.push_back( xmin + i * (xmax-xmin) / m_NBins ) ;
+      m_Scale.push_back(xmin + i * (xmax - xmin) / m_NBins);
   };
 
   /// destructor
-  ~L1MuBinnedScale() override {
-//    delete m_packing;
+  ~L1MuBinnedScale() override{
+      //    delete m_packing;
   };
 
- 
   /// get the center of bin represented by packed
   float getCenter(unsigned packed) const override {
     int idx = get_idx(packed);
-    return (m_Scale[idx] + m_Scale[idx+1] )/ 2.;    
+    return (m_Scale[idx] + m_Scale[idx + 1]) / 2.;
   };
 
   /// get the low edge of bin represented by packed
-  float getLowEdge(unsigned packed) const override{
-    return m_Scale[get_idx(packed)];
-  };
+  float getLowEdge(unsigned packed) const override { return m_Scale[get_idx(packed)]; };
 
   /// get the upper edge of bin represented by packed
-  float getHighEdge(unsigned packed) const override{
-    return m_Scale[get_idx(packed)+1];
-  };
-  
+  float getHighEdge(unsigned packed) const override { return m_Scale[get_idx(packed) + 1]; };
+
   /// pack a value
 
   unsigned getPacked(float value) const override {
-    if (value < m_Scale[0] || value > m_Scale[m_NBins]) 
-      edm::LogWarning("ScaleRangeViolation") << "L1MuBinnedScale::getPacked: value out of scale range: " << value << std::endl;
+    if (value < m_Scale[0] || value > m_Scale[m_NBins])
+      edm::LogWarning("ScaleRangeViolation")
+          << "L1MuBinnedScale::getPacked: value out of scale range: " << value << std::endl;
     int idx = 0;
-    if (value < m_Scale[0]) idx=0;
-    else if (value >= m_Scale[m_NBins]) idx = m_NBins-1;
+    if (value < m_Scale[0])
+      idx = 0;
+    else if (value >= m_Scale[m_NBins])
+      idx = m_NBins - 1;
     else {
-      for (; idx<m_NBins; idx++) 
-        if (value >= m_Scale[idx] && value < m_Scale[idx+1]) break;
+      for (; idx < m_NBins; idx++)
+        if (value >= m_Scale[idx] && value < m_Scale[idx + 1])
+          break;
     }
 
-    return ( m_signedPacking ?
-	     L1MuSignedPackingGeneric::packedFromIdx(idx-m_idxoffset, m_nbits) :
-	     L1MuUnsignedPackingGeneric::packedFromIdx(idx-m_idxoffset, m_nbits) ) ;
+    return (m_signedPacking ? L1MuSignedPackingGeneric::packedFromIdx(idx - m_idxoffset, m_nbits)
+                            : L1MuUnsignedPackingGeneric::packedFromIdx(idx - m_idxoffset, m_nbits));
   };
 
   /// get the upper edge of the last bin
@@ -205,36 +192,34 @@ class L1MuBinnedScale : public L1MuScale {
 
     str << " ind |   low edge |     center |  high edge" << std::endl;
     str << "-------------------------------------------" << std::endl;
-    for(int i=0; i<m_NBins; i++){
+    for (int i = 0; i < m_NBins; i++) {
       unsigned int ipack = getPacked(m_Scale[i]);
-      str << std::setw(4) << ipack << 
-        " | " << std::setw(10) << getLowEdge(ipack) <<
-        " | " << std::setw(10) << getCenter(ipack) <<
-        " | " << std::setw(10) << getHighEdge(ipack) << std::endl;
+      str << std::setw(4) << ipack << " | " << std::setw(10) << getLowEdge(ipack) << " | " << std::setw(10)
+          << getCenter(ipack) << " | " << std::setw(10) << getHighEdge(ipack) << std::endl;
     }
 
     return str.str();
   }
-  
 
- protected:
-  int get_idx (unsigned packed) const {
-     int idxFromPacked = m_signedPacking ?
-	L1MuSignedPackingGeneric::idxFromPacked( packed, m_nbits ) :
-	L1MuUnsignedPackingGeneric::idxFromPacked( packed, m_nbits ) ;
+protected:
+  int get_idx(unsigned packed) const {
+    int idxFromPacked = m_signedPacking ? L1MuSignedPackingGeneric::idxFromPacked(packed, m_nbits)
+                                        : L1MuUnsignedPackingGeneric::idxFromPacked(packed, m_nbits);
     int idx = idxFromPacked + m_idxoffset;
-    if (idx<0) idx=0;
-    if (idx>=m_NBins) idx=m_NBins-1;
+    if (idx < 0)
+      idx = 0;
+    if (idx >= m_NBins)
+      idx = m_NBins - 1;
     return idx;
   }
 
-      unsigned int m_nbits ;
-      bool m_signedPacking ;
+  unsigned int m_nbits;
+  bool m_signedPacking;
   int m_NBins;
   int m_idxoffset;
   std::vector<float> m_Scale;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 /**
@@ -249,91 +234,92 @@ class L1MuBinnedScale : public L1MuScale {
 */
 
 class L1MuSymmetricBinnedScale : public L1MuScale {
- public:
-  
+public:
   ///
-  /// constructor 
+  /// constructor
   ///
   /// packing is a pointer to a packing object. The L1MuSymmetricBinnedScale
   /// takes ownership of the packing object and deletes it in its
   /// destructor
   ///
 
-  L1MuSymmetricBinnedScale() :
-    m_NBins( 0 )
-    {}
+  L1MuSymmetricBinnedScale() : m_NBins(0) {}
 
   /// NBins=number of bins (in one half of the scale), Scale[NBins+1]=bin edges
   ///
-	//  L1MuSymmetricBinnedScale(int nbits, int NBins, const float* Scale) 
-	L1MuSymmetricBinnedScale(int nbits, int NBins, const std::vector<double>& Scale) 
-    : m_packing (L1MuPseudoSignedPacking(nbits)) {
+  //  L1MuSymmetricBinnedScale(int nbits, int NBins, const float* Scale)
+  L1MuSymmetricBinnedScale(int nbits, int NBins, const std::vector<double>& Scale)
+      : m_packing(L1MuPseudoSignedPacking(nbits)) {
     m_NBins = NBins;
     m_Scale.reserve(m_NBins + 1);
-    for (int i=0; i<m_NBins + 1; i++) 
+    for (int i = 0; i < m_NBins + 1; i++)
       //      m_Scale[i] = Scale[i];
-      m_Scale.push_back( Scale[i] ) ;
+      m_Scale.push_back(Scale[i]);
   };
 
   ///
-  /// constructor 
+  /// constructor
   ///
   /// packing is a pointer to a packing object. The L1MuSymmetricBinnedScale
   /// takes ownership of the packing object and deletes it in its
   /// destructor
   ///
-  /// NBins=number of bins, xmin = low edge of first bin (in positive half) 
+  /// NBins=number of bins, xmin = low edge of first bin (in positive half)
   /// xmax=high edge of last bin (in positive half)
   ///
-  L1MuSymmetricBinnedScale(int nbits, int NBins, float xmin, float xmax) 
-    : m_packing (L1MuPseudoSignedPacking(nbits)) {
+  L1MuSymmetricBinnedScale(int nbits, int NBins, float xmin, float xmax) : m_packing(L1MuPseudoSignedPacking(nbits)) {
     m_NBins = NBins;
     m_Scale.reserve(m_NBins + 1);
-    for (int i=0; i<m_NBins + 1; i++) 
+    for (int i = 0; i < m_NBins + 1; i++)
       //      m_Scale[i] = xmin + i * (xmax-xmin) / m_NBins;
-      m_Scale.push_back( xmin + i * (xmax-xmin) / m_NBins ) ;
+      m_Scale.push_back(xmin + i * (xmax - xmin) / m_NBins);
   };
 
   /// destructor
-  ~L1MuSymmetricBinnedScale() override {
-//    delete m_packing;
+  ~L1MuSymmetricBinnedScale() override{
+      //    delete m_packing;
   };
 
   /// get the center of bin represented by packed
   float getCenter(unsigned packed) const override {
-    int absidx = abs ( m_packing.idxFromPacked( packed ) );
-    if (absidx>=m_NBins) absidx=m_NBins-1;
-    float center = (m_Scale[absidx] + m_Scale[absidx+1] )/ 2.;    
-    float fsign = m_packing.signFromPacked( packed ) == 0 ? 1. : -1.;
+    int absidx = abs(m_packing.idxFromPacked(packed));
+    if (absidx >= m_NBins)
+      absidx = m_NBins - 1;
+    float center = (m_Scale[absidx] + m_Scale[absidx + 1]) / 2.;
+    float fsign = m_packing.signFromPacked(packed) == 0 ? 1. : -1.;
     return center * fsign;
   };
 
   /// get the low edge of bin represented by packed
-  float getLowEdge(unsigned packed) const override{ // === edge towards 0 
-    int absidx = abs ( m_packing.idxFromPacked( packed ) );
-    if (absidx>=m_NBins) absidx=m_NBins-1;
-    float low = m_Scale[absidx];    
-    float fsign = m_packing.signFromPacked( packed ) == 0 ? 1. : -1.;
+  float getLowEdge(unsigned packed) const override {  // === edge towards 0
+    int absidx = abs(m_packing.idxFromPacked(packed));
+    if (absidx >= m_NBins)
+      absidx = m_NBins - 1;
+    float low = m_Scale[absidx];
+    float fsign = m_packing.signFromPacked(packed) == 0 ? 1. : -1.;
     return low * fsign;
   };
 
   /// get the upper edge of bin represented by packed
-  float getHighEdge(unsigned packed) const override{
+  float getHighEdge(unsigned packed) const override {
     edm::LogWarning("NotImplemented") << "L1MuSymmetricBinnedScale::getHighEdge not implemented" << std::endl;
     return 0;
   };
 
   /// pack a value
   unsigned getPacked(float value) const override {
-    float absval = fabs ( value );
-    if (absval < m_Scale[0] || absval > m_Scale[m_NBins]) edm::LogWarning("ScaleRangeViolation") 
-                 << "L1MuSymmetricBinnedScale::getPacked: value out of scale range!!! abs(val) = " 
-	         << absval << " min= " << m_Scale[0] << " max = " << m_Scale[m_NBins] << std::endl;
+    float absval = fabs(value);
+    if (absval < m_Scale[0] || absval > m_Scale[m_NBins])
+      edm::LogWarning("ScaleRangeViolation")
+          << "L1MuSymmetricBinnedScale::getPacked: value out of scale range!!! abs(val) = " << absval
+          << " min= " << m_Scale[0] << " max = " << m_Scale[m_NBins] << std::endl;
     int idx = 0;
-    for (; idx<m_NBins; idx++) 
-      if (absval >= m_Scale[idx] && absval < m_Scale[idx+1]) break;
-    if (idx >= m_NBins) idx = m_NBins-1;
-    return m_packing.packedFromIdx(idx, (value>=0) ? 0 : 1);
+    for (; idx < m_NBins; idx++)
+      if (absval >= m_Scale[idx] && absval < m_Scale[idx + 1])
+        break;
+    if (idx >= m_NBins)
+      idx = m_NBins - 1;
+    return m_packing.packedFromIdx(idx, (value >= 0) ? 0 : 1);
   };
   /// get the upper edge of the last bin (posivie half)
   float getScaleMax() const override { return m_Scale[m_NBins]; }
@@ -349,65 +335,23 @@ class L1MuSymmetricBinnedScale : public L1MuScale {
 
   std::string print() const override {
     std::ostringstream str;
-    
+
     str << " ind |   low edge |     center" << std::endl;
     str << "-------------------------------------------" << std::endl;
-    for(int i=0; i<m_NBins; i++){
+    for (int i = 0; i < m_NBins; i++) {
       unsigned int ipack = getPacked(m_Scale[i]);
-      str << std::setw(4) << ipack << 
-        " | " << std::setw(10) << getLowEdge(ipack) <<
-        " | " << std::setw(10) << getCenter(ipack) << std::endl;
+      str << std::setw(4) << ipack << " | " << std::setw(10) << getLowEdge(ipack) << " | " << std::setw(10)
+          << getCenter(ipack) << std::endl;
     }
 
     return str.str();
   }
-  
- protected:
+
+protected:
   L1MuPseudoSignedPacking m_packing;
   int m_NBins;
   std::vector<float> m_Scale;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

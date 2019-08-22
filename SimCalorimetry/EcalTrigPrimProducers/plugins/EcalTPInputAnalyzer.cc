@@ -57,7 +57,6 @@ EcalTPInputAnalyzer::EcalTPInputAnalyzer(const edm::ParameterSet &iConfig)
 }
 
 EcalTPInputAnalyzer::~EcalTPInputAnalyzer() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
@@ -70,8 +69,7 @@ EcalTPInputAnalyzer::~EcalTPInputAnalyzer() {
 //
 
 // ------------ method called to analyze the data  ------------
-void EcalTPInputAnalyzer::analyze(const edm::Event &iEvent,
-                                  const edm::EventSetup &iSetup) {
+void EcalTPInputAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   using namespace std;
 
@@ -80,16 +78,14 @@ void EcalTPInputAnalyzer::analyze(const edm::Event &iEvent,
   edm::Handle<EEDigiCollection> eeDigis;
   if (!iEvent.getByLabel(producer_, ebLabel_, ebDigis)) {
     barrel = false;
-    edm::LogWarning("EcalTPG")
-        << " Couldnt find Barrel dataframes with Producer:" << producer_
-        << " and label: " << ebLabel_;
+    edm::LogWarning("EcalTPG") << " Couldnt find Barrel dataframes with Producer:" << producer_
+                               << " and label: " << ebLabel_;
   }
   bool endcap = true;
   if (!iEvent.getByLabel(producer_, eeLabel_, eeDigis)) {
     endcap = false;
-    edm::LogWarning("EcalTPG")
-        << " Couldnt find Endcap dataframes with Producer:" << producer_
-        << " and label: " << eeLabel_;
+    edm::LogWarning("EcalTPG") << " Couldnt find Endcap dataframes with Producer:" << producer_
+                               << " and label: " << eeLabel_;
   }
   // barrel
   if (barrel) {

@@ -16,7 +16,6 @@
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 //
 
-
 /**
     @file Defaults.h
     @brief Define an abstract interface for getting parameter settings.
@@ -47,84 +46,79 @@
 #ifndef HITFIT_DEFAULTS_H
 #define HITFIT_DEFAULTS_H
 
-
 #include <string>
-
 
 namespace hitfit {
 
-
-/**
+  /**
     @class Defaults
     @brief Define an interface for getting parameter settings.
  */
-class Defaults
-//
-// Purpose: Define an interface for getting parameter settings.
-//
-{
-public:
-  // Constructor, destructor.
+  class Defaults
+  //
+  // Purpose: Define an interface for getting parameter settings.
+  //
+  {
+  public:
+    // Constructor, destructor.
 
-  /**
+    /**
      Constructor.
    */
-  Defaults () {}
+    Defaults() {}
 
-  /**
+    /**
      Destructor
    */
-  virtual ~Defaults () {}
+    virtual ~Defaults() {}
 
-  // Test to see if parameter NAME exists.
-  /**
+    // Test to see if parameter NAME exists.
+    /**
      Test to see if parameter <i>name</i> exists.
      @param name The parameter name to be checked.
      @par Return:
      The parameter value.
    */
-  virtual bool exists (std::string name) const = 0;
+    virtual bool exists(std::string name) const = 0;
 
-  // Get the value of NAME as an integer.
-  /**
+    // Get the value of NAME as an integer.
+    /**
      Get the value of <i>name</i> as integer.
      @param name The parameter name.
      @par Return:
      The parameter value.
    */
-  virtual int get_int (std::string name) const = 0;
+    virtual int get_int(std::string name) const = 0;
 
-  // Get the value of NAME as a boolean.
-  /**
+    // Get the value of NAME as a boolean.
+    /**
      Get the value of <i>name</i> as boolean.
      @param name The parameter name.
      @par Return:
      The parameter value.
    */
-  virtual bool get_bool (std::string name) const = 0;
+    virtual bool get_bool(std::string name) const = 0;
 
-  // Get the value of NAME as a float.
-  /**
+    // Get the value of NAME as a float.
+    /**
      Get the value of <i>name</i> as a floating-point of
      type double.
      @param name The parameter name.
      @par Return:
      The parameter value.
    */
-  virtual double get_float (std::string name) const = 0;
+    virtual double get_float(std::string name) const = 0;
 
-  // Get the value of NAME as a string.
-  /**
+    // Get the value of NAME as a string.
+    /**
      Get the value of <i>name</i> as a string.
      @param name The parameter name.
      @par Return:
      The parameter value.
    */
-  virtual std::string get_string (std::string name) const = 0;
-};
+    virtual std::string get_string(std::string name) const = 0;
+  };
 
+}  // namespace hitfit
 
-} // namespace hitfit
-
-
-#endif // not HITFIT_DEFAULTS_H
+#endif  // not HITFIT_DEFAULTS_H

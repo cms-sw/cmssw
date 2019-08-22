@@ -36,6 +36,9 @@
 //     // empty
 
 // };
-class L1GtPsbSetupRcd : public edm::eventsetup::DependentRecordImplementation<L1GtPsbSetupRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+class L1GtPsbSetupRcd
+    : public edm::eventsetup::DependentRecordImplementation<L1GtPsbSetupRcd,
+                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+};
 
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWBoxIconButton
-// 
+//
 /**\class FWBoxIconButton FWBoxIconButton.h Fireworks/Core/interface/FWBoxIconButton.h
 
  Description: <one line class summary>
@@ -27,31 +27,31 @@
 class FWBoxIconBase;
 
 class FWBoxIconButton : public TGButton {
-
 public:
-   FWBoxIconButton(const TGWindow* iParent,
-                   FWBoxIconBase* iBase,
-                   Int_t iID=-1,
-                   GContext_t norm = TGButton::GetDefaultGC() (),
-                   UInt_t option=0);
-   ~FWBoxIconButton() override;
-   
-   // ---------- const member functions ---------------------
-   
-   // ---------- static member functions --------------------
-   
-   // ---------- member functions ---------------------------
-   void setNormCG(GContext_t);
-protected:
-   void DoRedraw() override;
-private:
-   FWBoxIconButton(const FWBoxIconButton&) = delete; // stop default
-   
-   const FWBoxIconButton& operator=(const FWBoxIconButton&) = delete; // stop default
-   
-   // ---------- member data --------------------------------
-   FWBoxIconBase* m_iconBase;
-};
+  FWBoxIconButton(const TGWindow* iParent,
+                  FWBoxIconBase* iBase,
+                  Int_t iID = -1,
+                  GContext_t norm = TGButton::GetDefaultGC()(),
+                  UInt_t option = 0);
+  ~FWBoxIconButton() override;
 
+  // ---------- const member functions ---------------------
+
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+  void setNormCG(GContext_t);
+
+protected:
+  void DoRedraw() override;
+
+private:
+  FWBoxIconButton(const FWBoxIconButton&) = delete;  // stop default
+
+  const FWBoxIconButton& operator=(const FWBoxIconButton&) = delete;  // stop default
+
+  // ---------- member data --------------------------------
+  FWBoxIconBase* m_iconBase;
+};
 
 #endif

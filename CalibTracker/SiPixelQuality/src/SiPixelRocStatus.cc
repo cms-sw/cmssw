@@ -13,36 +13,17 @@ SiPixelRocStatus::SiPixelRocStatus() {
   isFEDerror25_ = false;
 }
 
+// ----------------------------------------------------------------------
+SiPixelRocStatus::~SiPixelRocStatus() {}
 
 // ----------------------------------------------------------------------
-SiPixelRocStatus::~SiPixelRocStatus() {
-
-}
+void SiPixelRocStatus::fillDIGI() { fDC++; }
 
 // ----------------------------------------------------------------------
-void SiPixelRocStatus::fillDIGI() {
-
-  fDC++;
-
-}
+void SiPixelRocStatus::updateDIGI(unsigned int hits) { fDC += hits; }
 
 // ----------------------------------------------------------------------
-void SiPixelRocStatus::updateDIGI(unsigned int hits) {
-
-  fDC += hits;
-
-}
+void SiPixelRocStatus::fillFEDerror25() { isFEDerror25_ = true; }
 
 // ----------------------------------------------------------------------
-void SiPixelRocStatus::fillFEDerror25(){
-
-     isFEDerror25_ = true;
-
-}
-
-// ----------------------------------------------------------------------
-unsigned int SiPixelRocStatus::digiOccROC() {
-
-  return fDC;
-
-}
+unsigned int SiPixelRocStatus::digiOccROC() { return fDC; }

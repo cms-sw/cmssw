@@ -12,17 +12,15 @@ class UnitConverter;
 
 //ostream & operator<<(ostream &, const UnitConverter & );
 
-class UnitConverter
-{
+class UnitConverter {
 public:
-  UnitConverter(ALIdouble val, const ALIstring & category);
+  UnitConverter(ALIdouble val, const ALIstring& category);
   ~UnitConverter();
   std::string ucstring();
-  //friend ostream& operator(std::ostream & ,const UnitConverter & VU);  
-  
-  CocoaBestUnit * bu_;
+  //friend ostream& operator(std::ostream & ,const UnitConverter & VU);
+
+  CocoaBestUnit* bu_;
   bool angl_;
 };
-
 
 #endif

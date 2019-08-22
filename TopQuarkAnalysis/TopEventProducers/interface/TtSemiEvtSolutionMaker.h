@@ -20,15 +20,12 @@ class TtSemiLRJetCombCalc;
 class TtSemiLRSignalSelObservables;
 class TtSemiLRSignalSelCalc;
 
-
 class TtSemiEvtSolutionMaker : public edm::EDProducer {
-
- public:
-
-  explicit TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig);
+public:
+  explicit TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig);
   ~TtSemiEvtSolutionMaker() override;
 
-  void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   // convert unsigned to Param
   TtSemiLepKinFitter::Param param(unsigned);
@@ -37,8 +34,7 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
   // convert unsigned to Param
   std::vector<TtSemiLepKinFitter::Constraint> constraints(std::vector<unsigned>&);
 
- private:
-
+private:
   // configurables
   edm::EDGetTokenT<std::vector<pat::Electron> > electronSrcToken_;
   edm::EDGetTokenT<std::vector<pat::Muon> > muonSrcToken_;
@@ -59,13 +55,12 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
   std::vector<unsigned> constraints_;
   edm::EDGetTokenT<TtGenEvent> genEvtToken_;
   // tools
-  TtSemiLepKinFitter           * myKinFitter;
-  TtSemiSimpleBestJetComb      * mySimpleBestJetComb;
-  TtSemiLRJetCombObservables   * myLRJetCombObservables;
-  TtSemiLRJetCombCalc          * myLRJetCombCalc;
-  TtSemiLRSignalSelObservables * myLRSignalSelObservables;
-  TtSemiLRSignalSelCalc        * myLRSignalSelCalc;
+  TtSemiLepKinFitter* myKinFitter;
+  TtSemiSimpleBestJetComb* mySimpleBestJetComb;
+  TtSemiLRJetCombObservables* myLRJetCombObservables;
+  TtSemiLRJetCombCalc* myLRJetCombCalc;
+  TtSemiLRSignalSelObservables* myLRSignalSelObservables;
+  TtSemiLRSignalSelCalc* myLRSignalSelCalc;
 };
-
 
 #endif

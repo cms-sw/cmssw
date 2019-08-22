@@ -19,7 +19,7 @@ class DTRecSegment2DBaseAlgo;
 namespace edm {
   class ParameterSet;
   class EventSetup;
-}
+}  // namespace edm
 class DTSegmentUpdator;
 //class DTSegmentCleaner;
 
@@ -30,66 +30,64 @@ class DTSegmentUpdator;
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-// ====================================================================== 
+// ======================================================================
 class DTSegmentCand;
 class DTMeantimerPatternReco;
 class DTHitPairForFit;
 
-// Class DTMeantimerPatternReco4D Interface 
+// Class DTMeantimerPatternReco4D Interface
 
 class DTMeantimerPatternReco4D : public DTRecSegment4DBaseAlgo {
+public:
+  /// Constructor
+  DTMeantimerPatternReco4D(const edm::ParameterSet& pset);
 
-  public:
+  /// Destructor
+  ~DTMeantimerPatternReco4D() override;
 
-    /// Constructor
-    DTMeantimerPatternReco4D(const edm::ParameterSet& pset) ;
+  /// Operations
+  edm::OwnVector<DTRecSegment4D> reconstruct() override;
 
-    /// Destructor
-    ~DTMeantimerPatternReco4D() override;
+  std::string algoName() const override { return theAlgoName; }
 
-    /// Operations  
-    edm::OwnVector<DTRecSegment4D> reconstruct() override;
+  void setES(const edm::EventSetup& setup) override;
+  void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits) override;
+  void setDTRecSegment2DContainer(edm::Handle<DTRecSegment2DCollection> all2DSegments) override;
+  void setChamber(const DTChamberId& chId) override;
+  bool wants2DSegments() override { return !allDTRecHits; }
 
-    std::string algoName() const override { return theAlgoName; }
+protected:
+private:
+  std::vector<DTSegmentCand*> buildPhiSuperSegmentsCandidates(
+      std::vector<std::shared_ptr<DTHitPairForFit>>& pairPhiOwned);
+  DTRecSegment4D* segmentSpecialZed(DTRecSegment4D* seg);
 
-    void setES(const edm::EventSetup& setup) override;
-    void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits) override;
-    void setDTRecSegment2DContainer(edm::Handle<DTRecSegment2DCollection> all2DSegments) override;
-    void setChamber(const DTChamberId &chId) override;
-    bool wants2DSegments() override{return !allDTRecHits;}
+  std::string theAlgoName;
 
-  protected:
+  bool debug;
+  // DTSegmentUpdator* theUpdator; // the updator and fitter
+  // DTSegmentCleaner* theCleaner; // the cleaner
 
-  private:
-    std::vector<DTSegmentCand*> buildPhiSuperSegmentsCandidates(std::vector<std::shared_ptr<DTHitPairForFit>> &pairPhiOwned);
-    DTRecSegment4D* segmentSpecialZed(DTRecSegment4D* seg);
+  edm::ESHandle<DTGeometry> theDTGeometry;  // the DT geometry
 
-    std::string theAlgoName;
+  // The reconstruction 2D algorithm
+  // For the 2D reco I use thei reconstructor!
+  DTMeantimerPatternReco* the2DAlgo;
 
-    bool debug;
-    // DTSegmentUpdator* theUpdator; // the updator and fitter
-    // DTSegmentCleaner* theCleaner; // the cleaner
+  // the updator
+  DTSegmentUpdator* theUpdator;
 
-    edm::ESHandle<DTGeometry> theDTGeometry; // the DT geometry
+  const DTChamber* theChamber;
 
-    // The reconstruction 2D algorithm
-    // For the 2D reco I use thei reconstructor!
-    DTMeantimerPatternReco* the2DAlgo;
+  //the input type
+  bool allDTRecHits;
+  bool applyT0corr;
+  bool computeT0corr;
 
-    // the updator
-    DTSegmentUpdator *theUpdator;
-
-    const DTChamber *theChamber;
-
-    //the input type
-    bool allDTRecHits;
-    bool applyT0corr;
-    bool computeT0corr;
-
-    //  std::vector<DTRecHit1D> the1DPhiHits;
-    std::vector<DTSLRecSegment2D> theSegments2DTheta; 
-    std::vector<DTRecHit1DPair> theHitsFromPhi1;
-    std::vector<DTRecHit1DPair> theHitsFromTheta;
-    std::vector<DTRecHit1DPair> theHitsFromPhi2;
+  //  std::vector<DTRecHit1D> the1DPhiHits;
+  std::vector<DTSLRecSegment2D> theSegments2DTheta;
+  std::vector<DTRecHit1DPair> theHitsFromPhi1;
+  std::vector<DTRecHit1DPair> theHitsFromTheta;
+  std::vector<DTRecHit1DPair> theHitsFromPhi2;
 };
 #endif

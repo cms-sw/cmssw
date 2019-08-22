@@ -29,10 +29,9 @@ struct TrajectoryStateTransform;
 class TrackerTopology;
 
 class TSGFromPropagation : public TrackerSeedGenerator {
-
 public:
   /// constructor
-  TSGFromPropagation(const edm::ParameterSet &pset, edm::ConsumesCollector& iC);
+  TSGFromPropagation(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
 
   TSGFromPropagation(const edm::ParameterSet& par, edm::ConsumesCollector& iC, const MuonServiceProxy*);
 
@@ -40,8 +39,11 @@ public:
   ~TSGFromPropagation() override;
 
   /// generate seed(s) for a track
-  void  trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, std::vector<TrajectorySeed>&) override;
-    
+  void trackerSeeds(const TrackCand&,
+                    const TrackingRegion&,
+                    const TrackerTopology*,
+                    std::vector<TrajectorySeed>&) override;
+
   /// initialize
   void init(const MuonServiceProxy*) override;
 
@@ -49,24 +51,25 @@ public:
   void setEvent(const edm::Event&) override;
 
 private:
-
   TrajectoryStateOnSurface innerState(const TrackCand&) const;
 
   TrajectoryStateOnSurface outerTkState(const TrackCand&) const;
 
-  const LayerMeasurements* tkLayerMeasurements() const { return &theTkLayerMeasurements; } 
+  const LayerMeasurements* tkLayerMeasurements() const { return &theTkLayerMeasurements; }
 
-  const TrajectoryStateUpdator* updator() const {return theUpdator;}
+  const TrajectoryStateUpdator* updator() const { return theUpdator; }
 
   const Chi2MeasurementEstimator* estimator() const { return theEstimator; }
 
-  edm::ESHandle<Propagator> propagator() const {return theService->propagator(thePropagatorName); }
+  edm::ESHandle<Propagator> propagator() const { return theService->propagator(thePropagatorName); }
 
   /// create a hitless seed from a trajectory state
   TrajectorySeed createSeed(const TrajectoryStateOnSurface&, const DetId&) const;
 
   /// create a seed from a trajectory state
-  TrajectorySeed createSeed(const TrajectoryStateOnSurface& tsos, const edm::OwnVector<TrackingRecHit>& container, const DetId& id) const;
+  TrajectorySeed createSeed(const TrajectoryStateOnSurface& tsos,
+                            const edm::OwnVector<TrackingRecHit>& container,
+                            const DetId& id) const;
 
   /// select valid measurements
   void validMeasurements(std::vector<TrajectoryMeasurement>&) const;
@@ -83,25 +86,25 @@ private:
   void getRescalingFactor(const TrackCand& staMuon);
 
   /// adjust the error matrix of the FTS
-  void adjust(FreeTrajectoryState &) const;
+  void adjust(FreeTrajectoryState&) const;
 
   /// adjust the error matrix of the TSOS
-  void adjust(TrajectoryStateOnSurface &) const;
+  void adjust(TrajectoryStateOnSurface&) const;
 
   double dxyDis(const TrajectoryStateOnSurface& tsos) const;
 
   double zDis(const TrajectoryStateOnSurface& tsos) const;
 
-  struct increasingEstimate{
-    bool operator()(const TrajectoryMeasurement& lhs,
-                    const TrajectoryMeasurement& rhs) const{ 
+  struct increasingEstimate {
+    bool operator()(const TrajectoryMeasurement& lhs, const TrajectoryMeasurement& rhs) const {
       return lhs.estimate() < rhs.estimate();
     }
   };
 
   struct isInvalid {
     bool operator()(const TrajectoryMeasurement& measurement) {
-      return ( ((measurement).recHit() == nullptr) || !((measurement).recHit()->isValid()) || !((measurement).updatedState().isValid()) ); 
+      return (((measurement).recHit() == nullptr) || !((measurement).recHit()->isValid()) ||
+              !((measurement).updatedState().isValid()));
     }
   };
 
@@ -110,7 +113,7 @@ private:
 
   std::string theCategory;
 
-  LayerMeasurements  theTkLayerMeasurements;
+  LayerMeasurements theTkLayerMeasurements;
 
   edm::ESHandle<GeometricSearchTracker> theTracker;
 
@@ -139,17 +142,17 @@ private:
 
   bool theUpdateStateFlag;
 
-  std::string theResetMethod; 
+  std::string theResetMethod;
 
   bool theSelectStateFlag;
 
   std::string thePropagatorName;
 
-  MuonErrorMatrix * theErrorMatrixAdjuster;
+  MuonErrorMatrix* theErrorMatrixAdjuster;
 
   bool theAdjustAtIp;
 
-  double theSigmaZ; 
+  double theSigmaZ;
 
   edm::ParameterSet theConfig;
 
@@ -159,4 +162,4 @@ private:
   edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventToken;
 };
 
-#endif 
+#endif

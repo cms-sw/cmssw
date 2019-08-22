@@ -16,47 +16,59 @@ class HBHETimeProfileStatusBitSetter {
 public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
   HBHETimeProfileStatusBitSetter();
-  HBHETimeProfileStatusBitSetter(double R1Min, double R1Max, 
-				 double R2Min, double R2Max, 
-				 double FracLeaderMin, double FracLeaderMax, 
-				 double SlopeMin, double SlopeMax, 
-				 double OuterMin, double OuterMax, double EnergyThreshold); 
-  
+  HBHETimeProfileStatusBitSetter(double R1Min,
+                                 double R1Max,
+                                 double R2Min,
+                                 double R2Max,
+                                 double FracLeaderMin,
+                                 double FracLeaderMax,
+                                 double SlopeMin,
+                                 double SlopeMax,
+                                 double OuterMin,
+                                 double OuterMax,
+                                 double EnergyThreshold);
+
   // Destructor
   ~HBHETimeProfileStatusBitSetter();
 
   // Methods for setting the status flag values
-  void hbheSetTimeFlagsFromDigi(HBHERecHitCollection *, const std::vector<HBHEDataFrame>&, const std::vector<int>&);
-
-
-
+  void hbheSetTimeFlagsFromDigi(HBHERecHitCollection*, const std::vector<HBHEDataFrame>&, const std::vector<int>&);
 
   // setter functions
-  void SetExpLimits(double R1Min, double R1Max, double R2Min, double R2Max)
-    { R1Min_ = R1Min; R1Max_ = R1Max;  R2Min_ = R2Max; R2Max_ = R2Max; }
-  void SetFracLeaderLimits(double FracLeaderMin, double FracLeaderMax)
-    { FracLeaderMin_ = FracLeaderMin; FracLeaderMax_ = FracLeaderMax;}
-  void SetSlopeLimits(double SlopeMin, double SlopeMax)
-    { SlopeMin_ = SlopeMin; SlopeMax_ = SlopeMax;}
-  void SetOuterLimits(double OuterMin, double OuterMax)
-    { OuterMin_ = OuterMin; OuterMax_ = OuterMax;}
-  double EnergyThreshold(){return EnergyThreshold_;}
+  void SetExpLimits(double R1Min, double R1Max, double R2Min, double R2Max) {
+    R1Min_ = R1Min;
+    R1Max_ = R1Max;
+    R2Min_ = R2Max;
+    R2Max_ = R2Max;
+  }
+  void SetFracLeaderLimits(double FracLeaderMin, double FracLeaderMax) {
+    FracLeaderMin_ = FracLeaderMin;
+    FracLeaderMax_ = FracLeaderMax;
+  }
+  void SetSlopeLimits(double SlopeMin, double SlopeMax) {
+    SlopeMin_ = SlopeMin;
+    SlopeMax_ = SlopeMax;
+  }
+  void SetOuterLimits(double OuterMin, double OuterMax) {
+    OuterMin_ = OuterMin;
+    OuterMax_ = OuterMax;
+  }
+  double EnergyThreshold() { return EnergyThreshold_; }
 
 private:
   // variables for cfg files
   double R1Min_, R1Max_, R2Min_, R2Max_;
-  double FracLeaderMin_,FracLeaderMax_;
-  double SlopeMin_,SlopeMax_;
-  double OuterMin_,OuterMax_;
+  double FracLeaderMin_, FracLeaderMax_;
+  double SlopeMin_, SlopeMax_;
+  double OuterMin_, OuterMax_;
   double EnergyThreshold_;
- 
+
   double TotalEnergyInDataFrame(const HBHEDataFrame& x) {
-    double Total=0;
-    for(int i=0; i!=x.size(); Total += x.sample(i++).nominal_fC());
+    double Total = 0;
+    for (int i = 0; i != x.size(); Total += x.sample(i++).nominal_fC())
+      ;
     return Total;
   }
-      
-
 };
 
 #endif

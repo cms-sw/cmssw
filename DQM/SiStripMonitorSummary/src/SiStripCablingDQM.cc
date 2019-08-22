@@ -1,6 +1,7 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripCablingDQM.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "TCanvas.h"
 using namespace std;
 // -----

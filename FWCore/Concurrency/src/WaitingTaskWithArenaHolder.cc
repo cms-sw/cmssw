@@ -9,6 +9,7 @@
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 namespace edm {
 
@@ -30,7 +31,9 @@ namespace edm {
 
   WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder const& iHolder)
       : m_task(iHolder.m_task), m_arena(iHolder.m_arena) {
-    m_task->increment_ref_count();
+    if (LIKELY(m_task != nullptr)) {
+      m_task->increment_ref_count();
+    }
   }
 
   WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder&& iOther)

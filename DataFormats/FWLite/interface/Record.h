@@ -4,7 +4,7 @@
 //
 // Package:     FWLite
 // Class  :     Record
-// 
+//
 /**\class Record Record.h DataFormats/FWLite/interface/Record.h
 
  Description: Contains conditions data which are related by life-time (i.e. IOV)
@@ -15,7 +15,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec 10 15:58:15 CST 2009
 //
 
@@ -33,70 +33,66 @@
 class TTree;
 class TBranch;
 namespace edm {
-   class EventID;
-   class Timestamp;
-}
+  class EventID;
+  class Timestamp;
+}  // namespace edm
 
 namespace cms {
-   class Exception;
+  class Exception;
 }
 
-namespace fwlite
-{
-   
-   class Record {
-   public:
-      Record(const char* iName, TTree*);
-      virtual ~Record();
+namespace fwlite {
 
-      // ---------- const member functions ---------------------
-      const std::string& name() const;
-      
-      template< typename HANDLE>
-      bool get(HANDLE&,const char* iLabel="")const;
-      
-      const IOVSyncValue& startSyncValue() const;
-      const IOVSyncValue& endSyncValue() const;
-   
-      std::vector<std::pair<std::string,std::string> > typeAndLabelOfAvailableData() const;
-      // ---------- static member functions --------------------
+  class Record {
+  public:
+    Record(const char* iName, TTree*);
+    virtual ~Record();
 
-      // ---------- member functions ---------------------------
-      void syncTo(const edm::EventID&, const edm::Timestamp&);
+    // ---------- const member functions ---------------------
+    const std::string& name() const;
 
-   private:
-      Record(const Record&) = delete; // stop default
+    template <typename HANDLE>
+    bool get(HANDLE&, const char* iLabel = "") const;
 
-      const Record& operator=(const Record&) = delete; // stop default
+    const IOVSyncValue& startSyncValue() const;
+    const IOVSyncValue& endSyncValue() const;
 
-      cms::Exception* get(const edm::TypeID&, const char* iLabel, const void*&) const;
-      void resetCaches();
-      // ---------- member data --------------------------------
-      std::string m_name;
-      TTree* m_tree;
-      std::map<IOVSyncValue,unsigned int> m_startIOVtoEntry;
-      long m_entry;
-      IOVSyncValue m_start;
-      IOVSyncValue m_end;
-      
-      mutable std::map<std::pair<edm::TypeID,std::string>, std::pair<TBranch*,void*>> m_branches;
-   };
+    std::vector<std::pair<std::string, std::string>> typeAndLabelOfAvailableData() const;
+    // ---------- static member functions --------------------
 
-   template <typename HANDLE>
-   bool
-   Record::get(HANDLE& iHandle, const char* iLabel) const
-   {
-      const void* value = nullptr;
-      cms::Exception* e = get(edm::TypeID(iHandle.typeInfo()),iLabel,value);
-      if(nullptr == e){
-         iHandle = HANDLE(value);
-      } else {
-         iHandle = HANDLE(e);
-      }
-      return nullptr == e;
-   }
+    // ---------- member functions ---------------------------
+    void syncTo(const edm::EventID&, const edm::Timestamp&);
 
-} /* fwlite */
+  private:
+    Record(const Record&) = delete;  // stop default
 
+    const Record& operator=(const Record&) = delete;  // stop default
+
+    cms::Exception* get(const edm::TypeID&, const char* iLabel, const void*&) const;
+    void resetCaches();
+    // ---------- member data --------------------------------
+    std::string m_name;
+    TTree* m_tree;
+    std::map<IOVSyncValue, unsigned int> m_startIOVtoEntry;
+    long m_entry;
+    IOVSyncValue m_start;
+    IOVSyncValue m_end;
+
+    mutable std::map<std::pair<edm::TypeID, std::string>, std::pair<TBranch*, void*>> m_branches;
+  };
+
+  template <typename HANDLE>
+  bool Record::get(HANDLE& iHandle, const char* iLabel) const {
+    const void* value = nullptr;
+    cms::Exception* e = get(edm::TypeID(iHandle.typeInfo()), iLabel, value);
+    if (nullptr == e) {
+      iHandle = HANDLE(value);
+    } else {
+      iHandle = HANDLE(e);
+    }
+    return nullptr == e;
+  }
+
+}  // namespace fwlite
 
 #endif

@@ -14,15 +14,15 @@
 class RPCTCGhostBusterSorter {
 public:
   RPCTCGhostBusterSorter(RPCTriggerConfiguration* triggerConfig);
-  
+
   /** Peformes the Trigger Crate Ghost Buster and sorter algorithm -
     * in eta between TB of one TC.
     * Coverts muons etaAddr from 2bit tow num on TB (0-2 or 0-3)
     * to continous m_tower number (etaAddr) (0 - 32, tower0 = 16)
     * @return always 4 muons*/
-  L1RpcTBMuonsVec run(L1RpcTBMuonsVec2 &tbMuonsVec);
-private:
+  L1RpcTBMuonsVec run(L1RpcTBMuonsVec2& tbMuonsVec);
 
+private:
   RPCTriggerConfiguration* m_TriggerConfig;
 };
 #endif

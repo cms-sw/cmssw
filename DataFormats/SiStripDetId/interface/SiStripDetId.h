@@ -2,6 +2,7 @@
 #define DataFormats_SiStripDetId_SiStripDetId_h
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackerCommon/interface/SiStripEnums.h"
 #include <ostream>
 
 class SiStripDetId;
@@ -31,10 +32,12 @@ public:
   SiStripDetId(Detector det, int subdet) : DetId(det, subdet) { ; }
 
   /** Enumerated type for tracker sub-deteector systems. */
-  enum SubDetector { UNKNOWN = 0, TIB = 3, TID = 4, TOB = 5, TEC = 6 };
-
-  /** Enumerated type for tracker module geometries. */
-  enum ModuleGeometry { UNKNOWNGEOMETRY, IB1, IB2, OB1, OB2, W1A, W2A, W3A, W1B, W2B, W3B, W4, W5, W6, W7 };
+  using SubDetector = SiStripSubdetector::Subdetector;
+  static constexpr auto UNKNOWN = SiStripSubdetector::UNKNOWN;
+  static constexpr auto TIB = SiStripSubdetector::TIB;
+  static constexpr auto TID = SiStripSubdetector::TID;
+  static constexpr auto TOB = SiStripSubdetector::TOB;
+  static constexpr auto TEC = SiStripSubdetector::TEC;
 
   // ---------- Common methods ----------
 
@@ -42,7 +45,7 @@ public:
   inline SubDetector subDetector() const;
 
   /** Returns enumerated type specifying sub-detector. */
-  inline ModuleGeometry moduleGeometry() const;
+  inline SiStripModuleGeometry moduleGeometry() const;
 
   /** A non-zero value means a glued module, null means not glued. */
   inline uint32_t glued() const;
@@ -103,50 +106,52 @@ SiStripDetId::SubDetector SiStripDetId::subDetector() const {
   return static_cast<SiStripDetId::SubDetector>(subdetId());
 }
 
-SiStripDetId::ModuleGeometry SiStripDetId::moduleGeometry() const {
-  SiStripDetId::ModuleGeometry geometry = UNKNOWNGEOMETRY;
+SiStripModuleGeometry SiStripDetId::moduleGeometry() const {
+  auto geometry = SiStripModuleGeometry::UNKNOWNGEOMETRY;
   switch (subDetector()) {
     case TIB:
-      geometry = int((id_ >> layerStartBit_) & layerMask_) < 3 ? IB1 : IB2;
+      geometry =
+          int((id_ >> layerStartBit_) & layerMask_) < 3 ? SiStripModuleGeometry::IB1 : SiStripModuleGeometry::IB2;
       break;
     case TOB:
-      geometry = int((id_ >> layerStartBit_) & layerMask_) < 5 ? OB2 : OB1;
+      geometry =
+          int((id_ >> layerStartBit_) & layerMask_) < 5 ? SiStripModuleGeometry::OB2 : SiStripModuleGeometry::OB1;
       break;
     case TID:
       switch ((id_ >> ringStartBitTID_) & ringMaskTID_) {
         case 1:
-          geometry = W1A;
+          geometry = SiStripModuleGeometry::W1A;
           break;
         case 2:
-          geometry = W2A;
+          geometry = SiStripModuleGeometry::W2A;
           break;
         case 3:
-          geometry = W3A;
+          geometry = SiStripModuleGeometry::W3A;
           break;
       }
       break;
     case TEC:
       switch ((id_ >> ringStartBitTEC_) & ringMaskTEC_) {
         case 1:
-          geometry = W1B;
+          geometry = SiStripModuleGeometry::W1B;
           break;
         case 2:
-          geometry = W2B;
+          geometry = SiStripModuleGeometry::W2B;
           break;
         case 3:
-          geometry = W3B;
+          geometry = SiStripModuleGeometry::W3B;
           break;
         case 4:
-          geometry = W4;
+          geometry = SiStripModuleGeometry::W4;
           break;
         case 5:
-          geometry = W5;
+          geometry = SiStripModuleGeometry::W5;
           break;
         case 6:
-          geometry = W6;
+          geometry = SiStripModuleGeometry::W6;
           break;
         case 7:
-          geometry = W7;
+          geometry = SiStripModuleGeometry::W7;
           break;
       }
     case UNKNOWN:

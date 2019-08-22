@@ -71,152 +71,163 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class HLTRegionalEcalResonanceFilter : public edm::stream::EDFilter<> 
-{
-   public:
-      explicit HLTRegionalEcalResonanceFilter(const edm::ParameterSet&);
-      ~HLTRegionalEcalResonanceFilter() override;
+class HLTRegionalEcalResonanceFilter : public edm::stream::EDFilter<> {
+public:
+  explicit HLTRegionalEcalResonanceFilter(const edm::ParameterSet &);
+  ~HLTRegionalEcalResonanceFilter() override;
 
-      bool filter(edm::Event &, const edm::EventSetup&) override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-   private:
-      // ----------member data ---------------------------
-      void doSelection(int detector, const reco::BasicClusterCollection *clusterCollection,
-		       const EcalRecHitCollection *hitCollection,
-		       const EcalChannelStatus &channelStatus,
-		       const CaloSubdetectorTopology* topology_p,
-		       std::map<int, std::vector<EcalRecHit> > &RecHits5x5_clus,
-		       std::vector<int> &indCandClus, ///good cluster all ,  5x5 rechit done already during the loop
-		       std::vector<int> &indIsoClus, /// Iso cluster all , 5x5 rechit not yet done
-		       std::vector<int> &indClusSelected  /// saved so far, all 
-		       ); 
-      
-      
-      void makeClusterES(float x, float y, float z,const CaloSubdetectorGeometry* iSubGeom,const CaloSubdetectorTopology* topology_p);
-      
-      void calcPaircluster(const reco::BasicCluster &bc1, const reco::BasicCluster &bc2, float &mpair, float &ptpair,float &etapair,float &phipair); 
-      
-      bool checkStatusOfEcalRecHit(const EcalChannelStatus &channelStatus, const EcalRecHit &rh);
-      
-      void calcShowerShape(const reco::BasicCluster &bc, const EcalChannelStatus &channelStatus, const EcalRecHitCollection *recHits,const CaloSubdetectorTopology *topology_p, bool calc5x5, std::vector<EcalRecHit> &rechit5x5,float res[]);
-      
-      void convxtalid(int & , int &);
-      int diff_neta_s(int,int);
-      int diff_nphi_s(int,int);
-            
-      // Input hits & clusters
-      edm::InputTag barrelHits_;
-      edm::InputTag endcapHits_;
-      edm::InputTag barrelClusters_;
-      edm::InputTag endcapClusters_;
+  bool filter(edm::Event &, const edm::EventSetup &) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-      edm::EDGetTokenT<EBRecHitCollection> barrelHitsToken_;
-      edm::EDGetTokenT<EERecHitCollection> endcapHitsToken_;
-      edm::EDGetTokenT<ESRecHitCollection> preshHitsToken_;
-      edm::EDGetTokenT<reco::BasicClusterCollection> barrelClustersToken_;
-      edm::EDGetTokenT<reco::BasicClusterCollection> endcapClustersToken_;
-     
-      ///output hits 
-      std::string BarrelHits_;
-      std::string EndcapHits_;
-      std::string ESHits_;
-      
-      
-      /// ---------BARREL CONFIGURATION 
-      bool doSelBarrel_; 
-  
-      // EB region 1 
-      double region1_Barrel_;
-      double selePtGammaBarrel_region1_; 
-      double selePtPairBarrel_region1_;
-      double seleS4S9GammaBarrel_region1_;
-      double seleIsoBarrel_region1_;
-      double seleNxtalBarrel_region1_;
+private:
+  // ----------member data ---------------------------
+  void doSelection(int detector,
+                   const reco::BasicClusterCollection *clusterCollection,
+                   const EcalRecHitCollection *hitCollection,
+                   const EcalChannelStatus &channelStatus,
+                   const CaloSubdetectorTopology *topology_p,
+                   std::map<int, std::vector<EcalRecHit> > &RecHits5x5_clus,
+                   std::vector<int> &indCandClus,     ///good cluster all ,  5x5 rechit done already during the loop
+                   std::vector<int> &indIsoClus,      /// Iso cluster all , 5x5 rechit not yet done
+                   std::vector<int> &indClusSelected  /// saved so far, all
+  );
 
-      // EB region 2
-      double selePtGammaBarrel_region2_; 
-      double selePtPairBarrel_region2_;
-      double seleS4S9GammaBarrel_region2_;
-      double seleIsoBarrel_region2_;
-      double seleNxtalBarrel_region2_;
+  void makeClusterES(
+      float x, float y, float z, const CaloSubdetectorGeometry *iSubGeom, const CaloSubdetectorTopology *topology_p);
 
-      double seleMinvMaxBarrel_;
-      double seleMinvMinBarrel_;
+  void calcPaircluster(const reco::BasicCluster &bc1,
+                       const reco::BasicCluster &bc2,
+                       float &mpair,
+                       float &ptpair,
+                       float &etapair,
+                       float &phipair);
 
-      //      double selePtGamma_;
-      //      double selePtPair_;
-      //      double seleS4S9Gamma_;
-      //      double seleIso_;
-      double seleS9S25Gamma_;
+  bool checkStatusOfEcalRecHit(const EcalChannelStatus &channelStatus, const EcalRecHit &rh);
 
-      // EB Isolation Configuraiton
-      double seleBeltDR_;
-      double seleBeltDeta_;
-      double ptMinForIsolation_; 
+  void calcShowerShape(const reco::BasicCluster &bc,
+                       const EcalChannelStatus &channelStatus,
+                       const EcalRecHitCollection *recHits,
+                       const CaloSubdetectorTopology *topology_p,
+                       bool calc5x5,
+                       std::vector<EcalRecHit> &rechit5x5,
+                       float res[]);
 
-      bool removePi0CandidatesForEta_; 
-      double massLowPi0Cand_; 
-      double massHighPi0Cand_; 
-      bool store5x5RecHitEB_;      
+  void convxtalid(int &, int &);
+  int diff_neta_s(int, int);
+  int diff_nphi_s(int, int);
 
-      bool doSelEndcap_; 
+  // Input hits & clusters
+  edm::InputTag barrelHits_;
+  edm::InputTag endcapHits_;
+  edm::InputTag barrelClusters_;
+  edm::InputTag endcapClusters_;
 
-      // EE region 1 
-      double region1_EndCap_;
-      double selePtGammaEndCap_region1_; 
-      double selePtPairEndCap_region1_;
-      double seleS4S9GammaEndCap_region1_;
-      double seleIsoEndCap_region1_;
-      double seleNxtalEndCap_region1_;
+  edm::EDGetTokenT<EBRecHitCollection> barrelHitsToken_;
+  edm::EDGetTokenT<EERecHitCollection> endcapHitsToken_;
+  edm::EDGetTokenT<ESRecHitCollection> preshHitsToken_;
+  edm::EDGetTokenT<reco::BasicClusterCollection> barrelClustersToken_;
+  edm::EDGetTokenT<reco::BasicClusterCollection> endcapClustersToken_;
 
-      // EE region 2
-      double region2_EndCap_;
-      double selePtGammaEndCap_region2_; 
-      double selePtPairEndCap_region2_;
-      double seleS4S9GammaEndCap_region2_;
-      double seleIsoEndCap_region2_;
-      double seleNxtalEndCap_region2_;
+  ///output hits
+  std::string BarrelHits_;
+  std::string EndcapHits_;
+  std::string ESHits_;
 
-      // EE region 3
-      double selePtGammaEndCap_region3_; 
-      double selePtPairEndCap_region3_;
-      double selePtPairMaxEndCap_region3_;
-      double seleS4S9GammaEndCap_region3_;
-      double seleIsoEndCap_region3_;
-      double seleNxtalEndCap_region3_;
+  /// ---------BARREL CONFIGURATION
+  bool doSelBarrel_;
 
-      double seleMinvMaxEndCap_;
-      double seleMinvMinEndCap_;
-      // double seleS4S9GammaEndCap_; //old non-regional filter
-      // double seleIsoEndCap_; //old non-regional filter
+  // EB region 1
+  double region1_Barrel_;
+  double selePtGammaBarrel_region1_;
+  double selePtPairBarrel_region1_;
+  double seleS4S9GammaBarrel_region1_;
+  double seleIsoBarrel_region1_;
+  double seleNxtalBarrel_region1_;
 
-      double seleS9S25GammaEndCap_;
+  // EB region 2
+  double selePtGammaBarrel_region2_;
+  double selePtPairBarrel_region2_;
+  double seleS4S9GammaBarrel_region2_;
+  double seleIsoBarrel_region2_;
+  double seleNxtalBarrel_region2_;
 
-      // EE isolation configuration
-      double seleBeltDREndCap_;
-      double seleBeltDetaEndCap_;
-      double ptMinForIsolationEndCap_; 
-      bool store5x5RecHitEE_;
-            
-      bool useRecoFlag_; 
-      bool useDBStatus_; 
-      int flagLevelRecHitsToUse_; 
-      int statusLevelRecHitsToUse_;      
-        
-      bool storeRecHitES_; 
-      edm::InputTag preshHitProducer_;         // name of module/plugin/producer producing hits
-      int preshNclust_;
-      float preshClustECut;
-      double etThresh_;
-      double calib_planeX_;
-      double calib_planeY_;
-      double mip_;
-      double gamma_;
-      
-      PreshowerClusterAlgo * presh_algo_; // algorithm doing the real work            
-      
-      std::map<DetId, EcalRecHit> m_esrechit_map;
-      std::set<DetId> m_used_strips;      
-      
-      int debug_; 
+  double seleMinvMaxBarrel_;
+  double seleMinvMinBarrel_;
+
+  //      double selePtGamma_;
+  //      double selePtPair_;
+  //      double seleS4S9Gamma_;
+  //      double seleIso_;
+  double seleS9S25Gamma_;
+
+  // EB Isolation Configuraiton
+  double seleBeltDR_;
+  double seleBeltDeta_;
+  double ptMinForIsolation_;
+
+  bool removePi0CandidatesForEta_;
+  double massLowPi0Cand_;
+  double massHighPi0Cand_;
+  bool store5x5RecHitEB_;
+
+  bool doSelEndcap_;
+
+  // EE region 1
+  double region1_EndCap_;
+  double selePtGammaEndCap_region1_;
+  double selePtPairEndCap_region1_;
+  double seleS4S9GammaEndCap_region1_;
+  double seleIsoEndCap_region1_;
+  double seleNxtalEndCap_region1_;
+
+  // EE region 2
+  double region2_EndCap_;
+  double selePtGammaEndCap_region2_;
+  double selePtPairEndCap_region2_;
+  double seleS4S9GammaEndCap_region2_;
+  double seleIsoEndCap_region2_;
+  double seleNxtalEndCap_region2_;
+
+  // EE region 3
+  double selePtGammaEndCap_region3_;
+  double selePtPairEndCap_region3_;
+  double selePtPairMaxEndCap_region3_;
+  double seleS4S9GammaEndCap_region3_;
+  double seleIsoEndCap_region3_;
+  double seleNxtalEndCap_region3_;
+
+  double seleMinvMaxEndCap_;
+  double seleMinvMinEndCap_;
+  // double seleS4S9GammaEndCap_; //old non-regional filter
+  // double seleIsoEndCap_; //old non-regional filter
+
+  double seleS9S25GammaEndCap_;
+
+  // EE isolation configuration
+  double seleBeltDREndCap_;
+  double seleBeltDetaEndCap_;
+  double ptMinForIsolationEndCap_;
+  bool store5x5RecHitEE_;
+
+  bool useRecoFlag_;
+  bool useDBStatus_;
+  int flagLevelRecHitsToUse_;
+  int statusLevelRecHitsToUse_;
+
+  bool storeRecHitES_;
+  edm::InputTag preshHitProducer_;  // name of module/plugin/producer producing hits
+  int preshNclust_;
+  float preshClustECut;
+  double etThresh_;
+  double calib_planeX_;
+  double calib_planeY_;
+  double mip_;
+  double gamma_;
+
+  PreshowerClusterAlgo *presh_algo_;  // algorithm doing the real work
+
+  std::map<DetId, EcalRecHit> m_esrechit_map;
+  std::set<DetId> m_used_strips;
+
+  int debug_;
 };

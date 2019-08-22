@@ -19,9 +19,7 @@
 #include <algorithm>
 #include <vector>
 
-bool
-fgettoken(std::istream &in, char **buffer, size_t *maxSize, const char *separators,
-          int *firstChar);
+bool fgettoken(std::istream &in, char **buffer, size_t *maxSize, const char *separators, int *firstChar);
 
 /** A simple SAX parser which is able to parse the configuration.
 
@@ -68,110 +66,91 @@ fgettoken(std::istream &in, char **buffer, size_t *maxSize, const char *separato
     IN_STRING_ENTITY->IN_STRING [label = "nextChar == ';'"]
     }    
     */
-class SimpleSAXParser
-{
+class SimpleSAXParser {
 public:
-   struct Attribute
-   {
-      std::string    key;
-      std::string    value;
+  struct Attribute {
+    std::string key;
+    std::string value;
 
-      Attribute(const std::string &iKey, const std::string &iValue)
-      :key(iKey), value(iValue)
-      {}
-      
-      Attribute(const Attribute &attr)
-      :key(attr.key), value(attr.value)
-      {}
-      
-      bool operator<(const Attribute &attribute) const
-      {
-         return this->key < attribute.key;
-      }
-   };
+    Attribute(const std::string &iKey, const std::string &iValue) : key(iKey), value(iValue) {}
 
-   typedef std::vector<Attribute> Attributes;
-   class ParserError
-   {
-   public:
-      ParserError(const std::string &error)
-      :m_error(error)
-      {}
-      
-      const char *error() { return m_error.c_str(); }
-   private:
-      std::string m_error;
-   };
-   
-   enum PARSER_STATES {
-      IN_DOCUMENT,
-      IN_BEGIN_TAG,
-      IN_DONE,
-      IN_BEGIN_ELEMENT,
-      IN_ELEMENT_WHITESPACE,
-      IN_END_ELEMENT,
-      IN_ATTRIBUTE_KEY,
-      IN_END_TAG,
-      IN_DATA,
-      IN_BEGIN_ATTRIBUTE_VALUE,
-      IN_STRING,
-      IN_END_ATTRIBUTE_VALUE,
-      IN_STRING_ENTITY,
-      IN_DATA_ENTITY
-   };
-   
-   SimpleSAXParser(std::istream &f)
-   : m_in(f),
-     m_bufferSize(1024),
-     m_buffer(new char[m_bufferSize]),
-     m_nextChar(m_in.get())
-   {}
+    Attribute(const Attribute &attr) : key(attr.key), value(attr.value) {}
 
-   virtual ~SimpleSAXParser();
-   
-   void parse(void);
-   
-   virtual void startElement(const std::string &/*name*/, 
-                             Attributes &/*attributes*/) {}
-   virtual void endElement(const std::string &/*name*/) {}
-   virtual void data(const std::string &/*data*/) {}
+    bool operator<(const Attribute &attribute) const { return this->key < attribute.key; }
+  };
+
+  typedef std::vector<Attribute> Attributes;
+  class ParserError {
+  public:
+    ParserError(const std::string &error) : m_error(error) {}
+
+    const char *error() { return m_error.c_str(); }
+
+  private:
+    std::string m_error;
+  };
+
+  enum PARSER_STATES {
+    IN_DOCUMENT,
+    IN_BEGIN_TAG,
+    IN_DONE,
+    IN_BEGIN_ELEMENT,
+    IN_ELEMENT_WHITESPACE,
+    IN_END_ELEMENT,
+    IN_ATTRIBUTE_KEY,
+    IN_END_TAG,
+    IN_DATA,
+    IN_BEGIN_ATTRIBUTE_VALUE,
+    IN_STRING,
+    IN_END_ATTRIBUTE_VALUE,
+    IN_STRING_ENTITY,
+    IN_DATA_ENTITY
+  };
+
+  SimpleSAXParser(std::istream &f)
+      : m_in(f), m_bufferSize(1024), m_buffer(new char[m_bufferSize]), m_nextChar(m_in.get()) {}
+
+  virtual ~SimpleSAXParser();
+
+  void parse(void);
+
+  virtual void startElement(const std::string & /*name*/, Attributes & /*attributes*/) {}
+  virtual void endElement(const std::string & /*name*/) {}
+  virtual void data(const std::string & /*data*/) {}
 
 private:
-   SimpleSAXParser(const SimpleSAXParser&) = delete;    // stop default
-   const SimpleSAXParser& operator=(const SimpleSAXParser&) = delete;    // stop default
-   
-   std::string parseEntity(const std::string &entity);
-   std::string getToken(const char *delim)
-      {
-         fgettoken(m_in, &m_buffer, &m_bufferSize, delim, &m_nextChar);
-         return m_buffer;
-      }
+  SimpleSAXParser(const SimpleSAXParser &) = delete;                   // stop default
+  const SimpleSAXParser &operator=(const SimpleSAXParser &) = delete;  // stop default
 
-   std::string getToken(const char delim)
-      {
-         char buf[2] = {delim, 0};
-         fgettoken(m_in, &m_buffer, &m_bufferSize, buf, &m_nextChar);
-         m_nextChar = m_in.get();
-         return m_buffer;
-      }
-   
-   bool skipChar(int c) 
-      { 
-         if (m_nextChar != c)
-            return false;
-         m_nextChar = m_in.get();
-         return true;
-      }
-   
-   int nextChar(void) { return m_nextChar; }
+  std::string parseEntity(const std::string &entity);
+  std::string getToken(const char *delim) {
+    fgettoken(m_in, &m_buffer, &m_bufferSize, delim, &m_nextChar);
+    return m_buffer;
+  }
 
-   std::istream                        &m_in;
-   size_t                              m_bufferSize;
-   char                                *m_buffer;
-   int                                 m_nextChar;
-   std::vector<std::string>            m_elementTags;
-   Attributes                          m_attributes;
+  std::string getToken(const char delim) {
+    char buf[2] = {delim, 0};
+    fgettoken(m_in, &m_buffer, &m_bufferSize, buf, &m_nextChar);
+    m_nextChar = m_in.get();
+    return m_buffer;
+  }
+
+  bool skipChar(int c) {
+    if (m_nextChar != c)
+      return false;
+    m_nextChar = m_in.get();
+    return true;
+  }
+
+  int nextChar(void) { return m_nextChar; }
+
+  std::istream &m_in;
+  size_t m_bufferSize;
+  char *m_buffer;
+  int m_nextChar;
+  std::vector<std::string> m_elementTags;
+  Attributes m_attributes;
 };
 
 // NOTE: put in a .cc if this file is used in more than one place.
-#endif // __SIMPLE_SAX_PARSER_H_
+#endif  // __SIMPLE_SAX_PARSER_H_

@@ -30,11 +30,8 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-
 class ChamberSegmentUtility {
-
- public:
-
+public:
   ChamberSegmentUtility();
 
   void initCSU(const edm::Handle<DTRecSegment4DCollection>&, const edm::Handle<CSCSegmentCollection>&);
@@ -44,9 +41,8 @@ class ChamberSegmentUtility {
 
   // Get the 4D segments in a DT chamber
   std::vector<DTRecSegment4D> getDTSegmentsInChamber(DTChamberId);
-  
- private:
 
+private:
   edm::ESHandle<CSCGeometry> cscGeometry;
   edm::Handle<CSCSegmentCollection> CSCSegments;
   edm::ESHandle<DTGeometry> dtGeom;
@@ -56,5 +52,3 @@ class ChamberSegmentUtility {
 };
 
 #endif
-
-

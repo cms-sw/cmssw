@@ -9,7 +9,7 @@
 #include "lwtnn/parse_json.hh"
 #include <fstream>
 
-class LwtnnESProducer: public edm::ESProducer {
+class LwtnnESProducer : public edm::ESProducer {
 public:
   LwtnnESProducer(const edm::ParameterSet& iConfig);
   ~LwtnnESProducer() override = default;
@@ -27,9 +27,8 @@ private:
   edm::FileInPath fileName_;
 };
 
-LwtnnESProducer::LwtnnESProducer(const edm::ParameterSet& iConfig):
-  fileName_(iConfig.getParameter<edm::FileInPath>("fileName"))
-{
+LwtnnESProducer::LwtnnESProducer(const edm::ParameterSet& iConfig)
+    : fileName_(iConfig.getParameter<edm::FileInPath>("fileName")) {
   auto componentName = iConfig.getParameter<std::string>("ComponentName");
   setWhatProduced(this, componentName);
 }

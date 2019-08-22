@@ -2,7 +2,7 @@
 //
 // Package:   NJetsMC
 // Class:     NJetsMC
-// 
+//
 /**\class NJetsMC NJetsMC.cc
 
  Description: Filter for DPS MC generation.
@@ -15,7 +15,6 @@
 //         Created:  Thu Aug 12 09:24:46 CDT 2010
 // then moved to more general N-jets purpose in GeneratorInterface/GenFilters
 //
-
 
 // system include files
 #include <memory>
@@ -47,67 +46,55 @@ using namespace reco;
 // class declaration
 //
 
-class NJetsMC : public edm::EDFilter 
-{
+class NJetsMC : public edm::EDFilter {
 public:
   explicit NJetsMC(const edm::ParameterSet&);
   ~NJetsMC() override;
-  
-private:
-  void beginJob() override ;
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-  
-  // ----------member data ---------------------------
-  
-  edm::EDGetTokenT<reco::GenJetCollection> GenToken_;
-  Int_t  njets_;
-  double minpt_;
 
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+  // ----------member data ---------------------------
+
+  edm::EDGetTokenT<reco::GenJetCollection> GenToken_;
+  Int_t njets_;
+  double minpt_;
 };
 
-NJetsMC::NJetsMC(const edm::ParameterSet& iConfig):
-  GenToken_(consumes<reco::GenJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>("GenTag"))),
-  njets_(iConfig.getParameter<int32_t>("Njets")),
-  minpt_(iConfig.getParameter<double>("MinPt"))
-{
+NJetsMC::NJetsMC(const edm::ParameterSet& iConfig)
+    : GenToken_(consumes<reco::GenJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>("GenTag"))),
+      njets_(iConfig.getParameter<int32_t>("Njets")),
+      minpt_(iConfig.getParameter<double>("MinPt")) {}
+
+NJetsMC::~NJetsMC() {}
+
+bool NJetsMC::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
+
+  Handle<reco::GenJetCollection> GenJets;
+  iEvent.getByToken(GenToken_, GenJets);
+
+  Int_t count = 0;
+  bool result = false;
+
+  for (GenJetCollection::const_iterator iJet = GenJets->begin(); iJet != GenJets->end(); ++iJet) {
+    reco::GenJet myJet = reco::GenJet(*iJet);
+
+    if (myJet.pt() > minpt_)
+      ++count;
+  }
+
+  if (count >= njets_)
+    result = true;
+
+  return result;
 }
 
+void NJetsMC::beginJob() {}
 
-NJetsMC::~NJetsMC()
-{
-}
-
-bool NJetsMC::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   
-   Handle<reco::GenJetCollection> GenJets;
-   iEvent.getByToken(GenToken_, GenJets);
-
-   Int_t count = 0;
-   bool result = false;
-
-   for(GenJetCollection::const_iterator iJet = GenJets->begin(); iJet != GenJets->end(); ++iJet)
-     {
-       reco::GenJet myJet = reco::GenJet(*iJet);
-
-       if(myJet.pt() > minpt_) ++count;
-     }
-
-   if( count >= njets_ )
-      result = true;
-
-   return result;
-}
-
-void NJetsMC::beginJob()
-{
-}
-
-void NJetsMC::endJob()
-{
-}
+void NJetsMC::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(NJetsMC);

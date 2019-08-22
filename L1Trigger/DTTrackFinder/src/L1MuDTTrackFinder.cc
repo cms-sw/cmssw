@@ -47,49 +47,49 @@ using namespace std;
 //       class L1MuDTTrackFinder
 //---------------------------------
 
-
 //----------------
 // Constructors --
 //----------------
 
-L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet & ps,edm::ConsumesCollector && iC) {
-
+L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC) {
   // set configuration parameters
-  if ( m_config == nullptr ) m_config = new L1MuDTTFConfig(ps);
+  if (m_config == nullptr)
+    m_config = new L1MuDTTFConfig(ps);
 
-  if ( m_config->Debug(1) ) cout << endl;
-  if ( m_config->Debug(1) ) cout << "**** entering L1MuDTTrackFinder ****" << endl;
-  if ( m_config->Debug(1) ) cout << endl;
+  if (m_config->Debug(1))
+    cout << endl;
+  if (m_config->Debug(1))
+    cout << "**** entering L1MuDTTrackFinder ****" << endl;
+  if (m_config->Debug(1))
+    cout << endl;
 
   m_spmap = new L1MuDTSecProcMap();
   m_epvec.reserve(12);
   m_wsvec.reserve(12);
   m_ms = nullptr;
 
-  _cache.reserve(4*17);
-  _cache0.reserve(144*17);
+  _cache.reserve(4 * 17);
+  _cache0.reserve(144 * 17);
 
   m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(m_config->getDTDigiInputTag());
 }
-
 
 //--------------
 // Destructor --
 //--------------
 
 L1MuDTTrackFinder::~L1MuDTTrackFinder() {
-
   delete m_spmap;
 
   vector<L1MuDTEtaProcessor*>::iterator it_ep = m_epvec.begin();
-  while ( it_ep != m_epvec.end() ) {
+  while (it_ep != m_epvec.end()) {
     delete (*it_ep);
     it_ep++;
   }
   m_epvec.clear();
 
   vector<L1MuDTWedgeSorter*>::iterator it_ws = m_wsvec.begin();
-  while ( it_ws != m_wsvec.end() ) {
+  while (it_ws != m_wsvec.end()) {
     delete (*it_ws);
     it_ws++;
   }
@@ -97,11 +97,10 @@ L1MuDTTrackFinder::~L1MuDTTrackFinder() {
 
   delete m_ms;
 
-  if ( m_config ) delete m_config;
+  if (m_config)
+    delete m_config;
   m_config = nullptr;
-
 }
-
 
 //--------------
 // Operations --
@@ -110,216 +109,216 @@ L1MuDTTrackFinder::~L1MuDTTrackFinder() {
 //
 // setup MTTF configuration
 //
-void L1MuDTTrackFinder::setup( edm::ConsumesCollector&& iC) {
-
+void L1MuDTTrackFinder::setup(edm::ConsumesCollector&& iC) {
   // build the barrel Muon Trigger Track Finder
 
-  if ( m_config->Debug(1) ) cout << endl;
-  if ( m_config->Debug(1) ) cout << "**** L1MuDTTrackFinder building ****" << endl;
-  if ( m_config->Debug(1) ) cout << endl;
+  if (m_config->Debug(1))
+    cout << endl;
+  if (m_config->Debug(1))
+    cout << "**** L1MuDTTrackFinder building ****" << endl;
+  if (m_config->Debug(1))
+    cout << endl;
 
   // create new sector processors
-  for ( int wh = -3; wh <= 3; wh++ ) {
-    if ( wh == 0 ) continue;
-    for ( int sc = 0; sc < 12; sc++ ) {
-      L1MuDTSecProcId tmpspid(wh,sc);
-      L1MuDTSectorProcessor* sp = new L1MuDTSectorProcessor(*this,tmpspid,std::move(iC));
-      if ( m_config->Debug(2) ) cout << "creating " << tmpspid << endl;
-      m_spmap->insert(tmpspid,sp);
+  for (int wh = -3; wh <= 3; wh++) {
+    if (wh == 0)
+      continue;
+    for (int sc = 0; sc < 12; sc++) {
+      L1MuDTSecProcId tmpspid(wh, sc);
+      L1MuDTSectorProcessor* sp = new L1MuDTSectorProcessor(*this, tmpspid, std::move(iC));
+      if (m_config->Debug(2))
+        cout << "creating " << tmpspid << endl;
+      m_spmap->insert(tmpspid, sp);
     }
   }
- 
+
   // create new eta processors and wedge sorters
-  for ( int sc = 0; sc < 12; sc++ ) {
-    L1MuDTEtaProcessor* ep = new L1MuDTEtaProcessor(*this,sc,std::move(iC));
-    if ( m_config->Debug(2) ) cout << "creating Eta Processor " << sc << endl;
+  for (int sc = 0; sc < 12; sc++) {
+    L1MuDTEtaProcessor* ep = new L1MuDTEtaProcessor(*this, sc, std::move(iC));
+    if (m_config->Debug(2))
+      cout << "creating Eta Processor " << sc << endl;
     m_epvec.push_back(ep);
-    L1MuDTWedgeSorter* ws = new L1MuDTWedgeSorter(*this,sc);
-    if ( m_config->Debug(2) ) cout << "creating Wedge Sorter " << sc << endl;
+    L1MuDTWedgeSorter* ws = new L1MuDTWedgeSorter(*this, sc);
+    if (m_config->Debug(2))
+      cout << "creating Wedge Sorter " << sc << endl;
     m_wsvec.push_back(ws);
   }
 
   // create new muon sorter
-  if ( m_config->Debug(2) ) cout << "creating DT Muon Sorter " << endl;
+  if (m_config->Debug(2))
+    cout << "creating DT Muon Sorter " << endl;
   m_ms = new L1MuDTMuonSorter(*this);
-
 }
-
 
 //
 // run MTTF
 //
 void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
-
   // run the barrel Muon Trigger Track Finder
 
   edm::Handle<L1MuDTChambPhContainer> dttrig;
-  e.getByToken(m_DTDigiToken,dttrig);
-  if ( dttrig->getContainer()->empty() ) return;
+  e.getByToken(m_DTDigiToken, dttrig);
+  if (dttrig->getContainer()->empty())
+    return;
 
-  if ( m_config->Debug(2) ) cout << endl;
-  if ( m_config->Debug(2) ) cout << "**** L1MuDTTrackFinder processing ****" << endl;
-  if ( m_config->Debug(2) ) cout << endl;
+  if (m_config->Debug(2))
+    cout << endl;
+  if (m_config->Debug(2))
+    cout << "**** L1MuDTTrackFinder processing ****" << endl;
+  if (m_config->Debug(2))
+    cout << endl;
 
   int bx_min = m_config->getBxMin();
   int bx_max = m_config->getBxMax();
 
-  for ( int bx = bx_min; bx <= bx_max; bx++ ) {
+  for (int bx = bx_min; bx <= bx_max; bx++) {
+    if (dttrig->bxEmpty(bx))
+      continue;
 
-  if ( dttrig->bxEmpty(bx) ) continue;
-
-  if ( m_config->Debug(2) ) cout << "L1MuDTTrackFinder processing bunch-crossing : " << bx << endl;
+    if (m_config->Debug(2))
+      cout << "L1MuDTTrackFinder processing bunch-crossing : " << bx << endl;
 
     // reset MTTF
     reset();
 
     // run sector processors
     L1MuDTSecProcMap::SPmap_iter it_sp = m_spmap->begin();
-    while ( it_sp != m_spmap->end() ) {
-      if ( m_config->Debug(2) ) cout << "running " 
-                                           << (*it_sp).second->id() << endl;
-      if ( (*it_sp).second ) (*it_sp).second->run(bx,e,c);
-      if ( m_config->Debug(2) && (*it_sp).second ) (*it_sp).second->print();
+    while (it_sp != m_spmap->end()) {
+      if (m_config->Debug(2))
+        cout << "running " << (*it_sp).second->id() << endl;
+      if ((*it_sp).second)
+        (*it_sp).second->run(bx, e, c);
+      if (m_config->Debug(2) && (*it_sp).second)
+        (*it_sp).second->print();
       it_sp++;
-    } 
+    }
 
     // run eta processors
     vector<L1MuDTEtaProcessor*>::iterator it_ep = m_epvec.begin();
-    while ( it_ep != m_epvec.end() ) {
-      if ( m_config->Debug(2) ) cout << "running Eta Processor "
-                                       << (*it_ep)->id() << endl;
-      if ( *it_ep ) (*it_ep)->run(bx,e,c);
-      if ( m_config->Debug(2) && *it_ep ) (*it_ep)->print();
+    while (it_ep != m_epvec.end()) {
+      if (m_config->Debug(2))
+        cout << "running Eta Processor " << (*it_ep)->id() << endl;
+      if (*it_ep)
+        (*it_ep)->run(bx, e, c);
+      if (m_config->Debug(2) && *it_ep)
+        (*it_ep)->print();
       it_ep++;
     }
 
     // read sector processors
     it_sp = m_spmap->begin();
-    while ( it_sp != m_spmap->end() ) {
-      if ( m_config->Debug(2) ) cout << "reading " 
-                                           << (*it_sp).second->id() << endl;
-      for ( int number = 0; number < 2; number++ ) {
+    while (it_sp != m_spmap->end()) {
+      if (m_config->Debug(2))
+        cout << "reading " << (*it_sp).second->id() << endl;
+      for (int number = 0; number < 2; number++) {
         const L1MuDTTrack* cand = (*it_sp).second->tracK(number);
-        if ( cand && !cand->empty() ) _cache0.push_back(L1MuDTTrackCand(cand->getDataWord(),cand->bx(),
-                                              cand->spid().wheel(),cand->spid().sector(),number,cand->address(1),
-                                              cand->address(2),cand->address(3),cand->address(4),cand->tc()));
+        if (cand && !cand->empty())
+          _cache0.push_back(L1MuDTTrackCand(cand->getDataWord(),
+                                            cand->bx(),
+                                            cand->spid().wheel(),
+                                            cand->spid().sector(),
+                                            number,
+                                            cand->address(1),
+                                            cand->address(2),
+                                            cand->address(3),
+                                            cand->address(4),
+                                            cand->tc()));
       }
       it_sp++;
-    } 
+    }
 
     // run wedge sorters
     vector<L1MuDTWedgeSorter*>::iterator it_ws = m_wsvec.begin();
-    while ( it_ws != m_wsvec.end() ) {
-      if ( m_config->Debug(2) ) cout << "running Wedge Sorter " 
-                                           << (*it_ws)->id() << endl;
-      if ( *it_ws ) (*it_ws)->run();
-      if ( m_config->Debug(2) && *it_ws ) (*it_ws)->print();
+    while (it_ws != m_wsvec.end()) {
+      if (m_config->Debug(2))
+        cout << "running Wedge Sorter " << (*it_ws)->id() << endl;
+      if (*it_ws)
+        (*it_ws)->run();
+      if (m_config->Debug(2) && *it_ws)
+        (*it_ws)->print();
       it_ws++;
     }
 
     // run muon sorter
-    if ( m_config->Debug(2) ) cout << "running DT Muon Sorter" << endl;
-    if ( m_ms ) m_ms->run();
-    if ( m_config->Debug(2) && m_ms ) m_ms->print();
+    if (m_config->Debug(2))
+      cout << "running DT Muon Sorter" << endl;
+    if (m_ms)
+      m_ms->run();
+    if (m_config->Debug(2) && m_ms)
+      m_ms->print();
 
     // store found track candidates in container (cache)
-    if ( m_ms->numberOfTracks() > 0 ) {
-      const vector<const L1MuDTTrack*>&  mttf_cont = m_ms->tracks();
+    if (m_ms->numberOfTracks() > 0) {
+      const vector<const L1MuDTTrack*>& mttf_cont = m_ms->tracks();
       vector<const L1MuDTTrack*>::const_iterator iter;
-      for ( iter = mttf_cont.begin(); iter != mttf_cont.end(); iter++ ) {
-        if ( *iter ) _cache.push_back(L1MuRegionalCand((*iter)->getDataWord(),(*iter)->bx()));
+      for (iter = mttf_cont.begin(); iter != mttf_cont.end(); iter++) {
+        if (*iter)
+          _cache.push_back(L1MuRegionalCand((*iter)->getDataWord(), (*iter)->bx()));
       }
     }
-    
   }
-
 }
-
 
 //
 // reset MTTF
 //
 void L1MuDTTrackFinder::reset() {
-
   L1MuDTSecProcMap::SPmap_iter it_sp = m_spmap->begin();
-  while ( it_sp != m_spmap->end() ) {
-    if ( (*it_sp).second ) (*it_sp).second->reset();
+  while (it_sp != m_spmap->end()) {
+    if ((*it_sp).second)
+      (*it_sp).second->reset();
     it_sp++;
   }
 
   vector<L1MuDTEtaProcessor*>::iterator it_ep = m_epvec.begin();
-  while ( it_ep != m_epvec.end() ) {
-    if ( *it_ep ) (*it_ep)->reset();
+  while (it_ep != m_epvec.end()) {
+    if (*it_ep)
+      (*it_ep)->reset();
     it_ep++;
   }
-    
+
   vector<L1MuDTWedgeSorter*>::iterator it_ws = m_wsvec.begin();
-  while ( it_ws != m_wsvec.end() ) {
-    if ( *it_ws ) (*it_ws)->reset();
+  while (it_ws != m_wsvec.end()) {
+    if (*it_ws)
+      (*it_ws)->reset();
     it_ws++;
   }
 
-  if ( m_ms ) m_ms->reset();
-
+  if (m_ms)
+    m_ms->reset();
 }
 
-
 //
-// return Sector Processor container 
+// return Sector Processor container
 //
-const L1MuDTSectorProcessor* L1MuDTTrackFinder::sp(const L1MuDTSecProcId& id) const { 
-
-  return m_spmap->sp(id); 
-
-}
-
+const L1MuDTSectorProcessor* L1MuDTTrackFinder::sp(const L1MuDTSecProcId& id) const { return m_spmap->sp(id); }
 
 //
 // return number of muon candidates found by the barrel MTTF
 //
-int L1MuDTTrackFinder::numberOfTracks() {
+int L1MuDTTrackFinder::numberOfTracks() { return _cache.size(); }
 
-  return _cache.size();
+L1MuDTTrackFinder::TFtracks_const_iter L1MuDTTrackFinder::begin() { return _cache.begin(); }
 
-}
-
-
-L1MuDTTrackFinder::TFtracks_const_iter L1MuDTTrackFinder::begin() {
-
-  return _cache.begin();
-
-}
-
-
-L1MuDTTrackFinder::TFtracks_const_iter L1MuDTTrackFinder::end() {
-
-  return _cache.end();
-
-}
-
+L1MuDTTrackFinder::TFtracks_const_iter L1MuDTTrackFinder::end() { return _cache.end(); }
 
 void L1MuDTTrackFinder::clear() {
-
   _cache.clear();
   _cache0.clear();
-
 }
-
 
 //
 // return number of muon candidates found by the barrel MTTF at a given bx
 //
 int L1MuDTTrackFinder::numberOfTracks(int bx) {
-
   int number = 0;
-  for ( TFtracks_const_iter it  = _cache.begin(); it != _cache.end(); it++ ) {
-    if ( (*it).bx() == bx ) number++;
+  for (TFtracks_const_iter it = _cache.begin(); it != _cache.end(); it++) {
+    if ((*it).bx() == bx)
+      number++;
   }
-  
+
   return number;
-
 }
-
 
 // static data members
 

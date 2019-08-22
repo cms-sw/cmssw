@@ -11,40 +11,31 @@
 namespace pf2pat {
 
   class PtMinPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition {
-
   public:
-    PtMinPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
-      ptMin_( cfg.getParameter< double >( "ptMin" ) ) { }
+    PtMinPFCandidateSelectorDefinition(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+        : ptMin_(cfg.getParameter<double>("ptMin")) {}
 
-
-    void select( const HandleToCollection & hc,
-		 const edm::EventBase & e,
-		 const edm::EventSetup& s
-		 ) {
+    void select(const HandleToCollection& hc, const edm::EventBase& e, const edm::EventSetup& s) {
       selected_.clear();
 
-      assert( hc.isValid() );
+      assert(hc.isValid());
 
-
-      unsigned key=0;
-      for( collection::const_iterator pfc = hc->begin();
-	   pfc != hc->end(); ++pfc, ++key) {
-
- 	if( pfc->pt() > ptMin_ ) {
-	  selected_.push_back( reco::PFCandidate(*pfc) );
-	  reco::PFCandidatePtr ptrToMother( hc, key );
-	  selected_.back().setSourceCandidatePtr( ptrToMother );
-
-	}
+      unsigned key = 0;
+      for (collection::const_iterator pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
+        if (pfc->pt() > ptMin_) {
+          selected_.push_back(reco::PFCandidate(*pfc));
+          reco::PFCandidatePtr ptrToMother(hc, key);
+          selected_.back().setSourceCandidatePtr(ptrToMother);
+        }
       }
     }
 
-/*     const container& selected() const {return selected_;} */
+    /*     const container& selected() const {return selected_;} */
 
-    private:
-      double ptMin_;
+  private:
+    double ptMin_;
   };
 
-}
+}  // namespace pf2pat
 
 #endif

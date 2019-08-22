@@ -33,9 +33,7 @@
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "CondFormats/DataRecord/interface/CSCDBL1TPParametersRcd.h"
 
-
-CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterSet& conf)
-{
+CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterSet& conf) {
   config_ = conf;
 
   // if false, parameters will be read in from DB using EventSetup mechanism
@@ -44,13 +42,15 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
-  gemPadDigiProducer_ = conf.existsAs<edm::InputTag>("GEMPadDigiProducer")?conf.getParameter<edm::InputTag>("GEMPadDigiProducer"):edm::InputTag("");
+  gemPadDigiProducer_ = conf.existsAs<edm::InputTag>("GEMPadDigiProducer")
+                            ? conf.getParameter<edm::InputTag>("GEMPadDigiProducer")
+                            : edm::InputTag("");
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
   // check whether you need to run the integrated local triggers
   const edm::ParameterSet commonParam(conf.getParameter<edm::ParameterSet>("commonParam"));
-  runME11ILT_ = commonParam.existsAs<bool>("runME11ILT")?commonParam.getParameter<bool>("runME11ILT"):false;
-  runME21ILT_ = commonParam.existsAs<bool>("runME21ILT")?commonParam.getParameter<bool>("runME21ILT"):false;
+  runME11ILT_ = commonParam.existsAs<bool>("runME11ILT") ? commonParam.getParameter<bool>("runME11ILT") : false;
+  runME21ILT_ = commonParam.existsAs<bool>("runME21ILT") ? commonParam.getParameter<bool>("runME21ILT") : false;
 
   wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
   comp_token_ = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
@@ -68,12 +68,9 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
     produces<GEMCoPadDigiCollection>();
 }
 
-CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer()
-{
-}
+CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {}
 
-void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, const edm::EventSetup& setup) const
-{
+void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, const edm::EventSetup& setup) const {
   // Remark: access builder using "streamCache(iID)"
 
   // get the csc geometry
@@ -88,7 +85,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
     streamCache(iID)->setGEMGeometry(&*h_gem);
   } else {
     edm::LogInfo("CSCTriggerPrimitivesProducer|NoGEMGeometry")
-      << "+++ Info: GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
+        << "+++ Info: GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
   }
 
   // Find conditions data for bad chambers.
@@ -103,8 +100,8 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
     setup.get<CSCDBL1TPParametersRcd>().get(conf);
     if (conf.product() == nullptr) {
       edm::LogError("CSCTriggerPrimitivesProducer|ConfigError")
-        << "+++ Failed to find a CSCDBL1TPParametersRcd in EventSetup! +++\n"
-        << "+++ Cannot continue emulation without these parameters +++\n";
+          << "+++ Failed to find a CSCDBL1TPParametersRcd in EventSetup! +++\n"
+          << "+++ Cannot continue emulation without these parameters +++\n";
       return;
     }
     streamCache(iID)->setConfigParameters(conf.product());
@@ -112,12 +109,12 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
 
   // Get the collections of comparator & wire digis from event.
   edm::Handle<CSCComparatorDigiCollection> compDigis;
-  edm::Handle<CSCWireDigiCollection>       wireDigis;
+  edm::Handle<CSCWireDigiCollection> wireDigis;
   ev.getByToken(comp_token_, compDigis);
   ev.getByToken(wire_token_, wireDigis);
 
   // input GEM pad collection for upgrade scenarios
-  const GEMPadDigiCollection *gemPads = nullptr;
+  const GEMPadDigiCollection* gemPads = nullptr;
   if (!gemPadDigiProducer_.label().empty()) {
     edm::Handle<GEMPadDigiCollection> gemPadDigis;
     ev.getByToken(gem_pad_token_, gemPadDigis);
@@ -125,7 +122,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   }
 
   // input GEM pad cluster collection for upgrade scenarios
-  const GEMPadDigiClusterCollection *gemPadClusters = nullptr;
+  const GEMPadDigiClusterCollection* gemPadClusters = nullptr;
   if (!gemPadDigiClusterProducer_.label().empty()) {
     edm::Handle<GEMPadDigiClusterCollection> gemPadDigiClusters;
     ev.getByToken(gem_pad_cluster_token_, gemPadDigiClusters);
@@ -144,27 +141,31 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
 
   if (!wireDigis.isValid()) {
     edm::LogWarning("CSCTriggerPrimitivesProducer|NoInputCollection")
-      << "+++ Warning: Collection of wire digis with label "
-      << wireDigiProducer_.label()
-      << " requested in configuration, but not found in the event..."
-      << " Skipping production of CSC TP digis +++\n";
+        << "+++ Warning: Collection of wire digis with label " << wireDigiProducer_.label()
+        << " requested in configuration, but not found in the event..."
+        << " Skipping production of CSC TP digis +++\n";
   }
   if (!compDigis.isValid()) {
     edm::LogWarning("CSCTriggerPrimitivesProducer|NoInputCollection")
-      << "+++ Warning: Collection of comparator digis with label "
-      << compDigiProducer_.label()
-      << " requested in configuration, but not found in the event..."
-      << " Skipping production of CSC TP digis +++\n";
+        << "+++ Warning: Collection of comparator digis with label " << compDigiProducer_.label()
+        << " requested in configuration, but not found in the event..."
+        << " Skipping production of CSC TP digis +++\n";
   }
   // Fill output collections if valid input collections are available.
   if (wireDigis.isValid() && compDigis.isValid()) {
     const CSCBadChambers* temp = checkBadChambers_ ? pBadChambers.product() : new CSCBadChambers;
     streamCache(iID)->build(temp,
-                            wireDigis.product(), compDigis.product(),
-                            gemPads, gemPadClusters,
-                            *oc_alct, *oc_clct,
-                            *oc_clctpretrigger, *oc_pretrig,
-                            *oc_lct, *oc_sorted_lct, *oc_gemcopad);
+                            wireDigis.product(),
+                            compDigis.product(),
+                            gemPads,
+                            gemPadClusters,
+                            *oc_alct,
+                            *oc_clct,
+                            *oc_clctpretrigger,
+                            *oc_pretrig,
+                            *oc_lct,
+                            *oc_sorted_lct,
+                            *oc_gemcopad);
     if (!checkBadChambers_)
       delete temp;
   }
@@ -175,7 +176,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
   ev.put(std::move(oc_clctpretrigger));
   ev.put(std::move(oc_pretrig));
   ev.put(std::move(oc_lct));
-  ev.put(std::move(oc_sorted_lct),"MPCSORTED");
+  ev.put(std::move(oc_sorted_lct), "MPCSORTED");
   // only put GEM copad collections in the event when the
   // integrated local triggers are running
   if (runME11ILT_ or runME21ILT_)

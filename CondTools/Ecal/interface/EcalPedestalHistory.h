@@ -38,31 +38,32 @@
 #include "TH1.h"
 #include "TGraph.h"
 #include "TH2.h"
-#include<fstream>
-#include<map>
+#include <fstream>
+#include <map>
 
 class EcalPedestalHistory : public edm::EDAnalyzer {
- public:
-  explicit EcalPedestalHistory( const edm::ParameterSet& );
+public:
+  explicit EcalPedestalHistory(const edm::ParameterSet&);
   ~EcalPedestalHistory() override;
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
-  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void beginJob() override;
   void endJob() override;
   EcalCondDBInterface* econn;
 
-  enum { kChannels = 75848, kEBChannels = 61200, kEEChannels = 14648};
-  enum { kGains = 3, kFirstGainId = 1};
- private:
+  enum { kChannels = 75848, kEBChannels = 61200, kEEChannels = 14648 };
+  enum { kGains = 3, kFirstGainId = 1 };
+
+private:
   int runnumber_;
   unsigned int cnt_evt_;
-  std::string ECALType_; // EB or EE
-  std::string runType_; // Pedes or Other
-  unsigned int startevent_; 
+  std::string ECALType_;  // EB or EE
+  std::string runType_;   // Pedes or Other
+  unsigned int startevent_;
   std::vector<int> maskedChannels_;
   std::vector<int> maskedEEChannels_;
-  unsigned int m_firstRun ;
-  unsigned int m_lastRun ;
+  unsigned int m_firstRun;
+  unsigned int m_lastRun;
   std::string m_location;
   std::string m_gentag;
   std::string m_sid;

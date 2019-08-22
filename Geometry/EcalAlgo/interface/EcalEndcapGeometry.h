@@ -17,125 +17,118 @@
 
 class TruncatedPyramid;
 
-class EcalEndcapGeometry final: public CaloSubdetectorGeometry 
-{
-   public:
+class EcalEndcapGeometry final : public CaloSubdetectorGeometry {
+public:
+  typedef std::vector<TruncatedPyramid> CellVec;
 
-      typedef std::vector<TruncatedPyramid> CellVec ;
+  typedef CaloCellGeometry::CCGFloat CCGFloat;
+  typedef CaloCellGeometry::Pt3D Pt3D;
+  typedef CaloCellGeometry::Pt3DVec Pt3DVec;
 
-      typedef CaloCellGeometry::CCGFloat CCGFloat ;
-      typedef CaloCellGeometry::Pt3D     Pt3D     ;
-      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+  typedef IdealGeometryRecord IdealRecord;
+  typedef EcalEndcapGeometryRecord AlignedRecord;
+  typedef EEAlignmentRcd AlignmentRecord;
+  typedef PEcalEndcapRcd PGeometryRecord;
 
-      typedef IdealGeometryRecord      IdealRecord   ;
-      typedef EcalEndcapGeometryRecord AlignedRecord ;
-      typedef EEAlignmentRcd           AlignmentRecord ;
-      typedef PEcalEndcapRcd           PGeometryRecord ;
+  typedef EZArrayFL<EBDetId> OrderedListOfEBDetId;  // like an stl vector: begin(), end(), [i]
 
-      typedef EZArrayFL<EBDetId> OrderedListOfEBDetId ; // like an stl vector: begin(), end(), [i]
+  typedef std::vector<OrderedListOfEBDetId*> VecOrdListEBDetIdPtr;
 
-      typedef std::vector<OrderedListOfEBDetId*>  VecOrdListEBDetIdPtr ;
+  typedef EcalEndcapNumberingScheme NumberingScheme;
 
-      typedef EcalEndcapNumberingScheme NumberingScheme ;
+  typedef EEDetId DetIdType;
 
-      typedef EEDetId DetIdType ;
+  enum { k_NumberOfCellsForCorners = EEDetId::kSizeForDenseIndexing };
 
-      enum { k_NumberOfCellsForCorners = EEDetId::kSizeForDenseIndexing } ;
+  enum { k_NumberOfShapes = 1 };
 
-      enum { k_NumberOfShapes = 1 } ;
+  enum { k_NumberOfParametersPerShape = 11 };
 
-      enum { k_NumberOfParametersPerShape = 11 } ;
+  static std::string dbString() { return "PEcalEndcapRcd"; }
 
+  unsigned int numberOfShapes() const override { return k_NumberOfShapes; }
+  unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape; }
 
-      static std::string dbString() { return "PEcalEndcapRcd" ; }
+  EcalEndcapGeometry();
 
-      unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
-      unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
+  ~EcalEndcapGeometry() override;
 
-      EcalEndcapGeometry() ;
-  
-      ~EcalEndcapGeometry() override;
+  int getNumberOfModules() const { return _nnmods; }
 
-      int getNumberOfModules()          const { return _nnmods ; }
+  int getNumberOfCrystalPerModule() const { return _nncrys; }
 
-      int getNumberOfCrystalPerModule() const { return _nncrys ; }
+  void setNumberOfModules(const int nnmods) { _nnmods = nnmods; }
 
-      void setNumberOfModules(          const int nnmods ) { _nnmods=nnmods ; }
+  void setNumberOfCrystalPerModule(const int nncrys) { _nncrys = nncrys; }
 
-      void setNumberOfCrystalPerModule( const int nncrys ) { _nncrys=nncrys ; }
+  const OrderedListOfEBDetId* getClosestBarrelCells(EEDetId id) const;
 
-      const OrderedListOfEBDetId* getClosestBarrelCells( EEDetId id ) const;
+  // Get closest cell, etc...
+  DetId getClosestCell(const GlobalPoint& r) const override;
 
-      // Get closest cell, etc...
-      DetId getClosestCell( const GlobalPoint& r ) const override ;
+  CaloSubdetectorGeometry::DetIdSet getCells(const GlobalPoint& r, double dR) const override;
 
-      CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
-							  double             dR ) const override ;
+  void initializeParms() override;
 
-      void initializeParms() override ;
+  CCGFloat avgAbsZFrontFaceCenter() const;  // average over both endcaps. Positive!
 
-      CCGFloat avgAbsZFrontFaceCenter() const ; // average over both endcaps. Positive!
+  static std::string hitString() { return "EcalHitsEE"; }
 
-      static std::string hitString() { return "EcalHitsEE" ; }
+  static std::string producerTag() { return "EcalEndcap"; }
 
-      static std::string producerTag() { return "EcalEndcap" ; }
+  static unsigned int numberOfAlignments() { return 4; }
 
-      static unsigned int numberOfAlignments() { return 4 ; }
+  static unsigned int alignmentTransformIndexLocal(const DetId& id);
 
-      static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
+  static unsigned int alignmentTransformIndexGlobal(const DetId& id);
 
-      static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
+  static DetId detIdFromLocalAlignmentIndex(unsigned int iLoc);
 
-      static DetId detIdFromLocalAlignmentIndex( unsigned int iLoc ) ;
+  static void localCorners(Pt3DVec& lc, const CCGFloat* pv, unsigned int i, Pt3D& ref);
 
-      static void localCorners( Pt3DVec&        lc  ,
-				const CCGFloat* pv  ,
-				unsigned int    i   ,
-				Pt3D&           ref   ) ;
+  void newCell(const GlobalPoint& f1,
+               const GlobalPoint& f2,
+               const GlobalPoint& f3,
+               const CCGFloat* parm,
+               const DetId& detId) override;
 
-      void newCell( const GlobalPoint& f1 ,
-			    const GlobalPoint& f2 ,
-			    const GlobalPoint& f3 ,
-			    const CCGFloat*    parm ,
-			    const DetId&       detId   ) override ;
+  bool present(const DetId& id) const override;
 
-      bool present( const DetId& id ) const override;
+protected:
+  // Modify the RawPtr class
+  const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const override;
 
-   protected:
+private:
+  static int myPhi(int i) {
+    i += 720;
+    return (1 + (i - 1) % 360);
+  }
 
-      // Modify the RawPtr class
-      const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
-   private:
+  /// number of modules
+  int _nnmods;
 
-      static int myPhi( int i ) { i+=720; return ( 1 + (i-1)%360 ) ; }
+  /// number of crystals per module
+  int _nncrys;
 
-      /// number of modules
-      int _nnmods;
-  
-      /// number of crystals per module
-      int _nncrys; 
+  CCGFloat zeP, zeN;
 
-      CCGFloat zeP, zeN;
+  CCGFloat m_wref, m_xlo[2], m_xhi[2], m_ylo[2], m_yhi[2], m_xoff[2], m_yoff[2], m_del;
 
-      CCGFloat m_wref, m_xlo[2], m_xhi[2], m_ylo[2], m_yhi[2], m_xoff[2], m_yoff[2], m_del ;
+  unsigned int m_nref;
 
-      unsigned int m_nref ;
+  unsigned int xindex(CCGFloat x, CCGFloat z) const;
+  unsigned int yindex(CCGFloat y, CCGFloat z) const;
 
-      unsigned int xindex( CCGFloat x, CCGFloat z ) const ;
-      unsigned int yindex( CCGFloat y, CCGFloat z ) const ;
+  EEDetId gId(float x, float y, float z) const;
 
-      EEDetId gId( float x, float y, float z ) const ;
+  mutable std::atomic<EZMgrFL<EBDetId>*> m_borderMgr;
 
-      mutable std::atomic<EZMgrFL<EBDetId>*>     m_borderMgr ;
+  mutable std::atomic<VecOrdListEBDetIdPtr*> m_borderPtrVec;
 
-      mutable std::atomic<VecOrdListEBDetIdPtr*> m_borderPtrVec ;
+  CMS_THREAD_GUARD(m_check) mutable CCGFloat m_avgZ;
+  mutable std::atomic<bool> m_check;
 
-      CMS_THREAD_GUARD(m_check) mutable CCGFloat m_avgZ ;
-      mutable std::atomic<bool> m_check;
-
-      CellVec m_cellVec ;
-} ;
-
+  CellVec m_cellVec;
+};
 
 #endif
-

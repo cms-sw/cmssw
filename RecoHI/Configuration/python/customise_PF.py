@@ -25,7 +25,6 @@ def customise(process):
     process.particleFlowBlock.useConversions = cms.bool(False)
 
     process.particleFlowTmp.vertexCollection = cms.InputTag("hiSelectedVertex")
-    process.particleFlowTmp.usePFElectrons = cms.bool(False)
     process.particleFlowTmp.muons = cms.InputTag("hiMuons1stStep")
     process.particleFlowTmp.usePFConversions = cms.bool(False)
 

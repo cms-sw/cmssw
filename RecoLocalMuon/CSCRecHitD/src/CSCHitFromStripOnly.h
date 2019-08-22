@@ -31,57 +31,52 @@ class CSCLayer;
 class CSCStripDigi;
 class CSCPedestalChoice;
 
-class CSCHitFromStripOnly 
-{
-  
- public:
+class CSCHitFromStripOnly {
+public:
+  typedef std::array<CSCStripData, 100> PulseHeightMap;
 
-  typedef std::array<CSCStripData,100> PulseHeightMap;
-  
-  explicit CSCHitFromStripOnly( const edm::ParameterSet& ps );
-  
+  explicit CSCHitFromStripOnly(const edm::ParameterSet& ps);
+
   ~CSCHitFromStripOnly();
-  
-  std::vector<CSCStripHit> runStrip( const CSCDetId& id, const CSCLayer* layer, const CSCStripDigiCollection::Range& rstripd );
 
-  void setConditions( const CSCRecoConditions* reco ) {
-    recoConditions_ = reco;
-  } 
- 
-  bool ganged() { return ganged_;}
-  void setGanged( bool ig ) { ganged_ = ig;}
+  std::vector<CSCStripHit> runStrip(const CSCDetId& id,
+                                    const CSCLayer* layer,
+                                    const CSCStripDigiCollection::Range& rstripd);
 
- private:
-	
+  void setConditions(const CSCRecoConditions* reco) { recoConditions_ = reco; }
+
+  bool ganged() { return ganged_; }
+  void setGanged(bool ig) { ganged_ = ig; }
+
+private:
   /// Store SCA pulseheight information from strips in digis of one layer
-  void fillPulseHeights( const CSCStripDigiCollection::Range& rstripd );  
+  void fillPulseHeights(const CSCStripDigiCollection::Range& rstripd);
 
   /// Find local maxima
-  void findMaxima(const CSCDetId& id);  
+  void findMaxima(const CSCDetId& id);
   // What we call a peak
-  bool isPeakOK(int iStrip, float heightCluster);  
+  bool isPeakOK(int iStrip, float heightCluster);
 
   /// Make clusters using local maxima
-  float makeCluster( int centerStrip );
+  float makeCluster(int centerStrip);
 
-  /// 
-  CSCStripHitData makeStripData( int centerStrip, int offset );
+  ///
+  CSCStripHitData makeStripData(int centerStrip, int offset);
 
   /// Is either neighbour 'bad'?
-  bool isNearDeadStrip(const CSCDetId& id, int centralStrip, int nstrips); 
+  bool isNearDeadStrip(const CSCDetId& id, int centralStrip, int nstrips);
 
   /// Is the strip 'bad'?
-  bool isDeadStrip(const CSCDetId& id, int centralStrip, int nstrips); 
+  bool isDeadStrip(const CSCDetId& id, int centralStrip, int nstrips);
 
   /// Find position of hit in strip cluster in terms of strip #
-  float findHitOnStripPosition( const std::vector<CSCStripHitData>& data, const int& centerStrip );
-  
+  float findHitOnStripPosition(const std::vector<CSCStripHitData>& data, const int& centerStrip);
 
-// MEMBER DATA
+  // MEMBER DATA
 
   // Hold pointers to current layer, conditions data
-  CSCDetId id_;    
-  const CSCLayer * layer_;
+  CSCDetId id_;
+  const CSCLayer* layer_;
   const CSCRecoConditions* recoConditions_;
   // Number of strips in layer
   unsigned nstrips_;
@@ -97,24 +92,21 @@ class CSCHitFromStripOnly
   float theThresholdForAPeak;
   float theThresholdForCluster;
 
-
   // working buffer for sca pulseheights
   PulseHeightMap thePulseHeightMap;
 
   std::vector<int> theMaxima;
-  std::vector<int> theConsecutiveStrips;//... with charge for a given maximum
-  std::vector<int> theClosestMaximum; // this is number of strips to the closest other maximum
+  std::vector<int> theConsecutiveStrips;  //... with charge for a given maximum
+  std::vector<int> theClosestMaximum;     // this is number of strips to the closest other maximum
 
   // Variables entering the CSCStripHit construction:
-  int tmax_cluster; // Peaking time for strip hit, in time bin units
+  int tmax_cluster;  // Peaking time for strip hit, in time bin units
   int clusterSize;
   std::vector<float> strips_adc;
   std::vector<float> strips_adcRaw;
   std::vector<int> theStrips;
 
-  bool ganged_; // only True if ME1/1A AND it is ganged
-  
+  bool ganged_;  // only True if ME1/1A AND it is ganged
 };
 
 #endif
-

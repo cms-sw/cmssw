@@ -29,8 +29,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 class HiggsToZZ4LeptonsSkim : public edm::EDFilter {
-
- public:
+public:
   // Constructor
   explicit HiggsToZZ4LeptonsSkim(const edm::ParameterSet&);
 
@@ -38,12 +37,10 @@ class HiggsToZZ4LeptonsSkim : public edm::EDFilter {
   ~HiggsToZZ4LeptonsSkim() override;
 
   /// Get event properties to send to builder to fill seed collection
-  bool filter(edm::Event&, const edm::EventSetup& ) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-
- private:
+private:
   int nEvents, nSelectedEvents;
-
 
   bool debug;
   float stiffMinPt;

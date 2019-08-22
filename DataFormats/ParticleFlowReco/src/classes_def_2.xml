@@ -210,43 +210,7 @@
 
   <class name="edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> >"/>
 
-  <class name="pftools::CalibrationResultWrapper" ClassVersion="11">
-   <version ClassVersion="11" checksum="3535169833"/>
-   <version ClassVersion="10" checksum="1290295437"/>
-  </class>
-  <class name="pftools::Calibratable"  ClassVersion="10">
-   <version ClassVersion="10" checksum="594741590"/>
-  </class>
-  <class name="pftools::CalibratableElement"  ClassVersion="10">
-   <version ClassVersion="10" checksum="2434874022"/>
-  </class>
-  <class name="pftools::CandidateWrapper"  ClassVersion="10">
-   <version ClassVersion="10" checksum="683143818"/>
-  </class>
-  <class name="edm::Wrapper<std::vector<pftools::Calibratable> >" />
-  <class name="std::vector<pftools::Calibratable>" />
-  <class name="std::vector<pftools::CalibratableElement>" />
-  <class name="std::vector<pftools::CandidateWrapper>" />
-  <class name="std::vector<pftools::CalibrationResultWrapper>"/>
-  <class name="pftools::CaloWindow"  ClassVersion="10">
-   <version ClassVersion="10" checksum="1050281643"/>
-  </class>
-  <class name="pftools::TestCaloWindow"  ClassVersion="10">
-   <version ClassVersion="10" checksum="2905084716"/>
-  </class>
-  <class name="pftools::CaloRing"  ClassVersion="10">
-   <version ClassVersion="10" checksum="999780310"/>
-  </class>
-  <class name="std::map<unsigned int, pftools::CaloRing>"/>
-  <class name="std::vector<pftools::CaloRing>"/>
-  <class name="pftools::CaloEllipse"  ClassVersion="10">
-   <version ClassVersion="10" checksum="3700172067"/>
-  </class>
-  <class name="pftools::CaloBox"  ClassVersion="10">
-   <version ClassVersion="10" checksum="3682355512"/>
-  </class>
-  <class name="std::pair<unsigned int,pftools::CaloRing>" />  
-  
+
   <class name="pftools::ParticleFiltrationDecision" ClassVersion="11">
    <version ClassVersion="11" checksum="1016852148"/>
    <version ClassVersion="10" checksum="2525480962"/>

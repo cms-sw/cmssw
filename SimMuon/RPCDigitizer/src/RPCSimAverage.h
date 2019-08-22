@@ -10,14 +10,13 @@
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
 #include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
 
-#include<cstring>
-#include<iostream>
-#include<fstream>
-#include<string>
-#include<vector>
-#include<cstdlib>
+#include <cstring>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <cstdlib>
 #include "FWCore/Framework/interface/EventSetup.h"
-
 
 class RPCGeometry;
 
@@ -25,24 +24,21 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class RPCSimAverage : public RPCSim
-{
- public:
-
+class RPCSimAverage : public RPCSim {
+public:
   RPCSimAverage(const edm::ParameterSet& config);
   ~RPCSimAverage() override;
 
-  void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits,
-                CLHEP::HepRandomEngine*) override;
+  void simulate(const RPCRoll* roll, const edm::PSimHitContainer& rpcHits, CLHEP::HepRandomEngine*) override;
 
   void simulateNoise(const RPCRoll*, CLHEP::HepRandomEngine*) override;
 
   int getClSize(float posX, CLHEP::HepRandomEngine*);
 
- private:
+private:
   void init() override{};
- private:
+
+private:
   double aveEff;
   double aveCls;
   double resRPC;
@@ -52,16 +48,16 @@ class RPCSimAverage : public RPCSim
   double sspeed;
   double lbGate;
   bool rpcdigiprint;
-  
+
   int N_hits;
   int nbxing;
   double rate;
   double gate;
 
-  std::map< int, std::vector<double> > clsMap;
+  std::map<int, std::vector<double> > clsMap;
   std::vector<double> sum_clsize;
-  std::ifstream *infile;
- 
+  std::ifstream* infile;
+
   RPCSynchronizer* _rpcSync;
 };
 #endif

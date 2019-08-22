@@ -9,25 +9,20 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
 class PixelDigi;
 class Phase2TrackerDigi;
 class TrackerGeometry;
 
-class Phase2TrackerMonitorDigi : public DQMEDAnalyzer{
-
+class Phase2TrackerMonitorDigi : public DQMEDAnalyzer {
 public:
-  
   explicit Phase2TrackerMonitorDigi(const edm::ParameterSet&);
   ~Phase2TrackerMonitorDigi() override;
-  void bookHistograms(DQMStore::IBooker & ibooker,
-		      edm::Run const &  iRun ,
-		      edm::EventSetup const &  iSetup ) override;
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  
-  
-  struct DigiMEs{
+
+  struct DigiMEs {
     MonitorElement* NumberOfDigisPerDet;
     MonitorElement* DigiOccupancyP;
     MonitorElement* DigiOccupancyS;
@@ -44,8 +39,8 @@ public:
     MonitorElement* FractionOfOvTBitsVsEta;
     MonitorElement* EtaOccupancyProfP;
     MonitorElement* EtaOccupancyProfS;
-    unsigned int nDigiPerLayer; 
-    unsigned int nHitDetsPerLayer; 
+    unsigned int nDigiPerLayer;
+    unsigned int nHitDetsPerLayer;
   };
 
   MonitorElement* XYPositionMap;
@@ -54,19 +49,20 @@ public:
   MonitorElement* RZOccupancyMap;
 
 private:
-  void bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo); 
-  void fillITPixelDigiHistos(const edm::Handle<edm::DetSetVector<PixelDigi>>  handle, const edm::ESHandle<TrackerGeometry> gHandle);
-  void fillOTDigiHistos(const edm::Handle<edm::DetSetVector<Phase2TrackerDigi>>  handle, const edm::ESHandle<TrackerGeometry> gHandle);
+  void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, const TrackerTopology* tTopo);
+  void fillITPixelDigiHistos(const edm::Handle<edm::DetSetVector<PixelDigi>> handle,
+                             const edm::ESHandle<TrackerGeometry> gHandle);
+  void fillOTDigiHistos(const edm::Handle<edm::DetSetVector<Phase2TrackerDigi>> handle,
+                        const edm::ESHandle<TrackerGeometry> gHandle);
 
   edm::ParameterSet config_;
   std::map<unsigned int, DigiMEs> layerMEs;
   bool pixelFlag_;
-  std::string geomType_; 
-  edm::InputTag otDigiSrc_; 
-  edm::InputTag itPixelDigiSrc_; 
-  const edm::EDGetTokenT< edm::DetSetVector<Phase2TrackerDigi> > otDigiToken_;
-  const edm::EDGetTokenT< edm::DetSetVector<PixelDigi> > itPixelDigiToken_;
+  std::string geomType_;
+  edm::InputTag otDigiSrc_;
+  edm::InputTag itPixelDigiSrc_;
+  const edm::EDGetTokenT<edm::DetSetVector<Phase2TrackerDigi>> otDigiToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> itPixelDigiToken_;
   edm::ESHandle<TrackerTopology> tTopoHandle_;
-
 };
 #endif

@@ -17,24 +17,22 @@
 
 class L1TMuonOverlapParamsWriter : public edm::EDAnalyzer {
 public:
-    void analyze(const edm::Event&, const edm::EventSetup&) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    explicit L1TMuonOverlapParamsWriter(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    ~L1TMuonOverlapParamsWriter(void) override {}
+  explicit L1TMuonOverlapParamsWriter(const edm::ParameterSet&) : edm::EDAnalyzer() {}
+  ~L1TMuonOverlapParamsWriter(void) override {}
 };
 
-void L1TMuonOverlapParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
+void L1TMuonOverlapParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  edm::ESHandle<L1TMuonOverlapParams> handle1;
+  evSetup.get<L1TMuonOverlapParamsRcd>().get(handle1);
+  boost::shared_ptr<L1TMuonOverlapParams> ptr1(new L1TMuonOverlapParams(*(handle1.product())));
 
-    edm::ESHandle<L1TMuonOverlapParams> handle1;
-    evSetup.get<L1TMuonOverlapParamsRcd>().get( handle1 ) ;
-    boost::shared_ptr<L1TMuonOverlapParams> ptr1(new L1TMuonOverlapParams(*(handle1.product ())));
-
-    edm::Service<cond::service::PoolDBOutputService> poolDb;
-    if( poolDb.isAvailable() ){
-        cond::Time_t firstSinceTime = poolDb->beginOfTime();
-        poolDb->writeOne(ptr1.get(),firstSinceTime,"L1TMuonOverlapPatternParamsRcd");
-    }
-
+  edm::Service<cond::service::PoolDBOutputService> poolDb;
+  if (poolDb.isAvailable()) {
+    cond::Time_t firstSinceTime = poolDb->beginOfTime();
+    poolDb->writeOne(ptr1.get(), firstSinceTime, "L1TMuonOverlapPatternParamsRcd");
+  }
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -42,4 +40,3 @@ void L1TMuonOverlapParamsWriter::analyze(const edm::Event& iEvent, const edm::Ev
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
 DEFINE_FWK_MODULE(L1TMuonOverlapParamsWriter);
-

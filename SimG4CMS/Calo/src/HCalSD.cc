@@ -46,12 +46,12 @@
 #endif
 
 HCalSD::HCalSD(const std::string& name,
-               const DDCompactView& cpv,
+               const edm::EventSetup& es,
                const SensitiveDetectorCatalog& clg,
                edm::ParameterSet const& p,
                const SimTrackManager* manager)
     : CaloSD(name,
-             cpv,
+             es,
              clg,
              p,
              manager,
@@ -146,21 +146,24 @@ HCalSD::HCalSD(const std::string& name,
   const G4LogicalVolume* lv;
   std::string attribute, value;
 
+  edm::ESTransientHandle<DDCompactView> cpv;
+  es.get<IdealGeometryRecord>().get(cpv);
+
   if (useHF) {
     if (useParam) {
-      showerParam.reset(new HFShowerParam(name, cpv, p));
+      showerParam.reset(new HFShowerParam(name, *cpv, p));
     } else {
       if (useShowerLibrary) {
-        showerLibrary.reset(new HFShowerLibrary(name, cpv, p));
+        showerLibrary.reset(new HFShowerLibrary(name, *cpv, p));
       }
-      hfshower.reset(new HFShower(name, cpv, p, 0));
+      hfshower.reset(new HFShower(name, *cpv, p, 0));
     }
 
     // HF volume names
     attribute = "Volume";
     value = "HF";
     DDSpecificsMatchesValueFilter filter0{DDValue(attribute, value, 0)};
-    DDFilteredView fv0(cpv, filter0);
+    DDFilteredView fv0(*cpv, filter0);
     hfNames = getNames(fv0);
     fv0.firstChild();
     DDsvalues_type sv0(fv0.mergedSpecifics());
@@ -186,11 +189,11 @@ HCalSD::HCalSD(const std::string& name,
     edm::LogVerbatim("HcalSim") << ss.str();
 
     // HF Fibre volume names
-    fillLogVolumeVector(attribute, "HFFibre", cpv, fibreLV, fibreNames);
+    fillLogVolumeVector(attribute, "HFFibre", es, fibreLV, fibreNames);
     std::vector<G4String> tempNames;
-    fillLogVolumeVector(attribute, "HFPMT", cpv, pmtLV, tempNames);
-    fillLogVolumeVector(attribute, "HFFibreBundleStraight", cpv, fibre1LV, tempNames);
-    fillLogVolumeVector(attribute, "HFFibreBundleConical", cpv, fibre2LV, tempNames);
+    fillLogVolumeVector(attribute, "HFPMT", es, pmtLV, tempNames);
+    fillLogVolumeVector(attribute, "HFFibreBundleStraight", es, fibre1LV, tempNames);
+    fillLogVolumeVector(attribute, "HFFibreBundleConical", es, fibre2LV, tempNames);
   }
 
   //Material list for HB/HE/HO sensitive detectors
@@ -198,7 +201,7 @@ HCalSD::HCalSD(const std::string& name,
   std::vector<G4Material*>::const_iterator matite;
   attribute = "OnlyForHcalSimNumbering";
   DDSpecificsHasNamedValueFilter filter2{attribute};
-  DDFilteredView fv2(cpv, filter2);
+  DDFilteredView fv2(*cpv, filter2);
   bool dodet = fv2.firstChild();
   DDsvalues_type sv(fv2.mergedSpecifics());
 
@@ -297,14 +300,17 @@ HCalSD::HCalSD(const std::string& name,
 
 void HCalSD::fillLogVolumeVector(const std::string& attribute,
                                  const std::string& value,
-                                 const DDCompactView& cpv,
+                                 const edm::EventSetup& es,
                                  std::vector<const G4LogicalVolume*>& lvvec,
                                  std::vector<G4String>& lvnames) {
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   const G4LogicalVolume* lv;
 
+  edm::ESTransientHandle<DDCompactView> cpv;
+  es.get<IdealGeometryRecord>().get(cpv);
+
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0)};
-  DDFilteredView fv(cpv, filter);
+  DDFilteredView fv(*cpv, filter);
   lvnames = getNames(fv);
 
   unsigned int nvol = lvnames.size();

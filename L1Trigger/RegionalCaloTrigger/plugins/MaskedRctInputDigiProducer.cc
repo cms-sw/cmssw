@@ -12,8 +12,7 @@ using std::vector;
 // constructors and destructor
 //
 
-MaskedRctInputDigiProducer::MaskedRctInputDigiProducer(
-    const edm::ParameterSet &iConfig)
+MaskedRctInputDigiProducer::MaskedRctInputDigiProducer(const edm::ParameterSet &iConfig)
     : useEcal_(iConfig.getParameter<bool>("useEcal")),
       useHcal_(iConfig.getParameter<bool>("useHcal")),
       ecalDigisLabel_(iConfig.getParameter<edm::InputTag>("ecalDigisLabel")),
@@ -34,7 +33,6 @@ MaskedRctInputDigiProducer::MaskedRctInputDigiProducer(
 }
 
 MaskedRctInputDigiProducer::~MaskedRctInputDigiProducer() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -44,8 +42,7 @@ MaskedRctInputDigiProducer::~MaskedRctInputDigiProducer() {
 //
 
 // ------------ method called to produce the data  ------------
-void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
-                                         const edm::EventSetup &iSetup) {
+void MaskedRctInputDigiProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   /* This is an event example
      //Read 'ExampleData' from the Event
@@ -85,8 +82,7 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
 
   ifstream maskFileStream(maskFile_.fullPath().c_str());
   if (!maskFileStream.is_open()) {
-    throw cms::Exception("FileInPathError")
-        << "RCT mask file not opened" << std::endl;
+    throw cms::Exception("FileInPathError") << "RCT mask file not opened" << std::endl;
     ;
   }
 
@@ -104,19 +100,16 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
   //   temp(2,std::vector<std::vector<unsigned short> >(72,std::vector<unsigned
   //   short>(28,1)));
   std::vector<std::vector<std::vector<unsigned short>>> ecalMask(
-      2, std::vector<std::vector<unsigned short>>(
-             72, std::vector<unsigned short>(28, 1)));
+      2, std::vector<std::vector<unsigned short>>(72, std::vector<unsigned short>(28, 1)));
   std::vector<std::vector<std::vector<unsigned short>>> hcalMask(
-      2, std::vector<std::vector<unsigned short>>(
-             72, std::vector<unsigned short>(28, 1)));
+      2, std::vector<std::vector<unsigned short>>(72, std::vector<unsigned short>(28, 1)));
   std::vector<std::vector<std::vector<unsigned short>>> hfMask(
-      2, std::vector<std::vector<unsigned short>>(
-             18, std::vector<unsigned short>(8, 1)));
+      2, std::vector<std::vector<unsigned short>>(18, std::vector<unsigned short>(8, 1)));
 
   // read ECAL mask first
   // loop through rct iphi
   for (int i = 1; i <= 72; i++) {
-    int phi_index = (72 + 18 - i) % 72; // transfrom from RCT coords
+    int phi_index = (72 + 18 - i) % 72;  // transfrom from RCT coords
     if (phi_index == 0) {
       phi_index = 72;
     }
@@ -127,8 +120,7 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
       } else if ((junk == "X") || (junk == "x")) {
         ecalMask.at(0).at(phi_index - 1).at(j - 1) = 0;
       } else {
-        std::cerr << "RCT mask producer: error -- unrecognized character"
-                  << std::endl;
+        std::cerr << "RCT mask producer: error -- unrecognized character" << std::endl;
       }
     }
     for (int j = 1; j <= 28; j++) {
@@ -137,8 +129,7 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
       } else if ((junk == "X") || (junk == "x")) {
         ecalMask.at(1).at(phi_index - 1).at(j - 1) = 0;
       } else {
-        std::cerr << "RCT mask producer: error -- unrecognized character"
-                  << std::endl;
+        std::cerr << "RCT mask producer: error -- unrecognized character" << std::endl;
       }
     }
   }
@@ -146,8 +137,7 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
 
   maskFileStream >> junk;
   if (junk != "HCAL:") {
-    throw cms::Exception("FileInPathError")
-        << "RCT mask producer: error reading ECAL mask" << std::endl;
+    throw cms::Exception("FileInPathError") << "RCT mask producer: error reading ECAL mask" << std::endl;
     ;
   }
 
@@ -156,7 +146,7 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
   // now read HCAL mask
   // loop through rct iphi
   for (int i = 1; i <= 72; i++) {
-    int phi_index = (72 + 18 - i) % 72; // transfrom from RCT coords
+    int phi_index = (72 + 18 - i) % 72;  // transfrom from RCT coords
     if (phi_index == 0) {
       phi_index = 72;
     }
@@ -167,8 +157,7 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
       } else if ((junk == "X") || (junk == "x")) {
         hcalMask.at(0).at(phi_index - 1).at(j - 1) = 0;
       } else {
-        std::cerr << "RCT mask producer: error -- unrecognized character"
-                  << std::endl;
+        std::cerr << "RCT mask producer: error -- unrecognized character" << std::endl;
       }
     }
     for (int j = 1; j <= 28; j++) {
@@ -177,16 +166,14 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
       } else if ((junk == "X") || (junk == "x")) {
         hcalMask.at(1).at(phi_index - 1).at(j - 1) = 0;
       } else {
-        std::cerr << "RCT mask producer: error -- unrecognized character"
-                  << std::endl;
+        std::cerr << "RCT mask producer: error -- unrecognized character" << std::endl;
       }
     }
   }
 
   maskFileStream >> junk;
   if (junk != "HF:") {
-    throw cms::Exception("FileInPathError")
-        << "RCT mask producer: error reading HCAL mask" << std::endl;
+    throw cms::Exception("FileInPathError") << "RCT mask producer: error reading HCAL mask" << std::endl;
     ;
   }
 
@@ -200,11 +187,9 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
       }
       if (junk == "-") {
       } else if ((junk == "X") || (junk == "x")) {
-        hfMask.at(0).at(i).at(j - 1) =
-            0; // just save iphi as 0-17, transform later
+        hfMask.at(0).at(i).at(j - 1) = 0;  // just save iphi as 0-17, transform later
       } else {
-        std::cerr << "RCT mask producer: error -- unrecognized character"
-                  << std::endl;
+        std::cerr << "RCT mask producer: error -- unrecognized character" << std::endl;
       }
     }
     for (int j = 1; j <= 4; j++) {
@@ -216,8 +201,7 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
       } else if ((junk == "X") || (junk == "x")) {
         hfMask.at(1).at(i).at(j - 1) = 0;
       } else {
-        std::cerr << "RCT mask producer: error -- unrecognized character"
-                  << std::endl;
+        std::cerr << "RCT mask producer: error -- unrecognized character" << std::endl;
       }
     }
   }
@@ -230,10 +214,8 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
 
   // apply mask
 
-  std::unique_ptr<EcalTrigPrimDigiCollection> maskedEcalTPs(
-      new EcalTrigPrimDigiCollection());
-  std::unique_ptr<HcalTrigPrimDigiCollection> maskedHcalTPs(
-      new HcalTrigPrimDigiCollection());
+  std::unique_ptr<EcalTrigPrimDigiCollection> maskedEcalTPs(new EcalTrigPrimDigiCollection());
+  std::unique_ptr<HcalTrigPrimDigiCollection> maskedHcalTPs(new HcalTrigPrimDigiCollection());
   maskedEcalTPs->reserve(56 * 72);
   maskedHcalTPs->reserve(56 * 72 + 18 * 8);
   int nEcalSamples = 0;
@@ -249,33 +231,26 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
     // absIeta
     //		      << ", iphi is " << iphi << std::endl;}
 
-    EcalTriggerPrimitiveDigi ecalDigi(
-        EcalTrigTowerDetId(sign, EcalTriggerTower, absIeta, iphi));
+    EcalTriggerPrimitiveDigi ecalDigi(EcalTrigTowerDetId(sign, EcalTriggerTower, absIeta, iphi));
     ecalDigi.setSize(nEcalSamples);
 
     for (int nSample = 0; nSample < nEcalSamples; nSample++) {
-
       int energy = 0;
       bool fineGrain = false;
 
       if (sign < 0) {
         // std::cout << "eta-: mask is " <<
         // ecalMask.at(0).at(iphi-1).at(absIeta-1) << std::endl;
-        energy = ecalMask.at(0).at(iphi - 1).at(absIeta - 1) *
-                 ecalColl[i].sample(nSample).compressedEt();
-        fineGrain = (ecalMask.at(0).at(iphi - 1).at(absIeta - 1) != 0) &&
-                    ecalColl[i].sample(nSample).fineGrain();
+        energy = ecalMask.at(0).at(iphi - 1).at(absIeta - 1) * ecalColl[i].sample(nSample).compressedEt();
+        fineGrain = (ecalMask.at(0).at(iphi - 1).at(absIeta - 1) != 0) && ecalColl[i].sample(nSample).fineGrain();
       } else if (sign > 0) {
         // std::cout << "eta+: mask is " <<
         // ecalMask.at(1).at(iphi-1).at(absIeta-1) << std::endl;
-        energy = ecalMask.at(1).at(iphi - 1).at(absIeta - 1) *
-                 ecalColl[i].sample(nSample).compressedEt();
-        fineGrain = (ecalMask.at(1).at(iphi - 1).at(absIeta - 1) != 0) &&
-                    ecalColl[i].sample(nSample).fineGrain();
+        energy = ecalMask.at(1).at(iphi - 1).at(absIeta - 1) * ecalColl[i].sample(nSample).compressedEt();
+        fineGrain = (ecalMask.at(1).at(iphi - 1).at(absIeta - 1) != 0) && ecalColl[i].sample(nSample).fineGrain();
       }
 
-      ecalDigi.setSample(nSample,
-                         EcalTriggerPrimitiveSample(energy, fineGrain, 0));
+      ecalDigi.setSample(nSample, EcalTriggerPrimitiveSample(energy, fineGrain, 0));
     }
     maskedEcalTPs->push_back(ecalDigi);
   }
@@ -305,21 +280,16 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
     hcalDigi.setPresamples(hcalColl[i].presamples());
 
     for (int nSample = 0; nSample < nHcalSamples; nSample++) {
-
       int energy = 0;
       bool fineGrain = false;
 
       if (absIeta < 29) {
         if (sign < 0) {
-          energy = hcalMask.at(0).at(iphi - 1).at(absIeta - 1) *
-                   hcalColl[i].sample(nSample).compressedEt();
-          fineGrain = (hcalMask.at(0).at(iphi - 1).at(absIeta - 1) != 0) &&
-                      hcalColl[i].sample(nSample).fineGrain();
+          energy = hcalMask.at(0).at(iphi - 1).at(absIeta - 1) * hcalColl[i].sample(nSample).compressedEt();
+          fineGrain = (hcalMask.at(0).at(iphi - 1).at(absIeta - 1) != 0) && hcalColl[i].sample(nSample).fineGrain();
         } else if (sign > 0) {
-          energy = hcalMask.at(1).at(iphi - 1).at(absIeta - 1) *
-                   hcalColl[i].sample(nSample).compressedEt();
-          fineGrain = (hcalMask.at(1).at(iphi - 1).at(absIeta - 1) != 0) &&
-                      hcalColl[i].sample(nSample).fineGrain();
+          energy = hcalMask.at(1).at(iphi - 1).at(absIeta - 1) * hcalColl[i].sample(nSample).compressedEt();
+          fineGrain = (hcalMask.at(1).at(iphi - 1).at(absIeta - 1) != 0) && hcalColl[i].sample(nSample).fineGrain();
         }
       } else if ((absIeta >= 29) && (absIeta <= 32)) {
         // std::cout << "hf iphi: " << iphi << std::endl;
@@ -332,26 +302,20 @@ void MaskedRctInputDigiProducer::produce(edm::Event &iEvent,
           // hfMask.at(0).at(hf_phi_index).at(absIeta-29) << std::endl; // hf
           // ieta 0-3
           energy = hfMask.at(0).at(hf_phi_index).at(absIeta - 29) *
-                   hcalColl[i]
-                       .sample(nSample)
-                       .compressedEt(); // for hf, iphi starts at 0
-          fineGrain = (hfMask.at(0).at(hf_phi_index).at(absIeta - 29) != 0) &&
-                      hcalColl[i].sample(nSample).fineGrain();
+                   hcalColl[i].sample(nSample).compressedEt();  // for hf, iphi starts at 0
+          fineGrain = (hfMask.at(0).at(hf_phi_index).at(absIeta - 29) != 0) && hcalColl[i].sample(nSample).fineGrain();
         } else if (sign > 0) {
           // std::cout << "ieta is " << ieta << ", absIeta is " << absIeta << ",
           // iphi is " << iphi << std::endl; std::cout << "eta+: mask is " <<
           // hfMask.at(1).at(hf_phi_index).at(absIeta-29) << std::endl;
-          energy = hfMask.at(1).at(hf_phi_index).at(absIeta - 29) *
-                   hcalColl[i].sample(nSample).compressedEt();
-          fineGrain = (hfMask.at(1).at(hf_phi_index).at(absIeta - 29) != 0) &&
-                      hcalColl[i].sample(nSample).fineGrain();
+          energy = hfMask.at(1).at(hf_phi_index).at(absIeta - 29) * hcalColl[i].sample(nSample).compressedEt();
+          fineGrain = (hfMask.at(1).at(hf_phi_index).at(absIeta - 29) != 0) && hcalColl[i].sample(nSample).fineGrain();
         }
         // iphi = iphi*4 + 1; // change back to original
         // std::cout << "New hf iphi = " << iphi << std::endl;
       }
 
-      hcalDigi.setSample(nSample,
-                         HcalTriggerPrimitiveSample(energy, fineGrain, 0, 0));
+      hcalDigi.setSample(nSample, HcalTriggerPrimitiveSample(energy, fineGrain, 0, 0));
 
       // if (hcalDigi.SOI_compressedEt() != 0)
       //{

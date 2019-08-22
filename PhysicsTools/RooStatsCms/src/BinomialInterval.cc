@@ -3,7 +3,7 @@
 #include "Math/PdfFuncMathCore.h"
 #include "Math/QuantFuncMathCore.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
+#if (defined(STANDALONE) or defined(__CINT__))
 #include "BinomialInterval.h"
 
 ClassImp(BinomialInterval);
@@ -12,11 +12,11 @@ ClassImp(BinomialInterval);
 #endif
 
 void BinomialInterval::init(const double alpha, const tail_type type) {
-  alpha_     = alpha;
-  type_      = type;
-  alpha_min_ = type_ == equal_tailed ? alpha_/2 : alpha_;
-  kappa_     = ROOT::Math::normal_quantile(1 - alpha/2, 1);
-  kappa2_    = kappa_*kappa_;
+  alpha_ = alpha;
+  type_ = type;
+  alpha_min_ = type_ == equal_tailed ? alpha_ / 2 : alpha_;
+  kappa_ = ROOT::Math::normal_quantile(1 - alpha / 2, 1);
+  kappa2_ = kappa_ * kappa_;
 }
 
 bool BinomialInterval::contains(double p) {
@@ -24,7 +24,7 @@ bool BinomialInterval::contains(double p) {
     return p <= upper_;
   else if (type_ == lower_tailed)
     return p >= lower_;
-  else //if (type_ == equal_tailed)
+  else  //if (type_ == equal_tailed)
     return p >= lower_ && p <= upper_;
 }
 
@@ -37,19 +37,18 @@ double BinomialInterval::coverage_prob(const double p, const int trials) {
     if (contains(p))
       prob += ROOT::Math::binomial_pdf(X, p, trials);
   }
-  
+
   return prob;
 }
 
 void BinomialInterval::scan_rho(const int ntot, const int nrho, double* rho, double* prob) {
   for (int i = 0; i < nrho; ++i) {
-    rho[i]  = double(i)/nrho;
+    rho[i] = double(i) / nrho;
     prob[i] = coverage_prob(rho[i], ntot);
   }
 }
 
-void BinomialInterval::scan_ntot(const double rho, const int ntot_min, const int ntot_max,
-				  double* ntot, double* prob) {
+void BinomialInterval::scan_ntot(const double rho, const int ntot_min, const int ntot_max, double* ntot, double* prob) {
   for (int i = 0; i < ntot_max - ntot_min + 1; ++i) {
     int nt = i + ntot_min;
     ntot[i] = nt;

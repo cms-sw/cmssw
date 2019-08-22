@@ -12,23 +12,24 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class HLTEcalPixelIsolTrackFilter : public HLTFilter {  
-
+class HLTEcalPixelIsolTrackFilter : public HLTFilter {
 public:
   explicit HLTEcalPixelIsolTrackFilter(const edm::ParameterSet&);
   ~HLTEcalPixelIsolTrackFilter() override;
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> candTok;
-  edm::InputTag candTag_; 
+  edm::InputTag candTag_;
   const double maxEnergyInEB_;
   const double maxEnergyInEE_;
   const double maxEnergyOutEB_;
   const double maxEnergyOutEE_;
-  const int    nMaxTrackCandidates_;
-  const bool   dropMultiL2Event_;
+  const int nMaxTrackCandidates_;
+  const bool dropMultiL2Event_;
 };
 
-#endif 
+#endif

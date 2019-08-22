@@ -18,6 +18,9 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 namespace {
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   bool Contains(const std::string &text, const std::string &pattern) { return text.find(pattern) != std::string::npos; }
 
   void SetBinLabels(MonitorElement *const me) {
@@ -47,13 +50,14 @@ namespace {
     const float sigmaietaieta = el.full5x5_sigmaIetaIeta();
     const float hOverE = el.hcalOverEcal();
     float d0 = 0.0, dz = 0.0;
-    try {
-      d0 = -(el.gsfTrack()->dxy(pv_position));
-      dz = el.gsfTrack()->dz(pv_position);
-    } catch (...) {
+
+    if (el.gsfTrack().isNull()) {
       edm::LogError("SUSY_HLT_SingleLepton") << "Could not read electron.gsfTrack().\n";
       return false;
     }
+    d0 = -(el.gsfTrack()->dxy(pv_position));
+    dz = el.gsfTrack()->dz(pv_position);
+
     float ooemoop = 1e30;
     if (el.ecalEnergy() > 0.0 && std::isfinite(el.ecalEnergy())) {
       ooemoop = fabs(1.0 / el.ecalEnergy() - el.eSuperClusterOverP() / el.ecalEnergy());
@@ -65,21 +69,18 @@ namespace {
 
     bool pass_conversion = false;
     if (convs.isValid()) {
-      try {
-        pass_conversion = !ConversionTools::hasMatchedConversion(el, *convs, bs_position);
-      } catch (...) {
-        edm::LogError("SUSY_HLT_SingleLepton") << "Electron conversion matching failed.\n";
-        return false;
-      }
+      pass_conversion = !ConversionTools::hasMatchedConversion(el, *convs, bs_position);
+    } else {
+      edm::LogError("SUSY_HLT_SingleLepton") << "Electron conversion matching failed.\n";
+      return false;
     }
 
     float etasc = 0.0;
-    try {
-      etasc = el.superCluster()->eta();
-    } catch (...) {
+    if (el.superCluster().isNull()) {
       edm::LogError("SUSY_HLT_SingleLepton") << "Could not read electron.superCluster().\n";
       return false;
     }
+    etasc = el.superCluster()->eta();
     if (fabs(etasc) > 2.5) {
       return false;
     } else if (fabs(etasc) > 1.479) {
@@ -129,35 +130,33 @@ namespace {
       return false;
     if (!mu.isPFMuon())
       return false;
-    try {
-      if (mu.globalTrack()->normalizedChi2() >= 10.)
-        return false;
-      if (mu.globalTrack()->hitPattern().numberOfValidMuonHits() <= 0)
-        return false;
-    } catch (...) {
+    if (mu.globalTrack().isNull()) {
       edm::LogWarning("SUSY_HLT_SingleLepton") << "Could not read muon.globalTrack().\n";
       return false;
     }
+    if (mu.globalTrack()->normalizedChi2() >= 10.)
+      return false;
+    if (mu.globalTrack()->hitPattern().numberOfValidMuonHits() <= 0)
+      return false;
     if (mu.numberOfMatchedStations() <= 1)
       return false;
-    try {
-      if (fabs(mu.muonBestTrack()->dxy(pv_position)) >= 0.2)
-        return false;
-      if (fabs(mu.muonBestTrack()->dz(pv_position)) >= 0.5)
-        return false;
-    } catch (...) {
+    if (mu.muonBestTrack().isNull()) {
       edm::LogWarning("SUSY_HLT_SingleLepton") << "Could not read muon.muonBestTrack().\n";
       return false;
     }
-    try {
-      if (mu.innerTrack()->hitPattern().numberOfValidPixelHits() <= 0)
-        return false;
-      if (mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() <= 5)
-        return false;
-    } catch (...) {
+    if (fabs(mu.muonBestTrack()->dxy(pv_position)) >= 0.2)
+      return false;
+    if (fabs(mu.muonBestTrack()->dz(pv_position)) >= 0.5)
+      return false;
+    if (mu.innerTrack().isNull()) {
       edm::LogWarning("SUSY_HLT_SingleLepton") << "Could not read muon.innerTrack().\n";
       return false;
     }
+    if (mu.innerTrack()->hitPattern().numberOfValidPixelHits() <= 0)
+      return false;
+    if (mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() <= 5)
+      return false;
+
     return true;
   }
 }  // namespace
@@ -642,36 +641,48 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
         switch (num_csvl) {
           default:
             h_btagTurnOn_den_->Fill(4);
+            [[fallthrough]];
           case 3:
             h_btagTurnOn_den_->Fill(3);
+            [[fallthrough]];
           case 2:
             h_btagTurnOn_den_->Fill(2);
+            [[fallthrough]];
           case 1:
             h_btagTurnOn_den_->Fill(1);
+            [[fallthrough]];
           case 0:
             h_btagTurnOn_den_->Fill(0);
         }
         switch (num_csvm) {
           default:
             h_btagTurnOn_den_->Fill(8);
+            [[fallthrough]];
           case 3:
             h_btagTurnOn_den_->Fill(7);
+            [[fallthrough]];
           case 2:
             h_btagTurnOn_den_->Fill(6);
+            [[fallthrough]];
           case 1:
             h_btagTurnOn_den_->Fill(5);
+            [[fallthrough]];
           case 0:
             break;  // Don't double count in the no tag bin
         }
         switch (num_csvt) {
           default:
             h_btagTurnOn_den_->Fill(12);
+            [[fallthrough]];
           case 3:
             h_btagTurnOn_den_->Fill(11);
+            [[fallthrough]];
           case 2:
             h_btagTurnOn_den_->Fill(10);
+            [[fallthrough]];
           case 1:
             h_btagTurnOn_den_->Fill(9);
+            [[fallthrough]];
           case 0:
             break;  // Don't double count in the no tag bin
         }
@@ -680,36 +691,48 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
         switch (num_csvl) {
           default:
             h_btagTurnOn_num_->Fill(4);
+            [[fallthrough]];
           case 3:
             h_btagTurnOn_num_->Fill(3);
+            [[fallthrough]];
           case 2:
             h_btagTurnOn_num_->Fill(2);
+            [[fallthrough]];
           case 1:
             h_btagTurnOn_num_->Fill(1);
+            [[fallthrough]];
           case 0:
             h_btagTurnOn_num_->Fill(0);
         }
         switch (num_csvm) {
           default:
             h_btagTurnOn_num_->Fill(8);
+            [[fallthrough]];
           case 3:
             h_btagTurnOn_num_->Fill(7);
+            [[fallthrough]];
           case 2:
             h_btagTurnOn_num_->Fill(6);
+            [[fallthrough]];
           case 1:
             h_btagTurnOn_num_->Fill(5);
+            [[fallthrough]];
           case 0:
             break;  // Don't double count in the no tag bin
         }
         switch (num_csvt) {
           default:
             h_btagTurnOn_num_->Fill(12);
+            [[fallthrough]];
           case 3:
             h_btagTurnOn_num_->Fill(11);
+            [[fallthrough]];
           case 2:
             h_btagTurnOn_num_->Fill(10);
+            [[fallthrough]];
           case 1:
             h_btagTurnOn_num_->Fill(9);
+            [[fallthrough]];
           case 0:
             break;  // Don't double count in the no tag bin
         }

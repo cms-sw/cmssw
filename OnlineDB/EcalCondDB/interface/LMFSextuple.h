@@ -11,7 +11,7 @@
  *   sextuple of t1, t2, t3, p1, p2, p3
  */
 class LMFSextuple {
- public:
+public:
   LMFSextuple() {
     for (int i = 0; i < 3; i++) {
       p[i] = 0;
@@ -19,7 +19,7 @@ class LMFSextuple {
     }
   };
   float p[3];
-  Tm    t[3];
+  Tm t[3];
 };
 
 #endif

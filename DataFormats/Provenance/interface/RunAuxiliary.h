@@ -15,35 +15,27 @@ namespace edm {
   class RunAuxiliary {
   public:
     friend void conversion(RunAux const&, RunAuxiliary&);
-    RunAuxiliary() :
-	processHistoryID_(),
-	id_(),
-	beginTime_(),
-	endTime_() {}
-    RunAuxiliary(RunID const& theId, Timestamp const& theTime, Timestamp const& theEndTime) :
-	processHistoryID_(),
-	id_(theId),
-	beginTime_(theTime),
-	endTime_(theEndTime) {}
-    RunAuxiliary(RunNumber_t const& run, Timestamp const& theTime, Timestamp const& theEndTime) :
-	processHistoryID_(),
-	id_(run),
-	beginTime_(theTime),
-	endTime_(theEndTime) {}
+    RunAuxiliary() : processHistoryID_(), id_(), beginTime_(), endTime_() {}
+    RunAuxiliary(RunID const& theId, Timestamp const& theTime, Timestamp const& theEndTime)
+        : processHistoryID_(), id_(theId), beginTime_(theTime), endTime_(theEndTime) {}
+    RunAuxiliary(RunNumber_t const& run, Timestamp const& theTime, Timestamp const& theEndTime)
+        : processHistoryID_(), id_(run), beginTime_(theTime), endTime_(theEndTime) {}
     ~RunAuxiliary() {}
     void write(std::ostream& os) const;
-    ProcessHistoryID const& processHistoryID() const {return processHistoryID_;}
-    void setProcessHistoryID(ProcessHistoryID const& phid) {processHistoryID_ = phid;}
-    RunID const& id() const {return id_;}
-    RunID& id() {return id_;}
-    Timestamp const& beginTime() const {return beginTime_;}
-    Timestamp const& endTime() const {return endTime_;}
-    RunNumber_t run() const {return id_.run();}
+    ProcessHistoryID const& processHistoryID() const { return processHistoryID_; }
+    void setProcessHistoryID(ProcessHistoryID const& phid) { processHistoryID_ = phid; }
+    RunID const& id() const { return id_; }
+    RunID& id() { return id_; }
+    Timestamp const& beginTime() const { return beginTime_; }
+    Timestamp const& endTime() const { return endTime_; }
+    RunNumber_t run() const { return id_.run(); }
     void setBeginTime(Timestamp const& time) {
-      if (beginTime_ == Timestamp::invalidTimestamp()) beginTime_ = time;
+      if (beginTime_ == Timestamp::invalidTimestamp())
+        beginTime_ = time;
     }
     void setEndTime(Timestamp const& time) {
-      if (endTime_ == Timestamp::invalidTimestamp()) endTime_ = time;
+      if (endTime_ == Timestamp::invalidTimestamp())
+        endTime_ = time;
     }
     void mergeAuxiliary(RunAuxiliary const& aux);
 
@@ -60,16 +52,14 @@ namespace edm {
     Timestamp endTime_;
 
   private:
-    void mergeNewTimestampsIntoThis_(RunAuxiliary const& newAux);    
+    void mergeNewTimestampsIntoThis_(RunAuxiliary const& newAux);
   };
 
-  inline
-  std::ostream&
-  operator<<(std::ostream& os, const RunAuxiliary& p) {
+  inline std::ostream& operator<<(std::ostream& os, const RunAuxiliary& p) {
     p.write(os);
     return os;
   }
 
-}
+}  // namespace edm
 
 #endif

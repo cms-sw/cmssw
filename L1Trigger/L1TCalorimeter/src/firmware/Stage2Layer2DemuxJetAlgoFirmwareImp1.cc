@@ -11,13 +11,11 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
-
 #include <vector>
 #include <algorithm>
 
-inline bool operator> ( l1t::Jet& a, l1t::Jet& b )
-{
-  if ( a.hwPt() > b.hwPt() ){
+inline bool operator>(l1t::Jet& a, l1t::Jet& b) {
+  if (a.hwPt() > b.hwPt()) {
     return true;
   } else {
     return false;
@@ -26,16 +24,10 @@ inline bool operator> ( l1t::Jet& a, l1t::Jet& b )
 
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 
-l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::Stage2Layer2DemuxJetAlgoFirmwareImp1(CaloParamsHelper const* ) 
-{
+l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::Stage2Layer2DemuxJetAlgoFirmwareImp1(CaloParamsHelper const*) {}
 
-
-}
-
-
-void l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::processEvent(const std::vector<l1t::Jet> & inputJets,
-                                                             std::vector<l1t::Jet> & outputJets) {
-
+void l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::processEvent(const std::vector<l1t::Jet>& inputJets,
+                                                             std::vector<l1t::Jet>& outputJets) {
   outputJets = inputJets;
 
   // Sort the jets by pT
@@ -46,20 +38,16 @@ void l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::processEvent(const std::vector<l
   //    std::cout << "MP : " << jet.hwPt() << ", " << jet.hwEta() << ", " << jet.hwPhi() << ", " << CaloTools::towerEta(jet.hwEta()) << ", " << CaloTools::towerPhi(jet.hwEta(),jet.hwPhi()) << std::endl;
   //  }
 
-  BitonicSort< l1t::Jet >(down,start,end);
+  BitonicSort<l1t::Jet>(down, start, end);
 
   // convert eta to GT coordinates
-  for(auto& jet : outputJets){
-
-    int gtEt = jet.hwPt() > 0x7FF ? 0x7FF :  jet.hwPt();
+  for (auto& jet : outputJets) {
+    int gtEt = jet.hwPt() > 0x7FF ? 0x7FF : jet.hwPt();
     int gtEta = CaloTools::gtEta(CaloTools::mpEta(jet.hwEta()));
-    int gtPhi = CaloTools::gtPhi(CaloTools::mpEta(jet.hwEta()),jet.hwPhi());
-    
+    int gtPhi = CaloTools::gtPhi(CaloTools::mpEta(jet.hwEta()), jet.hwPhi());
+
     jet.setHwPt(gtEt);
     jet.setHwEta(gtEta);
     jet.setHwPhi(gtPhi);
-    
   }
-  
-
 }

@@ -14,31 +14,25 @@ class TH1;
    @brief Algorithm for APV latency scan.
 */
 class ApvLatencyAlgorithm : public CommissioningAlgorithm {
-  
- public:
+public:
+  ApvLatencyAlgorithm(const edm::ParameterSet& pset, ApvLatencyAnalysis* const);
 
-  ApvLatencyAlgorithm( const edm::ParameterSet & pset, ApvLatencyAnalysis* const );
+  ~ApvLatencyAlgorithm() override { ; }
 
-  ~ApvLatencyAlgorithm() override {;}
-  
   inline const Histo& histo() const;
-  
- private:
-  
-  ApvLatencyAlgorithm() {;}
-  
-  void extract( const std::vector<TH1*>& ) override;
+
+private:
+  ApvLatencyAlgorithm() { ; }
+
+  void extract(const std::vector<TH1*>&) override;
 
   void analyse() override;
-  
- private:
-  
+
+private:
   /** APV latency histo */
   Histo histo_;
-  
 };
 
 const ApvLatencyAlgorithm::Histo& ApvLatencyAlgorithm::histo() const { return histo_; }
 
-#endif // DQM_SiStripCommissioningAnalysis_ApvLatencyAlgorithm_H
-
+#endif  // DQM_SiStripCommissioningAnalysis_ApvLatencyAlgorithm_H

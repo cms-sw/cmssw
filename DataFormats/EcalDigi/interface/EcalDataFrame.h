@@ -6,26 +6,26 @@
 #include "DataFormats/Common/interface/DataFrame.h"
 
 #define EcalMgpaBitwiseGain12 1
-#define EcalMgpaBitwiseGain6  2
-#define EcalMgpaBitwiseGain1  3
-#define EcalMgpaBitwiseGain0  0
+#define EcalMgpaBitwiseGain6 2
+#define EcalMgpaBitwiseGain1 3
+#define EcalMgpaBitwiseGain0 0
 
 /** \class EcalDataFrame
       
 */
 class EcalDataFrame {
- public:
+public:
   EcalDataFrame() {}
   // EcalDataFrame(DetId i) :  m_data(i) {}
-  EcalDataFrame(edm::DataFrame const & iframe) : m_data(iframe){} 
+  EcalDataFrame(edm::DataFrame const& iframe) : m_data(iframe) {}
 
-  virtual ~EcalDataFrame() {} 
+  virtual ~EcalDataFrame() {}
 
-  DetId id() const { return m_data.id();}
-    
-  int size() const { return m_data.size();}
+  DetId id() const { return m_data.id(); }
 
-  EcalMGPASample operator[](int i) const { return m_data[i];}
+  int size() const { return m_data.size(); }
+
+  EcalMGPASample operator[](int i) const { return m_data[i]; }
   EcalMGPASample sample(int i) const { return m_data[i]; }
 
   // get the leading sample (the first non saturated sample)
@@ -35,25 +35,23 @@ class EcalDataFrame {
   // .. return -1 in case of no saturation
   int lastUnsaturatedSample() const;
   // just the boolean method
-  bool isSaturated() const { return ( lastUnsaturatedSample() != -1 ); }
-    
-  // FIXME (shall we throw??)
-  void setSize(int){}
-  // void setPresamples(int ps);
-  void setSample(int i, EcalMGPASample sam) { m_data[i]=sam; }
+  bool isSaturated() const { return (lastUnsaturatedSample() != -1); }
 
-  bool hasSwitchToGain6() const; 
-  bool hasSwitchToGain1() const; 
-  
+  // FIXME (shall we throw??)
+  void setSize(int) {}
+  // void setPresamples(int ps);
+  void setSample(int i, EcalMGPASample sam) { m_data[i] = sam; }
+
+  bool hasSwitchToGain6() const;
+  bool hasSwitchToGain1() const;
+
   static constexpr int MAXSAMPLES = 10;
 
-  edm::DataFrame const & frame() const { return m_data;}
-  edm::DataFrame & frame() { return m_data;}
+  edm::DataFrame const& frame() const { return m_data; }
+  edm::DataFrame& frame() { return m_data; }
 
- private:
- 
+private:
   edm::DataFrame m_data;
-  
 };
-  
+
 #endif

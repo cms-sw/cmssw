@@ -10,6 +10,8 @@ import math
 import six
 from six.moves import builtins
 
+_builtin_bool = bool
+
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
     __name__ = "untracked"
@@ -32,6 +34,138 @@ class _Untracked(object):
 
 untracked = _Untracked()
 
+
+class _ProxyParameter(_ParameterTypeBase):
+    """Base class for Parameters which are proxies for other Parameter types"""
+    def __init__(self,type):
+        super(_ProxyParameter,self).__init__()
+        self.__dict__["_ProxyParameter__type"] = type
+        self.__dict__["_ProxyParameter__value"] = None
+    def setValue(self, value):
+        v = self.__type(value)
+        if not _ParameterTypeBase.isTracked(self):
+            v = untracked(v)
+        self.__dict__["_ProxyParameter__value"] = v
+    def __getattr__(self, name):
+        v =self.__dict__.get('_ProxyParameter__value', None)
+        if name == '_ProxyParameter__value':
+            return v
+        if (not name.startswith('_')) and v is not None:
+            return getattr(v, name)
+        else:
+            return object.__getattribute__ (self, name)
+    def __setattr__(self,name, value):
+        v = self.__dict__.get('_ProxyParameter__value',None)
+        if v is not None:
+            return setattr(v,name,value)
+        else:
+            return object.__setattr__(self, name, value)
+    def __bool__(self):
+        v = self.__dict__.get('_ProxyParameter__value',None)
+        return _builtin_bool(v)
+    def dumpPython(self, options=PrintOptions()):
+        v =self.__dict__.get('_ProxyParameter__value',None)
+        if v is not None:
+            return v.dumpPython(options)
+        specialImportRegistry.registerUse(self)
+        v = "cms."+self._dumpPythonName()
+        if not _ParameterTypeBase.isTracked(self):
+            v+=".untracked"
+        return v+'.'+self.__type.__name__
+    def validate_(self,value):
+        return isinstance(value,self.__type)
+    def convert_(self,value):
+        v = self.__type(value)
+        if not _ParameterTypeBase.isTracked(self):
+            v = untracked(v)
+        return v
+
+class _RequiredParameter(_ProxyParameter):
+    @staticmethod
+    def _dumpPythonName():
+        return 'required'
+    def insertInto(self, parameterSet, myname):
+        v = self.__dict__.get('_ProxyParameter__value', None)
+        if v is None:
+            raise RuntimeError("Required parameter "+myname+" was not set")
+        v.insertInto(parameterSet,myname)
+
+class _OptionalParameter(_ProxyParameter):
+    @staticmethod
+    def _dumpPythonName():
+        return 'optional'
+    def insertInto(self, parameterSet, myname):
+        v = self.__dict__.get('_ProxyParameter__value', None)
+        if v is not None:
+            v.insertInto(parameterSet,myname)
+    def value(self):
+        v = self.__dict__.get('_ProxyParameter__value', None)
+        if v is not None:
+            return v.value()
+        return None
+
+class _ObsoleteParameter(_OptionalParameter):
+    @staticmethod
+    def _dumpPythonName():
+        return 'obsolete'
+
+class _AllowedParameterTypes(object):
+    def __init__(self, *args):
+        self.__dict__['_AllowedParameterTypes__types'] = args
+        self.__dict__['_AllowedParameterTypes__value'] = None
+        self.__dict__['__name__'] = self.dumpPython()
+    def dumpPython(self, options=PrintOptions()):
+        v =self.__dict__.get('_ProxyParameter__value',None)
+        if v is not None:
+            return v.dumpPython(options)
+        specialImportRegistry.registerUse(self)
+        return "allowed("+','.join( ("cms."+t.__name__ for t in self.__types))+')'
+    def __call__(self,value):
+        chosenType = None
+        for t in self.__types:
+            if isinstance(value, t):
+                return value
+            if (not issubclass(t,PSet)) and t._isValid(value):
+                if chosenType is not None:
+                    raise RuntimeError("Ambiguous type conversion for 'allowed' parameter")
+                chosenType = t
+            if chosenType is None:
+                raise RuntimeError("Cannot convert "+str(value)+" to 'allowed' type")
+        return chosenType(value)
+
+
+class _ProxyParameterFactory(object):
+    """Class type for ProxyParameter types to allow nice syntax"""
+    def __init__(self, type, isUntracked = False):
+        self.__isUntracked = isUntracked
+        self.__type = type
+    def __getattr__(self,name):
+        if name[0] == '_':
+            return object.__getattribute__(self,name)
+        if name == 'untracked':
+            return _ProxyParameterFactory(self.__type,isUntracked=True)
+        if name == 'allowed':
+            class _AllowedWrapper(object):
+                def __init__(self, untracked, type):
+                    self.untracked = untracked
+                    self.type = type
+                def __call__(self, *args):
+                    if self.untracked:
+                        return untracked(self.type(_AllowedParameterTypes(*args)))
+                    return self.type(_AllowedParameterTypes(*args))
+            
+            return _AllowedWrapper(self.__isUntracked, self.__type)
+        
+        type = globals()[name]
+        if not issubclass(type, _ParameterTypeBase):
+            raise AttributeError
+        if self.__isUntracked:
+                return untracked(self.__type(type))
+        return self.__type(type)
+
+required = _ProxyParameterFactory(_RequiredParameter)
+optional = _ProxyParameterFactory(_OptionalParameter)
+obsolete = _ProxyParameterFactory(_ObsoleteParameter)
 
 class int32(_SimpleParameterTypeBase):
     @staticmethod
@@ -541,7 +675,7 @@ class InputTag(_ParameterTypeBase):
         parameterSet.addInputTag(self.isTracked(), myname, self.cppTag(parameterSet))
 
 class ESInputTag(_ParameterTypeBase):
-    def __init__(self,module='',data=''):
+    def __init__(self,module='',data= None):
         super(ESInputTag,self).__init__()
         self._setValues(module, data)
     def getModuleLabel(self):
@@ -559,9 +693,7 @@ class ESInputTag(_ParameterTypeBase):
             self._isModified=True
     dataLabel = property(getDataLabel,setDataLabel,"data label for the product")
     def configValue(self, options=PrintOptions()):
-        result = self.__moduleLabel
-        if self.__data != "":
-            result += ':' + self.__data
+        result = self.__moduleLabel + ':' + self.__data
         if result == "":
             result = '\"\"'
         return result;
@@ -601,18 +733,22 @@ class ESInputTag(_ParameterTypeBase):
     def setValue(self,v):
         self._setValues(v)
         self._isModified=True
-    def _setValues(self,moduleLabel='',dataLabel=''):
+    def _setValues(self,moduleLabel='',dataLabel=None):
         self.__moduleLabel = moduleLabel
         self.__data = dataLabel
-        if -1 != moduleLabel.find(":"):
-        #    raise RuntimeError("the module label '"+str(moduleLabel)+"' contains a ':'. If you want to specify more than one label, please pass them as separate arguments.")
-        # tolerate it, at least for the translation phase
-            toks = moduleLabel.split(":")
-            self.__moduleLabel = toks[0]
-            if len(toks) > 1:
-                self.__data = toks[1]
-            if len(toks) > 2:
-                raise RuntimeError("an ESInputTag was passed the value'"+moduleLabel+"' which contains more than one ':'")
+        if dataLabel is None:
+            if moduleLabel:
+                if  -1 == moduleLabel.find(":"):
+                    raise RuntimeError("ESInputTag passed one string '"+str(moduleLabel)+"' which does not contain a ':'. Please add ':' to explicitly separate the module (1st) and data (2nd) label or use two strings.")
+                toks = moduleLabel.split(":")
+                self.__moduleLabel = toks[0]
+                if len(toks) > 1:
+                    self.__data = toks[1]
+                if len(toks) > 2:
+                    raise RuntimeError("an ESInputTag was passed the value'"+moduleLabel+"' which contains more than one ':'")
+            else:
+                self.__data = ''
+            
 
     # convert to the wrapper class for C++ ESInputTags
     def cppTag(self, parameterSet):
@@ -675,6 +811,10 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     @staticmethod
     def _isValid(value):
         return True
+    def setValue(self,value):
+        if isinstance(value,dict):
+            for k,v in six.iteritems(value):
+                setattr(self,k,v)
 
     def configValue(self, options=PrintOptions()):
         config = '{ \n'
@@ -1408,10 +1548,10 @@ if __name__ == "__main__":
             self.assertEqual(it.getModuleLabel(), "")
             self.assertEqual(it.getDataLabel(), "data")
             self.assertEqual(repr(it), "cms.ESInputTag(\"\",\"data\")")
-            vit = VESInputTag(ESInputTag("label1"), ESInputTag("label2"))
-            self.assertEqual(repr(vit), "cms.VESInputTag(cms.ESInputTag(\"label1\"), cms.ESInputTag(\"label2\"))")
-            vit = VESInputTag("label1", "label2:label3")
-            self.assertEqual(repr(vit), "cms.VESInputTag(\"label1\", \"label2:label3\")")
+            vit = VESInputTag(ESInputTag("label1:"), ESInputTag("label2:"))
+            self.assertEqual(repr(vit), 'cms.VESInputTag(cms.ESInputTag("label1",""), cms.ESInputTag("label2",""))')
+            vit = VESInputTag("label1:", "label2:label3")
+            self.assertEqual(repr(vit), "cms.VESInputTag(\"label1:\", \"label2:label3\")")
 
         def testPSet(self):
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
@@ -1445,6 +1585,100 @@ if __name__ == "__main__":
             self.assertRaises(TypeError, p4.clone, dict(b = None))
             self.assertRaises(TypeError, p4.clone, [])
             self.assertRaises(TypeError, p4.clone, 42)
+            p5 = PSet(p = PSet(anInt = int32(1), aString=string("foo") ) )
+            p5.p=dict(aString = "bar")
+            self.assertEqual(p5.p.aString.value(), "bar")
+            self.assertEqual(p5.p.anInt.value(), 1)
+            p5.p = dict(aDouble = double(3.14))
+            self.assertEqual(p5.p.aString.value(), "bar")
+            self.assertEqual(p5.p.anInt.value(), 1)
+            self.assertEqual(p5.p.aDouble, 3.14)
+            self.assertRaises(TypeError, p5.p , dict(bar = 3) )
+        def testRequired(self):
+            p1 = PSet(anInt = required.int32)
+            self.assert_(hasattr(p1,"anInt"))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.required.int32\n)')
+            p1.anInt = 3
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.int32(3)\n)')
+            self.assertEqual(p1.anInt.value(), 3)
+            p1 = PSet(anInt = required.int32)
+            p1.anInt.setValue(3)
+            self.assertEqual(p1.anInt.value(), 3)
+            p1.anInt = 4
+            self.assertEqual(p1.anInt.value(), 4)
+            p1 = PSet(anInt = required.untracked.int32)
+            p1.anInt = 5
+            self.assertEqual(p1.anInt.value(), 5)
+            self.failIf(p1.anInt.isTracked())
+            p1 = PSet(anInt = required.untracked.int32)
+            self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.required.untracked.int32\n)')
+            p1.anInt = 6
+            self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.untracked.int32(6)\n)')
+            p1 = PSet(allowAnyLabel_ = required.int32)
+            self.failIf(p1.hasParameter(['allowAnyLabel_']))
+            p1.foo = 3
+            self.assertEqual(p1.foo.value(),3)
+            self.assertRaises(ValueError,setattr,p1, 'bar', 'bad')
+            self.assert_(p1.foo.isTracked())
+            p1 = PSet(allowAnyLabel_ = required.untracked.int32)
+            self.failIf(p1.hasParameter(['allowAnyLabel_']))
+            p1.foo = 3
+            self.assertEqual(p1.foo.value(),3)
+            self.failIf(p1.foo.isTracked())
+            self.assertRaises(ValueError,setattr,p1, 'bar', 'bad')
+        def testOptional(self):
+            p1 = PSet(anInt = optional.int32)
+            self.assert_(hasattr(p1,"anInt"))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.optional.int32\n)')
+            p1.anInt = 3
+            self.assertEqual(p1.anInt.value(), 3)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    anInt = cms.int32(3)\n)')
+            p1 = PSet(anInt = optional.int32)
+            p1.anInt.setValue(3)
+            self.assertEqual(p1.anInt.value(), 3)
+            p1.anInt = 4
+            self.assertEqual(p1.anInt.value(), 4)
+            p1 = PSet(anInt = optional.untracked.int32)
+            p1.anInt = 5
+            self.assertEqual(p1.anInt.value(), 5)
+            self.failIf(p1.anInt.isTracked())
+            p1 = PSet(anInt = optional.untracked.int32)
+            self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.optional.untracked.int32\n)')
+            p1.anInt = 6
+            self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    anInt = cms.untracked.int32(6)\n)')
+            p1 = PSet(f = required.vint32)
+            self.failIf(p1.f)
+            p1.f = []
+            self.failIf(p1.f)
+            p1.f.append(3)
+            self.assert_(p1.f)
+
+        def testAllowed(self):
+            p1 = PSet(aValue = required.allowed(int32, string))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.allowed(cms.int32,cms.string)\n)')
+            p1.aValue = 1
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.int32(1)\n)')
+            self.assertRaises(ValueError,setattr(p1,'aValue',PSet()))
+            p1 = PSet(aValue = required.untracked.allowed(int32, string))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.untracked.allowed(cms.int32,cms.string)\n)')
+            p1.aValue = 1
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.untracked.int32(1)\n)')
+            self.assertRaises(ValueError,setattr(p1,'aValue',PSet()))
+            p2 = PSet(aValue=optional.allowed(int32,PSet))
+            self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.allowed(cms.int32,cms.PSet)\n)')
+            p2.aValue = 2
+            self.assertEquals(p2.aValue.value(),2)
+            p2 = PSet(aValue=optional.allowed(int32,PSet))
+            p2.aValue = PSet(i = int32(3))
+            self.assertEqual(p2.aValue.i.value(),3)
+            p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
+            self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.untracked.allowed(cms.int32,cms.PSet)\n)')
+            p2.aValue = 2
+            self.assertEquals(p2.aValue.value(),2)
+            p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
+            p2.aValue = PSet(i = int32(3))
+            self.assertEqual(p2.aValue.i.value(),3)
+
         def testVPSet(self):
             p1 = VPSet(PSet(anInt = int32(1)), PSet(anInt=int32(2)))
             self.assertEqual(len(p1),2)
@@ -1557,8 +1791,8 @@ if __name__ == "__main__":
 
         def testPSetConversion(self):
             p = PSet(a = untracked.int32(7),
-                     b = untracked.InputTag("b"),
-                     c = untracked.ESInputTag("c"),
+                     b = untracked.InputTag("b:"),
+                     c = untracked.ESInputTag("c:"),
                      d = EventID(1,1,1),
                      e = LuminosityBlockID(1,1),
                      f = EventRange(1,1,1,8,8,8),
@@ -1571,8 +1805,8 @@ if __name__ == "__main__":
                      m = untracked.double(7.0),
                      n = FileInPath("xxx"),
                      o = untracked.vint32(7,8),
-                     p = untracked.VInputTag(InputTag("b"),InputTag("c")),
-                     q = untracked.VESInputTag(ESInputTag("c"),ESInputTag("d")),
+                     p = untracked.VInputTag(InputTag("b:"),InputTag("c:")),
+                     q = untracked.VESInputTag(ESInputTag("c:"),ESInputTag("d:")),
                      r = untracked.VEventID(EventID(1,1,1),EventID(2,2,2)),
                      s = untracked.VLuminosityBlockID(LuminosityBlockID(1,1),LuminosityBlockID(2,3)),
                      t = untracked.VEventRange(EventRange(1,1,1,8,8,8), EventRange(9,9,9,18,18,18)),

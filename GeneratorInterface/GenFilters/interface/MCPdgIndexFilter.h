@@ -22,18 +22,19 @@ namespace edm {
 }
 
 class MCPdgIndexFilter : public edm::global::EDFilter<> {
-   public:
-      explicit MCPdgIndexFilter(const edm::ParameterSet&);
-      ~MCPdgIndexFilter() override {};
+public:
+  explicit MCPdgIndexFilter(const edm::ParameterSet&);
+  ~MCPdgIndexFilter() override{};
 
-      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-   private:
-      bool pass(const edm::Event&) const;
-      const edm::EDGetTokenT<edm::HepMCProduct> token_;
-      const std::vector<int> pdgID;
-      const std::vector<unsigned> index;
-      edm::EDPutTokenT<bool> putToken_;
-      const unsigned maxIndex;
-      const bool taggingMode;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  bool pass(const edm::Event&) const;
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const std::vector<int> pdgID;
+  const std::vector<unsigned> index;
+  edm::EDPutTokenT<bool> putToken_;
+  const unsigned maxIndex;
+  const bool taggingMode;
 };
 #endif

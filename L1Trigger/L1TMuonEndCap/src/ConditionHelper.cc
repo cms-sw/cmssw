@@ -10,15 +10,11 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
-ConditionHelper::ConditionHelper():
-  params_cache_id_(0ULL), forest_cache_id_(0ULL) {
-}
+ConditionHelper::ConditionHelper() : params_cache_id_(0ULL), forest_cache_id_(0ULL) {}
 
-ConditionHelper::~ConditionHelper() {
-}
+ConditionHelper::~ConditionHelper() {}
 
 void ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   bool new_params = false;
   bool new_forests = false;
 
@@ -50,7 +46,8 @@ void ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const e
 
   bool new_conditions = (new_params || new_forests);
   if (new_conditions) {
-    edm::LogInfo("L1T") << "EMTF updating conditions: pc_lut_ver: " << get_pc_lut_version() << " pt_lut_ver: " << get_pt_lut_version() << " fw_ver: " << get_fw_version();
+    edm::LogInfo("L1T") << "EMTF updating conditions: pc_lut_ver: " << get_pc_lut_version()
+                        << " pt_lut_ver: " << get_pt_lut_version() << " fw_ver: " << get_fw_version();
   }
 
   // Debug
@@ -79,12 +76,11 @@ unsigned int ConditionHelper::get_pc_lut_version() const {
 
   // Hack until we figure out why the database is returning "0" for 2017 data - AWB 04.08.17
   // std::cout << "    - Getting hacked PC LUT version from ConditionHelper: version = " << (params_->firmwareVersion_ >= 50000) << std::endl;
-  if        (params_->firmwareVersion_ < 50000) {       // For 2016
+  if (params_->firmwareVersion_ < 50000) {  // For 2016
     return 0;
-  } else if (params_->firmwareVersion_ < 1537467271) { // From the beginning of 2017
-    return 1;                                          // Corresponding to FW timestamps before Sept. 20, 2018
+  } else if (params_->firmwareVersion_ < 1537467271) {  // From the beginning of 2017
+    return 1;                                           // Corresponding to FW timestamps before Sept. 20, 2018
   } else {
-    return 2;                                          // Starting September 26, 2018 with run 323556 (data only, not in MC)
+    return 2;  // Starting September 26, 2018 with run 323556 (data only, not in MC)
   }
-
 }

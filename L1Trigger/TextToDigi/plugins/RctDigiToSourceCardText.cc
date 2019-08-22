@@ -16,8 +16,8 @@ source cards for pattern tests.
 //
 //
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h" // Logger
-#include "FWCore/ServiceRegistry/interface/Service.h"     // Framework services
+#include "FWCore/MessageLogger/interface/MessageLogger.h"  // Logger
+#include "FWCore/ServiceRegistry/interface/Service.h"      // Framework services
 #include "RctDigiToSourceCardText.h"
 
 using namespace edm;
@@ -26,8 +26,7 @@ using namespace std;
 // Set constant
 const static int NUM_RCT_CRATES = 18;
 
-RctDigiToSourceCardText::RctDigiToSourceCardText(
-    const edm::ParameterSet &iConfig)
+RctDigiToSourceCardText::RctDigiToSourceCardText(const edm::ParameterSet &iConfig)
     : m_rctInputLabel(iConfig.getParameter<edm::InputTag>("RctInputLabel")),
       m_textFileName(iConfig.getParameter<std::string>("TextFileName")),
       m_nevt(0) {
@@ -37,8 +36,7 @@ RctDigiToSourceCardText::RctDigiToSourceCardText(
   if (!m_file.good()) {
     throw cms::Exception("RctDigiToSourceCardTextFileOpenError")
         << "RctDigiToSourceCardText::RctDigiToSourceCardText : "
-        << " couldn't open the file " << m_textFileName << " for writing"
-        << std::endl;
+        << " couldn't open the file " << m_textFileName << " for writing" << std::endl;
   }
 
   // Make a SC routing object
@@ -51,9 +49,7 @@ RctDigiToSourceCardText::~RctDigiToSourceCardText() {
 }
 
 // ------------ method called to for each event  ------------
-void RctDigiToSourceCardText::analyze(const edm::Event &iEvent,
-                                      const edm::EventSetup &iSetup) {
-
+void RctDigiToSourceCardText::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get the RCT data
   Handle<L1CaloEmCollection> em;
   Handle<L1CaloRegionCollection> rgn;
@@ -77,28 +73,21 @@ void RctDigiToSourceCardText::analyze(const edm::Event &iEvent,
   unsigned numIsoEM[18] = {0};
   unsigned numNonIsoEM[18] = {0};
 
-  for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end();
-       iem++) {
+  for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end(); iem++) {
     if (iem->isolated()) {
       eIsoRank[iem->rctCrate()][numIsoEM[iem->rctCrate()]] = iem->rank();
       eIsoCardId[iem->rctCrate()][numIsoEM[iem->rctCrate()]] = iem->rctCard();
-      eIsoRegionId[iem->rctCrate()][numIsoEM[iem->rctCrate()]] =
-          iem->rctRegion();
+      eIsoRegionId[iem->rctCrate()][numIsoEM[iem->rctCrate()]] = iem->rctRegion();
       numIsoEM[iem->rctCrate()]++;
     } else {
       eNonIsoRank[iem->rctCrate()][numNonIsoEM[iem->rctCrate()]] = iem->rank();
-      eNonIsoCardId[iem->rctCrate()][numNonIsoEM[iem->rctCrate()]] =
-          iem->rctCard();
-      eNonIsoRegionId[iem->rctCrate()][numNonIsoEM[iem->rctCrate()]] =
-          iem->rctRegion();
+      eNonIsoCardId[iem->rctCrate()][numNonIsoEM[iem->rctCrate()]] = iem->rctCard();
+      eNonIsoRegionId[iem->rctCrate()][numNonIsoEM[iem->rctCrate()]] = iem->rctRegion();
       numNonIsoEM[iem->rctCrate()]++;
     }
     // Debug info
-    LogDebug("Electrons") << "Rank=" << iem->rank()
-                          << " Card=" << iem->rctCard()
-                          << " Region=" << iem->rctRegion()
-                          << " Crate=" << iem->rctCrate()
-                          << " Isolated=" << iem->isolated();
+    LogDebug("Electrons") << "Rank=" << iem->rank() << " Card=" << iem->rctCard() << " Region=" << iem->rctRegion()
+                          << " Crate=" << iem->rctCrate() << " Isolated=" << iem->isolated();
   }
 
   // Arrays to hold region variables
@@ -111,52 +100,44 @@ void RctDigiToSourceCardText::analyze(const edm::Event &iEvent,
   unsigned short Qbits[18][7][2] = {{{0}}};
 
   // Fill regions
-  for (L1CaloRegionCollection::const_iterator irgn = rgn->begin();
-       irgn != rgn->end(); irgn++) {
+  for (L1CaloRegionCollection::const_iterator irgn = rgn->begin(); irgn != rgn->end(); irgn++) {
     if (irgn->id().isHf()) {
-      HF[irgn->rctCrate()][irgn->id().rctEta() - 7][irgn->id().rctPhi()] =
-          irgn->et();
-      HFQ[irgn->rctCrate()][irgn->id().rctEta() - 7][irgn->id().rctPhi()] =
-          irgn->fineGrain();
+      HF[irgn->rctCrate()][irgn->id().rctEta() - 7][irgn->id().rctPhi()] = irgn->et();
+      HFQ[irgn->rctCrate()][irgn->id().rctEta() - 7][irgn->id().rctPhi()] = irgn->fineGrain();
       // Debug info
-      LogDebug("HFRegions")
-          << "Et=" << irgn->et() << " FineGrain=" << irgn->fineGrain()
-          << " Eta=" << irgn->id().rctEta() << " Phi=" << irgn->id().rctPhi()
-          << " Crate=" << irgn->rctCrate();
+      LogDebug("HFRegions") << "Et=" << irgn->et() << " FineGrain=" << irgn->fineGrain()
+                            << " Eta=" << irgn->id().rctEta() << " Phi=" << irgn->id().rctPhi()
+                            << " Crate=" << irgn->rctCrate();
     } else {
-      RC[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] =
-          irgn->et();
-      RCof[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] =
-          irgn->overFlow();
-      RCtau[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] =
-          irgn->tauVeto();
-      MIPbits[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] =
-          irgn->mip();
-      Qbits[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] =
-          irgn->quiet();
+      RC[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] = irgn->et();
+      RCof[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] = irgn->overFlow();
+      RCtau[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] = irgn->tauVeto();
+      MIPbits[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] = irgn->mip();
+      Qbits[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()] = irgn->quiet();
       // Debug info
-      LogDebug("Regions") << "Et=" << irgn->et()
-                          << " OverFlow=" << irgn->overFlow()
-                          << " tauVeto=" << irgn->tauVeto()
-                          << " mip=" << irgn->mip()
-                          << " quiet=" << irgn->quiet()
-                          << " Card=" << irgn->rctCard()
-                          << " Region=" << irgn->rctRegionIndex()
-                          << " Crate=" << irgn->rctCrate();
+      LogDebug("Regions") << "Et=" << irgn->et() << " OverFlow=" << irgn->overFlow() << " tauVeto=" << irgn->tauVeto()
+                          << " mip=" << irgn->mip() << " quiet=" << irgn->quiet() << " Card=" << irgn->rctCard()
+                          << " Region=" << irgn->rctRegionIndex() << " Crate=" << irgn->rctCrate();
     }
   }
 
   for (int crate = 0; crate < NUM_RCT_CRATES; crate++) {
-
     // Logical Card ID = Source Card number
     RoutingMode = 0;
     m_scRouting.RoutingModetoLogicalCardID(logicalCardID, RoutingMode, crate);
 
     // Convert electrons to SC format
-    m_scRouting.EMUtoSTRING(
-        logicalCardID, m_nevt, eIsoRank[crate], eIsoCardId[crate],
-        eIsoRegionId[crate], eNonIsoRank[crate], eNonIsoCardId[crate],
-        eNonIsoRegionId[crate], MIPbits[crate], Qbits[crate], dataString);
+    m_scRouting.EMUtoSTRING(logicalCardID,
+                            m_nevt,
+                            eIsoRank[crate],
+                            eIsoCardId[crate],
+                            eIsoRegionId[crate],
+                            eNonIsoRank[crate],
+                            eNonIsoCardId[crate],
+                            eNonIsoRegionId[crate],
+                            MIPbits[crate],
+                            Qbits[crate],
+                            dataString);
 
     // Write electrons
     m_file << dataString;
@@ -166,8 +147,8 @@ void RctDigiToSourceCardText::analyze(const edm::Event &iEvent,
     m_scRouting.RoutingModetoLogicalCardID(logicalCardID, RoutingMode, crate);
 
     // Convert regions to SC format
-    m_scRouting.RC56HFtoSTRING(logicalCardID, m_nevt, RC[crate], RCof[crate],
-                               RCtau[crate], HF[crate], HFQ[crate], dataString);
+    m_scRouting.RC56HFtoSTRING(
+        logicalCardID, m_nevt, RC[crate], RCof[crate], RCtau[crate], HF[crate], HFQ[crate], dataString);
 
     // Write regions
     m_file << dataString;
@@ -177,8 +158,7 @@ void RctDigiToSourceCardText::analyze(const edm::Event &iEvent,
     m_scRouting.RoutingModetoLogicalCardID(logicalCardID, RoutingMode, crate);
 
     // Convert regions to SC format
-    m_scRouting.RC012toSTRING(logicalCardID, m_nevt, RC[crate], RCof[crate],
-                              RCtau[crate], dataString);
+    m_scRouting.RC012toSTRING(logicalCardID, m_nevt, RC[crate], RCof[crate], RCtau[crate], dataString);
 
     // Write regions
     m_file << dataString;
@@ -190,9 +170,15 @@ void RctDigiToSourceCardText::analyze(const edm::Event &iEvent,
       m_scRouting.RoutingModetoLogicalCardID(logicalCardID, RoutingMode, crate);
 
       // Convert regions to SC format
-      m_scRouting.RC234toSTRING(logicalCardID, m_nevt, RC[crate], RCof[crate],
-                                RCtau[crate], RC[crate + 9], RCof[crate + 9],
-                                RCtau[crate + 9], dataString);
+      m_scRouting.RC234toSTRING(logicalCardID,
+                                m_nevt,
+                                RC[crate],
+                                RCof[crate],
+                                RCtau[crate],
+                                RC[crate + 9],
+                                RCof[crate + 9],
+                                RCtau[crate + 9],
+                                dataString);
 
       // Write regions
       m_file << dataString;

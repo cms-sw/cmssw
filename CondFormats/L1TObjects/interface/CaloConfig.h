@@ -21,14 +21,11 @@
 
 namespace l1t {
 
-
   class CaloConfig {
-
   public:
-
     enum { Version = 1 };
 
-    CaloConfig() { version_= (unsigned) Version; }
+    CaloConfig() { version_ = (unsigned)Version; }
     ~CaloConfig() {}
     friend class CaloConfigHelper;
 
@@ -40,5 +37,5 @@ namespace l1t {
     COND_SERIALIZABLE;
   };
 
-}// namespace
+}  // namespace l1t
 #endif

@@ -13,7 +13,7 @@
 // system include files
 #include <iostream>
 #include "TClass.h"
-#include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "FWCore/Reflection/interface/BaseWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
@@ -38,20 +38,16 @@ FWSimpleRepresentationChecker::FWSimpleRepresentationChecker(const std::string& 
                                                              const std::string& iPurpose,
                                                              unsigned int iBitPackedViews,
                                                              bool iRepresentsSubPart,
-                                                             bool iRequiresFF) :
-   FWRepresentationCheckerBase(iPurpose,iBitPackedViews,iRepresentsSubPart, iRequiresFF),
-   m_typeidName(iTypeName)
-{
-}
+                                                             bool iRequiresFF)
+    : FWRepresentationCheckerBase(iPurpose, iBitPackedViews, iRepresentsSubPart, iRequiresFF),
+      m_typeidName(iTypeName) {}
 
 // FWSimpleRepresentationChecker::FWSimpleRepresentationChecker(const FWSimpleRepresentationChecker& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWSimpleRepresentationChecker::~FWSimpleRepresentationChecker()
-{
-}
+FWSimpleRepresentationChecker::~FWSimpleRepresentationChecker() {}
 
 //
 // assignment operators
@@ -73,61 +69,58 @@ FWSimpleRepresentationChecker::~FWSimpleRepresentationChecker()
 // const member functions
 //
 bool FWSimpleRepresentationChecker::inheritsFrom(const edm::TypeWithDict& iChild,
-                         const std::string& iParentTypeName,
-                         unsigned int& distance) {
-                           
-   if (iChild.getClass()) {
-      if (iChild.getClass()->GetTypeInfo() == nullptr) {
-         return false;
-      }
-   }
-                           
-   if(iChild.typeInfo().name() == iParentTypeName) {
-      return true;
-   }
-   edm::TypeBases bases(iChild);
-   if(bases.size() == 0) {
+                                                 const std::string& iParentTypeName,
+                                                 unsigned int& distance) {
+  if (iChild.getClass()) {
+    if (iChild.getClass()->GetTypeInfo() == nullptr) {
       return false;
-   }
-   ++distance;
-   for(auto const& base : bases) {
-      if(inheritsFrom(edm::BaseWithDict(base).typeOf(),iParentTypeName,distance)) {
-         return true;
-      }
-   }
-   --distance;
-   return false;
+    }
+  }
+
+  if (iChild.typeInfo().name() == iParentTypeName) {
+    return true;
+  }
+  edm::TypeBases bases(iChild);
+  if (bases.size() == 0) {
+    return false;
+  }
+  ++distance;
+  for (auto const& base : bases) {
+    if (inheritsFrom(edm::BaseWithDict(base).typeOf(), iParentTypeName, distance)) {
+      return true;
+    }
+  }
+  --distance;
+  return false;
 }
 
-FWRepresentationInfo
-FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
-{
-   unsigned int distance=1;
+FWRepresentationInfo FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const {
+  unsigned int distance = 1;
 
-   FWItemAccessorFactory factory;
-   //std::cout<<"checker infoFor"<<iTypeName<<std::endl;
-   TClass* clss = TClass::GetClass(iTypeName.c_str());
-   //Class could be unknown if the dictionary for it has not been loaded
-   if(nullptr==clss || nullptr==clss->GetTypeInfo()) {
-      return FWRepresentationInfo();
-   }
-   std::shared_ptr<FWItemAccessorBase> accessor = factory.accessorFor(clss);
+  FWItemAccessorFactory factory;
+  //std::cout<<"checker infoFor"<<iTypeName<<std::endl;
+  TClass* clss = TClass::GetClass(iTypeName.c_str());
+  //Class could be unknown if the dictionary for it has not been loaded
+  if (nullptr == clss || nullptr == clss->GetTypeInfo()) {
+    return FWRepresentationInfo();
+  }
+  std::shared_ptr<FWItemAccessorBase> accessor = factory.accessorFor(clss);
 
-   const TClass* modelClass = accessor->modelType();
-   //std::cout <<"   "<<modelClass->GetName()<<" "<< bool(modelClass == clss)<< std::endl;
+  const TClass* modelClass = accessor->modelType();
+  //std::cout <<"   "<<modelClass->GetName()<<" "<< bool(modelClass == clss)<< std::endl;
 
-   if(nullptr==modelClass || nullptr == modelClass->GetTypeInfo()) {
-      //some containers e.g. vector<int> do not have known TClasses for their elements
-      // or the contained type may be unknown to ROOT
-      return FWRepresentationInfo();
-   }
-   edm::TypeWithDict modelType( *(modelClass->GetTypeInfo()));
-   //see if the modelType inherits from our type
+  if (nullptr == modelClass || nullptr == modelClass->GetTypeInfo()) {
+    //some containers e.g. vector<int> do not have known TClasses for their elements
+    // or the contained type may be unknown to ROOT
+    return FWRepresentationInfo();
+  }
+  edm::TypeWithDict modelType(*(modelClass->GetTypeInfo()));
+  //see if the modelType inherits from our type
 
-   if(inheritsFrom(modelType,m_typeidName,distance) ) {
-      return FWRepresentationInfo(purpose(),distance,bitPackedViews(), representsSubPart(), requiresFF());
-   }
-   return FWRepresentationInfo();
+  if (inheritsFrom(modelType, m_typeidName, distance)) {
+    return FWRepresentationInfo(purpose(), distance, bitPackedViews(), representsSubPart(), requiresFF());
+  }
+  return FWRepresentationInfo();
 }
 
 //

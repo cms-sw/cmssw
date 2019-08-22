@@ -16,10 +16,10 @@ pushd ${LOCAL_TMP_DIR}
 
   echo "*************************************************"
   echo "Merge outputs"
-  edmCopyPickMerge outputFile=testSwitchProducerMerge1.root inputFiles=file:testSwitchProducerTask1.root inputFiles=file:testSwitchProducerTask2.root || die "edmCopyPickMerge 1" $?
+  cmsRun ${LOCAL_TEST_DIR}/${test}Merge_cfg.py outputFile=testSwitchProducerMerge1.root inputFiles=file:testSwitchProducerTask1.root inputFiles=file:testSwitchProducerTask2.root || die "Merge 1: order 1 2" $?
   echo "*************************************************"
   echo "Merge outputs in reverse order"
-  edmCopyPickMerge outputFile=testSwitchProducerMerge2.root inputFiles=file:testSwitchProducerTask2.root inputFiles=file:testSwitchProducerTask1.root || die "edmCopyPickMerge 2" $?
+  cmsRun ${LOCAL_TEST_DIR}/${test}Merge_cfg.py outputFile=testSwitchProducerMerge2.root inputFiles=file:testSwitchProducerTask2.root inputFiles=file:testSwitchProducerTask1.root || die "Merge 2: order 2 1" $?
 
   echo "*************************************************"
   echo "Test provenance of merged output"

@@ -26,42 +26,36 @@ using namespace edm;
 using namespace CLHEP;
 //using namespace HepMC;
 
-
-PassThroughEvtVtxGenerator::PassThroughEvtVtxGenerator( const ParameterSet& pset )
-  : BaseEvtVtxGenerator(pset)
-{
-   Service<RandomNumberGenerator> rng;
-   if ( ! rng.isAvailable()) {
-     throw cms::Exception("Configuration")
-       << "The PassThroughEvtVtxGenerator requires the RandomNumberGeneratorService\n"
-          "which is not present in the configuration file. \n"
-          "You must add the service\n"
-          "in the configuration file or remove the modules that require it.";
-   }
-   sourceToken=consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"));
+PassThroughEvtVtxGenerator::PassThroughEvtVtxGenerator(const ParameterSet& pset) : BaseEvtVtxGenerator(pset) {
+  Service<RandomNumberGenerator> rng;
+  if (!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+        << "The PassThroughEvtVtxGenerator requires the RandomNumberGeneratorService\n"
+           "which is not present in the configuration file. \n"
+           "You must add the service\n"
+           "in the configuration file or remove the modules that require it.";
+  }
+  sourceToken = consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"));
 }
 
-PassThroughEvtVtxGenerator::~PassThroughEvtVtxGenerator()
-{
+PassThroughEvtVtxGenerator::~PassThroughEvtVtxGenerator() {}
+
+HepMC::FourVector PassThroughEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine*) const {
+  return HepMC::FourVector(0., 0., 0., 0);
 }
 
-HepMC::FourVector PassThroughEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine*) const  {
-  return HepMC::FourVector(0.,0.,0.,0);
-}
+void PassThroughEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
+  edm::Service<edm::RandomNumberGenerator> rng;
 
-void PassThroughEvtVtxGenerator::produce( Event& evt, const EventSetup& )
-{
-   edm::Service<edm::RandomNumberGenerator> rng;
+  Handle<HepMCProduct> HepUnsmearedMCEvt;
 
-   Handle<HepMCProduct> HepUnsmearedMCEvt ;
+  evt.getByToken(sourceToken, HepUnsmearedMCEvt);
 
-   evt.getByToken( sourceToken, HepUnsmearedMCEvt ) ;
+  // Copy the HepMC::GenEvent
+  HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
+  std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
 
-   // Copy the HepMC::GenEvent
-   HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
-   std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
+  evt.put(std::move(HepMCEvt));
 
-   evt.put(std::move(HepMCEvt)) ;
-
-   return ;
+  return;
 }

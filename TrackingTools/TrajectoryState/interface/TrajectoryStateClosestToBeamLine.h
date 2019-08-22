@@ -12,37 +12,29 @@
  * the closest to the track.
  */
 
-class TrajectoryStateClosestToBeamLine
-{
+class TrajectoryStateClosestToBeamLine {
 public:
-
-  typedef FreeTrajectoryState		FTS;
+  typedef FreeTrajectoryState FTS;
 
   TrajectoryStateClosestToBeamLine() : valid(false) {}
 
-  TrajectoryStateClosestToBeamLine
-    (const FTS& stateAtPCA, const GlobalPoint & pointOnBeamLine,
-     const reco::BeamSpot & beamSpot) : 
-      theFTS(stateAtPCA) , thePointOnBeamLine(pointOnBeamLine),
-      theBeamSpot(beamSpot), valid(true)
-  {}
+  TrajectoryStateClosestToBeamLine(const FTS& stateAtPCA,
+                                   const GlobalPoint& pointOnBeamLine,
+                                   const reco::BeamSpot& beamSpot)
+      : theFTS(stateAtPCA), thePointOnBeamLine(pointOnBeamLine), theBeamSpot(beamSpot), valid(true) {}
 
-  ~TrajectoryStateClosestToBeamLine(){}
+  ~TrajectoryStateClosestToBeamLine() {}
 
   /**
    * State of the track at the PCA to the beamline
    */
 
-  FTS const & trackStateAtPCA() const {
-    return theFTS;
-  }
+  FTS const& trackStateAtPCA() const { return theFTS; }
 
   /**
    * Point on the beamline which is the closest to the track
    */
-  GlobalPoint const & beamLinePCA() const {
-    return thePointOnBeamLine;
-  }
+  GlobalPoint const& beamLinePCA() const { return thePointOnBeamLine; }
 
   /**
    * Transverse impact parameter of the track to the beamline.
@@ -53,18 +45,14 @@ public:
   /**
    * The beamline
    */
-  reco::BeamSpot const & beamSpot() {
-    return theBeamSpot;
-  }
+  reco::BeamSpot const& beamSpot() { return theBeamSpot; }
 
-  inline bool isValid() const {return valid;}
+  inline bool isValid() const { return valid; }
 
 private:
-
   FTS theFTS;
   GlobalPoint thePointOnBeamLine;
   reco::BeamSpot theBeamSpot;
   bool valid;
-
 };
 #endif

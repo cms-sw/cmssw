@@ -9,11 +9,10 @@
 
 class G4VPhysicalVolume;
 
-class FakeFrameRotation : public FrameRotation 
-{
+class FakeFrameRotation : public FrameRotation {
 public:
-    ~FakeFrameRotation() override = default;
-    Local3DPoint transformPoint(const Local3DPoint &,const G4VPhysicalVolume *v=nullptr) const final;
+  ~FakeFrameRotation() override = default;
+  Local3DPoint transformPoint(const Local3DPoint &, const G4VPhysicalVolume *v = nullptr) const final;
 };
 
 #endif

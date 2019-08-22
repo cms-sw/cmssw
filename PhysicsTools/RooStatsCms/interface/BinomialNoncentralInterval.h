@@ -14,7 +14,7 @@
 
 #include "Math/PdfFuncMathCore.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
+#if (defined(STANDALONE) or defined(__CINT__))
 #include "BinomialInterval.h"
 #include "BinomialProbHelper.h"
 #else
@@ -29,7 +29,7 @@
 // example.
 template <typename Sorter>
 class BinomialNoncentralInterval : public BinomialInterval {
- public:
+public:
   // Given a true value of rho and ntot trials, calculate the
   // acceptance set [x_l, x_r] for use in a Neyman construction.
   bool find_rho_set(const double rho, const int ntot, int& x_l, int& x_r) const {
@@ -53,10 +53,12 @@ class BinomialNoncentralInterval : public BinomialInterval {
     for (int i = 0; i <= ntot && sum < target; ++i) {
       sum += probs[i].prob();
       const int& x = probs[i].x();
-      if (x < x_l) x_l = x;
-      if (x > x_r) x_r = x;
+      if (x < x_l)
+        x_l = x;
+      if (x > x_r)
+        x_r = x;
     }
-  
+
     return x_l <= x_r;
   }
 
@@ -65,7 +67,7 @@ class BinomialNoncentralInterval : public BinomialInterval {
   bool neyman(const int ntot, const int nrho, double* rho, double* x_l, double* x_r) override {
     int xL, xR;
     for (int i = 0; i < nrho; ++i) {
-      rho[i] = double(i)/nrho;
+      rho[i] = double(i) / nrho;
       find_rho_set(rho[i], ntot, xL, xR);
       x_l[i] = xL;
       x_r[i] = xR;
@@ -81,39 +83,41 @@ class BinomialNoncentralInterval : public BinomialInterval {
     const double tol = 1e-9;
     double rho_min, rho_max, rho;
     int x_l, x_r;
-  
+
     // Binary search for the smallest rho whose acceptance set has right
     // endpoint X; this is the lower endpoint of the rho interval.
-    rho_min = 0; rho_max = 1;
+    rho_min = 0;
+    rho_max = 1;
     while (std::fabs(rho_max - rho_min) > tol) {
-      rho = (rho_min + rho_max)/2;
+      rho = (rho_min + rho_max) / 2;
       find_rho_set(rho, int(n), x_l, x_r);
       if (x_r < X)
-	rho_min = rho;
+        rho_min = rho;
       else
-	rho_max = rho;
+        rho_max = rho;
     }
     lower_ = rho;
-  
+
     // Binary search for the largest rho whose acceptance set has left
     // endpoint X; this is the upper endpoint of the rho interval.
-    rho_min = 0; rho_max = 1;
+    rho_min = 0;
+    rho_max = 1;
     while (std::fabs(rho_max - rho_min) > tol) {
-      rho = (rho_min + rho_max)/2;
+      rho = (rho_min + rho_max) / 2;
       find_rho_set(rho, int(n), x_l, x_r);
       if (x_l > X)
-	rho_max = rho;
+        rho_max = rho;
       else
-	rho_min = rho;
+        rho_min = rho;
     }
     upper_ = rho;
   }
 
- private:
+private:
   Sorter sorter_;
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassDefT(BinomialNoncentralInterval,1)
+#if (defined(STANDALONE) or defined(__CINT__))
+  ClassDefT(BinomialNoncentralInterval, 1)
 #endif
 };
 

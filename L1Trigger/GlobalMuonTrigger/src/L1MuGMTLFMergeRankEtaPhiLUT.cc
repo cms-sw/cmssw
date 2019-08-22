@@ -2,7 +2,7 @@
 //
 //   Class: L1MuGMTLFMergeRankEtaPhiLUT
 //
-// 
+//
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -29,37 +29,17 @@
 // InitParameters  --
 //-------------------
 
-void L1MuGMTLFMergeRankEtaPhiLUT::InitParameters() {
-}
+void L1MuGMTLFMergeRankEtaPhiLUT::InitParameters() {}
 
 //------------------------
 // The Lookup Function  --
 //------------------------
 
-unsigned L1MuGMTLFMergeRankEtaPhiLUT::TheLookupFunction (int idx, unsigned eta, unsigned phi) const {
+unsigned L1MuGMTLFMergeRankEtaPhiLUT::TheLookupFunction(int idx, unsigned eta, unsigned phi) const {
   // idx is DT, BRPC, CSC, FRPC
   // INPUTS:  eta(6) phi(8)
-  // OUTPUTS: rank_etaphi(1) 
+  // OUTPUTS: rank_etaphi(1)
 
   // return zero to reduce merge rank for a certain region
   return 1;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

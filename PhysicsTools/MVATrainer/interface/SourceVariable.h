@@ -9,21 +9,19 @@
 
 namespace PhysicsTools {
 
-class Source;
+  class Source;
 
-class SourceVariable : public Variable {
-    public:
-	SourceVariable(Source *source, AtomicId name,
-	               Variable::Flags flags) :
-		Variable(name, flags), source(source) {}
-	~SourceVariable() {}
+  class SourceVariable : public Variable {
+  public:
+    SourceVariable(Source *source, AtomicId name, Variable::Flags flags) : Variable(name, flags), source(source) {}
+    ~SourceVariable() {}
 
-	Source *getSource() const { return source; }
+    Source *getSource() const { return source; }
 
-    private:
-	Source	*source;
-};
+  private:
+    Source *source;
+  };
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_MVATrainer_SourceVariable_h
+#endif  // PhysicsTools_MVATrainer_SourceVariable_h

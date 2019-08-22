@@ -11,15 +11,13 @@ template <unsigned int N>
 class DistanceBetweenComponents {
 public:
   typedef SingleGaussianState<N> SingleState;
- public:
 
-  virtual double operator() (const SingleState&, 
-			     const SingleState&) const = 0;
+public:
+  virtual double operator()(const SingleState&, const SingleState&) const = 0;
 
   virtual DistanceBetweenComponents<N>* clone() const = 0;
 
   virtual ~DistanceBetweenComponents() {}
-  
-};  
+};
 
-#endif // DistanceBetweenComponents_H
+#endif  // DistanceBetweenComponents_H

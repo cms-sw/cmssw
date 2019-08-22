@@ -1,7 +1,5 @@
 // $Id: $
-// Include files 
-
-
+// Include files
 
 // local
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
@@ -15,14 +13,10 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-TTUBoardSpecs::TTUBoardSpecs(  ) {
-
-}
+TTUBoardSpecs::TTUBoardSpecs() {}
 //=============================================================================
 // Destructor
 //=============================================================================
-TTUBoardSpecs::~TTUBoardSpecs() {
-  m_boardspecs.clear();
-} 
+TTUBoardSpecs::~TTUBoardSpecs() { m_boardspecs.clear(); }
 
 //=============================================================================

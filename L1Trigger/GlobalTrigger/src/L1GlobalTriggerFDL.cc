@@ -42,10 +42,11 @@
 
 // constructor
 L1GlobalTriggerFDL::L1GlobalTriggerFDL()
-    : // logical switches
-      m_firstEv(true), m_firstEvLumiSegment(true), m_firstEvRun(true),
+    :  // logical switches
+      m_firstEv(true),
+      m_firstEvLumiSegment(true),
+      m_firstEvRun(true),
       m_isDebugEnabled(edm::isDebugEnabled()) {
-
   // create empty FDL word
   m_gtFdlWord = new L1GtFdlWord();
 
@@ -54,7 +55,6 @@ L1GlobalTriggerFDL::L1GlobalTriggerFDL()
 
 // destructor
 L1GlobalTriggerFDL::~L1GlobalTriggerFDL() {
-
   reset();
   delete m_gtFdlWord;
 }
@@ -62,27 +62,30 @@ L1GlobalTriggerFDL::~L1GlobalTriggerFDL() {
 // Operations
 
 // run FDL
-void L1GlobalTriggerFDL::run(
-    edm::Event &iEvent, const std::vector<int> &prescaleFactorsAlgoTrig,
-    const std::vector<int> &prescaleFactorsTechTrig,
-    const std::vector<unsigned int> &triggerMaskAlgoTrig,
-    const std::vector<unsigned int> &triggerMaskTechTrig,
-    const std::vector<unsigned int> &triggerMaskVetoAlgoTrig,
-    const std::vector<unsigned int> &triggerMaskVetoTechTrig,
-    const std::vector<L1GtBoard> &boardMaps, const int totalBxInEvent,
-    const int iBxInEvent, const unsigned int numberPhysTriggers,
-    const unsigned int numberTechnicalTriggers,
-    const unsigned int numberDaqPartitions, const L1GlobalTriggerGTL *ptrGTL,
-    const L1GlobalTriggerPSB *ptrPSB, const int pfAlgoSetIndex,
-    const int pfTechSetIndex, const bool algorithmTriggersUnprescaled,
-    const bool algorithmTriggersUnmasked,
-    const bool technicalTriggersUnprescaled,
-    const bool technicalTriggersUnmasked,
-    const bool technicalTriggersVetoUnmasked) {
-
+void L1GlobalTriggerFDL::run(edm::Event &iEvent,
+                             const std::vector<int> &prescaleFactorsAlgoTrig,
+                             const std::vector<int> &prescaleFactorsTechTrig,
+                             const std::vector<unsigned int> &triggerMaskAlgoTrig,
+                             const std::vector<unsigned int> &triggerMaskTechTrig,
+                             const std::vector<unsigned int> &triggerMaskVetoAlgoTrig,
+                             const std::vector<unsigned int> &triggerMaskVetoTechTrig,
+                             const std::vector<L1GtBoard> &boardMaps,
+                             const int totalBxInEvent,
+                             const int iBxInEvent,
+                             const unsigned int numberPhysTriggers,
+                             const unsigned int numberTechnicalTriggers,
+                             const unsigned int numberDaqPartitions,
+                             const L1GlobalTriggerGTL *ptrGTL,
+                             const L1GlobalTriggerPSB *ptrPSB,
+                             const int pfAlgoSetIndex,
+                             const int pfTechSetIndex,
+                             const bool algorithmTriggersUnprescaled,
+                             const bool algorithmTriggersUnmasked,
+                             const bool technicalTriggersUnprescaled,
+                             const bool technicalTriggersUnmasked,
+                             const bool technicalTriggersVetoUnmasked) {
   // FIXME get rid of bitset in GTL in order to use only EventSetup
-  const unsigned int numberPhysTriggersSet =
-      L1GlobalTriggerReadoutSetup::NumberPhysTriggers;
+  const unsigned int numberPhysTriggersSet = L1GlobalTriggerReadoutSetup::NumberPhysTriggers;
 
   // get gtlDecisionWord from GTL
   std::bitset<numberPhysTriggersSet> gtlDecisionWord = ptrGTL->getAlgorithmOR();
@@ -91,7 +94,6 @@ void L1GlobalTriggerFDL::run(
   DecisionWord algoDecisionWord(numberPhysTriggers);
 
   for (unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit) {
-
     bool bitValue = gtlDecisionWord.test(iBit);
     algoDecisionWord[iBit] = bitValue;
   }
@@ -99,12 +101,10 @@ void L1GlobalTriggerFDL::run(
   // prescale counters are reset at the beginning of the luminosity segment
 
   if (m_firstEv) {
-
     // prescale counters: numberPhysTriggers counters per bunch cross
     m_prescaleCounterAlgoTrig.reserve(numberPhysTriggers * totalBxInEvent);
 
     for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
-
       m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
     }
 
@@ -112,7 +112,6 @@ void L1GlobalTriggerFDL::run(
     m_prescaleCounterTechTrig.reserve(numberTechnicalTriggers * totalBxInEvent);
 
     for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
-
       m_prescaleCounterTechTrig.push_back(prescaleFactorsTechTrig);
     }
 
@@ -121,7 +120,6 @@ void L1GlobalTriggerFDL::run(
 
   // TODO FIXME find the beginning of the luminosity segment
   if (m_firstEvLumiSegment) {
-
     m_prescaleCounterAlgoTrig.clear();
     for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
       m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
@@ -141,19 +139,13 @@ void L1GlobalTriggerFDL::run(
   int inBxInEvent = totalBxInEvent / 2 + iBxInEvent;
 
   for (unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit) {
-
-    if ((!algorithmTriggersUnprescaled) &&
-        (prescaleFactorsAlgoTrig.at(iBit) != 1)) {
-
+    if ((!algorithmTriggersUnprescaled) && (prescaleFactorsAlgoTrig.at(iBit) != 1)) {
       bool bitValue = algoDecisionWord.at(iBit);
       if (bitValue) {
-
         (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit))--;
         if (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) == 0) {
-
           // bit already true in algoDecisionWord, just reset counter
-          m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) =
-              prescaleFactorsAlgoTrig.at(iBit);
+          m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) = prescaleFactorsAlgoTrig.at(iBit);
 
           // LogTrace("L1GlobalTrigger")
           //<< "\nPrescaled algorithm: " << iBit << ". Reset counter to "
@@ -161,7 +153,6 @@ void L1GlobalTriggerFDL::run(
           //<< std::endl;
 
         } else {
-
           // change bit to false
           algoDecisionWord[iBit] = false;
           ;
@@ -186,19 +177,13 @@ void L1GlobalTriggerFDL::run(
   // prescale the technical trigger, if necessary
 
   for (unsigned int iBit = 0; iBit < numberTechnicalTriggers; ++iBit) {
-
-    if ((!technicalTriggersUnprescaled) &&
-        (prescaleFactorsTechTrig.at(iBit) != 1)) {
-
+    if ((!technicalTriggersUnprescaled) && (prescaleFactorsTechTrig.at(iBit) != 1)) {
       bool bitValue = techDecisionWord.at(iBit);
       if (bitValue) {
-
         (m_prescaleCounterTechTrig.at(inBxInEvent).at(iBit))--;
         if (m_prescaleCounterTechTrig.at(inBxInEvent).at(iBit) == 0) {
-
           // bit already true in techDecisionWord, just reset counter
-          m_prescaleCounterTechTrig.at(inBxInEvent).at(iBit) =
-              prescaleFactorsTechTrig.at(iBit);
+          m_prescaleCounterTechTrig.at(inBxInEvent).at(iBit) = prescaleFactorsTechTrig.at(iBit);
 
           // LogTrace("L1GlobalTrigger")
           //<< "\nPrescaled algorithm: " << iBit << ". Reset counter to "
@@ -206,7 +191,6 @@ void L1GlobalTriggerFDL::run(
           //<< std::endl;
 
         } else {
-
           // change bit to false
           techDecisionWord[iBit] = false;
 
@@ -229,7 +213,6 @@ void L1GlobalTriggerFDL::run(
   boost::uint16_t finalOrValue = 0;
 
   for (unsigned int iDaq = 0; iDaq < numberDaqPartitions; ++iDaq) {
-
     bool daqPartitionFinalOR = false;
 
     // starts with technical trigger veto mask to minimize computation
@@ -239,11 +222,8 @@ void L1GlobalTriggerFDL::run(
 
     // vetoTechTrig can change only when using trigger veto masks
     if (!technicalTriggersVetoUnmasked) {
-
       for (unsigned int iBit = 0; iBit < numberTechnicalTriggers; ++iBit) {
-
-        int triggerMaskVetoTechTrigBit =
-            triggerMaskVetoTechTrig[iBit] & (1 << iDaq);
+        int triggerMaskVetoTechTrigBit = triggerMaskVetoTechTrig[iBit] & (1 << iDaq);
         // LogTrace("L1GlobalTrigger")
         //<< "\nTechnical trigger bit: " << iBit
         //<< " mask = " << triggerMaskVetoTechTrigBit
@@ -251,7 +231,6 @@ void L1GlobalTriggerFDL::run(
         //<< std::endl;
 
         if (triggerMaskVetoTechTrigBit && techDecisionWord[iBit]) {
-
           daqPartitionFinalOR = false;
           vetoTechTrig = true;
 
@@ -268,12 +247,10 @@ void L1GlobalTriggerFDL::run(
     // apply algorithm and technical trigger masks only if no veto from
     // technical trigger
     if (!vetoTechTrig) {
-
       // algorithm trigger mask
       bool algoFinalOr = false;
 
       for (unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit) {
-
         bool iBitDecision = false;
 
         int triggerMaskAlgoTrigBit = -1;
@@ -308,7 +285,6 @@ void L1GlobalTriggerFDL::run(
       bool techFinalOr = false;
 
       for (unsigned int iBit = 0; iBit < numberTechnicalTriggers; ++iBit) {
-
         bool iBitDecision = false;
 
         int triggerMaskTechTrigBit = -1;
@@ -324,7 +300,6 @@ void L1GlobalTriggerFDL::run(
         //<< std::endl;
 
         if (triggerMaskTechTrigBit) {
-
           iBitDecision = false;
 
           // LogTrace("L1GlobalTrigger")
@@ -340,13 +315,11 @@ void L1GlobalTriggerFDL::run(
       daqPartitionFinalOR = algoFinalOr || techFinalOr;
 
     } else {
-
-      daqPartitionFinalOR = false; // vetoTechTrig
+      daqPartitionFinalOR = false;  // vetoTechTrig
     }
 
     // push it in finalOrValue
-    boost::uint16_t daqPartitionFinalORValue =
-        static_cast<boost::uint16_t>(daqPartitionFinalOR);
+    boost::uint16_t daqPartitionFinalORValue = static_cast<boost::uint16_t>(daqPartitionFinalOR);
 
     finalOrValue = finalOrValue | (daqPartitionFinalORValue << iDaq);
   }
@@ -354,11 +327,8 @@ void L1GlobalTriggerFDL::run(
   // fill everything we know in the L1GtFdlWord
 
   typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end();
-       ++itBoard) {
-
+  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
     if ((itBoard->gtBoardType() == FDL)) {
-
       m_gtFdlWord->setBoardId(itBoard->gtBoardId());
 
       // BxInEvent
@@ -373,20 +343,18 @@ void L1GlobalTriggerFDL::run(
       if ((bxCross & 0xFFF) == bxCross) {
         bxCrossHw = static_cast<boost::uint16_t>(bxCross);
       } else {
-        bxCrossHw = 0; // Bx number too large, set to 0!
+        bxCrossHw = 0;  // Bx number too large, set to 0!
         if (m_verbosity) {
-          LogDebug("L1GlobalTrigger")
-              << "\nBunch cross number [hex] = " << std::hex << bxCross
-              << "\n  larger than 12 bits. Set to 0! \n"
-              << std::dec << std::endl;
+          LogDebug("L1GlobalTrigger") << "\nBunch cross number [hex] = " << std::hex << bxCross
+                                      << "\n  larger than 12 bits. Set to 0! \n"
+                                      << std::dec << std::endl;
         }
       }
 
       m_gtFdlWord->setBxNr(bxCrossHw);
 
       // set event number since last L1 reset generated in FDL
-      m_gtFdlWord->setEventNr(
-          static_cast<boost::uint32_t>(iEvent.id().event()));
+      m_gtFdlWord->setEventNr(static_cast<boost::uint32_t>(iEvent.id().event()));
 
       // technical trigger decision word
       m_gtFdlWord->setGtTechnicalTriggerWord(techDecisionWord);
@@ -395,10 +363,8 @@ void L1GlobalTriggerFDL::run(
       m_gtFdlWord->setGtDecisionWord(algoDecisionWord);
 
       // index of prescale factor set - technical triggers and algo
-      m_gtFdlWord->setGtPrescaleFactorIndexTech(
-          static_cast<boost::uint16_t>(pfTechSetIndex));
-      m_gtFdlWord->setGtPrescaleFactorIndexAlgo(
-          static_cast<boost::uint16_t>(pfAlgoSetIndex));
+      m_gtFdlWord->setGtPrescaleFactorIndexTech(static_cast<boost::uint16_t>(pfTechSetIndex));
+      m_gtFdlWord->setGtPrescaleFactorIndexAlgo(static_cast<boost::uint16_t>(pfAlgoSetIndex));
 
       // NoAlgo bit FIXME
 
@@ -406,12 +372,10 @@ void L1GlobalTriggerFDL::run(
       m_gtFdlWord->setFinalOR(finalOrValue);
 
       // orbit number
-      m_gtFdlWord->setOrbitNr(
-          static_cast<boost::uint32_t>(iEvent.orbitNumber()));
+      m_gtFdlWord->setOrbitNr(static_cast<boost::uint32_t>(iEvent.orbitNumber()));
 
       // luminosity segment number
-      m_gtFdlWord->setLumiSegmentNr(
-          static_cast<boost::uint16_t>(iEvent.luminosityBlock()));
+      m_gtFdlWord->setLumiSegmentNr(static_cast<boost::uint16_t>(iEvent.luminosityBlock()));
 
       // local bunch crossing - set identical with absolute BxNr
       m_gtFdlWord->setLocalBxNr(bxCrossHw);
@@ -420,19 +384,17 @@ void L1GlobalTriggerFDL::run(
 }
 
 // fill the FDL block in the L1 GT DAQ record for iBxInEvent
-void L1GlobalTriggerFDL::fillDaqFdlBlock(
-    const int iBxInEvent, const boost::uint16_t &activeBoardsGtDaq,
-    const int recordLength0, const int recordLength1,
-    const unsigned int altNrBxBoardDaq, const std::vector<L1GtBoard> &boardMaps,
-    L1GlobalTriggerReadoutRecord *gtDaqReadoutRecord) {
-
+void L1GlobalTriggerFDL::fillDaqFdlBlock(const int iBxInEvent,
+                                         const boost::uint16_t &activeBoardsGtDaq,
+                                         const int recordLength0,
+                                         const int recordLength1,
+                                         const unsigned int altNrBxBoardDaq,
+                                         const std::vector<L1GtBoard> &boardMaps,
+                                         L1GlobalTriggerReadoutRecord *gtDaqReadoutRecord) {
   typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end();
-       ++itBoard) {
-
+  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
     int iPosition = itBoard->gtPositionDaqRecord();
     if (iPosition > 0) {
-
       int iActiveBit = itBoard->gtBitDaqActiveBoards();
       bool activeBoard = false;
       bool writeBoard = false;
@@ -459,7 +421,6 @@ void L1GlobalTriggerFDL::fillDaqFdlBlock(
       }
 
       if (activeBoard && writeBoard && (itBoard->gtBoardType() == FDL)) {
-
         gtDaqReadoutRecord->setGtFdlWord(*m_gtFdlWord);
       }
     }
@@ -467,19 +428,17 @@ void L1GlobalTriggerFDL::fillDaqFdlBlock(
 }
 
 // fill the FDL block in the L1 GT EVM record for iBxInEvent
-void L1GlobalTriggerFDL::fillEvmFdlBlock(
-    const int iBxInEvent, const boost::uint16_t &activeBoardsGtEvm,
-    const int recordLength0, const int recordLength1,
-    const unsigned int altNrBxBoardEvm, const std::vector<L1GtBoard> &boardMaps,
-    L1GlobalTriggerEvmReadoutRecord *gtEvmReadoutRecord) {
-
+void L1GlobalTriggerFDL::fillEvmFdlBlock(const int iBxInEvent,
+                                         const boost::uint16_t &activeBoardsGtEvm,
+                                         const int recordLength0,
+                                         const int recordLength1,
+                                         const unsigned int altNrBxBoardEvm,
+                                         const std::vector<L1GtBoard> &boardMaps,
+                                         L1GlobalTriggerEvmReadoutRecord *gtEvmReadoutRecord) {
   typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end();
-       ++itBoard) {
-
+  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
     int iPosition = itBoard->gtPositionEvmRecord();
     if (iPosition > 0) {
-
       int iActiveBit = itBoard->gtBitEvmActiveBoards();
       bool activeBoard = false;
 
@@ -488,7 +447,6 @@ void L1GlobalTriggerFDL::fillEvmFdlBlock(
       }
 
       if (activeBoard && (itBoard->gtBoardType() == FDL)) {
-
         gtEvmReadoutRecord->setGtFdlWord(*m_gtFdlWord);
       }
     }
@@ -497,7 +455,6 @@ void L1GlobalTriggerFDL::fillEvmFdlBlock(
 
 // clear FDL
 void L1GlobalTriggerFDL::reset() {
-
   m_gtFdlWord->reset();
 
   // do NOT reset the prescale counters

@@ -32,17 +32,14 @@
 #include "EventFilter/L1TRawToDigi/interface/AMC13Spec.h"
 #include "EventFilter/L1TRawToDigi/interface/Block.h"
 
-
 // class decleration
 
-namespace dqmBmtfAlgoSelector{
+namespace dqmBmtfAlgoSelector {
 
-  class  L1TBMTFAlgoSelector: public edm::stream::EDProducer<> {
-
+  class L1TBMTFAlgoSelector : public edm::stream::EDProducer<> {
   public:
-
     // class constructor
-    explicit L1TBMTFAlgoSelector(const edm::ParameterSet & ps);
+    explicit L1TBMTFAlgoSelector(const edm::ParameterSet& ps);
     // class destructor
     ~L1TBMTFAlgoSelector() override;
 
@@ -50,10 +47,10 @@ namespace dqmBmtfAlgoSelector{
   private:
     void produce(edm::Event&, const edm::EventSetup&) override;
 
-    // data members  
+    // data members
     edm::EDGetToken bmtfKalmanToken;
     edm::EDGetToken bmtfLegacyToken;
     edm::EDGetToken fedToken;
   };
-}
+}  // namespace dqmBmtfAlgoSelector
 #endif

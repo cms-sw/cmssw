@@ -21,7 +21,7 @@
 // this file as follows:
 
 // I started using CMSSW_6_1_0_pre7 with this command:
-// runTheMatrix.py -l 24.0  
+// runTheMatrix.py -l 24.0
 // Then I reran step3 with the the last line of the following code
 // fragment added in ProductRegistry.cc to print out the products
 // as they are added to the lookup table.
@@ -61,14 +61,12 @@ namespace edmtestlookup {
     std::string process;
     TypeID typeID;
   };
-}
-
+}  // namespace edmtestlookup
 
 using namespace edmtestlookup;
 
 int main() {
-
-  //Read the file listing all the products  
+  //Read the file listing all the products
   std::string line1;
   std::string line2;
   std::string line3;
@@ -77,18 +75,21 @@ int main() {
   Names names;
   std::vector<Names> vNames;
 
-  std::ifstream myfile ("log3");
+  std::ifstream myfile("log3");
   if (myfile.is_open()) {
-    while ( myfile.good() )
-    {
-      getline (myfile,line1);
-      if (!myfile.good()) break;
-      getline (myfile,line2);
-      if (!myfile.good()) break;
-      getline (myfile,line3);
-      if (!myfile.good()) break;
-      getline (myfile,line4);
-      if (!myfile.good()) break;
+    while (myfile.good()) {
+      getline(myfile, line1);
+      if (!myfile.good())
+        break;
+      getline(myfile, line2);
+      if (!myfile.good())
+        break;
+      getline(myfile, line3);
+      if (!myfile.good())
+        break;
+      getline(myfile, line4);
+      if (!myfile.good())
+        break;
 
       std::istringstream ss1(line1);
       std::istringstream ss2(line2);
@@ -102,7 +103,6 @@ int main() {
       ss2 >> word >> names.label;
       ss3 >> word >> names.instance;
       ss4 >> word >> names.process;
-
 
       // if (names.className == "trigger::TriggerFilterObjectWithRefs") continue;
       // if (vNames.size() > 99) continue;
@@ -126,8 +126,7 @@ int main() {
 
   std::vector<unsigned int> savedIndexes;
 
-  for (auto & n : vNames) {
-
+  for (auto& n : vNames) {
     // Most of the initialization time in this test is
     // in this line as the dictionaries are loaded. Depending
     // on the number of loops and types, this also may be
@@ -143,19 +142,16 @@ int main() {
     }
 
     timer.start();
-    phih.insert(n.typeID,
-                n.label.c_str(),
-                n.instance.c_str(),
-                n.process.c_str());
+    phih.insert(n.typeID, n.label.c_str(), n.instance.c_str(), n.process.c_str());
     timer.stop();
-  } 
-  std::cout <<"Filling Time: real "<<timer.realTime()<<" cpu "<<timer.cpuTime()<< std::endl;
+  }
+  std::cout << "Filling Time: real " << timer.realTime() << " cpu " << timer.cpuTime() << std::endl;
   timer.reset();
 
   timer.start();
   phih.setFrozen();
   timer.stop();
-  std::cout <<"Freezing Time: real "<<timer.realTime()<<" cpu "<<timer.cpuTime()<< std::endl;
+  std::cout << "Freezing Time: real " << timer.realTime() << " cpu " << timer.cpuTime() << std::endl;
   timer.reset();
 
   // phih.print(std::cout);
@@ -166,7 +162,7 @@ int main() {
 
   for (unsigned j = 0; j < 100; ++j) {
     unsigned int iCount = 0;
-    for (auto & n : vNames) {
+    for (auto& n : vNames) {
       unsigned temp = 1;
       // if (n.className == "trigger::TriggerFilterObjectWithRefs") continue;
       temp = phih.index(PRODUCT_TYPE, n.typeID, n.label.c_str(), n.instance.c_str(), n.process.c_str());
@@ -177,6 +173,6 @@ int main() {
   }
   timer.stop();
 
-  std::cout <<"index loop time = real "<<timer.realTime()<<" cpu "<<timer.cpuTime()<< std::endl;
+  std::cout << "index loop time = real " << timer.realTime() << " cpu " << timer.cpuTime() << std::endl;
   return sum;
 }

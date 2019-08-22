@@ -1,4 +1,5 @@
 <use   name="FWCore/Utilities"/>
+<use   name="FWCore/Reflection"/>
 <use   name="boost"/>
 <use   name="rootcore"/>
 <use   name="tbb"/>

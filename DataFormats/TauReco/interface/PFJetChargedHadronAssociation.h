@@ -5,31 +5,24 @@
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/JetReco/interface/JetCollection.h"
 
-namespace reco 
-{
+namespace reco {
   // This base class improves the readability of the ROOT class name by hiding
   // the template crap
-  typedef edm::AssociationVector<JetRefBaseProd, std::vector<std::vector<PFRecoTauChargedHadron> > > PFJetChargedHadronAssociationBase;  
+  typedef edm::AssociationVector<JetRefBaseProd, std::vector<std::vector<PFRecoTauChargedHadron> > >
+      PFJetChargedHadronAssociationBase;
 
-  class PFJetChargedHadronAssociation : public PFJetChargedHadronAssociationBase 
-  {
-   public: 
-    PFJetChargedHadronAssociation() 
-      : PFJetChargedHadronAssociationBase()
-    {}
-    
-    PFJetChargedHadronAssociation(const reco::JetRefBaseProd& ref) 
-      : PFJetChargedHadronAssociationBase(ref)
-    {}
-    
-    PFJetChargedHadronAssociation(const PFJetChargedHadronAssociationBase& v) 
-      : PFJetChargedHadronAssociationBase(v)
-    {}
+  class PFJetChargedHadronAssociation : public PFJetChargedHadronAssociationBase {
+  public:
+    PFJetChargedHadronAssociation() : PFJetChargedHadronAssociationBase() {}
+
+    PFJetChargedHadronAssociation(const reco::JetRefBaseProd& ref) : PFJetChargedHadronAssociationBase(ref) {}
+
+    PFJetChargedHadronAssociation(const PFJetChargedHadronAssociationBase& v) : PFJetChargedHadronAssociationBase(v) {}
   };
-  
-  typedef PFJetChargedHadronAssociation::value_type PFJetChargedHadronAssociationChHadrons;  
-  typedef edm::Ref<PFJetChargedHadronAssociation> PFJetChargedHadronAssociationRef;  
-  typedef edm::RefProd<PFJetChargedHadronAssociation> PFJetChargedHadronAssociationRefProd;  
-  typedef edm::RefVector<PFJetChargedHadronAssociation> PFJetChargedHadronAssociationRefVector; 
-}
+
+  typedef PFJetChargedHadronAssociation::value_type PFJetChargedHadronAssociationChHadrons;
+  typedef edm::Ref<PFJetChargedHadronAssociation> PFJetChargedHadronAssociationRef;
+  typedef edm::RefProd<PFJetChargedHadronAssociation> PFJetChargedHadronAssociationRefProd;
+  typedef edm::RefVector<PFJetChargedHadronAssociation> PFJetChargedHadronAssociationRefVector;
+}  // namespace reco
 #endif

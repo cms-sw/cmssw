@@ -3,8 +3,6 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
-
-
 #include "CommonTools/UtilAlgos/interface/EventSelector.h"
 
 #include "PhysicsTools/RecoUtils/plugins/CandidateEventSelector.h"
@@ -18,19 +16,18 @@ DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, HLTEventSelector, "HLTEventSel
 
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 
-namespace configurableAnalysis{
-  char Candidate[]="reco::Candidate";
-  char GenParticle[]="reco::GenParticle";
-}
+namespace configurableAnalysis {
+  char Candidate[] = "reco::Candidate";
+  char GenParticle[] = "reco::GenParticle";
+}  // namespace configurableAnalysis
 
 #include "DataFormats/Candidate/interface/Candidate.h"
-typedef ExpressionVariable<reco::Candidate,configurableAnalysis::Candidate> CandidateExpressionVariable;
+typedef ExpressionVariable<reco::Candidate, configurableAnalysis::Candidate> CandidateExpressionVariable;
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-typedef ExpressionVariable<reco::GenParticle,configurableAnalysis::GenParticle> GenParticleExpressionVariable;
+typedef ExpressionVariable<reco::GenParticle, configurableAnalysis::GenParticle> GenParticleExpressionVariable;
 
 DEFINE_EDM_PLUGIN(CachingVariableFactory, CandidateExpressionVariable, "CandidateExpressionVariable");
 DEFINE_EDM_PLUGIN(CachingVariableFactory, GenParticleExpressionVariable, "GenParticleExpressionVariable");
-
 
 #include "PhysicsTools/RecoUtils/plugins/TriggerVariables.h"
 

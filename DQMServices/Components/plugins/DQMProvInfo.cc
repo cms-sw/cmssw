@@ -22,20 +22,22 @@ const int DQMProvInfo::MAX_LUMIS;
 // Constructor
 DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps) {
   // Initialization of DQM parameters
-  subsystemname_ =
-      ps.getUntrackedParameter<std::string>("subSystemFolder", "Info");
-  provinfofolder_ =
-      ps.getUntrackedParameter<std::string>("provInfoFolder", "ProvInfo");
-  runType_ =
-      ps.getUntrackedParameter<std::string>("runType", "No run type selected");
+  subsystemname_ = ps.getUntrackedParameter<std::string>("subSystemFolder", "Info");
+  provinfofolder_ = ps.getUntrackedParameter<std::string>("provInfoFolder", "ProvInfo");
+  runType_ = ps.getUntrackedParameter<std::string>("runType", "No run type selected");
 
   // Initialization of the input
   // Used to get the DCS bits:
   dcsStatusCollection_ =
-      consumes<DcsStatusCollection>(ps.getUntrackedParameter<std::string>(
-          "dcsStatusCollection", "scalersRawToDigi"));
+      consumes<DcsStatusCollection>(ps.getUntrackedParameter<std::string>("dcsStatusCollection", "scalersRawToDigi"));
+
   // Used to get the BST record from the TCDS information
-  tcdsrecord_ = consumes<TCDSRecord>(ps.getUntrackedParameter<edm::InputTag>("tcdsData", edm::InputTag("tcdsDigis","tcdsRecord")));
+  tcdsrecord_ = consumes<TCDSRecord>(
+      ps.getUntrackedParameter<edm::InputTag>("tcdsData", edm::InputTag("tcdsDigis", "tcdsRecord")));
+
+  // Used to get the DCS bits:
+  dcsRecordToken_ = consumes<DCSRecord>(edm::InputTag("onlineMetaDataRawToDigi"));
+
   // Initialization of the global tag
   globalTag_ = "MODULE::DEFAULT";  // default
   globalTagRetrieved_ = false;     // set as soon as retrieved from first event
@@ -47,8 +49,7 @@ DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps) {
 // Destructor
 DQMProvInfo::~DQMProvInfo() = default;
 
-void DQMProvInfo::dqmBeginRun(const edm::Run& iRun,
-                              const edm::EventSetup& iEventSetup) {
+void DQMProvInfo::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iEventSetup) {
   // Here we do everything that needs to be done before the booking
   // Getting the HLT key from HLTConfigProvider:
   hltKey_ = "";
@@ -61,15 +62,12 @@ void DQMProvInfo::dqmBeginRun(const edm::Run& iRun,
     edm::LogInfo("DQMProvInfo") << "hltConfig" << std::endl;
     hltKey_ = "error key of length 0";
   } else {
-    edm::LogInfo("DQMProvInfo") << "HLT key (run): " << hltConfig.tableName()
-                                << std::endl;
+    edm::LogInfo("DQMProvInfo") << "HLT key (run): " << hltConfig.tableName() << std::endl;
     hltKey_ = hltConfig.tableName();
   }
 }
 
-void DQMProvInfo::bookHistograms(DQMStore::IBooker& iBooker,
-                                 edm::Run const& iRun,
-                                 edm::EventSetup const& iEventSetup) {
+void DQMProvInfo::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& iRun, edm::EventSetup const& iEventSetup) {
   iBooker.cd();
   // This module will create elements in 3 different folders:
   // - Info/LhcInfo
@@ -91,8 +89,7 @@ void DQMProvInfo::bookHistogramsLhcInfo(DQMStore::IBooker& iBooker) {
   // Element: beamMode
   // Beam parameters provided by BST are defined in:
   // https://edms.cern.ch/document/638899/2.0
-  hBeamMode_ =
-      iBooker.book1D("beamMode", "beamMode", MAX_LUMIS, 1., MAX_LUMIS + 1);
+  hBeamMode_ = iBooker.book1D("beamMode", "beamMode", MAX_LUMIS, 1., MAX_LUMIS + 1);
   hBeamMode_->getTH1F()->GetYaxis()->Set(21, 0.5, 21.5);
   hBeamMode_->getTH1F()->SetMaximum(21.5);
   hBeamMode_->getTH1F()->SetCanExtend(TH1::kAllAxes);
@@ -122,28 +119,24 @@ void DQMProvInfo::bookHistogramsLhcInfo(DQMStore::IBooker& iBooker) {
   hBeamMode_->setBinLabel(21, "no beam", 2);
 
   // Element: intensity1
-  hIntensity1_ = iBooker.book1D("intensity1", "Intensity Beam 1", MAX_LUMIS, 1.,
-                                MAX_LUMIS + 1);
+  hIntensity1_ = iBooker.book1D("intensity1", "Intensity Beam 1", MAX_LUMIS, 1., MAX_LUMIS + 1);
   hIntensity1_->setAxisTitle("Luminosity Section", 1);
   hIntensity1_->setAxisTitle("N [E10]", 2);
   hIntensity1_->getTH1F()->SetCanExtend(TH1::kAllAxes);
 
   // Element: intensity2
-  hIntensity2_ = iBooker.book1D("intensity2", "Intensity Beam 2", MAX_LUMIS, 1.,
-                                MAX_LUMIS + 1);
+  hIntensity2_ = iBooker.book1D("intensity2", "Intensity Beam 2", MAX_LUMIS, 1., MAX_LUMIS + 1);
   hIntensity2_->setAxisTitle("Luminosity Section", 1);
   hIntensity2_->setAxisTitle("N [E10]", 2);
   hIntensity2_->getTH1F()->SetCanExtend(TH1::kAllAxes);
 
   // Element: lhcFill
-  hLhcFill_ = iBooker.book1D("lhcFill", "LHC Fill Number", MAX_LUMIS, 1.,
-                             MAX_LUMIS + 1);
+  hLhcFill_ = iBooker.book1D("lhcFill", "LHC Fill Number", MAX_LUMIS, 1., MAX_LUMIS + 1);
   hLhcFill_->setAxisTitle("Luminosity Section", 1);
   hLhcFill_->getTH1F()->SetCanExtend(TH1::kAllAxes);
 
   // Element: momentum
-  hMomentum_ = iBooker.book1D("momentum", "Beam Energy [GeV]", MAX_LUMIS, 1.,
-                              MAX_LUMIS + 1);
+  hMomentum_ = iBooker.book1D("momentum", "Beam Energy [GeV]", MAX_LUMIS, 1., MAX_LUMIS + 1);
   hMomentum_->setAxisTitle("Luminosity Section", 1);
   hMomentum_->getTH1F()->SetCanExtend(TH1::kAllAxes);
 }
@@ -153,9 +146,14 @@ void DQMProvInfo::bookHistogramsEventInfo(DQMStore::IBooker& iBooker) {
   reportSummary_ = iBooker.bookFloat("reportSummary");
 
   // Element: reportSummaryMap   (this is the famous HV plot)
-  reportSummaryMap_ = iBooker.book2D(
-      "reportSummaryMap", "DCS HV Status and Beam Status per Lumisection",
-      MAX_LUMIS, 0, MAX_LUMIS, MAX_VBINS, 0., MAX_VBINS);
+  reportSummaryMap_ = iBooker.book2D("reportSummaryMap",
+                                     "DCS HV Status and Beam Status per Lumisection",
+                                     MAX_LUMIS,
+                                     0,
+                                     MAX_LUMIS,
+                                     MAX_VBINS,
+                                     0.,
+                                     MAX_VBINS);
   reportSummaryMap_->setAxisTitle("Luminosity Section");
   reportSummaryMap_->getTH2F()->SetCanExtend(TH1::kAllAxes);
 
@@ -188,6 +186,8 @@ void DQMProvInfo::bookHistogramsEventInfo(DQMStore::IBooker& iBooker) {
   reportSummaryMap_->setBinLabel(VBIN_MOMENTUM, "13 TeV", 2);
   reportSummaryMap_->setBinLabel(VBIN_STABLE_BEAM, "Stable B", 2);
   reportSummaryMap_->setBinLabel(VBIN_VALID, "Valid", 2);
+
+  blankAllLumiSections();
 }
 
 void DQMProvInfo::bookHistogramsProvInfo(DQMStore::IBooker& iBooker) {
@@ -221,8 +221,7 @@ void DQMProvInfo::bookHistogramsProvInfo(DQMStore::IBooker& iBooker) {
   workingDir_ = iBooker.bookString("workingDir", gSystem->pwd());
 }
 
-void DQMProvInfo::beginLuminosityBlock(const edm::LuminosityBlock& l,
-                                       const edm::EventSetup& c) {
+void DQMProvInfo::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
   // By default we set the Physics Declared bit to false at the beginning of
   // every LS
   physicsDeclared_ = false;
@@ -233,9 +232,6 @@ void DQMProvInfo::beginLuminosityBlock(const edm::LuminosityBlock& l,
   for (int vbin = 1; vbin <= MAX_DCS_VBINS; vbin++) {
     dcsBits_[vbin] = false;
   }
-  // Boolean that tells the analyse method that we encountered the first real
-  // dcs info
-  foundFirstDcsBits_ = false;
 }
 
 void DQMProvInfo::analyze(const edm::Event& event, const edm::EventSetup& c) {
@@ -244,6 +240,7 @@ void DQMProvInfo::analyze(const edm::Event& event, const edm::EventSetup& c) {
   // and then at the end of each lumisection, we fill them in the MonitorElement
   // (Except for the global tag, which we only extract from the first event we
   //  ever encounter and put in the MonitorElement right away)
+
   analyzeLhcInfo(event);
   analyzeEventInfo(event);
   analyzeProvInfo(event);
@@ -251,15 +248,15 @@ void DQMProvInfo::analyze(const edm::Event& event, const edm::EventSetup& c) {
 
 void DQMProvInfo::analyzeLhcInfo(const edm::Event& event) {
   edm::Handle<TCDSRecord> tcdsData;
-  event.getByToken( tcdsrecord_, tcdsData );
+  event.getByToken(tcdsrecord_, tcdsData);
   // We unpack the TCDS record from TCDS
-  if( tcdsData.isValid() ) {
+  if (tcdsData.isValid()) {
     //and we look at the BST information
-    lhcFill_ = static_cast<int>( tcdsData->getBST().getLhcFill() );
-    beamMode_ = static_cast<int>( tcdsData->getBST().getBeamMode() );
-    momentum_ = static_cast<int>( tcdsData->getBST().getBeamMomentum() );
-    intensity1_ = static_cast<int>( tcdsData->getBST().getIntensityBeam1() );
-    intensity2_ = static_cast<int>( tcdsData->getBST().getIntensityBeam2() );
+    lhcFill_ = static_cast<int>(tcdsData->getBST().getLhcFill());
+    beamMode_ = static_cast<int>(tcdsData->getBST().getBeamMode());
+    momentum_ = static_cast<int>(tcdsData->getBST().getBeamMomentum());
+    intensity1_ = static_cast<int>(tcdsData->getBST().getIntensityBeam1());
+    intensity2_ = static_cast<int>(tcdsData->getBST().getIntensityBeam2());
   } else {
     edm::LogWarning("DQMProvInfo") << "TCDS Data inaccessible.";
   }
@@ -267,13 +264,78 @@ void DQMProvInfo::analyzeLhcInfo(const edm::Event& event) {
 
 void DQMProvInfo::analyzeEventInfo(const edm::Event& event) {
   // Part 1:
-  // Extract the DcsStatusCollection from the event
-  // and put it into the dcsBits_ array
-  edm::Handle<DcsStatusCollection> dcsStatus;
-  event.getByToken(dcsStatusCollection_, dcsStatus);
+  // If FED#735 is available use it to extract DcsStatusCollection.
+  // If not, use softFED#1022 to extract DCSRecord.
+  // Populate dcsBits_ array with received information.
+
+  edm::Handle<DcsStatusCollection> dcsStatusCollection;
+  event.getByToken(dcsStatusCollection_, dcsStatusCollection);
+
+  if (!dcsStatusCollection->empty()) {
+    edm::LogInfo("DQMProvInfo") << "Using FED#735 for reading DCS bits" << std::endl;
+    fillDcsBitsFromDcsStatusCollection(dcsStatusCollection);
+  } else {
+    edm::LogInfo("DQMProvInfo") << "Using softFED#1022 for reading DCS bits" << std::endl;
+    DCSRecord const& dcsRecord = event.get(dcsRecordToken_);
+    fillDcsBitsFromDCSRecord(dcsRecord);
+  }
+}
+
+void DQMProvInfo::analyzeProvInfo(const edm::Event& event) {
+  // Only trying to retrieve the global tag for the first event we ever
+  // encounter.
+  if (!globalTagRetrieved_) {
+    // Getting the real process name for the given event
+    std::string processName = event.processHistory()[event.processHistory().size() - 1].processName();
+    // Getting parameters for that process
+    edm::ParameterSet ps;
+    event.getProcessParameterSet(processName, ps);
+    // Getting the global tag
+    globalTag_ = ps.getParameterSet("PoolDBESSource@GlobalTag").getParameter<std::string>("globaltag");
+    versGlobaltag_->Fill(globalTag_);
+    // Finaly: Setting globalTagRetrieved_ to true, since we got it now
+    globalTagRetrieved_ = true;
+  }
+}
+
+void DQMProvInfo::fillDcsBitsFromDCSRecord(const DCSRecord& dcsRecord) {
+  dcsBits_[VBIN_CSC_P] = dcsRecord.highVoltageReady(DCSRecord::Partition::CSCp);
+  dcsBits_[VBIN_CSC_M] = dcsRecord.highVoltageReady(DCSRecord::Partition::CSCm);
+  dcsBits_[VBIN_DT_0] = dcsRecord.highVoltageReady(DCSRecord::Partition::DT0);
+  dcsBits_[VBIN_DT_P] = dcsRecord.highVoltageReady(DCSRecord::Partition::DTp);
+  dcsBits_[VBIN_DT_M] = dcsRecord.highVoltageReady(DCSRecord::Partition::DTm);
+  dcsBits_[VBIN_EB_P] = dcsRecord.highVoltageReady(DCSRecord::Partition::EBp);
+  dcsBits_[VBIN_EB_M] = dcsRecord.highVoltageReady(DCSRecord::Partition::EBm);
+  dcsBits_[VBIN_EE_P] = dcsRecord.highVoltageReady(DCSRecord::Partition::EEp);
+  dcsBits_[VBIN_EE_M] = dcsRecord.highVoltageReady(DCSRecord::Partition::EEm);
+  dcsBits_[VBIN_ES_P] = dcsRecord.highVoltageReady(DCSRecord::Partition::ESp);
+  dcsBits_[VBIN_ES_M] = dcsRecord.highVoltageReady(DCSRecord::Partition::ESm);
+  dcsBits_[VBIN_HBHE_A] = dcsRecord.highVoltageReady(DCSRecord::Partition::HBHEa);
+  dcsBits_[VBIN_HBHE_B] = dcsRecord.highVoltageReady(DCSRecord::Partition::HBHEb);
+  dcsBits_[VBIN_HBHE_C] = dcsRecord.highVoltageReady(DCSRecord::Partition::HBHEc);
+  dcsBits_[VBIN_HF] = dcsRecord.highVoltageReady(DCSRecord::Partition::HF);
+  dcsBits_[VBIN_HO] = dcsRecord.highVoltageReady(DCSRecord::Partition::HO);
+  dcsBits_[VBIN_BPIX] = dcsRecord.highVoltageReady(DCSRecord::Partition::BPIX);
+  dcsBits_[VBIN_FPIX] = dcsRecord.highVoltageReady(DCSRecord::Partition::FPIX);
+  dcsBits_[VBIN_RPC] = dcsRecord.highVoltageReady(DCSRecord::Partition::RPC);
+  dcsBits_[VBIN_TIBTID] = dcsRecord.highVoltageReady(DCSRecord::Partition::TIBTID);
+  dcsBits_[VBIN_TOB] = dcsRecord.highVoltageReady(DCSRecord::Partition::TOB);
+  dcsBits_[VBIN_TEC_P] = dcsRecord.highVoltageReady(DCSRecord::Partition::TECp);
+  dcsBits_[VBIN_TE_M] = dcsRecord.highVoltageReady(DCSRecord::Partition::TECm);
+  dcsBits_[VBIN_CASTOR] = dcsRecord.highVoltageReady(DCSRecord::Partition::CASTOR);
+  dcsBits_[VBIN_ZDC] = dcsRecord.highVoltageReady(DCSRecord::Partition::ZDC);
+
+  // Part 2: Compute the PhysicsDeclared bit from the event
+  physicsDeclared_ &= isPhysicsDeclared();
+
+  // Some info-level logging
+  edm::LogInfo("DQMProvInfo") << "Physics declared bit: " << physicsDeclared_ << std::endl;
+}
+
+void DQMProvInfo::fillDcsBitsFromDcsStatusCollection(const edm::Handle<DcsStatusCollection>& dcsStatusCollection) {
   // Loop over the DCSStatus entries in the DcsStatusCollection
   // (Typically there is only one)
-  for (auto const & dcsStatusItr : *dcsStatus) {
+  for (auto const& dcsStatusItr : *dcsStatusCollection) {
     // By default all the bits are false. We put all the bits on true only
     // for the first DCSStatus that we encounter:
     if (!foundFirstDcsBits_) {
@@ -315,13 +377,19 @@ void DQMProvInfo::analyzeEventInfo(const edm::Event& event) {
     dcsBits_[VBIN_TE_M] &= dcsStatusItr.ready(DcsStatus::TECm);
     dcsBits_[VBIN_CASTOR] &= dcsStatusItr.ready(DcsStatus::CASTOR);
     dcsBits_[VBIN_ZDC] &= dcsStatusItr.ready(DcsStatus::ZDC);
+
     // Some info-level logging
-    edm::LogInfo("DQMProvInfo") << "DCS status: 0x" << std::hex
-                                << dcsStatusItr.ready() << std::dec
-                                << std::endl;
+    edm::LogInfo("DQMProvInfo") << "DCS status: 0x" << std::hex << dcsStatusItr.ready() << std::dec << std::endl;
   }
 
-  // Part 2
+  // Part 2: Compute the PhysicsDeclared bit from the event
+  physicsDeclared_ &= isPhysicsDeclared();
+
+  // Some info-level logging
+  edm::LogInfo("DQMProvInfo") << "Physics declared bit: " << physicsDeclared_ << std::endl;
+}
+
+bool DQMProvInfo::isPhysicsDeclared() {
   // Compute the PhysicsDeclared bit from the event
   // The bit is set to to true if:
   // - the LHC is in stable beams
@@ -329,38 +397,14 @@ void DQMProvInfo::analyzeEventInfo(const edm::Event& event) {
   // - at least one muon partition has DCSStatus ON
   // Basically: we do an AND of the physicsDeclared of ALL events.
   // As soon as one value is not "1", physicsDeclared_ becomes false.
-  physicsDeclared_ &= ( beamMode_ == 11 )
-                      && ( dcsBits_[VBIN_BPIX] && dcsBits_[VBIN_FPIX]
-                           && dcsBits_[VBIN_TIBTID] && dcsBits_[VBIN_TOB] && dcsBits_[VBIN_TEC_P] && dcsBits_[VBIN_TE_M] )
-                      && ( dcsBits_[VBIN_CSC_P] || dcsBits_[VBIN_CSC_M]
-                           || dcsBits_[VBIN_DT_0] || dcsBits_[VBIN_DT_P] || dcsBits_[VBIN_DT_M]
-                           || dcsBits_[VBIN_RPC] );
-  // Some info-level logging
-  edm::LogInfo("DQMProvInfo") << "Physics declared bit: "
-                              << physicsDeclared_ << std::endl;
+  return (beamMode_ == 11) &&
+         (dcsBits_[VBIN_BPIX] && dcsBits_[VBIN_FPIX] && dcsBits_[VBIN_TIBTID] && dcsBits_[VBIN_TOB] &&
+          dcsBits_[VBIN_TEC_P] && dcsBits_[VBIN_TE_M]) &&
+         (dcsBits_[VBIN_CSC_P] || dcsBits_[VBIN_CSC_M] || dcsBits_[VBIN_DT_0] || dcsBits_[VBIN_DT_P] ||
+          dcsBits_[VBIN_DT_M] || dcsBits_[VBIN_RPC]);
 }
 
-void DQMProvInfo::analyzeProvInfo(const edm::Event& event) {
-  // Only trying to retrieve the global tag for the first event we ever
-  // encounter.
-  if (!globalTagRetrieved_) {
-    // Getting the real process name for the given event
-    std::string processName =
-        event.processHistory()[event.processHistory().size() - 1].processName();
-    // Getting parameters for that process
-    edm::ParameterSet ps;
-    event.getProcessParameterSet(processName, ps);
-    // Getting the global tag
-    globalTag_ = ps.getParameterSet("PoolDBESSource@GlobalTag")
-                     .getParameter<std::string>("globaltag");
-    versGlobaltag_->Fill(globalTag_);
-    // Finaly: Setting globalTagRetrieved_ to true, since we got it now
-    globalTagRetrieved_ = true;
-  }
-}
-
-void DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
-                                     const edm::EventSetup& c) {
+void DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) {
   int currentLSNumber = iLumi.id().luminosityBlock();
 
   // We assume that we encounter the LumiSections in chronological order
@@ -394,12 +438,10 @@ void DQMProvInfo::endLuminosityBlockEventInfo(const int currentLSNumber) {
   // This also is used as the global value of the summary.
   if (physicsDeclared_) {
     reportSummary_->Fill(1.);
-    reportSummaryMap_->setBinContent(currentLSNumber, VBIN_PHYSICS_DECLARED,
-                                     1.);
+    reportSummaryMap_->setBinContent(currentLSNumber, VBIN_PHYSICS_DECLARED, 1.);
   } else {
     reportSummary_->Fill(0.);
-    reportSummaryMap_->setBinContent(currentLSNumber, VBIN_PHYSICS_DECLARED,
-                                     0.);
+    reportSummaryMap_->setBinContent(currentLSNumber, VBIN_PHYSICS_DECLARED, 0.);
   }
 
   // Part2: DCS bits in y bins 1 to MAX_DCS_VBINS
@@ -442,6 +484,17 @@ void DQMProvInfo::blankPreviousLumiSections(const int currentLSNumber) {
     reportSummaryMap_->setBinContent(ls, VBIN_VALID, 0.);
     // Color all the other bins white (-1)
     for (int vBin = 1; vBin < VBIN_VALID; vBin++) {
+      reportSummaryMap_->setBinContent(ls, vBin, -1.);
+    }
+  }
+}
+
+void DQMProvInfo::blankAllLumiSections() {
+  // Initially we want all lumisection to be blank (-1) and
+  // white instead of red which is misleading.
+  for (int ls = 0; ls < MAX_LUMIS; ls++) {
+    // Color all the bins white (-1)
+    for (int vBin = 1; vBin <= MAX_VBINS; vBin++) {
       reportSummaryMap_->setBinContent(ls, vBin, -1.);
     }
   }

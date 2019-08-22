@@ -24,7 +24,8 @@ from RecoMuon.StandAloneMuonProducer.standAloneMuons_cfi import *
 #replace standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableRPCMeasurement = false
 #replace standAloneMuons.STATrajBuilderParameters.RefitterParameters.EnableDTMeasurement = false
 #replace standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableDTMeasurement = false
-standAloneCosmicMuons = cms.Sequence(CosmicMuonSeed*standAloneMuons)
+standAloneCosmicMuonsTask = cms.Task(CosmicMuonSeed,standAloneMuons)
+standAloneCosmicMuons = cms.Sequence(standAloneCosmicMuonsTask)
 standAloneMuons.InputObjects = 'CosmicMuonSeed'
 standAloneMuons.STATrajBuilderParameters.NavigationType = 'Direct'
 standAloneMuons.TrackLoaderParameters.VertexConstraint = False

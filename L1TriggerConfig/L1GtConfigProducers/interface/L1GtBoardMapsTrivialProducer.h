@@ -31,29 +31,22 @@
 // forward declarations
 
 // class declaration
-class L1GtBoardMapsTrivialProducer : public edm::ESProducer
-{
-
+class L1GtBoardMapsTrivialProducer : public edm::ESProducer {
 public:
+  /// constructor
+  L1GtBoardMapsTrivialProducer(const edm::ParameterSet&);
 
-    /// constructor
-    L1GtBoardMapsTrivialProducer(const edm::ParameterSet&);
+  /// destructor
+  ~L1GtBoardMapsTrivialProducer() override;
 
-    /// destructor
-    ~L1GtBoardMapsTrivialProducer() override;
+  /// public methods
 
-
-    /// public methods
-
-    /// produce mappings of the L1 GT boards
-    std::unique_ptr<L1GtBoardMaps> produceBoardMaps(
-        const L1GtBoardMapsRcd&);
+  /// produce mappings of the L1 GT boards
+  std::unique_ptr<L1GtBoardMaps> produceBoardMaps(const L1GtBoardMapsRcd&);
 
 private:
-
-    /// L1 GT boards and their mapping
-    std::vector<L1GtBoard> m_gtBoardMaps;
-
+  /// L1 GT boards and their mapping
+  std::vector<L1GtBoard> m_gtBoardMaps;
 };
 
 #endif

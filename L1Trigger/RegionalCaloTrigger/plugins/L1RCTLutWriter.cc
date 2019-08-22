@@ -42,7 +42,6 @@ L1RCTLutWriter::L1RCTLutWriter(const edm::ParameterSet &iConfig)
 }
 
 L1RCTLutWriter::~L1RCTLutWriter() {
-
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
 
@@ -55,9 +54,7 @@ L1RCTLutWriter::~L1RCTLutWriter() {
 //
 
 // ------------ method called to for each event  ------------
-void L1RCTLutWriter::analyze(const edm::Event &iEvent,
-                             const edm::EventSetup &iSetup) {
-
+void L1RCTLutWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get all the configuration information from the event, set it
   // in the lookuptable
   edm::ESHandle<L1RCTParameters> rctParameters;
@@ -106,9 +103,8 @@ void L1RCTLutWriter::analyze(const edm::Event &iEvent,
   L1CaloEcalScale *dummyE(nullptr);
   L1CaloHcalScale *dummyH(nullptr);
 
-  if (useDebugTpgScales_) // generate new-style scales from tpg scales
+  if (useDebugTpgScales_)  // generate new-style scales from tpg scales
   {
-
     std::cout << "Using old-style TPG scales!" << std::endl;
 
     // old version of hcal energy scale to convert input
@@ -127,35 +123,33 @@ void L1RCTLutWriter::analyze(const edm::Event &iEvent,
 
     // ECAL
     for (unsigned short ieta = 1; ieta <= L1CaloEcalScale::nBinEta; ++ieta) {
-      for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank;
-           ++irank) {
+      for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank; ++irank) {
         EcalSubdetector subdet = (ieta <= 17) ? EcalBarrel : EcalEndcap;
-        double etGeVPos =
-            e_tpg->getTPGInGeV(irank, EcalTrigTowerDetId(1, // +ve eta
-                                                         subdet, ieta,
-                                                         1)); // dummy phi value
+        double etGeVPos = e_tpg->getTPGInGeV(irank,
+                                             EcalTrigTowerDetId(1,  // +ve eta
+                                                                subdet,
+                                                                ieta,
+                                                                1));  // dummy phi value
         ecalScale->setBin(irank, ieta, 1, etGeVPos);
       }
     }
 
     for (unsigned short ieta = 1; ieta <= L1CaloEcalScale::nBinEta; ++ieta) {
-      for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank;
-           ++irank) {
+      for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank; ++irank) {
         EcalSubdetector subdet = (ieta <= 17) ? EcalBarrel : EcalEndcap;
 
-        double etGeVNeg =
-            e_tpg->getTPGInGeV(irank,
-                               EcalTrigTowerDetId(-1, // -ve eta
-                                                  subdet, ieta,
-                                                  2)); // dummy phi value
+        double etGeVNeg = e_tpg->getTPGInGeV(irank,
+                                             EcalTrigTowerDetId(-1,  // -ve eta
+                                                                subdet,
+                                                                ieta,
+                                                                2));  // dummy phi value
         ecalScale->setBin(irank, ieta, -1, etGeVNeg);
       }
     }
 
     // HCAL
     for (unsigned short ieta = 1; ieta <= L1CaloHcalScale::nBinEta; ++ieta) {
-      for (unsigned short irank = 0; irank < L1CaloHcalScale::nBinRank;
-           ++irank) {
+      for (unsigned short irank = 0; irank < L1CaloHcalScale::nBinRank; ++irank) {
         double etGeV = h_tpg->hcaletValue(ieta, irank);
 
         hcalScale->setBin(irank, ieta, 1, etGeV);
@@ -173,7 +167,6 @@ void L1RCTLutWriter::analyze(const edm::Event &iEvent,
     delete e_tpg;
 
   } else {
-
     // get energy scale to convert input from ECAL
     edm::ESHandle<L1CaloEcalScale> ecalScale;
     iSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
@@ -219,7 +212,6 @@ void L1RCTLutWriter::endJob() {}
 
 // ------------ method to write one receiver card lut file
 void L1RCTLutWriter::writeRcLutFile(unsigned short card) {
-
   // don't mess yet with name
   char filename[256];
   char command[264];
@@ -233,8 +225,7 @@ void L1RCTLutWriter::writeRcLutFile(unsigned short card) {
   }
   // open file for writing, delete any existing content
   lutFile_.open(filename, std::ios::trunc);
-  lutFile_ << "Emulator-parameter generated lut file, card " << card << " key "
-           << keyName_ << "   ";
+  lutFile_ << "Emulator-parameter generated lut file, card " << card << " key " << keyName_ << "   ";
 
   // close to append timestamp info
   lutFile_.close();
@@ -279,8 +270,7 @@ void L1RCTLutWriter::writeRcLutFile(unsigned short card) {
         // loop through 8 bits of ecal energy
         for (unsigned int ecalEt = 0; ecalEt < 256; ecalEt++) {
           // assign 10-bit (9et,1mip) sums data here!
-          unsigned long output =
-              lookupTable_->lookup(ecalEt, hcalEt, ecalfg, crate, card, tower);
+          unsigned long output = lookupTable_->lookup(ecalEt, hcalEt, ecalfg, crate, card, tower);
           unsigned short etIn9Bits = (output >> 8) & 511;
           unsigned short tauActivityBit = (output >> 17) & 1;
           data = (tauActivityBit << 9) + etIn9Bits;
@@ -296,8 +286,7 @@ void L1RCTLutWriter::writeRcLutFile(unsigned short card) {
         // loop through 8 bits of ecal energy
         for (unsigned int ecalEt = 0; ecalEt < 256; ecalEt++) {
           // assign 8-bit (7et,1veto) egamma data here!
-          unsigned long output =
-              lookupTable_->lookup(ecalEt, hcalEt, ecalfg, crate, card, tower);
+          unsigned long output = lookupTable_->lookup(ecalEt, hcalEt, ecalfg, crate, card, tower);
           unsigned short etIn7Bits = output & 127;
           unsigned short heFgVetoBit = (output >> 7) & 1;
           data = (heFgVetoBit << 7) + etIn7Bits;
@@ -324,8 +313,7 @@ void L1RCTLutWriter::writeEicLutFile(unsigned short card) {
   }
   // open file for writing, delete any existing content
   lutFile_.open(filename, std::ios::trunc);
-  lutFile_ << "Emulator-parameter generated EIC lut file, card " << card
-           << " key " << keyName_ << "   ";
+  lutFile_ << "Emulator-parameter generated EIC lut file, card " << card << " key " << keyName_ << "   ";
   // close to append timestamp info
   lutFile_.close();
   sprintf(command, "date >> %s", filename);
@@ -359,8 +347,7 @@ void L1RCTLutWriter::writeJscLutFile() {
 
   // open file; if it already existed, delete existing content
   lutFile_.open(filename, std::ios::trunc);
-  lutFile_ << "Emulator parameter-generated lut file, key " << keyName_
-           << "   ";
+  lutFile_ << "Emulator parameter-generated lut file, key " << keyName_ << "   ";
   // close to append time-stamp
   lutFile_.close();
   sprintf(command, "date >> %s", filename);
@@ -388,11 +375,11 @@ void L1RCTLutWriter::writeJscLutFile() {
         // only |ieta| matters
         data0 = lookupTable_->lookup(phi0et, 0, 999, lutbits);
         if (data0 > 0xff) {
-          data0 = 0xff; // 8-bit output energy for each phi region
+          data0 = 0xff;  // 8-bit output energy for each phi region
         }
         data1 = lookupTable_->lookup(phi1et, 0, 999, lutbits);
         if (data1 > 0xff) {
-          data1 = 0xff; // 8-bit output energy for each phi region
+          data1 = 0xff;  // 8-bit output energy for each phi region
         }
         data = (data1 << 8) + (data0);
         lutFile_ << std::hex << data << std::dec << std::endl;
@@ -425,10 +412,8 @@ void L1RCTLutWriter::writeThresholdsFile(unsigned int eicThreshold,
 
   thresholdsFile << "key is " << keyName_ << std::endl << std::endl;
   thresholdsFile << "eicIsolationThreshold " << eicThreshold << std::endl;
-  thresholdsFile << "jscQuietThresholdBarrel " << jscThresholdBarrel
-                 << std::endl;
-  thresholdsFile << "jscQuietThresholdEndcap " << jscThresholdEndcap
-                 << std::endl;
+  thresholdsFile << "jscQuietThresholdBarrel " << jscThresholdBarrel << std::endl;
+  thresholdsFile << "jscQuietThresholdEndcap " << jscThresholdEndcap << std::endl;
 
   thresholdsFile.close();
 }

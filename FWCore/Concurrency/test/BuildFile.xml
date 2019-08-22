@@ -2,9 +2,6 @@
   <use   name="cppunit"/>
   <use   name="FWCore/Concurrency"/>
 </bin>
-<bin file="test_xercesInitialize.cpp">
-  <use   name="FWCore/Concurrency"/>
-</bin>
 <bin file="test_threadSafeOutputFileStream.cpp">
   <use   name="FWCore/Concurrency"/>
   <flags NO_TESTRUN="1"/>

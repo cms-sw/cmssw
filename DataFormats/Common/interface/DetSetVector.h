@@ -57,7 +57,8 @@ namespace edm {
 
   //------------------------------------------------------------
   // Forward declarations
-  template <class T> class DetSetVector;
+  template <class T>
+  class DetSetVector;
 
   //------------------------------------------------------------
   // Helper function, to regularize throwing of exceptions.
@@ -65,12 +66,11 @@ namespace edm {
 
   namespace detail {
     // Throw an edm::Exception with an appropriate message
-    inline
-    void _throw_range(det_id_type i) {
-      Exception::throwThis(errors::InvalidReference,
-        "DetSetVector::operator[] called with index not in collection;\nindex value: ", i);
+    inline void _throw_range(det_id_type i) {
+      Exception::throwThis(
+          errors::InvalidReference, "DetSetVector::operator[] called with index not in collection;\nindex value: ", i);
     }
-  }
+  }  // namespace detail
 
   //------------------------------------------------------------
   //
@@ -83,26 +83,24 @@ namespace edm {
   // T is defined to inherit from DoNotSortUponInsertion).
 
   template <class T>
-  class DetSetVector :
-    public std::conditional_t<std::is_base_of<edm::DoNotSortUponInsertion, T>::value,
-			    edm::DoNotSortUponInsertion,
-			    Other>
-  {
+  class DetSetVector : public std::conditional_t<std::is_base_of<edm::DoNotSortUponInsertion, T>::value,
+                                                 edm::DoNotSortUponInsertion,
+                                                 Other> {
     /// DetSetVector requires that T objects can be compared with
     /// operator<.
     BOOST_CLASS_REQUIRE(T, boost, LessThanComparableConcept);
-  public:
 
-    typedef DetSet<T>           detset;
-    typedef detset              value_type;
+  public:
+    typedef DetSet<T> detset;
+    typedef detset value_type;
     typedef std::vector<detset> collection_type;
 
-    typedef detset&        reference;
-    typedef detset const&  const_reference;
+    typedef detset& reference;
+    typedef detset const& const_reference;
 
-    typedef typename collection_type::iterator       iterator;
+    typedef typename collection_type::iterator iterator;
     typedef typename collection_type::const_iterator const_iterator;
-    typedef typename collection_type::size_type      size_type;
+    typedef typename collection_type::size_type size_type;
 
     /// Compiler-generated copy c'tor, d'tor and
     /// assignment are correct.
@@ -114,19 +112,18 @@ namespace edm {
     /// and then sorting the contents.
     /// N.B.: Swapping in the vector *destructively modifies the input*.
     /// Using swap here allows us to avoid copying the data.
-    /// N.B. 2: if you set alreadySorted to true, data *must* be sorted, 
+    /// N.B. 2: if you set alreadySorted to true, data *must* be sorted,
     /// (the vector<DetSet<T>> must be ordered by detid, and each DetSet
     /// must be ordered according to the natural "strict weak ordering" of Ts.
     /// You *must not* modify the contents after this DSV after creation,
     /// or you might get an undefined behavior / a core dump.
     /// (there are some checks to assure alreadySorted is resetted if you try
     /// to modify the DSV, but you should not count on them)
-    explicit DetSetVector(std::vector<DetSet<T> > & input, bool alreadySorted=false);
-
+    explicit DetSetVector(std::vector<DetSet<T> >& input, bool alreadySorted = false);
 
     void swap(DetSetVector& other);
 
-    DetSetVector& operator= (DetSetVector const& other);
+    DetSetVector& operator=(DetSetVector const& other);
 
     ///  Insert the given DetSet.
     // What should happen if there is already a DetSet with this
@@ -146,8 +143,8 @@ namespace edm {
     /// Return the number of contained DetSets
     size_type size() const;
 
-   // reserve...
-   void reserve(size_t s) { _sets.reserve(s);}
+    // reserve...
+    void reserve(size_t s) { _sets.reserve(s); }
 
     // Do we need a short-hand method to return the number of T
     // instances? If so, do we optimize for size (calculate on the
@@ -155,90 +152,75 @@ namespace edm {
 
     /// Return an iterator to the DetSet with the given id, or end()
     /// if there is no such DetSet.
-    iterator       find(det_id_type id);
+    iterator find(det_id_type id);
     const_iterator find(det_id_type id) const;
 
     /// Return a reference to the DetSet with the given detector
     /// ID. If there is no such DetSet, we throw an edm::Exception.
     /// **DO NOT MODIFY THE id DATA MEMBER OF THE REFERENCED DetSet!**
-    reference       operator[](det_id_type  i);
+    reference operator[](det_id_type i);
     const_reference operator[](det_id_type i) const;
 
     /// Return an iterator to the first DetSet.
-    iterator       begin();
+    iterator begin();
     const_iterator begin() const;
 
     /// Return the off-the-end iterator.
-    iterator       end();
+    iterator end();
     const_iterator end() const;
 
     /// Push all the id for each DetSet stored in this DetSetVector
     /// into the given vector 'result'.
-    void getIds(std::vector<det_id_type> & result) const;
+    void getIds(std::vector<det_id_type>& result) const;
 
     /// This function will be called by the edm::Event after the
     /// DetSetVector has been inserted into the Event.
     void post_insert();
 
-    void fillView(ProductID const& id,
-		  std::vector<void const*>& pointers,
-		  FillViewHelperVector& helpers) const;
+    void fillView(ProductID const& id, std::vector<void const*>& pointers, FillViewHelperVector& helpers) const;
 
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
 
   private:
-    collection_type   _sets;
-    edm::BoolCache    _alreadySorted; 
+    collection_type _sets;
+    edm::BoolCache _alreadySorted;
 
     /// Sort the DetSet in order of increasing DetId.
     void _sort();
-
   };
 
   template <class T>
-  inline
-  DetSetVector<T>::DetSetVector() :
-    _sets()
-  { }
+  inline DetSetVector<T>::DetSetVector() : _sets() {}
 
   template <class T>
-  inline
-  DetSetVector<T>::DetSetVector(std::vector<DetSet<T> > & input, bool alreadySorted) :
-    _sets(), _alreadySorted(alreadySorted)
-  {
+  inline DetSetVector<T>::DetSetVector(std::vector<DetSet<T> >& input, bool alreadySorted)
+      : _sets(), _alreadySorted(alreadySorted) {
     _sets.swap(input);
-    if (!alreadySorted) _sort();
+    if (!alreadySorted)
+      _sort();
   }
 
   template <class T>
-  inline
-  void
-  DetSetVector<T>::swap(DetSetVector<T>& other) {
+  inline void DetSetVector<T>::swap(DetSetVector<T>& other) {
     _sets.swap(other._sets);
-    bool tmp = _alreadySorted; _alreadySorted = other._alreadySorted; other._alreadySorted = tmp;
+    bool tmp = _alreadySorted;
+    _alreadySorted = other._alreadySorted;
+    other._alreadySorted = tmp;
   }
 
   template <class T>
-  inline
-  DetSetVector<T>&
-  DetSetVector<T>::operator= (DetSetVector<T> const& other)
-  {
+  inline DetSetVector<T>& DetSetVector<T>::operator=(DetSetVector<T> const& other) {
     DetSetVector<T> temp(other);
     swap(temp);
     return *this;
   }
 
   template <class T>
-  inline
-  void
-  DetSetVector<T>::insert(detset const& t) {
-    _alreadySorted = false; // we don't know if the DetSet we're adding is already sorted
+  inline void DetSetVector<T>::insert(detset const& t) {
+    _alreadySorted = false;  // we don't know if the DetSet we're adding is already sorted
     // Implementation provided by the Performance Task Force.
-    _sets.insert(std::lower_bound(_sets.begin(),
-				  _sets.end(),
-				  t),
-		 t);
+    _sets.insert(std::lower_bound(_sets.begin(), _sets.end(), t), t);
 #if 0
     // It seems we have to sort on each insertion, because we may
     // perform lookups during construction.
@@ -249,21 +231,19 @@ namespace edm {
   }
 
   template <class T>
-  inline
-  typename DetSetVector<T>::reference
-  DetSetVector<T>::find_or_insert(det_id_type id) {
-    // NOTE: we don't have to clear _alreadySorted: the new DS is empty, 
+  inline typename DetSetVector<T>::reference DetSetVector<T>::find_or_insert(det_id_type id) {
+    // NOTE: we don't have to clear _alreadySorted: the new DS is empty,
     //       and gets inserted in the correct place
-    std::pair<iterator,iterator> p =
-      std::equal_range(_sets.begin(), _sets.end(), id);
+    std::pair<iterator, iterator> p = std::equal_range(_sets.begin(), _sets.end(), id);
 
     // If the range isn't empty, we already have the right thing;
     // return a reference to it...
-    if (p.first != p.second) return *p.first;
+    if (p.first != p.second)
+      return *p.first;
 
-    // Insert the right thing, in the right place, and return a
-    // reference to the newly inserted thing.
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+      // Insert the right thing, in the right place, and return a
+      // reference to the newly inserted thing.
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
     return *(_sets.emplace(p.first, id));
 #else
     return *(_sets.insert(p.first, detset(id)));
@@ -271,46 +251,38 @@ namespace edm {
   }
 
   template <class T>
-  inline
-  bool
-  DetSetVector<T>::empty() const {
+  inline bool DetSetVector<T>::empty() const {
     return _sets.empty();
   }
 
   template <class T>
-  inline
-  typename DetSetVector<T>::size_type
-  DetSetVector<T>::size() const {
+  inline typename DetSetVector<T>::size_type DetSetVector<T>::size() const {
     return _sets.size();
   }
 
   template <class T>
-  inline
-  typename DetSetVector<T>::iterator
-  DetSetVector<T>::find(det_id_type id) {
-    _alreadySorted = false; // it's non const 
-    std::pair<iterator,iterator> p =
-      std::equal_range(_sets.begin(), _sets.end(), id);
-    if (p.first == p.second) return _sets.end();
+  inline typename DetSetVector<T>::iterator DetSetVector<T>::find(det_id_type id) {
+    _alreadySorted = false;  // it's non const
+    std::pair<iterator, iterator> p = std::equal_range(_sets.begin(), _sets.end(), id);
+    if (p.first == p.second)
+      return _sets.end();
 
-    // The range indicated by [p.first, p.second) should be exactly of
-    // length 1. It seems likely we don't want to take the time hit of
-    // checking this, but here is the appropriate test... We can turn
-    // it on if we need the debugging aid.
-    #if 0
+// The range indicated by [p.first, p.second) should be exactly of
+// length 1. It seems likely we don't want to take the time hit of
+// checking this, but here is the appropriate test... We can turn
+// it on if we need the debugging aid.
+#if 0
     assert(std::distance(p.first, p.second) == 1);
-    #endif
+#endif
 
     return p.first;
   }
 
   template <class T>
-  inline
-  typename DetSetVector<T>::const_iterator
-  DetSetVector<T>::find(det_id_type id) const {
-    std::pair<const_iterator,const_iterator> p =
-      std::equal_range(_sets.begin(), _sets.end(), id);
-    if (p.first == p.second) return _sets.end();
+  inline typename DetSetVector<T>::const_iterator DetSetVector<T>::find(det_id_type id) const {
+    std::pair<const_iterator, const_iterator> p = std::equal_range(_sets.begin(), _sets.end(), id);
+    if (p.first == p.second)
+      return _sets.end();
     // The range indicated by [p.first, p.second) should be exactly of
     // length 1.
     assert(std::distance(p.first, p.second) == 1);
@@ -318,75 +290,59 @@ namespace edm {
   }
 
   template <class T>
-  inline
-  typename DetSetVector<T>::reference
-  DetSetVector<T>::operator[](det_id_type i) {
-    _alreadySorted = false; // it's non const 
+  inline typename DetSetVector<T>::reference DetSetVector<T>::operator[](det_id_type i) {
+    _alreadySorted = false;  // it's non const
     // Find the right DetSet, and return a reference to it.  Throw if
     // there is none.
     iterator it = this->find(i);
-    if (it == this->end()) detail::_throw_range(i);
+    if (it == this->end())
+      detail::_throw_range(i);
     return *it;
   }
 
   template <class T>
-  inline
-  typename DetSetVector<T>::const_reference
-  DetSetVector<T>::operator[](det_id_type i) const {
+  inline typename DetSetVector<T>::const_reference DetSetVector<T>::operator[](det_id_type i) const {
     // Find the right DetSet, and return a reference to it.  Throw if
     // there is none.
     const_iterator it = this->find(i);
-    if (it == this->end()) detail::_throw_range(i);
+    if (it == this->end())
+      detail::_throw_range(i);
     return *it;
   }
 
   template <class T>
-  inline
-  typename DetSetVector<T>::iterator
-  DetSetVector<T>::begin() {
-    _alreadySorted = false; // it's non const 
+  inline typename DetSetVector<T>::iterator DetSetVector<T>::begin() {
+    _alreadySorted = false;  // it's non const
     return _sets.begin();
   }
 
   template <class T>
-  inline
-  typename DetSetVector<T>::const_iterator
-  DetSetVector<T>::begin() const {
+  inline typename DetSetVector<T>::const_iterator DetSetVector<T>::begin() const {
     return _sets.begin();
   }
 
   template <class T>
-  inline
-  typename DetSetVector<T>::iterator
-  DetSetVector<T>::end() {
-    _alreadySorted = false; // it's non const 
+  inline typename DetSetVector<T>::iterator DetSetVector<T>::end() {
+    _alreadySorted = false;  // it's non const
     return _sets.end();
   }
 
   template <class T>
-  inline
-  typename DetSetVector<T>::const_iterator
-  DetSetVector<T>::end() const {
+  inline typename DetSetVector<T>::const_iterator DetSetVector<T>::end() const {
     return _sets.end();
   }
 
-
   template <class T>
-  inline
-  void
-  DetSetVector<T>::getIds(std::vector<det_id_type> & result) const
-  {
-    std::transform(this->begin(), this->end(),
-		   std::back_inserter(result),
-		   std::bind(&DetSet<T>::id,std::placeholders::_1));
+  inline void DetSetVector<T>::getIds(std::vector<det_id_type>& result) const {
+    std::transform(
+        this->begin(), this->end(), std::back_inserter(result), std::bind(&DetSet<T>::id, std::placeholders::_1));
   }
 
   template <class T>
-  inline
-  void
-  DetSetVector<T>::post_insert() {
+  inline void DetSetVector<T>::post_insert() {
     _sets.shrink_to_fit();
-    if (_alreadySorted) return; 
+    if (_alreadySorted)
+      return;
     typename collection_type::iterator i = _sets.begin();
     typename collection_type::iterator e = _sets.end();
     // For each DetSet...
@@ -398,17 +354,14 @@ namespace edm {
   }
 
   template <class T>
-  inline
-  void
-  DetSetVector<T>::_sort() {
+  inline void DetSetVector<T>::_sort() {
     std::sort(_sets.begin(), _sets.end());
   }
 
-  template<class T>
+  template <class T>
   void DetSetVector<T>::fillView(ProductID const& id,
-				 std::vector<void const*>& pointers,
-				 FillViewHelperVector& helpers) const
-  {
+                                 std::vector<void const*>& pointers,
+                                 FillViewHelperVector& helpers) const {
     detail::reallyFillView(*this, id, pointers, helpers);
   }
 
@@ -417,91 +370,80 @@ namespace edm {
   // Free function template to support creation of Views.
 
   template <class T>
-  inline
-  void
-  fillView(DetSetVector<T> const& obj,
-	   ProductID const& id,
-	   std::vector<void const*>& pointers,
-	   FillViewHelperVector& helpers)
-  {
+  inline void fillView(DetSetVector<T> const& obj,
+                       ProductID const& id,
+                       std::vector<void const*>& pointers,
+                       FillViewHelperVector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 
   template <class T>
-  struct has_fillView<edm::DetSetVector<T> >
-  {
+  struct has_fillView<edm::DetSetVector<T> > {
     static bool const value = true;
   };
 
-
   // Free swap function
   template <class T>
-  inline
-  void
-  swap(DetSetVector<T>& a, DetSetVector<T>& b) 
-  {
+  inline void swap(DetSetVector<T>& a, DetSetVector<T>& b) {
     a.swap(b);
   }
 
-}
-
+}  // namespace edm
 
 //specialize behavior of edm::Ref to get access to the 'Det'
 namespace edm {
 
   namespace refhelper {
-    template<typename T>
+    template <typename T>
     class FindForDetSetVector {
     public:
-      using first_argument_type  = const DetSetVector<T>&;
+      using first_argument_type = const DetSetVector<T>&;
       using second_argument_type = std::pair<det_id_type, typename DetSet<T>::collection_type::size_type>;
-      using result_type          = const T*;
+      using result_type = const T*;
 
       result_type operator()(first_argument_type iContainer, second_argument_type iIndex) {
-        return &(*(iContainer.find(iIndex.first)->data.begin()+iIndex.second));
+        return &(*(iContainer.find(iIndex.first)->data.begin() + iIndex.second));
       }
     };
 
-    template<typename T>
-      struct FindTrait<DetSetVector<T>,T> {
-        typedef FindForDetSetVector<T> value;
-      };
-  }
+    template <typename T>
+    struct FindTrait<DetSetVector<T>, T> {
+      typedef FindForDetSetVector<T> value;
+    };
+  }  // namespace refhelper
 
-   //helper function to make it easier to create a edm::Ref
+  //helper function to make it easier to create a edm::Ref
 
-  template<class HandleT>
-  inline
-  Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
-  makeRefTo(const HandleT& iHandle,
-             det_id_type iDetID,
-             typename HandleT::element_type::value_type::const_iterator itIter) {
+  template <class HandleT>
+  inline Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type> makeRefTo(
+      const HandleT& iHandle, det_id_type iDetID, typename HandleT::element_type::value_type::const_iterator itIter) {
     typedef typename HandleT::element_type Vec;
-    typename Vec::value_type::collection_type::size_type index=0;
+    typename Vec::value_type::collection_type::size_type index = 0;
     typename Vec::const_iterator itFound = iHandle->find(iDetID);
-    if(itFound == iHandle->end()) {
+    if (itFound == iHandle->end()) {
       Exception::throwThis(errors::InvalidReference,
-        "an edm::Ref to an edm::DetSetVector was given a DetId, ", iDetID, ", that is not in the DetSetVector");
+                           "an edm::Ref to an edm::DetSetVector was given a DetId, ",
+                           iDetID,
+                           ", that is not in the DetSetVector");
     }
-    index += (itIter- itFound->data.begin());
-    if(index >= itFound->data.size()) {
+    index += (itIter - itFound->data.begin());
+    if (index >= itFound->data.size()) {
       Exception::throwThis(errors::InvalidReference,
-        "an edm::Ref to a edm::DetSetVector is being made with an interator that is not part of the edm::DetSet itself");
+                           "an edm::Ref to a edm::DetSetVector is being made with an interator that is not part of the "
+                           "edm::DetSet itself");
     }
-    return Ref<typename HandleT::element_type,
-	       typename HandleT::element_type::value_type::value_type>
-	      (iHandle,std::make_pair(iDetID,index));
+    return Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>(
+        iHandle, std::make_pair(iDetID, index));
   }
 
-  template<class HandleT>
-  inline
-  Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
+  template <class HandleT>
+  inline Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
   makeRefToDetSetVector(const HandleT& iHandle,
-             det_id_type iDetID,
-             typename HandleT::element_type::value_type::iterator itIter) {
+                        det_id_type iDetID,
+                        typename HandleT::element_type::value_type::iterator itIter) {
     typedef typename HandleT::element_type Vec;
     typename Vec::detset::const_iterator itIter2 = itIter;
-    return makeRefTo(iHandle,iDetID,itIter2);
+    return makeRefTo(iHandle, iDetID, itIter2);
   }
-}
+}  // namespace edm
 #endif

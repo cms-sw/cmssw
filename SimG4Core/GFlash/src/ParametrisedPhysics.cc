@@ -11,8 +11,6 @@
 #include "G4RegionStore.hh"
 #include "G4ShortLivedConstructor.hh"
 
-using namespace CLHEP;
-
 G4ThreadLocal ParametrisedPhysics::ThreadPrivate *ParametrisedPhysics::tpdata = nullptr;
 
 ParametrisedPhysics::ParametrisedPhysics(std::string name, const edm::ParameterSet &p)

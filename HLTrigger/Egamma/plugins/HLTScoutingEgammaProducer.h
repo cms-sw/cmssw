@@ -42,33 +42,33 @@ Description: Producer for ScoutingElectron and ScoutingPhoton
 #include "DataFormats/Scouting/interface/ScoutingPhoton.h"
 
 class HLTScoutingEgammaProducer : public edm::global::EDProducer<> {
-    typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::RecoEcalCandidate>, float,
-                                                unsigned int> > RecoEcalCandMap;
-    public:
-        explicit HLTScoutingEgammaProducer(const edm::ParameterSet&);
-        ~HLTScoutingEgammaProducer() override;
+  typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::RecoEcalCandidate>, float, unsigned int> >
+      RecoEcalCandMap;
 
-        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+public:
+  explicit HLTScoutingEgammaProducer(const edm::ParameterSet&);
+  ~HLTScoutingEgammaProducer() override;
 
-    private:
-        void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup)
-            const final;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-        const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> EgammaCandidateCollection_;
-        const edm::EDGetTokenT<reco::GsfTrackCollection> EgammaGsfTrackCollection_;
-        const edm::EDGetTokenT<RecoEcalCandMap> SigmaIEtaIEtaMap_;
-        const edm::EDGetTokenT<RecoEcalCandMap> HoverEMap_;
-        const edm::EDGetTokenT<RecoEcalCandMap> DetaMap_;
-        const edm::EDGetTokenT<RecoEcalCandMap> DphiMap_;
-        const edm::EDGetTokenT<RecoEcalCandMap> MissingHitsMap_;
-        const edm::EDGetTokenT<RecoEcalCandMap> OneOEMinusOneOPMap_;
-        const edm::EDGetTokenT<RecoEcalCandMap> EcalPFClusterIsoMap_;
-        const edm::EDGetTokenT<RecoEcalCandMap> EleGsfTrackIsoMap_;
-        const edm::EDGetTokenT<RecoEcalCandMap> HcalPFClusterIsoMap_;
+private:
+  void produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const final;
 
-        const double egammaPtCut;
-        const double egammaEtaCut;
-        const double egammaHoverECut;
+  const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> EgammaCandidateCollection_;
+  const edm::EDGetTokenT<reco::GsfTrackCollection> EgammaGsfTrackCollection_;
+  const edm::EDGetTokenT<RecoEcalCandMap> SigmaIEtaIEtaMap_;
+  const edm::EDGetTokenT<RecoEcalCandMap> HoverEMap_;
+  const edm::EDGetTokenT<RecoEcalCandMap> DetaMap_;
+  const edm::EDGetTokenT<RecoEcalCandMap> DphiMap_;
+  const edm::EDGetTokenT<RecoEcalCandMap> MissingHitsMap_;
+  const edm::EDGetTokenT<RecoEcalCandMap> OneOEMinusOneOPMap_;
+  const edm::EDGetTokenT<RecoEcalCandMap> EcalPFClusterIsoMap_;
+  const edm::EDGetTokenT<RecoEcalCandMap> EleGsfTrackIsoMap_;
+  const edm::EDGetTokenT<RecoEcalCandMap> HcalPFClusterIsoMap_;
+
+  const double egammaPtCut;
+  const double egammaEtaCut;
+  const double egammaHoverECut;
 };
 
 #endif

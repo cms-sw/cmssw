@@ -16,26 +16,26 @@
 #include "fftjet/SimpleFunctors.hh"
 
 namespace fftjetcms {
-    // The following three typedefs reflect the choice of the
-    // double precision FFTW library for performing DFFTs
-    typedef double Real;
-    typedef fftw_complex Complex;
-    typedef fftjet::FFTWDoubleEngine MyFFTEngine;
+  // The following three typedefs reflect the choice of the
+  // double precision FFTW library for performing DFFTs
+  typedef double Real;
+  typedef fftw_complex Complex;
+  typedef fftjet::FFTWDoubleEngine MyFFTEngine;
 
-    // The next typedef reflects the choice of the 4-vector class
-    typedef math::XYZTLorentzVector VectorLike;
+  // The next typedef reflects the choice of the 4-vector class
+  typedef math::XYZTLorentzVector VectorLike;
 
-    // The following typedef tells how the 4-vectors will be
-    // constructed from the grid points in the eta-phi space
-    typedef PtEtaP4Builder VBuilder;
+  // The following typedef tells how the 4-vectors will be
+  // constructed from the grid points in the eta-phi space
+  typedef PtEtaP4Builder VBuilder;
 
-    // The following typedef tells which type (or class) is used
-    // to provide pileup/background information
-    typedef double BgData;
+  // The following typedef tells which type (or class) is used
+  // to provide pileup/background information
+  typedef double BgData;
 
-    // The following typedef defines the interface for the functor
-    // which calculates the pileup/noise membership function
-    typedef fftjet::Functor2<double,double,BgData> AbsBgFunctor;
-}
+  // The following typedef defines the interface for the functor
+  // which calculates the pileup/noise membership function
+  typedef fftjet::Functor2<double, double, BgData> AbsBgFunctor;
+}  // namespace fftjetcms
 
-#endif // RecoJets_FFTJetAlgorithms_fftjetTypedefs_h
+#endif  // RecoJets_FFTJetAlgorithms_fftjetTypedefs_h

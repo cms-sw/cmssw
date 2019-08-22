@@ -12,7 +12,7 @@
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
-#include "DataFormats/Provenance/interface/EventID.h" 	 
+#include "DataFormats/Provenance/interface/EventID.h"
 #include <DataFormats/Provenance/interface/Timestamp.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
@@ -24,120 +24,107 @@
 #include <iosfwd>
 #include <iostream>
 #include <algorithm>
-   
+
 using namespace std;
 using namespace edm;
 
-
-DTROS25FileReader::DTROS25FileReader(const edm::ParameterSet& pset) : 
-  runNumber(1), eventNumber(0) {
-      
-  const string & filename = pset.getUntrackedParameter<string>("fileName");
+DTROS25FileReader::DTROS25FileReader(const edm::ParameterSet& pset) : runNumber(1), eventNumber(0) {
+  const string& filename = pset.getUntrackedParameter<string>("fileName");
 
   inputFile.open(filename.c_str());
-  if( inputFile.fail() ) {
-    throw cms::Exception("InputFileMissing") 
-      << "DTROS25FileReader: the input file: " << filename <<" is not present";
+  if (inputFile.fail()) {
+    throw cms::Exception("InputFileMissing") << "DTROS25FileReader: the input file: " << filename << " is not present";
   }
- produces<FEDRawDataCollection>();
+  produces<FEDRawDataCollection>();
 }
 
-
-DTROS25FileReader::~DTROS25FileReader(){
-  inputFile.close();
-}
-
+DTROS25FileReader::~DTROS25FileReader() { inputFile.close(); }
 
 int DTROS25FileReader::fillRawData(Event& e,
-//				   Timestamp& tstamp, 
-				   FEDRawDataCollection*& data){
+                                   //				   Timestamp& tstamp,
+                                   FEDRawDataCollection*& data) {
   EventID eID = e.id();
   data = new FEDRawDataCollection();
 
   vector<uint32_t> eventData;
-  size_t estimatedEventDimension = 102400; // dimensione hardcoded
-  eventData.reserve(estimatedEventDimension); 
+  size_t estimatedEventDimension = 102400;  // dimensione hardcoded
+  eventData.reserve(estimatedEventDimension);
   uint32_t word = 0;
-  
 
-  try {   
-
+  try {
     bool marked = false;
 
     // getting the data word by word from the file
     // do it until you get the ROS25 trailer
-    while ( !isTrailer(word) ) { 
-      
+    while (!isTrailer(word)) {
       // get the first word
-      int nread = inputFile.read(dataPointer<uint32_t>( &word ), rosWordLenght);
-      
-      // WARNING!!! ||swapping it|| (Check whether it is necessary) 
+      int nread = inputFile.read(dataPointer<uint32_t>(&word), rosWordLenght);
+
+      // WARNING!!! ||swapping it|| (Check whether it is necessary)
       swap(word);
 
-      if ( nread<=0 ) throw 1;
+      if (nread <= 0)
+        throw 1;
 
       // get the ROS25 header
-      if (isHeader(word)) marked=true;
+      if (isHeader(word))
+        marked = true;
 
       // from now on fill the eventData with the ROS data
       if (marked) {
-	eventData.push_back(word);
-
+        eventData.push_back(word);
       }
-    } 
+    }
 
     // next event reading will start with meaningless trailer+header from DTLocalDAQ
     // those will be skipped automatically when seeking for the ROS25 header
 
     //if (eventData.size() > estimatedEventDimension) throw 2;
-    
+
     // Setting the Event ID
-    eID = EventID( runNumber, 1U, eventNumber);
+    eID = EventID(runNumber, 1U, eventNumber);
 
     // eventDataSize = (Number Of Words)* (Word Size)
-    int eventDataSize = eventData.size()*rosWordLenght;
+    int eventDataSize = eventData.size() * rosWordLenght;
     // It has to be a multiple of 8 bytes. if not, adjust the size of the FED payload
-    int adjustment = (eventDataSize/4)%2 == 1 ? 4 : 0; 
+    int adjustment = (eventDataSize / 4) % 2 == 1 ? 4 : 0;
 
     // The FED ID is always the first in the DT range
-    FEDRawData& fedRawData = data->FEDData( FEDNumbering::MINDTFEDID );
-    fedRawData.resize(eventDataSize+adjustment);
-    
+    FEDRawData& fedRawData = data->FEDData(FEDNumbering::MINDTFEDID);
+    fedRawData.resize(eventDataSize + adjustment);
+
     copy(reinterpret_cast<unsigned char*>(&eventData[0]),
-	 reinterpret_cast<unsigned char*>(&eventData[0]) + eventDataSize, fedRawData.data());
+         reinterpret_cast<unsigned char*>(&eventData[0]) + eventDataSize,
+         fedRawData.data());
 
     return true;
   }
 
-  catch( int i ) {
-
-    if ( i == 1 ){
-      cout<<"[DTROS25FileReader]: ERROR! failed to get the trailer"<<endl;
-      delete data; data=nullptr;
+  catch (int i) {
+    if (i == 1) {
+      cout << "[DTROS25FileReader]: ERROR! failed to get the trailer" << endl;
+      delete data;
+      data = nullptr;
       return false;
-    }    
-    else {
-      cout<<"[DTROS25FileReader]:"
-	  <<" ERROR! ROS data exceeding estimated event dimension. Event size = "
-	  <<eventData.size()<<endl;
-      delete data; data=nullptr;
+    } else {
+      cout << "[DTROS25FileReader]:"
+           << " ERROR! ROS data exceeding estimated event dimension. Event size = " << eventData.size() << endl;
+      delete data;
+      data = nullptr;
       return false;
     }
-    
   }
-
 }
 
-void DTROS25FileReader::produce(Event&e, EventSetup const&es){
-   edm::Handle<FEDRawDataCollection> rawdata;
-   FEDRawDataCollection *fedcoll = nullptr;
-   fillRawData(e,fedcoll);
-   std::unique_ptr<FEDRawDataCollection> bare_product(fedcoll);
-   e.put(std::move(bare_product));
- }
+void DTROS25FileReader::produce(Event& e, EventSetup const& es) {
+  edm::Handle<FEDRawDataCollection> rawdata;
+  FEDRawDataCollection* fedcoll = nullptr;
+  fillRawData(e, fedcoll);
+  std::unique_ptr<FEDRawDataCollection> bare_product(fedcoll);
+  e.put(std::move(bare_product));
+}
 
-void DTROS25FileReader::swap(uint32_t & word) {
-  
+void DTROS25FileReader::swap(uint32_t& word) {
   twoNibble* newWorld = reinterpret_cast<twoNibble*>(&word);
 
   uint16_t msBits_tmp = newWorld->msBits;
@@ -145,37 +132,28 @@ void DTROS25FileReader::swap(uint32_t & word) {
   newWorld->lsBits = msBits_tmp;
 }
 
-
 bool DTROS25FileReader::isHeader(uint32_t word) {
-
   bool it_is = false;
-  if ( (word >> 24 ) == 31 ) {
+  if ((word >> 24) == 31) {
     it_is = true;
     ++eventNumber;
   }
- 
+
   return it_is;
 }
-
 
 bool DTROS25FileReader::isTrailer(uint32_t word) {
- 
   bool it_is = false;
-  if ( (word >> 24 ) == 63 ) {
+  if ((word >> 24) == 63) {
     it_is = true;
   }
- 
+
   return it_is;
 }
 
-
-bool DTROS25FileReader::checkEndOfFile(){
-
-  bool retval=false;
-  if ( inputFile.eof() ) retval=true;
+bool DTROS25FileReader::checkEndOfFile() {
+  bool retval = false;
+  if (inputFile.eof())
+    retval = true;
   return retval;
-
 }
-
-
-

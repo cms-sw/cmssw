@@ -4,25 +4,28 @@
 
 #include <sstream>
 
-void CSCUpgradeMotherboardLUTGenerator::generateLUTs(unsigned theEndcap, unsigned theStation, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
-{
-  if (theStation==1) generateLUTsME11(theEndcap, theSector, theSubsector, theTrigChamber);
-  if (theStation==2) generateLUTsME21(theEndcap, theSector, theSubsector, theTrigChamber);
+void CSCUpgradeMotherboardLUTGenerator::generateLUTs(
+    unsigned theEndcap, unsigned theStation, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const {
+  if (theStation == 1)
+    generateLUTsME11(theEndcap, theSector, theSubsector, theTrigChamber);
+  if (theStation == 2)
+    generateLUTsME21(theEndcap, theSector, theSubsector, theTrigChamber);
 }
 
-void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
-{
+void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap,
+                                                         unsigned theSector,
+                                                         unsigned theSubsector,
+                                                         unsigned theTrigChamber) const {
   bool gemGeometryAvailable(false);
   if (gem_g != nullptr) {
-    LogTrace("CSCUpgradeMotherboardLUTGenerator")
-      << "+++ generateLUTsME11() called for ME11 chamber! +++ \n";
+    LogTrace("CSCUpgradeMotherboardLUTGenerator") << "+++ generateLUTsME11() called for ME11 chamber! +++ \n";
     gemGeometryAvailable = true;
   }
 
   // check for GEM geometry
-  if (not gemGeometryAvailable){
+  if (not gemGeometryAvailable) {
     LogTrace("CSCUpgradeMotherboardLUTGenerator")
-      << "+++ generateLUTsME11() called for ME11 chamber without valid GEM geometry! +++ \n";
+        << "+++ generateLUTsME11() called for ME11 chamber without valid GEM geometry! +++ \n";
     return;
   }
 
@@ -36,7 +39,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
   const CSCLayer* keyLayerME1a(cscChamberME1a->layer(3));
 
   // GEM trigger geometry
-  const int region((theEndcap == 1) ? 1: -1);
+  const int region((theEndcap == 1) ? 1 : -1);
   const GEMDetId gem_id_l1(region, 1, 1, 1, me1bId.chamber(), 0);
   const GEMDetId gem_id_l2(region, 1, 1, 2, me1bId.chamber(), 0);
   const GEMChamber* gemChamber_l1(gem_g->chamber(gem_id_l1));
@@ -44,13 +47,13 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
   const GEMEtaPartition* randRoll(gemChamber_l1->etaPartition(2));
 
   // LUTs
-  std::vector<std::pair<double,double> > gemRollEtaLimits_l1;
-  std::vector<std::pair<double,double> > gemRollEtaLimits_l2;
-  std::vector<std::pair<double,double> > cscWGToEtaLimits;
-  std::vector<std::pair<int,int> > cscWgToGemRoll_l1;
-  std::vector<std::pair<int,int> > cscWgToGemRoll_l2;
-  std::vector<std::pair<int,int> > cscHsToGemPadME1a;
-  std::vector<std::pair<int,int> > cscHsToGemPadME1b;
+  std::vector<std::pair<double, double> > gemRollEtaLimits_l1;
+  std::vector<std::pair<double, double> > gemRollEtaLimits_l2;
+  std::vector<std::pair<double, double> > cscWGToEtaLimits;
+  std::vector<std::pair<int, int> > cscWgToGemRoll_l1;
+  std::vector<std::pair<int, int> > cscWgToGemRoll_l2;
+  std::vector<std::pair<int, int> > cscHsToGemPadME1a;
+  std::vector<std::pair<int, int> > cscHsToGemPadME1b;
   std::vector<int> gemPadToCscHsME1a;
   std::vector<int> gemPadToCscHsME1b;
 
@@ -66,7 +69,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
 
   // print LUTs
   std::stringstream os;
-  os << "ME11 "<< me1bId <<std::endl;
+  os << "ME11 " << me1bId << std::endl;
 
   os << "GEM L1 roll to eta limits" << std::endl;
   os << gemRollEtaLimits_l1;
@@ -74,7 +77,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
   os << "GEM L2 roll to eta limits" << std::endl;
   os << gemRollEtaLimits_l2;
 
-  os << "ME1b "<< me1bId <<std::endl;
+  os << "ME1b " << me1bId << std::endl;
   os << "WG roll to eta limits" << std::endl;
   os << cscWGToEtaLimits;
 
@@ -100,8 +103,10 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME11(unsigned theEndcap, uns
   LogTrace("CSCUpgradeMotherboardLUTGenerator") << os.str();
 }
 
-void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, unsigned theSector, unsigned theSubsector, unsigned theTrigChamber) const
-{
+void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap,
+                                                         unsigned theSector,
+                                                         unsigned theSubsector,
+                                                         unsigned theTrigChamber) const {
   bool gemGeometryAvailable(false);
   if (gem_g != nullptr) {
     LogTrace("CSCUpgradeMotherboardLUTGenerator") << "+++ generateLUTsME11() called for ME21 chamber! +++ \n";
@@ -109,8 +114,9 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
   }
 
   // check for GEM geometry
-  if (not gemGeometryAvailable){
-    LogTrace("CSCUpgradeMotherboardLUTGenerator") << "+++ generateLUTsME21() called for ME21 chamber without valid GEM geometry! +++ \n";
+  if (not gemGeometryAvailable) {
+    LogTrace("CSCUpgradeMotherboardLUTGenerator")
+        << "+++ generateLUTsME21() called for ME21 chamber without valid GEM geometry! +++ \n";
     return;
   }
 
@@ -121,7 +127,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
   const CSCLayer* keyLayer(cscChamber->layer(3));
 
   // GEM trigger geometry
-  const int region((theEndcap == 1) ? 1: -1);
+  const int region((theEndcap == 1) ? 1 : -1);
   const GEMDetId gem_id_l1(region, 1, 2, 1, csc_id.chamber(), 0);
   const GEMDetId gem_id_l2(region, 1, 2, 2, csc_id.chamber(), 0);
   const GEMChamber* gemChamber_l1(gem_g->chamber(gem_id_l1));
@@ -129,12 +135,12 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
   const GEMEtaPartition* randRoll(gemChamber_l1->etaPartition(2));
 
   // LUTs
-  std::vector<std::pair<double,double> > gemRollEtaLimits_l1;
-  std::vector<std::pair<double,double> > gemRollEtaLimits_l2;
-  std::vector<std::pair<double,double> > cscWGToEtaLimits;
-  std::vector<std::pair<int,int> > cscWgToGemRoll_l1;
-  std::vector<std::pair<int,int> > cscWgToGemRoll_l2;
-  std::vector<std::pair<int,int> > cscHsToGemPad;
+  std::vector<std::pair<double, double> > gemRollEtaLimits_l1;
+  std::vector<std::pair<double, double> > gemRollEtaLimits_l2;
+  std::vector<std::pair<double, double> > cscWGToEtaLimits;
+  std::vector<std::pair<int, int> > cscWgToGemRoll_l1;
+  std::vector<std::pair<int, int> > cscWgToGemRoll_l2;
+  std::vector<std::pair<int, int> > cscHsToGemPad;
   std::vector<int> gemPadToCscHs;
 
   gemRollToEtaLimitsLUT(gemChamber_l1, gemRollEtaLimits_l1);
@@ -146,7 +152,7 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
   gemPadToCscHsLUT(keyLayer, randRoll, gemPadToCscHs);
 
   std::stringstream os;
-  os << "ME21 "<< csc_id <<std::endl;
+  os << "ME21 " << csc_id << std::endl;
 
   os << "GEM roll to eta limits L1" << std::endl;
   os << gemRollEtaLimits_l1;
@@ -173,10 +179,10 @@ void CSCUpgradeMotherboardLUTGenerator::generateLUTsME21(unsigned theEndcap, uns
   LogTrace("CSCUpgradeMotherboardLUTGenerator") << os.str();
 }
 
-int CSCUpgradeMotherboardLUTGenerator::assignRoll(const std::vector<std::pair<double,double> >& lut_, double eta) const
-{
+int CSCUpgradeMotherboardLUTGenerator::assignRoll(const std::vector<std::pair<double, double> >& lut_,
+                                                  double eta) const {
   int result = -99;
-  for(const auto& p : lut_) {
+  for (const auto& p : lut_) {
     const float minEta(p.first);
     const float maxEta(p.second);
     if (minEta <= std::abs(eta) and std::abs(eta) < maxEta) {
@@ -187,10 +193,10 @@ int CSCUpgradeMotherboardLUTGenerator::assignRoll(const std::vector<std::pair<do
   return result;
 }
 
-void CSCUpgradeMotherboardLUTGenerator::gemRollToEtaLimitsLUT(const GEMChamber* gemChamber, std::vector<std::pair<double,double> >& lut) const
-{
-  for(const auto& roll : gemChamber->etaPartitions()) {
-    const float half_striplength(roll->specs()->specificTopology().stripLength()/2.);
+void CSCUpgradeMotherboardLUTGenerator::gemRollToEtaLimitsLUT(const GEMChamber* gemChamber,
+                                                              std::vector<std::pair<double, double> >& lut) const {
+  for (const auto& roll : gemChamber->etaPartitions()) {
+    const float half_striplength(roll->specs()->specificTopology().stripLength() / 2.);
     const LocalPoint lp_top(0., half_striplength, 0.);
     const LocalPoint lp_bottom(0., -half_striplength, 0.);
     const GlobalPoint gp_top(roll->toGlobal(lp_top));
@@ -199,23 +205,21 @@ void CSCUpgradeMotherboardLUTGenerator::gemRollToEtaLimitsLUT(const GEMChamber* 
   }
 }
 
-
-void CSCUpgradeMotherboardLUTGenerator::cscWgToRollLUT(const std::vector<std::pair<double,double> >& inLUT1,
-						       const std::vector<std::pair<double,double> >& inLUT2,
-						       std::vector<std::pair<int,int> >& outLUT) const
-{
-  for (const auto& p: inLUT1){
+void CSCUpgradeMotherboardLUTGenerator::cscWgToRollLUT(const std::vector<std::pair<double, double> >& inLUT1,
+                                                       const std::vector<std::pair<double, double> >& inLUT2,
+                                                       std::vector<std::pair<int, int> >& outLUT) const {
+  for (const auto& p : inLUT1) {
     double etaMin(p.first);
     double etaMax(p.second);
     outLUT.emplace_back(assignRoll(inLUT2, etaMin), assignRoll(inLUT2, etaMax));
   }
 }
 
-void CSCUpgradeMotherboardLUTGenerator::cscWgToEtaLimitsLUT(const CSCLayer* keyLayer, std::vector<std::pair<double, double> >& lut) const
-{
+void CSCUpgradeMotherboardLUTGenerator::cscWgToEtaLimitsLUT(const CSCLayer* keyLayer,
+                                                            std::vector<std::pair<double, double> >& lut) const {
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   const int numberOfWG(keyLayerGeometry->numberOfWireGroups());
-  for (int i = 0; i< numberOfWG; ++i){
+  for (int i = 0; i < numberOfWG; ++i) {
     const float middle_wire(keyLayerGeometry->middleWireOfGroup(i));
     const std::pair<LocalPoint, LocalPoint> wire_ends(keyLayerGeometry->wireTopology()->wireEnds(middle_wire));
     const GlobalPoint gp_top(keyLayer->toGlobal(wire_ends.first));
@@ -225,34 +229,33 @@ void CSCUpgradeMotherboardLUTGenerator::cscWgToEtaLimitsLUT(const CSCLayer* keyL
 }
 
 void CSCUpgradeMotherboardLUTGenerator::cscHsToGemPadLUT(const CSCLayer* keyLayer,
-						    const GEMEtaPartition* randRoll,
-						    int minH, int maxH, std::vector<std::pair<int,int> >& lut) const
-{
+                                                         const GEMEtaPartition* randRoll,
+                                                         int minH,
+                                                         int maxH,
+                                                         std::vector<std::pair<int, int> >& lut) const {
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   auto nStrips(keyLayerGeometry->numberOfStrips());
-  for (float i = 0; i< nStrips; i = i+0.5){
+  for (float i = 0; i < nStrips; i = i + 0.5) {
     const LocalPoint lpCSC(keyLayerGeometry->topology()->localPosition(i));
     const GlobalPoint gp(keyLayer->toGlobal(lpCSC));
     const LocalPoint lpGEM(randRoll->toLocal(gp));
-    const int HS(i/0.5);
+    const int HS(i / 0.5);
     const bool edge(HS < minH or HS > maxH);
     const float pad(edge ? -99 : randRoll->pad(lpGEM));
-    lut.emplace_back(std::floor(pad),std::ceil(pad));
+    lut.emplace_back(std::floor(pad), std::ceil(pad));
   }
 }
 
-void
-CSCUpgradeMotherboardLUTGenerator::gemPadToCscHsLUT(const CSCLayer* keyLayer,
-						    const GEMEtaPartition* randRoll,
-						    std::vector<int>& lut) const
-{
+void CSCUpgradeMotherboardLUTGenerator::gemPadToCscHsLUT(const CSCLayer* keyLayer,
+                                                         const GEMEtaPartition* randRoll,
+                                                         std::vector<int>& lut) const {
   const int nGEMPads(randRoll->npads());
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
-  for (int i = 1; i<= nGEMPads; ++i){
+  for (int i = 1; i <= nGEMPads; ++i) {
     const LocalPoint lpGEM(randRoll->centreOfPad(i));
     const GlobalPoint gp(randRoll->toGlobal(lpGEM));
     const LocalPoint lpCSC(keyLayer->toLocal(gp));
     const float strip(keyLayerGeometry->strip(lpCSC));
-    lut.push_back( (int) (strip)/0.5 );
+    lut.push_back((int)(strip) / 0.5);
   }
 }

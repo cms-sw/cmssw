@@ -4,7 +4,7 @@
 //
 // Package:    MCProcessFilter
 // Class:      MCProcessFilter
-// 
+//
 /* 
 
  Description: filter events based on the Pythia ProcessID and the Pt_hat
@@ -18,7 +18,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -31,7 +30,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 //
 // class decleration
 //
@@ -41,18 +39,18 @@ namespace edm {
 }
 
 class MCProcessFilter : public edm::EDFilter {
-   public:
-      explicit MCProcessFilter(const edm::ParameterSet&);
-      ~MCProcessFilter() override;
+public:
+  explicit MCProcessFilter(const edm::ParameterSet&);
+  ~MCProcessFilter() override;
 
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-   private:
-      // ----------member data ---------------------------
-      
-       edm::EDGetTokenT<edm::HepMCProduct> token_;
-       std::vector<int> processID;  
-       std::vector<double> pthatMin;
-       std::vector<double> pthatMax;  
+private:
+  // ----------member data ---------------------------
+
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
+  std::vector<int> processID;
+  std::vector<double> pthatMin;
+  std::vector<double> pthatMax;
 };
 #endif

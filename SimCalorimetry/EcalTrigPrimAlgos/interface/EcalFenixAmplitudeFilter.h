@@ -15,7 +15,6 @@ class EcalTPGWeightGroup;
  *
  */
 class EcalFenixAmplitudeFilter {
-
 private:
   int peakFlag_[5];
   int inputsAlreadyIn_;
@@ -32,9 +31,12 @@ private:
 public:
   EcalFenixAmplitudeFilter();
   virtual ~EcalFenixAmplitudeFilter();
-  virtual void process(std::vector<int> &addout, std::vector<int> &output,
-                       std::vector<int> &fgvbIn, std::vector<int> &fgvbOut);
-  void setParameters(uint32_t raw, const EcalTPGWeightIdMap *ecaltpgWeightMap,
+  virtual void process(std::vector<int> &addout,
+                       std::vector<int> &output,
+                       std::vector<int> &fgvbIn,
+                       std::vector<int> &fgvbOut);
+  void setParameters(uint32_t raw,
+                     const EcalTPGWeightIdMap *ecaltpgWeightMap,
                      const EcalTPGWeightGroup *ecaltpgWeightGroup);
 };
 

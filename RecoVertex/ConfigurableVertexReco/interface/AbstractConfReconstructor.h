@@ -9,17 +9,15 @@
  *  must be configurable via ::configure
  */
 
-class AbstractConfReconstructor : public VertexReconstructor
-{
-  public:
-
-    /** The configure method configures the vertex reconstructor.
+class AbstractConfReconstructor : public VertexReconstructor {
+public:
+  /** The configure method configures the vertex reconstructor.
      *  It also should also write all its applied defaults back into the map,
      */
-    virtual void configure ( const edm::ParameterSet & ) = 0;
-    virtual edm::ParameterSet defaults() const = 0;
-    ~AbstractConfReconstructor() override {};
-    AbstractConfReconstructor * clone() const override = 0;
+  virtual void configure(const edm::ParameterSet&) = 0;
+  virtual edm::ParameterSet defaults() const = 0;
+  ~AbstractConfReconstructor() override{};
+  AbstractConfReconstructor* clone() const override = 0;
 };
 
 #endif

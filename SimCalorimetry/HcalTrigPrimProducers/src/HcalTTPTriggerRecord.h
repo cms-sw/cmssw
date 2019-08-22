@@ -7,23 +7,17 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-class HcalTTPTriggerRecord : public edm::stream::EDProducer<>
-{
+class HcalTTPTriggerRecord : public edm::stream::EDProducer<> {
 public:
+  explicit HcalTTPTriggerRecord(const edm::ParameterSet& ps);
+  ~HcalTTPTriggerRecord() override;
 
-    explicit HcalTTPTriggerRecord(const edm::ParameterSet& ps);
-    ~HcalTTPTriggerRecord() override;
-    
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-     
-    edm::EDGetTokenT<HcalTTPDigiCollection> tok_ttp_; 
-    std::vector<unsigned int> ttpBits_ ;
-    std::vector<std::string> names_ ; 
-
+  edm::EDGetTokenT<HcalTTPDigiCollection> tok_ttp_;
+  std::vector<unsigned int> ttpBits_;
+  std::vector<std::string> names_;
 };
 
 #endif
-
-

@@ -24,8 +24,8 @@ class L1GtPatternMap;
 class L1GtPatternLine;
 
 /** The L1GtPatternWriter object is responsible for the actual formatting 
-    of the content of one or more L1GtPatternMaps into a text file. */   
-class L1GtPatternWriter { 
+    of the content of one or more L1GtPatternMaps into a text file. */
+class L1GtPatternWriter {
 public:
   /** Construct a new pattern writer. 
    *  @param destination  output stream to write to
@@ -38,12 +38,14 @@ public:
    *  @param bx           vector of bunch crossing numbers to print (empty for 'all')
    *  @param debug        set to true to enable extensive debug logging
    */
-  L1GtPatternWriter(std::ostream& destination, const std::string& header,
-		    const std::string& footer, const std::vector<std::string>& columns,
-		    const std::vector<boost::uint32_t>& lengths,
-		    const std::vector<boost::uint32_t>& defaultValues,
-		    const std::vector<int>& bx,
-		    bool debug = false);
+  L1GtPatternWriter(std::ostream& destination,
+                    const std::string& header,
+                    const std::string& footer,
+                    const std::vector<std::string>& columns,
+                    const std::vector<boost::uint32_t>& lengths,
+                    const std::vector<boost::uint32_t>& defaultValues,
+                    const std::vector<int>& bx,
+                    bool debug = false);
 
   /** Write the lines from a pattern map to the output stream. */
   void writePatterns(const L1GtPatternMap& patterns);
@@ -55,11 +57,11 @@ public:
   void close();
 
   virtual ~L1GtPatternWriter();
+
 protected:
   /** Returns an and-mask to truncate an boost::uint32_t to a specified
       length. */
   static boost::uint32_t mask(boost::uint32_t length);
-
 
 private:
   std::ostream& m_dest;
@@ -73,6 +75,5 @@ private:
 
   boost::uint32_t m_lineNo;
 };
-
 
 #endif /*GlobalTriggerAnalyzer_L1GtPatternWriter_h*/

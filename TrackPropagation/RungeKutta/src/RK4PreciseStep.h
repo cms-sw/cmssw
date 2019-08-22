@@ -9,20 +9,19 @@ class RKCartesianDerivative;
 
 class dso_internal RK4PreciseStep {
 public:
+  CartesianState operator()(const CartesianState& start,
+                            const RKCartesianDerivative& deriv,
+                            double step,
+                            double eps) const;
 
-  CartesianState
-  operator()( const CartesianState& start, const RKCartesianDerivative& deriv,
-	      double step, double eps) const;
+  double distance(const CartesianState& a, const CartesianState& b) const;
 
-  double distance( const CartesianState& a, const CartesianState& b) const;
-
-  std::pair<CartesianState, double>
-  stepWithAccuracy( const CartesianState& start, const RKCartesianDerivative& deriv, double step) const;
+  std::pair<CartesianState, double> stepWithAccuracy(const CartesianState& start,
+                                                     const RKCartesianDerivative& deriv,
+                                                     double step) const;
 
 private:
-
   bool verbose() const;
-
 };
 
 #endif

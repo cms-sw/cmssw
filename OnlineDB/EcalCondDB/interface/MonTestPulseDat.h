@@ -10,7 +10,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class MonTestPulseDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   MonTestPulseDat();
   ~MonTestPulseDat() override;
@@ -39,19 +39,14 @@ class MonTestPulseDat : public IDataItem {
   inline void setTaskStatus(bool status) { m_taskStatus = status; }
   inline bool getTaskStatus() const { return m_taskStatus; }
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const MonTestPulseDat* item, MonRunIOV* iov )
-    noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const MonTestPulseDat* item, MonRunIOV* iov) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, MonTestPulseDat >* data, MonRunIOV* iov)
-    noexcept(false);
+  void writeArrayDB(const std::map<EcalLogicID, MonTestPulseDat>* data, MonRunIOV* iov) noexcept(false);
 
-
-  void fetchData(std::map< EcalLogicID, MonTestPulseDat >* fillMap, MonRunIOV* iov)
-     noexcept(false);
+  void fetchData(std::map<EcalLogicID, MonTestPulseDat>* fillMap, MonRunIOV* iov) noexcept(false);
 
   // User data
   float m_adcMeanG1;

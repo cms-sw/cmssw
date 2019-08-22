@@ -47,7 +47,6 @@
 
 // Class declaration
 class L1TMuonCPPFDigiProducer : public edm::stream::EDProducer<> {
-
 public:
   explicit L1TMuonCPPFDigiProducer(const edm::ParameterSet &);
   ~L1TMuonCPPFDigiProducer() override;

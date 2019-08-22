@@ -2,29 +2,27 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
-class FWJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Jet>
-{
+class FWJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Jet> {
 public:
-   FWJetLegoProxyBuilder() {}
-   ~FWJetLegoProxyBuilder() override {}
-  
-   REGISTER_PROXYBUILDER_METHODS();
+  FWJetLegoProxyBuilder() {}
+  ~FWJetLegoProxyBuilder() override {}
+
+  REGISTER_PROXYBUILDER_METHODS();
 
 protected:
-   using FWSimpleProxyBuilderTemplate<reco::Jet>::build;
-   void build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder,
-                      const FWViewContext*) override;
+  using FWSimpleProxyBuilderTemplate<reco::Jet>::build;
+  void build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 
 private:
-   FWJetLegoProxyBuilder( const FWJetLegoProxyBuilder& ) = delete; // stop default
-   const FWJetLegoProxyBuilder& operator=( const FWJetLegoProxyBuilder& ) = delete; // stop default
+  FWJetLegoProxyBuilder(const FWJetLegoProxyBuilder&) = delete;                   // stop default
+  const FWJetLegoProxyBuilder& operator=(const FWJetLegoProxyBuilder&) = delete;  // stop default
 };
 
-void
-FWJetLegoProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder,
-                             const FWViewContext*) 
-{
-   fireworks::addCircle( iData.eta(), iData.phi(), 0.5, 20, &oItemHolder, this );
+void FWJetLegoProxyBuilder::build(const reco::Jet& iData,
+                                  unsigned int iIndex,
+                                  TEveElement& oItemHolder,
+                                  const FWViewContext*) {
+  fireworks::addCircle(iData.eta(), iData.phi(), 0.5, 20, &oItemHolder, this);
 }
 
-REGISTER_FWPROXYBUILDER( FWJetLegoProxyBuilder, reco::Jet, "Jets", FWViewType::kAllLegoBits | FWViewType::kLegoHFBit );
+REGISTER_FWPROXYBUILDER(FWJetLegoProxyBuilder, reco::Jet, "Jets", FWViewType::kAllLegoBits | FWViewType::kLegoHFBit);

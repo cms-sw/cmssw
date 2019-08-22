@@ -5,8 +5,7 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
 #include <iostream>
 
-EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter()
-    : inputsAlreadyIn_(0), shift_(6) {}
+EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter() : inputsAlreadyIn_(0), shift_(6) {}
 
 EcalFenixAmplitudeFilter::~EcalFenixAmplitudeFilter() {}
 
@@ -37,14 +36,13 @@ void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,
   // test
   inputsAlreadyIn_ = 0;
   for (unsigned int i = 0; i < 5; i++) {
-    buffer_[i] = 0; // FIXME: 5
+    buffer_[i] = 0;  // FIXME: 5
     fgvbBuffer_[i] = 0;
   }
 
   // test end
 
   for (unsigned int i = 0; i < addout.size(); i++) {
-
     setInput(addout[i], fgvbIn[i]);
     process();
     output[i] = processedOutput_;
@@ -85,27 +83,23 @@ void EcalFenixAmplitudeFilter::process() {
   processedFgvbOutput_ = fgvbInt;
 }
 
-void EcalFenixAmplitudeFilter::setParameters(
-    uint32_t raw, const EcalTPGWeightIdMap *ecaltpgWeightMap,
-    const EcalTPGWeightGroup *ecaltpgWeightGroup) {
+void EcalFenixAmplitudeFilter::setParameters(uint32_t raw,
+                                             const EcalTPGWeightIdMap *ecaltpgWeightMap,
+                                             const EcalTPGWeightGroup *ecaltpgWeightGroup) {
   uint32_t params_[5];
-  const EcalTPGGroups::EcalTPGGroupsMap &groupmap =
-      ecaltpgWeightGroup->getMap();
+  const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgWeightGroup->getMap();
   EcalTPGGroups::EcalTPGGroupsMapItr it = groupmap.find(raw);
   if (it != groupmap.end()) {
     uint32_t weightid = (*it).second;
-    const EcalTPGWeightIdMap::EcalTPGWeightMap &weightmap =
-        ecaltpgWeightMap->getMap();
+    const EcalTPGWeightIdMap::EcalTPGWeightMap &weightmap = ecaltpgWeightMap->getMap();
     EcalTPGWeightIdMap::EcalTPGWeightMapItr itw = weightmap.find(weightid);
-    (*itw).second.getValues(params_[0], params_[1], params_[2], params_[3],
-                            params_[4]);
+    (*itw).second.getValues(params_[0], params_[1], params_[2], params_[3], params_[4]);
 
     // we have to transform negative coded in 7 bits into negative coded in 32
     // bits maybe this should go into the getValue method??
     // std::cout << "peak flag settings" << std::endl;
     for (int i = 0; i < 5; ++i) {
-      weights_[i] = (params_[i] & 0x40) ? (int)(params_[i] | 0xffffffc0)
-                                        : (int)(params_[i]);
+      weights_[i] = (params_[i] & 0x40) ? (int)(params_[i] | 0xffffffc0) : (int)(params_[i]);
 
       // Construct the peakFlag for sFGVB processing
       // peakFlag_[i] = ((params_[i] & 0x80) > 0x0) ? 1 : 0;
@@ -114,6 +108,5 @@ void EcalFenixAmplitudeFilter::setParameters(
     }
     // std::cout << std::endl;
   } else
-    edm::LogWarning("EcalTPG")
-        << " could not find EcalTPGGroupsMap entry for " << raw;
+    edm::LogWarning("EcalTPG") << " could not find EcalTPGGroupsMap entry for " << raw;
 }

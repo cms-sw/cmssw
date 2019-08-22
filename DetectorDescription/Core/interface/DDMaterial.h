@@ -8,7 +8,9 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 
-namespace DDI { class Material; }
+namespace DDI {
+  class Material;
+}
 
 //! DDMaterial is used to define and access material information
 /**
@@ -40,44 +42,43 @@ namespace DDI { class Material; }
     to specify the units of the quantities
     making up a material.
 */
-class DDMaterial : public DDBase<DDName,std::unique_ptr<DDI::Material>>
-{
-  friend std::ostream & operator<<(std::ostream &, const DDMaterial &);
-  
+class DDMaterial : public DDBase<DDName, std::unique_ptr<DDI::Material>> {
+  friend std::ostream &operator<<(std::ostream &, const DDMaterial &);
+
 public:
   using FractionV = std::vector<std::pair<DDMaterial, double>>;
-  
+
   //! Creates a uninitialized reference-object (see DDLogicalPart documentation for details on reference objects)
   DDMaterial();
-  
+
   //! Creates a initialized reference-object or a reference to an allready defined material.
-  DDMaterial(const DDName & name);
+  DDMaterial(const DDName &name);
 
   //! Constructor for construction of an \b elementary material
-  DDMaterial(const DDName & name, double z, double a, double d);
-  
+  DDMaterial(const DDName &name, double z, double a, double d);
+
   //! Constructor for \b mixtures
-  DDMaterial(const DDName & name, double density);
-  
-  //! returns the number of compound materials or 0 for elementary materials        
+  DDMaterial(const DDName &name, double density);
+
+  //! returns the number of compound materials or 0 for elementary materials
   int noOfConstituents() const;
-  
+
   //! returns the i-th compound material and its fraction-mass
-  FractionV::value_type constituent(int i) const; 
-  
+  FractionV::value_type constituent(int i) const;
+
   //! adds a material to the mixture proportional to its fraction-mass \a fm.
-  int addMaterial(const DDMaterial & m, double fm); 
-  
+  int addMaterial(const DDMaterial &m, double fm);
+
   //! returns the atomic mass
-  double a() const; 
-  
+  double a() const;
+
   //! retruns the atomic number
-  double z() const; 
-  
+  double z() const;
+
   //! returns the density
   double density() const;
 };
 
-std::ostream & operator<<(std::ostream &, const DDMaterial &);
+std::ostream &operator<<(std::ostream &, const DDMaterial &);
 
 #endif

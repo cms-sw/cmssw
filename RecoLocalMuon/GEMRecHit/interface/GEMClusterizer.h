@@ -8,10 +8,10 @@
 #include "RecoLocalMuon/GEMRecHit/interface/GEMCluster.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
-class GEMClusterizer{
- public:
-  GEMClusterizer() {};
-  ~GEMClusterizer() {};
+class GEMClusterizer {
+public:
+  GEMClusterizer(){};
+  ~GEMClusterizer(){};
   GEMClusterContainer doAction(const GEMDigiCollection::Range& digiRange);
 };
 #endif

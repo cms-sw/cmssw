@@ -9,13 +9,11 @@
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
-
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableCSCRing.h"
-
 
 #include <vector>
 
@@ -27,41 +25,29 @@ class AlignableCSCRing;
 /// Misalignment can be de-/reactivated (forwarded to components).
 ///
 
-class AlignableCSCStation : public AlignableComposite 
-{
+class AlignableCSCStation : public AlignableComposite {
+public:
+  AlignableCSCStation(const std::vector<AlignableCSCRing*>& cscRings);
 
- public:
-
-  AlignableCSCStation( const std::vector<AlignableCSCRing*>& cscRings );
-  
   // gets the global position as the average over all positions of the layers
-  PositionType computePosition() ;
+  PositionType computePosition();
   // get the global orientation
-  RotationType computeOrientation() ; //see explanation for "theOrientation"
+  RotationType computeOrientation();  //see explanation for "theOrientation"
   // get the Surface
-  AlignableSurface computeSurface() ;
+  AlignableSurface computeSurface();
 
-  AlignableCSCRing &ring(int i);  
-  
+  AlignableCSCRing& ring(int i);
+
   //virtual void twist(float);
 
   /// Printout muon CSC Station information (not recursive)
-  friend std::ostream& operator << ( std::ostream&, const AlignableCSCStation& ); 
+  friend std::ostream& operator<<(std::ostream&, const AlignableCSCStation&);
 
   /// Recursive printout of the muon CSC Station structure
-  void dump( void ) const override;
-
-
+  void dump(void) const override;
 
 private:
-
   std::vector<AlignableCSCRing*> theCSCRings;
-
-
 };
 
 #endif
-
-
-
-

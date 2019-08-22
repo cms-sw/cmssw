@@ -11,22 +11,30 @@
 #include "CommonTools/UtilAlgos/interface/SingleElementCollectionRefSelector.h"
 #include "DataFormats/Common/interface/View.h"
 
-template<typename InputType, typename Selector,
-	 typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<edm::View<InputType> >::type,
-	 typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
-	 typename PostProcessor = ::helper::NullPostProcessor<OutputCollection>,
-	 typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDFilter>::type,
-	 typename Base = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDFilter>::base,
-	 typename RefAdder = typename ::helper::SelectionAdderTrait<edm::View<InputType>, StoreContainer>::type>
-class SingleObjectRefSelector :
-  public ObjectSelector<SingleElementCollectionRefSelector<InputType, Selector, OutputCollection, StoreContainer, RefAdder>,
-			OutputCollection, NonNullNumberSelector, PostProcessor, StoreManager, Base> {
+template <typename InputType,
+          typename Selector,
+          typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<edm::View<InputType> >::type,
+          typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
+          typename PostProcessor = ::helper::NullPostProcessor<OutputCollection>,
+          typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDFilter>::type,
+          typename Base = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDFilter>::base,
+          typename RefAdder = typename ::helper::SelectionAdderTrait<edm::View<InputType>, StoreContainer>::type>
+class SingleObjectRefSelector
+    : public ObjectSelector<
+          SingleElementCollectionRefSelector<InputType, Selector, OutputCollection, StoreContainer, RefAdder>,
+          OutputCollection,
+          NonNullNumberSelector,
+          PostProcessor,
+          StoreManager,
+          Base> {
 public:
-  explicit SingleObjectRefSelector(const edm::ParameterSet & cfg) :
-    ObjectSelector<SingleElementCollectionRefSelector<InputType, Selector, OutputCollection, StoreContainer, RefAdder>,
-                   OutputCollection, NonNullNumberSelector, PostProcessor>( cfg ) { }
-  ~SingleObjectRefSelector() override { }
+  explicit SingleObjectRefSelector(const edm::ParameterSet& cfg)
+      : ObjectSelector<
+            SingleElementCollectionRefSelector<InputType, Selector, OutputCollection, StoreContainer, RefAdder>,
+            OutputCollection,
+            NonNullNumberSelector,
+            PostProcessor>(cfg) {}
+  ~SingleObjectRefSelector() override {}
 };
 
 #endif
-

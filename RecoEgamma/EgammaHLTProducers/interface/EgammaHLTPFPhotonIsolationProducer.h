@@ -30,14 +30,14 @@ namespace edm {
 }
 
 class EgammaHLTPFPhotonIsolationProducer : public edm::global::EDProducer<> {
- public:
+public:
   explicit EgammaHLTPFPhotonIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTPFPhotonIsolationProducer() override {};    
-      
+  ~EgammaHLTPFPhotonIsolationProducer() override{};
+
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
- 
- private:
+
+private:
   edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateProducer_;

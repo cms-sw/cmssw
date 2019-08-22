@@ -10,35 +10,31 @@
 #include "TMatrixD.h"
 
 namespace HepMC {
-   class FourVector ;
+  class FourVector;
 }
 
 namespace CLHEP {
-   class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 namespace edm {
-   class HepMCProduct;
+  class HepMCProduct;
 }
 
-class PassThroughEvtVtxGenerator : public BaseEvtVtxGenerator
-{
-   public:
+class PassThroughEvtVtxGenerator : public BaseEvtVtxGenerator {
+public:
+  // ctor & dtor
+  explicit PassThroughEvtVtxGenerator(const edm::ParameterSet&);
+  ~PassThroughEvtVtxGenerator() override;
 
-   // ctor & dtor
-   explicit PassThroughEvtVtxGenerator( const edm::ParameterSet& );
-   ~PassThroughEvtVtxGenerator() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-   void produce( edm::Event&, const edm::EventSetup&) override;
+  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-   HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
+  TMatrixD const* GetInvLorentzBoost() const override { return nullptr; };
 
-   TMatrixD const* GetInvLorentzBoost() const override { return nullptr;};
-
-   private :
-
-   edm::EDGetTokenT<edm::HepMCProduct> sourceToken;
-
+private:
+  edm::EDGetTokenT<edm::HepMCProduct> sourceToken;
 };
 
 #endif

@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -41,17 +40,13 @@
 
 template <typename T>
 class VIDNestedWPBitmapProducer : public edm::stream::EDProducer<> {
-
 public:
-
-  explicit VIDNestedWPBitmapProducer(const edm::ParameterSet &iConfig):
-    src_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("src"))),
-    isInit_(false)
-  {
+  explicit VIDNestedWPBitmapProducer(const edm::ParameterSet& iConfig)
+      : src_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("src"))), isInit_(false) {
     auto const& vwp = iConfig.getParameter<std::vector<std::string>>("WorkingPoints");
     for (auto const& wp : vwp) {
-      src_bitmaps_.push_back(consumes<edm::ValueMap<unsigned int> >(edm::InputTag(wp+std::string("Bitmap"))));
-      src_cutflows_.push_back(consumes<edm::ValueMap<vid::CutFlowResult> >(edm::InputTag(wp)));
+      src_bitmaps_.push_back(consumes<edm::ValueMap<unsigned int>>(edm::InputTag(wp + std::string("Bitmap"))));
+      src_cutflows_.push_back(consumes<edm::ValueMap<vid::CutFlowResult>>(edm::InputTag(wp)));
     }
     nWP = src_bitmaps_.size();
     produces<edm::ValueMap<int>>();
@@ -60,14 +55,13 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   edm::EDGetTokenT<edm::View<T>> src_;
-  std::vector<edm::EDGetTokenT<edm::ValueMap<unsigned int> > > src_bitmaps_;
-  std::vector<edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > > src_cutflows_;
+  std::vector<edm::EDGetTokenT<edm::ValueMap<unsigned int>>> src_bitmaps_;
+  std::vector<edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult>>> src_cutflows_;
 
   unsigned int nWP;
   unsigned int nBits;
@@ -76,77 +70,80 @@ private:
   bool isInit_;
 
   void initNCuts(unsigned int);
-
 };
 
-
 template <typename T>
-void
-VIDNestedWPBitmapProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
+void VIDNestedWPBitmapProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<T>> src;
   iEvent.getByToken(src_, src);
   std::vector<edm::Handle<edm::ValueMap<unsigned int>>> src_bitmaps(nWP);
-  for (unsigned int i=0; i<nWP; i++) iEvent.getByToken(src_bitmaps_[i], src_bitmaps[i]);
+  for (unsigned int i = 0; i < nWP; i++)
+    iEvent.getByToken(src_bitmaps_[i], src_bitmaps[i]);
   std::vector<edm::Handle<edm::ValueMap<vid::CutFlowResult>>> src_cutflows(nWP);
-  for (unsigned int i=0; i<nWP; i++) iEvent.getByToken(src_cutflows_[i], src_cutflows[i]);
+  for (unsigned int i = 0; i < nWP; i++)
+    iEvent.getByToken(src_cutflows_[i], src_cutflows[i]);
 
   std::vector<unsigned int> res;
 
   for (auto const& obj : src->ptrs()) {
-    for (unsigned int j=0; j<nWP; j++){
+    for (unsigned int j = 0; j < nWP; j++) {
       auto cutflow = (*(src_cutflows[j]))[obj];
-      if (!isInit_) initNCuts(cutflow.cutFlowSize());
-      if (cutflow.cutFlowSize()!=nCuts) throw cms::Exception("Configuration","Trying to compress VID bitmaps for cutflows of different size");
+      if (!isInit_)
+        initNCuts(cutflow.cutFlowSize());
+      if (cutflow.cutFlowSize() != nCuts)
+        throw cms::Exception("Configuration", "Trying to compress VID bitmaps for cutflows of different size");
       auto bitmap = (*(src_bitmaps[j]))[obj];
-      for (unsigned int k=0; k<nCuts; k++){
-        if (j==0) res_[k] = 0;
-        if (bitmap>>k & 1) {
-          if (res_[k]!=j) throw cms::Exception("Configuration","Trying to compress VID bitmaps which are not nested in the correct order for all cuts");
+      for (unsigned int k = 0; k < nCuts; k++) {
+        if (j == 0)
+          res_[k] = 0;
+        if (bitmap >> k & 1) {
+          if (res_[k] != j)
+            throw cms::Exception(
+                "Configuration",
+                "Trying to compress VID bitmaps which are not nested in the correct order for all cuts");
           res_[k]++;
         }
       }
     }
 
     int out = 0;
-    for (unsigned int k=0; k<nCuts; k++) out |= (res_[k] << (nBits*k));
+    for (unsigned int k = 0; k < nCuts; k++)
+      out |= (res_[k] << (nBits * k));
     res.push_back(out);
   }
 
   auto resV = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler filler(*resV);
-  filler.insert(src,res.begin(),res.end());
+  filler.insert(src, res.begin(), res.end());
   filler.fill();
 
   iEvent.put(std::move(resV));
-
 }
 
 template <typename T>
-void
-VIDNestedWPBitmapProducer<T>::initNCuts(unsigned int n){
+void VIDNestedWPBitmapProducer<T>::initNCuts(unsigned int n) {
   nCuts = n;
-  nBits = ceil(log2(nWP+1));
-  if (nBits*nCuts>sizeof(int)*8) throw cms::Exception("Configuration","Integer cannot contain the compressed VID bitmap information");
-  res_.resize(nCuts,0);
+  nBits = ceil(log2(nWP + 1));
+  if (nBits * nCuts > sizeof(int) * 8)
+    throw cms::Exception("Configuration", "Integer cannot contain the compressed VID bitmap information");
+  res_.resize(nCuts, 0);
   isInit_ = true;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 template <typename T>
-void
-VIDNestedWPBitmapProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void VIDNestedWPBitmapProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src")->setComment("input physics object collection");
   desc.add<std::vector<std::string>>("WorkingPoints")->setComment("working points to be saved in the bitmask");
   std::string modname;
-  if (typeid(T) == typeid(pat::Electron)) modname+="Ele";
-  else if (typeid(T) == typeid(pat::Photon)) modname+="Pho";
-  modname+="VIDNestedWPBitmapProducer";
-  descriptions.add(modname,desc);
+  if (typeid(T) == typeid(pat::Electron))
+    modname += "Ele";
+  else if (typeid(T) == typeid(pat::Photon))
+    modname += "Pho";
+  modname += "VIDNestedWPBitmapProducer";
+  descriptions.add(modname, desc);
 }
-
 
 typedef VIDNestedWPBitmapProducer<pat::Electron> EleVIDNestedWPBitmapProducer;
 typedef VIDNestedWPBitmapProducer<pat::Photon> PhoVIDNestedWPBitmapProducer;

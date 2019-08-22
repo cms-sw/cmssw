@@ -10,32 +10,27 @@
 #include "CondFormats/RPCObjects/interface/RPCInverseAMCLinkMap.h"
 
 namespace edm {
-class ParameterSet;
-class ConfigurationDescriptions;
-} // namespace edm
+  class ParameterSet;
+  class ConfigurationDescriptions;
+}  // namespace edm
 
 class RPCTwinMuxLinkMapRcd;
 class RPCInverseTwinMuxLinkMapRcd;
 
-class RPCInverseTwinMuxLinkMapESProducer
-    : public edm::ESProducer
-{
+class RPCInverseTwinMuxLinkMapESProducer : public edm::ESProducer {
 public:
-    explicit RPCInverseTwinMuxLinkMapESProducer(edm::ParameterSet const & _config);
+  explicit RPCInverseTwinMuxLinkMapESProducer(edm::ParameterSet const& _config);
 
-    static void fillDescriptions(edm::ConfigurationDescriptions & _descs);
+  static void fillDescriptions(edm::ConfigurationDescriptions& _descs);
 
-    std::shared_ptr<RPCInverseAMCLinkMap> produce(RPCInverseTwinMuxLinkMapRcd const & _rcd);
+  std::shared_ptr<RPCInverseAMCLinkMap> produce(RPCInverseTwinMuxLinkMapRcd const& _rcd);
 
 private:
+  using HostType = edm::ESProductHost<RPCInverseAMCLinkMap, RPCTwinMuxLinkMapRcd>;
 
-    using HostType = edm::ESProductHost<RPCInverseAMCLinkMap,
-                                        RPCTwinMuxLinkMapRcd>;
+  void setupRPCTwinMuxLinkMap(RPCTwinMuxLinkMapRcd const&, RPCInverseAMCLinkMap*);
 
-    void setupRPCTwinMuxLinkMap(RPCTwinMuxLinkMapRcd const&,
-                                RPCInverseAMCLinkMap*);
-
-    edm::ReusableObjectHolder<HostType> holder_;
+  edm::ReusableObjectHolder<HostType> holder_;
 };
 
-#endif // CondTools_RPC_RPCInverseTwinMuxLinkMapESProducer_h
+#endif  // CondTools_RPC_RPCInverseTwinMuxLinkMapESProducer_h

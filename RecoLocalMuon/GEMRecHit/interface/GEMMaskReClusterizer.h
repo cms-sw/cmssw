@@ -8,14 +8,14 @@
 #include "RecoLocalMuon/GEMRecHit/interface/GEMClusterContainer.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
-class GEMMaskReClusterizer
-{
- public :
-   GEMMaskReClusterizer() {};
-   ~GEMMaskReClusterizer() {};
-   GEMClusterContainer doAction(const GEMDetId& id,GEMClusterContainer& initClusters, const EtaPartitionMask& mask) const;
-   bool get(const EtaPartitionMask& mask,int strip) const;
-
+class GEMMaskReClusterizer {
+public:
+  GEMMaskReClusterizer(){};
+  ~GEMMaskReClusterizer(){};
+  GEMClusterContainer doAction(const GEMDetId& id,
+                               GEMClusterContainer& initClusters,
+                               const EtaPartitionMask& mask) const;
+  bool get(const EtaPartitionMask& mask, int strip) const;
 };
 
 #endif

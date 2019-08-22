@@ -14,7 +14,6 @@
     */
 
 class EcalFenixBypassLin {
-
 public:
   EcalFenixBypassLin();
   virtual ~EcalFenixBypassLin();

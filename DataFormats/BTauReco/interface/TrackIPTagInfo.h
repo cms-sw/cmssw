@@ -7,11 +7,10 @@
 #include "DataFormats/BTauReco/interface/IPTagInfo.h"
 
 namespace reco {
-typedef IPTagInfo<TrackRefVector,JTATagInfo> TrackIPTagInfo;
+  typedef IPTagInfo<TrackRefVector, JTATagInfo> TrackIPTagInfo;
 
+  DECLARE_EDM_REFS(TrackIPTagInfo)
 
-DECLARE_EDM_REFS( TrackIPTagInfo )
-
-}
+}  // namespace reco
 
 #endif

@@ -44,11 +44,11 @@
 //#define debug
 //-------------------------------------------------------------------
 FP420SD::FP420SD(const std::string& name,
-                 const DDCompactView& cpv,
+                 const edm::EventSetup& es,
                  const SensitiveDetectorCatalog& clg,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
-    : SensitiveTkDetector(name, cpv, clg, p),
+    : SensitiveTkDetector(name, es, clg, p),
       numberingScheme(nullptr),
       hcID(-1),
       theHC(nullptr),

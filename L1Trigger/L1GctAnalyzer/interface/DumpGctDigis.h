@@ -2,7 +2,7 @@
 //
 // Package:    DumpGctDigis
 // Class:      DumpGctDigis
-// 
+//
 /**\class DumpGctDigis DumpGctDigis.cc L1Trigger/GlobalCaloTrigger/test/DumpGctDigis.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Thu May 18 16:45:23 CEST 2006
 //
 //
-
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -36,9 +35,9 @@ class DumpGctDigis : public edm::EDAnalyzer {
 public:
   explicit DumpGctDigis(const edm::ParameterSet&);
   ~DumpGctDigis() override;
-  
+
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  
+
   void doRctEM(const edm::Event&, const edm::InputTag& label);
   void doEM(const edm::Event&, const edm::InputTag& label);
   void doRegions(const edm::Event&, const edm::InputTag& label);
@@ -46,10 +45,10 @@ public:
   void doInternEM(const edm::Event&, const edm::InputTag& label);
   void doFibres(const edm::Event&, const edm::InputTag& label);
   void doEnergySums(const edm::Event&, const edm::InputTag& label);
-  
+
 private:
   // ----------member data ---------------------------
-  
+
   edm::InputTag rawLabel_;
   edm::InputTag emuRctLabel_;
   edm::InputTag emuGctLabel_;
@@ -68,7 +67,6 @@ private:
   unsigned rctEmMinRank_;
 
   std::ofstream outFile_;
-  
 };
 
 //

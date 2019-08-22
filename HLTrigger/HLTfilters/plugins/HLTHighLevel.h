@@ -28,7 +28,7 @@
 namespace edm {
   class ConfigurationDescriptions;
   class TriggerResults;
-}
+}  // namespace edm
 class AlCaRecoTriggerBitsRcd;
 
 //
@@ -36,57 +36,55 @@ class AlCaRecoTriggerBitsRcd;
 //
 
 class HLTHighLevel : public edm::EDFilter {
+public:
+  explicit HLTHighLevel(const edm::ParameterSet &);
+  ~HLTHighLevel() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-  public:
+  bool filter(edm::Event &, const edm::EventSetup &) override;
 
-    explicit HLTHighLevel(const edm::ParameterSet&);
-    ~HLTHighLevel() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  /// get HLTPaths with key 'key' from EventSetup (AlCaRecoTriggerBitsRcd)
+  std::vector<std::string> pathsFromSetup(const std::string &key,
+                                          const edm::Event &,
+                                          const edm::EventSetup &iSetup) const;
 
-    bool filter(edm::Event&, const edm::EventSetup&) override;
+private:
+  /// initialize the trigger conditions (call this if the trigger paths have changed)
+  void init(const edm::TriggerResults &results,
+            const edm::Event &,
+            const edm::EventSetup &iSetup,
+            const edm::TriggerNames &triggerNames);
 
-    /// get HLTPaths with key 'key' from EventSetup (AlCaRecoTriggerBitsRcd)
-    std::vector<std::string> pathsFromSetup(const std::string &key,
-                                            const edm::Event &,
-					    const edm::EventSetup &iSetup) const;
+  /// HLT TriggerResults EDProduct
+  edm::InputTag inputTag_;
+  edm::EDGetTokenT<edm::TriggerResults> inputToken_;
 
-  private:
-    /// initialize the trigger conditions (call this if the trigger paths have changed)
-    void init(const edm::TriggerResults & results,
-              const edm::Event&,
-              const edm::EventSetup &iSetup,
-              const edm::TriggerNames & triggerNames);
+  /// HLT trigger names
+  edm::ParameterSetID triggerNamesID_;
 
-    /// HLT TriggerResults EDProduct
-    edm::InputTag                         inputTag_;
-    edm::EDGetTokenT<edm::TriggerResults> inputToken_;
+  /// false = and-mode (all requested triggers), true = or-mode (at least one)
+  bool andOr_;
 
-    /// HLT trigger names
-    edm::ParameterSetID triggerNamesID_;
+  /// throw on any requested trigger being unknown
+  bool throw_;
 
-    /// false = and-mode (all requested triggers), true = or-mode (at least one)
-    bool andOr_;
+  /// stolen from HLTFilter
+  std::string const &pathName(const edm::Event &) const;
+  std::string const &moduleLabel() const;
 
-    /// throw on any requested trigger being unknown
-    bool throw_;
+  /// not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
+  const std::string eventSetupPathsKey_;
+  /// Watcher to be created and used if 'eventSetupPathsKey_' non empty:
+  edm::ESWatcher<AlCaRecoTriggerBitsRcd> *watchAlCaRecoTriggerBitsRcd_;
 
-    /// stolen from HLTFilter
-    std::string const & pathName(const edm::Event &) const;
-    std::string const & moduleLabel() const;
+  /// input patterns that will be expanded into trigger names
+  std::vector<std::string> HLTPatterns_;
 
-    /// not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
-    const std::string eventSetupPathsKey_;
-    /// Watcher to be created and used if 'eventSetupPathsKey_' non empty:
-    edm::ESWatcher<AlCaRecoTriggerBitsRcd> *watchAlCaRecoTriggerBitsRcd_;
+  /// list of required HLT triggers by HLT name
+  std::vector<std::string> HLTPathsByName_;
 
-    /// input patterns that will be expanded into trigger names
-    std::vector<std::string>  HLTPatterns_;
-
-    /// list of required HLT triggers by HLT name
-    std::vector<std::string>  HLTPathsByName_;
-
-    /// list of required HLT triggers by HLT index
-    std::vector<unsigned int> HLTPathsByIndex_;
+  /// list of required HLT triggers by HLT index
+  std::vector<unsigned int> HLTPathsByIndex_;
 };
 
-#endif //HLTHighLevel_h
+#endif  //HLTHighLevel_h

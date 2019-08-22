@@ -28,7 +28,6 @@
 //
 
 class DTConfigTester : public edm::EDAnalyzer {
-
 public:
   //! Constructor
   explicit DTConfigTester(const edm::ParameterSet &);

@@ -3,7 +3,7 @@
 
 #include "RecoVertex/LinearizationPointFinders/interface/CrossingPtBasedLinearizationPointFinder.h"
 
-  /** A linearization point finder. It works the following way:
+/** A linearization point finder. It works the following way:
    *  1. Calculate in an optimal way 'n_pairs' different crossing points.
    *     Optimal in this context means the following:
    *     a. Try to use as many different tracks as possible;
@@ -20,14 +20,12 @@
    *  2. Do a LMS on the n points.
    */
 
-class LMSLinearizationPointFinder : public CrossingPtBasedLinearizationPointFinder
-{
+class LMSLinearizationPointFinder : public CrossingPtBasedLinearizationPointFinder {
 public:
-  LMSLinearizationPointFinder( const signed int n_pairs = 10 );
-  LMSLinearizationPointFinder( const RecTracksDistanceMatrix * m,
-      const signed int n_pairs = -1 );
+  LMSLinearizationPointFinder(const signed int n_pairs = 10);
+  LMSLinearizationPointFinder(const RecTracksDistanceMatrix* m, const signed int n_pairs = -1);
 
-  LMSLinearizationPointFinder * clone() const override;
+  LMSLinearizationPointFinder* clone() const override;
 };
 
 #endif

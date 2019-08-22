@@ -4,13 +4,10 @@
 #include "DQM/SiStripCommissioningSummary/interface/CommissioningSummaryFactory.h"
 
 class DaqScopeModeSummaryFactory : public SummaryPlotFactory<CommissioningAnalysis*> {
-  
- protected:
-  
-  void extract( Iterator ) override;
-  
+protected:
+  void extract(Iterator) override;
+
   void format() override;
-  
 };
 
-#endif // DQM_SiStripCommissioningSummary_DaqScopeModeSummaryFactory_H
+#endif  // DQM_SiStripCommissioningSummary_DaqScopeModeSummaryFactory_H

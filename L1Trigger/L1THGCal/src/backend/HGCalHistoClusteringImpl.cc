@@ -12,7 +12,8 @@ HGCalHistoClusteringImpl::HGCalHistoClusteringImpl(const edm::ParameterSet& conf
                                    ? conf.getParameter<std::vector<double>>("dR_multicluster_byLayer_coefficientB")
                                    : std::vector<double>()),
       ptC3dThreshold_(conf.getParameter<double>("minPt_multicluster")),
-      cluster_association_input_(conf.getParameter<string>("cluster_association")) {
+      cluster_association_input_(conf.getParameter<string>("cluster_association")),
+      shape_(conf) {
   if (cluster_association_input_ == "NearestNeighbour") {
     cluster_association_strategy_ = NearestNeighbour;
   } else if (cluster_association_input_ == "EnergySplit") {
@@ -31,9 +32,7 @@ HGCalHistoClusteringImpl::HGCalHistoClusteringImpl(const edm::ParameterSet& conf
 }
 
 float HGCalHistoClusteringImpl::dR(const l1t::HGCalCluster& clu, const GlobalPoint& seed) const {
-  Basic3DVector<float> seed_3dv(seed);
-  GlobalPoint seed_proj(seed_3dv / seed.z());
-  return (seed_proj - clu.centreProj()).mag();
+  return (seed - clu.centreProj()).mag();
 }
 
 std::vector<l1t::HGCalMulticluster> HGCalHistoClusteringImpl::clusterSeedMulticluster(

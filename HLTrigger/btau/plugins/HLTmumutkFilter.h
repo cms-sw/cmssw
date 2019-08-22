@@ -11,23 +11,23 @@ namespace edm {
 // ----------------------------------------------------------------------
 
 class HLTmumutkFilter : public HLTFilter {
-
- public:
-  explicit HLTmumutkFilter(const edm::ParameterSet&);
+public:
+  explicit HLTmumutkFilter(const edm::ParameterSet &);
   ~HLTmumutkFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  bool hltFilter(edm::Event &,
+                 const edm::EventSetup &,
+                 trigger::TriggerFilterObjectWithRefs &filterproduct) const override;
 
- private:
-
-  edm::InputTag                                          muCandTag_;
+private:
+  edm::InputTag muCandTag_;
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> muCandToken_;
-  edm::InputTag                                          trkCandTag_;
+  edm::InputTag trkCandTag_;
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> trkCandToken_;
-  edm::InputTag                                          MuMuTkVertexTag_;
-  edm::EDGetTokenT<reco::VertexCollection>               MuMuTkVertexToken_;
-  edm::InputTag                            				 beamSpotTag_;
-  edm::EDGetTokenT<reco::BeamSpot>         				 beamSpotToken_;
+  edm::InputTag MuMuTkVertexTag_;
+  edm::EDGetTokenT<reco::VertexCollection> MuMuTkVertexToken_;
+  edm::InputTag beamSpotTag_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 
   const double maxEta_;
   const double minPt_;
@@ -36,7 +36,7 @@ class HLTmumutkFilter : public HLTFilter {
   const double minLxySignificance_;
   const double minCosinePointingAngle_;
 
-  static bool triggerdByPreviousLevel(const reco::RecoChargedCandidateRef &, const std::vector<reco::RecoChargedCandidateRef> &);
-
+  static bool triggerdByPreviousLevel(const reco::RecoChargedCandidateRef &,
+                                      const std::vector<reco::RecoChargedCandidateRef> &);
 };
 #endif

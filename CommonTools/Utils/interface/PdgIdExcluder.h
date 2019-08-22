@@ -10,17 +10,18 @@
 #include <algorithm>
 
 struct PdgIdExcluder {
-  explicit PdgIdExcluder( const std::vector<int> & pdgId ) {
+  explicit PdgIdExcluder(const std::vector<int>& pdgId) {
     pdgId_.reserve(pdgId.size());
-    for( int i : pdgId) {
-      pdgId_.push_back( abs( i ) );
+    for (int i : pdgId) {
+      pdgId_.push_back(abs(i));
     }
   }
-  template<typename T>
-  bool operator()( const T & t ) const { 
-    return std::find( pdgId_.begin(), pdgId_.end(), abs( t.pdgId() ) ) == pdgId_.end();
+  template <typename T>
+  bool operator()(const T& t) const {
+    return std::find(pdgId_.begin(), pdgId_.end(), abs(t.pdgId())) == pdgId_.end();
   }
-  private:
+
+private:
   std::vector<int> pdgId_;
 };
 

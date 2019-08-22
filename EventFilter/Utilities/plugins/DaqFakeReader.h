@@ -16,52 +16,43 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include <algorithm>
 
-
-
-class DaqFakeReader : public edm::one::EDProducer<>
-{
- public:
+class DaqFakeReader : public edm::one::EDProducer<> {
+public:
   //
   // construction/destruction
   //
   DaqFakeReader(const edm::ParameterSet& pset);
   ~DaqFakeReader() override;
-  
 
   //
   // public member functions
   //
 
   // Generate and fill FED raw data for a full event
-  virtual int fillRawData(edm::Event& e,
-			  FEDRawDataCollection*& data);
+  virtual int fillRawData(edm::Event& e, FEDRawDataCollection*& data);
 
   void produce(edm::Event&, edm::EventSetup const&) override;
-  
+
 private:
   //
   // private member functions
   //
-  void fillFEDs(const int, const int,
-		edm::EventID& eID,
-		FEDRawDataCollection& data,
-		float meansize,
-		float width);
-  void fillGTPFED(edm::EventID& eID,
-		   FEDRawDataCollection& data,timeval * now);
+  void fillFEDs(const int, const int, edm::EventID& eID, FEDRawDataCollection& data, float meansize, float width);
+  void fillGTPFED(edm::EventID& eID, FEDRawDataCollection& data, timeval* now);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& iL, edm::EventSetup const& iE);
- private:
+
+private:
   //
   // member data
   //
-  edm::RunNumber_t    runNum;
-  edm::EventNumber_t  eventNum;
-  bool                empty_events;
-  unsigned int        meansize; // in bytes
-  unsigned int        width;
-  unsigned int        injected_errors_per_million_events;
-  unsigned int        modulo_error_events;
-  unsigned int        fakeLs_=0;
+  edm::RunNumber_t runNum;
+  edm::EventNumber_t eventNum;
+  bool empty_events;
+  unsigned int meansize;  // in bytes
+  unsigned int width;
+  unsigned int injected_errors_per_million_events;
+  unsigned int modulo_error_events;
+  unsigned int fakeLs_ = 0;
 };
 
 #endif

@@ -2,7 +2,7 @@
 //
 // Package:    RCTConfigTester
 // Class:      RCTConfigTester
-// 
+//
 /**\class RCTConfigTester RCTConfigTester.h L1TriggerConfig/RCTConfigTester/src/RCTConfigTester.cc
 
  Description: <one line class summary>
@@ -45,26 +45,15 @@ using std::endl;
 class L1RCTParametersTester : public edm::EDAnalyzer {
 public:
   explicit L1RCTParametersTester(const edm::ParameterSet&) {}
-   ~L1RCTParametersTester() override {}
-      void analyze(const edm::Event&, const edm::EventSetup&) override;  
-
+  ~L1RCTParametersTester() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 };
 
+void L1RCTParametersTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  edm::ESHandle<L1RCTParameters> rctParam;
+  evSetup.get<L1RCTParametersRcd>().get(rctParam);
 
-
-void L1RCTParametersTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
-{
-  
-
-  edm::ESHandle< L1RCTParameters > rctParam;
-   evSetup.get< L1RCTParametersRcd >().get( rctParam) ;
-
-
-   rctParam->print(std::cout);
-
+  rctParam->print(std::cout);
 }
 
 DEFINE_FWK_MODULE(L1RCTParametersTester);
-
-
-

@@ -12,7 +12,7 @@
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
 class CSCSimHitMatcher : public MuonSimHitMatcher {
- public:
+public:
   // constructor
   CSCSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC);
 
@@ -70,7 +70,7 @@ class CSCSimHitMatcher : public MuonSimHitMatcher {
 
   void camberIdsToString(const std::set<unsigned int>&) const;
 
- private:
+private:
   void matchSimHitsToSimTrack();
 
   edm::ESHandle<CSCGeometry> csc_geom_;

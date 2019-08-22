@@ -17,7 +17,6 @@
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Run.h"
 
@@ -28,24 +27,19 @@
 #include <map>
 #include "TH1F.h"
 
-class TriggerMatchEfficiencyPlotter: public DQMEDHarvester {
-
+class TriggerMatchEfficiencyPlotter : public DQMEDHarvester {
 public:
-
   /// Constructor
   TriggerMatchEfficiencyPlotter(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   ~TriggerMatchEfficiencyPlotter() override;
 
 protected:
-
   /// DQM Client Diagnostic
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
-
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;  //performed in the endJob
 
 private:
-  
   edm::ParameterSet parameters;
 
   std::string triggerhistName1_;

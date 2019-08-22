@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWFromEveSelectorBase
-// 
+//
 /**\class FWFromEveSelectorBase FWFromEveSelectorBase.h Fireworks/Core/interface/FWFromEveSelectorBase.h
 
  Description: Abstract interface for objects carried as 'UserData' in a TEveElement and then used to select the appropriate Fireworks model(s)
@@ -24,29 +24,25 @@
 
 // forward declarations
 
-class FWFromEveSelectorBase
-{
+class FWFromEveSelectorBase {
+public:
+  FWFromEveSelectorBase();
+  virtual ~FWFromEveSelectorBase();
 
-   public:
-      FWFromEveSelectorBase();
-      virtual ~FWFromEveSelectorBase();
+  // ---------- const member functions ---------------------
 
-      // ---------- const member functions ---------------------
+  // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+  // ---------- member functions ---------------------------
+  virtual void doSelect() = 0;
+  virtual void doUnselect() = 0;
 
-      // ---------- member functions ---------------------------
-      virtual void doSelect() = 0;
-      virtual void doUnselect() = 0;
+private:
+  //FWFromEveSelectorBase(const FWFromEveSelectorBase&); // stop default
 
-   private:
-      //FWFromEveSelectorBase(const FWFromEveSelectorBase&); // stop default
+  //const FWFromEveSelectorBase& operator=(const FWFromEveSelectorBase&); // stop default
 
-      //const FWFromEveSelectorBase& operator=(const FWFromEveSelectorBase&); // stop default
-
-      // ---------- member data --------------------------------
-
+  // ---------- member data --------------------------------
 };
-
 
 #endif

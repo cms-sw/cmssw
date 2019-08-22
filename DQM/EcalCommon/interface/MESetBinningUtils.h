@@ -1,7 +1,7 @@
 #ifndef MESetBinningUtils_H
 #define MESetBinningUtils_H
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
 
@@ -155,7 +155,7 @@ namespace ecaldqm {
 
     ObjectType translateObjectType(std::string const &);
     BinningType translateBinningType(std::string const &);
-    MonitorElement::Kind translateKind(std::string const &);
+    dqm::legacy::MonitorElement::Kind translateKind(std::string const &);
 
     /* Functions used only internally within binning namespace */
 

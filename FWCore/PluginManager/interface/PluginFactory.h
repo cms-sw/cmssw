@@ -20,6 +20,7 @@
 
 // system include files
 #include <map>
+#include <memory>
 #include <vector>
 
 // user include files
@@ -42,24 +43,26 @@ namespace edmplugin {
     using CreatedType = R;
 
     struct PMakerBase {
-      virtual R* create(Args...) const = 0;
+      virtual std::unique_ptr<R> create(Args...) const = 0;
       virtual ~PMakerBase() {}
     };
     template <class TPlug>
     struct PMaker : public PMakerBase {
       PMaker(const std::string& iName) { PluginFactory<R*(Args...)>::get()->registerPMaker(this, iName); }
-      R* create(Args... args) const override { return new TPlug(std::forward<Args>(args)...); }
+      std::unique_ptr<R> create(Args... args) const override {
+        return std::make_unique<TPlug>(std::forward<Args>(args)...);
+      }
     };
 
     // ---------- const member functions ---------------------
     const std::string& category() const override;
 
-    R* create(const std::string& iName, Args... args) const {
+    std::unique_ptr<R> create(const std::string& iName, Args... args) const {
       return reinterpret_cast<PMakerBase*>(PluginFactoryBase::findPMaker(iName))->create(std::forward<Args>(args)...);
     }
 
     ///like above but returns 0 if iName is unknown
-    R* tryToCreate(const std::string& iName, Args... args) const {
+    std::unique_ptr<R> tryToCreate(const std::string& iName, Args... args) const {
       auto found = PluginFactoryBase::tryToFindPMaker(iName);
       if (found == nullptr) {
         return nullptr;

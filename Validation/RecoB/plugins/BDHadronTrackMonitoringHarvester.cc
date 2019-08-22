@@ -1,5 +1,9 @@
 #include "Validation/RecoB/plugins/BDHadronTrackMonitoringHarvester.h"
 
+using namespace edm;
+using namespace std;
+using namespace RecoBTag;
+
 // intialize category map
 // std::map<unsigned int, std::string>
 // BDHadronTrackMonitoringAnalyzer::TrkHistCat(map_start_values,

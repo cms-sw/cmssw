@@ -10,30 +10,27 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-class FFTJetCorrectorResult
-{
+class FFTJetCorrectorResult {
 public:
-    typedef math::XYZTLorentzVector LorentzVector;
+  typedef math::XYZTLorentzVector LorentzVector;
 
-    inline FFTJetCorrectorResult(const LorentzVector& v,
-                                 const double correctionScale,
-                                 const double systematicUncertainty)
-        : vec_(v), scale_(correctionScale), sigma_(systematicUncertainty) {}
+  inline FFTJetCorrectorResult(const LorentzVector& v, const double correctionScale, const double systematicUncertainty)
+      : vec_(v), scale_(correctionScale), sigma_(systematicUncertainty) {}
 
-    inline const LorentzVector& vec() const {return vec_;}
-    inline double scale() const {return scale_;}
-    inline double sigma() const {return sigma_;}
+  inline const LorentzVector& vec() const { return vec_; }
+  inline double scale() const { return scale_; }
+  inline double sigma() const { return sigma_; }
 
-    inline void setVec(const LorentzVector& v) {vec_ = v;}
-    inline void setScale(const double s) {scale_ = s;}
-    inline void setSigma(const double s) {sigma_ = s;}
+  inline void setVec(const LorentzVector& v) { vec_ = v; }
+  inline void setScale(const double s) { scale_ = s; }
+  inline void setSigma(const double s) { sigma_ = s; }
 
 private:
-    FFTJetCorrectorResult() = delete;
+  FFTJetCorrectorResult() = delete;
 
-    LorentzVector vec_;
-    double scale_;
-    double sigma_;
+  LorentzVector vec_;
+  double scale_;
+  double sigma_;
 };
 
-#endif // JetMETCorrections_FFTJetObjects_FFTJetCorrectorResult_h
+#endif  // JetMETCorrections_FFTJetObjects_FFTJetCorrectorResult_h

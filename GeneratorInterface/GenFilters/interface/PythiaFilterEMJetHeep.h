@@ -32,66 +32,63 @@ namespace edm {
 }
 
 class PythiaFilterEMJetHeep : public edm::EDFilter {
-   public:
-      explicit PythiaFilterEMJetHeep(const edm::ParameterSet&);
-      ~PythiaFilterEMJetHeep() override;
+public:
+  explicit PythiaFilterEMJetHeep(const edm::ParameterSet&);
+  ~PythiaFilterEMJetHeep() override;
 
-      double deltaR(double eta0, double phi0, double eta, double phi);
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void beginJob() override;
-      void endJob() override;
+  double deltaR(double eta0, double phi0, double eta, double phi);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
 
+private:
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
+  //
+  double minEventPt;
+  double etaMax;
+  double cone_clust;
+  double cone_iso;
+  unsigned int nPartMin;
+  double drMin;
+  //
+  double ptSeedMin_EB;
+  double fracConePtMin_EB;
+  double ptHdMax_EB;
+  double fracEmPtMin_EB;
+  //       double fracHdPtMax_EB;
+  double fracTrkPtMax_EB;
+  unsigned int ntrkMax_EB;
+  double isoConeMax_EB;
+  //
+  double ptSeedMin_EE;
+  double fracConePtMin_EE;
+  double ptHdMax_EE;
+  double fracEmPtMin_EE;
+  //       double fracHdPtMax_EE;
+  double fracTrkPtMax_EE;
+  unsigned int ntrkMax_EE;
+  double isoConeMax_EE;
 
-   private:
-      
-       edm::EDGetTokenT<edm::HepMCProduct> token_;
-       //
-       double minEventPt;
-       double etaMax;
-       double cone_clust;
-       double cone_iso;
-       unsigned int nPartMin;
-       double drMin;
-       //
-       double ptSeedMin_EB;    
-       double fracConePtMin_EB;
-       double ptHdMax_EB;
-       double fracEmPtMin_EB;
-//       double fracHdPtMax_EB;
-       double fracTrkPtMax_EB;
-       unsigned int ntrkMax_EB;       
-       double isoConeMax_EB;   
-       //
-       double ptSeedMin_EE;    
-       double fracConePtMin_EE;
-       double ptHdMax_EE;
-       double fracEmPtMin_EE;
-//       double fracHdPtMax_EE;
-       double fracTrkPtMax_EE;
-       unsigned int ntrkMax_EE;       
-       double isoConeMax_EE;   
+  //
+  int eventsProcessed;
 
-// 
-       int eventsProcessed; 
+  int theNumberOfSelected;
+  int maxnumberofeventsinrun;
+  std::string outputFile_;
 
-       int theNumberOfSelected;
-       int maxnumberofeventsinrun;
-       std::string outputFile_;
+  float pt_photon;
+  float setCone_iso;
+  float setCone_clust;
+  float setEM;
+  //       float setHAD;
+  float setCharged;
+  int Ncharged;
+  float ptMaxHadron;
 
-       float pt_photon;
-       float setCone_iso;
-       float setCone_clust;
-       float setEM;
-//       float setHAD;
-       float setCharged;
-       int Ncharged;
-       float ptMaxHadron;
+  bool minbias;
 
-       bool minbias;
+  bool accepted;
 
-       bool accepted;       
-    
-       bool debug;
-   
+  bool debug;
 };
 #endif

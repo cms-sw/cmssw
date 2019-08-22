@@ -44,7 +44,6 @@
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 //
 
-
 /**
     @file Defaults_Text.h
     @brief Define a concrete interface for getting parameter settings from
@@ -72,14 +71,11 @@
 #include <iosfwd>
 #include "TopQuarkAnalysis/TopHitFit/interface/Defaults.h"
 
-
 namespace hitfit {
 
+  class Defaults_Textrep;
 
-class Defaults_Textrep;
-
-
-/**
+  /**
     @brief A lightweight implementation of the Defaults interface that
     uses simple ASCII text files.
 
@@ -118,25 +114,24 @@ class Defaults_Textrep;
     <i>name</i> = <b>0</b>.
 
  */
-class Defaults_Text
-  : public Defaults
-//
-// Purpose: A lightweight implementation of the Defaults interface
-//          that uses simple text files.
-//
-{
-public:
-  // Constructor, destructor.
+  class Defaults_Text : public Defaults
+  //
+  // Purpose: A lightweight implementation of the Defaults interface
+  //          that uses simple text files.
+  //
+  {
+  public:
+    // Constructor, destructor.
 
-  /**
+    /**
      @brief Constructor, create a Default_Text object from an ASCII text
      file. Pass an empty string to skip reading a file.
      @param def_file The ASCII text file to read.  Pass an empty string
      to skip reading a file.
    */
-  Defaults_Text (std::string def_file);
+    Defaults_Text(std::string def_file);
 
-  /**
+    /**
      @brief Constructor, create a Default_Text object from an ASCII text
      file and argument list.
      @param def_file The ASCII text file to read.  Pass an empty string
@@ -144,62 +139,62 @@ public:
      @param argc The length of the argument list.
      @param argv The argument list.
    */
-  Defaults_Text (std::string def_file, int argc, char** argv);
+    Defaults_Text(std::string def_file, int argc, char** argv);
 
-  /**
+    /**
     @brief Destructor.
   */
-  ~Defaults_Text () override;
+    ~Defaults_Text() override;
 
-  // Test to see if parameter NAME exists.
-  /**
+    // Test to see if parameter NAME exists.
+    /**
      Test to see if parameter <i>name</i> exists.
      @param name The name of the parameter.
      @par Return:
      <b>true</b> if the parameter exists.<br>
      <b>false</b> if the parameter does not exist.<br>
    */
-  bool exists (std::string name) const override;
+    bool exists(std::string name) const override;
 
-  // Get the value of NAME as an integer.
-  /**
+    // Get the value of NAME as an integer.
+    /**
      Get the value of <i>name</i> as integer.
      @param name The name of the parameter.
      @par Return:
      The value of the parameter an integer (C/C++ int).
    */
-  int get_int (std::string name) const override;
+    int get_int(std::string name) const override;
 
-  // Get the value of NAME as a boolean.
-  /**
+    // Get the value of NAME as a boolean.
+    /**
      Get the value of <i>name</i> as boolean.
      @param name The name of the parameter.
      @par Return:
      The value of the parameter a C/C++ bool.
    */
-  bool get_bool (std::string name) const override;
+    bool get_bool(std::string name) const override;
 
-  // Get the value of NAME as a float.
-  /**
+    // Get the value of NAME as a float.
+    /**
      Get the value of <i>name</i> as a floating-point of
      type double.
      @param name The name of the parameter.
      @par Return:
      The value of the parameter as a floating-point number (C/C++ double).
   */
-  double get_float (std::string name) const override;
+    double get_float(std::string name) const override;
 
-  // Get the value of NAME as a string.
-  /**
+    // Get the value of NAME as a string.
+    /**
      Get the value of <i>name</i> as a string.
      @param name The name of the parameter.
      @par Return:
      The value of the parameter as a string.
    */
-  std::string get_string (std::string name) const override;
+    std::string get_string(std::string name) const override;
 
-  // Dump out all parameters.
-  /**
+    // Dump out all parameters.
+    /**
      Output stream operator.  Print out all parameters' names and their
      values.
      @param s The output stream to write.
@@ -207,18 +202,16 @@ public:
      @par Return:
      The output stream <i>s</i>
    */
-  friend std::ostream& operator<< (std::ostream& s, const Defaults_Text& def);
+    friend std::ostream& operator<<(std::ostream& s, const Defaults_Text& def);
 
-private:
-  // The internal representation.
-  /**
+  private:
+    // The internal representation.
+    /**
      The internal representation.
    */
-  Defaults_Textrep* _rep;
-};
+    Defaults_Textrep* _rep;
+  };
 
+}  // namespace hitfit
 
-} // namespace hitfit
-
-
-#endif // not HITFIT_DEFAULTS_TEXT_H
+#endif  // not HITFIT_DEFAULTS_TEXT_H

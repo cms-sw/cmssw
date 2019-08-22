@@ -27,39 +27,41 @@
 // forward declarations
 namespace edm {
 
-//   typedef unsigned int LuminosityBlockNumber_t;
+  //   typedef unsigned int LuminosityBlockNumber_t;
 
   class LuminosityBlockRange {
-    public:
-      LuminosityBlockRange();
+  public:
+    LuminosityBlockRange();
 
-      LuminosityBlockRange(RunNumber_t startRun, LuminosityBlockNumber_t startLuminosityBlock,
-                           RunNumber_t endRun,   LuminosityBlockNumber_t endLuminosityBlock);
+    LuminosityBlockRange(RunNumber_t startRun,
+                         LuminosityBlockNumber_t startLuminosityBlock,
+                         RunNumber_t endRun,
+                         LuminosityBlockNumber_t endLuminosityBlock);
 
-      LuminosityBlockRange(LuminosityBlockID const& begin, LuminosityBlockID const& end);
+    LuminosityBlockRange(LuminosityBlockID const& begin, LuminosityBlockID const& end);
 
-      //virtual ~LuminosityBlockID();
+    //virtual ~LuminosityBlockID();
 
-      // ---------- const member functions ---------------------
-      LuminosityBlockID     startLumiID() const {return startLumiID_;}
-      LuminosityBlockID       endLumiID() const {return endLumiID_;}
-      RunNumber_t              startRun() const {return startLumiID_.run();}
-      RunNumber_t                endRun() const {return endLumiID_.run();}
-      LuminosityBlockNumber_t startLumi() const {return startLumiID_.luminosityBlock();}
-      LuminosityBlockNumber_t   endLumi() const {return endLumiID_.luminosityBlock();}
+    // ---------- const member functions ---------------------
+    LuminosityBlockID startLumiID() const { return startLumiID_; }
+    LuminosityBlockID endLumiID() const { return endLumiID_; }
+    RunNumber_t startRun() const { return startLumiID_.run(); }
+    RunNumber_t endRun() const { return endLumiID_.run(); }
+    LuminosityBlockNumber_t startLumi() const { return startLumiID_.luminosityBlock(); }
+    LuminosityBlockNumber_t endLumi() const { return endLumiID_.luminosityBlock(); }
 
-      // ---------- static functions ---------------------------
+    // ---------- static functions ---------------------------
 
-      // ---------- member functions ---------------------------
+    // ---------- member functions ---------------------------
 
-    private:
-      // ---------- member data --------------------------------
-      //RunNumber_t             startRun_;
-      //RunNumber_t             endRun_;
-      //LuminosityBlockNumber_t startLumi_;
-      //LuminosityBlockNumber_t endLumi_;
-      LuminosityBlockID       startLumiID_;
-      LuminosityBlockID       endLumiID_;
+  private:
+    // ---------- member data --------------------------------
+    //RunNumber_t             startRun_;
+    //RunNumber_t             endRun_;
+    //LuminosityBlockNumber_t startLumi_;
+    //LuminosityBlockNumber_t endLumi_;
+    LuminosityBlockID startLumiID_;
+    LuminosityBlockID endLumiID_;
   };
 
   std::ostream& operator<<(std::ostream& oStream, LuminosityBlockRange const& iID);
@@ -70,6 +72,5 @@ namespace edm {
   bool distinct(LuminosityBlockRange const& lh, LuminosityBlockRange const& rh);
   bool merge(LuminosityBlockRange& lh, LuminosityBlockRange& rh);
   std::vector<LuminosityBlockRange>& sortAndRemoveOverlaps(std::vector<LuminosityBlockRange>& lumiRange);
-}
+}  // namespace edm
 #endif
-

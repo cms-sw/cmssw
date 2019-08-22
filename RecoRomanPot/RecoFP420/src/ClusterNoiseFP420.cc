@@ -2,17 +2,15 @@
 // File: ClusterNoiseFP420.cc
 // Date: 12.2006
 // Description: ClusterNoiseFP420 for FP420
-// Modifications: 
+// Modifications:
 ///////////////////////////////////////////////////////////////////////////////
 #include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
 using namespace std;
 
-ClusterNoiseFP420::ClusterNoiseFP420(){}
-ClusterNoiseFP420::~ClusterNoiseFP420(){}
+ClusterNoiseFP420::ClusterNoiseFP420() {}
+ClusterNoiseFP420::~ClusterNoiseFP420() {}
 
-
-
-	      //   for case of access from DB
+//   for case of access from DB
 /*
 
 const std::vector<ClusterNoiseFP420::ElectrodData> & ClusterNoiseFP420::getElectrodNoiseVector(const uint32_t & DetId) const {

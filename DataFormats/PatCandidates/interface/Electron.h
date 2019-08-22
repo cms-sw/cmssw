@@ -17,7 +17,6 @@
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
 */
 
-
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
@@ -35,354 +34,348 @@
 // Define typedefs for convenience
 namespace pat {
   class Electron;
-  typedef std::vector<Electron>              ElectronCollection;
-  typedef edm::Ref<ElectronCollection>       ElectronRef;
+  typedef std::vector<Electron> ElectronCollection;
+  typedef edm::Ref<ElectronCollection> ElectronRef;
   typedef edm::RefVector<ElectronCollection> ElectronRefVector;
-}
+}  // namespace pat
 
 namespace reco {
   /// pipe operator (introduced to use pat::Electron with PFTopProjectors)
   std::ostream& operator<<(std::ostream& out, const pat::Electron& obj);
-}
+}  // namespace reco
 
 // Class definition
 namespace pat {
   class PATElectronSlimmer;
 
   class Electron : public Lepton<reco::GsfElectron> {
+  public:
+    typedef std::pair<std::string, float> IdPair;
 
-    public:
+    /// default constructor
+    Electron();
+    /// constructor from reco::GsfElectron
+    Electron(const reco::GsfElectron& anElectron);
+    /// constructor from a RefToBase to a reco::GsfElectron (to be superseded by Ptr counterpart)
+    Electron(const edm::RefToBase<reco::GsfElectron>& anElectronRef);
+    /// constructor from a Ptr to a reco::GsfElectron
+    Electron(const edm::Ptr<reco::GsfElectron>& anElectronRef);
+    /// destructor
+    ~Electron() override;
 
-      typedef std::pair<std::string,float> IdPair;
+    /// required reimplementation of the Candidate's clone method
+    Electron* clone() const override { return new Electron(*this); }
 
-      /// default constructor
-      Electron();
-      /// constructor from reco::GsfElectron
-      Electron(const reco::GsfElectron & anElectron);
-      /// constructor from a RefToBase to a reco::GsfElectron (to be superseded by Ptr counterpart)
-      Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef);
-      /// constructor from a Ptr to a reco::GsfElectron
-      Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef);
-      /// destructor
-      ~Electron() override;
+    // ---- methods for content embedding ----
+    /// override the virtual reco::GsfElectron::core method, so that the embedded core can be used by GsfElectron client methods
+    reco::GsfElectronCoreRef core() const override;
+    /// override the reco::GsfElectron::gsfTrack method, to access the internal storage of the supercluster
+    reco::GsfTrackRef gsfTrack() const override;
+    /// override the reco::GsfElectron::superCluster method, to access the internal storage of the supercluster
+    reco::SuperClusterRef superCluster() const override;
+    /// override the reco::GsfElectron::pflowSuperCluster method, to access the internal storage of the pflowSuperCluster
+    reco::SuperClusterRef parentSuperCluster() const override;
+    /// returns nothing. Use either gsfTrack or closestCtfTrack
+    reco::TrackRef track() const override;
+    /// override the reco::GsfElectron::closestCtfTrackRef method, to access the internal storage of the track
+    reco::TrackRef closestCtfTrackRef() const override;
+    /// direct access to the seed cluster
+    reco::CaloClusterPtr seed() const;
 
-      /// required reimplementation of the Candidate's clone method
-      Electron * clone() const override { return new Electron(*this); }
+    //method to access the basic clusters
+    const std::vector<reco::CaloCluster>& basicClusters() const { return basicClusters_; }
+    //method to access the preshower clusters
+    const std::vector<reco::CaloCluster>& preshowerClusters() const { return preshowerClusters_; }
+    //method to access the pflow basic clusters
+    const std::vector<reco::CaloCluster>& pflowBasicClusters() const { return pflowBasicClusters_; }
+    //method to access the pflow preshower clusters
+    const std::vector<reco::CaloCluster>& pflowPreshowerClusters() const { return pflowPreshowerClusters_; }
 
-      // ---- methods for content embedding ----
-      /// override the virtual reco::GsfElectron::core method, so that the embedded core can be used by GsfElectron client methods
-      reco::GsfElectronCoreRef core() const override;
-      /// override the reco::GsfElectron::gsfTrack method, to access the internal storage of the supercluster
-      reco::GsfTrackRef gsfTrack() const override;
-      /// override the reco::GsfElectron::superCluster method, to access the internal storage of the supercluster
-      reco::SuperClusterRef superCluster() const override;
-      /// override the reco::GsfElectron::pflowSuperCluster method, to access the internal storage of the pflowSuperCluster
-      reco::SuperClusterRef parentSuperCluster() const override;
-      /// returns nothing. Use either gsfTrack or closestCtfTrack
-      reco::TrackRef track() const override;
-      /// override the reco::GsfElectron::closestCtfTrackRef method, to access the internal storage of the track
-      reco::TrackRef closestCtfTrackRef() const override;
-      /// direct access to the seed cluster
-      reco::CaloClusterPtr seed() const; 
+    using reco::RecoCandidate::track;  // avoid hiding the base implementation
+    /// method to store the electron's core internally
+    void embedGsfElectronCore();
+    /// method to store the electron's GsfTrack internally
+    void embedGsfTrack();
+    /// method to store the electron's SuperCluster internally
+    void embedSuperCluster();
+    /// method to store the electron's PflowSuperCluster internally
+    void embedPflowSuperCluster();
+    /// method to store the electron's seedcluster internally
+    void embedSeedCluster();
+    /// method to store the electron's basic clusters
+    void embedBasicClusters();
+    /// method to store the electron's preshower clusters
+    void embedPreshowerClusters();
+    /// method to store the electron's pflow basic clusters
+    void embedPflowBasicClusters();
+    /// method to store the electron's pflow preshower clusters
+    void embedPflowPreshowerClusters();
+    /// method to store the electron's Track internally
+    void embedTrack();
+    /// method to store the RecHits internally - can be called from the PATElectronProducer
+    void embedRecHits(const EcalRecHitCollection* rechits);
 
-      //method to access the basic clusters
-      const std::vector<reco::CaloCluster>& basicClusters() const { return basicClusters_ ; }
-      //method to access the preshower clusters
-      const std::vector<reco::CaloCluster>& preshowerClusters() const { return preshowerClusters_ ; }
-      //method to access the pflow basic clusters
-      const std::vector<reco::CaloCluster>& pflowBasicClusters() const { return pflowBasicClusters_ ; }
-      //method to access the pflow preshower clusters
-      const std::vector<reco::CaloCluster>& pflowPreshowerClusters() const { return pflowPreshowerClusters_ ; }
+    // ---- methods for electron ID ----
+    /// Returns a specific electron ID associated to the pat::Electron given its name
+    // For cut-based IDs, the value map has the following meaning:
+    // 0: fails,
+    // 1: passes electron ID only,
+    // 2: passes electron Isolation only,
+    // 3: passes electron ID and Isolation only,
+    // 4: passes conversion rejection,
+    // 5: passes conversion rejection and ID,
+    // 6: passes conversion rejection and Isolation,
+    // 7: passes the whole selection.
+    // For more details have a look at:
+    // https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
+    // https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCategoryBasedElectronID
+    // Note: an exception is thrown if the specified ID is not available
+    float electronID(const std::string& name) const;
+    float electronID(const char* name) const { return electronID(std::string(name)); }
+    /// Returns true if a specific ID is available in this pat::Electron
+    bool isElectronIDAvailable(const std::string& name) const;
+    bool isElectronIDAvailable(const char* name) const { return isElectronIDAvailable(std::string(name)); }
+    /// Returns all the electron IDs in the form of <name,value> pairs. The 'default' ID is the first in the list
+    const std::vector<IdPair>& electronIDs() const { return electronIDs_; }
+    /// Store multiple electron ID values, discarding existing ones. The first one in the list becomes the 'default' electron id
+    void setElectronIDs(const std::vector<IdPair>& ids) { electronIDs_ = ids; }
 
-      using reco::RecoCandidate::track; // avoid hiding the base implementation
-      /// method to store the electron's core internally
-      void embedGsfElectronCore();
-      /// method to store the electron's GsfTrack internally
-      void embedGsfTrack();
-      /// method to store the electron's SuperCluster internally
-      void embedSuperCluster();
-      /// method to store the electron's PflowSuperCluster internally
-      void embedPflowSuperCluster();
-      /// method to store the electron's seedcluster internally
-      void embedSeedCluster();
-      /// method to store the electron's basic clusters
-      void embedBasicClusters();
-      /// method to store the electron's preshower clusters
-      void embedPreshowerClusters();
-      /// method to store the electron's pflow basic clusters
-      void embedPflowBasicClusters();
-      /// method to store the electron's pflow preshower clusters
-      void embedPflowPreshowerClusters();
-      /// method to store the electron's Track internally
-      void embedTrack();
-      /// method to store the RecHits internally - can be called from the PATElectronProducer
-      void embedRecHits(const EcalRecHitCollection * rechits); 
+    // ---- overload of isolation functions ----
+    /// Overload of pat::Lepton::trackIso(); returns the value of the summed track pt in a cone of deltaR<0.4
+    float trackIso() const { return dr04TkSumPt(); }
+    /// Overload of pat::Lepton::ecalIso(); returns the value of the summed Et of all recHits in the ecal in a cone of deltaR<0.4
+    float ecalIso() const { return dr04EcalRecHitSumEt(); }
+    /// Overload of pat::Lepton::hcalIso(); returns the value of the summed Et of all caloTowers in the hcal in a cone of deltaR<0.4
+    float hcalIso() const { return dr04HcalTowerSumEt(); }
+    /// Overload of pat::Lepton::caloIso(); returns the sum of ecalIso() and hcalIso
+    float caloIso() const { return ecalIso() + hcalIso(); }
+    /// returns PUPPI isolations
+    float puppiChargedHadronIso() const { return puppiChargedHadronIso_; }
+    float puppiNeutralHadronIso() const { return puppiNeutralHadronIso_; }
+    float puppiPhotonIso() const { return puppiPhotonIso_; }
+    /// returns PUPPINoLeptons isolations
+    float puppiNoLeptonsChargedHadronIso() const { return puppiNoLeptonsChargedHadronIso_; }
+    float puppiNoLeptonsNeutralHadronIso() const { return puppiNoLeptonsNeutralHadronIso_; }
+    float puppiNoLeptonsPhotonIso() const { return puppiNoLeptonsPhotonIso_; }
+    /// sets PUPPI isolations
+    void setIsolationPUPPI(float chargedhadrons_, float neutralhadrons_, float photons_) {
+      puppiChargedHadronIso_ = chargedhadrons_;
+      puppiNeutralHadronIso_ = neutralhadrons_;
+      puppiPhotonIso_ = photons_;
+    }
+    /// sets PUPPINoLeptons isolations
+    void setIsolationPUPPINoLeptons(float chargedhadrons_, float neutralhadrons_, float photons_) {
+      puppiNoLeptonsChargedHadronIso_ = chargedhadrons_;
+      puppiNoLeptonsNeutralHadronIso_ = neutralhadrons_;
+      puppiNoLeptonsPhotonIso_ = photons_;
+    }
+    // ---- PF specific methods ----
+    bool isPF() const { return isPF_; }
+    void setIsPF(bool hasPFCandidate) { isPF_ = hasPFCandidate; }
 
-      // ---- methods for electron ID ----
-      /// Returns a specific electron ID associated to the pat::Electron given its name
-      // For cut-based IDs, the value map has the following meaning:
-      // 0: fails,
-      // 1: passes electron ID only,
-      // 2: passes electron Isolation only,
-      // 3: passes electron ID and Isolation only,
-      // 4: passes conversion rejection,
-      // 5: passes conversion rejection and ID,
-      // 6: passes conversion rejection and Isolation,
-      // 7: passes the whole selection.
-      // For more details have a look at:
-      // https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-      // https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCategoryBasedElectronID
-      // Note: an exception is thrown if the specified ID is not available
-      float electronID(const std::string& name) const;
-      float electronID(const char* name) const { return electronID( std::string(name) );}
-      /// Returns true if a specific ID is available in this pat::Electron
-      bool isElectronIDAvailable(const std::string& name) const;
-      bool isElectronIDAvailable(const char* name) const {
-	return isElectronIDAvailable(std::string(name));
-      }
-      /// Returns all the electron IDs in the form of <name,value> pairs. The 'default' ID is the first in the list
-      const std::vector<IdPair> &  electronIDs() const { return electronIDs_; }
-      /// Store multiple electron ID values, discarding existing ones. The first one in the list becomes the 'default' electron id
-      void setElectronIDs(const std::vector<IdPair> & ids) { electronIDs_ = ids; }
+    /// reference to the source PFCandidates; null if this has been built from a standard electron
+    reco::PFCandidateRef pfCandidateRef() const;
+    /// add a reference to the source IsolatedPFCandidate
+    void setPFCandidateRef(const reco::PFCandidateRef& ref) { pfCandidateRef_ = ref; }
+    /// embed the PFCandidate pointed to by pfCandidateRef_
+    void embedPFCandidate();
+    /// get the number of non-null PFCandidates
+    size_t numberOfSourceCandidatePtrs() const override {
+      return (pfCandidateRef_.isNonnull() ? 1 : 0) + associatedPackedFCandidateIndices_.size();
+    }
+    /// get the source candidate pointer with index i
+    reco::CandidatePtr sourceCandidatePtr(size_type i) const override;
 
-      // ---- overload of isolation functions ----
-      /// Overload of pat::Lepton::trackIso(); returns the value of the summed track pt in a cone of deltaR<0.4
-      float trackIso() const { return dr04TkSumPt(); }
-      /// Overload of pat::Lepton::ecalIso(); returns the value of the summed Et of all recHits in the ecal in a cone of deltaR<0.4
-      float ecalIso()  const { return dr04EcalRecHitSumEt(); }
-      /// Overload of pat::Lepton::hcalIso(); returns the value of the summed Et of all caloTowers in the hcal in a cone of deltaR<0.4
-      float hcalIso()  const { return dr04HcalTowerSumEt(); }
-      /// Overload of pat::Lepton::caloIso(); returns the sum of ecalIso() and hcalIso
-      float caloIso()  const { return ecalIso()+hcalIso(); }
-      /// returns PUPPI isolations			
-      float puppiChargedHadronIso() const {return puppiChargedHadronIso_; }
-      float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; }
-      float puppiPhotonIso() const {return puppiPhotonIso_; }
-      /// returns PUPPINoLeptons isolations
-      float puppiNoLeptonsChargedHadronIso() const {return puppiNoLeptonsChargedHadronIso_; }
-      float puppiNoLeptonsNeutralHadronIso() const {return puppiNoLeptonsNeutralHadronIso_; }
-      float puppiNoLeptonsPhotonIso() const {return puppiNoLeptonsPhotonIso_; }
-      /// sets PUPPI isolations
-      void setIsolationPUPPI(float chargedhadrons_, float neutralhadrons_, float photons_)
-      {  
-         puppiChargedHadronIso_ = chargedhadrons_;
-         puppiNeutralHadronIso_ = neutralhadrons_;
-         puppiPhotonIso_ = photons_;
+    // ---- embed various impact parameters with errors ----
+    typedef enum IPTYPE { PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, PVDZ = 4, IpTypeSize = 5 } IpType;
+    /// Impact parameter wrt primary vertex or beamspot
+    double dB(IPTYPE type) const;
+    /// Uncertainty on the corresponding impact parameter
+    double edB(IPTYPE type) const;
+    /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
+    double dB() const { return std::abs(dB(PV2D)); }
+    /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
+    double edB() const { return std::abs(edB(PV2D)); }
+    /// Set impact parameter of a certain type and its uncertainty
+    void setDB(double dB, double edB, IPTYPE type);
 
-      }
-      /// sets PUPPINoLeptons isolations
-      void setIsolationPUPPINoLeptons(float chargedhadrons_, float neutralhadrons_, float photons_)
-      {  
-         puppiNoLeptonsChargedHadronIso_ = chargedhadrons_;
-         puppiNoLeptonsNeutralHadronIso_ = neutralhadrons_;
-         puppiNoLeptonsPhotonIso_ = photons_;
+    // ---- Momentum estimate specific methods ----
+    const LorentzVector& ecalDrivenMomentum() const { return ecalDrivenMomentum_; }
+    void setEcalDrivenMomentum(const Candidate::LorentzVector& mom) { ecalDrivenMomentum_ = mom; }
 
-      }
-      // ---- PF specific methods ----
-      bool isPF() const{ return isPF_; }
-      void setIsPF(bool hasPFCandidate) { isPF_ = hasPFCandidate ; }
+    /// pipe operator (introduced to use pat::Electron with PFTopProjectors)
+    friend std::ostream& reco::operator<<(std::ostream& out, const pat::Electron& obj);
 
-      /// reference to the source PFCandidates; null if this has been built from a standard electron
-      reco::PFCandidateRef pfCandidateRef() const;
-      /// add a reference to the source IsolatedPFCandidate
-      void setPFCandidateRef(const reco::PFCandidateRef& ref) {
-        pfCandidateRef_ = ref;
-      }
-      /// embed the PFCandidate pointed to by pfCandidateRef_
-      void embedPFCandidate();
-      /// get the number of non-null PFCandidates
-      size_t numberOfSourceCandidatePtrs() const override {
-        return (pfCandidateRef_.isNonnull() ? 1 : 0) + associatedPackedFCandidateIndices_.size();
-      }
-      /// get the source candidate pointer with index i
-      reco::CandidatePtr sourceCandidatePtr( size_type i ) const override;
+    /// additional mva input variables
+    /// sigmaIEtaIPhi
+    float sigmaIetaIphi() const { return sigmaIetaIphi_; }
+    /// sigmaIEtaIPhi (from full 5x5 non-ZS clusters without fractions, a la 5.3.X)
+    float full5x5_sigmaIetaIphi() const { return full5x5_sigmaIetaIphi_; }
+    /// ip3d
+    double ip3d() const { return ip3d_; }
+    /// set missing mva input variables
+    void setMvaVariables(double sigmaIetaIphi, double ip3d);
+    void full5x5_setSigmaIetaIphi(float sigmaIetaIphi) { full5x5_sigmaIetaIphi_ = sigmaIetaIphi; }
 
-      // ---- embed various impact parameters with errors ----
-      typedef enum IPTYPE { PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, PVDZ = 4, IpTypeSize = 5 } IpType;
-      /// Impact parameter wrt primary vertex or beamspot
-      double dB(IPTYPE type) const;
-      /// Uncertainty on the corresponding impact parameter
-      double edB(IPTYPE type) const;
-      /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
-      double dB() const { return std::abs(dB(PV2D)); }
-      /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
-      double edB() const { return std::abs(edB(PV2D)); }
-      /// Set impact parameter of a certain type and its uncertainty
-      void setDB(double dB, double edB, IPTYPE type);
+    const EcalRecHitCollection* recHits() const { return &recHits_; }
 
-      // ---- Momentum estimate specific methods ----
-      const LorentzVector & ecalDrivenMomentum() const {return ecalDrivenMomentum_;}
-      void setEcalDrivenMomentum(const Candidate::LorentzVector& mom) {ecalDrivenMomentum_=mom;}
+    /// additional regression variables
+    /// regression1
+    double ecalRegressionEnergy() const { return ecalRegressionEnergy_; }
+    double ecalRegressionError() const { return ecalRegressionError_; }
+    /// regression2
+    double ecalTrackRegressionEnergy() const { return ecalTrackRegressionEnergy_; }
+    double ecalTrackRegressionError() const { return ecalTrackRegressionError_; }
+    /// set regression1
+    void setEcalRegressionEnergy(double val, double err) {
+      ecalRegressionEnergy_ = val;
+      ecalRegressionError_ = err;
+    }
+    /// set regression2
+    void setEcalTrackRegressionEnergy(double val, double err) {
+      ecalTrackRegressionEnergy_ = val;
+      ecalTrackRegressionError_ = err;
+    }
 
-      /// pipe operator (introduced to use pat::Electron with PFTopProjectors)
-      friend std::ostream& reco::operator<<(std::ostream& out, const pat::Electron& obj);
+    /// set scale corrections / smearings
+    void setEcalScale(double val) { ecalScale_ = val; }
+    void setEcalSmear(double val) { ecalSmear_ = val; }
+    void setEcalRegressionScale(double val) { ecalRegressionScale_ = val; }
+    void setEcalRegressionSmear(double val) { ecalRegressionSmear_ = val; }
+    void setEcalTrackRegressionScale(double val) { ecalTrackRegressionScale_ = val; }
+    void setEcalTrackRegressionSmear(double val) { ecalTrackRegressionSmear_ = val; }
 
-      /// additional mva input variables
-      /// sigmaIEtaIPhi
-      float sigmaIetaIphi() const { return sigmaIetaIphi_; }
-      /// sigmaIEtaIPhi (from full 5x5 non-ZS clusters without fractions, a la 5.3.X)
-      float full5x5_sigmaIetaIphi() const { return full5x5_sigmaIetaIphi_; }
-      /// ip3d
-      double ip3d() const { return ip3d_; }
-      /// set missing mva input variables
-      void setMvaVariables( double sigmaIetaIphi, double ip3d );
-      void full5x5_setSigmaIetaIphi(float sigmaIetaIphi) { full5x5_sigmaIetaIphi_ = sigmaIetaIphi; }
+    /// get scale corrections /smearings
+    double ecalScale() const { return ecalScale_; }
+    double ecalSmear() const { return ecalSmear_; }
+    double ecalRegressionScale() const { return ecalRegressionScale_; }
+    double ecalRegressionSmear() const { return ecalRegressionSmear_; }
+    double ecalTrackRegressionScale() const { return ecalTrackRegressionScale_; }
+    double ecalTrackRegressionSmear() const { return ecalTrackRegressionSmear_; }
+    /// vertex fit combined with missing number of hits method
+    bool passConversionVeto() const { return passConversionVeto_; }
+    void setPassConversionVeto(bool flag) { passConversionVeto_ = flag; }
 
-      const EcalRecHitCollection * recHits() const { return &recHits_;}
+    /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
+    edm::RefVector<pat::PackedCandidateCollection> associatedPackedPFCandidates() const;
+    /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
+    template <typename T>
+    void setAssociatedPackedPFCandidates(const edm::RefProd<pat::PackedCandidateCollection>& refprod,
+                                         T beginIndexItr,
+                                         T endIndexItr) {
+      packedPFCandidates_ = refprod;
+      associatedPackedFCandidateIndices_.clear();
+      associatedPackedFCandidateIndices_.insert(associatedPackedFCandidateIndices_.end(), beginIndexItr, endIndexItr);
+    }
 
-      /// additional regression variables
-      /// regression1
-      double ecalRegressionEnergy() const { return ecalRegressionEnergy_;}
-      double ecalRegressionError() const { return ecalRegressionError_;}
-      /// regression2
-      double ecalTrackRegressionEnergy() const { return ecalTrackRegressionEnergy_; }
-      double ecalTrackRegressionError() const { return ecalTrackRegressionError_; }
-      /// set regression1
-      void setEcalRegressionEnergy(double val, double err) { ecalRegressionEnergy_ = val; ecalRegressionError_ = err; }
-      /// set regression2
-      void setEcalTrackRegressionEnergy(double val, double err) { ecalTrackRegressionEnergy_ = val; ecalTrackRegressionError_ = err; }
+    friend class PATElectronSlimmer;
 
-      /// set scale corrections / smearings
-      void setEcalScale(double val) { ecalScale_= val ;}               
-      void setEcalSmear(double val) { ecalSmear_= val;}                
-      void setEcalRegressionScale(double val) {	ecalRegressionScale_ = val ;}     
-      void setEcalRegressionSmear(double val) {	ecalRegressionSmear_ = val;}     
-      void setEcalTrackRegressionScale(double val) { ecalTrackRegressionScale_ = val;}
-      void setEcalTrackRegressionSmear(double val) { ecalTrackRegressionSmear_ = val;}
+  protected:
+    /// init impact parameter defaults (for use in a constructor)
+    void initImpactParameters();
 
-      /// get scale corrections /smearings
-      double ecalScale() const  { return ecalScale_ ;}               
-      double ecalSmear() const  { return ecalSmear_;}                
-      double ecalRegressionScale() const  { return ecalRegressionScale_  ;}     
-      double ecalRegressionSmear() const  {	return ecalRegressionSmear_ ;}     
-      double ecalTrackRegressionScale() const  { return ecalTrackRegressionScale_ ;}
-      double ecalTrackRegressionSmear() const  { return ecalTrackRegressionSmear_ ;}
-      /// vertex fit combined with missing number of hits method
-      bool passConversionVeto() const { return passConversionVeto_; }
-      void setPassConversionVeto( bool flag ) { passConversionVeto_ = flag; }
+    // ---- for content embedding ----
+    /// True if electron's gsfElectronCore is stored internally
+    bool embeddedGsfElectronCore_;
+    /// Place to store electron's gsfElectronCore internally
+    std::vector<reco::GsfElectronCore> gsfElectronCore_;
+    /// True if electron's gsfTrack is stored internally
+    bool embeddedGsfTrack_;
+    /// Place to store electron's gsfTrack internally
+    std::vector<reco::GsfTrack> gsfTrack_;
+    /// True if electron's supercluster is stored internally
+    bool embeddedSuperCluster_;
+    /// True if electron's pflowsupercluster is stored internally
+    bool embeddedPflowSuperCluster_;
+    /// Place to store electron's supercluster internally
+    std::vector<reco::SuperCluster> superCluster_;
+    /// Place to temporarily store the electron's supercluster after relinking the seed to it
+    edm::AtomicPtrCache<std::vector<reco::SuperCluster> > superClusterRelinked_;
+    /// Place to store electron's basic clusters internally
+    std::vector<reco::CaloCluster> basicClusters_;
+    /// Place to store electron's preshower clusters internally
+    std::vector<reco::CaloCluster> preshowerClusters_;
+    /// Place to store electron's pflow basic clusters internally
+    std::vector<reco::CaloCluster> pflowBasicClusters_;
+    /// Place to store electron's pflow preshower clusters internally
+    std::vector<reco::CaloCluster> pflowPreshowerClusters_;
+    /// Place to store electron's pflow supercluster internally
+    std::vector<reco::SuperCluster> pflowSuperCluster_;
+    /// True if electron's track is stored internally
+    bool embeddedTrack_;
+    /// Place to store electron's track internally
+    std::vector<reco::Track> track_;
+    /// True if seed cluster is stored internally
+    bool embeddedSeedCluster_;
+    /// Place to store electron's seed cluster internally
+    std::vector<reco::CaloCluster> seedCluster_;
+    /// True if RecHits stored internally
+    bool embeddedRecHits_;
+    /// Place to store electron's RecHits internally (5x5 around seed+ all RecHits)
+    EcalRecHitCollection recHits_;
 
-      /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
-      edm::RefVector<pat::PackedCandidateCollection> associatedPackedPFCandidates() const ;
-      /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
-      template<typename T>
-      void setAssociatedPackedPFCandidates(const edm::RefProd<pat::PackedCandidateCollection> & refprod,
-                                           T beginIndexItr,
-                                           T endIndexItr) {
-        packedPFCandidates_ = refprod;
-        associatedPackedFCandidateIndices_.clear();
-        associatedPackedFCandidateIndices_.insert(associatedPackedFCandidateIndices_.end(),
-                                                  beginIndexItr,
-                                                  endIndexItr);
-      }
+    // ---- electron ID's holder ----
+    /// Electron IDs
+    std::vector<IdPair> electronIDs_;
 
-      friend class PATElectronSlimmer;
+    // ---- PF specific members ----
+    bool isPF_;
+    /// true if the IsolatedPFCandidate is embedded
+    bool embeddedPFCandidate_;
+    /// A copy of the source IsolatedPFCandidate is stored in this vector if embeddedPFCandidate_ if True
+    reco::PFCandidateCollection pfCandidate_;
+    /// reference to the IsolatedPFCandidate this has been built from; null if this has been built from a standard electron
+    reco::PFCandidateRef pfCandidateRef_;
 
-    protected:
-      /// init impact parameter defaults (for use in a constructor)
-      void initImpactParameters();
+    // ---- specific members : Momentum estimates ----
+    /// ECAL-driven momentum
+    LorentzVector ecalDrivenMomentum_;
 
-      // ---- for content embedding ----
-      /// True if electron's gsfElectronCore is stored internally
-      bool embeddedGsfElectronCore_;
-      /// Place to store electron's gsfElectronCore internally
-      std::vector<reco::GsfElectronCore> gsfElectronCore_;
-      /// True if electron's gsfTrack is stored internally
-      bool embeddedGsfTrack_;
-      /// Place to store electron's gsfTrack internally
-      std::vector<reco::GsfTrack> gsfTrack_;
-      /// True if electron's supercluster is stored internally
-      bool embeddedSuperCluster_;
-      /// True if electron's pflowsupercluster is stored internally
-      bool embeddedPflowSuperCluster_;
-      /// Place to store electron's supercluster internally
-      std::vector<reco::SuperCluster> superCluster_;
-      /// Place to temporarily store the electron's supercluster after relinking the seed to it
-      edm::AtomicPtrCache<std::vector<reco::SuperCluster> > superClusterRelinked_;
-      /// Place to store electron's basic clusters internally 
-      std::vector<reco::CaloCluster> basicClusters_;
-      /// Place to store electron's preshower clusters internally      
-      std::vector<reco::CaloCluster> preshowerClusters_;
-      /// Place to store electron's pflow basic clusters internally
-      std::vector<reco::CaloCluster> pflowBasicClusters_;
-      /// Place to store electron's pflow preshower clusters internally
-      std::vector<reco::CaloCluster> pflowPreshowerClusters_;
-      /// Place to store electron's pflow supercluster internally
-      std::vector<reco::SuperCluster> pflowSuperCluster_;
-      /// True if electron's track is stored internally
-      bool embeddedTrack_;
-      /// Place to store electron's track internally
-      std::vector<reco::Track> track_;
-      /// True if seed cluster is stored internally
-      bool embeddedSeedCluster_;
-      /// Place to store electron's seed cluster internally
-      std::vector<reco::CaloCluster> seedCluster_;
-      /// True if RecHits stored internally
-      bool embeddedRecHits_;	
-      /// Place to store electron's RecHits internally (5x5 around seed+ all RecHits)
-      EcalRecHitCollection recHits_;
+    /// additional missing mva variables : 14/04/2012
+    float sigmaIetaIphi_, full5x5_sigmaIetaIphi_;
+    double ip3d_;
 
-      // ---- electron ID's holder ----
-      /// Electron IDs
-      std::vector<IdPair> electronIDs_;
+    /// output of regression
+    double ecalRegressionEnergy_;
+    double ecalTrackRegressionEnergy_;
+    double ecalRegressionError_;
+    double ecalTrackRegressionError_;
 
-      // ---- PF specific members ----
-      bool isPF_;
-      /// true if the IsolatedPFCandidate is embedded
-      bool embeddedPFCandidate_;
-      /// A copy of the source IsolatedPFCandidate is stored in this vector if embeddedPFCandidate_ if True
-      reco::PFCandidateCollection pfCandidate_;
-      /// reference to the IsolatedPFCandidate this has been built from; null if this has been built from a standard electron
-      reco::PFCandidateRef pfCandidateRef_;
+    /// scale corrections and smearing applied or to be be applied. Initialized to -99999.
+    double ecalScale_;
+    double ecalSmear_;
 
-      // ---- specific members : Momentum estimates ----
-      /// ECAL-driven momentum
-      LorentzVector ecalDrivenMomentum_;
+    double ecalRegressionScale_;
+    double ecalRegressionSmear_;
 
-      /// additional missing mva variables : 14/04/2012
-      float sigmaIetaIphi_, full5x5_sigmaIetaIphi_;
-      double ip3d_;
+    double ecalTrackRegressionScale_;
+    double ecalTrackRegressionSmear_;
 
-      /// output of regression
-      double ecalRegressionEnergy_;
-      double ecalTrackRegressionEnergy_;
-      double ecalRegressionError_;
-      double ecalTrackRegressionError_;
+    /// PUPPI isolations
+    float puppiChargedHadronIso_;
+    float puppiNeutralHadronIso_;
+    float puppiPhotonIso_;
 
-      /// scale corrections and smearing applied or to be be applied. Initialized to -99999.
-      double ecalScale_;
-      double ecalSmear_;
+    /// PUPPINoLeptons isolations
+    float puppiNoLeptonsChargedHadronIso_;
+    float puppiNoLeptonsNeutralHadronIso_;
+    float puppiNoLeptonsPhotonIso_;
 
-      double ecalRegressionScale_;
-      double ecalRegressionSmear_;
+    /// conversion veto
+    bool passConversionVeto_;
 
-      double ecalTrackRegressionScale_;
-      double ecalTrackRegressionSmear_;
-      
-      /// PUPPI isolations
-      float puppiChargedHadronIso_;
-      float puppiNeutralHadronIso_;
-      float puppiPhotonIso_;
+    // ---- cached impact parameters ----
+    /// True if the IP (former dB) has been cached
+    uint8_t cachedIP_;
+    /// Impact parameter at the primary vertex,
+    float ip_[IpTypeSize];
+    /// Impact parameter uncertainty as recommended by the tracking group
+    float eip_[IpTypeSize];
 
-      /// PUPPINoLeptons isolations
-      float puppiNoLeptonsChargedHadronIso_;
-      float puppiNoLeptonsNeutralHadronIso_;
-      float puppiNoLeptonsPhotonIso_;
-
-      /// conversion veto
-      bool passConversionVeto_;
-
-      // ---- cached impact parameters ----
-      /// True if the IP (former dB) has been cached
-      uint8_t    cachedIP_;
-      /// Impact parameter at the primary vertex,
-      float  ip_[IpTypeSize];    
-      /// Impact parameter uncertainty as recommended by the tracking group
-      float  eip_[IpTypeSize];      
-
-      // ---- link to PackedPFCandidates
-      edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;
-      std::vector<uint16_t> associatedPackedFCandidateIndices_;
+    // ---- link to PackedPFCandidates
+    edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;
+    std::vector<uint16_t> associatedPackedFCandidateIndices_;
   };
-}
+}  // namespace pat
 
 #endif

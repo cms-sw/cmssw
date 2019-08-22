@@ -21,15 +21,14 @@ public:
   /// Destructor
   ~eLayer();
 
-//   /// Return the list of all volumes.
-//   const handles & volumes() const {return theVolumes;}
+  //   /// Return the list of all volumes.
+  //   const handles & volumes() const {return theVolumes;}
 
   /// Construct the MagELayer upon request.
-  MagELayer * buildMagELayer() const;
+  MagELayer* buildMagELayer() const;
 
 private:
   handles theVolumes;  // pointer to all volumes in this layer
-  mutable MagELayer * mlayer;
+  mutable MagELayer* mlayer;
 };
 #endif
-

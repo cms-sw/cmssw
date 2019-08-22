@@ -5,11 +5,6 @@
 
 #include "SimG4CMS/Calo/interface/HFShower.h"
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
 
 #include "G4NavigationHistory.hh"
 #include "G4Step.hh"
@@ -387,38 +382,6 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   }
 
   return hits;
-}
-
-std::vector<double> HFShower::getDDDArray(const std::string &str, const DDsvalues_type &sv, int &nmin) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFShower:getDDDArray called for " << str << " with nMin " << nmin;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv, value)) {
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFShower") << value;
-#endif
-    const std::vector<double> &fvec = value.doubles();
-    int nval = fvec.size();
-    if (nmin > 0) {
-      if (nval < nmin) {
-        edm::LogError("HFShower") << "HFShower : # of " << str << " bins " << nval << " < " << nmin << " ==> illegal";
-        throw cms::Exception("Unknown", "HFShower") << "nval < nmin for array " << str << "\n";
-      }
-    } else {
-      if (nval < 2) {
-        edm::LogError("HFShower") << "HFShower : # of " << str << " bins " << nval << " < 2 ==> illegal"
-                                  << " (nmin=" << nmin << ")";
-        throw cms::Exception("Unknown", "HFShower") << "nval < 2 for array " << str;
-      }
-    }
-    nmin = nval;
-
-    return fvec;
-  } else {
-    edm::LogError("HFShower") << "HFShower : cannot get array " << str;
-    throw cms::Exception("Unknown", "HFShower") << "cannot get array " << str << "\n";
-  }
 }
 
 void HFShower::initRun(const HcalDDDSimConstants *hcons) {

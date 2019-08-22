@@ -26,25 +26,22 @@
 
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 
+class BetaCalculatorRPC {
+public:
+  BetaCalculatorRPC(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
+  void algo(const std::vector<susybsm::RPCHit4D>& HSCPRPCRecHits);
+  void addInfoToCandidate(susybsm::HSCParticle& candidate, const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  float beta() { return betavalue; }
 
-class  BetaCalculatorRPC{
-   public:
-      BetaCalculatorRPC(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
-      void  algo(const std::vector<susybsm::RPCHit4D>& HSCPRPCRecHits);
-      void  addInfoToCandidate(susybsm::HSCParticle& candidate, const edm::Event& iEvent, const edm::EventSetup& iSetup);
-      float beta(){return betavalue;}
+private:
+  bool foundvalue;
+  float phivalue;
+  float etavalue;
+  float betavalue;
 
-   private:
-      bool foundvalue;
-      float phivalue;
-      float etavalue;
-      float betavalue;
+  float etarange(float eta1, float eta2, float eta3);
+  float dist(float phi1, float phi2);
+  float dist3(float phi1, float phi2, float phi3);
 
-      float etarange(float eta1,float eta2,float eta3);
-      float dist(float phi1,float phi2);
-      float dist3(float phi1,float phi2,float phi3);
-
-      edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken;
+  edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken;
 };
-
-

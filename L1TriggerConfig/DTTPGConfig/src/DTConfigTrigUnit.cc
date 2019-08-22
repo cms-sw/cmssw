@@ -2,7 +2,7 @@
 //
 //   Class: DTConfigTrigUnit
 //
-//   Description: Configurable parameters and constants 
+//   Description: Configurable parameters and constants
 //   for Level1 Mu DT Trigger - Trigger Unit (DT chamber MiniCrate)
 //
 //
@@ -27,11 +27,10 @@
 //----------------
 // Constructors --
 //----------------
-DTConfigTrigUnit::DTConfigTrigUnit(const edm::ParameterSet& ps) { 
-
+DTConfigTrigUnit::DTConfigTrigUnit(const edm::ParameterSet& ps) {
   setDefaults(ps);
-  if(debug()) print();
-
+  if (debug())
+    print();
 }
 
 //--------------
@@ -43,22 +42,16 @@ DTConfigTrigUnit::~DTConfigTrigUnit() {}
 // Operations --
 //--------------
 
-void
-DTConfigTrigUnit::setDefaults(const edm::ParameterSet& m_ps) {
-
-  // Debug flag 
+void DTConfigTrigUnit::setDefaults(const edm::ParameterSet& m_ps) {
+  // Debug flag
   m_debug = m_ps.getUntrackedParameter<bool>("Debug");
-
 }
 
-void 
-DTConfigTrigUnit::print() const {
-
+void DTConfigTrigUnit::print() const {
   std::cout << "******************************************************************************" << std::endl;
   std::cout << "*              DTTrigger configuration : Trigger Unit parameters             *" << std::endl;
-  std::cout << "******************************************************************************" << std::endl << std::endl;
-  std::cout << "Debug flag : " <<  debug()     << std::endl;
+  std::cout << "******************************************************************************" << std::endl
+            << std::endl;
+  std::cout << "Debug flag : " << debug() << std::endl;
   std::cout << "******************************************************************************" << std::endl;
-
 }
-

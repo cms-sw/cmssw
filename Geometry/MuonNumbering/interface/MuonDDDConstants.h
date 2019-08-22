@@ -19,16 +19,15 @@
 class DDCompactView;
 
 class MuonDDDConstants {
- public:
+public:
+  MuonDDDConstants(const DDCompactView& cpv);
 
-  MuonDDDConstants( const DDCompactView& cpv );
+  int getValue(const std::string& name) const;
+  void addValue(const std::string& name, const int& value);
 
-  int getValue ( const std::string& name ) const;
-  void addValue( const std::string& name, const int& value );
-  
   MuonDDDConstants() = delete;
-  
- private:
+
+private:
   std::map<std::string, int> namesAndValues_;
 };
 

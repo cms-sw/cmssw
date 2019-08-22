@@ -62,18 +62,17 @@ void testESInputTag::encodedTags() {
     CPPUNIT_ASSERT_EQUAL(tag.data(), data_label);
   };
 
-  ESInputTag const moduleOnly{"ML"};
   ESInputTag const moduleOnlywToken{"ML:"};
   ESInputTag const dataOnlywToken{":DL"};
   ESInputTag const bothFields{"ML:DL"};
 
-  require_labels(moduleOnly, "ML", "");
   require_labels(moduleOnlywToken, "ML", "");
   require_labels(dataOnlywToken, "", "DL");
   require_labels(bothFields, "ML", "DL");
 
   // Too many colons
   CPPUNIT_ASSERT_THROW((ESInputTag{"ML:DL:"}), cms::Exception);
+  CPPUNIT_ASSERT_THROW((ESInputTag{"ML"}), cms::Exception);
 }
 
 void testESInputTag::mixedConstructors() {

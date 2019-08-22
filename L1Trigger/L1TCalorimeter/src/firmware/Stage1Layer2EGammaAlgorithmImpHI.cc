@@ -21,31 +21,28 @@
 using namespace std;
 using namespace l1t;
 
+Stage1Layer2EGammaAlgorithmImpHI::Stage1Layer2EGammaAlgorithmImpHI(CaloParamsHelper const* params) : params_(params){};
 
-Stage1Layer2EGammaAlgorithmImpHI::Stage1Layer2EGammaAlgorithmImpHI(CaloParamsHelper const* params) : params_(params) {};
-
-void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
-							 const std::vector<l1t::CaloRegion> & regions,
-							 const std::vector<l1t::Jet> * jets,
-							 std::vector<l1t::EGamma>* egammas) {
+void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::CaloEmCand>& EMCands,
+                                                         const std::vector<l1t::CaloRegion>& regions,
+                                                         const std::vector<l1t::Jet>* jets,
+                                                         std::vector<l1t::EGamma>* egammas) {
   int egEtaCut = params_->egEtaCut();
 
   std::vector<l1t::EGamma> preSortEGammas;
   std::vector<l1t::EGamma> preGtEGammas;
 
-  for(CaloEmCandBxCollection::const_iterator egCand = EMCands.begin();
-      egCand != EMCands.end(); egCand++) {
-
+  for (CaloEmCandBxCollection::const_iterator egCand = EMCands.begin(); egCand != EMCands.end(); egCand++) {
     int eg_et = egCand->hwPt();
     int eg_eta = egCand->hwEta();
     int eg_phi = egCand->hwPhi();
-    int index = (egCand->hwIso()*4 + egCand->hwQual()) ;
+    int index = (egCand->hwIso() * 4 + egCand->hwQual());
 
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > egLorentz(0,0,0,0);
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > egLorentz(0, 0, 0, 0);
 
     int isoFlag = 0;
     bool isinBarrel = false;
-    if((egEtaCut & (1<<eg_eta))>>eg_eta) {
+    if ((egEtaCut & (1 << eg_eta)) >> eg_eta) {
       isinBarrel = true;
     }
 
@@ -56,5 +53,4 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::
 
   SortEGammas(&preSortEGammas, &preGtEGammas);
   EGammaToGtScales(params_, &preGtEGammas, egammas);
-
 }

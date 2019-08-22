@@ -7,10 +7,7 @@
 #include <stdlib.h>
 #include "CalibrationXML.h"
 
-
-
-class CalibratedObject ;
-
+class CalibratedObject;
 
 /** This class defines a category.
 * The class is templated on the CI (category input) 
@@ -18,48 +15,38 @@ class CalibratedObject ;
 * virtual functions.
 */
 
-template <class CI> 
-class CalibrationCategory
-{
-  public:
+template <class CI>
+class CalibrationCategory {
+public:
+  typedef XERCES_CPP_NAMESPACE::DOMElement DOMElement;
+  typedef CI Input;
 
-    typedef XERCES_CPP_NAMESPACE::DOMElement DOMElement;
-    typedef  CI Input;
+  CalibrationCategory();
 
-    CalibrationCategory();
-    
-    virtual ~CalibrationCategory();
+  virtual ~CalibrationCategory();
 
-/** 
+  /** 
 * Should returun true if the CI input match that category 
 */
-    virtual bool match(const CI & calibrationInput) const = 0; //Not implemented here
-   
-    virtual std::string name(){return "BaseCalibrationCategory";} //Set it to pure virtual?
-    
-  protected:
-/** Read category parameters from XML
-*/
-    virtual void readFromDOM(DOMElement * dom)=0;  //Not implemented
-/** Save category parameters to XML
-*/
-    virtual void saveToDOM(DOMElement * dom)=0;  //Not implemented
+  virtual bool match(const CI& calibrationInput) const = 0;  //Not implemented here
 
-    virtual void dump() { }
+  virtual std::string name() { return "BaseCalibrationCategory"; }  //Set it to pure virtual?
 
-    
+protected:
+  /** Read category parameters from XML
+*/
+  virtual void readFromDOM(DOMElement* dom) = 0;  //Not implemented
+                                                  /** Save category parameters to XML
+*/
+  virtual void saveToDOM(DOMElement* dom) = 0;    //Not implemented
+
+  virtual void dump() {}
 };
 
+template <class CI>
+CalibrationCategory<CI>::CalibrationCategory() {}
 
-template <class CI> CalibrationCategory<CI>::CalibrationCategory() 
-{
-}
-
-template <class CI>  CalibrationCategory<CI>::~CalibrationCategory()
-{
-}
-
-
-
+template <class CI>
+CalibrationCategory<CI>::~CalibrationCategory() {}
 
 #endif

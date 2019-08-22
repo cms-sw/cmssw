@@ -15,14 +15,11 @@ class StripTopology;
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
-
-class GEMEtaPartitionSpecs : public GeomDetType
-{
+class GEMEtaPartitionSpecs : public GeomDetType {
 public:
-
   typedef std::vector<float> GEMSpecs;
 
-  GEMEtaPartitionSpecs( SubDetector rss, const std::string& name, const GEMSpecs& pars);
+  GEMEtaPartitionSpecs(SubDetector rss, const std::string& name, const GEMSpecs& pars);
 
   ~GEMEtaPartitionSpecs() override;
 
@@ -39,7 +36,6 @@ public:
   const GEMSpecs& parameters() const;
 
 private:
-  
   /// topology of strips
   StripTopology* _top;
 

@@ -2,7 +2,7 @@
 #define CondFormatsRPCObjectsChamberLocationSpec_H
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include<string>
+#include <string>
 
 /* \class ChamberLocationSpec
  * Chamber Location specification as in online DB
@@ -15,16 +15,14 @@ struct ChamberLocationSpec {
   char subsector;
   char febZOrnt;
   char febZRadOrnt;
-  char barrelOrEndcap; 
+  char barrelOrEndcap;
 
   /// debug printout
-  std::string print( int depth = 0) const;
+  std::string print(int depth = 0) const;
 
   std::string chamberLocationName() const;
 
-
   COND_SERIALIZABLE;
 };
-
 
 #endif

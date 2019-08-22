@@ -16,7 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
-#include "DataFormats/JetReco/interface/PileupJetIdentifier.h" 
+#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 
 #include "RecoMET/METPUSubtraction/interface/PFMEtSignInterfaceBase.h"
 #include "RecoMET/METPUSubtraction/interface/NoPileUpMEtAuxFunctions.h"
@@ -32,23 +32,20 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/METReco/interface/PUSubMETData.h"       
-#include "DataFormats/METReco/interface/PUSubMETDataFwd.h"    
-#include "DataFormats/METReco/interface/SigInputObj.h"    //PH: preserve 5_3_x dependence
+#include "DataFormats/METReco/interface/PUSubMETData.h"
+#include "DataFormats/METReco/interface/PUSubMETDataFwd.h"
+#include "DataFormats/METReco/interface/SigInputObj.h"  //PH: preserve 5_3_x dependence
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
-class NoPileUpPFMEtDataProducer : public edm::stream::EDProducer<>
-{
- public:
-  
+class NoPileUpPFMEtDataProducer : public edm::stream::EDProducer<> {
+public:
   NoPileUpPFMEtDataProducer(const edm::ParameterSet&);
   ~NoPileUpPFMEtDataProducer() override;
-  
- private:
-  
+
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
+
   std::string moduleLabel_;
 
   edm::EDGetTokenT<reco::PFJetCollection> srcJets_;
@@ -56,7 +53,7 @@ class NoPileUpPFMEtDataProducer : public edm::stream::EDProducer<>
   double minJetPt_;
   PileupJetIdentifier::Id jetIdSelection_;
   std::string jetEnOffsetCorrLabel_;
-  
+
   edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidates_;
   edm::EDGetTokenT<edm::View<reco::PFCandidate> > srcPFCandidatesView_;
   edm::EDGetTokenT<PFCandToVertexAssMap> srcPFCandToVertexAssociations_;
@@ -64,9 +61,9 @@ class NoPileUpPFMEtDataProducer : public edm::stream::EDProducer<>
   double minJetPtForMEtCov_;
   edm::EDGetTokenT<reco::VertexCollection> srcHardScatterVertex_;
   double dZcut_;
-  
+
   PFJetIDSelectionFunctor* looseJetIdAlgo_;
-  
+
   PFMEtSignInterfaceBase* pfMEtSignInterface_;
 
   int maxWarnings_;

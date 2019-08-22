@@ -8,12 +8,11 @@
 
 #include "DataFormats/Provenance/interface/RunID.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class RawDataTask : public DQWorkerTask {
   public:
     RawDataTask();
-    ~RawDataTask() {}
+    ~RawDataTask() override {}
 
     void addDependencies(DependencySet&) override;
 
@@ -26,37 +25,35 @@ namespace ecaldqm
     void runOnSource(FEDRawDataCollection const&);
     void runOnRawData(EcalRawDataCollection const&);
 
-    enum Constants {
-      nEventTypes = 25
-    };
+    enum Constants { nEventTypes = 25 };
 
   private:
-    edm::RunNumber_t runNumber_; // run number needed regardless of single-/multi-thread operation
+    edm::RunNumber_t runNumber_;  // run number needed regardless of single-/multi-thread operation
     int l1A_;
     int orbit_;
     int bx_;
     short triggerType_;
     int feL1Offset_;
-
   };
 
-  inline bool RawDataTask::analyze(void const* _p, Collections _collection){
-    switch(_collection){
-    case kSource:
-      if(_p) runOnSource(*static_cast<FEDRawDataCollection const*>(_p));
-      return true;
-      break;
-    case kEcalRawData:
-      if(_p) runOnRawData(*static_cast<EcalRawDataCollection const*>(_p));
-      return true;
-      break;
-    default:
-      break;
+  inline bool RawDataTask::analyze(void const* _p, Collections _collection) {
+    switch (_collection) {
+      case kSource:
+        if (_p)
+          runOnSource(*static_cast<FEDRawDataCollection const*>(_p));
+        return true;
+        break;
+      case kEcalRawData:
+        if (_p)
+          runOnRawData(*static_cast<EcalRawDataCollection const*>(_p));
+        return true;
+        break;
+      default:
+        break;
     }
     return false;
   }
 
-}
+}  // namespace ecaldqm
 
 #endif
-

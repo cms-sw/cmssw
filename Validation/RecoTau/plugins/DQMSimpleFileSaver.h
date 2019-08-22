@@ -15,15 +15,19 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+
 #include <string>
 
-class TauDQMSimpleFileSaver : public edm::EDAnalyzer
-{
- public:
+class TauDQMSimpleFileSaver : public edm::EDAnalyzer {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit TauDQMSimpleFileSaver(const edm::ParameterSet&);
   ~TauDQMSimpleFileSaver() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;  
+  void endJob() override;
 
 private:
   std::string outputFileName_;
@@ -31,5 +35,3 @@ private:
 };
 
 #endif
-
-

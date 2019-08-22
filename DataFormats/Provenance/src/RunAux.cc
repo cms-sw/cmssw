@@ -8,9 +8,9 @@
 ----------------------------------------------------------------------*/
 
 namespace edm {
-  void conversion(RunAux const& from, RunAuxiliary & to) {
+  void conversion(RunAux const& from, RunAuxiliary& to) {
     to.processHistoryID_ = from.processHistoryID_;
     to.id_ = RunID(from.id_);
-    to.beginTime_ = to.endTime_ = Timestamp::invalidTimestamp(); 
+    to.beginTime_ = to.endTime_ = Timestamp::invalidTimestamp();
   }
-}
+}  // namespace edm

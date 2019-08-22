@@ -13,15 +13,13 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 
-
-
-class PFTauToJetProducer: public edm::EDProducer {
- public:
+class PFTauToJetProducer : public edm::EDProducer {
+public:
   explicit PFTauToJetProducer(const edm::ParameterSet&);
   ~PFTauToJetProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   edm::EDGetTokenT<reco::PFTauCollection> tauSrc_;
 };
 #endif

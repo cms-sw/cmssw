@@ -1,31 +1,29 @@
 #include "DQM/L1TMonitor/interface/L1TStage2uGTCaloLayer2Comp.h"
 
-L1TStage2uGTCaloLayer2Comp::L1TStage2uGTCaloLayer2Comp (const edm::ParameterSet& ps)
-  : monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
-    collection1Title(ps.getUntrackedParameter<std::string>("collection1Title")),
-    collection2Title(ps.getUntrackedParameter<std::string>("collection2Title")),
-    JetCollection1(consumes <l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("JetCollection1"))),
-    JetCollection2(consumes <l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("JetCollection2"))),
-    EGammaCollection1(consumes <l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("EGammaCollection1"))),
-    EGammaCollection2(consumes <l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("EGammaCollection2"))),
-    TauCollection1(consumes <l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("TauCollection1"))),
-    TauCollection2(consumes <l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("TauCollection2"))),
-    EtSumCollection1(consumes <l1t::EtSumBxCollection>(ps.getParameter<edm::InputTag>("EtSumCollection1"))),
-    EtSumCollection2(consumes <l1t::EtSumBxCollection>(ps.getParameter<edm::InputTag>("EtSumCollection2"))),
-    verbose(ps.getUntrackedParameter<bool> ("verbose", false))
-{}
+L1TStage2uGTCaloLayer2Comp::L1TStage2uGTCaloLayer2Comp(const edm::ParameterSet& ps)
+    : monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
+      collection1Title(ps.getUntrackedParameter<std::string>("collection1Title")),
+      collection2Title(ps.getUntrackedParameter<std::string>("collection2Title")),
+      JetCollection1(consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("JetCollection1"))),
+      JetCollection2(consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("JetCollection2"))),
+      EGammaCollection1(consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("EGammaCollection1"))),
+      EGammaCollection2(consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("EGammaCollection2"))),
+      TauCollection1(consumes<l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("TauCollection1"))),
+      TauCollection2(consumes<l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("TauCollection2"))),
+      EtSumCollection1(consumes<l1t::EtSumBxCollection>(ps.getParameter<edm::InputTag>("EtSumCollection1"))),
+      EtSumCollection2(consumes<l1t::EtSumBxCollection>(ps.getParameter<edm::InputTag>("EtSumCollection2"))),
+      verbose(ps.getUntrackedParameter<bool>("verbose", false)) {}
 
-void L1TStage2uGTCaloLayer2Comp::bookHistograms(
-  DQMStore::IBooker &ibooker,
-  edm::Run const &,
-  edm::EventSetup const&) {
-
+void L1TStage2uGTCaloLayer2Comp::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
   ibooker.setCurrentFolder(monitorDir);
 
   // the index of the first bin in histogram should match value of first enum
-  comparisonNum = ibooker.book1D(
-    "errorSummaryNum",
-    collection1Title+" vs "+collection2Title+" Comparison - Numerator (# Disagreements)", 15, 1, 16);
+  comparisonNum =
+      ibooker.book1D("errorSummaryNum",
+                     collection1Title + " vs " + collection2Title + " Comparison - Numerator (# Disagreements)",
+                     15,
+                     1,
+                     16);
 
   comparisonNum->setBinLabel(EVENTBAD, "# bad evts");
   comparisonNum->setBinLabel(EVENTBADJETCOL, "# evts w/ bad jet col size");
@@ -43,9 +41,12 @@ void L1TStage2uGTCaloLayer2Comp::bookHistograms(
   comparisonNum->setBinLabel(TAUBADETA, "# taus bad eta");
   comparisonNum->setBinLabel(BADSUM, "# bad sums");
 
-  comparisonDenum = ibooker.book1D(
-    "errorSummaryDen",
-    collection1Title+" vs "+collection2Title+" Comparison - Denominator (# Objects)", 15, 1, 16);
+  comparisonDenum =
+      ibooker.book1D("errorSummaryDen",
+                     collection1Title + " vs " + collection2Title + " Comparison - Denominator (# Objects)",
+                     15,
+                     1,
+                     16);
 
   comparisonDenum->setBinLabel(EVENTS1, "# evts");
   comparisonDenum->setBinLabel(EVENTS2, "# evts");
@@ -67,10 +68,7 @@ void L1TStage2uGTCaloLayer2Comp::bookHistograms(
   // This needs to come after the calls to setBinLabel.
   comparisonDenum->getTH1F()->GetXaxis()->SetCanExtend(false);
 }
-void L1TStage2uGTCaloLayer2Comp::analyze (
-  const edm::Event& e,
-  const edm::EventSetup & c) {
-
+void L1TStage2uGTCaloLayer2Comp::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // define collections to hold lists of objects in event
   edm::Handle<l1t::JetBxCollection> jetCol1;
   edm::Handle<l1t::JetBxCollection> jetCol2;
@@ -121,10 +119,8 @@ void L1TStage2uGTCaloLayer2Comp::analyze (
 }
 
 // comparison method for jets
-bool L1TStage2uGTCaloLayer2Comp::compareJets(
-  const edm::Handle<l1t::JetBxCollection> & col1,
-  const edm::Handle<l1t::JetBxCollection> & col2)
-{
+bool L1TStage2uGTCaloLayer2Comp::compareJets(const edm::Handle<l1t::JetBxCollection>& col1,
+                                             const edm::Handle<l1t::JetBxCollection>& col2) {
   bool eventGood = true;
 
   l1t::JetBxCollection::const_iterator col1It = col1->begin();
@@ -137,28 +133,26 @@ bool L1TStage2uGTCaloLayer2Comp::compareJets(
   }
 
   int nJets = 0;
-  if (col1It != col1->end() ||
-      col2It != col2->end()) {
-    while(true) {
-
+  if (col1It != col1->end() || col2It != col2->end()) {
+    while (true) {
       ++nJets;
 
       // object pt mismatch
       if (col1It->hwPt() != col2It->hwPt()) {
-	comparisonNum->Fill(JETBADET);
- 	eventGood = false;
+        comparisonNum->Fill(JETBADET);
+        eventGood = false;
       }
 
       // object position mismatch (phi)
-      if (col1It->hwPhi() != col2It->hwPhi()){
-	comparisonNum->Fill(JETBADPHI);
-	eventGood = false;
+      if (col1It->hwPhi() != col2It->hwPhi()) {
+        comparisonNum->Fill(JETBADPHI);
+        eventGood = false;
       }
 
       // object position mismatch (eta)
       if (col1It->hwEta() != col2It->hwEta()) {
-	comparisonNum->Fill(JETBADETA);
-	eventGood = false;
+        comparisonNum->Fill(JETBADETA);
+        eventGood = false;
       }
 
       // keep track of jets
@@ -170,9 +164,8 @@ bool L1TStage2uGTCaloLayer2Comp::compareJets(
       ++col1It;
       ++col2It;
 
-      if (col1It == col1->end() ||
-	  col2It == col2->end())
-	break;
+      if (col1It == col1->end() || col2It == col2->end())
+        break;
     }
   } else {
     if (col1->size() != 0 || col2->size() != 0) {
@@ -187,10 +180,8 @@ bool L1TStage2uGTCaloLayer2Comp::compareJets(
 }
 
 // comparison method for e/gammas
-bool L1TStage2uGTCaloLayer2Comp::compareEGs(
-  const edm::Handle<l1t::EGammaBxCollection> & col1,
-  const edm::Handle<l1t::EGammaBxCollection> & col2)
-{
+bool L1TStage2uGTCaloLayer2Comp::compareEGs(const edm::Handle<l1t::EGammaBxCollection>& col1,
+                                            const edm::Handle<l1t::EGammaBxCollection>& col2) {
   bool eventGood = true;
 
   l1t::EGammaBxCollection::const_iterator col1It = col1->begin();
@@ -203,27 +194,24 @@ bool L1TStage2uGTCaloLayer2Comp::compareEGs(
   }
 
   // processing continues only of length of object collections is the same
-  if (col1It != col1->end() ||
-      col2It != col2->end()) {
-
-    while(true) {
-
+  if (col1It != col1->end() || col2It != col2->end()) {
+    while (true) {
       // object pt mismatch
       if (col1It->hwPt() != col2It->hwPt()) {
-	comparisonNum->Fill(EGBADET);
-	eventGood = false;
+        comparisonNum->Fill(EGBADET);
+        eventGood = false;
       }
 
       // object position mismatch (phi)
       if (col1It->hwPhi() != col2It->hwPhi()) {
-	comparisonNum->Fill(EGBADPHI);
-	eventGood = false;
+        comparisonNum->Fill(EGBADPHI);
+        eventGood = false;
       }
 
       // object position mismatch (eta)
       if (col1It->hwEta() != col2It->hwEta()) {
-	comparisonNum->Fill(EGBADETA);
-	eventGood = false;
+        comparisonNum->Fill(EGBADETA);
+        eventGood = false;
       }
 
       // keep track of number of objects
@@ -235,9 +223,8 @@ bool L1TStage2uGTCaloLayer2Comp::compareEGs(
       ++col1It;
       ++col2It;
 
-      if (col1It == col1->end() ||
-	  col2It == col2->end())
-	break;
+      if (col1It == col1->end() || col2It == col2->end())
+        break;
     }
   } else {
     if (col1->size() != 0 || col2->size() != 0) {
@@ -252,10 +239,8 @@ bool L1TStage2uGTCaloLayer2Comp::compareEGs(
 }
 
 // comparison method for taus
-bool L1TStage2uGTCaloLayer2Comp::compareTaus(
-  const edm::Handle<l1t::TauBxCollection> & col1,
-  const edm::Handle<l1t::TauBxCollection> & col2)
-{
+bool L1TStage2uGTCaloLayer2Comp::compareTaus(const edm::Handle<l1t::TauBxCollection>& col1,
+                                             const edm::Handle<l1t::TauBxCollection>& col2) {
   bool eventGood = true;
 
   l1t::TauBxCollection::const_iterator col1It = col1->begin();
@@ -268,26 +253,24 @@ bool L1TStage2uGTCaloLayer2Comp::compareTaus(
   }
 
   // processing continues only of length of object collections is the same
-  if (col1It != col1->end() ||
-      col2It != col2->end()) {
-
-    while(true) {
+  if (col1It != col1->end() || col2It != col2->end()) {
+    while (true) {
       // object Et mismatch
       if (col1It->hwPt() != col2It->hwPt()) {
-	comparisonNum->Fill(TAUBADET);
-	eventGood = false;
+        comparisonNum->Fill(TAUBADET);
+        eventGood = false;
       }
 
       // object position mismatch (phi)
       if (col1It->hwPhi() != col2It->hwPhi()) {
-	comparisonNum->Fill(TAUBADPHI);
-	eventGood = false;
+        comparisonNum->Fill(TAUBADPHI);
+        eventGood = false;
       }
 
       // object position mismatch (eta)
       if (col1It->hwEta() != col2It->hwEta()) {
-	comparisonNum->Fill(TAUBADETA);
-	eventGood = false;
+        comparisonNum->Fill(TAUBADETA);
+        eventGood = false;
       }
 
       // keep track of number of objects
@@ -299,9 +282,8 @@ bool L1TStage2uGTCaloLayer2Comp::compareTaus(
       ++col1It;
       ++col2It;
 
-      if (col1It == col1->end() ||
-	  col2It == col2->end())
-	break;
+      if (col1It == col1->end() || col2It == col2->end())
+        break;
     }
   } else {
     if (col1->size() != 0 || col2->size() != 0) {
@@ -316,14 +298,12 @@ bool L1TStage2uGTCaloLayer2Comp::compareTaus(
 }
 
 // comparison method for sums
-bool L1TStage2uGTCaloLayer2Comp::compareSums(
-  const edm::Handle<l1t::EtSumBxCollection> & col1,
-  const edm::Handle<l1t::EtSumBxCollection> & col2)
-{
+bool L1TStage2uGTCaloLayer2Comp::compareSums(const edm::Handle<l1t::EtSumBxCollection>& col1,
+                                             const edm::Handle<l1t::EtSumBxCollection>& col2) {
   bool eventGood = true;
 
-  double col1Et  = 0;
-  double col2Et  = 0;
+  double col1Et = 0;
+  double col2Et = 0;
   double col1Phi = 0;
   double col2Phi = 0;
 
@@ -338,23 +318,22 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(
   l1t::EtSumBxCollection::const_iterator col2It = col2->begin();
 
   while (col1It != col1->end() && col2It != col2->end()) {
-
     // ETT, ETTEM, HTT, TowCnt, MBHFP0, MBHFM0, MBHFP1 or MBHFM1
-    if ((l1t::EtSum::EtSumType::kTotalEt == col1It->getType()) ||    // ETT
-	(l1t::EtSum::EtSumType::kTotalEtEm == col1It->getType()) ||  // ETTEM
-	(l1t::EtSum::EtSumType::kTotalHt == col1It->getType()) ||    // HTT
-	(l1t::EtSum::EtSumType::kTowerCount == col1It->getType()) || // TowCnt
-    	(l1t::EtSum::EtSumType::kMinBiasHFP0 == col1It->getType()) ||// MBHFP0
-	(l1t::EtSum::EtSumType::kMinBiasHFM0 == col1It->getType()) ||// MBHFM0
-	(l1t::EtSum::EtSumType::kMinBiasHFP1 == col1It->getType()) ||// MBHFP1
-	(l1t::EtSum::EtSumType::kMinBiasHFM1 == col1It->getType())) {// MBHFM1
+    if ((l1t::EtSum::EtSumType::kTotalEt == col1It->getType()) ||      // ETT
+        (l1t::EtSum::EtSumType::kTotalEtEm == col1It->getType()) ||    // ETTEM
+        (l1t::EtSum::EtSumType::kTotalHt == col1It->getType()) ||      // HTT
+        (l1t::EtSum::EtSumType::kTowerCount == col1It->getType()) ||   // TowCnt
+        (l1t::EtSum::EtSumType::kMinBiasHFP0 == col1It->getType()) ||  // MBHFP0
+        (l1t::EtSum::EtSumType::kMinBiasHFM0 == col1It->getType()) ||  // MBHFM0
+        (l1t::EtSum::EtSumType::kMinBiasHFP1 == col1It->getType()) ||  // MBHFP1
+        (l1t::EtSum::EtSumType::kMinBiasHFM1 == col1It->getType())) {  // MBHFM1
 
       col1Et = col1It->hwPt();
       col2Et = col2It->hwPt();
 
       if (col1Et != col2Et) {
-	eventGood = false;
-	comparisonNum->Fill(BADSUM);
+        eventGood = false;
+        comparisonNum->Fill(BADSUM);
       }
 
       // update sum counters
@@ -362,10 +341,10 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(
     }
 
     // MET, METHF, MHT or MHTHF
-    if ((l1t::EtSum::EtSumType::kMissingEt == col1It->getType()) ||   // MET
-	(l1t::EtSum::EtSumType::kMissingEtHF == col1It->getType()) || // METHF
-	(l1t::EtSum::EtSumType::kMissingHt == col1It->getType()) ||   // MHT
-	(l1t::EtSum::EtSumType::kMissingHtHF == col1It->getType())) { // MHTHF
+    if ((l1t::EtSum::EtSumType::kMissingEt == col1It->getType()) ||    // MET
+        (l1t::EtSum::EtSumType::kMissingEtHF == col1It->getType()) ||  // METHF
+        (l1t::EtSum::EtSumType::kMissingHt == col1It->getType()) ||    // MHT
+        (l1t::EtSum::EtSumType::kMissingHtHF == col1It->getType())) {  // MHTHF
 
       col1Et = col1It->hwPt();
       col2Et = col2It->hwPt();
@@ -374,8 +353,8 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(
       col2Phi = col2It->hwPhi();
 
       if ((col1Et != col2Et) || (col1Phi != col2Phi)) {
-	eventGood = false;
-	comparisonNum->Fill(BADSUM);
+        eventGood = false;
+        comparisonNum->Fill(BADSUM);
       }
 
       // update sum counters
@@ -390,5 +369,3 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(
   // agreement
   return eventGood;
 }
-
-

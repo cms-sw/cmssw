@@ -17,7 +17,6 @@
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 //
 
-
 /**
     @file matutil.h
 
@@ -57,21 +56,18 @@
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Matrix/DiagMatrix.h"
 
-
 namespace hitfit {
 
+  // We use these CLHEP classes as-is.
+  typedef CLHEP::HepMatrix Matrix;
+  typedef CLHEP::HepVector Column_Vector;
+  typedef CLHEP::HepDiagMatrix Diagonal_Matrix;
 
-// We use these CLHEP classes as-is.
-typedef CLHEP::HepMatrix Matrix;
-typedef CLHEP::HepVector Column_Vector;
-typedef CLHEP::HepDiagMatrix Diagonal_Matrix;
-
-
-// CLHEP doesn't have a row-vector class, so make our own.
-// This is only a simple wrapper around Matrix that tries to constrain
-// the shape to a row vector.  It will raise an assertion if you try
-// to assign to it something that isn't a row vector.
-/**
+  // CLHEP doesn't have a row-vector class, so make our own.
+  // This is only a simple wrapper around Matrix that tries to constrain
+  // the shape to a row vector.  It will raise an assertion if you try
+  // to assign to it something that isn't a row vector.
+  /**
     @class Row_Vector
 
     @brief Row-vector class.  CLHEP doesn't have a row-vector class,
@@ -80,25 +76,24 @@ typedef CLHEP::HepDiagMatrix Diagonal_Matrix;
     an assertion if you try to assign to it something that isn't a row
     vector.
  */
-class Row_Vector
-  : public Matrix
-//
-// Purpose: Simple Row_Vector wrapper for CLHEP matrix class.
-//
-{
-public:
-   // Constructor.  Gives an uninitialized 1 x cols matrix.
-  /**
+  class Row_Vector : public Matrix
+  //
+  // Purpose: Simple Row_Vector wrapper for CLHEP matrix class.
+  //
+  {
+  public:
+    // Constructor.  Gives an uninitialized 1 x cols matrix.
+    /**
      @brief Constructor, instantiate an unitialized
      \f$1 \times \mathrm{cols}\f$ matrix.
 
      @param cols The number of columns (the length of the vector).
    */
-  explicit Row_Vector (int cols);
+    explicit Row_Vector(int cols);
 
-   // Constructor.  Gives a 1 x cols matrix, initialized to zero.
-   // The INIT argument is just a dummy; give it a value of 0.
-  /**
+    // Constructor.  Gives a 1 x cols matrix, initialized to zero.
+    // The INIT argument is just a dummy; give it a value of 0.
+    /**
      @brief Constructor, instantiate an unitialized
      \f$1 \times \mathrm{cols}\f$ matrix, and initialized it to zero.
 
@@ -106,91 +101,85 @@ public:
 
      @param init A dummy argument, should always be zero.
    */
-  explicit Row_Vector (int cols, int init);
+    explicit Row_Vector(int cols, int init);
 
-  // Copy constructor.  Will raise an assertion if M doesn't have
-  // exactly one row.
-  /**
+    // Copy constructor.  Will raise an assertion if M doesn't have
+    // exactly one row.
+    /**
      @brief Copy constructor, will raise an assertion if <i>m</i>
      doesn't have exactly one row.
 
      @param m The matrix to copy, must have exactly one row.
    */
-  Row_Vector (const Matrix& m);
+    Row_Vector(const Matrix& m);
 
-  // Element access.
-  // ** Note that the indexing starts from (1). **
-  /**
+    // Element access.
+    // ** Note that the indexing starts from (1). **
+    /**
      @brief Direct element access, indexing starts from 1.
 
      @param col The column to access.
    */
-  const double & operator() (int col) const;
+    const double& operator()(int col) const;
 
-  /**
+    /**
      @brief Direct element access, indexing starts from 1.
 
      @param col The column to access.
    */
-  double & operator() (int col);
+    double& operator()(int col);
 
-  // Element access.
-  // ** Note that the indexing starts from (1,1). **
-  /**
+    // Element access.
+    // ** Note that the indexing starts from (1,1). **
+    /**
      @brief Direct element access, indexing starts from (1,1).
 
      @param row The row to access.
 
      @param col The column to access.
    */
-  const double & operator()(int row, int col) const override;
+    const double& operator()(int row, int col) const override;
 
-  /**
+    /**
      @brief Direct element access, indexing starts from (1,1).
 
      @param row The row to access.
 
      @param col The column to access.
    */
-  double & operator()(int row, int col) override;
+    double& operator()(int row, int col) override;
 
-  // Assignment.  Will raise an assertion if M doesn't have
-  // exactly one row.
-  /**
+    // Assignment.  Will raise an assertion if M doesn't have
+    // exactly one row.
+    /**
      @brief Assignment operator, will raise an assertion if <i>m</i>
      doesn't have exactly one row.
 
      @param m The matrix to copy, must have exactly one row.
    */
-  Row_Vector& operator= (const Matrix& m);
-};
+    Row_Vector& operator=(const Matrix& m);
+  };
 
+  // Additional operations.
 
-// Additional operations.
-
-
-// Reset all elements of a matrix to 0.
-/**
+  // Reset all elements of a matrix to 0.
+  /**
     @brief Helper function: Reset all elements of a matrix to 0.
 
     @param m The matrix to reset.
  */
-void clear (CLHEP::HepGenMatrix& m);
+  void clear(CLHEP::HepGenMatrix& m);
 
-// Check that M has dimensions 1x1.  If so, return the single element
-// as a scalar.  Otherwise, raise an assertion failure.
-/**
+  // Check that M has dimensions 1x1.  If so, return the single element
+  // as a scalar.  Otherwise, raise an assertion failure.
+  /**
     @brief Return the \f$1 \times 1\f$ matrix as a scalar.
     Raise an assertion if the matris is not \f$1 \times 1\f$.
 
     @param m The matrix to convert, must be \f$1 \times 1\f$.
  */
-double scalar (const CLHEP::HepGenMatrix& m);
+  double scalar(const CLHEP::HepGenMatrix& m);
 
+}  // namespace hitfit
 
-} // namespace hitfit
-
-
-
-#endif // not HITFIT_MATUTIL_H
-
+#endif  // not HITFIT_MATUTIL_H

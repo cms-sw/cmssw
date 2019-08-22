@@ -4,7 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTTPGParametersValidateHandler> DTTPGParametersValidateDBWrite;
 
-
 DEFINE_FWK_MODULE(DTTPGParametersValidateDBWrite);
-
-

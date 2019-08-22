@@ -21,9 +21,9 @@ public:
   void fC2adc(const CaloSamples& clf, ZDCDataFrame& df, int fCapIdOffset) const override;
   void fC2adc(const CaloSamples& clf, HcalCalibDataFrame& df, int fCapIdOffset) const override;
   void adc2fC(const QIE10DataFrame& df, CaloSamples& lf) const override {}
-  void fC2adc(const CaloSamples& clf, QIE10DataFrame& df, int fCapIdOffset) const override { }
+  void fC2adc(const CaloSamples& clf, QIE10DataFrame& df, int fCapIdOffset) const override {}
   void adc2fC(const QIE11DataFrame& df, CaloSamples& lf) const override {}
-  void fC2adc(const CaloSamples& clf, QIE11DataFrame& df, int fCapIdOffset) const override { }
+  void fC2adc(const CaloSamples& clf, QIE11DataFrame& df, int fCapIdOffset) const override {}
 };
 
 #endif

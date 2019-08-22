@@ -48,7 +48,7 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
                                                      )
 
 process.test = cms.EDAnalyzer("DDTestSpecPars",
-                              DDDetector = cms.ESInputTag('MUON')
+                              DDDetector = cms.ESInputTag('','MUON')
                               )
 
 process.p = cms.Path(process.test)

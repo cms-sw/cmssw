@@ -16,27 +16,18 @@
 #include <string>
 
 class EcalWeightSetXMLTranslator {
-
 public:
-  
   EcalWeightSetXMLTranslator(){};
 
-  static int readXML  (const std::string& filename, 
-		       EcalCondHeader& header,
-		       EcalWeightSet& record);
+  static int readXML(const std::string& filename, EcalCondHeader& header, EcalWeightSet& record);
 
-  static int writeXML (const std::string& filename,
-		       const EcalCondHeader& header, 
-		       const EcalWeightSet& record);
-  
+  static int writeXML(const std::string& filename, const EcalCondHeader& header, const EcalWeightSet& record);
+
 private:
-  
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalWeightSet&  record);  
-  
-  static void write10x10(xercesc::DOMElement* node,const EcalWeightSet& record);
-  static void write3x10(xercesc::DOMElement* node,const EcalWeightSet& record);
- 
+  static std::string dumpXML(const EcalCondHeader& header, const EcalWeightSet& record);
+
+  static void write10x10(xercesc::DOMElement* node, const EcalWeightSet& record);
+  static void write3x10(xercesc::DOMElement* node, const EcalWeightSet& record);
 };
 
-#endif // __EcalWeightSetXMLTranslator_h_
+#endif  // __EcalWeightSetXMLTranslator_h_

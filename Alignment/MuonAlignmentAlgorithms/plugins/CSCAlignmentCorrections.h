@@ -14,16 +14,17 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "Alignment/CommonAlignment/interface/Alignable.h"  
-#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"  
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"  
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 
 class CSCAlignmentCorrections {
 public:
-  CSCAlignmentCorrections(std::string fitterName, double oldchi2, double newchi2): m_fitterName(fitterName), m_oldchi2(oldchi2), m_newchi2(newchi2) {};
-  virtual ~CSCAlignmentCorrections() {};
+  CSCAlignmentCorrections(std::string fitterName, double oldchi2, double newchi2)
+      : m_fitterName(fitterName), m_oldchi2(oldchi2), m_newchi2(newchi2){};
+  virtual ~CSCAlignmentCorrections(){};
 
   void insertCorrection(std::string name, CSCDetId id, double value) {
     m_name.push_back(name);
@@ -31,7 +32,10 @@ public:
     m_value.push_back(value);
   };
 
-  void insertMode(const std::vector<double>& coefficient, const std::vector<std::string>& modename, const std::vector<long>& modeid, double error) {
+  void insertMode(const std::vector<double>& coefficient,
+                  const std::vector<std::string>& modename,
+                  const std::vector<long>& modeid,
+                  double error) {
     m_coefficient.push_back(coefficient);
     m_modename.push_back(modename);
     m_modeid.push_back(modeid);
@@ -47,9 +51,12 @@ public:
     m_pull.push_back(pull);
   };
 
-  void applyAlignment(AlignableNavigator *alignableNavigator, AlignmentParameterStore *alignmentParameterStore, int mode, bool combineME11);
+  void applyAlignment(AlignableNavigator* alignableNavigator,
+                      AlignmentParameterStore* alignmentParameterStore,
+                      int mode,
+                      bool combineME11);
   void plot();
-  void report(std::ofstream &report);
+  void report(std::ofstream& report);
 
 protected:
   std::string m_fitterName;
@@ -77,4 +84,4 @@ protected:
   std::vector<TH1F*> th1f_modes;
 };
 
-#endif // Alignment_MuonAlignmentAlgorithms_CSCAlignmentCorrections_H
+#endif  // Alignment_MuonAlignmentAlgorithms_CSCAlignmentCorrections_H

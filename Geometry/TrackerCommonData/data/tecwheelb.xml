@@ -12,7 +12,7 @@
 		<Tubs name="TECWheelB" rMin="[tecpetal3:PetalContRmin]" rMax="[tecwheel:WheelRmax]" dz="[tecwheel:WheelT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
 		<Tubs name="TECWheelDiskB" rMin="[tecpetal3:PetalContRmin]" rMax="[tecwheel:WheelRmax]" dz="[tecwheel:DiskT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
 		<Tubs name="TECWheelNomexB" rMin="[tecpetal3:PetalContRmin]" rMax="[tecwheel:NomexRmax]" dz="[tecwheel:NomexT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
-		<Tubs name="TECFixSupportB" rMin="[tecpetal3:PetalContRmin]" rMax="[FixSuppRmax]" dz="[tecwheel:FixSuppT]/2" startPhi="-[FixSuppW]/2" deltaPhi="[FixSuppW]"/>
+		<Tubs name="TECFixSupportB" rMin="[tecpetal3:PetalContRmin]" rMax="[FixSuppRmax]" dz="[tecwheel:FixSuppT]/2" startPhi="-0.103339312*rad" deltaPhi="0.206678624*rad"/>
 		<Tubs name="TECOptConnectorB" rMin="[tecwheel:OptConnRmin]" rMax="[tecwheel:OptConnRmax]" dz="[tecwheel:OptConnT2]/2" startPhi="-[tecwheel:OptConnW]/2" deltaPhi="[tecwheel:OptConnW]"/>
 	</SolidSection>
 	<LogicalPartSection label="tecwheelb.xml">

@@ -37,32 +37,30 @@ namespace edm {
 }
 
 // class declaration
-class HLTBeamModeFilter: public HLTFilter {
-
+class HLTBeamModeFilter : public HLTFilter {
 public:
+  /// constructor
+  explicit HLTBeamModeFilter(const edm::ParameterSet&);
 
-    /// constructor
-    explicit HLTBeamModeFilter(const edm::ParameterSet&);
+  /// destructor
+  ~HLTBeamModeFilter() override;
 
-    /// destructor
-    ~HLTBeamModeFilter() override;
-
-    /// parameter description
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    /// filter the event
-    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  /// parameter description
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  /// filter the event
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
 private:
+  /// InputTag for the L1 Global Trigger EVM readout record
+  edm::InputTag m_l1GtEvmReadoutRecordTag;
+  edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEvmReadoutRecordToken;
+  /// vector of beam modes (coded as integer numbers)
+  std::vector<unsigned int> m_allowedBeamMode;
 
-    /// InputTag for the L1 Global Trigger EVM readout record
-    edm::InputTag m_l1GtEvmReadoutRecordTag;
-    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEvmReadoutRecordToken;
-    /// vector of beam modes (coded as integer numbers)
-    std::vector<unsigned int> m_allowedBeamMode;
-
-    /// cache edm::isDebugEnabled()
-    bool m_isDebugEnabled;
-
+  /// cache edm::isDebugEnabled()
+  bool m_isDebugEnabled;
 };
 
-#endif // HLTfilters_HLTBeamModeFilter_h
+#endif  // HLTfilters_HLTBeamModeFilter_h

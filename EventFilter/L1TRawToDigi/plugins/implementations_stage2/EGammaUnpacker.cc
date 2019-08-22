@@ -9,77 +9,70 @@
 #include "EGammaUnpacker.h"
 
 namespace l1t {
-namespace stage2 {
-   EGammaUnpacker::EGammaUnpacker() : EGammaCopy_(0)
-   {
-   }
+  namespace stage2 {
+    EGammaUnpacker::EGammaUnpacker() : EGammaCopy_(0) {}
 
-   bool
-   EGammaUnpacker::unpack(const Block& block, UnpackerCollections *coll)
-   {
+    bool EGammaUnpacker::unpack(const Block& block, UnpackerCollections* coll) {
+      using namespace l1t::stage2::layer2;
 
-     using namespace l1t::stage2::layer2;
+      LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-     LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
+      int nBX = int(ceil(block.header().getSize() / (double)demux::nOutputFramePerBX));  // 6 link frames per BX
 
-     int nBX = int(ceil(block.header().getSize() / (double) demux::nOutputFramePerBX)); // 6 link frames per BX
+      // Find the central, first and last BXs
+      int firstBX = -(ceil((double)nBX / 2.) - 1);
+      int lastBX;
+      if (nBX % 2 == 0) {
+        lastBX = ceil((double)nBX / 2.);
+      } else {
+        lastBX = ceil((double)nBX / 2.) - 1;
+      }
 
-     // Find the central, first and last BXs
-     int firstBX = -(ceil((double)nBX/2.)-1);
-     int lastBX;
-     if (nBX % 2 == 0) {
-       lastBX = ceil((double)nBX/2.);
-     } else {
-       lastBX = ceil((double)nBX/2.)-1;
-     }
+      auto res_ = static_cast<L1TObjectCollections*>(coll)->getEGammas(EGammaCopy_);
+      res_->setBXRange(firstBX, lastBX);
 
-     auto res_ = static_cast<L1TObjectCollections*>(coll)->getEGammas(EGammaCopy_);
-     res_->setBXRange(firstBX, lastBX);
+      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
-     LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
+      // Loop over multiple BX and then number of EG cands filling collection
+      for (int bx = firstBX; bx <= lastBX; bx++) {
+        for (unsigned iEG = 0; iEG < demux::nEGPerLink && iEG < block.header().getSize(); iEG++) {
+          int iFrame = (bx - firstBX) * demux::nOutputFramePerBX + iEG;
+          uint32_t raw_data = block.payload().at(iFrame);
 
-     // Loop over multiple BX and then number of EG cands filling collection
-     for (int bx=firstBX; bx<=lastBX; bx++){
-
-       for (unsigned iEG=0; iEG < demux::nEGPerLink && iEG < block.header().getSize(); iEG++){
-
-	 int iFrame = (bx-firstBX) * demux::nOutputFramePerBX + iEG;
-         uint32_t raw_data = block.payload().at(iFrame);
-
-         // skip padding to bring EG candidates up to 12 pre BX
-         if (raw_data == 0)
+          // skip padding to bring EG candidates up to 12 pre BX
+          if (raw_data == 0)
             continue;
 
-         l1t::EGamma eg = l1t::EGamma();
-    
-         eg.setHwPt(raw_data & 0x1FF);
+          l1t::EGamma eg = l1t::EGamma();
 
-	 if (eg.hwPt()==0) continue;
+          eg.setHwPt(raw_data & 0x1FF);
 
-	 int abs_eta = (raw_data >> 9) & 0x7F;
-         if ((raw_data >> 16) & 0x1) {
-           eg.setHwEta(-1*(128-abs_eta));
-         } else {
-           eg.setHwEta(abs_eta);
-         }
+          if (eg.hwPt() == 0)
+            continue;
 
-         eg.setHwPhi((raw_data >> 17) & 0xFF);
-	 eg.setHwIso((raw_data >> 25) & 0x3); 
-	 eg.setHwQual((raw_data >> 27) & 0x7); // Assume 3 bits for now? leaves 2 spare bits
-       
-         LogDebug("L1T") << "EG: eta " << eg.hwEta() << " phi " << eg.hwPhi() << " pT " << eg.hwPt() << " iso " << eg.hwIso() << " qual " << eg.hwQual();
+          int abs_eta = (raw_data >> 9) & 0x7F;
+          if ((raw_data >> 16) & 0x1) {
+            eg.setHwEta(-1 * (128 - abs_eta));
+          } else {
+            eg.setHwEta(abs_eta);
+          }
 
-	 eg.setP4( l1t::CaloTools::p4Demux(&eg) );
+          eg.setHwPhi((raw_data >> 17) & 0xFF);
+          eg.setHwIso((raw_data >> 25) & 0x3);
+          eg.setHwQual((raw_data >> 27) & 0x7);  // Assume 3 bits for now? leaves 2 spare bits
 
-         res_->push_back(bx,eg);
+          LogDebug("L1T") << "EG: eta " << eg.hwEta() << " phi " << eg.hwPhi() << " pT " << eg.hwPt() << " iso "
+                          << eg.hwIso() << " qual " << eg.hwQual();
 
-       }
+          eg.setP4(l1t::CaloTools::p4Demux(&eg));
 
-     }
+          res_->push_back(bx, eg);
+        }
+      }
 
-     return true;
-   }
-}
-}
+      return true;
+    }
+  }  // namespace stage2
+}  // namespace l1t
 
 DEFINE_L1T_UNPACKER(l1t::stage2::EGammaUnpacker);

@@ -29,12 +29,11 @@
 // forward declarations
 
 // class declaration - record depends on L1TGlobalStableParametersRcd
-class L1TGlobalTriggerMenuRcd : public edm::eventsetup::DependentRecordImplementation<
-            L1TGlobalTriggerMenuRcd, boost::mpl::vector<L1TGlobalStableParametersRcd,L1TriggerKeyListRcd,L1TriggerKeyRcd> >
-{
-
-    // empty
-
+class L1TGlobalTriggerMenuRcd
+    : public edm::eventsetup::DependentRecordImplementation<
+          L1TGlobalTriggerMenuRcd,
+          boost::mpl::vector<L1TGlobalStableParametersRcd, L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+  // empty
 };
 
 #endif

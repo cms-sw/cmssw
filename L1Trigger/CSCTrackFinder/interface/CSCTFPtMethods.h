@@ -3,39 +3,37 @@
 
 #include <CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h>
 
-class L1MuTriggerPtScale ;
+class L1MuTriggerPtScale;
 
-class CSCTFPtMethods
-{
- public:
-  enum {kMaxParameters = 4};  
+class CSCTFPtMethods {
+public:
+  enum { kMaxParameters = 4 };
   /** Allowed station combinations for extrapolation units */
-  enum {kME1andME2=1, kME1andME3, kME2andME3, kME2andME4, 
-	kME3andME4, kME1andME2ovr, kME2andMB1, kME2andMB2};
+  enum { kME1andME2 = 1, kME1andME3, kME2andME3, kME2andME4, kME3andME4, kME1andME2ovr, kME2andMB1, kME2andMB2 };
 
-  CSCTFPtMethods( const L1MuTriggerPtScale* ptScale = nullptr ) ;
+  CSCTFPtMethods(const L1MuTriggerPtScale *ptScale = nullptr);
 
   /** First is the parameterizations of Acosta/McDonald */
-  
+
   /** The two station pt measument needs a two constant fit with a break in the detector depending on what detectors it hit (eta) */
-  /** dphi = A/pt + B/(pt^2) */ 
+  /** dphi = A/pt + B/(pt^2) */
   static const float AkLowEta_Fit2[kME2andMB2][kMaxParameters];
   static const float AkHighEta_Fit2[kME2andMB2][kMaxParameters];
-  
+
   static const float BkLowEta_Fit2[kME2andMB2][kMaxParameters];
   static const float BkHighEta_Fit2[kME2andMB2][kMaxParameters];
-  
+
   /** The three station pt measument only needs a one constant fit, but the dependence on eta is still there */
   /** dphi = A/pt */
   static const float AkLowEta_Fit1[kME2andMB2][kMaxParameters];
   static const float AkHighEta_Fit1[kME2andMB2][kMaxParameters];
-  
+
   static const float kGlobalScaleFactor;
   /** Corrections for ME1 F/R bit */
   static const float FRCorrLowEta[kME2andMB2][2];
   static const float FRCorrHighEta[kME2andMB2][2];
- 
-/** parameters for Anna's method 2011*/
+
+  /** parameters for Anna's method 2011*/
   static const double AB_mu12FnoME11[4][15];
   static const double AB_mu13FnoME11[4][15];
   static const double AB_mu14FnoME11[4][15];
@@ -102,7 +100,7 @@ class CSCTFPtMethods
   static const double AB_rho51B[5][15];
   static const double AB_rho52B[5][15];
   static const double AB_rho53B[5][15];
-/** parameters for Anna's method 2010*/
+  /** parameters for Anna's method 2010*/
   static const double A_mu12Front[4][15];
   static const double A_sig12Front[3][15];
   static const double A_mu13Front[4][15];
@@ -131,14 +129,14 @@ class CSCTFPtMethods
   static const double A_mu34[4][15];
   static const double A_sig34[3][15];
 
-/*
+  /*
   static const double A_mu23CSCTF[4][15];
   static const double A_sig23CSCTF[3][15];
   static const double A_mu24CSCTF[4][15];
   static const double A_sig24CSCTF[3][15];
   static const double A_mu34CSCTF[4][15];
   static const double A_sig34CSCTF[3][15];
-*/ 
+*/
   static const double A_rho123FrontCSCTF[5][15];
   static const double A_rho124FrontCSCTF[5][15];
   static const double A_rho134FrontCSCTF[5][15];
@@ -153,25 +151,42 @@ class CSCTFPtMethods
   static const double A_rho513[5][15];
   static const double A_rho523[5][15];
 
-// don't care about Mode 12: 1-2-b1 yet, should add A_mu12CSCTF or A_mu51CSCTF depending how calculate dphi12
+  // don't care about Mode 12: 1-2-b1 yet, should add A_mu12CSCTF or A_mu51CSCTF depending how calculate dphi12
 
   /** 2-station Pt measurement for types (see SP class for 2-stn types) */
-  float Pt2Stn(int type, float eta, float dphi, int fr=-1) const;
-  float Pt2Stn2010(int type, float eta, float dphi, int fr=-1, int method=11) const;
-  float Pt2Stn2011(int type, float eta, float dphi, int fr=-1, int method=11, int phiSign=2) const;
-  float Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, float &theLH, int fr=-1, int method=11) const;
-  float Pt2Stn2012_DT(int type, float eta, float dphi, int PtbyMLH, float &theLH,int fr=-1, int method=11, int phiSign=2) const;
-  double Likelihood2(double *phi12, double *par_m12, double *par_sig12, double *v) const;  
+  float Pt2Stn(int type, float eta, float dphi, int fr = -1) const;
+  float Pt2Stn2010(int type, float eta, float dphi, int fr = -1, int method = 11) const;
+  float Pt2Stn2011(int type, float eta, float dphi, int fr = -1, int method = 11, int phiSign = 2) const;
+  float Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, float &theLH, int fr = -1, int method = 11) const;
+  float Pt2Stn2012_DT(
+      int type, float eta, float dphi, int PtbyMLH, float &theLH, int fr = -1, int method = 11, int phiSign = 2) const;
+  double Likelihood2(double *phi12, double *par_m12, double *par_sig12, double *v) const;
   double Likelihood2_2011(double *phi12, double *par_m12, double *par_sig12, double *v) const;
- 
+
   /** 3-station Pt measurement for types (see SP class for 3-stn types) */
-  float Pt3Stn(int type, float eta, float dphi1, float dphi2, int fr=-1) const;
-  float Pt3Stn2010(int type, float eta, float dphi1, float dphi2, int fr=-1, int method=11) const;
-  float Pt3Stn2011(int type, float eta, float dphi1, float dphi2, int fr=-1, int method=11) const;
-  float Pt3Stn2012(int type, float eta, float dphi1, float dphi2, int PtbyMLH, float &theLH, int fr=-1, int method=11) const;
-  float Pt3Stn2012_DT(int type, float eta, float dphi1, float dphi2, int PtbyMLH, float &theLH, int fr=-1, int method=11) const;
-  double Likelihood(double *phi12, double *phi23, double *par_m12, double *par_m23, double *par_sig12, double *par_sig23, double *par_rho, double *v) const; 
-  double Likelihood2011(double *phi12, double *phi23, double *par_m12, double *par_m23, double *par_sig12, double *par_sig23, double *par_rho, double *v) const;
+  float Pt3Stn(int type, float eta, float dphi1, float dphi2, int fr = -1) const;
+  float Pt3Stn2010(int type, float eta, float dphi1, float dphi2, int fr = -1, int method = 11) const;
+  float Pt3Stn2011(int type, float eta, float dphi1, float dphi2, int fr = -1, int method = 11) const;
+  float Pt3Stn2012(
+      int type, float eta, float dphi1, float dphi2, int PtbyMLH, float &theLH, int fr = -1, int method = 11) const;
+  float Pt3Stn2012_DT(
+      int type, float eta, float dphi1, float dphi2, int PtbyMLH, float &theLH, int fr = -1, int method = 11) const;
+  double Likelihood(double *phi12,
+                    double *phi23,
+                    double *par_m12,
+                    double *par_m23,
+                    double *par_sig12,
+                    double *par_sig23,
+                    double *par_rho,
+                    double *v) const;
+  double Likelihood2011(double *phi12,
+                        double *phi23,
+                        double *par_m12,
+                        double *par_m23,
+                        double *par_sig12,
+                        double *par_sig23,
+                        double *par_rho,
+                        double *v) const;
   /** Second are the parameterizations of Acosta/Yeh */
 
   static const float ptbins[29];
@@ -195,7 +210,7 @@ class CSCTFPtMethods
    *  3rd if Cathy's < Darin's use Cathy's otherwise return Darin's
    *  A study needs to be performed to determine any gains from this procedure.
    */
-  
+
   /** A method to calculate the charge valid bit
    *  Regions where this bit is were determined via simulation
    */
@@ -204,8 +219,8 @@ class CSCTFPtMethods
   /** Legacy Pt90 calculation function */
   float PtEff90(float pt, float eta, int mode) const;
 
- private:  
-  const L1MuTriggerPtScale* trigger_scale;
+private:
+  const L1MuTriggerPtScale *trigger_scale;
 };
 
 #endif

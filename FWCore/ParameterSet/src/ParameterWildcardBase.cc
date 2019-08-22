@@ -146,10 +146,8 @@ namespace edm {
     }
   }
 
-  void ParameterWildcardBase::writeCfi_(std::ostream&,
-                                        bool& /*startWithComma*/,
-                                        int /*indentation*/,
-                                        bool& /*wroteSomething*/) const {
+  void ParameterWildcardBase::writeCfi_(
+      std::ostream&, bool /*optional*/, bool& /*startWithComma*/, int /*indentation*/, bool& /*wroteSomething*/) const {
     // Until we implement default labels and values there is nothing
     // to do here.
   }

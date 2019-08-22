@@ -26,19 +26,13 @@
 
 // constructors
 //     default
-L1GtCastorCondition::L1GtCastorCondition() : L1GtConditionEvaluation() {
-
-  m_conditionResult = false;
-}
+L1GtCastorCondition::L1GtCastorCondition() : L1GtConditionEvaluation() { m_conditionResult = false; }
 
 //     from base template condition (from event setup usually)
-L1GtCastorCondition::L1GtCastorCondition(const L1GtCondition *castorTemplate,
-                                         const bool result)
+L1GtCastorCondition::L1GtCastorCondition(const L1GtCondition *castorTemplate, const bool result)
     : L1GtConditionEvaluation(),
-      m_gtCastorTemplate(
-          static_cast<const L1GtCastorTemplate *>(castorTemplate)),
+      m_gtCastorTemplate(static_cast<const L1GtCastorTemplate *>(castorTemplate)),
       m_conditionResult(result) {
-
   // maximum number of objects received for the evaluation of the condition
   // no object
   m_condMaxNumberObjects = 0;
@@ -46,7 +40,6 @@ L1GtCastorCondition::L1GtCastorCondition(const L1GtCondition *castorTemplate,
 
 // copy constructor
 void L1GtCastorCondition::copy(const L1GtCastorCondition &cp) {
-
   m_gtCastorTemplate = cp.gtCastorTemplate();
   m_conditionResult = cp.conditionResult();
 
@@ -57,34 +50,25 @@ void L1GtCastorCondition::copy(const L1GtCastorCondition &cp) {
   m_verbosity = cp.m_verbosity;
 }
 
-L1GtCastorCondition::L1GtCastorCondition(const L1GtCastorCondition &cp)
-    : L1GtConditionEvaluation() {
-
-  copy(cp);
-}
+L1GtCastorCondition::L1GtCastorCondition(const L1GtCastorCondition &cp) : L1GtConditionEvaluation() { copy(cp); }
 
 // destructor
 L1GtCastorCondition::~L1GtCastorCondition() {
-
   // empty
 }
 
 // equal operator
-L1GtCastorCondition &L1GtCastorCondition::
-operator=(const L1GtCastorCondition &cp) {
+L1GtCastorCondition &L1GtCastorCondition::operator=(const L1GtCastorCondition &cp) {
   copy(cp);
   return *this;
 }
 
 // methods
-void L1GtCastorCondition::setGtCastorTemplate(
-    const L1GtCastorTemplate *castorTemplate) {
-
+void L1GtCastorCondition::setGtCastorTemplate(const L1GtCastorTemplate *castorTemplate) {
   m_gtCastorTemplate = castorTemplate;
 }
 
 const bool L1GtCastorCondition::evaluateCondition() const {
-
   // clear the m_combinationsInCond vector
   (combinationsInCond()).clear();
 
@@ -93,7 +77,6 @@ const bool L1GtCastorCondition::evaluateCondition() const {
 }
 
 void L1GtCastorCondition::print(std::ostream &myCout) const {
-
   m_gtCastorTemplate->print(myCout);
   L1GtConditionEvaluation::print(myCout);
 }

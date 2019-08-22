@@ -17,78 +17,54 @@
 template <class T>
 class GloballyPositioned {
 public:
+  typedef T Scalar;
+  typedef Point3DBase<T, GlobalTag> PositionType;
+  typedef TkRotation<T> RotationType;
+  typedef Point3DBase<T, GlobalTag> GlobalPoint;
+  typedef Point3DBase<T, LocalTag> LocalPoint;
+  typedef Vector3DBase<T, GlobalTag> GlobalVector;
+  typedef Vector3DBase<T, LocalTag> LocalVector;
 
-  typedef T                             Scalar;
-  typedef Point3DBase<T,GlobalTag>      PositionType;
-  typedef TkRotation<T>                 RotationType;
-  typedef Point3DBase<T,GlobalTag>      GlobalPoint;
-  typedef Point3DBase<T,LocalTag>       LocalPoint;
-  typedef Vector3DBase<T,GlobalTag>     GlobalVector;
-  typedef Vector3DBase<T,LocalTag>      LocalVector;
+  static T iniPhi() { return 999.9978; }
+  static T iniEta() { return 999.9978; }
 
-  static T iniPhi() {
-    return 999.9978;
-  }
-  static T iniEta() {
-    return 999.9978;
-  }
-
-  GloballyPositioned() {setCache();}
-  GloballyPositioned( const PositionType& pos, const RotationType& rot) :
-    thePos(pos), theRot(rot) {setCache();}
+  GloballyPositioned() { setCache(); }
+  GloballyPositioned(const PositionType& pos, const RotationType& rot) : thePos(pos), theRot(rot) { setCache(); }
 
   virtual ~GloballyPositioned() {}
 
-  const PositionType& position() const { return thePos;}
+  const PositionType& position() const { return thePos; }
 
-  const RotationType& rotation() const { return theRot;}
+  const RotationType& rotation() const { return theRot; }
 
-  T phi() const {
-    return thePhi;
-  }
-  T eta() const { 
-    return theEta;
-  }
-
+  T phi() const { return thePhi; }
+  T eta() const { return theEta; }
 
   // multiply inverse is faster
   class ToLocal {
   public:
-    ToLocal(GloballyPositioned const & frame) :
-      thePos(frame.position()), theRot(frame.rotation().transposed()){}
-    
-    LocalPoint operator()(const GlobalPoint& gp) const {
-         return toLocal(gp);
+    ToLocal(GloballyPositioned const& frame) : thePos(frame.position()), theRot(frame.rotation().transposed()) {}
+
+    LocalPoint operator()(const GlobalPoint& gp) const { return toLocal(gp); }
+
+    LocalVector operator()(const GlobalVector& gv) const { return toLocal(gv); }
+
+    LocalPoint toLocal(const GlobalPoint& gp) const {
+      return LocalPoint(theRot.multiplyInverse(gp.basicVector() - thePos.basicVector()));
     }
 
-    LocalVector operator()(const GlobalVector& gv) const {
-       	 return	toLocal(gv);
-    }
+    LocalVector toLocal(const GlobalVector& gv) const { return LocalVector(theRot.multiplyInverse(gv.basicVector())); }
 
-    LocalPoint toLocal( const GlobalPoint& gp) const {
-      return LocalPoint( theRot.multiplyInverse( gp.basicVector() -
-			 thePos.basicVector()) 
-                       );
-    }
-    
-    LocalVector toLocal( const GlobalVector& gv) const {
-      return LocalVector(theRot.multiplyInverse(gv.basicVector()));
-    } 
-    
-  // private:
-    PositionType  thePos;
-    RotationType  theRot;
-    
+    // private:
+    PositionType thePos;
+    RotationType theRot;
   };
-
-  
 
   /** Transform a local point (i.e. a point with coordinates in the
    *  local frame) to the global frame
    */
-  GlobalPoint toGlobal( const LocalPoint& lp) const {
-    return GlobalPoint( rotation().multiplyInverse( lp.basicVector()) +
-			position().basicVector());
+  GlobalPoint toGlobal(const LocalPoint& lp) const {
+    return GlobalPoint(rotation().multiplyInverse(lp.basicVector()) + position().basicVector());
   }
 
   /** Transform a local point with different float precision from the
@@ -96,17 +72,15 @@ public:
    *  same precision as the input one.
    */
   template <class U>
-  Point3DBase< U, GlobalTag>
-  toGlobal( const Point3DBase< U, LocalTag>& lp) const {
-    return Point3DBase< U, GlobalTag>( rotation().multiplyInverse( lp.basicVector()) +
-				       position().basicVector());
+  Point3DBase<U, GlobalTag> toGlobal(const Point3DBase<U, LocalTag>& lp) const {
+    return Point3DBase<U, GlobalTag>(rotation().multiplyInverse(lp.basicVector()) + position().basicVector());
   }
 
   /** Transform a local vector (i.e. a vector with coordinates in the
    *  local frame) to the global frame
    */
-  GlobalVector toGlobal( const LocalVector& lv) const {
-    return GlobalVector( rotation().multiplyInverse( lv.basicVector()));
+  GlobalVector toGlobal(const LocalVector& lv) const {
+    return GlobalVector(rotation().multiplyInverse(lv.basicVector()));
   }
 
   /** Transform a local vector with different float precision from the
@@ -114,16 +88,15 @@ public:
    *  same precision as the input one.
    */
   template <class U>
-  Vector3DBase< U, GlobalTag>
-  toGlobal( const Vector3DBase< U, LocalTag>& lv) const {
-    return Vector3DBase< U, GlobalTag>( rotation().multiplyInverse( lv.basicVector()));
+  Vector3DBase<U, GlobalTag> toGlobal(const Vector3DBase<U, LocalTag>& lv) const {
+    return Vector3DBase<U, GlobalTag>(rotation().multiplyInverse(lv.basicVector()));
   }
 
   /** Transform a global point (i.e. a point with coordinates in the
    *  global frame) to the local frame
    */
-  LocalPoint toLocal( const GlobalPoint& gp) const {
-    return LocalPoint( rotation() * (gp.basicVector()-position().basicVector()));
+  LocalPoint toLocal(const GlobalPoint& gp) const {
+    return LocalPoint(rotation() * (gp.basicVector() - position().basicVector()));
   }
 
   /** Transform a global point with different float precision from the
@@ -131,33 +104,28 @@ public:
    *  same precision as the input one.
    */
   template <class U>
-  Point3DBase< U, LocalTag>
-  toLocal( const Point3DBase< U, GlobalTag>& gp) const {
-    return Point3DBase< U, LocalTag>( rotation() * 
-				      (gp.basicVector()-position().basicVector()));
+  Point3DBase<U, LocalTag> toLocal(const Point3DBase<U, GlobalTag>& gp) const {
+    return Point3DBase<U, LocalTag>(rotation() * (gp.basicVector() - position().basicVector()));
   }
 
   /** Transform a global vector (i.e. a vector with coordinates in the
    *  global frame) to the local frame
    */
-  LocalVector toLocal( const GlobalVector& gv) const {
-    return LocalVector( rotation() * gv.basicVector());
-  }
+  LocalVector toLocal(const GlobalVector& gv) const { return LocalVector(rotation() * gv.basicVector()); }
 
   /** Transform a global vector with different float precision from the
    *  one of the reference frame, and return a local vector with the
    *  same precision as the input one.
    */
   template <class U>
-  Vector3DBase< U, LocalTag>
-  toLocal( const Vector3DBase< U, GlobalTag>& gv) const {
-    return Vector3DBase< U, LocalTag>( rotation() * gv.basicVector());
+  Vector3DBase<U, LocalTag> toLocal(const Vector3DBase<U, GlobalTag>& gv) const {
+    return Vector3DBase<U, LocalTag>(rotation() * gv.basicVector());
   }
 
   /** Move the position of the frame in the global frame.  
    *  Useful e.g. for alignment.
    */
-  void move( const GlobalVector& displacement) {
+  void move(const GlobalVector& displacement) {
     thePos += displacement;
     setCache();
   }
@@ -165,15 +133,14 @@ public:
   /** Rotate the frame in the global frame.
    *  Useful e.g. for alignment.
    */
-  void rotate( const RotationType& rotation) {
+  void rotate(const RotationType& rotation) {
     theRot *= rotation;
     setCache();
   }
 
 private:
-
-  PositionType  thePos;
-  RotationType  theRot;
+  PositionType thePos;
+  RotationType theRot;
 
   /*
   void resetCache() {
@@ -188,16 +155,15 @@ private:
 
   void setCache() {
     if ((thePos.x() == 0.) & (thePos.y() == 0.)) {
-      thePhi = theEta = 0.; // avoid FPE
+      thePhi = theEta = 0.;  // avoid FPE
     } else {
       thePhi = thePos.barePhi();
       theEta = thePos.eta();
     }
   }
-  
+
   T thePhi;
   T theEta;
-
 };
-  
+
 #endif

@@ -2,7 +2,7 @@
 //
 // Package:     DataRecord
 // Class  :     DQMSummaryRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

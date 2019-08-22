@@ -13,18 +13,19 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-namespace CLHEP { class HepRandomEngine; }
+namespace CLHEP {
+  class HepRandomEngine;
+}
 namespace edm {
-  
-class RandomXiThetaGunProducer : public one::EDProducer<>
-{
+
+  class RandomXiThetaGunProducer : public one::EDProducer<> {
   public:
     RandomXiThetaGunProducer(const ParameterSet&);
     ~RandomXiThetaGunProducer() override = default;
 
   private:
     void produce(Event&, const EventSetup&) override;
-    void generateParticle(double z_sign, double mass, unsigned int barcode, HepMC::GenVertex *vtx) const;
+    void generateParticle(double z_sign, double mass, unsigned int barcode, HepMC::GenVertex* vtx) const;
 
     unsigned int verbosity_;
     unsigned int particleId_;
@@ -38,8 +39,8 @@ class RandomXiThetaGunProducer : public one::EDProducer<>
     unsigned int nParticlesSector56_;
 
     CLHEP::HepRandomEngine* engine_;
-};
+  };
 
-} 
+}  // namespace edm
 
 #endif

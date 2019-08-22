@@ -4,7 +4,7 @@
 //
 // Package:     Common
 // Class  :     GetProduct
-// 
+//
 /**\class GetProduct GetProduct.h DataFormats/Common/interface/GetProduct.h
 
  Description: Controls how edm::View and edm::Ptr interact with containers
@@ -26,15 +26,13 @@
 
 namespace edm {
   namespace detail {
-    template<typename COLLECTION>
+    template <typename COLLECTION>
     struct GetProduct {
       typedef typename COLLECTION::value_type element_type;
       typedef typename COLLECTION::const_iterator iter;
-      static const element_type * address( const iter & i ) {
-	return &*i;
-      }
+      static const element_type* address(const iter& i) { return &*i; }
     };
-  }
-}
+  }  // namespace detail
+}  // namespace edm
 
 #endif

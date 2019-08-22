@@ -6,7 +6,7 @@
 
 // Class  :     CSCL1TPParametersRcd
 
-// 
+//
 
 // Author:      Slava Valuev
 
@@ -14,13 +14,8 @@
 
 // $Id: CSCL1TPParametersRcd.cc,v 1.1 2007/04/19 15:52:09 jbrooke Exp $
 
-
-
 #include "CondFormats/DataRecord/interface/CSCL1TPParametersRcd.h"
 
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
-
-
 EVENTSETUP_RECORD_REG(CSCL1TPParametersRcd);
-

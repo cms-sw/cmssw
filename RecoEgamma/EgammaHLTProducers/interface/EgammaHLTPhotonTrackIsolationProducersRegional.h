@@ -2,7 +2,7 @@
 //
 // Package:    EgammaHLTProducers
 // Class:      EgammaHLTPhotonTrackIsolationProducersRegional
-// 
+//
 /**\class EgammaHLTPhotonTrackIsolationProducersRegional EgammaHLTPhotonTrackIsolationProducersRegional.cc RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPhotonTrackIsolationProducersRegional.h
 */
 //
@@ -11,7 +11,6 @@
 // $Id: EgammaHLTPhotonTrackIsolationProducersRegional.h,v 1.1 2007/03/23 17:22:54 ghezzi Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,15 +36,15 @@ namespace edm {
 }
 
 class EgammaHLTPhotonTrackIsolationProducersRegional : public edm::global::EDProducer<> {
-   public:
-      explicit EgammaHLTPhotonTrackIsolationProducersRegional(const edm::ParameterSet&);
-      ~EgammaHLTPhotonTrackIsolationProducersRegional() override;
+public:
+  explicit EgammaHLTPhotonTrackIsolationProducersRegional(const edm::ParameterSet&);
+  ~EgammaHLTPhotonTrackIsolationProducersRegional() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
-  
+
 private:
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   const edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
@@ -54,14 +53,13 @@ private:
 
   const bool countTracks_;
 
-  const double egTrkIsoPtMin_; 
+  const double egTrkIsoPtMin_;
   const double egTrkIsoConeSize_;
-  const double egTrkIsoZSpan_;   
-  const double egTrkIsoRSpan_;  
+  const double egTrkIsoZSpan_;
+  const double egTrkIsoRSpan_;
   const double egTrkIsoVetoConeSize_;
   const double egTrkIsoStripBarrel_;
   const double egTrkIsoStripEndcap_;
 
   EgammaHLTTrackIsolation* test_;
 };
-

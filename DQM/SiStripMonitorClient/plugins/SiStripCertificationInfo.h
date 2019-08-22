@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <fstream>
@@ -34,12 +35,13 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
-class MonitorElement;
 class SiStripDetCabling;
 
-class SiStripCertificationInfo: public edm::EDAnalyzer {
+class SiStripCertificationInfo : public edm::EDAnalyzer {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripCertificationInfo(const edm::ParameterSet& ps);
 
 private:
@@ -50,13 +52,12 @@ private:
 
   void bookSiStripCertificationMEs(DQMStore& dqm_store);
   void resetSiStripCertificationMEs(DQMStore& dqm_store);
-  void fillSiStripCertificationMEs(DQMStore& dqm_store,
-                                   edm::EventSetup const& eSetup);
+  void fillSiStripCertificationMEs(DQMStore& dqm_store, edm::EventSetup const& eSetup);
 
   void fillDummySiStripCertification(DQMStore& dqm_store);
   void fillSiStripCertificationMEsAtLumi(DQMStore& dqm_store);
 
-  struct SubDetMEs{
+  struct SubDetMEs {
     MonitorElement* det_fractionME;
     std::string folder_name;
     std::string subdet_tag;

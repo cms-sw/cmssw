@@ -22,7 +22,6 @@ class EcalTPGFineGrainTowerEE;
     */
 
 class EcalFenixTcpFgvbEE {
-
 private:
   uint32_t fgee_lut_;
   std::vector<int> indexLut_;
@@ -30,10 +29,8 @@ private:
 public:
   EcalFenixTcpFgvbEE(int maxNrSamples);
   virtual ~EcalFenixTcpFgvbEE();
-  void setParameters(uint32_t towid,
-                     const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE);
+  void setParameters(uint32_t towid, const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE);
 
-  void process(std::vector<std::vector<int>> &bypasslin_out, int nStr,
-               int bitMask, std::vector<int> &output);
+  void process(std::vector<std::vector<int>> &bypasslin_out, int nStr, int bitMask, std::vector<int> &output);
 };
 #endif

@@ -16,9 +16,6 @@
 #include "CommonTools/UtilAlgos/interface/PtMinSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef SingleObjectSelector<
-          reco::CandidateCollection,
-          PtMinSelector
-        > PtMinCandSelector;
+typedef SingleObjectSelector<reco::CandidateCollection, PtMinSelector> PtMinCandSelector;
 
-DEFINE_FWK_MODULE( PtMinCandSelector );
+DEFINE_FWK_MODULE(PtMinCandSelector);

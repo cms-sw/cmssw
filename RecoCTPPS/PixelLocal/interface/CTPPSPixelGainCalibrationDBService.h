@@ -4,7 +4,7 @@
 //
 // Package:     RecoCTPPS/PixelLocal
 // Class  :     CTPPSPixelGainCalibrationDBService
-// 
+//
 /**\class CTPPSPixelGainCalibrationDBService CTPPSPixelGainCalibrationDBService.h "RecoCTPPS/PixelLocal/interface/CTPPSPixelGainCalibrationDBService.h"
 
  Description: [one line class summary]
@@ -20,18 +20,17 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelGainCalibrations.h"
-class CTPPSPixelGainCalibrationDBService
-{
+class CTPPSPixelGainCalibrationDBService {
+public:
+  CTPPSPixelGainCalibrationDBService();
+  virtual ~CTPPSPixelGainCalibrationDBService();
+  virtual void getDB(const edm::Event& e, const edm::EventSetup& c);
+  const CTPPSPixelGainCalibrations* getCalibs() const { return pPixelGainCalibrations; }
 
-   public:
-      CTPPSPixelGainCalibrationDBService();
-      virtual ~CTPPSPixelGainCalibrationDBService();
-      virtual void getDB(const edm::Event& e, const edm::EventSetup& c);
-      const CTPPSPixelGainCalibrations* getCalibs() const {return pPixelGainCalibrations;}
-   private:
-      CTPPSPixelGainCalibrationDBService(const CTPPSPixelGainCalibrationDBService&) = delete; 
-      const CTPPSPixelGainCalibrations* pPixelGainCalibrations;
-      const CTPPSPixelGainCalibrationDBService& operator=(const CTPPSPixelGainCalibrationDBService&) = delete; 
+private:
+  CTPPSPixelGainCalibrationDBService(const CTPPSPixelGainCalibrationDBService&) = delete;
+  const CTPPSPixelGainCalibrations* pPixelGainCalibrations;
+  const CTPPSPixelGainCalibrationDBService& operator=(const CTPPSPixelGainCalibrationDBService&) = delete;
 };
 
 #endif

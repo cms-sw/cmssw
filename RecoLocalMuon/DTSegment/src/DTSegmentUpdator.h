@@ -34,84 +34,80 @@ class DTLinearFit;
 class DTRecHitBaseAlgo;
 class DTChamberRecSegment2D;
 
-namespace edm{class EventSetup; class ParameterSet;}
+namespace edm {
+  class EventSetup;
+  class ParameterSet;
+}  // namespace edm
 
 /* Class DTSegmentUpdator Interface */
-class DTSegmentUpdator{
+class DTSegmentUpdator {
+public:
+  /// Constructor
+  DTSegmentUpdator(const edm::ParameterSet& config);
 
-  public:
+  /// Destructor
+  ~DTSegmentUpdator();
 
-    /// Constructor
-    DTSegmentUpdator(const edm::ParameterSet& config) ;
+  /* Operations */
 
-    /// Destructor
-    ~DTSegmentUpdator() ;
-
-    /* Operations */ 
-
-    /** do the linear fit on the hits of the segment candidate and update it.
+  /** do the linear fit on the hits of the segment candidate and update it.
      * Returns false if the segment candidate is not good() */
-    bool fit(DTSegmentCand* seg, bool allow3par, const bool fitdebug) const;
+  bool fit(DTSegmentCand* seg, bool allow3par, const bool fitdebug) const;
 
-    /** ditto for true segment: since the fit is applied on a true segment, by
+  /** ditto for true segment: since the fit is applied on a true segment, by
      * definition the segment is "good", while it's not the case for just
      * candidates */
-    void fit(DTRecSegment2D* seg, bool allow3par, bool block3par) const;
+  void fit(DTRecSegment2D* seg, bool allow3par, bool block3par) const;
 
-    /** ditto for true segment 4D, the fit is done on either projection and then
+  /** ditto for true segment 4D, the fit is done on either projection and then
      * the 4D direction and position is built. Since the fit is applied on a
      * true segment, by definition the segment is "good", while it's not the
      * case for just candidates */
-    void fit(DTRecSegment4D* seg, bool allow3par) const;
+  void fit(DTRecSegment4D* seg, bool allow3par) const;
 
-    /// recompute hits position and refit the segment4D
-    void update(DTRecSegment4D* seg, const bool calcT0, bool allow3par) const;
+  /// recompute hits position and refit the segment4D
+  void update(DTRecSegment4D* seg, const bool calcT0, bool allow3par) const;
 
-    /// recompute hits position and refit the segment2D
-    void update(DTRecSegment2D* seg, bool allow3par) const;
+  /// recompute hits position and refit the segment2D
+  void update(DTRecSegment2D* seg, bool allow3par) const;
 
-    void calculateT0corr(DTRecSegment2D* seg) const;
-    void calculateT0corr(DTRecSegment4D* seg) const;
+  void calculateT0corr(DTRecSegment2D* seg) const;
+  void calculateT0corr(DTRecSegment4D* seg) const;
 
-    /// set the setup
-    void setES(const edm::EventSetup& setup);
+  /// set the setup
+  void setES(const edm::EventSetup& setup);
 
-  protected:
+protected:
+private:
+  std::unique_ptr<DTLinearFit> theFitter;     // the linear fitter
+  std::unique_ptr<DTRecHitBaseAlgo> theAlgo;  // the algo for hit reconstruction
+  edm::ESHandle<DTGeometry> theGeom;          // the geometry
 
-  private:
-    std::unique_ptr<DTLinearFit> theFitter; // the linear fitter
-    std::unique_ptr<DTRecHitBaseAlgo> theAlgo; // the algo for hit reconstruction
-    edm::ESHandle<DTGeometry> theGeom; // the geometry
+  void updateHits(DTRecSegment2D* seg, GlobalPoint& gpos, GlobalVector& gdir, const int step = 2) const;
 
-    void updateHits(DTRecSegment2D* seg,
-                    GlobalPoint &gpos,
-                    GlobalVector &gdir,
-                    const int step=2) const;
+  //rejects bad hits (due to deltas) for phi segment
+  void rejectBadHits(DTChamberRecSegment2D*) const;
 
-   //rejects bad hits (due to deltas) for phi segment
-   void rejectBadHits(DTChamberRecSegment2D* ) const;
+  /// interface to LinearFit
+  void fit(const std::vector<float>& x,
+           const std::vector<float>& y,
+           const std::vector<int>& lfit,
+           const std::vector<double>& dist,
+           const std::vector<float>& sigy,
+           LocalPoint& pos,
+           LocalVector& dir,
+           float& cminf,
+           float& vminf,
+           AlgebraicSymMatrix& covMat,
+           double& chi2,
+           const bool allow3par = false,
+           const bool block3par = false) const;
 
-    /// interface to LinearFit
-    void fit(const std::vector<float>& x,
-             const std::vector<float>& y, 
-             const std::vector<int>& lfit,
-             const std::vector<double>& dist,
-             const std::vector<float>& sigy,
-             LocalPoint& pos,
-             LocalVector& dir,
-             float& cminf,
-             float& vminf,
-             AlgebraicSymMatrix& covMat,
-             double& chi2,
-             const bool allow3par = false,
-             const bool block3par = false) const;
-
-    double intime_cut;
-    bool vdrift_4parfit;
-    double T0_hit_resolution;
-    bool perform_delta_rejecting;
-    bool debug;
-
+  double intime_cut;
+  bool vdrift_4parfit;
+  double T0_hit_resolution;
+  bool perform_delta_rejecting;
+  bool debug;
 };
 
-#endif // DTSegment_DTSegmentUpdator_h
+#endif  // DTSegment_DTSegmentUpdator_h

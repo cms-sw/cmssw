@@ -27,7 +27,7 @@ namespace math {
   typedef edm::RefProd<XYZTLorentzVectorFCollection> XYZTLorentzVectorFRefProd;
   typedef edm::RefVector<XYZTLorentzVectorFCollection> XYZTLorentzVectorFRefVector;
 
- typedef std::vector<PtEtaPhiELorentzVector> PtEtaPhiELorentzVectorCollection;
+  typedef std::vector<PtEtaPhiELorentzVector> PtEtaPhiELorentzVectorCollection;
   typedef edm::Ref<PtEtaPhiELorentzVectorCollection> PtEtaPhiELorentzVectorRef;
   typedef edm::RefProd<PtEtaPhiELorentzVectorCollection> PtEtaPhiELorentzVectorRefProd;
   typedef edm::RefVector<PtEtaPhiELorentzVectorCollection> PtEtaPhiELorentzVectorRefVector;
@@ -37,9 +37,6 @@ namespace math {
   typedef edm::RefProd<XYZTLorentzVectorCollection> XYZTLorentzVectorRefProd;
   typedef edm::RefVector<XYZTLorentzVectorCollection> XYZTLorentzVectorRefVector;
 
-
-
-
-}
+}  // namespace math
 
 #endif

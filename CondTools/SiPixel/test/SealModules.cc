@@ -42,16 +42,15 @@
 #include "CondFormats/SiPixelObjects/interface/PixelDCSObject.h"
 #include "CondTools/SiPixel/test/PixelDCSObjectReader.h"
 
+using cms::SiPixelCondObjAllPayloadsReader;
 using cms::SiPixelCondObjBuilder;
-using cms::SiPixelCondObjReader;
 using cms::SiPixelCondObjForHLTBuilder;
 using cms::SiPixelCondObjForHLTReader;
 using cms::SiPixelCondObjOfflineBuilder;
 using cms::SiPixelCondObjOfflineReader;
-using cms::SiPixelCondObjAllPayloadsReader;
+using cms::SiPixelCondObjReader;
 using cms::SiPixelPerformanceSummaryBuilder;
 using cms::SiPixelPerformanceSummaryReader;
-
 
 DEFINE_FWK_MODULE(SiPixelCondObjBuilder);
 DEFINE_FWK_MODULE(SiPixelCondObjReader);

@@ -27,30 +27,29 @@
 class SeedGeneratorFromRegionHits;
 class MagneticField;
 class MeasurementTrackerEvent;
-namespace edm { class ConsumesCollector; }
+namespace edm {
+  class ConsumesCollector;
+}
 
 class SeedFilter {
- public:
-
+public:
   struct Tokens {
     edm::EDGetTokenT<std::vector<reco::Vertex> > token_vtx;
     edm::EDGetTokenT<reco::BeamSpot> token_bs;
   };
 
-  SeedFilter(const edm::ParameterSet& conf,
-	     const Tokens& tokens,
-	     edm::ConsumesCollector& iC);
+  SeedFilter(const edm::ParameterSet& conf, const Tokens& tokens, edm::ConsumesCollector& iC);
   ~SeedFilter();
 
-  void seeds(edm::Event&, const edm::EventSetup&, const reco::SuperClusterRef &, TrajectorySeedCollection *);
+  void seeds(edm::Event&, const edm::EventSetup&, const reco::SuperClusterRef&, TrajectorySeedCollection*);
 
- private:
-  SeedGeneratorFromRegionHits *combinatorialSeedGenerator;
+private:
+  std::unique_ptr<SeedGeneratorFromRegionHits> combinatorialSeedGenerator;
 
   // remove them FIXME
   double dr_, deta_, dphi_, pt_;
 
-  double ptmin_, vertexz_, originradius_,  halflength_, deltaEta_, deltaPhi_;
+  double ptmin_, vertexz_, originradius_, halflength_, deltaEta_, deltaPhi_;
   bool useZvertex_;
   //  edm::InputTag BSProducer_;  //FIXME?
   edm::EDGetTokenT<std::vector<reco::Vertex> > vertexSrc_;
@@ -64,6 +63,4 @@ class SeedFilter {
   edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerToken_;
 };
 
-#endif // SeedFilter_H
-
-
+#endif  // SeedFilter_H

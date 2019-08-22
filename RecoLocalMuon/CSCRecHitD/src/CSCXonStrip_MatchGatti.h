@@ -15,53 +15,54 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <map>  
+#include <map>
 #include <vector>
 
 class CSCLayer;
 class CSCChamberSpecs;
 
-class CSCXonStrip_MatchGatti
-{
- public:
-
+class CSCXonStrip_MatchGatti {
+public:
   explicit CSCXonStrip_MatchGatti(const edm::ParameterSet& ps);
 
   ~CSCXonStrip_MatchGatti();
-  
 
   // Member functions
-  
+
   /// Returns fitted local x position and its estimated error.
-  void findXOnStrip( const CSCDetId& id, const CSCLayer* layer, const CSCStripHit& stripHit,
-                     int centralStrip, float& xWithinChamber, float& stripWidth,
-                     const float& tpeak, float& xWithinStrip, float& sigma, int & quality_flag);
+  void findXOnStrip(const CSCDetId& id,
+                    const CSCLayer* layer,
+                    const CSCStripHit& stripHit,
+                    int centralStrip,
+                    float& xWithinChamber,
+                    float& stripWidth,
+                    const float& tpeak,
+                    float& xWithinStrip,
+                    float& sigma,
+                    int& quality_flag);
 
   /// Use specs to setup Gatti parameters
-  void initChamberSpecs();                       
+  void initChamberSpecs();
 
   /// Set matrix for XT corrections and noise
   void setupMatrix();
 
   /// Cache pointer to conditions data
-  void setConditions( const CSCRecoConditions* reco ) {
-    recoConditions_ = reco;
-  }
+  void setConditions(const CSCRecoConditions* reco) { recoConditions_ = reco; }
 
- private:
-
+private:
   // No copying of this class
-  CSCXonStrip_MatchGatti( const CSCXonStrip_MatchGatti& );
-  CSCXonStrip_MatchGatti& operator=( const CSCXonStrip_MatchGatti& );
+  CSCXonStrip_MatchGatti(const CSCXonStrip_MatchGatti&);
+  CSCXonStrip_MatchGatti& operator=(const CSCXonStrip_MatchGatti&);
 
-  double h;                                     // This is the distance between strip and wire planes
+  double h;  // This is the distance between strip and wire planes
   float stripWidth;
-  double r;                                     // This is the ratio h/stripwidth
-  
-  double k_1, k_2, k_3, sqrt_k_3, norm;         // See equation above for description
-    
-  // The charge (3x3); [1][1] is the maximum 
-  float chargeSignal[3][3];                                // 3x3 data array for gatti fit
+  double r;  // This is the ratio h/stripwidth
+
+  double k_1, k_2, k_3, sqrt_k_3, norm;  // See equation above for description
+
+  // The charge (3x3); [1][1] is the maximum
+  float chargeSignal[3][3];  // 3x3 data array for gatti fit
 
   /// x-talks  0 = left, 1 = middle, 2 = right ; and then second [] is for time bin tmax-1, tmax, tmax+1
   float xt_l[3][3], xt_r[3][3];
@@ -73,11 +74,10 @@ class CSCXonStrip_MatchGatti
   /// Store elements of auto-correlation matrices:      0 = left, 1 = middle, 2 = right
   float a11[3], a12[3], a13[3], a22[3], a23[3], a33[3];
 
-
   // Store chamber specs
   const CSCChamberSpecs* specs_;
 
-  // Store XT-corrected charges - 3x3 sum; Left, Central, Right charges (3 time-bins summed) 
+  // Store XT-corrected charges - 3x3 sum; Left, Central, Right charges (3 time-bins summed)
 
   double q_sum, q_sumL, q_sumC, q_sumR;
 
@@ -142,6 +142,6 @@ class CSCXonStrip_MatchGatti
   float noise_level_ME41;
   float xt_asymmetry_ME41;
   float const_syst_ME41;
-}; 
+};
 
 #endif

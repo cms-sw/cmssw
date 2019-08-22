@@ -4,7 +4,7 @@
 //
 // Package:    SiPixelDetInfoFileReader
 // Class:      SiPixelDetInfoFileReader
-// 
+//
 /**\class SiPixelDetInfoFileReader SiPixelDetInfoFileReader.cc CalibTracker/SiPixelCommon/src/SiPixelDetInfoFileReader.cc
 
  Description: <one line class summary>
@@ -25,23 +25,19 @@
 #include <fstream>
 #include <boost/cstdint.hpp>
 
-class SiPixelDetInfoFileReader  {
-
+class SiPixelDetInfoFileReader {
 public:
-
   explicit SiPixelDetInfoFileReader(std::string filePath);
   ~SiPixelDetInfoFileReader();
 
-  const std::vector<uint32_t> & getAllDetIds() const;
-  const std::pair<int, int> & getDetUnitDimensions(uint32_t detId) const;
+  const std::vector<uint32_t>& getAllDetIds() const;
+  const std::pair<int, int>& getDetUnitDimensions(uint32_t detId) const;
 
 private:
-
-  std::ifstream inputFile_; 
+  std::ifstream inputFile_;
   //  std::string filePath_;
 
   std::map<uint32_t, std::pair<int, int> > detData_;
   std::vector<uint32_t> detIds_;
-
 };
 #endif

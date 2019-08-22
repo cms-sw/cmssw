@@ -19,6 +19,7 @@
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/CaloHit/interface/PassiveHit.h"
 #include "SimDataFormats/SimHitMaker/interface/CaloSlaveSD.h"
 
 #include "SimG4CMS/Calo/interface/CaloGVHit.h"
@@ -46,6 +47,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <utility>
 
 class CaloSteppingAction : public SimProducer,
                            public Observer<const BeginOfJob *>,
@@ -61,6 +63,7 @@ public:
 
 private:
   void fillHits(edm::PCaloHitContainer &cc, int type);
+  void fillPassiveHits(edm::PassiveHitContainer &cc);
   // observer classes
   void update(const BeginOfJob *job) override;
   void update(const BeginOfRun *run) override;
@@ -91,11 +94,15 @@ private:
   std::vector<std::string> nameHitC_;
   std::vector<const G4LogicalVolume *> volEBSD_, volEESD_, volHCSD_;
   std::map<const G4LogicalVolume *, double> xtalMap_;
-  int count_, eventID_;
+  std::map<const G4LogicalVolume *, std::string> mapLV_;
+  int allSteps_, count_, eventID_;
   double slopeLY_, birkC1EC_, birkSlopeEC_;
   double birkCutEC_, birkC1HC_, birkC2HC_;
-  double birkC3HC_;
+  double birkC3HC_, timeSliceUnit_;
   std::map<std::pair<int, CaloHitID>, CaloGVHit> hitMap_[nSD_];
+  typedef std::tuple<const G4LogicalVolume *, uint32_t, int, int> PassiveKey;
+  typedef std::tuple<int, double, double, double> PassiveData;
+  std::map<PassiveKey, PassiveData> store_;
 };
 
 #endif

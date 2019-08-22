@@ -18,30 +18,19 @@
 
 #include "CLHEP/Vector/LorentzVector.h"
 
-
 using namespace edm;
 using namespace std;
 
+doubleEMEnrichingFilter::doubleEMEnrichingFilter(const edm::ParameterSet& iConfig) {
+  ParameterSet filterPSet = iConfig.getParameter<edm::ParameterSet>("filterAlgoPSet");
 
-doubleEMEnrichingFilter::doubleEMEnrichingFilter(const edm::ParameterSet& iConfig) { 
-  
-  ParameterSet filterPSet=iConfig.getParameter<edm::ParameterSet>("filterAlgoPSet");
-  
-  doubleEMEAlgo_=new doubleEMEnrichingFilterAlgo(filterPSet);
-
+  doubleEMEAlgo_ = new doubleEMEnrichingFilterAlgo(filterPSet);
 }
 
-doubleEMEnrichingFilter::~doubleEMEnrichingFilter() {
-}
+doubleEMEnrichingFilter::~doubleEMEnrichingFilter() {}
 
-
-bool doubleEMEnrichingFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
-
-  
-  bool result=doubleEMEAlgo_->filter(iEvent, iSetup);
+bool doubleEMEnrichingFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  bool result = doubleEMEAlgo_->filter(iEvent, iSetup);
 
   return result;
-
 }
-
-

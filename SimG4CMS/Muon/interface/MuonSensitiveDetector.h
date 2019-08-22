@@ -36,7 +36,7 @@ class SimTrackManager;
 class MuonSensitiveDetector : public SensitiveTkDetector, public Observer<const BeginOfEvent*> {
 public:
   explicit MuonSensitiveDetector(const std::string&,
-                                 const DDCompactView&,
+                                 const edm::EventSetup&,
                                  const SensitiveDetectorCatalog&,
                                  edm::ParameterSet const&,
                                  const SimTrackManager*);

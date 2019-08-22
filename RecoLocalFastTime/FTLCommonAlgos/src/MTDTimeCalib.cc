@@ -8,74 +8,52 @@
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 
-MTDTimeCalib::MTDTimeCalib(edm::ParameterSet const& conf, 
-			   const MTDGeometry* geom, const MTDTopology* topo):
-  geom_(geom),
-  topo_(topo),
-  btlTimeOffset_( conf.getParameter<double>("BTLTimeOffset") ),
-  etlTimeOffset_( conf.getParameter<double>("ETLTimeOffset") ),
-  btlLightCollTime_( conf.getParameter<double>("BTLLightCollTime") ),
-  btlLightCollSlope_( conf.getParameter<double>("BTLLightCollSlope") )
-{
-}
- 
+MTDTimeCalib::MTDTimeCalib(edm::ParameterSet const& conf, const MTDGeometry* geom, const MTDTopology* topo)
+    : geom_(geom),
+      topo_(topo),
+      btlTimeOffset_(conf.getParameter<double>("BTLTimeOffset")),
+      etlTimeOffset_(conf.getParameter<double>("ETLTimeOffset")),
+      btlLightCollTime_(conf.getParameter<double>("BTLLightCollTime")),
+      btlLightCollSlope_(conf.getParameter<double>("BTLLightCollSlope")) {}
 
-float MTDTimeCalib::getTimeCalib(const MTDDetId& id) const
-{
-  if (id.subDetector() != MTDDetId::FastTime)
-    {
-      throw cms::Exception("MTDTimeCalib") << "MTDDetId: " << std::hex
-						      << id.rawId()
-						      << " is invalid!" << std::dec
-						      << std::endl;
-    }
+float MTDTimeCalib::getTimeCalib(const MTDDetId& id) const {
+  if (id.subDetector() != MTDDetId::FastTime) {
+    throw cms::Exception("MTDTimeCalib") << "MTDDetId: " << std::hex << id.rawId() << " is invalid!" << std::dec
+                                         << std::endl;
+  }
 
   float time_calib = 0.;
 
-  if ( id.mtdSubDetector() == MTDDetId::BTL )
-    {
-      time_calib += btlTimeOffset_;
-      BTLDetId hitId(id);
-      DetId geoId = hitId.geographicalId( (BTLDetId::CrysLayout) topo_->getMTDTopologyMode() ); //for BTL topology gives different layout id
-      const MTDGeomDet* thedet = geom_->idToDet(geoId);
-      
-      if( thedet == nullptr ) {
-	throw cms::Exception("MTDTimeCalib") << "GeographicalID: " << std::hex
-					      << geoId.rawId()
-						<< " (" << id.rawId()<< ") is invalid!" << std::dec
-						<< std::endl;
-      }
-      const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
-      const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());    
-      
-      if ( topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::tile )
-	{
-	  time_calib -= btlLightCollTime_; //simply remove the offset introduced at sim level
-	}
-      else if ( topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::bar ||
-		topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::barphiflat 
-		)
-	{
-	  //for bars in phi
-	  time_calib -= 0.5*topo.pitch().first*btlLightCollSlope_; //time offset for bar time is L/2v 
-	}
-      else if ( topo_->getMTDTopologyMode() == (int) BTLDetId::CrysLayout::barzflat ) 
-	{
-	  //for bars in z
-	  time_calib -= 0.5*topo.pitch().second*btlLightCollSlope_; //time offset for bar time is L/2v 
-	}
+  if (id.mtdSubDetector() == MTDDetId::BTL) {
+    time_calib += btlTimeOffset_;
+    BTLDetId hitId(id);
+    DetId geoId = hitId.geographicalId(
+        (BTLDetId::CrysLayout)topo_->getMTDTopologyMode());  //for BTL topology gives different layout id
+    const MTDGeomDet* thedet = geom_->idToDet(geoId);
+
+    if (thedet == nullptr) {
+      throw cms::Exception("MTDTimeCalib") << "GeographicalID: " << std::hex << geoId.rawId() << " (" << id.rawId()
+                                           << ") is invalid!" << std::dec << std::endl;
     }
-  else if ( id.mtdSubDetector() == MTDDetId::ETL )
-    {
-      time_calib += etlTimeOffset_;
+    const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+    const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+
+    if (topo_->getMTDTopologyMode() == (int)BTLDetId::CrysLayout::tile) {
+      time_calib -= btlLightCollTime_;  //simply remove the offset introduced at sim level
+    } else if (topo_->getMTDTopologyMode() == (int)BTLDetId::CrysLayout::bar ||
+               topo_->getMTDTopologyMode() == (int)BTLDetId::CrysLayout::barphiflat) {
+      //for bars in phi
+      time_calib -= 0.5 * topo.pitch().first * btlLightCollSlope_;  //time offset for bar time is L/2v
+    } else if (topo_->getMTDTopologyMode() == (int)BTLDetId::CrysLayout::barzflat) {
+      //for bars in z
+      time_calib -= 0.5 * topo.pitch().second * btlLightCollSlope_;  //time offset for bar time is L/2v
     }
-  else
-    {
-      throw cms::Exception("MTDTimeCalib") << "MTDDetId: " << std::hex
-						      << id.rawId()
-						      << " is invalid!" << std::dec
-						      << std::endl;
-    }
+  } else if (id.mtdSubDetector() == MTDDetId::ETL) {
+    time_calib += etlTimeOffset_;
+  } else {
+    throw cms::Exception("MTDTimeCalib") << "MTDDetId: " << std::hex << id.rawId() << " is invalid!" << std::dec
+                                         << std::endl;
+  }
 
   return time_calib;
 }

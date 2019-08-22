@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
@@ -29,96 +28,83 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class CTPPSTrackDistributionPlotter : public edm::one::EDAnalyzer<>
-{
-  public:
-    explicit CTPPSTrackDistributionPlotter(const edm::ParameterSet&);
+class CTPPSTrackDistributionPlotter : public edm::one::EDAnalyzer<> {
+public:
+  explicit CTPPSTrackDistributionPlotter(const edm::ParameterSet&);
 
-    ~CTPPSTrackDistributionPlotter() override {}
+  ~CTPPSTrackDistributionPlotter() override {}
 
-  private:
-    void analyze( const edm::Event&, const edm::EventSetup& ) override;
-    void endJob() override;
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-    edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tracksToken_;
+  edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tracksToken_;
 
-    std::string outputFile_;
+  std::string outputFile_;
 
-    struct RPPlots
-    {
-      std::unique_ptr<TH2D> h2_y_vs_x;
-      std::unique_ptr<TProfile> p_y_vs_x;
-      std::unique_ptr<TH1D> h_x;
+  struct RPPlots {
+    std::unique_ptr<TH2D> h2_y_vs_x;
+    std::unique_ptr<TProfile> p_y_vs_x;
+    std::unique_ptr<TH1D> h_x;
 
-      RPPlots() :
-        h2_y_vs_x(new TH2D("", "", 300, -10., +70., 300, -30, +30.)),
-        p_y_vs_x(new TProfile("", "", 300, -10., +70.)),
-        h_x(new TH1D("", "", 600, -10., +70.))
-      {}
+    RPPlots()
+        : h2_y_vs_x(new TH2D("", "", 300, -10., +70., 300, -30, +30.)),
+          p_y_vs_x(new TProfile("", "", 300, -10., +70.)),
+          h_x(new TH1D("", "", 600, -10., +70.)) {}
 
-      void fill(double x, double y)
-      {
-        h2_y_vs_x->Fill(x, y);
-        p_y_vs_x->Fill(x, y);
-        h_x->Fill(x);
-      }
+    void fill(double x, double y) {
+      h2_y_vs_x->Fill(x, y);
+      p_y_vs_x->Fill(x, y);
+      h_x->Fill(x);
+    }
 
-      void write() const
-      {
-        h2_y_vs_x->Write("h2_y_vs_x");
-        p_y_vs_x->Write("p_y_vs_x");
-        h_x->Write("h_x");
-      }
-    };
+    void write() const {
+      h2_y_vs_x->Write("h2_y_vs_x");
+      p_y_vs_x->Write("p_y_vs_x");
+      h_x->Write("h_x");
+    }
+  };
 
-    std::map<unsigned int, RPPlots> rpPlots;
+  std::map<unsigned int, RPPlots> rpPlots;
 
+  struct ArmPlots {
+    std::unique_ptr<TProfile2D> p2_de_x_vs_x_y, p2_de_y_vs_x_y;
 
-    struct ArmPlots
-    {
-      std::unique_ptr<TProfile2D> p2_de_x_vs_x_y, p2_de_y_vs_x_y;
+    ArmPlots()
+        : p2_de_x_vs_x_y(new TProfile2D("", ";x;y", 40, 0., 40., 40, -20., +20.)),
+          p2_de_y_vs_x_y(new TProfile2D("", ";x;y", 40, 0., 40., 40, -20., +20.)) {}
 
-      ArmPlots() :
-        p2_de_x_vs_x_y(new TProfile2D("", ";x;y", 40, 0., 40., 40, -20., +20.)),
-        p2_de_y_vs_x_y(new TProfile2D("", ";x;y", 40, 0., 40., 40, -20., +20.))
-      {}
+    void fill(double x_N, double y_N, double x_F, double y_F) {
+      p2_de_x_vs_x_y->Fill(x_N, y_N, x_F - x_N);
+      p2_de_y_vs_x_y->Fill(x_N, y_N, y_F - y_N);
+    }
 
-      void fill(double x_N, double y_N, double x_F, double y_F)
-      {
-        p2_de_x_vs_x_y->Fill(x_N, y_N, x_F - x_N);
-        p2_de_y_vs_x_y->Fill(x_N, y_N, y_F - y_N);
-      }
+    void write() const {
+      p2_de_x_vs_x_y->Write("p2_de_x_vs_x_y");
+      p2_de_y_vs_x_y->Write("p2_de_y_vs_x_y");
+    }
+  };
 
-      void write() const
-      {
-        p2_de_x_vs_x_y->Write("p2_de_x_vs_x_y");
-        p2_de_y_vs_x_y->Write("p2_de_y_vs_x_y");
-      }
-    };
-
-    std::map<unsigned int, ArmPlots> armPlots;
+  std::map<unsigned int, ArmPlots> armPlots;
 };
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSTrackDistributionPlotter::CTPPSTrackDistributionPlotter( const edm::ParameterSet& iConfig ) :
-  tracksToken_( consumes<CTPPSLocalTrackLiteCollection>( iConfig.getParameter<edm::InputTag>( "tagTracks" ) ) ),
-  outputFile_( iConfig.getParameter<std::string>("outputFile") )
-{
-}
+CTPPSTrackDistributionPlotter::CTPPSTrackDistributionPlotter(const edm::ParameterSet& iConfig)
+    : tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagTracks"))),
+      outputFile_(iConfig.getParameter<std::string>("outputFile")) {}
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSTrackDistributionPlotter::analyze( const edm::Event& iEvent, const edm::EventSetup& )
-{
+void CTPPSTrackDistributionPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   // get input
   edm::Handle<CTPPSLocalTrackLiteCollection> tracks;
-  iEvent.getByToken( tracksToken_, tracks );
+  iEvent.getByToken(tracksToken_, tracks);
 
   // process tracks
   for (const auto& trk : *tracks) {
     CTPPSDetId rpId(trk.getRPId());
-    unsigned int rpDecId = rpId.arm()*100 + rpId.station()*10 + rpId.rp();
+    unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
     rpPlots[rpDecId].fill(trk.getX(), trk.getY());
   }
 
@@ -139,8 +125,7 @@ void CTPPSTrackDistributionPlotter::analyze( const edm::Event& iEvent, const edm
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSTrackDistributionPlotter::endJob()
-{
+void CTPPSTrackDistributionPlotter::endJob() {
   auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
 
   for (const auto& it : rpPlots) {
@@ -156,5 +141,4 @@ void CTPPSTrackDistributionPlotter::endJob()
 
 //----------------------------------------------------------------------------------------------------
 
-DEFINE_FWK_MODULE( CTPPSTrackDistributionPlotter );
-
+DEFINE_FWK_MODULE(CTPPSTrackDistributionPlotter);

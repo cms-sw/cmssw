@@ -10,35 +10,31 @@
 
 class L1TriggerKeyListExtReader : public edm::EDAnalyzer {
 private:
-
 public:
-    void analyze(const edm::Event&, const edm::EventSetup&) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    explicit L1TriggerKeyListExtReader(const edm::ParameterSet&) : edm::EDAnalyzer(){
-    }
-    ~L1TriggerKeyListExtReader(void) override {}
+  explicit L1TriggerKeyListExtReader(const edm::ParameterSet&) : edm::EDAnalyzer() {}
+  ~L1TriggerKeyListExtReader(void) override {}
 };
 
 #include <iostream>
 using namespace std;
 
-void L1TriggerKeyListExtReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
+void L1TriggerKeyListExtReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  edm::ESHandle<L1TriggerKeyListExt> handle1;
+  evSetup.get<L1TriggerKeyListExtRcd>().get(handle1);
+  boost::shared_ptr<L1TriggerKeyListExt> ptr1(new L1TriggerKeyListExt(*(handle1.product())));
 
-    edm::ESHandle<L1TriggerKeyListExt> handle1;
-    evSetup.get<L1TriggerKeyListExtRcd>().get( handle1 ) ;
-    boost::shared_ptr<L1TriggerKeyListExt> ptr1(new L1TriggerKeyListExt(*(handle1.product ())));
+  const L1TriggerKeyListExt::KeyToToken& allKeysTokens = ptr1->tscKeyToTokenMap();
+  for (auto& keyToken : allKeysTokens)
+    cout << "  tscKey = " << keyToken.first << " token: " << hex << keyToken.second << dec << endl;
 
-    const L1TriggerKeyListExt::KeyToToken& allKeysTokens = ptr1->tscKeyToTokenMap();
-    for( auto &keyToken : allKeysTokens )
-        cout<<"  tscKey = "<<keyToken.first<<" token: "<<hex<<keyToken.second<<dec<<endl;
-
-    const L1TriggerKeyListExt::RecordToKeyToToken & records = ptr1->recordTypeToKeyToTokenMap();
-    for( auto &rec : records ){
-        cout<<"  "<<rec.first<<":"<<endl;
-        for( auto &keyToken : rec.second )
-            cout<<"    key: "<<keyToken.first<<" token: "<<hex<<keyToken.second<<dec<<endl;
-    }
-
+  const L1TriggerKeyListExt::RecordToKeyToToken& records = ptr1->recordTypeToKeyToTokenMap();
+  for (auto& rec : records) {
+    cout << "  " << rec.first << ":" << endl;
+    for (auto& keyToken : rec.second)
+      cout << "    key: " << keyToken.first << " token: " << hex << keyToken.second << dec << endl;
+  }
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -46,4 +42,3 @@ void L1TriggerKeyListExtReader::analyze(const edm::Event& iEvent, const edm::Eve
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
 DEFINE_FWK_MODULE(L1TriggerKeyListExtReader);
-

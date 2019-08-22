@@ -20,7 +20,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-class KFBasedPixelFitterProducer: public edm::global::EDProducer<> {
+class KFBasedPixelFitterProducer : public edm::global::EDProducer<> {
 public:
   explicit KFBasedPixelFitterProducer(const edm::ParameterSet& iConfig);
   ~KFBasedPixelFitterProducer() override {}
@@ -36,12 +36,11 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
 };
 
-KFBasedPixelFitterProducer::KFBasedPixelFitterProducer(const edm::ParameterSet& iConfig):
-  thePropagatorLabel(iConfig.getParameter<std::string>("propagator")),
-  thePropagatorOppositeLabel(iConfig.getParameter<std::string>("propagator")),
-  theTTRHBuilderName(iConfig.getParameter<std::string>("TTRHBuilder"))
-{
-  if(iConfig.getParameter<bool>("useBeamSpotConstraint")) {
+KFBasedPixelFitterProducer::KFBasedPixelFitterProducer(const edm::ParameterSet& iConfig)
+    : thePropagatorLabel(iConfig.getParameter<std::string>("propagator")),
+      thePropagatorOppositeLabel(iConfig.getParameter<std::string>("propagator")),
+      theTTRHBuilderName(iConfig.getParameter<std::string>("TTRHBuilder")) {
+  if (iConfig.getParameter<bool>("useBeamSpotConstraint")) {
     theBeamSpotToken = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotConstraint"));
   }
 
@@ -62,12 +61,12 @@ void KFBasedPixelFitterProducer::fillDescriptions(edm::ConfigurationDescriptions
 
 void KFBasedPixelFitterProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::ESHandle<TransientTrackingRecHitBuilder> ttrhb;
-  iSetup.get<TransientRecHitRecord>().get( theTTRHBuilderName, ttrhb);
+  iSetup.get<TransientRecHitRecord>().get(theTTRHBuilderName, ttrhb);
 
-  edm::ESHandle<Propagator>  propagator;
+  edm::ESHandle<Propagator> propagator;
   iSetup.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagator);
 
-  edm::ESHandle<Propagator>  opropagator;
+  edm::ESHandle<Propagator> opropagator;
   iSetup.get<TrackingComponentsRecord>().get(thePropagatorOppositeLabel, opropagator);
 
   edm::ESHandle<TrackerGeometry> tracker;
@@ -76,19 +75,15 @@ void KFBasedPixelFitterProducer::produce(edm::StreamID, edm::Event& iEvent, cons
   edm::ESHandle<MagneticField> field;
   iSetup.get<IdealMagneticFieldRecord>().get(field);
 
-  const reco::BeamSpot *beamspot = nullptr;
-  if(!theBeamSpotToken.isUninitialized()) {
+  const reco::BeamSpot* beamspot = nullptr;
+  if (!theBeamSpotToken.isUninitialized()) {
     edm::Handle<reco::BeamSpot> hbs;
     iEvent.getByToken(theBeamSpotToken, hbs);
     beamspot = hbs.product();
   }
 
-  auto impl = std::make_unique<KFBasedPixelFitter>(propagator.product(),
-                                                   opropagator.product(),
-                                                   ttrhb.product(),
-                                                   tracker.product(),
-                                                   field.product(),
-                                                   beamspot);
+  auto impl = std::make_unique<KFBasedPixelFitter>(
+      propagator.product(), opropagator.product(), ttrhb.product(), tracker.product(), field.product(), beamspot);
   auto prod = std::make_unique<PixelFitter>(std::move(impl));
   iEvent.put(std::move(prod));
 }

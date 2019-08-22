@@ -2,5 +2,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-typedef TriggerMatchProducer< reco::GsfElectron > trgMatchGsfElectronProducer;
-DEFINE_FWK_MODULE( trgMatchGsfElectronProducer );
+typedef TriggerMatchProducer<reco::GsfElectron> trgMatchGsfElectronProducer;
+DEFINE_FWK_MODULE(trgMatchGsfElectronProducer);

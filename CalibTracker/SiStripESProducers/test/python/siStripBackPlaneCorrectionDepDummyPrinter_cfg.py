@@ -46,7 +46,6 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
     )
 )
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 #Latency producer
 process.load("CalibTracker.SiStripESProducers.fake.SiStripLatencyFakeESSource_cfi")
 from CalibTracker.SiStripESProducers.fake.SiStripLatencyFakeESSource_cfi import siStripLatencyFakeESSource

@@ -21,71 +21,65 @@
 using namespace edm;
 using namespace std;
 
-
-StandAloneMuonSmoother::StandAloneMuonSmoother(const ParameterSet& par, 
-					       const MuonServiceProxy* service):theService(service){
-
+StandAloneMuonSmoother::StandAloneMuonSmoother(const ParameterSet& par, const MuonServiceProxy* service)
+    : theService(service) {
   // The max allowed chi2 to accept a rechit in the fit
   theMaxChi2 = par.getParameter<double>("MaxChi2");
-  
-  // The errors of the trajectory state are multiplied by nSigma 
+
+  // The errors of the trajectory state are multiplied by nSigma
   // to define acceptance of BoundPlane and maximalLocalDisplacement
-  theNSigma = par.getParameter<double>("NumberOfSigma"); // default = 3.
-  
+  theNSigma = par.getParameter<double>("NumberOfSigma");  // default = 3.
+
   // The estimator: makes the decision wheter a measure is good or not
   // it isn't used by the updator which does the real fit. In fact, in principle,
-  // a looser request onto the measure set can be requested 
+  // a looser request onto the measure set can be requested
   // (w.r.t. the request on the accept/reject measure in the fit)
-  theEstimator = new Chi2MeasurementEstimator(theMaxChi2,theNSigma);
-  
+  theEstimator = new Chi2MeasurementEstimator(theMaxChi2, theNSigma);
+
   theErrorRescaling = par.getParameter<double>("ErrorRescalingFactor");
-  
+
   thePropagatorName = par.getParameter<string>("Propagator");
-  
+
   theUpdator = new KFUpdator();
-  
+
   // The Kalman smoother
-  theSmoother = nullptr ;
-		
+  theSmoother = nullptr;
 }
 
-StandAloneMuonSmoother::~StandAloneMuonSmoother(){
-  if (theEstimator) delete theEstimator;
-  if (theUpdator) delete theUpdator;
-  if (theSmoother) delete theSmoother;
+StandAloneMuonSmoother::~StandAloneMuonSmoother() {
+  if (theEstimator)
+    delete theEstimator;
+  if (theUpdator)
+    delete theUpdator;
+  if (theSmoother)
+    delete theSmoother;
 }
 
-const Propagator* StandAloneMuonSmoother::propagator() const{ 
-  return &*theService->propagator(thePropagatorName); 
-}
+const Propagator* StandAloneMuonSmoother::propagator() const { return &*theService->propagator(thePropagatorName); }
 
-void StandAloneMuonSmoother::renewTheSmoother(){
-  if (theService->isTrackingComponentsRecordChanged()){
-    if (theSmoother) delete theSmoother;
-    theSmoother = new KFTrajectorySmoother(propagator(),
-					   updator(),
-					   estimator());
+void StandAloneMuonSmoother::renewTheSmoother() {
+  if (theService->isTrackingComponentsRecordChanged()) {
+    if (theSmoother)
+      delete theSmoother;
+    theSmoother = new KFTrajectorySmoother(propagator(), updator(), estimator());
   }
   if (!theSmoother)
-    theSmoother = new KFTrajectorySmoother(propagator(),
-					   updator(),
-					   estimator());
-  
+    theSmoother = new KFTrajectorySmoother(propagator(), updator(), estimator());
 }
 
-StandAloneMuonSmoother::SmoothingResult StandAloneMuonSmoother::smooth(const Trajectory& inputTrajectory){
+StandAloneMuonSmoother::SmoothingResult StandAloneMuonSmoother::smooth(const Trajectory& inputTrajectory) {
   const string metname = "Muon|RecoMuon|StandAloneMuonSmoother";
-  
+
   renewTheSmoother();
-  
+
   vector<Trajectory> trajectoriesSM = smoother()->trajectories(inputTrajectory);
-  
-  if(trajectoriesSM.empty()){
+
+  if (trajectoriesSM.empty()) {
     LogTrace(metname) << "No Track smoothed!";
-    return SmoothingResult(false,inputTrajectory); 
+    return SmoothingResult(false, inputTrajectory);
   }
-  
-  Trajectory smoothed = trajectoriesSM.front(); 
-  
-  return SmoothingResult(true,smoothed); 
+
+  Trajectory smoothed = trajectoriesSM.front();
+
+  return SmoothingResult(true, smoothed);
 }

@@ -5,8 +5,6 @@
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 #include "RecoMuon/TrackingTools/plugins/MuonErrorMatrixAdjuster.h"
-
 
 DEFINE_FWK_MODULE(MuonErrorMatrixAdjuster);

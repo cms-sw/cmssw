@@ -17,19 +17,18 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
-class PFTauL1TJetsMatching: public edm::global::EDProducer<> {
+class PFTauL1TJetsMatching : public edm::global::EDProducer<> {
+private:
+  const edm::EDGetTokenT<reco::PFTauCollection> tauSrc_;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> L1JetSrc_;
+  const double matchingR2_;
+  const double minTauPt_;
+  const double minL1TPt_;
 
-    private:
-        const edm::EDGetTokenT<reco::PFTauCollection> tauSrc_;
-        const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> L1JetSrc_;
-        const double matchingR2_;
-        const double minTauPt_;
-        const double minL1TPt_;
-
-    public:
-        explicit PFTauL1TJetsMatching(const edm::ParameterSet&);
-        ~PFTauL1TJetsMatching() override;
-        void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+public:
+  explicit PFTauL1TJetsMatching(const edm::ParameterSet&);
+  ~PFTauL1TJetsMatching() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 };
 #endif

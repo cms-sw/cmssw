@@ -2,7 +2,7 @@
 //
 // Package:    HiCentralityBiasFilter
 // Class:      HiCentralityBiasFilter
-// 
+//
 /**\class HiCentralityBiasFilter HiCentralityBiasFilter.cc yetkin/HiCentralityBiasFilter/src/HiCentralityBiasFilter.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Tue Aug 11 12:42:25 EDT 2009
 //
 //
-
 
 // system include files
 #include <memory>
@@ -49,23 +48,22 @@ using namespace std;
 //
 
 class HiCentralityBiasFilter : public edm::EDFilter {
-   public:
-      explicit HiCentralityBiasFilter(const edm::ParameterSet&);
-      ~HiCentralityBiasFilter() override;
+public:
+  explicit HiCentralityBiasFilter(const edm::ParameterSet&);
+  ~HiCentralityBiasFilter() override;
 
-   private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
   edm::EDGetTokenT<edm::HepMCProduct> hepmcSrc_;
 
-   edm::Service<edm::RandomNumberGenerator> rng_;
+  edm::Service<edm::RandomNumberGenerator> rng_;
 
-   TF1* fBias_;
-   string func_;
-   vector<double> par_;
-
+  TF1* fBias_;
+  string func_;
+  vector<double> par_;
 };
 
 //
@@ -79,75 +77,62 @@ class HiCentralityBiasFilter : public edm::EDFilter {
 //
 // constructors and destructor
 //
-HiCentralityBiasFilter::HiCentralityBiasFilter(const edm::ParameterSet& iConfig)
-{
-   //now do what ever initialization is needed
-  hepmcSrc_ = consumes<edm::HepMCProduct>(iConfig.getParameter< edm::InputTag > ("generatorSmeared"));
+HiCentralityBiasFilter::HiCentralityBiasFilter(const edm::ParameterSet& iConfig) {
+  //now do what ever initialization is needed
+  hepmcSrc_ = consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("generatorSmeared"));
   func_ = iConfig.getParameter<string>("function");
   par_ = iConfig.getParameter<vector<double> >("parameters");
 }
 
-
-HiCentralityBiasFilter::~HiCentralityBiasFilter()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+HiCentralityBiasFilter::~HiCentralityBiasFilter() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-HiCentralityBiasFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+bool HiCentralityBiasFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
+  CLHEP::HepRandomEngine& engine = rng_->getEngine(iEvent.streamID());
 
+  Handle<HepMCProduct> mc;
+  iEvent.getByToken(hepmcSrc_, mc);
+  const HepMC::GenEvent* evt = mc->GetEvent();
 
-   CLHEP::HepRandomEngine& engine = rng_->getEngine(iEvent.streamID());
+  const HepMC::HeavyIon* hi = evt->heavy_ion();
+  if (!hi)
+    return false;
 
-   Handle<HepMCProduct> mc;
-   iEvent.getByToken(hepmcSrc_,mc);
-   const HepMC::GenEvent* evt = mc->GetEvent();
+  double b = hi->impact_parameter();
+  double bound = fBias_->Eval(b);
+  double rand = engine.flat();
+  if (rand > bound)
+    return false;
 
-   const HepMC::HeavyIon* hi = evt->heavy_ion();
-   if(!hi) return false;
-
-   double b = hi->impact_parameter();
-   double bound = fBias_->Eval(b);
-   double rand = engine.flat();
-   if(rand > bound) return false;
-
-   return true;
-
+  return true;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-HiCentralityBiasFilter::beginJob()
-{
+void HiCentralityBiasFilter::beginJob() {
+  fBias_ = new TF1("fBias", func_.data(), 0, 20);
 
-   fBias_ = new TF1("fBias",func_.data(),0,20);
+  for (size_t ip = 0; ip < par_.size(); ++ip) {
+    fBias_->SetParameter(ip, par_[ip]);
+  }
 
-   for(size_t ip = 0; ip < par_.size(); ++ip){
-      fBias_->SetParameter(ip,par_[ip]);
-   }
-
-   double maxpoint = fBias_->GetMaximum(-0.1,20);
-   if(maxpoint < 0.9) throw cms::Exception("HeavyIonCentralityBias")<<"Input bias function is not optimized. Peak value is "<<maxpoint<<" which is required to be close to 1. Please fix the parameters before production."<<endl;
-   
-   
+  double maxpoint = fBias_->GetMaximum(-0.1, 20);
+  if (maxpoint < 0.9)
+    throw cms::Exception("HeavyIonCentralityBias")
+        << "Input bias function is not optimized. Peak value is " << maxpoint
+        << " which is required to be close to 1. Please fix the parameters before production." << endl;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-HiCentralityBiasFilter::endJob() {
-}
+void HiCentralityBiasFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HiCentralityBiasFilter);

@@ -10,37 +10,35 @@
 class CTPPSInterpolatedOpticalFunctionsESSource;
 
 /// Set of optical functions corresponding to one scoring plane along LHC, including splines for interpolation performance.
-class LHCInterpolatedOpticalFunctionsSet : public LHCOpticalFunctionsSet
-{
-  public:
-    LHCInterpolatedOpticalFunctionsSet() = default;
+class LHCInterpolatedOpticalFunctionsSet : public LHCOpticalFunctionsSet {
+public:
+  LHCInterpolatedOpticalFunctionsSet() = default;
 
-    LHCInterpolatedOpticalFunctionsSet(const LHCOpticalFunctionsSet &src) : LHCOpticalFunctionsSet(src) {}
+  LHCInterpolatedOpticalFunctionsSet(const LHCOpticalFunctionsSet &src) : LHCOpticalFunctionsSet(src) {}
 
-    ~LHCInterpolatedOpticalFunctionsSet() = default;
+  ~LHCInterpolatedOpticalFunctionsSet() = default;
 
-    const std::vector<std::shared_ptr<const TSpline3>>& splines() const { return m_splines; }
+  const std::vector<std::shared_ptr<const TSpline3>> &splines() const { return m_splines; }
 
-    /// builds splines from m_*_values fields
-    void initializeSplines();
+  /// builds splines from m_*_values fields
+  void initializeSplines();
 
-    /// proton kinematics description
-    struct Kinematics
-    {
-      double x;     // physics vertex position (beam offset subtracted), cm
-      double th_x;  // physics scattering angle (crossing angle subtracted), rad
-      double y;     // physics vertex position, cm
-      double th_y;  // physics scattering angle, rad
-      double xi;    // relative momentum loss (positive for diffractive protons)
-    };
+  /// proton kinematics description
+  struct Kinematics {
+    double x;     // physics vertex position (beam offset subtracted), cm
+    double th_x;  // physics scattering angle (crossing angle subtracted), rad
+    double y;     // physics vertex position, cm
+    double th_y;  // physics scattering angle, rad
+    double xi;    // relative momentum loss (positive for diffractive protons)
+  };
 
-    /// transports proton according to the splines
-    void transport(const Kinematics &input, Kinematics &output, bool calculateAngles = false) const;
+  /// transports proton according to the splines
+  void transport(const Kinematics &input, Kinematics &output, bool calculateAngles = false) const;
 
-  protected:
-    friend CTPPSInterpolatedOpticalFunctionsESSource;
+protected:
+  friend CTPPSInterpolatedOpticalFunctionsESSource;
 
-    std::vector<std::shared_ptr<const TSpline3>> m_splines;
+  std::vector<std::shared_ptr<const TSpline3>> m_splines;
 };
 
 #endif

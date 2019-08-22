@@ -2,9 +2,9 @@
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 
 int main() {
- ClhepEvaluator eval;
- regressionTest_setup(eval);
- regressionTest_first(eval);
- output("nix");
- return 0;
+  ClhepEvaluator eval;
+  regressionTest_setup(eval);
+  regressionTest_first(eval);
+  output("nix");
+  return 0;
 }

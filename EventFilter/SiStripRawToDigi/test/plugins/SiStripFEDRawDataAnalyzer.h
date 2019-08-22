@@ -14,25 +14,21 @@
 */
 
 class SiStripFEDRawDataAnalyzer : public edm::EDAnalyzer {
-  
- public:
-  
-  typedef std::pair<uint16_t,uint16_t> Fed;
+public:
+  typedef std::pair<uint16_t, uint16_t> Fed;
   typedef std::vector<Fed> Feds;
   typedef std::vector<uint16_t> Channels;
-  typedef std::map<uint16_t,Channels> ChannelsMap;
+  typedef std::map<uint16_t, Channels> ChannelsMap;
 
-  SiStripFEDRawDataAnalyzer( const edm::ParameterSet& );
+  SiStripFEDRawDataAnalyzer(const edm::ParameterSet&);
   ~SiStripFEDRawDataAnalyzer();
 
   void beginJob();
-  void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup&);
   void endJob();
 
- private:
-
+private:
   edm::InputTag label_;
 };
 
-#endif // EventFilter_SiStripRawToDigi_SiStripFEDRawDataAnalyzer_H
-
+#endif  // EventFilter_SiStripRawToDigi_SiStripFEDRawDataAnalyzer_H

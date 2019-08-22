@@ -3,8 +3,8 @@
 // CAT: Model
 //
 // Class for measurements
-// 
-// History: v1.0 
+//
+// History: v1.0
 // Authors:
 //   Pedro Arce
 
@@ -15,24 +15,22 @@
 #include "Alignment/CocoaModel/interface/Measurement.h"
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
-class MeasurementSensor2D : public Measurement
-{ 
+class MeasurementSensor2D : public Measurement {
 public:
-  MeasurementSensor2D( const ALIint measdim, ALIstring& type, ALIstring& name ) : Measurement( measdim, type, name ){ };
-  MeasurementSensor2D(){ };   
-  ~MeasurementSensor2D() override{ };
-    
+  MeasurementSensor2D(const ALIint measdim, ALIstring& type, ALIstring& name) : Measurement(measdim, type, name){};
+  MeasurementSensor2D(){};
+  ~MeasurementSensor2D() override{};
+
   // Get simulated value (called every time a parameter is displaced)
-  void calculateSimulatedValue( ALIbool firstTime ) override;
+  void calculateSimulatedValue(ALIbool firstTime) override;
 
   //---------- Add any correction between the measurement data and the default format in COCOA
   void correctValueAndSigma() override;
 
   //---------- Convert from V to rad
-  void setConversionFactor( const std::vector<ALIstring>& wordlist ) override;
+  void setConversionFactor(const std::vector<ALIstring>& wordlist) override;
 
- private:
-
+private:
   ALIdouble theDisplaceX, theDisplaceY;
   ALIdouble theMultiplyX, theMultiplyY;
 };

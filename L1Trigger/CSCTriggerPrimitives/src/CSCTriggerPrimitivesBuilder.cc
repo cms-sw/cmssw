@@ -6,19 +6,18 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMuonPortCard.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-const int CSCTriggerPrimitivesBuilder::min_endcap  = CSCDetId::minEndcapId();
-const int CSCTriggerPrimitivesBuilder::max_endcap  = CSCDetId::maxEndcapId();
+const int CSCTriggerPrimitivesBuilder::min_endcap = CSCDetId::minEndcapId();
+const int CSCTriggerPrimitivesBuilder::max_endcap = CSCDetId::maxEndcapId();
 const int CSCTriggerPrimitivesBuilder::min_station = CSCDetId::minStationId();
 const int CSCTriggerPrimitivesBuilder::max_station = CSCDetId::maxStationId();
-const int CSCTriggerPrimitivesBuilder::min_sector  = CSCTriggerNumbering::minTriggerSectorId();
-const int CSCTriggerPrimitivesBuilder::max_sector  = CSCTriggerNumbering::maxTriggerSectorId();
+const int CSCTriggerPrimitivesBuilder::min_sector = CSCTriggerNumbering::minTriggerSectorId();
+const int CSCTriggerPrimitivesBuilder::max_sector = CSCTriggerNumbering::maxTriggerSectorId();
 const int CSCTriggerPrimitivesBuilder::min_subsector = CSCTriggerNumbering::minTriggerSubSectorId();
 const int CSCTriggerPrimitivesBuilder::max_subsector = CSCTriggerNumbering::maxTriggerSubSectorId();
 const int CSCTriggerPrimitivesBuilder::min_chamber = CSCTriggerNumbering::minTriggerCscId();
 const int CSCTriggerPrimitivesBuilder::max_chamber = CSCTriggerNumbering::maxTriggerCscId();
 
-CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet& conf)
-{
+CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet& conf) {
   // special configuration parameters for ME11 treatment
   edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
   isSLHC_ = commonParams.getParameter<bool>("isSLHC");
@@ -28,39 +27,30 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
-  runME11Up_ = commonParams.existsAs<bool>("runME11Up")?commonParams.getParameter<bool>("runME11Up"):false;
-  runME21Up_ = commonParams.existsAs<bool>("runME21Up")?commonParams.getParameter<bool>("runME21Up"):false;
-  runME31Up_ = commonParams.existsAs<bool>("runME31Up")?commonParams.getParameter<bool>("runME31Up"):false;
-  runME41Up_ = commonParams.existsAs<bool>("runME41Up")?commonParams.getParameter<bool>("runME41Up"):false;
+  runME11Up_ = commonParams.existsAs<bool>("runME11Up") ? commonParams.getParameter<bool>("runME11Up") : false;
+  runME21Up_ = commonParams.existsAs<bool>("runME21Up") ? commonParams.getParameter<bool>("runME21Up") : false;
+  runME31Up_ = commonParams.existsAs<bool>("runME31Up") ? commonParams.getParameter<bool>("runME31Up") : false;
+  runME41Up_ = commonParams.existsAs<bool>("runME41Up") ? commonParams.getParameter<bool>("runME41Up") : false;
 
-  runME11ILT_ = commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false;
-  runME21ILT_ = commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false;
+  runME11ILT_ = commonParams.existsAs<bool>("runME11ILT") ? commonParams.getParameter<bool>("runME11ILT") : false;
+  runME21ILT_ = commonParams.existsAs<bool>("runME21ILT") ? commonParams.getParameter<bool>("runME21ILT") : false;
 
-  useClusters_ = commonParams.existsAs<bool>("useClusters")?commonParams.getParameter<bool>("useClusters"):false;
+  useClusters_ = commonParams.existsAs<bool>("useClusters") ? commonParams.getParameter<bool>("useClusters") : false;
 
   // Initializing boards.
-  for (int endc = min_endcap; endc <= max_endcap; endc++)
-  {
-    for (int stat = min_station; stat <= max_station; stat++)
-    {
+  for (int endc = min_endcap; endc <= max_endcap; endc++) {
+    for (int stat = min_station; stat <= max_station; stat++) {
       int numsubs = ((stat == 1) ? max_subsector : 1);
-      for (int sect = min_sector; sect <= max_sector; sect++)
-      {
-        for (int subs = min_subsector; subs <= numsubs; subs++)
-        {
-          for (int cham = min_chamber; cham <= max_chamber; cham++)
-          {
-            if ((endc <= 0 || endc > MAX_ENDCAPS)    ||
-                (stat <= 0 || stat > MAX_STATIONS)   ||
-                (sect <= 0 || sect > MAX_SECTORS)    ||
-                (subs <= 0 || subs > MAX_SUBSECTORS) ||
-                (cham <= 0 || cham > MAX_CHAMBERS))
-            {
+      for (int sect = min_sector; sect <= max_sector; sect++) {
+        for (int subs = min_subsector; subs <= numsubs; subs++) {
+          for (int cham = min_chamber; cham <= max_chamber; cham++) {
+            if ((endc <= 0 || endc > MAX_ENDCAPS) || (stat <= 0 || stat > MAX_STATIONS) ||
+                (sect <= 0 || sect > MAX_SECTORS) || (subs <= 0 || subs > MAX_SUBSECTORS) ||
+                (cham <= 0 || cham > MAX_CHAMBERS)) {
               edm::LogError("CSCTriggerPrimitivesBuilder|SetupError")
-                << "+++ trying to instantiate TMB of illegal CSC id ["
-                << " endcap = "  << endc << " station = "   << stat
-                << " sector = "  << sect << " subsector = " << subs
-                << " chamber = " << cham << "]; skipping it... +++\n";
+                  << "+++ trying to instantiate TMB of illegal CSC id ["
+                  << " endcap = " << endc << " station = " << stat << " sector = " << sect << " subsector = " << subs
+                  << " chamber = " << cham << "]; skipping it... +++\n";
               continue;
             }
             int ring = CSCTriggerNumbering::ringFromTriggerLabels(stat, cham);
@@ -68,18 +58,24 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             // and CLCT processors.
 
             // go through all possible cases
-            if (isSLHC_ and ring == 1 and stat==1 and runME11Up_ and !runME11ILT_)
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11(endc, stat, sect, subs, cham, conf) );
-            else if (isSLHC_ and ring == 1 and stat==1 and runME11Up_ and runME11ILT_)
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCGEMMotherboardME11(endc, stat, sect, subs, cham, conf) );
-            else if (isSLHC_ and ring == 1 and stat==2 and runME21Up_ and !runME21ILT_)
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf) );
-            else if (isSLHC_ and ring == 1 and stat==2 and runME21Up_ and runME21ILT_)
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCGEMMotherboardME21(endc, stat, sect, subs, cham, conf) );
-            else if (isSLHC_ and ring == 1 and ((stat==3 and runME31Up_) || (stat==4 and runME41Up_)))
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf) );
+            if (isSLHC_ and ring == 1 and stat == 1 and runME11Up_ and !runME11ILT_)
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].reset(
+                  new CSCMotherboardME11(endc, stat, sect, subs, cham, conf));
+            else if (isSLHC_ and ring == 1 and stat == 1 and runME11Up_ and runME11ILT_)
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].reset(
+                  new CSCGEMMotherboardME11(endc, stat, sect, subs, cham, conf));
+            else if (isSLHC_ and ring == 1 and stat == 2 and runME21Up_ and !runME21ILT_)
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].reset(
+                  new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf));
+            else if (isSLHC_ and ring == 1 and stat == 2 and runME21Up_ and runME21ILT_)
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].reset(
+                  new CSCGEMMotherboardME21(endc, stat, sect, subs, cham, conf));
+            else if (isSLHC_ and ring == 1 and ((stat == 3 and runME31Up_) || (stat == 4 and runME41Up_)))
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].reset(
+                  new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf));
             else
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboard(endc, stat, sect, subs, cham, conf) );
+              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].reset(
+                  new CSCMotherboard(endc, stat, sect, subs, cham, conf));
           }
         }
       }
@@ -91,32 +87,24 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   m_maxBX_ = conf.getParameter<int>("MaxBX");
 
   // Init MPC
-  m_muonportcard.reset( new CSCMuonPortCard(conf) );
+  m_muonportcard.reset(new CSCMuonPortCard(conf));
 }
 
 //------------
 // Destructor
 //------------
-CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder()
-{
-}
+CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder() {}
 
-void CSCTriggerPrimitivesBuilder::setConfigParameters(const CSCDBL1TPParameters* conf)
-{
+void CSCTriggerPrimitivesBuilder::setConfigParameters(const CSCDBL1TPParameters* conf) {
   // Receives CSCDBL1TPParameters percolated down from ESProducer.
 
-  for (int endc = min_endcap; endc <= max_endcap; endc++)
-  {
-    for (int stat = min_station; stat <= max_station; stat++)
-    {
+  for (int endc = min_endcap; endc <= max_endcap; endc++) {
+    for (int stat = min_station; stat <= max_station; stat++) {
       int numsubs = ((stat == 1) ? max_subsector : 1);
-      for (int sect = min_sector; sect <= max_sector; sect++)
-      {
-        for (int subs = min_subsector; subs <= numsubs; subs++)
-        {
-          for (int cham = min_chamber; cham <= max_chamber; cham++)
-          {
-            tmb_[endc-1][stat-1][sect-1][subs-1][cham-1]->setConfigParameters(conf);
+      for (int sect = min_sector; sect <= max_sector; sect++) {
+        for (int subs = min_subsector; subs <= numsubs; subs++) {
+          for (int cham = min_chamber; cham <= max_chamber; cham++) {
+            tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1]->setConfigParameters(conf);
           }
         }
       }
@@ -132,30 +120,25 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                                         CSCALCTDigiCollection& oc_alct,
                                         CSCCLCTDigiCollection& oc_clct,
                                         CSCCLCTPreTriggerDigiCollection& oc_pretrigger,
-                                        CSCCLCTPreTriggerCollection & oc_pretrig,
+                                        CSCCLCTPreTriggerCollection& oc_pretrig,
                                         CSCCorrelatedLCTDigiCollection& oc_lct,
                                         CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
-                                        GEMCoPadDigiCollection& oc_gemcopad)
-{
+                                        GEMCoPadDigiCollection& oc_gemcopad) {
   // CSC geometry.
-  for (int endc = min_endcap; endc <= max_endcap; endc++)
-  {
-    for (int stat = min_station; stat <= max_station; stat++)
-    {
+  for (int endc = min_endcap; endc <= max_endcap; endc++) {
+    for (int stat = min_station; stat <= max_station; stat++) {
       int numsubs = ((stat == 1) ? max_subsector : 1);
-      for (int sect = min_sector; sect <= max_sector; sect++)
-      {
-        for (int subs = min_subsector; subs <= numsubs; subs++)
-        {
-          for (int cham = min_chamber; cham <= max_chamber; cham++)
-          {
+      for (int sect = min_sector; sect <= max_sector; sect++) {
+        for (int subs = min_subsector; subs <= numsubs; subs++) {
+          for (int cham = min_chamber; cham <= max_chamber; cham++) {
             // extract the ring number
             int ring = CSCTriggerNumbering::ringFromTriggerLabels(stat, cham);
 
             // case when you want to ignore ME42
-            if (disableME42_ && stat==4 && ring==2) continue;
+            if (disableME42_ && stat == 4 && ring == 2)
+              continue;
 
-            CSCMotherboard* tmb = tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].get();
+            CSCMotherboard* tmb = tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].get();
 
             tmb->setCSCGeometry(csc_g);
 
@@ -166,21 +149,22 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             CSCDetId detid(endc, stat, ring, chid, 0);
 
             // Run processors only if chamber exists in geometry.
-            if (tmb == nullptr || csc_g->chamber(detid) == nullptr) continue;
+            if (tmb == nullptr || csc_g->chamber(detid) == nullptr)
+              continue;
 
             // Skip chambers marked as bad (usually includes most of ME4/2 chambers;
             // also, there's no ME1/a-1/b separation, it's whole ME1/1)
-            if (checkBadChambers_ && badChambers->isInBadChamber(detid)) continue;
-
+            if (checkBadChambers_ && badChambers->isInBadChamber(detid))
+              continue;
 
             // running upgraded ME1/1 TMBs
-            if (stat==1 && ring==1 && isSLHC_ && !runME11ILT_)
-            {
+            if (stat == 1 && ring == 1 && isSLHC_ && !runME11ILT_) {
               // run the TMB
               CSCMotherboardME11* tmb11 = static_cast<CSCMotherboardME11*>(tmb);
               if (infoV > 1)
-			    LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder::build in E:"<<endc<<" S:"<<stat<<" R:"<<ring;
-              tmb11->run(wiredc,compdc);
+                LogTrace("CSCTriggerPrimitivesBuilder")
+                    << "CSCTriggerPrimitivesBuilder::build in E:" << endc << " S:" << stat << " R:" << ring;
+              tmb11->run(wiredc, compdc);
 
               // get all collections
               // all ALCTs, CLCTs, LCTs are written with detid ring = 1, as data did
@@ -195,14 +179,14 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV1a = tmb11->clctProc->preTriggerDigisME1a();
 
               if (infoV > 1)
-                  LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder:: a="<<alctV.size()<<" c="<<clctV.size()<<" l="<<lctV.size()
-                                                     <<" c="<<clctV1a.size()<<" l="<<lctV1a.size();
+                LogTrace("CSCTriggerPrimitivesBuilder")
+                    << "CSCTriggerPrimitivesBuilder:: a=" << alctV.size() << " c=" << clctV.size()
+                    << " l=" << lctV.size() << " c=" << clctV1a.size() << " l=" << lctV1a.size();
 
               // ME1/b
 
-              if (!(lctV.empty()&&alctV.empty()&&clctV.empty()) and infoV > 1) {
-                LogTrace("L1CSCTrigger")
-                  << "CSCTriggerPrimitivesBuilder results in " <<detid;
+              if (!(lctV.empty() && alctV.empty() && clctV.empty()) and infoV > 1) {
+                LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder results in " << detid;
               }
 
               // put collections in event
@@ -214,29 +198,30 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 
               // ME1/a
 
-              if (disableME1a_) continue;
+              if (disableME1a_)
+                continue;
 
               CSCDetId detid1a(endc, stat, 4, chid, 0);
 
-              if (!(lctV1a.empty() && clctV1a.empty()) and infoV > 1){
-                LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder results in " <<detid1a;
+              if (!(lctV1a.empty() && clctV1a.empty()) and infoV > 1) {
+                LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder results in " << detid1a;
               }
 
               // put collections in event, still use detid ring =1
               put(lctV1a, oc_lct, detid, " ME1a LCT digi");
               put(clctV1a, oc_clct, detid, " ME1a CLCT digi");
               put(pretriggerV1a, oc_pretrigger, detid, " ME1a CLCT pre-trigger digi");
-            } // upgraded TMB
+            }  // upgraded TMB
 
             // running upgraded ME1/1 TMBs with GEMs
-            else if (stat==1 && ring==1 && isSLHC_ && runME11ILT_)
-            {
+            else if (stat == 1 && ring == 1 && isSLHC_ && runME11ILT_) {
               // run the TMB
               CSCGEMMotherboardME11* tmb11GEM = static_cast<CSCGEMMotherboardME11*>(tmb);
               tmb11GEM->setCSCGeometry(csc_g);
               tmb11GEM->setGEMGeometry(gem_g);
               if (infoV > 1)
-                  LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder::build in E:"<<endc<<" S:"<<stat<<" R:"<<ring;
+                LogTrace("CSCTriggerPrimitivesBuilder")
+                    << "CSCTriggerPrimitivesBuilder::build in E:" << endc << " S:" << stat << " R:" << ring;
               tmb11GEM->run(wiredc, compdc, gemPads);
 
               // 0th layer means whole chamber.
@@ -254,9 +239,8 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<GEMCoPadDigi>& copads = tmb11GEM->coPadProcessor->readoutCoPads();
 
               // ME1/b
-              if (!(lctV.empty()&&alctV.empty()&&clctV.empty()) and infoV > 1) {
-                LogTrace("L1CSCTrigger")
-                  << "CSCTriggerPrimitivesBuilder results in " <<detid;
+              if (!(lctV.empty() && alctV.empty() && clctV.empty()) and infoV > 1) {
+                LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder results in " << detid;
               }
 
               // put collections in event
@@ -268,12 +252,13 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               put(copads, oc_gemcopad, gemId, " GEM coincidence pad");
 
               // ME1/a
-              if (disableME1a_) continue;
+              if (disableME1a_)
+                continue;
 
               CSCDetId detid1a(endc, stat, 4, chid, 0);
 
-              if (!(lctV1a.empty() && clctV1a.empty()) and infoV > 1){
-                LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder results in " <<detid1a;
+              if (!(lctV1a.empty() && clctV1a.empty()) and infoV > 1) {
+                LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder results in " << detid1a;
               }
 
               // put collections in event, still use detid ring =1
@@ -283,8 +268,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             }
 
             // running upgraded ME2/1 TMBs
-            else if (stat==2 && ring==1 && isSLHC_ && runME21ILT_)
-            {
+            else if (stat == 2 && ring == 1 && isSLHC_ && runME21ILT_) {
               // run the TMB
               CSCGEMMotherboardME21* tmb21GEM = static_cast<CSCGEMMotherboardME21*>(tmb);
               tmb21GEM->setCSCGeometry(csc_g);
@@ -303,8 +287,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<GEMCoPadDigi>& copads = tmb21GEM->coPadProcessor->readoutCoPads();
 
               if (!(alctV.empty() && clctV.empty() && lctV.empty()) and infoV > 1) {
-                LogTrace("L1CSCTrigger")
-                  << "CSCTriggerPrimitivesBuilder got results in " <<detid;
+                LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder got results in " << detid;
               }
 
               // put collections in event
@@ -316,8 +299,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               put(copads, oc_gemcopad, gemId, " GEM coincidence pad");
             }
             // running upgraded ME2/1-ME3/1-ME4/1 TMBs (without GEMs or RPCs)
-            else if ((stat==2 or stat==3 or stat==4) && ring==1 && isSLHC_)
-            {
+            else if ((stat == 2 or stat == 3 or stat == 4) && ring == 1 && isSLHC_) {
               // run the TMB
               CSCUpgradeMotherboard* utmb = static_cast<CSCUpgradeMotherboard*>(tmb);
               utmb->setCSCGeometry(csc_g);
@@ -331,8 +313,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = utmb->clctProc->preTriggerDigis();
 
               if (!(alctV.empty() && clctV.empty() && lctV.empty()) and infoV > 1) {
-                LogTrace("L1CSCTrigger")
-                  << "CSCTriggerPrimitivesBuilder got results in " <<detid;
+                LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder got results in " << detid;
               }
 
               // put collections in event
@@ -344,10 +325,9 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             }
 
             // running non-upgraded TMB
-            else
-            {
+            else {
               // run the TMB
-              tmb->run(wiredc,compdc);
+              tmb->run(wiredc, compdc);
 
               // get the collections
               const std::vector<CSCCorrelatedLCTDigi>& lctV = tmb->readoutLCTs();
@@ -357,8 +337,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb->clctProc->preTriggerDigis();
 
               if (!(alctV.empty() && clctV.empty() && lctV.empty()) and infoV > 1) {
-                LogTrace("L1CSCTrigger")
-                  << "CSCTriggerPrimitivesBuilder got results in " <<detid;
+                LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder got results in " << detid;
               }
 
               // put collections in event
@@ -367,7 +346,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               put(clctV, oc_clct, detid, tmb->getCSCName() + " CLCT digi");
               put(pretriggerV, oc_pretrigger, detid, tmb->getCSCName() + " CLCT pre-trigger digi");
               put(preTriggerBXs, oc_pretrig, detid, tmb->getCSCName() + " CLCT pre-trigger BX");
-            } // non-upgraded TMB
+            }  // non-upgraded TMB
           }
         }
       }
@@ -380,21 +359,17 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
   // sort the LCTs per sector
   // insert them into the result vector
   std::vector<csctf::TrackStub> result;
-  for(int bx = m_minBX_; bx <= m_maxBX_; ++bx)
-    for(int e = min_endcap; e <= max_endcap; ++e)
-      for(int st = min_station; st <= max_station; ++st)
-        for(int se = min_sector; se <= max_sector; ++se)
-        {
-          if(st == 1)
-          {
+  for (int bx = m_minBX_; bx <= m_maxBX_; ++bx)
+    for (int e = min_endcap; e <= max_endcap; ++e)
+      for (int st = min_station; st <= max_station; ++st)
+        for (int se = min_sector; se <= max_sector; ++se) {
+          if (st == 1) {
             std::vector<csctf::TrackStub> subs1, subs2;
             subs1 = m_muonportcard->sort(e, st, se, 1, bx);
             subs2 = m_muonportcard->sort(e, st, se, 2, bx);
             result.insert(result.end(), subs1.begin(), subs1.end());
             result.insert(result.end(), subs2.begin(), subs2.end());
-          }
-          else
-          {
+          } else {
             std::vector<csctf::TrackStub> sector;
             sector = m_muonportcard->sort(e, st, se, 0, bx);
             result.insert(result.end(), sector.begin(), sector.end());
@@ -404,16 +379,13 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
   // now convert csctf::TrackStub back into CSCCorrelatedLCTDigi
   // put MPC stubs into the event
   std::vector<csctf::TrackStub>::const_iterator itr = result.begin();
-  for (; itr != result.end(); itr++)
-  {
+  for (; itr != result.end(); itr++) {
     oc_sorted_lct.insertDigi(CSCDetId(itr->getDetId().rawId()), *(itr->getDigi()));
     if (infoV > 1)
-      LogDebug("L1CSCTrigger")
-        << "MPC " << *(itr->getDigi()) << " found in ME"
-        << ((itr->endcap() == 1) ? "+" : "-") << itr->station() << "/"
-        << CSCDetId(itr->getDetId().rawId()).ring() << "/"
-        << CSCDetId(itr->getDetId().rawId()).chamber()
-        << " (sector " << itr->sector()
-        << " trig id. " << itr->cscid() << ")" << "\n";
+      LogDebug("L1CSCTrigger") << "MPC " << *(itr->getDigi()) << " found in ME" << ((itr->endcap() == 1) ? "+" : "-")
+                               << itr->station() << "/" << CSCDetId(itr->getDetId().rawId()).ring() << "/"
+                               << CSCDetId(itr->getDetId().rawId()).chamber() << " (sector " << itr->sector()
+                               << " trig id. " << itr->cscid() << ")"
+                               << "\n";
   }
 }

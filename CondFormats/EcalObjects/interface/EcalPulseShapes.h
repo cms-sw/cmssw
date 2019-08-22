@@ -6,19 +6,16 @@
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 
 struct EcalPulseShape {
-
 public:
-
   static const int TEMPLATESAMPLES = 12;
 
   EcalPulseShape();
-  
+
   float pdfval[TEMPLATESAMPLES];
-  
+
   float val(int isample) const { return pdfval[isample]; }
 
   COND_SERIALIZABLE;
-
 };
 
 typedef EcalCondObjectContainer<EcalPulseShape> EcalPulseShapesMap;

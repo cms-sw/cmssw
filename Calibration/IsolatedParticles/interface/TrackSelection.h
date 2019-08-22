@@ -7,25 +7,27 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-namespace spr{
+namespace spr {
 
   struct trackSelectionParameters {
     trackSelectionParameters() {
-      minPt      = 0;
+      minPt = 0;
       minQuality = reco::TrackBase::highPurity;
-      maxDxyPV   = maxDzPV = 999999.;
-      maxChi2    = maxDpOverP = 99999999.,
-      minOuterHit= minLayerCrossed = 0;
-      maxInMiss  = maxOutMiss      =-1;
+      maxDxyPV = maxDzPV = 999999.;
+      maxChi2 = maxDpOverP = 99999999., minOuterHit = minLayerCrossed = 0;
+      maxInMiss = maxOutMiss = -1;
     }
-    double                        minPt;
+    double minPt;
     reco::TrackBase::TrackQuality minQuality;
-    double                        maxDxyPV, maxDzPV, maxChi2, maxDpOverP;
-    int                           minOuterHit, minLayerCrossed;
-    int                           maxInMiss, maxOutMiss;
+    double maxDxyPV, maxDzPV, maxChi2, maxDpOverP;
+    int minOuterHit, minLayerCrossed;
+    int maxInMiss, maxOutMiss;
   };
 
-  bool goodTrack (const reco::Track* pTrack, math::XYZPoint leadPV, trackSelectionParameters parameters, bool debug=false);
+  bool goodTrack(const reco::Track* pTrack,
+                 math::XYZPoint leadPV,
+                 trackSelectionParameters parameters,
+                 bool debug = false);
 
-}
+}  // namespace spr
 #endif

@@ -21,7 +21,7 @@ namespace CLHEP {
   class RandPoissonQ;
   class RandPoisson;
   class HepRandomEngine;
-}
+}  // namespace CLHEP
 
 namespace edm {
   class SecondaryEventProvider;
@@ -30,7 +30,7 @@ namespace edm {
 
   struct PileUpConfig {
     PileUpConfig(std::string sourcename, double averageNumber, std::unique_ptr<TH1F>& histo, const bool playback)
-                   : sourcename_(sourcename), averageNumber_(averageNumber), histo_(histo.release()), playback_(playback) {}
+        : sourcename_(sourcename), averageNumber_(averageNumber), histo_(histo.release()), playback_(playback) {}
     std::string sourcename_;
     double averageNumber_;
     std::shared_ptr<TH1F> histo_;
@@ -42,23 +42,32 @@ namespace edm {
     explicit PileUp(ParameterSet const& pset, const std::shared_ptr<PileUpConfig>& config);
     ~PileUp();
 
-    template<typename T>
-      void readPileUp(edm::EventID const& signal, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator, int const NumPU, StreamID const&);
+    template <typename T>
+    void readPileUp(edm::EventID const& signal,
+                    std::vector<edm::SecondaryEventIDAndFileInfo>& ids,
+                    T eventOperator,
+                    int const NumPU,
+                    StreamID const&);
 
-    template<typename T>
-      void playPileUp(std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator begin, std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator end, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator);
+    template <typename T>
+    void playPileUp(std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator begin,
+                    std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator end,
+                    std::vector<edm::SecondaryEventIDAndFileInfo>& ids,
+                    T eventOperator);
 
-    template<typename T>
-      void playOldFormatPileUp(std::vector<edm::EventID>::const_iterator begin, std::vector<edm::EventID>::const_iterator end, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator);
+    template <typename T>
+    void playOldFormatPileUp(std::vector<edm::EventID>::const_iterator begin,
+                             std::vector<edm::EventID>::const_iterator end,
+                             std::vector<edm::SecondaryEventIDAndFileInfo>& ids,
+                             T eventOperator);
 
-    double averageNumber() const {return averageNumber_;}
-    bool poisson() const {return poisson_;}
-    bool doPileUp( int BX ) {
-      if(Source_type_ != "cosmics") {
-	return none_ ? false :  averageNumber_>0.;
-      }
-      else {
-	return ( BX >= minBunch_cosmics_ && BX <= maxBunch_cosmics_);
+    double averageNumber() const { return averageNumber_; }
+    bool poisson() const { return poisson_; }
+    bool doPileUp(int BX) {
+      if (Source_type_ != "cosmics") {
+        return none_ ? false : averageNumber_ > 0.;
+      } else {
+        return (BX >= minBunch_cosmics_ && BX <= maxBunch_cosmics_);
       }
     }
     void dropUnwantedBranches(std::vector<std::string> const& wantedBranches) {
@@ -75,24 +84,27 @@ namespace edm {
 
     void setupPileUpEvent(const edm::EventSetup& setup);
 
-    void reload(const edm::EventSetup & setup);
+    void reload(const edm::EventSetup& setup);
 
-    void CalculatePileup(int MinBunch, int MaxBunch, std::vector<int>& PileupSelection, std::vector<float>& TrueNumInteractions, StreamID const&);
+    void CalculatePileup(int MinBunch,
+                         int MaxBunch,
+                         std::vector<int>& PileupSelection,
+                         std::vector<float>& TrueNumInteractions,
+                         StreamID const&);
 
     //template<typename T>
     // void recordEventForPlayback(EventPrincipal const& eventPrincipal,
-	//			  std::vector<edm::SecondaryEventIDAndFileInfo> &ids, T& eventOperator);
+    //			  std::vector<edm::SecondaryEventIDAndFileInfo> &ids, T& eventOperator);
 
-    const unsigned int & input()const{return inputType_;}
-    void input(unsigned int s){inputType_=s;}
+    const unsigned int& input() const { return inputType_; }
+    void input(unsigned int s) { inputType_ = s; }
 
   private:
-
     std::unique_ptr<CLHEP::RandPoissonQ> const& poissonDistribution(StreamID const& streamID);
     std::unique_ptr<CLHEP::RandPoisson> const& poissonDistr_OOT(StreamID const& streamID);
     CLHEP::HepRandomEngine* randomEngine(StreamID const& streamID);
 
-    unsigned int  inputType_;
+    unsigned int inputType_;
     std::string type_;
     std::string Source_type_;
     double averageNumber_;
@@ -110,9 +122,8 @@ namespace edm {
     bool PU_Study_;
     std::string Study_type_;
 
-
-    int  intFixed_OOT_;
-    int  intFixed_ITPU_;
+    int intFixed_OOT_;
+    int intFixed_ITPU_;
 
     int minBunch_cosmics_;
     int maxBunch_cosmics_;
@@ -134,7 +145,7 @@ namespace edm {
     //TH1F *h1f;
     //TH1F *hprobFunction;
     //TFile *probFileHisto;
-    
+
     //playback info
     bool playback_;
 
@@ -142,22 +153,19 @@ namespace edm {
     bool sequential_;
   };
 
-
-
-  template<typename T>
-  class RecordEventID
-  {
+  template <typename T>
+  class RecordEventID {
   private:
     std::vector<edm::SecondaryEventIDAndFileInfo>& ids_;
     T& eventOperator_;
-    int eventCount ;
+    int eventCount;
+
   public:
     RecordEventID(std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T& eventOperator)
-      : ids_(ids), eventOperator_(eventOperator), eventCount(1) {
-    }
+        : ids_(ids), eventOperator_(eventOperator), eventCount(1) {}
     bool operator()(EventPrincipal const& eventPrincipal, size_t fileNameHash) {
       bool used = eventOperator_(eventPrincipal, eventCount);
-      if(used) {
+      if (used) {
         ++eventCount;
         ids_.emplace_back(eventPrincipal.id(), fileNameHash);
       }
@@ -175,39 +183,44 @@ namespace edm {
    *  The "signal" event is optionally used to restrict 
    *  the secondary events used for pileup and mixing.
    */
-  template<typename T>
-  void
-  PileUp::readPileUp(edm::EventID const& signal, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator,
-                       int const pileEventCnt, StreamID const& streamID) {
-
+  template <typename T>
+  void PileUp::readPileUp(edm::EventID const& signal,
+                          std::vector<edm::SecondaryEventIDAndFileInfo>& ids,
+                          T eventOperator,
+                          int const pileEventCnt,
+                          StreamID const& streamID) {
     // One reason PileUp is responsible for recording event IDs is
     // that it is the one that knows how many events will be read.
     ids.reserve(pileEventCnt);
-    RecordEventID<T> recorder(ids,eventOperator);
+    RecordEventID<T> recorder(ids, eventOperator);
     int read = 0;
     CLHEP::HepRandomEngine* engine = (sequential_ ? nullptr : randomEngine(streamID));
     read = input_->loopOverEvents(*eventPrincipal_, fileNameHash_, pileEventCnt, recorder, engine, &signal);
     if (read != pileEventCnt)
-      edm::LogWarning("PileUp") << "Could not read enough pileup events: only " << read << " out of " << pileEventCnt << " requested.";
+      edm::LogWarning("PileUp") << "Could not read enough pileup events: only " << read << " out of " << pileEventCnt
+                                << " requested.";
   }
 
-  template<typename T>
-  void
-  PileUp::playPileUp(std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator begin, std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator end, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator) {
+  template <typename T>
+  void PileUp::playPileUp(std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator begin,
+                          std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator end,
+                          std::vector<edm::SecondaryEventIDAndFileInfo>& ids,
+                          T eventOperator) {
     //TrueNumInteractions.push_back( end - begin ) ;
     RecordEventID<T> recorder(ids, eventOperator);
     input_->loopSpecified(*eventPrincipal_, fileNameHash_, begin, end, recorder);
   }
 
-  template<typename T>
-  void
-  PileUp::playOldFormatPileUp(std::vector<edm::EventID>::const_iterator begin, std::vector<edm::EventID>::const_iterator end, std::vector<edm::SecondaryEventIDAndFileInfo>& ids, T eventOperator) {
+  template <typename T>
+  void PileUp::playOldFormatPileUp(std::vector<edm::EventID>::const_iterator begin,
+                                   std::vector<edm::EventID>::const_iterator end,
+                                   std::vector<edm::SecondaryEventIDAndFileInfo>& ids,
+                                   T eventOperator) {
     //TrueNumInteractions.push_back( end - begin ) ;
     RecordEventID<T> recorder(ids, eventOperator);
     input_->loopSpecified(*eventPrincipal_, fileNameHash_, begin, end, recorder);
   }
 
-}
-
+}  // namespace edm
 
 #endif

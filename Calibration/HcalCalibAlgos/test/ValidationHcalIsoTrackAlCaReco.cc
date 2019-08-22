@@ -49,7 +49,6 @@
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"

@@ -16,18 +16,16 @@
 namespace edm {
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class FTLRecHitAlgoBase {
- public:
-
+public:
   /// Constructor
-  FTLRecHitAlgoBase(const edm::ParameterSet& conf,
-                    edm::ConsumesCollector& sumes):
-    name_( conf.getParameter<std::string>("algoName") ){ };
+  FTLRecHitAlgoBase(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
+      : name_(conf.getParameter<std::string>("algoName")){};
 
   /// Destructor
-  virtual ~FTLRecHitAlgoBase() { };
+  virtual ~FTLRecHitAlgoBase(){};
 
   /// get event and eventsetup information
   virtual void getEvent(const edm::Event&) = 0;
@@ -38,13 +36,12 @@ class FTLRecHitAlgoBase {
 
   const std::string& name() const { return name_; }
 
- private:
+private:
   std::string name_;
-
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< FTLRecHitAlgoBase* (const edm::ParameterSet&, edm::ConsumesCollector&) > FTLRecHitAlgoFactory;
-
+typedef edmplugin::PluginFactory<FTLRecHitAlgoBase*(const edm::ParameterSet&, edm::ConsumesCollector&)>
+    FTLRecHitAlgoFactory;
 
 #endif

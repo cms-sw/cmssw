@@ -26,18 +26,15 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTHVStatusValidateHandler: public popcon::PopConSourceHandler<DTHVStatus> {
-
- public:
-
+class DTHVStatusValidateHandler : public popcon::PopConSourceHandler<DTHVStatus> {
+public:
   /** Constructor
    */
-  DTHVStatusValidateHandler( const edm::ParameterSet& ps );
+  DTHVStatusValidateHandler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -45,26 +42,17 @@ class DTHVStatusValidateHandler: public popcon::PopConSourceHandler<DTHVStatus> 
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects();
   std::string id() const;
 
- private:
-
+private:
   int firstRun;
-  int  lastRun;
+  int lastRun;
   std::string dataVersion;
   std::string dataFileName;
   std::string elogFileName;
-  void addNewObject( int runNumber );
-
+  void addNewObject(int runNumber);
 };
 
-
-#endif // DTHVStatusValidateHandler_H
-
-
-
-
-
-
+#endif  // DTHVStatusValidateHandler_H

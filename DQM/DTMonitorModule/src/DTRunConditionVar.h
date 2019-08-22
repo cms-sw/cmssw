@@ -34,55 +34,48 @@
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <vector>
 #include <string>
 
-class DQMStore;
-class MonitorElement;
 class DetLayer;
 class DetId;
 
-class DTRunConditionVar : public DQMEDAnalyzer
-{
+class DTRunConditionVar : public DQMEDAnalyzer {
+public:
+  //Constructor
+  DTRunConditionVar(const edm::ParameterSet& pset);
 
-  public:
-    //Constructor
-    DTRunConditionVar(const edm::ParameterSet& pset) ;
+  //Destructor
+  ~DTRunConditionVar() override;
 
-    //Destructor
-    ~DTRunConditionVar() override ;
+  //BookHistograms
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-    //BookHistograms
-    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  //Operations
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
-    //Operations
-    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
-    void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+private:
+  void bookChamberHistos(DQMStore::IBooker&, const DTChamberId& dtCh, std::string histoType, int, float, float);
 
-  private:
+  bool debug;
+  int nMinHitsPhi;
+  double maxAnglePhiSegm;
 
-    void bookChamberHistos(DQMStore::IBooker &,const DTChamberId& dtCh, std::string histoType, int , float , float);
+  edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegmentsToken_;
 
-    bool debug;
-    int nMinHitsPhi;
-    double maxAnglePhiSegm;
+  edm::ESHandle<DTGeometry> dtGeom;
 
-    edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegmentsToken_;
+  edm::ESHandle<DTMtime> mTime;
+  const DTMtime* mTimeMap_;
 
-    edm::ESHandle<DTGeometry> dtGeom;
+  std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
 
-    edm::ESHandle<DTMtime> mTime;
-    const DTMtime* mTimeMap_;
-
-    std::map<uint32_t, std::map<std::string, MonitorElement*> > chamberHistos;
-
-  protected:
-
-
+protected:
 };
 
 #endif
-
 
 /* Local Variables: */
 /* show-trailing-whitespace: t */

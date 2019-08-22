@@ -51,8 +51,13 @@ process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer"
                                                     appendToDataLabel = cms.string('Ecal')
                                                     )
 
-process.test = cms.EDAnalyzer("DDCMSDetector",
-                              DDDetector = cms.ESInputTag('Ecal')
-                              )
+process.testDump = cms.EDAnalyzer("DDTestDumpFile",
+                                  DDDetector = cms.ESInputTag('','Ecal')
+                                  )
 
-process.p = cms.Path(process.test)
+process.p = cms.Path(process.testDump)
+###process.test = cms.EDAnalyzer("DDCMSDetector",
+###                              DDDetector = cms.ESInputTag('', 'Ecal')
+###                              )
+###
+###process.p = cms.Path(process.test)

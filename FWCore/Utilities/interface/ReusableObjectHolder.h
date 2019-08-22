@@ -82,7 +82,7 @@ namespace edm {
     }
     ~ReusableObjectHolder() {
       assert(0 == m_outstandingObjects);
-      T* item = 0;
+      T* item = nullptr;
       while (m_availableQueue.try_pop(item)) {
         delete item;
       }
@@ -92,7 +92,7 @@ namespace edm {
     /// Use this function if you know ahead of time
     /// how many cached items you will need.
     void add(std::unique_ptr<T> iItem) {
-      if (0 != iItem) {
+      if (nullptr != iItem) {
         m_availableQueue.push(iItem.release());
       }
     }
@@ -101,9 +101,9 @@ namespace edm {
     /// if none are available, returns an empty shared_ptr.
     /// Use this function in conjunction with add()
     std::shared_ptr<T> tryToGet() {
-      T* item = 0;
+      T* item = nullptr;
       m_availableQueue.try_pop(item);
-      if (0 == item) {
+      if (nullptr == item) {
         return std::shared_ptr<T>{};
       }
       //instead of deleting, hand back to queue

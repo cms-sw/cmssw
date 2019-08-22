@@ -6,6 +6,6 @@ namespace reco {
   class ConversionTrack;
   /// collection of ConversionTracks
   typedef std::vector<ConversionTrack> ConversionTrackCollection;
-}
+}  // namespace reco
 
 #endif

@@ -2,11 +2,11 @@
 //
 // Package:     cmsShow36
 // Class  :     FWISpyView
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
-// Original Author:  Alja Mrak-Tadel 
+// Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr  7 14:40:31 CEST 2010
 //
 
@@ -22,7 +22,6 @@
 #include "TEveScene.h"
 #include "TEveManager.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -34,31 +33,16 @@
 //
 // constructors and destructor
 //
-FWISpyView::FWISpyView(TEveWindowSlot* slot, FWViewType::EType typeId, unsigned int version):
-    FW3DViewBase(slot, typeId, version)
-{
-}
-
+FWISpyView::FWISpyView(TEveWindowSlot* slot, FWViewType::EType typeId, unsigned int version)
+    : FW3DViewBase(slot, typeId, version) {}
 
 // FWISpyView::FWISpyView(const FWISpyView& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWISpyView::~FWISpyView()
-{
-}
+FWISpyView::~FWISpyView() {}
 
+void FWISpyView::setContext(const fireworks::Context& x) { FW3DViewBase::setContext(x); }
 
-void FWISpyView::setContext(const fireworks::Context& x)
-{
-    FW3DViewBase::setContext(x);
-}
-
-
-
-void 
-FWISpyView::populateController(ViewerParameterGUI& gui) const
-{
-   FW3DViewBase::populateController(gui);
-}
+void FWISpyView::populateController(ViewerParameterGUI& gui) const { FW3DViewBase::populateController(gui); }

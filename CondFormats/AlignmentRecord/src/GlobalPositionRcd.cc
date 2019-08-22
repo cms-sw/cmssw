@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/AlignmentRecord
 // Class  :     GlobalPositionRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

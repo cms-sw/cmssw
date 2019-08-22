@@ -17,7 +17,6 @@
  */
 
 class EcalFenixLinearizer {
-
 private:
   bool famos_;
   int uncorrectedSample_;
@@ -41,16 +40,16 @@ public:
   EcalFenixLinearizer(bool famos);
   virtual ~EcalFenixLinearizer();
 
-  template <class T> void process(const T &, std::vector<int> &);
-  void setParameters(uint32_t raw, const EcalTPGPedestals *ecaltpPed,
+  template <class T>
+  void process(const T &, std::vector<int> &);
+  void setParameters(uint32_t raw,
+                     const EcalTPGPedestals *ecaltpPed,
                      const EcalTPGLinearizationConst *ecaltpLin,
                      const EcalTPGCrystalStatus *ecaltpBadX);
 };
 
 template <class T>
-void EcalFenixLinearizer::process(const T &df,
-                                  std::vector<int> &output_percry) {
-
+void EcalFenixLinearizer::process(const T &df, std::vector<int> &output_percry) {
   // We know a tower numbering is:
   // S1 S2 S3 S4 S5
   //

@@ -2,8 +2,9 @@
 #define ErrorFrameTransformer_H
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/LocalErrorExtended.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/LocalError.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"

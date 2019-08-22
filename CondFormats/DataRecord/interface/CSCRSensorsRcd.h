@@ -4,8 +4,6 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 /* #include "FWCore/ParameterSet/interface/ParameterSet.h" */
 
-class CSCRSensorsRcd : public edm::eventsetup::EventSetupRecordImplementation<CSCRSensorsRcd> {
-    
-};
+class CSCRSensorsRcd : public edm::eventsetup::EventSetupRecordImplementation<CSCRSensorsRcd> {};
 
 #endif

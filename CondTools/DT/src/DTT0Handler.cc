@@ -27,39 +27,35 @@
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-DTT0Handler::DTT0Handler( const edm::ParameterSet& ps ):
- dataTag(   ps.getParameter<std::string>  (  "tag" ) ),
- fileName(  ps.getParameter<std::string>  ( "file" ) ),
- runNumber( ps.getParameter<unsigned int> (  "run" ) ) {
-}
+DTT0Handler::DTT0Handler(const edm::ParameterSet& ps)
+    : dataTag(ps.getParameter<std::string>("tag")),
+      fileName(ps.getParameter<std::string>("file")),
+      runNumber(ps.getParameter<unsigned int>("run")) {}
 
 //--------------
 // Destructor --
 //--------------
-DTT0Handler::~DTT0Handler() {
-}
+DTT0Handler::~DTT0Handler() {}
 
 //--------------
 // Operations --
 //--------------
 void DTT0Handler::getNewObjects() {
-
   //to access the information on the tag inside the offline database:
-  cond::TagInfo const & ti = tagInfo();
+  cond::TagInfo const& ti = tagInfo();
   unsigned int last = ti.lastInterval.first;
   std::cout << "last: " << last << std::endl;
 
   //to access the information on last successful log entry for this tag:
-//  cond::LogDBEntry const & lde = logDBEntry();     
+  //  cond::LogDBEntry const & lde = logDBEntry();
 
   //to access the lastest payload (Ref is a smart pointer)
-//  Ref payload = lastPayload();
+  //  Ref payload = lastPayload();
 
-/*
+  /*
   int irun = event.id().run();
   int ievt = event.id().event();
   std::cout << "================ "
@@ -82,10 +78,10 @@ void DTT0Handler::getNewObjects() {
     mp.find( dataTag );
 */
 
-  DTT0* t0 = new DTT0( dataTag );
+  DTT0* t0 = new DTT0(dataTag);
 
   int status = 0;
-  std::ifstream ifile( fileName.c_str() );
+  std::ifstream ifile(fileName.c_str());
   int whe;
   int sta;
   int sec;
@@ -94,28 +90,14 @@ void DTT0Handler::getNewObjects() {
   int cel;
   float t0mean;
   float t0rms;
-  while ( ifile >> whe
-                >> sta
-                >> sec
-                >> qua
-                >> lay
-                >> cel
-                >> t0mean
-                >> t0rms ) {
-    status = t0->set( whe, sta, sec, qua, lay, cel, t0mean, t0rms,
-                      DTTimeUnits::counts );
-    std::cout << whe << " "
-              << sta << " "
-              << sec << " "
-              << qua << " "
-              << lay << " "
-              << cel << " "
-              << t0mean << " "
-              << t0rms  << "  -> ";                
+  while (ifile >> whe >> sta >> sec >> qua >> lay >> cel >> t0mean >> t0rms) {
+    status = t0->set(whe, sta, sec, qua, lay, cel, t0mean, t0rms, DTTimeUnits::counts);
+    std::cout << whe << " " << sta << " " << sec << " " << qua << " " << lay << " " << cel << " " << t0mean << " "
+              << t0rms << "  -> ";
     std::cout << "insert status: " << status << std::endl;
   }
 
-/*
+  /*
   unsigned int runf = irun;
   unsigned int runl = 0xffffffff;
   popcon::IOVPair iop = { runf, runl };
@@ -126,20 +108,14 @@ void DTT0Handler::getNewObjects() {
 
   //for each payload provide IOV information (say in this case we use since)
   cond::Time_t snc = runNumber;
-  if ( runNumber > last )
-       m_to_transfer.push_back( std::make_pair( t0, snc ) );
+  if (runNumber > last)
+    m_to_transfer.push_back(std::make_pair(t0, snc));
   else {
-       std::cout << "More recent data already present - skipped" << std::endl;
-       delete t0;
+    std::cout << "More recent data already present - skipped" << std::endl;
+    delete t0;
   }
 
   return;
-
 }
 
-
-std::string DTT0Handler::id() const {
-  return dataTag;
-}
-
-
+std::string DTT0Handler::id() const { return dataTag; }

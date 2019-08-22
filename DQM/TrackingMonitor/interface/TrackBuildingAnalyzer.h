@@ -2,11 +2,11 @@
 #define TrackBuildingAnalyzer_H
 // -*- C++ -*-
 //
-// 
+//
 /**\class TrackBuildingAnalyzer TrackBuildingAnalyzer.cc 
 Monitoring source for general quantities related to tracks.
 */
-// Original Author:  Ryan Kelley 
+// Original Author:  Ryan Kelley
 //         Created:  Sat 28 13;30:00 CEST 2009
 //
 
@@ -18,7 +18,6 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
@@ -34,143 +33,125 @@ Monitoring source for general quantities related to tracks.
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-class TrackBuildingAnalyzer 
-{
-    public:
-        using MVACollection = std::vector<float>;
-        using QualityMaskCollection = std::vector<unsigned char>;
+class TrackBuildingAnalyzer {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  using MVACollection = std::vector<float>;
+  using QualityMaskCollection = std::vector<unsigned char>;
 
-        TrackBuildingAnalyzer(const edm::ParameterSet&);
-        ~TrackBuildingAnalyzer() = default;
-        void initHisto(DQMStore::IBooker & ibooker, const edm::ParameterSet&);
-        void analyze
-        (
-            const edm::Event& iEvent, 
-            const edm::EventSetup& iSetup, 
-            const TrajectorySeed& seed, 
-            const SeedStopInfo& stopInfo,
-            const reco::BeamSpot& bs, 
-            const edm::ESHandle<MagneticField>& theMF,
-            const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder
-        );
-        void analyze
-        (
-            const edm::Event& iEvent, 
-            const edm::EventSetup& iSetup, 
-            const TrackCandidate& candidate, 
-            const reco::BeamSpot& bs, 
-            const edm::ESHandle<MagneticField>& theMF,
-            const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder
-        );
-        void analyze
-        (
-            const edm::View<reco::Track>& trackCollection,
-            const std::vector<const MVACollection *>& mvaCollections,
-            const std::vector<const QualityMaskCollection *>& qualityMaskCollections
-        );
-        void analyze
-        (
-            const reco::CandidateView& regionCandidates
-        );
-        void analyze
-        (
-            const edm::OwnVector<TrackingRegion>& regions
-        );
-        void analyze
-        (
-            const TrackingRegionsSeedingLayerSets& regions
-        );
+  TrackBuildingAnalyzer(const edm::ParameterSet&);
+  ~TrackBuildingAnalyzer() = default;
+  void initHisto(DQMStore::IBooker& ibooker, const edm::ParameterSet&);
+  void analyze(const edm::Event& iEvent,
+               const edm::EventSetup& iSetup,
+               const TrajectorySeed& seed,
+               const SeedStopInfo& stopInfo,
+               const reco::BeamSpot& bs,
+               const edm::ESHandle<MagneticField>& theMF,
+               const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder);
+  void analyze(const edm::Event& iEvent,
+               const edm::EventSetup& iSetup,
+               const TrackCandidate& candidate,
+               const reco::BeamSpot& bs,
+               const edm::ESHandle<MagneticField>& theMF,
+               const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder);
+  void analyze(const edm::View<reco::Track>& trackCollection,
+               const std::vector<const MVACollection*>& mvaCollections,
+               const std::vector<const QualityMaskCollection*>& qualityMaskCollections);
+  void analyze(const reco::CandidateView& regionCandidates);
+  void analyze(const edm::OwnVector<TrackingRegion>& regions);
+  void analyze(const TrackingRegionsSeedingLayerSets& regions);
 
-    private:
+private:
+  void fillHistos(const edm::EventSetup& iSetup, const reco::Track& track, std::string sname);
+  void bookHistos(std::string sname, DQMStore::IBooker& ibooker);
 
-        void fillHistos(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
-        void bookHistos(std::string sname, DQMStore::IBooker & ibooker);
+  template <typename T>
+  void analyzeRegions(const T& regions);
 
-        template <typename T>
-        void analyzeRegions(const T& regions);
+  // ----------member data ---------------------------
 
-        // ----------member data ---------------------------
+  // Regions covered by tracking regions
+  MonitorElement* TrackingRegionEta = nullptr;
+  MonitorElement* TrackingRegionPhi = nullptr;
+  MonitorElement* TrackingRegionPhiVsEta = nullptr;
+  double etaBinWidth = 0.;
+  double phiBinWidth = 0.;
+  // Candidates used for tracking regions
+  MonitorElement* TrackingRegionCandidatePt = nullptr;
+  MonitorElement* TrackingRegionCandidateEta = nullptr;
+  MonitorElement* TrackingRegionCandidatePhi = nullptr;
+  MonitorElement* TrackingRegionCandidatePhiVsEta = nullptr;
 
-        // Regions covered by tracking regions
-        MonitorElement* TrackingRegionEta = nullptr;
-        MonitorElement* TrackingRegionPhi = nullptr;
-        MonitorElement* TrackingRegionPhiVsEta = nullptr;
-        double etaBinWidth = 0.;
-        double phiBinWidth = 0.;
-        // Candidates used for tracking regions
-        MonitorElement* TrackingRegionCandidatePt = nullptr;
-        MonitorElement* TrackingRegionCandidateEta = nullptr;
-        MonitorElement* TrackingRegionCandidatePhi = nullptr;
-        MonitorElement* TrackingRegionCandidatePhiVsEta = nullptr;
+  // Track Seeds
+  MonitorElement* SeedPt = nullptr;
+  MonitorElement* SeedEta = nullptr;
+  MonitorElement* SeedPhi = nullptr;
+  MonitorElement* SeedPhiVsEta = nullptr;
+  MonitorElement* SeedTheta = nullptr;
+  MonitorElement* SeedQ = nullptr;
+  MonitorElement* SeedDxy = nullptr;
+  MonitorElement* SeedDz = nullptr;
+  MonitorElement* NumberOfRecHitsPerSeed = nullptr;
+  MonitorElement* NumberOfRecHitsPerSeedVsPhiProfile = nullptr;
+  MonitorElement* NumberOfRecHitsPerSeedVsEtaProfile = nullptr;
 
-        // Track Seeds
-        MonitorElement* SeedPt = nullptr;
-        MonitorElement* SeedEta = nullptr;
-        MonitorElement* SeedPhi = nullptr;
-        MonitorElement* SeedPhiVsEta = nullptr;
-        MonitorElement* SeedTheta = nullptr;
-        MonitorElement* SeedQ = nullptr;
-        MonitorElement* SeedDxy = nullptr;
-        MonitorElement* SeedDz = nullptr;
-        MonitorElement* NumberOfRecHitsPerSeed = nullptr;
-        MonitorElement* NumberOfRecHitsPerSeedVsPhiProfile = nullptr;
-        MonitorElement* NumberOfRecHitsPerSeedVsEtaProfile = nullptr;
+  MonitorElement* seedStoppingSource = nullptr;
+  MonitorElement* seedStoppingSourceVsPhi = nullptr;
+  MonitorElement* seedStoppingSourceVsEta = nullptr;
 
-        MonitorElement *seedStoppingSource = nullptr;
-        MonitorElement *seedStoppingSourceVsPhi = nullptr;
-        MonitorElement *seedStoppingSourceVsEta = nullptr;
+  MonitorElement* numberOfTrajCandsPerSeed = nullptr;
+  MonitorElement* numberOfTrajCandsPerSeedVsPhi = nullptr;
+  MonitorElement* numberOfTrajCandsPerSeedVsEta = nullptr;
 
-        MonitorElement *numberOfTrajCandsPerSeed = nullptr;
-        MonitorElement *numberOfTrajCandsPerSeedVsPhi = nullptr;
-        MonitorElement *numberOfTrajCandsPerSeedVsEta = nullptr;
+  MonitorElement* seedStoppingSourceVsNumberOfTrajCandsPerSeed = nullptr;
 
-        MonitorElement *seedStoppingSourceVsNumberOfTrajCandsPerSeed = nullptr;
+  // Track Candidate
+  MonitorElement* TrackCandPt = nullptr;
+  MonitorElement* TrackCandEta = nullptr;
+  MonitorElement* TrackCandPhi = nullptr;
+  MonitorElement* TrackCandPhiVsEta = nullptr;
+  MonitorElement* TrackCandTheta = nullptr;
+  MonitorElement* TrackCandQ = nullptr;
+  MonitorElement* TrackCandDxy = nullptr;
+  MonitorElement* TrackCandDz = nullptr;
+  MonitorElement* NumberOfRecHitsPerTrackCand = nullptr;
+  MonitorElement* NumberOfRecHitsPerTrackCandVsPhiProfile = nullptr;
+  MonitorElement* NumberOfRecHitsPerTrackCandVsEtaProfile = nullptr;
 
-        // Track Candidate
-        MonitorElement* TrackCandPt = nullptr;
-        MonitorElement* TrackCandEta = nullptr;
-        MonitorElement* TrackCandPhi = nullptr;
-        MonitorElement* TrackCandPhiVsEta = nullptr;
-        MonitorElement* TrackCandTheta = nullptr;
-        MonitorElement* TrackCandQ = nullptr;
-        MonitorElement* TrackCandDxy = nullptr;
-        MonitorElement* TrackCandDz = nullptr;
-        MonitorElement* NumberOfRecHitsPerTrackCand = nullptr;
-        MonitorElement* NumberOfRecHitsPerTrackCandVsPhiProfile = nullptr;
-        MonitorElement* NumberOfRecHitsPerTrackCandVsEtaProfile = nullptr;
+  MonitorElement* stoppingSource = nullptr;
+  MonitorElement* stoppingSourceVSeta = nullptr;
+  MonitorElement* stoppingSourceVSphi = nullptr;
 
-	MonitorElement* stoppingSource = nullptr;
-	MonitorElement* stoppingSourceVSeta = nullptr;
-	MonitorElement* stoppingSourceVSphi = nullptr;
+  std::vector<MonitorElement*> trackMVAs;
+  std::vector<MonitorElement*> trackMVAsHP;
+  std::vector<MonitorElement*> trackMVAsVsPtProfile;
+  std::vector<MonitorElement*> trackMVAsHPVsPtProfile;
+  std::vector<MonitorElement*> trackMVAsVsEtaProfile;
+  std::vector<MonitorElement*> trackMVAsHPVsEtaProfile;
 
-	std::vector<MonitorElement *> trackMVAs;
-	std::vector<MonitorElement *> trackMVAsHP;
-	std::vector<MonitorElement *> trackMVAsVsPtProfile;
-	std::vector<MonitorElement *> trackMVAsHPVsPtProfile;
-	std::vector<MonitorElement *> trackMVAsVsEtaProfile;
-	std::vector<MonitorElement *> trackMVAsHPVsEtaProfile;
-	
-        std::string histname;  //for naming the histograms according to algorithm used
+  std::string histname;  //for naming the histograms according to algorithm used
 
-	//to disable some plots
-	const bool doAllPlots;
-	const bool doAllSeedPlots;
-	const bool doTCPlots;
-	const bool doAllTCPlots;
-	const bool doPT;
-	const bool doETA;
-	const bool doPHI;
-	const bool doPHIVsETA;
-	const bool doTheta;
-	const bool doQ;
-	const bool doDxy;
-	const bool doDz;
-	const bool doNRecHits;
-	const bool doProfPHI;
-	const bool doProfETA;
-	const bool doStopSource;
-	const bool doMVAPlots;
-	const bool doRegionPlots;
-	const bool doRegionCandidatePlots;
+  //to disable some plots
+  const bool doAllPlots;
+  const bool doAllSeedPlots;
+  const bool doTCPlots;
+  const bool doAllTCPlots;
+  const bool doPT;
+  const bool doETA;
+  const bool doPHI;
+  const bool doPHIVsETA;
+  const bool doTheta;
+  const bool doQ;
+  const bool doDxy;
+  const bool doDz;
+  const bool doNRecHits;
+  const bool doProfPHI;
+  const bool doProfETA;
+  const bool doStopSource;
+  const bool doMVAPlots;
+  const bool doRegionPlots;
+  const bool doRegionCandidatePlots;
 };
 #endif

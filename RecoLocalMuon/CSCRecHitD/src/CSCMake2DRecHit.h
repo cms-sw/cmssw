@@ -1,6 +1,6 @@
 #ifndef CSCRecHitD_CSCMake2DRecHit_h
 #define CSCRecHitD_CSCMake2DRecHit_h
- 
+
 /** \class CSCMake2DRecHit
  *
  * The overlap between strip hits and wire hits is used to determined 2D RecHit.
@@ -27,34 +27,33 @@ class CSCLayerGeometry;
 class CSCRecoConditions;
 class CSCXonStrip_MatchGatti;
 
-class CSCMake2DRecHit
-{
- public:
-  
-  explicit CSCMake2DRecHit(const edm::ParameterSet& );
-  
+class CSCMake2DRecHit {
+public:
+  explicit CSCMake2DRecHit(const edm::ParameterSet&);
+
   ~CSCMake2DRecHit();
-  
+
   /// Make 2D hits when have both wire and strip hit available in same layer
-  CSCRecHit2D hitFromStripAndWire(const CSCDetId& id, const CSCLayer* layer, const CSCWireHit& wHit, const CSCStripHit& sHit);
+  CSCRecHit2D hitFromStripAndWire(const CSCDetId& id,
+                                  const CSCLayer* layer,
+                                  const CSCWireHit& wHit,
+                                  const CSCStripHit& sHit);
 
-
-  /// Test if rechit is in fiducial volume 
-  bool isHitInFiducial( const CSCLayer* layer, const CSCRecHit2D& rh );
+  /// Test if rechit is in fiducial volume
+  bool isHitInFiducial(const CSCLayer* layer, const CSCRecHit2D& rh);
 
   /// Pass pointer to conditions data onwards
-  void setConditions( const CSCRecoConditions* reco );
+  void setConditions(const CSCRecoConditions* reco);
 
   // Determine wire time using tpeak as initial estimate
-  float findWireBx(const std::vector <int>& timeBinsOn, float tpeak, const CSCDetId& id);
+  float findWireBx(const std::vector<int>& timeBinsOn, float tpeak, const CSCDetId& id);
 
-  const CSCLayer*         layer_;
+  const CSCLayer* layer_;
   const CSCLayerGeometry* layergeom_;
-  const CSCChamberSpecs*  specs_;
-  CSCDetId                id_;  
-  
- private:
-  
+  const CSCChamberSpecs* specs_;
+  CSCDetId id_;
+
+private:
   bool useCalib;
   bool useTimingCorrections;
   bool useGasGainCorrections;
@@ -62,15 +61,12 @@ class CSCMake2DRecHit
   bool useGatti;
   float maxGattiChi2;
 
-  CSCXonStrip_MatchGatti* xMatchGatti_;  
+  CSCXonStrip_MatchGatti* xMatchGatti_;
 
   // Cache pointer to conditions for current event
   const CSCRecoConditions* recoConditions_;
 
   const std::unique_ptr<CSCFindPeakTime> peakTimeFinder_;
-
-
 };
 
 #endif
-

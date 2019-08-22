@@ -16,8 +16,7 @@ public:
 private:
   std::string _tag;
   std::string _lin_file;
-  uint32_t    _status_word_to_mask;
+  uint32_t _status_word_to_mask;
 };
-
 
 #endif

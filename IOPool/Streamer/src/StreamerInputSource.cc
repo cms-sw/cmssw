@@ -17,6 +17,8 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 
 #include "zlib.h"
+#include "lzma.h"
+#include "zstd.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
@@ -25,7 +27,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Reflection/interface/DictionaryTools.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -207,10 +209,21 @@ namespace edm {
     }
     if (origsize != 78 && origsize != 0) {
       // compressed
-      dest_size = uncompressBuffer(const_cast<unsigned char*>((unsigned char const*)eventView.eventData()),
-                                   eventView.eventLength(),
-                                   dest_,
-                                   origsize);
+      if (isBufferLZMA((unsigned char const*)eventView.eventData(), eventView.eventLength())) {
+        dest_size = uncompressBufferLZMA(const_cast<unsigned char*>((unsigned char const*)eventView.eventData()),
+                                         eventView.eventLength(),
+                                         dest_,
+                                         origsize);
+      } else if (isBufferZSTD((unsigned char const*)eventView.eventData(), eventView.eventLength())) {
+        dest_size = uncompressBufferZSTD(const_cast<unsigned char*>((unsigned char const*)eventView.eventData()),
+                                         eventView.eventLength(),
+                                         dest_,
+                                         origsize);
+      } else
+        dest_size = uncompressBuffer(const_cast<unsigned char*>((unsigned char const*)eventView.eventData()),
+                                     eventView.eventLength(),
+                                     dest_,
+                                     origsize);
     } else {  // not compressed
       // we need to copy anyway the buffer as we are using dest in xbuf
       dest_size = eventView.eventLength();
@@ -360,6 +373,85 @@ namespace edm {
       throw cms::Exception("StreamDeserialization", "Uncompression error") << "Error code = " << ret << "\n ";
     }
     return (unsigned int)uncompressedSize;
+  }
+
+  bool StreamerInputSource::isBufferLZMA(unsigned char const* inputBuffer, unsigned int inputSize) {
+    if (inputSize >= 4 && !strcmp((const char*)inputBuffer, "XZ"))
+      return true;
+    else
+      return false;
+  }
+
+  unsigned int StreamerInputSource::uncompressBufferLZMA(unsigned char* inputBuffer,
+                                                         unsigned int inputSize,
+                                                         std::vector<unsigned char>& outputBuffer,
+                                                         unsigned int expectedFullSize,
+                                                         bool hasHeader) {
+    unsigned long origSize = expectedFullSize;
+    unsigned long uncompressedSize = expectedFullSize * 1.1;
+    FDEBUG(1) << "Uncompress: original size = " << origSize << ", compressed size = " << inputSize << std::endl;
+    outputBuffer.resize(uncompressedSize);
+
+    lzma_stream stream = LZMA_STREAM_INIT;
+    lzma_ret returnStatus;
+
+    returnStatus = lzma_stream_decoder(&stream, UINT64_MAX, 0U);
+    if (returnStatus != LZMA_OK) {
+      throw cms::Exception("StreamDeserializationLZM", "LZMA stream decoder error")
+          << "Error code = " << returnStatus << "\n ";
+    }
+
+    size_t hdrSize = hasHeader ? 4 : 0;
+    stream.next_in = (const uint8_t*)(inputBuffer + hdrSize);
+    stream.avail_in = (size_t)(inputSize - hdrSize);
+    stream.next_out = (uint8_t*)&outputBuffer[0];
+    stream.avail_out = (size_t)uncompressedSize;
+
+    returnStatus = lzma_code(&stream, LZMA_FINISH);
+    if (returnStatus != LZMA_STREAM_END) {
+      lzma_end(&stream);
+      throw cms::Exception("StreamDeserializationLZM", "LZMA uncompression error")
+          << "Error code = " << returnStatus << "\n ";
+    }
+    lzma_end(&stream);
+
+    uncompressedSize = (unsigned int)stream.total_out;
+
+    FDEBUG(10) << " original size = " << origSize << " final size = " << uncompressedSize << std::endl;
+    if (origSize != uncompressedSize) {
+      // we throw an error and return without event! null pointer
+      throw cms::Exception("StreamDeserialization", "LZMA uncompression error")
+          << "mismatch event lengths should be" << origSize << " got " << uncompressedSize << "\n";
+    }
+
+    return uncompressedSize;
+  }
+
+  bool StreamerInputSource::isBufferZSTD(unsigned char const* inputBuffer, unsigned int inputSize) {
+    if (inputSize >= 4 && !strcmp((const char*)inputBuffer, "ZS"))
+      return true;
+    else
+      return false;
+  }
+
+  unsigned int StreamerInputSource::uncompressBufferZSTD(unsigned char* inputBuffer,
+                                                         unsigned int inputSize,
+                                                         std::vector<unsigned char>& outputBuffer,
+                                                         unsigned int expectedFullSize,
+                                                         bool hasHeader) {
+    unsigned long uncompressedSize = expectedFullSize * 1.1;
+    FDEBUG(1) << "Uncompress: original size = " << expectedFullSize << ", compressed size = " << inputSize << std::endl;
+    outputBuffer.resize(uncompressedSize);
+
+    size_t hdrSize = hasHeader ? 4 : 0;
+    size_t ret = ZSTD_decompress(
+        (void*)&(outputBuffer[0]), uncompressedSize, (const void*)(inputBuffer + hdrSize), inputSize - hdrSize);
+
+    if (ZSTD_isError(ret)) {
+      throw cms::Exception("StreamDeserializationZSTD", "ZSTD uncompression error")
+          << "Error core " << ret << ", message:" << ZSTD_getErrorName(ret);
+    }
+    return (unsigned int)ret;
   }
 
   void StreamerInputSource::resetAfterEndRun() {

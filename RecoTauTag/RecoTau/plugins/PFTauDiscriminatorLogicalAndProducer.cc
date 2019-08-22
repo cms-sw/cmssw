@@ -19,32 +19,30 @@
 using namespace reco;
 
 class PFTauDiscriminatorLogicalAndProducer : public PFTauDiscriminationProducerBase {
-   public:
-      explicit PFTauDiscriminatorLogicalAndProducer(const edm::ParameterSet&);
-      ~PFTauDiscriminatorLogicalAndProducer() override{};
-      double discriminate(const PFTauRef& pfTau) const override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-   private:
-      double passResult_;
+public:
+  explicit PFTauDiscriminatorLogicalAndProducer(const edm::ParameterSet&);
+  ~PFTauDiscriminatorLogicalAndProducer() override{};
+  double discriminate(const PFTauRef& pfTau) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  double passResult_;
 };
 
-PFTauDiscriminatorLogicalAndProducer::PFTauDiscriminatorLogicalAndProducer(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig)
-{
-   passResult_               = iConfig.getParameter<double>("PassValue");
-   prediscriminantFailValue_ = iConfig.getParameter<double>("FailValue"); //defined in base class
+PFTauDiscriminatorLogicalAndProducer::PFTauDiscriminatorLogicalAndProducer(const edm::ParameterSet& iConfig)
+    : PFTauDiscriminationProducerBase(iConfig) {
+  passResult_ = iConfig.getParameter<double>("PassValue");
+  prediscriminantFailValue_ = iConfig.getParameter<double>("FailValue");  //defined in base class
 }
 
-double
-PFTauDiscriminatorLogicalAndProducer::discriminate(const PFTauRef& pfTau) const 
-{
-   // if this function is called on a tau, it is has passed (in the base class)
-   // the set of prediscriminants, using the prescribed boolean operation.  thus 
-   // we only need to return TRUE
-   return passResult_;
+double PFTauDiscriminatorLogicalAndProducer::discriminate(const PFTauRef& pfTau) const {
+  // if this function is called on a tau, it is has passed (in the base class)
+  // the set of prediscriminants, using the prescribed boolean operation.  thus
+  // we only need to return TRUE
+  return passResult_;
 }
 
-void
-PFTauDiscriminatorLogicalAndProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void PFTauDiscriminatorLogicalAndProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // PFTauDiscriminatorLogicalAndProducer
   edm::ParameterSetDescription desc;
 

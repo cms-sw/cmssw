@@ -13,14 +13,15 @@
 
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboard.h"
 
-class CSCGEMMotherboardME21 : public CSCGEMMotherboard
-{
- public:
-
+class CSCGEMMotherboardME21 : public CSCGEMMotherboard {
+public:
   /** Normal constructor. */
-  CSCGEMMotherboardME21(unsigned endcap, unsigned station, unsigned sector,
-		 unsigned subsector, unsigned chamber,
-		 const edm::ParameterSet& conf);
+  CSCGEMMotherboardME21(unsigned endcap,
+                        unsigned station,
+                        unsigned sector,
+                        unsigned subsector,
+                        unsigned chamber,
+                        const edm::ParameterSet& conf);
 
   /** Test destructor. */
   CSCGEMMotherboardME21();
@@ -37,14 +38,13 @@ class CSCGEMMotherboardME21 : public CSCGEMMotherboard
   /* readout the two best LCTs in this CSC */
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const override;
 
- private:
-
+private:
   /* access to the LUTs needed for matching */
-  const CSCGEMMotherboardLUTME21* getLUT() const override {return tmbLUT_.get();}
+  const CSCGEMMotherboardLUTME21* getLUT() const override { return tmbLUT_.get(); }
   std::unique_ptr<CSCGEMMotherboardLUTME21> tmbLUT_;
 
   /* does wiregroup cross halfstrip or not */
-  bool doesWiregroupCrossStrip(int key_wg, int key_strip) const override {return true;}
+  bool doesWiregroupCrossStrip(int key_wg, int key_strip) const override { return true; }
 
   /* correlate a pair of ALCTs and a pair of CLCTs with matched pads or copads
      the output is up to two LCTs in a sector of ME21 */

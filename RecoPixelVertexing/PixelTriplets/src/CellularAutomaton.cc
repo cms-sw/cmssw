@@ -2,13 +2,11 @@
 
 #include "CellularAutomaton.h"
 
-void CellularAutomaton::createAndConnectCells(
-    const std::vector<const HitDoublets *> & hitDoublets,
-    const TrackingRegion & region,
-    const float thetaCut,
-    const float phiCut,
-    const float hardPtCut)
-{
+void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublets *> &hitDoublets,
+                                              const TrackingRegion &region,
+                                              const float thetaCut,
+                                              const float phiCut,
+                                              const float hardPtCut) {
   int tsize = 0;
   for (auto hd : hitDoublets) {
     tsize += hd->size();
@@ -36,9 +34,9 @@ void CellularAutomaton::createAndConnectCells(
 
     while (not LayerPairsToVisit.empty()) {
       auto currentLayerPair = LayerPairsToVisit.front();
-      auto & currentLayerPairRef  = theLayerGraph.theLayerPairs[currentLayerPair];
-      auto & currentInnerLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[0]];
-      auto & currentOuterLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[1]];
+      auto &currentLayerPairRef = theLayerGraph.theLayerPairs[currentLayerPair];
+      auto &currentInnerLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[0]];
+      auto &currentOuterLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[1]];
       bool allInnerLayerPairsAlreadyVisited{true};
 
       for (auto innerLayerPair : currentInnerLayerRef.theInnerLayerPairs) {
@@ -51,18 +49,23 @@ void CellularAutomaton::createAndConnectCells(
         currentLayerPairRef.theFoundCells[0] = cellId;
         currentLayerPairRef.theFoundCells[1] = cellId + numberOfDoublets;
         for (unsigned int i = 0; i < numberOfDoublets; ++i) {
-          allCells.emplace_back(doubletLayerPairId, i,
-                                doubletLayerPairId->innerHitId(i),
-                                doubletLayerPairId->outerHitId(i));
+          allCells.emplace_back(
+              doubletLayerPairId, i, doubletLayerPairId->innerHitId(i), doubletLayerPairId->outerHitId(i));
 
           currentOuterLayerRef.isOuterHitOfCell[doubletLayerPairId->outerHitId(i)].push_back(cellId);
 
           cellId++;
 
-          auto & neigCells = currentInnerLayerRef.isOuterHitOfCell[doubletLayerPairId->innerHitId(i)];
-          allCells.back().checkAlignmentAndTag(
-              allCells, neigCells, ptmin, region_origin_x, region_origin_y,
-              region_origin_radius, thetaCut, phiCut, hardPtCut);
+          auto &neigCells = currentInnerLayerRef.isOuterHitOfCell[doubletLayerPairId->innerHitId(i)];
+          allCells.back().checkAlignmentAndTag(allCells,
+                                               neigCells,
+                                               ptmin,
+                                               region_origin_x,
+                                               region_origin_y,
+                                               region_origin_radius,
+                                               thetaCut,
+                                               phiCut,
+                                               hardPtCut);
         }
         assert(cellId == currentLayerPairRef.theFoundCells[1]);
         for (auto outerLayerPair : currentOuterLayerRef.theOuterLayerPairs) {
@@ -80,20 +83,19 @@ void CellularAutomaton::createAndConnectCells(
   }
 }
 
-void CellularAutomaton::evolve(const unsigned int minHitsPerNtuplet)
-{
+void CellularAutomaton::evolve(const unsigned int minHitsPerNtuplet) {
   allStatus.resize(allCells.size());
 
   unsigned int numberOfIterations = minHitsPerNtuplet - 2;
   // keeping the last iteration for later
   for (unsigned int iteration = 0; iteration < numberOfIterations - 1; ++iteration) {
-    for (auto & layerPair : theLayerGraph.theLayerPairs) {
+    for (auto &layerPair : theLayerGraph.theLayerPairs) {
       for (auto i = layerPair.theFoundCells[0]; i < layerPair.theFoundCells[1]; ++i) {
         allCells[i].evolve(i, allStatus);
       }
     }
 
-    for (auto & layerPair : theLayerGraph.theLayerPairs) {
+    for (auto &layerPair : theLayerGraph.theLayerPairs) {
       for (auto i = layerPair.theFoundCells[0]; i < layerPair.theFoundCells[1]; ++i) {
         allStatus[i].updateState();
       }
@@ -106,7 +108,7 @@ void CellularAutomaton::evolve(const unsigned int minHitsPerNtuplet)
     for (int rootLayerPair : theLayerGraph.theLayers[rootLayerId].theOuterLayerPairs) {
       auto foundCells = theLayerGraph.theLayerPairs[rootLayerPair].theFoundCells;
       for (auto i = foundCells[0]; i < foundCells[1]; ++i) {
-        auto & cell = allStatus[i];
+        auto &cell = allStatus[i];
         allCells[i].evolve(i, allStatus);
         cell.updateState();
         if (cell.isRootCell(minHitsPerNtuplet - 2)) {
@@ -117,26 +119,24 @@ void CellularAutomaton::evolve(const unsigned int minHitsPerNtuplet)
   }
 }
 
-void CellularAutomaton::findNtuplets(std::vector<CACell::CAntuplet> & foundNtuplets, const unsigned int minHitsPerNtuplet)
-{
+void CellularAutomaton::findNtuplets(std::vector<CACell::CAntuplet> &foundNtuplets,
+                                     const unsigned int minHitsPerNtuplet) {
   CACell::CAntuple tmpNtuplet;
   tmpNtuplet.reserve(minHitsPerNtuplet);
 
-  for (auto root_cell : theRootCells)
-  {
+  for (auto root_cell : theRootCells) {
     tmpNtuplet.clear();
     tmpNtuplet.push_back(root_cell);
     allCells[root_cell].findNtuplets(allCells, foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
   }
 }
 
-void CellularAutomaton::findTriplets(
-    std::vector<const HitDoublets *> const& hitDoublets,
-    std::vector<CACell::CAntuplet> & foundTriplets, TrackingRegion const& region,
-    const float thetaCut,
-    const float phiCut,
-    const float hardPtCut)
-{
+void CellularAutomaton::findTriplets(std::vector<const HitDoublets *> const &hitDoublets,
+                                     std::vector<CACell::CAntuplet> &foundTriplets,
+                                     TrackingRegion const &region,
+                                     const float thetaCut,
+                                     const float phiCut,
+                                     const float hardPtCut) {
   int tsize = 0;
   for (auto hd : hitDoublets) {
     tsize += hd->size();
@@ -165,9 +165,9 @@ void CellularAutomaton::findTriplets(
 
     while (not LayerPairsToVisit.empty()) {
       auto currentLayerPair = LayerPairsToVisit.front();
-      auto & currentLayerPairRef  = theLayerGraph.theLayerPairs[currentLayerPair];
-      auto & currentInnerLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[0]];
-      auto & currentOuterLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[1]];
+      auto &currentLayerPairRef = theLayerGraph.theLayerPairs[currentLayerPair];
+      auto &currentInnerLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[0]];
+      auto &currentOuterLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[1]];
       bool allInnerLayerPairsAlreadyVisited{true};
 
       for (auto innerLayerPair : currentInnerLayerRef.theInnerLayerPairs) {
@@ -180,18 +180,24 @@ void CellularAutomaton::findTriplets(
         currentLayerPairRef.theFoundCells[0] = cellId;
         currentLayerPairRef.theFoundCells[1] = cellId + numberOfDoublets;
         for (unsigned int i = 0; i < numberOfDoublets; ++i) {
-          allCells.emplace_back(doubletLayerPairId, i,
-                                doubletLayerPairId->innerHitId(i),
-                                doubletLayerPairId->outerHitId(i));
+          allCells.emplace_back(
+              doubletLayerPairId, i, doubletLayerPairId->innerHitId(i), doubletLayerPairId->outerHitId(i));
 
           currentOuterLayerRef.isOuterHitOfCell[doubletLayerPairId->outerHitId(i)].push_back(cellId);
 
           cellId++;
 
-          auto & neigCells = currentInnerLayerRef.isOuterHitOfCell[doubletLayerPairId->innerHitId(i)];
-          allCells.back().checkAlignmentAndPushTriplet(
-              allCells, neigCells, foundTriplets, ptmin, region_origin_x, region_origin_y,
-              region_origin_radius, thetaCut, phiCut, hardPtCut);
+          auto &neigCells = currentInnerLayerRef.isOuterHitOfCell[doubletLayerPairId->innerHitId(i)];
+          allCells.back().checkAlignmentAndPushTriplet(allCells,
+                                                       neigCells,
+                                                       foundTriplets,
+                                                       ptmin,
+                                                       region_origin_x,
+                                                       region_origin_y,
+                                                       region_origin_radius,
+                                                       thetaCut,
+                                                       phiCut,
+                                                       hardPtCut);
         }
         assert(cellId == currentLayerPairRef.theFoundCells[1]);
         for (auto outerLayerPair : currentOuterLayerRef.theOuterLayerPairs) {

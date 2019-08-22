@@ -8,15 +8,12 @@
 // Note that the class below does not have any public constructors.
 // All application usage is via the StaticFFTJetRcdMapper wrapper.
 //
-class FFTJetLookupTableSequenceLoader :
-    public DefaultFFTJetRcdMapper<FFTJetLookupTableSequence>
-{
-    typedef DefaultFFTJetRcdMapper<FFTJetLookupTableSequence> Base;
-    friend class StaticFFTJetRcdMapper<FFTJetLookupTableSequenceLoader>;
-    FFTJetLookupTableSequenceLoader();
+class FFTJetLookupTableSequenceLoader : public DefaultFFTJetRcdMapper<FFTJetLookupTableSequence> {
+  typedef DefaultFFTJetRcdMapper<FFTJetLookupTableSequence> Base;
+  friend class StaticFFTJetRcdMapper<FFTJetLookupTableSequenceLoader>;
+  FFTJetLookupTableSequenceLoader();
 };
-        
-typedef StaticFFTJetRcdMapper<FFTJetLookupTableSequenceLoader>
-StaticFFTJetLookupTableSequenceLoader;
 
-#endif // JetMETCorrections_FFTJetObjects_FFTJetLookupTableSequenceLoader_h
+typedef StaticFFTJetRcdMapper<FFTJetLookupTableSequenceLoader> StaticFFTJetLookupTableSequenceLoader;
+
+#endif  // JetMETCorrections_FFTJetObjects_FFTJetLookupTableSequenceLoader_h

@@ -21,64 +21,63 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h" /// NOTE: this is needed even if it seems not
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"  /// NOTE: this is needed even if it seems not
 
-template< typename T >
-class TTCluster
-{
-  public:
-    /// Constructors
-    TTCluster();
-    TTCluster( std::vector< T > aHits,
-               DetId aDetId,
-               unsigned int aStackMember,
-               bool storeLocal );
+template <typename T>
+class TTCluster {
+public:
+  /// Constructors
+  TTCluster();
+  TTCluster(std::vector<T> aHits, DetId aDetId, unsigned int aStackMember, bool storeLocal);
 
-    /// Destructor
-    ~TTCluster();
+  /// Destructor
+  ~TTCluster();
 
-    /// Data members:   getABC( ... )
-    /// Helper methods: findABC( ... )
+  /// Data members:   getABC( ... )
+  /// Helper methods: findABC( ... )
 
-    /// Hits in the Cluster
-    std::vector< T > getHits() const                   { return theHits; }
-    void             setHits( std::vector< T > aHits ) { theHits = aHits; }
+  /// Hits in the Cluster
+  std::vector<T> getHits() const { return theHits; }
+  void setHits(std::vector<T> aHits) { theHits = aHits; }
 
-    /// Detector element
-    DetId        getDetId() const         { return theDetId; }
-    void         setDetId( DetId aDetId ) { theDetId = aDetId; }
-    unsigned int getStackMember() const                      { return theStackMember; }
-    void         setStackMember( unsigned int aStackMember ) { theStackMember = aStackMember; }
+  /// Detector element
+  DetId getDetId() const { return theDetId; }
+  void setDetId(DetId aDetId) { theDetId = aDetId; }
+  unsigned int getStackMember() const { return theStackMember; }
+  void setStackMember(unsigned int aStackMember) { theStackMember = aStackMember; }
 
-    /// Rows and columns to get rid of Digi collection
-    std::vector< int > findRows() const;
-    std::vector< int > findCols() const;
-    void setCoordinates( std::vector< int > a, std::vector< int > b ) { theRows = a; theCols = b; }
-    std::vector< int > getRows() const { return theRows; }
-    std::vector< int > getCols() const { return theCols; }
+  /// Rows and columns to get rid of Digi collection
+  std::vector<int> findRows() const;
+  std::vector<int> findCols() const;
+  void setCoordinates(std::vector<int> a, std::vector<int> b) {
+    theRows = a;
+    theCols = b;
+  }
+  std::vector<int> getRows() const { return theRows; }
+  std::vector<int> getCols() const { return theCols; }
 
-    /// Cluster width
-    unsigned int findWidth() const;
+  /// Cluster width
+  unsigned int findWidth() const;
 
-    /// Single hit coordinates
-    /// Average cluster coordinates
-    MeasurementPoint findHitLocalCoordinates( unsigned int hitIdx ) const;
-    MeasurementPoint findAverageLocalCoordinates() const;
-    MeasurementPoint findAverageLocalCoordinatesCentered() const;
+  /// Single hit coordinates
+  /// Average cluster coordinates
+  MeasurementPoint findHitLocalCoordinates(unsigned int hitIdx) const;
+  MeasurementPoint findAverageLocalCoordinates() const;
+  MeasurementPoint findAverageLocalCoordinatesCentered() const;
 
-    /// Information
-    std::string print( unsigned int i = 0 ) const;
+  /// Information
+  std::string print(unsigned int i = 0) const;
 
-  private:
-    /// Data members
-    std::vector< T >  theHits;
-    DetId             theDetId;
-    unsigned int      theStackMember;
+private:
+  /// Data members
+  std::vector<T> theHits;
+  DetId theDetId;
+  unsigned int theStackMember;
 
-    std::vector< int > theRows;
-    std::vector< int > theCols;
+  std::vector<int> theRows;
+  std::vector<int> theCols;
 
-}; /// Close class
+};  /// Close class
 
 /*! \brief   Implementation of methods
  *  \details Here, in the header file, the methods which do not depend
@@ -89,9 +88,8 @@ class TTCluster
 
 /// Default Constructor
 /// NOTE: to be used with setSomething(...) methods
-template< typename T >
-TTCluster< T >::TTCluster()
-{
+template <typename T>
+TTCluster<T>::TTCluster() {
   /// Set default data members
   theHits.clear();
   theDetId = 0;
@@ -102,85 +100,76 @@ TTCluster< T >::TTCluster()
 }
 
 /// Another Constructor
-template< typename T >
-TTCluster< T >::TTCluster( std::vector< T > aHits,
-                           DetId aDetId,
-                           unsigned int aStackMember,
-                           bool storeLocal )
-{
+template <typename T>
+TTCluster<T>::TTCluster(std::vector<T> aHits, DetId aDetId, unsigned int aStackMember, bool storeLocal) {
   /// Set data members
-  this->setHits( aHits );
-  this->setDetId( aDetId );
-  this->setStackMember( aStackMember );    
+  this->setHits(aHits);
+  this->setDetId(aDetId);
+  this->setStackMember(aStackMember);
 
   theRows.clear();
   theCols.clear();
-  if ( storeLocal )
-  {
-    this->setCoordinates( this->findRows(), this->findCols() );
+  if (storeLocal) {
+    this->setCoordinates(this->findRows(), this->findCols());
   }
 }
 
 /// Destructor
-template< typename T >
-TTCluster< T >::~TTCluster(){}
+template <typename T>
+TTCluster<T>::~TTCluster() {}
 
 /// Cluster width
-template< >
-unsigned int TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findWidth() const;
+template <>
+unsigned int TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findWidth() const;
 
 /// Single hit coordinates
 /// Average cluster coordinates
-template< >
-MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findHitLocalCoordinates( unsigned int hitIdx ) const;
+template <>
+MeasurementPoint TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findHitLocalCoordinates(
+    unsigned int hitIdx) const;
 
-template< >
-MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findAverageLocalCoordinates() const;
+template <>
+MeasurementPoint
+TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findAverageLocalCoordinates() const;
 
 /// Operations with coordinates stored locally
-template< typename T > 
-std::vector< int > TTCluster< T >::findRows() const
-{
-  std::vector< int > temp;
+template <typename T>
+std::vector<int> TTCluster<T>::findRows() const {
+  std::vector<int> temp;
   return temp;
 }
 
-template< typename T > 
-std::vector< int > TTCluster< T >::findCols() const
-{
-  std::vector< int > temp;
+template <typename T>
+std::vector<int> TTCluster<T>::findCols() const {
+  std::vector<int> temp;
   return temp;
 }
 
-template< >
-std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findRows() const;
+template <>
+std::vector<int> TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findRows() const;
 
-template< >
-std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi > >::findCols() const;
+template <>
+std::vector<int> TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findCols() const;
 
 /// Information
-template< typename T >
-std::string TTCluster< T >::print( unsigned int i ) const
-{
+template <typename T>
+std::string TTCluster<T>::print(unsigned int i) const {
   std::string padding("");
-  for ( unsigned int j = 0; j != i; ++j )
-  {
-    padding+="\t";
+  for (unsigned int j = 0; j != i; ++j) {
+    padding += "\t";
   }
 
   std::stringstream output;
-  output<<padding<<"TTCluster:\n";
-  padding+='\t';
+  output << padding << "TTCluster:\n";
+  padding += '\t';
   output << padding << "DetId: " << theDetId.rawId() << '\n';
   output << padding << "member: " << theStackMember << ", cluster size: " << theHits.size() << '\n';
   return output.str();
 }
 
-template< typename T >
-std::ostream& operator << ( std::ostream& os, const TTCluster< T >& aTTCluster )
-{
-  return ( os << aTTCluster.print() );
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const TTCluster<T>& aTTCluster) {
+  return (os << aTTCluster.print());
 }
 
 #endif
-

@@ -2,22 +2,23 @@
 #define CondCore_DBOutputService_test_MyDataAnalyzer_h
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include <string>
-namespace edm{
+namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 //
 // class decleration
 //
 class MyDataAnalyzer : public edm::EDAnalyzer {
- public:
-  explicit MyDataAnalyzer(const edm::ParameterSet& iConfig );
+public:
+  explicit MyDataAnalyzer(const edm::ParameterSet& iConfig);
   virtual ~MyDataAnalyzer();
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
+  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
   virtual void endJob();
- private:
+
+private:
   std::string m_record;
   bool m_LoggingOn;
 };

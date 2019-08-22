@@ -28,9 +28,10 @@ namespace edm {
   class Event;
   class EventSetup;
   class ParameterSet;
-  template<typename T> class Handle;
+  template <typename T>
+  class Handle;
   class StreamID;
-}
+}  // namespace edm
 
 class MagneticField;
 class PileUpEventPrincipal;
@@ -46,7 +47,6 @@ namespace CLHEP {
 namespace cms {
   class SiPixelDigitizer : public DigiAccumulatorMixMod {
   public:
-
     explicit SiPixelDigitizer(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
 
     ~SiPixelDigitizer() override;
@@ -58,24 +58,26 @@ namespace cms {
 
     virtual void beginJob() {}
 
-    void StorePileupInformation( std::vector<int> &numInteractionList,
-					 std::vector<int> &bunchCrossingList,
-					 std::vector<float> &TrueInteractionList, 
-					 std::vector<edm::EventID> &eventInfoList, int bunchSpacing) override{
-      PileupInfo_ = std::make_unique<PileupMixingContent>(numInteractionList, bunchCrossingList, TrueInteractionList, eventInfoList, bunchSpacing);
+    void StorePileupInformation(std::vector<int>& numInteractionList,
+                                std::vector<int>& bunchCrossingList,
+                                std::vector<float>& TrueInteractionList,
+                                std::vector<edm::EventID>& eventInfoList,
+                                int bunchSpacing) override {
+      PileupInfo_ = std::make_unique<PileupMixingContent>(
+          numInteractionList, bunchCrossingList, TrueInteractionList, eventInfoList, bunchSpacing);
     }
 
     PileupMixingContent* getEventPileupInfo() override { return PileupInfo_.get(); }
 
   private:
     void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >,
-			     size_t globalSimHitIndex,
-			     const unsigned int tofBin,
-			     edm::EventSetup const& c);
+                             size_t globalSimHitIndex,
+                             const unsigned int tofBin,
+                             edm::EventSetup const& c);
 
     bool firstInitializeEvent_;
     bool firstFinalizeEvent_;
-    std::unique_ptr<SiPixelDigitizerAlgorithm>  _pixeldigialgo;
+    std::unique_ptr<SiPixelDigitizerAlgorithm> _pixeldigialgo;
     /** @brief Offset to add to the index of each sim hit to account for which crossing it's in.
 *
 * I need to know what each sim hit index will be when the hits from all crossing frames are merged into
@@ -84,7 +86,7 @@ namespace cms {
 * hit in a given crossing. This assumes that the crossings are processed in the same order here as they are
 * put into the crossing frame, which I'm pretty sure is true.<br/>
 * The key is the name of the sim hit collection. */
-    std::map<std::string,size_t> crossingSimHitIndexOffset_;
+    std::map<std::string, size_t> crossingSimHitIndexOffset_;
 
     typedef std::vector<std::string> vstring;
     const std::string hitsProducer;
@@ -92,17 +94,16 @@ namespace cms {
     const std::string geometryType;
     edm::ESHandle<TrackerGeometry> pDD;
     edm::ESHandle<MagneticField> pSetup;
-    std::map<unsigned int, PixelGeomDetUnit const *> detectorUnits;
+    std::map<unsigned int, PixelGeomDetUnit const*> detectorUnits;
     CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 
     std::unique_ptr<PileupMixingContent> PileupInfo_;
-    
-    const bool pilotBlades; // Default = false
-    const int NumberOfEndcapDisks; // Default = 2
-    
+
+    const bool pilotBlades;         // Default = false
+    const int NumberOfEndcapDisks;  // Default = 2
+
     // infrastructure to reject dead pixels as defined in db (added by F.Blekman)
   };
-}
-
+}  // namespace cms
 
 #endif

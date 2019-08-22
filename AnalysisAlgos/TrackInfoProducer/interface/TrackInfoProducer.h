@@ -23,8 +23,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 class TrackInfoProducer : public edm::EDProducer {
- public:
-
+public:
   //  TrackInfoProducer(){}
   explicit TrackInfoProducer(const edm::ParameterSet& iConfig);
 
@@ -32,8 +31,7 @@ class TrackInfoProducer : public edm::EDProducer {
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-
- private:
+private:
   TrackInfoProducerAlgorithm theAlgo_;
   edm::EDGetTokenT<std::vector<Trajectory> > TrajectoryToken_;
   edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;

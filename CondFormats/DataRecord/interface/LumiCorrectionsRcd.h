@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     LumiCorrectionsRcd
-// 
+//
 /**\class LumiCorrectionsRcd LumiCorrectionsRcd.h CondFormats/DataRecord/interface/LumiCorrectionsRcd.h
 
  Description: [one line class summary]

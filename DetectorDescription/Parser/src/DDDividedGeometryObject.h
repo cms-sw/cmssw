@@ -17,42 +17,37 @@ class DDLogicalPart;
 class DDRotation;
 class DDSolid;
 
-class DDDividedGeometryObject
-{ 
+class DDDividedGeometryObject {
 public:
-  
-  DDDividedGeometryObject( const DDDivision& div, DDCompactView* cpv );
-  
-  virtual ~DDDividedGeometryObject( void ) = default; // inline
-  
-  virtual DDTranslation makeDDTranslation( int copyNo ) const;
-  virtual DDRotation    makeDDRotation   ( int copyNo ) const;
-  virtual DDLogicalPart makeDDLogicalPart( int copyNo ) const;
+  DDDividedGeometryObject(const DDDivision& div, DDCompactView* cpv);
 
-  virtual const std::string& getType( void ) const;
+  virtual ~DDDividedGeometryObject(void) = default;  // inline
 
-  virtual void setType( const std::string& type );
+  virtual DDTranslation makeDDTranslation(int copyNo) const;
+  virtual DDRotation makeDDRotation(int copyNo) const;
+  virtual DDLogicalPart makeDDLogicalPart(int copyNo) const;
 
-  int volumeFirstCopyNo( void ) const;
+  virtual const std::string& getType(void) const;
 
-  virtual void execute( void );
+  virtual void setType(const std::string& type);
 
-  static const double tolerance( void );
-  
+  int volumeFirstCopyNo(void) const;
+
+  virtual void execute(void);
+
+  static const double tolerance(void);
+
 protected:
-  
-  std::unique_ptr<DDRotationMatrix> changeRotMatrix( double rotZ = 0. ) const;
-  int calculateNDiv( double motherDim, double width,
-		     double offset ) const;
-  double calculateWidth( double motherDim, int nDiv,
-			 double offset ) const;
+  std::unique_ptr<DDRotationMatrix> changeRotMatrix(double rotZ = 0.) const;
+  int calculateNDiv(double motherDim, double width, double offset) const;
+  double calculateWidth(double motherDim, int nDiv, double offset) const;
 
-  virtual void checkParametersValidity( void );
+  virtual void checkParametersValidity(void);
 
-  void checkOffset( double maxPar );
-  void checkNDivAndWidth( double maxPar );
+  void checkOffset(double maxPar);
+  void checkNDivAndWidth(double maxPar);
 
-  virtual double getMaxParameter( void ) const;
+  virtual double getMaxParameter(void) const;
 
 protected:
   DDDivision div_;

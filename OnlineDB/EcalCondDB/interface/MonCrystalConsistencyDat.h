@@ -10,7 +10,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class MonCrystalConsistencyDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   MonCrystalConsistencyDat();
   ~MonCrystalConsistencyDat() override;
@@ -35,20 +35,15 @@ class MonCrystalConsistencyDat : public IDataItem {
 
   inline void setTaskStatus(bool status) { m_taskStatus = status; }
   inline bool getTaskStatus() const { return m_taskStatus; }
-  
- private:
-  void prepareWrite() 
-    noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const MonCrystalConsistencyDat* item, MonRunIOV* iov)
-    noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void fetchData(std::map< EcalLogicID, MonCrystalConsistencyDat >* fillVec, MonRunIOV* iov)
-     noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const MonCrystalConsistencyDat* item, MonRunIOV* iov) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, MonCrystalConsistencyDat >* data, MonRunIOV* iov)
-    noexcept(false);
+  void fetchData(std::map<EcalLogicID, MonCrystalConsistencyDat>* fillVec, MonRunIOV* iov) noexcept(false);
 
+  void writeArrayDB(const std::map<EcalLogicID, MonCrystalConsistencyDat>* data, MonRunIOV* iov) noexcept(false);
 
   // User data
   int m_processedEvents;
@@ -57,7 +52,6 @@ class MonCrystalConsistencyDat : public IDataItem {
   int m_problemsGainZero;
   int m_problemsGainSwitch;
   bool m_taskStatus;
-  
 };
 
 #endif

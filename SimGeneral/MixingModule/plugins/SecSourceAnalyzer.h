@@ -2,7 +2,7 @@
 //
 // Package:    SecSourceAnalyzer
 // Class:      SecSourceAnalyzer
-// 
+//
 /**\class SecSourceAnalyzer SecSourceAnalyzer.cc SecSource/SecSourceAnalyzer/src/SecSourceAnalyzer.cc
 */
 //
@@ -39,18 +39,16 @@ namespace edm {
 
   class SecSourceAnalyzer : public edm::one::EDAnalyzer<> {
   public:
-   
     explicit SecSourceAnalyzer(const edm::ParameterSet&);
     ~SecSourceAnalyzer() override;
 
-    bool getBranches(EventPrincipal const& ep,
-                     ModuleCallingContext const*);
+    bool getBranches(EventPrincipal const& ep, ModuleCallingContext const*);
     bool dummyFunction(EventPrincipal const& ep) { return true; }
 
   private:
-    void beginJob() override ;
+    void beginJob() override;
     void analyze(const edm::Event&, const edm::EventSetup&) override;
-    void endJob() override ;
+    void endJob() override;
 
     // ----------member data ---------------------------
     int minBunch_;
@@ -58,14 +56,13 @@ namespace edm {
 
     bool dataStep2_;
     edm::InputTag label_;
-      
+
     std::vector<std::vector<edm::SecondaryEventIDAndFileInfo> > vectorEventIDs_;
 
     std::shared_ptr<PileUp> input_;
-    std::vector< float > TrueNumInteractions_[5];
+    std::vector<float> TrueNumInteractions_[5];
 
     InputTag tag_;
- 
   };
-}//edm
+}  // namespace edm
 #endif

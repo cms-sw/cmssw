@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     SiPixelStatusScenariosRcd
-// 
+//
 /**\class SiPixelStatusScenariosRcd SiPixelStatusScenariosRcd.h CondFormats/DataRecord/interface/SiPixelStatusScenariosRcd.h
  Description: [one line class summary]
  Usage:

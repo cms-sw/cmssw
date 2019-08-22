@@ -5,4 +5,4 @@ namespace TrackingTools_TransientTrackingRecHit {
   struct dictionary {
     edm::Wrapper<SeedingLayerSetsHits> wslsn;
   };
-}
+}  // namespace TrackingTools_TransientTrackingRecHit

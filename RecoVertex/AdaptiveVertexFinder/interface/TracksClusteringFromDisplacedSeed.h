@@ -23,37 +23,30 @@
 //#define VTXDEBUG
 
 class TracksClusteringFromDisplacedSeed {
-    public:
-    struct Cluster 
-    {       
-      GlobalPoint seedPoint;      
-      reco::TransientTrack seedingTrack;
-      std::vector<reco::TransientTrack> tracks;
-    };
-	TracksClusteringFromDisplacedSeed(const edm::ParameterSet &params);
-	
-	
-        std::vector<Cluster> clusters(
-	  const reco::Vertex    &pv,
-	  const std::vector<reco::TransientTrack> & selectedTracks
-	 );
-	 
+public:
+  struct Cluster {
+    GlobalPoint seedPoint;
+    reco::TransientTrack seedingTrack;
+    std::vector<reco::TransientTrack> tracks;
+  };
+  TracksClusteringFromDisplacedSeed(const edm::ParameterSet &params);
 
-    private:
-	bool trackFilter(const reco::TrackRef &track) const;
-        std::pair<std::vector<reco::TransientTrack>,GlobalPoint> nearTracks(const reco::TransientTrack &seed, const std::vector<reco::TransientTrack> & tracks, const reco::Vertex & primaryVertex) const;
+  std::vector<Cluster> clusters(const reco::Vertex &pv, const std::vector<reco::TransientTrack> &selectedTracks);
 
-//	unsigned int				maxNTracks;
-        double 					max3DIPSignificance;
-        double 					max3DIPValue;
-        double 					min3DIPSignificance;
-        double 					min3DIPValue;
-        double 					clusterMaxDistance;
-        double 					clusterMaxSignificance;
-        double 					distanceRatio;
-        double 					clusterMinAngleCosine;
-	double                                  maxTimeSignificance;
+private:
+  bool trackFilter(const reco::TrackRef &track) const;
+  std::pair<std::vector<reco::TransientTrack>, GlobalPoint> nearTracks(const reco::TransientTrack &seed,
+                                                                       const std::vector<reco::TransientTrack> &tracks,
+                                                                       const reco::Vertex &primaryVertex) const;
 
-
+  //	unsigned int				maxNTracks;
+  double max3DIPSignificance;
+  double max3DIPValue;
+  double min3DIPSignificance;
+  double min3DIPValue;
+  double clusterMaxDistance;
+  double clusterMaxSignificance;
+  double distanceRatio;
+  double clusterMinAngleCosine;
+  double maxTimeSignificance;
 };
-

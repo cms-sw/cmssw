@@ -6,8 +6,7 @@
 using namespace std;
 using namespace oracle::occi;
 
-DCUTag::DCUTag()
-{
+DCUTag::DCUTag() {
   m_env = nullptr;
   m_conn = nullptr;
   m_ID = 0;
@@ -15,58 +14,34 @@ DCUTag::DCUTag()
   m_locDef = LocationDef();
 }
 
+DCUTag::~DCUTag() {}
 
-
-DCUTag::~DCUTag()
-{
-}
-
-
-
-string DCUTag::getGeneralTag() const
-{
-  return m_genTag;
-}
+string DCUTag::getGeneralTag() const { return m_genTag; }
 
 // User data methods
 
-
-
-void DCUTag::setGeneralTag(string genTag)
-{
+void DCUTag::setGeneralTag(string genTag) {
   if (genTag != m_genTag) {
     m_ID = 0;
     m_genTag = genTag;
   }
 }
 
+LocationDef DCUTag::getLocationDef() const { return m_locDef; }
 
-
-LocationDef DCUTag::getLocationDef() const
-{
-  return m_locDef;
-}
-
-
-
-void DCUTag::setLocationDef(const LocationDef& locDef)
-{
+void DCUTag::setLocationDef(const LocationDef& locDef) {
   if (locDef != m_locDef) {
     m_ID = 0;
     m_locDef = locDef;
   }
 }
 
-
-
-int DCUTag::fetchID()
-  noexcept(false)
-{
+int DCUTag::fetchID() noexcept(false) {
   // Return tag from memory if available
   if (m_ID) {
     return m_ID;
   }
-  
+
   this->checkConnection();
 
   // fetch the parent IDs
@@ -76,9 +51,10 @@ int DCUTag::fetchID()
   // fetch this ID
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT tag_id FROM dcu_tag WHERE "
-		 "gen_tag     = :1 AND "
-		 "location_id = :2");
+    stmt->setSQL(
+        "SELECT tag_id FROM dcu_tag WHERE "
+        "gen_tag     = :1 AND "
+        "location_id = :2");
     stmt->setString(1, m_genTag);
     stmt->setInt(2, locID);
 
@@ -90,18 +66,14 @@ int DCUTag::fetchID()
       m_ID = 0;
     }
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(std::runtime_error("DCUTag::fetchID:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("DCUTag::fetchID:  " + e.getMessage()));
   }
 
   return m_ID;
 }
 
-
-
-void DCUTag::setByID(int id) 
-  noexcept(false)
-{
+void DCUTag::setByID(int id) noexcept(false) {
   this->checkConnection();
 
   try {
@@ -124,18 +96,15 @@ void DCUTag::setByID(int id)
     }
 
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-   throw(std::runtime_error("DCUTag::setByID:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("DCUTag::setByID:  " + e.getMessage()));
   }
 }
 
-
-int DCUTag::writeDB()
-  noexcept(false)
-{
+int DCUTag::writeDB() noexcept(false) {
   // see if this data is already in the DB
-  if (this->fetchID()) { 
-    return m_ID; 
+  if (this->fetchID()) {
+    return m_ID;
   }
 
   // check the connectioin
@@ -149,16 +118,17 @@ int DCUTag::writeDB()
   try {
     Statement* stmt = m_conn->createStatement();
 
-    stmt->setSQL("INSERT INTO dcu_tag (tag_id, gen_tag, location_id) "
-		 "VALUES (dcu_tag_sq.NextVal, :1, :2)");
+    stmt->setSQL(
+        "INSERT INTO dcu_tag (tag_id, gen_tag, location_id) "
+        "VALUES (dcu_tag_sq.NextVal, :1, :2)");
     stmt->setString(1, m_genTag);
     stmt->setInt(2, locID);
 
     stmt->executeUpdate();
-    
+
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-   throw(std::runtime_error("DCUTag::writeDB:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("DCUTag::writeDB:  " + e.getMessage()));
   }
 
   // now get the tag_id
@@ -169,39 +139,31 @@ int DCUTag::writeDB()
   return m_ID;
 }
 
-
-
-void DCUTag::fetchAllTags( std::vector<DCUTag>* fillVec)
-  noexcept(false)
-{
+void DCUTag::fetchAllTags(std::vector<DCUTag>* fillVec) noexcept(false) {
   this->checkConnection();
   try {
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT tag_id FROM dcu_tag ORDER BY tag_id");
     ResultSet* rset = stmt->executeQuery();
-    
+
     DCUTag dcutag;
     dcutag.setConnection(m_env, m_conn);
-    while(rset->next()) {
-      dcutag.setByID( rset->getInt(1) );
-      fillVec->push_back( dcutag );
+    while (rset->next()) {
+      dcutag.setByID(rset->getInt(1));
+      fillVec->push_back(dcutag);
     }
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(std::runtime_error("DCUTag::fetchAllTags:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("DCUTag::fetchAllTags:  " + e.getMessage()));
   }
 }
 
-
-
-void DCUTag::fetchParentIDs(int* locID)
-  noexcept(false)
-{
+void DCUTag::fetchParentIDs(int* locID) noexcept(false) {
   // get the location
   m_locDef.setConnection(m_env, m_conn);
   *locID = m_locDef.fetchID();
 
-  if (! *locID) { 
-    throw(std::runtime_error("DCUTag::writeDB:  Given location does not exist in DB")); 
+  if (!*locID) {
+    throw(std::runtime_error("DCUTag::writeDB:  Given location does not exist in DB"));
   }
 }

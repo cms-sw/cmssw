@@ -22,7 +22,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h" 
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
@@ -41,27 +41,27 @@ class GBRForest;
 class GBRWrapperRcd;
 
 class PFECALSuperClusterProducer : public edm::stream::EDProducer<> {
- public:  
+public:
   explicit PFECALSuperClusterProducer(const edm::ParameterSet&);
   ~PFECALSuperClusterProducer() override;
 
   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions); 
 
- private:  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
   // ----------member data ---------------------------
 
-  /// clustering algorithm 
-  PFECALSuperClusterAlgo                  superClusterAlgo_;
+  /// clustering algorithm
+  PFECALSuperClusterAlgo superClusterAlgo_;
   PFECALSuperClusterAlgo::clustering_type _theclusteringtype;
-  PFECALSuperClusterAlgo::energy_weight   _theenergyweight;
+  PFECALSuperClusterAlgo::energy_weight _theenergyweight;
 
   std::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
 
   /// verbose ?
-  bool   verbose_;
+  bool verbose_;
 
   std::string PFBasicClusterCollectionBarrel_;
   std::string PFSuperClusterCollectionBarrel_;

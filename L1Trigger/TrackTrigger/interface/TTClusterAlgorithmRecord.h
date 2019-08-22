@@ -18,6 +18,6 @@
 #include "boost/mpl/vector.hpp"
 
 class TTClusterAlgorithmRecord
-: public edm::eventsetup::DependentRecordImplementation< TTClusterAlgorithmRecord, boost::mpl::vector< IdealMagneticFieldRecord > >{};
+    : public edm::eventsetup::DependentRecordImplementation<TTClusterAlgorithmRecord,
+                                                            boost::mpl::vector<IdealMagneticFieldRecord> > {};
 #endif
-

@@ -15,12 +15,13 @@
 
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <iostream>
 
 class LaserDQM : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   typedef std::vector<edm::ParameterSet> Parameters;
 
   /// constructor

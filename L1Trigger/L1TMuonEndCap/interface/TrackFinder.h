@@ -13,7 +13,6 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessor.h"
 
-
 class TrackFinder {
 public:
   explicit TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iConsumes);
@@ -21,11 +20,11 @@ public:
 
   void process(
       // Input
-      const edm::Event& iEvent, const edm::EventSetup& iSetup,
+      const edm::Event& iEvent,
+      const edm::EventSetup& iSetup,
       // Output
       EMTFHitCollection& out_hits,
-      EMTFTrackCollection& out_tracks
-  );
+      EMTFTrackCollection& out_tracks);
 
 private:
   GeometryTranslator geometry_translator_;

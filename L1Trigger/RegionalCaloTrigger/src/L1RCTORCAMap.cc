@@ -13,14 +13,10 @@ L1RCTORCAMap::L1RCTORCAMap() {
   combHD = std::vector<unsigned short>(56 * 72);
 
   barrelData = std::vector<std::vector<std::vector<unsigned short>>>(
-      18, std::vector<std::vector<unsigned short>>(
-              7, std::vector<unsigned short>(64)));
-  hfData = std::vector<std::vector<unsigned short>>(
-      18, std::vector<unsigned short>(8));
+      18, std::vector<std::vector<unsigned short>>(7, std::vector<unsigned short>(64)));
+  hfData = std::vector<std::vector<unsigned short>>(18, std::vector<unsigned short>(8));
 }
-vector<std::vector<std::vector<unsigned short>>> L1RCTORCAMap::giveBarrel() {
-  return barrelData;
-}
+vector<std::vector<std::vector<unsigned short>>> L1RCTORCAMap::giveBarrel() { return barrelData; }
 
 vector<std::vector<unsigned short>> L1RCTORCAMap::giveHF() { return hfData; }
 void L1RCTORCAMap::makeHFData() {
@@ -38,10 +34,8 @@ void L1RCTORCAMap::makeBarrelData() {
   for (int phi = 0; phi < 72; phi++) {
     for (int eta = 0; eta < 56; eta++) {
       indices = orcamap(eta, phi);
-      (barrelData.at(indices.at(0))).at(indices.at(1)).at(indices.at(2)) =
-          combEM.at(phi * 56 + eta);
-      (barrelData.at(indices.at(0))).at(indices.at(1)).at(indices.at(2) + 32) =
-          combHD.at(phi * 56 + eta);
+      (barrelData.at(indices.at(0))).at(indices.at(1)).at(indices.at(2)) = combEM.at(phi * 56 + eta);
+      (barrelData.at(indices.at(0))).at(indices.at(1)).at(indices.at(2) + 32) = combHD.at(phi * 56 + eta);
     }
   }
 }
@@ -72,9 +66,8 @@ unsigned short L1RCTORCAMap::combine(unsigned short et, unsigned short fg) {
   return newfg + et;
 }
 
-vector<unsigned short>
-L1RCTORCAMap::combVec(const std::vector<unsigned short> &et,
-                      const std::vector<unsigned short> &fg) {
+vector<unsigned short> L1RCTORCAMap::combVec(const std::vector<unsigned short> &et,
+                                             const std::vector<unsigned short> &fg) {
   std::vector<unsigned short> comb(56 * 72);
   for (int i = 0; i < (int)et.size(); i++)
     comb.at(i) = combine(et.at(i), fg.at(i));

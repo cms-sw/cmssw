@@ -10,6 +10,8 @@
 #include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 #include "Geometry/EcalCommonData/interface/ESTBNumberingScheme.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -17,6 +19,7 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -39,18 +42,18 @@ bool any(const std::vector<T>& v, const T& what) {
 }
 
 ECalSD::ECalSD(const std::string& name,
-               const DDCompactView& cpv,
+               const edm::EventSetup& es,
                const SensitiveDetectorCatalog& clg,
                edm::ParameterSet const& p,
                const SimTrackManager* manager)
     : CaloSD(name,
-             cpv,
+             es,
              clg,
              p,
              manager,
              (float)(p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("ECalSD").getParameter<bool>("IgnoreTrackID")),
-      numberingScheme(nullptr) {
+      numberingScheme_(nullptr) {
   //   static SimpleConfigurable<bool>   on1(false,  "ECalSD:UseBirkLaw");
   //   static SimpleConfigurable<double> bk1(0.00463,"ECalSD:BirkC1");
   //   static SimpleConfigurable<double> bk2(-0.03,  "ECalSD:BirkC2");
@@ -59,7 +62,6 @@ ECalSD::ECalSD(const std::string& name,
   //   useBirk          = on1.value();
   //   birk1            = bk1.value()*(g/(MeV*cm2));
   //   birk2            = bk2.value()*(g/(MeV*cm2))*(g/(MeV*cm2));
-
   edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ECalSD");
   useBirk = m_EC.getParameter<bool>("UseBirkLaw");
   useBirkL3 = m_EC.getParameter<bool>("BirkL3Parametrization");
@@ -84,10 +86,13 @@ ECalSD::ECalSD(const std::string& name,
     ageing.setLumies(p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("DelivLuminosity"),
                      p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("InstLuminosity"));
 
+  edm::ESTransientHandle<DDCompactView> cpv;
+  es.get<IdealGeometryRecord>().get(cpv);
+
   //Material list for HB/HE/HO sensitive detectors
   std::string attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, name, 0)};
-  DDFilteredView fv(cpv, filter);
+  DDFilteredView fv(*cpv, filter);
   fv.firstChild();
   DDsvalues_type sv(fv.mergedSpecifics());
   // Use of Weight
@@ -118,10 +123,8 @@ ECalSD::ECalSD(const std::string& name,
     scheme = nullptr;
   } else if (name == "EcalHitsEB") {
     scheme = dynamic_cast<EcalNumberingScheme*>(new EcalBarrelNumberingScheme());
-    isEB = true;
   } else if (name == "EcalHitsEE") {
     scheme = dynamic_cast<EcalNumberingScheme*>(new EcalEndcapNumberingScheme());
-    isEE = true;
   } else if (name == "EcalHitsES") {
     if (isItTB)
       scheme = dynamic_cast<EcalNumberingScheme*>(new ESTBNumberingScheme());
@@ -158,7 +161,7 @@ ECalSD::ECalSD(const std::string& name,
                               << p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit")
                               << " ns";
   if (useWeight)
-    initMap(name, cpv);
+    initMap(name, es);
 #ifdef plotDebug
   edm::Service<TFileService> tfile;
   if (tfile.isAvailable()) {
@@ -177,7 +180,7 @@ ECalSD::ECalSD(const std::string& name,
 #endif
 }
 
-ECalSD::~ECalSD() { delete numberingScheme; }
+ECalSD::~ECalSD() { delete numberingScheme_; }
 
 double ECalSD::getEnergyDeposit(const G4Step* aStep) {
   const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
@@ -293,27 +296,30 @@ uint16_t ECalSD::getLayerIDForTimeSim() {
 }
 
 uint32_t ECalSD::setDetUnitId(const G4Step* aStep) {
-  if (numberingScheme == nullptr) {
+  if (numberingScheme_ == nullptr) {
     return EBDetId(1, 1)();
   } else {
     getBaseNumber(aStep);
-    return numberingScheme->getUnitID(theBaseNumber);
+    return numberingScheme_->getUnitID(theBaseNumber);
   }
 }
 
 void ECalSD::setNumberingScheme(EcalNumberingScheme* scheme) {
   if (scheme != nullptr) {
     edm::LogVerbatim("EcalSim") << "EcalSD: updates numbering scheme for " << GetName();
-    if (numberingScheme)
-      delete numberingScheme;
-    numberingScheme = scheme;
+    if (numberingScheme_)
+      delete numberingScheme_;
+    numberingScheme_ = scheme;
   }
 }
 
-void ECalSD::initMap(const G4String& sd, const DDCompactView& cpv) {
+void ECalSD::initMap(const G4String& sd, const edm::EventSetup& es) {
+  edm::ESTransientHandle<DDCompactView> cpv;
+  es.get<IdealGeometryRecord>().get(cpv);
+
   G4String attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, sd, 0)};
-  DDFilteredView fv(cpv, filter);
+  DDFilteredView fv(*cpv, filter);
   fv.firstChild();
 
   std::vector<const G4LogicalVolume*> lvused;

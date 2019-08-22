@@ -14,63 +14,83 @@
 class DetLayer;
 
 namespace edm {
-  template< typename T> class ContainerMask;
+  template <typename T>
+  class ContainerMask;
 }
 
 namespace ctfseeding {
 
-class HitExtractorSTRP final : public HitExtractor {
+  class HitExtractorSTRP final : public HitExtractor {
+  public:
+    typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
 
-public:
-  typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
+    HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, TrackerDetSide side, int idLayer, float iminGoodCharge);
+    ~HitExtractorSTRP() override {}
 
-  HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, TrackerDetSide side, int idLayer, float iminGoodCharge);
-  ~HitExtractorSTRP() override{}
+    HitExtractor::Hits hits(const TkTransientTrackingRecHitBuilder& ttrhBuilder,
+                            const edm::Event&,
+                            const edm::EventSetup&) const override;
+    HitExtractorSTRP* clone() const override { return new HitExtractorSTRP(*this); }
 
-  HitExtractor::Hits hits( const TkTransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup&) const override;
-  HitExtractorSTRP * clone() const override { return new HitExtractorSTRP(*this); }
+    void useMatchedHits(const edm::InputTag& m, edm::ConsumesCollector& iC) {
+      hasMatchedHits = true;
+      theMatchedHits = iC.consumes<SiStripMatchedRecHit2DCollection>(m);
+    }
+    void useRPhiHits(const edm::InputTag& m, edm::ConsumesCollector& iC) {
+      hasRPhiHits = true;
+      theRPhiHits = iC.consumes<SiStripRecHit2DCollection>(m);
+    }
+    void useStereoHits(const edm::InputTag& m, edm::ConsumesCollector& iC) {
+      hasStereoHits = true;
+      theStereoHits = iC.consumes<SiStripRecHit2DCollection>(m);
+    }
+    void useRingSelector(int minRing, int maxRing);
+    void useSimpleRphiHitsCleaner(bool use) { hasSimpleRphiHitsCleaner = use; }
 
-  void useMatchedHits( const edm::InputTag & m, edm::ConsumesCollector& iC) { hasMatchedHits = true; theMatchedHits = iC.consumes<SiStripMatchedRecHit2DCollection>(m); }
-  void useRPhiHits(    const edm::InputTag & m, edm::ConsumesCollector& iC) { hasRPhiHits    = true; theRPhiHits = iC.consumes<SiStripRecHit2DCollection>(m); }
-  void useStereoHits(  const edm::InputTag & m, edm::ConsumesCollector& iC) { hasStereoHits = true; theStereoHits = iC.consumes<SiStripRecHit2DCollection>(m); }
-  void useRingSelector(int minRing, int maxRing);
-  void useSimpleRphiHitsCleaner(bool use) {hasSimpleRphiHitsCleaner = use;}
+    void cleanedOfClusters(const TkTransientTrackingRecHitBuilder& ttrhBuilder,
+                           const edm::Event& ev,
+                           HitExtractor::Hits& hits,
+                           bool matched,
+                           unsigned int cleanFrom = 0) const;
 
-  void cleanedOfClusters( const TkTransientTrackingRecHitBuilder& ttrhBuilder, const edm::Event& ev, HitExtractor::Hits & hits, bool matched, unsigned int cleanFrom=0) const;
+    std::pair<bool, ProjectedSiStripRecHit2D*> skipThis(
+        const TkTransientTrackingRecHitBuilder& ttrhBuilder,
+        TkHitRef matched,
+        edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > >& stripClusterMask) const;
 
-  std::pair<bool,ProjectedSiStripRecHit2D *>
-    skipThis(const TkTransientTrackingRecHitBuilder& ttrhBuilder, TkHitRef matched,
-	     edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
+    bool skipThis(DetId id,
+                  OmniClusterRef const& clus,
+                  edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > >& stripClusterMask) const;
 
-  bool skipThis(DetId id, OmniClusterRef const& clus, edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
+    void setNoProjection() { failProjection = true; }
+    void setMinAbsZ(double minZToSet) { minAbsZ = minZToSet; }
 
-  void setNoProjection() {failProjection=true;}
-  void setMinAbsZ(double minZToSet) {minAbsZ=minZToSet;}
+    bool useRingSelector() const { return hasRingSelector; }
+    std::tuple<int, int> getMinMaxRing() const { return std::make_tuple(theMinRing, theMaxRing); }
 
-  bool useRingSelector() const { return hasRingSelector; }
-  std::tuple<int, int> getMinMaxRing() const { return std::make_tuple(theMinRing, theMaxRing); }
-private:
-  bool ringRange(int ring) const;
+  private:
+    bool ringRange(int ring) const;
 
-  typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > SkipClustersCollection;
-  void useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) override;
-private:
-  const GeomDetEnumerators::SubDetector theLayerSubDet;
-  TrackerDetSide theSide;
-  int theIdLayer;
-  double minAbsZ;
-  int theMinRing, theMaxRing;
-  edm::EDGetTokenT<SkipClustersCollection> theSkipClusters;
-  edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> theMatchedHits;
-  edm::EDGetTokenT<SiStripRecHit2DCollection> theRPhiHits;
-  edm::EDGetTokenT<SiStripRecHit2DCollection> theStereoHits;
-  bool hasMatchedHits;
-  bool hasRPhiHits;
-  bool hasStereoHits;
-  bool hasRingSelector;
-  bool hasSimpleRphiHitsCleaner;
-  bool failProjection;
-};
+    typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > SkipClustersCollection;
+    void useSkipClusters_(const edm::InputTag& m, edm::ConsumesCollector& iC) override;
 
-}
+  private:
+    const GeomDetEnumerators::SubDetector theLayerSubDet;
+    TrackerDetSide theSide;
+    int theIdLayer;
+    double minAbsZ;
+    int theMinRing, theMaxRing;
+    edm::EDGetTokenT<SkipClustersCollection> theSkipClusters;
+    edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> theMatchedHits;
+    edm::EDGetTokenT<SiStripRecHit2DCollection> theRPhiHits;
+    edm::EDGetTokenT<SiStripRecHit2DCollection> theStereoHits;
+    bool hasMatchedHits;
+    bool hasRPhiHits;
+    bool hasStereoHits;
+    bool hasRingSelector;
+    bool hasSimpleRphiHitsCleaner;
+    bool failProjection;
+  };
+
+}  // namespace ctfseeding
 #endif

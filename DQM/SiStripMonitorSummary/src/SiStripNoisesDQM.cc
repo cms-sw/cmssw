@@ -1,6 +1,6 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripNoisesDQM.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "TCanvas.h"
 

@@ -12,37 +12,27 @@
  *  Convolute a set of trajectory states with
  *  material effects. 
  */
-class FullConvolutionWithMaterial {  
-  
+class FullConvolutionWithMaterial {
 public:
   /// Constructor with GSF material effects updator and propagation direction.
-  FullConvolutionWithMaterial(const GsfMaterialEffectsUpdator& aMEUpdator) :
-    theMEUpdator(aMEUpdator.clone()) {}
+  FullConvolutionWithMaterial(const GsfMaterialEffectsUpdator& aMEUpdator) : theMEUpdator(aMEUpdator.clone()) {}
 
-  ~FullConvolutionWithMaterial() {};
+  ~FullConvolutionWithMaterial(){};
 
   /// Convolution using the GsfMaterialEffectsUpdator
-  TrajectoryStateOnSurface operator() (const TrajectoryStateOnSurface&,
-				       const PropagationDirection) const;
+  TrajectoryStateOnSurface operator()(const TrajectoryStateOnSurface&, const PropagationDirection) const;
 
   /// Access to material effects updator
-  inline const GsfMaterialEffectsUpdator& materialEffectsUpdator () const
-  {
-    return *theMEUpdator;
-  }
+  inline const GsfMaterialEffectsUpdator& materialEffectsUpdator() const { return *theMEUpdator; }
 
   /// Clone
-  FullConvolutionWithMaterial* clone() const
-  {
-    return new FullConvolutionWithMaterial(*this);
-  }
+  FullConvolutionWithMaterial* clone() const { return new FullConvolutionWithMaterial(*this); }
 
 private:
   // Material effects
   DeepCopyPointerByClone<GsfMaterialEffectsUpdator> theMEUpdator;
-  
-//    static TimingReport::Item* theTimer1;
-//    static TimingReport::Item* theTimer2;
-  
+
+  //    static TimingReport::Item* theTimer1;
+  //    static TimingReport::Item* theTimer2;
 };
 #endif

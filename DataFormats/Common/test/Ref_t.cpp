@@ -14,9 +14,7 @@
 #include <thread>
 #include <atomic>
 
-
-
-class TestRef: public CppUnit::TestFixture {
+class TestRef : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestRef);
   CPPUNIT_TEST(default_ctor);
   //CPPUNIT_TEST(default_ctor_string_key);
@@ -26,8 +24,8 @@ class TestRef: public CppUnit::TestFixture {
   CPPUNIT_TEST(threading);
   CPPUNIT_TEST_SUITE_END();
 
- public:
-  typedef std::vector<int>           product1_t;
+public:
+  typedef std::vector<int> product1_t;
   typedef std::map<std::string, int> product2_t;
 
   typedef edm::Ref<product1_t> ref1_t;
@@ -46,8 +44,7 @@ class TestRef: public CppUnit::TestFixture {
   void using_wrong_productid();
   void threading();
 
-
- private:
+private:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestRef);
@@ -55,11 +52,11 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestRef);
 void TestRef::default_ctor() {
   ref1_t default_ref;
   CPPUNIT_ASSERT(default_ref.isNull());
-  CPPUNIT_ASSERT(default_ref.isNonnull()==false);
+  CPPUNIT_ASSERT(default_ref.isNonnull() == false);
   CPPUNIT_ASSERT(!default_ref);
-  CPPUNIT_ASSERT(default_ref.productGetter()==0);
-  CPPUNIT_ASSERT(default_ref.id().isValid()==false);
-  CPPUNIT_ASSERT(default_ref.isAvailable()==false);
+  CPPUNIT_ASSERT(default_ref.productGetter() == 0);
+  CPPUNIT_ASSERT(default_ref.id().isValid() == false);
+  CPPUNIT_ASSERT(default_ref.isAvailable() == false);
 }
 
 // void TestRef::default_ctor_string_key() {
@@ -71,7 +68,6 @@ void TestRef::default_ctor() {
 //   CPPUNIT_ASSERT(default_ref.id().isValid()==false);
 //   CPPUNIT_ASSERT(default_ref.id().isAvailable()==false);
 // }
-
 
 void TestRef::nondefault_ctor() {
   SimpleEDProductGetter getter;
@@ -85,17 +81,17 @@ void TestRef::nondefault_ctor() {
   getter.addProduct(id, std::move(prod));
 
   ref1_t ref0(id, 0, &getter);
-  CPPUNIT_ASSERT(ref0.isNull()==false);
+  CPPUNIT_ASSERT(ref0.isNull() == false);
   CPPUNIT_ASSERT(ref0.isNonnull());
   CPPUNIT_ASSERT(!!ref0);
-  CPPUNIT_ASSERT(ref0.productGetter()==&getter);
+  CPPUNIT_ASSERT(ref0.productGetter() == &getter);
   CPPUNIT_ASSERT(ref0.id().isValid());
-  CPPUNIT_ASSERT(ref0.isAvailable()==true);
+  CPPUNIT_ASSERT(ref0.isAvailable() == true);
   CPPUNIT_ASSERT(*ref0 == 1);
 
   ref1_t ref1(id, 1, &getter);
   CPPUNIT_ASSERT(ref1.isNonnull());
-  CPPUNIT_ASSERT(ref1.isAvailable()==true);
+  CPPUNIT_ASSERT(ref1.isAvailable() == true);
   CPPUNIT_ASSERT(*ref1 == 2);
 
   // Note that nothing stops one from making an edm::Ref into a
@@ -141,57 +137,54 @@ void TestRef::using_wrong_productid() {
   getter.addProduct(id, std::move(prod));
 
   edm::ProductID wrong_id(1, 100U);
-  CPPUNIT_ASSERT(wrong_id.isValid()); // its valid, but not used.
+  CPPUNIT_ASSERT(wrong_id.isValid());  // its valid, but not used.
 
   ref1_t ref(wrong_id, 0, &getter);
   CPPUNIT_ASSERT_THROW(*ref, edm::Exception);
   CPPUNIT_ASSERT_THROW(ref.operator->(), edm::Exception);
 }
 
-namespace  {
+namespace {
   constexpr int kNThreads = 8;
   std::atomic<int> s_threadsStarting{kNThreads};
-}
-void TestRef::threading()
-{
-  
+}  // namespace
+void TestRef::threading() {
   SimpleEDProductGetter getter;
-  
+
   edm::ProductID id(1, 1U);
   CPPUNIT_ASSERT(id.isValid());
-  
+
   auto prod = std::make_unique<product1_t>();
   prod->push_back(1);
   prod->push_back(2);
   getter.addProduct(id, std::move(prod));
-  
+
   ref1_t ref0(id, 0, &getter);
   ref1_t ref1(id, 1, &getter);
 
   std::vector<std::thread> threads;
-  std::vector<std::exception_ptr> excepPtrs(kNThreads,std::exception_ptr{});
-  
-  for(unsigned int i=0; i< kNThreads; ++i) {
-    threads.emplace_back([&ref0,&ref1,i,&excepPtrs]() {
+  std::vector<std::exception_ptr> excepPtrs(kNThreads, std::exception_ptr{});
+
+  for (unsigned int i = 0; i < kNThreads; ++i) {
+    threads.emplace_back([&ref0, &ref1, i, &excepPtrs]() {
       --s_threadsStarting;
-      while(0 != s_threadsStarting) {}
-      try{
+      while (0 != s_threadsStarting) {
+      }
+      try {
         CPPUNIT_ASSERT(*ref0 == 1);
         CPPUNIT_ASSERT(*ref1 == 2);
-      } catch(...) {
-        excepPtrs[i]=std::current_exception();
+      } catch (...) {
+        excepPtrs[i] = std::current_exception();
       }
     });
   }
-  for( auto& t: threads) {
+  for (auto& t : threads) {
     t.join();
   }
-  
-  for(auto& e: excepPtrs) {
-    if(e) {
+
+  for (auto& e : excepPtrs) {
+    if (e) {
       std::rethrow_exception(e);
     }
   }
-  
 }
-

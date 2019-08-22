@@ -9,8 +9,7 @@
 
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 
-struct EcalMappingElement
-{
+struct EcalMappingElement {
   EcalMappingElement() : electronicsid(0), triggerid(0) {}
   uint32_t electronicsid;
   uint32_t triggerid;
@@ -23,4 +22,3 @@ typedef EcalMappingElectronicsMap::const_iterator EcalMappingElectronicsMapItera
 typedef EcalMappingElectronicsMap EcalMappingElectronics;
 
 #endif
-

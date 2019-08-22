@@ -2,7 +2,7 @@
 //
 // Package:    RecoMET/METProducers
 // Class:      CaloRecHitsBeamHaloCleaned
-// 
+//
 /**\class CaloRecHitsBeamHaloCleaned CaloRecHitsBeamHaloCleaned.cc RecoMET/METProducers/plugins/CaloRecHitsBeamHaloCleaned.cc
 
  Description: [one line class summary]
@@ -15,7 +15,6 @@
 //         Created:  Tue, 09 Feb 2016 13:09:37 GMT
 //
 //
-
 
 // system include files
 #include <memory>
@@ -50,167 +49,145 @@ class CaloRecHitsBeamHaloCleaned : public edm::stream::EDProducer<> {
 public:
   explicit CaloRecHitsBeamHaloCleaned(const edm::ParameterSet&);
   ~CaloRecHitsBeamHaloCleaned() override;
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
- 
+
   edm::EDGetTokenT<EcalRecHitCollection> ecalebhits_token;
   edm::EDGetTokenT<EcalRecHitCollection> ecaleehits_token;
-  edm::EDGetTokenT<HBHERecHitCollection> hbhehits_token; 
+  edm::EDGetTokenT<HBHERecHitCollection> hbhehits_token;
   edm::EDGetTokenT<GlobalHaloData> globalhalo_token;
-  
+
   //Input tags
   edm::InputTag it_EBRecHits;
   edm::InputTag it_EERecHits;
   edm::InputTag it_HBHERecHits;
   edm::InputTag it_GlobalHaloData;
 
-  
   bool ishlt;
 };
 
 //
 // constructors and destructor
 //
-CaloRecHitsBeamHaloCleaned::CaloRecHitsBeamHaloCleaned(const edm::ParameterSet& iConfig)
-{
-
-  ishlt = iConfig.getParameter< bool> ("IsHLT");
-
-
+CaloRecHitsBeamHaloCleaned::CaloRecHitsBeamHaloCleaned(const edm::ParameterSet& iConfig) {
+  ishlt = iConfig.getParameter<bool>("IsHLT");
 
   produces<EcalRecHitCollection>("EcalRecHitsEB");
   produces<EcalRecHitCollection>("EcalRecHitsEE");
   produces<HBHERecHitCollection>();
-
 
   it_EBRecHits = iConfig.getParameter<edm::InputTag>("EBRecHitsLabel");
   it_EERecHits = iConfig.getParameter<edm::InputTag>("EERecHitsLabel");
   it_HBHERecHits = iConfig.getParameter<edm::InputTag>("HBHERecHitsLabel");
   it_GlobalHaloData = iConfig.getParameter<edm::InputTag>("GlobalHaloDataLabel");
 
+  ecalebhits_token = consumes<EcalRecHitCollection>(it_EBRecHits);
+  ecaleehits_token = consumes<EcalRecHitCollection>(it_EERecHits);
+  hbhehits_token = consumes<HBHERecHitCollection>(it_HBHERecHits);
 
-  ecalebhits_token= consumes<EcalRecHitCollection>(it_EBRecHits);
-  ecaleehits_token= consumes<EcalRecHitCollection>(it_EERecHits);
-  hbhehits_token= consumes<HBHERecHitCollection>(it_HBHERecHits);
-
-  globalhalo_token=consumes<GlobalHaloData>(it_GlobalHaloData);
+  globalhalo_token = consumes<GlobalHaloData>(it_GlobalHaloData);
 }
 
-
-CaloRecHitsBeamHaloCleaned::~CaloRecHitsBeamHaloCleaned()
-{
- 
-   // do anything here that needs to be done at destruction time
-   // (e.g. close files, deallocate resources etc.)
-
+CaloRecHitsBeamHaloCleaned::~CaloRecHitsBeamHaloCleaned() {
+  // do anything here that needs to be done at destruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-CaloRecHitsBeamHaloCleaned::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   using namespace reco; 
-   using namespace std;
+void CaloRecHitsBeamHaloCleaned::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
+  using namespace reco;
+  using namespace std;
 
+  Handle<EcalRecHitCollection> ebrhitsuncleaned;
+  iEvent.getByToken(ecalebhits_token, ebrhitsuncleaned);
 
-   Handle<EcalRecHitCollection> ebrhitsuncleaned;
-   iEvent.getByToken(ecalebhits_token, ebrhitsuncleaned );
+  Handle<EcalRecHitCollection> eerhitsuncleaned;
+  iEvent.getByToken(ecaleehits_token, eerhitsuncleaned);
 
-   Handle<EcalRecHitCollection> eerhitsuncleaned;
-   iEvent.getByToken(ecaleehits_token, eerhitsuncleaned );
+  Handle<HBHERecHitCollection> hbherhitsuncleaned;
+  iEvent.getByToken(hbhehits_token, hbherhitsuncleaned);
 
-   Handle<HBHERecHitCollection> hbherhitsuncleaned;
-   iEvent.getByToken(hbhehits_token, hbherhitsuncleaned );
+  // Get GlobalHaloData
+  edm::Handle<reco::GlobalHaloData> TheGlobalHaloData;
+  iEvent.getByToken(globalhalo_token, TheGlobalHaloData);
 
-   // Get GlobalHaloData
-   edm::Handle<reco::GlobalHaloData> TheGlobalHaloData;
-   iEvent.getByToken(globalhalo_token, TheGlobalHaloData);
+  const GlobalHaloData TheSummaryHalo = (*TheGlobalHaloData);
 
+  //Cleaning of the various rechits collections:
 
-   
-   const GlobalHaloData TheSummaryHalo = (*TheGlobalHaloData );
-   
+  //  EcalRecHit EB
+  auto ebrhitscleaned = std::make_unique<EcalRecHitCollection>();
+  for (unsigned int i = 0; i < ebrhitsuncleaned->size(); i++) {
+    const EcalRecHit& rhit = (*ebrhitsuncleaned)[i];
+    bool isclean(true);
+    const edm::RefVector<EcalRecHitCollection>& refbeamhalorechits = TheSummaryHalo.GetEBRechits();
+    for (unsigned int j = 0; j < refbeamhalorechits.size(); j++) {
+      const EcalRecHit& rhitbeamhalo = *(refbeamhalorechits)[j];
+      if (rhit.detid() == rhitbeamhalo.detid()) {
+        isclean = false;
+        break;
+      }
+    }
+    if (isclean)
+      ebrhitscleaned->push_back(rhit);
+  }
 
-   //Cleaning of the various rechits collections:
+  //  EcalRecHit EE
+  auto eerhitscleaned = std::make_unique<EcalRecHitCollection>();
+  for (unsigned int i = 0; i < eerhitsuncleaned->size(); i++) {
+    const EcalRecHit& rhit = (*eerhitsuncleaned)[i];
+    bool isclean(true);
+    const edm::RefVector<EcalRecHitCollection>& refbeamhalorechits = TheSummaryHalo.GetEERechits();
+    for (unsigned int j = 0; j < refbeamhalorechits.size(); j++) {
+      const EcalRecHit& rhitbeamhalo = *(refbeamhalorechits)[j];
+      if (rhit.detid() == rhitbeamhalo.detid()) {
+        isclean = false;
+        break;
+      }
+    }
+    if (isclean)
+      eerhitscleaned->push_back(rhit);
+  }
 
-   //  EcalRecHit EB
-   auto ebrhitscleaned = std::make_unique<EcalRecHitCollection>(); 
-   for(unsigned int i = 0;  i < ebrhitsuncleaned->size(); i++){
-     const EcalRecHit & rhit = (*ebrhitsuncleaned)[i];
-     bool isclean(true);
-     const edm::RefVector<EcalRecHitCollection>& refbeamhalorechits =  TheSummaryHalo.GetEBRechits();
-     for(unsigned int j = 0; j <refbeamhalorechits.size() ; j++){
-       const EcalRecHit &rhitbeamhalo = *(refbeamhalorechits)[j];
-       if( rhit.detid() == rhitbeamhalo.detid() ) { 
-	 isclean  = false;
-	 break;
-       }
-     }
-     if(isclean) ebrhitscleaned->push_back(rhit);
-   }
-   
-   //  EcalRecHit EE
-   auto eerhitscleaned = std::make_unique<EcalRecHitCollection>(); 
-   for(unsigned int i = 0;  i < eerhitsuncleaned->size(); i++){
-     const EcalRecHit & rhit = (*eerhitsuncleaned)[i];
-     bool isclean(true);
-     const edm::RefVector<EcalRecHitCollection>& refbeamhalorechits =  TheSummaryHalo.GetEERechits();
-     for(unsigned int j = 0; j <refbeamhalorechits.size() ; j++){
-       const EcalRecHit &rhitbeamhalo = *(refbeamhalorechits)[j];
-       if( rhit.detid() == rhitbeamhalo.detid() ) { 
-	 isclean  = false;
-	 break;
-       }
-     }
-     if(isclean) eerhitscleaned->push_back(rhit);
-   }
+  //  HBHERecHit
+  auto hbherhitscleaned = std::make_unique<HBHERecHitCollection>();
+  for (unsigned int i = 0; i < hbherhitsuncleaned->size(); i++) {
+    const HBHERecHit& rhit = (*hbherhitsuncleaned)[i];
+    bool isclean(true);
+    const edm::RefVector<HBHERecHitCollection>& refbeamhalorechits = TheSummaryHalo.GetHBHERechits();
+    for (unsigned int j = 0; j < refbeamhalorechits.size(); j++) {
+      const HBHERecHit& rhitbeamhalo = *(refbeamhalorechits)[j];
+      if (rhit.detid() == rhitbeamhalo.detid()) {
+        isclean = false;
+        break;
+      }
+    }
+    if (isclean)
+      hbherhitscleaned->push_back(rhit);
+  }
 
-   //  HBHERecHit
-   auto hbherhitscleaned = std::make_unique<HBHERecHitCollection>(); 
-   for(unsigned int i = 0;  i < hbherhitsuncleaned->size(); i++){
-     const HBHERecHit & rhit = (*hbherhitsuncleaned)[i];
-     bool isclean(true);
-     const edm::RefVector<HBHERecHitCollection>& refbeamhalorechits =  TheSummaryHalo.GetHBHERechits();
-     for(unsigned int j = 0; j <refbeamhalorechits.size() ; j++){
-       const HBHERecHit &rhitbeamhalo = *(refbeamhalorechits)[j];
-       if( rhit.detid() == rhitbeamhalo.detid() ) { 
-	 isclean  = false;
-	 break;
-       }
-     }  
-     if(isclean) hbherhitscleaned->push_back(rhit);
-   }
-
-
-
-   iEvent.put(std::move(ebrhitscleaned),"EcalRecHitsEB");
-   iEvent.put(std::move(eerhitscleaned),"EcalRecHitsEE");
-   iEvent.put(std::move(hbherhitscleaned));
-
+  iEvent.put(std::move(ebrhitscleaned), "EcalRecHitsEB");
+  iEvent.put(std::move(eerhitscleaned), "EcalRecHitsEE");
+  iEvent.put(std::move(hbherhitscleaned));
 }
 
- 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-CaloRecHitsBeamHaloCleaned::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void CaloRecHitsBeamHaloCleaned::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("EBRecHitsLabel", edm::InputTag("EcalRecHit","EcalRecHitsEB"));
-  desc.add<edm::InputTag>("EERecHitsLabel", edm::InputTag("EcalRecHit","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("EBRecHitsLabel", edm::InputTag("EcalRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("EERecHitsLabel", edm::InputTag("EcalRecHit", "EcalRecHitsEE"));
   desc.add<edm::InputTag>("HBHERecHitsLabel", edm::InputTag("hbhereco"));
   desc.add<edm::InputTag>("GlobalHaloDataLabel", edm::InputTag("GlobalHaloData"));
-  desc.add<bool>("IsHLT",false);
-  descriptions.add("caloRecHitsBeamHaloCleaned",desc);
-
+  desc.add<bool>("IsHLT", false);
+  descriptions.add("caloRecHitsBeamHaloCleaned", desc);
 }
 
 //define this as a plug-in

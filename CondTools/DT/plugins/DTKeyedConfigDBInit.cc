@@ -30,52 +30,37 @@
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-DTKeyedConfigDBInit::DTKeyedConfigDBInit( const edm::ParameterSet& ps ):
- container(  ps.getParameter<std::string> ( "container" ) ),
- iov(        ps.getParameter<std::string> ( "iov"       ) ) {
-}
+DTKeyedConfigDBInit::DTKeyedConfigDBInit(const edm::ParameterSet& ps)
+    : container(ps.getParameter<std::string>("container")), iov(ps.getParameter<std::string>("iov")) {}
 
 //--------------
 // Destructor --
 //--------------
-DTKeyedConfigDBInit::~DTKeyedConfigDBInit() {
-}
+DTKeyedConfigDBInit::~DTKeyedConfigDBInit() {}
 
 //--------------
 // Operations --
 //--------------
-void DTKeyedConfigDBInit::beginJob() {
-  return;
-}
+void DTKeyedConfigDBInit::beginJob() { return; }
 
-
-void DTKeyedConfigDBInit::analyze( const edm::Event& e,
-                                   const edm::EventSetup& c ) {
-  return;
-}
-
+void DTKeyedConfigDBInit::analyze(const edm::Event& e, const edm::EventSetup& c) { return; }
 
 void DTKeyedConfigDBInit::endJob() {
-
   edm::Service<cond::service::PoolDBOutputService> outdb;
   DTKeyedConfig* bk = new DTKeyedConfig();
-  bk->setId( 999999999 );
-  bk->add( "dummy" );
-  cond::KeyedElement k( bk, 999999999 );
-  outdb->writeOne( k.m_obj, k.m_key, container );
+  bk->setId(999999999);
+  bk->add("dummy");
+  cond::KeyedElement k(bk, 999999999);
+  outdb->writeOne(k.m_obj, k.m_key, container);
 
-  std::vector<cond::Time_t> * kl = new std::vector<cond::Time_t>;
-  kl->push_back( 999999999 );
-  outdb->writeOne(kl,1,iov);
+  std::vector<cond::Time_t>* kl = new std::vector<cond::Time_t>;
+  kl->push_back(999999999);
+  outdb->writeOne(kl, 1, iov);
 
   return;
-
 }
 
-
 DEFINE_FWK_MODULE(DTKeyedConfigDBInit);
-

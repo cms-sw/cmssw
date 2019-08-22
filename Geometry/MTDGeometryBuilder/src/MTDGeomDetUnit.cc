@@ -3,9 +3,8 @@
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
-MTDGeomDetUnit::MTDGeomDetUnit( BoundPlane* sp, MTDGeomDetType const * type, DetId id) : 
-  MTDGeomDet(sp), theTopology(new ProxyMTDTopology(type, sp))
-{
+MTDGeomDetUnit::MTDGeomDetUnit(BoundPlane* sp, MTDGeomDetType const* type, DetId id)
+    : MTDGeomDet(sp), theTopology(new ProxyMTDTopology(type, sp)) {
   setDetId(id);
 }
 
@@ -17,7 +16,6 @@ const Topology& MTDGeomDetUnit::topology() const { return *theTopology; }
 
 const PixelTopology& MTDGeomDetUnit::specificTopology() const { return *theTopology; }
 
-void MTDGeomDetUnit::setSurfaceDeformation(const SurfaceDeformation * deformation)
-{
+void MTDGeomDetUnit::setSurfaceDeformation(const SurfaceDeformation* deformation) {
   theTopology->setSurfaceDeformation(deformation);
 }

@@ -14,76 +14,53 @@
 
 namespace XrdAdaptor {
 
-class Source;
+  class Source;
 
-class RequestManager;
+  class RequestManager;
 
-class XrdReadStatistics;
+  class XrdReadStatistics;
 
-class ClientRequest : boost::noncopyable, public XrdCl::ResponseHandler {
+  class ClientRequest : boost::noncopyable, public XrdCl::ResponseHandler {
+    friend class Source;
 
-friend class Source;
-
-public:
-
+  public:
     ClientRequest(RequestManager &manager, void *into, IOSize size, IOOffset off)
-        : m_failure_count(0),
-          m_into(into),
-          m_size(size),
-          m_off(off),
-          m_iolist(nullptr),
-          m_manager(manager)
-    {
-    }
+        : m_failure_count(0), m_into(into), m_size(size), m_off(off), m_iolist(nullptr), m_manager(manager) {}
 
-    ClientRequest(RequestManager &manager, std::shared_ptr<std::vector<IOPosBuffer> > iolist, IOSize size=0)
-        : m_failure_count(0),
-          m_into(nullptr),
-          m_size(size),
-          m_off(0),
-          m_iolist(iolist),
-          m_manager(manager)
-    {
-        if (!m_iolist->empty() && !m_size)
-        {
-            for (IOPosBuffer const & buf : *m_iolist)
-            {
-                m_size += buf.size();
-            }
+    ClientRequest(RequestManager &manager, std::shared_ptr<std::vector<IOPosBuffer>> iolist, IOSize size = 0)
+        : m_failure_count(0), m_into(nullptr), m_size(size), m_off(0), m_iolist(iolist), m_manager(manager) {
+      if (!m_iolist->empty() && !m_size) {
+        for (IOPosBuffer const &buf : *m_iolist) {
+          m_size += buf.size();
         }
+      }
     }
 
-    void setStatistics(std::shared_ptr<XrdReadStatistics> stats)
-    {
-        m_stats = stats;
-    }
+    void setStatistics(std::shared_ptr<XrdReadStatistics> stats) { m_stats = stats; }
 
     ~ClientRequest() override;
 
-    std::future<IOSize> get_future()
-    {
-        return m_promise.get_future();
-    }
+    std::future<IOSize> get_future() { return m_promise.get_future(); }
 
     /**
      * Handle the response from the Xrootd server.
      */
     void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override;
 
-    IOSize getSize() const {return m_size;}
+    IOSize getSize() const { return m_size; }
 
-    size_t getCount() const {return m_into ? 1 : m_iolist->size();}
+    size_t getCount() const { return m_into ? 1 : m_iolist->size(); }
 
     /**
      * Returns a pointer to the current source; may be nullptr
      * if there is no outstanding IO
      */
-    std::shared_ptr<Source const> getCurrentSource() const {return get_underlying_safe(m_source);}
-    std::shared_ptr<Source>& getCurrentSource() {return get_underlying_safe(m_source);}
+    std::shared_ptr<Source const> getCurrentSource() const { return get_underlying_safe(m_source); }
+    std::shared_ptr<Source> &getCurrentSource() { return get_underlying_safe(m_source); }
 
-private:
-    std::shared_ptr<ClientRequest const> self_reference() const {return get_underlying_safe(m_self_reference);}
-    std::shared_ptr<ClientRequest>& self_reference() {return get_underlying_safe(m_self_reference);}
+  private:
+    std::shared_ptr<ClientRequest const> self_reference() const { return get_underlying_safe(m_self_reference); }
+    std::shared_ptr<ClientRequest> &self_reference() { return get_underlying_safe(m_self_reference); }
 
     unsigned m_failure_count;
     void *m_into;
@@ -104,8 +81,8 @@ private:
     std::promise<IOSize> m_promise;
 
     QualityMetricWatch m_qmw;
-};
+  };
 
-}
+}  // namespace XrdAdaptor
 
 #endif

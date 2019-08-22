@@ -1,10 +1,10 @@
 #ifndef RecoLocalMuon_RPCCluster_h
 #define RecoLocalMuon_RPCCluster_h
 #include <boost/cstdint.hpp>
-class RPCCluster{
- public:
+class RPCCluster {
+public:
   RPCCluster();
-  RPCCluster(int fs,int ls, int bx);
+  RPCCluster(int fs, int ls, int bx);
   ~RPCCluster();
 
   int firstStrip() const;
@@ -28,7 +28,7 @@ class RPCCluster{
   bool operator==(const RPCCluster& cl) const;
   bool isAdjacent(const RPCCluster& cl) const;
 
- private:
+private:
   uint16_t fstrip;
   uint16_t lstrip;
   int16_t bunchx;

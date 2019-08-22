@@ -3,5 +3,7 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-class HcalRecoParamsRcd : public edm::eventsetup::DependentRecordImplementation<HcalRecoParamsRcd, boost::mpl::vector<HcalRecNumberingRecord,IdealGeometryRecord> > {};
+class HcalRecoParamsRcd : public edm::eventsetup::DependentRecordImplementation<
+                              HcalRecoParamsRcd,
+                              boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 #endif

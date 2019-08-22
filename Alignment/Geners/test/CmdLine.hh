@@ -97,11 +97,10 @@
 
 #include <cstdio>
 #include <cstring>
+#include <memory>
 #include <list>
 #include <sstream>
 #include <utility>
-
-#include "Alignment/Geners/interface/CPP11_shared_ptr.hh"
 
 // Subsequent classes will throw exceptions of the following class
 class CmdLineError {
@@ -120,7 +119,7 @@ public:
   inline std::string str() const { return os_->str(); }
 
 private:
-  CPP11_shared_ptr<std::ostringstream> os_;
+  std::shared_ptr<std::ostringstream> os_;
 };
 
 template <typename T>

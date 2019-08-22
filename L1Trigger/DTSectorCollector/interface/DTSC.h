@@ -11,8 +11,8 @@
 //
 //
 //--------------------------------------------------
-#ifndef DT_SC_H  
-#define DT_SC_H   
+#ifndef DT_SC_H
+#define DT_SC_H
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -38,21 +38,18 @@ class DTTrigGeom;
 //              -- Class Interface --
 //              ---------------------
 
-
-class DTSC{
-
- public:
-
+class DTSC {
+public:
   //!  Constructor
   DTSC(int istat);
- 
-  //!  Destructor 
+
+  //!  Destructor
   ~DTSC();
 
   // non-const methods
 
-    /// Set configuration
-  void setConfig(const DTConfigSectColl *conf) { _config=conf; };
+  /// Set configuration
+  void setConfig(const DTConfigSectColl* conf) { _config = conf; };
 
   //! Add a TSM candidate to the Sect Coll, ifs is first/second track flag
   void addPhCand(DTSectCollPhCand* cand);
@@ -61,19 +58,18 @@ class DTSC{
   void addThCand(DTSectCollThCand* cand);
 
   // CB CONTROLLA LA DIFFERENZA TRA QUESTO E addPhCand!!!!!!!!!!
-  //! Add a Sector Collector  
+  //! Add a Sector Collector
   void addDTSectCollPhCand(DTSectCollPhCand* cand);
 
-
   //! Set a flag to skip sort2
-  void ignoreSecondTrack() { _ignoreSecondTrack=1; }
+  void ignoreSecondTrack() { _ignoreSecondTrack = 1; }
 
   //! Run the Sector Collector algorithm
   void run();
 
   //! Phi Sort 1
   DTSectCollPhCand* DTSectCollsort1();
-  
+
   //! Phi Sort 2
   DTSectCollPhCand* DTSectCollsort2();
 
@@ -86,10 +82,10 @@ class DTSC{
   inline const DTConfigSectColl* config() const { return _config; }
 
   //! Return the number of Phi input tracks (first/second)
-  unsigned nCandPh (int ifs) const;
+  unsigned nCandPh(int ifs) const;
 
   //! Return the number of Theta input tracks
-  unsigned nCandTh () const;
+  unsigned nCandTh() const;
 
   //! Return the number of input first tracks
   inline int nFirstTPh() const { return _incand_ph[0].size(); }
@@ -110,13 +106,12 @@ class DTSC{
   inline int nTracksTh() const { return _cand_th.size(); }
 
   //! Return the requested Phi track
-  DTSectCollPhCand* getTrackPh(int n) const ; 
-  
+  DTSectCollPhCand* getTrackPh(int n) const;
+
   //! Return the requested Theta track
-  DTSectCollThCand* getTrackTh(int n) const ;
+  DTSectCollThCand* getTrackTh(int n) const;
 
- private:
-
+private:
   // Configuration
   const DTConfigSectColl* _config;
 
@@ -126,7 +121,7 @@ class DTSC{
   // output phi data
   std::vector<DTSectCollPhCand*> _outcand_ph;
 
-  // theta data 
+  // theta data
   std::vector<DTSectCollThCand*> _cand_th;
 
   // internal use variables
@@ -134,7 +129,6 @@ class DTSC{
 
   // station number [1-5]
   int _stat;
-
 };
 
 #endif

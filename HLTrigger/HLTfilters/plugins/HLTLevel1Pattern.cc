@@ -34,24 +34,24 @@ class HLTLevel1Pattern : public edm::EDFilter {
 public:
   explicit HLTLevel1Pattern(const edm::ParameterSet&);
   ~HLTLevel1Pattern() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  edm::InputTag     m_gtReadoutRecord;
+  edm::InputTag m_gtReadoutRecord;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_gtReadoutRecordToken;
-  std::string       m_triggerBit;
-  std::vector<int>  m_bunchCrossings;
-  std::vector<int>  m_triggerPattern;
-  unsigned int      m_daqPartitions;
-  unsigned int      m_triggerNumber;
-  bool              m_triggerAlgo;
-  bool              m_triggerMasked;
-  bool              m_ignoreL1Mask;
-  bool              m_invert;
-  bool              m_throw;
+  std::string m_triggerBit;
+  std::vector<int> m_bunchCrossings;
+  std::vector<int> m_triggerPattern;
+  unsigned int m_daqPartitions;
+  unsigned int m_triggerNumber;
+  bool m_triggerAlgo;
+  bool m_triggerMasked;
+  bool m_ignoreL1Mask;
+  bool m_invert;
+  bool m_throw;
 
-  edm::ESWatcher<L1GtTriggerMenuRcd>         m_watchL1Menu;
+  edm::ESWatcher<L1GtTriggerMenuRcd> m_watchL1Menu;
   edm::ESWatcher<L1GtTriggerMaskAlgoTrigRcd> m_watchPhysicsMask;
   edm::ESWatcher<L1GtTriggerMaskTechTrigRcd> m_watchTechnicalMask;
 };
@@ -65,35 +65,33 @@ private:
 //
 // constructors and destructor
 //
-HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet & config) :
-  m_gtReadoutRecord( config.getParameter<edm::InputTag>     ("L1GtReadoutRecordTag") ),
-  m_triggerBit(      config.getParameter<std::string>       ("triggerBit") ),
-  m_bunchCrossings(  config.getParameter<std::vector<int> > ("bunchCrossings") ),
-  m_triggerPattern(  m_bunchCrossings.size(), false ),
-  m_daqPartitions(   config.getParameter<unsigned int>      ("daqPartitions") ),
-  m_triggerNumber(   0 ),
-  m_triggerAlgo(     true ),
-  m_triggerMasked(   false ),
-  m_ignoreL1Mask(    config.getParameter<bool>              ("ignoreL1Mask") ),
-  m_invert(          config.getParameter<bool>              ("invert") ),
-  m_throw (          config.getParameter<bool>              ("throw" ) )
-{
+HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet& config)
+    : m_gtReadoutRecord(config.getParameter<edm::InputTag>("L1GtReadoutRecordTag")),
+      m_triggerBit(config.getParameter<std::string>("triggerBit")),
+      m_bunchCrossings(config.getParameter<std::vector<int> >("bunchCrossings")),
+      m_triggerPattern(m_bunchCrossings.size(), false),
+      m_daqPartitions(config.getParameter<unsigned int>("daqPartitions")),
+      m_triggerNumber(0),
+      m_triggerAlgo(true),
+      m_triggerMasked(false),
+      m_ignoreL1Mask(config.getParameter<bool>("ignoreL1Mask")),
+      m_invert(config.getParameter<bool>("invert")),
+      m_throw(config.getParameter<bool>("throw")) {
   m_gtReadoutRecordToken = consumes<L1GlobalTriggerReadoutRecord>(m_gtReadoutRecord);
-  std::vector<int> pattern( config.getParameter<std::vector<int> > ("triggerPattern") );
+  std::vector<int> pattern(config.getParameter<std::vector<int> >("triggerPattern"));
   if (pattern.size() != m_bunchCrossings.size())
     throw cms::Exception("Configuration") << "\"bunchCrossings\" and \"triggerPattern\" parameters do not match";
 
   for (unsigned int i = 0; i < pattern.size(); ++i)
-    m_triggerPattern[i] = (bool) pattern[i];
+    m_triggerPattern[i] = (bool)pattern[i];
 }
 
 HLTLevel1Pattern::~HLTLevel1Pattern() = default;
 
-void
-HLTLevel1Pattern::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTLevel1Pattern::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("L1GtReadoutRecordTag",edm::InputTag("hltGtDigis"));
-  desc.add<std::string>("triggerBit","L1Tech_RPC_TTU_pointing_Cosmics.v0");
+  desc.add<edm::InputTag>("L1GtReadoutRecordTag", edm::InputTag("hltGtDigis"));
+  desc.add<std::string>("triggerBit", "L1Tech_RPC_TTU_pointing_Cosmics.v0");
   {
     std::vector<int> temp1;
     temp1.reserve(5);
@@ -102,12 +100,12 @@ HLTLevel1Pattern::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
     temp1.push_back(0);
     temp1.push_back(1);
     temp1.push_back(2);
-    desc.add<std::vector<int> >("bunchCrossings",temp1);
+    desc.add<std::vector<int> >("bunchCrossings", temp1);
   }
-  desc.add<unsigned int>("daqPartitions",1);
-  desc.add<bool>("ignoreL1Mask",false);
-  desc.add<bool>("invert",false);
-  desc.add<bool>("throw",true);
+  desc.add<unsigned int>("daqPartitions", 1);
+  desc.add<bool>("ignoreL1Mask", false);
+  desc.add<bool>("invert", false);
+  desc.add<bool>("throw", true);
   {
     std::vector<int> temp1;
     temp1.reserve(5);
@@ -116,9 +114,9 @@ HLTLevel1Pattern::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
     temp1.push_back(1);
     temp1.push_back(0);
     temp1.push_back(0);
-    desc.add<std::vector<int> >("triggerPattern",temp1);
+    desc.add<std::vector<int> >("triggerPattern", temp1);
   }
-  descriptions.add("hltLevel1Pattern",desc);
+  descriptions.add("hltLevel1Pattern", desc);
 }
 
 //
@@ -126,30 +124,28 @@ HLTLevel1Pattern::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 //
 
 // ------------ method called to produce the data  ------------
-bool
-HLTLevel1Pattern::filter(edm::Event& event, const edm::EventSetup& setup)
-{
+bool HLTLevel1Pattern::filter(edm::Event& event, const edm::EventSetup& setup) {
   // determine the L1 algo or tech bit to use
   if (m_watchL1Menu.check(setup)) {
     edm::ESHandle<L1GtTriggerMenu> h_menu;
     setup.get<L1GtTriggerMenuRcd>().get(h_menu);
 
     // look for an Algo L1 bit
-    const AlgorithmMap & algoMap = h_menu->gtAlgorithmAliasMap();
-    const AlgorithmMap & techMap = h_menu->gtTechnicalTriggerMap();
+    const AlgorithmMap& algoMap = h_menu->gtAlgorithmAliasMap();
+    const AlgorithmMap& techMap = h_menu->gtTechnicalTriggerMap();
     AlgorithmMap::const_iterator entry;
     if ((entry = algoMap.find(m_triggerBit)) != algoMap.end()) {
-        m_triggerAlgo = true;
-        m_triggerNumber = entry->second.algoBitNumber();
-    } else 
-    if ((entry = techMap.find(m_triggerBit)) != techMap.end()) {
-        m_triggerAlgo = false;
-        m_triggerNumber = entry->second.algoBitNumber();
+      m_triggerAlgo = true;
+      m_triggerNumber = entry->second.algoBitNumber();
+    } else if ((entry = techMap.find(m_triggerBit)) != techMap.end()) {
+      m_triggerAlgo = false;
+      m_triggerNumber = entry->second.algoBitNumber();
     } else {
       if (m_throw) {
-	throw cms::Exception("Configuration") << "requested L1 trigger \"" << m_triggerBit << "\" does not exist in the current L1 menu";
+        throw cms::Exception("Configuration")
+            << "requested L1 trigger \"" << m_triggerBit << "\" does not exist in the current L1 menu";
       } else {
-	return m_invert;
+        return m_invert;
       }
     }
   }
@@ -187,7 +183,8 @@ HLTLevel1Pattern::filter(edm::Event& event, const edm::EventSetup& setup)
   // check the L1 algorithms results
   for (unsigned int i = 0; i < m_bunchCrossings.size(); ++i) {
     int bx = m_bunchCrossings[i];
-    const std::vector<bool> & word = (m_triggerAlgo) ? h_gtReadoutRecord->decisionWord(bx) : h_gtReadoutRecord->technicalTriggerWord(bx);
+    const std::vector<bool>& word =
+        (m_triggerAlgo) ? h_gtReadoutRecord->decisionWord(bx) : h_gtReadoutRecord->technicalTriggerWord(bx);
     if (word.empty() or m_triggerNumber >= word.size())
       // L1 results not available, bail out
       return m_invert;

@@ -13,7 +13,7 @@
 #define BUFSIZE 200;
 
 class ODDCCConfig : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODDCCConfig();
   ~ODDCCConfig() override;
@@ -35,8 +35,8 @@ class ODDCCConfig : public IODConfig {
   inline void setNTestPatternsToLoad(int id) { m_ntest = id; }
   inline int getNTestPatternsToLoad() const { return m_ntest; }
 
-   inline void setSMHalf(int id) { m_sm_half = id; }
-   inline int getSMHalf() const { return m_sm_half; }
+  inline void setSMHalf(int id) { m_sm_half = id; }
+  inline int getSMHalf() const { return m_sm_half; }
 
   inline void setDCCClob(unsigned char* x) { m_dcc_clob = x; }
   inline unsigned char* getDCCClob() const { return m_dcc_clob; }
@@ -44,28 +44,26 @@ class ODDCCConfig : public IODConfig {
   inline void setDCCWeightsMode(std::string x) { m_wei = x; }
   inline std::string getDCCWeightsMode() const { return m_wei; }
 
-  void setParameters(const std::map<std::string,std::string>& my_keys_map);
-  
- private:
-  void prepareWrite()  noexcept(false) override;
-  void writeDB()       noexcept(false);
-  void clear();
-  void fetchData(ODDCCConfig * result)     noexcept(false);
-  int fetchID()  noexcept(false);
+  void setParameters(const std::map<std::string, std::string>& my_keys_map);
 
+private:
+  void prepareWrite() noexcept(false) override;
+  void writeDB() noexcept(false);
+  void clear();
+  void fetchData(ODDCCConfig* result) noexcept(false);
+  int fetchID() noexcept(false);
 
   int fetchNextId() noexcept(false);
 
   // User data
   int m_ID;
   unsigned char* m_dcc_clob;
-  std::string  m_dcc_url;
-  std::string  m_test_url;
-  int  m_ntest;
-  int  m_sm_half;
-  unsigned int m_size; 
-  std::string  m_wei;
-
+  std::string m_dcc_url;
+  std::string m_test_url;
+  int m_ntest;
+  int m_sm_half;
+  unsigned int m_size;
+  std::string m_wei;
 };
 
 #endif

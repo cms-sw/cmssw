@@ -14,7 +14,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -30,18 +29,22 @@ class PileupSummaryInfo;
 
 class StandaloneTrackMonitor : public DQMEDAnalyzer {
 public:
-  StandaloneTrackMonitor( const edm::ParameterSet& );
+  StandaloneTrackMonitor(const edm::ParameterSet&);
 
 protected:
-
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-  void processHit(const TrackingRecHit& recHit, edm::EventSetup const& iSetup, const TrackerGeometry& tkGeom, double wfac=1);
-  void processClusters(edm::Event const& iEvent, edm::EventSetup const& iSetup, const TrackerGeometry& tkGeom, double wfac=1);
+  void processHit(const TrackingRecHit& recHit,
+                  edm::EventSetup const& iSetup,
+                  const TrackerGeometry& tkGeom,
+                  double wfac = 1);
+  void processClusters(edm::Event const& iEvent,
+                       edm::EventSetup const& iSetup,
+                       const TrackerGeometry& tkGeom,
+                       double wfac = 1);
   void addClusterToMap(uint32_t detid, const SiStripCluster* cluster);
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
-
   edm::ParameterSet parameters_;
 
   std::string moduleName_;
@@ -54,7 +57,7 @@ private:
   const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
   const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
   const edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-  const edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puSummaryToken_; 
+  const edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puSummaryToken_;
   const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
 
   const std::string trackQuality_;

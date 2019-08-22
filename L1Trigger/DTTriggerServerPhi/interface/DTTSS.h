@@ -34,7 +34,6 @@ class DTConfigTSPhi;
 //              ---------------------
 
 class DTTSS {
-
 public:
   /// Constructor
   DTTSS(int);

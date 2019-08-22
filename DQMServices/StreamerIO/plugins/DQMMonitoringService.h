@@ -35,46 +35,46 @@
 
 namespace dqmservices {
 
-using boost::property_tree::ptree;
+  using boost::property_tree::ptree;
 
-using edm::StreamID;
-using edm::StreamContext;
-using edm::GlobalContext;
+  using edm::GlobalContext;
+  using edm::StreamContext;
+  using edm::StreamID;
 
-class DQMMonitoringService {
- public:
-  DQMMonitoringService(const edm::ParameterSet&, edm::ActivityRegistry&);
-  ~DQMMonitoringService();
+  class DQMMonitoringService {
+  public:
+    DQMMonitoringService(const edm::ParameterSet&, edm::ActivityRegistry&);
+    ~DQMMonitoringService();
 
-  void connect();
-  void keepAlive();
+    void connect();
+    void keepAlive();
 
-  void outputLumiUpdate();
-  void outputUpdate(ptree& doc);
+    void outputLumiUpdate();
+    void outputUpdate(ptree& doc);
 
-  void evLumi(GlobalContext const&);
-  void evEvent(StreamID const&);
+    void evLumi(GlobalContext const&);
+    void evEvent(StreamID const&);
 
-  void tryUpdate();
+    void tryUpdate();
 
- private:
-  boost::asio::local::stream_protocol::iostream mstream_;
+  private:
+    boost::asio::local::stream_protocol::iostream mstream_;
 
-  // global number of events processed
-  long nevents_;
+    // global number of events processed
+    long nevents_;
 
-  // time point, number of events and the lumi number at the time we switched to
-  // it
-  unsigned long last_lumi_;  // last lumi (we report stats for it, after we
-                             // switch to the next one)
-  std::chrono::high_resolution_clock::time_point last_lumi_time_;
-  std::chrono::high_resolution_clock::time_point last_update_time_;
-  long last_lumi_nevents_;
+    // time point, number of events and the lumi number at the time we switched to
+    // it
+    unsigned long last_lumi_;  // last lumi (we report stats for it, after we
+                               // switch to the next one)
+    std::chrono::high_resolution_clock::time_point last_lumi_time_;
+    std::chrono::high_resolution_clock::time_point last_update_time_;
+    long last_lumi_nevents_;
 
-  unsigned long run_;   // current run
-  unsigned long lumi_;  // current lumi
-};
+    unsigned long run_;   // current run
+    unsigned long lumi_;  // current lumi
+  };
 
-}  // end-of-namespace
+}  // namespace dqmservices
 
 #endif

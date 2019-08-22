@@ -16,58 +16,64 @@
 #include <iosfwd>
 
 class CSCRecHit2D final : public RecHit2DLocalPos {
-
 public:
-
   typedef std::vector<int> ChannelContainer;
   typedef edm::RangeMap<int, std::vector<float> > ADCContainer;
-  
-  enum SharedInputType {all = TrackingRecHit::all, some = TrackingRecHit::some, allWires, someWires, allStrips, someStrips};
 
-  static const unsigned int MAXSTRIPS=3;
-  static const unsigned int MAXTIMEBINS=4;
-  static const unsigned int N_ADC=MAXSTRIPS*MAXTIMEBINS;
+  enum SharedInputType {
+    all = TrackingRecHit::all,
+    some = TrackingRecHit::some,
+    allWires,
+    someWires,
+    allStrips,
+    someStrips
+  };
+
+  static const unsigned int MAXSTRIPS = 3;
+  static const unsigned int MAXTIMEBINS = 4;
+  static const unsigned int N_ADC = MAXSTRIPS * MAXTIMEBINS;
   CSCRecHit2D();
 
-  CSCRecHit2D( const CSCDetId& id, 
-               const LocalPoint& pos, const LocalError& err, 
-	       const ChannelContainer& channels,
-	       const ADCContainer& adcs,
-	       const ChannelContainer& wgroups,
-               float tpeak,
-               float posInStrip,
-               float errInStrip,
-	       int quality,
-               short int badStrip=0, short int badWireGroup=0,
-               int scaledWireTime=0,
-	       float energyDeposit=-995.); 
-	
+  CSCRecHit2D(const CSCDetId& id,
+              const LocalPoint& pos,
+              const LocalError& err,
+              const ChannelContainer& channels,
+              const ADCContainer& adcs,
+              const ChannelContainer& wgroups,
+              float tpeak,
+              float posInStrip,
+              float errInStrip,
+              int quality,
+              short int badStrip = 0,
+              short int badWireGroup = 0,
+              int scaledWireTime = 0,
+              float energyDeposit = -995.);
+
   ~CSCRecHit2D() override;
 
-
   /// RecHit2DLocalPos base class interface
-  CSCRecHit2D* clone() const override { return new CSCRecHit2D( *this ); }
+  CSCRecHit2D* clone() const override { return new CSCRecHit2D(*this); }
   LocalPoint localPosition() const override { return theLocalPosition; }
   LocalError localPositionError() const override { return theLocalError; }
   CSCDetId cscDetId() const { return geographicalId(); }
 
   /// Extracting strip channel numbers comprising the rechit - low
   int channels(unsigned int i) const { return theStrips_[i]; }
-  unsigned int nStrips() const {return nStrips_;}
+  unsigned int nStrips() const { return nStrips_; }
 
   /// Extract the L1A phase bits from the StripChannelContainer - high
-  int channelsl1a(unsigned int i) const { return theL1APhaseBits_[i]; } /// L1A
+  int channelsl1a(unsigned int i) const { return theL1APhaseBits_[i]; }  /// L1A
 
   /// Container of wire groups comprising the rechit
-  short int hitWire() const { return hitWire_;}
-  short int wgroupsBX() const {return theWGroupsBX_;}
+  short int hitWire() const { return hitWire_; }
+  short int wgroupsBX() const { return theWGroupsBX_; }
 
-  unsigned int nWireGroups() const {return nWireGroups_;}
+  unsigned int nWireGroups() const { return nWireGroups_; }
 
   /// Map of strip ADCs for strips comprising the rechit
-  float adcs(unsigned int strip, unsigned int timebin) const { return theADCs_[strip*MAXTIMEBINS+timebin]; }
+  float adcs(unsigned int strip, unsigned int timebin) const { return theADCs_[strip * MAXTIMEBINS + timebin]; }
 
-  unsigned int nTimeBins() const {return nTimeBins_;}
+  unsigned int nTimeBins() const { return nTimeBins_; }
 
   /// Fitted peaking time
   float tpeak() const { return theTpeak; }
@@ -76,19 +82,19 @@ public:
   float positionWithinStrip() const { return thePositionWithinStrip; };
 
   /// The uncertainty of the estimated position within the strip
-  float errorWithinStrip() const { return theErrorWithinStrip;} ;
+  float errorWithinStrip() const { return theErrorWithinStrip; };
 
   /// quality flag of the reconstruction
-  int quality() const { return theQuality;}
+  int quality() const { return theQuality; }
 
   /// flags for involvement of 'bad' channels
   short int badStrip() const { return theBadStrip; }
   short int badWireGroup() const { return theBadWireGroup; }
-  
-  // Calculated wire time in ns
-  float wireTime() const { return (float)theScaledWireTime/100.; }
 
-  /// Energy deposited in the layer.  Note:  this value is dE.  In order to 
+  // Calculated wire time in ns
+  float wireTime() const { return (float)theScaledWireTime / 100.; }
+
+  /// Energy deposited in the layer.  Note:  this value is dE.  In order to
   /// get the dE/dX, you will need to divide by the path length.
   /// Specific failure values...
   /// If the user has chosen not to use the gas gain correction --->  -998.
@@ -100,21 +106,20 @@ public:
   float energyDepositedInLayer() const { return theEnergyDeposit; }
 
   /// Returns true if the two TrackingRecHits are using the same input information, false otherwise.  In this case, looks at the geographical ID and channel numbers for strips and wires.
-  bool sharesInput(const TrackingRecHit *other, TrackingRecHit::SharedInputType what) const override;
-  
+  bool sharesInput(const TrackingRecHit* other, TrackingRecHit::SharedInputType what) const override;
+
   /// Returns true if the two TrackingRecHits are using the same input information, false otherwise.  In this case, looks at the geographical ID and channel numbers for strips and wires.
-  bool sharesInput(const TrackingRecHit *other, CSCRecHit2D::SharedInputType what) const;
+  bool sharesInput(const TrackingRecHit* other, CSCRecHit2D::SharedInputType what) const;
 
   /// Returns true if the two CSCRecHits are using the same input information, false otherwise.  In this case, looks at the geographical ID and channel numbers for strips and wires.
-  bool sharesInput(const  CSCRecHit2D *otherRecHit, CSCRecHit2D::SharedInputType what) const;
-   
-   /// Print the content of the RecHit2D including L1A (for debugging)
-   void print() const;	
+  bool sharesInput(const CSCRecHit2D* otherRecHit, CSCRecHit2D::SharedInputType what) const;
+
+  /// Print the content of the RecHit2D including L1A (for debugging)
+  void print() const;
 
 private:
-	
   float theTpeak;
-  float thePositionWithinStrip; 
+  float thePositionWithinStrip;
   float theErrorWithinStrip;
   float theEnergyDeposit;
   int theQuality;
@@ -132,11 +137,9 @@ private:
 
   LocalPoint theLocalPosition;
   LocalError theLocalError;
-
 };
 
 /// Output operator for CSCRecHit2D
 std::ostream& operator<<(std::ostream& os, const CSCRecHit2D& rh);
 
 #endif
-

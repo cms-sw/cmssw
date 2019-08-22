@@ -29,35 +29,35 @@
 class FWTriggerTableView;
 
 class FWTriggerTableViewTableManager : public FWTableManagerBase {
-   friend class FWTriggerTableView;
+  friend class FWTriggerTableView;
+
 public:
-   FWTriggerTableViewTableManager(const FWTriggerTableView *);
-   ~FWTriggerTableViewTableManager() override;
+  FWTriggerTableViewTableManager(const FWTriggerTableView *);
+  ~FWTriggerTableViewTableManager() override;
 
-   // ---------- const member functions ---------------------
-   ///Number of rows in the table
-   int numberOfRows() const override;
-   int numberOfColumns() const override;
-   std::vector<std::string> getTitles() const override;
-   int unsortedRowNumber(int iSortedRowNumber) const override;
+  // ---------- const member functions ---------------------
+  ///Number of rows in the table
+  int numberOfRows() const override;
+  int numberOfColumns() const override;
+  std::vector<std::string> getTitles() const override;
+  int unsortedRowNumber(int iSortedRowNumber) const override;
 
-   FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const override;
-   void dataChanged();   //*SIGNAL*
+  FWTableCellRendererBase *cellRenderer(int iSortedRowNumber, int iCol) const override;
+  void dataChanged();  //*SIGNAL*
 
 protected:
-   ///Called by 'sort' method to actually handle the sorting of the
-   ///rows. Arguments are the same as 'sort'
-   void implSort(int iCol, bool iSortOrder) override;
-   std::vector<int> m_sortedToUnsortedIndices;
+  ///Called by 'sort' method to actually handle the sorting of the
+  ///rows. Arguments are the same as 'sort'
+  void implSort(int iCol, bool iSortOrder) override;
+  std::vector<int> m_sortedToUnsortedIndices;
 
-   const FWTriggerTableView *m_view;
-   TGGC *m_graphicsContext;
-   FWTextTableCellRenderer *m_renderer;
+  const FWTriggerTableView *m_view;
+  TGGC *m_graphicsContext;
+  FWTextTableCellRenderer *m_renderer;
 
 private:
-   FWTriggerTableViewTableManager(const FWTriggerTableViewTableManager&) = delete; // stop default     
-   const FWTriggerTableViewTableManager& operator=(const FWTriggerTableViewTableManager&) = delete; // stop default
+  FWTriggerTableViewTableManager(const FWTriggerTableViewTableManager &) = delete;                   // stop default
+  const FWTriggerTableViewTableManager &operator=(const FWTriggerTableViewTableManager &) = delete;  // stop default
 };
-
 
 #endif

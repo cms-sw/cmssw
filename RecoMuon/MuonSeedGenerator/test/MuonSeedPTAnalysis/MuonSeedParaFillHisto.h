@@ -37,7 +37,7 @@
 #include <Geometry/DTGeometry/interface/DTChamber.h>
 #include <Geometry/DTGeometry/interface/DTLayer.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-	
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -48,19 +48,18 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <utility> 
+#include <utility>
 
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 //class PSimHit;
 
-class MuonSeedParaFillHisto  {
+class MuonSeedParaFillHisto {
 public:
-
   /// Constructor
   MuonSeedParaFillHisto();
 
@@ -68,29 +67,41 @@ public:
   virtual ~MuonSeedParaFillHisto();
 
   // Utility functions
-  void FillCSCSegmentPair(H2DRecHit2* histo2, double pt1[5], double chi2_dof1[5], double dPhiP1[2][5][5], double EtaP1[2][5] );
+  void FillCSCSegmentPair(
+      H2DRecHit2* histo2, double pt1[5], double chi2_dof1[5], double dPhiP1[2][5][5], double EtaP1[2][5]);
 
-  void FillDTSegmentPair (H2DRecHit3* histo3, double pt1[5], double chi2_dof3[5], double dPhiP3[2][5][5], double EtaP3[2][5] );
+  void FillDTSegmentPair(
+      H2DRecHit3* histo3, double pt1[5], double chi2_dof3[5], double dPhiP3[2][5][5], double EtaP3[2][5]);
 
-  void FillCSCSegmentPairByChamber(H2DRecHit4* hME1[15], double pt1[5], double dPhiP1[2][5][5]
-                                  , double EtaP1[2][5], bool MEPath[2][5][4], double dEtaP1[2][5][5] );
-  void FillDTSegmentPairByChamber (H2DRecHit5* hMB1[26], double pt1[5], double dPhiP3[2][5][5]
-                                  , double EtaP3[2][5], bool MBPath[2][5][3], double dEtaP3[2][5][5] );
+  void FillCSCSegmentPairByChamber(H2DRecHit4* hME1[15],
+                                   double pt1[5],
+                                   double dPhiP1[2][5][5],
+                                   double EtaP1[2][5],
+                                   bool MEPath[2][5][4],
+                                   double dEtaP1[2][5][5]);
+  void FillDTSegmentPairByChamber(H2DRecHit5* hMB1[26],
+                                  double pt1[5],
+                                  double dPhiP3[2][5][5],
+                                  double EtaP3[2][5],
+                                  bool MBPath[2][5][3],
+                                  double dEtaP3[2][5][5]);
 
-  void FillCSCSegmentSingle(H2DRecHit6* hME2[8], double pt1[5], double ME_phi[2][5][4]
-                                      , double ME_eta[2][5][4], bool MEPath[2][5][4] );
+  void FillCSCSegmentSingle(
+      H2DRecHit6* hME2[8], double pt1[5], double ME_phi[2][5][4], double ME_eta[2][5][4], bool MEPath[2][5][4]);
 
-  void FillDTSegmentSingle(H2DRecHit7* hMB2[12], double pt1[5], double MB_phi[2][5][3]
-                                      , double MB_eta[2][5][3], bool MBPath[2][5][3] );
+  void FillDTSegmentSingle(
+      H2DRecHit7* hMB2[12], double pt1[5], double MB_phi[2][5][3], double MB_eta[2][5][3], bool MBPath[2][5][3]);
 
-  void FillOLSegmentPairByChamber (H2DRecHit10* hOL1[6], double pt1[5], double dPhiP2[2][5][5]
-                             , double EtaP3[2][5], bool MBPath[2][5][3], bool MEPath[2][5][4], double dEtaP2[2][5][5] );
+  void FillOLSegmentPairByChamber(H2DRecHit10* hOL1[6],
+                                  double pt1[5],
+                                  double dPhiP2[2][5][5],
+                                  double EtaP3[2][5],
+                                  bool MBPath[2][5][3],
+                                  bool MEPath[2][5][4],
+                                  double dEtaP2[2][5][5]);
 
 protected:
-
 private:
- 
-
   // dPhi and dEta for CSC
   /*
   double PhiV1[2][5];
@@ -130,9 +141,6 @@ private:
   */
 
   //std::string rootFileName;
-
 };
 
-
 #endif
-

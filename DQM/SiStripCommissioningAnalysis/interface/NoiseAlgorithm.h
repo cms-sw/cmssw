@@ -14,41 +14,36 @@ class TH1;
     @brief Histogram-based analysis for pedestal run.
 */
 class NoiseAlgorithm : public CommissioningAlgorithm {
-  
- public:
+public:
+  NoiseAlgorithm(const edm::ParameterSet& pset, NoiseAnalysis* const);
 
-  NoiseAlgorithm( const edm::ParameterSet & pset, NoiseAnalysis* const );
-
-  ~NoiseAlgorithm() override {;}
+  ~NoiseAlgorithm() override { ; }
 
   inline const Histo& hPeds() const;
 
   inline const Histo& hNoise() const;
 
- private:
-
-  NoiseAlgorithm() {;}
+private:
+  NoiseAlgorithm() { ; }
 
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& ) override;
+  void extract(const std::vector<TH1*>&) override;
 
   /** Performs histogram anaysis. */
   void analyse() override;
-  
+
   // ---------- private member data ----------
 
- private:
-
+private:
   /** Pedestals and raw noise */
   Histo hPeds_;
 
   /** Residuals and noise */
   Histo hNoise_;
-  
 };
 
 const NoiseAlgorithm::Histo& NoiseAlgorithm::hPeds() const { return hPeds_; }
 
 const NoiseAlgorithm::Histo& NoiseAlgorithm::hNoise() const { return hNoise_; }
 
-#endif // DQM_SiStripCommissioningAnalysis_NoiseAlgorithm_H
+#endif  // DQM_SiStripCommissioningAnalysis_NoiseAlgorithm_H

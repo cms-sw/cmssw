@@ -19,23 +19,22 @@
 #include <vector>
 #include <set>
 
-class TotemRPClusterProducerAlgorithm
-{
-  public:
-    TotemRPClusterProducerAlgorithm(const edm::ParameterSet& param);
+class TotemRPClusterProducerAlgorithm {
+public:
+  TotemRPClusterProducerAlgorithm(const edm::ParameterSet &param);
 
-    ~TotemRPClusterProducerAlgorithm();
-    
-    int buildClusters(unsigned int detId, const std::vector<TotemRPDigi> &digi, std::vector<TotemRPCluster> &clusters);
-    
-  private:
-    typedef std::set<TotemRPDigi> TotemRPDigiSet;
+  ~TotemRPClusterProducerAlgorithm();
 
-    TotemRPDigiSet strip_digi_set_;  ///< input digi set, strip by strip
+  int buildClusters(unsigned int detId, const std::vector<TotemRPDigi> &digi, std::vector<TotemRPCluster> &clusters);
 
-    const edm::ParameterSet &param_;
+private:
+  typedef std::set<TotemRPDigi> TotemRPDigiSet;
 
-    int verbosity_;
+  TotemRPDigiSet strip_digi_set_;  ///< input digi set, strip by strip
+
+  const edm::ParameterSet &param_;
+
+  int verbosity_;
 };
 
 #endif

@@ -14,20 +14,17 @@ class VertexState;
 
 class GsfVertexMerger {
 public:
-
   GsfVertexMerger(const edm::ParameterSet& pSet);
   ~GsfVertexMerger() {}
 
-  CachingVertex<5> merge(const CachingVertex<5> & vertex) const;
+  CachingVertex<5> merge(const CachingVertex<5>& vertex) const;
 
-  VertexState merge(const VertexState & vertex) const;
+  VertexState merge(const VertexState& vertex) const;
 
-  GsfVertexMerger * clone() const {
-    return new GsfVertexMerger(* this);
-  }
+  GsfVertexMerger* clone() const { return new GsfVertexMerger(*this); }
 
 private:
-  DeepCopyPointerByClone< MultiGaussianStateMerger<3> > merger;
+  DeepCopyPointerByClone<MultiGaussianStateMerger<3> > merger;
   unsigned int maxComponents;
 };
 

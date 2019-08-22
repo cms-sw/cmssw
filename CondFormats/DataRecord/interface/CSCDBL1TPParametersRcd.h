@@ -2,8 +2,6 @@
 
 #define DataRecord_CSCDBL1TPParametersRcd_h
 
-
-
 // -*- C++ -*-
 
 //
@@ -12,7 +10,7 @@
 
 // Class  :     CSCDBL1TPParametersRcd
 
-// 
+//
 
 /** \class CSCDBL1TPParametersRcd CSCDBL1TPParametersRcd.h CondFormats/DataRecord/interface/CSCDBL1TPParametersRcd.h
 
@@ -41,11 +39,10 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 
-
-
 //class CSCDBL1TPParametersRcd : public edm::eventsetup::EventSetupRecordImplementation<CSCDBL1TPParametersRcd> {};
-class CSCDBL1TPParametersRcd : public edm::eventsetup::DependentRecordImplementation<CSCDBL1TPParametersRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
-
-
+class CSCDBL1TPParametersRcd
+    : public edm::eventsetup::DependentRecordImplementation<CSCDBL1TPParametersRcd,
+                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+};
 
 #endif

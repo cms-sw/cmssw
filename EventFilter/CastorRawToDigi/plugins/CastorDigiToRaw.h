@@ -23,8 +23,7 @@
 #include "EventFilter/CastorRawToDigi/interface/CastorCtdcPacker.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-class CastorDigiToRaw : public edm::global::EDProducer<>
-{
+class CastorDigiToRaw : public edm::global::EDProducer<> {
 public:
   explicit CastorDigiToRaw(const edm::ParameterSet& ps);
   void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;

@@ -13,4 +13,4 @@
 
 typedef ObjectCountFilter<reco::CandidateView>::type CandViewCountFilter;
 
-DEFINE_FWK_MODULE( CandViewCountFilter );
+DEFINE_FWK_MODULE(CandViewCountFilter);

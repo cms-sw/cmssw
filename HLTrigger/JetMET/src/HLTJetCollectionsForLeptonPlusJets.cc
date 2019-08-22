@@ -15,130 +15,121 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
-
-
-
 template <typename jetType>
-HLTJetCollectionsForLeptonPlusJets<jetType>::HLTJetCollectionsForLeptonPlusJets(const edm::ParameterSet& iConfig):
-  hltLeptonTag(iConfig.getParameter< edm::InputTag > ("HltLeptonTag")),
-  sourceJetTag(iConfig.getParameter< edm::InputTag > ("SourceJetTag")),
-  minDeltaR_(iConfig.getParameter< double > ("minDeltaR"))
-{
+HLTJetCollectionsForLeptonPlusJets<jetType>::HLTJetCollectionsForLeptonPlusJets(const edm::ParameterSet& iConfig)
+    : hltLeptonTag(iConfig.getParameter<edm::InputTag>("HltLeptonTag")),
+      sourceJetTag(iConfig.getParameter<edm::InputTag>("SourceJetTag")),
+      minDeltaR_(iConfig.getParameter<double>("minDeltaR")) {
   using namespace edm;
   using namespace std;
-  typedef vector<RefVector<vector<jetType>,jetType,refhelper::FindUsingAdvance<vector<jetType>,jetType> > > JetCollectionVector;
+  typedef vector<RefVector<vector<jetType>, jetType, refhelper::FindUsingAdvance<vector<jetType>, jetType>>>
+      JetCollectionVector;
   m_theLeptonToken = consumes<trigger::TriggerFilterObjectWithRefs>(hltLeptonTag);
   m_theJetToken = consumes<std::vector<jetType>>(sourceJetTag);
-  produces<JetCollectionVector> ();
+  produces<JetCollectionVector>();
 }
 
 template <typename jetType>
-HLTJetCollectionsForLeptonPlusJets<jetType>::~HLTJetCollectionsForLeptonPlusJets()
-{
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+HLTJetCollectionsForLeptonPlusJets<jetType>::~HLTJetCollectionsForLeptonPlusJets() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
 template <typename jetType>
-void
-HLTJetCollectionsForLeptonPlusJets<jetType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-    edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag> ("HltLeptonTag", edm::InputTag("triggerFilterObjectWithRefs"));
-    desc.add<edm::InputTag> ("SourceJetTag", edm::InputTag("caloJetCollection"));
-    desc.add<double> ("minDeltaR", 0.5);
-    descriptions.add(defaultModuleLabel<HLTJetCollectionsForLeptonPlusJets<jetType>>(), desc);
+void HLTJetCollectionsForLeptonPlusJets<jetType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("HltLeptonTag", edm::InputTag("triggerFilterObjectWithRefs"));
+  desc.add<edm::InputTag>("SourceJetTag", edm::InputTag("caloJetCollection"));
+  desc.add<double>("minDeltaR", 0.5);
+  descriptions.add(defaultModuleLabel<HLTJetCollectionsForLeptonPlusJets<jetType>>(), desc);
 }
 
 //
 // member functions
 //
 
-
 // ------------ method called to produce the data  ------------
 // template <typename T>
 template <typename jetType>
-void
-HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace std;
-  
-  typedef vector<RefVector<vector<jetType>,jetType,refhelper::FindUsingAdvance<vector<jetType>,jetType> > > JetCollectionVector;
+
+  typedef vector<RefVector<vector<jetType>, jetType, refhelper::FindUsingAdvance<vector<jetType>, jetType>>>
+      JetCollectionVector;
   typedef vector<jetType> JetCollection;
   typedef edm::RefVector<JetCollection> JetRefVector;
   typedef edm::Ref<JetCollection> JetRef;
 
   Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByToken(m_theLeptonToken,PrevFilterOutput);
- 
+  iEvent.getByToken(m_theLeptonToken, PrevFilterOutput);
+
   //its easier on the if statement flow if I try everything at once, shouldnt add to timing
   // Electrons can be stored as objects of types TriggerCluster, TriggerElectron, or TriggerPhoton
-  vector<Ref<reco::RecoEcalCandidateCollection> > clusCands;
-  PrevFilterOutput->getObjects(trigger::TriggerCluster,clusCands);
+  vector<Ref<reco::RecoEcalCandidateCollection>> clusCands;
+  PrevFilterOutput->getObjects(trigger::TriggerCluster, clusCands);
 
-  vector<Ref<reco::ElectronCollection> > eleCands;
-  PrevFilterOutput->getObjects(trigger::TriggerElectron,eleCands);
-  
+  vector<Ref<reco::ElectronCollection>> eleCands;
+  PrevFilterOutput->getObjects(trigger::TriggerElectron, eleCands);
+
   trigger::VRphoton photonCands;
   PrevFilterOutput->getObjects(trigger::TriggerPhoton, photonCands);
-  
+
   vector<reco::RecoChargedCandidateRef> muonCands;
-  PrevFilterOutput->getObjects(trigger::TriggerMuon,muonCands);
+  PrevFilterOutput->getObjects(trigger::TriggerMuon, muonCands);
 
   Handle<JetCollection> theJetCollectionHandle;
   iEvent.getByToken(m_theJetToken, theJetCollectionHandle);
-  
-  const JetCollection & theJetCollection = *theJetCollectionHandle;
-  
-  unique_ptr < JetCollectionVector > allSelections(new JetCollectionVector());
-  
- if(!clusCands.empty()){ // try trigger clusters
-    for(auto & clusCand : clusCands){  
-        JetRefVector refVector;
-        for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-          if (deltaR(clusCand->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
-        }
-    allSelections->push_back(refVector);
+
+  const JetCollection& theJetCollection = *theJetCollectionHandle;
+
+  unique_ptr<JetCollectionVector> allSelections(new JetCollectionVector());
+
+  if (!clusCands.empty()) {  // try trigger clusters
+    for (auto& clusCand : clusCands) {
+      JetRefVector refVector;
+      for (unsigned int j = 0; j < theJetCollection.size(); j++) {
+        if (deltaR(clusCand->superCluster()->position(), theJetCollection[j]) > minDeltaR_)
+          refVector.push_back(JetRef(theJetCollectionHandle, j));
+      }
+      allSelections->push_back(refVector);
     }
- }
+  }
 
- if(!eleCands.empty()){ // try electrons
-    for(auto & eleCand : eleCands){  
-        JetRefVector refVector;
-        for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-          if (deltaR(eleCand->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
-        }
-    allSelections->push_back(refVector);
+  if (!eleCands.empty()) {  // try electrons
+    for (auto& eleCand : eleCands) {
+      JetRefVector refVector;
+      for (unsigned int j = 0; j < theJetCollection.size(); j++) {
+        if (deltaR(eleCand->superCluster()->position(), theJetCollection[j]) > minDeltaR_)
+          refVector.push_back(JetRef(theJetCollectionHandle, j));
+      }
+      allSelections->push_back(refVector);
     }
- }
- 
- if(!photonCands.empty()){ // try photons
-    for(auto & photonCand : photonCands){  
-        JetRefVector refVector;
-        for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-          if (deltaR(photonCand->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
-        }
-    allSelections->push_back(refVector);
+  }
+
+  if (!photonCands.empty()) {  // try photons
+    for (auto& photonCand : photonCands) {
+      JetRefVector refVector;
+      for (unsigned int j = 0; j < theJetCollection.size(); j++) {
+        if (deltaR(photonCand->superCluster()->position(), theJetCollection[j]) > minDeltaR_)
+          refVector.push_back(JetRef(theJetCollectionHandle, j));
+      }
+      allSelections->push_back(refVector);
     }
- }
+  }
 
- if(!muonCands.empty()){ // muons
-    for(auto & muonCand : muonCands){  
-        JetRefVector refVector;
-        for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-	  if (deltaR(muonCand->p4(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
-        }
-    allSelections->push_back(refVector);
+  if (!muonCands.empty()) {  // muons
+    for (auto& muonCand : muonCands) {
+      JetRefVector refVector;
+      for (unsigned int j = 0; j < theJetCollection.size(); j++) {
+        if (deltaR(muonCand->p4(), theJetCollection[j]) > minDeltaR_)
+          refVector.push_back(JetRef(theJetCollectionHandle, j));
+      }
+      allSelections->push_back(refVector);
     }
- }
+  }
 
+  iEvent.put(std::move(allSelections));
 
-
-
- iEvent.put(std::move(allSelections));
-  
   return;
-  
 }
-

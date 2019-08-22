@@ -37,7 +37,7 @@ class FWConfigurationManager;
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 
 namespace fireworks {
-   class Context;
+  class Context;
 }
 
 /** This is the base class to be used for setting up the main loop and
@@ -46,143 +46,137 @@ namespace fireworks {
     Concrete implementations are actually supposed to create a concrete
     instance of the Context, FWNavigatorBase and FWJobMetadataManager. 
   */
-class CmsShowMainBase
-{
+class CmsShowMainBase {
 public:
-   CmsShowMainBase();
-   virtual ~CmsShowMainBase() noexcept(false);
+  CmsShowMainBase();
+  virtual ~CmsShowMainBase() noexcept(false);
 
-   FWModelChangeManager       *changeManager() {return m_changeManager.get(); }
-   FWColorManager             *colorManager() { return  m_colorManager.get(); }
-   FWConfigurationManager     *configurationManager() { return m_configurationManager.get(); }
-   FWEventItemsManager        *eiManager() { return m_eiManager.get(); }
-   FWModelChangeManager       *modelChangeManager() { return m_changeManager.get(); }
-   FWSelectionManager         *selectionManager() { return m_selectionManager.get(); }
-   FWViewManagerManager       *viewManager() { return m_viewManager.get(); }
-   FWGUIManager               *guiManager() 
-   { 
-      assert(m_guiManager.get() && "Call CmsShowMainBase::setup first!"); 
-      return m_guiManager.get(); 
-   }
-   
-   CmsShowTaskExecutor        *startupTasks() { return m_startupTasks.get(); }
-   
-   void setup(FWNavigatorBase             *navigator,
-              fireworks::Context          *context,
-              FWJobMetadataManager        *metadataManager);
+  FWModelChangeManager *changeManager() { return m_changeManager.get(); }
+  FWColorManager *colorManager() { return m_colorManager.get(); }
+  FWConfigurationManager *configurationManager() { return m_configurationManager.get(); }
+  FWEventItemsManager *eiManager() { return m_eiManager.get(); }
+  FWModelChangeManager *modelChangeManager() { return m_changeManager.get(); }
+  FWSelectionManager *selectionManager() { return m_selectionManager.get(); }
+  FWViewManagerManager *viewManager() { return m_viewManager.get(); }
+  FWGUIManager *guiManager() {
+    assert(m_guiManager.get() && "Call CmsShowMainBase::setup first!");
+    return m_guiManager.get();
+  }
 
-   void setupActions();
-   void setupViewManagers();
+  CmsShowTaskExecutor *startupTasks() { return m_startupTasks.get(); }
 
-   // Configuration handling.
-   void setConfigFilename(const std::string &f) { m_configFileName = f; };
-   const char *configFilename() const { return m_configFileName.c_str(); };
+  void setup(FWNavigatorBase *navigator, fireworks::Context *context, FWJobMetadataManager *metadataManager);
 
-   void writeToConfigFile(const std::string &config);
-   void writeToCurrentConfigFile();
-   void writePartialToConfigFile();
-   void reloadConfiguration(const std::string &config);
-   void partialWriteToConfigFile(const std::string &config);
-   void partialLoadConfiguration(const std::string &config);
-   void setupConfiguration();
-   
-   void registerPhysicsObject(const FWPhysicsObjectDesc&iItem);
-   void draw();
+  void setupActions();
+  void setupViewManagers();
 
-   // Geometry handling
-   void loadGeometry();
-   void setGeometryFilename(const std::string &filename) {m_geometryFilename = filename; }
-   const std::string &geometryFilename(void) { return m_geometryFilename; }
-   FWGeometry& getGeom() { return m_geom; }
+  // Configuration handling.
+  void setConfigFilename(const std::string &f) { m_configFileName = f; };
+  const char *configFilename() const { return m_configFileName.c_str(); };
 
-   void setSimGeometryFilename(const std::string &filename, const std::string &geoname) {
-     m_simGeometryFilename = filename;
-     m_TGeoName = geoname;
-   }
-   
-   // Event navigation.
-   void doFirstEvent();
-   void doPreviousEvent();
-   void doNextEvent();
-   void doLastEvent();
-   void goToRunEvent(edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t);
-   virtual void checkPosition() = 0;
-   bool forward() const { return m_forward; }
-   bool loop() const { return m_loop; }
-   virtual void quit() = 0;
-   
-   void setupAutoLoad(float x);
-   void startAutoLoadTimer();
-   void stopAutoLoadTimer();
-   void setupDebugSupport();
-   
-   void setPlayDelay(Float_t val);
-   void playForward();
-   void playBackward();
-   bool isPlaying() const { return m_isPlaying; }
+  void writeToConfigFile(const std::string &config);
+  void writeToCurrentConfigFile();
+  void writePartialToConfigFile();
+  void reloadConfiguration(const std::string &config);
+  void partialWriteToConfigFile(const std::string &config);
+  void partialLoadConfiguration(const std::string &config);
+  void setupConfiguration();
 
-   virtual void checkKeyBindingsOnPLayEventsStateChanged() {}
-   virtual void stopPlaying();
-   virtual void autoLoadNewEvent() = 0;
+  void registerPhysicsObject(const FWPhysicsObjectDesc &iItem);
+  void draw();
 
-   void setPlayLoop();
-   void unsetPlayLoop();
+  // Geometry handling
+  void loadGeometry();
+  void setGeometryFilename(const std::string &filename) { m_geometryFilename = filename; }
+  const std::string &geometryFilename(void) { return m_geometryFilename; }
+  FWGeometry &getGeom() { return m_geom; }
 
-   void setAutoSaveAllViewsFormat(const std::string& fmt) { m_autoSaveAllViewsFormat = fmt; }
-   void setAutoSaveAllViewsHeight(int x) { m_autoSaveAllViewsHeight = x; }
+  void setSimGeometryFilename(const std::string &filename, const std::string &geoname) {
+    m_simGeometryFilename = filename;
+    m_TGeoName = geoname;
+  }
 
-   class SignalTimer : public TTimer {
-   public:
-      Bool_t Notify() override {
-         timeout_();
-         return true;
-      }
-      sigc::signal<void> timeout_;
-   };
+  // Event navigation.
+  void doFirstEvent();
+  void doPreviousEvent();
+  void doNextEvent();
+  void doLastEvent();
+  void goToRunEvent(edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t);
+  virtual void checkPosition() = 0;
+  bool forward() const { return m_forward; }
+  bool loop() const { return m_loop; }
+  virtual void quit() = 0;
 
-protected: 
-   void eventChangedSlot();
-   virtual void eventChangedImp();
-   void sendVersionInfo();
-   fireworks::Context* context() { return m_contextPtr; }
+  void setupAutoLoad(float x);
+  void startAutoLoadTimer();
+  void stopAutoLoadTimer();
+  void setupDebugSupport();
+
+  void setPlayDelay(Float_t val);
+  void playForward();
+  void playBackward();
+  bool isPlaying() const { return m_isPlaying; }
+
+  virtual void checkKeyBindingsOnPLayEventsStateChanged() {}
+  virtual void stopPlaying();
+  virtual void autoLoadNewEvent() = 0;
+
+  void setPlayLoop();
+  void unsetPlayLoop();
+
+  void setAutoSaveAllViewsFormat(const std::string &fmt) { m_autoSaveAllViewsFormat = fmt; }
+  void setAutoSaveAllViewsHeight(int x) { m_autoSaveAllViewsHeight = x; }
+
+  class SignalTimer : public TTimer {
+  public:
+    Bool_t Notify() override {
+      timeout_();
+      return true;
+    }
+    sigc::signal<void> timeout_;
+  };
+
+protected:
+  void eventChangedSlot();
+  virtual void eventChangedImp();
+  void sendVersionInfo();
+  fireworks::Context *context() { return m_contextPtr; }
 
 private:
-   // The base class is responsible for the destruction of fwlite / FF
-   // agnostic managers.
-   std::unique_ptr<FWModelChangeManager>   m_changeManager;
-   std::unique_ptr<FWColorManager>         m_colorManager;
-   std::unique_ptr<FWConfigurationManager> m_configurationManager;
-   std::unique_ptr<FWEventItemsManager>    m_eiManager;
-   std::unique_ptr<FWGUIManager>           m_guiManager;
-   std::unique_ptr<FWSelectionManager>     m_selectionManager;
-   std::unique_ptr<CmsShowTaskExecutor>    m_startupTasks;
-   std::unique_ptr<FWViewManagerManager>   m_viewManager;
+  // The base class is responsible for the destruction of fwlite / FF
+  // agnostic managers.
+  std::unique_ptr<FWModelChangeManager> m_changeManager;
+  std::unique_ptr<FWColorManager> m_colorManager;
+  std::unique_ptr<FWConfigurationManager> m_configurationManager;
+  std::unique_ptr<FWEventItemsManager> m_eiManager;
+  std::unique_ptr<FWGUIManager> m_guiManager;
+  std::unique_ptr<FWSelectionManager> m_selectionManager;
+  std::unique_ptr<CmsShowTaskExecutor> m_startupTasks;
+  std::unique_ptr<FWViewManagerManager> m_viewManager;
 
-  
+  std::unique_ptr<SignalTimer> m_autoLoadTimer;
 
-   std::unique_ptr<SignalTimer>                 m_autoLoadTimer;
-   
-   // These are actually set by the concrete implementation via the setup 
-   // method.
-   FWNavigatorBase                      *m_navigatorPtr;
-   FWJobMetadataManager                 *m_metadataManagerPtr;
-   fireworks::Context                   *m_contextPtr;
+  // These are actually set by the concrete implementation via the setup
+  // method.
+  FWNavigatorBase *m_navigatorPtr;
+  FWJobMetadataManager *m_metadataManagerPtr;
+  fireworks::Context *m_contextPtr;
 
-   void setPlayLoopImp();
-   void unsetPlayLoopImp();
-   
-   std::string                           m_autoSaveAllViewsFormat;
-   int                                   m_autoSaveAllViewsHeight;
-   bool                                  m_autoLoadTimerRunning;             
-   bool                                  m_forward;
-   bool                                  m_isPlaying;
-   bool                                  m_loop;
-   Float_t                               m_playDelay;
-   std::string                           m_configFileName;
-   std::string                           m_geometryFilename;
-   FWGeometry                            m_geom;
-   std::string                           m_simGeometryFilename;
-   std::string                           m_TGeoName;
+  void setPlayLoopImp();
+  void unsetPlayLoopImp();
+
+  std::string m_autoSaveAllViewsFormat;
+  int m_autoSaveAllViewsHeight;
+  bool m_autoLoadTimerRunning;
+  bool m_forward;
+  bool m_isPlaying;
+  bool m_loop;
+  Float_t m_playDelay;
+  std::string m_configFileName;
+  std::string m_geometryFilename;
+  FWGeometry m_geom;
+  std::string m_simGeometryFilename;
+  std::string m_TGeoName;
 };
 
 #endif

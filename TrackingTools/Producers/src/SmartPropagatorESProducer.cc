@@ -4,7 +4,10 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
-#include "TrackingTools/Producers/interface/SmartPropagatorESProducer.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+
+#include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -18,49 +21,57 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-    
+#include <memory>
+
+class SmartPropagatorESProducer : public edm::ESProducer {
+public:
+  /// Constructor
+  SmartPropagatorESProducer(const edm::ParameterSet&);
+
+  /// Destructor
+  ~SmartPropagatorESProducer() override;
+
+  // Operations
+  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord&);
+
+private:
+  PropagationDirection thePropagationDirection;
+  double theEpsilon;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> trackerToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> muonToken_;
+};
+
 using namespace edm;
 using namespace std;
-    
-SmartPropagatorESProducer::SmartPropagatorESProducer(const ParameterSet& parameterSet) 
-{
+
+SmartPropagatorESProducer::SmartPropagatorESProducer(const ParameterSet& parameterSet) {
   string myname = parameterSet.getParameter<string>("ComponentName");
 
   string propDir = parameterSet.getParameter<string>("PropagationDirection");
-  
-  if (propDir == "oppositeToMomentum") thePropagationDirection = oppositeToMomentum;
-  else if (propDir == "alongMomentum") thePropagationDirection = alongMomentum;
-  else if (propDir == "anyDirection") thePropagationDirection = anyDirection;
-  else
-    throw cms::Exception("SmartPropagatorESProducer") 
-      << "Wrong fit direction chosen in SmartPropagatorESProducer";
 
+  if (propDir == "oppositeToMomentum")
+    thePropagationDirection = oppositeToMomentum;
+  else if (propDir == "alongMomentum")
+    thePropagationDirection = alongMomentum;
+  else if (propDir == "anyDirection")
+    thePropagationDirection = anyDirection;
+  else
+    throw cms::Exception("SmartPropagatorESProducer") << "Wrong fit direction chosen in SmartPropagatorESProducer";
 
   theEpsilon = parameterSet.getParameter<double>("Epsilon");
-  
-  theTrackerPropagatorName = parameterSet.getParameter<string>("TrackerPropagator");
-  theMuonPropagatorName = parameterSet.getParameter<string>("MuonPropagator");
 
-  setWhatProduced(this,myname);
+  setWhatProduced(this, myname)
+      .setConsumes(magToken_)
+      .setConsumes(trackerToken_, edm::ESInputTag("", parameterSet.getParameter<string>("TrackerPropagator")))
+      .setConsumes(muonToken_, edm::ESInputTag("", parameterSet.getParameter<string>("MuonPropagator")));
 }
 
 SmartPropagatorESProducer::~SmartPropagatorESProducer() {}
 
-std::unique_ptr<Propagator> 
-SmartPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord){ 
-
-  ESHandle<MagneticField> magField;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magField);
-  
-  ESHandle<Propagator> trackerPropagator;
-  iRecord.get(theTrackerPropagatorName,trackerPropagator);
-
-  ESHandle<Propagator> muonPropagator;
-  iRecord.get(theMuonPropagatorName,muonPropagator);
-  
-  
-  return           std::make_unique<SmartPropagator>(*trackerPropagator, *muonPropagator,
-						     &*magField,
-						     thePropagationDirection, 
-						     theEpsilon);
+std::unique_ptr<Propagator> SmartPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord) {
+  return std::make_unique<SmartPropagator>(
+      iRecord.get(trackerToken_), iRecord.get(muonToken_), &iRecord.get(magToken_), thePropagationDirection, theEpsilon);
 }
+
+DEFINE_FWK_EVENTSETUP_MODULE(SmartPropagatorESProducer);

@@ -21,100 +21,88 @@
 
 namespace PhysicsTools {
 
-class Source;
-class TrainProcessor;
+  class Source;
+  class TrainProcessor;
 
-class MVATrainer {
-    public:
-	MVATrainer(const std::string &fileName, bool useXSLT = false,
-	           const char *styleSheet = nullptr);
-	~MVATrainer();
+  class MVATrainer {
+  public:
+    MVATrainer(const std::string &fileName, bool useXSLT = false, const char *styleSheet = nullptr);
+    ~MVATrainer();
 
-	inline void setAutoSave(bool autoSave) { doAutoSave = autoSave; }
-	inline void setCleanup(bool cleanup) { doCleanup = cleanup; }
-	inline void setMonitoring(bool monitoring) { doMonitoring = monitoring; }
-	inline void setRandomSeed(UInt_t seed) { randomSeed = seed; }
-	inline void setCrossValidation(double split) { crossValidation = split; }
+    inline void setAutoSave(bool autoSave) { doAutoSave = autoSave; }
+    inline void setCleanup(bool cleanup) { doCleanup = cleanup; }
+    inline void setMonitoring(bool monitoring) { doMonitoring = monitoring; }
+    inline void setRandomSeed(UInt_t seed) { randomSeed = seed; }
+    inline void setCrossValidation(double split) { crossValidation = split; }
 
-	void loadState();
-	void saveState();
+    void loadState();
+    void saveState();
 
-	Calibration::MVAComputer *getTrainCalibration() const;
-	void doneTraining(Calibration::MVAComputer *trainCalibration) const;
+    Calibration::MVAComputer *getTrainCalibration() const;
+    void doneTraining(Calibration::MVAComputer *trainCalibration) const;
 
-	Calibration::MVAComputer *getCalibration() const;
+    Calibration::MVAComputer *getCalibration() const;
 
-	// used by TrainProcessors
+    // used by TrainProcessors
 
-	std::string trainFileName(const TrainProcessor *proc,
-	                          const std::string &ext,
-	                          const std::string &arg = "") const;
+    std::string trainFileName(const TrainProcessor *proc, const std::string &ext, const std::string &arg = "") const;
 
-	inline const std::string &getName() const { return name; }
+    inline const std::string &getName() const { return name; }
 
-	TrainerMonitoring::Module *bookMonitor(const std::string &name);
+    TrainerMonitoring::Module *bookMonitor(const std::string &name);
 
-	// constants
+    // constants
 
-	static const AtomicId kTargetId;
-	static const AtomicId kWeightId;
+    static const AtomicId kTargetId;
+    static const AtomicId kWeightId;
 
-	struct CalibratedProcessor {
-		CalibratedProcessor(TrainProcessor *processor,
-		                    Calibration::VarProcessor *calib) :
-			processor(processor), calib(calib) {}
+    struct CalibratedProcessor {
+      CalibratedProcessor(TrainProcessor *processor, Calibration::VarProcessor *calib)
+          : processor(processor), calib(calib) {}
 
-		TrainProcessor			*processor;
-		Calibration::VarProcessor	*calib;
-	};
+      TrainProcessor *processor;
+      Calibration::VarProcessor *calib;
+    };
 
-    private:
-	SourceVariable *getVariable(AtomicId source, AtomicId name) const;
+  private:
+    SourceVariable *getVariable(AtomicId source, AtomicId name) const;
 
-	SourceVariable *createVariable(Source *source, AtomicId name,
-	                               Variable::Flags flags);
+    SourceVariable *createVariable(Source *source, AtomicId name, Variable::Flags flags);
 
-	void fillInputVars(SourceVariableSet &vars,
-	                   XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *xml);
+    void fillInputVars(SourceVariableSet &vars, XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *xml);
 
-	void fillOutputVars(SourceVariableSet &vars, Source *source,
-	                    XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *xml);
+    void fillOutputVars(SourceVariableSet &vars, Source *source, XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *xml);
 
-	void makeProcessor(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
-	                   AtomicId id, const char *name);
+    void makeProcessor(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem, AtomicId id, const char *name);
 
-	void connectProcessors(Calibration::MVAComputer *calib,
-	                       const std::vector<CalibratedProcessor> &procs,
-	                       bool withTarget) const;
+    void connectProcessors(Calibration::MVAComputer *calib,
+                           const std::vector<CalibratedProcessor> &procs,
+                           bool withTarget) const;
 
-	Calibration::MVAComputer *
-	makeTrainCalibration(const AtomicId *compute,
-	                     const AtomicId *train) const;
+    Calibration::MVAComputer *makeTrainCalibration(const AtomicId *compute, const AtomicId *train) const;
 
-	void
-	findUntrainedComputers(std::vector<AtomicId> &compute,
-	                       std::vector<AtomicId> &train) const;
+    void findUntrainedComputers(std::vector<AtomicId> &compute, std::vector<AtomicId> &train) const;
 
-	std::vector<AtomicId> findFinalProcessors() const;
+    std::vector<AtomicId> findFinalProcessors() const;
 
-	std::map<AtomicId, Source*>		sources;
-	std::vector<SourceVariable*>		variables;
-	std::vector<AtomicId>			processors;
-	Source					*input;
-	TrainProcessor				*output;
+    std::map<AtomicId, Source *> sources;
+    std::vector<SourceVariable *> variables;
+    std::vector<AtomicId> processors;
+    Source *input;
+    TrainProcessor *output;
 
-	std::unique_ptr<TrainerMonitoring>	monitoring;
-	std::unique_ptr<XMLDocument>		xml;
-	std::string				trainFileMask;
-	std::string				name;
-	bool					doAutoSave;
-	bool					doCleanup;
-	bool					doMonitoring;
+    std::unique_ptr<TrainerMonitoring> monitoring;
+    std::unique_ptr<XMLDocument> xml;
+    std::string trainFileMask;
+    std::string name;
+    bool doAutoSave;
+    bool doCleanup;
+    bool doMonitoring;
 
-	UInt_t					randomSeed;
-	double					crossValidation;
-};
+    UInt_t randomSeed;
+    double crossValidation;
+  };
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_MVATrainer_MVATrainer_h
+#endif  // PhysicsTools_MVATrainer_MVATrainer_h

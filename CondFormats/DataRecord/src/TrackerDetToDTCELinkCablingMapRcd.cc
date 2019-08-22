@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     TrackerDetToDTCELinkCablingMapRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

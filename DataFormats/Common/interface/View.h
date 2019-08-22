@@ -50,7 +50,7 @@ namespace edm {
     ViewBase(ViewBase const&);
     ViewBase& operator=(ViewBase const&);
     virtual std::unique_ptr<ViewBase> doClone() const = 0;
-    void swap(ViewBase&) {} // Nothing to swap
+    void swap(ViewBase&) {}  // Nothing to swap
   };
 
   //------------------------------------------------------------------
@@ -70,24 +70,24 @@ namespace edm {
   ///
   //------------------------------------------------------------------
 
-
-  template<typename T>
+  template <typename T>
   class View : public ViewBase {
-    typedef std::vector<T const*>  seq_t;
+    typedef std::vector<T const*> seq_t;
+
   public:
-    typedef T const*   pointer;
-    typedef T const*   const_pointer;
+    typedef T const* pointer;
+    typedef T const* const_pointer;
 
-    typedef T const&   reference;
-    typedef T const&   const_reference;
+    typedef T const& reference;
+    typedef T const& const_reference;
 
-    typedef T          value_type;
+    typedef T value_type;
 
     typedef boost::indirect_iterator<typename seq_t::const_iterator> const_iterator;
 
     // This should be a typedef to seq_t::size_type but because this type is used as a template
     // argument in a persistened class it must be stable for different architectures
-    typedef unsigned int  size_type;
+    typedef unsigned int size_type;
     typedef typename seq_t::difference_type difference_type;
 
     typedef boost::indirect_iterator<typename seq_t::const_reverse_iterator> const_reverse_iterator;
@@ -99,9 +99,7 @@ namespace edm {
 
     // This function is dangerous, and should only be called from the
     // infrastructure code.
-    View(std::vector<void const*> const& pointers,
-         FillViewHelperVector const& helpers,
-         EDProductGetter const* getter);
+    View(std::vector<void const*> const& pointers, FillViewHelperVector const& helpers, EDProductGetter const* getter);
 
     ~View() override;
 
@@ -127,7 +125,7 @@ namespace edm {
     const_reference operator[](size_type pos) const;
     RefToBase<value_type> refAt(size_type i) const;
     Ptr<value_type> ptrAt(size_type i) const;
-    std::vector<Ptr<value_type> > const& ptrs() const;
+    std::vector<Ptr<value_type>> const& ptrs() const;
 
     const_reference front() const;
     const_reference back() const;
@@ -140,35 +138,36 @@ namespace edm {
 
   private:
     seq_t items_;
-    std::vector<Ptr<value_type> > vPtrs_;
+    std::vector<Ptr<value_type>> vPtrs_;
     std::unique_ptr<ViewBase> doClone() const override;
   };
 
   // Associated free functions (same as for std::vector)
-  template<typename T> bool operator==(View<T> const&, View<T> const&);
-  template<typename T> bool operator!=(View<T> const&, View<T> const&);
-  template<typename T> bool operator< (View<T> const&, View<T> const&);
-  template<typename T> bool operator<=(View<T> const&, View<T> const&);
-  template<typename T> bool operator> (View<T> const&, View<T> const&);
-  template<typename T> bool operator>=(View<T> const&, View<T> const&);
+  template <typename T>
+  bool operator==(View<T> const&, View<T> const&);
+  template <typename T>
+  bool operator!=(View<T> const&, View<T> const&);
+  template <typename T>
+  bool operator<(View<T> const&, View<T> const&);
+  template <typename T>
+  bool operator<=(View<T> const&, View<T> const&);
+  template <typename T>
+  bool operator>(View<T> const&, View<T> const&);
+  template <typename T>
+  bool operator>=(View<T> const&, View<T> const&);
 
   //------------------------------------------------------------------
   // Implementation of View<T>
   //------------------------------------------------------------------
 
-  template<typename T>
-  inline
-  View<T>::View() :
-    items_(),
-    vPtrs_() {
-  }
+  template <typename T>
+  inline View<T>::View() : items_(), vPtrs_() {}
 
-  template<typename T>
+  template <typename T>
   View<T>::View(std::vector<void const*> const& pointers,
                 FillViewHelperVector const& helpers,
-                EDProductGetter const* getter) :
-    items_(),
-    vPtrs_() {
+                EDProductGetter const* getter)
+      : items_(), vPtrs_() {
     size_type numElements = pointers.size();
 
     // If the two input vectors are not of the same size, there is a
@@ -178,223 +177,165 @@ namespace edm {
 
     items_.reserve(numElements);
     vPtrs_.reserve(numElements);
-    for(std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
+    for (std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
       void const* p = pointers[i];
       auto const& h = helpers[i];
       items_.push_back(static_cast<pointer>(p));
-      if(nullptr!=p) {
-         vPtrs_.push_back(Ptr<T>(h.first, static_cast<T const*>(p), h.second));
-      } else if(getter != nullptr) {
-         vPtrs_.push_back(Ptr<T>(h.first, h.second, getter));
+      if (nullptr != p) {
+        vPtrs_.push_back(Ptr<T>(h.first, static_cast<T const*>(p), h.second));
+      } else if (getter != nullptr) {
+        vPtrs_.push_back(Ptr<T>(h.first, h.second, getter));
       } else {
-         vPtrs_.push_back(Ptr<T>(h.first, nullptr, h.second));
+        vPtrs_.push_back(Ptr<T>(h.first, nullptr, h.second));
       }
     }
   }
 
-  template<typename T>
-  View<T>::~View() {
-  }
+  template <typename T>
+  View<T>::~View() {}
 
-  template<typename T>
-  inline
-  void
-  View<T>::swap(View& other) {
+  template <typename T>
+  inline void View<T>::swap(View& other) {
     this->ViewBase::swap(other);
     items_.swap(other.items_);
     vPtrs_.swap(other.vPtrs_);
   }
 
-  template<typename T>
-  inline
-  typename  View<T>::size_type
-  View<T>::capacity() const {
+  template <typename T>
+  inline typename View<T>::size_type View<T>::capacity() const {
     return items_.capacity();
   }
 
-  template<typename T>
-  inline
-  typename View<T>::const_iterator
-  View<T>::begin() const {
+  template <typename T>
+  inline typename View<T>::const_iterator View<T>::begin() const {
     return items_.begin();
   }
 
-  template<typename T>
-  inline
-  typename View<T>::const_iterator
-  View<T>::end() const {
+  template <typename T>
+  inline typename View<T>::const_iterator View<T>::end() const {
     return items_.end();
   }
 
-  template<typename T>
-  inline
-  typename View<T>::const_reverse_iterator
-  View<T>::rbegin() const {
+  template <typename T>
+  inline typename View<T>::const_reverse_iterator View<T>::rbegin() const {
     return items_.rbegin();
   }
 
-  template<typename T>
-  inline
-  typename View<T>::const_reverse_iterator
-  View<T>::rend() const {
+  template <typename T>
+  inline typename View<T>::const_reverse_iterator View<T>::rend() const {
     return items_.rend();
   }
 
-  template<typename T>
-  inline
-  typename View<T>::size_type
-  View<T>::size() const {
+  template <typename T>
+  inline typename View<T>::size_type View<T>::size() const {
     return items_.size();
   }
 
-  template<typename T>
-  inline
-  typename View<T>::size_type
-  View<T>::max_size() const {
+  template <typename T>
+  inline typename View<T>::size_type View<T>::max_size() const {
     return items_.max_size();
   }
 
-  template<typename T>
-  inline
-  bool
-  View<T>::empty() const {
+  template <typename T>
+  inline bool View<T>::empty() const {
     return items_.empty();
   }
 
-  template<typename T>
-  inline
-  typename View<T>::const_reference
-  View<T>::at(size_type pos) const {
+  template <typename T>
+  inline typename View<T>::const_reference View<T>::at(size_type pos) const {
     return *items_.at(pos);
   }
 
-  template<typename T>
-  inline
-  typename View<T>::const_reference
-  View<T>::operator[](size_type pos) const {
+  template <typename T>
+  inline typename View<T>::const_reference View<T>::operator[](size_type pos) const {
     return *items_[pos];
   }
 
-  template<typename T>
-  inline
-  RefToBase<T>
-  View<T>::refAt(size_type i) const {
+  template <typename T>
+  inline RefToBase<T> View<T>::refAt(size_type i) const {
     //NOTE: considered creating a special BaseHolder for edm::Ptr.
     // But the IndirectHolder and RefHolder would still be needed
     // for other reasons. To reduce the number of dictionaries needed
     // we avoid using a more efficient BaseHolder.
-    return RefToBase<T>(std::unique_ptr<reftobase::BaseHolder<T>>{
-                          new reftobase::IndirectHolder<T>{
-                            std::unique_ptr<reftobase::RefHolder<edm::Ptr<T>>>{
-                              new reftobase::RefHolder<Ptr<T>>{ptrAt(i)}
-                            }
-                          }
-                        } );
+    return RefToBase<T>(std::unique_ptr<reftobase::BaseHolder<T>>{new reftobase::IndirectHolder<T>{
+        std::unique_ptr<reftobase::RefHolder<edm::Ptr<T>>>{new reftobase::RefHolder<Ptr<T>>{ptrAt(i)}}}});
   }
-  
-  template<typename T>
-  inline
-  Ptr<T>
-  View<T>::ptrAt(size_type i) const {
+
+  template <typename T>
+  inline Ptr<T> View<T>::ptrAt(size_type i) const {
     return vPtrs_[i];
   }
-  
-  template<typename T>
-  inline
-  std::vector<Ptr<T> > const&
-  View<T>::ptrs() const {
+
+  template <typename T>
+  inline std::vector<Ptr<T>> const& View<T>::ptrs() const {
     return vPtrs_;
   }
 
-
-  template<typename T>
-  inline
-  typename View<T>::const_reference
-  View<T>::front() const {
+  template <typename T>
+  inline typename View<T>::const_reference View<T>::front() const {
     return *items_.front();
   }
 
-  template<typename T>
-  inline
-  typename View<T>::const_reference
-  View<T>::back() const {
+  template <typename T>
+  inline typename View<T>::const_reference View<T>::back() const {
     return *items_.back();
   }
 
   // The following is for testing only.
-  template<typename T>
-  inline
-  void
-  View<T>::fill_from_range(T* first, T* last, View& output) {
+  template <typename T>
+  inline void View<T>::fill_from_range(T* first, T* last, View& output) {
     output.items_.resize(std::distance(first, last));
-    for(typename View<T>::size_type i = 0; first != last; ++i, ++first)
+    for (typename View<T>::size_type i = 0; first != last; ++i, ++first)
       output.items_[i] = first;
   }
 
-  template<typename T>
-  std::unique_ptr<ViewBase>
-  View<T>::doClone() const {
+  template <typename T>
+  std::unique_ptr<ViewBase> View<T>::doClone() const {
     return std::unique_ptr<ViewBase>{new View(*this)};
   }
-  
-  template<typename T>
-  inline
-  View<T>&
-  View<T>::operator=(View<T> const& rhs) {
+
+  template <typename T>
+  inline View<T>& View<T>::operator=(View<T> const& rhs) {
     View<T> temp(rhs);
     this->swap(temp);
     return *this;
   }
 
-  template<typename T>
-  inline
-  bool
-  operator==(View<T> const& lhs, View<T> const& rhs) {
-    return
-      lhs.size() == rhs.size() &&
-      std::equal(lhs.begin(), lhs.end(), rhs.begin());
+  template <typename T>
+  inline bool operator==(View<T> const& lhs, View<T> const& rhs) {
+    return lhs.size() == rhs.size() && std::equal(lhs.begin(), lhs.end(), rhs.begin());
   }
 
-  template<typename T>
-  inline
-  bool
-  operator!=(View<T> const& lhs, View<T> const& rhs) {
+  template <typename T>
+  inline bool operator!=(View<T> const& lhs, View<T> const& rhs) {
     return !(lhs == rhs);
   }
 
-  template<typename T>
-  inline
-  bool
-  operator<(View<T> const& lhs, View<T> const& rhs) {
-    return std::lexicographical_compare(lhs.begin(), lhs.end(),
-                                        rhs.begin(), rhs.end());
+  template <typename T>
+  inline bool operator<(View<T> const& lhs, View<T> const& rhs) {
+    return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
   }
 
-  template<typename T>
-  inline
-  bool
-  operator<=(View<T> const& lhs, View<T> const& rhs) {
-    return !(rhs<lhs);
+  template <typename T>
+  inline bool operator<=(View<T> const& lhs, View<T> const& rhs) {
+    return !(rhs < lhs);
   }
 
-  template<typename T>
-  inline
-  bool operator> (View<T> const& lhs, View<T> const& rhs) {
-    return rhs<lhs;
+  template <typename T>
+  inline bool operator>(View<T> const& lhs, View<T> const& rhs) {
+    return rhs < lhs;
   }
 
-  template<typename T>
-  inline
-  bool operator>=(View<T> const& lhs, View<T> const& rhs) {
-    return !(lhs<rhs);
+  template <typename T>
+  inline bool operator>=(View<T> const& lhs, View<T> const& rhs) {
+    return !(lhs < rhs);
   }
 
   // Free swap function
-  template<typename T>
-  inline
-  void swap(View<T>& lhs, View<T>& rhs) {
+  template <typename T>
+  inline void swap(View<T>& lhs, View<T>& rhs) {
     lhs.swap(rhs);
   }
-}
+}  // namespace edm
 
 #endif

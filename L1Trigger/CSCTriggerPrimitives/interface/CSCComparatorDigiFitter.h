@@ -35,39 +35,37 @@
 typedef std::vector<CSCComparatorDigi> CSCComparatorDigiContainer;
 typedef std::vector<std::pair<CSCDetId, CSCComparatorDigiContainer> > CSCComparatorDigiContainerIds;
 
-class CSCComparatorDigiFitter
-{
- public:
-
+class CSCComparatorDigiFitter {
+public:
   CSCComparatorDigiFitter() {}
   ~CSCComparatorDigiFitter() {}
 
   /* CSC trigger geometry */
-  void setGeometry(const CSCGeometry* csc_g) {cscGeometry_= csc_g;}
+  void setGeometry(const CSCGeometry* csc_g) { cscGeometry_ = csc_g; }
 
   /* option to discretize the fitted stub phi */
-  void setStripBits(int bits) {nStripBits_ = bits;}
+  void setStripBits(int bits) { nStripBits_ = bits; }
 
   /* use key layer radius */
-  void useKeyRadius(bool useKeyRadius) {useKeyRadius_ = useKeyRadius;}
+  void useKeyRadius(bool useKeyRadius) { useKeyRadius_ = useKeyRadius; }
 
   /* fit a straight line to the digis */
-  void fit(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi&,
-	   const CSCComparatorDigiCollection&,
-	   std::vector<float>& fit_phi_layers,
-	   std::vector<float>& fit_z_layers, float& keyRadius);
+  void fit(const CSCDetId& ch_id,
+           const CSCCorrelatedLCTDigi&,
+           const CSCComparatorDigiCollection&,
+           std::vector<float>& fit_phi_layers,
+           std::vector<float>& fit_z_layers,
+           float& keyRadius);
 
- private:
-
+private:
   /* collect the comparator digis that match the LCT pattern
      from the comparator digi collection */
   void matchingComparatorDigisLCT(const CSCDetId& ch_id,
-				  const CSCCorrelatedLCTDigi&,
-				  const CSCComparatorDigiCollection&);
+                                  const CSCCorrelatedLCTDigi&,
+                                  const CSCComparatorDigiCollection&);
 
   /* collect the coordinates of comparators */
-  void getComparatorDigiCoordinates(const CSCDetId& ch_id,
-				    const CSCCorrelatedLCTDigi& stub);
+  void getComparatorDigiCoordinates(const CSCDetId& ch_id, const CSCCorrelatedLCTDigi& stub);
 
   /* is this comparator in the LCT pattern? */
   bool comparatorInLCTPattern(int keyStrip, int pattern, int layer, int halfStrip) const;
@@ -96,8 +94,8 @@ class CSCComparatorDigiFitter
 
   // number of strips and chamber width for each chamber type
   // ME1a ME1b ME12 ME13 ME21 ME22 ME31 ME32 ME41 ME42
-  const std::vector<int> strips_ = {48,64,80,64, 80,80,80,80,80,80};
-  const std::vector<float> degrees_ = {10.,10.,10.,10.,20.,10.,20.,10.,20.,10.};
+  const std::vector<int> strips_ = {48, 64, 80, 64, 80, 80, 80, 80, 80, 80};
+  const std::vector<float> degrees_ = {10., 10., 10., 10., 20., 10., 20., 10., 20., 10.};
 };
 
 #endif

@@ -15,18 +15,16 @@ using namespace std;
 
 class CondDBApp {
 public:
-
   /**
    *   App constructor; Makes the database connection
    */
-  CondDBApp(string sid, string user, string pass, run_t r)
-  {
+  CondDBApp(string sid, string user, string pass, run_t r) {
     try {
       cout << "Making connection..." << flush;
-      econn = new EcalCondDBInterface( sid, user, pass );
+      econn = new EcalCondDBInterface(sid, user, pass);
       run = r;
       cout << "Done." << endl;
-    } catch (runtime_error &e) {
+    } catch (runtime_error& e) {
       cerr << e.what() << endl;
       exit(-1);
     }
@@ -35,10 +33,7 @@ public:
   /**
    *  App destructor;  Cleans up database connection
    */
-  ~CondDBApp() 
-  {
-    delete econn;
-  }
+  ~CondDBApp() { delete econn; }
 
   void doRead() {
     std::string location = "P5_Co";
@@ -57,7 +52,7 @@ public:
       bool res = econn->fetchLMFRunIOV(seq, lmfruniov, lmr, type, color);
       std::cout << "LMR: " << lmr << " - " << res << std::endl;
       if ((lmr == 1) || (lmr == 92)) {
-	lmfruniov.dump();
+        lmfruniov.dump();
       }
     }
     /*
@@ -98,8 +93,7 @@ private:
   run_t run;
 };
 
-int main (int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   string sid;
   string user;
   string pass;
@@ -118,7 +112,7 @@ int main (int argc, char* argv[])
   try {
     CondDBApp app(sid, user, pass, run);
     app.doRead();
-  } catch (exception &e) {
+  } catch (exception& e) {
     cout << "ERROR:  " << e.what() << endl;
   } catch (...) {
     cout << "Unknown error caught" << endl;

@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     HBHENegativeEFilterRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

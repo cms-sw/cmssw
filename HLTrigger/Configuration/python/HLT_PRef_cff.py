@@ -1,13 +1,13 @@
-# hltGetConfiguration --cff --data /dev/CMSSW_10_6_0/PRef --type PRef
+# hltGetConfiguration --cff --data /dev/CMSSW_11_0_0/PRef --type PRef
 
-# /dev/CMSSW_10_6_0/PRef/V2 (CMSSW_10_6_0_pre4)
+# /dev/CMSSW_11_0_0/PRef/V4 (CMSSW_11_0_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_6_0/PRef/V2')
+  tableName = cms.string('/dev/CMSSW_11_0_0/PRef/V4')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -120,7 +120,8 @@ fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet(
   alwaysUseInvalidHits = cms.bool( False ),
   estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator9" ),
   intermediateCleaning = cms.bool( True ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTIter4PSetTrajectoryBuilderIT = cms.PSet( 
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
@@ -135,7 +136,8 @@ fragment.HLTIter4PSetTrajectoryBuilderIT = cms.PSet(
   alwaysUseInvalidHits = cms.bool( False ),
   estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
   intermediateCleaning = cms.bool( True ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetTobTecStepInOutTrajectoryFilterBase = cms.PSet( 
   minimumNumberOfHits = cms.int32( 4 ),
@@ -184,7 +186,8 @@ fragment.HLTIter0GroupedCkfTrajectoryBuilderIT = cms.PSet(
   alwaysUseInvalidHits = cms.bool( False ),
   inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter0PSetTrajectoryFilterIT" ) ),
   foundHitBonus = cms.double( 5.0 ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTSiStripClusterChargeCutTiny = cms.PSet(  value = cms.double( 800.0 ) )
 fragment.HLTPSetTrajectoryFilterIT = cms.PSet( 
@@ -243,7 +246,8 @@ fragment.HLTPSetTrajectoryBuilderForElectrons = cms.PSet(
   alwaysUseInvalidHits = cms.bool( True ),
   estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   intermediateCleaning = cms.bool( False ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetPvClusterComparerForIT = cms.PSet( 
   track_chi2_max = cms.double( 20.0 ),
@@ -285,7 +289,8 @@ fragment.HLTPSetInitialCkfTrajectoryBuilderForHI = cms.PSet(
   alwaysUseInvalidHits = cms.bool( False ),
   estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
   intermediateCleaning = cms.bool( False ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetMuonCkfTrajectoryBuilder = cms.PSet( 
   rescaleErrorIfFail = cms.double( 1.0 ),
@@ -304,7 +309,8 @@ fragment.HLTPSetMuonCkfTrajectoryBuilder = cms.PSet(
   updator = cms.string( "hltESPKFUpdator" ),
   deltaEta = cms.double( -1.0 ),
   useSeedLayer = cms.bool( False ),
-  deltaPhi = cms.double( -1.0 )
+  deltaPhi = cms.double( -1.0 ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTIter0HighPtTkMuPSetTrajectoryFilterIT = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -369,7 +375,8 @@ fragment.HLTIter2GroupedCkfTrajectoryBuilderIT = cms.PSet(
   alwaysUseInvalidHits = cms.bool( False ),
   inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter2PSetTrajectoryFilterIT" ) ),
   foundHitBonus = cms.double( 5.0 ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTIter3PSetTrajectoryBuilderIT = cms.PSet( 
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
@@ -383,7 +390,8 @@ fragment.HLTIter3PSetTrajectoryBuilderIT = cms.PSet(
   alwaysUseInvalidHits = cms.bool( False ),
   estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
   intermediateCleaning = cms.bool( True ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 1945.0 ) )
 fragment.HLTPSetCkf3HitTrajectoryFilter = cms.PSet( 
@@ -558,7 +566,8 @@ fragment.HLTPSetMuTrackJpsiTrajectoryBuilder = cms.PSet(
   alwaysUseInvalidHits = cms.bool( False ),
   estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   intermediateCleaning = cms.bool( True ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetTrajectoryBuilderForGsfElectrons = cms.PSet( 
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
@@ -572,7 +581,8 @@ fragment.HLTPSetTrajectoryBuilderForGsfElectrons = cms.PSet(
   alwaysUseInvalidHits = cms.bool( True ),
   estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator2000" ),
   intermediateCleaning = cms.bool( False ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
 fragment.HLTPSetTobTecStepTrajectoryFilterBase = cms.PSet( 
@@ -713,7 +723,8 @@ fragment.HLTPSetMixedStepTrajectoryBuilder = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 5.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetMixedStepTrajectoryFilterBase = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -803,7 +814,8 @@ fragment.HLTIter2PSetTrajectoryBuilderIT = cms.PSet(
   alwaysUseInvalidHits = cms.bool( False ),
   estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
   intermediateCleaning = cms.bool( True ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetMuTrackJpsiTrajectoryFilter = cms.PSet( 
   minimumNumberOfHits = cms.int32( 5 ),
@@ -881,7 +893,8 @@ fragment.HLTPSetDetachedStepTrajectoryBuilder = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 5.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetPixelPairCkfTrajectoryFilterForHIGlobalPt8 = cms.PSet( 
   minimumNumberOfHits = cms.int32( 6 ),
@@ -993,7 +1006,8 @@ fragment.HLTPSetPixelPairCkfTrajectoryBuilderForHIGlobalPt8 = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 5.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetPixelPairStepTrajectoryFilterBase = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -1071,7 +1085,8 @@ fragment.HLTPSetPixelPairCkfTrajectoryBuilderForHI = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 5.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetDetachedCkfTrajectoryBuilderForHI = cms.PSet( 
   useSameTrajFilter = cms.bool( True ),
@@ -1095,7 +1110,8 @@ fragment.HLTPSetDetachedCkfTrajectoryBuilderForHI = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 5.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTIter1PSetTrajectoryBuilderIT = cms.PSet( 
   useSameTrajFilter = cms.bool( True ),
@@ -1110,7 +1126,8 @@ fragment.HLTIter1PSetTrajectoryBuilderIT = cms.PSet(
   alwaysUseInvalidHits = cms.bool( False ),
   estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
   intermediateCleaning = cms.bool( True ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetDetachedCkfTrajectoryBuilderForHIGlobalPt8 = cms.PSet( 
   useSameTrajFilter = cms.bool( True ),
@@ -1134,7 +1151,8 @@ fragment.HLTPSetDetachedCkfTrajectoryBuilderForHIGlobalPt8 = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 5.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTSiStripClusterChargeCutForHI = cms.PSet(  value = cms.double( 2069.0 ) )
 fragment.HLTPSetLowPtStepTrajectoryBuilder = cms.PSet( 
@@ -1159,7 +1177,8 @@ fragment.HLTPSetLowPtStepTrajectoryBuilder = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 5.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetMuTrackJpsiEffTrajectoryBuilder = cms.PSet( 
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
@@ -1173,7 +1192,8 @@ fragment.HLTPSetMuTrackJpsiEffTrajectoryBuilder = cms.PSet(
   alwaysUseInvalidHits = cms.bool( False ),
   estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   intermediateCleaning = cms.bool( True ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetTrajectoryFilterForElectrons = cms.PSet( 
   minimumNumberOfHits = cms.int32( 5 ),
@@ -1219,7 +1239,8 @@ fragment.HLTPSetJetCoreStepTrajectoryBuilder = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 5.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetPvClusterComparer = cms.PSet( 
   track_chi2_max = cms.double( 9999999.0 ),
@@ -1238,7 +1259,8 @@ fragment.HLTIter0HighPtTkMuPSetTrajectoryBuilderIT = cms.PSet(
   alwaysUseInvalidHits = cms.bool( True ),
   estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   intermediateCleaning = cms.bool( True ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetPixelLessStepTrajectoryFilterBase = cms.PSet( 
   minimumNumberOfHits = cms.int32( 4 ),
@@ -1281,7 +1303,8 @@ fragment.HLTIter1GroupedCkfTrajectoryBuilderIT = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 5.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetMuonCkfTrajectoryBuilderSeedHit = cms.PSet( 
   rescaleErrorIfFail = cms.double( 1.0 ),
@@ -1300,7 +1323,8 @@ fragment.HLTPSetMuonCkfTrajectoryBuilderSeedHit = cms.PSet(
   updator = cms.string( "hltESPKFUpdator" ),
   deltaEta = cms.double( -1.0 ),
   useSeedLayer = cms.bool( True ),
-  deltaPhi = cms.double( -1.0 )
+  deltaPhi = cms.double( -1.0 ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetPixelPairCkfTrajectoryFilterForHI = cms.PSet( 
   minimumNumberOfHits = cms.int32( 6 ),
@@ -1346,7 +1370,8 @@ fragment.HLTPSetInitialStepTrajectoryBuilder = cms.PSet(
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   minNrOfHitsForRebuild = cms.int32( 1 ),
   maxDPhiForLooperReconstruction = cms.double( 2.0 ),
-  maxPtForLooperReconstruction = cms.double( 0.7 )
+  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetInitialStepTrajectoryFilter = cms.PSet( 
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -1392,7 +1417,8 @@ fragment.HLTPSetLowPtQuadStepTrajectoryBuilder = cms.PSet(
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   minNrOfHitsForRebuild = cms.int32( 5 ),
   maxDPhiForLooperReconstruction = cms.double( 2.0 ),
-  maxPtForLooperReconstruction = cms.double( 0.7 )
+  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetLowPtQuadStepTrajectoryFilter = cms.PSet( 
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -1438,7 +1464,8 @@ fragment.HLTPSetHighPtTripletStepTrajectoryBuilder = cms.PSet(
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   minNrOfHitsForRebuild = cms.int32( 5 ),
   maxDPhiForLooperReconstruction = cms.double( 2.0 ),
-  maxPtForLooperReconstruction = cms.double( 0.7 )
+  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetHighPtTripletStepTrajectoryFilter = cms.PSet( 
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -1484,7 +1511,8 @@ fragment.HLTPSetLowPtTripletStepTrajectoryBuilder = cms.PSet(
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   minNrOfHitsForRebuild = cms.int32( 5 ),
   maxDPhiForLooperReconstruction = cms.double( 2.0 ),
-  maxPtForLooperReconstruction = cms.double( 0.7 )
+  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetLowPtTripletStepTrajectoryFilter = cms.PSet( 
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -1530,7 +1558,8 @@ fragment.HLTPSetDetachedQuadStepTrajectoryBuilder = cms.PSet(
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   minNrOfHitsForRebuild = cms.int32( 5 ),
   maxDPhiForLooperReconstruction = cms.double( 2.0 ),
-  maxPtForLooperReconstruction = cms.double( 0.7 )
+  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetDetachedQuadStepTrajectoryFilter = cms.PSet( 
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -1576,7 +1605,8 @@ fragment.HLTPSetDetachedTripletStepTrajectoryBuilder = cms.PSet(
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   minNrOfHitsForRebuild = cms.int32( 5 ),
   maxDPhiForLooperReconstruction = cms.double( 2.0 ),
-  maxPtForLooperReconstruction = cms.double( 0.7 )
+  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetDetachedTripletStepTrajectoryFilter = cms.PSet( 
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -1622,7 +1652,8 @@ fragment.HLTPSetMixedTripletStepTrajectoryBuilder = cms.PSet(
   propagatorOpposite = cms.string( "PropagatorWithMaterialForMixedStepOpposite" ),
   minNrOfHitsForRebuild = cms.int32( 5 ),
   maxDPhiForLooperReconstruction = cms.double( 2.0 ),
-  maxPtForLooperReconstruction = cms.double( 0.7 )
+  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetMixedTripletStepTrajectoryFilter = cms.PSet( 
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -1668,7 +1699,8 @@ fragment.HLTPSetPixelLessStepTrajectoryBuilder = cms.PSet(
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   minNrOfHitsForRebuild = cms.int32( 4 ),
   maxDPhiForLooperReconstruction = cms.double( 2.0 ),
-  maxPtForLooperReconstruction = cms.double( 0.7 )
+  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetPixelLessStepTrajectoryFilter = cms.PSet( 
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -1758,7 +1790,8 @@ fragment.HLTPSetTobTecStepTrajectoryBuilder = cms.PSet(
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   minNrOfHitsForRebuild = cms.int32( 4 ),
   maxDPhiForLooperReconstruction = cms.double( 2.0 ),
-  maxPtForLooperReconstruction = cms.double( 0.7 )
+  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetGroupedCkfTrajectoryBuilderIterL3ForOI = cms.PSet( 
   rescaleErrorIfFail = cms.double( 1.0 ),
@@ -1785,7 +1818,8 @@ fragment.HLTPSetGroupedCkfTrajectoryBuilderIterL3ForOI = cms.PSet(
   foundHitBonus = cms.double( 1000.0 ),
   propagatorProximity = cms.string( "SteppingHelixPropagatorAny" ),
   updator = cms.string( "hltESPKFUpdator" ),
-  deltaPhi = cms.double( -1.0 )
+  deltaPhi = cms.double( -1.0 ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTIter0IterL3MuonPSetGroupedCkfTrajectoryBuilderIT = cms.PSet( 
   useSameTrajFilter = cms.bool( True ),
@@ -1807,7 +1841,8 @@ fragment.HLTIter0IterL3MuonPSetGroupedCkfTrajectoryBuilderIT = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 1000.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTIter0IterL3FromL1MuonGroupedCkfTrajectoryFilterIT = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -1851,7 +1886,8 @@ fragment.HLTIter0IterL3FromL1MuonPSetGroupedCkfTrajectoryBuilderIT = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 1000.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTIter0IterL3MuonGroupedCkfTrajectoryFilterIT = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -1887,7 +1923,8 @@ fragment.HLTIter2HighPtTkMuPSetTrajectoryBuilderIT = cms.PSet(
   alwaysUseInvalidHits = cms.bool( False ),
   estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   intermediateCleaning = cms.bool( True ),
-  updator = cms.string( "hltESPKFUpdator" )
+  updator = cms.string( "hltESPKFUpdator" ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTIter2IterL3FromL1MuonPSetTrajectoryFilterIT = cms.PSet( 
   minimumNumberOfHits = cms.int32( 5 ),
@@ -1930,7 +1967,8 @@ fragment.HLTIter2IterL3FromL1MuonPSetGroupedCkfTrajectoryBuilderIT = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 1000.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTIter2IterL3MuonPSetTrajectoryFilterIT = cms.PSet( 
   minimumNumberOfHits = cms.int32( 5 ),
@@ -1973,7 +2011,8 @@ fragment.HLTIter2IterL3MuonPSetGroupedCkfTrajectoryBuilderIT = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 1000.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetCkfTrajectoryFilterIterL3OI = cms.PSet( 
   minimumNumberOfHits = cms.int32( 5 ),
@@ -2063,7 +2102,8 @@ fragment.HLTPSetPixelPairStepTrajectoryBuilder = cms.PSet(
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   minNrOfHitsForRebuild = cms.int32( 5 ),
   maxDPhiForLooperReconstruction = cms.double( 2.0 ),
-  maxPtForLooperReconstruction = cms.double( 0.7 )
+  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetTobTecStepTrajectoryBuilderPPOnAA = cms.PSet( 
   useSameTrajFilter = cms.bool( False ),
@@ -2087,7 +2127,8 @@ fragment.HLTPSetTobTecStepTrajectoryBuilderPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetLowPtTripletStepTrajectoryFilterPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -2177,7 +2218,8 @@ fragment.HLTPSetInitialStepTrajectoryBuilderPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetLowPtTripletStepTrajectoryBuilderPPOnAA = cms.PSet( 
   useSameTrajFilter = cms.bool( True ),
@@ -2201,7 +2243,8 @@ fragment.HLTPSetLowPtTripletStepTrajectoryBuilderPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetTobTecStepInOutTrajectoryFilterPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 4 ),
@@ -2269,7 +2312,8 @@ fragment.HLTPSetDetachedTripletStepTrajectoryBuilderPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetHighPtTripletStepTrajectoryBuilderPPOnAA = cms.PSet( 
   useSameTrajFilter = cms.bool( True ),
@@ -2293,7 +2337,8 @@ fragment.HLTPSetHighPtTripletStepTrajectoryBuilderPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetDetachedTripletStepTrajectoryFilterPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -2339,7 +2384,8 @@ fragment.HLTPSetInitialStepTrajectoryBuilderPreSplittingPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetLowPtQuadStepTrajectoryFilterPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -2385,7 +2431,8 @@ fragment.HLTPSetJetCoreStepTrajectoryBuilderPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetMixedTripletStepTrajectoryFilterPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -2460,7 +2507,8 @@ fragment.HLTPSetMixedTripletStepTrajectoryBuilderPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetHighPtTripletStepTrajectoryFilterPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -2506,7 +2554,8 @@ fragment.HLTPSetLowPtQuadStepTrajectoryBuilderPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetPixelLessStepTrajectoryBuilderPPOnAA = cms.PSet( 
   useSameTrajFilter = cms.bool( True ),
@@ -2530,7 +2579,8 @@ fragment.HLTPSetPixelLessStepTrajectoryBuilderPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTSiStripClusterChargeCutLoose = cms.PSet(  value = cms.double( 1620.0 ) )
 fragment.HLTPSetDetachedQuadStepTrajectoryBuilderPPOnAA = cms.PSet( 
@@ -2555,7 +2605,8 @@ fragment.HLTPSetDetachedQuadStepTrajectoryBuilderPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetInitialStepTrajectoryFilterShapePreSplittingPPOnAA = cms.PSet( 
   ComponentType = cms.string( "StripSubClusterShapeTrajectoryFilter" ),
@@ -2709,7 +2760,8 @@ fragment.HLTPSetPixelPairStepTrajectoryBuilderPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetInitialStepTrajectoryFilterBasePreSplittingForFullTrackingPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 4 ),
@@ -2755,7 +2807,8 @@ fragment.HLTPSetInitialStepTrajectoryBuilderPreSplittingForFullTrackingPPOnAA = 
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetInitialStepTrajectoryFilterPreSplittingForFullTrackingPPOnAA = cms.PSet( 
   ComponentType = cms.string( "CompositeTrajectoryFilter" ),
@@ -2808,7 +2861,8 @@ fragment.HLTPSetInitialStepTrajectoryBuilderForFullTrackingPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetLowPtQuadStepTrajectoryFilterForFullTrackingPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -2854,7 +2908,8 @@ fragment.HLTPSetLowPtQuadStepTrajectoryBuilderForFullTrackingPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetHighPtTripletStepTrajectoryFilterForFullTrackingPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -2899,7 +2954,8 @@ fragment.HLTPSetHighPtTripletStepTrajectoryBuilderForFullTrackingPPOnAA = cms.PS
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetLowPtTripletStepTrajectoryFilterForFullTrackingPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -2945,7 +3001,8 @@ fragment.HLTPSetLowPtTripletStepTrajectoryBuilderForFullTrackingPPOnAA = cms.PSe
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetDetachedQuadStepTrajectoryFilterForFullTrackingPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -3035,7 +3092,8 @@ fragment.HLTPSetPixelPairStepTrajectoryBuilderForFullTrackingPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetMixedTripletStepTrajectoryFilterForFullTrackingPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -3103,7 +3161,8 @@ fragment.HLTPSetPixelLessStepTrajectoryBuilderForFullTrackingPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetTobTecStepTrajectoryFilterForFullTrackingPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 5 ),
@@ -3171,7 +3230,8 @@ fragment.HLTPSetTobTecStepTrajectoryBuilderForFullTrackingPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetJetCoreStepTrajectoryFilterForFullTrackingPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 4 ),
@@ -3217,7 +3277,8 @@ fragment.HLTPSetJetCoreStepTrajectoryBuilderForFullTrackingPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetPixelPairStepTrajectoryFilterInOutForFullTrackingPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 4 ),
@@ -3263,7 +3324,8 @@ fragment.HLTPSetMixedTripletStepTrajectoryBuilderForFullTrackingPPOnAA = cms.PSe
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetDetachedQuadStepTrajectoryBuilderForFullTrackingPPOnAA = cms.PSet( 
   useSameTrajFilter = cms.bool( True ),
@@ -3287,7 +3349,8 @@ fragment.HLTPSetDetachedQuadStepTrajectoryBuilderForFullTrackingPPOnAA = cms.PSe
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetDetachedTripletStepTrajectoryBuilderForFullTrackingPPOnAA = cms.PSet( 
   useSameTrajFilter = cms.bool( True ),
@@ -3311,7 +3374,8 @@ fragment.HLTPSetDetachedTripletStepTrajectoryBuilderForFullTrackingPPOnAA = cms.
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetInitialStepTrajectoryFilterBasePreSplittingForDmesonPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 4 ),
@@ -3379,7 +3443,8 @@ fragment.HLTPSetInitialStepTrajectoryBuilderForDmesonPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetLowPtQuadStepTrajectoryFilterForDmesonPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -3425,7 +3490,8 @@ fragment.HLTPSetLowPtQuadStepTrajectoryBuilderForDmesonPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetHighPtTripletStepTrajectoryFilterForDmesonPPOnAA = cms.PSet( 
   minimumNumberOfHits = cms.int32( 3 ),
@@ -3470,7 +3536,8 @@ fragment.HLTPSetHighPtTripletStepTrajectoryBuilderForDmesonPPOnAA = cms.PSet(
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.HLTPSetInitialStepTrajectoryFilterPreSplittingForDmesonPPOnAA = cms.PSet( 
   ComponentType = cms.string( "CompositeTrajectoryFilter" ),
@@ -3501,7 +3568,8 @@ fragment.HLTPSetInitialStepTrajectoryBuilderPreSplittingForDmesonPPOnAA = cms.PS
   intermediateCleaning = cms.bool( True ),
   foundHitBonus = cms.double( 10.0 ),
   updator = cms.string( "hltESPKFUpdator" ),
-  bestHitOnly = cms.bool( True )
+  bestHitOnly = cms.bool( True ),
+  seedAs5DHit = cms.bool( False )
 )
 fragment.streams = cms.PSet( 
   ALCALUMIPIXELS = cms.vstring( 'AlCaLumiPixels' ),
@@ -4874,7 +4942,7 @@ fragment.hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
   LoadTemplatesFromDB = cms.bool( True ),
   ComponentName = cms.string( "hltESPPixelCPEGeneric" ),
   MagneticFieldRecord = cms.ESInputTag( "" ),
-  IrradiationBiasCorrection = cms.bool( False )
+  IrradiationBiasCorrection = cms.bool( True )
 )
 fragment.hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProducer",
   DoLorentz = cms.bool( True ),
@@ -5349,26 +5417,26 @@ fragment.hltGtStage2Digis = cms.EDProducer( "L1TRawToDigi",
 )
 fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     L1DataBxInEvent = cms.int32( 5 ),
-    JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
-    EmulateBxInEvent = cms.int32( 1 ),
-    AlgorithmTriggersUnprescaled = cms.bool( True ),
-    PrintL1Menu = cms.untracked.bool( False ),
-    PrescaleCSVFile = cms.string( "prescale_L1TGlobal.csv" ),
-    Verbosity = cms.untracked.int32( 0 ),
-    AlgoBlkInputTag = cms.InputTag( "hltGtStage2Digis" ),
     EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
-    ProduceL1GtDaqRecord = cms.bool( True ),
-    PrescaleSet = cms.uint32( 1 ),
-    ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
-    EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
-    TriggerMenuLuminosity = cms.string( "startup" ),
-    ProduceL1GtObjectMapRecord = cms.bool( True ),
-    AlternativeNrBxBoardDaq = cms.uint32( 0 ),
-    GetPrescaleColumnFromData = cms.bool( False ),
-    TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
     BstLengthBytes = cms.int32( -1 ),
-    MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+    MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    AlgorithmTriggersUnprescaled = cms.bool( True ),
+    AlternativeNrBxBoardDaq = cms.uint32( 0 ),
+    JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    EmulateBxInEvent = cms.int32( 1 ),
+    Verbosity = cms.untracked.int32( 0 ),
+    ProduceL1GtDaqRecord = cms.bool( True ),
+    TriggerMenuLuminosity = cms.string( "startup" ),
+    PrescaleCSVFile = cms.string( "prescale_L1TGlobal.csv" ),
+    PrintL1Menu = cms.untracked.bool( False ),
+    ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
+    AlgoBlkInputTag = cms.InputTag( "hltGtStage2Digis" ),
+    PrescaleSet = cms.uint32( 1 ),
+    EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    ProduceL1GtObjectMapRecord = cms.bool( True ),
+    GetPrescaleColumnFromData = cms.bool( False ),
+    TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' )
 )
 fragment.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
@@ -5410,10 +5478,10 @@ fragment.hltEcalDigis = cms.EDProducer( "EcalRawToDigi",
     InputLabel = cms.InputTag( "rawDataCollector" ),
     numbXtalTSamples = cms.int32( 10 ),
     feIdCheck = cms.bool( True ),
-    FEDs = cms.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
+    forceToKeepFRData = cms.bool( False ),
     silentMode = cms.untracked.bool( True ),
     DoRegional = cms.bool( False ),
-    forceToKeepFRData = cms.bool( False ),
+    FEDs = cms.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     memUnpacking = cms.bool( True )
 )
 fragment.hltEcalUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
@@ -5584,12 +5652,12 @@ fragment.hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     UnpackCalib = cms.untracked.bool( True ),
     UnpackUMNio = cms.untracked.bool( True ),
     FEDs = cms.untracked.vint32(  ),
-    saveQIE11DataTags = cms.untracked.vstring(  ),
+    UnpackerMode = cms.untracked.int32( 0 ),
     UnpackTTP = cms.untracked.bool( False ),
     UnpackZDC = cms.untracked.bool( True ),
     saveQIE10DataTags = cms.untracked.vstring(  ),
     lastSample = cms.int32( 9 ),
-    UnpackerMode = cms.untracked.int32( 0 ),
+    saveQIE11DataTags = cms.untracked.vstring(  ),
     firstSample = cms.int32( 0 )
 )
 fragment.hltHbhePhase1Reco = cms.EDProducer( "HBHEPhase1Reconstructor",
@@ -5907,9 +5975,9 @@ fragment.hltAK4CaloJetsPF = cms.EDProducer( "FastjetJetProducer",
     restrictInputs = cms.bool( False ),
     useDynamicFiltering = cms.bool( False ),
     nExclude = cms.uint32( 0 ),
+    yMin = cms.double( -1.0 ),
     maxRecoveredHcalCells = cms.uint32( 9999999 ),
     maxBadEcalCells = cms.uint32( 9999999 ),
-    yMin = cms.double( -1.0 ),
     jetCollInstanceName = cms.string( "" ),
     useFiltering = cms.bool( False ),
     maxInputs = cms.uint32( 1 ),
@@ -6103,7 +6171,6 @@ fragment.hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     XTasymmetry_ME41 = cms.double( 0.0 ),
     NoiseLevel_ME32 = cms.double( 9.0 ),
     NoiseLevel_ME31 = cms.double( 9.0 ),
-    CSCStripClusterChargeCut = cms.double( 25.0 ),
     ConstSyst_ME1b = cms.double( 0.007 ),
     CSCStripClusterSize = cms.untracked.int32( 3 ),
     CSCStripPeakThreshold = cms.double( 10.0 ),
@@ -6117,9 +6184,10 @@ fragment.hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     CSCDebug = cms.untracked.bool( False ),
     CSCUseGasGainCorrections = cms.bool( False ),
     XTasymmetry_ME31 = cms.double( 0.0 ),
+    NoiseLevel_ME1a = cms.double( 7.0 ),
     XTasymmetry_ME32 = cms.double( 0.0 ),
     UseAverageTime = cms.bool( False ),
-    NoiseLevel_ME1a = cms.double( 7.0 ),
+    CSCStripClusterChargeCut = cms.double( 25.0 ),
     NoiseLevel_ME1b = cms.double( 8.0 ),
     CSCWireClusterDeltaT = cms.int32( 1 ),
     CSCUseStaticPedestals = cms.bool( False ),
@@ -6795,10 +6863,10 @@ fragment.hltL2SelectorForL3IO = cms.EDProducer( "HLTMuonL2SelectorForL3IO",
     l2Src = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
 )
 fragment.hltIterL3MuonPixelTracksFilter = cms.EDProducer( "PixelTrackFilterByKinematicsProducer",
-    chi2 = cms.double( 1000.0 ),
     nSigmaTipMaxTolerance = cms.double( 0.0 ),
-    ptMin = cms.double( 0.1 ),
+    chi2 = cms.double( 1000.0 ),
     nSigmaInvPtTolerance = cms.double( 0.0 ),
+    ptMin = cms.double( 0.1 ),
     tipMax = cms.double( 1.0 )
 )
 fragment.hltIterL3MuonPixelTracksFitter = cms.EDProducer( "PixelFitterByHelixProjectionsProducer",
@@ -6876,7 +6944,7 @@ fragment.hltIterL3MuonPixelTracksHitDoublets = cms.EDProducer( "HitPairEDProduce
     seedingLayers = cms.InputTag( "hltIterL3MuonPixelLayerQuadruplets" )
 )
 fragment.hltIterL3MuonPixelTracksHitQuadruplets = cms.EDProducer( "CAHitQuadrupletEDProducer",
-    CAThetaCut = cms.double( 0.005 ),
+    CAHardPtCut = cms.double( 0.0 ),
     SeedComparitorPSet = cms.PSet( 
       clusterShapeHitFilter = cms.string( "ClusterShapeHitFilter" ),
       ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
@@ -6885,7 +6953,7 @@ fragment.hltIterL3MuonPixelTracksHitQuadruplets = cms.EDProducer( "CAHitQuadrupl
     extraHitRPhitolerance = cms.double( 0.032 ),
     doublets = cms.InputTag( "hltIterL3MuonPixelTracksHitDoublets" ),
     fitFastCircle = cms.bool( True ),
-    CAHardPtCut = cms.double( 0.0 ),
+    CAThetaCut = cms.double( 0.005 ),
     maxChi2 = cms.PSet( 
       value2 = cms.double( 50.0 ),
       value1 = cms.double( 200.0 ),
@@ -6898,10 +6966,10 @@ fragment.hltIterL3MuonPixelTracksHitQuadruplets = cms.EDProducer( "CAHitQuadrupl
     fitFastCircleChi2Cut = cms.bool( True )
 )
 fragment.hltIterL3MuonPixelTracks = cms.EDProducer( "PixelTrackProducer",
-    Filter = cms.InputTag( "hltIterL3MuonPixelTracksFilter" ),
     Cleaner = cms.string( "hltPixelTracksCleanerBySharedHits" ),
     passLabel = cms.string( "" ),
     Fitter = cms.InputTag( "hltIterL3MuonPixelTracksFitter" ),
+    Filter = cms.InputTag( "hltIterL3MuonPixelTracksFilter" ),
     SeedingHitSets = cms.InputTag( "hltIterL3MuonPixelTracksHitQuadruplets" )
 )
 fragment.hltIterL3MuonPixelVertices = cms.EDProducer( "PixelVertexProducer",
@@ -6919,11 +6987,11 @@ fragment.hltIterL3MuonPixelVertices = cms.EDProducer( "PixelVertexProducer",
     ZSeparation = cms.double( 0.05 )
 )
 fragment.hltIterL3MuonTrimmedPixelVertices = cms.EDProducer( "PixelVertexCollectionTrimmer",
+    src = cms.InputTag( "hltIterL3MuonPixelVertices" ),
+    fractionSumPt2 = cms.double( 0.3 ),
     minSumPt2 = cms.double( 0.0 ),
     PVcomparer = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPvClusterComparerForIT" ) ),
-    maxVtx = cms.uint32( 100 ),
-    fractionSumPt2 = cms.double( 0.3 ),
-    src = cms.InputTag( "hltIterL3MuonPixelVertices" )
+    maxVtx = cms.uint32( 100 )
 )
 fragment.hltIter0IterL3MuonPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
     useEventsWithNoVertex = cms.bool( True ),
@@ -7585,8 +7653,8 @@ fragment.hltL1MuonsPt0 = cms.EDProducer( "HLTL1TMuonSelector",
     L1MinPt = cms.double( -1.0 ),
     CentralBxOnly = cms.bool( True ),
     InputObjects = cms.InputTag( 'hltGtStage2Digis','Muon' ),
-    L1MinQuality = cms.uint32( 7 ),
-    L1MaxEta = cms.double( 5.0 )
+    L1MaxEta = cms.double( 5.0 ),
+    L1MinQuality = cms.uint32( 7 )
 )
 fragment.hltIterL3FromL1MuonPixelTracksTrackingRegions = cms.EDProducer( "CandidateSeededTrackingRegionsEDProducer",
     RegionPSet = cms.PSet( 
@@ -7653,7 +7721,7 @@ fragment.hltIterL3FromL1MuonPixelTracksHitDoublets = cms.EDProducer( "HitPairEDP
     seedingLayers = cms.InputTag( "hltIterL3FromL1MuonPixelLayerQuadruplets" )
 )
 fragment.hltIterL3FromL1MuonPixelTracksHitQuadruplets = cms.EDProducer( "CAHitQuadrupletEDProducer",
-    CAThetaCut = cms.double( 0.005 ),
+    CAHardPtCut = cms.double( 0.0 ),
     SeedComparitorPSet = cms.PSet( 
       clusterShapeHitFilter = cms.string( "ClusterShapeHitFilter" ),
       ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
@@ -7662,7 +7730,7 @@ fragment.hltIterL3FromL1MuonPixelTracksHitQuadruplets = cms.EDProducer( "CAHitQu
     extraHitRPhitolerance = cms.double( 0.032 ),
     doublets = cms.InputTag( "hltIterL3FromL1MuonPixelTracksHitDoublets" ),
     fitFastCircle = cms.bool( True ),
-    CAHardPtCut = cms.double( 0.0 ),
+    CAThetaCut = cms.double( 0.005 ),
     maxChi2 = cms.PSet( 
       value2 = cms.double( 50.0 ),
       value1 = cms.double( 200.0 ),
@@ -7675,10 +7743,10 @@ fragment.hltIterL3FromL1MuonPixelTracksHitQuadruplets = cms.EDProducer( "CAHitQu
     fitFastCircleChi2Cut = cms.bool( True )
 )
 fragment.hltIterL3FromL1MuonPixelTracks = cms.EDProducer( "PixelTrackProducer",
-    Filter = cms.InputTag( "hltIterL3MuonPixelTracksFilter" ),
     Cleaner = cms.string( "hltPixelTracksCleanerBySharedHits" ),
     passLabel = cms.string( "" ),
     Fitter = cms.InputTag( "hltIterL3MuonPixelTracksFitter" ),
+    Filter = cms.InputTag( "hltIterL3MuonPixelTracksFilter" ),
     SeedingHitSets = cms.InputTag( "hltIterL3FromL1MuonPixelTracksHitQuadruplets" )
 )
 fragment.hltIterL3FromL1MuonPixelVertices = cms.EDProducer( "PixelVertexProducer",
@@ -7696,11 +7764,11 @@ fragment.hltIterL3FromL1MuonPixelVertices = cms.EDProducer( "PixelVertexProducer
     ZSeparation = cms.double( 0.05 )
 )
 fragment.hltIterL3FromL1MuonTrimmedPixelVertices = cms.EDProducer( "PixelVertexCollectionTrimmer",
+    src = cms.InputTag( "hltIterL3FromL1MuonPixelVertices" ),
+    fractionSumPt2 = cms.double( 0.3 ),
     minSumPt2 = cms.double( 0.0 ),
     PVcomparer = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPvClusterComparerForIT" ) ),
-    maxVtx = cms.uint32( 100 ),
-    fractionSumPt2 = cms.double( 0.3 ),
-    src = cms.InputTag( "hltIterL3FromL1MuonPixelVertices" )
+    maxVtx = cms.uint32( 100 )
 )
 fragment.hltIter0IterL3FromL1MuonPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
     useEventsWithNoVertex = cms.bool( True ),
@@ -8669,18 +8737,18 @@ fragment.hltIterL3MuonsNoID = cms.EDProducer( "MuonIdProducer",
 )
 fragment.hltIterL3Muons = cms.EDProducer( "MuonIDFilterProducerForHLT",
     maxNormalizedChi2 = cms.double( 9999.0 ),
-    minPt = cms.double( 0.0 ),
-    applyTriggerIdLoose = cms.bool( True ),
     minNMuonHits = cms.int32( 0 ),
+    applyTriggerIdLoose = cms.bool( True ),
     minPixHits = cms.int32( 0 ),
     requiredTypeMask = cms.uint32( 0 ),
     minNMuonStations = cms.int32( 0 ),
     minPixLayer = cms.int32( 0 ),
+    typeMuon = cms.uint32( 0 ),
     minNTrkLayers = cms.int32( 0 ),
     minTrkHits = cms.int32( 0 ),
     inputMuonCollection = cms.InputTag( "hltIterL3MuonsNoID" ),
     allowedTypeMask = cms.uint32( 0 ),
-    typeMuon = cms.uint32( 0 )
+    minPt = cms.double( 0.0 )
 )
 fragment.hltL3MuonsIterL3Links = cms.EDProducer( "MuonLinksProducer",
     inputCollection = cms.InputTag( "hltIterL3Muons" )
@@ -8697,10 +8765,10 @@ fragment.hltIterL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducerFromM
     InputObjects = cms.InputTag( "hltIterL3Muons" )
 )
 fragment.hltPixelTracksFilter = cms.EDProducer( "PixelTrackFilterByKinematicsProducer",
-    chi2 = cms.double( 1000.0 ),
     nSigmaTipMaxTolerance = cms.double( 0.0 ),
-    ptMin = cms.double( 0.1 ),
+    chi2 = cms.double( 1000.0 ),
     nSigmaInvPtTolerance = cms.double( 0.0 ),
+    ptMin = cms.double( 0.1 ),
     tipMax = cms.double( 1.0 )
 )
 fragment.hltPixelTracksFitter = cms.EDProducer( "PixelFitterByHelixProjectionsProducer",
@@ -8759,7 +8827,7 @@ fragment.hltPixelTracksHitDoublets = cms.EDProducer( "HitPairEDProducer",
     seedingLayers = cms.InputTag( "hltPixelLayerQuadruplets" )
 )
 fragment.hltPixelTracksHitQuadruplets = cms.EDProducer( "CAHitQuadrupletEDProducer",
-    CAThetaCut = cms.double( 0.002 ),
+    CAHardPtCut = cms.double( 0.0 ),
     SeedComparitorPSet = cms.PSet( 
       clusterShapeHitFilter = cms.string( "ClusterShapeHitFilter" ),
       ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
@@ -8768,7 +8836,7 @@ fragment.hltPixelTracksHitQuadruplets = cms.EDProducer( "CAHitQuadrupletEDProduc
     extraHitRPhitolerance = cms.double( 0.032 ),
     doublets = cms.InputTag( "hltPixelTracksHitDoublets" ),
     fitFastCircle = cms.bool( True ),
-    CAHardPtCut = cms.double( 0.0 ),
+    CAThetaCut = cms.double( 0.002 ),
     maxChi2 = cms.PSet( 
       value2 = cms.double( 50.0 ),
       value1 = cms.double( 200.0 ),
@@ -8781,10 +8849,10 @@ fragment.hltPixelTracksHitQuadruplets = cms.EDProducer( "CAHitQuadrupletEDProduc
     fitFastCircleChi2Cut = cms.bool( True )
 )
 fragment.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
-    Filter = cms.InputTag( "hltPixelTracksFilter" ),
     Cleaner = cms.string( "hltPixelTracksCleanerBySharedHits" ),
     passLabel = cms.string( "" ),
     Fitter = cms.InputTag( "hltPixelTracksFitter" ),
+    Filter = cms.InputTag( "hltPixelTracksFilter" ),
     SeedingHitSets = cms.InputTag( "hltPixelTracksHitQuadruplets" )
 )
 fragment.hltPixelVertices = cms.EDProducer( "PixelVertexProducer",
@@ -8802,11 +8870,11 @@ fragment.hltPixelVertices = cms.EDProducer( "PixelVertexProducer",
     ZSeparation = cms.double( 0.05 )
 )
 fragment.hltTrimmedPixelVertices = cms.EDProducer( "PixelVertexCollectionTrimmer",
+    src = cms.InputTag( "hltPixelVertices" ),
+    fractionSumPt2 = cms.double( 0.3 ),
     minSumPt2 = cms.double( 0.0 ),
     PVcomparer = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPvClusterComparerForIT" ) ),
-    maxVtx = cms.uint32( 100 ),
-    fractionSumPt2 = cms.double( 0.3 ),
-    src = cms.InputTag( "hltPixelVertices" )
+    maxVtx = cms.uint32( 100 )
 )
 fragment.hltIter0PFLowPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
     useEventsWithNoVertex = cms.bool( True ),
@@ -8984,7 +9052,7 @@ fragment.hltIter1PFlowPixelHitDoublets = cms.EDProducer( "HitPairEDProducer",
     seedingLayers = cms.InputTag( "hltIter1PixelLayerQuadruplets" )
 )
 fragment.hltIter1PFlowPixelHitQuadruplets = cms.EDProducer( "CAHitQuadrupletEDProducer",
-    CAThetaCut = cms.double( 0.004 ),
+    CAHardPtCut = cms.double( 0.0 ),
     SeedComparitorPSet = cms.PSet( 
       clusterShapeHitFilter = cms.string( "ClusterShapeHitFilter" ),
       ComponentName = cms.string( "none" ),
@@ -8993,7 +9061,7 @@ fragment.hltIter1PFlowPixelHitQuadruplets = cms.EDProducer( "CAHitQuadrupletEDPr
     extraHitRPhitolerance = cms.double( 0.032 ),
     doublets = cms.InputTag( "hltIter1PFlowPixelHitDoublets" ),
     fitFastCircle = cms.bool( True ),
-    CAHardPtCut = cms.double( 0.0 ),
+    CAThetaCut = cms.double( 0.004 ),
     maxChi2 = cms.PSet( 
       value2 = cms.double( 100.0 ),
       value1 = cms.double( 1000.0 ),
@@ -9006,10 +9074,10 @@ fragment.hltIter1PFlowPixelHitQuadruplets = cms.EDProducer( "CAHitQuadrupletEDPr
     fitFastCircleChi2Cut = cms.bool( True )
 )
 fragment.hltIter1PixelTracks = cms.EDProducer( "PixelTrackProducer",
-    Filter = cms.InputTag( "hltPixelTracksFilter" ),
     Cleaner = cms.string( "hltPixelTracksCleanerBySharedHits" ),
     passLabel = cms.string( "" ),
     Fitter = cms.InputTag( "hltPixelTracksFitter" ),
+    Filter = cms.InputTag( "hltPixelTracksFilter" ),
     SeedingHitSets = cms.InputTag( "hltIter1PFlowPixelHitQuadruplets" )
 )
 fragment.hltIter1PFLowPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
@@ -9197,9 +9265,9 @@ fragment.hltAK4Iter1TrackJets4Iter2 = cms.EDProducer( "FastjetJetProducer",
     restrictInputs = cms.bool( False ),
     useDynamicFiltering = cms.bool( False ),
     nExclude = cms.uint32( 0 ),
+    yMin = cms.double( -1.0 ),
     maxRecoveredHcalCells = cms.uint32( 9999999 ),
     maxBadEcalCells = cms.uint32( 9999999 ),
-    yMin = cms.double( -1.0 ),
     jetCollInstanceName = cms.string( "" ),
     useFiltering = cms.bool( False ),
     maxInputs = cms.uint32( 1 ),
@@ -9936,9 +10004,9 @@ fragment.hltAK4CaloJets = cms.EDProducer( "FastjetJetProducer",
     restrictInputs = cms.bool( False ),
     useDynamicFiltering = cms.bool( False ),
     nExclude = cms.uint32( 0 ),
+    yMin = cms.double( -1.0 ),
     maxRecoveredHcalCells = cms.uint32( 9999999 ),
     maxBadEcalCells = cms.uint32( 9999999 ),
-    yMin = cms.double( -1.0 ),
     jetCollInstanceName = cms.string( "" ),
     useFiltering = cms.bool( False ),
     maxInputs = cms.uint32( 1 ),
@@ -10051,10 +10119,10 @@ fragment.hltHT80 = cms.EDFilter( "HLTHtMhtFilter",
     saveTags = cms.bool( True ),
     mhtLabels = cms.VInputTag( 'hltHtMht' ),
     meffSlope = cms.vdouble( 1.0 ),
-    minMeff = cms.vdouble( 0.0 ),
+    minHt = cms.vdouble( 80.0 ),
     minMht = cms.vdouble( 0.0 ),
     htLabels = cms.VInputTag( 'hltHtMht' ),
-    minHt = cms.vdouble( 80.0 )
+    minMeff = cms.vdouble( 0.0 )
 )
 fragment.hltPreHIZeroBiaspart0 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -10120,11 +10188,11 @@ fragment.hltPreAlCaHIEcalPi0EBonly = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltEcalPreshowerDigis = cms.EDProducer( "ESRawToDigi",
-    sourceTag = cms.InputTag( "rawDataCollector" ),
-    debugMode = cms.untracked.bool( False ),
-    InstanceES = cms.string( "" ),
     ESdigiCollection = cms.string( "" ),
-    LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" )
+    InstanceES = cms.string( "" ),
+    LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ),
+    sourceTag = cms.InputTag( "rawDataCollector" ),
+    debugMode = cms.untracked.bool( False )
 )
 fragment.hltEcalPreshowerRecHit = cms.EDProducer( "ESRecHitProducer",
     ESRecoAlgo = cms.int32( 0 ),
@@ -10686,8 +10754,8 @@ fragment.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
 fragment.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     moduleLabelPatternsToSkip = cms.vstring(  ),
     processName = cms.string( "@" ),
-    moduleLabelPatternsToMatch = cms.vstring( 'hlt*' ),
-    throw = cms.bool( False )
+    throw = cms.bool( False ),
+    moduleLabelPatternsToMatch = cms.vstring( 'hlt*' )
 )
 fragment.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
@@ -10705,8 +10773,8 @@ fragment.hltL1TGlobalSummary = cms.EDAnalyzer( "L1TGlobalSummary",
     AlgInputTag = cms.InputTag( "hltGtStage2Digis" ),
     MinBx = cms.int32( 0 ),
     psColumn = cms.int32( 0 ),
-    DumpTrigResults = cms.bool( False ),
-    DumpTrigSummary = cms.bool( True )
+    DumpTrigSummary = cms.bool( True ),
+    DumpTrigResults = cms.bool( False )
 )
 fragment.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     ReferencePath = cms.untracked.string( "HLTriggerFinalPath" ),

@@ -3,9 +3,9 @@
 
 // -*- C++ -*-
 //
-// Package:    DetectorDescription/DDFilteredView
+// Package:    DetectorDescription/Core
 // Class:      DDFilteredView
-// 
+//
 /**\class DDFilteredView
 
  Description: Filtered View of a Tree
@@ -35,31 +35,29 @@ namespace cms {
   using Filter = cms::Filter;
   using Iterator = TGeoIterator;
   using Node = TGeoNode;
-  
-  class DDFilteredView {
 
+  class DDFilteredView {
   public:
-    
     DDFilteredView(const DDDetector*, const Volume);
     DDFilteredView() = delete;
-    
+
     //! The numbering history of the current node
-    const ExpandedNodes& history() const {
-      return nodes_;
-    }
-    
+    const ExpandedNodes& history() const { return nodes_; }
+
     //! The physical volume of the current node
     const PlacedVolume volume() const;
-    
+
     //! The absolute translation of the current node
+    // Return value is Double_t translation[3] with x, y, z elements.
     const Double_t* trans() const;
-    
+
     //! The absolute rotation of the current node
     const Double_t* rot() const;
+    void rot(dd4hep::Rotation3D& matrixOut) const;
 
     //! User specific data
     void mergedSpecifics(DDSpecParRefs const&);
-    
+
     //! set the current node to the first child
     bool firstChild();
 
@@ -72,10 +70,10 @@ namespace cms {
     //! set the current node to the next sub sibling
     bool sibling();
     bool siblingNoCheck();
-    
+
     //! count the number of children matching selection
     bool checkChild();
-    
+
     //! set the current node to the parent node ...
     bool parent();
 
@@ -87,26 +85,55 @@ namespace cms {
 
     //! set current node to the parent node in the filtered tree
     void up();
-   
+
     //! pop current node
     void unCheckNode();
+
+    // Shape of current node
+    bool isABox() const;
+    bool isAConeSeg() const;
+    bool isAPseudoTrap() const;
+    bool isATrapezoid() const;
+    bool isATruncTube() const;
+    bool isATubeSeg() const;
+
+    // Get shape pointer of current node.
+    // Caller must check that current node matches desired type
+    // before calling this function.
+
+    template <class T>
+    const T* getShapePtr() const {
+      Volume currVol = node_->GetVolume();
+      return (dynamic_cast<T*>(currVol->GetShape()));
+    }
+
+    dd4hep::Solid solid() const;
+
+    // Name of current node
+    std::string_view name() const;
+
+    // Copy number of current node
+    unsigned short copyNum() const;
+
+    // Material name of current node
+    std::string_view materialName() const;
 
     //! extract shape parameters
     std::vector<double> extractParameters() const;
 
   private:
-    
     bool accept(std::string_view);
     bool addPath(Node* const);
     bool addNode(Node* const);
-    
+    const TClass* getShape() const;
+
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;
     std::vector<std::unique_ptr<Filter>> filters_;
     Filter* currentFilter_ = nullptr;
-    Node *node_ = nullptr;
+    Node* node_ = nullptr;
     const DDSpecParRegistry* registry_;
   };
-}
+}  // namespace cms
 
 #endif

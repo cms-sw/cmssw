@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <fstream>
@@ -37,11 +38,13 @@
 #include <map>
 #include <TTree.h>
 
-class DQMStore;
 class SiStripDetCabling;
 
-class SiStripOfflineDQM: public edm::EDAnalyzer {
+class SiStripOfflineDQM : public edm::EDAnalyzer {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripOfflineDQM(edm::ParameterSet const& ps);
 
 private:

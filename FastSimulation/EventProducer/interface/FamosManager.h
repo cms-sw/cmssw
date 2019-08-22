@@ -9,12 +9,12 @@ namespace HepMC {
   class GenEvent;
 }
 
-namespace edm { 
+namespace edm {
   class ParameterSet;
   class EventSetup;
   class Run;
   class HepMCProduct;
-}
+}  // namespace edm
 
 class FSimEvent;
 class TrajectoryManager;
@@ -26,50 +26,42 @@ class TrackerTopology;
 
 // using trailing _ for private data members, m_p prefix for PSet variables (MSt)
 
-class FamosManager
-{
- public:
-
-
+class FamosManager {
+public:
   /// Constructor
-  FamosManager(edm::ParameterSet const & p);
+  FamosManager(edm::ParameterSet const& p);
 
   /// Destructor
   ~FamosManager();
 
   /// Get information from the Event Setup
-  void setupGeometryAndField(edm::Run const& run, const edm::EventSetup & es);
+  void setupGeometryAndField(edm::Run const& run, const edm::EventSetup& es);
 
-  /// The simulated event 
+  /// The simulated event
   FSimEvent* simEvent() const { return mySimEvent; }
 
   /// The real thing is done here
-  void reconstruct(const HepMC::GenEvent* evt, 
-		   const TrackerTopology *tTopo,
-                   RandomEngineAndDistribution const*);
-  
-  /// The tracker 
-  TrajectoryManager * trackerManager() const {return myTrajectoryManager;}
+  void reconstruct(const HepMC::GenEvent* evt, const TrackerTopology* tTopo, RandomEngineAndDistribution const*);
 
-  /// The calorimeter 
-  CalorimetryManager * calorimetryManager() const {return myCalorimetry;}
-  
-  
- private:   
+  /// The tracker
+  TrajectoryManager* trackerManager() const { return myTrajectoryManager; }
 
+  /// The calorimeter
+  CalorimetryManager* calorimetryManager() const { return myCalorimetry; }
+
+private:
   int iEvent;
   //  const HepMC::GenEvent* myGenEvent;
   FSimEvent* mySimEvent;
   TrajectoryManager* myTrajectoryManager;
-  CalorimetryManager * myCalorimetry;
+  CalorimetryManager* myCalorimetry;
 
- private:
-
+private:
   bool m_pUseMagneticField;
   bool m_Tracking;
   bool m_Calorimetry;
   bool m_Alignment;
-  double weight_;    
+  double weight_;
   int m_pRunNumber;
   int m_pVerbose;
 };

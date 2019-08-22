@@ -31,7 +31,6 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <algorithm>
 #include <cmath>
 #include <ostream>

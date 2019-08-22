@@ -11,20 +11,18 @@
 #include <cstdint>
 
 class BscNumberingScheme {
-  
 public:
   BscNumberingScheme();
   ~BscNumberingScheme() = default;
-  
+
   unsigned int getUnitID(const G4Step* aStep) const;
-  
+
   // Utilities to get detector levels during a step
-  int  detectorLevel(const G4Step*) const;
+  int detectorLevel(const G4Step*) const;
   void detectorLevel(const G4Step*, int&, int*, G4String*) const;
 
-  static unsigned int packBscIndex(int det, int zside, int station);  
+  static unsigned int packBscIndex(int det, int zside, int station);
   static void unpackBscIndex(const unsigned int& idx);
-  
 };
 
 #endif

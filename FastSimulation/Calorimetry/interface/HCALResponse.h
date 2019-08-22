@@ -13,24 +13,23 @@
 
 //define multidimensional vector types
 typedef std::vector<double> vec1;
-typedef std::vector<vec1>   vec2;
-typedef std::vector<vec2>   vec3;
-typedef std::vector<vec3>   vec4;
-typedef std::vector<vec4>   vec5;
-enum part{hcbarrel=0, hcendcap=1, hcforward=2};
-enum type{ECAL=0, HCAL=1, VFCAL=2};
+typedef std::vector<vec1> vec2;
+typedef std::vector<vec2> vec3;
+typedef std::vector<vec3> vec4;
+typedef std::vector<vec4> vec5;
+enum part { hcbarrel = 0, hcendcap = 1, hcforward = 2 };
+enum type { ECAL = 0, HCAL = 1, VFCAL = 2 };
 
 class RandomEngineAndDistribution;
 
-namespace edm { 
+namespace edm {
   class ParameterSet;
 }
 
-class HCALResponse
-{
- public:
+class HCALResponse {
+public:
   HCALResponse(const edm::ParameterSet& pset);
-  ~HCALResponse(){ } 
+  ~HCALResponse() {}
 
   // Get the response smearing factor
   // for  e/gamma = 0, hadron = 1, mu = 2, mip: 0/1/2
@@ -45,28 +44,28 @@ class HCALResponse
 
   // correct HF response for SL
   void correctHF(double e, int type);
-  vec1 & getCorrHFem()  {return corrHFem;}   
-  vec1 & getCorrHFhad() {return corrHFhad;}   
-  
- private:
+  vec1& getCorrHFem() { return corrHFem; }
+  vec1& getCorrHFhad() { return corrHFhad; }
 
+private:
   // calculates interpolated-extrapolated response smearing factors
   // for hadrons, muons, and e/gamma (the last in HF specifically)
   double interHD(int mip, double e, int ie, int ieta, int det, RandomEngineAndDistribution const*);
   double interEM(double e, int ie, int ieta, RandomEngineAndDistribution const*);
   double interMU(double e, int ie, int ieta, RandomEngineAndDistribution const*);
-  
+
   //random shooting functions w/ protection from negative energies
-  double gaussShootNoNegative(double e, double sigma,RandomEngineAndDistribution const*);
-  double cballShootNoNegative(double mu, double sigma, double aL, double nL, double aR, double nR,RandomEngineAndDistribution const*);
-  double PoissonShootNoNegative(double e, double sigma,RandomEngineAndDistribution const*);
+  double gaussShootNoNegative(double e, double sigma, RandomEngineAndDistribution const*);
+  double cballShootNoNegative(
+      double mu, double sigma, double aL, double nL, double aR, double nR, RandomEngineAndDistribution const*);
+  double PoissonShootNoNegative(double e, double sigma, RandomEngineAndDistribution const*);
 
   //find subdet
   int getDet(int ieta);
-  
+
   //debugging and mip toggles
   bool debug, usemip;
-  
+
   //Default values for resolution parametrisation:
   //stochastic, constant and noise.
   //in the barrel and in the endcap
@@ -102,14 +101,14 @@ class HCALResponse
   int nPar;
   std::vector<std::string> parNames;
   vec5 parameters;
-  
+
   // Tabulated response and mean for e/gamma in HF specifically (normalized)
   // indices: meanEM[energy][eta]
   vec2 meanEM, sigmaEM;
 
   // muon histos
   // indices: responseMU[energy][eta][bin]
-  vec3 responseMU; 
+  vec3 responseMU;
   vec3 mipfraction;
   vec3 PoissonParameters;
 
@@ -124,4 +123,3 @@ class HCALResponse
   vec1 corrHFem, corrHFhad;
 };
 #endif
-

@@ -10,85 +10,80 @@
 using namespace std;
 using namespace oracle::occi;
 
-ODSRPConfig::ODSRPConfig()
-{
+ODSRPConfig::ODSRPConfig() {
   m_env = nullptr;
   m_conn = nullptr;
   m_writeStmt = nullptr;
   m_readStmt = nullptr;
-  m_config_tag="";
+  m_config_tag = "";
 
-   m_ID=0;
-   clear();
-   m_size=0;
+  m_ID = 0;
+  clear();
+  m_size = 0;
 }
 
-void ODSRPConfig::clear(){
+void ODSRPConfig::clear() {
   //  strcpy((char *)m_srp_clob, "");
- m_debug=0;
- m_dummy=0;
- m_file="";
- m_patdir="";
- m_auto=0;
- m_bnch=0;
-
+  m_debug = 0;
+  m_dummy = 0;
+  m_file = "";
+  m_patdir = "";
+  m_auto = 0;
+  m_bnch = 0;
 }
 
-ODSRPConfig::~ODSRPConfig()
-{
-}
+ODSRPConfig::~ODSRPConfig() {}
 
-int ODSRPConfig::fetchNextId()  noexcept(false) {
-
-  int result=0;
+int ODSRPConfig::fetchNextId() noexcept(false) {
+  int result = 0;
   try {
     this->checkConnection();
 
-    m_readStmt = m_conn->createStatement(); 
+    m_readStmt = m_conn->createStatement();
     m_readStmt->setSQL("select ecal_srp_config_sq.NextVal from dual");
-    ResultSet* rset = m_readStmt->executeQuery();
-    while (rset->next ()){
-      result= rset->getInt(1);
+    ResultSet *rset = m_readStmt->executeQuery();
+    while (rset->next()) {
+      result = rset->getInt(1);
     }
     m_conn->terminateStatement(m_readStmt);
-    return result; 
+    return result;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODSRPConfig::fetchNextId():  ")+e.getMessage()));
+    throw(std::runtime_error(std::string("ODSRPConfig::fetchNextId():  ") + e.getMessage()));
   }
-
 }
 
-
-
-
-void ODSRPConfig::setParameters(const std::map<string,string>& my_keys_map){
-
+void ODSRPConfig::setParameters(const std::map<string, string> &my_keys_map) {
   // parses the result of the XML parser that is a map of
   // string string with variable name variable value
 
+  for (std::map<std::string, std::string>::const_iterator ci = my_keys_map.begin(); ci != my_keys_map.end(); ci++) {
+    std::string name = ci->first;
+    std::transform(name.begin(), name.end(), name.begin(), (int (*)(int))std::toupper);
 
-  for( std::map<std::string, std::string >::const_iterator ci=
-         my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
+    if (name == "SRP_CONFIGURATION_ID")
+      setConfigTag(ci->second);
+    if (name == "DEBUGMODE")
+      setDebugMode(atoi(ci->second.c_str()));
+    if (name == "DUMMYMODE")
+      setDummyMode(atoi(ci->second.c_str()));
+    if (name == "PATTERNDIRECTORY")
+      setPatternDirectory(ci->second);
+    if (name == "PATTERN_DIRECTORY")
+      setPatternDirectory(ci->second);
+    if (name == "AUTOMATICMASKS")
+      setAutomaticMasks(atoi(ci->second.c_str()));
+    if (name == "AUTOMATIC_MASKS")
+      setAutomaticMasks(atoi(ci->second.c_str()));
+    if (name == "AUTOMATICSRPSELECT")
+      setAutomaticSrpSelect(atoi(ci->second.c_str()));
+    if (name == "SRP0BUNCHADJUSTPOSITION")
+      setSRP0BunchAdjustPosition(atoi(ci->second.c_str()));
+    if (name == "SRP_CONFIG_FILE") {
+      std::string fname = ci->second;
 
-      std::string name = ci->first;
-      std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))std::toupper);
-
-    if( name ==  "SRP_CONFIGURATION_ID") setConfigTag(ci->second);
-    if( name ==  "DEBUGMODE") setDebugMode(atoi(ci->second.c_str()));
-    if( name ==  "DUMMYMODE") setDummyMode(atoi(ci->second.c_str()));
-    if( name ==  "PATTERNDIRECTORY") setPatternDirectory(ci->second);
-    if( name ==  "PATTERN_DIRECTORY") setPatternDirectory(ci->second);
-    if( name ==  "AUTOMATICMASKS") setAutomaticMasks(atoi(ci->second.c_str()));
-    if( name ==  "AUTOMATIC_MASKS") setAutomaticMasks(atoi(ci->second.c_str()));
-    if( name ==  "AUTOMATICSRPSELECT") setAutomaticSrpSelect(atoi(ci->second.c_str()));
-    if( name ==  "SRP0BUNCHADJUSTPOSITION") setSRP0BunchAdjustPosition(atoi(ci->second.c_str()));
-    if( name ==  "SRP_CONFIG_FILE") {
-      std::string fname=ci->second ;
-    
-      cout << "fname="<<fname << endl;
+      cout << "fname=" << fname << endl;
       setConfigFile(fname);
-
 
       // here we must open the file and read the LTC Clob
       std::cout << "Going to read SRP file: " << fname << endl;
@@ -96,36 +91,33 @@ void ODSRPConfig::setParameters(const std::map<string,string>& my_keys_map){
       ifstream inpFile;
       inpFile.open(fname.c_str());
 
-      // tell me size of file 
-      int bufsize = 0; 
-      inpFile.seekg( 0,ios::end ); 
-      bufsize = inpFile.tellg(); 
-      std::cout <<" bufsize ="<<bufsize<< std::endl;
-      // set file pointer to start again 
-      inpFile.seekg( 0,ios::beg ); 
+      // tell me size of file
+      int bufsize = 0;
+      inpFile.seekg(0, ios::end);
+      bufsize = inpFile.tellg();
+      std::cout << " bufsize =" << bufsize << std::endl;
+      // set file pointer to start again
+      inpFile.seekg(0, ios::beg);
 
-      m_size=bufsize;
-      
+      m_size = bufsize;
+
       inpFile.close();
-      
     }
   }
-
 }
 
-void ODSRPConfig::prepareWrite()
-  noexcept(false)
-{
+void ODSRPConfig::prepareWrite() noexcept(false) {
   this->checkConnection();
 
-  int next_id=fetchNextId();
+  int next_id = fetchNextId();
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO ECAL_SRP_CONFIGURATION (srp_configuration_id, srp_tag, "
-			"   DEBUGMODE, DUMMYMODE, PATTERN_DIRECTORY, AUTOMATIC_MASKS,"
-			" SRP0BUNCHADJUSTPOSITION, SRP_CONFIG_FILE, SRP_CONFIGURATION,  AUTOMATICSRPSELECT  ) "
-                        "VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, :10 )");
+    m_writeStmt->setSQL(
+        "INSERT INTO ECAL_SRP_CONFIGURATION (srp_configuration_id, srp_tag, "
+        "   DEBUGMODE, DUMMYMODE, PATTERN_DIRECTORY, AUTOMATIC_MASKS,"
+        " SRP0BUNCHADJUSTPOSITION, SRP_CONFIG_FILE, SRP_CONFIGURATION,  AUTOMATICSRPSELECT  ) "
+        "VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, :10 )");
     m_writeStmt->setInt(1, next_id);
     m_writeStmt->setString(2, getConfigTag());
     m_writeStmt->setInt(3, getDebugMode());
@@ -135,89 +127,77 @@ void ODSRPConfig::prepareWrite()
     m_writeStmt->setInt(10, getAutomaticSrpSelect());
     m_writeStmt->setInt(7, getSRP0BunchAdjustPosition());
     m_writeStmt->setString(8, getConfigFile());
-  
+
     // and now the clob
     oracle::occi::Clob clob(m_conn);
     clob.setEmpty();
-    m_writeStmt->setClob(9,clob);
-    m_writeStmt->executeUpdate ();
-    m_ID=next_id; 
+    m_writeStmt->setClob(9, clob);
+    m_writeStmt->executeUpdate();
+    m_ID = next_id;
 
     m_conn->terminateStatement(m_writeStmt);
-    std::cout<<"SRP Clob inserted into CONFIGURATION with id="<<next_id<<std::endl;
+    std::cout << "SRP Clob inserted into CONFIGURATION with id=" << next_id << std::endl;
 
-    // now we read and update it 
-    m_writeStmt = m_conn->createStatement(); 
-    m_writeStmt->setSQL ("SELECT srp_configuration FROM ECAL_SRP_CONFIGURATION WHERE"
-			 " srp_configuration_id=:1 FOR UPDATE");
+    // now we read and update it
+    m_writeStmt = m_conn->createStatement();
+    m_writeStmt->setSQL(
+        "SELECT srp_configuration FROM ECAL_SRP_CONFIGURATION WHERE"
+        " srp_configuration_id=:1 FOR UPDATE");
 
-    std::cout<<"updating the clob 0"<<std::endl;
+    std::cout << "updating the clob 0" << std::endl;
 
-    
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODSRPConfig::prepareWrite():  ")+e.getMessage()));
+    throw(std::runtime_error(std::string("ODSRPConfig::prepareWrite():  ") + e.getMessage()));
   }
 
-  std::cout<<"updating the clob 1 "<<std::endl;
-  
+  std::cout << "updating the clob 1 " << std::endl;
 }
 
-
-void ODSRPConfig::writeDB()
-  noexcept(false)
-{
-
-  std::cout<<"updating the clob 2"<<std::endl;
+void ODSRPConfig::writeDB() noexcept(false) {
+  std::cout << "updating the clob 2" << std::endl;
 
   try {
     m_writeStmt->setInt(1, m_ID);
-    ResultSet* rset = m_writeStmt->executeQuery();
+    ResultSet *rset = m_writeStmt->executeQuery();
 
-    while (rset->next ())
-      {
-        oracle::occi::Clob clob = rset->getClob (1);
-        cout << "Opening the clob in read write mode" << endl;
-	cout << "Populating the clob" << endl;
-	populateClob (clob, getConfigFile(), m_size );
-        int clobLength=clob.length ();
-        cout << "Length of the clob after writing is: " << clobLength << endl;
-      
-      }
+    while (rset->next()) {
+      oracle::occi::Clob clob = rset->getClob(1);
+      cout << "Opening the clob in read write mode" << endl;
+      cout << "Populating the clob" << endl;
+      populateClob(clob, getConfigFile(), m_size);
+      int clobLength = clob.length();
+      cout << "Length of the clob after writing is: " << clobLength << endl;
+    }
 
     m_writeStmt->executeUpdate();
 
-    m_writeStmt->closeResultSet (rset);
+    m_writeStmt->closeResultSet(rset);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODSRPConfig::writeDB():  ")+e.getMessage()));
+    throw(std::runtime_error(std::string("ODSRPConfig::writeDB():  ") + e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
     throw(std::runtime_error("ODSRPConfig::writeDB:  Failed to write"));
   }
-
-
 }
 
-
-void ODSRPConfig::fetchData(ODSRPConfig * result)
-  noexcept(false)
-{
+void ODSRPConfig::fetchData(ODSRPConfig *result) noexcept(false) {
   this->checkConnection();
   //  result->clear();
-  if(result->getId()==0 && (result->getConfigTag().empty()) ){
+  if (result->getId() == 0 && (result->getConfigTag().empty())) {
     //    throw(std::runtime_error("ODSRPConfig::fetchData(): no Id defined for this ODSRPConfig "));
     result->fetchID();
   }
 
   try {
-
-    m_readStmt->setSQL("SELECT  * "
-		       " FROM ECAL_SRP_CONFIGURATION  "
-		       " where (srp_configuration_id = :1 or srp_tag=:2 )" );
+    m_readStmt->setSQL(
+        "SELECT  * "
+        " FROM ECAL_SRP_CONFIGURATION  "
+        " where (srp_configuration_id = :1 or srp_tag=:2 )");
     m_readStmt->setInt(1, result->getId());
     m_readStmt->setString(2, result->getConfigTag());
-    ResultSet* rset = m_readStmt->executeQuery();
+    ResultSet *rset = m_readStmt->executeQuery();
 
     rset->next();
     // 1 is the id and 2 is the config tag
@@ -234,10 +214,10 @@ void ODSRPConfig::fetchData(ODSRPConfig * result)
 
     Clob clob = rset->getClob(9);
     m_size = clob.length();
-    Stream *instream = clob.getStream (1,0);
+    Stream *instream = clob.getStream(1, 0);
     unsigned char *buffer = new unsigned char[m_size];
-    memset (buffer, 0, m_size);
-    instream->readBuffer ((char*)buffer, m_size);
+    memset(buffer, 0, m_size);
+    instream->readBuffer((char *)buffer, m_size);
     /*
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
@@ -252,34 +232,31 @@ void ODSRPConfig::fetchData(ODSRPConfig * result)
 
 
     */
-    result->setSRPClob(buffer );
+    result->setSRPClob(buffer);
     result->setAutomaticSrpSelect(rset->getInt(10));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODSRPConfig::fetchData():  ")+e.getMessage()));
+    throw(std::runtime_error(std::string("ODSRPConfig::fetchData():  ") + e.getMessage()));
   }
 }
 
-
-
-int ODSRPConfig::fetchID()    noexcept(false)
-{
+int ODSRPConfig::fetchID() noexcept(false) {
   // Return from memory if available
-  if (m_ID!=0) {
+  if (m_ID != 0) {
     return m_ID;
   }
 
   this->checkConnection();
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT srp_configuration_id FROM ecal_srp_configuration "
-                 "WHERE  srp_tag=:srp_tag "
-		 );
+    Statement *stmt = m_conn->createStatement();
+    stmt->setSQL(
+        "SELECT srp_configuration_id FROM ecal_srp_configuration "
+        "WHERE  srp_tag=:srp_tag ");
 
-    stmt->setString(1, getConfigTag() );
+    stmt->setString(1, getConfigTag());
 
-    ResultSet* rset = stmt->executeQuery();
+    ResultSet *rset = stmt->executeQuery();
 
     if (rset->next()) {
       m_ID = rset->getInt(1);
@@ -288,8 +265,8 @@ int ODSRPConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODSRPConfig::fetchID:  ")+e.getMessage()));
+    throw(std::runtime_error(std::string("ODSRPConfig::fetchID:  ") + e.getMessage()));
   }
 
-    return m_ID;
+  return m_ID;
 }

@@ -4,16 +4,10 @@
 
 #include <cmath>
 
-namespace ecaldqm
-{
-  SelectiveReadoutClient::SelectiveReadoutClient() :
-    DQWorkerClient()
-  {
-  }
+namespace ecaldqm {
+  SelectiveReadoutClient::SelectiveReadoutClient() : DQWorkerClient() {}
 
-  void
-  SelectiveReadoutClient::producePlots(ProcessType)
-  {
+  void SelectiveReadoutClient::producePlots(ProcessType) {
     MESet& meFRDropped(MEs_.at("FRDropped"));
     MESet& meZSReadout(MEs_.at("ZSReadout"));
     MESet& meFR(MEs_.at("FR"));
@@ -48,8 +42,7 @@ namespace ecaldqm
     MESet::iterator zs1RateItr(meZS1);
 
     MESet::const_iterator cEnd(sFlagCounterMap.end());
-    for(MESet::const_iterator cItr(sFlagCounterMap.beginChannel()); cItr != cEnd; cItr.toNextChannel()){
-
+    for (MESet::const_iterator cItr(sFlagCounterMap.beginChannel()); cItr != cEnd; cItr.toNextChannel()) {
       ruItr = cItr;
       frItr = cItr;
       zs1Itr = cItr;
@@ -67,20 +60,19 @@ namespace ecaldqm
       float nZS12Flags(zsItr->getBinContent());
       float nFullReadoutFlags(frItr->getBinContent());
 
-      if(nFlags > 0.){
+      if (nFlags > 0.) {
         frRateItr->setBinContent(nFullReadoutFlags / nFlags);
         zs1RateItr->setBinContent(zs1Itr->getBinContent() / nFlags);
         ruRateItr->setBinContent(ruItr->getBinContent() / nFlags);
       }
-      if(nZS12Flags > 0.)
+      if (nZS12Flags > 0.)
         zsrRateItr->setBinContent(zsfrItr->getBinContent() / nZS12Flags);
-      if(nFullReadoutFlags > 0.)
+      if (nFullReadoutFlags > 0.)
         frdRateItr->setBinContent(frdItr->getBinContent() / nFullReadoutFlags);
-
     }
 
     // iterator not supported for kTriggerTower binning yet
-    for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; ++iTT){
+    for (unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; ++iTT) {
       EcalTrigTowerDetId id(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
 
       float nHigh(sHighIntMap.getBinContent(id));
@@ -88,7 +80,7 @@ namespace ecaldqm
       float nLow(sLowIntMap.getBinContent(id));
       float total(nHigh + nMed + nLow);
 
-      if(total > 0.){
+      if (total > 0.) {
         meHighInterest.setBinContent(id, nHigh / total);
         meMedInterest.setBinContent(id, nMed / total);
         meLowInterest.setBinContent(id, nLow / total);
@@ -97,4 +89,4 @@ namespace ecaldqm
   }
 
   DEFINE_ECALDQM_WORKER(SelectiveReadoutClient);
-}
+}  // namespace ecaldqm

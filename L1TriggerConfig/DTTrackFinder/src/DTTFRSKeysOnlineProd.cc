@@ -2,7 +2,7 @@
 //
 // Package:    L1TriggerConfig
 // Class:      DTTFRSKeysOnlineProd
-// 
+//
 /**\class DTTFRSKeysOnlineProd DTTFRSKeysOnlineProd.h L1TriggerConfig/DTTFConfigProducers/src/DTTFRSKeysOnlineProd.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 
 // user include files
@@ -29,13 +28,14 @@
 //
 
 class DTTFRSKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
-   public:
-      DTTFRSKeysOnlineProd(const edm::ParameterSet&);
-      ~DTTFRSKeysOnlineProd() override;
+public:
+  DTTFRSKeysOnlineProd(const edm::ParameterSet&);
+  ~DTTFRSKeysOnlineProd() override;
 
-      void fillObjectKeys( FillType ) override ;
-   private:
-      // ----------member data ---------------------------
+  void fillObjectKeys(FillType) override;
+
+private:
+  // ----------member data ---------------------------
 };
 
 //
@@ -49,47 +49,33 @@ class DTTFRSKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
 //
 // constructors and destructor
 //
-DTTFRSKeysOnlineProd::DTTFRSKeysOnlineProd(const edm::ParameterSet& iConfig)
-  : L1ObjectKeysOnlineProdBase( iConfig )
-{}
+DTTFRSKeysOnlineProd::DTTFRSKeysOnlineProd(const edm::ParameterSet& iConfig) : L1ObjectKeysOnlineProdBase(iConfig) {}
 
-
-DTTFRSKeysOnlineProd::~DTTFRSKeysOnlineProd()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+DTTFRSKeysOnlineProd::~DTTFRSKeysOnlineProd() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-DTTFRSKeysOnlineProd::fillObjectKeys( FillType pL1TriggerKey )
-{
+void DTTFRSKeysOnlineProd::fillObjectKeys(FillType pL1TriggerKey) {
   // SELECT HW_SETTINGS FROM CMS_DT_TF.DTTF_SETTINGS_KEY_CURRENT
   l1t::OMDSReader::QueryResults rsKeyResults =
-    m_omdsReader.basicQuery( "HW_SETTINGS",
-			     "CMS_DT_TF",
-			     "DTTF_SETTINGS_KEY_CURRENT" );
+      m_omdsReader.basicQuery("HW_SETTINGS", "CMS_DT_TF", "DTTF_SETTINGS_KEY_CURRENT");
 
-  if( rsKeyResults.queryFailed() ||
-      rsKeyResults.numberRows() != 1 ) // check query successful
-    {
-      edm::LogError( "L1-O2O" ) << "Problem with DTTF RS key." ;
-      return ;
-    }
+  if (rsKeyResults.queryFailed() || rsKeyResults.numberRows() != 1)  // check query successful
+  {
+    edm::LogError("L1-O2O") << "Problem with DTTF RS key.";
+    return;
+  }
 
-  std::string rsKey ;
-  rsKeyResults.fillVariable( rsKey ) ;
+  std::string rsKey;
+  rsKeyResults.fillVariable(rsKey);
 
-  pL1TriggerKey->add( "L1MuDTTFMasksRcd",
-		      "L1MuDTTFMasks",
-		      rsKey ) ;
+  pL1TriggerKey->add("L1MuDTTFMasksRcd", "L1MuDTTFMasks", rsKey);
 }
 
 //define this as a plug-in

@@ -1,55 +1,55 @@
 #ifndef EventFilter_RPCRawToDigi_EventRecords_H
 #define EventFilter_RPCRawToDigi_EventRecords_H
 
-#include "DataFormats/RPCDigi/interface/DataRecord.h" 
-#include "DataFormats/RPCDigi/interface/RecordBX.h" 
-#include "DataFormats/RPCDigi/interface/RecordCD.h" 
-#include "DataFormats/RPCDigi/interface/RecordSLD.h" 
+#include "DataFormats/RPCDigi/interface/DataRecord.h"
+#include "DataFormats/RPCDigi/interface/RecordBX.h"
+#include "DataFormats/RPCDigi/interface/RecordCD.h"
+#include "DataFormats/RPCDigi/interface/RecordSLD.h"
 #include <vector>
 
 namespace rpcrawtodigi {
-class EventRecords {
-public:
+  class EventRecords {
+  public:
+    EventRecords(int triggerbx = 0)
+        : theTriggerBX(triggerbx), theValidBX(false), theValidLN(false), theValidCD(false) {}
 
-  EventRecords(int triggerbx=0) 
-    : theTriggerBX(triggerbx), 
-      theValidBX(false), theValidLN(false), theValidCD(false)
-  {}
+    EventRecords(int bx, const RecordBX& bxr, const RecordSLD& tbr, const RecordCD& lbr)
+        : theTriggerBX(bx),
+          theValidBX(true),
+          theValidLN(true),
+          theValidCD(true),
+          theRecordBX(bxr),
+          theRecordSLD(tbr),
+          theRecordCD(lbr) {}
 
-  EventRecords(int bx, const RecordBX & bxr, const RecordSLD & tbr, const RecordCD & lbr)
-    : theTriggerBX(bx),
-      theValidBX(true), theValidLN(true), theValidCD(true),
-      theRecordBX(bxr), theRecordSLD(tbr), theRecordCD(lbr)
-  {}
+    void add(const DataRecord& record);
 
-  void add(const DataRecord & record);
+    int triggerBx() const { return theTriggerBX; }
 
-  int triggerBx() const { return theTriggerBX;}
+    int dataToTriggerDelay() const;
 
-  int dataToTriggerDelay() const; 
+    bool complete() const { return theValidBX && theValidLN && theValidCD; }
 
-  bool complete() const { return theValidBX && theValidLN && theValidCD; }
+    bool hasErrors() const { return (!theErrors.empty()); }
 
-  bool hasErrors() const { return (!theErrors.empty()); }
+    bool samePartition(const EventRecords& r) const;
 
-  bool samePartition(const EventRecords & r) const;
+    const RecordBX& recordBX() const { return theRecordBX; }
+    const RecordSLD& recordSLD() const { return theRecordSLD; }
+    const RecordCD& recordCD() const { return theRecordCD; }
+    const std::vector<DataRecord>& errors() const { return theErrors; }
 
-  const RecordBX & recordBX() const { return theRecordBX; }
-  const RecordSLD & recordSLD() const { return theRecordSLD; }
-  const RecordCD & recordCD() const { return theRecordCD; }
-  const std::vector<DataRecord> & errors() const { return theErrors; }
+    static std::vector<EventRecords> mergeRecords(const std::vector<EventRecords>& r);
 
-  static std::vector<EventRecords> mergeRecords(const std::vector<EventRecords> & r); 
+    std::string print(const DataRecord::DataRecordType& type) const;
 
-  std::string print(const DataRecord::DataRecordType& type) const;
-
-private:
-  int theTriggerBX;
-  bool theValidBX, theValidLN, theValidCD; 
-  RecordBX theRecordBX; 
-  RecordSLD theRecordSLD;
-  RecordCD theRecordCD;
-  std::vector<DataRecord> theErrors;
-};
-}
+  private:
+    int theTriggerBX;
+    bool theValidBX, theValidLN, theValidCD;
+    RecordBX theRecordBX;
+    RecordSLD theRecordSLD;
+    RecordCD theRecordCD;
+    std::vector<DataRecord> theErrors;
+  };
+}  // namespace rpcrawtodigi
 #endif

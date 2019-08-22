@@ -15,24 +15,25 @@
 namespace reco {
   namespace parser {
     struct MethodArgumentSetter {
-      MethodArgumentSetter( MethodArgumentStack & stack ) : stack_( stack ) { }
-      template<typename T>
+      MethodArgumentSetter(MethodArgumentStack &stack) : stack_(stack) {}
+      template <typename T>
       void operator()(const T &n) const {
-	stack_.push_back( AnyMethodArgument(n) );
+        stack_.push_back(AnyMethodArgument(n));
       }
       void operator()(const char *begin, const char *end) const {
-        assert(begin+1 <= end-1); // the quotes are included in [begin,end[ range.        
+        assert(begin + 1 <= end - 1);  // the quotes are included in [begin,end[ range.
         //in boost 1.67, the parser appends any extra white space to the
         // end
-        if(*(end-1) != *begin) {
+        if (*(end - 1) != *begin) {
           --end;
         }
-        stack_.push_back( AnyMethodArgument(std::string(begin+1,end-1)) );
+        stack_.push_back(AnyMethodArgument(std::string(begin + 1, end - 1)));
       }
+
     private:
-      MethodArgumentStack & stack_;
+      MethodArgumentStack &stack_;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

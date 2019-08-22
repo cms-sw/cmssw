@@ -1,13 +1,13 @@
-# hltGetConfiguration --full --data /dev/CMSSW_10_6_0/Fake --type Fake --unprescale --process HLTFake --globaltag auto:run1_hlt_Fake --input file:RelVal_Raw_Fake_DATA.root
+# hltGetConfiguration --full --data /dev/CMSSW_11_0_0/Fake --type Fake --unprescale --process HLTFake --globaltag auto:run1_hlt_Fake --input file:RelVal_Raw_Fake_DATA.root
 
-# /dev/CMSSW_10_6_0/Fake/V3 (CMSSW_10_6_0_pre4)
+# /dev/CMSSW_11_0_0/Fake/V3 (CMSSW_11_0_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_6_0/Fake/V3')
+  tableName = cms.string('/dev/CMSSW_11_0_0/Fake/V3')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -203,10 +203,10 @@ process.hltTriggerType = cms.EDFilter( "HLTTriggerTypeFilter",
 )
 process.hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
     DaqGtFedId = cms.untracked.int32( 813 ),
-    Verbosity = cms.untracked.int32( 0 ),
-    UnpackBxInEvent = cms.int32( 5 ),
+    DaqGtInputTag = cms.InputTag( "rawDataCollector" ),
     ActiveBoardsMask = cms.uint32( 0xffff ),
-    DaqGtInputTag = cms.InputTag( "rawDataCollector" )
+    Verbosity = cms.untracked.int32( 0 ),
+    UnpackBxInEvent = cms.int32( 5 )
 )
 process.hltGctDigis = cms.EDProducer( "GctRawToDigi",
     checkHeaders = cms.untracked.bool( False ),
@@ -307,8 +307,8 @@ process.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
 process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     moduleLabelPatternsToSkip = cms.vstring(  ),
     processName = cms.string( "@" ),
-    moduleLabelPatternsToMatch = cms.vstring( 'hlt*' ),
-    throw = cms.bool( False )
+    throw = cms.bool( False ),
+    moduleLabelPatternsToMatch = cms.vstring( 'hlt*' )
 )
 process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )

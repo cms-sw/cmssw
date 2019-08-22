@@ -10,18 +10,11 @@
  *  trivial WeightEstimator that returns 1.
  */
 template <class T>
-class TrivialWeightEstimator : public WeightEstimator<T>
-{
+class TrivialWeightEstimator : public WeightEstimator<T> {
 public:
-    double weight ( const std::vector < const T * > & ) const override
-    {
-        return 1.0;
-    }
+  double weight(const std::vector<const T*>&) const override { return 1.0; }
 
-    TrivialWeightEstimator * clone () const override
-    {
-        return new TrivialWeightEstimator<T> ( *this );
-    };
+  TrivialWeightEstimator* clone() const override { return new TrivialWeightEstimator<T>(*this); };
 };
 
 #endif

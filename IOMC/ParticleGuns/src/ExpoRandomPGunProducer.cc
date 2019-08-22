@@ -20,139 +20,117 @@
 using namespace edm;
 using namespace std;
 
-ExpoRandomPGunProducer::ExpoRandomPGunProducer(const ParameterSet& pset) :
-   BaseFlatGunProducer(pset)
-{
+ExpoRandomPGunProducer::ExpoRandomPGunProducer(const ParameterSet& pset) : BaseFlatGunProducer(pset) {
+  ParameterSet defpset;
+  ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters");
 
+  fMinP = pgun_params.getParameter<double>("MinP");
+  fMaxP = pgun_params.getParameter<double>("MaxP");
 
-   ParameterSet defpset ;
-   ParameterSet pgun_params =
-      pset.getParameter<ParameterSet>("PGunParameters") ;
-
-   fMinP = pgun_params.getParameter<double>("MinP");
-   fMaxP = pgun_params.getParameter<double>("MaxP");
-
-   produces<HepMCProduct>("unsmeared");
-   produces<GenEventInfoProduct>();
-
+  produces<HepMCProduct>("unsmeared");
+  produces<GenEventInfoProduct>();
 }
 
-ExpoRandomPGunProducer::~ExpoRandomPGunProducer()
-{
-   // no need to cleanup GenEvent memory - done in HepMCProduct                                                               
+ExpoRandomPGunProducer::~ExpoRandomPGunProducer() {
+  // no need to cleanup GenEvent memory - done in HepMCProduct
 }
 
-void ExpoRandomPGunProducer::produce(Event &e, const EventSetup& es)
-{
-   edm::Service<edm::RandomNumberGenerator> rng;
-   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
-  
-   if ( fVerbosity > 0 )
-   {
-     std::cout << " ExpoRandomPGunProducer : Begin New Event Generation"
-               << std::endl ;
-   }
-   // event loop (well, another step in it...)                           
+void ExpoRandomPGunProducer::produce(Event& e, const EventSetup& es) {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
-   // no need to clean up GenEvent memory - done in HepMCProduct         
-   //
+  if (fVerbosity > 0) {
+    std::cout << " ExpoRandomPGunProducer : Begin New Event Generation" << std::endl;
+  }
+  // event loop (well, another step in it...)
 
-   // here re-create fEvt (memory)                                       
-   //
-                                             
-   fEvt = new HepMC::GenEvent() ;
+  // no need to clean up GenEvent memory - done in HepMCProduct
+  //
 
-   // now actualy, cook up the event from PDGTable and gun parameters
-   //
-   // 1st, primary vertex
-   //
-   //HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));                                         
-   HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0.,0.,0.));
+  // here re-create fEvt (memory)
+  //
 
-   // loop over particles
-   //
-   int barcode = 1 ;
-   for (unsigned int ip=0; ip<fPartIDs.size(); ++ip)
-   {
+  fEvt = new HepMC::GenEvent();
 
-     double pmom   = CLHEP::RandFlat::shoot(engine, fMinP, fMaxP);
-     double y      = (1./fMinP) * CLHEP::RandFlat::shoot(engine, 0.0, 1.0);
-     double f      = 1./pmom;
-     bool   accpt  = ( y < f);
-     //shoot until in the designated range                             
-     while ((pmom < fMinP || pmom > fMaxP) || !accpt)
-       {
-         pmom   = CLHEP::RandFlat::shoot(engine, fMinP, fMaxP);
-         y      = (1./fMinP) * CLHEP::RandFlat::shoot(engine, 0.0, 1.0);
-         f      = 1./pmom;
-         accpt  = (y < f);
-	 
-       }
+  // now actualy, cook up the event from PDGTable and gun parameters
+  //
+  // 1st, primary vertex
+  //
+  //HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
+  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
 
-       double eta    = CLHEP::RandFlat::shoot(engine, fMinEta, fMaxEta) ;
-       double phi    = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi) ;
-       int PartID = fPartIDs[ip] ;
-       const HepPDT::ParticleData*
-          PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
-       double mass   = PData->mass().value() ;
-       double theta  = 2.*atan(exp(-eta)) ;                  
-       double mom    = pmom;
-       double pt     = mom * sin(theta);
-       double px     = pt  * cos(phi) ;
-       double py     = pt  * sin(phi) ;          
-       double pz     = mom*cos(theta) ;
-       double energy2= mom*mom + mass*mass ;
-       double energy = sqrt(energy2) ;
-       //CLHEP::Hep3Vector p(px,py,pz) ;
-       //HepMC::GenParticle* Part =
-       //    new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),PartID,1);                                              
-       HepMC::FourVector p(px,py,pz,energy) ;
-       HepMC::GenParticle* Part =
-           new HepMC::GenParticle(p,PartID,1);
-       Part->suggest_barcode( barcode ) ;
-       barcode++ ;
-       Vtx->add_particle_out(Part);
+  // loop over particles
+  //
+  int barcode = 1;
+  for (unsigned int ip = 0; ip < fPartIDs.size(); ++ip) {
+    double pmom = CLHEP::RandFlat::shoot(engine, fMinP, fMaxP);
+    double y = (1. / fMinP) * CLHEP::RandFlat::shoot(engine, 0.0, 1.0);
+    double f = 1. / pmom;
+    bool accpt = (y < f);
+    //shoot until in the designated range
+    while ((pmom < fMinP || pmom > fMaxP) || !accpt) {
+      pmom = CLHEP::RandFlat::shoot(engine, fMinP, fMaxP);
+      y = (1. / fMinP) * CLHEP::RandFlat::shoot(engine, 0.0, 1.0);
+      f = 1. / pmom;
+      accpt = (y < f);
+    }
 
-       if ( fAddAntiParticle )
-       {
-          //CLHEP::Hep3Vector ap(-px,-py,-pz) ;
-          HepMC::FourVector ap(-px,-py,-pz,energy) ;
-          int APartID = -PartID ;
-          if ( PartID == 22 || PartID == 23 )
-          {
-             APartID = PartID ;
-          }
-          //HepMC::GenParticle* APart =
-          //   new HepMC::GenParticle(CLHEP::HepLorentzVector(ap,energy),APartID,1);                                          
-          HepMC::GenParticle* APart =
-             new HepMC::GenParticle(ap,APartID,1);
-          APart->suggest_barcode( barcode ) ;
-          barcode++ ;
-          Vtx->add_particle_out(APart) ;
-       }
+    double eta = CLHEP::RandFlat::shoot(engine, fMinEta, fMaxEta);
+    double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
+    int PartID = fPartIDs[ip];
+    const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
+    double mass = PData->mass().value();
+    double theta = 2. * atan(exp(-eta));
+    double mom = pmom;
+    double pt = mom * sin(theta);
+    double px = pt * cos(phi);
+    double py = pt * sin(phi);
+    double pz = mom * cos(theta);
+    double energy2 = mom * mom + mass * mass;
+    double energy = sqrt(energy2);
+    //CLHEP::Hep3Vector p(px,py,pz) ;
+    //HepMC::GenParticle* Part =
+    //    new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),PartID,1);
+    HepMC::FourVector p(px, py, pz, energy);
+    HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
+    Part->suggest_barcode(barcode);
+    barcode++;
+    Vtx->add_particle_out(Part);
 
-   }
+    if (fAddAntiParticle) {
+      //CLHEP::Hep3Vector ap(-px,-py,-pz) ;
+      HepMC::FourVector ap(-px, -py, -pz, energy);
+      int APartID = -PartID;
+      if (PartID == 22 || PartID == 23) {
+        APartID = PartID;
+      }
+      //HepMC::GenParticle* APart =
+      //   new HepMC::GenParticle(CLHEP::HepLorentzVector(ap,energy),APartID,1);
+      HepMC::GenParticle* APart = new HepMC::GenParticle(ap, APartID, 1);
+      APart->suggest_barcode(barcode);
+      barcode++;
+      Vtx->add_particle_out(APart);
+    }
+  }
 
-   fEvt->add_vertex(Vtx) ;
-   fEvt->set_event_number(e.id().event()) ;
-   fEvt->set_signal_process_id(20) ;
+  fEvt->add_vertex(Vtx);
+  fEvt->set_event_number(e.id().event());
+  fEvt->set_signal_process_id(20);
 
-   if ( fVerbosity > 0 )
-   {
-      fEvt->print() ;
-   }
+  if (fVerbosity > 0) {
+    fEvt->print();
+  }
 
-   unique_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
-   BProduct->addHepMCData( fEvt );
-   e.put(std::move(BProduct), "unsmeared");
+  unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
+  BProduct->addHepMCData(fEvt);
+  e.put(std::move(BProduct), "unsmeared");
 
-   unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
-   e.put(std::move(genEventInfo));
+  unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+  e.put(std::move(genEventInfo));
 
-   if ( fVerbosity > 0 )
-   {
-      // for testing purpose only
-      // fEvt->print() ; // prints empty info after it's made into edm::Event                                                 
-     std::cout << " FlatRandomPGunProducer : Event Generation Done " << std::endl;
-   }
+  if (fVerbosity > 0) {
+    // for testing purpose only
+    // fEvt->print() ; // prints empty info after it's made into edm::Event
+    std::cout << " FlatRandomPGunProducer : Event Generation Done " << std::endl;
+  }
 }

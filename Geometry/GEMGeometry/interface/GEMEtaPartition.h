@@ -9,10 +9,8 @@
 class StripTopology;
 class GEMEtaPartitionSpecs;
 
-class GEMEtaPartition : public GeomDet
-{
+class GEMEtaPartition : public GeomDet {
 public:
-  
   GEMEtaPartition(GEMDetId id, const BoundPlane::BoundPlanePointer& bp, GEMEtaPartitionSpecs* rrs);
   ~GEMEtaPartition() override;
 
@@ -25,8 +23,8 @@ public:
   const Topology& padTopology() const;
   const StripTopology& specificPadTopology() const;
 
-  const GeomDetType& type() const override; 
- 
+  const GeomDetType& type() const override;
+
   // strip-related methods:
 
   /// number of readout strips in partition
@@ -34,12 +32,12 @@ public:
 
   /// returns center of strip position for INTEGER strip number
   /// that has a value range of [0, nstrip-1]
-  LocalPoint  centreOfStrip(int strip) const;
+  LocalPoint centreOfStrip(int strip) const;
 
   /// returns center of strip position for FRACTIONAL strip number
   /// that has a value range of [0.0, nstrip)
-  LocalPoint  centreOfStrip(float strip) const;
-  LocalError  localError(float strip, float cluster_size= 1.) const;
+  LocalPoint centreOfStrip(float strip) const;
+  LocalError localError(float strip, float cluster_size = 1.) const;
   /// returns fractional strip number [0.0, nstrips) for a LocalPoint
   /// E.g., if local point hit strip #2, the fractional strip number would be
   /// somewhere in the [2.0, 3.0) interval
@@ -47,20 +45,19 @@ public:
 
   float pitch() const;
   float localPitch(const LocalPoint& lp) const;
- 
 
   // GEM-CSC pad-related methods:
-  
+
   /// number of GEM-CSC trigger readout pads in partition
   int npads() const;
 
   /// returns center of pad position for INTEGER pad number
   /// that has a value range of [0, npads-1]
-  LocalPoint  centreOfPad(int pad) const;
+  LocalPoint centreOfPad(int pad) const;
 
   /// returns center of pad position for FRACTIONAL pad number
   /// that has a value range of [0., npads)
-  LocalPoint  centreOfPad(float pad) const;
+  LocalPoint centreOfPad(float pad) const;
 
   /// returns FRACTIONAL pad number [0.,npads) for a point
   float pad(const LocalPoint& lp) const;
@@ -70,9 +67,8 @@ public:
   /// pad pitch at a particular point
   float localPadPitch(const LocalPoint& lp) const;
 
-
   // relations between strips and pads:
-  
+
   /// returns FRACTIONAL pad number [0.,npads) for an integer strip [0,nstrip-1]
   float padOfStrip(int strip) const;
 
@@ -83,10 +79,8 @@ public:
   int lastStripInPad(int pad) const;
 
 private:
-
   GEMDetId id_;
   GEMEtaPartitionSpecs* specs_;
 };
 
 #endif
-

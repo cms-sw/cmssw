@@ -17,11 +17,17 @@
 */
 class CastorDataFrameFilter {
 public:
-  CastorDataFrameFilter(bool requireCapid, bool requireDVER, bool energyFilter, int firstSample=-1, int lastSample=-1, double minAmpl=-1);
+  CastorDataFrameFilter(bool requireCapid,
+                        bool requireDVER,
+                        bool energyFilter,
+                        int firstSample = -1,
+                        int lastSample = -1,
+                        double minAmpl = -1);
   /// filter Castor data frames
   CastorDigiCollection filter(const CastorDigiCollection& incol, HcalUnpackerReport& r);
   /// whether any filters are on
   bool active() const;
+
 private:
   bool requireCapid_;
   bool requireDVER_;
@@ -29,7 +35,5 @@ private:
   int firstSample_, lastSample_;
   double minimumAmplitude_;
 };
-
-
 
 #endif

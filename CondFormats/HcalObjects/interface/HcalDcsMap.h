@@ -30,25 +30,23 @@ $Revision: 1.1 $
 namespace HcalDcsMapAddons {
   class Helper;
 }
- 
-class HcalDcsMap {
- public:
 
-  class Item { 
-   public:
-    Item () {mId = mDcsId = 0;}
-    Item (uint32_t fId, uint32_t fDcsId) 
-      : mId (fId), mDcsId (fDcsId) {}
+class HcalDcsMap {
+public:
+  class Item {
+  public:
+    Item() { mId = mDcsId = 0; }
+    Item(uint32_t fId, uint32_t fDcsId) : mId(fId), mDcsId(fDcsId) {}
     uint32_t mId;
     uint32_t mDcsId;
-  
-   COND_SERIALIZABLE;
+
+    COND_SERIALIZABLE;
   };
 
   HcalDcsMap() {}
   HcalDcsMap(const HcalDcsMapAddons::Helper& helper);
   ~HcalDcsMap();
-  
+
   // swap function
   void swap(HcalDcsMap& other);
   // copy-ctor
@@ -71,7 +69,7 @@ class HcalDcsMap {
   // For the aforementioned reason, you might use any DCS type
   // when constructing the DetId for this lookup
   HcalDetId lookup(HcalDcsDetId fId) const;
-  
+
   // brief lookup the DCS detid associated with the given logical id
   //return Null item if no such mapping
   //
@@ -84,19 +82,20 @@ class HcalDcsMap {
   // to extract proper HcalDcsDetId from the map
   HcalDcsDetId lookup(HcalDetId fId, HcalDcsDetId::DcsType type) const;
 
-  class const_iterator{
+  class const_iterator {
   public:
     friend class HcalDcsMap;
-    const_iterator(){}
-    ~const_iterator(){}
-    bool operator!=(const const_iterator & other);
+    const_iterator() {}
+    ~const_iterator() {}
+    bool operator!=(const const_iterator& other);
     const_iterator operator++();
     const_iterator operator++(int);
     void next(void);
     HcalDcsDetId getHcalDcsDetId(void);
     HcalDetId getHcalDetId(void);
+
   private:
-    std::vector<const Item *>::const_iterator fIter;
+    std::vector<const Item*>::const_iterator fIter;
   };
 
   // iterators
@@ -107,69 +106,53 @@ class HcalDcsMap {
 
   void initialize();
 
-  const Item * findById (unsigned long fId) const;
-  const Item * findByDcsId (unsigned long fDcsId) const;
+  const Item* findById(unsigned long fId) const;
+  const Item* findByDcsId(unsigned long fDcsId) const;
 
   //sorting
   void sortById();
   void sortByDcsId();
 
- protected:
+protected:
   // these are inspired by the emap. Not clear if they are needed
   // for this DCS map at all since it's many-to-many map
-  std::vector <HcalDcsDetId> allHcalDcsDetId () const;
-  std::vector <HcalGenericDetId> allHcalDetId () const;
+  std::vector<HcalDcsDetId> allHcalDcsDetId() const;
+  std::vector<HcalGenericDetId> allHcalDetId() const;
 
   std::vector<Item> mItems;
   std::vector<const Item*> mItemsById COND_TRANSIENT;
   std::vector<const Item*> mItemsByDcsId COND_TRANSIENT;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 namespace HcalDcsMapAddons {
   class LessById {
-   public:
-    bool operator () (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) const {
-      return a->mId < b->mId;
-    }
-    bool operator () (const HcalDcsMap::Item& a, const HcalDcsMap::Item& b) const {
-      return a.mId < b.mId;
-    }
-    bool equal (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) const {
-      return a->mId == b->mId;
-    }
-    bool good (const HcalDcsMap::Item& a) const {
-      return a.mDcsId;
-    }
+  public:
+    bool operator()(const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) const { return a->mId < b->mId; }
+    bool operator()(const HcalDcsMap::Item& a, const HcalDcsMap::Item& b) const { return a.mId < b.mId; }
+    bool equal(const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) const { return a->mId == b->mId; }
+    bool good(const HcalDcsMap::Item& a) const { return a.mDcsId; }
   };
   class LessByDcsId {
-   public:
-    bool operator () (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) const {
-      return a->mDcsId < b->mDcsId;
-    }
-    bool operator () (const HcalDcsMap::Item& a, const HcalDcsMap::Item& b) const {
-      return a.mDcsId < b.mDcsId;
-    }
-    bool equal (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) const {
-      return a->mDcsId == b->mDcsId;
-    }
-    bool good (const HcalDcsMap::Item& a) const {
-      return a.mDcsId;
-    }
+  public:
+    bool operator()(const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) const { return a->mDcsId < b->mDcsId; }
+    bool operator()(const HcalDcsMap::Item& a, const HcalDcsMap::Item& b) const { return a.mDcsId < b.mDcsId; }
+    bool equal(const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) const { return a->mDcsId == b->mDcsId; }
+    bool good(const HcalDcsMap::Item& a) const { return a.mDcsId; }
   };
   class Helper {
-   public:
+  public:
     Helper();
     // map channels
     // DCS type is a part of DcsDetId but it does not make sense to keep
     // duplicate records in the map for DCS channels where only type is different.
     // Hence, the type in HcalDcsDetId is always forced to DCSUNKNOWN
     // inside this method
-    bool mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcsId);
+    bool mapGeomId2DcsId(HcalDetId fId, HcalDcsDetId fDcsId);
 
-    std::set<HcalDcsMap::Item,LessByDcsId> mItems;
+    std::set<HcalDcsMap::Item, LessByDcsId> mItems;
   };
-}
+}  // namespace HcalDcsMapAddons
 
 #endif

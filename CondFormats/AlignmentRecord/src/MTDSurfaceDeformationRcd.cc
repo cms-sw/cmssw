@@ -2,7 +2,7 @@
 //
 // Package:     MTDGeometry
 // Class  :     MTDSurfaceDeformationRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

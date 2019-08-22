@@ -38,26 +38,23 @@ class Propagator;
 //
 
 class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
- public:
-
+public:
   /// constructor
   explicit MuonErrorMatrixAnalyzer(const edm::ParameterSet&);
-   
+
   ///destructor
   ~MuonErrorMatrixAnalyzer();
-     
-     
- private:
+
+private:
   /// framework methods
-  virtual void beginJob() ;
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
-     
+
   /// produce error parametrization from reported errors
   void analyze_from_errormatrix(const edm::Event&, const edm::EventSetup&);
   /// produces error parametrization from the pull of track parameters
   void analyze_from_pull(const edm::Event&, const edm::EventSetup&);
-
 
   // ----------member data ---------------------------
   /// log category: "MuonErrorMatrixAnalyzer"
@@ -74,21 +71,19 @@ class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
   edm::ESHandle<MagneticField> theField;
 
   /// class holder for the reported error parametrization
-  MuonErrorMatrix * theErrorMatrixStore_Reported;
+  MuonErrorMatrix* theErrorMatrixStore_Reported;
   edm::ParameterSet theErrorMatrixStore_Reported_pset;
 
   /// class holder for the empirical error parametrization from residual
-  MuonErrorMatrix * theErrorMatrixStore_Residual;
+  MuonErrorMatrix* theErrorMatrixStore_Residual;
   edm::ParameterSet theErrorMatrixStore_Residual_pset;
 
   /// class holder for the empirical error scale factor parametrization from pull
-  MuonErrorMatrix * theErrorMatrixStore_Pull;
+  MuonErrorMatrix* theErrorMatrixStore_Pull;
   edm::ParameterSet theErrorMatrixStore_Pull_pset;
-
 
   /// the range of the pull fit is [-theGaussianPullFitRange, theGaussianPullFitRange] [-2,2] by default
   double theGaussianPullFitRange;
-
 
   /// radius at which the comparison is made: =0 is using TSCPBuilderNoMaterial, !=0 is using the propagator
   double theRadius;
@@ -107,13 +102,12 @@ class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
   edm::ESHandle<Propagator> thePropagator;
 
   /// put the free trajectory state to the TSCPBuilderNoMaterial or the cylinder surface
-  FreeTrajectoryState refLocusState(const FreeTrajectoryState &fts);
-
+  FreeTrajectoryState refLocusState(const FreeTrajectoryState& fts);
 
   /// control plot root file (auxiliary, configurable)
-  TFile * thePlotFile;
-  TFileDirectory * thePlotDir;
-  TList * theBookKeeping;
+  TFile* thePlotFile;
+  TFileDirectory* thePlotDir;
+  TList* theBookKeeping;
   std::string thePlotFileName;
 
   /// arrays of plots for the empirical error parametrization
@@ -122,15 +116,17 @@ class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
   TH1ptr* theHist_array_pull[15];
 
   /// index whithin the array of plots
-  inline unsigned int index(TProfile3D * pf, unsigned int i ,unsigned int j,unsigned int k)   {return (((i*pf->GetNbinsY())+j) * pf->GetNbinsZ())+k;}
-  unsigned int maxIndex(TProfile3D * pf)  {return pf->GetNbinsX()*pf->GetNbinsY()*pf->GetNbinsZ();}
+  inline unsigned int index(TProfile3D* pf, unsigned int i, unsigned int j, unsigned int k) {
+    return (((i * pf->GetNbinsY()) + j) * pf->GetNbinsZ()) + k;
+  }
+  unsigned int maxIndex(TProfile3D* pf) { return pf->GetNbinsX() * pf->GetNbinsY() * pf->GetNbinsZ(); }
 
-  struct extractRes{
+  struct extractRes {
     double corr;
     double x;
     double y;
   };
   /// fit procedure to extract sigma_x sigma_y and correlation factor from 2D residual histogram
-  extractRes extract(TH2 * h2);
+  extractRes extract(TH2* h2);
 };
 #endif

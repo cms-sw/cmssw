@@ -15,21 +15,17 @@
 #include "TGraph.h"
 #include "TH2.h"
 class EcalTBTDCRawInfoDumper : public edm::EDAnalyzer {
-
- public:
-
+public:
   explicit EcalTBTDCRawInfoDumper(const edm::ParameterSet& ps);
-  ~EcalTBTDCRawInfoDumper() override ;
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  ~EcalTBTDCRawInfoDumper() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
   void endJob() override;
 
- private:
-
-  std::string rawInfoProducer_; // name of module/plugin/producer making digis
-  std::string rawInfoCollection_; // secondary name given to collection of digis
+private:
+  std::string rawInfoProducer_;    // name of module/plugin/producer making digis
+  std::string rawInfoCollection_;  // secondary name given to collection of digis
   std::string rootfile_;
   TH1F* h_TDCrawValue_;
-
 };
 #endif

@@ -11,7 +11,7 @@
  * \author Valerie Halyo, David Dagenhart, created June 7, 2007>
  *
  ************************************************************/
- 
+
 #include <utility>
 #include <vector>
 #include <string>
@@ -19,18 +19,11 @@
 
 class LumiDetails {
 public:
-
   // If in the future additional algorithm names are added,
   // it is important that they be added at the end of the list.
   // The LumiDetails::algoNames function in LumiDetails.cc also
   // would need to be updated to keep the list of names in sync.
-  enum Algos {
-    kOCC1,
-    kOCC2,
-    kET,
-    kPLT,
-    kMaxNumAlgos
-  };
+  enum Algos { kOCC1, kOCC2, kET, kPLT, kMaxNumAlgos };
   typedef unsigned int AlgoType;
   typedef std::pair<std::vector<float>::const_iterator, std::vector<float>::const_iterator> ValueRange;
   typedef std::pair<std::vector<float>::const_iterator, std::vector<float>::const_iterator> ErrorRange;
@@ -52,8 +45,7 @@ public:
             std::vector<float> const& errors,
             std::vector<short> const& qualities);
 
-  void fillBeamIntensities(std::vector<float> const& beam1Intensities,
-                           std::vector<float> const& beam2Intensities);
+  void fillBeamIntensities(std::vector<float> const& beam1Intensities, std::vector<float> const& beam2Intensities);
 
   float lumiValue(AlgoType algo, unsigned int bx) const;
   float lumiError(AlgoType algo, unsigned int bx) const;
@@ -74,7 +66,6 @@ public:
   static std::vector<std::string> const& dipalgoNames();
 
 private:
-
   void checkAlgo(AlgoType algo) const;
   void checkAlgoAndBX(AlgoType algo, unsigned int bx) const;
 
@@ -97,6 +88,6 @@ private:
   std::vector<float> m_beam2Intensities;
 };
 
-std::ostream& operator<<(std::ostream & s, LumiDetails const& lumiDetails);
+std::ostream& operator<<(std::ostream& s, LumiDetails const& lumiDetails);
 
 #endif

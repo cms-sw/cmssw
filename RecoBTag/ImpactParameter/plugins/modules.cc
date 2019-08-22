@@ -13,34 +13,32 @@
 #include "RecoBTag/ImpactParameter/interface/CandidateTrackCountingComputer.h"
 #include "RecoBTag/ImpactParameter/interface/PromptTrackCountingComputer.h"
 
-
 //DEFINE_FWK_MODULE(TrackIPProducer);
 
-typedef IPProducer<reco::TrackRefVector,reco::JTATagInfo, IPProducerHelpers::FromJTA> TrackIPProducer;
+typedef IPProducer<reco::TrackRefVector, reco::JTATagInfo, IPProducerHelpers::FromJTA> TrackIPProducer;
 DEFINE_FWK_MODULE(TrackIPProducer);
-typedef IPProducer<std::vector<reco::CandidatePtr>,reco::JetTagInfo,  IPProducerHelpers::FromJetAndCands> CandIPProducer;
+typedef IPProducer<std::vector<reco::CandidatePtr>, reco::JetTagInfo, IPProducerHelpers::FromJetAndCands> CandIPProducer;
 DEFINE_FWK_MODULE(CandIPProducer);
 
-typedef JetTagComputerESProducer<TrackCountingComputer>       TrackCountingESProducer;
+typedef JetTagComputerESProducer<TrackCountingComputer> TrackCountingESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(TrackCountingESProducer);
-typedef JetTagComputerESProducer<NegativeTrackCountingComputer>       NegativeTrackCountingESProducer;
+typedef JetTagComputerESProducer<NegativeTrackCountingComputer> NegativeTrackCountingESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(NegativeTrackCountingESProducer);
 
-typedef JetTagComputerESProducer<CandidateTrackCountingComputer>          CandidateTrackCountingESProducer;
+typedef JetTagComputerESProducer<CandidateTrackCountingComputer> CandidateTrackCountingESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(CandidateTrackCountingESProducer);
-typedef JetTagComputerESProducer<CandidateNegativeTrackCountingComputer>  CandidateNegativeTrackCountingESProducer;
+typedef JetTagComputerESProducer<CandidateNegativeTrackCountingComputer> CandidateNegativeTrackCountingESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(CandidateNegativeTrackCountingESProducer);
 
-typedef JetTagComputerESProducer<JetProbabilityComputer>       JetProbabilityESProducer;
+typedef JetTagComputerESProducer<JetProbabilityComputer> JetProbabilityESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(JetProbabilityESProducer);
-typedef JetTagComputerESProducer<JetBProbabilityComputer>       JetBProbabilityESProducer;
+typedef JetTagComputerESProducer<JetBProbabilityComputer> JetBProbabilityESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(JetBProbabilityESProducer);
 
-typedef JetTagComputerESProducer<CandidateJetProbabilityComputer>       CandidateJetProbabilityESProducer;
+typedef JetTagComputerESProducer<CandidateJetProbabilityComputer> CandidateJetProbabilityESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(CandidateJetProbabilityESProducer);
-typedef JetTagComputerESProducer<CandidateJetBProbabilityComputer>       CandidateJetBProbabilityESProducer;
+typedef JetTagComputerESProducer<CandidateJetBProbabilityComputer> CandidateJetBProbabilityESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(CandidateJetBProbabilityESProducer);
 
-typedef JetTagComputerESProducer<PromptTrackCountingComputer>  PromptTrackCountingESProducer;
+typedef JetTagComputerESProducer<PromptTrackCountingComputer> PromptTrackCountingESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(PromptTrackCountingESProducer);
-

@@ -4,20 +4,20 @@
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
 namespace l1t {
-   namespace stage2 {
-      class EtSumUnpacker : public Unpacker {
-         public:
-            EtSumUnpacker();
-            ~EtSumUnpacker() override {};
+  namespace stage2 {
+    class EtSumUnpacker : public Unpacker {
+    public:
+      EtSumUnpacker();
+      ~EtSumUnpacker() override{};
 
-            bool unpack(const Block& block, UnpackerCollections *coll) override;
+      bool unpack(const Block& block, UnpackerCollections* coll) override;
 
-            inline void setEtSumCopy(const unsigned int copy) { EtSumCopy_ = copy; };
+      inline void setEtSumCopy(const unsigned int copy) { EtSumCopy_ = copy; };
 
-         private:
-            unsigned int EtSumCopy_;
-      };
-   }
-}
+    private:
+      unsigned int EtSumCopy_;
+    };
+  }  // namespace stage2
+}  // namespace l1t
 
 #endif

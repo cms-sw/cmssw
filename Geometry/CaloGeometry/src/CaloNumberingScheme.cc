@@ -6,5 +6,4 @@
 
 CaloNumberingScheme::CaloNumberingScheme(int iv) : verbosity(iv) {}
 
-void CaloNumberingScheme::setVerbosity(const int iv) {verbosity = iv;}
-
+void CaloNumberingScheme::setVerbosity(const int iv) { verbosity = iv; }

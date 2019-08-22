@@ -9,7 +9,6 @@
  *  
 */
 
-
 #include <string>
 #include "CoralKernel/Context.h"
 #include "CoralBase/MessageStream.h"
@@ -19,23 +18,21 @@
 namespace coral {
   class IConnection;
   class ISession;
-}
+}  // namespace coral
 
-class TestBase
-{
+class TestBase {
 public:
   TestBase();
   virtual ~TestBase();
   virtual void run() = 0;
-  void setVerbosityLevel( coral::MsgLevel level ) ;
+  void setVerbosityLevel(coral::MsgLevel level);
+
 protected:
-  coral::ISession* connect( const std::string& connectionString,
-                            const std::string& user, 
-                            const std::string& password );
+  coral::ISession* connect(const std::string& connectionString, const std::string& user, const std::string& password);
 
 private:
   //seal::Handle<seal::Context> m_context;
-  coral::IConnection*         m_connection;
+  coral::IConnection* m_connection;
 };
 
 #endif

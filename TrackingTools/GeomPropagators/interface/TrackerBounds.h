@@ -23,24 +23,20 @@ class Disk;
 
 class TrackerBounds {
 public:
-
-  static const Cylinder& barrelBound()    {return *theCylinder;}
-  static const Disk& negativeEndcapDisk() {return *theNegativeDisk;}
-  static const Disk& positiveEndcapDisk() {return *thePositiveDisk;}
+  static const Cylinder& barrelBound() { return *theCylinder; }
+  static const Disk& negativeEndcapDisk() { return *theNegativeDisk; }
+  static const Disk& positiveEndcapDisk() { return *thePositiveDisk; }
 
   /** Hard-wired numbers defining the envelope of the sensitive volumes.
    */
-  static float radius()     {return 112.f;}
-  static float halfLength() {return 273.5f;}
-  static bool isInside(const GlobalPoint &);
+  static float radius() { return 112.f; }
+  static float halfLength() { return 273.5f; }
+  static bool isInside(const GlobalPoint&);
 
 private:
-
-  static const ReferenceCountingPointer<Cylinder>  theCylinder;
-  static const ReferenceCountingPointer<Disk>      theNegativeDisk;
-  static const ReferenceCountingPointer<Disk>      thePositiveDisk;
+  static const ReferenceCountingPointer<Cylinder> theCylinder;
+  static const ReferenceCountingPointer<Disk> theNegativeDisk;
+  static const ReferenceCountingPointer<Disk> thePositiveDisk;
 };
 
 #endif
-
-

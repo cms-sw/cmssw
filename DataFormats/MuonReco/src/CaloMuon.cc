@@ -2,7 +2,6 @@
 using namespace reco;
 
 CaloMuon::CaloMuon() {
-   energyValid_  = false;
-   caloCompatibility_ = -9999.;
+  energyValid_ = false;
+  caloCompatibility_ = -9999.;
 }
-

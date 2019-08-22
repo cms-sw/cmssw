@@ -110,8 +110,8 @@ namespace edm {
       r.setProducer(this);
       Run const& cnstR = r;
       const EventSetup c{ci, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun)};
-      this->doEndRunProduce_(r, c);
       this->doEndRunSummary_(r, c);
+      this->doEndRunProduce_(r, c);
       this->doEndRun_(cnstR, c);
       commit_(r);
     }
@@ -142,8 +142,8 @@ namespace edm {
       const EventSetup c{ci,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock)};
-      this->doEndLuminosityBlockProduce_(lb, c);
       this->doEndLuminosityBlockSummary_(cnstLb, c);
+      this->doEndLuminosityBlockProduce_(lb, c);
       this->doEndLuminosityBlock_(cnstLb, c);
       commit_(lb);
     }

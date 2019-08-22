@@ -23,21 +23,21 @@
 
 #include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
 
-class CTPPSDiamondRecHitProducerAlgorithm
-{
-  public:
-    CTPPSDiamondRecHitProducerAlgorithm( const edm::ParameterSet& conf );
+class CTPPSDiamondRecHitProducerAlgorithm {
+public:
+  CTPPSDiamondRecHitProducerAlgorithm(const edm::ParameterSet& conf);
 
-    void setCalibration( const PPSTimingCalibration& );
-    void build( const CTPPSGeometry&, const edm::DetSetVector<CTPPSDiamondDigi>&, edm::DetSetVector<CTPPSDiamondRecHit>& );
+  void setCalibration(const PPSTimingCalibration&);
+  void build(const CTPPSGeometry&, const edm::DetSetVector<CTPPSDiamondDigi>&, edm::DetSetVector<CTPPSDiamondRecHit>&);
 
-  private:
-    static constexpr unsigned short MAX_CHANNEL = 20;
-    /// Conversion constant between HPTDC time slice and absolute time (in ns)
-    double ts_to_ns_;
-    PPSTimingCalibration calib_;
-    std::unique_ptr<reco::FormulaEvaluator> calib_fct_;
+private:
+  static constexpr unsigned short MAX_CHANNEL = 20;
+  /// Conversion constant between HPTDC time slice and absolute time (in ns)
+  double ts_to_ns_;
+  /// Switch on/off the timing calibration
+  bool apply_calib_;
+  PPSTimingCalibration calib_;
+  std::unique_ptr<reco::FormulaEvaluator> calib_fct_;
 };
 
 #endif
-

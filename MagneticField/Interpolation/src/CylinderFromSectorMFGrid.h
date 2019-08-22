@@ -6,34 +6,29 @@
 
 class dso_internal CylinderFromSectorMFGrid : public MFGrid {
 public:
-
-  CylinderFromSectorMFGrid(const GloballyPositioned<float>& vol,
-			   double phiMin, double phiMax, MFGrid* sectorGrid);
+  CylinderFromSectorMFGrid(const GloballyPositioned<float>& vol, double phiMin, double phiMax, MFGrid* sectorGrid);
 
   ~CylinderFromSectorMFGrid() override;
 
-  LocalVector valueInTesla( const LocalPoint& p) const override;
+  LocalVector valueInTesla(const LocalPoint& p) const override;
 
-  void toGridFrame( const LocalPoint& p, double& a, double& b, double& c) const override ;
+  void toGridFrame(const LocalPoint& p, double& a, double& b, double& c) const override;
 
-  LocalPoint fromGridFrame( double a, double b, double c) const override ;
+  LocalPoint fromGridFrame(double a, double b, double c) const override;
 
   Dimensions dimensions() const override;
 
-  LocalPoint  nodePosition( int i, int j, int k) const override ;
+  LocalPoint nodePosition(int i, int j, int k) const override;
 
-  LocalVector nodeValue( int i, int j, int k) const override ;
-
+  LocalVector nodeValue(int i, int j, int k) const override;
 
 private:
-
-  double  thePhiMin;
-  double  thePhiMax;
+  double thePhiMin;
+  double thePhiMax;
   MFGrid* theSectorGrid;
-  double  theDelta;
+  double theDelta;
 
-  void throwUp( const char *message) const;
-
+  void throwUp(const char* message) const;
 };
 
 #endif

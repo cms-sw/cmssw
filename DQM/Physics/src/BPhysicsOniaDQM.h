@@ -16,28 +16,25 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
 #include <cmath>
 #include <map>
 
-class DQMStore;
-class MonitorElement;
-
 class BPhysicsOniaDQM : public DQMEDAnalyzer {
- public:
+public:
   /// Constructor
   BPhysicsOniaDQM(const edm::ParameterSet&);
 
   /// Destructor
   ~BPhysicsOniaDQM() override;
 
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
-                      edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   float computeMass(const math::XYZVector& vec1, const math::XYZVector& vec2);
   bool isMuonInAccept(const reco::Muon& recoMu);
   bool selGlobalMuon(const reco::Muon& recoMu);

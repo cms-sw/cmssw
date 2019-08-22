@@ -13,12 +13,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
- typedef SingleObjectSelector<
-           reco::GsfElectronCollection,
-           AndSelector<
-             EtaRangeSelector,
-             PtMinSelector
-           >
-         > EtaPtMinPixelMatchGsfElectronSelector;
+typedef SingleObjectSelector<reco::GsfElectronCollection, AndSelector<EtaRangeSelector, PtMinSelector> >
+    EtaPtMinPixelMatchGsfElectronSelector;
 
-DEFINE_FWK_MODULE( EtaPtMinPixelMatchGsfElectronSelector );
+DEFINE_FWK_MODULE(EtaPtMinPixelMatchGsfElectronSelector);

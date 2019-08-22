@@ -8,25 +8,25 @@
 #include <iosfwd>
 
 namespace reco {
-/** \class reco::PFCandidateElectronExtra
+  /** \class reco::PFCandidateElectronExtra
  *
  * extra information on the electron particle candidate from particle flow
  *
  */
-  class PFCandidateElectronExtra { 
-  public:    
+  class PFCandidateElectronExtra {
+  public:
     enum StatusFlag {
-      X=0,                            // undefined
-      Selected,                       // selected 
-      ECALDrivenPreselected,          // ECAL-driven electron pre-selected
-      MVASelected,                    // Passed the internal particle-flow selection (mva selection)
-      Rejected                        // Rejected 
+      X = 0,                  // undefined
+      Selected,               // selected
+      ECALDrivenPreselected,  // ECAL-driven electron pre-selected
+      MVASelected,            // Passed the internal particle-flow selection (mva selection)
+      Rejected                // Rejected
     };
 
-    // if you had a variable update NMvaVariables 
+    // if you had a variable update NMvaVariables
     enum MvaVariable {
-      MVA_FIRST=0,
-      MVA_LnPtGsf=MVA_FIRST,
+      MVA_FIRST = 0,
+      MVA_LnPtGsf = MVA_FIRST,
       MVA_EtaGsf,
       MVA_SigmaPtOverPt,
       MVA_Fbrem,
@@ -45,36 +45,35 @@ namespace reco {
       MVA_LAST
     };
 
-
   public:
     /// constructor
     PFCandidateElectronExtra();
     /// constructor
     PFCandidateElectronExtra(const GsfTrackRef&);
     /// destructor
-    ~PFCandidateElectronExtra(){;}
+    ~PFCandidateElectronExtra() { ; }
 
-    /// set gsftrack reference 
-    void setGsfTrackRef(const reco::GsfTrackRef& ref);   
+    /// set gsftrack reference
+    void setGsfTrackRef(const reco::GsfTrackRef& ref);
 
     /// set kf track reference
-    void setKfTrackRef(const reco::TrackRef & ref);
+    void setKfTrackRef(const reco::TrackRef& ref);
 
     /// return a reference to the corresponding GSF track
-    reco::GsfTrackRef gsfTrackRef() const { return gsfTrackRef_; }     
+    reco::GsfTrackRef gsfTrackRef() const { return gsfTrackRef_; }
 
     /// return a reference to the corresponding KF track
-    reco::TrackRef kfTrackRef() const { return kfTrackRef_; }     
+    reco::TrackRef kfTrackRef() const { return kfTrackRef_; }
 
     /// set LateBrem
-    void setLateBrem(float val); 
+    void setLateBrem(float val);
     /// set EarlyBrem
     void setEarlyBrem(float val);
 
     /// set the pout (not trivial to get from the GSF track)
     void setGsfTrackPout(const math::XYZTLorentzVector& pout);
-    
-    /// set the cluster energies. the Pout should be saved first 
+
+    /// set the cluster energies. the Pout should be saved first
     void setClusterEnergies(const std::vector<float>& energies);
 
     /// set the sigmaetaeta
@@ -89,33 +88,32 @@ namespace reco {
     /// set the result (mostly for debugging)
     void setMVA(float val);
 
-    /// set status 
-    void setStatus(StatusFlag type,bool status=true);
+    /// set status
+    void setStatus(StatusFlag type, bool status = true);
 
     /// access to the status
-    bool electronStatus(StatusFlag) const ;
+    bool electronStatus(StatusFlag) const;
 
     /// access to the status
-    int electronStatus() const {return status_;}
+    int electronStatus() const { return status_; }
 
     /// access to mva variable status
     bool mvaStatus(MvaVariable flag) const;
 
     /// access to the mva variables
-    const std::vector<float> & mvaVariables() const {return mvaVariables_;}
+    const std::vector<float>& mvaVariables() const { return mvaVariables_; }
 
     /// access to any variable
     float mvaVariable(MvaVariable var) const;
 
     /// access to specific variables
-    float hadEnergy() const {return hadEnergy_;}
-    float sigmaEtaEta() const {return sigmaEtaEta_;}
+    float hadEnergy() const { return hadEnergy_; }
+    float sigmaEtaEta() const { return sigmaEtaEta_; }
 
+  private:
+    void setVariable(MvaVariable type, float var);
 
- private:
-    void  setVariable(MvaVariable type,float var);
-    
- private:
+  private:
     /// Ref to the GSF track
     reco::GsfTrackRef gsfTrackRef_;
     /// Ref to the KF track
@@ -126,7 +124,7 @@ namespace reco {
 
     /// mva variables  -  transient !
     std::vector<float> mvaVariables_;
-    
+
     /// status of  mva variables
     int mvaStatus_;
 
@@ -143,7 +141,7 @@ namespace reco {
   };
 
   /// print the variables
-  std::ostream& operator<<( std::ostream& out, const PFCandidateElectronExtra& c );
+  std::ostream& operator<<(std::ostream& out, const PFCandidateElectronExtra& c);
 
-}
+}  // namespace reco
 #endif

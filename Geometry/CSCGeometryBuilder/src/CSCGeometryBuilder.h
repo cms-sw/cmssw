@@ -26,24 +26,19 @@ public:
   virtual ~CSCGeometryBuilder();
 
   /// Build the geometry
-  void build( CSCGeometry& theGeometry
-              , const RecoIdealGeometry& rig
-              , const CSCRecoDigiParameters& cscpars ) ;
+  void build(CSCGeometry& theGeometry, const RecoIdealGeometry& rig, const CSCRecoDigiParameters& cscpars);
 
 private:
   /// Build one CSC chamber, and its component layers, and add them to the geometry
-  void buildChamber (  
-		     CSCGeometry& theGeometry        // the geometry container
-		     , CSCDetId chamberId              // the DetId of this chamber
-		     , const std::vector<float>& fpar  // volume parameters
-		     , const std::vector<float>& fupar // user parameters
-		     , const std::vector<float>& gtran // translation vector
-		     , const std::vector<float>& grmat // rotation matrix
-		     , const CSCWireGroupPackage& wg   // wire group info
-	);
+  void buildChamber(CSCGeometry& theGeometry,         // the geometry container
+                    CSCDetId chamberId,               // the DetId of this chamber
+                    const std::vector<float>& fpar,   // volume parameters
+                    const std::vector<float>& fupar,  // user parameters
+                    const std::vector<float>& gtran,  // translation vector
+                    const std::vector<float>& grmat,  // rotation matrix
+                    const CSCWireGroupPackage& wg     // wire group info
+  );
 
   const std::string myName;
-
 };
 #endif
-

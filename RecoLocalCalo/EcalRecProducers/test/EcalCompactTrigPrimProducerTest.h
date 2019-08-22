@@ -15,33 +15,32 @@
  *
  **/
 
-class EcalCompactTrigPrimProducerTest: public edm::EDAnalyzer {
+class EcalCompactTrigPrimProducerTest : public edm::EDAnalyzer {
 public:
-/// Constructor
-  EcalCompactTrigPrimProducerTest(const edm::ParameterSet& ps):
-    tpDigiToken_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("tpDigiColl"))),
-    tpRecToken_ (consumes<EcalTrigPrimCompactColl>(ps.getParameter<edm::InputTag>("tpRecColl"))),
-    tpSkimToken_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("tpSkimColl"))),
-    nCompressEt_(0),
-    nFineGrain_(0),
-    nTTF_(0),
-    nL1aSpike_(0),
-    err_(false){}
-  
+  /// Constructor
+  EcalCompactTrigPrimProducerTest(const edm::ParameterSet& ps)
+      : tpDigiToken_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("tpDigiColl"))),
+        tpRecToken_(consumes<EcalTrigPrimCompactColl>(ps.getParameter<edm::InputTag>("tpRecColl"))),
+        tpSkimToken_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("tpSkimColl"))),
+        nCompressEt_(0),
+        nFineGrain_(0),
+        nTTF_(0),
+        nL1aSpike_(0),
+        err_(false) {}
+
   /// Destructor
   ~EcalCompactTrigPrimProducerTest();
-  
+
 protected:
   /// Analyzes the event.
-  void analyze(edm::Event const & e, edm::EventSetup const & c); 
+  void analyze(edm::Event const& e, edm::EventSetup const& c);
 
 private:
   std::ostream& err(const char* mess);
-  
+
 private:
-  
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpDigiToken_;
-  edm::EDGetTokenT<EcalTrigPrimCompactColl>    tpRecToken_;
+  edm::EDGetTokenT<EcalTrigPrimCompactColl> tpRecToken_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpSkimToken_;
   int nCompressEt_;
   int nFineGrain_;
@@ -49,4 +48,4 @@ private:
   int nL1aSpike_;
   bool err_;
 };
-#endif //ECALTRIGPRIMRECPRODUCERTEST_H not defined
+#endif  //ECALTRIGPRIMRECPRODUCERTEST_H not defined

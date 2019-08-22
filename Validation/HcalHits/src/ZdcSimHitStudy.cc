@@ -28,7 +28,6 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "Validation/HcalHits/interface/ZdcSimHitStudy.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 ZdcSimHitStudy::ZdcSimHitStudy(const edm::ParameterSet &ps) {

@@ -35,12 +35,11 @@
 namespace pat {
 
   class JetCorrFactors {
-
   public:
     // jet energy correction factor. For flavor independent jet energy corrections the
     // std::vector<float> holds just a single entry. From the first flavor dependent entry
-    // in the chain on it holds five floats corresponding to the flavors: none, gluon, uds, 
-    // charm, bottom; in this case the entry for none will be set to -1; the std::string 
+    // in the chain on it holds five floats corresponding to the flavors: none, gluon, uds,
+    // charm, bottom; in this case the entry for none will be set to -1; the std::string
     // indicates the correction level according to jetMET definitions.
     typedef std::pair<std::string, std::vector<float> > CorrectionFactor;
     // order of flavor dependent CorrectionFactors
@@ -50,11 +49,13 @@ namespace pat {
 
   public:
     // default Constructor
-    JetCorrFactors() {};
+    JetCorrFactors(){};
     // constructor by value
     JetCorrFactors(const std::string& label, const std::vector<CorrectionFactor>& jec);
+    // add correction factor
+    void insertFactor(const unsigned int& position, const CorrectionFactor& factor);
 
-    // instance label of the jet energy corrections set 
+    // instance label of the jet energy corrections set
     std::string jecSet() const { return label_; }
     // correction level from unsigned int
     std::string jecLevel(const unsigned int& level) const { return jec_.at(level).first; };
@@ -66,15 +67,19 @@ namespace pat {
     Flavor jecFlavor(std::string flavor) const;
 
     // correction factor up to a given level and flavor (per default the flavor is NONE)
-    float correction(unsigned int level, Flavor flavor=NONE) const;
+    float correction(unsigned int level, Flavor flavor = NONE) const;
     // a list of the labels of all correction levels according to jetMET definitions, separated by '\n'
     std::string correctionLabelString() const;
     // a vector of the labels of all correction levels according to jetMET definitions
     std::vector<std::string> correctionLabels() const;
     // label of a specific correction factor according to jetMET definitions; for overflow a string ERROR is returned
-    std::string correctionLabel(unsigned int level) const { return (level<jec_.size() ? jec_.at(level).first : std::string("ERROR")); };
+    std::string correctionLabel(unsigned int level) const {
+      return (level < jec_.size() ? jec_.at(level).first : std::string("ERROR"));
+    };
     // check whether CorrectionFactor is flavor independent or not
-    bool flavorDependent(unsigned int level) const { return (level<jec_.size() ? jec_.at(level).second.size()==MAX_FLAVORS : false); };
+    bool flavorDependent(unsigned int level) const {
+      return (level < jec_.size() ? jec_.at(level).second.size() == MAX_FLAVORS : false);
+    };
     // number of available correction factors
     unsigned int numberOfCorrectionLevels() const { return jec_.size(); };
     // print function for debugging
@@ -82,24 +87,25 @@ namespace pat {
 
   private:
     // check consistency of input vector
-    bool flavorDependent(const CorrectionFactor& jec) const { return (jec.second.size()==MAX_FLAVORS); }
+    bool flavorDependent(const CorrectionFactor& jec) const { return (jec.second.size() == MAX_FLAVORS); }
     // check consistency of input vector
-    bool flavorIndependent(const CorrectionFactor& jec) const { return (jec.second.size()==1); }
+    bool flavorIndependent(const CorrectionFactor& jec) const { return (jec.second.size() == 1); }
     // check consistency of input vector
-    bool isValid(const CorrectionFactor& jec) const { return (flavorDependent(jec) || flavorIndependent(jec)); }    
-    
+    bool isValid(const CorrectionFactor& jec) const { return (flavorDependent(jec) || flavorIndependent(jec)); }
+    void invalidFactor() const;
+
   private:
     // instance label of jet energy correction factors
     std::string label_;
-    // vector of CorrectionFactors. NOTE: the correction factors are expected to appear 
-    // nested; they may appear in arbitary number and order according to the configuration 
-    // of the jetCorrFactors module. CorrectionFactors appear in two versions: as a single 
-    // float (for flavor independent corrections) or as a std::vector of four floats (for 
-    // flavor dependent corrections). Due to the nested structure of the CorrectionFactors 
-    // from the first flavor dependent CorrectionFactor in the chain on each correction is 
-    // flavor dependent. 
+    // vector of CorrectionFactors. NOTE: the correction factors are expected to appear
+    // nested; they may appear in arbitary number and order according to the configuration
+    // of the jetCorrFactors module. CorrectionFactors appear in two versions: as a single
+    // float (for flavor independent corrections) or as a std::vector of four floats (for
+    // flavor dependent corrections). Due to the nested structure of the CorrectionFactors
+    // from the first flavor dependent CorrectionFactor in the chain on each correction is
+    // flavor dependent.
     std::vector<CorrectionFactor> jec_;
   };
-}
+}  // namespace pat
 
 #endif

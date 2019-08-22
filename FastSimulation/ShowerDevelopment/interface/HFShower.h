@@ -19,46 +19,42 @@ class EcalHitMaker;
 class HcalHitMaker;
 class RandomEngineAndDistribution;
 
-class HFShower
-{
-
- public:
-
+class HFShower {
+public:
   typedef math::XYZVector XYZPoint;
 
-  typedef std::pair<XYZPoint,double> Spot;
+  typedef std::pair<XYZPoint, double> Spot;
   typedef std::pair<unsigned int, double> Step;
   typedef std::vector<Step> Steps;
   typedef Steps::const_iterator step_iterator;
 
   HFShower(const RandomEngineAndDistribution* engine,
-	   HDShowerParametrization* myParam,
-	   EcalHitMaker* myGrid,
-	   HcalHitMaker* myHcalHitMaker,
-	   int onECAL,
-	   double epart);
+           HDShowerParametrization* myParam,
+           EcalHitMaker* myGrid,
+           HcalHitMaker* myHcalHitMaker,
+           int onECAL,
+           double epart);
 
-  virtual ~HFShower() {;}
+  virtual ~HFShower() { ; }
 
   /// Compute the shower longitudinal and lateral development
   bool compute();
 
- private:
-
+private:
   // The longitudinal development ersatzt.
-  double gam(double x, double a) const { return pow(x,a-1.)*exp(-x); }
+  double gam(double x, double a) const { return pow(x, a - 1.) * exp(-x); }
 
   // Transverse integrated probability function (for 4R max size)
   // integral of the transverse ansatz f(r) =  2rR/(r**2 + R**2)**2 ->
   // 1/R - R/(R**2+r**2) | at limits 4R - 0
   double transProb(double factor, double R, double r) {
     double fsq = factor * factor;
-    return ((fsq + 1.)/fsq) * r * r / (r*r + R*R) ;
+    return ((fsq + 1.) / fsq) * r * r / (r * r + R * R);
   }
   // Compute longE[i] and transR[i] for all nsteps
   void makeSteps(int nsteps);
 
-  int indexFinder(double x, const std::vector<double> & Fhist);
+  int indexFinder(double x, const std::vector<double>& Fhist);
 
   // The parametrization
   HDShowerParametrization* theParam;
@@ -76,18 +72,18 @@ class HFShower
   double depthStart;
   double aloge;
 
-  std::vector<int>    detector, nspots;
+  std::vector<int> detector, nspots;
   std::vector<double> eStep, rlamStep;
   std::vector<double> x0curr, x0depth;
   std::vector<double> lamstep, lamcurr, lamdepth, lamtotal;
 
-  int infinity; // big number of cycles if exit is on a special condition
+  int infinity;  // big number of cycles if exit is on a special condition
 
   // The crystal grid
-  EcalHitMaker * theGrid;
+  EcalHitMaker* theGrid;
 
   // The HCAL
-  HcalHitMaker * theHcalHitMaker;
+  HcalHitMaker* theHcalHitMaker;
 
   // OnECAL flag as an input parameter ...
   int onEcal;

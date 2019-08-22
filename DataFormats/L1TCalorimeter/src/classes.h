@@ -11,4 +11,3 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
-

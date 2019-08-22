@@ -6,54 +6,92 @@
 #include <iostream>
 
 void SensitiveDetectorCatalog::insert(const std::string &cN, const std::string &rN, const std::string &lvN) {
-  theClassNameMap[cN].push_back(rN);
-  theROUNameMap[rN].push_back(lvN);
+  theClassNameMap[cN].insert(rN);
+  theROUNameMap[rN].insert(lvN);
 #ifdef DEBUG
-  LogDebug("SimG4CoreGeometry") << "SenstiveDetectorCatalog: insert (" << cN << "," << rN << "," << lvN << ")\n"
-                                << "                         has     " << readoutNames().size() << " ROUs "
-                                << readoutNames().front() << "\n"
-                                << "                         has     " << classNames().size() << " classes "
-                                << classNames().front();
+  edm::LogVerbatim("SimG4CoreGeometry") << "SenstiveDetectorCatalog: insert (" << cN << "," << rN << "," << lvN << ")\n"
+                                        << "                         has     " << readoutNames().size() << " ROUs "
+                                        << readoutNames().front() << "\n"
+                                        << "                         has     " << classNames().size() << " classes "
+                                        << classNames().front();
 #endif
 }
 
-std::vector<std::string> SensitiveDetectorCatalog::readoutNames() const {
-  std::vector<std::string> temp;
-  for (MapType::const_iterator it = theROUNameMap.begin(); it != theROUNameMap.end(); it++)
-    temp.push_back(it->first);
+std::vector<std::string_view> SensitiveDetectorCatalog::readoutNames() const {
+  std::vector<std::string_view> temp;
+  for (auto const &it : theROUNameMap)
+    temp.emplace_back(it.first);
   return temp;
 }
 
-const std::vector<std::string> &SensitiveDetectorCatalog::readoutNames(const std::string &className) const {
-  return theClassNameMap.at(className);
+const std::vector<std::string_view> SensitiveDetectorCatalog::readoutNames(const std::string &className) const {
+  return std::vector<std::string_view>(theClassNameMap.at(className).begin(), theClassNameMap.at(className).end());
 }
 
-const std::vector<std::string> &SensitiveDetectorCatalog::logicalNames(const std::string &readoutName) const {
-  return theROUNameMap.at(readoutName);
+const std::vector<std::string_view> SensitiveDetectorCatalog::logicalNames(const std::string &readoutName) const {
+  return std::vector<std::string_view>(theROUNameMap.at(readoutName).begin(), theROUNameMap.at(readoutName).end());
 }
 
-std::vector<std::string> SensitiveDetectorCatalog::logicalNamesFromClassName(const std::string &className) const {
-  std::vector<std::string> temp;
-  const std::vector<std::string> &rous = theClassNameMap.at(className);
-  for (std::vector<std::string>::const_iterator it = rous.begin(); it != rous.end(); it++)
-    temp.push_back(*it);
+std::vector<std::string_view> SensitiveDetectorCatalog::logicalNamesFromClassName(const std::string &className) const {
+  std::vector<std::string_view> temp;
+  const std::vector<std::string_view> rous(theClassNameMap.at(className).begin(), theClassNameMap.at(className).end());
+  for (auto const &it : rous)
+    temp.emplace_back(it);
   return temp;
 }
 
-std::string SensitiveDetectorCatalog::className(const std::string &readoutName) const {
-  for (MapType::const_iterator it = theClassNameMap.begin(); it != theClassNameMap.end(); it++) {
-    std::vector<std::string> temp = (*it).second;
-    for (std::vector<std::string>::const_iterator it2 = temp.begin(); it2 != temp.end(); it2++) {
-      if (*it2 == readoutName)
-        return (*it).first;
+std::string_view SensitiveDetectorCatalog::className(const std::string &readoutName) const {
+  for (auto const &it : theClassNameMap) {
+    std::vector<std::string_view> temp(it.second.begin(), it.second.end());
+    for (auto const &it2 : temp) {
+      if (it2 == readoutName)
+        return it.first;
     }
   }
   return "NotFound";
 }
 
-std::vector<std::string> SensitiveDetectorCatalog::classNames() const {
-  std::vector<std::string> temp;
-  for (MapType::const_iterator it = theClassNameMap.begin(); it != theClassNameMap.end(); it++)
-    temp.push_back(it->first);
+std::vector<std::string_view> SensitiveDetectorCatalog::classNames() const {
+  std::vector<std::string_view> temp;
+  for (auto const &it : theClassNameMap)
+    temp.emplace_back(it.first);
   return temp;
+}
+
+void SensitiveDetectorCatalog::printMe() const {
+  edm::LogVerbatim("SimG4CoreGeometry") << "Class names map size is: " << theClassNameMap.size() << "\n";
+  edm::LogVerbatim("SimG4CoreGeometry").log([&](auto &log) {
+    int i(0);
+    for (auto cn : theClassNameMap) {
+      log << "#" << ++i << ": " << cn.first << " has " << cn.second.size() << " class names:\n";
+      for (auto cnv : cn.second)
+        log << cnv << ", ";
+      log << "\n";
+    }
+    log << "\n";
+  });
+  edm::LogVerbatim("SimG4CoreGeometry") << "\nROU names map: " << theROUNameMap.size() << "\n";
+  edm::LogVerbatim("SimG4CoreGeometry").log([&](auto &log) {
+    int i(0);
+    for (auto rn : theROUNameMap) {
+      log << "#" << ++i << ": " << rn.first << " has " << rn.second.size() << " ROU names:\n";
+      for (auto rnv : rn.second)
+        log << rnv << ", ";
+      log << "\n";
+    }
+    log << "\n";
+  });
+
+  edm::LogVerbatim("SimG4CoreGeometry") << "\n========== Here are the accessors =================\n";
+  edm::LogVerbatim("SimG4CoreGeometry").log([&](auto &log) {
+    for (auto c : classNames()) {
+      log << "ClassName:" << c << "\n";
+      for (auto r : readoutNames({c.data(), c.size()})) {
+        log << "       RedoutName:" << r << "\n";
+        for (auto l : logicalNames({r.data(), r.size()})) {
+          log << "              LogicalName:" << l << "\n";
+        }
+      }
+    }
+  });
 }

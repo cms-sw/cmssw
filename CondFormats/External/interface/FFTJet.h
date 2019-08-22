@@ -16,9 +16,9 @@
 #include <stdexcept>
 
 namespace boost {
-namespace serialization {
+  namespace serialization {
 
-/*
+    /*
  * Note regarding object tracking: all autos used here
  * must resolve to untracked types, since we use local
  * variables in the stack which could end up with the same
@@ -27,24 +27,21 @@ namespace serialization {
  * by Boost Serialization.
  */
 
-// JetMETCorrections/FFTJetObjects/interface/FFTJetCorrectorSequence.h
-template<class Archive, class Jet,
-    template<class> class InitialConverter,
-    template<class> class FinalConverter
->
-void serialize(Archive & ar, FFTJetCorrectorSequence<Jet, InitialConverter, FinalConverter> & obj, const unsigned int)
-{
-    throw std::runtime_error("Unimplemented serialization code.");
-}
+    // JetMETCorrections/FFTJetObjects/interface/FFTJetCorrectorSequence.h
+    template <class Archive, class Jet, template <class> class InitialConverter, template <class> class FinalConverter>
+    void serialize(Archive& ar,
+                   FFTJetCorrectorSequence<Jet, InitialConverter, FinalConverter>& obj,
+                   const unsigned int) {
+      throw std::runtime_error("Unimplemented serialization code.");
+    }
 
-// JetMETCorrections/FFTJetObjects/interface/FFTJetDict.h
-template<class Archive, class Key, class T, class Compare, class Allocator>
-void serialize(Archive & ar, FFTJetDict<Key, T, Compare, Allocator> & obj, const unsigned int)
-{
-    throw std::runtime_error("Unimplemented serialization code.");
-}
+    // JetMETCorrections/FFTJetObjects/interface/FFTJetDict.h
+    template <class Archive, class Key, class T, class Compare, class Allocator>
+    void serialize(Archive& ar, FFTJetDict<Key, T, Compare, Allocator>& obj, const unsigned int) {
+      throw std::runtime_error("Unimplemented serialization code.");
+    }
 
-} // namespace serialization
-} // namespace boost
+  }  // namespace serialization
+}  // namespace boost
 
 #endif

@@ -18,38 +18,36 @@
 
 class TrackProducerWithSCAssociation : public TrackProducerBase<reco::Track>, public edm::stream::EDProducer<> {
 public:
-
   explicit TrackProducerWithSCAssociation(const edm::ParameterSet& iConfig);
-
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::vector<reco::TransientTrack> getTransient(edm::Event&, const edm::EventSetup&);
 
 private:
-  std::string myname_; 
+  std::string myname_;
   TrackProducerAlgorithm<reco::Track> theAlgo;
   std::string conversionTrackCandidateProducer_;
   std::string trackCSuperClusterAssociationCollection_;
   std::string trackSuperClusterAssociationCollection_;
   edm::EDGetTokenT<reco::TrackCandidateCaloClusterPtrAssociation> assoc_token;
-  edm::OrphanHandle<reco::TrackCollection> rTracks_; 
+  edm::OrphanHandle<reco::TrackCollection> rTracks_;
   edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrkToken_;
   bool myTrajectoryInEvent_;
   bool validTrackCandidateSCAssociationInput_;
 
-
   //Same recipe as Ursula's for electrons. Copy this from TrackProducerBase to get the OrphanHandle
   //ugly temporary solution!! I agree !
   void putInEvt(edm::Event& evt,
-		const Propagator* thePropagator,
-		const MeasurementTracker* theMeasTk,
-		std::unique_ptr<TrackingRecHitCollection> selHits,
-		std::unique_ptr<reco::TrackCollection> selTracks,
-		std::unique_ptr<reco::TrackExtraCollection> selTrackExtras,
-		std::unique_ptr<std::vector<Trajectory>> selTrajectories,
-		AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder,
-                const TrackerTopology *ttopo);
+                const Propagator* thePropagator,
+                const MeasurementTracker* theMeasTk,
+                std::unique_ptr<TrackingRecHitCollection> selHits,
+                std::unique_ptr<reco::TrackCollection> selTracks,
+                std::unique_ptr<reco::TrackExtraCollection> selTrackExtras,
+                std::unique_ptr<std::vector<Trajectory>> selTrajectories,
+                AlgoProductCollection& algoResults,
+                TransientTrackingRecHitBuilder const* hitBuilder,
+                const TrackerTopology* ttopo);
 };
 
 #endif

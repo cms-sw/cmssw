@@ -15,11 +15,15 @@ using std::endl;
 #include <string>
 using std::string;
 
-L1RCTReceiverCard::L1RCTReceiverCard(int crateNumber, int cardNumber,
-                                     const L1RCTLookupTables *rctLookupTables)
-    : regions(2), crtNo(crateNumber), cardNo(cardNumber),
-      rctLookupTables_(rctLookupTables), etIn10Bits(2), overFlowBits(2),
-      muonBits(2), tauBits(2) {}
+L1RCTReceiverCard::L1RCTReceiverCard(int crateNumber, int cardNumber, const L1RCTLookupTables *rctLookupTables)
+    : regions(2),
+      crtNo(crateNumber),
+      cardNo(cardNumber),
+      rctLookupTables_(rctLookupTables),
+      etIn10Bits(2),
+      overFlowBits(2),
+      muonBits(2),
+      tauBits(2) {}
 
 L1RCTReceiverCard::~L1RCTReceiverCard() {}
 
@@ -65,7 +69,6 @@ void L1RCTReceiverCard::fileInput(char *filename) {
 // 19 23 27 31
 
 void L1RCTReceiverCard::fillInput(const std::vector<unsigned short> &input) {
-
   std::vector<unsigned short> ecalInput(32);
   std::vector<unsigned short> ecalFG(32);
   std::vector<unsigned short> hcalInput(32);
@@ -76,9 +79,8 @@ void L1RCTReceiverCard::fillInput(const std::vector<unsigned short> &input) {
     ecalFG.at(i) = input.at(i) & 1;
     hcalInput.at(i) = input.at(i + 32) / 2;
     hcalMuon.at(i) = input.at(i + 32) & 1;
-    unsigned long lookup =
-        rctLookupTables_->lookup(ecalInput.at(i), hcalInput.at(i), ecalFG.at(i),
-                                 crtNo, cardNo, i); // tower number 0-31 now
+    unsigned long lookup = rctLookupTables_->lookup(
+        ecalInput.at(i), hcalInput.at(i), ecalFG.at(i), crtNo, cardNo, i);  // tower number 0-31 now
     unsigned short etIn7Bits = lookup & 127;
     unsigned short etIn9Bits = (lookup >> 8) & 511;
     unsigned short HE_FGBit = (lookup >> 7) & 1;
@@ -170,24 +172,20 @@ unsigned short L1RCTReceiverCard::calcTauBit(L1RCTRegion region) {
   bitset<4> badPattern15(string("1111"));
 
   for (int i = 0; i < 4; i++) {
-    phiPattern[i] = region.getActivityBit(i, 0) ||
-                    region.getActivityBit(i, 1) ||
-                    region.getActivityBit(i, 2) || region.getActivityBit(i, 3);
-    etaPattern[i] = region.getActivityBit(0, i) ||
-                    region.getActivityBit(1, i) ||
-                    region.getActivityBit(2, i) || region.getActivityBit(3, i);
+    phiPattern[i] = region.getActivityBit(i, 0) || region.getActivityBit(i, 1) || region.getActivityBit(i, 2) ||
+                    region.getActivityBit(i, 3);
+    etaPattern[i] = region.getActivityBit(0, i) || region.getActivityBit(1, i) || region.getActivityBit(2, i) ||
+                    region.getActivityBit(3, i);
   }
 
   bool answer;
 
-  if (etaPattern != badPattern5 && etaPattern != badPattern7 &&
-      etaPattern != badPattern10 && etaPattern != badPattern11 &&
-      etaPattern != badPattern13 && etaPattern != badPattern14 &&
-      etaPattern != badPattern15 && phiPattern != badPattern5 &&
-      phiPattern != badPattern7 && phiPattern != badPattern10 &&
-      phiPattern != badPattern11 && phiPattern != badPattern13 &&
-      phiPattern != badPattern14 && phiPattern != badPattern15 &&
-      etaPattern != badPattern9 && phiPattern != badPattern9) { // adding in "9"
+  if (etaPattern != badPattern5 && etaPattern != badPattern7 && etaPattern != badPattern10 &&
+      etaPattern != badPattern11 && etaPattern != badPattern13 && etaPattern != badPattern14 &&
+      etaPattern != badPattern15 && phiPattern != badPattern5 && phiPattern != badPattern7 &&
+      phiPattern != badPattern10 && phiPattern != badPattern11 && phiPattern != badPattern13 &&
+      phiPattern != badPattern14 && phiPattern != badPattern15 && etaPattern != badPattern9 &&
+      phiPattern != badPattern9) {  // adding in "9"
     // return false;
     answer = false;
   }

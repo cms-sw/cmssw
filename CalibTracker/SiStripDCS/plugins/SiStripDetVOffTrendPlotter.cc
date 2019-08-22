@@ -10,10 +10,13 @@
 
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "CondFormats/Common/interface/Time.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/TrackerNumberingBuilder/interface/utils.h"
 
 #include <TROOT.h>
 #include <TSystem.h>
@@ -35,7 +38,7 @@ public:
 private:
   std::string formatIOV(cond::Time_t iov, std::string format = "%Y-%m-%d__%H_%M_%S");
   void prepGraph(TGraph *gr, TString name, TString title, Color_t color);
-  void dumpCSV(bool isHV);
+  void dumpCSV(bool isHV, std::size_t nModules);
 
   cond::persistency::ConnectionPool m_connectionPool;
   std::string m_condDb;
@@ -53,7 +56,6 @@ private:
   // Specify output CSV file name. Leave empty if do not want to dump HV/LV counts in a CSV file.
   std::string m_outputCSV;
   TFile *fout;
-  edm::Service<SiStripDetInfoFileReader> detidReader;
 
   //          IOV                 TAG                #HV, #LV
   std::map<cond::Time_t, std::map<std::string, std::pair<int, int>>> iovMap;
@@ -83,7 +85,9 @@ SiStripDetVOffTrendPlotter::~SiStripDetVOffTrendPlotter() {
 
 void SiStripDetVOffTrendPlotter::analyze(const edm::Event &evt, const edm::EventSetup &evtSetup) {
   // get total number of modules
-  auto num_modules = detidReader->getAllDetIds().size();
+  edm::ESHandle<GeometricDet> geomDetHandle;
+  evtSetup.get<IdealGeometryRecord>().get(geomDetHandle);
+  const auto num_modules = TrackerGeometryUtils::getSiStripDetIds(*geomDetHandle).size();
 
   // get start and end time for DB query
   boost::posix_time::ptime p_start, p_end;
@@ -201,8 +205,8 @@ void SiStripDetVOffTrendPlotter::analyze(const edm::Event &evt, const edm::Event
   c.Print(("LVOff_" + plot_postfix).data());
 
   if (!m_outputCSV.empty()) {
-    dumpCSV(true);
-    dumpCSV(false);
+    dumpCSV(true, num_modules);
+    dumpCSV(false, num_modules);
   }
 }
 
@@ -234,10 +238,7 @@ void SiStripDetVOffTrendPlotter::prepGraph(TGraph *gr, TString name, TString tit
   gr->GetYaxis()->SetRangeUser(0, 1.05);
 }
 
-void SiStripDetVOffTrendPlotter::dumpCSV(bool isHV) {
-  // get total number of modules
-  auto num_modules = detidReader->getAllDetIds().size();
-
+void SiStripDetVOffTrendPlotter::dumpCSV(bool isHV, std::size_t nModules) {
   std::string outCSV = isHV ? "HVOff_table_" + m_outputCSV : "LVOff_table_" + m_outputCSV;
   std::ofstream csv;
   csv.open(outCSV);
@@ -255,7 +256,7 @@ void SiStripDetVOffTrendPlotter::dumpCSV(bool isHV) {
     for (const auto &tag : m_plotTags) {
       if (v.second.find(tag) != v.second.end()) {
         int count = isHV ? v.second.at(tag).first : v.second.at(tag).second;
-        csv << count << " (" << 100. * count / num_modules << "%)";
+        csv << count << " (" << 100. * count / nModules << "%)";
       }
       csv << ",";
     }

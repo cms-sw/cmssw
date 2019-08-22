@@ -12,7 +12,6 @@
 //
 //
 
-
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -20,7 +19,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -34,20 +32,17 @@ class TH1I;
 class TProfile;
 class TTree;
 
-class GsfElectronFakeAnalyzer : public edm::one::EDAnalyzer<>
-{
- public:
-
-  explicit GsfElectronFakeAnalyzer(const edm::ParameterSet& conf);
+class GsfElectronFakeAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  explicit GsfElectronFakeAnalyzer(const edm::ParameterSet &conf);
 
   ~GsfElectronFakeAnalyzer() override;
 
   void beginJob() override;
   void endJob() override;
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
- private:
-
+private:
   TrajectoryStateTransform transformer_;
   edm::ESHandle<TrackerGeometry> pDD;
   edm::ESHandle<MagneticField> theMagField;
@@ -109,7 +104,7 @@ class GsfElectronFakeAnalyzer : public edm::one::EDAnalyzer<>
 
   TH2F *h_ele_E2mnE1vsMee_all;
   TH2F *h_ele_E2mnE1vsMee_egeg_all;
-  
+
   TH1F *h_ele_charge;
   TH2F *h_ele_chargeVsEta;
   TH2F *h_ele_chargeVsPhi;
@@ -133,30 +128,30 @@ class GsfElectronFakeAnalyzer : public edm::one::EDAnalyzer<>
 
   TH1F *histNum_;
 
-  TH1F *histSclEn_ ;
+  TH1F *histSclEn_;
   TH1F *histSclEoEmatchingObject_barrel;
   TH1F *histSclEoEmatchingObject_endcaps;
-  TH1F *histSclEt_ ;
-  TH2F *histSclEtVsEta_ ;
-  TH2F *histSclEtVsPhi_ ;
-  TH2F *histSclEtaVsPhi_ ;
-  TH1F *histSclEta_ ;
-  TH1F *histSclPhi_ ;
-  TH1F *histSclSigEtaEta_ ;
-  TH1F *histSclSigEtaEta_barrel_ ;
-  TH1F *histSclSigEtaEta_endcaps_ ;
-  TH1F *histSclSigIEtaIEta_ ;
-  TH1F *histSclSigIEtaIEta_barrel_ ;
-  TH1F *histSclSigIEtaIEta_endcaps_ ;
-  TH1F *histSclE1x5_ ;
-  TH1F *histSclE1x5_barrel_ ;
-  TH1F *histSclE1x5_endcaps_ ;
-  TH1F *histSclE2x5max_ ;
-  TH1F *histSclE2x5max_barrel_ ;
-  TH1F *histSclE2x5max_endcaps_ ;
-  TH1F *histSclE5x5_ ;
-  TH1F *histSclE5x5_barrel_ ;
-  TH1F *histSclE5x5_endcaps_ ;
+  TH1F *histSclEt_;
+  TH2F *histSclEtVsEta_;
+  TH2F *histSclEtVsPhi_;
+  TH2F *histSclEtaVsPhi_;
+  TH1F *histSclEta_;
+  TH1F *histSclPhi_;
+  TH1F *histSclSigEtaEta_;
+  TH1F *histSclSigEtaEta_barrel_;
+  TH1F *histSclSigEtaEta_endcaps_;
+  TH1F *histSclSigIEtaIEta_;
+  TH1F *histSclSigIEtaIEta_barrel_;
+  TH1F *histSclSigIEtaIEta_endcaps_;
+  TH1F *histSclE1x5_;
+  TH1F *histSclE1x5_barrel_;
+  TH1F *histSclE1x5_endcaps_;
+  TH1F *histSclE2x5max_;
+  TH1F *histSclE2x5max_barrel_;
+  TH1F *histSclE2x5max_endcaps_;
+  TH1F *histSclE5x5_;
+  TH1F *histSclE5x5_barrel_;
+  TH1F *histSclE5x5_endcaps_;
 
   TH1F *h_ele_ambiguousTracks;
   TH2F *h_ele_ambiguousTracksVsEta;
@@ -306,7 +301,7 @@ class GsfElectronFakeAnalyzer : public edm::one::EDAnalyzer<>
 
   TH1F *h_ele_seed_dphi2_;
   TH2F *h_ele_seed_dphi2VsEta_;
-  TH2F *h_ele_seed_dphi2VsPt_ ;
+  TH2F *h_ele_seed_dphi2VsPt_;
   TH1F *h_ele_seed_drz2_;
   TH2F *h_ele_seed_drz2VsEta_;
   TH2F *h_ele_seed_drz2VsPt_;
@@ -346,15 +341,15 @@ class GsfElectronFakeAnalyzer : public edm::one::EDAnalyzer<>
   TH1F *histSclEoEmatchingObjectGolden_endcaps;
   TH1F *histSclEoEmatchingObjectShowering_barrel;
   TH1F *histSclEoEmatchingObjectShowering_endcaps;
-  
-  TH1F *h_ele_mva; 
-  TH1F *h_ele_provenance; 
 
-  TH1F *h_ele_tkSumPt_dr03; 
+  TH1F *h_ele_mva;
+  TH1F *h_ele_provenance;
+
+  TH1F *h_ele_tkSumPt_dr03;
   TH1F *h_ele_ecalRecHitSumEt_dr03;
   TH1F *h_ele_hcalDepth1TowerSumEt_dr03;
   TH1F *h_ele_hcalDepth2TowerSumEt_dr03;
-  TH1F *h_ele_tkSumPt_dr04; 
+  TH1F *h_ele_tkSumPt_dr04;
   TH1F *h_ele_ecalRecHitSumEt_dr04;
   TH1F *h_ele_hcalDepth1TowerSumEt_dr04;
   TH1F *h_ele_hcalDepth2TowerSumEt_dr04;
@@ -415,10 +410,6 @@ class GsfElectronFakeAnalyzer : public edm::one::EDAnalyzer<>
   int nbindphimatch2D;
   int nbinmee;
   int nbinhoe;
-
- };
+};
 
 #endif
-
-
-

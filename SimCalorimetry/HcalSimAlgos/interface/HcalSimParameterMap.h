@@ -7,41 +7,34 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-class HcalSimParameterMap : public CaloVSimParameterMap
-{
+class HcalSimParameterMap : public CaloVSimParameterMap {
 public:
   /// hardcoded default parameters
   HcalSimParameterMap();
   /// configurable parameters
-  HcalSimParameterMap(const edm::ParameterSet & p);
+  HcalSimParameterMap(const edm::ParameterSet& p);
 
   ~HcalSimParameterMap() override {}
 
-  const CaloSimParameters & simParameters(const DetId & id) const override;
+  const CaloSimParameters& simParameters(const DetId& id) const override;
 
   /// accessors
-  const HcalSimParameters & hbParameters() const {return theHBParameters;}
-  const HcalSimParameters & heParameters() const {return theHEParameters;}
-  const HcalSimParameters & hoParameters() const  {return theHOParameters;}
-  const HFSimParameters & hfParameters1() const  {return theHFParameters1;}
-  const HFSimParameters & hfParameters2() const  {return theHFParameters2;}
-  const HFSimParameters & zdcParameters() const  {return theZDCParameters;}
+  const HcalSimParameters& hbParameters() const { return theHBParameters; }
+  const HcalSimParameters& heParameters() const { return theHEParameters; }
+  const HcalSimParameters& hoParameters() const { return theHOParameters; }
+  const HFSimParameters& hfParameters1() const { return theHFParameters1; }
+  const HFSimParameters& hfParameters2() const { return theHFParameters2; }
+  const HFSimParameters& zdcParameters() const { return theZDCParameters; }
 
-  void setDbService(const HcalDbService * service);
+  void setDbService(const HcalDbService* service);
 
-  void setFrameSize(const DetId & detId, int frameSize);
-  
-  void setHOZecotekDetIds(const std::vector<HcalDetId> & ids)
-  {
-    theHOZecotekDetIds = ids;
-  }
-  void setHOHamamatsuDetIds(const std::vector<HcalDetId> & ids)
-  {
-    theHOHamamatsuDetIds = ids;
-  }
+  void setFrameSize(const DetId& detId, int frameSize);
+
+  void setHOZecotekDetIds(const std::vector<HcalDetId>& ids) { theHOZecotekDetIds = ids; }
+  void setHOHamamatsuDetIds(const std::vector<HcalDetId>& ids) { theHOHamamatsuDetIds = ids; }
 
 private:
-  void setFrameSize(CaloSimParameters & parameters, int frameSize);
+  void setFrameSize(CaloSimParameters& parameters, int frameSize);
 
   HcalSimParameters theHBParameters;
   HcalSimParameters theHEParameters;
@@ -56,4 +49,3 @@ private:
 };
 
 #endif
-

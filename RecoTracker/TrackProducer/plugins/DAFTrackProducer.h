@@ -16,9 +16,8 @@
 
 class DAFTrackProducer : public KfTrackProducerBase, public edm::stream::EDProducer<> {
 public:
-
   typedef std::vector<Trajectory> TrajectoryCollection;
-//  typedef std::vector<TrajAnnealing> TrajAnnealingCollection;
+  //  typedef std::vector<TrajAnnealing> TrajAnnealingCollection;
   explicit DAFTrackProducer(const edm::ParameterSet& iConfig);
 
   // Implementation of produce method
@@ -28,12 +27,12 @@ private:
   DAFTrackProducerAlgorithm theAlgo;
   using TrackProducerBase<reco::Track>::getFromEvt;
   void getFromEvt(edm::Event&, edm::Handle<TrajTrackAssociationCollection>&, reco::BeamSpot&);
-  void putInEvtTrajAnn(edm::Event& theEvent, TrajAnnealingCollection & trajannResults,
-                std::unique_ptr<TrajAnnealingCollection>& selTrajAnn);
+  void putInEvtTrajAnn(edm::Event& theEvent,
+                       TrajAnnealingCollection& trajannResults,
+                       std::unique_ptr<TrajAnnealingCollection>& selTrajAnn);
 
   bool TrajAnnSaving_;
   edm::EDGetToken srcTT_;
-  
 };
 
 #endif

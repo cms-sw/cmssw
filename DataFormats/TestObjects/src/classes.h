@@ -36,4 +36,3 @@
 
 #include <list>
 #include <algorithm>
-

@@ -20,19 +20,20 @@
 
 class ClusterRemovalRefSetter {
 public:
-  inline ClusterRemovalRefSetter(const edm::Event &iEvent, const edm::InputTag& tag) ;
-  inline ClusterRemovalRefSetter(const edm::Event &iEvent,
-	const edm::EDGetTokenT<reco::ClusterRemovalInfo>& token) ;
+  inline ClusterRemovalRefSetter(const edm::Event& iEvent, const edm::InputTag& tag);
+  inline ClusterRemovalRefSetter(const edm::Event& iEvent, const edm::EDGetTokenT<reco::ClusterRemovalInfo>& token);
 
-  inline void reKey(TrackingRecHit *hit) const ;
+  inline void reKey(TrackingRecHit* hit) const;
+
 private:
   typedef OmniClusterRef::ClusterPixelRef ClusterPixelRef;
   typedef OmniClusterRef::ClusterStripRef ClusterStripRef;
 
-  inline void reKeyPixel(OmniClusterRef& clusRef) const ;
-  inline void reKeyStrip(OmniClusterRef& clusRef) const ;
+  inline void reKeyPixel(OmniClusterRef& clusRef) const;
+  inline void reKeyStrip(OmniClusterRef& clusRef) const;
+
 private:
-  const reco::ClusterRemovalInfo *cri_;
+  const reco::ClusterRemovalInfo* cri_;
 };
 
 #include "ClusterRemovalRefSetter.icc"

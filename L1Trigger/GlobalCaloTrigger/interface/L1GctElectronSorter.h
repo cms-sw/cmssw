@@ -8,7 +8,6 @@
 
 #include <vector>
 
-
 /*!
  * \Class L1GctElectronSorter
  * \brief Class that sorts electron candidates
@@ -24,13 +23,11 @@
  * \date    21/04/06
  */
 
-class L1GctElectronSorter : public L1GctProcessor
-{
- public:
-
+class L1GctElectronSorter : public L1GctProcessor {
+public:
   /// Data type to associate each electron candidate with
   /// a priority based on its position in the sorting tree.
-  /// Priority is used (as in the hardware) to decide which 
+  /// Priority is used (as in the hardware) to decide which
   /// electron is preferred when they have equal rank.
 
   struct prioritisedEmCand {
@@ -39,23 +36,22 @@ class L1GctElectronSorter : public L1GctProcessor
 
     // Define some constructors
     prioritisedEmCand() : emCand(), priority(0) {}
-    prioritisedEmCand(L1GctEmCand& c, unsigned short p)  : emCand(c), priority(p) {}
+    prioritisedEmCand(L1GctEmCand& c, unsigned short p) : emCand(c), priority(p) {}
     prioritisedEmCand(L1CaloEmCand& c, unsigned short p) : emCand(c), priority(p) {}
 
     // Enable some methods
     unsigned rank() const { return emCand.rank(); }
-
   };
-  
+
   /// comparison operator for sort, used here and in the ElectronFinalSort
   /// Candidates of equal rank are sorted by priority, with the lower value given precedence
   static bool rankByGt(const prioritisedEmCand& x, const prioritisedEmCand& y) {
-    return ( x.rank() > y.rank() || ( (x.rank() == y.rank()) && (x.priority < y.priority) ) ) ;
+    return (x.rank() > y.rank() || ((x.rank() == y.rank()) && (x.priority < y.priority)));
   }
 
   /// constructor; set type (isolated or non-isolated)
   L1GctElectronSorter(int nInputs, bool iso);
-  ///   
+  ///
   ~L1GctElectronSorter() override;
   ///
   /// get input data from sources
@@ -66,7 +62,7 @@ class L1GctElectronSorter : public L1GctProcessor
   ///
   /// set input candidate
   void setInputEmCand(const L1CaloEmCand& cand);
-  ///	
+  ///
   /// get input candidates
   inline std::vector<L1CaloEmCand> getInputCands() { return m_inputCands; }
   ///
@@ -74,9 +70,9 @@ class L1GctElectronSorter : public L1GctProcessor
   inline std::vector<L1GctEmCand> getOutputCands() { return m_outputCands; }
   ///
   /// overload of cout operator
-  friend std::ostream& operator<<(std::ostream& s,const L1GctElectronSorter& card);  
- protected:
+  friend std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& card);
 
+protected:
   /// Separate reset methods for the processor itself and any data stored in pipelines
   void resetProcessor() override;
   void resetPipelines() override {}
@@ -84,7 +80,7 @@ class L1GctElectronSorter : public L1GctProcessor
   /// Initialise inputs with null objects for the correct bunch crossing if required
   void setupObjects() override;
 
- private:
+private:
   ///
   /// algo ID (is it FPGA 1 or 2 processing)
   int m_id;
@@ -97,8 +93,7 @@ class L1GctElectronSorter : public L1GctProcessor
   ///
   /// output data
   std::vector<L1GctEmCand> m_outputCands;
-  
 };
 
-std::ostream& operator<<(std::ostream& s,const L1GctElectronSorter& card); 
+std::ostream& operator<<(std::ostream& s, const L1GctElectronSorter& card);
 #endif /*L1GCTELECTRONSORTER_H_*/

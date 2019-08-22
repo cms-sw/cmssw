@@ -9,32 +9,31 @@
 namespace edm {
   class EventSetup;
   class ParameterSet;
-}
+}  // namespace edm
 
 class DTWireId;
 
 namespace dtCalibration {
 
-struct DTT0Data {
-public:
-   // Constructor
-  DTT0Data(double t0_mean, double t0_rms) : mean(t0_mean),
-	                   		    rms(t0_rms) {}
+  struct DTT0Data {
+  public:
+    // Constructor
+    DTT0Data(double t0_mean, double t0_rms) : mean(t0_mean), rms(t0_rms) {}
 
-  double mean;
-  double rms;
-}; 
+    double mean;
+    double rms;
+  };
 
-class DTT0BaseCorrection {
-public:
-   // Constructor
-   DTT0BaseCorrection();
-   // Destructor
-   virtual ~DTT0BaseCorrection();
-   
-   virtual void setES(const edm::EventSetup& setup) = 0;
-   virtual DTT0Data correction(const DTWireId&) = 0;
-}; 
+  class DTT0BaseCorrection {
+  public:
+    // Constructor
+    DTT0BaseCorrection();
+    // Destructor
+    virtual ~DTT0BaseCorrection();
 
-} // namespace
+    virtual void setES(const edm::EventSetup& setup) = 0;
+    virtual DTT0Data correction(const DTWireId&) = 0;
+  };
+
+}  // namespace dtCalibration
 #endif

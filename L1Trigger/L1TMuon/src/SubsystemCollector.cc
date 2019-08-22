@@ -3,6 +3,4 @@
 
 using namespace L1TMuon;
 
-SubsystemCollector::SubsystemCollector(const edm::ParameterSet& ps):
-  _src(ps.getParameter<edm::InputTag>("src")) {
-}
+SubsystemCollector::SubsystemCollector(const edm::ParameterSet& ps) : _src(ps.getParameter<edm::InputTag>("src")) {}

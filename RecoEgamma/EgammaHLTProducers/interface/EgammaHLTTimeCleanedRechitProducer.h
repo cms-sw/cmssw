@@ -13,16 +13,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class EgammaHLTTimeCleanedRechitProducer : public edm::global::EDProducer<> {
-  
- public:
-  
+public:
   EgammaHLTTimeCleanedRechitProducer(const edm::ParameterSet& ps);
   ~EgammaHLTTimeCleanedRechitProducer() override;
 
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   double timeMax_;
   double timeMin_;
   std::vector<edm::InputTag> hitLabels;
@@ -31,7 +29,4 @@ class EgammaHLTTimeCleanedRechitProducer : public edm::global::EDProducer<> {
   std::vector<edm::EDGetTokenT<EcalUncalibratedRecHitCollection>> uncalibHitTokens;
 };
 
-
 #endif
-
-

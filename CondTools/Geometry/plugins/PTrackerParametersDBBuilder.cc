@@ -9,39 +9,33 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerParametersFromDD.h"
 
-class PTrackerParametersDBBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns>
-{
+class PTrackerParametersDBBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  
-  PTrackerParametersDBBuilder( const edm::ParameterSet& ) {}
-  
+  PTrackerParametersDBBuilder(const edm::ParameterSet&) {}
+
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
 };
 
-void
-PTrackerParametersDBBuilder::beginRun( const edm::Run&, edm::EventSetup const& es ) 
-{
+void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
   PTrackerParameters* ptp = new PTrackerParameters;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
-  if( !mydbservice.isAvailable())
-  {
-    edm::LogError( "PTrackerParametersDBBuilder" ) << "PoolDBOutputService unavailable";
+  if (!mydbservice.isAvailable()) {
+    edm::LogError("PTrackerParametersDBBuilder") << "PoolDBOutputService unavailable";
     return;
   }
   edm::ESTransientHandle<DDCompactView> cpv;
-  es.get<IdealGeometryRecord>().get( cpv );
+  es.get<IdealGeometryRecord>().get(cpv);
 
   TrackerParametersFromDD builder;
-  builder.build( &(*cpv), *ptp );
-  
-  if( mydbservice->isNewTagRequest( "PTrackerParametersRcd" ))
-  {
-    mydbservice->createNewIOV<PTrackerParameters>( ptp, mydbservice->beginOfTime(), mydbservice->endOfTime(), "PTrackerParametersRcd" );
-  } else
-  {
-    edm::LogError( "PTrackerParametersDBBuilder" ) << "PTrackerParameters and PTrackerParametersRcd Tag already present";
+  builder.build(&(*cpv), *ptp);
+
+  if (mydbservice->isNewTagRequest("PTrackerParametersRcd")) {
+    mydbservice->createNewIOV<PTrackerParameters>(
+        ptp, mydbservice->beginOfTime(), mydbservice->endOfTime(), "PTrackerParametersRcd");
+  } else {
+    edm::LogError("PTrackerParametersDBBuilder") << "PTrackerParameters and PTrackerParametersRcd Tag already present";
   }
 }
 

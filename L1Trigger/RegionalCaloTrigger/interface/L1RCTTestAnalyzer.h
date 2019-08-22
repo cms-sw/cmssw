@@ -58,8 +58,7 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
-  static bool compareEmCands(const L1CaloEmCand &cand1,
-                             const L1CaloEmCand &cand2);
+  static bool compareEmCands(const L1CaloEmCand &cand1, const L1CaloEmCand &cand2);
 
   // ----------member data ---------------------------
   std::string m_HepMCProduct;

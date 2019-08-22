@@ -33,7 +33,6 @@
 //              ---------------------
 
 class DTTPGLutFile {
-
 public:
   /// constructor
   DTTPGLutFile(const std::string name = "");
@@ -75,8 +74,8 @@ public:
   std::string readString();
 
 private:
-  std::ifstream m_fin; // input file stream
-  std::string m_file;  // file name
+  std::ifstream m_fin;  // input file stream
+  std::string m_file;   // file name
 };
 
 #endif

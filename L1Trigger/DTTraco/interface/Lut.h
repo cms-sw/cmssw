@@ -24,12 +24,11 @@
 
 #define ANGRESOL 512.0
 #define POSRESOL 4096.0
-#define SL_D 23.5      //(cm)SL Distance
-#define CELL_PITCH 4.2 //(cm)Wire Distance
-#define SL_DIFF 11.75  // (cm )Distance of SL from station center
+#define SL_D 23.5       //(cm)SL Distance
+#define CELL_PITCH 4.2  //(cm)Wire Distance
+#define SL_DIFF 11.75   // (cm )Distance of SL from station center
 
 class Lut {
-
 public:
   Lut(){};
   Lut(const DTConfigLUTs *conf, int ntc, float SL_shift);
@@ -47,13 +46,13 @@ public:
   void DSPtoIEEE32(short DSPmantissa, short DSPexp, float *f);
 
 public:
-  float m_d;   // distance vertex - normal
-  float m_Xcn; // Distance correlator - normal
-  int m_ST;    // TRACO BTIC parameter
-  int m_wheel; // Wheel sign (+1 or -1)
+  float m_d;    // distance vertex - normal
+  float m_Xcn;  // Distance correlator - normal
+  int m_ST;     // TRACO BTIC parameter
+  int m_wheel;  // Wheel sign (+1 or -1)
 
 private:
-  float m_pitch_d_ST; //=pitch/ST private:
+  float m_pitch_d_ST;  //=pitch/ST private:
 
   const DTConfigLUTs *_conf_luts;
 };

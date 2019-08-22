@@ -34,20 +34,15 @@
 
 // constructors
 //     default
-L1GtHfRingEtSumsCondition::L1GtHfRingEtSumsCondition()
-    : L1GtConditionEvaluation() {
-
+L1GtHfRingEtSumsCondition::L1GtHfRingEtSumsCondition() : L1GtConditionEvaluation() {
   // empty
 }
 
 //     from base template condition (from event setup usually)
-L1GtHfRingEtSumsCondition::L1GtHfRingEtSumsCondition(
-    const L1GtCondition *etTemplate, const L1GlobalTriggerPSB *ptrPSB)
+L1GtHfRingEtSumsCondition::L1GtHfRingEtSumsCondition(const L1GtCondition *etTemplate, const L1GlobalTriggerPSB *ptrPSB)
     : L1GtConditionEvaluation(),
-      m_gtHfRingEtSumsTemplate(
-          static_cast<const L1GtHfRingEtSumsTemplate *>(etTemplate)),
+      m_gtHfRingEtSumsTemplate(static_cast<const L1GtHfRingEtSumsTemplate *>(etTemplate)),
       m_gtPSB(ptrPSB) {
-
   // maximum number of objects received for the evaluation of the condition
   // no objects, in fact, just a number
   m_condMaxNumberObjects = 1;
@@ -55,7 +50,6 @@ L1GtHfRingEtSumsCondition::L1GtHfRingEtSumsCondition(
 
 // copy constructor
 void L1GtHfRingEtSumsCondition::copy(const L1GtHfRingEtSumsCondition &cp) {
-
   m_gtHfRingEtSumsTemplate = cp.gtHfRingEtSumsTemplate();
   m_gtPSB = cp.gtPSB();
 
@@ -66,42 +60,31 @@ void L1GtHfRingEtSumsCondition::copy(const L1GtHfRingEtSumsCondition &cp) {
   m_verbosity = cp.m_verbosity;
 }
 
-L1GtHfRingEtSumsCondition::L1GtHfRingEtSumsCondition(
-    const L1GtHfRingEtSumsCondition &cp)
-    : L1GtConditionEvaluation() {
-
+L1GtHfRingEtSumsCondition::L1GtHfRingEtSumsCondition(const L1GtHfRingEtSumsCondition &cp) : L1GtConditionEvaluation() {
   copy(cp);
 }
 
 // destructor
 L1GtHfRingEtSumsCondition::~L1GtHfRingEtSumsCondition() {
-
   // empty
 }
 
 // equal operator
-L1GtHfRingEtSumsCondition &L1GtHfRingEtSumsCondition::
-operator=(const L1GtHfRingEtSumsCondition &cp) {
+L1GtHfRingEtSumsCondition &L1GtHfRingEtSumsCondition::operator=(const L1GtHfRingEtSumsCondition &cp) {
   copy(cp);
   return *this;
 }
 
 // methods
-void L1GtHfRingEtSumsCondition::setGtHfRingEtSumsTemplate(
-    const L1GtHfRingEtSumsTemplate *etTemplate) {
-
+void L1GtHfRingEtSumsCondition::setGtHfRingEtSumsTemplate(const L1GtHfRingEtSumsTemplate *etTemplate) {
   m_gtHfRingEtSumsTemplate = etTemplate;
 }
 
 ///   set the pointer to PSB
-void L1GtHfRingEtSumsCondition::setGtPSB(const L1GlobalTriggerPSB *ptrPSB) {
-
-  m_gtPSB = ptrPSB;
-}
+void L1GtHfRingEtSumsCondition::setGtPSB(const L1GlobalTriggerPSB *ptrPSB) { m_gtPSB = ptrPSB; }
 
 // try all object permutations and check spatial correlations, if required
 const bool L1GtHfRingEtSumsCondition::evaluateCondition() const {
-
   // number of trigger objects in the condition
   // no objects, in fact, just a number
   int iCondition = 0;
@@ -125,28 +108,23 @@ const bool L1GtHfRingEtSumsCondition::evaluateCondition() const {
     return false;
   }
 
-  const L1GtHfRingEtSumsTemplate::ObjectParameter objPar =
-      (*(m_gtHfRingEtSumsTemplate->objectParameter()))[iCondition];
+  const L1GtHfRingEtSumsTemplate::ObjectParameter objPar = (*(m_gtHfRingEtSumsTemplate->objectParameter()))[iCondition];
 
   // FIXME ask GCT to provide a method to retrieve it
   const unsigned int numberL1HfRingEtSums = 4;
 
   const unsigned int cIndex = objPar.etSumIndex;
   if (cIndex >= numberL1HfRingEtSums) {
-
-    edm::LogError("L1GlobalTrigger")
-        << "\nL1GtHfRingEtSumsCondition error: etSumIndex " << cIndex
-        << "greater than GCT maximum index = " << numberL1HfRingEtSums
-        << "\n  ==> condResult = false " << std::endl;
+    edm::LogError("L1GlobalTrigger") << "\nL1GtHfRingEtSumsCondition error: etSumIndex " << cIndex
+                                     << "greater than GCT maximum index = " << numberL1HfRingEtSums
+                                     << "\n  ==> condResult = false " << std::endl;
     return false;
   }
 
   const unsigned int etSumValue = etSumCand->etSum(cIndex);
 
   // check countThreshold
-  if (!checkThreshold(objPar.etSumThreshold, etSumValue,
-                      m_gtHfRingEtSumsTemplate->condGEq())) {
-
+  if (!checkThreshold(objPar.etSumThreshold, etSumValue, m_gtHfRingEtSumsTemplate->condGEq())) {
     return false;
   }
 
@@ -164,7 +142,6 @@ const bool L1GtHfRingEtSumsCondition::evaluateCondition() const {
 }
 
 void L1GtHfRingEtSumsCondition::print(std::ostream &myCout) const {
-
   m_gtHfRingEtSumsTemplate->print(myCout);
   L1GtConditionEvaluation::print(myCout);
 }

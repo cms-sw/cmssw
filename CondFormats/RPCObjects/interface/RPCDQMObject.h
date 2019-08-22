@@ -3,15 +3,13 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include<vector>
-#include<map>
-#include<iostream>
-#include<boost/cstdint.hpp>
+#include <vector>
+#include <map>
+#include <iostream>
+#include <boost/cstdint.hpp>
 
 class RPCDQMObject {
-
- public:
-
+public:
   int dqmv;
   int run;
 
@@ -26,22 +24,20 @@ class RPCDQMObject {
     float numcluster;
     int status;
     float weight;
-  
-  COND_SERIALIZABLE;
-};
-  
-  RPCDQMObject(){}
-  ~RPCDQMObject(){}
- 
+
+    COND_SERIALIZABLE;
+  };
+
+  RPCDQMObject() {}
+  ~RPCDQMObject() {}
+
   RPCDQMObject* Fake_RPCDQMObject();
- 
-  std::vector<DQMObjectItem>  const & getCls() const {return v_cls;}
-  std::vector<DQMObjectItem>  v_cls; 
 
- private:
+  std::vector<DQMObjectItem> const& getCls() const { return v_cls; }
+  std::vector<DQMObjectItem> v_cls;
 
-
- COND_SERIALIZABLE;
+private:
+  COND_SERIALIZABLE;
 };
 
 #endif  //RPCDQMObject_h

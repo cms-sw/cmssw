@@ -16,13 +16,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
-#include "RecoCTPPS/PixelLocal/interface/RPixClusterToHit.h" 
+#include "RecoCTPPS/PixelLocal/interface/RPixClusterToHit.h"
 #include "RecoCTPPS/PixelLocal/interface/RPixDetPatternFinder.h"
 
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -31,27 +30,21 @@
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 
-
 #include <vector>
 #include <set>
 
+class RPixRoadFinder : public RPixDetPatternFinder {
+public:
+  explicit RPixRoadFinder(const edm::ParameterSet &param);
+  ~RPixRoadFinder() override;
+  void findPattern() override;
 
-
-class RPixRoadFinder : public RPixDetPatternFinder{
-
-  public:
-    explicit RPixRoadFinder(const edm::ParameterSet& param);
-    ~RPixRoadFinder() override;
-    void findPattern() override;
-
-  private:
-    int verbosity_;
-    double roadRadius_;
-    unsigned int minRoadSize_;
-    unsigned int maxRoadSize_;
-    void run(const edm::DetSetVector<CTPPSPixelRecHit> &input, const CTPPSGeometry & geometry, std::vector<Road> &roads);
-
+private:
+  int verbosity_;
+  double roadRadius_;
+  unsigned int minRoadSize_;
+  unsigned int maxRoadSize_;
+  void run(const edm::DetSetVector<CTPPSPixelRecHit> &input, const CTPPSGeometry &geometry, std::vector<Road> &roads);
 };
-
 
 #endif

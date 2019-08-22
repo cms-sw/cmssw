@@ -25,33 +25,34 @@
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class L3MuonCandidateProducer : public edm::global::EDProducer<> {
-
- public:
-  enum MuonTrackType {InnerTrack, OuterTrack, CombinedTrack};
+public:
+  enum MuonTrackType { InnerTrack, OuterTrack, CombinedTrack };
 
   /// constructor with config
   L3MuonCandidateProducer(const edm::ParameterSet&);
-  
+
   /// destructor
-  ~L3MuonCandidateProducer() override; 
-  
+  ~L3MuonCandidateProducer() override;
+
   /// produce candidates
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
- private:
+private:
   // L3/GLB Collection Label
-  edm::InputTag theL3CollectionLabel; 
-  edm::InputTag theL3LinksLabel; 
+  edm::InputTag theL3CollectionLabel;
+  edm::InputTag theL3LinksLabel;
   edm::EDGetTokenT<reco::TrackCollection> trackToken_;
   edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;
 
   enum MuonTrackType theType;
   bool theUseLinks;
-
-
 };
 
 #endif

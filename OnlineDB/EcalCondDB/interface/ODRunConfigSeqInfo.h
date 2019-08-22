@@ -13,7 +13,7 @@
 typedef int run_t;
 
 class ODRunConfigSeqInfo : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
 
   ODRunConfigSeqInfo();
@@ -21,31 +21,30 @@ class ODRunConfigSeqInfo : public IODConfig {
 
   inline std::string getTable() override { return "ECAL_SEQUENCE_DAT"; }
 
-
   // Methods for user data
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
 
-  inline   void setDescription(std::string x) { m_description = x; }
-  inline  std::string getDescription() const{ return m_description;}
-  inline  void setEcalConfigId(int x){ m_ecal_config_id = x; }
-  inline  int getEcalConfigId()const{ return m_ecal_config_id;}
-  inline  void setNumberOfCycles(int x){ m_cycles = x; }
-  inline  void setSequenceId(int x){ m_ID = x; }
-  inline  int getSequenceId()const{ return m_ID;}
-  inline  int getNumberOfCycles() const{return m_cycles;}
-  inline  void setSequenceNumber(int x){m_seq_num=x;}
-  inline  int getSequenceNumber() const{return m_seq_num;}
+  inline void setDescription(std::string x) { m_description = x; }
+  inline std::string getDescription() const { return m_description; }
+  inline void setEcalConfigId(int x) { m_ecal_config_id = x; }
+  inline int getEcalConfigId() const { return m_ecal_config_id; }
+  inline void setNumberOfCycles(int x) { m_cycles = x; }
+  inline void setSequenceId(int x) { m_ID = x; }
+  inline int getSequenceId() const { return m_ID; }
+  inline int getNumberOfCycles() const { return m_cycles; }
+  inline void setSequenceNumber(int x) { m_seq_num = x; }
+  inline int getSequenceNumber() const { return m_seq_num; }
   //
   RunSeqDef getRunSeqDef() const;
-  void setRunSeqDef(const RunSeqDef& runSeqDef);
+  void setRunSeqDef(const RunSeqDef &runSeqDef);
 
   // operators
-  inline bool operator==(const ODRunConfigSeqInfo &r) const {  return (m_ID   == r.m_ID ); }
+  inline bool operator==(const ODRunConfigSeqInfo &r) const { return (m_ID == r.m_ID); }
   inline bool operator!=(const ODRunConfigSeqInfo &r) const { return !(*this == r); }
 
- private:
+private:
   int m_ID;
   int m_ecal_config_id;
   int m_seq_num;
@@ -55,20 +54,16 @@ class ODRunConfigSeqInfo : public IODConfig {
   std::string m_description;
 
   // Methods from IUniqueDBObject
-  int fetchID() noexcept(false); // fetches the sequence by the ecal_config_id and seq_num
-  int fetchIDLast() noexcept(false); // fetches the sequence by the ecal_config_id and seq_num
+  int fetchID() noexcept(false);      // fetches the sequence by the ecal_config_id and seq_num
+  int fetchIDLast() noexcept(false);  // fetches the sequence by the ecal_config_id and seq_num
   void setByID(int id) noexcept(false);
 
-  void  writeDB()noexcept(false);
+  void writeDB() noexcept(false);
 
-  void prepareWrite()  noexcept(false) override;
+  void prepareWrite() noexcept(false) override;
 
-  void fetchData(ODRunConfigSeqInfo * result)     noexcept(false);
+  void fetchData(ODRunConfigSeqInfo *result) noexcept(false);
   void clear();
-
-
 };
-
-
 
 #endif

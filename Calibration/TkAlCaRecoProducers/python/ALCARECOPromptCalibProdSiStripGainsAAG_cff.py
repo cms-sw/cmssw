@@ -36,10 +36,6 @@ ALCARECOCalMinBiasFilterForSiStripGainsAAG.TriggerResultsTag = cms.InputTag("Tri
 #process.es_prefer_fakeSiStripDetVOff = cms.ESPrefer("SiStripDetVOffFakeESSource","siStripDetVOffFakeESSource")
 
 
-#process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
-
-
-
 # ------------------------------------------------------------------------------
 # This is the sequence for track refitting of the track saved by SiStripCalMinBias
 # to have access to transient objects produced during RECO step and not saved

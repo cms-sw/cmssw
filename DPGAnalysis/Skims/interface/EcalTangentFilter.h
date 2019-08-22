@@ -20,19 +20,19 @@
 //
 
 class EcalTangentFilter : public edm::EDFilter {
-   public:
-      explicit EcalTangentFilter(const edm::ParameterSet&);
-      ~EcalTangentFilter() override;
+public:
+  explicit EcalTangentFilter(const edm::ParameterSet&);
+  ~EcalTangentFilter() override;
 
-   private:
-      void beginJob() override;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override;
-      
-      // ----------member data ---------------------------
-		int fNgood, fNtot, fEvt;
-		std::string fMuLabel;
-		double fMuonD0Min;
-		double fMuonD0Max;
-		bool fVerbose;
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+  // ----------member data ---------------------------
+  int fNgood, fNtot, fEvt;
+  std::string fMuLabel;
+  double fMuonD0Min;
+  double fMuonD0Max;
+  bool fVerbose;
 };

@@ -16,7 +16,6 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -37,14 +36,14 @@ class TH1F;
 class TH2F;
 
 class TopDiLeptonDQM : public DQMEDAnalyzer {
- public:
+public:
   explicit TopDiLeptonDQM(const edm::ParameterSet&);
   ~TopDiLeptonDQM() override;
 
- protected:
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
-                      edm::EventSetup const&) override;
- private:
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
+private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleName_;

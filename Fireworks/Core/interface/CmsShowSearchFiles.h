@@ -33,42 +33,38 @@ class TGPopupMenu;
 class TGTextEntry;
 
 class CmsShowSearchFiles : public TGTransientFrame {
-
 public:
+  CmsShowSearchFiles(
+      const char* filename, const char* windowname, const TGWindow* p = nullptr, UInt_t w = 1, UInt_t h = 1);
+  ~CmsShowSearchFiles() override;
 
-   CmsShowSearchFiles (const char *filename,
-                       const char* windowname, const TGWindow* p = nullptr,
-                       UInt_t w = 1, UInt_t h = 1);
-   ~CmsShowSearchFiles() override;
+  ///This opens the dialog window and returns once the user has choosen, returns an empty string if canceled
+  std::string chooseFileFromURL();
 
-   ///This opens the dialog window and returns once the user has choosen, returns an empty string if canceled
-   std::string chooseFileFromURL();
-   
-   //NOTE: Do not call any of the following, they are only public because 'signals' are attached to them
-   void showPrefixes();
-   void prefixChoosen(Int_t);
-   void fileEntryChanged(const char*);
-   void updateBrowser();
-   void openClicked();
-   
-   void hyperlinkClicked(const char*);
+  //NOTE: Do not call any of the following, they are only public because 'signals' are attached to them
+  void showPrefixes();
+  void prefixChoosen(Int_t);
+  void fileEntryChanged(const char*);
+  void updateBrowser();
+  void openClicked();
 
-   ClassDefOverride(CmsShowSearchFiles, 0);
+  void hyperlinkClicked(const char*);
+
+  ClassDefOverride(CmsShowSearchFiles, 0);
 
 private:
-   void sendToWebBrowser(std::string& iWebFile);
-   void readInfo();
-   void readError();
+  void sendToWebBrowser(std::string& iWebFile);
+  void readInfo();
+  void readError();
 
-   TGTextButton* m_choosePrefix;
-   TGPopupMenu* m_prefixMenu;
-   TGTextEntry* m_file; 
-   FWHtml  *m_webFile;
-   std::vector<std::string> m_prefixes;
-   std::vector<bool> m_prefixComplete;
-   TGTextButton* m_openButton;
-   bool m_openCalled;
+  TGTextButton* m_choosePrefix;
+  TGPopupMenu* m_prefixMenu;
+  TGTextEntry* m_file;
+  FWHtml* m_webFile;
+  std::vector<std::string> m_prefixes;
+  std::vector<bool> m_prefixComplete;
+  TGTextButton* m_openButton;
+  bool m_openCalled;
 };
-
 
 #endif

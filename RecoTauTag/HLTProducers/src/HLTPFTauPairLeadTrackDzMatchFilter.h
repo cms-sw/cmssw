@@ -17,24 +17,22 @@
  */
 
 class HLTPFTauPairLeadTrackDzMatchFilter : public HLTFilter {
+public:
+  explicit HLTPFTauPairLeadTrackDzMatchFilter(const edm::ParameterSet& conf);
+  ~HLTPFTauPairLeadTrackDzMatchFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event& ev,
+                 const edm::EventSetup& es,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-  public:
-
-    explicit HLTPFTauPairLeadTrackDzMatchFilter(const edm::ParameterSet& conf);
-    ~HLTPFTauPairLeadTrackDzMatchFilter() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    bool hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
-
-  private:
-
-    edm::InputTag tauSrc_;
-    edm::EDGetTokenT<reco::PFTauCollection> tauSrcToken_;
-    double tauMinPt_;
-    double tauMaxEta_;
-    double tauMinDR_;
-    double tauLeadTrackMaxDZ_;
-    int    triggerType_;
-
+private:
+  edm::InputTag tauSrc_;
+  edm::EDGetTokenT<reco::PFTauCollection> tauSrcToken_;
+  double tauMinPt_;
+  double tauMaxEta_;
+  double tauMinDR_;
+  double tauLeadTrackMaxDZ_;
+  int triggerType_;
 };
 
 #endif

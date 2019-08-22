@@ -1,10 +1,8 @@
 #ifndef RPCRecordFormatter_H
 #define RPCRecordFormatter_H
 
-
 /** \class Interprets the RPC raw data and fills the RPCDigiCollection
  */
-
 
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
@@ -14,27 +12,26 @@
 class RPCReadOutMapping;
 #include <vector>
 
-class RPCRecordFormatter{
+class RPCRecordFormatter {
 public:
-  ///Creator 
-  RPCRecordFormatter(int fedId, const RPCReadOutMapping * readoutMapping);
-	   
-  ///Destructor 
+  ///Creator
+  RPCRecordFormatter(int fedId, const RPCReadOutMapping* readoutMapping);
+
+  ///Destructor
   ~RPCRecordFormatter();
 
-  std::vector<rpcrawtodigi::EventRecords> recordPack(
-      uint32_t rawDetId, const RPCDigi & digi, int trigger_BX) const; 
+  std::vector<rpcrawtodigi::EventRecords> recordPack(uint32_t rawDetId, const RPCDigi& digi, int trigger_BX) const;
 
-  int recordUnpack( const rpcrawtodigi::EventRecords & event, 
-                    RPCDigiCollection * prod, 
-                    RPCRawDataCounts * counter, 
-                    RPCRawSynchro::ProdItem * synchro);
+  int recordUnpack(const rpcrawtodigi::EventRecords& event,
+                   RPCDigiCollection* prod,
+                   RPCRawDataCounts* counter,
+                   RPCRawSynchro::ProdItem* synchro);
 
-private:    
+private:
   int currentFED;
   int currentTbLinkInputNumber;
 
-  const RPCReadOutMapping * readoutMapping;
+  const RPCReadOutMapping* readoutMapping;
 };
 
 #endif

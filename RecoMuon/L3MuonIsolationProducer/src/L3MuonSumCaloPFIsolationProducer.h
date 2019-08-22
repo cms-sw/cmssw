@@ -14,27 +14,22 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateIsolation.h"
 
-
-
 namespace edm {
-    class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 class L3MuonSumCaloPFIsolationProducer : public edm::global::EDProducer<> {
 public:
-    explicit L3MuonSumCaloPFIsolationProducer(const edm::ParameterSet&);
-    ~L3MuonSumCaloPFIsolationProducer() override;
-    
-    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    
-private:
-    
-    edm::EDGetTokenT<reco::RecoChargedCandidateCollection> recoChargedCandidateProducer_;
-    edm::EDGetTokenT<reco::RecoChargedCandidateIsolationMap> pfEcalClusterProducer_;
-    edm::EDGetTokenT<reco::RecoChargedCandidateIsolationMap> pfHcalClusterProducer_;
-    
+  explicit L3MuonSumCaloPFIsolationProducer(const edm::ParameterSet&);
+  ~L3MuonSumCaloPFIsolationProducer() override;
 
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> recoChargedCandidateProducer_;
+  edm::EDGetTokenT<reco::RecoChargedCandidateIsolationMap> pfEcalClusterProducer_;
+  edm::EDGetTokenT<reco::RecoChargedCandidateIsolationMap> pfHcalClusterProducer_;
 };
 
 #endif

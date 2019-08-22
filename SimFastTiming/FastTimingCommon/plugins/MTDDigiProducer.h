@@ -12,7 +12,7 @@ namespace edm {
   class ProducerBase;
   class ParameterSet;
   class StreamID;
-}
+}  // namespace edm
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -21,9 +21,9 @@ namespace CLHEP {
 class MTDDigiProducer : public DigiAccumulatorMixMod {
 public:
   MTDDigiProducer(edm::ParameterSet const& pset, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
-  MTDDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC)
-  {
-    throw cms::Exception("DeprecatedConstructor") << "Please make sure you're calling this with the threaded mixing module...";
+  MTDDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC) {
+    throw cms::Exception("DeprecatedConstructor")
+        << "Please make sure you're calling this with the threaded mixing module...";
   }
 
   void initializeEvent(edm::Event const&, edm::EventSetup const&) override;
@@ -33,6 +33,7 @@ public:
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   ~MTDDigiProducer() override;
+
 private:
   //the digitizer
   std::vector<std::unique_ptr<MTDDigitizerBase> > theDigitizers_;

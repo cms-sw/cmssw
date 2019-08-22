@@ -12,23 +12,23 @@ class ConfigurableAnnealing : public AnnealingSchedule {
    */
 
 public:
-  ConfigurableAnnealing( const edm::ParameterSet & );
+  ConfigurableAnnealing(const edm::ParameterSet&);
   ~ConfigurableAnnealing() override;
-  ConfigurableAnnealing( const ConfigurableAnnealing & );
+  ConfigurableAnnealing(const ConfigurableAnnealing&);
   void anneal() override;
   void resetAnnealing() override;
-  double phi ( double chi2 ) const override;
-  double weight ( double chi2 ) const override;
+  double phi(double chi2) const override;
+  double weight(double chi2) const override;
   double cutoff() const override;
   double currentTemp() const override;
   double initialTemp() const override;
   bool isAnnealed() const override;
   void debug() const override;
 
-  ConfigurableAnnealing * clone() const override;
+  ConfigurableAnnealing* clone() const override;
 
 private:
-  AnnealingSchedule * theImpl;
+  AnnealingSchedule* theImpl;
 };
 
 #endif

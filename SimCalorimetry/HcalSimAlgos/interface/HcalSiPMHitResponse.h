@@ -1,4 +1,4 @@
-// -*- C++ -*- 
+// -*- C++ -*-
 #ifndef HcalSimAlgos_HcalSiPMHitResponse_h
 #define HcalSimAlgos_HcalSiPMHitResponse_h
 
@@ -16,22 +16,20 @@ namespace CLHEP {
 
 class PCaloHitCompareTimes {
 public:
-  bool operator()(const PCaloHit * a, 
-		  const PCaloHit * b) const {
-    return a->time()<b->time();
-  }
+  bool operator()(const PCaloHit* a, const PCaloHit* b) const { return a->time() < b->time(); }
 };
 
 class HcalSiPMHitResponse : public CaloHitResponse {
-
 public:
-  HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap, 
-		      const CaloShapes * shapes, bool PreMix1 = false, bool HighFidelity = true);
+  HcalSiPMHitResponse(const CaloVSimParameterMap* parameterMap,
+                      const CaloShapes* shapes,
+                      bool PreMix1 = false,
+                      bool HighFidelity = true);
 
   ~HcalSiPMHitResponse() override;
 
   typedef std::vector<unsigned int> photonTimeHist;
-  typedef std::map< DetId, photonTimeHist > photonTimeMap;
+  typedef std::map<DetId, photonTimeHist> photonTimeMap;
 
   void initializeHits() override;
 
@@ -43,9 +41,9 @@ public:
 
   virtual void addPEnoise(CLHEP::HepRandomEngine* engine);
 
-  virtual CaloSamples makeBlankSignal(const DetId & detId) const;
+  virtual CaloSamples makeBlankSignal(const DetId& detId) const;
 
-  virtual void setDetIds(const std::vector<DetId> & detIds);
+  virtual void setDetIds(const std::vector<DetId>& detIds);
 
   virtual int getReadoutFrameSize(const DetId& id) const;
 
@@ -63,7 +61,7 @@ private:
 
   const std::vector<DetId>* theDetIds;
 
-  std::map<int,HcalSiPMShape> shapeMap;
+  std::map<int, HcalSiPMShape> shapeMap;
 };
 
-#endif //HcalSimAlgos_HcalSiPMHitResponse_h
+#endif  //HcalSimAlgos_HcalSiPMHitResponse_h

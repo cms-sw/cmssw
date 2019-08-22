@@ -11,10 +11,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Validation/RecoB/plugins/BDHadronTrackMonitoringAnalyzer.h"
 
-using namespace edm;
-using namespace std;
-using namespace RecoBTag;
-
 /** \class BDHadronTrackMonitoringHarvester
  *
  *  Top level steering routine for b tag performance harvesting.

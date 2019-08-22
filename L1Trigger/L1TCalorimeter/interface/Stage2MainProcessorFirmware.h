@@ -39,24 +39,26 @@ namespace l1t {
 
     ~Stage2MainProcessorFirmwareImp1() override = default;
 
-    void processEvent(const std::vector<l1t::CaloTower> & inTowers,
-			      std::vector<l1t::CaloTower> & outTowers,
-			      std::vector<l1t::CaloCluster> & clusters,
-			      std::vector<l1t::EGamma> & mpEGammas,
-			      std::vector<l1t::Tau> & mpTaus,
-			      std::vector<l1t::Jet> & mpJets,
-			      std::vector<l1t::EtSum> & mpSums,
-			      std::vector<l1t::EGamma> & egammas,
-			      std::vector<l1t::Tau> & taus,
-			      std::vector<l1t::Jet> & jets,
-			      std::vector<l1t::EtSum> & etSums) override;
+    void processEvent(const std::vector<l1t::CaloTower>& inTowers,
+                      std::vector<l1t::CaloTower>& outTowers,
+                      std::vector<l1t::CaloCluster>& clusters,
+                      std::vector<l1t::EGamma>& mpEGammas,
+                      std::vector<l1t::Tau>& mpTaus,
+                      std::vector<l1t::Jet>& mpJets,
+                      std::vector<l1t::EtSum>& mpSums,
+                      std::vector<l1t::EGamma>& egammas,
+                      std::vector<l1t::Tau>& taus,
+                      std::vector<l1t::Jet>& jets,
+                      std::vector<l1t::EtSum>& etSums) override;
 
     void print(std::ostream&) const;
 
-    friend std::ostream& operator<<(std::ostream& o, const Stage2MainProcessorFirmwareImp1 & p) { p.print(o); return o; }
+    friend std::ostream& operator<<(std::ostream& o, const Stage2MainProcessorFirmwareImp1& p) {
+      p.print(o);
+      return o;
+    }
 
   private:
-
     std::unique_ptr<Stage2TowerDecompressAlgorithm> m_towerAlgo;
     std::unique_ptr<Stage2Layer2ClusterAlgorithm> m_egClusterAlgo;
     std::unique_ptr<Stage2Layer2EGammaAlgorithm> m_egAlgo;
@@ -70,9 +72,8 @@ namespace l1t {
     std::unique_ptr<Stage2Layer2DemuxTauAlgo> m_demuxTauAlgo;
     std::unique_ptr<Stage2Layer2DemuxJetAlgo> m_demuxJetAlgo;
     std::unique_ptr<Stage2Layer2DemuxSumsAlgo> m_demuxSumsAlgo;
-
   };
 
-}
+}  // namespace l1t
 
 #endif

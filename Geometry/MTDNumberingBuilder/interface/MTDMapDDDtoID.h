@@ -7,28 +7,27 @@
 #include <vector>
 #include <string>
 
-
 class DDExpandedView;
 class DDFilteredView;
 
 class MTDMapDDDtoID {
- public:
-
+public:
   typedef GeometricTimingDet::nav_type nav_type;
-  typedef std::map<nav_type,uint32_t> MapType;
-  typedef std::map<uint32_t,nav_type> RevMapType;
+  typedef std::map<nav_type, uint32_t> MapType;
+  typedef std::map<uint32_t, nav_type> RevMapType;
 
   MTDMapDDDtoID(const GeometricTimingDet* iDet);
-  ~MTDMapDDDtoID(){clear();}
-  
+  ~MTDMapDDDtoID() { clear(); }
+
   //! calculate the id of a given node
-  unsigned int id(const nav_type &) const;
+  unsigned int id(const nav_type&) const;
 
-  nav_type const & navType(uint32_t) const;
+  nav_type const& navType(uint32_t) const;
 
-  std::vector<nav_type> const & allNavTypes() const;
+  std::vector<nav_type> const& allNavTypes() const;
   void clear();
- private:
+
+private:
   void buildAll(const GeometricTimingDet*);
   void buildAllStep2(const GeometricTimingDet*);
 

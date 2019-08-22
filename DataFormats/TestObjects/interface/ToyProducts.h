@@ -22,11 +22,9 @@ namespace edmtest {
 
   // Toy products
 
-  struct ProductWithNoDictionary {
-  };
+  struct ProductWithNoDictionary {};
 
-  struct DummyProduct {
-  };
+  struct DummyProduct {};
 
   struct ArrayProduct {
     explicit ArrayProduct(int i = 0) : value{i} {}
@@ -34,12 +32,7 @@ namespace edmtest {
   };
 
   struct EnumProduct {
-    enum TheEnumProduct {
-	TheZero = 0,
-        TheOne = 1,
-        TheTwo = 2,
-        TheThree = 3
-    };
+    enum TheEnumProduct { TheZero = 0, TheOne = 1, TheTwo = 2, TheThree = 3 };
     explicit EnumProduct(TheEnumProduct e = TheZero) : value(e) {}
     ~EnumProduct() {}
 
@@ -69,7 +62,7 @@ namespace edmtest {
   };
 
   struct Int16_tProduct {
-    explicit Int16_tProduct(int16_t i = 0, uint16_t j = 1) :value(i), uvalue(j) {}
+    explicit Int16_tProduct(int16_t i = 0, uint16_t j = 1) : value(i), uvalue(j) {}
     ~Int16_tProduct() {}
     int16_t value;
     uint16_t uvalue;
@@ -92,22 +85,15 @@ namespace edmtest {
     Simple() : key(0), value(0.0) {}
     virtual ~Simple();
     typedef cms_int32_t key_type;
-    key_type    key;
-    double      value;
+    key_type key;
+    double value;
     key_type id() const { return key; }
     virtual Simple* clone() const;
   };
 
-  inline
-  bool
-  operator==(Simple const& a, Simple const& b) {
-    return(a.key == b.key && a.value == b.value);
-  }
+  inline bool operator==(Simple const& a, Simple const& b) { return (a.key == b.key && a.value == b.value); }
 
-  inline
-  bool operator<(Simple const& a, Simple const& b) {
-    return a.key < b.key;
-  }
+  inline bool operator<(Simple const& a, Simple const& b) { return a.key < b.key; }
 
   struct SimpleDerived : public Simple {
     SimpleDerived() : Simple(), dummy(0.0) {}
@@ -122,16 +108,9 @@ namespace edmtest {
     explicit Sortable(int i) : data(i) {}
   };
 
-  inline
-  bool
-  operator==(Sortable const& a, Sortable const& b) {
-    return(a.data == b.data);
-  }
+  inline bool operator==(Sortable const& a, Sortable const& b) { return (a.data == b.data); }
 
-  inline
-  bool operator<(Sortable const& a, Sortable const& b) {
-    return a.data < b.data;
-  }
+  inline bool operator<(Sortable const& a, Sortable const& b) { return a.data < b.data; }
 
   struct Unsortable : public edm::DoNotSortUponInsertion {
     cms_int32_t data;
@@ -139,8 +118,7 @@ namespace edmtest {
     explicit Unsortable(int i) : data(i) {}
   };
 
-  inline
-  bool operator<(Unsortable const&, Unsortable const&) {
+  inline bool operator<(Unsortable const&, Unsortable const&) {
     throw std::logic_error("operator< called for Unsortable");
   }
 
@@ -151,14 +129,14 @@ namespace edmtest {
   };
 
   typedef edm::SortedCollection<Simple> SCSimpleProduct;
-  typedef std::vector<Simple>           VSimpleProduct;
-  typedef edm::OwnVector<Simple>        OVSimpleProduct;
+  typedef std::vector<Simple> VSimpleProduct;
+  typedef edm::OwnVector<Simple> OVSimpleProduct;
   typedef edm::OwnVector<SimpleDerived> OVSimpleDerivedProduct;
   typedef edm::AssociationVector<edm::RefProd<std::vector<Simple> >, std::vector<Simple> > AVSimpleProduct;
-  typedef edm::DetSetVector<Sortable>   DSVSimpleProduct;
+  typedef edm::DetSetVector<Sortable> DSVSimpleProduct;
   typedef edm::DetSetVector<Unsortable> DSVWeirdProduct;
 
-  typedef edmNew::DetSetVector<Sortable>      DSTVSimpleProduct;
+  typedef edmNew::DetSetVector<Sortable> DSTVSimpleProduct;
   typedef edmNew::DetSetVector<SimpleDerived> DSTVSimpleDerivedProduct;
-}
+}  // namespace edmtest
 #endif

@@ -15,15 +15,15 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
 
 //
 #include <map>
 #include <vector>
 
 // forward declarations
-namespace reco {class BeamSpot;}
+namespace reco {
+  class BeamSpot;
+}
 class TFile;
 class TH1F;
 class TH2F;
@@ -39,27 +39,20 @@ class SimTrack;
  **
  ***/
 
-
-class ElectronConversionRejectionValidator : public DQMEDAnalyzer
-{
-
- public:
-
-  explicit ElectronConversionRejectionValidator( const edm::ParameterSet& ) ;
+class ElectronConversionRejectionValidator : public DQMEDAnalyzer {
+public:
+  explicit ElectronConversionRejectionValidator(const edm::ParameterSet&);
   ~ElectronConversionRejectionValidator() override;
 
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm::EventSetup const&) override;
 
-  void analyze( const edm::Event&, const edm::EventSetup& ) override ;
-  void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
-      edm::EventSetup const&) override;
-
- private:
+private:
   std::string fName_;
 
   int verbosity_;
   int nEvt_;
   int nEntry_;
-
 
   edm::ParameterSet parameters_;
   std::string conversionCollectionProducer_;
@@ -74,8 +67,6 @@ class ElectronConversionRejectionValidator : public DQMEDAnalyzer
   edm::EDGetTokenT<reco::ConversionCollection> convToken_;
   edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
   edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
-
-
 
   bool isRunCentrally_;
 
@@ -113,10 +104,6 @@ class ElectronConversionRejectionValidator : public DQMEDAnalyzer
   MonitorElement* h_convLog10TrailTrackpt_;
   MonitorElement* h_convLeadTrackAlgo_;
   MonitorElement* h_convTrailTrackAlgo_;
-
 };
-
-
-
 
 #endif

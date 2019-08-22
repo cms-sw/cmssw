@@ -6,4 +6,3 @@
 
 DEFINE_EDM_PLUGIN(BaseCkfTrajectoryBuilderFactory, MuonCkfTrajectoryBuilder, "MuonCkfTrajectoryBuilder");
 DEFINE_FWK_MODULE(HLTMuonL2SelectorForL3IO);
-

@@ -3,15 +3,12 @@
 
 #include <vector>
 
-namespace L1Analysis
-{
-  struct L1AnalysisL1HODataFormat
-  {
-    L1AnalysisL1HODataFormat(){ Reset();};
+namespace L1Analysis {
+  struct L1AnalysisL1HODataFormat {
+    L1AnalysisL1HODataFormat() { Reset(); };
     ~L1AnalysisL1HODataFormat(){};
-    
-    void Reset()
-    {
+
+    void Reset() {
       nHcalDetIds = 0;
       nHcalQIESamples = 0;
       hcalDetIdIEta.clear();
@@ -21,7 +18,7 @@ namespace L1Analysis
       hcalQIESampleDv.clear();
       hcalQIESampleEr.clear();
     }
-   
+
     unsigned int nHcalDetIds;
     unsigned int nHcalQIESamples;
     std::vector<int> hcalDetIdIEta;
@@ -30,7 +27,6 @@ namespace L1Analysis
     std::vector<int> hcalQIESampleAdc;
     std::vector<int> hcalQIESampleDv;
     std::vector<int> hcalQIESampleEr;
-  }; 
-}
+  };
+}  // namespace L1Analysis
 #endif
-

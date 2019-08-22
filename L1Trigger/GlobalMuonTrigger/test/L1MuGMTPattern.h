@@ -5,7 +5,7 @@
 /**
  *   Description:  Create GMT HW test patterns
 */
-//                
+//
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -47,36 +47,28 @@ class L1MuGMTExtendedCand;
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1MuGMTPattern : public edm::EDAnalyzer {
+public:
+  // constructor
+  explicit L1MuGMTPattern(const edm::ParameterSet&);
+  virtual ~L1MuGMTPattern();
 
- 
-  public:
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void printRegional(std::string tag, const std::vector<L1MuRegionalCand>& rmc);
+  void printGMT(std::string tag, const std::vector<L1MuGMTExtendedCand>& exc);
+  void printMipIso(L1CaloRegionCollection const* regions);
+  void printMI(const std::vector<unsigned>* mi);
+  void printCANC();
+  unsigned invertQPt(unsigned);
 
-    // constructor
-    explicit L1MuGMTPattern(const edm::ParameterSet&);
-    virtual ~L1MuGMTPattern();
+  virtual void beginJob();
+  virtual void endJob();
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    void printRegional(std::string tag, const std::vector<L1MuRegionalCand>& rmc);
-    void printGMT(std::string tag, const std::vector<L1MuGMTExtendedCand>& exc);
-    void printMipIso(L1CaloRegionCollection const* regions);
-    void printMI(const std::vector<unsigned>* mi);
-    void printCANC();
-    unsigned invertQPt(unsigned);
-
-    virtual void beginJob();
-    virtual void endJob();
-
-  private:
-
-
-    edm::InputTag m_inputTag;
-    edm::InputTag m_inputCaloTag;
-    std::string m_outfilename;
-    int m_outputType;
-      
+private:
+  edm::InputTag m_inputTag;
+  edm::InputTag m_inputCaloTag;
+  std::string m_outfilename;
+  int m_outputType;
 };
-
 
 #endif

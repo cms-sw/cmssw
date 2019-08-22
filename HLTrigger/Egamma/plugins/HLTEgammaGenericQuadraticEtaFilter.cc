@@ -22,43 +22,44 @@
 //
 // constructors and destructor
 //
-HLTEgammaGenericQuadraticEtaFilter::HLTEgammaGenericQuadraticEtaFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig){
-  candTag_         = iConfig.getParameter< edm::InputTag > ("candTag");
-  varTag_          = iConfig.getParameter< edm::InputTag > ("varTag");
-  rhoTag_          = iConfig.getParameter< edm::InputTag > ("rhoTag");
+HLTEgammaGenericQuadraticEtaFilter::HLTEgammaGenericQuadraticEtaFilter(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig) {
+  candTag_ = iConfig.getParameter<edm::InputTag>("candTag");
+  varTag_ = iConfig.getParameter<edm::InputTag>("varTag");
+  rhoTag_ = iConfig.getParameter<edm::InputTag>("rhoTag");
 
-  energyLowEdges_  = iConfig.getParameter<std::vector<double> > ("energyLowEdges");
-  lessThan_        = iConfig.getParameter<bool> ("lessThan");
-  useEt_           = iConfig.getParameter<bool> ("useEt");
+  energyLowEdges_ = iConfig.getParameter<std::vector<double> >("energyLowEdges");
+  lessThan_ = iConfig.getParameter<bool>("lessThan");
+  useEt_ = iConfig.getParameter<bool>("useEt");
 
-  etaBoundaryEB12_ = iConfig.getParameter<double> ("etaBoundaryEB12");
-  etaBoundaryEE12_ = iConfig.getParameter<double> ("etaBoundaryEE12");
+  etaBoundaryEB12_ = iConfig.getParameter<double>("etaBoundaryEB12");
+  etaBoundaryEE12_ = iConfig.getParameter<double>("etaBoundaryEE12");
 
-  thrRegularEB1_   = iConfig.getParameter<std::vector<double> > ("thrRegularEB1");
-  thrRegularEE1_   = iConfig.getParameter<std::vector<double> > ("thrRegularEE1");
-  thrOverEEB1_     = iConfig.getParameter<std::vector<double> > ("thrOverEEB1");
-  thrOverEEE1_     = iConfig.getParameter<std::vector<double> > ("thrOverEEE1");
-  thrOverE2EB1_    = iConfig.getParameter<std::vector<double> > ("thrOverE2EB1");
-  thrOverE2EE1_    = iConfig.getParameter<std::vector<double> > ("thrOverE2EE1");
-  thrRegularEB2_   = iConfig.getParameter<std::vector<double> > ("thrRegularEB2");
-  thrRegularEE2_   = iConfig.getParameter<std::vector<double> > ("thrRegularEE2");
-  thrOverEEB2_     = iConfig.getParameter<std::vector<double> > ("thrOverEEB2");
-  thrOverEEE2_     = iConfig.getParameter<std::vector<double> > ("thrOverEEE2");
-  thrOverE2EB2_    = iConfig.getParameter<std::vector<double> > ("thrOverE2EB2");
-  thrOverE2EE2_    = iConfig.getParameter<std::vector<double> > ("thrOverE2EE2");
+  thrRegularEB1_ = iConfig.getParameter<std::vector<double> >("thrRegularEB1");
+  thrRegularEE1_ = iConfig.getParameter<std::vector<double> >("thrRegularEE1");
+  thrOverEEB1_ = iConfig.getParameter<std::vector<double> >("thrOverEEB1");
+  thrOverEEE1_ = iConfig.getParameter<std::vector<double> >("thrOverEEE1");
+  thrOverE2EB1_ = iConfig.getParameter<std::vector<double> >("thrOverE2EB1");
+  thrOverE2EE1_ = iConfig.getParameter<std::vector<double> >("thrOverE2EE1");
+  thrRegularEB2_ = iConfig.getParameter<std::vector<double> >("thrRegularEB2");
+  thrRegularEE2_ = iConfig.getParameter<std::vector<double> >("thrRegularEE2");
+  thrOverEEB2_ = iConfig.getParameter<std::vector<double> >("thrOverEEB2");
+  thrOverEEE2_ = iConfig.getParameter<std::vector<double> >("thrOverEEE2");
+  thrOverE2EB2_ = iConfig.getParameter<std::vector<double> >("thrOverE2EB2");
+  thrOverE2EE2_ = iConfig.getParameter<std::vector<double> >("thrOverE2EE2");
 
-  ncandcut_        = iConfig.getParameter<int> ("ncandcut");
+  ncandcut_ = iConfig.getParameter<int>("ncandcut");
 
-  doRhoCorrection_ = iConfig.getParameter<bool> ("doRhoCorrection");
-  rhoMax_          = iConfig.getParameter<double> ("rhoMax");
-  rhoScale_        = iConfig.getParameter<double> ("rhoScale");
-  effectiveAreas_  = iConfig.getParameter<std::vector<double> > ("effectiveAreas");
-  absEtaLowEdges_  = iConfig.getParameter<std::vector<double> > ("absEtaLowEdges");
+  doRhoCorrection_ = iConfig.getParameter<bool>("doRhoCorrection");
+  rhoMax_ = iConfig.getParameter<double>("rhoMax");
+  rhoScale_ = iConfig.getParameter<double>("rhoScale");
+  effectiveAreas_ = iConfig.getParameter<std::vector<double> >("effectiveAreas");
+  absEtaLowEdges_ = iConfig.getParameter<std::vector<double> >("absEtaLowEdges");
 
-  l1EGTag_         = iConfig.getParameter< edm::InputTag > ("l1EGCand");
+  l1EGTag_ = iConfig.getParameter<edm::InputTag>("l1EGCand");
 
-  candToken_       = consumes<trigger::TriggerFilterObjectWithRefs> (candTag_);
-  varToken_        = consumes<reco::RecoEcalCandidateIsolationMap> (varTag_);
+  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
+  varToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(varTag_);
 
   if (energyLowEdges_.size() != thrRegularEB1_.size() or energyLowEdges_.size() != thrRegularEE1_.size() or
       energyLowEdges_.size() != thrRegularEB2_.size() or energyLowEdges_.size() != thrRegularEE2_.size() or
@@ -72,12 +73,12 @@ HLTEgammaGenericQuadraticEtaFilter::HLTEgammaGenericQuadraticEtaFilter(const edm
     throw cms::Exception("IncompleteCoverage") << "energyLowEdges should start from 0. \n";
 
   for (unsigned int aIt = 0; aIt < energyLowEdges_.size() - 1; aIt++) {
-    if ( !(energyLowEdges_.at( aIt ) < energyLowEdges_.at( aIt + 1 )) )
+    if (!(energyLowEdges_.at(aIt) < energyLowEdges_.at(aIt + 1)))
       throw cms::Exception("ImproperBinning") << "energyLowEdges entries should be in increasing order. \n";
   }
 
   if (doRhoCorrection_) {
-    rhoToken_        = consumes<double> (rhoTag_);
+    rhoToken_ = consumes<double>(rhoTag_);
     if (absEtaLowEdges_.size() != effectiveAreas_.size())
       throw cms::Exception("IncompatibleVects") << "absEtaLowEdges and effectiveAreas should be of the same size. \n";
 
@@ -85,20 +86,19 @@ HLTEgammaGenericQuadraticEtaFilter::HLTEgammaGenericQuadraticEtaFilter(const edm
       throw cms::Exception("IncompleteCoverage") << "absEtaLowEdges should start from 0. \n";
 
     for (unsigned int bIt = 0; bIt < absEtaLowEdges_.size() - 1; bIt++) {
-      if ( !(absEtaLowEdges_.at( bIt ) < absEtaLowEdges_.at( bIt + 1 )) )
+      if (!(absEtaLowEdges_.at(bIt) < absEtaLowEdges_.at(bIt + 1)))
         throw cms::Exception("ImproperBinning") << "absEtaLowEdges entries should be in increasing order. \n";
     }
   }
 }
 
-void
-HLTEgammaGenericQuadraticEtaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTEgammaGenericQuadraticEtaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("candTag", edm::InputTag("hltEGIsolFilter"));
   desc.add<edm::InputTag>("varTag", edm::InputTag("hltEGIsol"));
-  desc.add<edm::InputTag>("rhoTag", edm::InputTag("")); // No rho correction by default
-  desc.add<std::vector<double> >("energyLowEdges", {0.0}); // No energy-dependent cuts by default
+  desc.add<edm::InputTag>("rhoTag", edm::InputTag(""));     // No rho correction by default
+  desc.add<std::vector<double> >("energyLowEdges", {0.0});  // No energy-dependent cuts by default
   desc.add<bool>("lessThan", true);
   desc.add<bool>("useEt", true);
   desc.add<double>("etaBoundaryEB12", 1.0);
@@ -120,20 +120,19 @@ HLTEgammaGenericQuadraticEtaFilter::fillDescriptions(edm::ConfigurationDescripti
   desc.add<double>("rhoMax", 9.9999999E7);
   desc.add<double>("rhoScale", 1.0);
   desc.add<std::vector<double> >("effectiveAreas", {0.0, 0.0});
-  desc.add<std::vector<double> >("absEtaLowEdges", {0.0, 1.479}); // EB, EE
+  desc.add<std::vector<double> >("absEtaLowEdges", {0.0, 1.479});  // EB, EE
   desc.add<edm::InputTag>("l1EGCand", edm::InputTag("hltL1IsoRecoEcalCandidate"));
   descriptions.add("hltEgammaGenericQuadraticEtaFilter", desc);
 }
 
-HLTEgammaGenericQuadraticEtaFilter::~HLTEgammaGenericQuadraticEtaFilter(){}
-
+HLTEgammaGenericQuadraticEtaFilter::~HLTEgammaGenericQuadraticEtaFilter() {}
 
 // ------------ method called to produce the data  ------------
-bool
-HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
-{
+bool HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent,
+                                                   const edm::EventSetup& iSetup,
+                                                   trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace trigger;
-  if ( saveTags() ) {
+  if (saveTags()) {
     filterproduct.addCollectionTag(l1EGTag_);
   }
   // Ref to Candidate object to be recorded in filter object
@@ -141,19 +140,22 @@ HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent, const edm::Eve
 
   // Set output format
   int trigger_type = trigger::TriggerCluster;
-  if ( saveTags() ) trigger_type = trigger::TriggerPhoton;
+  if (saveTags())
+    trigger_type = trigger::TriggerPhoton;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
 
-  iEvent.getByToken (candToken_,PrevFilterOutput);
+  iEvent.getByToken(candToken_, PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
-  if(recoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton,recoecalcands);  //we dont know if its type trigger cluster or trigger photon
+  if (recoecalcands.empty())
+    PrevFilterOutput->getObjects(TriggerPhoton,
+                                 recoecalcands);  //we dont know if its type trigger cluster or trigger photon
 
   //get hold of isolated association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
-  iEvent.getByToken (varToken_,depMap);
+  iEvent.getByToken(varToken_, depMap);
 
   // Get rho if needed
   edm::Handle<double> rhoHandle;
@@ -169,23 +171,24 @@ HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent, const edm::Eve
 
   // look at all photons, check cuts and add to filter object
   int n = 0;
-  for (unsigned int i=0; i<recoecalcands.size(); i++) {
-
+  for (unsigned int i = 0; i < recoecalcands.size(); i++) {
     ref = recoecalcands[i];
-    reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find( ref );
+    reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find(ref);
 
     float vali = mapi->val;
     float EtaSC = ref->eta();
 
     // Pick the right EA and do rhoCorr
     if (doRhoCorrection_) {
-      auto cIt = std::lower_bound( absEtaLowEdges_.begin(), absEtaLowEdges_.end(), std::abs(EtaSC) ) - 1;
-      vali = vali - (rho * effectiveAreas_.at( std::distance( absEtaLowEdges_.begin(), cIt ) ));
+      auto cIt = std::lower_bound(absEtaLowEdges_.begin(), absEtaLowEdges_.end(), std::abs(EtaSC)) - 1;
+      vali = vali - (rho * effectiveAreas_.at(std::distance(absEtaLowEdges_.begin(), cIt)));
     }
 
     float energy = ref->superCluster()->energy();
-    if (useEt_) energy = energy * sin (2*atan(exp(-EtaSC)));
-    if (energy < 0.) energy = 0.; /* first and second order terms assume non-negative energies */
+    if (useEt_)
+      energy = energy * sin(2 * atan(exp(-EtaSC)));
+    if (energy < 0.)
+      energy = 0.; /* first and second order terms assume non-negative energies */
 
     double cutRegularEB1_ = 9999., cutRegularEE1_ = 9999.;
     double cutRegularEB2_ = 9999., cutRegularEE2_ = 9999.;
@@ -194,8 +197,8 @@ HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent, const edm::Eve
     double cutOverE2EB1_ = 9999., cutOverE2EE1_ = 9999.;
     double cutOverE2EB2_ = 9999., cutOverE2EE2_ = 9999.;
 
-    auto dIt = std::lower_bound( energyLowEdges_.begin(), energyLowEdges_.end(), energy ) - 1;
-    unsigned iEn = std::distance( energyLowEdges_.begin(), dIt );
+    auto dIt = std::lower_bound(energyLowEdges_.begin(), energyLowEdges_.end(), energy) - 1;
+    unsigned iEn = std::distance(energyLowEdges_.begin(), dIt);
 
     cutRegularEB1_ = thrRegularEB1_.at(iEn);
     cutRegularEB2_ = thrRegularEB2_.at(iEn);
@@ -210,63 +213,62 @@ HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent, const edm::Eve
     cutOverE2EE1_ = thrOverE2EE1_.at(iEn);
     cutOverE2EE2_ = thrOverE2EE2_.at(iEn);
 
-    if ( lessThan_ ) {
+    if (lessThan_) {
       if (std::abs(EtaSC) < etaBoundaryEB12_) {
-          if ( vali <= cutRegularEB1_ + energy*cutOverEEB1_ + energy*energy*cutOverE2EB1_) {
-	     n++;
-	     filterproduct.addObject(trigger_type, ref);
-	     continue;
-          }
+        if (vali <= cutRegularEB1_ + energy * cutOverEEB1_ + energy * energy * cutOverE2EB1_) {
+          n++;
+          filterproduct.addObject(trigger_type, ref);
+          continue;
+        }
       } else if (std::abs(EtaSC) < 1.479) {
-          if ( vali <= cutRegularEB2_ + energy*cutOverEEB2_ + energy*energy*cutOverE2EB2_) {
-	     n++;
-	     filterproduct.addObject(trigger_type, ref);
-	     continue;
-          }
+        if (vali <= cutRegularEB2_ + energy * cutOverEEB2_ + energy * energy * cutOverE2EB2_) {
+          n++;
+          filterproduct.addObject(trigger_type, ref);
+          continue;
+        }
       } else if (std::abs(EtaSC) < etaBoundaryEE12_) {
-          if ( vali <= cutRegularEE1_ + energy*cutOverEEE1_ + energy*energy*cutOverE2EE1_) {
-	    n++;
-	    filterproduct.addObject(trigger_type, ref);
-	    continue;
-          }
-      } else if (vali <= cutRegularEE2_ + energy*cutOverEEE2_ + energy*energy*cutOverE2EE2_) {
-	  n++;
-	  filterproduct.addObject(trigger_type, ref);
-	  continue;
+        if (vali <= cutRegularEE1_ + energy * cutOverEEE1_ + energy * energy * cutOverE2EE1_) {
+          n++;
+          filterproduct.addObject(trigger_type, ref);
+          continue;
+        }
+      } else if (vali <= cutRegularEE2_ + energy * cutOverEEE2_ + energy * energy * cutOverE2EE2_) {
+        n++;
+        filterproduct.addObject(trigger_type, ref);
+        continue;
       }
     } else {
       if (std::abs(EtaSC) < etaBoundaryEB12_) {
-          if ( vali >= cutRegularEB1_ + energy*cutOverEEB1_ + energy*energy*cutOverE2EB1_) {
-	     n++;
-	     filterproduct.addObject(trigger_type, ref);
-	     continue;
-          }
+        if (vali >= cutRegularEB1_ + energy * cutOverEEB1_ + energy * energy * cutOverE2EB1_) {
+          n++;
+          filterproduct.addObject(trigger_type, ref);
+          continue;
+        }
       } else if (std::abs(EtaSC) < 1.479) {
-          if ( vali >= cutRegularEB2_ + energy*cutOverEEB2_ + energy*energy*cutOverE2EB2_) {
-	     n++;
-	     filterproduct.addObject(trigger_type, ref);
-	     continue;
-          }
+        if (vali >= cutRegularEB2_ + energy * cutOverEEB2_ + energy * energy * cutOverE2EB2_) {
+          n++;
+          filterproduct.addObject(trigger_type, ref);
+          continue;
+        }
       } else if (std::abs(EtaSC) < etaBoundaryEE12_) {
-          if ( vali >= cutRegularEE1_ + energy*cutOverEEE1_ + energy*energy*cutOverE2EE1_) {
-	    n++;
-	    filterproduct.addObject(trigger_type, ref);
-	    continue;
-          }
-      } else if (vali >= cutRegularEE2_ + energy*cutOverEEE2_ + energy*energy*cutOverE2EE2_) {
-	  n++;
-	  filterproduct.addObject(trigger_type, ref);
-	  continue;
+        if (vali >= cutRegularEE1_ + energy * cutOverEEE1_ + energy * energy * cutOverE2EE1_) {
+          n++;
+          filterproduct.addObject(trigger_type, ref);
+          continue;
+        }
+      } else if (vali >= cutRegularEE2_ + energy * cutOverEEE2_ + energy * energy * cutOverE2EE2_) {
+        n++;
+        filterproduct.addObject(trigger_type, ref);
+        continue;
       }
     }
   }
 
   // filter decision
-  bool accept(n>=ncandcut_);
+  bool accept(n >= ncandcut_);
 
   return accept;
 }
-
 
 // declare this class as a framework plugin
 #include "FWCore/Framework/interface/MakerMacros.h"

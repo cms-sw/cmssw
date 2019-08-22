@@ -14,57 +14,33 @@
 #include <TMath.h>
 
 class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
-
- public:
-
+public:
   // Constructor and destructor
   ElectronMVAEstimatorRun2(const edm::ParameterSet& conf);
-  ~ElectronMVAEstimatorRun2() override {};
+  ~ElectronMVAEstimatorRun2() override{};
   // For use with FWLite/Python
   ElectronMVAEstimatorRun2(const std::string& mvaTag,
                            const std::string& mvaName,
                            int nCategories,
                            const std::string& variableDefinition,
                            const std::vector<std::string>& categoryCutStrings,
-                           const std::vector<std::string> &weightFileNames,
-                           bool debug=false );
-
-  // For use with FWLite/Python
-  static std::vector<float> getExtraVars(reco::GsfElectron          const& ele,
-                                         reco::ConversionCollection const* conversions,
-                                         reco::BeamSpot             const* beamSpot,
-                                         double rho)
-  {
-      // Conversion vertex fit
-      reco::Conversion const* conv = ConversionTools::matchedConversion(ele, *conversions, beamSpot->position());
-
-      float convVtxFitProb = -1.;
-      if(!(conv == nullptr)) {
-          const reco::Vertex &vtx = conv->conversionVertex();
-          if (vtx.isValid()) {
-              convVtxFitProb = TMath::Prob( vtx.chi2(),  vtx.ndof());
-          }
-      }
-
-      // kf track related variables
-      bool validKf=false;
-      reco::TrackRef trackRef = ele.closestCtfTrackRef();
-      validKf = trackRef.isAvailable();
-      validKf &= trackRef.isNonnull();
-      float kfchi2 = validKf ? trackRef->normalizedChi2() : 0 ; //ielectron->track()->normalizedChi2() : 0 ;
-      float kfhits = validKf ? trackRef->hitPattern().trackerLayersWithMeasurement() : -1. ;
-
-      return std::vector<float>{kfhits, kfchi2, convVtxFitProb, static_cast<float>(rho)};
-  }
+                           const std::vector<std::string>& weightFileNames,
+                           bool debug = false);
 
   // Calculation of the MVA value
-  float mvaValue( const reco::Candidate* candidate, std::vector<float> const& auxVariables, int &iCategory) const override;
+  float mvaValue(const reco::Candidate* candidate,
+                 std::vector<float> const& auxVariables,
+                 int& iCategory) const override;
 
-  int findCategory( const reco::Candidate* candidate) const override;
+  // for FWLite just passing rho
+  float mvaValue(const reco::Candidate* candidate, float rho, int& iCategory) const {
+    return mvaValue(candidate, std::vector<float>{rho}, iCategory);
+  }
 
- private:
+  int findCategory(const reco::Candidate* candidate) const override;
 
-  void init(const std::vector<std::string> &weightFileNames);
+private:
+  void init(const std::vector<std::string>& weightFileNames);
 
   int findCategory(reco::GsfElectron const& electron) const;
 
@@ -72,15 +48,13 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
   std::vector<int> nVariables_;
 
   // Data members
-  std::vector< std::unique_ptr<const GBRForest> > gbrForests_;
-
+  std::vector<std::unique_ptr<const GBRForest>> gbrForests_;
 
   // There might be different variables for each category, so the variables
   // names vector is itself a vector of length nCategories
   std::vector<std::vector<int>> variables_;
 
   MVAVariableManager<reco::GsfElectron> mvaVarMngr_;
-
 };
 
 #endif

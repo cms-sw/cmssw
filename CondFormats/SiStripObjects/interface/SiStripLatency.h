@@ -56,32 +56,22 @@ class TrackerTopology;
  * above the maximum and output a detailed LogError message about the problem.
  */
 
-class SiStripLatency
-{
- public:
-
+class SiStripLatency {
+public:
   SiStripLatency() {}
 
   // Defined as public for genreflex
-  struct Latency
-  {
-    Latency(const uint32_t inputDetIdAndApv, const uint16_t inputLatency, const uint16_t inputMode) :
-      detIdAndApv(inputDetIdAndApv),
-      latency(inputLatency),
-      mode(inputMode)
-    {}
+  struct Latency {
+    Latency(const uint32_t inputDetIdAndApv, const uint16_t inputLatency, const uint16_t inputMode)
+        : detIdAndApv(inputDetIdAndApv), latency(inputLatency), mode(inputMode) {}
     /// Default constructor needed by genreflex
-    Latency() :
-      detIdAndApv(0),
-      latency(255),
-      mode(0)
-    {}
+    Latency() : detIdAndApv(0), latency(255), mode(0) {}
     uint32_t detIdAndApv;
     unsigned char latency;
     unsigned char mode;
-  
-  COND_SERIALIZABLE;
-};
+
+    COND_SERIALIZABLE;
+  };
   typedef std::vector<Latency>::iterator latIt;
   typedef std::vector<Latency>::const_iterator latConstIt;
 
@@ -91,16 +81,16 @@ class SiStripLatency
    * if the compress method is not called, only the space used would be more than
    * needed.
    */
-  bool put( const uint32_t detId, const uint16_t apv, const uint16_t latency, const uint16_t mode );
+  bool put(const uint32_t detId, const uint16_t apv, const uint16_t latency, const uint16_t mode);
   uint16_t latency(const uint32_t detId, const uint16_t apv) const;
   uint16_t mode(const uint32_t detId, const uint16_t apv) const;
   std::pair<uint16_t, uint16_t> latencyAndMode(const uint32_t detId, const uint16_t apv) const;
   inline std::vector<Latency> allLatencyAndModes() const { return latencies_; }
 
   /// Fills the passed vector with all the possible latencies in the Tracker
-  void allLatencies(std::vector<uint16_t> & allLatenciesVector) const;
+  void allLatencies(std::vector<uint16_t>& allLatenciesVector) const;
   /// Fills the passed vector with all the possible modes in the Tracker
-  void allModes(std::vector<uint16_t> & allModesVector) const;
+  void allModes(std::vector<uint16_t>& allModesVector) const;
   int16_t singleReadOutMode() const;
   //   bool allPeak() const;
 
@@ -116,41 +106,34 @@ class SiStripLatency
   uint16_t singleMode() const;
 
   /// Prints the number of ranges as well as the value of singleLatency and singleMode
-  void printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
   /// Prints the full list of all ranges and corresponding values of latency and mode
-  void printDebug(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
-  struct OrderByDetIdAndApv
-  {
-    bool operator()(const Latency & lat1, const uint32_t detIdAndApv) const {
-      return lat1.detIdAndApv < detIdAndApv;
-    }
+  struct OrderByDetIdAndApv {
+    bool operator()(const Latency& lat1, const uint32_t detIdAndApv) const { return lat1.detIdAndApv < detIdAndApv; }
   };
 
-  struct OrderByLatencyAndMode
-  {
-    bool operator()(const Latency & lat1, const Latency & lat2) {
+  struct OrderByLatencyAndMode {
+    bool operator()(const Latency& lat1, const Latency& lat2) {
       // latency and mode are unsigned short that cannot exceed 255.
       // Sum them multiplying the mode by 1000 to get a single ordering number.
-      int latencyAndModeSortValue1 = int(lat1.latency) + 1000*int(lat1.mode);
-      int latencyAndModeSortValue2 = int(lat2.latency) + 1000*int(lat2.mode);
-      return( latencyAndModeSortValue1 < latencyAndModeSortValue2 );
+      int latencyAndModeSortValue1 = int(lat1.latency) + 1000 * int(lat1.mode);
+      int latencyAndModeSortValue2 = int(lat2.latency) + 1000 * int(lat2.mode);
+      return (latencyAndModeSortValue1 < latencyAndModeSortValue2);
     }
   };
-  struct EqualByLatencyAndMode
-  {
-    bool operator()(const Latency & lat1, const Latency & lat2) {
-      return( (lat1.latency == lat2.latency) && (lat1.mode == lat2.mode) );
+  struct EqualByLatencyAndMode {
+    bool operator()(const Latency& lat1, const Latency& lat2) {
+      return ((lat1.latency == lat2.latency) && (lat1.mode == lat2.mode));
     }
   };
 
- private:
-
+private:
   /// Used to compute the position with the lower_bound binary search
   // If put in the cc file it will not know about the typedefs and the Latency class
-  const latConstIt position(const uint32_t detId, const uint16_t apv) const
-  {
-    if( latencies_.empty() ) {
+  const latConstIt position(const uint32_t detId, const uint16_t apv) const {
+    if (latencies_.empty()) {
       // std::cout << "SiStripLatency: Error, range is empty" << std::endl;
       return latencies_.end();
     }
@@ -160,7 +143,7 @@ class SiStripLatency
   }
   std::vector<Latency> latencies_;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

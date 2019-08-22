@@ -20,32 +20,31 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 namespace edm {
-        class EventSetup;
-        class ParameterSet;
-}
+  class EventSetup;
+  class ParameterSet;
+}  // namespace edm
 
 class EcalClusterEnergyUncertaintyObjectSpecificBaseClass : public EcalClusterFunctionBaseClass {
-        public:
-                EcalClusterEnergyUncertaintyObjectSpecificBaseClass();
-                EcalClusterEnergyUncertaintyObjectSpecificBaseClass( const edm::ParameterSet & ) {};
-                ~EcalClusterEnergyUncertaintyObjectSpecificBaseClass() override;
+public:
+  EcalClusterEnergyUncertaintyObjectSpecificBaseClass();
+  EcalClusterEnergyUncertaintyObjectSpecificBaseClass(const edm::ParameterSet &){};
+  ~EcalClusterEnergyUncertaintyObjectSpecificBaseClass() override;
 
-                // get/set explicit methods for parameters
-                //const EcalClusterEnergyUncertaintyParameters * getParameters() const { return params_; }
-                // check initialization
-                void checkInit() const;
-                
-                // compute the correction
-                float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const override = 0;
-                float getValue( const reco::SuperCluster &, const int mode ) const override = 0;
+  // get/set explicit methods for parameters
+  //const EcalClusterEnergyUncertaintyParameters * getParameters() const { return params_; }
+  // check initialization
+  void checkInit() const;
 
+  // compute the correction
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override = 0;
+  float getValue(const reco::SuperCluster &, const int mode) const override = 0;
 
-                // set parameters
-                void init( const edm::EventSetup& es ) override;
+  // set parameters
+  void init(const edm::EventSetup &es) override;
 
-        protected:
-                //edm::ESHandle<EcalClusterEnergyUncertaintyObjectSpecificParameters> esParams_;
-                //const EcalClusterEnergyUncertaintyObjectSpecificParameters * params_;
+protected:
+  //edm::ESHandle<EcalClusterEnergyUncertaintyObjectSpecificParameters> esParams_;
+  //const EcalClusterEnergyUncertaintyObjectSpecificParameters * params_;
 };
 
 #endif

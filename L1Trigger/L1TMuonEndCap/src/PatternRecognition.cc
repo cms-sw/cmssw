@@ -6,26 +6,29 @@ namespace {
   const int padding_w_st1 = 15;
   const int padding_w_st3 = 7;
   const int padding_extra_w_st1 = padding_w_st1 - padding_w_st3;
-}
+}  // namespace
 
-
-void PatternRecognition::configure(
-    int verbose, int endcap, int sector, int bx,
-    int bxWindow,
-    const std::vector<std::string>& pattDefinitions, const std::vector<std::string>& symPattDefinitions, bool useSymPatterns,
-    int maxRoadsPerZone, bool useSecondEarliest
-) {
+void PatternRecognition::configure(int verbose,
+                                   int endcap,
+                                   int sector,
+                                   int bx,
+                                   int bxWindow,
+                                   const std::vector<std::string>& pattDefinitions,
+                                   const std::vector<std::string>& symPattDefinitions,
+                                   bool useSymPatterns,
+                                   int maxRoadsPerZone,
+                                   bool useSecondEarliest) {
   verbose_ = verbose;
-  endcap_  = endcap;
-  sector_  = sector;
-  bx_      = bx;
+  endcap_ = endcap;
+  sector_ = sector;
+  bx_ = bx;
 
-  bxWindow_           = bxWindow;
-  pattDefinitions_    = pattDefinitions;
+  bxWindow_ = bxWindow;
+  pattDefinitions_ = pattDefinitions;
   symPattDefinitions_ = symPattDefinitions;
-  useSymPatterns_     = useSymPatterns;
-  maxRoadsPerZone_    = maxRoadsPerZone;
-  useSecondEarliest_  = useSecondEarliest;
+  useSymPatterns_ = useSymPatterns;
+  maxRoadsPerZone_ = maxRoadsPerZone;
+  useSecondEarliest_ = useSecondEarliest;
 
   configure_details();
 }
@@ -36,30 +39,35 @@ void PatternRecognition::configure_details() {
   // Parse pattern definitions
   if (!useSymPatterns_) {
     // Normal patterns
-    for (const auto& s: pattDefinitions_) {
+    for (const auto& s : pattDefinitions_) {
       const std::vector<std::string>& tokens = split_string(s, ',', ':');  // split by comma or colon
-      if (not(tokens.size() == 9))  // want to find 9 numbers
-	{ edm::LogError("L1T") << "tokens.size() = " << tokens.size(); return; }
+      if (not(tokens.size() == 9))                                         // want to find 9 numbers
+      {
+        edm::LogError("L1T") << "tokens.size() = " << tokens.size();
+        return;
+      }
 
       std::vector<std::string>::const_iterator tokens_it = tokens.begin();
 
       // Get the 9 integers
       // straightness, hits in ME1, hits in ME2, hits in ME3, hits in ME4
       int straightness = std::stoi(*tokens_it++);
-      int st1_max      = std::stoi(*tokens_it++);
-      int st1_min      = std::stoi(*tokens_it++);
-      int st2_max      = std::stoi(*tokens_it++);
-      int st2_min      = std::stoi(*tokens_it++);
-      int st3_max      = std::stoi(*tokens_it++);
-      int st3_min      = std::stoi(*tokens_it++);
-      int st4_max      = std::stoi(*tokens_it++);
-      int st4_min      = std::stoi(*tokens_it++);
+      int st1_max = std::stoi(*tokens_it++);
+      int st1_min = std::stoi(*tokens_it++);
+      int st2_max = std::stoi(*tokens_it++);
+      int st2_min = std::stoi(*tokens_it++);
+      int st3_max = std::stoi(*tokens_it++);
+      int st3_min = std::stoi(*tokens_it++);
+      int st4_max = std::stoi(*tokens_it++);
+      int st4_min = std::stoi(*tokens_it++);
 
       // There can only be one zone hit in the key station in the pattern
       // and it has to be this magic number
-      if (not(st2_max == padding_w_st3 && st2_min == padding_w_st3))
-	{ edm::LogError("L1T") << "st2_max = " << st2_max << ", padding_w_st3 = " << padding_w_st3
-			       << ", st2_min = " << st2_min << ", padding_w_st3 = " << padding_w_st3; return; }
+      if (not(st2_max == padding_w_st3 && st2_min == padding_w_st3)) {
+        edm::LogError("L1T") << "st2_max = " << st2_max << ", padding_w_st3 = " << padding_w_st3
+                             << ", st2_min = " << st2_min << ", padding_w_st3 = " << padding_w_st3;
+        return;
+      }
 
       // There is extra "padding" in st1 w.r.t st2,3,4
       // Add the extra padding to st2,3,4
@@ -88,47 +96,56 @@ void PatternRecognition::configure_details() {
       pattern.rotr(padding_extra_w_st1);
       patterns_.push_back(pattern);
     }
-    if (not(patterns_.size() == pattDefinitions_.size()))
-      { edm::LogError("L1T") << "patterns_.size() = " << patterns_.size() 
-			     << ", pattDefinitions_.size() = " << pattDefinitions_.size(); return; }
+    if (not(patterns_.size() == pattDefinitions_.size())) {
+      edm::LogError("L1T") << "patterns_.size() = " << patterns_.size()
+                           << ", pattDefinitions_.size() = " << pattDefinitions_.size();
+      return;
+    }
 
   } else {
     // Symmetrical patterns
-    for (const auto& s: symPattDefinitions_) {
+    for (const auto& s : symPattDefinitions_) {
       const std::vector<std::string>& tokens = split_string(s, ',', ':');  // split by comma or colon
-      if (not(tokens.size() == 17))  // want to find 17 numbers
-	{ edm::LogError("L1T") << "tokens.size() = " << tokens.size(); return; }
+      if (not(tokens.size() == 17))                                        // want to find 17 numbers
+      {
+        edm::LogError("L1T") << "tokens.size() = " << tokens.size();
+        return;
+      }
 
       std::vector<std::string>::const_iterator tokens_it = tokens.begin();
 
       // Get the 17 integers
       // straightness, hits in ME1, hits in ME2, hits in ME3, hits in ME4
       int straightness = std::stoi(*tokens_it++);
-      int st1_max1     = std::stoi(*tokens_it++);
-      int st1_min1     = std::stoi(*tokens_it++);
-      int st1_max2     = std::stoi(*tokens_it++);
-      int st1_min2     = std::stoi(*tokens_it++);
-      int st2_max1     = std::stoi(*tokens_it++);
-      int st2_min1     = std::stoi(*tokens_it++);
-      int st2_max2     = std::stoi(*tokens_it++);
-      int st2_min2     = std::stoi(*tokens_it++);
-      int st3_max1     = std::stoi(*tokens_it++);
-      int st3_min1     = std::stoi(*tokens_it++);
-      int st3_max2     = std::stoi(*tokens_it++);
-      int st3_min2     = std::stoi(*tokens_it++);
-      int st4_max1     = std::stoi(*tokens_it++);
-      int st4_min1     = std::stoi(*tokens_it++);
-      int st4_max2     = std::stoi(*tokens_it++);
-      int st4_min2     = std::stoi(*tokens_it++);
+      int st1_max1 = std::stoi(*tokens_it++);
+      int st1_min1 = std::stoi(*tokens_it++);
+      int st1_max2 = std::stoi(*tokens_it++);
+      int st1_min2 = std::stoi(*tokens_it++);
+      int st2_max1 = std::stoi(*tokens_it++);
+      int st2_min1 = std::stoi(*tokens_it++);
+      int st2_max2 = std::stoi(*tokens_it++);
+      int st2_min2 = std::stoi(*tokens_it++);
+      int st3_max1 = std::stoi(*tokens_it++);
+      int st3_min1 = std::stoi(*tokens_it++);
+      int st3_max2 = std::stoi(*tokens_it++);
+      int st3_min2 = std::stoi(*tokens_it++);
+      int st4_max1 = std::stoi(*tokens_it++);
+      int st4_min1 = std::stoi(*tokens_it++);
+      int st4_max2 = std::stoi(*tokens_it++);
+      int st4_min2 = std::stoi(*tokens_it++);
 
       // There can only be one zone hit in the key station in the pattern
       // and it has to be this magic number
-      if (not(st2_max1 == padding_w_st3 && st2_min1 == padding_w_st3))
-	{ edm::LogError("L1T") << "st2_max1 = " << st2_max1 << ", padding_w_st3 = " << padding_w_st3
-			       << ", st2_min1 = " << st2_min1 << ", padding_w_st3 = " << padding_w_st3; return; }
-      if (not(st2_max2 == padding_w_st3 && st2_min2 == padding_w_st3))
-	{ edm::LogError("L1T") << "st2_max2 = " << st2_max2 << ", padding_w_st3 = " << padding_w_st3
-			       << ", st2_min2 = " << st2_min2 << ", padding_w_st3 = " << padding_w_st3; return; }
+      if (not(st2_max1 == padding_w_st3 && st2_min1 == padding_w_st3)) {
+        edm::LogError("L1T") << "st2_max1 = " << st2_max1 << ", padding_w_st3 = " << padding_w_st3
+                             << ", st2_min1 = " << st2_min1 << ", padding_w_st3 = " << padding_w_st3;
+        return;
+      }
+      if (not(st2_max2 == padding_w_st3 && st2_min2 == padding_w_st3)) {
+        edm::LogError("L1T") << "st2_max2 = " << st2_max2 << ", padding_w_st3 = " << padding_w_st3
+                             << ", st2_min2 = " << st2_min2 << ", padding_w_st3 = " << padding_w_st3;
+        return;
+      }
 
       // There is extra "padding" in st1 w.r.t st2,3,4
       // Add the extra padding to st2,3,4
@@ -171,9 +188,11 @@ void PatternRecognition::configure_details() {
       pattern.rotr(padding_extra_w_st1);
       patterns_.push_back(pattern);
     }
-    if (not(patterns_.size() == symPattDefinitions_.size()))
-      { edm::LogError("L1T") << "patterns_.size() = " << patterns_.size() 
-			     << ", symPattDefinitions_.size() = " << symPattDefinitions_.size(); return; }
+    if (not(patterns_.size() == symPattDefinitions_.size())) {
+      edm::LogError("L1T") << "patterns_.size() = " << patterns_.size()
+                           << ", symPattDefinitions_.size() = " << symPattDefinitions_.size();
+      return;
+    }
   }
 
   if (verbose_ > 2) {  // debug
@@ -184,11 +203,9 @@ void PatternRecognition::configure_details() {
   }
 }
 
-void PatternRecognition::process(
-    const std::deque<EMTFHitCollection>& extended_conv_hits,
-    std::map<pattern_ref_t, int>& patt_lifetime_map,
-    emtf::zone_array<EMTFRoadCollection>& zone_roads
-) const {
+void PatternRecognition::process(const std::deque<EMTFHitCollection>& extended_conv_hits,
+                                 std::map<pattern_ref_t, int>& patt_lifetime_map,
+                                 emtf::zone_array<EMTFRoadCollection>& zone_roads) const {
   // Exit if no hits
   int num_conv_hits = 0;
   for (const auto& conv_hits : extended_conv_hits)
@@ -198,18 +215,16 @@ void PatternRecognition::process(
   if (early_exit)
     return;
 
-
   if (verbose_ > 0) {  // debug
     for (const auto& conv_hits : extended_conv_hits) {
       for (const auto& conv_hit : conv_hits) {
         if (conv_hit.Subsystem() == TriggerPrimitive::kCSC) {
           std::cout << "CSC hit st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
-              << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp()
-              << " ph_hit: " << (1ul<<conv_hit.Ph_hit()) << " phzvl: " << conv_hit.Phzvl()
-              << " strip: " << conv_hit.Strip() << " wire: " << conv_hit.Wire() << " cpat: " << conv_hit.Pattern()
-              << " zone_hit: " << conv_hit.Zone_hit() << " zone_code: " << conv_hit.Zone_code()
-              << " bx: " << conv_hit.BX()
-              << std::endl;
+                    << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp()
+                    << " ph_hit: " << (1ul << conv_hit.Ph_hit()) << " phzvl: " << conv_hit.Phzvl()
+                    << " strip: " << conv_hit.Strip() << " wire: " << conv_hit.Wire() << " cpat: " << conv_hit.Pattern()
+                    << " zone_hit: " << conv_hit.Zone_hit() << " zone_code: " << conv_hit.Zone_code()
+                    << " bx: " << conv_hit.BX() << std::endl;
         }
       }
     }
@@ -218,10 +233,9 @@ void PatternRecognition::process(
       for (const auto& conv_hit : conv_hits) {
         if (conv_hit.Subsystem() == TriggerPrimitive::kRPC) {
           std::cout << "RPC hit st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
-              << " ph>>2: " << (conv_hit.Phi_fp()>>2) << " th>>2: " << (conv_hit.Theta_fp()>>2)
-              << " strip: " << conv_hit.Strip() << " roll: " << conv_hit.Roll() << " cpat: " << conv_hit.Pattern()
-              << " bx: " << conv_hit.BX()
-              << std::endl;
+                    << " ph>>2: " << (conv_hit.Phi_fp() >> 2) << " th>>2: " << (conv_hit.Theta_fp() >> 2)
+                    << " strip: " << conv_hit.Strip() << " roll: " << conv_hit.Roll() << " cpat: " << conv_hit.Pattern()
+                    << " bx: " << conv_hit.BX() << std::endl;
         }
       }
     }
@@ -230,10 +244,9 @@ void PatternRecognition::process(
       for (const auto& conv_hit : conv_hits) {
         if (conv_hit.Subsystem() == TriggerPrimitive::kGEM) {
           std::cout << "GEM hit st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
-              << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp()
-              << " strip: " << conv_hit.Strip() << " roll: " << conv_hit.Roll() << " cpat: " << conv_hit.Pattern()
-              << " bx: " << conv_hit.BX()
-              << std::endl;
+                    << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp() << " strip: " << conv_hit.Strip()
+                    << " roll: " << conv_hit.Roll() << " cpat: " << conv_hit.Pattern() << " bx: " << conv_hit.BX()
+                    << std::endl;
         }
       }
     }
@@ -244,20 +257,20 @@ void PatternRecognition::process(
 
   for (int izone = 0; izone < emtf::NUM_ZONES; ++izone) {
     // Skip the zone if no hits and no patterns
-    if (is_zone_empty(izone+1, extended_conv_hits, patt_lifetime_map))
+    if (is_zone_empty(izone + 1, extended_conv_hits, patt_lifetime_map))
       continue;
 
     // Make zone images
-    make_zone_image(izone+1, extended_conv_hits, zone_images.at(izone));
+    make_zone_image(izone + 1, extended_conv_hits, zone_images.at(izone));
 
     // Detect patterns
-    process_single_zone(izone+1, zone_images.at(izone), patt_lifetime_map, zone_roads.at(izone));
+    process_single_zone(izone + 1, zone_images.at(izone), patt_lifetime_map, zone_roads.at(izone));
   }
 
   if (verbose_ > 2) {  // debug
     for (int izone = emtf::NUM_ZONES; izone >= 1; --izone) {
       std::cout << "zone: " << izone << std::endl;
-      std::cout << zone_images.at(izone-1) << std::endl;
+      std::cout << zone_images.at(izone - 1) << std::endl;
     }
     //for (const auto& kv : patt_lifetime_map) {
     //  std::cout << "zone: " << kv.first.at(0) << " izhit: " << kv.first.at(1) << " ipatt: " << kv.first.at(2) << " lifetime: " << kv.second << std::endl;
@@ -267,10 +280,9 @@ void PatternRecognition::process(
   if (verbose_ > 0) {  // debug
     for (const auto& roads : zone_roads) {
       for (const auto& road : reversed(roads)) {
-        std::cout << "pattern: z: " << road.Zone()-1 << " ph: " << road.Key_zhit()
-            << " q: " << to_hex(road.Quality_code()) << " ly: " << to_binary(road.Layer_code(), 3)
-            << " str: " << to_binary(road.Straightness(), 3) << " bx: " << road.BX()
-            << std::endl;
+        std::cout << "pattern: z: " << road.Zone() - 1 << " ph: " << road.Key_zhit()
+                  << " q: " << to_hex(road.Quality_code()) << " ly: " << to_binary(road.Layer_code(), 3)
+                  << " str: " << to_binary(road.Straightness(), 3) << " bx: " << road.BX() << std::endl;
       }
     }
   }
@@ -279,29 +291,29 @@ void PatternRecognition::process(
   for (int izone = 0; izone < emtf::NUM_ZONES; ++izone) {
     sort_single_zone(zone_roads.at(izone));
   }
-
 }
 
-bool PatternRecognition::is_zone_empty(
-    int zone,
-    const std::deque<EMTFHitCollection>& extended_conv_hits,
-    const std::map<pattern_ref_t, int>& patt_lifetime_map
-) const {
-  int izone = zone-1;
+bool PatternRecognition::is_zone_empty(int zone,
+                                       const std::deque<EMTFHitCollection>& extended_conv_hits,
+                                       const std::map<pattern_ref_t, int>& patt_lifetime_map) const {
+  int izone = zone - 1;
   int num_conv_hits = 0;
   int num_patts = 0;
 
-  std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_it  = extended_conv_hits.begin();
+  std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_it = extended_conv_hits.begin();
   std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_end = extended_conv_hits.end();
 
   for (; ext_conv_hits_it != ext_conv_hits_end; ++ext_conv_hits_it) {
-    EMTFHitCollection::const_iterator conv_hits_it  = ext_conv_hits_it->begin();
+    EMTFHitCollection::const_iterator conv_hits_it = ext_conv_hits_it->begin();
     EMTFHitCollection::const_iterator conv_hits_end = ext_conv_hits_it->end();
 
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
       if (not(conv_hits_it->PC_segment() <= 4))  // With 2 unique LCTs per chamber, 4 possible strip/wire combinations
-	{ edm::LogError("L1T") << "conv_hits_it->PC_segment() = " << conv_hits_it->PC_segment(); return true; }
-      
+      {
+        edm::LogError("L1T") << "conv_hits_it->PC_segment() = " << conv_hits_it->PC_segment();
+        return true;
+      }
+
       if (conv_hits_it->Subsystem() == TriggerPrimitive::kRPC)
         continue;  // Don't use RPC hits for pattern formation
 
@@ -312,9 +324,9 @@ bool PatternRecognition::is_zone_empty(
         num_conv_hits += 1;
       }
     }  // end loop over conv_hits
-  }  // end loop over extended_conv_hits
+  }    // end loop over extended_conv_hits
 
-  std::map<pattern_ref_t, int>::const_iterator patt_lifetime_map_it  = patt_lifetime_map.begin();
+  std::map<pattern_ref_t, int>::const_iterator patt_lifetime_map_it = patt_lifetime_map.begin();
   std::map<pattern_ref_t, int>::const_iterator patt_lifetime_map_end = patt_lifetime_map.end();
 
   for (; patt_lifetime_map_it != patt_lifetime_map_end; ++patt_lifetime_map_it) {
@@ -326,18 +338,16 @@ bool PatternRecognition::is_zone_empty(
   return (num_conv_hits == 0) && (num_patts == 0);
 }
 
-void PatternRecognition::make_zone_image(
-    int zone,
-    const std::deque<EMTFHitCollection>& extended_conv_hits,
-    PhiMemoryImage& image
-) const {
-  int izone = zone-1;
+void PatternRecognition::make_zone_image(int zone,
+                                         const std::deque<EMTFHitCollection>& extended_conv_hits,
+                                         PhiMemoryImage& image) const {
+  int izone = zone - 1;
 
-  std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_it  = extended_conv_hits.begin();
+  std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_it = extended_conv_hits.begin();
   std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_end = extended_conv_hits.end();
 
   for (; ext_conv_hits_it != ext_conv_hits_end; ++ext_conv_hits_it) {
-    EMTFHitCollection::const_iterator conv_hits_it  = ext_conv_hits_it->begin();
+    EMTFHitCollection::const_iterator conv_hits_it = ext_conv_hits_it->begin();
     EMTFHitCollection::const_iterator conv_hits_end = ext_conv_hits_it->end();
 
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
@@ -349,19 +359,17 @@ void PatternRecognition::make_zone_image(
 
       if (conv_hits_it->Zone_code() & (1 << izone)) {  // hit belongs to this zone
         unsigned int layer = conv_hits_it->Station() - 1;
-        unsigned int bit   = conv_hits_it->Zone_hit();
+        unsigned int bit = conv_hits_it->Zone_hit();
         image.set_bit(layer, bit);
       }
     }  // end loop over conv_hits
-  }  // end loop over extended_conv_hits
+  }    // end loop over extended_conv_hits
 }
 
-void PatternRecognition::process_single_zone(
-    int zone,
-    PhiMemoryImage cloned_image,
-    std::map<pattern_ref_t, int>& patt_lifetime_map,
-    EMTFRoadCollection& roads
-) const {
+void PatternRecognition::process_single_zone(int zone,
+                                             PhiMemoryImage cloned_image,
+                                             std::map<pattern_ref_t, int>& patt_lifetime_map,
+                                             EMTFRoadCollection& roads) const {
   roads.clear();
 
   const int drift_time = bxWindow_ - 1;
@@ -389,7 +397,7 @@ void PatternRecognition::process_single_zone(
       bool is_lifetime_up = false;
 
       int layer_code = patt.op_and(cloned_image);  // kind of like AND operator
-      bool more_than_one  = (layer_code != 0) && (layer_code != 1) && (layer_code != 2) && (layer_code != 4);
+      bool more_than_one = (layer_code != 0) && (layer_code != 1) && (layer_code != 2) && (layer_code != 4);
       bool more_than_zero = (layer_code != 0);
 
       if (more_than_zero) {
@@ -401,7 +409,7 @@ void PatternRecognition::process_single_zone(
           auto patt_ins = ins.first;  // iterator of patt_lifetime_map pointing to this pattern
           bool patt_exists = !ins.second;
 
-          if (patt_exists) {  // if exists
+          if (patt_exists) {                       // if exists
             if (patt_ins->second == drift_time) {  // is lifetime up?
               is_lifetime_up = true;
             }
@@ -412,9 +420,9 @@ void PatternRecognition::process_single_zone(
           // Use 2nd earliest
           auto patt_ins = ins.first;  // iterator of patt_lifetime_map pointing to this pattern
           int bx_shifter = patt_ins->second;
-          int bx2 = bool(bx_shifter & (1<<2));
-          int bx1 = bool(bx_shifter & (1<<1));
-          int bx0 = bool(bx_shifter & (1<<0));
+          int bx2 = bool(bx_shifter & (1 << 2));
+          int bx1 = bool(bx_shifter & (1 << 1));
+          int bx0 = bool(bx_shifter & (1 << 0));
 
           // is lifetime up?
           if (drift_time == 2 && bx2 == 0 && bx1 == 1) {
@@ -425,8 +433,10 @@ void PatternRecognition::process_single_zone(
             is_lifetime_up = true;
           } else {
             // The bx_shifter keeps track of a number of booleans from BX 0, 1, ..., drift_time.
-	    if (not(drift_time == 2 || drift_time == 1 || drift_time == 0))
-	      { edm::LogError("L1T") << "drift_time = " << drift_time << ", not 0 or 1 or 2"; return; }
+            if (not(drift_time == 2 || drift_time == 1 || drift_time == 0)) {
+              edm::LogError("L1T") << "drift_time = " << drift_time << ", not 0 or 1 or 2";
+              return;
+            }
           }
 
           bx2 = bx1;
@@ -447,29 +457,24 @@ void PatternRecognition::process_single_zone(
         // This quality code scheme is giving almost-equal priority to
         // more stations and better straightness
         // Station 1 has higher weight, station 2 lower, stations 3&4 lowest
-        int quality_code = (
-            (((straightness>>2) & 1) << 5) |
-            (((straightness>>1) & 1) << 3) |
-            (((straightness>>0) & 1) << 1) |
-            (((layer_code>>2)   & 1) << 4) |
-            (((layer_code>>1)   & 1) << 2) |
-            (((layer_code>>0)   & 1) << 0)
-        );
+        int quality_code =
+            ((((straightness >> 2) & 1) << 5) | (((straightness >> 1) & 1) << 3) | (((straightness >> 0) & 1) << 1) |
+             (((layer_code >> 2) & 1) << 4) | (((layer_code >> 1) & 1) << 2) | (((layer_code >> 0) & 1) << 0));
 
         // Create a road (fired pattern)
         EMTFRoad road;
-        road.set_endcap     ( (endcap_ == 1) ? 1 : -1 );
-        road.set_sector     ( sector_ );
-        road.set_sector_idx ( (endcap_ == 1) ? sector_ - 1 : sector_ + 5 );
-        road.set_bx         ( bx_ - drift_time );
+        road.set_endcap((endcap_ == 1) ? 1 : -1);
+        road.set_sector(sector_);
+        road.set_sector_idx((endcap_ == 1) ? sector_ - 1 : sector_ + 5);
+        road.set_bx(bx_ - drift_time);
 
-        road.set_zone     ( patt_ref.at(0) );
-        road.set_key_zhit ( patt_ref.at(1) );
-        road.set_pattern  ( patt_ref.at(2) );
+        road.set_zone(patt_ref.at(0));
+        road.set_key_zhit(patt_ref.at(1));
+        road.set_pattern(patt_ref.at(2));
 
-        road.set_straightness ( straightness );
-        road.set_layer_code   ( layer_code );
-        road.set_quality_code ( quality_code );
+        road.set_straightness(straightness);
+        road.set_layer_code(layer_code);
+        road.set_quality_code(quality_code);
 
         // Find max quality code in a given key_zhit
         if (max_quality_code < quality_code) {
@@ -487,21 +492,20 @@ void PatternRecognition::process_single_zone(
 
   }  // end loop over zone hits
 
-
   // Ghost cancellation logic by considering neighbor patterns
 
   if (!roads.empty()) {
     std::array<int, emtf::NUM_ZONE_HITS> quality_codes;
     quality_codes.fill(0);
 
-    EMTFRoadCollection::iterator roads_it  = roads.begin();
+    EMTFRoadCollection::iterator roads_it = roads.begin();
     EMTFRoadCollection::iterator roads_end = roads.end();
 
     for (; roads_it != roads_end; ++roads_it) {
       quality_codes.at(roads_it->Key_zhit()) = roads_it->Quality_code();
     }
 
-    roads_it  = roads.begin();
+    roads_it = roads.begin();
     roads_end = roads.end();
 
     for (; roads_it != roads_end; ++roads_it) {
@@ -512,12 +516,12 @@ void PatternRecognition::process_single_zone(
 
       // Left and right qualities are the neighbors
       // Protect against the right end and left end special cases
-      int ql = (izhit == emtf::NUM_ZONE_HITS-1) ? 0 : quality_codes.at(izhit+1);
-      int qr = (izhit == 0) ? 0 : quality_codes.at(izhit-1);
+      int ql = (izhit == emtf::NUM_ZONE_HITS - 1) ? 0 : quality_codes.at(izhit + 1);
+      int qr = (izhit == 0) ? 0 : quality_codes.at(izhit - 1);
 
       // Cancellation conditions
-      if (qc <= ql || qc < qr) {  // this pattern is lower quality than neighbors
-        roads_it->set_quality_code( 0 );   // cancel
+      if (qc <= ql || qc < qr) {        // this pattern is lower quality than neighbors
+        roads_it->set_quality_code(0);  // cancel
       }
     }
   }
@@ -526,9 +530,7 @@ void PatternRecognition::process_single_zone(
   // using erase-remove idiom
   struct {
     typedef EMTFRoad value_type;
-    bool operator()(const value_type& x) const {
-      return (x.Quality_code() == 0);
-    }
+    bool operator()(const value_type& x) const { return (x.Quality_code() == 0); }
   } quality_code_zero_pred;
 
   roads.erase(std::remove_if(roads.begin(), roads.end(), quality_code_zero_pred), roads.end());
@@ -538,9 +540,7 @@ void PatternRecognition::sort_single_zone(EMTFRoadCollection& roads) const {
   // First, order by key_zhit (highest to lowest)
   struct {
     typedef EMTFRoad value_type;
-    bool operator()(const value_type& lhs, const value_type& rhs) const {
-      return lhs.Key_zhit() > rhs.Key_zhit();
-    }
+    bool operator()(const value_type& lhs, const value_type& rhs) const { return lhs.Key_zhit() > rhs.Key_zhit(); }
   } greater_zhit_cmp;
 
   std::sort(roads.begin(), roads.end(), greater_zhit_cmp);
@@ -560,11 +560,13 @@ void PatternRecognition::sort_single_zone(EMTFRoadCollection& roads) const {
   if (roads.size() > n) {
     roads.erase(roads.begin() + n, roads.end());
   }
-  if (not(roads.size() <= n))
-    { edm::LogError("L1T") << "roads.size() = " << roads.size() << ", n = " << n; return; }
+  if (not(roads.size() <= n)) {
+    edm::LogError("L1T") << "roads.size() = " << roads.size() << ", n = " << n;
+    return;
+  }
 
   // Assign the winner variable
   for (unsigned iroad = 0; iroad < roads.size(); ++iroad) {
-    roads.at(iroad).set_winner( iroad );
+    roads.at(iroad).set_winner(iroad);
   }
 }

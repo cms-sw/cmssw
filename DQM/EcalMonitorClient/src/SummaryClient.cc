@@ -8,42 +8,37 @@
 
 #include <algorithm>
 
-namespace ecaldqm
-{
-  SummaryClient::SummaryClient() :
-    DQWorkerClient(),
-    towerBadFraction_(0.),
-    fedBadFraction_(0.)
-  {
+namespace ecaldqm {
+  SummaryClient::SummaryClient() : DQWorkerClient(), towerBadFraction_(0.), fedBadFraction_(0.) {
     qualitySummaries_.insert("QualitySummary");
     qualitySummaries_.insert("ReportSummaryMap");
     qualitySummaries_.insert("ReportSummaryContents");
     qualitySummaries_.insert("ReportSummary");
   }
 
-  void
-  SummaryClient::setParams(edm::ParameterSet const& _params)
-  {
+  void SummaryClient::setParams(edm::ParameterSet const& _params) {
     towerBadFraction_ = _params.getUntrackedParameter<double>("towerBadFraction");
     fedBadFraction_ = _params.getUntrackedParameter<double>("fedBadFraction");
 
     std::vector<std::string> sourceList(_params.getUntrackedParameter<std::vector<std::string> >("activeSources"));
-    if(std::find(sourceList.begin(), sourceList.end(), "Presample") == sourceList.end()) sources_.erase(std::string("Presample"));
-    if(std::find(sourceList.begin(), sourceList.end(), "Timing") == sourceList.end()) sources_.erase(std::string("Timing"));
-    if(std::find(sourceList.begin(), sourceList.end(), "TriggerPrimitives") == sourceList.end()) sources_.erase(std::string("TriggerPrimitives"));
-    if(std::find(sourceList.begin(), sourceList.end(), "HotCell") == sourceList.end()) sources_.erase(std::string("HotCell"));
+    if (std::find(sourceList.begin(), sourceList.end(), "Presample") == sourceList.end())
+      sources_.erase(std::string("Presample"));
+    if (std::find(sourceList.begin(), sourceList.end(), "Timing") == sourceList.end())
+      sources_.erase(std::string("Timing"));
+    if (std::find(sourceList.begin(), sourceList.end(), "TriggerPrimitives") == sourceList.end())
+      sources_.erase(std::string("TriggerPrimitives"));
+    if (std::find(sourceList.begin(), sourceList.end(), "HotCell") == sourceList.end())
+      sources_.erase(std::string("HotCell"));
   }
 
-  void
-  SummaryClient::resetMEs()
-  {
+  void SummaryClient::resetMEs() {
     DQWorkerClient::resetMEs();
 
     MESet& meReportSummaryContents(MEs_.at("ReportSummaryContents"));
     MESet& meReportSummary(MEs_.at("ReportSummary"));
     MESet& meReportSummaryMap(MEs_.at("ReportSummaryMap"));
 
-    for(unsigned iDCC(0); iDCC < nDCC; ++iDCC){
+    for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
       int dccid(iDCC + 1);
       meReportSummaryContents.fill(dccid, -1.);
     }
@@ -53,14 +48,11 @@ namespace ecaldqm
     meReportSummaryMap.reset(-1.);
   }
 
-  void
-  SummaryClient::producePlots(ProcessType _pType)
-  {
-
+  void SummaryClient::producePlots(ProcessType _pType) {
     MESet& meReportSummaryContents(MEs_.at("ReportSummaryContents"));
     MESet& meReportSummary(MEs_.at("ReportSummary"));
 
-    for(unsigned iDCC(0); iDCC < nDCC; ++iDCC){
+    for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
       int dccid(iDCC + 1);
       meReportSummaryContents.fill(dccid, -1.);
     }
@@ -68,12 +60,12 @@ namespace ecaldqm
 
     MESet const& sIntegrityByLumi(sources_.at("IntegrityByLumi"));
     MESet const& sDesyncByLumi(sources_.at("DesyncByLumi"));
-    MESet const& sFEByLumi(sources_.at("FEByLumi")); // Does NOT include FE=Disabled
-    MESet const& sFEStatusErrMapByLumi(sources_.at("FEStatusErrMapByLumi")); // Includes FE=Disabled
+    MESet const& sFEByLumi(sources_.at("FEByLumi"));                          // Does NOT include FE=Disabled
+    MESet const& sFEStatusErrMapByLumi(sources_.at("FEStatusErrMapByLumi"));  // Includes FE=Disabled
 
     double integrityByLumi[nDCC];
     double rawDataByLumi[nDCC];
-    for(unsigned iDCC(0); iDCC < nDCC; ++iDCC){
+    for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
       integrityByLumi[iDCC] = sIntegrityByLumi.getBinContent(iDCC + 1);
       rawDataByLumi[iDCC] = sDesyncByLumi.getBinContent(iDCC + 1) + sFEByLumi.getBinContent(iDCC + 1);
     }
@@ -94,7 +86,7 @@ namespace ecaldqm
     double dccChannels[nDCC];
     std::fill_n(dccChannels, nDCC, 0.);
     double dccGood[nDCC], dccGoodRaw[nDCC];
-    std::fill_n(dccGood,    nDCC, 0.);
+    std::fill_n(dccGood, nDCC, 0.);
     std::fill_n(dccGoodRaw, nDCC, 0.);
 
     std::map<uint32_t, int> badChannelsCount;
@@ -103,9 +95,9 @@ namespace ecaldqm
     // Used to set an entire FED to BAD
     MESet const& sBXSRP(sources_.at("BXSRP"));
     MESet const& sBXTCC(sources_.at("BXTCC"));
-    std::vector<bool> hasMismatchDCC(nDCC,false);
-    for ( unsigned iDCC(0); iDCC < nDCC; ++iDCC ) {
-      if ( sBXSRP.getBinContent(iDCC + 1) > 50. || sBXTCC.getBinContent(iDCC + 1) > 50. ) // "any" = 50
+    std::vector<bool> hasMismatchDCC(nDCC, false);
+    for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
+      if (sBXSRP.getBinContent(iDCC + 1) > 50. || sBXTCC.getBinContent(iDCC + 1) > 50.)  // "any" = 50
         hasMismatchDCC[iDCC] = true;
     }
 
@@ -113,8 +105,7 @@ namespace ecaldqm
     uint32_t mask(1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR);
 
     MESet::iterator qEnd(meQualitySummary.end());
-    for(MESet::iterator qItr(meQualitySummary.beginChannel()); qItr != qEnd; qItr.toNextChannel()){
-
+    for (MESet::iterator qItr(meQualitySummary.beginChannel()); qItr != qEnd; qItr.toNextChannel()) {
       DetId id(qItr->getId());
       unsigned iDCC(dccId(id) - 1);
 
@@ -126,36 +117,42 @@ namespace ecaldqm
       int timing(sTiming ? sTiming->getBinContent(id) : kUnknown);
       int trigprim(sTriggerPrimitives ? sTriggerPrimitives->getBinContent(id) : kUnknown);
       int rawdata(sRawData.getBinContent(id));
-			
-      double rawdataLS(sFEStatusErrMapByLumi.getBinContent(id)); // Includes FE=Disabled
+
+      double rawdataLS(sFEStatusErrMapByLumi.getBinContent(id));  // Includes FE=Disabled
 
       // If there are no RawData or Integrity errors in this LS, set them back to GOOD
       //if(integrity == kBad && integrityByLumi[iDCC] == 0.) integrity = kGood;
-      if(integrity == kBad && integrityByLumi[iDCC] == 0. && !hasMismatchDCC[iDCC]) integrity = kGood;
+      if (integrity == kBad && integrityByLumi[iDCC] == 0. && !hasMismatchDCC[iDCC])
+        integrity = kGood;
       //if(rawdata == kBad && rawDataByLumi[iDCC] == 0.) rawdata = kGood;
-      if(rawdata == kBad && rawDataByLumi[iDCC] == 0. && rawdataLS == 0.) rawdata = kGood;
+      if (rawdata == kBad && rawDataByLumi[iDCC] == 0. && rawdataLS == 0.)
+        rawdata = kGood;
 
       // Fill Global Quality Summary
       int status(kGood);
-      if(integrity == kBad || presample == kBad || timing == kBad || rawdata == kBad || trigprim == kBad || hotcell == kBad)
+      if (integrity == kBad || presample == kBad || timing == kBad || rawdata == kBad || trigprim == kBad ||
+          hotcell == kBad)
         status = kBad;
-      else if(integrity == kUnknown && presample == kUnknown && timing == kUnknown && rawdata == kUnknown && trigprim == kUnknown)
+      else if (integrity == kUnknown && presample == kUnknown && timing == kUnknown && rawdata == kUnknown &&
+               trigprim == kUnknown)
         status = kUnknown;
       // Skip channels with no/low integrity statistics (based on digi occupancy)
-      // Normally, ensures Global Quality and Report Summaries are not filled when stats are still low / channel masked / ECAL not in run 
-      // However, problematic FEDs can sometimes drop hits so check that channel is not flagged as BAD elsewhere 
-      if( status != kBad && (integrity == kUnknown || integrity == kMUnknown)) {
+      // Normally, ensures Global Quality and Report Summaries are not filled when stats are still low / channel masked / ECAL not in run
+      // However, problematic FEDs can sometimes drop hits so check that channel is not flagged as BAD elsewhere
+      if (status != kBad && (integrity == kUnknown || integrity == kMUnknown)) {
         qItr->setBinContent(integrity);
-        if ( onlineMode_ ) continue;
+        if (onlineMode_)
+          continue;
       }
       qItr->setBinContent(status);
 
       // Keep running count of good/bad channels/towers: Uses cumulative stats.
-      if(status == kBad){
-        if(id.subdetId() == EcalBarrel) badChannelsCount[EBDetId(id).tower().rawId()] += 1;
-        if(id.subdetId() == EcalEndcap) badChannelsCount[EEDetId(id).sc().rawId()] += 1;
-      }
-      else{
+      if (status == kBad) {
+        if (id.subdetId() == EcalBarrel)
+          badChannelsCount[EBDetId(id).tower().rawId()] += 1;
+        if (id.subdetId() == EcalEndcap)
+          badChannelsCount[EEDetId(id).sc().rawId()] += 1;
+      } else {
         dccGood[iDCC] += 1.;
         totalGood += 1.;
       }
@@ -165,12 +162,12 @@ namespace ecaldqm
       // Keep running count of good channels in RawData only: Uses LS stats only.
       // LS-based reports only use RawData as input to save on having to run other workers
       bool isMasked(meQualitySummary.maskMatches(id, mask, statusManager_));
-      if( rawdataLS == 0. || isMasked ){ // channel != kBad in rawdata
+      if (rawdataLS == 0. || isMasked) {  // channel != kBad in rawdata
         dccGoodRaw[iDCC] += 1.;
         totalGoodRaw += 1.;
       }
 
-    } // qItr channel loop
+    }  // qItr channel loop
 
     // search clusters of bad towers
     /*if(onlineMode_){
@@ -237,28 +234,32 @@ namespace ecaldqm
 
     // Fill Report Summaries
     double nBad(0.);
-    for(unsigned iDCC(0); iDCC < nDCC; ++iDCC){
-      if(dccChannels[iDCC] < 1.) continue;
+    for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
+      if (dccChannels[iDCC] < 1.)
+        continue;
 
       int dccid(iDCC + 1);
       float frac(dccGood[iDCC] / dccChannels[iDCC]);
       float fracRaw(dccGoodRaw[iDCC] / dccChannels[iDCC]);
       meReportSummaryMap.setBinContent(dccid, frac);
       float fracLS(onlineMode_ ? frac : fracRaw);
-      meReportSummaryContents.fill(dccid, fracLS); // reported by LS
+      meReportSummaryContents.fill(dccid, fracLS);  // reported by LS
 
-      if(1. - frac > fedBadFraction_) nBad += 1.;
+      if (1. - frac > fedBadFraction_)
+        nBad += 1.;
     }
 
     float totalGoodLS(onlineMode_ ? totalGood : totalGoodRaw);
-    if(totalChannels > 0.) meReportSummary.fill(totalGoodLS / totalChannels); // reported by LS
+    if (totalChannels > 0.)
+      meReportSummary.fill(totalGoodLS / totalChannels);  // reported by LS
 
-    if(onlineMode_){
-      if(totalChannels > 0.) MEs_.at("GlobalSummary").setBinContent(1, totalGood / totalChannels);
+    if (onlineMode_) {
+      if (totalChannels > 0.)
+        MEs_.at("GlobalSummary").setBinContent(1, totalGood / totalChannels);
       MEs_.at("NBadFEDs").setBinContent(1, nBad);
     }
 
-  } // producePlots()
+  }  // producePlots()
 
   DEFINE_ECALDQM_WORKER(SummaryClient);
-}
+}  // namespace ecaldqm

@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // File: CastorShowerLibraryMaker.h
-// Date: 02/2009 
+// Date: 02/2009
 // Author: Wagner Carvalho (adapted from Panos Katsas code)
-// Description: simulation analysis steering code 
+// Description: simulation analysis steering code
 //
 ///////////////////////////////////////////////////////////////////////////////
 #undef debug
@@ -50,7 +50,7 @@
 #include <memory>
 #include <vector>
 
-#include <CLHEP/Random/Randomize.h> 
+#include <CLHEP/Random/Randomize.h>
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -65,7 +65,6 @@
 #include "TMath.h"
 #include "TF1.h"
 
-
 class G4Step;
 class BeginOfJob;
 class BeginOfRun;
@@ -78,111 +77,105 @@ typedef std::vector<std::vector<CastorShowerEvent> > phi_t; //holds N phi bin co
 typedef std::vector<phi_t>                           eta_t; //holds N eta bin collection  
 typedef std::vector<eta_t>                           energy_t; //holds N energy bin
 */
-typedef std::vector<std::vector<std::vector<std::vector<CastorShowerEvent> > > > SLBin3D; // bin in energy, eta and phi
+typedef std::vector<std::vector<std::vector<std::vector<CastorShowerEvent> > > > SLBin3D;  // bin in energy, eta and phi
 
 class CastorShowerLibraryMaker : public SimWatcher,
-			public Observer<const BeginOfJob *>, 
-			public Observer<const BeginOfRun *>,
-			public Observer<const EndOfRun *>,
-			public Observer<const BeginOfEvent *>, 
-			public Observer<const EndOfEvent *>, 
-			public Observer<const G4Step *> {
-  
+                                 public Observer<const BeginOfJob*>,
+                                 public Observer<const BeginOfRun*>,
+                                 public Observer<const EndOfRun*>,
+                                 public Observer<const BeginOfEvent*>,
+                                 public Observer<const EndOfEvent*>,
+                                 public Observer<const G4Step*> {
 public:
-
-  CastorShowerLibraryMaker(const edm::ParameterSet &p);
+  CastorShowerLibraryMaker(const edm::ParameterSet& p);
   ~CastorShowerLibraryMaker() override;
 
 private:
   typedef int ebin;
   typedef int etabin;
   typedef int phibin;
-// private structures
+  // private structures
   struct ShowerLib {
-         CastorShowerLibraryInfo SLInfo; // the info
-         SLBin3D                 SLCollection; // the showers
-         std::vector<double>     SLEnergyBins;
-         std::vector<double>     SLEtaBins;
-         std::vector<double>     SLPhiBins;
-         unsigned int            nEvtPerBinE;
-         unsigned int            nEvtPerBinEta;
-         unsigned int            nEvtPerBinPhi;
-         std::vector<int>                             nEvtInBinE;
-         std::vector<std::vector<int> >               nEvtInBinEta;
-         std::vector<std::vector<std::vector<int> > > nEvtInBinPhi;
-  }; 
+    CastorShowerLibraryInfo SLInfo;  // the info
+    SLBin3D SLCollection;            // the showers
+    std::vector<double> SLEnergyBins;
+    std::vector<double> SLEtaBins;
+    std::vector<double> SLPhiBins;
+    unsigned int nEvtPerBinE;
+    unsigned int nEvtPerBinEta;
+    unsigned int nEvtPerBinPhi;
+    std::vector<int> nEvtInBinE;
+    std::vector<std::vector<int> > nEvtInBinEta;
+    std::vector<std::vector<std::vector<int> > > nEvtInBinPhi;
+  };
 
   // observer classes
-  void update(const BeginOfJob * run) override;
-  void update(const BeginOfRun * run) override;
-  void update(const EndOfRun * run) override;
-  void update(const BeginOfEvent * evt) override;
-  void update(const EndOfEvent * evt) override;
-  void update(const G4Step * step) override;
+  void update(const BeginOfJob* run) override;
+  void update(const BeginOfRun* run) override;
+  void update(const EndOfRun* run) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const EndOfEvent* evt) override;
+  void update(const G4Step* step) override;
 
 private:
-
-  void   Finish();
+  void Finish();
 
   // Job general parameters
   int verbosity;
   std::string eventNtFileName;
-  
-  unsigned int NPGParticle; // number of particles requested to Particle Gun
-  std::vector<int> PGParticleIDs; //p. gun particle IDs
-  bool DoHadSL; // true if hadronic SL should be produced
-  bool DoEmSL;  // true if electromag. SL should be produced
-  bool InsideCastor; // true if particle step inside CASTOR
-  bool DeActivatePhysicsProcess; //cfg parameter: True if phys. proc. should be off from IP to Castor
-  std::vector<G4PrimaryParticle*> thePrims; // list of primaries for this event
-  
-  // Pointers for user defined class objects to be stored to Root file
-  CastorShowerLibraryInfo   *emInfo;
-  CastorShowerLibraryInfo   *hadInfo;
-  CastorShowerEvent     *emShower;
-  CastorShowerEvent    *hadShower;
-  ShowerLib            emSLHolder;
-  ShowerLib            hadSLHolder;
-  ShowerLib*           SLShowerptr; // pointer to the current shower collection (above)
-  std::map<int,std::set<int> > MapOfSecondaries; // map to hold all secondaries ID keyed by
-                                                 // the PDG code of the primary
 
-  std::map<int,G4ThreeVector> PrimaryMomentum;
-  std::map<int,G4ThreeVector> PrimaryPosition;
-  double                MaxEta; // limits the eta region, the lower limit is given by the SL bins
-  double                MaxPhi; // limits the phi region, the lower limit is given by the SL bins
-// private methods
+  unsigned int NPGParticle;                  // number of particles requested to Particle Gun
+  std::vector<int> PGParticleIDs;            //p. gun particle IDs
+  bool DoHadSL;                              // true if hadronic SL should be produced
+  bool DoEmSL;                               // true if electromag. SL should be produced
+  bool InsideCastor;                         // true if particle step inside CASTOR
+  bool DeActivatePhysicsProcess;             //cfg parameter: True if phys. proc. should be off from IP to Castor
+  std::vector<G4PrimaryParticle*> thePrims;  // list of primaries for this event
+
+  // Pointers for user defined class objects to be stored to Root file
+  CastorShowerLibraryInfo* emInfo;
+  CastorShowerLibraryInfo* hadInfo;
+  CastorShowerEvent* emShower;
+  CastorShowerEvent* hadShower;
+  ShowerLib emSLHolder;
+  ShowerLib hadSLHolder;
+  ShowerLib* SLShowerptr;                          // pointer to the current shower collection (above)
+  std::map<int, std::set<int> > MapOfSecondaries;  // map to hold all secondaries ID keyed by
+                                                   // the PDG code of the primary
+
+  std::map<int, G4ThreeVector> PrimaryMomentum;
+  std::map<int, G4ThreeVector> PrimaryPosition;
+  double MaxEta;  // limits the eta region, the lower limit is given by the SL bins
+  double MaxPhi;  // limits the phi region, the lower limit is given by the SL bins
+                  // private methods
   int FindEnergyBin(double e);
   int FindEtaBin(double eta);
   int FindPhiBin(double phi);
   bool SLacceptEvent(int, int, int);
   bool IsSLReady();
-  void GetKinematics(G4PrimaryParticle* ,
-       double& px, double& py, double& pz, double& pInit, double& eta, double& phi);
-  void GetKinematics(int ,
-       double& px, double& py, double& pz, double& pInit, double& eta, double& phi);
+  void GetKinematics(G4PrimaryParticle*, double& px, double& py, double& pz, double& pInit, double& eta, double& phi);
+  void GetKinematics(int, double& px, double& py, double& pz, double& pInit, double& eta, double& phi);
 
-  std::vector<G4PrimaryParticle*>  GetPrimary(const G4Event * );
-  bool FillShowerEvent(CaloG4HitCollection* ,CastorShowerEvent*, int);
-  void InitSLHolder(ShowerLib& );
+  std::vector<G4PrimaryParticle*> GetPrimary(const G4Event*);
+  bool FillShowerEvent(CaloG4HitCollection*, CastorShowerEvent*, int);
+  void InitSLHolder(ShowerLib&);
 
-  void printSLstatus(int , int, int);
+  void printSLstatus(int, int, int);
   int& SLnEvtInBinE(int ebin);
   int& SLnEvtInBinEta(int ebin, int etabin);
   int& SLnEvtInBinPhi(int ebin, int etabin, int phibin);
-  bool         SLisEBinFilled(int ebin);
-  bool         SLisEtaBinFilled(int ebin, int etabin);
-  bool         SLisPhiBinFilled(int ebin, int etabin, int phibin);
-  void KillSecondaries(const G4Step * step);
-  void GetMissingEnergy(CaloG4HitCollection* ,double& ,double& );
+  bool SLisEBinFilled(int ebin);
+  bool SLisEtaBinFilled(int ebin, int etabin);
+  bool SLisPhiBinFilled(int ebin, int etabin, int phibin);
+  void KillSecondaries(const G4Step* step);
+  void GetMissingEnergy(CaloG4HitCollection*, double&, double&);
 
   // Root pointers
   TFile* theFile;
   TTree* theTree;
 
   int eventIndex;
-  int stepIndex;   // ignore, please
-
+  int stepIndex;  // ignore, please
 };
 
-#endif // CastorShowerLibraryMaker_h
+#endif  // CastorShowerLibraryMaker_h

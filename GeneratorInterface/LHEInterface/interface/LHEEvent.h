@@ -20,83 +20,81 @@
 
 namespace lhef {
 
-class LHEEvent {
-    public:
-	LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
-	         std::istream &in);
-	LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
-	         const HEPEUP &hepeup);
-	LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
-	         const HEPEUP &hepeup,
-	         const LHEEventProduct::PDF *pdf,
-	         const std::vector<std::string> &comments);
-	LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
-	         const LHEEventProduct &product);
-	~LHEEvent();
+  class LHEEvent {
+  public:
+    LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo, std::istream &in);
+    LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo, const HEPEUP &hepeup);
+    LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
+             const HEPEUP &hepeup,
+             const LHEEventProduct::PDF *pdf,
+             const std::vector<std::string> &comments);
+    LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo, const LHEEventProduct &product);
+    ~LHEEvent();
 
-	typedef LHEEventProduct::PDF PDF;
-	typedef LHEEventProduct::WGT WGT;
+    typedef LHEEventProduct::PDF PDF;
+    typedef LHEEventProduct::WGT WGT;
 
-	const std::shared_ptr<LHERunInfo> &getRunInfo() const { return runInfo; }
-	const HEPEUP *getHEPEUP() const { return &hepeup; }
-	const HEPRUP *getHEPRUP() const { return runInfo->getHEPRUP(); }
-	const PDF *getPDF() const { return pdf.get(); }
-	const std::vector<std::string> &getComments() const { return comments; }
-	const int getReadAttempts() { return readAttemptCounter; }
+    const std::shared_ptr<LHERunInfo> &getRunInfo() const { return runInfo; }
+    const HEPEUP *getHEPEUP() const { return &hepeup; }
+    const HEPRUP *getHEPRUP() const { return runInfo->getHEPRUP(); }
+    const PDF *getPDF() const { return pdf.get(); }
+    const std::vector<std::string> &getComments() const { return comments; }
+    const int getReadAttempts() { return readAttemptCounter; }
 
-	void addWeight(const WGT& wgt) { weights_.push_back(wgt); }
-	void setPDF(std::unique_ptr<PDF> pdf) { this->pdf = std::move(pdf); }
+    void addWeight(const WGT &wgt) { weights_.push_back(wgt); }
+    void setPDF(std::unique_ptr<PDF> pdf) { this->pdf = std::move(pdf); }
 
-	double originalXWGTUP() const { return originalXWGTUP_; }
-	const std::vector<WGT>& weights() const { return weights_; }
+    double originalXWGTUP() const { return originalXWGTUP_; }
+    const std::vector<WGT> &weights() const { return weights_; }
 
-	const std::vector<float> &scales() const { return scales_; }
-	void setScales(const std::vector<float> &scales) { scales_ = scales; }
-	
-	int npLO() const { return npLO_; }
-	int npNLO() const { return npNLO_; }
-	
-	void setNpLO(int n) { npLO_ = n; }
-	void setNpNLO(int n) { npNLO_ = n; }
-	
-	void addComment(const std::string &line) { comments.push_back(line); }
+    const std::vector<float> &scales() const { return scales_; }
+    void setScales(const std::vector<float> &scales) { scales_ = scales; }
 
-	static void removeParticle(lhef::HEPEUP &hepeup, int index);
-	void removeResonances(const std::vector<int> &ids);
+    int npLO() const { return npLO_; }
+    int npNLO() const { return npNLO_; }
 
-	void count(LHERunInfo::CountMode count,
-	           double weight = 1.0, double matchWeight = 1.0);
+    void setNpLO(int n) { npLO_ = n; }
+    void setNpNLO(int n) { npNLO_ = n; }
 
-	void attempted() { readAttemptCounter++; return; }
-	
-	void fillPdfInfo(HepMC::PdfInfo *info) const;
-	void fillEventInfo(HepMC::GenEvent *hepmc) const;
+    void addComment(const std::string &line) { comments.push_back(line); }
 
-	std::unique_ptr<HepMC::GenEvent> asHepMCEvent() const;
+    static void removeParticle(lhef::HEPEUP &hepeup, int index);
+    void removeResonances(const std::vector<int> &ids);
 
-	static const HepMC::GenVertex *findSignalVertex(
-			const HepMC::GenEvent *event, bool status3 = true);
+    void count(LHERunInfo::CountMode count, double weight = 1.0, double matchWeight = 1.0);
 
-	static void fixHepMCEventTimeOrdering(HepMC::GenEvent *event);
+    void attempted() {
+      readAttemptCounter++;
+      return;
+    }
 
-    private:
-	static bool checkHepMCTree(const HepMC::GenEvent *event);
-	HepMC::GenParticle *makeHepMCParticle(unsigned int i) const;
+    void fillPdfInfo(HepMC::PdfInfo *info) const;
+    void fillEventInfo(HepMC::GenEvent *hepmc) const;
 
-	const std::shared_ptr<LHERunInfo>	runInfo;
+    std::unique_ptr<HepMC::GenEvent> asHepMCEvent() const;
 
-	HEPEUP					hepeup;
-	std::unique_ptr<PDF>			pdf;
-	std::vector<WGT>	          	weights_;
-	std::vector<std::string>		comments;
-	bool					counted;
-	int                                     readAttemptCounter;
-	double                                  originalXWGTUP_;
-        std::vector<float>                      scales_; //scale value used to exclude EWK-produced partons from matching
-        int 					npLO_; //number of partons for LO process (used to steer matching/merging)
-        int 					npNLO_; //number of partons for NLO process (used to steer matching/merging)
-};
+    static const HepMC::GenVertex *findSignalVertex(const HepMC::GenEvent *event, bool status3 = true);
 
-} // namespace lhef
+    static void fixHepMCEventTimeOrdering(HepMC::GenEvent *event);
 
-#endif // GeneratorEvent_LHEInterface_LHEEvent_h
+  private:
+    static bool checkHepMCTree(const HepMC::GenEvent *event);
+    HepMC::GenParticle *makeHepMCParticle(unsigned int i) const;
+
+    const std::shared_ptr<LHERunInfo> runInfo;
+
+    HEPEUP hepeup;
+    std::unique_ptr<PDF> pdf;
+    std::vector<WGT> weights_;
+    std::vector<std::string> comments;
+    bool counted;
+    int readAttemptCounter;
+    double originalXWGTUP_;
+    std::vector<float> scales_;  //scale value used to exclude EWK-produced partons from matching
+    int npLO_;                   //number of partons for LO process (used to steer matching/merging)
+    int npNLO_;                  //number of partons for NLO process (used to steer matching/merging)
+  };
+
+}  // namespace lhef
+
+#endif  // GeneratorEvent_LHEInterface_LHEEvent_h

@@ -7,17 +7,17 @@
 
 #include "GeneratorInterface/ExhumeInterface/interface/TwoSpace.h"
 
-namespace Exhume{
-  class QQ : public TwoSpace{
-
+namespace Exhume {
+  class QQ : public TwoSpace {
   public:
     QQ(const edm::ParameterSet&);
-    
+
     //declare inherited functions
     double SubProcess() override;
     void LIPS2Amp() override;
     void Amp2LIPS() override;
     void SetQuarkType(const int&);
+
   private:
     double InvSinTheta;
 
@@ -43,5 +43,5 @@ namespace Exhume{
     double SubWgt;
     */
   };
-}
+}  // namespace Exhume
 #endif

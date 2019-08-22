@@ -23,83 +23,74 @@ using namespace edm;
 using namespace sipixelobjects;
 
 class SiPixelFedCablingMapTestWriter : public edm::EDAnalyzer {
- public:
-  explicit SiPixelFedCablingMapTestWriter( const edm::ParameterSet& );
+public:
+  explicit SiPixelFedCablingMapTestWriter(const edm::ParameterSet&);
   ~SiPixelFedCablingMapTestWriter();
   virtual void beginJob();
   virtual void endJob();
-  virtual void analyze(const edm::Event& , const edm::EventSetup& ){}
- private:
-  SiPixelFedCablingTree * cablingTree;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
+
+private:
+  SiPixelFedCablingTree* cablingTree;
   string m_record;
 };
 
-
-SiPixelFedCablingMapTestWriter::SiPixelFedCablingMapTestWriter( const edm::ParameterSet& iConfig ) 
-  : cablingTree(0),
-    m_record(iConfig.getParameter<std::string>("record"))
-{
-  cout <<" HERE record: "<< m_record<<endl;
+SiPixelFedCablingMapTestWriter::SiPixelFedCablingMapTestWriter(const edm::ParameterSet& iConfig)
+    : cablingTree(0), m_record(iConfig.getParameter<std::string>("record")) {
+  cout << " HERE record: " << m_record << endl;
   ::putenv((char*)"CORAL_AUTH_USER=konec");
-  ::putenv((char*)"CORAL_AUTH_PASSWORD=test"); 
+  ::putenv((char*)"CORAL_AUTH_PASSWORD=test");
 }
 
-void  SiPixelFedCablingMapTestWriter::endJob()
-{
-  cout<<"Convert Tree to Map";
- 
-  SiPixelFedCablingMap * cablingMap = new SiPixelFedCablingMap(cablingTree);
-  cout<<"Now writing to DB"<<endl;
+void SiPixelFedCablingMapTestWriter::endJob() {
+  cout << "Convert Tree to Map";
+
+  SiPixelFedCablingMap* cablingMap = new SiPixelFedCablingMap(cablingTree);
+  cout << "Now writing to DB" << endl;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
-  if( !mydbservice.isAvailable() ){
-    cout<<"db service unavailable"<<endl;
+  if (!mydbservice.isAvailable()) {
+    cout << "db service unavailable" << endl;
     return;
-  } else { cout<<"DB service OK"<<endl; }
+  } else {
+    cout << "DB service OK" << endl;
+  }
 
   try {
-    if( mydbservice->isNewTagRequest(m_record) ) {
-      mydbservice->createNewIOV<SiPixelFedCablingMap>( 
-          cablingMap,
-	  mydbservice->beginOfTime(),
-	  mydbservice->endOfTime(), 
-	  m_record);
+    if (mydbservice->isNewTagRequest(m_record)) {
+      mydbservice->createNewIOV<SiPixelFedCablingMap>(
+          cablingMap, mydbservice->beginOfTime(), mydbservice->endOfTime(), m_record);
     } else {
-      mydbservice->appendSinceTime<SiPixelFedCablingMap>(
-          cablingMap, 
-	  mydbservice->currentTime(), 
-	  m_record);
+      mydbservice->appendSinceTime<SiPixelFedCablingMap>(cablingMap, mydbservice->currentTime(), m_record);
     }
+  } catch (std::exception& e) {
+    cout << "std::exception:  " << e.what();
+  } catch (...) {
+    cout << "Unknown error caught " << endl;
   }
-  catch (std::exception &e) { cout <<"std::exception:  "<< e.what(); }
-  catch (...) { cout << "Unknown error caught "<<endl; }
-  cout<<"... all done, end"<<endl;
-
+  cout << "... all done, end" << endl;
 }
 
-SiPixelFedCablingMapTestWriter::~SiPixelFedCablingMapTestWriter()
-{
-  cout <<"DTOR !" << endl;
-}
+SiPixelFedCablingMapTestWriter::~SiPixelFedCablingMapTestWriter() { cout << "DTOR !" << endl; }
 
 // ------------ method called to produce the data  ------------
 void SiPixelFedCablingMapTestWriter::beginJob() {
-   cout << "BeginJob method " << endl;
-   cout<<"Building FED Cabling"<<endl;   
-   cablingTree =  new SiPixelFedCablingTree("My map V-TEST");
+  cout << "BeginJob method " << endl;
+  cout << "Building FED Cabling" << endl;
+  cablingTree = new SiPixelFedCablingTree("My map V-TEST");
 
-   PixelROC r1;
-   PixelROC r2;
+  PixelROC r1;
+  PixelROC r2;
 
-   PixelFEDLink link(2);
-   PixelFEDLink::ROCs rocs; rocs.push_back(r1); rocs.push_back(r2);
-   link.add(rocs);
+  PixelFEDLink link(2);
+  PixelFEDLink::ROCs rocs;
+  rocs.push_back(r1);
+  rocs.push_back(r2);
+  link.add(rocs);
 
-   PixelFEDCabling fed(0);
-   fed.addLink(link);
-   cablingTree->addFed(fed);
-   cout <<"PRINTING MAP:"<<endl<<cablingTree->print(3) << endl;
-
-   
+  PixelFEDCabling fed(0);
+  fed.addLink(link);
+  cablingTree->addFed(fed);
+  cout << "PRINTING MAP:" << endl << cablingTree->print(3) << endl;
 }
 
 //define this as a plug-in

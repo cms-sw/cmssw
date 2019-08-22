@@ -20,11 +20,9 @@
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 
-
 namespace evf {
-  template<typename Consumer>
+  template <typename Consumer>
   class RecoEventOutputModuleForFU : public edm::StreamerOutputModuleBase {
-    
     /** Consumers are supposed to provide
 	void doOutputHeader(InitMsgBuilder const& init_message)
 	void doOutputEvent(EventMsgBuilder const& msg)
@@ -32,12 +30,12 @@ namespace evf {
 	void stop()
 	static void fillDescription(ParameterSetDescription&)
     **/
-    
+
   public:
-    explicit RecoEventOutputModuleForFU(edm::ParameterSet const& ps);  
+    explicit RecoEventOutputModuleForFU(edm::ParameterSet const& ps);
     ~RecoEventOutputModuleForFU() override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    
+
   private:
     void initRun();
     void start() override;
@@ -56,66 +54,66 @@ namespace evf {
     boost::filesystem::path openDatChecksumFilePath_;
     jsoncollector::IntJ processed_;
     mutable jsoncollector::IntJ accepted_;
-    jsoncollector::IntJ errorEvents_; 
-    jsoncollector::IntJ retCodeMask_; 
+    jsoncollector::IntJ errorEvents_;
+    jsoncollector::IntJ retCodeMask_;
     jsoncollector::StringJ filelist_;
-    jsoncollector::IntJ filesize_; 
+    jsoncollector::IntJ filesize_;
     jsoncollector::StringJ inputFiles_;
-    jsoncollector::IntJ fileAdler32_; 
-    jsoncollector::StringJ transferDestination_; 
+    jsoncollector::IntJ fileAdler32_;
+    jsoncollector::StringJ transferDestination_;
     jsoncollector::StringJ mergeType_;
-    jsoncollector::IntJ hltErrorEvents_; 
+    jsoncollector::IntJ hltErrorEvents_;
     boost::shared_ptr<jsoncollector::FastMonitor> jsonMonitor_;
-    evf::FastMonitoringService *fms_;
+    evf::FastMonitoringService* fms_;
     jsoncollector::DataPointDefinition outJsonDef_;
-    unsigned char* outBuf_=nullptr;
-    bool readAdler32Check_=false;
-  }; //end-of-class-def
+    unsigned char* outBuf_ = nullptr;
+    bool readAdler32Check_ = false;
+  };  //end-of-class-def
 
-  template<typename Consumer>
-  RecoEventOutputModuleForFU<Consumer>::RecoEventOutputModuleForFU(edm::ParameterSet const& ps) :
-    edm::one::OutputModuleBase::OutputModuleBase(ps),
-    edm::StreamerOutputModuleBase(ps),
-    c_(new Consumer(ps)),
-    streamLabel_(ps.getParameter<std::string>("@module_label")),
-    processed_(0),
-    accepted_(0),
-    errorEvents_(0),
-    retCodeMask_(0),
-    filelist_(),
-    filesize_(0),
-    inputFiles_(),
-    fileAdler32_(1),
-    transferDestination_(),
-    mergeType_(),
-    hltErrorEvents_(0),
-    outBuf_(new unsigned char[1024*1024])
-  {
+  template <typename Consumer>
+  RecoEventOutputModuleForFU<Consumer>::RecoEventOutputModuleForFU(edm::ParameterSet const& ps)
+      : edm::one::OutputModuleBase::OutputModuleBase(ps),
+        edm::StreamerOutputModuleBase(ps),
+        c_(new Consumer(ps)),
+        streamLabel_(ps.getParameter<std::string>("@module_label")),
+        processed_(0),
+        accepted_(0),
+        errorEvents_(0),
+        retCodeMask_(0),
+        filelist_(),
+        filesize_(0),
+        inputFiles_(),
+        fileAdler32_(1),
+        transferDestination_(),
+        mergeType_(),
+        hltErrorEvents_(0),
+        outBuf_(new unsigned char[1024 * 1024]) {
     //replace hltOutoputA with stream if the HLT menu uses this convention
-    std::string testPrefix="hltOutput";
-    if (streamLabel_.find(testPrefix)==0) 
-      streamLabel_=std::string("stream")+streamLabel_.substr(testPrefix.size());
+    std::string testPrefix = "hltOutput";
+    if (streamLabel_.find(testPrefix) == 0)
+      streamLabel_ = std::string("stream") + streamLabel_.substr(testPrefix.size());
 
-    if (streamLabel_.find("_")!=std::string::npos) {
-      throw cms::Exception("RecoEventOutputModuleForFU")
-        << "Underscore character is reserved can not be used for stream names in FFF, but was detected in stream name -: " << streamLabel_;
+    if (streamLabel_.find("_") != std::string::npos) {
+      throw cms::Exception("RecoEventOutputModuleForFU") << "Underscore character is reserved can not be used for "
+                                                            "stream names in FFF, but was detected in stream name -: "
+                                                         << streamLabel_;
     }
 
     std::string streamLabelLow = streamLabel_;
     boost::algorithm::to_lower(streamLabelLow);
     auto streampos = streamLabelLow.rfind("stream");
-    if (streampos !=0 && streampos!=std::string::npos)
+    if (streampos != 0 && streampos != std::string::npos)
       throw cms::Exception("RecoEventOutputModuleForFU")
-        << "stream (case-insensitive) sequence was found in stream suffix. This is reserved and can not be used for names in FFF based HLT, but was detected in stream name";
+          << "stream (case-insensitive) sequence was found in stream suffix. This is reserved and can not be used for "
+             "names in FFF based HLT, but was detected in stream name";
 
-    fms_ = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
+    fms_ = (evf::FastMonitoringService*)(edm::Service<evf::MicroStateService>().operator->());
   }
 
-  template<typename Consumer>
-  void RecoEventOutputModuleForFU<Consumer>::initRun()
-  {
+  template <typename Consumer>
+  void RecoEventOutputModuleForFU<Consumer>::initRun() {
     std::string baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
-    readAdler32Check_ =  edm::Service<evf::EvFDaqDirector>()->outputAdler32Recheck();
+    readAdler32Check_ = edm::Service<evf::EvFDaqDirector>()->outputAdler32Recheck();
     LogDebug("RecoEventOutputModuleForFU") << "writing .dat files to -: " << baseRunDir;
     // create open dir if not already there
     edm::Service<evf::EvFDaqDirector>()->createRunOpendirMaybe();
@@ -133,120 +131,111 @@ namespace evf {
     hltErrorEvents_.setName("HLTErrorEvents");
 
     outJsonDef_.setDefaultGroup("data");
-    outJsonDef_.addLegendItem("Processed","integer",jsoncollector::DataPointDefinition::SUM);
-    outJsonDef_.addLegendItem("Accepted","integer",jsoncollector::DataPointDefinition::SUM);
-    outJsonDef_.addLegendItem("ErrorEvents","integer",jsoncollector::DataPointDefinition::SUM);
-    outJsonDef_.addLegendItem("ReturnCodeMask","integer",jsoncollector::DataPointDefinition::BINARYOR);
-    outJsonDef_.addLegendItem("Filelist","string",jsoncollector::DataPointDefinition::MERGE);
-    outJsonDef_.addLegendItem("Filesize","integer",jsoncollector::DataPointDefinition::SUM);
-    outJsonDef_.addLegendItem("InputFiles","string",jsoncollector::DataPointDefinition::CAT);
-    outJsonDef_.addLegendItem("FileAdler32","integer",jsoncollector::DataPointDefinition::ADLER32);
-    outJsonDef_.addLegendItem("TransferDestination","string",jsoncollector::DataPointDefinition::SAME);
-    outJsonDef_.addLegendItem("MergeType","string",jsoncollector::DataPointDefinition::SAME);
-    outJsonDef_.addLegendItem("HLTErrorEvents","integer",jsoncollector::DataPointDefinition::SUM);
-    std::stringstream tmpss,ss;
-    tmpss << baseRunDir << "/open/" << "output_" << getpid() << ".jsd";
-    ss << baseRunDir << "/" << "output_" << getpid() << ".jsd";
+    outJsonDef_.addLegendItem("Processed", "integer", jsoncollector::DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("Accepted", "integer", jsoncollector::DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("ErrorEvents", "integer", jsoncollector::DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("ReturnCodeMask", "integer", jsoncollector::DataPointDefinition::BINARYOR);
+    outJsonDef_.addLegendItem("Filelist", "string", jsoncollector::DataPointDefinition::MERGE);
+    outJsonDef_.addLegendItem("Filesize", "integer", jsoncollector::DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("InputFiles", "string", jsoncollector::DataPointDefinition::CAT);
+    outJsonDef_.addLegendItem("FileAdler32", "integer", jsoncollector::DataPointDefinition::ADLER32);
+    outJsonDef_.addLegendItem("TransferDestination", "string", jsoncollector::DataPointDefinition::SAME);
+    outJsonDef_.addLegendItem("MergeType", "string", jsoncollector::DataPointDefinition::SAME);
+    outJsonDef_.addLegendItem("HLTErrorEvents", "integer", jsoncollector::DataPointDefinition::SUM);
+    std::stringstream tmpss, ss;
+    tmpss << baseRunDir << "/open/"
+          << "output_" << getpid() << ".jsd";
+    ss << baseRunDir << "/"
+       << "output_" << getpid() << ".jsd";
     std::string outTmpJsonDefName = tmpss.str();
     std::string outJsonDefName = ss.str();
 
     edm::Service<evf::EvFDaqDirector>()->lockInitLock();
     struct stat fstat;
-    if (stat (outJsonDefName.c_str(), &fstat) != 0) { //file does not exist
+    if (stat(outJsonDefName.c_str(), &fstat) != 0) {  //file does not exist
       LogDebug("RecoEventOutputModuleForFU") << "writing output definition file -: " << outJsonDefName;
       std::string content;
-      jsoncollector::JSONSerializer::serialize(&outJsonDef_,content);
+      jsoncollector::JSONSerializer::serialize(&outJsonDef_, content);
       jsoncollector::FileIO::writeStringToFile(outTmpJsonDefName, content);
-      boost::filesystem::rename(outTmpJsonDefName,outJsonDefName);
+      boost::filesystem::rename(outTmpJsonDefName, outJsonDefName);
     }
     edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
 
-    jsonMonitor_.reset(new jsoncollector::FastMonitor(&outJsonDef_,true));
+    jsonMonitor_.reset(new jsoncollector::FastMonitor(&outJsonDef_, true));
     jsonMonitor_->setDefPath(outJsonDefName);
-    jsonMonitor_->registerGlobalMonitorable(&processed_,false);
-    jsonMonitor_->registerGlobalMonitorable(&accepted_,false);
-    jsonMonitor_->registerGlobalMonitorable(&errorEvents_,false);
-    jsonMonitor_->registerGlobalMonitorable(&retCodeMask_,false);
-    jsonMonitor_->registerGlobalMonitorable(&filelist_,false);
-    jsonMonitor_->registerGlobalMonitorable(&filesize_,false);
-    jsonMonitor_->registerGlobalMonitorable(&inputFiles_,false);
-    jsonMonitor_->registerGlobalMonitorable(&fileAdler32_,false);
-    jsonMonitor_->registerGlobalMonitorable(&transferDestination_,false);
-    jsonMonitor_->registerGlobalMonitorable(&mergeType_,false);
-    jsonMonitor_->registerGlobalMonitorable(&hltErrorEvents_,false);
+    jsonMonitor_->registerGlobalMonitorable(&processed_, false);
+    jsonMonitor_->registerGlobalMonitorable(&accepted_, false);
+    jsonMonitor_->registerGlobalMonitorable(&errorEvents_, false);
+    jsonMonitor_->registerGlobalMonitorable(&retCodeMask_, false);
+    jsonMonitor_->registerGlobalMonitorable(&filelist_, false);
+    jsonMonitor_->registerGlobalMonitorable(&filesize_, false);
+    jsonMonitor_->registerGlobalMonitorable(&inputFiles_, false);
+    jsonMonitor_->registerGlobalMonitorable(&fileAdler32_, false);
+    jsonMonitor_->registerGlobalMonitorable(&transferDestination_, false);
+    jsonMonitor_->registerGlobalMonitorable(&mergeType_, false);
+    jsonMonitor_->registerGlobalMonitorable(&hltErrorEvents_, false);
     jsonMonitor_->commit(nullptr);
-
   }
-  
-  template<typename Consumer>
+
+  template <typename Consumer>
   RecoEventOutputModuleForFU<Consumer>::~RecoEventOutputModuleForFU() {}
 
-  template<typename Consumer>
-  void
-  RecoEventOutputModuleForFU<Consumer>::start()
-  {
+  template <typename Consumer>
+  void RecoEventOutputModuleForFU<Consumer>::start() {
     initRun();
     const std::string openInitFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(streamLabel_);
-    edm::LogInfo("RecoEventOutputModuleForFU") << "start() method, initializing streams. init stream -: "  
-	                                       << openInitFileName;
+    edm::LogInfo("RecoEventOutputModuleForFU")
+        << "start() method, initializing streams. init stream -: " << openInitFileName;
     c_->setInitMessageFile(openInitFileName);
     c_->start();
-    
   }
-  
-  template<typename Consumer>
-  void
-  RecoEventOutputModuleForFU<Consumer>::stop()
-  {
+
+  template <typename Consumer>
+  void RecoEventOutputModuleForFU<Consumer>::stop() {
     c_->stop();
   }
 
-  template<typename Consumer>
-  void
-  RecoEventOutputModuleForFU<Consumer>::doOutputHeader(InitMsgBuilder const& init_message)
-  {
+  template <typename Consumer>
+  void RecoEventOutputModuleForFU<Consumer>::doOutputHeader(InitMsgBuilder const& init_message) {
     c_->doOutputHeader(init_message);
 
     const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(streamLabel_);
     struct stat istat;
     stat(openIniFileName.c_str(), &istat);
     //read back file to check integrity of what was written
-    off_t readInput=0;
-    uint32_t adlera=1,adlerb=0;
-    FILE *src = fopen(openIniFileName.c_str(),"r");
-    while (readInput<istat.st_size)
-    {
-      size_t toRead=  readInput+1024*1024 < istat.st_size ? 1024*1024 : istat.st_size-readInput;
-      fread(outBuf_,toRead,1,src);
-      cms::Adler32((const char*)outBuf_,toRead,adlera,adlerb);
-      readInput+=toRead;
+    off_t readInput = 0;
+    uint32_t adlera = 1, adlerb = 0;
+    FILE* src = fopen(openIniFileName.c_str(), "r");
+    while (readInput < istat.st_size) {
+      size_t toRead = readInput + 1024 * 1024 < istat.st_size ? 1024 * 1024 : istat.st_size - readInput;
+      fread(outBuf_, toRead, 1, src);
+      cms::Adler32((const char*)outBuf_, toRead, adlera, adlerb);
+      readInput += toRead;
     }
     fclose(src);
     //free output buffer needed only for the INI file
-    delete [] outBuf_;
-    outBuf_=nullptr;
+    delete[] outBuf_;
+    outBuf_ = nullptr;
 
     uint32_t adler32c = (adlerb << 16) | adlera;
     if (adler32c != c_->get_adler32_ini()) {
-      throw cms::Exception("RecoEventOutputModuleForFU") << "Checksum mismatch of ini file -: " << openIniFileName
-                           << " expected:" << c_->get_adler32_ini() << " obtained:" << adler32c;
+      throw cms::Exception("RecoEventOutputModuleForFU")
+          << "Checksum mismatch of ini file -: " << openIniFileName << " expected:" << c_->get_adler32_ini()
+          << " obtained:" << adler32c;
+    } else {
+      LogDebug("RecoEventOutputModuleForFU") << "Ini file checksum -: " << streamLabel_ << " " << adler32c;
+      boost::filesystem::rename(openIniFileName, edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_));
     }
-    else {
-      LogDebug("RecoEventOutputModuleForFU") << "Ini file checksum -: "<< streamLabel_ << " " << adler32c;
-      boost::filesystem::rename(openIniFileName,edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_));
-    }
-  }
-   
-  template<typename Consumer>
-  void
-  RecoEventOutputModuleForFU<Consumer>::doOutputEvent(EventMsgBuilder const& msg) {
-	accepted_.value()++;
-    c_->doOutputEvent(msg); // You can't use msg in RecoEventOutputModuleForFU after this point
   }
 
-  template<typename Consumer>
-  void
-  RecoEventOutputModuleForFU<Consumer>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  template <typename Consumer>
+  void RecoEventOutputModuleForFU<Consumer>::doOutputEvent(EventMsgBuilder const& msg) {
+    accepted_.value()++;
+    c_->doOutputEvent(msg);  // You can't use msg in RecoEventOutputModuleForFU after this point
+  }
+
+  template <typename Consumer>
+  void RecoEventOutputModuleForFU<Consumer>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     edm::StreamerOutputModuleBase::fillDescription(desc);
     Consumer::fillDescription(desc);
@@ -264,65 +253,64 @@ namespace evf {
     descriptions.addDefault(desc);
   }
 
-  template<typename Consumer>
-  void RecoEventOutputModuleForFU<Consumer>::beginJob()
-  {
+  template <typename Consumer>
+  void RecoEventOutputModuleForFU<Consumer>::beginJob() {
     //get stream transfer destination
     transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamLabel_);
-    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamLabel_,evf::MergeTypeDAT);
+    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamLabel_, evf::MergeTypeDAT);
   }
 
-
-  template<typename Consumer>
-  void RecoEventOutputModuleForFU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockForOutput const& ls)
-  {
+  template <typename Consumer>
+  void RecoEventOutputModuleForFU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockForOutput const& ls) {
     //edm::LogInfo("RecoEventOutputModuleForFU") << "begin lumi";
-    openDatFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),streamLabel_);
-    openDatChecksumFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),streamLabel_);
+    openDatFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(), streamLabel_);
+    openDatChecksumFilePath_ =
+        edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(), streamLabel_);
     c_->setOutputFile(openDatFilePath_.string());
     filelist_ = openDatFilePath_.filename().string();
   }
 
-  template<typename Consumer>
-  void RecoEventOutputModuleForFU<Consumer>::endLuminosityBlock(edm::LuminosityBlockForOutput const& ls)
-  {
+  template <typename Consumer>
+  void RecoEventOutputModuleForFU<Consumer>::endLuminosityBlock(edm::LuminosityBlockForOutput const& ls) {
     //edm::LogInfo("RecoEventOutputModuleForFU") << "end lumi";
-    long filesize=0;
+    long filesize = 0;
     fileAdler32_.value() = c_->get_adler32();
     c_->closeOutputFile();
     bool abortFlag = false;
-    processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock(),&abortFlag);
+    processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock(), &abortFlag);
 
     if (abortFlag) {
-        edm::LogInfo("RecoEventOutputModuleForFU") << "output suppressed";
-        return;
+      edm::LogInfo("RecoEventOutputModuleForFU") << "output suppressed";
+      return;
     }
-    
-    if(processed_.value()!=0) {
+
+    if (processed_.value() != 0) {
       //lock
       struct stat istat;
       stat(openDatFilePath_.string().c_str(), &istat);
       filesize = istat.st_size;
-      boost::filesystem::rename(openDatFilePath_.string().c_str(), edm::Service<evf::EvFDaqDirector>()->getDatFilePath(ls.luminosityBlock(),streamLabel_));
+      boost::filesystem::rename(
+          openDatFilePath_.string().c_str(),
+          edm::Service<evf::EvFDaqDirector>()->getDatFilePath(ls.luminosityBlock(), streamLabel_));
     } else {
       filelist_ = "";
-      fileAdler32_.value()=-1;
+      fileAdler32_.value() = -1;
     }
 
     //remove file
     remove(openDatFilePath_.string().c_str());
-    filesize_=filesize;
+    filesize_ = filesize;
 
     jsonMonitor_->snap(ls.luminosityBlock());
     const std::string outputJsonNameStream =
-      edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(ls.luminosityBlock(),streamLabel_);
-    jsonMonitor_->outputFullJSON(outputJsonNameStream,ls.luminosityBlock());
+        edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(ls.luminosityBlock(), streamLabel_);
+    jsonMonitor_->outputFullJSON(outputJsonNameStream, ls.luminosityBlock());
 
     // reset monitoring params
     accepted_.value() = 0;
     filelist_ = "";
   }
 
-} // end of namespace-edm
+}  // namespace evf
 
 #endif

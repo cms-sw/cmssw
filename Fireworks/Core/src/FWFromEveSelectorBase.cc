@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWFromEveSelectorBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "Fireworks/Core/interface/FWFromEveSelectorBase.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,18 +26,14 @@
 //
 // constructors and destructor
 //
-FWFromEveSelectorBase::FWFromEveSelectorBase()
-{
-}
+FWFromEveSelectorBase::FWFromEveSelectorBase() {}
 
 // FWFromEveSelectorBase::FWFromEveSelectorBase(const FWFromEveSelectorBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWFromEveSelectorBase::~FWFromEveSelectorBase()
-{
-}
+FWFromEveSelectorBase::~FWFromEveSelectorBase() {}
 
 //
 // assignment operators

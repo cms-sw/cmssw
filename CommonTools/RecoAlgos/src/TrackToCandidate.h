@@ -13,11 +13,9 @@ namespace converter {
     typedef reco::Track value_type;
     typedef reco::TrackCollection Components;
     typedef reco::RecoChargedCandidate Candidate;
-    TrackToCandidate(const edm::ParameterSet & cfg) :
-      MassiveCandidateConverter(cfg) {
-    }
-    void convert(reco::TrackRef trkRef, reco::RecoChargedCandidate & c) const {
-      const reco::Track & trk = * trkRef;
+    TrackToCandidate(const edm::ParameterSet& cfg) : MassiveCandidateConverter(cfg) {}
+    void convert(reco::TrackRef trkRef, reco::RecoChargedCandidate& c) const {
+      const reco::Track& trk = *trkRef;
       c.setCharge(trk.charge());
       c.setVertex(trk.vertex());
       const reco::Track::Vector& p = trk.momentum();
@@ -29,12 +27,12 @@ namespace converter {
   };
 
   namespace helper {
-    template<>
+    template <>
     struct CandConverter<reco::Track> {
       typedef TrackToCandidate type;
     };
-  }
+  }  // namespace helper
 
-}
+}  // namespace converter
 
 #endif

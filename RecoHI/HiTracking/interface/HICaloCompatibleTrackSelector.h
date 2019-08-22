@@ -39,40 +39,48 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
-
 // ROOT includes
 #include "TF1.h"
 
-namespace reco { namespace modules {
-    
+namespace reco {
+  namespace modules {
+
     class HICaloCompatibleTrackSelector : public edm::EDProducer {
-      
     public:
-      /// constructor 
+      /// constructor
       explicit HICaloCompatibleTrackSelector(const edm::ParameterSet& cfg);
       /// destructor
-      ~HICaloCompatibleTrackSelector() override ;
-      
+      ~HICaloCompatibleTrackSelector() override;
+
     private:
       typedef math::XYZPoint Point;
       typedef reco::PFCandidateCollection::const_iterator CI;
       typedef reco::TrackCollection::const_iterator TI;
 
       /// process one event
-      void produce( edm::Event& evt, const edm::EventSetup& es ) override ;
-      
-      void matchByDrAllowReuse(const reco::Track & trk, const edm::Handle<CaloTowerCollection> & towers, double & bestdr, double & bestpt);
-      
-      double matchPFCandToTrack(const edm::Handle<PFCandidateCollection> & pfCandidates, unsigned it, double trkPt);
-      
-      bool selectByPFCands(TI ti, const edm::Handle<TrackCollection> hSrcTrack, const edm::Handle<PFCandidateCollection> pfCandidates, bool isPFThere);
-      bool selectByTowers(TI ti, const edm::Handle<TrackCollection> hSrcTrack, const edm::Handle<CaloTowerCollection> towers, bool isTowerThere);
-      
+      void produce(edm::Event& evt, const edm::EventSetup& es) override;
+
+      void matchByDrAllowReuse(const reco::Track& trk,
+                               const edm::Handle<CaloTowerCollection>& towers,
+                               double& bestdr,
+                               double& bestpt);
+
+      double matchPFCandToTrack(const edm::Handle<PFCandidateCollection>& pfCandidates, unsigned it, double trkPt);
+
+      bool selectByPFCands(TI ti,
+                           const edm::Handle<TrackCollection> hSrcTrack,
+                           const edm::Handle<PFCandidateCollection> pfCandidates,
+                           bool isPFThere);
+      bool selectByTowers(TI ti,
+                          const edm::Handle<TrackCollection> hSrcTrack,
+                          const edm::Handle<CaloTowerCollection> towers,
+                          bool isTowerThere);
+
       /// source collection label
       edm::EDGetTokenT<reco::TrackCollection> srcTracks_;
       edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCands_;
       edm::EDGetTokenT<CaloTowerCollection> srcTower_;
-      edm::EDGetTokenT<std::vector<Trajectory> > srcTrackTrajs_;
+      edm::EDGetTokenT<std::vector<Trajectory>> srcTrackTrajs_;
       edm::EDGetTokenT<TrajTrackAssociationCollection> srcTrackTrajAssoc_;
 
       //
@@ -83,7 +91,7 @@ namespace reco { namespace modules {
       double trkEtaMax_;
       double towerPtMin_;
       double matchConeRadius_;
-      
+
       bool keepAllTracks_;
       /// copy only the tracks, not extras and rechits (for AOD)
       bool copyExtras_;
@@ -98,11 +106,11 @@ namespace reco { namespace modules {
 
       bool passMuons_;
       bool passElectrons_;
-      
+
       // string of functional form
       std::string funcDeltaRTowerMatch_;
       std::string funcCaloComp_;
-      
+
       /// storage
       std::unique_ptr<reco::TrackCollection> selTracks_;
       std::unique_ptr<reco::TrackExtraCollection> selTrackExtras_;
@@ -113,16 +121,14 @@ namespace reco { namespace modules {
       reco::TrackRefProd rTracks_;
       reco::TrackExtraRefProd rTrackExtras_;
       TrackingRecHitRefProd rHits_;
-      edm::RefProd< std::vector<Trajectory> > rTrajectories_;
+      edm::RefProd<std::vector<Trajectory>> rTrajectories_;
       std::vector<reco::TrackRef> trackRefs_;
 
-      // TF1         
+      // TF1
       TF1 *fDeltaRTowerMatch, *fCaloComp;
-      
+    };
 
-		   };
-    
-  } 
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif

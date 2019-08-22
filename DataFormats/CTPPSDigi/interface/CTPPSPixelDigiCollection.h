@@ -7,9 +7,7 @@
 #include <utility>
 
 class CTPPSPixelDigiCollection {
-
- public:
-
+public:
   typedef std::vector<CTPPSPixelDigi>::const_iterator ContainerIterator;
   typedef std::pair<ContainerIterator, ContainerIterator> Range;
   typedef std::pair<unsigned int, unsigned int> IndexRange;
@@ -17,15 +15,14 @@ class CTPPSPixelDigiCollection {
   typedef std::map<unsigned int, IndexRange>::const_iterator RegistryIterator;
 
   CTPPSPixelDigiCollection() {}
-  
+
   void put(Range input, unsigned int detID);
   const Range get(unsigned int detID) const;
   const std::vector<unsigned int> detIDs() const;
-  
- private:
+
+private:
   std::vector<CTPPSPixelDigi> container_;
   Registry map_;
-
 };
 
-#endif 
+#endif

@@ -46,38 +46,37 @@
 #include <vector>
 
 namespace dqmoffline {
-namespace l1t {
+  namespace l1t {
 
-class HistDefinition;
-typedef std::vector<HistDefinition> HistDefinitions;
+    class HistDefinition;
+    typedef std::vector<HistDefinition> HistDefinitions;
 
-class HistDefinition {
-public:
-  HistDefinition();
-  HistDefinition(const edm::ParameterSet &ps);
-  ~HistDefinition();
-  // static HistDefinitions readHistDefinitions(const edm::ParameterSet &ps,
-  // std::map<std::string, unsigned int>);
+    class HistDefinition {
+    public:
+      HistDefinition();
+      HistDefinition(const edm::ParameterSet &ps);
+      ~HistDefinition();
+      // static HistDefinitions readHistDefinitions(const edm::ParameterSet &ps,
+      // std::map<std::string, unsigned int>);
 
-  std::string name;
-  std::string title;
-  unsigned int nbinsX;
-  unsigned int nbinsY;
-  double xmin;
-  double xmax;
-  double ymin;
-  double ymax;
-  std::vector<double> binsXtmp;
-  std::vector<double> binsYtmp;
-  std::vector<float> binsX;
-  std::vector<float> binsY;
-};
+      std::string name;
+      std::string title;
+      unsigned int nbinsX;
+      unsigned int nbinsY;
+      double xmin;
+      double xmax;
+      double ymin;
+      double ymax;
+      std::vector<double> binsXtmp;
+      std::vector<double> binsYtmp;
+      std::vector<float> binsX;
+      std::vector<float> binsY;
+    };
 
-HistDefinitions
-readHistDefinitions(const edm::ParameterSet &ps,
-                    const std::map<std::string, unsigned int> &mapping);
+    HistDefinitions readHistDefinitions(const edm::ParameterSet &ps,
+                                        const std::map<std::string, unsigned int> &mapping);
 
-} // end l1t
-} // end dqmoffline
+  }  // namespace l1t
+}  // namespace dqmoffline
 
 #endif

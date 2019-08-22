@@ -11,21 +11,21 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 
 namespace reco {
-  
+
   // association map
   typedef edm::AssociationMap<edm::OneToOne<TrackCollection, TrackInfoCollection> > TrackInfoTrackAssociationCollection;
-  
+
   typedef TrackInfoTrackAssociationCollection::value_type TrackInfoTrackAssociation;
-  
+
   // reference to an object in a collection of SeedMap objects
   typedef edm::Ref<TrackInfoTrackAssociationCollection> TrackInfoTrackAssociationRef;
-  
+
   // reference to a collection of SeedMap objects
   typedef edm::RefProd<TrackInfoTrackAssociationCollection> TrackInfoTrackAssociationRefProd;
-      
+
   // vector of references to objects in the same colletion of SeedMap objects
   typedef edm::RefVector<TrackInfoTrackAssociationCollection> TrackInfoTrackAssociationRefVector;
-	
-}
- 
+
+}  // namespace reco
+
 #endif

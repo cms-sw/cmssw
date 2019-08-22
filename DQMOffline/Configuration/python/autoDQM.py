@@ -2,9 +2,17 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                         'PostDQMOffline',
                         'DQMHarvestCommon+DQMCertCommon+@L1TMon'],
 
+            'commonFakeHLT': ['DQMOfflineCommonFakeHLT+@L1TMon',
+                        'PostDQMOffline',
+                        'DQMHarvestCommonFakeHLT+DQMCertCommonFakeHLT+@L1TMon'],
+
             'commonSiStripZeroBias': ['DQMOfflineCommonSiStripZeroBias',
                                       'PostDQMOffline',
                                       'DQMHarvestCommonSiStripZeroBias+DQMCertCommon'],
+
+            'commonSiStripZeroBiasFakeHLT': ['DQMOfflineCommonSiStripZeroBiasFakeHLT',
+                                      'PostDQMOffline',
+                                      'DQMHarvestCommonSiStripZeroBiasFakeHLT+DQMCertCommonFakeHLT'],
 
             'trackingOnlyDQM': ['DQMOfflineTracking',
                                 'PostDQMOffline',
@@ -46,6 +54,10 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                        'PostDQMOffline',
                        'DQMHarvestEGamma'],
 
+            'ctpps': ['DQMOfflineCTPPS',
+                      'PostDQMOffline',
+                      'DQMHarvestCTPPS'],
+            
             'btag': ['DQMOfflineBTag',
                      'PostDQMOffline',
                      'DQMHarvestBTag'],
@@ -76,17 +88,21 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                              'PostDQMOffline',
                              '@common+@muon+@hcal+@jetmet+@ecal+@egamma'],
 
-            'rerecoCommon': ['@common+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma',
+            'rerecoCommon': ['@common+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps',
                              'PostDQMOffline',
-                             '@common+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma'],
+                             '@common+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps'],
 
-            'rerecoSingleMuon': ['@common+@muon+@hcal+@jetmet+@ecal+@egamma+@lumi+@L1TMuon+@L1TEgamma',
+            'rerecoSingleMuon': ['@common+@muon+@hcal+@jetmet+@ecal+@egamma+@lumi+@L1TMuon+@L1TEgamma+@ctpps',
                                  'PostDQMOffline',
-                                 '@common+@muon+@hcal+@jetmet+@ecal+@egamma+@lumi+@L1TMuon+@L1TEgamma'],
+                                 '@common+@muon+@hcal+@jetmet+@ecal+@egamma+@lumi+@L1TMuon+@L1TEgamma+@ctpps'],
 
-            'rerecoZeroBias' : ['@commonSiStripZeroBias+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma',
+            'rerecoZeroBias' : ['DQMOfflineCommonSiStripZeroBias+@muon+@hcal+@hcal2+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps',
                                 'PostDQMOffline',
-                                '@commonSiStripZeroBias+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma'],
+                                'DQMHarvestCommonSiStripZeroBias+DQMCertCommon+@muon+@hcal+@hcal2+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps'],
+
+            'rerecoZeroBiasFakeHLT' : ['DQMOfflineCommonSiStripZeroBiasFakeHLT+@muon+@hcal+@hcal2+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps',
+                                       'PostDQMOffline',
+                                       'DQMHarvestCommonSiStripZeroBiasFakeHLT+DQMCertCommonFakeHLT+@muon+@hcal+@hcal2+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps'],
 
             'miniAODDQM': ['DQMOfflineMiniAOD',
                            'PostDQMOfflineMiniAOD',
@@ -95,6 +111,10 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
             'nanoAODDQM': ['DQMOfflineNanoAOD',
                            'PostDQMOffline',
                            'DQMHarvestNanoAOD'],
+
+            'pfDQM': ['DQMOfflinePF',
+                           'PostDQMOffline',
+                           'DQMHarvestPF'],
 
             'standardDQM': ['DQMOffline',
                             'PostDQMOffline',
@@ -108,8 +128,12 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                                    'PostDQMOffline',
                                    'dqmHarvestingFakeHLT'],
 
+            'standardDQMHIFakeHLT': ['DQMOfflineHeavyIonsFakeHLT',
+                                   'PostDQMOfflineHI',
+                                   'dqmHarvestingFakeHLT'],
+
             'liteDQMHI': ['liteDQMOfflineHeavyIons',
-                          'PostDQMOffline',
+                          'PostDQMOfflineHI',
                           'dqmHarvesting'],
 
             'none': ['DQMNone',

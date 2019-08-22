@@ -4,7 +4,7 @@
 //
 // Package:     Subsystem/Package
 // Class  :     FWTEveViewer
-// 
+//
 /**\class FWTEveViewer FWTEveViewer.h "FWTEveViewer.h"
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Tue, 03 Feb 2015 21:46:04 GMT
 //
 
@@ -33,50 +33,46 @@
 
 class FWTGLViewer;
 
-
-class FWTEveViewer : public TEveViewer
-{
-
+class FWTEveViewer : public TEveViewer {
 public:
-   FWTEveViewer(const char* n="FWTEveViewer", const char* t="");
-   ~FWTEveViewer() override;
+  FWTEveViewer(const char* n = "FWTEveViewer", const char* t = "");
+  ~FWTEveViewer() override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   static bool SavePng(const TString& file, UChar_t* xx, int ww, int hh);
-   static bool SaveJpg(const TString& file, UChar_t* xx, int ww, int hh);
+  static bool SavePng(const TString& file, UChar_t* xx, int ww, int hh);
+  static bool SaveJpg(const TString& file, UChar_t* xx, int ww, int hh);
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   FWTGLViewer* fwGlViewer() { return m_fwGlViewer; }
+  FWTGLViewer* fwGlViewer() { return m_fwGlViewer; }
 
-   FWTGLViewer* SpawnFWTGLViewer();
+  FWTGLViewer* SpawnFWTGLViewer();
 
-   std::future<int> CaptureAndSaveImage(const TString& file, int height=-1);
+  std::future<int> CaptureAndSaveImage(const TString& file, int height = -1);
 
 private:
-   FWTEveViewer(const FWTEveViewer&) = delete; // stop default
+  FWTEveViewer(const FWTEveViewer&) = delete;  // stop default
 
-   const FWTEveViewer& operator=(const FWTEveViewer&) = delete; // stop default
+  const FWTEveViewer& operator=(const FWTEveViewer&) = delete;  // stop default
 
-   void spawn_image_thread();
+  void spawn_image_thread();
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   FWTGLViewer *m_fwGlViewer;
+  FWTGLViewer* m_fwGlViewer;
 
-   std::vector<unsigned char> m_imgBuffer;
+  std::vector<unsigned char> m_imgBuffer;
 
-   TString                 m_name;
-   int                     m_ww, m_hh;
-   bool                    m_thr_exit = false;
-   std::thread            *m_thr = nullptr;
-   std::promise<int>       m_prom;
-   std::mutex              m_moo;
-   std::condition_variable m_cnd;
+  TString m_name;
+  int m_ww, m_hh;
+  bool m_thr_exit = false;
+  std::thread* m_thr = nullptr;
+  std::promise<int> m_prom;
+  std::mutex m_moo;
+  std::condition_variable m_cnd;
 };
-
 
 #endif

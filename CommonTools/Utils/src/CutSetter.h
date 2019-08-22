@@ -15,21 +15,20 @@
 #include <cassert>
 
 namespace reco {
-  namespace parser {    
+  namespace parser {
     struct CutSetter {
-      CutSetter(SelectorPtr & cut, SelectorStack & selStack) :
-	cut_(cut), selStack_(selStack) { }
-      
+      CutSetter(SelectorPtr& cut, SelectorStack& selStack) : cut_(cut), selStack_(selStack) {}
+
       void operator()(const char*, const char*) const {
-	assert(nullptr == cut_.get());
-	assert(!selStack_.empty());
-	cut_ = selStack_.back();
-	selStack_.pop_back();
+        assert(nullptr == cut_.get());
+        assert(!selStack_.empty());
+        cut_ = selStack_.back();
+        selStack_.pop_back();
       }
-      SelectorPtr & cut_;
-      SelectorStack & selStack_;
+      SelectorPtr& cut_;
+      SelectorStack& selStack_;
     };
-  }
- }
+  }  // namespace parser
+}  // namespace reco
 
 #endif

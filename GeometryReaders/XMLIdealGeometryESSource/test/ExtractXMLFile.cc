@@ -2,7 +2,7 @@
 //
 // Package:    ExtractXMLFile
 // Class:      ExtractXMLFile
-// 
+//
 /**\class ExtractXMLFile ExtractXMLFile.cc test/ExtractXMLFile/src/ExtractXMLFile.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
 //
 //
-
 
 // system include files
 #include <memory>
@@ -45,10 +44,10 @@
 
 class ExtractXMLFile : public edm::one::EDAnalyzer<> {
 public:
-  explicit ExtractXMLFile( const edm::ParameterSet& );
+  explicit ExtractXMLFile(const edm::ParameterSet&);
   ~ExtractXMLFile() override;
 
-  void beginJob() override {} 
+  void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
 
@@ -57,27 +56,21 @@ private:
   std::string fname_;
 };
 
-ExtractXMLFile::ExtractXMLFile( const edm::ParameterSet& iConfig ) :
-  label_(iConfig.getUntrackedParameter<std::string>("label","")),
-  fname_(iConfig.getUntrackedParameter<std::string>("fname",""))
-{
-}
+ExtractXMLFile::ExtractXMLFile(const edm::ParameterSet& iConfig)
+    : label_(iConfig.getUntrackedParameter<std::string>("label", "")),
+      fname_(iConfig.getUntrackedParameter<std::string>("fname", "")) {}
 
-ExtractXMLFile::~ExtractXMLFile()
-{
-}
+ExtractXMLFile::~ExtractXMLFile() {}
 
-void
-ExtractXMLFile::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
-   using namespace edm;
+void ExtractXMLFile::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   std::cout << "Here I am " << std::endl;
-   edm::ESHandle<FileBlob> gdd;
-   iSetup.get<GeometryFileRcd>().get(label_, gdd);
-   std::ofstream f(fname_.c_str());
-   (*gdd).write(f);
-   std::cout << "finished" << std::endl;
+  std::cout << "Here I am " << std::endl;
+  edm::ESHandle<FileBlob> gdd;
+  iSetup.get<GeometryFileRcd>().get(label_, gdd);
+  std::ofstream f(fname_.c_str());
+  (*gdd).write(f);
+  std::cout << "finished" << std::endl;
 }
 
 DEFINE_FWK_MODULE(ExtractXMLFile);

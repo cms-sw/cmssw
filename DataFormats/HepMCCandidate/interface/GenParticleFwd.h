@@ -27,6 +27,6 @@ namespace reco {
   typedef edm::Association<GenParticleCollection> GenParticleMatch;
   // vector of forward persistent reference to a GenParticle
   typedef std::vector<GenParticleFwdPtr> GenParticleFwdPtrVector;
-}
+}  // namespace reco
 
 #endif

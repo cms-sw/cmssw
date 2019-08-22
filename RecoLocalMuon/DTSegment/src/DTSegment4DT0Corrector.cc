@@ -19,15 +19,15 @@
 using namespace edm;
 using namespace std;
 
-DTSegment4DT0Corrector::DTSegment4DT0Corrector(const ParameterSet& pset){
+DTSegment4DT0Corrector::DTSegment4DT0Corrector(const ParameterSet& pset) {
   produces<DTRecSegment4DCollection>();
-  
+
   // debug parameter
-  debug = pset.getUntrackedParameter<bool>("debug"); 
-  
-  if(debug)
+  debug = pset.getUntrackedParameter<bool>("debug");
+
+  if (debug)
     cout << "[DTSegment4DT0Corrector] Constructor called" << endl;
-  
+
   // the name of the 4D rec hits collection
   recHits4DToken_ = consumes<DTRecSegment4DCollection>(pset.getParameter<InputTag>("recHits4DLabel"));
 
@@ -36,14 +36,13 @@ DTSegment4DT0Corrector::DTSegment4DT0Corrector(const ParameterSet& pset){
 }
 
 /// Destructor
-DTSegment4DT0Corrector::~DTSegment4DT0Corrector(){
-  if(debug)
+DTSegment4DT0Corrector::~DTSegment4DT0Corrector() {
+  if (debug)
     cout << "[DTSegment4DT0Corrector] Destructor called" << endl;
   delete theUpdator;
 }
 
-void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup){
-
+void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup) {
   // Get the 4D Segment from the event
   Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByToken(recHits4DToken_, all4DSegments);
@@ -52,9 +51,8 @@ void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup){
   ESHandle<DTGeometry> theGeom;
   setup.get<MuonGeometryRecord>().get(theGeom);
 
- // Percolate the setup
+  // Percolate the setup
   theUpdator->setES(setup);
-
 
   // Create the pointer to the collection which will store the rechits
   auto segments4DCollection = std::make_unique<DTRecSegment4DCollection>();
@@ -62,36 +60,32 @@ void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup){
   // Iterate over the input DTSegment4D
   DTRecSegment4DCollection::id_iterator chamberId;
 
-  if(debug)
+  if (debug)
     cout << "[DTSegment4DT0Corrector] Starting to loop over segments" << endl;
 
-  for (chamberId = all4DSegments->id_begin(); chamberId != all4DSegments->id_end(); ++chamberId){
-
+  for (chamberId = all4DSegments->id_begin(); chamberId != all4DSegments->id_end(); ++chamberId) {
     OwnVector<DTRecSegment4D> result;
 
     // Get the range for the corresponding ChamerId
-    DTRecSegment4DCollection::range  range = all4DSegments->get(*chamberId);
+    DTRecSegment4DCollection::range range = all4DSegments->get(*chamberId);
 
     // Loop over the rechits of this ChamberId
-    for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
-	 segment4D!=range.second; ++segment4D) {
-
+    for (DTRecSegment4DCollection::const_iterator segment4D = range.first; segment4D != range.second; ++segment4D) {
       DTRecSegment4D tmpseg = *segment4D;
 
-      DTRecSegment4D *newSeg = tmpseg.clone();
+      DTRecSegment4D* newSeg = tmpseg.clone();
 
-      if(newSeg == nullptr) continue;
+      if (newSeg == nullptr)
+        continue;
 
-      theUpdator->update(newSeg,true,false);
+      theUpdator->update(newSeg, true, false);
       result.push_back(*newSeg);
-
     }
 
     segments4DCollection->put(*chamberId, result.begin(), result.end());
-
   }
 
-  if(debug)
+  if (debug)
     cout << "[DTSegment4DT0Corrector] Saving modified segments into the event" << endl;
 
   // Load the output in the Event

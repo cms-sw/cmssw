@@ -3,32 +3,28 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include<vector>
-#include<iostream>
-#include<boost/cstdint.hpp>
-
+#include <vector>
+#include <iostream>
+#include <boost/cstdint.hpp>
 
 class RPCMaskedStrips {
-
- public:
-
+public:
   struct MaskItem {
     int rawId;
     int strip;
-  
-  COND_SERIALIZABLE;
-};
-  
-  RPCMaskedStrips(){}
 
-  ~RPCMaskedStrips(){}
+    COND_SERIALIZABLE;
+  };
 
-  std::vector<MaskItem> const & getMaskVec() const {return MaskVec;}
+  RPCMaskedStrips() {}
+
+  ~RPCMaskedStrips() {}
+
+  std::vector<MaskItem> const& getMaskVec() const { return MaskVec; }
 
   std::vector<MaskItem> MaskVec;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

@@ -30,27 +30,27 @@
 //
 // class declaration
 //
-template< typename T> 
+template <typename T>
 class HLTElectronPFMTFilter : public HLTFilter {
+public:
+  explicit HLTElectronPFMTFilter(const edm::ParameterSet&);
+  ~HLTElectronPFMTFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-   public:
-      explicit HLTElectronPFMTFilter(const edm::ParameterSet&);
-      ~HLTElectronPFMTFilter() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override ;
+private:
+  edm::InputTag inputMetTag_;  // input tag identifying jets
+  edm::EDGetTokenT<reco::METCollection> inputMetToken_;
+  double minMht_;
 
-   private:
-      edm::InputTag inputMetTag_; // input tag identifying jets
-      edm::EDGetTokenT<reco::METCollection> inputMetToken_;
-      double minMht_;
-
-      edm::InputTag inputEleTag_;     // input tag identifying egammas
-      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputEleToken_;
-      double lowerMTCut_;
-      double upperMTCut_;
-      int    minN_;
-      edm::InputTag l1EGTag_;
-      
+  edm::InputTag inputEleTag_;  // input tag identifying egammas
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputEleToken_;
+  double lowerMTCut_;
+  double upperMTCut_;
+  int minN_;
+  edm::InputTag l1EGTag_;
 };
 
-#endif //HLTElectronPFMTFilter_h
+#endif  //HLTElectronPFMTFilter_h

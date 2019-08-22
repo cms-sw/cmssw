@@ -13,11 +13,11 @@
 #include "RecoEcal/EgammaCoreTools/plugins/EcalClusterLocalContCorrectionBaseClass.h"
 
 class EcalClusterLocalContCorrection : public EcalClusterLocalContCorrectionBaseClass {
-        public:
-                EcalClusterLocalContCorrection( const edm::ParameterSet &) {};
-                // compute the correction
-                float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const override;
-                float getValue( const reco::SuperCluster &, const int mode ) const override;
+public:
+  EcalClusterLocalContCorrection(const edm::ParameterSet &){};
+  // compute the correction
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override;
+  float getValue(const reco::SuperCluster &, const int mode) const override;
 };
 
 #endif

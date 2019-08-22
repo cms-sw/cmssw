@@ -24,19 +24,17 @@ class L1GctHfBitCountsLut;
  * 
  */
 
-class L1GctGlobalHfSumAlgos : public L1GctProcessor
-{
- public:
-
+class L1GctGlobalHfSumAlgos : public L1GctProcessor {
+public:
   typedef L1GctJetFinderBase::hfTowerSumsType hfTowerSumsType;
-  
+
   /// Constructor needs the Wheel card Fpgas set up first
   L1GctGlobalHfSumAlgos(const std::vector<L1GctWheelJetFpga*>& WheelJetFpga);
   /// Destructor
   ~L1GctGlobalHfSumAlgos() override;
 
   /// Overload << operator
-  friend std::ostream& operator << (std::ostream& os, const L1GctGlobalHfSumAlgos& fpga);
+  friend std::ostream& operator<<(std::ostream& os, const L1GctGlobalHfSumAlgos& fpga);
 
   /// get input data from sources; this is the standard way to provide input
   void fetchInput() override;
@@ -65,16 +63,16 @@ class L1GctGlobalHfSumAlgos : public L1GctProcessor
 
   /// check setup
   bool setupOk() const { return m_setupOk; }
-  
- protected:
+
+protected:
   /// Separate reset methods for the processor itself and any data stored in pipelines
   void resetProcessor() override;
   void resetPipelines() override;
 
   /// Initialise inputs with null objects for the correct bunch crossing if required
   void setupObjects() override {}
-	
- private:
+
+private:
   // Here are the algorithm types we get our inputs from
   L1GctWheelJetFpga* m_plusWheelJetFpga;
   L1GctWheelJetFpga* m_minusWheelJetFpga;
@@ -97,9 +95,8 @@ class L1GctGlobalHfSumAlgos : public L1GctProcessor
   void storeBitCount(L1GctHfEtSumsLut::hfLutType type, uint16_t value);
   // Convert et sum value using LUT and store in the pipeline
   void storeEtSum(L1GctHfEtSumsLut::hfLutType type, uint16_t value);
-
 };
 
-std::ostream& operator << (std::ostream& os, const L1GctGlobalHfSumAlgos& fpga);
+std::ostream& operator<<(std::ostream& os, const L1GctGlobalHfSumAlgos& fpga);
 
 #endif /*L1GCTGLOBALHFSUMALGOS_H_*/

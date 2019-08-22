@@ -24,15 +24,13 @@ namespace l1t {
   public:
     Stage2Layer2DemuxSumsAlgoFirmwareImp1(CaloParamsHelper const* params);
     ~Stage2Layer2DemuxSumsAlgoFirmwareImp1() override = default;
-    void processEvent(const std::vector<l1t::EtSum> & inputSums,
-			      std::vector<l1t::EtSum> & outputSums) override;
-  private:
+    void processEvent(const std::vector<l1t::EtSum>& inputSums, std::vector<l1t::EtSum>& outputSums) override;
 
+  private:
     CaloParamsHelper const* params_;
     Cordic cordic_;
-
   };
 
-}
+}  // namespace l1t
 
 #endif

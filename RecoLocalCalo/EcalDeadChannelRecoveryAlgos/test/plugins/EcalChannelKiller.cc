@@ -48,8 +48,7 @@ using namespace std;
 //
 template <typename DetIdT>
 EcalChannelKiller<DetIdT>::EcalChannelKiller(const edm::ParameterSet& ps) {
-  hitToken_ =
-      consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("hitTag"));
+  hitToken_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("hitTag"));
 
   reducedHitCollection_ = ps.getParameter<std::string>("reducedHitCollection");
   DeadChannelFileName_ = ps.getParameter<std::string>("DeadChannelsFile");
@@ -57,15 +56,15 @@ EcalChannelKiller<DetIdT>::EcalChannelKiller(const edm::ParameterSet& ps) {
   produces<EcalRecHitCollection>(reducedHitCollection_);
 }
 
-template <typename DetIdT> EcalChannelKiller<DetIdT>::~EcalChannelKiller() {
+template <typename DetIdT>
+EcalChannelKiller<DetIdT>::~EcalChannelKiller() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
 
 // ------------ method called to produce the data  ------------
 template <typename DetIdT>
-void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent,
-                                        const edm::EventSetup& iSetup) {
+void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   // get the hit collection from the event:
@@ -84,16 +83,13 @@ void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent,
   // put in the Event:
   auto redCollection = std::make_unique<EcalRecHitCollection>();
 
-  for (EcalRecHitCollection::const_iterator it = hit_collection->begin();
-       it != hit_collection->end(); ++it) {
-
+  for (EcalRecHitCollection::const_iterator it = hit_collection->begin(); it != hit_collection->end(); ++it) {
     double NewEnergy = it->energy();
     bool ItIsDead = false;
 
     //Dead Cells are read from text files
     typename std::vector<DetIdT>::const_iterator DeadCell;
-    for (DeadCell = ChannelsDeadID.begin(); DeadCell != ChannelsDeadID.end();
-         ++DeadCell) {
+    for (DeadCell = ChannelsDeadID.begin(); DeadCell != ChannelsDeadID.end(); ++DeadCell) {
       if (it->detid() == *DeadCell) {
         ItIsDead = true;
         NewEnergy = 0.;
@@ -118,12 +114,12 @@ void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent,
   }
 
   iEvent.put(std::move(redCollection), reducedHitCollection_);
-
 }
 
 // ------------ method called once each job just before starting event loop
 // ------------
-template <> void EcalChannelKiller<EBDetId>::beginJob() {
+template <>
+void EcalChannelKiller<EBDetId>::beginJob() {
   //Open the DeadChannel file, read it.
   FILE* DeadCha;
   printf("Dead Channels FILE: %s\n", DeadChannelFileName_.c_str());
@@ -134,7 +130,6 @@ template <> void EcalChannelKiller<EBDetId>::beginJob() {
   int iphi = -10000;
 
   while (fileStatus != EOF) {
-
     fileStatus = fscanf(DeadCha, "%d %d\n", &ieta, &iphi);
 
     //  Problem reading Dead Channels file
@@ -152,7 +147,8 @@ template <> void EcalChannelKiller<EBDetId>::beginJob() {
   fclose(DeadCha);
 }
 
-template <> void EcalChannelKiller<EEDetId>::beginJob() {
+template <>
+void EcalChannelKiller<EEDetId>::beginJob() {
   //Open the DeadChannel file, read it.
   FILE* DeadCha;
   printf("Dead Channels FILE: %s\n", DeadChannelFileName_.c_str());
@@ -163,7 +159,6 @@ template <> void EcalChannelKiller<EEDetId>::beginJob() {
   int iy = -10000;
   int iz = -10000;
   while (fileStatus != EOF) {
-
     fileStatus = fscanf(DeadCha, "%d %d %d\n", &ix, &iy, &iz);
 
     //  Problem reading Dead Channels file
@@ -182,7 +177,8 @@ template <> void EcalChannelKiller<EEDetId>::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop
-template <typename DetIdT> void EcalChannelKiller<DetIdT>::endJob() {}
+template <typename DetIdT>
+void EcalChannelKiller<DetIdT>::endJob() {}
 
 typedef class EcalChannelKiller<EBDetId> EBChannelKiller;
 typedef class EcalChannelKiller<EEDetId> EEChannelKiller;

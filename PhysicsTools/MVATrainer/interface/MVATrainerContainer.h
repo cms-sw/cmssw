@@ -11,37 +11,33 @@
 
 namespace PhysicsTools {
 
-class MVATrainerContainer : public Calibration::MVAComputerContainer {
-    public:
-	typedef MVATrainerLooper::TrainObject	Value_t;
+  class MVATrainerContainer : public Calibration::MVAComputerContainer {
+  public:
+    typedef MVATrainerLooper::TrainObject Value_t;
 
-	const Calibration::MVAComputer &
-	find(const std::string &label) const override
-	{
-		Map_t::const_iterator pos = trainCalibs.find(label);
-		if (pos != trainCalibs.end())
-			return *pos->second.get();
+    const Calibration::MVAComputer &find(const std::string &label) const override {
+      Map_t::const_iterator pos = trainCalibs.find(label);
+      if (pos != trainCalibs.end())
+        return *pos->second.get();
 
-		return Calibration::MVAComputerContainer::find(label);
-	}
+      return Calibration::MVAComputerContainer::find(label);
+    }
 
-	bool
-	contains(const std::string &label) const override
-	{
-		Map_t::const_iterator pos = trainCalibs.find(label);
-		if (pos != trainCalibs.end()) return true;
-		return Calibration::MVAComputerContainer::contains(label);
-	}
+    bool contains(const std::string &label) const override {
+      Map_t::const_iterator pos = trainCalibs.find(label);
+      if (pos != trainCalibs.end())
+        return true;
+      return Calibration::MVAComputerContainer::contains(label);
+    }
 
-	void addTrainer(const std::string &label, const Value_t &calibration)
-	{ trainCalibs[label] = calibration; }
+    void addTrainer(const std::string &label, const Value_t &calibration) { trainCalibs[label] = calibration; }
 
-    private:
-	typedef std::map<std::string, Value_t>	Map_t;
+  private:
+    typedef std::map<std::string, Value_t> Map_t;
 
-	Map_t	trainCalibs;
-};
+    Map_t trainCalibs;
+  };
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_MVATrainer_MVATrainerContainer_h
+#endif  // PhysicsTools_MVATrainer_MVATrainerContainer_h

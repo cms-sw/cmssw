@@ -3,10 +3,8 @@
 
 #include "L1TMuonCPPFDigiProducer.h"
 
-L1TMuonCPPFDigiProducer::L1TMuonCPPFDigiProducer(
-    const edm::ParameterSet &iConfig)
-    : cppf_emulator_(
-          std::make_unique<EmulateCPPF>(iConfig, consumesCollector()))
+L1TMuonCPPFDigiProducer::L1TMuonCPPFDigiProducer(const edm::ParameterSet &iConfig)
+    : cppf_emulator_(std::make_unique<EmulateCPPF>(iConfig, consumesCollector()))
 // cppf_emulator_(new EmulateCPPF(iConfig, consumesCollector()))
 {
   // produces<l1t::CPPFDigiCollection>("rpcDigi");
@@ -15,9 +13,7 @@ L1TMuonCPPFDigiProducer::L1TMuonCPPFDigiProducer(
 
 L1TMuonCPPFDigiProducer::~L1TMuonCPPFDigiProducer() {}
 
-void L1TMuonCPPFDigiProducer::produce(edm::Event &iEvent,
-                                      const edm::EventSetup &iSetup) {
-
+void L1TMuonCPPFDigiProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Create pointers to the collections which will store the cppfDigis
   // auto cppf_rpcDigi = std::make_unique<l1t::CPPFDigiCollection>();
   auto cppf_recHit = std::make_unique<l1t::CPPFDigiCollection>();

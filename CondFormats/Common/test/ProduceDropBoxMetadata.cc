@@ -24,103 +24,77 @@
 
 #include <iostream>
 
-
 using namespace std;
 using namespace edm;
 
 ProduceDropBoxMetadata::ProduceDropBoxMetadata(const edm::ParameterSet& pSet) {
-  
+  read = pSet.getUntrackedParameter<bool>("read");
+  write = pSet.getUntrackedParameter<bool>("write");
 
-  read     = pSet.getUntrackedParameter<bool>("read");
-  write    = pSet.getUntrackedParameter<bool>("write");
-
-  fToWrite =  pSet.getParameter<vector<ParameterSet> >("toWrite");
-  fToRead  =  pSet.getUntrackedParameter<vector<string> >("toRead");
-
+  fToWrite = pSet.getParameter<vector<ParameterSet> >("toWrite");
+  fToRead = pSet.getUntrackedParameter<vector<string> >("toRead");
 }
 
-ProduceDropBoxMetadata::~ProduceDropBoxMetadata(){}
-
-
-
+ProduceDropBoxMetadata::~ProduceDropBoxMetadata() {}
 
 // void ProduceDropBoxMetadata::beginJob() {
 void ProduceDropBoxMetadata::beginRun(const edm::Run& run, const edm::EventSetup& eSetup) {
-
   cout << "[ProduceDropBoxMetadata] beginJob" << endl;
-
-
 
   string plRecord = "DropBoxMetadataRcd";
   // ---------------------------------------------------------------------------------
   // Write the payload
 
- 
-
-  if(write) {
+  if (write) {
     cout << "\n\n[ProduceDropBoxMetadata] entering write, to loop over toWrite\n" << endl;
-    DropBoxMetadata *metadata = new DropBoxMetadata;
+    DropBoxMetadata* metadata = new DropBoxMetadata;
 
     // loop over all the pSets for the TF1 that we want to write to DB
-    for(vector<ParameterSet>::const_iterator fSetup = fToWrite.begin();
-	fSetup != fToWrite.end();
-	++fSetup) {
-      
+    for (vector<ParameterSet>::const_iterator fSetup = fToWrite.begin(); fSetup != fToWrite.end(); ++fSetup) {
       string record = (*fSetup).getUntrackedParameter<string>("record");
       cout << "\n--- record: " << record << endl;
       DropBoxMetadata::Parameters params;
       vector<string> paramKeys = (*fSetup).getParameterNames();
-      for(vector<string>::const_iterator key = paramKeys.begin();
-	  key != paramKeys.end();
-	  ++key) {
-	if(*key != "record") {
-	  string value = (*fSetup).getUntrackedParameter<string>(*key);
-	  params.addParameter(*key, value);
-	  cout << "           key: " << *key << " value: " << value << endl;
-	}
+      for (vector<string>::const_iterator key = paramKeys.begin(); key != paramKeys.end(); ++key) {
+        if (*key != "record") {
+          string value = (*fSetup).getUntrackedParameter<string>(*key);
+          params.addParameter(*key, value);
+          cout << "           key: " << *key << " value: " << value << endl;
+        }
       }
       metadata->addRecordParameters(record, params);
     }
 
-
     // actually write to DB
     edm::Service<cond::service::PoolDBOutputService> dbOut;
-    if(dbOut.isAvailable()) {
-      dbOut->writeOne<DropBoxMetadata>(metadata,  1, plRecord);
+    if (dbOut.isAvailable()) {
+      dbOut->writeOne<DropBoxMetadata>(metadata, 1, plRecord);
     }
   }
 
-
-  if(read) {
+  if (read) {
     // Read the objects
     cout << "\n\n[ProduceDropBoxMetadata] entering read, to loop over toRead\n" << endl;
     edm::ESHandle<DropBoxMetadata> mdPayload;
     eSetup.get<DropBoxMetadataRcd>().get(mdPayload);
 
-    const DropBoxMetadata *metadata = mdPayload.product();
-      
-    // loop 
-    for(vector<string>::const_iterator name = fToRead.begin();
-	name != fToRead.end(); ++name) {
+    const DropBoxMetadata* metadata = mdPayload.product();
+
+    // loop
+    for (vector<string>::const_iterator name = fToRead.begin(); name != fToRead.end(); ++name) {
       cout << "\n--- record: " << *name << endl;
-      if(metadata->knowsRecord(*name)) {
-	const map<string, string>  & params = metadata->getRecordParameters(*name).getParameterMap();
-	for(map<string, string>::const_iterator par = params.begin();
-	    par != params.end(); ++ par) {
-	  cout << "           key: " << par->first << " value: " << par->second << endl;
-	}
+      if (metadata->knowsRecord(*name)) {
+        const map<string, string>& params = metadata->getRecordParameters(*name).getParameterMap();
+        for (map<string, string>::const_iterator par = params.begin(); par != params.end(); ++par) {
+          cout << "           key: " << par->first << " value: " << par->second << endl;
+        }
       } else {
-	cout << "     not in the payload!" << endl;
+        cout << "     not in the payload!" << endl;
       }
     }
-
   }
-
-
-
 }
 
-     
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 

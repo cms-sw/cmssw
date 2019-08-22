@@ -3,12 +3,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripQualityHelpers.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/plugins/SiStripBadComponentInfo.h"
+
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include <cmath>
 #include <cstdio>
@@ -20,41 +22,40 @@
 //
 // -- Contructor
 //
-SiStripBadComponentInfo::SiStripBadComponentInfo(edm::ParameterSet const& pSet) : 
-    bookedStatus_(false),
-    nSubSystem_(6),
-    qualityLabel_(pSet.getParameter<std::string>("StripQualityLabel"))
-{ 
+SiStripBadComponentInfo::SiStripBadComponentInfo(edm::ParameterSet const& pSet)
+    : bookedStatus_(false), nSubSystem_(6), qualityLabel_(pSet.getParameter<std::string>("StripQualityLabel")) {
+  addBadCompFromFedErr_ = pSet.getUntrackedParameter<bool>("AddBadComponentsFromFedErrors", false);
+  fedErrCutoff_ = float(pSet.getUntrackedParameter<double>("FedErrorBadComponentsCutoff", 0.8));
   // Create MessageSender
-  LogDebug( "SiStripBadComponentInfo") << "SiStripBadComponentInfo::Deleting SiStripBadComponentInfo ";
+  LogDebug("SiStripBadComponentInfo") << "SiStripBadComponentInfo::Deleting SiStripBadComponentInfo ";
 }
 
-SiStripBadComponentInfo::~SiStripBadComponentInfo()
-{
-  LogDebug("SiStripBadComponentInfo")
-    << "SiStripBadComponentInfo::Deleting SiStripBadComponentInfo ";
+SiStripBadComponentInfo::~SiStripBadComponentInfo() {
+  LogDebug("SiStripBadComponentInfo") << "SiStripBadComponentInfo::Deleting SiStripBadComponentInfo ";
 }
 
 //
 // -- Read Condition
 //
-void
-SiStripBadComponentInfo::checkBadComponents(edm::EventSetup const& eSetup)
-{
-  LogDebug("SiStripBadComponentInfo")
-    << "SiStripBadComponentInfo:: Begining of Run";
+void SiStripBadComponentInfo::checkBadComponents(edm::EventSetup const& eSetup) {
+  LogDebug("SiStripBadComponentInfo") << "SiStripBadComponentInfo:: Begining of Run";
 
   // Retrieve tracker topology from geometry
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
-  const TrackerTopology* const topo = tTopoHandle_.product();
+  eSetup.get<TrackerTopologyRcd>().get(tTopo_);
+  eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
 
- 
-  eSetup.get<SiStripQualityRcd>().get(qualityLabel_,siStripQuality_);
- 
-  auto const& BC = siStripQuality_->getBadComponentList();
-  
-  for (size_t i=0;i<BC.size();++i){
-    int subdet=-999; int component=-999;
+  eSetup.get<SiStripQualityRcd>().get(qualityLabel_, siStripQuality_);
+  if (!addBadCompFromFedErr_) {
+    fillBadComponentMaps(siStripQuality_.product());
+  }
+}
+
+void SiStripBadComponentInfo::fillBadComponentMaps(const SiStripQuality* siStripQuality) {
+  auto const& BC = siStripQuality->getBadComponentList();
+
+  for (size_t i = 0; i < BC.size(); ++i) {
+    int subdet = -999;
+    int component = -999;
 
     //&&&&&&&&&&&&&&&&&
     // Single SubSyste
@@ -65,31 +66,31 @@ SiStripBadComponentInfo::checkBadComponents(edm::EventSetup const& eSetup)
       // TIB
       //&&&&&&&&&&&&&&&&&
       subdet = 3;
-      component = topo->tibLayer(BC[i].detid);
+      component = tTopo_->tibLayer(BC[i].detid);
     } else if (subDet == StripSubdetector::TID) {
       //&&&&&&&&&&&&&&&&&
       // TID
       //&&&&&&&&&&&&&&&&&
-      if (topo->tidSide(BC[i].detid) == 2)
+      if (tTopo_->tidSide(BC[i].detid) == 2)
         subdet = 4;
       else
         subdet = 5;
-      component = topo->tidWheel(BC[i].detid);
+      component = tTopo_->tidWheel(BC[i].detid);
     } else if (subDet == StripSubdetector::TOB) {
       //&&&&&&&&&&&&&&&&&
       // TOB
       //&&&&&&&&&&&&&&&&&
       subdet = 6;
-      component = topo->tobLayer(BC[i].detid);
+      component = tTopo_->tobLayer(BC[i].detid);
     } else if (subDet == StripSubdetector::TEC) {
       //&&&&&&&&&&&&&&&&&
       // TEC
       //&&&&&&&&&&&&&&&&&
-      if (topo->tecSide(BC[i].detid) == 2)
+      if (tTopo_->tecSide(BC[i].detid) == 2)
         subdet = 2;
       else
         subdet = 1;
-      component = topo->tecWheel(BC[i].detid);
+      component = tTopo_->tecWheel(BC[i].detid);
     }
     fillBadComponentMaps(subdet, component, BC[i]);
   }
@@ -98,10 +99,8 @@ SiStripBadComponentInfo::checkBadComponents(edm::EventSetup const& eSetup)
   // Single Strip Info
   //&&&&&&&&&&&&&&&&&&
 
-  SiStripQuality::RegistryIterator rbegin =
-    siStripQuality_->getRegistryVectorBegin();
-  SiStripQuality::RegistryIterator rend =
-    siStripQuality_->getRegistryVectorEnd();
+  SiStripQuality::RegistryIterator rbegin = siStripQuality->getRegistryVectorBegin();
+  SiStripQuality::RegistryIterator rend = siStripQuality->getRegistryVectorEnd();
 
   for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
     uint32_t detid = rp->detid;
@@ -111,53 +110,53 @@ SiStripBadComponentInfo::checkBadComponents(edm::EventSetup const& eSetup)
     int subDet = detectorId.subdetId();
     if (subDet == StripSubdetector::TIB) {
       subdet = 3;
-      component = topo->tibLayer(detid);
+      component = tTopo_->tibLayer(detid);
     } else if (subDet == StripSubdetector::TID) {
-      if (topo->tidSide(detid) == 2)
+      if (tTopo_->tidSide(detid) == 2)
         subdet = 5;
       else
         subdet = 4;
-      component = topo->tidWheel(detid);
+      component = tTopo_->tidWheel(detid);
     } else if (subDet == StripSubdetector::TOB) {
       subdet = 6;
-      component = topo->tobLayer(detid);
+      component = tTopo_->tobLayer(detid);
     } else if (subDet == StripSubdetector::TEC) {
-      if (topo->tecSide(detid) == 2)
+      if (tTopo_->tecSide(detid) == 2)
         subdet = 2;
       else
         subdet = 1;
-      component = topo->tecWheel(detid);
+      component = tTopo_->tecWheel(detid);
     }
 
-    SiStripQuality::Range sqrange =
-      SiStripQuality::Range(siStripQuality_->getDataVectorBegin() + rp->ibegin,
-                            siStripQuality_->getDataVectorBegin() + rp->iend);
+    SiStripQuality::Range sqrange = SiStripQuality::Range(siStripQuality->getDataVectorBegin() + rp->ibegin,
+                                                          siStripQuality->getDataVectorBegin() + rp->iend);
 
     for (int it = 0; it < sqrange.second - sqrange.first; it++) {
-      unsigned int range = siStripQuality_->decode(*(sqrange.first + it)).range;
-      float val = (mapBadStrip.find(std::make_pair(subdet, component)) !=
-                   mapBadStrip.end()) ?
-                    mapBadStrip.at(std::make_pair(subdet, component)) :
-                    0.;
+      unsigned int range = siStripQuality->decode(*(sqrange.first + it)).range;
+      float val = (mapBadStrip.find(std::make_pair(subdet, component)) != mapBadStrip.end())
+                      ? mapBadStrip.at(std::make_pair(subdet, component))
+                      : 0.;
       val += range;
       mapBadStrip[std::make_pair(subdet, component)] = val;
     }
   }
 }
 
-void
-SiStripBadComponentInfo::endRun(edm::Run const& run,
-                                edm::EventSetup const& eSetup)
-{
+void SiStripBadComponentInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   LogDebug("SiStripBadComponentInfo") << "SiStripBadComponentInfo:: End of Run";
   checkBadComponents(eSetup);
 }
 
-void
-SiStripBadComponentInfo::dqmEndJob(DQMStore::IBooker& ibooker,
-                                   DQMStore::IGetter& igetter)
-{
+void SiStripBadComponentInfo::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   LogDebug("SiStripBadComponentInfo") << "SiStripBadComponentInfo::dqmEndRun";
+  if (addBadCompFromFedErr_) {
+    auto mergedQuality = std::make_unique<SiStripQuality>(*siStripQuality_);
+    auto fedErrQuality = sistrip::badStripFromFedErr(igetter, *fedCabling_, fedErrCutoff_);
+    mergedQuality->add(fedErrQuality.get());
+    mergedQuality->cleanUp();
+    mergedQuality->fillBadComponents();
+    fillBadComponentMaps(mergedQuality.get());
+  }
   bookBadComponentHistos(ibooker, igetter);
   createSummary(badAPVME_, mapBadAPV);
   createSummary(badFiberME_, mapBadFiber);
@@ -166,10 +165,7 @@ SiStripBadComponentInfo::dqmEndJob(DQMStore::IBooker& ibooker,
 //
 // -- Book MEs for SiStrip Dcs Fraction
 //
-void
-SiStripBadComponentInfo::bookBadComponentHistos(DQMStore::IBooker& ibooker,
-                                                DQMStore::IGetter& igetter)
-{
+void SiStripBadComponentInfo::bookBadComponentHistos(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   if (!bookedStatus_) {
     std::string strip_dir = "";
     ibooker.cd();
@@ -179,8 +175,7 @@ SiStripBadComponentInfo::bookBadComponentHistos(DQMStore::IBooker& ibooker,
       strip_dir = ibooker.pwd();
     }
     edm::LogInfo("SiStripBadComponentInfo")
-      << "SiStripBadComponentInfo::bookBadComponentHistos ==> " << strip_dir
-      << " " << ibooker.pwd() << std::endl;
+        << "SiStripBadComponentInfo::bookBadComponentHistos ==> " << strip_dir << " " << ibooker.pwd() << std::endl;
     if (!strip_dir.empty())
       ibooker.setCurrentFolder(strip_dir + "/EventInfo");
     else
@@ -193,22 +188,19 @@ SiStripBadComponentInfo::bookBadComponentHistos(DQMStore::IBooker& ibooker,
     std::string hname, htitle;
     hname = "BadAPVMap";
     htitle = "SiStrip Bad APVs";
-    badAPVME_ = ibooker.book2D(
-      hname, htitle, nSubSystem_, 0.5, nSubSystem_ + 0.5, 10, 0.5, 10.5);
+    badAPVME_ = ibooker.book2D(hname, htitle, nSubSystem_, 0.5, nSubSystem_ + 0.5, 10, 0.5, 10.5);
     badAPVME_->setAxisTitle("Sub Detector Type", 1);
     badAPVME_->setAxisTitle("Layer/Disc Number", 2);
 
     hname = "BadFiberMap";
     htitle = "SiStrip Bad Fibers";
-    badFiberME_ = ibooker.book2D(
-      hname, htitle, nSubSystem_, 0.5, nSubSystem_ + 0.5, 10, 0.5, 10.5);
+    badFiberME_ = ibooker.book2D(hname, htitle, nSubSystem_, 0.5, nSubSystem_ + 0.5, 10, 0.5, 10.5);
     badFiberME_->setAxisTitle("Sub Detector Type", 1);
     badFiberME_->setAxisTitle("Layer/Disc Number", 2);
 
     hname = "BadStripMap";
     htitle = "SiStrip Bad Strips";
-    badStripME_ = ibooker.book2D(
-      hname, htitle, nSubSystem_, 0.5, nSubSystem_ + 0.5, 10, 0.5, 10.5);
+    badStripME_ = ibooker.book2D(hname, htitle, nSubSystem_, 0.5, nSubSystem_ + 0.5, 10, 0.5, 10.5);
     badStripME_->setAxisTitle("Sub Detector Type", 1);
     badStripME_->setAxisTitle("Layer/Disc Number", 2);
 
@@ -231,42 +223,33 @@ SiStripBadComponentInfo::bookBadComponentHistos(DQMStore::IBooker& ibooker,
   }
 }
 
-void SiStripBadComponentInfo::fillBadComponentMaps(int xbin,int component,SiStripQuality::BadComponent const& BC){
-
+void SiStripBadComponentInfo::fillBadComponentMaps(int xbin, int component, SiStripQuality::BadComponent const& BC) {
   auto index = std::make_pair(xbin, component);
 
   if (BC.BadApvs) {
     int ntot = std::bitset<16>(BC.BadApvs & 0x3f).count();
-    float val =
-      (mapBadAPV.find(index) != mapBadAPV.end()) ? mapBadAPV.at(index) : 0.;
+    float val = (mapBadAPV.find(index) != mapBadAPV.end()) ? mapBadAPV.at(index) : 0.;
     val += ntot;
     mapBadAPV[index] = val;
   }
   if (BC.BadFibers) {
     int ntot = std::bitset<16>(BC.BadFibers & 0x7).count();
-    float val = (mapBadFiber.find(index) != mapBadFiber.end()) ?
-                  mapBadFiber.at(index) :
-                  0.;
+    float val = (mapBadFiber.find(index) != mapBadFiber.end()) ? mapBadFiber.at(index) : 0.;
     val += ntot;
     mapBadFiber[index] = val;
   }
 }
-void
-SiStripBadComponentInfo::createSummary(
-  MonitorElement* me,
-  const std::map<std::pair<int, int>, float>& map)
-{
+void SiStripBadComponentInfo::createSummary(MonitorElement* me, const std::map<std::pair<int, int>, float>& map) {
   for (int i = 1; i < nSubSystem_ + 1; i++) {
     float sum = 0.0;
     for (int k = 1; k < me->getNbinsY(); k++) {
       auto index = std::make_pair(i, k);
       if (map.find(index) != map.end()) {
-        me->setBinContent(i, k, map.at(index)); // fill the layer/wheel bins
+        me->setBinContent(i, k, map.at(index));  // fill the layer/wheel bins
         sum += map.at(index);
       }
     }
-    me->setBinContent(
-      i, me->getNbinsY(), sum); // fill the summary bin (last one)
+    me->setBinContent(i, me->getNbinsY(), sum);  // fill the summary bin (last one)
   }
 }
 #include "FWCore/Framework/interface/MakerMacros.h"

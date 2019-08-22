@@ -4,7 +4,7 @@
 //
 // Package:     CondLiteIO
 // Class  :     RecordWriter
-// 
+//
 /**\class RecordWriter RecordWriter.h PhysicsTools/CondLiteIO/interface/RecordWriter.h
 
  Description: Used to write the contents of an EventSetup Record to a TFile
@@ -30,42 +30,40 @@ class TBranch;
 class TTree;
 
 namespace fwlite {
-class RecordWriter
-{
+  class RecordWriter {
+  public:
+    RecordWriter(const char* iName, TFile* iFile);
+    virtual ~RecordWriter();
 
-   public:
-      RecordWriter(const char* iName, TFile* iFile);
-      virtual ~RecordWriter();
+    struct DataBuffer {
+      const void* pBuffer_;
+      TBranch* branch_;
+      edm::TypeIDBase trueType_;
+    };
+    // ---------- const member functions ---------------------
 
-      struct DataBuffer {
-         const void* pBuffer_;
-         TBranch* branch_;
-         edm::TypeIDBase trueType_;
-      };
-      // ---------- const member functions ---------------------
+    // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+    // ---------- member functions ---------------------------
+    void update(const void* iData, const std::type_info& iType, const char* iLabel);
 
-      // ---------- member functions ---------------------------
-      void update(const void* iData, const std::type_info& iType, const char* iLabel);
-      
-      //call update before calling write
-      void fill(const edm::ESRecordAuxiliary&);
+    //call update before calling write
+    void fill(const edm::ESRecordAuxiliary&);
 
-      void write();
+    void write();
 
-   private:
-      RecordWriter(const RecordWriter&) = delete; // stop default
+  private:
+    RecordWriter(const RecordWriter&) = delete;  // stop default
 
-      const RecordWriter& operator=(const RecordWriter&) = delete; // stop default
+    const RecordWriter& operator=(const RecordWriter&) = delete;  // stop default
 
-      // ---------- member data --------------------------------
-      TTree* tree_;
-      edm::ESRecordAuxiliary aux_;
-      edm::ESRecordAuxiliary* pAux_;
-      TBranch* auxBranch_;
-      std::map<std::pair<edm::TypeIDBase,std::string>, DataBuffer> idToBuffer_;
-};
-}
+    // ---------- member data --------------------------------
+    TTree* tree_;
+    edm::ESRecordAuxiliary aux_;
+    edm::ESRecordAuxiliary* pAux_;
+    TBranch* auxBranch_;
+    std::map<std::pair<edm::TypeIDBase, std::string>, DataBuffer> idToBuffer_;
+  };
+}  // namespace fwlite
 
 #endif

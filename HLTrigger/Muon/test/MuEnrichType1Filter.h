@@ -11,17 +11,16 @@ class MuEnrichType1Filter : public edm::EDFilter {
 public:
   explicit MuEnrichType1Filter(const edm::ParameterSet&);
   ~MuEnrichType1Filter();
-  
+
 private:
-  virtual void beginJob() ;
+  virtual void beginJob();
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endJob();
   edm::EDGetTokenT<edm::HepMCProduct> theGenToken;
   int nrejected;
   int naccepted;
   int type;
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 };
 
 #endif
-

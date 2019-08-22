@@ -1,7 +1,7 @@
 #ifndef HcalQIEDataCheck_h
 #define HcalQIEDataCheck_h
 
-// 
+//
 // R.Ofierzynski 9.12.2007
 //
 
@@ -35,24 +35,21 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
-class HcalQIEDataCheck: public edm::EDAnalyzer
-{
- public:
+class HcalQIEDataCheck : public edm::EDAnalyzer {
+public:
   HcalQIEDataCheck(edm::ParameterSet const& ps);
 
   ~HcalQIEDataCheck() override;
 
   void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
 
- private:
+private:
   std::string outfile;
   std::string dumprefs;
   std::string dumpupdate;
   bool checkemapflag;
   bool validateflag;
-//  double epsilon;
+  //  double epsilon;
   //  vecDetId getMissingDetIds(std::vector<HcalPedestalWidths> &);
-  
-
 };
 #endif

@@ -11,7 +11,4 @@ using namespace reco;
 //---------------------------------------------------------------------------
 // Default Constructor;
 //-----------------------------------
-PFClusterMET::PFClusterMET()
-{
-}
-
+PFClusterMET::PFClusterMET() {}

@@ -5,19 +5,19 @@
 
 #include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 
-#include<vector>
+#include <vector>
 
 class AlignmentErrorsExtended {
 public:
-  AlignmentErrorsExtended(){}
-  virtual ~AlignmentErrorsExtended(){}
+  AlignmentErrorsExtended() {}
+  virtual ~AlignmentErrorsExtended() {}
   /// Test of empty vector without having to look into internals:
-  inline bool empty() const { return m_alignError.empty();}
+  inline bool empty() const { return m_alignError.empty(); }
   /// Clear vector without having to look into internals:
-  inline void clear() {m_alignError.clear();}
+  inline void clear() { m_alignError.clear(); }
 
   std::vector<AlignTransformErrorExtended> m_alignError;
 
   COND_SERIALIZABLE;
 };
-#endif // AlignmentErrorsExtended_H
+#endif  // AlignmentErrorsExtended_H

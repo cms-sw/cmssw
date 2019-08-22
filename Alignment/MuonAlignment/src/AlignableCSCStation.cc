@@ -4,81 +4,57 @@
  *  $Revision: 1.6 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
- 
 
 #include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-
 /// The constructor simply copies the vector of CSC Rings and computes the surface from them
-AlignableCSCStation::AlignableCSCStation( const std::vector<AlignableCSCRing*>& cscRings ) 
-   : AlignableComposite(cscRings[0]->id(), align::AlignableCSCStation)
-{
-
-  theCSCRings.insert( theCSCRings.end(), cscRings.begin(), cscRings.end() );
+AlignableCSCStation::AlignableCSCStation(const std::vector<AlignableCSCRing*>& cscRings)
+    : AlignableComposite(cscRings[0]->id(), align::AlignableCSCStation) {
+  theCSCRings.insert(theCSCRings.end(), cscRings.begin(), cscRings.end());
 
   // maintain also list of components
-  for (const auto& ring: cscRings) {
+  for (const auto& ring : cscRings) {
     const auto mother = ring->mother();
-    this->addComponent(ring); // components will be deleted by dtor of AlignableComposite
-    ring->setMother(mother); // restore previous behaviour where mother is not set
+    this->addComponent(ring);  // components will be deleted by dtor of AlignableComposite
+    ring->setMother(mother);   // restore previous behaviour where mother is not set
   }
 
-  setSurface( computeSurface() );
+  setSurface(computeSurface());
   compConstraintType_ = Alignable::CompConstraintType::POSITION_Z;
 }
 
-
 /// Return Alignable CSC Ring at given index
-AlignableCSCRing &AlignableCSCStation::ring(int i) 
-{
-  
-  if (i >= size() ) 
-	throw cms::Exception("LogicError") << "CSC Ring index (" << i << ") out of range";
+AlignableCSCRing& AlignableCSCStation::ring(int i) {
+  if (i >= size())
+    throw cms::Exception("LogicError") << "CSC Ring index (" << i << ") out of range";
 
   return *theCSCRings[i];
-  
 }
-
 
 /// Returns surface corresponding to current position
 /// and orientation, as given by average on all components
-AlignableSurface AlignableCSCStation::computeSurface()
-{
-
-  return AlignableSurface( computePosition(), computeOrientation() );
-
+AlignableSurface AlignableCSCStation::computeSurface() {
+  return AlignableSurface(computePosition(), computeOrientation());
 }
 
-
-
 /// Compute average z position from all components (x and y forced to 0)
-AlignableCSCStation::PositionType AlignableCSCStation::computePosition()  
-{
-
+AlignableCSCStation::PositionType AlignableCSCStation::computePosition() {
   float zz = 0.;
 
-  for ( std::vector<AlignableCSCRing*>::iterator ilayer = theCSCRings.begin();
-		ilayer != theCSCRings.end(); ilayer++ )
+  for (std::vector<AlignableCSCRing*>::iterator ilayer = theCSCRings.begin(); ilayer != theCSCRings.end(); ilayer++)
     zz += (*ilayer)->globalPosition().z();
 
   zz /= static_cast<float>(theCSCRings.size());
 
-  return PositionType( 0.0, 0.0, zz );
-
+  return PositionType(0.0, 0.0, zz);
 }
-
 
 /// Just initialize to default given by default constructor of a RotationType
-AlignableCSCStation::RotationType AlignableCSCStation::computeOrientation() 
-{
-  return RotationType();
-}
-
+AlignableCSCStation::RotationType AlignableCSCStation::computeOrientation() { return RotationType(); }
 
 // /// Twists all components by given angle
-// void AlignableCSCStation::twist(float rad) 
+// void AlignableCSCStation::twist(float rad)
 // {
 //   for ( std::vector<AlignableCSCRing*>::iterator iter = theCSCRings.begin();
 //            iter != theCSCRings.end(); iter++ )
@@ -86,27 +62,18 @@ AlignableCSCStation::RotationType AlignableCSCStation::computeOrientation()
 
 // }
 
-
 /// Output Station information
-std::ostream &operator << (std::ostream& os, const AlignableCSCStation& b )
-{
-
+std::ostream& operator<<(std::ostream& os, const AlignableCSCStation& b) {
   os << "This CSC Station contains " << b.theCSCRings.size() << " CSC rings" << std::endl;
-  os << "(phi, r, z) =  (" << b.globalPosition().phi() << "," 
-     << b.globalPosition().perp() << "," << b.globalPosition().z();
-  os << "),  orientation:" << std::endl<< b.globalRotation() << std::endl;
+  os << "(phi, r, z) =  (" << b.globalPosition().phi() << "," << b.globalPosition().perp() << ","
+     << b.globalPosition().z();
+  os << "),  orientation:" << std::endl << b.globalRotation() << std::endl;
   return os;
-
 }
 
-
 /// Recursive printout of whole CSC Station structure
-void AlignableCSCStation::dump( void ) const
-{
-
+void AlignableCSCStation::dump(void) const {
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableCSCRing*>::const_iterator iRing = theCSCRings.begin();
-		iRing != theCSCRings.end(); iRing++ )
-	 edm::LogInfo("AlignableDump")  << (**iRing);
-
+  for (std::vector<AlignableCSCRing*>::const_iterator iRing = theCSCRings.begin(); iRing != theCSCRings.end(); iRing++)
+    edm::LogInfo("AlignableDump") << (**iRing);
 }

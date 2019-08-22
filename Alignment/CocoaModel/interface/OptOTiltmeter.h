@@ -3,8 +3,8 @@
 //CAT: Model
 //
 //   Base class to describe Optical Objects of type sensor 2D
-// 
-//   History: v1.0 
+//
+//   History: v1.0
 //   Pedro Arce
 
 #ifndef _OPTOTILTMETER_HH
@@ -15,27 +15,23 @@
 class Measurement;
 class LightRay;
 
-class OptOTiltmeter: public OpticalObject
-{
-
+class OptOTiltmeter : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOTiltmeter(){ };
-  OptOTiltmeter(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
-  OpticalObject( parent, type, name, copy_data){ };
-  ~OptOTiltmeter() override{ };
+  OptOTiltmeter(){};
+  OptOTiltmeter(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
+      : OpticalObject(parent, type, name, copy_data){};
+  ~OptOTiltmeter() override{};
 
-  //---------- defaultBehaviour: make measurement 
-  void defaultBehaviour( LightRay& lightray, Measurement& meas ) override;
-  //---------- Make measurement 
-  void makeMeasurement( LightRay& lightray, Measurement& meas ) override;
+  //---------- defaultBehaviour: make measurement
+  void defaultBehaviour(LightRay& lightray, Measurement& meas) override;
+  //---------- Make measurement
+  void makeMeasurement(LightRay& lightray, Measurement& meas) override;
 #ifdef COCOA_VIS
   virtual void fillVRML();
   virtual void fillIguana();
 #endif
   void constructSolidShape() override;
-
 };
 
 #endif
-

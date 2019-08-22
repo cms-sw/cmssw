@@ -6,6 +6,6 @@
  *  evaluated by its continued fraction representation. 
  *  source: Numerical Recipes
  */
-extern float GammaContinuedFraction( float a, float x );
+extern float GammaContinuedFraction(float a, float x);
 
 #endif

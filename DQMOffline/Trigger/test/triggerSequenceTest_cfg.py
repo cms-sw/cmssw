@@ -31,7 +31,7 @@ process.prefer("GlobalTag")
 
 # removed this because we don't want to do local reco
 #SiStrip Local Reco
-#process.load("CalibTracker.SiStripCommon.TkDetMap_cff")
+#process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 
 #process.GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer" )
 

@@ -10,16 +10,22 @@
 
 namespace reco {
   namespace method {
-    enum TypeCode { 
-      doubleType = 0, floatType,
-      intType, uIntType,
-      charType, uCharType,
-      shortType, uShortType, 
-      longType, uLongType, 
-      boolType, enumType,
+    enum TypeCode {
+      doubleType = 0,
+      floatType,
+      intType,
+      uIntType,
+      charType,
+      uCharType,
+      shortType,
+      uShortType,
+      longType,
+      uLongType,
+      boolType,
+      enumType,
       invalid
     };
   }
-}
+}  // namespace reco
 
 #endif

@@ -2,8 +2,8 @@
 from __future__ import print_function
 from builtins import range
 VERSION='1.00'
-import os,sys,time
-import optparse
+import os, sys, time
+import argparse
 from RecoLuminosity.LumiDB import pileupParser
 from RecoLuminosity.LumiDB import selectionParser
 from math import exp
@@ -54,11 +54,11 @@ def MyErf(input):
     return cErf
 
 
-def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins):
+def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins, run, ls):
     '''
     lumiinfo:[intlumi per LS, mean interactions ]
 
-    intlumi is the deadtime corrected average integraged lumi per lumisection
+    intlumi is the deadtime corrected average integrated lumi per lumisection
     '''
 
     LSintLumi = lumiInfo[0]
@@ -130,10 +130,8 @@ def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins):
                 hist.Fill (val, prob * LSintLumi)
                 
             if 1.0-totalProb > 0.01:
-                print("Significant probability density outside of your histogram")
-                print("Consider using a higher value of --maxPileupBin")
-                print("Mean %f, RMS %f, Integrated probability %f" % (AveNumInt,RMSInt,totalProb))
-            #    hist.Fill (val, (1 - totalProb) * LSintLumi)
+                print("Run %d, LS %d: Significant probability density outside of your histogram (mean %.2f," % (run, ls, AveNumInt))
+                print("rms %.2f, integrated probability %.3f). Consider using a higher value of --maxPileupBin." % (RMSInt, totalProb))
         else:
             hist.Fill(AveNumInt,LSintLumi)
     else: # have to convolute with a poisson distribution to get observed Nint
@@ -150,7 +148,7 @@ def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins):
                 hist.Fill (val, prob * LSintLumi * RMSWeight)
 
         if 1.0-totalProb > 0.01:
-            print("Significant probability density outside of your histogram")
+            print("Run %d, LS %d: significant probability density outside of your histogram" % (run, ls))
             print("Consider using a higher value of --maxPileupBin")
 
 
@@ -168,69 +166,44 @@ def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins):
 
 if __name__ == '__main__':
 
-    parser = optparse.OptionParser ("Usage: %prog [--options] output.root",
-                                    description = "Script to estimate pileup distribution using xing instantaneous luminosity information and minimum bias cross section.  Output is TH1D stored in root file")
-#
-#    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Pileup Lumi Calculation",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    CalculationModeChoices = ['truth', 'observed']
+    parser = argparse.ArgumentParser(description = "Script to estimate pileup distribution using bunch instantaneous luminosity information and minimum bias cross section. Outputs a TH1D of the pileup distribution stored in a ROOT file.")
 
-    #
-    # parse arguments
-    #  
-    #
-    # basic arguments
-    #
-    #parser.add_argument('action',choices=allowedActions,
-    #                    help='command actions')
-    parser.add_option('-o',dest='outputfile',action='store',
-                        default='PileupCalc.root',
-                        help='output root file')
-    parser.add_option('-i',dest='inputfile',action='store',
-                        help='Input Run/LS file for your analysis in JSON format (required)')
-    parser.add_option('--inputLumiJSON',dest='inputLumiJSON',action='store',
-                        help='Input Lumi/Pileup file in JSON format (required)')
-    parser.add_option('--calcMode',dest='calcMode',action='store',
-                        help='Calculate either True ="true" or Observed="observed" distributions')
-    parser.add_option('--minBiasXsec',dest='minBiasXsec',action='store',
-                        type=float,
-                        default=73500,
-                        help='Minimum bias cross section assumed (in microbbarn), default %default microbarn')
-    parser.add_option('--maxPileupBin',dest='maxPileupBin',action='store',
-                        type=int,
-                        default=25,
-                        help='Maximum value of pileup histogram, default %default')
-    parser.add_option('--numPileupBins',dest='numPileupBins',action='store',
-                        type=int,
-                        default=1000,
-                        help='number of bins in pileup histogram, default %default')
-    parser.add_option('--pileupHistName',dest='pileupHistName',action='store',
-                        default='pileup',
-                        help='name of pileup histogram, default %default')
-    parser.add_option('--verbose',dest='verbose',action='store_true',help='verbose mode for printing' )
-    
-    # parse arguments
-    try:
-        (options, args) = parser.parse_args()
-    except Exception as e:
-        print(e)
-    if not args:
-        parser.print_usage()
-        sys.exit()
-    if len (args) != 1:
-        parser.print_usage()
-        raise RuntimeError("Exactly one output file must be given")
-    output = args[0]
-    
-#    options=parser.parse_args()
+    # required
+    req_group = parser.add_argument_group('required arguments')
+    req_group.add_argument('outputfile', action='store', help='output ROOT file')
+    req_group.add_argument('-i', '--input', dest='inputfile', action='store', required=True,
+                           help='input Run/LS file for your analysis in JSON format')
+    req_group.add_argument('-j', '--inputLumiJSON', dest='inputLumiJSON', action='store', required=True,
+                           help='input pileup file in JSON format')
+    req_group.add_argument('-c', '--calcMode' ,dest='calcMode', action='store',
+                           help='calculate either "true" or "observed" distributions',
+                           choices=['true', 'observed'], required=True)
 
+    # optional
+    parser.add_argument('-x', '--minBiasXsec', dest='minBiasXsec', action='store',
+                           type=float, default=69200.0,
+                           help='minimum bias cross section to use (in microbarn) (default: %(default).0f)')
+    parser.add_argument('-m', '--maxPileupBin', dest='maxPileupBin', action='store',
+                           type=int, default=100, help='maximum value of pileup histogram (default: %(default)d)')
+    parser.add_argument('-n', '--numPileupBins', dest='numPileupBins', action='store',
+                           type=int, default=1000, help='number of bins in pileup histogram (default: %(default)d)')
+    parser.add_argument('--pileupHistName', dest='pileupHistName', action='store',
+                           default='pileup', help='name of pileup histogram (default: %(default)s)')
+    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
+                           help='verbose mode for printing' )
+
+    options = parser.parse_args()
+    output = options.outputfile
+    
     if options.verbose:
         print('General configuration')
-        print('\toutputfile: ',options.outputfile)
-        print('\tAction: ',options.calcMode, 'luminosity distribution will be calculated')
-        print('\tinput selection file: ',options.inputfile)
-        print('\tMinBiasXsec: ',options.minBiasXsec)
-        print('\tmaxPileupBin: ',options.maxPileupBin)
-        print('\tnumPileupBins: ',options.numPileupBins)
+        print('\toutputfile:' ,options.outputfile)
+        print('\tAction:' ,options.calcMode, 'luminosity distribution will be calculated')
+        print('\tinput selection file:', options.inputfile)
+        print('\tinput lumi JSON:', options.inputLumiJSON)
+        print('\tMinBiasXsec:', options.minBiasXsec)
+        print('\tmaxPileupBin:', options.maxPileupBin)
+        print('\tnumPileupBins:', options.numPileupBins)
 
     import ROOT 
     pileupHist = ROOT.TH1D (options.pileupHistName,options.pileupHistName,
@@ -240,53 +213,46 @@ if __name__ == '__main__':
     nbins = options.numPileupBins
     upper = options.maxPileupBin
 
-    inpf = open (options.inputfile, 'r')
+    inpf = open(options.inputfile, 'r')
     inputfilecontent = inpf.read()
-    inputRange =  selectionParser.selectionParser (inputfilecontent).runsandls()
+    inputRange = selectionParser.selectionParser (inputfilecontent).runsandls()
 
     #inputRange=inputFilesetParser.inputFilesetParser(options.inputfile)
 
-    if options.calcMode in ['true','observed']:
-        inputPileupRange=parseInputFile(options.inputLumiJSON)
+    inputPileupRange=parseInputFile(options.inputLumiJSON)
 
-        # now, we have to find the information for the input runs and LumiSections 
-        # in the Lumi/Pileup list. First, loop over inputs
+    # now, we have to find the information for the input runs and lumi sections
+    # in the Lumi/Pileup list. First, loop over inputs
 
-        for (run, lslist) in sorted (six.iteritems(inputRange)):
-            # now, look for matching run, then match lumi sections
-            # print "searching for run %d" % (run)
-            if run in inputPileupRange.keys():
-                #print run
-                LSPUlist = inputPileupRange[run]
-                # print "LSPUlist", LSPUlist
-                for LSnumber in lslist:
-                    if LSnumber in LSPUlist.keys():
-                        #print "found LS %d" % (LSnumber)
-                        lumiInfo = LSPUlist[LSnumber]
-                        # print lumiInfo
-                        fillPileupHistogram (lumiInfo, options.calcMode,
-                                pileupHist, options.minBiasXsec, nbins)
-                    else: # trouble
-                        print("Run %d, LumiSection %d not found in Lumi/Pileup input file. Check your files!" \
-                                % (run,LSnumber))
+    for (run, lslist) in sorted (six.iteritems(inputRange)):
+        # now, look for matching run, then match lumi sections
+        # print "searching for run %d" % (run)
+        if run in inputPileupRange.keys():
+            #print run
+            LSPUlist = inputPileupRange[run]
+            # print "LSPUlist", LSPUlist
+            for LSnumber in lslist:
+                if LSnumber in LSPUlist.keys():
+                    #print "found LS %d" % (LSnumber)
+                    lumiInfo = LSPUlist[LSnumber]
+                    # print lumiInfo
+                    fillPileupHistogram(lumiInfo, options.calcMode, pileupHist,
+                                        options.minBiasXsec, nbins, run, LSnumber)
+                else: # trouble
+                    print("Run %d, LumiSection %d not found in Lumi/Pileup input file. Check your files!" \
+                            % (run,LSnumber))
 
-            else:  # trouble
-                print("Run %d not found in Lumi/Pileup input file.  Check your files!" % (run))
+        else:  # trouble
+            print("Run %d not found in Lumi/Pileup input file.  Check your files!" % (run))
 
+        # print run
+        # print lslist
 
-
-#            print run
-#            print lslist
-
-        histFile = ROOT.TFile.Open (output, 'recreate')
-        if not histFile:
-            raise RuntimeError("Could not open '%s' as an output root file" % output)
-        pileupHist.Write()
-        #for hist in histList:
-        #    hist.Write()
-        histFile.Close()
-        sys.exit()
-
-    else:
-        print("must specify a pileup calculation mode via --calcMode true or --calcMode observed")
-        sys.exit()
+    histFile = ROOT.TFile.Open(output, 'recreate')
+    if not histFile:
+        raise RuntimeError("Could not open '%s' as an output root file" % output)
+    pileupHist.Write()
+    #for hist in histList:
+    #    hist.Write()
+    histFile.Close()
+    print("Wrote output histogram to", output)

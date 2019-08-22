@@ -43,9 +43,8 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class RecoTauProducer : public edm::stream::EDProducer<> 
-{
- public:
+class RecoTauProducer : public edm::stream::EDProducer<> {
+public:
   typedef reco::tau::RecoTauBuilderPlugin Builder;
   typedef reco::tau::RecoTauModifierPlugin Modifier;
   typedef std::vector<std::unique_ptr<Builder>> BuilderList;
@@ -55,9 +54,9 @@ class RecoTauProducer : public edm::stream::EDProducer<>
   ~RecoTauProducer() override {}
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   edm::InputTag jetSrc_;
   edm::InputTag jetRegionSrc_;
   edm::InputTag chargedHadronSrc_;
@@ -65,42 +64,40 @@ class RecoTauProducer : public edm::stream::EDProducer<>
 
   double minJetPt_;
   double maxJetAbsEta_;
- //token definition
+  //token definition
   edm::EDGetTokenT<reco::JetView> jet_token;
-  edm::EDGetTokenT<edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView> > > jetRegion_token;
+  edm::EDGetTokenT<edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView>>> jetRegion_token;
   edm::EDGetTokenT<reco::PFJetChargedHadronAssociation> chargedHadron_token;
   edm::EDGetTokenT<reco::JetPiZeroAssociation> piZero_token;
 
   BuilderList builders_;
   ModifierList modifiers_;
   // Optional selection on the output of the taus
-  std::unique_ptr<StringCutObjectSelector<reco::PFTau> > outputSelector_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFTau>> outputSelector_;
   // Whether or not to add build a tau from a jet for which the builders
   // return no taus.  The tau will have no content, only the four vector of
   // the orginal jet.
   bool buildNullTaus_;
 };
 
-RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) 
-{
+RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
   jetSrc_ = pset.getParameter<edm::InputTag>("jetSrc");
   jetRegionSrc_ = pset.getParameter<edm::InputTag>("jetRegionSrc");
   chargedHadronSrc_ = pset.getParameter<edm::InputTag>("chargedHadronSrc");
   piZeroSrc_ = pset.getParameter<edm::InputTag>("piZeroSrc");
-  
+
   minJetPt_ = pset.getParameter<double>("minJetPt");
   maxJetAbsEta_ = pset.getParameter<double>("maxJetAbsEta");
   //consumes definition
-  jet_token=consumes<reco::JetView>(jetSrc_);
-  jetRegion_token = consumes<edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView> > >(jetRegionSrc_);
-  chargedHadron_token = consumes<reco::PFJetChargedHadronAssociation>(chargedHadronSrc_); 
+  jet_token = consumes<reco::JetView>(jetSrc_);
+  jetRegion_token = consumes<edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView>>>(jetRegionSrc_);
+  chargedHadron_token = consumes<reco::PFJetChargedHadronAssociation>(chargedHadronSrc_);
   piZero_token = consumes<reco::JetPiZeroAssociation>(piZeroSrc_);
 
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our tau builders
   const VPSet& builders = pset.getParameter<VPSet>("builders");
-  for ( VPSet::const_iterator builderPSet = builders.begin();
-	builderPSet != builders.end(); ++builderPSet ) {
+  for (VPSet::const_iterator builderPSet = builders.begin(); builderPSet != builders.end(); ++builderPSet) {
     // Get plugin name
     const std::string& pluginType = builderPSet->getParameter<std::string>("plugin");
     // Build the plugin
@@ -108,8 +105,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
   }
 
   const VPSet& modfiers = pset.getParameter<VPSet>("modifiers");
-  for ( VPSet::const_iterator modfierPSet = modfiers.begin();
-	modfierPSet != modfiers.end(); ++modfierPSet) {
+  for (VPSet::const_iterator modfierPSet = modfiers.begin(); modfierPSet != modfiers.end(); ++modfierPSet) {
     // Get plugin name
     const std::string& pluginType = modfierPSet->getParameter<std::string>("plugin");
     // Build the plugin
@@ -118,7 +114,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
 
   // Check if we want to apply a final output selection
   std::string selection = pset.getParameter<std::string>("outputSelection");
-  if ( !selection.empty() ) {
+  if (!selection.empty()) {
     outputSelector_.reset(new StringCutObjectSelector<reco::PFTau>(selection));
   }
   buildNullTaus_ = pset.getParameter<bool>("buildNullTaus");
@@ -126,16 +122,15 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
   produces<reco::PFTauCollection>();
 }
 
-void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
-{
+void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // Get the jet input collection via a view of Candidates
   edm::Handle<reco::JetView> jetView;
   evt.getByToken(jet_token, jetView);
-    
+
   // Get the jet region producer
-  edm::Handle<edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView> > > jetRegionHandle;
+  edm::Handle<edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView>>> jetRegionHandle;
   evt.getByToken(jetRegion_token, jetRegionHandle);
-  
+
   // Get the charged hadron input collection
   edm::Handle<reco::PFJetChargedHadronAssociation> chargedHadronAssoc;
   evt.getByToken(chargedHadron_token, chargedHadronAssoc);
@@ -145,27 +140,28 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.getByToken(piZero_token, piZeroAssoc);
 
   // Update all our builders and modifiers with the event info
-  for (auto& builder: builders_) {
+  for (auto& builder : builders_) {
     builder->setup(evt, es);
   }
-  for (auto& modifier: modifiers_) {
+  for (auto& modifier : modifiers_) {
     modifier->setup(evt, es);
   }
 
   // Create output collection
   auto output = std::make_unique<reco::PFTauCollection>();
   output->reserve(jetView->size());
-  
+
   // Loop over the jets and build the taus for each jet
   for (size_t i_j = 0; i_j < jetView->size(); ++i_j) {
     const auto& jetRef = jetView->refAt(i_j);
     // Get the jet with extra constituents from an area around the jet
-    if(jetRef->pt() - minJetPt_ < 1e-5) continue;
-    if(std::abs(jetRef->eta()) - maxJetAbsEta_ > -1e-5) continue;
+    if (jetRef->pt() - minJetPt_ < 1e-5)
+      continue;
+    if (std::abs(jetRef->eta()) - maxJetAbsEta_ > -1e-5)
+      continue;
     reco::JetBaseRef jetRegionRef = (*jetRegionHandle)[jetRef];
-    if ( jetRegionRef.isNull() ) {
-      throw cms::Exception("BadJetRegionRef") 
-	<< "No jet region can be found for the current jet: " << jetRef.id();
+    if (jetRegionRef.isNull()) {
+      throw cms::Exception("BadJetRegionRef") << "No jet region can be found for the current jet: " << jetRef.id();
     }
     // Remove all the jet constituents from the jet extras
     std::vector<reco::CandidatePtr> jetCands = jetRef->daughterPtrVector();
@@ -178,14 +174,16 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
     // This can actually be less than zero, if the jet has really crazy soft
     // stuff really far away from the jet axis.
-    if ( allRegionalCands.size() > jetCands.size() ) {
+    if (allRegionalCands.size() > jetCands.size()) {
       uniqueRegionalCands.reserve(allRegionalCands.size() - jetCands.size());
     }
 
     // Subtract the jet cands from the regional cands
-    std::set_difference(allRegionalCands.begin(), allRegionalCands.end(),
-			jetCands.begin(), jetCands.end(),
-			std::back_inserter(uniqueRegionalCands));
+    std::set_difference(allRegionalCands.begin(),
+                        allRegionalCands.end(),
+                        jetCands.begin(),
+                        jetCands.end(),
+                        std::back_inserter(uniqueRegionalCands));
 
     // Get the charged hadrons associated with this jet
     const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons = (*chargedHadronAssoc)[jetRef];
@@ -194,20 +192,21 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     const std::vector<reco::RecoTauPiZero>& piZeros = (*piZeroAssoc)[jetRef];
     // Loop over our builders and create the set of taus for this jet
     unsigned int nTausBuilt = 0;
-    for ( const auto& builder: builders_ ) {
+    for (const auto& builder : builders_) {
       // Get a ptr_vector of taus from the builder
-      reco::tau::RecoTauBuilderPlugin::output_type taus((*builder)(jetRef, chargedHadrons, piZeros, uniqueRegionalCands));
+      reco::tau::RecoTauBuilderPlugin::output_type taus(
+          (*builder)(jetRef, chargedHadrons, piZeros, uniqueRegionalCands));
 
       // Make sure all taus have their jetref set correctly
       std::for_each(taus.begin(), taus.end(), boost::bind(&reco::PFTau::setjetRef, _1, reco::JetBaseRef(jetRef)));
       // Copy without selection
-      if ( !outputSelector_.get() ) {
+      if (!outputSelector_.get()) {
         output->insert(output->end(), taus.begin(), taus.end());
         nTausBuilt += taus.size();
       } else {
         // Copy only those that pass the selection.
-        for(auto const& tau : taus ) {
-          if ( (*outputSelector_)(tau) ) {
+        for (auto const& tau : taus) {
+          if ((*outputSelector_)(tau)) {
             nTausBuilt++;
             output->push_back(tau);
           }
@@ -217,7 +216,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     // If we didn't build *any* taus for this jet, build a null tau if desired.
     // The null PFTau has no content, but it's four vector is set to that of the
     // jet.
-    if ( !nTausBuilt && buildNullTaus_ ) {
+    if (!nTausBuilt && buildNullTaus_) {
       reco::PFTau nullTau(std::numeric_limits<int>::quiet_NaN(), jetRef->p4());
       nullTau.setjetRef(reco::JetBaseRef(jetRef));
       output->push_back(nullTau);
@@ -225,22 +224,20 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   }
 
   // Loop over the taus we have created and apply our modifiers to the taus
-  for ( reco::PFTauCollection::iterator tau = output->begin();
-	tau != output->end(); ++tau ) {
-    for ( const auto& modifier: modifiers_ ) {
+  for (reco::PFTauCollection::iterator tau = output->begin(); tau != output->end(); ++tau) {
+    for (const auto& modifier : modifiers_) {
       (*modifier)(*tau);
     }
   }
-  
-  for ( auto& modifier: modifiers_ ) {
+
+  for (auto& modifier : modifiers_) {
     modifier->endEvent();
   }
-  
+
   evt.put(std::move(output));
 }
 
-void
-RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // combinatoricRecoTaus
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("piZeroSrc", edm::InputTag("ak4PFJetsRecoTauPiZeros"));
@@ -279,8 +276,8 @@ RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   pset_isolationQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
 
   edm::ParameterSetDescription pset_qualityCuts;
-  pset_qualityCuts.add<edm::ParameterSetDescription>("signalQualityCuts",    pset_signalQualityCuts);
-  pset_qualityCuts.add<edm::ParameterSetDescription>("vxAssocQualityCuts",   pset_vxAssocQualityCuts);
+  pset_qualityCuts.add<edm::ParameterSetDescription>("signalQualityCuts", pset_signalQualityCuts);
+  pset_qualityCuts.add<edm::ParameterSetDescription>("vxAssocQualityCuts", pset_vxAssocQualityCuts);
   pset_qualityCuts.add<edm::ParameterSetDescription>("isolationQualityCuts", pset_isolationQualityCuts);
   pset_qualityCuts.add<std::string>("leadingTrkOrPFCandOption", "leadPFCand");
   pset_qualityCuts.add<std::string>("pvFindingAlgo", "closestInDeltaZ");
@@ -337,7 +334,7 @@ RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
     desc_builders.add<double>("minAbsPhotonSumPt_insideSignalCone", 2.5);
     desc_builders.add<double>("minRelPhotonSumPt_insideSignalCone", 0.1);
     desc_builders.add<edm::InputTag>("pfCandSrc", edm::InputTag("particleFlow"));
-    
+
     desc_builders.addOptional<std::string>("signalConeSize");
     desc_builders.addOptional<double>("isolationConeSize");
     desc_builders.addOptional<double>("minAbsPhotonSumPt_outsideSignalCone");
@@ -356,16 +353,15 @@ RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
     std::vector<edm::ParameterSet> vpset_default;
     {
       edm::ParameterSet pset_default_builders;
-      pset_default_builders.addParameter<std::string>("name","");
-      pset_default_builders.addParameter<std::string>("plugin","");
-      pset_default_builders.addParameter<int>("verbosity",0);
+      pset_default_builders.addParameter<std::string>("name", "");
+      pset_default_builders.addParameter<std::string>("plugin", "");
+      pset_default_builders.addParameter<int>("verbosity", 0);
       pset_default_builders.addParameter<double>("minAbsPhotonSumPt_insideSignalCone", 2.5);
       pset_default_builders.addParameter<double>("minRelPhotonSumPt_insideSignalCone", 0.1);
       pset_default_builders.addParameter<edm::InputTag>("pfCandSrc", edm::InputTag("particleFlow"));
       vpset_default.push_back(pset_default_builders);
     }
     desc.addVPSet("builders", desc_builders, vpset_default);
-
   }
 
   desc.add<bool>("buildNullTaus", false);

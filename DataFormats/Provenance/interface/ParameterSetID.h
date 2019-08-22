@@ -17,8 +17,7 @@ algorithm.
 #include "DataFormats/Provenance/interface/Hash.h"
 #include "DataFormats/Provenance/interface/HashedTypes.h"
 
-namespace edm 
-{
+namespace edm {
   typedef Hash<ParameterSetType> ParameterSetID;
 
 }

@@ -32,8 +32,8 @@ Description: Makes RCT digis from the file format specified by Pam Klabbers
 //        any way. Set to true.
 //
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h" // Logger
-#include "FWCore/ServiceRegistry/interface/Service.h"     // Framework services
+#include "FWCore/MessageLogger/interface/MessageLogger.h"  // Logger
+#include "FWCore/ServiceRegistry/interface/Service.h"      // Framework services
 #include "RctTextToRctDigi.h"
 #include <iomanip>
 
@@ -54,16 +54,14 @@ RctTextToRctDigi::RctTextToRctDigi(const edm::ParameterSet &iConfig)
   // Open the input files
   for (unsigned i = 0; i < NUM_RCT_CRATES; i++) {
     std::stringstream fileStream;
-    fileStream << m_textFileName << std::setw(2) << std::setfill('0') << i
-               << ".txt";
+    fileStream << m_textFileName << std::setw(2) << std::setfill('0') << i << ".txt";
     std::string fileName(fileStream.str());
     m_file[i].open(fileName.c_str(), std::ios::in);
 
     if (!m_file[i].good()) {
       // throw cms::Exception("RctTextToRctDigiTextFileOpenError")
       LogDebug("RctTextToRctDigi") << "RctTextToRctDigi::RctTextToRctDigi : "
-                                   << " couldn't open the file " << fileName
-                                   << "...skipping!" << std::endl;
+                                   << " couldn't open the file " << fileName << "...skipping!" << std::endl;
     }
   }
 }
@@ -85,8 +83,7 @@ void RctTextToRctDigi::putEmptyDigi(edm::Event &iEvent) {
       em->push_back(L1CaloEmCand(0, i, false));
     }
     for (unsigned j = 0; j < 14; j++)
-      rgn->push_back(
-          L1CaloRegion(0, false, false, false, false, i, j / 2, j % 2));
+      rgn->push_back(L1CaloRegion(0, false, false, false, false, i, j / 2, j % 2));
     for (unsigned j = 0; j < 8; j++)
       rgn->push_back(L1CaloRegion(0, true, i, j));
   }
@@ -111,9 +108,7 @@ void RctTextToRctDigi::bxSynchro(int &bx, int crate) {
 }
 
 // ------------ method called to produce the data  ------------
-void RctTextToRctDigi::produce(edm::Event &iEvent,
-                               const edm::EventSetup &iSetup) {
-
+void RctTextToRctDigi::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Skip event if required
   if (m_nevt < m_fileEventOffset) {
     // string tmp;
@@ -131,7 +126,6 @@ void RctTextToRctDigi::produce(edm::Event &iEvent,
 
   // Loop over RCT crates
   for (unsigned i = 0; i < NUM_RCT_CRATES; i++) {
-
     if (!m_file[i].good()) {
       continue;
     }
@@ -139,10 +133,9 @@ void RctTextToRctDigi::produce(edm::Event &iEvent,
     // Check we're not at the end of the file
     if (m_file[i].eof()) {
       // throw cms::Exception("RctTextToRctDigiTextFileReadError")
-      LogDebug("RctTextToRctDigi")
-          << "RctTextToRctDigi::produce : "
-          << " unexpected end of file " << m_textFileName << i
-          << " adding empty collection for event !" << std::endl;
+      LogDebug("RctTextToRctDigi") << "RctTextToRctDigi::produce : "
+                                   << " unexpected end of file " << m_textFileName << i
+                                   << " adding empty collection for event !" << std::endl;
       putEmptyDigi(iEvent);
       continue;
     }
@@ -168,8 +161,7 @@ void RctTextToRctDigi::produce(edm::Event &iEvent,
       throw cms::Exception("RctTextToRctDigiTextSyncError")
           << "RctTextToRctDigi::produce : "
           << " something screwy happened "
-          << "evt:" << m_nevt << " != bx:" << BXNum << " + "
-          << m_fileEventOffset << std::endl;
+          << "evt:" << m_nevt << " != bx:" << BXNum << " + " << m_fileEventOffset << std::endl;
 
     // Buffers
     unsigned long int uLongBuffer;
@@ -204,23 +196,20 @@ void RctTextToRctDigi::produce(edm::Event &iEvent,
     for (unsigned j = 0; j < 14; j++) {
       m_file[i] >> uLongBuffer;
 
-      unsigned et =
-          uLongBuffer & 0x3ff; // put the first 10 bits of rawData into the Et
-      uLongBuffer >>=
-          10; // shift the remaining bits down to remove the 10 bits of Et
+      unsigned et = uLongBuffer & 0x3ff;  // put the first 10 bits of rawData into the Et
+      uLongBuffer >>= 10;                 // shift the remaining bits down to remove the 10 bits of Et
 
-      bool overFlow = ((uLongBuffer & 0x1) != 0); // LSB is now overflow bit
-      bool tauVeto = (((uLongBuffer & 0x2) >> 1) != 0); // 2nd bit is tauveto
+      bool overFlow = ((uLongBuffer & 0x1) != 0);        // LSB is now overflow bit
+      bool tauVeto = (((uLongBuffer & 0x2) >> 1) != 0);  // 2nd bit is tauveto
 
-      rgn->push_back(L1CaloRegion(et, overFlow, tauVeto, mipBitBuffer[j],
-                                  qBitBuffer[j], i, j / 2, j % 2));
+      rgn->push_back(L1CaloRegion(et, overFlow, tauVeto, mipBitBuffer[j], qBitBuffer[j], i, j / 2, j % 2));
     }
 
     // HF
     for (unsigned j = 0; j < 8; j++) {
       m_file[i] >> uLongBuffer;
 
-      unsigned et = uLongBuffer & 0xff; // put the first 8 bits into the Et
+      unsigned et = uLongBuffer & 0xff;  // put the first 8 bits into the Et
 
       rgn->push_back(L1CaloRegion(et, true, i, j));
     }

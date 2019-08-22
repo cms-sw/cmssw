@@ -8,13 +8,11 @@
 
 class MuonSubdetId {
 public:
-
-  static const int DT= 1;  
-  static const int CSC=2;
-  static const int RPC=3; 
-  static const int GEM=4; 
-  static const int ME0=5; 
+  static constexpr int DT = 1;
+  static constexpr int CSC = 2;
+  static constexpr int RPC = 3;
+  static constexpr int GEM = 4;
+  static constexpr int ME0 = 5;
 };
 
 #endif
-

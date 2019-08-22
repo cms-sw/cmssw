@@ -12,7 +12,6 @@
  *  \author N. Amapane, G. Cerminara
  */
 
-
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <map>
@@ -38,44 +37,35 @@ public:
   /// Destructor
   virtual ~DTRecoConditions();
 
-  void setVersion(int version) {
-    theVersion = version;
-  }
-  
-  /// Version numer specifying the structure of the payload. See .cc file for details.
-  int version() const {
-    return theVersion;
-  }
+  void setVersion(int version) { theVersion = version; }
 
-  /// Get the value correspoding to the given WireId, 
+  /// Version numer specifying the structure of the payload. See .cc file for details.
+  int version() const { return theVersion; }
+
+  /// Get the value correspoding to the given WireId,
   //// using x[] as parameters of the parametrization when relevant
-  float get(const DTWireId& wireid, double* x=nullptr) const;
+  float get(const DTWireId& wireid, double* x = nullptr) const;
 
   /// Set the expression representing the formula used for parametrization
-  void setFormulaExpr(const std::string& expr) {
-    expression=expr;
-  }
-  
-  std::string getFormulaExpr() const {
-    return expression;
-  }
+  void setFormulaExpr(const std::string& expr) { expression = expr; }
+
+  std::string getFormulaExpr() const { return expression; }
 
   /// Fill the payload
-  void set(const DTWireId& wireid, const std::vector<double>& values); 
+  void set(const DTWireId& wireid, const std::vector<double>& values);
 
   /// Access the data
   const_iterator begin() const;
   const_iterator end() const;
 
 private:
-
   // The formula used for parametrization (transient pointer)
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   mutable std::atomic<TFormula*> formula COND_TRANSIENT;
 #else
   mutable TFormula* formula COND_TRANSIENT;
 #endif
-  
+
   // Formula evalaution strategy, derived from expression and cached for efficiency reasons
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   mutable std::atomic<int> formulaType COND_TRANSIENT;
@@ -85,14 +75,13 @@ private:
 
   // String with the expression representing the formula used for parametrization
   std::string expression;
-  
+
   // Actual data
   std::map<uint32_t, std::vector<double> > payload;
-  
+
   // Versioning
   int theVersion;
 
   COND_SERIALIZABLE;
 };
 #endif
-

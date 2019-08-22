@@ -7,33 +7,29 @@
 
 #include "TrackingTools/DetLayers/interface/ForwardDetRing.h"
 
-
 class ForwardDetRingOneZ : public ForwardDetRing {
 public:
-
   /// Construct from iterators on Det*.
-  ForwardDetRingOneZ( std::vector<const GeomDet*>::const_iterator first,
-		      std::vector<const GeomDet*>::const_iterator last);
+  ForwardDetRingOneZ(std::vector<const GeomDet*>::const_iterator first,
+                     std::vector<const GeomDet*>::const_iterator last);
 
   // Construct from a std::vector of Det*.
-  ForwardDetRingOneZ( const std::vector<const GeomDet*>& dets);
+  ForwardDetRingOneZ(const std::vector<const GeomDet*>& dets);
 
   ~ForwardDetRingOneZ() override;
-  
-  const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
+
+  const std::vector<const GeomDet*>& basicComponents() const override { return theDets; }
 
 protected:
-
-  bool add( int idet, std::vector<DetWithState>& result,
-	    const TrajectoryStateOnSurface& tsos,
-	    const Propagator& prop,
- 	    const MeasurementEstimator& est) const;
+  bool add(int idet,
+           std::vector<DetWithState>& result,
+           const TrajectoryStateOnSurface& tsos,
+           const Propagator& prop,
+           const MeasurementEstimator& est) const;
 
 private:
   std::vector<const GeomDet*> theDets;
 
   void initialize();
-
 };
 #endif
-

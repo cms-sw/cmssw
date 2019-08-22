@@ -11,25 +11,25 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 namespace gen {
-   class PhotosInterfaceBase {
-   public:
-     PhotosInterfaceBase(){};
-     PhotosInterfaceBase( const edm::ParameterSet&){};
-     virtual ~PhotosInterfaceBase(){};
-     
-     virtual void SetDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){};
-     virtual void init()=0;
-     virtual const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
-     virtual HepMC::GenEvent* apply( HepMC::GenEvent* evt){return evt;}
-     virtual void avoidTauLeptonicDecays()=0;;
-     virtual void configureOnlyFor( int )=0;
-     virtual void setRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine)=0;
-     virtual void statistics(){};
+  class PhotosInterfaceBase {
+  public:
+    PhotosInterfaceBase(){};
+    PhotosInterfaceBase(const edm::ParameterSet&){};
+    virtual ~PhotosInterfaceBase(){};
 
-   protected: 
-     std::vector<std::string> fSpecialSettings;
-             
-   };
-}
+    virtual void SetDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){};
+    virtual void init() = 0;
+    virtual const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
+    virtual HepMC::GenEvent* apply(HepMC::GenEvent* evt) { return evt; }
+    virtual void avoidTauLeptonicDecays() = 0;
+    ;
+    virtual void configureOnlyFor(int) = 0;
+    virtual void setRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine) = 0;
+    virtual void statistics(){};
+
+  protected:
+    std::vector<std::string> fSpecialSettings;
+  };
+}  // namespace gen
 
 #endif

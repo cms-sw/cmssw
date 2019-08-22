@@ -10,35 +10,31 @@
 ///
 ///
 class SiStripLaserRecHit2D : public RecHit2DLocalPos {
-
 public:
-
-  SiStripLaserRecHit2D(): RecHit2DLocalPos(0) {}
+  SiStripLaserRecHit2D() : RecHit2DLocalPos(0) {}
   ~SiStripLaserRecHit2D() override {}
-  SiStripLaserRecHit2D( const LocalPoint& p, const LocalError& e, const SiStripDetId& id ) : RecHit2DLocalPos( id ), position( p ), error( e ) { detId = id; }
+  SiStripLaserRecHit2D(const LocalPoint& p, const LocalError& e, const SiStripDetId& id)
+      : RecHit2DLocalPos(id), position(p), error(e) {
+    detId = id;
+  }
 
   LocalPoint localPosition() const override { return position; }
   LocalError localPositionError() const override { return error; }
-  SiStripLaserRecHit2D* clone() const override { return new SiStripLaserRecHit2D( *this ); }
+  SiStripLaserRecHit2D* clone() const override { return new SiStripLaserRecHit2D(*this); }
 
-  const SiStripDetId& getDetId( void ) const { return detId; }
+  const SiStripDetId& getDetId(void) const { return detId; }
 
- private:
-  
+private:
   LocalPoint position;
   LocalError error;
   SiStripDetId detId;
-
 };
-
-
 
 ///
 /// Comparison operators
 ///
-inline bool operator<( const SiStripLaserRecHit2D& one, const SiStripLaserRecHit2D& other ) {
-  return( one.geographicalId() < other.geographicalId() );
+inline bool operator<(const SiStripLaserRecHit2D& one, const SiStripLaserRecHit2D& other) {
+  return (one.geographicalId() < other.geographicalId());
 }
-
 
 #endif

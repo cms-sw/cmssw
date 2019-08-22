@@ -9,11 +9,11 @@
 //         as I will change it and possibly break all your code
 //
 //aim: this object will manage all histograms associated with a particular HLT filter
-//     ie histograms for computing efficiency of each filter step, id efficiency of gsf electrons passing trigger etc   
+//     ie histograms for computing efficiency of each filter step, id efficiency of gsf electrons passing trigger etc
 //
-//implimentation: 
-//       
-//       
+//implimentation:
+//
+//
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -30,7 +30,7 @@
 
 #include <string>
 
-namespace trigger{
+namespace trigger {
   class TriggerObject;
 }
 
@@ -38,59 +38,56 @@ namespace egHLT {
   struct BinData;
   struct CutMasks;
   class EleHLTFilterMon {
-
   public:
-
-
     //comparision functor for EleHLTFilterMon
     //short for: pointer compared with string
-    static bool ptrCompStr (const EleHLTFilterMon* lhs,const std::string& rhs) {
-        return lhs->filterName()<rhs;
-    }
-    static bool ptrCompStr (const std::string& lhs,const EleHLTFilterMon* rhs) {
-        return lhs<rhs->filterName();
-    }
+    static bool ptrCompStr(const EleHLTFilterMon* lhs, const std::string& rhs) { return lhs->filterName() < rhs; }
+    static bool ptrCompStr(const std::string& lhs, const EleHLTFilterMon* rhs) { return lhs < rhs->filterName(); }
     //yes I am aware that such a function undoubtably exists but it was quicker to write it than look it up
-    template<class T>
-    static bool ptrLess (const T* lhs,const T* rhs) {
-        return *lhs<*rhs;
+    template <class T>
+    static bool ptrLess(const T* lhs, const T* rhs) {
+      return *lhs < *rhs;
     }
-    
+
   private:
     std::string filterName_;
     const TrigCodes::TrigBitSet filterBit_;
-    bool doHEP_;    
+    bool doHEP_;
     //we own the pointers in the vectors
     //std::vector<MonElemManagerBase<OffEle>*> eleMonElems_;
     std::vector<MonElemManagerBase<trigger::TriggerObject>*> trigMonElems_;
     //  std::vector<MonElemManagerBase<OffEle>*> eleFailMonElems_;
-    //  std::vector<MonElemWithCutBase<OffEle>*> eleEffHists_;  
+    //  std::vector<MonElemWithCutBase<OffEle>*> eleEffHists_;
     std::vector<MonElemContainer<OffEle>*> eleEffHists_;
     std::vector<MonElemContainer<OffEle>*> eleMonElems_;
     std::vector<MonElemContainer<OffEle>*> eleFailMonElems_;
-    
+
     //we also own these pointers
     MonElemManagerBase<ParticlePair<OffEle> >* diEleMassBothME_;
     MonElemManagerBase<ParticlePair<OffEle> >* diEleMassOnlyOneME_;
     MonElemManagerBase<ParticlePair<OffEle> >* diEleMassBothHighME_;
-    MonElemManagerBase<ParticlePair<OffEle> >* diEleMassOnlyOneHighME_; 
-    
+    MonElemManagerBase<ParticlePair<OffEle> >* diEleMassOnlyOneHighME_;
+
     //disabling copying
-    EleHLTFilterMon(const EleHLTFilterMon&){}
-    EleHLTFilterMon& operator=(const EleHLTFilterMon&){return *this;}
+    EleHLTFilterMon(const EleHLTFilterMon&) {}
+    EleHLTFilterMon& operator=(const EleHLTFilterMon&) { return *this; }
+
   public:
-    EleHLTFilterMon(MonElemFuncs& monElemFuncs, const std::string& filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks, bool doHEP);
+    EleHLTFilterMon(MonElemFuncs& monElemFuncs,
+                    const std::string& filterName,
+                    TrigCodes::TrigBitSet filterBit,
+                    const BinData& bins,
+                    const CutMasks& masks,
+                    bool doHEP);
     ~EleHLTFilterMon();
-    
-    
-    void fill(const OffEvt& evt,float weight);
-    
+
+    void fill(const OffEvt& evt, float weight);
+
     //sort by filter name
-    bool operator<(const EleHLTFilterMon& rhs)const{return filterName_<rhs.filterName_;}
+    bool operator<(const EleHLTFilterMon& rhs) const { return filterName_ < rhs.filterName_; }
     //bool operator<(const std::string& rhs)const{return filterName_<rhs;}
-    const std::string& filterName()const{return filterName_;}
-    
+    const std::string& filterName() const { return filterName_; }
   };
-}
+}  // namespace egHLT
 
 #endif

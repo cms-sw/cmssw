@@ -25,26 +25,26 @@
 /* C++ Headers */
 #include <algorithm>
 
-
 using namespace std;
 
-extern float calculateEta(float r, float z)  {
-  if ( z > 0 ) return -log((tan(atan(r/z)/2.)));
-  return log(-(tan(atan(r/z)/2.)));
-
+extern float calculateEta(float r, float z) {
+  if (z > 0)
+    return -log((tan(atan(r / z) / 2.)));
+  return log(-(tan(atan(r / z) / 2.)));
 }
 
-MuonEtaRange MuonNavigableLayer::trackingRange(const FreeTrajectoryState& fts) const
-{  
+MuonEtaRange MuonNavigableLayer::trackingRange(const FreeTrajectoryState& fts) const {
   float z = fts.position().z();
   float r = fts.position().perp();
   float eta;
-  if ( z>0 ) eta = -log((tan(atan(r/z)/2.)));
-  else eta = log(-(tan(atan(r/z)/2.)));
+  if (z > 0)
+    eta = -log((tan(atan(r / z) / 2.)));
+  else
+    eta = log(-(tan(atan(r / z) / 2.)));
 
-  double theta = atan(r/z);
+  double theta = atan(r / z);
 
-  double spread = 5.0*sqrt(fts.curvilinearError().matrix()(2,2))/fabs(sin(theta));  //5*sigma(eta)
+  double spread = 5.0 * sqrt(fts.curvilinearError().matrix()(2, 2)) / fabs(sin(theta));  //5*sigma(eta)
 
   //C.L.: this spread could be too large to use.
   // convert it to a smaller one by assuming a virtual radius
@@ -53,25 +53,26 @@ MuonEtaRange MuonNavigableLayer::trackingRange(const FreeTrajectoryState& fts) c
 
   double eta_max = 0;
 
-  if ( z > 0 ) eta_max = calculateEta(r, z+spread); 
-  else eta_max = calculateEta(r, z-spread); 
+  if (z > 0)
+    eta_max = calculateEta(r, z + spread);
+  else
+    eta_max = calculateEta(r, z - spread);
 
-  spread = std::min(0.07, fabs(eta_max-eta));
+  spread = std::min(0.07, fabs(eta_max - eta));
 
-  MuonEtaRange range(eta+spread,eta-spread);
+  MuonEtaRange range(eta + spread, eta - spread);
 
-  spread = 0.07; 
+  spread = 0.07;
   // special treatment for special geometry in overlap region
-  
-  if ( eta > 1.0 && eta < 1.1 )  range = MuonEtaRange(eta+3.0*spread,eta-spread);
-  if ( eta < -1.0 && eta > -1.1 ) range = MuonEtaRange(eta+spread,eta-3.0*spread);
+
+  if (eta > 1.0 && eta < 1.1)
+    range = MuonEtaRange(eta + 3.0 * spread, eta - spread);
+  if (eta < -1.0 && eta > -1.1)
+    range = MuonEtaRange(eta + spread, eta - 3.0 * spread);
 
   return range;
 }
 
 bool MuonNavigableLayer::isInsideOut(const FreeTrajectoryState& fts) const {
-  
-  return (fts.position().basicVector().dot(fts.momentum().basicVector())>0);
-  
+  return (fts.position().basicVector().dot(fts.momentum().basicVector()) > 0);
 }
-

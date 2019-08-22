@@ -23,100 +23,87 @@
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
-
 // zero value indicates incompatible ts - hit pair
-std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
-							     const TrackingRecHit& hit) const {
+std::pair<bool, double> BarrelMeasurementEstimator::estimate(const TrajectoryStateOnSurface& ts,
+                                                             const TrackingRecHit& hit) const {
   LocalPoint lp = hit.localPosition();
-  GlobalPoint gp = hit.det()->surface().toGlobal( lp);
-  return this->estimate(ts,gp);
+  GlobalPoint gp = hit.det()->surface().toGlobal(lp);
+  return this->estimate(ts, gp);
 }
 
 //usable in case we have no TransientTrackingRecHit
-std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
-					   const GlobalPoint &gp) const {
-  
+std::pair<bool, double> BarrelMeasurementEstimator::estimate(const TrajectoryStateOnSurface& ts,
+                                                             const GlobalPoint& gp) const {
   float myZ = gp.z();
   float myR = gp.perp();
   float zDiff = ts.globalParameters().position().z() - myZ;
 
-  float myZmax =  theZMax;
-  float myZmin =  theZMin;
+  float myZmax = theZMax;
+  float myZmin = theZMin;
 
-  if(std::abs(myZ)<30. && myR>8.) {
+  if (std::abs(myZ) < 30. && myR > 8.) {
     myZmax = 0.09;
     myZmin = -0.09;
   }
 
-  if( zDiff >= myZmax || zDiff <= myZmin ) return std::pair<bool,double>(false,0.);
+  if (zDiff >= myZmax || zDiff <= myZmin)
+    return std::pair<bool, double>(false, 0.);
 
-  float tsPhi = ts.globalParameters().position().phi();  
+  float tsPhi = ts.globalParameters().position().phi();
 
   float rhPhi = gp.phi();
-  
+
   float phiDiff = normalizedPhi(tsPhi - rhPhi);
 
-  if ( phiDiff < thePhiMax && phiDiff > thePhiMin ) {
-
-    return std::pair<bool,double>(true,1.);
-     } else {
-
-    return std::pair<bool,double>(false,0.);
-    }
+  if (phiDiff < thePhiMax && phiDiff > thePhiMin) {
+    return std::pair<bool, double>(true, 1.);
+  } else {
+    return std::pair<bool, double>(false, 0.);
+  }
 }
 
+std::pair<bool, double> BarrelMeasurementEstimator::estimate(const GlobalPoint& vprim,
+                                                             const TrajectoryStateOnSurface& absolute_ts,
+                                                             const GlobalPoint& absolute_gp) const {
+  GlobalVector ts = absolute_ts.globalParameters().position() - vprim;
+  GlobalVector gp = absolute_gp - vprim;
 
-std::pair<bool,double> BarrelMeasurementEstimator::estimate
- ( const GlobalPoint & vprim,
-   const TrajectoryStateOnSurface & absolute_ts,
-   const GlobalPoint& absolute_gp ) const
- {
-  GlobalVector ts = absolute_ts.globalParameters().position() - vprim ;
-  GlobalVector gp = absolute_gp - vprim ;
-  
   float myR = gp.perp();
   float myZ = gp.z();
-  float zDiff = myZ -ts.z() ;  
-  float myZmax =  theZMax;
-  float myZmin =  theZMin;
-  if( (std::abs(myZ)<30.f) & (myR>8.f) )
-    {
-      myZmax = 0.09f;
-      myZmin = -0.09f;
-    }
-  
+  float zDiff = myZ - ts.z();
+  float myZmax = theZMax;
+  float myZmin = theZMin;
+  if ((std::abs(myZ) < 30.f) & (myR > 8.f)) {
+    myZmax = 0.09f;
+    myZmin = -0.09f;
+  }
 
-  if( zDiff >= myZmax || zDiff <= myZmin ) return std::pair<bool,double>(false,0.);
+  if (zDiff >= myZmax || zDiff <= myZmin)
+    return std::pair<bool, double>(false, 0.);
 
-  float rhPhi = gp.barePhi() ;
-  float tsPhi = ts.barePhi();  
-  float phiDiff = normalizedPhi(rhPhi-tsPhi) ;
+  float rhPhi = gp.barePhi();
+  float tsPhi = ts.barePhi();
+  float phiDiff = normalizedPhi(rhPhi - tsPhi);
 
-  if ( (phiDiff < thePhiMax) & (phiDiff > thePhiMin) )
-   { return std::pair<bool,double>(true,1.) ; }
-  else
-   { return std::pair<bool,double>(false,0.) ; }
- }
+  if ((phiDiff < thePhiMax) & (phiDiff > thePhiMin)) {
+    return std::pair<bool, double>(true, 1.);
+  } else {
+    return std::pair<bool, double>(false, 0.);
+  }
+}
 
-bool BarrelMeasurementEstimator::estimate
- ( const TrajectoryStateOnSurface & ts,
-   const BoundPlane& plane) const
- {
-  typedef std::pair<float,float> Range;
-
+bool BarrelMeasurementEstimator::estimate(const TrajectoryStateOnSurface& ts, const BoundPlane& plane) const {
+  typedef std::pair<float, float> Range;
 
   GlobalPoint trajPos(ts.globalParameters().position());
 
   Range trajZRange(trajPos.z() - std::abs(theZMin), trajPos.z() + std::abs(theZMax));
   Range trajPhiRange(trajPos.phi() - std::abs(thePhiMin), trajPos.phi() + std::abs(thePhiMax));
 
-  if(rangesIntersect(trajZRange, plane.zSpan()) &&
-     rangesIntersect(trajPhiRange, plane.phiSpan(), [](auto x,auto y){ return Geom::phiLess(x, y);}))
-   {
+  if (rangesIntersect(trajZRange, plane.zSpan()) &&
+      rangesIntersect(trajPhiRange, plane.phiSpan(), [](auto x, auto y) { return Geom::phiLess(x, y); })) {
     return true;
-   }
-  else
-   {
+  } else {
     //     cout <<cout<<" barrel boundpl est returns false!!"<<endl;
     //     cout<<"BarrelMeasurementEstimator(estimate) :thePhiMin,thePhiMax, theZMin,theZMax "<<thePhiMin<<" "<<thePhiMax<<" "<< theZMin<<" "<<theZMax<<endl;
     //     cout<<" trajZRange "<<trajZRange.first<<" "<<trajZRange.second<<endl;
@@ -125,24 +112,16 @@ bool BarrelMeasurementEstimator::estimate
     //     cout<<" detPhiRange "<<detRange.phiRange().first<<" "<<detRange.phiRange().second<<endl;
     //     cout<<" intersect z: "<<rangesIntersect(trajZRange, detRange.zRange())<<endl;
     //     cout<<" intersect phi: "<<rangesIntersect(trajPhiRange, detRange.phiRange(), PhiLess())<<endl;
-    return false ;
-   }
+    return false;
+  }
+}
 
- }
-
-MeasurementEstimator::Local2DVector
-BarrelMeasurementEstimator::maximalLocalDisplacement
- ( const TrajectoryStateOnSurface & ts,
-   const BoundPlane & plane) const
- {
-  float nSigmaCut = 3. ;
-  if ( ts.hasError())
-   {
-    LocalError le = ts.localError().positionError() ;
-    return Local2DVector( std::sqrt(le.xx())*nSigmaCut, std::sqrt(le.yy())*nSigmaCut) ;
-   }
-  else return Local2DVector(99999,99999) ;
- }
-
-
-
+MeasurementEstimator::Local2DVector BarrelMeasurementEstimator::maximalLocalDisplacement(
+    const TrajectoryStateOnSurface& ts, const BoundPlane& plane) const {
+  float nSigmaCut = 3.;
+  if (ts.hasError()) {
+    LocalError le = ts.localError().positionError();
+    return Local2DVector(std::sqrt(le.xx()) * nSigmaCut, std::sqrt(le.yy()) * nSigmaCut);
+  } else
+    return Local2DVector(99999, 99999);
+}

@@ -12,29 +12,30 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 //
 // class declaration
 //
 
-template<typename T>
+template <typename T>
 class HLTDiJetAveFilter : public HLTFilter {
+public:
+  explicit HLTDiJetAveFilter(const edm::ParameterSet&);
+  ~HLTDiJetAveFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-   public:
-      explicit HLTDiJetAveFilter(const edm::ParameterSet&);
-      ~HLTDiJetAveFilter() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-
-   private:
-      edm::EDGetTokenT<std::vector<T>> m_theJetToken;
-      edm::InputTag inputJetTag_; // input tag identifying jets
-      double minPtAve_;
-      double minPtJet3_;
-      double minDphi_;
-      int    triggerType_;
+private:
+  edm::EDGetTokenT<std::vector<T>> m_theJetToken;
+  edm::InputTag inputJetTag_;  // input tag identifying jets
+  double minPtAve_;
+  double minPtJet3_;
+  double minDphi_;
+  int triggerType_;
 };
 
-#endif //HLTDiJetAveFilter_h
+#endif  //HLTDiJetAveFilter_h

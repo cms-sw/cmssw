@@ -27,15 +27,12 @@
 #include "CondFormats/Alignment/interface/Definitions.h"
 
 class TrackerTopology;
-namespace align
-{
+namespace align {
   using Counter = std::function<unsigned int(align::ID)>;
 }
 
-class AlignableIndexer
-{
-  public:
-
+class AlignableIndexer {
+public:
   /// Build the counters map.
   AlignableIndexer() = default;
   AlignableIndexer(const AlignableIndexer&) = default;
@@ -49,7 +46,6 @@ class AlignableIndexer
 
 protected:
   std::map<align::StructureType, align::Counter> theCounters;
-
 };
 
 #endif

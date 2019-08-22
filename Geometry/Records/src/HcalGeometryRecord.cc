@@ -2,7 +2,7 @@
 //
 // Package:     Records
 // Class  :     HcalGeometryRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

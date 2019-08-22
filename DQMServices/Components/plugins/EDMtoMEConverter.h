@@ -28,7 +28,6 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 // data format
 #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
@@ -53,32 +52,31 @@ class EDMtoMEConverter : public edm::one::EDProducer<edm::one::WatchRuns,
                                                      edm::one::WatchLuminosityBlocks,
                                                      edm::one::SharedResources,
                                                      edm::EndLuminosityBlockProducer,
-                                                     edm::EndRunProducer>
-{
-
- public:
+                                                     edm::EndRunProducer> {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
 
   explicit EDMtoMEConverter(const edm::ParameterSet&);
   ~EDMtoMEConverter() override;
 
-  void beginJob() final {};
-  void endJob() final {};
-  void beginRun(const edm::Run&, const edm::EventSetup&) final {};
-  void endRun(const edm::Run&, const edm::EventSetup&) final {};
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final {};
-  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final {};
-  void produce(edm::Event&, edm::EventSetup const&) final {};
+  void beginJob() final{};
+  void endJob() final{};
+  void beginRun(const edm::Run&, const edm::EventSetup&) final{};
+  void endRun(const edm::Run&, const edm::EventSetup&) final{};
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final{};
+  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final{};
+  void produce(edm::Event&, edm::EventSetup const&) final{};
 
   void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) override;
   void endRunProduce(edm::Run& run, edm::EventSetup const& setup) override;
 
   template <class T>
-  void getData(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, T& iGetFrom);
+  void getData(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, T& iGetFrom);
 
   using TagList = std::vector<uint32_t>;
 
- private:
-  
+private:
   std::string name;
   int verbosity;
   int frequency;
@@ -98,30 +96,29 @@ class EDMtoMEConverter : public edm::one::EDProducer<edm::one::WatchRuns,
 
     void getData(const edm::Run& iRun, edm::Handle<Product>& handle) const;
     void getData(const edm::LuminosityBlock& iLumi, edm::Handle<Product>& handle) const;
-    
+
   private:
     edm::EDGetTokenT<Product> runToken;
     edm::EDGetTokenT<Product> lumiToken;
   };
 
-  std::tuple<
-    Tokens<TH1F>,
-    Tokens<TH1S>,
-    Tokens<TH1D>,
-    Tokens<TH2F>,
-    Tokens<TH2S>,
-    Tokens<TH2D>,
-    Tokens<TH3F>,
-    Tokens<TProfile>,
-    Tokens<TProfile2D>,
-    Tokens<double>,
-    Tokens<int>,
-    Tokens<long long>,
-    Tokens<TString>
-    > tokens_;
+  std::tuple<Tokens<TH1F>,
+             Tokens<TH1S>,
+             Tokens<TH1D>,
+             Tokens<TH2F>,
+             Tokens<TH2S>,
+             Tokens<TH2D>,
+             Tokens<TH3F>,
+             Tokens<TProfile>,
+             Tokens<TProfile2D>,
+             Tokens<double>,
+             Tokens<int>,
+             Tokens<long long>,
+             Tokens<TString> >
+      tokens_;
 
   edm::EDPutTokenT<DQMToken> dqmLumiToken_;
   edm::EDPutTokenT<DQMToken> dqmRunToken_;
-}; // end class declaration
+};  // end class declaration
 
 #endif

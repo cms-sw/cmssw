@@ -10,24 +10,23 @@
 
 //namespace cms
 //{
-class CaloMCTruthTreeProducer : public edm::EDAnalyzer
-{
-  public:
-    explicit CaloMCTruthTreeProducer(edm::ParameterSet const& cfg);
-    void beginJob() override;
-    void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
-    void endJob() override;
-    ~CaloMCTruthTreeProducer() override;
+class CaloMCTruthTreeProducer : public edm::EDAnalyzer {
+public:
+  explicit CaloMCTruthTreeProducer(edm::ParameterSet const& cfg);
+  void beginJob() override;
+  void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
+  void endJob() override;
+  ~CaloMCTruthTreeProducer() override;
 
-  private:
-    std::string histogramFile_;
-    edm::EDGetTokenT<reco::CaloJetCollection> jets_;
-    edm::EDGetTokenT<reco::GenJetCollection> genjets_;
-    edm::EDGetTokenT<GenEventInfoProduct> gen_;
-    TFile* file_;
-    TTree* mcTruthTree_;
-    float ptJet_,emfJet_,ptGen_,ptHat_,dR_,etaJet_,etaGen_,phiJet_,phiGen_;
-    int rank_;
+private:
+  std::string histogramFile_;
+  edm::EDGetTokenT<reco::CaloJetCollection> jets_;
+  edm::EDGetTokenT<reco::GenJetCollection> genjets_;
+  edm::EDGetTokenT<GenEventInfoProduct> gen_;
+  TFile* file_;
+  TTree* mcTruthTree_;
+  float ptJet_, emfJet_, ptGen_, ptHat_, dR_, etaJet_, etaGen_, phiJet_, phiGen_;
+  int rank_;
 };
 //}
 

@@ -5,7 +5,7 @@
 //
 // Package:    ZeeCalibration
 // Class:      ZeeCalibration
-// 
+//
 /**\class ZeeCalibration ZeeCalibration.cc Calibration/EcalCalibAlgos/src/ZeeCalibration.cc
 
  Description: Perform single electron calibration (tested on TB data only).
@@ -16,7 +16,6 @@
 //
 //
 //
-
 
 // system include files
 #include <memory>
@@ -63,47 +62,45 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include<vector>
-#include<string>
+#include <vector>
+#include <string>
 
 // class declaration
 //
 
 class ZeeCalibration : public edm::ESProducerLooper {
-   
- public:
-  
+public:
   /// Constructor
-  ZeeCalibration( const edm::ParameterSet& iConfig );
-  
+  ZeeCalibration(const edm::ParameterSet& iConfig);
+
   /// Destructor
   ~ZeeCalibration() override;
-  
+
   /// Dummy implementation (job done in duringLoop)
-  virtual void produce(edm::Event&, const edm::EventSetup&) {};
-  
+  virtual void produce(edm::Event&, const edm::EventSetup&){};
+
   /// Called at beginning of job
   void beginOfJob() override;
-  
+
   /// Called at end of job
   void endOfJob() override;
-  
+
   /// Called at beginning of loop
-  void startingNewLoop( unsigned int iLoop ) override;
-  
+  void startingNewLoop(unsigned int iLoop) override;
+
   /// Called at end of loop
-  Status endOfLoop( const edm::EventSetup&, unsigned int iLoop ) override;
+  Status endOfLoop(const edm::EventSetup&, unsigned int iLoop) override;
 
   /// Called at each event
-  Status duringLoop( const edm::Event&, const edm::EventSetup& ) override;
-  
+  Status duringLoop(const edm::Event&, const edm::EventSetup&) override;
+
   /// Produce Ecal interCalibrations
-  virtual std::shared_ptr<EcalIntercalibConstants> produceEcalIntercalibConstants( const EcalIntercalibConstantsRcd& iRecord );
+  virtual std::shared_ptr<EcalIntercalibConstants> produceEcalIntercalibConstants(
+      const EcalIntercalibConstantsRcd& iRecord);
 
- private:
-
-/*   ElectronEnergyCorrector myCorrector; */
-/*   ElectronClassification myClassificator; */
+private:
+  /*   ElectronEnergyCorrector myCorrector; */
+  /*   ElectronClassification myClassificator; */
 
   double fEtaBarrelBad(double scEta) const;
   double fEtaBarrelGood(double scEta) const;
@@ -113,16 +110,16 @@ class ZeeCalibration : public edm::ESProducerLooper {
   int ringNumberCorrector(int k);
   double getEtaCorrection(const reco::GsfElectron*);
 
- \
-  void fillEleInfo(std::vector<HepMC::GenParticle*>& a, std::map<HepMC::GenParticle*,const reco::GsfElectron*>& b);
+  void fillEleInfo(std::vector<HepMC::GenParticle*>& a, std::map<HepMC::GenParticle*, const reco::GsfElectron*>& b);
   void fillMCInfo(HepMC::GenParticle* mcele);
 
-  void fillMCmap(const std::vector<const reco::GsfElectron*>* electronCollection, const std::vector<HepMC::GenParticle*>& mcEle,std::map<HepMC::GenParticle*,const reco::GsfElectron*>& myMCmap);
+  void fillMCmap(const std::vector<const reco::GsfElectron*>* electronCollection,
+                 const std::vector<HepMC::GenParticle*>& mcEle,
+                 std::map<HepMC::GenParticle*, const reco::GsfElectron*>& myMCmap);
   //  void fillMCmap(const reco::ElectronCollection* electronCollection, const std::vector<HepMC::GenParticle*>& mcEle,std::map<HepMC::GenParticle*,const reco::Electron*>& myMCmap);
-  
-  float EvalDPhi(float Phi,float Phi_ref);
-  float EvalDR(float Eta,float Eta_ref,float Phi,float Phi_ref);
 
+  float EvalDPhi(float Phi, float Phi_ref);
+  float EvalDR(float Eta, float Eta_ref, float Phi, float Phi_ref);
 
   void bookHistograms();
 
@@ -132,39 +129,40 @@ class ZeeCalibration : public edm::ESProducerLooper {
 
   void printStatistics();
 
-  std::pair<DetId, double> getHottestDetId(const std::vector<std::pair<DetId, float> >& mySCRecHits, const EBRecHitCollection* ebhits , const EERecHitCollection* eehits);
+  std::pair<DetId, double> getHottestDetId(const std::vector<std::pair<DetId, float> >& mySCRecHits,
+                                           const EBRecHitCollection* ebhits,
+                                           const EERecHitCollection* eehits);
 
-  bool xtalIsOnModuleBorder( EBDetId myEBDetId );
+  bool xtalIsOnModuleBorder(EBDetId myEBDetId);
 
-  float computeCoefficientDistanceAtIteration( float v1[250], float v2[250], int size);
+  float computeCoefficientDistanceAtIteration(float v1[250], float v2[250], int size);
 
   //  float Calculate_SigmaEtaEta(const reco::SuperCluster &passedCluster);
 
   // ----------member data ---------------------------
 
-
   TTree* myTree;
 
   std::string outputFileName_;
-  
+
   std::string rechitProducer_;
   std::string rechitCollection_;
   std::string erechitProducer_;
   std::string erechitCollection_;
   std::string scProducer_;
   std::string scCollection_;
- 
+
   std::string scIslandProducer_;
   std::string scIslandCollection_;
-  
+
   std::string mcProducer_;
   std::string calibMode_;
 
   std::string electronProducer_;
   std::string electronCollection_;
-  
+
   std::string RecalibBarrelHits_;
-  
+
   unsigned int etaBins_;
   unsigned int etBins_;
 
@@ -178,29 +176,29 @@ class ZeeCalibration : public edm::ESProducerLooper {
 
   double minInvMassCut_;
   double maxInvMassCut_;
-  double mass; 
+  double mass;
 
   float mass4tree;
   float massDiff4tree;
 
   int read_events;
-  
+
   int loopFlag_;
-  
+
   float calibCoeff[nMaxChannels];
   float NewCalibCoeff[nMaxChannels];
   float calibCoeffError[nMaxChannels];
-   float initCalibCoeff[nMaxChannels];
+  float initCalibCoeff[nMaxChannels];
 
   std::shared_ptr<EcalIntercalibConstants> ical;
-  
+
   ZIterativeAlgorithmWithFit* theAlgorithm_;
 
   ZeePlots* myZeePlots_;
   ZeeRescaleFactorPlots* myZeeRescaleFactorPlots_;
 
   // steering parameters
-  
+
   edm::ParameterSet theParameterSet;
 
   //  TGraph* graph;
@@ -210,7 +208,6 @@ class ZeeCalibration : public edm::ESProducerLooper {
 
   TH1F* h1_eventsBeforeBorderSelection_;
   TH1F* h1_eventsAfterBorderSelection_;
-
 
   TH2F* h2_fEtaBarrelGood_;
   TH2F* h2_fEtaBarrelBad_;
@@ -281,10 +278,10 @@ class ZeeCalibration : public edm::ESProducerLooper {
   TH2F* h2_chi2_[25];
   TH2F* h2_iterations_[25];
 
-  TH2F * h2_xtalRecalibCoeffBarrel_[25];
-  TH2F * h2_xtalRecalibCoeffEndcapMinus_[25];
-  TH2F * h2_xtalRecalibCoeffEndcapPlus_[25];
-  
+  TH2F* h2_xtalRecalibCoeffBarrel_[25];
+  TH2F* h2_xtalRecalibCoeffEndcapMinus_[25];
+  TH2F* h2_xtalRecalibCoeffEndcapPlus_[25];
+
   TH2F* h2_xtalMiscalibCoeffBarrel_;
   TH2F* h2_xtalMiscalibCoeffEndcapMinus_;
   TH2F* h2_xtalMiscalibCoeffEndcapPlus_;
@@ -300,24 +297,23 @@ class ZeeCalibration : public edm::ESProducerLooper {
   TH1F* h1_occupancy_;
   TH1F* h1_occupancyBarrel_;
   TH1F* h1_occupancyEndcap_;
-  
+
   TH1F* h1_electronCosTheta_TK_;
   TH1F* h1_electronCosTheta_SC_;
   TH1F* h1_electronCosTheta_SC_TK_;
 
   TH1F* h1_borderElectronClassification_;
 
-
-  Int_t BBZN,EBZN,EEZN,BBZN_gg,EBZN_gg,EEZN_gg,BBZN_tt,EBZN_tt,EEZN_tt,BBZN_t0,EBZN_t0,EEZN_t0;
+  Int_t BBZN, EBZN, EEZN, BBZN_gg, EBZN_gg, EEZN_gg, BBZN_tt, EBZN_tt, EEZN_tt, BBZN_t0, EBZN_t0, EEZN_t0;
   Int_t NEVT, MCZBB, MCZEB, MCZEE;
 
   TFile* outputFile_;
-      
-  unsigned int theMaxLoops;     // Number of loops to loop
- 
+
+  unsigned int theMaxLoops;  // Number of loops to loop
+
   bool wantEtaCorrection_;
 
-  unsigned int electronSelection_; 
+  unsigned int electronSelection_;
 
   double loopArray[50];
   double sigmaArray[50];
@@ -342,33 +338,31 @@ class ZeeCalibration : public edm::ESProducerLooper {
   int CRACK_ELECTRONS_IN_BARREL;
   int CRACK_ELECTRONS_IN_ENDCAP;
 
-
   edm::InputTag hlTriggerResults_;
 
-  unsigned int  nEvents_;           // number of events processed
+  unsigned int nEvents_;  // number of events processed
 
-  unsigned int  nWasRun_;           // # where at least one HLT was run
-  unsigned int  nAccept_;           // # of accepted events
-  unsigned int  nErrors_;           // # where at least one HLT had error
+  unsigned int nWasRun_;  // # where at least one HLT was run
+  unsigned int nAccept_;  // # of accepted events
+  unsigned int nErrors_;  // # where at least one HLT had error
 
-  std::vector<unsigned int> hlWasRun_; // # where HLT[i] was run
-  std::vector<unsigned int> hlAccept_; // # of events accepted by HLT[i]
-  std::vector<unsigned int> hlErrors_; // # of events with error in HLT[i]
+  std::vector<unsigned int> hlWasRun_;  // # where HLT[i] was run
+  std::vector<unsigned int> hlAccept_;  // # of events accepted by HLT[i]
+  std::vector<unsigned int> hlErrors_;  // # of events with error in HLT[i]
 
-  std::vector<std::string>  hlNames_;  // name of each HLT algorithm
-  bool init_;                          // vectors initialised or not
+  std::vector<std::string> hlNames_;  // name of each HLT algorithm
+  bool init_;                         // vectors initialised or not
 
-  Int_t              triggerCount;
-  char              aTriggerNames[200][30];
-  bool              aTriggerResults[200];
+  Int_t triggerCount;
+  char aTriggerNames[200][30];
+  bool aTriggerResults[200];
 
-  Int_t              hltCount;
-  char              aHLTNames[6000];
-  Int_t              hltNamesLen;
-  TString              aNames[200];
-  bool              aHLTResults[200];
+  Int_t hltCount;
+  char aHLTNames[6000];
+  Int_t hltNamesLen;
+  TString aNames[200];
+  bool aHLTResults[200];
 
-  bool              isfirstcall_;
-  
+  bool isfirstcall_;
 };
 #endif

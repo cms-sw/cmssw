@@ -3,11 +3,12 @@
 #include "CommonTools/RecoAlgos/interface/TrackFullCloneSelectorBase.h"
 #include "CommonTools/RecoAlgos/interface/TrackWithVertexSelector.h"
 
-namespace reco { 
+namespace reco {
   namespace modules {
 
-    typedef TrackFullCloneSelectorBase< ::TrackWithVertexSelector > TrackWithVertexSelector;
+    typedef TrackFullCloneSelectorBase< ::TrackWithVertexSelector> TrackWithVertexSelector;
 
     DEFINE_FWK_MODULE(TrackWithVertexSelector);
 
-} }
+  }  // namespace modules
+}  // namespace reco

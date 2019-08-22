@@ -7,24 +7,21 @@
 
 class HcalSiPMShape : public CaloVShape {
 public:
-
-  HcalSiPMShape(unsigned int signalShape=206);
-  HcalSiPMShape(const HcalSiPMShape & other);
+  HcalSiPMShape(unsigned int signalShape = 206);
+  HcalSiPMShape(const HcalSiPMShape& other);
 
   ~HcalSiPMShape() override {}
 
-  double operator() (double time) const override;
+  double operator()(double time) const override;
 
-  double timeToRise() const override {return 0.0;}
+  double timeToRise() const override { return 0.0; }
 
 protected:
   void computeShape(unsigned int signalShape);
 
 private:
-
   int nBins_;
   std::vector<double> nt_;
-
 };
 
-#endif //HcalSimAlgos_HcalSiPMShape_h
+#endif  //HcalSimAlgos_HcalSiPMShape_h

@@ -35,7 +35,6 @@
 // constructors
 //     default
 L1GtJetCountsCondition::L1GtJetCountsCondition() : L1GtConditionEvaluation() {
-
   // empty
 }
 
@@ -44,10 +43,9 @@ L1GtJetCountsCondition::L1GtJetCountsCondition(const L1GtCondition *jcTemplate,
                                                const L1GlobalTriggerPSB *ptrPSB,
                                                const int nrL1JetCounts)
     : L1GtConditionEvaluation(),
-      m_gtJetCountsTemplate(
-          static_cast<const L1GtJetCountsTemplate *>(jcTemplate)),
-      m_gtPSB(ptrPSB), m_numberL1JetCounts(nrL1JetCounts) {
-
+      m_gtJetCountsTemplate(static_cast<const L1GtJetCountsTemplate *>(jcTemplate)),
+      m_gtPSB(ptrPSB),
+      m_numberL1JetCounts(nrL1JetCounts) {
   // maximum number of objects received for the evaluation of the condition
   // no objects, in fact, just a number
   m_condMaxNumberObjects = 1;
@@ -55,7 +53,6 @@ L1GtJetCountsCondition::L1GtJetCountsCondition(const L1GtCondition *jcTemplate,
 
 // copy constructor
 void L1GtJetCountsCondition::copy(const L1GtJetCountsCondition &cp) {
-
   m_gtJetCountsTemplate = cp.gtJetCountsTemplate();
   m_gtPSB = cp.gtPSB();
 
@@ -66,41 +63,31 @@ void L1GtJetCountsCondition::copy(const L1GtJetCountsCondition &cp) {
   m_verbosity = cp.m_verbosity;
 }
 
-L1GtJetCountsCondition::L1GtJetCountsCondition(const L1GtJetCountsCondition &cp)
-    : L1GtConditionEvaluation() {
-
+L1GtJetCountsCondition::L1GtJetCountsCondition(const L1GtJetCountsCondition &cp) : L1GtConditionEvaluation() {
   copy(cp);
 }
 
 // destructor
 L1GtJetCountsCondition::~L1GtJetCountsCondition() {
-
   // empty
 }
 
 // equal operator
-L1GtJetCountsCondition &L1GtJetCountsCondition::
-operator=(const L1GtJetCountsCondition &cp) {
+L1GtJetCountsCondition &L1GtJetCountsCondition::operator=(const L1GtJetCountsCondition &cp) {
   copy(cp);
   return *this;
 }
 
 // methods
-void L1GtJetCountsCondition::setGtJetCountsTemplate(
-    const L1GtJetCountsTemplate *jcTemplate) {
-
+void L1GtJetCountsCondition::setGtJetCountsTemplate(const L1GtJetCountsTemplate *jcTemplate) {
   m_gtJetCountsTemplate = jcTemplate;
 }
 
 ///   set the pointer to PSB
-void L1GtJetCountsCondition::setGtPSB(const L1GlobalTriggerPSB *ptrPSB) {
-
-  m_gtPSB = ptrPSB;
-}
+void L1GtJetCountsCondition::setGtPSB(const L1GlobalTriggerPSB *ptrPSB) { m_gtPSB = ptrPSB; }
 
 // try all object permutations and check spatial correlations, if required
 const bool L1GtJetCountsCondition::evaluateCondition() const {
-
   // number of trigger objects in the condition
   // in fact, there is only one object
   int iCondition = 0;
@@ -124,26 +111,21 @@ const bool L1GtJetCountsCondition::evaluateCondition() const {
     return false;
   }
 
-  const L1GtJetCountsTemplate::ObjectParameter objPar =
-      (*(m_gtJetCountsTemplate->objectParameter()))[iCondition];
+  const L1GtJetCountsTemplate::ObjectParameter objPar = (*(m_gtJetCountsTemplate->objectParameter()))[iCondition];
 
   unsigned int cIndex = objPar.countIndex;
 
   if (cIndex >= m_numberL1JetCounts) {
-
-    edm::LogError("L1GlobalTrigger")
-        << "\nL1GtJetCountsCondition error: countIndex " << cIndex
-        << "greater than maximum allowed count = " << m_numberL1JetCounts
-        << "\n  ==> condResult = false " << std::endl;
+    edm::LogError("L1GlobalTrigger") << "\nL1GtJetCountsCondition error: countIndex " << cIndex
+                                     << "greater than maximum allowed count = " << m_numberL1JetCounts
+                                     << "\n  ==> condResult = false " << std::endl;
     return false;
   }
 
   unsigned int countValue = jetCounts->count(cIndex);
 
   // check countThreshold
-  if (!checkThreshold(objPar.countThreshold, countValue,
-                      m_gtJetCountsTemplate->condGEq())) {
-
+  if (!checkThreshold(objPar.countThreshold, countValue, m_gtJetCountsTemplate->condGEq())) {
     return false;
   }
 
@@ -162,7 +144,6 @@ const bool L1GtJetCountsCondition::evaluateCondition() const {
 }
 
 void L1GtJetCountsCondition::print(std::ostream &myCout) const {
-
   m_gtJetCountsTemplate->print(myCout);
   L1GtConditionEvaluation::print(myCout);
 }

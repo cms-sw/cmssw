@@ -19,23 +19,20 @@
 using namespace std;
 using namespace l1t;
 
-Stage1Layer2JetAlgorithmImpSimpleHW::Stage1Layer2JetAlgorithmImpSimpleHW(CaloParamsHelper const* params) : params_(params)
-{
-}
+Stage1Layer2JetAlgorithmImpSimpleHW::Stage1Layer2JetAlgorithmImpSimpleHW(CaloParamsHelper const* params)
+    : params_(params) {}
 
-
-void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::CaloRegion> & regions,
-						       const std::vector<l1t::CaloEmCand> & EMCands,
-						       std::vector<l1t::Jet> * jets,
-						       std::vector<l1t::Jet> * debugJets){
-
+void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::CaloRegion>& regions,
+                                                       const std::vector<l1t::CaloEmCand>& EMCands,
+                                                       std::vector<l1t::Jet>* jets,
+                                                       std::vector<l1t::Jet>* debugJets) {
   std::vector<l1t::CaloRegion> subRegions;
   std::vector<l1t::Jet> preGtEtaJets;
   std::vector<l1t::Jet> calibratedRankedJets;
   std::vector<l1t::Jet> sortedJets;
 
   double towerLsb = params_->towerLsbSum();
-  int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
+  int jetSeedThreshold = floor(params_->jetSeedThreshold() / towerLsb + 0.5);
 
   RegionCorrection(regions, &subRegions, params_);
 

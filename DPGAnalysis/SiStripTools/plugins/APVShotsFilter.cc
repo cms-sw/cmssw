@@ -2,7 +2,7 @@
 //
 // Package:    APVShotsFilter
 // Class:      APVShotsFilter
-// 
+//
 /**\class APVShotsFilter APVShotsFilter.cc DPGAnalysis/SiStripTools/src/APVShotsFilter.cc
 
  Description: [one line class summary]
@@ -16,7 +16,6 @@
 // $Id$
 //
 //
-
 
 // system include files
 #include <memory>
@@ -54,22 +53,21 @@
 //
 
 class APVShotsFilter : public edm::EDFilter {
-   public:
-      explicit APVShotsFilter(const edm::ParameterSet&);
-      ~APVShotsFilter() override;
+public:
+  explicit APVShotsFilter(const edm::ParameterSet&);
+  ~APVShotsFilter() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-  void updateDetCabling( const edm::EventSetup& setup );
-      // ----------member data ---------------------------
+  void updateDetCabling(const edm::EventSetup& setup);
+  // ----------member data ---------------------------
 
-
-  edm::EDGetTokenT<EventWithHistory>                heToken_;
-  edm::EDGetTokenT<APVCyclePhaseCollection>         apvphaseToken_;
+  edm::EDGetTokenT<EventWithHistory> heToken_;
+  edm::EDGetTokenT<APVCyclePhaseCollection> apvphaseToken_;
   edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > digisToken_;
 
   bool _selectAPVshots;
@@ -79,9 +77,8 @@ class APVShotsFilter : public edm::EDFilter {
 
   // DetCabling
   bool _useCabling;
-  uint32_t _cacheIdDet;  //!< DB cache ID used to establish if the cabling has changed during the run.
+  uint32_t _cacheIdDet;                  //!< DB cache ID used to establish if the cabling has changed during the run.
   const SiStripDetCabling* _detCabling;  //!< The cabling object.
-
 };
 
 //
@@ -96,172 +93,154 @@ class APVShotsFilter : public edm::EDFilter {
 // constructors and destructor
 //
 APVShotsFilter::APVShotsFilter(const edm::ParameterSet& iConfig)
-  : _selectAPVshots (iConfig.getUntrackedParameter<bool>("selectAPVshots", true))
-  , _zs             (iConfig.getUntrackedParameter<bool>("zeroSuppressed",true))
-  , _nevents(0)
-  , _useCabling     (iConfig.getUntrackedParameter<bool>("useCabling",true))
-  , _cacheIdDet(0)
-  , _detCabling(nullptr)
+    : _selectAPVshots(iConfig.getUntrackedParameter<bool>("selectAPVshots", true)),
+      _zs(iConfig.getUntrackedParameter<bool>("zeroSuppressed", true)),
+      _nevents(0),
+      _useCabling(iConfig.getUntrackedParameter<bool>("useCabling", true)),
+      _cacheIdDet(0),
+      _detCabling(nullptr)
 
 {
-   //now do what ever initialization is needed
+  //now do what ever initialization is needed
   edm::InputTag digicollection = iConfig.getParameter<edm::InputTag>("digiCollection");
   edm::InputTag historyProduct = iConfig.getParameter<edm::InputTag>("historyProduct");
-  edm::InputTag apvphasecoll   = iConfig.getParameter<edm::InputTag>("apvPhaseCollection");
-  
-  heToken_       = consumes<EventWithHistory>               (historyProduct);
-  apvphaseToken_ = consumes<APVCyclePhaseCollection>        (apvphasecoll);
-  digisToken_    = consumes<edm::DetSetVector<SiStripDigi> >(digicollection);
+  edm::InputTag apvphasecoll = iConfig.getParameter<edm::InputTag>("apvPhaseCollection");
 
+  heToken_ = consumes<EventWithHistory>(historyProduct);
+  apvphaseToken_ = consumes<APVCyclePhaseCollection>(apvphasecoll);
+  digisToken_ = consumes<edm::DetSetVector<SiStripDigi> >(digicollection);
 }
 
-
-APVShotsFilter::~APVShotsFilter()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-  if ( _detCabling ) _detCabling = nullptr;
-
+APVShotsFilter::~APVShotsFilter() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
+  if (_detCabling)
+    _detCabling = nullptr;
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-APVShotsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+bool APVShotsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   if (_useCabling){
-     //retrieve cabling
-     updateDetCabling( iSetup );
-   }
-   _nevents++;
+  if (_useCabling) {
+    //retrieve cabling
+    updateDetCabling(iSetup);
+  }
+  _nevents++;
 
-   edm::Handle<EventWithHistory> he;
-   iEvent.getByToken(heToken_,he);
+  edm::Handle<EventWithHistory> he;
+  iEvent.getByToken(heToken_, he);
 
-   edm::Handle<APVCyclePhaseCollection> apvphase;
-   iEvent.getByToken(apvphaseToken_,apvphase);
+  edm::Handle<APVCyclePhaseCollection> apvphase;
+  iEvent.getByToken(apvphaseToken_, apvphase);
 
-   edm::Handle<edm::DetSetVector<SiStripDigi> > digis;
-   iEvent.getByToken(digisToken_,digis);
+  edm::Handle<edm::DetSetVector<SiStripDigi> > digis;
+  iEvent.getByToken(digisToken_, digis);
 
-   // loop on detector with digis
-   int nshots = 0;
-   std::vector<int> nshotsperFed;
+  // loop on detector with digis
+  int nshots = 0;
+  std::vector<int> nshotsperFed;
 
-   const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
-   const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
-   const uint16_t lNumFeds = (siStripFedIdMax-siStripFedIdMin)+1;
-   if (_useCabling){
-     nshotsperFed.resize(lNumFeds,0);
-   }
+  const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
+  const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
+  const uint16_t lNumFeds = (siStripFedIdMax - siStripFedIdMin) + 1;
+  if (_useCabling) {
+    nshotsperFed.resize(lNumFeds, 0);
+  }
 
-   APVShotFinder apvsf(*digis,_zs);
-   const std::vector<APVShot>& shots = apvsf.getShots();
-   
-   for (std::vector<APVShot>::const_iterator shot=shots.begin(); shot!=shots.end(); ++shot) {
-     if ( !shot->isGenuine() ) continue;
-     ++nshots;
-     
-     //get the fedid from the detid
-     uint32_t det=shot->detId();
-     if (_useCabling){
-       
-       int apvPair = shot->apvNumber()/2;
-       LogDebug("APVShotsFilter") << apvPair;
-       
-       const FedChannelConnection& theConn = _detCabling->getConnection( det , apvPair);
-       
-       int lChannelId = -1;
-       int thelFEDId = -1;
-       if(theConn.isConnected()) {
-	 lChannelId = theConn.fedCh();
-	 thelFEDId = theConn.fedId();
-       }
-       else {
-	 edm::LogWarning("APVShotsFilter") << "connection of det " << det << " APV pair " << apvPair << " not found";
-       }
-       LogDebug("APVShotsFilter") << thelFEDId << " " << lChannelId ;
-       
-       const std::vector<const FedChannelConnection *> & conns = _detCabling->getConnections( det );
-       
-       if (!(conns.size())) continue;
-       uint16_t lFedId = 0;
-       for (uint32_t ch = 0; ch<conns.size(); ch++) {
-	 if(conns[ch] && conns[ch]->isConnected()) {
-	   LogDebug("APVShotsFilter") << *(conns[ch]);
-	   LogDebug("APVShotsFilter") << "Ready for FED id " << ch;
-	   lFedId = conns[ch]->fedId();
-	   LogDebug("APVShotsFilter") << "obtained FED id " << ch << " " << lFedId;
-	   //uint16_t lFedCh = conns[ch]->fedCh();
-	   
-	   if (lFedId < sistrip::FED_ID_MIN || lFedId > sistrip::FED_ID_MAX){
-	     edm::LogWarning("APVShotsFilter") << lFedId << " for detid " << det << " connection " << ch;
-	     continue;
-	   }
-	   else break;
-	 }
-       }
-       if (lFedId < sistrip::FED_ID_MIN || lFedId > sistrip::FED_ID_MAX){
-	 edm::LogWarning("APVShotsFilter") << lFedId <<  "found for detid " << det;
-	 continue;
-       }
-       
-       if(lFedId != thelFEDId) {
-	 edm::LogWarning("APVShotsFilter") << " Mismatch in FED id for det " << det << " APV pair " 
-					   << apvPair << " : " << lFedId << " vs " << thelFEDId;
-       }
-       
-       //       LogDebug("APVShotsFilter") << nshotsperfed.size() << " " << lFedId-sistrip::FED_ID_MIN;  
-       //       ++nshotsperFed[lFedId-FEDNumbering::MINSiStripFEDID];
-       
-       LogDebug("APVShotsFilter") << " ready to be filled with " << thelFEDId << " " << lChannelId;
-       LogDebug("APVShotsFilter") << " filled with " << thelFEDId << " " << lChannelId;
-       
-     }
-   }
-   
-   bool foundAPVshots = (nshots > 0);
-   bool pass = (_selectAPVshots ? foundAPVshots : !foundAPVshots);
-   return pass;
+  APVShotFinder apvsf(*digis, _zs);
+  const std::vector<APVShot>& shots = apvsf.getShots();
+
+  for (std::vector<APVShot>::const_iterator shot = shots.begin(); shot != shots.end(); ++shot) {
+    if (!shot->isGenuine())
+      continue;
+    ++nshots;
+
+    //get the fedid from the detid
+    uint32_t det = shot->detId();
+    if (_useCabling) {
+      int apvPair = shot->apvNumber() / 2;
+      LogDebug("APVShotsFilter") << apvPair;
+
+      const FedChannelConnection& theConn = _detCabling->getConnection(det, apvPair);
+
+      int lChannelId = -1;
+      int thelFEDId = -1;
+      if (theConn.isConnected()) {
+        lChannelId = theConn.fedCh();
+        thelFEDId = theConn.fedId();
+      } else {
+        edm::LogWarning("APVShotsFilter") << "connection of det " << det << " APV pair " << apvPair << " not found";
+      }
+      LogDebug("APVShotsFilter") << thelFEDId << " " << lChannelId;
+
+      const std::vector<const FedChannelConnection*>& conns = _detCabling->getConnections(det);
+
+      if (!(conns.size()))
+        continue;
+      uint16_t lFedId = 0;
+      for (uint32_t ch = 0; ch < conns.size(); ch++) {
+        if (conns[ch] && conns[ch]->isConnected()) {
+          LogDebug("APVShotsFilter") << *(conns[ch]);
+          LogDebug("APVShotsFilter") << "Ready for FED id " << ch;
+          lFedId = conns[ch]->fedId();
+          LogDebug("APVShotsFilter") << "obtained FED id " << ch << " " << lFedId;
+          //uint16_t lFedCh = conns[ch]->fedCh();
+
+          if (lFedId < sistrip::FED_ID_MIN || lFedId > sistrip::FED_ID_MAX) {
+            edm::LogWarning("APVShotsFilter") << lFedId << " for detid " << det << " connection " << ch;
+            continue;
+          } else
+            break;
+        }
+      }
+      if (lFedId < sistrip::FED_ID_MIN || lFedId > sistrip::FED_ID_MAX) {
+        edm::LogWarning("APVShotsFilter") << lFedId << "found for detid " << det;
+        continue;
+      }
+
+      if (lFedId != thelFEDId) {
+        edm::LogWarning("APVShotsFilter") << " Mismatch in FED id for det " << det << " APV pair " << apvPair << " : "
+                                          << lFedId << " vs " << thelFEDId;
+      }
+
+      //       LogDebug("APVShotsFilter") << nshotsperfed.size() << " " << lFedId-sistrip::FED_ID_MIN;
+      //       ++nshotsperFed[lFedId-FEDNumbering::MINSiStripFEDID];
+
+      LogDebug("APVShotsFilter") << " ready to be filled with " << thelFEDId << " " << lChannelId;
+      LogDebug("APVShotsFilter") << " filled with " << thelFEDId << " " << lChannelId;
+    }
+  }
+
+  bool foundAPVshots = (nshots > 0);
+  bool pass = (_selectAPVshots ? foundAPVshots : !foundAPVshots);
+  return pass;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-APVShotsFilter::endJob() {
-
-  edm::LogInfo("APVShotsFilter") << _nevents << " analyzed events";
-
-}
+void APVShotsFilter::endJob() { edm::LogInfo("APVShotsFilter") << _nevents << " analyzed events"; }
 
 #include "FWCore/Framework/interface/ESHandle.h"
-void 
-APVShotsFilter::updateDetCabling( const edm::EventSetup& setup )
-{
-  if (_useCabling){
-    uint32_t cache_id = setup.get<SiStripDetCablingRcd>().cacheIdentifier();//.get( cabling_ );
-   
-    if ( _cacheIdDet != cache_id ) { // If the cache ID has changed since the last update...
+void APVShotsFilter::updateDetCabling(const edm::EventSetup& setup) {
+  if (_useCabling) {
+    uint32_t cache_id = setup.get<SiStripDetCablingRcd>().cacheIdentifier();  //.get( cabling_ );
+
+    if (_cacheIdDet != cache_id) {  // If the cache ID has changed since the last update...
       // Update the cabling object
       edm::ESHandle<SiStripDetCabling> c;
-      setup.get<SiStripDetCablingRcd>().get( c );
+      setup.get<SiStripDetCablingRcd>().get(c);
       _detCabling = c.product();
       _cacheIdDet = cache_id;
-    } // end of new cache ID check
+    }  // end of new cache ID check
   }
 }
 
-
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-APVShotsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void APVShotsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

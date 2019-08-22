@@ -12,7 +12,7 @@
 
 class HepMCFileReader;
 
-namespace HepMC{
+namespace HepMC {
   class GenEvent;
 }
 
@@ -30,13 +30,13 @@ namespace edm {
 
   private:
     bool setRunAndEventInfo(EventID&, TimeValue_t& time, EventAuxiliary::ExperimentType& eType) override;
-    void produce(Event &e) override;
+    void produce(Event& e) override;
     void clear();
-    
+
     edm::propagate_const<HepMCFileReader*> reader_;
     edm::propagate_const<HepMC::GenEvent*> evt_;
     bool useExtendedAscii_;
   };
-} 
+}  // namespace edm
 
 #endif

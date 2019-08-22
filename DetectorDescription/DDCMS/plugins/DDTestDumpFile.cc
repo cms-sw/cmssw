@@ -35,27 +35,23 @@ private:
 };
 
 DDTestDumpFile::DDTestDumpFile(const ParameterSet& iConfig)
-  : m_tag(iConfig.getUntrackedParameter<string>("tag", "unknown")),
-    m_outputFileName(iConfig.getUntrackedParameter<string>("outputFileName", "cmsDD4HepGeom.root")),
-    m_label(iConfig.getParameter<ESInputTag>("DDDetector"))
-{}
+    : m_tag(iConfig.getUntrackedParameter<string>("tag", "unknown")),
+      m_outputFileName(iConfig.getUntrackedParameter<string>("outputFileName", "cmsDD4HepGeom.root")),
+      m_label(iConfig.getParameter<ESInputTag>("DDDetector")) {}
 
-void
-DDTestDumpFile::analyze(const Event&, const EventSetup& iEventSetup)
-{
+void DDTestDumpFile::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry") << "DDTestDumpFile::analyze: " << m_label;
   ESTransientHandle<DDDetector> det;
-  iEventSetup.get<GeometryFileRcd>().get(m_label.module(), det);
+  iEventSetup.get<GeometryFileRcd>().get(m_label, det);
 
   TGeoManager& geom = det->description()->manager();
-  
-  int level = 1 + geom.GetTopVolume()->CountNodes( 100, 3 );
-  
-  LogVerbatim("Geometry") << "In the DDTestDumpFile::analyze method...obtained main geometry, level="
-       << level;
+
+  int level = 1 + geom.GetTopVolume()->CountNodes(100, 3);
+
+  LogVerbatim("Geometry") << "In the DDTestDumpFile::analyze method...obtained main geometry, level=" << level;
 
   TFile file(m_outputFileName.c_str(), "RECREATE");
-  file.WriteTObject(&geom );
+  file.WriteTObject(&geom);
   file.WriteTObject(new TNamed("CMSSW_VERSION", gSystem->Getenv("CMSSW_VERSION")));
   file.WriteTObject(new TNamed("tag", m_tag.c_str()));
   file.Close();

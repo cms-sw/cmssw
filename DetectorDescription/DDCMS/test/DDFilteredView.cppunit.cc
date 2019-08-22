@@ -15,19 +15,16 @@ using namespace cms;
 using namespace std;
 
 class testDDFilteredView : public CppUnit::TestFixture {
-
   CPPUNIT_TEST_SUITE(testDDFilteredView);
   CPPUNIT_TEST(checkFilteredView);
   CPPUNIT_TEST_SUITE_END();
 
 public:
-
   void setUp() override;
   void tearDown() override {}
   void checkFilteredView();
 
 private:
-
   string fileName_;
 };
 
@@ -37,8 +34,7 @@ void testDDFilteredView::setUp() {
   fileName_ = edm::FileInPath("DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml").fullPath();
 }
 
-void testDDFilteredView::checkFilteredView()
-{
+void testDDFilteredView::checkFilteredView() {
   unique_ptr<DDDetector> det = make_unique<DDDetector>("DUMMY", fileName_);
   DDFilteredView fview(det.get(), det->description()->worldVolume());
 }

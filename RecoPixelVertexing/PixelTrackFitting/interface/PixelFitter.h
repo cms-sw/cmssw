@@ -8,11 +8,13 @@
 class PixelFitter {
 public:
   PixelFitter() {}
-  explicit PixelFitter(std::unique_ptr<PixelFitterBase> fitter): fitter_(std::move(fitter)) {}
+  explicit PixelFitter(std::unique_ptr<PixelFitterBase> fitter) : fitter_(std::move(fitter)) {}
 
   void swap(PixelFitter& o) { std::swap(fitter_, o.fitter_); }
 
-  std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits, const TrackingRegion& region, const edm::EventSetup& setup) const {
+  std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit*>& hits,
+                                   const TrackingRegion& region,
+                                   const edm::EventSetup& setup) const {
     return fitter_->run(hits, region, setup);
   }
 

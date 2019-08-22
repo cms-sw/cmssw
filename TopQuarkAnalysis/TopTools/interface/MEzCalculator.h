@@ -16,26 +16,25 @@ ________________________________________________________________**/
 #include "TLorentzVector.h"
 
 class MEzCalculator {
-  
- public:
+public:
   /// constructor
   MEzCalculator();
   /// destructor
   ~MEzCalculator();
   /// Set MET
-  void SetMET(const pat::MET& MET) { MET_ = MET; } ;
+  void SetMET(const pat::MET& MET) { MET_ = MET; };
   void SetMET(const TLorentzVector& MET) {
-	  pat::Particle::LorentzVector p(MET.Px(),MET.Py(),MET.Pz(),MET.E());
-	  MET_.setP4(p);
+    pat::Particle::LorentzVector p(MET.Px(), MET.Py(), MET.Pz(), MET.E());
+    MET_.setP4(p);
   }
   /// Set lepton
   void SetLepton(const pat::Particle& lepton, bool isMuon = true) {
-	  lepton_ = lepton;
-	  isMuon_ = isMuon;
+    lepton_ = lepton;
+    isMuon_ = isMuon;
   };
   void SetLepton(const TLorentzVector& lepton) {
-	  pat::Particle::LorentzVector p(lepton.Px(), lepton.Py(), lepton.Pz(), lepton.E() );
-	  lepton_.setP4(p);
+    pat::Particle::LorentzVector p(lepton.Px(), lepton.Py(), lepton.Pz(), lepton.E());
+    lepton_.setP4(p);
   }
   /// Calculate MEz
   /// options to choose roots from quadratic equation:
@@ -52,12 +51,11 @@ class MEzCalculator {
   bool IsComplex() const { return isComplex_; };
   /// verbose
   void Print() {
-	  std::cout << " METzCalculator: pxmu = " << lepton_.px() << " pzmu= " << lepton_.pz() << std::endl;
-	  std::cout << " METzCalculator: pxnu = " << MET_.px() << " pynu= " << MET_.py() << std::endl;
+    std::cout << " METzCalculator: pxmu = " << lepton_.px() << " pzmu= " << lepton_.pz() << std::endl;
+    std::cout << " METzCalculator: pxnu = " << MET_.px() << " pynu= " << MET_.py() << std::endl;
   }
 
- private:
-  
+private:
   bool isComplex_;
   pat::Particle lepton_;
   pat::MET MET_;

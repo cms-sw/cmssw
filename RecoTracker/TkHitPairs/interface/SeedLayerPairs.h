@@ -15,14 +15,11 @@ class LayerWithHits;
 
 class SeedLayerPairs {
 public:
+  typedef std::pair<const LayerWithHits*, const LayerWithHits*> LayerPair;
 
-  typedef std::pair< const LayerWithHits*, const LayerWithHits*>        LayerPair;
-
-  SeedLayerPairs() {};
-  virtual ~SeedLayerPairs() {};
-    virtual std::vector<LayerPair> operator()()= 0;
-  
-
+  SeedLayerPairs(){};
+  virtual ~SeedLayerPairs(){};
+  virtual std::vector<LayerPair> operator()() = 0;
 };
 
 #endif

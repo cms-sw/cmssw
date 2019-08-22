@@ -12,56 +12,52 @@
 
 class TrackerLayer {
 public:
-  
   /// constructor from private members
   TrackerLayer(BoundSurface* theSurface,
-	       bool isForward,
-	       unsigned int theLayerNumber,
-	       const std::vector<double>& theMinDim,
-	       const std::vector<double>& theMaxDim,
-	       const std::vector<double>& theFudge) :
-    theSurface(theSurface), 
-    isForward(isForward),
-    theLayerNumber(theLayerNumber),
-    theDimensionMinValues(theMinDim),
-    theDimensionMaxValues(theMaxDim),
-    theFudgeFactors(theFudge),
-    theNumberOfFudgeFactors(theFudgeFactors.size())
-   { 
-     isSensitive = (theLayerNumber<100);
-     if ( isForward ) { 
-       theDisk = dynamic_cast<BoundDisk*>(theSurface);
-       theDiskInnerRadius = theDisk->innerRadius();
-       theDiskOuterRadius = theDisk->outerRadius();
-       theCylinder = nullptr;
-     } else {
-       theCylinder = dynamic_cast<BoundCylinder*>(theSurface);
-       theDisk = nullptr;
-       theDiskInnerRadius = 0.;
-       theDiskOuterRadius = 0.;
-     }
-
-   }
+               bool isForward,
+               unsigned int theLayerNumber,
+               const std::vector<double>& theMinDim,
+               const std::vector<double>& theMaxDim,
+               const std::vector<double>& theFudge)
+      : theSurface(theSurface),
+        isForward(isForward),
+        theLayerNumber(theLayerNumber),
+        theDimensionMinValues(theMinDim),
+        theDimensionMaxValues(theMaxDim),
+        theFudgeFactors(theFudge),
+        theNumberOfFudgeFactors(theFudgeFactors.size()) {
+    isSensitive = (theLayerNumber < 100);
+    if (isForward) {
+      theDisk = dynamic_cast<BoundDisk*>(theSurface);
+      theDiskInnerRadius = theDisk->innerRadius();
+      theDiskOuterRadius = theDisk->outerRadius();
+      theCylinder = nullptr;
+    } else {
+      theCylinder = dynamic_cast<BoundCylinder*>(theSurface);
+      theDisk = nullptr;
+      theDiskInnerRadius = 0.;
+      theDiskOuterRadius = 0.;
+    }
+  }
 
   TrackerLayer(BoundSurface* theSurface,
-	       unsigned int theLayerNumber,
-	       const std::vector<double>& theMinDim,
-	       const std::vector<double>& theMaxDim,
-	       const std::vector<double>& theFudge) :
-    theSurface(theSurface), 
-    theLayerNumber(theLayerNumber),
-    theDimensionMinValues(theMinDim),
-    theDimensionMaxValues(theMaxDim),
-    theFudgeFactors(theFudge),
-    theNumberOfFudgeFactors(theFudgeFactors.size())
-   { 
-     isSensitive = true;
-     isForward = true;
-     theDisk = dynamic_cast<BoundDisk*>(theSurface);
-     theDiskInnerRadius = theDisk->innerRadius();
-     theDiskOuterRadius = theDisk->outerRadius();
-     theCylinder = nullptr;
-   }
+               unsigned int theLayerNumber,
+               const std::vector<double>& theMinDim,
+               const std::vector<double>& theMaxDim,
+               const std::vector<double>& theFudge)
+      : theSurface(theSurface),
+        theLayerNumber(theLayerNumber),
+        theDimensionMinValues(theMinDim),
+        theDimensionMaxValues(theMaxDim),
+        theFudgeFactors(theFudge),
+        theNumberOfFudgeFactors(theFudgeFactors.size()) {
+    isSensitive = true;
+    isForward = true;
+    theDisk = dynamic_cast<BoundDisk*>(theSurface);
+    theDiskInnerRadius = theDisk->innerRadius();
+    theDiskOuterRadius = theDisk->outerRadius();
+    theCylinder = nullptr;
+  }
 
   /// Is the layer sensitive ?
   inline bool sensitive() const { return isSensitive; }
@@ -78,7 +74,7 @@ public:
   /// Returns the surface
   inline BoundDisk const* disk() const { return theDisk; }
 
-  /// Returns the layer number  
+  /// Returns the layer number
   inline unsigned int layerNumber() const { return theLayerNumber; }
 
   /// Returns the inner radius of a disk
@@ -98,19 +94,18 @@ public:
   */
 
   /// Get the fudge factors back
-  inline unsigned int fudgeNumber() const { return  theNumberOfFudgeFactors; }
-  inline double fudgeMin(unsigned iFudge) const { 
+  inline unsigned int fudgeNumber() const { return theNumberOfFudgeFactors; }
+  inline double fudgeMin(unsigned iFudge) const {
     return (iFudge < theNumberOfFudgeFactors) ? theDimensionMinValues[iFudge] : 999.;
   }
-  inline double fudgeMax(unsigned iFudge) const { 
+  inline double fudgeMax(unsigned iFudge) const {
     return (iFudge < theNumberOfFudgeFactors) ? theDimensionMaxValues[iFudge] : -999.;
   }
-  inline double fudgeFactor(unsigned iFudge) const { 
+  inline double fudgeFactor(unsigned iFudge) const {
     return (iFudge < theNumberOfFudgeFactors) ? theFudgeFactors[iFudge] : 0.;
   }
 
 private:
-
   BoundSurface* theSurface;
   BoundDisk* theDisk;
   BoundCylinder* theCylinder;
@@ -124,8 +119,6 @@ private:
   std::vector<double> theDimensionMinValues;
   std::vector<double> theDimensionMaxValues;
   std::vector<double> theFudgeFactors;
-  unsigned int  theNumberOfFudgeFactors;  
-
+  unsigned int theNumberOfFudgeFactors;
 };
 #endif
-

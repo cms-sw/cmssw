@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     FWFromSliceSelector
-// 
+//
 /**\class FWFromSliceSelector FWFromSliceSelector.h Fireworks/Calo/interface/FWFromSliceSelector.h
 
  Description: [one line class summary]
@@ -27,29 +27,26 @@
 class FWEventItem;
 class FWModelChangeManager;
 
-
-class FWFromSliceSelector
-{
+class FWFromSliceSelector {
 public:
-   FWFromSliceSelector( const FWEventItem*);
-   virtual ~FWFromSliceSelector();
+  FWFromSliceSelector(const FWEventItem*);
+  virtual ~FWFromSliceSelector();
 
-   virtual void doSelect(const TEveCaloData::CellId_t&) {}
-   virtual void doUnselect(const TEveCaloData::CellId_t&) {}
+  virtual void doSelect(const TEveCaloData::CellId_t&) {}
+  virtual void doUnselect(const TEveCaloData::CellId_t&) {}
 
-   void clear();
-   void reset();
+  void clear();
+  void reset();
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   FWModelChangeManager* changeManager() const;
+  FWModelChangeManager* changeManager() const;
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 protected:
-   const FWEventItem* m_item;
+  const FWEventItem* m_item;
 };
-
 
 #endif

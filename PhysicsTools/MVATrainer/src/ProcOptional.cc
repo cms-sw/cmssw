@@ -20,73 +20,56 @@ XERCES_CPP_NAMESPACE_USE
 
 using namespace PhysicsTools;
 
-namespace { // anonymous
+namespace {  // anonymous
 
-class ProcOptional : public TrainProcessor {
-    public:
-	typedef TrainProcessor::Registry<ProcOptional>::Type Registry;
+  class ProcOptional : public TrainProcessor {
+  public:
+    typedef TrainProcessor::Registry<ProcOptional>::Type Registry;
 
-	ProcOptional(const char *name, const AtomicId *id,
-	             MVATrainer *trainer);
-	~ProcOptional() override;
+    ProcOptional(const char *name, const AtomicId *id, MVATrainer *trainer);
+    ~ProcOptional() override;
 
-	void configure(DOMElement *elem) override;
-	Calibration::VarProcessor *getCalibration() const override;
+    void configure(DOMElement *elem) override;
+    Calibration::VarProcessor *getCalibration() const override;
 
-    private:
-	std::vector<double>	neutrals;
-};
+  private:
+    std::vector<double> neutrals;
+  };
 
-ProcOptional::Registry registry("ProcOptional");
+  ProcOptional::Registry registry("ProcOptional");
 
-ProcOptional::ProcOptional(const char *name, const AtomicId *id,
-                             MVATrainer *trainer) :
-	TrainProcessor(name, id, trainer)
-{
-}
+  ProcOptional::ProcOptional(const char *name, const AtomicId *id, MVATrainer *trainer)
+      : TrainProcessor(name, id, trainer) {}
 
-ProcOptional::~ProcOptional()
-{
-}
+  ProcOptional::~ProcOptional() {}
 
-void ProcOptional::configure(DOMElement *elem)
-{
-	for(DOMNode *node = elem->getFirstChild();
-	    node; node = node->getNextSibling()) {
-		if (node->getNodeType() != DOMNode::ELEMENT_NODE)
-			continue;
+  void ProcOptional::configure(DOMElement *elem) {
+    for (DOMNode *node = elem->getFirstChild(); node; node = node->getNextSibling()) {
+      if (node->getNodeType() != DOMNode::ELEMENT_NODE)
+        continue;
 
-		if (std::strcmp(XMLSimpleStr(node->getNodeName()),
-		                "neutral") != 0)
-			throw cms::Exception("ProcOptional")
-				<< "Expected neutral tag in config section."
-				<< std::endl;
-		elem = static_cast<DOMElement*>(node);
+      if (std::strcmp(XMLSimpleStr(node->getNodeName()), "neutral") != 0)
+        throw cms::Exception("ProcOptional") << "Expected neutral tag in config section." << std::endl;
+      elem = static_cast<DOMElement *>(node);
 
-		double neutral = 
-			XMLDocument::readAttribute<double>(elem, "pos");
+      double neutral = XMLDocument::readAttribute<double>(elem, "pos");
 
-		neutrals.push_back(neutral);
-	}
+      neutrals.push_back(neutral);
+    }
 
-	trained = true;
+    trained = true;
 
-	if (neutrals.size() != getInputs().size())
-		throw cms::Exception("ProcOptional")
-			<< "Got " << neutrals.size()
-			<< " neutral pos values for "
-			<< getInputs().size() << " input variables."
-			<< std::endl;
-}
+    if (neutrals.size() != getInputs().size())
+      throw cms::Exception("ProcOptional") << "Got " << neutrals.size() << " neutral pos values for "
+                                           << getInputs().size() << " input variables." << std::endl;
+  }
 
-Calibration::VarProcessor *ProcOptional::getCalibration() const
-{
-	Calibration::ProcOptional *calib = new Calibration::ProcOptional;
+  Calibration::VarProcessor *ProcOptional::getCalibration() const {
+    Calibration::ProcOptional *calib = new Calibration::ProcOptional;
 
-	std::copy(neutrals.begin(), neutrals.end(),
-	          std::back_inserter(calib->neutralPos));
+    std::copy(neutrals.begin(), neutrals.end(), std::back_inserter(calib->neutralPos));
 
-	return calib;
-}
+    return calib;
+  }
 
-} // anonymous namespace
+}  // anonymous namespace

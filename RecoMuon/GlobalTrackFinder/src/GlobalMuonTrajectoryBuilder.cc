@@ -54,51 +54,43 @@ using namespace edm;
 //----------------
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
-							 const MuonServiceProxy* service,
-							 edm::ConsumesCollector& iC
-							 ) : GlobalTrajectoryBuilderBase(par, service, iC)
-	   
+                                                         const MuonServiceProxy* service,
+                                                         edm::ConsumesCollector& iC)
+    : GlobalTrajectoryBuilderBase(par, service, iC)
+
 {
-
   theTkTrackLabel = par.getParameter<edm::InputTag>("TrackerCollectionLabel");
-  allTrackerTracksToken = iC.consumes<reco::TrackCollection>( theTkTrackLabel );
-
+  allTrackerTracksToken = iC.consumes<reco::TrackCollection>(theTkTrackLabel);
 }
-
 
 //--------------
 // Destructor --
 //--------------
 
-GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
-}
+GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {}
 
 //
 // get information from event
 //
 void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
-  
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|setEvent";
-  
+
   GlobalTrajectoryBuilderBase::setEvent(event);
 
   // get tracker TrackCollection from Event
-  event.getByToken(allTrackerTracksToken,allTrackerTracks);
-  LogDebug(category) 
-      << " Found " << allTrackerTracks->size() 
-      << " tracker Tracks with label "<< theTkTrackLabel;  
-
+  event.getByToken(allTrackerTracksToken, allTrackerTracks);
+  LogDebug(category) << " Found " << allTrackerTracks->size() << " tracker Tracks with label " << theTkTrackLabel;
 }
 
 //
 // reconstruct trajectories
 //
 MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
-
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|trajectories";
 
   // cut on muons with low momenta
-  LogTrace(category) << " STA pt " << staCandIn.second->pt() << " rho " << staCandIn.second->innerMomentum().Rho() << " R " << staCandIn.second->innerMomentum().R() << " theCut " << thePtCut;
+  LogTrace(category) << " STA pt " << staCandIn.second->pt() << " rho " << staCandIn.second->innerMomentum().Rho()
+                     << " R " << staCandIn.second->innerMomentum().R() << " theCut " << thePtCut;
 
   // convert the STA track into a Trajectory if Trajectory not already present
   TrackCand staCand(staCandIn);
@@ -110,8 +102,9 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   vector<TrackCand> trackerTracks = trackMatcher()->match(staCand, regionalTkTracks);
   LogTrace(category) << " Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
 
-  if ( trackerTracks.empty() ) {
-    if ( staCandIn.first == nullptr) delete staCand.first;
+  if (trackerTracks.empty()) {
+    if (staCandIn.first == nullptr)
+      delete staCand.first;
 
     return CandidateContainer();
   }
@@ -123,56 +116,56 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   LogTrace(category) << " Turn tkMatchedTracks into MuonCandidates";
   CandidateContainer tkTrajs;
   for (vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
-
-      MuonCandidate* muonCand = new MuonCandidate( nullptr ,staCand.second,(*tkt).second, nullptr);
-      tkTrajs.push_back(muonCand);
+    MuonCandidate* muonCand = new MuonCandidate(nullptr, staCand.second, (*tkt).second, nullptr);
+    tkTrajs.push_back(muonCand);
   }
 
-  if ( tkTrajs.empty() )  {
+  if (tkTrajs.empty()) {
     LogTrace(category) << " tkTrajs empty";
-    if ( staCandIn.first == nullptr) delete staCand.first;
+    if (staCandIn.first == nullptr)
+      delete staCand.first;
 
     return CandidateContainer();
   }
 
   CandidateContainer result = build(staCand, tkTrajs);
-  LogTrace(category) << " Found "<< result.size() << " GLBMuons from one STACand";
+  LogTrace(category) << " Found " << result.size() << " GLBMuons from one STACand";
 
   // free memory
-  if ( staCandIn.first == nullptr) delete staCand.first;
+  if (staCandIn.first == nullptr)
+    delete staCand.first;
 
-  for( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); ++it) {
-    if ( (*it)->trajectory() ) delete (*it)->trajectory();
-    if ( (*it)->trackerTrajectory() ) delete (*it)->trackerTrajectory();
-    if ( *it ) delete (*it);
+  for (CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); ++it) {
+    if ((*it)->trajectory())
+      delete (*it)->trajectory();
+    if ((*it)->trackerTrajectory())
+      delete (*it)->trackerTrajectory();
+    if (*it)
+      delete (*it);
   }
-  tkTrajs.clear();  
-
+  tkTrajs.clear();
 
   return result;
-  
 }
 
 //
 // make a TrackCand collection using tracker Track, Trajectory information
 //
-vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) {
-
+vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::makeTkCandCollection(
+    const TrackCand& staCand) {
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|makeTkCandCollection";
 
   vector<TrackCand> tkCandColl;
-  
+
   vector<TrackCand> tkTrackCands;
-    
-  for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
-    reco::TrackRef tkTrackRef(allTrackerTracks,position);
-    TrackCand tkCand = TrackCand((Trajectory*)nullptr,tkTrackRef);
-    tkTrackCands.push_back(tkCand); 
+
+  for (unsigned int position = 0; position != allTrackerTracks->size(); ++position) {
+    reco::TrackRef tkTrackRef(allTrackerTracks, position);
+    TrackCand tkCand = TrackCand((Trajectory*)nullptr, tkTrackRef);
+    tkTrackCands.push_back(tkCand);
   }
-  
-  
-  tkCandColl = chooseRegionalTrackerTracks(staCand,tkTrackCands);
-  
+
+  tkCandColl = chooseRegionalTrackerTracks(staCand, tkTrackCands);
+
   return tkCandColl;
-  
 }

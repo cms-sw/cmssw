@@ -177,13 +177,13 @@ l1tEtSumJetOfflineDQMEmu = l1tEtSumJetOfflineDQM.clone(
 
 # sequences
 l1tEtSumJetOfflineDQMSeq = cms.Sequence(
-    goodPFJetsForL1T
+    cms.ignore(goodPFJetsForL1T)
     + l1tPFMetNoMuForDQM
     + l1tEtSumJetOfflineDQM
 )
 
 l1tEtSumJetOfflineDQMEmuSeq = cms.Sequence(
-    goodPFJetsForL1T
+    cms.ignore(goodPFJetsForL1T)
     + l1tPFMetNoMuForDQM
     + l1tEtSumJetOfflineDQMEmu
 )

@@ -38,66 +38,74 @@
 
 using namespace reco;
 
-namespace
-{
-  const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, const std::string& mvaName, std::vector<TFile*>& inputFilesToDelete)
-  {
-    if ( inputFileName.location() == edm::FileInPath::Unknown ) throw cms::Exception("PFRecoTauDiscriminationByIsolationMVA2::loadMVA") 
-      << " Failed to find File = " << inputFileName << " !!\n";
+namespace {
+  const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName,
+                                   const std::string& mvaName,
+                                   std::vector<TFile*>& inputFilesToDelete) {
+    if (inputFileName.location() == edm::FileInPath::Unknown)
+      throw cms::Exception("PFRecoTauDiscriminationByIsolationMVA2::loadMVA")
+          << " Failed to find File = " << inputFileName << " !!\n";
     TFile* inputFile = new TFile(inputFileName.fullPath().data());
-  
+
     //const GBRForest* mva = dynamic_cast<GBRForest*>(inputFile->Get(mvaName.data())); // CV: dynamic_cast<GBRForest*> fails for some reason ?!
     const GBRForest* mva = (GBRForest*)inputFile->Get(mvaName.data());
-    if ( !mva )
+    if (!mva)
       throw cms::Exception("PFRecoTauDiscriminationByIsolationMVA2::loadMVA")
-        << " Failed to load MVA = " << mvaName.data() << " from file = " << inputFileName.fullPath().data() << " !!\n";
+          << " Failed to load MVA = " << mvaName.data() << " from file = " << inputFileName.fullPath().data()
+          << " !!\n";
 
     inputFilesToDelete.push_back(inputFile);
-    
+
     return mva;
   }
 
-  const GBRForest* loadMVAfromDB(const edm::EventSetup& es, const std::string& mvaName)
-  {
+  const GBRForest* loadMVAfromDB(const edm::EventSetup& es, const std::string& mvaName) {
     edm::ESHandle<GBRForest> mva;
     es.get<GBRWrapperRcd>().get(mvaName, mva);
     return mva.product();
   }
-}
+}  // namespace
 
-class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProducerBase  
-{
- public:
+class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProducerBase {
+public:
   explicit PFRecoTauDiscriminationByIsolationMVA2(const edm::ParameterSet& cfg)
-    : PFTauDiscriminationProducerBase(cfg),
-      moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-      mvaReader_(nullptr),
-      mvaInput_(nullptr),
-      category_output_()
-  {
+      : PFTauDiscriminationProducerBase(cfg),
+        moduleLabel_(cfg.getParameter<std::string>("@module_label")),
+        mvaReader_(nullptr),
+        mvaInput_(nullptr),
+        category_output_() {
     mvaName_ = cfg.getParameter<std::string>("mvaName");
     loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
-    if ( !loadMVAfromDB_ ) {
-	inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
-    }    
+    if (!loadMVAfromDB_) {
+      inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
+    }
     std::string mvaOpt_string = cfg.getParameter<std::string>("mvaOpt");
-    if      ( mvaOpt_string == "oldDMwoLT" ) mvaOpt_ = kOldDMwoLT;
-    else if ( mvaOpt_string == "oldDMwLT"  ) mvaOpt_ = kOldDMwLT;
-    else if ( mvaOpt_string == "newDMwoLT" ) mvaOpt_ = kNewDMwoLT;
-    else if ( mvaOpt_string == "newDMwLT"  ) mvaOpt_ = kNewDMwLT;
-    else throw cms::Exception("PFRecoTauDiscriminationByIsolationMVA2")
-      << " Invalid Configuration Parameter 'mvaOpt' = " << mvaOpt_string << " !!\n";
-    
-    if      ( mvaOpt_ == kOldDMwoLT || mvaOpt_ == kNewDMwoLT ) mvaInput_ = new float[6];
-    else if ( mvaOpt_ == kOldDMwLT  || mvaOpt_ == kNewDMwLT  ) mvaInput_ = new float[12];
-    else assert(0);
+    if (mvaOpt_string == "oldDMwoLT")
+      mvaOpt_ = kOldDMwoLT;
+    else if (mvaOpt_string == "oldDMwLT")
+      mvaOpt_ = kOldDMwLT;
+    else if (mvaOpt_string == "newDMwoLT")
+      mvaOpt_ = kNewDMwoLT;
+    else if (mvaOpt_string == "newDMwLT")
+      mvaOpt_ = kNewDMwLT;
+    else
+      throw cms::Exception("PFRecoTauDiscriminationByIsolationMVA2")
+          << " Invalid Configuration Parameter 'mvaOpt' = " << mvaOpt_string << " !!\n";
 
-    TauTransverseImpactParameters_token = consumes<PFTauTIPAssociationByRef>(cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters"));
-    
+    if (mvaOpt_ == kOldDMwoLT || mvaOpt_ == kNewDMwoLT)
+      mvaInput_ = new float[6];
+    else if (mvaOpt_ == kOldDMwLT || mvaOpt_ == kNewDMwLT)
+      mvaInput_ = new float[12];
+    else
+      assert(0);
+
+    TauTransverseImpactParameters_token =
+        consumes<PFTauTIPAssociationByRef>(cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters"));
+
     ChargedIsoPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcChargedIsoPtSum"));
     NeutralIsoPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcNeutralIsoPtSum"));
     PUcorrPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcPUcorrPtSum"));
-  
+
     verbosity_ = cfg.getParameter<int>("verbosity");
 
     produces<PFTauDiscriminator>("category");
@@ -109,19 +117,18 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
 
   void endEvent(edm::Event&) override;
 
-  ~PFRecoTauDiscriminationByIsolationMVA2() override
-  {
-    if(!loadMVAfromDB_) delete mvaReader_;
+  ~PFRecoTauDiscriminationByIsolationMVA2() override {
+    if (!loadMVAfromDB_)
+      delete mvaReader_;
     delete[] mvaInput_;
-    for ( std::vector<TFile*>::iterator it = inputFilesToDelete_.begin();
-	  it != inputFilesToDelete_.end(); ++it ) {
+    for (std::vector<TFile*>::iterator it = inputFilesToDelete_.begin(); it != inputFilesToDelete_.end(); ++it) {
       delete (*it);
     }
   }
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
- private:
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+private:
   std::string moduleLabel_;
 
   std::string mvaName_;
@@ -132,7 +139,8 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
   int mvaOpt_;
   float* mvaInput_;
 
-  typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > PFTauTIPAssociationByRef;
+  typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> >
+      PFTauTIPAssociationByRef;
   edm::EDGetTokenT<PFTauTIPAssociationByRef> TauTransverseImpactParameters_token;
   edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
 
@@ -151,10 +159,9 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
   int verbosity_;
 };
 
-void PFRecoTauDiscriminationByIsolationMVA2::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
-{
-  if ( !mvaReader_ ) {
-    if ( loadMVAfromDB_ ) {
+void PFRecoTauDiscriminationByIsolationMVA2::beginEvent(const edm::Event& evt, const edm::EventSetup& es) {
+  if (!mvaReader_) {
+    if (loadMVAfromDB_) {
       mvaReader_ = loadMVAfromDB(es, mvaName_);
     } else {
       mvaReader_ = loadMVAfromFile(inputFileName_, mvaName_, inputFilesToDelete_);
@@ -171,62 +178,67 @@ void PFRecoTauDiscriminationByIsolationMVA2::beginEvent(const edm::Event& evt, c
   category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
 }
 
-double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau) const
-{
+double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau) const {
   // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
-  double category = 0.; 
+  double category = 0.;
   category_output_->setValue(tauIndex_, category);
 
   // CV: computation of MVA value requires presence of leading charged hadron
-  if ( tau->leadChargedHadrCand().isNull() ) return 0.;
+  if (tau->leadChargedHadrCand().isNull())
+    return 0.;
 
   int tauDecayMode = tau->decayMode();
 
-  if ( ((mvaOpt_ == kOldDMwoLT || mvaOpt_ == kOldDMwLT) && (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 10)) ||
-       ((mvaOpt_ == kNewDMwoLT || mvaOpt_ == kNewDMwLT) && (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 5 || tauDecayMode == 6 || tauDecayMode == 10)) ) {
-
+  if (((mvaOpt_ == kOldDMwoLT || mvaOpt_ == kOldDMwLT) &&
+       (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 10)) ||
+      ((mvaOpt_ == kNewDMwoLT || mvaOpt_ == kNewDMwLT) &&
+       (tauDecayMode == 0 || tauDecayMode == 1 || tauDecayMode == 2 || tauDecayMode == 5 || tauDecayMode == 6 ||
+        tauDecayMode == 10))) {
     double chargedIsoPtSum = (*chargedIsoPtSums_)[tau];
     double neutralIsoPtSum = (*neutralIsoPtSums_)[tau];
-    double puCorrPtSum     = (*puCorrPtSums_)[tau];
-    
+    double puCorrPtSum = (*puCorrPtSums_)[tau];
+
     const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[tau];
-    
+
     double decayDistX = tauLifetimeInfo.flightLength().x();
     double decayDistY = tauLifetimeInfo.flightLength().y();
     double decayDistZ = tauLifetimeInfo.flightLength().z();
-    double decayDistMag = TMath::Sqrt(decayDistX*decayDistX + decayDistY*decayDistY + decayDistZ*decayDistZ);
-    
-    if ( mvaOpt_ == kOldDMwoLT || mvaOpt_ == kNewDMwoLT ) {
-      mvaInput_[0]  = TMath::Log(TMath::Max(1., Double_t(tau->pt())));
-      mvaInput_[1]  = TMath::Abs(tau->eta());
-      mvaInput_[2]  = TMath::Log(TMath::Max(1.e-2, chargedIsoPtSum));
-      mvaInput_[3]  = TMath::Log(TMath::Max(1.e-2, neutralIsoPtSum - 0.125*puCorrPtSum));
-      mvaInput_[4]  = TMath::Log(TMath::Max(1.e-2, puCorrPtSum));
-      mvaInput_[5]  = tauDecayMode;
-    } else if ( mvaOpt_ == kOldDMwLT || mvaOpt_ == kNewDMwLT  ) {
-      mvaInput_[0]  = TMath::Log(TMath::Max(1., Double_t(tau->pt())));
-      mvaInput_[1]  = TMath::Abs(tau->eta());
-      mvaInput_[2]  = TMath::Log(TMath::Max(1.e-2, chargedIsoPtSum));
-      mvaInput_[3]  = TMath::Log(TMath::Max(1.e-2, neutralIsoPtSum - 0.125*puCorrPtSum));
-      mvaInput_[4]  = TMath::Log(TMath::Max(1.e-2, puCorrPtSum));
-      mvaInput_[5]  = tauDecayMode;
-      mvaInput_[6]  = TMath::Sign(+1., tauLifetimeInfo.dxy());
-      mvaInput_[7]  = TMath::Sqrt(TMath::Abs(TMath::Min(1., tauLifetimeInfo.dxy())));
-      mvaInput_[8]  = TMath::Min(10., TMath::Abs(tauLifetimeInfo.dxy_Sig()));
-      mvaInput_[9]  = ( tauLifetimeInfo.hasSecondaryVertex() ) ? 1. : 0.;
+    double decayDistMag = TMath::Sqrt(decayDistX * decayDistX + decayDistY * decayDistY + decayDistZ * decayDistZ);
+
+    if (mvaOpt_ == kOldDMwoLT || mvaOpt_ == kNewDMwoLT) {
+      mvaInput_[0] = TMath::Log(TMath::Max(1., Double_t(tau->pt())));
+      mvaInput_[1] = TMath::Abs(tau->eta());
+      mvaInput_[2] = TMath::Log(TMath::Max(1.e-2, chargedIsoPtSum));
+      mvaInput_[3] = TMath::Log(TMath::Max(1.e-2, neutralIsoPtSum - 0.125 * puCorrPtSum));
+      mvaInput_[4] = TMath::Log(TMath::Max(1.e-2, puCorrPtSum));
+      mvaInput_[5] = tauDecayMode;
+    } else if (mvaOpt_ == kOldDMwLT || mvaOpt_ == kNewDMwLT) {
+      mvaInput_[0] = TMath::Log(TMath::Max(1., Double_t(tau->pt())));
+      mvaInput_[1] = TMath::Abs(tau->eta());
+      mvaInput_[2] = TMath::Log(TMath::Max(1.e-2, chargedIsoPtSum));
+      mvaInput_[3] = TMath::Log(TMath::Max(1.e-2, neutralIsoPtSum - 0.125 * puCorrPtSum));
+      mvaInput_[4] = TMath::Log(TMath::Max(1.e-2, puCorrPtSum));
+      mvaInput_[5] = tauDecayMode;
+      mvaInput_[6] = TMath::Sign(+1., tauLifetimeInfo.dxy());
+      mvaInput_[7] = TMath::Sqrt(TMath::Abs(TMath::Min(1., tauLifetimeInfo.dxy())));
+      mvaInput_[8] = TMath::Min(10., TMath::Abs(tauLifetimeInfo.dxy_Sig()));
+      mvaInput_[9] = (tauLifetimeInfo.hasSecondaryVertex()) ? 1. : 0.;
       mvaInput_[10] = TMath::Sqrt(decayDistMag);
       mvaInput_[11] = TMath::Min(10., tauLifetimeInfo.flightLengthSig());
     }
-        
+
     double mvaValue = mvaReader_->GetClassifier(mvaInput_);
-    if ( verbosity_ ) {
+    if (verbosity_) {
       edm::LogPrint("PFTauDiscByMVAIsol2") << "<PFRecoTauDiscriminationByIsolationMVA2::discriminate>:";
       edm::LogPrint("PFTauDiscByMVAIsol2") << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta();
-      edm::LogPrint("PFTauDiscByMVAIsol2") << " isolation: charged = " << chargedIsoPtSum << ", neutral = " << neutralIsoPtSum << ", PUcorr = " << puCorrPtSum;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " isolation: charged = " << chargedIsoPtSum
+                                           << ", neutral = " << neutralIsoPtSum << ", PUcorr = " << puCorrPtSum;
       edm::LogPrint("PFTauDiscByMVAIsol2") << " decay mode = " << tauDecayMode;
-      edm::LogPrint("PFTauDiscByMVAIsol2") << " impact parameter: distance = " << tauLifetimeInfo.dxy() << ", significance = " << tauLifetimeInfo.dxy_Sig();
-      edm::LogPrint("PFTauDiscByMVAIsol2") << " has decay vertex = " << tauLifetimeInfo.hasSecondaryVertex() << ":"
-					   << " distance = " << decayDistMag << ", significance = " << tauLifetimeInfo.flightLengthSig();
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " impact parameter: distance = " << tauLifetimeInfo.dxy()
+                                           << ", significance = " << tauLifetimeInfo.dxy_Sig();
+      edm::LogPrint("PFTauDiscByMVAIsol2")
+          << " has decay vertex = " << tauLifetimeInfo.hasSecondaryVertex() << ":"
+          << " distance = " << decayDistMag << ", significance = " << tauLifetimeInfo.flightLengthSig();
       edm::LogPrint("PFTauDiscByMVAIsol2") << "--> mvaValue = " << mvaValue;
     }
     return mvaValue;
@@ -235,14 +247,12 @@ double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau)
   }
 }
 
-void PFRecoTauDiscriminationByIsolationMVA2::endEvent(edm::Event& evt)
-{
+void PFRecoTauDiscriminationByIsolationMVA2::endEvent(edm::Event& evt) {
   // add all category indices to event
   evt.put(std::move(category_output_), "category");
 }
 
-void
-PFRecoTauDiscriminationByIsolationMVA2::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void PFRecoTauDiscriminationByIsolationMVA2::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // pfRecoTauDiscriminationByIsolationMVA2
   edm::ParameterSetDescription desc;
 
@@ -257,7 +267,7 @@ PFRecoTauDiscriminationByIsolationMVA2::fillDescriptions(edm::ConfigurationDescr
   desc.add<edm::InputTag>("srcPUcorrPtSum");
   desc.add<int>("verbosity", 0);
 
-  fillProducerDescriptions(desc); // inherited from the base
+  fillProducerDescriptions(desc);  // inherited from the base
 
   descriptions.add("pfRecoTauDiscriminationByIsolationMVA2", desc);
 }

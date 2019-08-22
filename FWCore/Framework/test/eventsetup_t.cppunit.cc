@@ -477,6 +477,44 @@ namespace {
 
     ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> m_token;
   };
+
+  class ConsumesProducer : public ESProducer {
+  public:
+    ConsumesProducer() : token_{setWhatProduced(this, "consumes").consumes<edm::eventsetup::test::DummyData>()} {}
+    std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
+      auto const& data = iRecord.get(token_);
+      return std::make_unique<edm::eventsetup::test::DummyData>(data);
+    }
+
+  private:
+    edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
+  };
+
+  class ConsumesFromProducer : public ESProducer {
+  public:
+    ConsumesFromProducer()
+        : token_{setWhatProduced(this, "consumesFrom").consumesFrom<edm::eventsetup::test::DummyData, DummyRecord>()} {}
+    std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
+      auto const& data = iRecord.get(token_);
+      return std::make_unique<edm::eventsetup::test::DummyData>(data);
+    }
+
+  private:
+    edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
+  };
+
+  class SetConsumesProducer : public ESProducer {
+  public:
+    SetConsumesProducer() { setWhatProduced(this, "setConsumes").setConsumes(token_); }
+    std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
+      auto const& data = iRecord.get(token_);
+      return std::make_unique<edm::eventsetup::test::DummyData>(data);
+    }
+
+  private:
+    edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
+  };
+
 }  // namespace
 
 void testEventsetup::getDataWithESGetTokenTest() {
@@ -509,6 +547,40 @@ void testEventsetup::getDataWithESGetTokenTest() {
       dummyProv->setAppendToDataLabel(ps);
       provider.add(dummyProv);
     }
+    {
+      edm::eventsetup::ComponentDescription description("ConsumesProducer", "consumes", false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "consumes");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<ConsumesProducer>();
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description("ConsumesFromProducer", "consumesFrom", false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "consumesFrom");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<ConsumesFromProducer>();
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description("SetConsumesProducer", "setConsumes", false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "setConsumes");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<SetConsumesProducer>();
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+
     provider.finishConfiguration();
 
     auto const& eventSetupImpl = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
@@ -551,6 +623,33 @@ void testEventsetup::getDataWithESGetTokenTest() {
       CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), cms::Exception);
     }
 
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("", "consumes")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,
+                            static_cast<unsigned int>(edm::Transition::Event),
+                            consumer.esGetTokenIndices(edm::Transition::Event)};
+      const DummyData& data = eventSetup.getData(consumer.m_token);
+      CPPUNIT_ASSERT(kBad.value_ == data.value_);
+    }
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("", "consumesFrom")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,
+                            static_cast<unsigned int>(edm::Transition::Event),
+                            consumer.esGetTokenIndices(edm::Transition::Event)};
+      const DummyData& data = eventSetup.getData(consumer.m_token);
+      CPPUNIT_ASSERT(kBad.value_ == data.value_);
+    }
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("", "setConsumes")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,
+                            static_cast<unsigned int>(edm::Transition::Event),
+                            consumer.esGetTokenIndices(edm::Transition::Event)};
+      const DummyData& data = eventSetup.getData(consumer.m_token);
+      CPPUNIT_ASSERT(kBad.value_ == data.value_);
+    }
   } catch (const cms::Exception& iException) {
     std::cout << "caught " << iException.explainSelf() << std::endl;
     throw;

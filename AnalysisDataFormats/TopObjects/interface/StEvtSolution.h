@@ -19,47 +19,45 @@
 #include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
 
 class StEvtSolution {
-
   friend class StEvtSolutionMaker;
   friend class StKinFitter;
-  
- public:
 
+public:
   StEvtSolution();
   virtual ~StEvtSolution();
-  
+
   //-------------------------------------------
-  // get calibrated base objects 
+  // get calibrated base objects
   //-------------------------------------------
-  pat::Jet       getBottom()   const;
-  pat::Jet       getLight()    const;
-  pat::Muon      getMuon()     const { return *muon_; };
-  pat::Electron  getElectron() const { return *electron_; };
-  pat::MET       getNeutrino() const { return *neutrino_; };
-  reco::Particle getLepW()     const;  
-  reco::Particle getLept()     const;
+  pat::Jet getBottom() const;
+  pat::Jet getLight() const;
+  pat::Muon getMuon() const { return *muon_; };
+  pat::Electron getElectron() const { return *electron_; };
+  pat::MET getNeutrino() const { return *neutrino_; };
+  reco::Particle getLepW() const;
+  reco::Particle getLept() const;
 
   //-------------------------------------------
   // get the matched gen particles
   //-------------------------------------------
   const edm::RefProd<StGenEvent>& getGenEvent() const { return theGenEvt_; };
-  const reco::GenParticle * getGenBottom()   const;
+  const reco::GenParticle* getGenBottom() const;
   //const reco::GenParticle * getGenLight() const; // not implemented yet
-  const reco::GenParticle * getGenLepton()   const;
-  const reco::GenParticle * getGenNeutrino() const;
-  const reco::GenParticle * getGenLepW()     const;
-  const reco::GenParticle * getGenLept()     const;
+  const reco::GenParticle* getGenLepton() const;
+  const reco::GenParticle* getGenNeutrino() const;
+  const reco::GenParticle* getGenLepW() const;
+  const reco::GenParticle* getGenLept() const;
 
   //-------------------------------------------
   // get uncalibrated reco objects
   //-------------------------------------------
-  pat::Jet       getRecBottom()   const { return this->getBottom().correctedJet("RAW"); };
-  pat::Jet       getRecLight()    const { return this->getLight ().correctedJet("RAW"); };
-  pat::Muon      getRecMuon()     const { return this->getMuon(); };     // redundant
-  pat::Electron  getRecElectron() const { return this->getElectron(); }; // redundant
-  pat::MET       getRecNeutrino() const { return this->getNeutrino(); }; // redundant
-  reco::Particle getRecLepW()     const { return this->getLepW(); };     // redundant
-  reco::Particle getRecLept()     const;
+  pat::Jet getRecBottom() const { return this->getBottom().correctedJet("RAW"); };
+  pat::Jet getRecLight() const { return this->getLight().correctedJet("RAW"); };
+  pat::Muon getRecMuon() const { return this->getMuon(); };              // redundant
+  pat::Electron getRecElectron() const { return this->getElectron(); };  // redundant
+  pat::MET getRecNeutrino() const { return this->getNeutrino(); };       // redundant
+  reco::Particle getRecLepW() const { return this->getLepW(); };         // redundant
+  reco::Particle getRecLept() const;
 
   //-------------------------------------------
   // get objects from kinematic fit
@@ -80,73 +78,90 @@ class StEvtSolution {
   // get other event info
   //-------------------------------------------
   std::vector<double> getScanValues() const { return scanValues_; }
-  double getChi2Prob()       const { return chi2Prob_; }
+  double getChi2Prob() const { return chi2Prob_; }
   double getPtrueCombExist() const { return pTrueCombExist_; }
-  double getPtrueBJetSel()  const { return pTrueBJetSel_; }
+  double getPtrueBJetSel() const { return pTrueBJetSel_; }
   double getPtrueBhadrSel() const { return pTrueBhadrSel_; }
   double getPtrueJetComb() const { return pTrueJetComb_; }
-  double getSignalPur()   const { return signalPur_; }
+  double getSignalPur() const { return signalPur_; }
   double getSignalLRTot() const { return signalLRTot_; }
   double getSumDeltaRjp() const { return sumDeltaRjp_; }
   double getDeltaRB() const { return deltaRB_; }
   double getDeltaRL() const { return deltaRL_; }
-  int  getChangeBL() const { return changeBL_; }
+  int getChangeBL() const { return changeBL_; }
   bool getBestSol() const { return bestSol_; }
- 
- protected:         
 
-  //-------------------------------------------  
+protected:
+  //-------------------------------------------
   // set the generated event
   //-------------------------------------------
-  void setGenEvt(const edm::Handle<StGenEvent> &);
+  void setGenEvt(const edm::Handle<StGenEvent>&);
 
   //-------------------------------------------
   // set the basic objects
   //-------------------------------------------
-  void setJetCorrectionScheme(int scheme) { jetCorrScheme_ = scheme;};
-  void setBottom(const edm::Handle<std::vector<pat::Jet > >& jet, int i) 
-  { bottom_ = edm::Ref<std::vector<pat::Jet> >(jet, i); };
-  void setLight (const edm::Handle<std::vector<pat::Jet > >& jet, int i) 
-  { light_ = edm::Ref<std::vector<pat::Jet> >(jet, i); };
-  void setMuon  (const edm::Handle<std::vector<pat::Muon> >& muon, int i) 
-  { muon_ = edm::Ref<std::vector<pat::Muon> >(muon, i); decay_ = "muon"; };
-  void setElectron(const edm::Handle<std::vector<pat::Electron> >& elec, int i) 
-  { electron_ = edm::Ref<std::vector<pat::Electron> >(elec, i); decay_ = "electron"; };
-  void setNeutrino(const edm::Handle<std::vector<pat::MET> >& met, int i)
-  { neutrino_ = edm::Ref<std::vector<pat::MET> >(met, i); };
+  void setJetCorrectionScheme(int scheme) { jetCorrScheme_ = scheme; };
+  void setBottom(const edm::Handle<std::vector<pat::Jet> >& jet, int i) {
+    bottom_ = edm::Ref<std::vector<pat::Jet> >(jet, i);
+  };
+  void setLight(const edm::Handle<std::vector<pat::Jet> >& jet, int i) {
+    light_ = edm::Ref<std::vector<pat::Jet> >(jet, i);
+  };
+  void setMuon(const edm::Handle<std::vector<pat::Muon> >& muon, int i) {
+    muon_ = edm::Ref<std::vector<pat::Muon> >(muon, i);
+    decay_ = "muon";
+  };
+  void setElectron(const edm::Handle<std::vector<pat::Electron> >& elec, int i) {
+    electron_ = edm::Ref<std::vector<pat::Electron> >(elec, i);
+    decay_ = "electron";
+  };
+  void setNeutrino(const edm::Handle<std::vector<pat::MET> >& met, int i) {
+    neutrino_ = edm::Ref<std::vector<pat::MET> >(met, i);
+  };
 
   //-------------------------------------------
-  // set the fitted objects 
+  // set the fitted objects
   //-------------------------------------------
-  void setFitBottom(const pat::Particle& part) { fitBottom_.clear(); fitBottom_.push_back(part); };
-  void setFitLight (const pat::Particle& part) { fitLight_.clear(); fitLight_.push_back(part); };
-  void setFitLepton(const pat::Particle& part) { fitLepton_.clear(); fitLepton_.push_back(part); };
-  void setFitNeutrino(const pat::Particle& part) { fitNeutrino_.clear(); fitNeutrino_.push_back(part); };
+  void setFitBottom(const pat::Particle& part) {
+    fitBottom_.clear();
+    fitBottom_.push_back(part);
+  };
+  void setFitLight(const pat::Particle& part) {
+    fitLight_.clear();
+    fitLight_.push_back(part);
+  };
+  void setFitLepton(const pat::Particle& part) {
+    fitLepton_.clear();
+    fitLepton_.push_back(part);
+  };
+  void setFitNeutrino(const pat::Particle& part) {
+    fitNeutrino_.clear();
+    fitNeutrino_.push_back(part);
+  };
 
   //-------------------------------------------
   // set other info on the event
   //-------------------------------------------
-  void setChi2Prob(double prob){ chi2Prob_ = prob; };
+  void setChi2Prob(double prob) { chi2Prob_ = prob; };
   void setScanValues(const std::vector<double>&);
-  void setPtrueCombExist(double pce){ pTrueCombExist_ = pce; };
-  void setPtrueBJetSel (double pbs) { pTrueBJetSel_   = pbs; };
-  void setPtrueBhadrSel(double pbh) { pTrueBhadrSel_  = pbh; };
-  void setPtrueJetComb (double pt)  { pTrueJetComb_   = pt;  };
-  void setSignalPurity (double pur) { signalPur_ = pur; };
-  void setSignalLRTot(double lrt){ signalLRTot_ = lrt; };
-  void setSumDeltaRjp(double sdr){ sumDeltaRjp_ = sdr; };
+  void setPtrueCombExist(double pce) { pTrueCombExist_ = pce; };
+  void setPtrueBJetSel(double pbs) { pTrueBJetSel_ = pbs; };
+  void setPtrueBhadrSel(double pbh) { pTrueBhadrSel_ = pbh; };
+  void setPtrueJetComb(double pt) { pTrueJetComb_ = pt; };
+  void setSignalPurity(double pur) { signalPur_ = pur; };
+  void setSignalLRTot(double lrt) { signalLRTot_ = lrt; };
+  void setSumDeltaRjp(double sdr) { sumDeltaRjp_ = sdr; };
   void setDeltaRB(double adr) { deltaRB_ = adr; };
   void setDeltaRL(double adr) { deltaRL_ = adr; };
   void setChangeBL(int bl) { changeBL_ = bl; };
-  void setBestSol(bool bs) { bestSol_  = bs; };
-  
- private:
+  void setBestSol(bool bs) { bestSol_ = bs; };
 
-  //-------------------------------------------  
+private:
+  //-------------------------------------------
   // particle content
   //-------------------------------------------
   edm::RefProd<StGenEvent> theGenEvt_;
-  edm::Ref<std::vector<pat::Jet> >  bottom_, light_;
+  edm::Ref<std::vector<pat::Jet> > bottom_, light_;
   edm::Ref<std::vector<pat::Muon> > muon_;
   edm::Ref<std::vector<pat::Electron> > electron_;
   edm::Ref<std::vector<pat::MET> > neutrino_;

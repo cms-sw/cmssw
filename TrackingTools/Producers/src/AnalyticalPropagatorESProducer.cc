@@ -1,4 +1,9 @@
-#include "TrackingTools/Producers/interface/AnalyticalPropagatorESProducer.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -13,39 +18,46 @@
 
 using namespace edm;
 
-AnalyticalPropagatorESProducer::AnalyticalPropagatorESProducer(const edm::ParameterSet & p) 
-{
-  std::string myname = p.getParameter<std::string>("ComponentName");
-  pset_ = p;
-  setWhatProduced(this,myname);
+class AnalyticalPropagatorESProducer : public edm::ESProducer {
+public:
+  AnalyticalPropagatorESProducer(const edm::ParameterSet& p);
+  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& oDesc);
+
+private:
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
+  const double dphiCut_;
+  const PropagationDirection dir_;
+};
+
+AnalyticalPropagatorESProducer::AnalyticalPropagatorESProducer(const edm::ParameterSet& p)
+    : magToken_{setWhatProduced(this, p.getParameter<std::string>("ComponentName"))
+                    .consumesFrom<MagneticField, IdealMagneticFieldRecord>(
+                        edm::ESInputTag("", p.getParameter<std::string>("SimpleMagneticField")))},
+      dphiCut_{p.getParameter<double>("MaxDPhi")},
+      dir_{[](std::string const& pdir) {
+        if (pdir == "oppositeToMomentum")
+          return oppositeToMomentum;
+        if (pdir == "alongMomentum")
+          return alongMomentum;
+        if (pdir == "anyDirection")
+          return anyDirection;
+        return alongMomentum;
+      }(p.getParameter<std::string>("PropagationDirection"))} {}
+
+void AnalyticalPropagatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& oDesc) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("ComponentName")->setComment("the data label assigned to the Propagator");
+  desc.add<std::string>("SimpleMagneticField", "")->setComment("the data label used to retrieve the MagneticField");
+  desc.add<std::string>("PropagationDirection");
+  desc.add<double>("MaxDPhi");
+
+  oDesc.addDefault(desc);
 }
 
-AnalyticalPropagatorESProducer::~AnalyticalPropagatorESProducer() {}
-
-std::unique_ptr<Propagator> 
-AnalyticalPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
-//   if (_propagator){
-//     delete _propagator;
-//     _propagator = 0;
-//   }
-  ESHandle<MagneticField> magfield;
-  std::string mfName = "";
-  if (pset_.exists("SimpleMagneticField"))
-    mfName = pset_.getParameter<std::string>("SimpleMagneticField");
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfName,magfield);
-  //  edm::ESInputTag mfESInputTag(mfName);
-  //  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,magfield);
-
-  std::string pdir = pset_.getParameter<std::string>("PropagationDirection");
-  double dphiCut   = pset_.getParameter<double>("MaxDPhi");   
-
-  PropagationDirection dir = alongMomentum;
-  
-  if (pdir == "oppositeToMomentum") dir = oppositeToMomentum;
-  if (pdir == "alongMomentum") dir = alongMomentum;
-  if (pdir == "anyDirection") dir = anyDirection;
-  
-  return std::make_unique<AnalyticalPropagator>(&(*magfield), dir,dphiCut);
+std::unique_ptr<Propagator> AnalyticalPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord) {
+  return std::make_unique<AnalyticalPropagator>(&iRecord.get(magToken_), dir_, dphiCut_);
 }
 
-
+DEFINE_FWK_EVENTSETUP_MODULE(AnalyticalPropagatorESProducer);

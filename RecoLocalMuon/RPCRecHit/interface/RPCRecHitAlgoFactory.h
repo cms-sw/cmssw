@@ -12,7 +12,3 @@
 
 typedef edmplugin::PluginFactory<RPCRecHitBaseAlgo *(const edm::ParameterSet &)> RPCRecHitAlgoFactory;
 #endif
-
-
-
-

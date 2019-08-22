@@ -26,37 +26,30 @@
 // forward declarations
 class FWParameterBase;
 
-class FWParameterizable
-{
-
+class FWParameterizable {
 public:
-   FWParameterizable();
-   virtual ~FWParameterizable();
+  FWParameterizable();
+  virtual ~FWParameterizable();
 
-   typedef std::vector<FWParameterBase* >::const_iterator const_iterator;
-   // ---------- const member functions ---------------------
-   const_iterator begin() const {
-      return m_parameters.begin();
-   }
+  typedef std::vector<FWParameterBase*>::const_iterator const_iterator;
+  // ---------- const member functions ---------------------
+  const_iterator begin() const { return m_parameters.begin(); }
 
-   const_iterator end() const {
-      return m_parameters.end();
-   }
+  const_iterator end() const { return m_parameters.end(); }
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   //base class implementation does not take ownership of added parameters
-   void add(FWParameterBase*);
+  // ---------- member functions ---------------------------
+  //base class implementation does not take ownership of added parameters
+  void add(FWParameterBase*);
 
 private:
-   FWParameterizable(const FWParameterizable&) = delete;    // stop default
+  FWParameterizable(const FWParameterizable&) = delete;  // stop default
 
-   const FWParameterizable& operator=(const FWParameterizable&) = delete;    // stop default
+  const FWParameterizable& operator=(const FWParameterizable&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   std::vector<FWParameterBase* > m_parameters;
+  // ---------- member data --------------------------------
+  std::vector<FWParameterBase*> m_parameters;
 };
-
 
 #endif

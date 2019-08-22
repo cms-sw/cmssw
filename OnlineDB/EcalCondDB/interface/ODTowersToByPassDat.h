@@ -9,7 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODTowersToByPassInfo.h"
 
 class ODTowersToByPassDat : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODTowersToByPassDat();
   ~ODTowersToByPassDat() override;
@@ -35,29 +35,22 @@ class ODTowersToByPassDat : public IODConfig {
   inline void setStatus(int dac) { m_sta = dac; }
   inline int getStatus() const { return m_sta; }
 
+private:
+  void prepareWrite() noexcept(false) override;
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+  void writeDB(const ODTowersToByPassDat* item, ODTowersToByPassInfo* iov) noexcept(false);
 
-  void writeDB(const ODTowersToByPassDat* item, ODTowersToByPassInfo* iov )
-    noexcept(false);
+  void writeArrayDB(const std::vector<ODTowersToByPassDat>& data, ODTowersToByPassInfo* iov) noexcept(false);
 
-  void writeArrayDB(const std::vector< ODTowersToByPassDat >& data, ODTowersToByPassInfo* iov)
-    noexcept(false);
-
-
-  void fetchData(std::vector< ODTowersToByPassDat >* fillMap, ODTowersToByPassInfo* iov)
-     noexcept(false);
+  void fetchData(std::vector<ODTowersToByPassDat>* fillMap, ODTowersToByPassInfo* iov) noexcept(false);
 
   // User data
   int m_tr;
   int m_fed;
   int m_tt;
-  int m_time; 
+  int m_time;
   int m_sta;
   int m_ID;
- 
 };
 
 #endif

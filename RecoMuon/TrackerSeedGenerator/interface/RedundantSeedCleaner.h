@@ -1,5 +1,5 @@
 #ifndef RecoMuon_TrackerSeedGenerator_RedundantSeedCleaner_H
-#define  RecoMuon_TrackerSeedGenerator_RedundantSeedCleaner_H
+#define RecoMuon_TrackerSeedGenerator_RedundantSeedCleaner_H
 
 /** \class RedundantSeedCleaner
  * Description:
@@ -16,29 +16,23 @@
 //              -- Class Interface --
 //              ---------------------
 
-
 class MuonSeedCombiner;
 
-class RedundantSeedCleaner{
- public:
+class RedundantSeedCleaner {
+public:
   ///constructor
-  RedundantSeedCleaner(){
-
-  }
+  RedundantSeedCleaner() {}
   ///destructor
-  ~RedundantSeedCleaner(){
-   }
- /// clean
- void clean(const std::vector<TrajectorySeed > &,std::vector<TrajectorySeed > &);
- /// collection definition
- void define(std::vector<TrajectorySeed> &);
+  ~RedundantSeedCleaner() {}
+  /// clean
+  void clean(const std::vector<TrajectorySeed> &, std::vector<TrajectorySeed> &);
+  /// collection definition
+  void define(std::vector<TrajectorySeed> &);
 
 private:
-
   std::vector<TrajectorySeed> seedTriplets;
 
-  std::string theCategory; 
+  std::string theCategory;
 };
-
 
 #endif

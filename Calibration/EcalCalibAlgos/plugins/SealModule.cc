@@ -9,7 +9,6 @@
 #include "Calibration/EcalCalibAlgos/interface/ECALpedestalPCLworker.h"
 #include "Calibration/EcalCalibAlgos/interface/ECALpedestalPCLHarvester.h"
 
-
 DEFINE_FWK_MODULE(miscalibExample);
 //DEFINE_FWK_MODULE(ElectronRecalibSuperClusterAssociator);
 DEFINE_FWK_MODULE(PhiSymmetryCalibration);

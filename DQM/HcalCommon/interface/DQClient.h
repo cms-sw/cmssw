@@ -22,6 +22,9 @@
 namespace hcaldqm {
   class DQClient : public DQModule {
   public:
+    typedef dqm::legacy::MonitorElement MonitorElement;
+    typedef dqm::legacy::DQMStore DQMStore;
+
     DQClient(std::string const &, std::string const &, edm::ParameterSet const &);
     ~DQClient() override {}
 

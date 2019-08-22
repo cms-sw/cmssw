@@ -16,52 +16,49 @@
 #include "fastjet/Selector.hh"
 #include "fastjet/PseudoJet.hh"
 
-namespace heppy{
-class ReclusterJets {
-    
- public:
-  typedef math::XYZTLorentzVector LorentzVector;
+namespace heppy {
+  class ReclusterJets {
+  public:
+    typedef math::XYZTLorentzVector LorentzVector;
 
-  ReclusterJets(const std::vector<LorentzVector> & objects, double ktpower, double rparam);
+    ReclusterJets(const std::vector<LorentzVector> &objects, double ktpower, double rparam);
 
-  /// get grouping (inclusive jets)
-  std::vector<LorentzVector> getGrouping(double ptMin = 0.0);
+    /// get grouping (inclusive jets)
+    std::vector<LorentzVector> getGrouping(double ptMin = 0.0);
 
-  /// get grouping (exclusive jets, until n are left)
-  std::vector<LorentzVector> getGroupingExclusive(int njets);
-  
-  /// get grouping (exclusive jets, up to cut dcut)
-  std::vector<LorentzVector> getGroupingExclusive(double dcut);
+    /// get grouping (exclusive jets, until n are left)
+    std::vector<LorentzVector> getGroupingExclusive(int njets);
 
-  /// get pruned 4-vector
-  LorentzVector getPruned(double zcut, double rcutFactor) ;
+    /// get grouping (exclusive jets, up to cut dcut)
+    std::vector<LorentzVector> getGroupingExclusive(double dcut);
 
-  /// get pruned 4-vector for a given subject (must be called after getGroupingExclusive)
-  LorentzVector getPrunedSubjetExclusive(unsigned int isubjet, double zcut, double rcutFactor) ;
+    /// get pruned 4-vector
+    LorentzVector getPruned(double zcut, double rcutFactor);
 
-  /// get pruned 4-vector for a given subject (must be called after getGroupingInclusive)
-  LorentzVector getPrunedSubjetInclusive(unsigned int isubjet, double zcut, double rcutFactor) ;
+    /// get pruned 4-vector for a given subject (must be called after getGroupingExclusive)
+    LorentzVector getPrunedSubjetExclusive(unsigned int isubjet, double zcut, double rcutFactor);
 
+    /// get pruned 4-vector for a given subject (must be called after getGroupingInclusive)
+    LorentzVector getPrunedSubjetInclusive(unsigned int isubjet, double zcut, double rcutFactor);
 
- private:
-  // pack the returns in a fwlite-friendly way
-  std::vector<LorentzVector> makeP4s(const std::vector<fastjet::PseudoJet> &jets) ;
+  private:
+    // pack the returns in a fwlite-friendly way
+    std::vector<LorentzVector> makeP4s(const std::vector<fastjet::PseudoJet> &jets);
 
-  // prune and return in fa fwlite-friendly way
-  LorentzVector getPruned(const fastjet::PseudoJet & jet, double zcut, double rcutFactor) ;
+    // prune and return in fa fwlite-friendly way
+    LorentzVector getPruned(const fastjet::PseudoJet &jet, double zcut, double rcutFactor);
 
-  // used to handle the inputs
-  std::vector<fastjet::PseudoJet> fjInputs_;        // fastjet inputs
+    // used to handle the inputs
+    std::vector<fastjet::PseudoJet> fjInputs_;  // fastjet inputs
 
-  double ktpower_;
-  double rparam_;
+    double ktpower_;
+    double rparam_;
 
-  /// fastjet outputs
-  typedef boost::shared_ptr<fastjet::ClusterSequence>  ClusterSequencePtr;
-  ClusterSequencePtr fjClusterSeq_;    
-  std::vector<fastjet::PseudoJet> inclusiveJets_; 
-  std::vector<fastjet::PseudoJet> exclusiveJets_; 
-};
-}
-#endif   
- 
+    /// fastjet outputs
+    typedef boost::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
+    ClusterSequencePtr fjClusterSeq_;
+    std::vector<fastjet::PseudoJet> inclusiveJets_;
+    std::vector<fastjet::PseudoJet> exclusiveJets_;
+  };
+}  // namespace heppy
+#endif

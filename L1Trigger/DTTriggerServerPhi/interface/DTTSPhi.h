@@ -51,7 +51,6 @@ typedef std::vector<DTChambPhSegm> DTChambPhVector;
 typedef DTCache<DTChambPhSegm, DTChambPhVector> DTTSPhiManager;
 
 class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
-
 public:
   /// Constructor
   DTTSPhi(DTTrigGeom *, DTTracoCard *);
@@ -118,8 +117,7 @@ private:
   std::vector<DTTSM *> _tsm[DTConfigTSPhi::NSTEPL - DTConfigTSPhi::NSTEPF + 1];
 
   // Input data
-  std::vector<DTTSCand *>
-      _tctrig[DTConfigTSPhi::NSTEPL - DTConfigTSPhi::NSTEPF + 1];
+  std::vector<DTTSCand *> _tctrig[DTConfigTSPhi::NSTEPL - DTConfigTSPhi::NSTEPF + 1];
 };
 
 #endif

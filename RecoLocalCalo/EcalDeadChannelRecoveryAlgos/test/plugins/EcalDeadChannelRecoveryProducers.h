@@ -23,11 +23,11 @@
 
 template <typename DetIdT>
 class EcalDeadChannelRecoveryProducers : public edm::EDProducer {
- public:
+public:
   explicit EcalDeadChannelRecoveryProducers(const edm::ParameterSet&);
   ~EcalDeadChannelRecoveryProducers();
 
- private:
+private:
   virtual void beginJob();
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob();

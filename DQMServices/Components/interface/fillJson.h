@@ -4,7 +4,7 @@
 //
 // Package:     DQMServices/Components
 // Class  :     fillJson
-// 
+//
 /**\function fillJson fillJson.h "DQMServices/Components/interface/fillJson.h"
 
  Description: Function used by DQMFileSaver and JsonWritingTimedPoolOutputModule
@@ -24,14 +24,19 @@
 // user include files
 
 // forward declarations
-namespace evf { class FastMonitoringService; }
+namespace evf {
+  class FastMonitoringService;
+}
 
 namespace dqmfilesaver {
   // used by the JsonWritingTimedPoolOutputModule,
   // fms will be nullptr in such case
-  boost::property_tree::ptree fillJson(
-      int run, int lumi, const std::string &dataFilePathName, const std::string& transferDestinationStr,
-      const std::string& mergeTypeStr, evf::FastMonitoringService *fms);
-}
+  boost::property_tree::ptree fillJson(int run,
+                                       int lumi,
+                                       const std::string& dataFilePathName,
+                                       const std::string& transferDestinationStr,
+                                       const std::string& mergeTypeStr,
+                                       evf::FastMonitoringService* fms);
+}  // namespace dqmfilesaver
 
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:    EgammaElectronAlgos
 // Class:      PixelMatchNextLayers
-// 
+//
 /**\class PixelMatchNextLayers EgammaElectronAlgos/PixelMatchNextLayers
 
  Description: class to find the compatible hits in the next layer
@@ -17,7 +17,7 @@
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
 //
 //
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
@@ -32,33 +32,28 @@ class TrackerTopology;
 class NavigationSchool;
 
 class PixelMatchNextLayers {
-
 public:
-  PixelMatchNextLayers(const LayerMeasurements * theLayerMeasurements, const DetLayer* ilayer, FreeTrajectoryState & aFTS,
-	                        const PropagatorWithMaterial *aProp, 
-		       const BarrelMeasurementEstimator *aBarrelMeas,
-		       const ForwardMeasurementEstimator *aForwardMeas,
-		       const TrackerTopology *tTopo,
-                       const NavigationSchool& navigationSchool,
-		       bool searchInTIDTEC);
+  PixelMatchNextLayers(const LayerMeasurements *theLayerMeasurements,
+                       const DetLayer *ilayer,
+                       FreeTrajectoryState &aFTS,
+                       const PropagatorWithMaterial *aProp,
+                       const BarrelMeasurementEstimator *aBarrelMeas,
+                       const ForwardMeasurementEstimator *aForwardMeas,
+                       const TrackerTopology *tTopo,
+                       const NavigationSchool &navigationSchool,
+                       bool searchInTIDTEC);
   std::vector<TrajectoryMeasurement> measurementsInNextLayers() const;
   std::vector<TrajectoryMeasurement> badMeasurementsInNextLayers() const;
-  //RC vector<TSiPixelRecHit> hitsInNextLayers() const;  
-  //In this way we are losing the information about the kind of the ReferenceCounted TTRH? 
-  TransientTrackingRecHit::RecHitContainer hitsInNextLayers() const;  
+  //RC vector<TSiPixelRecHit> hitsInNextLayers() const;
+  //In this way we are losing the information about the kind of the ReferenceCounted TTRH?
+  TransientTrackingRecHit::RecHitContainer hitsInNextLayers() const;
   std::vector<CLHEP::Hep3Vector> predictionInNextLayers() const;
 
-  
 private:
-                                                        
   std::vector<TrajectoryMeasurement> measurementsHere;
-  std::vector<TrajectoryMeasurement> badMeasurementsHere;  
+  std::vector<TrajectoryMeasurement> badMeasurementsHere;
   TransientTrackingRecHit::RecHitContainer hitsHere;
-  std::vector<CLHEP::Hep3Vector> predictionHere; 
+  std::vector<CLHEP::Hep3Vector> predictionHere;
 };
 
 #endif
-
-
-
-

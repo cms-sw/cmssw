@@ -17,43 +17,43 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class MuonTrackFinder;
 class MuonServiceProxy;
 
 class StandAloneMuonProducer : public edm::stream::EDProducer<> {
-
- public:
-
+public:
   /// constructor with config
   StandAloneMuonProducer(const edm::ParameterSet&);
-  
+
   /// destructor
-  ~StandAloneMuonProducer() override; 
-  
+  ~StandAloneMuonProducer() override;
+
   /// reconstruct muons
   void produce(edm::Event&, const edm::EventSetup&) override;
-    
- private:
-  
+
+private:
   /// MuonSeed Collection Label
   edm::InputTag theSeedCollectionLabel;
- 
+
   /// the track finder
-  MuonTrackFinder* theTrackFinder; //It isn't the same as in ORCA
+  MuonTrackFinder* theTrackFinder;  //It isn't the same as in ORCA
 
   /// the event setup proxy, it takes care the services update
-  MuonServiceProxy *theService;
+  MuonServiceProxy* theService;
 
-
-  edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken; 
+  edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken;
 
   std::string theAlias;
 
-  void setAlias( std::string alias ){
-    alias.erase( alias.size() - 1, alias.size() );
-    theAlias=alias;
+  void setAlias(std::string alias) {
+    alias.erase(alias.size() - 1, alias.size());
+    theAlias = alias;
   }
 };
 

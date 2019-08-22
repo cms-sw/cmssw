@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    <SpecParSection label="CTPPS_Diamond_Sensitive_Dets_TimingHits.xml">
+        <SpecPar name="ROUHitsCTPPSDiamond">
+
+            <PartSelector path="//CTPPS_Diamond_Pattern.*_Segment.*:CTPPS_Diamond_Segment"/>
+
+            <Parameter name="SensitiveDetector" value="CTPPSDiamondSensitiveDetector" eval="false"/>
+            <Parameter name="ReadOutName" value="CTPPSTimingHits" eval="false"/>
+        </SpecPar>
+    </SpecParSection>
+</DDDefinition>

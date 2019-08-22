@@ -17,7 +17,6 @@
 #include "GsfElectronMCFakeAnalyzer.h"
 #include "PatPhotonSimpleAnalyzer.h"
 
-
 #include "CommonTools/UtilAlgos/interface/Merger.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"

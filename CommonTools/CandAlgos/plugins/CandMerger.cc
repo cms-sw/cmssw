@@ -11,4 +11,4 @@
 
 typedef Merger<reco::CandidateCollection> CandMerger;
 
-DEFINE_FWK_MODULE( CandMerger );
+DEFINE_FWK_MODULE(CandMerger);

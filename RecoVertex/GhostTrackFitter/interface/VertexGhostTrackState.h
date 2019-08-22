@@ -10,31 +10,26 @@
 
 namespace reco {
 
-class GhostTrackPrediction;
+  class GhostTrackPrediction;
 
-class VertexGhostTrackState : public BasicGhostTrackState {
-    public:
-	VertexGhostTrackState(const GlobalPoint &pos,
-	                      const CovarianceMatrix &cov) :
-		position_(pos), covariance_(cov) {}
+  class VertexGhostTrackState : public BasicGhostTrackState {
+  public:
+    VertexGhostTrackState(const GlobalPoint &pos, const CovarianceMatrix &cov) : position_(pos), covariance_(cov) {}
 
-	GlobalPoint globalPosition() const override { return position_; }
-	GlobalError cartesianError() const override { return covariance_; }
-	CovarianceMatrix cartesianCovariance() const override { return covariance_; }
+    GlobalPoint globalPosition() const override { return position_; }
+    GlobalError cartesianError() const override { return covariance_; }
+    CovarianceMatrix cartesianCovariance() const override { return covariance_; }
 
-	Vertex vertexStateOnGhostTrack(const GhostTrackPrediction &pred,
-	                               bool withMeasurementError) const override;
-	Vertex vertexStateOnMeasurement(const GhostTrackPrediction &pred,
-	                                bool withGhostTrackError) const override;
+    Vertex vertexStateOnGhostTrack(const GhostTrackPrediction &pred, bool withMeasurementError) const override;
+    Vertex vertexStateOnMeasurement(const GhostTrackPrediction &pred, bool withGhostTrackError) const override;
 
-    private:
-	pointer clone() const override
-	{ return build<VertexGhostTrackState>(*this); }
+  private:
+    pointer clone() const override { return build<VertexGhostTrackState>(*this); }
 
-	GlobalPoint		position_;
-	CovarianceMatrix	covariance_;
-};
+    GlobalPoint position_;
+    CovarianceMatrix covariance_;
+  };
 
-}
+}  // namespace reco
 
-#endif // RecoBTag_VertexGhostTrackState_h
+#endif  // RecoBTag_VertexGhostTrackState_h

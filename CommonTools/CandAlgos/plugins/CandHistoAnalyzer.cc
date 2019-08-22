@@ -11,5 +11,4 @@
 
 typedef HistoAnalyzer<reco::CandidateCollection> CandHistoAnalyzer;
 
-DEFINE_FWK_MODULE( CandHistoAnalyzer );
-
+DEFINE_FWK_MODULE(CandHistoAnalyzer);

@@ -13,6 +13,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include <cassert>
 #include <cstdlib>
@@ -519,6 +520,15 @@ namespace edm {
     }
 
     template <>
+    void writeSingleValue<ESInputTag>(std::ostream& os, ESInputTag const& value, ValueFormat format) {
+      if (format == CFI) {
+        os << "'" << value.module() << "', '" << value.data() << "'";
+      } else {
+        os << "'" << value.module() << ":" << value.data() << "'";
+      }
+    }
+
+    template <>
     void writeSingleValue<FileInPath>(std::ostream& os, FileInPath const& value, ValueFormat) {
       os << "'" << value.relativePath() << "'";
     }
@@ -571,6 +581,11 @@ namespace edm {
         os << ":" << value.process();
       }
       os << "'";
+    }
+
+    template <>
+    void writeValueInVector<ESInputTag>(std::ostream& os, ESInputTag const& value, ValueFormat) {
+      os << "'" << value.module() << ":" << value.data() << "'";
     }
 
     template <typename T>
@@ -721,6 +736,14 @@ namespace edm {
       writeVector<InputTag>(os, indentation, value_, format);
     }
 
+    void writeValue(std::ostream& os, int, ESInputTag const& value_, ValueFormat format) {
+      writeValue<ESInputTag>(os, value_, format);
+    }
+
+    void writeValue(std::ostream& os, int indentation, std::vector<ESInputTag> const& value_, ValueFormat format) {
+      writeVector<ESInputTag>(os, indentation, value_, format);
+    }
+
     void writeValue(std::ostream& os, int, FileInPath const& value_, ValueFormat format) {
       writeValue<FileInPath>(os, value_, format);
     }
@@ -748,6 +771,8 @@ namespace edm {
     bool hasNestedContent(std::vector<EventRange> const& value) { return value.size() > 5U; }
     bool hasNestedContent(InputTag const&) { return false; }
     bool hasNestedContent(std::vector<InputTag> const& value) { return value.size() > 5U; }
+    bool hasNestedContent(ESInputTag const&) { return false; }
+    bool hasNestedContent(std::vector<ESInputTag> const& value) { return value.size() > 5U; }
     bool hasNestedContent(FileInPath const&) { return false; }
   }  // namespace writeParameterValue
 }  // namespace edm

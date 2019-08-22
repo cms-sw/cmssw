@@ -2,7 +2,7 @@
 //
 //   Class: L1MuGMTLFSortRankPtQLUT
 //
-// 
+//
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -29,13 +29,12 @@
 // InitParameters  --
 //-------------------
 
-void L1MuGMTLFSortRankPtQLUT::InitParameters() {
-}
+void L1MuGMTLFSortRankPtQLUT::InitParameters() {}
 
 //--------------------------------------------------------------------------------
 // Sort Rank LUT, Pt-q part
 //
-// This LUT determines the dependency of the sort rank on Pt and Quality. 
+// This LUT determines the dependency of the sort rank on Pt and Quality.
 // It gives the main contrubution to the over-all sort rank
 //
 // Inputs:  Pt(5 bit) and Quality(3 bit)
@@ -44,40 +43,25 @@ void L1MuGMTLFSortRankPtQLUT::InitParameters() {
 //
 //--------------------------------------------------------------------------------
 
-unsigned L1MuGMTLFSortRankPtQLUT::TheLookupFunction (int idx, unsigned q, unsigned pt) const {
+unsigned L1MuGMTLFSortRankPtQLUT::TheLookupFunction(int idx, unsigned q, unsigned pt) const {
   // idx is DT, BRPC, CSC, FRPC
   // INPUTS:  q(3) pt(5)
-  // OUTPUTS: rank_ptq(7) 
+  // OUTPUTS: rank_ptq(7)
   int isRPC = idx % 2;
   //  int isFWD = idx / 2;
 
-  unsigned int quality = q;         // DT  has: 1..7
-  if ( isRPC ) quality = q*2 + 1;   // RPC has: 0,1,2,3
-  if ( idx==2 ) quality = q*3 - 2;  // CSC has: 1,2,3
+  unsigned int quality = q;  // DT  has: 1..7
+  if (isRPC)
+    quality = q * 2 + 1;  // RPC has: 0,1,2,3
+  if (idx == 2)
+    quality = q * 3 - 2;  // CSC has: 1,2,3
 
-  if (quality > 7) quality = 7;
+  if (quality > 7)
+    quality = 7;
 
-  unsigned int rank_ptq = 3*pt + quality*5;
+  unsigned int rank_ptq = 3 * pt + quality * 5;
 
-  if (rank_ptq > 127) rank_ptq = 127;
+  if (rank_ptq > 127)
+    rank_ptq = 127;
   return rank_ptq;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

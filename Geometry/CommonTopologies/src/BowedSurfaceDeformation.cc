@@ -11,72 +11,70 @@
 
 //------------------------------------------------------------------------------
 BowedSurfaceDeformation::BowedSurfaceDeformation(const std::vector<double> &pars)
-  : theSagittaX (!pars.empty() ? pars[0] : 0.),
-    theSagittaY (pars.size() > 2 ? pars[2] : 0.),
-    theSagittaXY(pars.size() > 1 ? pars[1] : 0.)
-{
+    : theSagittaX(!pars.empty() ? pars[0] : 0.),
+      theSagittaY(pars.size() > 2 ? pars[2] : 0.),
+      theSagittaXY(pars.size() > 1 ? pars[1] : 0.) {
   if (pars.size() != minParameterSize()) {
     edm::LogError("BadSetup") << "@SUB=BowedSurfaceDeformation"
-                              << "Input vector of wrong size " << pars.size()
-                              << " instead of " << minParameterSize() << ", filled up with zeros!";
+                              << "Input vector of wrong size " << pars.size() << " instead of " << minParameterSize()
+                              << ", filled up with zeros!";
   }
 }
 
 //------------------------------------------------------------------------------
-BowedSurfaceDeformation* BowedSurfaceDeformation::clone() const
-{
+BowedSurfaceDeformation *BowedSurfaceDeformation::clone() const {
   return new BowedSurfaceDeformation(theSagittaX, theSagittaXY, theSagittaY);
 }
 
 //------------------------------------------------------------------------------
-int BowedSurfaceDeformation::type() const
-{
-  return SurfaceDeformationFactory::kBowedSurface;
-}
+int BowedSurfaceDeformation::type() const { return SurfaceDeformationFactory::kBowedSurface; }
 
 //------------------------------------------------------------------------------
-SurfaceDeformation::Local2DVector 
-BowedSurfaceDeformation::positionCorrection(const Local2DPoint &localPos,
-					    const LocalTrackAngles &localAngles,
-					    double length, double width) const
-{
+SurfaceDeformation::Local2DVector BowedSurfaceDeformation::positionCorrection(const Local2DPoint &localPos,
+                                                                              const LocalTrackAngles &localAngles,
+                                                                              double length,
+                                                                              double width) const {
+  // different widthes at high/low y could somehow be treated by theRelWidthLowY
+  //   if (widthLowY > 0. && widthHighY != widthLowY) {
+  //     // TEC would always create a warning...
+  //     edm::LogWarning("UnusableData") << "@SUB=BowedSurfaceDeformation::positionCorrection"
+  // 				    << "Cannot yet deal with different widthes, take "
+  // 				    << widthHighY << " not " << widthLowY;
+  //   }
+  //   const double width = widthHighY;
 
-// different widthes at high/low y could somehow be treated by theRelWidthLowY
-//   if (widthLowY > 0. && widthHighY != widthLowY) {
-//     // TEC would always create a warning...
-//     edm::LogWarning("UnusableData") << "@SUB=BowedSurfaceDeformation::positionCorrection"
-// 				    << "Cannot yet deal with different widthes, take "
-// 				    << widthHighY << " not " << widthLowY;
-//   }
-//   const double width = widthHighY;
-  
-  double uRel = (width  ? 2. * localPos.x() / width  : 0.);  // relative u (-1 .. +1)
+  double uRel = (width ? 2. * localPos.x() / width : 0.);    // relative u (-1 .. +1)
   double vRel = (length ? 2. * localPos.y() / length : 0.);  // relative v (-1 .. +1)
   // 'range check':
   const double cutOff = 1.5;
-  if (uRel < -cutOff) { uRel = -cutOff; } else if (uRel > cutOff) { uRel = cutOff; }
-  if (vRel < -cutOff) { vRel = -cutOff; } else if (vRel > cutOff) { vRel = cutOff; }
-  
+  if (uRel < -cutOff) {
+    uRel = -cutOff;
+  } else if (uRel > cutOff) {
+    uRel = cutOff;
+  }
+  if (vRel < -cutOff) {
+    vRel = -cutOff;
+  } else if (vRel > cutOff) {
+    vRel = cutOff;
+  }
+
   // apply coefficients to Legendre polynomials
   // to get local height relative to 'average'
-  const double dw 
-    = (uRel * uRel - 1./3.) * theSagittaX
-    +  uRel * vRel          * theSagittaXY
-    + (vRel * vRel - 1./3.) * theSagittaY;
+  const double dw =
+      (uRel * uRel - 1. / 3.) * theSagittaX + uRel * vRel * theSagittaXY + (vRel * vRel - 1. / 3.) * theSagittaY;
 
-  // positive dxdz/dydz and positive dw mean negative shift in x/y: 
+  // positive dxdz/dydz and positive dw mean negative shift in x/y:
   return Local2DVector(-dw * localAngles);
 }
 
 //------------------------------------------------------------------------------
-bool BowedSurfaceDeformation::add(const SurfaceDeformation &other)
-{
+bool BowedSurfaceDeformation::add(const SurfaceDeformation &other) {
   if (other.type() == this->type()) {
     const std::vector<double> otherParams(other.parameters());
-    if (otherParams.size() == parameterSize()) { // double check!
-      theSagittaX  += otherParams[0]; // bows can simply be added up
+    if (otherParams.size() == parameterSize()) {  // double check!
+      theSagittaX += otherParams[0];              // bows can simply be added up
       theSagittaXY += otherParams[1];
-      theSagittaY  += otherParams[2];
+      theSagittaY += otherParams[2];
 
       return true;
     }
@@ -84,10 +82,9 @@ bool BowedSurfaceDeformation::add(const SurfaceDeformation &other)
 
   return false;
 }
-  
+
 //------------------------------------------------------------------------------
-std::vector<double> BowedSurfaceDeformation::parameters() const
-{
+std::vector<double> BowedSurfaceDeformation::parameters() const {
   std::vector<double> result(parameterSize());
   result[0] = theSagittaX;
   result[1] = theSagittaXY;

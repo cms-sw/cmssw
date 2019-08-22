@@ -13,99 +13,67 @@
 #include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
-
 class ME0RecHit : public RecHit2DLocalPos {
- public:
-
-  ME0RecHit(const ME0DetId& me0Id,
-float tof);
+public:
+  ME0RecHit(const ME0DetId& me0Id, float tof);
 
   /// Default constructor
   ME0RecHit();
 
   /// Constructor from a local position, ME0Id and digi time.
-  ME0RecHit(const ME0DetId& me0Id,
-float tof,
-const LocalPoint& pos);
-  
+  ME0RecHit(const ME0DetId& me0Id, float tof, const LocalPoint& pos);
 
   /// Constructor from a local position and error, ME0Id and tof.
   /// The 3-dimensional local error is defined as
   /// resolution (the cell resolution) for the coordinate being measured
   /// and 0 for the two other coordinates
-  ME0RecHit(const ME0DetId& me0Id,
-float tof,
-const LocalPoint& pos,
-const LocalError& err);
-  
+  ME0RecHit(const ME0DetId& me0Id, float tof, const LocalPoint& pos, const LocalError& err);
 
   /// Destructor
   ~ME0RecHit() override;
 
-
   /// Return the 3-dimensional local position
-  LocalPoint localPosition() const override {
-    return theLocalPosition;
-  }
-
+  LocalPoint localPosition() const override { return theLocalPosition; }
 
   /// Return the 3-dimensional error on the local position
-  LocalError localPositionError() const override {
-    return theLocalError;
-  }
-
+  LocalError localPositionError() const override { return theLocalError; }
 
   ME0RecHit* clone() const override;
 
-  
   /// Access to component RecHits.
   /// No components rechits: it returns a null vector
   std::vector<const TrackingRecHit*> recHits() const override;
-
 
   /// Non-const access to component RecHits.
   /// No components rechits: it returns a null vector
   std::vector<TrackingRecHit*> recHits() override;
 
-
   /// Set local position
-  void setPosition(LocalPoint pos) {
-    theLocalPosition = pos;
-  }
+  void setPosition(LocalPoint pos) { theLocalPosition = pos; }
 
-  
   /// Set local position error
-  void setError(LocalError err) {
-    theLocalError = err;
-  }
-
+  void setError(LocalError err) { theLocalError = err; }
 
   /// Set the local position and its error
   void setPositionAndError(LocalPoint pos, LocalError err) {
     theLocalPosition = pos;
     theLocalError = err;
   }
-  
 
   /// Return the gemId
-  ME0DetId me0Id() const {
-    return theME0Id;
-  }
- 
-  float tof() const {
-    return theTOF;
-  }
+  ME0DetId me0Id() const { return theME0Id; }
+
+  float tof() const { return theTOF; }
 
   /// Comparison operator, based on the gemId and the digi time
   bool operator==(const ME0RecHit& hit) const;
 
- private:
+private:
   ME0DetId theME0Id;
   float theTOF;
   // Position and error in the Local Ref. Frame of the ME0Layer
   LocalPoint theLocalPosition;
   LocalError theLocalError;
-
 };
 #endif
 

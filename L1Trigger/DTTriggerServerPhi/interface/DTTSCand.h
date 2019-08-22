@@ -33,7 +33,6 @@ class DTConfigTSPhi;
 //              ---------------------
 
 class DTTSCand {
-
 public:
   /// Constructor
   DTTSCand(DTTSS *, const DTTracoTrigData *, int, int);
@@ -100,9 +99,7 @@ public:
   inline int isFirst() const { return _dataword.element(14) == 0; }
 
   /// Return HTRIG/LTRIG bit
-  inline int isHtrig() const {
-    return _tctrig->pvCode() == 8 || _tctrig->pvCode() == 80;
-  }
+  inline int isHtrig() const { return _tctrig->pvCode() == 8 || _tctrig->pvCode() == 80; }
   /// Return Inner/Outer bit
   inline int isInner() const { return _tctrig->pvCode() > 8; }
 
@@ -113,39 +110,23 @@ public:
   inline int isCarry() const { return _isCarry; }
 
   /// Return if HH or HL
-  inline int isHHorHL() const {
-    return _tctrig->pvCorr() && _tctrig->pvCode() == 80;
-  }
+  inline int isHHorHL() const { return _tctrig->pvCorr() && _tctrig->pvCode() == 80; }
 
   /// Return if LH
-  inline int isLH() const {
-    return _tctrig->pvCorr() && _tctrig->pvCode() == 8;
-  }
+  inline int isLH() const { return _tctrig->pvCorr() && _tctrig->pvCode() == 8; }
 
   /// Return if LL
-  inline int isLL() const {
-    return _tctrig->pvCorr() && !(_tctrig->pvCode() == 8) &&
-           !(_tctrig->pvCode() == 80);
-  }
+  inline int isLL() const { return _tctrig->pvCorr() && !(_tctrig->pvCode() == 8) && !(_tctrig->pvCode() == 80); }
   /// Return if H inner
-  inline int isH0() const {
-    return !_tctrig->pvCorr() && _tctrig->pvCode() == 80;
-  }
+  inline int isH0() const { return !_tctrig->pvCorr() && _tctrig->pvCode() == 80; }
 
   /// Return if H outer
-  inline int is0H() const {
-    return !_tctrig->pvCorr() && _tctrig->pvCode() == 8;
-  }
+  inline int is0H() const { return !_tctrig->pvCorr() && _tctrig->pvCode() == 8; }
 
   /// Return if L inner
-  inline int isL0() const {
-    return !_tctrig->pvCorr() && _tctrig->pvCode() < 80 &&
-           _tctrig->pvCode() > 8;
-  }
+  inline int isL0() const { return !_tctrig->pvCorr() && _tctrig->pvCode() < 80 && _tctrig->pvCode() > 8; }
   /// Return if L outer
-  inline int is0L() const {
-    return !_tctrig->pvCorr() && _tctrig->pvCode() < 8;
-  }
+  inline int is0L() const { return !_tctrig->pvCorr() && _tctrig->pvCode() < 8; }
 
   /// Return an uint16 with the content of the data word (for debugging)
   inline unsigned dataword() const { return _dataword.dataWord(0) & 0x1ff; }
@@ -166,13 +147,13 @@ public:
 private:
   DTTSS *_tss;
   const DTTracoTrigData *_tctrig;
-  BitArray<15> _dataword; // the word on which sorting is done. reserve space
-                          // enough for Preview and full data
+  BitArray<15> _dataword;  // the word on which sorting is done. reserve space
+                           // enough for Preview and full data
   // SM double TSM  BitArray<9> _datawordbk; // the word on which sorting is
   // done (back-up mode)
-  int _tcPos; // TRACO position in TSS
+  int _tcPos;  // TRACO position in TSS
   // SM double TSM   int _bkmod;            // TSM back-up mode flag
-  int _isCarry; // info for TSM
+  int _isCarry;  // info for TSM
 };
 
 #endif

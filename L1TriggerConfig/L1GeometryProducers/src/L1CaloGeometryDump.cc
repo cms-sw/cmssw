@@ -71,7 +71,6 @@ L1CaloGeometryDump::L1CaloGeometryDump(const edm::ParameterSet &iConfig)
 }
 
 L1CaloGeometryDump::~L1CaloGeometryDump() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -81,8 +80,7 @@ L1CaloGeometryDump::~L1CaloGeometryDump() {
 //
 
 // ------------ method called to for each event  ------------
-void L1CaloGeometryDump::analyze(const edm::Event &iEvent,
-                                 const edm::EventSetup &iSetup) {
+void L1CaloGeometryDump::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
 
   ESHandle<L1CaloGeometry> pGeom;

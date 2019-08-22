@@ -7,12 +7,11 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class IntegrityClient : public DQWorkerClient {
   public:
     IntegrityClient();
-    ~IntegrityClient() {}
+    ~IntegrityClient() override {}
 
     void producePlots(ProcessType) override;
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -23,7 +22,6 @@ namespace ecaldqm
 
     float errFractionThreshold_;
   };
-}
+}  // namespace ecaldqm
 
 #endif
-

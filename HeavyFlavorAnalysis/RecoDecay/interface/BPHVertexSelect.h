@@ -13,7 +13,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -23,15 +22,12 @@ class BPHDecayVertex;
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class BPHVertexSelect {
-
- public:
-
+public:
   /** Constructor
    */
   BPHVertexSelect();
@@ -44,16 +40,12 @@ class BPHVertexSelect {
   /** Operations
    */
   /// accept function
-  virtual bool accept( const BPHDecayVertex& cand ) const = 0;
+  virtual bool accept(const BPHDecayVertex& cand) const = 0;
 
- private:
-
+private:
   // private copy and assigment constructors
-  BPHVertexSelect           ( const BPHVertexSelect& x ) = delete;
-  BPHVertexSelect& operator=( const BPHVertexSelect& x ) = delete;
-
+  BPHVertexSelect(const BPHVertexSelect& x) = delete;
+  BPHVertexSelect& operator=(const BPHVertexSelect& x) = delete;
 };
 
-
 #endif
-

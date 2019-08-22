@@ -8,23 +8,21 @@
 
 using namespace reco;
 
-GenericJet::GenericJet (const LorentzVector& fP4, 
-			const Point& fVertex, 
-			const std::vector<CandidateBaseRef>& fConstituents)
-  :  CompositeRefBaseCandidate (0, fP4, fVertex)
-{
-  for (unsigned i = 0; i < fConstituents.size (); i++) addDaughter (fConstituents [i]);
+GenericJet::GenericJet(const LorentzVector& fP4,
+                       const Point& fVertex,
+                       const std::vector<CandidateBaseRef>& fConstituents)
+    : CompositeRefBaseCandidate(0, fP4, fVertex) {
+  for (unsigned i = 0; i < fConstituents.size(); i++)
+    addDaughter(fConstituents[i]);
 }
 
-int GenericJet::nConstituents () const {
-  return numberOfDaughters();
-}
+int GenericJet::nConstituents() const { return numberOfDaughters(); }
 
-std::string GenericJet::print () const {
+std::string GenericJet::print() const {
   std::ostringstream out;
-  out << "GenericJet p/px/py/pz/pt: " << p() << '/' << px () << '/' << py() << '/' << pz() << '/' << pt() << std::endl
-      << "    eta/phi: " << eta () << '/' << phi () << std::endl
-      << "    # of constituents: " << nConstituents () << std::endl;
+  out << "GenericJet p/px/py/pz/pt: " << p() << '/' << px() << '/' << py() << '/' << pz() << '/' << pt() << std::endl
+      << "    eta/phi: " << eta() << '/' << phi() << std::endl
+      << "    # of constituents: " << nConstituents() << std::endl;
   out << "    No Constituents details available for this version" << std::endl;
-  return out.str ();
+  return out.str();
 }

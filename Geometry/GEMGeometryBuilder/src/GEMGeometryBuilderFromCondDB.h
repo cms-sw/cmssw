@@ -11,28 +11,24 @@
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-class GEMGeometryBuilderFromCondDB 
-{
- public:
-
+class GEMGeometryBuilderFromCondDB {
+public:
   GEMGeometryBuilderFromCondDB();
 
   ~GEMGeometryBuilderFromCondDB();
-  
-  void build(GEMGeometry& theGeometry,
-	     const RecoIdealGeometry& rgeo );
-  
- private:
+
+  void build(GEMGeometry& theGeometry, const RecoIdealGeometry& rgeo);
+
+private:
   typedef ReferenceCountingPointer<BoundPlane> RCPBoundPlane;
 
   GEMSuperChamber* buildSuperChamber(const RecoIdealGeometry& rgeo, unsigned int gid, GEMDetId detId) const;
-  
+
   GEMChamber* buildChamber(const RecoIdealGeometry& rgeo, unsigned int gid, GEMDetId detId) const;
 
   GEMEtaPartition* buildEtaPartition(const RecoIdealGeometry& rgeo, unsigned int gid, GEMDetId detId) const;
 
   RCPBoundPlane boundPlane(const RecoIdealGeometry& rgeo, unsigned int gid, GEMDetId detId) const;
-  
 };
 
 #endif

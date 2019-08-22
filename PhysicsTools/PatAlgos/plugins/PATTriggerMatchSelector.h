@@ -1,7 +1,6 @@
 #ifndef PhysicsTools_PatAlgos_PATTriggerMatchSelector_h
 #define PhysicsTools_PatAlgos_PATTriggerMatchSelector_h
 
-
 // -*- C++ -*-
 //
 // Package:    PatAlgos
@@ -19,7 +18,6 @@
 //
 //
 
-
 #include <string>
 #include <vector>
 #include <map>
@@ -28,25 +26,19 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 namespace pat {
 
-  template< typename T1, typename T2 >
-  class PATTriggerMatchSelector : public StringCutObjectSelector< T2 > {
+  template <typename T1, typename T2>
+  class PATTriggerMatchSelector : public StringCutObjectSelector<T2> {
+  public:
+    PATTriggerMatchSelector(const edm::ParameterSet& iConfig)
+        : StringCutObjectSelector<T2>(iConfig.getParameter<std::string>("matchedCuts")) {}
 
-    public:
-
-      PATTriggerMatchSelector( const edm::ParameterSet & iConfig ) :
-        StringCutObjectSelector< T2 >( iConfig.getParameter< std::string >( "matchedCuts" ) )
-      {}
-
-      bool operator()( const T1 & patObj, const T2 & trigObj ) const {
-        return StringCutObjectSelector< T2 >::operator()( trigObj );
-      }
-
+    bool operator()(const T1& patObj, const T2& trigObj) const {
+      return StringCutObjectSelector<T2>::operator()(trigObj);
+    }
   };
 
-}
-
+}  // namespace pat
 
 #endif

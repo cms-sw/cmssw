@@ -9,7 +9,6 @@
  *  \author M. Maggim -- INFN Bari
  */
 
-
 #include <memory>
 #include <fstream>
 #include <iostream>
@@ -42,7 +41,6 @@
 class ME0RecHitBaseAlgo;
 
 class ME0RecHitProducer : public edm::stream::EDProducer<> {
-
 public:
   /// Constructor
   ME0RecHitProducer(const edm::ParameterSet& config);
@@ -54,7 +52,6 @@ public:
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
-
   // The label to be used to retrieve ME0 digis from the event
 
   edm::EDGetTokenT<ME0DigiPreRecoCollection> m_token;
@@ -64,4 +61,3 @@ private:
 };
 
 #endif
-

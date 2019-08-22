@@ -19,28 +19,24 @@ namespace CLHEP {
 }
 
 class ETLDeviceSim {
-
- public:
-
+public:
   ETLDeviceSim(const edm::ParameterSet& pset);
-  
-  void getEvent(const edm::Event& evt) { }
+
+  void getEvent(const edm::Event& evt) {}
 
   void getEventSetup(const edm::EventSetup& evt);
 
-  void getHitsResponse(const std::vector<std::tuple<int,uint32_t,float> > &hitRefs, 
-		       const edm::Handle<edm::PSimHitContainer> &hits,
-		       mtd_digitizer::MTDSimHitDataAccumulator *simHitAccumulator,
-		       CLHEP::HepRandomEngine *hre);
+  void getHitsResponse(const std::vector<std::tuple<int, uint32_t, float> >& hitRefs,
+                       const edm::Handle<edm::PSimHitContainer>& hits,
+                       mtd_digitizer::MTDSimHitDataAccumulator* simHitAccumulator,
+                       CLHEP::HepRandomEngine* hre);
 
- private:
-
+private:
   const MTDGeometry* geom_;
 
   float MIPPerMeV_;
   float bxTime_;
   float tofDelay_;
-
 };
 
 #endif

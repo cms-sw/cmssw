@@ -11,7 +11,6 @@ Toy EDAnalyzer for testing purposes only.
 #include <map>
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
@@ -25,36 +24,29 @@ Toy EDAnalyzer for testing purposes only.
 
 namespace edmtest {
 
-  DTConfigWrite::DTConfigWrite(edm::ParameterSet const& p) {
-  }
+  DTConfigWrite::DTConfigWrite(edm::ParameterSet const& p) {}
 
-  DTConfigWrite::DTConfigWrite(int i) {
-  }
+  DTConfigWrite::DTConfigWrite(int i) {}
 
-  DTConfigWrite::~DTConfigWrite() {
-  }
+  DTConfigWrite::~DTConfigWrite() {}
 
-  void DTConfigWrite::analyze(const edm::Event& e,
-                              const edm::EventSetup& context) {
-
-    std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
-    std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
-
+  void DTConfigWrite::analyze(const edm::Event& e, const edm::EventSetup& context) {
+    std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
+    std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
   }
 
   void DTConfigWrite::endJob() {
-
-    std::cout<<"DTConfigWrite::analyze "<<std::endl;
+    std::cout << "DTConfigWrite::analyze " << std::endl;
     edm::Service<cond::service::PoolDBOutputService> dbservice;
-    if( !dbservice.isAvailable() ){
-      std::cout<<"db service unavailable"<<std::endl;
+    if (!dbservice.isAvailable()) {
+      std::cout << "db service unavailable" << std::endl;
       return;
     }
 
-    DTCCBConfig* conf = new DTCCBConfig( "test_config" );
+    DTCCBConfig* conf = new DTCCBConfig("test_config");
 
     int status = 0;
-    std::ifstream ifile( "testConfig.txt" );
+    std::ifstream ifile("testConfig.txt");
     int run;
     int nty;
     int kty;
@@ -65,45 +57,36 @@ namespace edmtest {
     int nbr;
     int ibr;
     ifile >> run >> nty;
-    conf->setStamp( run );
+    conf->setStamp(run);
     std::vector<DTConfigKey> fullKey;
-    while ( nty-- ) {
+    while (nty--) {
       ifile >> kty >> key;
       DTConfigKey confList;
       confList.confType = kty;
-      confList.confKey  = key;
-      fullKey.push_back( confList );
+      confList.confKey = key;
+      fullKey.push_back(confList);
     }
-    conf->setFullKey( fullKey );
-    while ( ifile >> whe
-                  >> sta
-                  >> sec
-                  >> nbr ) {
+    conf->setFullKey(fullKey);
+    while (ifile >> whe >> sta >> sec >> nbr) {
       std::vector<int> cfg;
-      while ( nbr-- ) {
+      while (nbr--) {
         ifile >> ibr;
-        cfg.push_back( ibr );
+        cfg.push_back(ibr);
       }
-      status = conf->setConfigKey( whe, sta, sec, cfg );
-      std::cout << whe << " "
-                << sta << " "
-                << sec << "  -> ";                
+      status = conf->setConfigKey(whe, sta, sec, cfg);
+      std::cout << whe << " " << sta << " " << sec << "  -> ";
       std::cout << "insert status: " << status << std::endl;
     }
 
     std::cout << "end of time : " << dbservice->endOfTime() << std::endl;
-    if( dbservice->isNewTagRequest("DTCCBConfigRcd") ){
-      dbservice->createNewIOV<DTCCBConfig>(
-                 conf,dbservice->beginOfTime(),
-                      dbservice->endOfTime(),"DTCCBConfigRcd");
-//                      0xffffffff,"DTCCBConfigRcd");
-    }
-    else{
+    if (dbservice->isNewTagRequest("DTCCBConfigRcd")) {
+      dbservice->createNewIOV<DTCCBConfig>(conf, dbservice->beginOfTime(), dbservice->endOfTime(), "DTCCBConfigRcd");
+      //                      0xffffffff,"DTCCBConfigRcd");
+    } else {
       std::cout << "already present tag" << std::endl;
-//      dbservice->appendSinceTime<DTCCBConfig>(
-//                 conf,dbservice->currentTime(),"DTCCBConfigRcd");
+      //      dbservice->appendSinceTime<DTCCBConfig>(
+      //                 conf,dbservice->currentTime(),"DTCCBConfigRcd");
     }
-
   }
   DEFINE_FWK_MODULE(DTConfigWrite);
-}
+}  // namespace edmtest

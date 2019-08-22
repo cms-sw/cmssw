@@ -4,7 +4,7 @@
 /// \author: Thomas Reis
 ///
 //
-// This class implements the RelativeIsolationCheckLUT factory. Based on the firmware 
+// This class implements the RelativeIsolationCheckLUT factory. Based on the firmware
 // version it selects the appropriate concrete implementation.
 //
 
@@ -15,27 +15,29 @@
 using namespace edm;
 
 namespace l1t {
-  MicroGMTRelativeIsolationCheckLUTFactory::ReturnType
-  MicroGMTRelativeIsolationCheckLUTFactory::create(const std::string& filename, const int fwVersion) {
+  MicroGMTRelativeIsolationCheckLUTFactory::ReturnType MicroGMTRelativeIsolationCheckLUTFactory::create(
+      const std::string& filename, const int fwVersion) {
     ReturnType p;
 
     if (fwVersion >= 1) {
       p = std::make_shared<l1t::MicroGMTRelativeIsolationCheckLUT>(filename);
     } else {
-      LogError("MicroGMTRelativeIsolationCheckLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
+      LogError("MicroGMTRelativeIsolationCheckLUTFactory")
+          << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
     return p;
   }
 
-  MicroGMTRelativeIsolationCheckLUTFactory::ReturnType
-  MicroGMTRelativeIsolationCheckLUTFactory::create(l1t::LUT* lut, const int fwVersion) {
+  MicroGMTRelativeIsolationCheckLUTFactory::ReturnType MicroGMTRelativeIsolationCheckLUTFactory::create(
+      l1t::LUT* lut, const int fwVersion) {
     ReturnType p;
 
     if (fwVersion >= 1) {
       p = std::make_shared<l1t::MicroGMTRelativeIsolationCheckLUT>(lut);
     } else {
-      LogError("MicroGMTRelativeIsolationCheckLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
+      LogError("MicroGMTRelativeIsolationCheckLUTFactory")
+          << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
     return p;
   }
-}
+}  // namespace l1t

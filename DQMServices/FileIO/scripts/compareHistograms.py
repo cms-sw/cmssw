@@ -170,16 +170,29 @@ def traverse_till_end(node, dirs_list, result, run_nr):
       for key in node.GetListOfKeys():
          traverse_till_end(key.ReadObj(), new_dir_list, result, run_nr)
    else:
-      path = tuple(new_dir_list)
-      if path not in get_blacklist(run_nr):
+      if not is_blacklisted(new_dir_list, run_nr):
+         path = tuple(new_dir_list)
          result[path] = node
 
 def get_node_name(node):
    if node.InheritsFrom('TObjString'):
       # Strip out just the name from a tag (<name>value</name>)
-      return node.GetName().split('>')[0][1:]
+      name = node.GetName().split('>')[0][1:]
+      return name + get_string_suffix()
    else:
       return node.GetName()
+
+def get_string_suffix():
+   return '_string_monitor_element'
+
+def is_blacklisted(dirs_list, run_nr):
+   # Copy the list
+   dirs_list = dirs_list[:]
+   # Remove string suffix
+   if dirs_list[-1].endswith(get_string_suffix()):
+      dirs_list[-1] = dirs_list[-1].replace(get_string_suffix(), '')
+
+   return tuple(dirs_list) in get_blacklist(run_nr)
 
 def save_paths(flat_dict, paths, result_file_path):
    if len(paths) == 0:

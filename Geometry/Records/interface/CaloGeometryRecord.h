@@ -4,7 +4,7 @@
 //
 // Package:     Records
 // Class  :     CaloGeometryRecord
-// 
+//
 //
 // Author:      Brian Heltsley
 // Created:     Tue April 1, 2008
@@ -27,24 +27,20 @@
 #include "Geometry/Records/interface/FastTimeGeometryRecord.h"
 #include "boost/mpl/vector.hpp"
 
-
-class CaloGeometryRecord : 
-   public edm::eventsetup::DependentRecordImplementation<
-   CaloGeometryRecord,
-		boost::mpl::vector<
-                IdealGeometryRecord,
-		EcalBarrelGeometryRecord,
-		EcalEndcapGeometryRecord,
-		EcalPreshowerGeometryRecord,
-                HcalParametersRcd,
-                HcalSimNumberingRecord,
-                HcalRecNumberingRecord,
-		HcalGeometryRecord,
-                HGCalGeometryRecord, 
-                FastTimeGeometryRecord,
-		CaloTowerGeometryRecord,
-		CastorGeometryRecord,
-		ZDCGeometryRecord> > {};
+class CaloGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<CaloGeometryRecord,
+                                                            boost::mpl::vector<IdealGeometryRecord,
+                                                                               EcalBarrelGeometryRecord,
+                                                                               EcalEndcapGeometryRecord,
+                                                                               EcalPreshowerGeometryRecord,
+                                                                               HcalParametersRcd,
+                                                                               HcalSimNumberingRecord,
+                                                                               HcalRecNumberingRecord,
+                                                                               HcalGeometryRecord,
+                                                                               HGCalGeometryRecord,
+                                                                               FastTimeGeometryRecord,
+                                                                               CaloTowerGeometryRecord,
+                                                                               CastorGeometryRecord,
+                                                                               ZDCGeometryRecord> > {};
 
 #endif /* RECORDS_CALOGEOMETRYRECORD_H */
-

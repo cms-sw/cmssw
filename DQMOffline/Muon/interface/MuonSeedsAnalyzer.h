@@ -1,14 +1,12 @@
 #ifndef MuonSeedsAnalyzer_H
 #define MuonSeedsAnalyzer_H
 
-
 /** \class MuonSeedsAnalyzer
  *
  *  DQM monitoring source for muon track seeds
  *
  *  \author G. Mila - INFN Torino
  */
-
 
 #include <memory>
 #include <fstream>
@@ -19,7 +17,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -29,21 +26,20 @@ class TrajectoryStateOnSurface;
 class TrajectorySeed;
 class MuonServiceProxy;
 
-class MuonSeedsAnalyzer : public  DQMEDAnalyzer {
- public:
-
+class MuonSeedsAnalyzer : public DQMEDAnalyzer {
+public:
   /// Constructor
   MuonSeedsAnalyzer(const edm::ParameterSet&);
-  
+
   /// Destructor
   ~MuonSeedsAnalyzer() override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  
-  private:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
+private:
   // ----------member data ---------------------------
-  MuonServiceProxy *theService;
+  MuonServiceProxy* theService;
   edm::ParameterSet parameters;
 
   // ------- Data ----
@@ -51,36 +47,36 @@ class MuonSeedsAnalyzer : public  DQMEDAnalyzer {
 
   // Switch for verbosity
   std::string metname;
-  
+
   //histo binning parameters
   int seedHitBin;
   double seedHitMin;
   double seedHitMax;
-  
+
   int PhiBin;
   double PhiMin;
   double PhiMax;
-  
+
   int EtaBin;
   double EtaMin;
   double EtaMax;
-  
+
   int ThetaBin;
   double ThetaMin;
   double ThetaMax;
-  
+
   int Chi2Bin;
   double Chi2Min;
   double Chi2Max;
-  
+
   int seedPtBin;
   double seedPtMin;
   double seedPtMax;
-  
+
   int seedPxyzBin;
   double seedPxyzMin;
   double seedPxyzMax;
- 
+
   int pErrBin;
   double pErrMin;
   double pErrMax;
@@ -96,7 +92,6 @@ class MuonSeedsAnalyzer : public  DQMEDAnalyzer {
   int etaErrBin;
   double etaErrMin;
   double etaErrMax;
-  
 
   //the histos
   MonitorElement* NumberOfRecHitsPerSeed;
@@ -120,6 +115,5 @@ class MuonSeedsAnalyzer : public  DQMEDAnalyzer {
   MonitorElement* seedPErrVsPt;
   MonitorElement* seedPhiErr;
   MonitorElement* seedEtaErr;
-
 };
-#endif  
+#endif

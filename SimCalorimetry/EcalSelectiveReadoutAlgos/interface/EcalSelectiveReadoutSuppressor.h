@@ -14,35 +14,34 @@
 
 #include <memory>
 
-class EcalSelectiveReadoutSuppressor{
+class EcalSelectiveReadoutSuppressor {
 public:
   /** Construtor.
    * @param params configuration from python file
    * @param settings configuration from condition DB
    */
-  EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params, const EcalSRSettings* settings);
-  
-  enum {BARREL, ENDCAP};
+  EcalSelectiveReadoutSuppressor(const edm::ParameterSet& params, const EcalSRSettings* settings);
+
+  enum { BARREL, ENDCAP };
 
   /** Gets number of weights supported by the zero suppression filter
    * @return number of weights
    */
-  static int getFIRTapCount(){ return nFIRTaps;}
-  
+  static int getFIRTapCount() { return nFIRTaps; }
+
   /** Set the mapping of which cell goes with which trigger tower
    * @param map the trigger tower map
    */
-  void setTriggerMap(const EcalTrigTowerConstituentsMap * map);
+  void setTriggerMap(const EcalTrigTowerConstituentsMap* map);
 
   /** Set the ECAL electronics mapping
    * @param map the ECAL electronics map
    */
-  void setElecMap(const EcalElectronicsMapping * map);
+  void setElecMap(const EcalElectronicsMapping* map);
 
-  
   /** Sets the geometry of the calorimeters
    */
-  void setGeometry(const CaloGeometry * caloGeometry);
+  void setGeometry(const CaloGeometry* caloGeometry);
 
   /** Runs the selective readout(SR) algorithm.
    * @deprecated use the other run methode instead
@@ -52,9 +51,9 @@ public:
    * @param endcapDigis [in,out] the EE digi collection to filter
    */
   void run(const edm::EventSetup& eventSetup,
-	   const EcalTrigPrimDigiCollection & trigPrims,
-           EBDigiCollection & barrelDigis,
-           EEDigiCollection & endcapDigis);
+           const EcalTrigPrimDigiCollection& trigPrims,
+           EBDigiCollection& barrelDigis,
+           EEDigiCollection& endcapDigis);
 
   /** Runs the selective readout (SR) algorithm.
    * @param eventSetup event conditions
@@ -71,19 +70,17 @@ public:
    *        the collection to fill. If null, no collection is filled.
    */
   void run(const edm::EventSetup& eventSetup,
-	   const EcalTrigPrimDigiCollection & trigPrims,
-           const EBDigiCollection & barrelDigis,
-           const EEDigiCollection & endcapDigis,
+           const EcalTrigPrimDigiCollection& trigPrims,
+           const EBDigiCollection& barrelDigis,
+           const EEDigiCollection& endcapDigis,
            EBDigiCollection* selectedBarrelDigis,
            EEDigiCollection* selectedEndcapDigis,
-	   EBSrFlagCollection* ebSrFlags,
-	   EESrFlagCollection* eeSrFlags);
+           EBSrFlagCollection* ebSrFlags,
+           EESrFlagCollection* eeSrFlags);
 
   /** For debugging purposes.
    */
-  EcalSelectiveReadout* getEcalSelectiveReadout(){
-    return ecalSelectiveReadout.get();
-  }
+  EcalSelectiveReadout* getEcalSelectiveReadout() { return ecalSelectiveReadout.get(); }
 
   /** Writes out TT flags. On of the 'run' method must be called beforehand.
    * Beware this method might be removed in future.
@@ -91,24 +88,24 @@ public:
    * @param iEvent event index. Ignored if <0.
    * @param withHeader. If true writes out a header with the legend.
    */
-  void printTTFlags(std::ostream& os, int iEvent = -1,
-                    bool withHeader=true) const;
-  
- private:
+  void printTTFlags(std::ostream& os, int iEvent = -1, bool withHeader = true) const;
 
+private:
   /** Returns true if a digi passes the zero suppression.
    * @param frame, data frame (aka digi). 
    * @param thr zero suppression threshold in thrUnit.
    * @return true if passed ZS filter, false if failed
    */
-  
+
   bool accept(const edm::DataFrame& frame, int thr);
-  
-  /// helpers for constructors  
+
+  /// helpers for constructors
   /** Initializes ZS threshold and SR classificion to SR ("action") flags
    */
-  void initCellThresholds(double barrelLowInterest, double endcapLowInterest,
-			  double barrelHighInterest, double endcapHighInterest);
+  void initCellThresholds(double barrelLowInterest,
+                          double endcapLowInterest,
+                          double barrelHighInterest,
+                          double endcapHighInterest);
   /** Converts threshold in GeV to threshold in internal unit used by the
    * ZS FIR. 
    * @param thresholdInGeV the theshold in GeV
@@ -142,64 +139,53 @@ public:
    * @param iEta CMSSW eta index (numbering -85...-1,1...85)
    * @return index in numbering from 0 to 169
    */
-  int iEta2cIndex(int iEta) const{
-    return (iEta<0)?iEta+85:iEta+84;
-  }
-  
+  int iEta2cIndex(int iEta) const { return (iEta < 0) ? iEta + 85 : iEta + 84; }
+
   /**Transforms CMSSW phi ECAL crystal indices to indices starting at 0
    * to use for c-array or vector.
    * @param iPhi CMSSW phi index (numbering 1...360)
    * @return index in numbering 0...359
    */
-  int iPhi2cIndex(int iPhi) const{
-    return iPhi-1;
-  }
+  int iPhi2cIndex(int iPhi) const { return iPhi - 1; }
 
   /**Transforms CMSSW eta ECAL TT indices to indices starting at 0
    * to use for c-array or vector.
    * @param iEta CMSSW eta index (numbering -28...-1,28...56)
    * @return index in numbering from 0 to 55
    */
-  int iTTEta2cIndex(int iEta) const{
-    return (iEta<0)?iEta+28:iEta+27;
-  }
-  
+  int iTTEta2cIndex(int iEta) const { return (iEta < 0) ? iEta + 28 : iEta + 27; }
+
   /**Transforms CMSSW phi ECAL crystal indices to indices starting at 0
    * to use for c-array or vector.
    * @param iPhi CMSSW phi index (numbering 1...72)
    * @return index in numbering 0...71
    */
-  int iTTPhi2cIndex(int iPhi) const{
-    return iPhi-1;
-  }
+  int iTTPhi2cIndex(int iPhi) const { return iPhi - 1; }
 
   /** Help function to set the srFlags field. Used in TrigPrimByPass mode
    * @param eventSetup the EDM event setup
    * @param ebDigi the ECAL barrel APD digis
    * @param eeDigi the ECAL endcap VPT digis
    */
-  void setTtFlags(const edm::EventSetup& eventSetup,
-		  const EBDigiCollection& ebDigis,
-		  const EEDigiCollection& eeDigis);
+  void setTtFlags(const edm::EventSetup& eventSetup, const EBDigiCollection& ebDigis, const EEDigiCollection& eeDigis);
 
   /** Help function to set the srFlags field.
    * @param trigPrim the trigger primitive digi collection
    */
-  void setTtFlags(const EcalTrigPrimDigiCollection & trigPrims);
+  void setTtFlags(const EcalTrigPrimDigiCollection& trigPrims);
 
-  template<class T>
+  template <class T>
   double frame2Energy(const T& frame, int timeOffset = 0) const;
 
+  //   /** Help function to get SR flag from ZS threshold using min/max convention
+  //    * for SUPPRESS and FULL_READOUT: see zsThreshold.
+  //    * @param thr ZS threshold in thrUnit
+  //    * @param flag for Zero suppression: EcalSrFlag::SRF_ZS1 or
+  //    * EcalSrFlag::SRF_ZS2
+  //    * @return the SR flag
+  //    */
+  //   int thr2Srf(int thr, int zsFlag) const;
 
-//   /** Help function to get SR flag from ZS threshold using min/max convention
-//    * for SUPPRESS and FULL_READOUT: see zsThreshold.
-//    * @param thr ZS threshold in thrUnit
-//    * @param flag for Zero suppression: EcalSrFlag::SRF_ZS1 or
-//    * EcalSrFlag::SRF_ZS2
-//    * @return the SR flag
-//    */
-//   int thr2Srf(int thr, int zsFlag) const;
-  
   /** Number of endcap, obviously two.
    */
   const static size_t nEndcaps = 2;
@@ -207,27 +193,25 @@ public:
   /** Number of eta trigger tower divisions in one endcap.
    */
   const static size_t nEndcapTriggerTowersInEta = 11;
-  
+
   /** Number of eta trigger tower divisions in the barrel.
    */
   const static size_t nBarrelTriggerTowersInEta = 34;
-  
+
   /** Number of eta divisions in trigger towers for the whole ECAL
    */
-  const static size_t nTriggerTowersInEta
-  = 2*nEndcapTriggerTowersInEta+nBarrelTriggerTowersInEta;
-  
+  const static size_t nTriggerTowersInEta = 2 * nEndcapTriggerTowersInEta + nBarrelTriggerTowersInEta;
+
   /** Number of phi divisions in trigger towers.
    */
   const static size_t nTriggerTowersInPhi = 72;
-
 
   /** Help class to comput selective readout flags. 
    */
   std::unique_ptr<EcalSelectiveReadout> ecalSelectiveReadout;
 
-  const EcalTrigTowerConstituentsMap * theTriggerMap;
-     
+  const EcalTrigTowerConstituentsMap* theTriggerMap;
+
   /** Trigger tower flags: see setTtFlags()
    */
   EcalSelectiveReadout::ttFlag_t ttFlags[nTriggerTowersInEta][nTriggerTowersInPhi];
@@ -236,7 +220,7 @@ public:
    * filter. Numbering starts at 0.
    */
   int firstFIRSample;
-  
+
   /** Weights of zero suppression FIR filter
    */
   std::vector<int> firWeights;
@@ -253,7 +237,7 @@ public:
   /** Flag to use a symetric zero suppression (cut on absolute value)
    */
   bool symetricZS;
-  
+
   /** Zero suppresion threshold for the ECAL expressed in ebThrUnit and
    * eeThrUnit. Set to numeric_limits<int>::min() for FULL READOUT and
    * to numeric_limits<int>::max() for SUPPRESS.
@@ -283,18 +267,18 @@ public:
    * (suppress, ZS1, ZS2, FRO) map.
    */
   std::vector<int> actions_;
-  
+
   /** Switch to applies trigPrimBypassLTH_ and trigPrimBypassHTH_ thresholds
    * on TPG compressed ET instead of using flags from TPG: trig prim bypass mode
    * 1.
    */
   bool ttThresOnCompressedEt_;
-  
+
   /** When in trigger primitive simulation module bypass debug mode,
    * switch to enable Peak finder effect simulation
    */
-  bool trigPrimBypassWithPeakFinder_; 
-  
+  bool trigPrimBypassWithPeakFinder_;
+
   /** Low TT Et threshold for trigger primitive simulation module bypass
    * debug mode.
    */
@@ -304,7 +288,6 @@ public:
    * debug mode.
    */
   double trigPrimBypassHTH_;
-
 
   /** Maps RU interest flag (low interest, single neighbour, center) to
    * Selective readout action flag (type of readout).

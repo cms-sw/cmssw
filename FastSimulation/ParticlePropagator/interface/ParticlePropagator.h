@@ -26,7 +26,6 @@ class RandomEngineAndDistribution;
 class MagneticFieldMap;
 
 class ParticlePropagator : public BaseParticlePropagator {
-  
 public:
   /// Default c'tor
   ParticlePropagator();
@@ -34,45 +33,47 @@ public:
   /** Constructor taking as arguments a RawParticle, as well as the radius,
       half-height and magnetic field defining the cylinder for which 
       propagation is to be performed */
-  ParticlePropagator(const RawParticle& myPart, 
-		     double R, double Z,
-		     const MagneticFieldMap* aFieldMap,
-		     const RandomEngineAndDistribution* engine,
+  ParticlePropagator(const RawParticle& myPart,
+                     double R,
+                     double Z,
+                     const MagneticFieldMap* aFieldMap,
+                     const RandomEngineAndDistribution* engine,
                      const HepPDT::ParticleDataTable* table);
-  
+
   /** Constructor with only a RawParticle as argument for subsequent 
       propagation to known surfaces (ECAL, HCAL ...) */
   ParticlePropagator(const RawParticle& myPart,
-		     const MagneticFieldMap* aFieldMap,
-		     const RandomEngineAndDistribution* engine,
+                     const MagneticFieldMap* aFieldMap,
+                     const RandomEngineAndDistribution* engine,
                      const HepPDT::ParticleDataTable* table);
 
   /** Constructor with two LorentzVector (momentum and vertex (in cm)) and 
       an electric charge propagation to known surfaces (ECAL, HCAL ...) */
-  ParticlePropagator(const XYZTLorentzVector& p, 
-		     const XYZTLorentzVector& v, 
-		     float q,
-		     const MagneticFieldMap* aFieldMap,
+  ParticlePropagator(const XYZTLorentzVector& p,
+                     const XYZTLorentzVector& v,
+                     float q,
+                     const MagneticFieldMap* aFieldMap,
                      const HepPDT::ParticleDataTable* table);
 
   /** Constructor with a LorentzVector (momentum), a Hep3Vector (vertex in cm)
       and an electric charge propagation to known surfaces (ECAL, HCAL ...) */
-  ParticlePropagator(const XYZTLorentzVector& p, 
-		     const XYZVector& v, float q,
-		     const MagneticFieldMap* aFieldMap,
+  ParticlePropagator(const XYZTLorentzVector& p,
+                     const XYZVector& v,
+                     float q,
+                     const MagneticFieldMap* aFieldMap,
                      const HepPDT::ParticleDataTable* table);
 
   /** Constructor with a FSimTrack from the FSimEvent*/
   ParticlePropagator(const FSimTrack& simTrack,
-		     const MagneticFieldMap* aFieldMap,
-		     const RandomEngineAndDistribution* engine,
+                     const MagneticFieldMap* aFieldMap,
+                     const RandomEngineAndDistribution* engine,
                      const HepPDT::ParticleDataTable* table);
 
   /** Constructor with a (Base)ParticlePropagator*/
   ParticlePropagator(const ParticlePropagator& myPropPart);
   //  ParticlePropagator(BaseParticlePropagator myPropPart);
-  ParticlePropagator(const BaseParticlePropagator &myPropPart,
-		     const MagneticFieldMap* aFieldMap,
+  ParticlePropagator(const BaseParticlePropagator& myPropPart,
+                     const MagneticFieldMap* aFieldMap,
                      const HepPDT::ParticleDataTable* table);
 
   /**Initialize the proper decay time of the particle*/
@@ -86,25 +87,22 @@ public:
       Z axis, to the preshower layer 1 & 2, to the ECAL entrance, to the 
       HCAL entrance, the HCAL 2nd and 3rd layer (not coded yet), the VFCAL 
       entrance, or any BoundSurface(disk or cylinder)*/
-  bool propagateToClosestApproach(double x0=0., double y0=0., bool first=true);
-  bool propagateToNominalVertex(const XYZTLorentzVector& hit2=
-			              XYZTLorentzVector(0.,0.,0.,0.));
+  bool propagateToClosestApproach(double x0 = 0., double y0 = 0., bool first = true);
+  bool propagateToNominalVertex(const XYZTLorentzVector& hit2 = XYZTLorentzVector(0., 0., 0., 0.));
 
   /** The fieldMap given by the detector geormetry */
-  double fieldMap(double x,double y,double z);
+  double fieldMap(double x, double y, double z);
   double fieldMap(const TrackerLayer& layer, double coord, int success);
- 
+
   bool propagateToBoundSurface(const TrackerLayer&);
-  void setPropagationConditions(const TrackerLayer&, 
-				bool firstLoop=true);
+  void setPropagationConditions(const TrackerLayer&, bool firstLoop = true);
 
   const HepPDT::ParticleDataTable* particleDataTable() const { return theTable; }
-private:
 
+private:
   const MagneticFieldMap* theFieldMap;
   const RandomEngineAndDistribution* random;
   const HepPDT::ParticleDataTable* theTable = nullptr;
-
 };
 
 #endif

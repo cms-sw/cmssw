@@ -12,40 +12,35 @@
 
 namespace reco {
 
-class JetSignalVertexCompatibilityAlgo {
-    public:
-	JetSignalVertexCompatibilityAlgo(double cut, double temperature);
-	~JetSignalVertexCompatibilityAlgo();
+  class JetSignalVertexCompatibilityAlgo {
+  public:
+    JetSignalVertexCompatibilityAlgo(double cut, double temperature);
+    ~JetSignalVertexCompatibilityAlgo();
 
-	std::vector<float> compatibility(
-				const reco::VertexCollection &vertices,
-				const reco::TrackRefVector &tracks) const;
+    std::vector<float> compatibility(const reco::VertexCollection &vertices, const reco::TrackRefVector &tracks) const;
 
-	void resetEvent(const TransientTrackBuilder *trackBuilder);
+    void resetEvent(const TransientTrackBuilder *trackBuilder);
 
-    private:
-	template<typename T>
-	struct RefToBaseLess {
-		bool operator()(const edm::RefToBase<T> &r1,
-		                const edm::RefToBase<T> &r2) const;
-	};
+  private:
+    template <typename T>
+    struct RefToBaseLess {
+      bool operator()(const edm::RefToBase<T> &r1, const edm::RefToBase<T> &r2) const;
+    };
 
-	typedef std::map<reco::TrackBaseRef, reco::TransientTrack,
-	                 RefToBaseLess<reco::Track> > TransientTrackMap;
+    typedef std::map<reco::TrackBaseRef, reco::TransientTrack, RefToBaseLess<reco::Track> > TransientTrackMap;
 
-	const TransientTrack &convert(const reco::TrackBaseRef &track) const;
-	double activation(double compat) const;
+    const TransientTrack &convert(const reco::TrackBaseRef &track) const;
+    double activation(double compat) const;
 
-	static double trackVertexCompat(const reco::Vertex &vtx,
-	                                const TransientTrack &track);
+    static double trackVertexCompat(const reco::Vertex &vtx, const TransientTrack &track);
 
-	mutable TransientTrackMap	trackMap;
-	const TransientTrackBuilder	*trackBuilder;
+    mutable TransientTrackMap trackMap;
+    const TransientTrackBuilder *trackBuilder;
 
-	const double			cut;
-	const double			temperature;
-};
+    const double cut;
+    const double temperature;
+  };
 
-} // namespace reco
+}  // namespace reco
 
-#endif // JetSignalVertexCompatibilityAlgo_h
+#endif  // JetSignalVertexCompatibilityAlgo_h

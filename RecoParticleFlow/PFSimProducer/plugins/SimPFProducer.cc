@@ -58,7 +58,7 @@
 class SimPFProducer : public edm::global::EDProducer<> {
 public:
   SimPFProducer(const edm::ParameterSet&);
-  ~SimPFProducer() override { }
+  ~SimPFProducer() override {}
 
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
@@ -68,52 +68,59 @@ private:
   const bool useTiming_;
 
   // inputs
-  const edm::EDGetTokenT<edm::View<reco::PFRecTrack> > pfRecTracks_;
-  const edm::EDGetTokenT<edm::View<reco::Track> > tracks_;
-  const edm::EDGetTokenT<edm::View<reco::Track> > gsfTracks_;
+  const edm::EDGetTokenT<edm::View<reco::PFRecTrack>> pfRecTracks_;
+  const edm::EDGetTokenT<edm::View<reco::Track>> tracks_;
+  const edm::EDGetTokenT<edm::View<reco::Track>> gsfTracks_;
   const edm::EDGetTokenT<reco::MuonCollection> muons_;
   const edm::EDGetTokenT<edm::ValueMap<float>> srcTrackTime_, srcTrackTimeError_;
   const edm::EDGetTokenT<edm::ValueMap<float>> srcGsfTrackTime_, srcGsfTrackTimeError_;
   const edm::EDGetTokenT<TrackingParticleCollection> trackingParticles_;
   const edm::EDGetTokenT<SimClusterCollection> simClustersTruth_;
   const edm::EDGetTokenT<CaloParticleCollection> caloParticles_;
-  const edm::EDGetTokenT<std::vector<reco::PFCluster> > simClusters_;
+  const edm::EDGetTokenT<std::vector<reco::PFCluster>> simClusters_;
   // tracking particle associators by order of preference
-  const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> > associators_;
-
+  const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator>> associators_;
 };
 
 DEFINE_FWK_MODULE(SimPFProducer);
 
 namespace {
 
-  template<typename T>
-  uint64_t hashSimInfo(const T& simTruth,size_t i = 0) {
+  template <typename T>
+  uint64_t hashSimInfo(const T& simTruth, size_t i = 0) {
     uint64_t evtid = simTruth.eventId().rawId();
     uint64_t trackid = simTruth.g4Tracks()[i].trackId();
-    return ( (evtid << 3) + 23401923 ) ^ trackid ;
+    return ((evtid << 3) + 23401923) ^ trackid;
   };
-}
+}  // namespace
 
-SimPFProducer::SimPFProducer(const edm::ParameterSet& conf) :
-  superClusterThreshold_( conf.getParameter<double>("superClusterThreshold") ),
-  neutralEMThreshold_( conf.getParameter<double>("neutralEMThreshold") ),
-  neutralHADThreshold_( conf.getParameter<double>("neutralHADThreshold") ),
-  useTiming_(conf.existsAs<edm::InputTag>("trackTimeValueMap")),
-  pfRecTracks_(consumes<edm::View<reco::PFRecTrack> >(conf.getParameter<edm::InputTag> ("pfRecTrackSrc"))),
-  tracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("trackSrc") ) ),
-  gsfTracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("gsfTrackSrc") ) ),
-  muons_(consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
-  srcTrackTime_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
-  srcTrackTimeError_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
-  srcGsfTrackTime_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("gsfTrackTimeValueMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
-  srcGsfTrackTimeError_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("gsfTrackTimeErrorMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
-  trackingParticles_(consumes<TrackingParticleCollection>( conf.getParameter<edm::InputTag>("trackingParticleSrc") ) ),
-  simClustersTruth_(consumes<SimClusterCollection>( conf.getParameter<edm::InputTag>("simClusterTruthSrc") ) ),
-  caloParticles_(consumes<CaloParticleCollection>( conf.getParameter<edm::InputTag>("caloParticlesSrc") ) ),
-  simClusters_(consumes<std::vector<reco::PFCluster> >( conf.getParameter<edm::InputTag>("simClustersSrc") ) ),
-  associators_( edm::vector_transform( conf.getParameter<std::vector<edm::InputTag> >("associators"), [this](const edm::InputTag& tag){ return this->consumes<reco::TrackToTrackingParticleAssociator>(tag); } ) )
-{
+SimPFProducer::SimPFProducer(const edm::ParameterSet& conf)
+    : superClusterThreshold_(conf.getParameter<double>("superClusterThreshold")),
+      neutralEMThreshold_(conf.getParameter<double>("neutralEMThreshold")),
+      neutralHADThreshold_(conf.getParameter<double>("neutralHADThreshold")),
+      useTiming_(conf.existsAs<edm::InputTag>("trackTimeValueMap")),
+      pfRecTracks_(consumes<edm::View<reco::PFRecTrack>>(conf.getParameter<edm::InputTag>("pfRecTrackSrc"))),
+      tracks_(consumes<edm::View<reco::Track>>(conf.getParameter<edm::InputTag>("trackSrc"))),
+      gsfTracks_(consumes<edm::View<reco::Track>>(conf.getParameter<edm::InputTag>("gsfTrackSrc"))),
+      muons_(consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
+      srcTrackTime_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap"))
+                               : edm::EDGetTokenT<edm::ValueMap<float>>()),
+      srcTrackTimeError_(useTiming_
+                             ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap"))
+                             : edm::EDGetTokenT<edm::ValueMap<float>>()),
+      srcGsfTrackTime_(useTiming_
+                           ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("gsfTrackTimeValueMap"))
+                           : edm::EDGetTokenT<edm::ValueMap<float>>()),
+      srcGsfTrackTimeError_(
+          useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("gsfTrackTimeErrorMap"))
+                     : edm::EDGetTokenT<edm::ValueMap<float>>()),
+      trackingParticles_(consumes<TrackingParticleCollection>(conf.getParameter<edm::InputTag>("trackingParticleSrc"))),
+      simClustersTruth_(consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterTruthSrc"))),
+      caloParticles_(consumes<CaloParticleCollection>(conf.getParameter<edm::InputTag>("caloParticlesSrc"))),
+      simClusters_(consumes<std::vector<reco::PFCluster>>(conf.getParameter<edm::InputTag>("simClustersSrc"))),
+      associators_(edm::vector_transform(
+          conf.getParameter<std::vector<edm::InputTag>>("associators"),
+          [this](const edm::InputTag& tag) { return this->consumes<reco::TrackToTrackingParticleAssociator>(tag); })) {
   produces<reco::PFBlockCollection>();
   produces<reco::SuperClusterCollection>("perfect");
   produces<reco::PFCandidateCollection>();
@@ -121,32 +128,32 @@ SimPFProducer::SimPFProducer(const edm::ParameterSet& conf) :
 
 void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
   //get associators
-  std::vector<edm::Handle<reco::TrackToTrackingParticleAssociator> > associators;
-  for( const auto& token : associators_ ) {
+  std::vector<edm::Handle<reco::TrackToTrackingParticleAssociator>> associators;
+  for (const auto& token : associators_) {
     associators.emplace_back();
     auto& back = associators.back();
-    evt.getByToken(token,back);
+    evt.getByToken(token, back);
   }
 
   //get PFRecTrack
-  edm::Handle<edm::View<reco::PFRecTrack> > PFTrackCollectionH;
-  evt.getByToken(pfRecTracks_,PFTrackCollectionH);
+  edm::Handle<edm::View<reco::PFRecTrack>> PFTrackCollectionH;
+  evt.getByToken(pfRecTracks_, PFTrackCollectionH);
   const edm::View<reco::PFRecTrack> PFTrackCollection = *PFTrackCollectionH;
   std::unordered_set<unsigned> PFTrackToGeneralTrack;
-  for( unsigned i = 0; i < PFTrackCollection.size(); ++i ) {
+  for (unsigned i = 0; i < PFTrackCollection.size(); ++i) {
     const auto ptr = PFTrackCollection.ptrAt(i);
     PFTrackToGeneralTrack.insert(ptr->trackRef().key());
   }
 
   //get track collections
-  edm::Handle<edm::View<reco::Track> > TrackCollectionH;
+  edm::Handle<edm::View<reco::Track>> TrackCollectionH;
   evt.getByToken(tracks_, TrackCollectionH);
   const edm::View<reco::Track>& TrackCollection = *TrackCollectionH;
 
   edm::Handle<reco::MuonCollection> muons;
-  evt.getByToken(muons_,muons);
+  evt.getByToken(muons_, muons);
   std::unordered_set<unsigned> MuonTrackToGeneralTrack;
-  for (auto const& mu : *muons.product()){
+  for (auto const& mu : *muons.product()) {
     reco::TrackRef muTrkRef = mu.track();
     if (muTrkRef.isNonnull())
       MuonTrackToGeneralTrack.insert(muTrkRef.key());
@@ -162,33 +169,33 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   }
 
   //get tracking particle collections
-  edm::Handle<TrackingParticleCollection>  TPCollectionH;
+  edm::Handle<TrackingParticleCollection> TPCollectionH;
   evt.getByToken(trackingParticles_, TPCollectionH);
   //const TrackingParticleCollection&  TPCollection = *TPCollectionH;
 
   // grab phony clustering information
   edm::Handle<SimClusterCollection> SimClustersTruthH;
-  evt.getByToken(simClustersTruth_,SimClustersTruthH);
+  evt.getByToken(simClustersTruth_, SimClustersTruthH);
   const SimClusterCollection& SimClustersTruth = *SimClustersTruthH;
 
   edm::Handle<CaloParticleCollection> CaloParticlesH;
-  evt.getByToken(caloParticles_,CaloParticlesH);
+  evt.getByToken(caloParticles_, CaloParticlesH);
   const CaloParticleCollection& CaloParticles = *CaloParticlesH;
 
-  edm::Handle<std::vector<reco::PFCluster> > SimClustersH;
-  evt.getByToken(simClusters_,SimClustersH);
+  edm::Handle<std::vector<reco::PFCluster>> SimClustersH;
+  evt.getByToken(simClusters_, SimClustersH);
   const std::vector<reco::PFCluster>& SimClusters = *SimClustersH;
 
-  std::unordered_map<uint64_t,size_t> hashToSimCluster;
+  std::unordered_map<uint64_t, size_t> hashToSimCluster;
 
-  for( unsigned i = 0; i < SimClustersTruth.size(); ++i ) {
+  for (unsigned i = 0; i < SimClustersTruth.size(); ++i) {
     const auto& simTruth = SimClustersTruth[i];
     hashToSimCluster[hashSimInfo(simTruth)] = i;
   }
 
   // associate the reco tracks / gsf Tracks
   std::vector<reco::RecoToSimCollection> associatedTracks, associatedTracksGsf;
-  for( auto associator : associators ) {
+  for (auto associator : associators) {
     associatedTracks.emplace_back(associator->associateRecoToSim(TrackCollectionH, TPCollectionH));
     //associatedTracksGsf.emplace_back(associator->associateRecoToSim(GsfTrackCollectionH, TPCollectionH));
   }
@@ -197,96 +204,99 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   // likewise fill out superclusters
   auto superclusters = std::make_unique<reco::SuperClusterCollection>();
   auto blocks = std::make_unique<reco::PFBlockCollection>();
-  std::unordered_map<size_t,size_t> simCluster2Block;
-  std::unordered_map<size_t,size_t> simCluster2BlockIndex;
-  std::unordered_multimap<size_t,size_t> caloParticle2SimCluster;
+  std::unordered_map<size_t, size_t> simCluster2Block;
+  std::unordered_map<size_t, size_t> simCluster2BlockIndex;
+  std::unordered_multimap<size_t, size_t> caloParticle2SimCluster;
   std::vector<int> caloParticle2SuperCluster;
-  for( unsigned icp = 0; icp < CaloParticles.size(); ++icp ) {
+  for (unsigned icp = 0; icp < CaloParticles.size(); ++icp) {
     blocks->emplace_back();
     auto& block = blocks->back();
     const auto& simclusters = CaloParticles[icp].simClusters();
     double pttot = 0.0;
-    double etot  = 0.0;
+    double etot = 0.0;
     std::vector<size_t> good_simclusters;
-    for( unsigned isc = 0; isc < simclusters.size() ; ++isc ) {
+    for (unsigned isc = 0; isc < simclusters.size(); ++isc) {
       auto simc = simclusters[isc];
       auto pdgId = std::abs(simc->pdgId());
-      edm::Ref<std::vector<reco::PFCluster> > clusterRef(SimClustersH,simc.key());
-      if( ( (pdgId == 22 || pdgId == 11) &&  clusterRef->energy() >  neutralEMThreshold_) ||
-	  clusterRef->energy() > neutralHADThreshold_ ) {
-	good_simclusters.push_back(isc);
-	etot += clusterRef->energy();
-	pttot += clusterRef->pt();
-	auto bec = std::make_unique<reco::PFBlockElementCluster>(clusterRef,reco::PFBlockElement::HGCAL);
-	block.addElement(bec.get());
-	simCluster2Block[simc.key()] = icp;
-	simCluster2BlockIndex[simc.key()] = bec->index();
-	caloParticle2SimCluster.emplace(CaloParticles[icp].g4Tracks()[0].trackId(), simc.key());
+      edm::Ref<std::vector<reco::PFCluster>> clusterRef(SimClustersH, simc.key());
+      if (((pdgId == 22 || pdgId == 11) && clusterRef->energy() > neutralEMThreshold_) ||
+          clusterRef->energy() > neutralHADThreshold_) {
+        good_simclusters.push_back(isc);
+        etot += clusterRef->energy();
+        pttot += clusterRef->pt();
+        auto bec = std::make_unique<reco::PFBlockElementCluster>(clusterRef, reco::PFBlockElement::HGCAL);
+        block.addElement(bec.get());
+        simCluster2Block[simc.key()] = icp;
+        simCluster2BlockIndex[simc.key()] = bec->index();
+        caloParticle2SimCluster.emplace(CaloParticles[icp].g4Tracks()[0].trackId(), simc.key());
       }
     }
 
     auto pdgId = std::abs(CaloParticles[icp].pdgId());
 
     caloParticle2SuperCluster.push_back(-1);
-    if( (pdgId == 22 || pdgId == 11) && pttot > superClusterThreshold_ ) {
+    if ((pdgId == 22 || pdgId == 11) && pttot > superClusterThreshold_) {
       caloParticle2SuperCluster[icp] = superclusters->size();
 
-      math::XYZPoint seedpos; // take seed pos as supercluster point
+      math::XYZPoint seedpos;  // take seed pos as supercluster point
       reco::CaloClusterPtr seed;
       reco::CaloClusterPtrVector clusters;
-      for( auto idx : good_simclusters ) {
-	edm::Ptr<reco::PFCluster> ptr(SimClustersH, simclusters[idx].key());
-	clusters.push_back(ptr);
-	if( seed.isNull() || seed->energy() < ptr->energy() ) {
-	  seed = ptr;
-	  seedpos = ptr->position();
-	}
+      for (auto idx : good_simclusters) {
+        edm::Ptr<reco::PFCluster> ptr(SimClustersH, simclusters[idx].key());
+        clusters.push_back(ptr);
+        if (seed.isNull() || seed->energy() < ptr->energy()) {
+          seed = ptr;
+          seedpos = ptr->position();
+        }
       }
-      superclusters->emplace_back(etot,seedpos,seed,clusters);
+      superclusters->emplace_back(etot, seedpos, seed, clusters);
     }
   }
 
   auto blocksHandle = evt.put(std::move(blocks));
-  auto superClustersHandle = evt.put(std::move(superclusters),"perfect");
+  auto superClustersHandle = evt.put(std::move(superclusters), "perfect");
 
   // list tracks so we can mark them as used and/or fight over them
-  std::vector<bool> usedTrack(TrackCollection.size(),false),
-                  //usedGsfTrack(GsfTrackCollection.size(),false),
-                    usedSimCluster(SimClusters.size(),false);
+  std::vector<bool> usedTrack(TrackCollection.size(), false),
+      //usedGsfTrack(GsfTrackCollection.size(),false),
+      usedSimCluster(SimClusters.size(), false);
 
   auto candidates = std::make_unique<reco::PFCandidateCollection>();
   // in good particle flow fashion, start from the tracks and go out
-  for( unsigned itk = 0; itk < TrackCollection.size(); ++itk ) {
-    auto tkRef  = TrackCollection.refAt(itk);
-     // skip tracks not selected by PF
-    if( PFTrackToGeneralTrack.count(itk) == 0  ) continue;
+  for (unsigned itk = 0; itk < TrackCollection.size(); ++itk) {
+    auto tkRef = TrackCollection.refAt(itk);
+    // skip tracks not selected by PF
+    if (PFTrackToGeneralTrack.count(itk) == 0)
+      continue;
     reco::RecoToSimCollection::const_iterator assoc_tps = associatedTracks.back().end();
-    for( const auto& association : associatedTracks ) {
+    for (const auto& association : associatedTracks) {
       assoc_tps = association.find(tkRef);
-      if( assoc_tps != association.end() ) break;
+      if (assoc_tps != association.end())
+        break;
     }
-    if( assoc_tps == associatedTracks.back().end() ) continue;
+    if (assoc_tps == associatedTracks.back().end())
+      continue;
     // assured now that we are matched to a set of tracks
     const auto& matches = assoc_tps->val;
 
     const auto absPdgId = std::abs(matches[0].first->pdgId());
     const auto charge = tkRef->charge();
     const auto three_mom = tkRef->momentum();
-    constexpr double mpion2 = 0.13957*0.13957;
+    constexpr double mpion2 = 0.13957 * 0.13957;
     double energy = std::sqrt(three_mom.mag2() + mpion2);
-    math::XYZTLorentzVector trk_p4(three_mom.x(),three_mom.y(),three_mom.z(),energy);
+    math::XYZTLorentzVector trk_p4(three_mom.x(), three_mom.y(), three_mom.z(), energy);
 
     reco::PFCandidate::ParticleType part_type;
 
-    switch( absPdgId ) {
-    case 11:
-      part_type = reco::PFCandidate::e;
-      break;
-    case 13:
-      part_type = reco::PFCandidate::mu;
-      break;
-    default:
-      part_type = reco::PFCandidate::h;
+    switch (absPdgId) {
+      case 11:
+        part_type = reco::PFCandidate::e;
+        break;
+      case 13:
+        part_type = reco::PFCandidate::mu;
+        break;
+      default:
+        part_type = reco::PFCandidate::h;
     }
 
     candidates->emplace_back(charge, trk_p4, part_type);
@@ -294,60 +304,58 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 
     candidate.setTrackRef(tkRef.castTo<reco::TrackRef>());
 
-    if (useTiming_) candidate.setTime( (*trackTimeH)[tkRef], (*trackTimeErrH)[tkRef] );
+    if (useTiming_)
+      candidate.setTime((*trackTimeH)[tkRef], (*trackTimeErrH)[tkRef]);
 
     // bind to cluster if there is one and try to gather conversions, etc
-    for( const auto& match : matches ) {
+    for (const auto& match : matches) {
       uint64_t hash = hashSimInfo(*(match.first));
-      if( hashToSimCluster.count(hash) ) {
-	auto simcHash = hashToSimCluster[hash];
+      if (hashToSimCluster.count(hash)) {
+        auto simcHash = hashToSimCluster[hash];
 
-	if( !usedSimCluster[simcHash] ) {
-	  if( simCluster2Block.count(simcHash) &&
-	      simCluster2BlockIndex.count(simcHash) ) {
-	    size_t block    = simCluster2Block.find(simcHash)->second;
-	    size_t blockIdx = simCluster2BlockIndex.find(simcHash)->second;
-	    edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block);
-	    candidate.addElementInBlock(blockRef,blockIdx);
-	    usedSimCluster[simcHash] = true;
-	  }
-	}
-	if( absPdgId == 11 ) { // collect brems/conv. brems
-	  if( simCluster2Block.count(simcHash) ) {
-	    auto block_index = simCluster2Block.find(simcHash)->second;
-	    auto supercluster_index = caloParticle2SuperCluster[ block_index ];
-	    if( supercluster_index != -1 ) {
-	      edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block_index);
-	      for( const auto& elem : blockRef->elements() ) {
-		const auto& ref = elem.clusterRef();
-		if( !usedSimCluster[ref.key()] ) {
-		  candidate.addElementInBlock(blockRef,elem.index());
-		  usedSimCluster[ref.key()] = true;
-		}
-	      }
+        if (!usedSimCluster[simcHash]) {
+          if (simCluster2Block.count(simcHash) && simCluster2BlockIndex.count(simcHash)) {
+            size_t block = simCluster2Block.find(simcHash)->second;
+            size_t blockIdx = simCluster2BlockIndex.find(simcHash)->second;
+            edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle, block);
+            candidate.addElementInBlock(blockRef, blockIdx);
+            usedSimCluster[simcHash] = true;
+          }
+        }
+        if (absPdgId == 11) {  // collect brems/conv. brems
+          if (simCluster2Block.count(simcHash)) {
+            auto block_index = simCluster2Block.find(simcHash)->second;
+            auto supercluster_index = caloParticle2SuperCluster[block_index];
+            if (supercluster_index != -1) {
+              edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle, block_index);
+              for (const auto& elem : blockRef->elements()) {
+                const auto& ref = elem.clusterRef();
+                if (!usedSimCluster[ref.key()]) {
+                  candidate.addElementInBlock(blockRef, elem.index());
+                  usedSimCluster[ref.key()] = true;
+                }
+              }
 
               //*TODO* cluster time is not reliable at the moment, so just keep time from the track if available
-
-	    }
-	  }
-	}
+            }
+          }
+        }
       }
       // Now try to include also electrons that have been reconstructed using
       // the GraphCaloParticles. In particular, recover the cases in which the
       // tracking particle associated to the CaloParticle has not left any hits
       // in the calorimeters or, if it had, the cluster has been skipped due to
       // threshold requirements.
-      if (caloParticle2SimCluster.count(match.first->g4Tracks()[0].trackId()))
-      {
+      if (caloParticle2SimCluster.count(match.first->g4Tracks()[0].trackId())) {
         auto range = caloParticle2SimCluster.equal_range(match.first->g4Tracks()[0].trackId());
         for (auto it = range.first; it != range.second; ++it) {
           if (!usedSimCluster[it->second]) {
             usedSimCluster[it->second] = true;
             if (simCluster2Block.find(it->second) != simCluster2Block.end()) {
-              size_t block    = simCluster2Block.find(it->second)->second;
+              size_t block = simCluster2Block.find(it->second)->second;
               size_t blockIdx = simCluster2BlockIndex.find(it->second)->second;
-              edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block);
-              candidate.addElementInBlock(blockRef,blockIdx);
+              edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle, block);
+              candidate.addElementInBlock(blockRef, blockIdx);
             }
           }
         }
@@ -355,35 +363,35 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     }
     usedTrack[tkRef.key()] = true;
     // remove tracks already used by muons
-    if( MuonTrackToGeneralTrack.count(itk) || absPdgId == 13)
+    if (MuonTrackToGeneralTrack.count(itk) || absPdgId == 13)
       candidates->pop_back();
   }
 
   // now loop over the non-collected clusters in blocks
   // and turn them into neutral hadrons or photons
   const auto& theblocks = *blocksHandle;
-  for( unsigned ibl = 0; ibl < theblocks.size(); ++ibl ) {
-    reco::PFBlockRef blref(blocksHandle,ibl);
+  for (unsigned ibl = 0; ibl < theblocks.size(); ++ibl) {
+    reco::PFBlockRef blref(blocksHandle, ibl);
     const auto& elements = theblocks[ibl].elements();
-    for( const auto& elem : elements ) {
+    for (const auto& elem : elements) {
       const auto& ref = elem.clusterRef();
       const auto& simtruth = SimClustersTruth[ref.key()];
       reco::PFCandidate::ParticleType part_type;
-      if( !usedSimCluster[ref.key()] ) {
-	auto absPdgId = std::abs(simtruth.pdgId());
-	switch( absPdgId ) {
-	case 11:
-	case 22:
-	  part_type = reco::PFCandidate::gamma;
-	  break;
-	default:
-	  part_type = reco::PFCandidate::h0;
-	}
-	const auto three_mom = (ref->position() - math::XYZPoint(0,0,0)).unit()*ref->correctedEnergy();
-	math::XYZTLorentzVector clu_p4(three_mom.x(),three_mom.y(),three_mom.z(),ref->correctedEnergy());
-	candidates->emplace_back(0, clu_p4, part_type);
-	auto& candidate = candidates->back();
-	candidate.addElementInBlock(blref,elem.index());
+      if (!usedSimCluster[ref.key()]) {
+        auto absPdgId = std::abs(simtruth.pdgId());
+        switch (absPdgId) {
+          case 11:
+          case 22:
+            part_type = reco::PFCandidate::gamma;
+            break;
+          default:
+            part_type = reco::PFCandidate::h0;
+        }
+        const auto three_mom = (ref->position() - math::XYZPoint(0, 0, 0)).unit() * ref->correctedEnergy();
+        math::XYZTLorentzVector clu_p4(three_mom.x(), three_mom.y(), three_mom.z(), ref->correctedEnergy());
+        candidates->emplace_back(0, clu_p4, part_type);
+        auto& candidate = candidates->back();
+        candidate.addElementInBlock(blref, elem.index());
         candidate.setTime(ref->time(), ref->timeError());
       }
     }

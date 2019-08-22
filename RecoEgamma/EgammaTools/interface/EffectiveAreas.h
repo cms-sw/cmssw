@@ -6,7 +6,6 @@
 #include <string>
 
 class EffectiveAreas {
-
 public:
   // Constructor, destructor
   EffectiveAreas(const std::string& filename);
@@ -20,11 +19,10 @@ public:
 
 private:
   // Data members
-  const std::string  filename_;  // effective areas source file name
-  std::vector<float> absEtaMin_; // low limit of the eta range
-  std::vector<float> absEtaMax_; // upper limit of the eta range
-  std::vector<float> effectiveAreaValues_; // effective area for this eta range
-
+  const std::string filename_;              // effective areas source file name
+  std::vector<float> absEtaMin_;            // low limit of the eta range
+  std::vector<float> absEtaMax_;            // upper limit of the eta range
+  std::vector<float> effectiveAreaValues_;  // effective area for this eta range
 };
 
 #endif

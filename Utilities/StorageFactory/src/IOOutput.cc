@@ -3,8 +3,7 @@
 #include <cassert>
 
 /// Destruct the stream.  A no-op.
-IOOutput::~IOOutput (void)
-{}
+IOOutput::~IOOutput(void) {}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -37,9 +36,7 @@ IOOutput::~IOOutput (void)
     @throws In case of error, an exception is thrown.  However if the
     stream is in non-blocking mode and cannot accept output, it will
     @em not throw an exception -- zero will be returned.  */
-IOSize
-IOOutput::write (unsigned char byte)
-{ return write (&byte, 1); }
+IOSize IOOutput::write(unsigned char byte) { return write(&byte, 1); }
 
 /** Write to the output stream the buffer @a from.  This method is
     simply redirected to #write(const void *, IOSize).
@@ -59,9 +56,7 @@ IOOutput::write (unsigned char byte)
     stream is in non-blocking mode and cannot accept output, it will
     @em not throw an exception -- the return value will be less than
     requested.  */
-IOSize
-IOOutput::write (IOBuffer from)
-{ return write (from.data (), from.size ()); }
+IOSize IOOutput::write(IOBuffer from) { return write(from.data(), from.size()); }
 
 /** Write to the output stream from multiple buffers.  There are @a
     buffers to fill in an array starting at @a from.  The buffers are
@@ -86,27 +81,21 @@ IOOutput::write (IOBuffer from)
     stream is in non-blocking mode and cannot accept output, it will
     @em not throw an exception -- the return value will be less than
     requested.  */
-IOSize
-IOOutput::writev (const IOBuffer *from, IOSize buffers)
-{
-  assert (! buffers || from);
+IOSize IOOutput::writev(const IOBuffer *from, IOSize buffers) {
+  assert(!buffers || from);
 
   // Keep writing as long as possible; ignore errors if we have
   // written something, otherwise pass it on.
   IOSize x;
   IOSize done = 0;
-  try
-  {
-    for (IOSize i = 0; i < buffers; ++i)
-    {
-      done += (x = write (from [i].data (), from [i].size ()));
-      if (x < from [i].size ())
-	break;
+  try {
+    for (IOSize i = 0; i < buffers; ++i) {
+      done += (x = write(from[i].data(), from[i].size()));
+      if (x < from[i].size())
+        break;
     }
-  }
-  catch (cms::Exception &)
-  {
-    if (! done)
+  } catch (cms::Exception &) {
+    if (!done)
       throw;
   }
 
@@ -142,9 +131,7 @@ IOOutput::writev (const IOBuffer *from, IOSize buffers)
     @throws All exceptions from #write() are passed through unhandled.
     Therefore it is possible that an exception is thrown when this
     function has already written some data.  */
-IOSize
-IOOutput::xwrite (IOBuffer from)
-{ return xwrite (from.data (), from.size ()); }
+IOSize IOOutput::xwrite(IOBuffer from) { return xwrite(from.data(), from.size()); }
 
 /** Like the corresponding #write() method but writes until the
     requested number of bytes are written.  Writes data from the
@@ -172,13 +159,11 @@ IOOutput::xwrite (IOBuffer from)
     @throws All exceptions from #write() are passed through unhandled.
     Therefore it is possible that an exception is thrown when this
     function has already written some data.  */
-IOSize
-IOOutput::xwrite (const void *from, IOSize n)
-{
+IOSize IOOutput::xwrite(const void *from, IOSize n) {
   // Keep writing until we've written it all.  Let errors fly over.
   IOSize done = 0;
   while (done < n)
-    done += write ((const char *) from + done, n - done);
+    done += write((const char *)from + done, n - done);
 
   return done;
 }
@@ -211,18 +196,16 @@ IOOutput::xwrite (const void *from, IOSize n)
     @throws All exceptions from #write() are passed through unhandled.
     Therefore it is possible that an exception is thrown when this
     function has already written some data.  */
-IOSize
-IOOutput::xwritev (const IOBuffer *from, IOSize buffers)
-{
+IOSize IOOutput::xwritev(const IOBuffer *from, IOSize buffers) {
   // Keep writing until we've written it all.  Let errors fly over.
   // FIXME: Use writev(from, buffers) and then sort out in case of
   // failure, the writev probably succeed directly with much less
   // overhead.
-  assert (! buffers || from);
+  assert(!buffers || from);
 
   IOSize done = 0;
   for (IOSize i = 0; i < buffers; ++i)
-    done += xwrite (from [i].data (), from [i].size ());
+    done += xwrite(from[i].data(), from[i].size());
 
   return done;
 }

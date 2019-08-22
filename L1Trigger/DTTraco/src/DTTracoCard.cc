@@ -45,8 +45,7 @@
 // Constructors --
 //----------------
 
-DTTracoCard::DTTracoCard(DTTrigGeom *geo, DTBtiCard *bticard,
-                         DTTSTheta *tstheta)
+DTTracoCard::DTTracoCard(DTTrigGeom *geo, DTBtiCard *bticard, DTTSTheta *tstheta)
     : DTGeomSupplier(geo), _bticard(bticard), _tstheta(tstheta) {}
 
 //--------------
@@ -60,7 +59,6 @@ DTTracoCard::~DTTracoCard() { localClear(); }
 //--------------
 
 void DTTracoCard::clearCache() {
-
   TRACOCache::clearCache();
   localClear();
 }
@@ -92,7 +90,6 @@ void DTTracoCard::localClear() {
 }
 
 void DTTracoCard::loadTRACO() {
-
   localClear();
 
   if (debug()) {
@@ -139,8 +136,7 @@ void DTTracoCard::loadTRACO() {
       continue;
 
     if (debug())
-      std::cout << "Bti trigger assigned to traco " << ntc << " (maxtc "
-                << maxtc << ")" << std::endl;
+      std::cout << "Bti trigger assigned to traco " << ntc << " (maxtc " << maxtc << ")" << std::endl;
 
     // TRACO information
     DTTracoId tracoid = DTTracoId(wheel(), station(), sector(), ntc);
@@ -159,9 +155,8 @@ void DTTracoCard::loadTRACO() {
       if (!_flag_acc || (K >= CL && K <= CH))
         activeGetTRACO(ntc)->add_btiT(step, pos, &(*p));
       else if (debug())
-        std::cout << "ATTENTION: in TRACO n. " << ntc << " bti pos " << pos
-                  << " trigger K= " << K << " outside acceptance " << CL
-                  << "<K<" << CH << std::endl;
+        std::cout << "ATTENTION: in TRACO n. " << ntc << " bti pos " << pos << " trigger K= " << K
+                  << " outside acceptance " << CL << "<K<" << CH << std::endl;
     }
 
     // Load slave TRACO plane
@@ -182,10 +177,8 @@ void DTTracoCard::loadTRACO() {
           activeGetTRACO(ntc - 1)->add_btiT(step, pos + 8 - 4 * (-1), &(*p));
         } else {
           if (debug()) {
-            std::cout << "ATTENTION: in TRACO n. " << ntc - 1 << " bti pos "
-                      << pos + 8 - 4 * (-1) << " trigger K= " << K
-                      << " outside acceptance " << LL << "<K<" << LH
-                      << std::endl;
+            std::cout << "ATTENTION: in TRACO n. " << ntc - 1 << " bti pos " << pos + 8 - 4 * (-1)
+                      << " trigger K= " << K << " outside acceptance " << LL << "<K<" << LH << std::endl;
           }
         }
       }
@@ -196,10 +189,8 @@ void DTTracoCard::loadTRACO() {
           activeGetTRACO(ntc)->add_btiT(step, pos + 8 - 4 * (0), &(*p));
         } else {
           if (debug())
-            std::cout << "ATTENTION: in TRACO n. " << ntc << " bti pos "
-                      << pos + 8 - 4 * (0) << " trigger K= " << K
-                      << " outside acceptance " << CL << "<K<" << CH
-                      << std::endl;
+            std::cout << "ATTENTION: in TRACO n. " << ntc << " bti pos " << pos + 8 - 4 * (0) << " trigger K= " << K
+                      << " outside acceptance " << CL << "<K<" << CH << std::endl;
         }
       }
 
@@ -209,21 +200,18 @@ void DTTracoCard::loadTRACO() {
           activeGetTRACO(ntc + 1)->add_btiT(step, pos + 8 - 4 * (+1), &(*p));
         } else {
           if (debug())
-            std::cout << "ATTENTION: in TRACO n. " << ntc + 1 << " bti pos "
-                      << pos + 8 - 4 * (+1) << " trigger K= " << K
-                      << " outside acceptance " << RL << "<K<" << RH
-                      << std::endl;
+            std::cout << "ATTENTION: in TRACO n. " << ntc + 1 << " bti pos " << pos + 8 - 4 * (+1)
+                      << " trigger K= " << K << " outside acceptance " << RL << "<K<" << RH << std::endl;
         }
       }
     }
 
     // Filter Theta BTIs -> this is done in DTBtiChip
 
-  } // end loop on bti trigs
+  }  // end loop on bti trigs
 }
 
 void DTTracoCard::runTRACO() {
-
   if (debug()) {
     std::cout << "DTTracoCard:runTRACO called for wheel=" << wheel();
     std::cout << ", station=" << station();
@@ -233,12 +221,9 @@ void DTTracoCard::runTRACO() {
 
   // run TRACO algorithm on all non-empty TRACO
   if (!_tracomap.empty()) {
-
     if (debug()) {
-      std::cout << "===================================================="
-                << std::endl;
-      std::cout << "              TRACO triggers                        "
-                << std::endl;
+      std::cout << "====================================================" << std::endl;
+      std::cout << "              TRACO triggers                        " << std::endl;
     }
 
     TRACO_iter ptraco;
@@ -278,13 +263,11 @@ void DTTracoCard::runTRACO() {
       }
     }
     if (debug())
-      std::cout << "===================================================="
-                << std::endl;
+      std::cout << "====================================================" << std::endl;
   }
 }
 
 DTTracoChip *DTTracoCard::activeGetTRACO(int n) {
-
   // the traco identifier
   DTChamberId sid = geom()->statId();
   DTTracoId _id = DTTracoId(sid, n);
@@ -308,7 +291,6 @@ DTTracoChip *DTTracoCard::getTRACO(int n) const {
 }
 
 std::vector<DTTracoChip *> DTTracoCard::tracoList() {
-
   std::vector<DTTracoChip *> blist;
 
   if (size() < 1)
@@ -322,14 +304,11 @@ std::vector<DTTracoChip *> DTTracoCard::tracoList() {
 
 DTTracoTrig *DTTracoCard::storeTrigger(DTTracoTrigData td) {
   DTTracoId tracoid = td.parentId();
-  if (!(tracoid.wheel() == wheel() && tracoid.sector() == sector() &&
-        tracoid.station() == station()))
+  if (!(tracoid.wheel() == wheel() && tracoid.sector() == sector() && tracoid.station() == station()))
     return nullptr;
   std::cout << "DTTracoChip::trigger: trigger not belonging to this card! ";
-  std::cout << "card=(" << wheel() << "," << station() << "," << sector()
-            << ") ";
-  std::cout << "trig=(" << tracoid.wheel() << "," << tracoid.station() << ","
-            << tracoid.sector() << ")";
+  std::cout << "card=(" << wheel() << "," << station() << "," << sector() << ") ";
+  std::cout << "trig=(" << tracoid.wheel() << "," << tracoid.station() << "," << tracoid.sector() << ")";
   // get the appropriate Traco
   DTTracoChip *traco = activeGetTRACO(tracoid.traco());
   // create a new trigger in the Traco
@@ -371,20 +350,16 @@ std::endl; return LocalPoint(0,0,0);
 
 LocalPoint DTTracoCard::localPosition(const DTTrigData *tr) const {
   // NEWGEO
-  DTTracoTrigData *trig =
-      dynamic_cast<DTTracoTrigData *>(const_cast<DTTrigData *>(tr));
+  DTTracoTrigData *trig = dynamic_cast<DTTracoTrigData *>(const_cast<DTTrigData *>(tr));
   if (!trig) {
-    std::cout << "DTTracoCard::localPosition called with wrong argument!"
-              << std::endl;
+    std::cout << "DTTracoCard::localPosition called with wrong argument!" << std::endl;
     return LocalPoint(0, 0, 0);
   }
   float x = geom()->localPosition(trig->parentId()).x();
   float y = geom()->localPosition(trig->parentId()).y();
   float z = geom()->localPosition(trig->parentId()).z();
 
-  float trig_pos =
-      geom()->cellPitch() *
-      ((float)trig->X() / (float)(config_traco(trig->parentId())->BTIC()));
+  float trig_pos = geom()->cellPitch() * ((float)trig->X() / (float)(config_traco(trig->parentId())->BTIC()));
 
   //  10/7/06 May be not needed anymore in new geometry
   //   if(geom()->posFE(1)==1)
@@ -395,9 +370,9 @@ LocalPoint DTTracoCard::localPosition(const DTTrigData *tr) const {
   // If not correlated get the position of the SL instead of the chamber center
   // z axis toward vertex
   if (trig->posIn() == 0) {
-    z -= 0.5 * geom()->distSL(); // no inner ==> only outer
+    z -= 0.5 * geom()->distSL();  // no inner ==> only outer
   } else if (trig->posOut() == 0) {
-    z += 0.5 * geom()->distSL(); // no outer ==> only inner
+    z += 0.5 * geom()->distSL();  // no outer ==> only inner
   }
   return LocalPoint(x, y, z);
 }
@@ -427,23 +402,20 @@ std::endl; return LocalVector(0,0,0);
 
 LocalVector DTTracoCard::localDirection(const DTTrigData *tr) const {
   // NEWGEO
-  DTTracoTrigData *trig =
-      dynamic_cast<DTTracoTrigData *>(const_cast<DTTrigData *>(tr));
+  DTTracoTrigData *trig = dynamic_cast<DTTracoTrigData *>(const_cast<DTTrigData *>(tr));
   if (!trig) {
-    std::cout << "DTtracoCard::localDirection called with wrong argument!"
-              << std::endl;
+    std::cout << "DTtracoCard::localDirection called with wrong argument!" << std::endl;
     return LocalVector(0, 0, 0);
   }
 
   // FE position
   // int FE = geom()->posFE(3);
 
-  float psi = atan((float)(trig->K()) * geom()->cellPitch() /
-                   (geom()->distSL() * config_traco(trig->parentId())->BTIC()));
+  float psi =
+      atan((float)(trig->K()) * geom()->cellPitch() / (geom()->distSL() * config_traco(trig->parentId())->BTIC()));
 
   if (config_traco(trig->parentId())->debug() == 4)
-    std::cout << "K " << trig->K() << " == psi " << psi << " in FE frame "
-              << std::endl;
+    std::cout << "K " << trig->K() << " == psi " << psi << " in FE frame " << std::endl;
 
   // (xd,yd,zd) in chamber frame
   float xd = -sin(psi);
@@ -456,8 +428,7 @@ LocalVector DTTracoCard::localDirection(const DTTrigData *tr) const {
   //}
 
   if (config_traco(trig->parentId())->debug() == 4)
-    std::cout << "Direction in chamber frame is (" << xd << "," << yd << ","
-              << zd << ")" << std::endl;
+    std::cout << "Direction in chamber frame is (" << xd << "," << yd << "," << zd << ")" << std::endl;
 
   return LocalVector(xd, yd, zd);
 }
@@ -466,9 +437,8 @@ DTConfigTraco *DTTracoCard::config_traco(const DTTracoId &tracoid) const {
   // loop on map to find traco
   ConfTracoMap::const_iterator titer = _conf_traco_map.find(tracoid);
   if (titer == _conf_traco_map.end()) {
-    std::cout << "DTTracoCard::config_traco : TRACO (" << tracoid.wheel() << ","
-              << tracoid.sector() << "," << tracoid.station() << ","
-              << tracoid.traco() << ") not found, return 0" << std::endl;
+    std::cout << "DTTracoCard::config_traco : TRACO (" << tracoid.wheel() << "," << tracoid.sector() << ","
+              << tracoid.station() << "," << tracoid.traco() << ") not found, return 0" << std::endl;
     return nullptr;
   }
 

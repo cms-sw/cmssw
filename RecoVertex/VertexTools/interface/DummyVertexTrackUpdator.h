@@ -10,17 +10,13 @@
 
 template <unsigned int N>
 class DummyVertexTrackUpdator : public VertexTrackUpdator<N> {
-
 public:
-
   /**
    * Computes the constrained track parameters
    */
-  typename CachingVertex<N>::RefCountedVertexTrack
-	update(const CachingVertex<N> & v, 
-	typename CachingVertex<N>::RefCountedVertexTrack t) const override;
-  DummyVertexTrackUpdator * clone() const override;
-
+  typename CachingVertex<N>::RefCountedVertexTrack update(
+      const CachingVertex<N>& v, typename CachingVertex<N>::RefCountedVertexTrack t) const override;
+  DummyVertexTrackUpdator* clone() const override;
 };
 
 #endif

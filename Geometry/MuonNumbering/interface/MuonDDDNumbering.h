@@ -21,22 +21,19 @@ class MuonBaseNumber;
 class MuonDDDConstants;
 
 class MuonDDDNumbering {
- public:
-
-  MuonDDDNumbering( const MuonDDDConstants& muonConstants );
+public:
+  MuonDDDNumbering(const MuonDDDConstants& muonConstants);
   ~MuonDDDNumbering(){};
-  
-  MuonBaseNumber geoHistoryToBaseNumber(const DDGeoHistory & history);
-  
- private:
 
-  int getInt(const std::string & s, const DDLogicalPart & part);
+  MuonBaseNumber geoHistoryToBaseNumber(const DDGeoHistory& history);
+
+private:
+  int getInt(const std::string& s, const DDLogicalPart& part);
 
   int theLevelPart;
   int theSuperPart;
   int theBasePart;
   int theStartCopyNo;
-
 };
 
 #endif

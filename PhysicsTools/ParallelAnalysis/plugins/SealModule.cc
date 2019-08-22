@@ -4,5 +4,4 @@
 
 typedef TSelectorAnalyzer<examples::TrackAnalysisAlgorithm> TrackTSelectorAnalyzer;
 
-
-DEFINE_FWK_MODULE( TrackTSelectorAnalyzer );
+DEFINE_FWK_MODULE(TrackTSelectorAnalyzer);

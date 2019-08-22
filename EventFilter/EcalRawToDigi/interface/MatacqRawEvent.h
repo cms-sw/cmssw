@@ -7,14 +7,14 @@
 #include <cstddef>
 #include <vector>
 
-#if 0 //replace 1 by 0 to remove XDAQ dependency. In this case it is assumed the
-      //machine is little endian.
-#include "i2o/utils/endian.h" //from XDAQ
+//replace 1 by 0 to remove XDAQ dependency. In this case it is assumed the machine is little endian.
+#if 0
+#include "i2o/utils/endian.h"  //from XDAQ
 #define UINT32_FROM_LE i2odecodel
 #define UINT16_FROM_LE i2odecodes
 #define INT16_FROM_LE i2odecodes
 
-#else //assuming little endianness of the machine
+#else  //assuming little endianness of the machine
 
 #define UINT32_FROM_LE
 #define UINT16_FROM_LE
@@ -22,54 +22,48 @@
 
 #endif
 
-#include <sys/time.h> //for timeval definition
+#include <sys/time.h>  //for timeval definition
 
 /** Wrapper for matacq raw event fragments. This class provides the
  * method to interpret the data. 
  */
-class MatacqRawEvent{
+class MatacqRawEvent {
   //typedefs, enums and static constants
 public:
   enum matacqError_t {
     /** Event length is specified both in the data header and the trailer. This
      * flags indicates an inconsitency between the two indications.
      */
-    errorLengthConsistency = 1<<0,
+    errorLengthConsistency = 1 << 0,
     /** Error in data length.
      */
-    errorLength = 1<<1,
+    errorLength = 1 << 1,
     /** Wrong Begin of event flag
      */
-    errorWrongBoe = 1<<2
+    errorWrongBoe = 1 << 2
   };
 
   /* The following types are little-endian encoded types. Use of these types
    * for the I20 data block should offer portability to big-endian platforms.
    */
   //@{
-  struct uint32le_t{
+  struct uint32le_t {
     uint32_t littleEndianInt;
-    operator uint32_t() const{
-      return UINT32_FROM_LE(littleEndianInt);
-    }
+    operator uint32_t() const { return UINT32_FROM_LE(littleEndianInt); }
   };
-  
-  struct uint16le_t{
+
+  struct uint16le_t {
     uint16_t littleEndianInt;
-    operator uint16_t() const{
-      return UINT16_FROM_LE(littleEndianInt);
-    }
+    operator uint16_t() const { return UINT16_FROM_LE(littleEndianInt); }
   };
-  
-  struct int16le_t{
+
+  struct int16le_t {
     int16_t littleEndianInt;
-    operator int16_t() const{
-      return INT16_FROM_LE(littleEndianInt);
-    }
+    operator int16_t() const { return INT16_FROM_LE(littleEndianInt); }
   };
   //@}
-  
-  struct ChannelData{
+
+  struct ChannelData {
     /** Matacq channel number. From 0 to 3.
      */
     int chId;
@@ -81,28 +75,28 @@ public:
     const int16le_t* samples;
   };
 
-private:  
+private:
   /** Matacq header data structure
    */
-//   struct matacqHeader_t{		 
-//     uint16_t version;	 
-//     unsigned char freqGHz;	 
-//     unsigned char channelCount; 
-//     uint32_t orbitId;
-//     unsigned char trigRec;
-//     uint16_t postTrig;
-//     uint16_t vernier[4];
-//     uint32_t timeStamp;
-//   };                                          
+  //   struct matacqHeader_t{
+  //     uint16_t version;
+  //     unsigned char freqGHz;
+  //     unsigned char channelCount;
+  //     uint32_t orbitId;
+  //     unsigned char trigRec;
+  //     uint16_t postTrig;
+  //     uint16_t vernier[4];
+  //     uint32_t timeStamp;
+  //   };
 
   /** Specification of DAQ header field.
    */
-  struct field32spec_t{
+  struct field32spec_t {
     int offset;
     unsigned int mask;
   };
-  
-  //@{  
+
+  //@{
   /** DAQ header field specifications.
    */
   static const field32spec_t fov32;
@@ -116,7 +110,7 @@ private:
   static const field32spec_t runNum32;
   static const field32spec_t h1Marker32;
   //@}
-  
+
   //@{
   /** Matacq header field specifications.
    */
@@ -133,7 +127,7 @@ private:
   static const field32spec_t vernier2_32;
   static const field32spec_t vernier3_32;
   static const field32spec_t timeStampMicroSec32;
-  
+
   static const field32spec_t laserPower32;
   static const field32spec_t attenuation_dB32;
   static const field32spec_t emtcPhase32;
@@ -145,7 +139,7 @@ private:
   static const field32spec_t side32;
 
   //@}
-  
+
   //constructors
 public:
   /** Constuctor.
@@ -157,7 +151,7 @@ public:
    * @throw std::exception if the data cannot be decoded due to data corruption
    * or truncation.
    */
-  MatacqRawEvent(const unsigned char* dataBuffer, size_t bufferSize): vernier(std::vector<int>(4)){
+  MatacqRawEvent(const unsigned char* dataBuffer, size_t bufferSize) : vernier(std::vector<int>(4)) {
     setRawData(dataBuffer, bufferSize);
   }
   //methods
@@ -168,137 +162,135 @@ public:
    * #getMatacqDataFormatVersion()
    * @return FOV
    */
-  int getFov() const { return read32(daqHeader, fov32);}
-  
+  int getFov() const { return read32(daqHeader, fov32); }
+
   /** Gets the FED ID field contents. Should be 655.
    * @return FED ID
    */
-  int getFedId() const { return read32(daqHeader, fedId32);}
+  int getFedId() const { return read32(daqHeader, fedId32); }
 
   /** Gets the bunch crossing id field contents.
    * @return BX id
    */
-  int getBxId() const { return read32(daqHeader, bxId32);}
+  int getBxId() const { return read32(daqHeader, bxId32); }
 
   /** Gets the LV1 field contents.
    * @return LV1 id
    */
-  unsigned getEventId() const { return read32(daqHeader, lv132);}
+  unsigned getEventId() const { return read32(daqHeader, lv132); }
 
   /** Gets the trigger type field contents.
    * @return trigger type
    */
-  int getTriggerType() const { return read32(daqHeader, triggerType32);}
+  int getTriggerType() const { return read32(daqHeader, triggerType32); }
 
   /** Gets the beging of event field contents (BOE). Must be 0x5.
    * @return BOE
    */
-  int getBoe() const { return read32(daqHeader, boeType32);}
+  int getBoe() const { return read32(daqHeader, boeType32); }
 
   /** Gets the event length specifies in the "a la DCC" header.
    * @return event length
    */
-  unsigned getDccLen() const { return read32(daqHeader, dccLen32);}
+  unsigned getDccLen() const { return read32(daqHeader, dccLen32); }
 
-   /** Gets the event length specifies in the DCC-type header of a matacq event.
+  /** Gets the event length specifies in the DCC-type header of a matacq event.
     * @param data buffer. Needs to contains at least the 3 first 32-bit words
     * of the event.
     * @param buffer size
     * @return event length, 0xFFFFFFFF if failed to retrieve dcc length
     */
-   static unsigned getDccLen(unsigned char* data, size_t size){
-     if(size<(unsigned)(dccLen32.offset+1)*4) return (unsigned)-1;
-     return read32((uint32le_t*) data, dccLen32);
-   }
+  static unsigned getDccLen(unsigned char* data, size_t size) {
+    if (size < (unsigned)(dccLen32.offset + 1) * 4)
+      return (unsigned)-1;
+    return read32((uint32le_t*)data, dccLen32);
+  }
 
-   /** Gets the orbit id from the header of a matacq event. Data format
+  /** Gets the orbit id from the header of a matacq event. Data format
     * of the event must be >=3.
     * @param data buffer. Needs to contains at least the 8 first 32-bit words
     * of the event.
     * @param buffer size
     * @return event length, 0xFFFFFFFF if failed to retrieve dcc length
     */
-   static unsigned getOrbitId(unsigned char* data, size_t size){
-     if(size<(unsigned)(orbitId32.offset+1)*8) return (unsigned)-1;
-     return read32((uint32le_t*) data, orbitId32);
-   }
+  static unsigned getOrbitId(unsigned char* data, size_t size) {
+    if (size < (unsigned)(orbitId32.offset + 1) * 8)
+      return (unsigned)-1;
+    return read32((uint32le_t*)data, orbitId32);
+  }
 
-   /** Gets the run number from the  header of a matacq event.
+  /** Gets the run number from the  header of a matacq event.
     * @param data buffer. Needs to contains at least the 4 first 32-bit words
     * of the event.
     * @param buffer size
     * @return event length, 0xFFFFFFFF if failed to retrieve dcc length
     */
-   static unsigned getRunNum(unsigned char* data, size_t size){
-     if(size<(unsigned)(runNum32.offset+1)*8) return (unsigned)-1;
-     return read32((uint32le_t*) data, runNum32);
-   }
+  static unsigned getRunNum(unsigned char* data, size_t size) {
+    if (size < (unsigned)(runNum32.offset + 1) * 8)
+      return (unsigned)-1;
+    return read32((uint32le_t*)data, runNum32);
+  }
 
-  
   /** Gets the event length specifies in the DAQ trailer
    * @return event length
    */
-  unsigned getDaqLen() const { return fragLen;}
-
+  unsigned getDaqLen() const { return fragLen; }
 
   /** Gets the contents of the DCC error field. Currently Not used for Matacq.
    * @return dcc error
    */
-  int getDccErrors() const { return read32(daqHeader, dccErrors32);}
+  int getDccErrors() const { return read32(daqHeader, dccErrors32); }
 
   /** Gets the run number field contents.
    * @return run number
    */
-  unsigned getRunNum() const { return read32(daqHeader, runNum32);}
+  unsigned getRunNum() const { return read32(daqHeader, runNum32); }
 
   /** Gets the header marker field contents. Must be 1
    * @return H1 header marker
    */
-  int getH1Marker() const { return read32(daqHeader, h1Marker32);}
-  
+  int getH1Marker() const { return read32(daqHeader, h1Marker32); }
 
   /** Gets the matcq data format version
    * @return data version
    */
-  int getMatacqDataFormatVersion() const { return matacqDataFormatVersion;}
+  int getMatacqDataFormatVersion() const { return matacqDataFormatVersion; }
 
   /** Gets the raw data status. Bitwise OR of the error flags
    * defined by matcqError_t
    * @return status
    */
-  int32_t getStatus() const { return error;}
+  int32_t getStatus() const { return error; }
 
   /** Gets the matacq sampling frequency field contents.
    * @return sampling frequency in GHz: 1 or 2
    */
-  int getFreqGHz() const { return /*matacqHeader->*/freqGHz;}
+  int getFreqGHz() const { return /*matacqHeader->*/ freqGHz; }
 
   /** Gets the matacq channel count field contents.
    * @return number of channels
    */
-  int getChannelCount() const { return /*matacqHeader->*/channelCount;}
+  int getChannelCount() const { return /*matacqHeader->*/ channelCount; }
 
   /** Gets the matacq channel data. Beware that no copy is done and that
    * the returned data will be invalidated if the data contains in the buffer
    * is modified (see constructor and #setRawData().
    * @return matacq channel data.
    */
-  const std::vector<ChannelData>& getChannelData() const{
-    return channelData;
-  }
+  const std::vector<ChannelData>& getChannelData() const { return channelData; }
 
   /** Gets the data length in number of 64-bit words computed by the data
    * parser.
    * @return event length
    */
-  int getParsedLen() {  return parsedLen; }
-  
+  int getParsedLen() { return parsedLen; }
+
   /** Gets the matacq data timestamp field contents: 
    * @return acquisition date of the data expressed in number of "elapsed"
    * second since the EPOCH as defined in POSIX.1. See time()  standard c
    * function.
    */
-  time_t getTimeStamp() const { return /*matacqHeader->*/timeStamp.tv_sec; }
+  time_t getTimeStamp() const { return /*matacqHeader->*/ timeStamp.tv_sec; }
 
   /** Gets the matacq data timestamp with fine granularity (89.1us) 
    * @return acquisition date of the data expressed in number of "elapsed"
@@ -342,7 +334,7 @@ public:
   /**  WTE-to-Laser delay of EMTC in LHC clock unit.
    */
   int getEmtcDelay() const { return emtcDelay; }
-  
+
   /** EMTC laser phase in 1/8th LHC clock unit.
    */
   int getEmtcPhase() const { return emtcPhase; }
@@ -355,7 +347,7 @@ public:
   /** Laser power in percents (set with the linear attenuator).
    */
   int getLaserPower() const { return laserPower; }
-  
+
 private:
   /** Help function to decode header content.
    * @param data pointer
@@ -365,13 +357,13 @@ private:
    * it is set, then -1 is returned.
    * @return content of data field specified by 'spec'
    */
-  static int read32(const uint32le_t *pData, field32spec_t spec, bool ovfTrans = false);
-  
-//   /** Help function to get the maximum value of a data field
-//    * @param spec32 data field specification
-//    * @return maximum value
-//    */
-//   int max32(field32spec_t spec32) const;
+  static int read32(const uint32le_t* pData, field32spec_t spec, bool ovfTrans = false);
+
+  //   /** Help function to get the maximum value of a data field
+  //    * @param spec32 data field specification
+  //    * @return maximum value
+  //    */
+  //   int max32(field32spec_t spec32) const;
 
   /** Changes the raw data pointer and updates accordingly this object. 
    * @param buffer new pointer to the data buffer. Must be aligned at least
@@ -395,14 +387,14 @@ private:
   /** Number of matacq channels in the data.
    */
   int channelCount;
-  
+
   /** Channel samples
    */
   std::vector<ChannelData> channelData;
 
   /** Pointer to the standard CMS DAQ header
    */
-  const uint32le_t *daqHeader;
+  const uint32le_t* daqHeader;
 
   /** DCC error field content.
    */
@@ -443,7 +435,7 @@ private:
   /**Matacq header:
    */
   //  matacqHeader_t* matacqHeader;
-  
+
   /** MATACQ data format internal version
    */
   int matacqDataFormatVersion;
@@ -467,7 +459,7 @@ private:
   /** MATACQ trigger time position in ps
    */
   int tTrigPs;
-  
+
   /** Trigger type
    */
   int triggerType;
@@ -494,8 +486,8 @@ private:
 
   /**  WTE-to-Laser delay of EMTC in LHC clock unit.
    */
-  int emtcDelay;    
-  
+  int emtcDelay;
+
   /** EMTC laser phase in 1/8th LHC clock unit.
    */
   int emtcPhase;
@@ -510,4 +502,4 @@ private:
   int laserPower;
 };
 
-#endif //MATACQRAWEVENT_H not defined
+#endif  //MATACQRAWEVENT_H not defined

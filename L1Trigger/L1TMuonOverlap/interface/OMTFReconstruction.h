@@ -27,61 +27,62 @@ class OMTFConfiguration;
 class OMTFConfigMaker;
 class XMLConfigWriter;
 
-namespace XERCES_CPP_NAMESPACE{
+namespace XERCES_CPP_NAMESPACE {
   class DOMElement;
   class DOMDocument;
   class DOMImplementation;
-}
+}  // namespace XERCES_CPP_NAMESPACE
 
 class OMTFReconstruction {
-  public:
-    OMTFReconstruction();
+public:
+  OMTFReconstruction();
 
-    OMTFReconstruction(const edm::ParameterSet&);
+  OMTFReconstruction(const edm::ParameterSet &);
 
-    ~OMTFReconstruction();
+  ~OMTFReconstruction();
 
-    void beginJob();
+  void beginJob();
 
-    void endJob();
+  void endJob();
 
-    void beginRun(edm::Run const& run, edm::EventSetup const& iSetup);  
+  void beginRun(edm::Run const &run, edm::EventSetup const &iSetup);
 
-    std::unique_ptr<l1t::RegionalMuonCandBxCollection> reconstruct(const edm::Event&, const edm::EventSetup&);
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> reconstruct(const edm::Event &, const edm::EventSetup &);
 
-  private:
+private:
+  edm::ParameterSet m_Config;
 
-    edm::ParameterSet m_Config;
+  edm::Handle<L1MuDTChambPhContainer> dtPhDigis;
+  edm::Handle<L1MuDTChambThContainer> dtThDigis;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> cscDigis;
+  edm::Handle<RPCDigiCollection> rpcDigis;
 
-    edm::Handle<L1MuDTChambPhContainer> dtPhDigis;
-    edm::Handle<L1MuDTChambThContainer> dtThDigis;
-    edm::Handle<CSCCorrelatedLCTDigiCollection> cscDigis;
-    edm::Handle<RPCDigiCollection> rpcDigis;
+  void loadAndFilterDigis(const edm::Event &);
 
-    void loadAndFilterDigis(const edm::Event&);    
+  void getProcessorCandidates(unsigned int iProcessor,
+                              l1t::tftype mtfType,
+                              int bx,
+                              l1t::RegionalMuonCandBxCollection &myCandidates);
 
-    void getProcessorCandidates(unsigned int iProcessor, l1t::tftype mtfType, int bx,
-            l1t::RegionalMuonCandBxCollection & myCandidates);
-  
-    void writeResultToXML(unsigned int iProcessor, l1t::tftype mtfType,  const OMTFinput &myInput, 
-      const std::vector<OMTFProcessor::resultsMap> & myResults,
-      const std::vector<l1t::RegionalMuonCand> & candMuons);
+  void writeResultToXML(unsigned int iProcessor,
+                        l1t::tftype mtfType,
+                        const OMTFinput &myInput,
+                        const std::vector<OMTFProcessor::resultsMap> &myResults,
+                        const std::vector<l1t::RegionalMuonCand> &candMuons);
 
-
-    bool dumpResultToXML, dumpDetailedResultToXML;
-    int bxMin, bxMax;
+  bool dumpResultToXML, dumpDetailedResultToXML;
+  int bxMin, bxMax;
 
   ///OMTF objects
-    OMTFConfiguration   *m_OMTFConfig;
-    OMTFinputMaker       m_InputMaker;
-    OMTFSorter           m_Sorter;
-    std::unique_ptr<IGhostBuster> m_GhostBuster;
-    OMTFProcessor       *m_OMTF;    
+  OMTFConfiguration *m_OMTFConfig;
+  OMTFinputMaker m_InputMaker;
+  OMTFSorter m_Sorter;
+  std::unique_ptr<IGhostBuster> m_GhostBuster;
+  OMTFProcessor *m_OMTF;
   ///
-    xercesc::DOMElement *aTopElement;
-    OMTFConfigMaker     *m_OMTFConfigMaker;
-    XMLConfigWriter     *m_Writer;
-	
+  xercesc::DOMElement *aTopElement;
+  OMTFConfigMaker *m_OMTFConfigMaker;
+  XMLConfigWriter *m_Writer;
 };
 
 #endif

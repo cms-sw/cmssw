@@ -20,21 +20,17 @@
 using namespace pixeltrackfitting;
 using edm::ParameterSet;
 
-PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
-	   edm::ConsumesCollector && iC)
-  : theHitSetsToken(iC.consumes<RegionsSeedingHitSets>(cfg.getParameter<edm::InputTag>("SeedingHitSets"))),
-    theFitterToken(iC.consumes<PixelFitter>(cfg.getParameter<edm::InputTag>("Fitter"))),
-    theCleanerName(cfg.getParameter<std::string>("Cleaner"))
-{
+PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg, edm::ConsumesCollector&& iC)
+    : theHitSetsToken(iC.consumes<RegionsSeedingHitSets>(cfg.getParameter<edm::InputTag>("SeedingHitSets"))),
+      theFitterToken(iC.consumes<PixelFitter>(cfg.getParameter<edm::InputTag>("Fitter"))),
+      theCleanerName(cfg.getParameter<std::string>("Cleaner")) {
   edm::InputTag filterTag = cfg.getParameter<edm::InputTag>("Filter");
   if (not filterTag.label().empty()) {
     theFilterToken = iC.consumes<PixelTrackFilter>(filterTag);
   }
 }
 
-PixelTrackReconstruction::~PixelTrackReconstruction()
-{
-}
+PixelTrackReconstruction::~PixelTrackReconstruction() {}
 
 void PixelTrackReconstruction::fillDescriptions(edm::ParameterSetDescription& desc) {
   desc.add<edm::InputTag>("SeedingHitSets", edm::InputTag("pixelTracksHitTriplets"));
@@ -43,8 +39,7 @@ void PixelTrackReconstruction::fillDescriptions(edm::ParameterSetDescription& de
   desc.add<std::string>("Cleaner", "pixelTrackCleanerBySharedHits");
 }
 
-void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, const edm::EventSetup& es)
-{
+void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, const edm::EventSetup& es) {
   edm::Handle<RegionsSeedingHitSets> hhitSets;
   ev.getByToken(theHitSetsToken, hhitSets);
   const auto& hitSets = *hhitSets;
@@ -53,30 +48,34 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   ev.getByToken(theFitterToken, hfitter);
   const auto& fitter = *hfitter;
 
-  const PixelTrackFilter *filter = nullptr;
-  if(!theFilterToken.isUninitialized()) {
+  const PixelTrackFilter* filter = nullptr;
+  if (!theFilterToken.isUninitialized()) {
     edm::Handle<PixelTrackFilter> hfilter;
     ev.getByToken(theFilterToken, hfilter);
     filter = hfilter.product();
   }
 
-  std::vector<const TrackingRecHit *> hits;hits.reserve(4);
-  for(const auto& regionHitSets: hitSets) {
+  std::vector<const TrackingRecHit*> hits;
+  hits.reserve(4);
+  for (const auto& regionHitSets : hitSets) {
     const TrackingRegion& region = regionHitSets.region();
 
-    for(const SeedingHitSet& tuplet: regionHitSets) {
+    for (const SeedingHitSet& tuplet : regionHitSets) {
       /// FIXME at some point we need to migrate the fitter...
-      auto nHits = tuplet.size(); hits.resize(nHits);
-      for (unsigned int iHit = 0; iHit < nHits; ++iHit) hits[iHit] = tuplet[iHit];
+      auto nHits = tuplet.size();
+      hits.resize(nHits);
+      for (unsigned int iHit = 0; iHit < nHits; ++iHit)
+        hits[iHit] = tuplet[iHit];
 
       // fitting
       std::unique_ptr<reco::Track> track = fitter.run(hits, region, es);
-      if (!track) continue;
+      if (!track)
+        continue;
 
       if (filter) {
-	if (!(*filter)(track.get(), hits)) {
-	  continue;
-	}
+        if (!(*filter)(track.get(), hits)) {
+          continue;
+        }
       }
 
       // add tracks
@@ -85,11 +84,11 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   }
 
   // skip ovelrapped tracks
-  if(!theCleanerName.empty()) {
+  if (!theCleanerName.empty()) {
     edm::ESHandle<PixelTrackCleaner> hcleaner;
     es.get<PixelTrackCleaner::Record>().get(theCleanerName, hcleaner);
     const auto& cleaner = *hcleaner;
-    if(cleaner.fast())
+    if (cleaner.fast())
       cleaner.cleanTracks(tracks);
     else
       tracks = PixelTrackCleanerWrapper(&cleaner).clean(tracks);

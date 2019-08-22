@@ -10,22 +10,19 @@
 
 namespace DDI {
 
-  class EllipticalTube : public Solid
-  {
+  class EllipticalTube : public Solid {
   public:
-    EllipticalTube(double xSemiAxis, double ySemiAxis, double zHeight)
-     : Solid(DDSolidShape::ddellipticaltube)
-    { 
+    EllipticalTube(double xSemiAxis, double ySemiAxis, double zHeight) : Solid(DDSolidShape::ddellipticaltube) {
       p_.emplace_back(xSemiAxis);
       p_.emplace_back(ySemiAxis);
       p_.emplace_back(zHeight);
-    }  
-    ~EllipticalTube() override { }
+    }
+    ~EllipticalTube() override {}
 
     /// Not as flexible and possibly less accurate than G4 volume.
-    double volume() const override ;
-    void stream(std::ostream & os) const override;
+    double volume() const override;
+    void stream(std::ostream& os) const override;
   };
 
-}
-#endif // DDI_EllipticalTube_h
+}  // namespace DDI
+#endif  // DDI_EllipticalTube_h

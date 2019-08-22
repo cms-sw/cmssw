@@ -2,7 +2,7 @@
 //
 // Package:    CalibTracker/SiStripChannelGain
 // Class:      SiStripGainsPCLWorker
-// 
+//
 /**\class SiStripGainsPCLWorker SiStripGainsPCLWorker.cc 
    Description: Fill DQM histograms with SiStrip Charge normalized to path length
  
@@ -48,7 +48,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESWatcher.h" 
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
@@ -72,95 +72,95 @@
 // class declaration
 //
 
-class SiStripGainsPCLWorker : public  DQMGlobalEDAnalyzer<APVGain::APVGainHistograms> {
+class SiStripGainsPCLWorker : public DQMGlobalEDAnalyzer<APVGain::APVGainHistograms> {
 public:
-    explicit SiStripGainsPCLWorker(const edm::ParameterSet&);
-     
-    void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, APVGain::APVGainHistograms &) const override;
-    void dqmAnalyze(edm::Event const&, edm::EventSetup const&, APVGain::APVGainHistograms const&) const override;
+  explicit SiStripGainsPCLWorker(const edm::ParameterSet &);
 
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void bookHistograms(DQMStore::ConcurrentBooker &,
+                      edm::Run const &,
+                      edm::EventSetup const &,
+                      APVGain::APVGainHistograms &) const override;
+  void dqmAnalyze(edm::Event const &, edm::EventSetup const &, APVGain::APVGainHistograms const &) const override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-    void beginJob() override ;
-    void dqmBeginRun(edm::Run const&, edm::EventSetup const&, APVGain::APVGainHistograms &) const override;
-    void endJob() override ;
-    void checkBookAPVColls(const TrackerGeometry *bareTkGeomPtr,APVGain::APVGainHistograms & histograms) const;
+  void beginJob() override;
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &, APVGain::APVGainHistograms &) const override;
+  void endJob() override;
+  void checkBookAPVColls(const TrackerGeometry *bareTkGeomPtr, APVGain::APVGainHistograms &histograms) const;
 
+  std::vector<std::string> dqm_tag_;
 
-    std::vector<std::string> dqm_tag_;
+  int statCollectionFromMode(const char *tag) const;
 
-    int statCollectionFromMode(const char* tag) const;
-  
-    double       MinTrackMomentum;
-    double       MaxTrackMomentum;
-    double       MinTrackEta;
-    double       MaxTrackEta;
-    unsigned int MaxNrStrips;
-    unsigned int MinTrackHits;
-    double       MaxTrackChiOverNdf;
-    int          MaxTrackingIteration;
-    bool         AllowSaturation;
-    bool         FirstSetOfConstants;
-    bool         Validation;
-    bool         OldGainRemoving;
-    bool         useCalibration;
-    bool         doChargeMonitorPerPlane;   /*!< Charge monitor per detector plane */
+  double MinTrackMomentum;
+  double MaxTrackMomentum;
+  double MinTrackEta;
+  double MaxTrackEta;
+  unsigned int MaxNrStrips;
+  unsigned int MinTrackHits;
+  double MaxTrackChiOverNdf;
+  int MaxTrackingIteration;
+  bool AllowSaturation;
+  bool FirstSetOfConstants;
+  bool Validation;
+  bool OldGainRemoving;
+  bool useCalibration;
+  bool doChargeMonitorPerPlane; /*!< Charge monitor per detector plane */
 
-    std::string  m_DQMdir;                  /*!< DQM folder hosting the charge statistics and the monitor plots */
-    std::string  m_calibrationMode;         /*!< Type of statistics for the calibration */
-    std::vector<std::string> VChargeHisto;  /*!< Charge monitor plots to be output */
-  
-    //Data members for processing
+  std::string m_DQMdir;                  /*!< DQM folder hosting the charge statistics and the monitor plots */
+  std::string m_calibrationMode;         /*!< Type of statistics for the calibration */
+  std::vector<std::string> VChargeHisto; /*!< Charge monitor plots to be output */
 
-    edm::EDGetTokenT<std::vector<bool>           > TrigTech_token_;
-    edm::EDGetTokenT<std::vector<double>         > trackchi2ndof_token_;
-    edm::EDGetTokenT<std::vector<float>          > trackp_token_;
-    edm::EDGetTokenT<std::vector<float>          > trackpt_token_;
-    edm::EDGetTokenT<std::vector<double>         > tracketa_token_;
-    edm::EDGetTokenT<std::vector<double>         > trackphi_token_;
-    edm::EDGetTokenT<std::vector<unsigned int>   > trackhitsvalid_token_;
-    edm::EDGetTokenT<std::vector<int>            > trackalgo_token_;
-    edm::EDGetTokenT<std::vector<int>            > trackindex_token_;
-    edm::EDGetTokenT<std::vector<unsigned int>   > rawid_token_;
-    edm::EDGetTokenT<std::vector<double>         > localdirx_token_;
-    edm::EDGetTokenT<std::vector<double>         > localdiry_token_;
-    edm::EDGetTokenT<std::vector<double>         > localdirz_token_;
-    edm::EDGetTokenT<std::vector<unsigned short> > firststrip_token_;
-    edm::EDGetTokenT<std::vector<unsigned short> > nstrips_token_;
-    edm::EDGetTokenT<std::vector<bool>           > saturation_token_;
-    edm::EDGetTokenT<std::vector<bool>           > overlapping_token_;
-    edm::EDGetTokenT<std::vector<bool>           > farfromedge_token_;
-    edm::EDGetTokenT<std::vector<unsigned int>   > charge_token_;
-    edm::EDGetTokenT<std::vector<double>         > path_token_;
-    edm::EDGetTokenT<std::vector<double>         > chargeoverpath_token_;
-    edm::EDGetTokenT<std::vector<unsigned char>  > amplitude_token_;
-    edm::EDGetTokenT<std::vector<double>         > gainused_token_;
-    edm::EDGetTokenT<std::vector<double>         > gainusedTick_token_;
+  //Data members for processing
 
-    std::string EventPrefix_; //("");
-    std::string EventSuffix_; //("");
-    std::string TrackPrefix_; //("track");
-    std::string TrackSuffix_; //("");
-    std::string CalibPrefix_; //("GainCalibration");
-    std::string CalibSuffix_; //("");
+  edm::EDGetTokenT<std::vector<bool> > TrigTech_token_;
+  edm::EDGetTokenT<std::vector<double> > trackchi2ndof_token_;
+  edm::EDGetTokenT<std::vector<float> > trackp_token_;
+  edm::EDGetTokenT<std::vector<float> > trackpt_token_;
+  edm::EDGetTokenT<std::vector<double> > tracketa_token_;
+  edm::EDGetTokenT<std::vector<double> > trackphi_token_;
+  edm::EDGetTokenT<std::vector<unsigned int> > trackhitsvalid_token_;
+  edm::EDGetTokenT<std::vector<int> > trackalgo_token_;
+  edm::EDGetTokenT<std::vector<int> > trackindex_token_;
+  edm::EDGetTokenT<std::vector<unsigned int> > rawid_token_;
+  edm::EDGetTokenT<std::vector<double> > localdirx_token_;
+  edm::EDGetTokenT<std::vector<double> > localdiry_token_;
+  edm::EDGetTokenT<std::vector<double> > localdirz_token_;
+  edm::EDGetTokenT<std::vector<unsigned short> > firststrip_token_;
+  edm::EDGetTokenT<std::vector<unsigned short> > nstrips_token_;
+  edm::EDGetTokenT<std::vector<bool> > saturation_token_;
+  edm::EDGetTokenT<std::vector<bool> > overlapping_token_;
+  edm::EDGetTokenT<std::vector<bool> > farfromedge_token_;
+  edm::EDGetTokenT<std::vector<unsigned int> > charge_token_;
+  edm::EDGetTokenT<std::vector<double> > path_token_;
+  edm::EDGetTokenT<std::vector<double> > chargeoverpath_token_;
+  edm::EDGetTokenT<std::vector<unsigned char> > amplitude_token_;
+  edm::EDGetTokenT<std::vector<double> > gainused_token_;
+  edm::EDGetTokenT<std::vector<double> > gainusedTick_token_;
 
-    // maps histograms index to topology 
-    std::map<unsigned int,APVloc> theTopologyMap;
+  std::string EventPrefix_;  //("");
+  std::string EventSuffix_;  //("");
+  std::string TrackPrefix_;  //("track");
+  std::string TrackSuffix_;  //("");
+  std::string CalibPrefix_;  //("GainCalibration");
+  std::string CalibSuffix_;  //("");
 
+  // maps histograms index to topology
+  std::map<unsigned int, APVloc> theTopologyMap;
 };
 
-inline int
-SiStripGainsPCLWorker::statCollectionFromMode(const char* tag) const
-{
-  std::vector<std::string>::const_iterator it=dqm_tag_.begin();
-  while(it!=dqm_tag_.end()) {
-    if(*it==std::string(tag)) return it-dqm_tag_.begin();
+inline int SiStripGainsPCLWorker::statCollectionFromMode(const char *tag) const {
+  std::vector<std::string>::const_iterator it = dqm_tag_.begin();
+  while (it != dqm_tag_.end()) {
+    if (*it == std::string(tag))
+      return it - dqm_tag_.begin();
     it++;
   }
-  
-  if (std::string(tag).empty()) return 0;  // return StdBunch calibration mode for backward compatibility
-  
+
+  if (std::string(tag).empty())
+    return 0;  // return StdBunch calibration mode for backward compatibility
+
   return None;
 }
-

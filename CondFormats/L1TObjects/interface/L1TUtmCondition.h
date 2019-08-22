@@ -25,56 +25,48 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmCut.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmObject.h"
 
-
 /*-----------------------------------------------------------------*
  * constants
  *-----------------------------------------------------------------*/
 /* nope */
 
-
-
-
 /**
  *  This class implements data structure for Condition
  */
-class L1TUtmCondition
-{
-  public:
-    // ctor
-    L1TUtmCondition()
-      : name_(), type_(-9999),
-        objects_(), cuts_(), version(0) { };
+class L1TUtmCondition {
+public:
+  // ctor
+  L1TUtmCondition() : name_(), type_(-9999), objects_(), cuts_(), version(0){};
 
-    // dtor
-    virtual ~L1TUtmCondition() { };
+  // dtor
+  virtual ~L1TUtmCondition(){};
 
-    /** set condition name */
-    void setName(const std::string& x) { name_ = x; };
+  /** set condition name */
+  void setName(const std::string& x) { name_ = x; };
 
-    /** set condition type */
-    void setType(const int x) { type_ = x; };
+  /** set condition type */
+  void setType(const int x) { type_ = x; };
 
-    /** get condition name */
-    const std::string& getName() const { return name_; };
+  /** get condition name */
+  const std::string& getName() const { return name_; };
 
-    /** get condition type */
-    const int getType() const { return type_; };
+  /** get condition type */
+  const int getType() const { return type_; };
 
-    /** get objects associated with the condition */
-    const std::vector<L1TUtmObject>& getObjects() const { return objects_; };
+  /** get objects associated with the condition */
+  const std::vector<L1TUtmObject>& getObjects() const { return objects_; };
 
-    /** get cuts associated with the condition */
-    const std::vector<L1TUtmCut>& getCuts() const { return cuts_; };
+  /** get cuts associated with the condition */
+  const std::vector<L1TUtmCut>& getCuts() const { return cuts_; };
 
-
-  protected:
-    std::string name_;                /**< name of condition */
-    int type_;                        /**< type of condition */
-    std::vector<L1TUtmObject> objects_;   /**< list of objects used in condition */
-    std::vector<L1TUtmCut> cuts_;         /**< list of cuts applied on condition */
-    unsigned int version;
+protected:
+  std::string name_;                  /**< name of condition */
+  int type_;                          /**< type of condition */
+  std::vector<L1TUtmObject> objects_; /**< list of objects used in condition */
+  std::vector<L1TUtmCut> cuts_;       /**< list of cuts applied on condition */
+  unsigned int version;
   COND_SERIALIZABLE;
 };
 
-#endif // tmEventSetup_L1TUtmCondition_hh
+#endif  // tmEventSetup_L1TUtmCondition_hh
 /* eof */

@@ -25,7 +25,6 @@ using namespace edm;
 
 // Constructor
 DTTPGParamsWriter::DTTPGParamsWriter(const ParameterSet &pset) {
-
   debug_ = pset.getUntrackedParameter<bool>("debug", false);
   inputFileName_ = pset.getUntrackedParameter<string>("inputFile");
   // Create the object to be written to DB
@@ -37,15 +36,12 @@ DTTPGParamsWriter::DTTPGParamsWriter(const ParameterSet &pset) {
 
 // Destructor
 DTTPGParamsWriter::~DTTPGParamsWriter() {
-
   if (debug_)
     cout << "[DTTPGParamsWriter]Destructor called!" << endl;
 }
 
 // Do the job
-void DTTPGParamsWriter::analyze(const Event &event,
-                                const EventSetup &eventSetup) {
-
+void DTTPGParamsWriter::analyze(const Event &event, const EventSetup &eventSetup) {
   if (debug_)
     cout << "[DTTPGParamsWriter]Reading data from file." << endl;
 
@@ -63,41 +59,33 @@ void DTTPGParamsWriter::analyze(const Event &event,
       float fineDB = 0.;
       int coarseDB = 0;
       phaseMap_->get(chId, coarseDB, fineDB, DTTimeUnits::ns);
-      std::cout << "[DTTPGParamsWriter] Read data for chamber " << chId
-                << ". File params -> fine: " << fine << " coarse: " << coarse
-                << ". DB params -> fine: " << fineDB << " coarse: " << coarseDB
-                << std::endl;
+      std::cout << "[DTTPGParamsWriter] Read data for chamber " << chId << ". File params -> fine: " << fine
+                << " coarse: " << coarse << ". DB params -> fine: " << fineDB << " coarse: " << coarseDB << std::endl;
     }
     nLines++;
   }
   if (debug_) {
-    std::cout << "[DTTPGParamsWriter] # of entries written the the DB: "
-              << nLines << std::endl;
+    std::cout << "[DTTPGParamsWriter] # of entries written the the DB: " << nLines << std::endl;
   }
   if (nLines != 250) {
-    std::cout
-        << "[DTTPGParamsWriter] # of DB entries != 250. Check you input file!"
-        << std::endl;
+    std::cout << "[DTTPGParamsWriter] # of DB entries != 250. Check you input file!" << std::endl;
   }
 
   inputFile_.close();
 }
 
-void DTTPGParamsWriter::pharseLine(std::string &line, DTChamberId &chId,
-                                   float &fine, int &coarse) {
-
+void DTTPGParamsWriter::pharseLine(std::string &line, DTChamberId &chId, float &fine, int &coarse) {
   std::vector<std::string> elements;
   boost::algorithm::split(
-      elements, line,
-      boost::algorithm::is_any_of(
-          string(" \t\n"))); // making string conversion explicit (needed to
-                             // cope with -Warray-bounds in slc5_ia32_gcc434
+      elements,
+      line,
+      boost::algorithm::is_any_of(string(" \t\n")));  // making string conversion explicit (needed to
+                                                      // cope with -Warray-bounds in slc5_ia32_gcc434
   if (elements.size() != 5) {
-    std::cout << "[DTTPGParamsWriter] wrong number of entries in line : "
-              << line << " pleas check your input file syntax!" << std::endl;
+    std::cout << "[DTTPGParamsWriter] wrong number of entries in line : " << line
+              << " pleas check your input file syntax!" << std::endl;
   } else {
-    chId = DTChamberId(atoi(elements[0].c_str()), atoi(elements[1].c_str()),
-                       atoi(elements[2].c_str()));
+    chId = DTChamberId(atoi(elements[0].c_str()), atoi(elements[1].c_str()), atoi(elements[2].c_str()));
     fine = atof(elements[3].c_str());
     coarse = atoi(elements[4].c_str());
   }

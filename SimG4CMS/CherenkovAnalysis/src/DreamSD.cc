@@ -1,4 +1,6 @@
 
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -13,6 +15,8 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+
 // Histogramming
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -25,11 +29,11 @@
 
 //________________________________________________________________________________________
 DreamSD::DreamSD(const std::string &name,
-                 const DDCompactView &cpv,
+                 const edm::EventSetup &es,
                  const SensitiveDetectorCatalog &clg,
                  edm::ParameterSet const &p,
                  const SimTrackManager *manager)
-    : CaloSD(name, cpv, clg, p, manager) {
+    : CaloSD(name, es, clg, p, manager) {
   edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ECalSD");
   useBirk = m_EC.getParameter<bool>("UseBirkLaw");
   doCherenkov_ = m_EC.getParameter<bool>("doCherenkov");
@@ -48,7 +52,7 @@ DreamSD::DreamSD(const std::string &name,
                           << "          Parameterization of Cherenkov is set to " << doCherenkov_
                           << " and readout both sides is " << readBothSide_;
 
-  initMap(name, cpv);
+  initMap(name, es);
 }
 
 //________________________________________________________________________________________
@@ -101,10 +105,13 @@ uint32_t DreamSD::setDetUnitId(const G4Step *aStep) {
 }
 
 //________________________________________________________________________________________
-void DreamSD::initMap(const std::string &sd, const DDCompactView &cpv) {
+void DreamSD::initMap(const std::string &sd, const edm::EventSetup &es) {
+  edm::ESTransientHandle<DDCompactView> cpv;
+  es.get<IdealGeometryRecord>().get(cpv);
+
   G4String attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, sd, 0)};
-  DDFilteredView fv(cpv, filter);
+  DDFilteredView fv(*cpv, filter);
   fv.firstChild();
 
   const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();

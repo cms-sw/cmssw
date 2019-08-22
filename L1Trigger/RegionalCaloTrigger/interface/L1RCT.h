@@ -18,7 +18,6 @@
 class L1RCTLookupTables;
 
 class L1RCT {
-
 public:
   L1RCT(const L1RCTLookupTables *rctLookupTables);
 
@@ -26,19 +25,17 @@ public:
   void input();
 
   // For testing accept external input
-  void
-  input(const std::vector<std::vector<std::vector<unsigned short>>> &barrelIn,
-        const std::vector<std::vector<unsigned short>> &hfIn);
+  void input(const std::vector<std::vector<std::vector<unsigned short>>> &barrelIn,
+             const std::vector<std::vector<unsigned short>> &hfIn);
 
   // Should send commands to all crates to send commands to all RCs to
   // process the input data and then send it on to the EICs and then
   // to the JSCs
   void processEvent();
 
-  void fileInput(const char *filename); // added "const" also in .cc
+  void fileInput(const char *filename);  // added "const" also in .cc
 
-  void digiInput(const EcalTrigPrimDigiCollection &ecalCollection,
-                 const HcalTrigPrimDigiCollection &hcalCollection);
+  void digiInput(const EcalTrigPrimDigiCollection &ecalCollection, const HcalTrigPrimDigiCollection &hcalCollection);
 
   void randomInput();
 
@@ -59,33 +56,23 @@ public:
 
   L1CaloEmCollection getNonisolatedEGObjects(unsigned crate);
 
-  std::vector<unsigned short> getJetRegions(unsigned crate) {
-    return crates.at(crate).getJetRegions();
-  }
+  std::vector<unsigned short> getJetRegions(unsigned crate) { return crates.at(crate).getJetRegions(); }
 
   std::vector<L1CaloRegion> getRegions(unsigned crate);
 
-  unsigned short ecalCompressedET(int crate, int card, int tower) {
-    return barrel.at(crate).at(card).at(tower) / 2;
-  }
-  unsigned short ecalFineGrainBit(int crate, int card, int tower) {
-    return barrel.at(crate).at(card).at(tower) & 1;
-  }
+  unsigned short ecalCompressedET(int crate, int card, int tower) { return barrel.at(crate).at(card).at(tower) / 2; }
+  unsigned short ecalFineGrainBit(int crate, int card, int tower) { return barrel.at(crate).at(card).at(tower) & 1; }
   unsigned short hcalCompressedET(int crate, int card, int tower) {
     return barrel.at(crate).at(card).at(tower + 32) / 2;
   }
   unsigned short hcalFineGrainBit(int crate, int card, int tower) {
     return barrel.at(crate).at(card).at(tower + 32) & 1;
   }
-  unsigned short hfCompressedET(int crate, int tower) {
-    return hf.at(crate).at(tower) / 2;
-  }
-  unsigned short hfFineGrainBit(int crate, int tower) {
-    return hf.at(crate).at(tower) & 1;
-  }
+  unsigned short hfCompressedET(int crate, int tower) { return hf.at(crate).at(tower) / 2; }
+  unsigned short hfFineGrainBit(int crate, int tower) { return hf.at(crate).at(tower) & 1; }
 
 private:
-  L1RCT(); // Do not implement this
+  L1RCT();  // Do not implement this
 
   const L1RCTLookupTables *rctLookupTables_;
 

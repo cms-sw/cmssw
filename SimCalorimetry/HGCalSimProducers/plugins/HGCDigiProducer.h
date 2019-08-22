@@ -14,7 +14,7 @@ namespace edm {
   }
   class ParameterSet;
   class StreamID;
-}
+}  // namespace edm
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -32,6 +32,7 @@ public:
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   ~HGCDigiProducer() override = default;
+
 private:
   //the digitizer
   HGCDigitizer theDigitizer_;

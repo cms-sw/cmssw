@@ -8,7 +8,6 @@
  *  
  */
 
-
 #include <IORawData/DTCommissioning/plugins/DTNewROS8FileReader.h>
 #include <IORawData/DTCommissioning/plugins/DTFileReaderHelpers.h>
 
@@ -28,34 +27,27 @@
 #include <iosfwd>
 #include <iostream>
 #include <algorithm>
-   
+
 using namespace std;
 using namespace edm;
 
-
-DTNewROS8FileReader::DTNewROS8FileReader(const edm::ParameterSet& pset) : 
-  runNumber(1), eventNum(0) {
-      
-  const string & filename = pset.getUntrackedParameter<string>("fileName");
+DTNewROS8FileReader::DTNewROS8FileReader(const edm::ParameterSet& pset) : runNumber(1), eventNum(0) {
+  const string& filename = pset.getUntrackedParameter<string>("fileName");
 
   inputFile.open(filename.c_str());
-  if( inputFile.fail() ) {
-    throw cms::Exception("InputFileMissing") 
-      << "DTNewROS8FileReader: the input file: " << filename <<" is not present";
+  if (inputFile.fail()) {
+    throw cms::Exception("InputFileMissing")
+        << "DTNewROS8FileReader: the input file: " << filename << " is not present";
   }
- 
+
   produces<FEDRawDataCollection>();
 }
 
-
-DTNewROS8FileReader::~DTNewROS8FileReader(){
-  inputFile.close();
-}
-
+DTNewROS8FileReader::~DTNewROS8FileReader() { inputFile.close(); }
 
 int DTNewROS8FileReader::fillRawData(Event& e,
-//				  Timestamp& tstamp, 
-				  FEDRawDataCollection*& data){
+                                     //				  Timestamp& tstamp,
+                                     FEDRawDataCollection*& data) {
   EventID eID = e.id();
   data = new FEDRawDataCollection();
 
@@ -90,114 +82,109 @@ int DTNewROS8FileReader::fillRawData(Event& e,
      5.- NUMBER OF WORDS (include this word and the first counter)
     */
 
+    if (checkEndOfFile())
+      throw 1;
 
-    if( checkEndOfFile() ) throw 1; 
-    
     // Number of words in the header, including the first word of header that is the number of words in the event
-    int numberEventHeadWords=8;
+    int numberEventHeadWords = 8;
 
     //1.- Get the total NUMBER OF WORDs from the 1st word in the payload
-    int numberOfWords=0;
+    int numberOfWords = 0;
     int nread = 0;
-    nread = inputFile.read(dataPointer<int>( &numberOfWords ), ros8WordLenght); // ros8WordLength=4
-    if ( nread<=0 ) throw 1;
+    nread = inputFile.read(dataPointer<int>(&numberOfWords), ros8WordLenght);  // ros8WordLength=4
+    if (nread <= 0)
+      throw 1;
 
-    // inputFile.ignore(4*(numberEventHeadWords-1)); // Skip the header. The first word of header has been already read 
-       
+    // inputFile.ignore(4*(numberEventHeadWords-1)); // Skip the header. The first word of header has been already read
+
     //2.- Get the HEADER  ============================================================================
     int datahead[numberEventHeadWords];
-    for(int iih=0;iih<numberEventHeadWords;iih++)
-    {
-        nread = inputFile.read(dataPointer<int>( &datahead[iih] ), ros8WordLenght); 
+    for (int iih = 0; iih < numberEventHeadWords; iih++) {
+      nread = inputFile.read(dataPointer<int>(&datahead[iih]), ros8WordLenght);
     }
 
     //3.- ROS DATA  &  4.- PU DATA (Trigger)   =======================================================
     // Get the event data (all words but the header and the first and the last counter)
-    int numberOfDataWords=numberOfWords-numberEventHeadWords-2; 
+    int numberOfDataWords = numberOfWords - numberEventHeadWords - 2;
     int* eventData = new int[numberOfDataWords];
-    nread = inputFile.read(dataPointer<int>( eventData ), numberOfDataWords * ros8WordLenght );
-    if ( nread<=0 ) throw 1;
+    nread = inputFile.read(dataPointer<int>(eventData), numberOfDataWords * ros8WordLenght);
+    if (nread <= 0)
+      throw 1;
 
     //5.- Get the total NUMBER OF WORDs from the last word in the payload
-    // Check that the event data size corresponds to the 1st word datum 
-    int LastCounter=0;
-    nread=inputFile.read(dataPointer<int>( &LastCounter ), ros8WordLenght); 
-    if ( nread<=0 ) throw 1;
-      
-    if ( LastCounter != numberOfWords ) {
-      cout << "[DTNewROS8FileReader]: word counter mismatch exception: "
-	   << numberOfWords << " " << LastCounter << endl;
+    // Check that the event data size corresponds to the 1st word datum
+    int LastCounter = 0;
+    nread = inputFile.read(dataPointer<int>(&LastCounter), ros8WordLenght);
+    if (nread <= 0)
+      throw 1;
+
+    if (LastCounter != numberOfWords) {
+      cout << "[DTNewROS8FileReader]: word counter mismatch exception: " << numberOfWords << " " << LastCounter << endl;
       throw 99;
     }
 
-   //The first word in the header is the run number 
-   runNumber= datahead[0];
-      cout << "[DTNewROS8FileReader]: Run Number: "<<dec<<runNumber<<endl;
-     
-   //The third word in the header is the event number (without any reset)
-   //eventNum= datahead[2];  //francos system
-   eventNum= datahead[1];  //linux system
-   //cout<<"ëventNum  "<<dec<<eventNum<<endl;
-   if(eventNum<1)eventNum=1;// Event number must start at 1 but at TDCs it starts at cero,if not the program crashes
-                           // files used for testing start in 1, but... just in case...
+    //The first word in the header is the run number
+    runNumber = datahead[0];
+    cout << "[DTNewROS8FileReader]: Run Number: " << dec << runNumber << endl;
 
-   eID = EventID(runNumber, 1U, eventNum);  
+    //The third word in the header is the event number (without any reset)
+    //eventNum= datahead[2];  //francos system
+    eventNum = datahead[1];  //linux system
+    //cout<<"ëventNum  "<<dec<<eventNum<<endl;
+    if (eventNum < 1)
+      eventNum = 1;  // Event number must start at 1 but at TDCs it starts at cero,if not the program crashes
+                     // files used for testing start in 1, but... just in case...
 
-   //cout << " EEEEE eID: " << eID << endl;
-   // Even if we have introducing the correct runNumber when running the runNumber appears always as =1
+    eID = EventID(runNumber, 1U, eventNum);
 
-   int eventDataSize = numberOfDataWords * ros8WordLenght;
-   int adjustment = (eventDataSize/4)%2 == 1 ? 4 : 0;   
+    //cout << " EEEEE eID: " << eID << endl;
+    // Even if we have introducing the correct runNumber when running the runNumber appears always as =1
 
-   // The FED ID is always the first in the DT range
-   FEDRawData& fedRawData = data->FEDData( FEDNumbering::MINDTFEDID );
-   fedRawData.resize(eventDataSize+adjustment);  // the size must be multiple of 8 bytes
-    
-   // Passing the data to the Event
-   copy(reinterpret_cast<unsigned char*>(eventData), 
-	 reinterpret_cast<unsigned char*>(eventData) + eventDataSize, fedRawData.data());
+    int eventDataSize = numberOfDataWords * ros8WordLenght;
+    int adjustment = (eventDataSize / 4) % 2 == 1 ? 4 : 0;
 
-   // needed to get rid of memory leaks (?)
-   delete[] eventData;
+    // The FED ID is always the first in the DT range
+    FEDRawData& fedRawData = data->FEDData(FEDNumbering::MINDTFEDID);
+    fedRawData.resize(eventDataSize + adjustment);  // the size must be multiple of 8 bytes
 
-   return true;
+    // Passing the data to the Event
+    copy(reinterpret_cast<unsigned char*>(eventData),
+         reinterpret_cast<unsigned char*>(eventData) + eventDataSize,
+         fedRawData.data());
 
-  }
-  catch( int i ) {
+    // needed to get rid of memory leaks (?)
+    delete[] eventData;
 
-    if ( i == 1 ){
+    return true;
+
+  } catch (int i) {
+    if (i == 1) {
       cout << "[DTNewROS8FileReader]: END OF FILE REACHED. "
            << "No information read for the requested event" << endl;
-      delete data; data=nullptr;
+      delete data;
+      data = nullptr;
       return false;
-    }    
-    else {
+    } else {
       cout << "[DTNewROS8FileReader]: PROBLEM WITH EVENT INFORMATION ON THE FILE. "
            << "EVENT DATA READING FAILED  code= " << i << endl;
-      delete data; data=nullptr;
+      delete data;
+      data = nullptr;
       return false;
     }
-
   }
-
 }
 
-
-void DTNewROS8FileReader::produce(Event&e, EventSetup const&es){
-
-   edm::Handle<FEDRawDataCollection> rawdata;
-   FEDRawDataCollection *fedcoll = nullptr;
-   fillRawData(e,fedcoll);
-   std::unique_ptr<FEDRawDataCollection> bare_product(fedcoll);
-   e.put(std::move(bare_product));
+void DTNewROS8FileReader::produce(Event& e, EventSetup const& es) {
+  edm::Handle<FEDRawDataCollection> rawdata;
+  FEDRawDataCollection* fedcoll = nullptr;
+  fillRawData(e, fedcoll);
+  std::unique_ptr<FEDRawDataCollection> bare_product(fedcoll);
+  e.put(std::move(bare_product));
 }
 
-
-bool DTNewROS8FileReader::checkEndOfFile(){
-
-  bool retval=false;
-  if ( inputFile.eof() ) retval=true;
+bool DTNewROS8FileReader::checkEndOfFile() {
+  bool retval = false;
+  if (inputFile.eof())
+    retval = true;
   return retval;
-
 }
-

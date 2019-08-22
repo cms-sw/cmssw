@@ -377,6 +377,7 @@ def psetTrkPtIsoCut(wpEB, wpEE):
         slopeStartEE = cms.double( wpEE.trkIsoSlopeStart ),
         constTermEB = cms.double( wpEB.trkIsoConstTerm ),
         constTermEE = cms.double( wpEE.trkIsoConstTerm ),
+        useHEEPIso = cms.bool(False),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )

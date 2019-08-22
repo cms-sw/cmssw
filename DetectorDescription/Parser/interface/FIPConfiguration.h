@@ -24,11 +24,9 @@ class DDLSAX2Handler;
  *  email: case@ucdhep.ucdavis.edu
  *
  */
-class FIPConfiguration : public DDLDocumentProvider
-{
- public:
-
-  FIPConfiguration( DDCompactView& cpv);
+class FIPConfiguration : public DDLDocumentProvider {
+public:
+  FIPConfiguration(DDCompactView& cpv);
   ~FIPConfiguration() override;
 
   /// Read in the configuration file.
@@ -38,13 +36,13 @@ class FIPConfiguration : public DDLDocumentProvider
   int readConfig(const std::string& filename, bool fullPath);
 
   /// Return a list of files as a std::vector of strings.
-  const std::vector < std::string >&  getFileList(void) const override;
+  const std::vector<std::string>& getFileList(void) const override;
 
   /// Return a list of urls as a std::vector of strings.
   /**
      This implementation does not provide a meaningful url list.
    **/
-  const std::vector < std::string >&  getURLList(void) const override;
+  const std::vector<std::string>& getURLList(void) const override;
 
   /// Print out the list of files.
   void dumpFileList(void) const override;
@@ -55,7 +53,7 @@ class FIPConfiguration : public DDLDocumentProvider
   /// Return the designation for where to look for the schema.
   std::string getSchemaLocation() const override;
 
- private:
+private:
   DDLSAX2ConfigHandler configHandler_;
   std::vector<std::string> files_;
   std::vector<std::string> urls_;

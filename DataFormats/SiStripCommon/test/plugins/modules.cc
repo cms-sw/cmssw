@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFecKey.h"
 DEFINE_FWK_MODULE(testSiStripFecKey);
 

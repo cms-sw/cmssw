@@ -33,6 +33,7 @@ from Validation.RecoParticleFlow.PFMETValidation_cff import *
 from Validation.RecoParticleFlow.PFMuonValidation_cff import *
 from Validation.RecoParticleFlow.PFElectronValidation_cff import *
 from Validation.RecoParticleFlow.PFJetResValidation_cff import *
+from Validation.RecoParticleFlow.PFClusterValidation_cff import *
 from Validation.RPCRecHits.rpcRecHitValidation_cfi import *
 from Validation.DTRecHits.DTRecHitQuality_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
@@ -43,6 +44,7 @@ from Validation.RecoB.BDHadronTrackValidation_cff import *
 from Validation.Configuration.hgcalSimValid_cff import *
 from Validation.Configuration.mtdSimValid_cff import *
 from Validation.SiOuterTrackerV.OuterTrackerSourceConfigV_cff import *
+from Validation.Configuration.ecalSimValid_cff import *
 
 
 # filter/producer "pre-" sequence for globalValidation
@@ -92,6 +94,7 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + pfElectronValidationSequence
                                  + pfJetResValidationSequence
                                  + pfMuonValidationSequence
+                                 + pfClusterValidationSequence
                                  + rpcRecHitValidation_step
                                  + dtLocalRecoValidation_no2D
                                  + pfTauRunDQMValidation

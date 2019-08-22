@@ -4,23 +4,15 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
-HoECalculator::HoECalculator () :
-               theCaloGeom_(nullptr)
-{
-} 
-HoECalculator::HoECalculator (const edm::ESHandle<CaloGeometry>  &caloGeom) :
-               theCaloGeom_(caloGeom)
-{
-} 
+HoECalculator::HoECalculator() : theCaloGeom_(nullptr) {}
+HoECalculator::HoECalculator(const edm::ESHandle<CaloGeometry>& caloGeom) : theCaloGeom_(caloGeom) {}
 
-double HoECalculator::operator() ( const reco::BasicCluster* clus , const edm::Event& e , const edm::EventSetup& c) 
-{
-  return getHoE(GlobalPoint(clus->x(),clus->y(),clus->z()), clus->energy(), e,c);
+double HoECalculator::operator()(const reco::BasicCluster* clus, const edm::Event& e, const edm::EventSetup& c) {
+  return getHoE(GlobalPoint(clus->x(), clus->y(), clus->z()), clus->energy(), e, c);
 }
 
-double HoECalculator::operator() ( const reco::SuperCluster* clus , const edm::Event& e , const edm::EventSetup& c) 
-{
-  return getHoE(GlobalPoint(clus->x(),clus->y(),clus->z()), clus->energy(), e,c);
+double HoECalculator::operator()(const reco::SuperCluster* clus, const edm::Event& e, const edm::EventSetup& c) {
+  return getHoE(GlobalPoint(clus->x(), clus->y(), clus->z()), clus->energy(), e, c);
 }
 
 /*
@@ -50,35 +42,34 @@ double HoECalculator::operator() ( const reco::BasicCluster* clus,
 
 */
 
-double HoECalculator::getHoE(GlobalPoint pclu, float ecalEnergy, const edm::Event& e , const edm::EventSetup& c )
-{
-  if ( !theCaloGeom_.isValid() )
-    c.get<CaloGeometryRecord>().get(theCaloGeom_) ;
+double HoECalculator::getHoE(GlobalPoint pclu, float ecalEnergy, const edm::Event& e, const edm::EventSetup& c) {
+  if (!theCaloGeom_.isValid())
+    c.get<CaloGeometryRecord>().get(theCaloGeom_);
 
   //product the geometry
-  theCaloGeom_.product() ;
+  theCaloGeom_.product();
 
   //Create a HBHERecHitCollection
-  edm::Handle< HBHERecHitCollection > hbhe ;
-  e.getByLabel("hbhereco","",hbhe);
+  edm::Handle<HBHERecHitCollection> hbhe;
+  e.getByLabel("hbhereco", "", hbhe);
   const HBHERecHitCollection* hithbhe_ = hbhe.product();
 
-  double HoE=0.;
-  const CaloGeometry& geometry = *theCaloGeom_ ;
-  const CaloSubdetectorGeometry *geometry_p ; 
-  geometry_p = geometry.getSubdetectorGeometry (DetId::Hcal,4) ;
-  DetId hcalDetId ;
-  hcalDetId = geometry_p->getClosestCell(pclu) ;
-  double hcalEnergy = 0 ;
+  double HoE = 0.;
+  const CaloGeometry& geometry = *theCaloGeom_;
+  const CaloSubdetectorGeometry* geometry_p;
+  geometry_p = geometry.getSubdetectorGeometry(DetId::Hcal, 4);
+  DetId hcalDetId;
+  hcalDetId = geometry_p->getClosestCell(pclu);
+  double hcalEnergy = 0;
 
-  HBHERecHitCollection::const_iterator iterRecHit ; 
-  iterRecHit = hithbhe_->find(hcalDetId) ;
-  if (iterRecHit!=hithbhe_->end()) {
-    hcalEnergy = iterRecHit->energy() ;
-    HoE = hcalEnergy/ecalEnergy ;
+  HBHERecHitCollection::const_iterator iterRecHit;
+  iterRecHit = hithbhe_->find(hcalDetId);
+  if (iterRecHit != hithbhe_->end()) {
+    hcalEnergy = iterRecHit->energy();
+    HoE = hcalEnergy / ecalEnergy;
   }
 
-  return HoE ;
+  return HoE;
 }
 
 /*

@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     CastorQIEDataRcd
-// 
+//
 /**\class CastorQIEDataRcd CastorQIEDataRcd.h CondFormats/DataRecord/interface/CastorQIEDataRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Mon Feb 11 12:18:26 CET 2008
 // $Id: CastorQIEDataRcd.h,v 1.1 2008/02/15 15:53:04 mccauley Exp $
 //

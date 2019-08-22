@@ -12,20 +12,21 @@ POOL object to store QIE basic shape
 
 // 128 QIE channels
 class CastorQIEShape {
- public:
+public:
   CastorQIEShape();
   ~CastorQIEShape();
-  float lowEdge (unsigned fAdc) const;
-  float highEdge (unsigned fAdc) const;
-  float center (unsigned fAdc) const;
-  bool setLowEdges (const float fValue [32]);
-  unsigned range (unsigned fAdc) const {return (fAdc >> 5) & 0x3;}
-  unsigned local (unsigned fAdc) const {return fAdc & 0x1f;}
- protected:
- private:
-  void expand ();
-  bool setLowEdge (float fValue, unsigned fAdc);
-  float mValues [129];
+  float lowEdge(unsigned fAdc) const;
+  float highEdge(unsigned fAdc) const;
+  float center(unsigned fAdc) const;
+  bool setLowEdges(const float fValue[32]);
+  unsigned range(unsigned fAdc) const { return (fAdc >> 5) & 0x3; }
+  unsigned local(unsigned fAdc) const { return fAdc & 0x1f; }
+
+protected:
+private:
+  void expand();
+  bool setLowEdge(float fValue, unsigned fAdc);
+  float mValues[129];
 };
 
 #endif

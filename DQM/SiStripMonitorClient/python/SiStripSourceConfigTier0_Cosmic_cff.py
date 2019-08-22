@@ -103,7 +103,7 @@ dqmInfoSiStrip = DQMEDAnalyzer('DQMEventInfo',
 )
 
 # Services needed for TkHistoMap
-from CalibTracker.SiStripCommon.TkDetMap_cff import *
+from CalibTracker.SiStripCommon.TkDetMapESProducer_cfi import *
 
 # Event History Producer
 from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *

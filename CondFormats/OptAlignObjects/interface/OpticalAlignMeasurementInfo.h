@@ -16,7 +16,7 @@
 
 class OpticalAlignMeasurementInfo;
 
-std::ostream & operator<<(std::ostream &, const OpticalAlignMeasurementInfo &);
+std::ostream &operator<<(std::ostream &, const OpticalAlignMeasurementInfo &);
 
 // a Class holding data for an Optical Alignment Measurement
 /**
@@ -25,13 +25,14 @@ std::ostream & operator<<(std::ostream &, const OpticalAlignMeasurementInfo &);
 
  **/
 
-class  OpticalAlignMeasurementInfo {
- public:  
+class OpticalAlignMeasurementInfo {
+public:
   std::string type_;
   std::string name_;
   std::vector<std::string> measObjectNames_;
-  std::vector<bool> isSimulatedValue_; 
-  std::vector<OpticalAlignParam> values_; //names of measurement values (H:, V:, T:, ...)  Dimension of this vector gives dimension of Measurement
+  std::vector<bool> isSimulatedValue_;
+  std::vector<OpticalAlignParam>
+      values_;  //names of measurement values (H:, V:, T:, ...)  Dimension of this vector gives dimension of Measurement
   unsigned int ID_;
 
   void clear() {
@@ -43,7 +44,7 @@ class  OpticalAlignMeasurementInfo {
     isSimulatedValue_.clear();
   }
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-#endif //OpticalAlignMeasureInfo_H
+#endif  //OpticalAlignMeasureInfo_H

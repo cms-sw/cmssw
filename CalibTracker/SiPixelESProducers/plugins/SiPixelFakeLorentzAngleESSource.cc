@@ -2,7 +2,7 @@
 //
 // Package:    SiPixelFakeLorentzAngleESSource
 // Class:      SiPixelFakeLorentzAngleESSource
-// 
+//
 /**\class SiPixelFakeLorentzAngleESSource SiPixelFakeLorentzAngleESSource.h CalibTracker/SiPixelESProducer/src/SiPixelFakeLorentzAngleESSource.cc
 
  Description: <one line class summary>
@@ -26,51 +26,46 @@
 //
 // constructors and destructor
 //
-SiPixelFakeLorentzAngleESSource::SiPixelFakeLorentzAngleESSource(const edm::ParameterSet& conf_) : fp_(conf_.getParameter<edm::FileInPath>("file"))
-{
-	edm::LogInfo("SiPixelFakeLorentzAngleESSource::SiPixelFakeLorentzAngleESSource");
-	//the following line is needed to tell the framework what
-	// data is being produced
-	setWhatProduced(this);
-	findingRecord<SiPixelLorentzAngleRcd>();
+SiPixelFakeLorentzAngleESSource::SiPixelFakeLorentzAngleESSource(const edm::ParameterSet& conf_)
+    : fp_(conf_.getParameter<edm::FileInPath>("file")) {
+  edm::LogInfo("SiPixelFakeLorentzAngleESSource::SiPixelFakeLorentzAngleESSource");
+  //the following line is needed to tell the framework what
+  // data is being produced
+  setWhatProduced(this);
+  findingRecord<SiPixelLorentzAngleRcd>();
 }
 
-SiPixelFakeLorentzAngleESSource::~SiPixelFakeLorentzAngleESSource()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+SiPixelFakeLorentzAngleESSource::~SiPixelFakeLorentzAngleESSource() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
-std::unique_ptr<SiPixelLorentzAngle> SiPixelFakeLorentzAngleESSource::produce(const SiPixelLorentzAngleRcd & )
-{
+std::unique_ptr<SiPixelLorentzAngle> SiPixelFakeLorentzAngleESSource::produce(const SiPixelLorentzAngleRcd&) {
+  using namespace edm::es;
+  unsigned int nmodules = 0;
+  SiPixelLorentzAngle* obj = new SiPixelLorentzAngle();
+  SiPixelDetInfoFileReader reader(fp_.fullPath());
+  const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
 
-	using namespace edm::es;
-	unsigned int nmodules = 0;
-	SiPixelLorentzAngle * obj = new SiPixelLorentzAngle();
-	SiPixelDetInfoFileReader reader(fp_.fullPath());
-	const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
-	
-	// Loop over detectors
-	for(std::vector<uint32_t>::const_iterator detit = DetIds.begin(); detit!=DetIds.end(); detit++) {
-		nmodules++;
-		float langle =  0.106;	 
-		//std::cout << "detid " << (*detit) << std::endl;
-	
-		if( !obj->putLorentzAngle(*detit,langle) ) edm::LogError("SiPixelFakeLorentzAngleESSource")<<"[SiPixelFakeLorentzAngleESSource::produce] detid already exists"<<std::endl;
-	}
-	
-	//std::cout << "Modules = " << nmodules << std::endl;
+  // Loop over detectors
+  for (std::vector<uint32_t>::const_iterator detit = DetIds.begin(); detit != DetIds.end(); detit++) {
+    nmodules++;
+    float langle = 0.106;
+    //std::cout << "detid " << (*detit) << std::endl;
 
-	return std::unique_ptr<SiPixelLorentzAngle>(obj);
-	
+    if (!obj->putLorentzAngle(*detit, langle))
+      edm::LogError("SiPixelFakeLorentzAngleESSource")
+          << "[SiPixelFakeLorentzAngleESSource::produce] detid already exists" << std::endl;
+  }
 
+  //std::cout << "Modules = " << nmodules << std::endl;
+
+  return std::unique_ptr<SiPixelLorentzAngle>(obj);
 }
 
-void SiPixelFakeLorentzAngleESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, 
-						const edm::IOVSyncValue& iosv, 
-						edm::ValidityInterval& oValidity ) {
-  edm::ValidityInterval infinity( iosv.beginOfTime(), iosv.endOfTime() );
-  oValidity = infinity;  
+void SiPixelFakeLorentzAngleESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                                                     const edm::IOVSyncValue& iosv,
+                                                     edm::ValidityInterval& oValidity) {
+  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
+  oValidity = infinity;
 }

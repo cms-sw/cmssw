@@ -18,11 +18,11 @@
  */
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-/// return the helicity angle for two particles. 
-double helicityAngle( const reco::Candidate & mother, const reco::Candidate & daughter);
+/// return the helicity angle for two particles.
+double helicityAngle(const reco::Candidate& mother, const reco::Candidate& daughter);
 
 /// return the helicity angle of a two body decay with daughter automatically retreived
 /// Note: asserts if the candidate does not have two daughters
-double helicityAngle( const reco::Candidate & c );
+double helicityAngle(const reco::Candidate& c);
 
 #endif

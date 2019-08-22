@@ -19,18 +19,13 @@ using namespace std;
 using namespace edm;
 using namespace magneticfield;
 
-
 ParametrizedMagneticFieldProducer::ParametrizedMagneticFieldProducer(const edm::ParameterSet& iConfig) : pset(iConfig) {
-  setWhatProduced(this, pset.getUntrackedParameter<std::string>("label",""));
+  setWhatProduced(this, pset.getUntrackedParameter<std::string>("label", ""));
 }
 
+ParametrizedMagneticFieldProducer::~ParametrizedMagneticFieldProducer() {}
 
-ParametrizedMagneticFieldProducer::~ParametrizedMagneticFieldProducer(){}
-
-
-std::unique_ptr<MagneticField>
-ParametrizedMagneticFieldProducer::produce(const IdealMagneticFieldRecord& iRecord)
-{
+std::unique_ptr<MagneticField> ParametrizedMagneticFieldProducer::produce(const IdealMagneticFieldRecord& iRecord) {
   string version = pset.getParameter<string>("version");
   ParameterSet parameters = pset.getParameter<ParameterSet>("parameters");
 

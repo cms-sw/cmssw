@@ -4,4 +4,4 @@
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 #include "CommonTools/UtilAlgos/interface/InputTagDistributor.h"
-DEFINE_FWK_SERVICE( InputTagDistributorService );
+DEFINE_FWK_SERVICE(InputTagDistributorService);

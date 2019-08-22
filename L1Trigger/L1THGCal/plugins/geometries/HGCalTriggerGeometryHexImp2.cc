@@ -13,10 +13,8 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase {
 public:
   HGCalTriggerGeometryHexImp2(const edm::ParameterSet& conf);
 
-  void initialize(const edm::ESHandle<CaloGeometry>&) final;
-  void initialize(const edm::ESHandle<HGCalGeometry>&,
-                  const edm::ESHandle<HGCalGeometry>&,
-                  const edm::ESHandle<HGCalGeometry>&) final;
+  void initialize(const CaloGeometry*) final;
+  void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
   void reset() final;
 
   unsigned getTriggerCellFromCell(const unsigned) const final;
@@ -32,11 +30,15 @@ public:
 
   geom_set getNeighborsFromTriggerCell(const unsigned) const final;
 
+  unsigned getLinksInModule(const unsigned module_id) const final;
+  unsigned getModuleSize(const unsigned module_id) const final;
+
   GlobalPoint getTriggerCellPosition(const unsigned) const final;
   GlobalPoint getModulePosition(const unsigned) const final;
 
   bool validTriggerCell(const unsigned) const final;
   bool disconnectedModule(const unsigned) const final;
+  unsigned lastTriggerLayer() const final;
   unsigned triggerLayer(const unsigned) const final;
 
 private:
@@ -101,16 +103,16 @@ void HGCalTriggerGeometryHexImp2::reset() {
   number_cells_in_wafers_.clear();
 }
 
-void HGCalTriggerGeometryHexImp2::initialize(const edm::ESHandle<CaloGeometry>& calo_geometry) {
+void HGCalTriggerGeometryHexImp2::initialize(const CaloGeometry* calo_geometry) {
   setCaloGeometry(calo_geometry);
   fillMaps();
   fillNeighborMaps();
   fillInvalidTriggerCells();
 }
 
-void HGCalTriggerGeometryHexImp2::initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
-                                             const edm::ESHandle<HGCalGeometry>& hgc_hsi_geometry,
-                                             const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry) {
+void HGCalTriggerGeometryHexImp2::initialize(const HGCalGeometry* hgc_ee_geometry,
+                                             const HGCalGeometry* hgc_hsi_geometry,
+                                             const HGCalGeometry* hgc_hsc_geometry) {
   throw cms::Exception("BadGeometry")
       << "HGCalTriggerGeometryHexImp2 geometry cannot be initialized with the V9 HGCAL geometry";
 }
@@ -486,6 +488,10 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryHexImp2::getNeighborsFrom
   return neighbor_detids;
 }
 
+unsigned HGCalTriggerGeometryHexImp2::getLinksInModule(const unsigned module_id) const { return 1; }
+
+unsigned HGCalTriggerGeometryHexImp2::getModuleSize(const unsigned module_id) const { return 1; }
+
 GlobalPoint HGCalTriggerGeometryHexImp2::getTriggerCellPosition(const unsigned trigger_cell_det_id) const {
   // Position: barycenter of the trigger cell.
   Basic3DVector<float> triggerCellVector(0., 0., 0.);
@@ -742,6 +748,8 @@ bool HGCalTriggerGeometryHexImp2::validTriggerCell(const unsigned trigger_cell_i
 }
 
 bool HGCalTriggerGeometryHexImp2::disconnectedModule(const unsigned module_id) const { return false; }
+
+unsigned HGCalTriggerGeometryHexImp2::lastTriggerLayer() const { return eeTopology().dddConstants().layers(true); }
 
 unsigned HGCalTriggerGeometryHexImp2::triggerLayer(const unsigned id) const { return HGCalDetId(id).layer(); }
 

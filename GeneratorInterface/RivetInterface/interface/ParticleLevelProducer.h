@@ -15,30 +15,33 @@
 #include "Rivet/AnalysisHandler.hh"
 #include "GeneratorInterface/RivetInterface/interface/RivetAnalysis.h"
 
-class ParticleLevelProducer : public edm::one::EDProducer<edm::one::SharedResources>
-{
+class ParticleLevelProducer : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
   ParticleLevelProducer(const edm::ParameterSet& pset);
   ~ParticleLevelProducer() override {}
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 private:
-  void addGenJet(Rivet::Jet jet, std::unique_ptr<reco::GenJetCollection> &jets,
-                 std::unique_ptr<reco::GenParticleCollection> &consts, edm::RefProd<reco::GenParticleCollection>& constsRefHandle, int &iConstituent,
-                 std::unique_ptr<reco::GenParticleCollection> &tags, edm::RefProd<reco::GenParticleCollection>& tagsRefHandle, int &iTag);
-  
-  template<typename T> reco::Candidate::LorentzVector p4(const T& p) const
-  {
+  void addGenJet(Rivet::Jet jet,
+                 std::unique_ptr<reco::GenJetCollection>& jets,
+                 std::unique_ptr<reco::GenParticleCollection>& consts,
+                 edm::RefProd<reco::GenParticleCollection>& constsRefHandle,
+                 int& iConstituent,
+                 std::unique_ptr<reco::GenParticleCollection>& tags,
+                 edm::RefProd<reco::GenParticleCollection>& tagsRefHandle,
+                 int& iTag);
+
+  template <typename T>
+  reco::Candidate::LorentzVector p4(const T& p) const {
     return reco::Candidate::LorentzVector(p.px(), p.py(), p.pz(), p.energy());
   }
 
   const edm::EDGetTokenT<edm::HepMCProduct> srcToken_;
 
   reco::Particle::Point genVertex_;
-  
+
   Rivet::RivetAnalysis* rivetAnalysis_;
   Rivet::AnalysisHandler analysisHandler_;
-
 };
 
 #endif

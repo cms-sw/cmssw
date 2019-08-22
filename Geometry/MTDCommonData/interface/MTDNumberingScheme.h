@@ -6,7 +6,7 @@
 #include <cstdint>
 
 class MTDNumberingScheme {
- public:
+public:
   MTDNumberingScheme();
   virtual ~MTDNumberingScheme();
   virtual uint32_t getUnitID(const MTDBaseNumber& baseNumber) const = 0;

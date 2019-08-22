@@ -7,6 +7,9 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 
-class L1MuGMTChannelMaskRcd : public edm::eventsetup::DependentRecordImplementation<L1MuGMTChannelMaskRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+class L1MuGMTChannelMaskRcd
+    : public edm::eventsetup::DependentRecordImplementation<L1MuGMTChannelMaskRcd,
+                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+};
 
 #endif

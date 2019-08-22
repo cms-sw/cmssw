@@ -16,104 +16,114 @@
 
 namespace jsoncollector {
 
-class FastMonitor {
+  class FastMonitor {
+  public:
+    FastMonitor(std::string const& defPath,
+                std::string const defGroup,
+                bool strictChecking,
+                bool useSource = true,
+                bool useDefinition = true);
+    FastMonitor(DataPointDefinition* dpd, bool strictChecking, bool useSource = true, bool useDefinition = true);
 
-public:
+    virtual ~FastMonitor();
 
-  FastMonitor(std::string const& defPath, std::string const defGroup, bool strictChecking, bool useSource=true, bool useDefinition=true);
-  FastMonitor(DataPointDefinition * dpd, bool strictChecking, bool useSource=true, bool useDefinition=true);
+    void addFastPathDefinition(std::string const& defPathFast, std::string const defGroupFast, bool strict);
 
-  virtual ~FastMonitor();
+    void setDefPath(std::string const& dpath) {
+      defPath_ = dpath;
+      for (auto dp : dataPoints_)
+        dp->updateDefinition(dpath);
+    }
 
-  void addFastPathDefinition(std::string const& defPathFast, std::string const defGroupFast, bool strict);
+    void setNStreams(unsigned int nStreams) { nStreams_ = nStreams; }
 
-  void setDefPath(std::string const& dpath) {defPath_=dpath;for (auto dp : dataPoints_) dp->updateDefinition(dpath);}
+    //register global monitorable
+    void registerGlobalMonitorable(JsonMonitorable* newMonitorable,
+                                   bool NAifZeroUpdates,
+                                   unsigned int* nBins = nullptr);
 
-  void setNStreams(unsigned int nStreams) {nStreams_=nStreams;}
+    //register fastPath global monitorable
+    void registerFastGlobalMonitorable(JsonMonitorable* newMonitorable);
 
-  //register global monitorable
-  void registerGlobalMonitorable(JsonMonitorable *newMonitorable, bool NAifZeroUpdates, unsigned int *nBins=nullptr);
+    //register per-stream monitores vector (unsigned int)
+    void registerStreamMonitorableUIntVec(std::string const& name,
+                                          std::vector<unsigned int>* inputs,
+                                          bool NAifZeroUpdates,
+                                          unsigned int* nBins = nullptr);
 
-  //register fastPath global monitorable
-  void registerFastGlobalMonitorable(JsonMonitorable *newMonitorable);
+    //NOT implemented yet
+    //void registerStreamMonitorableIntVec(std::string &name, std::vector<unsigned int>,true,0);
+    //void registerStreamMonitorableDoubleVec(std::string &name, std::vector<unsigned int>,true,0);
+    //void registerStreamMonitorableStringVec(std::string &name, std::vector<std::string>,true,0);
 
-  //register per-stream monitores vector (unsigned int)
-  void registerStreamMonitorableUIntVec(std::string const& name, 
-      std::vector<unsigned int> *inputs, bool NAifZeroUpdates, unsigned int *nBins=nullptr);
+    void registerStreamMonitorableUIntVecAtomic(std::string const& name,
+                                                std::vector<AtomicMonUInt*>* inputs,
+                                                bool NAifZeroUpdates,
+                                                unsigned int* nBins = nullptr);
 
-  //NOT implemented yet
-  //void registerStreamMonitorableIntVec(std::string &name, std::vector<unsigned int>,true,0);
-  //void registerStreamMonitorableDoubleVec(std::string &name, std::vector<unsigned int>,true,0);
-  //void registerStreamMonitorableStringVec(std::string &name, std::vector<std::string>,true,0);
+    //take vector used to track stream lumis and finish initialization
+    void commit(std::vector<unsigned int>* streamLumisPtr);
 
-  void registerStreamMonitorableUIntVecAtomic(std::string const& name,
-      std::vector<AtomicMonUInt*> *inputs, bool NAifZeroUpdates, unsigned int *nBins=nullptr);
+    // fetches new snapshot and outputs one-line CSV if set (timer based)
+    void snap(unsigned int ls);
 
-  //take vector used to track stream lumis and finish initialization
-  void commit(std::vector<unsigned int> *streamLumisPtr);
+    //only update global variables (invoked at global EOL)
+    void snapGlobal(unsigned int ls);
 
-  // fetches new snapshot and outputs one-line CSV if set (timer based)
-  void snap(unsigned int ls);
+    //only updates atomic vectors (for certain stream - at stream EOL)
+    void snapStreamAtomic(unsigned int ls, unsigned int streamID);
 
-  //only update global variables (invoked at global EOL)
-  void snapGlobal(unsigned int ls);
+    //fastpath CSV string
+    std::string getCSVString(int sid = -1);
 
-  //only updates atomic vectors (for certain stream - at stream EOL)
-  void snapStreamAtomic(unsigned int ls, unsigned int streamID);
+    //fastpath file output
+    void outputCSV(std::string const& path, std::string const& csvString);
 
-  //fastpath CSV string
-  std::string getCSVString(int sid=-1);
+    //provide merged variable back to user
+    JsonMonitorable* getMergedIntJForLumi(std::string const& name, unsigned int forLumi);
 
-  //fastpath file output
-  void outputCSV(std::string const& path, std::string const& csvString);
+    // merges and outputs everything collected for the given stream to JSON file
+    bool outputFullJSONs(std::string const& pathstem, std::string const& ext, unsigned int lumi);
+    bool outputFullJSON(std::string const& path, unsigned int lumi);
 
-  //provide merged variable back to user
-  JsonMonitorable* getMergedIntJForLumi(std::string const& name,unsigned int forLumi);
+    //discard what was collected for a lumisection
+    void discardCollected(unsigned int forLumi);
 
-  // merges and outputs everything collected for the given stream to JSON file
-  bool outputFullJSONs(std::string const& pathstem, std::string const& ext, unsigned int lumi);
-  bool outputFullJSON(std::string const& path, unsigned int lumi);
+    //this is added to the JSON file
+    void getHostAndPID(std::string& sHPid);
 
-  //discard what was collected for a lumisection
-  void discardCollected(unsigned int forLumi);
+  private:
+    std::string defPath_;
+    std::string defPathFast_;
+    bool strictChecking_;
+    bool fastPathStrictChecking_;
+    bool useSource_;
+    bool useDefinition_;
+    bool haveFastPath_ = false;
 
-  //this is added to the JSON file
-  void getHostAndPID(std::string& sHPid);
+    unsigned int nStreams_;
 
-private:
+    std::string sourceInfo_;
+    DataPointDefinition* dpd_;
+    DataPointDefinition* dpdFast_;
+    bool deleteDef_ = false;
+    bool deleteDefFast_ = false;
 
-  std::string defPath_;
-  std::string defPathFast_;
-  bool strictChecking_;
-  bool fastPathStrictChecking_;
-  bool useSource_;
-  bool useDefinition_;
-  bool haveFastPath_=false;
+    std::vector<DataPoint*> dataPoints_;
+    std::vector<DataPoint*> dataPointsFastOnly_;
+    std::vector<unsigned int> jsonDpIndex_;
+    std::vector<DataPoint*> jsonDpIndexFast_;
+    std::vector<DataPoint*> orphanedDps_;
+    std::map<std::string, unsigned int> dpNameMap_;
 
-  unsigned int nStreams_;
+    unsigned int recentSnaps_ = 0;
+    unsigned int recentSnapsTimer_ = 0;
+    unsigned int regDpCount_ = 0;
+    unsigned int fregDpCount_ = 0;
 
-  std::string sourceInfo_;
-  DataPointDefinition *dpd_;
-  DataPointDefinition *dpdFast_;
-  bool deleteDef_=false;
-  bool deleteDefFast_=false;
+    std::unordered_set<std::string> uids_;
+  };
 
-  std::vector<DataPoint*> dataPoints_;
-  std::vector<DataPoint*> dataPointsFastOnly_;
-  std::vector<unsigned int> jsonDpIndex_;
-  std::vector<DataPoint*> jsonDpIndexFast_;
-  std::vector<DataPoint*> orphanedDps_;
-  std::map<std::string,unsigned int> dpNameMap_;
-
-  unsigned int recentSnaps_ = 0;
-  unsigned int recentSnapsTimer_ = 0;
-  unsigned int regDpCount_ = 0;
-  unsigned int fregDpCount_ = 0;
-
-  std::unordered_set<std::string> uids_;
-
-};
-
-}
+}  // namespace jsoncollector
 
 #endif /* FASTMONITOR_H_ */

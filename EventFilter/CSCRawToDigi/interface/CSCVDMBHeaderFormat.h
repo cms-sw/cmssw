@@ -3,22 +3,21 @@
 
 #include <cassert>
 #include <iosfwd>
-#include <cstring> // bzero
+#include <cstring>  // bzero
 
-class CSCVDMBHeaderFormat  {
+class CSCVDMBHeaderFormat {
 public:
-
-  virtual ~CSCVDMBHeaderFormat() {};
-/*
+  virtual ~CSCVDMBHeaderFormat(){};
+  /*
   void init() {
     bzero(this, sizeInWords()*2);
   }
 */
-  
+
   virtual bool cfebAvailable(unsigned icfeb) = 0;
 
   virtual void addCFEB(int icfeb) = 0;
-  virtual void addNCLCT() = 0;  
+  virtual void addNCLCT() = 0;
   virtual void addNALCT() = 0;
   virtual void setBXN(int bxn) = 0;
   virtual void setL1A(int l1a) = 0;
@@ -43,15 +42,13 @@ public:
   virtual unsigned format_version() const = 0;
 
   virtual unsigned sizeInWords() const = 0;
- 
+
   virtual bool check() const = 0;
 
-  virtual unsigned short * data() = 0;
-  virtual unsigned short * data() const = 0;
+  virtual unsigned short* data() = 0;
+  virtual unsigned short* data() const = 0;
 
   //ostream & operator<<(ostream &, const CSCVDMBHeaderFormat &);
-
 };
 
 #endif
-

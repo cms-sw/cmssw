@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     SimBeamSpotObjectsRcd
-// 
+//
 /**\class SimBeamSpotObjectsRcd SimBeamSpotObjectsRcd.h CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Tue Mar  6 19:34:33 CST 2007
 // $Id: SimBeamSpotObjectsRcd.h,v 1.1 2012/01/06 02:34:07 vlimant Exp $
 //

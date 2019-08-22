@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWCollectionSummaryWidget
-// 
+//
 /**\class FWCollectionSummaryWidget FWCollectionSummaryWidget.h Fireworks/Core/interface/FWCollectionSummaryWidget.h
 
  Description: <one line class summary>
@@ -41,82 +41,79 @@ class TGGC;
 class TGTextButton;
 
 namespace fireworks {
-   class Context;
+  class Context;
 }
 
 struct FWCollectionSummaryWidgetConnectionHolder;
 
-class FWCollectionSummaryWidget : public TGCompositeFrame
-{
-
+class FWCollectionSummaryWidget : public TGCompositeFrame {
 public:
-   FWCollectionSummaryWidget(TGFrame* iParent, FWEventItem& iItem, TGLayoutHints*);
-   ~FWCollectionSummaryWidget() override;
-   
-   // ---------- const member functions ---------------------
+  FWCollectionSummaryWidget(TGFrame* iParent, FWEventItem& iItem, TGLayoutHints*);
+  ~FWCollectionSummaryWidget() override;
 
-   // ---------- static member functions --------------------
-   
-   // ---------- member functions ---------------------------
-   void displayChanged();
-   void itemChanged();
-   
-   //pass true if white or false if black
-   void setBackgroundToWhite(bool);
-   
-   void colorChangeRequested(Color_t iColorIndex);
-   void toggleItemVisible();
-   void toggleShowHide();
-   void colorClicked();
-   
-   void requestForInfo(FWEventItem*); // *SIGNAL*
-   void requestForFilter(FWEventItem*); // *SIGNAL*
-   void requestForErrorInfo(FWEventItem*); // *SIGNAL*
-   void requestForController(FWEventItem*); // *SIGNAL*
-   void requestForModelContextMenu(Int_t,Int_t); // *SIGNAL*
-   
-   void infoClicked();
-   void stateClicked();
-   void labelClicked();
-   
-   ClassDefOverride(FWCollectionSummaryWidget,0);
-   
-   void itemColorClicked(int iIndex, Int_t iRootX, Int_t iRootY);
-   void modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);
+  // ---------- const member functions ---------------------
+
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+  void displayChanged();
+  void itemChanged();
+
+  //pass true if white or false if black
+  void setBackgroundToWhite(bool);
+
+  void colorChangeRequested(Color_t iColorIndex);
+  void toggleItemVisible();
+  void toggleShowHide();
+  void colorClicked();
+
+  void requestForInfo(FWEventItem*);              // *SIGNAL*
+  void requestForFilter(FWEventItem*);            // *SIGNAL*
+  void requestForErrorInfo(FWEventItem*);         // *SIGNAL*
+  void requestForController(FWEventItem*);        // *SIGNAL*
+  void requestForModelContextMenu(Int_t, Int_t);  // *SIGNAL*
+
+  void infoClicked();
+  void stateClicked();
+  void labelClicked();
+
+  ClassDefOverride(FWCollectionSummaryWidget, 0);
+
+  void itemColorClicked(int iIndex, Int_t iRootX, Int_t iRootY);
+  void modelSelected(Int_t iRow, Int_t iButton, Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);
 
 private:
-   FWCollectionSummaryWidget(const FWCollectionSummaryWidget&); // stop default
-   
-   const FWCollectionSummaryWidget& operator=(const FWCollectionSummaryWidget&); // stop default
-   
-   void createColorPopup();
-   void colorTable();
-   // ---------- member data --------------------------------
-   FWEventItem* m_collection;
-   TGLayoutHints* m_hints;
-   TGFrame* m_parent;
-   FWCustomIconsButton* m_showHideButton;
-   FWBoxIconButton* m_isVisibleButton;
-   FWCheckBoxIcon* m_isVisibleCheckBox;
-   //FWColorSelect* m_colorSelectWidget;
-   FWBoxIconButton* m_colorSelectWidget;
-   FWColorBoxIcon* m_colorSelectBox;
-   FWCustomIconsButton* m_stateButton;
-   FWCustomIconsButton* m_infoButton;
-   TGTextButton* m_label;
-   TGFrame* m_holder;
-   bool m_collectionShown;
-   TGGC* m_graphicsContext;
-   TGGC* m_tableContext;
-   int m_indexForColor;
-   FWColorPopup* m_colorPopup;
-   
-   FWCollectionSummaryTableManager* m_tableManager;
-   FWTableWidget* m_tableWidget;
-   bool m_backgroundIsWhite;
-   
-   FWCollectionSummaryWidgetConnectionHolder* m_connectionHolder;
-};
+  FWCollectionSummaryWidget(const FWCollectionSummaryWidget&);  // stop default
 
+  const FWCollectionSummaryWidget& operator=(const FWCollectionSummaryWidget&);  // stop default
+
+  void createColorPopup();
+  void colorTable();
+  // ---------- member data --------------------------------
+  FWEventItem* m_collection;
+  TGLayoutHints* m_hints;
+  TGFrame* m_parent;
+  FWCustomIconsButton* m_showHideButton;
+  FWBoxIconButton* m_isVisibleButton;
+  FWCheckBoxIcon* m_isVisibleCheckBox;
+  //FWColorSelect* m_colorSelectWidget;
+  FWBoxIconButton* m_colorSelectWidget;
+  FWColorBoxIcon* m_colorSelectBox;
+  FWCustomIconsButton* m_stateButton;
+  FWCustomIconsButton* m_infoButton;
+  TGTextButton* m_label;
+  TGFrame* m_holder;
+  bool m_collectionShown;
+  TGGC* m_graphicsContext;
+  TGGC* m_tableContext;
+  int m_indexForColor;
+  FWColorPopup* m_colorPopup;
+
+  FWCollectionSummaryTableManager* m_tableManager;
+  FWTableWidget* m_tableWidget;
+  bool m_backgroundIsWhite;
+
+  FWCollectionSummaryWidgetConnectionHolder* m_connectionHolder;
+};
 
 #endif

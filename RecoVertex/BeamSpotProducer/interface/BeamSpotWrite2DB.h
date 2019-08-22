@@ -12,7 +12,6 @@
 
 ________________________________________________________________**/
 
-
 // C++ standard
 #include <string>
 // CMS
@@ -26,23 +25,20 @@ ________________________________________________________________**/
 #include "TFile.h"
 #include "TTree.h"
 
-#include<fstream>
+#include <fstream>
 
 class BeamSpotWrite2DB : public edm::EDAnalyzer {
- public:
+public:
   explicit BeamSpotWrite2DB(const edm::ParameterSet&);
   ~BeamSpotWrite2DB() override;
 
- private:
-  void beginJob() override ;
+private:
+  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
 
-  
   std::ifstream fasciiFile;
   std::string fasciiFileName;
-
-  
 };
 
 #endif

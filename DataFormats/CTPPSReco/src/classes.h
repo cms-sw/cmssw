@@ -23,4 +23,3 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include <vector>
-

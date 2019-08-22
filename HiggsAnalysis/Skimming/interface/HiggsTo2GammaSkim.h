@@ -25,8 +25,7 @@
 #include <DataFormats/EgammaCandidates/interface/PhotonFwd.h>
 
 class HiggsTo2GammaSkim : public edm::EDFilter {
-
- public:
+public:
   // Constructor
   explicit HiggsTo2GammaSkim(const edm::ParameterSet&);
 
@@ -34,12 +33,10 @@ class HiggsTo2GammaSkim : public edm::EDFilter {
   ~HiggsTo2GammaSkim() override;
 
   /// Get event properties to send to builder to fill seed collection
-  bool filter(edm::Event&, const edm::EventSetup& ) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-
- private:
+private:
   int nEvents, nSelectedEvents;
-
 
   bool debug;
   float photon1MinPt;

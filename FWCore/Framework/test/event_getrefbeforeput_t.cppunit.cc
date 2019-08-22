@@ -25,7 +25,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "cppunit/extensions/HelperMacros.h"

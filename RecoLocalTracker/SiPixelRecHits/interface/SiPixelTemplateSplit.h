@@ -25,7 +25,7 @@
 //  Incorporate VI-like speed improvements (v2.25)
 //  Improve speed by eliminating the triple index boost::multiarray objects and add speed switch to optimize the algorithm (v2.30)
 //
- 
+
 #ifndef SiPixelTemplateSplit_h
 #define SiPixelTemplateSplit_h 1
 
@@ -42,48 +42,116 @@
 #include <vector>
 #include "boost/multi_array.hpp"
 
+namespace SiPixelTemplateSplit {
 
+  typedef boost::multi_array<float, 2> array_2d;
+  typedef boost::multi_array<bool, 2> array_2d_bool;
+  typedef boost::multi_array<float, 3> array_3d;
 
-namespace SiPixelTemplateSplit
- {
- 
-    typedef boost::multi_array<float, 2> array_2d;
-    typedef boost::multi_array<bool, 2> array_2d_bool;
-    typedef boost::multi_array<float, 3> array_3d;
-	 
-	 	 
-	 
-	int PixelTempSplit(int id, float cotalpha, float cotbeta, array_2d& cluster, 
-				std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
-				SiPixelTemplate& templ, 
-				float& yrec1, float& yrec2, float& sigmay, float& prob2y, 
-							 float& xrec1, float& xrec2, float& sigmax, float& prob2x, int& q2bin, float& prob2Q, bool resolve, int speed, float& dchisq, bool deadpix, 
-							 std::vector<std::pair<int, int> >& zeropix, SiPixelTemplate2D& templ2D);
-	 
-	 int PixelTempSplit(int id, float cotalpha, float cotbeta, array_2d& cluster, 
-							  std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
-							  SiPixelTemplate& templ, 
-							  float& yrec1, float& yrec2, float& sigmay, float& prob2y, 
-							  float& xrec1, float& xrec2, float& sigmax, float& prob2x, int& q2bin, float& prob2Q, bool resolve, int speed, float& dchisq, SiPixelTemplate2D& templ2D);
-	 
-	int PixelTempSplit(int id, float cotalpha, float cotbeta, array_2d& cluster, 
-				std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
-				SiPixelTemplate& templ, 
-				float& yrec1, float& yrec2, float& sigmay, float& prob2y, 
-				float& xrec1, float& xrec2, float& sigmax, float& prob2x, int& q2bin, float& prob2Q, bool resolve, float& dchisq, SiPixelTemplate2D& templ2D);
-	 
-	 int PixelTempSplit(int id, float cotalpha, float cotbeta, array_2d& cluster, 
-						std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
-						SiPixelTemplate& templ, 
-						float& yrec1, float& yrec2, float& sigmay, float& prob2y, 
-						float& xrec1, float& xrec2, float& sigmax, float& prob2x, int& q2bin, float& prob2Q, SiPixelTemplate2D& templ2D);
+  int PixelTempSplit(int id,
+                     float cotalpha,
+                     float cotbeta,
+                     array_2d& cluster,
+                     std::vector<bool>& ydouble,
+                     std::vector<bool>& xdouble,
+                     SiPixelTemplate& templ,
+                     float& yrec1,
+                     float& yrec2,
+                     float& sigmay,
+                     float& prob2y,
+                     float& xrec1,
+                     float& xrec2,
+                     float& sigmax,
+                     float& prob2x,
+                     int& q2bin,
+                     float& prob2Q,
+                     bool resolve,
+                     int speed,
+                     float& dchisq,
+                     bool deadpix,
+                     std::vector<std::pair<int, int> >& zeropix,
+                     SiPixelTemplate2D& templ2D);
 
-	 int PixelTempSplit(int id, float cotalpha, float cotbeta, array_2d& cluster, 
-							  std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
-							  SiPixelTemplate& templ, 
-							  float& yrec1, float& yrec2, float& sigmay, float& prob2y, 
-							  float& xrec1, float& xrec2, float& sigmax, float& prob2x, int& q2bin, SiPixelTemplate2D& templ2D);
-	 
-}
-				
+  int PixelTempSplit(int id,
+                     float cotalpha,
+                     float cotbeta,
+                     array_2d& cluster,
+                     std::vector<bool>& ydouble,
+                     std::vector<bool>& xdouble,
+                     SiPixelTemplate& templ,
+                     float& yrec1,
+                     float& yrec2,
+                     float& sigmay,
+                     float& prob2y,
+                     float& xrec1,
+                     float& xrec2,
+                     float& sigmax,
+                     float& prob2x,
+                     int& q2bin,
+                     float& prob2Q,
+                     bool resolve,
+                     int speed,
+                     float& dchisq,
+                     SiPixelTemplate2D& templ2D);
+
+  int PixelTempSplit(int id,
+                     float cotalpha,
+                     float cotbeta,
+                     array_2d& cluster,
+                     std::vector<bool>& ydouble,
+                     std::vector<bool>& xdouble,
+                     SiPixelTemplate& templ,
+                     float& yrec1,
+                     float& yrec2,
+                     float& sigmay,
+                     float& prob2y,
+                     float& xrec1,
+                     float& xrec2,
+                     float& sigmax,
+                     float& prob2x,
+                     int& q2bin,
+                     float& prob2Q,
+                     bool resolve,
+                     float& dchisq,
+                     SiPixelTemplate2D& templ2D);
+
+  int PixelTempSplit(int id,
+                     float cotalpha,
+                     float cotbeta,
+                     array_2d& cluster,
+                     std::vector<bool>& ydouble,
+                     std::vector<bool>& xdouble,
+                     SiPixelTemplate& templ,
+                     float& yrec1,
+                     float& yrec2,
+                     float& sigmay,
+                     float& prob2y,
+                     float& xrec1,
+                     float& xrec2,
+                     float& sigmax,
+                     float& prob2x,
+                     int& q2bin,
+                     float& prob2Q,
+                     SiPixelTemplate2D& templ2D);
+
+  int PixelTempSplit(int id,
+                     float cotalpha,
+                     float cotbeta,
+                     array_2d& cluster,
+                     std::vector<bool>& ydouble,
+                     std::vector<bool>& xdouble,
+                     SiPixelTemplate& templ,
+                     float& yrec1,
+                     float& yrec2,
+                     float& sigmay,
+                     float& prob2y,
+                     float& xrec1,
+                     float& xrec2,
+                     float& sigmax,
+                     float& prob2x,
+                     int& q2bin,
+                     SiPixelTemplate2D& templ2D);
+
+}  // namespace SiPixelTemplateSplit
+
 #endif

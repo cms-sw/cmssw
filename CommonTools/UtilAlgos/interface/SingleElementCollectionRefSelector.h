@@ -21,34 +21,38 @@
 
 namespace reco {
   namespace modules {
-    template<typename S> struct SingleElementCollectionRefSelectorEventSetupInit;
+    template <typename S>
+    struct SingleElementCollectionRefSelectorEventSetupInit;
   }
-}
+}  // namespace reco
 namespace edm {
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-template<typename InputType, typename Selector,
-	 typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<edm::View<InputType> >::type,
-	 typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
-	 typename RefAdder = typename ::helper::SelectionAdderTrait<edm::View<InputType>, StoreContainer>::type>
+template <typename InputType,
+          typename Selector,
+          typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<edm::View<InputType> >::type,
+          typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
+          typename RefAdder = typename ::helper::SelectionAdderTrait<edm::View<InputType>, StoreContainer>::type>
 struct SingleElementCollectionRefSelector {
   typedef edm::View<InputType> InputCollection;
   typedef InputCollection collection;
   typedef StoreContainer container;
   typedef Selector selector;
   typedef typename container::const_iterator const_iterator;
-  SingleElementCollectionRefSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector && iC) :
-    select_(reco::modules::make<Selector>(cfg, iC)) { }
+  SingleElementCollectionRefSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+      : select_(reco::modules::make<Selector>(cfg, iC)) {}
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
-  void select(const edm::Handle<InputCollection> & c, const edm::Event &, const edm::EventSetup&) {
+  void select(const edm::Handle<InputCollection>& c, const edm::Event&, const edm::EventSetup&) {
     selected_.clear();
-    for(size_t idx = 0; idx < c->size(); ++ idx) {
-      if(select_(c->refAt(idx))) addRef_(selected_, c, idx);
+    for (size_t idx = 0; idx < c->size(); ++idx) {
+      if (select_(c->refAt(idx)))
+        addRef_(selected_, c, idx);
     }
   }
+
 private:
   container selected_;
   selector select_;
@@ -60,20 +64,19 @@ private:
 
 namespace reco {
   namespace modules {
-    template<typename S>
+    template <typename S>
     struct SingleElementCollectionRefSelectorEventSetupInit {
-      static void init(S & s, const edm::Event & ev, const edm::EventSetup& es) {
-	typedef typename EventSetupInit<typename S::selector>::type ESI;
-	ESI::init(s.select_, ev, es);
+      static void init(S& s, const edm::Event& ev, const edm::EventSetup& es) {
+        typedef typename EventSetupInit<typename S::selector>::type ESI;
+        ESI::init(s.select_, ev, es);
       }
     };
 
-    template<typename I, typename S, typename O, typename C, typename R>
+    template <typename I, typename S, typename O, typename C, typename R>
     struct EventSetupInit<SingleElementCollectionRefSelector<I, S, O, C, R> > {
       typedef SingleElementCollectionRefSelectorEventSetupInit<SingleElementCollectionRefSelector<I, S, O, C, R> > type;
     };
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-

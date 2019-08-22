@@ -14,10 +14,10 @@
 namespace reco {
   namespace parser {
     struct ComparisonBase {
-      virtual ~ComparisonBase() { }
-      virtual bool compare( double, double ) const = 0;
+      virtual ~ComparisonBase() {}
+      virtual bool compare(double, double) const = 0;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
-#endif   
+#endif

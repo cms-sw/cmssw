@@ -12,14 +12,12 @@
 //
 //
 
-
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -35,20 +33,17 @@ class TH1I;
 class TProfile;
 class TTree;
 
-class GsfElectronMCAnalyzer : public edm::one::EDAnalyzer<>
-{
- public:
-
-  explicit GsfElectronMCAnalyzer(const edm::ParameterSet& conf);
+class GsfElectronMCAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  explicit GsfElectronMCAnalyzer(const edm::ParameterSet &conf);
 
   ~GsfElectronMCAnalyzer() override;
 
   void beginJob() override;
   void endJob() override;
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
- private:
-
+private:
   TrajectoryStateTransform transformer_;
   edm::ESHandle<TrackerGeometry> pDD;
   edm::ESHandle<MagneticField> theMagField;
@@ -127,7 +122,7 @@ class GsfElectronMCAnalyzer : public edm::one::EDAnalyzer<>
 
   TH2F *h_ele_E2mnE1vsMee_all;
   TH2F *h_ele_E2mnE1vsMee_egeg_all;
-  
+
   TH1F *h_ele_charge;
   TH2F *h_ele_chargeVsEta;
   TH2F *h_ele_chargeVsPhi;
@@ -152,7 +147,7 @@ class GsfElectronMCAnalyzer : public edm::one::EDAnalyzer<>
 
   TH1F *histNum_;
 
-  TH1F *histSclEn_ ;
+  TH1F *histSclEn_;
   TH1F *histSclEoEtrue_barrel;
   TH1F *histSclEoEtrue_endcaps;
   TH1F *histSclEoEtrue_barrel_eg;
@@ -171,45 +166,45 @@ class GsfElectronMCAnalyzer : public edm::one::EDAnalyzer<>
   TH1F *histSclEoEtrue_ebeegap_new;
   TH1F *histSclEoEtrue_endcaps_deegap_new;
   TH1F *histSclEoEtrue_endcaps_ringgap_new;
-  TH1F *histSclEt_ ;
-  TH2F *histSclEtVsEta_ ;
-  TH2F *histSclEtVsPhi_ ;
-  TH2F *histSclEtaVsPhi_ ;
-  TH1F *histSclEta_ ;
-  TH1F *histSclPhi_ ;
+  TH1F *histSclEt_;
+  TH2F *histSclEtVsEta_;
+  TH2F *histSclEtVsPhi_;
+  TH2F *histSclEtaVsPhi_;
+  TH1F *histSclEta_;
+  TH1F *histSclPhi_;
 
-  TH2F *histSclEoEtruePfVsEg ;
+  TH2F *histSclEoEtruePfVsEg;
 
-  TH1F *histSclSigEtaEta_ ;
-  TH1F *histSclSigEtaEta_barrel_ ;
-  TH1F *histSclSigEtaEta_endcaps_ ;
-  TH1F *histSclSigIEtaIEta_ ;
-  TH1F *histSclSigIEtaIEta_barrel_ ;
-  TH1F *histSclSigIEtaIEta_endcaps_ ;
-  TH1F *histSclE1x5_ ;
-  TH1F *histSclE1x5_barrel_ ;
-  TH1F *histSclE1x5_endcaps_ ;
-  TH1F *histSclE2x5max_ ;
-  TH1F *histSclE2x5max_barrel_ ;
-  TH1F *histSclE2x5max_endcaps_ ;
-  TH1F *histSclE5x5_ ;
-  TH1F *histSclE5x5_barrel_ ;
-  TH1F *histSclE5x5_endcaps_ ;
-  TH1F *histSclSigEtaEta_eg_ ;
-  TH1F *histSclSigEtaEta_eg_barrel_ ;
-  TH1F *histSclSigEtaEta_eg_endcaps_ ;
-  TH1F *histSclSigIEtaIEta_eg_ ;
-  TH1F *histSclSigIEtaIEta_eg_barrel_ ;
-  TH1F *histSclSigIEtaIEta_eg_endcaps_ ;
-  TH1F *histSclE1x5_eg_ ;
-  TH1F *histSclE1x5_eg_barrel_ ;
-  TH1F *histSclE1x5_eg_endcaps_ ;
+  TH1F *histSclSigEtaEta_;
+  TH1F *histSclSigEtaEta_barrel_;
+  TH1F *histSclSigEtaEta_endcaps_;
+  TH1F *histSclSigIEtaIEta_;
+  TH1F *histSclSigIEtaIEta_barrel_;
+  TH1F *histSclSigIEtaIEta_endcaps_;
+  TH1F *histSclE1x5_;
+  TH1F *histSclE1x5_barrel_;
+  TH1F *histSclE1x5_endcaps_;
+  TH1F *histSclE2x5max_;
+  TH1F *histSclE2x5max_barrel_;
+  TH1F *histSclE2x5max_endcaps_;
+  TH1F *histSclE5x5_;
+  TH1F *histSclE5x5_barrel_;
+  TH1F *histSclE5x5_endcaps_;
+  TH1F *histSclSigEtaEta_eg_;
+  TH1F *histSclSigEtaEta_eg_barrel_;
+  TH1F *histSclSigEtaEta_eg_endcaps_;
+  TH1F *histSclSigIEtaIEta_eg_;
+  TH1F *histSclSigIEtaIEta_eg_barrel_;
+  TH1F *histSclSigIEtaIEta_eg_endcaps_;
+  TH1F *histSclE1x5_eg_;
+  TH1F *histSclE1x5_eg_barrel_;
+  TH1F *histSclE1x5_eg_endcaps_;
   TH1F *histSclE2x5max_eg_;
   TH1F *histSclE2x5max_eg_barrel_;
   TH1F *histSclE2x5max_eg_endcaps_;
-  TH1F *histSclE5x5_eg_ ;
-  TH1F *histSclE5x5_eg_barrel_ ;
-  TH1F *histSclE5x5_eg_endcaps_ ;
+  TH1F *histSclE5x5_eg_;
+  TH1F *histSclE5x5_eg_barrel_;
+  TH1F *histSclE5x5_eg_endcaps_;
 
   TH1F *h_ele_ambiguousTracks;
   TH2F *h_ele_ambiguousTracksVsEta;
@@ -371,7 +366,7 @@ class GsfElectronMCAnalyzer : public edm::one::EDAnalyzer<>
 
   TH1F *h_ele_seed_dphi2_;
   TH2F *h_ele_seed_dphi2VsEta_;
-  TH2F *h_ele_seed_dphi2VsPt_ ;
+  TH2F *h_ele_seed_dphi2VsPt_;
   TH1F *h_ele_seed_drz2_;
   TH2F *h_ele_seed_drz2VsEta_;
   TH2F *h_ele_seed_drz2VsPt_;
@@ -412,23 +407,23 @@ class GsfElectronMCAnalyzer : public edm::one::EDAnalyzer<>
   TH1F *histSclEoEtrueGolden_endcaps;
   TH1F *histSclEoEtrueShowering_barrel;
   TH1F *histSclEoEtrueShowering_endcaps;
-  
-  TH1F *h_ele_mva; 
-  TH1F *h_ele_mva_eg; 
-  TH1F *h_ele_provenance; 
 
-  TH1F *h_ele_tkSumPt_dr03; 
+  TH1F *h_ele_mva;
+  TH1F *h_ele_mva_eg;
+  TH1F *h_ele_provenance;
+
+  TH1F *h_ele_tkSumPt_dr03;
   TH1F *h_ele_ecalRecHitSumEt_dr03;
   TH1F *h_ele_hcalDepth1TowerSumEt_dr03;
   TH1F *h_ele_hcalDepth2TowerSumEt_dr03;
-  TH1F *h_ele_tkSumPt_dr04; 
+  TH1F *h_ele_tkSumPt_dr04;
   TH1F *h_ele_ecalRecHitSumEt_dr04;
   TH1F *h_ele_hcalDepth1TowerSumEt_dr04;
   TH1F *h_ele_hcalDepth2TowerSumEt_dr04;
-   
+
   std::string outputFile_;
   edm::InputTag electronCollection_;
-  edm::InputTag  mcTruthCollection_;
+  edm::InputTag mcTruthCollection_;
   bool readAOD_;
 
   double maxPt_;
@@ -485,10 +480,6 @@ class GsfElectronMCAnalyzer : public edm::one::EDAnalyzer<>
   int nbinpoptrue;
   int nbinmee;
   int nbinhoe;
-
- };
+};
 
 #endif
-
-
-

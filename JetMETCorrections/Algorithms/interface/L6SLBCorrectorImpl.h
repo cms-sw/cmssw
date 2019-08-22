@@ -16,63 +16,60 @@
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrectorCalculator.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
-namespace edm 
-{
+namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
   class ConsumesCollector;
   class ConfigurationDescriptions;
-}
+}  // namespace edm
 
 class L6SLBCorrectorImplMaker : public JetCorrectorImplMakerBase {
- public:
+public:
   L6SLBCorrectorImplMaker(edm::ParameterSet const&, edm::ConsumesCollector);
   std::unique_ptr<reco::JetCorrectorImpl> make(edm::Event const&, edm::EventSetup const&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& iDescriptions);
- private:
+
+private:
   edm::EDGetTokenT<std::vector<reco::SoftLeptonTagInfo>> elecToken_;
   edm::EDGetTokenT<std::vector<reco::SoftLeptonTagInfo>> muonToken_;
-  bool                    addMuonToJet_;
+  bool addMuonToJet_;
 };
 
-class L6SLBCorrectorImpl : public reco::JetCorrectorImpl
-{
+class L6SLBCorrectorImpl : public reco::JetCorrectorImpl {
   //
   // construction / destruction
   //
 public:
   typedef L6SLBCorrectorImplMaker Maker;
 
-  L6SLBCorrectorImpl (  std::shared_ptr<FactorizedJetCorrectorCalculator const> corrector,
-			edm::RefProd<std::vector<reco::SoftLeptonTagInfo>> const& bTagInfoMuon,
-			edm::RefProd<std::vector<reco::SoftLeptonTagInfo>> const& bTagInfoElec,
-			bool addMuonToJet);
+  L6SLBCorrectorImpl(std::shared_ptr<FactorizedJetCorrectorCalculator const> corrector,
+                     edm::RefProd<std::vector<reco::SoftLeptonTagInfo>> const& bTagInfoMuon,
+                     edm::RefProd<std::vector<reco::SoftLeptonTagInfo>> const& bTagInfoElec,
+                     bool addMuonToJet);
 
   //
   // member functions
   //
 public:
   /// apply correction using Jet information only
-  double correction (const LorentzVector& fJet) const override;
+  double correction(const LorentzVector& fJet) const override;
   /// apply correction using Jet information only
-  double correction (const reco::Jet& fJet) const override;
+  double correction(const reco::Jet& fJet) const override;
   /// apply correction using all event information
-  double correction (const reco::Jet& fJet,
-			     const edm::RefToBase<reco::Jet>& refToRawJet) const override;
-  
+  double correction(const reco::Jet& fJet, const edm::RefToBase<reco::Jet>& refToRawJet) const override;
+
   //----- if correction needs a jet reference -------------
-  bool refRequired () const override {return true;} 
-  
+  bool refRequired() const override { return true; }
+
   //
   // private member functions
   //
 private:
   int getBTagInfoIndex(const edm::RefToBase<reco::Jet>& refToRawJet,
-		       const std::vector<reco::SoftLeptonTagInfo>& tags) const;
-  
-  
+                       const std::vector<reco::SoftLeptonTagInfo>& tags) const;
+
   //
   // member data
   //
@@ -82,8 +79,7 @@ private:
   std::shared_ptr<FactorizedJetCorrectorCalculator const> corrector_;
   edm::RefProd<std::vector<reco::SoftLeptonTagInfo>> bTagInfoMuon_;
   edm::RefProd<std::vector<reco::SoftLeptonTagInfo>> bTagInfoElec_;
-  bool                    addMuonToJet_;
-
+  bool addMuonToJet_;
 };
 
 #endif

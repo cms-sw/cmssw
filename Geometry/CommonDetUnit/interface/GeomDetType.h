@@ -4,41 +4,41 @@
 #include <string>
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 
-
 class Topology;
 
 class GeomDetType {
 public:
-    typedef GeomDetEnumerators::SubDetector SubDetector;
-  
-    GeomDetType( const std::string& name, SubDetector subdet);
+  typedef GeomDetEnumerators::SubDetector SubDetector;
 
-    virtual ~GeomDetType();
+  GeomDetType(const std::string& name, SubDetector subdet);
 
-    virtual const Topology& topology() const = 0;
+  virtual ~GeomDetType();
 
-    const std::string& name() const {return theName;}
+  virtual const Topology& topology() const = 0;
 
-    SubDetector subDetector() const {return theSubDet;}
+  const std::string& name() const { return theName; }
 
-    bool isBarrel() const;
-    bool isEndcap() const;
+  SubDetector subDetector() const { return theSubDet; }
 
-    bool isTrackerStrip() const;
-    bool isTrackerPixel() const;
-    bool isTracker()      const;
-    bool isDT()           const;
-    bool isCSC()          const;
-    bool isRPC()          const;
-    bool isGEM()          const;
-    bool isME0()          const;
-    bool isMuon()         const;
-    bool isTiming()       const;
+  bool isBarrel() const;
+  bool isEndcap() const;
+
+  bool isTrackerStrip() const;
+  bool isTrackerPixel() const;
+  bool isInnerTracker() const;
+  bool isOuterTracker() const;
+  bool isTracker() const;
+  bool isDT() const;
+  bool isCSC() const;
+  bool isRPC() const;
+  bool isGEM() const;
+  bool isME0() const;
+  bool isMuon() const;
+  bool isTiming() const;
 
 private:
-
-    std::string theName;
-    SubDetector theSubDet;
+  std::string theName;
+  SubDetector theSubDet;
 };
 
 #endif

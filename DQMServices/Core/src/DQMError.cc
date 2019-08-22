@@ -7,9 +7,7 @@
 static const char FAILED[] = "(out of memory while formatting error message)";
 #endif
 
-void
-raiseDQMError(const char *context, const char *fmt, ...)
-{
+void raiseDQMError(const char *context, const char *fmt, ...) {
   va_list args;
   char *message = nullptr;
 

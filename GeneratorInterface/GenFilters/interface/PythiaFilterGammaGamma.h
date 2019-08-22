@@ -4,7 +4,7 @@
 //
 // Package:    GeneratorInterface/GenFilters
 // Class:      PythiaFilterGammaGamma
-// 
+//
 // Original Author:  Matteo Sani
 //
 //
@@ -23,13 +23,13 @@ namespace edm {
 }
 
 class PythiaFilterGammaGamma : public edm::global::EDFilter<> {
- public:
+public:
   explicit PythiaFilterGammaGamma(const edm::ParameterSet&);
   ~PythiaFilterGammaGamma() override;
-  
-  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
- private:
 
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
   const edm::EDGetTokenT<edm::HepMCProduct> token_;
 
   /** the actual implementation of the filter,
@@ -39,6 +39,5 @@ class PythiaFilterGammaGamma : public edm::global::EDFilter<> {
       while BaseHepMCFilter::filter() is not.
  */
   std::unique_ptr<PythiaHepMCFilterGammaGamma> hepMCFilter_;
-
 };
 #endif

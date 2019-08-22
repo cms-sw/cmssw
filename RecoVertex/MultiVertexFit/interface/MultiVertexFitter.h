@@ -12,8 +12,7 @@
 #include "RecoVertex/LinearizationPointFinders/interface/DefaultLinearizationPointFinder.h"
 #include "RecoVertex/MultiVertexFit/interface/LinTrackCache.h"
 
-class MultiVertexFitter
-{
+class MultiVertexFitter {
 public:
   /**
    *  \class MultiVertexFitter
@@ -33,26 +32,24 @@ public:
    *
    */
 
-  MultiVertexFitter( const AnnealingSchedule & sched = DefaultMVFAnnealing(),
-                     const LinearizationPointFinder & seeder = 
-                        DefaultLinearizationPointFinder(),
-                     float revive_below = -1. );
-  MultiVertexFitter( const MultiVertexFitter & );
+  MultiVertexFitter(const AnnealingSchedule &sched = DefaultMVFAnnealing(),
+                    const LinearizationPointFinder &seeder = DefaultLinearizationPointFinder(),
+                    float revive_below = -1.);
+  MultiVertexFitter(const MultiVertexFitter &);
   ~MultiVertexFitter();
 
-  typedef std::pair < reco::TransientTrack, float > TrackAndWeight;
-  typedef std::map < int , double > SeedToWeightMap;
-  typedef std::map < reco::TransientTrack, SeedToWeightMap > TrackAndSeedToWeightMap;
+  typedef std::pair<reco::TransientTrack, float> TrackAndWeight;
+  typedef std::map<int, double> SeedToWeightMap;
+  typedef std::map<reco::TransientTrack, SeedToWeightMap> TrackAndSeedToWeightMap;
 
   /**
    * Supply simple clusters of reco::TransientTracks.
    * \paramname primaries: supply tracks which are hard coded
    * to the primary vertex.
    */
-  std::vector < CachingVertex<5> > vertices ( 
-      const std::vector < std::vector < reco::TransientTrack > > &,
-      const std::vector < reco::TransientTrack > & primaries =
-       std::vector < reco::TransientTrack > () );
+  std::vector<CachingVertex<5> > vertices(
+      const std::vector<std::vector<reco::TransientTrack> > &,
+      const std::vector<reco::TransientTrack> &primaries = std::vector<reco::TransientTrack>());
 
   /**
    *  Supply clusters of tracks with weights, association weights of the other
@@ -61,60 +58,57 @@ public:
    * \paramname primaries: supply tracks which are hard coded
    * to the primary vertex.
    */
-  std::vector < CachingVertex<5> > vertices (
-      const std::vector < std::vector < TrackAndWeight > > &,
-      const std::vector < reco::TransientTrack > & primaries =
-       std::vector < reco::TransientTrack > () );
+  std::vector<CachingVertex<5> > vertices(
+      const std::vector<std::vector<TrackAndWeight> > &,
+      const std::vector<reco::TransientTrack> &primaries = std::vector<reco::TransientTrack>());
 
   /**
    *  Supply full CachingVertices; CachingVertices are the first seeds.
    * \paramname primaries: supply tracks which are hard coded
    * to the primary vertex.
    */
-  std::vector < CachingVertex<5> > vertices (
-      const std::vector < CachingVertex<5> > &,
-      const std::vector < reco::TransientTrack > & primaries =
-       std::vector < reco::TransientTrack > () );
+  std::vector<CachingVertex<5> > vertices(
+      const std::vector<CachingVertex<5> > &,
+      const std::vector<reco::TransientTrack> &primaries = std::vector<reco::TransientTrack>());
 
   /**
    *  Same as above.
    */
-  std::vector < CachingVertex<5> > vertices ( const std::vector < TransientVertex > &,
-     const std::vector < reco::TransientTrack > & primaries =
-     std::vector < reco::TransientTrack > () );
+  std::vector<CachingVertex<5> > vertices(
+      const std::vector<TransientVertex> &,
+      const std::vector<reco::TransientTrack> &primaries = std::vector<reco::TransientTrack>());
 
 private:
-  std::vector < CachingVertex<5> > fit();
+  std::vector<CachingVertex<5> > fit();
   void lostVertexClaimer();
   void updateWeights();
   bool updateSeeds();
 
   void clear();
-  void createSeed ( const std::vector < reco::TransientTrack > & tracks );
-  void createSeed ( const std::vector < TrackAndWeight > & tracks );
-  void createPrimaries ( const std::vector < reco::TransientTrack > &tracks );
+  void createSeed(const std::vector<reco::TransientTrack> &tracks);
+  void createSeed(const std::vector<TrackAndWeight> &tracks);
+  void createPrimaries(const std::vector<reco::TransientTrack> &tracks);
   void printWeights() const;
-  void printWeights( const reco::TransientTrack & ) const;
+  void printWeights(const reco::TransientTrack &) const;
   void printSeeds() const;
 
   int seedNr();
   void resetSeedNr();
 
 private:
-
   typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
   // vertex seeds. Come with a seed number
   // makes the weight table simpler, faster,
   // and more reliable (I hope)
-  std::vector < std::pair < int, CachingVertex<5> > > theVertexStates;
+  std::vector<std::pair<int, CachingVertex<5> > > theVertexStates;
   int theVertexStateNr;
   float theReviveBelow;
-  std::vector < reco::TransientTrack > theTracks;
-  std::set < reco::TransientTrack > thePrimaries;
-  AnnealingSchedule * theAssComp;
-  LinearizationPointFinder * theSeeder;
+  std::vector<reco::TransientTrack> theTracks;
+  std::set<reco::TransientTrack> thePrimaries;
+  AnnealingSchedule *theAssComp;
+  LinearizationPointFinder *theSeeder;
   TrackAndSeedToWeightMap theWeights;
   LinTrackCache theCache;
 };

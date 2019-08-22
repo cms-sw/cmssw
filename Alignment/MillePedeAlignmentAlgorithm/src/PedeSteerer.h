@@ -14,11 +14,11 @@
  */
 
 #include <vector>
-#include <map> 
-#include <set> 
+#include <map>
+#include <set>
 #include <string>
 // forward ofstream:
-#include <iosfwd> 
+#include <iosfwd>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
@@ -34,20 +34,23 @@ class PedeSteererWeakModeConstraints;
 
 /***************************************
 ****************************************/
-class PedeSteerer
-{
- public:
+class PedeSteerer {
+public:
   /// constructor from AlignableTracker/AlignableMuon, their AlignmentParameterStore and the labeler
   /// (NOTE: The latter two must live longer than the constructed PedeSteerer!)
-  PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras,
-	      AlignmentParameterStore *store,
-	      const PedeLabelerBase *labels, const edm::ParameterSet &config,
-	      const std::string &defaultDir, bool noSteerFiles);
+  PedeSteerer(AlignableTracker *aliTracker,
+              AlignableMuon *aliMuon,
+              AlignableExtras *aliExtras,
+              AlignmentParameterStore *store,
+              const PedeLabelerBase *labels,
+              const edm::ParameterSet &config,
+              const std::string &defaultDir,
+              bool noSteerFiles);
   /** non-virtual destructor: do not inherit from this class **/
   ~PedeSteerer();
-    
+
   /// True if 'ali' was deselected from hierarchy and any ancestor (e.g. mother) has parameters.
-  bool isNoHiera(const Alignable* ali) const;
+  bool isNoHiera(const Alignable *ali) const;
 
   /// construct steering files about hierarchy, fixing etc. an keep track of their names
   void buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras);
@@ -58,80 +61,83 @@ class PedeSteerer
   /// If reference alignables have been configured, shift everything such that mean
   /// position and orientation of dets in these alignables are zero.
   void correctToReferenceSystem();
-  bool isCorrectToRefSystem(const align::Alignables& coordDefiners) const;
-
+  bool isCorrectToRefSystem(const align::Alignables &coordDefiners) const;
 
   double cmsToPedeFactor(unsigned int parNum) const;
   /// results from pede (and start values for pede) might need a sign flip
   int parameterSign() const { return myParameterSign; }
   /// directory from constructor input, '/' is attached if needed
-  const std::string& directory() const { return myDirectory;}
+  const std::string &directory() const { return myDirectory; }
 
- private:
-  typedef std::map<const Alignable*,std::vector<float> > AlignablePresigmasMap;
+private:
+  typedef std::map<const Alignable *, std::vector<float> > AlignablePresigmasMap;
 
   /// Checks whether SelectionUserVariables that might be attached to alis' AlignmentParameters
   /// (these must exist) are all known.
-  bool checkParameterChoices(const align::Alignables&) const;
+  bool checkParameterChoices(const align::Alignables &) const;
   /// Store Alignables that have SelectionUserVariables attached to their AlignmentParameters
   /// (these must exist) that indicate removal from hierarchy, i.e. make it 'top level'.
-  unsigned int buildNoHierarchyCollection(const align::Alignables&);
+  unsigned int buildNoHierarchyCollection(const align::Alignables &);
   /// Checks whether 'alignables' have SelectionUserVariables attached to their AlignmentParameters
   /// (these must exist) that indicate fixation of a parameter, a steering 'file'
   /// is created accordingly.
   /// Returns number of parameters fixed at 0 and at 'nominal truth'.
-  std::pair<unsigned int, unsigned int> fixParameters(const align::Alignables&,
-						      const std::string &file);
+  std::pair<unsigned int, unsigned int> fixParameters(const align::Alignables &, const std::string &file);
   /// If 'selector' means fixing, create corresponding steering file line in file pointed to
   /// by 'filePtr'. If 'filePtr == 0' create file with name 'fileName'
   /// (and return pointer via reference).
-  int fixParameter(Alignable *ali, unsigned int iRunRange,
-		   unsigned int iParam, char selector, std::ofstream* &filePtr,
-		   const std::string &fileName);
+  int fixParameter(Alignable *ali,
+                   unsigned int iRunRange,
+                   unsigned int iParam,
+                   char selector,
+                   std::ofstream *&filePtr,
+                   const std::string &fileName);
   /// Return 'alignables' that have SelectionUserVariables attached to their AlignmentParameters
   /// (these must exist) that indicate a definition of a coordinate system.
   /// Throws if ill defined reference objects.
-  align::Alignables selectCoordinateAlis(const align::Alignables&) const;
+  align::Alignables selectCoordinateAlis(const align::Alignables &) const;
   /// Create steering file with constraints defining coordinate system via hierarchy constraints
   /// between 'aliMaster' and 'alis'; 'aliMaster' must not have parameters: would not make sense!
-  void defineCoordinates(const align::Alignables&, Alignable *aliMaster,
-			 const std::string &fileName);
+  void defineCoordinates(const align::Alignables &, Alignable *aliMaster, const std::string &fileName);
 
-  unsigned int hierarchyConstraints(const align::Alignables&, const std::string &file);
-  void hierarchyConstraint(const Alignable *ali, const align::Alignables& components,
-			   std::ofstream &file) const;
+  unsigned int hierarchyConstraints(const align::Alignables &, const std::string &file);
+  void hierarchyConstraint(const Alignable *ali, const align::Alignables &components, std::ofstream &file) const;
 
   /// interprete content of presigma VPSet 'cffPresi' and call presigmasFile
   unsigned int presigmas(const std::vector<edm::ParameterSet> &cffPresi,
-			 const std::string &fileName, const align::Alignables&,
-			 AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras);
-  /// look for active 'alis' in map of presigma values and create steering file 
-  unsigned int presigmasFile(const std::string &fileName, const align::Alignables&,
-			     const AlignablePresigmasMap &aliPresisMap); 
+                         const std::string &fileName,
+                         const align::Alignables &,
+                         AlignableTracker *aliTracker,
+                         AlignableMuon *aliMuon,
+                         AlignableExtras *aliExtras);
+  /// look for active 'alis' in map of presigma values and create steering file
+  unsigned int presigmasFile(const std::string &fileName,
+                             const align::Alignables &,
+                             const AlignablePresigmasMap &aliPresisMap);
   /// full name with directory and 'idenitfier'
   std::string fileName(const std::string &addendum) const;
   /// create and open file with name, if (addToList) append to mySteeringFiles
-  std::ofstream* createSteerFile(const std::string &name, bool addToList);
+  std::ofstream *createSteerFile(const std::string &name, bool addToList);
 
   // data members
-  const AlignmentParameterStore *myParameterStore; /// not the owner!
-  const PedeLabelerBase         *myLabels; /// pointer to labeler (not the owner)
+  const AlignmentParameterStore *myParameterStore;  /// not the owner!
+  const PedeLabelerBase *myLabels;                  /// pointer to labeler (not the owner)
   const AlignableObjectId alignableObjectId_;
 
   const edm::ParameterSet myConfig;
-  std::string myDirectory; /// directory of all files
-  bool myNoSteerFiles; /// flag to write steering files to /dev/null
-  bool myIsSteerFileDebug; /// whether or not to fill pede steering files with debug info
-  int myParameterSign; /// old pede versions (before May '07) need a sign flip...
-  double theMinHieraConstrCoeff; /// min absolute value of coefficients in hierarchy constraints
-  unsigned int theMinHieraParPerConstr; /// hierarchy constraints with less params are ignored
-  unsigned int theConstrPrecision; /// precision for writing constraints to text file
-  
-  std::vector<std::string> mySteeringFiles; /// keeps track of created 'secondary' steering files
+  std::string myDirectory;               /// directory of all files
+  bool myNoSteerFiles;                   /// flag to write steering files to /dev/null
+  bool myIsSteerFileDebug;               /// whether or not to fill pede steering files with debug info
+  int myParameterSign;                   /// old pede versions (before May '07) need a sign flip...
+  double theMinHieraConstrCoeff;         /// min absolute value of coefficients in hierarchy constraints
+  unsigned int theMinHieraParPerConstr;  /// hierarchy constraints with less params are ignored
+  unsigned int theConstrPrecision;       /// precision for writing constraints to text file
 
-  std::set<const Alignable*> myNoHieraCollection; /// Alignables deselected for hierarchy constr.
-  Alignable *theCoordMaster;                      /// master coordinates, must (?) be global frame
-  align::Alignables theCoordDefiners;             /// Alignables selected to define coordinates
+  std::vector<std::string> mySteeringFiles;  /// keeps track of created 'secondary' steering files
+
+  std::set<const Alignable *> myNoHieraCollection;  /// Alignables deselected for hierarchy constr.
+  Alignable *theCoordMaster;                        /// master coordinates, must (?) be global frame
+  align::Alignables theCoordDefiners;               /// Alignables selected to define coordinates
 };
 
 #endif

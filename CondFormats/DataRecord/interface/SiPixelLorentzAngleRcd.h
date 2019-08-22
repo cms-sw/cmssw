@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelLorentzAngleRcd
-// 
+//
 /**\class SiPixelLorentzAngleRcd SiPixelLorentzAngleRcd.h CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Mon Jun 25 15:48:11 CEST 2007
 // $Id$
 //

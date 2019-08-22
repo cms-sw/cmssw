@@ -9,12 +9,10 @@
 #include <cstdint>
 
 class TotemVDetectorOrganization {
-
 public:
   TotemVDetectorOrganization(){};
-  virtual ~TotemVDetectorOrganization(){};   
-  virtual uint32_t getUnitID(const  G4Step* aStep) const =0;
-};      
-
+  virtual ~TotemVDetectorOrganization(){};
+  virtual uint32_t getUnitID(const G4Step* aStep) const = 0;
+};
 
 #endif

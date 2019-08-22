@@ -7,7 +7,6 @@
 // I would like to thank the EvtGen developers, in particular John Black, and Mikhail Kirsanov for their assistance.
 //
 
-
 #ifndef gen_EvtGenInterface_h
 #define gen_EvtGenInterface_h
 
@@ -29,48 +28,48 @@ class myEvtRandomEngine;
 namespace HepMC {
   class GenParticle;
   class GenEvent;
-}				
+}  // namespace HepMC
 
-class EvtId; 
+class EvtId;
 class EvtGen;
 
 namespace gen {
-   class EvtGenInterface : public EvtGenInterfaceBase {
-     public:
+  class EvtGenInterface : public EvtGenInterfaceBase {
+  public:
     // ctor & dtor
-    EvtGenInterface( const edm::ParameterSet& );
+    EvtGenInterface(const edm::ParameterSet&);
     ~EvtGenInterface() override;
-    
+
     void init() override;
-    const std::vector<int>& operatesOnParticles() override { return m_PDGs; }      
-    HepMC::GenEvent* decay( HepMC::GenEvent* ) override;
+    const std::vector<int>& operatesOnParticles() override { return m_PDGs; }
+    HepMC::GenEvent* decay(HepMC::GenEvent*) override;
     void setRandomEngine(CLHEP::HepRandomEngine* v) override;
     static double flat();
-    
+
   private:
-    bool addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt, HepMC::GenEvent* theEvent, bool del_daug); 
-    void update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p);
+    bool addToHepMC(HepMC::GenParticle* partHep, const EvtId& idEvt, HepMC::GenEvent* theEvent, bool del_daug);
+    void update_particles(HepMC::GenParticle* partHep, HepMC::GenEvent* theEvent, HepMC::GenParticle* p);
     void SetDefault_m_PDGs();
-    bool findLastinChain(HepMC::GenParticle* &p);    
+    bool findLastinChain(HepMC::GenParticle*& p);
     bool hasnoDaughter(HepMC::GenParticle* p);
     void go_through_daughters(EvtParticle* part);
 
-    EvtGen *m_EvtGen;                // EvtGen main  object
+    EvtGen* m_EvtGen;  // EvtGen main  object
 
-    std::vector<EvtId> forced_id;     // EvtGen Id's of particles  which are to be forced by EvtGen
-    std::vector<int> forced_pdgids;    // PDG Id's of particles which are to be forced by EvtGen
-    
+    std::vector<EvtId> forced_id;    // EvtGen Id's of particles  which are to be forced by EvtGen
+    std::vector<int> forced_pdgids;  // PDG Id's of particles which are to be forced by EvtGen
+
     std::vector<int> ignore_pdgids;  // HepId's of particles  which are to be ignroed by EvtGen
-    
+
     // Adding parameters for polarization of spin-1/2 particles
     std::vector<int> polarize_ids;
     std::vector<double> polarize_pol;
     std::map<int, float> polarizations;
-    int BmixingOption = 1;        
+    int BmixingOption = 1;
     edm::ParameterSet* fPSet;
 
     static CLHEP::HepRandomEngine* fRandomEngine;
     myEvtRandomEngine* the_engine;
   };
-}
+}  // namespace gen
 #endif

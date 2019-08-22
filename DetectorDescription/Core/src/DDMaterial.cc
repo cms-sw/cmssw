@@ -12,7 +12,7 @@
 using DDI::Material;
 using namespace geant_units::operators;
 
-DDMaterial::DDMaterial() : DDBase< DDName, std::unique_ptr<Material>>() { }
+DDMaterial::DDMaterial() : DDBase<DDName, std::unique_ptr<Material>>() {}
 
 /**
    If a DDMaterial with \a name was already defined, this constructor creates a
@@ -22,11 +22,7 @@ DDMaterial::DDMaterial() : DDBase< DDName, std::unique_ptr<Material>>() { }
    For further details concerning the usage of reference-objects refere
    to the documentation of DDLogicalPart.
 */
-DDMaterial::DDMaterial( const DDName & name )
-  : DDBase< DDName, std::unique_ptr<Material>>()
-{ 
-  create( name );
-}
+DDMaterial::DDMaterial(const DDName &name) : DDBase<DDName, std::unique_ptr<Material>>() { create(name); }
 
 /** 
    \arg \c z atomic number
@@ -41,10 +37,8 @@ DDMaterial::DDMaterial( const DDName & name )
                           density=2*g/cm3);
    \endcode  
 */
-DDMaterial::DDMaterial( const DDName & name, double z, double a, double d )
-  : DDBase< DDName, std::unique_ptr<Material>>()
-{ 
-  create( name, std::make_unique<Material>( z, a, d ));
+DDMaterial::DDMaterial(const DDName &name, double z, double a, double d) : DDBase<DDName, std::unique_ptr<Material>>() {
+  create(name, std::make_unique<Material>(z, a, d));
 }
 
 /** 
@@ -59,77 +53,49 @@ DDMaterial::DDMaterial( const DDName & name, double z, double a, double d )
    For further details concerning the usage of reference-objects refere
    to the documentation of DDLogicalPart.      
 */
-DDMaterial::DDMaterial( const DDName & name, double density )
-  : DDBase< DDName, std::unique_ptr<Material>>()
-{ 
-  create( name, std::make_unique<Material>( 0, 0, density ));
+DDMaterial::DDMaterial(const DDName &name, double density) : DDBase<DDName, std::unique_ptr<Material>>() {
+  create(name, std::make_unique<Material>(0, 0, density));
 }
 
 /** 
   The fraction-masses of all compounds must sum up to 1
 */
-int
-DDMaterial::addMaterial( const DDMaterial & m, double fm )
-{  
-  if( m.ddname() == ddname()) {
-    throw cms::Exception("DDException") << "DDMaterial::addMaterial(..): name-clash\n        trying to add material " << m << " to itself! ";
-  }  
-  rep().addMaterial( m, fm );
+int DDMaterial::addMaterial(const DDMaterial &m, double fm) {
+  if (m.ddname() == ddname()) {
+    throw cms::Exception("DDException") << "DDMaterial::addMaterial(..): name-clash\n        trying to add material "
+                                        << m << " to itself! ";
+  }
+  rep().addMaterial(m, fm);
   return rep().noOfConstituents();
 }
 
-int
-DDMaterial::noOfConstituents() const
-{
-   return rep().noOfConstituents();
-}
+int DDMaterial::noOfConstituents() const { return rep().noOfConstituents(); }
 
-DDMaterial::FractionV::value_type DDMaterial::constituent( int i ) const 
-{ 
-  return rep().constituent( i );
-}
+DDMaterial::FractionV::value_type DDMaterial::constituent(int i) const { return rep().constituent(i); }
 
-double
-DDMaterial::a() const
-{
-  return rep().a(); 
-}
+double DDMaterial::a() const { return rep().a(); }
 
-double
-DDMaterial::z() const
-{
-  return rep().z(); 
-}
+double DDMaterial::z() const { return rep().z(); }
 
-double DDMaterial::density() const
-{
-  return rep().density(); 
-}
+double DDMaterial::density() const { return rep().density(); }
 
 namespace {
-  std::ostream &doStream(std::ostream & os, const DDMaterial & mat, int level)
-  {
-    ++level; 
+  std::ostream &doStream(std::ostream &os, const DDMaterial &mat, int level) {
+    ++level;
     if (mat) {
-      os << '[' << mat.name() <<']' << " z=" << mat.z()
-	 << " a=" << convertUnitsTo(1._g_per_mole, mat.a()) << "*g/mole"
-	 << " d=" << convertUnitsTo(1._g_per_cm3 , mat.density()) << "*g/cm3";
-      std::string s(2*level,' ');
-      for (int i=0; i<mat.noOfConstituents(); ++i) {
-         DDMaterial::FractionV::value_type f = mat.constituent(i);
-         os << std::endl << s << i+1 << " : fm=" << f.second
-                    << " : ";
-         doStream(os, f.first, level);
+      os << '[' << mat.name() << ']' << " z=" << mat.z() << " a=" << convertUnitsTo(1._g_per_mole, mat.a()) << "*g/mole"
+         << " d=" << convertUnitsTo(1._g_per_cm3, mat.density()) << "*g/cm3";
+      std::string s(2 * level, ' ');
+      for (int i = 0; i < mat.noOfConstituents(); ++i) {
+        DDMaterial::FractionV::value_type f = mat.constituent(i);
+        os << std::endl << s << i + 1 << " : fm=" << f.second << " : ";
+        doStream(os, f.first, level);
       }
-    }
-    else
+    } else
       os << "* material not declared * ";
     --level;
     return os;
   }
-}
+}  // namespace
 
-std::ostream & operator<<(std::ostream & os, const DDMaterial & mat)
-{ 
-  return doStream( os, mat, 0 );
-}
+std::ostream &operator<<(std::ostream &os, const DDMaterial &mat) { return doStream(os, mat, 0); }

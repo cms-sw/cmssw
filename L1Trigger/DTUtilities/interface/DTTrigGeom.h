@@ -39,7 +39,6 @@
 //              ---------------------
 
 class DTTrigGeom {
-
 public:
   /// Constructor
   DTTrigGeom(const DTChamber *stat, bool debug);
@@ -86,9 +85,7 @@ public:
   float ZSL(int) const;
 
   /// Number of BTIs in a required superlayer (i.e. nCells in lay 1)
-  inline int nCell(int sl) const {
-    return (sl > 0 && sl <= 3) * _NCELL[sl - 1];
-  }
+  inline int nCell(int sl) const { return (sl > 0 && sl <= 3) * _NCELL[sl - 1]; }
 
   // NEWGEOmetry update
   /// Staggering of first wire of layer respect to default: obsolete 19/6/06
@@ -110,24 +107,16 @@ public:
   // Local and global position of a trigger object
 
   /// Go to CMS coordinate system for a point
-  GlobalPoint toGlobal(const LocalPoint p) const {
-    return _stat->surface().toGlobal(p);
-  }
+  GlobalPoint toGlobal(const LocalPoint p) const { return _stat->surface().toGlobal(p); }
 
   /// Go to CMS coordinate system for a vector
-  GlobalVector toGlobal(const LocalVector v) const {
-    return _stat->surface().toGlobal(v);
-  }
+  GlobalVector toGlobal(const LocalVector v) const { return _stat->surface().toGlobal(v); }
 
   /// Go to Local coordinate system for a point
-  LocalPoint toLocal(const GlobalPoint p) const {
-    return _stat->surface().toLocal(p);
-  }
+  LocalPoint toLocal(const GlobalPoint p) const { return _stat->surface().toLocal(p); }
 
   /// Go to Local coordinate system for a vector
-  LocalVector toLocal(const GlobalVector v) const {
-    return _stat->surface().toLocal(v);
-  }
+  LocalVector toLocal(const GlobalVector v) const { return _stat->surface().toLocal(v); }
 
   /*!
       \verbatim
@@ -185,14 +174,10 @@ public:
   LocalPoint localPosition(const DTTracoId) const;
 
   /// CMS position of a BTI
-  inline GlobalPoint CMSPosition(const DTBtiId obj) const {
-    return toGlobal(localPosition(obj));
-  }
+  inline GlobalPoint CMSPosition(const DTBtiId obj) const { return toGlobal(localPosition(obj)); }
 
   /// CMS position of a TRACO
-  inline GlobalPoint CMSPosition(const DTTracoId obj) const {
-    return toGlobal(localPosition(obj));
-  }
+  inline GlobalPoint CMSPosition(const DTTracoId obj) const { return toGlobal(localPosition(obj)); }
 
   /// Dump the geometry
   void dumpGeom() const;
@@ -206,14 +191,14 @@ private:
   void getGeom();
 
 private:
-  const DTChamber *_stat; // Pointer to the chamber
+  const DTChamber *_stat;  // Pointer to the chamber
 
   // geometrical parameters
-  float _PHICH;  // angle of normal to the chamber in CMS frame (rad)
-  float _H;      // height of a cell (cm)
-  float _PITCH;  // width of a cell (cm)
-  float _ZSL[3]; // Z coordinate of SL centers
-  int _NCELL[3]; // number of cells (BTI) in SL each SL
+  float _PHICH;   // angle of normal to the chamber in CMS frame (rad)
+  float _H;       // height of a cell (cm)
+  float _PITCH;   // width of a cell (cm)
+  float _ZSL[3];  // Z coordinate of SL centers
+  int _NCELL[3];  // number of cells (BTI) in SL each SL
   bool _debug;
 };
 

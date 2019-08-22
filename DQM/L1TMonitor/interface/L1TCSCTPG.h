@@ -22,7 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -40,24 +39,22 @@
 //
 
 class L1TCSCTPG : public DQMEDAnalyzer {
-
 public:
+  // Constructor
+  L1TCSCTPG(const edm::ParameterSet& ps);
 
-// Constructor
-L1TCSCTPG(const edm::ParameterSet& ps);
-
-// Destructor
-~L1TCSCTPG() override;
+  // Destructor
+  ~L1TCSCTPG() override;
 
 protected:
-// Analyze
+  // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
 
 private:
   // ----------member data ---------------------------
- 
+
   MonitorElement* csctpgpattern;
   MonitorElement* csctpgquality;
   MonitorElement* csctpgwg;
@@ -66,8 +63,8 @@ private:
   MonitorElement* csctpgbend;
   MonitorElement* csctpgbx;
 
-  int nev_; // Number of events processed
-  std::string outputFile_; //file name for ROOT ouput
+  int nev_;                 // Number of events processed
+  std::string outputFile_;  //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
   std::ofstream logFile_;

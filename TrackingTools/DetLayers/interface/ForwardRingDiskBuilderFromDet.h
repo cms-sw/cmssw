@@ -18,14 +18,11 @@ class SimpleDiskBounds;
 
 class ForwardRingDiskBuilderFromDet {
 public:
-
   /// Warning, remember to assign this pointer to a ReferenceCountingPointer!
   /// Should be changed to return a ReferenceCountingPointer<BoundDisk>
-  BoundDisk* operator()( const std::vector<const GeomDet*>& dets) const;
-  
-  std::pair<SimpleDiskBounds *, float>
-  computeBounds( const std::vector<const GeomDet*>& dets) const;
+  BoundDisk* operator()(const std::vector<const GeomDet*>& dets) const;
 
+  std::pair<SimpleDiskBounds*, float> computeBounds(const std::vector<const GeomDet*>& dets) const;
 };
 
 #endif

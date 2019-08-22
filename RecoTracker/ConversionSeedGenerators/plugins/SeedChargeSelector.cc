@@ -5,9 +5,8 @@
 
 namespace reco {
   namespace modules {
-    typedef SingleObjectSelector<TrajectorySeedCollection,::SeedChargeSelector> 
-    SeedChargeSelector;
+    typedef SingleObjectSelector<TrajectorySeedCollection, ::SeedChargeSelector> SeedChargeSelector;
 
-    DEFINE_FWK_MODULE( SeedChargeSelector );
-  }
-}
+    DEFINE_FWK_MODULE(SeedChargeSelector);
+  }  // namespace modules
+}  // namespace reco

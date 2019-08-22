@@ -8,7 +8,6 @@
  *
  ****************************************************************************/
 
-
 #ifndef DataFormats_CTPPSReco_CTPPSTimingLocalTrack
 #define DataFormats_CTPPSReco_CTPPSTimingLocalTrack
 
@@ -17,77 +16,76 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class CTPPSTimingLocalTrack
-{
-  public:
-    CTPPSTimingLocalTrack();
-    CTPPSTimingLocalTrack( const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma,
-                           float t, float t_sigma );
+class CTPPSTimingLocalTrack {
+public:
+  CTPPSTimingLocalTrack();
+  CTPPSTimingLocalTrack(const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma, float t, float t_sigma);
 
-    enum class CheckDimension { x, y, all };
-    bool containsHit( const CTPPSTimingRecHit& recHit, float tolerance = 0.1f, CheckDimension check = CheckDimension::all ) const;
+  enum class CheckDimension { x, y, all };
+  bool containsHit(const CTPPSTimingRecHit& recHit,
+                   float tolerance = 0.1f,
+                   CheckDimension check = CheckDimension::all) const;
 
-    //--- spatial get'ters
+  //--- spatial get'ters
 
-    inline float getX0() const { return pos0_.x(); }
-    inline float getX0Sigma() const { return pos0_sigma_.x(); }
+  inline float getX0() const { return pos0_.x(); }
+  inline float getX0Sigma() const { return pos0_sigma_.x(); }
 
-    inline float getY0() const { return pos0_.y(); }
-    inline float getY0Sigma() const { return pos0_sigma_.y(); }
+  inline float getY0() const { return pos0_.y(); }
+  inline float getY0Sigma() const { return pos0_sigma_.y(); }
 
-    inline float getZ0() const { return pos0_.z(); }
-    inline float getZ0Sigma() const { return pos0_sigma_.z(); }
+  inline float getZ0() const { return pos0_.z(); }
+  inline float getZ0Sigma() const { return pos0_sigma_.z(); }
 
-    inline int getNumOfHits() const { return num_hits_; }
-    inline int getNumOfPlanes() const { return num_planes_; }
+  inline int getNumOfHits() const { return num_hits_; }
+  inline int getNumOfPlanes() const { return num_planes_; }
 
-    //--- spatial set'ters
+  //--- spatial set'ters
 
-    inline void setPosition( const math::XYZPoint& pos0 ) { pos0_ = pos0; }
-    inline void setPositionSigma( const math::XYZPoint& pos0_sigma ) { pos0_sigma_ = pos0_sigma; }
+  inline void setPosition(const math::XYZPoint& pos0) { pos0_ = pos0; }
+  inline void setPositionSigma(const math::XYZPoint& pos0_sigma) { pos0_sigma_ = pos0_sigma; }
 
-    inline void setNumOfHits( int num_hits )  { num_hits_ = num_hits; }
-    inline void setNumOfPlanes( int num_planes ) { num_planes_ = num_planes; }
+  inline void setNumOfHits(int num_hits) { num_hits_ = num_hits; }
+  inline void setNumOfPlanes(int num_planes) { num_planes_ = num_planes; }
 
-    //--- validity related members
+  //--- validity related members
 
-    inline bool isValid() const { return valid_; }
-    inline void setValid( bool valid ) { valid_ = valid; }
+  inline bool isValid() const { return valid_; }
+  inline void setValid(bool valid) { valid_ = valid; }
 
-    //--- temporal get'ters
+  //--- temporal get'ters
 
-    inline float getT() const { return t_; }
-    inline float getTSigma() const { return t_sigma_; }
+  inline float getT() const { return t_; }
+  inline float getTSigma() const { return t_sigma_; }
 
-    //--- temporal set'ters
+  //--- temporal set'ters
 
-    inline void setT( float t ) { t_ = t; }
-    inline void setTSigma( float t_sigma ) { t_sigma_ = t_sigma; }
+  inline void setT(float t) { t_ = t; }
+  inline void setTSigma(float t_sigma) { t_sigma_ = t_sigma; }
 
-  private:
-    //--- spatial information
+private:
+  //--- spatial information
 
-    /// initial track position
-    math::XYZPoint pos0_;
-    /// error on the initial track position
-    math::XYZPoint pos0_sigma_;
+  /// initial track position
+  math::XYZPoint pos0_;
+  /// error on the initial track position
+  math::XYZPoint pos0_sigma_;
 
-    /// number of hits participating in the track
-    int num_hits_;
+  /// number of hits participating in the track
+  int num_hits_;
 
-    /// number of planes participating in the track
-    int num_planes_;
+  /// number of planes participating in the track
+  int num_planes_;
 
-    /// fit valid?
-    bool valid_;
+  /// fit valid?
+  bool valid_;
 
-    //--- timing information
-    float t_;
-    float t_sigma_;
+  //--- timing information
+  float t_;
+  float t_sigma_;
 };
 
 /// Comparison operator
-bool operator<( const CTPPSTimingLocalTrack& lhs, const CTPPSTimingLocalTrack& rhs );
+bool operator<(const CTPPSTimingLocalTrack& lhs, const CTPPSTimingLocalTrack& rhs);
 
 #endif
-
