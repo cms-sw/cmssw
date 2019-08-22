@@ -167,8 +167,8 @@ std::unique_ptr<std::vector<GeometricDetExtra> > TrackerGeometricDetExtraESModul
     // FIXME:
     // traverse all components from the tracker down;
     // read the DD if from DD
-    const GeometricDet* tracker = &(gd);
-    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(dd4hepToken_);
+    // const GeometricDet* tracker = &(gd);
+    // edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(dd4hepToken_);
   } else {
     // if it is not from the DD, then just get the GDE from ES and match w/ GD.
     PGeometricDetExtra const& pgde = iRecord.getRecord<PGeometricDetExtraRcd>().get(pgToken_);
