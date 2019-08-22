@@ -38,7 +38,12 @@
 
 class GEMPadDigiClusterProducer : public edm::stream::EDProducer<> {
 public:
-  typedef std::map<GEMDetId, GEMPadDigiCluster> GEMPadDigiClusterContainer;
+  // all clusters per eta partition
+  typedef std::vector<GEMPadDigiCluster> GEMPadDigiClusters;
+  typedef std::map<GEMDetId, GEMPadDigiClusters > GEMPadDigiClusterContainer;
+
+  // all clusters sorted by chamber, by opthohybrid and by eta partition
+  typedef std::map<GEMDetId, std::vector< std::vector< std::pair< GEMDetId, GEMPadDigiClusters> > > > GEMPadDigiClusterSortedContainer;
 
   explicit GEMPadDigiClusterProducer(const edm::ParameterSet& ps);
 
@@ -90,7 +95,8 @@ private:
   */
 
   void buildClusters(const GEMPadDigiCollection& pads, GEMPadDigiClusterContainer& out_clusters) const;
-  void selectClusters(GEMPadDigiClusterContainer& in, GEMPadDigiClusterCollection& out) const;
+  void sortClusters(GEMPadDigiClusterContainer& in_clusters, GEMPadDigiClusterSortedContainer& out_clusters) const;
+  void selectClusters(GEMPadDigiClusterSortedContainer& in, GEMPadDigiClusterCollection& out) const;
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMPadDigiCollection> pad_token_;
@@ -146,12 +152,16 @@ void GEMPadDigiClusterProducer::produce(edm::Event& e, const edm::EventSetup& ev
   // Create empty output
   std::unique_ptr<GEMPadDigiClusterCollection> pClusters(new GEMPadDigiClusterCollection());
 
-  // build the proto clusters
+  // build the proto clusters (per partition)
   GEMPadDigiClusterContainer proto_clusters;
   buildClusters(*(hpads.product()), proto_clusters);
 
-  // select the clusters from proto clusters
-  selectClusters(proto_clusters, *pClusters);
+  // // sort clusters per chamber, per OH, per partition number and per pad number
+  GEMPadDigiClusterSortedContainer sorted_clusters;
+  sortClusters(proto_clusters, sorted_clusters);
+
+  // select the clusters from sorted clusters
+  selectClusters(sorted_clusters, *pClusters);
 
   // store them in the event
   e.put(std::move(pClusters));
@@ -164,9 +174,13 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
 
   // construct clusters
   for (const auto& part : geometry_->etaPartitions()) {
+
+    GEMPadDigiClusters all_pad_clusters;
+
     auto pads = det_pads.get(part->id());
     std::vector<uint16_t> cl;
     int startBX = 99;
+
     for (auto d = pads.first; d != pads.second; ++d) {
       if (cl.empty()) {
         cl.push_back((*d).pad());
@@ -178,7 +192,7 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
         } else {
           // put the current cluster in the proto collection
           GEMPadDigiCluster pad_cluster(cl, startBX);
-          proto_clusters.emplace(part->id(), pad_cluster);
+          all_pad_clusters.emplace_back(pad_cluster);
 
           // start a new cluster
           cl.clear();
@@ -187,49 +201,87 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
       }
       startBX = (*d).bx();
     }
+
     // put the last cluster in the proto collection
     if (pads.first != pads.second) {
       GEMPadDigiCluster pad_cluster(cl, startBX);
-      proto_clusters.emplace(part->id(), pad_cluster);
+      all_pad_clusters.emplace_back(pad_cluster);
     }
+    proto_clusters.emplace(part->id(), all_pad_clusters);
   }  // end of partition loop
 }
 
-void GEMPadDigiClusterProducer::selectClusters(GEMPadDigiClusterContainer& proto_clusters,
-                                               GEMPadDigiClusterCollection& out_clusters) const {
-  // construct clusters
+void GEMPadDigiClusterProducer::sortClusters(GEMPadDigiClusterContainer& proto_clusters, GEMPadDigiClusterSortedContainer& sorted_clusters) const {
+
+  // The sorting of the clusters favors lower eta partitions and lower pad numbers
+  // By default the eta partitions are sorted by Id
+
+  sorted_clusters.clear();
+
   for (const auto& ch : geometry_->chambers()) {
+
+    // check the station number
     const int station = ch->id().station();
     const bool isGE11 = (station == 1);
     const unsigned nOH = isGE11 ? nOHGE11_ : nOHGE21_;
-    const unsigned maxClustersOH = isGE11 ? maxClustersOHGE11_ : maxClustersOHGE21_;
     const unsigned nPartOH = ch->nEtaPartitions() / nOH;
 
-    // loop over all the optohybrids
+    std::vector<std::vector<std::pair<GEMDetId,GEMPadDigiClusters> > > temp_clustersCH;
+
     for (unsigned int iOH = 0; iOH < nOH; iOH++) {
+
       // all clusters for a set of eta partitions
-      GEMPadDigiClusterContainer temp_clusters;
+      std::vector<std::pair<GEMDetId,GEMPadDigiClusters> > temp_clustersOH;
 
       // loop over the 4 or 2 eta partitions for this optohybrid
       for (unsigned iPart = 0; iPart < nPartOH; iPart++) {
+
         // get the clusters for this eta partition
         const GEMDetId& partId = ch->etaPartition(iPart + iOH * nPartOH)->id();
-        temp_clusters.emplace(partId, proto_clusters[partId]);
-      }
 
-      // cluster selection: pick first maxClusters for now for each OH
-      unsigned loopMax = std::min(maxClustersOH, unsigned(temp_clusters.size()));
+        //GEMPadDigiClusterContainer temp_clustersEP;
+        //temp_clustersEP.emplace();
+
+        temp_clustersOH.emplace_back(partId, proto_clusters[partId]);
+      } // end of eta partition loop
+
+      temp_clustersCH.emplace_back(temp_clustersOH);
+    } // end of OH loop
+
+    sorted_clusters.emplace(ch->id(), temp_clustersCH);
+  } // end of chamber loop
+}
+
+void GEMPadDigiClusterProducer::selectClusters(GEMPadDigiClusterSortedContainer& sorted_clusters,
+                                               GEMPadDigiClusterCollection& out_clusters) const {
+
+  // loop over chambers
+  for (const auto& ch : geometry_->chambers()) {
+    const int station = ch->id().station();
+    const bool isGE11 = (station == 1);
+    const unsigned maxClustersOH = isGE11 ? maxClustersOHGE11_ : maxClustersOHGE21_;
+
+    // loop over the optohybrids
+    for (const auto& optohybrid : sorted_clusters[ch->id()]){
+
+      // at most maxClustersOH per OH!
       unsigned nClusters = 0;
-      for (const auto& p : temp_clusters) {
-        if (nClusters > loopMax)
-          break;
-        const auto& detid(p.first);
-        const auto& cluster(p.second);
-        // now add the clusters to the output collection
-        out_clusters.insertDigi(detid, cluster);
-        nClusters++;
-      }
-    }
+
+      // loop over the eta partitions for this OH
+      for (const auto& etapart : optohybrid){
+
+        const auto& detid(etapart.first);
+        const auto& clusters(etapart.second);
+
+        // pick the clusters with lowest pad number
+        for (const auto& clus : clusters) {
+          if (nClusters < maxClustersOH) {
+            out_clusters.insertDigi(detid, clus);
+            nClusters++;
+          }
+        } // end of cluster loop
+      } // end of eta partition loop
+    } // end of OH loop
   }  // end of chamber loop
 }
 
