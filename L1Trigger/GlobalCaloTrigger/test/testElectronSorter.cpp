@@ -305,6 +305,7 @@ void convertToGct(EmInputCandVec candidates) {
         } else {
           eta = 5;
         }
+        [[fallthrough]];
       case 3:
         phi = 0;
         if (region == 0) {
@@ -320,6 +321,7 @@ void convertToGct(EmInputCandVec candidates) {
         } else {
           eta = 3;
         }
+        [[fallthrough]];
       case 5:
         phi = 0;
         if (region == 0) {
