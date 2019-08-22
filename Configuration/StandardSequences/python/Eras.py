@@ -49,6 +49,9 @@ class Eras (object):
                  'Phase2C9',
                  'Phase2C9_timing',
                  'Phase2C9_timing_layer_bar',
+                 'Phase2C10',
+                 'Phase2C10_timing',
+                 'Phase2C10_timing_layer_bar',
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
