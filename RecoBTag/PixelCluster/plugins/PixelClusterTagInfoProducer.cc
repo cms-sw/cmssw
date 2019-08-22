@@ -105,9 +105,9 @@ PixelClusterTagInfoProducer::PixelClusterTagInfoProducer(const edm::ParameterSet
       m_isPhase1(iConfig.getParameter<bool>("isPhase1")),
       m_addFPIX(iConfig.getParameter<bool>("addForward")),
       m_minADC(iConfig.getParameter<int>("minAdcCount")),
-      m_minJetPt((float)iConfig.getParameter<double>("minJetPtCut")),
-      m_maxJetEta((float)iConfig.getParameter<double>("maxJetEtaCut")),
-      m_hadronMass((float)iConfig.getParameter<double>("hadronMass")),
+      m_minJetPt(iConfig.getParameter<double>("minJetPtCut")),
+      m_maxJetEta(iConfig.getParameter<double>("maxJetEtaCut")),
+      m_hadronMass(iConfig.getParameter<double>("hadronMass")),
       m_nLayers(m_isPhase1 ? 4 : 3) {
   produces<reco::PixelClusterTagInfoCollection>();
 }
