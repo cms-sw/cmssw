@@ -16,8 +16,6 @@ trackerGeometry.applyAlignment = cms.bool(False)
 # calo
 from Geometry.CaloEventSetup.HGCalV9Topology_cfi import *
 from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *
-from Geometry.CaloEventSetup.HFNoseTopology_cfi import *
-from Geometry.ForwardGeometry.HFNoseGeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
@@ -27,8 +25,7 @@ CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
                                 "TOWER",
                                 "HGCalEESensitive",
                                 "HGCalHESiliconSensitive",
-                                "HGCalHEScintillatorSensitive",
-                                "HGCalHFNoseSensitive",
+                                "HGCalHEScintillatorSensitive"
     )
 )
 from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
