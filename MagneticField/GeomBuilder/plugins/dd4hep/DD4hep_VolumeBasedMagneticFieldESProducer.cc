@@ -1,4 +1,4 @@
-/** \class VolBasedMagFieldESProducerNewDD
+/** \class DD4hep_VolumeBasedMagneticFieldESProducer
  *
  *  Producer for the VolumeBasedMagneticField.
  *
@@ -15,7 +15,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "MagneticField/GeomBuilder/plugins/dd4hep/MagGeoBuilder.h"
+#include "MagneticField/GeomBuilder/src/DD4hep_MagGeoBuilder.h"
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "DetectorDescription/DDCMS/interface/BenchmarkGrd.h"
@@ -30,14 +30,14 @@ using namespace cms;
 using namespace std;
 using namespace magneticfield;
 
-namespace magneticfield {
-  class VolBasedMagFieldESProducerNewDD : public edm::ESProducer {
+namespace cms {
+  class DD4hep_VolumeBasedMagneticFieldESProducer : public edm::ESProducer {
   public:
-    VolBasedMagFieldESProducerNewDD(const edm::ParameterSet& iConfig);
+    DD4hep_VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig);
 
     // forbid copy ctor and assignment op.
-    VolBasedMagFieldESProducerNewDD(const VolBasedMagFieldESProducerNewDD&) = delete;
-    const VolBasedMagFieldESProducerNewDD& operator=(const VolBasedMagFieldESProducerNewDD&) = delete;
+    DD4hep_VolumeBasedMagneticFieldESProducer(const DD4hep_VolumeBasedMagneticFieldESProducer&) = delete;
+    const DD4hep_VolumeBasedMagneticFieldESProducer& operator=(const DD4hep_VolumeBasedMagneticFieldESProducer&) = delete;
 
     std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord& iRecord);
 
@@ -52,14 +52,14 @@ namespace magneticfield {
   };
 }  // namespace magneticfield
 
-VolBasedMagFieldESProducerNewDD::VolBasedMagFieldESProducerNewDD(const edm::ParameterSet& iConfig)
+DD4hep_VolumeBasedMagneticFieldESProducer::DD4hep_VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig)
     : pset_{iConfig},
       debug_{iConfig.getUntrackedParameter<bool>("debugBuilder", false)},
       useParametrizedTrackerField_{iConfig.getParameter<bool>("useParametrizedTrackerField")},
       conf_{iConfig, debug_},
       version_{iConfig.getParameter<std::string>("version")} {
   // LogInfo used because LogDebug messages don't appear even when fully enabled.
-  edm::LogInfo("VolBasedMagFieldESProducerNewDD") << "info:Constructing a VolBasedMagFieldESProducerNewDD" << endl;
+  edm::LogInfo("DD4hep_VolumeBasedMagneticFieldESProducer") << "info:Constructing a DD4hep_VolumeBasedMagneticFieldESProducer" << endl;
 
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
   cc.setConsumes(cpvToken_, edm::ESInputTag{"", "magfield"});
@@ -69,9 +69,9 @@ VolBasedMagFieldESProducerNewDD::VolBasedMagFieldESProducerNewDD(const edm::Para
 }
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<MagneticField> VolBasedMagFieldESProducerNewDD::produce(const IdealMagneticFieldRecord& iRecord) {
+std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord) {
   if (debug_) {
-    edm::LogInfo("VolBasedMagFieldESProducerNewDD") << "VolBasedMagFieldESProducerNewDD::produce() " << version_;
+    edm::LogInfo("DD4hep_VolumeBasedMagneticFieldESProducer") << "DD4hep_VolumeBasedMagneticFieldESProducer::produce() " << version_;
   }
 
   MagGeoBuilder builder(conf_.version, conf_.geometryVersion, debug_);
@@ -90,12 +90,12 @@ std::unique_ptr<MagneticField> VolBasedMagFieldESProducerNewDD::produce(const Id
   const DDCompactView* cpvPtr = cpv.product();
   const DDDetector* det = cpvPtr->detector();
   builder.build(det);
-  edm::LogInfo("VolBasedMagFieldESProducerNewDD") << "produce() finished build";
+  edm::LogInfo("DD4hep_VolumeBasedMagneticFieldESProducer") << "produce() finished build";
 
   // Get slave field (from ES)
   const MagneticField* paramField = nullptr;
   if (useParametrizedTrackerField_) {
-    edm::LogInfo("VolBasedMagFieldESProducerNewDD") << "Getting MF for parametrized field";
+    edm::LogInfo("DD4hep_VolumeBasedMagneticFieldESProducer") << "Getting MF for parametrized field";
     paramField = &iRecord.get(paramFieldToken_);
   }
   return std::make_unique<VolumeBasedMagneticField>(conf_.geometryVersion,
@@ -109,4 +109,4 @@ std::unique_ptr<MagneticField> VolBasedMagFieldESProducerNewDD::produce(const Id
                                                     false);
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(VolBasedMagFieldESProducerNewDD);
+DEFINE_FWK_EVENTSETUP_MODULE(DD4hep_VolumeBasedMagneticFieldESProducer);
