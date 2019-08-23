@@ -10,8 +10,8 @@ The macro can be executed in two ways:
 
 List of arguments:
 - IOVlist:                 string containing the list of IOVs separated by a ","
-- Variables:               string containing the list of variables whose distribution is to be plotted: "median","DrmsNR"
-- labels:                  string containing labels that must be part of the input files
+- Variables:               string containing the list of variables whose distribution is to be plotted i.e. median,DrmsNR
+- labels:                  string containing labels that must be part of the input files separated by a ","
 - Year:                    string containing the year of the studied runs (needed to retrieve the lumi-per-run file)
 - pathtoDMRs:              string containing the path to the directory where the DMRs are stored
 - geometrieandcolours:     string containing the list of geometries and colors in the following way name1:color1,name2:color2 etc.
