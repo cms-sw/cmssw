@@ -13,17 +13,16 @@
 #include "BaseVolumeHandle.h"
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
-#include "DetectorDescription/DDCMS/interface/DDShapes.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "MagneticField/VolumeGeometry/interface/VolumeSide.h"
 
-namespace cms {
+namespace cms::dd4hepmagfield {
 
   typedef const char* ShapeType;
-  class DDFilteredView;
 
   class volumeHandle : public magneticfield::BaseVolumeHandle {
   public:
-    volumeHandle(const DDFilteredView& fv, bool expand2Pi = false, bool debugVal = false);
+    volumeHandle(const cms::DDFilteredView& fv, bool expand2Pi = false, bool debugVal = false);
 
     // Disallow Default/copy ctor & assignment op.
     // (we want to handle only pointers!!!)
@@ -38,7 +37,7 @@ namespace cms {
 
   private:
     // initialise the refPlane
-    void referencePlane(const DDFilteredView& fv);
+    void referencePlane(const cms::DDFilteredView& fv);
 
     // Build the surfaces for a box
     void buildBox();
@@ -53,9 +52,9 @@ namespace cms {
 
     // Shape at initialization
     const DDSolidShape theShape;
-    const DDFilteredView& solid;
+    const cms::DDFilteredView& solid;
     // "solid" name is for backwards compatibility. Can be changed to "fview" after DD4hep migration.
   };
-}  // namespace magneticfield
+}  // namespace cms::dd4hepmagfield
 
 #endif
