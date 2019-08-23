@@ -668,6 +668,9 @@ void PlotDMRTrends(vector<int> IOVlist, TString Variable, vector<string> labels,
 	    //For debugging purposes we still might want to have a look at plots for a variable without errors, once ready for the PR those variables will be removed and the iterator will start from 0
             for(size_t i=0; i < variables.size(); i++){
                 TString variable= variables.at(i);
+		if(variable.Contains("plus")||variable.Contains("minus")||variable.Contains("delta")){
+		  if(structname=="TEC"||structname=="TID")continue; //Lorentz drift cannot appear in TEC and TID. These structures are skipped when looking at outward and inward pointing modules.
+		}
                 TCanvas * c = new TCanvas("dummy","",2000,800);
                 
                 vector<Color_t>::iterator colour = colours.begin();
@@ -716,11 +719,11 @@ void PlotDMRTrends(vector<int> IOVlist, TString Variable, vector<string> labels,
                 double min=-4;
 		if(Variable=="DrmsNR"){
 		  if(variable.Contains("delta")){
-		    max=0.3;
-		    min=-0.2;
+		    max=0.15;
+		    min=-0.1;
 		  }else{
 		    max=1.2;
-		    min=0.4;
+		    min=0.6;
 		  }
 		}
                 double range=max-min;	
