@@ -32,7 +32,7 @@ if __name__ == "__main__":
     os.chdir(_tempdir)
 
     # compile cmsDriver command
-    cmsDriverCommand = "cmsDriver.py harvest --scenario pp --filetype DQM --conditions auto:phase2_realistic --mc -s HARVESTING:@JetMETOnlyValidation+@HGCalValidation+hgcalValidatorPostProcessor_step+postValidation_JetMET_step -n -1 --filein {0}".format(filelist)
+    cmsDriverCommand = "cmsDriver.py harvest --scenario pp --filetype DQM --conditions auto:phase2_realistic --mc -s HARVESTING:@JetMETOnlyValidation+@HGCalValidation -n -1 --filein {0}".format(filelist)
     print("# running cmsDriver" + "\n" + cmsDriverCommand)
 
     # run it
