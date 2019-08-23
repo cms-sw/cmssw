@@ -9,17 +9,17 @@ The macro can be executed in two ways:
 2) By editing the parameters directly in the main() function in DMRtrends.cc and executing the macro without arguments
 
 List of arguments:
--IOVlist:                 string containing the list of IOVs separated by a ","
--Variables:               string containing the list of variables whose distribution is to be plotted: "median","DrmsNR"
--labels:                  string containing labels that must be part of the input files
--Year:                    string containing the year of the studied runs (needed to retrieve the lumi-per-run file)
--pathtoDMRs:              string containing the path to the directory where the DMRs are stored
--geometrieandcolours:     string containing the list of geometries and colors in the following way name1:color1,name2:color2 etc.
--outputdirectory:         string containing the output directory for the plots
--pixelupdatelist:         string containing the list of pixelupdates separated by a ","
--showpixelupdate:         boolean, if set to true will allow to plot vertical lines in the canvas corresponding to the pixel updates
--showlumi:                boolean, if set to false the trends will be presented in function of the run (IOV) number, if set to true the integrated luminosity is used on the x axis
--FORCE:                   boolean, if set to true the plots will be made regardless of possible errors. 
+- IOVlist:                 string containing the list of IOVs separated by a ","
+- Variables:               string containing the list of variables whose distribution is to be plotted: "median","DrmsNR"
+- labels:                  string containing labels that must be part of the input files
+- Year:                    string containing the year of the studied runs (needed to retrieve the lumi-per-run file)
+- pathtoDMRs:              string containing the path to the directory where the DMRs are stored
+- geometrieandcolours:     string containing the list of geometries and colors in the following way name1:color1,name2:color2 etc.
+- outputdirectory:         string containing the output directory for the plots
+- pixelupdatelist:         string containing the list of pixelupdates separated by a ","
+- showpixelupdate:         boolean, if set to true will allow to plot vertical lines in the canvas corresponding to the pixel updates
+- showlumi:                boolean, if set to false the trends will be presented in function of the run (IOV) number, if set to true the integrated luminosity is used on the x axis
+- FORCE:                   boolean, if set to true the plots will be made regardless of possible errors. 
 
 In both cases the macro needs to be compiled with "scram b", a BuildFile is already provided for that.
 
