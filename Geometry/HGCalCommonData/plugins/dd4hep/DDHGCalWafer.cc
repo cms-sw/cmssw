@@ -13,6 +13,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                       dd4hep::SensitiveDetector& /* sens */) {
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
+  std::string nsName = static_cast<std::string>(ns.name());
   // Header section of original DDHGCalWafer.h
   double waferSize = args.value<double>("WaferSize");
   int cellType = args.value<int>("CellType");
@@ -23,7 +24,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   std::vector<int> angleEdges = args.value<std::vector<int> >("AngleEdges");
   std::vector<int> detectorType = args.value<std::vector<int> >("DetectorType");
   std::string parentName = args.parentName();
-  dd4hep::Volume mother = ns.volume(parentName);
+  dd4hep::Volume mother = ns.volume(args.parentName());
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << childNames.size() << " children: " << childNames[0] << "; " << childNames[1]
                                 << " positioned in " << nCellsRow.size() << " rows and " << nColumns
@@ -66,11 +67,12 @@ static long algorithm(dd4hep::Detector& /* description */,
         double phiy = convertDegToRad(90 + irot);
         rotation = cms::makeRotation3D(90._deg, phix, 90._deg, phiy, 0., 0.);
       }
+      std::string namx = nsName + name;
       double xpos = dx * nx;
       nx += incAlongX;
       dd4hep::Position tran(xpos, ypos, 0);
       int copy = cellType * 1000 + kount;
-      mother.placeVolume(ns.volume(name), copy, dd4hep::Transform3D(rotation, tran));
+      mother.placeVolume(ns.volume(namx), copy, dd4hep::Transform3D(rotation, tran));
       ++kount;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer: " << name << " number " << copy << " positioned in " << parentName
