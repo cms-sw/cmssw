@@ -845,6 +845,7 @@ namespace sistrip {
       case READOUT_MODE_SCOPE:
         //scope mode is always real
         setReadoutModeBits(readoutMode);
+        [[fallthrough]];
       case READOUT_MODE_VIRGIN_RAW:
       case READOUT_MODE_PROC_RAW:
       case READOUT_MODE_SPY:
