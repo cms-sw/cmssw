@@ -21,6 +21,8 @@
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
+//#define EDM_ML_DEBUG
+
 class DDHCalForwardAlgo : public DDAlgorithm {
 public:
   //Constructor and Destructor
@@ -46,8 +48,6 @@ private:
 
   std::string idNameSpace;  //Namespace for aLL sub-parts
 };
-
-//#define EDM_ML_DEBUG
 
 DDHCalForwardAlgo::DDHCalForwardAlgo() : number(0), size(0), type(0) {
 #ifdef EDM_ML_DEBUG
