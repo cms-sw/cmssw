@@ -38,11 +38,11 @@ DEFINE_FWK_MODULE(TICLCandidateFromTrackstersProducer);
 
 namespace {
   int pdg_id_from_idx(size_t i) {
-    switch(i) {
+    switch (i) {
       case 0:
         return 22;
       case 1:
-        // Pick IDs with positive charge so they can be reset with charge * id downstream 
+        // Pick IDs with positive charge so they can be reset with charge * id downstream
         return -11;
       case 2:
         return -13;
@@ -53,7 +53,7 @@ namespace {
     }
     return 0;
   }
-}
+}  // namespace
 
 TICLCandidateFromTrackstersProducer::TICLCandidateFromTrackstersProducer(const edm::ParameterSet& ps) {
   trackster_tokens_ =
@@ -61,16 +61,19 @@ TICLCandidateFromTrackstersProducer::TICLCandidateFromTrackstersProducer(const e
                             [this](edm::InputTag const& tag) { return consumes<std::vector<Trackster>>(tag); });
   produces<std::vector<TICLCandidate>>();
   auto pset_momentum = ps.getParameter<edm::ParameterSet>("momentumPlugin");
-  momentum_algo_ = TracksterMomentumPluginFactory::get()->create(pset_momentum.getParameter<std::string>("plugin"), pset_momentum, consumesCollector());
+  momentum_algo_ = TracksterMomentumPluginFactory::get()->create(
+      pset_momentum.getParameter<std::string>("plugin"), pset_momentum, consumesCollector());
 
   auto pset_track = ps.getParameter<edm::ParameterSet>("trackPlugin");
-  track_algo_ = TracksterTrackPluginFactory::get()->create(pset_track.getParameter<std::string>("plugin"), pset_track, consumesCollector());
+  track_algo_ = TracksterTrackPluginFactory::get()->create(
+      pset_track.getParameter<std::string>("plugin"), pset_track, consumesCollector());
 }
 
 void TICLCandidateFromTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  std::vector<edm::InputTag> source_vector{edm::InputTag("trackstersTrk"), edm::InputTag("trackstersMIP"), edm::InputTag("tracksters")};
+  std::vector<edm::InputTag> source_vector{
+      edm::InputTag("trackstersTrk"), edm::InputTag("trackstersMIP"), edm::InputTag("tracksters")};
   desc.add<std::vector<edm::InputTag>>("tracksterCollections", source_vector);
 
   edm::ParameterSetDescription desc_momentum;
@@ -89,40 +92,40 @@ void TICLCandidateFromTrackstersProducer::fillDescriptions(edm::ConfigurationDes
 
 void TICLCandidateFromTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   auto result = std::make_unique<std::vector<TICLCandidate>>();
-  auto output_mask = std::make_unique<std::vector<float>>();
 
-  momentum_algo_->beginEvent(evt);
-  track_algo_->beginEvent(evt);
+  std::vector<const Trackster*> trackster_ptrs;
 
   for (auto& trackster_token : trackster_tokens_) {
     edm::Handle<std::vector<Trackster>> trackster_h;
     evt.getByToken(trackster_token, trackster_h);
-
-    // PRODUCE_CANDIDATE_FROM_TRACKSTER
+    size_t trackster_i = 0;
     for (auto const& trackster : *trackster_h) {
-      // PDG ID
-      auto id_prob_begin = trackster.id_probabilities.begin();
-      auto max_index = std::distance(id_prob_begin, std::max_element(id_prob_begin,
-      trackster.id_probabilities.end()));
-      auto pdg_id = pdg_id_from_idx(max_index);
+      trackster_ptrs.push_back(&trackster);
+      result->emplace_back(edm::Ptr<ticl::Trackster>(trackster_h, trackster_i));
+      ++trackster_i;
+    }
+  }
 
-      auto p4 = momentum_algo_->calcP4(trackster);
+  // adds one TICLCandidate for each trackster
+  momentum_algo_->setP4(trackster_ptrs, *result, evt);
+  track_algo_->setTrack(trackster_ptrs, *result, evt);
 
-      result->emplace_back(reco::LeafCandidate::Charge(0), p4);
+  for (size_t i = 0; i < result->size(); ++i) {
+    const auto& trackster = *trackster_ptrs[i];
+    auto& ticl_cand = result->at(i);
+    auto id_prob_begin = trackster.id_probabilities.begin();
 
-      auto& ticl_cand = result->back();
-      ticl_cand.setPdgId(pdg_id);
+    auto max_index = std::distance(id_prob_begin, std::max_element(id_prob_begin, trackster.id_probabilities.end()));
+    auto pdg_id = pdg_id_from_idx(max_index);
+    ticl_cand.setPdgId(pdg_id);
 
-      track_algo_->setTrack(trackster, ticl_cand);
-
-      if (ticl_cand.trackPtr().isNonnull()) {
-        auto charge = ticl_cand.trackPtr()->charge();
-        ticl_cand.setCharge(charge);
-        ticl_cand.setPdgId(pdg_id*charge);
-      } else if (pdg_id == -11 || pdg_id == -13 || pdg_id == 211) {
-        // FIXME - placeholder for downstream PF code to work, but proper symmetric charge assignment needed
-        ticl_cand.setCharge(1);
-      }
+    if (ticl_cand.trackPtr().isNonnull()) {
+      auto charge = ticl_cand.trackPtr()->charge();
+      ticl_cand.setCharge(charge);
+      ticl_cand.setPdgId(pdg_id * charge);
+    } else if (pdg_id == -11 || pdg_id == -13 || pdg_id == 211) {
+      // FIXME - placeholder for downstream PF code to work, but proper symmetric charge assignment needed
+      ticl_cand.setCharge(1);
     }
   }
 

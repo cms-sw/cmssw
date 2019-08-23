@@ -18,23 +18,13 @@ namespace ticl {
     TracksterTrackPluginBase(const edm::ParameterSet&, edm::ConsumesCollector&& iC) {}
     typedef reco::Candidate::LorentzVector LorentzVector;
     virtual ~TracksterTrackPluginBase() {}
-    virtual void setTrack(const ticl::Trackster& trackster, ticl::TICLCandidate& ticl_cand) const = 0;
-
-    // Allow access to event so data products can be read once at beginning of event but four-vector calculation can 
-    // be run on single tracksters
-    edm::Event& evt() const { return *evt_; }
-    
-    // Needs to be called by CMSSW plugins using this plugin before being able to use other methods
-    void beginEvent(edm::Event& evt) {
-       evt_ = &evt;
-       this->beginEvt();
-     }
-  private:
-    virtual void beginEvt() = 0;
-    edm::Event* evt_;
+    virtual void setTrack(const std::vector<const Trackster*>& tracksters,
+                          std::vector<ticl::TICLCandidate>& ticl_cands,
+                          edm::Event& event) const = 0;
   };
-} // namespace
+}  // namespace ticl
 
-typedef edmplugin::PluginFactory<ticl::TracksterTrackPluginBase*(const edm::ParameterSet&, edm::ConsumesCollector&& iC)> TracksterTrackPluginFactory;
+typedef edmplugin::PluginFactory<ticl::TracksterTrackPluginBase*(const edm::ParameterSet&, edm::ConsumesCollector&& iC)>
+    TracksterTrackPluginFactory;
 
 #endif

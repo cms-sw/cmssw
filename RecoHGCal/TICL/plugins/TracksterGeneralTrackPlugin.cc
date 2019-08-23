@@ -11,30 +11,32 @@ namespace ticl {
   public:
     typedef edm::Ptr<reco::Track> TrackPtr;
     explicit TracksterRecoTrackPlugin(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
-    void setTrack(const ticl::Trackster& trackster, ticl::TICLCandidate& ticl_cand) const override;
-  private:
-    void beginEvt() override;
+    void setTrack(const std::vector<const Trackster*>& tracksters,
+                  std::vector<ticl::TICLCandidate>& ticl_cands,
+                  edm::Event& event) const override;
   };
 
-  TracksterRecoTrackPlugin::TracksterRecoTrackPlugin(const edm::ParameterSet& ps, edm::ConsumesCollector&& ic) : 
-    TracksterTrackPluginBase(ps, std::move(ic)) {// ,
+  TracksterRecoTrackPlugin::TracksterRecoTrackPlugin(const edm::ParameterSet& ps, edm::ConsumesCollector&& ic)
+      : TracksterTrackPluginBase(ps, std::move(ic)) {  // ,
   }
 
-  void TracksterRecoTrackPlugin::beginEvt() {
-  }
+  void TracksterRecoTrackPlugin::setTrack(const std::vector<const Trackster*>& tracksters,
+                                          std::vector<ticl::TICLCandidate>& ticl_cands,
+                                          edm::Event& event) const {
+    auto size = std::min(tracksters.size(), ticl_cands.size());
+    for (size_t i = 0; i < size; ++i) {
+      const auto& trackster = *tracksters[i];
 
-  void TracksterRecoTrackPlugin::setTrack(const ticl::Trackster& trackster, ticl::TICLCandidate& ticl_cand) const {
-    if (trackster.seedIndex == 0 || !trackster.seedID.isValid()) {
-      return; // leave default empty track ref
+      if (trackster.seedIndex == 0 || !trackster.seedID.isValid()) {
+        return;  // leave default empty track ref
+      }
+
+      TrackPtr ptr(trackster.seedID, trackster.seedIndex, &event.productGetter());
+      auto& ticl_cand = ticl_cands[i];
+      ticl_cand.setTrackPtr(ptr);
     }
-
-    TrackPtr ptr(trackster.seedID, trackster.seedIndex, &this->evt().productGetter());
-    ticl_cand.setTrackPtr(ptr);
   }
-} // namespace
-
+}  // namespace ticl
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_EDM_PLUGIN(TracksterTrackPluginFactory,
-                  ticl::TracksterRecoTrackPlugin,
-                  "TracksterRecoTrackPlugin");
+DEFINE_EDM_PLUGIN(TracksterTrackPluginFactory, ticl::TracksterRecoTrackPlugin, "TracksterRecoTrackPlugin");
