@@ -31,7 +31,7 @@ SiStripQuality::SiStripQuality(edm::FileInPath &file)
   reader = new SiStripDetInfoFileReader(FileInPath_.fullPath());
 }
 
-SiStripQuality::SiStripQuality(const SiStripQuality &other) {
+SiStripQuality::SiStripQuality(const SiStripQuality &other) : SiStripBadStrip::SiStripBadStrip(other) {
   FileInPath_ = other.FileInPath_;
   reader = new SiStripDetInfoFileReader(*(other.reader));
   toCleanUp = other.toCleanUp;
