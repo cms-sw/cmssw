@@ -8,7 +8,6 @@
 #include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
-
 #include <boost/utility.hpp>
 
 #include <map>

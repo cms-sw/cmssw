@@ -32,7 +32,6 @@
 #include <memory>
 #include <vector>
 
-
 class dso_hidden VirtualJetProducer : public edm::stream::EDProducer<> {
 protected:
   //

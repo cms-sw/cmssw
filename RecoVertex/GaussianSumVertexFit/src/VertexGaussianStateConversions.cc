@@ -3,7 +3,6 @@
 #include "RecoVertex/GaussianSumVertexFit/interface/BasicMultiVertexState.h"
 #include "TrackingTools/GsfTools/interface/SingleGaussianState.h"
 
-
 namespace GaussianStateConversions {
 
   MultiGaussianState<3> multiGaussianStateFromVertex(const VertexState aState) {

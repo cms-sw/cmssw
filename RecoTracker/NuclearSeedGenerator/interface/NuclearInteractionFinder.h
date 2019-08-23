@@ -38,8 +38,6 @@
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
-
-
 class NuclearInteractionFinder {
 private:
   typedef TrajectoryStateOnSurface TSOS;

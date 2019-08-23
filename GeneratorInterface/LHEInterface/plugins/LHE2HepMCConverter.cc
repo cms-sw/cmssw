@@ -19,8 +19,6 @@
 // system include files
 #include <memory>
 
-
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"

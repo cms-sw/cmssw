@@ -2,7 +2,6 @@
 #define PhysicsTools_Utilities_Polynomial_h
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 
-
 namespace funct {
   template <unsigned int n>
   class Polynomial {

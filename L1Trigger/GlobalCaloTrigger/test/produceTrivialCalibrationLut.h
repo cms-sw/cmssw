@@ -3,7 +3,6 @@
 #include <vector>
 #include <memory>
 
-
 class L1GctJetFinderParams;
 
 class produceTrivialCalibrationLut {

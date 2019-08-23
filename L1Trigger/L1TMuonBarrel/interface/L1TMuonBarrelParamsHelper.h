@@ -4,7 +4,6 @@
 // system include files
 #include <memory>
 
-
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"

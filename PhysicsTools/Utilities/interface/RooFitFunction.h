@@ -17,7 +17,7 @@ namespace root {
         : RooAbsReal(other, name), e_(other.e_), x_(X::name(), this, other.x_) {
       std::cout << ">>> making new RooFitFunction" << std::endl;
       std::vector<std::pair<std::shared_ptr<double>, RooRealProxy> >::const_iterator i = other.pars_.begin(),
-                                                                                       end = other.pars_.end();
+                                                                                     end = other.pars_.end();
       for (; i != end; ++i) {
         std::cout << ">>> adding par to RooFitFunction" << std::endl;
         pars_.push_back(std::make_pair(i->first, RooRealProxy(i->second.GetName(), this, i->second)));
@@ -70,7 +70,7 @@ namespace root {
     Double_t evaluate() const {
       X::set(x_);
       std::vector<std::pair<std::shared_ptr<double>, RooRealProxy> >::const_iterator i = pars_.begin(),
-                                                                                       end = pars_.end();
+                                                                                     end = pars_.end();
       for (; i != end; ++i)
         *(i->first) = i->second;
       return e_();

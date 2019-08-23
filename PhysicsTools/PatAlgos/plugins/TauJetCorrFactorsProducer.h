@@ -28,8 +28,6 @@
 #include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-
-
 #include <map>
 #include <string>
 

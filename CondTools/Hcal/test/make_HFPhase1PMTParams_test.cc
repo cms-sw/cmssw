@@ -64,15 +64,13 @@ std::unique_ptr<HFPhase1PMTParams> make_HFPhase1PMTParams_test() {
   pts.clear();
   pts.push_back(P(5.0 * minChargeAsymm, 2.0));
   pts.push_back(P(10.0 * minChargeAsymm, 1.0));
-  cuts[HFPhase1PMTData::ASYMM_MAX] =
-      std::shared_ptr<AbsHcalFunctor>(new HcalPiecewiseLinearFunctor(pts, false, false));
+  cuts[HFPhase1PMTData::ASYMM_MAX] = std::shared_ptr<AbsHcalFunctor>(new HcalPiecewiseLinearFunctor(pts, false, false));
 
 #ifdef BAD_BOOST_VERSION
   pts.clear();
   pts.push_back(P(5.0 * minChargeAsymm, -2.0));
   pts.push_back(P(10.0 * minChargeAsymm, -1.0));
-  cuts[HFPhase1PMTData::ASYMM_MIN] =
-      std::shared_ptr<AbsHcalFunctor>(new HcalPiecewiseLinearFunctor(pts, false, false));
+  cuts[HFPhase1PMTData::ASYMM_MIN] = std::shared_ptr<AbsHcalFunctor>(new HcalPiecewiseLinearFunctor(pts, false, false));
 #else
   cuts[HFPhase1PMTData::ASYMM_MIN] =
       std::shared_ptr<AbsHcalFunctor>(new HcalLinearCompositionFunctor(cuts[HFPhase1PMTData::ASYMM_MAX], -1.0, 0.0));
@@ -92,8 +90,7 @@ std::unique_ptr<HFPhase1PMTParams> make_HFPhase1PMTParams_test() {
   pts.clear();
   pts.push_back(P(5.0 * minChargeAsymm, -2.0 + 1.0));
   pts.push_back(P(10.0 * minChargeAsymm, -1.0 + 1.0));
-  cuts[HFPhase1PMTData::ASYMM_MIN] =
-      std::shared_ptr<AbsHcalFunctor>(new HcalPiecewiseLinearFunctor(pts, false, false));
+  cuts[HFPhase1PMTData::ASYMM_MIN] = std::shared_ptr<AbsHcalFunctor>(new HcalPiecewiseLinearFunctor(pts, false, false));
 #else
   cuts[HFPhase1PMTData::ASYMM_MIN] =
       std::shared_ptr<AbsHcalFunctor>(new HcalLinearCompositionFunctor(cuts[HFPhase1PMTData::ASYMM_MAX], -1.0, 1.0));

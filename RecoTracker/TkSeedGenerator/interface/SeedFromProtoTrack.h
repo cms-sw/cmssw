@@ -6,7 +6,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
-
 namespace reco {
   class Track;
 }

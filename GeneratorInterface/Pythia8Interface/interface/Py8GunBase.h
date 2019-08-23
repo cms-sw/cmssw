@@ -13,8 +13,6 @@
 #include <string>
 #include <vector>
 
-
-
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"

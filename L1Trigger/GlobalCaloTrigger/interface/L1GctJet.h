@@ -20,8 +20,6 @@
  *  Move this to DataFormats/L1GlobalCaloTrigger if possible
  */
 
-
-
 class L1GctJetCand;
 class L1GctJetEtCalibrationLut;
 

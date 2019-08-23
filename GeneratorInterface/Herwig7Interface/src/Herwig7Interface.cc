@@ -14,7 +14,6 @@
 
 #include <algorithm>
 
-
 #include <boost/filesystem.hpp>
 
 #include <HepMC/GenEvent.h>

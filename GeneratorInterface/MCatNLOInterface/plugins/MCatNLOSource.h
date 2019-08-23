@@ -3,8 +3,6 @@
 
 #include <memory>
 
-
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Sources/interface/ProducerSourceFromFiles.h"

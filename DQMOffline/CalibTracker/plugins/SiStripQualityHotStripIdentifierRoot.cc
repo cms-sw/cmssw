@@ -9,8 +9,9 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
 #include <sstream>
 
 #include "TH1F.h"
@@ -325,6 +326,6 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos() {
     LogDebug("SiStripQualityHotStripIdentifierRoot")
         << " [SiStripQualityHotStripIdentifierRoot::bookHistos] detid " << detid << std::endl;
 
-    ClusterPositionHistoMap[detid] = std::shared_ptr<TH1F>(new TH1F(*(*iter)->getTH1F()));
+    ClusterPositionHistoMap[detid] = std::make_shared<TH1F>(*(*iter)->getTH1F());
   }
 }

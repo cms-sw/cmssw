@@ -19,7 +19,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
 
-
 int main(int argc, char* argv[]) {
   // Copied from example stand-alone program in Message Logger July 18, 2007
   std::string const kProgramName = argv[0];

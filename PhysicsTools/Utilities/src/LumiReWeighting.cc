@@ -16,15 +16,16 @@
   \author Salvatore Rappoccio, modified by Mike Hildreth
   
 */
+#include "TFile.h"
+#include "TH1.h"
 #include "TRandom1.h"
 #include "TRandom2.h"
 #include "TRandom3.h"
 #include "TStopwatch.h"
-#include "TH1.h"
-#include "TFile.h"
-#include <iostream>
-#include <string>
 #include <algorithm>
+#include <iostream>
+#include <memory>
+#include <string>
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
@@ -45,8 +46,8 @@ LumiReWeighting::LumiReWeighting(std::string generatedFile,
       GenHistName_(GenHistName),
       DataHistName_(DataHistName),
       pileupSumInfoTag_(PileupSumInfoInputTag) {
-  generatedFile_ = std::shared_ptr<TFile>(new TFile(generatedFileName_.c_str()));  //MC distribution
-  dataFile_ = std::shared_ptr<TFile>(new TFile(dataFileName_.c_str()));            //Data distribution
+  generatedFile_ = std::make_shared<TFile>(generatedFileName_.c_str());  //MC distribution
+  dataFile_ = std::make_shared<TFile>(dataFileName_.c_str());            //Data distribution
 
   Data_distr_ = std::shared_ptr<TH1>((static_cast<TH1*>(dataFile_->Get(DataHistName_.c_str())->Clone())));
   MC_distr_ = std::shared_ptr<TH1>((static_cast<TH1*>(generatedFile_->Get(GenHistName_.c_str())->Clone())));

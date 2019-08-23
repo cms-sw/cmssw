@@ -14,8 +14,6 @@
 
 #include "RecoTracker/NuclearSeedGenerator/interface/TangentHelix.h"
 
-
-
 class FreeTrajectoryState;
 
 class SeedFromNuclearInteraction {

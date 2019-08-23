@@ -28,7 +28,7 @@ void PerformancePayloadFromBinnedTFormula::initialize() {
 }
 
 const std::shared_ptr<TFormula>& PerformancePayloadFromBinnedTFormula::getFormula(PerformanceResult::ResultType r,
-                                                                                    const BinningPointByMap& p) const {
+                                                                                  const BinningPointByMap& p) const {
   //
   // chooses the correct rectangular region
   //

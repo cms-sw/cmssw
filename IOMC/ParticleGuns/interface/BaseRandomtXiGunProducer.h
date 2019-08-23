@@ -21,7 +21,6 @@
 
 #include <memory>
 
-
 namespace edm {
 
   class BaseRandomtXiGunProducer : public one::EDProducer<one::WatchRuns, EndRunProducer> {

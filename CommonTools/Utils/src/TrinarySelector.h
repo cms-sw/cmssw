@@ -14,7 +14,6 @@
 #include "CommonTools/Utils/src/ExpressionBase.h"
 #include "CommonTools/Utils/src/ComparisonBase.h"
 
-
 namespace reco {
   namespace parser {
     struct TrinarySelector : public SelectorBase {

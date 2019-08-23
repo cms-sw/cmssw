@@ -1,5 +1,7 @@
 #include "PhysicsTools/PatAlgos/plugins/TauJetCorrFactorsProducer.h"
 
+#include <memory>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
@@ -103,8 +105,7 @@ void TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& 
       edm::ESHandle<JetCorrectorParametersCollection> jecParameters;
       es.get<JetCorrectionsRecord>().get(payload, jecParameters);
 
-      correctorMapping[payload] =
-          FactorizedJetCorrectorPtr(new FactorizedJetCorrector(params(*jecParameters, levels_)));
+      correctorMapping[payload] = std::make_shared<FactorizedJetCorrector>(params(*jecParameters, levels_));
     }
     FactorizedJetCorrectorPtr& corrector = correctorMapping[payload];
 

@@ -1,7 +1,6 @@
 #ifndef SiStripQualityHistos_H
 #define SiStripQualityHistos_H
 
-
 #include <ext/hash_map>
 #include "TH1F.h"
 

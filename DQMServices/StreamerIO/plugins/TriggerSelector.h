@@ -7,8 +7,6 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 
-
-
 #include <vector>
 #include <string>
 

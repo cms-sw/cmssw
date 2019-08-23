@@ -1,8 +1,6 @@
 #ifndef PhysicsTools_UtilAlgos_interface_EDAnalyzerWrapper_h
 #define PhysicsTools_UtilAlgos_interface_EDAnalyzerWrapper_h
 
-
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

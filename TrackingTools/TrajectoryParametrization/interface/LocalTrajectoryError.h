@@ -5,7 +5,6 @@
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 #include <memory>
 
-
 /** Class providing access to the covariance matrix of a set of relevant parameters of a trajectory
  *  in a local, Cartesian frame. The errors provided are: <BR> <BR>
  *  

@@ -32,7 +32,6 @@
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
-
 #include <vector>
 
 namespace reco {

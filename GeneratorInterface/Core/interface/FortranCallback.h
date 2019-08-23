@@ -1,8 +1,6 @@
 #ifndef gen_FortranCallback_h
 #define gen_FortranCallback_h
 
-
-
 #include "SimDataFormats/GeneratorProducts/interface/LHECommonBlocks.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"

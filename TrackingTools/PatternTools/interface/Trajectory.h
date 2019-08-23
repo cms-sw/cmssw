@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <limits>
 
-
 /** A class for detailed particle trajectory representation.
  *  It is used during trajectory building to "grow" a trajectory.
  *  The trajectory is represented as an ordered sequence of 

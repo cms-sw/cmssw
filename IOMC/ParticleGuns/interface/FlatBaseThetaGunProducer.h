@@ -16,7 +16,6 @@
 
 #include <memory>
 
-
 namespace edm {
 
   class FlatBaseThetaGunProducer : public one::EDProducer<one::WatchRuns, EndRunProducer> {

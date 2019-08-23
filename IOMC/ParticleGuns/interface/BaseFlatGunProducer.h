@@ -21,7 +21,6 @@
 
 #include <memory>
 
-
 namespace edm {
 
   class BaseFlatGunProducer : public one::EDProducer<one::WatchRuns, EndRunProducer> {

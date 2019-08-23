@@ -5,8 +5,6 @@
 #include <string>
 #include <vector>
 
-
-
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"

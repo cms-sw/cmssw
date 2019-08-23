@@ -27,8 +27,6 @@
 #include <boost/multi_index/ordered_index.hpp>
 #include "boost/tuple/tuple.hpp"
 
-
-
 #include "CSCDQM_Logger.h"
 #include "CSCDQM_HistoDef.h"
 #include "CSCDQM_MonitorObject.h"
