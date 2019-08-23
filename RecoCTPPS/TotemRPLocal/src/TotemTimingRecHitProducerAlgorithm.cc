@@ -191,5 +191,5 @@ float TotemTimingRecHitProducerAlgorithm::constantFractionDiscriminator(const st
                        (dataProcessed[indexOfThresholdCrossing - 1] - dataProcessed[indexOfThresholdCrossing]) *
                        (threshold - dataProcessed[indexOfThresholdCrossing]) +
                    time[indexOfThresholdCrossing]
-             : TotemTimingRecHit::NO_T_AVAILABLE;
+             : (int)TotemTimingRecHit::NO_T_AVAILABLE;
 }
