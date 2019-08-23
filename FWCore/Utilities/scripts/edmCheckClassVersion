@@ -1,6 +1,7 @@
 #!  /usr/bin/env python
 import string
 from optparse import OptionParser
+import six
 
 class XmlParser(object):
     """Parses a classes_def.xml file looking for class declarations that contain
@@ -182,7 +183,7 @@ ROOT.gROOT.ProcessLine("checkclass checkTheClass;")
 
 p = XmlParser(options.xmlfile)
 foundErrors = dict()
-for name,info in p.classes.iteritems():
+for name,info in six.iteritems(p.classes):
     errorCode,rootClassVersion,classChecksum = checkClass(name,info[XmlParser.classVersionIndex],info[XmlParser.versionsToChecksumIndex])
     if errorCode != noError:
         foundErrors[name]=(errorCode,classChecksum,rootClassVersion)
@@ -191,7 +192,7 @@ for name,info in p.classes.iteritems():
 
 foundRootDoesNotMatchError = False
 originalToNormalizedNames = dict()
-for name,retValues in foundErrors.iteritems():
+for name,retValues in six.iteritems(foundErrors):
     origName = p.classes[name][XmlParser.originalNameIndex]
     originalToNormalizedNames[origName]=name
     code = retValues[0]
