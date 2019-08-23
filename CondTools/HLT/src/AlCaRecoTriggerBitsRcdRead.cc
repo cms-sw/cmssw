@@ -147,6 +147,7 @@ void AlCaRecoTriggerBitsRcdRead::printMap(edm::RunNumber_t firstRun,
     case kPython:
       output << "  triggerLists = cms.VPSet(\n";
       // no 'break;'!
+      [[fallthrough]];
     case kText:
       output << "#\n# AlCaRecoTriggerBits settings for IOV " << firstRun << "-" << lastRun << ":\n#\n";
       break;
