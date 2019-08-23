@@ -62,8 +62,7 @@ private:
 //
 TICLPFValidation::TICLPFValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
-      pfCandidates_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("ticlPFCandidates")))
-  {
+      pfCandidates_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("ticlPFCandidates"))) {
   //now do what ever initialization is needed
 }
 
@@ -79,8 +78,8 @@ TICLPFValidation::~TICLPFValidation() {
 // ------------ method called for each event  ------------
 
 void TICLPFValidation::dqmAnalyze(edm::Event const& iEvent,
-                                        edm::EventSetup const& iSetup,
-                                        Histograms_TICLPFValidation const& histos) const {
+                                  edm::EventSetup const& iSetup,
+                                  Histograms_TICLPFValidation const& histos) const {
   using namespace edm;
 
   Handle<reco::PFCandidateCollection> pfCandidatesHandle;
@@ -107,9 +106,9 @@ void TICLPFValidation::dqmAnalyze(edm::Event const& iEvent,
 }
 
 void TICLPFValidation::bookHistograms(DQMStore::ConcurrentBooker& ibook,
-                                            edm::Run const& run,
-                                            edm::EventSetup const& iSetup,
-                                            Histograms_TICLPFValidation& histos) const {
+                                      edm::Run const& run,
+                                      edm::EventSetup const& iSetup,
+                                      Histograms_TICLPFValidation& histos) const {
   ibook.setCurrentFolder(folder_ + "TICLPFCandidates/");
   histos[0].type_ = ibook.book1D("Type", "Type", 10, -0.5, 9.5);
   histos[0].vect_sum_pt_ = ibook.book1D("PtVectSum", "PtVectSum", 200, 0., 200.);
