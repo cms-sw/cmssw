@@ -62,8 +62,12 @@ public:
   /// get the wafer #'s in u,v or in x,y
   int waferUAbs() const { return (id_ >> kHFNoseWaferUOffset) & kHFNoseWaferUMask; }
   int waferVAbs() const { return (id_ >> kHFNoseWaferVOffset) & kHFNoseWaferVMask; }
-  int waferU() const { return (((id_ >> kHFNoseWaferUSignOffset) & kHFNoseWaferUSignMask) ? -waferUAbs() : waferUAbs()); }
-  int waferV() const { return (((id_ >> kHFNoseWaferVSignOffset) & kHFNoseWaferVSignMask) ? -waferVAbs() : waferVAbs()); }
+  int waferU() const {
+    return (((id_ >> kHFNoseWaferUSignOffset) & kHFNoseWaferUSignMask) ? -waferUAbs() : waferUAbs());
+  }
+  int waferV() const {
+    return (((id_ >> kHFNoseWaferVSignOffset) & kHFNoseWaferVSignMask) ? -waferVAbs() : waferVAbs());
+  }
   std::pair<int, int> waferUV() const { return std::pair<int, int>(waferU(), waferV()); }
   int waferX() const { return (-2 * waferU() + waferV()); }
   int waferY() const { return (2 * waferV()); }

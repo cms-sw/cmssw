@@ -1,5 +1,4 @@
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <ostream>
 #include <iostream>
