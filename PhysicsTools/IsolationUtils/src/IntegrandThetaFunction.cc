@@ -46,7 +46,8 @@ IntegrandThetaFunction::IntegrandThetaFunction()
   fPhi_ = new IntegralOverPhiFunction();
 }
 
-IntegrandThetaFunction::IntegrandThetaFunction(const IntegrandThetaFunction& bluePrint) {
+IntegrandThetaFunction::IntegrandThetaFunction(const IntegrandThetaFunction& bluePrint)
+    : ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim>(bluePrint) {
   theta0_ = bluePrint.theta0_;
   phi0_ = bluePrint.phi0_;
   alpha_ = bluePrint.alpha_;
