@@ -47,6 +47,8 @@ namespace edmtest {
     void testPtrVector(edm::Event const& e, std::string const& moduleLabel) const;
 
     void testStdVectorPtr(edm::Event const& e, std::string const& moduleLabel) const;
+
+    void testStdVectorUniquePtr(edm::Event const& e, std::string const& moduleLabel) const;
   };
 
   ViewAnalyzer::ViewAnalyzer(ParameterSet const&) {
@@ -84,6 +86,11 @@ namespace edmtest {
     consumes<std::vector<edm::Ptr<int>>>(edm::InputTag{"intvecstdvecptr"});
     consumes<edm::View<int>>(edm::InputTag{"intvecstdvecptr"});
 
+    consumes<std::vector<std::unique_ptr<int>>>(edm::InputTag{"intvecstdvecuniqptr"});
+    consumes<edm::View<int>>(edm::InputTag{"intvecstdvecuniqptr"});
+    consumes<std::vector<std::unique_ptr<IntProduct>>>(edm::InputTag{"intvecstdvecuniqptr"});
+    consumes<edm::View<IntProduct>>(edm::InputTag{"intvecstdvecuniqptr"});
+
     mayConsume<edm::View<int>>(edm::InputTag{"intvecptrvecdoesNotExist"});
   }
 
@@ -111,6 +118,7 @@ namespace edmtest {
     testRefToBaseVector(e, "intvecreftbvec");
     testPtrVector(e, "intvecptrvec");
     testStdVectorPtr(e, "intvecstdvecptr");
+    testStdVectorUniquePtr(e, "intvecstdvecuniqptr");
 
     //See if InputTag works
     {
@@ -423,10 +431,12 @@ namespace edmtest {
       ++slot;
     }
   }
+}  // namespace edmtest
 
-  void ViewAnalyzer::testStdVectorPtr(Event const& e, std::string const& moduleLabel) const {
-    typedef std::vector<edm::Ptr<int>> sequence_t;
-    typedef int value_t;
+namespace {
+  template <template <typename> typename Ptr, typename value_t>
+  void testStdVectorPtrT(Event const& e, std::string const& moduleLabel) {
+    typedef std::vector<Ptr<value_t>> sequence_t;
     typedef View<value_t> view_t;
 
     Handle<sequence_t> hproduct;
@@ -444,10 +454,10 @@ namespace edmtest {
 
     assert(hproduct->size() == hview->size());
 
-    sequence_t::const_iterator i_product = hproduct->begin();
-    sequence_t::const_iterator e_product = hproduct->end();
-    view_t::const_iterator i_view = hview->begin();
-    view_t::const_iterator e_view = hview->end();
+    typename sequence_t::const_iterator i_product = hproduct->begin();
+    typename sequence_t::const_iterator e_product = hproduct->end();
+    typename view_t::const_iterator i_view = hview->begin();
+    typename view_t::const_iterator e_view = hview->end();
     unsigned int slot = 0;
     while (i_product != e_product && i_view != e_view) {
       value_t const& product_item = **i_product;
@@ -461,6 +471,17 @@ namespace edmtest {
       ++i_view;
       ++slot;
     }
+  }
+}  // namespace
+
+namespace edmtest {
+  void ViewAnalyzer::testStdVectorPtr(Event const& e, std::string const& moduleLabel) const {
+    testStdVectorPtrT<edm::Ptr, int>(e, moduleLabel);
+  }
+
+  void ViewAnalyzer::testStdVectorUniquePtr(Event const& e, std::string const& moduleLabel) const {
+    testStdVectorPtrT<std::unique_ptr, int>(e, moduleLabel);
+    testStdVectorPtrT<std::unique_ptr, IntProduct>(e, moduleLabel);
   }
 
 }  // namespace edmtest
