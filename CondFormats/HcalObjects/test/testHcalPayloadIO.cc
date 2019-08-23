@@ -56,7 +56,7 @@ try{
     session.createDatabase();
     unsigned int iw;
     for (iw = 0; iw < nobjects; ++iw )   {
-      boost::shared_ptr<Payload> payload(new Payload);
+      std::shared_ptr<Payload> payload(new Payload);
       std::string pToken = session.storeObject(payload.get(),className);
       payTok.push_back(pToken);
     }
@@ -78,7 +78,7 @@ try{
     
     unsigned int ir;
     for (ir = 0; ir < payTok.size(); ++ir )   {
-      boost::shared_ptr<Payload> payload = session.getTypedObject<Payload>(payTok[ir]);
+      std::shared_ptr<Payload> payload = session.getTypedObject<Payload>(payTok[ir]);
       Payload const & p = *payload;
     }
 

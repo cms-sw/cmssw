@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
+
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -72,8 +72,8 @@ private:
 
   std::unique_ptr<std::ifstream> reader;
 
-  boost::shared_ptr<lhef::LHERunInfo> runInfo;
-  boost::shared_ptr<lhef::LHEEvent> event;
+  std::shared_ptr<lhef::LHERunInfo> runInfo;
+  std::shared_ptr<lhef::LHEEvent> event;
 };
 
 #endif  // GeneratorInterface_MCatNLOInterface_MCatNLOSource_h

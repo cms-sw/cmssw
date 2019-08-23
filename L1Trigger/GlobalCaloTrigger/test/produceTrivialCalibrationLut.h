@@ -1,15 +1,15 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 #include <vector>
+#include <memory>
 
-#include "boost/shared_ptr.hpp"
 
 class L1GctJetFinderParams;
 
 class produceTrivialCalibrationLut {
 public:
   //Typedefs
-  typedef boost::shared_ptr<L1GctJetEtCalibrationLut> lutPtr;
+  typedef std::shared_ptr<L1GctJetEtCalibrationLut> lutPtr;
   typedef std::vector<lutPtr> lutPtrVector;
 
   produceTrivialCalibrationLut();

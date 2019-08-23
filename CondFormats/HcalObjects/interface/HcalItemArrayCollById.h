@@ -69,7 +69,7 @@ public:
     inline void setDefault(InputArray& arr)
     {
         for (unsigned i=0; i<N; ++i)
-            default_[i] = boost::shared_ptr<Item>(arr[i].release());
+            default_[i] = std::shared_ptr<Item>(arr[i].release());
     }
 
     // Size of the internal collection, not counting the default
@@ -143,7 +143,7 @@ protected:
     }
 
 private:
-    typedef boost::array<boost::shared_ptr<Item>,N> StoredArray;
+    typedef boost::array<std::shared_ptr<Item>,N> StoredArray;
 
     HcalItemArrayColl<Item,N> coll_;
     HcalIndexLookup lookup_;

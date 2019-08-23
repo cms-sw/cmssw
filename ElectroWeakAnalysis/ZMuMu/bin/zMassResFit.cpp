@@ -16,7 +16,7 @@
 #include "TCanvas.h"
 #include "TROOT.h"
 #include "TMath.h"
-#include <boost/shared_ptr.hpp>
+
 #include <boost/program_options.hpp>
 using namespace boost;
 namespace po = boost::program_options;

@@ -27,7 +27,7 @@ using namespace std;
 void L1TriggerKeyExtViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   edm::ESHandle<L1TriggerKeyExt> handle1;
   evSetup.get<L1TriggerKeyExtRcd>().get(label, handle1);
-  boost::shared_ptr<L1TriggerKeyExt> ptr1(new L1TriggerKeyExt(*(handle1.product())));
+  std::shared_ptr<L1TriggerKeyExt> ptr1(new L1TriggerKeyExt(*(handle1.product())));
 
   cout << "L1TriggerKeyExt: parent key = " << ptr1->tscKey() << endl;
 

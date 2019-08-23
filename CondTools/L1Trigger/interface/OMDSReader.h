@@ -203,7 +203,7 @@ namespace l1t {
     coral::ITable& table = schema.tableHandle(tableName);
 
     // Pointer is deleted automatically at end of function.
-    boost::shared_ptr<coral::IQuery> query(table.newQuery());
+    std::shared_ptr<coral::IQuery> query(table.newQuery());
 
     // Construct query
     std::vector<std::string>::const_iterator it = columnNames.begin();

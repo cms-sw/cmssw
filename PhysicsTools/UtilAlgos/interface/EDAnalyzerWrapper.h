@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_UtilAlgos_interface_EDAnalyzerWrapper_h
 #define PhysicsTools_UtilAlgos_interface_EDAnalyzerWrapper_h
 
-#include <boost/shared_ptr.hpp>
+
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -58,7 +58,7 @@ namespace edm {
 
   protected:
     /// shared pointer to analysis class of type BasicAnalyzer
-    boost::shared_ptr<T> analyzer_;
+    std::shared_ptr<T> analyzer_;
   };
 
   /// default contructor
@@ -67,7 +67,7 @@ namespace edm {
     // defined TFileService
     edm::Service<TFileService> fileService;
     // create analysis class of type BasicAnalyzer
-    analyzer_ = boost::shared_ptr<T>(new T(cfg, fileService->tFileDirectory(), consumesCollector()));
+    analyzer_ = std::shared_ptr<T>(new T(cfg, fileService->tFileDirectory(), consumesCollector()));
   }
 
 }  // namespace edm

@@ -206,9 +206,9 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
     if (puSubtractorName_.empty()) {
       LogWarning("VirtualJetProducer")
           << "Pile Up correction on; however, pile up type is not specified. Using default... \n";
-      subtractor_ = boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig, consumesCollector()));
+      subtractor_ = std::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig, consumesCollector()));
     } else
-      subtractor_ = boost::shared_ptr<PileUpSubtractor>(
+      subtractor_ = std::shared_ptr<PileUpSubtractor>(
           PileUpSubtractorFactory::get()->create(puSubtractorName_, iConfig, consumesCollector()));
   }
 

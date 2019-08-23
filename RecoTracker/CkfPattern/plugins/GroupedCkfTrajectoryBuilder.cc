@@ -206,7 +206,7 @@ void GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory const& star
   TrajectoryContainer final;
 
   // better the seed to be always the same...
-  boost::shared_ptr<const TrajectorySeed> sharedSeed;
+  std::shared_ptr<const TrajectorySeed> sharedSeed;
   if (result.empty())
     sharedSeed.reset(new TrajectorySeed(seed));
   else
@@ -263,7 +263,7 @@ TempTrajectory GroupedCkfTrajectoryBuilder::buildTrajectories(const TrajectorySe
   FastTrajectoryCleaner cleaner(theFoundHitBonus, theLostHitPenalty);
   cleaner.clean(work_);
 
-  boost::shared_ptr<const TrajectorySeed> pseed(new TrajectorySeed(seed));
+  std::shared_ptr<const TrajectorySeed> pseed(new TrajectorySeed(seed));
   for (auto const& it : work_)
     if (it.isValid()) {
       result.push_back(it.toTrajectory());

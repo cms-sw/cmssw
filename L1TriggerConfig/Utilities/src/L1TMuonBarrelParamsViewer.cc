@@ -61,7 +61,7 @@ std::string L1TMuonBarrelParamsViewer::hash(void *buf, size_t len) const {
 void L1TMuonBarrelParamsViewer::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetup) {
   edm::ESHandle<L1TMuonBarrelParams> handle1;
   evSetup.get<L1TMuonBarrelParamsRcd>().get(handle1);
-  boost::shared_ptr<L1TMuonBarrelParams> ptr(new L1TMuonBarrelParams(*(handle1.product())));
+  std::shared_ptr<L1TMuonBarrelParams> ptr(new L1TMuonBarrelParams(*(handle1.product())));
 
   L1TMuonBarrelParamsHelper *ptr1 = (L1TMuonBarrelParamsHelper *)ptr.get();
 

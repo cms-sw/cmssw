@@ -325,6 +325,6 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos() {
     LogDebug("SiStripQualityHotStripIdentifierRoot")
         << " [SiStripQualityHotStripIdentifierRoot::bookHistos] detid " << detid << std::endl;
 
-    ClusterPositionHistoMap[detid] = boost::shared_ptr<TH1F>(new TH1F(*(*iter)->getTH1F()));
+    ClusterPositionHistoMap[detid] = std::shared_ptr<TH1F>(new TH1F(*(*iter)->getTH1F()));
   }
 }

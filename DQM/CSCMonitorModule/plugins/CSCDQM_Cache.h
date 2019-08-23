@@ -27,7 +27,7 @@
 #include <boost/multi_index/ordered_index.hpp>
 #include "boost/tuple/tuple.hpp"
 
-#include <boost/shared_ptr.hpp>
+
 
 #include "CSCDQM_Logger.h"
 #include "CSCDQM_HistoDef.h"

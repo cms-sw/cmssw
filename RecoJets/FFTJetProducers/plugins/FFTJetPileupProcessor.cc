@@ -327,7 +327,7 @@ void FFTJetPileupProcessor::endJob() {}
 void FFTJetPileupProcessor::loadFlatteningFactors(const edm::EventSetup& iSetup) {
   edm::ESHandle<FFTJetLookupTableSequence> h;
   StaticFFTJetLookupTableSequenceLoader::instance().load(iSetup, flatteningTableRecord, h);
-  boost::shared_ptr<npstat::StorableMultivariateFunctor> f = (*h)[flatteningTableCategory][flatteningTableName];
+  std::shared_ptr<npstat::StorableMultivariateFunctor> f = (*h)[flatteningTableCategory][flatteningTableName];
 
   // Fill out the table of flattening factors as a function of eta
   const unsigned nEta = energyFlow->nEta();

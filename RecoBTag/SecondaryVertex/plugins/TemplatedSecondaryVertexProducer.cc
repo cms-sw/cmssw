@@ -59,8 +59,8 @@
 //
 // constants, enums and typedefs
 //
-typedef boost::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
-typedef boost::shared_ptr<fastjet::JetDefinition> JetDefPtr;
+typedef std::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
+typedef std::shared_ptr<fastjet::JetDefinition> JetDefPtr;
 
 using namespace reco;
 

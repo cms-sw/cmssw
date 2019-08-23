@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 

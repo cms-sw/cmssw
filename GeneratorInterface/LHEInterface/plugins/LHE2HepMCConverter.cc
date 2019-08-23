@@ -19,7 +19,7 @@
 // system include files
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
+
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -60,7 +60,7 @@ private:
   edm::InputTag _lheRunSrcTag;
   const LHERunInfoProduct* _lheRunSrc;
 
-  //      boost::shared_ptr<lhef::LHERunInfo> lheRunInfo_;
+  //      std::shared_ptr<lhef::LHERunInfo> lheRunInfo_;
 };
 
 //

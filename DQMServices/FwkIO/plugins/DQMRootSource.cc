@@ -385,7 +385,7 @@ private:
   std::vector<RunLumiToRange> m_runlumiToRange;
   std::unique_ptr<TFile> m_file;
   std::vector<TTree*> m_trees;
-  std::vector<boost::shared_ptr<TreeReaderBase> > m_treeReaders;
+  std::vector<std::shared_ptr<TreeReaderBase> > m_treeReaders;
 
   std::list<unsigned int> m_orderedIndices;
   edm::ProcessHistoryID m_lastSeenReducedPHID;
@@ -440,7 +440,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
       m_fileIndex(0),
       m_presentlyOpenFileIndex(0),
       m_trees(kNIndicies, static_cast<TTree*>(nullptr)),
-      m_treeReaders(kNIndicies, boost::shared_ptr<TreeReaderBase>()),
+      m_treeReaders(kNIndicies, std::shared_ptr<TreeReaderBase>()),
       m_lastSeenReducedPHID(),
       m_lastSeenRun(0),
       m_lastSeenReducedPHID2(),
@@ -671,7 +671,7 @@ void DQMRootSource::readElements() {
       ++m_presentIndexItr;
 
     if (runLumiRange.m_type != kNoTypesStored) {
-      boost::shared_ptr<TreeReaderBase> reader = m_treeReaders[runLumiRange.m_type];
+      std::shared_ptr<TreeReaderBase> reader = m_treeReaders[runLumiRange.m_type];
       ULong64_t index = runLumiRange.m_firstIndex;
       ULong64_t endIndex = runLumiRange.m_lastIndex + 1;
       for (; index != endIndex; ++index) {
