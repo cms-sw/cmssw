@@ -48,8 +48,8 @@ static long algorithm(dd4hep::Detector& /* description */,
   dd4hep::Rotation3D rot;
   if (tilt != 0) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalZposAlgo: Creating a rotation \t90, "
-				 << convertRadToDeg(tilt) << ",90," << (90 + convertRadToDeg(tilt)) << ", 0, 0";
+    edm::LogVerbatim("HCalGeom") << "DDHCalZposAlgo: Creating a rotation \t90, " << convertRadToDeg(tilt) << ",90,"
+                                 << (90 + convertRadToDeg(tilt)) << ", 0, 0";
 #endif
     rot = cms::makeRotation3D(90._deg, tilt, 90._deg, (90._deg + tilt), 0.0, 0.0);
   }
