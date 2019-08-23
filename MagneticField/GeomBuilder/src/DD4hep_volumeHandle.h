@@ -1,5 +1,5 @@
-#ifndef volumeHandle_H
-#define volumeHandle_H
+#ifndef MagneticField_GeomBuilder_DD4hep_volumeHandle_h
+#define MagneticField_GeomBuilder_DD4hep_volumeHandle_h
 
 /** \class volumeHandle
  * A temporary container to cache info on a six-surface volume during
@@ -7,22 +7,22 @@
  * One instance is created for each volume. The parameters of the 
  * boundary surfaces are calculated during construction.
  *
- *  \author N. Amapane - INFN Torino
  */
 
+#include "BaseVolumeHandle.h"
+
 #include "DataFormats/GeometrySurface/interface/Surface.h"
-#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDShapes.h"
 #include "MagneticField/VolumeGeometry/interface/VolumeSide.h"
-#include "MagneticField/GeomBuilder/src/BaseVolumeHandle.h"
 
-namespace magneticfield {
+namespace cms {
 
   typedef const char* ShapeType;
+  class DDFilteredView;
 
-  class volumeHandle : public BaseVolumeHandle {
+  class volumeHandle : public magneticfield::BaseVolumeHandle {
   public:
-    volumeHandle(const cms::DDFilteredView& fv, bool expand2Pi = false, bool debugVal = false);
+    volumeHandle(const DDFilteredView& fv, bool expand2Pi = false, bool debugVal = false);
 
     // Disallow Default/copy ctor & assignment op.
     // (we want to handle only pointers!!!)
@@ -30,14 +30,14 @@ namespace magneticfield {
     volumeHandle operator=(const volumeHandle& v) = delete;
 
     // Shape at initialization
-    DDSolidShape shape() const override { return (shape_); }
+    DDSolidShape shape() const override { return (theShape); }
 
     /// The surfaces and they orientation, as required to build a MagVolume.
     std::vector<VolumeSide> sides() const override;
 
   private:
     // initialise the refPlane
-    void referencePlane(const cms::DDFilteredView& fv);
+    void referencePlane(const DDFilteredView& fv);
 
     // Build the surfaces for a box
     void buildBox();
@@ -51,8 +51,8 @@ namespace magneticfield {
     void buildTruncTubs();
 
     // Shape at initialization
-    const DDSolidShape shape_;
-    const cms::DDFilteredView& solid;
+    const DDSolidShape theShape;
+    const DDFilteredView& solid;
     // "solid" name is for backwards compatibility. Can be changed to "fview" after DD4hep migration.
   };
 }  // namespace magneticfield
