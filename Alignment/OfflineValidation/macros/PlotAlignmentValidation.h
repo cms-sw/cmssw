@@ -148,7 +148,7 @@ private :
   double resampleTestOfEqualMeans(TH1F* h1, TH1F* h2, int numSamples);
   double resampleTestOfEqualRMS(TH1F* h1, TH1F* h2, int numSamples);
 
-  void storeHistogramInRootfile(TH1* hist, TF1* func);
+  void storeHistogramInRootfile(TH1* hist);
   TF1 *fitGauss(TH1 *hist,int color);
   //void plotBoxOverview(TCanvas &c1, TList &treeList,std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t filenumber,Int_t minHits);
   //void plot1DDetailsSubDet(TCanvas &c1, TList &treeList, std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t minHits);
