@@ -6,7 +6,7 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/plugins/dd4hep/volumeHandle.h"
+#include "DD4hep_volumeHandle.h"
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
@@ -24,7 +24,6 @@
 #include <iterator>
 #include <iomanip>
 #include <iostream>
-#include <boost/lexical_cast.hpp>
 
 using namespace SurfaceOrientation;
 using namespace std;
@@ -34,23 +33,23 @@ using namespace cms::dd;
 using namespace edm;
 
 volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugVal)
-    : BaseVolumeHandle(debugVal), shape_(getCurrentShape(fv)), solid(fv) {
+    : BaseVolumeHandle(debugVal), theShape(getCurrentShape(fv)), solid(fv) {
   name = fv.name();
   copyno = fv.copyNum();
   expand = expand2Pi;
-  const Double_t *const transArray = fv.trans();
+  const auto *const transArray = fv.trans();
   center_ = GlobalPoint(transArray[0], transArray[1], transArray[2]);
 
   // ASSUMPTION: volume names ends with "_NUM" where NUM is the volume number
   string volName = name;
   volName.erase(0, volName.rfind('_') + 1);
-  volumeno = boost::lexical_cast<unsigned short>(volName);
+  volumeno = static_cast<unsigned short>(std::atoi(volName.c_str()));
 
   for (int i = 0; i < 6; ++i) {
     isAssigned[i] = false;
   }
   referencePlane(fv);
-  switch (shape_) {
+  switch (theShape) {
     case DDSolidShape::ddbox:
       buildBox();
       break;
@@ -68,7 +67,7 @@ volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugV
       break;
     default:
       LogError("magneticfield::volumeHandle")
-          << "ctor: Unexpected shape_ # " << static_cast<int>(shape_) << " for vol " << name;
+          << "ctor: Unexpected theShape # " << static_cast<int>(theShape) << " for vol " << name;
   }
 
   // Get material for this volume
@@ -83,7 +82,7 @@ volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugV
       LogDebug("magneticfield::volumeHandle") << "*** WARNING: wrong RMin/RN/RMax";
 
     LogDebug("magneticfield::volumeHandle")
-        << "Summary: " << name << " " << copyno << " shape = " << shape_ << " trasl " << center() << " R "
+        << "Summary: " << name << " " << copyno << " shape = " << theShape << " trasl " << center() << " R "
         << center().perp() << " phi " << center().phi() << " magFile " << magFile << " Material= " << fv.materialName()
         << " isIron= " << isIronFlag << " masterSector= " << masterSector << std::endl;
 
@@ -160,7 +159,7 @@ void volumeHandle::referencePlane(const DDFilteredView &fv) {
     LocalVector globalZdir(0., 0., 1.);  // Local direction of the axis along global Z
 
     /* Preserve in case pseudotrap is needed again
-    if (shape_ == DDSolidShape::ddpseudotrap) {
+    if (theShape == DDSolidShape::ddpseudotrap) {
       globalZdir = LocalVector(0., 1., 0.);
     }
     */
@@ -182,10 +181,10 @@ std::vector<VolumeSide> volumeHandle::sides() const {
       continue;
 
     // FIXME: Skip null inner degenerate cylindrical surface
-    if (shape_ == DDSolidShape::ddtubs && i == SurfaceOrientation::inner && theRMin < 0.001)
+    if (theShape == DDSolidShape::ddtubs && i == SurfaceOrientation::inner && theRMin < 0.001)
       continue;
 
-    ReferenceCountingPointer<Surface> s = const_cast<Surface *>(surfaces[i].get());
+    RCPS s = surfaces[i].get();
     result.push_back(VolumeSide(s, GlobalFace(i), surfaces[i]->side(center_, 0.3)));
   }
   return result;
@@ -196,9 +195,11 @@ std::vector<VolumeSide> volumeHandle::sides() const {
 // that is defined differently between old and new DD.
 // For the old DD, another version of this function converts mm to cm.
 
-template <class NumType>
-inline constexpr NumType convertUnits(NumType centimeters) {
-  return (centimeters);
+namespace {
+  template <class NumType>
+  inline constexpr NumType convertUnits(NumType centimeters) {
+    return (centimeters);
+  }
 }
 
 #include "MagneticField/GeomBuilder/src/buildBox.icc"

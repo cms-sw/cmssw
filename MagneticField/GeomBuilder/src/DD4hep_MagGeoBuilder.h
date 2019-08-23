@@ -1,21 +1,19 @@
-#ifndef MagneticField_GeomBuilder_MagGeoBuilder_H
-#define MagneticField_GeomBuilder_MagGeoBuilder_H
+#ifndef MagneticField_GeomBuilder_DD4hepMagGeoBuilder_h
+#define MagneticField_GeomBuilder_DD4hepMagGeoBuilder_h
 
 /** \class MagGeoBuilder
  *  Parse the XML magnetic geometry, build individual volumes and match their
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  \author N. Amapane - INFN Torino
  */
 
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
-#include "Geometry/MuonNumbering/interface/DD4hep_DTNumberingScheme.h"
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
-#include "MagneticField/GeomBuilder/plugins/dd4hep/volumeHandle.h"
+#include "DD4hep_volumeHandle.h"
 
 #include <string>
 #include <vector>
@@ -65,17 +63,15 @@ namespace cms {
     std::vector<MagVolume6Faces*> endcapVolumes() const;
 
   private:
-    typedef ConstReferenceCountingPointer<Surface> RCPS;
-
     // Build interpolator for the volume with "correct" rotation
-    void buildInterpolator(const magneticfield::volumeHandle* vol,
+    void buildInterpolator(const volumeHandle* vol,
                            std::map<std::string, MagProviderInterpol*>& interpolators);
 
     // Build all MagVolumes setting the MagProviderInterpol
     void buildMagVolumes(const handles& volumes, std::map<std::string, MagProviderInterpol*>& interpolators);
 
     // Print checksums for surfaces.
-    void summary(handles& volumes);
+    void summary(handles& volumes) const;
 
     // Perform simple sanity checks
     void testInside(handles& volumes);

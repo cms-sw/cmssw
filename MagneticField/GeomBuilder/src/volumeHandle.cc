@@ -241,11 +241,13 @@ std::vector<VolumeSide> MagGeoBuilderFromDDD::volumeHandle::sides() const {
 
 using volumeHandle = MagGeoBuilderFromDDD::volumeHandle;
 
-// Old DD returns lengths in mm, but CMS code uses cm
-template <class NumType>
-inline constexpr NumType convertUnits(NumType millimeters)  // Millimeters -> centimeters
-{
-  return (geant_units::operators::convertMmToCm(millimeters));
+namespace {
+  // Old DD returns lengths in mm, but CMS code uses cm
+  template <class NumType>
+  inline constexpr NumType convertUnits(NumType millimeters)  // Millimeters -> centimeters
+  {
+    return (geant_units::operators::convertMmToCm(millimeters));
+  }
 }
 
 #include "MagneticField/GeomBuilder/src/buildBox.icc"

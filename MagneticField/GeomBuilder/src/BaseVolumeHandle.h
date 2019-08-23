@@ -114,7 +114,7 @@ namespace magneticfield {
     virtual DDSolidShape shape() const = 0;
 
   protected:
-    typedef ConstReferenceCountingPointer<Surface> RCPS;
+    typedef ReferenceCountingPointer<Surface> RCPS;
 
     // The volume's six surfaces.
     RCPS surfaces[6];
