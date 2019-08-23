@@ -271,17 +271,21 @@ void DTLocalTriggerLutTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMS
           int phiNoData = 0;
           int phibNoData = 0;
           for (int stat = 1; stat <= 4; ++stat) {
-            int res = static_cast<int>(phiWhSummary->GetBinContent(sect, stat));
-            if (res == 1) {
-              phiNoData++;
-            } else if (res == 3) {
-              phiErr++;
+            switch (static_cast<int>(phiWhSummary->GetBinContent(sect, stat))) {
+              case 1:
+                phiNoData++;
+                [[fallthrough]];
+              case 2:
+              case 3:
+                phiErr++;
             }
-            res = static_cast<int>(phibWhSummary->GetBinContent(sect, stat));
-            if (res == 1) {
-              phibNoData++;
-            } else if (res == 3) {
-              phibErr++;
+            switch (static_cast<int>(phibWhSummary->GetBinContent(sect, stat))) {
+              case 1:
+                phibNoData++;
+                [[fallthrough]];
+              case 2:
+              case 3:
+                phibErr++;
             }
           }
           if (phiNoData == 4)
