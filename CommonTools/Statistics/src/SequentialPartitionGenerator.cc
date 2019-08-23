@@ -31,6 +31,7 @@ bool SequentialPartitionGenerator::first_part(
         }
         return done;
       }
+      [[fallthrough]];
     default:
       Partition pp(p.begin() + 1, p.end());
       for (int i = std::min(pmax, n - k + 1); i >= pmin; i--) {
