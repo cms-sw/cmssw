@@ -46,8 +46,9 @@ namespace fs = std::experimental::filesystem;
  *         Contains parameters of Gaussian fits to DMRs
  *  
  * @param run:             run number (IOV boundary)
- * @param mu:              mu/mean from Gaussian fit to DMR
- * @param sigma:           sigma/standard deviation from Gaussian fit to DMR
+ * @param scale:           scale for the measured quantity: cm->μm for DMRs, 1 for normalized residuals
+ * @param mu:              mu/mean from Gaussian fit to DMR/DrmsNR
+ * @param sigma:           sigma/standard deviation from Gaussian fit to DMR/DrmsNR
  * @param muplus:          mu/mean for the inward pointing modules
  * @param muminus:         mu/mean for outward pointing modules
  * @param sigmaplus:       sigma/standard for inward pointing modules 
@@ -536,10 +537,10 @@ void scalebylumi(TGraphErrors *g, vector<pair<int,double>> lumiIOVpairs){
 	g->GetPoint(i,run,yvalue);
         size_t index=-1;
         for(size_t j=0;j<Nscale;j++){
-	  if(run==(lumiIOVpairs.at(j).first)){//If the starting run of an IOV is included in the list of IOVs, the index is stored
+	    if(run==(lumiIOVpairs.at(j).first)){//If the starting run of an IOV is included in the list of IOVs, the index is stored
                 index=j;
 		continue;
-	  }else if(run>(lumiIOVpairs.at(j).first)) continue;
+	    }else if(run>(lumiIOVpairs.at(j).first)) continue;
         }
         if(lumiIOVpairs.at(index).second==0||index<0.){
             N=N-1;
@@ -711,7 +712,6 @@ void PlotDMRTrends(vector<int> IOVlist, TString Variable, vector<string> labels,
 		gPad->SetTicky();
 		gStyle->SetLegendTextSize(0.025);
 
-
 		double max=6;
                 double min=-4;
 		if(Variable=="DrmsNR"){
@@ -790,14 +790,7 @@ void PlotDMRTrends(vector<int> IOVlist, TString Variable, vector<string> labels,
 		structlabel->SetTextSize(0.04);
 		structlabel->SetFillColor(10);
 		structlabel->Draw();
-		//legend->SetHeader("#scale[1.2]{#bf{CMS} Work in progress}");
-                //TLegendEntry *header = (TLegendEntry*)legend->GetListOfPrimitives()->First();
-                //header->SetTextSize(.04);
-		//legend->AddEntry((TObject*)nullptr,structtitle.Data(),"h");
-               
-		//TLegendEntry *str = (TLegendEntry*)legend->GetListOfPrimitives()->Last();
-                //str->SetTextSize(.03);
-
+		
 		legend->Draw();
 		mh->Draw("nostack same");
                 c->Update();
@@ -836,9 +829,6 @@ void PlotDMRTrends(vector<int> IOVlist, TString Variable, vector<string> labels,
 
 int main (int argc, char * argv[]) { 
 	if (argc == 1) {
-
-//vector<int>IOVlist={290543, 296702, 296966, 297224, 297281, 297429, 297467, 297484, 297494, 297503, 297557, 297599, 297620, 297660, 297670, 298678, 298996, 299062, 299096, 299184, 299327, 299368, 299381, 299443, 299480, 299592, 299594, 299649, 300087, 300155, 300233, 300237, 300280, 300364, 300389, 300399, 300459, 300497, 300515, 300538, 300551, 300574, 300636, 300673, 300780, 300806, 300812, 301046, 301417, 302131, 302573, 302635, 303825, 303998, 304170, 304505, 304672, 305040, 305081};//UL17
-	  //vector<int>IOVlist={297049,297179,297224,297283,297429,297467,297484,297503,297557,297598,297620,297660,297670,298996,299062,299096,299184,299327,299368,299370,299381,299443,299480,299592,299594,299649,300087,300155,300233,300237,300280,300364,300389,300399,300459,300497,300515,300551,300574,300636,300673,300780,300806,300812,301046,301417,302131,302573,302635,303825,303998,304170,304505,304672,305040,305113,305178,305188,305204,305809,305842,305898,305967,306029,306042,306169,306417,306459,306936,307082};
 	        vector<int>IOVlist={314881, 315257, 315488, 315489, 315506, 316239, 316271, 316361, 316363, 316378, 316456, 316470, 316505, 316569, 316665, 316758, 317080, 317182, 317212, 317295, 317339, 317382, 317438, 317527, 317661, 317664, 318712, 319337, 319460, 320841, 320854, 320856, 320888, 320916, 320933, 320980, 321009, 321119, 321134, 321164, 321261, 321294, 321310, 321393, 321397, 321431, 321461, 321710, 321735, 321773, 321774, 321778, 321820, 321831, 321880, 321960, 322014, 322510, 322603, 323232, 323423, 323472, 323475, 323693, 323794, 323976, 324202, 324206, 324245, 324729, 324764, 324840, 324999, 325097, 325110};
 	        vector<int> pixelupdateruns {316758, 317527,317661,317664,318227, 320377};//2018
 		//	vector<int> pixelupdateruns {290543, 297281, 298653, 299443, 300389, 301046, 302131, 303790, 303998, 304911, 305898};//2017
@@ -849,33 +839,11 @@ int main (int argc, char * argv[]) {
 		//PLEASE READ: for debugging purposes please keep at least one example that works commented.
 		//             Error messages are still a W.I.P. and having a working example available is useful for debugging.
 		//Example provided for a currently working set of parameters:
-		/*
-		        DMRtrends(IOVlist,{"vUL17","MB"},"2017", "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/EOY17/",
-				  {"EOY17","full ML pixel + strip","SG-mp2607","mp2993"},
-				  {kRed, kBlack, kBlue, kGreen}, "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/DMRTrends/test/",
-				  true, pixelupdateruns, true, true); 
-		*/
-		/*			DMRtrends(IOVlist,{"v22bis"},"2017", "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/UL17/",
-				  //{"SG EOY17",  "1st step pixel strip","2nd step panels ladders", "2st step hybrid", "3rd step"},
-				  {"94X_dataRun2_ReReco_EOY17_v2", "106X_dataRun2_v4"},
-				  {kBlack,kRed}, "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/DMRTrends/test/", true, pixelupdateruns, true, true); */
-		
-		DMRtrends(IOVlist, {"median", "DrmsNR"}, {"minbias"},"2018", "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/adewit/UL18_DMR_MB_eoj_v3/",
-				  //{"SG EOY17",  "1st step pixel strip","2nd step panels ladders", "2st step hybrid", "3rd step"},
+		DMRtrends(IOVlist, {"median", "DrmsNR"}, {"minbias"},"2018",
+			          "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/adewit/UL18_DMR_MB_eoj_v3/",
 				  {"1-step hybrid", "mid18 rereco", "counter twist"},
-				  {kBlue, kBlack,kGreen+3}, "/afs/cern.ch/user/a/acardini/commonValidation/results/acardini/DMRs/DMRTrends/test/", true, pixelupdateruns, true, true); /*
-				DMRtrends(IOVlist,{"singlemuon"},"2018", "/afs/cern.ch/user/h/hpeterse/commonValidation/results/hpeterse/UL2018data_with_condor/",
-				  //{"SG EOY17",  "1st step pixel strip","2nd step panels ladders", "2st step hybrid", "3rd step"},
-				  {"step1 with SD","hybrid-step-2 on mp3124m1","1-step hybrid no SD","1-step hybrid with SD","1-step hybrid from 2017","mid18 rereco"},
-				  {kGreen,kMagenta,kCyan,kBlue,kOrange,kRed}, "/afs/cern.ch/user/h/hpeterse/commonValidation/results/hpeterse/DMRTrends_singlemuon/", true, pixelupdateruns, true, true);*/ 
-		
-		/*
-		DMRtrends(IOVlist,{"v22"},"2017", "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/paconnor/",
-                //{"SG EOY17",  "1st step pixel strip","2nd step panels ladders", "2st step hybrid", "3rd step"},
-                {"94X_dataRun2_ReReco_EOY17_v2", "106X_dataRun2_v4"},
-                {kBlack,kRed}, "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/paconnor/DMRTrends/", true, pixelupdateruns, true, true); 
-		*/
-		
+				  {kBlue, kBlack,kGreen+3}, "/afs/cern.ch/user/a/acardini/commonValidation/results/acardini/DMRs/DMRTrends/test/",
+			          true, pixelupdateruns, true, true); 		
 		return 0;
 	}
 	else if (argc < 12) {
