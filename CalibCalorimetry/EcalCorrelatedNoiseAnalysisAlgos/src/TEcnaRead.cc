@@ -237,7 +237,7 @@ void TEcnaRead::fCopy(const TEcnaRead &rund) {
 //
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-TEcnaRead::TEcnaRead(const TEcnaRead &dcop) {
+TEcnaRead::TEcnaRead(const TEcnaRead &dcop) : TObject::TObject(dcop) {
   std::cout << "*TEcnaRead::TEcnaRead(const TEcnaRead& dcop)> "
             << " It is time to write a copy constructor" << std::endl;
 
