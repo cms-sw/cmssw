@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_Utilities_GammaZInterference_h
 #define PhysicsTools_Utilities_GammaZInterference_h
 #include "PhysicsTools/Utilities/interface/Parameter.h"
-#include <boost/shared_ptr.hpp>
+
 #include <cmath>
 
 namespace funct {
@@ -9,7 +9,7 @@ namespace funct {
   struct GammaZInterference {
     GammaZInterference(const Parameter& m, const Parameter& g): 
       mass(m.ptr()), width(g.ptr()) { }
-    GammaZInterference(boost::shared_ptr<double> m, boost::shared_ptr<double> g): 
+    GammaZInterference(std::shared_ptr<double> m, std::shared_ptr<double> g): 
       mass(m), width(g) {}
     double operator()(double x) const { 
       double m2 = *mass * (*mass); 
@@ -24,7 +24,7 @@ namespace funct {
       }
       return interference;
     }
-    boost::shared_ptr<double> mass, width;
+    std::shared_ptr<double> mass, width;
   };
 
 }

@@ -2,7 +2,7 @@
 #define _TRACKER_TRAJECTORYMEASUREMENT_H_
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "boost/intrusive_ptr.hpp"
+
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include <algorithm>
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"

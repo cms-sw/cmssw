@@ -69,7 +69,7 @@
 //
 // constants, enums and typedefs
 //
-typedef boost::shared_ptr<BasePartonSelector> PartonSelectorPtr;
+typedef std::shared_ptr<BasePartonSelector> PartonSelectorPtr;
 
 //
 // class declaration

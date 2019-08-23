@@ -27,7 +27,7 @@ int main(){
     ioveditor.create(timetype,globalTill);
     std::string mytestiovtoken;
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
-      boost::shared_ptr<Pedestals> myped( new Pedestals );
+      std::shared_ptr<Pedestals> myped( new Pedestals );
       for(int ichannel=1; ichannel<=5; ++ichannel){
         Pedestals::Item item;
         item.m_mean=1.11*ichannel+i;

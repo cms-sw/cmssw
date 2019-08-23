@@ -6,7 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <boost/shared_ptr.hpp>
+
 
 /**
   \class    FWLiteFilterWrapper FWLiteFilterWrapper.h "PhysicsTools/UtilAlgos/interface/FWLiteFilterWrapper.h"
@@ -35,7 +35,7 @@ class FWLiteFilterWrapper : public EDFilter {
       << "Please Note: THIS FILE HAS BEEN DEPRECATED. IT HAS BEEN MOVED TO \n"
       << "PhysicsTools/UtilsAlgos/interface/EDFilterWrapper.h";
 
-    filter_  = boost::shared_ptr<T>( new T(pset) );
+    filter_  = std::shared_ptr<T>( new T(pset) );
   }
 
   /// Destructor does nothing
@@ -51,7 +51,7 @@ class FWLiteFilterWrapper : public EDFilter {
 
 
  protected:
-  boost::shared_ptr<T> filter_;
+  std::shared_ptr<T> filter_;
 };
 
 }

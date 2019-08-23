@@ -25,7 +25,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
-#include <boost/shared_ptr.hpp>
+
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -45,11 +45,11 @@ LumiReWeighting::LumiReWeighting(std::string generatedFile,
       GenHistName_(GenHistName),
       DataHistName_(DataHistName),
       pileupSumInfoTag_(PileupSumInfoInputTag) {
-  generatedFile_ = boost::shared_ptr<TFile>(new TFile(generatedFileName_.c_str()));  //MC distribution
-  dataFile_ = boost::shared_ptr<TFile>(new TFile(dataFileName_.c_str()));            //Data distribution
+  generatedFile_ = std::shared_ptr<TFile>(new TFile(generatedFileName_.c_str()));  //MC distribution
+  dataFile_ = std::shared_ptr<TFile>(new TFile(dataFileName_.c_str()));            //Data distribution
 
-  Data_distr_ = boost::shared_ptr<TH1>((static_cast<TH1*>(dataFile_->Get(DataHistName_.c_str())->Clone())));
-  MC_distr_ = boost::shared_ptr<TH1>((static_cast<TH1*>(generatedFile_->Get(GenHistName_.c_str())->Clone())));
+  Data_distr_ = std::shared_ptr<TH1>((static_cast<TH1*>(dataFile_->Get(DataHistName_.c_str())->Clone())));
+  MC_distr_ = std::shared_ptr<TH1>((static_cast<TH1*>(generatedFile_->Get(GenHistName_.c_str())->Clone())));
 
   // MC * data/MC = data, so the weights are data/MC:
 
@@ -58,7 +58,7 @@ LumiReWeighting::LumiReWeighting(std::string generatedFile,
   Data_distr_->Scale(1.0 / Data_distr_->Integral());
   MC_distr_->Scale(1.0 / MC_distr_->Integral());
 
-  weights_ = boost::shared_ptr<TH1>(static_cast<TH1*>(Data_distr_->Clone()));
+  weights_ = std::shared_ptr<TH1>(static_cast<TH1*>(Data_distr_->Clone()));
 
   weights_->SetName("lumiWeights");
 
@@ -97,10 +97,10 @@ LumiReWeighting::LumiReWeighting(const std::vector<float>& MC_distr,
 
   Int_t NBins = MC_distr.size();
 
-  MC_distr_ = boost::shared_ptr<TH1>(new TH1F("MC_distr", "MC dist", NBins, -0.5, float(NBins) - 0.5));
-  Data_distr_ = boost::shared_ptr<TH1>(new TH1F("Data_distr", "Data dist", NBins, -0.5, float(NBins) - 0.5));
+  MC_distr_ = std::shared_ptr<TH1>(new TH1F("MC_distr", "MC dist", NBins, -0.5, float(NBins) - 0.5));
+  Data_distr_ = std::shared_ptr<TH1>(new TH1F("Data_distr", "Data dist", NBins, -0.5, float(NBins) - 0.5));
 
-  weights_ = boost::shared_ptr<TH1>(new TH1F("luminumer", "luminumer", NBins, -0.5, float(NBins) - 0.5));
+  weights_ = std::shared_ptr<TH1>(new TH1F("luminumer", "luminumer", NBins, -0.5, float(NBins) - 0.5));
   TH1* den = new TH1F("lumidenom", "lumidenom", NBins, -0.5, float(NBins) - 0.5);
 
   for (int ibin = 1; ibin < NBins + 1; ++ibin) {

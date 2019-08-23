@@ -4,7 +4,7 @@
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateMerger.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "boost/shared_ptr.hpp"
+
 
 class TrajectoryStateOnSurface;
 

@@ -8,9 +8,9 @@
 CSCAnodeData::CSCAnodeData(const CSCALCTHeader &header)  ///for digi->raw packing
     : firmwareVersion(header.alctFirmwareVersion()) {
   if (firmwareVersion == 2006) {
-    theData = boost::shared_ptr<CSCAnodeDataFormat>(new CSCAnodeData2006(header));
+    theData = std::shared_ptr<CSCAnodeDataFormat>(new CSCAnodeData2006(header));
   } else {
-    theData = boost::shared_ptr<CSCAnodeDataFormat>(new CSCAnodeData2007(header));
+    theData = std::shared_ptr<CSCAnodeDataFormat>(new CSCAnodeData2007(header));
   }
 }
 
@@ -18,9 +18,9 @@ CSCAnodeData::CSCAnodeData(const CSCALCTHeader &header)  ///for digi->raw packin
 CSCAnodeData::CSCAnodeData(const CSCALCTHeader &header, const unsigned short *buf)
     : firmwareVersion(header.alctFirmwareVersion()) {
   if (firmwareVersion == 2006) {
-    theData = boost::shared_ptr<CSCAnodeDataFormat>(new CSCAnodeData2006(header, buf));
+    theData = std::shared_ptr<CSCAnodeDataFormat>(new CSCAnodeData2006(header, buf));
   } else {
-    theData = boost::shared_ptr<CSCAnodeDataFormat>(new CSCAnodeData2007(header, buf));
+    theData = std::shared_ptr<CSCAnodeDataFormat>(new CSCAnodeData2007(header, buf));
   }
 }
 

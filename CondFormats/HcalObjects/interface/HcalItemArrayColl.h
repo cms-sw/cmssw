@@ -36,7 +36,7 @@ public:
     {
         StoredArray st;
         for (unsigned i=0; i<N; ++i)
-            st[i] = boost::shared_ptr<Item>(arr[i].release());
+            st[i] = std::shared_ptr<Item>(arr[i].release());
         data_.push_back(st);
     }
 
@@ -81,7 +81,7 @@ public:
         {return !(*this == r);}
 
 private:
-    typedef boost::array<boost::shared_ptr<Item>,N> StoredArray;
+    typedef boost::array<std::shared_ptr<Item>,N> StoredArray;
     std::vector<StoredArray> data_;
 
     friend class boost::serialization::access;

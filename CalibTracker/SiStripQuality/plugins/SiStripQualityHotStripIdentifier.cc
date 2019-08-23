@@ -129,7 +129,7 @@ void SiStripQualityHotStripIdentifier::bookHistos() {
     SiStrip::QualityHistosMap::iterator ref = ClusterPositionHistoMap.find(it->first);
     if (ref == ClusterPositionHistoMap.end()) {
       ClusterPositionHistoMap[it->first] =
-          boost::shared_ptr<TH1F>(new TH1F(hname, hname, it->second.nApvs * 128, -0.5, it->second.nApvs * 128 - 0.5));
+          std::shared_ptr<TH1F>(new TH1F(hname, hname, it->second.nApvs * 128, -0.5, it->second.nApvs * 128 - 0.5));
     } else
       edm::LogError("SiStripQualityHotStripIdentifier")
           << " [SiStripQualityHotStripIdentifier::bookHistos] DetId " << it->first

@@ -1,5 +1,5 @@
 #include <memory>
-#include "boost/shared_ptr.hpp"
+
 #include <fstream>
 
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"

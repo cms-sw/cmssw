@@ -23,7 +23,7 @@ using namespace std;
 void L1TriggerKeyListExtReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   edm::ESHandle<L1TriggerKeyListExt> handle1;
   evSetup.get<L1TriggerKeyListExtRcd>().get(handle1);
-  boost::shared_ptr<L1TriggerKeyListExt> ptr1(new L1TriggerKeyListExt(*(handle1.product())));
+  std::shared_ptr<L1TriggerKeyListExt> ptr1(new L1TriggerKeyListExt(*(handle1.product())));
 
   const L1TriggerKeyListExt::KeyToToken& allKeysTokens = ptr1->tscKeyToTokenMap();
   for (auto& keyToken : allKeysTokens)

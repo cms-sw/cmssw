@@ -14,9 +14,9 @@ SeedFromNuclearInteraction::SeedFromNuclearInteraction(const Propagator* prop,
                                                        const edm::ParameterSet& iConfig)
     : ptMin(iConfig.getParameter<double>("ptMin")), thePropagator(prop), theTrackerGeom(geom) {
   isValid_ = true;
-  initialTSOS_ = boost::shared_ptr<TrajectoryStateOnSurface>(new TrajectoryStateOnSurface());
-  updatedTSOS_ = boost::shared_ptr<TrajectoryStateOnSurface>(new TrajectoryStateOnSurface());
-  freeTS_ = boost::shared_ptr<FreeTrajectoryState>(new FreeTrajectoryState());
+  initialTSOS_ = std::shared_ptr<TrajectoryStateOnSurface>(new TrajectoryStateOnSurface());
+  updatedTSOS_ = std::shared_ptr<TrajectoryStateOnSurface>(new TrajectoryStateOnSurface());
+  freeTS_ = std::shared_ptr<FreeTrajectoryState>(new FreeTrajectoryState());
 }
 
 //----------------------------------------------------------------------

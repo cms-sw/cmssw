@@ -1,7 +1,7 @@
 #ifndef gen_FortranCallback_h
 #define gen_FortranCallback_h
 
-#include <boost/shared_ptr.hpp>
+
 
 #include "SimDataFormats/GeneratorProducts/interface/LHECommonBlocks.h"
 

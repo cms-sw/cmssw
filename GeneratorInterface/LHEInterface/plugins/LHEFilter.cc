@@ -2,7 +2,7 @@
 #include <string>
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
+
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/SimpleVector.h"

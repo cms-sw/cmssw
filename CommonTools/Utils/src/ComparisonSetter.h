@@ -16,6 +16,7 @@
 #include <iostream>
 #include <string>
 #endif
+#include <memory>
 
 namespace reco {
   namespace parser {
@@ -33,7 +34,7 @@ namespace reco {
 #ifdef BOOST_SPIRIT_DEBUG
         BOOST_SPIRIT_DEBUG_OUT << "pushing comparison: " << cmp_out<CompT>::value << std::endl;
 #endif
-        stack_.push_back(boost::shared_ptr<ComparisonBase>(new Comparison<CompT>()));
+        stack_.push_back(std::shared_ptr<ComparisonBase>(new Comparison<CompT>()));
       }
 
     private:

@@ -51,7 +51,7 @@ std::vector<JetCorrectorParameters> TauJetCorrFactorsProducer::params(
 }
 
 float TauJetCorrFactorsProducer::evaluate(edm::View<reco::BaseTau>::const_iterator& tauJet,
-                                          boost::shared_ptr<FactorizedJetCorrector>& corrector,
+                                          std::shared_ptr<FactorizedJetCorrector>& corrector,
                                           int corrLevel) {
   corrector->setJetEta(tauJet->eta());
   corrector->setJetPt(tauJet->pt());
@@ -64,7 +64,7 @@ void TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& 
   edm::Handle<edm::View<reco::BaseTau> > tauJets;
   evt.getByToken(srcToken_, tauJets);
 
-  typedef boost::shared_ptr<FactorizedJetCorrector> FactorizedJetCorrectorPtr;
+  typedef std::shared_ptr<FactorizedJetCorrector> FactorizedJetCorrectorPtr;
   std::map<std::string, FactorizedJetCorrectorPtr> correctorMapping;
 
   // fill the tauJetCorrFactors

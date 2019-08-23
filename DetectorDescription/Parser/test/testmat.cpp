@@ -14,7 +14,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
-#include "boost/smart_ptr/shared_ptr.hpp"
 
 int main(int argc, char* argv[]) {
   // Copied from example stand-alone program in Message Logger July 18, 2007
@@ -29,9 +28,9 @@ int main(int argc, char* argv[]) {
     //     In particular, the job hangs as soon as the output buffer fills up.
     //     That's because, without the message service, there is no mechanism for
     //     emptying the buffers.
-    boost::shared_ptr<edm::Presence> theMessageServicePresence;
+    std::shared_ptr<edm::Presence> theMessageServicePresence;
     theMessageServicePresence =
-        boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
+        std::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
 
     // C.  Manufacture a configuration and establish it.
     std::string config =

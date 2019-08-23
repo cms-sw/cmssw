@@ -3,8 +3,8 @@
 
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include <memory>
 
-#include <boost/shared_ptr.hpp>
 
 /** Class providing access to the covariance matrix of a set of relevant parameters of a trajectory
  *  in a local, Cartesian frame. The errors provided are: <BR> <BR>
@@ -85,7 +85,7 @@ public:
 
 private:
   AlgebraicSymMatrix55 theCovarianceMatrix;
-  mutable boost::shared_ptr<AlgebraicSymMatrix55> theWeightMatrixPtr;
+  mutable std::shared_ptr<AlgebraicSymMatrix55> theWeightMatrixPtr;
 };
 
 #endif

@@ -29,7 +29,7 @@ int main(){
     std::cout<<"globalTill value "<<globalTill<<std::endl;
     ioveditor.create(timetype,globalTill);
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
-      boost::shared_ptr<Pedestals> myped( new Pedestals );
+      std::shared_ptr<Pedestals> myped( new Pedestals );
       for(int ichannel=1; ichannel<=5; ++ichannel){
         Pedestals::Item item;
         item.m_mean=1.11*ichannel+i;
@@ -40,7 +40,7 @@ int main(){
       ioveditor.append(cond::Time_t(2+2*i),payloadToken);
     }
     //last one
-    boost::shared_ptr<Pedestals> myped( new Pedestals );
+    std::shared_ptr<Pedestals> myped( new Pedestals );
     for(int ichannel=1; ichannel<=5; ++ichannel){
       Pedestals::Item item;
       item.m_mean=3.11*ichannel;
@@ -55,7 +55,7 @@ int main(){
     //pooldb.disconnect();
     session.transaction().start(false);
     ioveditor.create(timetype, globalTill);
-    boost::shared_ptr<Pedestals> p( new Pedestals );
+    std::shared_ptr<Pedestals> p( new Pedestals );
     for(int ichannel=1; ichannel<=2; ++ichannel){
       Pedestals::Item item;
       item.m_mean=4.11*ichannel;
@@ -74,7 +74,7 @@ int main(){
     session.transaction().start(false);
     anotherioveditor.create(timetype,globalTill);
     for(unsigned int i=0; i<2; ++i){ //inserting 2 payloads to another Rcd
-      boost::shared_ptr<Pedestals> myped( new Pedestals );
+      std::shared_ptr<Pedestals> myped( new Pedestals );
       for(int ichannel=1; ichannel<=3; ++ichannel){
         Pedestals::Item item;
         item.m_mean=1.11*ichannel+i;
