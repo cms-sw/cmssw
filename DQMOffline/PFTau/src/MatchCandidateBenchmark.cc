@@ -110,7 +110,7 @@ void MatchCandidateBenchmark::computePtBins(const edm::ParameterSet &ps, const e
     ptBins_.reserve(nFixedBins + 1);
     for (Int_t i = 0; i <= nFixedBins; i++)
       ptBins_.push_back(ptPS.getParameter<double>("xMin") +
-                        i  *((ptPS.getParameter<double>("xMax") - ptPS.getParameter<double>("xMin")) / nFixedBins));
+                        i * ((ptPS.getParameter<double>("xMax") - ptPS.getParameter<double>("xMin")) / nFixedBins));
   }
 }
 void MatchCandidateBenchmark::setup(DQMStore::IBooker &b, const edm::ParameterSet &parameterSet) {
