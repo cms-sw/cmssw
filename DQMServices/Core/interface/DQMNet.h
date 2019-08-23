@@ -299,7 +299,7 @@ public:
         [[fallthrough]];
       case 1:
         a += k[0];
-        [[fallthrough]];
+        break;
       case 0:
         return c;
     }
