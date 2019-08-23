@@ -1,5 +1,5 @@
-#ifndef MagneticField_GeomBuilder_DD4hepMagGeoBuilder_h
-#define MagneticField_GeomBuilder_DD4hepMagGeoBuilder_h
+#ifndef MagneticField_GeomBuilder_DD4hep_MagGeoBuilder_h
+#define MagneticField_GeomBuilder_DD4hep_MagGeoBuilder_h
 
 /** \class MagGeoBuilder
  *  Parse the XML magnetic geometry, build individual volumes and match their
@@ -30,7 +30,7 @@ class MagBLayer;
 class MagESector;
 class MagVolume6Faces;
 
-namespace cms {
+namespace cms::dd4hepmagfield {
 
   class MagGeoBuilder {
   public:
@@ -65,8 +65,7 @@ namespace cms {
 
   private:
     // Build interpolator for the volume with "correct" rotation
-    void buildInterpolator(const volumeHandle* vol,
-                           std::map<std::string, MagProviderInterpol*>& interpolators);
+    void buildInterpolator(const volumeHandle* vol, std::map<std::string, MagProviderInterpol*>& interpolators);
 
     // Build all MagVolumes setting the MagProviderInterpol
     void buildMagVolumes(const handles& volumes, std::map<std::string, MagProviderInterpol*>& interpolators);
@@ -91,5 +90,5 @@ namespace cms {
 
     const bool debug_;
   };
-}  // namespace cms
+}  // namespace cms::dd4hepmagfield
 #endif

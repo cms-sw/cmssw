@@ -1,5 +1,3 @@
-// #include "Utilities/Configuration/interface/Architecture.h"
-
 /*
  *  See header file for a description of this class.
  *
@@ -22,21 +20,19 @@
 
 #include <string>
 #include <iterator>
-#include <iomanip>
-#include <iostream>
 
 using namespace SurfaceOrientation;
 using namespace std;
 using namespace magneticfield;
 using namespace cms;
 using namespace cms::dd;
+using namespace cms::dd4hepmagfield;
 using namespace edm;
 
 volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugVal)
-    : BaseVolumeHandle(debugVal), theShape(getCurrentShape(fv)), solid(fv) {
+    : BaseVolumeHandle(expand2Pi, debugVal), theShape(getCurrentShape(fv)), solid(fv) {
   name = fv.name();
   copyno = fv.copyNum();
-  expand = expand2Pi;
   const auto *const transArray = fv.trans();
   center_ = GlobalPoint(transArray[0], transArray[1], transArray[2]);
 
@@ -67,7 +63,7 @@ volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugV
       break;
     default:
       LogError("magneticfield::volumeHandle")
-          << "ctor: Unexpected theShape # " << static_cast<int>(theShape) << " for vol " << name;
+          << "ctor: Unexpected shape # " << static_cast<int>(theShape) << " for vol " << name;
   }
 
   // Get material for this volume
@@ -75,22 +71,21 @@ volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugV
     isIronFlag = true;
 
   if (debug) {
-    LogDebug("magneticfield::volumeHandle") << " RMin =  " << theRMin;
-    LogDebug("magneticfield::volumeHandle") << " RMax =  " << theRMax;
+    LogTrace("magneticfield::volumeHandle") << " RMin =  " << theRMin << endl << " RMax =  " << theRMax;
 
     if (theRMin < 0 || theRN < theRMin || theRMax < theRN)
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: wrong RMin/RN/RMax";
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: wrong RMin/RN/RMax";
 
-    LogDebug("magneticfield::volumeHandle")
+    LogTrace("magneticfield::volumeHandle")
         << "Summary: " << name << " " << copyno << " shape = " << theShape << " trasl " << center() << " R "
         << center().perp() << " phi " << center().phi() << " magFile " << magFile << " Material= " << fv.materialName()
-        << " isIron= " << isIronFlag << " masterSector= " << masterSector << std::endl;
+        << " isIron= " << isIronFlag << " masterSector= " << masterSector;
 
-    LogDebug("magneticfield::volumeHandle") << " Orientation of surfaces:";
+    LogTrace("magneticfield::volumeHandle") << " Orientation of surfaces:";
     std::string sideName[3] = {"positiveSide", "negativeSide", "onSurface"};
     for (int i = 0; i < 6; ++i) {
       if (surfaces[i] != nullptr)
-        LogDebug("magneticfield::volumeHandle") << "  " << i << ":" << sideName[surfaces[i]->side(center_, 0.3)];
+        LogTrace("magneticfield::volumeHandle") << "  " << i << ":" << sideName[surfaces[i]->side(center_, 0.3)];
     }
   }
 }
@@ -134,7 +129,7 @@ void volumeHandle::referencePlane(const DDFilteredView &fv) {
   refRot.GetComponents(x, y, z);
   if (debug) {
     if (x.Cross(y).Dot(z) < 0.5) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: Rotation is not RH ";
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: Rotation is not RH ";
     }
   }
 
@@ -153,7 +148,7 @@ void volumeHandle::referencePlane(const DDFilteredView &fv) {
 
   // Check correct orientation
   if (debug) {
-    LogDebug("magneticfield::volumeHandle") << "Refplane pos  " << refPlane->position();
+    LogTrace("magneticfield::volumeHandle") << "Refplane pos  " << refPlane->position();
 
     // See comments above for the conventions for orientation.
     LocalVector globalZdir(0., 0., 1.);  // Local direction of the axis along global Z
@@ -168,7 +163,7 @@ void volumeHandle::referencePlane(const DDFilteredView &fv) {
     }
     float chk = refPlane->toGlobal(globalZdir).dot(GlobalVector(0, 0, 1));
     if (chk < .999)
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING RefPlane check failed!***" << chk;
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING RefPlane check failed!***" << chk;
   }
 }
 
@@ -184,7 +179,7 @@ std::vector<VolumeSide> volumeHandle::sides() const {
     if (theShape == DDSolidShape::ddtubs && i == SurfaceOrientation::inner && theRMin < 0.001)
       continue;
 
-    RCPS s = surfaces[i].get();
+    ReferenceCountingPointer<Surface> s = const_cast<Surface *>(surfaces[i].get());
     result.push_back(VolumeSide(s, GlobalFace(i), surfaces[i]->side(center_, 0.3)));
   }
   return result;
@@ -200,10 +195,10 @@ namespace {
   inline constexpr NumType convertUnits(NumType centimeters) {
     return (centimeters);
   }
-}
+}  // namespace
 
-#include "MagneticField/GeomBuilder/src/buildBox.icc"
-#include "MagneticField/GeomBuilder/src/buildTrap.icc"
-#include "MagneticField/GeomBuilder/src/buildTubs.icc"
-#include "MagneticField/GeomBuilder/src/buildCons.icc"
-#include "MagneticField/GeomBuilder/src/buildTruncTubs.icc"
+#include "buildBox.icc"
+#include "buildTrap.icc"
+#include "buildTubs.icc"
+#include "buildCons.icc"
+#include "buildTruncTubs.icc"
