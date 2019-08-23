@@ -22,7 +22,7 @@ namespace reco {
     std::vector<int8_t> r010;
     std::vector<int8_t> r016;
     std::vector<int8_t> rvar;
-    std::vector<int8_t> rvwt;
+    std::vector<unsigned int> rvwt;
     PixelClusterData(unsigned int l = 4) {
       r004 = std::vector<int8_t>(l, 0);
       r006 = std::vector<int8_t>(l, 0);
@@ -30,7 +30,7 @@ namespace reco {
       r010 = std::vector<int8_t>(l, 0);
       r016 = std::vector<int8_t>(l, 0);
       rvar = std::vector<int8_t>(l, 0);
-      rvwt = std::vector<int8_t>(l, 0);
+      rvwt = std::vector<unsigned int>(l, 0);
     }
     CMS_CLASS_VERSION(3)
   };

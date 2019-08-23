@@ -467,7 +467,7 @@
 
   <class name="reco::PixelClusterProperties"/>
   <class name="reco::PixelClusterData" ClassVersion="3">
-    <version ClassVersion="3" checksum="1605881046"/>
+    <version ClassVersion="3" checksum="525314740"/>
   </class>
   <class name="reco::PixelClusterTagInfo" ClassVersion="3">
     <version ClassVersion="3" checksum="2876828956"/>
