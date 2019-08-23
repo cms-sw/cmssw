@@ -14,7 +14,7 @@ private:
   const int muonPDGID_ = 13;
   const int electron_neutrino_PDGID_ = 12;
   const int electronPDGID_ = 11;
-  const int ZPDGID_ = 23;
+  int ZPDGID_ = 23;
 
   enum class TauDecayMode : int { Unfilled = -1, Muon = 0, Electron = 1, Hadronic = 2 };
 
