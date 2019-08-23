@@ -21,4 +21,5 @@ hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalRecHitValidationHEF
                                + hgcalRecHitValidationHEB
                                + hgcalHitValidationSequence
+                               + hgcalValidatorSequence
                                + hgcalPFJetValidation)
