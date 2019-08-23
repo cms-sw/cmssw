@@ -3337,7 +3337,16 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                     # For combined stage1+stage2
                     if "Digi" in step:
                         upgradeStepDict[stepNamePUpmx+"Combined"][k] = merge([digiPremixLocalPileup, d])
-
+                # Increase the input file step number by one for Nano in combined stage1+stage2
+                if "Nano" in step:
+                    d = merge([upgradeStepDict[stepName][k]])
+                    if "--filein" in d:
+                        filein = d["--filein"]
+                        m = re.search("step(?P<ind>\d+)_", filein)
+                        if m:
+                            d["--filein"] = filein.replace(m.group(), "step%d_"%(int(m.group("ind"))+1))
+                    stepNamePUpmx = step + 'PUPRMX' + upgradeSteps[stepType]['suffix']
+                    upgradeStepDict[stepNamePUpmx+"Combined"][k] = d
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
    if 'Sim' in step or 'Premix' in step:
@@ -3361,4 +3370,3 @@ for step in upgradeStepDict.keys():
                     steps[k]=None
                 else:
                     steps[k]=merge([upgradeStepDict[step][key]])
-

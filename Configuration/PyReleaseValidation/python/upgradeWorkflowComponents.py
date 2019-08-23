@@ -89,6 +89,7 @@ upgradeSteps['baseline'] = {
         'HARVESTFull',
         'HARVESTFullGlobal',
         'MiniAODFullGlobal',
+        'NanoFull',
     ],
     'suffix' : '',
     'offset' : 0.0,
