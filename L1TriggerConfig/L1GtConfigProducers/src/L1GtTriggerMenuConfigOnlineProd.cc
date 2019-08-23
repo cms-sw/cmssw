@@ -1638,6 +1638,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
             << "\n Warning: correlation condition " << (condDB.cond) << " with invalid sub-condition object type "
             << gtObj << "\n Condition ignored!" << std::endl;
       }
+        [[fallthrough]];
       default: {
         wrongSubcondition = true;
         edm::LogWarning("L1GtTriggerMenuConfigOnlineProd")
