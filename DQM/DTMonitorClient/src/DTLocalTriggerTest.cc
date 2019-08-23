@@ -438,11 +438,12 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
             int matchErr = 0;
             int matchNoData = 0;
             for (int stat = 1; stat <= 4; ++stat) {
-              int res = static_cast<int>(matchWhSummary->GetBinContent(sect, stat));
-              if (res == 1) {
-                matchNoData++;
-              } else if (res == 2) {
-                matchErr++;
+              switch (static_cast<int>(matchWhSummary->GetBinContent(sect, stat))) {
+                case 1:
+                  matchNoData++;
+                  [[fallthrough]];
+                case 2:
+                  matchErr++;
               }
             }
             if (matchNoData == 4)
@@ -459,17 +460,19 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
             int corrNoData = 0;
             int secondNoData = 0;
             for (int stat = 1; stat <= 4; ++stat) {
-              int res = static_cast<int>(corrWhSummaryIn->GetBinContent(sect, stat));
-              if (res == 1) {
-                corrNoData++;
-              } else if (res == 2) {
-                corrErr++;
+              switch (static_cast<int>(corrWhSummaryIn->GetBinContent(sect, stat))) {
+                case 1:
+                  corrNoData++;
+                  [[fallthrough]];
+                case 2:
+                  corrErr++;
               }
-              res = static_cast<int>(secondWhSummaryIn->GetBinContent(sect, stat));
-              if (res == 1) {
-                secondNoData++;
-              } else if (res == 2) {
-                secondErr++;
+              switch (static_cast<int>(secondWhSummaryIn->GetBinContent(sect, stat))) {
+                case 1:
+                  secondNoData++;
+                  [[fallthrough]];
+                case 2:
+                  secondErr++;
               }
             }
             if (corrNoData == 4)
@@ -488,17 +491,19 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
             int corrNoData = 0;
             int secondNoData = 0;
             for (int stat = 1; stat <= 4; ++stat) {
-              int res = static_cast<int>(corrWhSummaryOut->GetBinContent(sect, stat));
-              if (res == 1) {
-                corrNoData++;
-              } else if (res == 2) {
-                corrErr++;
+              switch (static_cast<int>(corrWhSummaryOut->GetBinContent(sect, stat))) {
+                case 1:
+                  corrNoData++;
+                  [[fallthrough]];
+                case 2:
+                  corrErr++;
               }
-              res = static_cast<int>(secondWhSummaryOut->GetBinContent(sect, stat));
-              if (res == 1) {
-                secondNoData++;
-              } else if (res == 2) {
-                secondErr++;
+              switch (static_cast<int>(secondWhSummaryOut->GetBinContent(sect, stat))) {
+                case 1:
+                  secondNoData++;
+                  [[fallthrough]];
+                case 2:
+                  secondErr++;
               }
             }
             if (corrNoData == 4)
