@@ -184,6 +184,7 @@ bool AlignmentParameterBuilder::decodeParamSel(std::vector<char> &paramSelChar, 
       default:
         anyNon01 = true;
         // no break;
+        [[fallthrough]];
       case '1':
         result.push_back(true);
         break;
