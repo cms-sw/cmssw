@@ -2,7 +2,6 @@
 #define GeneratorInterface_Herwig7Interface_Proxy_h
 #include <memory>
 
-
 namespace ThePEG {
 
   // forward declarations
@@ -43,9 +42,7 @@ namespace ThePEG {
   public:
     typedef Proxy Base;
 
-    static inline std::shared_ptr<T> create() {
-      return std::static_pointer_cast<T>(ProxyBase::create(&Proxy::ctor));
-    }
+    static inline std::shared_ptr<T> create() { return std::static_pointer_cast<T>(ProxyBase::create(&Proxy::ctor)); }
     static inline std::shared_ptr<T> find(ProxyID id) { return std::dynamic_pointer_cast<T>(ProxyBase::find(id)); }
 
   protected:

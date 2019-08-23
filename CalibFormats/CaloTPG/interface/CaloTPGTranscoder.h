@@ -1,7 +1,6 @@
 #ifndef CALIBFORMATS_CALOTPG_CALOTPGTRANSCODER_H
 #define CALIBFORMATS_CALOTPG_CALOTPGTRANSCODER_H 1
 
-
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveSample.h"

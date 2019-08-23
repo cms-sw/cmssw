@@ -9,7 +9,6 @@
 
 // system include files
 
-
 // user include files
 
 #include "FWCore/Framework/interface/EventSetup.h"

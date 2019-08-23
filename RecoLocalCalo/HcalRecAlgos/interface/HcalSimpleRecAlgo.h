@@ -3,7 +3,6 @@
 
 #include <memory>
 
-
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"

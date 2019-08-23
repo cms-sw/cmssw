@@ -1,7 +1,6 @@
 #ifndef PhysicsTools_PatUtils_interface_StringParserTools_h
 #define PhysicsTools_PatUtils_interface_StringParserTools_h
 
-
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 

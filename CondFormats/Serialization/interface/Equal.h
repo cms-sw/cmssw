@@ -23,7 +23,6 @@
 #include <cstddef>
 #include <cmath>
 
-
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 namespace cond {

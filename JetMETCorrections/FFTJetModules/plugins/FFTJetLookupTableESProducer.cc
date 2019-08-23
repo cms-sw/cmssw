@@ -22,7 +22,6 @@
 
 #include <memory>
 
-
 #include "Alignment/Geners/interface/CompressedIO.hh"
 #include "Alignment/Geners/interface/StringArchive.hh"
 #include "Alignment/Geners/interface/Reference.hh"

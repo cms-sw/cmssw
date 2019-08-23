@@ -6,8 +6,6 @@
 #include <string>
 #include <set>
 
-
-
 // #include <HepMC/GenEvent.h>
 // #include <HepMC/SimpleVector.h>
 

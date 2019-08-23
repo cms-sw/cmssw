@@ -4,8 +4,6 @@
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateMerger.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-
-
 class TrajectoryStateOnSurface;
 
 /** Merging of MultiTrajectoryStates - uses MultiGaussianStateMergers

@@ -38,7 +38,6 @@
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Event.h"
 
-
 namespace edm {
 
   template <class T>

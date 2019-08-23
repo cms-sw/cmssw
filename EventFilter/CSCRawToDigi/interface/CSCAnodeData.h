@@ -5,7 +5,6 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeDataFormat.h"
 
-
 class CSCALCTHeader;
 
 class CSCAnodeData {

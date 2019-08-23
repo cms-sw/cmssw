@@ -10,8 +10,6 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 
-
-
 #include <iostream>
 #include <vector>
 #include <memory>

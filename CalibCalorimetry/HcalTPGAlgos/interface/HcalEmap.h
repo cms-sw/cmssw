@@ -27,7 +27,6 @@
 #include <cstring>
 #include <fstream>
 
-
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 class HcalEmap {

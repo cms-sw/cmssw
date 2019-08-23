@@ -15,7 +15,6 @@
 #include "CommonTools/Utils/src/ExpressionStack.h"
 #include "CommonTools/Utils/src/TrinarySelector.h"
 
-
 namespace reco {
   namespace parser {
     class TrinarySelectorSetter {

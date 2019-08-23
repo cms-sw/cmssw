@@ -16,7 +16,6 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include <vector>
 
-
 class MagneticField;
 namespace reco {
   class VertexCompositeCandidate;

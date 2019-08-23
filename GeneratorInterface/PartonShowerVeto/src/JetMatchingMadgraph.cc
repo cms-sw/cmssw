@@ -10,7 +10,6 @@
 #include <map>
 #include <set>
 
-
 #include <boost/algorithm/string/trim.hpp>
 
 // #include <HepMC/GenEvent.h>

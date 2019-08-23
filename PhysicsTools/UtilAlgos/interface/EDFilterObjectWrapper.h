@@ -41,7 +41,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 namespace edm {
 
   template <class T, class C>

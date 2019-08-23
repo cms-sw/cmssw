@@ -17,8 +17,6 @@
 #include <TMath.h>
 #include <iostream>
 
-
-
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"

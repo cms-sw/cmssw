@@ -8,8 +8,6 @@ Marco A. Harrendorf
 #include <memory>
 #include <string>
 
-
-
 #include <HepMC/GenEvent.h>
 #include <HepMC/PdfInfo.h>
 #include <HepMC/IO_BaseClass.h>

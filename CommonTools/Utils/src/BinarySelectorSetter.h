@@ -16,7 +16,6 @@
 #include "CommonTools/Utils/src/BinarySelector.h"
 #include "CommonTools/Utils/interface/Exception.h"
 
-
 namespace reco {
   namespace parser {
     class BinarySelectorSetter {

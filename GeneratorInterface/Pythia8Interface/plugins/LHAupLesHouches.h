@@ -6,8 +6,6 @@
 #include <memory>
 #include <cassert>
 
-
-
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 

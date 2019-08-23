@@ -8,7 +8,6 @@
 #include <TMath.h>
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-
 #include <fastjet/internal/base.hh>
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/JetDefinition.hh"
