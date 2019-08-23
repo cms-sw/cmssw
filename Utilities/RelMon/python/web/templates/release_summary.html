@@ -74,7 +74,7 @@
             <li><span class="caps">Null: {{ null }}% ({{ nulls }})</span></li>
             <li><span class="caps">Fail: {{ fail }}% ({{ fails }})</span></li>
         </ul>
-        <a href="http://cmsweb.cern.ch/dqm/relval">To the DQM GUI...</a>
+         <a href="http://cmsweb.cern.ch/dqm/relval/start?runnr={{run1}};dataset=/{{sample1}}/{{release1}}/DQMIO;sampletype=offline_data;filter=all;referencepos=on-side;referenceshow=all;referencenorm=True;referenceobj1=other:{{run2}}:/{{sample2}}/{{release2}}/DQMIO:;referenceobj2=none;referenceobj3=none;referenceobj4=none;search=;striptype=object;stripruns=;stripaxis=run;stripomit=none;workspace=Everything;size=M;focus=;zoom=no;">To the DQM GUI...</a>
     </div>
     <div class="span-5 colborder">
         <img class="top right" src="https://chart.googleapis.com/chart?cht=p3&amp;chco=00FF00|FFFF00|FF0000&amp;chs=200x200&amp;chd=t:{{ success }},{{ null }},{{ fail }}">
