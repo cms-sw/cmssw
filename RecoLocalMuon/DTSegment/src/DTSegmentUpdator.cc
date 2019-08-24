@@ -495,7 +495,7 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
     cout << " Inside the segment updator, now loop on hits:   ( x == z_loc , y == x_loc) " << endl;
 
   vector<DTRecHit1D> hits = phiSeg->specificRecHits();
-  size_t N = hits.size();
+  const size_t N = hits.size();
   if (N < 3)
     return;
 
@@ -539,7 +539,7 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
     cout << "fit 2 parameters done ----> par0: " << par[0] << "  par1: " << par[1] << endl;
 
   // Calc residuals:
-  float residuals[N] = {};
+  float residuals[N];
   float mean_residual = 0.;  //mean of the absolute values of residuals
   for (size_t i = 0; i < N; ++i) {
     residuals[i] = y.at(i) - par[1] * x.at(i) - par[0];
