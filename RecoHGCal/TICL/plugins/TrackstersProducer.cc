@@ -98,7 +98,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("max_delta_time", 0.09);
   desc.add<std::string>("eid_graph_path", "RecoHGCal/TICL/data/tf_models/energy_id_v0.pb");
   desc.add<std::string>("eid_input_name", "input");
-  desc.add<std::string>("eid_output_name_energy", "");
+  desc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
   desc.add<std::string>("eid_output_name_id", "output/id_probabilities");
   desc.add<double>("eid_min_cluster_energy", 1.);
   desc.add<int>("eid_n_layers", 50);
