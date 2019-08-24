@@ -29,7 +29,7 @@ def main(opts):
     if opts.collection=="hgcalLayerClusters":
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
 	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
-    elif opts.collection in ["hgcalMultiClusters", "multiClustersFromTrackstersMIP", "multiClustersFromTracksters", "multiClustersFromTrackstersTrk"]:
+    elif opts.collection in ["hgcalMultiClusters", "multiClustersFromTrackstersMIP", "multiClustersFromTrackstersTrk", "multiClustersFromTrackstersEM", "multiClustersFromTrackstersHAD"]:    
         hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
     elif opts.collection=="hitValidation":
@@ -66,28 +66,29 @@ def main(opts):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create set of HGCal validation plots from one or more DQM files.")
-    parser.add_argument("files", metavar="file", type=str, nargs="+",
+    parser.add_argument("files", metavar="file", type=str, nargs="+", 
+                        default = "DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root",
                         help="DQM file to plot the validation plots from")
     parser.add_argument("-o", "--outputDir", type=str, default=["plots1","plots2"], nargs="+",
                         help="Plot output directories (default: 'plots1'")
     parser.add_argument("--subdirprefix", type=str, default=["plots1","plots2"], nargs="+",
                         help="Prefix for subdirectories inside outputDir (default: 'plots1')")
-    parser.add_argument("--no-ratio", action="store_true",
+    parser.add_argument("--no-ratio", action="store_true", default = False,
                         help="Disable ratio pads")
-    parser.add_argument("--separate", action="store_true",
+    parser.add_argument("--separate", action="store_true", default = False,
                         help="Save all plots separately instead of grouping them")
     parser.add_argument("--png", action="store_true",
                         help="Save plots in PNG instead of PDF")
-    parser.add_argument("--no-html", action="store_true",
+    parser.add_argument("--no-html", action="store_true", default = False,
                         help="Disable HTML page generation")
     parser.add_argument("--html-sample", default="Sample",
                         help="Sample name for HTML page generation (default 'Sample')")
     parser.add_argument("--html-validation-name", type=str, default=["",""], nargs="+",
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
-    parser.add_argument("--verbose", action="store_true",
+    parser.add_argument("--verbose", action="store_true", default = False,
                         help="Be verbose")
-    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hgcalMultiClusters", "hitValidation", "all", "multiClustersFromTrackstersMIP", "multiClustersFromTracksters", "multiClustersFromTrackstersTrk"], default="all",
-                        help="Choose output plots collections: hgcalLayerCluster, hgcalMultiClusters, hitValidation, all")
+    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hgcalMultiClusters", , "multiClustersFromTrackstersMIP", "multiClustersFromTrackstersTrk", "multiClustersFromTrackstersEM", "multiClustersFromTrackstersHAD", "hitValidation", "all"], default="hgcalLayerClusters",
+                        help="Choose output plots collections: hgcalLayerCluster, hgcalMultiClusters, multiClustersFromTrackstersMIP, multiClustersFromTrackstersTrk, multiClustersFromTrackstersEM, multiClustersFromTrackstersHAD, hitValidation, all")    
 
     opts = parser.parse_args()
 
