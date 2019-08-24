@@ -193,7 +193,7 @@ Alignable *PedeReader::setParameter(unsigned int paramLabel,
           userParams->sigma()[paramNum] = buf[3] / cmsToPede;
         covMat[paramNum][paramNum] = buf[3] * buf[3] / (cmsToPede * cmsToPede);
         [[fallthrough]];
-      case 3:             // difference to start value
+      case 3:  // difference to start value
         if (userParams)
           userParams->diffBefore()[paramNum] = buf[2] / cmsToPede;
         [[fallthrough]];
@@ -246,8 +246,8 @@ bool PedeReader::setCalibrationParameter(IntegratedCalibrationBase *calib,
   // FIXME: Should we attach MillePedeVariables to IntegratedCalibrationBase to store
   //        'other' results beyond value and error?
   switch (bufLength) {
-    case 5:                                        // buf[4]: global correlation - not treated yet FIXME // no break;
-    case 4:                                        // uncertainty
+    case 5:  // buf[4]: global correlation - not treated yet FIXME // no break;
+    case 4:  // uncertainty
       calib->setParameterError(paramNum, buf[3]);
       [[fallthrough]];
     case 3:  // buf[2]: difference to start value - not treated yet
