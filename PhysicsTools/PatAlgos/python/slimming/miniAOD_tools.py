@@ -427,10 +427,10 @@ def miniAOD_customizeCommon(process):
 
     # Embed pixelClusterTagInfos in slimmedJets
     process.patJets.addTagInfos = True
-    process.patJets.tagInfoSources.append( cms.InputTag("pixelClusterTagInfos") )
+    process.patJets.tagInfoSources = cms.VInputTag( cms.InputTag("pixelClusterTagInfos") )
     process.slimmedJetsNoDeepFlavour.dropTagInfos = '0'
     process.updatedPatJetsSlimmedDeepFlavour.addTagInfos = True
-    process.updatedPatJetsSlimmedDeepFlavour.tagInfoSources.append( cms.InputTag("pixelClusterTagInfos") )
+    process.updatedPatJetsSlimmedDeepFlavour.tagInfoSources = cms.VInputTag( cms.InputTag("pixelClusterTagInfos") )
     process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.addTagInfos = True
     process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = cms.VInputTag( cms.InputTag("pixelClusterTagInfos") )
 
