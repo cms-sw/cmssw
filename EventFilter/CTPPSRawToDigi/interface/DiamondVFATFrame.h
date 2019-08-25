@@ -11,11 +11,10 @@
 #ifndef EventFilter_CTPPSRawToDigi_DiamondVFATFrame
 #define EventFilter_CTPPSRawToDigi_DiamondVFATFrame
 
-#include <vector>
-#include <cstddef>
-#include <cstdint>
-
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrame.h"
+
+#include <array>
+#include <cstdint>
 
 /**
  * This class intended to handle the timing infromation of diamond VFAT frame
