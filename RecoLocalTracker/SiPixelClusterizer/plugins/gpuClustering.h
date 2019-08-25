@@ -126,15 +126,13 @@ namespace gpuClustering {
 
 #ifdef __CUDA_ARCH__
     // assume that we can cover the whole module with up to 10 blockDim.x-wide iterations
-    constexpr int maxiter = 10;
+    constexpr int maxiter = 16;
 #else
     auto maxiter = hist.size();
 #endif
-    constexpr int maxNeighbours =
-        10;  // allocate space for duplicate pixels: a pixel can appear more than once with different charge in the same event
-    if (threadIdx.x == 0) {
-      assert((hist.size() / blockDim.x) <= maxiter);
-    }
+    // allocate space for duplicate pixels: a pixel can appear more than once with different charge in the same event
+    constexpr int maxNeighbours = 10;
+    assert((hist.size() / blockDim.x) <= maxiter);
     // nearest neighbour
     uint16_t nn[maxiter][maxNeighbours];
     uint8_t nnn[maxiter];  // number of nn
@@ -166,6 +164,7 @@ namespace gpuClustering {
 
     // fill NN
     for (auto j = threadIdx.x, k = 0U; j < hist.size(); j += blockDim.x, ++k) {
+      assert(k<maxiter);
       auto p = hist.begin() + j;
       auto i = *p + firstPixel;
       assert(id[i] != InvId);
@@ -173,9 +172,12 @@ namespace gpuClustering {
       int be = Hist::bin(y[i] + 1);
       auto e = hist.end(be);
       ++p;
+      assert(0==nnn[k]);
       for (; p < e; ++p) {
         auto m = (*p) + firstPixel;
         assert(m != i);
+        assert(int(y[m]) - int(y[i]) >= 0);
+        assert(int(y[m]) - int(y[i]) <= 1);
         if (std::abs(int(x[m]) - int(x[i])) > 1)
           continue;
         auto l = nnn[k]++;

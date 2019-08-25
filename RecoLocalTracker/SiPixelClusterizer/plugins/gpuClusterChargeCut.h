@@ -31,7 +31,26 @@ namespace gpuClustering {
     if (nclus == 0)
       return;
 
-    assert(nclus <= MaxNumClustersPerModules);
+    if (threadIdx.x == 0 && nclus > MaxNumClustersPerModules)
+      printf("Warning too many clusters in module %d in block %d: %d > %d\n", thisModuleId, blockIdx.x, nclus, MaxNumClustersPerModules);
+
+    auto first = firstPixel + threadIdx.x;
+    
+    if (nclus > MaxNumClustersPerModules) {
+      // remove excess  FIXME find a way to cut charge first....
+      for (auto i = first; i < numElements; i += blockDim.x) {
+        if (id[i] == InvId)
+          continue;  // not valid
+        if (id[i] != thisModuleId)
+          break;  // end of module
+        if (clusterId[i]>=MaxNumClustersPerModules) { 
+          id[i]=InvId;
+          clusterId[i]=InvId;
+        }
+      }
+      nclus = MaxNumClustersPerModules;
+    }
+
 
 #ifdef GPU_DEBUG
     if (thisModuleId % 100 == 1)
@@ -39,9 +58,12 @@ namespace gpuClustering {
         printf("start clusterizer for module %d in block %d\n", thisModuleId, blockIdx.x);
 #endif
 
-    auto first = firstPixel + threadIdx.x;
-
     __shared__ int32_t charge[MaxNumClustersPerModules];
+    __shared__ uint8_t ok[MaxNumClustersPerModules];
+    __shared__ uint16_t newclusId[MaxNumClustersPerModules];
+
+
+    assert(nclus <= MaxNumClustersPerModules);
     for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
       charge[i] = 0;
     }
@@ -57,8 +79,6 @@ namespace gpuClustering {
     __syncthreads();
 
     auto chargeCut = thisModuleId < 96 ? 2000 : 4000;  // move in constants (calib?)
-    __shared__ uint8_t ok[MaxNumClustersPerModules];
-    __shared__ uint16_t newclusId[MaxNumClustersPerModules];
     for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {
       newclusId[i] = ok[i] = charge[i] > chargeCut ? 1 : 0;
     }
