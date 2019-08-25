@@ -258,11 +258,11 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
 
       // create the digi
       DetSet<CTPPSDiamondDigi> &digiDetSet = digi.find_or_insert(detId);
-      digiDetSet.push_back(CTPPSDiamondDigi(diamondframe.getLeadingEdgeTime(),
-                                            diamondframe.getTrailingEdgeTime(),
-                                            diamondframe.getThresholdVoltage(),
-                                            diamondframe.getMultihit(),
-                                            diamondframe.getHptdcErrorFlag()));
+      digiDetSet.emplace_back(diamondframe.getLeadingEdgeTime(),
+                              diamondframe.getTrailingEdgeTime(),
+                              diamondframe.getThresholdVoltage(),
+                              diamondframe.getMultihit(),
+                              diamondframe.getHptdcErrorFlag());
     }
 
     // save status
