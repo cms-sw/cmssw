@@ -87,9 +87,8 @@ hltBTVmonitoring.jets      = cms.InputTag("ak4PFJetsCHS") # ak4PFJets, ak4PFJets
 hltBTVmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltBTVmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 
-# Marina
-hltBTVmonitoring.btagalgo  = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
-hltBTVmonitoring.workingpoint     = cms.double(-1.) #no cut applied
+hltBTVmonitoring.btagAlgos = ["pfCombinedSecondaryVertexV2BJetTags"]
+hltBTVmonitoring.workingpoint = cms.double(-1.) #no cut applied
 
 hltBTVmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 hltBTVmonitoring.leptJetDeltaRmin = cms.double(0.0)

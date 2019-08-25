@@ -5,9 +5,11 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DQMOffline/Trigger/plugins/TopMonitor.h"
+#include <cmath>
 
 // -----------------------------
 //  constructors and destructor
@@ -17,15 +19,14 @@ TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
       requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
       hltPathsAreValid_(false),
-      metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
-      jetToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
+      vtxToken_(mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+      muoToken_(mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       eleToken_(mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electrons"))),
       elecIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elecID"))),
-      muoToken_(mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       phoToken_(mayConsume<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
-      jetTagToken_(mayConsume<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagalgo"))),
-      jetbbTagToken_(mayConsume<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("bbtagalgo"))),
-      vtxToken_(mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+      jetToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
+      jetTagTokens_(edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("btagAlgos"), [this](edm::InputTag const& tag){ return mayConsume<reco::JetTagCollection>(tag); })),
+      metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
       met_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("metPSet"))),
       ls_binning_(
@@ -108,7 +109,7 @@ TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
       HTcut_(iConfig.getParameter<double>("HTcut")),
       nbjets_(iConfig.getParameter<unsigned int>("nbjets")),
       workingpoint_(iConfig.getParameter<double>("workingpoint")),
-      usePVcuts_(iConfig.getParameter<bool>("applyleptonPVcuts")),
+      applyLeptonPVcuts_(iConfig.getParameter<bool>("applyLeptonPVcuts")),
       invMassUppercut_(iConfig.getParameter<double>("invMassUppercut")),
       invMassLowercut_(iConfig.getParameter<double>("invMassLowercut")),
       opsign_(iConfig.getParameter<bool>("oppositeSignMuons")),
@@ -117,12 +118,6 @@ TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
       invMassCutInAllMuPairs_(iConfig.getParameter<bool>("invMassCutInAllMuPairs")),
       enablePhotonPlot_(iConfig.getParameter<bool>("enablePhotonPlot")),
       enableMETplot_(iConfig.getParameter<bool>("enableMETplot")) {
-  std::string metcut_str = iConfig.getParameter<std::string>("metSelection");
-  metcut_str.erase(std::remove(metcut_str.begin(), metcut_str.end(), ' '), metcut_str.end());
-  if (metcut_str != "pt>0")
-    applyMETcut_ = true;
-
-  btagalgoName_ = (iConfig.getParameter<edm::InputTag>("btagalgo")).label();
 
   ObjME empty;
 
@@ -202,7 +197,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   std::string currentFolder = folderName_;
   ibooker.setCurrentFolder(currentFolder);
 
-  if (applyMETcut_ || enableMETplot_) {
+  if (enableMETplot_) {
     histname = "met";
     histtitle = "PFMET";
     bookME(ibooker, metME_, histname, histtitle, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax);
@@ -711,42 +706,41 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     return;
   }
 
-  mll = -2;
-  sign = 0;
   // Filter out events if Trigger Filtering is requested
-  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
-    return;
+  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup)){ return; }
 
-  //Suvankar
   edm::Handle<reco::VertexCollection> primaryVertices;
   iEvent.getByToken(vtxToken_, primaryVertices);
   //Primary Vertex selection
   const reco::Vertex* pv = nullptr;
   for (auto const& v : *primaryVertices) {
-    if (!vtxSelection_(v))
-      continue;
+    if (!vtxSelection_(v)){ continue; }
     pv = &v;
     break;
   }
-  if (usePVcuts_ && pv == nullptr)
+  if (applyLeptonPVcuts_ && (pv == nullptr)) {
+    edm::LogWarning("TopMonitor") << "Invalid handle to reco::VertexCollection, event will be skipped";
     return;
+  }
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken(metToken_, metHandle);
-  if (!metHandle.isValid() && (applyMETcut_ || enableMETplot_)) {
+  if ((not metHandle.isValid()) && enableMETplot_) {
     edm::LogWarning("TopMonitor") << "MET handle not valid \n";
     return;
   }
 
-  float met = 0;
-  float phi = 0;
+  double met_pt(-99.);
+  double met_phi(-99.);
 
-  if (applyMETcut_ || enableMETplot_) {
+  if (enableMETplot_) {
+
     reco::PFMET pfmet = metHandle->front();
-    if (!metSelection_(pfmet))
-      return;
-    met = pfmet.pt();
-    phi = pfmet.phi();
+
+    if (!metSelection_(pfmet)){ return; }
+
+    met_pt = pfmet.pt();
+    met_phi = pfmet.phi();
   }
 
   edm::Handle<edm::View<reco::GsfElectron> > eleHandle;
@@ -756,7 +750,6 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     return;
   }
 
-  //ATHER
   edm::Handle<edm::ValueMap<bool> > eleIDHandle;
   iEvent.getByToken(elecIDToken_, eleIDHandle);
   if (!eleIDHandle.isValid() && nelectrons_ > 0) {
@@ -766,21 +759,22 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   std::vector<reco::GsfElectron> electrons;
   if (nelectrons_ > 0) {
-    if (eleHandle->size() < nelectrons_)
-      return;
+
+    if (eleHandle->size() < nelectrons_){ return; }
+
     for (size_t index = 0; index < eleHandle->size(); index++) {
+
       const auto e = eleHandle->at(index);
       const auto el = eleHandle->ptrAt(index);
+
       bool pass_id = (*eleIDHandle)[el];
-      if (eleSelection_(e) && pass_id)
-        electrons.push_back(e);
-      //Suvankar
-      if (usePVcuts_ && (std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy ||
-                         std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz))
-        continue;
+
+      if (eleSelection_(e) && pass_id){ electrons.push_back(e); }
+
+      if (applyLeptonPVcuts_ && ((std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy) || (std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz))){ continue; }
     }
-    if (electrons.size() < nelectrons_)
-      return;
+
+    if (electrons.size() < nelectrons_){ return; }
   }
 
   edm::Handle<reco::MuonCollection> muoHandle;
@@ -789,53 +783,46 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     edm::LogWarning("TopMonitor") << "Muon handle not valid \n";
     return;
   }
-  if (muoHandle->size() < nmuons_)
-    return;
+
+  if (muoHandle->size() < nmuons_){ return; }
+
   std::vector<reco::Muon> muons;
   if (nmuons_ > 0) {
+
     for (auto const& m : *muoHandle) {
-      if (muoSelection_(m))
-        muons.push_back(m);
-      //Suvankar
-      if (usePVcuts_ && (std::fabs(m.muonBestTrack()->dxy(pv->position())) >= lepPVcuts_.dxy ||
-                         std::fabs(m.muonBestTrack()->dz(pv->position())) >= lepPVcuts_.dz))
-        continue;
+
+      if (muoSelection_(m)) { muons.push_back(m); }
+
+      if (applyLeptonPVcuts_ && ((std::fabs(m.muonBestTrack()->dxy(pv->position())) >= lepPVcuts_.dxy) || (std::fabs(m.muonBestTrack()->dz(pv->position())) >= lepPVcuts_.dz))){ continue; }
     }
-    if (muons.size() < nmuons_)
-      return;
-  }
-  //george
 
+    if (muons.size() < nmuons_){ return; }
+  }
+
+  double mll(-2);
   if (nmuons_ > 1) {
+
     mll = (muons[0].p4() + muons[1].p4()).M();
-    sign = muons[0].charge() * muons[1].charge();
+
+    if ((invMassUppercut_ > -1) && (invMassLowercut_ > -1) && ((mll > invMassUppercut_) || (mll < invMassLowercut_))){ return; }
+    if (opsign_ && (muons[0].charge() == muons[1].charge())) { return; }
   }
-  if (nmuons_ > 1 && invMassUppercut_ > -1 && invMassLowercut_ > -1 &&
-      (mll > invMassUppercut_ || mll < invMassLowercut_))
-    return;
-  if (nmuons_ > 1 && opsign_ && sign == 1)
-    return;
 
-  //cout<<" mll="<<mll<<"  invMasscut_="<<invMasscut_<<endl;
-
-  //Menglei
   edm::Handle<reco::PhotonCollection> phoHandle;
   iEvent.getByToken(phoToken_, phoHandle);
   if (!phoHandle.isValid()) {
     edm::LogWarning("TopMonitor") << "Photon handle not valid \n";
     return;
   }
-  if (phoHandle->size() < nphotons_)
-    return;
+  if (phoHandle->size() < nphotons_) { return; }
+
   std::vector<reco::Photon> photons;
   for (auto const& p : *phoHandle) {
-    if (phoSelection_(p))
-      photons.push_back(p);
+    if (phoSelection_(p)){ photons.push_back(p); }
   }
-  if (photons.size() < nphotons_)
-    return;
+  if (photons.size() < nphotons_){ return; }
 
-  double eventHT = 0.;
+  double eventHT(0.);
   math::XYZTLorentzVector eventMHT(0., 0., 0., 0.);
 
   edm::Handle<reco::PFJetCollection> jetHandle;
@@ -884,14 +871,13 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       return;
   }
 
-  if (eventHT < HTcut_)
-    return;
-  if (MHTcut_ > 0 && eventMHT.pt() < MHTcut_)
-    return;
+  if (eventHT < HTcut_) { return; }
+
+  if ((MHTcut_ > 0) && (eventMHT.pt() < MHTcut_)) { return; }
 
   bool allpairs = false;
   if (nmuons_ > 2) {
-    float mumu_mass;
+    double mumu_mass;
     for (unsigned int idx = 0; idx < muons.size(); idx++) {
       for (unsigned int idx2 = idx + 1; idx2 < muons.size(); idx2++) {
         //compute inv mass of two different leptons
@@ -902,43 +888,57 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     }
   }
   //cut only if enabled and the event has a pair that failed the mll range
-  if (allpairs && invMassCutInAllMuPairs_)
-    return;
-
-  // Marina
-  edm::Handle<reco::JetTagCollection> bjetHandle;
-  iEvent.getByToken(jetTagToken_, bjetHandle);
-  if (!bjetHandle.isValid() && nbjets_ > 0) {
-    edm::LogWarning("TopMonitor") << "B-Jet handle not valid \n";
-    return;
-  }
-  edm::Handle<reco::JetTagCollection> bbjetHandle;
-  iEvent.getByToken(jetbbTagToken_, bbjetHandle);
-  if (!bbjetHandle.isValid() && nbjets_ > 0) {
-    edm::LogWarning("TopMonitor") << "BB-Jet handle not valid \n";
-    return;
-  }
+  if (allpairs && invMassCutInAllMuPairs_) { return; }
 
   JetTagMap bjets;
+
   if (nbjets_ > 0) {
-    const reco::JetTagCollection& bTags = *(bjetHandle.product());
-    const reco::JetTagCollection& bbTags = *(bbjetHandle.product());
-    if (bTags.size() < nbjets_)
-      return;
-    for (unsigned int i = 0; i != bTags.size(); ++i) {
-      // Apply Selections
-      if (!bjetSelection_(*dynamic_cast<const reco::Jet*>(bTags[i].first.get())))
-        continue;
-      double bdisc = (btagalgoName_ == "pfDeepCSVJetTags") ? (bTags[i].second + bbTags[i].second)
-                                                           : bTags[i].second;  //probb + probbb
-      //std::cout<<folderName_<<" "<<btagalgoName_<<" "<<bTags[i].second<<" "<<bbTags[i].second<<" "<<bdisc<<std::endl;
-      if (bdisc < workingpoint_)
-        continue;
-      // Fill JetTag Map
-      bjets.insert(JetTagMap::value_type(bTags[i].first, bdisc));
+
+    // map of Jet,btagValues (for all jets passing bJetSelection_)
+    //  - btagValue of each jet is calculated as sum of values from InputTags in jetTagTokens_
+    JetTagMap allJetBTagVals;
+
+    for (const auto& jetTagToken : jetTagTokens_) {
+
+      edm::Handle<reco::JetTagCollection> bjetHandle;
+      iEvent.getByToken(jetTagToken, bjetHandle);
+      if (not bjetHandle.isValid()) {
+
+        edm::LogWarning("TopMonitor") << "B-Jet handle not valid, will skip event \n";
+        return;
+      }
+
+      const reco::JetTagCollection& bTags = *(bjetHandle.product());
+
+      for (const auto& i_jetTag : bTags) {
+
+        const auto& jetRef = i_jetTag.first;
+
+        if (not bjetSelection_(*dynamic_cast<const reco::Jet*>(jetRef.get()))) { continue; }
+
+        const auto btagVal = i_jetTag.second;
+
+        if (not std::isfinite(btagVal)) { continue; }
+
+        if (allJetBTagVals.find(jetRef) != allJetBTagVals.end()) {
+
+          allJetBTagVals.at(jetRef) += btagVal;
+        }
+        else {
+
+          allJetBTagVals.insert(JetTagMap::value_type(jetRef, btagVal));
+        }
+      }
     }
-    if (bjets.size() < nbjets_)
-      return;
+
+    for(const auto& jetBTagVal : allJetBTagVals)
+    {
+      if (jetBTagVal.second < workingpoint_) { continue; }
+
+      bjets.insert(JetTagMap::value_type(jetBTagVal.first, jetBTagVal.second));
+    }
+
+    if (bjets.size() < nbjets_){ return; }
   }
 
   if (nbjets_ > 1) {
@@ -970,11 +970,11 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   // numerator condition
   const bool trg_passed = (num_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->accept(iEvent, iSetup));
 
-  if (applyMETcut_ || enableMETplot_) {
-    metME_.fill(trg_passed, met);
-    metME_variableBinning_.fill(trg_passed, met);
-    metPhiME_.fill(trg_passed, phi);
-    metVsLS_.fill(trg_passed, ls, met);
+  if (enableMETplot_) {
+    metME_.fill(trg_passed, met_pt);
+    metME_variableBinning_.fill(trg_passed, met_pt);
+    metPhiME_.fill(trg_passed, met_phi);
+    metVsLS_.fill(trg_passed, ls, met_pt);
   }
   if (HTcut_ > 0) {
     eventHT_.fill(trg_passed, eventHT);
@@ -1117,16 +1117,15 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 
   desc.add<bool>("requireValidHLTPaths", false);
 
-  desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
-  desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
+  desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("gedGsfElectrons"));
   desc.add<edm::InputTag>("elecID", edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-tight"));
-  desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
   desc.add<edm::InputTag>("photons", edm::InputTag("photons"));
-  desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
+  desc.add<std::vector<edm::InputTag> >("btagAlgos", { edm::InputTag("pfDeepCSVJetTags:probb"), edm::InputTag("pfDeepCSVJetTags:probbb") });
+  desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
 
-  desc.add<edm::InputTag>("btagalgo", edm::InputTag("pfCombinedSecondaryVertexV2BJetTags"));
-  desc.add<edm::InputTag>("bbtagalgo", edm::InputTag("pfDeepCSVJetTags:probbb"));
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
@@ -1145,8 +1144,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<double>("HTcut", 0);
 
   desc.add<unsigned int>("nbjets", 0);
-  desc.add<double>("workingpoint", 0.4941);  // medium DeepCSV
-  desc.add<bool>("applyleptonPVcuts", false);
+  desc.add<double>("workingpoint", 0.4941);  // DeepCSV Medium wp
+  desc.add<bool>("applyLeptonPVcuts", false);
   desc.add<double>("invMassUppercut", -1.0);
   desc.add<double>("invMassLowercut", -1.0);
   desc.add<bool>("oppositeSignMuons", false);
