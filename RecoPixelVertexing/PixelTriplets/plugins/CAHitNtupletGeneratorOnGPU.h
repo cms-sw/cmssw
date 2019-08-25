@@ -35,6 +35,11 @@ public:
   using HitContainer = pixelTrack::HitContainer;
   using Tuple = HitContainer;
 
+
+  using QualityCuts = cAHitNtupletGenerator::QualityCuts;
+  using Params = cAHitNtupletGenerator::Params;
+  using Counters = cAHitNtupletGenerator::Counters;
+
 public:
   CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
       : CAHitNtupletGeneratorOnGPU(cfg, iC) {}
@@ -45,9 +50,14 @@ public:
   static void fillDescriptions(edm::ParameterSetDescription& desc);
   static const char* fillDescriptionsLabel() { return "caHitNtupletOnGPU"; }
 
-  PixelTrackHeterogeneous makeTuplesAsync(TrackingRecHit2DCUDA const& hits_d,
+  PixelTrackHeterogeneous makeTuplesAsync(TrackingRecHit2DGPU const& hits_d,
                                 float bfield,
                                 cuda::stream_t<>& stream) const;
+
+  PixelTrackHeterogeneous makeTuples(TrackingRecHit2DCPU const& hits_d,
+                                float bfield) const;
+
+
  
 private:
 
@@ -58,15 +68,12 @@ private:
                    bool useRiemannFit,
                    cuda::stream_t<>& cudaStream);
 
-  void cleanup(cudaStream_t stream);
-
   void launchKernels(HitsOnCPU const& hh, bool useRiemannFit, cuda::stream_t<>& cudaStream) const;
 
 
-  CAHitNtupletGeneratorKernels::Params m_params;
+  Params m_params;
 
-  using Counters = CAHitNtupletGeneratorKernels::Counters;
-  CAHitNtupletGeneratorKernels::Counters * m_counters = nullptr;
+  Counters * m_counters = nullptr;
 
 };
 
