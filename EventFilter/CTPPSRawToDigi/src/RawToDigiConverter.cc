@@ -250,7 +250,7 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
     CTPPSDiamondDetId detId(record.info->symbolicID.symbolicID);
 
     if (record.status.isOK()) {
-      const VFATFrame* fr = record.frame;
+      const VFATFrame *fr = record.frame;
       const DiamondVFATFrame diamondframe(fr->getData());
 
       // update Event Counter in status

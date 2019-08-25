@@ -21,9 +21,7 @@
 **/
 class DiamondVFATFrame {
 public:
-  DiamondVFATFrame(const VFATFrame::word* inputData = nullptr) {
-    std::copy_n(inputData, 9, data_.begin());
-  }
+  DiamondVFATFrame(const VFATFrame::word* inputData = nullptr) { std::copy_n(inputData, 9, data_.begin()); }
   ~DiamondVFATFrame() = default;
 
   /// get timing information for leading single edge
@@ -45,10 +43,8 @@ public:
 
 private:
   /// Account for MSB/LSB "HW feature" reversal in HPTDC interpolation bits
-  uint32_t correctTime(uint32_t& time) const {
-    return (time & 0xFFE7FFFF) << 2 | (time & 0x00180000) >> 19;
-  }
-  std::array<VFATFrame::word,9> data_;
+  uint32_t correctTime(uint32_t& time) const { return (time & 0xFFE7FFFF) << 2 | (time & 0x00180000) >> 19; }
+  std::array<VFATFrame::word, 9> data_;
 };
 
 #endif
