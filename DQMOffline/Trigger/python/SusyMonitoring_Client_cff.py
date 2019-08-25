@@ -166,7 +166,6 @@ double_soft_dca_metpt_efficiency = DQMEDHarvester("DQMGenericClient",
         ),
 )
 
-
 susyClient = cms.Sequence(
     vbfsusyClient
   + LepHTClient
@@ -183,5 +182,6 @@ susyClient = cms.Sequence(
   + double_soft_dca_metpt_efficiency
   + susyHLTRazorClient
   + triple_muon_mupt_efficiency
+  + triple_muon_dca_mupt_efficiency
   + susyHLTSoftMuHardJetMETClient
 )
