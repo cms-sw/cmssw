@@ -251,24 +251,24 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
 
     if (record.status.isOK()) {
       const VFATFrame* fr = record.frame;
-      const DiamondVFATFrame *diamondframe = static_cast<const DiamondVFATFrame *>(fr);
+      const DiamondVFATFrame diamondframe(fr->getData());
 
       // update Event Counter in status
       record.status.setEC(record.frame->getEC() & 0xFF);
 
       // create the digi
       DetSet<CTPPSDiamondDigi> &digiDetSet = digi.find_or_insert(detId);
-      digiDetSet.push_back(CTPPSDiamondDigi(diamondframe->getLeadingEdgeTime(),
-                                            diamondframe->getTrailingEdgeTime(),
-                                            diamondframe->getThresholdVoltage(),
-                                            diamondframe->getMultihit(),
-                                            diamondframe->getHptdcErrorFlag()));
+      digiDetSet.push_back(CTPPSDiamondDigi(diamondframe.getLeadingEdgeTime(),
+                                            diamondframe.getTrailingEdgeTime(),
+                                            diamondframe.getThresholdVoltage(),
+                                            diamondframe.getMultihit(),
+                                            diamondframe.getHptdcErrorFlag()));
       std::cout << "before "
-        << diamondframe->getLeadingEdgeTime() << "\t"
-        << diamondframe->getTrailingEdgeTime() << "\t"
-        << diamondframe->getThresholdVoltage() << "\t"
-        << diamondframe->getMultihit() << "\t"
-        << diamondframe->getHptdcErrorFlag() << "\n";
+        << diamondframe.getLeadingEdgeTime() << "\t"
+        << diamondframe.getTrailingEdgeTime() << "\t"
+        << diamondframe.getThresholdVoltage() << "\t"
+        << diamondframe.getMultihit() << "\t"
+        << diamondframe.getHptdcErrorFlag() << "\n";
       uint32_t le_time = ((fr->getData()[7] & 0x1f) << 16) + fr->getData()[8];
       le_time = (le_time & 0xFFE7FFFF) << 2 | (le_time & 0x00180000) >> 19;  //HPTDC inperpolation bits are MSB but should be LSB.... ask HPTDC designers...
       uint32_t te_time = ((fr->getData()[5] & 0x1f) << 16) + fr->getData()[6];
