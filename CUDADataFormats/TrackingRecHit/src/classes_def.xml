@@ -1,11 +1,10 @@
 <lcgdict>
+  <class name="TrackingRecHit2DCPU" persistent="false"/>
   <class name="TrackingRecHit2DHost" persistent="false"/>
-  <class name="CUDAProduct<TrackingRecHit2DCUDA>" persistent="false"/>
+  <class name="CUDAProduct<TrackingRecHit2DGPU>" persistent="false"/>
+  <class name="edm::Wrapper<TrackingRecHit2DCPU>" persistent="false"/>
   <class name="edm::Wrapper<TrackingRecHit2DHost>" persistent="false"/>
-  <class name="edm::Wrapper<CUDAProduct<TrackingRecHit2DCUDA>>" persistent="false"/>
-  <class name="HostProduct<unsigned int[]>" persistent="false">
-   <field name="hm_ptr" transient = "true"/>
-   <field name="hm_std" transient = "true"/>
-  </class>
+  <class name="edm::Wrapper<CUDAProduct<TrackingRecHit2DGPU>>" persistent="false"/>
+  <class name="HostProduct<unsigned int[]>" persistent="false"/>
   <class name="edm::Wrapper<HostProduct<unsigned int[]>>" persistent="false"/>
 </lcgdict>

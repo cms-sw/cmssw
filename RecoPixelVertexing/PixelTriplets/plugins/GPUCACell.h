@@ -39,7 +39,6 @@ public:
   static constexpr auto bad = trackQuality::bad;
 
   GPUCACell() = default;
-#ifdef __CUDACC__
 
   __device__ __forceinline__ void init(CellNeighborsVector& cellNeighbors,
                                        CellTracksVector& cellTracks,
@@ -98,8 +97,7 @@ public:
 
   __device__ void print_cell() const {
     printf(
-        "printing cell: %d, on layerPair: %d, innerHitId: %d, outerHitId: "
-        "%d, innerradius %f, outerRadius %f \n",
+        "printing cell: %d, on layerPair: %d, innerHitId: %d, outerHitId: %d \n",
         theDoubletId,
         theLayerPairId,
         theInnerHitId,
@@ -300,8 +298,6 @@ public:
     tmpNtuplet.pop_back();
     assert(tmpNtuplet.size() < 4);
   }
-
-#endif  // __CUDACC__
 
 private:
   CellNeighbors theOuterNeighbors;

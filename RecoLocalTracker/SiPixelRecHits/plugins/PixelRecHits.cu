@@ -57,6 +57,10 @@ namespace pixelgpudetails {
                                                                             clusters_d.view(),
                                                                             hits_d.view());
     cudaCheck(cudaGetLastError());
+#ifdef GPU_DEBUG
+    cudaDeviceSynchronize();
+    cudaCheck(cudaGetLastError());
+#endif
 
     // assuming full warp of threads is better than a smaller number...
     if (nHits) {

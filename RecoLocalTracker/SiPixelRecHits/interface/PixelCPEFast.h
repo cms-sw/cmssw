@@ -49,13 +49,8 @@ public:
   // the same cudaStream, or after cudaStreamSynchronize.
   const pixelCPEforGPU::ParamsOnGPU *getGPUProductAsync(cuda::stream_t<> &cudaStream) const;
 
-  pixelCPEforGPU::ParamsOnGPU getCPUProduct() const {
-    return pixelCPEforGPU::ParamsOnGPU {
-             &m_commonParamsGPU,
-             m_detParamsGPU.data(),
-             &m_layerGeometry,
-             &m_averageGeometry,
-           };
+  pixelCPEforGPU::ParamsOnGPU const & getCPUProduct() const {
+    return cpuData_;
   }
 
 private:
@@ -93,6 +88,8 @@ private:
   pixelCPEforGPU::CommonParams m_commonParamsGPU;
   pixelCPEforGPU::LayerGeometry m_layerGeometry;
   pixelCPEforGPU::AverageGeometry m_averageGeometry;
+
+  pixelCPEforGPU::ParamsOnGPU cpuData_;
 
   struct GPUData {
     ~GPUData();

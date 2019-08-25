@@ -13,12 +13,17 @@ namespace pixelGPUConstants {
 }  // namespace pixelGPUConstants
 
 namespace gpuClustering {
-  constexpr uint32_t maxHitsInModule() { return 256; }
+#ifdef GPU_SMALL_EVENTS
+  constexpr uint32_t maxHitsInIter() { return 64; }
+#else
+  // optimized for real data PU 50
+  constexpr uint32_t maxHitsInIter() { return 160; }
+#endif
+  constexpr uint32_t maxHitsInModule() { return 1024; }
 
   constexpr uint32_t MaxNumModules = 2000;
-  constexpr uint32_t MaxNumPixels = 256 * 2000;  // this does not mean maxPixelPerModule == 256!
-  constexpr uint32_t MaxNumClustersPerModules = 1024;
-  constexpr uint32_t MaxHitsInModule = maxHitsInModule();
+  constexpr int32_t MaxNumClustersPerModules = maxHitsInModule();
+  constexpr uint32_t MaxHitsInModule = maxHitsInModule(); // as above
   constexpr uint32_t MaxNumClusters = pixelGPUConstants::maxNumberOfHits;
   constexpr uint16_t InvId = 9999;  // must be > MaxNumModules
 

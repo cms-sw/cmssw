@@ -102,6 +102,9 @@ namespace gpuVertexFinder {
         more = false;
     }
 
+    // avoid empty vertices
+    if (0==wnew[0] || 0==wnew[1]) return;
+
     // quality cut
     auto dist2 = (znew[0] - znew[1]) * (znew[0] - znew[1]);
 

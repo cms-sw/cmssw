@@ -90,6 +90,7 @@ void SiPixelArrayBuffer::set_adc( const SiPixelCluster::PixelPos& pix, int adc)
 
 void SiPixelArrayBuffer::add_adc( int row, int col, int adc)
 {
+  // if (adc!=0 && pixel_vec[index(row,col)]>1) std::cout << "pixel " << row<<'/'<<col<<" exists. adc "<< pixel_vec[index(row,col)] <<','<<adc<< std::endl;
   pixel_vec[index(row,col)] += adc;
 }
 

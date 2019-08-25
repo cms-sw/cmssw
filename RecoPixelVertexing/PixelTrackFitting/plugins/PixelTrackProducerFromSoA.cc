@@ -35,12 +35,12 @@
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 
 #include "storeTracks.h"
-#include "CUDADataFormats/Common/interface/ArrayShadow.h"
+#include "CUDADataFormats/Common/interface/HostProduct.h"
 
 
 /**
  * This class creates "leagcy"  reco::Track
- * objects from the output of GPU CA. 
+ * objects from the output of SoA CA. 
  */
 class PixelTrackProducerFromSoA : public edm::global::EDProducer<> {
 public:
@@ -52,8 +52,8 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-  using HitModuleStart = std::array<uint32_t,gpuClustering::MaxNumModules + 1>;
-  using HMSstorage = ArrayShadow<HitModuleStart>;
+//  using HitModuleStart = std::array<uint32_t,gpuClustering::MaxNumModules + 1>;
+  using HMSstorage = HostProduct<unsigned int[]>;
 
 
 private:
@@ -64,7 +64,7 @@ private:
   edm::EDGetTokenT<SiPixelRecHitCollectionNew> cpuHits_;
   edm::EDGetTokenT<HMSstorage> hmsToken_;
 
-  int32_t minNumberOfHits_;
+  int32_t const minNumberOfHits_;
 };
 
 PixelTrackProducerFromSoA::PixelTrackProducerFromSoA(const edm::ParameterSet &iConfig) :
@@ -111,12 +111,6 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID, edm::Event& iEve
   // std::cout << "beamspot " << bsh.x0() << ' ' << bsh.y0() << ' ' << bsh.z0() << std::endl;
   GlobalPoint bs(bsh.x0(), bsh.y0(), bsh.z0());
 
-  edm::Handle<HMSstorage> hhms;
-  iEvent.getByToken(hmsToken_,hhms);
-  auto const & hitsModuleStart = *hhms;
-
-  auto fc = hitsModuleStart.data;
-
   edm::Handle<SiPixelRecHitCollectionNew> gh;
   iEvent.getByToken(cpuHits_, gh);
   auto const &rechits = *gh;
@@ -124,15 +118,21 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID, edm::Event& iEve
   auto const &rcs = rechits.data();
   auto nhits = rcs.size();
   hitmap.resize(nhits,nullptr);
+
+  edm::Handle<HMSstorage> hhms;
+  iEvent.getByToken(hmsToken_,hhms);
+  auto const * hitsModuleStart = (*hhms).get();
+  auto fc = hitsModuleStart;
+
   for (auto const &h : rcs) {
-    auto const &thit = static_cast<BaseTrackerRecHit const &>(h);
-    auto detI = thit.det()->index();
-    auto const &clus = thit.firstClusterRef();
-    assert(clus.isPixel());
-    auto i = fc[detI] + clus.pixelCluster().originalId();
-    assert(i < nhits);
-    assert(nullptr==hitmap[i]);
-    hitmap[i] = &h;
+      auto const &thit = static_cast<BaseTrackerRecHit const &>(h);
+      auto detI = thit.det()->index();
+      auto const &clus = thit.firstClusterRef();
+      assert(clus.isPixel());
+      auto i = fc[detI] + clus.pixelCluster().originalId();
+      if(i >= hitmap.size()) hitmap.resize(i+256,nullptr);  // only in case of hit overflow in one module
+      assert(nullptr==hitmap[i]);
+      hitmap[i] = &h;
   }
 
   std::vector<const TrackingRecHit *> hits;

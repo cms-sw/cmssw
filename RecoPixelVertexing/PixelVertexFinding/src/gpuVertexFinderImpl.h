@@ -106,6 +106,7 @@ namespace gpuVertexFinder {
 #endif
 
 #ifdef __CUDACC__
+    // one block per vertex...
     splitVertices<<<1024, 128, 0, stream.id()>>>(soa, ws_d.get(), 9.f);
     cudaCheck(cudaGetLastError());
     fitVertices<<<1, 1024 - 256, 0, stream.id()>>>(soa, ws_d.get(), 5000.);
@@ -114,7 +115,10 @@ namespace gpuVertexFinder {
     sortByPt2<<<1, 256, 0, stream.id()>>>(soa, ws_d.get());
     cudaCheck(cudaGetLastError());
 #else
-    splitVertices(soa, ws_d.get(), 9.f);
+    for (blockIdx.x=0; blockIdx.x<1024; ++blockIdx.x) {
+      splitVertices(soa, ws_d.get(), 9.f);
+    }
+    blockIdx.x=0;
     fitVertices(soa, ws_d.get(), 5000.);
 
     sortByPt2(soa, ws_d.get());

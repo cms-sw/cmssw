@@ -79,11 +79,7 @@ namespace cms
 
     //--- Execute the position estimator algorithm(s).
     //--- New interface with DetSetVector
-    void run(const edmNew::DetSetVector<SiPixelCluster>& input,
-	     SiPixelRecHitCollectionNew & output,
-	     edm::ESHandle<TrackerGeometry> & geom);
-
-    void run(edm::Handle<edmNew::DetSetVector<SiPixelCluster> >  inputhandle,
+    void run(edm::Event&, edm::Handle<edmNew::DetSetVector<SiPixelCluster> >  inputhandle,
 	     SiPixelRecHitCollectionNew & output,
 	     edm::ESHandle<TrackerGeometry> & geom);
 

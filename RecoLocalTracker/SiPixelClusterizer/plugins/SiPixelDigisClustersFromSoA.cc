@@ -78,6 +78,7 @@ void SiPixelDigisClustersFromSoA::fillDescriptions(edm::ConfigurationDescription
 
 void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   const auto& digis = iEvent.get(digiGetToken_);
+  const uint32_t nDigis = digis.size();
 
   edm::ESHandle<TrackerTopology> trackerTopologyHandle;
   iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
@@ -85,15 +86,15 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
 
   auto collection = std::make_unique<edm::DetSetVector<PixelDigi>>();
   auto outputClusters = std::make_unique<SiPixelClusterCollectionNew>();
+  outputClusters->reserve(2000,nDigis/4);
 
-  const uint32_t nDigis = digis.size();
   edm::DetSet<PixelDigi>* detDigis = nullptr;
   for (uint32_t i = 0; i < nDigis; i++) {
     if (digis.pdigi(i) == 0)
       continue;
     detDigis = &collection->find_or_insert(digis.rawIdArr(i));
     if ((*detDigis).empty())
-      (*detDigis).data.reserve(32);  // avoid the first relocations
+      (*detDigis).data.reserve(64);  // avoid the first relocations
     break;
   }
 
@@ -145,7 +146,7 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
       assert(nclus == -1);
       detDigis = &collection->find_or_insert(digis.rawIdArr(i));
       if ((*detDigis).empty())
-        (*detDigis).data.reserve(32);  // avoid the first relocations
+        (*detDigis).data.reserve(64);  // avoid the first relocations
       else {
         std::cout << "Problem det present twice in input! " << (*detDigis).detId() << std::endl;
       }

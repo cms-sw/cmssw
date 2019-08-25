@@ -62,6 +62,14 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const& conf,
   yerr_endcap_def_ = 0.00075;
 
   fillParamsForGpu();
+
+  cpuData_ = {
+             &m_commonParamsGPU,
+             m_detParamsGPU.data(),
+             &m_layerGeometry,
+             &m_averageGeometry,
+           };
+
 }
 
 const pixelCPEforGPU::ParamsOnGPU* PixelCPEFast::getGPUProductAsync(cuda::stream_t<>& cudaStream) const {

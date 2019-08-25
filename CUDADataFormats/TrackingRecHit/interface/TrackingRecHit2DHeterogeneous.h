@@ -1,67 +1,8 @@
 #ifndef CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DHeterogeneous_h
 #define CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DHeterogeneous_h
 
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DSOAView.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
-
-
-// to be moved elsewhere
-namespace cudaCompat {
-
-  struct CUDATraits {
-
-    template<typename T>
-    using unique_ptr =  cudautils::device::unique_ptr<T>;
-
-    template<typename T>
-    static auto make_host_unique(edm::Service<CUDAService> & cs, cuda::stream_t<> &stream)    {
-      return cs->make_host_unique<T>(stream);
-    }
-
-
-    template<typename T>
-    static auto make_device_unique(edm::Service<CUDAService> & cs, cuda::stream_t<> &stream)    {
-      return cs->make_device_unique<T>(stream);
-    }
-
-    template<typename T>
-    static auto make_device_unique(edm::Service<CUDAService> & cs, size_t size, cuda::stream_t<> &stream)    {
-      return cs->make_device_unique<T>(size, stream);
-    }
-
-
-  };
-
-
-  struct HostTraits {
-
-    template<typename T>
-    using unique_ptr =  std::unique_ptr<T>;
-
-    template<typename T>
-    static auto make_host_unique(edm::Service<CUDAService>&, cuda::stream_t<> &)    {
-      return std::make_unique<T>();
-    }
-
-
-    template<typename T>
-    static auto make_device_unique(edm::Service<CUDAService>&, cuda::stream_t<> &)    {
-      return std::make_unique<T>();
-    }
-
-    template<typename T>
-    static auto make_device_unique(edm::Service<CUDAService>&, size_t size, cuda::stream_t<> &)    {
-      return std::make_unique<T>(size);
-    }
-
-
-  };
-}
+#include "CUDADataFormats/Common/interface/HeterogeneousSoA.h"
 
 
 template<typename Traits> 
@@ -108,13 +49,13 @@ private:
   static constexpr uint32_t n32 = 9;
   static_assert(sizeof(uint32_t) == sizeof(float));  // just stating the obvious
 
-  unique_ptr<uint16_t[]> m_store16;
-  unique_ptr<float[]> m_store32;
+  unique_ptr<uint16_t[]> m_store16;  //!
+  unique_ptr<float[]> m_store32;  //!
 
-  unique_ptr<TrackingRecHit2DSOAView::Hist> m_HistStore;
-  unique_ptr<TrackingRecHit2DSOAView::AverageGeometry> m_AverageGeometryStore;
+  unique_ptr<TrackingRecHit2DSOAView::Hist> m_HistStore;  //!
+  unique_ptr<TrackingRecHit2DSOAView::AverageGeometry> m_AverageGeometryStore;  //!
 
-  unique_ptr<TrackingRecHit2DSOAView> m_view;
+  unique_ptr<TrackingRecHit2DSOAView> m_view; //!
 
   uint32_t m_nHits;
 
@@ -155,7 +96,7 @@ TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(uint32_t nH
 #ifndef __CUDACC__
     constexpr 
 #endif 
-       (std::is_same<Traits,cudaCompat::CUDATraits>::value) {
+       (std::is_same<Traits,cudaCompat::GPUTraits>::value) {
       cudautils::copyAsync(m_view, view, stream);
     } else { m_view.reset(view.release());}
     return;
@@ -200,13 +141,14 @@ TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(uint32_t nH
 #ifndef __CUDACC__
     constexpr
 #endif
-      (std::is_same<Traits,cudaCompat::CUDATraits>::value) {
+      (std::is_same<Traits,cudaCompat::GPUTraits>::value) {
       cudautils::copyAsync(m_view, view, stream);
     } else { m_view.reset(view.release());}
 }
 
-using TrackingRecHit2DCUDA = TrackingRecHit2DHeterogeneous<cudaCompat::CUDATraits>;
+using TrackingRecHit2DGPU = TrackingRecHit2DHeterogeneous<cudaCompat::GPUTraits>;
+using TrackingRecHit2DCUDA = TrackingRecHit2DHeterogeneous<cudaCompat::GPUTraits>;
+using TrackingRecHit2DCPU = TrackingRecHit2DHeterogeneous<cudaCompat::CPUTraits>;
 using TrackingRecHit2DHost = TrackingRecHit2DHeterogeneous<cudaCompat::HostTraits>;
-
 
 #endif  // CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DHeterogeneous_h

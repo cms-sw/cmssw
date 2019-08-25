@@ -74,7 +74,6 @@ private:
 };
 
 
-/*
 namespace cudaCompat {
 
   struct GPUTraits {
@@ -242,6 +241,6 @@ template<typename T>
 using HeterogeneousSoACPU =  HeterogeneousSoAImpl<T,cudaCompat::CPUTraits>;
 template<typename T>
 using HeterogeneousSoAHost = HeterogeneousSoAImpl<T,cudaCompat::HostTraits>;
-*/
+
 
 #endif
