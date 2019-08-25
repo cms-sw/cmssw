@@ -1,17 +1,14 @@
 #ifndef RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorKernels_h
 #define RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorKernels_h
 
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "GPUCACell.h"
 
 // #define DUMP_GPU_TK_TUPLES
 
+namespace cAHitNtupletGenerator {
 
-class CAHitNtupletGeneratorKernels {
-public:
   // counters
   struct Counters {
     unsigned long long nEvents;
@@ -27,8 +24,8 @@ public:
     unsigned long long nZeroTrackCells;
   };
 
+  using HitsView = TrackingRecHit2DSOAView;
   using HitsOnGPU = TrackingRecHit2DSOAView;
-  using HitsOnCPU = TrackingRecHit2DCUDA;
 
   using HitToTuple = CAConstants::HitToTuple;
   using TupleMultiplicity = CAConstants::TupleMultiplicity;
@@ -57,7 +54,9 @@ public:
 
   // params
   struct Params {
-    Params(uint32_t minHitsPerNtuplet,
+    Params(bool onGPU, 
+           uint32_t minHitsPerNtuplet,
+           uint32_t maxNumberOfDoublets,
                                   bool useRiemannFit,
                                   bool fit5as4,
                                   bool includeJumpingForwardDoublets,
@@ -75,7 +74,9 @@ public:
                                   float dcaCutInnerTriplet,
                                   float dcaCutOuterTriplet,
                                   QualityCuts const& cuts)
-      : minHitsPerNtuplet_(minHitsPerNtuplet),
+      : onGPU_(onGPU),
+        minHitsPerNtuplet_(minHitsPerNtuplet),
+        maxNumberOfDoublets_(maxNumberOfDoublets),
         useRiemannFit_(useRiemannFit),
         fit5as4_(fit5as4),
         includeJumpingForwardDoublets_(includeJumpingForwardDoublets),
@@ -94,7 +95,9 @@ public:
         dcaCutOuterTriplet_(dcaCutOuterTriplet),
         cuts_(cuts) { }
 
+  const bool onGPU_;
   const uint32_t minHitsPerNtuplet_;
+  const uint32_t maxNumberOfDoublets_;
   const bool useRiemannFit_;
   const bool fit5as4_;
   const bool includeJumpingForwardDoublets_;
@@ -137,6 +140,34 @@ public:
   
   }; // Params
 
+}
+
+template<typename TTraits>
+class CAHitNtupletGeneratorKernels {
+public:
+
+  using Traits = TTraits;
+
+  using QualityCuts = cAHitNtupletGenerator::QualityCuts;
+  using Params = cAHitNtupletGenerator::Params;
+  using Counters = cAHitNtupletGenerator::Counters;
+
+  template<typename T>
+  using unique_ptr = typename Traits:: template unique_ptr<T>;
+
+
+  using HitsView = TrackingRecHit2DSOAView;
+  using HitsOnGPU = TrackingRecHit2DSOAView;
+  using HitsOnCPU = TrackingRecHit2DHeterogeneous<Traits>;
+
+  using HitToTuple = CAConstants::HitToTuple;
+  using TupleMultiplicity = CAConstants::TupleMultiplicity;
+
+  using Quality = pixelTrack::Quality;
+  using TkSoA = pixelTrack::TrackSoA;
+  using HitContainer = pixelTrack::HitContainer;
+
+
 
   CAHitNtupletGeneratorKernels(Params const & params) : m_params(params){}
   ~CAHitNtupletGeneratorKernels() = default;
@@ -147,7 +178,7 @@ public:
 
   void classifyTuples(HitsOnCPU const& hh, TkSoA * tuples_d, cudaStream_t cudaStream);
 
-  void fillHitDetIndices(HitsOnCPU const &hh, TkSoA * tuples_d, cudaStream_t cudaStream);
+  void fillHitDetIndices(HitsView const * hv, TkSoA * tuples_d, cudaStream_t cudaStream);
 
   void buildDoublets(HitsOnCPU const& hh, cuda::stream_t<>& stream);
   void allocateOnGPU(cuda::stream_t<>& stream);
@@ -161,26 +192,29 @@ private:
 
   // workspace
   CAConstants::CellNeighborsVector* device_theCellNeighbors_ = nullptr;
-  cudautils::device::unique_ptr<CAConstants::CellNeighbors[]> device_theCellNeighborsContainer_;
+  unique_ptr<CAConstants::CellNeighbors[]> device_theCellNeighborsContainer_;
   CAConstants::CellTracksVector* device_theCellTracks_ = nullptr;
-  cudautils::device::unique_ptr<CAConstants::CellTracks[]> device_theCellTracksContainer_;
+  unique_ptr<CAConstants::CellTracks[]> device_theCellTracksContainer_;
 
-  cudautils::device::unique_ptr<GPUCACell[]> device_theCells_;
-  cudautils::device::unique_ptr<GPUCACell::OuterHitOfCell[]> device_isOuterHitOfCell_;
+  unique_ptr<GPUCACell[]> device_theCells_;
+  unique_ptr<GPUCACell::OuterHitOfCell[]> device_isOuterHitOfCell_;
   uint32_t* device_nCells_ = nullptr;
 
-  cudautils::device::unique_ptr<HitToTuple> device_hitToTuple_;
+  unique_ptr<HitToTuple> device_hitToTuple_;
   AtomicPairCounter* device_hitToTuple_apc_ = nullptr;
 
   AtomicPairCounter* device_hitTuple_apc_ = nullptr;
 
-  cudautils::device::unique_ptr<TupleMultiplicity> device_tupleMultiplicity_;
+  unique_ptr<TupleMultiplicity> device_tupleMultiplicity_;
   
   uint8_t * device_tmws_;
 
-  cudautils::device::unique_ptr<AtomicPairCounter::c_type[]> device_storage_;
+  unique_ptr<AtomicPairCounter::c_type[]> device_storage_;
   // params
   Params const & m_params;
 };
+
+using CAHitNtupletGeneratorKernelsGPU = CAHitNtupletGeneratorKernels<cudaCompat::GPUTraits>;
+using CAHitNtupletGeneratorKernelsCPU = CAHitNtupletGeneratorKernels<cudaCompat::CPUTraits>;
 
 #endif  // RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorKernels_h

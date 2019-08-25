@@ -21,7 +21,7 @@ struct TrajectoryStateSoA {
 
 
   template<typename V3, typename M3, typename V2, typename M2>
-  __host__ __device__
+  __host__ __device__ inline
   void copyFromCircle(V3 const & cp, M3 const & ccov, V2 const & lp, M2 const & lcov, float b, int32_t i) {
      state(i) << cp.template cast<float>(), lp.template cast<float>();
      state(i)(2) *=b;
@@ -42,14 +42,14 @@ struct TrajectoryStateSoA {
 
 
   template<typename V5, typename M5>
-  __host__ __device__
+  __host__ __device__ inline
   void copyFromDense(V5 const & v, M5 const & cov, int32_t i) {
      state(i) = v.template cast<float>();
      for(int j=0, ind=0; j<5; ++j) for (auto k=j;k<5;++k) covariance(i)(ind++) = cov(j,k); 
   }
 
   template<typename V5, typename M5>
-  __host__ __device__
+  __host__ __device__ inline
   void copyToDense(V5 & v, M5 & cov, int32_t i) const {
      v = state(i).template cast<typename V5::Scalar>();
      for(int j=0, ind=0; j<5; ++j) {
