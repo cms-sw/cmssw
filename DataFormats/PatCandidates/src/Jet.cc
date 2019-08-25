@@ -401,6 +401,10 @@ const reco::BoostedDoubleSVTagInfo* Jet::tagInfoBoostedDoubleSV(const std::strin
   return tagInfoByTypeOrLabel<reco::BoostedDoubleSVTagInfo>(label);
 }
 
+const reco::PixelClusterTagInfo* Jet::tagInfoPixelCluster(const std::string& label) const {
+  return tagInfoByTypeOrLabel<reco::PixelClusterTagInfo>(label);
+}
+
 void Jet::addTagInfo(const std::string& label, const TagInfoFwdPtrCollection::value_type& info) {
   std::string::size_type idx = label.find("TagInfos");
   if (idx == std::string::npos) {
