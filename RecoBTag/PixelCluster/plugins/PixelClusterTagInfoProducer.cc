@@ -174,8 +174,8 @@ void PixelClusterTagInfoProducer::produce(edm::StreamID iID, edm::Event& iEvent,
       continue;
 
     // Get the geom-detector
-    const PixelGeomDetUnit* geomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
-    const PixelTopology* topol = &(geomDet->specificTopology());
+    const auto* geomDet = theTracker.idToDet(detId);
+    const auto* topol = &geomDet->topology();
 
     for (auto const& clUnit : detUnit) {
       // get global position of the cluster
