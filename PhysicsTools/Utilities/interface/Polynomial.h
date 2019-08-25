@@ -17,7 +17,7 @@ namespace funct {
   };
 
   template <unsigned int n>
-  Polynomial<n>::Polynomial(const std::shared_ptr<double> *c) : c0_(c), poly_(c->get() + 1) {}
+  Polynomial<n>::Polynomial(const std::shared_ptr<double> *c) : c0_(*c), poly_(c->get() + 1) {}
   template <unsigned int n>
   Polynomial<n>::Polynomial(const Parameter *c) : c0_(c->ptr()), poly_(c + 1) {}
 
