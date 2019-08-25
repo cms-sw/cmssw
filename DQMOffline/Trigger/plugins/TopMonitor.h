@@ -11,16 +11,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-
-//DataFormats
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -36,15 +32,11 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-// Marina
 #include "DataFormats/BTauReco/interface/JetTag.h"
-//Suvankar
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
-
-//ATHER
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 
 class GenericTriggerEventFlag;
 
@@ -57,21 +49,19 @@ public:
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
-  TopMonitor(const edm::ParameterSet &);
+  TopMonitor(const edm::ParameterSet&);
   ~TopMonitor() throw() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
 
-  // Marina
   struct JetRefCompare {
-    inline bool operator()(const edm::RefToBase<reco::Jet> &j1, const edm::RefToBase<reco::Jet> &j2) const {
-      return j1.id() < j2.id() || (j1.id() == j2.id() && j1.key() < j2.key());
+    inline bool operator()(const edm::RefToBase<reco::Jet>& j1, const edm::RefToBase<reco::Jet>& j2) const {
+      return (j1.id() < j2.id()) || ((j1.id() == j2.id()) && (j1.key() < j2.key()));
     }
   };
-  // Marina
   typedef std::map<edm::RefToBase<reco::Jet>, float, JetRefCompare> JetTagMap;
 
 private:
@@ -80,15 +70,14 @@ private:
   const bool requireValidHLTPaths_;
   bool hltPathsAreValid_;
 
-  edm::EDGetTokenT<reco::PFMETCollection> metToken_;
-  edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muoToken_;
   edm::EDGetTokenT<edm::View<reco::GsfElectron> > eleToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > elecIDToken_;
-  edm::EDGetTokenT<reco::MuonCollection> muoToken_;
   edm::EDGetTokenT<reco::PhotonCollection> phoToken_;
-  edm::EDGetTokenT<reco::JetTagCollection> jetTagToken_;
-  edm::EDGetTokenT<reco::JetTagCollection> jetbbTagToken_;
-  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
+  std::vector<edm::EDGetTokenT<reco::JetTagCollection> > jetTagTokens_;
+  edm::EDGetTokenT<reco::PFMETCollection> metToken_;
 
   struct PVcut {
     double dxy;
@@ -140,7 +129,7 @@ private:
   ObjME bjetVsLS_;
   ObjME htVsLS_;
 
-  ObjME jetEtaPhi_HEP17_;  // for HEP17 monitoring
+  ObjME jetEtaPhi_HEP17_; // for HEP17 monitoring
 
   ObjME jetMulti_;
   ObjME eleMulti_;
@@ -242,7 +231,7 @@ private:
   double workingpoint_;
   std::string btagalgoName_;
   PVcut lepPVcuts_;
-  bool usePVcuts_;
+  bool applyLeptonPVcuts_;
 
   bool applyMETcut_ = false;
 
@@ -251,12 +240,10 @@ private:
   bool opsign_;
   StringCutObjectSelector<reco::PFJet, true> MHTdefinition_;
   double MHTcut_;
-  double mll;
-  int sign;
+
   bool invMassCutInAllMuPairs_;
 
   bool enablePhotonPlot_;
-
   bool enableMETplot_;
 };
 

@@ -78,7 +78,7 @@ hltTOPmonitoring.histoPSet.phiBinning2D = [-3.1416,-1.8849,-0.6283,0.6283,1.8849
 hltTOPmonitoring.enablePhotonPlot = False
 hltTOPmonitoring.enableMETplot = False
 
-hltTOPmonitoring.applyleptonPVcuts = False
+hltTOPmonitoring.applyLeptonPVcuts = False
 hltTOPmonitoring.leptonPVcuts.dxy = 9999.
 hltTOPmonitoring.leptonPVcuts.dz  = 9999.
 
@@ -90,9 +90,8 @@ hltTOPmonitoring.muons     = "muons" # while pfIsolatedMuonsEI are reco::PFCandi
 hltTOPmonitoring.photons   = "photons" # reco::Photon
 hltTOPmonitoring.vertices  = "offlinePrimaryVertices"
 
-hltTOPmonitoring.btagalgo  = "pfCombinedSecondaryVertexV2BJetTags"
+hltTOPmonitoring.btagAlgos = ['pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probbb']
 hltTOPmonitoring.workingpoint = 0.8484 # Medium wp
-hltTOPmonitoring.bbtagalgo = "pfDeepCSVJetTags:probbb"
 
 hltTOPmonitoring.HTdefinition = 'pt>30 & abs(eta)<2.5'
 hltTOPmonitoring.leptJetDeltaRmin = 0.4
