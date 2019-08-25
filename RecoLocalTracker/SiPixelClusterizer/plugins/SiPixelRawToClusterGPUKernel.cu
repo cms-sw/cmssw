@@ -539,6 +539,10 @@ namespace pixelgpudetails {
                                                        cuda::stream_t<> &stream) {
     nDigis = wordCounter;
 
+#ifdef GPU_DEBUG
+    std::cout << "decoding " << wordCounter << " digis. Max is " << pixelgpudetails::MAX_FED_WORDS << std::endl;
+#endif
+
     digis_d = SiPixelDigisCUDA(pixelgpudetails::MAX_FED_WORDS, stream);
     if (includeErrors) {
       digiErrors_d = SiPixelDigiErrorsCUDA(pixelgpudetails::MAX_FED_WORDS, std::move(errors), stream);
@@ -581,6 +585,10 @@ namespace pixelgpudetails {
           includeErrors,
           debug);
       cudaCheck(cudaGetLastError());
+#ifdef GPU_DEBUG
+    cudaDeviceSynchronize();
+    cudaCheck(cudaGetLastError());
+#endif
 
       if (includeErrors) {
         digiErrors_d.copyErrorToHostAsync(stream);
@@ -605,6 +613,10 @@ namespace pixelgpudetails {
                                                                              clusters_d.clusInModule(),
                                                                              clusters_d.clusModuleStart());
       cudaCheck(cudaGetLastError());
+#ifdef GPU_DEBUG
+    cudaDeviceSynchronize();
+    cudaCheck(cudaGetLastError());
+#endif
 
 #ifdef GPU_DEBUG
       std::cout << "CUDA countModules kernel launch with " << blocks << " blocks of " << threadsPerBlock
@@ -633,6 +645,10 @@ namespace pixelgpudetails {
                                                             digis_d.clus(),
                                                             wordCounter);
       cudaCheck(cudaGetLastError());
+#ifdef GPU_DEBUG
+    cudaDeviceSynchronize();
+    cudaCheck(cudaGetLastError());
+#endif
 
       // apply charge cut
       clusterChargeCut<<<blocks, threadsPerBlock, 0, stream.id()>>>(digis_d.moduleInd(),
@@ -658,6 +674,12 @@ namespace pixelgpudetails {
                                 sizeof(uint32_t),
                                 cudaMemcpyDefault,
                                 stream.id()));
+
+#ifdef GPU_DEBUG
+    cudaDeviceSynchronize();
+    cudaCheck(cudaGetLastError());
+#endif
+
 
     }  // end clusterizer scope
   }
