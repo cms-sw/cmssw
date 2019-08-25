@@ -85,7 +85,7 @@ double_soft_muon_mhtpt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu
 #backup1
 #met
 double_soft_muon_backup_70_metpt = hltTOPmonitoring.clone()
-double_soft_muon_backup_70_metpt.FolderName   = cms.string('HLT/SUSY/SOS/Baclup70/MET/')
+double_soft_muon_backup_70_metpt.FolderName   = cms.string('HLT/SUSY/SOS/Backup70/MET/')
 # Selections
 double_soft_muon_backup_70_metpt.nmuons           = cms.uint32(2)
 double_soft_muon_backup_70_metpt.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
@@ -123,7 +123,7 @@ double_soft_muon_backup_70_mhtpt.denGenericTriggerEventPSet.hltPaths = cms.vstri
 #backup2
 #met
 double_soft_muon_backup_90_metpt = hltTOPmonitoring.clone()
-double_soft_muon_backup_90_metpt.FolderName   = cms.string('HLT/SUSY/SOS/Baclup90/MET/')
+double_soft_muon_backup_90_metpt.FolderName   = cms.string('HLT/SUSY/SOS/Backup90/MET/')
 # Selections
 double_soft_muon_backup_90_metpt.nmuons           = cms.uint32(2)
 double_soft_muon_backup_90_metpt.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
@@ -160,7 +160,7 @@ double_soft_muon_backup_90_mhtpt.denGenericTriggerEventPSet.hltPaths = cms.vstri
 
 #triple muon
 triple_muon_mupt = hltTOPmonitoring.clone()
-triple_muon_mupt.FolderName   = cms.string('HLT/SUSY/SOS/TrileMu/Muon')
+triple_muon_mupt.FolderName   = cms.string('HLT/SUSY/SOS/TripleMu/Muon')
 # Selections
 triple_muon_mupt.nmuons           = cms.uint32(3)
 triple_muon_mupt.muoSelection     =cms.string('isGlobalMuon() ')
@@ -175,7 +175,7 @@ triple_muon_mupt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Trimuon5
 
 #triplemu dca
 triple_muon_dca_mupt = hltTOPmonitoring.clone()
-triple_muon_dca_mupt.FolderName   = cms.string('HLT/SUSY/SOS/TrileMu/DCA/Muon')
+triple_muon_dca_mupt.FolderName   = cms.string('HLT/SUSY/SOS/TripleMu/DCA/Muon')
 # Selections
 triple_muon_dca_mupt.nmuons           = cms.uint32(3)
 triple_muon_dca_mupt.muoSelection     =cms.string('isGlobalMuon() ')
