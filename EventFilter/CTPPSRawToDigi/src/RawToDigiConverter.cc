@@ -254,7 +254,7 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
       const DiamondVFATFrame diamondframe(fr->getData());
 
       // update Event Counter in status
-      record.status.setEC(record.frame->getEC() & 0xFF);
+      record.status.setEC(fr->getEC() & 0xFF);
 
       // create the digi
       DetSet<CTPPSDiamondDigi> &digiDetSet = digi.find_or_insert(detId);
@@ -263,24 +263,6 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
                                             diamondframe.getThresholdVoltage(),
                                             diamondframe.getMultihit(),
                                             diamondframe.getHptdcErrorFlag()));
-      std::cout << "before "
-        << diamondframe.getLeadingEdgeTime() << "\t"
-        << diamondframe.getTrailingEdgeTime() << "\t"
-        << diamondframe.getThresholdVoltage() << "\t"
-        << diamondframe.getMultihit() << "\t"
-        << diamondframe.getHptdcErrorFlag() << "\n";
-      uint32_t le_time = ((fr->getData()[7] & 0x1f) << 16) + fr->getData()[8];
-      le_time = (le_time & 0xFFE7FFFF) << 2 | (le_time & 0x00180000) >> 19;  //HPTDC inperpolation bits are MSB but should be LSB.... ask HPTDC designers...
-      uint32_t te_time = ((fr->getData()[5] & 0x1f) << 16) + fr->getData()[6];
-      te_time = (te_time & 0xFFE7FFFF) << 2 | (te_time & 0x00180000) >> 19;  //HPTDC inperpolation bits are MSB but should be LSB.... ask HPTDC designers...
-      uint32_t thres_volt = ((fr->getData()[3] & 0x7ff) << 16) + fr->getData()[4];
-      VFATFrame::word multi_hit = fr->getData()[2] & 0x01, hptdc_err = fr->getData()[1] & 0xFFFF;
-      std::cout << "after "
-        << le_time << "\t"
-        << te_time << "\t"
-        << thres_volt << "\t"
-        << multi_hit << "\t"
-        << hptdc_err << "\n";
     }
 
     // save status
