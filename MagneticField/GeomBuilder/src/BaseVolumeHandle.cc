@@ -4,7 +4,11 @@
  *  \author N. Amapane - INFN Torino (original developer)
  */
 
+<<<<<<< HEAD
 #include "BaseVolumeHandle.h"
+=======
+#include "MagneticField/GeomBuilder/src/BaseVolumeHandle.h"
+>>>>>>> 27c6c53d518f80a627b5a3d75778e6a63631ef33
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
@@ -13,7 +17,10 @@
 
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
+<<<<<<< HEAD
 #include <cassert>
+=======
+>>>>>>> 27c6c53d518f80a627b5a3d75778e6a63631ef33
 #include <string>
 #include <iterator>
 #include <iomanip>
@@ -23,14 +30,21 @@ using namespace SurfaceOrientation;
 using namespace std;
 using namespace magneticfield;
 
+<<<<<<< HEAD
 BaseVolumeHandle::BaseVolumeHandle(bool expand2Pi, bool debugVal)
+=======
+BaseVolumeHandle::BaseVolumeHandle(bool debugVal)
+>>>>>>> 27c6c53d518f80a627b5a3d75778e6a63631ef33
     : magVolume(nullptr),
       masterSector(1),
       theRN(0.),
       theRMin(0.),
       theRMax(0.),
       refPlane(nullptr),
+<<<<<<< HEAD
       expand(expand2Pi),
+=======
+>>>>>>> 27c6c53d518f80a627b5a3d75778e6a63631ef33
       isIronFlag(false),
       debug(debugVal) {}
 
@@ -176,7 +190,11 @@ bool BaseVolumeHandle::sameSurface(const Surface &s1, Sides which_side, float to
   return false;
 }
 
+<<<<<<< HEAD
 bool BaseVolumeHandle::setSurface(Surface &s1, Sides which_side) {
+=======
+bool BaseVolumeHandle::setSurface(const Surface &s1, Sides which_side) {
+>>>>>>> 27c6c53d518f80a627b5a3d75778e6a63631ef33
   //Check for null assignment
   if (&s1 == (surfaces[which_side]).get()) {
     isAssigned[which_side] = true;

@@ -13,8 +13,11 @@
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
+<<<<<<< HEAD
 #include <iostream>
 
+=======
+>>>>>>> 27c6c53d518f80a627b5a3d75778e6a63631ef33
 using namespace SurfaceOrientation;
 using namespace magneticfield;
 
