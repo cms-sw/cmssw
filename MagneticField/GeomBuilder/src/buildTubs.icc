@@ -1,5 +1,5 @@
 void volumeHandle::buildTubs() {
-  LogDebug("magneticfield::volumeHandle") << "Building tubs surfaces...: " << endl;
+  LogDebug("magneticfield::volumeHandle") << "Building tubs surfaces...: ";
 
   DDTubs tubs(solid);
 
@@ -36,7 +36,7 @@ void volumeHandle::buildTubs() {
   if (debug) {
     if (dynamic_cast<const Cylinder*>(&(*surfaces[outer]))->radius() <
         dynamic_cast<const Cylinder*>(&(*surfaces[inner]))->radius()) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner " << endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner ";
     }
   }
   // Save volume boundaries

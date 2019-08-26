@@ -7,7 +7,7 @@
  * One instance is created for each DDVolume. The parameters of the 
  * boundary surfaces are calculated during construction.
  *
- *  \author N. Amapane - INFN Torino
+ *  \author N. Amapane - INFN Torino (original developer)
  */
 
 #include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"

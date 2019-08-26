@@ -3,7 +3,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  \author N. Amapane - INFN Torino
+ *  \author N. Amapane - INFN Torino (original developer)
  */
 
 #include "DD4hep_volumeHandle.h"

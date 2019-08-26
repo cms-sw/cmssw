@@ -6,8 +6,8 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/eSector.h"
-#include "MagneticField/GeomBuilder/src/printUniqueNames.h"
+#include "eSector.h"
+#include "printUniqueNames.h"
 #include "Utilities/BinningTools/interface/ClusterizingHistogram.h"
 #include "MagneticField/Layers/interface/MagESector.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"

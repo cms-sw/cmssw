@@ -4,7 +4,7 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/bSlab.h"
+#include "bSlab.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/Layers/interface/MagBSlab.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
