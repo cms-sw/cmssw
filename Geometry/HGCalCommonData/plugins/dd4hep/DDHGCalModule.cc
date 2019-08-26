@@ -5,8 +5,6 @@
  *      Author: Sunanda Banerjee
  */
 
-#include <unordered_set>
-
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
@@ -16,6 +14,10 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
 //#define EDM_ML_DEBUG
+
+#ifdef EDM_ML_DEBUG
+#include <unordered_set>
+#endif
 using namespace cms_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */,
@@ -25,11 +27,11 @@ static long algorithm(dd4hep::Detector& /* description */,
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
 
-  std::vector<std::string> wafer = args.value<std::vector<std::string> >("WaferName");          // Wafers
-  std::vector<std::string> materials = args.value<std::vector<std::string> >("MaterialNames");  // Materials
-  std::vector<std::string> names = args.value<std::vector<std::string> >("VolumeNames");        // Names
-  std::vector<double> thick = args.value<std::vector<double> >("Thickness");  // Thickness of the material
-  std::vector<int> copyNumber;                                                // Initial copy numbers
+  const auto& wafer = args.value<std::vector<std::string> >("WaferName");   // Wafers
+  auto  materials = args.value<std::vector<std::string> >("MaterialNames"); // Materials
+  const auto& names = args.value<std::vector<std::string> >("VolumeNames"); // Names
+  const auto& thick = args.value<std::vector<double> >("Thickness");        // Thickness of the material
+  std::vector<int> copyNumber;                                              // Initial copy numbers
   for (unsigned int i = 0; i < materials.size(); ++i) {
     if (materials[i] == "materials:M_NEMAFR4plate")
       materials[i] = "materials:M_NEMA FR4 plate";
@@ -44,10 +46,10 @@ static long algorithm(dd4hep::Detector& /* description */,
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names[i] << " of thickness " << thick[i]
                                   << " filled with " << materials[i] << " first copy number " << copyNumber[i];
 #endif
-  std::vector<int> layers = args.value<std::vector<int> >("Layers");                // Number of layers in a section
-  std::vector<double> layerThick = args.value<std::vector<double> >("LayerThick");  // Thickness of each section
-  std::vector<int> layerType = args.value<std::vector<int> >("LayerType");          // Type of the layer
-  std::vector<int> layerSense = args.value<std::vector<int> >("LayerSense");        // Content of a layer (sensitive?)
+  const auto& layers = args.value<std::vector<int> >("Layers");            // Number of layers in a section
+  const auto& layerThick = args.value<std::vector<double> >("LayerThick"); // Thickness of each section
+  const auto& layerType = args.value<std::vector<int> >("LayerType");      // Type of the layer
+  const auto& layerSense = args.value<std::vector<int> >("LayerSense");    // Content of a layer (sensitive?)
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: " << layers.size() << " blocks";
   for (unsigned int i = 0; i < layers.size(); ++i)
@@ -66,10 +68,10 @@ static long algorithm(dd4hep::Detector& /* description */,
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << zMinBlock << " rFineCoarse " << rMaxFine
                                 << " wafer width " << waferW << " sectors " << sectors;
 #endif
-  std::vector<double> slopeB = args.value<std::vector<double> >("SlopeBottom");   // Slope at the lower R
-  std::vector<double> slopeT = args.value<std::vector<double> >("SlopeTop");      // Slopes at the larger R
-  std::vector<double> zFront = args.value<std::vector<double> >("ZFront");        // Starting Z values for the slopes
-  std::vector<double> rMaxFront = args.value<std::vector<double> >("RMaxFront");  // Corresponding rMax's
+  const auto& slopeB = args.value<std::vector<double> >("SlopeBottom");   // Slope at the lower R
+  const auto& slopeT = args.value<std::vector<double> >("SlopeTop");      // Slopes at the larger R
+  const auto& zFront = args.value<std::vector<double> >("ZFront");        // Starting Z values for the slopes
+  const auto& rMaxFront = args.value<std::vector<double> >("RMaxFront");  // Corresponding rMax's
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: Bottom slopes " << slopeB[0] << ":" << slopeB[1] << " and "
                                 << slopeT.size() << " slopes for top";
@@ -78,9 +80,9 @@ static long algorithm(dd4hep::Detector& /* description */,
                                   << slopeT[i];
 #endif
   std::string idNameSpace = static_cast<std::string>(ns.name());  // Namespace of this and ALL sub-parts
-  std::string idName = args.parentName();                         // Name of the "parent" volume.
-  std::unordered_set<int> copies;                                 // List of copy #'s
+  const auto& idName = args.parentName();                         // Name of the "parent" volume.
 #ifdef EDM_ML_DEBUG
+  std::unordered_set<int> copies;                                 // List of copy #'s
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: NameSpace " << idNameSpace << " Mother " << idName;
 #endif
 
@@ -145,8 +147,8 @@ static long algorithm(dd4hep::Detector& /* description */,
         double rr = 2.0 * dx * tan(30._deg);
         int ncol = static_cast<int>(2.0 * routF / waferW) + 1;
         int nrow = static_cast<int>(routF / (waferW * tan(30._deg))) + 1;
-        int incm(0), inrm(0), kount(0), ntot(0), nin(0), nfine(0), ncoarse(0);
 #ifdef EDM_ML_DEBUG
+        int incm(0), inrm(0), kount(0), ntot(0), nin(0), nfine(0), ncoarse(0);
         edm::LogVerbatim("HGCalGeom") << glog.name() << " rout " << routF << " Row " << nrow << " Column " << ncol;
 #endif
         for (int nr = -nrow; nr <= nrow; ++nr) {
@@ -157,32 +159,35 @@ static long algorithm(dd4hep::Detector& /* description */,
               double xpos = nc * dx;
               double ypos = nr * dy;
               std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos, ypos, dx, rr, rinB, routF, true);
+#ifdef EDM_ML_DEBUG
               ++ntot;
+#endif
               if (corner.first > 0) {
                 int copyL = inr * 100 + inc;
                 if (nc < 0)
                   copyL += 10000;
                 if (nr < 0)
                   copyL += 100000;
+#ifdef EDM_ML_DEBUG
                 if (inc > incm)
                   incm = inc;
                 if (inr > inrm)
                   inrm = inr;
                 kount++;
-                if (copies.count(copy) == 0)
-                  copies.insert(copy);
+		copies.insert(copy);
+#endif
                 if (corner.first == (int)(HGCalParameters::k_CornerSize)) {
                   double rpos = std::sqrt(xpos * xpos + ypos * ypos);
                   dd4hep::Position tran(xpos, ypos, 0.0);
                   dd4hep::Rotation3D rotation;
-                  ++nin;
                   dd4hep::Volume glog1 = (rpos < rMaxFine) ? ns.volume(wafer[0]) : ns.volume(wafer[1]);
                   glog.placeVolume(glog1, copyL, dd4hep::Transform3D(rotation, tran));
+#ifdef EDM_ML_DEBUG
+                  ++nin;
                   if (rpos < rMaxFine)
                     ++nfine;
                   else
                     ++ncoarse;
-#ifdef EDM_ML_DEBUG
                   edm::LogVerbatim("HGCalGeom")
                       << "DDHGCalModule: " << glog1.name() << " number " << copyL << " positioned in " << glog.name()
                       << " at " << tran << " with " << rotation;
@@ -225,9 +230,6 @@ static long algorithm(dd4hep::Detector& /* description */,
   int k(0);
   for (std::unordered_set<int>::const_iterator itr = copies.begin(); itr != copies.end(); ++itr, ++k)
     edm::LogVerbatim("HGCalGeom") << "Copy[" << k << "] : " << (*itr);
-#endif
-  copies.clear();
-#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "<<== End of DDHGCalModule construction ...";
 #endif
 
