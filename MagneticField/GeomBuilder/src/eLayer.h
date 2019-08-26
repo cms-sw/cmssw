@@ -7,7 +7,7 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/bSector.h"
+#include "bSector.h"
 
 class MagELayer;
 

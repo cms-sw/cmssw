@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  \author N. Amapane - INFN Torino
+ *  \author N. Amapane - INFN Torino (original developer)
  */
 
 #include "MagneticField/GeomBuilder/src/BaseVolumeHandle.h"

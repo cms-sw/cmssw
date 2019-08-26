@@ -6,8 +6,8 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/bRod.h"
-#include "MagneticField/GeomBuilder/src/printUniqueNames.h"
+#include "bRod.h"
+#include "printUniqueNames.h"
 #include "Utilities/BinningTools/interface/ClusterizingHistogram.h"
 #include "MagneticField/Layers/interface/MagBRod.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"

@@ -5,7 +5,7 @@
  */
 
 void volumeHandle::buildTrap() {
-  LogDebug("magneticfield::volumeHandle") << "Building trapezoid surfaces...: " << endl;
+  LogDebug("magneticfield::volumeHandle") << "Building trapezoid surfaces...: ";
 
   DDTrap trap(solid);  //FIXME
 
@@ -33,14 +33,14 @@ void volumeHandle::buildTrap() {
                                           << "phi " << phi << endl
                                           << "halfZ " << halfZ << endl
                                           << "alpha1 " << alpha1 << endl
-                                          << "alpha2 " << alpha2 << endl;
+                                          << "alpha2 " << alpha2;
 
   // Just check assumptions on parameters...
   if (debug) {
     const double epsilon = 1e-5;
     if (theta > epsilon || phi > epsilon || y1 - y2 > epsilon || x1 - x3 > epsilon || x2 - x4 > epsilon ||
         alpha1 - alpha2 > epsilon) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: unexpected trapezoid parameters." << endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: unexpected trapezoid parameters.";
     }
   }
 
@@ -83,18 +83,18 @@ void volumeHandle::buildTrap() {
       << "pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " " << pos_zplus.phi() << endl
       << "pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " " << pos_zminus.phi() << endl
       << "pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi() << endl
-      << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi() << endl;
+      << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi();
 
   // Check ordering.
   if (debug) {
     if (pos_outer.perp() < pos_inner.perp()) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner for trapezoid" << endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner for trapezoid";
     }
     if (pos_zplus.z() < pos_zminus.z()) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_zplus < pos_zminus for trapezoid" << endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_zplus < pos_zminus for trapezoid";
     }
     if (Geom::Phi<float>(pos_phiplus.phi() - pos_phiminus.phi()) < 0.) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_phiplus < pos_phiminus for trapezoid" << endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_phiplus < pos_phiminus for trapezoid";
     }
   }
 
@@ -103,8 +103,8 @@ void volumeHandle::buildTrap() {
   GlobalVector y_phiminusV = (refPlane->toGlobal(LocalVector((tan(alpha1) * y1 + (x2 - x1) / 2.), y1, 0.)));
   GlobalVector y_phiminus = y_phiminusV.unit();
 
-  LogDebug("magneticfield::volumeHandle") << "y_phiplus " << y_phiplus << endl;
-  LogDebug("magneticfield::volumeHandle") << "y_phiminus " << y_phiminus << endl;
+  LogDebug("magneticfield::volumeHandle") << "y_phiplus " << y_phiplus;
+  LogDebug("magneticfield::volumeHandle") << "y_phiminus " << y_phiminus;
 
   Surface::RotationType rot_R(planeZAxis, planeXAxis);
   Surface::RotationType rot_Z(planeXAxis, planeYAxis);
@@ -140,10 +140,10 @@ void volumeHandle::buildTrap() {
         << "rot_phi+ " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
         << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl
         << "rot_phi- " << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-        << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl;
+        << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)).phi();
 
     if (std::abs(surfaces[phiminus]->position().phi() - thePhiMin) > 1e-5) {
-      LogDebug("magneticfield::volumeHandle") << " Trapez. phiMin = " << thePhiMin << endl;
+      LogDebug("magneticfield::volumeHandle") << " Trapez. phiMin = " << thePhiMin;
     }
   }
 }

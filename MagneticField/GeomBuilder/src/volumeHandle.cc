@@ -3,10 +3,10 @@
 /*
  *  See header file for a description of this class.
  *
- *  \author N. Amapane - INFN Torino
+ *  \author N. Amapane - INFN Torino (original developer)
  */
 
-#include "MagneticField/GeomBuilder/src/volumeHandle.h"
+#include "volumeHandle.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
