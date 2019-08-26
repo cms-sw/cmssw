@@ -3,7 +3,8 @@
 #include "boost/algorithm/string.hpp"
 #include "boost/algorithm/string/trim_all.hpp"
 
-EmbeddingHepMCFilter::EmbeddingHepMCFilter(const edm::ParameterSet &iConfig) {
+EmbeddingHepMCFilter::EmbeddingHepMCFilter(const edm::ParameterSet &iConfig)
+    : ZPDGID_(iConfig.getParameter<int>("BosonPDGID")) {
   // Defining standard decay channels
   ee.fill(TauDecayMode::Electron);
   ee.fill(TauDecayMode::Electron);
@@ -118,13 +119,16 @@ void EmbeddingHepMCFilter::decay_and_sump4Vis(HepMC::GenParticle *particle, reco
     // Asuming, that there are only the two tauons from the Z-boson.
     // This is the case for the simulated Z->tautau event constructed by EmbeddingLHEProducer.
     if (std::abs(particle->pdg_id()) == tauonPDGID_ && !decaymode_known) {
+      // use these bools to protect againt taus that aren't the last copy (which "decay" to a tau and a gamma)
+      bool isGamma = std::abs((*daughter)->pdg_id()) == 22;
+      bool isTau = std::abs((*daughter)->pdg_id()) == 15;
       if (std::abs((*daughter)->pdg_id()) == muonPDGID_) {
         DecayChannel_.fill(TauDecayMode::Muon);
         decaymode_known = true;
       } else if (std::abs((*daughter)->pdg_id()) == electronPDGID_) {
         DecayChannel_.fill(TauDecayMode::Electron);
         decaymode_known = true;
-      } else if (!neutrino) {
+      } else if (!neutrino && !isGamma && !isTau) {
         DecayChannel_.fill(TauDecayMode::Hadronic);
         decaymode_known = true;
       }

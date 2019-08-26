@@ -22,6 +22,9 @@
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
+//#define EDM_ML_DEBUG
+using namespace geant_units::operators;
+
 class DDHCalFibreBundle : public DDAlgorithm {
 public:
   //Constructor and Destructor
@@ -49,9 +52,6 @@ private:
   std::vector<double> rEnd;         //Radius at End
   std::vector<int> bundle;          //Bundle to be positioned
 };
-
-//#define EDM_ML_DEBUG
-using namespace geant_units::operators;
 
 DDHCalFibreBundle::DDHCalFibreBundle() {
 #ifdef EDM_ML_DEBUG

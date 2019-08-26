@@ -117,3 +117,11 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
 ecalDrivenGsfElectronsFromMultiCl = ecalDrivenGsfElectrons.clone(
   gsfElectronCoresTag = "ecalDrivenGsfElectronCoresFromMultiCl",
 )
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(gsfElectrons.preselection,
+                           minSCEtBarrel = 1.0, 
+                           minSCEtEndcaps = 1.0) 
+
+egamma_lowPt_exclusive.toModify(gsfElectrons,
+                           applyPreselection = False) 
