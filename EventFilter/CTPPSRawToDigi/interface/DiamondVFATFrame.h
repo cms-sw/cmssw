@@ -18,8 +18,7 @@
 /**
  * Utilitary namespace to retrieve timing/status information from diamond VFAT frame
 **/
-namespace ppsdiamondvfat
-{
+namespace ppsdiamondvfat {
   /// Account for MSB/LSB "HW feature" reversal in HPTDC interpolation bits
   inline uint32_t correctTime(const uint32_t& time) { return (time & 0xFFE7FFFF) << 2 | (time & 0x00180000) >> 19; }
 
@@ -38,13 +37,9 @@ namespace ppsdiamondvfat
     return ((frame.getData()[3] & 0x7ff) << 16) + frame.getData()[4];
   }
   /// flag stating whether the HPTDC channel encountered multiple hits
-  inline VFATFrame::word getMultihit(const VFATFrame& frame) {
-    return frame.getData()[2] & 0x01;
-  }
+  inline VFATFrame::word getMultihit(const VFATFrame& frame) { return frame.getData()[2] & 0x01; }
   /// retrieve the list of error/status flags for the HPTDC when the frame was recorded
-  inline VFATFrame::word getHptdcErrorFlag(const VFATFrame& frame) {
-    return frame.getData()[1] & 0xFFFF;
-  }
-}
+  inline VFATFrame::word getHptdcErrorFlag(const VFATFrame& frame) { return frame.getData()[1] & 0xFFFF; }
+}  // namespace ppsdiamondvfat
 
 #endif
