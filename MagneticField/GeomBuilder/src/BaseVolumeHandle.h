@@ -49,7 +49,7 @@ namespace magneticfield {
     bool sameSurface(const Surface& s1, Sides which_side, float tolerance = 0.01);
 
     /// Assign a shared surface perorming sanity checks.
-    bool setSurface(const Surface& s1, Sides which_side);
+    bool setSurface(Surface& s1, Sides which_side);
 
     /// if the specified surface has been matched.
     bool isPlaneMatched(int which_side) const { return isAssigned[which_side]; }

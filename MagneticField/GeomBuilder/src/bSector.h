@@ -8,7 +8,7 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/bRod.h"
+#include "bRod.h"
 
 class MagBSector;
 
