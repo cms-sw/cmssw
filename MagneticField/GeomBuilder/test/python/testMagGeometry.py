@@ -44,7 +44,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
 
                                               # version = cms.string('grid_160812_3_8t'),
 
-process.MagneticFieldESProducer = cms.ESProducer("VolBasedMagFieldESProducerNewDD",
+process.MagneticFieldESProducer = cms.ESProducer("DD4hep_VolumeBasedMagneticFieldESProducer",
                                               DDDetector = cms.ESInputTag('', 'magfield'),
                                               appendToDataLabel = cms.string(''),
                                               useParametrizedTrackerField = cms.bool(False),
