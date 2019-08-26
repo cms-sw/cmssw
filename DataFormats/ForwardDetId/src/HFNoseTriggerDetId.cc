@@ -133,7 +133,7 @@ std::vector<std::pair<int, int> > HFNoseTriggerDetId::cellUV() const {
   std::vector<int> vc = cellV();
   std::vector<std::pair<int, int> > uv;
   for (unsigned int k = 0; k < uc.size(); ++k) {
-    uv.emplace_back(std::pair<int, int>(uc[k], vc[k]));
+    uv.emplace_back(uc[k], vc[k]);
   }
   return uv;
 }
