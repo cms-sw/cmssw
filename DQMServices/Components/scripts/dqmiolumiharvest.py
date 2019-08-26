@@ -23,6 +23,7 @@ parser.add_argument('-u', '--upload', help='Upload files to this GUI, instead of
 parser.add_argument('-j', '--njobs', help='Number of threads to read files', type=int, default=1)
 parser.add_argument('-m', '--me', help='Glob pattern of MEs to load.', default=[], action='append')
 parser.add_argument('--limit', help='Only load up to LIMIT files', type=int, default=-1)
+parser.add_argument('--perlumionly', help='Only save MEs that cover exactly one lumisection, and use simplified "run" numbers (10xxxx)', action='store_true')
 args = parser.parse_args()
 
 
@@ -71,6 +72,15 @@ else:
   else:
     # ... and similarly, no runs -> everything.
     lumiranges = {}
+
+if args.perlumionly:
+  perlumionly = True
+  def fake_run(lumi, endlumi):
+    return "1%05d" % (lumi)
+else:
+  perlumionly = False
+  def fake_run(lumi, endlumi):
+    return "1%04d%04d" % (lumi, endlumi)
 
 
 treenames = { 
@@ -147,14 +157,16 @@ def harvestfile(fname):
 
         if not (rangecheck(run, lumi) or rangecheck(endrun, endlumi)):
           continue
+        if perlumionly and lumi != endlumi:
+          continue
            
         # we do the saving in here, concurrently with the reading, to avoid
         # needing to copy/move the TH1's.
         # doing a round-trip via JSON would probably also work, but this seems
         # cleaner. For better structure, one could use Generators...
         # but things need to stay in the same process (from multiprocessing).
-        filename = "DQM_V0001_R1%04d%04d__perlumiharvested__perlumi%d_%s_v1__DQMIO.root" % (lumi, endlumi, run, treenames[metype])
-        prefix = ["DQMData", "Run 1%04d%04d" % (lumi, endlumi)]
+        filename = "DQM_V0001_R%s__perlumiharvested__perlumi%d_%s_v1__DQMIO.root" % (fake_run(lumi, endlumi), run, treenames[metype])
+        prefix = ["DQMData", "Run %s" % fake_run(lumi, endlumi)]
         # we open the file only on the first found ME, to avoid empty files.
         result_file = None
         subsystems = set()
@@ -191,7 +203,7 @@ def harvestfile(fname):
             for subsys in subsystems:
                 # last item is considerd object name and ignored
                 gotodir(result_file, prefix + [subsys, "Run summary", "EventInfo", "blub"])
-                s = ROOT.TObjString("<iRun>i=1%04d%04d</iRun>" % (lumi, endlumi))
+                s = ROOT.TObjString("<iRun>i=%s</iRun>" % fake_run(lumi, endlumi))
                 s.Write()
                 s = ROOT.TObjString("<iLumiSection>i=%s</iLumiSection>" % run)
                 s.Write()
