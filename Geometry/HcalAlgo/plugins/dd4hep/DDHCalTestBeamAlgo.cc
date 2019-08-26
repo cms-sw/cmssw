@@ -48,10 +48,10 @@ static long algorithm(dd4hep::Detector& /* description */,
 
   dd4hep::Rotation3D rotation = cms::makeRotation3D(thetax, phix, thetay, phiy, thetaz, phiz);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo: Creating a rotation \t"
-                               << convertRadToDeg(thetax) << "," << convertRadToDeg(phix) << ","
-                               << convertRadToDeg(thetay) << "," << convertRadToDeg(phiy) << ","
-                               << convertRadToDeg(thetaz) << "," << convertRadToDeg(phiz);
+  edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo: Creating a rotation \t" << convertRadToDeg(thetax) << ","
+                               << convertRadToDeg(phix) << "," << convertRadToDeg(thetay) << ","
+                               << convertRadToDeg(phiy) << "," << convertRadToDeg(thetaz) << ","
+                               << convertRadToDeg(phiz);
 #endif
 
   double r = dist * sin(theta);
