@@ -291,6 +291,7 @@ namespace PhysicsTools {
             break;
           } else
             pos = (Position)(pos + 1);
+          [[fallthrough]];
         case POS_WEIGHTS:
           loadVector(elem, n + 1, weights);
           break;

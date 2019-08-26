@@ -184,6 +184,7 @@ namespace {  // anonymous
             iter->iteration = ITER_RANGE;
             break;
           }
+          [[fallthrough]];
         case ITER_RANGE:
           for (std::vector<double>::const_iterator value = values->begin(); value != values->end(); value++) {
             iter->range.min = std::min(iter->range.min, *value);

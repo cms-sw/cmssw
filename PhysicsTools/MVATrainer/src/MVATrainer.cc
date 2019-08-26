@@ -521,8 +521,8 @@ namespace PhysicsTools {
 
     static struct NameExpect {
       const char *tag;
-      bool mandatory;
-      DOMElement **elem;
+      bool mandatory = false;
+      DOMElement **elem = nullptr;
     } const expect[] = {{"input", true, &xmlInput},
                         {"config", true, &xmlConfig},
                         {"output", true, &xmlOutput},
