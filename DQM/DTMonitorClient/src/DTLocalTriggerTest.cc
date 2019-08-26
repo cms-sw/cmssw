@@ -441,6 +441,7 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
               switch (static_cast<int>(matchWhSummary->GetBinContent(sect, stat))) {
                 case 1:
                   matchNoData++;
+                  [[fallthrough]];
                 case 2:
                   matchErr++;
               }
@@ -462,12 +463,14 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
               switch (static_cast<int>(corrWhSummaryIn->GetBinContent(sect, stat))) {
                 case 1:
                   corrNoData++;
+                  [[fallthrough]];
                 case 2:
                   corrErr++;
               }
               switch (static_cast<int>(secondWhSummaryIn->GetBinContent(sect, stat))) {
                 case 1:
                   secondNoData++;
+                  [[fallthrough]];
                 case 2:
                   secondErr++;
               }
@@ -491,12 +494,14 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
               switch (static_cast<int>(corrWhSummaryOut->GetBinContent(sect, stat))) {
                 case 1:
                   corrNoData++;
+                  [[fallthrough]];
                 case 2:
                   corrErr++;
               }
               switch (static_cast<int>(secondWhSummaryOut->GetBinContent(sect, stat))) {
                 case 1:
                   secondNoData++;
+                  [[fallthrough]];
                 case 2:
                   secondErr++;
               }

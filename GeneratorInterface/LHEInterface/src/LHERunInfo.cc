@@ -133,6 +133,7 @@ namespace lhef {
         proc->addAccepted(eventWeight * matchWeight);
         procLumi->addAcceptedBr(eventWeight * brWeight * matchWeight);
         procLumi->addAccepted(eventWeight * matchWeight);
+        [[fallthrough]];
       case kKilled:
         proc->addKilled(eventWeight * matchWeight);
         procLumi->addKilled(eventWeight * matchWeight);
@@ -143,6 +144,7 @@ namespace lhef {
           proc->addNPassNeg();
           procLumi->addNPassNeg();
         }
+        [[fallthrough]];
       case kSelected:
         proc->addSelected(eventWeight);
         procLumi->addSelected(eventWeight);
@@ -153,6 +155,7 @@ namespace lhef {
           proc->addNTotalNeg();
           procLumi->addNTotalNeg();
         }
+        [[fallthrough]];
       case kTried:
         proc->addTried(eventWeight);
         procLumi->addTried(eventWeight);
