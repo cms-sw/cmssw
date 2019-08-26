@@ -21,6 +21,9 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
+#define EDM_ML_DEBUG
+using namespace geant_units::operators;
+
 class DDHCalTBCableAlgo : public DDAlgorithm {
 public:
   //Constructor and Destructor
@@ -54,9 +57,6 @@ private:
   std::string idNameSpace;  //Namespace of this and ALL sub-parts
   std::string rotns;        //Namespace for rotation matrix
 };
-
-//#define EDM_ML_DEBUG
-using namespace geant_units::operators;
 
 DDHCalTBCableAlgo::DDHCalTBCableAlgo() : theta(0), rmax(0), zoff(0) {
 #ifdef EDM_ML_DEBUG
