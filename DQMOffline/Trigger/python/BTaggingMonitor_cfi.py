@@ -58,7 +58,6 @@ hltBTVmonitoring.histoPSet.MHTPSet = cms.PSet(
  xmax  = cms.double(  300  ),
 )
 
-
 #MET and HT binning
 hltBTVmonitoring.histoPSet.metBinning = cms.vdouble(0,20,40,60,80,100,125,150,175,200)
 hltBTVmonitoring.histoPSet.HTBinning  = cms.vdouble(0,20,40,60,80,100,125,150,175,200,300,400,500,700)
