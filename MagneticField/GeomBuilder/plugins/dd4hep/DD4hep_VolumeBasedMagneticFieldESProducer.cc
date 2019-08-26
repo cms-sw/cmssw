@@ -37,7 +37,8 @@ namespace cms {
 
     // forbid copy ctor and assignment op.
     DD4hep_VolumeBasedMagneticFieldESProducer(const DD4hep_VolumeBasedMagneticFieldESProducer&) = delete;
-    const DD4hep_VolumeBasedMagneticFieldESProducer& operator=(const DD4hep_VolumeBasedMagneticFieldESProducer&) = delete;
+    const DD4hep_VolumeBasedMagneticFieldESProducer& operator=(const DD4hep_VolumeBasedMagneticFieldESProducer&) =
+        delete;
 
     std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord& iRecord);
 
@@ -50,7 +51,7 @@ namespace cms {
     edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> paramFieldToken_;
     edm::ESGetToken<DDCompactView, IdealMagneticFieldRecord> cpvToken_;
   };
-}  // namespace magneticfield
+}  // namespace cms
 
 DD4hep_VolumeBasedMagneticFieldESProducer::DD4hep_VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig)
     : pset_{iConfig},
@@ -59,7 +60,8 @@ DD4hep_VolumeBasedMagneticFieldESProducer::DD4hep_VolumeBasedMagneticFieldESProd
       conf_{iConfig, debug_},
       version_{iConfig.getParameter<std::string>("version")} {
   // LogInfo used because LogDebug messages don't appear even when fully enabled.
-  edm::LogInfo("DD4hep_VolumeBasedMagneticFieldESProducer") << "info:Constructing a DD4hep_VolumeBasedMagneticFieldESProducer" << endl;
+  edm::LogInfo("DD4hep_VolumeBasedMagneticFieldESProducer")
+      << "info:Constructing a DD4hep_VolumeBasedMagneticFieldESProducer";
 
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
   cc.setConsumes(cpvToken_, edm::ESInputTag{"", "magfield"});
@@ -69,9 +71,11 @@ DD4hep_VolumeBasedMagneticFieldESProducer::DD4hep_VolumeBasedMagneticFieldESProd
 }
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord) {
+std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducer::produce(
+    const IdealMagneticFieldRecord& iRecord) {
   if (debug_) {
-    edm::LogInfo("DD4hep_VolumeBasedMagneticFieldESProducer") << "DD4hep_VolumeBasedMagneticFieldESProducer::produce() " << version_;
+    edm::LogInfo("DD4hep_VolumeBasedMagneticFieldESProducer")
+        << "DD4hep_VolumeBasedMagneticFieldESProducer::produce() " << version_;
   }
 
   MagGeoBuilder builder(conf_.version, conf_.geometryVersion, debug_);
