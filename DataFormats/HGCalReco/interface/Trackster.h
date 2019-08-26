@@ -6,6 +6,7 @@
 
 #include <array>
 #include <vector>
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 // A Trackster is a Direct Acyclic Graph created when
 // pattern recognition algorithms connect hits or
@@ -24,6 +25,9 @@ namespace ticl {
     // the first element is on the inner layer and
     // the outer element is on the outer layer.
     std::vector<std::array<unsigned int, 2> > edges;
+
+    edm::ProductID seedID;
+    int seedIndex;
   };
 }  // namespace ticl
 #endif
