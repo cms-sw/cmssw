@@ -3,6 +3,7 @@
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DD4hep/Detector.h"
+#include "DD4hep/Shapes.h"
 #include <TGeoBBox.h>
 #include <TGeoBoolNode.h>
 #include <vector>
