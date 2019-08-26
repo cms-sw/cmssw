@@ -3,7 +3,7 @@
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace cms_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */,

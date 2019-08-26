@@ -18,7 +18,7 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 class DDHCalTestBeamAlgo : public DDAlgorithm {
