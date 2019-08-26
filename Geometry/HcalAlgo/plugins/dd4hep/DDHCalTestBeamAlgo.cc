@@ -19,10 +19,10 @@ static long algorithm(dd4hep::Detector& /* description */,
   double distance = args.value<double>("Dist");                  //Distance of the centre of rotation
   double distanceZ = args.value<double>("DistZ");                //Distance along x-axis of the centre of rotation
   double dist = (distance + distanceZ / sin(theta));             //Overall distance
-  double dz = args.value<double>("Dz");                          //Half length along z of the volume to be placed
   int copyNumber = args.value<int>("Number");                    //Copy Number
   std::string childName = args.value<std::string>("ChildName");  //Children name
 #ifdef EDM_ML_DEBUG
+  double dz = args.value<double>("Dz");                          //Half length along z of the volume to be placed
   edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo: Parameters for position"
                                << "ing--"
                                << " Eta " << eta << "\tPhi " << convertRadToDeg(phi) << "\tTheta "
