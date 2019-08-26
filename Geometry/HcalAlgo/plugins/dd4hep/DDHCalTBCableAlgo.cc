@@ -15,7 +15,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   cms::DDAlgoArguments args(ctxt, e);
 
   // Header section
-  std::string idNameSpace = static_cast<std::string>(ns.name());         //Namespace of this and ALL sub-parts
+  std::string idNameSpace = static_cast<std::string>(ns.name());  //Namespace of this and ALL sub-parts
   //     <---- Zout ---->
   //  |  ****************     |
   //  |  *              *     Wstep
@@ -47,12 +47,12 @@ static long algorithm(dd4hep::Detector& /* description */,
   std::vector<double> zoff = args.value<std::vector<double> >("ZOff");    //  ....
   std::string absMat = args.value<std::string>("AbsMatName");             //Absorber material
   double thick = args.value<double>("Thickness");                         //Thickness of absorber
-  double width1 = args.value<double>("Width1");                          //Width of absorber type 1
-  double length1 = args.value<double>("Length1");                        //Length of absorber type 1 
-  double width2  = args.value<double>("Width2");                         //Width of absorber type 2
-  double length2 = args.value<double>("Length2");                        //Length of absorber type 2
-  double gap2 = args.value<double>("Gap2");                              //Gap between abosrbers of type 2
-  std::string idName = args.value<std::string>("MotherName");            //Name of the "parent" volume.
+  double width1 = args.value<double>("Width1");                           //Width of absorber type 1
+  double length1 = args.value<double>("Length1");                         //Length of absorber type 1
+  double width2 = args.value<double>("Width2");                           //Width of absorber type 2
+  double length2 = args.value<double>("Length2");                         //Length of absorber type 2
+  double gap2 = args.value<double>("Gap2");                               //Gap between abosrbers of type 2
+  std::string idName = args.value<std::string>("MotherName");             //Name of the "parent" volume.
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: General material " << genMat << "\tSectors " << nsectors << ", "
                                << nsectortot << "\tHalves " << nhalf << "\tRin " << rin;
@@ -81,10 +81,9 @@ static long algorithm(dd4hep::Detector& /* description */,
   dd4hep::Material matter = ns.material(genMat);
   dd4hep::Volume genlogic(solid.name(), solid, matter);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << solid.name() << " Polyhedra made of "
-                               << genMat << " with " << nsectortot << " sectors from " << convertRadToDeg(-alpha)
-                               << " to " << convertRadToDeg(-alpha + dphi) << " and with " << pgonZ.size()
-                               << " sections";
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << solid.name() << " Polyhedra made of " << genMat << " with "
+                               << nsectortot << " sectors from " << convertRadToDeg(-alpha) << " to "
+                               << convertRadToDeg(-alpha + dphi) << " and with " << pgonZ.size() << " sections";
   for (unsigned int i = 0; i < pgonZ.size(); i++)
     edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[i] << "\tRmin = " << pgonRmin[i] << "\tRmax = " << pgonRmax[i];
 #endif
@@ -126,14 +125,14 @@ static long algorithm(dd4hep::Detector& /* description */,
       rotation = cms::makeRotation3D(90._deg, phi, 90._deg, (90._deg + phi), 0, 0);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: Creating a new rotation "
-				   << "\t90," << convertRadToDeg(phi) << ",90,"
-				   << (90 + convertRadToDeg(phi)) << ", 0, 0";
+                                   << "\t90," << convertRadToDeg(phi) << ",90," << (90 + convertRadToDeg(phi))
+                                   << ", 0, 0";
 #endif
     }
     genlogic.placeVolume(seclogic, ii + 1, dd4hep::Transform3D(rotation, r0));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << seclogic.name() << " number " << ii + 1
-    << " positioned in " << genlogic.name() << " at " << r0 << " with " << rotation;
+                                 << " positioned in " << genlogic.name() << " at " << r0 << " with " << rotation;
 #endif
   }
 
@@ -150,7 +149,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   dd4hep::Volume glog(solid.name(), solid, matter);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << solid.name() << " Trap made of " << genMat
-  << " of dimensions " << dz << ", 0, 0, " << dy << ", " << dx1 << ", " << dx1 << ", 0, "
+                               << " of dimensions " << dz << ", 0, 0, " << dy << ", " << dx1 << ", " << dx1 << ", 0, "
                                << dy << ", " << dx2 << ", " << dx2 << ", 0";
 #endif
 
@@ -181,8 +180,8 @@ static long algorithm(dd4hep::Detector& /* description */,
 
   dd4hep::Rotation3D rot2 = cms::makeRotation3D((90._deg + phi), 0.0, 90._deg, 90._deg, phi, 0.0);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: Creating a rotation \t"
-                               << (90 + convertRadToDeg(phi)) << ", 0, 90, 90, " << convertRadToDeg(phi) << ", 0";
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: Creating a rotation \t" << (90 + convertRadToDeg(phi))
+                               << ", 0, 90, 90, " << convertRadToDeg(phi) << ", 0";
 #endif
   dd4hep::Position r2((xmid - 0.5 * width1 * cos(phi)), 0, 0);
   glog.placeVolume(cablog1, 1, dd4hep::Transform3D(rot2, r2));
@@ -192,8 +191,8 @@ static long algorithm(dd4hep::Detector& /* description */,
 #endif
   dd4hep::Rotation3D rot3 = cms::makeRotation3D((90._deg - phi), 0, 90._deg, 90._deg, -phi, 0);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: Creating a rotation \t"
-                               << (90 - convertRadToDeg(phi)) << ", 0, 90, 90, " << convertRadToDeg(-phi) << ", 0";
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: Creating a rotation \t" << (90 - convertRadToDeg(phi))
+                               << ", 0, 90, 90, " << convertRadToDeg(-phi) << ", 0";
 #endif
   dd4hep::Position r3(-(xmid - 0.5 * width1 * cos(phi)), 0, 0);
   glog.placeVolume(cablog1, 2, dd4hep::Transform3D(rot3, r3));
