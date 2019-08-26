@@ -434,10 +434,21 @@ namespace edmtest {
 }  // namespace edmtest
 
 namespace {
-  template <template <typename> typename Ptr, typename value_t>
+  template <typename PtrT>
+  struct ValueType {
+    using type = typename PtrT::element_type;
+  };
+
+  template <typename T>
+  struct ValueType<edm::Ptr<T>> {
+    using type = T;
+  };
+
+  template <typename Ptr>
   void testStdVectorPtrT(Event const& e, std::string const& moduleLabel) {
-    typedef std::vector<Ptr<value_t>> sequence_t;
-    typedef View<value_t> view_t;
+    using sequence_t = std::vector<Ptr>;
+    using value_t = typename ValueType<Ptr>::type;
+    using view_t = View<value_t>;
 
     Handle<sequence_t> hproduct;
     e.getByLabel(moduleLabel, hproduct);
@@ -476,12 +487,12 @@ namespace {
 
 namespace edmtest {
   void ViewAnalyzer::testStdVectorPtr(Event const& e, std::string const& moduleLabel) const {
-    testStdVectorPtrT<edm::Ptr, int>(e, moduleLabel);
+    testStdVectorPtrT<edm::Ptr<int>>(e, moduleLabel);
   }
 
   void ViewAnalyzer::testStdVectorUniquePtr(Event const& e, std::string const& moduleLabel) const {
-    testStdVectorPtrT<std::unique_ptr, int>(e, moduleLabel);
-    testStdVectorPtrT<std::unique_ptr, IntProduct>(e, moduleLabel);
+    testStdVectorPtrT<std::unique_ptr<int>>(e, moduleLabel);
+    testStdVectorPtrT<std::unique_ptr<IntProduct>>(e, moduleLabel);
   }
 
 }  // namespace edmtest
