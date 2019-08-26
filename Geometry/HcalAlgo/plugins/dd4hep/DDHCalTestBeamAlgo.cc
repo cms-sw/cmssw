@@ -22,7 +22,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   int copyNumber = args.value<int>("Number");                    //Copy Number
   std::string childName = args.value<std::string>("ChildName");  //Children name
 #ifdef EDM_ML_DEBUG
-  double dz = args.value<double>("Dz");                          //Half length along z of the volume to be placed
+  double dz = args.value<double>("Dz");  //Half length along z of the volume to be placed
   edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo: Parameters for position"
                                << "ing--"
                                << " Eta " << eta << "\tPhi " << convertRadToDeg(phi) << "\tTheta "
