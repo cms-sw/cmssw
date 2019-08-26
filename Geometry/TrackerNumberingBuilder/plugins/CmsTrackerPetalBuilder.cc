@@ -7,18 +7,20 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
-void CmsTrackerPetalBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+template<>
+void CmsTrackerPetalBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
   GeometricDet* det = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
-  CmsTrackerRingBuilder theCmsTrackerRingBuilder;
+  CmsTrackerRingBuilder<DDFilteredView> theCmsTrackerRingBuilder;
   theCmsTrackerRingBuilder.build(fv, det, s);
   g->addComponent(det);
 }
 
-void CmsTrackerPetalBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerPetalBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   if (comp.front()->type() == GeometricDet::ring)
-    std::sort(comp.begin(), comp.end(), isLessRModule);
+    std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessRModule);
   else
     edm::LogError("CmsTrackerPetalBuilder")
         << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();

@@ -9,7 +9,6 @@
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "DetectorDescription/DDCMS/interface/Filter.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/DDDCmsTrackerContruction.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CondDBCmsTrackerConstruction.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -72,18 +71,9 @@ std::unique_ptr<GeometricDet> TrackerGeometricDetESModule::produce(const IdealGe
 
     return DDDCmsTrackerContruction::construct(*cpv, dbl_to_int(DDVectorGetter::get("detIdShifts")));
   } else if (fromDD4hep_) {
-    // FIXME:
     edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(dd4hepToken_);
-    cms::DDVectorsMap vmap = cpv->detector()->vectors();
-    std::vector<int> detIdShifts;
-    for (auto const& it : vmap) {
-      if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "detIdShifts")) {
-        for (const auto& i : it.second) {
-          detIdShifts.emplace_back(std::round(i));
-        }
-      }
-    }
-    return DDDCmsTrackerContruction::construct(*cpv, detIdShifts);
+
+    return DDDCmsTrackerContruction::construct(*cpv, cpv->getVector<int>("detIdShifts"));
   } else {
     auto const& pgd = iRecord.get(pgToken_);
 

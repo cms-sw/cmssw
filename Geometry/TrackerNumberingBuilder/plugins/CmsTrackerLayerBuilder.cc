@@ -12,10 +12,11 @@
 #include <vector>
 #include <bitset>
 
-void CmsTrackerLayerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, const std::string s) {
-  CmsTrackerStringBuilder theCmsTrackerStringBuilder;
-  CmsTrackerRodBuilder theCmsTrackerRodBuilder;
-  CmsTrackerLadderBuilder theCmsTrackerLadderBuilder;
+template<>
+void CmsTrackerLayerBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, const std::string s) {
+  CmsTrackerStringBuilder<DDFilteredView> theCmsTrackerStringBuilder;
+  CmsTrackerRodBuilder<DDFilteredView> theCmsTrackerRodBuilder;
+  CmsTrackerLadderBuilder<DDFilteredView> theCmsTrackerLadderBuilder;
 
   GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
   switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
@@ -35,7 +36,8 @@ void CmsTrackerLayerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
   g->addComponent(subdet);
 }
 
-void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerLayerBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   // TIB
@@ -86,10 +88,10 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
       }
     }
 
-    trackerStablePhiSort(extneg.begin(), extneg.end(), getPhi);
-    trackerStablePhiSort(extpos.begin(), extpos.end(), getPhi);
-    trackerStablePhiSort(intneg.begin(), intneg.end(), getPhi);
-    trackerStablePhiSort(intpos.begin(), intpos.end(), getPhi);
+    trackerStablePhiSort(extneg.begin(), extneg.end(), CmsTrackerLevelBuilderHelper::getPhi);
+    trackerStablePhiSort(extpos.begin(), extpos.end(), CmsTrackerLevelBuilderHelper::getPhi);
+    trackerStablePhiSort(intneg.begin(), intneg.end(), CmsTrackerLevelBuilderHelper::getPhi);
+    trackerStablePhiSort(intpos.begin(), intpos.end(), CmsTrackerLevelBuilderHelper::getPhi);
 
     for (uint32_t i = 0; i < intneg.size(); i++) {
       uint32_t temp = i + 1;
@@ -140,8 +142,8 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
       }
     }
 
-    trackerStablePhiSort(neg.begin(), neg.end(), getPhi);
-    trackerStablePhiSort(pos.begin(), pos.end(), getPhi);
+    trackerStablePhiSort(neg.begin(), neg.end(), CmsTrackerLevelBuilderHelper::getPhi);
+    trackerStablePhiSort(pos.begin(), pos.end(), CmsTrackerLevelBuilderHelper::getPhi);
 
     for (uint32_t i = 0; i < neg.size(); i++) {
       uint32_t temp = i + 1;
@@ -160,7 +162,7 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
     det->addComponents(pos);
 
   } else if (det->components().front()->type() == GeometricDet::ladder) {
-    trackerStablePhiSort(comp.begin(), comp.end(), getPhi);
+    trackerStablePhiSort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::getPhi);
 
     for (uint32_t i = 0; i < comp.size(); i++) {
       det->component(i)->setGeographicalID(DetId(i + 1));

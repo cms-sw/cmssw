@@ -11,9 +11,10 @@
 #include <vector>
 #include <bitset>
 
-void CmsTrackerWheelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerRingBuilder theCmsTrackerRingBuilder;
-  CmsTrackerPetalBuilder theCmsTrackerPetalBuilder;
+template<>
+void CmsTrackerWheelBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+  CmsTrackerRingBuilder<DDFilteredView> theCmsTrackerRingBuilder;
+  CmsTrackerPetalBuilder<DDFilteredView> theCmsTrackerPetalBuilder;
 
   GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
   switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
@@ -30,7 +31,8 @@ void CmsTrackerWheelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
   g->addComponent(subdet);
 }
 
-void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerWheelBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   if (!comp.empty()) {
@@ -47,8 +49,8 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
         }
       }
 
-      trackerStablePhiSort(compfw.begin(), compfw.end(), getPhiModule);
-      trackerStablePhiSort(compbw.begin(), compbw.end(), getPhiModule);
+      trackerStablePhiSort(compfw.begin(), compfw.end(), CmsTrackerLevelBuilderHelper::getPhiModule);
+      trackerStablePhiSort(compbw.begin(), compbw.end(), CmsTrackerLevelBuilderHelper::getPhiModule);
 
       //
       // TEC
@@ -71,7 +73,7 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
       det->addComponents(compbw);
 
     } else {
-      std::stable_sort(comp.begin(), comp.end(), isLessRModule);
+      std::stable_sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessRModule);
 
       // TID
       // Disk Number: 2 bits [1,2,3]

@@ -28,7 +28,7 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const DDCompac
   }
 
   auto tracker = std::make_unique<GeometricDet>(&fv, GeometricDet::Tracker);
-  CmsTrackerBuilder theCmsTrackerBuilder;
+  CmsTrackerBuilder<DDFilteredView> theCmsTrackerBuilder;
   theCmsTrackerBuilder.build(fv, tracker.get(), attribute);
 
   CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder(detidShifts);
@@ -64,5 +64,8 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDC
   }
 
   auto tracker = std::make_unique<GeometricDet>(&fv, GeometricDet::Tracker);
+  CmsTrackerBuilder<cms::DDFilteredView> theCmsTrackerBuilder;
+  theCmsTrackerBuilder.build(fv, tracker.get(), {attribute.data(), attribute.size()});
+  
   return tracker;
 }

@@ -10,8 +10,9 @@
 
 using namespace std;
 
-void CmsTrackerOTDiscBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerOTRingBuilder theCmsTrackerOTRingBuilder;
+template<>
+void CmsTrackerOTDiscBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+  CmsTrackerOTRingBuilder<DDFilteredView> theCmsTrackerOTRingBuilder;
   GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
 
   switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
@@ -25,7 +26,8 @@ void CmsTrackerOTDiscBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g
   g->addComponent(subdet);
 }
 
-void CmsTrackerOTDiscBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerOTDiscBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (det->components().front()->type()) {

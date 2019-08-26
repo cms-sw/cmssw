@@ -7,8 +7,9 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <vector>
 
-void CmsTrackerPanelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsDetConstruction theCmsDetConstruction;
+template<>
+void CmsTrackerPanelBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+  CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
   switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
     case GeometricDet::DetUnit:
       theCmsDetConstruction.buildComponent(fv, g, s);
@@ -20,11 +21,12 @@ void CmsTrackerPanelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
   }
 }
 
-void CmsTrackerPanelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerPanelBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   if (comp.front()->type() == GeometricDet::DetUnit)
-    std::sort(comp.begin(), comp.end(), isLessR);
+    std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessR);
   else
     edm::LogError("CmsTrackerPanelBuilder")
         << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();

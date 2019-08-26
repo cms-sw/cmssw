@@ -11,12 +11,11 @@
 
 #include <bitset>
 
-CmsTrackerPixelPhase2EndcapBuilder::CmsTrackerPixelPhase2EndcapBuilder() {}
-
-void CmsTrackerPixelPhase2EndcapBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerPhase2TPDiskBuilder theCmsTrackerPhase2DiskBuilder;
-  CmsTrackerPixelPhase2DiskBuilder theCmsTrackerPixelPhase2DiskBuilder;
-  CmsTrackerOTDiscBuilder theCmsTrackerOTDiscBuilder;
+template<>
+void CmsTrackerPixelPhase2EndcapBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+  CmsTrackerPhase2TPDiskBuilder<DDFilteredView> theCmsTrackerPhase2DiskBuilder;
+  CmsTrackerPixelPhase2DiskBuilder<DDFilteredView> theCmsTrackerPixelPhase2DiskBuilder;
+  CmsTrackerOTDiscBuilder<DDFilteredView> theCmsTrackerOTDiscBuilder;
 
   GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
   switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
@@ -41,10 +40,11 @@ void CmsTrackerPixelPhase2EndcapBuilder::buildComponent(DDFilteredView& fv, Geom
   g->addComponent(subdet);
 }
 
-void CmsTrackerPixelPhase2EndcapBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerPixelPhase2EndcapBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
-  std::sort(comp.begin(), comp.end(), isLessModZ);
+  std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessModZ);
 
   for (uint32_t i = 0; i < comp.size(); i++) {
     det->component(i)->setGeographicalID(

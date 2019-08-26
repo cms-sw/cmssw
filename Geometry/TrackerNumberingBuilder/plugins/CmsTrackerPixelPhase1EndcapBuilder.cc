@@ -9,10 +9,9 @@
 
 #include <bitset>
 
-CmsTrackerPixelPhase1EndcapBuilder::CmsTrackerPixelPhase1EndcapBuilder() {}
-
-void CmsTrackerPixelPhase1EndcapBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerPhase1DiskBuilder theCmsTrackerPhase1DiskBuilder;
+template<>
+void CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+  CmsTrackerPhase1DiskBuilder<DDFilteredView> theCmsTrackerPhase1DiskBuilder;
 
   GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
   const std::string& subdet_name = subdet->name();
@@ -30,12 +29,13 @@ void CmsTrackerPixelPhase1EndcapBuilder::buildComponent(DDFilteredView& fv, Geom
   g->addComponent(subdet);
 }
 
-void CmsTrackerPixelPhase1EndcapBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (comp.front()->type()) {
     case GeometricDet::PixelPhase1Disk:
-      std::sort(comp.begin(), comp.end(), isLessModZ);
+      std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessModZ);
       break;
     default:
       edm::LogError("CmsTrackerPixelPhase1EndcapBuilder")
