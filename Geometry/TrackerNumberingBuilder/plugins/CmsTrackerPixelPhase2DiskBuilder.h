@@ -8,10 +8,11 @@
 /**
  * Class which contructs Phase2 Pixel Tracker/Discs.
  */
-class CmsTrackerPixelPhase2DiskBuilder : public CmsTrackerLevelBuilder {
+template<class T>
+class CmsTrackerPixelPhase2DiskBuilder : public CmsTrackerLevelBuilder<T> {
 private:
-  void sortNS(DDFilteredView&, GeometricDet*) override;
-  void buildComponent(DDFilteredView&, GeometricDet*, std::string) override;
+  void sortNS(T&, GeometricDet*) override;
+  void buildComponent(T&, GeometricDet*, std::string) override;
 };
 
 #endif

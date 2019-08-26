@@ -4,13 +4,15 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLevelBuilder.h"
 #include "FWCore/ParameterSet/interface/types.h"
 #include <string>
+
 /**
  * Class which constructs TOB rods
  */
-class CmsTrackerRodBuilder : public CmsTrackerLevelBuilder {
+template <class T>
+class CmsTrackerRodBuilder : public CmsTrackerLevelBuilder<T> {
 private:
-  void sortNS(DDFilteredView&, GeometricDet*) override;
-  void buildComponent(DDFilteredView&, GeometricDet*, std::string) override;
+  void sortNS( T&, GeometricDet*) override;
+  void buildComponent(T&, GeometricDet*, std::string) override;
 };
 
 #endif

@@ -7,15 +7,17 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
-void CmsTrackerRodBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsDetConstruction theCmsDetConstruction;
+template<>
+void CmsTrackerRodBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+  CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-void CmsTrackerRodBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerRodBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
-  std::stable_sort(comp.begin(), comp.end(), isLessModZ);
+  std::stable_sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessModZ);
 
   for (uint32_t i = 0; i < comp.size(); i++) {
     det->component(i)->setGeographicalID(i + 1);

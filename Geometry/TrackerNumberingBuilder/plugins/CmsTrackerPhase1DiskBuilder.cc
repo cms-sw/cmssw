@@ -10,11 +10,13 @@
 
 using namespace std;
 
-bool CmsTrackerPhase1DiskBuilder::PhiSort(const GeometricDet* Panel1, const GeometricDet* Panel2) {
+template<class T>
+bool CmsTrackerPhase1DiskBuilder<T>::PhiSort(const GeometricDet* Panel1, const GeometricDet* Panel2) {
   return (Panel1->phi() < Panel2->phi());
 }
 
-void CmsTrackerPhase1DiskBuilder::PhiPosNegSplit_innerOuter(std::vector<GeometricDet const*>::iterator begin,
+template<class T>
+void CmsTrackerPhase1DiskBuilder<T>::PhiPosNegSplit_innerOuter(std::vector<GeometricDet const*>::iterator begin,
                                                             std::vector<GeometricDet const*>::iterator end) {
   // first sort in phi, lowest first (-pi to +pi)
   std::sort(begin, end, PhiSort);
@@ -61,8 +63,9 @@ void CmsTrackerPhase1DiskBuilder::PhiPosNegSplit_innerOuter(std::vector<Geometri
   std::copy(theCompsInnerOuter.begin(), theCompsInnerOuter.end(), begin);
 }
 
-void CmsTrackerPhase1DiskBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerPanelBuilder theCmsTrackerPanelBuilder;
+template<>
+void CmsTrackerPhase1DiskBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+  CmsTrackerPanelBuilder<DDFilteredView> theCmsTrackerPanelBuilder;
   GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
 
   switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
@@ -76,7 +79,8 @@ void CmsTrackerPhase1DiskBuilder::buildComponent(DDFilteredView& fv, GeometricDe
   g->addComponent(subdet);
 }
 
-void CmsTrackerPhase1DiskBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerPhase1DiskBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (det->components().front()->type()) {

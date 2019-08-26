@@ -11,12 +11,11 @@
 
 #include <bitset>
 
-CmsTrackerBuilder::CmsTrackerBuilder() {}
-
-void CmsTrackerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerSubStrctBuilder theCmsTrackerSubStrctBuilder;
-  CmsTrackerPixelPhase1EndcapBuilder theCmsTrackerPixelPhase1EndcapBuilder;
-  CmsTrackerPixelPhase2EndcapBuilder theCmsTrackerPixelPhase2EndcapBuilder;
+template<>
+void CmsTrackerBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+  CmsTrackerSubStrctBuilder<DDFilteredView> theCmsTrackerSubStrctBuilder;
+  CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView> theCmsTrackerPixelPhase1EndcapBuilder;
+  CmsTrackerPixelPhase2EndcapBuilder<DDFilteredView> theCmsTrackerPixelPhase2EndcapBuilder;
 
   GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
   switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
@@ -64,9 +63,10 @@ void CmsTrackerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std:
   g->addComponent(subdet);
 }
 
-void CmsTrackerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
-  std::stable_sort(comp.begin(), comp.end(), subDetByType);
+  std::stable_sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::subDetByType);
 
   for (uint32_t i = 0; i < comp.size(); i++) {
     uint32_t temp = comp[i]->type();
@@ -74,4 +74,14 @@ void CmsTrackerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
         temp %
         100);  // it relies on the fact that the GeometricDet::GDEnumType enumerators used to identify the subdetectors in the upgrade geometries are equal to the ones of the present detector + n*100
   }
+}
+
+template<>
+void CmsTrackerBuilder<cms::DDFilteredView>::buildComponent(cms::DDFilteredView& fv, GeometricDet* g, std::string s) {
+  // FIXME: not implemented yet
+}
+
+template<>
+void CmsTrackerBuilder<cms::DDFilteredView>::sortNS(cms::DDFilteredView& fv, GeometricDet* det) {
+  // FIXME: not implemented yet
 }

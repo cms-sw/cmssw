@@ -12,13 +12,12 @@
 
 #include <bitset>
 
-CmsTrackerSubStrctBuilder::CmsTrackerSubStrctBuilder() {}
-
-void CmsTrackerSubStrctBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerLayerBuilder theCmsTrackerLayerBuilder;
-  CmsTrackerOTLayerBuilder theCmsTrackerOTLayerBuilder;
-  CmsTrackerWheelBuilder theCmsTrackerWheelBuilder;
-  CmsTrackerDiskBuilder theCmsTrackerDiskBuilder;
+template<>
+void CmsTrackerSubStrctBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+  CmsTrackerLayerBuilder<DDFilteredView> theCmsTrackerLayerBuilder;
+  CmsTrackerOTLayerBuilder<DDFilteredView> theCmsTrackerOTLayerBuilder;
+  CmsTrackerWheelBuilder<DDFilteredView> theCmsTrackerWheelBuilder;
+  CmsTrackerDiskBuilder<DDFilteredView> theCmsTrackerDiskBuilder;
 
   GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
   switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
@@ -43,21 +42,22 @@ void CmsTrackerSubStrctBuilder::buildComponent(DDFilteredView& fv, GeometricDet*
   g->addComponent(subdet);
 }
 
-void CmsTrackerSubStrctBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerSubStrctBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (comp.front()->type()) {
     case GeometricDet::layer:
-      std::sort(comp.begin(), comp.end(), isLessR);
+      std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessR);
       break;
     case GeometricDet::OTPhase2Layer:
-      std::sort(comp.begin(), comp.end(), isLessR);
+      std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessR);
       break;
     case GeometricDet::wheel:
-      std::sort(comp.begin(), comp.end(), isLessModZ);
+      std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessModZ);
       break;
     case GeometricDet::disk:
-      std::sort(comp.begin(), comp.end(), isLessModZ);
+      std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessModZ);
       break;
     default:
       edm::LogError("CmsTrackerSubStrctBuilder")

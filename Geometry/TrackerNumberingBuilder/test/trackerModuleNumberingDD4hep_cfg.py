@@ -20,10 +20,11 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
+
 process.MessageLogger = cms.Service(
     "MessageLogger",
     statistics = cms.untracked.vstring('cout', 'tkmodulenumbering'),
-    categories = cms.untracked.vstring('Geometry'),
+    categories = cms.untracked.vstring('Geometry', 'ModuleNumbering'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
@@ -44,6 +45,9 @@ process.MessageLogger = cms.Service(
             ),
         threshold = cms.untracked.string('INFO'),
         Geometry = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+            ),
+        ModuleNumbering = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
             )
         ),

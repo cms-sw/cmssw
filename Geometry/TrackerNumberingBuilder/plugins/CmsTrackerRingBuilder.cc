@@ -10,12 +10,14 @@
 #include <vector>
 #include <bitset>
 
-void CmsTrackerRingBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsDetConstruction theCmsDetConstruction;
+template<>
+void CmsTrackerRingBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+  CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerRingBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
   fv.firstChild();
   GeometricDet::GeometricDetContainer compfw;
@@ -23,10 +25,10 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
 
   switch (comp.front()->type()) {
     case GeometricDet::mergedDet:
-      trackerStablePhiSort(comp.begin(), comp.end(), getPhiGluedModule);
+      trackerStablePhiSort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::getPhiGluedModule);
       break;
     case GeometricDet::DetUnit:
-      trackerStablePhiSort(comp.begin(), comp.end(), getPhi);
+      trackerStablePhiSort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::getPhi);
       break;
     default:
       edm::LogError("CmsTrackerRingBuilder")
@@ -44,11 +46,11 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
   if (pname == TECGluedDet || pname == TECDet) {
     // TEC-
     if (det->translation().z() < 0 && pname == TECDet) {
-      trackerStablePhiSort(comp.begin(), comp.end(), getPhiMirror);
+      trackerStablePhiSort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::getPhiMirror);
     }
 
     if (det->translation().z() < 0 && pname == TECGluedDet) {
-      trackerStablePhiSort(comp.begin(), comp.end(), getPhiGluedModuleMirror);
+      trackerStablePhiSort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::getPhiGluedModuleMirror);
     }
 
     for (uint32_t i = 0; i < comp.size(); i++)

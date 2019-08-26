@@ -4,13 +4,15 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLevelBuilder.h"
 #include "FWCore/ParameterSet/interface/types.h"
 #include <string>
+
 /**
  * Class which constructs TEC petals
  */
-class CmsTrackerPetalBuilder : public CmsTrackerLevelBuilder {
+template <class T>
+class CmsTrackerPetalBuilder : public CmsTrackerLevelBuilder<T> {
 private:
-  void sortNS(DDFilteredView&, GeometricDet*) override;
-  void buildComponent(DDFilteredView&, GeometricDet*, std::string) override;
+  void sortNS( T&, GeometricDet*) override;
+  void buildComponent(T&, GeometricDet*, std::string) override;
 };
 
 #endif

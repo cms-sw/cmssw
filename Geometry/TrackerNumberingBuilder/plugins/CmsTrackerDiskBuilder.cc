@@ -12,8 +12,9 @@
 
 using namespace std;
 
-void CmsTrackerDiskBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerPanelBuilder theCmsTrackerPanelBuilder;
+template<>
+void CmsTrackerDiskBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+  CmsTrackerPanelBuilder<DDFilteredView> theCmsTrackerPanelBuilder;
   GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
 
   switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
@@ -27,12 +28,13 @@ void CmsTrackerDiskBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, 
   g->addComponent(subdet);
 }
 
-void CmsTrackerDiskBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerDiskBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (det->components().front()->type()) {
     case GeometricDet::panel:
-      trackerStablePhiSort(comp.begin(), comp.end(), getPhi);
+      trackerStablePhiSort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::getPhi);
       break;
     default:
       edm::LogError("CmsTrackerDiskBuilder")

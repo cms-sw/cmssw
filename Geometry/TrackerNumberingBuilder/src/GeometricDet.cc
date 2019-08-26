@@ -91,30 +91,23 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
 }
 
 GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
-    :  //
-      // Set by hand the _ddd
-      //
-      _trans(fv->translation()),
-      _phi(_trans.Phi()),
-      _rho(_trans.Rho()),
-      _rot(fv->rotation()),
-      _shape(DDSolidShape(static_cast<int>(fv->shape()))),
-      _ddd(),
-      _ddname(fv->name()),
-      _type(type),
-      _params(fv->parameters()),
-      _radLength(fv->getDouble("TrackerRadLength")),
-      _xi(fv->getDouble("TrackerXi")),
-      _pixROCRows(fv->getDouble("PixelROCRows")),
-      _pixROCCols(fv->getDouble("PixelROCCols")),
-      _pixROCx(fv->getDouble("PixelROC_X")),
-      _pixROCy(fv->getDouble("PixelROC_Y")),
-      _stereo(fv->getString("TrackerStereoDetectors") == strue),
-      _siliconAPVNum(fv->getDouble("SiliconAPVNumber")) {
-  //  workaround instead of this at initialization _ddd(fv->navPos().begin(),fv->navPos().end()),
-  // FIXME:
-  // const DDFilteredView::nav_type& nt = fv->navPos();
-  // _ddd = nav_type(nt.begin(), nt.end());
+  : _trans(fv->translation()),
+    _phi(_trans.Phi()),
+    _rho(_trans.Rho()),
+    _rot(fv->rotation()),
+    _shape(DDSolidShape(static_cast<int>(fv->shape()))),
+    _ddd(fv->navPos()),
+    _ddname(fv->name()),
+    _type(type),
+    _params(fv->parameters()),
+    _radLength(fv->get<double>("TrackerRadLength")),
+    _xi(fv->get<double>("TrackerXi")),
+    _pixROCRows(fv->get<double>("PixelROCRows")),
+    _pixROCCols(fv->get<double>("PixelROCCols")),
+    _pixROCx(fv->get<double>("PixelROC_X")),
+    _pixROCy(fv->get<double>("PixelROC_Y")),
+    _stereo(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
+    _siliconAPVNum(fv->get<double>("SiliconAPVNumber")) {
 }
 
 // PGeometricDet is persistent version... make it... then come back here and make the

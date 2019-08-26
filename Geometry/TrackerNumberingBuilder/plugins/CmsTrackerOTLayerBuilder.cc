@@ -11,10 +11,11 @@
 #include <vector>
 #include <bitset>
 
-void CmsTrackerOTLayerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+template<>
+void CmsTrackerOTLayerBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
   LogTrace("DetConstruction") << " CmsTrackerOTLayerBuilder::buildComponent ";
-  CmsTrackerLadderBuilder theCmsTrackerLadderBuilder;
-  CmsTrackerOTRingBuilder theCmsTrackerOTRingBuilder;
+  CmsTrackerLadderBuilder<DDFilteredView> theCmsTrackerLadderBuilder;
+  CmsTrackerOTRingBuilder<DDFilteredView> theCmsTrackerOTRingBuilder;
 
   GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
   switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
@@ -31,7 +32,8 @@ void CmsTrackerOTLayerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* 
   g->addComponent(subdet);
 }
 
-void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template<>
+void CmsTrackerOTLayerBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer comp = det->components();
 
   //order ladder and rings together
@@ -60,7 +62,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
 
   // negative rings
   if (!ringsNeg.empty()) {
-    std::sort(ringsNeg.begin(), ringsNeg.end(), isLessZ);
+    std::sort(ringsNeg.begin(), ringsNeg.end(), CmsTrackerLevelBuilderHelper::isLessZ);
     uint32_t totalringsNeg = ringsNeg.size();
 
     LogTrace("DetConstruction") << " Neg rings ordered by z: ";
@@ -77,7 +79,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
 
   // rods
   if (!rods.empty()) {
-    trackerStablePhiSort(rods.begin(), rods.end(), getPhi);
+    trackerStablePhiSort(rods.begin(), rods.end(), CmsTrackerLevelBuilderHelper::getPhi);
     uint32_t totalrods = rods.size();
 
     LogTrace("DetConstruction") << " Rods ordered by phi: ";
@@ -93,7 +95,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
 
   // positive rings
   if (!ringsPos.empty()) {
-    std::sort(ringsPos.begin(), ringsPos.end(), isLessZ);
+    std::sort(ringsPos.begin(), ringsPos.end(), CmsTrackerLevelBuilderHelper::isLessZ);
     uint32_t totalringsPos = ringsPos.size();
 
     LogTrace("DetConstruction") << " Pos rings ordered by z: ";

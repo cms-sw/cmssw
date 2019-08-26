@@ -192,6 +192,20 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iSetup.get<IdealGeometryRecord>().get(rDD);
   iSetup.get<IdealGeometryRecord>().get(rDDE);
   edm::LogInfo("ModuleNumbering") << " Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
+  edm::LogInfo("ModuleNumbering") << "    radLength " << rDD.product()->radLength() << "\n"
+				  << "           xi " << rDD.product()->xi() << "\n"
+				  << " PixelROCRows " << rDD.product()->pixROCRows() << "\n"
+				  << "   PixROCCols " << rDD.product()->pixROCCols() << "\n"
+				  << "   PixelROC_X " << rDD.product()->pixROCx() << "\n"
+				  << "   PixelROC_Y " << rDD.product()->pixROCy() << "\n"
+				  << "TrackerStereoDetectors " << (rDD.product()->stereo() ? "true" : "false") << "\n"
+				  << "SiliconAPVNumber " << rDD.product()->siliconAPVNum() << "\n";
+  std::vector<int> nv = rDD.product()->navType();
+  edm::LogInfo("ModuleNumbering").log([&](auto& log) {
+      for(auto it : nv)
+	log << it << ", ";
+    });
+  
   edm::LogInfo("ModuleNumbering") << " And Contains  Daughters: " << rDD.product()->deepComponents().size()
                                   << std::endl;
   CmsTrackerDebugNavigator nav(*rDDE.product());
