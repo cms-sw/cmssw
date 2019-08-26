@@ -25,7 +25,9 @@ TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
       elecIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elecID"))),
       phoToken_(mayConsume<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
       jetToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
-      jetTagTokens_(edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("btagAlgos"), [this](edm::InputTag const& tag){ return mayConsume<reco::JetTagCollection>(tag); })),
+      jetTagTokens_(
+          edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("btagAlgos"),
+                                [this](edm::InputTag const& tag) { return mayConsume<reco::JetTagCollection>(tag); })),
       metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
       met_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("metPSet"))),
@@ -118,7 +120,6 @@ TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
       invMassCutInAllMuPairs_(iConfig.getParameter<bool>("invMassCutInAllMuPairs")),
       enablePhotonPlot_(iConfig.getParameter<bool>("enablePhotonPlot")),
       enableMETplot_(iConfig.getParameter<bool>("enableMETplot")) {
-
   ObjME empty;
 
   muPhi_ = std::vector<ObjME>(nmuons_, empty);
@@ -707,14 +708,18 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   }
 
   // Filter out events if Trigger Filtering is requested
-  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup)){ return; }
+  if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup)) {
+    return;
+  }
 
   edm::Handle<reco::VertexCollection> primaryVertices;
   iEvent.getByToken(vtxToken_, primaryVertices);
   //Primary Vertex selection
   const reco::Vertex* pv = nullptr;
   for (auto const& v : *primaryVertices) {
-    if (!vtxSelection_(v)){ continue; }
+    if (!vtxSelection_(v)) {
+      continue;
+    }
     pv = &v;
     break;
   }
@@ -734,10 +739,11 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   double met_phi(-99.);
 
   if (enableMETplot_) {
-
     reco::PFMET pfmet = metHandle->front();
 
-    if (!metSelection_(pfmet)){ return; }
+    if (!metSelection_(pfmet)) {
+      return;
+    }
 
     met_pt = pfmet.pt();
     met_phi = pfmet.phi();
@@ -759,22 +765,29 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   std::vector<reco::GsfElectron> electrons;
   if (nelectrons_ > 0) {
-
-    if (eleHandle->size() < nelectrons_){ return; }
+    if (eleHandle->size() < nelectrons_) {
+      return;
+    }
 
     for (size_t index = 0; index < eleHandle->size(); index++) {
-
       const auto e = eleHandle->at(index);
       const auto el = eleHandle->ptrAt(index);
 
       bool pass_id = (*eleIDHandle)[el];
 
-      if (eleSelection_(e) && pass_id){ electrons.push_back(e); }
+      if (eleSelection_(e) && pass_id) {
+        electrons.push_back(e);
+      }
 
-      if (applyLeptonPVcuts_ && ((std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy) || (std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz))){ continue; }
+      if (applyLeptonPVcuts_ && ((std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy) ||
+                                 (std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz))) {
+        continue;
+      }
     }
 
-    if (electrons.size() < nelectrons_){ return; }
+    if (electrons.size() < nelectrons_) {
+      return;
+    }
   }
 
   edm::Handle<reco::MuonCollection> muoHandle;
@@ -784,28 +797,38 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     return;
   }
 
-  if (muoHandle->size() < nmuons_){ return; }
+  if (muoHandle->size() < nmuons_) {
+    return;
+  }
 
   std::vector<reco::Muon> muons;
   if (nmuons_ > 0) {
-
     for (auto const& m : *muoHandle) {
+      if (muoSelection_(m)) {
+        muons.push_back(m);
+      }
 
-      if (muoSelection_(m)) { muons.push_back(m); }
-
-      if (applyLeptonPVcuts_ && ((std::fabs(m.muonBestTrack()->dxy(pv->position())) >= lepPVcuts_.dxy) || (std::fabs(m.muonBestTrack()->dz(pv->position())) >= lepPVcuts_.dz))){ continue; }
+      if (applyLeptonPVcuts_ && ((std::fabs(m.muonBestTrack()->dxy(pv->position())) >= lepPVcuts_.dxy) ||
+                                 (std::fabs(m.muonBestTrack()->dz(pv->position())) >= lepPVcuts_.dz))) {
+        continue;
+      }
     }
 
-    if (muons.size() < nmuons_){ return; }
+    if (muons.size() < nmuons_) {
+      return;
+    }
   }
 
   double mll(-2);
   if (nmuons_ > 1) {
-
     mll = (muons[0].p4() + muons[1].p4()).M();
 
-    if ((invMassUppercut_ > -1) && (invMassLowercut_ > -1) && ((mll > invMassUppercut_) || (mll < invMassLowercut_))){ return; }
-    if (opsign_ && (muons[0].charge() == muons[1].charge())) { return; }
+    if ((invMassUppercut_ > -1) && (invMassLowercut_ > -1) && ((mll > invMassUppercut_) || (mll < invMassLowercut_))) {
+      return;
+    }
+    if (opsign_ && (muons[0].charge() == muons[1].charge())) {
+      return;
+    }
   }
 
   edm::Handle<reco::PhotonCollection> phoHandle;
@@ -814,13 +837,19 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     edm::LogWarning("TopMonitor") << "Photon handle not valid \n";
     return;
   }
-  if (phoHandle->size() < nphotons_) { return; }
+  if (phoHandle->size() < nphotons_) {
+    return;
+  }
 
   std::vector<reco::Photon> photons;
   for (auto const& p : *phoHandle) {
-    if (phoSelection_(p)){ photons.push_back(p); }
+    if (phoSelection_(p)) {
+      photons.push_back(p);
+    }
   }
-  if (photons.size() < nphotons_){ return; }
+  if (photons.size() < nphotons_) {
+    return;
+  }
 
   double eventHT(0.);
   math::XYZTLorentzVector eventMHT(0., 0., 0., 0.);
@@ -871,9 +900,13 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       return;
   }
 
-  if (eventHT < HTcut_) { return; }
+  if (eventHT < HTcut_) {
+    return;
+  }
 
-  if ((MHTcut_ > 0) && (eventMHT.pt() < MHTcut_)) { return; }
+  if ((MHTcut_ > 0) && (eventMHT.pt() < MHTcut_)) {
+    return;
+  }
 
   bool allpairs = false;
   if (nmuons_ > 2) {
@@ -888,22 +921,21 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     }
   }
   //cut only if enabled and the event has a pair that failed the mll range
-  if (allpairs && invMassCutInAllMuPairs_) { return; }
+  if (allpairs && invMassCutInAllMuPairs_) {
+    return;
+  }
 
   JetTagMap bjets;
 
   if (nbjets_ > 0) {
-
     // map of Jet,btagValues (for all jets passing bJetSelection_)
     //  - btagValue of each jet is calculated as sum of values from InputTags in jetTagTokens_
     JetTagMap allJetBTagVals;
 
     for (const auto& jetTagToken : jetTagTokens_) {
-
       edm::Handle<reco::JetTagCollection> bjetHandle;
       iEvent.getByToken(jetTagToken, bjetHandle);
       if (not bjetHandle.isValid()) {
-
         edm::LogWarning("TopMonitor") << "B-Jet handle not valid, will skip event \n";
         return;
       }
@@ -911,34 +943,37 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       const reco::JetTagCollection& bTags = *(bjetHandle.product());
 
       for (const auto& i_jetTag : bTags) {
-
         const auto& jetRef = i_jetTag.first;
 
-        if (not bjetSelection_(*dynamic_cast<const reco::Jet*>(jetRef.get()))) { continue; }
+        if (not bjetSelection_(*dynamic_cast<const reco::Jet*>(jetRef.get()))) {
+          continue;
+        }
 
         const auto btagVal = i_jetTag.second;
 
-        if (not std::isfinite(btagVal)) { continue; }
+        if (not std::isfinite(btagVal)) {
+          continue;
+        }
 
         if (allJetBTagVals.find(jetRef) != allJetBTagVals.end()) {
-
           allJetBTagVals.at(jetRef) += btagVal;
-        }
-        else {
-
+        } else {
           allJetBTagVals.insert(JetTagMap::value_type(jetRef, btagVal));
         }
       }
     }
 
-    for(const auto& jetBTagVal : allJetBTagVals)
-    {
-      if (jetBTagVal.second < workingpoint_) { continue; }
+    for (const auto& jetBTagVal : allJetBTagVals) {
+      if (jetBTagVal.second < workingpoint_) {
+        continue;
+      }
 
       bjets.insert(JetTagMap::value_type(jetBTagVal.first, jetBTagVal.second));
     }
 
-    if (bjets.size() < nbjets_){ return; }
+    if (bjets.size() < nbjets_) {
+      return;
+    }
   }
 
   if (nbjets_ > 1) {
@@ -1123,7 +1158,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<edm::InputTag>("elecID", edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-tight"));
   desc.add<edm::InputTag>("photons", edm::InputTag("photons"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
-  desc.add<std::vector<edm::InputTag> >("btagAlgos", { edm::InputTag("pfDeepCSVJetTags:probb"), edm::InputTag("pfDeepCSVJetTags:probbb") });
+  desc.add<std::vector<edm::InputTag> >(
+      "btagAlgos", {edm::InputTag("pfDeepCSVJetTags:probb"), edm::InputTag("pfDeepCSVJetTags:probbb")});
   desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
 
   desc.add<std::string>("metSelection", "pt > 0");
