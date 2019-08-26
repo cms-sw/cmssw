@@ -6,8 +6,8 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/bLayer.h"
-#include "MagneticField/GeomBuilder/src/printUniqueNames.h"
+#include "bLayer.h"
+#include "printUniqueNames.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/Layers/interface/MagBLayer.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"

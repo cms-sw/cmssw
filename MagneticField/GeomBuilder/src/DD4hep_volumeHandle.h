@@ -7,6 +7,7 @@
  * One instance is created for each volume. The parameters of the 
  * boundary surfaces are calculated during construction.
  *
+ *  \author N. Amapane - INFN Torino (original developer)
  */
 
 #include "BaseVolumeHandle.h"

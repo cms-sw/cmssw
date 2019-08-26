@@ -10,7 +10,7 @@
  */
 
 void volumeHandle::buildTruncTubs() {
-  LogDebug("magneticfield::volumeHandle") << "Building TruncTubs surfaces...: " << endl;
+  LogDebug("magneticfield::volumeHandle") << "Building TruncTubs surfaces...: ";
 
   DDTruncTubs tubs(solid);
 
@@ -90,11 +90,11 @@ void volumeHandle::buildTruncTubs() {
         << "pos_Rplane    " << pos_Rplane << " " << pos_Rplane.perp() << " " << pos_Rplane.phi() << endl
         << "rot_R         " << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
         << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl
-        << "cyl radius    " << rCyl << endl;
+        << "cyl radius    " << rCyl;
 
     //   // Check ordering.
     if ((pos_Rplane.perp() < rCyl) != cutInside) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner " << endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner ";
     }
   }
   // Save volume boundaries

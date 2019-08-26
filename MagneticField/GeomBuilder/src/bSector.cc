@@ -6,12 +6,12 @@
  *  \author N. Amapane - INFN Torino
  */
 
+#include "bSector.h"
+#include "printUniqueNames.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
-#include "MagneticField/GeomBuilder/src/bSector.h"
 #include "Utilities/BinningTools/interface/ClusterizingHistogram.h"
 #include "MagneticField/Layers/interface/MagBSector.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
-#include "MagneticField/GeomBuilder/src/printUniqueNames.h"
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
 #include <algorithm>

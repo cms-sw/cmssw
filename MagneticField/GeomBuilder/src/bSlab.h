@@ -9,23 +9,18 @@
  *  \author N. Amapane - INFN Torino
  */
 
+#include "BaseVolumeHandle.h"
+
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/Layers/interface/MagBSlab.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
-#include "MagneticField/GeomBuilder/src/BaseVolumeHandle.h"
 
-#include "Utilities/General/interface/precomputed_value_sort.h"
-
-#include <iostream>
-#include <vector>
 
 class MagBSlab;
 
 namespace magneticfield {
-
-  using std::vector;
 
   class bSlab {
   public:
