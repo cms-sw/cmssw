@@ -18,6 +18,9 @@
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
+//#define EDM_ML_DEBUG
+using namespace geant_units::operators;
+
 class DDHCalXtalAlgo : public DDAlgorithm {
 public:
   //Constructor and Destructor
@@ -44,9 +47,6 @@ private:
   std::string idNameSpace;  //Namespace of this and ALL sub-parts
   std::string idName;       //Children name
 };
-
-//#define EDM_ML_DEBUG
-using namespace geant_units::operators;
 
 DDHCalXtalAlgo::DDHCalXtalAlgo() {
 #ifdef EDM_ML_DEBUG

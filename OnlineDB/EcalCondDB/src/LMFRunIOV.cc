@@ -33,7 +33,7 @@ LMFRunIOV::LMFRunIOV(oracle::occi::Environment *env, oracle::occi::Connection *c
 
 LMFRunIOV::LMFRunIOV(EcalDBConnection *c) : LMFUnique(c) { initialize(); }
 
-LMFRunIOV::LMFRunIOV(const LMFRunIOV &r) {
+LMFRunIOV::LMFRunIOV(const LMFRunIOV &r) : LMFUnique::LMFUnique(r) {
   initialize();
   *this = r;
 }
@@ -262,7 +262,12 @@ void LMFRunIOV::getParameters(ResultSet *rset) noexcept(false) {
                       .tm_hour = static_cast<int>(hour),
                       .tm_mday = static_cast<int>(day),
                       .tm_mon = static_cast<int>(month),
-                      .tm_year = year - 1900};
+                      .tm_year = year - 1900,
+                      .tm_wday = 0,
+                      .tm_yday = 0,
+                      .tm_isdst = 0,
+                      .tm_gmtoff = 0,
+                      .tm_zone = nullptr};
   char tt_str[30] = {0};
   if (std::strftime(tt_str, sizeof(tt_str), "%F %T", &tt)) {
     setString("db_timestamp", std::string(tt_str));

@@ -105,12 +105,19 @@ for year in upgradeKeys:
             if upgradeDatasetFromFragment[frag]=="TTbar_13" and '2018' in key:
                 workflows[numWF+upgradeSteps['ParkingBPH']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['ParkingBPH']]
 
-            # premixing stage1, only for NuGun
-            if upgradeDatasetFromFragment[frag]=="NuGun" and 'PU' in key and '2026' in key:
-                workflows[numWF+upgradeSteps['Premix']['offset']] = [upgradeDatasetFromFragment[frag], stepList['Premix']]
+            inclPremix = 'PU' in key
+            if inclPremix:
+                inclPremix = False
+                for y in ['2021', '2023', '2024', '2026']:
+                    if y in key:
+                        inclPremix = True
+                        continue
+            if inclPremix:
+                # premixing stage1, only for NuGun
+                if upgradeDatasetFromFragment[frag]=="NuGun":
+                    workflows[numWF+upgradeSteps['Premix']['offset']] = [upgradeDatasetFromFragment[frag], stepList['Premix']]
 
-            # premixing stage2, only for ttbar for time being
-            if 'PU' in key and '2026' in key and upgradeDatasetFromFragment[frag]=="TTbar_14TeV":
+                # premixing stage2
                 slist = []
                 for step in stepList['baseline']:
                     s = step
@@ -120,10 +127,16 @@ for year in upgradeKeys:
                 workflows[numWF+premixS2_offset] = [upgradeDatasetFromFragment[frag], slist]
 
                 # Combined stage1+stage2
+                def nano(s):
+                    if "Nano" in s:
+                        if "_" in s:
+                            return s.replace("_", "PUPRMXCombined_")
+                        return s+"PUPRMXCombined"
+                    return s
                 workflows[numWF+premixS1S2_offset] = [upgradeDatasetFromFragment[frag], # Signal fragment
                                                       [slist[0]] +                      # Start with signal generation
                                                       stepList['Premix'] +              # Premixing stage1
                                                       [slist[1].replace("PUPRMX", "PUPRMXCombined")] + # Premixing stage2, customized for the combined (defined in relval_steps.py)
-                                                      slist[2:]]                        # Remaining standard steps
+                                                      map(nano, slist[2:])]             # Remaining standard steps
 
             numWF+=1

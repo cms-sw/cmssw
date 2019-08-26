@@ -211,7 +211,7 @@ void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID,
       const int pxid = 2 * (ROCSizeInX - rocPixelRow) + (rocPixelColumn % 2);
 
       unsigned int urocID = rocID;
-      PPSPixelIndex myTest = {rawId, urocID};
+      PPSPixelIndex myTest = {rawId, urocID, 0, 0, 0};
       // the range has always at most one element
       auto range = std::equal_range(iDdet2fed.begin(), iDdet2fed.end(), myTest, compare);
       if (range.first != range.second) {
