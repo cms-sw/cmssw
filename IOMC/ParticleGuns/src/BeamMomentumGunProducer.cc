@@ -39,9 +39,14 @@ namespace edm {
         b_parPz_(nullptr) {
     edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters");
 
-    // doesn't seem necessary to check if pset is empty - if this
-    // is the case, default values will be taken for params
+    // doesn't seem necessary to check if pset is empty
+    xoff_ = pgun_params.getParameter<double>("XOffset");
+    yoff_ = pgun_params.getParameter<double>("YOffset");
     zpos_ = pgun_params.getParameter<double>("ZPosition");
+    if (fVerbosity > 0)
+      edm::LogVerbatim("BeamMomentumGun")
+          << "Beam vertex offset (cm) " << xoff_ << ":" << yoff_ << " and z position " << zpos_;
+
     edm::FileInPath fp = pgun_params.getParameter<edm::FileInPath>("FileName");
     std::string infileName = fp.fullPath();
 
@@ -49,18 +54,21 @@ namespace edm {
     fFile_->GetObject("EventTree", fTree_);
     nentries_ = fTree_->GetEntriesFast();
     if (fVerbosity > 0)
-      edm::LogVerbatim("BeamMomentumGun") << "Total Events: " << nentries_ << " in " << infileName << " Z " << zpos_;
+      edm::LogVerbatim("BeamMomentumGun") << "Total Events: " << nentries_ << " in " << infileName;
 
     // Set branch addresses and branch pointers
-    fTree_->SetBranchAddress("npar", &npar_, &b_npar_);
-    fTree_->SetBranchAddress("eventId", &eventId_, &b_eventId_);
-    fTree_->SetBranchAddress("parPDGId", &parPDGId_, &b_parPDGId_);
-    fTree_->SetBranchAddress("parX", &parX_, &b_parX_);
-    fTree_->SetBranchAddress("parY", &parY_, &b_parY_);
-    fTree_->SetBranchAddress("parZ", &parZ_, &b_parZ_);
-    fTree_->SetBranchAddress("parPx", &parPx_, &b_parPx_);
-    fTree_->SetBranchAddress("parPy", &parPy_, &b_parPy_);
-    fTree_->SetBranchAddress("parPz", &parPz_, &b_parPz_);
+    int npart = fTree_->SetBranchAddress("npar", &npar_, &b_npar_);
+    int event = fTree_->SetBranchAddress("eventId", &eventId_, &b_eventId_);
+    int pdgid = fTree_->SetBranchAddress("parPDGId", &parPDGId_, &b_parPDGId_);
+    int parxx = fTree_->SetBranchAddress("parX", &parX_, &b_parX_);
+    int paryy = fTree_->SetBranchAddress("parY", &parY_, &b_parY_);
+    int parzz = fTree_->SetBranchAddress("parZ", &parZ_, &b_parZ_);
+    int parpx = fTree_->SetBranchAddress("parPx", &parPx_, &b_parPx_);
+    int parpy = fTree_->SetBranchAddress("parPy", &parPy_, &b_parPy_);
+    int parpz = fTree_->SetBranchAddress("parPz", &parPz_, &b_parPz_);
+    if ((npart != 0) || (event != 0) || (pdgid != 0) || (parxx != 0) || (paryy != 0) || (parzz != 0) || (parpx != 0) ||
+        (parpy != 0) || (parpz != 0))
+      throw cms::Exception("GenException") << "Branch address wrong in i/p file\n";
 
     produces<HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
@@ -96,8 +104,8 @@ namespace edm {
       double mass = pData->mass().value();
       if (fVerbosity > 0)
         edm::LogVerbatim("BeamMomentumGun") << "PDGId: " << partID << "   mass: " << mass;
-      double xp = mm2cm_ * parX_->at(ip);
-      double yp = mm2cm_ * parY_->at(ip);
+      double xp = (xoff_ + mm2cm_ * parX_->at(ip));
+      double yp = (yoff_ + mm2cm_ * parY_->at(ip));
       HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(xp, yp, zpos_));
       double pxGeV = MeV2GeV_ * parPx_->at(ip);
       double pyGeV = MeV2GeV_ * parPy_->at(ip);
