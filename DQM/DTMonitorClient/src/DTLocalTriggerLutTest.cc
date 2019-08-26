@@ -274,6 +274,7 @@ void DTLocalTriggerLutTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMS
             switch (static_cast<int>(phiWhSummary->GetBinContent(sect, stat))) {
               case 1:
                 phiNoData++;
+                [[fallthrough]];
               case 2:
               case 3:
                 phiErr++;
@@ -281,6 +282,7 @@ void DTLocalTriggerLutTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMS
             switch (static_cast<int>(phibWhSummary->GetBinContent(sect, stat))) {
               case 1:
                 phibNoData++;
+                [[fallthrough]];
               case 2:
               case 3:
                 phibErr++;
