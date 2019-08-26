@@ -12,7 +12,6 @@ using namespace edm;
 using namespace std;
 using namespace cms::dd;
 
-
 DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume) : registry_(&det->specpars()) {
   it_.emplace_back(Iterator(volume));
 }

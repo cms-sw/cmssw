@@ -98,11 +98,8 @@ void MagGeoBuilder::summary(handles& volumes) const {
   }    // end for
   iunique = ptrs.size();
 
-  LogTrace("MagGeoBuilder") << "    volumes   " << ivolumes
-                            << "    surfaces  " << isurfaces
-                            << "    assigned  " << iassigned
-                            << "    unique    " << iunique
-                            << "    iref_ass  " << iref_ass
+  LogTrace("MagGeoBuilder") << "    volumes   " << ivolumes << "    surfaces  " << isurfaces << "    assigned  "
+                            << iassigned << "    unique    " << iunique << "    iref_ass  " << iref_ass
                             << "    iref_nass " << iref_nass;
 }
 
@@ -547,8 +544,8 @@ void MagGeoBuilder::testInside(handles& volumes) {
         continue;
       //if (i->magVolume == 0) continue;
       if (i->magVolume->inside(vol->center())) {
-        LogTrace("MagGeoBuilder") << "*** ERROR: center of V " << vol->volumeno << ":" << vol->copyno
-                                  << " is inside V " << i->volumeno << ":" << i->copyno;
+        LogTrace("MagGeoBuilder") << "*** ERROR: center of V " << vol->volumeno << ":" << vol->copyno << " is inside V "
+                                  << i->volumeno << ":" << i->copyno;
       }
     }
 

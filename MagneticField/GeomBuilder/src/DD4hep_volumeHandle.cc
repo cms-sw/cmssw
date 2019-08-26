@@ -199,7 +199,7 @@ namespace {
   inline constexpr NumType convertUnits(NumType centimeters) {
     return (centimeters);
   }
-}
+}  // namespace
 
 #include "buildBox.icc"
 #include "buildTrap.icc"

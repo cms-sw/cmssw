@@ -70,15 +70,14 @@ void volumeHandle::buildBox() {
     rot_phi = Surface::RotationType(planeZAxis, planeYAxis);  // opposite to x axis
   }
 
-  LogDebug("magneticfield::volumeHandle") << " halfX: " << halfX << " halfY: " << halfY << " halfZ: " << halfZ
-                                          << " RN            " << theRN;
+  LogDebug("magneticfield::volumeHandle")
+      << " halfX: " << halfX << " halfY: " << halfY << " halfZ: " << halfZ << " RN            " << theRN;
 
   LogDebug("magneticfield::volumeHandle")
-      << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi()
-      << " pos_inner    " << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi()
-      << " pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " " << pos_zplus.phi()
-      << " pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " " << pos_zminus.phi()
-      << " pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi()
+      << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi() << " pos_inner    "
+      << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi() << " pos_zplus    " << pos_zplus << " "
+      << pos_zplus.perp() << " " << pos_zplus.phi() << " pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " "
+      << pos_zminus.phi() << " pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi()
       << " pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi();
 
   // Check ordering.
@@ -102,9 +101,9 @@ void volumeHandle::buildBox() {
   surfaces[phiplus] = new Plane(pos_phiplus, rot_phi);
   surfaces[phiminus] = new Plane(pos_phiminus, rot_phi);
 
-  LogDebug("magneticfield::volumeHandle") << "rot_R " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.))
-                                          << " rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.))
-                                          << " rot_phi " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.));
+  LogDebug("magneticfield::volumeHandle") << "rot_R " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << " rot_Z "
+                                          << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << " rot_phi "
+                                          << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.));
 
   // Save volume boundaries
   theRMin = std::abs(surfaces[inner]->toLocal(GlobalPoint(0, 0, 0)).z());

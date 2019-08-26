@@ -56,6 +56,6 @@ namespace cms {
     const DDFilteredView& solid;
     // "solid" name is for backwards compatibility. Can be changed to "fview" after DD4hep migration.
   };
-}  // namespace magneticfield
+}  // namespace cms
 
 #endif

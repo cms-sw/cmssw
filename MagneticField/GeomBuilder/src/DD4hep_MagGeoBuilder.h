@@ -65,8 +65,7 @@ namespace cms {
 
   private:
     // Build interpolator for the volume with "correct" rotation
-    void buildInterpolator(const volumeHandle* vol,
-                           std::map<std::string, MagProviderInterpol*>& interpolators);
+    void buildInterpolator(const volumeHandle* vol, std::map<std::string, MagProviderInterpol*>& interpolators);
 
     // Build all MagVolumes setting the MagProviderInterpol
     void buildMagVolumes(const handles& volumes, std::map<std::string, MagProviderInterpol*>& interpolators);

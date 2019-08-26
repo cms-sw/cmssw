@@ -247,7 +247,7 @@ namespace {
   {
     return (geant_units::operators::convertMmToCm(millimeters));
   }
-}
+}  // namespace
 
 #include "MagneticField/GeomBuilder/src/buildBox.icc"
 #include "MagneticField/GeomBuilder/src/buildTrap.icc"
