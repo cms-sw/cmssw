@@ -101,36 +101,36 @@ void testTriggerCell(int type) {
   const int waferu(0), waferv(0), layer(1);
   std::string error[2] = {"ERROR", "OK"};
   int ntot(0), nerror(0);
-  for (int iz = 0; iz <=1; ++iz) {
+  for (int iz = 0; iz <= 1; ++iz) {
     int zside = 2 * iz - 1;
     for (int u = 0; u < 2 * N; ++u) {
       for (int v = 0; v < 2 * N; ++v) {
-	if (((v - u) < N) && (u - v) <= N) {
-	  HFNoseDetId id(zside, type, layer, waferu, waferv, u, v);
-	  HFNoseTriggerDetId idt((int)(HFNoseTrigger),
-				 id.zside(),
-				 id.type(),
-				 id.layer(),
-				 id.waferU(),
-				 id.waferV(),
-				 id.triggerCellU(),
-				 id.triggerCellV());
-	  std::cout << "ID " << std::hex << id.rawId() << std::dec << " " << id << " Trigger: " << id.triggerCellU()
-		    << ":" << id.triggerCellV() << " Trigger " << idt << std::endl;
-	  int ok(0);
-	  std::vector<std::pair<int, int> > uvs = idt.cellUV();
-	  for (auto const& uv : uvs) {
-	    HFNoseDetId idn(idt.zside(), idt.type(), idt.layer(), idt.waferU(), idt.waferV(), uv.first, uv.second);
-	    if (idn == id) {
-	      ok = 1;
-	      break;
-	    }
-	  }
-	  std::cout << "Trigger Cell: " << idt << " obtained from cell (" << error[ok] << ")" << std::endl;
-	  ++ntot;
-	  if (ok == 0)
-	    ++nerror;
-	}
+        if (((v - u) < N) && (u - v) <= N) {
+          HFNoseDetId id(zside, type, layer, waferu, waferv, u, v);
+          HFNoseTriggerDetId idt((int)(HFNoseTrigger),
+                                 id.zside(),
+                                 id.type(),
+                                 id.layer(),
+                                 id.waferU(),
+                                 id.waferV(),
+                                 id.triggerCellU(),
+                                 id.triggerCellV());
+          std::cout << "ID " << std::hex << id.rawId() << std::dec << " " << id << " Trigger: " << id.triggerCellU()
+                    << ":" << id.triggerCellV() << " Trigger " << idt << std::endl;
+          int ok(0);
+          std::vector<std::pair<int, int> > uvs = idt.cellUV();
+          for (auto const& uv : uvs) {
+            HFNoseDetId idn(idt.zside(), idt.type(), idt.layer(), idt.waferU(), idt.waferV(), uv.first, uv.second);
+            if (idn == id) {
+              ok = 1;
+              break;
+            }
+          }
+          std::cout << "Trigger Cell: " << idt << " obtained from cell (" << error[ok] << ")" << std::endl;
+          ++ntot;
+          if (ok == 0)
+            ++nerror;
+        }
       }
     }
   }
