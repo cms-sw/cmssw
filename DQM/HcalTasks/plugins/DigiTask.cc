@@ -107,13 +107,16 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
     vhashQIE1011);
 
   std::vector<uint32_t> vhash_TDC2bit;
-  vhash_TDC2bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalBarrel, 1, 1, 1)));
-  _filter_TDC2bit.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet, vhash_TDC2bit);
+  vhash_TDC2bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalBarrel, 1, 1, 1)));
+  vhash_TDC2bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalBarrel, -11, 1, 1)));
+  _filter_TDC2bit.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdetPM, vhash_TDC2bit);
 
   std::vector<uint32_t> vhash_TDC6bit;
-  vhash_TDC6bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalEndcap, 20, 1, 1)));
-  vhash_TDC6bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalForward, 29, 1, 1)));
-  _filter_TDC6bit.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet, vhash_TDC6bit);
+  vhash_TDC6bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalEndcap, 20, 1, 1)));
+  vhash_TDC6bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalEndcap, -20, 1, 1)));
+  vhash_TDC6bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalForward, 29, 1, 1)));
+  vhash_TDC6bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalForward, -29, 1, 1)));
+  _filter_TDC6bit.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdetPM, vhash_TDC6bit);
 
   //	INITIALIZE FIRST
   _cADC_SubdetPM.initialize(_name,
@@ -960,6 +963,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
         _cLETDCvsTS_2bit_SubdetPM.fill(did, (int)i, digi[i].tdc());
 
         if (digi[i].tdc() < 2) {
+
           double time = i * 25. + (digi[i].tdc() * 12.5);
           _cLETDCTime_SubdetPM.fill(did, time);
           _cLETDCTime_depth.fill(did, time);
