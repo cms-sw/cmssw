@@ -1435,6 +1435,7 @@ void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track& trac
           case 2:
             if (!useInac)
               break;
+            [[fallthrough]];
           case 1:
             hits_total_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
             break;

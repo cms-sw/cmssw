@@ -154,9 +154,11 @@ ALIdouble EntryAngleAffAngles::checkDiff(const CLHEP::Hep3Vector& _axis,
     case 1:
       axis.rotateX(localrot[0]);
       axisOrig.rotateX(localrotorig[0]);
+      [[fallthrough]];
     case 2:
       axis.rotateY(localrot[1]);
       axisOrig.rotateY(localrotorig[1]);
+      [[fallthrough]];
     case 3:
       axis.rotateZ(localrot[2]);
       axisOrig.rotateZ(localrotorig[2]);
