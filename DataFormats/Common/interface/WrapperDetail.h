@@ -7,6 +7,7 @@ WrapperDetail: Metafunction support for compile-time selection of code.
 
 ----------------------------------------------------------------------*/
 
+#include <memory>
 #include <typeinfo>
 #include <type_traits>
 #include <vector>
