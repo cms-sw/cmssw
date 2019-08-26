@@ -250,19 +250,16 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
     CTPPSDiamondDetId detId(record.info->symbolicID.symbolicID);
 
     if (record.status.isOK()) {
-      const VFATFrame *fr = record.frame;
-      const DiamondVFATFrame diamondframe(fr->getData());
-
       // update Event Counter in status
-      record.status.setEC(fr->getEC() & 0xFF);
+      record.status.setEC(record.frame->getEC() & 0xFF);
 
       // create the digi
       DetSet<CTPPSDiamondDigi> &digiDetSet = digi.find_or_insert(detId);
-      digiDetSet.emplace_back(diamondframe.getLeadingEdgeTime(),
-                              diamondframe.getTrailingEdgeTime(),
-                              diamondframe.getThresholdVoltage(),
-                              diamondframe.getMultihit(),
-                              diamondframe.getHptdcErrorFlag());
+      digiDetSet.emplace_back(ppsdiamondvfat::getLeadingEdgeTime(*record.frame),
+                              ppsdiamondvfat::getTrailingEdgeTime(*record.frame),
+                              ppsdiamondvfat::getThresholdVoltage(*record.frame),
+                              ppsdiamondvfat::getMultihit(*record.frame),
+                              ppsdiamondvfat::getHptdcErrorFlag(*record.frame));
     }
 
     // save status
