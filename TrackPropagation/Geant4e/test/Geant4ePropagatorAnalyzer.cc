@@ -15,13 +15,11 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "SimG4Core/Geometry/interface/DDDWorld.h"
 
 //- Magnetic field
 #include "MagneticField/Engine/interface/MagneticField.h"
