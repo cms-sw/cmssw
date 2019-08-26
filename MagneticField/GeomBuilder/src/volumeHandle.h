@@ -10,14 +10,12 @@
  *  \author N. Amapane - INFN Torino (original developer)
  */
 
-#include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
+#include "BaseVolumeHandle.h"
+#include "MagGeoBuilderFromDDD.h"
 
-/* #include "DDD/DDCore/interface/DDSolid.h" */
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
-//#include "ClassReuse/SurfaceGeometry/interface/BoundPlane.h"
 #include "MagneticField/VolumeGeometry/interface/VolumeSide.h"
-#include "MagneticField/GeomBuilder/src/BaseVolumeHandle.h"
 
 class DDExpandedView;
 class MagVolume6Faces;
