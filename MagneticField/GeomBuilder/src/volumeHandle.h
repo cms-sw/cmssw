@@ -16,7 +16,6 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "MagneticField/VolumeGeometry/interface/VolumeSide.h"
-#include "MagneticField/GeomBuilder/src/BaseVolumeHandle.h"
 
 class DDExpandedView;
 class MagVolume6Faces;
