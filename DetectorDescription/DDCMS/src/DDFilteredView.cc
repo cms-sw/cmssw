@@ -2,6 +2,7 @@
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DD4hep/Detector.h"
+#include "DD4hep/Shapes.h"
 #include <TGeoBBox.h>
 #include <TGeoBoolNode.h>
 #include <vector>
@@ -11,11 +12,6 @@ using namespace edm;
 using namespace std;
 using namespace cms::dd;
 
-// These names are defined in the DD4hep source code.
-// They are returned by dd4hep::Solid.GetTitle(). If DD4hep changes them,
-// the names must be updated here.
-static const char* const pseudoTrapName = "pseudotrap";
-static const char* const truncTubeName = "trunctube";
 
 DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume) : registry_(&det->specpars()) {
   it_.emplace_back(Iterator(volume));
@@ -301,14 +297,14 @@ bool DDFilteredView::isAConeSeg() const { return (getShape() == TGeoConeSeg::Cla
 
 bool DDFilteredView::isAPseudoTrap() const {
   LogVerbatim("DDFilteredView") << "Shape is a " << solid()->GetTitle() << ".";
-  return (strcmp(solid()->GetTitle(), pseudoTrapName) == 0);
+  return (dd4hep::instanceOf<dd4hep::PseudoTrap>(solid()));
 }
 
 bool DDFilteredView::isATrapezoid() const { return (getShape() == TGeoTrap::Class()); }
 
 bool DDFilteredView::isATruncTube() const {
   LogVerbatim("DDFilteredView") << "Shape is a " << solid()->GetTitle() << ".";
-  return (strcmp(solid()->GetTitle(), truncTubeName) == 0);
+  return (dd4hep::instanceOf<dd4hep::TruncatedTube>(solid()));
 }
 
 bool DDFilteredView::isATubeSeg() const { return (getShape() == TGeoTubeSeg::Class()); }

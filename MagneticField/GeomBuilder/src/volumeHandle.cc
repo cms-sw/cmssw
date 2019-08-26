@@ -32,12 +32,11 @@ using namespace SurfaceOrientation;
 using namespace std;
 
 MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool expand2Pi, bool debugVal)
-    : magneticfield::BaseVolumeHandle(debugVal) {
+    : magneticfield::BaseVolumeHandle(expand2Pi, debugVal) {
   name = fv.logicalPart().name().name();
   copyno = fv.copyno();
   solid = fv.logicalPart().solid();
   center_ = GlobalPoint(fv.translation().x() / cm, fv.translation().y() / cm, fv.translation().z() / cm);
-  expand = expand2Pi;
 
   // ASSUMPTION: volume names ends with "_NUM" where NUM is the volume number
   string volName = name;

@@ -33,10 +33,9 @@ using namespace cms::dd;
 using namespace edm;
 
 volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugVal)
-    : BaseVolumeHandle(debugVal), theShape(getCurrentShape(fv)), solid(fv) {
+    : BaseVolumeHandle(expand2Pi, debugVal), theShape(getCurrentShape(fv)), solid(fv) {
   name = fv.name();
   copyno = fv.copyNum();
-  expand = expand2Pi;
   const auto *const transArray = fv.trans();
   center_ = GlobalPoint(transArray[0], transArray[1], transArray[2]);
 
@@ -67,7 +66,7 @@ volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugV
       break;
     default:
       LogError("magneticfield::volumeHandle")
-          << "ctor: Unexpected theShape # " << static_cast<int>(theShape) << " for vol " << name;
+          << "ctor: Unexpected shape # " << static_cast<int>(theShape) << " for vol " << name;
   }
 
   // Get material for this volume
