@@ -15,6 +15,7 @@
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
 #include <algorithm>
+#include <iostream>
 
 using namespace SurfaceOrientation;
 using namespace std;

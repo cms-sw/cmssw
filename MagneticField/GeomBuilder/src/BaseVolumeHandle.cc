@@ -4,7 +4,7 @@
  *  \author N. Amapane - INFN Torino (original developer)
  */
 
-#include "MagneticField/GeomBuilder/src/BaseVolumeHandle.h"
+#include "BaseVolumeHandle.h"
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
@@ -13,6 +13,7 @@
 
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
+#include <cassert>
 #include <string>
 #include <iterator>
 #include <iomanip>
@@ -174,7 +175,7 @@ bool BaseVolumeHandle::sameSurface(const Surface &s1, Sides which_side, float to
   return false;
 }
 
-bool BaseVolumeHandle::setSurface(const Surface &s1, Sides which_side) {
+bool BaseVolumeHandle::setSurface(Surface &s1, Sides which_side) {
   //Check for null assignment
   if (&s1 == (surfaces[which_side]).get()) {
     isAssigned[which_side] = true;

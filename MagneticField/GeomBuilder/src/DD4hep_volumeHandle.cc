@@ -202,8 +202,8 @@ namespace {
   }
 }
 
-#include "MagneticField/GeomBuilder/src/buildBox.icc"
-#include "MagneticField/GeomBuilder/src/buildTrap.icc"
-#include "MagneticField/GeomBuilder/src/buildTubs.icc"
-#include "MagneticField/GeomBuilder/src/buildCons.icc"
-#include "MagneticField/GeomBuilder/src/buildTruncTubs.icc"
+#include "buildBox.icc"
+#include "buildTrap.icc"
+#include "buildTubs.icc"
+#include "buildCons.icc"
+#include "buildTruncTubs.icc"

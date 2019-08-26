@@ -1,7 +1,7 @@
 #ifndef MagneticField_GeomBuilder_printUniqueNames_h
 #define MagneticField_GeomBuilder_printUniqueNames_h
 
-#include "MagneticField/GeomBuilder/src/BaseVolumeHandle.h"
+#include "BaseVolumeHandle.h"
 
 namespace magneticfield {
 

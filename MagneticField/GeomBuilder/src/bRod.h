@@ -8,7 +8,7 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/bSlab.h"
+#include "bSlab.h"
 
 class MagBRod;
 
