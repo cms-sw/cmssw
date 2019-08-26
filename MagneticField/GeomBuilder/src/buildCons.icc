@@ -7,7 +7,7 @@
 #include "DataFormats/GeometrySurface/interface/SimpleConeBounds.h"
 
 void volumeHandle::buildCons() {
-  LogDebug("magneticfield::volumeHandle") << "Building cons surfaces...: " << endl;
+  LogDebug("magneticfield::volumeHandle") << "Building cons surfaces...: ";
 
   DDCons cons(solid);
 
@@ -27,7 +27,7 @@ void volumeHandle::buildCons() {
                                           << "rInPlusZ   " << rInPlusZ << endl
                                           << "rOutPlusZ  " << rOutPlusZ << endl
                                           << "phiFrom    " << startPhi << endl
-                                          << "deltaPhi   " << deltaPhi << endl;
+                                          << "deltaPhi   " << deltaPhi;
 
   // recalculate center: (for a DDCons, DDD gives 0,0,Z)
   double rZmin = (rInMinusZ + rOutMinusZ) / 2.;
@@ -61,7 +61,7 @@ void volumeHandle::buildCons() {
         new Cone(Surface::PositionType(0, 0, center_.z()), Surface::RotationType(), cb.vertex(), cb.openingAngle());
 
     LogDebug("magneticfield::volumeHandle")
-        << "Outer surface: cone, vtx: " << cb.vertex() << " angle " << cb.openingAngle() << endl;
+        << "Outer surface: cone, vtx: " << cb.vertex() << " angle " << cb.openingAngle();
   }
   // All other surfaces
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);

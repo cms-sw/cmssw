@@ -6,6 +6,7 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
+ *  \author N. Amapane - INFN Torino (original developer)
  */
 
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"

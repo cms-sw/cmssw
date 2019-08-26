@@ -12,7 +12,7 @@
  */
 
 void volumeHandle::buildPseudoTrap() {
-  LogDebug("magneticfield::volumeHandle") << "Building PseudoTrap surfaces...: " << endl;
+  LogDebug("magneticfield::volumeHandle") << "Building PseudoTrap surfaces...: ";
 
   DDPseudoTrap ptrap(solid);
 
@@ -32,18 +32,18 @@ void volumeHandle::buildPseudoTrap() {
                                           << "y1        " << y1 << endl
                                           << "y2        " << y2 << endl
                                           << "radius    " << radius << endl
-                                          << "atMinusZ  " << atMinusZ << endl;
+                                          << "atMinusZ  " << atMinusZ;
 
   // Just check assumptions on parameters...
   const double epsilon = 1e-5;
   if (debug) {
     if (y1 - y2 > epsilon) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: unexpected pseudotrapezoid parameters." << endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: unexpected pseudotrapezoid parameters.";
     }
 
     // Check that volume is convex (no concave volume in current geometry...)
     if (radius * (atMinusZ ? -1. : +1) < 0.) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pseudotrapezoid is concave" << endl;
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pseudotrapezoid is concave";
     }
   }
   // CAVEAT: pseudotraps are rotated in a different way as traps,
@@ -85,7 +85,7 @@ void volumeHandle::buildPseudoTrap() {
     if (std::abs(rcheck - fR) > 100. * epsilon) {  //FIXME!
       LogDebug("magneticfield::volumeHandle") << setprecision(10);
       LogDebug("magneticfield::volumeHandle") << "*** WARNING: Cylinder surface not centered on beam axis " << rcheck
-                                              << " " << fR << " " << std::abs(rcheck - fR) << endl;
+                                              << " " << fR << " " << std::abs(rcheck - fR);
       LogDebug("magneticfield::volumeHandle") << setprecision(6);
     }
   }
@@ -97,25 +97,25 @@ void volumeHandle::buildPseudoTrap() {
         << "pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " " << pos_zplus.phi() << endl
         << "pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " " << pos_zminus.phi() << endl
         << "pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi() << endl
-        << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi() << endl;
+        << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi();
   }
 
   // Check ordering.
   if ((pos_Rplane.perp() < radius) == atMinusZ) {
-    LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner for pseudotrapezoid" << endl;
+    LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner for pseudotrapezoid";
   }
   if (pos_zplus.z() < pos_zminus.z()) {
-    LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_zplus < pos_zminus for pseudotrapezoid" << endl;
+    LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_zplus < pos_zminus for pseudotrapezoid";
   }
   if (Geom::Phi<float>(pos_phiplus.phi() - pos_phiminus.phi()) < 0.) {
-    LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_phiplus < pos_phiminus for pseudotrapezoid" << endl;
+    LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_phiplus < pos_phiminus for pseudotrapezoid";
   }
 
   GlobalVector z_phiplus = (refPlane->toGlobal(LocalVector((x2 - x1) / 2., 0., halfZ))).unit();
   GlobalVector z_phiminus = (refPlane->toGlobal(LocalVector(-(x2 - x1) / 2., 0., halfZ))).unit();
 
-  LogDebug("magneticfield::volumeHandle") << "z_phiplus " << z_phiplus << " " << z_phiplus.phi() << endl;
-  LogDebug("magneticfield::volumeHandle") << "z_phiminus " << z_phiminus << " " << z_phiminus.phi() << endl;
+  LogDebug("magneticfield::volumeHandle") << "z_phiplus " << z_phiplus << " " << z_phiplus.phi();
+  LogDebug("magneticfield::volumeHandle") << "z_phiminus " << z_phiminus << " " << z_phiminus.phi();
 
   Surface::RotationType rot_R(planeYAxis, planeXAxis);
   Surface::RotationType rot_Z(planeXAxis, planeZAxis);
