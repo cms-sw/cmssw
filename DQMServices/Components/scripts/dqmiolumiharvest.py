@@ -28,9 +28,8 @@ args = parser.parse_args()
 
 # we can save a lot of time by only scanning some types, if we know all interesting MEs are of these types.
 interesting_types = {
-  # for some reasons, reding mixed types does not work.
   "TH2Fs",
-#  "TH1Fs",
+  "TH1Fs",
 #  "TH2Ds",
 #  "TH1Ds",
 #  "TH2Ds",
@@ -163,6 +162,8 @@ def harvestfile(fname):
         # inclusive range -- for 0 entries, row is left out
         firstidx, lastidx = idxtree.FirstIndex, idxtree.LastIndex
         metree = getattr(f, treenames[metype])
+        # this GetEntry is only to make sure the TTree is initialized correctly
+        metree.GetEntry(0)
         metree.SetBranchStatus("*",0)
         metree.SetBranchStatus("FullName",1)
 
