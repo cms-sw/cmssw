@@ -9,6 +9,7 @@ Toy EDProducers of STL containers for testing purposes only.
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -159,6 +160,46 @@ namespace edmtest {
     e.put(std::move(p));
   }
 
+  //--------------------------------------------------------------------
+  //
+  // Produces std::vector<std::unique_ptr<int>> and std::vector<std::unique_ptr<IntProduct>> instances.
+  //
+  class UniqPtrIntVectorProducer : public edm::EDProducer {
+  public:
+    explicit UniqPtrIntVectorProducer(edm::ParameterSet const& p)
+        : value_(p.getParameter<int>("ivalue")),
+          count_(p.getParameter<int>("count")),
+          delta_(p.getParameter<int>("delta")),
+          intToken_(produces<std::vector<std::unique_ptr<int>>>()),
+          intProductToken_(produces<std::vector<std::unique_ptr<IntProduct>>>()) {}
+
+    void produce(edm::Event& e, edm::EventSetup const& c) override {
+      std::vector<std::unique_ptr<int>> p1(count_);
+      std::vector<std::unique_ptr<IntProduct>> p2(count_);
+      for (unsigned int i = 0; i < count_; ++i) {
+        const int v = value_ + i * delta_;
+        p1[i] = std::make_unique<int>(v);
+        p2[i] = std::make_unique<IntProduct>(v);
+      }
+      e.emplace(intToken_, std::move(p1));
+      e.emplace(intProductToken_, std::move(p2));
+    }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("ivalue", 0);
+      desc.add<int>("count", 0);
+      desc.add<int>("delta", 0);
+      descriptions.addDefault(desc);
+    }
+
+  private:
+    int value_;
+    size_t count_;
+    int delta_;
+    edm::EDPutTokenT<std::vector<std::unique_ptr<int>>> intToken_;
+    edm::EDPutTokenT<std::vector<std::unique_ptr<IntProduct>>> intProductToken_;
+  };
 }  // namespace edmtest
 
 using edmtest::IntDequeProducer;
@@ -166,8 +207,10 @@ using edmtest::IntListProducer;
 using edmtest::IntSetProducer;
 using edmtest::IntVectorProducer;
 using edmtest::IntVectorSetProducer;
+using edmtest::UniqPtrIntVectorProducer;
 DEFINE_FWK_MODULE(IntVectorProducer);
 DEFINE_FWK_MODULE(IntVectorSetProducer);
 DEFINE_FWK_MODULE(IntListProducer);
 DEFINE_FWK_MODULE(IntDequeProducer);
 DEFINE_FWK_MODULE(IntSetProducer);
+DEFINE_FWK_MODULE(UniqPtrIntVectorProducer);
