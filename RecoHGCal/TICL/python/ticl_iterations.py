@@ -17,6 +17,7 @@ from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerCluste
 from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer
 from RecoHGCal.TICL.ticlCandidateFromTrackstersProducer_cfi import ticlCandidateFromTrackstersProducer
 from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer
+from Validation.HGCalValidation.ticlPFValidationDefault_cfi import ticlPFValidationDefault as ticlPFValidation
 
 ## withReco: requires full reco of the event to run this part
 ## i.e. collections of generalTracks can be accessed
@@ -115,8 +116,7 @@ def TICL_iterations_withReco(process):
 
   process.ticlCandidateFromTrackstersProducer = ticlCandidateFromTrackstersProducer.clone()
 
-
-  process.pfTICLProducer =  pfTICLProducer.clone()
+  process.pfTICLProducer = pfTICLProducer.clone()
 
   process.hgcalMultiClusters = hgcalMultiClusters
   process.TICL_Task = cms.Task(
@@ -138,6 +138,9 @@ def TICL_iterations_withReco(process):
       process.pfTICLProducer)
 
   process.schedule.associate(process.TICL_Task)
+  process.ticlPFValidation = ticlPFValidation
+  process.hgcalValidation.insert(-1, process.ticlPFValidation)
+
   return process
 
 

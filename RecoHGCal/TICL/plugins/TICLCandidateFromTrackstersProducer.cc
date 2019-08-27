@@ -119,13 +119,15 @@ void TICLCandidateFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
     auto pdg_id = pdg_id_from_idx(max_index);
     ticl_cand.setPdgId(pdg_id);
 
-    if (ticl_cand.trackPtr().isNonnull()) {
-      auto charge = ticl_cand.trackPtr()->charge();
-      ticl_cand.setCharge(charge);
-      ticl_cand.setPdgId(pdg_id * charge);
-    } else if (pdg_id == -11 || pdg_id == -13 || pdg_id == 211) {
-      // FIXME - placeholder for downstream PF code to work, but proper symmetric charge assignment needed
-      ticl_cand.setCharge(1);
+    if (pdg_id == -11 || pdg_id == -13 || pdg_id == 211) {
+      if (ticl_cand.trackPtr().isNonnull()) {
+        auto charge = ticl_cand.trackPtr()->charge();
+        ticl_cand.setCharge(charge);
+        ticl_cand.setPdgId(pdg_id * charge);
+      } else {
+        // FIXME - placeholder for downstream PF code to work, but proper symmetric charge assignment needed
+        ticl_cand.setCharge(1);
+      }
     }
   }
 
