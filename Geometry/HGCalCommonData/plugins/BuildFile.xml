@@ -35,7 +35,6 @@
 
 <library name="DD4hep_GeometryHGCalCommonDataPlugins" file="dd4hep/*.cc">
   <use name="DetectorDescription/DDCMS"/>
-  <use   name="Geometry/HGCalCommonData"/>
   <use name="dd4hep"/>
   <lib name="Geom"/>
   <flags DD4HEP_PLUGIN="1"/>
