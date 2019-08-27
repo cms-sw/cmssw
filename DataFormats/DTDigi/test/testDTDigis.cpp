@@ -74,7 +74,7 @@ void testDTDigis::testDigiCollectionPut(){
 	 ++digiIt){
 
       CPPUNIT_ASSERT((*digiIt).wire()==1+i);
-      CPPUNIT_ASSERT((*digiIt).countsTDC()==(unsigned)5+i);
+      CPPUNIT_ASSERT((*digiIt).countsTDC()==5+i);
       CPPUNIT_ASSERT((*digiIt).number()==100+i);
       i++;
       
@@ -133,7 +133,7 @@ void testDTDigis::testDigiCollectionInsert(){
 void testDTDigis::testTime2TDCConversion(){
   float time=243;
   float reso=25./32.;
-  unsigned int tdc=int(time/reso);
+  int tdc=int(time/reso);
   int pos=2;
   int wire=1;
 

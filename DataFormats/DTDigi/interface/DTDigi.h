@@ -4,8 +4,8 @@
 /** \class DTDigi
  *
  * Digi for Drift Tubes.
- * It can be initialized/set with a time in ns or a TDC count in 25/32 ns 
- * units.
+ * It can be initialized/set with a time in ns or a TDC count in 
+ * the specified base (ie number of counts/BX)
  *  
  *
  * \author N. Amapane, G. Cerminara, M. Pelliccioni - INFN Torino
@@ -21,12 +21,12 @@ public:
   
   /// Construct from the wire#, the TDC counts and the digi number.
   /// number should identify uniquely multiple digis in the same cell.
-  explicit DTDigi (int wire, int nTDC, int number=0);
-
+  explicit DTDigi (int wire, int nTDC, int number=0, int base=32);
+  
   // Construct from the wire#, the time (ns) and the digi number.
-  // time is converted in TDC counts (1 TDC = 25./32. ns)
+  // time is converted in TDC counts (1 TDC = 25./base. ns)
   // number should identify uniquely multiple digis in the same cell.
-  explicit DTDigi (int wire, double tdrift, int number=0);
+  explicit DTDigi (int wire, double tdrift, int number=0, int base=32);
 
   // Construct from channel and counts.
   //  explicit DTDigi (ChannelType channel, int nTDC);
@@ -50,13 +50,13 @@ public:
   double time() const;
 
   /// Get raw TDC count
-  uint32_t countsTDC() const;
+  int32_t countsTDC() const;
 
-  /// Set with a time in ns
-  void setTime(double time);  
+  /// Get the TDC unit value in ns
+  double tdcUnit() const;
 
-  /// Set with a TDC count
-  void setCountsTDC (int nTDC);
+  /// Get the TDC base (counts per BX)
+  int tdcBase() const;
 
   /// Print content of digi
   void print() const;
@@ -67,14 +67,11 @@ private:
   // The value of one TDC count in ns
   static const double reso;
 
-  // Masks&shifts for the channel identifier
-//   static const uint32_t wire_mask   = 0xffff0000;
-//   static const uint32_t number_mask = 0xffff;
-//   static const uint32_t wire_offset = 16;
-
+  int32_t theCounts;  // TDC count, in units given by 1/theTDCBase
   uint16_t theWire;   // channel number
-  uint32_t theCounts; // TDC count, up to 20 bits actually used
-  uint16_t theNumber; // counter for digis in the same cell
+  uint8_t theNumber;  // counter for digis in the same cell
+  uint8_t theTDCBase; // TDC base (counts per BX; 32 in Ph1 or 30 in Ph2)
+
 };
 
 #include<iostream>
