@@ -30,7 +30,7 @@
 //----------------
 DTKeyedConfig::DTKeyedConfig() {}
 
-DTKeyedConfig::DTKeyedConfig(const DTKeyedConfig& obj) {
+DTKeyedConfig::DTKeyedConfig(const DTKeyedConfig& obj) : cond::BaseKeyed::BaseKeyed(obj) {
   cfgId = obj.cfgId;
   data_iterator d_iter = obj.dataList.begin();
   data_iterator d_iend = obj.dataList.end();
