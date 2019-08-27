@@ -67,8 +67,8 @@ static long algorithm(dd4hep::Detector& /* description */,
   int sectors = args.value<int>("Sectors");            // Sectors
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << zMinBlock << " rFineCoarse " << rMaxFine
-                                << " wafer width " << waferW << waferW << " gap among wafers " << waferGap << " sectors "
-                                << sectors;
+                                << " wafer width " << waferW << waferW << " gap among wafers " << waferGap
+                                << " sectors " << sectors;
 #endif
   const auto& slopeB = args.value<std::vector<double> >("SlopeBottom");   // Slope at the lower R
   const auto& slopeT = args.value<std::vector<double> >("SlopeTop");      // Slopes at the larger R
@@ -144,8 +144,8 @@ static long algorithm(dd4hep::Detector& /* description */,
                                       << ", 0.0, 360.0";
         edm::LogVerbatim("HGCalGeom") << "DDHGCalModule test position in: " << glog.name() << " number " << copy;
 #endif
-	double ww = (waferW + waferGap);
-	double dx = 0.5 * ww;
+        double ww = (waferW + waferGap);
+        double dx = 0.5 * ww;
         double dy = 3.0 * dx * tan(30._deg);
         double rr = 2.0 * dx * tan(30._deg);
         int ncol = static_cast<int>(2.0 * routF / ww) + 1;

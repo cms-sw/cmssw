@@ -93,8 +93,8 @@ static long algorithm(dd4hep::Detector& /* description */,
       dd4hep::Material matter = ns.material(materials[ii]);
       dd4hep::Volume glog;
       if (layerSense[ly] == 0) {
-	dd4hep::Solid solid = dd4hep::Box(0.5 * widths[0], 0.5 * heights[0], 0.5 * thick[ii]);
-	ns.addSolidNS(ns.prepend(name), solid);
+        dd4hep::Solid solid = dd4hep::Box(0.5 * widths[0], 0.5 * heights[0], 0.5 * thick[ii]);
+        ns.addSolidNS(ns.prepend(name), solid);
         glog = dd4hep::Volume(solid.name(), solid, matter);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << solid.name() << " Box made of " << materials[ii]
@@ -102,7 +102,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                                       << 0.5 * thick[ii];
 #endif
       } else {
-	dd4hep::Solid solid = dd4hep::Box(0.5 * widths[1], 0.5 * heights[1], 0.5 * thick[ii]);
+        dd4hep::Solid solid = dd4hep::Box(0.5 * widths[1], 0.5 * heights[1], 0.5 * thick[ii]);
         ns.addSolidNS(ns.prepend(name), solid);
         glog = dd4hep::Volume(solid.name(), solid, matter);
 #ifdef EDM_ML_DEBUG
@@ -110,38 +110,38 @@ static long algorithm(dd4hep::Detector& /* description */,
                                       << " of dimensions " << 0.5 * widths[1] << ", " << 0.5 * heights[1] << ", "
                                       << 0.5 * thick[ii];
 #endif
-	int ncol = tileN[0] / 2;
-	int nrow = tileN[1] / 2;
+        int ncol = tileN[0] / 2;
+        int nrow = tileN[1] / 2;
 #ifdef EDM_ML_DEBUG
-	int kount(0);
-	edm::LogVerbatim("HGCalGeom") << glog.name() << " Row " << nrow << " Column " << ncol;
+        int kount(0);
+        edm::LogVerbatim("HGCalGeom") << glog.name() << " Row " << nrow << " Column " << ncol;
 #endif
-	for (int nr = -nrow; nr <= nrow; ++nr) {
-	  int inr = (nr >= 0) ? nr : -nr;
-	  double ypos = (nr >= 0) ? (inr - 0.5) * tileStep[1] : -(inr - 0.5) * tileStep[1];
-	  for (int nc = -ncol; nc <= ncol; ++nc) {
-	    int inc = (nc >= 0) ? nc : -nc;
-	    double xpos = (nc >= 0) ? (inc - 0.5) * tileStep[0] : -(inc - 0.5) * tileStep[0];
-	    if (nr != 0 && nc != 0) {
-	      dd4hep::Position tran(xpos, ypos, 0.0);
-	      dd4hep::Rotation3D rotation;
-	      int copy = inr * AHCalParameters::kColumn_ + inc;
-	      if (nc < 0)
-		copy += AHCalParameters::kRowColumn_;
-	      if (nr < 0)
-		copy += AHCalParameters::kSignRowColumn_;
-	      dd4hep::Volume glog1 = ns.volume(tile);
-	      glog.placeVolume(glog1, copy, dd4hep::Transform3D(rotation, tran));
+        for (int nr = -nrow; nr <= nrow; ++nr) {
+          int inr = (nr >= 0) ? nr : -nr;
+          double ypos = (nr >= 0) ? (inr - 0.5) * tileStep[1] : -(inr - 0.5) * tileStep[1];
+          for (int nc = -ncol; nc <= ncol; ++nc) {
+            int inc = (nc >= 0) ? nc : -nc;
+            double xpos = (nc >= 0) ? (inc - 0.5) * tileStep[0] : -(inc - 0.5) * tileStep[0];
+            if (nr != 0 && nc != 0) {
+              dd4hep::Position tran(xpos, ypos, 0.0);
+              dd4hep::Rotation3D rotation;
+              int copy = inr * AHCalParameters::kColumn_ + inc;
+              if (nc < 0)
+                copy += AHCalParameters::kRowColumn_;
+              if (nr < 0)
+                copy += AHCalParameters::kSignRowColumn_;
+              dd4hep::Volume glog1 = ns.volume(tile);
+              glog.placeVolume(glog1, copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
-	      kount++;
-	      edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << tile << " number " << copy << " positioned in "
-					    << glog.name() << " at " << tran << " with " << rotation;
+              kount++;
+              edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << tile << " number " << copy << " positioned in "
+                                            << glog.name() << " at " << tran << " with " << rotation;
 #endif
-	    }
-	  }
-	}
+            }
+          }
+        }
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << kount << " tiles for " << glog.name();
+        edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: " << kount << " tiles for " << glog.name();
 #endif
       }
       dd4hep::Position r1(0, 0, zz);
