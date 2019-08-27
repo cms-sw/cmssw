@@ -1171,9 +1171,12 @@ private:
     get(dnn::photonPtSumOutsideSignalCone) =
         getValueNorm(tau.tauID("photonPtSumOutsideSignalConedR03"), 1.731f, 6.846f);
     get(dnn::puCorrPtSum) = getValueNorm(tau.tauID("puCorrPtSum"), 22.38f, 16.34f);
-    get(dnn::tau_dxy_pca_x) = 0; // getValueNorm(tau.dxy_PCA().x(), -0.0241f, 0.0074f);
-    get(dnn::tau_dxy_pca_y) = 0; // getValueNorm(tau.dxy_PCA().y(), 0.0675f, 0.0128f);
-    get(dnn::tau_dxy_pca_z) = 0; // getValueNorm(tau.dxy_PCA().z(), 0.7973f, 3.456f);
+    // PCA coordinates were used as inputs during the NN training, but it was decided to disable them
+    // for the inference, because modeling of dxy_PCA in MC purely describes the data and, on the other hand,
+    // these coordinates are strongly era-dependent. Kept as comment to document what NN expects.
+    get(dnn::tau_dxy_pca_x) = 0;  // getValueNorm(tau.dxy_PCA().x(), -0.0241f, 0.0074f);
+    get(dnn::tau_dxy_pca_y) = 0;  // getValueNorm(tau.dxy_PCA().y(), 0.0675f, 0.0128f);
+    get(dnn::tau_dxy_pca_z) = 0;  // getValueNorm(tau.dxy_PCA().z(), 0.7973f, 3.456f);
 
     const bool tau_dxy_valid =
         std::isnormal(tau.dxy()) && tau.dxy() > -10 && std::isnormal(tau.dxy_error()) && tau.dxy_error() > 0;
