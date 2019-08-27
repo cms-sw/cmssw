@@ -1171,8 +1171,9 @@ private:
     get(dnn::photonPtSumOutsideSignalCone) =
         getValueNorm(tau.tauID("photonPtSumOutsideSignalConedR03"), 1.731f, 6.846f);
     get(dnn::puCorrPtSum) = getValueNorm(tau.tauID("puCorrPtSum"), 22.38f, 16.34f);
-    // PCA coordinates were used as inputs during the NN training, but it was decided to disable them
-    // for the inference, because modeling of dxy_PCA in MC purely describes the data and, on the other hand,
+    // The global PCA coordinates were used as inputs during the NN training, but it was decided to disable
+    // them for the inference, because modeling of dxy_PCA in MC poorly describes the data, and x and y coordinates
+    // in data results outside of the expected 5 std. dev. input validity range. On the other hand,
     // these coordinates are strongly era-dependent. Kept as comment to document what NN expects.
     get(dnn::tau_dxy_pca_x) = 0;  // getValueNorm(tau.dxy_PCA().x(), -0.0241f, 0.0074f);
     get(dnn::tau_dxy_pca_y) = 0;  // getValueNorm(tau.dxy_PCA().y(), 0.0675f, 0.0128f);
