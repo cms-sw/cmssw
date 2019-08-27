@@ -429,19 +429,15 @@ def miniAOD_customizeCommon(process):
     process.patJets.addTagInfos = True
     process.patJets.tagInfoSources = cms.VInputTag( cms.InputTag("pixelClusterTagInfos") )
     process.slimmedJetsNoDeepFlavour.dropTagInfos = '0'
-    process.updatedPatJetsSlimmedDeepFlavour.addTagInfos = True
-    process.updatedPatJetsSlimmedDeepFlavour.tagInfoSources = cms.VInputTag( cms.InputTag("pixelClusterTagInfos") )
     process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.addTagInfos = True
     process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = cms.VInputTag( cms.InputTag("pixelClusterTagInfos") )
 
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     run2_miniAOD_80XLegacy.toModify(process.patJets, addTagInfos = False )
-    run2_miniAOD_80XLegacy.toModify(process.updatedPatJetsSlimmedDeepFlavour, addTagInfos = False )
     run2_miniAOD_80XLegacy.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = False )
  
     from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
     run2_miniAOD_94XFall17.toModify(process.patJets, addTagInfos = False )
-    run2_miniAOD_94XFall17.toModify(process.updatedPatJetsSlimmedDeepFlavour, addTagInfos = False )
     run2_miniAOD_94XFall17.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = False )
     
     ## puppi met
