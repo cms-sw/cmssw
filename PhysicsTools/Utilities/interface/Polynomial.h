@@ -17,7 +17,7 @@ namespace funct {
   };
 
   template <unsigned int n>
-  Polynomial<n>::Polynomial(const std::shared_ptr<double> *c) : c0_(*c), poly_(c->get() + 1) {}
+  Polynomial<n>::Polynomial(const std::shared_ptr<double> *c) : c0_(*c), poly_(c + 1) {}
   template <unsigned int n>
   Polynomial<n>::Polynomial(const Parameter *c) : c0_(c->ptr()), poly_(c + 1) {}
 
@@ -48,7 +48,7 @@ namespace funct {
   template <>
   class Polynomial<1> {
   public:
-    Polynomial(const std::shared_ptr<double> *c) : c0_(*c), poly_(c->get() + 1) {}
+    Polynomial(const std::shared_ptr<double> *c) : c0_(*c), poly_(c + 1) {}
     Polynomial(const Parameter *c) : c0_(c->ptr()), poly_(c + 1) {}
     Polynomial(const double *c) : c0_(new double(*c)), poly_(c + 1) {}
     Polynomial(std::shared_ptr<double> c0, std::shared_ptr<double> c1) : c0_(c0), poly_(c1) {}
@@ -64,7 +64,7 @@ namespace funct {
   template <>
   class Polynomial<2> {
   public:
-    Polynomial(const std::shared_ptr<double> *c) : c0_(*c), poly_(c->get() + 1) {}
+    Polynomial(const std::shared_ptr<double> *c) : c0_(*c), poly_(c + 1) {}
     Polynomial(const Parameter *c) : c0_(c->ptr()), poly_(c + 1) {}
     Polynomial(const double *c) : c0_(new double(*c)), poly_(c + 1) {}
     Polynomial(std::shared_ptr<double> c0, std::shared_ptr<double> c1, std::shared_ptr<double> c2)
