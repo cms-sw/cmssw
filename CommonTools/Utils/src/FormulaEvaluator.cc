@@ -611,7 +611,7 @@ namespace {
   const std::string k_log10("log10");
   const std::string k_TMath__Log("TMath::Log");
   double const kLog10Inv = 1./std::log(10.);
-  const std::string k_exp("exp");
+  const std::string k_exp("exp"); 
   const std::string k_pow("pow");
   const std::string k_TMath__Power("TMath::Power");
   const std::string k_max("max");
@@ -625,7 +625,16 @@ namespace {
   const std::string k_TMath__Sqrt("TMath::Sqrt");
   const std::string k_abs("abs");
   const std::string k_TMath__Abs("TMath::Abs");
-
+  
+  // ubaidah's edit
+  const std::string k_cos("cos");
+  const std::string k_sin("sin");
+  const std::string k_tan("tan");
+  const std::string k_acos("acos");
+  const std::string k_TMath__Cos("TMath::Cos");
+  const std::string k_TMath__Sin("TMath::Sin");
+  const std::string k_TMath__Tan("TMath::Tan");
+  const std::string k_TMath__ACos("TMath::ACos");
 
   EvaluatorInfo 
   FunctionFinder::createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const {
