@@ -107,15 +107,21 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
     vhashQIE1011);
 
   std::vector<uint32_t> vhash_TDC2bit;
-  vhash_TDC2bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalBarrel, 1, 1, 1)));
-  vhash_TDC2bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalBarrel, -11, 1, 1)));
+  vhash_TDC2bit.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalBarrel, 1, 1, 1)));
+  vhash_TDC2bit.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalBarrel, -11, 1, 1)));
   _filter_TDC2bit.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdetPM, vhash_TDC2bit);
 
   std::vector<uint32_t> vhash_TDC6bit;
-  vhash_TDC6bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalEndcap, 20, 1, 1)));
-  vhash_TDC6bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalEndcap, -20, 1, 1)));
-  vhash_TDC6bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalForward, 29, 1, 1)));
-  vhash_TDC6bit.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalForward, -29, 1, 1)));
+  vhash_TDC6bit.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalEndcap, 20, 1, 1)));
+  vhash_TDC6bit.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalEndcap, -20, 1, 1)));
+  vhash_TDC6bit.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalForward, 29, 1, 1)));
+  vhash_TDC6bit.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalForward, -29, 1, 1)));
   _filter_TDC6bit.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdetPM, vhash_TDC6bit);
 
   //	INITIALIZE FIRST
@@ -255,29 +261,29 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250_coarse),
                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
   _cLETDCvsADC_2bit_SubdetPM.initialize(_name,
-                                   "LETDCvsADC",
-                                   hcaldqm::hashfunctions::fSubdetPM,
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_4),
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+                                        "LETDCvsADC",
+                                        hcaldqm::hashfunctions::fSubdetPM,
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_4),
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
   _cLETDCvsADC_6bit_SubdetPM.initialize(_name,
-                                   "LETDCvsADC",
-                                   hcaldqm::hashfunctions::fSubdetPM,
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+                                        "LETDCvsADC",
+                                        hcaldqm::hashfunctions::fSubdetPM,
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
   _cLETDCvsTS_2bit_SubdetPM.initialize(_name,
-                                  "LETDCvsTS",
-                                  hcaldqm::hashfunctions::fSubdetPM,
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_4),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+                                       "LETDCvsTS",
+                                       hcaldqm::hashfunctions::fSubdetPM,
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_4),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
   _cLETDCvsTS_6bit_SubdetPM.initialize(_name,
-                                  "LETDCvsTS",
-                                  hcaldqm::hashfunctions::fSubdetPM,
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+                                       "LETDCvsTS",
+                                       hcaldqm::hashfunctions::fSubdetPM,
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 
   _cLETDCTime_SubdetPM.initialize(_name,
                                   "LETDCTime",
@@ -684,9 +690,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   _cLETDCTimevsADC_SubdetPM.book(ib, _emap, _subsystem);
   _cLETDCvsADC_2bit_SubdetPM.book(ib, _emap, _filter_TDC2bit, _subsystem);
-  _cLETDCvsADC_6bit_SubdetPM.book(ib, _emap, _filter_TDC6bit, _subsystem);  
+  _cLETDCvsADC_6bit_SubdetPM.book(ib, _emap, _filter_TDC6bit, _subsystem);
   _cLETDCvsTS_2bit_SubdetPM.book(ib, _emap, _filter_TDC2bit, _subsystem);
-  _cLETDCvsTS_6bit_SubdetPM.book(ib, _emap, _filter_TDC6bit, _subsystem);  
+  _cLETDCvsTS_6bit_SubdetPM.book(ib, _emap, _filter_TDC6bit, _subsystem);
   _cLETDCTime_SubdetPM.book(ib, _emap, _subsystem);
   _cLETDCTime_depth.book(ib, _emap, _subsystem);
 
@@ -963,7 +969,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
         _cLETDCvsTS_2bit_SubdetPM.fill(did, (int)i, digi[i].tdc());
 
         if (digi[i].tdc() < 2) {
-
           double time = i * 25. + (digi[i].tdc() * 12.5);
           _cLETDCTime_SubdetPM.fill(did, time);
           _cLETDCTime_depth.fill(did, time);
