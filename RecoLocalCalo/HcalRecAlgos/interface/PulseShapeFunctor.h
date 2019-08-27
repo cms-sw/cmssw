@@ -59,10 +59,10 @@ namespace FitterFuncs {
     void setinvertpedSig2(double x) { invertpedSig2_ = x; }
     void setinverttimeSig2(double x) { inverttimeSig2_ = x; }
 
-    inline void singlePulseShapeFuncMahi(const float *x) { return EvalPulse(x); };
-    inline double singlePulseShapeFunc(const double *x) { return EvalPulseM2(x, 3); };
-    inline double doublePulseShapeFunc(const double *x) { return EvalPulseM2(x, 5); };
-    inline double triplePulseShapeFunc(const double *x) { return EvalPulseM2(x, 7); };
+    inline void singlePulseShapeFuncMahi(const float *x) { return EvalPulse(x); }
+    inline double singlePulseShapeFunc(const double *x) { return EvalPulseM2(x, 3); }
+    inline double doublePulseShapeFunc(const double *x) { return EvalPulseM2(x, 5); }
+    inline double triplePulseShapeFunc(const double *x) { return EvalPulseM2(x, 7); }
 
     void getPulseShape(std::array<double, HcalConst::maxSamples> &fillPulseShape) { fillPulseShape = pulse_shape_; }
 
@@ -74,11 +74,11 @@ namespace FitterFuncs {
     std::vector<float> accVarLenIdxZEROVec, diffVarItvlIdxZEROVec;
     std::vector<float> accVarLenIdxMinusOneVec, diffVarItvlIdxMinusOneVec;
 
-    void funcShape(std::array<double, HcalConst::maxSamples> &ntmpbin, const float pulseTime, const double slew);
-    void funcShapeM2(std::array<double, HcalConst::maxSamples> &ntmpbin,
-                     const double pulseTime,
-                     const double pulseHeight,
-                     const double slew);
+    void funcShape(std::array<double, HcalConst::maxSamples> &ntmpbin,
+                   const double pulseTime,
+                   const double pulseHeight,
+                   const double slew,
+                   bool scalePulse);
     double psFit_x[HcalConst::maxSamples], psFit_y[HcalConst::maxSamples], psFit_erry[HcalConst::maxSamples],
         psFit_erry2[HcalConst::maxSamples], psFit_slew[HcalConst::maxSamples];
 
