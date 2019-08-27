@@ -396,7 +396,7 @@ SiStripModuleGeometry TrackerTopology::moduleGeometry(const DetId &id) const {
         case 3:
           return SiStripModuleGeometry::W3A;
       }
-      [[fallthrough]];
+      break;
     case SiStripSubdetector::TEC:
       switch (tecRing(id)) {
         case 1:
