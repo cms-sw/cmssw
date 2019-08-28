@@ -355,6 +355,8 @@ def miniAOD_customizeCommon(process):
     addToProcessAndTask(noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')
     process.deepTau2017v2.taus = noUpdatedTauName
+    from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+    run2_miniAOD_devel.toModify(process.deepTau2017v2, disable_dxy_pca=True)
     process.slimmedTaus = getattr(process, updatedTauName).clone(
         src = noUpdatedTauName
     )
