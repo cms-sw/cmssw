@@ -375,14 +375,14 @@ namespace {
         summaryFirst->GetXaxis()->SetBinLabel(bin, SiPixelPI::getStringFromRegionEnum(part).c_str());
         // avoid filling the histogram with numerical noise
         float f_mean =
-            FirstLA_spectraByRegion[part]->GetMean() > 10.e-6 ? FirstLA_spectraByRegion[part]->GetMean() : 10.e-6;
+            FirstLA_spectraByRegion[part]->GetMean() > 10.e-6 ? FirstLA_spectraByRegion[part]->GetMean() : 0.;
         summaryFirst->SetBinContent(bin, f_mean);
         //summaryFirst->SetBinError(bin,LA_spectraByRegion[hash]->GetRMS());
 
         summaryLast->GetXaxis()->SetBinLabel(bin, SiPixelPI::getStringFromRegionEnum(part).c_str());
         // avoid filling the histogram with numerical noise
         float l_mean =
-            LastLA_spectraByRegion[part]->GetMean() > 10.e-6 ? LastLA_spectraByRegion[part]->GetMean() : 10.e-6;
+            LastLA_spectraByRegion[part]->GetMean() > 10.e-6 ? LastLA_spectraByRegion[part]->GetMean() : 0.;
         summaryLast->SetBinContent(bin, l_mean);
         //summaryLast->SetBinError(bin,LA_spectraByRegion[hash]->GetRMS());
         bin++;
@@ -424,10 +424,8 @@ namespace {
 
       summaryFirst->GetYaxis()->SetRangeUser(0., std::max(0., max * 1.40));
 
-      summaryFirst->Draw("bar2");
-      summaryFirst->Draw("text90same");
-      summaryLast->Draw("bar2,same");
-      summaryLast->Draw("text60same");
+      summaryFirst->Draw("b text0");
+      summaryLast->Draw("b text0 same");
 
       TLegend legend = TLegend(0.52, 0.80, 0.98, 0.9);
       legend.SetHeader("#mu_{H} value comparison", "C");  // option "C" allows to center the header
