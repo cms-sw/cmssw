@@ -64,24 +64,17 @@ PixelCPEClusterRepairESProducer::~PixelCPEClusterRepairESProducer() {}
 void PixelCPEClusterRepairESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // templates2
   edm::ParameterSetDescription desc;
-  desc.add<bool>("DoLorentz", true);
-  desc.add<bool>("DoCosmics", false);
-  desc.add<bool>("LoadTemplatesFromDB", true);
-  desc.add<bool>("RunDamagedClusters", false);
   desc.add<std::string>("ComponentName", "PixelCPEClusterRepair");
-  desc.add<double>("MinChargeRatio", 0.8);
-  desc.add<double>("MaxSizeMismatchInY", 0.3);
-  desc.add<bool>("Alpha2Order", true);
-  desc.add<std::vector<std::string>>("Recommend2D",
-                                     {
-                                         "PXB 2",
-                                         "PXB 3",
-                                         "PXB 4",
-                                     });
-  desc.add<int>("ClusterProbComputationFlag", 0);
-  desc.add<int>("speed", -2);
-  desc.add<bool>("UseClusterSplitter", false);
-  descriptions.add("templates2", desc);
+
+  // from PixelCPEBase
+  PixelCPEBase::fillPSetDescription(desc);
+
+  // from PixelCPEClusterRepair
+  PixelCPEClusterRepair::fillPSetDescription(desc);
+
+  // specific to PixelCPEClusterRepairESProducer
+  desc.add<bool>("DoLorentz", true);
+  descriptions.add("_templates2_default", desc);
 }
 
 std::unique_ptr<PixelClusterParameterEstimator> PixelCPEClusterRepairESProducer::produce(

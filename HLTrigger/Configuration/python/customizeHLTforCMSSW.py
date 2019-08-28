@@ -46,11 +46,23 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
+def customiseFor27694(process) :
+
+    for producer in esproducers_by_type(process, "PixelCPETemplateRecoESProducer"):
+        if hasattr(producer, "DoCosmics"): del producer.DoCosmics
+
+    for producer in esproducers_by_type(process, "PixelCPEGenericESProducer"):
+        if hasattr(producer, "TanLorentzAnglePerTesla"): del producer.TanLorentzAnglePerTesla
+        if hasattr(producer, "PixelErrorParametrization"): del producer.PixelErrorParametrization
+
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
+    process = customiseFor27694(process)
 
     return process
