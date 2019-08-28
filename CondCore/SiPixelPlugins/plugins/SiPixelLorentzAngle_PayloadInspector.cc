@@ -94,8 +94,7 @@ namespace {
       h1->SetFillColor(kRed);
       h1->SetMarkerStyle(20);
       h1->SetMarkerSize(1);
-      h1->Draw("HIST");
-      h1->Draw("Psame");
+      h1->Draw("bar2");
 
       SiPixelPI::makeNicePlotStyle(h1.get());
 
@@ -186,26 +185,30 @@ namespace {
 
       hfirst->SetTitle("");
       hfirst->SetFillColor(kRed);
-      hfirst->SetMarkerStyle(kFullCircle);
-      hfirst->SetMarkerSize(1.5);
-      hfirst->SetMarkerColor(kRed);
-      hfirst->Draw("HIST");
-      hfirst->Draw("Psame");
+      hfirst->SetBarWidth(0.95);
+      hfirst->Draw("histbar");
+
+      //hfirst->SetMarkerStyle(kFullCircle);
+      //hfirst->SetMarkerSize(1.5);
+      //hfirst->SetMarkerColor(kRed);
+      //hfirst->Draw("Psame");
 
       hlast->SetTitle("");
       hlast->SetFillColorAlpha(kBlue, 0.20);
-      hlast->SetMarkerStyle(kOpenCircle);
-      hlast->SetMarkerSize(1.5);
-      hlast->SetMarkerColor(kBlue);
-      hlast->Draw("HISTsame");
-      hlast->Draw("Psame");
+      hlast->SetBarWidth(0.95);
+      hlast->Draw("histbarsame");
+
+      //hlast->SetMarkerStyle(kOpenCircle);
+      //hlast->SetMarkerSize(1.5);
+      //hlast->SetMarkerColor(kBlue);
+      //hlast->Draw("Psame");
 
       SiPixelPI::makeNicePlotStyle(hfirst.get());
       SiPixelPI::makeNicePlotStyle(hlast.get());
 
       canvas.Update();
 
-      TLegend legend = TLegend(0.32, 0.86, 0.95, 0.94);
+      TLegend legend = TLegend(0.30, 0.86, 0.95, 0.94);
       //legend.SetHeader("#font[22]{SiPixel Lorentz Angle Comparison}", "C");  // option "C" allows to center the header
       //legend.AddEntry(hfirst.get(), ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "FL");
       //legend.AddEntry(hlast.get(),  ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "FL");
@@ -217,7 +220,7 @@ namespace {
       auto ltx = TLatex();
       ltx.SetTextFont(62);
       //ltx.SetTextColor(kBlue);
-      ltx.SetTextSize(0.05);
+      ltx.SetTextSize(0.047);
       ltx.SetTextAlign(11);
       ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                        1 - gPad->GetTopMargin() + 0.01,
@@ -481,14 +484,14 @@ namespace {
       int divide_roc = 1;
 
       // ---------------------    BOOK HISTOGRAMS
-      std::array<TH2D *, n_layers> h_bpix_occ;
+      std::array<TH2D *, n_layers> h_bpix_LA;
 
       for (unsigned int lay = 1; lay <= 4; lay++) {
         int nlad = nlad_list[lay - 1];
 
-        std::string name = "occ_Layer_" + std::to_string(lay);
+        std::string name = "occ_LA_Layer_" + std::to_string(lay);
         std::string title = "; Module # ; Ladder #";
-        h_bpix_occ[lay - 1] = new TH2D(name.c_str(),
+        h_bpix_LA[lay - 1] = new TH2D(name.c_str(),
                                        title.c_str(),
                                        72 * divide_roc,
                                        -4.5,
@@ -520,7 +523,7 @@ namespace {
 
           auto rocsToMask = SiPixelPI::maskedBarrelRocsToBins(layer, s_ladder, s_module);
           for (const auto &bin : rocsToMask) {
-            h_bpix_occ[layer - 1]->SetBinContent(bin.first, bin.second, element.second);
+            h_bpix_LA[layer - 1]->SetBinContent(bin.first, bin.second, element.second);
           }
         }
       }
@@ -535,12 +538,12 @@ namespace {
         canvas.cd(lay)->SetLeftMargin(0.1);
         canvas.cd(lay)->SetRightMargin(0.13);
 
-        COUT << " layer:" << lay << " max:" << h_bpix_occ[lay - 1]->GetMaximum() << " min: " << minima.at(lay - 1)
+        COUT << " layer:" << lay << " max:" << h_bpix_LA[lay - 1]->GetMaximum() << " min: " << minima.at(lay - 1)
              << std::endl;
 
-        SiPixelPI::dress_occup_plot(canvas, h_bpix_occ[lay - 1], lay, 0, 1);
-        h_bpix_occ[lay - 1]->GetZaxis()->SetRangeUser(minima.at(lay - 1) - 0.001,
-                                                      h_bpix_occ[lay - 1]->GetMaximum() + 0.001);
+        SiPixelPI::dress_occup_plot(canvas, h_bpix_LA[lay - 1], lay, 0, 1, true, true, false);
+        h_bpix_LA[lay - 1]->GetZaxis()->SetRangeUser(minima.at(lay - 1) - 0.001,
+                                                      h_bpix_LA[lay - 1]->GetMaximum() + 0.001);
       }
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
@@ -550,11 +553,11 @@ namespace {
         auto ltx = TLatex();
         ltx.SetTextFont(62);
         ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.06);
+        ltx.SetTextSize(0.055);
         ltx.SetTextAlign(11);
         ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                          1 - gPad->GetTopMargin() + 0.01,
-                         (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+                         unpacked.first == 0 ?  ("IOV:"+std::to_string(unpacked.second)).c_str() : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
       }
 
       std::string fileName(m_imageFileName);
@@ -588,17 +591,17 @@ namespace {
       std::shared_ptr<SiPixelLorentzAngle> payload = fetchPayload(std::get<1>(iov));
 
       static const int n_rings = 2;
-      std::array<TH2D *, n_rings> h_fpix_occ;
+      std::array<TH2D *, n_rings> h_fpix_LA;
       int divide_roc = 1;
 
       // ---------------------    BOOK HISTOGRAMS
       for (unsigned int ring = 1; ring <= n_rings; ring++) {
         int n = ring == 1 ? 92 : 140;
         float y = ring == 1 ? 11.5 : 17.5;
-        std::string name = "occ_ring_" + std::to_string(ring);
+        std::string name = "occ_LA_ring_" + std::to_string(ring);
         std::string title = "; Disk # ; Blade/Panel #";
 
-        h_fpix_occ[ring - 1] = new TH2D(name.c_str(), title.c_str(), 56 * divide_roc, -3.5, 3.5, n * divide_roc, -y, y);
+        h_fpix_LA[ring - 1] = new TH2D(name.c_str(), title.c_str(), 56 * divide_roc, -3.5, 3.5, n * divide_roc, -y, y);
       }
 
       std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
@@ -623,7 +626,7 @@ namespace {
 
           auto rocsToMask = SiPixelPI::maskedForwardRocsToBins(ring, s_blade, panel, s_disk);
           for (const auto &bin : rocsToMask) {
-            h_fpix_occ[ring - 1]->SetBinContent(bin.first, bin.second, element.second);
+            h_fpix_LA[ring - 1]->SetBinContent(bin.first, bin.second, element.second);
           }
         }
       }
@@ -638,12 +641,12 @@ namespace {
         canvas.cd(ring)->SetLeftMargin(0.1);
         canvas.cd(ring)->SetRightMargin(0.13);
 
-        COUT << " ringer:" << ring << " max:" << h_fpix_occ[ring - 1]->GetMaximum() << " min: " << minima.at(ring - 1)
+        COUT << " ringer:" << ring << " max:" << h_fpix_LA[ring - 1]->GetMaximum() << " min: " << minima.at(ring - 1)
              << std::endl;
 
-        SiPixelPI::dress_occup_plot(canvas, h_fpix_occ[ring - 1], 0, ring, 1);
-        h_fpix_occ[ring - 1]->GetZaxis()->SetRangeUser(minima.at(ring - 1) - 0.001,
-                                                       h_fpix_occ[ring - 1]->GetMaximum() + 0.001);
+        SiPixelPI::dress_occup_plot(canvas, h_fpix_LA[ring - 1], 0, ring, 1, true, true, false);
+        h_fpix_LA[ring - 1]->GetZaxis()->SetRangeUser(minima.at(ring - 1) - 0.001,
+						      h_fpix_LA[ring - 1]->GetMaximum() + 0.001);
       }
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
@@ -653,11 +656,11 @@ namespace {
         auto ltx = TLatex();
         ltx.SetTextFont(62);
         ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.06);
+        ltx.SetTextSize(0.05);
         ltx.SetTextAlign(11);
         ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                          1 - gPad->GetTopMargin() + 0.01,
-                         (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+			 unpacked.first == 0 ?  ("IOV:"+std::to_string(unpacked.second)).c_str() : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
       }
 
       std::string fileName(m_imageFileName);

@@ -233,11 +233,11 @@ namespace {
         auto ltx = TLatex();
         ltx.SetTextFont(62);
         ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.06);
+        ltx.SetTextSize(0.055);
         ltx.SetTextAlign(11);
         ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                          1 - gPad->GetTopMargin() + 0.01,
-                         (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+			 unpacked.first == 0 ?  ("IOV:"+std::to_string(unpacked.second)).c_str() : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
       }
 
       std::string fileName(m_imageFileName);
@@ -336,11 +336,11 @@ namespace {
         auto ltx = TLatex();
         ltx.SetTextFont(62);
         ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.06);
+        ltx.SetTextSize(0.050);
         ltx.SetTextAlign(11);
         ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                          1 - gPad->GetTopMargin() + 0.01,
-                         (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+			 unpacked.first == 0 ?  ("IOV:"+std::to_string(unpacked.second)).c_str() : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
       }
 
       std::string fileName(m_imageFileName);
