@@ -18,7 +18,8 @@ VolumeBasedMagneticField::VolumeBasedMagneticField(int geomVersion,
       paramFieldOwned(isParamFieldOwned) {}
 
 VolumeBasedMagneticField::VolumeBasedMagneticField(const VolumeBasedMagneticField& vbf)
-    : field(vbf.field),
+    : MagneticField::MagneticField(vbf),
+      field(vbf.field),
       maxR(vbf.maxR),
       maxZ(vbf.maxZ),
       paramField(vbf.paramField),
