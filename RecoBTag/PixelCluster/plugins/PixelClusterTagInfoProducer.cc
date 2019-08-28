@@ -49,30 +49,20 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
-// For pixel clusters
+// For pixel clusters and topology
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
-// Pixel topology
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 // Geometry
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 class PixelClusterTagInfoProducer : public edm::global::EDProducer<> {
 public:
@@ -117,11 +107,15 @@ PixelClusterTagInfoProducer::~PixelClusterTagInfoProducer() {}
 // ------------ method called to produce the data  ------------
 void PixelClusterTagInfoProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // Declare produced collection
-  auto pixelTagInfo = std::make_unique<reco::PixelClusterTagInfoCollection>();
+  auto collectionTagInfo = std::make_unique<reco::PixelClusterTagInfoCollection>();
 
   // Open jet collection
   edm::Handle<edm::View<reco::Jet> > collectionJets;
   iEvent.getByToken(m_jets, collectionJets);
+
+  // Get primary vertex in the event
+  edm::Handle<reco::VertexCollection> collectionPVs;
+  iEvent.getByToken(m_vertices, collectionPVs);
 
   // Count jets above threshold
   int nJets(0);
@@ -130,16 +124,15 @@ void PixelClusterTagInfoProducer::produce(edm::StreamID iID, edm::Event& iEvent,
       nJets++;
   }
 
-  // Get primary vertex in the event
-  edm::Handle<reco::VertexCollection> collectionPVs;
-  iEvent.getByToken(m_vertices, collectionPVs);
-  reco::VertexCollection::const_iterator firstPV = collectionPVs->begin();
-
   // If no suitable Jet and PV is available, skip the event without opening pixel collection
   if (collectionPVs->empty() || nJets <= 0) {
-    iEvent.put(std::move(pixelTagInfo));
+    iEvent.put(std::move(collectionTagInfo));
     return;
   }
+
+  // Get primary vertex 3D position
+  reco::VertexCollection::const_iterator firstPV = collectionPVs->begin();
+  GlobalPoint v3(firstPV->x(), firstPV->y(), firstPV->z());
 
   // Open Pixel Cluster collection
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > collectionHandle;
@@ -162,12 +155,11 @@ void PixelClusterTagInfoProducer::produce(edm::StreamID iID, edm::Event& iEvent,
   for (auto const& detUnit : collectionClusters) {
     if (detUnit.empty())
       continue;
-    DetId detId = DetId(detUnit.detId());  // Get the Detid object
-    unsigned int detType = detId.det();    // det type, pixel = 1
-    if (detType != 1)
-      continue;                             // Consider only pixels
-    unsigned int subid = detId.subdetId();  // Subdetector type, pix barrel = 1, forward = 2
-    if (!(subid == PixelSubdetector::PixelBarrel || (m_addFPIX && subid == PixelSubdetector::PixelEndcap)))
+    DetId detId = DetId(detUnit.detId());  // Get the Detid object for pixel detector selection
+    if (detId.det() != DetId::Tracker)
+      continue;
+    if (!(detId.subdetId() == PixelSubdetector::PixelBarrel ||
+          (m_addFPIX && detId.subdetId() == PixelSubdetector::PixelEndcap)))
       continue;
     unsigned int layer = tTopo->layer(detId);  // The layer index is in range 1-4 or 1-3
     if (layer == 0 || layer > m_nLayers)
@@ -178,12 +170,13 @@ void PixelClusterTagInfoProducer::produce(edm::StreamID iID, edm::Event& iEvent,
     const auto* topol = &geomDet->topology();
 
     for (auto const& clUnit : detUnit) {
-      // get global position of the cluster
-      LocalPoint lp = topol->localPosition(MeasurementPoint(clUnit.x(), clUnit.y()));
-      GlobalPoint clustgp = geomDet->surface().toGlobal(lp);
       if (m_minADC > 0 and clUnit.charge() < m_minADC)
         continue;  // skip cluster if below threshold
-      reco::PixelClusterProperties cp = {clustgp.x(), clustgp.y(), clustgp.z(), clUnit.charge(), layer};
+      // Get global position of the cluster
+      LocalPoint lp = topol->localPosition(MeasurementPoint(clUnit.x(), clUnit.y()));
+      GlobalPoint gp = geomDet->surface().toGlobal(lp);
+      // Fill PixelClusterProperties vector for matching
+      reco::PixelClusterProperties cp = {gp.x(), gp.y(), gp.z(), clUnit.charge(), layer};
       clusters.push_back(cp);
     }
   }
@@ -193,45 +186,43 @@ void PixelClusterTagInfoProducer::produce(edm::StreamID iID, edm::Event& iEvent,
     if (collectionJets->at(j).pt() < m_minJetPt)
       continue;
 
+    float cR = m_hadronMass * 2. / (collectionJets->at(j).pt());  // 2 mX / pT
     edm::RefToBase<reco::Jet> jetRef = collectionJets->refAt(j);  // Get jet RefToBase
-
     reco::PixelClusterData data(m_nLayers);
-    reco::PixelClusterTagInfo tagInfo;
 
     for (auto const& cluster : clusters) {
-      GlobalPoint c3(cluster.x, cluster.y, cluster.z);
-      GlobalPoint v3(firstPV->x(), firstPV->y(), firstPV->z());
+      GlobalPoint c3(cluster.x, cluster.y, cluster.z);  // Get cluster 3D position
       float dR = reco::deltaR(c3 - v3, jetRef->momentum());
-      float sC = m_hadronMass * 2. / (jetRef->pt());  // 2 mX / pT
-
       // Match pixel clusters to jets and fill Data struct
       if (cluster.layer >= 1 && cluster.layer <= m_nLayers) {
         int idx(cluster.layer - 1);
-        if (dR < 0.04)
-          data.r004[idx]++;
-        if (dR < 0.06)
-          data.r006[idx]++;
-        if (dR < 0.08)
-          data.r008[idx]++;
-        if (dR < 0.10)
-          data.r010[idx]++;
-        if (dR < 0.16)
+        if (dR < 0.16) {
           data.r016[idx]++;
-        if (dR < sC)
+          if (dR < 0.10) {
+            data.r010[idx]++;
+            if (dR < 0.08) {
+              data.r008[idx]++;
+              if (dR < 0.06) {
+                data.r006[idx]++;
+                if (dR < 0.04)
+                  data.r004[idx]++;
+              }
+            }
+          }
+        }
+        if (dR < cR) {
           data.rvar[idx]++;
-        if (dR < sC)
           data.rvwt[idx] += cluster.charge;
+        }
       }
     }
-
-    tagInfo.setJetRef(jetRef);
-    tagInfo.setData(data);
-
-    pixelTagInfo->push_back(tagInfo);
+    // Create tagInfo object and fill the collection
+    reco::PixelClusterTagInfo tagInfo(data, jetRef);
+    collectionTagInfo->push_back(tagInfo);
   }
 
   // Put the TagInfo collection in the event
-  iEvent.put(std::move(pixelTagInfo));
+  iEvent.put(std::move(collectionTagInfo));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
