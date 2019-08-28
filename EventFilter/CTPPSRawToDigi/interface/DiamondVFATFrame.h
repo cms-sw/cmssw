@@ -40,6 +40,6 @@ namespace pps::diamond::vfat {
   inline VFATFrame::word getMultihit(const VFATFrame& frame) { return frame.getData()[2] & 0x01; }
   /// retrieve the list of error/status flags for the HPTDC when the frame was recorded
   inline VFATFrame::word getHptdcErrorFlag(const VFATFrame& frame) { return frame.getData()[1] & 0xFFFF; }
-}  // namespace ppsdiamondvfat
+}  // namespace pps::diamond::vfat
 
 #endif
