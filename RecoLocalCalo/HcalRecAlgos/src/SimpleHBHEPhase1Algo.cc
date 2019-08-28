@@ -71,7 +71,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     const float phasens = params ? params->correctionPhaseNS() : phaseNS_;
     m0E = m0Energy(info, fc_ampl, applyContainment, phasens, nSamplesToAdd);
     m0E *= hbminusCorrectionFactor(channelId, m0E, isData);
-    m0t = m0Time(info, fc_ampl, calibs, nSamplesToAdd);
+    m0t = m0Time(info, fc_ampl, nSamplesToAdd);
   }
 
   // Run "Method 2"
@@ -104,7 +104,8 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
   const MahiFit* mahi = mahiOOTpuCorr_.get();
 
   if (mahi) {
-    mahiOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()), hcalTimeSlew_delay_);
+    mahiOOTpuCorr_->setPulseShapeTemplate(
+        theHcalPulseShapes_.getShape(info.recoShape()), info.hasTimeInfo(), hcalTimeSlew_delay_, info.nSamples());
     mahi->phase1Apply(info, m4E, m4T, m4UseTriple, m4chi2);
     m4E *= hbminusCorrectionFactor(channelId, m4E, isData);
   }
@@ -179,7 +180,6 @@ float SimpleHBHEPhase1Algo::m0Energy(const HBHEChannelInfo& info,
 
 float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
                                    const double fc_ampl,
-                                   const HcalCalibrations& calibs,
                                    const int nSamplesToExamine) const {
   float time = -9999.f;  // historic value
 
