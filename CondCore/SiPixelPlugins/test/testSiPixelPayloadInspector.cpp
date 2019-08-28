@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
   std::string tag = "SiPixelLorentzAngle_v11_offline";
   std::string runTimeType = cond::time::timeTypeName(cond::runnumber);
   cond::Time_t start = boost::lexical_cast<unsigned long long>(303790);
-  cond::Time_t end   = boost::lexical_cast<unsigned long long>(324245);
+  cond::Time_t end = boost::lexical_cast<unsigned long long>(324245);
 
   std::cout << "## Exercising Lorentz Angle plots " << std::endl;
 
@@ -45,14 +45,14 @@ int main(int argc, char** argv) {
   SiPixelBPixLorentzAngleMap histo4;
   histo4.process(connectionString, tag, runTimeType, start, start);
   std::cout << histo4.data() << std::endl;
-  
+
   SiPixelFPixLorentzAngleMap histo5;
   histo5.process(connectionString, tag, runTimeType, end, end);
   std::cout << histo5.data() << std::endl;
-  
+
   // 2 tags comparisons
 
-  std::string tag2    = "SiPixelLorentzAngle_2016_ultralegacymc_v2";
+  std::string tag2 = "SiPixelLorentzAngle_2016_ultralegacymc_v2";
   cond::Time_t start2 = boost::lexical_cast<unsigned long long>(1);
 
   SiPixelLorentzAngleValueComparisonTwoTags histo6;
@@ -63,12 +63,11 @@ int main(int argc, char** argv) {
   histo7.processTwoTags(connectionString, tag, tag2, start, start2);
   std::cout << histo7.data() << std::endl;
 
-
   // SiPixelQuality
 
   tag = "SiPixelQuality_forDigitizer_phase1_2018_permanentlyBad";
   start = boost::lexical_cast<unsigned long long>(1);
-  end   = boost::lexical_cast<unsigned long long>(1);
+  end = boost::lexical_cast<unsigned long long>(1);
 
   std::cout << "## Exercising SiPixelQuality plots " << std::endl;
 

@@ -237,7 +237,9 @@ namespace {
         ltx.SetTextAlign(11);
         ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                          1 - gPad->GetTopMargin() + 0.01,
-			 unpacked.first == 0 ?  ("IOV:"+std::to_string(unpacked.second)).c_str() : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+                         unpacked.first == 0
+                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
+                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
       }
 
       std::string fileName(m_imageFileName);
@@ -340,7 +342,9 @@ namespace {
         ltx.SetTextAlign(11);
         ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                          1 - gPad->GetTopMargin() + 0.01,
-			 unpacked.first == 0 ?  ("IOV:"+std::to_string(unpacked.second)).c_str() : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+                         unpacked.first == 0
+                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
+                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
       }
 
       std::string fileName(m_imageFileName);
