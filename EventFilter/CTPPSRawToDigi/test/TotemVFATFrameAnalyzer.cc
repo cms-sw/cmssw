@@ -35,7 +35,7 @@ private:
 
   edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
 
-  ctpps::RawDataUnpacker rawDataUnpacker;
+  pps::RawDataUnpacker rawDataUnpacker;
 
   template <typename DigiType>
   void run(edm::Event &, const edm::EventSetup &);
