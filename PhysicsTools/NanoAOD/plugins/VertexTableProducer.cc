@@ -163,7 +163,7 @@ VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                edm::Ptr<reco::Candidate> c =  svsIn->ptrAt(i);
                selCandSv->push_back(c);
                double dx = (PV0.x() - sv.vx()), dy = (PV0.y() - sv.vy()), dz = (PV0.z() - sv.vz());
-               double pdotv = (dx * sv.px() + dy*sv.py() + dz*sv.pz())/sv.p();
+               double pdotv = (dx * sv.px() + dy*sv.py() + dz*sv.pz())/sv.p()/sqrt(dx*dx + dy*dy + dz*dz);
                pAngle.push_back(std::acos(pdotv));
            }
        }
