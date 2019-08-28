@@ -26,7 +26,6 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -64,9 +63,10 @@ public:
 private:
   edm::EDGetTokenT<std::vector<pat::Tau> > tauCollection_;
   edm::EDGetTokenT<edm::View<reco::Candidate> > refCollectionInputTagToken_;
-  std::map<std::string,  MonitorElement *> ptTauVisibleMap, etaTauVisibleMap, phiTauVisibleMap, massTauVisibleMap, decayModeFindingTauVisibleMap, byDeepTau2017v2VSerawVisibleMap, byDeepTau2017v2VSjetrawVisibleMap, byDeepTau2017v2VSmurawVisibleMap;
+  std::map<std::string,  MonitorElement *> ptMap, etaMap, phiMap, massMap, decayModeFindingMap, decayModeMap, byDeepTau2017v2VSerawMap, byDeepTau2017v2VSjetrawMap, byDeepTau2017v2VSmurawMap, summaryMap;
   edm::ParameterSet histoSettings_;
   std::string extensionName_;
+  std::vector< edm::ParameterSet > discriminators_;
 };
 
 #endif
