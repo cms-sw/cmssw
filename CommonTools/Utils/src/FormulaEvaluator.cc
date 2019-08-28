@@ -8,7 +8,7 @@
 //
 // Original Author:  Christopher Jones
 //         Created:  Thu, 24 Sep 2015 19:07:58 GMT
-//
+// ....
 
 // system include files
 #include <cassert>
@@ -631,10 +631,30 @@ namespace {
   const std::string k_sin("sin");
   const std::string k_tan("tan");
   const std::string k_acos("acos");
+  const std::string k_asin("asin");
+  const std::string k_atan("atan");
+  const std::string k_atan2("atan2");
+  const std::string k_cosh("cosh");
+  const std::string k_sinh("sinh");
+  const std::string k_tanh("tanh");
+  const std::string k_acosh("acosh");
+  const std::string k_asinh("asinh");
+  const std::string k_atanh("atanh");
+  
   const std::string k_TMath__Cos("TMath::Cos");
   const std::string k_TMath__Sin("TMath::Sin");
   const std::string k_TMath__Tan("TMath::Tan");
   const std::string k_TMath__ACos("TMath::ACos");
+  const std::string k_TMath__ASin("TMath::ASin");
+  const std::string k_TMath__ATan("TMath::ATan");
+  const std::string k_TMath__ATan2("TMath::ATan2")
+  const std::string k_TMath__CosH("TMath::CosH");
+  const std::string k_TMath__SinH("TMath::SinH");
+  const std::string k_TMath__TanH("TMath::TanH");
+  const std::string k_TMath__ACosH("TMath::ACosH");
+  const std::string k_TMath__ASinH("TMath::ASinH");
+  const std::string k_TMath__ATanH("TMath::ATanH");
+
 
   EvaluatorInfo 
   FunctionFinder::createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const {
