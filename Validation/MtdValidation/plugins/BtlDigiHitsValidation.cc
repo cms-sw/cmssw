@@ -150,8 +150,10 @@ void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
   }  // dataFrame loop
 
-  meNhits_[0]->Fill(n_digi_btl[0]);
-  meNhits_[1]->Fill(n_digi_btl[1]);
+  if (n_digi_btl[0] > 0)
+    meNhits_[0]->Fill(log10(n_digi_btl[0]));
+  if (n_digi_btl[1] > 0)
+    meNhits_[1]->Fill(log10(n_digi_btl[1]));
 }
 
 // ------------ method for histogram booking ------------
@@ -162,8 +164,8 @@ void BtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   // --- histograms booking
 
-  meNhits_[0] = ibook.book1D("BtlNhitsL", "Number of BTL DIGI hits (L);N_{DIGI}", 100, 0., 5000.);
-  meNhits_[1] = ibook.book1D("BtlNhitsR", "Number of BTL DIGI hits (R);N_{DIGI}", 100, 0., 5000.);
+  meNhits_[0] = ibook.book1D("BtlNhitsL", "Number of BTL DIGI hits (L);log_{10}(N_{DIGI})", 100, 0., 5.25);
+  meNhits_[1] = ibook.book1D("BtlNhitsR", "Number of BTL DIGI hits (R);log_{10}(N_{DIGI})", 100, 0., 5.25);
 
   meHitCharge_[0] = ibook.book1D("BtlHitChargeL", "BTL DIGI hits charge (L);Q_{DIGI} [ADC counts]", 100, 0., 1024.);
   meHitCharge_[1] = ibook.book1D("BtlHitChargeR", "BTL DIGI hits charge (R);Q_{DIGI} [ADC counts]", 100, 0., 1024.);

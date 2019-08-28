@@ -1,4 +1,3 @@
-
 // -*- C++ -*-
 //
 // Package:    Validation/MtdValidation
@@ -58,12 +57,7 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
   // ------------ member data ------------
-
-  int eventCounter_;
-  TH1D* hEnergyFullRange_;
 
   const std::string folder_;
   const float hitMinEnergy_;
@@ -72,10 +66,10 @@ private:
 
   // --- histograms declaration
 
+  MonitorElement* meNevents_;
+
   MonitorElement* meNhits_;
   MonitorElement* meNtrkPerCell_;
-
-  MonitorElement* meHitOccupancy_;
 
   MonitorElement* meHitEnergy_;
   MonitorElement* meHitLogEnergy_;
@@ -104,14 +98,12 @@ private:
 
 // ------------ constructor and destructor --------------
 BtlSimHitsValidation::BtlSimHitsValidation(const edm::ParameterSet& iConfig)
-    : eventCounter_(0),
-      folder_(iConfig.getParameter<std::string>("folder")),
+    : folder_(iConfig.getParameter<std::string>("folder")),
       hitMinEnergy_(iConfig.getParameter<double>("hitMinimumEnergy")) {
-  hEnergyFullRange_ = new TH1D("hEnergyFullRange", "", 1000, 0.01, 20.);
   btlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("inputTag"));
 }
 
-BtlSimHitsValidation::~BtlSimHitsValidation() { delete hEnergyFullRange_; }
+BtlSimHitsValidation::~BtlSimHitsValidation() {}
 
 // ------------ method called for each event  ------------
 void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -163,14 +155,14 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   //  Histogram filling
   // ==============================================================================
 
-  meNhits_->Fill(m_btlHits.size());
+  if (m_btlHits.size() > 0)
+    meNhits_->Fill(log10(m_btlHits.size()));
 
   for (auto const& hit : m_btlTrkPerCell)
     meNtrkPerCell_->Fill((hit.second).size());
 
   for (auto const& hit : m_btlHits) {
     meHitLogEnergy_->Fill(log10((hit.second).energy));
-    hEnergyFullRange_->Fill((hit.second).energy);
 
     if ((hit.second).energy < hitMinEnergy_)
       continue;
@@ -217,23 +209,9 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   }  // hit loop
 
-  eventCounter_++;
+  // --- This is to count the number of processed events, needed in the harvesting step
+  meNevents_->Fill(0.5);
 }
-
-// ------------ method called at run end -----------------
-void BtlSimHitsValidation::endLuminosityBlock(edm::LuminosityBlock const& iLumBlock, edm::EventSetup const& iSetup) {
-  const float NBtlCrystals = BTLDetId::kCrystalsPerRODBarPhiFlat * BTLDetId::MAX_ROD;
-  const float scale = (eventCounter_ > 0 ? 1. / (eventCounter_ * NBtlCrystals) : 1.);
-
-  double bin_sum = hEnergyFullRange_->GetBinContent(hEnergyFullRange_->GetNbinsX() + 1);
-  for (int ibin = hEnergyFullRange_->GetNbinsX(); ibin > 0; --ibin) {
-    bin_sum += hEnergyFullRange_->GetBinContent(ibin);
-    meHitOccupancy_->setBinContent(ibin, scale * bin_sum);
-  }
-
-  eventCounter_ = 0;
-  hEnergyFullRange_->Reset();
-};
 
 // ------------ method for histogram booking ------------
 void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
@@ -243,14 +221,13 @@ void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   // --- histograms booking
 
-  meNhits_ = ibook.book1D("BtlNhits", "Number of BTL cells with SIM hits;N_{BTL cells}", 100, 0., 5000.);
+  meNevents_ = ibook.book1D("BtlNevents", "Number of events", 1, 0., 1.);
+
+  meNhits_ = ibook.book1D("BtlNhits", "Number of BTL cells with SIM hits;log_{10}(N_{BTL cells})", 100, 0., 5.25);
   meNtrkPerCell_ = ibook.book1D("BtlNtrkPerCell", "Number of tracks per BTL cell;N_{trk}", 10, 0., 10.);
 
-  meHitOccupancy_ = ibook.book1D(
-      "BtlHitOccupancy", "BTL cell occupancy vs hit energy;E_{SIM} [MeV]; Occupancy per event", 1000, 0.01, 20.);
-
   meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL SIM hits energy;E_{SIM} [MeV]", 100, 0., 20.);
-  meHitLogEnergy_ = ibook.book1D("BtlHitLogEnergy", "BTL SIM hits energy;log_{10}(E_{SIM} [MeV])", 100, -6., 3.);
+  meHitLogEnergy_ = ibook.book1D("BtlHitLogEnergy", "BTL SIM hits energy;log_{10}(E_{SIM} [MeV])", 200, -6., 3.);
   meHitTime_ = ibook.book1D("BtlHitTime", "BTL SIM hits ToA;ToA_{SIM} [ns]", 100, 0., 25.);
 
   meHitXlocal_ = ibook.book1D("BtlHitXlocal", "BTL SIM local X;X_{SIM}^{LOC} [mm]", 100, -30., 30.);
