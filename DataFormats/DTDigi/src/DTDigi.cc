@@ -9,7 +9,8 @@
 
 using namespace std;
 
-DTDigi::DTDigi(int wire, int nTDC, int number, int base) : theCounts(nTDC), theWire(wire), theNumber(number), theTDCBase(base) {
+DTDigi::DTDigi(int wire, int nTDC, int number, int base)
+    : theCounts(nTDC), theWire(wire), theNumber(number), theTDCBase(base) {
   if (number > 255 || number < 0 || !(base == 30 || base == 32)) {
     throw cms::Exception("BadConfig") << "DTDigi ctor: invalid parameters: number: " << number << " base: " << base;
   }

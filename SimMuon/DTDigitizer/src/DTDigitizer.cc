@@ -95,10 +95,12 @@ DTDigitizer::DTDigitizer(const ParameterSet &conf_)
   // it uses a constant drift velocity and doesn't set any external delay
   IdealModel = conf_.getParameter<bool>("IdealModel");
 
-  // Flag to specify that we want digis in phase-2 units (25./30. ns) 
+  // Flag to specify that we want digis in phase-2 units (25./30. ns)
   // instead that the old units (25./32.)
-  if (conf_.getParameter<bool>("phase2Digis")) base = 30;
-  else base = 32;
+  if (conf_.getParameter<bool>("phase2Digis"))
+    base = 30;
+  else
+    base = 32;
 
   // Constant drift velocity needed by the above flag
   if (IdealModel)
@@ -539,7 +541,7 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
       }
 
       //************ 7D ***************
-      DTLayerId layerID = wireId.layerId();  // taking the layer of the wire 
+      DTLayerId layerID = wireId.layerId();  // taking the layer of the wire
       output.insertDigi(layerID, digi);      // ordering Digis by layer
       outputLinks.insertDigi(layerID, digisimLink);
       wakeTime = time + deadTime;
