@@ -45,8 +45,8 @@ static long algorithm(dd4hep::Detector& /* description */,
     if (angles[k] != 0) {
       double phi = convertDegToRad(angles[k]);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: Creating new rotation \t90, "
-				    << angles[k] << ", 90, " << (angles[k] + 90) << ", 0, 0";
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: Creating new rotation \t90, " << angles[k] << ", 90, "
+                                    << (angles[k] + 90) << ", 0, 0";
 #endif
       rotation = cms::makeRotation3D(90._deg, phi, 90._deg, (90._deg + phi), 0, 0);
     }
@@ -56,8 +56,8 @@ static long algorithm(dd4hep::Detector& /* description */,
     int copy = cellType * 1000 + k;
     mother.placeVolume(ns.volume(name), copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: " << name << " number " << copy
-                                  << " positioned in " << idName << " at " << tran << " with " << rotation;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: " << name << " number " << copy << " positioned in " << idName
+                                  << " at " << tran << " with " << rotation;
 #endif
   }
 
