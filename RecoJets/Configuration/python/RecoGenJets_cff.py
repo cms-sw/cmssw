@@ -19,11 +19,14 @@ recoGenJetsTask = cms.Task(ak4GenJets,
                            )
 recoGenJets  = cms.Sequence(recoGenJetsTask)
 
-recoAllGenJets=cms.Sequence(ak4GenJets+
+recoAllGenJetsTask=cms.Task(ak4GenJets,
                             ak8GenJets)
+recoAllGenJets=cms.Sequence(recoAllGenJetsTask)
 
-recoAllGenJetsNoNu=cms.Sequence(ak4GenJetsNoNu+
+recoAllGenJetsNoNuTask=cms.Task(ak4GenJetsNoNu,
                                 ak8GenJetsNoNu)
+recoAllGenJetsNoNu=cms.Sequence(recoAllGenJetsNoNuTask)
 
-recoAllGenJetsNoMuNoNu=cms.Sequence(ak4GenJetsNoMuNoNu+
+recoAllGenJetsNoMuNoNuTask=cms.Task(ak4GenJetsNoMuNoNu,
                                     ak8GenJetsNoMuNoNu)
+recoAllGenJetsNoMuNoNu=cms.Sequence(recoAllGenJetsNoMuNoNuTask)
