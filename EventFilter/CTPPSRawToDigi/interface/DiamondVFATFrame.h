@@ -18,7 +18,7 @@
 /**
  * Utilitary namespace to retrieve timing/status information from diamond VFAT frame
 **/
-namespace ppsdiamondvfat {
+namespace pps::diamond::vfat {
   /// Account for MSB/LSB "HW feature" reversal in HPTDC interpolation bits
   inline uint32_t correctTime(const uint32_t& time) { return (time & 0xFFE7FFFF) << 2 | (time & 0x00180000) >> 19; }
 
