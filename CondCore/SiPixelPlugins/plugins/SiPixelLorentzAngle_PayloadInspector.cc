@@ -381,8 +381,7 @@ namespace {
 
         summaryLast->GetXaxis()->SetBinLabel(bin, SiPixelPI::getStringFromRegionEnum(part).c_str());
         // avoid filling the histogram with numerical noise
-        float l_mean =
-            LastLA_spectraByRegion[part]->GetMean() > 10.e-6 ? LastLA_spectraByRegion[part]->GetMean() : 0.;
+        float l_mean = LastLA_spectraByRegion[part]->GetMean() > 10.e-6 ? LastLA_spectraByRegion[part]->GetMean() : 0.;
         summaryLast->SetBinContent(bin, l_mean);
         //summaryLast->SetBinError(bin,LA_spectraByRegion[hash]->GetRMS());
         bin++;
@@ -490,13 +489,13 @@ namespace {
         std::string name = "occ_LA_Layer_" + std::to_string(lay);
         std::string title = "; Module # ; Ladder #";
         h_bpix_LA[lay - 1] = new TH2D(name.c_str(),
-                                       title.c_str(),
-                                       72 * divide_roc,
-                                       -4.5,
-                                       4.5,
-                                       (nlad * 4 + 2) * divide_roc,
-                                       -nlad - 0.5,
-                                       nlad + 0.5);
+                                      title.c_str(),
+                                      72 * divide_roc,
+                                      -4.5,
+                                      4.5,
+                                      (nlad * 4 + 2) * divide_roc,
+                                      -nlad - 0.5,
+                                      nlad + 0.5);
       }
 
       std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
@@ -541,7 +540,7 @@ namespace {
 
         SiPixelPI::dress_occup_plot(canvas, h_bpix_LA[lay - 1], lay, 0, 1, true, true, false);
         h_bpix_LA[lay - 1]->GetZaxis()->SetRangeUser(minima.at(lay - 1) - 0.001,
-                                                      h_bpix_LA[lay - 1]->GetMaximum() + 0.001);
+                                                     h_bpix_LA[lay - 1]->GetMaximum() + 0.001);
       }
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
@@ -555,7 +554,9 @@ namespace {
         ltx.SetTextAlign(11);
         ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                          1 - gPad->GetTopMargin() + 0.01,
-                         unpacked.first == 0 ?  ("IOV:"+std::to_string(unpacked.second)).c_str() : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+                         unpacked.first == 0
+                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
+                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
       }
 
       std::string fileName(m_imageFileName);
@@ -644,7 +645,7 @@ namespace {
 
         SiPixelPI::dress_occup_plot(canvas, h_fpix_LA[ring - 1], 0, ring, 1, true, true, false);
         h_fpix_LA[ring - 1]->GetZaxis()->SetRangeUser(minima.at(ring - 1) - 0.001,
-						      h_fpix_LA[ring - 1]->GetMaximum() + 0.001);
+                                                      h_fpix_LA[ring - 1]->GetMaximum() + 0.001);
       }
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
@@ -658,7 +659,9 @@ namespace {
         ltx.SetTextAlign(11);
         ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                          1 - gPad->GetTopMargin() + 0.01,
-			 unpacked.first == 0 ?  ("IOV:"+std::to_string(unpacked.second)).c_str() : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+                         unpacked.first == 0
+                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
+                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
       }
 
       std::string fileName(m_imageFileName);
