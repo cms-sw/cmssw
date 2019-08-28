@@ -155,7 +155,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   //  Histogram filling
   // ==============================================================================
 
-  if (m_btlHits.size() > 0)
+  if (!m_btlHits.empty())
     meNhits_->Fill(log10(m_btlHits.size()));
 
   for (auto const& hit : m_btlTrkPerCell)
