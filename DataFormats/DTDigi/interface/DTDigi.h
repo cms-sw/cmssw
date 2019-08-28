@@ -66,10 +66,10 @@ private:
   // The value of one TDC count in ns
   static const double reso;
 
-  int32_t theCounts;  // TDC count, in units given by 1/theTDCBase
-  uint16_t theWire;   // channel number
-  uint8_t theNumber;  // counter for digis in the same cell
-  uint8_t theTDCBase; // TDC base (counts per BX; 32 in Ph1 or 30 in Ph2)
+  int32_t theCounts;   // TDC count, in units given by 1/theTDCBase
+  uint16_t theWire;    // channel number
+  uint8_t theNumber;   // counter for digis in the same cell
+  uint8_t theTDCBase;  // TDC base (counts per BX; 32 in Ph1 or 30 in Ph2)
 };
 
 #include <iostream>

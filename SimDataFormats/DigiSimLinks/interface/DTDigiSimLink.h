@@ -16,7 +16,8 @@ public:
   // Construct from the wire number and the digi number (this identifies
   // uniquely multiple digis on the same wire), the time (ns), the SimTrack Id and the EncodedEvent Id.
   // time is converted in TDC counts (1 TDC = 25./32. ns)
-  explicit DTDigiSimLink(int wireNr, int digiNr, double tdrift, unsigned int trackId, EncodedEventId evId, int base = 32);
+  explicit DTDigiSimLink(
+      int wireNr, int digiNr, double tdrift, unsigned int trackId, EncodedEventId evId, int base = 32);
 
   // Default constructor.
   DTDigiSimLink();
