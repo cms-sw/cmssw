@@ -27,7 +27,7 @@ def runSelected(opt):
         definedSet = set([dwf.numId for dwf in mrd.workFlows])
         testSet = set(opt.testList)
         undefSet = testSet - definedSet
-        if len(undefSet)>0: raise ValueError('Undefined workflows: '+str(undefSet))
+        if len(undefSet)>0: raise ValueError('Undefined workflows: '+', '.join(map(str,list(undefSet))))
 
     ret = 0
     if opt.show:
