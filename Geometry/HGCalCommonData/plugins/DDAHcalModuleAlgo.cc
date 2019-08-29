@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
-#include <unordered_set>
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
@@ -56,9 +55,7 @@ private:
   std::vector<int> tileN;              // # of tiles (along x, y)
   std::vector<double> tileStep;        // Separation between tiles (x, y)
   double zMinBlock;                    // Starting z-value of the block
-  std::string idName;                  // Name of the "parent" volume.
   std::string idNameSpace;             // Namespace of this and ALL sub-parts
-  std::unordered_set<int> copies;      // List of copy #'s
 };
 
 DDAHcalModuleAlgo::DDAHcalModuleAlgo() {
@@ -124,7 +121,7 @@ void DDAHcalModuleAlgo::initialize(const DDNumericArguments& nArgs,
   zMinBlock = nArgs["zMinBlock"];
   idNameSpace = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDAHcalModuleAlgo: NameSpace " << idNameSpace;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << zMinBlock << "  NameSpace " << idNameSpace;
 #endif
 }
 
