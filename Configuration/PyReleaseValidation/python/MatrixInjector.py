@@ -450,7 +450,7 @@ class MatrixInjector(object):
                             if primary in o:
                                 #print "found",primary,"procuced by",om,"of",t_input['TaskName']
                                 #ad-hoc fix due to restriction in TaskName of 50 characters
-				if (len(t_input['TaskName'])>50):
+                                if (len(t_input['TaskName'])>50): #fix tabs
                                     if (t_input['TaskName'].find('GenSim') != -1):
                                         t_input['TaskName'] = 'GenSimFull'
                                     if (t_input['TaskName'].find('Hadronizer') != -1):
