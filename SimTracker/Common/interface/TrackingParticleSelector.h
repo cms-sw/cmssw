@@ -28,6 +28,7 @@ public:
                            bool chargedOnly,
                            bool stableOnly,
                            const std::vector<int> &pdgId = std::vector<int>(),
+                           bool invertRapidityCut = false,
                            double minPhi = -3.2,
                            double maxPhi = 3.2)
       : ptMin2_(ptMin * ptMin),
@@ -43,7 +44,8 @@ public:
         intimeOnly_(intimeOnly),
         chargedOnly_(chargedOnly),
         stableOnly_(stableOnly),
-        pdgId_(pdgId) {
+        pdgId_(pdgId),
+        invertRapidityCut_(invertRapidityCut) {
     if (minPhi >= maxPhi) {
       throw cms::Exception("Configuration")
           << "TrackingParticleSelector: minPhi (" << minPhi << ") must be smaller than maxPhi (" << maxPhi
@@ -103,7 +105,10 @@ public:
 
     auto etaOk = [&](const TrackingParticle &p) -> bool {
       float eta = etaFromXYZ(p.px(), p.py(), p.pz());
-      return (eta >= minRapidity_) & (eta <= maxRapidity_);
+      if (!invertRapidityCut_)
+        return (eta >= minRapidity_) && (eta <= maxRapidity_);
+      else
+        return (eta < minRapidity_ || eta > maxRapidity_);
     };
     auto phiOk = [&](const TrackingParticle &p) {
       float dphi = deltaPhi(atan2f(p.py(), p.px()), meanPhi_);
@@ -134,6 +139,7 @@ private:
   bool chargedOnly_;
   bool stableOnly_;
   std::vector<int> pdgId_;
+  bool invertRapidityCut_;
 };
 
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
@@ -161,6 +167,7 @@ namespace reco {
                                         cfg.getParameter<bool>("chargedOnly"),
                                         cfg.getParameter<bool>("stableOnly"),
                                         cfg.getParameter<std::vector<int>>("pdgId"),
+                                        cfg.getParameter<bool>("invertRapidityCut"),
                                         cfg.getParameter<double>("minPhi"),
                                         cfg.getParameter<double>("maxPhi"));
       }
