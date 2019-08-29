@@ -13,7 +13,7 @@
 
 using namespace std;
 using namespace edm;
-using namespace ctpps;
+using namespace pps;
 
 RawDataUnpacker::RawDataUnpacker(const edm::ParameterSet &iConfig)
     : verbosity(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)) {}

@@ -219,7 +219,7 @@ void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID,
         nlink = iDdet2fed.at(i).fedch;
         nroc = iDdet2fed.at(i).rocch + 1;
 
-        ctppspixelobjects::ElectronicIndex cabling = {nlink, nroc, dcol, pxid};
+        pps::pixel::ElectronicIndex cabling = {nlink, nroc, dcol, pxid};
 
         cms_uint32_t word = (cabling.link << m_LINK_shift) | (cabling.roc << m_ROC_shift) |
                             (cabling.dcol << m_DCOL_shift) | (cabling.pxid << m_PXID_shift) | (it.adc() << m_ADC_shift);
