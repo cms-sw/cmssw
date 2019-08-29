@@ -27,6 +27,7 @@
     <Include ref="Geometry/HGCalCommonData/test/cms.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v7/hgcal.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v7/hgcalwafer.xml"/>
+    <Include ref="Geometry/HGCalCommonData/test/world.xml"/>
   </IncludeSection>
   
 </DDDefinition>
