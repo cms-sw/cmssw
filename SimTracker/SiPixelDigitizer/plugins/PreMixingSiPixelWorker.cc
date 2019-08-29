@@ -94,7 +94,7 @@ PreMixingSiPixelWorker::PreMixingSiPixelWorker(const edm::ParameterSet& ps,
   PixelDigiPToken_ = iC.consumes<edm::DetSetVector<PixelDigi>>(pixeldigi_collectionPile_);
 
   producer.produces<edm::DetSetVector<PixelDigi>>(PixelDigiCollectionDM_);
-  producer.produces<PixelFEDChannelCollection>();
+  producer.produces<PixelFEDChannelCollection>(PixelDigiCollectionDM_);
 
   // clear local storage for this event
   SiHitStorage_.clear();
@@ -286,10 +286,8 @@ void PreMixingSiPixelWorker::put(edm::Event& e,
     if (PixelFEDChannelCollection_ == nullptr) {
       throw cms::Exception("NullPointerError") << "PixelFEDChannelCollection not set in chooseScenario function.\n";
     }
-    e.put(std::move(PixelFEDChannelCollection_));
+    e.put(std::move(PixelFEDChannelCollection_), PixelDigiCollectionDM_);
   }
-
-  std::cout << "5: " << (digitizer_.GetPixelFEDChannelCollection_ptr() != nullptr) << std::endl;
 
   for (const auto& iu : pDD->detUnits()) {
     if (iu->type().isTrackerPixel()) {
