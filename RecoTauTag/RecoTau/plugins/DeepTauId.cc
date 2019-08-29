@@ -857,7 +857,7 @@ public:
         rho_token_(consumes<double>(cfg.getParameter<edm::InputTag>("rho"))),
         version(cfg.getParameter<unsigned>("version")),
         debug_level(cfg.getParameter<int>("debug_level")),
-	disable_dxy_pca_(cfg.getParameter<bool>("disable_dxy_pca")) {
+        disable_dxy_pca_(cfg.getParameter<bool>("disable_dxy_pca")) {
     if (version == 1) {
       input_layer_ = cache_->getGraph().node(0).name();
       output_layer_ = cache_->getGraph().node(cache_->getGraph().node_size() - 1).name();
@@ -1177,7 +1177,7 @@ private:
     // them for the inference, because modeling of dxy_PCA in MC poorly describes the data, and x and y coordinates
     // in data results outside of the expected 5 std. dev. input validity range. On the other hand,
     // these coordinates are strongly era-dependent. Kept as comment to document what NN expects.
-    if(!disable_dxy_pca_) {
+    if (!disable_dxy_pca_) {
       get(dnn::tau_dxy_pca_x) = getValueNorm(tau.dxy_PCA().x(), -0.0241f, 0.0074f);
       get(dnn::tau_dxy_pca_y) = getValueNorm(tau.dxy_PCA().y(), 0.0675f, 0.0128f);
       get(dnn::tau_dxy_pca_z) = getValueNorm(tau.dxy_PCA().z(), 0.7973f, 3.456f);
