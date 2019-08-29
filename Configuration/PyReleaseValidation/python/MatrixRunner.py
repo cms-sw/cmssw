@@ -43,7 +43,7 @@ class MatrixRunner(object):
             print('resetting to default number of threads')
             self.maxThreads=4
 
-        print('Running in %s thread(s)' % self.maxThreads)
+        print 'Running in %s thread(s)' % self.maxThreads
 
 
         for wf in self.workFlows:
