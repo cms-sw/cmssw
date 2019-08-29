@@ -268,6 +268,9 @@ namespace cms {
     if (_pixeldigialgo->killBadFEDChannels()) {
       std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ =
           _pixeldigialgo->chooseScenario(PileupInfo_.get(), randomEngine_);
+
+      std::cout << __FILE__ << " " <<  __LINE__ << ": PixelFEDChannelCollection_: " << PixelFEDChannelCollection_.get() << std::endl;
+
       if (PixelFEDChannelCollection_ == nullptr) {
         throw cms::Exception("NullPointerError") << "PixelFEDChannelCollection not set in chooseScenario function.\n";
       }
@@ -281,8 +284,14 @@ namespace cms {
         edm::DetSet<PixelDigi> collector(iu->geographicalId().rawId());
         edm::DetSet<PixelDigiSimLink> linkcollector(iu->geographicalId().rawId());
 
+	std::cout << "3: " << (_pixeldigialgo->GetPixelFEDChannelCollection_ptr() != nullptr) << std::endl;
+	
         _pixeldigialgo->digitize(
             dynamic_cast<const PixelGeomDetUnit*>(iu), collector.data, linkcollector.data, tTopo, randomEngine_);
+
+	std::cout << "4: " << (_pixeldigialgo->GetPixelFEDChannelCollection_ptr() != nullptr) << std::endl;
+
+
         if (!collector.data.empty()) {
           theDigiVector.push_back(std::move(collector));
         }

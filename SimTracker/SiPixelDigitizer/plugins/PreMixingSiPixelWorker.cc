@@ -280,6 +280,10 @@ void PreMixingSiPixelWorker::put(edm::Event& e,
   iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology* tTopo = tTopoHand.product();
 
+  digitizer_.chooseScenario(ps,engine);
+
+  std::cout << "5: " << (digitizer_.GetPixelFEDChannelCollection_ptr() != nullptr) << std::endl;
+
   for (const auto& iu : pDD->detUnits()) {
     if (iu->type().isTrackerPixel()) {
       edm::DetSet<PixelDigi> collector(iu->geographicalId().rawId());
