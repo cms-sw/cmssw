@@ -142,8 +142,9 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
   std::vector<ConcurrentMonitorElement> h_assochi2, h_assochi2_prob;
 
   //chi2 and # lost hits vs eta: to be used with doProfileX
-  std::vector<ConcurrentMonitorElement> chi2_vs_eta, nlosthits_vs_eta;
-  std::vector<ConcurrentMonitorElement> assoc_chi2_vs_eta, assoc_chi2prob_vs_eta;
+  std::vector<ConcurrentMonitorElement> chi2_vs_eta, chi2_vs_pt, nlosthits_vs_eta;
+  std::vector<ConcurrentMonitorElement> assoc_chi2_vs_eta, assoc_chi2_vs_pt, assoc_chi2prob_vs_eta,
+      assoc_chi2prob_vs_pt;
 
   //resolution of track params: to be used with fitslicesytool
   std::vector<ConcurrentMonitorElement> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
