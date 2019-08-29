@@ -92,7 +92,9 @@ PreMixingSiPixelWorker::PreMixingSiPixelWorker(const edm::ParameterSet& ps, edm:
   PixelDigiToken_ = iC.consumes<edm::DetSetVector<PixelDigi> >(pixeldigi_collectionSig_);
   PixelDigiPToken_ = iC.consumes<edm::DetSetVector<PixelDigi> >(pixeldigi_collectionPile_);
 
+
   producer.produces< edm::DetSetVector<PixelDigi> > (PixelDigiCollectionDM_);
+  producer.produces<PixelFEDChannelCollection>(PixelDigiCollectionDM_);
 
   // clear local storage for this event                                                                     
   SiHitStorage_.clear();
@@ -290,10 +292,19 @@ void PreMixingSiPixelWorker::put(edm::Event &e, edm::EventSetup const& iSetup, s
 
   edm::ESHandle<TrackerTopology> tTopoHand;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology *tTopo=tTopoHand.product();
-  
-  for(const auto& iu : pDD->detUnits()) {
-    if(iu->type().isTrackerPixel()) {
+
+  const TrackerTopology* tTopo = tTopoHand.product();
+
+  if (digitizer_.killBadFEDChannels()) {
+    std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ = digitizer_.chooseScenario(ps, engine);
+    if (PixelFEDChannelCollection_ == nullptr) {
+      throw cms::Exception("NullPointerError") << "PixelFEDChannelCollection not set in chooseScenario function.\n";
+    }
+    e.put(std::move(PixelFEDChannelCollection_), PixelDigiCollectionDM_);
+  }
+
+  for (const auto& iu : pDD->detUnits()) {
+    if (iu->type().isTrackerPixel()) {
       edm::DetSet<PixelDigi> collector(iu->geographicalId().rawId());
       edm::DetSet<PixelDigiSimLink> linkcollector(iu->geographicalId().rawId()); // ignored as DigiSimLinks are combined separately
 
