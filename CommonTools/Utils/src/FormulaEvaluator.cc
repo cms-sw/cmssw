@@ -640,14 +640,13 @@ namespace {
   const std::string k_acosh("acosh");
   const std::string k_asinh("asinh");
   const std::string k_atanh("atanh");
-  
   const std::string k_TMath__Cos("TMath::Cos");
   const std::string k_TMath__Sin("TMath::Sin");
   const std::string k_TMath__Tan("TMath::Tan");
   const std::string k_TMath__ACos("TMath::ACos");
   const std::string k_TMath__ASin("TMath::ASin");
   const std::string k_TMath__ATan("TMath::ATan");
-  const std::string k_TMath__ATan2("TMath::ATan2")
+  const std::string k_TMath__ATan2("TMath::ATan2");
   const std::string k_TMath__CosH("TMath::CosH");
   const std::string k_TMath__SinH("TMath::SinH");
   const std::string k_TMath__TanH("TMath::TanH");
@@ -758,6 +757,180 @@ namespace {
 
     info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
                                    k_TMath__Min, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_cos, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_sin, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_tan, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_acos, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_asin, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_atan, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_atan2, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_cosh, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_sinh, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_tanh, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_acosh, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_asinh, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_atanh, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__Cos, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__Sin, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__Tan, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__ACos, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__ASin, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__Tan, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__ACos, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__ASin, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__ATan, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__ATan2, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__CosH, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__SinH, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__TanH, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__ACosH, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__ASinH, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__ATanH, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
     if(info.evaluator.get() != nullptr) {
       return info;
     }
