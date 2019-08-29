@@ -164,6 +164,11 @@ void testfriendlyName::test() {
              "unsigned int> >::Find>",
              "recoBasicClustersToOnerecoClusterShapesAssociationRefs"));
   classToFriendly.insert(
+      Values("edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster,edmNew::DetSetVector<"
+             "SiPixelCluster>::FindForDetSetVector> >",
+             "SiPixelClusteredmNewDetSetVectorSiPixelClusterSiPixelClusteredmNewDetSetVectorFindForDetSetVectoredmRefed"
+             "mNewDetSetVector"));
+  classToFriendly.insert(
       Values("std::vector<std::pair<const pat::Muon *, TLorentzVector>>", "constpatMuonptrTLorentzVectorstdpairs"));
   classToFriendly.insert(Values("int[]", "intAs"));
   classToFriendly.insert(Values("foo<int[]>", "intAsfoo"));
