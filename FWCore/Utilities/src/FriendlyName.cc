@@ -183,7 +183,15 @@ namespace edm {
         } else if (result[i] == '>') {
           --openTemplate;
         }
-        if ((result[i] == ',') and openTemplate == 0) {
+        // If we are not within the template arguments of a class template
+        // - encountering comma means that we are within a template
+        //   argument of some other class template, and we've reached
+        //   a point when we should translate the argument class name
+        // - encountering colon, but only if the class name so far
+        //   itself was a template, we've reached a point when we
+        //   should translate the class name
+        if (const bool hasComma = result[i] == ',', hasColon = hadTemplate and result[i] == ':';
+            openTemplate == 0 and (hasComma or hasColon)) {
           std::string templateClass = result.substr(begin, i - begin);
           if constexpr (debug) {
             std::cout << prefix << " templateClass " << templateClass << std::endl;
@@ -208,6 +216,11 @@ namespace edm {
           // reset counters
           hadTemplate = false;
           begin = i + 1;
+          // With colon we need to eat the second colon as well
+          if (hasColon) {
+            assert(result[begin] == ':');
+            ++begin;
+          }
         }
       }
 
