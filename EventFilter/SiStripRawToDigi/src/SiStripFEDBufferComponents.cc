@@ -843,9 +843,6 @@ namespace sistrip {
   TrackerSpecialHeader& TrackerSpecialHeader::setReadoutMode(const FEDReadoutMode readoutMode) {
     switch (readoutMode) {
       case READOUT_MODE_SCOPE:
-        //scope mode is always real
-        setReadoutModeBits(readoutMode);
-        [[fallthrough]];
       case READOUT_MODE_VIRGIN_RAW:
       case READOUT_MODE_PROC_RAW:
       case READOUT_MODE_SPY:
@@ -859,10 +856,7 @@ namespace sistrip {
       case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
       case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
       case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
-        setReadoutModeBits(readoutMode);
-        break;
       case READOUT_MODE_PREMIX_RAW:
-        //special mode for simulation
         setReadoutModeBits(readoutMode);
         break;
       default:
