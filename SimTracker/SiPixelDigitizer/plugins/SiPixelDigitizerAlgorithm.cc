@@ -1779,9 +1779,6 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   auto pIndexConverter = PixelIndices(numColumns, numRows);
 
   std::vector<int> badRocsFromFEDChannels(16, 0);
-
-  std::cout<< __FILE__ << " " << __LINE__ <<": " << eff.PixelFEDChannelCollection_.get() << std::endl;
-
   if (eff.PixelFEDChannelCollection_ != nullptr) {
     PixelFEDChannelCollection::const_iterator it = eff.PixelFEDChannelCollection_->find(detID);
 
