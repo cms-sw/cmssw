@@ -104,6 +104,24 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
       hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalForward, 29, 1, 1)));
   _filter_QIE1011.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet, vhashQIE1011);
 
+  std::vector<uint32_t> vhash_TDC2bit;
+  vhash_TDC2bit.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalBarrel, 1, 1, 1)));
+  vhash_TDC2bit.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalBarrel, -11, 1, 1)));
+  _filter_TDC2bit.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdetPM, vhash_TDC2bit);
+
+  std::vector<uint32_t> vhash_TDC6bit;
+  vhash_TDC6bit.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalEndcap, 20, 1, 1)));
+  vhash_TDC6bit.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalEndcap, -20, 1, 1)));
+  vhash_TDC6bit.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalForward, 29, 1, 1)));
+  vhash_TDC6bit.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdetPM](HcalDetId(HcalForward, -29, 1, 1)));
+  _filter_TDC6bit.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdetPM, vhash_TDC6bit);
+
   //	INITIALIZE FIRST
   _cADC_SubdetPM.initialize(_name,
                             "ADC",
@@ -240,22 +258,35 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250_coarse),
                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-  _cLETDCvsADC_SubdetPM.initialize(_name,
-                                   "LETDCvsADC",
-                                   hcaldqm::hashfunctions::fSubdetPM,
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-  _cLETDCvsTS_SubdetPM.initialize(_name,
-                                  "LETDCvsTS",
-                                  hcaldqm::hashfunctions::fSubdetPM,
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+  _cLETDCvsADC_2bit_SubdetPM.initialize(_name,
+                                        "LETDCvsADC",
+                                        hcaldqm::hashfunctions::fSubdetPM,
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_4),
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+  _cLETDCvsADC_6bit_SubdetPM.initialize(_name,
+                                        "LETDCvsADC",
+                                        hcaldqm::hashfunctions::fSubdetPM,
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+  _cLETDCvsTS_2bit_SubdetPM.initialize(_name,
+                                       "LETDCvsTS",
+                                       hcaldqm::hashfunctions::fSubdetPM,
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_4),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+  _cLETDCvsTS_6bit_SubdetPM.initialize(_name,
+                                       "LETDCvsTS",
+                                       hcaldqm::hashfunctions::fSubdetPM,
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+
   _cLETDCTime_SubdetPM.initialize(_name,
                                   "LETDCTime",
                                   hcaldqm::hashfunctions::fSubdetPM,
-                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250_coarse),
                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
   _cLETDCTime_depth.initialize(_name,
                                "LETDCTime",
@@ -656,8 +687,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _cOccupancyCut_depth.book(ib, _emap, _subsystem);
 
   _cLETDCTimevsADC_SubdetPM.book(ib, _emap, _subsystem);
-  _cLETDCvsADC_SubdetPM.book(ib, _emap, _subsystem);
-  _cLETDCvsTS_SubdetPM.book(ib, _emap, _subsystem);
+  _cLETDCvsADC_2bit_SubdetPM.book(ib, _emap, _filter_TDC2bit, _subsystem);
+  _cLETDCvsADC_6bit_SubdetPM.book(ib, _emap, _filter_TDC6bit, _subsystem);
+  _cLETDCvsTS_2bit_SubdetPM.book(ib, _emap, _filter_TDC2bit, _subsystem);
+  _cLETDCvsTS_6bit_SubdetPM.book(ib, _emap, _filter_TDC6bit, _subsystem);
   _cLETDCTime_SubdetPM.book(ib, _emap, _subsystem);
   _cLETDCTime_depth.book(ib, _emap, _subsystem);
 
@@ -928,20 +961,33 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
       double q = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, digi, i);
       _cADC_SubdetPM_QIE1011.fill(did, digi[i].adc());
       _cfC_SubdetPM_QIE1011.fill(did, q);
-      _cLETDCvsADC_SubdetPM.fill(did, digi[i].adc(), digi[i].tdc());
-      _cLETDCvsTS_SubdetPM.fill(did, (int)i, digi[i].tdc());
-      if (digi[i].tdc() < 50) {
-        double time = i * 25. + (digi[i].tdc() / 2.);
-        _cLETDCTime_SubdetPM.fill(did, time);
-        _cLETDCTime_depth.fill(did, time);
-        _cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
-      }
-      // Bad TDC values: 50-61 should never happen in QIE10 or QIE11, but we saw some in 2017 data.
-      if ((50 <= digi[i].tdc()) && (digi[i].tdc() <= 61)) {
-        _cBadTDCValues_SubdetPM.fill(did, digi[i].tdc());
-        _cBadTDCvsBX_SubdetPM.fill(did, bx);
-        _cBadTDCvsLS_SubdetPM.fill(did, _currentLS);
-        _cBadTDCCount_depth.fill(did);
+
+      if (did.subdet() == HcalBarrel) {
+        _cLETDCvsADC_2bit_SubdetPM.fill(did, digi[i].adc(), digi[i].tdc());
+        _cLETDCvsTS_2bit_SubdetPM.fill(did, (int)i, digi[i].tdc());
+
+        if (digi[i].tdc() < 2) {
+          double time = i * 25. + (digi[i].tdc() * 12.5);
+          _cLETDCTime_SubdetPM.fill(did, time);
+          _cLETDCTime_depth.fill(did, time);
+          _cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
+        }
+      } else if (did.subdet() == HcalEndcap) {
+        _cLETDCvsADC_6bit_SubdetPM.fill(did, digi[i].adc(), digi[i].tdc());
+        _cLETDCvsTS_6bit_SubdetPM.fill(did, (int)i, digi[i].tdc());
+        if (digi[i].tdc() < 50) {
+          double time = i * 25. + (digi[i].tdc() / 2.);
+          _cLETDCTime_SubdetPM.fill(did, time);
+          _cLETDCTime_depth.fill(did, time);
+          _cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
+        }
+        // Bad TDC values: 50-61 should never happen in QIE10 or QIE11, but we saw some in 2017 data.
+        if ((50 <= digi[i].tdc()) && (digi[i].tdc() <= 61)) {
+          _cBadTDCValues_SubdetPM.fill(did, digi[i].tdc());
+          _cBadTDCvsBX_SubdetPM.fill(did, bx);
+          _cBadTDCvsLS_SubdetPM.fill(did, _currentLS);
+          _cBadTDCCount_depth.fill(did);
+        }
       }
       if (_ptype != fOffline) {  // hidefed2crate
         _cADCvsTS_SubdetPM_QIE1011.fill(did, i, digi[i].adc());
@@ -1267,8 +1313,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
         //if (!_filter_QIE1011.filter(did)) {
         _cADC_SubdetPM_QIE1011.fill(did, digi[i].adc());
         _cfC_SubdetPM_QIE1011.fill(did, q);
-        _cLETDCvsADC_SubdetPM.fill(did, digi[i].adc(), digi[i].le_tdc());
-        _cLETDCvsTS_SubdetPM.fill(did, (int)i, digi[i].le_tdc());
+        _cLETDCvsADC_6bit_SubdetPM.fill(did, digi[i].adc(), digi[i].le_tdc());
+        _cLETDCvsTS_6bit_SubdetPM.fill(did, (int)i, digi[i].le_tdc());
         if (digi[i].le_tdc() < 50) {
           double time = i * 25. + (digi[i].le_tdc() / 2.);
           _cLETDCTime_SubdetPM.fill(did, time);
