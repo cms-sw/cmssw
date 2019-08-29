@@ -285,6 +285,7 @@ postProcessorTrackNrecVsNsim2D = DQMEDHarvester("DQMGenericClient",
 )
 _addNoFlow(postProcessorTrackNrecVsNsim2D)
 
+
 postProcessorTrackSummary = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("Tracking/Track", "Tracking/TrackTPPtLess09", "Tracking/TrackFromPV", "Tracking/TrackFromPVAllTP", "Tracking/TrackAllTPEffic", "Tracking/TrackBuilding", "Tracking/TrackConversion", "Tracking/TrackGsf", "Tracking/TrackBHadron"),
     efficiency = cms.vstring(
@@ -304,6 +305,15 @@ postProcessorTrackSequence = cms.Sequence(
     postProcessorTrackNrecVsNsim+
     postProcessorTrackSummary
 )
+
+postProcessorTrackPhase2 = postProcessorTrack.clone()
+postProcessorTrackPhase2.subDirs.extend(["Tracking/TrackTPEtaGreater2p7/*"])
+postProcessorTrackSummaryPhase2 = postProcessorTrackSummary.clone()
+postProcessorTrackSummaryPhase2.subDirs.extend(["Tracking/TrackTPEtaGreater2p7/*"])
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toReplaceWith(postProcessorTrack,postProcessorTrackPhase2)
+phase2_tracker.toReplaceWith(postProcessorTrackSummary,postProcessorTrackSummaryPhase2)
 
 postProcessorTrackTrackingOnly = postProcessorTrack.clone()
 postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackSeeding/*", "Tracking/PixelTrack/*"])
