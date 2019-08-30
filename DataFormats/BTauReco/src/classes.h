@@ -57,6 +57,7 @@
 #include "DataFormats/BTauReco/interface/DeepDoubleXFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepDoubleXTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
+#include "DataFormats/BTauReco/interface/PixelClusterTagInfo.h"
 
 namespace reco {
   typedef TrackTauImpactParameterAssociationCollection::map_type TrackTauImpactParameterAssociationMapType;
