@@ -35,6 +35,7 @@
     <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalEE/v9/hgcalEE.xml"/>
+    <Include ref="Geometry/HGCalCommonData/test/world.xml"/>
   </IncludeSection>
   
 </DDDefinition>
