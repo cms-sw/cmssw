@@ -84,42 +84,42 @@ private:
   // One shower is made of several hits which differ by the
   // unit ID (cristal/fiber/scintillator) and the Time slice ID.
 
-  G4ThreeVector entrancePoint;
-  double incidentEnergy;
+  G4ThreeVector entrancePoint_;
+  double incidentEnergy_;
 
-  G4String name;
-  G4int hcID;
-  TotemRPG4HitCollection* theHC;
+  G4String name_;
+  G4int hcID_;
+  TotemRPG4HitCollection* theHC_;
 
-  TotemRPG4Hit* currentHit;
-  G4Track* theTrack;
-  G4VPhysicalVolume* currentPV;
-  unsigned int unitID;
-  G4int primaryID, tSliceID;
-  G4double tSlice;
+  TotemRPG4Hit* currentHit_;
+  G4Track* theTrack_;
+  G4VPhysicalVolume* currentPV_;
+  unsigned int unitID_;
+  G4int primaryID_, tSliceID_;
+  G4double tSlice_;
 
-  G4StepPoint* preStepPoint;
-  G4StepPoint* postStepPoint;
-  G4ThreeVector hitPoint;
-  G4ThreeVector exitPoint;
-  G4ThreeVector theLocalEntryPoint;
-  G4ThreeVector theLocalExitPoint;
+  G4StepPoint* preStepPoint_;
+  G4StepPoint* postStepPoint_;
+  G4ThreeVector hitPoint_;
+  G4ThreeVector exitPoint_;
+  G4ThreeVector theLocalEntryPoint_;
+  G4ThreeVector theLocalExitPoint_;
 
-  double Pabs;
-  double p_x, p_y, p_z;
-  double Tof;
-  double Eloss;
-  short ParticleType;
+  double Pabs_;
+  double thePx_, thePy_, thePz_;
+  double Tof_;
+  double Eloss_;
+  short ParticleType_;
 
-  double ThetaAtEntry;
-  double PhiAtEntry;
+  double ThetaAtEntry_;
+  double PhiAtEntry_;
 
-  int ParentId;
-  double Vx, Vy, Vz;
+  int ParentId_;
+  double Vx_, Vy_, Vz_;
 
   // Hist
-  static TotemTestHitHBNtuple* theNtuple;
-  int eventno;
+  static TotemTestHitHBNtuple* theNtuple_;
+  int eventno_;
 };
 
 #endif  // PPS_TotemRPSD_h

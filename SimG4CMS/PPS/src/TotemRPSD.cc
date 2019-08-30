@@ -30,30 +30,30 @@
 #include <vector>
 #include <string>
 
-TotemRPSD::TotemRPSD(const std::string& name,
+TotemRPSD::TotemRPSD(const std::string& name_,
                      const edm::EventSetup& es,
                      const SensitiveDetectorCatalog& clg,
                      edm::ParameterSet const& p,
                      const SimTrackManager* manager)
-    : SensitiveTkDetector(name, es, clg, p),
+    : SensitiveTkDetector(name_, es, clg, p),
       numberingScheme(nullptr),
-      hcID(-1),
-      theHC(nullptr),
-      currentHit(nullptr),
-      theTrack(nullptr),
-      currentPV(nullptr),
-      unitID(0),
-      preStepPoint(nullptr),
-      postStepPoint(nullptr),
-      eventno(0) {
-  collectionName.insert(name);
+      hcID_(-1),
+      theHC_(nullptr),
+      currentHit_(nullptr),
+      theTrack_(nullptr),
+      currentPV_(nullptr),
+      unitID_(0),
+      preStepPoint_(nullptr),
+      postStepPoint_(nullptr),
+      eventno_(0) {
+  collectionName.insert(name_);
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("TotemRPSD");
   verbosity_ = m_Anal.getParameter<int>("Verbosity");
 
-  slave = new TrackingSlaveSD(name);
+  slave = new TrackingSlaveSD(name_);
 
-  if (name == "TotemHitsRP") {
+  if (name_ == "TotemHitsRP") {
     numberingScheme = dynamic_cast<TotemRPVDetectorOrganization*>(new PPSStripNumberingScheme(3));
   } else {
     edm::LogWarning("TotemRP") << "TotemRPSD: ReadoutName not supported\n";
@@ -68,45 +68,46 @@ TotemRPSD::~TotemRPSD() {
 }
 
 void TotemRPSD::Initialize(G4HCofThisEvent* HCE) {
-  LogDebug("TotemRP") << "TotemRPSD : Initialize called for " << name;
+  LogDebug("TotemRP") << "TotemRPSD : Initialize called for " << name_;
 
-  theHC = new TotemRPG4HitCollection(GetName(), collectionName[0]);
-  G4SDManager::GetSDMpointer()->AddNewCollection(name, collectionName[0]);
+  theHC_ = new TotemRPG4HitCollection(GetName(), collectionName[0]);
+  G4SDManager::GetSDMpointer()->AddNewCollection(name_, collectionName[0]);
 
-  if (hcID < 0)
-    hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
-  HCE->AddHitsCollection(hcID, theHC);
+  if (hcID_ < 0)
+    hcID_ = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
+  HCE->AddHitsCollection(hcID_, theHC_);
 }
 
 void TotemRPSD::Print_Hit_Info() {
-  LogDebug("TotemRP") << theTrack->GetDefinition()->GetParticleName() << " TotemRPSD CreateNewHit for"
-                      << " PV " << currentPV->GetName() << " PVid = " << currentPV->GetCopyNo() << " Unit " << unitID;
-  LogDebug("TotemRP") << " primary " << primaryID << " time slice " << tSliceID << " of energy "
-                      << theTrack->GetTotalEnergy() << " Eloss " << Eloss << " positions ";
+  LogDebug("TotemRP") << theTrack_->GetDefinition()->GetParticleName() << " TotemRPSD CreateNewHit for"
+                      << " PV " << currentPV_->GetName() << " PVid = " << currentPV_->GetCopyNo() << " Unit "
+                      << unitID_;
+  LogDebug("TotemRP") << " primary " << primaryID_ << " time slice " << tSliceID_ << " of energy "
+                      << theTrack_->GetTotalEnergy() << " Eloss_ " << Eloss_ << " positions ";
   printf("(%10f,%10f,%10f)",
-         preStepPoint->GetPosition().x(),
-         preStepPoint->GetPosition().y(),
-         preStepPoint->GetPosition().z());
+         preStepPoint_->GetPosition().x(),
+         preStepPoint_->GetPosition().y(),
+         preStepPoint_->GetPosition().z());
   printf("(%10f,%10f,%10f)",
-         postStepPoint->GetPosition().x(),
-         postStepPoint->GetPosition().y(),
-         postStepPoint->GetPosition().z());
+         postStepPoint_->GetPosition().x(),
+         postStepPoint_->GetPosition().y(),
+         postStepPoint_->GetPosition().z());
   LogDebug("TotemRP") << " positions "
-                      << "(" << postStepPoint->GetPosition().x() << "," << postStepPoint->GetPosition().y() << ","
-                      << postStepPoint->GetPosition().z() << ")"
-                      << " For Track  " << theTrack->GetTrackID() << " which is a "
-                      << theTrack->GetDefinition()->GetParticleName();
+                      << "(" << postStepPoint_->GetPosition().x() << "," << postStepPoint_->GetPosition().y() << ","
+                      << postStepPoint_->GetPosition().z() << ")"
+                      << " For Track  " << theTrack_->GetTrackID() << " which is a "
+                      << theTrack_->GetDefinition()->GetParticleName();
 
-  if (theTrack->GetTrackID() == 1) {
+  if (theTrack_->GetTrackID() == 1) {
     LogDebug("TotemRP") << " primary particle ";
   } else {
-    LogDebug("TotemRP") << " daughter of part. " << theTrack->GetParentID();
+    LogDebug("TotemRP") << " daughter of part. " << theTrack_->GetParentID();
   }
 
   LogDebug("TotemRP") << " and created by ";
 
-  if (theTrack->GetCreatorProcess() != nullptr)
-    LogDebug("TotemRP") << theTrack->GetCreatorProcess()->GetProcessName();
+  if (theTrack_->GetCreatorProcess() != nullptr)
+    LogDebug("TotemRP") << theTrack_->GetCreatorProcess()->GetProcessName();
   else
     LogDebug("TotemRP") << "NO process";
 
@@ -125,35 +126,35 @@ bool TotemRPSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 }
 
 void TotemRPSD::GetStepInfo(const G4Step* aStep) {
-  preStepPoint = aStep->GetPreStepPoint();
-  postStepPoint = aStep->GetPostStepPoint();
-  theTrack = aStep->GetTrack();
-  hitPoint = preStepPoint->GetPosition();
-  exitPoint = postStepPoint->GetPosition();
-  currentPV = preStepPoint->GetPhysicalVolume();
-  theLocalEntryPoint = SetToLocal(hitPoint);
-  theLocalExitPoint = SetToLocal(exitPoint);
+  preStepPoint_ = aStep->GetPreStepPoint();
+  postStepPoint_ = aStep->GetPostStepPoint();
+  theTrack_ = aStep->GetTrack();
+  hitPoint_ = preStepPoint_->GetPosition();
+  exitPoint_ = postStepPoint_->GetPosition();
+  currentPV_ = preStepPoint_->GetPhysicalVolume();
+  theLocalEntryPoint_ = SetToLocal(hitPoint_);
+  theLocalExitPoint_ = SetToLocal(exitPoint_);
 
-  G4String name = currentPV->GetName();
-  name.assign(name, 0, 4);
-  G4String particleType = theTrack->GetDefinition()->GetParticleName();
-  tSlice = (postStepPoint->GetGlobalTime()) / nanosecond;
-  tSliceID = (int)tSlice;
-  unitID = setDetUnitId(aStep);
+  G4String name_ = currentPV_->GetName();
+  name_.assign(name_, 0, 4);
+  G4String particleType = theTrack_->GetDefinition()->GetParticleName();
+  tSlice_ = (postStepPoint_->GetGlobalTime()) / nanosecond;
+  tSliceID_ = (int)tSlice_;
+  unitID_ = setDetUnitId(aStep);
 
   if (verbosity_)
-    LogDebug("TotemRP") << "UNITa " << unitID << std::endl;
+    LogDebug("TotemRP") << "UNITa " << unitID_ << std::endl;
 
-  primaryID = theTrack->GetTrackID();
+  primaryID_ = theTrack_->GetTrackID();
 
-  Pabs = (aStep->GetPreStepPoint()->GetMomentum().mag()) / GeV;
-  p_x = (aStep->GetPreStepPoint()->GetMomentum().x()) / GeV;
-  p_y = (aStep->GetPreStepPoint()->GetMomentum().y()) / GeV;
-  p_z = (aStep->GetPreStepPoint()->GetMomentum().z()) / GeV;
+  Pabs_ = (aStep->GetPreStepPoint()->GetMomentum().mag()) / GeV;
+  thePx_ = (aStep->GetPreStepPoint()->GetMomentum().x()) / GeV;
+  thePy_ = (aStep->GetPreStepPoint()->GetMomentum().y()) / GeV;
+  thePz_ = (aStep->GetPreStepPoint()->GetMomentum().z()) / GeV;
 
-  Tof = aStep->GetPostStepPoint()->GetGlobalTime() / nanosecond;
-  Eloss = aStep->GetTotalEnergyDeposit() / GeV;
-  ParticleType = theTrack->GetDefinition()->GetPDGEncoding();
+  Tof_ = aStep->GetPostStepPoint()->GetGlobalTime() / nanosecond;
+  Eloss_ = aStep->GetTotalEnergyDeposit() / GeV;
+  ParticleType_ = theTrack_->GetDefinition()->GetPDGEncoding();
 
   //corrected phi and theta treatment
   G4ThreeVector gmd = aStep->GetPreStepPoint()->GetMomentumDirection();
@@ -163,17 +164,17 @@ void TotemRPSD::GetStepInfo(const G4Step* aStep) {
                           ->GetTopTransform()
                           .TransformAxis(gmd);
   Local3DPoint lnmd = ConvertToLocal3DPoint(lmd);
-  ThetaAtEntry = lnmd.theta();
-  PhiAtEntry = lnmd.phi();
+  ThetaAtEntry_ = lnmd.theta();
+  PhiAtEntry_ = lnmd.phi();
 
-  if (IsPrimary(theTrack))
-    ParentId = 0;
+  if (IsPrimary(theTrack_))
+    ParentId_ = 0;
   else
-    ParentId = theTrack->GetParentID();
+    ParentId_ = theTrack_->GetParentID();
 
-  Vx = theTrack->GetVertexPosition().x() / mm;
-  Vy = theTrack->GetVertexPosition().y() / mm;
-  Vz = theTrack->GetVertexPosition().z() / mm;
+  Vx_ = theTrack_->GetVertexPosition().x() / mm;
+  Vy_ = theTrack_->GetVertexPosition().y() / mm;
+  Vz_ = theTrack_->GetVertexPosition().z() / mm;
 }
 
 uint32_t TotemRPSD::setDetUnitId(const G4Step* aStep) {
@@ -186,60 +187,60 @@ void TotemRPSD::StoreHit(TotemRPG4Hit* hit) {
       LogDebug("TotemRP") << "TotemRPSD: hit to be stored is NULL !!" << std::endl;
     return;
   }
-  theHC->insert(hit);
+  theHC_->insert(hit);
 }
 
 void TotemRPSD::CreateNewHit() {
   // Protect against creating hits in detectors not inserted
-  double outrangeX = hitPoint.x();
-  double outrangeY = hitPoint.y();
+  double outrangeX = hitPoint_.x();
+  double outrangeY = hitPoint_.y();
   if (fabs(outrangeX) > rp_garage_position_)
     return;
   if (fabs(outrangeY) > rp_garage_position_)
     return;
   // end protection
 
-  currentHit = new TotemRPG4Hit;
-  currentHit->setTrackID(primaryID);
-  currentHit->setTimeSlice(tSlice);
-  currentHit->setUnitID(unitID);
-  currentHit->setIncidentEnergy(incidentEnergy);
+  currentHit_ = new TotemRPG4Hit;
+  currentHit_->setTrackID(primaryID_);
+  currentHit_->setTimeSlice(tSlice_);
+  currentHit_->setUnitID(unitID_);
+  currentHit_->setIncidentEnergy(incidentEnergy_);
 
-  currentHit->setPabs(Pabs);
-  currentHit->setTof(Tof);
-  currentHit->setEnergyLoss(Eloss);
-  currentHit->setParticleType(ParticleType);
-  currentHit->setThetaAtEntry(ThetaAtEntry);
-  currentHit->setPhiAtEntry(PhiAtEntry);
+  currentHit_->setPabs(Pabs_);
+  currentHit_->setTof(Tof_);
+  currentHit_->setEnergyLoss(Eloss_);
+  currentHit_->setParticleType(ParticleType_);
+  currentHit_->setThetaAtEntry(ThetaAtEntry_);
+  currentHit_->setPhiAtEntry(PhiAtEntry_);
 
-  currentHit->setEntry(hitPoint);
-  currentHit->setExit(exitPoint);
-  currentHit->setLocalEntry(theLocalEntryPoint);
-  currentHit->setLocalExit(theLocalExitPoint);
+  currentHit_->setEntry(hitPoint_);
+  currentHit_->setExit(exitPoint_);
+  currentHit_->setLocalEntry(theLocalEntryPoint_);
+  currentHit_->setLocalExit(theLocalExitPoint_);
 
-  currentHit->setParentId(ParentId);
-  currentHit->setVx(Vx);
-  currentHit->setVy(Vy);
-  currentHit->setVz(Vz);
+  currentHit_->setParentId(ParentId_);
+  currentHit_->setVx(Vx_);
+  currentHit_->setVy(Vy_);
+  currentHit_->setVz(Vz_);
 
-  currentHit->set_p_x(p_x);
-  currentHit->set_p_y(p_y);
-  currentHit->set_p_z(p_z);
+  currentHit_->setPx(thePx_);
+  currentHit_->setPy(thePy_);
+  currentHit_->setPz(thePz_);
 
-  StoreHit(currentHit);
+  StoreHit(currentHit_);
 }
 
 G4ThreeVector TotemRPSD::SetToLocal(const G4ThreeVector& global) {
   G4ThreeVector localPoint;
-  const G4VTouchable* touch = preStepPoint->GetTouchable();
+  const G4VTouchable* touch = preStepPoint_->GetTouchable();
   localPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);
   return localPoint;
 }
 
 void TotemRPSD::EndOfEvent(G4HCofThisEvent*) {
   // here we loop over transient hits and make them persistent
-  for (int j = 0; j < theHC->entries() && j < 15000; j++) {
-    TotemRPG4Hit* aHit = (*theHC)[j];
+  for (int j = 0; j < theHC_->entries() && j < 15000; j++) {
+    TotemRPG4Hit* aHit = (*theHC_)[j];
 
     Local3DPoint Entrata(aHit->getLocalEntry().x(), aHit->getLocalEntry().y(), aHit->getLocalEntry().z());
     Local3DPoint Uscita(aHit->getLocalExit().x(), aHit->getLocalExit().y(), aHit->getLocalExit().z());
@@ -264,8 +265,8 @@ void TotemRPSD::clear() {}
 void TotemRPSD::DrawAll() {}
 
 void TotemRPSD::PrintAll() {
-  LogDebug("TotemRP") << "TotemRPSD: Collection " << theHC->GetName() << std::endl;
-  theHC->PrintAllHits();
+  LogDebug("TotemRP") << "TotemRPSD: Collection " << theHC_->GetName() << std::endl;
+  theHC_->PrintAllHits();
 }
 
 void TotemRPSD::fillHits(edm::PSimHitContainer& c, const std::string& n) {
@@ -282,7 +283,7 @@ void TotemRPSD::SetNumberingScheme(TotemRPVDetectorOrganization* scheme) {
 
 void TotemRPSD::update(const BeginOfEvent* i) {
   clearHits();
-  eventno = (*i)()->GetEventID();
+  eventno_ = (*i)()->GetEventID();
 }
 
 void TotemRPSD::update(const ::EndOfEvent*) {}

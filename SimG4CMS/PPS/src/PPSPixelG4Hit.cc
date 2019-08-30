@@ -21,193 +21,193 @@
 // constructors and destructor
 //
 
-PPSPixelG4Hit::PPSPixelG4Hit() : MeanPosition(0), theEntryPoint(0), theExitPoint(0) {
-  elem = 0.;
-  hadr = 0.;
-  theIncidentEnergy = 0.;
-  theTrackID = -1;
-  theUnitID = 0;
-  theTimeSlice = 0.;
+PPSPixelG4Hit::PPSPixelG4Hit() : MeanPosition_(0), theEntryPoint_(0), theExitPoint_(0) {
+  elem_ = 0.;
+  hadr_ = 0.;
+  theIncidentEnergy_ = 0.;
+  theTrackID_ = -1;
+  theUnitID_ = 0;
+  theTimeSlice_ = 0.;
 
-  theX = 0.;
-  theY = 0.;
-  theZ = 0.;
-  thePabs = 0.;
-  theTof = 0.;
-  theEnergyLoss = 0.;
-  theParticleType = 0;
-  theThetaAtEntry = 0.;
-  thePhiAtEntry = 0.;
-  theParentId = 0;
-  theVx = 0.;
-  theVy = 0.;
-  theVz = 0.;
-  thePx = 0;
-  thePy = 0;
-  thePz = 0;
-  theVPx = 0;
-  theVPy = 0;
-  theVPz = 0;
+  theX_ = 0.;
+  theY_ = 0.;
+  theZ_ = 0.;
+  thePabs_ = 0.;
+  theTof_ = 0.;
+  theEnergyLoss_ = 0.;
+  theParticleType_ = 0;
+  theThetaAtEntry_ = 0.;
+  thePhiAtEntry_ = 0.;
+  theParentId_ = 0;
+  theVx_ = 0.;
+  theVy_ = 0.;
+  theVz_ = 0.;
+  thePx_ = 0;
+  thePy_ = 0;
+  thePz_ = 0;
+  theVPx_ = 0;
+  theVPy_ = 0;
+  theVPz_ = 0;
 }
 
 PPSPixelG4Hit::PPSPixelG4Hit(const PPSPixelG4Hit& right) {
-  MeanPosition = right.MeanPosition;
+  MeanPosition_ = right.MeanPosition_;
 
-  elem = right.elem;
-  hadr = right.hadr;
-  theIncidentEnergy = right.theIncidentEnergy;
-  theTrackID = right.theTrackID;
-  theUnitID = right.theUnitID;
-  theTimeSlice = right.theTimeSlice;
+  elem_ = right.elem_;
+  hadr_ = right.hadr_;
+  theIncidentEnergy_ = right.theIncidentEnergy_;
+  theTrackID_ = right.theTrackID_;
+  theUnitID_ = right.theUnitID_;
+  theTimeSlice_ = right.theTimeSlice_;
 
-  theX = right.theX;
-  theY = right.theY;
-  theZ = right.theZ;
-  thePabs = right.thePabs;
-  theTof = right.theTof;
-  theEnergyLoss = right.theEnergyLoss;
-  theParticleType = right.theParticleType;
+  theX_ = right.theX_;
+  theY_ = right.theY_;
+  theZ_ = right.theZ_;
+  thePabs_ = right.thePabs_;
+  theTof_ = right.theTof_;
+  theEnergyLoss_ = right.theEnergyLoss_;
+  theParticleType_ = right.theParticleType_;
 
-  theThetaAtEntry = right.theThetaAtEntry;
-  thePhiAtEntry = right.thePhiAtEntry;
-  theEntryPoint = right.theEntryPoint;
-  theExitPoint = right.theExitPoint;
-  theParentId = right.theParentId;
-  theVx = right.theVx;
-  theVy = right.theVy;
-  theVz = right.theVz;
-  thePx = right.thePx;
-  thePy = right.thePy;
-  thePz = right.thePz;
-  theVPx = right.theVPx;
-  theVPy = right.theVPy;
-  theVPz = right.theVPz;
+  theThetaAtEntry_ = right.theThetaAtEntry_;
+  thePhiAtEntry_ = right.thePhiAtEntry_;
+  theEntryPoint_ = right.theEntryPoint_;
+  theExitPoint_ = right.theExitPoint_;
+  theParentId_ = right.theParentId_;
+  theVx_ = right.theVx_;
+  theVy_ = right.theVy_;
+  theVz_ = right.theVz_;
+  thePx_ = right.thePx_;
+  thePy_ = right.thePy_;
+  thePz_ = right.thePz_;
+  theVPx_ = right.theVPx_;
+  theVPy_ = right.theVPy_;
+  theVPz_ = right.theVPz_;
 }
 
 const PPSPixelG4Hit& PPSPixelG4Hit::operator=(const PPSPixelG4Hit& right) {
-  MeanPosition = right.MeanPosition;
-  elem = right.elem;
-  hadr = right.hadr;
-  theIncidentEnergy = right.theIncidentEnergy;
-  theTrackID = right.theTrackID;
-  theUnitID = right.theUnitID;
-  theTimeSlice = right.theTimeSlice;
+  MeanPosition_ = right.MeanPosition_;
+  elem_ = right.elem_;
+  hadr_ = right.hadr_;
+  theIncidentEnergy_ = right.theIncidentEnergy_;
+  theTrackID_ = right.theTrackID_;
+  theUnitID_ = right.theUnitID_;
+  theTimeSlice_ = right.theTimeSlice_;
 
-  theX = right.theX;
-  theY = right.theY;
-  theZ = right.theZ;
-  thePabs = right.thePabs;
-  theTof = right.theTof;
-  theEnergyLoss = right.theEnergyLoss;
-  theParticleType = right.theParticleType;
+  theX_ = right.theX_;
+  theY_ = right.theY_;
+  theZ_ = right.theZ_;
+  thePabs_ = right.thePabs_;
+  theTof_ = right.theTof_;
+  theEnergyLoss_ = right.theEnergyLoss_;
+  theParticleType_ = right.theParticleType_;
 
-  theThetaAtEntry = right.theThetaAtEntry;
-  thePhiAtEntry = right.thePhiAtEntry;
-  theEntryPoint = right.theEntryPoint;
-  theExitPoint = right.theExitPoint;
-  theParentId = right.theParentId;
-  theVx = right.theVx;
-  theVy = right.theVy;
-  theVz = right.theVz;
-  thePx = right.thePx;
-  thePy = right.thePy;
-  thePz = right.thePz;
-  theVPx = right.theVPx;
-  theVPy = right.theVPy;
-  theVPz = right.theVPz;
+  theThetaAtEntry_ = right.theThetaAtEntry_;
+  thePhiAtEntry_ = right.thePhiAtEntry_;
+  theEntryPoint_ = right.theEntryPoint_;
+  theExitPoint_ = right.theExitPoint_;
+  theParentId_ = right.theParentId_;
+  theVx_ = right.theVx_;
+  theVy_ = right.theVy_;
+  theVz_ = right.theVz_;
+  thePx_ = right.thePx_;
+  thePy_ = right.thePy_;
+  thePz_ = right.thePz_;
+  theVPx_ = right.theVPx_;
+  theVPy_ = right.theVPy_;
+  theVPz_ = right.theVPz_;
 
   return *this;
 }
 
 void PPSPixelG4Hit::addEnergyDeposit(const PPSPixelG4Hit& aHit) {
-  elem += aHit.getEM();
-  hadr += aHit.getHadr();
+  elem_ += aHit.getEM();
+  hadr_ += aHit.getHadr();
 }
 
 void PPSPixelG4Hit::Print() { edm::LogInfo("PPSPixelG4Hit") << (*this); }
 
-const G4ThreeVector& PPSPixelG4Hit::getEntryPoint() const { return theEntryPoint; }
+const G4ThreeVector& PPSPixelG4Hit::getEntryPoint() const { return theEntryPoint_; }
 
-void PPSPixelG4Hit::setEntryPoint(const G4ThreeVector& xyz) { theEntryPoint = xyz; }
+void PPSPixelG4Hit::setEntryPoint(const G4ThreeVector& xyz) { theEntryPoint_ = xyz; }
 
-const G4ThreeVector& PPSPixelG4Hit::getExitPoint() const { return theExitPoint; }
+const G4ThreeVector& PPSPixelG4Hit::getExitPoint() const { return theExitPoint_; }
 
-void PPSPixelG4Hit::setExitPoint(const G4ThreeVector& xyz) { theExitPoint = xyz; }
+void PPSPixelG4Hit::setExitPoint(const G4ThreeVector& xyz) { theExitPoint_ = xyz; }
 
-double PPSPixelG4Hit::getEM() const { return elem; }
-void PPSPixelG4Hit::setEM(double e) { elem = e; }
+double PPSPixelG4Hit::getEM() const { return elem_; }
+void PPSPixelG4Hit::setEM(double e) { elem_ = e; }
 
-double PPSPixelG4Hit::getHadr() const { return hadr; }
-void PPSPixelG4Hit::setHadr(double e) { hadr = e; }
+double PPSPixelG4Hit::getHadr() const { return hadr_; }
+void PPSPixelG4Hit::setHadr(double e) { hadr_ = e; }
 
-double PPSPixelG4Hit::getIncidentEnergy() const { return theIncidentEnergy; }
-void PPSPixelG4Hit::setIncidentEnergy(double e) { theIncidentEnergy = e; }
+double PPSPixelG4Hit::getIncidentEnergy() const { return theIncidentEnergy_; }
+void PPSPixelG4Hit::setIncidentEnergy(double e) { theIncidentEnergy_ = e; }
 
-int PPSPixelG4Hit::getTrackID() const { return theTrackID; }
-void PPSPixelG4Hit::setTrackID(int i) { theTrackID = i; }
+int PPSPixelG4Hit::getTrackID() const { return theTrackID_; }
+void PPSPixelG4Hit::setTrackID(int i) { theTrackID_ = i; }
 
-uint32_t PPSPixelG4Hit::getUnitID() const { return theUnitID; }
-void PPSPixelG4Hit::setUnitID(uint32_t i) { theUnitID = i; }
+uint32_t PPSPixelG4Hit::getUnitID() const { return theUnitID_; }
+void PPSPixelG4Hit::setUnitID(uint32_t i) { theUnitID_ = i; }
 
-double PPSPixelG4Hit::getTimeSlice() const { return theTimeSlice; }
-void PPSPixelG4Hit::setTimeSlice(double d) { theTimeSlice = d; }
-int PPSPixelG4Hit::getTimeSliceID() const { return (int)theTimeSlice; }
+double PPSPixelG4Hit::getTimeSlice() const { return theTimeSlice_; }
+void PPSPixelG4Hit::setTimeSlice(double d) { theTimeSlice_ = d; }
+int PPSPixelG4Hit::getTimeSliceID() const { return (int)theTimeSlice_; }
 
 void PPSPixelG4Hit::addEnergyDeposit(double em, double hd) {
-  elem += em;
-  hadr += hd;
+  elem_ += em;
+  hadr_ += hd;
 }
 
-double PPSPixelG4Hit::getEnergyDeposit() const { return elem + hadr; }
+double PPSPixelG4Hit::getEnergyDeposit() const { return elem_ + hadr_; }
 
-float PPSPixelG4Hit::getPabs() const { return thePabs; }
-float PPSPixelG4Hit::getTof() const { return theTof; }
-float PPSPixelG4Hit::getEnergyLoss() const { return theEnergyLoss; }
-int PPSPixelG4Hit::getParticleType() const { return theParticleType; }
-float PPSPixelG4Hit::getPx() const { return thePx; }
-float PPSPixelG4Hit::getPy() const { return thePy; }
-float PPSPixelG4Hit::getPz() const { return thePz; }
-float PPSPixelG4Hit::getVPx() const { return theVPx; }
-float PPSPixelG4Hit::getVPy() const { return theVPy; }
-float PPSPixelG4Hit::getVPz() const { return theVPz; }
+float PPSPixelG4Hit::getPabs() const { return thePabs_; }
+float PPSPixelG4Hit::getTof() const { return theTof_; }
+float PPSPixelG4Hit::getEnergyLoss() const { return theEnergyLoss_; }
+int PPSPixelG4Hit::getParticleType() const { return theParticleType_; }
+float PPSPixelG4Hit::getPx() const { return thePx_; }
+float PPSPixelG4Hit::getPy() const { return thePy_; }
+float PPSPixelG4Hit::getPz() const { return thePz_; }
+float PPSPixelG4Hit::getVPx() const { return theVPx_; }
+float PPSPixelG4Hit::getVPy() const { return theVPy_; }
+float PPSPixelG4Hit::getVPz() const { return theVPz_; }
 
-void PPSPixelG4Hit::setPabs(float e) { thePabs = e; }
-void PPSPixelG4Hit::setPx(float e) { thePx = e; }
-void PPSPixelG4Hit::setPy(float e) { thePy = e; }
-void PPSPixelG4Hit::setPz(float e) { thePz = e; }
-void PPSPixelG4Hit::setVPx(float e) { theVPx = e; }
-void PPSPixelG4Hit::setVPy(float e) { theVPy = e; }
-void PPSPixelG4Hit::setVPz(float e) { theVPz = e; }
-void PPSPixelG4Hit::setTof(float e) { theTof = e; }
-void PPSPixelG4Hit::setEnergyLoss(float e) { theEnergyLoss = e; }
-void PPSPixelG4Hit::setParticleType(short i) { theParticleType = i; }
+void PPSPixelG4Hit::setPabs(float e) { thePabs_ = e; }
+void PPSPixelG4Hit::setPx(float e) { thePx_ = e; }
+void PPSPixelG4Hit::setPy(float e) { thePy_ = e; }
+void PPSPixelG4Hit::setPz(float e) { thePz_ = e; }
+void PPSPixelG4Hit::setVPx(float e) { theVPx_ = e; }
+void PPSPixelG4Hit::setVPy(float e) { theVPy_ = e; }
+void PPSPixelG4Hit::setVPz(float e) { theVPz_ = e; }
+void PPSPixelG4Hit::setTof(float e) { theTof_ = e; }
+void PPSPixelG4Hit::setEnergyLoss(float e) { theEnergyLoss_ = e; }
+void PPSPixelG4Hit::setParticleType(short i) { theParticleType_ = i; }
 
-float PPSPixelG4Hit::getThetaAtEntry() const { return theThetaAtEntry; }
-float PPSPixelG4Hit::getPhiAtEntry() const { return thePhiAtEntry; }
+float PPSPixelG4Hit::getThetaAtEntry() const { return theThetaAtEntry_; }
+float PPSPixelG4Hit::getPhiAtEntry() const { return thePhiAtEntry_; }
 
-void PPSPixelG4Hit::setThetaAtEntry(float t) { theThetaAtEntry = t; }
-void PPSPixelG4Hit::setPhiAtEntry(float f) { thePhiAtEntry = f; }
+void PPSPixelG4Hit::setThetaAtEntry(float t) { theThetaAtEntry_ = t; }
+void PPSPixelG4Hit::setPhiAtEntry(float f) { thePhiAtEntry_ = f; }
 
-float PPSPixelG4Hit::getX() const { return theX; }
-void PPSPixelG4Hit::setX(float t) { theX = t; }
+float PPSPixelG4Hit::getX() const { return theX_; }
+void PPSPixelG4Hit::setX(float t) { theX_ = t; }
 
-float PPSPixelG4Hit::getY() const { return theY; }
-void PPSPixelG4Hit::setY(float t) { theY = t; }
+float PPSPixelG4Hit::getY() const { return theY_; }
+void PPSPixelG4Hit::setY(float t) { theY_ = t; }
 
-float PPSPixelG4Hit::getZ() const { return theZ; }
-void PPSPixelG4Hit::setZ(float t) { theZ = t; }
+float PPSPixelG4Hit::getZ() const { return theZ_; }
+void PPSPixelG4Hit::setZ(float t) { theZ_ = t; }
 
-int PPSPixelG4Hit::getParentId() const { return theParentId; }
-void PPSPixelG4Hit::setParentId(int p) { theParentId = p; }
+int PPSPixelG4Hit::getParentId() const { return theParentId_; }
+void PPSPixelG4Hit::setParentId(int p) { theParentId_ = p; }
 
-float PPSPixelG4Hit::getVx() const { return theVx; }
-void PPSPixelG4Hit::setVx(float t) { theVx = t; }
+float PPSPixelG4Hit::getVx() const { return theVx_; }
+void PPSPixelG4Hit::setVx(float t) { theVx_ = t; }
 
-float PPSPixelG4Hit::getVy() const { return theVy; }
-void PPSPixelG4Hit::setVy(float t) { theVy = t; }
+float PPSPixelG4Hit::getVy() const { return theVy_; }
+void PPSPixelG4Hit::setVy(float t) { theVy_ = t; }
 
-float PPSPixelG4Hit::getVz() const { return theVz; }
-void PPSPixelG4Hit::setVz(float t) { theVz = t; }
+float PPSPixelG4Hit::getVz() const { return theVz_; }
+void PPSPixelG4Hit::setVz(float t) { theVz_ = t; }
 
 std::ostream& operator<<(std::ostream& os, const PPSPixelG4Hit& hit) {
   os << " Data of this PPSPixelG4Hit are:\n"

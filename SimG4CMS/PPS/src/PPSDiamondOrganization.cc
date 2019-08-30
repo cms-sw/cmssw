@@ -15,7 +15,7 @@
 //******************************************************************** Constructor and destructor
 
 PPSDiamondOrganization ::PPSDiamondOrganization()
-    : theArm(-1), theStation(-1), theRoman_pot(-1), thePlane(-1), theDetector(-1) {}
+    : theArm_(-1), theStation_(-1), theRoman_pot_(-1), thePlane_(-1), theDetector_(-1) {}
 
 uint32_t PPSDiamondOrganization::GetUnitID(const G4Step* aStep) {
   G4VPhysicalVolume* physVol;
@@ -25,24 +25,24 @@ uint32_t PPSDiamondOrganization::GetUnitID(const G4Step* aStep) {
     physVol = touch->GetVolume(ii);
 
     if (physVol->GetName() == "CTPPS_Diamond_Segment" || physVol->GetName() == "CTPPS_UFSD_Segment") {
-      theDetector = physVol->GetCopyNo() % 100;
-      thePlane = physVol->GetCopyNo() / 100;
+      theDetector_ = physVol->GetCopyNo() % 100;
+      thePlane_ = physVol->GetCopyNo() / 100;
       LogDebug("PPSSimDiamond") << "\n---------------------CTPPS_Diamond_Segment-------------------------------------"
                                    "------------------------------";
       LogDebug("PPSSimDiamond") << "\t\t\t\t\tDetector name " << physVol->GetName()
                                 << " copynumber= " << physVol->GetCopyNo();
-      LogDebug("PPSSimDiamond") << "\t\t\t\t\tdetector= " << theDetector << " plane= " << thePlane << " ii = " << ii;
+      LogDebug("PPSSimDiamond") << "\t\t\t\t\tdetector= " << theDetector_ << " plane= " << thePlane_ << " ii = " << ii;
     }
 
     else if (physVol->GetName() == "Primary_Vacuum") {
       int cpy_no = physVol->GetCopyNo();
-      theArm = (cpy_no / 100) % 10;
-      theStation = (cpy_no / 10) % 10;
-      theRoman_pot = cpy_no % 10;
+      theArm_ = (cpy_no / 100) % 10;
+      theStation_ = (cpy_no / 10) % 10;
+      theRoman_pot_ = cpy_no % 10;
     }
     LogDebug("PPSSimDiamond") << "Diamond"
                               << "physVol =" << physVol->GetName() << ", level=" << ii
                               << ", physVol->GetCopyNo()=" << physVol->GetCopyNo() << std::endl;
   }
-  return CTPPSDiamondDetId(theArm, theStation, theRoman_pot, thePlane, theDetector).rawId();
+  return CTPPSDiamondDetId(theArm_, theStation_, theRoman_pot_, thePlane_, theDetector_).rawId();
 }

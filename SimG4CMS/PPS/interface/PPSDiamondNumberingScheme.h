@@ -12,8 +12,6 @@ class PPSDiamondNumberingScheme : public PPSDiamondOrganization {
 public:
   PPSDiamondNumberingScheme();
   ~PPSDiamondNumberingScheme() override;
-
-  //  virtual unsigned int GetUnitID(const G4Step* aStep) const ;
 };
 
 #endif  //PPS_PPSDiamondNumberingScheme_h
