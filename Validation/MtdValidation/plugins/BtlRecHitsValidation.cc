@@ -201,7 +201,8 @@ void BtlRecHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   }  // recHit loop
 
-  meNhits_->Fill(n_reco_btl);
+  if (n_reco_btl > 0)
+    meNhits_->Fill(log10(n_reco_btl));
 }
 
 // ------------ method for histogram booking ------------
@@ -212,7 +213,7 @@ void BtlRecHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   // --- histograms booking
 
-  meNhits_ = ibook.book1D("BtlNhits", "Number of BTL RECO hits;N_{RECO}", 100, 0., 5000.);
+  meNhits_ = ibook.book1D("BtlNhits", "Number of BTL RECO hits;log_{10}(N_{RECO})", 100, 0., 5.25);
 
   meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL RECO hits energy;E_{RECO} [MeV]", 100, 0., 20.);
   meHitTime_ = ibook.book1D("BtlHitTime", "BTL RECO hits ToA;ToA_{RECO} [ns]", 100, 0., 25.);
