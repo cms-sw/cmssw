@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_11_0_0/PIon --type PIon
 
-# /dev/CMSSW_11_0_0/PIon/V4 (CMSSW_11_0_0_pre4)
+# /dev/CMSSW_11_0_0/PIon/V5 (CMSSW_11_0_0_pre6)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_0_0/PIon/V4')
+  tableName = cms.string('/dev/CMSSW_11_0_0/PIon/V5')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -4772,7 +4772,7 @@ fragment.hltESPLowPtTripletStepTrajectoryCleanerBySharedHits = cms.ESProducer( "
 fragment.hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   UseStripStripQualityDB = cms.bool( True ),
   StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
-  UsePixelROCQualityDB = cms.bool( True ),
+  appendToDataLabel = cms.string( "" ),
   DebugPixelROCQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( True ),
   badStripCuts = cms.PSet( 
@@ -4795,15 +4795,17 @@ fragment.hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProduce
   ),
   DebugStripModuleQualityDB = cms.untracked.bool( False ),
   ComponentName = cms.string( "hltESPMeasurementTracker" ),
-  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
+  UsePixelROCQualityDB = cms.bool( True ),
   UsePixelModuleQualityDB = cms.bool( True ),
   DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
   HitMatcher = cms.string( "StandardMatcher" ),
   DebugStripStripQualityDB = cms.untracked.bool( False ),
-  PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
+  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
+  MaskBadAPVFibers = cms.bool( True ),
   SiStripQualityLabel = cms.string( "" ),
   UseStripModuleQualityDB = cms.bool( True ),
-  MaskBadAPVFibers = cms.bool( True )
+  PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
+  Phase2StripCPE = cms.string( "" )
 )
 fragment.hltESPMixedStepClusterShapeHitFilter = cms.ESProducer( "ClusterShapeHitFilterESProducer",
   ComponentName = cms.string( "hltESPMixedStepClusterShapeHitFilter" ),
