@@ -245,7 +245,12 @@ namespace edmplugin {
           //TEMPORARY: to avoid possible deadlocks from ROOT, we must
           // take the lock ourselves
           R__LOCKGUARD2(gInterpreterMutex);
-          ptr.reset(new SharedLibrary(p));
+          try {
+            ptr = std::make_shared<SharedLibrary>(p);
+          } catch (cms::Exception const& e) {
+            throw cms::Exception("PluginLoadError")
+                << "could not load plugin " << iPlugin << " because " << e.message();
+          }
         }
         loadables_[p] = ptr;
         justLoaded_(*ptr);
@@ -281,7 +286,12 @@ namespace edmplugin {
           //TEMPORARY: to avoid possible deadlocks from ROOT, we must
           // take the lock ourselves
           R__LOCKGUARD(gInterpreterMutex);
-          ptr.reset(new SharedLibrary(p));
+          try {
+            ptr = std::make_shared<SharedLibrary>(p);
+          } catch (cms::Exception const& e) {
+            throw cms::Exception("PluginLoadError")
+                << "could not load plugin " << iPlugin << " because " << e.message();
+          }
         }
         loadables_[p] = ptr;
         justLoaded_(*ptr);
