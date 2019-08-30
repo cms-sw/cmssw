@@ -24,10 +24,10 @@ def runSelected(opt):
 
     # test for wrong input workflows
     if opt.testList:
-        definedWF = []
-        for dwf in mrd.workFlows: definedWF.append(dwf.numId)
-        for twf in opt.testList:
-            if twf not in definedWF: raise ValueError('Not defined workflow ', twf , ' requested')
+        definedSet = set([dwf.numId for dwf in mrd.workFlows])
+        testSet = set(opt.testList)
+        undefSet = testSet - definedSet
+        if len(undefSet)>0: raise ValueError('Undefined workflows: '+', '.join(map(str,list(undefSet))))
 
     ret = 0
     if opt.show:
