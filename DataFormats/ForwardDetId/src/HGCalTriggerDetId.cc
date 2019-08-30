@@ -3,7 +3,7 @@
 #include <ostream>
 #include <iostream>
 
-const HGCalTriggerDetId HGCalTriggerDetId::Undefined(HGCalEE, 0, 0, 0, 0, 0, 0, 0);
+const HGCalTriggerDetId HGCalTriggerDetId::Undefined(HGCalEETrigger, 0, 0, 0, 0, 0, 0, 0);
 
 HGCalTriggerDetId::HGCalTriggerDetId() : DetId() {}
 
