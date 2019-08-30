@@ -18,7 +18,8 @@ using namespace cms::dd;
 static const char* const pseudoTrapName = "pseudotrap";
 static const char* const truncTubeName = "trunctube";
 
-DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume) : node_(volume->GetNode(0)), registry_(&det->specpars()) {
+DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume)
+    : node_(volume->GetNode(0)), registry_(&det->specpars()) {
   it_.emplace_back(Iterator(volume));
 }
 
@@ -310,10 +311,10 @@ const DDSolidShape DDFilteredView::shape() const {
   return cms::dd::value(cms::DDSolidShapeMap, node_->GetVolume()->GetShape()->GetTitle());
 }
 
-template<>
+template <>
 double DDFilteredView::get<double>(const char* key) const {
   std::cout << "DDFilteredView::get<double> " << key << "\n";
-  for( auto tit : it_) {
+  for (auto tit : it_) {
     int level = tit.GetLevel();
     std::cout << level << ": " << tit.GetNode(level)->GetVolume()->GetName() << "\n";
     for (int nit = level; nit > 0; --nit) {
@@ -321,23 +322,22 @@ double DDFilteredView::get<double>(const char* key) const {
     }
   }
   std::cout << ".done!\n";
-  
+
   double result(0.0);
   DDSpecParRefs refs;
   registry_->filter(refs, key);
   for_each(begin(refs), end(refs), [&](auto const& i) {
-      auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
-	  return (compareEqual(name(), *end(split(realTopName(j), "/"))) &&
-		  (i->hasValue(key)));
-	});
-      if (k != end(i->paths)) {
-	result = i->dblValue(key);
-      }
+    auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
+      return (compareEqual(name(), *end(split(realTopName(j), "/"))) && (i->hasValue(key)));
     });
+    if (k != end(i->paths)) {
+      result = i->dblValue(key);
+    }
+  });
   return result;
 }
 
-template<>
+template <>
 std::string DDFilteredView::get<string>(const char* key) const {
   //FIXME
   std::cout << "DDFilteredView::get<string> " << key << " for " << name() << "\n";

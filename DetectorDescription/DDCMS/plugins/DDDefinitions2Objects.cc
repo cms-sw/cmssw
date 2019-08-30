@@ -1251,25 +1251,25 @@ void Converter<DDLTrd1>::operator()(xml_h element) const {
   double dx2 = ns.attr<double>(e, DD_CMU(dx2), 0.0);
   double dy2 = ns.attr<double>(e, DD_CMU(dy2), dy1);
   double dz = ns.attr<double>(e, DD_CMU(dz));
-  if(dy1 == dy2) {
+  if (dy1 == dy2) {
     printout(ns.context()->debug_shapes ? ALWAYS : DEBUG,
-	     "DD4CMS",
-	     "+   Trd1:       dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2:%.3f dy2:%.3f",
-	     dz,
-	     dx1,
-	     dy1,
-	     dx2,
-	     dy2);
+             "DD4CMS",
+             "+   Trd1:       dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2:%.3f dy2:%.3f",
+             dz,
+             dx1,
+             dy1,
+             dx2,
+             dy2);
     ns.addSolid(nam, Trd1(dx1, dx2, dy1, dz));
   } else {
     printout(ns.context()->debug_shapes ? ALWAYS : DEBUG,
-	     "DD4CMS",
-	     "+   Trd1(which is actually Trd2):       dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2:%.3f dy2:%.3f",
-	     dz,
-	     dx1,
-	     dy1,
-	     dx2,
-	     dy2);
+             "DD4CMS",
+             "+   Trd1(which is actually Trd2):       dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2:%.3f dy2:%.3f",
+             dz,
+             dx1,
+             dy1,
+             dx2,
+             dy2);
     ns.addSolid(nam, Trd2(dx1, dx2, dy1, dy2, dz));
   }
 }
