@@ -12,5 +12,5 @@ towerMaker.HBThreshold = cms.double(0.6)
 towerMaker.HBThreshold1 = cms.double(0.6)
 towerMaker.HBThreshold2 = cms.double(0.6)
 
-recoCaloTowersGR = cms.Sequence(towerMaker+towerMakerWithHO)
-
+recoCaloTowersGRTask = cms.Task(towerMaker,towerMakerWithHO)
+recoCaloTowersGR = cms.Sequence(recoCaloTowersGRTask)

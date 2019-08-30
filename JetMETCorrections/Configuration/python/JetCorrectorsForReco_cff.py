@@ -6,6 +6,5 @@ from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3Cor
 from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSL1FastL2L3CorrectorChain,ak4PFCHSL1FastL2L3CorrectorTask
 from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSL1FastL2L3Corrector,ak4PFCHSL3AbsoluteCorrector,ak4PFCHSL2RelativeCorrector,ak4PFCHSL1FastjetCorrector
 
-jetCorrectorsForReco = cms.Sequence(
-    ak4PFL1FastL2L3CorrectorChain * ak4PFCHSL1FastL2L3CorrectorChain
-)
+jetCorrectorsForRecoTask = cms.Task( ak4PFL1FastL2L3CorrectorTask,  ak4PFCHSL1FastL2L3CorrectorTask)
+jetCorrectorsForReco = cms.Sequence(jetCorrectorsForRecoTask)
