@@ -204,12 +204,17 @@ std::vector<const DetLayer*> MkFitOutputConverter::createDetLayers(const mkfit::
 
   // TODO: currently hardcoded...
   // Logic copied from mkfit::LayerNumberConverter
-  unsigned int off = 1;
+  unsigned int off = 0;
   // BPix
-  set(0, ttopo.pxbDetId(1, 0, 0));
-  set(1, ttopo.pxbDetId(2, 0, 0));
-  set(2, ttopo.pxbDetId(3, 0, 0));
-  set(3, ttopo.pxbDetId(4, 0, 0));
+  set(off + 0, ttopo.pxbDetId(1, 0, 0));
+  set(off + 1, ttopo.pxbDetId(2, 0, 0));
+  set(off + 2, ttopo.pxbDetId(3, 0, 0));
+  set(off + 3, ttopo.pxbDetId(4, 0, 0));
+  // offset needs to be increased by 1 here to accommodate the 4th
+  // pixel barrel layer, while keeping the off+N numbering consistent
+  // with mkfit::LayerNumberConverter (that, to limited degree,
+  // supports the layer numbering for phase0 pixel as well)
+  off += 1;
   // TIB
   set(off + 3, ttopo.tibDetId(1, 0, 0, 0, 0, 0));
   set(off + 4, ttopo.tibDetId(1, 0, 0, 0, 0, 1));
@@ -227,13 +232,13 @@ std::vector<const DetLayer*> MkFitOutputConverter::createDetLayers(const mkfit::
   set(off + 15, ttopo.tobDetId(5, 0, 0, 0, 0));
   set(off + 16, ttopo.tobDetId(6, 0, 0, 0, 0));
 
-  auto setForward = [&](unsigned int side) {
+  auto setForward = [&set, &ttopo](unsigned int off, unsigned int side) {
     // FPix
     set(off + 0, ttopo.pxfDetId(side, 1, 0, 0, 0));
     set(off + 1, ttopo.pxfDetId(side, 2, 0, 0, 0));
     set(off + 2, ttopo.pxfDetId(side, 3, 0, 0, 0));
     // TID+
-    off += 1;
+    off += 1;  // see comment above for barrel
     set(off + 2, ttopo.tidDetId(side, 1, 0, 0, 0, 0));
     set(off + 3, ttopo.tidDetId(side, 1, 0, 0, 0, 1));
     set(off + 4, ttopo.tidDetId(side, 2, 0, 0, 0, 0));
@@ -261,13 +266,16 @@ std::vector<const DetLayer*> MkFitOutputConverter::createDetLayers(const mkfit::
     set(off + 25, ttopo.tecDetId(side, 9, 0, 0, 0, 0, 1));
   };
 
+  constexpr unsigned int nlay_barrel = 16 + 1;  // 16 in phase0, 1 more in phase1
+  constexpr unsigned int nlay_endcap = 25 + 1;  // 25 in phase0, 1 more in phase1
+
   // plus
-  off = 17 + 1;
-  setForward(2);
+  off = nlay_barrel + 1;  // +1 to move to next slot
+  setForward(off, 2);
 
   // minus
-  off = 17 + 1 + 25 + 2;
-  setForward(1);
+  off += nlay_endcap + 1;  // +1 to move to next slot
+  setForward(off, 1);
 
   return dets;
 }
@@ -335,11 +343,8 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     // MkFit hits are *not* in the order of propagation, sort by 3D radius for now (as we don't have loopers)
     // TODO: Improve the sorting (extract keys? maybe even bubble sort would work well as the hits are almost in the correct order)
     recHits.sort([](const auto& a, const auto& b) {
-      const auto aid = a.geographicalId();
-      const auto bid = b.geographicalId();
-
-      const auto asub = aid.subdetId();
-      const auto bsub = bid.subdetId();
+      const auto asub = a.geographicalId().subdetId();
+      const auto bsub = b.geographicalId().subdetId();
       if (asub != bsub) {
         // Subdetector order (BPix, FPix, TIB, TID, TOB, TEC) corresponds also the navigation
         return asub < bsub;
@@ -366,19 +371,16 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
       // sanity check for now
       const auto& candHitOnTrack = cand.getHitOnTrack(i);
       if (hitOnTrack.layer != candHitOnTrack.layer) {
-        //throw cms::Exception("LogicError")
-        edm::LogError("MkFitOutputConverter")
+        throw cms::Exception("LogicError")
             << "Candidate " << candIndex << " from seed " << seedIndex << " hit " << i
             << " has different layer in candidate (" << candHitOnTrack.layer << ") and seed (" << hitOnTrack.layer
             << ")."
             << " Hit indices are " << candHitOnTrack.index << " and " << hitOnTrack.index << ", respectively";
       }
       if (hitOnTrack.index != candHitOnTrack.index) {
-        //throw cms::Exception("LogicError")
-        edm::LogError("MkFitOutputConverter")
-            << "Candidate " << candIndex << " from seed " << seedIndex << " hit " << i
-            << " has different hit index in candidate (" << candHitOnTrack.index << ") and seed (" << hitOnTrack.index
-            << ") on layer " << hitOnTrack.layer;
+        throw cms::Exception("LogicError") << "Candidate " << candIndex << " from seed " << seedIndex << " hit " << i
+                                           << " has different hit index in candidate (" << candHitOnTrack.index
+                                           << ") and seed (" << hitOnTrack.index << ") on layer " << hitOnTrack.layer;
       }
     }
 

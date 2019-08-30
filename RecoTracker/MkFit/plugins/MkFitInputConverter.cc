@@ -8,6 +8,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/trackerHitRTTI.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -195,12 +196,11 @@ mkfit::TrackVec MkFitInputConverter::convertSeeds(const edm::View<TrajectorySeed
 
     // Add hits
     for (auto iHit = hitRange.first; iHit != hitRange.second; ++iHit) {
-      const auto* hit = dynamic_cast<const BaseTrackerRecHit*>(&*iHit);
-      if (hit == nullptr) {
-        throw cms::Exception("Assert") << "Encountered a seed with a hit which is not BaseTrackerRecHit";
+      if (not trackerHitRTTI::isFromDet(*iHit)) {
+        throw cms::Exception("Assert") << "Encountered a seed with a hit which is not trackerHitRTTI::isFromDet()";
       }
-
-      const auto& info = indexLayers.get(hit->firstClusterRef().id(), hit->firstClusterRef().index());
+      const auto& clusterRef = static_cast<const BaseTrackerRecHit&>(*iHit).firstClusterRef();
+      const auto& info = indexLayers.get(clusterRef.id(), clusterRef.index());
       ret.back().addHitIdx(info.index, info.layer, 0);  // per-hit chi2 is not known
     }
     ++index;
