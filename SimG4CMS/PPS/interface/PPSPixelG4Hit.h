@@ -50,8 +50,8 @@ public:
   void Draw() override {}
   void Print() override;
 
-  const G4ThreeVector& getMeanPosition() const { return MeanPosition; };
-  void setMeanPosition(const G4ThreeVector& a) { MeanPosition = a; };
+  const G4ThreeVector& getMeanPosition() const { return MeanPosition_; };
+  void setMeanPosition(const G4ThreeVector& a) { MeanPosition_ = a; };
 
   const G4ThreeVector& getEntryPoint() const;
   void setEntryPoint(const G4ThreeVector&);
@@ -128,32 +128,32 @@ public:
   void setVz(float p);
 
 private:
-  G4ThreeVector MeanPosition;
-  double elem;               //EnergyDeposit of EM particles
-  double hadr;               //EnergyDeposit of HD particles
-  double theIncidentEnergy;  //Energy of the primary particle
-  int theTrackID;            //Identification number of the primary
-                             //particle
-  uint32_t theUnitID;        //PPS Unit Number
-  double theTimeSlice;       //Time Slice Identification
+  G4ThreeVector MeanPosition_;
+  double elem_;               //EnergyDeposit of EM particles
+  double hadr_;               //EnergyDeposit of HD particles
+  double theIncidentEnergy_;  //Energy of the primary particle
+  int theTrackID_;            //Identification number of the primary
+                              //particle
+  uint32_t theUnitID_;        //PPS Unit Number
+  double theTimeSlice_;       //Time Slice Identification
 
-  float theX;
-  float theY;
-  float theZ;
-  float thePabs;
-  float theTof;
-  float theEnergyLoss;
-  int theParticleType;
+  float theX_;
+  float theY_;
+  float theZ_;
+  float thePabs_;
+  float theTof_;
+  float theEnergyLoss_;
+  int theParticleType_;
 
-  float theThetaAtEntry;
-  float thePhiAtEntry;
-  G4ThreeVector theEntryPoint;
-  G4ThreeVector theExitPoint;
-  float thePx, thePy, thePz, theVPx, theVPy, theVPz;
-  int theParentId;
-  float theVx;
-  float theVy;
-  float theVz;
+  float theThetaAtEntry_;
+  float thePhiAtEntry_;
+  G4ThreeVector theEntryPoint_;
+  G4ThreeVector theExitPoint_;
+  float thePx_, thePy_, thePz_, theVPx_, theVPy_, theVPz_;
+  int theParentId_;
+  float theVx_;
+  float theVy_;
+  float theVz_;
 };
 
 std::ostream& operator<<(std::ostream&, const PPSPixelG4Hit&);

@@ -97,44 +97,44 @@ public:
   void setVy(double p);
   void setVz(double p);
 
-  void set_p_x(double p);
-  void set_p_y(double p);
-  void set_p_z(double p);
+  void setPx(double p);
+  void setPy(double p);
+  void setPz(double p);
 
-  double get_p_x() const;
-  double get_p_y() const;
-  double get_p_z() const;
+  double getPx() const;
+  double getPy() const;
+  double getPz() const;
 
 private:
-  G4ThreeVector entry;        //Entry point
-  G4ThreeVector exit;         //Exit point
-  G4ThreeVector local_entry;  //local entry point
-  G4ThreeVector local_exit;   //local exit point
-  double theIncidentEnergy;   //Energy of the primary particle
-  int theTrackID;             //Identification number of the primary
-                              //particle
-  uint32_t theUnitID;         //Totem Unit Number
-  double theTimeSlice;        //Time Slice Identification
+  G4ThreeVector entry_;        //Entry point
+  G4ThreeVector exit_;         //Exit point
+  G4ThreeVector local_entry_;  //local entry point
+  G4ThreeVector local_exit_;   //local exit point
+  double theIncidentEnergy_;   //Energy of the primary particle
+  int theTrackID_;             //Identification number of the primary
+                               //particle
+  uint32_t theUnitID_;         //Totem Unit Number
+  double theTimeSlice_;        //Time Slice Identification
 
-  double theX;
-  double theY;
-  double theZ;
-  double thePabs;
-  double theTof;
-  double theEnergyLoss;
-  int theParticleType;
+  double theX_;
+  double theY_;
+  double theZ_;
+  double thePabs_;
+  double theTof_;
+  double theEnergyLoss_;
+  int theParticleType_;
 
-  double theThetaAtEntry;
-  double thePhiAtEntry;
-  G4ThreeVector theEntryPoint;
-  G4ThreeVector theExitPoint;
+  double theThetaAtEntry_;
+  double thePhiAtEntry_;
+  G4ThreeVector theEntryPoint_;
+  G4ThreeVector theExitPoint_;
 
-  int theParentId;
-  double theVx;
-  double theVy;
-  double theVz;
+  int theParentId_;
+  double theVx_;
+  double theVy_;
+  double theVz_;
 
-  double p_x, p_y, p_z;
+  double thePx_, thePy_, thePz_;
 };
 
 std::ostream &operator<<(std::ostream &, const TotemRPG4Hit &);

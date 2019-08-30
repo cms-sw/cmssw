@@ -87,51 +87,51 @@ private:
   void Summarize();
 
 private:
-  TrackingSlaveSD* slave;
-  PPSVDetectorOrganization* numberingScheme;
+  TrackingSlaveSD* slave_;
+  PPSVDetectorOrganization* numberingScheme_;
 
   // Data relative to primary particle (the one which triggers a shower)
   // These data are common to all Hits of a given shower.
   // One shower is made of several hits which differ by the
   // unit ID (cristal/fiber/scintillator) and the Time slice ID.
 
-  G4ThreeVector entrancePoint;
-  float incidentEnergy;
-  G4int primID;  //@@ ID of the primary particle.
+  G4ThreeVector entrancePoint_;
+  float incidentEnergy_;
+  G4int primID_;  //@@ ID of the primary particle.
 
-  std::string name;
-  G4int hcID;
-  PPSPixelG4HitCollection* theHC;
-  const SimTrackManager* theManager;
+  std::string name_;
+  G4int hcID_;
+  PPSPixelG4HitCollection* theHC_;
+  const SimTrackManager* theManager_;
 
-  int tsID;
-  PPSPixelG4Hit* currentHit;
-  G4Track* theTrack;
-  G4VPhysicalVolume* currentPV;
-  uint32_t unitID, previousUnitID;
-  int primaryID, tSliceID;
-  double tSlice;
+  int tsID_;
+  PPSPixelG4Hit* currentHit_;
+  G4Track* theTrack_;
+  G4VPhysicalVolume* currentPV_;
+  uint32_t unitID_, previousUnitID_;
+  int primaryID_, tSliceID_;
+  double tSlice_;
 
-  G4StepPoint* preStepPoint;
-  G4StepPoint* postStepPoint;
-  float edeposit;
-  G4ThreeVector hitPoint;
+  G4StepPoint* preStepPoint_;
+  G4StepPoint* postStepPoint_;
+  float edeposit_;
+  G4ThreeVector hitPoint_;
 
-  G4ThreeVector Posizio;
-  G4ThreeVector theEntryPoint;
-  G4ThreeVector theExitPoint;
-  float Pabs;
-  float Tof;
-  float Eloss;
-  short ParticleType;
+  G4ThreeVector Posizio_;
+  G4ThreeVector theEntryPoint_;
+  G4ThreeVector theExitPoint_;
+  float Pabs_;
+  float Tof_;
+  float Eloss_;
+  short ParticleType_;
 
-  float ThetaAtEntry;
-  float PhiAtEntry;
+  float ThetaAtEntry_;
+  float PhiAtEntry_;
 
-  int ParentId;
-  float Vx, Vy, Vz;
+  int ParentId_;
+  float Vx_, Vy_, Vz_;
 
-  int eventno;
+  int eventno_;
 };
 
 #endif

@@ -16,11 +16,11 @@ public:
   uint32_t GetUnitID(const G4Step* aStep) override;
 
 private:
-  unsigned int theArm;
-  unsigned int theStation;
-  unsigned int theRoman_pot;
-  unsigned int thePlane;
-  unsigned int theDetector;
+  unsigned int theArm_;
+  unsigned int theStation_;
+  unsigned int theRoman_pot_;
+  unsigned int thePlane_;
+  unsigned int theDetector_;
 };
 
 #endif  //PPS_PPSDiamondOrganization_h
