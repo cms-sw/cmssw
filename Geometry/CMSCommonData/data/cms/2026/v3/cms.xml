@@ -135,7 +135,7 @@
     <rMaterial name="materials:Air"/>
   </LogicalPart>
   <LogicalPart name="CMSE" category="unspecified">
-    <rSolid name="OMSE"/><!--Sergio: it was CMSE -->
+    <rSolid name="OCMS"/><!--Sergio: it was CMSE -->
     <rMaterial name="materials:Air"/>
   </LogicalPart>
 </LogicalPartSection>
