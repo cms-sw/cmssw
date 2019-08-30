@@ -132,7 +132,7 @@ _variablesMiniV2 = cms.PSet(
     _mvaAntiEVars2018,
     _mvaIsoVars2015Reduced,
     _mvaIsoVars2017v1,
-    _mvaIsoVars2017v2,
+    _mvaIsoVars2017v2
 )
 _variablesMiniV1 = _variablesMiniV2.clone()
 _variablesMiniV1.rawMVAoldDM = Var( "tauID('byIsolationMVArun2v1DBoldDMwLTraw')",float, doc="byIsolationMVArun2v1DBoldDMwLT raw output discriminator (2015)",precision=10)
