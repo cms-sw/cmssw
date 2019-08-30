@@ -133,8 +133,8 @@ namespace cms {
     const DDSolidShape shape() const;
 
     //! extract attribute value
-    template<typename T>
-      T get(const char*) const;
+    template <typename T>
+    T get(const char*) const;
 
   private:
     bool accept(std::string_view);

@@ -26,12 +26,9 @@ private:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testDDSolidShapes);
 
-void testDDSolidShapes::setUp() {
-  solidName_ = "Trapezoid";
-}
+void testDDSolidShapes::setUp() { solidName_ = "Trapezoid"; }
 
 void testDDSolidShapes::checkDDSolidShapes() {
-
   DDSolidShape shape = cms::dd::value(cms::DDSolidShapeMap, solidName_);
   CPPUNIT_ASSERT(shape == DDSolidShape::ddtrap);
 
@@ -43,5 +40,4 @@ void testDDSolidShapes::checkDDSolidShapes() {
 
   std::string invalidName = cms::dd::name(cms::DDSolidShapeMap, invalidShape);
   CPPUNIT_ASSERT(invalidName == std::string("Solid not initialized"));
-
 }
