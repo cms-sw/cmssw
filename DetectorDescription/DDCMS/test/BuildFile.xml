@@ -17,6 +17,9 @@
 <bin   name="testDD4hepExpandedNodes" file="ExpandedNodes.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
 </bin>
+<bin   name="testDD4hepDDSolidShapes" file="DDSolidShapes.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+</bin>
 <bin file="dummyMain.cpp" name="DetectorDescriptionDDCMSTestDriver">
   <use   name="FWCore/Utilities"/>
   <flags   TEST_RUNNER_ARGS="/bin/bash DetectorDescription/DDCMS/test runTest.sh"/>

@@ -19,6 +19,7 @@
 //
 //
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
+#include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include "DetectorDescription/DDCMS/interface/ExpandedNodes.h"
 #include "DetectorDescription/DDCMS/interface/Filter.h"
 #include <DD4hep/Volumes.h>
@@ -28,6 +29,7 @@
 namespace cms {
 
   class DDDetector;
+  class DDCompactView;
 
   using Volume = dd4hep::Volume;
   using PlacedVolume = dd4hep::PlacedVolume;
@@ -35,10 +37,16 @@ namespace cms {
   using Filter = cms::Filter;
   using Iterator = TGeoIterator;
   using Node = TGeoNode;
+  using DDFilter = std::string_view;
+  using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
+  using RotationMatrix = ROOT::Math::Rotation3D;
 
   class DDFilteredView {
   public:
+    using nav_type = std::vector<int>;
+
     DDFilteredView(const DDDetector*, const Volume);
+    DDFilteredView(const DDCompactView&, const DDFilter&);
     DDFilteredView() = delete;
 
     //! The numbering history of the current node
@@ -50,9 +58,11 @@ namespace cms {
     //! The absolute translation of the current node
     // Return value is Double_t translation[3] with x, y, z elements.
     const Double_t* trans() const;
+    const Translation translation() const;
 
     //! The absolute rotation of the current node
     const Double_t* rot() const;
+    const RotationMatrix rotation() const;
     void rot(dd4hep::Rotation3D& matrixOut) const;
 
     //! User specific data
@@ -120,6 +130,17 @@ namespace cms {
 
     //! extract shape parameters
     std::vector<double> extractParameters() const;
+    const std::vector<double> parameters() const;
+
+    const DDSolidShape shape() const;
+
+    //! extract attribute value
+    template <typename T>
+    T get(const char*) const;
+
+    //! return the stack of sibling numbers which indicates
+    //  the current position in the DDFilteredView
+    nav_type navPos() const;
 
   private:
     bool accept(std::string_view);
