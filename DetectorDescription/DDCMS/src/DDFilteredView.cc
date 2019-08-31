@@ -1,4 +1,5 @@
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DD4hep/Detector.h"
@@ -11,21 +12,71 @@ using namespace edm;
 using namespace std;
 using namespace cms::dd;
 
-// These names are defined in the DD4hep source code.
-// They are returned by dd4hep::Solid.GetTitle(). If DD4hep changes them,
-// the names must be updated here.
-static const char* const pseudoTrapName = "pseudotrap";
-static const char* const truncTubeName = "trunctube";
-
-DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume) : registry_(&det->specpars()) {
+DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume)
+    : node_(volume->GetNode(0)), registry_(&det->specpars()) {
   it_.emplace_back(Iterator(volume));
 }
 
-const PlacedVolume DDFilteredView::volume() const { return PlacedVolume(node_); }
+DDFilteredView::DDFilteredView(const DDCompactView& cpv, const DDFilter& attribute) : registry_(&cpv.specpars()) {
+  it_.emplace_back(Iterator(cpv.detector()->worldVolume()));
+  node_ = cpv.detector()->worldVolume()->GetNode(0);
+  DDSpecParRefs refs;
+  registry_->filter(refs, attribute);
+  mergedSpecifics(refs);
+  LogVerbatim("Geometry").log([&refs](auto& log) {
+    log << "Filtered DD SpecPar Registry size: " << refs.size() << "\n";
+    for (const auto& t : refs) {
+      log << "\nRegExps { ";
+      for (const auto& ki : t->paths)
+        log << ki << " ";
+      log << "};\n ";
+      for (const auto& kl : t->spars) {
+        log << kl.first << " = ";
+        for (const auto& kil : kl.second) {
+          log << kil << " ";
+        }
+        log << "\n ";
+      }
+    }
+  });
+}
+
+const PlacedVolume DDFilteredView::volume() const {
+  assert(node_);
+  return PlacedVolume(node_);
+}
 
 const Double_t* DDFilteredView::trans() const { return it_.back().GetCurrentMatrix()->GetTranslation(); }
 
+const Translation DDFilteredView::translation() const {
+  const Double_t* translation = it_.back().GetCurrentMatrix()->GetTranslation();
+  assert(translation);
+  return Translation(translation[0], translation[1], translation[2]);
+}
+
 const Double_t* DDFilteredView::rot() const { return it_.back().GetCurrentMatrix()->GetRotationMatrix(); }
+
+const RotationMatrix DDFilteredView::rotation() const {
+  const Double_t* rotation = it_.back().GetCurrentMatrix()->GetRotationMatrix();
+  if (rotation == nullptr) {
+    LogError("DDFilteredView") << "Current node has no valid rotation matrix.";
+    return RotationMatrix();
+  }
+
+  LogVerbatim("DDFilteredView") << "Rotation matrix components (1st 3) = " << rotation[0] << ", " << rotation[1] << ", "
+                                << rotation[2];
+  RotationMatrix rotMatrix;
+  rotMatrix.SetComponents(rotation[0],
+                          rotation[1],
+                          rotation[2],
+                          rotation[3],
+                          rotation[4],
+                          rotation[5],
+                          rotation[6],
+                          rotation[7],
+                          rotation[8]);
+  return rotMatrix;
+}
 
 void DDFilteredView::rot(dd4hep::Rotation3D& matrixOut) const {
   const Double_t* rotation = it_.back().GetCurrentMatrix()->GetRotationMatrix();
@@ -96,6 +147,7 @@ bool DDFilteredView::firstChild() {
 }
 
 bool DDFilteredView::firstSibling() {
+  assert(node_);
   if (it_.empty() || currentFilter_ == nullptr)
     return false;
   if (next(0) == false)
@@ -117,6 +169,7 @@ bool DDFilteredView::firstSibling() {
 }
 
 bool DDFilteredView::nextSibling() {
+  assert(node_);
   if (it_.empty() || currentFilter_ == nullptr)
     return false;
   it_.back().SetType(1);
@@ -146,6 +199,7 @@ bool DDFilteredView::sibling() {
 }
 
 bool DDFilteredView::siblingNoCheck() {
+  assert(node_);
   if (it_.empty() || currentFilter_ == nullptr)
     return false;
   it_.back().SetType(1);
@@ -222,7 +276,9 @@ bool DDFilteredView::accept(std::string_view name) {
   return result;
 }
 
+// FIXME: obsolete
 vector<double> DDFilteredView::extractParameters() const {
+  assert(node_);
   Volume currVol = node_->GetVolume();
   if (currVol->GetShape()->IsA() == TGeoBBox::Class()) {
     const TGeoBBox* box = static_cast<const TGeoBBox*>(currVol->GetShape());
@@ -237,6 +293,51 @@ vector<double> DDFilteredView::extractParameters() const {
     return {box->GetDX(), box->GetDY(), box->GetDZ()};
   } else
     return {1, 1, 1};
+}
+
+const std::vector<double> DDFilteredView::parameters() const {
+  assert(node_);
+  Volume currVol = node_->GetVolume();
+  return currVol.solid().dimensions();
+}
+
+const DDSolidShape DDFilteredView::shape() const {
+  return cms::dd::value(cms::DDSolidShapeMap, node_->GetVolume()->GetShape()->GetTitle());
+}
+
+template <>
+std::string_view DDFilteredView::get<string_view>(const char* key) const {
+  std::string_view result;
+  DDSpecParRefs refs;
+  registry_->filter(refs, key);
+  for_each(begin(refs), end(refs), [&](auto const& i) {
+    auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
+      return (compareEqual(name(), *rbegin(split(realTopName(j), "/"))));
+    });
+    if (k != end(i->paths)) {
+      result = i->strValue(key);
+    }
+  });
+
+  return result;
+}
+
+template <>
+double DDFilteredView::get<double>(const char* key) const {
+  double result(0.0);
+  std::string_view tmpStrV = get<std::string_view>(key);
+  if (!tmpStrV.empty())
+    result = dd4hep::_toDouble({tmpStrV.data(), tmpStrV.size()});
+  return result;
+}
+
+DDFilteredView::nav_type DDFilteredView::navPos() const {
+  Int_t level = it_.back().GetLevel();
+  nav_type pos(level);
+  for (Int_t i = 1; i <= level; ++i)
+    pos[i] = it_.back().GetIndex(i);
+
+  return pos;
 }
 
 bool DDFilteredView::addPath(Node* const node) {
@@ -291,6 +392,7 @@ void DDFilteredView::unCheckNode() {
 }
 
 const TClass* DDFilteredView::getShape() const {
+  assert(node_);
   Volume currVol = node_->GetVolume();
   return (currVol->GetShape()->IsA());
 }
@@ -301,14 +403,14 @@ bool DDFilteredView::isAConeSeg() const { return (getShape() == TGeoConeSeg::Cla
 
 bool DDFilteredView::isAPseudoTrap() const {
   LogVerbatim("DDFilteredView") << "Shape is a " << solid()->GetTitle() << ".";
-  return (strcmp(solid()->GetTitle(), pseudoTrapName) == 0);
+  return (dd4hep::instanceOf<dd4hep::PseudoTrap>(solid()));
 }
 
 bool DDFilteredView::isATrapezoid() const { return (getShape() == TGeoTrap::Class()); }
 
 bool DDFilteredView::isATruncTube() const {
   LogVerbatim("DDFilteredView") << "Shape is a " << solid()->GetTitle() << ".";
-  return (strcmp(solid()->GetTitle(), truncTubeName) == 0);
+  return (dd4hep::instanceOf<dd4hep::TruncatedTube>(solid()));
 }
 
 bool DDFilteredView::isATubeSeg() const { return (getShape() == TGeoTubeSeg::Class()); }
