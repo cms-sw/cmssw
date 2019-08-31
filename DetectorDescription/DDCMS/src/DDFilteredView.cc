@@ -12,12 +12,6 @@ using namespace edm;
 using namespace std;
 using namespace cms::dd;
 
-// These names are defined in the DD4hep source code.
-// They are returned by dd4hep::Solid.GetTitle(). If DD4hep changes them,
-// the names must be updated here.
-static const char* const pseudoTrapName = "pseudotrap";
-static const char* const truncTubeName = "trunctube";
-
 DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume)
     : node_(volume->GetNode(0)), registry_(&det->specpars()) {
   it_.emplace_back(Iterator(volume));
@@ -312,36 +306,38 @@ const DDSolidShape DDFilteredView::shape() const {
 }
 
 template <>
-double DDFilteredView::get<double>(const char* key) const {
-  std::cout << "DDFilteredView::get<double> " << key << "\n";
-  for (auto tit : it_) {
-    int level = tit.GetLevel();
-    std::cout << level << ": " << tit.GetNode(level)->GetVolume()->GetName() << "\n";
-    for (int nit = level; nit > 0; --nit) {
-      std::cout << "     " << nit << ": " << tit.GetNode(nit)->GetVolume()->GetName() << "\n";
-    }
-  }
-  std::cout << ".done!\n";
-
-  double result(0.0);
+std::string_view DDFilteredView::get<string_view>(const char* key) const {
+  std::string_view result;
   DDSpecParRefs refs;
   registry_->filter(refs, key);
   for_each(begin(refs), end(refs), [&](auto const& i) {
     auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
-      return (compareEqual(name(), *end(split(realTopName(j), "/"))) && (i->hasValue(key)));
+      return (compareEqual(name(), *rbegin(split(realTopName(j), "/"))));
     });
     if (k != end(i->paths)) {
-      result = i->dblValue(key);
+      result = i->strValue(key);
     }
   });
+
   return result;
 }
 
 template <>
-std::string DDFilteredView::get<string>(const char* key) const {
-  //FIXME
-  std::cout << "DDFilteredView::get<string> " << key << " for " << name() << "\n";
-  return std::string("none");
+double DDFilteredView::get<double>(const char* key) const {
+  double result(0.0);
+  std::string_view tmpStrV = get<std::string_view>(key);
+  if (!tmpStrV.empty())
+    result = dd4hep::_toDouble({tmpStrV.data(), tmpStrV.size()});
+  return result;
+}
+
+DDFilteredView::nav_type DDFilteredView::navPos() const {
+  Int_t level = it_.back().GetLevel();
+  nav_type pos(level);
+  for (Int_t i = 1; i <= level; ++i)
+    pos[i] = it_.back().GetIndex(i);
+
+  return pos;
 }
 
 bool DDFilteredView::addPath(Node* const node) {
@@ -407,14 +403,14 @@ bool DDFilteredView::isAConeSeg() const { return (getShape() == TGeoConeSeg::Cla
 
 bool DDFilteredView::isAPseudoTrap() const {
   LogVerbatim("DDFilteredView") << "Shape is a " << solid()->GetTitle() << ".";
-  return (strcmp(solid()->GetTitle(), pseudoTrapName) == 0);
+  return (dd4hep::instanceOf<dd4hep::PseudoTrap>(solid()));
 }
 
 bool DDFilteredView::isATrapezoid() const { return (getShape() == TGeoTrap::Class()); }
 
 bool DDFilteredView::isATruncTube() const {
   LogVerbatim("DDFilteredView") << "Shape is a " << solid()->GetTitle() << ".";
-  return (strcmp(solid()->GetTitle(), truncTubeName) == 0);
+  return (dd4hep::instanceOf<dd4hep::TruncatedTube>(solid()));
 }
 
 bool DDFilteredView::isATubeSeg() const { return (getShape() == TGeoTubeSeg::Class()); }

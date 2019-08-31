@@ -43,6 +43,8 @@ namespace cms {
 
   class DDFilteredView {
   public:
+    using nav_type = std::vector<int>;
+
     DDFilteredView(const DDDetector*, const Volume);
     DDFilteredView(const DDCompactView&, const DDFilter&);
     DDFilteredView() = delete;
@@ -135,6 +137,10 @@ namespace cms {
     //! extract attribute value
     template <typename T>
     T get(const char*) const;
+
+    //! return the stack of sibling numbers which indicates
+    //  the current position in the DDFilteredView
+    nav_type navPos() const;
 
   private:
     bool accept(std::string_view);
