@@ -313,9 +313,7 @@ caloDict = {
             'Geometry/HGCalSimData/data/hgcProdCutsv9.xml',
         ],
         "sim" : [
-            'from Geometry.HcalCommonData.hcalParameters_cfi           import *',
-            'from Geometry.HcalCommonData.hcalSimulationParameters_cfi import *',
-            'from Geometry.HcalCommonData.hcalDDDSimConstants_cfi      import *',
+            'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
             'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
         ],
@@ -394,9 +392,7 @@ caloDict = {
             'Geometry/ForwardSimData/data/hfnoseProdCuts.xml',
         ],
         "sim" : [
-            'from Geometry.HcalCommonData.hcalParameters_cfi           import *',
-            'from Geometry.HcalCommonData.hcalSimulationParameters_cfi import *',
-            'from Geometry.HcalCommonData.hcalDDDSimConstants_cfi      import *',
+            'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
             'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *',
             'from Geometry.ForwardCommonData.hfnoseParametersInitialization_cfi import *',
@@ -473,9 +469,7 @@ caloDict = {
             'Geometry/HGCalSimData/data/hgcProdCutsv9.xml',
         ],
         "sim" : [
-            'from Geometry.HcalCommonData.hcalParameters_cfi           import *',
-            'from Geometry.HcalCommonData.hcalSimulationParameters_cfi import *',
-            'from Geometry.HcalCommonData.hcalDDDSimConstants_cfi      import *',
+            'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
             'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
         ],
@@ -547,9 +541,7 @@ caloDict = {
             'Geometry/HGCalSimData/data/hgcProdCutsv9.xml',
         ],
         "sim" : [
-            'from Geometry.HcalCommonData.hcalParameters_cfi           import *',
-            'from Geometry.HcalCommonData.hcalSimulationParameters_cfi import *',
-            'from Geometry.HcalCommonData.hcalDDDSimConstants_cfi      import *',
+            'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
             'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
         ],
@@ -627,9 +619,7 @@ caloDict = {
             'Geometry/ForwardSimData/data/hfnoseProdCuts.xml',
         ],
         "sim" : [
-            'from Geometry.HcalCommonData.hcalParameters_cfi           import *',
-            'from Geometry.HcalCommonData.hcalSimulationParameters_cfi import *',
-            'from Geometry.HcalCommonData.hcalDDDSimConstants_cfi      import *',
+            'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
             'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *',
             'from Geometry.ForwardCommonData.hfnoseParametersInitialization_cfi import *',
