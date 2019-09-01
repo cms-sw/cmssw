@@ -10,46 +10,40 @@
  */
 
 class TrimmedVertexFitter : public VertexFitter<5> {
-
 public:
-
   typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
   typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
   TrimmedVertexFitter();
-  TrimmedVertexFitter(const edm::ParameterSet & pSet);
+  TrimmedVertexFitter(const edm::ParameterSet& pSet);
 
-  ~TrimmedVertexFitter() override{}
+  ~TrimmedVertexFitter() override {}
 
-  CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks) const override;
+  CachingVertex<5> vertex(const std::vector<reco::TransientTrack>& tracks) const override;
 
-  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks) const override;
-  
-  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks,
-      const reco::BeamSpot & spot ) const override;
+  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack>& tracks) const override;
 
-  CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
-  			const GlobalPoint& linPoint) const override;
+  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack>& tracks, const reco::BeamSpot& spot) const override;
 
-  CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
-  			const GlobalPoint& priorPos,
-			const GlobalError& priorError) const override;
+  CachingVertex<5> vertex(const std::vector<reco::TransientTrack>& tracks, const GlobalPoint& linPoint) const override;
 
-  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks,
-	 		const GlobalPoint& priorPos,
-			const GlobalError& priorError) const override;
+  CachingVertex<5> vertex(const std::vector<reco::TransientTrack>& tracks,
+                          const GlobalPoint& priorPos,
+                          const GlobalError& priorError) const override;
 
-  CachingVertex<5> vertex(const std::vector<reco::TransientTrack> & tracks,
-		const reco::BeamSpot& beamSpot) const override;
+  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack>& tracks,
+                          const GlobalPoint& priorPos,
+                          const GlobalError& priorError) const override;
 
+  CachingVertex<5> vertex(const std::vector<reco::TransientTrack>& tracks,
+                          const reco::BeamSpot& beamSpot) const override;
 
-   // Clone method
-  TrimmedVertexFitter * clone() const override;
+  // Clone method
+  TrimmedVertexFitter* clone() const override;
 
-
-  void setPtCut ( float cut );
-  void setTrackCompatibilityCut ( float cut );
-  void setVertexFitProbabilityCut ( float cut );
+  void setPtCut(float cut);
+  void setTrackCompatibilityCut(float cut);
+  void setVertexFitProbabilityCut(float cut);
 
 private:
   KalmanTrimmedVertexFinder theRector;

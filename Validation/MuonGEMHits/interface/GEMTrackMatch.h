@@ -3,7 +3,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -22,8 +21,7 @@
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 
-struct MySimTrack
-{
+struct MySimTrack {
   Float_t pt, eta, phi;
   Char_t gem_sh_layer1, gem_sh_layer2;
   Char_t gem_dg_layer1, gem_dg_layer2;
@@ -31,46 +29,44 @@ struct MySimTrack
   Char_t has_gem_dg_l1, has_gem_dg_l2;
   Char_t has_gem_pad_l1, has_gem_pad_l2;
   Char_t has_gem_sh_l1, has_gem_sh_l2;
-  bool gem_sh[3][2] ;
-  bool gem_dg[3][2] ;
-  bool gem_pad[3][2] ;
-  bool gem_rh[3][2] ;
+  bool gem_sh[3][2];
+  bool gem_dg[3][2];
+  bool gem_pad[3][2];
+  bool gem_rh[3][2];
   bool hitOdd[3];
   bool hitEven[3];
 };
 
-class GEMTrackMatch : public DQMEDAnalyzer
-{
+class GEMTrackMatch : public DQMEDAnalyzer {
 public:
-  explicit GEMTrackMatch( const edm::ParameterSet&  cfg);
+  explicit GEMTrackMatch(const edm::ParameterSet& cfg);
   ~GEMTrackMatch() override;
-  void analyze(const edm::Event& e, const edm::EventSetup&) override = 0 ;
+  void analyze(const edm::Event& e, const edm::EventSetup&) override = 0;
 
   void buildLUT(const int maxChamberId);
-  std::pair<int,int> getClosestChambers(const int maxChamberId, int region, float phi);
-  std::pair<double, double> getEtaRangeForPhi( int station );
-  bool isSimTrackGood(const SimTrack& );
-  void setGeometry(const GEMGeometry& geom); 
-  std::pair<double,double> getEtaRange(int station, int chamber ) ;
+  std::pair<int, int> getClosestChambers(const int maxChamberId, int region, float phi);
+  std::pair<double, double> getEtaRangeForPhi(int station);
+  bool isSimTrackGood(const SimTrack&);
+  void setGeometry(const GEMGeometry& geom);
+  std::pair<double, double> getEtaRange(int station, int chamber);
 
-  void FillWithTrigger( MonitorElement* me[3], Float_t eta);
-  void FillWithTrigger( MonitorElement* me[3][3], Float_t eta, Float_t phi, bool odd[3], bool even[3]);
-  void FillWithTrigger( MonitorElement* me[4][3], bool array[3][2], Float_t value);
-  void FillWithTrigger( MonitorElement* me[4][3][3], bool array[3][2], Float_t eta, Float_t phi, bool odd[3], bool even[3]);
+  void FillWithTrigger(MonitorElement* me[3], Float_t eta);
+  void FillWithTrigger(MonitorElement* me[3][3], Float_t eta, Float_t phi, bool odd[3], bool even[3]);
+  void FillWithTrigger(MonitorElement* me[4][3], bool array[3][2], Float_t value);
+  void FillWithTrigger(
+      MonitorElement* me[4][3][3], bool array[3][2], Float_t eta, Float_t phi, bool odd[3], bool even[3]);
 
-
- protected:
+protected:
   edm::ParameterSet cfg_;
   edm::EDGetToken simHitsToken_;
   edm::EDGetToken simTracksToken_;
   edm::EDGetToken simVerticesToken_;
 
-  std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
-  std::pair<std::vector<float>,std::vector<int> > negativeLUT_;
+  std::pair<std::vector<float>, std::vector<int> > positiveLUT_;
+  std::pair<std::vector<float>, std::vector<int> > negativeLUT_;
 
-  std::vector< double > etaRangeForPhi;
+  std::vector<double> etaRangeForPhi;
 
-  
   float minPt_;
   float minEta_;
   float maxEta_;

@@ -1,9 +1,9 @@
 #ifndef CSCIndexerFactory_H
 #define CSCIndexerFactory_H
 
-#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "CalibMuon/CSCCalibration/interface/CSCIndexerBase.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
-typedef edmplugin::PluginFactory< CSCIndexerBase* (void) > CSCIndexerFactory;
+typedef edmplugin::PluginFactory<CSCIndexerBase *(void)> CSCIndexerFactory;
 
 #endif

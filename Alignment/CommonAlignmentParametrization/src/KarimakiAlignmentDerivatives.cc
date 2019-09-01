@@ -8,11 +8,7 @@
 
 #include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
 
-
-AlgebraicMatrix 
-KarimakiAlignmentDerivatives::operator()( const TrajectoryStateOnSurface &tsos ) const
-{ 
-
+AlgebraicMatrix KarimakiAlignmentDerivatives::operator()(const TrajectoryStateOnSurface &tsos) const {
   // Get track parameters on surface
   AlgebraicVector5 alivec = tsos.localParameters().mixedFormatVector();
 
@@ -23,26 +19,25 @@ KarimakiAlignmentDerivatives::operator()( const TrajectoryStateOnSurface &tsos )
   // [3] x    : local x-coordinate
   // [4] y    : local y-coordinate
 
-  double tanpsi   = alivec[1];
+  double tanpsi = alivec[1];
   double tantheta = alivec[2];
-  double ux       = alivec[3];
-  double vx       = alivec[4];
+  double ux = alivec[3];
+  double vx = alivec[4];
 
-  AlgebraicMatrix aliderivs(6,2);
+  AlgebraicMatrix aliderivs(6, 2);
 
-  aliderivs[0][0]= -1.0;
-  aliderivs[0][1]=  0.0;
-  aliderivs[1][0]=  0.0;
-  aliderivs[1][1]= -1.0;
-  aliderivs[2][0]=  tanpsi;
-  aliderivs[2][1]=  tantheta;
-  aliderivs[3][0]=  vx*tanpsi;
-  aliderivs[3][1]=  vx*tantheta;
-  aliderivs[4][0]= -ux*tanpsi;   // New beta sign convention
-  aliderivs[4][1]= -ux*tantheta; // New beta sign convention
-  aliderivs[5][0]=  vx;
-  aliderivs[5][1]= -ux;
-   
-  return(aliderivs);
+  aliderivs[0][0] = -1.0;
+  aliderivs[0][1] = 0.0;
+  aliderivs[1][0] = 0.0;
+  aliderivs[1][1] = -1.0;
+  aliderivs[2][0] = tanpsi;
+  aliderivs[2][1] = tantheta;
+  aliderivs[3][0] = vx * tanpsi;
+  aliderivs[3][1] = vx * tantheta;
+  aliderivs[4][0] = -ux * tanpsi;    // New beta sign convention
+  aliderivs[4][1] = -ux * tantheta;  // New beta sign convention
+  aliderivs[5][0] = vx;
+  aliderivs[5][1] = -ux;
 
+  return (aliderivs);
 }

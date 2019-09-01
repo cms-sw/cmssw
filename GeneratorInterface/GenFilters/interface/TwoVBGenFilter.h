@@ -2,7 +2,7 @@
 //
 // Package:    TwoVBGenGenFilter
 // Class:      TwoVBGenGenFilter
-// 
+//
 /**\class TwoVBGenGenFilter TwoVBGenGenFilter.cc GeneratorInterface/GenFilters/src/TwoVBGenGenFilter.cc
 
  Description: select semileptonic double-VB events
@@ -14,7 +14,6 @@
 // Original Author:  Maurizio Pierini, Thiago Tomei
 //
 //
-
 
 // system include files
 #include <memory>
@@ -35,23 +34,22 @@
 //
 
 class TwoVBGenFilter : public edm::EDFilter {
-   public:
-      explicit TwoVBGenFilter(const edm::ParameterSet&);
-      ~TwoVBGenFilter() override;
+public:
+  explicit TwoVBGenFilter(const edm::ParameterSet&);
+  ~TwoVBGenFilter() override;
 
-   private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
-      // ----------member data ---------------------------
-      edm::InputTag src_;
-      bool eejj_, enujj_, nunujj_, mumujj_, munujj_, tautaujj_, taunujj_;
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-      bool isNeutrino(const HepMC::GenParticle*);
-      bool isQuark(const HepMC::GenParticle*);
-      bool isElectron(const HepMC::GenParticle*);
-      bool isMuon(const HepMC::GenParticle*);
-      bool isTau(const HepMC::GenParticle*);
+  // ----------member data ---------------------------
+  edm::InputTag src_;
+  bool eejj_, enujj_, nunujj_, mumujj_, munujj_, tautaujj_, taunujj_;
 
+  bool isNeutrino(const HepMC::GenParticle*);
+  bool isQuark(const HepMC::GenParticle*);
+  bool isElectron(const HepMC::GenParticle*);
+  bool isMuon(const HepMC::GenParticle*);
+  bool isTau(const HepMC::GenParticle*);
 };

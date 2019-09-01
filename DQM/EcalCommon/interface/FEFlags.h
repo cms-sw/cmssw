@@ -3,7 +3,8 @@
 
 namespace ecaldqm {
 
-  // partially taken from EventFilter/EcalRawToDigi/interface/DCCRawDataDefinitions.h
+  // partially taken from
+  // EventFilter/EcalRawToDigi/interface/DCCRawDataDefinitions.h
   enum FEFlags {
     Enabled = 0,
     Disabled = 1,
@@ -24,6 +25,6 @@ namespace ecaldqm {
     nFEFlags = 16
   };
 
-}
+}  // namespace ecaldqm
 
 #endif

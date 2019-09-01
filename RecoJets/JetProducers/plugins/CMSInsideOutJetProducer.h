@@ -12,15 +12,10 @@
  *
  */
 
-
-
 #include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/CMSInsideOutAlgorithm.h"
 
-
-class CMSInsideOutJetProducer : public VirtualJetProducer
-{
-
+class CMSInsideOutJetProducer : public VirtualJetProducer {
 public:
   //
   // construction/destruction
@@ -28,16 +23,14 @@ public:
   explicit CMSInsideOutJetProducer(const edm::ParameterSet& iConfig);
   ~CMSInsideOutJetProducer() override;
 
-  void produce( edm::Event & iEvent, const edm::EventSetup & iSetup ) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  
 protected:
-
   //
   // member functions
   //
 
-  void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
+  void runAlgorithm(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   CMSInsideOutAlgorithm alg_;
 };

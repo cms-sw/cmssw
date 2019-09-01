@@ -14,47 +14,27 @@
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 
-class SurveyParameters:
-  public AlignmentParameters
-{
-  public:
-
+class SurveyParameters : public AlignmentParameters {
+public:
   /// Set the alignable, parameters, covariance in base class.
   /// No user variables, default is all parameters are selected and valid.
-  SurveyParameters(
-		   Alignable*,
-		   const AlgebraicVector& par,
-		   const AlgebraicSymMatrix& cov
-		   );
+  SurveyParameters(Alignable*, const AlgebraicVector& par, const AlgebraicSymMatrix& cov);
 
   /// apply not implemented
   void apply() override;
   int type() const override;
 
   /// Cloning not implemented.
-  AlignmentParameters* clone(
-				     const AlgebraicVector&,
-                                     const AlgebraicSymMatrix&
-				     ) const override;
+  AlignmentParameters* clone(const AlgebraicVector&, const AlgebraicSymMatrix&) const override;
 
   /// Cloning not implemented.
-  AlignmentParameters* cloneFromSelected(
-						 const AlgebraicVector&,
-                                                 const AlgebraicSymMatrix&
-						 ) const override;
+  AlignmentParameters* cloneFromSelected(const AlgebraicVector&, const AlgebraicSymMatrix&) const override;
 
   /// Derivatives not implemented.
-  AlgebraicMatrix derivatives(
-				      const TrajectoryStateOnSurface&,
-				      const AlignableDetOrUnitPtr&
-				      ) const override;
+  AlgebraicMatrix derivatives(const TrajectoryStateOnSurface&, const AlignableDetOrUnitPtr&) const override;
 
   /// Derivatives not implemented.
-  AlgebraicMatrix selectedDerivatives(
-					      const TrajectoryStateOnSurface&,
-					      const AlignableDetOrUnitPtr&
-					      ) const override;
-
+  AlgebraicMatrix selectedDerivatives(const TrajectoryStateOnSurface&, const AlignableDetOrUnitPtr&) const override;
 };
 
 #endif

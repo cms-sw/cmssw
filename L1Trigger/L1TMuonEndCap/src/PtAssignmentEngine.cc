@@ -4,35 +4,28 @@
 #include <iostream>
 #include <sstream>
 
+#include "helper.h"  // assert_no_abort
 
-PtAssignmentEngine::PtAssignmentEngine() :
-    allowedModes_({3,5,9,6,10,12,7,11,13,14,15}),
-    forests_(),
-    ptlut_reader_()
-{
+PtAssignmentEngine::PtAssignmentEngine()
+    : allowedModes_({3, 5, 9, 6, 10, 12, 7, 11, 13, 14, 15}), forests_(), ptlut_reader_(), ptLUTVersion_(0xFFFFFFFF) {}
 
-}
+PtAssignmentEngine::~PtAssignmentEngine() {}
 
-PtAssignmentEngine::~PtAssignmentEngine() {
-
-}
-
-// Called by "produce" in plugins/L1TMuonEndCapForestESProducer.cc 
+// Called by "produce" in plugins/L1TMuonEndCapForestESProducer.cc
 // Runs over local XMLs if we are not running from the database
 // void PtAssignmentEngine::read(const std::string& xml_dir, const unsigned xml_nTrees) {
-void PtAssignmentEngine::read(const std::string& xml_dir) {
-
+void PtAssignmentEngine::read(int pt_lut_version, const std::string& xml_dir) {
   std::string xml_dir_full = "L1Trigger/L1TMuonEndCap/data/pt_xmls/" + xml_dir;
-  unsigned xml_nTrees = 64; // 2016 XMLs
-  if (ptLUTVersion_ >= 6)    
-    xml_nTrees = 400;       // First 2017 XMLs
-  
+  unsigned xml_nTrees = 64;  // 2016 XMLs
+  if (pt_lut_version >= 6)
+    xml_nTrees = 400;  // First 2017 XMLs
+
   std::cout << "EMTF emulator: attempting to read " << xml_nTrees << " pT LUT XMLs from local directory" << std::endl;
   std::cout << xml_dir_full << std::endl;
   std::cout << "Non-standard operation; if it fails, now you know why" << std::endl;
 
   for (unsigned i = 0; i < allowedModes_.size(); ++i) {
-    int mode = allowedModes_.at(i); // For 2016, maps to "mode_inv"
+    int mode = allowedModes_.at(i);  // For 2016, maps to "mode_inv"
     std::stringstream ss;
     ss << xml_dir_full << "/" << mode;
     forests_.at(mode).loadForestFromXML(ss.str().c_str(), xml_nTrees);
@@ -41,27 +34,33 @@ void PtAssignmentEngine::read(const std::string& xml_dir) {
   return;
 }
 
-void PtAssignmentEngine::load(const L1TMuonEndCapForest *payload) {
-  // unsigned pt_lut_version = payload->version_;  // Why is payload->version_ always 0? - AWB 02.06.17
-  // std::cout << "ptLUTVersion_ from configuration = " << ptLUTVersion_ << ", payload->version_ = " << payload->version_ << std::endl;
-  // if (not(pt_lut_version == unsigned(ptLUTVersion_)))
-  //   { edm::LogError("L1T") << "pt_lut_version = " << pt_lut_version << ", ptLUTVersion_ = " << ptLUTVersion_; return; }
-    
+void PtAssignmentEngine::load(int pt_lut_version, const L1TMuonEndCapForest* payload) {
+  if (ptLUTVersion_ == pt_lut_version)
+    return;
+  ptLUTVersion_ = pt_lut_version;
+
+  edm::LogInfo("L1T") << "EMTF using pt_lut_ver: " << pt_lut_version;
+
   for (unsigned i = 0; i < allowedModes_.size(); ++i) {
     int mode = allowedModes_.at(i);
-    
-    L1TMuonEndCapForest::DForestMap::const_iterator index = payload->forest_map_.find(mode); // associates mode to index
-    if (index == payload->forest_map_.end())  continue;
-    
+
+    L1TMuonEndCapForest::DForestMap::const_iterator index =
+        payload->forest_map_.find(mode);  // associates mode to index
+    if (index == payload->forest_map_.end())
+      continue;
+
     forests_.at(mode).loadFromCondPayload(payload->forest_coll_[index->second]);
-    
-    double boostWeight_ = payload->forest_map_.find(mode+16)->second / 1000000.;  
+
+    double boostWeight_ = payload->forest_map_.find(mode + 16)->second / 1000000.;
     // std::cout << "Loaded forest for mode " << mode << " with boostWeight_ = " << boostWeight_ << std::endl;
     // std::cout << "  * ptLUTVersion_ = " << ptLUTVersion_ << std::endl;
-    forests_.at(mode).getTree(0)->setBoostWeight( boostWeight_ );
+    forests_.at(mode).getTree(0)->setBoostWeight(boostWeight_);
 
     if (not(boostWeight_ == 0 || ptLUTVersion_ >= 6))  // Check that XMLs and pT LUT version are consistent
-      { edm::LogError("L1T") << "boostWeight_ = " << boostWeight_ << ", ptLUTVersion_ = " << ptLUTVersion_; return; }
+    {
+      edm::LogError("L1T") << "boostWeight_ = " << boostWeight_ << ", ptLUTVersion_ = " << ptLUTVersion_;
+      return;
+    }
     // Will catch user trying to run with Global Tag settings on 2017 data, rather than fakeEmtfParams. - AWB 08.06.17
 
     // // Code below can be used to save out trees in XML format
@@ -71,25 +70,20 @@ void PtAssignmentEngine::load(const L1TMuonEndCapForest *payload) {
     //   ss << mode << "/" << t << ".xml";
     //   tree->saveToXML( ss.str().c_str() );
     // }
-
   }
 
   return;
 }
 
 void PtAssignmentEngine::configure(
-    int verbose,
-    int ptLUTVersion, bool readPtLUTFile, bool fixMode15HighPt,
-    bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt
-) {
+    int verbose, bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt) {
   verbose_ = verbose;
 
-  ptLUTVersion_    = ptLUTVersion;
-  readPtLUTFile_   = readPtLUTFile;
+  readPtLUTFile_ = readPtLUTFile;
   fixMode15HighPt_ = fixMode15HighPt;
-  bug9BitDPhi_     = bug9BitDPhi;
-  bugMode7CLCT_    = bugMode7CLCT;
-  bugNegPt_        = bugNegPt;
+  bug9BitDPhi_ = bug9BitDPhi;
+  bugMode7CLCT_ = bugMode7CLCT;
+  bugNegPt_ = bugNegPt;
 
   configure_details();
 }
@@ -107,14 +101,6 @@ void PtAssignmentEngine::configure_details() {
 const PtAssignmentEngineAux& PtAssignmentEngine::aux() const {
   static const PtAssignmentEngineAux instance;
   return instance;
-}
-
-float PtAssignmentEngine::scale_pt(const float pt, const int mode) const {
-  return scale_pt(pt, mode);
-}
-
-float PtAssignmentEngine::unscale_pt(const float pt, const int mode) const {
-  return unscale_pt(pt, mode);
 }
 
 float PtAssignmentEngine::calculate_pt(const address_t& address) const {
@@ -146,4 +132,3 @@ float PtAssignmentEngine::calculate_pt_lut(const address_t& address) const {
 
   return xmlpt;
 }
-

@@ -1,7 +1,5 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 // define this as a plug-in
 // include header file here:

@@ -5,7 +5,7 @@
 #include <algorithm>
 
 namespace edm {
-  std::string defaultModuleLabel(std::string label) { // take by value because we'll copy it anyway
+  std::string defaultModuleLabel(std::string label) {  // take by value because we'll copy it anyway
     // remove all colons (module type may contain namespace)
     label.erase(std::remove(label.begin(), label.end(), ':'), label.end());
 
@@ -14,7 +14,7 @@ namespace edm {
     // if the label starts with more than one uppercase letter, change n-1 to lowercase
     // otherwise, change the first letter to lowercase
     unsigned int ups = 0;
-    for (char c: label)
+    for (char c : label)
       if (std::isupper(c))
         ++ups;
       else
@@ -26,6 +26,6 @@ namespace edm {
 
     return label;
   }
-}
+}  // namespace edm
 
 #endif

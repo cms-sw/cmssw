@@ -16,97 +16,95 @@
 #include <string>
 
 namespace CLHEP {
-    class RandFlat;
+  class RandFlat;
 }
 
 namespace edm {
-    class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
-class HLLHCEvtVtxGenerator : public BaseEvtVtxGenerator 
-{
+class HLLHCEvtVtxGenerator : public BaseEvtVtxGenerator {
 public:
+  HLLHCEvtVtxGenerator(const edm::ParameterSet& p);
 
-    HLLHCEvtVtxGenerator(const edm::ParameterSet & p);
+  ~HLLHCEvtVtxGenerator() override;
 
-    ~HLLHCEvtVtxGenerator() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  /// return a new event vertex
+  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
-    /// return a new event vertex
-    HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
+  TMatrixD const* GetInvLorentzBoost() const override { return nullptr; };
 
-    TMatrixD const* GetInvLorentzBoost() const override {return nullptr;};
-   
 private:
-    /** Copy constructor */
-    HLLHCEvtVtxGenerator(const HLLHCEvtVtxGenerator &p) = delete;
+  /** Copy constructor */
+  HLLHCEvtVtxGenerator(const HLLHCEvtVtxGenerator& p) = delete;
 
-    /** Copy assignment operator */
-    HLLHCEvtVtxGenerator&  operator = (const HLLHCEvtVtxGenerator & rhs ) = delete;
-    
-    //spatial and time offset for mean collision
-    const double fMeanX, fMeanY, fMeanZ, fTimeOffset;
+  /** Copy assignment operator */
+  HLLHCEvtVtxGenerator& operator=(const HLLHCEvtVtxGenerator& rhs) = delete;
 
-    //proton beam energy
-    const double momeV;
-    const double gamma;
-    const double beta;
-    const double betagamma;
-    
-    //crossing angle 
-    const double phi;
-    
-    //crab cavity frequency
-    const double wcc;
+  //spatial and time offset for mean collision
+  const double fMeanX, fMeanY, fMeanZ, fTimeOffset;
 
-    // 800 MHz RF?
-    const bool RF800;
+  //proton beam energy
+  const double momeV;
+  const double gamma;
+  const double beta;
+  const double betagamma;
 
-    //beta crossing plane (m)
-    const double betx;
+  //crossing angle
+  const double phi;
 
-    //beta separation plane (m)
-    const double bets;
+  //crab cavity frequency
+  const double wcc;
 
-    //horizontal emittance 
-    const double epsxn;
+  // 800 MHz RF?
+  const bool RF800;
 
-    //vertical emittance
-    const double epssn;
+  //beta crossing plane (m)
+  const double betx;
 
-    //bunch length
-    const double sigs;
+  //beta separation plane (m)
+  const double bets;
 
-    //crabbing angle crossing
-    const double alphax;
+  //horizontal emittance
+  const double epsxn;
 
-    //crabbing angle separation
-    const double alphay;
+  //vertical emittance
+  const double epssn;
 
-    // ratio of crabbing angle to crossing angle
-    const double oncc;
+  //bunch length
+  const double sigs;
 
-    //normalized crossing emittance
-    const double epsx;
+  //crabbing angle crossing
+  const double alphax;
 
-    //normlaized separation emittance
-    const double epss;
+  //crabbing angle separation
+  const double alphay;
 
-    //size in x
-    const double sigx;
+  // ratio of crabbing angle to crossing angle
+  const double oncc;
 
-    // crossing angle * crab frequency
-    const double phiCR;
-    
-    //width for y plane
-    double sigma(double z, double epsilon, double beta, double betagamma) const;
+  //normalized crossing emittance
+  const double epsx;
 
-    //density with crabbing
-    double integrandCC(double x, double z, double t) const;
+  //normlaized separation emittance
+  const double epss;
 
-    // 4D intensity
-    double intensity(double x, double y,double z,double t) const;
+  //size in x
+  const double sigx;
+
+  // crossing angle * crab frequency
+  const double phiCR;
+
+  //width for y plane
+  double sigma(double z, double epsilon, double beta, double betagamma) const;
+
+  //density with crabbing
+  double integrandCC(double x, double z, double t) const;
+
+  // 4D intensity
+  double intensity(double x, double y, double z, double t) const;
 };
 
 #endif

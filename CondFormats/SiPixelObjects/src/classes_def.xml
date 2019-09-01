@@ -67,6 +67,13 @@
   <class name="SiPixelQuality::disabledModuleType"/>
   <class name="std::vector<SiPixelQuality::disabledModuleType>"/>  
 
+  <class name="SiPixelFEDChannelContainer" class_version="0"/>
+  <class name="std::map<std::string,SiPixelFEDChannelContainer::SiPixelFEDChannelCollection>"/>
+
+  <class name="SiPixelQualityProbabilities" class_version="0"/>
+  <class name="SiPixelQualityProbabilities::probabilityVec"/>
+  <class name="std::map<unsigned int,SiPixelQualityProbabilities::probabilityVec>"/>
+
   <class pattern="PixelDCSObject<*>"/> 
   <class pattern="PixelDCSObject<*>::Item"/> 
   <class pattern="PixelDCSObject<*>::Type"/> 

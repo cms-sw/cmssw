@@ -4,7 +4,7 @@
 
 #define VERSION 2.0
 
-#ifndef NULL 
+#ifndef NULL
 #define NULL 0
 #endif
 
@@ -16,7 +16,4 @@
 #define FALSE 0
 #endif
 
-
-
 #endif
-

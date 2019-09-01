@@ -31,6 +31,6 @@ namespace reco {
   typedef edm::RefProd<VertexCompositePtrCandidateCollection> VertexCompositePtrCandidateRefProd;
   /// vector of references to objects in the same collection of Candidate objects via base type
   typedef edm::RefToBaseProd<VertexCompositePtrCandidate> VertexCompositePtrCandidateBaseRefProd;
-}
+}  // namespace reco
 
 #endif

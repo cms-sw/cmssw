@@ -2,7 +2,7 @@
 //
 // Package:    BeamProfile2DB
 // Class:      BeamProfile2DB
-// 
+//
 /**\class BeamProfile2DB BeamProfile2DB.cc IOMC/BeamProfile2DB/src/BeamProfile2DB.cc
 
  Description: [one line class summary]
@@ -15,7 +15,6 @@
 //         Created:  Fri Jan  6 14:49:42 CET 2012
 //
 //
-
 
 // system include files
 #include <memory>
@@ -33,25 +32,23 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/BeamSpotObjects/interface/SimBeamSpotObjects.h"
 
-
 //
 // class declaration
 //
 
 class BeamProfile2DB : public edm::EDAnalyzer {
-   public:
-      explicit BeamProfile2DB(const edm::ParameterSet&);
-      ~BeamProfile2DB() override;
+public:
+  explicit BeamProfile2DB(const edm::ParameterSet&);
+  ~BeamProfile2DB() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-   private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
   edm::ParameterSet config_;
 };
 
@@ -69,54 +66,37 @@ class BeamProfile2DB : public edm::EDAnalyzer {
 BeamProfile2DB::BeamProfile2DB(const edm::ParameterSet& iConfig)
 
 {
-  config_=iConfig;  
+  config_ = iConfig;
 }
 
-
-BeamProfile2DB::~BeamProfile2DB()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+BeamProfile2DB::~BeamProfile2DB() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called for each event  ------------
-void
-BeamProfile2DB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-}
-
+void BeamProfile2DB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-BeamProfile2DB::beginJob()
-{
-}
+void BeamProfile2DB::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-BeamProfile2DB::endJob() 
-{
+void BeamProfile2DB::endJob() {
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  SimBeamSpotObjects * beam = new SimBeamSpotObjects();
-  
-  beam->read(config_);
-  
-  poolDbService->createNewIOV<SimBeamSpotObjects>(beam,
-						  poolDbService->beginOfTime(),poolDbService->endOfTime(),
-						  "SimBeamSpotObjectsRcd"  );
+  SimBeamSpotObjects* beam = new SimBeamSpotObjects();
 
+  beam->read(config_);
+
+  poolDbService->createNewIOV<SimBeamSpotObjects>(
+      beam, poolDbService->beginOfTime(), poolDbService->endOfTime(), "SimBeamSpotObjectsRcd");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-BeamProfile2DB::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void BeamProfile2DB::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

@@ -13,7 +13,7 @@ This description also applies to every product instance on the branch.
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include <iosfwd>
 #include <map>
@@ -33,8 +33,7 @@ namespace edm {
   public:
     static int const invalidSplitLevel = -1;
     static int const invalidBasketSize = 0;
-    enum MatchMode { Strict = 0,
-                     Permissive };
+    enum MatchMode { Strict = 0, Permissive };
 
     BranchDescription();
 
@@ -70,53 +69,62 @@ namespace edm {
 
     void merge(BranchDescription const& other);
 
-    std::string const& moduleLabel() const {return moduleLabel_;}
-    std::string const& processName() const {return processName_;}
-    BranchID const& branchID() const {return branchID_;}
-    BranchID const& aliasForBranchID() const {return aliasForBranchID_;}
-    bool isAlias() const {return aliasForBranchID_.isValid() && produced();}
-    BranchID const& originalBranchID() const {return aliasForBranchID_.isValid() ? aliasForBranchID_ : branchID_;}
-    std::string const& fullClassName() const {return fullClassName_;}
-    std::string const& className() const {return fullClassName();}
-    std::string const& friendlyClassName() const {return friendlyClassName_;}
-    std::string const& productInstanceName() const {return productInstanceName_;}
-    bool produced() const {return transient_.produced_;}
-    void setProduced(bool isProduced) {transient_.produced_ = isProduced;}
-    bool present() const {return !transient_.dropped_;}
-    bool dropped() const {return transient_.dropped_;}
-    void setDropped(bool isDropped) {transient_.dropped_ = isDropped;}
-    bool onDemand() const {return transient_.onDemand_;}
-    void setOnDemand(bool isOnDemand) {transient_.onDemand_ = isOnDemand;}
-    bool availableOnlyAtEndTransition() const {return transient_.availableOnlyAtEndTransition_; }
-    bool transient() const {return transient_.transient_;}
-    void setTransient(bool isTransient) {transient_.transient_ = isTransient;}
-    TypeWithDict const& wrappedType() const {return transient_.wrappedType_;}
-    void setWrappedType(TypeWithDict const& type) {transient_.wrappedType_ = type;}
-    TypeWithDict const& unwrappedType() const {return transient_.unwrappedType_;}
-    void setUnwrappedType(TypeWithDict const& type) {transient_.unwrappedType_ = type;}
-    TypeID wrappedTypeID() const {return TypeID(transient_.wrappedType_.typeInfo());}
-    TypeID unwrappedTypeID() const {return TypeID(transient_.unwrappedType_.typeInfo());}
-    int splitLevel() const {return transient_.splitLevel_;}
-    void setSplitLevel(int level) {transient_.splitLevel_ = level;}
-    int basketSize() const {return transient_.basketSize_;}
-    void setBasketSize(int size) {transient_.basketSize_ = size;}
+    std::string const& moduleLabel() const { return moduleLabel_; }
+    std::string const& processName() const { return processName_; }
+    BranchID const& branchID() const { return branchID_; }
+    BranchID const& aliasForBranchID() const { return aliasForBranchID_; }
+    bool isAlias() const { return aliasForBranchID_.isValid() && produced(); }
+    BranchID const& originalBranchID() const { return aliasForBranchID_.isValid() ? aliasForBranchID_ : branchID_; }
+    std::string const& fullClassName() const { return fullClassName_; }
+    std::string const& className() const { return fullClassName(); }
+    std::string const& friendlyClassName() const { return friendlyClassName_; }
+    std::string const& productInstanceName() const { return productInstanceName_; }
+    bool produced() const { return transient_.produced_; }
+    void setProduced(bool isProduced) { transient_.produced_ = isProduced; }
+    bool present() const { return !transient_.dropped_; }
+    bool dropped() const { return transient_.dropped_; }
+    void setDropped(bool isDropped) { transient_.dropped_ = isDropped; }
+    bool onDemand() const { return transient_.onDemand_; }
+    void setOnDemand(bool isOnDemand) { transient_.onDemand_ = isOnDemand; }
+    bool availableOnlyAtEndTransition() const { return transient_.availableOnlyAtEndTransition_; }
+    bool transient() const { return transient_.transient_; }
+    void setTransient(bool isTransient) { transient_.transient_ = isTransient; }
+    TypeWithDict const& wrappedType() const { return transient_.wrappedType_; }
+    void setWrappedType(TypeWithDict const& type) { transient_.wrappedType_ = type; }
+    TypeWithDict const& unwrappedType() const { return transient_.unwrappedType_; }
+    void setUnwrappedType(TypeWithDict const& type) { transient_.unwrappedType_ = type; }
+    TypeID wrappedTypeID() const { return TypeID(transient_.wrappedType_.typeInfo()); }
+    TypeID unwrappedTypeID() const { return TypeID(transient_.unwrappedType_.typeInfo()); }
+    int splitLevel() const { return transient_.splitLevel_; }
+    void setSplitLevel(int level) { transient_.splitLevel_ = level; }
+    int basketSize() const { return transient_.basketSize_; }
+    void setBasketSize(int size) { transient_.basketSize_ = size; }
 
-    ParameterSetID const& parameterSetID() const {return transient_.parameterSetID_;}
-    std::string const& moduleName() const {return transient_.moduleName_;}
+    bool isSwitchAlias() const { return not transient_.switchAliasModuleLabel_.empty(); }
+    std::string const& switchAliasModuleLabel() const { return transient_.switchAliasModuleLabel_; }
+    void setSwitchAliasModuleLabel(std::string label) { transient_.switchAliasModuleLabel_ = std::move(label); }
+    BranchID const& switchAliasForBranchID() const { return transient_.switchAliasForBranchID_; }
+    void setSwitchAliasForBranch(BranchDescription const& aliasForBranch);
 
-    std::set<std::string> const& branchAliases() const {return branchAliases_;}
-    void insertBranchAlias(std::string const& alias) {
-      branchAliases_.insert(alias);
-    }
-    std::string const& branchName() const {return transient_.branchName_;}
-    void clearBranchName() {transient_.branchName_.clear();}
-    BranchType const& branchType() const {return branchType_;}
-    std::string const& wrappedName() const {return transient_.wrappedName_;}
-    void setWrappedName(std::string const& name) {transient_.wrappedName_ = name;}
+    bool isAnyAlias() const { return isAlias() or isSwitchAlias(); }
+
+    ParameterSetID const& parameterSetID() const { return transient_.parameterSetID_; }
+    std::string const& moduleName() const { return transient_.moduleName_; }
+
+    std::set<std::string> const& branchAliases() const { return branchAliases_; }
+    void insertBranchAlias(std::string const& alias) { branchAliases_.insert(alias); }
+    std::string const& branchName() const { return transient_.branchName_; }
+    void clearBranchName() { transient_.branchName_.clear(); }
+    BranchType const& branchType() const { return branchType_; }
+    std::string const& wrappedName() const { return transient_.wrappedName_; }
+    void setWrappedName(std::string const& name) { transient_.wrappedName_ = name; }
+
+    bool isMergeable() const { return transient_.isMergeable_; }
+    void setIsMergeable(bool v) { transient_.isMergeable_ = v; }
 
     void updateFriendlyClassName();
 
-    void initializeTransients() {transient_.reset();}
+    void initializeTransients() { transient_.reset(); }
 
     struct Transients {
       Transients();
@@ -137,6 +145,14 @@ namespace edm {
       // The wrapped class name, which is currently derivable fron the other attributes.
       std::string wrappedName_;
 
+      // For SwitchProducer alias, the label of the aliased-for label; otherwise empty
+      std::string switchAliasModuleLabel_;
+
+      // Need a separate (transient) BranchID for switch, because
+      // otherwise originalBranchID() gives wrong answer when reading
+      // from a file (leading to wrong ProductProvenance to be retrieved)
+      BranchID switchAliasForBranchID_;
+
       // A TypeWithDict object for the wrapped object
       TypeWithDict wrappedType_;
 
@@ -150,7 +166,7 @@ namespace edm {
       // The basket size of the branch, as marked
       // in the data dictionary.
       int basketSize_;
-      
+
       // Was this branch produced in this process rather than in a previous process
       bool produced_;
 
@@ -169,6 +185,10 @@ namespace edm {
 
       // if Run or Lumi based, can only get at end transition
       bool availableOnlyAtEndTransition_;
+
+      // True if the product definition has a mergeProduct function
+      // and the branchType is Run or Lumi
+      bool isMergeable_;
     };
 
   private:
@@ -208,9 +228,7 @@ namespace edm {
     Transients transient_;
   };
 
-  inline
-  std::ostream&
-  operator<<(std::ostream& os, BranchDescription const& p) {
+  inline std::ostream& operator<<(std::ostream& os, BranchDescription const& p) {
     p.write(os);
     return os;
   }
@@ -221,8 +239,6 @@ namespace edm {
 
   bool combinable(BranchDescription const& a, BranchDescription const& b);
 
-  std::string match(BranchDescription const& a,
-        BranchDescription const& b,
-        std::string const& fileName);
-}
+  std::string match(BranchDescription const& a, BranchDescription const& b, std::string const& fileName);
+}  // namespace edm
 #endif

@@ -12,7 +12,6 @@ class DTLayer;
 
 class DTDigiSyncBase {
 public:
-
   /// Constructor
   DTDigiSyncBase(){};
 
@@ -20,11 +19,9 @@ public:
   virtual ~DTDigiSyncBase(){};
 
   /// Delays to be added to digi times during digitization, in ns.
-  virtual double digitizerOffset(const DTWireId * id, const DTLayer* layer) const = 0;
+  virtual double digitizerOffset(const DTWireId *id, const DTLayer *layer) const = 0;
 
   /// Offset to obtain "raw" TDCs for the L1 emulator from digis.
-  virtual double emulatorOffset(const DTWireId * id) const = 0;
-
+  virtual double emulatorOffset(const DTWireId *id) const = 0;
 };
 #endif
-

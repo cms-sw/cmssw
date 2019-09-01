@@ -63,7 +63,7 @@ def generate(step, evt_type, energy, evtnumber):
         generator = _generate_Wl(step, evt_type, energy, evtnumber)
          
     else:
-      raise "Event type","Type not yet implemented."
+      raise RuntimeError("Event type Type not yet implemented.")
              
     common.log( func_id+" Returning Generator")
     
@@ -805,7 +805,7 @@ def energy_split(energy):
                 common.log(func_id+" Returning Energy...")
                 return (low,high)
     
-    raise "Energy Format: ","Unrecognised energy format."
+    raise RuntimeError("Energy Format: Unrecognised energy format.")
 
 #-----------------------------------
 

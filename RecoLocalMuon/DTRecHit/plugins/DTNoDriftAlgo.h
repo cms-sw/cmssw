@@ -12,10 +12,8 @@
 
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
 
-
-
 class DTNoDriftAlgo : public DTRecHitBaseAlgo {
- public:
+public:
   /// Constructor
   DTNoDriftAlgo(const edm::ParameterSet& config);
 
@@ -27,67 +25,60 @@ class DTNoDriftAlgo : public DTRecHitBaseAlgo {
   /// Pass the Event Setup to the algo at each event
   void setES(const edm::EventSetup& setup) override;
 
-
   /// MM: Override virtual function from DTRecHitBaseAlgo--> for the NoDrift
-  /// algorithm only a maximum of one hit per wire is allowed! 
+  /// algorithm only a maximum of one hit per wire is allowed!
   /// Build all hits in the range associated to the layerId, at the 1st step.
   edm::OwnVector<DTRecHit1DPair> reconstruct(const DTLayer* layer,
-						     const DTLayerId& layerId,
-						     const DTDigiCollection::Range& digiRange) override;
+                                             const DTLayerId& layerId,
+                                             const DTDigiCollection::Range& digiRange) override;
 
-
-  /// First step in computation of Left/Right hits from a Digi.  
+  /// First step in computation of Left/Right hits from a Digi.
   /// The results are the local position (in DTLayer frame) of the
   /// Left and Right hit, and the error (which is common). Returns
   /// false on failure. The hit is assumed to be at the wire center.
   bool compute(const DTLayer* layer,
-                       const DTDigi& digi,
-                       LocalPoint& leftPoint,
-                       LocalPoint& rightPoint,
-                       LocalError& error) const override;
-
+               const DTDigi& digi,
+               LocalPoint& leftPoint,
+               LocalPoint& rightPoint,
+               LocalError& error) const override;
 
   /// Second step in hit position computation.
   /// It is the same as first step since the angular information is not used
   /// NOTE: Only position and error of the new hit are modified
   bool compute(const DTLayer* layer,
-                       const DTRecHit1D& recHit1D,
-                       const float& angle,
-                       DTRecHit1D& newHit1D) const override;
-
+               const DTRecHit1D& recHit1D,
+               const float& angle,
+               DTRecHit1D& newHit1D) const override;
 
   /// Third (and final) step in hits position computation.
   /// Also the hit position along the wire is available
   /// and can be used to correct the drift time for particle
-  /// TOF and propagation of signal along the wire. 
+  /// TOF and propagation of signal along the wire.
   /// NOTE: Only position and error of the new hit are modified
   bool compute(const DTLayer* layer,
-                       const DTRecHit1D& recHit1D,
-                       const float& angle,
-                       const GlobalPoint& globPos, 
-                       DTRecHit1D& newHit1D) const override;
+               const DTRecHit1D& recHit1D,
+               const float& angle,
+               const GlobalPoint& globPos,
+               DTRecHit1D& newHit1D) const override;
 
-
- private:
-
+private:
   // Do the actual work.
   virtual bool compute(const DTLayer* layer,
-		       const DTWireId& wireId,
-		       const float digiTime,
-		       const GlobalPoint& globPos, 
-		       LocalPoint& leftPoint,
-		       LocalPoint& rightPoint,
-		       LocalError& error,
-		       int step) const;
+                       const DTWireId& wireId,
+                       const float digiTime,
+                       const GlobalPoint& globPos,
+                       LocalPoint& leftPoint,
+                       LocalPoint& rightPoint,
+                       LocalError& error,
+                       int step) const;
 
-  // Interface to the method which does the actual work suited for 2nd and 3rd steps 
+  // Interface to the method which does the actual work suited for 2nd and 3rd steps
   virtual bool compute(const DTLayer* layer,
-		       const DTWireId& wireId,
-		       const float digiTime,
-		       const GlobalPoint& globPos, 
-		       DTRecHit1D& newHit1D,
-		       int step) const;
-
+                       const DTWireId& wireId,
+                       const float digiTime,
+                       const GlobalPoint& globPos,
+                       DTRecHit1D& newHit1D,
+                       int step) const;
 
   // The Drift Velocity (cm/ns)
   const float fixedDrift;
@@ -105,5 +96,3 @@ class DTNoDriftAlgo : public DTRecHitBaseAlgo {
   const bool debug;
 };
 #endif
-
-

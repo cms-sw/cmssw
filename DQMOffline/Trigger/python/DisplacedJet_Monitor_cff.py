@@ -54,12 +54,11 @@ hltHT_HT430_DisplacedDijet60_DisplacedTrack_Prommonitoring.jetSelection = cms.st
 hltHT_HT430_DisplacedDijet60_DisplacedTrack_Prommonitoring.jetSelection_HT  = cms.string("pt > 40 && eta < 3.0")
 
 
-hltHT_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring = hltHTmonitoring.clone()
-hltHT_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring.FolderName = cms.string('HLT/EXO/DisplacedJet/HT/HLT_CaloJet_HT430_DisplacedDijet80_DisplacedTrack')
-hltHT_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT430_DisplacedDijet80_DisplacedTrack_v*")
-hltHT_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring.jetSelection = cms.string("pt>80 && eta<2.0")
-hltHT_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring.jetSelection_HT  = cms.string("pt > 40 && eta < 3.0")
-
+hltHT_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring = hltHTmonitoring.clone()
+hltHT_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring.FolderName = cms.string('HLT/EXO/DisplacedJet/HT/HLT_CaloJet_HT500_DisplacedDijet40_DisplacedTrack')
+hltHT_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT500_DisplacedDijet40_DisplacedTrack_v*")
+hltHT_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring.jetSelection = cms.string("pt>40 && eta<2.0")
+hltHT_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring.jetSelection_HT = cms.string("pt > 40 && eta <3.0")
 
 
 hltHT_HT550_DisplacedDijet60_Inclusive_Prommonitoring = hltHTmonitoring.clone()
@@ -68,33 +67,12 @@ hltHT_HT550_DisplacedDijet60_Inclusive_Prommonitoring.numGenericTriggerEventPSet
 hltHT_HT550_DisplacedDijet60_Inclusive_Prommonitoring.jetSelection = cms.string("pt>60 && eta<2.0")
 hltHT_HT550_DisplacedDijet60_Inclusive_Prommonitoring.jetSelection_HT  = cms.string("pt > 40 && eta < 3.0")
 
-hltHT_HT550_DisplacedDijet80_Inclusive_Prommonitoring = hltHTmonitoring.clone()
-hltHT_HT550_DisplacedDijet80_Inclusive_Prommonitoring.FolderName = cms.string('HLT/EXO/DisplacedJet/HT/HT_CaloJet_HLT_HT550_DisplacedDijet80_Inclusive')
-hltHT_HT550_DisplacedDijet80_Inclusive_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT550_DisplacedDijet80_Inclusive_v*")
-hltHT_HT550_DisplacedDijet80_Inclusive_Prommonitoring.jetSelection = cms.string("pt>80 && eta<2.0")
-hltHT_HT550_DisplacedDijet80_Inclusive_Prommonitoring.jetSelection_HT  = cms.string("pt > 40 && eta < 3.0")
-
-
 
 hltHT_HT650_DisplacedDijet60_Inclusive_Prommonitoring = hltHTmonitoring.clone()
 hltHT_HT650_DisplacedDijet60_Inclusive_Prommonitoring.FolderName = cms.string('HLT/EXO/DisplacedJet/HT/HT_CaloJet_HLT_HT650_DisplacedDijet60_Inclusive')
 hltHT_HT650_DisplacedDijet60_Inclusive_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT650_DisplacedDijet60_Inclusive_v*")
 hltHT_HT650_DisplacedDijet60_Inclusive_Prommonitoring.jetSelection = cms.string("pt>60 && eta<2.0")
 hltHT_HT650_DisplacedDijet60_Inclusive_Prommonitoring.jetSelection_HT  = cms.string("pt > 40 && eta < 3.0")
-
-
-hltHT_HT650_DisplacedDijet80_Inclusive_Prommonitoring = hltHTmonitoring.clone()
-hltHT_HT650_DisplacedDijet80_Inclusive_Prommonitoring.FolderName = cms.string('HLT/EXO/DisplacedJet/HT/HT_CaloJet_HLT_HT650_DisplacedDijet80_Inclusive')
-hltHT_HT650_DisplacedDijet80_Inclusive_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT650_DisplacedDijet80_Inclusive_v*")
-hltHT_HT650_DisplacedDijet80_Inclusive_Prommonitoring.jetSelection = cms.string("pt>80 && eta<2.0")
-hltHT_HT650_DisplacedDijet80_Inclusive_Prommonitoring.jetSelection_HT  = cms.string("pt > 40 && eta < 3.0")
-
-
-hltHT_HT750_DisplacedDijet80_Inclusive_Prommonitoring = hltHTmonitoring.clone()
-hltHT_HT750_DisplacedDijet80_Inclusive_Prommonitoring.FolderName = cms.string('HLT/EXO/DisplacedJet/HT/HT_CaloJet_HLT_HT750_DisplacedDijet80_Inclusive')
-hltHT_HT750_DisplacedDijet80_Inclusive_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT750_DisplacedDijet80_Inclusive_v*")
-hltHT_HT750_DisplacedDijet80_Inclusive_Prommonitoring.jetSelection = cms.string("pt>80 && eta<2.0")
-hltHT_HT750_DisplacedDijet80_Inclusive_Prommonitoring.jetSelection_HT  = cms.string("pt > 40 && eta < 3.0")
 
 
 hltJet_HT400_DisplacedDijet40_DisplacedTrack_Prommonitoring = hltJetMETmonitoring.clone()
@@ -127,14 +105,14 @@ hltJet_HT430_DisplacedDijet60_DisplacedTrack_Prommonitoring.ispfjettrg = cms.boo
 hltJet_HT430_DisplacedDijet60_DisplacedTrack_Prommonitoring.iscalojettrg = cms.bool(True)
 
 
-hltJet_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring = hltJetMETmonitoring.clone()
-hltJet_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring.jetSrc = cms.InputTag("ak4CaloJets")
-hltJet_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring.FolderName = cms.string('HLT/EXO/DisplacedJet/Jet/HLT_CaloJet_HT430_DisplacedDijet80_DisplacedTrack')
-hltJet_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring.ptcut = cms.double(20)
-hltJet_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring.histoPSet.jetptBinning = cms.vdouble(20.,30.,40.,50.,60.,65.,68.,70.,72.,74.,76.,78.,80.,82.,84.,86.,88.,90.,92.,94.,100.,120.,170.,220.,300.,400.)
-hltJet_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT430_DisplacedDijet80_DisplacedTrack_v*")
-hltJet_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring.ispfjettrg = cms.bool(False)
-hltJet_HT430_DisplacedDijet60_DisplacedTrack_Prommonitoring.iscalojettrg = cms.bool(True)
+hltJet_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring = hltJetMETmonitoring.clone()
+hltJet_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring.jetSrc = cms.InputTag("ak4CaloJets")
+hltJet_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring.FolderName = cms.string('HLT/EXO/DisplacedJet/Jet/HLT_CaloJet_HT500_DisplacedDijet40_DisplacedTrack')
+hltJet_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring.ptcut = cms.double(20)
+hltJet_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring.histoPSet.jetptBinning = cms.vdouble(20.,26.,28.,30.,32.,34.,36.,38.,40.,42.,44.,46.,48.,50.,55.,60.,70.,80.,100.,120.,170.,220.,300.,400.)
+hltJet_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT500_DisplacedDijet40_DisplacedTrack_v*")
+hltJet_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring.ispfjettrg = cms.bool(False)
+hltJet_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring.iscalojettrg = cms.bool(True)
 
 
 hltJet_HT550_DisplacedDijet60_Inclusive_Prommonitoring = hltJetMETmonitoring.clone()
@@ -147,17 +125,6 @@ hltJet_HT550_DisplacedDijet60_Inclusive_Prommonitoring.ispfjettrg = cms.bool(Fal
 hltJet_HT550_DisplacedDijet60_Inclusive_Prommonitoring.iscalojettrg = cms.bool(True)
 
 
-hltJet_HT550_DisplacedDijet80_Inclusive_Prommonitoring = hltJetMETmonitoring.clone()
-hltJet_HT550_DisplacedDijet80_Inclusive_Prommonitoring.jetSrc = cms.InputTag("ak4CaloJets")
-hltJet_HT550_DisplacedDijet80_Inclusive_Prommonitoring.FolderName = cms.string('HLT/EXO/DisplacedJet/Jet/HLT_CaloJet_HT550_DisplacedDijet80_Inclusive')
-hltJet_HT550_DisplacedDijet80_Inclusive_Prommonitoring.ptcut = cms.double(20)
-hltJet_HT550_DisplacedDijet80_Inclusive_Prommonitoring.histoPSet.jetptBinning = cms.vdouble(20.,30.,40.,50.,60,65,68,70,72,74,76,78,80,82,84,86,88,90,92,94,100,120,170,220,300,400)
-hltJet_HT550_DisplacedDijet80_Inclusive_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT550_DisplacedDijet80_Inclusive_v*")
-hltJet_HT550_DisplacedDijet80_Inclusive_Prommonitoring.ispfjettrg = cms.bool(False)
-hltJet_HT550_DisplacedDijet80_Inclusive_Prommonitoring.iscalojettrg = cms.bool(True)
-
-
-
 hltJet_HT650_DisplacedDijet60_Inclusive_Prommonitoring = hltJetMETmonitoring.clone()
 hltJet_HT650_DisplacedDijet60_Inclusive_Prommonitoring.jetSrc = cms.InputTag("ak4CaloJets")
 hltJet_HT650_DisplacedDijet60_Inclusive_Prommonitoring.FolderName = cms.string('HLT/EXO/DisplacedJet/Jet/HLT_CaloJet_HT650_DisplacedDijet60_Inclusive')
@@ -168,48 +135,21 @@ hltJet_HT650_DisplacedDijet60_Inclusive_Prommonitoring.ispfjettrg = cms.bool(Fal
 hltJet_HT650_DisplacedDijet60_Inclusive_Prommonitoring.iscalojettrg = cms.bool(True)
 
 
-hltJet_HT650_DisplacedDijet80_Inclusive_Prommonitoring = hltJetMETmonitoring.clone()
-hltJet_HT650_DisplacedDijet80_Inclusive_Prommonitoring.jetSrc = cms.InputTag("ak4CaloJets")
-hltJet_HT650_DisplacedDijet80_Inclusive_Prommonitoring.FolderName = cms.string('HLT/EXO/DisplacedJet/Jet/HLT_CaloJet_HT650_DisplacedDijet80_Inclusive')
-hltJet_HT650_DisplacedDijet80_Inclusive_Prommonitoring.ptcut = cms.double(20)
-hltJet_HT650_DisplacedDijet80_Inclusive_Prommonitoring.histoPSet.jetptBinning = cms.vdouble(20,30,40,50,60,65,68,70,72,74,76,78,80,82,84,86,88,90,92,94,100,120,170,220,300,400)
-hltJet_HT650_DisplacedDijet80_Inclusive_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT650_DisplacedDijet80_Inclusive_v*")
-hltJet_HT650_DisplacedDijet80_Inclusive_Prommonitoring.ispfjettrg = cms.bool(False)
-hltJet_HT650_DisplacedDijet80_Inclusive_Prommonitoring.iscalojettrg = cms.bool(True)
-
-
-hltJet_HT750_DisplacedDijet80_Inclusive_Prommonitoring = hltJetMETmonitoring.clone()
-hltJet_HT750_DisplacedDijet80_Inclusive_Prommonitoring.jetSrc = cms.InputTag("ak4CaloJets")
-hltJet_HT750_DisplacedDijet80_Inclusive_Prommonitoring.FolderName = cms.string('HLT/EXO/DisplacedJet/Jet/HLT_CaloJet_HT750_DisplacedDijet80_Inclusive')
-hltJet_HT750_DisplacedDijet80_Inclusive_Prommonitoring.ptcut = cms.double(20)
-hltJet_HT750_DisplacedDijet80_Inclusive_Prommonitoring.histoPSet.jetptBinning = cms.vdouble(20,30,40,50,60,65,68,70,72,74,76,78,80,82,84,86,88,90,92,94,100,120,170,220,300,400)
-hltJet_HT750_DisplacedDijet80_Inclusive_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_HT750_DisplacedDijet80_Inclusive_v*")
-hltJet_HT750_DisplacedDijet80_Inclusive_Prommonitoring.ispfjettrg = cms.bool(False)
-hltJet_HT750_DisplacedDijet80_Inclusive_Prommonitoring.iscalojettrg = cms.bool(True)
-
-
-
 exoHLTDisplacedJetmonitoring = cms.Sequence(
 
  hltHT_HT425_Prommonitoring
 +hltHT_HT400_DisplacedDijet40_DisplacedTrack_Prommonitoring
 +hltHT_HT430_DisplacedDijet40_DisplacedTrack_Prommonitoring
 +hltHT_HT430_DisplacedDijet60_DisplacedTrack_Prommonitoring
-+hltHT_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring
++hltHT_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring
 +hltHT_HT550_DisplacedDijet60_Inclusive_Prommonitoring
-+hltHT_HT550_DisplacedDijet80_Inclusive_Prommonitoring
 +hltHT_HT650_DisplacedDijet60_Inclusive_Prommonitoring
-+hltHT_HT650_DisplacedDijet80_Inclusive_Prommonitoring
-+hltHT_HT750_DisplacedDijet80_Inclusive_Prommonitoring
 +hltJet_HT400_DisplacedDijet40_DisplacedTrack_Prommonitoring
 +hltJet_HT430_DisplacedDijet40_DisplacedTrack_Prommonitoring
 +hltJet_HT430_DisplacedDijet60_DisplacedTrack_Prommonitoring
-+hltJet_HT430_DisplacedDijet80_DisplacedTrack_Prommonitoring
++hltJet_HT500_DisplacedDijet40_DisplacedTrack_Prommonitoring
 +hltJet_HT550_DisplacedDijet60_Inclusive_Prommonitoring
-+hltJet_HT550_DisplacedDijet80_Inclusive_Prommonitoring
 +hltJet_HT650_DisplacedDijet60_Inclusive_Prommonitoring
-+hltJet_HT650_DisplacedDijet80_Inclusive_Prommonitoring
-+hltJet_HT750_DisplacedDijet80_Inclusive_Prommonitoring
 )
 
 

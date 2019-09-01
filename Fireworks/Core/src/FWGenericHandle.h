@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     FWGenericHandle
-// 
+//
 /**\class FWGenericHandle FWGenericHandle.h Fireworks/Core/interface/FWGenericHandle.h
 
  Description: Allows interaction with data in the Event without actually using 
@@ -34,120 +34,102 @@
 #include <string>
 
 // user include files
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"
 
 // forward declarations
 namespace edm {
-   ///This class is just a 'tag' used to allow a specialization of edm::Handle
-struct FWGenericObject
-{
-};
+  ///This class is just a 'tag' used to allow a specialization of edm::Handle
+  struct FWGenericObject {};
 
-template<>
-class Handle<FWGenericObject> {
-public:
-      ///Throws exception if iName is not a known C++ class type
-      Handle(std::string const& iName) : 
-        type_(edm::TypeWithDict::byName(iName)), prod_(), prov_(nullptr) {
-           if(type_ == edm::TypeWithDict()) {
-              Exception::throwThis(errors::NotFound,
-                "Handle<FWGenericObject> told to use uknown type '",
-                iName.c_str(),
-                "'.\n Please check spelling or that a module uses this type in the job.");
-           }
-        }
-   
-   ///Throws exception if iType is invalid
-   Handle(edm::TypeWithDict const& iType):
-      type_(iType), prod_(), prov_(nullptr) {
-         if(iType == edm::TypeWithDict()) {
-            Exception::throwThis(errors::NotFound, "Handle<FWGenericObject> given an invalid edm::TypeWithDict");
-         }
+  template <>
+  class Handle<FWGenericObject> {
+  public:
+    ///Throws exception if iName is not a known C++ class type
+    Handle(std::string const& iName) : type_(edm::TypeWithDict::byName(iName)), prod_(), prov_(nullptr) {
+      if (type_ == edm::TypeWithDict()) {
+        Exception::throwThis(errors::NotFound,
+                             "Handle<FWGenericObject> told to use uknown type '",
+                             iName.c_str(),
+                             "'.\n Please check spelling or that a module uses this type in the job.");
       }
-   
-   Handle(Handle<FWGenericObject> const& h):
-   type_(h.type_),
-   prod_(h.prod_),
-   prov_(h.prov_),
-   whyFailed_(h.whyFailed_)
-   { }
-   
-   Handle(edm::ObjectWithDict const& prod, Provenance const* prov, ProductID const& pid):
-   type_(prod.typeOf()),
-   prod_(prod),
-   prov_(prov) { 
+    }
+
+    ///Throws exception if iType is invalid
+    Handle(edm::TypeWithDict const& iType) : type_(iType), prod_(), prov_(nullptr) {
+      if (iType == edm::TypeWithDict()) {
+        Exception::throwThis(errors::NotFound, "Handle<FWGenericObject> given an invalid edm::TypeWithDict");
+      }
+    }
+
+    Handle(Handle<FWGenericObject> const& h)
+        : type_(h.type_), prod_(h.prod_), prov_(h.prov_), whyFailed_(h.whyFailed_) {}
+
+    Handle(edm::ObjectWithDict const& prod, Provenance const* prov, ProductID const& pid)
+        : type_(prod.typeOf()), prod_(prod), prov_(prov) {
       assert(prod_);
       assert(prov_);
       // assert(prov_->productID() != ProductID());
-   }
-   
-      //~Handle();
-      
-   void swap(Handle<FWGenericObject>& other)
-   {
+    }
+
+    //~Handle();
+
+    void swap(Handle<FWGenericObject>& other) {
       // use unqualified swap for user defined classes
       using std::swap;
       swap(type_, other.type_);
       std::swap(prod_, other.prod_);
       swap(prov_, other.prov_);
       swap(whyFailed_, other.whyFailed_);
-   }
-   
-   
-   Handle<FWGenericObject>& operator=(Handle<FWGenericObject> const& rhs)
-   {
+    }
+
+    Handle<FWGenericObject>& operator=(Handle<FWGenericObject> const& rhs) {
       Handle<FWGenericObject> temp(rhs);
       this->swap(temp);
       return *this;
-   }
-   
-   bool isValid() const {
-      return prod_ && nullptr!= prov_;
-   }
+    }
 
-   bool failedToGet() const {
-     return nullptr != whyFailed_.get();
-   }
-   edm::ObjectWithDict const* product() const { 
-     if(this->failedToGet()) { 
-       whyFailed_->raise();
-     } 
-     return &prod_;
-   }
-   edm::ObjectWithDict const* operator->() const {return this->product();}
-   edm::ObjectWithDict const& operator*() const {return *(this->product());}
-   
-   edm::TypeWithDict const& type() const {return type_;}
-   Provenance const* provenance() const {return prov_;}
-   
-   ProductID id() const {return prov_->productID();}
+    bool isValid() const { return prod_ && nullptr != prov_; }
 
-   void clear() { prov_ = nullptr; whyFailed_.reset();}
-      
-   void setWhyFailed(std::shared_ptr<cms::Exception> const& iWhyFailed) {
-    whyFailed_=iWhyFailed;
-  }
-private:
-   edm::TypeWithDict type_;
-   edm::ObjectWithDict prod_;
-   Provenance const* prov_;    
-   std::shared_ptr<cms::Exception> whyFailed_;
-};
+    bool failedToGet() const { return nullptr != whyFailed_.get(); }
+    edm::ObjectWithDict const* product() const {
+      if (this->failedToGet()) {
+        whyFailed_->raise();
+      }
+      return &prod_;
+    }
+    edm::ObjectWithDict const* operator->() const { return this->product(); }
+    edm::ObjectWithDict const& operator*() const { return *(this->product()); }
 
-typedef Handle<FWGenericObject> FWGenericHandle;
+    edm::TypeWithDict const& type() const { return type_; }
+    Provenance const* provenance() const { return prov_; }
 
-///specialize this function forFWGenericHandle
-void convert_handle(BasicHandle const& orig,
-                    Handle<FWGenericObject>& result);
+    ProductID id() const { return prov_->productID(); }
 
+    void clear() {
+      prov_ = nullptr;
+      whyFailed_.reset();
+    }
 
-///Specialize the Event's getByLabel method to work with a Handle<FWGenericObject>
-template <>
-bool
-edm::EventBase::getByLabel(edm::InputTag const& tag, Handle<FWGenericObject>& result) const;   
+    void setWhyFailed(std::shared_ptr<cms::Exception> const& iWhyFailed) { whyFailed_ = iWhyFailed; }
 
-}
+  private:
+    edm::TypeWithDict type_;
+    edm::ObjectWithDict prod_;
+    Provenance const* prov_;
+    std::shared_ptr<cms::Exception> whyFailed_;
+  };
+
+  typedef Handle<FWGenericObject> FWGenericHandle;
+
+  ///specialize this function forFWGenericHandle
+  void convert_handle(BasicHandle const& orig, Handle<FWGenericObject>& result);
+
+  ///Specialize the Event's getByLabel method to work with a Handle<FWGenericObject>
+  template <>
+  bool edm::EventBase::getByLabel(edm::InputTag const& tag, Handle<FWGenericObject>& result) const;
+
+}  // namespace edm
 #endif

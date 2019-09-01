@@ -11,94 +11,82 @@
 
 namespace edm {
 
-  ParameterWildcard<ParameterSetDescription>::
-  ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked) :
-    ParameterWildcardBase(k_PSet, isTracked, criteria),
-    psetDesc_() {
+  ParameterWildcard<ParameterSetDescription>::ParameterWildcard(std::string const& pattern,
+                                                                WildcardValidationCriteria criteria,
+                                                                bool isTracked)
+      : ParameterWildcardBase(k_PSet, isTracked, criteria), psetDesc_() {
     throwIfInvalidPattern(pattern);
   }
 
-  ParameterWildcard<ParameterSetDescription>::
-  ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked) :
-    ParameterWildcardBase(k_PSet, isTracked, criteria),
-    psetDesc_() {
+  ParameterWildcard<ParameterSetDescription>::ParameterWildcard(char const* pattern,
+                                                                WildcardValidationCriteria criteria,
+                                                                bool isTracked)
+      : ParameterWildcardBase(k_PSet, isTracked, criteria), psetDesc_() {
     throwIfInvalidPattern(pattern);
   }
 
-  ParameterWildcard<ParameterSetDescription>::
-  ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked, ParameterSetDescription const& desc) :
-    ParameterWildcardBase(k_PSet, isTracked, criteria),
-    psetDesc_(new ParameterSetDescription(desc)) {
+  ParameterWildcard<ParameterSetDescription>::ParameterWildcard(std::string const& pattern,
+                                                                WildcardValidationCriteria criteria,
+                                                                bool isTracked,
+                                                                ParameterSetDescription const& desc)
+      : ParameterWildcardBase(k_PSet, isTracked, criteria), psetDesc_(new ParameterSetDescription(desc)) {
     throwIfInvalidPattern(pattern);
   }
 
-
-  ParameterWildcard<ParameterSetDescription>::
-  ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked, ParameterSetDescription const& desc) :
-    ParameterWildcardBase(k_PSet, isTracked, criteria),
-    psetDesc_(new ParameterSetDescription(desc)) {
+  ParameterWildcard<ParameterSetDescription>::ParameterWildcard(char const* pattern,
+                                                                WildcardValidationCriteria criteria,
+                                                                bool isTracked,
+                                                                ParameterSetDescription const& desc)
+      : ParameterWildcardBase(k_PSet, isTracked, criteria), psetDesc_(new ParameterSetDescription(desc)) {
     throwIfInvalidPattern(pattern);
   }
 
+  ParameterWildcard<ParameterSetDescription>::~ParameterWildcard() {}
 
-  ParameterWildcard<ParameterSetDescription>::
-  ~ParameterWildcard() { }
-
-  ParameterDescriptionNode*
-  ParameterWildcard<ParameterSetDescription>::
-  clone() const {
+  ParameterDescriptionNode* ParameterWildcard<ParameterSetDescription>::clone() const {
     return new ParameterWildcard(*this);
   }
 
-  void
-  ParameterWildcard<ParameterSetDescription>::
-  validate_(ParameterSet& pset,
-            std::set<std::string>& validatedLabels,
-            bool optional) const {
-
-    std::vector<std::string> parameterNames  = pset.getParameterNamesForType<ParameterSet>(isTracked());
+  void ParameterWildcard<ParameterSetDescription>::validate_(ParameterSet& pset,
+                                                             std::set<std::string>& validatedLabels,
+                                                             bool optional) const {
+    std::vector<std::string> parameterNames = pset.getParameterNamesForType<ParameterSet>(isTracked());
     validateMatchingNames(parameterNames, validatedLabels, optional);
 
-    if(psetDesc_) {
+    if (psetDesc_) {
       for_all(parameterNames,
               std::bind(&ParameterWildcard<ParameterSetDescription>::validateDescription,
-                          this,
-                          std::placeholders::_1,
-                          std::ref(pset)));
+                        this,
+                        std::placeholders::_1,
+                        std::ref(pset)));
     }
   }
 
-  void
-  ParameterWildcard<ParameterSetDescription>::
-  validateDescription(std::string const& parameterName,
-                      ParameterSet& pset) const {
+  void ParameterWildcard<ParameterSetDescription>::validateDescription(std::string const& parameterName,
+                                                                       ParameterSet& pset) const {
     ParameterSet* containedPSet = pset.getPSetForUpdate(parameterName);
     psetDesc_->validate(*containedPSet);
   }
 
-  bool
-  ParameterWildcard<ParameterSetDescription>::
-  hasNestedContent_() const {
-    if(psetDesc_) return true;
+  bool ParameterWildcard<ParameterSetDescription>::hasNestedContent_() const {
+    if (psetDesc_)
+      return true;
     return false;
   }
 
-  void
-  ParameterWildcard<ParameterSetDescription>::
-  printNestedContent_(std::ostream& os,
-                      bool /*optional*/,
-                      DocFormatHelper& dfh) const {
-
+  void ParameterWildcard<ParameterSetDescription>::printNestedContent_(std::ostream& os,
+                                                                       bool /*optional*/,
+                                                                       DocFormatHelper& dfh) const {
     int indentation = dfh.indentation();
-    if(dfh.parent() != DocFormatHelper::TOP) {
+    if (dfh.parent() != DocFormatHelper::TOP) {
       indentation -= DocFormatHelper::offsetSectionContent();
     }
 
     printSpaces(os, indentation);
-    os << "Section " << dfh.section() << "." << dfh.counter()
-       << " description of PSet matching wildcard:";
+    os << "Section " << dfh.section() << "." << dfh.counter() << " description of PSet matching wildcard:";
     os << "\n";
-    if(!dfh.brief()) os << "\n";
+    if (!dfh.brief())
+      os << "\n";
 
     std::stringstream ss;
     ss << dfh.section() << "." << dfh.counter();
@@ -112,104 +100,90 @@ namespace edm {
     psetDesc_->print(os, new_dfh);
   }
 
-  bool
-  ParameterWildcard<ParameterSetDescription>::
-  exists_(ParameterSet const& pset) const {
+  bool ParameterWildcard<ParameterSetDescription>::exists_(ParameterSet const& pset) const {
+    if (criteria() == RequireZeroOrMore)
+      return true;
 
-    if(criteria() == RequireZeroOrMore) return true;
+    std::vector<std::string> parameterNames = pset.getParameterNamesForType<ParameterSet>(isTracked());
 
-    std::vector<std::string> parameterNames  = pset.getParameterNamesForType<ParameterSet>(isTracked());
-
-    if(criteria() == RequireAtLeastOne) return !parameterNames.empty();
+    if (criteria() == RequireAtLeastOne)
+      return !parameterNames.empty();
     return parameterNames.size() == 1U;
   }
 
-// -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
 
-  ParameterWildcard<std::vector<ParameterSet> >::
-  ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked) :
-    ParameterWildcardBase(k_VPSet, isTracked, criteria),
-    psetDesc_() {
+  ParameterWildcard<std::vector<ParameterSet> >::ParameterWildcard(std::string const& pattern,
+                                                                   WildcardValidationCriteria criteria,
+                                                                   bool isTracked)
+      : ParameterWildcardBase(k_VPSet, isTracked, criteria), psetDesc_() {
     throwIfInvalidPattern(pattern);
   }
 
-  ParameterWildcard<std::vector<ParameterSet> >::
-  ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked) :
-    ParameterWildcardBase(k_VPSet, isTracked, criteria),
-    psetDesc_() {
+  ParameterWildcard<std::vector<ParameterSet> >::ParameterWildcard(char const* pattern,
+                                                                   WildcardValidationCriteria criteria,
+                                                                   bool isTracked)
+      : ParameterWildcardBase(k_VPSet, isTracked, criteria), psetDesc_() {
     throwIfInvalidPattern(pattern);
   }
 
-  ParameterWildcard<std::vector<ParameterSet> >::
-  ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked,
-                    ParameterSetDescription const& desc) :
-    ParameterWildcardBase(k_VPSet, isTracked, criteria),
-    psetDesc_(new ParameterSetDescription(desc)) {
+  ParameterWildcard<std::vector<ParameterSet> >::ParameterWildcard(std::string const& pattern,
+                                                                   WildcardValidationCriteria criteria,
+                                                                   bool isTracked,
+                                                                   ParameterSetDescription const& desc)
+      : ParameterWildcardBase(k_VPSet, isTracked, criteria), psetDesc_(new ParameterSetDescription(desc)) {
     throwIfInvalidPattern(pattern);
   }
 
-
-  ParameterWildcard<std::vector<ParameterSet> >::
-  ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked,
-                    ParameterSetDescription const& desc) :
-    ParameterWildcardBase(k_VPSet, isTracked, criteria),
-    psetDesc_(new ParameterSetDescription(desc)) {
+  ParameterWildcard<std::vector<ParameterSet> >::ParameterWildcard(char const* pattern,
+                                                                   WildcardValidationCriteria criteria,
+                                                                   bool isTracked,
+                                                                   ParameterSetDescription const& desc)
+      : ParameterWildcardBase(k_VPSet, isTracked, criteria), psetDesc_(new ParameterSetDescription(desc)) {
     throwIfInvalidPattern(pattern);
   }
 
+  ParameterWildcard<std::vector<ParameterSet> >::~ParameterWildcard() {}
 
-  ParameterWildcard<std::vector<ParameterSet> >::
-  ~ParameterWildcard() { }
-
-  ParameterDescriptionNode*
-  ParameterWildcard<std::vector<ParameterSet> >::
-  clone() const {
+  ParameterDescriptionNode* ParameterWildcard<std::vector<ParameterSet> >::clone() const {
     return new ParameterWildcard(*this);
   }
 
-  void
-  ParameterWildcard<std::vector<ParameterSet> >::
-  validate_(ParameterSet& pset,
-            std::set<std::string>& validatedLabels,
-            bool optional) const {
-
-    std::vector<std::string> parameterNames  = pset.getParameterNamesForType<std::vector<ParameterSet> >(isTracked());
+  void ParameterWildcard<std::vector<ParameterSet> >::validate_(ParameterSet& pset,
+                                                                std::set<std::string>& validatedLabels,
+                                                                bool optional) const {
+    std::vector<std::string> parameterNames = pset.getParameterNamesForType<std::vector<ParameterSet> >(isTracked());
     validateMatchingNames(parameterNames, validatedLabels, optional);
 
-    if(psetDesc_) {
+    if (psetDesc_) {
       for_all(parameterNames,
               std::bind(&ParameterWildcard<std::vector<ParameterSet> >::validatePSetVector,
-                          this,
-                          std::placeholders::_1,
-                          std::ref(pset)));
+                        this,
+                        std::placeholders::_1,
+                        std::ref(pset)));
     }
   }
 
-  void
-  ParameterWildcard<std::vector<ParameterSet> >::
-  validatePSetVector(std::string const& parameterName, ParameterSet& pset) const {
+  void ParameterWildcard<std::vector<ParameterSet> >::validatePSetVector(std::string const& parameterName,
+                                                                         ParameterSet& pset) const {
     VParameterSetEntry* vpsetEntry = pset.getPSetVectorForUpdate(parameterName);
     assert(vpsetEntry);
-    for(unsigned i = 0; i < vpsetEntry->size(); ++i) {
+    for (unsigned i = 0; i < vpsetEntry->size(); ++i) {
       psetDesc_->validate(vpsetEntry->psetInVector(i));
     }
   }
 
-  bool
-  ParameterWildcard<std::vector<ParameterSet> >::
-  hasNestedContent_() const {
-    if(psetDesc_) return true;
+  bool ParameterWildcard<std::vector<ParameterSet> >::hasNestedContent_() const {
+    if (psetDesc_)
+      return true;
     return false;
   }
 
-  void
-  ParameterWildcard<std::vector<ParameterSet> >::
-  printNestedContent_(std::ostream& os,
-                      bool /*optional*/,
-                      DocFormatHelper& dfh) const {
-
+  void ParameterWildcard<std::vector<ParameterSet> >::printNestedContent_(std::ostream& os,
+                                                                          bool /*optional*/,
+                                                                          DocFormatHelper& dfh) const {
     int indentation = dfh.indentation();
-    if(dfh.parent() != DocFormatHelper::TOP) {
+    if (dfh.parent() != DocFormatHelper::TOP) {
       indentation -= DocFormatHelper::offsetSectionContent();
     }
 
@@ -217,7 +191,8 @@ namespace edm {
     os << "Section " << dfh.section() << "." << dfh.counter()
        << " description used to validate all PSets which are in the VPSet matching the wildcard:";
     os << "\n";
-    if(!dfh.brief()) os << "\n";
+    if (!dfh.brief())
+      os << "\n";
 
     std::stringstream ss;
     ss << dfh.section() << "." << dfh.counter();
@@ -231,15 +206,14 @@ namespace edm {
     psetDesc_->print(os, new_dfh);
   }
 
-  bool
-  ParameterWildcard<std::vector<ParameterSet> >::
-  exists_(ParameterSet const& pset) const {
+  bool ParameterWildcard<std::vector<ParameterSet> >::exists_(ParameterSet const& pset) const {
+    if (criteria() == RequireZeroOrMore)
+      return true;
 
-    if(criteria() == RequireZeroOrMore) return true;
+    std::vector<std::string> parameterNames = pset.getParameterNamesForType<std::vector<ParameterSet> >(isTracked());
 
-    std::vector<std::string> parameterNames  = pset.getParameterNamesForType<std::vector<ParameterSet> >(isTracked());
-
-    if(criteria() == RequireAtLeastOne) return !parameterNames.empty();
+    if (criteria() == RequireAtLeastOne)
+      return !parameterNames.empty();
     return parameterNames.size() == 1U;
   }
-}
+}  // namespace edm

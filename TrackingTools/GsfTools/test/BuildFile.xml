@@ -1,4 +1,4 @@
-<flags   CXXFLAGS="-Ofast"/>
+<use   name="ofast-flag"/>
 <use   name="TrackingTools/GsfTools"/>
 <use   name="TrackingTools/AnalyticalJacobians"/>
 <use   name="rootmath"/>

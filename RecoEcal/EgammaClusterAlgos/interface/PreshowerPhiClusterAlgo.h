@@ -15,45 +15,37 @@ class CaloSubdetectorGeometry;
 class CaloSubdetectorTopology;
 
 class PreshowerPhiClusterAlgo {
-  
- public:
-  
+public:
   typedef math::XYZPoint Point;
-  
+
   typedef std::map<DetId, EcalRecHit> RecHitsMap;
   typedef std::set<DetId> HitsID;
 
-  PreshowerPhiClusterAlgo() : 
-    esStripEnergyCut_(0.)
-    {}
-    
-  PreshowerPhiClusterAlgo(float stripEnergyCut) :
-    esStripEnergyCut_(stripEnergyCut)
-    {}
-    
-    ~PreshowerPhiClusterAlgo() {};
-    
-    reco::PreshowerCluster makeOneCluster(ESDetId strip,
-					  HitsID *used_strips,
-					  RecHitsMap *rechits_map,
-					  const CaloSubdetectorGeometry*& geometry_p,
-					  CaloSubdetectorTopology*& topology_p,
-					  double deltaEta, double minDeltaPhi, double maxDeltaPhi);
-    
-    bool goodStrip(RecHitsMap::iterator candidate_it);
-    
- private:
-    
-      float esStripEnergyCut_;
-      
-      std::vector<ESDetId> road_2d;
-      
-      // The map of hits
-      RecHitsMap *rechits_map;
-      
-      // The set of used DetID's
-      HitsID *used_s;
-      
+  PreshowerPhiClusterAlgo() : esStripEnergyCut_(0.) {}
+
+  PreshowerPhiClusterAlgo(float stripEnergyCut) : esStripEnergyCut_(stripEnergyCut) {}
+
+  ~PreshowerPhiClusterAlgo(){};
+
+  reco::PreshowerCluster makeOneCluster(ESDetId strip,
+                                        HitsID *used_strips,
+                                        RecHitsMap *rechits_map,
+                                        const CaloSubdetectorGeometry *geometry_p,
+                                        double deltaEta,
+                                        double minDeltaPhi,
+                                        double maxDeltaPhi);
+
+  bool goodStrip(RecHitsMap::iterator candidate_it);
+
+private:
+  float esStripEnergyCut_;
+
+  std::vector<ESDetId> road_2d;
+
+  // The map of hits
+  RecHitsMap *rechits_map;
+
+  // The set of used DetID's
+  HitsID *used_s;
 };
 #endif
-

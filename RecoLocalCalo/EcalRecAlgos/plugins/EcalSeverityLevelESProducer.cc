@@ -1,8 +1,10 @@
 #include <memory>
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
@@ -17,49 +19,38 @@
  */
 
 class EcalSeverityLevelESProducer : public edm::ESProducer {
-  
 public:
   EcalSeverityLevelESProducer(const edm::ParameterSet& iConfig);
-  
-  typedef std::shared_ptr<EcalSeverityLevelAlgo> ReturnType;
-  
-  ReturnType produce(const EcalSeverityLevelAlgoRcd& iRecord);
-  
 
+  typedef std::shared_ptr<EcalSeverityLevelAlgo> ReturnType;
+
+  ReturnType produce(const EcalSeverityLevelAlgoRcd& iRecord);
 
 private:
+  void setupChannelStatus(const EcalChannelStatusRcd&, EcalSeverityLevelAlgo*);
 
-  void chstatusCallback(const EcalChannelStatusRcd& chs);
-  
-  ReturnType algo_;
+  using HostType = edm::ESProductHost<EcalSeverityLevelAlgo, EcalChannelStatusRcd>;
+
+  edm::ReusableObjectHolder<HostType> holder_;
+  edm::ParameterSet const pset_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> const channelToken_;
 };
 
-EcalSeverityLevelESProducer::EcalSeverityLevelESProducer(const edm::ParameterSet& iConfig){
-  //the following line is needed to tell the framework what
-  // data is being produced
-  setWhatProduced(this, 
-		  dependsOn (&EcalSeverityLevelESProducer::chstatusCallback));
+EcalSeverityLevelESProducer::EcalSeverityLevelESProducer(const edm::ParameterSet& iConfig)
+    : pset_(iConfig), channelToken_(setWhatProduced(this).consumesFrom<EcalChannelStatus, EcalChannelStatusRcd>()) {}
 
-  algo_ = std::make_shared<EcalSeverityLevelAlgo>(iConfig);
+EcalSeverityLevelESProducer::ReturnType EcalSeverityLevelESProducer::produce(const EcalSeverityLevelAlgoRcd& iRecord) {
+  auto host = holder_.makeOrGet([this]() { return new HostType(pset_); });
+
+  host->ifRecordChanges<EcalChannelStatusRcd>(iRecord,
+                                              [this, h = host.get()](auto const& rec) { setupChannelStatus(rec, h); });
+
+  return host;
 }
 
-
-
-EcalSeverityLevelESProducer::ReturnType
-EcalSeverityLevelESProducer::produce(const EcalSeverityLevelAlgoRcd& iRecord){
-  
-  return algo_ ;
-}
-
-
-void 
-EcalSeverityLevelESProducer::chstatusCallback(const EcalChannelStatusRcd& chs){
-  edm::ESHandle <EcalChannelStatus> h;
-  chs.get (h);
-  algo_->setChannelStatus(*h.product());
+void EcalSeverityLevelESProducer::setupChannelStatus(const EcalChannelStatusRcd& chs, EcalSeverityLevelAlgo* algo) {
+  algo->setChannelStatus(chs.get(channelToken_));
 }
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(EcalSeverityLevelESProducer);
-
-

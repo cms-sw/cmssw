@@ -9,7 +9,7 @@ public:
   HcalParametersFromDD() {}
   virtual ~HcalParametersFromDD() {}
 
-  bool build(const DDCompactView*,  HcalParameters& );
+  bool build(const DDCompactView*, HcalParameters&);
 };
 
 #endif

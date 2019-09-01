@@ -95,10 +95,6 @@ patMultPhiCorrParams_T1T2SmearTxy_25ns = cms.VPSet( [pset for pset in _shiftMod.
 patMultPhiCorrParams_T0pcT1SmearTxy_25ns = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T0pcT1Txy_25ns])
 patMultPhiCorrParams_T0pcT1T2SmearTxy_25ns = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T0pcT1T2Txy_25ns])
 
-#from Configuration.StandardSequences.Eras import eras
-#eras.run2_50ns_specific.toModify(patPFMetTxyCorr, parameters=patMultPhiCorrParams_Txy_50ns )
-#eras.run2_25ns_specific.toModify(patPFMetTxyCorr, parameters=patMultPhiCorrParams_Txy_25ns )
-
 patPFMetTxyCorrTask = cms.Task(patPFMetTxyCorr)
 patPFMetTxyCorrSequence = cms.Sequence(patPFMetTxyCorrTask)
 

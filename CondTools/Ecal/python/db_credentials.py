@@ -1,3 +1,4 @@
+import FWCore.ParameterSet.Config as cms
 import CondCore.Utilities.credentials as credentials
 import socket
 

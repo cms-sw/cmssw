@@ -11,50 +11,51 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class RefitDirection {
-
 public:
-  
-  enum GeometricalDirection{insideOut, outsideIn, undetermined};
-  
+  enum GeometricalDirection { insideOut, outsideIn, undetermined };
+
   /// Constructor
-  RefitDirection(){
+  RefitDirection() {
     thePropagationDirection = anyDirection;
     theGeoDirection = undetermined;
   }
 
-  explicit RefitDirection(std::string const& type){ 
-
+  explicit RefitDirection(std::string const& type) {
     thePropagationDirection = anyDirection;
     theGeoDirection = undetermined;
- 
-    if (type == "alongMomentum") thePropagationDirection = alongMomentum;
-    else if (type == "oppositeToMomentum") thePropagationDirection = oppositeToMomentum;
-    else if (type == "insideOut") theGeoDirection = insideOut;
-    else if (type == "outsideIn") theGeoDirection = outsideIn;
-    else 
-      throw cms::Exception("RefitDirection") 
-	<<"Wrong refit direction chosen in TrackTransformer ParameterSet"
-	<< "\n"
-	<< "Possible choices are:"
-	<< "\n"
-	<< "RefitDirection = [alongMomentum, oppositeToMomentum, insideOut, outsideIn]";
+
+    if (type == "alongMomentum")
+      thePropagationDirection = alongMomentum;
+    else if (type == "oppositeToMomentum")
+      thePropagationDirection = oppositeToMomentum;
+    else if (type == "insideOut")
+      theGeoDirection = insideOut;
+    else if (type == "outsideIn")
+      theGeoDirection = outsideIn;
+    else
+      throw cms::Exception("RefitDirection")
+          << "Wrong refit direction chosen in TrackTransformer ParameterSet"
+          << "\n"
+          << "Possible choices are:"
+          << "\n"
+          << "RefitDirection = [alongMomentum, oppositeToMomentum, insideOut, outsideIn]";
   }
-  
+
   // Operations
   inline GeometricalDirection geometricalDirection() const {
-    if(theGeoDirection == undetermined) LogTrace("Reco|TrackingTools|TrackTransformer") << "Try to use undetermined geometrical direction";
+    if (theGeoDirection == undetermined)
+      LogTrace("Reco|TrackingTools|TrackTransformer") << "Try to use undetermined geometrical direction";
     return theGeoDirection;
   }
   inline PropagationDirection propagationDirection() const {
-    if(thePropagationDirection == anyDirection) LogTrace("Reco|TrackingTools|TrackTransformer") << "Try to use anyDirection as propagation direction";
+    if (thePropagationDirection == anyDirection)
+      LogTrace("Reco|TrackingTools|TrackTransformer") << "Try to use anyDirection as propagation direction";
     return thePropagationDirection;
   }
-  
+
 protected:
-  
 private:
   GeometricalDirection theGeoDirection;
   PropagationDirection thePropagationDirection;
 };
 #endif
-

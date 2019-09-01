@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 
 
@@ -33,12 +35,12 @@ def RemoveFlag(sevLevelComputer,flag="HFLongShort"):
 
 
 def PrintLevels(SLComp):
-    print "Severity Level Computer Levels and associated flags/Channel Status values:"
+    print("Severity Level Computer Levels and associated flags/Channel Status values:")
     for i in SLComp.SeverityLevels:
-        print "\t Level = %i"%i.Level.value()
-        print "\t\t RecHit Flags = %s"%i.RecHitFlags.value()
-        print "\t\t Channel Status = %s"%i.ChannelStatus.value()
-        print
+        print("\t Level = %i"%i.Level.value())
+        print("\t\t RecHit Flags = %s"%i.RecHitFlags.value())
+        print("\t\t Channel Status = %s"%i.ChannelStatus.value())
+        print()
     return
 
 
@@ -59,15 +61,15 @@ def AddFlag(sevLevelComputer,flag="UserDefinedBit0",severity=10,verbose=True):
             
     #print "Allowed flags = ",allowedflags
     if flag not in allowedflags and verbose:
-        print "\n\n"
+        print("\n\n")
         for j in range(0,3):
-            print "###################################################"
-        print "\nWARNING!!!!!! You are adding a flag \n\t'%s' \nthat is not defined in the Severity Level Computer!"%flag
-        print "This can be EXCEPTIONALLY dangerous if you do not \nknow what you are doing!\n"
-        print "Proceed with EXTREME caution!\n"
+            print("###################################################")
+        print("\nWARNING!!!!!! You are adding a flag \n\t'%s' \nthat is not defined in the Severity Level Computer!"%flag)
+        print("This can be EXCEPTIONALLY dangerous if you do not \nknow what you are doing!\n")
+        print("Proceed with EXTREME caution!\n")
         for j in range(0,3):
-            print "###################################################"
-        print "\n\n"
+            print("###################################################")
+        print("\n\n")
 
     #Loop over severity Levels
     for i in range(len(sevLevelComputer.SeverityLevels)):
@@ -109,7 +111,7 @@ def AddFlag(sevLevelComputer,flag="UserDefinedBit0",severity=10,verbose=True):
 ##########################
 
 if __name__=="__main__":
-    import hcalRecAlgoESProd_cfi as ES
+    from . import hcalRecAlgoESProd_cfi as ES
     ES.hcalRecAlgos=RemoveFlag(ES.hcalRecAlgos)
     ES.hcalRecAlgos=AddFlag(ES.hcalRecAlgos,flag="HOBit",severity=5)
     PrintLevels(ES.hcalRecAlgos)

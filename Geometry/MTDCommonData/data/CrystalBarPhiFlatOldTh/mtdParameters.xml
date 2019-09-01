@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <ConstantsSection  label="mtdParameters.xml" eval="true">
+
+  <Vector name="vPars" type="numeric" nEntries="4">
+    4, 4, 4, 24
+  </Vector>
+  <Vector name="BTL" type="numeric" nEntries="12">
+    22, 24, 16, 10, 0x1, 0x3, 0x3F, 0x3F, 1, 16, 3, 1
+  </Vector>
+  <Vector name="ETL" type="numeric" nEntries="12">
+    22, 24, 16, 7, 0x1, 0x3, 0x3F, 0xFF, 24, 4, 2, 8
+  </Vector>
+
+  </ConstantsSection>
+</DDDefinition>

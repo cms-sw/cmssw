@@ -1,8 +1,8 @@
-from commands import getstatusoutput
 import time
 import os
 from json import loads, dumps
 from types import GeneratorType
+import subprocess
 
 #Copied from das_client.py
 
@@ -79,6 +79,8 @@ def get_data(query, limit=None, threshold=None, idx=None, host=None, cmd=None):
       if  os.path.isfile(os.path.join(path, 'dasgoclient')):
         cmd = "dasgoclient"
         break
-  err, out = getstatusoutput("%s %s --query '%s'" % (cmd, cmd_opts, query))
-  if not err: return loads(out)
-  return {'status' : 'error', 'reason' : out}
+
+  p = subprocess.Popen("%s %s --query '%s'" % (cmd, cmd_opts, query),shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+  stdout, stderr = p.communicate()
+  if not p.returncode: return loads(stdout)
+  return {'status' : 'error', 'reason' : stdout}

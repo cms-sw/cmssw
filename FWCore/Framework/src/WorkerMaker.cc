@@ -11,12 +11,10 @@
 #include <sstream>
 #include <exception>
 namespace edm {
-  
-  Maker::~Maker() {
-  }
-  
-  ModuleDescription
-  Maker::createModuleDescription(MakeModuleParams const &p) const {
+
+  Maker::~Maker() {}
+
+  ModuleDescription Maker::createModuleDescription(MakeModuleParams const& p) const {
     ParameterSet const& conf = *p.pset_;
     ModuleDescription md(conf.id(),
                          conf.getParameter<std::string>("@module_type"),
@@ -25,46 +23,40 @@ namespace edm {
                          ModuleDescription::getUniqueID());
     return md;
   }
-  
-  void
-  Maker::throwValidationException(MakeModuleParams const& p,
-                                  cms::Exception & iException) const {
+
+  void Maker::throwValidationException(MakeModuleParams const& p, cms::Exception& iException) const {
     ParameterSet const& conf = *p.pset_;
     std::string moduleName = conf.getParameter<std::string>("@module_type");
     std::string moduleLabel = conf.getParameter<std::string>("@module_label");
-    
+
     std::ostringstream ost;
-    ost << "Validating configuration of module: class=" << moduleName
-    << " label='" << moduleLabel << "'";
+    ost << "Validating configuration of module: class=" << moduleName << " label='" << moduleLabel << "'";
     iException.addContext(ost.str());
     throw;
   }
-  
-  void
-  Maker::throwConfigurationException(ModuleDescription const& md,
-                                     cms::Exception & iException) const {
+
+  void Maker::throwConfigurationException(ModuleDescription const& md, cms::Exception& iException) const {
     std::ostringstream ost;
     ost << "Constructing module: class=" << md.moduleName() << " label='" << md.moduleLabel() << "'";
     iException.addContext(ost.str());
     throw;
   }
-  
-  void
-  Maker::validateEDMType(std::string const& edmType, MakeModuleParams const& p) const {
+
+  void Maker::validateEDMType(std::string const& edmType, MakeModuleParams const& p) const {
     std::string expected = p.pset_->getParameter<std::string>("@module_edm_type");
     if (edmType != expected) {
       throw Exception(errors::Configuration)
-      << "The base type in the python configuration is " << expected << ", but the base type\n"
-      << "for the module's C++ class is " << edmType << ". "
-      << "Please fix the configuration.\n"
-      << "It must use the same base type as the C++ class.\n";
+          << "The base type in the python configuration is " << expected << ", but the base type\n"
+          << "for the module's C++ class is " << edmType << ". "
+          << "Please fix the configuration.\n"
+          << "It must use the same base type as the C++ class.\n";
     }
   }
-  
-  std::shared_ptr<maker::ModuleHolder>
-  Maker::makeModule(MakeModuleParams const& p,
-                    signalslot::Signal<void(ModuleDescription const&)>& pre,
-                    signalslot::Signal<void(ModuleDescription const&)>& post) const {
+
+  std::shared_ptr<maker::ModuleHolder> Maker::makeModule(
+      MakeModuleParams const& p,
+      signalslot::Signal<void(ModuleDescription const&)>& pre,
+      signalslot::Signal<void(ModuleDescription const&)>& post) const {
     ConfigurationDescriptions descriptions(baseType(), p.pset_->getParameter<std::string>("@module_type"));
     fillDescriptions(descriptions);
     try {
@@ -72,8 +64,7 @@ namespace edm {
         descriptions.validate(*p.pset_, p.pset_->getParameter<std::string>("@module_label"));
         validateEDMType(baseType(), p);
       });
-    }
-    catch (cms::Exception & iException) {
+    } catch (cms::Exception& iException) {
       throwValidationException(p, iException);
     }
     p.pset_->registerIt();
@@ -83,8 +74,8 @@ namespace edm {
     //NOTE: a better implementation would be to change ParameterSet::registerIt
     // but that would require rebuilding much more code so will be done at
     // a later date.
-    edm::pset::Registry::instance()->insertMapped(*(p.pset_),true);
-    
+    edm::pset::Registry::instance()->insertMapped(*(p.pset_), true);
+
     ModuleDescription md = createModuleDescription(p);
     std::shared_ptr<maker::ModuleHolder> module;
     bool postCalled = false;
@@ -99,13 +90,11 @@ namespace edm {
         postCalled = true;
         post(md);
       });
-    }
-    catch(cms::Exception & iException){
-      if(!postCalled) {
+    } catch (cms::Exception& iException) {
+      if (!postCalled) {
         try {
           post(md);
-        }
-        catch (...) {
+        } catch (...) {
           // If post throws an exception ignore it because we are already handling another exception
         }
       }
@@ -113,12 +102,10 @@ namespace edm {
     }
     return module;
   }
-  
-  std::unique_ptr<Worker> 
-  Maker::makeWorker(ExceptionToActionTable const* actions,
-                    maker::ModuleHolder const* mod) const {
-    
-    return makeWorker(actions,mod->moduleDescription(),mod);
+
+  std::unique_ptr<Worker> Maker::makeWorker(ExceptionToActionTable const* actions,
+                                            maker::ModuleHolder const* mod) const {
+    return makeWorker(actions, mod->moduleDescription(), mod);
   }
-  
-} // end of edm::
+
+}  // namespace edm

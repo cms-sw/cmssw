@@ -21,10 +21,9 @@
 #include <string>
 #include <map>
 
-namespace l1t
-{
+namespace l1t {
 
-/* This class is used to write L1 Trigger configuration data to Pool DB.
+  /* This class is used to write L1 Trigger configuration data to Pool DB.
  * It also has a function for reading L1TriggerKey directly from Pool.
  *
  * In order to use this class to write payloads, user has to make sure to register datatypes that she or he is
@@ -33,69 +32,59 @@ namespace l1t
  * REGISTER_PLUGIN(record, type) from registration_macros.h found in PluginSystem.
  */
 
-class DataWriterExt
-{
- public:
-  DataWriterExt();
-  ~DataWriterExt();
+  class DataWriterExt {
+  public:
+    DataWriterExt();
+    ~DataWriterExt();
 
-  // Payload and IOV writing functions.  
+    // Payload and IOV writing functions.
 
-  // Get payload from EventSetup and write to DB with no IOV
-  // recordType = "record@type", return value is payload token
-  std::string writePayload( const edm::EventSetup& setup,
-			    const std::string& recordType ) ;
+    // Get payload from EventSetup and write to DB with no IOV
+    // recordType = "record@type", return value is payload token
+    std::string writePayload(const edm::EventSetup& setup, const std::string& recordType);
 
-  // Use PoolDBOutputService to append IOV with sinceRun to IOV sequence
-  // for given ESRecord.  PoolDBOutputService knows the corresponding IOV tag.
-  // Return value is true if IOV was updated; false if IOV was already
-  // up to date.
-  bool updateIOV( const std::string& esRecordName,
-		  const std::string& payloadToken,
-		  edm::RunNumber_t sinceRun,
-		  bool logTransactions = false ) ;
+    // Use PoolDBOutputService to append IOV with sinceRun to IOV sequence
+    // for given ESRecord.  PoolDBOutputService knows the corresponding IOV tag.
+    // Return value is true if IOV was updated; false if IOV was already
+    // up to date.
+    bool updateIOV(const std::string& esRecordName,
+                   const std::string& payloadToken,
+                   edm::RunNumber_t sinceRun,
+                   bool logTransactions = false);
 
-  // Write L1TriggerKeyListExt payload and set IOV.  Takes ownership of pointer.
-  void writeKeyList( L1TriggerKeyListExt* keyList,
-		     edm::RunNumber_t sinceRun = 0,
-		     bool logTransactions = false ) ;
+    // Write L1TriggerKeyListExt payload and set IOV.  Takes ownership of pointer.
+    void writeKeyList(L1TriggerKeyListExt* keyList, edm::RunNumber_t sinceRun = 0, bool logTransactions = false);
 
-  // Read object directly from Pool, not from EventSetup.
-  template< class T >
-  void readObject( const std::string& payloadToken,
-		   T& outputObject ) ;
+    // Read object directly from Pool, not from EventSetup.
+    template <class T>
+    void readObject(const std::string& payloadToken, T& outputObject);
 
-  std::string payloadToken( const std::string& recordName,
-			    edm::RunNumber_t runNumber ) ;
+    std::string payloadToken(const std::string& recordName, edm::RunNumber_t runNumber);
 
-  std::string lastPayloadToken( const std::string& recordName ) ;
+    std::string lastPayloadToken(const std::string& recordName);
 
-  bool fillLastTriggerKeyList( L1TriggerKeyListExt& output ) ;
+    bool fillLastTriggerKeyList(L1TriggerKeyListExt& output);
 
- protected:
-};
+  protected:
+  };
 
-template< class T >
-void DataWriterExt::readObject( const std::string& payloadToken,
-			     T& outputObject )
-{
-  edm::Service<cond::service::PoolDBOutputService> poolDb;
-  if( !poolDb.isAvailable() )
-    {
-      throw cond::Exception( "DataWriter: PoolDBOutputService not available."
-			     ) ;
+  template <class T>
+  void DataWriterExt::readObject(const std::string& payloadToken, T& outputObject) {
+    edm::Service<cond::service::PoolDBOutputService> poolDb;
+    if (!poolDb.isAvailable()) {
+      throw cond::Exception("DataWriter: PoolDBOutputService not available.");
     }
 
-  poolDb->forceInit();
-  cond::persistency::Session session = poolDb->session();
-///  session.transaction().start(true);
- 
-  // Get object from CondDB
-  std::shared_ptr<T> ref = session.fetchPayload<T>(payloadToken) ;
-  outputObject = *ref ;
-///  session.transaction().commit ();
-}
+    poolDb->forceInit();
+    cond::persistency::Session session = poolDb->session();
+    ///  session.transaction().start(true);
 
-} // ns
+    // Get object from CondDB
+    std::shared_ptr<T> ref = session.fetchPayload<T>(payloadToken);
+    outputObject = *ref;
+    ///  session.transaction().commit ();
+  }
+
+}  // namespace l1t
 
 #endif

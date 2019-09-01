@@ -5,8 +5,8 @@ namespace edm {
   class RootServiceChecker {
   public:
     RootServiceChecker();
-    ~RootServiceChecker(){}
+    ~RootServiceChecker() {}
   };
-}
+}  // namespace edm
 
 #endif

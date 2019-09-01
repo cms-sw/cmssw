@@ -68,6 +68,8 @@ trackerDrivenElectronSeedsTmp = trackerDrivenElectronSeeds.clone(TkColList = cms
 import FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi
 _fastSim_trackerDrivenElectronSeeds = FastSimulation.Tracking.ElectronSeedTrackRefFix_cfi.fixedTrackerDrivenElectronSeeds.clone()
 _fastSim_trackerDrivenElectronSeeds.seedCollection.setModuleLabel("trackerDrivenElectronSeedsTmp"),
-_fastSim_trackerDrivenElectronSeeds.idCollection.setModuleLabel("trackerDrivenElectronSeedsTmp")
+_fastSim_trackerDrivenElectronSeeds.idCollection = cms.VInputTag("trackerDrivenElectronSeedsTmp:preid",)
 fastSim.toReplaceWith(trackerDrivenElectronSeeds,_fastSim_trackerDrivenElectronSeeds)
 
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(trackerDrivenElectronSeeds,MinPt = 1.0)

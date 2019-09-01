@@ -19,13 +19,11 @@ namespace l1t {
 
   class Stage2PreProcessor {
   public:
-    virtual void processEvent(const std::vector<l1t::CaloTower> & inTowers,
-			      std::vector<l1t::CaloTower> & outTowers) = 0;
+    virtual void processEvent(const std::vector<l1t::CaloTower>& inTowers, std::vector<l1t::CaloTower>& outTowers) = 0;
 
     virtual ~Stage2PreProcessor(){};
-
   };
 
-}
+}  // namespace l1t
 
 #endif

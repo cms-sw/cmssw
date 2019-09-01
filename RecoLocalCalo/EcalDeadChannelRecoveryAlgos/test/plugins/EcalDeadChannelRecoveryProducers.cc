@@ -28,8 +28,7 @@ using namespace cms;
 using namespace std;
 
 template <typename DetIdT>
-EcalDeadChannelRecoveryProducers<DetIdT>::EcalDeadChannelRecoveryProducers(
-    const edm::ParameterSet& ps) {
+EcalDeadChannelRecoveryProducers<DetIdT>::EcalDeadChannelRecoveryProducers(const edm::ParameterSet& ps) {
   //now do what ever other initialization is needed
   CorrectDeadCells_ = ps.getParameter<bool>("CorrectDeadCells");
   CorrectionMethod_ = ps.getParameter<std::string>("CorrectionMethod");
@@ -37,8 +36,7 @@ EcalDeadChannelRecoveryProducers<DetIdT>::EcalDeadChannelRecoveryProducers(
   DeadChannelFileName_ = ps.getParameter<std::string>("DeadChannelsFile");
   Sum8GeVThreshold_ = ps.getParameter<double>("Sum8GeVThreshold");
 
-  hitToken_ =
-      consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("hitTag"));
+  hitToken_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("hitTag"));
   produces<EcalRecHitCollection>(reducedHitCollection_);
 }
 
@@ -50,8 +48,7 @@ EcalDeadChannelRecoveryProducers<DetIdT>::~EcalDeadChannelRecoveryProducers() {
 
 // ------------ method called to produce the data  ------------
 template <typename DetIdT>
-void EcalDeadChannelRecoveryProducers<DetIdT>::produce(
-    edm::Event& evt, const edm::EventSetup& iSetup) {
+void EcalDeadChannelRecoveryProducers<DetIdT>::produce(edm::Event& evt, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   edm::ESHandle<CaloTopology> theCaloTopology;
@@ -76,18 +73,17 @@ void EcalDeadChannelRecoveryProducers<DetIdT>::produce(
   //  Double loop over EcalRecHit collection and "dead" cell RecHits.
   //  If we step into a "dead" cell call "deadChannelCorrector::correct()"
   //
-  for (EcalRecHitCollection::const_iterator it = hit_collection->begin();
-       it != hit_collection->end(); ++it) {
+  for (EcalRecHitCollection::const_iterator it = hit_collection->begin(); it != hit_collection->end(); ++it) {
     std::vector<EBDetId>::const_iterator CheckDead = ChannelsDeadID.begin();
     bool OverADeadRecHit = false;
     while (CheckDead != ChannelsDeadID.end()) {
       if (it->detid() == *CheckDead) {
         OverADeadRecHit = true;
         bool AcceptRecHit = true;
-        EcalRecHit hit = deadChannelCorrector.correct(
-            it->detid(), *hit_collection, CorrectionMethod_, Sum8GeVThreshold_,
-            &AcceptRecHit);
-
+        float dummy = 0;
+        float ebEn = deadChannelCorrector.correct(
+            it->detid(), *hit_collection, CorrectionMethod_, Sum8GeVThreshold_, dummy, &AcceptRecHit);
+        EcalRecHit hit(it->detid(), ebEn, 0., EcalRecHit::kDead);
         if (hit.energy() != 0 and AcceptRecHit == true) {
           hit.setFlag(EcalRecHit::kNeighboursRecovered);
         } else {
@@ -109,7 +105,8 @@ void EcalDeadChannelRecoveryProducers<DetIdT>::produce(
 }
 
 // method called once each job just before starting event loop  ------------
-template <> void EcalDeadChannelRecoveryProducers<EBDetId>::beginJob() {
+template <>
+void EcalDeadChannelRecoveryProducers<EBDetId>::beginJob() {
   //Open the DeadChannel file, read it.
   FILE* DeadCha;
   printf("Dead Channels FILE: %s\n", DeadChannelFileName_.c_str());
@@ -120,7 +117,6 @@ template <> void EcalDeadChannelRecoveryProducers<EBDetId>::beginJob() {
   int iphi = -10000;
 
   while (fileStatus != EOF) {
-
     fileStatus = fscanf(DeadCha, "%d %d\n", &ieta, &iphi);
 
     //  Problem reading Dead Channels file
@@ -138,7 +134,8 @@ template <> void EcalDeadChannelRecoveryProducers<EBDetId>::beginJob() {
   fclose(DeadCha);
 }
 
-template <> void EcalDeadChannelRecoveryProducers<EEDetId>::beginJob() {
+template <>
+void EcalDeadChannelRecoveryProducers<EEDetId>::beginJob() {
   //Open the DeadChannel file, read it.
   FILE* DeadCha;
   printf("Dead Channels FILE: %s\n", DeadChannelFileName_.c_str());
@@ -149,7 +146,6 @@ template <> void EcalDeadChannelRecoveryProducers<EEDetId>::beginJob() {
   int iy = -10000;
   int iz = -10000;
   while (fileStatus != EOF) {
-
     fileStatus = fscanf(DeadCha, "%d %d %d\n", &ix, &iy, &iz);
 
     //  Problem reading Dead Channels file
@@ -172,10 +168,8 @@ template <> void EcalDeadChannelRecoveryProducers<EEDetId>::beginJob() {
 template <typename DetIdT>
 void EcalDeadChannelRecoveryProducers<DetIdT>::endJob() {}
 
-typedef class EcalDeadChannelRecoveryProducers<EBDetId>
-    EBDeadChannelRecoveryProducers;
-typedef class EcalDeadChannelRecoveryProducers<EEDetId>
-    EEDeadChannelRecoveryProducers;
+typedef class EcalDeadChannelRecoveryProducers<EBDetId> EBDeadChannelRecoveryProducers;
+typedef class EcalDeadChannelRecoveryProducers<EEDetId> EEDeadChannelRecoveryProducers;
 
 DEFINE_FWK_MODULE(EBDeadChannelRecoveryProducers);
 DEFINE_FWK_MODULE(EEDeadChannelRecoveryProducers);

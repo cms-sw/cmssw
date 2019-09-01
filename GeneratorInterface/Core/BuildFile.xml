@@ -9,6 +9,7 @@
 <use   name="clhep"/>
 <use   name="lhapdf"/>
 <use   name="f77compiler"/>
+<use   name="root"/>
 <export>
   <lib   name="1"/>
 </export>

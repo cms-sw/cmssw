@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import range
 import sys
 import numpy as np
 
@@ -20,7 +22,7 @@ def findTree(f):
                 return tree
             elif isinstance(tree, ROOT.TDirectory):
                 return findTree(tree)
-    print 'Failed to find TTree Events in file', f
+    print('Failed to find TTree Events in file', f)
     return None
 
 def applyHistStyle(h, i):
@@ -59,15 +61,15 @@ def interSect(tree1, tree2, var='ull_dumpTauVariables_EventNumber_DUMP.obj', com
     tree1.Draw(var)
     r_evt1 = tree1.GetV1()
     if len(titles) > 0 and titles[0] == 'Reference':
-        evt1 = np.array([int(r_evt1[i]) & 0xffffffff for i in xrange(tree2.GetEntries())], dtype=int)
+        evt1 = np.array([int(r_evt1[i]) & 0xffffffff for i in range(tree2.GetEntries())], dtype=int)
     else:
-        evt1 = np.array([r_evt1[i] for i in xrange(tree1.GetEntries())], dtype=int)
+        evt1 = np.array([r_evt1[i] for i in range(tree1.GetEntries())], dtype=int)
     tree2.Draw(var)
     r_evt2 = tree2.GetV1()
     if len(titles) > 1 and titles[1] == 'Reference':
-        evt2 = np.array([int(r_evt2[i]) & 0xffffffff for i in xrange(tree2.GetEntries())], dtype=int)
+        evt2 = np.array([int(r_evt2[i]) & 0xffffffff for i in range(tree2.GetEntries())], dtype=int)
     else:
-        evt2 = np.array([int(r_evt2[i]) for i in xrange(tree2.GetEntries())], dtype=int)
+        evt2 = np.array([int(r_evt2[i]) for i in range(tree2.GetEntries())], dtype=int)
     if common:
         indices1 = np.nonzero(np.in1d(evt1, evt2))
         indices2 = np.nonzero(np.in1d(evt2, evt1))
@@ -97,15 +99,15 @@ def scanForDiff(tree1, tree2, branch_names, scan_var='floats_dumpTauVariables_pt
             continue
         if round(var1, 6) != round(var2, 6): 
             diff_events.append(ind)
-            print 'Event', ind
+            print('Event', ind)
             for branch in branch_names:
                 v1 = getattr(tree1, branch)
                 v2 = getattr(tree2, branch)
                 if round(v1, 6) != round(v2, 6) and v1 > -99.:
-                    print '{b:>43}: {v1:>8.4f}, {v2:>8.4f}'.format(b=branch, v1=v1, v2=v2)
-            print
-    print 'Found', len(diff_events), 'events with differences in', scan_var
-    print diff_events
+                    print('{b:>43}: {v1:>8.4f}, {v2:>8.4f}'.format(b=branch, v1=v1, v2=v2))
+            print()
+    print('Found', len(diff_events), 'events with differences in', scan_var)
+    print(diff_events)
 
 
 if __name__ == '__main__':
@@ -131,12 +133,12 @@ if __name__ == '__main__':
     (options,args) = parser.parse_args()
 
     if len(args) < 2:
-        print 'provide at least 2 input root files'
+        print('provide at least 2 input root files')
         sys.exit(1)
 
     titles = options.titles.split(',')    
     if len(titles) < len(args):
-        print 'Provide at least as many titles as input files'
+        print('Provide at least as many titles as input files')
         sys.exit(1)
 
     for i, arg in enumerate(args):
@@ -163,7 +165,7 @@ if __name__ == '__main__':
     u_names = set.intersection(*b_names)
     u_names = sorted(u_names)
 
-    print 'Making plots for all common branches (', len(u_names), ')'
+    print('Making plots for all common branches (', len(u_names), ')')
     comparisonPlots(u_names, trees, titles, 'compareTauVariables.pdf', options.do_ratio)
 
     if len(trees) == 2 and options.do_intersect:

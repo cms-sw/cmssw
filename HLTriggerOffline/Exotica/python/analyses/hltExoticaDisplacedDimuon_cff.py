@@ -4,6 +4,8 @@ DisplacedDimuonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
         "HLT_DoubleMu43NoFiltersNoVtx_v", # 2017 displaced mu-mu (main)
         "HLT_DoubleMu48NoFiltersNoVtx_v", # 2017 displaced mu-mu (backup)
+        "HLT_DoubleMu33NoFiltersNoVtxDisplaced_v", # 2017 displaced mu-mu, muons with dxy> 0.01 cm (main)
+        "HLT_DoubleMu40NoFiltersNoVtxDisplaced_v", # 2017 displaced mu-mu, muons with dxy> 0.01 cm (backup)
         ),
     recMuonLabel  = cms.InputTag("muons"),
     # -- Analysis specific cuts

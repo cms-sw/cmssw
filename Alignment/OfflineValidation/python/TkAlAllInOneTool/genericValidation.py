@@ -1,12 +1,15 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
 from abc import ABCMeta, abstractmethod, abstractproperty
 import os
 import re
 import json
-import globalDictionaries
-import configTemplates
-from dataset import Dataset
-from helperFunctions import replaceByMap, addIndex, getCommandOutput2, boolfromstring, pythonboolstring
-from TkAlExceptions import AllInOneError
+from . import globalDictionaries
+from . import configTemplates
+from .dataset import Dataset
+from .helperFunctions import replaceByMap, addIndex, getCommandOutput2, boolfromstring, pythonboolstring
+from .TkAlExceptions import AllInOneError
 
 class ValidationMetaClass(ABCMeta):
     sets = ["mandatories", "optionals", "needpackages"]
@@ -132,7 +135,7 @@ class GenericValidation(object):
                           ignoreOptions = ignoreOpts)
 
     def getRepMap(self, alignment = None):
-        from plottingOptions import PlottingOptions
+        from .plottingOptions import PlottingOptions
         if alignment == None:
             alignment = self.alignmentToValidate
         try:
@@ -298,8 +301,8 @@ class GenericValidationData(GenericValidation):
 
         if self.cmssw not in globalDictionaries.usedDatasets[self.general["dataset"]]:
             if globalDictionaries.usedDatasets[self.general["dataset"]] != {}:
-                print ("Warning: you use the same dataset '%s' in multiple cmssw releases.\n"
-                       "This is allowed, but make sure it's not a mistake") % self.general["dataset"]
+                print(("Warning: you use the same dataset '%s' in multiple cmssw releases.\n"
+                       "This is allowed, but make sure it's not a mistake") % self.general["dataset"])
             globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw] = {False: None, True: None}
 
         Bfield = self.general.get("magneticfield", None)
@@ -316,8 +319,8 @@ class GenericValidationData(GenericValidation):
         self.general["magneticField"] = self.dataset.magneticField()
         self.general["defaultMagneticField"] = "MagneticField"
         if self.general["magneticField"] == "unknown":
-            print "Could not get the magnetic field for this dataset."
-            print "Using the default: ", self.general["defaultMagneticField"]
+            print("Could not get the magnetic field for this dataset.")
+            print("Using the default: ", self.general["defaultMagneticField"])
             self.general["magneticField"] = '.oO[defaultMagneticField]Oo.'
         
         if not self.jobmode.split( ',' )[0] == "crab":
@@ -397,7 +400,7 @@ class GenericValidationData(GenericValidation):
         outputfile = os.path.expandvars(replaceByMap(
                            "%s_%s_.oO[name]Oo..root" % (self.outputBaseName, self.name)
                                  , result))
-        resultfile = os.path.expandvars(replaceByMap(("/store/caf/user/$USER/.oO[eosdir]Oo./" +
+        resultfile = os.path.expandvars(replaceByMap(("/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./" +
                            "%s_%s_.oO[name]Oo..root" % (self.resultBaseName, self.name))
                                  , result))
         result.update({
@@ -516,7 +519,7 @@ class GenericValidationData_CTSR(GenericValidationData):
     def getRepMap(self, alignment=None):
         result = super(GenericValidationData_CTSR, self).getRepMap(alignment)
 
-        from trackSplittingValidation import TrackSplittingValidation
+        from .trackSplittingValidation import TrackSplittingValidation
         result.update({
             "ValidationSequence": self.ValidationSequence,
             "istracksplitting": str(isinstance(self, TrackSplittingValidation)),
@@ -576,7 +579,7 @@ class ParallelValidation(GenericValidation):
 
     @classmethod
     def doInitMerge(cls):
-        from plottingOptions import PlottingOptions
+        from .plottingOptions import PlottingOptions
         result = cls.initMerge()
         result = replaceByMap(result, PlottingOptions(None, cls))
         if result and result[-1] != "\n": result += "\n"
@@ -596,7 +599,7 @@ class ParallelValidation(GenericValidation):
 class ValidationWithPlots(GenericValidation):
     @classmethod
     def runPlots(cls, validations):
-        return ("rfcp .oO[plottingscriptpath]Oo. .\n"
+        return ("cp .oO[plottingscriptpath]Oo. .\n"
                 "root -x -b -q .oO[plottingscriptname]Oo.++")
     @abstractmethod
     def appendToPlots(self):
@@ -613,7 +616,7 @@ class ValidationWithPlots(GenericValidation):
 
     @classmethod
     def doRunPlots(cls, validations):
-        from plottingOptions import PlottingOptions
+        from .plottingOptions import PlottingOptions
         cls.createPlottingScript(validations)
         result = cls.runPlots(validations)
         result = replaceByMap(result, PlottingOptions(None, cls))
@@ -621,7 +624,7 @@ class ValidationWithPlots(GenericValidation):
         return result
     @classmethod
     def createPlottingScript(cls, validations):
-        from plottingOptions import PlottingOptions
+        from .plottingOptions import PlottingOptions
         repmap = PlottingOptions(None, cls).copy()
         filename = replaceByMap(".oO[plottingscriptpath]Oo.", repmap)
         repmap["PlottingInstantiation"] = "\n".join(
@@ -736,7 +739,7 @@ class ValidationWithPlotsSummaryBase(ValidationWithPlots):
 
     @classmethod
     def printsummaryitems(cls, *args, **kwargs):
-        print cls.summaryitemsstring(*args, **kwargs)
+        print(cls.summaryitemsstring(*args, **kwargs))
     @classmethod
     def writesummaryitems(cls, filename, *args, **kwargs):
         with open(filename, "w") as f:
@@ -769,7 +772,7 @@ class ValidationWithPlotsSummary(ValidationWithPlotsSummaryBase):
 class ValidationWithComparison(GenericValidation):
     @classmethod
     def doComparison(cls, validations):
-        from plottingOptions import PlottingOptions
+        from .plottingOptions import PlottingOptions
         repmap = PlottingOptions(None, cls).copy()
         repmap["compareStrings"] = " , ".join(v.getCompareStrings("OfflineValidation") for v in validations)
         repmap["compareStringsPlain"] = " , ".join(v.getCompareStrings("OfflineValidation", True) for v in validations)

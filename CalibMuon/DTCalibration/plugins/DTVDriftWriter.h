@@ -28,16 +28,15 @@ public:
 
   // Operations
   void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override {}
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {}
   void endJob() override;
- 
+
 private:
-  std::string granularity_; // enforced by SL
+  std::string granularity_;  // enforced by SL
 
   const DTMtime* mTimeMap_;
   edm::ESHandle<DTGeometry> dtGeom_;
 
-  dtCalibration::DTVDriftBaseAlgo* vDriftAlgo_; 
+  std::unique_ptr<dtCalibration::DTVDriftBaseAlgo> vDriftAlgo_;
 };
 #endif
-

@@ -5,16 +5,24 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"      
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
 //#include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
+#include "CalibTracker/Records/interface/SiPixel2DTemplateDBObjectESProducerRcd.h"
 
 #include "boost/mpl/vector.hpp"
 
-class  TkPixelCPERecord: public edm::eventsetup::DependentRecordImplementation<TkPixelCPERecord,
-  boost::mpl::vector<TrackerDigiGeometryRecord,IdealMagneticFieldRecord,SiPixelLorentzAngleRcd,SiPixelGenErrorDBObjectRcd,SiPixelTemplateDBObjectESProducerRcd> > {};
+class TkPixelCPERecord
+    : public edm::eventsetup::DependentRecordImplementation<TkPixelCPERecord,
+                                                            boost::mpl::vector<TrackerDigiGeometryRecord,
+                                                                               IdealMagneticFieldRecord,
+                                                                               SiPixelLorentzAngleRcd,
+                                                                               SiPixelGenErrorDBObjectRcd,
+                                                                               SiPixelTemplateDBObjectESProducerRcd,
+                                                                               SiPixel2DTemplateDBObjectESProducerRcd,
+                                                                               TrackerTopologyRcd> > {};
 
-#endif 
-
+#endif

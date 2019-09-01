@@ -1,6 +1,8 @@
 #!/bin/sh
 
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended2018.db -t XMLFILE_Geometry_TagXX_Extended2018_mc -i XMLFILE_Geometry_TagXX_Extended2018_mc
+conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended2018ZeroMaterial.db -t XMLFILE_Geometry_TagXX_Extended2018ZeroMaterial_mc -i XMLFILE_Geometry_TagXX_Extended2018ZeroMaterial_mc
+conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended2018DetailedCavern.db -t XMLFILE_Geometry_TagXX_Extended2018DetailedCavern_mc -i XMLFILE_Geometry_TagXX_Extended2018DetailedCavern_mc
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKRECO_Geometry.db -t TKRECO_Geometry_TagXX -i TKRECO_Geometry_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKExtra_Geometry.db -t TKExtra_Geometry_TagXX -i TKExtra_Geometry_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKParameters_Geometry.db -t TKParameters_Geometry_TagXX -i TKParameters_Geometry_TagXX

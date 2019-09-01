@@ -14,11 +14,10 @@
 #ifndef DTTFRawToDigi_DTTFFEDReader_h
 #define DTTFRawToDigi_DTTFFEDReader_h
 
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
@@ -30,26 +29,23 @@
 #include <string>
 
 class DTTFFEDReader : public edm::stream::EDProducer<> {
-
- public:
-
+public:
   /// Constructor
-  DTTFFEDReader(const edm::ParameterSet& pset);
+  DTTFFEDReader(const edm::ParameterSet &pset);
 
   /// Destructor
   ~DTTFFEDReader() override;
 
   /// Produce digis out of raw data
-  void produce(edm::Event & e, const edm::EventSetup& c) override;
+  void produce(edm::Event &e, const edm::EventSetup &c) override;
 
   /// Generate and fill FED raw data for a full event
-  bool fillRawData(edm::Event& e,
-		   L1MuDTChambPhContainer::Phi_Container& phi_data,
-		   L1MuDTChambThContainer::The_Container& the_data,
-		   L1MuDTTrackContainer::TrackContainer&  tra_data);
+  bool fillRawData(edm::Event &e,
+                   L1MuDTChambPhContainer::Phi_Container &phi_data,
+                   L1MuDTChambThContainer::The_Container &the_data,
+                   L1MuDTTrackContainer::TrackContainer &tra_data);
 
- private:
-  
+private:
   edm::InputTag DTTFInputTag;
 
   bool verbose_;
@@ -57,20 +53,20 @@ class DTTFFEDReader : public edm::stream::EDProducer<> {
   // Operations
 
   // access data
-  const L1MuDTChambPhContainer::Phi_Container& p_data();
+  const L1MuDTChambPhContainer::Phi_Container &p_data();
 
-  const L1MuDTChambThContainer::The_Container& t_data();
+  const L1MuDTChambThContainer::The_Container &t_data();
 
-  const L1MuDTTrackContainer::TrackContainer&  k_data();
+  const L1MuDTTrackContainer::TrackContainer &k_data();
 
   // Process one event
-  void analyse(edm::Event& e);
+  void analyse(edm::Event &e);
 
   // clear data container
   void clear();
 
   // process data
-  void process(edm::Event& e);
+  void process(edm::Event &e);
 
   // Match PHTF - ETTF tracks
   void match();
@@ -80,7 +76,7 @@ class DTTFFEDReader : public edm::stream::EDProducer<> {
 
   L1MuDTChambThContainer::The_Container theSegments;
 
-  L1MuDTTrackContainer::TrackContainer  dtTracks;
+  L1MuDTTrackContainer::TrackContainer dtTracks;
 
   unsigned int etTrack[3][12][6][2];
 
@@ -98,6 +94,5 @@ class DTTFFEDReader : public edm::stream::EDProducer<> {
   edm::InputTag getDTTFInputTag() { return DTTFInputTag; }
 
   edm::EDGetTokenT<FEDRawDataCollection> Raw_token;
-
 };
 #endif

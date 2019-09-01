@@ -18,32 +18,30 @@
 class G4ParticleGun;
 class G4Event;
 
-class LaserBeamsBarrel : public G4VUserPrimaryGeneratorAction
-{
- public:
-	/// default constructor
+class LaserBeamsBarrel : public G4VUserPrimaryGeneratorAction {
+public:
+  /// default constructor
   LaserBeamsBarrel();
-	/// constructor
+  /// constructor
   LaserBeamsBarrel(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4double PhotonEnergy);
-	/// destructor
+  /// destructor
   ~LaserBeamsBarrel() override;
 
- public:
-	/// shoot optical photons into the detector at the beginning of an event
-  void GeneratePrimaries(G4Event* myEvent) override;
-	/// set the polarisation of the photons
+public:
+  /// shoot optical photons into the detector at the beginning of an event
+  void GeneratePrimaries(G4Event *myEvent) override;
+  /// set the polarisation of the photons
   void setOptPhotonPolar(G4double Angle);
 
- private:
+private:
   G4int thenParticleInGun;
   G4int thenParticle;
   G4double thePhotonEnergy;
 
- private:
-  G4ParticleGun * theParticleGun;
+private:
+  G4ParticleGun *theParticleGun;
 
   // Unique random number generator
-  CLHEP::DRand48Engine* theDRand48Engine;
+  CLHEP::DRand48Engine *theDRand48Engine;
 };
 #endif
-

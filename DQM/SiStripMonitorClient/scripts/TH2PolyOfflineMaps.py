@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import os
 from ROOT import *
 from copy import deepcopy
 from array import array
+import six
 
 gROOT.SetBatch()        # don't pop up canvases
 
@@ -311,7 +313,7 @@ class TH2PolyOfflineMaps:
           # init internal data structure
           self.internalData.update({int(items[0]) : {}})
           
-      self.rawToOnlineDict = dict((v,k) for k,v in self.detDict.iteritems())    
+      self.rawToOnlineDict = dict((v,k) for k,v in six.iteritems(self.detDict))    
       
       self.__GroupHistograms()
       
@@ -378,7 +380,7 @@ class TH2PolyOfflineMaps:
                   continue
                 for panel in range(1, 3):
                   onlineName = self.__BuildOnlineDiskName(x, y, panel, self.maxBladeToRing[maxY])
-                  self.internalData[self.detDict[onlineName]].update({name : obj.GetBinContent(x + maxX + 1, (y + maxY) * 2 + panel)})  
+                  self.internalData[self.detDict[onlineName]].update({name : obj.GetBinContent(x + maxX + 1, (y + maxY) * 2 + (3-panel))})  
           else:
             print("Unrecognized plot")
       else:
@@ -390,7 +392,7 @@ class TH2PolyOfflineMaps:
       print(key)
       module = self.internalData[key]
       for d in module:
-        print(d, module[d])
+        print((d, module[d]))
     
     print(len(self.internalData))
     

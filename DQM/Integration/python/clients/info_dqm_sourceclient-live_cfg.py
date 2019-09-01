@@ -34,6 +34,10 @@ process.load("EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi")
 from EventFilter.Utilities.tcdsRawToDigi_cfi import *
 process.tcdsDigis = tcdsRawToDigi.clone()
 
+# OnlineMetaDataRawToDigi will put DCSRecord to an event
+process.load('EventFilter.OnlineMetaDataRawToDigi.onlineMetaDataRawToDigi_cfi')
+process.onlineMetaDataDigis = cms.EDProducer('OnlineMetaDataRawToDigi')
+
 # DQMProvInfo is the DQM module to be run
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 
@@ -42,6 +46,7 @@ process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver)
 process.evfDQMmodulesPath = cms.Path(
                                      process.scalersRawToDigi*
                                      process.tcdsDigis*
+                                     process.onlineMetaDataRawToDigi*
                                      process.dqmProvInfo*
                                      process.dqmmodules
                                      )

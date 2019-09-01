@@ -15,30 +15,27 @@
 class CaloVShape;
 class DetId;
 
-class HcalShapes : public CaloShapes
-{
+class HcalShapes : public CaloShapes {
 public:
-  enum {HPD=101, LONG=102, ZECOTEK=201, HAMAMATSU=202, HE2017=203, HE2018=206, HF=301, ZDC=401};
+  enum { HPD = 101, LONG = 102, ZECOTEK = 201, HAMAMATSU = 202, HE2017 = 203, HE2018 = 206, HF = 301, ZDC = 401 };
   HcalShapes();
   ~HcalShapes() override;
 
-  void setDbService(const HcalDbService * service) {theDbService = service;}
+  void setDbService(const HcalDbService* service) { theDbService = service; }
 
-  const CaloVShape * shape(const DetId & detId, bool precise=false) const override;
+  const CaloVShape* shape(const DetId& detId, bool precise = false) const override;
 
 private:
-  typedef std::map<int, const CaloVShape *> ShapeMap;
+  typedef std::map<int, const CaloVShape*> ShapeMap;
   // hardcoded, if we can't figure it out from the DB
-  const CaloVShape * defaultShape(const DetId & detId, bool precise=false) const;
+  const CaloVShape* defaultShape(const DetId& detId, bool precise = false) const;
   const ShapeMap& getShapeMap(bool precise) const;
-  const HcalDbService * theDbService;
+  const HcalDbService* theDbService;
   ShapeMap theShapes;
   ShapeMap theShapesPrecise;
   ZDCShape theZDCShape;
   //   list of vShapes.
   std::vector<HcalShape> theHcalShapes;
-
 };
 
 #endif
-

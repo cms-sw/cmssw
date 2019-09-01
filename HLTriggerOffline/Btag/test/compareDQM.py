@@ -6,6 +6,7 @@
 # This script compares the plots cointained in two DQM files and save the superimposed plots 
 #
 
+from __future__ import print_function
 DQMfileOld="/afs/cern.ch/user/s/sdonato/AFSwork/public/DQM_V0001_R000000001__CMSSW_X_Y_Z__RelVal__TrigVal.root"
 DQMfileNew="/afs/cern.ch/user/s/sdonato/AFSwork/public/DQM_V0001_R000000002__CMSSW_X_Y_Z__RelVal__TrigVal.root"
 labelNew = "New"
@@ -18,19 +19,19 @@ import os, string, re, sys, math
 try:
 		import ROOT
 except:
-		print "\nCannot load PYROOT, make sure you have setup ROOT in the path"
-		print "and pyroot library is also defined in the variable PYTHONPATH, try:\n"
+		print("\nCannot load PYROOT, make sure you have setup ROOT in the path")
+		print("and pyroot library is also defined in the variable PYTHONPATH, try:\n")
 		if (os.getenv("PYTHONPATH")):
-			print " setenv PYTHONPATH ${PYTHONPATH}:$ROOTSYS/lib\n"
+			print(" setenv PYTHONPATH ${PYTHONPATH}:$ROOTSYS/lib\n")
 		else:
-			print " setenv PYTHONPATH $ROOTSYS/lib\n"
+			print(" setenv PYTHONPATH $ROOTSYS/lib\n")
 		sys.exit()
 
 folder="plots"
 try:
 	os.mkdir(folder)
 except:
-	print "folder " + folder + " already exist"
+	print("folder " + folder + " already exist")
 
 from ROOT import TFile
 from ROOT import TCanvas
@@ -72,14 +73,14 @@ plotsOld=0
 try:
   plotsNew = GetPlots(fileNew)
 except:
-  print "Problem with ", fileNew
+  print("Problem with ", fileNew)
 
 fileOld=TFile(DQMfileNew)
 
 try:
   plotsOld = GetPlots(fileOld)
 except:
-  print "Problem with ", fileOld
+  print("Problem with ", fileOld)
 
 ##### for kind of plots save a .png superimposing the New with the Old #####
 

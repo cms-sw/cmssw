@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import range
 import ROOT
 from DrawingUtilities import Cell, TriggerCell, Module
 
@@ -25,9 +27,9 @@ entryList1 = ROOT.gDirectory.Get("elist1")
 entryList1.__class__ = ROOT.TEntryList
 nentry = entryList1.GetN()
 treeCells.SetEntryList(entryList1)
-print '>> Reading cell tree'
-for ie in xrange(nentry):
-    if ie%10000==0: print " Entry {0}/{1}".format(ie, nentry)
+print('>> Reading cell tree')
+for ie in range(nentry):
+    if ie%10000==0: print(" Entry {0}/{1}".format(ie, nentry))
     entry = entryList1.GetEntry(ie)
     treeCells.GetEntry(entry)
     cell = Cell()
@@ -57,9 +59,9 @@ entryList2 = ROOT.gDirectory.Get("elist2")
 entryList2.__class__ = ROOT.TEntryList
 nentry = entryList2.GetN()
 treeTriggerCells.SetEntryList(entryList2)
-print '>> Reading trigger cell tree'
-for ie in xrange(nentry):
-    if ie%10000==0: print " Entry {0}/{1}".format(ie, nentry)
+print('>> Reading trigger cell tree')
+for ie in range(nentry):
+    if ie%10000==0: print(" Entry {0}/{1}".format(ie, nentry))
     entry = entryList2.GetEntry(ie)
     treeTriggerCells.GetEntry(entry)
     triggercell = TriggerCell()
@@ -84,9 +86,9 @@ entryList3 = ROOT.gDirectory.Get("elist3")
 entryList3.__class__ = ROOT.TEntryList
 nentry = entryList3.GetN()
 treeModules.SetEntryList(entryList3)
-print '>> Reading module tree'
-for ie in xrange(nentry):
-    if ie%10000==0: print " Entry {0}/{1}".format(ie, nentry)
+print('>> Reading module tree')
+for ie in range(nentry):
+    if ie%10000==0: print(" Entry {0}/{1}".format(ie, nentry))
     entry = entryList3.GetEntry(ie)
     treeModules.GetEntry(entry)
     module = Module()
@@ -126,11 +128,11 @@ canvas.Range(minx, miny, maxx, maxy)
 ## Print trigger cells
 imod = 0
 hexagons = []
-print ''
-print '>> Drawing subdet', subdet, 'layer', layer, 'zside', zside
-print ' Trigger cells are not drawn for all the modules, to reduce the (long) drawing time'
+print('')
+print('>> Drawing subdet', subdet, 'layer', layer, 'zside', zside)
+print(' Trigger cells are not drawn for all the modules, to reduce the (long) drawing time')
 for id,module in modules.items():
-    if imod%10==0: print " Drawing module {0}/{1}".format(imod, len(modules))
+    if imod%10==0: print(" Drawing module {0}/{1}".format(imod, len(modules)))
     imod+=1
     modulelines = []
     for triggercell in module.cells:

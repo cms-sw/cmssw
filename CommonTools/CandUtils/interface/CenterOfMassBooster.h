@@ -15,9 +15,10 @@
 
 struct CenterOfMassBooster {
   /// constructor from a candidate
-  CenterOfMassBooster( const reco::Candidate & c );
+  CenterOfMassBooster(const reco::Candidate& c);
   /// set up a candidate kinematics according to the boost
-  void set( reco::Candidate& c ) { booster.set( c ); }
+  void set(reco::Candidate& c) { booster.set(c); }
+
 private:
   Booster booster;
 };

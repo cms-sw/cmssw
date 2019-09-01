@@ -6,7 +6,7 @@ using namespace std;
 #include "MusEcalGUI.hh"
 #include <TSystem.h>
 
-ClassImp(MEMultiVarPanel)
+ClassImp(MEMultiVarPanel);
 
   MEMultiVarPanel::MEMultiVarPanel(const TGWindow *p, MusEcalGUI* main,
 		       UInt_t w, UInt_t h)

@@ -1,7 +1,6 @@
 #ifndef MuonTestSummary_H
 #define MuonTestSummary_H
 
-
 /** \class MuonTestSummary
  * *
  *  DQM Client for global summary
@@ -10,7 +9,6 @@
  *  updates:  G. Hesketh - CERN
  *   
  */
-
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -22,7 +20,6 @@
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -31,20 +28,17 @@
 #include <memory>
 #include <string>
 
-class MuonTestSummary: public DQMEDHarvester{
-
+class MuonTestSummary : public DQMEDHarvester {
 public:
-
   /// Constructor
-  MuonTestSummary(const edm::ParameterSet& ps);
-  
+  MuonTestSummary(const edm::ParameterSet &ps);
+
   /// Destructor
   ~MuonTestSummary() override;
 
 protected:
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
-  
   /// test operations
   void doKinematicsTests(DQMStore::IGetter &, std::string, int);
   void doResidualsTests(DQMStore::IGetter &, std::string, std::string, int);
@@ -52,13 +46,23 @@ protected:
   void doMuonIDTests(DQMStore::IGetter &);
   void doEnergyTests(DQMStore::IGetter &, std::string nameHisto, std::string muonType, int bin);
   void doMultiplicityTests(DQMStore::IGetter &);
-  void ResidualCheck(DQMStore::IGetter &, std::string muType, const std::vector<std::string>& resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err);
-  void GaussFit(std::string type, std::string parameter, MonitorElement *  Histo, float &mean, float &mean_err, float &sigma, float &sigma_err);
-
+  void ResidualCheck(DQMStore::IGetter &,
+                     std::string muType,
+                     const std::vector<std::string> &resHistos,
+                     int &numPlot,
+                     double &Mean,
+                     double &Mean_err,
+                     double &Sigma,
+                     double &Sigma_err);
+  void GaussFit(std::string type,
+                std::string parameter,
+                MonitorElement *Histo,
+                float &mean,
+                float &mean_err,
+                float &sigma,
+                float &sigma_err);
 
 private:
-
-  DQMStore* dbe;
   // Switch for verbosity
   std::string metname;
 
@@ -102,22 +106,21 @@ private:
   double expMultiplicitySta_max;
 
   // the report MEs
-//------
-  MonitorElement* KolmogorovTestSummaryMap;
-  MonitorElement* chi2TestSummaryMap;
-//-----
-  MonitorElement* kinematicsSummaryMap;
-  MonitorElement* residualsSummaryMap;
-  MonitorElement* muonIdSummaryMap;
-  MonitorElement* energySummaryMap;
-  MonitorElement* multiplicitySummaryMap;
-  MonitorElement* summaryReport;
-  MonitorElement*  summaryReportMap;
-  std::vector<MonitorElement*>  theSummaryContents;
-  MonitorElement* summaryCertification;
-  MonitorElement*  summaryCertificationMap;
-  std::vector<MonitorElement*>  theCertificationContents;
-
+  //------
+  MonitorElement *KolmogorovTestSummaryMap;
+  MonitorElement *chi2TestSummaryMap;
+  //-----
+  MonitorElement *kinematicsSummaryMap;
+  MonitorElement *residualsSummaryMap;
+  MonitorElement *muonIdSummaryMap;
+  MonitorElement *energySummaryMap;
+  MonitorElement *multiplicitySummaryMap;
+  MonitorElement *summaryReport;
+  MonitorElement *summaryReportMap;
+  std::vector<MonitorElement *> theSummaryContents;
+  MonitorElement *summaryCertification;
+  MonitorElement *summaryCertificationMap;
+  std::vector<MonitorElement *> theCertificationContents;
 };
 
 #endif

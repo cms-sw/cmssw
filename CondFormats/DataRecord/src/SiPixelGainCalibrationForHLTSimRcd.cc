@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelGainCalibrationForHLTSimRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Fri Mar 13 12:13:06 CET 2009
 // $Id$
 

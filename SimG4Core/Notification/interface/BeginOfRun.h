@@ -3,13 +3,13 @@
 
 #include "G4Run.hh"
 
-class BeginOfRun
-{
+class BeginOfRun {
 public:
-    BeginOfRun(const G4Run * tRun) : aRun(tRun) {}
-    const G4Run * operator()() const { return aRun; }
+  BeginOfRun(const G4Run* tRun) : aRun(tRun) {}
+  const G4Run* operator()() const { return aRun; }
+
 private:
-    const G4Run * aRun;
+  const G4Run* aRun;
 };
 
 #endif

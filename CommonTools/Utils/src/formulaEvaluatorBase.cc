@@ -2,7 +2,7 @@
 //
 // Package:     CommonTools/Utils
 // Class  :     reco::formula::EvaluatorBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -11,10 +11,10 @@
 //
 
 // system include files
+#include <algorithm>
 
 // user include files
 #include "CommonTools/Utils/src/formulaEvaluatorBase.h"
-
 
 //
 // constants, enums and typedefs
@@ -27,17 +27,15 @@
 //
 // constructors and destructor
 //
-reco::formula::EvaluatorBase::EvaluatorBase():
-  m_precedence(static_cast<unsigned int>(Precedence::kFunction))
-{
-}
+reco::formula::EvaluatorBase::EvaluatorBase() : m_precedence(static_cast<unsigned int>(Precedence::kFunction)) {}
 
-reco::formula::EvaluatorBase::EvaluatorBase(Precedence iPrec):
-  m_precedence(static_cast<unsigned int>(iPrec))
-{
-}
+reco::formula::EvaluatorBase::EvaluatorBase(Precedence iPrec) : m_precedence(static_cast<unsigned int>(iPrec)) {}
 
-reco::formula::EvaluatorBase::~EvaluatorBase()
-{
-}
+reco::formula::EvaluatorBase::~EvaluatorBase() {}
 
+std::vector<std::string> reco::formula::shiftAST(std::vector<std::string> child) {
+  for (auto& c : child) {
+    c.insert(c.begin(), '.');
+  }
+  return child;
+}

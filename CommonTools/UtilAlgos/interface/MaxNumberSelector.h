@@ -8,19 +8,16 @@
 namespace reco {
   namespace modules {
 
-    template<>
+    template <>
     struct ParameterAdapter<MaxNumberSelector> {
-      static MaxNumberSelector make(const edm::ParameterSet & cfg, edm::ConsumesCollector & iC) {
-	return MaxNumberSelector(cfg.getParameter<unsigned int>("maxNumber"));
+      static MaxNumberSelector make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
+        return MaxNumberSelector(cfg.getParameter<unsigned int>("maxNumber"));
       }
 
-      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
-        desc.add<unsigned int>("maxNumber", 0);
-      }
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<unsigned int>("maxNumber", 0); }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-

@@ -15,16 +15,22 @@
    a setup function is provided but might need to be re-implemented. 
 */
 
-namespace reco { class Candidate; }
-namespace pat  { class CandKinResolution; }
-namespace edm  { class ParameterSet; class EventSetup; }
+namespace reco {
+  class Candidate;
+}
+namespace pat {
+  class CandKinResolution;
+}
+namespace edm {
+  class ParameterSet;
+  class EventSetup;
+}  // namespace edm
 
 class KinematicResolutionProvider {
-
- public:
+public:
   virtual ~KinematicResolutionProvider() = default;
   /// everything that needs to be done before the event loop
-  virtual void setup(const edm::EventSetup &iSetup) const { }
+  virtual void setup(const edm::EventSetup &iSetup) const {}
   /// get a CandKinResolution object from the service; this
   /// function needs to be implemented by any derived class
   virtual pat::CandKinResolution getResolution(const reco::Candidate &c) const = 0;

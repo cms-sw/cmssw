@@ -2,36 +2,35 @@
 #include <cmath>
 
 using namespace std;
-MedianCommonModeCalculator::MedianCommonModeCalculator() : 
-  //  theNoiseCalculator(noise_calc),
-    //  theApvMask(mask_calc),
-  alreadyUsedEvent(false)
-{
-  if (false) cout << "Constructing MedianCommonMode Calculator ..." << endl;
+MedianCommonModeCalculator::MedianCommonModeCalculator()
+    :  //  theNoiseCalculator(noise_calc),
+      //  theApvMask(mask_calc),
+      alreadyUsedEvent(false) {
+  if (false)
+    cout << "Constructing MedianCommonMode Calculator ..." << endl;
   //  cutToAvoidSignal = sig_cut;
 }
 //
-//  Destructor 
+//  Destructor
 //
 MedianCommonModeCalculator::~MedianCommonModeCalculator() {
-  if (false) cout << "Destructing TT6CommonModeCalculator " << endl;
+  if (false)
+    cout << "Destructing TT6CommonModeCalculator " << endl;
 }
 //
 // Action :
 //
-ApvAnalysis::PedestalType MedianCommonModeCalculator::doIt
-                (const ApvAnalysis::PedestalType& _indat) 
-{
+ApvAnalysis::PedestalType MedianCommonModeCalculator::doIt(const ApvAnalysis::PedestalType& _indat) {
   ApvAnalysis::PedestalType indat = _indat;
   ApvAnalysis::PedestalType out;
   calculateCommonMode(indat);
   int setNumber;
-  if(!theCommonModeValues.empty()) {
-    for (unsigned int i=0; i<indat.size(); i++){
+  if (!theCommonModeValues.empty()) {
+    for (unsigned int i = 0; i < indat.size(); i++) {
       setNumber = theTkCommonMode->topology().setOfStrip(i);
       out.push_back(indat[i] - theCommonModeValues[setNumber]);
-    }  
-  }else{
+    }
+  } else {
     out = indat;
   }
   return out;
@@ -39,32 +38,28 @@ ApvAnalysis::PedestalType MedianCommonModeCalculator::doIt
 //
 //  Calculation of Common Mode Values :
 //
-void MedianCommonModeCalculator::calculateCommonMode(ApvAnalysis::PedestalType& indat) 
-{ 
+void MedianCommonModeCalculator::calculateCommonMode(ApvAnalysis::PedestalType& indat) {
   if (alreadyUsedEvent == false) {
     alreadyUsedEvent = true;
-    
-    theCommonModeValues.clear();
-    
-    
-    double avVal = 0.0;
-    
-    sort(indat.begin(),indat.end());
-	
-    uint16_t index = indat.size()%2 ? indat.size()/2 : indat.size()/2-1;
-    if ( !indat.empty() ) { avVal = indat[index]; }
-    
-    theCommonModeValues.push_back(static_cast<float>(avVal));
-       
-    MedianCommonModeCalculator::setCM(theCommonModeValues);
 
+    theCommonModeValues.clear();
+
+    double avVal = 0.0;
+
+    sort(indat.begin(), indat.end());
+
+    uint16_t index = indat.size() % 2 ? indat.size() / 2 : indat.size() / 2 - 1;
+    if (!indat.empty()) {
+      avVal = indat[index];
+    }
+
+    theCommonModeValues.push_back(static_cast<float>(avVal));
+
+    MedianCommonModeCalculator::setCM(theCommonModeValues);
   }
-  
 }
 
 //
 // Define New Event
-// 
-void MedianCommonModeCalculator::newEvent() {
-  alreadyUsedEvent = false;
-}
+//
+void MedianCommonModeCalculator::newEvent() { alreadyUsedEvent = false; }

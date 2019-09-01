@@ -127,7 +127,7 @@ void RecoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="R
     //===== reco muon distributions: GLB_GLB
     const char* plots1  [] = {"GlbMuon_Glb_eta", "GlbMuon_Glb_phi", "GlbMuon_Glb_pt", "GlbMuon_Glb_chi2OverDf"};   
     const char* plotst1 [] = {"GlobalMuon(GLB) #eta", "GlobalMuon(GLB) #phi", "GlobalMuon(GLB) pT", "GlobalMuon(GLB) #chi^{2}/ndf"};
-    Plot4Histograms(newDir + "/muonReco1.pdf",
+    Plot4Histograms(newDir + "/muonReco1",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "RecoHistos1", "Distributions for GlobalMuons (GLB)",
@@ -142,7 +142,7 @@ void RecoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="R
     Double_t minx1   [] = {-1E100,-1E100,  5.,    -1E100, -1E100 };
     Double_t maxx1   [] = {-1E100, -1E100,maxPT,  -1E100, -1E100 };
 
-    Plot4Histograms(newDir + "/muonReco2.pdf",
+    Plot4Histograms(newDir + "/muonReco2",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "RecoHistos2", "Distributions for GlobalMuons (STA)",
@@ -154,7 +154,7 @@ void RecoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="R
     //===== reco muon distributions: GLB_TK
     const char* plots3  [] = {"GlbMuon_Tk_eta", "GlbMuon_Tk_phi", "GlbMuon_Tk_pt", "GlbMuon_Tk_chi2OverDf"};   
     const char* plotst3 [] = {"GlobalMuon(TK) #eta", "GlobalMuon(TK) #phi", "GlobalMuon(TK) pT", "GlobalMuon(TK) #chi^{2}/ndf"};
-    Plot4Histograms(newDir + "/muonReco3.pdf",
+    Plot4Histograms(newDir + "/muonReco3",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "RecoHistos3", "Distributions for GlobalMuons (TK)",
@@ -166,7 +166,7 @@ void RecoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="R
     //===== reco muon distributions: STA
     const char* plots4  [] = {"StaMuon_eta", "StaMuon_phi", "StaMuon_pt", "StaMuon_chi2OverDf"};   
     const char* plotst4 [] = {"StaMuon #eta", "StaMuon #phi", "StaMuon p_T", "StaMuon #chi^{2}/ndf"};
-    Plot4Histograms(newDir + "/muonReco4.pdf",
+    Plot4Histograms(newDir + "/muonReco4",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "RecoHistos4", "Distributions for StandAlone Muons",
@@ -178,7 +178,7 @@ void RecoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="R
     //===== reco muon distributions: Tracker Muons
     const char* plots5  [] = {"TkMuon_eta", "TkMuon_phi", "TkMuon_pt", "TkMuon_chi2OverDf"};   
     const char* plotst5 [] = {"TkMuon #eta", "TkMuon #phi", "TkMuon p_T", "TkMuon #chi^{2}/ndf"};
-    Plot4Histograms(newDir + "/muonReco5.pdf",
+    Plot4Histograms(newDir + "/muonReco5",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "RecoHistos5", "Distributions for Tracker Muons",
@@ -206,7 +206,7 @@ void RecoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="R
     gSystem->Rename(mergefile, destfile);
     
     cout << ">> Deleting partial pdf files" << endl;
-    gSystem->Exec("rm -r "+newDir);
+    gSystem->Exec("rm -r "+newDir+"/*.pdf");
     cout << "   ... Done" << endl;
     
   }  // end of "while loop"

@@ -12,11 +12,10 @@
 #include "CommonTools/RecoAlgos/src/PFClusterToRefCandidate.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-typedef CandidateProducer<
-          edm::View<reco::PFCluster>,
-          reco::RecoPFClusterRefCandidateCollection,
-          AnySelector,
-          converter::helper::CandConverter<reco::PFCluster>::type
-        > PFClusterRefCandidateProducer;
+typedef CandidateProducer<edm::View<reco::PFCluster>,
+                          reco::RecoPFClusterRefCandidateCollection,
+                          AnySelector,
+                          converter::helper::CandConverter<reco::PFCluster>::type>
+    PFClusterRefCandidateProducer;
 
 DEFINE_FWK_MODULE(PFClusterRefCandidateProducer);

@@ -26,123 +26,114 @@
 // class decleration
 //
 
-template< typename T >
-class MatchedProbeMaker : public edm::EDProducer 
-{
-   public:
-      typedef std::vector< T > collection;
+template <typename T>
+class MatchedProbeMaker : public edm::EDProducer {
+public:
+  typedef std::vector<T> collection;
 
-      explicit MatchedProbeMaker(const edm::ParameterSet& iConfig);
+  explicit MatchedProbeMaker(const edm::ParameterSet& iConfig);
 
-      ~MatchedProbeMaker() override;
-      
-   private:
-      void beginJob() override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override;
-      
-      // ----------member data ---------------------------
-      edm::InputTag m_candidateSource;
-      edm::InputTag m_referenceSource;
-      edm::InputTag m_resMatchMapSource;
+  ~MatchedProbeMaker() override;
 
-      bool matched_;    
+private:
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
+  // ----------member data ---------------------------
+  edm::InputTag m_candidateSource;
+  edm::InputTag m_referenceSource;
+  edm::InputTag m_resMatchMapSource;
+
+  bool matched_;
 };
 
-template< typename T >
-MatchedProbeMaker<T>::MatchedProbeMaker(const edm::ParameterSet& iConfig) :
-   m_candidateSource(iConfig.getUntrackedParameter<edm::InputTag>("CandidateSource")),
-   m_referenceSource(iConfig.getUntrackedParameter<edm::InputTag>("ReferenceSource")),
-   m_resMatchMapSource(iConfig.getUntrackedParameter<edm::InputTag>("ResMatchMapSource",edm::InputTag("Dummy"))),
-   matched_(iConfig.getUntrackedParameter< bool >("Matched",true))
-{
-   //register your products
-   produces< edm::RefVector< collection > >();
+template <typename T>
+MatchedProbeMaker<T>::MatchedProbeMaker(const edm::ParameterSet& iConfig)
+    : m_candidateSource(iConfig.getUntrackedParameter<edm::InputTag>("CandidateSource")),
+      m_referenceSource(iConfig.getUntrackedParameter<edm::InputTag>("ReferenceSource")),
+      m_resMatchMapSource(iConfig.getUntrackedParameter<edm::InputTag>("ResMatchMapSource", edm::InputTag("Dummy"))),
+      matched_(iConfig.getUntrackedParameter<bool>("Matched", true)) {
+  //register your products
+  produces<edm::RefVector<collection> >();
 }
 
+template <typename T>
+MatchedProbeMaker<T>::~MatchedProbeMaker() {}
 
-template< typename T >
-MatchedProbeMaker<T>::~MatchedProbeMaker(){}
-
-
-template< typename T >
-void MatchedProbeMaker<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+template <typename T>
+void MatchedProbeMaker<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogDebug("MatchedProbeMaker");
- 
+
   using namespace edm;
   using namespace reco;
 
-  std::unique_ptr<edm::RefVector< collection> > outputCollection_matched(new edm::RefVector<collection>);
-  std::unique_ptr<edm::RefVector< collection> > outputCollection_unmatched(new edm::RefVector<collection>);
-  
-  // Get the candidates from the event
-  edm::Handle< edm::RefVector< collection > > Cands;
-  iEvent.getByLabel(m_candidateSource,Cands);
+  std::unique_ptr<edm::RefVector<collection> > outputCollection_matched(new edm::RefVector<collection>);
+  std::unique_ptr<edm::RefVector<collection> > outputCollection_unmatched(new edm::RefVector<collection>);
 
-  edm::Handle< reco::CandidateView > Refs;
-  iEvent.getByLabel(m_referenceSource,Refs);
+  // Get the candidates from the event
+  edm::Handle<edm::RefVector<collection> > Cands;
+  iEvent.getByLabel(m_candidateSource, Cands);
+
+  edm::Handle<reco::CandidateView> Refs;
+  iEvent.getByLabel(m_referenceSource, Refs);
 
   // Get the resolution matching map from the event
   edm::Handle<reco::CandViewMatchMap> ResMatchMap;
 
-  if(iEvent.getByLabel(m_resMatchMapSource,ResMatchMap)){
+  if (iEvent.getByLabel(m_resMatchMapSource, ResMatchMap)) {
     // Loop over the candidates looking for a match
-    for (unsigned i=0; i<Cands->size(); i++) {
-      const edm::Ref< collection > CandRef = (*Cands)[i];      
-      reco::CandidateBaseRef candBaseRef( CandRef );
-      
+    for (unsigned i = 0; i < Cands->size(); i++) {
+      const edm::Ref<collection> CandRef = (*Cands)[i];
+      reco::CandidateBaseRef candBaseRef(CandRef);
+
       // Loop over match map
-      reco::CandViewMatchMap::const_iterator f = ResMatchMap->find( candBaseRef );
-      if( f!=ResMatchMap->end() ) {
-	outputCollection_matched->push_back(CandRef);      
+      reco::CandViewMatchMap::const_iterator f = ResMatchMap->find(candBaseRef);
+      if (f != ResMatchMap->end()) {
+        outputCollection_matched->push_back(CandRef);
       } else {
-	outputCollection_unmatched->push_back(CandRef);      
+        outputCollection_unmatched->push_back(CandRef);
       }
     }
   } else {
     OverlapChecker overlap;
-    
+
     // Loop over the candidates looking for a match
-    for (unsigned i=0; i<Cands->size(); i++) {      
-      const edm::Ref< collection > CandRef = (*Cands)[i];
+    for (unsigned i = 0; i < Cands->size(); i++) {
+      const edm::Ref<collection> CandRef = (*Cands)[i];
       //RefToBase<Candidate> CandRef(Cands, i);
-      reco::CandidateBaseRef candBaseRef( CandRef );
-      
+      reco::CandidateBaseRef candBaseRef(CandRef);
+
       bool ppass = false;
-      
-      for (unsigned j=0; j<Refs->size(); j++) {
-	//const edm::Ref< collection > RefRef = (*Refs)[j];
-	RefToBase<Candidate> RefRef(Refs, j);
-	
-	if(overlap(*CandRef,*RefRef)) {
-	   ppass = true; 
-	}
+
+      for (unsigned j = 0; j < Refs->size(); j++) {
+        //const edm::Ref< collection > RefRef = (*Refs)[j];
+        RefToBase<Candidate> RefRef(Refs, j);
+
+        if (overlap(*CandRef, *RefRef)) {
+          ppass = true;
+        }
       }
-      
-      if( ppass ) outputCollection_matched->push_back(CandRef);
-      else outputCollection_unmatched->push_back(CandRef);
-    }  
+
+      if (ppass)
+        outputCollection_matched->push_back(CandRef);
+      else
+        outputCollection_unmatched->push_back(CandRef);
+    }
   }
-  
-  if(matched_) iEvent.put(std::move(outputCollection_matched));
-  else         iEvent.put(std::move(outputCollection_unmatched));
-  
+
+  if (matched_)
+    iEvent.put(std::move(outputCollection_matched));
+  else
+    iEvent.put(std::move(outputCollection_unmatched));
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-template< typename T >
-void MatchedProbeMaker<T>::beginJob()
-{
-}
+template <typename T>
+void MatchedProbeMaker<T>::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-template< typename T >
-void MatchedProbeMaker<T>::endJob() 
-{
-}
+template <typename T>
+void MatchedProbeMaker<T>::endJob() {}
 
 #endif
-
-

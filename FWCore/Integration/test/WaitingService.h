@@ -13,23 +13,23 @@ namespace edm {
   namespace service {
     class SystemBounds;
   }
-}
+}  // namespace edm
 
 namespace edmtest {
   namespace test_acquire {
 
     class Token {
     public:
-      Token(unsigned int v) : value_(v) { }
+      Token(unsigned int v) : value_(v) {}
       unsigned int value() const { return value_; }
+
     private:
       unsigned int value_;
     };
 
     class WaitingService {
     public:
-
-      WaitingService(edm::ParameterSet const& pset, edm::ActivityRegistry&iRegistry);
+      WaitingService(edm::ParameterSet const& pset, edm::ActivityRegistry& iRegistry);
       ~WaitingService();
 
       Token getToken() { return Token(count_.fetch_add(1)); }
@@ -54,6 +54,6 @@ namespace edmtest {
       const unsigned int numberOfStreamsToAccumulate_;
       const unsigned int secondsToWaitForWork_;
     };
-  }
-}
+  }  // namespace test_acquire
+}  // namespace edmtest
 #endif

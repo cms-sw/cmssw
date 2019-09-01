@@ -11,5 +11,6 @@ from RecoMET.METProducers.genMetTrue_cfi import *
 from RecoMET.METProducers.genMetFromGenJets_cfi import *
 #
 
-recoGenMET = cms.Sequence(genMetCalo+genMetTrue)
+recoGenMETTask = cms.Task(genMetCalo, genMetTrue)
+recoGenMET = cms.Sequence(recoGenMETTask)
 

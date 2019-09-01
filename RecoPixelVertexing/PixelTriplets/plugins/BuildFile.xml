@@ -1,3 +1,4 @@
+<use   name="CommonTools/RecoAlgos"/>
 <use   name="RecoTracker/TkTrackingRegions"/>
 <use   name="RecoPixelVertexing/PixelTriplets"/>
 <use   name="RecoTracker/TkSeedingLayers"/>
@@ -5,5 +6,5 @@
 <library   file="*.cc" name="RecoPixelVertexingPixelTripletsPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
-
-<flags   CXXFLAGS="-Ofast -fno-math-errno"/>
+<use   name="ofast-flag"/>
+<flags   CXXFLAGS="-fno-math-errno"/>

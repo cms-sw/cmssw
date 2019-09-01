@@ -3,20 +3,17 @@
 
 #include "TObject.h"
 
-class TMarkov: public TObject 
-{
-
- private:	
-
-  int fNPeakValues,fNbinu;
+class TMarkov : public TObject {
+private:
+  int fNPeakValues, fNbinu;
   int imax;
   double peak[3];
-  double u[101],binu[102];
-  
+  double u[101], binu[102];
+
   void init();
   int computeChain(int *);
 
- public:
+public:
   // Default Constructor, mainly for Root
   TMarkov();
 
@@ -27,10 +24,7 @@ class TMarkov: public TObject
   double getPeakValue(int i) const { return peak[i]; }
   int getBinMax() const { return imax; }
 
-  ClassDefOverride(TMarkov,0)
+  ClassDefOverride(TMarkov, 0)
 };
 
 #endif
-
-
-

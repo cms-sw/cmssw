@@ -10,9 +10,8 @@
 #include <string>
 #include <fstream>
 
-
-namespace pos{
-/*!  \defgroup CalibrationObjects "Calibration Objects"
+namespace pos {
+  /*!  \defgroup CalibrationObjects "Calibration Objects"
 *    \brief Base class for pixel calibration procedures
 *
 *  @{
@@ -22,33 +21,29 @@ namespace pos{
 *   A longer explanation will be placed here later
 */
   class PixelCalibBase {
-
   public:
-
     PixelCalibBase();
     virtual ~PixelCalibBase();
-    virtual std::string mode() const {return mode_;}
-    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
-				  int version, 
-				  std::string path, 
-				  std::ofstream *out,
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 = nullptr
-				  ) const {;}
-    virtual void writeXML( 	  std::ofstream *out,			     	   			    
-			   	  std::ofstream *out1 = nullptr ,
-			   	  std::ofstream *out2 = nullptr ) const {;}
-    virtual void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 = nullptr
-				  ) const {;}
+    virtual std::string mode() const { return mode_; }
+    virtual void writeXMLHeader(pos::PixelConfigKey key,
+                                int version,
+                                std::string path,
+                                std::ofstream *out,
+                                std::ofstream *out1 = nullptr,
+                                std::ofstream *out2 = nullptr) const {
+      ;
+    }
+    virtual void writeXML(std::ofstream *out, std::ofstream *out1 = nullptr, std::ofstream *out2 = nullptr) const { ; }
+    virtual void writeXMLTrailer(std::ofstream *out,
+                                 std::ofstream *out1 = nullptr,
+                                 std::ofstream *out2 = nullptr) const {
+      ;
+    }
 
   protected:
-
     std::string mode_;
-
   };
-}
+}  // namespace pos
 /* @} */
 
 #endif

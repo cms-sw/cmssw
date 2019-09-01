@@ -23,6 +23,7 @@ import sqlalchemy
 import CondCore.Utilities.conddblib as conddb
 import CondCore.Utilities.cond2xml as cond2xml
 import CondCore.Utilities.conddb_serialization_metadata as serialization_metadata
+import CondCore.Utilities.conddb_time as conddb_time
 
 from CondCore.Utilities.tier0 import Tier0Handler, Tier0Error, tier0Url
 # -------------------------------------------------------------------------------------------------------
@@ -918,21 +919,22 @@ def listGTs_(args):
     session = connection.session()
     GlobalTag = session.get_dbtype(conddb.GlobalTag)
     output_table(args,
-        session.query(GlobalTag.name, GlobalTag.description, GlobalTag.release, GlobalTag.insertion_time).\
+        session.query(GlobalTag.name, GlobalTag.description, GlobalTag.release, GlobalTag.snapshot_time, GlobalTag.insertion_time).\
             order_by(GlobalTag.insertion_time, GlobalTag.name).\
             all(),
-        ['GT_name', 'Description', 'Release', 'Insertion_time'],
+        ['GT_name', 'Description', 'Release', 'Snapshot_time', 'Insertion_time'],
     )
 
 def listRuns_(args):
     connection = connect(args)
     session = connection.session()
     RunInfo = session.get_dbtype(conddb.RunInfo)
-    output_table(args,
-        session.query(RunInfo.run_number,RunInfo.start_time,RunInfo.end_time).\
+    table = session.query(RunInfo.run_number,RunInfo.start_time,RunInfo.end_time).\
             order_by(RunInfo.run_number).\
-            all(),
-        ['Run_number','Start_time','End_time'],
+            all()
+    for i in range(len(table)):
+        table[i] = table[i] + ( (calendar.timegm( table[i][1].utctimetuple() ) << 32), (calendar.timegm( table[i][2].utctimetuple() ) << 32) )
+    output_table(args, table, ['Run_number','Start_time','End_time','Start_IOV','End_IOV'],
     )
 
 def showFcsr_(args):
@@ -1390,7 +1392,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
     logfun = logging.info 
     if len(iovs)==0:
         logfun = logging.warning
-    logfun('Found %s iovs and %s referenced payloads to copy.',len(iovs.keys()), len(hashes))
+    logfun('Found %s iovs and %s referenced payloads to copy.',len(iovs), len(hashes))
     # Copy the payloads referenced in the selected iovs
     np = 0
     for h in hashes:
@@ -1539,7 +1541,7 @@ def copy(args):
         GlobalTag2 = session2.get_dbtype(conddb.GlobalTag)
         GlobalTagMap1 = session1.get_dbtype(conddb.GlobalTagMap)
         GlobalTagMap2 = session2.get_dbtype(conddb.GlobalTagMap)
-        # Copy the global tag
+        # Prepare the copy
         global_tag = _rawdict(session1.query(GlobalTag1).get(args.first))
         global_tag['name'] = args.second
         global_tag['validity'] = 0 # XXX: SQLite does not work with long ints...
@@ -1549,11 +1551,11 @@ def copy(args):
             global_tag['snapshot_time'] = _parse_timestamp(args.snapshot)
         if _exists(session2, GlobalTag2.name, args.second):
             raise Exception('A GlobalTag named "%s" already exists in %s' %(args.second, args.destdb))   
-        session2.add(GlobalTag2(**global_tag))
 
         # Copy the tags of the global tag
         logging.debug('Creating query for tag %s filter %s ...', GlobalTagMap1.tag_name, args.first)
         query = session1.query(GlobalTagMap1.tag_name).filter(GlobalTagMap1.global_tag_name == args.first).distinct()
+        copyTime = datetime.datetime.utcnow()
         for (tag, ) in query:
             logging.debug('Copying tag %s to %s for GT %s ...', str_db_object(args.db, tag), str_db_object(args.destdb, tag), str_db_object(args.destdb, args.second))
             Tag2 = session2.get_dbtype(conddb.Tag)
@@ -1561,9 +1563,14 @@ def copy(args):
                 logging.warn('Skipping copy of tag %s to %s since it already exists... *The tags may differ in content*', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
             else:
                 logging.debug('going to copy tag %s to %s ... ', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
-                copyTime = datetime.datetime.utcnow()
                 _copy_tag(args, copyTime, session1, session2, tag, tag, timeMap=timeMap)
 
+        # Copy the global tag
+        global_tag2 = GlobalTag2(**global_tag)
+        copyTime = datetime.datetime.utcnow()
+        global_tag2.snapshot_time = copyTime
+        global_tag2.insertion_time = copyTime
+        session2.add(global_tag2)
         # Copy the map of the global tag
         query = session1.query(GlobalTagMap1).filter(GlobalTagMap1.global_tag_name == args.first)
         for map_ in query:
@@ -1763,6 +1770,7 @@ def edit(args):
                 return
 
             IOV = session.get_dbtype(conddb.IOV)
+            Payload = session.get_dbtype(conddb.Payload)
             table = session.query(IOV.since, IOV.insertion_time, IOV.payload_hash).\
                 filter(IOV.tag_name == name).\
                 order_by(IOV.since, IOV.insertion_time).\
@@ -1820,12 +1828,13 @@ def edit(args):
                 else:
                     raise Exception('Each line must contain the since, timestamp and payload fields in the required format.')
 
-                # If they payload length is equal, assume it exists --
-                # this avoids queries for the unmodified payloads.
+                # check payload hash format and existance...
                 if len(payload) > conddb.hash_length:
-                    raise Exception('Payload hash too long.')
+                    raise Exception('Payload hash "%s" too long.' %payload )
                 elif len(payload) < conddb.hash_length:
-                    payload = _get_payload_full_hash(session, payload)
+                    raise Exception('Payload hash "%s" too short.' %payload )
+                if not _exists(session, Payload.hash, payload):
+                    raise Exception('Payload hash "%s" not found in the database' %payload )
 
                 if insertion_timestamp == '-':
                     insertion_time = datetime.datetime.utcnow()
@@ -1994,8 +2003,16 @@ def delete(args):
 
         Tag = session.get_dbtype(conddb.Tag)
         IOV = session.get_dbtype(conddb.IOV)
+        TagLog = session.get_dbtype(conddb.TagLog)
+        TagMetadata = session.get_dbtype(conddb.TagMetadata)
         session.query(IOV).\
             filter(IOV.tag_name == name).\
+            delete()
+        session.query(TagLog).\
+            filter(TagLog.tag_name == name).\
+            delete()
+        session.query(TagMetadata).\
+            filter(TagMetadata.tag_name == name).\
             delete()
         session.query(Tag).\
             filter(Tag.name == name).\
@@ -2061,6 +2078,35 @@ def dump(args):
 
     if xmlProcessor: del xmlProcessor
 
+def toLumi_(args):
+    lumiTime = conddb_time.to_lumi_time( int(args.run), int(args.lumi_id) )
+    if args.quiet:
+        print('%s' %lumiTime)
+    else:
+        output(args,'Lumi timetype for run=%s, lumisection id=%s: %s' %(args.run,args.lumi_id, lumiTime))
+
+def fromLumi_(args):
+    run, lumisection_id = conddb_time.from_lumi_time( int(args.lumiTime) )
+    if args.quiet:
+        print('%s,%s' %(run, lumisection_id))
+    else:
+        output(args,'For Lumi timetype %s: run=%s, lumisection id=%s' %(args.lumiTime,run,lumisection_id))
+
+
+def toTimestamp_( args ):
+    ts = conddb_time.string_to_timestamp( args.datetime )
+    if args.quiet:
+        print('%s' %ts)
+    else:
+        output(args,"Time timetype for string '%s': %s" %(args.datetime, ts))
+
+def fromTimestamp_( args ):
+    sdt = conddb_time.string_from_timestamp( int(args.timestamp) )
+    if args.quiet:
+        print('%s' %sdt)
+    else:
+        output(args,"String date time for timestamp %s: '%s'" %(args.timestamp, sdt))
+    
 def main():
     '''Entry point.
     '''
@@ -2172,6 +2218,23 @@ def main():
 
     parser_showFcsr =  parser_subparsers.add_parser('showFCSR', description='Dumps the FCSR values for hlt and pcl')
     parser_showFcsr.set_defaults(func=showFcsr_)
+
+    parser_toLumi = parser_subparsers.add_parser('toLumi', description='Generates the Lumi timetype from run number and lumisection id') 
+    parser_toLumi.add_argument('run', help="Run id")
+    parser_toLumi.add_argument('lumi_id', help="Lumisection id")
+    parser_toLumi.set_defaults(func=toLumi_)
+
+    parser_fromLumi = parser_subparsers.add_parser('fromLumi', description='Decodes the Lumi timetype extracting run number and lumisection id') 
+    parser_fromLumi.add_argument('lumiTime', help="The Lumi timetype value")
+    parser_fromLumi.set_defaults(func=fromLumi_)
+
+    parser_toTimestamp = parser_subparsers.add_parser('toTimestamp', description='Generates the Time timetype from the date string') 
+    parser_toTimestamp.add_argument('datetime', help="The string representing the date time, in the format 'Y-m-d H:M:S.f'" )
+    parser_toTimestamp.set_defaults(func=toTimestamp_)
+
+    parser_fromTimestamp = parser_subparsers.add_parser('fromTimestamp', description='Decodes the Time timetype extracting the date time string') 
+    parser_fromTimestamp.add_argument('timestamp', help="The Time timetype value")
+    parser_fromTimestamp.set_defaults(func=fromTimestamp_)
 
     args = parser.parse_args()
 

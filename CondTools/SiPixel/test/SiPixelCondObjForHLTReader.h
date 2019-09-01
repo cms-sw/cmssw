@@ -4,7 +4,7 @@
 //
 // Package:    SiPixelCondObjForHLTReader
 // Class:      SiPixelCondObjForHLTReader
-// 
+//
 /**\class SiPixelCondObjForHLTReader SiPixelCondObjForHLTReader.h SiPixel/test/SiPixelCondObjForHLTReader.h
 
  Description: Test analyzer for reading pixel calibration from the DB
@@ -35,43 +35,39 @@
 #include "TBranch.h"
 #include "TH1F.h"
 
-namespace cms{
-class SiPixelCondObjForHLTReader : public edm::EDAnalyzer {
+namespace cms {
+  class SiPixelCondObjForHLTReader : public edm::EDAnalyzer {
+  public:
+    explicit SiPixelCondObjForHLTReader(const edm::ParameterSet &iConfig);
 
-public:
+    ~SiPixelCondObjForHLTReader(){};
+    virtual void beginJob();
+    virtual void analyze(const edm::Event &, const edm::EventSetup &);
+    virtual void endJob();
 
-  explicit SiPixelCondObjForHLTReader( const edm::ParameterSet& iConfig);
+  private:
+    edm::ParameterSet conf_;
+    edm::ESHandle<TrackerGeometry> tkgeom;
+    //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
+    SiPixelGainCalibrationServiceBase *SiPixelGainCalibrationService_;
 
-  ~SiPixelCondObjForHLTReader(){};
-  virtual void beginJob();
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
-  virtual void endJob() ;
+    std::map<uint32_t, TH1F *> _TH1F_Pedestals_m;
+    std::map<uint32_t, TH1F *> _TH1F_Gains_m;
+    std::map<uint32_t, double> _deadfrac_m;
+    std::map<uint32_t, double> _noisyfrac_m;
 
-private:
-
-  edm::ParameterSet conf_;
-  edm::ESHandle<TrackerGeometry> tkgeom;
-  //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
-  SiPixelGainCalibrationServiceBase *SiPixelGainCalibrationService_;
-
-  std::map< uint32_t, TH1F* >  _TH1F_Pedestals_m;
-  std::map< uint32_t, TH1F* >  _TH1F_Gains_m;
-  std::map< uint32_t, double >  _deadfrac_m;
-  std::map< uint32_t, double >  _noisyfrac_m;
-  
-  TH1F *_TH1F_Dead_sum;
-  TH1F *_TH1F_Noisy_sum;
-  TH1F *_TH1F_Gains_sum;
-  TH1F *_TH1F_Pedestals_sum; 
-  TH1F *_TH1F_Dead_all; 
-  TH1F *_TH1F_Noisy_all;
-  TH1F *_TH1F_Gains_all;
-  TH1F *_TH1F_Pedestals_all;
-  TH1F *_TH1F_Gains_bpix;
-  TH1F *_TH1F_Gains_fpix;
-  TH1F *_TH1F_Pedestals_bpix;
-  TH1F *_TH1F_Pedestals_fpix;
-
-};
-}
+    TH1F *_TH1F_Dead_sum;
+    TH1F *_TH1F_Noisy_sum;
+    TH1F *_TH1F_Gains_sum;
+    TH1F *_TH1F_Pedestals_sum;
+    TH1F *_TH1F_Dead_all;
+    TH1F *_TH1F_Noisy_all;
+    TH1F *_TH1F_Gains_all;
+    TH1F *_TH1F_Pedestals_all;
+    TH1F *_TH1F_Gains_bpix;
+    TH1F *_TH1F_Gains_fpix;
+    TH1F *_TH1F_Pedestals_bpix;
+    TH1F *_TH1F_Pedestals_fpix;
+  };
+}  // namespace cms
 #endif

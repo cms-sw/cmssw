@@ -6,6 +6,7 @@ Test wrapper to generate an alca skimming config and push it into cmsRun for
 testing with a few input files etc from the command line
 
 """
+from __future__ import print_function
 
 import sys
 import getopt
@@ -46,15 +47,15 @@ class RunAlcaSkimming:
             msg += str(ex)
             raise RuntimeError(msg)
 
-        print "Retrieved Scenario: %s" % self.scenario
-        print "Creating ALCA skimming config with skims:"
+        print("Retrieved Scenario: %s" % self.scenario)
+        print("Creating ALCA skimming config with skims:")
         for skim in self.skims:
-            print " => %s" % skim
+            print(" => %s" % skim)
             
         try:
             process = scenario.alcaSkim(self.skims, globaltag = self.globalTag)
         except NotImplementedError as ex:
-            print "This scenario does not support Alca Skimming:\n"
+            print("This scenario does not support Alca Skimming:\n")
             return
         except Exception as ex:
             msg = "Error creating Alca Skimming config:\n"
@@ -86,7 +87,7 @@ class RunAlcaSkimming:
             pklFile.close()
 
         cmsRun = "cmsRun -e RunAlcaSkimmingCfg.py"
-        print "Now do:\n%s" % cmsRun
+        print("Now do:\n%s" % cmsRun)
 
 
 
@@ -110,8 +111,8 @@ python2.4 RunAlcaSkimming.py --scenario=Cosmics --lfn=/store/whatever --skims=Mu
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
     except getopt.GetoptError as ex:
-        print usage
-        print str(ex)
+        print(usage)
+        print(str(ex))
         sys.exit(1)
 
 

@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::global::OutputModule
-// 
+//
 /**\class edm::global::OutputModule OutputModule.h "FWCore/Framework/interface/global/OutputModule.h"
 
  Description: [one line class summary]
@@ -24,15 +24,11 @@
 // forward declarations
 namespace edm {
   namespace global {
-    template< typename... T>
-    class OutputModule : public virtual OutputModuleBase,
-        public outputmodule::AbilityToImplementor<T>::Type...
-    {
-      
+    template <typename... T>
+    class OutputModule : public virtual OutputModuleBase, public outputmodule::AbilityToImplementor<T>::Type... {
     public:
-      OutputModule(edm::ParameterSet const& iPSet): OutputModuleBase(iPSet),
-      outputmodule::AbilityToImplementor<T>::Type(iPSet)...
-       {}
+      OutputModule(edm::ParameterSet const& iPSet)
+          : OutputModuleBase(iPSet), outputmodule::AbilityToImplementor<T>::Type(iPSet)... {}
       // Required to work around ICC bug, but possible source of bloat in gcc.
       // We do this only in the case of the intel compiler as this might end up
       // creating a lot of code bloat due to inline symbols being generated in
@@ -40,28 +36,23 @@ namespace edm {
 #ifdef __INTEL_COMPILER
       virtual ~OutputModule() = default;
 #endif
-      
+
       // ---------- const member functions ---------------------
-      bool wantsStreamRuns() const final {
-        return WantsStreamRunTransitions<T...>::value;
-      }
-      bool wantsStreamLuminosityBlocks() const final {
-        return WantsStreamLuminosityBlockTransitions<T...>::value;
-      }
-      
+      bool wantsStreamRuns() const final { return WantsStreamRunTransitions<T...>::value; }
+      bool wantsStreamLuminosityBlocks() const final { return WantsStreamLuminosityBlockTransitions<T...>::value; }
+
       // ---------- static member functions --------------------
-      
+
       // ---------- member functions ---------------------------
-      
+
     private:
-      OutputModule(const OutputModule&) = delete; // stop default
-      
-      const OutputModule& operator=(const OutputModule&) =delete; // stop default
-      
+      OutputModule(const OutputModule&) = delete;  // stop default
+
+      const OutputModule& operator=(const OutputModule&) = delete;  // stop default
+
       // ---------- member data --------------------------------
-      
     };
-  }
-}
+  }  // namespace global
+}  // namespace edm
 
 #endif

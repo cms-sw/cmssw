@@ -8,7 +8,7 @@ namespace ecaldqm {
   class SummaryClient : public DQWorkerClient {
   public:
     SummaryClient();
-    ~SummaryClient() {}
+    ~SummaryClient() override {}
 
     void resetMEs() override;
     void producePlots(ProcessType) override;
@@ -20,7 +20,6 @@ namespace ecaldqm {
     float fedBadFraction_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

@@ -7,7 +7,6 @@
 /// \author: R. Alex Barbieri MIT
 ///
 
-
 #ifndef Stage2Layer1FirmwareFactory_h
 #define Stage2Layer1FirmwareFactory_h
 
@@ -17,17 +16,15 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
-
 namespace l1t {
 
   class Stage2Layer1FirmwareFactory {
   public:
-    typedef std::shared_ptr<Stage2PreProcessor> ReturnType;
+    typedef std::unique_ptr<Stage2PreProcessor> ReturnType;
 
-    ReturnType create(unsigned fwv, CaloParamsHelper* params);
-
+    ReturnType create(unsigned fwv, CaloParamsHelper const* params);
   };
 
-} // namespace
+}  // namespace l1t
 
 #endif

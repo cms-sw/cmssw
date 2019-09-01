@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
+from builtins import range
 import inspect
 import itertools
 import logging
@@ -71,7 +73,7 @@ def compareEvents(event1, event2, handleName, label, options):
             if val1 != val2:
                 mismatch += 1
                 logging.error("Comparison problem %s != %s" % (val1, val2))
-	logging.debug("Compared %s elements" % count)
+        logging.debug("Compared %s elements" % count)
         return (count, mismatch)
 
 if __name__ == "__main__":
@@ -147,7 +149,7 @@ if __name__ == "__main__":
             chain2.toBegin()
             logging.info("Testing identity for handle=%s, label=%s" % (handleName, label))
             # Use itertools to iterate over lists in ||
-            for ev1, ev2, count in itertools.izip(chain1, chain2, xrange(numEvents)):
+            for ev1, ev2, count in itertools.izip(chain1, chain2, range(numEvents)):
                 evCount, evMismatch = compareEvents(event1=ev1, event2=ev2, handleName=handleName, label=label, options=options)
                 totalCount += evCount
                 mismatches += evMismatch
@@ -158,7 +160,7 @@ if __name__ == "__main__":
             plagerDict.update({'count_%s' % objName : totalCount})
             if mismatches:
                 plagerDict.update({objName: {'_var' : {handleName:mismatches}}})
-            print "Summary"
+            print("Summary")
             pprint.pprint(plagerDict)
         except ProductNotFoundError:
             logging.info("No product found for handle=%s, label=%s" % (handleName, label))
@@ -166,5 +168,5 @@ if __name__ == "__main__":
     logging.info("Total products compared: %s, %s/%s" % (productsCompared, mismatches, totalCount))
 
     if not productsCompared:
-        print "Plager compatible message: not able to get any products"
+        print("Plager compatible message: not able to get any products")
         sys.exit()

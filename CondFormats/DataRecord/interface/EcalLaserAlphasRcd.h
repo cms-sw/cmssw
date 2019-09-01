@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     EcalLaserAlphasRcd
-// 
+//
 /**\class EcalLaserAlphasRcd EcalLaserAlphasRcd.h CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Fri Jun  1 12:28:55 CEST 2007
 // $Id$
 //

@@ -12,6 +12,6 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/MuonData/interface/MuonDigiCollection.h"
 
-typedef MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> CSCCorrelatedLCTDigiCollection;
+typedef MuonDigiCollection<CSCDetId, CSCCorrelatedLCTDigi> CSCCorrelatedLCTDigiCollection;
 
 #endif

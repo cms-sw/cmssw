@@ -6,8 +6,6 @@
    \date 10 Jan 2011
 */
 
-
-
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -20,133 +18,114 @@
 
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
-EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
-  
-  
-  timeThresh_    = p.getParameter< double> ("timeThresh");
-  chStatus_ =nullptr;	    
+EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p) {
+  timeThresh_ = p.getParameter<double>("timeThresh");
+  chStatus_ = nullptr;
 
-  const edm::ParameterSet & ps=p.getParameter< edm::ParameterSet >("flagMask");
+  const edm::ParameterSet& ps = p.getParameter<edm::ParameterSet>("flagMask");
   std::vector<std::string> severities = ps.getParameterNames();
   std::vector<std::string> flags;
- 
+
   flagMask_.resize(severities.size());
 
   // read configuration of severities
 
-  for (unsigned int is=0;is!=severities.size();++is){
-
-    EcalSeverityLevel::SeverityLevel snum=
-      (EcalSeverityLevel::SeverityLevel) StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
-    flags=ps.getParameter<std::vector<std::string> >(severities[is]);
-    uint32_t mask=0;
-    for (unsigned int ifi=0;ifi!=flags.size();++ifi){
-      EcalRecHit::Flags f=
-	(EcalRecHit::Flags)StringToEnumValue<EcalRecHit::Flags>(flags[ifi]);
+  for (unsigned int is = 0; is != severities.size(); ++is) {
+    EcalSeverityLevel::SeverityLevel snum =
+        (EcalSeverityLevel::SeverityLevel)StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
+    flags = ps.getParameter<std::vector<std::string> >(severities[is]);
+    uint32_t mask = 0;
+    for (unsigned int ifi = 0; ifi != flags.size(); ++ifi) {
+      EcalRecHit::Flags f = (EcalRecHit::Flags)StringToEnumValue<EcalRecHit::Flags>(flags[ifi]);
       //manipulate the mask
-      mask|=(0x1<<f);
+      mask |= (0x1 << f);
     }
 
-    flagMask_[snum]=mask;
+    flagMask_[snum] = mask;
   }
   // read configuration of dbstatus
 
-  const edm::ParameterSet & dbps=
-    p.getParameter< edm::ParameterSet >("dbstatusMask");
+  const edm::ParameterSet& dbps = p.getParameter<edm::ParameterSet>("dbstatusMask");
   std::vector<std::string> dbseverities = dbps.getParameterNames();
   std::vector<std::string> dbflags;
- 
+
   dbstatusMask_.resize(dbseverities.size());
 
-  for (unsigned int is=0;is!=dbseverities.size();++is){
+  for (unsigned int is = 0; is != dbseverities.size(); ++is) {
+    EcalSeverityLevel::SeverityLevel snum =
+        (EcalSeverityLevel::SeverityLevel)StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
 
-    EcalSeverityLevel::SeverityLevel snum=
-      (EcalSeverityLevel::SeverityLevel) StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
-    
-    dbflags=dbps.getParameter<std::vector<std::string> >(severities[is]);
-    uint32_t mask=0;
-    for (unsigned int ifi=0;ifi!=dbflags.size();++ifi){
-        EcalChannelStatusCode::Code f= 
-            (EcalChannelStatusCode::Code)StringToEnumValue<EcalChannelStatusCode::Code>(dbflags[ifi]);
-      
+    dbflags = dbps.getParameter<std::vector<std::string> >(severities[is]);
+    uint32_t mask = 0;
+    for (unsigned int ifi = 0; ifi != dbflags.size(); ++ifi) {
+      EcalChannelStatusCode::Code f =
+          (EcalChannelStatusCode::Code)StringToEnumValue<EcalChannelStatusCode::Code>(dbflags[ifi]);
+
       //manipulate the mask
-      mask|=(0x1<<f);
+      mask |= (0x1 << f);
     }
 
-    dbstatusMask_[snum]=mask;
+    dbstatusMask_[snum] = mask;
   }
-
-
 }
 
-
-EcalSeverityLevel::SeverityLevel 
-EcalSeverityLevelAlgo::severityLevel(const DetId& id, 	   
-				     const EcalRecHitCollection& rhs) const{
-  
+EcalSeverityLevel::SeverityLevel EcalSeverityLevelAlgo::severityLevel(const DetId& id,
+                                                                      const EcalRecHitCollection& rhs) const {
   using namespace EcalSeverityLevel;
 
   // if the detid is within our rechits, evaluate from flag
- EcalRecHitCollection::const_iterator rh= rhs.find(id);
-  if ( rh != rhs.end()  )
+  EcalRecHitCollection::const_iterator rh = rhs.find(id);
+  if (rh != rhs.end())
     return severityLevel(*rh);
-
 
   // else evaluate from dbstatus
   return severityLevel(id);
-
 }
 
-EcalSeverityLevel::SeverityLevel
-EcalSeverityLevelAlgo::severityLevel(const DetId& id) const {
-
+EcalSeverityLevel::SeverityLevel EcalSeverityLevelAlgo::severityLevel(const DetId& id) const {
   using namespace EcalSeverityLevel;
 
-
-  EcalChannelStatus::const_iterator chIt = chStatus_->find( id );
+  EcalChannelStatus::const_iterator chIt = chStatus_->find(id);
 
   uint16_t dbStatus = chIt->getStatusCode();
- 
+
   // kGood==0 we know!
-  if (0==dbStatus)  return kGood;
- 
+  if (0 == dbStatus)
+    return kGood;
+
   // check if the bit corresponding to that dbStatus is set in the mask
   // This implementation implies that the statuses have a priority
-  for (size_t i=0; i< dbstatusMask_.size();++i){
-    uint32_t tmp = 0x1<<dbStatus;
-    if (dbstatusMask_[i] & tmp) return SeverityLevel(i);
+  for (size_t i = 0; i < dbstatusMask_.size(); ++i) {
+    uint32_t tmp = 0x1 << dbStatus;
+    if (dbstatusMask_[i] & tmp)
+      return SeverityLevel(i);
   }
 
   // no matching
-  LogDebug("EcalSeverityLevelAlgo")<< 
-    "Unmatched DB status, returning kGood";
+  LogDebug("EcalSeverityLevelAlgo") << "Unmatched DB status, returning kGood";
   return kGood;
 }
 
-
-EcalSeverityLevel::SeverityLevel 
-EcalSeverityLevelAlgo::severityLevel(const EcalRecHit& rh) const{
-
+EcalSeverityLevel::SeverityLevel EcalSeverityLevelAlgo::severityLevel(const EcalRecHit& rh) const {
   using namespace EcalSeverityLevel;
 
   //if marked good, do not do any further test
-  if (rh.checkFlag(kGood)) return kGood;
+  if (rh.checkFlag(kGood))
+    return kGood;
 
   // check if the bit corresponding to that flag is set in the mask
-  // This implementation implies that  severities have a priority... 
-  for (int sev=kBad;sev>=0;--sev){
-    if(sev==kTime && rh.energy() < timeThresh_ ) continue;
-    if (rh.checkFlagMask(flagMask_[sev])) return SeverityLevel(sev);
+  // This implementation implies that  severities have a priority...
+  for (int sev = kBad; sev >= 0; --sev) {
+    if (sev == kTime && rh.energy() < timeThresh_)
+      continue;
+    if (rh.checkFlagMask(flagMask_[sev]))
+      return SeverityLevel(sev);
   }
 
   // no matching
-  LogDebug("EcalSeverityLevelAlgo")<< "Unmatched Flag , returning kGood";
+  LogDebug("EcalSeverityLevelAlgo") << "Unmatched Flag , returning kGood";
   return kGood;
-
 }
-
-
-
 
 // Configure (x)emacs for this file ...
 // Local Variables:

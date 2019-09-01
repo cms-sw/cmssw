@@ -22,15 +22,15 @@ public:
   /// Destructor
   ~eSector();
 
-//   /// Return all volumes in this sector
-//   const handles & getVolumes() const {return volumes;}
+  //   /// Return all volumes in this sector
+  //   const handles & getVolumes() const {return volumes;}
 
   /// Construct the MagESector upon request.
   MagESector* buildMagESector() const;
 
 private:
-  std::vector<eLayer> layers; // the layers in this sectors
-  handles theVolumes;       // pointers to all volumes in the sector
+  std::vector<eLayer> layers;  // the layers in this sectors
+  handles theVolumes;          // pointers to all volumes in the sector
   mutable MagESector* msector;
 };
 #endif

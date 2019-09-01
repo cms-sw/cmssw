@@ -1,5 +1,5 @@
 /** \file LaserPrimaryGeneratorAction.cc
- *  
+ *
  *
  *  $Date: 2007/03/20 12:01:01 $
  *  $Revision: 1.2 $
@@ -13,30 +13,30 @@
 
 #include "G4SystemOfUnits.hh"
 
-LaserPrimaryGeneratorAction::LaserPrimaryGeneratorAction(edm::ParameterSet const& theConf) 
-  : thePhotonEnergy(0),
-    thenParticleInGun(0),
-    thenParticle(0),
-    theLaserBeamsInTEC1(),
-    theLaserBeamsInTEC2(),
-    theLaserBeamsInTECTIBTOBTEC()
-{
+LaserPrimaryGeneratorAction::LaserPrimaryGeneratorAction(edm::ParameterSet const &theConf)
+    : thePhotonEnergy(0),
+      thenParticleInGun(0),
+      thenParticle(0),
+      theLaserBeamsInTEC1(),
+      theLaserBeamsInTEC2(),
+      theLaserBeamsInTECTIBTOBTEC() {
   // {{{ LaserPrimaryGeneratorAction constructor
 
   // get the PhotonEnergy from the parameter set
-  thePhotonEnergy = theConf.getUntrackedParameter<double>("PhotonEnergy",1.15) * eV;
+  thePhotonEnergy = theConf.getUntrackedParameter<double>("PhotonEnergy", 1.15) * eV;
 
   // number of particles in the Laser beam
-  thenParticleInGun = theConf.getUntrackedParameter<int>("NumberOfPhotonsInParticleGun",1);
+  thenParticleInGun = theConf.getUntrackedParameter<int>("NumberOfPhotonsInParticleGun", 1);
 
-  // number of particles in one beam. ATTENTION: each beam contains nParticleInGun with the same
-  // startpoint and direction. nParticle gives the number of particles in the beam with a different
-  // startpoint. They are used to simulate the gaussian beamprofile of the Laser Beams.
-  thenParticle = theConf.getUntrackedParameter<int>("NumberOfPhotonsInEachBeam",1);
+  // number of particles in one beam. ATTENTION: each beam contains
+  // nParticleInGun with the same startpoint and direction. nParticle gives the
+  // number of particles in the beam with a different startpoint. They are used
+  // to simulate the gaussian beamprofile of the Laser Beams.
+  thenParticle = theConf.getUntrackedParameter<int>("NumberOfPhotonsInEachBeam", 1);
 
   // create a messenger for this class
-//   theGunMessenger = new LaserPrimaryGeneratorMessenger(this);
-  
+  //   theGunMessenger = new LaserPrimaryGeneratorMessenger(this);
+
   // create the beams in the right endcap
   theLaserBeamsInTEC1 = new LaserBeamsTEC1(thenParticleInGun, thenParticle, thePhotonEnergy);
 
@@ -48,22 +48,28 @@ LaserPrimaryGeneratorAction::LaserPrimaryGeneratorAction(edm::ParameterSet const
   // }}}
 }
 
-LaserPrimaryGeneratorAction::~LaserPrimaryGeneratorAction()
-{
+LaserPrimaryGeneratorAction::~LaserPrimaryGeneratorAction() {
   // {{{ LaserPrimaryGeneratorAction destructor
 
-  if ( theLaserBeamsInTEC1 != nullptr ) { delete theLaserBeamsInTEC1; }
-  if ( theLaserBeamsInTEC2 != nullptr ) { delete theLaserBeamsInTEC2; }
-  if ( theLaserBeamsInTECTIBTOBTEC != nullptr ) { delete theLaserBeamsInTECTIBTOBTEC; }
+  if (theLaserBeamsInTEC1 != nullptr) {
+    delete theLaserBeamsInTEC1;
+  }
+  if (theLaserBeamsInTEC2 != nullptr) {
+    delete theLaserBeamsInTEC2;
+  }
+  if (theLaserBeamsInTECTIBTOBTEC != nullptr) {
+    delete theLaserBeamsInTECTIBTOBTEC;
+  }
   // }}}
 }
 
-void LaserPrimaryGeneratorAction::GeneratePrimaries(G4Event* myEvent)
-{
+void LaserPrimaryGeneratorAction::GeneratePrimaries(G4Event *myEvent) {
   // {{{ GeneratePrimaries (G4Event * myEvent)
 
-  // this function is called at the beginning of an Event in LaserAlignment::upDate(const BeginOfEvent * myEvent)
-  LogDebug("LaserPrimaryGeneratorAction") << "<LaserPrimaryGeneratorAction::GeneratePrimaries(G4Event*)>: create a new Laser Event";
+  // this function is called at the beginning of an Event in
+  // LaserAlignment::upDate(const BeginOfEvent * myEvent)
+  LogDebug("LaserPrimaryGeneratorAction") << "<LaserPrimaryGeneratorAction::GeneratePrimaries(G4Event*)>: create a "
+                                             "new Laser Event";
 
   // shoot in the right endcap
   theLaserBeamsInTEC1->GeneratePrimaries(myEvent);
@@ -74,26 +80,24 @@ void LaserPrimaryGeneratorAction::GeneratePrimaries(G4Event* myEvent)
   // shoot in the barrel
   theLaserBeamsInTECTIBTOBTEC->GeneratePrimaries(myEvent);
 
-  // loop over all the generated vertices, get the primaries and set the user information
+  // loop over all the generated vertices, get the primaries and set the user
+  // information
   int theID = 0;
 
-  for (int i = 1; i < myEvent->GetNumberOfPrimaryVertex(); i++)
-    {
-      G4PrimaryVertex * theVertex = myEvent->GetPrimaryVertex(i);
+  for (int i = 1; i < myEvent->GetNumberOfPrimaryVertex(); i++) {
+    G4PrimaryVertex *theVertex = myEvent->GetPrimaryVertex(i);
 
-      for (int j = 0; j < theVertex->GetNumberOfParticle(); j++)
-	{
-	  G4PrimaryParticle * thePrimary = theVertex->GetPrimary(j);
-	  
-	  setGeneratorId(thePrimary, theID);
-	  theID++;
-	}
+    for (int j = 0; j < theVertex->GetNumberOfParticle(); j++) {
+      G4PrimaryParticle *thePrimary = theVertex->GetPrimary(j);
+
+      setGeneratorId(thePrimary, theID);
+      theID++;
     }
+  }
   // }}}
 }
 
-void LaserPrimaryGeneratorAction::setGeneratorId(G4PrimaryParticle * aParticle, int ID) const
-{
+void LaserPrimaryGeneratorAction::setGeneratorId(G4PrimaryParticle *aParticle, int ID) const {
   // {{{ SetGeneratorId(G4PrimaryParticle * aParticle, int ID) const
 
   /* *********************************************************************** */

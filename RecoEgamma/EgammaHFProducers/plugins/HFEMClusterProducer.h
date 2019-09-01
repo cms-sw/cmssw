@@ -3,7 +3,7 @@
 //Package:    EgammaHFProdcers
 // Class  :    HFClusterProducer
 // Original Author:  Kevin Klapoetke (minnesota)
-//        
+//
 // $Id: HFClusterProducer.h,v 1.2 2007/09/19 Kevin Klapoetke
 //
 #include "HFClusterAlgo.h"
@@ -16,7 +16,8 @@ class HFEMClusterProducer : public edm::stream::EDProducer<> {
 public:
   explicit HFEMClusterProducer(edm::ParameterSet const& conf);
   void produce(edm::Event& e, edm::EventSetup const& iSetup) override;
-  void beginRun(edm::Run const &, edm::EventSetup const&) final { algo_.resetForRun(); }
+  void beginRun(edm::Run const&, edm::EventSetup const&) final { algo_.resetForRun(); }
+
 private:
   edm::EDGetToken hfreco_;
   HFClusterAlgo algo_;

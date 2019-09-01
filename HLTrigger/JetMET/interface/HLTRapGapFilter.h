@@ -16,19 +16,20 @@
 //
 
 class HLTRapGapFilter : public HLTFilter {
+public:
+  explicit HLTRapGapFilter(const edm::ParameterSet&);
+  ~HLTRapGapFilter() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   public:
-      explicit HLTRapGapFilter(const edm::ParameterSet&);
-      ~HLTRapGapFilter() override;
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-
-   private:
-      edm::EDGetTokenT<reco::CaloJetCollection> m_theJetToken;
-      edm::InputTag inputTag_; // input tag identifying jets
-      double absEtaMin_;
-      double absEtaMax_;
-      double caloThresh_;
+private:
+  edm::EDGetTokenT<reco::CaloJetCollection> m_theJetToken;
+  edm::InputTag inputTag_;  // input tag identifying jets
+  double absEtaMin_;
+  double absEtaMax_;
+  double caloThresh_;
 };
 
-#endif //HLTRapGapFilter_h
+#endif  //HLTRapGapFilter_h

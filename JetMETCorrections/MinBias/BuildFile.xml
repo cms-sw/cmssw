@@ -1,5 +1,6 @@
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="Geometry/HcalTowerAlgo"/>
 <use   name="CommonTools/UtilAlgos"/>
+<use   name="Geometry/Records"/>
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>

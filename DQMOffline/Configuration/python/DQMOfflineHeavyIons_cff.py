@@ -94,6 +94,7 @@ looseAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 pvMonitor.vertexLabel = cms.InputTag("hiSelectedVertex")
 
 
+
 DQMOfflineHeavyIonsPrePOG = cms.Sequence( muonMonitors
                                           * TrackMonDQMTier0_hi
                                           * jetMETDQMOfflineSource
@@ -114,6 +115,9 @@ DQMOfflineHeavyIons = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
                                     DQMOfflineHeavyIonsPrePOG *
                                     DQMMessageLogger )
 
+DQMOfflineHeavyIonsFakeHLT = cms.Sequence( DQMOfflineHeavyIons )
+DQMOfflineHeavyIonsFakeHLT.remove( triggerOfflineDQMSource )
+
 #this is needed to have a light sequence for T0 processing
 liteDQMOfflineHeavyIons = cms.Sequence ( DQMOfflineHeavyIons )
 liteDQMOfflineHeavyIons.remove( SiStripMonitorCluster )
@@ -121,3 +125,5 @@ liteDQMOfflineHeavyIons.remove( jetMETDQMOfflineSource )
 
 
 #DQMOfflineHeavyIonsPhysics = cms.Sequence( dqmPhysics )
+
+PostDQMOfflineHI = cms.Sequence()

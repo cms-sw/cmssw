@@ -13,10 +13,10 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 namespace reco {
-  class PFCandidateWithSrcPtrFactory : public std::unary_function<reco::PFCandidate, edm::FwdPtr<reco::PFCandidate> > {
-  public :
-    reco::PFCandidate operator()( edm::FwdPtr<reco::PFCandidate> const & input ) const {
-      reco::PFCandidate output( *input );
+  class PFCandidateWithSrcPtrFactory {
+  public:
+    reco::PFCandidate operator()(edm::FwdPtr<reco::PFCandidate> const& input) const {
+      reco::PFCandidate output(*input);
       /* really, what's the point in this ? The one below should be enough
       //and the one loop here is a torture of converting Ptr<PFCandidate> to Ptr<Candidate> and back
       for ( unsigned int isource = 0; isource < input->numberOfSourceCandidatePtrs(); ++isource ) {
@@ -24,10 +24,10 @@ namespace reco {
 	output.setSourceCandidatePtr( ptr );
       }
       */
-      output.setSourceCandidatePtr( input.backPtr() );
-      return output; 
+      output.setSourceCandidatePtr(input.backPtr());
+      return output;
     }
   };
-}
+}  // namespace reco
 
 #endif

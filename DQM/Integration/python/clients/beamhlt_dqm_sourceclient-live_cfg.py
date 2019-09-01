@@ -1,7 +1,10 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("BeamMonitor", eras.Run2_2017)
+#from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+#process = cms.Process("BeamMonitor", Run2_2018) # FIMXE
+from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
+process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -86,9 +89,10 @@ if (process.runType.getRunType() == process.runType.pp_run or
     process.runType.getRunType() == process.runType.pp_run_stage1 or
     process.runType.getRunType() == process.runType.cosmic_run or
     process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
-    process.runType.getRunType() == process.runType.hpu_run):
+    process.runType.getRunType() == process.runType.hpu_run or
+    process.runType.getRunType() == process.runType.hi_run):
 
-    print "[beamhlt_dqm_sourceclient-live_cfg]:: Running pp"
+    print("[beamhlt_dqm_sourceclient-live_cfg]:: Running pp")
 
     process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
@@ -103,9 +107,14 @@ if (process.runType.getRunType() == process.runType.pp_run or
     process.dqmBeamMonitor.PVFitter.minVertexNdf        = 10
   
     # some inputs to BeamMonitor
-    process.dqmBeamMonitor.BeamFitter.TrackCollection = 'hltPFMuonMerging'
-    process.dqmBeamMonitor.primaryVertex              = 'hltVerticesPFFilter'
-    process.dqmBeamMonitor.PVFitter.VertexCollection  = 'hltVerticesPFFilter'
+    if(process.runType.getRunType() == process.runType.hi_run):
+      process.dqmBeamMonitor.BeamFitter.TrackCollection = 'hltPFMuonMergingPPOnAA'
+      process.dqmBeamMonitor.primaryVertex              = 'hltVerticesPFFilterPPOnAA'
+      process.dqmBeamMonitor.PVFitter.VertexCollection  = 'hltVerticesPFFilterPPOnAA'
+    else:
+      process.dqmBeamMonitor.BeamFitter.TrackCollection = 'hltPFMuonMerging'
+      process.dqmBeamMonitor.primaryVertex              = 'hltVerticesPFFilter'
+      process.dqmBeamMonitor.PVFitter.VertexCollection  = 'hltVerticesPFFilter'
 
     # keep checking this with new release expected close to 1
     process.dqmBeamMonitor.PVFitter.errorScale = 0.95
@@ -113,8 +122,9 @@ if (process.runType.getRunType() == process.runType.pp_run or
     #TriggerName for selecting pv for DIP publication, NO wildcard needed here
     #it will pick all triggers which has these strings in theri name
     process.dqmBeamMonitor.jetTrigger = cms.untracked.vstring(
-        "HLT_HT300_Beamspot", "HLT_HT300_Beamspot")
-#        "HLT_PAZeroBias_v", "HLT_ZeroBias_v", "HLT_QuadJet")
+        "HLT_HT300_Beamspot", "HLT_HT300_Beamspot",
+        "HLT_PAZeroBias_v", "HLT_ZeroBias_", "HLT_QuadJet",
+        "HLT_HI")
 
     process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
 

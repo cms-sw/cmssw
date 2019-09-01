@@ -16,7 +16,6 @@ namespace LayerTriplets {
   using LayerSetAndLayers = std::pair<LayerSet, std::vector<Layer> >;
 
   std::vector<LayerSetAndLayers> layers(const SeedingLayerSetsHits& sets);
-}
+}  // namespace LayerTriplets
 
 #endif
-

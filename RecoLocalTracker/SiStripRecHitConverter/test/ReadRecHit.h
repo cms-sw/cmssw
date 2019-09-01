@@ -15,17 +15,13 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoLocalTracker/SiStripRecHitConverter/test/ReadRecHitAlgorithm.h"
 
-namespace cms
-{
-  class ReadRecHit : public edm::EDAnalyzer
-  {
+namespace cms {
+  class ReadRecHit : public edm::EDAnalyzer {
   public:
-
     explicit ReadRecHit(const edm::ParameterSet& conf);
 
     virtual ~ReadRecHit();
@@ -35,9 +31,7 @@ namespace cms
   private:
     ReadRecHitAlgorithm readRecHitAlgorithm_;
     edm::ParameterSet conf_;
-
   };
-}
-
+}  // namespace cms
 
 #endif

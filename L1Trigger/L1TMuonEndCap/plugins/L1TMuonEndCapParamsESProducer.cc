@@ -22,8 +22,8 @@ class L1TMuonEndCapParamsESProducer : public edm::ESProducer {
 public:
   L1TMuonEndCapParamsESProducer(const edm::ParameterSet&);
   ~L1TMuonEndCapParamsESProducer() override;
-  
-  typedef std::shared_ptr<L1TMuonEndCapParams> ReturnType;
+
+  using ReturnType = std::unique_ptr<L1TMuonEndCapParams>;
 
   ReturnType produce(const L1TMuonEndCapParamsRcd&);
 
@@ -33,34 +33,25 @@ private:
 
 // Constructor
 
-L1TMuonEndCapParamsESProducer::L1TMuonEndCapParamsESProducer(const edm::ParameterSet& iConfig) :
-  data_(new L1TMuonEndCapParams())
-{
+L1TMuonEndCapParamsESProducer::L1TMuonEndCapParamsESProducer(const edm::ParameterSet& iConfig)
+    : data_(new L1TMuonEndCapParams()) {
   // The following line is needed to tell the framework what data is being produced
-   setWhatProduced(this);
+  setWhatProduced(this);
 
-   data_.SetPtAssignVersion(iConfig.getParameter<int>("PtAssignVersion"));
-   data_.SetFirmwareVersion(iConfig.getParameter<int>("FirmwareVersion"));
-   data_.SetPrimConvVersion(iConfig.getParameter<int>("PrimConvVersion"));
-
+  data_.SetPtAssignVersion(iConfig.getParameter<int>("PtAssignVersion"));
+  data_.SetFirmwareVersion(iConfig.getParameter<int>("FirmwareVersion"));
+  data_.SetPrimConvVersion(iConfig.getParameter<int>("PrimConvVersion"));
 }
 
 // Destructor
 
-L1TMuonEndCapParamsESProducer::~L1TMuonEndCapParamsESProducer()
-{
-}
+L1TMuonEndCapParamsESProducer::~L1TMuonEndCapParamsESProducer() {}
 
 // Member functions
 
 // ------------ method called to produce the data  ------------
-L1TMuonEndCapParamsESProducer::ReturnType
-L1TMuonEndCapParamsESProducer::produce(const L1TMuonEndCapParamsRcd& iRecord)
-{
-   using namespace edm::es;
-   auto pEMTFParams = std::make_shared<L1TMuonEndCapParams>(*data_.getWriteInstance());
-   return pEMTFParams;
-   
+L1TMuonEndCapParamsESProducer::ReturnType L1TMuonEndCapParamsESProducer::produce(const L1TMuonEndCapParamsRcd& iRecord) {
+  return std::make_unique<L1TMuonEndCapParams>(*data_.getWriteInstance());
 }
 
 // Define this as a plug-in

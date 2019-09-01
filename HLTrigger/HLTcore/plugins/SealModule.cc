@@ -1,6 +1,5 @@
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "HLTrigger/HLTcore/interface/HLTEventAnalyzerAOD.h"

@@ -38,16 +38,15 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
-class HcalAutoPedestalValidator: public edm::EDAnalyzer
-{
- public:
+class HcalAutoPedestalValidator : public edm::EDAnalyzer {
+public:
   HcalAutoPedestalValidator(edm::ParameterSet const& ps);
 
   ~HcalAutoPedestalValidator() override;
 
   void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
 
- private:
+private:
   std::string outfile;
   double epsilon;
   //  vecDetId getMissingDetIds(std::vector<HcalPedestals> &);

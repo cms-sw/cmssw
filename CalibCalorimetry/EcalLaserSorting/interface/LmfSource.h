@@ -11,32 +11,33 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-class LmfSource: public edm::ProducerSourceBase{
+class LmfSource : public edm::ProducerSourceBase {
 private:
-  struct IndexRecord{
+  struct IndexRecord {
     uint32_t orbit;
     uint32_t filePos;
     //    bool operator<(const IndexRecord& i) const { return orbit < i.orbit; }
   };
-  
+
 public:
-  LmfSource(const edm::ParameterSet& pset,
-	       const edm::InputSourceDescription& isd);
-  ~LmfSource() override{}
-  
+  LmfSource(const edm::ParameterSet& pset, const edm::InputSourceDescription& isd);
+  ~LmfSource() override {}
+
 private:
   /** Called by the framework after setRunAndEventInfo()
    */
-  void produce(edm::Event &e) override;
+  void produce(edm::Event& e) override;
 
   /** Callback funtion to set run and event information
    * (lumi block, run number, event number, timestamp)
    * Called by the framework before produce()
    */
-  bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType) override;
+  bool setRunAndEventInfo(edm::EventID& id,
+                          edm::TimeValue_t& time,
+                          edm::EventAuxiliary::ExperimentType& eType) override;
 
   bool openFile(int iFile);
-  
+
   bool readFileHeader();
 
   /** Read event from current opened file. Called by readEvent, which
@@ -46,14 +47,13 @@ private:
    * @return true iff succeeded
    */
   bool readEventWithinFile(bool doSkip);
-  
+
   /** timeval to string conversion
    * @param t timestamp
    * @return human readable character string
    */
   std::string toString(edm::TimeValue_t& t) const;
 
-  
 private:
   /** List of names of the input files
    */
@@ -66,7 +66,7 @@ private:
   /** Buffer for FED block collection
    */
   FEDRawDataCollection fedColl_;
-  
+
   /** empty fed block
    */
   FEDRawData emptyFedBlock_;
@@ -81,16 +81,15 @@ private:
   std::vector<uint32_t> header_;
 
   static const unsigned fileHeaderSize;
-  
+
   /** Buffer for file header readout
    */
   std::vector<uint32_t> fileHeader_;
 
-
   /** Minimal LMF data format version supported.
    */
   static const unsigned char minDataFormatVersion_;
-  
+
   /** Maximal LMF data format version supported.
    */
   static const unsigned char maxDataFormatVersion_;
@@ -111,7 +110,7 @@ private:
    * @return false in case of failure (end of file)
    */
   bool nextEventWithinFile();
-  
+
   /** Checks paths specified in fileNames_ and remove eventual
    * file: prefix.
    * @throw cms::Exception in case of a non valid path
@@ -122,14 +121,14 @@ private:
    * must be called beforehand.
    */
   void readIndexTable();
-  
+
   uint64_t timeStamp_;
   uint32_t lumiBlock_;
   uint32_t runNum_;
   uint32_t bx_;
   uint32_t eventNum_;
   uint32_t orbitNum_;
-  
+
   unsigned char dataFormatVers_;
 
   std::ifstream in_;
@@ -151,7 +150,7 @@ private:
   uint32_t indexTablePos_;
 
   int calibTrig_;
-  
+
   int nFeds_;
 
   /** Table with file position of each event order by event time
@@ -162,13 +161,13 @@ private:
   /** Limit of number of events to prevent exhausting memory
    * with indexTable_ in case of file corruption.
    */
-  static const unsigned maxEvents_ = 1<<20;
+  static const unsigned maxEvents_ = 1 << 20;
 
   /** Limit on event size to prevent exhausting memory
    * in case of error in the event size read from file.
    */
-  static const unsigned maxEventSize_ = 1<<20; //1MB. (full DCC event is 49kB)
-  
+  static const unsigned maxEventSize_ = 1 << 20;  //1MB. (full DCC event is 49kB)
+
   /** Switch for enabling reading event in ordered using
    * event index table
    */
@@ -201,5 +200,4 @@ private:
    */
   int verbosity_;
 };
-#endif //SourceModule_H not defined
-
+#endif  //SourceModule_H not defined

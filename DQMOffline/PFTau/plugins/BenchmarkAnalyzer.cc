@@ -7,32 +7,27 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <string>
 #include <iostream>
+#include <string>
 
 using namespace std;
 
-BenchmarkAnalyzer::BenchmarkAnalyzer(const edm::ParameterSet& parameterSet)
-{
+BenchmarkAnalyzer::BenchmarkAnalyzer(const edm::ParameterSet &parameterSet) {
+  inputLabel_ = parameterSet.getParameter<edm::InputTag>("InputCollection");
+  benchmarkLabel_ = parameterSet.getParameter<std::string>("BenchmarkLabel");
 
-  inputLabel_      = parameterSet.getParameter<edm::InputTag>("InputCollection");
-  benchmarkLabel_  = parameterSet.getParameter<std::string>("BenchmarkLabel"); 
+  std::string folder = benchmarkLabel_;
 
-  std::string folder = benchmarkLabel_ ;
-
-  subsystemname_ = "ParticleFlow" ;
-  eventInfoFolder_ = subsystemname_ + "/" + folder ;
-
+  subsystemname_ = "ParticleFlow";
+  eventInfoFolder_ = subsystemname_ + "/" + folder;
 }
-
 
 //
 // -- BookHistograms
 //
-void BenchmarkAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
-					    edm::Run const & /* iRun */,
-					    edm::EventSetup const & /* iSetup */ )
-{
-  ibooker.setCurrentFolder(eventInfoFolder_) ;
+void BenchmarkAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
+                                       edm::Run const & /* iRun */,
+                                       edm::EventSetup const & /* iSetup */) {
+  ibooker.setCurrentFolder(eventInfoFolder_);
   cout << "path set to " << eventInfoFolder_ << endl;
 }

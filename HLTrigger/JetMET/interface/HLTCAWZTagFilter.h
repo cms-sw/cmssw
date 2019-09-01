@@ -22,67 +22,52 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <Math/VectorUtil.h>
 
-class CAWZJetHelperUser : public std::unary_function<reco::Jet, reco::CATopJetProperties> {
- public:
+class CAWZJetHelperUser {
+public:
+  CAWZJetHelperUser(double massdropcut) : massdropcut_(massdropcut) {}
 
-  CAWZJetHelperUser(double massdropcut) :
-    massdropcut_(massdropcut)
-    {}
+  reco::CATopJetProperties operator()(reco::Jet const& ihardJet) const;
 
-    reco::CATopJetProperties operator()( reco::Jet const & ihardJet ) const;
-  
- protected:
-    double      massdropcut_;
-
+protected:
+  double massdropcut_;
 };
-
-
-
-struct GreaterByPtCandPtrUser {
-  bool operator()( const edm::Ptr<reco::Candidate> & t1, const edm::Ptr<reco::Candidate> & t2 ) const {
-    return t1->pt() > t2->pt();
-  }
-};
-
-
 
 //
 // class declaration
 //
 
 class HLTCAWZTagFilter : public HLTFilter {
- public:
+public:
   explicit HLTCAWZTagFilter(const edm::ParameterSet&);
   ~HLTCAWZTagFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  bool hltFilter( edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterobject) const override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterobject) const override;
 
-
- private:
+private:
   // ----------member data ---------------------------
 
-  edm::InputTag   src_;
-  edm::InputTag   pfsrc_;
+  edm::InputTag src_;
+  edm::InputTag pfsrc_;
   const edm::EDGetTokenT<reco::BasicJetCollection> inputToken_;
   const edm::EDGetTokenT<reco::PFJetCollection> inputPFToken_;
-  double      minWMass_;
-  double      maxWMass_;
-  double      massdropcut_;
-
+  double minWMass_;
+  double maxWMass_;
+  double massdropcut_;
 };
 
-reco::CATopJetProperties CAWZJetHelperUser::operator()( reco::Jet const & ihardJet ) const {
+reco::CATopJetProperties CAWZJetHelperUser::operator()(reco::Jet const& ihardJet) const {
   reco::CATopJetProperties properties;
   // Get subjets
   reco::Jet::Constituents subjets = ihardJet.getJetConstituents();
   properties.nSubJets = subjets.size();  // number of subjets
-  properties.wMass = 999999.;                  // best W mass
+  properties.wMass = 999999.;            // best W mass
   properties.topMass = 999999.;
   properties.minMass = -1;
 
   if (properties.nSubJets == 2) {
- 
-    sort ( subjets.begin(), subjets.end(), GreaterByPtCandPtrUser() );
+    sort(subjets.begin(), subjets.end(), [](auto const& t1, auto const& t2) { return t1->pt() > t2->pt(); });
 
     reco::Jet::Constituent icandJet = subjets[0];
 
@@ -90,12 +75,12 @@ reco::CATopJetProperties CAWZJetHelperUser::operator()( reco::Jet const & ihardJ
     double imass = isubJet.mass();
     double imw = ihardJet.mass();
 
-    if (imass/imw < massdropcut_) {
+    if (imass / imw < massdropcut_) {
       // Get the candidate mass
       properties.wMass = imw;
     }
   }
-  
+
   return properties;
 }
 

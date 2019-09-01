@@ -2,13 +2,14 @@
 //
 // Package:    CondTools/SiStrip
 // Class:      SiStripChannelGainFromDBMiscalibrator
-// 
+//
 /**\class SiStripChannelGainFromDBMiscalibrator SiStripChannelGainFromDBMiscalibrator.cc CondTools/SiStrip/plugins/SiStripChannelGainFromDBMiscalibrator.cc
 
- Description: [one line class summary]
+ Description: Class to miscalibrate a SiStrip Channel Gain payload from Database
 
  Implementation:
-     [Notes on implementation]
+     Read a SiStrip Channel Gain payload from DB (either central DB or sqlite file) and apply a miscalibration (either an offset / gaussian smearing or both)
+     returns a local sqlite file with the same since of the original payload
 */
 //
 // Original Author:  Marco Musich
@@ -16,396 +17,322 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <iostream>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
-#include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
+#include "CLHEP/Random/RandGauss.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h" 
-#include "Geometry/Records/interface/TrackerTopologyRcd.h" 
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h" 
+#include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
-
-#include "TRandom3.h"
-
+#include "CondTools/SiStrip/interface/SiStripMiscalibrateHelper.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 //
 // class declaration
 //
 
-namespace ApvGain {
-  struct GainSmearings{
-    GainSmearings(){
-      m_doScale = false;
-      m_doSmear = false;
-      m_scaleFactor = 1.;
-      m_smearFactor = 0.;
-    }
-    ~GainSmearings(){}
-    
-    void setSmearing(bool doScale,bool doSmear,double the_scaleFactor,double the_smearFactor){
-      m_doScale = doScale;
-      m_doSmear = doSmear;
-      m_scaleFactor = the_scaleFactor;
-      m_smearFactor = the_smearFactor;
-    }
-    
-    bool m_doScale;
-    bool m_doSmear;
-    double m_scaleFactor;
-    double m_smearFactor;
-  };
+class SiStripChannelGainFromDBMiscalibrator : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripChannelGainFromDBMiscalibrator(const edm::ParameterSet&);
+  ~SiStripChannelGainFromDBMiscalibrator() override;
 
-}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-class SiStripChannelGainFromDBMiscalibrator : public edm::one::EDAnalyzer<>  {
-   public:
-      explicit SiStripChannelGainFromDBMiscalibrator(const edm::ParameterSet&);
-      ~SiStripChannelGainFromDBMiscalibrator();
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  std::unique_ptr<SiStripApvGain> getNewObject(const std::map<std::pair<uint32_t, int>, float>& theMap);
+  void endJob() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  // ----------member data ---------------------------
+  const std::string m_Record;
+  const uint32_t m_gainType;
+  const bool m_saveMaps;
+  const std::vector<edm::ParameterSet> m_parameters;
 
-   private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      std::unique_ptr<SiStripApvGain> getNewObject(const std::map<std::pair<uint32_t,int>,float>& theMap);
-      sistripsummary::TrackerRegion getRegionFromString(std::string region);
-      std::vector<sistripsummary::TrackerRegion> getRegionsFromDetId(const TrackerTopology* tTopo,DetId detid);
-      virtual void endJob() override;
-
-      // ----------member data ---------------------------
-      const std::string m_Record;  
-      const uint32_t m_gainType;
-      const std::vector<edm::ParameterSet> m_parameters;
+  std::unique_ptr<TrackerMap> scale_map;
+  std::unique_ptr<TrackerMap> smear_map;
+  std::unique_ptr<TrackerMap> ratio_map;
+  std::unique_ptr<TrackerMap> old_payload_map;
+  std::unique_ptr<TrackerMap> new_payload_map;
 };
 
 //
 // constructors and destructor
 //
-SiStripChannelGainFromDBMiscalibrator::SiStripChannelGainFromDBMiscalibrator(const edm::ParameterSet& iConfig):
-  m_Record{iConfig.getUntrackedParameter<std::string> ("record" , "SiStripApvGainRcd")},
-  m_gainType{iConfig.getUntrackedParameter<uint32_t>("gainType",1)},
-  m_parameters{iConfig.getParameter<std::vector<edm::ParameterSet> >("params")}
-{
-   //now do what ever initialization is needed
+SiStripChannelGainFromDBMiscalibrator::SiStripChannelGainFromDBMiscalibrator(const edm::ParameterSet& iConfig)
+    : m_Record{iConfig.getUntrackedParameter<std::string>("record", "SiStripApvGainRcd")},
+      m_gainType{iConfig.getUntrackedParameter<uint32_t>("gainType", 1)},
+      m_saveMaps{iConfig.getUntrackedParameter<bool>("saveMaps", true)},
+      m_parameters{iConfig.getParameter<std::vector<edm::ParameterSet> >("params")} {
+  //now do what ever initialization is needed
+
+  std::string ss_gain = (m_gainType > 0) ? "G2" : "G1";
+
+  scale_map = std::unique_ptr<TrackerMap>(new TrackerMap("scale"));
+  scale_map->setTitle("Scale factor averaged by module");
+  scale_map->setPalette(1);
+
+  smear_map = std::unique_ptr<TrackerMap>(new TrackerMap("smear"));
+  smear_map->setTitle("Smear factor averaged by module");
+  smear_map->setPalette(1);
+
+  ratio_map = std::unique_ptr<TrackerMap>(new TrackerMap("ratio"));
+  ratio_map->setTitle("Average by module of the " + ss_gain + " Gain payload ratio (new/old)");
+  ratio_map->setPalette(1);
+
+  new_payload_map = std::unique_ptr<TrackerMap>(new TrackerMap("new_payload"));
+  new_payload_map->setTitle("Tracker Map of Modified " + ss_gain + " Gain payload averaged by module");
+  new_payload_map->setPalette(1);
+
+  old_payload_map = std::unique_ptr<TrackerMap>(new TrackerMap("old_payload"));
+  old_payload_map->setTitle("Tracker Map of Starting " + ss_gain + " Gain Payload averaged by module");
+  old_payload_map->setPalette(1);
 }
 
-
-SiStripChannelGainFromDBMiscalibrator::~SiStripChannelGainFromDBMiscalibrator()
-{
-}
-
+SiStripChannelGainFromDBMiscalibrator::~SiStripChannelGainFromDBMiscalibrator() {}
 
 //
 // member functions
 //
 
 // ------------ method called for each event  ------------
-void
-SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+void SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   edm::ESHandle<TrackerTopology> tTopoHandle;
-   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-   const auto* const tTopo = tTopoHandle.product();
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const auto* const tTopo = tTopoHandle.product();
 
-   std::vector<std::string> partitions;
+  std::vector<std::string> partitions;
 
-   // fill the list of partitions 
-   for(auto& thePSet : m_parameters){
-     const std::string partition(thePSet.getParameter<std::string>("partition"));
-     // only if it is not yet in the list
-     if(std::find(partitions.begin(), partitions.end(), partition) == partitions.end()) {
-       partitions.push_back(partition);
-     }
-   }
+  // fill the list of partitions
+  for (auto& thePSet : m_parameters) {
+    const std::string partition(thePSet.getParameter<std::string>("partition"));
+    // only if it is not yet in the list
+    if (std::find(partitions.begin(), partitions.end(), partition) == partitions.end()) {
+      partitions.push_back(partition);
+    }
+  }
 
-   std::map<sistripsummary::TrackerRegion,ApvGain::GainSmearings> mapOfSmearings;
+  std::map<sistripsummary::TrackerRegion, SiStripMiscalibrate::Smearings> mapOfSmearings;
 
-   for(auto& thePSet : m_parameters){
-     
-     const std::string partition(thePSet.getParameter<std::string>("partition"));
-     sistripsummary::TrackerRegion region = this->getRegionFromString(partition);
-     
-     bool    m_doScale(thePSet.getParameter<bool>("doScale"));
-     bool    m_doSmear(thePSet.getParameter<bool>("doSmear"));
-     double  m_scaleFactor(thePSet.getParameter<double>("scaleFactor"));
-     double  m_smearFactor(thePSet.getParameter<double>("smearFactor"));
-     
-     ApvGain::GainSmearings params = ApvGain::GainSmearings();
-     params.setSmearing(m_doScale,m_doSmear,m_scaleFactor,m_smearFactor);
-     mapOfSmearings[region]=params;
-   }
-   
+  for (auto& thePSet : m_parameters) {
+    const std::string partition(thePSet.getParameter<std::string>("partition"));
+    sistripsummary::TrackerRegion region = SiStripMiscalibrate::getRegionFromString(partition);
 
-   edm::ESHandle<SiStripGain> SiStripApvGain_;
-   iSetup.get<SiStripGainRcd>().get(SiStripApvGain_);
+    bool m_doScale(thePSet.getParameter<bool>("doScale"));
+    bool m_doSmear(thePSet.getParameter<bool>("doSmear"));
+    double m_scaleFactor(thePSet.getParameter<double>("scaleFactor"));
+    double m_smearFactor(thePSet.getParameter<double>("smearFactor"));
 
-   std::map<std::pair<uint32_t,int>,float> theMap;
-   std::shared_ptr<TRandom3> random(new TRandom3(1));
-   
-   std::vector<uint32_t> detid;
-   SiStripApvGain_->getDetIds(detid);
-   for (const auto & d : detid) {
-     SiStripApvGain::Range range=SiStripApvGain_->getRange(d,m_gainType);
-     float nAPV=0;
+    SiStripMiscalibrate::Smearings params = SiStripMiscalibrate::Smearings();
+    params.setSmearing(m_doScale, m_doSmear, m_scaleFactor, m_smearFactor);
+    mapOfSmearings[region] = params;
+  }
 
-     auto regions = getRegionsFromDetId(tTopo,d); 
+  edm::ESHandle<SiStripGain> SiStripApvGain_;
+  iSetup.get<SiStripGainRcd>().get(SiStripApvGain_);
 
-     // sort by largest to smallest
-     std::sort(regions.rbegin(), regions.rend());
-     
-     ApvGain::GainSmearings params = ApvGain::GainSmearings();
-     
-     for (unsigned int j=0; j<regions.size();j++){
-       bool checkRegion = (mapOfSmearings.count(regions[j]) != 0);
+  std::map<std::pair<uint32_t, int>, float> theMap, oldPayloadMap;
 
-       if(!checkRegion) {
-	 // if the subdetector is not in the list and there's no indication for the whole tracker, just use the default 
-	 // i.e. no change
-	 continue;
-       } else {
-	 params = mapOfSmearings[regions[j]];
-	 break;
-       }
-     }
-     
-     for(int it=0;it<range.second-range.first;it++){
-       nAPV+=1;
-       float Gain=SiStripApvGain_->getApvGain(it,range);
-       std::pair<uint32_t,int> index = std::make_pair(d,nAPV);
-       
-       if(params.m_doScale){
-	 Gain*=params.m_scaleFactor;
-       }
-       
-       if(params.m_doSmear){
-	 float smearedGain = random->Gaus(Gain,params.m_smearFactor);
-	 Gain=smearedGain;
-       }
+  std::vector<uint32_t> detid;
+  SiStripApvGain_->getDetIds(detid);
+  for (const auto& d : detid) {
+    SiStripApvGain::Range range = SiStripApvGain_->getRange(d, m_gainType);
+    float nAPV = 0;
 
-       theMap[index]=Gain;
-       
-     } // loop over APVs
-   } // loop over DetIds
+    auto regions = SiStripMiscalibrate::getRegionsFromDetId(tTopo, d);
 
-   std::unique_ptr<SiStripApvGain> theAPVGains = this->getNewObject(theMap);
+    // sort by largest to smallest
+    std::sort(regions.rbegin(), regions.rend());
 
-   // write out the APVGains record
-   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  
-   if( poolDbService.isAvailable() )
-     poolDbService->writeOne(theAPVGains.get(),poolDbService->currentTime(),m_Record);
-   else
-     throw std::runtime_error("PoolDBService required.");
- 
+    SiStripMiscalibrate::Smearings params = SiStripMiscalibrate::Smearings();
+
+    for (unsigned int j = 0; j < regions.size(); j++) {
+      bool checkRegion = (mapOfSmearings.count(regions[j]) != 0);
+
+      if (!checkRegion) {
+        // if the subdetector is not in the list and there's no indication for the whole tracker, just use the default
+        // i.e. no change
+        continue;
+      } else {
+        params = mapOfSmearings[regions[j]];
+        break;
+      }
+    }
+
+    scale_map->fill(d, params.m_scaleFactor);
+    smear_map->fill(d, params.m_smearFactor);
+
+    for (int it = 0; it < range.second - range.first; it++) {
+      nAPV += 1;
+      float Gain = SiStripApvGain_->getApvGain(it, range);
+      std::pair<uint32_t, int> index = std::make_pair(d, nAPV);
+
+      oldPayloadMap[index] = Gain;
+
+      if (params.m_doScale) {
+        Gain *= params.m_scaleFactor;
+      }
+
+      if (params.m_doSmear) {
+        float smearedGain = CLHEP::RandGauss::shoot(Gain, params.m_smearFactor);
+        Gain = smearedGain;
+      }
+
+      theMap[index] = Gain;
+
+    }  // loop over APVs
+  }    // loop over DetIds
+
+  std::unique_ptr<SiStripApvGain> theAPVGains = this->getNewObject(theMap);
+
+  // make the payload ratio map
+  uint32_t cachedId(0);
+  SiStripMiscalibrate::Entry gain_ratio;
+  SiStripMiscalibrate::Entry o_gain;
+  SiStripMiscalibrate::Entry n_gain;
+  for (const auto& element : theMap) {
+    uint32_t DetId = element.first.first;
+    int nAPV = element.first.second;
+    float new_gain = element.second;
+    float old_gain = oldPayloadMap[std::make_pair(DetId, nAPV)];
+
+    // flush the counters
+    if (cachedId != 0 && DetId != cachedId) {
+      ratio_map->fill(cachedId, gain_ratio.mean());
+      old_payload_map->fill(cachedId, o_gain.mean());
+      new_payload_map->fill(cachedId, n_gain.mean());
+
+      //auto test = new_payload_map.get()->smoduleMap;
+
+      gain_ratio.reset();
+      o_gain.reset();
+      n_gain.reset();
+    }
+
+    cachedId = DetId;
+    gain_ratio.add(new_gain / old_gain);
+    o_gain.add(old_gain);
+    n_gain.add(new_gain);
+  }
+
+  // write out the APVGains record
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
+
+  if (poolDbService.isAvailable())
+    poolDbService->writeOne(theAPVGains.get(), poolDbService->currentTime(), m_Record);
+  else
+    throw std::runtime_error("PoolDBService required.");
 }
-
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-SiStripChannelGainFromDBMiscalibrator::beginJob()
-{
-}
+void SiStripChannelGainFromDBMiscalibrator::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-SiStripChannelGainFromDBMiscalibrator::endJob() 
-{
+void SiStripChannelGainFromDBMiscalibrator::endJob() {
+  if (m_saveMaps) {
+    std::string ss_gain = (m_gainType > 0) ? "G2" : "G1";
+
+    scale_map->save(true, 0, 0, ss_gain + "_gain_scale_map.pdf");
+    scale_map->save(true, 0, 0, ss_gain + "_gain_scale_map.png");
+
+    smear_map->save(true, 0, 0, ss_gain + "_gain_smear_map.pdf");
+    smear_map->save(true, 0, 0, ss_gain + "_gain_smear_map.png");
+
+    ratio_map->save(true, 0, 0, ss_gain + "_gain_ratio_map.pdf");
+    ratio_map->save(true, 0, 0, ss_gain + "_gain_ratio_map.png");
+
+    auto range = SiStripMiscalibrate::getTruncatedRange(old_payload_map.get());
+
+    old_payload_map->save(true, range.first, range.second, "starting_" + ss_gain + "_gain_payload_map.pdf");
+    old_payload_map->save(true, range.first, range.second, "starting_" + ss_gain + "_gain_payload_map.png");
+
+    range = SiStripMiscalibrate::getTruncatedRange(new_payload_map.get());
+
+    new_payload_map->save(true, range.first, range.second, "new_" + ss_gain + "_gain_payload_map.pdf");
+    new_payload_map->save(true, range.first, range.second, "new_" + ss_gain + "_gain_payload_map.png");
+  }
 }
 
 //********************************************************************************//
-std::unique_ptr<SiStripApvGain>
-SiStripChannelGainFromDBMiscalibrator::getNewObject(const std::map<std::pair<uint32_t,int>,float>& theMap) 
-{
+std::unique_ptr<SiStripApvGain> SiStripChannelGainFromDBMiscalibrator::getNewObject(
+    const std::map<std::pair<uint32_t, int>, float>& theMap) {
   std::unique_ptr<SiStripApvGain> obj = std::unique_ptr<SiStripApvGain>(new SiStripApvGain());
-  
+
   std::vector<float> theSiStripVector;
-  uint32_t PreviousDetId = 0; 
-  for(const auto &element : theMap){
+  uint32_t PreviousDetId = 0;
+  for (const auto& element : theMap) {
     uint32_t DetId = element.first.first;
-    if(DetId != PreviousDetId){
-      if(!theSiStripVector.empty()){
-	SiStripApvGain::Range range(theSiStripVector.begin(),theSiStripVector.end());
-	if ( !obj->put(PreviousDetId,range) )  printf("Bug to put detId = %i\n",PreviousDetId);
+    if (DetId != PreviousDetId) {
+      if (!theSiStripVector.empty()) {
+        SiStripApvGain::Range range(theSiStripVector.begin(), theSiStripVector.end());
+        if (!obj->put(PreviousDetId, range))
+          printf("Bug to put detId = %i\n", PreviousDetId);
       }
       theSiStripVector.clear();
       PreviousDetId = DetId;
     }
     theSiStripVector.push_back(element.second);
-    
-    edm::LogInfo("SiStripChannelGainFromDBMiscalibrator")<<" DetId: "<<DetId 
-						 <<" APV:   "<<element.first.second
-						 <<" Gain:  "<<element.second
-						 <<std::endl;
+
+    edm::LogInfo("SiStripChannelGainFromDBMiscalibrator")
+        << " DetId: " << DetId << " APV:   " << element.first.second << " Gain:  " << element.second << std::endl;
   }
-  
-  if(!theSiStripVector.empty()){
-    SiStripApvGain::Range range(theSiStripVector.begin(),theSiStripVector.end());
-    if ( !obj->put(PreviousDetId,range) )  printf("Bug to put detId = %i\n",PreviousDetId);
+
+  if (!theSiStripVector.empty()) {
+    SiStripApvGain::Range range(theSiStripVector.begin(), theSiStripVector.end());
+    if (!obj->put(PreviousDetId, range))
+      printf("Bug to put detId = %i\n", PreviousDetId);
   }
-  
+
   return obj;
 }
 
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-SiStripChannelGainFromDBMiscalibrator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiStripChannelGainFromDBMiscalibrator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  
-  desc.setComment("Creates rescaled / smeared SiStrip Gain payload. Can be used for both G1 and G2."
-                  "PoolDBOutputService must be set up for 'SiStripApvGainRcd'.");
-  
+
+  desc.setComment(
+      "Creates rescaled / smeared SiStrip Gain payload. Can be used for both G1 and G2."
+      "PoolDBOutputService must be set up for 'SiStripApvGainRcd'.");
+
   edm::ParameterSetDescription descScaler;
-  descScaler.setComment("ParameterSet specifying the Strip tracker partition to be scaled / smeared "
-                        "by a given factor.");
+  descScaler.setComment(
+      "ParameterSet specifying the Strip tracker partition to be scaled / smeared "
+      "by a given factor.");
 
   descScaler.add<std::string>("partition", "Tracker");
-  descScaler.add<bool>("doScale",true);
-  descScaler.add<bool>("doSmear",true);
+  descScaler.add<bool>("doScale", true);
+  descScaler.add<bool>("doSmear", true);
   descScaler.add<double>("scaleFactor", 1.0);
   descScaler.add<double>("smearFactor", 1.0);
   desc.addVPSet("params", descScaler, std::vector<edm::ParameterSet>(1));
 
-  desc.addUntracked<std::string>("record","SiStripApvGainRcd");
-  desc.addUntracked<unsigned int>("gainType",1);
+  desc.addUntracked<std::string>("record", "SiStripApvGainRcd");
+  desc.addUntracked<unsigned int>("gainType", 1);
+  desc.addUntracked<bool>("saveMaps", true);
 
   descriptions.add("scaleAndSmearSiStripGains", desc);
-
 }
 
 /*--------------------------------------------------------------------*/
-sistripsummary::TrackerRegion SiStripChannelGainFromDBMiscalibrator::getRegionFromString(std::string region)
-/*--------------------------------------------------------------------*/
-{
-  if(region.find("Tracker")!=std::string::npos){
-    return sistripsummary::TRACKER ;
-  } else if(region.find("TIB")!=std::string::npos){
-    if (region=="TIB_1") return sistripsummary::TIB_1;
-    else if (region=="TIB_2") return sistripsummary::TIB_2;
-    else if (region=="TIB_3") return sistripsummary::TIB_3;
-    else if (region=="TIB_4") return sistripsummary::TIB_4;
-    else return sistripsummary::TIB ;
-  } else if(region.find("TOB")!=std::string::npos){ 
-    if (region=="TOB_1") return sistripsummary::TOB_1;
-    else if (region=="TOB_2") return sistripsummary::TOB_2;
-    else if (region=="TOB_3") return sistripsummary::TOB_3;
-    else if (region=="TOB_4") return sistripsummary::TOB_4;
-    else if (region=="TOB_5") return sistripsummary::TOB_5;
-    else if (region=="TOB_6") return sistripsummary::TOB_6;
-    else return sistripsummary::TOB ;
-  } else if(region.find("TID")!=std::string::npos){
-    if(region.find("TIDM")!=std::string::npos){
-      if (region=="TIDM_1") return sistripsummary::TIDM_1;
-      else if (region=="TIDM_2") return sistripsummary::TIDM_2;
-      else if (region=="TIDM_3") return sistripsummary::TIDM_3;
-      else return sistripsummary::TIDM;
-    } else if(region.find("TIDP")!=std::string::npos){
-      if (region=="TIDP_1") return sistripsummary::TIDP_1;
-      else if (region=="TIDP_2") return sistripsummary::TIDP_2;
-      else if (region=="TIDP_3") return sistripsummary::TIDP_3;
-      else return sistripsummary::TIDP;
-    } else return sistripsummary::TID ;
-  } else if(region.find("TEC")!=std::string::npos) {
-    if(region.find("TECM")!=std::string::npos){
-      if (region=="TECM_1") return sistripsummary::TECM_1;
-      else if (region=="TECM_2") return sistripsummary::TECM_2;
-      else if (region=="TECM_3") return sistripsummary::TECM_3;
-      else if (region=="TECM_4") return sistripsummary::TECM_4;
-      else if (region=="TECM_5") return sistripsummary::TECM_5;
-      else if (region=="TECM_6") return sistripsummary::TECM_6;
-      else if (region=="TECM_7") return sistripsummary::TECM_7;
-      else if (region=="TECM_8") return sistripsummary::TECM_8;
-      else if (region=="TECM_9") return sistripsummary::TECM_9;
-      else return sistripsummary::TECM;
-    } else if(region.find("TECP")!=std::string::npos){
-      if (region=="TECP_1") return sistripsummary::TECP_1;
-      else if (region=="TECP_2") return sistripsummary::TECP_2;
-      else if (region=="TECP_3") return sistripsummary::TECP_3;
-      else if (region=="TECP_4") return sistripsummary::TECP_4;
-      else if (region=="TECP_5") return sistripsummary::TECP_5;
-      else if (region=="TECP_6") return sistripsummary::TECP_6;
-      else if (region=="TECP_7") return sistripsummary::TECP_7;
-      else if (region=="TECP_8") return sistripsummary::TECP_8;
-      else if (region=="TECP_9") return sistripsummary::TECP_9;
-      else return sistripsummary::TECP;
-    } else return sistripsummary::TEC ;
-  } else {
-    edm::LogError("LogicError") << "Unknown partition: " << region;
-    throw cms::Exception("Invalid Partition passed"); 
-  }  
-}
-
-/*--------------------------------------------------------------------*/
-std::vector<sistripsummary::TrackerRegion> SiStripChannelGainFromDBMiscalibrator::getRegionsFromDetId(const TrackerTopology* m_trackerTopo,DetId detid)
-/*--------------------------------------------------------------------*/      
-{
-  int layer    = 0;
-  int side     = 0;
-  int subdet   = 0;
-  int detCode  = 0;
-
-  std::vector<sistripsummary::TrackerRegion> ret;
-
-  switch (detid.subdetId()) {
-  case StripSubdetector::TIB:
-    layer = m_trackerTopo->tibLayer(detid);
-    subdet = 1;
-    break;
-  case StripSubdetector::TOB:
-    layer = m_trackerTopo->tobLayer(detid);
-    subdet = 2;
-    break;
-  case StripSubdetector::TID:
-    // is this module in TID+ or TID-?
-    layer = m_trackerTopo->tidWheel(detid);
-    side  = m_trackerTopo->tidSide(detid);
-    subdet = 3*10+side;
-    break;
-  case StripSubdetector::TEC:
-    // is this module in TEC+ or TEC-?
-    layer = m_trackerTopo->tecWheel(detid);
-    side  = m_trackerTopo->tecSide(detid);
-    subdet = 4*10+side;
-    break;
-  }
-  
-  detCode = (subdet*10)+layer;
-  
-  ret.push_back(static_cast<sistripsummary::TrackerRegion>(detCode));
-
-  if(subdet/10 > 0) {
-    ret.push_back(static_cast<sistripsummary::TrackerRegion>(subdet/10));
-  }
-
-  ret.push_back(static_cast<sistripsummary::TrackerRegion>(subdet));
-  ret.push_back(sistripsummary::TRACKER);
-
-  return ret;
-}
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiStripChannelGainFromDBMiscalibrator);
-
-

@@ -6,6 +6,8 @@
 #
 #  mps_merge.pl [-c] inCfg mergeCfg mergeDir njobs
 
+from __future__ import print_function
+from builtins import range
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import re
 import os
@@ -67,13 +69,13 @@ if match:
                   'setupAlgoMode = \"pede\"',
                   body)
 else:
-    print 'Error in mps_merge: No setupAlgoMode found in baseconfig.'
+    print('Error in mps_merge: No setupAlgoMode found in baseconfig.')
 
 
 # build list of binary files
 binaryList = ''
 firstentry = True
-for i in xrange(nJobs):
+for i in range(nJobs):
     separator = ',\n                '
     if firstentry:
         separator = '\n                '
@@ -84,10 +86,10 @@ for i in xrange(nJobs):
     newName = 'milleBinary%03d.dat' % (i+1)
     if checkweight and (lib.JOBSP2[i]!='' and lib.JOBSP2[i]!='1.0'):
         weight = lib.JOBSP2[i]
-        print 'Adding %s to list of binary files using weight %s' % (newName,weight)
+        print('Adding %s to list of binary files using weight %s' % (newName,weight))
         binaryList = '%s%s\'%s -- %s\'' % (binaryList, separator, newName, weight)
     else:
-        print 'Adding %s to list of binary files' % newName
+        print('Adding %s to list of binary files' % newName)
         binaryList = '%s%s\'%s\'' % (binaryList, separator, newName)
 
 
@@ -98,13 +100,13 @@ if match:
                   binaryList,
                   body)
 else:
-    print 'Error in mps_merge: No \'placeholder_binaryList\' found in baseconfig.'
+    print('Error in mps_merge: No \'placeholder_binaryList\' found in baseconfig.')
 
 
 # build list of tree files
 treeList =''
 firstentry = True
-for i in xrange(nJobs):
+for i in range(nJobs):
     separator = ',\n                '
     if firstentry:
         separator = '\n                '
@@ -113,7 +115,7 @@ for i in xrange(nJobs):
     firstentry = False
 
     newName = 'treeFile%03d.root' % (i+1)
-    print 'Adding %s to list of tree files.' % newName
+    print('Adding %s to list of tree files.' % newName)
     treeList = '%s%s\'%s\'' % (treeList, separator, newName)
 
 
@@ -124,7 +126,7 @@ if match:
                   treeList,
                   body)
 else:
-    print 'Error in mps_merge: No \'placeholder_treeList\' found in baseconfig.'
+    print('Error in mps_merge: No \'placeholder_treeList\' found in baseconfig.')
 
 if args.append is not None:
     with open(args.append) as snippet:

@@ -17,31 +17,26 @@
  *  new float version V.I. October 2012
  */
 
-
 #include "BCyl.h"
 #include <string>
-
 
 namespace magfieldparam {
   class TkBfield {
   public:
-
     // Deprecated ctor, nominal field value specified with a string, eg. "3_8T"
-    TkBfield (std::string T);  
+    TkBfield(std::string T);
 
     // Ctor
-    TkBfield (float fld=3.8);  
+    TkBfield(float fld = 3.8);
 
     /// B out in cartesian
-    void getBxyz(float const  * __restrict__ x, float * __restrict__ Bxyz) const; 
+    void getBxyz(float const* __restrict__ x, float* __restrict__ Bxyz) const;
     /// B out in cylindrical
-    void getBrfz(float const  * __restrict__ x, float * __restrict__ Brfz) const;
+    void getBrfz(float const* __restrict__ x, float* __restrict__ Brfz) const;
 
   private:
-
     BCycl<float> bcyl;
-
   };
-}
+}  // namespace magfieldparam
 
 #endif

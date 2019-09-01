@@ -1,7 +1,7 @@
 <use   name="root"/>
 <use   name="FWCore/FWLite"/>
 <use   name="DataFormats/FWLite"/>
-<use   name="FWCore/PythonParameterSet"/>
+<use   name="FWCore/ParameterSetReader"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="CommonTools/Utils"/>
 <use   name="PhysicsTools/FWLite"/>

@@ -25,13 +25,11 @@ class DDLElementRegistry;
  *  deal with them all as ElementaryMaterial elements (in the XML sense).
  *
  */
-class DDLElementaryMaterial final : public DDLMaterial
-{
- public:
+class DDLElementaryMaterial final : public DDLMaterial {
+public:
+  DDLElementaryMaterial(DDLElementRegistry* myreg);
 
-  DDLElementaryMaterial( DDLElementRegistry* myreg );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif

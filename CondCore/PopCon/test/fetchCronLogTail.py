@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os, sys, re
 import string
 import math
@@ -12,7 +13,7 @@ import time
 
 usage = 'usage: %s <auth_file> <cronlog_file> <number_of_lines>'% os.path.basename(sys.argv[0])
 if len(sys.argv)<4:
-   print usage
+   print(usage)
    sys.exit(4)
 else:
    argv = sys.argv
@@ -28,7 +29,7 @@ def readConnection(fileName):
   db=""
   account=""
   connection=""
-  while 1:
+  while True:
       line= f.readline()
       line=line.strip()
       if line =="":
@@ -50,7 +51,7 @@ def readConnection(fileName):
   return connection
          
 conn=readConnection(authfile)
-print conn
+print(conn)
 
 def readTail(fileName, numberOfLine):
    lines = std.vector(string)()
@@ -63,9 +64,9 @@ def readTail(fileName, numberOfLine):
 
 
 lines= readTail(logfile,numberoflines)
-print lines
+print(lines)
 crontime = time.ctime()
-print crontime
+print(crontime)
 
 orcl= cx_Oracle.connect(conn)
 curs=orcl.cursor()
@@ -84,11 +85,11 @@ curs=orcl.cursor()
 bindVars={'logtails':"LOGTAILS"}
 sql="""select count(*) as ntab from user_tables where table_name=:logtails"""
 curs.execute(sql,bindVars)
-print sql
+print(sql)
 row=curs.fetchone()
 while row:
   ntab=row[0]
-  print ntab
+  print(ntab)
   row=curs.fetchone()
 curs.close()
 
@@ -117,7 +118,7 @@ when not matched then
    insert (a.filename, a.crontime, a.tail) values
     (b.filename, b.crontime, b.tail)
 """
-print sql
+print(sql)
 curs.execute(sql)
 curs.close()
 orcl.commit()

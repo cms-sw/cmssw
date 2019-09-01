@@ -11,11 +11,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 namespace edmtest {
   class ThingSource : public edm::ProducerSourceBase {
   public:
-
     // The following is not yet used, but will be the primary
     // constructor when the parameter set system is available.
     //
@@ -23,7 +23,9 @@ namespace edmtest {
 
     ~ThingSource() override;
 
-    bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override {return true;}
+    bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override {
+      return true;
+    }
 
     void produce(edm::Event& e) override;
 
@@ -31,13 +33,14 @@ namespace edmtest {
 
     void beginLuminosityBlock(edm::LuminosityBlock& lb) override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     //called internally, not by the framework
     void endRun(edm::Run& r);
     void endLuminosityBlock(edm::LuminosityBlock& lb);
-    
+
     ThingAlgorithm alg_;
   };
-}
+}  // namespace edmtest
 #endif

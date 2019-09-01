@@ -4,24 +4,22 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSolver.h"
 
-// 
+//
 // A Variable Order Runge-Kutta Method for Initial Value Problems with ...
 // www.elegio.it/mc2/rk/doc/p201-cash-karp.pdf
-template <typename T, 
-	  template <typename,int> class StepWithPrec, 
-	  int N>
-class dso_internal RKAdaptiveSolver final : public RKSolver<T,N> {
+template <typename T, template <typename, int> class StepWithPrec, int N>
+class dso_internal RKAdaptiveSolver final : public RKSolver<T, N> {
 public:
+  typedef RKSolver<T, N> Base;
+  typedef typename Base::Scalar Scalar;
+  typedef typename Base::Vector Vector;
 
-    typedef RKSolver<T,N>                       Base;
-    typedef typename Base::Scalar               Scalar;
-    typedef typename Base::Vector               Vector;
-
-    Vector operator()( Scalar startPar, const Vector& startState,
-			       Scalar step, const RKDerivative<T,N>& deriv,
-			       const RKDistance<T,N>& dist,
-			       float eps) override;
-
+  Vector operator()(Scalar startPar,
+                    const Vector& startState,
+                    Scalar step,
+                    const RKDerivative<T, N>& deriv,
+                    const RKDistance<T, N>& dist,
+                    float eps) override;
 };
 
 #include "TrackPropagation/RungeKutta/src/RKAdaptiveSolver.icc"

@@ -8,27 +8,26 @@
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 
 class DDBHMAngular : public DDAlgorithm {
- public:
+public:
   //Constructor and Destructor
-  DDBHMAngular(); 
+  DDBHMAngular();
   ~DDBHMAngular() override;
-  
-  void initialize(const DDNumericArguments & nArgs,
-		  const DDVectorArguments & vArgs,
-		  const DDMapArguments & mArgs,
-		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs) override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
 
   void execute(DDCompactView& cpv) override;
 
 private:
+  int units;    //Number of copies
+  double rr;    //Radial position of the detectors
+  double dphi;  //the distance in phi between the detectors
 
-  int           units;        //Number of copies
-  double        rr;           //Radial position of the detectors
-  double        dphi;         //the distance in phi between the detectors
-
-  std::string   rotMat;       //Name of the rotation matrix
-  std::string   childName;    //Children name
+  std::string rotMat;     //Name of the rotation matrix
+  std::string childName;  //Children name
 };
 
 #endif

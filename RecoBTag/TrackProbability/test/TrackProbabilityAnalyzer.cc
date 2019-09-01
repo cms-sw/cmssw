@@ -2,7 +2,7 @@
 //
 // Package:    TrackProbabilityAnalyzer
 // Class:      TrackProbabilityAnalyzer
-// 
+//
 /**\class TrackProbabilityAnalyzer TrackProbabilityAnalyzer.cc RecoBTag/TrackProbabilityAnalyzer/src/TrackProbabilityAnalyzer.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 //
 //
-
 
 // system include files
 #include <memory>
@@ -55,70 +54,64 @@ using namespace reco;
 //
 
 class TrackProbabilityAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit TrackProbabilityAnalyzer(const edm::ParameterSet&);
-      ~TrackProbabilityAnalyzer() {}
+public:
+  explicit TrackProbabilityAnalyzer(const edm::ParameterSet&);
+  ~TrackProbabilityAnalyzer() {}
 
-      virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-   private:
-     string m_assoc;
-     string m_jets;
+private:
+  string m_assoc;
+  string m_jets;
 };
 
 //
 // constructors and destructor
 //
-TrackProbabilityAnalyzer::TrackProbabilityAnalyzer(const edm::ParameterSet& iConfig)
-{
-}
+TrackProbabilityAnalyzer::TrackProbabilityAnalyzer(const edm::ParameterSet& iConfig) {}
 
-void
-TrackProbabilityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  static int above =0;
-  static int tot =0;
+void TrackProbabilityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  static int above = 0;
+  static int tot = 0;
   using namespace edm;
   using namespace reco;
-//  using namespace eventsetup;
-/*  ESHandle<TrackProbabilityCalibration> calib;
+  //  using namespace eventsetup;
+  /*  ESHandle<TrackProbabilityCalibration> calib;
   iSetup.get<BTagTrackProbabilityRcd>().get(calib);
  
   const TrackProbabilityCalibration *  ca= calib.product();
   cout << "Bin for 0.35 " << ca->data[5].histogram.findBin(0.35) << endl;
  
   return; 
-  */Handle<JetTagCollection> jetsHandle;
+  */
+  Handle<JetTagCollection> jetsHandle;
   Handle<TrackProbabilityTagInfoCollection> jetsInfoHandle;
   iEvent.getByLabel("trackProbabilityJetTags", jetsHandle);
   iEvent.getByLabel("trackProbabilityJetTags", jetsInfoHandle);
-  const JetTagCollection & jets = *(jetsHandle.product());
-  const TrackProbabilityTagInfoCollection & info = *(jetsInfoHandle.product());
+  const JetTagCollection& jets = *(jetsHandle.product());
+  const TrackProbabilityTagInfoCollection& info = *(jetsInfoHandle.product());
 
   for (JetTagCollection::size_type i = 0; i < jets.size(); ++i) {
-   // cout << jets[i].first <<endl;
-  //  cout  << "Number of associated tracks " << jets[i].tracks().size() << endl;
-  //  const edm::RefVector<TrackCollection> & tracks=  jets[i].tracks();
+    // cout << jets[i].first <<endl;
+    //  cout  << "Number of associated tracks " << jets[i].tracks().size() << endl;
+    //  const edm::RefVector<TrackCollection> & tracks=  jets[i].tracks();
     //for (edm::RefVector<TrackCollection>::iterator j = tracks.begin(); j != tracks.end(); ++j) {
     //  cout << (*j)->pt() << endl;
-  //  }
-  }    
- 
-  for(TrackProbabilityTagInfoCollection::size_type i = 0 ; i < info.size() ; ++i  )
-  {
-       cout << i << endl;
-  //    cout << &(info[i]) << endl;
-    cout << info[i].discriminator(0,0.005) << " " << info[i].discriminator(1,0.005) << endl;
-    if(info[i].discriminator(0,0.005) > 90) above++;
+    //  }
+  }
+
+  for (TrackProbabilityTagInfoCollection::size_type i = 0; i < info.size(); ++i) {
+    cout << i << endl;
+    //    cout << &(info[i]) << endl;
+    cout << info[i].discriminator(0, 0.005) << " " << info[i].discriminator(1, 0.005) << endl;
+    if (info[i].discriminator(0, 0.005) > 90)
+      above++;
     tot++;
     cout << above << " " << tot << endl;
-    for(int j = 0 ; j < info[i].selectedTracks(0); j++)
-     {
-       cout << info[i].track(j,0).pt() << " " << info[i].probability(j,0) << endl; 
-     }
-    
- }
-
+    for (int j = 0; j < info[i].selectedTracks(0); j++) {
+      cout << info[i].track(j, 0).pt() << " " << info[i].probability(j, 0) << endl;
+    }
+  }
 }
 
 //define this as a plug-in

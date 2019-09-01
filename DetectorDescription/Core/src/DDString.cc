@@ -2,29 +2,19 @@
 
 #include <utility>
 
-#include "DetectorDescription/Core/interface/Store.h"
+DDString::DDString() : DDBase<DDName, std::unique_ptr<std::string>>() {}
 
-DDString::DDString() : DDBase<DDName,std::string*>() { }
+DDString::DDString(const DDName& name) : DDBase<DDName, std::unique_ptr<std::string>>() { create(name); }
 
-DDString::DDString(const DDName & name) : DDBase<DDName,std::string*>() 
-{
-  prep_ = StoreT::instance().create(name);
-}
+DDString::DDString(const DDName& name, std::unique_ptr<std::string> vals) { create(name, std::move(vals)); }
 
-DDString::DDString(const DDName & name,std::string* vals)
-{
-  prep_ = StoreT::instance().create(name,vals);
-}  
+std::ostream& operator<<(std::ostream& os, const DDString& cons) {
+  os << "DDString name=" << cons.name();
 
-std::ostream & operator<<(std::ostream & os, const DDString & cons)
-{
-  os << "DDString name=" << cons.name(); 
-  
-  if(cons.isDefined().second) {
+  if (cons.isDefined().second) {
     os << " val=" << cons.value();
-  }
-  else {
+  } else {
     os << " constant is not yet defined, only declared.";
-  }  
+  }
   return os;
 }

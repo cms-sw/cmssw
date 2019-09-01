@@ -1,3 +1,3 @@
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 
-pat::PATTauDiscriminator::PATTauDiscriminator() : PATTauDiscriminatorBase() {};
+pat::PATTauDiscriminator::PATTauDiscriminator() : PATTauDiscriminatorBase(){};

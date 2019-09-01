@@ -16,18 +16,16 @@
 #include <vector>
 
 class CSCRecoDigiParameters {
-
 public:
-  CSCRecoDigiParameters() { } 
-  ~CSCRecoDigiParameters() { }
+  CSCRecoDigiParameters() {}
+  ~CSCRecoDigiParameters() {}
 
-  std::vector<int> pUserParOffset; // where the fupars for a ch. type start in the fupars blob.
-  std::vector<int> pUserParSize; // size of the fupars.  if known, then both this and the above can go.
+  std::vector<int> pUserParOffset;  // where the fupars for a ch. type start in the fupars blob.
+  std::vector<int> pUserParSize;    // size of the fupars.  if known, then both this and the above can go.
   std::vector<int> pChamberType;
-  std::vector<float> pfupars;   // user parameters
+  std::vector<float> pfupars;  // user parameters
 
   COND_SERIALIZABLE;
 };
 
 #endif
-

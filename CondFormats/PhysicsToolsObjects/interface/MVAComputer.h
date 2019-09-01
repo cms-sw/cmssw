@@ -22,253 +22,256 @@
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
 
 namespace PhysicsTools {
-namespace Calibration {
+  namespace Calibration {
 
-// helper classes
+    // helper classes
 
-class BitSet {
+    class BitSet {
     public:
-	// help that poor ROOT to copy bitsets... (workaround)
-	BitSet &operator = (const BitSet &other)
-	{ store = other.store; bitsInLast = other.bitsInLast; return *this; }
+      // help that poor ROOT to copy bitsets... (workaround)
+      BitSet &operator=(const BitSet &other) {
+        store = other.store;
+        bitsInLast = other.bitsInLast;
+        return *this;
+      }
 
-	std::vector<unsigned char>	store;
-	unsigned int			bitsInLast;
+      std::vector<unsigned char> store;
+      unsigned int bitsInLast;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-class Matrix {
+    class Matrix {
     public:
-	std::vector<double>		elements;
-	unsigned int			rows;
-	unsigned int			columns;
+      std::vector<double> elements;
+      unsigned int rows;
+      unsigned int columns;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-// configuration base classes
+    // configuration base classes
 
-class VarProcessor {
+    class VarProcessor {
     public:
-	BitSet	inputVars;
+      BitSet inputVars;
 
-	virtual ~VarProcessor() {}
-	virtual std::string getInstanceName() const;
-        virtual std::unique_ptr<VarProcessor> clone() const;
+      virtual ~VarProcessor() {}
+      virtual std::string getInstanceName() const;
+      virtual std::unique_ptr<VarProcessor> clone() const;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-class Variable {
+    class Variable {
     public:
-	inline Variable() {}
-	inline Variable(const std::string &name) : name(name) {}
-	inline ~Variable() {}
+      inline Variable() {}
+      inline Variable(const std::string &name) : name(name) {}
+      inline ~Variable() {}
 
-	std::string			name;
+      std::string name;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-// variable processors
+    // variable processors
 
-class ProcOptional : public VarProcessor {
+    class ProcOptional : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-	std::vector<double>		neutralPos;
+      std::unique_ptr<VarProcessor> clone() const override;
+      std::vector<double> neutralPos;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-class ProcCount : public VarProcessor {
+    class ProcCount : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-  COND_SERIALIZABLE;
-};
+      std::unique_ptr<VarProcessor> clone() const override;
+      COND_SERIALIZABLE;
+    };
 
-class ProcClassed : public VarProcessor {
+    class ProcClassed : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-	unsigned int			nClasses;
+      std::unique_ptr<VarProcessor> clone() const override;
+      unsigned int nClasses;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-class ProcSplitter : public VarProcessor {
+    class ProcSplitter : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-	unsigned int			nFirst;
+      std::unique_ptr<VarProcessor> clone() const override;
+      unsigned int nFirst;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-class ProcForeach : public VarProcessor {
+    class ProcForeach : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-	unsigned int			nProcs;
+      std::unique_ptr<VarProcessor> clone() const override;
+      unsigned int nProcs;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-class ProcSort : public VarProcessor {
+    class ProcSort : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-	unsigned int			sortByIndex;
-	bool				descending;
+      std::unique_ptr<VarProcessor> clone() const override;
+      unsigned int sortByIndex;
+      bool descending;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-class ProcCategory : public VarProcessor {
+    class ProcCategory : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-	typedef std::vector<double> BinLimits;
+      std::unique_ptr<VarProcessor> clone() const override;
+      typedef std::vector<double> BinLimits;
 
-	std::vector<BinLimits>		variableBinLimits;
-	std::vector<int>		categoryMapping;
+      std::vector<BinLimits> variableBinLimits;
+      std::vector<int> categoryMapping;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-class ProcNormalize : public VarProcessor {
+    class ProcNormalize : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-	std::vector<HistogramF>		distr;
-	int				categoryIdx;
+      std::unique_ptr<VarProcessor> clone() const override;
+      std::vector<HistogramF> distr;
+      int categoryIdx;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-class ProcLikelihood : public VarProcessor {
+    class ProcLikelihood : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-	class SigBkg {
-	    public:
-		HistogramF		background;
-		HistogramF		signal;
-		bool			useSplines;
-	
-  COND_SERIALIZABLE;
-};
+      std::unique_ptr<VarProcessor> clone() const override;
+      class SigBkg {
+      public:
+        HistogramF background;
+        HistogramF signal;
+        bool useSplines;
 
-	std::vector<SigBkg>		pdfs;
-	std::vector<double>		bias;
-	int				categoryIdx;
-	bool				logOutput;
-	bool				individual;
-	bool				neverUndefined;
-	bool				keepEmpty;
+        COND_SERIALIZABLE;
+      };
 
-  COND_SERIALIZABLE;
-};
+      std::vector<SigBkg> pdfs;
+      std::vector<double> bias;
+      int categoryIdx;
+      bool logOutput;
+      bool individual;
+      bool neverUndefined;
+      bool keepEmpty;
 
-class ProcLinear : public VarProcessor {
+      COND_SERIALIZABLE;
+    };
+
+    class ProcLinear : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-	std::vector<double>		coeffs;
-	double				offset;
+      std::unique_ptr<VarProcessor> clone() const override;
+      std::vector<double> coeffs;
+      double offset;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-class ProcMultiply : public VarProcessor {
+    class ProcMultiply : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-	typedef std::vector<unsigned int>	Config;
+      std::unique_ptr<VarProcessor> clone() const override;
+      typedef std::vector<unsigned int> Config;
 
-	unsigned int			in;
-	std::vector<Config>		out;
+      unsigned int in;
+      std::vector<Config> out;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-class ProcMatrix : public VarProcessor {
+    class ProcMatrix : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-	Matrix				matrix;
+      std::unique_ptr<VarProcessor> clone() const override;
+      Matrix matrix;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-class ProcExternal : public VarProcessor {
+    class ProcExternal : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-	std::string getInstanceName() const override;
+      std::unique_ptr<VarProcessor> clone() const override;
+      std::string getInstanceName() const override;
 
-	std::string			method;
-	std::vector<unsigned char>	store;
+      std::string method;
+      std::vector<unsigned char> store;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-class ProcMLP : public VarProcessor {
+    class ProcMLP : public VarProcessor {
     public:
-        std::unique_ptr<VarProcessor> clone() const override;
-	typedef std::pair<double, std::vector<double> >	Neuron;
-	typedef std::pair<std::vector<Neuron>, bool>	Layer;
+      std::unique_ptr<VarProcessor> clone() const override;
+      typedef std::pair<double, std::vector<double> > Neuron;
+      typedef std::pair<std::vector<Neuron>, bool> Layer;
 
-	std::vector<Layer>		layers;
+      std::vector<Layer> layers;
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-// the discriminator computer
+    // the discriminator computer
 
-class MVAComputer {
+    class MVAComputer {
     public:
-	MVAComputer();
-	MVAComputer(const MVAComputer &orig);
-	virtual ~MVAComputer();
+      MVAComputer();
+      MVAComputer(const MVAComputer &orig);
+      virtual ~MVAComputer();
 
-	MVAComputer &operator = (const MVAComputer &orig);
+      MVAComputer &operator=(const MVAComputer &orig);
 
-	virtual std::vector<VarProcessor*> getProcessors() const;
-	void addProcessor(const VarProcessor *proc);
+      virtual std::vector<VarProcessor *> getProcessors() const;
+      void addProcessor(const VarProcessor *proc);
 
-	// cacheId stuff to detect changes
-	typedef unsigned int CacheId;
-	inline CacheId getCacheId() const { return cacheId; }
-	inline bool changed(CacheId old) const { return old != cacheId; }
+      // cacheId stuff to detect changes
+      typedef unsigned int CacheId;
+      inline CacheId getCacheId() const { return cacheId; }
+      inline bool changed(CacheId old) const { return old != cacheId; }
 
-	std::vector<Variable>		inputSet;
-	unsigned int			output;
+      std::vector<Variable> inputSet;
+      unsigned int output;
 
     private:
-	std::vector<VarProcessor*>	processors;
+      std::vector<VarProcessor *> processors;
 
-	CacheId				cacheId COND_TRANSIENT;	// transient
+      CacheId cacheId COND_TRANSIENT;  // transient
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-// a collection of computers identified by name
+    // a collection of computers identified by name
 
-class MVAComputerContainer {
+    class MVAComputerContainer {
     public:
-	typedef std::pair<std::string, MVAComputer> Entry;
+      typedef std::pair<std::string, MVAComputer> Entry;
 
-	MVAComputerContainer();
-	virtual ~MVAComputerContainer() {}
+      MVAComputerContainer();
+      virtual ~MVAComputerContainer() {}
 
-	MVAComputer &add(const std::string &label);
-	virtual const MVAComputer &find(const std::string &label) const;
-	virtual bool contains(const std::string &label) const;
+      MVAComputer &add(const std::string &label);
+      virtual const MVAComputer &find(const std::string &label) const;
+      virtual bool contains(const std::string &label) const;
 
-	// cacheId stuff to detect changes
-	typedef unsigned int CacheId;
-	inline CacheId getCacheId() const { return cacheId; }
-	inline bool changed(CacheId old) const { return old != cacheId; }
+      // cacheId stuff to detect changes
+      typedef unsigned int CacheId;
+      inline CacheId getCacheId() const { return cacheId; }
+      inline bool changed(CacheId old) const { return old != cacheId; }
 
     private:
-	std::vector<Entry>	entries;
+      std::vector<Entry> entries;
 
-	CacheId			cacheId COND_TRANSIENT;	// transient
+      CacheId cacheId COND_TRANSIENT;  // transient
 
-  COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
 
-} // namespace Calibration
-} // namespace PhysicsTools
+  }  // namespace Calibration
+}  // namespace PhysicsTools
 
-#endif // CondFormats_PhysicsToolsObjects_MVAComputer_h
+#endif  // CondFormats_PhysicsToolsObjects_MVAComputer_h

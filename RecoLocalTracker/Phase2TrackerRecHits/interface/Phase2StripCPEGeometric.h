@@ -7,16 +7,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 class Phase2StripCPEGeometric : public ClusterParameterEstimator<Phase2TrackerCluster1D> {
-
-  public:
-
-    Phase2StripCPEGeometric() {};
-    Phase2StripCPEGeometric(edm::ParameterSet & conf);
-    LocalValues localParameters(const Phase2TrackerCluster1D & cluster, const GeomDetUnit & det) const override;
-
+public:
+  Phase2StripCPEGeometric(){};
+  Phase2StripCPEGeometric(edm::ParameterSet& conf);
+  LocalValues localParameters(const Phase2TrackerCluster1D& cluster, const GeomDetUnit& det) const override;
 };
-
 
 #endif

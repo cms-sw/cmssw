@@ -4,8 +4,9 @@
 //
 // Package:     SiPixelCommon
 // Class  :     SiPixelHistogramId
-// 
-/**\class SiPixelHistogramId SiPixelHistogramId.h DQM/SiPixelCommon/interface/SiPixelHistogramId.h
+//
+/**\class SiPixelHistogramId SiPixelHistogramId.h
+ DQM/SiPixelCommon/interface/SiPixelHistogramId.h
 
  Description: Creates and returns DQM Histogram Id's
 
@@ -18,14 +19,11 @@
 //         Created:  Wed Feb 22 16:07:51 CET 2006
 //
 
-#include <string>
 #include <boost/cstdint.hpp>
+#include <string>
 
-class SiPixelHistogramId
-{
-
- public:
-
+class SiPixelHistogramId {
+public:
   /// Constructor
   SiPixelHistogramId();
   /// Constructor
@@ -33,17 +31,16 @@ class SiPixelHistogramId
   /// Destructor
   virtual ~SiPixelHistogramId();
   /// Set Histogram Id
-  std::string setHistoId( std::string variable,  uint32_t& rawId );
+  std::string setHistoId(std::string variable, uint32_t &rawId);
   /// Get data Collection
-  std::string getDataCollection( std::string histogramId );
+  std::string getDataCollection(std::string histogramId);
   /// Get Detector Raw Id
-  uint32_t getRawId( std::string histogramId );
+  uint32_t getRawId(std::string histogramId);
 
- private:
+private:
   std::string returnIdPart(std::string histoid, uint32_t whichpart);
   std::string dataCollection_;
   std::string separator_;
-
 };
 
 #endif

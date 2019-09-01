@@ -4,7 +4,7 @@
 //
 // Package:     FWLite
 // Class  :     BranchToClass
-// 
+//
 /**\class BranchToClass BranchToClass.h FWCore/FWLite/interface/BranchToClass.h
 
  Description: Given a TBranch it will return the TClass of the class type stored in the branch
@@ -26,8 +26,6 @@
 class TClass;
 class TBranch;
 
-TClass* branchToClass( const TBranch* iBranch);
-
-
+TClass* branchToClass(const TBranch* iBranch);
 
 #endif

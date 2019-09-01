@@ -28,14 +28,11 @@
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
-
 #include <string>
 #include <vector>
 
-namespace edm
-{
-  class TriggerResults : public HLTGlobalStatus, public DoNotRecordParents  {
-
+namespace edm {
+  class TriggerResults : public HLTGlobalStatus, public DoNotRecordParents {
     typedef std::vector<std::string> Strings;
 
   private:
@@ -43,20 +40,18 @@ namespace edm
     edm::ParameterSetID psetid_;
 
     /// Not used anymore
-    Strings             names_;
+    Strings names_;
 
   public:
-
     /// Trivial contructor
-    TriggerResults() : HLTGlobalStatus(), psetid_(), names_() { }
+    TriggerResults() : HLTGlobalStatus(), psetid_(), names_() {}
 
     /// Standard contructor
     TriggerResults(const HLTGlobalStatus& hlt, const edm::ParameterSetID& psetid)
-      : HLTGlobalStatus(hlt), psetid_(psetid), names_() { }
+        : HLTGlobalStatus(hlt), psetid_(psetid), names_() {}
 
     /// Not used anymore
-    TriggerResults(const HLTGlobalStatus& hlt, const Strings& names)
-      : HLTGlobalStatus(hlt), psetid_(), names_(names) { }
+    TriggerResults(const HLTGlobalStatus& hlt, const Strings& names) : HLTGlobalStatus(hlt), psetid_(), names_(names) {}
 
     /// Get stored parameter set id
     const ParameterSetID& parameterSetID() const { return psetid_; }
@@ -83,22 +78,20 @@ namespace edm
     const std::vector<std::string>& getTriggerNames() const { return names_; }
 
     /// Obsolete
-    const std::string& name(unsigned int i) const {return names_.at(i);}
+    const std::string& name(unsigned int i) const { return names_.at(i); }
 
     /// Obsolete
-    unsigned int find (const std::string& name) const {
+    unsigned int find(const std::string& name) const {
       const unsigned int n(size());
-      for (unsigned int i = 0; i != n; ++i) if (names_[i] == name) return i;
+      for (unsigned int i = 0; i != n; ++i)
+        if (names_[i] == name)
+          return i;
       return n;
     }
   };
 
   // Free swap function
-  inline
-  void
-  swap(TriggerResults& lhs, TriggerResults& rhs) {
-    lhs.swap(rhs);
-  }
-}
+  inline void swap(TriggerResults& lhs, TriggerResults& rhs) { lhs.swap(rhs); }
+}  // namespace edm
 
 #endif

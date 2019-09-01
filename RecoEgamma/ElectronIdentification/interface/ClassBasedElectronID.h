@@ -4,9 +4,7 @@
 #include "RecoEgamma/ElectronIdentification/interface/ElectronIDAlgo.h"
 
 class ClassBasedElectronID : public ElectronIDAlgo {
-
 public:
-
   ClassBasedElectronID(){};
 
   ~ClassBasedElectronID() override{};
@@ -14,8 +12,7 @@ public:
   void setup(const edm::ParameterSet& conf) override;
   double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   std::string quality_;
 
   /*  std::vector<int> useEoverPIn_; */
@@ -30,10 +27,10 @@ public:
   /*   std::vector<int> useSigmaEtaEta_; */
   /*   std::vector<int> useSigmaPhiPhi_; */
   /*   std::vector<int> acceptCracks_; */
-  
+
   edm::ParameterSet cuts_;
 
   //int variables_;
 };
 
-#endif // ClassBasedElectronID_H
+#endif  // ClassBasedElectronID_H

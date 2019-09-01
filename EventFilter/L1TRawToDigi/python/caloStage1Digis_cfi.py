@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 caloStage1Digis = cms.EDProducer(
     "L1TRawToDigi",
+    InputLabel = cms.InputTag("rawDataCollector"),
     Setup = cms.string("stage1::CaloSetup"),
     FedIds = cms.vint32(1352),
     # Uncomment the following for 74x legacy MC

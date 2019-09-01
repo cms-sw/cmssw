@@ -3,10 +3,3 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
-
-namespace SimDataFormats_EcalTestBeam {
-  struct dictionary {
-    PEcalTBInfo                 theInfo;
-    edm::Wrapper<PEcalTBInfo>   theEcalTBInfo;
-  };
-}

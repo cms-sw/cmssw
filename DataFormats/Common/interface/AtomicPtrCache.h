@@ -4,7 +4,7 @@
 //
 // Package:     DataFormats/Common
 // Class  :     AtomicPtrCache
-// 
+//
 /**\class edm::AtomicPtrCache AtomicPtrCache.h "DataFormats/Common/interface/AtomicPtrCache.h"
 
  Description: A thread safe cache managed by a pointer
@@ -35,24 +35,22 @@
 
 namespace edm {
   template <typename T>
-  class AtomicPtrCache
-  {
-    
+  class AtomicPtrCache {
   public:
     AtomicPtrCache();
-    
+
     ///Takes exclusive ownership of the value
     explicit AtomicPtrCache(T*);
-    
+
     ///Uses T's copy constructor to make a copy
     AtomicPtrCache(const AtomicPtrCache<T>&);
     AtomicPtrCache& operator=(const AtomicPtrCache<T>&);
 
     ~AtomicPtrCache();
-    
+
     // ---------- const member functions ---------------------
-    T const* operator->() const { return load();}
-    T const& operator*() const {return *load(); }
+    T const* operator->() const { return load(); }
+    T const& operator*() const { return *load(); }
     T const* load() const;
 
     bool isSet() const;
@@ -60,47 +58,44 @@ namespace edm {
     /// Will delete value held by iNewValue if not the first time set
     bool set(std::unique_ptr<T> iNewValue) const;
     // ---------- static member functions --------------------
-    
+
     // ---------- member functions ---------------------------
-    T* operator->() { return load();}
-    T& operator*() {return *load();}
-    
+    T* operator->() { return load(); }
+    T& operator*() { return *load(); }
+
     T* load();
-    
+
     ///unsets the value and deletes the memory
     void reset();
 
     T* release();
-    
+
   private:
-    
     // ---------- member data --------------------------------
     mutable std::atomic<T*> m_data;
   };
-  template<typename T>
-  inline AtomicPtrCache<T>::AtomicPtrCache():m_data{nullptr} {}
-  
-  template<typename T>
-  inline AtomicPtrCache<T>::AtomicPtrCache(T* iValue): m_data{iValue} {}
-  
-  template<typename T>
-  inline AtomicPtrCache<T>::AtomicPtrCache(const AtomicPtrCache<T>& iOther):
-  m_data{nullptr}
-  {
+  template <typename T>
+  inline AtomicPtrCache<T>::AtomicPtrCache() : m_data{nullptr} {}
+
+  template <typename T>
+  inline AtomicPtrCache<T>::AtomicPtrCache(T* iValue) : m_data{iValue} {}
+
+  template <typename T>
+  inline AtomicPtrCache<T>::AtomicPtrCache(const AtomicPtrCache<T>& iOther) : m_data{nullptr} {
     auto ptr = iOther.m_data.load(std::memory_order_acquire);
-    if(ptr != nullptr) {
-      m_data.store( new T{*ptr}, std::memory_order_release);
+    if (ptr != nullptr) {
+      m_data.store(new T{*ptr}, std::memory_order_release);
     }
   }
-  template<typename T>
+  template <typename T>
   inline AtomicPtrCache<T>& AtomicPtrCache<T>::operator=(const AtomicPtrCache<T>& iOther) {
     auto ptr = iOther.m_data.load(std::memory_order_acquire);
-    if(ptr != nullptr) {
-      auto ourPtr =m_data.load(std::memory_order_acquire);
-      if( ourPtr !=nullptr) {
+    if (ptr != nullptr) {
+      auto ourPtr = m_data.load(std::memory_order_acquire);
+      if (ourPtr != nullptr) {
         *ourPtr = *ptr;
       } else {
-        m_data.store( new T{*ptr}, std::memory_order_release);
+        m_data.store(new T{*ptr}, std::memory_order_release);
       }
     } else {
       delete m_data.exchange(nullptr, std::memory_order_acq_rel);
@@ -108,38 +103,45 @@ namespace edm {
     return *this;
   }
 
-  
-  template<typename T>
-  inline AtomicPtrCache<T>::~AtomicPtrCache(){
+  template <typename T>
+  inline AtomicPtrCache<T>::~AtomicPtrCache() {
     delete m_data.load(std::memory_order_acquire);
   }
-  
-  template<typename T>
-  inline T* AtomicPtrCache<T>::load(){ return m_data.load(std::memory_order_acquire);}
 
-  template<typename T>
-  inline T const* AtomicPtrCache<T>::load() const{ return m_data.load(std::memory_order_acquire);}
-  
-  template<typename T>
-  inline bool AtomicPtrCache<T>::isSet() const { return nullptr!=m_data.load(std::memory_order_acquire);}
+  template <typename T>
+  inline T* AtomicPtrCache<T>::load() {
+    return m_data.load(std::memory_order_acquire);
+  }
 
-  template<typename T>
+  template <typename T>
+  inline T const* AtomicPtrCache<T>::load() const {
+    return m_data.load(std::memory_order_acquire);
+  }
+
+  template <typename T>
+  inline bool AtomicPtrCache<T>::isSet() const {
+    return nullptr != m_data.load(std::memory_order_acquire);
+  }
+
+  template <typename T>
   inline bool AtomicPtrCache<T>::set(std::unique_ptr<T> iNewValue) const {
     bool retValue;
     T* expected = nullptr;
-    if( (retValue = m_data.compare_exchange_strong(expected,iNewValue.get(), std::memory_order_acq_rel)) ) {
+    if ((retValue = m_data.compare_exchange_strong(expected, iNewValue.get(), std::memory_order_acq_rel))) {
       iNewValue.release();
     }
     return retValue;
   }
 
-  template<typename T>
-  inline void AtomicPtrCache<T>::reset() { delete m_data.exchange(nullptr,std::memory_order_acq_rel);}
+  template <typename T>
+  inline void AtomicPtrCache<T>::reset() {
+    delete m_data.exchange(nullptr, std::memory_order_acq_rel);
+  }
 
-  template<typename T>
+  template <typename T>
   inline T* AtomicPtrCache<T>::release() {
     T* tmp = m_data.exchange(nullptr);
     return tmp;
   }
-}
+}  // namespace edm
 #endif

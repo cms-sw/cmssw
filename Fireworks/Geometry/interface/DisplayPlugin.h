@@ -4,7 +4,7 @@
 //
 // Package:     Geometry
 // Class  :     DisplayPlugin
-// 
+//
 /**\class DisplayPlugin DisplayPlugin.h Fireworks/Geometry/interface/DisplayPlugin.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Mar 18 04:08:58 CDT 2010
 //
 
@@ -23,13 +23,13 @@
 // user include files
 
 // forward declarations
-namespace edm { class EventSetup; }
+namespace edm {
+  class EventSetup;
+}
 
 namespace fireworks {
   namespace geometry {
-    class DisplayPlugin
-    {
-
+    class DisplayPlugin {
     public:
       DisplayPlugin();
       virtual ~DisplayPlugin();
@@ -42,14 +42,13 @@ namespace fireworks {
       virtual void run(const edm::EventSetup&) = 0;
 
     private:
-      DisplayPlugin(const DisplayPlugin&) = delete; // stop default
+      DisplayPlugin(const DisplayPlugin&) = delete;  // stop default
 
-      const DisplayPlugin& operator=(const DisplayPlugin&) = delete; // stop default
+      const DisplayPlugin& operator=(const DisplayPlugin&) = delete;  // stop default
 
       // ---------- member data --------------------------------
-
     };
-  }
-}
+  }  // namespace geometry
+}  // namespace fireworks
 
 #endif

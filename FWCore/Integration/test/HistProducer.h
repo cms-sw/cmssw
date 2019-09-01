@@ -6,12 +6,11 @@
 
 namespace edmtest {
   //struct ThingWithHist {
-//	TH1F hist_;
- // };
+  //	TH1F hist_;
+  // };
 
   class HistProducer : public edm::EDProducer {
   public:
-
     explicit HistProducer(edm::ParameterSet const& ps);
 
     virtual ~HistProducer();
@@ -20,5 +19,5 @@ namespace edmtest {
 
   private:
   };
-}
+}  // namespace edmtest
 #endif

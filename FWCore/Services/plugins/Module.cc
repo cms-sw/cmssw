@@ -5,7 +5,7 @@
 using edm::service::JobReportService;
 using edm::service::SiteLocalConfigService;
 
-typedef edm::serviceregistry::ParameterSetMaker<edm::SiteLocalConfig,SiteLocalConfigService> SiteLocalConfigMaker;
-DEFINE_FWK_SERVICE_MAKER(SiteLocalConfigService,SiteLocalConfigMaker);
-typedef edm::serviceregistry::AllArgsMaker<edm::JobReport,JobReportService> JobReportMaker;
+typedef edm::serviceregistry::ParameterSetMaker<edm::SiteLocalConfig, SiteLocalConfigService> SiteLocalConfigMaker;
+DEFINE_FWK_SERVICE_MAKER(SiteLocalConfigService, SiteLocalConfigMaker);
+typedef edm::serviceregistry::AllArgsMaker<edm::JobReport, JobReportService> JobReportMaker;
 DEFINE_FWK_SERVICE_MAKER(JobReportService, JobReportMaker);

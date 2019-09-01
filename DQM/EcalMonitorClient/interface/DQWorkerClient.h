@@ -7,24 +7,20 @@
 
 class DetId;
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class StatusManager;
 
   class DQWorkerClient : public DQWorker {
   public:
-    enum ProcessType {
-      kLumi,
-      kJob,
-      nProcessType
-    };
+    enum ProcessType { kLumi, kJob, nProcessType };
 
     DQWorkerClient();
-    virtual ~DQWorkerClient() {}
+    ~DQWorkerClient() override {}
 
     static void fillDescriptions(edm::ParameterSetDescription&);
 
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void resetPerLumi();
 
     void bookMEs(DQMStore::IBooker&) override;
     void releaseMEs() override;
@@ -38,25 +34,20 @@ namespace ecaldqm
 
     void setStatusManager(StatusManager const& _manager) { statusManager_ = &_manager; }
 
-    enum Quality {
-      kBad = 0,
-      kGood = 1,
-      kUnknown = 2,
-      kMBad = 3,
-      kMGood = 4,
-      kMUnknown = 5
-    };
+    enum Quality { kBad = 0, kGood = 1, kUnknown = 2, kMBad = 3, kMGood = 4, kMUnknown = 5 };
 
   protected:
     void setME(edm::ParameterSet const& _ps) final;
     void setSource(edm::ParameterSet const&) override;
 
-    bool using_(std::string const& _name, ProcessType _type = kJob) const
-    {
+    bool using_(std::string const& _name, ProcessType _type = kJob) const {
       MESetCollection::const_iterator itr(sources_.find(_name));
-      if(itr == sources_.end()) return false;
-      if(_type == kJob) return true;
-      else return itr->second->getLumiFlag();
+      if (itr == sources_.end())
+        return false;
+      if (_type == kJob)
+        return true;
+      else
+        return itr->second->getLumiFlag();
     }
 
     void towerAverage_(MESet&, MESet const&, float);
@@ -68,5 +59,5 @@ namespace ecaldqm
 
     StatusManager const* statusManager_;
   };
-}
+}  // namespace ecaldqm
 #endif

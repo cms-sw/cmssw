@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     HcalValidationCorrsRcd
-// 
+//
 /**\class HcalValidationCorrsRcd HcalValidationCorrsRcd.h CondFormats/DataRecord/interface/HcalValidationCorrsRcd.h
 
  Description: <one line class summary>
@@ -22,6 +22,8 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HcalValidationCorrsRcd : public edm::eventsetup::DependentRecordImplementation<HcalValidationCorrsRcd, boost::mpl::vector<HcalRecNumberingRecord,IdealGeometryRecord> > {};
+class HcalValidationCorrsRcd : public edm::eventsetup::DependentRecordImplementation<
+                                   HcalValidationCorrsRcd,
+                                   boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 
 #endif

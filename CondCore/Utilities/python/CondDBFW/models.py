@@ -8,6 +8,8 @@ Note: some things done in methods written in classes rely on the querying module
       so these will not work in a normal context outside the framework.
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 import json
 import datetime
 
@@ -21,12 +23,12 @@ except ImportError:
     print("You must be working inside a CMSSW environment.  Try running 'cmsenv'.")
     exit()
     
-import data_sources, data_formats
+from . import data_sources, data_formats
 import urllib, urllib2, base64
 from copy import deepcopy
 
 # get utility functions
-from utils import to_timestamp, to_datetime, friendly_since
+from .utils import to_timestamp, to_datetime, friendly_since
 
 def session_independent_object(object, schema=None):
     # code original taken from write method in querying
@@ -48,7 +50,7 @@ def session_independent_object(object, schema=None):
     return new_object
 
 def session_independent(objects):
-    if type(objects) == list:
+    if isinstance(objects, list):
         return map(session_independent_object, objects)
     else:
         # assume objects is a single object (not a list)
@@ -151,9 +153,9 @@ class RegExp(object):
 
 def apply_filter(orm_query, orm_class, attribute, value):
     filter_attribute = getattr(orm_class, attribute)
-    if type(value) == list:
+    if isinstance(value, list):
         orm_query = orm_query.filter(filter_attribute.in_(value))
-    elif type(value) == data_sources.json_list:
+    elif isinstance(value, data_sources.json_list):
         orm_query = orm_query.filter(filter_attribute.in_(value.data()))
     elif type(value) in [Range, Radius]:
 
@@ -161,7 +163,7 @@ def apply_filter(orm_query, orm_class, attribute, value):
         plus = value.get_end()
         orm_query = orm_query.filter(and_(filter_attribute >= minus, filter_attribute <= plus))
 
-    elif type(value) == RegExp:
+    elif isinstance(value, RegExp):
 
         # Relies on being a SingletonThreadPool
 
@@ -834,7 +836,7 @@ def generate(map_blobs=False, class_name=None):
                 sqlite_iovs_sinces.append(sqlite_iovs[i].since)
 
 
-            print sqlite_iovs_sinces
+            print(sqlite_iovs_sinces)
 
             new_iovs_list = imported_iovs + sqlite_iovs
             new_iovs_list = sorted(new_iovs_list, key=lambda iov : iov.since)

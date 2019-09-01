@@ -2,9 +2,8 @@
 #include "Guid.h"
 
 namespace edm {
-  std::string
-  createGlobalIdentifier() {
+  std::string createGlobalIdentifier() {
     Guid guid;
     return guid.toString();
   }
-}
+}  // namespace edm

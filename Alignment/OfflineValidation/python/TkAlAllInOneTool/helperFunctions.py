@@ -1,8 +1,12 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
 import os
 import re
 import ROOT
 import sys
-from TkAlExceptions import AllInOneError
+from .TkAlExceptions import AllInOneError
+import six
 
 ####################--- Helpers ---############################
 def replaceByMap(target, the_map):
@@ -23,7 +27,7 @@ def replaceByMap(target, the_map):
                     result = result.replace(".oO["+key+"]Oo.",the_map[key])
                 except TypeError:   #try a dict
                     try:
-                        for keykey, value in the_map[key].iteritems():
+                        for keykey, value in six.iteritems(the_map[key]):
                            result = result.replace(".oO[" + key + "['" + keykey + "']]Oo.", value)
                            result = result.replace(".oO[" + key + '["' + keykey + '"]]Oo.', value)
                     except AttributeError:   #try a list
@@ -152,12 +156,12 @@ def cache(function):
     cache = {}
     def newfunction(*args, **kwargs):
         try:
-            return cache[args, tuple(sorted(kwargs.iteritems()))]
+            return cache[args, tuple(sorted(six.iteritems(kwargs)))]
         except TypeError:
-            print args, tuple(sorted(kwargs.iteritems()))
+            print(args, tuple(sorted(six.iteritems(kwargs))))
             raise
         except KeyError:
-            cache[args, tuple(sorted(kwargs.iteritems()))] = function(*args, **kwargs)
+            cache[args, tuple(sorted(six.iteritems(kwargs)))] = function(*args, **kwargs)
             return newfunction(*args, **kwargs)
     newfunction.__name__ = function.__name__
     return newfunction
@@ -193,6 +197,7 @@ def cppboolstring(string, name):
     """
     return pythonboolstring(string, name).lower()
 
+conddbcode = None
 def conddb(*args):
     """
     Wrapper for conddb, so that you can run
@@ -202,29 +207,36 @@ def conddb(*args):
     getcommandoutput2(conddb ...) doesn't work, it imports
     the wrong sqlalchemy in CondCore/Utilities/python/conddblib.py
     """
-    from tempfile import NamedTemporaryFile
+    global conddbcode
+    from tempfile import mkdtemp, NamedTemporaryFile
 
-    with open(getCommandOutput2("which conddb").strip()) as f:
-        conddb = f.read()
+    if conddbcode is None:
+        conddbfile = getCommandOutput2("which conddb").strip()
+        tmpdir = mkdtemp()
+        getCommandOutput2("2to3 -f print -o " + tmpdir + " -n -w " + conddbfile)
+
+        with open(os.path.join(tmpdir, "conddb")) as f:
+            conddb = f.read()
+
+        conddbcode = conddb.replace("sys.exit", "sysexit")
 
     def sysexit(number):
         if number != 0:
             raise AllInOneError("conddb exited with status {}".format(number))
     namespace = {"sysexit": sysexit, "conddboutput": ""}
 
-    conddb = conddb.replace("sys.exit", "sysexit")
-
     bkpargv = sys.argv
     sys.argv[1:] = args
     bkpstdout = sys.stdout
-    with NamedTemporaryFile(bufsize=0) as sys.stdout:
-        exec conddb in namespace
-        namespace["main"]()
-        with open(sys.stdout.name) as f:
-            result = f.read()
-
-    sys.argv[:] = bkpargv
-    sys.stdout = bkpstdout
+    try:
+        with NamedTemporaryFile(bufsize=0) as sys.stdout:
+            exec(conddbcode, namespace)
+            namespace["main"]()
+            with open(sys.stdout.name) as f:
+                result = f.read()
+    finally:
+        sys.argv[:] = bkpargv
+        sys.stdout = bkpstdout
 
     return result
 

@@ -19,8 +19,7 @@
 //
 
 // user include files
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EventSetupKnownRecordsSupplier.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 
 // system include files
 
@@ -30,27 +29,26 @@
 #include <string>
 #include <vector>
 
-
 // forward declarations
 namespace edm {
-   class ActivityRegistry;
-   class EventSetupRecordIntervalFinder;
-   class IOVSyncValue;
-   class ParameterSet;
+  class ActivityRegistry;
+  class EventSetupRecordIntervalFinder;
+  class IOVSyncValue;
+  class ParameterSet;
 
-   namespace eventsetup {
-      struct ComponentDescription;
-      class DataKey;
-      class DataProxyProvider;
-      class EventSetupRecord;
-      class EventSetupRecordKey;
-      class EventSetupRecordProvider;
-      class EventSetupsController;
-      class ParameterSetIDHolder;
+  namespace eventsetup {
+    struct ComponentDescription;
+    class DataKey;
+    class DataProxyProvider;
+    class EventSetupRecordImpl;
+    class EventSetupRecordKey;
+    class EventSetupRecordProvider;
+    class EventSetupsController;
+    class ParameterSetIDHolder;
+    class ESRecordsToProxyIndices;
 
-class EventSetupProvider {
-
-   public:
+    class EventSetupProvider {
+    public:
       typedef std::string RecordName;
       typedef std::string DataType;
       typedef std::string DataLabel;
@@ -58,22 +56,25 @@ class EventSetupProvider {
       typedef std::multimap<RecordName, DataKeyInfo> RecordToDataMap;
       typedef std::map<ComponentDescription, RecordToDataMap> PreferredProviderInfo;
 
-      EventSetupProvider(ActivityRegistry*, unsigned subProcessIndex = 0U, PreferredProviderInfo const* iInfo = nullptr);
+      EventSetupProvider(ActivityRegistry*,
+                         unsigned subProcessIndex = 0U,
+                         PreferredProviderInfo const* iInfo = nullptr);
       virtual ~EventSetupProvider();
 
       // ---------- const member functions ---------------------
       std::set<ComponentDescription> proxyProviderDescriptions() const;
-      bool isWithinValidityInterval(IOVSyncValue const& ) const;
-  
+      bool isWithinValidityInterval(IOVSyncValue const&) const;
+
+      ESRecordsToProxyIndices recordsToProxyIndices() const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      EventSetup const& eventSetupForInstance(IOVSyncValue const&);
+      EventSetupImpl const& eventSetupForInstance(IOVSyncValue const&);
 
-      EventSetup const& eventSetup() const {return eventSetup_;}
+      EventSetupImpl const& eventSetup() const { return eventSetup_; }
 
       //called by specializations of EventSetupRecordProviders
-      void addRecordToEventSetup(EventSetupRecord& iRecord);
+      void addRecordToEventSetup(EventSetupRecordImpl& iRecord);
 
       void add(std::shared_ptr<DataProxyProvider>);
       void replaceExisting(std::shared_ptr<DataProxyProvider>);
@@ -87,14 +88,15 @@ class EventSetupProvider {
       ///Used when testing that all code properly updates on IOV changes of all Records
       void forceCacheClear();
 
-      void checkESProducerSharing(EventSetupProvider & precedingESProvider,
-                                  std::set<ParameterSetIDHolder>& sharingCheckDone,
-                                  std::map<EventSetupRecordKey, std::vector<ComponentDescription const*> >& referencedESProducers,
-                                  EventSetupsController & esController);
+      void checkESProducerSharing(
+          EventSetupProvider& precedingESProvider,
+          std::set<ParameterSetIDHolder>& sharingCheckDone,
+          std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers,
+          EventSetupsController& esController);
 
-      bool doRecordsMatch(EventSetupProvider & precedingESProvider,
+      bool doRecordsMatch(EventSetupProvider& precedingESProvider,
                           EventSetupRecordKey const& eventSetupRecordKey,
-                          std::map<EventSetupRecordKey, bool> & allComponentsMatch,
+                          std::map<EventSetupRecordKey, bool>& allComponentsMatch,
                           EventSetupsController const& esController);
 
       void fillReferencedDataKeys(EventSetupRecordKey const& eventSetupRecordKey);
@@ -107,44 +109,48 @@ class EventSetupProvider {
 
       static void logInfoWhenSharing(ParameterSet const& iConfiguration);
 
-   protected:
+      /// Intended for use only in tests
+      void addRecord(const EventSetupRecordKey& iKey);
 
-      template <typename T>
-         void insert(std::unique_ptr<T> iRecordProvider) {
-            std::unique_ptr<EventSetupRecordProvider> temp(iRecordProvider.release());
-            insert(eventsetup::heterocontainer::makeKey<
-                    typename T::RecordType,
-                       eventsetup::EventSetupRecordKey>(),
-                    std::move(temp));
-         }
+    protected:
+      void insert(std::unique_ptr<EventSetupRecordProvider> iRecordProvider);
 
-   private:
-      EventSetupProvider(EventSetupProvider const&) = delete; // stop default
+    private:
+      EventSetupProvider(EventSetupProvider const&) = delete;  // stop default
 
-      EventSetupProvider const& operator=(EventSetupProvider const&) = delete; // stop default
+      EventSetupProvider const& operator=(EventSetupProvider const&) = delete;  // stop default
 
+      std::shared_ptr<EventSetupRecordProvider>& recordProvider(const EventSetupRecordKey& iKey);
+      EventSetupRecordProvider* tryToGetRecordProvider(const EventSetupRecordKey& iKey);
       void insert(EventSetupRecordKey const&, std::unique_ptr<EventSetupRecordProvider>);
 
+      void determinePreferred();
+
       // ---------- member data --------------------------------
-      EventSetup eventSetup_;
-      typedef std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider> > Providers;
-      Providers providers_;
-      std::unique_ptr<EventSetupKnownRecordsSupplier> knownRecordsSupplier_;
+      EventSetupImpl eventSetup_;
+
+      using RecordKeys = std::vector<EventSetupRecordKey>;
+      RecordKeys recordKeys_;
+
+      using RecordProviders = std::vector<std::shared_ptr<EventSetupRecordProvider>>;
+      RecordProviders recordProviders_;
+
       bool mustFinishConfiguration_;
       unsigned subProcessIndex_;
 
       // The following are all used only during initialization and then cleared.
 
       std::unique_ptr<PreferredProviderInfo> preferredProviderInfo_;
-      std::unique_ptr<std::vector<std::shared_ptr<EventSetupRecordIntervalFinder> > > finders_;
-      std::unique_ptr<std::vector<std::shared_ptr<DataProxyProvider> > > dataProviders_;
-      std::unique_ptr<std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription const*> > > referencedDataKeys_;
-      std::unique_ptr<std::map<EventSetupRecordKey, std::vector<std::shared_ptr<EventSetupRecordIntervalFinder> > > > recordToFinders_;
-      std::unique_ptr<std::map<ParameterSetIDHolder, std::set<EventSetupRecordKey> > > psetIDToRecordKey_;
-      std::unique_ptr<std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription> > > recordToPreferred_;
-      std::unique_ptr<std::set<EventSetupRecordKey> > recordsWithALooperProxy_;
-};
+      std::unique_ptr<std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>>> finders_;
+      std::unique_ptr<std::vector<std::shared_ptr<DataProxyProvider>>> dataProviders_;
+      std::unique_ptr<std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription const*>>> referencedDataKeys_;
+      std::unique_ptr<std::map<EventSetupRecordKey, std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>>>>
+          recordToFinders_;
+      std::unique_ptr<std::map<ParameterSetIDHolder, std::set<EventSetupRecordKey>>> psetIDToRecordKey_;
+      std::unique_ptr<std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription>>> recordToPreferred_;
+      std::unique_ptr<std::set<EventSetupRecordKey>> recordsWithALooperProxy_;
+    };
 
-   }
-}
+  }  // namespace eventsetup
+}  // namespace edm
 #endif

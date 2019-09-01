@@ -12,11 +12,11 @@ class HLTConfigProvider;
 namespace edm {
   class ParameterSet;
   class TriggerResults;
-}
+}  // namespace edm
 namespace trigger {
   class TriggerEvent;
   class TriggerObject;
-}
+}  // namespace trigger
 struct HLTTauDQMOfflineObjects;
 
 class HLTTauDQMPath {
@@ -32,10 +32,10 @@ public:
 
   struct Object {
     const trigger::TriggerObject& object;
-    const int id; // from TriggerTypeDefs.h
+    const int id;  // from TriggerTypeDefs.h
   };
 
-  HLTTauDQMPath(std::string  pathName, std::string  hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP);
+  HLTTauDQMPath(std::string pathName, std::string hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP);
   ~HLTTauDQMPath();
 
   bool isValid() const { return isValid_; }
@@ -52,19 +52,44 @@ public:
   size_t filtersSize() const { return filterIndices_.size(); }
   const std::string& getFilterName(size_t i) const { return std::get<kName>(filterIndices_[i]); }
   const std::string& getFilterType(size_t i) const { return std::get<kType>(filterIndices_[i]); }
-  int getFilterNTaus(size_t i) const { if(i < filterTauN_.size()) return filterTauN_[i]; else return 0;}
-  int getFilterNElectrons(size_t i) const {if(i < filterElectronN_.size()) return filterElectronN_[i]; else return 0;}
-  int getFilterNMuons(size_t i) const {if(i < filterMuonN_.size()) return filterMuonN_[i]; else return 0;}
-  int getFilterMET(size_t i) const {if(i < filterMET_.size()) return filterMET_[i]; else return 0;}
-  int getFilterLevel(size_t i) const {if(i < filterLevel_.size()) return filterLevel_[i]; else return 0;}
+  int getFilterNTaus(size_t i) const {
+    if (i < filterTauN_.size())
+      return filterTauN_[i];
+    else
+      return 0;
+  }
+  int getFilterNElectrons(size_t i) const {
+    if (i < filterElectronN_.size())
+      return filterElectronN_[i];
+    else
+      return 0;
+  }
+  int getFilterNMuons(size_t i) const {
+    if (i < filterMuonN_.size())
+      return filterMuonN_[i];
+    else
+      return 0;
+  }
+  int getFilterMET(size_t i) const {
+    if (i < filterMET_.size())
+      return filterMET_[i];
+    else
+      return 0;
+  }
+  int getFilterLevel(size_t i) const {
+    if (i < filterLevel_.size())
+      return filterLevel_[i];
+    else
+      return 0;
+  }
 
   bool isFirstFilterL1Seed() const { return isFirstL1Seed_; }
   const std::string& getLastFilterName() const { return std::get<kName>(filterIndices_.back()); }
 
   bool hasL2Taus() const { return lastL2TauFilterIndex_ != kInvalidIndex; }
   bool hasL3Taus() const { return lastL3TauFilterIndex_ != kInvalidIndex; }
-  bool hasL2Electrons() const { return lastL2ElectronFilterIndex_ != kInvalidIndex; }  
-  bool hasL3Electrons() const { return lastL3ElectronFilterIndex_ != kInvalidIndex; }  
+  bool hasL2Electrons() const { return lastL2ElectronFilterIndex_ != kInvalidIndex; }
+  bool hasL3Electrons() const { return lastL3ElectronFilterIndex_ != kInvalidIndex; }
   bool hasL2Muons() const { return lastL2MuonFilterIndex_ != kInvalidIndex; }
   bool hasL3Muons() const { return lastL3MuonFilterIndex_ != kInvalidIndex; }
   bool hasL2CaloMET() const { return lastL2METFilterIndex_ != kInvalidIndex; }
@@ -95,7 +120,12 @@ public:
   void getFilterObjects(const trigger::TriggerEvent& triggerEvent, size_t i, std::vector<Object>& retval) const;
 
   // i = filter index
-  bool offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const HLTTauDQMOfflineObjects& offlineObjects, double dR, std::vector<Object>& matchedTriggerObjects, HLTTauDQMOfflineObjects& matchedOfflineObjects) const;
+  bool offlineMatching(size_t i,
+                       const std::vector<Object>& triggerObjects,
+                       const HLTTauDQMOfflineObjects& offlineObjects,
+                       double dR,
+                       std::vector<Object>& matchedTriggerObjects,
+                       HLTTauDQMOfflineObjects& matchedOfflineObjects) const;
 
   bool goodOfflineEvent(size_t i, const HLTTauDQMOfflineObjects& offlineObjects) const;
 
@@ -130,6 +160,5 @@ private:
   bool isFirstL1Seed_;
   bool isValid_;
 };
-
 
 #endif

@@ -33,24 +33,21 @@ namespace cond {
   namespace persistency {
     class KeyList;
   }
-}
+}  // namespace cond
 
 //---------------
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
-
- public:
-
+class DTKeyedConfigHandler : public popcon::PopConSourceHandler<DTCCBConfig> {
+public:
   /** Constructor
    */
-  DTKeyedConfigHandler( const edm::ParameterSet& ps );
+  DTKeyedConfigHandler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -58,14 +55,13 @@ class DTKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects() override;
   std::string id() const override;
 
-  static void setList( cond::persistency::KeyList* list );
+  static void setList(cond::persistency::KeyList* list);
 
- private:
-
+private:
   bool copyData;
   int minBrickId;
   int maxBrickId;
@@ -78,22 +74,13 @@ class DTKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
   int onlineAuthSys;
   std::string brickContainer;
   DTCCBConfig* ccbConfig;
-  
+
   cond::persistency::ConnectionPool connection;
   std::shared_ptr<coral::ISessionProxy> isession;
   void chkConfigList();
-  static bool sameConfigList( const std::vector<DTConfigKey>& cfgl,
-                              const std::vector<DTConfigKey>& cfgr );
+  static bool sameConfigList(const std::vector<DTConfigKey>& cfgl, const std::vector<DTConfigKey>& cfgr);
 
   static cond::persistency::KeyList* keyList;
-
 };
 
-
-#endif // DTKeyedConfigHandler_H
-
-
-
-
-
-
+#endif  // DTKeyedConfigHandler_H

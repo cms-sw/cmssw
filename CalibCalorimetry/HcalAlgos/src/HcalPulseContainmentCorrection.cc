@@ -17,43 +17,41 @@
 HcalPulseContainmentCorrection::HcalPulseContainmentCorrection(int num_samples,
                                                                float fixedphase_ns,
                                                                float max_fracerror,
-							       const HcalTimeSlew* hcalTimeSlew_delay)
-{
+                                                               const HcalTimeSlew* hcalTimeSlew_delay) {
   HcalPulseContainmentAlgo corFalgo(num_samples, (double)fixedphase_ns, hcalTimeSlew_delay);
 
   // Generate lookup map for the correction function, never exceeding
   // a maximum fractional error for lookups.
   //
-  //  static const double max_recofc = 5000.0f;   // HPD,  
-  //                      max_recofc = 200000.0f; // SiPMs  
-  genlkupmap<HcalPulseContainmentAlgo> (1.0, 200000.0f,  // generation domain
-                                     max_fracerror,     // maximum fractional error
-                                     1.0,   // min_xstep = minimum true fC increment
-                                     corFalgo,
-                                     mCorFactors_);     // return lookup map
+  //  static const double max_recofc = 5000.0f;   // HPD,
+  //                      max_recofc = 200000.0f; // SiPMs
+  genlkupmap<HcalPulseContainmentAlgo>(1.0,
+                                       200000.0f,      // generation domain
+                                       max_fracerror,  // maximum fractional error
+                                       1.0,            // min_xstep = minimum true fC increment
+                                       corFalgo,
+                                       mCorFactors_);  // return lookup map
 }
 
-// do the same, but with a shape passed in 
-HcalPulseContainmentCorrection::HcalPulseContainmentCorrection(
-							       const HcalPulseShape * shape, 
-							       int num_samples,
-							       float fixedphase_ns,
-							       float max_fracerror,
-							       const HcalTimeSlew* hcalTimeSlew_delay)
-{
+// do the same, but with a shape passed in
+HcalPulseContainmentCorrection::HcalPulseContainmentCorrection(const HcalPulseShape* shape,
+                                                               int num_samples,
+                                                               float fixedphase_ns,
+                                                               float max_fracerror,
+                                                               const HcalTimeSlew* hcalTimeSlew_delay) {
   HcalPulseContainmentAlgo corFalgo(shape, num_samples, (double)fixedphase_ns, hcalTimeSlew_delay);
-  genlkupmap<HcalPulseContainmentAlgo> (1.0, 200000.0f,  // generation domain
-                                     max_fracerror,     // maximum fractional error
-                                     1.0,   // min_xstep = minimum true fC increment
-                                     corFalgo,
-                                     mCorFactors_);     // return lookup map
+  genlkupmap<HcalPulseContainmentAlgo>(1.0,
+                                       200000.0f,      // generation domain
+                                       max_fracerror,  // maximum fractional error
+                                       1.0,            // min_xstep = minimum true fC increment
+                                       corFalgo,
+                                       mCorFactors_);  // return lookup map
 }
 
-double HcalPulseContainmentCorrection::getCorrection(double fc_ampl) const
-{
+double HcalPulseContainmentCorrection::getCorrection(double fc_ampl) const {
   double correction;
 
-  std::map<double,double>::const_iterator fcupper,fclower;
+  std::map<double, double>::const_iterator fcupper, fclower;
 
   fcupper = mCorFactors_.upper_bound(fc_ampl);
   fclower = fcupper;
@@ -61,13 +59,10 @@ double HcalPulseContainmentCorrection::getCorrection(double fc_ampl) const
 
   if (fcupper == mCorFactors_.end()) {
     correction = fclower->second;
-  }
-  else if (fcupper == mCorFactors_.begin()) {
+  } else if (fcupper == mCorFactors_.begin()) {
     correction = fcupper->second;
-  }
-  else {
-    if (fabs(fclower->first - fc_ampl) <
-	fabs(fcupper->first - fc_ampl) )
+  } else {
+    if (fabs(fclower->first - fc_ampl) < fabs(fcupper->first - fc_ampl))
       correction = fclower->second;
     else
       correction = fcupper->second;

@@ -2,11 +2,11 @@
 //
 // Package:     MuonNumberingInitialization
 // Class  :     MuonNumberingRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Thu Sep 28 16:41:02 PDT 2006
 
 #include "Geometry/Records/interface/MuonNumberingRecord.h"

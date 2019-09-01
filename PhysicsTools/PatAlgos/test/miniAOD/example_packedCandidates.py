@@ -1,4 +1,6 @@
+from __future__ import print_function
 # import ROOT in batch mode
+from builtins import range
 import sys
 oldargv = sys.argv[:]
 sys.argv = [ '-b-' ]
@@ -35,7 +37,7 @@ for iev,event in enumerate(events):
     event.getByLabel(pfLabel, pfs)
     event.getByLabel(jetLabel, jets)
 
-    print "\nEvent %d: run %6d, lumi %4d, event %12d" % (iev,event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(),event.eventAuxiliary().event())
+    print("\nEvent %d: run %6d, lumi %4d, event %12d" % (iev,event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(),event.eventAuxiliary().event()))
 
     # Let's compute lepton PF Isolation with R=0.2, 0.5 GeV threshold on neutrals, and deltaBeta corrections
     leps  = [ p for p in muons.product() ] + [ p for p in electrons.product() ]
@@ -48,7 +50,7 @@ for iev,event in enumerate(events):
         pileup  = 0
         # now get a list of the PF candidates used to build this lepton, so to exclude them
         footprint = set()
-        for i in xrange(lep.numberOfSourceCandidatePtrs()):
+        for i in range(lep.numberOfSourceCandidatePtrs()):
             footprint.add(lep.sourceCandidatePtr(i).key()) # the key is the index in the pf collection
         # now loop on pf candidates
         for ipf,pf in enumerate(pfs.product()):
@@ -64,26 +66,26 @@ for iev,event in enumerate(events):
                     if pf.pt() > 0.5: pileup += pf.pt()
         # do deltaBeta
         iso = charged + max(0, neutral-0.5*pileup)
-        print "%-8s of pt %6.1f, eta %+4.2f: relIso = %5.2f" % (
+        print("%-8s of pt %6.1f, eta %+4.2f: relIso = %5.2f" % (
                     "muon" if abs(lep.pdgId())==13 else "electron",
-                    lep.pt(), lep.eta(), iso/lep.pt())
+                    lep.pt(), lep.eta(), iso/lep.pt()))
 
     # Let's compute the fraction of charged pt from particles with dz < 0.1 cm
     for i,j in enumerate(jets.product()):
         if j.pt() < 40 or abs(j.eta()) > 2.4: continue
         sums = [0,0]
-        for id in xrange(j.numberOfDaughters()):
+        for id in range(j.numberOfDaughters()):
             dau = j.daughter(id)
             if (dau.charge() == 0): continue
             sums[ abs(dau.dz())<0.1 ] += dau.pt()
         sum = sums[0]+sums[1]
-        print "Jet with pt %6.1f, eta %+4.2f, beta(0.1) = %+5.3f, pileup mva disc %+.2f" % (
-                j.pt(),j.eta(), sums[1]/sum if sum else 0, j.userFloat("pileupJetId:fullDiscriminant"))
+        print("Jet with pt %6.1f, eta %+4.2f, beta(0.1) = %+5.3f, pileup mva disc %+.2f" % (
+                j.pt(),j.eta(), sums[1]/sum if sum else 0, j.userFloat("pileupJetId:fullDiscriminant")))
 
     # Let's check the calorimeter response for hadrons (after PF hadron calibration)
     for i,j in enumerate(pfs.product()):
         if not j.isIsolatedChargedHadron(): continue
-        print "Isolated charged hadron candidate with pt %6.1f, eta %+4.2f, calo/track energy = %+5.3f, hcal/calo energy %+5.3f" % (
-                j.pt(),j.eta(), j.rawCaloFraction(), j.hcalFraction())
+        print("Isolated charged hadron candidate with pt %6.1f, eta %+4.2f, calo/track energy = %+5.3f, hcal/calo energy %+5.3f" % (
+                j.pt(),j.eta(), j.rawCaloFraction(), j.hcalFraction()))
     
     if iev > 10: break

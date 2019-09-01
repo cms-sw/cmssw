@@ -66,11 +66,27 @@ trackingQTester = cms.EDAnalyzer("QualityTester",
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(trackingQTester,
+                       qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_tier0_heavyions.xml')
+                       )
+
 from DQM.TrackingMonitorClient.TrackingEffFromHitPatternClientConfig_cff import trackingEffFromHitPattern
 
 from DQM.TrackingMonitorClient.V0MonitoringClient_cff import *
 from DQM.TrackingMonitorClient.primaryVertexResolutionClient_cfi import *
 # Sequence
-TrackingOfflineDQMClient = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPattern*voMonitoringClientSequence*primaryVertexResolutionClient)
+
+#import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+#TrackEffMon_ckf = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+#TrackEffMon_ckf.TKTrackCollection                  = 'ctfWithMaterialTracksP5'
+#TrackEffMon_ckf.AlgoName                           = 'CKFTk'
+#TrackEffMon_ckf.FolderName                         = 'Tracking/TrackParameters/TrackEfficiency'
+
+from DQM.TrackingMonitor.TrackEfficiencyClient_cfi import *
+TrackEffClient.FolderName = 'Tracking/TrackParameters/TrackEfficiency'
+TrackEffClient.AlgoName   = 'CKFTk'
+
+TrackingOfflineDQMClient = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPattern*voMonitoringClientSequence*primaryVertexResolutionClient*TrackEffClient)
 
 

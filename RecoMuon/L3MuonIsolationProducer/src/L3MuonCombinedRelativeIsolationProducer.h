@@ -16,13 +16,15 @@
 
 #include <string>
 
-namespace edm { class Event; }
-namespace edm { class EventSetup; }
+namespace edm {
+  class Event;
+}
+namespace edm {
+  class EventSetup;
+}
 
 class L3MuonCombinedRelativeIsolationProducer : public edm::stream::EDProducer<> {
-
 public:
-
   /// constructor with config
   L3MuonCombinedRelativeIsolationProducer(const edm::ParameterSet&);
 
@@ -30,13 +32,12 @@ public:
   ~L3MuonCombinedRelativeIsolationProducer() override;
 
   /// ParameterSet descriptions
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   /// Produce isolation maps
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-
   edm::ParameterSet theConfig;
 
   // Muon track Collection Label
@@ -58,8 +59,8 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float> > theCaloDepsToken;
 
   // MuIsoExtractor
-  reco::isodeposit::IsoDepositExtractor * caloExtractor;
-  reco::isodeposit::IsoDepositExtractor * trkExtractor;
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> caloExtractor;
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> trkExtractor;
 
   //! pt cut to consider track in sumPt after extracting iso deposit
   //! better split this off into a filter
@@ -75,7 +76,6 @@ private:
   // Print out debug info
 
   bool printDebug;
-
 };
 
 #endif

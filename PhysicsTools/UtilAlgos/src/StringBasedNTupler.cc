@@ -29,14 +29,17 @@
 #include <DataFormats/PatCandidates/interface/PFParticle.h>
 #include <SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h>
 
-
 //--------------------------------------------------------------------------------
 //just define here a list of objects you would like to be able to have a branch of
 //--------------------------------------------------------------------------------
-#define ANOTHER_VECTOR_CLASS(C) if (class_==#C) return StringBranchHelper<C>(*this, iEvent)()
-#define ANOTHER_CLASS(C) if (class_==#C) return StringLeaveHelper<C>(*this, iEvent)()
+#define ANOTHER_VECTOR_CLASS(C) \
+  if (class_ == #C)             \
+  return StringBranchHelper<C>(*this, iEvent)()
+#define ANOTHER_CLASS(C) \
+  if (class_ == #C)      \
+  return StringLeaveHelper<C>(*this, iEvent)()
 
-TreeBranch::value TreeBranch::branch(const edm::Event& iEvent){
+TreeBranch::value TreeBranch::branch(const edm::Event& iEvent) {
   ANOTHER_VECTOR_CLASS(pat::Jet);
   else ANOTHER_VECTOR_CLASS(pat::Muon);
   else ANOTHER_VECTOR_CLASS(reco::GenParticle);
@@ -65,7 +68,7 @@ TreeBranch::value TreeBranch::branch(const edm::Event& iEvent){
   else ANOTHER_VECTOR_CLASS(reco::PFCandidate);
   else ANOTHER_VECTOR_CLASS(reco::CaloCluster);
   else {
-    edm::LogError("TreeBranch")<<branchName()<<" failed to recognized class type: "<<class_;
+    edm::LogError("TreeBranch") << branchName() << " failed to recognized class type: " << class_;
     return TreeBranch::value(new std::vector<float>());
   }
 }

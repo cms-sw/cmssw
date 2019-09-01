@@ -17,16 +17,13 @@
 //
 // constructors and destructor
 //
-PEcalTBInfo::PEcalTBInfo() {
-  clear();
-}
+PEcalTBInfo::PEcalTBInfo() { clear(); }
 
 // PEcalTBInfo::PEcalTBInfo(const PEcalTBInfo& rhs) {
 //    // do actual copying here;
 // }
 
-PEcalTBInfo::~PEcalTBInfo() {
-}
+PEcalTBInfo::~PEcalTBInfo() {}
 
 //
 // assignment operators
@@ -52,10 +49,8 @@ void PEcalTBInfo::clear() {
   evXbeam_ = evYbeam_ = 0.;
   phaseShift_ = 1.;
 }
-  
-void PEcalTBInfo::setCrystal(int nCrystal) {
-  nCrystal_ = nCrystal;
-}
+
+void PEcalTBInfo::setCrystal(int nCrystal) { nCrystal_ = nCrystal; }
 
 void PEcalTBInfo::setBeamDirection(double etaBeam, double phiBeam) {
   etaBeam_ = etaBeam;
@@ -72,6 +67,4 @@ void PEcalTBInfo::setBeamPosition(double evXbeam, double evYbeam) {
   evYbeam_ = evYbeam;
 }
 
-void PEcalTBInfo::setPhaseShift(double phaseShift) {
-  phaseShift_ = phaseShift;
-}
+void PEcalTBInfo::setPhaseShift(double phaseShift) { phaseShift_ = phaseShift; }

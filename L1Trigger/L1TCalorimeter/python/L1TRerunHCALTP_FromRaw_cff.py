@@ -10,7 +10,7 @@ simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(
 
 HcalTPGCoderULUT.LUTGenerationMode = cms.bool(True)
 
-L1TRerunHCALTP_FromRAW = cms.Sequence(
+L1TRerunHCALTP_FromRAW = cms.Task(
     hcalDigis
-    * simHcalTriggerPrimitiveDigis
+    , simHcalTriggerPrimitiveDigis
 )

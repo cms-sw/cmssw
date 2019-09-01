@@ -12,16 +12,13 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
-
-
-
-class PFJetToCaloProducer: public edm::EDProducer {
- public:
+class PFJetToCaloProducer : public edm::EDProducer {
+public:
   explicit PFJetToCaloProducer(const edm::ParameterSet&);
   ~PFJetToCaloProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   edm::EDGetTokenT<reco::PFJetCollection> tauSrc_;
 };
 #endif

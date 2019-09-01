@@ -28,7 +28,7 @@
 // File name:     G4UniversalFluctuation
 //
 // Author:        Vladimir Ivanchenko
-// 
+//
 // Creation date: 03.01.2002
 //
 // Modifications:
@@ -44,42 +44,35 @@
 //
 
 #ifndef LandauFP420_h
-#define LandauFP420_h 
+#define LandauFP420_h
 
 //#include "G4VEmFluctuationModel.hh"
 
-
 class LandauFP420 {
 public:
-
   LandauFP420();
 
   ~LandauFP420();
 
-  // momentum in MeV/c, mass in MeV, tmax (delta cut) in MeV, 
+  // momentum in MeV/c, mass in MeV, tmax (delta cut) in MeV,
   // length in mm, meanLoss eloss in MeV.
-  double SampleFluctuations(const double momentum,
-			    const double mass,
-			    double& tmax,
-			    const double length,
-			    const double meanLoss);
-  
-  //G4double Dispersion(    const G4Material*,
+  double SampleFluctuations(
+      const double momentum, const double mass, double &tmax, const double length, const double meanLoss);
+
+  // G4double Dispersion(    const G4Material*,
   //                        const G4DynamicParticle*,
   //			    G4double&,
   //                        G4double&);
-  //void Initialise(const G4ParticleDefinition*);
+  // void Initialise(const G4ParticleDefinition*);
 
 protected:
-
 private:
-
   // hide assignment operator
-  //G4UniversalFluctuation & operator=(const  G4UniversalFluctuation &right);
-  //G4UniversalFluctuation(const  G4UniversalFluctuation&);
+  // G4UniversalFluctuation & operator=(const  G4UniversalFluctuation &right);
+  // G4UniversalFluctuation(const  G4UniversalFluctuation&);
 
-  //const G4ParticleDefinition* particle;
-  //const G4Material* lastMaterial;
+  // const G4ParticleDefinition* particle;
+  // const G4Material* lastMaterial;
 
   double particleMass;
   double chargeSquare;
@@ -88,7 +81,7 @@ private:
   double ipotFluct;
   double electronDensity;
   //  G4double zeff;
-  
+
   double f1Fluct;
   double f2Fluct;
   double e1Fluct;
@@ -105,12 +98,10 @@ private:
   double problim;
   double sumalim;
   double alim;
-  int    nmaxCont1;
-  int    nmaxCont2;
-
+  int nmaxCont1;
+  int nmaxCont2;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 #endif
-

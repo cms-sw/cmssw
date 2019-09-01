@@ -1,10 +1,11 @@
+from __future__ import print_function
 Mixing = {}
 
 
 def addMixingScenario(label,dict):
     global Mixing
     if label in Mixing:
-        print 'duplicated definition of',label
+        print('duplicated definition of',label)
     else:
         #try:
         #    m=__import__(dict['file'])
@@ -114,7 +115,11 @@ addMixingScenario("2016_25ns_SpringMC_PUScenarioV1_PoissonOOTPU",{'file': 'SimGe
 addMixingScenario("2016_25ns_Moriond17MC_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2016_25ns_Moriond17MC_PoissonOOTPU_cfi'})
 addMixingScenario("mix_2016_PoissonOOTPU_HighPUTrains_Fill5412",{'file': 'SimGeneral.MixingModule.mix_2016_PoissonOOTPU_HighPUTrains_Fill5412_cfi'})
 addMixingScenario("2017_25ns_WinterMC_PUScenarioV1_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2017_25ns_WinterMC_PUScenarioV1_PoissonOOTPU_cfi'})
+addMixingScenario("2017_25ns_UltraLegacy_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2017_25ns_UltraLegacy_PoissonOOTPU_cfi'})
 addMixingScenario("2018_25ns_ProjectedPileup_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2018_25ns_ProjectedPileup_PoissonOOTPU_cfi'})
+addMixingScenario("2018_25ns_JuneProjectionFull18_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2018_25ns_JuneProjectionFull18_PoissonOOTPU_cfi'})
+addMixingScenario("2018_25ns_UltraLegacy_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2018_25ns_UltraLegacy_PoissonOOTPU_cfi'})
+addMixingScenario("Run3_Flat55To75_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_Run3_Flat55To75_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 
@@ -156,6 +161,8 @@ addMixingScenario("AVE_200_BX_25ns_m12p3",{'file': 'SimGeneral.MixingModule.mix_
 addMixingScenario("AVE_200_BX_25ns_m6p6",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-6,6), 'N': 200})
 addMixingScenario("AVE_140_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-3,3), 'N': 140})
 addMixingScenario("AVE_140_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-3,3), 'N': 140})
+addMixingScenario("AVE_250_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-3,3), 'N': 250})
+addMixingScenario("AVE_300_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-3,3), 'N': 300})
 addMixingScenario("AVE_140_BX_25ns_m12p3",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 140})
 addMixingScenario("AVE_140_BX_25ns_m6p6",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-6,6), 'N': 140})
 addMixingScenario("flatPU_0_10",{'file': 'SimGeneral.MixingModule.mix_flat_0_10_cfi'})
@@ -170,11 +177,10 @@ MixingDefaultKey = '2012_Summer_50ns_PoissonOOTPU'
 
 def printMe():
     global Mixing
-    keys = Mixing.keys()
-    keys.sort()
+    keys = sorted(Mixing.keys())
     fskeys=[]
     for key in keys:
-        print 'addMixingScenario("%s",%s)'%(key,repr(Mixing[key]))
+        print('addMixingScenario("%s",%s)'%(key,repr(Mixing[key])))
 
 def defineMixing(dict):
     commands=[]

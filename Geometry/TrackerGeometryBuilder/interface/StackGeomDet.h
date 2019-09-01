@@ -4,14 +4,13 @@
 #include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-class StackGeomDet : public TrackerGeomDet{
+class StackGeomDet : public TrackerGeomDet {
 public:
+  StackGeomDet(BoundPlane* sp, const GeomDetUnit* lowerDet, const GeomDetUnit* upperDet, const DetId stackDetId);
 
-  StackGeomDet( BoundPlane* sp, const GeomDetUnit* lowerDet,  const GeomDetUnit* upperDet, const DetId stackDetId);
-  
   ~StackGeomDet() override;
 
-  bool isLeaf() const override { return false;}
+  bool isLeaf() const override { return false; }
   std::vector<const GeomDet*> components() const override;
 
   // Which subdetector
@@ -22,7 +21,7 @@ public:
 
 private:
   const GeomDetUnit* theLowerDet;
-  const GeomDetUnit* theUpperDet;  
+  const GeomDetUnit* theUpperDet;
 };
 
 #endif

@@ -1,13 +1,13 @@
-# hltGetConfiguration --cff --data /dev/CMSSW_10_0_0/Fake --type Fake
+# hltGetConfiguration --cff --data /dev/CMSSW_11_0_0/Fake --type Fake
 
-# /dev/CMSSW_10_0_0/Fake/V6 (CMSSW_10_0_3)
+# /dev/CMSSW_11_0_0/Fake/V4 (CMSSW_11_0_0_pre6)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_0_0/Fake/V6')
+  tableName = cms.string('/dev/CMSSW_11_0_0/Fake/V4')
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -41,10 +41,10 @@ fragment.hltTriggerType = cms.EDFilter( "HLTTriggerTypeFilter",
 )
 fragment.hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
     DaqGtFedId = cms.untracked.int32( 813 ),
-    Verbosity = cms.untracked.int32( 0 ),
-    UnpackBxInEvent = cms.int32( 5 ),
+    DaqGtInputTag = cms.InputTag( "rawDataCollector" ),
     ActiveBoardsMask = cms.uint32( 0xffff ),
-    DaqGtInputTag = cms.InputTag( "rawDataCollector" )
+    Verbosity = cms.untracked.int32( 0 ),
+    UnpackBxInEvent = cms.int32( 5 )
 )
 fragment.hltGctDigis = cms.EDProducer( "GctRawToDigi",
     checkHeaders = cms.untracked.bool( False ),
@@ -145,8 +145,8 @@ fragment.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
 fragment.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     moduleLabelPatternsToSkip = cms.vstring(  ),
     processName = cms.string( "@" ),
-    moduleLabelPatternsToMatch = cms.vstring( 'hlt*' ),
-    throw = cms.bool( False )
+    throw = cms.bool( False ),
+    moduleLabelPatternsToMatch = cms.vstring( 'hlt*' )
 )
 fragment.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )

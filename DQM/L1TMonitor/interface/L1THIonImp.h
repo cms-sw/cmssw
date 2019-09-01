@@ -9,7 +9,6 @@
 
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
@@ -17,40 +16,37 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 class L1THIonImp : public DQMEDAnalyzer {
-
 public:
-
-// Constructor
+  // Constructor
   L1THIonImp(const edm::ParameterSet& ps);
-  
-// Destructor
+
+  // Destructor
   ~L1THIonImp() override;
 
 protected:
-// Analyze
+  // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
   //virtual std::vector<int> SortMinBiasBit(std::vector<int>, std::vector<int>);
   virtual std::vector<int> SortMinBiasBit(uint16_t, uint16_t);
-  
+
 private:
   // ----------member data ---------------------------
 
   // Jet and EM stuff
-  MonitorElement* l1GctCenJetsEtEtaPhi_; 
+  MonitorElement* l1GctCenJetsEtEtaPhi_;
   MonitorElement* l1GctForJetsEtEtaPhi_;
   MonitorElement* l1GctTauJetsEtEtaPhi_;
   MonitorElement* l1GctIsoEmRankEtaPhi_;
   MonitorElement* l1GctNonIsoEmRankEtaPhi_;
 
   MonitorElement* l1GctCenJetsOccEtaPhi_;
-  MonitorElement* l1GctForJetsOccEtaPhi_;  
+  MonitorElement* l1GctForJetsOccEtaPhi_;
   MonitorElement* l1GctTauJetsOccEtaPhi_;
-  MonitorElement* l1GctIsoEmOccEtaPhi_;    
-  MonitorElement* l1GctNonIsoEmOccEtaPhi_; 
+  MonitorElement* l1GctIsoEmOccEtaPhi_;
+  MonitorElement* l1GctNonIsoEmOccEtaPhi_;
 
   MonitorElement* l1GctCenJetsRank_;
   MonitorElement* l1GctForJetsRank_;
@@ -75,7 +71,7 @@ private:
   MonitorElement* l1GctEtTotalEtHadCorr_;
   MonitorElement* l1GctHFRingETSum_;
   MonitorElement* l1GctHFRingETDiff_;
-  
+
   // HF Rings stuff
   MonitorElement* l1GctHFRing1PosEtaNegEta_;
   MonitorElement* l1GctHFRing1TowerCountPosEtaNegEta_;
@@ -100,7 +96,7 @@ private:
   MonitorElement* centralityCorr_;
   MonitorElement* centralityExtCorr_;
   MonitorElement* MinBiasCorr_;
-  
+
   edm::InputTag gctCenJetsDataSource_;
   edm::InputTag gctForJetsDataSource_;
   edm::InputTag gctTauJetsDataSource_;
@@ -110,14 +106,14 @@ private:
   edm::InputTag gctNonIsoEmDataSource_;
 
   edm::EDGetTokenT<L1CaloRegionCollection> rctSource_L1CRCollection_;
-  
+
   edm::InputTag gctCenJetsEmulSource_;
   edm::InputTag gctForJetsEmulSource_;
   edm::InputTag gctTauJetsEmulSource_;
   edm::InputTag gctIsoTauJetsEmulSource_;
   edm::InputTag gctEnergySumsEmulSource_;
   edm::InputTag gctIsoEmEmulSource_;
-  edm::InputTag gctNonIsoEmEmulSource_; 
+  edm::InputTag gctNonIsoEmEmulSource_;
 
   //define Token(-s)
   edm::EDGetTokenT<L1GctEmCandCollection> gctIsoEmSourceDataToken_;
@@ -144,8 +140,7 @@ private:
   edm::EDGetTokenT<L1GctEtMissCollection> l1EtMissEmulToken_;
   edm::EDGetTokenT<L1GctHtMissCollection> l1HtMissEmulToken_;
   edm::EDGetTokenT<L1GctEtHadCollection> l1EtHadEmulToken_;
-  edm::EDGetTokenT<L1GctEtTotalCollection> l1EtTotalEmulToken_;  
-
+  edm::EDGetTokenT<L1GctEtTotalCollection> l1EtTotalEmulToken_;
 };
 
 #endif

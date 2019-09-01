@@ -6,16 +6,14 @@
 #include <map>
 #include <string>
 
-namespace edm
-{
+namespace edm {
   class ParameterSet;
   class ParameterSetDescription;
-}
+}  // namespace edm
 
-namespace ecaldqm
-{
-  MESet* createMESet(edm::ParameterSet const&);
-  void fillMESetDescriptions(edm::ParameterSetDescription&);
-}
+namespace ecaldqm {
+  MESet *createMESet(edm::ParameterSet const &);
+  void fillMESetDescriptions(edm::ParameterSetDescription &);
+}  // namespace ecaldqm
 
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWGeoTopNode
-// 
+//
 /**\class FWGeoTopNode FWGeoTopNode.h Fireworks/Core/interface/FWGeoTopNode.h
 
  Description: [one line class summary]
@@ -24,7 +24,7 @@
 #include "TEveElement.h"
 #include "TAttBBox.h"
 #include "TGLUtil.h"
-#include  <set>
+#include <set>
 
 class TGeoHMatrix;
 class TGLPhysicalShape;
@@ -38,83 +38,81 @@ class TGeoNode;
 class FWGeoTopNodeGLScene;
 class FWPopupMenu;
 
-class FWGeoTopNode : public TEveElementList,
-                     public TAttBBox
-{
-   friend class FWGeoTopNodeGL;
+class FWGeoTopNode : public TEveElementList, public TAttBBox {
+  friend class FWGeoTopNodeGL;
+
 public:
-      
-   enum MenuOptions {
-      kSetTopNode,
-      kSetTopNodeCam,
-      kVisSelfOff,
-      kVisChldOn,
-      kVisChldOff,
-      kApplyChldCol,
-      kApplyChldColRec,
-      kCamera,
-      kPrintMaterial,
-      kPrintPath,
-      kPrintShape,
-      kPrintOverlap,
-      kOverlapVisibilityMotherOn,
-      kOverlapVisibilityMotherOff
-   };
-   
-   FWGeoTopNode(const char* n = "FWGeoTopNode", const char* t = "FWGeoTopNode"){}
-   ~FWGeoTopNode() override{}
+  enum MenuOptions {
+    kSetTopNode,
+    kSetTopNodeCam,
+    kVisSelfOff,
+    kVisChldOn,
+    kVisChldOff,
+    kApplyChldCol,
+    kApplyChldColRec,
+    kCamera,
+    kPrintMaterial,
+    kPrintPath,
+    kPrintShape,
+    kPrintOverlap,
+    kOverlapVisibilityMotherOn,
+    kOverlapVisibilityMotherOff
+  };
 
-   void Paint(Option_t* option="") override;
-   FWGeoTopNodeGLScene    *m_scene;
-   
-   virtual FWGeometryTableManagerBase* tableManager() { return nullptr; }
-   virtual FWGeometryTableViewBase* browser() { return nullptr; }
-   
-   std::set<TGLPhysicalShape*> fHted;
-   std::set<TGLPhysicalShape*> fSted;
+  FWGeoTopNode(const char* n = "FWGeoTopNode", const char* t = "FWGeoTopNode") {}
+  ~FWGeoTopNode() override {}
 
-   int getFirstSelectedTableIndex();
-   bool selectPhysicalFromTable(int);
-   void clearSelection() {fHted.clear(); fSted.clear();}
+  void Paint(Option_t* option = "") override;
+  FWGeoTopNodeGLScene* m_scene;
 
-   void printSelected();
-   virtual void popupMenu(int x, int y, TGLViewer*) {}
+  virtual FWGeometryTableManagerBase* tableManager() { return nullptr; }
+  virtual FWGeometryTableViewBase* browser() { return nullptr; }
 
-   void UnSelected() override;
-   void UnHighlighted() override;
-   
-   static TGLVector3 s_pickedCamera3DCenter;
-   static TGLViewer* s_pickedViewer;
+  std::set<TGLPhysicalShape*> fHted;
+  std::set<TGLPhysicalShape*> fSted;
+
+  int getFirstSelectedTableIndex();
+  bool selectPhysicalFromTable(int);
+  void clearSelection() {
+    fHted.clear();
+    fSted.clear();
+  }
+
+  void printSelected();
+  virtual void popupMenu(int x, int y, TGLViewer*) {}
+
+  void UnSelected() override;
+  void UnHighlighted() override;
+
+  static TGLVector3 s_pickedCamera3DCenter;
+  static TGLViewer* s_pickedViewer;
 
 protected:
-   static UInt_t phyID(int tableIdx);
-   static int tableIdx(TGLPhysicalShape* ps);
+  static UInt_t phyID(int tableIdx);
+  static int tableIdx(TGLPhysicalShape* ps);
 
-   void ProcessSelection(TGLSelectRecord& rec, std::set<TGLPhysicalShape*>& sset, TGLPhysicalShape* id);
+  void ProcessSelection(TGLSelectRecord& rec, std::set<TGLPhysicalShape*>& sset, TGLPhysicalShape* id);
 
-   void EraseFromSet(std::set<TGLPhysicalShape*>& sset, TGLPhysicalShape* id);
-   void ClearSet(std::set<TGLPhysicalShape*>& sset);
+  void EraseFromSet(std::set<TGLPhysicalShape*>& sset, TGLPhysicalShape* id);
+  void ClearSet(std::set<TGLPhysicalShape*>& sset);
 
-   void SetStateOf(TGLPhysicalShape* id);
+  void SetStateOf(TGLPhysicalShape* id);
 
+  void setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat);
 
-   void setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat);
-   
-   FWPopupMenu* setPopupMenu(int iX, int iY, TGLViewer* v, bool);
+  FWPopupMenu* setPopupMenu(int iX, int iY, TGLViewer* v, bool);
 
+  void paintShape(Int_t idx, const TGeoHMatrix& nm, bool volumeColor, bool parentNode);
+  void ComputeBBox() override;
 
-   void paintShape(Int_t idx,  const TGeoHMatrix& nm, bool volumeColor, bool parentNode);
-   void ComputeBBox() override;
-private:   
-   FWGeoTopNode(const FWGeoTopNode&); // stop default
-   const FWGeoTopNode& operator=(const FWGeoTopNode&); // stop default
+private:
+  FWGeoTopNode(const FWGeoTopNode&);                   // stop default
+  const FWGeoTopNode& operator=(const FWGeoTopNode&);  // stop default
 #ifndef __CINT__
-   UChar_t wrapTransparency(FWGeometryTableManagerBase::NodeInfo& data, bool leafNode); 
+  UChar_t wrapTransparency(FWGeometryTableManagerBase::NodeInfo& data, bool leafNode);
 #endif
 
-   
-   ClassDefOverride(FWGeoTopNode, 0);
+  ClassDefOverride(FWGeoTopNode, 0);
 };
-
 
 #endif

@@ -1,16 +1,19 @@
+from __future__ import absolute_import
+from builtins import range
 import os
 import random
 
-import globalDictionaries
-import configTemplates
+from . import globalDictionaries
+from . import configTemplates
 
-from genericValidation import ValidationMetaClass, ValidationWithComparison, ValidationWithPlots
-from helperFunctions import getCommandOutput2, replaceByMap, cppboolstring
-from offlineValidation import OfflineValidation
-from primaryVertexValidation import PrimaryVertexValidation
-from TkAlExceptions import AllInOneError
-from trackSplittingValidation import TrackSplittingValidation
-from zMuMuValidation import ZMuMuValidation
+from .genericValidation import ValidationMetaClass, ValidationWithComparison, ValidationWithPlots
+from .helperFunctions import getCommandOutput2, replaceByMap, cppboolstring
+from .offlineValidation import OfflineValidation
+from .primaryVertexValidation import PrimaryVertexValidation
+from .TkAlExceptions import AllInOneError
+from .trackSplittingValidation import TrackSplittingValidation
+from .zMuMuValidation import ZMuMuValidation
+from .overlapValidation import OverlapValidation
 
 class BasePlottingOptions(object):
     __metaclass__ = ValidationMetaClass
@@ -168,6 +171,7 @@ class PlottingOptionsZMuMu(BasePlottingOptions):
                 "rebinetadiff": "2",
                 "rebineta": "2",
                 "rebinpt": "8",
+                "AutoSetRange": "false",                
                }
     needpackages = {"MuonAnalysis/MomentumScaleCalibration"}
     validationclass = ZMuMuValidation
@@ -184,7 +188,7 @@ class PlottingOptionsOffline(BasePlottingOptions):
                 "SurfaceShapes":"coarse",
                 "bigtext":"false",
                 "mergeOfflineParJobsScriptPath": ".oO[scriptsdir]Oo./TkAlOfflineJobsMerge.C",
-                "usefit": "false",
+                "usefit": "false","moduleid": ""
                }
     validationclass = OfflineValidation
     def __init__(self, config):
@@ -221,12 +225,18 @@ class PlottingOptionsPrimaryVertex(BasePlottingOptions):
         for name in "autoLimits", "doMaps", "stdResiduals":
             self.general[name] = cppboolstring(self.general[name], name)
 
+class PlottingOptionsOverlap(BasePlottingOptions):
+    validationclass = OverlapValidation
+    def __init__(self, config):
+        super(PlottingOptionsOverlap, self).__init__(config, "overlap")
+
 def PlottingOptions(config, valType):
     plottingOptionsClasses = {
                               "offline": PlottingOptionsOffline,
                               "split": PlottingOptionsTrackSplitting,
                               "zmumu": PlottingOptionsZMuMu,
                               "primaryvertex": PlottingOptionsPrimaryVertex,
+                              "overlap": PlottingOptionsOverlap
                              }
     if isinstance(valType, type):
         valType = valType.valType
@@ -236,3 +246,6 @@ def PlottingOptions(config, valType):
             raise ValueError("Have to provide a config the first time you call PlottingOptions for {}".format(valType))
         globalDictionaries.plottingOptions[valType] = plottingOptionsClasses[valType](config)
     return globalDictionaries.plottingOptions[valType].getRepMap()
+
+
+

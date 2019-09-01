@@ -7,18 +7,11 @@ class FreeTrajectoryState;
 
 class dso_hidden SeedFromConsecutiveHitsStraightLineCreator final : public SeedFromConsecutiveHitsCreator {
 public:
+  SeedFromConsecutiveHitsStraightLineCreator(const edm::ParameterSet& cfg) : SeedFromConsecutiveHitsCreator(cfg) {}
 
-  SeedFromConsecutiveHitsStraightLineCreator( const edm::ParameterSet & cfg):
-    SeedFromConsecutiveHitsCreator(cfg) { }
-
-  ~SeedFromConsecutiveHitsStraightLineCreator() override{}
+  ~SeedFromConsecutiveHitsStraightLineCreator() override {}
 
 private:
-
-  bool initialKinematic(GlobalTrajectoryParameters & kine,
-				const SeedingHitSet & hits) const override;
-
-
+  bool initialKinematic(GlobalTrajectoryParameters& kine, const SeedingHitSet& hits) const override;
 };
 #endif
-

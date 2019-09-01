@@ -5,8 +5,7 @@
 //
 //class EcalHighEnCosmicFilter EcalHighEnCosmicFilter.cc
 //
-// Original Author:  
-
+// Original Author:
 
 #include <memory>
 #include <vector>
@@ -36,58 +35,50 @@ using namespace std;
 using namespace reco;
 
 //
-EcalRecHitsFilter::EcalRecHitsFilter(const edm::ParameterSet& iConfig) :
-  NumBadXtalsThreshold_ (iConfig.getUntrackedParameter<int>("NumberXtalsThreshold")),
-  EBRecHitCollection_ (iConfig.getParameter<edm::InputTag>("EcalRecHitCollectionEB"))
+EcalRecHitsFilter::EcalRecHitsFilter(const edm::ParameterSet& iConfig)
+    : NumBadXtalsThreshold_(iConfig.getUntrackedParameter<int>("NumberXtalsThreshold")),
+      EBRecHitCollection_(iConfig.getParameter<edm::InputTag>("EcalRecHitCollectionEB"))
 
 {
   EnergyCut = (iConfig.getUntrackedParameter<double>("energycut"));
 }
 
-EcalRecHitsFilter::~EcalRecHitsFilter()
-{
-}
+EcalRecHitsFilter::~EcalRecHitsFilter() {}
 
-bool EcalRecHitsFilter::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+bool EcalRecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //int ievt = iEvent.id().event();
   Handle<EcalRecHitCollection> EBhits;
-  iEvent.getByLabel(EBRecHitCollection_,EBhits);
+  iEvent.getByLabel(EBRecHitCollection_, EBhits);
 
   bool accepted = true;
   int nRecHitsGreater1GevPerEvent = 0;
 
-  for (EcalRecHitCollection::const_iterator hitItr = EBhits->begin(); hitItr != EBhits->end(); ++hitItr)
-    {
+  for (EcalRecHitCollection::const_iterator hitItr = EBhits->begin(); hitItr != EBhits->end(); ++hitItr) {
+    EcalRecHit hit = (*hitItr);
+    EBDetId det = hit.id();
 
-      EcalRecHit hit = (*hitItr);
-      EBDetId det = hit.id();
-  
-      float ampli = hit.energy();
-      if(ampli > EnergyCut /*1GeV*/)
- 	{
-	  nRecHitsGreater1GevPerEvent++;
- 	  nRecHitsGreater1GevPerEvent_hist_MAP->Fill(det.iphi(),det.ieta());
- 	}
+    float ampli = hit.energy();
+    if (ampli > EnergyCut /*1GeV*/) {
+      nRecHitsGreater1GevPerEvent++;
+      nRecHitsGreater1GevPerEvent_hist_MAP->Fill(det.iphi(), det.ieta());
     }
+  }
   nRecHitsGreater1GevPerEvent_hist->Fill(nRecHitsGreater1GevPerEvent);
-  if(nRecHitsGreater1GevPerEvent > NumBadXtalsThreshold_ ) accepted = false;
+  if (nRecHitsGreater1GevPerEvent > NumBadXtalsThreshold_)
+    accepted = false;
   return accepted;
 }
 
-void 
-EcalRecHitsFilter::beginJob()
-{
-  nRecHitsGreater1GevPerEvent_hist = new TH1F("nRecHitsGreater1GevPerEvent_hist","nRecHitsGreater1GevPerEvent_hist",65000,0.,65000.);
-  nRecHitsGreater1GevPerEvent_hist_MAP = new TH2F("nRecHitsGreater1GevPerEvent_hist_MAP","nRecHitsGreater1GevPerEvent_hist_MAP",360,1.,361.,171,-85.,86.);
+void EcalRecHitsFilter::beginJob() {
+  nRecHitsGreater1GevPerEvent_hist =
+      new TH1F("nRecHitsGreater1GevPerEvent_hist", "nRecHitsGreater1GevPerEvent_hist", 65000, 0., 65000.);
+  nRecHitsGreater1GevPerEvent_hist_MAP = new TH2F(
+      "nRecHitsGreater1GevPerEvent_hist_MAP", "nRecHitsGreater1GevPerEvent_hist_MAP", 360, 1., 361., 171, -85., 86.);
 }
 
-
-void 
-EcalRecHitsFilter::endJob()
-{
+void EcalRecHitsFilter::endJob() {
   cout << "------EcalRecHitsFilter EndJob------>>>>>>>>>>" << endl;
-  file = new TFile("RecHitFilter.root" , "RECREATE");
+  file = new TFile("RecHitFilter.root", "RECREATE");
   file->cd();
   nRecHitsGreater1GevPerEvent_hist_MAP->Write();
   nRecHitsGreater1GevPerEvent_hist->Write();

@@ -32,53 +32,43 @@ class ConversionTrackEcalImpactPoint;
 class ConversionTrackPairFinder;
 class ConversionVertexFinder;
 class ConvertedPhotonProducer : public edm::stream::EDProducer<> {
-
- public:
-
-  ConvertedPhotonProducer (const edm::ParameterSet& ps);
+public:
+  ConvertedPhotonProducer(const edm::ParameterSet& ps);
   ~ConvertedPhotonProducer() override;
 
-  void beginRun(edm::Run const&, const edm::EventSetup &es) final;
+  void beginRun(edm::Run const&, const edm::EventSetup& es) final;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
- private:
-  
+private:
+  void buildCollections(
+      edm::EventSetup const& es,
+      const edm::Handle<edm::View<reco::CaloCluster> >& scHandle,
+      const edm::Handle<edm::View<reco::CaloCluster> >& bcHandle,
+      const edm::Handle<CaloTowerCollection>& hcalTowersHandle,
+      const edm::Handle<reco::TrackCollection>& trkHandle,
+      std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr, CompareTwoTracksVectors>& allPairs,
+      reco::ConversionCollection& outputConvPhotonCollection);
+  void cleanCollections(const edm::Handle<edm::View<reco::CaloCluster> >& scHandle,
+                        const edm::OrphanHandle<reco::ConversionCollection>& conversionHandle,
+                        reco::ConversionCollection& outputCollection);
 
+  std::vector<reco::ConversionRef> solveAmbiguity(const edm::OrphanHandle<reco::ConversionCollection>& conversionHandle,
+                                                  reco::CaloClusterPtr const& sc);
 
-
-
-
-  void buildCollections ( edm::EventSetup const & es,
-                          const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
-			  const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
-			  const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
-			  const edm::Handle<reco::TrackCollection>  & trkHandle,
-			  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr, CompareTwoTracksVectors>& allPairs,
-			  reco::ConversionCollection & outputConvPhotonCollection);
-  void cleanCollections (const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
-			 const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle,
-			 reco::ConversionCollection & outputCollection);
-			   
-  std::vector<reco::ConversionRef> solveAmbiguity( const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle, reco::CaloClusterPtr& sc);
-
-  float calculateMinApproachDistance ( const reco::TrackRef& track1, const reco::TrackRef& track2);
+  float calculateMinApproachDistance(const reco::TrackRef& track1, const reco::TrackRef& track2);
   void getCircleCenter(const reco::TrackRef& tk, double r, double& x0, double& y0);
-    
-  
+
   edm::EDGetTokenT<reco::TrackCollection> conversionOITrackProducer_;
   edm::EDGetTokenT<reco::TrackCollection> conversionIOTrackProducer_;
 
-
-  edm::EDGetTokenT<reco::TrackCaloClusterPtrAssociation> 
-    outInTrackSCAssociationCollection_;
-  edm::EDGetTokenT<reco::TrackCaloClusterPtrAssociation>
-    inOutTrackSCAssociationCollection_;
+  edm::EDGetTokenT<reco::TrackCaloClusterPtrAssociation> outInTrackSCAssociationCollection_;
+  edm::EDGetTokenT<reco::TrackCaloClusterPtrAssociation> inOutTrackSCAssociationCollection_;
 
   edm::EDGetTokenT<reco::TrackCollection> generalTrackProducer_;
-  
+
   std::string ConvertedPhotonCollection_;
   std::string CleanedConvertedPhotonCollection_;
-  
+
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcBarrelCollection_;
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcEndcapCollection_;
   edm::EDGetTokenT<edm::View<reco::CaloCluster> > scHybridBarrelProducer_;
@@ -90,36 +80,27 @@ class ConvertedPhotonProducer : public edm::stream::EDProducer<> {
   edm::ESHandle<MagneticField> theMF_;
   edm::ESHandle<TransientTrackBuilder> theTransientTrackBuilder_;
 
-  ConversionTrackPairFinder*      theTrackPairFinder_;
-  ConversionVertexFinder*         theVertexFinder_;
+  ConversionTrackPairFinder* theTrackPairFinder_;
+  ConversionVertexFinder* theVertexFinder_;
   ConversionTrackEcalImpactPoint* theEcalImpactPositionFinder_;
   int nEvt_;
   std::string algoName_;
 
- 
   double hOverEConeSize_;
   double maxHOverE_;
   double minSCEt_;
-  bool  recoverOneTrackCase_;
+  bool recoverOneTrackCase_;
   double dRForConversionRecovery_;
   double deltaCotCut_;
   double minApproachDisCut_;
-  int    maxNumOfCandidates_;
+  int maxNumOfCandidates_;
   bool risolveAmbiguity_;
-
 
   ConversionLikelihoodCalculator* theLikelihoodCalc_;
   std::string likelihoodWeights_;
 
-  math::XYZPointF toFConverterP( const math::XYZPoint &val) {
-    return math::XYZPointF(val.x(),val.y(),val.z());
-  }
-  
-  math::XYZVectorF toFConverterV( const math::XYZVector &val) {
-    return math::XYZVectorF(val.x(),val.y(),val.z());
-  }
-  
+  math::XYZPointF toFConverterP(const math::XYZPoint& val) { return math::XYZPointF(val.x(), val.y(), val.z()); }
 
-
+  math::XYZVectorF toFConverterV(const math::XYZVector& val) { return math::XYZVectorF(val.x(), val.y(), val.z()); }
 };
 #endif

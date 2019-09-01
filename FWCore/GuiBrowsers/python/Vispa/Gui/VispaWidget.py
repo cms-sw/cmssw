@@ -1,3 +1,4 @@
+from builtins import range
 import math
     
 from PyQt4.QtCore import *

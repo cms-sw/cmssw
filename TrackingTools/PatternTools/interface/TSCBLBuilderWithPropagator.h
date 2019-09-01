@@ -13,23 +13,19 @@
  * It is to be used when a specific propagator has to be used.
  */
 
-class TSCBLBuilderWithPropagator : public TrajectoryStateClosestToBeamLineBuilder
-{
-public: 
-
+class TSCBLBuilderWithPropagator : public TrajectoryStateClosestToBeamLineBuilder {
+public:
   /// constructor with default geometrical propagator
   TSCBLBuilderWithPropagator(const MagneticField* field);
-  
+
   /// constructor with user-supplied propagator
   TSCBLBuilderWithPropagator(const Propagator& u);
 
   ~TSCBLBuilderWithPropagator() override{};
 
-  TrajectoryStateClosestToBeamLine operator()
-    (const FTS& originalFTS, const reco::BeamSpot & beamSpot) const override;
+  TrajectoryStateClosestToBeamLine operator()(const FTS& originalFTS, const reco::BeamSpot& beamSpot) const override;
 
 private:
   DeepCopyPointerByClone<Propagator> thePropagator;
-
 };
 #endif

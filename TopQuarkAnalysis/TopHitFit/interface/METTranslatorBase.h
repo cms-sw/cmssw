@@ -27,10 +27,9 @@
 #include "TopQuarkAnalysis/TopHitFit/interface/EtaDepResolution.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/fourvec.h"
 
-namespace hitfit{
+namespace hitfit {
 
-
-    /**
+  /**
        @class METTranslatorBase.
 
        @brief Template class of function object to translate missing
@@ -46,30 +45,28 @@ namespace hitfit{
        object class be translated into HitFit's Fourvec.
 
      */
-    template <class AMet>
-    class METTranslatorBase {
-
-    public:
-
-        /**
+  template <class AMet>
+  class METTranslatorBase {
+  public:
+    /**
            @brief Default constructor.
          */
-        METTranslatorBase();
+    METTranslatorBase();
 
-        /**
+    /**
            @brief Constructor, instantiate a METTranslatorBase object
            using the name of and input file in std::string format.
 
            @param ifile The path of the input file.
          */
-        METTranslatorBase(const std::string& ifile);
+    METTranslatorBase(const std::string& ifile);
 
-        /**
+    /**
            @brief Destructor.
          */
-        ~METTranslatorBase();
+    ~METTranslatorBase();
 
-        /**
+    /**
            @brief Convert a missing transverse energy object of type AMet
            into HitFit four-momentum object of type Fourvec.
 
@@ -79,10 +76,9 @@ namespace hitfit{
            user would like to use the resolution embedded in the object,
            and not the resolution read when instantiating the class.
          */
-        Fourvec operator() (const AMet& met,
-                            bool useObjEmbRes = false);
+    Fourvec operator()(const AMet& met, bool useObjEmbRes = false);
 
-        /**
+    /**
            @brief Return the  \f$ k_{T} \f$  resolution corresponding to
            an instance of missing transverse energy object.
 
@@ -93,10 +89,9 @@ namespace hitfit{
            user would like to use the resolution embedded in the object,
            and not the resolution read when instantiating the class.
          */
-        Resolution KtResolution(const AMet& met,
-                                bool useObjEmbRes = false) const;
+    Resolution KtResolution(const AMet& met, bool useObjEmbRes = false) const;
 
-        /**
+    /**
            @brief Alias for KtResolution(AMet& met)
 
            @param met The missing transverse energy object whose
@@ -106,19 +101,15 @@ namespace hitfit{
            user would like to use the resolution embedded in the object,
            and not the resolution read when instantiating the class.
          */
-        Resolution METResolution(const AMet& met,
-                                 bool useObjEmbRes = false) const;
+    Resolution METResolution(const AMet& met, bool useObjEmbRes = false) const;
 
-
-    private:
-
-        /**
+  private:
+    /**
            @brief The resolution.
          */
-        Resolution resolution_;
+    Resolution resolution_;
+  };
 
-    };
+}  // namespace hitfit
 
-} // namespace hitfit
-
-#endif // #ifndef HitFit_METTranslatorBase_h
+#endif  // #ifndef HitFit_METTranslatorBase_h

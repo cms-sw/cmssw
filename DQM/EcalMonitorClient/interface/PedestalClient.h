@@ -3,12 +3,11 @@
 
 #include "DQWorkerClient.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class PedestalClient : public DQWorkerClient {
   public:
     PedestalClient();
-    ~PedestalClient() {}
+    ~PedestalClient() override {}
 
     void producePlots(ProcessType) override;
 
@@ -28,6 +27,6 @@ namespace ecaldqm
     std::vector<float> tolerancePNRMS_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif

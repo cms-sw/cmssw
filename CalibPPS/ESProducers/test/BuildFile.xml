@@ -1,0 +1,3 @@
+<bin name="alignment_xml_io_test" file="alignment_xml_io_test.cc">
+  <use name="Geometry/VeryForwardGeometryBuilder"/>
+</bin>

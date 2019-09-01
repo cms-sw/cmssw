@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import re,os,sys,shutil
 import optparse
 
@@ -45,29 +46,29 @@ options,args=parser.parse_args()
 
 
 if options.runLabel=='' or options.dir=='' or options.xml=='':
-  print "\nOne or more of REQUIRED options is missing!\n"
+  print("\nOne or more of REQUIRED options is missing!\n")
   parser.print_help()
   sys.exit()
 
 allOptions = "-l "+options.runLabel+" -i "+options.dir+" -x "+options.xml
 #if options.diagnostic: allOptions += " --diagnostic"
-print sys.argv[0]+" "+allOptions
+print(sys.argv[0]+" "+allOptions)
 
-pwd = str(os.getcwdu())
+pwd = str(os.getcwd())
 
 if not os.access(options.dir,os.F_OK):
-  print "Directory " + options.dir + " does not exist. Exiting..."
+  print("Directory " + options.dir + " does not exist. Exiting...")
   sys.exit()
 os.chdir(options.dir)
 
 if not loadTestResultsMap(options.runLabel):
-  print "Cant open pickle file with mapplots fit results. Exiting..."
+  print("Cant open pickle file with mapplots fit results. Exiting...")
   sys.exit()
 
 
 xml_corr = {}
 
-print "       \tdX(mm)   \t dY(mm)   \tdPhiZ(mrad)"
+print("       \tdX(mm)   \t dY(mm)   \tdPhiZ(mrad)")
 for endcap in CSC_TYPES:
   for station in endcap[2]:
     for ring in station[2]:
@@ -85,7 +86,7 @@ for endcap in CSC_TYPES:
         d_y, de_y = -fits['cos'][0]/10., fits['cos'][1]/10.
         d_phiz, de_phiz = -fits['a'][0]/10./signConventions[postal_address][3], fits['a'][1]/10./signConventions[postal_address][3]
         
-        print "%s \t%+.2f+-%.2f  \t%+.2f+-%.2f \t%+.2f+-%.2f" % (ring_id, d_x*10 , de_x*10, d_y*10 , de_y*10 , d_phiz*1000, de_phiz*1000)
+        print("%s \t%+.2f+-%.2f  \t%+.2f+-%.2f \t%+.2f+-%.2f" % (ring_id, d_x*10 , de_x*10, d_y*10 , de_y*10 , d_phiz*1000, de_phiz*1000))
         
         e = endcap[3]
         s = station[1]
@@ -139,13 +140,13 @@ for endcap in CSC_TYPES:
 
 """ % vars()
 
-print xml_str
+print(xml_str)
 xml_str += "</MuonAlignment>"
 
 os.chdir(pwd)
 
 ff = open(options.xml+".ring",mode="w")
-print >>ff, xml_str
+print(xml_str, file=ff)
 ff.close()
 
 os.system('grep -v "</MuonAlignment>" %s > %s' % (options.xml, options.xml+".tmp"))

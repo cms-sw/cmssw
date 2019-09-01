@@ -1,10 +1,11 @@
+from __future__ import absolute_import
 import os
 import logging
 import glob
 
-import tools
+from . import tools
 import FWCore.ParameterSet.Config as cms
-from DTWorkflow import DTWorkflow
+from .DTWorkflow import DTWorkflow
 
 log = logging.getLogger(__name__)
 
@@ -54,7 +55,7 @@ class DTttrigWorkflow( DTWorkflow ):
 
     def get_output_db(self, workflow_mode, command):
         output_db_file = self.output_db_dict[workflow_mode]
-        if type(output_db_file) == dict:
+        if isinstance(output_db_file, dict):
             return output_db_file[command]
         return output_db_file
     ####################################################################
@@ -81,7 +82,7 @@ class DTttrigWorkflow( DTWorkflow ):
 
     def prepare_timeboxes_write(self):
         self.output_db_file = self.output_db_dict[self.options.workflow_mode]
-        if type(self.output_db_dict[self.options.workflow_mode]) == dict:
+        if isinstance(self.output_db_dict[self.options.workflow_mode], dict):
             self.output_db_file = self.output_db_file[self.options.command]
         self.prepare_common_write()
         merged_file = os.path.join(self.result_path, self.output_file)
@@ -152,6 +153,8 @@ class DTttrigWorkflow( DTWorkflow ):
         self.process.GlobalTag.globaltag = cms.string(str(self.options.globaltag))
         self.process.dtResidualCalibration.rootFileName = self.output_file
         self.prepare_common_submit()
+        if self.options.fromMuons:
+            self.process.dtResidualCalibration.Muons = cms.InputTag("muons")
         if self.options.histoRange:
             self.process.dtResidualCalibration.histogramRange = cms.double(float(self.options.histoRange))
         if self.options.inputCalibDB:
@@ -222,10 +225,13 @@ class DTttrigWorkflow( DTWorkflow ):
         self.pset_template = 'CalibMuon.DTCalibration.dtCalibValidation_cfg'
         if self.options.datasettype == "Cosmics":
             self.pset_template = 'CalibMuon.DTCalibration.dtCalibValidation_cosmics_cfg'
+        if self.options.fromMuons:
+            self.pset_template = 'CalibMuon.DTCalibration.dtCalibValidationFromMuons_cfg'
         self.process = tools.loadCmsProcess(self.pset_template)
         self.process.GlobalTag.globaltag = cms.string(str(self.options.globaltag))
         self.prepare_common_submit()
-        self.add_local_calib_db()
+        if self.options.inputCalibDB:
+            self.add_local_calib_db()
         self.write_pset_file()
 
     def prepare_validation_check(self):

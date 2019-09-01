@@ -15,8 +15,6 @@ process.load("CalibTracker.SiStripESProducers.fake.SiStripDetVOffFakeESSource_cf
 process.es_prefer_fakeSiStripDetVOff = cms.ESPrefer("SiStripDetVOffFakeESSource","siStripDetVOffFakeESSource")
 
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
-
 #process.MessageLogger = cms.Service("MessageLogger",
 #    cout = cms.untracked.PSet( threshold = cms.untracked.string('ERROR')  ),
 #    destinations = cms.untracked.vstring('cout')

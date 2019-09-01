@@ -1,14 +1,12 @@
 #ifndef EcalSimAlgos_EcalElectronicsSim_h
 #define EcalSimAlgos_EcalElectronicsSim_h 1
 
-
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
 
-
-class EcalCoder           ;
-class EcalDataFrame       ;
-class EcalSimParameterMap ;
+class EcalCoder;
+class EcalDataFrame;
+class EcalSimParameterMap;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -19,44 +17,40 @@ namespace CLHEP {
  * 
  */
 
-class EcalElectronicsSim
-{
-   public:
+class EcalElectronicsSim {
+public:
+  typedef CaloTSamples<float, 10> EcalSamples;
 
-      typedef CaloTSamples<float,10> EcalSamples ;
+  EcalElectronicsSim(const EcalSimParameterMap* parameterMap,
+                     EcalCoder* coder,
+                     bool applyConstantTerm,
+                     double rmsConstantTerm);
 
-      EcalElectronicsSim( const EcalSimParameterMap* parameterMap      , 
-			  EcalCoder*                 coder             , 
-			  bool                       applyConstantTerm , 
-			  double                     rmsConstantTerm     ) ;
+  ~EcalElectronicsSim();
 
-      ~EcalElectronicsSim() ;
+  /// from EcalSamples to EcalDataFrame
+  void analogToDigital(CLHEP::HepRandomEngine*, EcalSamples& clf, EcalDataFrame& df) const;
 
-      /// from EcalSamples to EcalDataFrame
-      void analogToDigital( CLHEP::HepRandomEngine*, EcalSamples& clf, EcalDataFrame& df ) const ;
+  void newEvent() {}
 
-      void newEvent() {}
+  void setNoiseSignalGenerator(const CaloVNoiseSignalGenerator* noiseSignalGenerator) {
+    theNoiseSignalGenerator = noiseSignalGenerator;
+  }
 
-      void setNoiseSignalGenerator(const CaloVNoiseSignalGenerator * noiseSignalGenerator) {
-	theNoiseSignalGenerator = noiseSignalGenerator;
-      }
+private:
+  /// input signal is in pe.  Converted in GeV
+  void amplify(EcalSamples& clf, CLHEP::HepRandomEngine*) const;
 
-   private:
+  /// map of parameters
 
-      /// input signal is in pe.  Converted in GeV
-      void amplify( EcalSamples& clf, CLHEP::HepRandomEngine* ) const ;
+  const EcalSimParameterMap* m_simMap;
 
-      /// map of parameters
+  const CaloVNoiseSignalGenerator* theNoiseSignalGenerator;
 
-      const EcalSimParameterMap* m_simMap ;
+  EcalCoder* m_theCoder;
 
-      const CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
-
-      EcalCoder*                 m_theCoder ;
-
-      const double               m_thisCT;
-      const bool                 m_applyConstantTerm;
-} ;
-
+  const double m_thisCT;
+  const bool m_applyConstantTerm;
+};
 
 #endif

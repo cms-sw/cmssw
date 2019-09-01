@@ -27,31 +27,22 @@
 
 class KinematicConstrainedVertexFitter;
 class ConversionVertexFinder {
-
 public:
-
   ConversionVertexFinder(const edm::ParameterSet& config);
-
 
   ~ConversionVertexFinder();
 
+  TransientVertex run(const std::vector<reco::TransientTrack>& pair);
 
-  TransientVertex run (const std::vector<reco::TransientTrack>& pair);
-  
-  bool run( const std::vector<reco::TransientTrack>&  pair, reco::Vertex& the_vertex) ;
-  
+  bool run(const std::vector<reco::TransientTrack>& pair, reco::Vertex& the_vertex);
 
- private:
+private:
   edm::ParameterSet conf_;
-  double maxDelta_; 
+  double maxDelta_;
   double maxReducedChiSq_;
   double minChiSqImprovement_;
   int maxNbrOfIterations_;
   KinematicConstrainedVertexFitter* kcvFitter_;
-
-
 };
 
-#endif // ConversionVertexFinder_H
-
-
+#endif  // ConversionVertexFinder_H

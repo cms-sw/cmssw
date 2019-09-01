@@ -1,7 +1,8 @@
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="SimG4Core/Geometry"/>
+<use   name="SimG4Core/Notification"/>
+<use   name="geant4core"/>
 <export>
   <lib   name="1"/>
 </export>
-<use   name="SimG4Core/Geometry"/>
-<use   name="boost"/>
-<use   name="geant4core"/>
-<use   name="sigcpp"/>

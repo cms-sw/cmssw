@@ -1,7 +1,6 @@
 #ifndef MessageLogger_ELstring_h
 #define MessageLogger_ELstring_h
 
-
 // ----------------------------------------------------------------------
 //
 // ELstring.h	Provides a string class with the semantics of std::string.
@@ -13,27 +12,20 @@
 //
 // ----------------------------------------------------------------------
 
-
 #include <string>
 
+namespace edm {
 
-namespace edm {       
+  // ----------------------------------------------------------------------
 
+  typedef std::string ELstring;
 
-// ----------------------------------------------------------------------
+  bool eq_nocase(const ELstring& s1, const char s2[]);
 
+  bool eq(const ELstring& s1, const ELstring s2);
 
-typedef std::string ELstring;
+  // ----------------------------------------------------------------------
 
-bool eq_nocase( const ELstring & s1, const char s2[] );
-
-bool eq( const ELstring & s1, const ELstring s2 );
-
-
-// ----------------------------------------------------------------------
-
-
-}        // end of namespace edm
-
+}  // end of namespace edm
 
 #endif  // MessageLogger_ELstring_h

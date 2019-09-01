@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------------
 // Created 05/03/2010 - A.C. Le Bihan
-// 
+//
 //
 // Original code : L1Trigger/L1TNtuples/L1RecoJetNtupleProducer - Jim Brooke
 //-------------------------------------------------------------------------------
@@ -27,7 +27,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
 //vertices bp
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -37,36 +36,34 @@
 #include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-namespace L1Analysis
-{
-  class L1AnalysisRecoMuon2
-  {
+namespace L1Analysis {
+  class L1AnalysisRecoMuon2 {
   public:
     L1AnalysisRecoMuon2(const edm::ParameterSet& pset);
     ~L1AnalysisRecoMuon2();
-    
-    void init(const edm::EventSetup &eventSetup);
+
+    void init(const edm::EventSetup& eventSetup);
 
     //void Print(std::ostream &os = std::cout) const;
     void SetMuon(const edm::Event& event,
                  const edm::EventSetup& setup,
                  const edm::Handle<reco::MuonCollection> muons,
                  const edm::Handle<reco::VertexCollection> vertices,
-		 double METx, double METy,
+                 double METx,
+                 double METy,
                  unsigned maxMuon);
 
     /* bool isMediumMuon(const reco::Muon & recoMu) ; */
     /* bool isLooseMuon (const reco::Muon & recoMu); */
 
-    L1AnalysisRecoMuon2DataFormat * getData() {return &recoMuon_;}
-    void Reset() {recoMuon_.Reset();}
+    L1AnalysisRecoMuon2DataFormat* getData() { return &recoMuon_; }
+    void Reset() { recoMuon_.Reset(); }
 
-  private :
+  private:
     L1AnalysisRecoMuon2DataFormat recoMuon_;
 
     PropagateToMuon muPropagator1st_;
     PropagateToMuon muPropagator2nd_;
-  }; 
-}
+  };
+}  // namespace L1Analysis
 #endif
-

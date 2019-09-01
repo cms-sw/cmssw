@@ -6,37 +6,23 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-
 namespace edm {
   class ParameterSet;
 }
 
+namespace edmtest {
 
-namespace edmtest
-{
+  class UnitTestClient_Nd : public edm::EDAnalyzer {
+  public:
+    explicit UnitTestClient_Nd(edm::ParameterSet const&) {}
 
-class UnitTestClient_Nd
-  : public edm::EDAnalyzer
-{
-public:
-  explicit
-    UnitTestClient_Nd( edm::ParameterSet const & )
-  { }
+    virtual ~UnitTestClient_Nd() {}
 
-  virtual
-    ~UnitTestClient_Nd()
-  { }
+    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
 
-  virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
-                );
-
-private:
-};
-
+  private:
+  };
 
 }  // namespace edmtest
-
 
 #endif  // FWCore_MessageService_test_UnitTestClient_Nd_h

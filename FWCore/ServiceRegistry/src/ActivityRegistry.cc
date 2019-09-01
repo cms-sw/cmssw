@@ -55,19 +55,15 @@
 //
 namespace edm {
   namespace {
-    template<typename T>
-    inline
-    void
-    copySlotsToFrom(T& iTo, T& iFrom) {
-      for(auto& slot: iFrom.slots()) {
+    template <typename T>
+    inline void copySlotsToFrom(T& iTo, T& iFrom) {
+      for (auto& slot : iFrom.slots()) {
         iTo.connect(slot);
       }
     }
 
-    template<typename T>
-    inline
-    void
-    copySlotsToFromReverse(T& iTo, T& iFrom) {
+    template <typename T>
+    inline void copySlotsToFromReverse(T& iTo, T& iFrom) {
       // This handles service slots that are supposed to be in reverse
       // order of construction. Copying new ones in is a little
       // tricky.  Here is an example of what follows
@@ -79,92 +75,88 @@ namespace edm {
 
       std::reverse(slotsFrom.begin(), slotsFrom.end());
 
-      for(auto& slotFrom: slotsFrom) {
+      for (auto& slotFrom : slotsFrom) {
         iTo.connect_front(slotFrom);
       }
     }
-  }
+  }  // namespace
 
   namespace signalslot {
     void throwObsoleteSignalException() {
       throw cms::Exception("ConnectedToObsoleteServiceSignal")
-      <<"A Service has connected to an obsolete ActivityRegistry signal.";
+          << "A Service has connected to an obsolete ActivityRegistry signal.";
     }
-  }
-  
-  void
-  ActivityRegistry::connectGlobals(ActivityRegistry& iOther) {
-     preallocateSignal_.connect(std::cref(iOther.preallocateSignal_));
-     postBeginJobSignal_.connect(std::cref(iOther.postBeginJobSignal_));
-     preEndJobSignal_.connect(std::cref(iOther.preEndJobSignal_));
-     postEndJobSignal_.connect(std::cref(iOther.postEndJobSignal_));
+  }  // namespace signalslot
 
-     jobFailureSignal_.connect(std::cref(iOther.jobFailureSignal_));
+  void ActivityRegistry::connectGlobals(ActivityRegistry& iOther) {
+    preallocateSignal_.connect(std::cref(iOther.preallocateSignal_));
+    postBeginJobSignal_.connect(std::cref(iOther.postBeginJobSignal_));
+    preEndJobSignal_.connect(std::cref(iOther.preEndJobSignal_));
+    postEndJobSignal_.connect(std::cref(iOther.postEndJobSignal_));
 
-     preSourceSignal_.connect(std::cref(iOther.preSourceSignal_));
-     postSourceSignal_.connect(std::cref(iOther.postSourceSignal_));
+    jobFailureSignal_.connect(std::cref(iOther.jobFailureSignal_));
 
-     preSourceLumiSignal_.connect(std::cref(iOther.preSourceLumiSignal_));
-     postSourceLumiSignal_.connect(std::cref(iOther.postSourceLumiSignal_));
+    preSourceSignal_.connect(std::cref(iOther.preSourceSignal_));
+    postSourceSignal_.connect(std::cref(iOther.postSourceSignal_));
 
-     preSourceRunSignal_.connect(std::cref(iOther.preSourceRunSignal_));
-     postSourceRunSignal_.connect(std::cref(iOther.postSourceRunSignal_));
+    preSourceLumiSignal_.connect(std::cref(iOther.preSourceLumiSignal_));
+    postSourceLumiSignal_.connect(std::cref(iOther.postSourceLumiSignal_));
 
-     preOpenFileSignal_.connect(std::cref(iOther.preOpenFileSignal_));
-     postOpenFileSignal_.connect(std::cref(iOther.postOpenFileSignal_));
+    preSourceRunSignal_.connect(std::cref(iOther.preSourceRunSignal_));
+    postSourceRunSignal_.connect(std::cref(iOther.postSourceRunSignal_));
 
-     preCloseFileSignal_.connect(std::cref(iOther.preCloseFileSignal_));
-     postCloseFileSignal_.connect(std::cref(iOther.postCloseFileSignal_));
+    preOpenFileSignal_.connect(std::cref(iOther.preOpenFileSignal_));
+    postOpenFileSignal_.connect(std::cref(iOther.postOpenFileSignal_));
 
-     preSourceConstructionSignal_.connect(std::cref(iOther.preSourceConstructionSignal_));
-     postSourceConstructionSignal_.connect(std::cref(iOther.postSourceConstructionSignal_));
+    preCloseFileSignal_.connect(std::cref(iOther.preCloseFileSignal_));
+    postCloseFileSignal_.connect(std::cref(iOther.postCloseFileSignal_));
+
+    preSourceConstructionSignal_.connect(std::cref(iOther.preSourceConstructionSignal_));
+    postSourceConstructionSignal_.connect(std::cref(iOther.postSourceConstructionSignal_));
 
     preStreamEarlyTerminationSignal_.connect(std::cref(iOther.preStreamEarlyTerminationSignal_));
     preGlobalEarlyTerminationSignal_.connect(std::cref(iOther.preGlobalEarlyTerminationSignal_));
     preSourceEarlyTerminationSignal_.connect(std::cref(iOther.preSourceEarlyTerminationSignal_));
-
   }
 
-  void
-  ActivityRegistry::connectLocals(ActivityRegistry& iOther) {
+  void ActivityRegistry::connectLocals(ActivityRegistry& iOther) {
+    preBeginJobSignal_.connect(std::cref(iOther.preBeginJobSignal_));
 
-     preBeginJobSignal_.connect(std::cref(iOther.preBeginJobSignal_));
+    preModuleBeginStreamSignal_.connect(std::cref(iOther.preModuleBeginStreamSignal_));
+    postModuleBeginStreamSignal_.connect(std::cref(iOther.postModuleBeginStreamSignal_));
 
-     preModuleBeginStreamSignal_.connect(std::cref(iOther.preModuleBeginStreamSignal_));
-     postModuleBeginStreamSignal_.connect(std::cref(iOther.postModuleBeginStreamSignal_));
+    preModuleEndStreamSignal_.connect(std::cref(iOther.preModuleEndStreamSignal_));
+    postModuleEndStreamSignal_.connect(std::cref(iOther.postModuleEndStreamSignal_));
 
-     preModuleEndStreamSignal_.connect(std::cref(iOther.preModuleEndStreamSignal_));
-     postModuleEndStreamSignal_.connect(std::cref(iOther.postModuleEndStreamSignal_));
+    preGlobalBeginRunSignal_.connect(std::cref(iOther.preGlobalBeginRunSignal_));
+    postGlobalBeginRunSignal_.connect(std::cref(iOther.postGlobalBeginRunSignal_));
 
-     preGlobalBeginRunSignal_.connect(std::cref(iOther.preGlobalBeginRunSignal_));
-     postGlobalBeginRunSignal_.connect(std::cref(iOther.postGlobalBeginRunSignal_));
+    preGlobalEndRunSignal_.connect(std::cref(iOther.preGlobalEndRunSignal_));
+    postGlobalEndRunSignal_.connect(std::cref(iOther.postGlobalEndRunSignal_));
 
-     preGlobalEndRunSignal_.connect(std::cref(iOther.preGlobalEndRunSignal_));
-     postGlobalEndRunSignal_.connect(std::cref(iOther.postGlobalEndRunSignal_));
+    preStreamBeginRunSignal_.connect(std::cref(iOther.preStreamBeginRunSignal_));
+    postStreamBeginRunSignal_.connect(std::cref(iOther.postStreamBeginRunSignal_));
 
-     preStreamBeginRunSignal_.connect(std::cref(iOther.preStreamBeginRunSignal_));
-     postStreamBeginRunSignal_.connect(std::cref(iOther.postStreamBeginRunSignal_));
+    preStreamEndRunSignal_.connect(std::cref(iOther.preStreamEndRunSignal_));
+    postStreamEndRunSignal_.connect(std::cref(iOther.postStreamEndRunSignal_));
 
-     preStreamEndRunSignal_.connect(std::cref(iOther.preStreamEndRunSignal_));
-     postStreamEndRunSignal_.connect(std::cref(iOther.postStreamEndRunSignal_));
+    preGlobalBeginLumiSignal_.connect(std::cref(iOther.preGlobalBeginLumiSignal_));
+    postGlobalBeginLumiSignal_.connect(std::cref(iOther.postGlobalBeginLumiSignal_));
 
-     preGlobalBeginLumiSignal_.connect(std::cref(iOther.preGlobalBeginLumiSignal_));
-     postGlobalBeginLumiSignal_.connect(std::cref(iOther.postGlobalBeginLumiSignal_));
+    preGlobalEndLumiSignal_.connect(std::cref(iOther.preGlobalEndLumiSignal_));
+    postGlobalEndLumiSignal_.connect(std::cref(iOther.postGlobalEndLumiSignal_));
 
-     preGlobalEndLumiSignal_.connect(std::cref(iOther.preGlobalEndLumiSignal_));
-     postGlobalEndLumiSignal_.connect(std::cref(iOther.postGlobalEndLumiSignal_));
+    preStreamBeginLumiSignal_.connect(std::cref(iOther.preStreamBeginLumiSignal_));
+    postStreamBeginLumiSignal_.connect(std::cref(iOther.postStreamBeginLumiSignal_));
 
-     preStreamBeginLumiSignal_.connect(std::cref(iOther.preStreamBeginLumiSignal_));
-     postStreamBeginLumiSignal_.connect(std::cref(iOther.postStreamBeginLumiSignal_));
+    preStreamEndLumiSignal_.connect(std::cref(iOther.preStreamEndLumiSignal_));
+    postStreamEndLumiSignal_.connect(std::cref(iOther.postStreamEndLumiSignal_));
 
-     preStreamEndLumiSignal_.connect(std::cref(iOther.preStreamEndLumiSignal_));
-     postStreamEndLumiSignal_.connect(std::cref(iOther.postStreamEndLumiSignal_));
+    preEventSignal_.connect(std::cref(iOther.preEventSignal_));
+    postEventSignal_.connect(std::cref(iOther.postEventSignal_));
 
-     preEventSignal_.connect(std::cref(iOther.preEventSignal_));
-     postEventSignal_.connect(std::cref(iOther.postEventSignal_));
-
-     prePathEventSignal_.connect(std::cref(iOther.prePathEventSignal_));
-     postPathEventSignal_.connect(std::cref(iOther.postPathEventSignal_));
+    prePathEventSignal_.connect(std::cref(iOther.prePathEventSignal_));
+    postPathEventSignal_.connect(std::cref(iOther.postPathEventSignal_));
 
     //preProcessEventSignal_.connect(std::cref(iOther.preProcessEventSignal_));
     //postProcessEventSignal_.connect(std::cref(iOther.postProcessEventSignal_));
@@ -196,59 +188,59 @@ namespace edm {
     //prePathEndLumiSignal_.connect(std::cref(iOther.prePathEndLumiSignal_));
     //postPathEndLumiSignal_.connect(std::cref(iOther.postPathEndLumiSignal_));
 
-     preModuleConstructionSignal_.connect(std::cref(iOther.preModuleConstructionSignal_));
-     postModuleConstructionSignal_.connect(std::cref(iOther.postModuleConstructionSignal_));
+    preModuleConstructionSignal_.connect(std::cref(iOther.preModuleConstructionSignal_));
+    postModuleConstructionSignal_.connect(std::cref(iOther.postModuleConstructionSignal_));
 
-     preModuleBeginJobSignal_.connect(std::cref(iOther.preModuleBeginJobSignal_));
-     postModuleBeginJobSignal_.connect(std::cref(iOther.postModuleBeginJobSignal_));
+    preModuleBeginJobSignal_.connect(std::cref(iOther.preModuleBeginJobSignal_));
+    postModuleBeginJobSignal_.connect(std::cref(iOther.postModuleBeginJobSignal_));
 
-     preModuleEndJobSignal_.connect(std::cref(iOther.preModuleEndJobSignal_));
-     postModuleEndJobSignal_.connect(std::cref(iOther.postModuleEndJobSignal_));
+    preModuleEndJobSignal_.connect(std::cref(iOther.preModuleEndJobSignal_));
+    postModuleEndJobSignal_.connect(std::cref(iOther.postModuleEndJobSignal_));
 
     preModuleEventPrefetchingSignal_.connect(std::cref(iOther.preModuleEventPrefetchingSignal_));
     postModuleEventPrefetchingSignal_.connect(std::cref(iOther.postModuleEventPrefetchingSignal_));
 
     preModuleEventSignal_.connect(std::cref(iOther.preModuleEventSignal_));
-     postModuleEventSignal_.connect(std::cref(iOther.postModuleEventSignal_));
+    postModuleEventSignal_.connect(std::cref(iOther.postModuleEventSignal_));
 
-     preModuleEventAcquireSignal_.connect(std::cref(iOther.preModuleEventAcquireSignal_));
-     postModuleEventAcquireSignal_.connect(std::cref(iOther.postModuleEventAcquireSignal_));
+    preModuleEventAcquireSignal_.connect(std::cref(iOther.preModuleEventAcquireSignal_));
+    postModuleEventAcquireSignal_.connect(std::cref(iOther.postModuleEventAcquireSignal_));
 
-     preModuleEventDelayedGetSignal_.connect(std::cref(iOther.preModuleEventDelayedGetSignal_));
-     postModuleEventDelayedGetSignal_.connect(std::cref(iOther.postModuleEventDelayedGetSignal_));
+    preModuleEventDelayedGetSignal_.connect(std::cref(iOther.preModuleEventDelayedGetSignal_));
+    postModuleEventDelayedGetSignal_.connect(std::cref(iOther.postModuleEventDelayedGetSignal_));
 
-     preEventReadFromSourceSignal_.connect(std::cref(iOther.preEventReadFromSourceSignal_));
-     postEventReadFromSourceSignal_.connect(std::cref(iOther.postEventReadFromSourceSignal_));
+    preEventReadFromSourceSignal_.connect(std::cref(iOther.preEventReadFromSourceSignal_));
+    postEventReadFromSourceSignal_.connect(std::cref(iOther.postEventReadFromSourceSignal_));
 
-     preModuleStreamBeginRunSignal_.connect(std::cref(iOther.preModuleStreamBeginRunSignal_));
-     postModuleStreamBeginRunSignal_.connect(std::cref(iOther.postModuleStreamBeginRunSignal_));
+    preModuleStreamBeginRunSignal_.connect(std::cref(iOther.preModuleStreamBeginRunSignal_));
+    postModuleStreamBeginRunSignal_.connect(std::cref(iOther.postModuleStreamBeginRunSignal_));
 
-     preModuleStreamEndRunSignal_.connect(std::cref(iOther.preModuleStreamEndRunSignal_));
-     postModuleStreamEndRunSignal_.connect(std::cref(iOther.postModuleStreamEndRunSignal_));
+    preModuleStreamEndRunSignal_.connect(std::cref(iOther.preModuleStreamEndRunSignal_));
+    postModuleStreamEndRunSignal_.connect(std::cref(iOther.postModuleStreamEndRunSignal_));
 
-     preModuleStreamBeginLumiSignal_.connect(std::cref(iOther.preModuleStreamBeginLumiSignal_));
-     postModuleStreamBeginLumiSignal_.connect(std::cref(iOther.postModuleStreamBeginLumiSignal_));
+    preModuleStreamBeginLumiSignal_.connect(std::cref(iOther.preModuleStreamBeginLumiSignal_));
+    postModuleStreamBeginLumiSignal_.connect(std::cref(iOther.postModuleStreamBeginLumiSignal_));
 
-     preModuleStreamEndLumiSignal_.connect(std::cref(iOther.preModuleStreamEndLumiSignal_));
-     postModuleStreamEndLumiSignal_.connect(std::cref(iOther.postModuleStreamEndLumiSignal_));
+    preModuleStreamEndLumiSignal_.connect(std::cref(iOther.preModuleStreamEndLumiSignal_));
+    postModuleStreamEndLumiSignal_.connect(std::cref(iOther.postModuleStreamEndLumiSignal_));
 
-     preModuleGlobalBeginRunSignal_.connect(std::cref(iOther.preModuleGlobalBeginRunSignal_));
-     postModuleGlobalBeginRunSignal_.connect(std::cref(iOther.postModuleGlobalBeginRunSignal_));
+    preModuleGlobalBeginRunSignal_.connect(std::cref(iOther.preModuleGlobalBeginRunSignal_));
+    postModuleGlobalBeginRunSignal_.connect(std::cref(iOther.postModuleGlobalBeginRunSignal_));
 
-     preModuleGlobalEndRunSignal_.connect(std::cref(iOther.preModuleGlobalEndRunSignal_));
-     postModuleGlobalEndRunSignal_.connect(std::cref(iOther.postModuleGlobalEndRunSignal_));
+    preModuleGlobalEndRunSignal_.connect(std::cref(iOther.preModuleGlobalEndRunSignal_));
+    postModuleGlobalEndRunSignal_.connect(std::cref(iOther.postModuleGlobalEndRunSignal_));
 
-     preModuleGlobalBeginLumiSignal_.connect(std::cref(iOther.preModuleGlobalBeginLumiSignal_));
-     postModuleGlobalBeginLumiSignal_.connect(std::cref(iOther.postModuleGlobalBeginLumiSignal_));
+    preModuleGlobalBeginLumiSignal_.connect(std::cref(iOther.preModuleGlobalBeginLumiSignal_));
+    postModuleGlobalBeginLumiSignal_.connect(std::cref(iOther.postModuleGlobalBeginLumiSignal_));
 
-     preModuleGlobalEndLumiSignal_.connect(std::cref(iOther.preModuleGlobalEndLumiSignal_));
-     postModuleGlobalEndLumiSignal_.connect(std::cref(iOther.postModuleGlobalEndLumiSignal_));
+    preModuleGlobalEndLumiSignal_.connect(std::cref(iOther.preModuleGlobalEndLumiSignal_));
+    postModuleGlobalEndLumiSignal_.connect(std::cref(iOther.postModuleGlobalEndLumiSignal_));
 
-     preModuleWriteRunSignal_.connect(std::cref(iOther.preModuleWriteRunSignal_));
-     postModuleWriteRunSignal_.connect(std::cref(iOther.postModuleWriteRunSignal_));
+    preModuleWriteRunSignal_.connect(std::cref(iOther.preModuleWriteRunSignal_));
+    postModuleWriteRunSignal_.connect(std::cref(iOther.postModuleWriteRunSignal_));
 
-     preModuleWriteLumiSignal_.connect(std::cref(iOther.preModuleWriteLumiSignal_));
-     postModuleWriteLumiSignal_.connect(std::cref(iOther.postModuleWriteLumiSignal_));
+    preModuleWriteLumiSignal_.connect(std::cref(iOther.preModuleWriteLumiSignal_));
+    postModuleWriteLumiSignal_.connect(std::cref(iOther.postModuleWriteLumiSignal_));
 
     //preModuleSignal_.connect(std::cref(iOther.preModuleSignal_));
     //postModuleSignal_.connect(std::cref(iOther.postModuleSignal_));
@@ -265,26 +257,23 @@ namespace edm {
     //preModuleEndLumiSignal_.connect(std::cref(iOther.preModuleEndLumiSignal_));
     //postModuleEndLumiSignal_.connect(std::cref(iOther.postModuleEndLumiSignal_));
 
-     preLockEventSetupGetSignal_.connect(std::cref(iOther.preLockEventSetupGetSignal_));
-     postLockEventSetupGetSignal_.connect(std::cref(iOther.postLockEventSetupGetSignal_));
-     postEventSetupGetSignal_.connect(std::cref(iOther.postEventSetupGetSignal_));
+    preLockEventSetupGetSignal_.connect(std::cref(iOther.preLockEventSetupGetSignal_));
+    postLockEventSetupGetSignal_.connect(std::cref(iOther.postLockEventSetupGetSignal_));
+    postEventSetupGetSignal_.connect(std::cref(iOther.postEventSetupGetSignal_));
   }
 
-  void
-  ActivityRegistry::connect(ActivityRegistry& iOther) {
+  void ActivityRegistry::connect(ActivityRegistry& iOther) {
     connectGlobals(iOther);
     connectLocals(iOther);
   }
 
-  void
-  ActivityRegistry::connectToSubProcess(ActivityRegistry& iOther) {
-    connectGlobals(iOther);        // child sees parents global signals
-    iOther.connectLocals(*this);   // parent see childs global signals
+  void ActivityRegistry::connectToSubProcess(ActivityRegistry& iOther) {
+    connectGlobals(iOther);       // child sees parents global signals
+    iOther.connectLocals(*this);  // parent see childs global signals
   }
 
-  void
-  ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther) {
-    copySlotsToFrom(preallocateSignal_,iOther.preallocateSignal_);
+  void ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther) {
+    copySlotsToFrom(preallocateSignal_, iOther.preallocateSignal_);
     copySlotsToFrom(preBeginJobSignal_, iOther.preBeginJobSignal_);
     copySlotsToFrom(postBeginJobSignal_, iOther.postBeginJobSignal_);
     copySlotsToFromReverse(preEndJobSignal_, iOther.preEndJobSignal_);
@@ -389,7 +378,7 @@ namespace edm {
 
     copySlotsToFrom(preModuleEventPrefetchingSignal_, iOther.preModuleEventPrefetchingSignal_);
     copySlotsToFromReverse(postModuleEventPrefetchingSignal_, iOther.postModuleEventPrefetchingSignal_);
-    
+
     copySlotsToFrom(preModuleEventSignal_, iOther.preModuleEventSignal_);
     copySlotsToFromReverse(postModuleEventSignal_, iOther.postModuleEventSignal_);
 
@@ -463,4 +452,4 @@ namespace edm {
   //
   // static member functions
   //
-}
+}  // namespace edm

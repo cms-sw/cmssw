@@ -3,8 +3,8 @@
 
 //-------------------------------------------------------------------------------
 // Created 06/01/2010 - A.C. Le Bihan
-// 
-//  
+//
+//
 // Original code : L1Trigger/L1TNtuples/L1NtupleProducer
 //-------------------------------------------------------------------------------
 
@@ -17,24 +17,20 @@
 #include "TMatrixD.h"
 #include "L1AnalysisDTTFDataFormat.h"
 
-namespace L1Analysis
-{
-  class L1AnalysisDTTF 
-  {
+namespace L1Analysis {
+  class L1AnalysisDTTF {
   public:
     L1AnalysisDTTF();
     ~L1AnalysisDTTF();
-    
-    void SetDTPH(const edm::Handle<L1MuDTChambPhContainer > L1MuDTChambPhContainer, unsigned int maxDTPH);
-    void SetDTTH(const edm::Handle<L1MuDTChambThContainer > L1MuDTChambThContainer, unsigned int maxDTTH);
-    void SetDTTR(const edm::Handle<L1MuDTTrackContainer >   L1MuDTTrackContainer,   unsigned int maxDTTR);
-    void Reset() {dttf_.Reset();}
-    L1AnalysisDTTFDataFormat * getData() {return &dttf_;}
 
-  private : 
+    void SetDTPH(const edm::Handle<L1MuDTChambPhContainer> L1MuDTChambPhContainer, unsigned int maxDTPH);
+    void SetDTTH(const edm::Handle<L1MuDTChambThContainer> L1MuDTChambThContainer, unsigned int maxDTTH);
+    void SetDTTR(const edm::Handle<L1MuDTTrackContainer> L1MuDTTrackContainer, unsigned int maxDTTR);
+    void Reset() { dttf_.Reset(); }
+    L1AnalysisDTTFDataFormat* getData() { return &dttf_; }
+
+  private:
     L1AnalysisDTTFDataFormat dttf_;
-  }; 
-} 
+  };
+}  // namespace L1Analysis
 #endif
-
-

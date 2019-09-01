@@ -15,6 +15,11 @@ DQMStore.collateHistograms = True
 
 dqmSaver.saveByRun = -1
 dqmSaver.saveAtJobEnd = True  
-dqmSaver.forceRunNumber = 1
+dqmSaver.forceRunNumber = 999999
 
 DQMSaver = cms.Sequence(dqmSaver)
+
+# configuration is modified as a side effect, this is just a placeholder
+# to allow using this file as a customisation for cmsDriver.
+def customise(process):
+    return process

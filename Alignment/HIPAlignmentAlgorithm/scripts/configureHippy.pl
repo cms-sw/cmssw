@@ -11,6 +11,7 @@ $incommoncfg = $ARGV[3];
 $inaligncfg = $ARGV[4];
 $intrkselcfg = $ARGV[5];
 $inuseSurfDef = $ARGV[6];
+$inredirectProxy = $ARGV[7];
 
 $strUseSD = "";
 if ($inuseSurfDef == 0){
@@ -40,18 +41,20 @@ chop($iovstr);
 print "IOVs: $iovstr\n";
 
 system( "
-mkdir -p $odir/main/;
-cp $incommoncfg $odir/common_cff_py.txt;
-cp $inaligncfg $odir/align_tpl_py.txt;
-cp python/initial_tpl_py.txt $odir/;
-cp python/collect_tpl_py.txt $odir/;
-cp python/upload_tpl_py.txt $odir/;
-cp scripts/runScript.csh $odir/;
-cp scripts/runControl.csh $odir/main/;
+mkdir -p $odir/main/ &&
+cp $incommoncfg $odir/common_cff_py.txt &&
+cp $inaligncfg $odir/align_tpl_py.txt &&
+cp python/initial_tpl_py.txt $odir/ &&
+cp python/collect_tpl_py.txt $odir/ &&
+cp python/upload_tpl_py.txt $odir/ &&
+cp scripts/runScript.csh $odir/ &&
+cp scripts/runControl.csh $odir/main/ &&
 cp scripts/checkError.sh $odir/main/;
-");
+") and die("Couldn't find all the scripts to copy, see ^^^");
 $success*=replace( "$odir/common_cff_py.txt", "<iovs>", "$iovstr" );
 $success*=replace( "$odir/common_cff_py.txt", "<SURFDEFOPT>", "$strUseSD" );
+$success*=replace( "$odir/runScript.csh", "<PROXYREDIRECT>", "$inredirectProxy" );
+
 
 foreach $data1 ( @dataFileInput1 ) {
 
@@ -70,7 +73,7 @@ foreach $data1 ( @dataFileInput1 ) {
    }
    print "Picking track selection configuration from $trkselfile \n";
    $flagopts = "NOOPTS";
-   if (defined($dataspecs[3])){
+   if (defined($dataspecs[3]) and $dataspecs[3] ne ""){
       print "A flag option is defined.\n";
       $flagopts = $dataspecs[3];
    }
@@ -89,7 +92,7 @@ foreach $data1 ( @dataFileInput1 ) {
 
    system( "
    cp $intrkselcfg/$trkselfile $odir/;
-   " );
+   " ) and die("Couldn't find the track selection for '$flaglower', see ^^^");
 
 
    # open common_cff.py
@@ -173,7 +176,7 @@ foreach $iov ( @iovInput1) {
    system "chmod a+x $odir/main/runScript_$k.csh";
 }
 
-if($result==0){
+if($success==0){
    system("touch $odir/ERROR");
 }
 

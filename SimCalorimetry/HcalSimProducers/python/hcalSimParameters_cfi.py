@@ -108,8 +108,8 @@ run2_common.toModify( hcalSimParameters,
     ho = dict(
         siPMCode = cms.int32(1)
     ),
-    hf1 = dict( samplingFactor = cms.double(0.67) ),
-    hf2 = dict( samplingFactor = cms.double(0.67) )
+    hf1 = dict( samplingFactor = cms.double(0.335) ),
+    hf2 = dict( samplingFactor = cms.double(0.335) )
 )
 
 from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017

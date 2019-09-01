@@ -2,7 +2,7 @@
 //
 // Package:     DataRecord
 // Class  :     RPCMaskedStripsRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

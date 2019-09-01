@@ -1,9 +1,8 @@
- /*
+/*
  *  See header file for a description of this class.
  *
  *  \author G. Mila - INFN Torino
  */
-
 
 #include "CalibMuon/DTCalibration/test/DBTools/FakeTTrig.h"
 
@@ -37,50 +36,41 @@
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
-
 using namespace std;
 using namespace edm;
 
-
-
-FakeTTrig::FakeTTrig(const ParameterSet& pset) :
-  dataBaseWriteWasDone(false) {
-
+FakeTTrig::FakeTTrig(const ParameterSet& pset) : dataBaseWriteWasDone(false) {
   cout << "[FakeTTrig] Constructor called! " << endl;
 
   // further configurable smearing
-  smearing=pset.getUntrackedParameter<double>("smearing");
-  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
+  smearing = pset.getUntrackedParameter<double>("smearing");
+  dbLabel = pset.getUntrackedParameter<string>("dbLabel", "");
 
   // get random engine
   edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "RandomNumberGeneratorService for DTFakeTTrigDB missing in cfg file";
+  if (!rng.isAvailable()) {
+    throw cms::Exception("Configuration") << "RandomNumberGeneratorService for DTFakeTTrigDB missing in cfg file";
   }
   ps = pset;
 }
 
-
-FakeTTrig::~FakeTTrig(){
-  cout << "[FakeTTrig] Destructor called! " << endl;
-}
+FakeTTrig::~FakeTTrig() { cout << "[FakeTTrig] Destructor called! " << endl; }
 
 void FakeTTrig::beginRun(const edm::Run&, const EventSetup& setup) {
   cout << "[FakeTTrig] entered into beginRun! " << endl;
   setup.get<MuonGeometryRecord>().get(muonGeom);
 
   // Get the tTrig reference map
-  if (ps.getUntrackedParameter<bool>("readDB", true)) 
-    setup.get<DTTtrigRcd>().get(dbLabel,tTrigMapRef);  
+  if (ps.getUntrackedParameter<bool>("readDB", true))
+    setup.get<DTTtrigRcd>().get(dbLabel, tTrigMapRef);
 }
 
 void FakeTTrig::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
-  if(!dataBaseWriteWasDone) {
+  if (!dataBaseWriteWasDone) {
     dataBaseWriteWasDone = true;
 
     cout << "[FakeTTrig] entered into beginLuminosityBlock! " << endl;
- 
+
     edm::Service<edm::RandomNumberGenerator> rng;
     CLHEP::HepRandomEngine* engine = &rng->getEngine(lumi.index());
 
@@ -89,9 +79,7 @@ void FakeTTrig::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::Even
     // Create the object to be written to DB
     DTTtrig* tTrigMap = new DTTtrig();
 
-    for (auto sl = dtSupLylist.begin();
-         sl != dtSupLylist.end(); sl++) {
-
+    for (auto sl = dtSupLylist.begin(); sl != dtSupLylist.end(); sl++) {
       // get the time of fly
       double timeOfFly = tofComputation(*sl);
       // get the time of wire propagation
@@ -101,10 +89,10 @@ void FakeTTrig::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::Even
       // get the fake tTrig pedestal
       double pedestral = ps.getUntrackedParameter<double>("fakeTTrigPedestal", 500);
 
-      if ( ps.getUntrackedParameter<bool>("readDB", true) ){
-        tTrigMapRef->get((*sl)->id(), tTrigRef, tTrigRMSRef, kFactorRef, DTTimeUnits::ns );
+      if (ps.getUntrackedParameter<bool>("readDB", true)) {
+        tTrigMapRef->get((*sl)->id(), tTrigRef, tTrigRMSRef, kFactorRef, DTTimeUnits::ns);
         // pedestral = tTrigRef;
-        pedestral = tTrigRef +  kFactorRef*tTrigRMSRef ;
+        pedestral = tTrigRef + kFactorRef * tTrigRMSRef;
       }
 
       DTSuperLayerId slId = (*sl)->id();
@@ -112,7 +100,7 @@ void FakeTTrig::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::Even
       double fakeTTrig = pedestral + timeOfFly + timeOfWirePropagation + gaussianSmearing;
       // if the FakeTtrig is scaled of a number of bunch crossing
       //  double fakeTTrig = pedestral - 75.;
-      tTrigMap->set(slId, fakeTTrig, 0,0, DTTimeUnits::ns);
+      tTrigMap->set(slId, fakeTTrig, 0, 0, DTTimeUnits::ns);
     }
 
     // Write the object in the DB
@@ -122,39 +110,30 @@ void FakeTTrig::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::Even
   }
 }
 
-void FakeTTrig::endJob() { 
-  cout << "[FakeTTrig] entered into endJob! " << endl;
-}
+void FakeTTrig::endJob() { cout << "[FakeTTrig] entered into endJob! " << endl; }
 
 double FakeTTrig::tofComputation(const DTSuperLayer* superlayer) {
+  double tof = 0;
+  const double cSpeed = 29.9792458;  // cm/ns
 
-  double tof=0;
-  const double cSpeed = 29.9792458; // cm/ns
-
-  if(ps.getUntrackedParameter<bool>("useTofCorrection", true)){
-    LocalPoint localPos(0,0,0);
+  if (ps.getUntrackedParameter<bool>("useTofCorrection", true)) {
+    LocalPoint localPos(0, 0, 0);
     double flight = superlayer->surface().toGlobal(localPos).mag();
-    tof = flight/cSpeed;
+    tof = flight / cSpeed;
   }
 
   return tof;
-
 }
 
-
-
 double FakeTTrig::wirePropComputation(const DTSuperLayer* superlayer) {
-
   double delay = 0;
-  double theVPropWire = ps.getUntrackedParameter<double>("vPropWire", 24.4); // cm/ns
+  double theVPropWire = ps.getUntrackedParameter<double>("vPropWire", 24.4);  // cm/ns
 
-  if(ps.getUntrackedParameter<bool>("useWirePropCorrection", true)){
+  if (ps.getUntrackedParameter<bool>("useWirePropCorrection", true)) {
     DTLayerId lId = DTLayerId(superlayer->id(), 1);
-    float halfL  =  superlayer->layer(lId)->specificTopology().cellLenght()/2;
-    delay = halfL/theVPropWire;
+    float halfL = superlayer->layer(lId)->specificTopology().cellLenght() / 2;
+    delay = halfL / theVPropWire;
   }
 
   return delay;
-
 }
-

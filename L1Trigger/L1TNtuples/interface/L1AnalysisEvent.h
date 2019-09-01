@@ -3,8 +3,8 @@
 
 //-------------------------------------------------------------------------------
 // Created 06/01/2010 - A.C. Le Bihan
-// 
-// 
+//
+//
 // Original code : L1Trigger/L1TNtuples/L1NtupleProducer
 //-------------------------------------------------------------------------------
 
@@ -23,41 +23,36 @@
 
 #include <string>
 
-namespace L1Analysis
-{
-  class L1AnalysisEvent 
-  {
+namespace L1Analysis {
+  class L1AnalysisEvent {
   public:
-    L1AnalysisEvent(std::string puMCFile, 
-		    std::string puMCHist, 
-		    std::string puDataFile, 
-		    std::string puDataHist,
-		    bool useAvgVtx,
-		    double maxWeight,
-		    edm::ConsumesCollector &&);
+    L1AnalysisEvent(std::string puMCFile,
+                    std::string puMCHist,
+                    std::string puDataFile,
+                    std::string puDataHist,
+                    bool useAvgVtx,
+                    double maxWeight,
+                    edm::ConsumesCollector&&);
     ~L1AnalysisEvent();
-    
+
     //void Print(std::ostream &os = std::cout) const;
     void Set(const edm::Event& e, const edm::EDGetTokenT<edm::TriggerResults>& hlt_);
-    void Reset() {event_.Reset();}
-    L1AnalysisEventDataFormat * getData() {return &event_;}
+    void Reset() { event_.Reset(); }
+    L1AnalysisEventDataFormat* getData() { return &event_; }
 
     // ---- General L1AnalysisEvent information.
-    
-  private :
+
+  private:
     bool fillHLT_;
     bool doPUWeights_;
 
-    bool   useAvgVtx_;
+    bool useAvgVtx_;
     double maxAllowedWeight_;
 
     edm::LumiReWeighting lumiWeights_;
 
     edm::EDGetTokenT<std::vector<PileupSummaryInfo>> pileupSummaryInfoToken_;
     L1Analysis::L1AnalysisEventDataFormat event_;
-    
-  }; 
-}
+  };
+}  // namespace L1Analysis
 #endif
-
-

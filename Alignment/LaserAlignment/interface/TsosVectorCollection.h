@@ -10,7 +10,6 @@
    
 */
 
-
 #include <vector>
 // class TrajectoryStateOnSurface; // sufficient, but also confusing, so include:
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"

@@ -13,4 +13,4 @@
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
-#endif // Geom_BoundPlane_H
+#endif  // Geom_BoundPlane_H

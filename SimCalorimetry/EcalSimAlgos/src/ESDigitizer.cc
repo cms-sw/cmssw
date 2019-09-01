@@ -10,226 +10,175 @@
 #include <gsl/gsl_sf_erf.h>
 #include <gsl/gsl_sf_result.h>
 
-ESDigitizer::ESDigitizer( EcalHitResponse*      hitResponse    , 
-			  ESElectronicsSimFast* electronicsSim ,
-			  bool                  addNoise         ) :
-   EcalTDigitizer< ESDigitizerTraits >( hitResponse, electronicsSim, addNoise ) ,
-   m_detIds      ( nullptr              ) ,
-   m_ranGeneral  ( nullptr              ) ,
-   m_ESGain      ( 0              ) ,
-   m_histoBin    ( 0              ) ,
-   m_histoInf    ( 0              ) ,
-   m_histoWid    ( 0              ) ,
-   m_meanNoisy   ( 0              ) ,
-   m_trip        (                )
-{
-   m_trip.reserve( 2500 ) ; 
+ESDigitizer::ESDigitizer(EcalHitResponse* hitResponse, ESElectronicsSimFast* electronicsSim, bool addNoise)
+    : EcalTDigitizer<ESDigitizerTraits>(hitResponse, electronicsSim, addNoise),
+      m_detIds(nullptr),
+      m_ranGeneral(nullptr),
+      m_ESGain(0),
+      m_histoBin(0),
+      m_histoInf(0),
+      m_histoWid(0),
+      m_meanNoisy(0),
+      m_trip() {
+  m_trip.reserve(2500);
 }
 
-ESDigitizer::~ESDigitizer() 
-{
-   delete m_ranGeneral ;
-}
+ESDigitizer::~ESDigitizer() { delete m_ranGeneral; }
 
 /// tell the digitizer which cells exist; cannot change during a run
-void 
-ESDigitizer::setDetIds( const std::vector<DetId>& detIds )
-{
-   assert( nullptr       == m_detIds ||
-	   &detIds == m_detIds    ) ; // sanity check; don't allow to change midstream
-   m_detIds = &detIds ;
+void ESDigitizer::setDetIds(const std::vector<DetId>& detIds) {
+  assert(nullptr == m_detIds || &detIds == m_detIds);  // sanity check; don't allow to change midstream
+  m_detIds = &detIds;
 }
 
-void 
-ESDigitizer::setGain( const int gain ) 
-{
-   if( 0 != m_ESGain )
-   {
-      assert( gain == m_ESGain ) ; // only allow one value
-   }
-   else
-   {
-      assert( nullptr != m_detIds &&
-	      !m_detIds->empty() ) ; // detIds must already be set as we need size
+void ESDigitizer::setGain(const int gain) {
+  if (0 != m_ESGain) {
+    assert(gain == m_ESGain);  // only allow one value
+  } else {
+    assert(nullptr != m_detIds && !m_detIds->empty());  // detIds must already be set as we need size
 
-      assert( 1 == gain ||
-	      2 == gain    ) ; // legal values
-      
-      m_ESGain = gain ;
-      
-      if( addNoise() ) 
-      {
-	 double zsThresh ( 0. ) ;
-	 std::string refFile ;
+    assert(1 == gain || 2 == gain);  // legal values
 
-	 if( 1 == m_ESGain ) 
-	 {
-	    zsThresh = 3 ;
-	    refFile = "SimCalorimetry/EcalSimProducers/data/esRefHistosFile_LG.txt";
-	 }
-	 else
-	 {
-	    zsThresh = 4 ;
-	    refFile = "SimCalorimetry/EcalSimProducers/data/esRefHistosFile_HG.txt";
-	 }
+    m_ESGain = gain;
 
-	 gsl_sf_result result ;
-	 int status  = gsl_sf_erf_Q_e( zsThresh, &result ) ;
-	 if( status != 0 ) std::cerr << "ESDigitizer::could not compute gaussian tail probability for the threshold chosen" << std::endl ;
+    if (addNoise()) {
+      double zsThresh(0.);
+      std::string refFile;
 
-	 const double probabilityLeft ( result.val ) ;
-	 m_meanNoisy = probabilityLeft * m_detIds->size() ;
-
-	 std::ifstream histofile ( edm::FileInPath( refFile ).fullPath().c_str() ) ;
-	 if( !histofile.good() )
-	 { 
-	    throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
-	       << "Reference histos file not opened" ;
-	 }
-	 else
-	 {
-	    // number of bins
-	    char buffer[200] ;
-	    int thisLine = 0 ;
-	    while( 0 == thisLine ) 
-	    {
-	       histofile.getline( buffer, 200 ) ;
-	       if( !strstr(buffer,"#")  && 
-		   !(strspn(buffer," ") == strlen(buffer) ) )
-	       {	
-		  float histoBin ; 
-		  sscanf( buffer, "%f" , &histoBin ) ; 
-		  m_histoBin = (double) histoBin ;
-		  ++thisLine ;
-	       }
-	    }
-	    const uint32_t histoBin1 ( (int) m_histoBin    ) ;
-	    const uint32_t histoBin2 ( histoBin1*histoBin1 ) ;
-
-	    double t_histoSup ( 0 ) ;
-
-	    std::vector<double> t_refHistos ;
-	    t_refHistos.reserve( 2500 ) ;
-
-	    int thisBin = -2 ;
-	    while( !( histofile.eof() ) )
-	    {
-	       histofile.getline( buffer, 200 ) ;
-	       if( !strstr( buffer, "#" ) &&
-		   !( strspn( buffer, " " ) == strlen( buffer ) ) )
-	       {
-		  if( -2 == thisBin )
-		  {
-		     float histoInf ;
-		     sscanf( buffer, "%f" , &histoInf ) ;
-		     m_histoInf = (double) histoInf ;
-		  }
-		  if( -1 == thisBin  )
-		  {
-		     float histoSup ;
-		     sscanf( buffer, "%f" , &histoSup ) ;
-		     t_histoSup = (double) histoSup ;
-		  }
-		  if( 0 <= thisBin )
-		  { 
-		     float refBin ; 
-		     sscanf( buffer, "%f", &refBin ) ;
-		     if( 0.5 < refBin ) 
-		     {
-			t_refHistos.push_back( (double) refBin ) ;
-			const uint32_t i2 ( thisBin/histoBin2 ) ;
-			const uint32_t off ( i2*histoBin2 ) ;
-			const uint32_t i1 ( ( thisBin - off )/histoBin1 ) ;
-			const uint32_t i0 ( thisBin - off - i1*histoBin1 ) ;
-			m_trip.emplace_back(i0, i1, i2) ;
-		     }
-		  }
-		  ++thisBin ;
-	       }
-	    }
-	    m_histoWid = ( t_histoSup - m_histoInf )/m_histoBin ;
-
-	    m_histoInf -= 1000. ;
-
-	    // creating the reference distribution to extract random numbers
-	    m_ranGeneral = new CLHEP::RandGeneral( nullptr              ,
-						   &t_refHistos.front() ,
-						   t_refHistos.size()   ,
-						   0             ) ;
-	    histofile.close();
-	 }
+      if (1 == m_ESGain) {
+        zsThresh = 3;
+        refFile = "SimCalorimetry/EcalSimProducers/data/esRefHistosFile_LG.txt";
+      } else {
+        zsThresh = 4;
+        refFile = "SimCalorimetry/EcalSimProducers/data/esRefHistosFile_HG.txt";
       }
-   }
+
+      gsl_sf_result result;
+      int status = gsl_sf_erf_Q_e(zsThresh, &result);
+      if (status != 0)
+        std::cerr << "ESDigitizer::could not compute gaussian tail probability for the threshold chosen" << std::endl;
+
+      const double probabilityLeft(result.val);
+      m_meanNoisy = probabilityLeft * m_detIds->size();
+
+      std::ifstream histofile(edm::FileInPath(refFile).fullPath().c_str());
+      if (!histofile.good()) {
+        throw edm::Exception(edm::errors::InvalidReference, "NullPointer") << "Reference histos file not opened";
+      } else {
+        // number of bins
+        char buffer[200];
+        int thisLine = 0;
+        while (0 == thisLine) {
+          histofile.getline(buffer, 200);
+          if (!strstr(buffer, "#") && !(strspn(buffer, " ") == strlen(buffer))) {
+            float histoBin;
+            sscanf(buffer, "%f", &histoBin);
+            m_histoBin = (double)histoBin;
+            ++thisLine;
+          }
+        }
+        const uint32_t histoBin1((int)m_histoBin);
+        const uint32_t histoBin2(histoBin1 * histoBin1);
+
+        double t_histoSup(0);
+
+        std::vector<double> t_refHistos;
+        t_refHistos.reserve(2500);
+
+        int thisBin = -2;
+        while (!(histofile.eof())) {
+          histofile.getline(buffer, 200);
+          if (!strstr(buffer, "#") && !(strspn(buffer, " ") == strlen(buffer))) {
+            if (-2 == thisBin) {
+              float histoInf;
+              sscanf(buffer, "%f", &histoInf);
+              m_histoInf = (double)histoInf;
+            }
+            if (-1 == thisBin) {
+              float histoSup;
+              sscanf(buffer, "%f", &histoSup);
+              t_histoSup = (double)histoSup;
+            }
+            if (0 <= thisBin) {
+              float refBin;
+              sscanf(buffer, "%f", &refBin);
+              if (0.5 < refBin) {
+                t_refHistos.push_back((double)refBin);
+                const uint32_t i2(thisBin / histoBin2);
+                const uint32_t off(i2 * histoBin2);
+                const uint32_t i1((thisBin - off) / histoBin1);
+                const uint32_t i0(thisBin - off - i1 * histoBin1);
+                m_trip.emplace_back(i0, i1, i2);
+              }
+            }
+            ++thisBin;
+          }
+        }
+        m_histoWid = (t_histoSup - m_histoInf) / m_histoBin;
+
+        m_histoInf -= 1000.;
+
+        // creating the reference distribution to extract random numbers
+        m_ranGeneral = new CLHEP::RandGeneral(nullptr, &t_refHistos.front(), t_refHistos.size(), 0);
+        histofile.close();
+      }
+    }
+  }
 }
 
 /// turns hits into digis
-void 
-ESDigitizer::run( ESDigiCollection& output, CLHEP::HepRandomEngine* engine )
-{
-    assert( nullptr != m_detIds         &&
-	    !m_detIds->empty() &&
-	    ( !addNoise()         ||
-	      nullptr != m_ranGeneral ) ) ; // sanity check
+void ESDigitizer::run(ESDigiCollection& output, CLHEP::HepRandomEngine* engine) {
+  assert(nullptr != m_detIds && !m_detIds->empty() && (!addNoise() || nullptr != m_ranGeneral));  // sanity check
 
-    // reserve space for how many digis we expect, with some cushion
-    output.reserve( 2*( (int) m_meanNoisy ) + hitResponse()->samplesSize() ) ;
+  // reserve space for how many digis we expect, with some cushion
+  output.reserve(2 * ((int)m_meanNoisy) + hitResponse()->samplesSize());
 
-    EcalTDigitizer< ESDigitizerTraits >::run( output, engine ) ;
+  EcalTDigitizer<ESDigitizerTraits>::run(output, engine);
 
-    // random generation of channel above threshold
-    std::vector<DetId> abThreshCh ;
-    if( addNoise() ) createNoisyList( abThreshCh, engine ) ;
+  // random generation of channel above threshold
+  std::vector<DetId> abThreshCh;
+  if (addNoise())
+    createNoisyList(abThreshCh, engine);
 
-    // first make a raw digi for every cell where we have noise
-    for( std::vector<DetId>::const_iterator idItr ( abThreshCh.begin() ) ;
-	 idItr != abThreshCh.end(); ++idItr ) 
+  // first make a raw digi for every cell where we have noise
+  for (std::vector<DetId>::const_iterator idItr(abThreshCh.begin()); idItr != abThreshCh.end(); ++idItr) {
+    if (hitResponse()->findDetId(*idItr)->zero())  // only if no true hit!
     {
-       if( hitResponse()->findDetId( *idItr )->zero() ) // only if no true hit!
-       {
-	  ESHitResponse::ESSamples analogSignal ( *idItr, 3 ) ; // space for the noise hit
-	  uint32_t myBin ( (uint32_t) m_trip.size()*m_ranGeneral->shoot(engine) ) ;
-	  if( myBin == m_trip.size() ) --myBin ; // guard against roundup
-	  assert( myBin < m_trip.size() ) ;
-	  const Triplet& trip ( m_trip[ myBin ] ) ;
-	  analogSignal[ 0 ] = m_histoInf + m_histoWid*trip.first  ;
-	  analogSignal[ 1 ] = m_histoInf + m_histoWid*trip.second ;
-	  analogSignal[ 2 ] = m_histoInf + m_histoWid*trip.third  ;
-	  ESDataFrame digi( *idItr ) ;
-	  const_cast<ESElectronicsSimFast*>(elecSim())->
-             analogToDigital( engine,
-                              analogSignal ,
-			      digi         ,
-			      true           ) ;	
-	  output.push_back( std::move(digi) ) ;  
-       }
+      ESHitResponse::ESSamples analogSignal(*idItr, 3);  // space for the noise hit
+      uint32_t myBin((uint32_t)m_trip.size() * m_ranGeneral->shoot(engine));
+      if (myBin == m_trip.size())
+        --myBin;  // guard against roundup
+      assert(myBin < m_trip.size());
+      const Triplet& trip(m_trip[myBin]);
+      analogSignal[0] = m_histoInf + m_histoWid * trip.first;
+      analogSignal[1] = m_histoInf + m_histoWid * trip.second;
+      analogSignal[2] = m_histoInf + m_histoWid * trip.third;
+      ESDataFrame digi(*idItr);
+      const_cast<ESElectronicsSimFast*>(elecSim())->analogToDigital(engine, analogSignal, digi, true);
+      output.push_back(std::move(digi));
     }
+  }
 }
 
 // preparing the list of channels where the noise has to be generated
-void 
-ESDigitizer::createNoisyList( std::vector<DetId>& abThreshCh, CLHEP::HepRandomEngine* engine )
-{
-   CLHEP::RandPoissonQ randPoissonQ(*engine, m_meanNoisy);
-   const unsigned int nChan (randPoissonQ.fire());
-   abThreshCh.reserve( nChan ) ;
+void ESDigitizer::createNoisyList(std::vector<DetId>& abThreshCh, CLHEP::HepRandomEngine* engine) {
+  CLHEP::RandPoissonQ randPoissonQ(*engine, m_meanNoisy);
+  const unsigned int nChan(randPoissonQ.fire());
+  abThreshCh.reserve(nChan);
 
-   for( unsigned int i ( 0 ) ; i != nChan ; ++i )
-   {
-      std::vector<DetId>::const_iterator idItr ( abThreshCh.end() ) ;
-      uint32_t iChan ( 0 ) ;
-      DetId id ;
-      do 
-      {
-         iChan = (uint32_t) CLHEP::RandFlat::shoot(engine, m_detIds->size());
-	 if( iChan == m_detIds->size() ) --iChan ; //protect against roundup at end
-	 assert( m_detIds->size() > iChan ) ;      // sanity check
-	 id = (*m_detIds)[ iChan ] ;
-	 idItr = find( abThreshCh.begin() ,
-		       abThreshCh.end()   ,
-		       id                  ) ;
-      }
-      while( idItr != abThreshCh.end() ) ;
+  for (unsigned int i(0); i != nChan; ++i) {
+    std::vector<DetId>::const_iterator idItr(abThreshCh.end());
+    uint32_t iChan(0);
+    DetId id;
+    do {
+      iChan = (uint32_t)CLHEP::RandFlat::shoot(engine, m_detIds->size());
+      if (iChan == m_detIds->size())
+        --iChan;                         //protect against roundup at end
+      assert(m_detIds->size() > iChan);  // sanity check
+      id = (*m_detIds)[iChan];
+      idItr = find(abThreshCh.begin(), abThreshCh.end(), id);
+    } while (idItr != abThreshCh.end());
 
-      abThreshCh.push_back( std::move(id) ) ;
-   }
+    abThreshCh.push_back(std::move(id));
+  }
 }

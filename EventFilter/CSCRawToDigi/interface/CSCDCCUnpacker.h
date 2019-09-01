@@ -14,41 +14,38 @@
 
 class CSCMonitorInterface;
 
-class CSCDCCUnpacker: public edm::stream::EDProducer<> {
- public:
+class CSCDCCUnpacker : public edm::stream::EDProducer<> {
+public:
   /// Constructor
-  CSCDCCUnpacker(const edm::ParameterSet & pset);
-  
+  CSCDCCUnpacker(const edm::ParameterSet& pset);
+
   /// Destructor
   ~CSCDCCUnpacker() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
-  /// Produce digis out of raw data
-  void produce(edm::Event & e, const edm::EventSetup& c) override;
-  
-  /// Visualization of raw data in FED-less events (Robert Harr and Alexander Sakharov)
-  void visual_raw(int hl,int id, int run, int event, bool fedshort, bool fDump, short unsigned int* buf) const; 
-  
- private:
 
+  /// Produce digis out of raw data
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+  /// Visualization of raw data in FED-less events (Robert Harr and Alexander Sakharov)
+  void visual_raw(int hl, int id, int run, int event, bool fedshort, bool fDump, short unsigned int* buf) const;
+
+private:
   bool debug, printEventNumber, goodEvent, useExaminer, unpackStatusDigis;
   bool useSelectiveUnpacking, useFormatStatus;
-  
+
   /// Visualization of raw data
-  bool  visualFEDInspect, visualFEDShort, formatedEventDump;
+  bool visualFEDInspect, visualFEDShort, formatedEventDump;
   /// Suppress zeros LCTs
   bool SuppressZeroLCT;
-  
+
   int numOfEvents;
   unsigned int errorMask, examinerMask;
   bool instantiateDQM;
-  CSCMonitorInterface * monitor;
+  CSCMonitorInterface* monitor;
 
   /// Token for consumes interface & access to data
   edm::EDGetTokenT<FEDRawDataCollection> i_token;
-
-
 };
 
 #endif

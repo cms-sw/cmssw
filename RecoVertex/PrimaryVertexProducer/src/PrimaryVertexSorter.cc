@@ -4,9 +4,7 @@
 
 using namespace reco;
 
-VertexCollection
-PrimaryVertexSorter::sortedList(const VertexCollection & unsortedPVColl) const
-{
+VertexCollection PrimaryVertexSorter::sortedList(const VertexCollection& unsortedPVColl) const {
   VertexCollection pvs = unsortedPVColl;
   sort(pvs.begin(), pvs.end(), VertexHigherPtSquared());
   return pvs;

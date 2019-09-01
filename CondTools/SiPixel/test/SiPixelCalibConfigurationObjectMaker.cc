@@ -2,7 +2,7 @@
 //
 // Package:    SiPixelCalibConfigurationObjectMaker
 // Class:      SiPixelCalibConfigurationObjectMaker
-// 
+//
 /**\class SiPixelCalibConfigurationObjectMaker SiPixelCalibConfigurationObjectMaker.cc CalibTracker/SiPixelTools/src/SiPixelCalibConfigurationObjectMaker.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 // $Id: SiPixelCalibConfigurationObjectMaker.cc,v 1.5 2009/10/21 15:53:31 heyburn Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -38,19 +37,17 @@
 //
 
 class SiPixelCalibConfigurationObjectMaker : public edm::EDAnalyzer {
-   public:
-      explicit SiPixelCalibConfigurationObjectMaker(const edm::ParameterSet&);
-      ~SiPixelCalibConfigurationObjectMaker();
+public:
+  explicit SiPixelCalibConfigurationObjectMaker(const edm::ParameterSet&);
+  ~SiPixelCalibConfigurationObjectMaker();
 
-  virtual void beginJob() {;}
+  virtual void beginJob() { ; }
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {;}
+  virtual void endJob() { ; }
 
-
-   private:
-
-      // ----------member data ---------------------------
-   std::string inputfilename;
+private:
+  // ----------member data ---------------------------
+  std::string inputfilename;
 };
 
 //
@@ -64,55 +61,49 @@ class SiPixelCalibConfigurationObjectMaker : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-SiPixelCalibConfigurationObjectMaker::SiPixelCalibConfigurationObjectMaker(const edm::ParameterSet& iConfig):
-  inputfilename( iConfig.getUntrackedParameter<std::string>( "inputFileName","/afs/cern.ch/cms/Tracker/Pixel/forward/ryd/calib_070106d.dat" ) )
+SiPixelCalibConfigurationObjectMaker::SiPixelCalibConfigurationObjectMaker(const edm::ParameterSet& iConfig)
+    : inputfilename(iConfig.getUntrackedParameter<std::string>(
+          "inputFileName", "/afs/cern.ch/cms/Tracker/Pixel/forward/ryd/calib_070106d.dat"))
 
 {
-   //now do what ever initialization is needed
+  //now do what ever initialization is needed
   ::putenv((char*)"CORAL_AUTH_USER=testuser");
-  ::putenv((char*)"CORAL_AUTH_PASSWORD=test"); 
+  ::putenv((char*)"CORAL_AUTH_PASSWORD=test");
 }
 
-
-SiPixelCalibConfigurationObjectMaker::~SiPixelCalibConfigurationObjectMaker()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+SiPixelCalibConfigurationObjectMaker::~SiPixelCalibConfigurationObjectMaker() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
-void SiPixelCalibConfigurationObjectMaker::analyze(const edm::Event&, const edm::EventSetup&){
-
+void SiPixelCalibConfigurationObjectMaker::analyze(const edm::Event&, const edm::EventSetup&) {
   pos::PixelCalibConfiguration fancyCalib(inputfilename);
-  SiPixelCalibConfiguration *myCalib = new SiPixelCalibConfiguration(fancyCalib);
-   
+  SiPixelCalibConfiguration* myCalib = new SiPixelCalibConfiguration(fancyCalib);
+
   std::string fixedmode = fancyCalib.mode();
   std::string tobereplaced = "WithSLink";
   std::cout << "mode = " << fixedmode << std::endl;
-  if(fixedmode.find(tobereplaced)!=std::string::npos)
-    fixedmode.erase(fixedmode.find(tobereplaced),tobereplaced.length());
+  if (fixedmode.find(tobereplaced) != std::string::npos)
+    fixedmode.erase(fixedmode.find(tobereplaced), tobereplaced.length());
   std::cout << "mode = " << fixedmode << std::endl;
   myCalib->setCalibrationMode(fixedmode);
 
-   
-   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-   
-   if(poolDbService.isAvailable()){
-     if(poolDbService->isNewTagRequest("SiPixelCalibConfigurationRcd") ){
-       poolDbService->createNewIOV<SiPixelCalibConfiguration>(myCalib,poolDbService->beginOfTime(),poolDbService->endOfTime(), "SiPixelCalibConfigurationRcd");
-     }
-     else{
-       poolDbService->appendSinceTime<SiPixelCalibConfiguration>(myCalib,poolDbService->currentTime(), "SiPixelCalibConfigurationRcd");
-     }
-   }
-}
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
+  if (poolDbService.isAvailable()) {
+    if (poolDbService->isNewTagRequest("SiPixelCalibConfigurationRcd")) {
+      poolDbService->createNewIOV<SiPixelCalibConfiguration>(
+          myCalib, poolDbService->beginOfTime(), poolDbService->endOfTime(), "SiPixelCalibConfigurationRcd");
+    } else {
+      poolDbService->appendSinceTime<SiPixelCalibConfiguration>(
+          myCalib, poolDbService->currentTime(), "SiPixelCalibConfigurationRcd");
+    }
+  }
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiPixelCalibConfigurationObjectMaker);

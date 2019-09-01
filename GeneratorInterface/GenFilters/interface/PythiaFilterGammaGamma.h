@@ -4,7 +4,7 @@
 //
 // Package:    GeneratorInterface/GenFilters
 // Class:      PythiaFilterGammaGamma
-// 
+//
 // Original Author:  Matteo Sani
 //
 //
@@ -16,28 +16,28 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "GeneratorInterface/Core/interface/PythiaHepMCFilterGammaGamma.h"
+
 namespace edm {
-	  class HepMCProduct;
+  class HepMCProduct;
 }
 
 class PythiaFilterGammaGamma : public edm::global::EDFilter<> {
- public:
+public:
   explicit PythiaFilterGammaGamma(const edm::ParameterSet&);
   ~PythiaFilterGammaGamma() override;
-  
+
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
- private:
 
+private:
   const edm::EDGetTokenT<edm::HepMCProduct> token_;
-  const int maxEvents;
 
-  const double ptSeedThr, etaSeedThr, ptGammaThr, etaGammaThr, ptTkThr, etaTkThr;
-  const double ptElThr, etaElThr, dRTkMax, dRSeedMax, dPhiSeedMax, dEtaSeedMax, dRNarrowCone, pTMinCandidate1, pTMinCandidate2, etaMaxCandidate;
-  const double invMassMin, invMassMax;
-  const double energyCut;
-  const int nTkConeMax, nTkConeSum;
-  const bool acceptPrompts;
-  const double promptPtThreshold;
-
+  /** the actual implementation of the filter,
+      adapted to be used with HepMCFilterDriver.
+      
+      We make this a pointer because EDFilter::filter() is const
+      while BaseHepMCFilter::filter() is not.
+ */
+  std::unique_ptr<PythiaHepMCFilterGammaGamma> hepMCFilter_;
 };
 #endif

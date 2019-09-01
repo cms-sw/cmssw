@@ -2,11 +2,11 @@
 //
 // Package:     PatAlgos
 // Class  :     KinematicResolutionRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Sun Jun 24 16:53:34 CEST 2007
 
 #include "PhysicsTools/PatAlgos/interface/KinematicResolutionRcd.h"

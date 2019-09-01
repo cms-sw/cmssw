@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 #  reEmul.py  configurable test of L1T re-emulation
 #
@@ -19,7 +20,10 @@
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
-from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Era_Run2_25ns_cff import Run2_25ns
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 import os
 import sys
 import commands
@@ -40,24 +44,24 @@ options.skip = 0
 options.parseArguments()
 
 if (options.era == 'stage1'):
-    print "INFO: runnings L1T Stage-1 (2015) Re-Emulation"
-    process = cms.Process("L1TReEmulation", eras.Run2_25ns)
+    print("INFO: runnings L1T Stage-1 (2015) Re-Emulation")
+    process = cms.Process("L1TReEmulation", Run2_25ns)
 elif (options.era == 'stage2'):
-    print "INFO: runnings L1T Stage-2 (2016) Re-Emulation"    
-    process = cms.Process("L1TReEmulation", eras.Run2_2016)
+    print("INFO: runnings L1T Stage-2 (2016) Re-Emulation")    
+    process = cms.Process("L1TReEmulation", Run2_2016)
 else:
-    print "ERROR: unknown era:  ", options.era, "\n"
+    print("ERROR: unknown era:  ", options.era, "\n")
     exit(0)
 
 if (options.output == 'DEFAULT'):
-    if (eras.stage1L1Trigger.isChosen()):
-        options.output ='l1t_stage1.root'
-    if (eras.stage2L1Trigger.isChosen()):
-        options.output ='l1t_stage2.root'
-print "INFO: output:  ", options.output
+    tmp = cms.PSet(output = cms.string(""))
+    stage1L1Trigger.toModify(tmp, output ='l1t_stage1.root')
+    stage2L1Trigger.toModify(tmp, output ='l1t_stage2.root')
+    options.output = tmp.output.value()
+print("INFO: output:  ", options.output)
 
-print "INFO: input:  ", options.input
-print "INFO: max:  ", options.max
+print("INFO: input:  ", options.input)
+print("INFO: max:  ", options.max)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(50)
@@ -84,14 +88,13 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 #   best for now to use MC GT, even when running over a data file, and just
 #   ignore the main DT TP emulator warnings...  (In future we'll override only
 #   L1T emulator related conditions, so you can use a data GT)
-if (eras.stage1L1Trigger.isChosen()):
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 # Note:  For stage-2, all conditions are overriden by local config file.  Use data tag: 
 
-if (eras.stage2L1Trigger.isChosen()):
-    #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
-    process.GlobalTag.toGet = cms.VPSet(
+stage2L1Trigger.toReplaceWith(process.GlobalTag,
+    #GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+    GlobalTag(process.GlobalTag, 'auto:run2_data', '').clone(
+    toGet = cms.VPSet(
         cms.PSet(record = cms.string("DTCCBConfigRcd"),
                  tag = cms.string("DTCCBConfig_NOSingleL_V05_mc"),
                  connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
@@ -109,6 +112,7 @@ if (eras.stage2L1Trigger.isChosen()):
                  connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
                  ),
         )
+))
 
 #### Sim L1 Emulator Sequence:
 process.load('Configuration.StandardSequences.RawToDigi_cff')
@@ -122,18 +126,14 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
 
 import L1Trigger.L1TCommon.l1tSummaryStage1Digis_cfi
-import L1Trigger.L1TCommon.l1tSummaryStage2Digis_cfi
-if (eras.stage1L1Trigger.isChosen()):
-    process.l1tSummaryA = L1Trigger.L1TCommon.l1tSummaryStage1Digis_cfi.l1tSummaryStage1Digis.clone()
-if (eras.stage2L1Trigger.isChosen()):
-    process.l1tSummaryA = L1Trigger.L1TCommon.l1tSummaryStage2Digis_cfi.l1tSummaryStage2Digis.clone()
+import L1Trigger.L1TCommon.l1tSummaryStage2Digis_cf
+process.l1tSummaryA = L1Trigger.L1TCommon.l1tSummaryStage1Digis_cfi.l1tSummaryStage1Digis.clone()
+stage2L1Trigger.toReplaceWith(process.l1tSummaryA, L1Trigger.L1TCommon.l1tSummaryStage2Digis_cfi.l1tSummaryStage2Digis.clone())
 
 import L1Trigger.L1TCommon.l1tSummaryStage1SimDigis_cfi
 import L1Trigger.L1TCommon.l1tSummaryStage2SimDigis_cfi
-if (eras.stage1L1Trigger.isChosen()):
-    process.l1tSummaryB = L1Trigger.L1TCommon.l1tSummaryStage1SimDigis_cfi.l1tSummaryStage1SimDigis.clone()
-if (eras.stage2L1Trigger.isChosen()):
-    process.l1tSummaryB = L1Trigger.L1TCommon.l1tSummaryStage2SimDigis_cfi.l1tSummaryStage2SimDigis.clone()
+process.l1tSummaryB = L1Trigger.L1TCommon.l1tSummaryStage1SimDigis_cfi.l1tSummaryStage1SimDigis.clone()
+stage2L1Trigger.toReplaceWith(process.l1tSummaryB, L1Trigger.L1TCommon.l1tSummaryStage2SimDigis_cfi.l1tSummaryStage2SimDigis.clone())
 
 # Additional output definition
 # TTree output file
@@ -176,21 +176,21 @@ process.l1EventTree = cms.EDAnalyzer("L1EventTreeProducer",
 )
 
 # Stage-1 Ntuple will not contain muons, and might (investigating) miss some Taus.  (Work underway)
-process.l1UpgradeTree = cms.EDAnalyzer("L1UpgradeTreeProducer")
-if (eras.stage1L1Trigger.isChosen()):
-    process.l1UpgradeTree.egToken      = cms.untracked.InputTag("simCaloStage1FinalDigis")
-    process.l1UpgradeTree.tauTokens    = cms.untracked.VInputTag("simCaloStage1FinalDigis:rlxTaus","simCaloStage1FinalDigis:isoTaus")
-    process.l1UpgradeTree.jetToken     = cms.untracked.InputTag("simCaloStage1FinalDigis")
-    process.l1UpgradeTree.muonToken    = cms.untracked.InputTag("None")
-    process.l1UpgradeTree.sumToken     = cms.untracked.InputTag("simCaloStage1FinalDigis","")
-    process.l1UpgradeTree.maxL1Upgrade = cms.uint32(60)
-if (eras.stage2L1Trigger.isChosen()):
-    process.l1UpgradeTree.egToken      = cms.untracked.InputTag("simCaloStage2Digis")
-    process.l1UpgradeTree.tauTokens    = cms.untracked.VInputTag("simCaloStage2Digis")
-    process.l1UpgradeTree.jetToken     = cms.untracked.InputTag("simCaloStage2Digis")
-    process.l1UpgradeTree.muonToken    = cms.untracked.InputTag("simGmtStage2Digis")
-    process.l1UpgradeTree.sumToken     = cms.untracked.InputTag("simCaloStage2Digis","")
-    process.l1UpgradeTree.maxL1Upgrade = cms.uint32(60)
+process.l1UpgradeTree = cms.EDAnalyzer("L1UpgradeTreeProducer",
+    egToken      = cms.untracked.InputTag("simCaloStage1FinalDigis"),
+    tauTokens    = cms.untracked.VInputTag("simCaloStage1FinalDigis:rlxTaus","simCaloStage1FinalDigis:isoTaus"),
+    jetToken     = cms.untracked.InputTag("simCaloStage1FinalDigis"),
+    muonToken    = cms.untracked.InputTag("None"),
+    sumToken     = cms.untracked.InputTag("simCaloStage1FinalDigis",""),
+    maxL1Upgrade = cms.uint32(60)
+)
+stage2L1Trigger.toModify(process.l1UpgradeTree,
+    egToken      = "simCaloStage2Digis",
+    tauTokens    = ["simCaloStage2Digis"],
+    jetToken     = "simCaloStage2Digis",
+    muonToken    = "simGmtStage2Digis",
+    sumToken     = "simCaloStage2Digis"
+)
 
 
 process.L1TSeq = cms.Sequence(   process.RawToDigi        
@@ -211,27 +211,29 @@ process.schedule = cms.Schedule(process.L1TPath)
 
 # Re-emulating, so don't unpack L1T output, might not even exist...
 # Also, remove uneeded unpackers for speed.
-if (eras.stage2L1Trigger.isChosen()):
-    process.L1TSeq.remove(process.gmtStage2Digis)
-    process.L1TSeq.remove(process.caloStage2Digis)
-    process.L1TSeq.remove(process.gtStage2Digis)
-    process.L1TSeq.remove(process.siPixelDigis)
-    process.L1TSeq.remove(process.siStripDigis)
-    process.L1TSeq.remove(process.castorDigis)
-    process.L1TSeq.remove(process.scalersRawToDigi)
-    process.L1TSeq.remove(process.tcdsDigis)
-if (eras.stage1L1Trigger.isChosen()):
-    process.L1TSeq.remove(process.caloStage1Digis)
-    process.L1TSeq.remove(process.caloStage1FinalDigis)
-    process.L1TSeq.remove(process.gtDigis)
-    process.L1TSeq.remove(process.siPixelDigis)
-    process.L1TSeq.remove(process.siStripDigis)
-    process.L1TSeq.remove(process.castorDigis)
-    process.L1TSeq.remove(process.scalersRawToDigi)
-    process.L1TSeq.remove(process.tcdsDigis)
+stage2L1Trigger.toReplaceWith(process.L1TSeq, process.L1TSeq.copyAndExclude([
+    process.gmtStage2Digis,
+    process.caloStage2Digis,
+    process.gtStage2Digis,
+    process.siPixelDigis,
+    process.siStripDigis,
+    process.castorDigis,
+    process.scalersRawToDigi,
+    process.tcdsDigis
+]))
+stage1L1Trigger.toReplaceWith(process.L1TSeq, process.L1TSeq.copyAndExclude([
+    process.caloStage1Digis,
+    process.caloStage1FinalDigis,
+    process.gtDigis,
+    process.siPixelDigis,
+    process.siStripDigis,
+    process.castorDigis,
+    process.scalersRawToDigi,
+    process.tcdsDigis
+]))
 
-print process.L1TSeq
-print process.L1TReEmulateFromRAW
+print(process.L1TSeq)
+print(process.L1TReEmulateFromRAW)
 #processDumpFile = open('config.dump', 'w')
 #print >> processDumpFile, process.dumpPython()
 

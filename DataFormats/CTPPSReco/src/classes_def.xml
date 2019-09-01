@@ -43,12 +43,37 @@
   <class name="std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> >"/>
   <class name="std::vector<TotemRPLocalTrack::FittedRecHit>"/>
 
-<!-- diamonds objects -->
+<!-- timing objects -->
 
-  <class name="CTPPSDiamondRecHit" ClassVersion="5">
+  <class name="CTPPSTimingRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="33948116"/>
+  </class>
+  <class name="edm::Ptr<CTPPSTimingRecHit>"/>
+  <class name="edm::Wrapper<CTPPSTimingRecHit>"/>
+  <class name="std::vector<CTPPSTimingRecHit>"/>
+  <class name="std::vector<edm::DetSet<CTPPSTimingRecHit> >"/>
+  <class name="edm::DetSet<CTPPSTimingRecHit>"/>
+  <class name="edm::DetSetVector<CTPPSTimingRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSTimingRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<CTPPSTimingRecHit> >"/>
+
+  <class name="TotemTimingRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="156399384"/>
+  </class>
+  <class name="edm::Ptr<TotemTimingRecHit>"/>
+  <class name="edm::Wrapper<TotemTimingRecHit>"/>
+  <class name="std::vector<TotemTimingRecHit>"/>
+  <class name="std::vector<edm::DetSet<TotemTimingRecHit> >"/>
+  <class name="edm::DetSet<TotemTimingRecHit>"/>
+  <class name="edm::DetSetVector<TotemTimingRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemTimingRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<TotemTimingRecHit> >"/>
+
+  <class name="CTPPSDiamondRecHit" ClassVersion="6">
     <version ClassVersion="3" checksum="2377257106"/>
     <version ClassVersion="4" checksum="2150979176"/>
     <version ClassVersion="5" checksum="2528095961"/>
+    <version ClassVersion="6" checksum="1515076457"/>
   </class>
   <class name="edm::Ptr<CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper<CTPPSDiamondRecHit>"/>
@@ -59,9 +84,22 @@
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondRecHit> >"/>
   <class name="edm::Wrapper<std::vector<CTPPSDiamondRecHit> >"/>
 
-  <class name="CTPPSDiamondLocalTrack" ClassVersion="4">
+  <class name="CTPPSTimingLocalTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="3964976910"/>
+  </class>
+  <class name="edm::Ptr<CTPPSTimingLocalTrack>"/>
+  <class name="edm::Wrapper<CTPPSTimingLocalTrack>"/>
+  <class name="std::vector<CTPPSTimingLocalTrack>"/>
+  <class name="edm::DetSet<CTPPSTimingLocalTrack>"/>
+  <class name="std::vector<edm::DetSet<CTPPSTimingLocalTrack> >"/>
+  <class name="edm::Wrapper<std::vector<CTPPSTimingLocalTrack> >"/>
+  <class name="edm::DetSetVector<CTPPSTimingLocalTrack>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSTimingLocalTrack> >"/>
+
+  <class name="CTPPSDiamondLocalTrack" ClassVersion="5">
     <version ClassVersion="3" checksum="2739193553"/>
     <version ClassVersion="4" checksum="3974505177"/>
+    <version ClassVersion="5" checksum="3653987785"/>
   </class>
   <class name="edm::Ptr<CTPPSDiamondLocalTrack>"/>
   <class name="edm::Wrapper<CTPPSDiamondLocalTrack>"/>
@@ -71,6 +109,18 @@
   <class name="edm::Wrapper<std::vector<CTPPSDiamondLocalTrack> >"/>
   <class name="edm::DetSetVector<CTPPSDiamondLocalTrack>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondLocalTrack> >"/>
+
+  <class name="TotemTimingLocalTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="2184949517"/>
+  </class>
+  <class name="edm::Ptr<TotemTimingLocalTrack>"/>
+  <class name="edm::Wrapper<TotemTimingLocalTrack>"/>
+  <class name="std::vector<TotemTimingLocalTrack>"/>
+  <class name="edm::DetSet<TotemTimingLocalTrack>"/>
+  <class name="std::vector<edm::DetSet<TotemTimingLocalTrack> >"/>
+  <class name="edm::Wrapper<std::vector<TotemTimingLocalTrack> >"/>
+  <class name="edm::DetSetVector<TotemTimingLocalTrack>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemTimingLocalTrack> >"/>
 
 <!-- pixel objects -->
 
@@ -92,9 +142,14 @@
   <class name="edm::DetSetVector<CTPPSPixelRecHit>"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelRecHit> >"/>
 
-  <class name="CTPPSPixelLocalTrack" ClassVersion="3">
-    <version ClassVersion="3" checksum="4150373475"/> 
+  <class name="CTPPSPixelLocalTrack" ClassVersion="4">
+    <version ClassVersion="3" checksum="4150373475"/>    
+    <version ClassVersion="4" checksum="298693321"/>
   </class>
+  <ioread sourceClass = "CTPPSPixelLocalTrack" version="[3]" targetClass="CTPPSPixelLocalTrack" source="int numberOfPointUsedForFit_" target="numberOfPointsUsedForFit_">
+  <![CDATA[ numberOfPointsUsedForFit_ = onfile.numberOfPointUsedForFit_;
+  ]]>
+  </ioread>
   <class name="edm::DetSet<CTPPSPixelLocalTrack>"/>
   <class name="std::vector<CTPPSPixelLocalTrack>"/>
   <class name="std::vector<edm::DetSet<CTPPSPixelLocalTrack> >"/>
@@ -108,11 +163,15 @@
 
 <!-- common objects -->
 
-  <class name="CTPPSLocalTrackLite" ClassVersion="3">
-    <version ClassVersion="3" checksum="3838813906"/>
+  <class name="CTPPSLocalTrackLite" ClassVersion="4">
+    <version ClassVersion="3" checksum="3838813906"/>    
+    <version ClassVersion="4" checksum="2435718827"/>
   </class>
   <class name="std::vector<CTPPSLocalTrackLite>"/>
   <class name="edm::Wrapper<CTPPSLocalTrackLite>"/>
   <class name="edm::Wrapper<std::vector<CTPPSLocalTrackLite>>"/>
+  <class name="edm::RefProd<std::vector<CTPPSLocalTrackLite> >"/>
+  <class name="edm::Ref<std::vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite,edm::refhelper::FindUsingAdvance<std::vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite> >"/>
+  <class name="edm::RefVector<vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite,edm::refhelper::FindUsingAdvance<vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite> >"/>
 </lcgdict>
 

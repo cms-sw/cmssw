@@ -8,7 +8,8 @@
 #include "CondFormats/DataRecord/interface/MFGeometryFileRcd.h"
 #include "boost/mpl/vector.hpp"
 
-class IdealMagneticFieldRecord : public edm::eventsetup::DependentRecordImplementation<IdealMagneticFieldRecord,boost::mpl::vector<MFGeometryFileRcd,RunInfoRcd,MagFieldConfigRcd> > {};
+class IdealMagneticFieldRecord : public edm::eventsetup::DependentRecordImplementation<
+                                     IdealMagneticFieldRecord,
+                                     boost::mpl::vector<MFGeometryFileRcd, RunInfoRcd, MagFieldConfigRcd> > {};
 
 #endif
-

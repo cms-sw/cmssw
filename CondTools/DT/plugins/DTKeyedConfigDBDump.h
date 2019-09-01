@@ -32,13 +32,11 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTKeyedConfigDBDump: public edm::EDAnalyzer {
-
- public:
-
+class DTKeyedConfigDBDump : public edm::EDAnalyzer {
+public:
   /** Constructor
    */
-  explicit DTKeyedConfigDBDump( const edm::ParameterSet& ps );
+  explicit DTKeyedConfigDBDump(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -46,14 +44,11 @@ class DTKeyedConfigDBDump: public edm::EDAnalyzer {
 
   /** Operations
    */
-  /// 
+  ///
   void beginJob() override;
-  void analyze( const edm::Event& e, const edm::EventSetup& c ) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
- private:
-
+private:
 };
 
-
-#endif // DTKeyedConfigDBDump_H
-
+#endif  // DTKeyedConfigDBDump_H

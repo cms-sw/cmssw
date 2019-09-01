@@ -1,3 +1,4 @@
+from builtins import range
 import ROOT
 import waferGeometry
 import math
@@ -147,7 +148,7 @@ class Cell:
     def hexagon_lines(self):
         xs,ys = self.hexagon_points()
         lines = []
-        for i in xrange(len(xs)-1):
+        for i in range(len(xs)-1):
             lines.append(ROOT.TLine(xs[i], ys[i], xs[i+1], ys[i+1]))
         self.lines = lines
         return lines

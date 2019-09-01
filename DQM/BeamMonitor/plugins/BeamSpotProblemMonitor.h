@@ -11,91 +11,66 @@
 #include <string>
 // CMS
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
-#include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
-#include <fstream>
-
+#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
 
 //
 // class declaration
 //
 
-class BeamSpotProblemMonitor : public edm::EDAnalyzer {
-  public:
+class BeamSpotProblemMonitor : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+public:
+  explicit BeamSpotProblemMonitor(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-    BeamSpotProblemMonitor( const edm::ParameterSet& );
-    ~BeamSpotProblemMonitor() override;
+protected:
+  //The order it runs
 
-  protected:
+  // BeginRun
+  void bookHistograms(DQMStore::IBooker& i, const edm::Run& r, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
+  // EndRun
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
-    //The order it runs
+private:
+  void fillPlots(int&, int&, int);
+  std::string monitorName_;
+  const edm::EDGetTokenT<DcsStatusCollection> dcsStatus_;       // dcs status collection
+  const edm::EDGetTokenT<BeamSpotOnlineCollection> scalertag_;  // scalar collection
+  const edm::EDGetTokenT<reco::TrackCollection> trkSrc_;        //  track collection
 
+  int nTracks_;
+  const int nCosmicTrk_;
+  const int fitNLumi_;
+  const bool debug_;
+  const bool onlineMode_;
+  const bool doTest_;
+  const int alarmONThreshold_;
+  const int alarmOFFThreshold_;
 
-    // BeginJob
-    void beginJob() override;
+  int lastlumi_;  // previous LS processed
+  int nextlumi_;  // next LS of Fit
+  bool processed_;
 
-    // BeginRun
-    void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
-    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-    void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-        const edm::EventSetup& context) override;
-    void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-        const edm::EventSetup& c) override;
-    // EndRun
-    void endRun(const edm::Run& r, const edm::EventSetup& c) override;
-    // Endjob
-    void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
+  //Alarm Variable
+  bool alarmOn_;
+  double beamSpotStatus_;
+  int beamSpotFromDB_;
 
-  
-  private:
-
-    void FillPlots(const edm::LuminosityBlock& lumiSeg,int&,int&,int&);
-    edm::ParameterSet parameters_;
-    std::string monitorName_;
-    edm::EDGetTokenT<DcsStatusCollection> dcsStatus_; // dcs status colleciton
-    edm::EDGetTokenT<BeamSpotOnlineCollection> scalertag_; // scalar colleciton
-    edm::EDGetTokenT<reco::TrackCollection> trkSrc_; //  track collection
-
-    int Ntracks_;
-    int nCosmicTrk_;
-    int fitNLumi_;
-    int intervalInSec_;
-    bool debug_;
-    bool onlineMode_;
-    bool doTest_;
-    int  alarmONThreshold_;
-    int  alarmOFFThreshold_;
-
-    DQMStore* dbe_;
-
-    int lastlumi_; // previous LS processed
-    int nextlumi_; // next LS of Fit
-    int nFitElements_;
-    bool processed_;
-
-    //Alarm Variable  
-    bool ALARM_ON_;
-    double BeamSpotStatus_;  
-    int BeamSpotFromDB_;
-    bool dcsTk[6];
-
-    // MonitorElements:
-    std::map<TString, MonitorElement*> hs;
-    MonitorElement * BeamSpotError;
-
+  // MonitorElements:
+  MonitorElement* beamSpotStatusLumi_ = nullptr;
+  MonitorElement* beamSpotStatusLumiAll_ = nullptr;
+  MonitorElement* beamSpotError_ = nullptr;
 };
 
 #endif
-
 
 // Local Variables:
 // show-trailing-whitespace: t

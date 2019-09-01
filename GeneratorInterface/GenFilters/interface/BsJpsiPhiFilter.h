@@ -1,7 +1,6 @@
 #ifndef _BsJpsiPhiFilter_h_
 #define _BsJpsiPhiFilter_h_
 
-
 // system include files
 #include <memory>
 #include <iostream>
@@ -20,41 +19,34 @@
 
 #include "HepMC/GenVertex.h"
 
+//
 
-// 
-
-
-class BsJpsiPhiFilter : public edm::EDFilter 
-{
-
+class BsJpsiPhiFilter : public edm::EDFilter {
 public:
-
   explicit BsJpsiPhiFilter(const edm::ParameterSet&);
   ~BsJpsiPhiFilter() override;
-  
+
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
-
   struct CutStruct {
     int type;
     double etaMin, etaMax, ptMin;
   };
 
-  typedef std::vector< HepMC::GenParticle * > GenPartVect;
-  typedef std::vector< HepMC::GenParticle * >::const_iterator GenPartVectIt;
+  typedef std::vector<HepMC::GenParticle*> GenPartVect;
+  typedef std::vector<HepMC::GenParticle*>::const_iterator GenPartVectIt;
 
   //  HepMC::GenParticle * findParticle(const GenPartVect genPartVect, const int requested_id) ;
 
   //***
-  HepMC::GenParticle * findParticle(HepMC::GenVertex* , const int requested_id) ;
+  HepMC::GenParticle* findParticle(HepMC::GenVertex*, const int requested_id);
   //***
 
-  HepMC::GenEvent::particle_const_iterator getNextBs(const HepMC::GenEvent::particle_const_iterator start, 
-						     const HepMC::GenEvent::particle_const_iterator end);
-  
+  HepMC::GenEvent::particle_const_iterator getNextBs(const HepMC::GenEvent::particle_const_iterator start,
+                                                     const HepMC::GenEvent::particle_const_iterator end);
 
-  bool cuts(const HepMC::GenParticle * jpsi, const CutStruct& cut);
+  bool cuts(const HepMC::GenParticle* jpsi, const CutStruct& cut);
   bool etaInRange(float eta, float etamin, float etamax);
 
   CutStruct leptonCuts, hadronCuts;
@@ -62,6 +54,5 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> token_;
   int noAccepted;
 };
-
 
 #endif

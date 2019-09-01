@@ -14,7 +14,34 @@
   <class name="edm::ValueMap<edm::Ptr<pat::UserData> >" />
   <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<pat::UserData> > >" />
   <!-- UserData: a few holders -->
-  <class pattern="pat::UserHolder<*>" />
+  <!-- <class pattern="pat::UserHolder<*>" /> -->
+<class name="pat::UserHolder<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >" />
+<class name="pat::UserHolder<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > >" />
+<class name="pat::UserHolder<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >" />
+<class name="pat::UserHolder<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >" />
+<class name="pat::UserHolder<ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > >" />
+<class name="pat::UserHolder<ROOT::Math::SMatrix<double,2u,2u,ROOT::Math::MatRepSym<double,2u> > >" />
+<class name="pat::UserHolder<ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > >" />
+<class name="pat::UserHolder<ROOT::Math::SMatrix<double,3u,3u,ROOT::Math::MatRepSym<double,3u> > >" />
+<class name="pat::UserHolder<ROOT::Math::SMatrix<double,4,4,ROOT::Math::MatRepSym<double,4> > >" />
+<class name="pat::UserHolder<ROOT::Math::SMatrix<double,4u,4u,ROOT::Math::MatRepSym<double,4u> > >" />
+<class name="pat::UserHolder<ROOT::Math::SMatrix<double,5,5,ROOT::Math::MatRepSym<double,5> > >" />
+<class name="pat::UserHolder<ROOT::Math::SMatrix<double,5u,5u,ROOT::Math::MatRepSym<double,5u> > >" />
+<class name="pat::UserHolder<ROOT::Math::SVector<double,2> >" />
+<class name="pat::UserHolder<ROOT::Math::SVector<double,2u> >" />
+<class name="pat::UserHolder<ROOT::Math::SVector<double,3> >" />
+<class name="pat::UserHolder<ROOT::Math::SVector<double,3u> >" />
+<class name="pat::UserHolder<ROOT::Math::SVector<double,4> >" />
+<class name="pat::UserHolder<ROOT::Math::SVector<double,4u> >" />
+<class name="pat::UserHolder<ROOT::Math::SVector<double,5> >" />
+<class name="pat::UserHolder<ROOT::Math::SVector<double,5u> >" />
+<class name="pat::UserHolder<Vector3DBase<float,GlobalTag> >" />
+<class name="pat::UserHolder<bool>" />
+<class name="pat::UserHolder<edm::Ref<vector<pat::CompositeCandidate>,pat::CompositeCandidate,edm::refhelper::FindUsingAdvance<vector<pat::CompositeCandidate>,pat::CompositeCandidate> > >" />
+<class name="pat::UserHolder<edm::Ref<vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<vector<reco::Vertex>,reco::Vertex> > >" />
+<class name="pat::UserHolder<reco::Track>" />
+<class name="pat::UserHolder<reco::Vertex>" />
+<class name="pat::UserHolder<vector<unsigned int> >" />
 
   </selection>
  <exclusion>

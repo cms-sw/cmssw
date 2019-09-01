@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 
+from __future__ import print_function
 from FWCore.ParameterSet.Config import Service
 import FWCore.ParameterSet.Types as CfgTypes
 
@@ -57,7 +58,7 @@ class RandomNumberServiceHelper(object):
 
         #print svcAttrs
 
-        return filter(self.__containsSeed, svcAttrs)
+        return list(filter(self.__containsSeed, svcAttrs))
 
 
     def countSeeds(self):
@@ -269,40 +270,40 @@ if __name__ == '__main__':
         CfgTypes.uint32(987654321)
         )
 
-    print "Inital PSet"
-    print randSvc
+    print("Inital PSet")
+    print(randSvc)
 
 
     #  //
     # // Autofill seeds
     #//
-    print "Totally Random PSet"
+    print("Totally Random PSet")
     randHelper.populate()
-    print randSvc
+    print(randSvc)
 
 
     #  //
     # // Set all seeds with reset method
     #//
-    print "All seeds 9999"
+    print("All seeds 9999")
     randHelper.resetSeeds(9999)
-    print randSvc
+    print(randSvc)
 
     #  //
     # // test setting named seeds
     #//
-    print "t1,t3 9998"
+    print("t1,t3 9998")
     randHelper.setNamedSeed("t1", 9998)
     randHelper.setNamedSeed("t3", 9998, 9998)
-    print randSvc
+    print(randSvc)
 
-    print "t1 seed(s)",randHelper.getNamedSeed("t1")
-    print "t2 seed(s)",randHelper.getNamedSeed("t2")
+    print("t1 seed(s)",randHelper.getNamedSeed("t1"))
+    print("t2 seed(s)",randHelper.getNamedSeed("t2"))
 
 
     #  //
     # // Autofill seeds with exclusion list
     #//
     randHelper.populate("t1", "t3")
-    print "t2 randomized"
-    print randSvc
+    print("t2 randomized")
+    print(randSvc)

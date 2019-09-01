@@ -3,13 +3,11 @@
 
 #include "CondFormats/Alignment/interface/Definitions.h"
 
-
 class TrackerTopology;
 class TrackerAlignmentLevelBuilder;
 
 namespace align {
   class TrackerNameSpace {
-
     /// grant access for the TrackerAlignmentLevelBuilder (in global namespace)
     friend class ::TrackerAlignmentLevelBuilder;
 
@@ -144,7 +142,6 @@ namespace align {
 
       /// Number of strings for each surface of a half shell.
       std::vector<unsigned int> sphs_;
-
     };
 
     class TOB {
@@ -210,6 +207,7 @@ namespace align {
 
       /// Endcap number is 1 at -z side and 2 at +z side.
       unsigned int endcapNumber(align::ID) const;
+
     private:
       const TrackerTopology* trackerTopology_;
     };
@@ -251,7 +249,6 @@ namespace align {
       const TrackerTopology* trackerTopology_;
     };
 
-
     const TrackerTopology* trackerTopology() const { return trackerTopology_; }
     const TPB& tpb() const { return tpb_; }
     const TPE& tpe() const { return tpe_; }
@@ -269,5 +266,5 @@ namespace align {
     TID tid_;
     TEC tec_;
   };
-};
+};     // namespace align
 #endif /* Alignment_TrackerAlignment_TrackerNameSpace_H */

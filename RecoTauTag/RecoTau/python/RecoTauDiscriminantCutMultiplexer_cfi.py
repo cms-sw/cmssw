@@ -9,20 +9,11 @@ MVA output depending on what the category is.
 '''
 
 import FWCore.ParameterSet.Config as cms
+from RecoTauTag.RecoTau.recoTauDiscriminantCutMultiplexerDefault_cfi import recoTauDiscriminantCutMultiplexerDefault
 
-recoTauDiscriminantCutMultiplexer = cms.EDProducer(
-    "RecoTauDiscriminantCutMultiplexer",
+recoTauDiscriminantCutMultiplexer = recoTauDiscriminantCutMultiplexerDefault.clone(
     PFTauProducer = cms.InputTag("fixme"),
     toMultiplex = cms.InputTag("fixme"),
-    Prediscriminants = cms.PSet(
-        BooleanOperator = cms.string("and"),
-        decayMode = cms.PSet(
-            Producer = cms.InputTag("fixme"),
-            cut = cms.double(0.)
-            )
-        ),
-    key = cms.InputTag("fixme"), # a discriminator
-    loadMVAfromDB = cms.bool(True),
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),

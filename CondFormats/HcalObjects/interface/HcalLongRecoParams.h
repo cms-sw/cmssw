@@ -1,26 +1,21 @@
 #ifndef HcalLongRecoParams_h
 #define HcalLongRecoParams_h
 
-
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParam.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
-
-class HcalLongRecoParams: public HcalCondObjectContainer<HcalLongRecoParam>
-{
- public:
+class HcalLongRecoParams : public HcalCondObjectContainer<HcalLongRecoParam> {
+public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalLongRecoParams():HcalCondObjectContainer<HcalLongRecoParam>(nullptr) {}
+  HcalLongRecoParams() : HcalCondObjectContainer<HcalLongRecoParam>(nullptr) {}
 #endif
-  HcalLongRecoParams(const HcalTopology* topo):HcalCondObjectContainer<HcalLongRecoParam>(topo) {}
+  HcalLongRecoParams(const HcalTopology* topo) : HcalCondObjectContainer<HcalLongRecoParam>(topo) {}
 
-  std::string myname() const override {return (std::string)"HcalLongRecoParams";}
+  std::string myname() const override { return (std::string) "HcalLongRecoParams"; }
 
- private:
-
-
- COND_SERIALIZABLE;
+private:
+  COND_SERIALIZABLE;
 };
 #endif

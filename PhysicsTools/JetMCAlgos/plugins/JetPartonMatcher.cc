@@ -91,84 +91,74 @@ using namespace reco;
 using namespace edm;
 using namespace ROOT::Math::VectorUtil;
 
-class JetPartonMatcher : public edm::global::EDProducer<>
-{
-  public:
-    JetPartonMatcher( const edm::ParameterSet & );
-    ~JetPartonMatcher() override;
+class JetPartonMatcher : public edm::global::EDProducer<> {
+public:
+  JetPartonMatcher(const edm::ParameterSet&);
+  ~JetPartonMatcher() override;
 
-  private:
-    void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-    struct WorkingVariables {
-      Handle <GenParticleRefVector> particles;
-      int theHeaviest = 0;
-      int theNearest2 =0;
-      int theNearest3 = 0;
-      int theHardest = 0;
-    };
+  struct WorkingVariables {
+    Handle<GenParticleRefVector> particles;
+    int theHeaviest = 0;
+    int theNearest2 = 0;
+    int theNearest3 = 0;
+    int theHardest = 0;
+  };
 
-    int fillAlgoritDefinition( const Jet&, WorkingVariables& ) const;
-    int fillPhysicsDefinition( const Jet&, WorkingVariables& ) const;
+  int fillAlgoritDefinition(const Jet&, WorkingVariables&) const;
+  int fillPhysicsDefinition(const Jet&, WorkingVariables&) const;
 
-    edm::EDGetTokenT<edm::View <reco::Jet> > m_jetsSrcToken;
-    edm::EDGetTokenT<GenParticleRefVector> m_ParticleSrcToken;
-    double coneSizeToAssociate;
-    bool physDefinition;
-    bool doPriority;
-    vector<int> priorityList;
-
+  edm::EDGetTokenT<edm::View<reco::Jet> > m_jetsSrcToken;
+  edm::EDGetTokenT<GenParticleRefVector> m_ParticleSrcToken;
+  double coneSizeToAssociate;
+  bool physDefinition;
+  bool doPriority;
+  vector<int> priorityList;
 };
 
 //=========================================================================
 
-JetPartonMatcher::JetPartonMatcher( const edm::ParameterSet& iConfig ) 
-{
-    produces<JetMatchedPartonsCollection>();
-    m_jetsSrcToken           = consumes<edm::View <reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"));
-    m_ParticleSrcToken       = consumes<GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("partons"));
-    coneSizeToAssociate = iConfig.getParameter<double>("coneSizeToAssociate");
-    if ( iConfig.exists("doPriority") ) {
-      doPriority = iConfig.getParameter<bool>("doPriority");
-      priorityList = iConfig.getParameter<vector<int> >("priorityList");
-    } else {
-      doPriority = false;
-      priorityList.clear();
-    }
+JetPartonMatcher::JetPartonMatcher(const edm::ParameterSet& iConfig) {
+  produces<JetMatchedPartonsCollection>();
+  m_jetsSrcToken = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"));
+  m_ParticleSrcToken = consumes<GenParticleRefVector>(iConfig.getParameter<edm::InputTag>("partons"));
+  coneSizeToAssociate = iConfig.getParameter<double>("coneSizeToAssociate");
+  if (iConfig.exists("doPriority")) {
+    doPriority = iConfig.getParameter<bool>("doPriority");
+    priorityList = iConfig.getParameter<vector<int> >("priorityList");
+  } else {
+    doPriority = false;
+    priorityList.clear();
+  }
 }
 
 //=========================================================================
 
-JetPartonMatcher::~JetPartonMatcher()
-{
-}
+JetPartonMatcher::~JetPartonMatcher() {}
 
 // ------------ method called to produce the data  ------------
 
-void JetPartonMatcher::produce(edm::StreamID, Event& iEvent, const EventSetup& iEs ) const
-{
+void JetPartonMatcher::produce(edm::StreamID, Event& iEvent, const EventSetup& iEs) const {
   WorkingVariables wv;
-  edm::Handle <edm::View <reco::Jet> > jets_h;
-  iEvent.getByToken(m_jetsSrcToken,     jets_h    );
-  iEvent.getByToken(m_ParticleSrcToken, wv.particles );
+  edm::Handle<edm::View<reco::Jet> > jets_h;
+  iEvent.getByToken(m_jetsSrcToken, jets_h);
+  iEvent.getByToken(m_ParticleSrcToken, wv.particles);
 
   edm::LogVerbatim("JetPartonMatcher") << "=== Partons size:" << wv.particles->size();
 
-  for( size_t m = 0; m < wv.particles->size(); ++ m ) {
-    const GenParticle & aParton = *(wv.particles->at(m).get());
-    edm::LogVerbatim("JetPartonMatcher") <<  aParton.status() << " " <<
-                                             aParton.pdgId()  << " " <<
-                                             aParton.pt()     << " " <<
-                                             aParton.eta()    << " " <<
-                                             aParton.phi()    << endl;
+  for (size_t m = 0; m < wv.particles->size(); ++m) {
+    const GenParticle& aParton = *(wv.particles->at(m).get());
+    edm::LogVerbatim("JetPartonMatcher") << aParton.status() << " " << aParton.pdgId() << " " << aParton.pt() << " "
+                                         << aParton.eta() << " " << aParton.phi() << endl;
   }
 
   auto jetMatchedPartons = std::make_unique<JetMatchedPartonsCollection>(reco::JetRefBaseProd(jets_h));
 
   for (size_t j = 0; j < jets_h->size(); j++) {
-
-    const int theMappedPartonAlg = fillAlgoritDefinition( (*jets_h)[j], wv );
-    const int theMappedPartonPhy = fillPhysicsDefinition( (*jets_h)[j], wv );
+    const int theMappedPartonAlg = fillAlgoritDefinition((*jets_h)[j], wv);
+    const int theMappedPartonPhy = fillPhysicsDefinition((*jets_h)[j], wv);
 
     GenParticleRef pHV;
     GenParticleRef pN2;
@@ -176,17 +166,21 @@ void JetPartonMatcher::produce(edm::StreamID, Event& iEvent, const EventSetup& i
     GenParticleRef pPH;
     GenParticleRef pAL;
 
-    if(wv.theHeaviest>=0)        pHV = wv.particles->at( wv.theHeaviest        );
-    if(wv.theNearest2>=0)        pN2 = wv.particles->at( wv.theNearest2        );
-    if(wv.theNearest3>=0)        pN3 = wv.particles->at( wv.theNearest3        );
-    if(theMappedPartonPhy>=0) pPH = wv.particles->at( theMappedPartonPhy );
-    if(theMappedPartonAlg>=0) pAL = wv.particles->at( theMappedPartonAlg );
+    if (wv.theHeaviest >= 0)
+      pHV = wv.particles->at(wv.theHeaviest);
+    if (wv.theNearest2 >= 0)
+      pN2 = wv.particles->at(wv.theNearest2);
+    if (wv.theNearest3 >= 0)
+      pN3 = wv.particles->at(wv.theNearest3);
+    if (theMappedPartonPhy >= 0)
+      pPH = wv.particles->at(theMappedPartonPhy);
+    if (theMappedPartonAlg >= 0)
+      pAL = wv.particles->at(theMappedPartonAlg);
 
-    (*jetMatchedPartons)[jets_h->refAt(j)]=MatchedPartons(pHV,pN2,pN3,pPH,pAL);
+    (*jetMatchedPartons)[jets_h->refAt(j)] = MatchedPartons(pHV, pN2, pN3, pPH, pAL);
   }
 
   iEvent.put(std::move(jetMatchedPartons));
-
 }
 
 //
@@ -212,8 +206,7 @@ void JetPartonMatcher::produce(edm::StreamID, Event& iEvent, const EventSetup& i
 //
 // ToDo: if more than one b(c) in the cone --> the selected parton is not always the one with highest pT
 //
-int JetPartonMatcher::fillAlgoritDefinition( const Jet& theJet, WorkingVariables& wv ) const {
-
+int JetPartonMatcher::fillAlgoritDefinition(const Jet& theJet, WorkingVariables& wv) const {
   int tempParticle = -1;
   int tempPartonHighestPt = -1;
   int tempNearest = -1;
@@ -240,25 +233,25 @@ int JetPartonMatcher::fillAlgoritDefinition( const Jet& theJet, WorkingVariables
   //    then it will first look for top quarks, then W bosons, then gluons.
   // 2) If no priority items are found, do the default "standard"
   //    matching.
-  for( size_t m = 0; m < wv.particles->size() && !foundPriority; ++ m ) {
+  for (size_t m = 0; m < wv.particles->size() && !foundPriority; ++m) {
     //    const Candidate & aParton = *(wv.particles->at(m).get());
-    const GenParticle & aParton = *(wv.particles->at(m).get());
+    const GenParticle& aParton = *(wv.particles->at(m).get());
     int flavour = abs(aParton.pdgId());
 
     // "Priority" behavoir:
     // Associate to the first particle found in the priority list, regardless
     // of delta R.
-    if ( doPriority ) {
-      vector<int>::const_iterator ipriority = find( priorityList.begin(), priorityList.end(), flavour );
+    if (doPriority) {
+      vector<int>::const_iterator ipriority = find(priorityList.begin(), priorityList.end(), flavour);
       // Check to see if this particle is in our priority list
-      if ( ipriority != priorityList.end() ) {
-	// This particle is on our priority list. If it matches,
-	// we break, since we take in order of priority, not deltaR
-	double dist = DeltaR( theJet.p4(), aParton.p4() );
-	if( dist <= coneSizeToAssociate ) {
-	  tempParticle = m;
-	  foundPriority = true;
-	}
+      if (ipriority != priorityList.end()) {
+        // This particle is on our priority list. If it matches,
+        // we break, since we take in order of priority, not deltaR
+        double dist = DeltaR(theJet.p4(), aParton.p4());
+        if (dist <= coneSizeToAssociate) {
+          tempParticle = m;
+          foundPriority = true;
+        }
       }
     }
     // Here we do not want to do priority matching. Ensure the "foundPriority" swtich
@@ -272,32 +265,35 @@ int JetPartonMatcher::fillAlgoritDefinition( const Jet& theJet, WorkingVariables
     // Do this if we don't want to do priority matching, or if
     // we didn't find a priority object.
 
-    if( !foundPriority && aParton.status() != 3 ) {
-      double dist = DeltaR( theJet.p4(), aParton.p4() );
-      if( dist <= coneSizeToAssociate ) {
-	if( dist < minDr ) {
-	  minDr = dist;
-	  tempNearest = m;
-	}
-	if( tempParticle == -1 && ( flavour == 4 )  ) tempParticle = m;
-	if(                         flavour == 5    ) tempParticle = m;
-	if( aParton.pt() > maxPt ) {
-	  maxPt = aParton.pt();
-	  tempPartonHighestPt = m;
-	}
+    if (!foundPriority && aParton.status() != 3) {
+      double dist = DeltaR(theJet.p4(), aParton.p4());
+      if (dist <= coneSizeToAssociate) {
+        if (dist < minDr) {
+          minDr = dist;
+          tempNearest = m;
+        }
+        if (tempParticle == -1 && (flavour == 4))
+          tempParticle = m;
+        if (flavour == 5)
+          tempParticle = m;
+        if (aParton.pt() > maxPt) {
+          maxPt = aParton.pt();
+          tempPartonHighestPt = m;
+        }
       }
     }
   }
 
-  if ( foundPriority ) {
-    wv.theHeaviest = tempParticle; // The priority-matched particle
-    wv.theHardest  = -1;  //  set the rest to -1
-    wv.theNearest2 = -1;  // "                  "
+  if (foundPriority) {
+    wv.theHeaviest = tempParticle;  // The priority-matched particle
+    wv.theHardest = -1;             //  set the rest to -1
+    wv.theNearest2 = -1;            // "                  "
   } else {
     wv.theHeaviest = tempParticle;
-    wv.theHardest  = tempPartonHighestPt;
+    wv.theHardest = tempPartonHighestPt;
     wv.theNearest2 = tempNearest;
-    if ( tempParticle == -1 ) tempParticle = tempPartonHighestPt;
+    if (tempParticle == -1)
+      tempParticle = tempPartonHighestPt;
   }
   return tempParticle;
 }
@@ -324,16 +320,15 @@ int JetPartonMatcher::fillAlgoritDefinition( const Jet& theJet, WorkingVariables
 // associatedInitialParticle can be -1 --> no initialParticle in the cone or rejected association
 // True Flavour of the jet --> flavour of the associatedInitialParticle
 //
-int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet, WorkingVariables& wv ) const {
-
-  float TheBiggerConeSize = 0.7; // In HepMC it's 0.3 --> it's a mistake: value has to be 0.7
+int JetPartonMatcher::fillPhysicsDefinition(const Jet& theJet, WorkingVariables& wv) const {
+  float TheBiggerConeSize = 0.7;  // In HepMC it's 0.3 --> it's a mistake: value has to be 0.7
   int tempParticle = -1;
   int nInTheCone = 0;
   int tempNearest = -1;
   float minDr = 1000;
   bool foundPriority = false;
 
-  vector<const reco::Candidate *> theContaminations;
+  vector<const reco::Candidate*> theContaminations;
   theContaminations.clear();
 
   // Loop over the particles in question until we find a priority
@@ -355,26 +350,25 @@ int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet, WorkingVariables
   //    then it will first look for top quarks, then W bosons, then gluons.
   // 2) If no priority items are found, do the default "standard"
   //    matching.
-  for( size_t m = 0; m < wv.particles->size() && !foundPriority; ++ m ) {
-
+  for (size_t m = 0; m < wv.particles->size() && !foundPriority; ++m) {
     //    const Candidate & aParticle = *(wv.particles->at(m).get());
-    const GenParticle & aParticle = *(wv.particles->at(m).get());
+    const GenParticle& aParticle = *(wv.particles->at(m).get());
     int flavour = abs(aParticle.pdgId());
 
     // "Priority" behavoir:
     // Associate to the first particle found in the priority list, regardless
     // of delta R.
-    if ( doPriority ) {
-      vector<int>::const_iterator ipriority = find( priorityList.begin(), priorityList.end(), flavour );
+    if (doPriority) {
+      vector<int>::const_iterator ipriority = find(priorityList.begin(), priorityList.end(), flavour);
       // Check to see if this particle is in our priority list
-      if ( ipriority != priorityList.end() ) {
-	// This particle is on our priority list. If it matches,
-	// we break, since we take in order of priority, not deltaR
-	double dist = DeltaR( theJet.p4(), aParticle.p4() );
-	if( dist <= coneSizeToAssociate ) {
-	  tempParticle = m;
-	  foundPriority = true;
-	}
+      if (ipriority != priorityList.end()) {
+        // This particle is on our priority list. If it matches,
+        // we break, since we take in order of priority, not deltaR
+        double dist = DeltaR(theJet.p4(), aParticle.p4());
+        if (dist <= coneSizeToAssociate) {
+          tempParticle = m;
+          foundPriority = true;
+        }
       }
     }
     // Here we do not want to do priority matching. Ensure the "foundPriority" swtich
@@ -384,64 +378,62 @@ int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet, WorkingVariables
     }
 
     // Default behavior:
-    if ( !foundPriority ) {
-
+    if (!foundPriority) {
       // skipping all particle but udscbg (is this correct/enough?!?!)
       bool isAParton = false;
-      if(flavour == 1 ||
-	 flavour == 2 ||
-	 flavour == 3 ||
-	 flavour == 4 ||
-	 flavour == 5 ||
-	 flavour == 21 ) isAParton = true;
-      if(!isAParton) continue;
-      double dist = DeltaR( theJet.p4(), aParticle.p4() );
-      if( aParticle.status() == 3 && dist < minDr ) {
-	minDr = dist;
-	tempNearest = m;
+      if (flavour == 1 || flavour == 2 || flavour == 3 || flavour == 4 || flavour == 5 || flavour == 21)
+        isAParton = true;
+      if (!isAParton)
+        continue;
+      double dist = DeltaR(theJet.p4(), aParticle.p4());
+      if (aParticle.status() == 3 && dist < minDr) {
+        minDr = dist;
+        tempNearest = m;
       }
-      if( aParticle.status() == 3 && dist <= coneSizeToAssociate ) {
-	//cout << "particle in small cone=" << aParticle.pdgId() << endl;
-	tempParticle = m;
-	nInTheCone++;
+      if (aParticle.status() == 3 && dist <= coneSizeToAssociate) {
+        //cout << "particle in small cone=" << aParticle.pdgId() << endl;
+        tempParticle = m;
+        nInTheCone++;
       }
       // Look for heavy partons in TheBiggerConeSize now
-      if( aParticle.numberOfDaughters() > 0 && aParticle.status() != 3 ) {
-	if( flavour ==  1 ||
-	    flavour ==  2 ||
-	    flavour ==  3 ||
-	    flavour == 21 ) continue;
-	if( dist < TheBiggerConeSize ) theContaminations.push_back( &aParticle );
+      if (aParticle.numberOfDaughters() > 0 && aParticle.status() != 3) {
+        if (flavour == 1 || flavour == 2 || flavour == 3 || flavour == 21)
+          continue;
+        if (dist < TheBiggerConeSize)
+          theContaminations.push_back(&aParticle);
       }
     }
   }
 
-
   // Here's the default behavior for assignment if there is no priority.
-  if ( !foundPriority ) {
+  if (!foundPriority) {
     wv.theNearest3 = tempNearest;
 
-    if(nInTheCone != 1) return -1; // rejected --> only one initialParton requested
-    if(theContaminations.empty() ) return tempParticle; //no contamination
-    int initialPartonFlavour = abs( (wv.particles->at(tempParticle).get()) ->pdgId() );
+    if (nInTheCone != 1)
+      return -1;  // rejected --> only one initialParton requested
+    if (theContaminations.empty())
+      return tempParticle;  //no contamination
+    int initialPartonFlavour = abs((wv.particles->at(tempParticle).get())->pdgId());
 
-    vector<const Candidate *>::const_iterator itCont = theContaminations.begin();
-    for( ; itCont != theContaminations.end(); itCont++ ) {
-      int contaminatingFlavour = abs( (*itCont)->pdgId() );
-      if( (*itCont)->numberOfMothers()>0 && (*itCont)->mother(0) == wv.particles->at(tempParticle).get() ) continue; // mother is the initialParton --> OK
-      if( initialPartonFlavour == 4 ) {
-	if( contaminatingFlavour == 4 ) continue; // keep association --> the initialParton is a c --> the contaminated parton is a c
-	tempParticle = -1; // all the other cases reject!
-	return tempParticle;
+    vector<const Candidate*>::const_iterator itCont = theContaminations.begin();
+    for (; itCont != theContaminations.end(); itCont++) {
+      int contaminatingFlavour = abs((*itCont)->pdgId());
+      if ((*itCont)->numberOfMothers() > 0 && (*itCont)->mother(0) == wv.particles->at(tempParticle).get())
+        continue;  // mother is the initialParton --> OK
+      if (initialPartonFlavour == 4) {
+        if (contaminatingFlavour == 4)
+          continue;         // keep association --> the initialParton is a c --> the contaminated parton is a c
+        tempParticle = -1;  // all the other cases reject!
+        return tempParticle;
       }
     }
   }
   // If there is priority, then just set the heaviest to priority, the rest are -1.
   else {
-    wv.theHeaviest = tempParticle; // Set the heaviest to tempParticle
-    wv.theNearest2 = -1; //  Set the rest to -1
-    wv.theNearest3 = -1; // "                  "
-    wv.theHardest = -1;  // "                  "
+    wv.theHeaviest = tempParticle;  // Set the heaviest to tempParticle
+    wv.theNearest2 = -1;            //  Set the rest to -1
+    wv.theNearest3 = -1;            // "                  "
+    wv.theHardest = -1;             // "                  "
   }
 
   return tempParticle;
@@ -449,4 +441,3 @@ int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet, WorkingVariables
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(JetPartonMatcher);
-

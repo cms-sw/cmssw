@@ -36,6 +36,9 @@
 //     // empty
 
 // };
-class L1TGlobalStableParametersRcd : public edm::eventsetup::DependentRecordImplementation<L1TGlobalStableParametersRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+class L1TGlobalStableParametersRcd
+    : public edm::eventsetup::DependentRecordImplementation<L1TGlobalStableParametersRcd,
+                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+};
 
 #endif

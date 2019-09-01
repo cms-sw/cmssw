@@ -3,7 +3,7 @@
 
 #include "TH2.h"
 #include "PhysicsTools/UtilAlgos/interface/BasicAnalyzer.h"
-
+#include "PhysicsTools/Heppy/interface/JetUtils.h"
 /**
    \class AnalysisTasksAnalyzerJEC AnalysisTasksAnalyzerJEC.h "PhysicsTools/UtilAlgos/interface/AnalysisTasksAnalyzerJEC.h"
    \brief Example class that can be used both within FWLite and within the full framework
@@ -17,8 +17,7 @@
 */
 
 class AnalysisTasksAnalyzerJEC : public edm::BasicAnalyzer {
-
- public:
+public:
   /// default constructor
   AnalysisTasksAnalyzerJEC(const edm::ParameterSet& cfg, TFileDirectory& fs);
   AnalysisTasksAnalyzerJEC(const edm::ParameterSet& cfg, TFileDirectory& fs, edm::ConsumesCollector&& iC);
@@ -31,7 +30,7 @@ class AnalysisTasksAnalyzerJEC : public edm::BasicAnalyzer {
   /// everything that needs to be done during the event loop
   void analyze(const edm::EventBase& event) override;
 
- private:
+private:
   /// input tag for mouns
   edm::InputTag Jets_;
   edm::EDGetTokenT<std::vector<pat::Jet> > JetsToken_;

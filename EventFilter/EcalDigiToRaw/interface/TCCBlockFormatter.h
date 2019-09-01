@@ -12,28 +12,21 @@
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
-
-// 
+//
 // The block containing the trigger towers for a given FED
 //
 
-
-
 class TCCBlockFormatter : public BlockFormatter {
- public :
+public:
+  TCCBlockFormatter(BlockFormatter::Config const&, BlockFormatter::Params const&);
 
-	TCCBlockFormatter();
-	~TCCBlockFormatter();
-        static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
-        void DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping);
+  static const int kCardsPerTower = 5;  // Number of VFE cards per trigger tower
+  void DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
+                 FEDRawData& rawdata,
+                 const EcalElectronicsMapping* TheMapping);
 
- private :
-	bool AllTPsamples_;
-
+private:
+  bool AllTPsamples_;
 };
 
-
-
 #endif
-
-

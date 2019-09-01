@@ -11,7 +11,6 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,8 +21,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-
-
 
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
 #include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
@@ -41,55 +38,50 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-namespace popcon
-{
+namespace popcon {
 
+  class EcalTPGBadXTHandler : public popcon::PopConSourceHandler<EcalTPGCrystalStatus> {
+  public:
+    EcalTPGBadXTHandler(edm::ParameterSet const&);
+    ~EcalTPGBadXTHandler() override;
 
-	class EcalTPGBadXTHandler : public popcon::PopConSourceHandler<EcalTPGCrystalStatus>
-	{
+    void getNewObjects() override;
 
-		public:
-                        EcalTPGBadXTHandler(edm::ParameterSet const & );
-			~EcalTPGBadXTHandler() override; 
-			
-			void getNewObjects() override;
-			
-			std::string id() const override { return m_name;}
-			
-			void readFromFile(const char* inputFile) ;
-			void writeFile(const char* inputFile);
-			EcalTPGCrystalStatus*  produceEcalTrgChannelStatus();
-			
-			EcalCondDBInterface* econn;
+    std::string id() const override { return m_name; }
 
-		private:
-			std::string to_string( char value[]) {
-	    		  std::ostringstream streamOut;
-	    		  streamOut << value;
-	    		  return streamOut.str();
-	  		}
-			
-			const EcalTPGCrystalStatus * mycrystalStat;
+    void readFromFile(const char* inputFile);
+    void writeFile(const char* inputFile);
+    EcalTPGCrystalStatus* produceEcalTrgChannelStatus();
 
-			unsigned int m_firstRun ;
-			unsigned int m_lastRun ;
-			
-			std::string m_location;
-			std::string m_gentag;
-			std::string m_sid;
-			std::string m_user;
-			std::string m_pass;
-                        std::string m_locationsource;
-                        std::string m_name;
-			unsigned int m_runnr;
-			std::string m_runtype;
-			std::string m_i_tag;
-			int m_i_version;
-			unsigned int m_i_run_number;
-			int m_i_badXT;
-	};
-}
+    EcalCondDBInterface* econn;
+
+  private:
+    std::string to_string(char value[]) {
+      std::ostringstream streamOut;
+      streamOut << value;
+      return streamOut.str();
+    }
+
+    const EcalTPGCrystalStatus* mycrystalStat;
+
+    unsigned int m_firstRun;
+    unsigned int m_lastRun;
+
+    std::string m_location;
+    std::string m_gentag;
+    std::string m_sid;
+    std::string m_user;
+    std::string m_pass;
+    std::string m_locationsource;
+    std::string m_name;
+    unsigned int m_runnr;
+    std::string m_runtype;
+    std::string m_i_tag;
+    int m_i_version;
+    unsigned int m_i_run_number;
+    int m_i_badXT;
+  };
+}  // namespace popcon
 #endif
-

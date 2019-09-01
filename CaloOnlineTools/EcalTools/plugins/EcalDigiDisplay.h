@@ -18,22 +18,22 @@
 // class declaration
 
 class EcalDigiDisplay : public edm::EDAnalyzer {
- public:
+public:
   //Constractor
   EcalDigiDisplay(const edm::ParameterSet& ps);
   //Distractor
   ~EcalDigiDisplay() override;
-  
- private:
-  void analyze( edm::Event const & e, edm::EventSetup const & c) override;
-  void beginRun(edm::Run const &, edm::EventSetup const & c) override;
+
+private:
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void beginRun(edm::Run const&, edm::EventSetup const& c) override;
   void endJob() override;
-  
- protected:
-  void readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode);
-  void readEEDigis (edm::Handle<EEDigiCollection> digis, int Mode);
-  void readPNDigis (edm::Handle<EcalPnDiodeDigiCollection> PNs, int Mode);
-  
+
+protected:
+  void readEBDigis(edm::Handle<EBDigiCollection> digis, int Mode);
+  void readEEDigis(edm::Handle<EEDigiCollection> digis, int Mode);
+  void readPNDigis(edm::Handle<EcalPnDiodeDigiCollection> PNs, int Mode);
+
   EcalFedMap* fedMap;
 
   std::string ebDigiCollection_;
@@ -47,13 +47,13 @@ class EcalDigiDisplay : public edm::EDAnalyzer {
   bool cryDigi;
   bool ttDigi;
   bool pnDigi;
-  
+
   int mode;
- 
+
   std::vector<int> listChannels;
   std::vector<int> listTowers;
   std::vector<int> listPns;
-  
+
   const EcalElectronicsMapping* ecalElectronicsMap_;
 };
 #endif

@@ -12,27 +12,26 @@
 #include "G4MaterialPropertiesTable.hh"
 #include "G4SDManager.hh"
 
-class MaterialProperties
-{
- public:
-	/// constructor
+class MaterialProperties {
+public:
+  /// constructor
   MaterialProperties(int DebugLevel, double SiAbsLengthScale);
-	/// destructor
+  /// destructor
   ~MaterialProperties();
 
- private:
-	/// define optical properties of materials in the detector
+private:
+  /// define optical properties of materials in the detector
   void setMaterialProperties();
 
- private:
-  const G4MaterialTable * theMaterialTable;
+private:
+  const G4MaterialTable *theMaterialTable;
 
- private:
+private:
   int theMPDebugLevel;
   double theSiAbsLengthScalingFactor;
-  G4MaterialPropertiesTable * theMPT;
-  G4Material * theTECWafer;
-  G4Material * theTOBWafer;
-  G4Material * theTIBWafer;
+  G4MaterialPropertiesTable *theMPT;
+  G4Material *theTECWafer;
+  G4Material *theTOBWafer;
+  G4Material *theTIBWafer;
 };
 #endif

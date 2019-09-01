@@ -4,7 +4,7 @@
 //
 // Package:    PythiaDauVFilter
 // Class:      PythiaDauVFilter
-// 
+//
 /**\class PythiaDauVFilter PythiaDauVFilter.cc 
 
  Description: Filter events using MotherId and ChildrenIds infos
@@ -17,7 +17,6 @@
 //         Created:  Apr 29 2008
 //
 //
-
 
 // system include files
 #include <memory>
@@ -41,24 +40,24 @@ namespace edm {
 }
 
 class PythiaDauVFilter : public edm::global::EDFilter<> {
- public:
+public:
   explicit PythiaDauVFilter(const edm::ParameterSet&);
   ~PythiaDauVFilter() override;
-  
-  
+
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
- private:
-  const int fVerbose;  
+
+private:
+  const int fVerbose;
   const edm::EDGetTokenT<edm::HepMCProduct> token_;
   std::vector<int> dauIDs;
   const int particleID;
   const int motherID;
-  const bool chargeconju; 
+  const bool chargeconju;
   const int ndaughters;
   std::vector<double> minptcut;
   const double maxptcut;
   std::vector<double> minetacut;
   std::vector<double> maxetacut;
-  std::unique_ptr<Pythia8::Pythia> fLookupGen; // this instance is for accessing particleData information
+  std::unique_ptr<Pythia8::Pythia> fLookupGen;  // this instance is for accessing particleData information
 };
 #endif

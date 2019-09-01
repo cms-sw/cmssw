@@ -14,7 +14,7 @@ using namespace std;
 
 #include <TMath.h>
 
-ClassImp(MusEcal)
+ClassImp(MusEcal);
 
 bool MusEcal::verbose= true;
 

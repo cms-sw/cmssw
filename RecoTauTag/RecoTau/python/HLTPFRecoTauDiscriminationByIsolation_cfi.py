@@ -45,8 +45,8 @@ hltPFRecoTauDiscriminationByIsolation = pfRecoTauDiscriminationByIsolation.clone
     # By default, the pt threshold for tracks used to compute the DeltaBeta
     # correction is taken as the gamma Et threshold from the isolation quality
     # cuts.
-    # Uncommenting the parameter below allows this threshold to be overridden.
-    deltaBetaPUTrackPtCutOverride = cms.double(0.5),
+    deltaBetaPUTrackPtCutOverride     = cms.bool(True),  # Set the boolean = True to override.
+    deltaBetaPUTrackPtCutOverride_val = cms.double(0.5), # Set the value for new value.
 
     # Rho corrections
     applyRhoCorrection = cms.bool(False),

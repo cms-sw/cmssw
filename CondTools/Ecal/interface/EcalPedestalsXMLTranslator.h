@@ -13,20 +13,13 @@
 #include <string>
 
 class EcalPedestalsXMLTranslator {
-
 public:
+  static int readXML(const std::string& filename, EcalCondHeader& header, EcalPedestals& record);
 
-  static int readXML (const std::string& filename, 
-	              EcalCondHeader& header,
-	              EcalPedestals& record);
+  static int writeXML(const std::string& filename, const EcalCondHeader& header, const EcalPedestals& record);
 
-  static  int writeXML(const std::string& filename, 
-		       const EcalCondHeader& header,
-		       const EcalPedestals& record);
- private:
-  
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalPedestals& record);
+private:
+  static std::string dumpXML(const EcalCondHeader& header, const EcalPedestals& record);
 };
 
-#endif // __EcalPedestalsXMLTranslator_h_
+#endif  // __EcalPedestalsXMLTranslator_h_

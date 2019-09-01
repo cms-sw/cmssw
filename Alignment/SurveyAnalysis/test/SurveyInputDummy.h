@@ -32,29 +32,18 @@
 
 #include <map>
 
-class SurveyInputDummy:
-  public SurveyInputBase
-{
-  public:
-
-  SurveyInputDummy(
-		   const edm::ParameterSet&
-		   );
+class SurveyInputDummy : public SurveyInputBase {
+public:
+  SurveyInputDummy(const edm::ParameterSet&);
 
   /// Read ideal tracker geometry from DB
-  virtual void analyze(
-		       const edm::Event&,
-		       const edm::EventSetup&
-		       );
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  private:
-
+private:
   /// Add survey info to an alignable
-  void addSurveyInfo(
-		     Alignable*
-		     );
+  void addSurveyInfo(Alignable*);
 
-  bool theRandomizeValue; // randomize survey values if true
+  bool theRandomizeValue;  // randomize survey values if true
 
   std::map<align::StructureType, double> theErrors;
 };

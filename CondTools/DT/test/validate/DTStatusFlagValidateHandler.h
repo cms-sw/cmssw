@@ -26,18 +26,15 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTStatusFlagValidateHandler: public popcon::PopConSourceHandler<DTStatusFlag> {
-
- public:
-
+class DTStatusFlagValidateHandler : public popcon::PopConSourceHandler<DTStatusFlag> {
+public:
   /** Constructor
    */
-  DTStatusFlagValidateHandler( const edm::ParameterSet& ps );
+  DTStatusFlagValidateHandler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -45,26 +42,17 @@ class DTStatusFlagValidateHandler: public popcon::PopConSourceHandler<DTStatusFl
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects();
   std::string id() const;
 
- private:
-
+private:
   int firstRun;
-  int  lastRun;
+  int lastRun;
   std::string dataVersion;
   std::string dataFileName;
   std::string elogFileName;
-  void addNewObject( int runNumber );
-
+  void addNewObject(int runNumber);
 };
 
-
-#endif // DTStatusFlagValidateHandler_H
-
-
-
-
-
-
+#endif  // DTStatusFlagValidateHandler_H

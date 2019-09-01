@@ -1,7 +1,8 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
-from HIPixelTripletSeeds_cff import *
-from HIPixel3PrimTracks_cfi import *
+from .HIPixelTripletSeeds_cff import *
+from .HIPixel3PrimTracks_cfi import *
 
 #cluster remover
 hiMixedTripletStepClusters = cms.EDProducer("HITrackClusterRemover",

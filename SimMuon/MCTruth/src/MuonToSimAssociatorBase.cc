@@ -2,7 +2,7 @@
 //
 // Package:     SimMuon/MCTruth
 // Class  :     MuonToSimAssociatorBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -13,9 +13,8 @@
 // system include files
 
 // user include files
-#include "SimMuon/MCTruth/interface/MuonToSimAssociatorBase.h"
 #include "FWCore/Utilities/interface/typelookup.h"
-
+#include "SimMuon/MCTruth/interface/MuonToSimAssociatorBase.h"
 
 //
 // constants, enums and typedefs
@@ -28,12 +27,8 @@
 //
 // constructors and destructor
 //
-MuonToSimAssociatorBase::MuonToSimAssociatorBase()
-{
-}
+MuonToSimAssociatorBase::MuonToSimAssociatorBase() {}
 
-MuonToSimAssociatorBase::~MuonToSimAssociatorBase()
-{
-}
+MuonToSimAssociatorBase::~MuonToSimAssociatorBase() {}
 
 TYPELOOKUP_DATA_REG(MuonToSimAssociatorBase);

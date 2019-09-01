@@ -5,6 +5,10 @@ MessageLogger.debugModules = cms.untracked.vstring('')
 MessageLogger.destinations = cms.untracked.vstring('cerr')
 MessageLogger.categories.append('Calibration')
 MessageLogger.cerr =  cms.untracked.PSet(
+    FwkReport = cms.untracked.PSet(
+        limit = cms.untracked.int32(100),
+        reportEvery = cms.untracked.int32(1000)
+    ),
     threshold = cms.untracked.string('DEBUG'),
     noLineBreaks = cms.untracked.bool(False),
     DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),

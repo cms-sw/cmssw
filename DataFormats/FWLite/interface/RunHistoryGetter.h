@@ -22,23 +22,23 @@
 #include "DataFormats/FWLite/interface/HistoryGetterBase.h"
 
 namespace fwlite {
-    class RunHistoryGetter : public HistoryGetterBase{
-        public:
-            RunHistoryGetter(const Run*);
-            ~RunHistoryGetter() override;
+  class RunHistoryGetter : public HistoryGetterBase {
+  public:
+    RunHistoryGetter(const Run*);
+    ~RunHistoryGetter() override;
 
-            // ---------- const member functions ---------------------
-            const edm::ProcessHistory& history() const override;
+    // ---------- const member functions ---------------------
+    const edm::ProcessHistory& history() const override;
 
-        private:
-            RunHistoryGetter(const RunHistoryGetter&) = delete; // stop default
+  private:
+    RunHistoryGetter(const RunHistoryGetter&) = delete;  // stop default
 
-            const RunHistoryGetter& operator=(const RunHistoryGetter&) = delete; // stop default
+    const RunHistoryGetter& operator=(const RunHistoryGetter&) = delete;  // stop default
 
-            // ---------- member data --------------------------------
-            const fwlite::Run* run_;
-    };
+    // ---------- member data --------------------------------
+    const fwlite::Run* run_;
+  };
 
-}
+}  // namespace fwlite
 
 #endif

@@ -10,28 +10,29 @@
 
 #include "FWCore/Utilities/interface/RunningAverage.h"
 
-
 class TrackingRegion;
-namespace edm { class Event; class EventSetup; }
+namespace edm {
+  class Event;
+  class EventSetup;
+}  // namespace edm
 #include <vector>
 
 class HitTripletGenerator : public OrderedHitsGenerator {
 public:
+  HitTripletGenerator(unsigned int size = 500);
+  HitTripletGenerator(HitTripletGenerator const& other) : localRA(other.localRA.mean()) {}
 
-  HitTripletGenerator(unsigned int size=500);
- HitTripletGenerator(HitTripletGenerator const & other) : localRA(other.localRA.mean()){}
+  ~HitTripletGenerator() override {}
 
-  ~HitTripletGenerator() override { }
-
-  const OrderedHitTriplets & run(
-    const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es) final;
+  const OrderedHitTriplets& run(const TrackingRegion& region, const edm::Event& ev, const edm::EventSetup& es) final;
 
   // temporary interface, for bckwd compatibility
-  virtual void hitTriplets( const TrackingRegion& reg, OrderedHitTriplets & prs,
-       const edm::EventSetup& es){}
+  virtual void hitTriplets(const TrackingRegion& reg, OrderedHitTriplets& prs, const edm::EventSetup& es) {}
 
-  virtual void hitTriplets( const TrackingRegion& reg, OrderedHitTriplets & prs,
-      const edm::Event & ev,  const edm::EventSetup& es) = 0;
+  virtual void hitTriplets(const TrackingRegion& reg,
+                           OrderedHitTriplets& prs,
+                           const edm::Event& ev,
+                           const edm::EventSetup& es) = 0;
 
   void clear() final;
 
@@ -39,6 +40,5 @@ private:
   OrderedHitTriplets theTriplets;
   edm::RunningAverage localRA;
 };
-
 
 #endif

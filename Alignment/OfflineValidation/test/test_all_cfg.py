@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 from enum import Enum
@@ -32,10 +33,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 # JSON Filtering
 ###################################################################
 if isMC:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is Simulation!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is Simulation!")
      runboundary = 1
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is DATA!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is DATA!")
      import FWCore.PythonUtilities.LumiList as LumiList
      process.source.lumisToProcess = LumiList.LumiList(filename ='None').getVLuminosityBlockRange()
 
@@ -85,7 +86,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
 
 if allFromGT:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT")
 else:
      ####################################################################
      # Get Alignment constants
@@ -118,7 +119,7 @@ else:
      # Kinks and Bows (optional)
      ####################################################################
      if applyBows:
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!"
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!")
           process.trackerBows = cms.ESSource("PoolDBESSource",CondDBSetup,
                                              connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                              toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
@@ -128,7 +129,7 @@ else:
                                              )
           process.es_prefer_Bows = cms.ESPrefer("PoolDBESSource", "trackerBows")
      else:
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!"
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!")
 
      ####################################################################
      # Extra corrections not included in the GT
@@ -139,7 +140,7 @@ else:
           ##### END OF EXTRA CONDITIONS
  
      else:
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!"
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!")
      
 ####################################################################
 # Load and Configure event selection
@@ -177,7 +178,7 @@ else:
 
 if(theRefitter == RefitType.COMMON):
 
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: using the common track selection and refit sequence!"          
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: using the common track selection and refit sequence!")          
      ####################################################################
      # Load and Configure Common Track Selection and refitting sequence
      ####################################################################
@@ -196,7 +197,7 @@ if(theRefitter == RefitType.COMMON):
      
 elif (theRefitter == RefitType.STANDARD):
 
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: using the standard single refit sequence!"          
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: using the standard single refit sequence!")          
      ####################################################################
      # Load and Configure Measurement Tracker Event
      # (needed in case NavigationSchool is set != '')
@@ -237,7 +238,7 @@ process.TFileService = cms.Service("TFileService",
 # Deterministic annealing clustering
 ####################################################################
 if isDA:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                            TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
                                            VertexCollectionTag = cms.InputTag("offlinePrimaryVertices"),  
@@ -246,6 +247,7 @@ if isDA:
                                            useTracksFromRecoVtx = cms.bool(False),
                                            isLightNtuple = cms.bool(True),
                                            askFirstLayerHit = cms.bool(False),
+                                           forceBeamSpot = cms.untracked.bool(False),
                                            probePt = cms.untracked.double(3.),
                                            minPt   = cms.untracked.double(1.),
                                            maxPt   = cms.untracked.double(30.),
@@ -281,7 +283,7 @@ if isDA:
 # GAP clustering
 ####################################################################
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                            TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
                                            VertexCollectionTag = cms.InputTag("offlinePrimaryVertices"), 
@@ -290,6 +292,7 @@ else:
                                            storeNtuple = cms.bool(False),
                                            useTracksFromRecoVtx = cms.bool(False),
                                            askFirstLayerHit = cms.bool(False),
+                                           forceBeamSpot = cms.untracked.bool(False),
                                            probePt = cms.untracked.double(3.),
                                            minPt   = cms.untracked.double(1.),
                                            maxPt   = cms.untracked.double(30.),

@@ -15,13 +15,9 @@
 class GlobalTrajectoryParameters;
 
 class TwoTrackMinimumDistanceHelixLine {
-
 public:
-
-  TwoTrackMinimumDistanceHelixLine(): theH(nullptr), theL(nullptr), themaxiter(12),
-	pointsUpdated(false){}
+  TwoTrackMinimumDistanceHelixLine() : theH(nullptr), theL(nullptr), themaxiter(12), pointsUpdated(false) {}
   ~TwoTrackMinimumDistanceHelixLine() {}
-
 
   /**
    * Calculates the PCA between a charged particle (helix) and a neutral 
@@ -29,17 +25,17 @@ public:
    * is irrelevent, and will be conserved.
    */
 
-  bool calculate( const GlobalTrajectoryParameters &,
-      const GlobalTrajectoryParameters &,
-      const float qual=.0001 ); // retval=true? error occured.
+  bool calculate(const GlobalTrajectoryParameters &,
+                 const GlobalTrajectoryParameters &,
+                 const float qual = .0001);  // retval=true? error occured.
 
   /**
    * Returns the PCA's on the two trajectories. The first point lies on the
    * first trajectory, the second point on the second trajectory.
    */
 
-  std::pair <GlobalPoint, GlobalPoint> points() const;
-  std::pair <double, double> pathLength() const;
+  std::pair<GlobalPoint, GlobalPoint> points() const;
+  std::pair<double, double> pathLength() const;
 
   double firstAngle() const;
   double secondAngle() const;
@@ -52,15 +48,14 @@ private:
   double theh, thePhiH0, thesinPhiH0, thecosPhiH0, thetanlambdaH;
   double thePhiH;
   double Hn, Ln;
-  double aa,bb,cc,dd,ee,ff;
+  double aa, bb, cc, dd, ee, ff;
 
   int themaxiter;
   bool updateCoeffs();
   void finalPoints();
-  bool oneIteration(double & thePhiH, double & fct, double & derivative ) const;
+  bool oneIteration(double &thePhiH, double &fct, double &derivative) const;
   GlobalPoint helixPoint, linePoint;
   double tL, linePath, helixPath;
   bool pointsUpdated;
-
 };
 #endif

@@ -31,9 +31,7 @@
 #include <map>
 //#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-
-class CastorRawToDigi : public edm::stream::EDProducer<>
-{
+class CastorRawToDigi : public edm::stream::EDProducer<> {
 public:
   explicit CastorRawToDigi(const edm::ParameterSet& ps);
   ~CastorRawToDigi() override;
@@ -55,7 +53,7 @@ private:
   bool silent_;
   bool usenominalOrbitMessageTime_;
   int expectedOrbitMessageTime_;
-  std::auto_ptr<HcalElectronicsMap> myEMap;
+  std::unique_ptr<HcalElectronicsMap> myEMap;
   edm::EDGetTokenT<FEDRawDataCollection> tok_input_;
   edm::ParameterSet zdcemap;
 };

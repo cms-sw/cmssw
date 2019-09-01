@@ -5,12 +5,13 @@
 //
 // Package:    MaskedRctInputDigiProducer
 // Class:      MaskedRctInputDigiProducer
-// 
-/**\class MaskedRctInputDigiProducer MaskedRctInputDigiProducer.cc L1Trigger/MaskedRctInputDigiProducer/src/MaskedRctInputDigiProducer.cc
+//
+/**\class MaskedRctInputDigiProducer MaskedRctInputDigiProducer.cc
+L1Trigger/MaskedRctInputDigiProducer/src/MaskedRctInputDigiProducer.cc
 
- Description: Takes collections of ECAL and HCAL digis, masks some towers 
+ Description: Takes collections of ECAL and HCAL digis, masks some towers
 according to a mask in a text file, and creates new collections for use by the
-RCT.  
+RCT.
 
  Implementation:
      <Notes on implementation>
@@ -21,16 +22,15 @@ RCT.
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -44,14 +44,14 @@ RCT.
 
 class MaskedRctInputDigiProducer : public edm::EDProducer {
 public:
-  explicit MaskedRctInputDigiProducer(const edm::ParameterSet&);
+  explicit MaskedRctInputDigiProducer(const edm::ParameterSet &);
   ~MaskedRctInputDigiProducer() override;
-  
+
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-  
-      // ----------member data ---------------------------
+  void produce(edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
+
+  // ----------member data ---------------------------
 
   bool useEcal_;
   bool useHcal_;

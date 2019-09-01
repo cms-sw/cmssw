@@ -8,12 +8,11 @@ namespace ecaldqm {
   class CertificationClient : public DQWorkerClient {
   public:
     CertificationClient();
-    ~CertificationClient() {}
+    ~CertificationClient() override {}
 
     void producePlots(ProcessType) override;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

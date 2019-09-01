@@ -4,13 +4,12 @@
 
 import FWCore.ParameterSet.Config as cms
 from sys import argv
-from string import atoi
 
 process = cms.Process("TESTRECO")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(atoi(argv[2]))
+    input = cms.untracked.int32(int(argv[2]))
 )
 
 process.OtherThing = cms.EDProducer("OtherThingProducer")
@@ -22,6 +21,11 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:RunPerLumiTest.root')
 )
 
+process.output = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('OutputRunPerLumiTest.root')
+)
+
 process.p = cms.Path(process.OtherThing*process.Analysis)
 
+process.e = cms.EndPath(process.output)
 

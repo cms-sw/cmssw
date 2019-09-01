@@ -6,17 +6,16 @@
 #include "RecoJets/FFTJetAlgorithms/interface/fftjetTypedefs.h"
 
 namespace fftjetcms {
-    class JetToPeakDistance
-    {
-    public:
-        explicit JetToPeakDistance(double etaToPhiBandwidthRatio = 1.0);
+  class JetToPeakDistance {
+  public:
+    explicit JetToPeakDistance(double etaToPhiBandwidthRatio = 1.0);
 
-        double operator()(const fftjet::RecombinedJet<VectorLike>& jet,
-                          const fftjet::Peak& peak) const;
-    private:
-        double etaBw_;
-        double phiBw_;
-    };
-}
+    double operator()(const fftjet::RecombinedJet<VectorLike>& jet, const fftjet::Peak& peak) const;
 
-#endif // RecoJets_FFTJetAlgorithm_JetToPeakDistance_h
+  private:
+    double etaBw_;
+    double phiBw_;
+  };
+}  // namespace fftjetcms
+
+#endif  // RecoJets_FFTJetAlgorithm_JetToPeakDistance_h

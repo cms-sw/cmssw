@@ -9,35 +9,30 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-SiStripPedestalsESSource::SiStripPedestalsESSource( const edm::ParameterSet& pset ) {
-  setWhatProduced( this );
+SiStripPedestalsESSource::SiStripPedestalsESSource(const edm::ParameterSet& pset) {
+  setWhatProduced(this);
   findingRecord<SiStripPedestalsRcd>();
 }
 
 // -----------------------------------------------------------------------------
 //
-std::unique_ptr<SiStripPedestals> SiStripPedestalsESSource::produce( const SiStripPedestalsRcd& ) { 
-  
+std::unique_ptr<SiStripPedestals> SiStripPedestalsESSource::produce(const SiStripPedestalsRcd&) {
   SiStripPedestals* peds = makePedestals();
-  
-  if ( !peds ) {
-    edm::LogWarning(mlESSources_)
-      << "[SiStripPedestalsESSource::" << __func__ << "]"
-      << " Null pointer to SiStripPedestals object!";
+
+  if (!peds) {
+    edm::LogWarning(mlESSources_) << "[SiStripPedestalsESSource::" << __func__ << "]"
+                                  << " Null pointer to SiStripPedestals object!";
   }
-  
+
   std::unique_ptr<SiStripPedestals> ptr(peds);
   return ptr;
-
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripPedestalsESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, 
-						const edm::IOVSyncValue& iosv, 
-						edm::ValidityInterval& oValidity ) {
-
-  edm::ValidityInterval infinity( iosv.beginOfTime(), iosv.endOfTime() );
+void SiStripPedestalsESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                                              const edm::IOVSyncValue& iosv,
+                                              edm::ValidityInterval& oValidity) {
+  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
   oValidity = infinity;
-  
 }

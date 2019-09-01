@@ -5,6 +5,7 @@ _pp_
 Scenario supporting proton collisions
 
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -56,6 +57,8 @@ class Reco(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
+        if ('nThreads' in args) :
+            options.nThreads=args['nThreads']
 
         miniAODStep=''
 
@@ -116,6 +119,8 @@ class Reco(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
+        if ('nThreads' in args) :
+            options.nThreads=args['nThreads']
 
         eiStep=''
         if self.addEI:
@@ -179,7 +184,7 @@ class Reco(Scenario):
             # this is the default as this is what is needed on the OnlineCluster
             options.filetype = 'DQMDAQ'
 
-        print "Using %s source"%options.filetype            
+        print("Using %s source"%options.filetype)            
 
         process = cms.Process('RECO', cms.ModifierChain(self.eras, self.visModifiers) )
 
@@ -213,7 +218,7 @@ class Reco(Scenario):
 
         step = ""
         pclWflws = [x for x in skims if "PromptCalibProd" in x]
-        skims = filter(lambda x: x not in pclWflws, skims)
+        skims = [x for x in skims if x not in pclWflws]
 
         if len(pclWflws):
             step += 'ALCA:'+('+'.join(pclWflws))

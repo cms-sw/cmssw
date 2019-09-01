@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 
-class CastorTPGRecord : public edm::eventsetup::DependentRecordImplementation<CastorTPGRecord, boost::mpl::vector<CastorDbRecord> >{};
+class CastorTPGRecord
+    : public edm::eventsetup::DependentRecordImplementation<CastorTPGRecord, boost::mpl::vector<CastorDbRecord> > {};
 
 #endif

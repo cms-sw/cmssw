@@ -2,20 +2,24 @@
 """
 Classes to check that a set of ROOT files are OK and publish a report
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
+from builtins import range
 import datetime, fnmatch, json, os, shutil, sys, tempfile, time
 import subprocess
 
-import eostools as castortools
-from timeout import timed_out, TimedOutExc
-from castorBaseDir import castorBaseDir
-from dataset import CMSDataset
+from . import eostools as castortools
+from .timeout import timed_out, TimedOutExc
+from .castorBaseDir import castorBaseDir
+from .dataset import CMSDataset
+import six
 
 class PublishToFileSystem(object):
     """Write a report to storage"""
     
     def __init__(self, parent):
-        if type(parent) == type(""):
+        if isinstance(parent, type("")):
             self.parent = parent
         else:
             self.parent = parent.__class__.__name__
@@ -41,13 +45,13 @@ class PublishToFileSystem(object):
                 #castortools.move(old_name, new_name)
                 #castortools.chmod(new_name, '644')
 
-                print "File published: '%s'" % castortools.castorToLFN(new_name)
+                print("File published: '%s'" % castortools.castorToLFN(new_name))
                 os.remove(nname)
             else:
                 pathhash = path.replace('/','.')
                 hashed_name = 'PublishToFileSystem-%s-%s' % (pathhash, fname)
                 shutil.move(nname, hashed_name)
-                print >> sys.stderr, "Cannot write to directory '%s' - written to local file '%s' instead." % (castor_path, hashed_name)
+                print("Cannot write to directory '%s' - written to local file '%s' instead." % (castor_path, hashed_name), file=sys.stderr)
                 
     def read(self, lfn, local = False):
         """Reads a report from storage"""
@@ -87,7 +91,7 @@ class IntegrityCheck(object):
     
     def query(self):
         """Query DAS to find out how many events are in the dataset"""
-        from production_tasks import BaseDataset
+        from .production_tasks import BaseDataset
         base = BaseDataset(self.dataset, self.options.user, self.options)
 
         data = None
@@ -106,8 +110,8 @@ class IntegrityCheck(object):
         import re
         
         filemask = {}
-        for dirname, files in self.test_result.iteritems():
-            for name, status in files.iteritems():
+        for dirname, files in six.iteritems(self.test_result):
+            for name, status in six.iteritems(files):
                 fname = os.path.join(dirname, name)
                 filemask[fname] = status
         
@@ -142,10 +146,9 @@ class IntegrityCheck(object):
         good_duplicates = {}
         bad_jobs = set()
         sum_dup = 0
-        for i in xrange(mmin, mmax+1):
+        for i in range(mmin, mmax+1):
             if i in files:
-                duplicates = files[i]
-                duplicates.sort()
+                duplicates = sorted(files[i])
 
                 fname = duplicates[-1][1]
                 if len(duplicates) > 1:
@@ -167,18 +170,18 @@ class IntegrityCheck(object):
         #support updating to speed things up
         prev_results = {}
         if previous is not None:
-            for name, status in previous['Files'].iteritems():
+            for name, status in six.iteritems(previous['Files']):
                 prev_results[name] = status
         
         filesToTest = self.sortByBaseDir(self.listRootFiles(self.directory))
-        for dir, filelist in filesToTest.iteritems():
+        for dir, filelist in six.iteritems(filesToTest):
             filemask = {}
             #apply a UNIX wildcard if specified
             filtered = filelist
             if self.options.wildcard is not None:
                 filtered = fnmatch.filter(filelist, self.options.wildcard)
                 if not filtered:
-                    print >> sys.stderr, "Warning: The wildcard '%s' does not match any files in '%s'. Please check you are using quotes." % (self.options.wildcard,self.directory)
+                    print("Warning: The wildcard '%s' does not match any files in '%s'. Please check you are using quotes." % (self.options.wildcard,self.directory), file=sys.stderr)
 
             count = 0
             for ff in filtered:
@@ -188,16 +191,16 @@ class IntegrityCheck(object):
                 #try to update from the previous result if available 
                 if lfn in prev_results and prev_results[lfn][0]:
                     if self.options.printout:
-                        print '[%i/%i]\t Skipping %s...' % (count, len(filtered),fname),
+                        print('[%i/%i]\t Skipping %s...' % (count, len(filtered),fname), end=' ')
                     OK, num = prev_results[lfn]
                 else:
                     if self.options.printout:
-                        print '[%i/%i]\t Checking %s...' % (count, len(filtered),fname),
+                        print('[%i/%i]\t Checking %s...' % (count, len(filtered),fname), end=' ')
                     OK, num = self.testFileTimeOut(lfn, timeout)
 
                 filemask[ff] = (OK,num)
                 if self.options.printout:
-                    print (OK, num)
+                    print((OK, num))
                 if OK:
                     self.eventsSeen += num
                 count += 1
@@ -213,25 +216,25 @@ class IntegrityCheck(object):
         if self.test_result is None:
             self.test()
             
-        print 'DBS Dataset name: %s' % self.options.name
-        print 'Storage path: %s' % self.topdir
+        print('DBS Dataset name: %s' % self.options.name)
+        print('Storage path: %s' % self.topdir)
         
-        for dirname, files in self.test_result.iteritems():
-            print 'Directory: %s' % dirname
-            for name, status in files.iteritems():
+        for dirname, files in six.iteritems(self.test_result):
+            print('Directory: %s' % dirname)
+            for name, status in six.iteritems(files):
                 fname = os.path.join(dirname, name)
                 if not fname in self.duplicates:
-                    print '\t\t %s: %s' % (name, str(status))
+                    print('\t\t %s: %s' % (name, str(status)))
                 else:
-                    print '\t\t %s: %s (Valid duplicate)' % (name, str(status))
-        print 'Total entries in DBS: %i' % self.eventsTotal
-        print 'Total entries in processed files: %i' % self.eventsSeen
+                    print('\t\t %s: %s (Valid duplicate)' % (name, str(status)))
+        print('Total entries in DBS: %i' % self.eventsTotal)
+        print('Total entries in processed files: %i' % self.eventsSeen)
         if self.eventsTotal>0:
-            print 'Fraction of dataset processed: %f' % (self.eventsSeen/(1.*self.eventsTotal))
+            print('Fraction of dataset processed: %f' % (self.eventsSeen/(1.*self.eventsTotal)))
         else:
-            print 'Total entries in DBS not determined' 
+            print('Total entries in DBS not determined') 
         if self.bad_jobs:
-            print "Bad Crab Jobs: '%s'" % ','.join([str(j) for j in self.bad_jobs])
+            print("Bad Crab Jobs: '%s'" % ','.join([str(j) for j in self.bad_jobs]))
         
     def structured(self):
         
@@ -257,9 +260,9 @@ class IntegrityCheck(object):
                   'DateCreated':datetime.datetime.now().strftime("%s"),
                   'Files':{}}
         
-        for dirname, files in self.test_result.iteritems():
+        for dirname, files in six.iteritems(self.test_result):
             report['PathList'].append(dirname)
-            for name, status in files.iteritems():
+            for name, status in six.iteritems(files):
                 fname = os.path.join(dirname, name)
                 report['Files'][fname] = status
                 if status[0]:
@@ -331,7 +334,7 @@ class IntegrityCheck(object):
             try:
                 return self.testFile(lfn)
             except TimedOutExc as e:
-                print >> sys.stderr, "ERROR:\tedmFileUtil timed out for lfn '%s' (%d)" % (lfn,timeout)
+                print("ERROR:\tedmFileUtil timed out for lfn '%s' (%d)" % (lfn,timeout), file=sys.stderr)
                 return (False,-1)
         if timeout > 0:
             return tf(lfn)
@@ -345,4 +348,4 @@ if __name__ == '__main__':
     pub = PublishToFileSystem('Test')
     report = {'DateCreated':'123456','PathList':['/store/cmst3/user/wreece']}
     pub.publish(report)
-    print pub.get('/store/cmst3/user/wreece')
+    print(pub.get('/store/cmst3/user/wreece'))

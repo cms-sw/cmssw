@@ -18,7 +18,7 @@
 DEFINE_FWK_MODULE(RPCDigiProducer);
 DEFINE_FWK_MODULE(RPCandIRPCDigiProducer);
 
-DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverageNoiseEffCls,"RPCSimAverageNoiseEffCls");
-DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAsymmetricCls,"RPCSimAsymmetricCls");
-DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimModelTiming,"RPCSimModelTiming");
+DEFINE_EDM_PLUGIN(RPCSimFactory, RPCSimAverageNoiseEffCls, "RPCSimAverageNoiseEffCls");
+DEFINE_EDM_PLUGIN(RPCSimFactory, RPCSimAsymmetricCls, "RPCSimAsymmetricCls");
+DEFINE_EDM_PLUGIN(RPCSimFactory, RPCSimModelTiming, "RPCSimModelTiming");
 DEFINE_FWK_MODULE(RPCNeutronWriter);

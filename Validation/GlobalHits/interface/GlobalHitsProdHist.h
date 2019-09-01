@@ -2,100 +2,95 @@
 #define GlobalHitsProdHist_h
 
 /** \class GlobalHitsProdHist
- *  
+ *
  *  Class to fill dqm monitor elements from existing EDM file
  *
  *  \author M. Strang SUNY-Buffalo
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/one/EDProducer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
-//DQM services
+// DQM services
 //#include "DQMServices/Core/interface/DQMStore.h"
 //#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // tracker info
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 // muon info
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 // calorimeter info
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 // data in edm::event
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 // helper files
 //#include <CLHEP/Vector/LorentzVector.h>
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
-#include <iostream>
 #include <cstdlib>
-#include <string>
+#include <iostream>
 #include <memory>
+#include <string>
 #include <vector>
 
-#include "TString.h"
 #include "TH1F.h"
+#include "TString.h"
 
-class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
-{
-  
- public:
+class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer> {
+public:
+  // typedef std::vector<float> FloatVector;
 
-  //typedef std::vector<float> FloatVector;
-
-  explicit GlobalHitsProdHist(const edm::ParameterSet&);
+  explicit GlobalHitsProdHist(const edm::ParameterSet &);
   ~GlobalHitsProdHist() override;
   void beginJob() override;
-  void endJob() override;  
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endRunProduce(edm::Run&, const edm::EventSetup&) override;
-  
- private:
+  void endJob() override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
+  void endRunProduce(edm::Run &, const edm::EventSetup &) override;
 
+private:
   // production related methods
-  void fillG4MC(edm::Event&);
-  void fillTrk(edm::Event&, const edm::EventSetup&);
-  void fillMuon(edm::Event&, const edm::EventSetup&);
-  void fillECal(edm::Event&, const edm::EventSetup&);
-  void fillHCal(edm::Event&, const edm::EventSetup&);
+  void fillG4MC(edm::Event &);
+  void fillTrk(edm::Event &, const edm::EventSetup &);
+  void fillMuon(edm::Event &, const edm::EventSetup &);
+  void fillECal(edm::Event &, const edm::EventSetup &);
+  void fillHCal(edm::Event &, const edm::EventSetup &);
 
- private:
-
+private:
   //  parameter information
   std::string fName;
   int verbosity;
@@ -104,22 +99,22 @@ class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
   bool getAllProvenances;
   bool printProvenanceInfo;
 
-  //DQMStore *dbe;
-  //std::string outputfile;
+  // DQMStore *dbe;
+  // std::string outputfile;
 
   std::vector<std::string> histName_;
-  std::map<std::string, TH1F*> histMap_;
+  std::map<std::string, TH1F *> histMap_;
 
   // G4MC info
   TH1F *hMCRGP[2];
   TH1F *hMCG4Vtx[2];
   TH1F *hGeantVtxX[2];
-  TH1F *hGeantVtxY[2];  
-  TH1F *hGeantVtxZ[2];  
+  TH1F *hGeantVtxY[2];
+  TH1F *hGeantVtxZ[2];
   TH1F *hMCG4Trk[2];
   TH1F *hGeantTrkPt;
   TH1F *hGeantTrkE;
-  int nRawGenPart;  
+  int nRawGenPart;
 
   edm::InputTag G4VtxSrc_;
   edm::InputTag G4TrkSrc_;
@@ -132,7 +127,7 @@ class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
   TH1F *hCaloEcalE[2];
   TH1F *hCaloEcalToF[2];
   TH1F *hCaloEcalPhi;
-  TH1F *hCaloEcalEta;  
+  TH1F *hCaloEcalEta;
   edm::InputTag ECalEBSrc_;
   edm::InputTag ECalEESrc_;
   edm::EDGetTokenT<edm::PCaloHitContainer> ECalEBSrc_Token_;
@@ -153,9 +148,9 @@ class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
   TH1F *hCaloHcalE[2];
   TH1F *hCaloHcalToF[2];
   TH1F *hCaloHcalPhi;
-  TH1F *hCaloHcalEta;  
+  TH1F *hCaloHcalEta;
   edm::InputTag HCalSrc_;
-  edm::EDGetTokenT<edm::PCaloHitContainer>  HCalSrc_Token_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> HCalSrc_Token_;
 
   // Tracker info
   // Pixel info
@@ -229,44 +224,44 @@ class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
   // private statistics information
   unsigned int count;
 
-}; // end class declaration
-  
+};  // end class declaration
+
 #endif
 
 #ifndef GlobalHitMap
 #define GlobalHitMap
 // geometry mapping
-static const int dTrk             = 1;
-static const int sdPxlBrl         = 1;
-static const int sdPxlFwd         = 2;
-static const int sdSiTIB          = 3;
-static const int sdSiTID          = 4;
-static const int sdSiTOB          = 5;
-static const int sdSiTEC          = 6;
+static const int dTrk = 1;
+static const int sdPxlBrl = 1;
+static const int sdPxlFwd = 2;
+static const int sdSiTIB = 3;
+static const int sdSiTID = 4;
+static const int sdSiTOB = 5;
+static const int sdSiTEC = 6;
 
-static const int dMuon            = 2;
-static const int sdMuonDT         = 1;
-static const int sdMuonCSC        = 2;
-static const int sdMuonRPC        = 3;
-static const int sdMuonRPCRgnBrl  = 0;
+static const int dMuon = 2;
+static const int sdMuonDT = 1;
+static const int sdMuonCSC = 2;
+static const int sdMuonRPC = 3;
+static const int sdMuonRPCRgnBrl = 0;
 static const int sdMuonRPCRgnFwdp = 1;
 static const int sdMuonRPCRgnFwdn = -1;
 
-static const int dEcal            = 3;
-static const int sdEcalBrl        = 1;
-static const int sdEcalFwd        = 2;
-static const int sdEcalPS         = 3;
-static const int sdEcalTT         = 4;
-static const int sdEcalLPnD       = 5;
+static const int dEcal = 3;
+static const int sdEcalBrl = 1;
+static const int sdEcalFwd = 2;
+static const int sdEcalPS = 3;
+static const int sdEcalTT = 4;
+static const int sdEcalLPnD = 5;
 
-static const int dHcal            = 4;
-static const int sdHcalEmpty      = 0;
-static const int sdHcalBrl        = 1;
-static const int sdHcalEC         = 2;
-static const int sdHcalOut        = 3;
-static const int sdHcalFwd        = 4;
-static const int sdHcalTT         = 5;
-static const int sdHcalCalib      = 6;
-static const int sdHcalCompst     = 7;
+static const int dHcal = 4;
+static const int sdHcalEmpty = 0;
+static const int sdHcalBrl = 1;
+static const int sdHcalEC = 2;
+static const int sdHcalOut = 3;
+static const int sdHcalFwd = 4;
+static const int sdHcalTT = 5;
+static const int sdHcalCalib = 6;
+static const int sdHcalCompst = 7;
 
 #endif

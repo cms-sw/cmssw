@@ -6,11 +6,10 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 
 class ZDCHitFilter : public CaloVHitFilter {
-  bool accepts(const PCaloHit & hit) const override {
+  bool accepts(const PCaloHit& hit) const override {
     DetId detId(hit.id());
-    return (detId.det()==DetId::Calo && detId.subdetId()==HcalZDCDetId::SubdetectorId);
+    return (detId.det() == DetId::Calo && detId.subdetId() == HcalZDCDetId::SubdetectorId);
   }
 };
 
 #endif
-

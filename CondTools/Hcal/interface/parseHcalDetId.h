@@ -17,4 +17,4 @@ HcalDetId parseHcalDetId(const std::string& s);
 //
 const char* hcalSubdetectorName(HcalSubdetector subdet);
 
-#endif // CONDTOOLS_HCAL_PARSEHCALDETID_H_
+#endif  // CONDTOOLS_HCAL_PARSEHCALDETID_H_

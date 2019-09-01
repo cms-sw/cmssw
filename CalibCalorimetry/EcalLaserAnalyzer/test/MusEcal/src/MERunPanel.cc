@@ -8,7 +8,7 @@ using namespace std;
 #include "MERun.hh"
 #include <TSystem.h>
 
-ClassImp(MERunPanel)
+ClassImp(MERunPanel);
 
 MERunPanel::MERunPanel( const TGWindow *p, MusEcalGUI* main,
 		        UInt_t w, UInt_t h )

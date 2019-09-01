@@ -1,10 +1,12 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import optparse
 import os
 from glob import glob
 import re
 import pprint
+import six
 import commands
 countRE = re.compile (r'^count_(\w+)')
 avoid = ['index', 'print']
@@ -15,9 +17,9 @@ def summaryOK (summary):
     retval = True
     count    = -1
     compared = summary.get('eventsCompared', -1)
-    if len( summary.keys()) != 2:
+    if len( summary) != 2:
         retval = False
-    for key,value in summary.iteritems():
+    for key,value in six.iteritems(summary):
         if countRE.search(key):
             count = value
     return (retval, {'count':count, 'compared':compared})
@@ -146,7 +148,7 @@ if __name__ == "__main__":
             if success1RE.search (line) or success2RE.search(line):
                 success = True
                 continue
-            for key, regex in problemDict.iteritems():
+            for key, regex in six.iteritems(problemDict):
                 #print "considering %s for %s" % (key, line)
                 if regex.search(line):
                     if key in problemSet:
@@ -203,36 +205,36 @@ if __name__ == "__main__":
     mismatches = problemTypes.get('mismatch', 0)
     if 'mismatch' in problemTypes:
         del problemTypes['mismatch']
-    print "total:      ", len (files)
-    print "success:    ", succeeded
-    print "mismatches: ", mismatches
-    print "weird:      ", weird
-    print "Tool issue types:"
+    print("total:      ", len (files))
+    print("success:    ", succeeded)
+    print("mismatches: ", mismatches)
+    print("weird:      ", weird)
+    print("Tool issue types:")
     total = 0
-    for key, value in sorted (problemTypes.iteritems()):
-        print "  %-15s: %4d" % (key, value)
+    for key, value in sorted (six.iteritems(problemTypes)):
+        print("  %-15s: %4d" % (key, value))
         total += value
-    print " ", '-'*13, " : ----"
-    print "  %-15s: %4d + %d + %d + %d = %d" \
+    print(" ", '-'*13, " : ----")
+    print("  %-15s: %4d + %d + %d + %d = %d" \
           % ('total', total, succeeded, mismatches, weird,
-             total + succeeded + mismatches + weird)
+             total + succeeded + mismatches + weird))
     
     if not options.counts:
-        print "\nDetailed Problems list:"
-        for key, problemList in sorted (problems.iteritems()):
+        print("\nDetailed Problems list:")
+        for key, problemList in sorted (six.iteritems(problems)):
             if options.problem and problemList[0] != options.problem:
                 continue
             if options.mismatch and not isinstance (problemList, str):
                 continue
             #if options.mismatch and 
-            print "   %s:\n   %s\n" % (key, problemList)
+            print("   %s:\n   %s\n" % (key, problemList))
             if options.mismatch and goShlib and compRoot:
-                print "diffTree %s %s" % (goShlib, compRoot)
+                print("diffTree %s %s" % (goShlib, compRoot))
             diffCmd = diffOutput.get(key)
             if diffCmd:                
-                print commands.getoutput (diffCmd)
+                print(commands.getoutput (diffCmd))
         if not options.problem and not options.mismatch:
-            print "\n", '='*78, '\n'
-            print "Success list:"
-            for key, successesList in sorted (successes.iteritems()):
-                print "   %s:\n   %s\n" % (key, successesList)
+            print("\n", '='*78, '\n')
+            print("Success list:")
+            for key, successesList in sorted (six.iteritems(successes)):
+                print("   %s:\n   %s\n" % (key, successesList))

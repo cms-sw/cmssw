@@ -1,9 +1,11 @@
 #!/bin/env python
+from __future__ import print_function
+from builtins import range
 import ROOT
 from ROOT import *
 import sys
 if len(sys.argv) < 2 :
-  print "Usage: dump_parameteriza.py filename"
+  print("Usage: dump_parameteriza.py filename")
   exit()
 fileToRead= TFile(sys.argv[1], "read")
 

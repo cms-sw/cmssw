@@ -20,9 +20,7 @@
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
 
-
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h"
 
@@ -48,28 +46,26 @@ private:
 
   edm::ParameterSet ptLUTset;
   std::unique_ptr<CSCTFDTReceiver> my_dtrc;
-	
+
   // Define Monitor Element Histograms
   ////////////////////////////////////
-  MonitorElement* phiComp, *etaComp, *occComp, *ptComp, *qualComp;
-  MonitorElement* pt1Comp, *pt2Comp, *pt3Comp, *pt4Comp, *pt5Comp, *pt6Comp;
-  MonitorElement* dtStubPhi, *badDtStubSector;
-	
-  MonitorElement* phiComp_1d, *etaComp_1d, *occComp_1d, *ptComp_1d, *qualComp_1d;
-  MonitorElement* pt1Comp_1d, *pt2Comp_1d, *pt3Comp_1d, *pt4Comp_1d, *pt5Comp_1d, *pt6Comp_1d;
+  MonitorElement *phiComp, *etaComp, *occComp, *ptComp, *qualComp;
+  MonitorElement *pt1Comp, *pt2Comp, *pt3Comp, *pt4Comp, *pt5Comp, *pt6Comp;
+  MonitorElement *dtStubPhi, *badDtStubSector;
+
+  MonitorElement *phiComp_1d, *etaComp_1d, *occComp_1d, *ptComp_1d, *qualComp_1d;
+  MonitorElement *pt1Comp_1d, *pt2Comp_1d, *pt3Comp_1d, *pt4Comp_1d, *pt5Comp_1d, *pt6Comp_1d;
   MonitorElement* dtStubPhi_1d;
-	
+
   // dqm folder name
   //////////////////
-   std::string m_dirName;
-   std::string outFile;
-	
+  std::string m_dirName;
+  std::string outFile;
 
 protected:
   void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 public:
   explicit L1TdeCSCTF(edm::ParameterSet const& pset);
@@ -77,4 +73,3 @@ public:
 };
 
 #endif
-

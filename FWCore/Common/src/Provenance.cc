@@ -15,9 +15,9 @@ namespace edm {
     std::string const& label = provenance.moduleLabel();
     if (!processParameterSet.existsAs<ParameterSet>(label)) {
       // Trigger results and input sources are special cases
-      if(label == triggerResults) {
+      if (label == triggerResults) {
         return processParameterSet.getParameterSet("@trigger_paths");
-      } else if(label == source) {
+      } else if (label == source) {
         return processParameterSet.getParameterSet("@main_input");
       }
     }
@@ -26,9 +26,9 @@ namespace edm {
 
   std::string moduleName(Provenance const& provenance) {
     // Trigger results ia a special case
-    if(provenance.moduleLabel() == triggerResults) {
-      return triggerResultsInserter; 
+    if (provenance.moduleLabel() == triggerResults) {
+      return triggerResultsInserter;
     }
     return parameterSet(provenance).getParameter<std::string>("@module_type");
   }
-}
+}  // namespace edm

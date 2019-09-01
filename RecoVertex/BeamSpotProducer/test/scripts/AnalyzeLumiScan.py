@@ -14,6 +14,8 @@
 #
 #____________________________________________________________
 
+from __future__ import print_function
+from builtins import range
 import sys,os,re,string
 import commands
 
@@ -41,7 +43,7 @@ def get_list_files(run,ls1,ls2,mode):
     elif mode == 2: ## cmslpc
 	prefix="dcache:/pnfs/cms/WAX/11"
     else:
-        print "Mode = "+str(mode)+" is not supported"
+        print("Mode = "+str(mode)+" is not supported")
 
     for f in lineList:
         #print n
@@ -59,7 +61,7 @@ def get_list_files(run,ls1,ls2,mode):
 def main():
     
     if len(sys.argv) < 4:
-        print "\n [Usage] python AnalyzeLumiScan.py <LumiScanLists.txt> <caf/lxplus/cmslpc> <local/batch>"
+        print("\n [Usage] python AnalyzeLumiScan.py <LumiScanLists.txt> <caf/lxplus/cmslpc> <local/batch>")
         sys.exit()
 
     cfidir = "../../python/"
@@ -76,11 +78,11 @@ def main():
 	fmode = 2
 	jobmode = "local" ## temporary
     else:
-        print "Mode not supported"
+        print("Mode not supported")
         sys.exit()
 
     if jobmode != "local" and jobmode != "batch":
-        print "Jobe mode not supported"
+        print("Jobe mode not supported")
         sys.exit()
     runinfofile = open(lumilistfile,"r")
     runinfolist = runinfofile.readlines()
@@ -104,14 +106,14 @@ def main():
     for i in range(len(runsinfo)):
         d=runsinfo.keys()[i]
         if os.path.exists(d):
-            print "Directory \""+d[:len(d)-1]+"\" exists!!!"
+            print("Directory \""+d[:len(d)-1]+"\" exists!!!")
             sys.exit() ## remove for test
 
     for i in range(len(runsinfo)):
         d=runsinfo.keys()[i]
         os.system("mkdir -p "+d[:len(d)-1])
-        print "Output and log files will be saved to: ",
-        print d[:len(d)-1]
+        print("Output and log files will be saved to: ", end=' ')
+        print(d[:len(d)-1])
 
         ## Create input cfi files according to run and lumi sections
         lumilist=runsinfo.get(d)
@@ -124,7 +126,7 @@ def main():
             elif lumilist[j*2] < 1000:
                 minlumi = str(lumilist[j*2])
             else:
-                print "Lumi range greater than 1000!!!"
+                print("Lumi range greater than 1000!!!")
                 sys.exit()
 
             if lumilist[j*2+1] < 10:
@@ -134,7 +136,7 @@ def main():
             elif lumilist[j*2+1] < 1000:
                 maxlumi = str(lumilist[j*2+1])
             else:
-                print "Lumi range greater than 1000!!!"
+                print("Lumi range greater than 1000!!!")
                 sys.exit()
 
             tagName = d[:len(d)-1]+"LS"+minlumi+"to"+maxlumi
@@ -185,7 +187,7 @@ def main():
             os.system("mv "+cfgtagname+" "+d)
             if jobmode == "local":
                 runjobcmd = "cmsRun "+d+cfgtagname+" >& "+d+"LumiScan_"+tagName+".log &"
-                print runjobcmd
+                print(runjobcmd)
                 os.system(runjobcmd)
 
             ## Create job and submitting to batch
@@ -209,14 +211,14 @@ def main():
                 os.system("chmod +x "+bjobName)
                 if os.environ['SCRAM_ARCH'] == "slc5_ia32_gcc434":
                     submitjobcmd = "bsub -q 8nh -R \"type=SLC5_64\" "+bjobName
-                    print submitjobcmd
+                    print(submitjobcmd)
                 else:
                     submitjobcmd = "bsub -q 8nh "+bjobName
-                    print submitjobcmd
+                    print(submitjobcmd)
 
                 os.system(submitjobcmd)
                 
-    print "End of submitting jobs"
+    print("End of submitting jobs")
 
 #_________________________________    
 if __name__ =='__main__':

@@ -1,13 +1,11 @@
 #include "DetectorDescription/Core/src/Box.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <ostream>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+using namespace geant_units::operators;
 
-void DDI::Box::stream( std::ostream & os ) const
-{
-  os << " xhalf[cm]=" << p_[0]/cm
-     << " yhalf[cm]=" << p_[1]/cm
-     << " zhalf[cm]=" << p_[2]/cm;
+void DDI::Box::stream(std::ostream& os) const {
+  os << " xhalf[cm]=" << convertMmToCm(p_[0]) << " yhalf[cm]=" << convertMmToCm(p_[1])
+     << " zhalf[cm]=" << convertMmToCm(p_[2]);
 }

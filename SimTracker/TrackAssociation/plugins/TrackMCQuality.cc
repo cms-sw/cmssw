@@ -2,8 +2,9 @@
 //
 // Package:    TrackMCQuality
 // Class:      TrackMCQuality
-// 
-/**\class TrackMCQuality TrackMCQuality.cc SimTracker/TrackMCQuality/src/TrackMCQuality.cc
+//
+/**\class TrackMCQuality TrackMCQuality.cc
+ SimTracker/TrackMCQuality/src/TrackMCQuality.cc
 
  Description: <one line class summary>
 
@@ -16,7 +17,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -27,40 +27,38 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 //
 // class decleration
 //
 
 class TrackMCQuality final : public edm::global::EDProducer<> {
-   public:
-      explicit TrackMCQuality(const edm::ParameterSet&);
-      ~TrackMCQuality() override;
+public:
+  explicit TrackMCQuality(const edm::ParameterSet &);
+  ~TrackMCQuality() override;
 
-   private:
-      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-      
-      // ----------member data ---------------------------
+private:
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
+
+  // ----------member data ---------------------------
 
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> label_assoc;
   edm::EDGetTokenT<TrackingParticleCollection> label_tp;
-  edm::EDGetTokenT<edm::View<reco::Track> > label_tr;
+  edm::EDGetTokenT<edm::View<reco::Track>> label_tr;
 
-  using Product=std::vector<float>;  
- 
+  using Product = std::vector<float>;
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -69,67 +67,58 @@ class TrackMCQuality final : public edm::global::EDProducer<> {
 //
 // constructors and destructor
 //
-TrackMCQuality::TrackMCQuality(const edm::ParameterSet& pset):
-  label_assoc(consumes<reco::TrackToTrackingParticleAssociator>(pset.getParameter< edm::InputTag >("associator"))),
-  label_tp(consumes<TrackingParticleCollection>(pset.getParameter< edm::InputTag >("trackingParticles"))),
-  label_tr(consumes<edm::View<reco::Track> >(pset.getParameter< edm::InputTag >("tracks")))
-{
+TrackMCQuality::TrackMCQuality(const edm::ParameterSet &pset)
+    : label_assoc(consumes<reco::TrackToTrackingParticleAssociator>(pset.getParameter<edm::InputTag>("associator"))),
+      label_tp(consumes<TrackingParticleCollection>(pset.getParameter<edm::InputTag>("trackingParticles"))),
+      label_tr(consumes<edm::View<reco::Track>>(pset.getParameter<edm::InputTag>("tracks"))) {
   produces<Product>();
 }
 
-
-TrackMCQuality::~TrackMCQuality()
-{
-}
-
+TrackMCQuality::~TrackMCQuality() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-TrackMCQuality::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
-{
+void TrackMCQuality::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
+  using namespace edm;
+  Handle<reco::TrackToTrackingParticleAssociator> associator;
+  iEvent.getByToken(label_assoc, associator);
 
-   using namespace edm;
-   Handle<reco::TrackToTrackingParticleAssociator> associator;
-   iEvent.getByToken(label_assoc,associator);
+  Handle<TrackingParticleCollection> TPCollection;
+  iEvent.getByToken(label_tp, TPCollection);
 
-   Handle<TrackingParticleCollection>  TPCollection ;
-   iEvent.getByToken(label_tp, TPCollection);
-     
-   Handle<edm::View<reco::Track> > trackCollection;
-   iEvent.getByToken(label_tr, trackCollection );
+  Handle<edm::View<reco::Track>> trackCollection;
+  iEvent.getByToken(label_tr, trackCollection);
 
-   reco::RecoToSimCollection recSimColl=associator->associateRecoToSim(trackCollection,
-                                                                       TPCollection);
-   
-   //then loop the track collection
-   std::unique_ptr<Product> product(new Product(trackCollection->size(),0));
+  reco::RecoToSimCollection recSimColl = associator->associateRecoToSim(trackCollection, TPCollection);
 
-   
-   for (unsigned int iT=0;iT!=trackCollection->size();++iT){
-     auto & prod = (*product)[iT];
+  // then loop the track collection
+  std::unique_ptr<Product> product(new Product(trackCollection->size(), 0));
 
-     edm::RefToBase<reco::Track> track(trackCollection, iT);
+  for (unsigned int iT = 0; iT != trackCollection->size(); ++iT) {
+    auto &prod = (*product)[iT];
 
-     //find it in the map
-     if (recSimColl.find(track)==recSimColl.end()) continue;
-       
-     auto const & tp = recSimColl[track];
+    edm::RefToBase<reco::Track> track(trackCollection, iT);
 
-     if (tp.empty()) continue;  // can it be?
-     // nSimHits = tp[0].first->numberOfTrackerHits();
-     prod = tp[0].second;
-     // if (tp[0].first->charge() != track->charge()) isChargeMatched = false;
-     if ( (tp[0].first->eventId().event() != 0) || (tp[0].first->eventId().bunchCrossing() != 0) ) prod=-prod;
+    // find it in the map
+    if (recSimColl.find(track) == recSimColl.end())
+      continue;
 
-       
-   }
-   
-   iEvent.put(std::move(product));
+    auto const &tp = recSimColl[track];
+
+    if (tp.empty())
+      continue;  // can it be?
+    // nSimHits = tp[0].first->numberOfTrackerHits();
+    prod = tp[0].second;
+    // if (tp[0].first->charge() != track->charge()) isChargeMatched = false;
+    if ((tp[0].first->eventId().event() != 0) || (tp[0].first->eventId().bunchCrossing() != 0))
+      prod = -prod;
+  }
+
+  iEvent.put(std::move(product));
 }
 
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_MODULE(TrackMCQuality);

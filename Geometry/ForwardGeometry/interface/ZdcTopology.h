@@ -13,15 +13,14 @@
 
 class ZdcTopology : public CaloSubdetectorTopology {
 public:
-
   ZdcTopology();
   /** Exlucde a cell*/
   void exclude(const HcalZDCDetId& id);
- /** Exclude a side*/
-  void exclude(int zside); 
- /** Exclude a section, in either side (+1 positive, -1 negative)*/
+  /** Exclude a side*/
+  void exclude(int zside);
+  /** Exclude a section, in either side (+1 positive, -1 negative)*/
   void exclude(int zside, HcalZDCDetId::Section section);
-   /** Exclude a range of channels (deph) for a given subdetector*/
+  /** Exclude a range of channels (deph) for a given subdetector*/
   int exclude(int zside, HcalZDCDetId::Section section, int ich1, int ich2);
 
   /** Is this a valid cell id? */
@@ -30,50 +29,46 @@ public:
 
   /** Get the transverse (X) neighbors of the given cell*/
   virtual std::vector<DetId> transverse(const DetId& id) const;
-  
+
   /** Get the longitudinal neighbors (Z) of the given cell*/
   virtual std::vector<DetId> longitudinal(const DetId& id) const;
 
   //** I have to put this here since they inherit from CaloSubdetectorTopology
   std::vector<DetId> east(const DetId& id) const override;
-  std::vector<DetId> west(const DetId& id) const override; 
+  std::vector<DetId> west(const DetId& id) const override;
   std::vector<DetId> north(const DetId& id) const override;
   std::vector<DetId> south(const DetId& id) const override;
   std::vector<DetId> up(const DetId& id) const override;
   std::vector<DetId> down(const DetId& id) const override;
-  
-  
+
   // how many channels (deph) for a given section
   using CaloSubdetectorTopology::ncells;
   int ncells(HcalZDCDetId::Section section) const;
 
   //return first and last cell of each section
-  int firstCell(HcalZDCDetId::Section section)const;  
-  int lastCell(HcalZDCDetId::Section section)const;
- 
- private:
-  
+  int firstCell(HcalZDCDetId::Section section) const;
+  int lastCell(HcalZDCDetId::Section section) const;
+
+private:
   bool validRaw(const HcalZDCDetId& id) const;
-  
+
   std::vector<HcalZDCDetId> exclusionList_;
-  
+
   bool excludeEM_, excludeHAD_, excludeLUM_, excludeRPD_, excludeZP_, excludeZN_;
-  
-  int firstEMModule_, lastEMModule_, firstHADModule_, lastHADModule_, 
-    firstLUMModule_, lastLUMModule_, firstRPDModule_, lastRPDModule_;
-   
+
+  int firstEMModule_, lastEMModule_, firstHADModule_, lastHADModule_, firstLUMModule_, lastLUMModule_, firstRPDModule_,
+      lastRPDModule_;
+
   bool isExcluded(const HcalZDCDetId& id) const;
-  
-  int firstEMModule() const {return firstEMModule_;}
-  int firstHADModule() const {return firstHADModule_;}  
-  int firstLUMModule() const {return firstLUMModule_;}
-  int firstRPDModule() const {return firstRPDModule_;}
-  int lastEMModule()  const {return lastEMModule_;}
-  int lastHADModule() const {return lastHADModule_;}  
-  int lastLUMModule() const {return lastLUMModule_;}
-  int lastRPDModule() const {return lastRPDModule_;}
 
+  int firstEMModule() const { return firstEMModule_; }
+  int firstHADModule() const { return firstHADModule_; }
+  int firstLUMModule() const { return firstLUMModule_; }
+  int firstRPDModule() const { return firstRPDModule_; }
+  int lastEMModule() const { return lastEMModule_; }
+  int lastHADModule() const { return lastHADModule_; }
+  int lastLUMModule() const { return lastLUMModule_; }
+  int lastRPDModule() const { return lastRPDModule_; }
 };
-
 
 #endif

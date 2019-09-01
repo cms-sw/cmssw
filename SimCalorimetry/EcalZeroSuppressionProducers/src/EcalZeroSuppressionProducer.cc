@@ -1,9 +1,8 @@
 
 #include "SimCalorimetry/EcalZeroSuppressionProducers/interface/EcalZeroSuppressionProducer.h"
 
-EcalZeroSuppressionProducer::EcalZeroSuppressionProducer(const edm::ParameterSet& params) 
-{
-  digiProducer_   = params.getParameter<std::string>("digiProducer");
+EcalZeroSuppressionProducer::EcalZeroSuppressionProducer(const edm::ParameterSet &params) {
+  digiProducer_ = params.getParameter<std::string>("digiProducer");
   EBdigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
   EEdigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
   EBZSdigiCollection_ = params.getParameter<std::string>("EBZSdigiCollection");
@@ -11,123 +10,106 @@ EcalZeroSuppressionProducer::EcalZeroSuppressionProducer(const edm::ParameterSet
 
   // initialize the default values for the thresholds in number of noise sigmas
 
-  glbBarrelThreshold_ = params.getUntrackedParameter<double>("glbBarrelThreshold",0.2);
-  glbEndcapThreshold_ = params.getUntrackedParameter<double>("glbEndcapThreshold",0.4);
+  glbBarrelThreshold_ = params.getUntrackedParameter<double>("glbBarrelThreshold", 0.2);
+  glbEndcapThreshold_ = params.getUntrackedParameter<double>("glbEndcapThreshold", 0.4);
 
   produces<EBDigiCollection>(EBZSdigiCollection_);
   produces<EEDigiCollection>(EEZSdigiCollection_);
 
   EB_token = consumes<EBDigiCollection>(edm::InputTag(digiProducer_));
-  EE_token = consumes<EEDigiCollection>(edm::InputTag(digiProducer_));;
-
+  EE_token = consumes<EEDigiCollection>(edm::InputTag(digiProducer_));
+  ;
 }
 
+EcalZeroSuppressionProducer::~EcalZeroSuppressionProducer() {}
 
-EcalZeroSuppressionProducer::~EcalZeroSuppressionProducer() 
-{ }
-
-
-void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) 
-{
-  
+void EcalZeroSuppressionProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
   // Get Inputs
 
   initCalibrations(eventSetup);
-  
-  edm::Handle< EBDigiCollection > pEBDigis;
-  edm::Handle< EEDigiCollection > pEEDigis;
-  
-  const EBDigiCollection* fullBarrelDigis =nullptr;
-  const EEDigiCollection* fullEndcapDigis =nullptr;
-  
-  event.getByToken( EB_token, pEBDigis);
-  if (pEBDigis.isValid()){ 
-    fullBarrelDigis = pEBDigis.product(); // get a ptr to the produc
-    edm::LogInfo("ZeroSuppressionInfo") << "total # fullBarrelDigis: " << fullBarrelDigis->size() ;
+
+  edm::Handle<EBDigiCollection> pEBDigis;
+  edm::Handle<EEDigiCollection> pEEDigis;
+
+  const EBDigiCollection *fullBarrelDigis = nullptr;
+  const EEDigiCollection *fullEndcapDigis = nullptr;
+
+  event.getByToken(EB_token, pEBDigis);
+  if (pEBDigis.isValid()) {
+    fullBarrelDigis = pEBDigis.product();  // get a ptr to the produc
+    edm::LogInfo("ZeroSuppressionInfo") << "total # fullBarrelDigis: " << fullBarrelDigis->size();
   } else {
-    edm::LogError("ZeroSuppressionError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
+    edm::LogError("ZeroSuppressionError") << "Error! can't get the product " << EBdigiCollection_.c_str();
   }
-  
-  event.getByToken( EE_token, pEEDigis);
-  if (pEEDigis.isValid()){ 
-    fullEndcapDigis = pEEDigis.product(); // get a ptr to the product
-    edm::LogInfo("ZeroSuppressionInfo") << "total # fullEndcapDigis: " << fullEndcapDigis->size() ;
+
+  event.getByToken(EE_token, pEEDigis);
+  if (pEEDigis.isValid()) {
+    fullEndcapDigis = pEEDigis.product();  // get a ptr to the product
+    edm::LogInfo("ZeroSuppressionInfo") << "total # fullEndcapDigis: " << fullEndcapDigis->size();
   } else {
-    edm::LogError("ZeroSuppressionError") << "Error! can't get the product " << EEdigiCollection_.c_str() ;
+    edm::LogError("ZeroSuppressionError") << "Error! can't get the product " << EEdigiCollection_.c_str();
   }
 
   // collection of zero suppressed digis to put in the event
-  
-  std::unique_ptr< EBDigiCollection > gzsBarrelDigis(new EBDigiCollection());
-  std::unique_ptr< EEDigiCollection > gzsEndcapDigis(new EEDigiCollection());
+
+  std::unique_ptr<EBDigiCollection> gzsBarrelDigis(new EBDigiCollection());
+  std::unique_ptr<EEDigiCollection> gzsEndcapDigis(new EEDigiCollection());
 
   CaloDigiCollectionSorter sorter(5);
 
   // Barrel zero suppression
 
   if (fullBarrelDigis) {
-
-    for(EBDigiCollection::const_iterator digiItr = (*fullBarrelDigis).begin();
-        digiItr != (*fullBarrelDigis).end(); ++digiItr)
-      {
-        
-        bool isAccepted = theBarrelZeroSuppressor_.accept(*digiItr, glbBarrelThreshold_);
-        if (isAccepted) {
-          (*gzsBarrelDigis).push_back(digiItr->id(), digiItr->begin());
-        }
-        
+    for (EBDigiCollection::const_iterator digiItr = (*fullBarrelDigis).begin(); digiItr != (*fullBarrelDigis).end();
+         ++digiItr) {
+      bool isAccepted = theBarrelZeroSuppressor_.accept(*digiItr, glbBarrelThreshold_);
+      if (isAccepted) {
+        (*gzsBarrelDigis).push_back(digiItr->id(), digiItr->begin());
       }
+    }
     edm::LogInfo("ZeroSuppressionInfo") << "EB Digis: " << gzsBarrelDigis->size();
 
-
-    //std::vector<EBDataFrame> sortedDigisEB = sorter.sortedVector(*gzsBarrelDigis);
-    //LogDebug("ZeroSuppressionDump") << "Top 10 EB digis";
-    //for(int i = 0; i < std::min(10,(int) sortedDigisEB.size()); ++i) 
+    // std::vector<EBDataFrame> sortedDigisEB =
+    // sorter.sortedVector(*gzsBarrelDigis); LogDebug("ZeroSuppressionDump") <<
+    // "Top 10 EB digis"; for(int i = 0; i < std::min(10,(int)
+    // sortedDigisEB.size()); ++i)
     //  {
     //    LogDebug("ZeroSuppressionDump") << sortedDigisEB[i];
     //  }
   }
-  
+
   // Endcap zero suppression
 
   if (fullEndcapDigis) {
-
-    for(EEDigiCollection::const_iterator digiItr = (*fullEndcapDigis).begin();
-        digiItr != (*fullEndcapDigis).end(); ++digiItr)
-      {
-        
-        bool isAccepted = theEndcapZeroSuppressor_.accept(*digiItr, glbEndcapThreshold_);
-        if (isAccepted) {
-          (*gzsEndcapDigis).push_back(digiItr->id(), digiItr->begin());
-        }
-        
+    for (EEDigiCollection::const_iterator digiItr = (*fullEndcapDigis).begin(); digiItr != (*fullEndcapDigis).end();
+         ++digiItr) {
+      bool isAccepted = theEndcapZeroSuppressor_.accept(*digiItr, glbEndcapThreshold_);
+      if (isAccepted) {
+        (*gzsEndcapDigis).push_back(digiItr->id(), digiItr->begin());
       }
+    }
     edm::LogInfo("ZeroSuppressionInfo") << "EB Digis: " << gzsBarrelDigis->size();
-    
-    //    std::vector<EEDataFrame> sortedDigisEE = sorter.sortedVector(*gzsEndcapDigis);
-    //LogDebug("ZeroSuppressionDump")  << "Top 10 EE digis";
-    //for(int i = 0; i < std::min(10,(int) sortedDigisEE.size()); ++i) 
+
+    //    std::vector<EEDataFrame> sortedDigisEE =
+    //    sorter.sortedVector(*gzsEndcapDigis);
+    // LogDebug("ZeroSuppressionDump")  << "Top 10 EE digis";
+    // for(int i = 0; i < std::min(10,(int) sortedDigisEE.size()); ++i)
     //  {
     //    LogDebug("ZeroSuppressionDump") << sortedDigisEE[i];
     //  }
-  
   }
   // Step D: Put outputs into event
   event.put(std::move(gzsBarrelDigis), EBZSdigiCollection_);
   event.put(std::move(gzsEndcapDigis), EEZSdigiCollection_);
-
 }
 
-
-void EcalZeroSuppressionProducer::initCalibrations(const edm::EventSetup & eventSetup) {
-
+void EcalZeroSuppressionProducer::initCalibrations(const edm::EventSetup &eventSetup) {
   // Pedestals from event setup
-                                                                                                                                                             
-  edm::ESHandle<EcalPedestals> dbPed;
-  eventSetup.get<EcalPedestalsRcd>().get( dbPed );
-  const EcalPedestals * thePedestals=dbPed.product();
 
-  theBarrelZeroSuppressor_.setPedestals( thePedestals );
-  theEndcapZeroSuppressor_.setPedestals( thePedestals );
-                                                                                                                                                             
+  edm::ESHandle<EcalPedestals> dbPed;
+  eventSetup.get<EcalPedestalsRcd>().get(dbPed);
+  const EcalPedestals *thePedestals = dbPed.product();
+
+  theBarrelZeroSuppressor_.setPedestals(thePedestals);
+  theEndcapZeroSuppressor_.setPedestals(thePedestals);
 }

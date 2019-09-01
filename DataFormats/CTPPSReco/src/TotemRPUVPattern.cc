@@ -10,8 +10,7 @@
 
 //----------------------------------------------------------------------------------------------------
 
-bool operator< (const TotemRPUVPattern &l, const TotemRPUVPattern &r)
-{
+bool operator<(const TotemRPUVPattern &l, const TotemRPUVPattern &r) {
   if (l.projection < r.projection)
     return true;
   if (l.projection > r.projection)

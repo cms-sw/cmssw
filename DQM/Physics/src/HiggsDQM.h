@@ -30,7 +30,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <iostream>
@@ -39,33 +39,24 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
-
 class HiggsDQM : public DQMEDAnalyzer {
-
- public:
+public:
   HiggsDQM(const edm::ParameterSet& ps);
   ~HiggsDQM() override;
 
- protected:
+protected:
   //Book histograms
-  void bookHistograms(DQMStore::IBooker &,
-    edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                            edm::EventSetup const& context) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                          edm::EventSetup const& c) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
- private:
+private:
   double Distance(const reco::Candidate& c1, const reco::Candidate& c2);
   double DistancePhi(const reco::Candidate& c1, const reco::Candidate& c2);
   double calcDeltaPhi(double phi1, double phi2);
   void bookHistos(DQMStore* bei);
 
   unsigned long long m_cacheID_;
-  int nLumiSecs_;
   int nEvents_, irun, ievt;
   reco::CandidateCollection* leptonscands_;
   int leptonflavor;
@@ -77,8 +68,7 @@ class HiggsDQM : public DQMEDAnalyzer {
   edm::InputTag theTriggerResultsCollectionTag_;
   edm::InputTag theCaloJetCollectionLabel_;
   edm::EDGetTokenT<edm::TriggerResults> theTriggerResultsCollection_;
-  edm::EDGetTokenT<reco::VertexCollection>
-      vertexToken_;  // offlinePrimaryVertices
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;  // offlinePrimaryVertices
   edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> theElectronCollectionToken_;
   edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollectionToken_;
@@ -100,8 +90,7 @@ class HiggsDQM : public DQMEDAnalyzer {
   MonitorElement* h_caloMet_phi;
   MonitorElement* h_pfMet;
   MonitorElement* h_pfMet_phi;
-  int nfourlept, nElectron, nMuon, nLepton, nZEE, nZMuMu, nHiggs, nLooseIsolEle,
-      nLooseIsolMu;
+  int nfourlept, nElectron, nMuon, nLepton, nZEE, nZMuMu, nHiggs, nLooseIsolEle, nLooseIsolMu;
   MonitorElement* h_eMultiplicity;
   MonitorElement* h_mMultiplicity;
   MonitorElement* h_ePt;

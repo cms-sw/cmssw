@@ -16,17 +16,18 @@ class DTMeanTimerFitter;
 
 namespace dtCalibration {
 
-class DTVDriftMeanTimer: public DTVDriftBaseAlgo {
-public:
-   DTVDriftMeanTimer(edm::ParameterSet const&);
-   ~DTVDriftMeanTimer() override;
+  class DTVDriftMeanTimer : public DTVDriftBaseAlgo {
+  public:
+    DTVDriftMeanTimer(edm::ParameterSet const&);
+    ~DTVDriftMeanTimer() override;
 
-   void setES(const edm::EventSetup& setup) override;
-   DTVDriftData compute(const DTSuperLayerId&) override;
-private:
-   TFile* rootFile_;
-   DTMeanTimerFitter* fitter_;
-};
+    void setES(const edm::EventSetup& setup) override;
+    DTVDriftData compute(const DTSuperLayerId&) override;
 
-} // namespace
+  private:
+    TFile* rootFile_;
+    DTMeanTimerFitter* fitter_;
+  };
+
+}  // namespace dtCalibration
 #endif

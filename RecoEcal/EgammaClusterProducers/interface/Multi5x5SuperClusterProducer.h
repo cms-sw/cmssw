@@ -15,57 +15,41 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 //
 
+class Multi5x5SuperClusterProducer : public edm::stream::EDProducer<> {
+public:
+  Multi5x5SuperClusterProducer(const edm::ParameterSet& ps);
 
-class Multi5x5SuperClusterProducer : public edm::stream::EDProducer<>
-{
-  
-  public:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override;
 
-      Multi5x5SuperClusterProducer(const edm::ParameterSet& ps);
+private:
+  edm::EDGetTokenT<reco::BasicClusterCollection> eeClustersToken_;
+  edm::EDGetTokenT<reco::BasicClusterCollection> ebClustersToken_;
+  edm::EDPutTokenT<reco::SuperClusterCollection> endcapPutToken_;
+  edm::EDPutTokenT<reco::SuperClusterCollection> barrelPutToken_;
 
-      ~Multi5x5SuperClusterProducer() override;
+  const float barrelEtaSearchRoad_;
+  const float barrelPhiSearchRoad_;
+  const float endcapEtaSearchRoad_;
+  const float endcapPhiSearchRoad_;
+  const float seedTransverseEnergyThreshold_;
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endStream() override;
+  const bool doBarrel_;
+  const bool doEndcaps_;
 
-   private:
+  std::unique_ptr<Multi5x5BremRecoveryClusterAlgo> bremAlgo_p;
 
-      int nMaxPrintout_; // max # of printouts
-      int nEvt_;         // internal counter of events
- 
-	  edm::EDGetTokenT<reco::BasicClusterCollection> eeClustersToken_; 
-	  edm::EDGetTokenT<reco::BasicClusterCollection> ebClustersToken_; 
+  double totalE;
+  int noSuperClusters;
 
-      std::string endcapSuperclusterCollection_;
-      std::string barrelSuperclusterCollection_;
+  reco::CaloClusterPtrVector getClusterPtrVector(
+      edm::Event& evt, const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken) const;
 
-      float barrelEtaSearchRoad_;
-      float barrelPhiSearchRoad_;
-      float endcapEtaSearchRoad_; 
-      float endcapPhiSearchRoad_;
-      float seedTransverseEnergyThreshold_;
+  void produceSuperclustersForECALPart(edm::Event& evt,
+                                       const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
+                                       const edm::EDPutTokenT<reco::SuperClusterCollection>& putToken);
 
-      bool doBarrel_;
-      bool doEndcaps_;
-
-      Multi5x5BremRecoveryClusterAlgo * bremAlgo_p;
-
-      double totalE;
-      int noSuperClusters;
-
-      
-      void getClusterPtrVector(edm::Event& evt, 
-							   const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
-							   reco::CaloClusterPtrVector *);
-  
-      void produceSuperclustersForECALPart(edm::Event& evt, 
-							   const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
-							   std::string superclusterColection);
-
-      void outputValidationInfo(reco::SuperClusterCollection &superclusterCollection);
-    
-      bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
+  void outputValidationInfo(reco::SuperClusterCollection& superclusterCollection);
 };
 
 #endif
-

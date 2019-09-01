@@ -34,7 +34,7 @@
 #include <Geometry/DTGeometry/interface/DTChamber.h>
 #include <Geometry/DTGeometry/interface/DTLayer.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-	
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -43,7 +43,7 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <utility> 
+#include <utility>
 
 /*namespace edm {
   class ParameterSet;
@@ -60,19 +60,17 @@ class DTChamberId;
 
 // Sim_CSCSegments products
 struct SimSegment {
-       int          chamber_type; // DT =2 , CSC = 1 
-       CSCDetId     csc_DetId;
-       DTChamberId  dt_DetId;
-       LocalPoint   sLocalOrg;
-       GlobalVector sGlobalVec;
-       GlobalPoint  sGlobalOrg;
-       std::vector<PSimHit> simhit_v;
-} ;
-
+  int chamber_type;  // DT =2 , CSC = 1
+  CSCDetId csc_DetId;
+  DTChamberId dt_DetId;
+  LocalPoint sLocalOrg;
+  GlobalVector sGlobalVec;
+  GlobalPoint sGlobalOrg;
+  std::vector<PSimHit> simhit_v;
+};
 
 class SegSelector {
 public:
-
   /// Constructor
   explicit SegSelector(const edm::ParameterSet& pset);
   //SegSelector();
@@ -88,16 +86,22 @@ public:
 
   // Functions
   /// return the sim segments sCSC_v and sDT_v
-  std::vector<SimSegment> Sim_CSCSegments(int trkId, const edm::Handle<edm::PSimHitContainer> simHits, edm::ESHandle<CSCGeometry> cscGeom);
-  std::vector<SimSegment> Sim_DTSegments(int trkId, const edm::Handle<edm::PSimHitContainer> simHits, edm::ESHandle<DTGeometry> dtGeom);
+  std::vector<SimSegment> Sim_CSCSegments(int trkId,
+                                          const edm::Handle<edm::PSimHitContainer> simHits,
+                                          edm::ESHandle<CSCGeometry> cscGeom);
+  std::vector<SimSegment> Sim_DTSegments(int trkId,
+                                         const edm::Handle<edm::PSimHitContainer> simHits,
+                                         edm::ESHandle<DTGeometry> dtGeom);
   /// return the reco segments cscseg_V and dtseg_V which map to the sim segment
-  std::vector<CSCSegment> Select_CSCSeg(edm::Handle<CSCSegmentCollection> cscSeg, edm::ESHandle<CSCGeometry> cscGeom, std::vector<SimSegment> simseg );
-  std::vector<DTRecSegment4D> Select_DTSeg(edm::Handle<DTRecSegment4DCollection> dtSeg, edm::ESHandle<DTGeometry> dtGeom, std::vector<SimSegment> simseg );
+  std::vector<CSCSegment> Select_CSCSeg(edm::Handle<CSCSegmentCollection> cscSeg,
+                                        edm::ESHandle<CSCGeometry> cscGeom,
+                                        std::vector<SimSegment> simseg);
+  std::vector<DTRecSegment4D> Select_DTSeg(edm::Handle<DTRecSegment4DCollection> dtSeg,
+                                           edm::ESHandle<DTGeometry> dtGeom,
+                                           std::vector<SimSegment> simseg);
 
 protected:
-
-private: 
-
+private:
   // Utility functions
   void CSCSimHitFit(edm::ESHandle<CSCGeometry> cscGeom);
   void DTSimHitFit(edm::ESHandle<DTGeometry> dtGeom);
@@ -120,7 +124,7 @@ private:
 
   // SimHitFit DT
   LocalVector LSimVec1;
-  LocalPoint  LSimOrg1;
+  LocalPoint LSimOrg1;
   GlobalVector GSimVec1;
   GlobalPoint GSimOrg1;
 
@@ -130,7 +134,7 @@ private:
   double par1[2];
   double par2[2];
   LocalVector LSimVec;
-  LocalPoint  LSimOrg;
+  LocalPoint LSimOrg;
   GlobalVector GSimVec;
   GlobalPoint GSimOrg;
 
@@ -143,9 +147,6 @@ private:
   std::string dtrecHitLabel;
   std::string simHitLabel;
   std::string simTrackLabel;
-
 };
 
-
 #endif
-

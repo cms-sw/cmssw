@@ -1,0 +1,151 @@
+// Author: Felice Pantaleo - felice.pantaleo@cern.ch
+// Date: 11/2018
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/HGCalReco/interface/Common.h"
+#include "PatternRecognitionbyCA.h"
+#include "HGCDoublet.h"
+#include "HGCGraph.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
+void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
+                                      const std::vector<TICLSeedingRegion> &regions,
+                                      int nEtaBins,
+                                      int nPhiBins,
+                                      const std::vector<reco::CaloCluster> &layerClusters,
+                                      const std::vector<float> &mask,
+                                      const edm::ValueMap<float> &layerClustersTime,
+                                      int deltaIEta,
+                                      int deltaIPhi,
+                                      float minCosTheta,
+                                      float minCosPointing,
+                                      int missing_layers,
+                                      int maxNumberOfLayers,
+                                      float maxDeltaTime) {
+  isOuterClusterOfDoublets_.clear();
+  isOuterClusterOfDoublets_.resize(layerClusters.size());
+  allDoublets_.clear();
+  theRootDoublets_.clear();
+  for (const auto &r : regions) {
+    bool isGlobal = (r.index == -1);
+    auto zSide = r.zSide;
+    int startEtaBin, endEtaBin, startPhiBin, endPhiBin;
+
+    if (isGlobal) {
+      startEtaBin = 0;
+      startPhiBin = 0;
+      endEtaBin = nEtaBins;
+      endPhiBin = nPhiBins;
+    } else {
+      auto firstLayerOnZSide = maxNumberOfLayers * zSide;
+      const auto &firstLayerHisto = histo[firstLayerOnZSide];
+
+      int entryEtaBin = firstLayerHisto.etaBin(r.origin.eta());
+      int entryPhiBin = firstLayerHisto.phiBin(r.origin.phi());
+      startEtaBin = std::max(entryEtaBin - deltaIEta, 0);
+      endEtaBin = std::min(entryEtaBin + deltaIEta, nEtaBins);
+      startPhiBin = entryPhiBin - deltaIPhi;
+      endPhiBin = entryPhiBin + deltaIPhi;
+    }
+
+    for (int il = 0; il < maxNumberOfLayers - 1; ++il) {
+      for (int outer_layer = 0; outer_layer < std::min(1 + missing_layers, maxNumberOfLayers - 1 - il); ++outer_layer) {
+        int currentInnerLayerId = il + maxNumberOfLayers * zSide;
+        int currentOuterLayerId = currentInnerLayerId + 1 + outer_layer;
+        auto const &outerLayerHisto = histo[currentOuterLayerId];
+        auto const &innerLayerHisto = histo[currentInnerLayerId];
+
+        for (int oeta = startEtaBin; oeta < endEtaBin; ++oeta) {
+          auto offset = oeta * nPhiBins;
+          for (int ophi_it = startPhiBin; ophi_it < endPhiBin; ++ophi_it) {
+            int ophi = ((ophi_it % nPhiBins + nPhiBins) % nPhiBins);
+            for (auto outerClusterId : outerLayerHisto[offset + ophi]) {
+              // Skip masked clusters
+              if (mask[outerClusterId] == 0.)
+                continue;
+              const auto etaRangeMin = std::max(0, oeta - deltaIEta);
+              const auto etaRangeMax = std::min(oeta + deltaIEta, nEtaBins);
+
+              for (int ieta = etaRangeMin; ieta < etaRangeMax; ++ieta) {
+                // wrap phi bin
+                for (int phiRange = 0; phiRange < 2 * deltaIPhi + 1; ++phiRange) {
+                  // The first wrapping is to take into account the
+                  // cases in which we would have to seach in
+                  // negative bins. The second wrap is mandatory to
+                  // account for all other cases, since we add in
+                  // between a full nPhiBins slot.
+                  auto iphi = ((ophi + phiRange - deltaIPhi) % nPhiBins + nPhiBins) % nPhiBins;
+                  for (auto innerClusterId : innerLayerHisto[ieta * nPhiBins + iphi]) {
+                    // Skip masked clusters
+                    if (mask[innerClusterId] == 0.)
+                      continue;
+                    auto doubletId = allDoublets_.size();
+                    if (maxDeltaTime != -1 &&
+                        !areTimeCompatible(innerClusterId, outerClusterId, layerClustersTime, maxDeltaTime))
+                      continue;
+                    allDoublets_.emplace_back(innerClusterId, outerClusterId, doubletId, &layerClusters, r.index);
+                    if (verbosity_ > Advanced) {
+                      LogDebug("HGCGraph")
+                          << "Creating doubletsId: " << doubletId << " layerLink in-out: [" << currentInnerLayerId
+                          << ", " << currentOuterLayerId << "] clusterLink in-out: [" << innerClusterId << ", "
+                          << outerClusterId << "]" << std::endl;
+                    }
+                    isOuterClusterOfDoublets_[outerClusterId].push_back(doubletId);
+                    auto &neigDoublets = isOuterClusterOfDoublets_[innerClusterId];
+                    auto &thisDoublet = allDoublets_[doubletId];
+                    if (verbosity_ > Expert) {
+                      LogDebug("HGCGraph")
+                          << "Checking compatibility of doubletId: " << doubletId
+                          << " with all possible inners doublets link by the innerClusterId: " << innerClusterId
+                          << std::endl;
+                    }
+                    bool isRootDoublet = thisDoublet.checkCompatibilityAndTag(allDoublets_,
+                                                                              neigDoublets,
+                                                                              r.directionAtOrigin,
+                                                                              minCosTheta,
+                                                                              minCosPointing,
+                                                                              verbosity_ > Advanced);
+                    if (isRootDoublet)
+                      theRootDoublets_.push_back(doubletId);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  // #ifdef FP_DEBUG
+  if (verbosity_ > None) {
+    LogDebug("HGCGraph") << "number of Root doublets " << theRootDoublets_.size() << " over a total number of doublets "
+                         << allDoublets_.size() << std::endl;
+  }
+  // #endif
+}
+
+bool HGCGraph::areTimeCompatible(int innerIdx,
+                                 int outerIdx,
+                                 const edm::ValueMap<float> &layerClustersTime,
+                                 float maxDeltaTime) {
+  float timeIn = layerClustersTime.get(innerIdx);
+  float timeOut = layerClustersTime.get(outerIdx);
+
+  return (timeIn == -99 || timeOut == -99 || std::abs(timeIn - timeOut) < maxDeltaTime);
+}
+
+//also return a vector of seedIndex for the reconstructed tracksters
+void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
+                            std::vector<int> &seedIndices,
+                            const unsigned int minClustersPerNtuplet) {
+  HGCDoublet::HGCntuplet tmpNtuplet;
+  tmpNtuplet.reserve(minClustersPerNtuplet);
+  for (auto rootDoublet : theRootDoublets_) {
+    tmpNtuplet.clear();
+    int seedIndex = allDoublets_[rootDoublet].seedIndex();
+    allDoublets_[rootDoublet].findNtuplets(allDoublets_, tmpNtuplet, seedIndex);
+    if (tmpNtuplet.size() > minClustersPerNtuplet) {
+      foundNtuplets.push_back(tmpNtuplet);
+      seedIndices.push_back(seedIndex);
+    }
+  }
+}

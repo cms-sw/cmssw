@@ -51,7 +51,7 @@ class CrabConfigParser(ConfigParser):
         sectionLines.append('\nconfig.section_("%s")'%section)
         configItems =  self.items(section)
         for configItem in configItems:
-            if not isinstance(configItem[1], basestring):
+            if not isinstance(configItem[1], str):
                 sectionLines.append('config.%s.%s = %s'%(section,configItem[0],configItem[1]))
             elif "True" in configItem[1] or "False" in configItem[1]:
                 sectionLines.append('config.%s.%s = %s'%(section,configItem[0],configItem[1]))
@@ -73,7 +73,7 @@ class CrabConfigParser(ConfigParser):
                     except:
                         pass
                 if not parsed:
-                    if type(configItem[1]) == list:
+                    if isinstance(configItem[1], list):
                         sectionLines.append('config.%s.%s = %s'%(section,configItem[0],str(configItem[1])))
                         parsed = True
                 if not parsed:

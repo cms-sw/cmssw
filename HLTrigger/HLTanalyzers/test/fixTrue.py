@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from __future__ import print_function
 import sys, os, string
 
 def usage():
@@ -16,7 +17,7 @@ def OpenFile(file_in,iodir):
         ifile=open(file_in, iodir)
         # print "Opened file: ",file_in," iodir ",iodir
     except:
-        print "Could not open file: ",file_in
+        print("Could not open file: ",file_in)
         sys.exit(1)
     return ifile
 
@@ -58,7 +59,7 @@ if __name__ == '__main__':
 
     narg=len(sys.argv)
     if narg < 3 :
-        print usage.__doc__
+        print(usage.__doc__)
         sys.exit(1)
 
 
@@ -67,8 +68,8 @@ if __name__ == '__main__':
 
     filelist=os.listdir(Dir1)
     for thefile in filelist:
-        print thefile
+        print(thefile)
         ifile=os.path.join(Dir1,thefile)
         ofile=os.path.join(Dir2,thefile)
-        print "diff ",ifile,ofile
+        print("diff ",ifile,ofile)
         FixFile(ifile,ofile)

@@ -15,50 +15,45 @@
 #include <sstream>
 
 // -----------------------------------------------------------------------------
-// 
-SiStripFedCablingBuilder::SiStripFedCablingBuilder( const edm::ParameterSet& pset ) :
-  printFecCabling_( pset.getUntrackedParameter<bool>("PrintFecCabling",false) ),
-  printDetCabling_( pset.getUntrackedParameter<bool>("PrintDetCabling",false) ),
-  printRegionCabling_( pset.getUntrackedParameter<bool>("PrintRegionCabling",false) )
-{;}
+//
+SiStripFedCablingBuilder::SiStripFedCablingBuilder(const edm::ParameterSet& pset)
+    : printFecCabling_(pset.getUntrackedParameter<bool>("PrintFecCabling", false)),
+      printDetCabling_(pset.getUntrackedParameter<bool>("PrintDetCabling", false)),
+      printRegionCabling_(pset.getUntrackedParameter<bool>("PrintRegionCabling", false)) {
+  ;
+}
 
 // -----------------------------------------------------------------------------
-// 
-void SiStripFedCablingBuilder::beginRun( const edm::Run& run, 
-					 const edm::EventSetup& setup ) {
+//
+void SiStripFedCablingBuilder::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
+  edm::LogInfo("SiStripFedCablingBuilder")
+      << "... creating dummy SiStripFedCabling Data for Run " << run.run() << "\n " << std::endl;
 
-  edm::LogInfo("SiStripFedCablingBuilder") << "... creating dummy SiStripFedCabling Data for Run " << run.run() << "\n " << std::endl;
-
-  edm::LogVerbatim("SiStripFedCablingBuilder") 
-    << "[SiStripFedCablingBuilder::" << __func__ << "]"
-    << " Retrieving FED cabling...";
+  edm::LogVerbatim("SiStripFedCablingBuilder") << "[SiStripFedCablingBuilder::" << __func__ << "]"
+                                               << " Retrieving FED cabling...";
   edm::ESHandle<SiStripFedCabling> fed;
-  setup.get<SiStripFedCablingRcd>().get( fed ); 
+  setup.get<SiStripFedCablingRcd>().get(fed);
 
-  edm::LogVerbatim("SiStripFedCablingBuilder") 
-    << "[SiStripFedCablingBuilder::" << __func__ << "]"
-    << " Retrieving FEC cabling...";
+  edm::LogVerbatim("SiStripFedCablingBuilder") << "[SiStripFedCablingBuilder::" << __func__ << "]"
+                                               << " Retrieving FEC cabling...";
   edm::ESHandle<SiStripFecCabling> fec;
-  setup.get<SiStripFecCablingRcd>().get( fec ); 
+  setup.get<SiStripFecCablingRcd>().get(fec);
 
-  edm::LogVerbatim("SiStripFedCablingBuilder") 
-    << "[SiStripFedCablingBuilder::" << __func__ << "]"
-    << " Retrieving DET cabling...";
+  edm::LogVerbatim("SiStripFedCablingBuilder") << "[SiStripFedCablingBuilder::" << __func__ << "]"
+                                               << " Retrieving DET cabling...";
   edm::ESHandle<SiStripDetCabling> det;
-  setup.get<SiStripDetCablingRcd>().get( det ); 
+  setup.get<SiStripDetCablingRcd>().get(det);
 
-  edm::LogVerbatim("SiStripFedCablingBuilder") 
-    << "[SiStripFedCablingBuilder::" << __func__ << "]"
-    << " Retrieving REGION cabling...";
+  edm::LogVerbatim("SiStripFedCablingBuilder") << "[SiStripFedCablingBuilder::" << __func__ << "]"
+                                               << " Retrieving REGION cabling...";
   edm::ESHandle<SiStripRegionCabling> region;
-  setup.get<SiStripRegionCablingRcd>().get( region ); 
+  setup.get<SiStripRegionCablingRcd>().get(region);
 
-  if ( !fed.isValid() ) {
-    edm::LogError("SiStripFedCablingBuilder") 
-      << " Invalid handle to FED cabling object: ";
+  if (!fed.isValid()) {
+    edm::LogError("SiStripFedCablingBuilder") << " Invalid handle to FED cabling object: ";
     return;
   }
-  
+
   edm::ESHandle<TrackerTopology> tTopo;
   setup.get<TrackerTopologyRcd>().get(tTopo);
   {
@@ -67,24 +62,30 @@ void SiStripFedCablingBuilder::beginRun( const edm::Run& run,
        << " VERBOSE DEBUG" << std::endl;
     fed->print(ss, tTopo.product());
     ss << std::endl;
-    if ( printFecCabling_ && fec.isValid() ) { fec->print( ss ); }
+    if (printFecCabling_ && fec.isValid()) {
+      fec->print(ss);
+    }
     ss << std::endl;
-    if ( printDetCabling_ && det.isValid() ) { det->print( ss ); }
+    if (printDetCabling_ && det.isValid()) {
+      det->print(ss);
+    }
     ss << std::endl;
-    if ( printRegionCabling_ && region.isValid() ) { region->print( ss ); }
+    if (printRegionCabling_ && region.isValid()) {
+      region->print(ss);
+    }
     ss << std::endl;
     edm::LogVerbatim("SiStripFedCablingBuilder") << ss.str();
   }
-  
+
   {
     std::stringstream ss;
     ss << "[SiStripFedCablingBuilder::" << __func__ << "]"
        << " TERSE DEBUG" << std::endl;
-    fed->terse( ss );
+    fed->terse(ss);
     ss << std::endl;
     edm::LogVerbatim("SiStripFedCablingBuilder") << ss.str();
   }
-  
+
   {
     std::stringstream ss;
     ss << "[SiStripFedCablingBuilder::" << __func__ << "]"
@@ -93,23 +94,22 @@ void SiStripFedCablingBuilder::beginRun( const edm::Run& run,
     ss << std::endl;
     edm::LogVerbatim("SiStripFedCablingBuilder") << ss.str();
   }
-  
-  edm::LogVerbatim("SiStripFedCablingBuilder") 
-    << "[SiStripFedCablingBuilder::" << __func__ << "]"
-    << " Copying FED cabling...";
-  SiStripFedCabling* obj = new SiStripFedCabling( *( fed.product() ) );
-  
+
+  edm::LogVerbatim("SiStripFedCablingBuilder") << "[SiStripFedCablingBuilder::" << __func__ << "]"
+                                               << " Copying FED cabling...";
+  SiStripFedCabling* obj = new SiStripFedCabling(*(fed.product()));
+
   //End now write sistripnoises data in DB
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
 
-  if( mydbservice.isAvailable() ){
-    if ( mydbservice->isNewTagRequest("SiStripFedCablingRcd") ){
-      mydbservice->createNewIOV<SiStripFedCabling>(obj,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripFedCablingRcd");
-    } else {  
-      mydbservice->appendSinceTime<SiStripFedCabling>(obj,mydbservice->currentTime(),"SiStripFedCablingRcd");      
+  if (mydbservice.isAvailable()) {
+    if (mydbservice->isNewTagRequest("SiStripFedCablingRcd")) {
+      mydbservice->createNewIOV<SiStripFedCabling>(
+          obj, mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripFedCablingRcd");
+    } else {
+      mydbservice->appendSinceTime<SiStripFedCabling>(obj, mydbservice->currentTime(), "SiStripFedCablingRcd");
     }
-  }else{
-    edm::LogError("SiStripFedCablingBuilder")<<"Service is unavailable"<<std::endl;
+  } else {
+    edm::LogError("SiStripFedCablingBuilder") << "Service is unavailable" << std::endl;
   }
 }
-     

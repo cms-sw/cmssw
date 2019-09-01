@@ -1,3 +1,4 @@
+from __future__ import print_function
 #!/usr/bin/env cmsRun
 
 import shutil
@@ -14,14 +15,14 @@ options.parseArguments()
 checkOptionsForBadInput()
 
 if not calledBycmsRun() and not options.gridJob:
-   print "Run 'cmsRun RunTauValidation_cfg.py help' for options."
+   print("Run 'cmsRun RunTauValidation_cfg.py help' for options.")
    # quit here so we dont' create a bunch of directories
    #  if the user only wants the help
    #sys.exit()
 
 # Make sure we dont' clobber another directory! Skip in batch mode (runs from an LSF machine)
 if not CMSSWEnvironmentIsCurrent() and options.batchNumber == -1 and not options.gridJob:
-   print "CMSSW_BASE points to a different directory, please rerun cmsenv!"
+   print("CMSSW_BASE points to a different directory, please rerun cmsenv!")
    sys.exit()
 
 
@@ -65,13 +66,13 @@ outputDir = os.path.join(outputDir, subDirName)
 configDir = os.path.join(outputDir, "Config")
 
 if os.path.exists(outputDir) and options.batchNumber < 0:# and not options.gridJob:
-   print "Output directory %s already exists!  OK to overwrite?" % outputDir
+   print("Output directory %s already exists!  OK to overwrite?" % outputDir)
    while True:
       input = raw_input("Please enter [y/n] ")
       if (input == 'y'):
          break
       elif (input == 'n'):
-         print " ...exiting."
+         print(" ...exiting.")
          sys.exit()
 
 if not os.path.exists(outputDir):
@@ -112,15 +113,15 @@ if options.dataSource.find('recoFiles') != -1:
    if len(process.source.fileNames) == 0 and not options.gridJob:
       import Validation.RecoTau.DBSApi_cff as mydbs
       if os.path.isfile('SourcesDatabase.xml'):
-         print "Trying to retrieve the input files from SourcesDatabase.xml..."
+         print("Trying to retrieve the input files from SourcesDatabase.xml...")
          xml = open('SourcesDatabase.xml','r')
          mydbs.loadXML(xml,options.eventType,process.source)
       if len(process.source.fileNames) == 0:
-         print "Accessing DBS to retrieve the input files..."
+         print("Accessing DBS to retrieve the input files...")
          mydbs.FillSource(options.eventType,process.source)
       if len(process.source.fileNames) == 0:
          sys.exit(0)
-      print process.source
+      print(process.source)
    # check if we want to rerun PFTau
    if options.dataSource.find('PFTau') != -1:
       process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
@@ -129,13 +130,6 @@ if options.dataSource.find('recoFiles') != -1:
       process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
       process.runPFTau = cms.Path(process.PFTau)
       process.schedule.append(process.runPFTau)
-   if options.dataSource.find('CaloTau') != -1:
-      process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-      process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-      process.load("Configuration.StandardSequences.MagneticField_cff")
-      process.load("RecoTauTag.Configuration.RecoTauTag_cff")
-      process.runCaloTau = cms.Path(process.tautagging)
-      process.schedule.append(process.runCaloTau)
 
 # Run on DIGI files and re-RECO
 elif options.dataSource == 'digiFiles':
@@ -214,24 +208,24 @@ if options.batchNumber >= 0:
 outputFileNameBase += ".root"
 
 if validation.StandardMatchingParameters.recoCuts.value() != "" and validation.StandardMatchingParameters.genCuts.value() != "":
-  print 'Matching: cut(s) set to: reco "%s", gen "%s".' % (validation.StandardMatchingParameters.recoCuts.value(), validation.StandardMatchingParameters.genCuts.value())
+  print('Matching: cut(s) set to: reco "%s", gen "%s".' % (validation.StandardMatchingParameters.recoCuts.value(), validation.StandardMatchingParameters.genCuts.value()))
 else:
   if validation.StandardMatchingParameters.recoCuts.value() != "":
-    print 'Matching: reco cut(s) set to: "%s".' % validation.StandardMatchingParameters.recoCuts.value()
+    print('Matching: reco cut(s) set to: "%s".' % validation.StandardMatchingParameters.recoCuts.value())
   if validation.StandardMatchingParameters.genCuts.value() != "":
-    print 'Matching: gen cut(s) set to: "%s".' % validation.StandardMatchingParameters.genCuts.value()
+    print('Matching: gen cut(s) set to: "%s".' % validation.StandardMatchingParameters.genCuts.value())
 
 if options.gridJob:
    outputFileName = 'TauVal_GridJob.root'
 else:
    outputFileName = os.path.join(outputDir, outputFileNameBase)
 
-print 'The output file will be: '+outputFileName
+print('The output file will be: '+outputFileName)
 if options.gridJob:
    cfg=open('./crab.cfg', 'r')
    cfgContent=cfg.read()
    if cfgContent.find(outputFileName) == -1:
-      print "ERROR: CRAB output file not matching the grid one!\nexiting..."
+      print("ERROR: CRAB output file not matching the grid one!\nexiting...")
       sys.exit()
 
 process.saveTauEff = cms.EDAnalyzer("TauDQMSimpleFileSaver",
@@ -254,7 +248,7 @@ if options.batchNumber >= 0:
    newSeed = process.RandomNumberGeneratorService.theSource.initialSeed.value() + options.batchNumber 
    process.RandomNumberGeneratorService.theSource.initialSeed = cms.untracked.uint32(newSeed)
    process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(newSeed)
-   print "I'm setting the random seed to ", newSeed
+   print("I'm setting the random seed to ", newSeed)
 
 
 process.load("RecoTauTag.Configuration.RecoTauTag_EventContent_cff")
@@ -318,5 +312,5 @@ if not options.gridJob:
    
    processDumpFile = open('%s/%s' % (configDir, dumpFileName), 'w')
    
-   print >> processDumpFile, process.dumpPython()
+   print(process.dumpPython(), file=processDumpFile)
 

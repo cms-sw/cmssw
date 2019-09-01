@@ -9,6 +9,6 @@ process.out = cms.OutputModule("DQMRootOutputModule",
                                fileName = cms.untracked.string("dqm_merged_file1_file3_file4.root"))
 process.e = cms.EndPath(process.out)
 
-process.add_(cms.Service("DQMStore"))
+process.add_(cms.Service("DQMStore", forceResetOnBeginLumi = cms.untracked.bool(True)))
 #process.add_(cms.Service("Tracer"))
 

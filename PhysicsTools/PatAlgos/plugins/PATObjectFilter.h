@@ -15,9 +15,10 @@
 
 namespace pat {
 
-  typedef ObjectCountFilter<edm::View<reco::Candidate>, AnySelector, AndSelector<MinNumberSelector, MaxNumberSelector> >::type PATCandViewCountFilter;
+  typedef ObjectCountFilter<edm::View<reco::Candidate>,
+                            AnySelector,
+                            AndSelector<MinNumberSelector, MaxNumberSelector> >::type PATCandViewCountFilter;
 
 }
-
 
 #endif

@@ -8,6 +8,7 @@ from DQMOffline.Muon.muonRecoTest_cfi import *
 from DQMOffline.Muon.muonTestSummary_cfi import *
 from DQMOffline.Muon.muonTestSummaryCosmics_cfi import *
 from DQMOffline.Muon.EfficencyPlotter_cfi import *
+from DQMOffline.Muon.TriggerMatchEfficencyPlotter_cfi import *
 
 muonSourcesQualityTests = cms.EDAnalyzer("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
@@ -57,6 +58,7 @@ muonQualityTests_miniAOD = cms.Sequence(muonSourcesQualityTests*
                                         muonClientsQualityTests*
                                         muonComp2RefQualityTests*
                                         muonComp2RefKolmoQualityTests*
-                                        muonTestSummary)
+                                        muonTestSummary*
+                                        triggerMatchEffPlotterTightMiniAOD)
 
 

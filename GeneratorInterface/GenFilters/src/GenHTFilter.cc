@@ -20,7 +20,7 @@ Original Author:  Mateusz Zarucki
 
 //System include files
 #include <memory>
-#include <vector> 
+#include <vector>
 
 //User include files
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -29,59 +29,55 @@ Original Author:  Mateusz Zarucki
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h" 
+#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/Common/interface/Handle.h" 
-#include "DataFormats/JetReco/interface/GenJetCollection.h" 
- 
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+
 //Class declaration
-class GenHTFilter : public edm::EDFilter 
-{
-   public:
-      explicit GenHTFilter(const edm::ParameterSet&);
-      ~GenHTFilter() override;
+class GenHTFilter : public edm::EDFilter {
+public:
+  explicit GenHTFilter(const edm::ParameterSet&);
+  ~GenHTFilter() override;
 
-   private:
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      
-      //Member data 
-      edm::EDGetTokenT<reco::GenJetCollection> token_;
-      double jetPtCut_, jetEtaCut_, genHTcut_;
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+
+  //Member data
+  edm::EDGetTokenT<reco::GenJetCollection> token_;
+  double jetPtCut_, jetEtaCut_, genHTcut_;
 };
 
 //Constructor
-GenHTFilter::GenHTFilter(const edm::ParameterSet& params):
-   token_(consumes<reco::GenJetCollection>(params.getParameter<edm::InputTag>("src"))),
-   jetPtCut_(params.getParameter<double>("jetPtCut")),
-   jetEtaCut_(params.getParameter<double>("jetEtaCut")),
-   genHTcut_(params.getParameter<double>("genHTcut")){}
+GenHTFilter::GenHTFilter(const edm::ParameterSet& params)
+    : token_(consumes<reco::GenJetCollection>(params.getParameter<edm::InputTag>("src"))),
+      jetPtCut_(params.getParameter<double>("jetPtCut")),
+      jetEtaCut_(params.getParameter<double>("jetEtaCut")),
+      genHTcut_(params.getParameter<double>("genHTcut")) {}
 
 //Destructor
-GenHTFilter::~GenHTFilter(){}
+GenHTFilter::~GenHTFilter() {}
 
-bool GenHTFilter::filter(edm::Event& evt, const edm::EventSetup& params)
-{
-   using namespace std;
-   using namespace edm;
-   using namespace reco;
-   
-   //Read GenJets Collection from Event
-   edm::Handle<reco::GenJetCollection> generatedJets;
-   evt.getByToken(token_, generatedJets);
-   
-   //Loop over all jets in Event and calculate genHT
-   double genHT = 0.0;
-   for(std::vector<reco::GenJet>::const_iterator it = generatedJets->begin(); it != generatedJets->end(); ++it)
-   {
-      const reco::GenJet& gjet = *it;
-      
-      //Add GenJet pt to genHT if GenJet complies with given HT definition
-      if(gjet.pt() > jetPtCut_ && abs(gjet.eta()) < jetEtaCut_) 
-      {
-         genHT += gjet.pt();
-      }
-   }
-   return (genHT > genHTcut_); //Return boolean whether genHT passes cut value
+bool GenHTFilter::filter(edm::Event& evt, const edm::EventSetup& params) {
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
+
+  //Read GenJets Collection from Event
+  edm::Handle<reco::GenJetCollection> generatedJets;
+  evt.getByToken(token_, generatedJets);
+
+  //Loop over all jets in Event and calculate genHT
+  double genHT = 0.0;
+  for (std::vector<reco::GenJet>::const_iterator it = generatedJets->begin(); it != generatedJets->end(); ++it) {
+    const reco::GenJet& gjet = *it;
+
+    //Add GenJet pt to genHT if GenJet complies with given HT definition
+    if (gjet.pt() > jetPtCut_ && abs(gjet.eta()) < jetEtaCut_) {
+      genHT += gjet.pt();
+    }
+  }
+  return (genHT > genHTcut_);  //Return boolean whether genHT passes cut value
 }
 
 // Define module as a plug-in

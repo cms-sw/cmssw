@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
+from builtins import range
 import os,time,sys,zipfile,re,shutil,stat
 from fcntl import lockf, LOCK_EX, LOCK_UN
 from hashlib import md5
@@ -22,7 +24,7 @@ os.environ["WorkDir"] = EXEDIR
 
 def logme(msg, *args):
   procid = "[%s/%d]" % (__file__.rsplit("/", 1)[-1], os.getpid())
-  print datetime.now(), procid, msg % args
+  print(datetime.now(), procid, msg % args)
   
 def filecheck(rootfile):
   cmd = EXEDIR + '/filechk.sh ' + rootfile

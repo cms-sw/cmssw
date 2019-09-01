@@ -6,15 +6,20 @@ import FWCore.ParameterSet.Config as cms
 
 import EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi
 SiStripDigiToZSRaw = EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi.SiStripDigiToRaw.clone(
-    InputModuleLabel = 'siStripZeroSuppression',
-    InputDigiLabel = cms.string('VirginRaw'),
+    InputDigis = cms.InputTag('siStripZeroSuppression', 'VirginRaw'),
     FedReadoutMode = cms.string('ZERO_SUPPRESSED'),
+    PacketCode = cms.string('ZERO_SUPPRESSED'),
     CopyBufferHeader = cms.bool(True),
     RawDataTag = cms.InputTag('rawDataCollector')
     )
 
+SiStripDigiToHybridRaw = SiStripDigiToZSRaw.clone(
+    PacketCode = cms.string('ZERO_SUPPRESSED10'),
+    )
+
 SiStripRawDigiToVirginRaw = SiStripDigiToZSRaw.clone(
-	FedReadoutMode = cms.string('VIRGIN_RAW')
+    FedReadoutMode = cms.string('VIRGIN_RAW'),
+    PacketCode = cms.string('VIRGIN_RAW')
 )
 
 ##
@@ -29,6 +34,11 @@ rawDataRepacker = rawDataCollector.clone(
                                        cms.InputTag('source'),
                                        cms.InputTag('rawDataCollector'))
     )
+hybridRawDataRepacker = rawDataRepacker.clone(
+    RawCollectionList = cms.VInputTag( cms.InputTag('SiStripDigiToHybridRaw'),
+                                       cms.InputTag('source'),
+                                       cms.InputTag('rawDataCollector'))
+    )
 
 virginRawDataRepacker = rawDataRepacker.clone(
 	RawCollectionList = cms.VInputTag( cms.InputTag('SiStripRawDigiToVirginRaw'))
@@ -38,6 +48,11 @@ virginRawDataRepacker = rawDataRepacker.clone(
 ## Repacked DigiToRaw Sequence
 ##
 
-DigiToRawRepack = cms.Sequence( SiStripDigiToZSRaw * rawDataRepacker )
-DigiToVirginRawRepack = cms.Sequence( SiStripRawDigiToVirginRaw * virginRawDataRepacker )
-DigiToSplitRawRepack = cms.Sequence( DigiToRawRepack + DigiToVirginRawRepack )
+DigiToRawRepackTask = cms.Task(SiStripDigiToZSRaw, rawDataRepacker)
+DigiToHybridRawRepackTask = cms.Task(SiStripDigiToHybridRaw, hybridRawDataRepacker)
+DigiToVirginRawRepackTask = cms.Task(SiStripRawDigiToVirginRaw, virginRawDataRepacker)
+
+DigiToRawRepack = cms.Sequence( DigiToRawRepackTask )
+DigiToHybridRawRepack = cms.Sequence( DigiToHybridRawRepackTask )
+DigiToVirginRawRepack = cms.Sequence( DigiToVirginRawRepackTask )
+DigiToSplitRawRepack = cms.Sequence( DigiToRawRepackTask, DigiToVirginRawRepackTask )

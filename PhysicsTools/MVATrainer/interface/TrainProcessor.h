@@ -23,95 +23,79 @@ class TH1F;
 
 namespace PhysicsTools {
 
-class MVATrainer;
+  class MVATrainer;
 
-class TrainProcessor : public Source,
-	public ProcessRegistry<TrainProcessor, AtomicId, MVATrainer>::Factory {
-    public:
-	template<typename Instance_t>
-	struct Registry {
-		typedef typename ProcessRegistry<
-			TrainProcessor,
-			AtomicId,
-			MVATrainer
-		>::Registry<Instance_t, AtomicId> Type;
-	};
+  class TrainProcessor : public Source, public ProcessRegistry<TrainProcessor, AtomicId, MVATrainer>::Factory {
+  public:
+    template <typename Instance_t>
+    struct Registry {
+      typedef typename ProcessRegistry<TrainProcessor, AtomicId, MVATrainer>::Registry<Instance_t, AtomicId> Type;
+    };
 
-	typedef TrainerMonitoring::Module Monitoring;
+    typedef TrainerMonitoring::Module Monitoring;
 
-	TrainProcessor(const char *name,
-	               const AtomicId *id,
-	               MVATrainer *trainer);
-	~TrainProcessor() override;
+    TrainProcessor(const char *name, const AtomicId *id, MVATrainer *trainer);
+    ~TrainProcessor() override;
 
-	virtual Variable::Flags getDefaultFlags() const
-	{ return Variable::FLAG_ALL; }
+    virtual Variable::Flags getDefaultFlags() const { return Variable::FLAG_ALL; }
 
-	virtual void
-	configure(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *config) {}
+    virtual void configure(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *config) {}
 
-	virtual void
-	passFlags(const std::vector<Variable::Flags> &flags) {}
+    virtual void passFlags(const std::vector<Variable::Flags> &flags) {}
 
-	virtual Calibration::VarProcessor *getCalibration() const { return nullptr; }
+    virtual Calibration::VarProcessor *getCalibration() const { return nullptr; }
 
-	void doTrainBegin();
-	void doTrainData(const std::vector<double> *values,
-	                 bool target, double weight, bool train, bool test);
-	void doTrainEnd();
+    void doTrainBegin();
+    void doTrainData(const std::vector<double> *values, bool target, double weight, bool train, bool test);
+    void doTrainEnd();
 
-	virtual bool load() { return true; }
-	virtual void save() {}
-	virtual void cleanup() {}
+    virtual bool load() { return true; }
+    virtual void save() {}
+    virtual void cleanup() {}
 
-	inline const char *getId() const { return name.c_str(); }
+    inline const char *getId() const { return name.c_str(); }
 
-	struct Dummy {};
-	typedef edmplugin::PluginFactory<Dummy*()> PluginFactory;
+    struct Dummy {};
+    typedef edmplugin::PluginFactory<Dummy *()> PluginFactory;
 
-    protected:
-	virtual void trainBegin() {}
-	virtual void trainData(const std::vector<double> *values,
-	                       bool target, double weight) {}
-	virtual void testData(const std::vector<double> *values,
-	                      bool target, double weight, bool trainedOn) {}
-	virtual void trainEnd() { trained = true; }
+  protected:
+    virtual void trainBegin() {}
+    virtual void trainData(const std::vector<double> *values, bool target, double weight) {}
+    virtual void testData(const std::vector<double> *values, bool target, double weight, bool trainedOn) {}
+    virtual void trainEnd() { trained = true; }
 
-	virtual void *requestObject(const std::string &name) const
-	{ return nullptr; }
+    virtual void *requestObject(const std::string &name) const { return nullptr; }
 
-	inline bool exists(const std::string &name)
-	{ return boost::filesystem::exists(name.c_str()); }
+    inline bool exists(const std::string &name) { return boost::filesystem::exists(name.c_str()); }
 
-	std::string		name;
-	MVATrainer		*trainer;
-	Monitoring		*monitoring;
+    std::string name;
+    MVATrainer *trainer;
+    Monitoring *monitoring;
 
-    private:
-	struct SigBkg {
-		bool		sameBinning;
-		double		min;
-		double		max;
-		unsigned long	entries[2];
-		double		underflow[2];
-		double		overflow[2];
-		TH1F		*histo[2];
-	};
-		
-	std::vector<SigBkg>	monHistos;
-	Monitoring		*monModule;
-};
+  private:
+    struct SigBkg {
+      bool sameBinning;
+      double min;
+      double max;
+      unsigned long entries[2];
+      double underflow[2];
+      double overflow[2];
+      TH1F *histo[2];
+    };
 
-template<>
-TrainProcessor *ProcessRegistry<TrainProcessor, AtomicId,
-                                MVATrainer>::Factory::create(
-			const char*, const AtomicId*, MVATrainer*);
+    std::vector<SigBkg> monHistos;
+    Monitoring *monModule;
+  };
 
-} // namespace PhysicsTools
+  template <>
+  TrainProcessor *ProcessRegistry<TrainProcessor, AtomicId, MVATrainer>::Factory::create(const char *,
+                                                                                         const AtomicId *,
+                                                                                         MVATrainer *);
+
+}  // namespace PhysicsTools
 
 #define MVA_TRAINER_DEFINE_PLUGIN(T) \
-	DEFINE_EDM_PLUGIN(::PhysicsTools::TrainProcessor::PluginFactory, \
-	                  ::PhysicsTools::TrainProcessor::Dummy, \
-	                  "TrainProcessor/" #T)
+  DEFINE_EDM_PLUGIN(                 \
+      ::PhysicsTools::TrainProcessor::PluginFactory, ::PhysicsTools::TrainProcessor::Dummy, "TrainProcessor/" #T)
 
-#endif // PhysicsTools_MVATrainer_TrainProcessor_h
+#endif  // PhysicsTools_MVATrainer_TrainProcessor_h

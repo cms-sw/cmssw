@@ -41,7 +41,6 @@ process.rerunDiscriminationByIsolationMVArun2v1raw = patDiscriminationByIsolatio
     ## run with new MVA training
     mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1"),
     mvaOpt = cms.string("DBoldDMwLT"),
-    requireDecayMode = cms.bool(True),
     verbosity = cms.int32(0)
 )
 
@@ -66,16 +65,17 @@ process.rerunDiscriminationAgainstElectronMVA6 = patTauDiscriminationAgainstElec
     Prediscriminants = noPrediscriminants,
     #Prediscriminants = requireLeadTrack,
     loadMVAfromDB = cms.bool(True),
+    vetoEcalCracks = cms.bool(False),
     returnMVA = cms.bool(True),
     method = cms.string("BDTG"),
-    mvaName_NoEleMatch_woGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_NoEleMatch_woGwoGSF_BL"),
-    mvaName_NoEleMatch_wGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_NoEleMatch_wGwoGSF_BL"),
-    mvaName_woGwGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_woGwGSF_BL"),
-    mvaName_wGwGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_wGwGSF_BL"),
-    mvaName_NoEleMatch_woGwoGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_NoEleMatch_woGwoGSF_EC"),
-    mvaName_NoEleMatch_wGwoGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_NoEleMatch_wGwoGSF_EC"),
-    mvaName_woGwGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_woGwGSF_EC"),
-    mvaName_wGwGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_wGwGSF_EC"),
+    mvaName_NoEleMatch_woGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_BL"),
+    mvaName_NoEleMatch_wGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_wGwoGSF_BL"),
+    mvaName_woGwGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_woGwGSF_BL"),
+    mvaName_wGwGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_wGwGSF_BL"),
+    mvaName_NoEleMatch_woGwoGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_EC"),
+    mvaName_NoEleMatch_wGwoGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_wGwoGSF_EC"),
+    mvaName_woGwGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_woGwGSF_EC"),
+    mvaName_wGwGSF_EC = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_wGwGSF_EC"),
     minMVANoEleMatchWOgWOgsfBL = cms.double(0.0),
     minMVANoEleMatchWgWOgsfBL  = cms.double(0.0),
     minMVAWOgWgsfBL            = cms.double(0.0),

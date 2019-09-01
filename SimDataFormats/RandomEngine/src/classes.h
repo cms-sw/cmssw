@@ -3,10 +3,3 @@
 #include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
-
-namespace SimDataFormats_RandomEngine {
-  struct dictionary {
-    edm::Wrapper<std::vector<RandomEngineState> > dummy1;
-    edm::Wrapper<edm::RandomEngineStates> dummy2;
-  };
-}

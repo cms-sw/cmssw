@@ -25,15 +25,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
+typedef ObjectSelector<AssociatedVariableCollectionSelector<reco::CandidateView,
+                                                            edm::ValueMap<float>,
+                                                            AndSelector<AnySelector, MaxSelector<float> > > >
+    AssociatedVariableMaxCutCandSelectorNew;
 
-typedef ObjectSelector<
-          AssociatedVariableCollectionSelector<
-            reco::CandidateView, edm::ValueMap<float>,
-            AndSelector<
-              AnySelector,
-              MaxSelector<float>
-            >
-          >
-        > AssociatedVariableMaxCutCandSelectorNew;
-
-DEFINE_FWK_MODULE( AssociatedVariableMaxCutCandSelectorNew );
+DEFINE_FWK_MODULE(AssociatedVariableMaxCutCandSelectorNew);

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MCAcceptance")
@@ -22,7 +23,7 @@ dirlist = os.listdir(dirname)
 basenamelist = os.listdir(dirname + "/")
 for basename in basenamelist:
             process.source.fileNames.append("file:" + dirname + "/" + basename)
-print "Number of files to process is %s" % (len(process.source.fileNames))
+print("Number of files to process is %s" % (len(process.source.fileNames)))
 
 
 

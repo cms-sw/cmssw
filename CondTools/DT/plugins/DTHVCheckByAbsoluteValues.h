@@ -19,62 +19,54 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-namespace edm{
-//  class Event;
-//  class EventSetup;
+namespace edm {
+  //  class Event;
+  //  class EventSetup;
   class ParameterSet;
   class ActivityRegistry;
-}
+}  // namespace edm
 
 //---------------
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-namespace cond { namespace service {
-class DTHVCheckByAbsoluteValues: public DTHVAbstractCheck {
-
- public:
-
-  /** Constructor
+namespace cond {
+  namespace service {
+    class DTHVCheckByAbsoluteValues : public DTHVAbstractCheck {
+    public:
+      /** Constructor
    */
-  DTHVCheckByAbsoluteValues();
-  DTHVCheckByAbsoluteValues( const edm::ParameterSet & iConfig, 
-                 edm::ActivityRegistry & iAR );
+      DTHVCheckByAbsoluteValues();
+      DTHVCheckByAbsoluteValues(const edm::ParameterSet& iConfig, edm::ActivityRegistry& iAR);
 
-  /** Destructor
+      /** Destructor
    */
-  ~DTHVCheckByAbsoluteValues() override;
+      ~DTHVCheckByAbsoluteValues() override;
 
-  /** Operations
+      /** Operations
    */
-  /// check HV status
-//  virtual int checkCurrentStatus( 
-  DTHVAbstractCheck::flag checkCurrentStatus( 
-          int rawId, int type,
-          float valueA, float valueC, float valueS,
-          const std::map<int,timedMeasurement>& snapshotValues,
-          const std::map<int,int>& aliasMap,
-          const std::map<int,int>& layerMap ) override;
+      /// check HV status
+      //  virtual int checkCurrentStatus(
+      DTHVAbstractCheck::flag checkCurrentStatus(int rawId,
+                                                 int type,
+                                                 float valueA,
+                                                 float valueC,
+                                                 float valueS,
+                                                 const std::map<int, timedMeasurement>& snapshotValues,
+                                                 const std::map<int, int>& aliasMap,
+                                                 const std::map<int, int>& layerMap) override;
 
- private:
+    private:
+      float* minHV;
+      float* maxHV;
+      float maxCurrent;
+    };
 
-  float* minHV;
-  float* maxHV;
-  float maxCurrent;
+  }  // namespace service
+}  // namespace cond
 
-};
-
-} }
-
-#endif // DTHVCheckByAbsoluteValues_H
-
-
-
-
-
-
+#endif  // DTHVCheckByAbsoluteValues_H

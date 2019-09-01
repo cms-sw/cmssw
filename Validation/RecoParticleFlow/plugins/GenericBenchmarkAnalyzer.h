@@ -5,31 +5,29 @@
 // date: 11/7/2007
 // extension: Leo Neuhaus & Joanna Weng 09.2008
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "RecoParticleFlow/Benchmark/interface/GenericBenchmark.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "RecoParticleFlow/Benchmark/interface/GenericBenchmark.h"
 
 #include <map>
 
-class GenericBenchmarkAnalyzer: public edm::EDAnalyzer, public GenericBenchmark {
+class GenericBenchmarkAnalyzer : public edm::EDAnalyzer, public GenericBenchmark {
 public:
-
-  explicit GenericBenchmarkAnalyzer(const edm::ParameterSet&);
+  explicit GenericBenchmarkAnalyzer(const edm::ParameterSet &);
   ~GenericBenchmarkAnalyzer() override;
 
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginJob() override ;
-  void endJob() override ;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginJob() override;
+  void endJob() override;
 
- private:
-
+private:
   // Inputs from Configuration File
   std::string outputFile_;
-  edm::EDGetTokenT< edm::View<reco::Candidate> > myTruth_;
-  edm::EDGetTokenT< edm::View<reco::Candidate> > myReco_;
+  edm::EDGetTokenT<edm::View<reco::Candidate>> myTruth_;
+  edm::EDGetTokenT<edm::View<reco::Candidate>> myReco_;
   edm::InputTag inputTruthLabel_;
   edm::InputTag inputRecoLabel_;
   std::string benchmarkLabel_;
@@ -47,4 +45,4 @@ public:
   bool doMetPlots_;
 };
 
-#endif // GENERICBENCHMARKANALYZER_H
+#endif  // GENERICBENCHMARKANALYZER_H

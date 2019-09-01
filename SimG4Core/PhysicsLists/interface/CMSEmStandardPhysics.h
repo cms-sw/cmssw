@@ -5,8 +5,7 @@
 #include "globals.hh"
 
 class CMSEmStandardPhysics : public G4VPhysicsConstructor {
-
-public: 
+public:
   CMSEmStandardPhysics(G4int ver);
   ~CMSEmStandardPhysics() override;
 
@@ -14,13 +13,7 @@ public:
   void ConstructProcess() override;
 
 private:
-  G4int               verbose;
+  G4int verbose;
 };
 
 #endif
-
-
-
-
-
-

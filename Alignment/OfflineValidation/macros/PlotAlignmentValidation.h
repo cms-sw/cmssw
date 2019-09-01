@@ -99,6 +99,7 @@ public:
   void plotHitMaps();
   void setOutputDir( std::string dir );
   void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
+  void residual_by_moduleID(unsigned int moduleid);
   int numberOfLayers(int phase, int subdetector);
   int maxNumberOfLayers(int subdetector);
   
@@ -141,11 +142,13 @@ private :
   const static TString summaryfilename;
   ofstream summaryfile;
   bool openedsummaryfile = false;
+  TFile *rootsummaryfile;
 
   std::vector<double> vmean, vdeltamean, vrms, vmeanerror, vPValueEqualSplitMeans, vPValueMeanEqualIdeal, vPValueRMSEqualIdeal, vAlignmentUncertainty;
   double resampleTestOfEqualMeans(TH1F* h1, TH1F* h2, int numSamples);
   double resampleTestOfEqualRMS(TH1F* h1, TH1F* h2, int numSamples);
 
+  void storeHistogramInRootfile(TH1* hist, TF1* func);
   TF1 *fitGauss(TH1 *hist,int color);
   //void plotBoxOverview(TCanvas &c1, TList &treeList,std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t filenumber,Int_t minHits);
   //void plot1DDetailsSubDet(TCanvas &c1, TList &treeList, std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t minHits);
@@ -172,9 +175,11 @@ private :
   std::string getVariableForDMRPlot(const std::string& histoname, const std::string& variable,
 				    int nbins, double min, double max);
   void setDMRHistStyleAndLegend(TH1F* h, DMRPlotInfo& plotinfo, int direction = 0, int layer = 0);
-  void plotDMRHistogram(DMRPlotInfo& plotinfo, int direction = 0, int layer = 0);
+  void plotDMRHistogram(DMRPlotInfo& plotinfo, int direction = 0, int layer = 0, std::string subdet= "");
   void modifySSHistAndLegend(THStack* hs, TLegend* legend);
   void openSummaryFile();
+  vector <TH1*> findmodule (TFile* f, unsigned int moduleid);
+
 };
 
 #endif // PLOTALIGNNMENTVALIDATION_H_

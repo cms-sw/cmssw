@@ -12,13 +12,12 @@ public:
   typedef std::vector<int> Partition;
 
 public:
-
   /***
    *   Generates a (number-theoretic) partition of n into k partitions,
    *   the invidual "partitions" being between pmin and pmax.
    */
-  SequentialPartitionGenerator(int n, int k, int pmin=1 );
-  SequentialPartitionGenerator(int n, int k, int pmin, int pmax );
+  SequentialPartitionGenerator(int n, int k, int pmin = 1);
+  SequentialPartitionGenerator(int n, int k, int pmin, int pmax);
   /**
    *  Get the next partition, in a well-defined series of
    *  partition

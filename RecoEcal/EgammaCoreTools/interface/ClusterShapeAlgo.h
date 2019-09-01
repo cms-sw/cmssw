@@ -26,28 +26,25 @@
 
 class CaloSubdetectorTopology;
 
-struct EcalClusterEnergyDeposition
-{ 
+struct EcalClusterEnergyDeposition {
   double deposited_energy;
   double r;
   double phi;
 };
 
-class ClusterShapeAlgo
-{
-
- public:
-  ClusterShapeAlgo(const edm::ParameterSet& par);
-  ClusterShapeAlgo() { };
+class ClusterShapeAlgo {
+public:
+  ClusterShapeAlgo(const edm::ParameterSet &par);
+  ClusterShapeAlgo(){};
   reco::ClusterShape Calculate(const reco::BasicCluster &passedCluster,
                                const EcalRecHitCollection *hits,
-                               const CaloSubdetectorGeometry * geometry,
-                               const CaloSubdetectorTopology* topology);
+                               const CaloSubdetectorGeometry *geometry,
+                               const CaloSubdetectorTopology *topology);
 
-  private:
-  void Calculate_TopEnergy(const reco::BasicCluster &passedCluster,const EcalRecHitCollection *hits);
-  void Calculate_2ndEnergy(const reco::BasicCluster &passedCluster,const EcalRecHitCollection *hits);
-  void Create_Map(const EcalRecHitCollection *hits, const CaloSubdetectorTopology* topology);
+private:
+  void Calculate_TopEnergy(const reco::BasicCluster &passedCluster, const EcalRecHitCollection *hits);
+  void Calculate_2ndEnergy(const reco::BasicCluster &passedCluster, const EcalRecHitCollection *hits);
+  void Create_Map(const EcalRecHitCollection *hits, const CaloSubdetectorTopology *topology);
   void Calculate_e2x2();
   void Calculate_e3x2();
   void Calculate_e3x3();
@@ -58,12 +55,17 @@ class ClusterShapeAlgo
   void Calculate_e2x5Top();
   void Calculate_e2x5Bottom();
   void Calculate_Covariances(const reco::BasicCluster &passedCluster,
-			     const EcalRecHitCollection* hits,
-			     const CaloSubdetectorGeometry* geometry);
-  void Calculate_BarrelBasketEnergyFraction(const reco::BasicCluster &passedCluster,const EcalRecHitCollection *hits,
-                                            const int EtaPhi,const CaloSubdetectorGeometry * geometry);
+                             const EcalRecHitCollection *hits,
+                             const CaloSubdetectorGeometry *geometry);
+  void Calculate_BarrelBasketEnergyFraction(const reco::BasicCluster &passedCluster,
+                                            const EcalRecHitCollection *hits,
+                                            const int EtaPhi,
+                                            const CaloSubdetectorGeometry *geometry);
   // defines a energy deposition topology in a reference system centered on the cluster
-  void Calculate_EnergyDepTopology(const reco::BasicCluster &passedCluster,const EcalRecHitCollection *hits, const CaloSubdetectorGeometry * geometry, bool logW=true);
+  void Calculate_EnergyDepTopology(const reco::BasicCluster &passedCluster,
+                                   const EcalRecHitCollection *hits,
+                                   const CaloSubdetectorGeometry *geometry,
+                                   bool logW = true);
   void Calculate_Polynomials(double rho);
   double factorial(int n) const;
   void Calculate_lat(const reco::BasicCluster &passedCluster);
@@ -82,7 +84,7 @@ class ClusterShapeAlgo
   double f51(double r);
   double f53(double r);
   double f55(double r);
-  double absZernikeMoment(const reco::BasicCluster &passedCluster, int n, int m, double R0=6.6);
+  double absZernikeMoment(const reco::BasicCluster &passedCluster, int n, int m, double R0 = 6.6);
   double fast_AbsZernikeMoment(const reco::BasicCluster &passedCluster, int n, int m, double R0);
   // Calculation of Zernike-Moments for general values of (n,m)
   double calc_AbsZernikeMoment(const reco::BasicCluster &passedCluster, int n, int m, double R0);
@@ -97,8 +99,8 @@ class ClusterShapeAlgo
   double e2x5Right_, e2x5Left_, e2x5Top_, e2x5Bottom_;
   double e3x2Ratio_;
   double lat_;
-  double etaLat_ ;
-  double phiLat_ ;
+  double etaLat_;
+  double phiLat_;
   double A20_, A42_;
   std::vector<double> energyBasketFractionEta_;
   std::vector<double> energyBasketFractionPhi_;
@@ -107,7 +109,6 @@ class ClusterShapeAlgo
   std::vector<double> fcn_;
 
   enum { Eta, Phi };
-
 };
 
 #endif

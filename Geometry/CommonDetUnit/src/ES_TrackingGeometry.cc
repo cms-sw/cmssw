@@ -4,5 +4,3 @@
 
 TYPELOOKUP_DATA_REG(TrackingGeometry);
 TYPELOOKUP_DATA_REG(GlobalTrackingGeometry);
-
-

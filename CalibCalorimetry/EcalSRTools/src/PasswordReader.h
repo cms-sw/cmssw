@@ -3,7 +3,7 @@
 
 #include <string>
 
-class PasswordReader{
+class PasswordReader {
 public:
   /** Read data password from a local file. File can contain password for
    * several user. The format is one record by line. Line must start with the
@@ -15,10 +15,7 @@ public:
    * @throw cms::Exception if file cannot be read or if the password was not
    * found
    */
-  void readPassword(const std::string& fileName,
-                    const std::string& user,
-                    std::string& password);
-
+  void readPassword(const std::string& fileName, const std::string& user, std::string& password);
 
   /** Function to split a string into tokens. Usage:
    * <pre>
@@ -34,9 +31,7 @@ public:
    * @param list of delimiters
    * @param [in,out] pos current scan position in the string
    */
-  std::string tokenize(const std::string& s,
-                       const std::string& delim,
-                       size_t& pos) const;
+  std::string tokenize(const std::string& s, const std::string& delim, size_t& pos) const;
 
   /** Trims unwanted characters (e.g. spaces) at start and end of a string.
    * @param s [in,out] input string
@@ -44,5 +39,5 @@ public:
    */
   std::string trim(const std::string& s, const std::string& chars) const;
 };
-  
-#endif //PASSWORDREADER_H not defined
+
+#endif  //PASSWORDREADER_H not defined

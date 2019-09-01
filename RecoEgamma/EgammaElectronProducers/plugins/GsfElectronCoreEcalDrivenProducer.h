@@ -4,20 +4,15 @@
 #include "GsfElectronCoreBaseProducer.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 
-class GsfElectronCoreEcalDrivenProducer : public GsfElectronCoreBaseProducer
- {
-  public:
+class GsfElectronCoreEcalDrivenProducer : public GsfElectronCoreBaseProducer {
+public:
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-    //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
+  explicit GsfElectronCoreEcalDrivenProducer(const edm::ParameterSet& conf);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-    explicit GsfElectronCoreEcalDrivenProducer( const edm::ParameterSet & conf ) ;
-    ~GsfElectronCoreEcalDrivenProducer() override ;
-    void produce( edm::Event&, const edm::EventSetup & ) override ;
-
-  private:
-
-    void produceEcalDrivenCore( const reco::GsfTrackRef & gsfTrackRef, reco::GsfElectronCoreCollection * electrons ) ;
-
- } ;
+private:
+  void produceEcalDrivenCore(const reco::GsfTrackRef& gsfTrackRef, reco::GsfElectronCoreCollection* electrons);
+};
 
 #endif

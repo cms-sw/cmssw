@@ -8,12 +8,10 @@
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
 
 class EcalEndcapNumberingScheme : public EcalNumberingScheme {
-
 public:
   EcalEndcapNumberingScheme();
   ~EcalEndcapNumberingScheme() override;
-  uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override ;
-
+  uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override;
 };
 
 #endif

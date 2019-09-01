@@ -14,33 +14,31 @@
  *  Note that every fitter registers as a finder, also.
  */
 
-class ConfigurableVertexFitter : public VertexFitter<5>
-{
-  public:
+class ConfigurableVertexFitter : public VertexFitter<5> {
+public:
+  typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
 
-    typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
+  ConfigurableVertexFitter(const edm::ParameterSet&);
+  ConfigurableVertexFitter(const ConfigurableVertexFitter& o);
+  ~ConfigurableVertexFitter() override;
 
-    ConfigurableVertexFitter ( const edm::ParameterSet & );
-    ConfigurableVertexFitter ( const ConfigurableVertexFitter & o );
-    ~ConfigurableVertexFitter() override;
+  ConfigurableVertexFitter* clone() const override;
 
-    ConfigurableVertexFitter * clone () const override;
-
-    CachingVertex<5> vertex ( const std::vector < reco::TransientTrack > & t ) const override;
-    CachingVertex<5> vertex( const std::vector<RefCountedVertexTrack> & tracks) const override;
-    CachingVertex<5> vertex( const std::vector<RefCountedVertexTrack> & tracks,
-        const reco::BeamSpot & spot ) const override;
-    CachingVertex<5> vertex( const std::vector<reco::TransientTrack> & tracks, 
-        const GlobalPoint& linPoint) const override;
-    CachingVertex<5> vertex( const std::vector<reco::TransientTrack> & tracks, 
-        const GlobalPoint& priorPos, const GlobalError& priorError) const override;
-    CachingVertex<5> vertex( const std::vector<reco::TransientTrack> & tracks, 
+  CachingVertex<5> vertex(const std::vector<reco::TransientTrack>& t) const override;
+  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack>& tracks) const override;
+  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack>& tracks, const reco::BeamSpot& spot) const override;
+  CachingVertex<5> vertex(const std::vector<reco::TransientTrack>& tracks, const GlobalPoint& linPoint) const override;
+  CachingVertex<5> vertex(const std::vector<reco::TransientTrack>& tracks,
+                          const GlobalPoint& priorPos,
+                          const GlobalError& priorError) const override;
+  CachingVertex<5> vertex(const std::vector<reco::TransientTrack>& tracks,
                           const reco::BeamSpot& beamSpot) const override;
-    CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks, 
-      const GlobalPoint& priorPos, const GlobalError& priorError) const override;
+  CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack>& tracks,
+                          const GlobalPoint& priorPos,
+                          const GlobalError& priorError) const override;
 
-  private:
-    AbstractConfFitter * theFitter;
+private:
+  AbstractConfFitter* theFitter;
 };
 
 #endif

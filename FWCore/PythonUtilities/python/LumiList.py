@@ -10,6 +10,7 @@ This code began life in COMP/CRAB/python/LumiList.py
 """
 
 
+from builtins import range
 import copy
 import json
 import re
@@ -161,7 +162,7 @@ class LumiList(object):
 
 
             if lumiList:
-                unique = [lumiList[0]]
+                unique = [copy.deepcopy(lumiList[0])]
             for pair in lumiList[1:]:
                 if pair[0] == unique[-1][1]+1:
                     unique[-1][1] = copy.deepcopy(pair[1])
@@ -179,7 +180,7 @@ class LumiList(object):
         runs = set(aruns + bruns)
         for run in runs:
             overlap = sorted(self.compactList.get(run, []) + other.compactList.get(run, []))
-            unique = [overlap[0]]
+            unique = [copy.deepcopy(overlap[0])]
             for pair in overlap[1:]:
                 if pair[0] >= unique[-1][0] and pair[0] <= unique[-1][1]+1 and pair[1] > unique[-1][1]:
                     unique[-1][1] = copy.deepcopy(pair[1])
@@ -269,10 +270,10 @@ class LumiList(object):
             lumis = self.compactList[run]
             for lumiPair in sorted(lumis):
                 if lumiPair[0] == lumiPair[1]:
-                    parts.append("%s:%s" % (run, lumiPair[0]))
+                    parts.append(str("%s:%s" % (run, lumiPair[0])))
                 else:
-                    parts.append("%s:%s-%s:%s" %
-                                 (run, lumiPair[0], run, lumiPair[1]))
+                    parts.append(str("%s:%s-%s:%s" %
+                                 (run, lumiPair[0], run, lumiPair[1])))
         return parts
 
 

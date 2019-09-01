@@ -1,7 +1,6 @@
 <use   name="Geometry/HcalCommonData"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PythonParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="Geometry/Records"/>
 <library   file="HcalParametersAnalyzer.cc" name="testHcalParametersAnalyzer">

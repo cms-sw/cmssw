@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     JetCorrectorParametersRecord
-// 
+//
 /**\class JetCorrectorParametersRecord JetCorrectorParametersRecord.h CondFormats/DataRecord/interface/JetCorrectorParametersRecord.h
 
  Description: [one line class summary]
@@ -14,13 +14,14 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Wed Mar 10 12:03:17 CET 2010
 // $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class JetCorrectorParametersRecord : public edm::eventsetup::EventSetupRecordImplementation<JetCorrectorParametersRecord> {};
+class JetCorrectorParametersRecord
+    : public edm::eventsetup::EventSetupRecordImplementation<JetCorrectorParametersRecord> {};
 
 #endif

@@ -29,7 +29,6 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -37,55 +36,52 @@
 typedef unsigned char myint8;
 
 class DTSectCollThSegm : public DTTrigData {
+public:
+  /// Constructor
+  DTSectCollThSegm(DTSectCollId, int, const DTChambThSegm*);
 
-  public:
+  /// Constructor
+  DTSectCollThSegm(const DTSectCollThSegm& seg);
 
-    /// Constructor
-    DTSectCollThSegm(DTSectCollId, int, const DTChambThSegm*);
+  /// Destructor
+  ~DTSectCollThSegm() override;
 
-    /// Constructor
-    DTSectCollThSegm(const DTSectCollThSegm& seg);
-  
-    /// Destructor 
-    ~DTSectCollThSegm() override;
+  /// Assignment operator
+  DTSectCollThSegm& operator=(const DTSectCollThSegm& seg);
 
-    /// Assignment operator
-    DTSectCollThSegm& operator=(const DTSectCollThSegm& seg);
+  /// Clear
+  void clear();
 
-    /// Clear
-    void clear();
+  /// Return step number
+  inline int step() const { return m_step; }
 
-    /// Return step number
-    inline int step() const { return m_step; }
+  /// Identifier of the associated chamber
+  DTSectCollId SCId() const { return m_sectcollid; }
 
-    /// Identifier of the associated chamber
-    DTSectCollId SCId() const { return m_sectcollid; }
+  /// Identifier of the associated chamber
+  DTChamberId ChamberId() const override { return m_tsthetatrig->ChamberId(); }
 
-    /// Identifier of the associated chamber
-    DTChamberId ChamberId() const override { return m_tsthetatrig->ChamberId(); }
+  /// Print
+  void print() const override;
 
-    /// Print
-    void print() const override;
+  /// Return the code for a given set of 7 BTI
+  inline int code(const int i) const { return m_tsthetatrig->code(i); };
 
-    /// Return the code for a given set of 7 BTI
-    inline int code(const int i) const { return m_tsthetatrig->code(i); } ;
+  /// Return the position for a given set of 7 BTI
+  inline int position(const int i) const { return m_tsthetatrig->position(i); };
 
-    /// Return the position for a given set of 7 BTI
-    inline int position(const int i) const { return m_tsthetatrig->position(i); } ;
+  /// Return the quality for a given set of 7 BTI
+  inline int quality(const int i) const { return m_tsthetatrig->quality(i); };
 
-    /// Return the quality for a given set of 7 BTI
-    inline int quality(const int i) const { return m_tsthetatrig->quality(i); };
+private:
+  /// parent sector collector
+  DTSectCollId m_sectcollid;
 
-  private:
+  /// step number
+  myint8 m_step;
 
-    /// parent sector collector
-    DTSectCollId m_sectcollid;
-
-    /// step number
-    myint8 m_step;
-
-    /// the corresponding TS theta trigger
-    const DTChambThSegm* m_tsthetatrig;
+  /// the corresponding TS theta trigger
+  const DTChambThSegm* m_tsthetatrig;
 };
 
 #endif

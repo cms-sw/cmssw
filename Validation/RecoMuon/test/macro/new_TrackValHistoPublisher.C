@@ -39,7 +39,7 @@ void plotOptReset(bool logx[6], bool logy[6], bool doKolmo[6], Double_t norm[6],
   for(int i=0; i<6; ++i) {
     logx[i] = false;
     logy[i] = false;
-    doKolmo[i] = false;
+    doKolmo[i] = true;
     norm[i] = -1;
     minx[i] = 0;
     maxx[i] = 0;
@@ -112,7 +112,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
 
   bool logy[6]     = {false,  false,  false,  false,   false,  false  };
   bool logx[6]     = {false,  false,  false,  false,   false,  false  };
-  bool doKolmo[6]  = {false,  false,  false,  false,   false,  false  };
+  bool doKolmo[6]  = {true,   true,   true,   true,    true,   true };
   Double_t norm[6] =  {-1.,-1.,-1.,-1.,-1.,-1.};  // initial default: do not normalize
   Double_t minx[6] = {0, 0, 0, 0, 0, 0};
   Double_t maxx[6] = {0, 0, 0, 0, 0, 0};
@@ -177,11 +177,11 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     miny[3]=-0.0001;
     
     maxy[0]=1.09;
-    maxy[1]=0.;
+    maxy[1]=1.09;
     maxy[2]=1.09;
-    maxy[3]=0.;
+    maxy[3]=1.09;
     
-    Plot4Histograms(newDir + "/eff_eta_phi.pdf",
+    Plot4Histograms(newDir + "/eff_eta_phi",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "eff_eta_phi", "Efficiency vs eta and Vs phi",
@@ -218,11 +218,11 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     miny[3]= 0.;
 
     maxy[0]= 1.09;
-    maxy[1]= 0.;
+    maxy[1]= 1.09;
     maxy[2]= 0.;
     maxy[3]= 0.;
 
-    Plot4Histograms(newDir + "/eff_pt.pdf",
+    Plot4Histograms(newDir + "/eff_pt",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "eff_pt", "Efficiency vs pt and sim,reco distributions",
@@ -258,7 +258,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     maxy[2]= 0.;
     maxy[3]= 0.;
 
-    Plot4Histograms(newDir + "/eff_hits.pdf",
+    Plot4Histograms(newDir + "/eff_hits",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "eff_hits", "Efficiency vs Number of hits and hit multiplicity per track",
@@ -271,8 +271,8 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     plots[0]="effic_vs_pu"      ; titles[0]="Efficiency vs n.PU interactions";
     plots[1]="fakerate_vs_pu"   ; titles[1]="Fake rate vs n.PU interactions" ;
 
-    maxx[0]= 100.;
-    maxx[1]= 100.;
+    //maxx[0]= 100.;
+    //maxx[1]= 100.;
 
     miny[0]= -0.0001;
     miny[1]=  0.;
@@ -280,7 +280,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     maxy[0]= 1.09;
     maxy[1]= 0.;
 
-    Plot4Histograms(newDir + "/eff_pu.pdf",
+    Plot4Histograms(newDir + "/eff_pu",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "eff_pu", "Efficiency vs n.PU interactions",
@@ -293,7 +293,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
 
     //===== normalized chi2, chi2 probability, ave. norm. chi2 vs eta; ave. pt bias vs eta
     plotOptReset(logx,logy,doKolmo,norm,minx,maxx,miny,maxy,drawopt,plots,titles);
-    plots[0]="chi2"              ; titles[0]="Track normalized #chi^{2}";
+    plots[0]="chi2"              ; titles[0]="Track #chi^{2}";
     plots[1]="chi2prob"          ; titles[1]="Probability of track #chi^{2}";
     plots[2]="chi2_vs_eta_prof"  ; titles[2]="Mean normalized #chi^{2} vs #eta" ;
 
@@ -301,15 +301,15 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     drawopt[1]="hist";
     drawopt[2]="";
 
-    norm[0]=  2.;
-    norm[1]=  2.;
-    norm[2]= -1.;
+    norm[0]= 0.;
+    norm[1]= 0.;
+    norm[2]= 0.;
 
     logy[0]=true;
     logy[1]=false;
     logy[2]=false;
     
-    Plot4Histograms(newDir + "/chi2.pdf",
+    Plot4Histograms(newDir + "/chi2",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "chi2", "chi2 distributions",
@@ -347,7 +347,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     norm[4]= 2.;
     norm[5]= 2.;
 
-    Plot6Histograms(newDir + "/pulls.pdf",
+    Plot6Histograms(newDir + "/pulls",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "pulls", "pull distributions",
@@ -386,7 +386,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     norm[4]= 2.;
     norm[5]= 2.;
 
-    Plot6Histograms(newDir + "/residuals.pdf",
+    Plot6Histograms(newDir + "/residuals",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "residuals", "residual distributions",
@@ -411,7 +411,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     logy[4]=true;
     logy[5]=false;
     
-    Plot6Histograms(newDir + "/resol_eta.pdf",
+    Plot6Histograms(newDir + "/resol_eta",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "resol_eta", "resolutions vs eta",
@@ -442,7 +442,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     logy[4]=true;
     logy[5]=false;
     
-    Plot6Histograms(newDir + "/resol_pt.pdf",
+    Plot6Histograms(newDir + "/resol_pt",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "resol_pt", "resolutions vs pt",
@@ -463,10 +463,10 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     logx[2]=false;
     logx[3]=false;
 
-    maxx[0]= 0.;
-    maxx[1]= 0.;
-    maxx[2]= 0.;
-    maxx[3]= 100.;
+    //maxx[0]= 0.;
+    //maxx[1]= 0.;
+    //maxx[2]= 0.;
+    //maxx[3]= 100.;
 
     miny[0]= -0.0001;
     miny[1]=  0.;
@@ -478,7 +478,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     maxy[2]= 0.;
     maxy[3]= 0.;
 
-    Plot4Histograms(newDir + "/chargeMisId.pdf",
+    Plot4Histograms(newDir + "/chargeMisId",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "chargeMisId", "charge misId rate vs eta, pt, nhits, PU",
@@ -518,13 +518,16 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     gSystem->Rename(mergefile, destfile);
 
     cout << ">> Deleting partial pdf files" << endl;
-    gSystem->Exec("rm -rf "+newDir); 
+    gSystem->Exec("rm -rf "+newDir+"/*.pdf"); 
     cout << "   ... Done" << endl;
     
     }  // end of "while loop"
 
   ///////////////////////////////////////////////////////////////////////////////
   // comparison plots of Muon and Track associators on the probeTracks
+
+  TString dir_MABH_vs_TABH = newDirBase + "probeTrks_MABH_vs_TABH";
+  gSystem->mkdir(dir_MABH_vs_TABH, kTRUE);
 
   // in case of HLT or HeavyIons skip the following
   TString new_Sample_Name("NEW_LABEL");
@@ -560,7 +563,8 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     rcollname = "NEWprobeTrks_TkAsso";
     scollname = "NEWprobeTrks";
   }
-  const char* _refLabel("REF_LABEL, REF_RELEASE REFSELECTION quickTrackAssociatorByHits");
+
+  const char* _refLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION quickTrackAssociatorByHits");
   const char* _newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION MuonAssociatorByHits");
 
   // efficiency and fake rate Vs eta and phi
@@ -585,7 +589,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
   maxy[2]=1.09;
   maxy[3]=0.;
 
-  Plot4Histograms("eff_pt_eta.pdf",
+  Plot4Histograms(dir_MABH_vs_TABH + "/eff_pt_eta",
 		  sdir, sdir,
 		  rcollname, scollname,
 		  "eff_pt_eta_MABHvsTABH", "Efficiency vs eta and pt - Muon vs Track Associator",
@@ -610,7 +614,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
   maxy[2]=1.09;
   maxy[3]=0.;
   
-  Plot4Histograms("eff_phi_hits.pdf",
+  Plot4Histograms(dir_MABH_vs_TABH + "/eff_phi_hits",
 		  sdir, sdir,
 		  rcollname, scollname,
 		  "eff_phi_hits_MABHvsTABH", "Efficiency vs phi and N. hits - Muon vs Track Associator",
@@ -623,8 +627,8 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
   plots[0]="effic_vs_pu"    ; titles[0]="Efficiency vs n.PU interactions";
   plots[1]="fakerate_vs_pu" ; titles[1]="Fake rate vs  n.PU interactions" ;
   
-  maxx[0]= 100.;
-  maxx[1]= 100.;
+  //maxx[0]= 100.;
+  //maxx[1]= 100.;
   
   miny[0]= -0.0001;
   miny[1]=  0.;
@@ -632,7 +636,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
   maxy[0]= 1.09;
   maxy[1]= 0.;
   
-  PlotNHistograms("eff_pu.pdf",
+  PlotNHistograms(dir_MABH_vs_TABH + "/eff_pu",
 		  sdir, sdir,
 		  rcollname, scollname,
 		  "eff_pu_MABHvsTABH", "Efficiency vs N.PU interactions - Muon vs Track Associator",
@@ -643,16 +647,16 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
   //// Merge pdf files together and rename the merged pdf after the 
   TString _destfile  = newDirBase + "probeTrks_MABH_vs_TABH" + ".pdf"; // Destination file name
   TString _gscommand = "gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile="  + _destfile + " "
-    + "./eff_pt_eta.pdf "
-    + "./eff_phi_hits.pdf "
-    + "./eff_pu.pdf ";
+    + dir_MABH_vs_TABH + "/eff_pt_eta.pdf "
+    + dir_MABH_vs_TABH + "/eff_phi_hits.pdf "
+    + dir_MABH_vs_TABH + "/eff_pu.pdf ";
   
   cout << ">> Merging partial pdfs to " << _destfile << "..." << endl;
   if (DEBUG) cout << " ...with command \"" << _gscommand << "\"" << endl;
   gSystem->Exec(_gscommand);
   
   cout << ">> Deleting partial pdf files" << endl;
-  gSystem->Exec("rm -rf eff_*.pdf"); 
+  gSystem->Exec("rm -rf "+ dir_MABH_vs_TABH +"/eff_*.pdf"); 
   cout << "   ... Done" << endl;
   
   cout << ">> Removing the relval files from ROOT before closing..." << endl;

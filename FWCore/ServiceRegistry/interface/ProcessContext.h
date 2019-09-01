@@ -25,9 +25,7 @@ to Services as an argument to their callback functions.
 namespace edm {
 
   class ProcessContext {
-
   public:
-
     ProcessContext();
 
     std::string const& processName() const { return processConfiguration_->processName(); }
@@ -40,7 +38,6 @@ namespace edm {
     void setParentProcessContext(ProcessContext const* parentProcessContext);
 
   private:
-
     ProcessConfiguration const* processConfiguration_;
 
     // If this is a SubProcess this points to the parent process,
@@ -49,5 +46,5 @@ namespace edm {
   };
 
   std::ostream& operator<<(std::ostream&, ProcessContext const&);
-}
+}  // namespace edm
 #endif

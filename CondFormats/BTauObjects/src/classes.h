@@ -1,7 +1,5 @@
 #include "CondFormats/BTauObjects/src/headers.h"
 
-
-
 namespace CondFormats_BTauObjects {
   struct dictionary {
     std::vector<float> b1;
@@ -29,4 +27,4 @@ namespace CondFormats_BTauObjects {
     std::map<std::string, std::vector<BTagEntry> > mv_bte1;
     BTagCalibration btc1;
   };
-}
+}  // namespace CondFormats_BTauObjects

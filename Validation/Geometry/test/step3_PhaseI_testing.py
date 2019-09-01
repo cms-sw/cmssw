@@ -5,9 +5,9 @@
 # with command line options: step3 --conditions auto:phase1_2017_realistic --pileup_input das:/RelValMinBias_13/CMSSW_8_1_0_pre7-81X_upgrade2017_realistic_v3_UPG17newGT-v1/GEN-SIM -n 10 --era Run2_2017 --eventcontent RECOSIM,DQM -s RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM --datatier GEN-SIM-RECO,DQMIO --pileup AVE_35_BX_25ns --geometry DB:Extended --conditions 81X_upgrade2017_realistic_v3 --no_exec --filein file:step2.root --fileout file:step3.root --nThreads 4 --python_filename fuffa.py
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('RECO',eras.Run2_2017)
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+process = cms.Process('RECO',Run2_2017)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

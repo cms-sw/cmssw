@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from __future__ import absolute_import
 import os
 import sys
 import itertools
-import dataLoader
-import checkBTagCalibrationConsistency as checker
+from . import dataLoader
+from . import checkBTagCalibrationConsistency as checker
 
+import six
 
 def generate_flav_c(loaded_data):
-    flav_b_data = filter(
-        lambda e: e.params.jetFlavor == 0,
-        loaded_data.entries
-    )
+    flav_b_data = [e for e in loaded_data.entries if e.params.jetFlavor == 0]
     flav_b_data = sorted(flav_b_data, key=lambda e: e.params.operatingPoint)
     flav_b_data = sorted(flav_b_data, key=lambda e: e.params.measurementType)
     flav_b_data = sorted(flav_b_data, key=lambda e: e.params.etaMin)
@@ -41,7 +41,7 @@ def generate_flav_c(loaded_data):
             central = d.pop('central')
             central.params.jetFlavor = 1
             yield central.makeCSVLine()
-            for e in d.itervalues():
+            for e in six.itervalues(d):
                 e.params.jetFlavor = 1
                 e.formula = '2*(%s)-(%s)' % (e.formula, central.formula)
                 yield e.makeCSVLine()
@@ -52,26 +52,26 @@ def generate_flav_c(loaded_data):
 
 def main():
     if len(sys.argv) < 3:
-        print 'Need input/output filenames as first/second arguments. Exit.'
+        print('Need input/output filenames as first/second arguments. Exit.')
         exit(-1)
     if os.path.exists(sys.argv[2]):
-        print 'Output file exists. Exit.'
+        print('Output file exists. Exit.')
         exit(-1)
 
-    print '\nChecking input file consistency...'
+    print('\nChecking input file consistency...')
     loaders = dataLoader.get_data(sys.argv[1])
     checks = checker.run_check_data(loaders, True, True, False)
     for data in loaders:
         typ = data.meas_type
         if 1 in data.flavs:
-            print 'FLAV_C already present in input file for %s. Exit.' % typ
+            print('FLAV_C already present in input file for %s. Exit.' % typ)
             exit(-1)
     if not any(0 in data.flavs for data in loaders):
-        print 'FLAV_B not found in input file. Exit.'
+        print('FLAV_B not found in input file. Exit.')
         exit(-1)
 
 
-    print '\nGenerating new csv content...'
+    print('\nGenerating new csv content...')
     new_csv_data = list(itertools.chain.from_iterable(
         l
         for d in loaders
@@ -86,7 +86,7 @@ def main():
         f.write('\n')
         f.writelines(new_csv_data)
 
-    print 'Done.'
+    print('Done.')
 
 
 if __name__ == '__main__':

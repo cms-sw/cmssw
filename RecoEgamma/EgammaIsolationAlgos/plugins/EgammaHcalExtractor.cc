@@ -32,49 +32,48 @@ using namespace std;
 using namespace egammaisolation;
 using namespace reco::isodeposit;
 
-EgammaHcalExtractor::EgammaHcalExtractor ( const edm::ParameterSet& par, edm::ConsumesCollector & iC ) :
-    extRadius_(par.getParameter<double>("extRadius")),
-    intRadius_(par.getParameter<double>("intRadius")),
-    etLow_(par.getParameter<double>("etMin")),
-    hcalRecHitProducerToken_(iC.consumes<HBHERecHitCollection>(par.getParameter<edm::InputTag>("hcalRecHits"))) {
-}
+EgammaHcalExtractor::EgammaHcalExtractor(const edm::ParameterSet& par, edm::ConsumesCollector& iC)
+    : extRadius_(par.getParameter<double>("extRadius")),
+      intRadius_(par.getParameter<double>("intRadius")),
+      etLow_(par.getParameter<double>("etMin")),
+      hcalRecHitProducerToken_(iC.consumes<HBHERecHitCollection>(par.getParameter<edm::InputTag>("hcalRecHits"))) {}
 
-EgammaHcalExtractor::~EgammaHcalExtractor(){}
+EgammaHcalExtractor::~EgammaHcalExtractor() {}
 
-reco::IsoDeposit EgammaHcalExtractor::deposit(const edm::Event & iEvent,
-        const edm::EventSetup & iSetup, const reco::Candidate &emObject ) const {
+reco::IsoDeposit EgammaHcalExtractor::deposit(const edm::Event& iEvent,
+                                              const edm::EventSetup& iSetup,
+                                              const reco::Candidate& emObject) const {
+  //Get MetaRecHit collection
+  edm::Handle<HBHERecHitCollection> hcalRecHitHandle;
+  iEvent.getByToken(hcalRecHitProducerToken_, hcalRecHitHandle);
 
-    //Get MetaRecHit collection
-    edm::Handle<HBHERecHitCollection> hcalRecHitHandle;
-    iEvent.getByToken(hcalRecHitProducerToken_, hcalRecHitHandle);
+  //Get Calo Geometry
+  edm::ESHandle<CaloGeometry> pG;
+  iSetup.get<CaloGeometryRecord>().get(pG);
+  const CaloGeometry* caloGeom = pG.product();
+  CaloDualConeSelector<HBHERecHit> coneSel(intRadius_, extRadius_, caloGeom, DetId::Hcal);
 
-    //Get Calo Geometry
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    const CaloGeometry* caloGeom = pG.product();
-    CaloDualConeSelector<HBHERecHit> coneSel(intRadius_, extRadius_, caloGeom, DetId::Hcal);
+  //Take the SC position
+  reco::SuperClusterRef sc = emObject.get<reco::SuperClusterRef>();
+  math::XYZPoint caloPosition = sc->position();
+  GlobalPoint point(caloPosition.x(), caloPosition.y(), caloPosition.z());
+  // needed: coneSel.select(eta,phi,hits) is not the same!
 
-    //Take the SC position
-    reco::SuperClusterRef sc = emObject.get<reco::SuperClusterRef>();
-    math::XYZPoint caloPosition = sc->position();
-    GlobalPoint point(caloPosition.x(), caloPosition.y() , caloPosition.z());
-    // needed: coneSel.select(eta,phi,hits) is not the same!
+  Direction candDir(caloPosition.eta(), caloPosition.phi());
+  reco::IsoDeposit deposit(candDir);
+  deposit.setVeto(reco::IsoDeposit::Veto(candDir, intRadius_));
+  double sinTheta = sin(2 * atan(exp(-sc->eta())));
+  deposit.addCandEnergy(sc->energy() * sinTheta);
 
-    Direction candDir(caloPosition.eta(), caloPosition.phi());
-    reco::IsoDeposit deposit( candDir );
-    deposit.setVeto( reco::IsoDeposit::Veto(candDir, intRadius_) );
-    double sinTheta = sin(2*atan(exp(-sc->eta())));
-    deposit.addCandEnergy(sc->energy()*sinTheta);
+  //Compute the HCAL energy behind ECAL
+  coneSel.selectCallback(point, *hcalRecHitHandle, [&](const HBHERecHit& i) {
+    const GlobalPoint& hcalHit_position = caloGeom->getPosition(i.detid());
+    double hcalHit_eta = hcalHit_position.eta();
+    double hcalHit_Et = i.energy() * sin(2 * atan(exp(-hcalHit_eta)));
+    if (hcalHit_Et > etLow_) {
+      deposit.addDeposit(Direction(hcalHit_eta, hcalHit_position.phi()), hcalHit_Et);
+    }
+  });
 
-    //Compute the HCAL energy behind ECAL
-    coneSel.selectCallback(point, *hcalRecHitHandle, [&](const HBHERecHit& i) {
-        const  GlobalPoint & hcalHit_position = caloGeom->getPosition(i.detid());
-        double hcalHit_eta = hcalHit_position.eta();
-        double hcalHit_Et = i.energy()*sin(2*atan(exp(-hcalHit_eta)));
-        if ( hcalHit_Et > etLow_) {
-	  deposit.addDeposit( Direction(hcalHit_eta, hcalHit_position.phi()), hcalHit_Et);
-        }
-      });
-
-    return deposit;
+  return deposit;
 }

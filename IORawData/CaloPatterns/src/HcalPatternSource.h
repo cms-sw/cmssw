@@ -11,9 +11,10 @@
   */
 class HcalPatternSource : public edm::EDProducer {
 public:
-  HcalPatternSource(const edm::ParameterSet & pset);
+  HcalPatternSource(const edm::ParameterSet& pset);
   void produce(edm::Event& e, const edm::EventSetup& c) override;
-private:  
+
+private:
   void loadPatterns(const std::string& patspec);
   void loadPatternFile(const std::string& filename);
   std::vector<int> bunches_;

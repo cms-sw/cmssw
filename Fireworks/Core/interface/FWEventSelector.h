@@ -9,20 +9,16 @@
 // system include files
 #include <string>
 
-struct FWEventSelector
-{
-   FWEventSelector(FWEventSelector* s)
-   {
-      *this = *s;
-   }
+struct FWEventSelector {
+  FWEventSelector(FWEventSelector* s) { *this = *s; }
 
-   FWEventSelector(): m_enabled(false), m_selected (-1), m_updated(false) {}
+  FWEventSelector() : m_enabled(false), m_selected(-1), m_updated(false) {}
 
-   std::string m_expression;
-   std::string m_description;
-   std::string m_triggerProcess;
-   bool        m_enabled;
-   int         m_selected;
-   bool        m_updated;
+  std::string m_expression;
+  std::string m_description;
+  std::string m_triggerProcess;
+  bool m_enabled;
+  int m_selected;
+  bool m_updated;
 };
 #endif

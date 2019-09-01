@@ -6,6 +6,4 @@
 
 typedef edm::StreamerInputModule<WatcherStreamFileReader> WatcherSource;
 
-
-#endif //WatcherSourceModule_H not defined
-
+#endif  //WatcherSourceModule_H not defined

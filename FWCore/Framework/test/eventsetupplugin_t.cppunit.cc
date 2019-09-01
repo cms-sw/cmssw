@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     eventsetup_plugin_t
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -30,16 +30,16 @@ namespace {
   edm::ActivityRegistry activityRegistry;
 }
 
-class testEventsetupplugin: public CppUnit::TestFixture
-{
-CPPUNIT_TEST_SUITE(testEventsetupplugin);
+class testEventsetupplugin : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testEventsetupplugin);
 
-CPPUNIT_TEST(finderTest);
+  CPPUNIT_TEST(finderTest);
 
-CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE_END();
+
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() {}
+  void tearDown() {}
 
   void finderTest();
 };
@@ -48,56 +48,52 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(testEventsetupplugin);
 
 static void doInit() {
-   static bool firstTime=true;
-   if(firstTime) {
-      if(not edmplugin::PluginManager::isAvailable()) {
-        edmplugin::PluginManager::configure(edmplugin::standard::config());
-     }
-      firstTime = false;
-   }
+  static bool firstTime = true;
+  if (firstTime) {
+    if (not edmplugin::PluginManager::isAvailable()) {
+      edmplugin::PluginManager::configure(edmplugin::standard::config());
+    }
+    firstTime = false;
+  }
 }
 
 void testEventsetupplugin::finderTest()
 
 {
-   doInit();
-   EventSetupsController esController;
-   EventSetupProvider provider(&activityRegistry);
-   
-   edm::ParameterSet dummyFinderPSet;
-   dummyFinderPSet.addParameter("@module_type", std::string("LoadableDummyFinder"));
-   dummyFinderPSet.addParameter("@module_label", std::string(""));
-   dummyFinderPSet.registerIt();
-   SourceFactory::get()->addTo(esController, provider, dummyFinderPSet);
+  doInit();
+  EventSetupsController esController;
+  EventSetupProvider provider(&activityRegistry);
 
-   
-   ComponentDescription descFinder("LoadableDummyFinder","",true);
-   std::set<ComponentDescription> descriptions(provider.proxyProviderDescriptions());
-   //should not be found since not a provider
-   CPPUNIT_ASSERT(descriptions.find(descFinder) == descriptions.end());
+  edm::ParameterSet dummyFinderPSet;
+  dummyFinderPSet.addParameter("@module_type", std::string("LoadableDummyFinder"));
+  dummyFinderPSet.addParameter("@module_label", std::string(""));
+  dummyFinderPSet.registerIt();
+  SourceFactory::get()->addTo(esController, provider, dummyFinderPSet);
 
-   
-   edm::ParameterSet dummyProviderPSet;
-   dummyProviderPSet.addParameter("@module_type",  std::string("LoadableDummyProvider"));
-   dummyProviderPSet.addParameter("@module_label", std::string(""));
-   dummyProviderPSet.registerIt();
-   ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet);
+  ComponentDescription descFinder("LoadableDummyFinder", "", true);
+  std::set<ComponentDescription> descriptions(provider.proxyProviderDescriptions());
+  //should not be found since not a provider
+  CPPUNIT_ASSERT(descriptions.find(descFinder) == descriptions.end());
 
-   ComponentDescription desc("LoadableDummyProvider","",false);
-   descriptions = provider.proxyProviderDescriptions();
-   CPPUNIT_ASSERT(descriptions.find(desc) != descriptions.end());
-   CPPUNIT_ASSERT(*(descriptions.find(desc)) == desc);
+  edm::ParameterSet dummyProviderPSet;
+  dummyProviderPSet.addParameter("@module_type", std::string("LoadableDummyProvider"));
+  dummyProviderPSet.addParameter("@module_label", std::string(""));
+  dummyProviderPSet.registerIt();
+  ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet);
 
-   
-   edm::ParameterSet dummySourcePSet;
-   dummySourcePSet.addParameter("@module_type",  std::string("LoadableDummyESSource"));
-   dummySourcePSet.addParameter("@module_label", std::string(""));
-   dummySourcePSet.registerIt();
-   SourceFactory::get()->addTo(esController, provider, dummySourcePSet);
-   
-   ComponentDescription descSource("LoadableDummyESSource","",true);
-   descriptions = provider.proxyProviderDescriptions();
-   CPPUNIT_ASSERT(descriptions.find(descSource) != descriptions.end());
-   CPPUNIT_ASSERT(*(descriptions.find(descSource)) == descSource);
-   
+  ComponentDescription desc("LoadableDummyProvider", "", false);
+  descriptions = provider.proxyProviderDescriptions();
+  CPPUNIT_ASSERT(descriptions.find(desc) != descriptions.end());
+  CPPUNIT_ASSERT(*(descriptions.find(desc)) == desc);
+
+  edm::ParameterSet dummySourcePSet;
+  dummySourcePSet.addParameter("@module_type", std::string("LoadableDummyESSource"));
+  dummySourcePSet.addParameter("@module_label", std::string(""));
+  dummySourcePSet.registerIt();
+  SourceFactory::get()->addTo(esController, provider, dummySourcePSet);
+
+  ComponentDescription descSource("LoadableDummyESSource", "", true);
+  descriptions = provider.proxyProviderDescriptions();
+  CPPUNIT_ASSERT(descriptions.find(descSource) != descriptions.end());
+  CPPUNIT_ASSERT(*(descriptions.find(descSource)) == descSource);
 }

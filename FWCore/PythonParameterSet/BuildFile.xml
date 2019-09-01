@@ -1,8 +1,9 @@
 <use   name="DataFormats/Provenance"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
-<use   name="boost"/>
-<use   name="boost_python"/>
+<use   name="py2-pybind11"/>
+<use   name="python"/>
 <export>
-  <lib   name="1"/>
+    <use   name="py2-pybind11"/>
+    <lib   name="1"/> 
 </export>

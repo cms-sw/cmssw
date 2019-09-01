@@ -5,26 +5,26 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/GsfTools/interface/CloseComponentsMerger.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 /** Provides the "CloseComponents" algorithm ("Merger") for reducing 
  * the number of components in a multi-
  */
 
 template <unsigned int N>
-class  CloseComponentsMergerESProducer: public edm::ESProducer{
- public:
-  CloseComponentsMergerESProducer(const edm::ParameterSet & p);
-  ~CloseComponentsMergerESProducer() override; 
-  std::shared_ptr< MultiGaussianStateMerger<N> > produce(const TrackingComponentsRecord &);
- private:
-  edm::ParameterSet pset_;
+class CloseComponentsMergerESProducer : public edm::ESProducer {
+public:
+  CloseComponentsMergerESProducer(const edm::ParameterSet &p);
+  ~CloseComponentsMergerESProducer() override;
+  std::unique_ptr<MultiGaussianStateMerger<N> > produce(const TrackingComponentsRecord &);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
+private:
+  const int maxComp_;
+  edm::ESGetToken<DistanceBetweenComponents<N>, TrackingComponentsRecord> distToken_;
 };
 
 #include "TrackingTools/GsfTools/plugins/CloseComponentsMergerESProducer.icc"
 
 #endif
-
-
-
-

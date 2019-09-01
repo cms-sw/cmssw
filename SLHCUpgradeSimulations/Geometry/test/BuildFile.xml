@@ -22,6 +22,7 @@
 
   <library   file="Phase2PixelNtuple.cc" name="Phase2PixelNtuple">
     <flags   EDM_PLUGIN="1"/>
+    <use   name="clhep"/>
     <use   name="FWCore/Framework"/>
     <use   name="FWCore/ParameterSet"/>
     <use   name="FWCore/ServiceRegistry"/>

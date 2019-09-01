@@ -22,6 +22,6 @@ namespace reco {
 
   /// iterator over a vector of references to PFV0 objects
   typedef PFV0RefVector::iterator PFV0_iterator;
-}
+}  // namespace reco
 
 #endif

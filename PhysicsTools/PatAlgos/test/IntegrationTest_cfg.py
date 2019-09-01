@@ -12,6 +12,7 @@ process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 patAlgosToolsTask.add(process.patCandidatesTask)
 # Temporary customize to the unit tests that fail due to old input samples
 process.patTaus.skipMissingTauID = True
+process.patMuons.addTriggerMatching = False
 
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 patAlgosToolsTask.add(process.selectedPatCandidatesTask)
@@ -21,7 +22,9 @@ process.p = cms.Path(
     process.selectedPatCandidates
     )
 
-
+process.patLowPtElectrons.electronSource = "gedGsfElectrons"
+process.patLowPtElectrons.genParticleMatch = "electronMatch"
+process.selectedPatLowPtElectrons.cut = "pt>99999."
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following

@@ -3,7 +3,8 @@
 #include "CondTools/RunInfo/interface/PopConBTransitionSourceHandler.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-typedef popcon::PopConAnalyzer< popcon::PopConBTransitionSourceHandler<Alignments> > EcalAlignmentPopConBTransitionAnalyzer;
+typedef popcon::PopConAnalyzer<popcon::PopConBTransitionSourceHandler<Alignments> >
+    EcalAlignmentPopConBTransitionAnalyzer;
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(EcalAlignmentPopConBTransitionAnalyzer);

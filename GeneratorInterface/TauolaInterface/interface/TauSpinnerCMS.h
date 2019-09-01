@@ -13,7 +13,6 @@
 #ifndef TauSpinnerCMS_h
 #define TauSpinnerCMS_h
 
-
 #include <iostream>
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -46,16 +45,16 @@
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-class TauSpinnerCMS : public edm::one::EDProducer<edm::one::SharedResources>{
+class TauSpinnerCMS : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
-  explicit TauSpinnerCMS( const edm::ParameterSet& ) ;
-  ~TauSpinnerCMS() override{}; // no need to delete ROOT stuff
+  explicit TauSpinnerCMS(const edm::ParameterSet &);
+  ~TauSpinnerCMS() override{};  // no need to delete ROOT stuff
 
-  void produce( edm::Event&, const edm::EventSetup&) final;
+  void produce(edm::Event &, const edm::EventSetup &) final;
   void beginJob() final;
   void endJob() final;
   static double flat();
-  void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
+  void setRandomEngine(CLHEP::HepRandomEngine *v) { fRandomEngine = v; }
   virtual void initialize();
 
 private:
@@ -65,11 +64,11 @@ private:
   std::string LHAPDFname_;
   double CMSEnergy_;
   edm::InputTag gensrc_;
-  int MotherPDGID_,Ipol_,nonSM2_,nonSMN_;
+  int MotherPDGID_, Ipol_, nonSM2_, nonSMN_;
   static bool isTauSpinnerConfigure;
 
   // Additional funtionms for Reco (not provided by Tauola/TauSpinner authors)
-  int readParticlesfromReco(edm::Event& e,
+  int readParticlesfromReco(edm::Event &e,
                             TauSpinner::SimpleParticle &X,
                             TauSpinner::SimpleParticle &tau,
                             TauSpinner::SimpleParticle &tau2,
@@ -82,7 +81,7 @@ private:
   bool isFirst(const reco::GenParticle *Particle);
   double roundOff_;
 
-  static CLHEP::HepRandomEngine* fRandomEngine;
+  static CLHEP::HepRandomEngine *fRandomEngine;
   edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> GenParticleCollectionToken_;
   static bool fInitialized;

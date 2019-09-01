@@ -19,27 +19,26 @@
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
-#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 /* C++ Headers */
 #include <iostream>
 using namespace std;
 
+using namespace geant_units;
+using namespace geant_units::operators;
+
 /* ====================================================================== */
 
-/* Constructor */ 
-DTGeometryBuilderFromCondDB::DTGeometryBuilderFromCondDB() {
-}
+/* Constructor */
+DTGeometryBuilderFromCondDB::DTGeometryBuilderFromCondDB() {}
 
-/* Destructor */ 
-DTGeometryBuilderFromCondDB::~DTGeometryBuilderFromCondDB() {
-}
+/* Destructor */
+DTGeometryBuilderFromCondDB::~DTGeometryBuilderFromCondDB() {}
 
-/* Operations */ 
-void
-DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGeometry,
-                                   const RecoIdealGeometry& rig) {
+/* Operations */
+void DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGeometry, const RecoIdealGeometry& rig) {
   //  cout << "DTGeometryBuilderFromCondDB " << endl;
   const std::vector<DetId>& detids(rig.detIds());
   //  cout << "size " << detids.size() << endl;
@@ -47,24 +46,23 @@ DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGeometr
   size_t idt = 0;
   DTChamber* chamber(nullptr);
   DTSuperLayer* sl(nullptr);
-  while(idt < detids.size()) {
+  while (idt < detids.size()) {
     //copy(par.begin(), par.end(), ostream_iterator<double>(std::cout," "));
-    if (int(*(rig.shapeStart(idt)))==0){ // a Chamber
+    if (int(*(rig.shapeStart(idt))) == 0) {  // a Chamber
       // add the provious chamber which by now has been updated with SL and
       // layers
-      if (chamber) theGeometry->add(chamber);
+      if (chamber)
+        theGeometry->add(chamber);
       // go for the actual one
       DTChamberId chid(detids[idt]);
       //cout << "CH: " <<  chid << endl;
-      chamber = buildChamber(chid, rig, idt); 
-    }
-    else if (int(*(rig.shapeStart(idt)))==1){ // a SL
+      chamber = buildChamber(chid, rig, idt);
+    } else if (int(*(rig.shapeStart(idt))) == 1) {  // a SL
       DTSuperLayerId slid(detids[idt]);
       //cout << "  SL: " <<  slid << endl;
       sl = buildSuperLayer(chamber, slid, rig, idt);
       theGeometry->add(sl);
-    }
-    else if (int(*(rig.shapeStart(idt)))==2){ // a Layer
+    } else if (int(*(rig.shapeStart(idt))) == 2) {  // a Layer
       DTLayerId lid(detids[idt]);
       //cout << "    LAY: " <<  lid << endl;
       DTLayer* lay = buildLayer(sl, lid, rig, idt);
@@ -74,44 +72,48 @@ DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGeometr
     }
     ++idt;
   }
-  if (chamber) theGeometry->add(chamber); // add the last chamber
+  if (chamber)
+    theGeometry->add(chamber);  // add the last chamber
 }
 
-DTChamber* DTGeometryBuilderFromCondDB::buildChamber(const DetId& id,
-                                                     const RecoIdealGeometry& rig,
-						     size_t idt ) const {
-  DTChamberId detId(id);  
+// Calling function has the responsibility to delete the allocated RectangularPlaneBounds object
+RectangularPlaneBounds* dtGeometryBuilder::getRecPlaneBounds(const std::vector<double>::const_iterator& shapeStart) {
+  float width = convertMmToCm(*(shapeStart));          // r-phi  dimension - different in different chambers
+  float length = convertMmToCm(*(shapeStart + 1));     // z      dimension - constant
+  float thickness = convertMmToCm(*(shapeStart + 2));  // radial thickness - almost constant
+  return new RectangularPlaneBounds(width, length, thickness);
+}
 
-
-  float width = (*(rig.shapeStart(idt) + 1))/cm;     // r-phi  dimension - different in different chambers
-  float length = (*(rig.shapeStart(idt) + 2))/cm;    // z      dimension - constant 125.55 cm
-  float thickness = (*(rig.shapeStart(idt) + 3))/cm; // radial thickness - almost constant about 18 cm
+DTChamber* DTGeometryBuilderFromCondDB::buildChamber(const DetId& id, const RecoIdealGeometry& rig, size_t idt) const {
+  DTChamberId detId(id);
 
   ///SL the definition of length, width, thickness depends on the local reference frame of the Det
   // width is along local X
   // length is along local Y
-  // thickness is long local Z
-  RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), new RectangularPlaneBounds(width, length, thickness) ));
+  // length z      dimension - constant 125.55 cm
+  // thickness is along local Z
+  // radial thickness - almost constant about 18 cm
+  RCPPlane surf(
+      plane(rig.tranStart(idt), rig.rotStart(idt), dtGeometryBuilder::getRecPlaneBounds(++rig.shapeStart(idt))));
 
   DTChamber* chamber = new DTChamber(detId, surf);
 
   return chamber;
 }
 
-DTSuperLayer*
-DTGeometryBuilderFromCondDB::buildSuperLayer(DTChamber* chamber,
-                                             const DetId& id,
-                                             const RecoIdealGeometry& rig,
-					     size_t idt) const {
-
+DTSuperLayer* DTGeometryBuilderFromCondDB::buildSuperLayer(DTChamber* chamber,
+                                                           const DetId& id,
+                                                           const RecoIdealGeometry& rig,
+                                                           size_t idt) const {
   DTSuperLayerId slId(id);
 
-  float width = (*(rig.shapeStart(idt) + 1))/cm;     // r-phi  dimension - different in different chambers
-  float length = (*(rig.shapeStart(idt) + 2))/cm;    // z      dimension - constant 126.8 cm
-  float thickness = (*(rig.shapeStart(idt) + 3))/cm; // radial thickness - almost constant about 5 cm
+  // r-phi  dimension - different in different chambers
+  // z      dimension - constant 126.8 cm
+  // radial thickness - almost constant about 5 cm
 
   // Ok this is the slayer position...
-  RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), new RectangularPlaneBounds(width, length, thickness) ));
+  RCPPlane surf(
+      plane(rig.tranStart(idt), rig.rotStart(idt), dtGeometryBuilder::getRecPlaneBounds(++rig.shapeStart(idt))));
 
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
 
@@ -121,27 +123,26 @@ DTGeometryBuilderFromCondDB::buildSuperLayer(DTChamber* chamber,
   return slayer;
 }
 
-DTLayer*
-DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
-                                        const DetId& id,
-                                        const RecoIdealGeometry& rig,
-					size_t idt) const {
-
+DTLayer* DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
+                                                 const DetId& id,
+                                                 const RecoIdealGeometry& rig,
+                                                 size_t idt) const {
   DTLayerId layId(id);
 
   // Layer specific parameter (size)
-  float width = (*(rig.shapeStart(idt) + 1))/cm;     // r-phi  dimension - changes in different chambers
-  float length = (*(rig.shapeStart(idt) + 2))/cm;    // z      dimension - constant 126.8 cm
-  float thickness = (*(rig.shapeStart(idt) + 3))/cm; // radial thickness - almost constant about 20 cm
+  // r-phi  dimension - different in different chambers
+  // z      dimension - constant 126.8 cm
+  // radial thickness - almost constant about 20 cm
 
-
-  RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), new RectangularPlaneBounds(width, length, thickness) ));
+  auto shapeStartPtr = rig.shapeStart(idt);
+  RCPPlane surf(
+      plane(rig.tranStart(idt), rig.rotStart(idt), dtGeometryBuilder::getRecPlaneBounds((shapeStartPtr + 1))));
 
   // Loop on wires
-  int firstWire=int(*(rig.shapeStart(idt) + 4 ));//par[4]);
-  int WCounter=int(*(rig.shapeStart(idt) + 5 ));//par[5]);
-  double sensibleLenght=(*(rig.shapeStart(idt) + 6 ))/cm;//par[6]/cm;
-  DTTopology topology(firstWire, WCounter, sensibleLenght);
+  int firstWire = static_cast<int>(*(shapeStartPtr + 4));       //par[4]);
+  int WCounter = static_cast<int>(*(shapeStartPtr + 5));        //par[5]);
+  double sensibleLength = convertMmToCm(*(shapeStartPtr + 6));  //par[6] in cm;
+  DTTopology topology(firstWire, WCounter, sensibleLength);
 
   DTLayerType layerType;
 
@@ -153,16 +154,21 @@ DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
   return layer;
 }
 
-DTGeometryBuilderFromCondDB::RCPPlane 
-DTGeometryBuilderFromCondDB::plane(const vector<double>::const_iterator tranStart,
-                                   const vector<double>::const_iterator rotStart,
-                                   Bounds * bounds) const {
+DTGeometryBuilderFromCondDB::RCPPlane DTGeometryBuilderFromCondDB::plane(const vector<double>::const_iterator tranStart,
+                                                                         const vector<double>::const_iterator rotStart,
+                                                                         Bounds* bounds) const {
   // extract the position
-  const Surface::PositionType posResult(*(tranStart), *(tranStart+1), *(tranStart+2));
+  const Surface::PositionType posResult(*(tranStart), *(tranStart + 1), *(tranStart + 2));
   // now the rotation
-  Surface::RotationType rotResult( *(rotStart+0), *(rotStart+1), *(rotStart+2), 
-                                   *(rotStart+3), *(rotStart+4), *(rotStart+5),
-                                   *(rotStart+6), *(rotStart+7), *(rotStart+8) );
+  Surface::RotationType rotResult(*(rotStart + 0),
+                                  *(rotStart + 1),
+                                  *(rotStart + 2),
+                                  *(rotStart + 3),
+                                  *(rotStart + 4),
+                                  *(rotStart + 5),
+                                  *(rotStart + 6),
+                                  *(rotStart + 7),
+                                  *(rotStart + 8));
 
-  return RCPPlane( new Plane( posResult, rotResult, bounds));
+  return RCPPlane(new Plane(posResult, rotResult, bounds));
 }

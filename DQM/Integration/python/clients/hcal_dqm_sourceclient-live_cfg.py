@@ -11,8 +11,8 @@ import os, sys, socket, string
 #	Standard CMSSW Imports/Definitions
 #-------------------------------------
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
-process      = cms.Process('HCALDQM', eras.Run2_2018)
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process      = cms.Process('HCALDQM', Run2_2018)
 subsystem    = 'Hcal'
 cmssw        = os.getenv("CMSSW_VERSION").split("_")
 debugstr     = "### HcalDQM::cfg::DEBUG: "
@@ -28,7 +28,7 @@ useMap       = False
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
 	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-	process.GlobalTag.globaltag = '100X_dataRun2_HLT_v1'
+	process.GlobalTag.globaltag = '106X_dataRun2_PromptLike_Candidate_2019_05_04_08_47_47'
 	#process.GlobalTag.globaltag = '100X_dataRun2_HLT_Candidate_2018_01_31_16_04_35'
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
@@ -104,6 +104,23 @@ process.emulTPDigisNoTDCCut.parameters = cms.untracked.PSet(
 	TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
 )
 
+# For sent-received comparison
+process.load("L1Trigger.Configuration.L1TRawToDigi_cff")
+# For heavy ion runs, need to reconfigure sources for L1TRawToDigi
+if isHeavyIon:
+	process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
+	process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
+	process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
+	process.omtfStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
+	process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker") #new
+	process.bmtfDigis.InputLabel = cms.InputTag("rawDataRepacker")
+	process.emtfStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+	process.caloLayer1Digis.InputLabel = cms.InputTag("rawDataRepacker") #not sure
+	process.caloStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+	process.gmtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+	process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+	process.rpcTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+	process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
 
 # Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
 #from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
@@ -117,9 +134,11 @@ process.load("DQM.HcalTasks.DigiTask")
 process.load('DQM.HcalTasks.TPTask')
 process.load('DQM.HcalTasks.RawTask')
 process.load('DQM.HcalTasks.NoCQTask')
-#process.load('DQM.HcalTasks.ZDCTask')
-process.load('DQM.HcalTasks.QIE11Task')
+process.load('DQM.HcalTasks.FCDTask')
+process.load('DQM.HcalTasks.ZDCTask')
+#process.load('DQM.HcalTasks.QIE11Task') # 2018: integrate QIE11Task into DigiTask
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
+process.load('DQM.HcalTasks.HcalQualityTests')
 
 #-------------------------------------
 #	To force using uTCA
@@ -130,7 +149,7 @@ if useMap:
 		record = cms.string("HcalElectronicsMapRcd"),
         tag = cms.string("HcalElectronicsMap_v7.05_hlt"),
         )
-    )
+    )    
 
 #-------------------------------------
 #	For Debugginb
@@ -154,9 +173,11 @@ process.tpTask.runkeyName = runTypeName
 #process.zdcTask.runkeyVal = runType
 #process.zdcTask.runkeyName = runTypeName
 #process.zdcTask.tagQIE10 = cms.untracked.InputTag("castorDigis")
-process.qie11Task.runkeyVal = runType
-process.qie11Task.runkeyName = runTypeName
-process.qie11Task.tagQIE11 = cms.untracked.InputTag("hcalDigis")
+#process.qie11Task.runkeyVal = runType
+#process.qie11Task.runkeyName = runTypeName
+#process.qie11Task.tagQIE11 = cms.untracked.InputTag("hcalDigis")
+process.fcdTask.runkeyVal = runType
+process.fcdTask.runkeyName = runTypeName
 
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition
@@ -166,10 +187,14 @@ process.tasksPath = cms.Path(
 		+process.digiTask
 		+process.tpTask
 		+process.nocqTask
-		+process.qie11Task
-		#ZDC to be removed for 2017 pp running
-		#+process.zdcTask
+		+process.fcdTask
+		#+process.qie11Task
+		#ZDC to be removed after 2018 PbPb run
+		+process.zdcQIE10Task
 )
+
+if isHeavyIon:
+    process.tasksPath += process.zdcQIE10Task
 
 process.harvestingPath = cms.Path(
 	process.hcalOnlineHarvesting
@@ -183,6 +208,7 @@ process.preRecoPath = cms.Path(
 		*process.castorDigis
 		*process.emulTPDigis
 		*process.emulTPDigisNoTDCCut
+		*process.L1TRawToDigi
 )
 
 process.dqmPath = cms.EndPath(
@@ -190,10 +216,12 @@ process.dqmPath = cms.EndPath(
 process.dqmPath1 = cms.EndPath(
 		process.dqmSaver
 )
+process.qtPath = cms.Path(process.hcalQualityTests)
 
 process.schedule = cms.Schedule(
 	process.preRecoPath,
 	process.tasksPath,
+	process.qtPath,
 	process.harvestingPath,
 	process.dqmPath,
 	process.dqmPath1

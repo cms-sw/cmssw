@@ -21,65 +21,65 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 class SiStripPedestalsFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripPedestalsFakeESSource(const edm::ParameterSet&);
   ~SiStripPedestalsFakeESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue& iov,
+                      edm::ValidityInterval& iValidity) override;
 
   typedef std::unique_ptr<SiStripPedestals> ReturnType;
   ReturnType produce(const SiStripPedestalsRcd&);
 
 private:
   uint32_t m_pedestalValue;
-  edm::FileInPath m_file;
   uint32_t m_printDebug;
+  SiStripDetInfoFileReader m_detInfoFileReader;
 };
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-
-SiStripPedestalsFakeESSource::SiStripPedestalsFakeESSource(const edm::ParameterSet& iConfig)
-{
+SiStripPedestalsFakeESSource::SiStripPedestalsFakeESSource(const edm::ParameterSet& iConfig) {
   setWhatProduced(this);
   findingRecord<SiStripPedestalsRcd>();
 
   m_pedestalValue = iConfig.getParameter<uint32_t>("PedestalValue");
-  m_file = iConfig.getParameter<edm::FileInPath>("file");
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
+  m_detInfoFileReader =
+      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
 }
 
 SiStripPedestalsFakeESSource::~SiStripPedestalsFakeESSource() {}
 
-void SiStripPedestalsFakeESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity )
-{
+void SiStripPedestalsFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                                                  const edm::IOVSyncValue& iov,
+                                                  edm::ValidityInterval& iValidity) {
   iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
 }
 
 // ------------ method called to produce the data  ------------
-SiStripPedestalsFakeESSource::ReturnType
-SiStripPedestalsFakeESSource::produce(const SiStripPedestalsRcd& iRecord)
-{
+SiStripPedestalsFakeESSource::ReturnType SiStripPedestalsFakeESSource::produce(const SiStripPedestalsRcd& iRecord) {
   using namespace edm::es;
 
   auto pedestals = std::make_unique<SiStripPedestals>();
 
-  SiStripDetInfoFileReader reader{m_file.fullPath()};
-
   uint32_t count{0};
-  for ( const auto& elm : reader.getAllData() ) {
+  for (const auto& elm : m_detInfoFileReader.getAllData()) {
     //Generate Noises for det detid
     SiStripPedestals::InputVector theSiStripVector;
-    for ( unsigned short j{0}; j < 128*elm.second.nApvs; ++j ) {
-      if ( count < m_printDebug ) {
-	edm::LogInfo("SiStripPedestalsFakeESSource::makePedestals(): ") << "detid: " << elm.first  << " strip: " << j <<  " ped: " << m_pedestalValue;
+    for (unsigned short j{0}; j < 128 * elm.second.nApvs; ++j) {
+      if (count < m_printDebug) {
+        edm::LogInfo("SiStripPedestalsFakeESSource::makePedestals(): ")
+            << "detid: " << elm.first << " strip: " << j << " ped: " << m_pedestalValue;
       }
       pedestals->setData(m_pedestalValue, theSiStripVector);
     }
     ++count;
-    if ( ! pedestals->put(elm.first, theSiStripVector) ) {
+    if (!pedestals->put(elm.first, theSiStripVector)) {
       edm::LogError("SiStripPedestalsFakeESSource::produce ") << " detid already exists";
     }
   }

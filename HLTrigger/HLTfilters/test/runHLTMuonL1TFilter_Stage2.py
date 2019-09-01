@@ -5,10 +5,11 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-#process = cms.Process('L1SEQS',eras.Run2_25ns)
-process = cms.Process('HLT',eras.Run2_2016)
+#from Configuration.Eras.Era_Run2_25ns_cff import Run2_25ns
+#process = cms.Process('L1SEQS',Run2_25ns)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process('HLT',Run2_2016)
 
 
 # import of standard configurations

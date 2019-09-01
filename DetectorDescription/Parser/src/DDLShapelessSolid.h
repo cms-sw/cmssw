@@ -21,14 +21,12 @@ class DDLElementRegistry;
  *                                                                         
  */
 
-class DDLShapelessSolid final : public DDLSolid
-{
- public:
+class DDLShapelessSolid final : public DDLSolid {
+public:
+  DDLShapelessSolid(DDLElementRegistry* myreg);
 
-  DDLShapelessSolid( DDLElementRegistry* myreg );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
+  void preProcessElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif

@@ -15,7 +15,7 @@ def OVar(valtype, compression=None, doc=None, mcOnly=False,precision=-1):
                 compression = cms.string(compression if compression else "none"),
                 doc = cms.string(doc if doc else expr),
                 mcOnly = cms.bool(mcOnly),
-	        precision=cms.int32(precision)
+	        precision=cms.string(precision) if type(precision)==str else cms.int32(precision)
            )
 def Var(expr, valtype, compression=None, doc=None, mcOnly=False,precision=-1):
     """Create a PSet for a variable computed with the string parser
@@ -36,7 +36,7 @@ def ExtVar(tag, valtype, compression=None, doc=None, mcOnly=False,precision=-1):
        see OVar in common_cff for all the other arguments
     """
     return OVar(valtype, compression=compression,precision=precision, doc=(doc if doc else tag.encode()), mcOnly=mcOnly).clone(
-                src = tag if type(tag) == cms.InputTag else cms.InputTag(tag),
+                src = tag if isinstance(tag, cms.InputTag) else cms.InputTag(tag),
           )
            
 

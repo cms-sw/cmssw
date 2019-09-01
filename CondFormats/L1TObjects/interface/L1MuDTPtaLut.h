@@ -28,56 +28,48 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1MuDTPtaLut {
+public:
+  /// constructor
+  L1MuDTPtaLut();
 
-  public:
+  /// destructor
+  virtual ~L1MuDTPtaLut();
 
-    /// constructor
-    L1MuDTPtaLut();
+  /// reset pt-assignment look-up tables
+  void reset();
 
-    /// destructor
-    virtual ~L1MuDTPtaLut();
+  /// load pt-assignment look-up tables
+  int load();
 
-    /// reset pt-assignment look-up tables
-    void reset();
+  /// print pt-assignment look-up tables
+  void print() const;
 
-    /// load pt-assignment look-up tables
-    int load();
+  /// get pt-value for a given address
+  int getPt(int pta_ind, int address) const;
 
-    /// print pt-assignment look-up tables
-    void print() const;
+  /// get pt-assignment LUT threshold
+  int getPtLutThreshold(int pta_ind) const;
 
-    /// get pt-value for a given address
-    int getPt(int pta_ind, int address) const;
+private:
+  /// set precision for look-up tables
+  void setPrecision();
 
-    /// get pt-assignment LUT threshold
-    int getPtLutThreshold(int pta_ind) const;
+private:
+  typedef std::map<short, short, std::less<short> > LUT;
 
-  private:
+  std::vector<LUT> pta_lut;
+  std::vector<int> pta_threshold;
 
-    /// set precision for look-up tables
-    void setPrecision();
-
-  private:
-
-    typedef std::map<short, short, std::less<short> > LUT;
-
-    std::vector<LUT> pta_lut;
-    std::vector<int> pta_threshold;
-
-    unsigned short int nbit_phi;
-    
+  unsigned short int nbit_phi;
 
   COND_SERIALIZABLE;
 };

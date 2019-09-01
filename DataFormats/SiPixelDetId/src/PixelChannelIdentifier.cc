@@ -2,7 +2,6 @@
 //
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 
-
 /*
 // Extract from CMSIM manual (version Thu Jul 31 16:38:50 MET DST 1997)
 // --------------------------------------------------------------------
@@ -30,4 +29,4 @@
 */
 
 // Initialization of static data members - DEFINES DIGI PACKING !
-const PixelChannelIdentifier::Packing PixelChannelIdentifier::thePacking( 11, 11, 0, 10); // row, col, time, adc
+const PixelChannelIdentifier::Packing PixelChannelIdentifier::thePacking(11, 11, 0, 10);  // row, col, time, adc

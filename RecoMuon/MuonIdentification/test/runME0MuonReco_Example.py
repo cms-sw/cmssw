@@ -19,9 +19,9 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi')
 process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi')
 
-## global tag for 2019 upgrade studies
+## global tag for 2021 upgrade studies
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2021', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')

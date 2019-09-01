@@ -49,7 +49,6 @@ private:
   std::string severityName_;
   std::vector<std::string> avoidCategories_;
   typedef std::vector<edm::ErrorSummaryEntry> ErrorSummaryEntries;
-
 };
 
 //
@@ -63,46 +62,49 @@ private:
 //
 // constructors and destructor
 //
-ErrorSummaryFilter::ErrorSummaryFilter(edm::ParameterSet const& iConfig) :
-  srcToken_(consumes<std::vector<edm::ErrorSummaryEntry> >(iConfig.getParameter<edm::InputTag>("src"))),
-  modules_(iConfig.getParameter<std::vector<std::string> >("modules")),
-  severityName_(iConfig.getParameter<std::string>("severity")),
-  avoidCategories_(iConfig.getParameter<std::vector<std::string> >("avoidCategories"))
-{
-  if (!(severityName_ == "error" || severityName_ == "warning") ) { throw edm::Exception(edm::errors::Configuration) << "Severity parameter needs to be 'error' or 'warning'.\n"; }
+ErrorSummaryFilter::ErrorSummaryFilter(edm::ParameterSet const& iConfig)
+    : srcToken_(consumes<std::vector<edm::ErrorSummaryEntry> >(iConfig.getParameter<edm::InputTag>("src"))),
+      modules_(iConfig.getParameter<std::vector<std::string> >("modules")),
+      severityName_(iConfig.getParameter<std::string>("severity")),
+      avoidCategories_(iConfig.getParameter<std::vector<std::string> >("avoidCategories")) {
+  if (!(severityName_ == "error" || severityName_ == "warning")) {
+    throw edm::Exception(edm::errors::Configuration) << "Severity parameter needs to be 'error' or 'warning'.\n";
+  }
 }
-
 
 ErrorSummaryFilter::~ErrorSummaryFilter() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-ErrorSummaryFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
+bool ErrorSummaryFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   edm::Handle<std::vector<edm::ErrorSummaryEntry> > errorSummaryEntry;
-  iEvent.getByToken(srcToken_,errorSummaryEntry);
+  iEvent.getByToken(srcToken_, errorSummaryEntry);
 
-  for (ErrorSummaryEntries::const_iterator i = errorSummaryEntry->begin(), end = errorSummaryEntry->end(); i != end; ++i) {
-    if (std::find(modules_.begin(),modules_.end(), i->module) != modules_.end()) {
-      if (std::find(avoidCategories_.begin(),avoidCategories_.end(), i->category) != avoidCategories_.end()){
+  for (ErrorSummaryEntries::const_iterator i = errorSummaryEntry->begin(), end = errorSummaryEntry->end(); i != end;
+       ++i) {
+    if (std::find(modules_.begin(), modules_.end(), i->module) != modules_.end()) {
+      if (std::find(avoidCategories_.begin(), avoidCategories_.end(), i->category) != avoidCategories_.end()) {
         continue;
       } else {
-	edm::ELseverityLevel const& severity = i->severity;
+        edm::ELseverityLevel const& severity = i->severity;
         if (severityName_ == "error") {
           if (severity.getLevel() == edm::ELseverityLevel::ELsev_error ||
-              severity.getLevel() == edm::ELseverityLevel::ELsev_warning) {return (false);}
+              severity.getLevel() == edm::ELseverityLevel::ELsev_warning) {
+            return (false);
+          }
         } else if (severityName_ == "warning") {
-  	  if (severity.getLevel() == edm::ELseverityLevel::ELsev_warning) {return (false);}
-        } else { continue; }
+          if (severity.getLevel() == edm::ELseverityLevel::ELsev_warning) {
+            return (false);
+          }
+        } else {
+          continue;
+        }
       }
     }
   }

@@ -4,9 +4,7 @@
 #include <vector>
 
 class ESDCCHeaderBlock {
-
-  public :
-
+public:
   typedef int key_type;
 
   enum ESDCCRunType {
@@ -18,21 +16,11 @@ class ESDCCHeaderBlock {
     TEST_RUN = 6,
     GLOBAL_COSMIC_RUN = 7
   };
-  
-  enum ESSeqType {
-    STD_SEQ = 0,
-    DELTASCAN_SEQ = 1,
-    DELAYSCAN_SEQ = 2,
-    PULSESHAPE_SEQ = 3
-  };
 
-  enum ESTriggerType {
-    PHYSICS_TRIGGER = 1,
-    CALIBRATION_TRIGGER = 2,
-    TEST_TRIGGER = 3,
-    TECHNICAL_EXTERNAL_TRIGGER = 4
-  };
-  
+  enum ESSeqType { STD_SEQ = 0, DELTASCAN_SEQ = 1, DELAYSCAN_SEQ = 2, PULSESHAPE_SEQ = 3 };
+
+  enum ESTriggerType { PHYSICS_TRIGGER = 1, CALIBRATION_TRIGGER = 2, TEST_TRIGGER = 3, TECHNICAL_EXTERNAL_TRIGGER = 4 };
+
   ESDCCHeaderBlock();
   ESDCCHeaderBlock(const int& dccId);
 
@@ -45,18 +33,18 @@ class ESDCCHeaderBlock {
   void setLV1(const int& LV1) { LV1_ = LV1; };
   void setBX(const int& BX) { BX_ = BX; }
   void setGain(const int& gain) { gain_ = gain; }
-  void setPrecision(const int& precision) { precision_ = precision; } 
+  void setPrecision(const int& precision) { precision_ = precision; }
   void setDAC(const int& dac) { dac_ = dac; }
-  void setEventLength(const int &evtLen) { evtLen_ = evtLen; };
+  void setEventLength(const int& evtLen) { evtLen_ = evtLen; };
   void setDCCErrors(const int& dccErrs) { dccErrs_ = dccErrs; };
   void setRunNumber(const int& runNum) { runNum_ = runNum; };
   void setRunType(const int& runType) { runType_ = runType; };
   void setSeqType(const int& seqType) { seqType_ = seqType; };
   void setTriggerType(const int& trgType) { trgType_ = trgType; };
   void setCompressionFlag(const int& compFlag) { compFlag_ = compFlag; };
-  void setOrbitNumber(const int& orbit) {orbit_ = orbit; };
-  void setMajorVersion(const int& vmajor) {vmajor_ = vmajor; };
-  void setMinorVersion(const int& vminor) {vminor_ = vminor; };
+  void setOrbitNumber(const int& orbit) { orbit_ = orbit; };
+  void setMajorVersion(const int& vmajor) { vmajor_ = vmajor; };
+  void setMinorVersion(const int& vminor) { vminor_ = vminor; };
   void setOptoRX0(const int& optoRX0) { optoRX0_ = optoRX0; };
   void setOptoRX1(const int& optoRX1) { optoRX1_ = optoRX1; };
   void setOptoRX2(const int& optoRX2) { optoRX2_ = optoRX2; };
@@ -64,34 +52,34 @@ class ESDCCHeaderBlock {
   void setOptoBC1(const int& optoBC1) { optoBC1_ = optoBC1; };
   void setOptoBC2(const int& optoBC2) { optoBC2_ = optoBC2; };
   void setFEChannelStatus(const std::vector<int>& FEch) { FEch_ = FEch; };
-  // crepe thing 
-  void setPacketLength(const int & packetLen) { packetLen_ = packetLen; };  
-  void setBC(const int & bc) { bc_ = bc; };  
-  void setEV(const int & ev) { ev_ = ev; };  
+  // crepe thing
+  void setPacketLength(const int& packetLen) { packetLen_ = packetLen; };
+  void setBC(const int& bc) { bc_ = bc; };
+  void setEV(const int& ev) { ev_ = ev; };
   // top level supervisor
-  void setBMMeasurements(const int & BMMeasurements) { BMMeasurements_ = BMMeasurements; };     
-  void setBeginOfSpillSec(const int & beginOfSpillSec) { beginOfSpillSec_ = beginOfSpillSec; };
-  void setBeginOfSpillMilliSec(const int & beginOfSpillMilliSec) { beginOfSpillMilliSec_ = beginOfSpillMilliSec; };
-  void setEndOfSpillSec(const int & endOfSpillSec) { endOfSpillSec_ = endOfSpillSec; };
-  void setEndOfSpillMilliSec(const int & endOfSpillMilliSec) { endOfSpillMilliSec_ = endOfSpillMilliSec; };
-  void setBeginOfSpillLV1(const int & beginOfSpillLV1) { beginOfSpillLV1_ = beginOfSpillLV1; };
-  void setEndOfSpillLV1(const int & endOfSpillLV1) { endOfSpillLV1_ = endOfSpillLV1; };
+  void setBMMeasurements(const int& BMMeasurements) { BMMeasurements_ = BMMeasurements; };
+  void setBeginOfSpillSec(const int& beginOfSpillSec) { beginOfSpillSec_ = beginOfSpillSec; };
+  void setBeginOfSpillMilliSec(const int& beginOfSpillMilliSec) { beginOfSpillMilliSec_ = beginOfSpillMilliSec; };
+  void setEndOfSpillSec(const int& endOfSpillSec) { endOfSpillSec_ = endOfSpillSec; };
+  void setEndOfSpillMilliSec(const int& endOfSpillMilliSec) { endOfSpillMilliSec_ = endOfSpillMilliSec; };
+  void setBeginOfSpillLV1(const int& beginOfSpillLV1) { beginOfSpillLV1_ = beginOfSpillLV1; };
+  void setEndOfSpillLV1(const int& endOfSpillLV1) { endOfSpillLV1_ = endOfSpillLV1; };
   // Cosmic Trigger Supervisor
-  void setTimeStampSec(const int & timestamp_sec) { timestamp_sec_ = timestamp_sec; };
-  void setTimeStampUSec(const int & timestamp_usec) { timestamp_usec_ = timestamp_usec; };
-  void setSpillNumber(const int & spillNum) { spillNum_ = spillNum; };
-  void setEventInSpill(const int & evtInSpill) { evtInSpill_ = evtInSpill; };
-  void setCAMACError(const int & camacErr) { camacErr_ = camacErr; };
-  void setVMEError(const int & vmeErr) { vmeErr_ = vmeErr; };
-  void setADCChannelStatus(const std::vector<int>& ADCch_status) { ADCch_status_ = ADCch_status; }; 
-  void setADCChannel(const std::vector<int>& ADCch) { ADCch_ = ADCch; }; 
-  void setTDCChannelStatus(const std::vector<int>& TDCch_status) { TDCch_status_ = TDCch_status; }; 
-  void setTDCChannel(const std::vector<int>& TDCch) { TDCch_ = TDCch; }; 
+  void setTimeStampSec(const int& timestamp_sec) { timestamp_sec_ = timestamp_sec; };
+  void setTimeStampUSec(const int& timestamp_usec) { timestamp_usec_ = timestamp_usec; };
+  void setSpillNumber(const int& spillNum) { spillNum_ = spillNum; };
+  void setEventInSpill(const int& evtInSpill) { evtInSpill_ = evtInSpill; };
+  void setCAMACError(const int& camacErr) { camacErr_ = camacErr; };
+  void setVMEError(const int& vmeErr) { vmeErr_ = vmeErr; };
+  void setADCChannelStatus(const std::vector<int>& ADCch_status) { ADCch_status_ = ADCch_status; };
+  void setADCChannel(const std::vector<int>& ADCch) { ADCch_ = ADCch; };
+  void setTDCChannelStatus(const std::vector<int>& TDCch_status) { TDCch_status_ = TDCch_status; };
+  void setTDCChannel(const std::vector<int>& TDCch) { TDCch_ = TDCch; };
 
   int getLV1() const { return LV1_; }
   int getBX() const { return BX_; }
   int getGain() const { return gain_; }
-  int getPrecision() const { return precision_; } 
+  int getPrecision() const { return precision_; }
   int getDAC() const { return dac_; }
   int getEventLength() const { return evtLen_; }
   int getDCCErrors() const { return dccErrs_; }
@@ -120,7 +108,7 @@ class ESDCCHeaderBlock {
   int getEndOfSpillMiliSec() const { return endOfSpillMilliSec_; }
   int getBeginOfSpillLV1() const { return beginOfSpillLV1_; }
   int getEndOfSpillLV1() const { return endOfSpillLV1_; }
-  int getTimeStampSec() const { return timestamp_sec_; } 
+  int getTimeStampSec() const { return timestamp_sec_; }
   int getTimeStampUSec() const { return timestamp_usec_; }
   int getSpillNumber() const { return spillNum_; }
   int getEventInSpill() const { return evtInSpill_; }
@@ -130,9 +118,8 @@ class ESDCCHeaderBlock {
   const std::vector<int>& getADCChannel() const { return ADCch_; }
   const std::vector<int>& getTDCChannelStatus() const { return TDCch_status_; }
   const std::vector<int>& getTDCChannel() const { return TDCch_; }
-  
-  private :
-    
+
+private:
   int dccId_;
   int fedId_;
   int LV1_;
@@ -177,9 +164,6 @@ class ESDCCHeaderBlock {
   std::vector<int> ADCch_;
   std::vector<int> TDCch_status_;
   std::vector<int> TDCch_;
-
 };
 
 #endif
-
-

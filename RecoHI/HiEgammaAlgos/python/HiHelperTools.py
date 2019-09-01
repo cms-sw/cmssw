@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 ## Helpers to perform some technically boring tasks like looking for all modules with a given parameter
@@ -18,7 +19,7 @@ def applyPostfix(process, label, postfix):
     if label in defaultLabels and hasattr(process, label+postfix):
         result = getattr(process, label+postfix)
     elif hasattr(process, label):
-        print "WARNING: called applyPostfix for module/sequence %s which is not in patHeavyIonDefaultSequence%s!"%(label,postfix)
+        print("WARNING: called applyPostfix for module/sequence %s which is not in patHeavyIonDefaultSequence%s!"%(label,postfix))
         result = getattr(process, label)    
     return result
 
@@ -101,7 +102,7 @@ class CloneSequenceVisitor(object):
         return self._sequenceStack[-1]
 
     def __appendToTopSequence(self, visitee):#this is darn ugly because empty cms.Sequences are not supported
-        if isinstance(self._sequenceStack[-1], basestring):#we have the name of an empty sequence on the stack. create it!
+        if isinstance(self._sequenceStack[-1], str):#we have the name of an empty sequence on the stack. create it!
             oldSequenceLabel = self._sequenceStack.pop()
             newSequenceLabel = oldSequenceLabel + self._postfix
             self._sequenceStack.append(cms.Sequence(visitee))

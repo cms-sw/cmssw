@@ -18,7 +18,7 @@
 #include "TStyle.h"
 #include "TEnv.h"
 
-#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc"
+#include "Alignment/OfflineValidation/macros/TkAlStyle.cc"
 
 
 TList *FileList;

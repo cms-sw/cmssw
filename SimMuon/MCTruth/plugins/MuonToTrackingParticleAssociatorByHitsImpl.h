@@ -4,8 +4,10 @@
 //
 // Package:     SimMuon/MCTruth
 // Class  :     MuonToTrackingParticleAssociatorByHitsImpl
-// 
-/**\class MuonToTrackingParticleAssociatorByHitsImpl MuonToTrackingParticleAssociatorByHitsImpl.h "MuonToTrackingParticleAssociatorByHitsImpl.h"
+//
+/**\class MuonToTrackingParticleAssociatorByHitsImpl
+ MuonToTrackingParticleAssociatorByHitsImpl.h
+ "MuonToTrackingParticleAssociatorByHitsImpl.h"
 
  Description: [one line class summary]
 
@@ -27,37 +29,40 @@
 // forward declarations
 class TrackerMuonHitExtractor;
 
-class MuonToTrackingParticleAssociatorByHitsImpl: public reco::MuonToTrackingParticleAssociatorBaseImpl
-{
+class MuonToTrackingParticleAssociatorByHitsImpl : public reco::MuonToTrackingParticleAssociatorBaseImpl {
+public:
+  MuonToTrackingParticleAssociatorByHitsImpl(TrackerMuonHitExtractor const &iHitExtractor,
+                                             MuonAssociatorByHitsHelper::Resources const &iResources,
+                                             MuonAssociatorByHitsHelper const *iHelper);
 
-   public:
-   MuonToTrackingParticleAssociatorByHitsImpl(TrackerMuonHitExtractor const& iHitExtractor,
-                                              MuonAssociatorByHitsHelper::Resources const& iResources,
-                                              MuonAssociatorByHitsHelper const* iHelper);
+  // ---------- const member functions ---------------------
+  void associateMuons(reco::MuonToSimCollection &recoToSim,
+                      reco::SimToMuonCollection &simToReco,
+                      const edm::RefToBaseVector<reco::Muon> &muons,
+                      reco::MuonTrackType type,
+                      const edm::RefVector<TrackingParticleCollection> &tpColl) const override;
 
-   // ---------- const member functions ---------------------
-   void associateMuons(reco::MuonToSimCollection & recoToSim, reco::SimToMuonCollection & simToReco,
-                       const edm::RefToBaseVector<reco::Muon> & muons, reco::MuonTrackType type,
-                       const edm::RefVector<TrackingParticleCollection>& tpColl) const override;
-   
-   void associateMuons(reco::MuonToSimCollection & recoToSim, reco::SimToMuonCollection & simToReco,
-                       const edm::Handle<edm::View<reco::Muon> > & muons, reco::MuonTrackType type, 
-                       const edm::Handle<TrackingParticleCollection>& tpColl) const override;
-   
-   // ---------- static member functions --------------------
-   
-   // ---------- member functions ---------------------------
-   
- private:
-   MuonToTrackingParticleAssociatorByHitsImpl(const MuonToTrackingParticleAssociatorByHitsImpl&) = delete; // stop default
-   
-   const MuonToTrackingParticleAssociatorByHitsImpl& operator=(const MuonToTrackingParticleAssociatorByHitsImpl&) = delete; // stop default
-   
-      // ---------- member data --------------------------------
-   TrackerMuonHitExtractor const* m_hitExtractor;
-   MuonAssociatorByHitsHelper::Resources m_resources;
-   MuonAssociatorByHitsHelper const* m_helper;
+  void associateMuons(reco::MuonToSimCollection &recoToSim,
+                      reco::SimToMuonCollection &simToReco,
+                      const edm::Handle<edm::View<reco::Muon>> &muons,
+                      reco::MuonTrackType type,
+                      const edm::Handle<TrackingParticleCollection> &tpColl) const override;
+
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+
+private:
+  MuonToTrackingParticleAssociatorByHitsImpl(const MuonToTrackingParticleAssociatorByHitsImpl &) =
+      delete;  // stop default
+
+  const MuonToTrackingParticleAssociatorByHitsImpl &operator=(const MuonToTrackingParticleAssociatorByHitsImpl &) =
+      delete;  // stop default
+
+  // ---------- member data --------------------------------
+  TrackerMuonHitExtractor const *m_hitExtractor;
+  MuonAssociatorByHitsHelper::Resources m_resources;
+  MuonAssociatorByHitsHelper const *m_helper;
 };
-
 
 #endif

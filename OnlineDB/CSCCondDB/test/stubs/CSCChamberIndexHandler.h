@@ -16,20 +16,17 @@
 #include "OnlineDB/CSCCondDB/interface/CSCChamberIndexValues.h"
 #include "OnlineDB/CSCCondDB/interface/CSCMap1.h"
 
-namespace popcon
-{
-  class CSCChamberIndexImpl : public popcon::PopConSourceHandler<CSCChamberIndex>
-    {
-      
-    public:
-      void getNewObjects();
-      std::string id() const { return m_name;}
-      ~CSCChamberIndexImpl(); 
-      
-      CSCChamberIndexImpl(const edm::ParameterSet& pset);
-      
-    private:
-      std::string m_name;
-    };
-}
+namespace popcon {
+  class CSCChamberIndexImpl : public popcon::PopConSourceHandler<CSCChamberIndex> {
+  public:
+    void getNewObjects();
+    std::string id() const { return m_name; }
+    ~CSCChamberIndexImpl();
+
+    CSCChamberIndexImpl(const edm::ParameterSet& pset);
+
+  private:
+    std::string m_name;
+  };
+}  // namespace popcon
 #endif

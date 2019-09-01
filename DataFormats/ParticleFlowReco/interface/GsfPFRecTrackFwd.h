@@ -22,6 +22,6 @@ namespace reco {
 
   /// iterator over a vector of references to GsfPFRecTrack objects
   typedef GsfPFRecTrackRefVector::iterator gsfPfRecTrack_iterator;
-}
+}  // namespace reco
 
 #endif

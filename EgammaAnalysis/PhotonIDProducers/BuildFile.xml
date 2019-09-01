@@ -1,7 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/EgammaReco"/>
-<use   name="DataFormats/EgammaCandidates"/>
-<use   name="RecoEcal/EgammaClusterAlgos"/>
-<use   name="clhep"/>
-<flags   EDM_PLUGIN="1"/>

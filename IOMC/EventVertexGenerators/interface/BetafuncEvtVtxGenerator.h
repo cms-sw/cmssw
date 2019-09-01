@@ -26,49 +26,47 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class BetafuncEvtVtxGenerator : public BaseEvtVtxGenerator 
-{
+class BetafuncEvtVtxGenerator : public BaseEvtVtxGenerator {
 public:
-  BetafuncEvtVtxGenerator(const edm::ParameterSet & p);
+  BetafuncEvtVtxGenerator(const edm::ParameterSet& p);
   ~BetafuncEvtVtxGenerator() override;
 
-  void beginRun(const edm::Run & , const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
-  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override ;
+  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
 
   TMatrixD const* GetInvLorentzBoost() const override;
 
-    
   /// set resolution in Z in cm
-  void sigmaZ(double s=1.0);
+  void sigmaZ(double s = 1.0);
 
   /// set mean in X in cm
-  void X0(double m=0) { fX0=m; }
+  void X0(double m = 0) { fX0 = m; }
   /// set mean in Y in cm
-  void Y0(double m=0) { fY0=m; }
+  void Y0(double m = 0) { fY0 = m; }
   /// set mean in Z in cm
-  void Z0(double m=0) { fZ0=m; }
+  void Z0(double m = 0) { fZ0 = m; }
 
   /// set beta_star
-  void betastar(double m=0) { fbetastar=m; }
+  void betastar(double m = 0) { fbetastar = m; }
   /// emittance (no the normalized)
-  void emittance(double m=0) { femittance=m; }
+  void emittance(double m = 0) { femittance = m; }
 
   /// beta function
   double BetaFunction(double z, double z0) const;
-    
+
 private:
   /** Copy constructor */
-  BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator &p) = delete;
+  BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator& p) = delete;
   /** Copy assignment operator */
-  BetafuncEvtVtxGenerator&  operator = (const BetafuncEvtVtxGenerator & rhs ) = delete;
+  BetafuncEvtVtxGenerator& operator=(const BetafuncEvtVtxGenerator& rhs) = delete;
 
   void setBoost(double alpha, double phi);
-private:
 
+private:
   bool readDB_;
 
   double fX0, fY0, fZ0;

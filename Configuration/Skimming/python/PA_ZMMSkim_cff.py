@@ -8,41 +8,41 @@ hltZMMPA.throw = False
 hltZMMPA.andOr = True
 
 # selection of valid vertex
-primaryVertexFilterForZMM = cms.EDFilter("VertexSelector",
+primaryVertexFilterForZMMPA = cms.EDFilter("VertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),
     cut = cms.string("!isFake && abs(z) <= 25 && position.Rho <= 2"), 
     filter = cms.bool(True),   # otherwise it won't filter the events
     )
 
 # selection of dimuons with mass in Z range
-muonSelectorForZMM = cms.EDFilter("MuonSelector",
+muonSelectorForZMMPA = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
     cut = cms.string("(isTrackerMuon && isGlobalMuon) && pt > 25."),
     filter = cms.bool(True)
     )
 
-muonFilterForZMM = cms.EDFilter("MuonCountFilter",
-    src = cms.InputTag("muonSelectorForZMM"),
+muonFilterForZMMPA = cms.EDFilter("MuonCountFilter",
+    src = cms.InputTag("muonSelectorForZMMPA"),
     minNumber = cms.uint32(2)
     )
 
-dimuonMassCutForZMM = cms.EDProducer("CandViewShallowCloneCombiner",
+dimuonMassCutForZMMPA = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(True),
     cut = cms.string(' 80 < mass < 110'),
-    decay = cms.string("muonSelectorForZMM@+ muonSelectorForZMM@-")
+    decay = cms.string("muonSelectorForZMMPA@+ muonSelectorForZMMPA@-")
     )
 
-dimuonMassCutFilterForZMM = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("dimuonMassCutForZMM"),
+dimuonMassCutFilterForZMMPA = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("dimuonMassCutForZMMPA"),
     minNumber = cms.uint32(1)
     )
 
 # Z->mumu skim sequence
-zMMSkimSequence = cms.Sequence(
+zMMPASkimSequence = cms.Sequence(
     hltZMMPA *
-    primaryVertexFilterForZMM *
-    muonSelectorForZMM *
-    muonFilterForZMM *
-    dimuonMassCutForZMM *
-    dimuonMassCutFilterForZMM
+    primaryVertexFilterForZMMPA *
+    muonSelectorForZMMPA *
+    muonFilterForZMMPA *
+    dimuonMassCutForZMMPA *
+    dimuonMassCutFilterForZMMPA
     )

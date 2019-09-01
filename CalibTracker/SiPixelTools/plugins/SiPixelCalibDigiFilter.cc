@@ -2,7 +2,7 @@
 //
 // Package:    SiPixelCalibDigiFilter
 // Class:      SiPixelCalibDigiFilter
-// 
+//
 /**\class SiPixelCalibDigiFilter SiPixelCalibDigiFilter.cc CalibTracker/SiPixelTools/src/SiPixelCalibDigiFilter.cc
 
  Description: Filters events that contain no information after the digis are collected into patterns by SiPixelCalibDigiProducer
@@ -43,51 +43,37 @@
 //
 // constructors and destructor
 //
-SiPixelCalibDigiFilter::SiPixelCalibDigiFilter(const edm::ParameterSet& iConfig)
-{
-   //now do what ever initialization is needed
-   tPixelCalibDigi = consumes <edm::DetSetVector<SiPixelCalibDigi>>(edm::InputTag("SiPixelCalibDigiProducer"));
-
+SiPixelCalibDigiFilter::SiPixelCalibDigiFilter(const edm::ParameterSet& iConfig) {
+  //now do what ever initialization is needed
+  tPixelCalibDigi = consumes<edm::DetSetVector<SiPixelCalibDigi>>(edm::InputTag("SiPixelCalibDigiProducer"));
 }
 
-
-SiPixelCalibDigiFilter::~SiPixelCalibDigiFilter()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+SiPixelCalibDigiFilter::~SiPixelCalibDigiFilter() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-SiPixelCalibDigiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   Handle<DetSetVector<SiPixelCalibDigi> > listOfDetIds;
-   iEvent.getByToken(tPixelCalibDigi, listOfDetIds);
+bool SiPixelCalibDigiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
+  Handle<DetSetVector<SiPixelCalibDigi>> listOfDetIds;
+  iEvent.getByToken(tPixelCalibDigi, listOfDetIds);
 
-   if (listOfDetIds->empty())
-      return false;
-   else
-      return true;
+  if (listOfDetIds->empty())
+    return false;
+  else
+    return true;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-SiPixelCalibDigiFilter::beginJob()
-{
-}
+void SiPixelCalibDigiFilter::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-SiPixelCalibDigiFilter::endJob() {
-}
+void SiPixelCalibDigiFilter::endJob() {}
 
 // -- define this as a plug-in
 DEFINE_FWK_MODULE(SiPixelCalibDigiFilter);

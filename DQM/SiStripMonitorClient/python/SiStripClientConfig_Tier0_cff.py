@@ -37,34 +37,39 @@ siStripQTester = cms.EDAnalyzer("QualityTester",
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
-# from CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi import*
-# siStripBadModuleFedErrESSource.appendToDataLabel = cms.string('BadModules_from_FEDBadChannel')
-# siStripBadModuleFedErrESSource.ReadFromFile = cms.bool(False)
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(siStripQTester,
+                       qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_tier0_heavyions.xml')
+                       )
 
-# from CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi import*
-# siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
-#        cms.PSet(record = cms.string("SiStripDetVOffRcd"), tag = cms.string('')), # DCS information
-#        cms.PSet(record = cms.string('SiStripDetCablingRcd'), tag = cms.string('')), # Use Detector cabling information to exclude detectors not connected            
-#        cms.PSet(record = cms.string('SiStripBadChannelRcd'), tag = cms.string('')), # Online Bad components
-#        cms.PSet(record = cms.string('SiStripBadFiberRcd'), tag = cms.string('')),   # Bad Channel list from the selected IOV as done at PCL
-#        cms.PSet(record = cms.string('SiStripBadModuleFedErrRcd'), tag = cms.string('BadModules_from_FEDBadChannel')), # BadChannel list from FED erroes              
-#        cms.PSet(record = cms.string('RunInfoRcd'), tag = cms.string(''))            # List of FEDs exluded during data taking          
-#        )
-# siStripQualityESProducer.ReduceGranularity = cms.bool(False)
-# siStripQualityESProducer.ThresholdForReducedGranularity = cms.double(0.3)
-# siStripQualityESProducer.appendToDataLabel = 'MergedBadComponent'
+from CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi import siStripQualityESProducer 
+mergedSiStripQualityProducer = siStripQualityESProducer.clone(
+    #names and desigantions
+    ListOfRecordToMerge = cms.VPSet(
+        cms.PSet(record = cms.string("SiStripDetVOffRcd"), tag = cms.string('')), # DCS information
+        cms.PSet(record = cms.string('SiStripDetCablingRcd'), tag = cms.string('')), # Use Detector cabling information to exclude detectors not connected            
+        cms.PSet(record = cms.string('SiStripBadChannelRcd'), tag = cms.string('')), # Online Bad components
+        cms.PSet(record = cms.string('SiStripBadFiberRcd'), tag = cms.string('')),   # Bad Channel list from the selected IOV as done at PCL
+        # BadChannel list from FED errors is included below
+        cms.PSet(record = cms.string('RunInfoRcd'), tag = cms.string(''))            # List of FEDs exluded during data taking          
+        )
+    )
 
-# siStripBadComponentInfo = cms.EDProducer("SiStripBadComponentInfo",
-#     StripQualityLabel = cms.string('MergedBadComponent')
-# )
+mergedSiStripQualityProducer.ReduceGranularity = cms.bool(False)
+mergedSiStripQualityProducer.ThresholdForReducedGranularity = cms.double(0.3)
+mergedSiStripQualityProducer.appendToDataLabel = 'MergedBadComponent'
 
+siStripBadComponentInfo = cms.EDProducer("SiStripBadComponentInfo",
+    StripQualityLabel = cms.string('MergedBadComponent'),
+    AddBadComponentsFromFedErrors = cms.untracked.bool(True),
+    FedErrorBadComponentsCutoff = cms.untracked.double(0.8)
+)
 
 # Sequence
-# SiStripOfflineDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser*siStripBadComponentInfo)
-SiStripOfflineDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser)
+SiStripOfflineDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser*siStripBadComponentInfo)
 #removed modules using TkDetMap
 #SiStripOfflineDQMClient = cms.Sequence(siStripQTester)
 
 
 # Services needed for TkHistoMap
-from CalibTracker.SiStripCommon.TkDetMap_cff import *
+from CalibTracker.SiStripCommon.TkDetMapESProducer_cfi import *

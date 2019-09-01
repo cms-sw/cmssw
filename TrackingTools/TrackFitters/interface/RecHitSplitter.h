@@ -11,19 +11,16 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class RecHitSplitter {
-
 public:
-
-  typedef TransientTrackingRecHit::ConstRecHitContainer  RecHitContainer;
+  typedef TransientTrackingRecHit::ConstRecHitContainer RecHitContainer;
 
   RecHitSplitter() {}
-  
+
   ~RecHitSplitter() {}
 
   RecHitContainer split(const RecHitContainer& hits) const;
 
 private:
-  
 };
 
-#endif //CD_RecHitSplitter_H_
+#endif  //CD_RecHitSplitter_H_

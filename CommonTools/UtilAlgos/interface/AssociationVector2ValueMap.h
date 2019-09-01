@@ -12,11 +12,12 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-template<typename KeyRefProd, typename CVal>
+template <typename KeyRefProd, typename CVal>
 class AssociationVector2ValueMap : public edm::EDProducer {
- public:
+public:
   AssociationVector2ValueMap(const edm::ParameterSet&);
- private:
+
+private:
   typedef edm::AssociationVector<KeyRefProd, CVal> av_t;
   typedef typename CVal::value_type value_t;
   typedef edm::ValueMap<value_t> vm_t;
@@ -31,13 +32,13 @@ class AssociationVector2ValueMap : public edm::EDProducer {
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "DataFormats/Common/interface/CloneTrait.h"
 
-template<typename KeyRefProd, typename CVal>
-AssociationVector2ValueMap<KeyRefProd, CVal>::AssociationVector2ValueMap(const edm::ParameterSet& cfg) :
-  av_(consumes<av_t>(cfg.template getParameter<edm::InputTag>("src"))) {
+template <typename KeyRefProd, typename CVal>
+AssociationVector2ValueMap<KeyRefProd, CVal>::AssociationVector2ValueMap(const edm::ParameterSet& cfg)
+    : av_(consumes<av_t>(cfg.template getParameter<edm::InputTag>("src"))) {
   produces<vm_t>();
 }
 
-template<typename KeyRefProd, typename CVal>
+template <typename KeyRefProd, typename CVal>
 void AssociationVector2ValueMap<KeyRefProd, CVal>::produce(edm::Event& evt, const edm::EventSetup&) {
   using namespace edm;
   using namespace std;
@@ -50,7 +51,7 @@ void AssociationVector2ValueMap<KeyRefProd, CVal>::produce(edm::Event& evt, cons
   size_t size = av->size();
   vector<value_t> values;
   values.reserve(size);
-  for(typename av_t::const_iterator i = av->begin(); i != av->end(); ++i) {
+  for (typename av_t::const_iterator i = av->begin(); i != av->end(); ++i) {
     values.push_back(i->second);
   }
   filler.insert(av->keyProduct(), values.begin(), values.end());

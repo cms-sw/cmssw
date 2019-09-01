@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from builtins import range
 import ROOT
 from array import array
 from copy import copy
@@ -9,6 +11,7 @@ from Validation.RecoTrack.plotting.ntuple import *
 import analysis
 
 from math import sqrt, copysign, sin, cos, pi
+import six
 
 class EventPlotter(object):
     '''
@@ -240,7 +243,7 @@ class EventPlotter(object):
 		Y.append(hit.y())
 		Z.append(hit.z())	
 	if(not X):
-	    print "Track has no valid points"
+	    print("Track has no valid points")
 	    return
 	plot = ROOT.TPolyLine3D(len(X),array("f",Z),array("f",X),array("f",Y))
 	plot.SetLineColor(color)
@@ -268,7 +271,7 @@ class EventPlotter(object):
 	NOTE: The helixes are better drawn with the vertical z-axis.
 	Even then the helixes are not drawn exactly correct.
 	'''
-	if type(track) is TrackingParticle:
+	if isinstance(track, TrackingParticle):
 	    phi = track.pca_phi()
 	    dxy = track.pca_dxy()
 	    dz = track.pca_dz()
@@ -477,7 +480,7 @@ class EventPlotter(object):
 		elif hit.isValidHit() and hit.z() < 0: self.PlotDetectorRange("n",4)
 		else: self.PlotDetectorRange("b",4)
 
-                print "****************************\n"
+                print("****************************\n")
 	        self.Draw()
             return
 
@@ -487,15 +490,15 @@ class EventPlotter(object):
 
     def ParticleTest(self, particles, draw=False):
 	for particle in particles:
-	    print "\nPARTICLE " + str(particle.index())
+	    print("\nPARTICLE " + str(particle.index()))
 	    for hit in particle.hits():
 		tof = -1
 		for simHit in hit.simHits():
 		    if simHit.trackingParticle().index() == particle.index():
 			#if len(info.tof()): 
 			tof = simHit.tof()
-		print "Index: " + str(hit.index()) + ", Layer: " + str(hit.layerStr()) + ", TOF: " + str(tof) +\
-	        "     XY distance: " + str(sqrt(hit.x()**2 + hit.y()**2)) + ", Z: " + str(hit.z())
+		print("Index: " + str(hit.index()) + ", Layer: " + str(hit.layerStr()) + ", TOF: " + str(tof) +\
+	        "     XY distance: " + str(sqrt(hit.x()**2 + hit.y()**2)) + ", Z: " + str(hit.z()))
 	    self.DrawTrackTest(particle)
 	    if draw:
 		self.Draw()
@@ -616,9 +619,9 @@ class EventPlotter(object):
 	else:
 	    if xmin != None and xmax != None and nbin != None:
 		hist = ROOT.TH1F(name, name, nbin, xmin, xmax)
-	    elif "fraction" in name or type(data[0]) is float:
+	    elif "fraction" in name or isinstance(data[0], float):
 		hist = ROOT.TH1F(name, name, 41,0,1.025)#100,0,5)#max(data)+0.0001)#11,0,1.1)#21,0,1.05)#41*(max(data)+1)/max(data))#, max(data)+1,-0.5,max(data)+0.5) #### EXPERIMENT!!!111	
-	    elif type(data[0]) is int: hist = ROOT.TH1F(name, name, max(data)-min(data)+1, min(data)-0.5,max(data)+0.5)
+	    elif isinstance(data[0], int): hist = ROOT.TH1F(name, name, max(data)-min(data)+1, min(data)-0.5,max(data)+0.5)
 	    else: hist = ROOT.TH1F(name, name, 3,0,3)
 	    #c1.SetLogy()
 	    #hist.SetBinsLength(1)
@@ -675,7 +678,7 @@ class EventPlotter(object):
 
 	    if normalised:
 		norm_cff = analysis.Get_Normalisation_Coefficients()
-		for i, v in data_dict.iteritems():
+		for i, v in six.iteritems(data_dict):
 		    data_dict[i] = int(round(v*norm_cff[i]))
             
 	    name = ""
@@ -748,7 +751,7 @@ class EventPlotter(object):
 	    if normalised: color = ROOT.kBlue
 	    else: color = 38	
 	else:
-	    print "Unspecified data type"
+	    print("Unspecified data type")
 	    return
 	
 	c1 = ROOT.TCanvas("Resolution_histograms","Resolution histograms", 1000, 900)

@@ -15,80 +15,92 @@
 #include <iostream>
 
 class EcalIsolationCorrector {
- public:
-
-  enum RunRange {RunAB, RunC, RunD};
+public:
+  enum RunRange { RunAB, RunC, RunD };
 
   EcalIsolationCorrector(bool forElectrons);
-  ~EcalIsolationCorrector() {};
+  ~EcalIsolationCorrector(){};
 
 #ifndef STANDALONE_ECALCORR
   // Global correction for ABCD together
-  float correctForNoise(reco::GsfElectron e, bool isData=false, float intL_AB=5.5, float intL_C=6.7, float intL_D=7.3);
+  float correctForNoise(
+      reco::GsfElectron e, bool isData = false, float intL_AB = 5.5, float intL_C = 6.7, float intL_D = 7.3);
   // Run dependent correction
-  float correctForNoise(reco::GsfElectron e, int runNumber, bool isData=false);
-  float correctForNoise(reco::GsfElectron e, std::string runName, bool isData=false);
+  float correctForNoise(reco::GsfElectron e, int runNumber, bool isData = false);
+  float correctForNoise(reco::GsfElectron e, std::string runName, bool isData = false);
 
   // Global correction for ABCD together
-  float correctForHLTDefinition(reco::GsfElectron e, bool isData=false, float intL_AB=5.5, float intL_C=6.7, float intL_D=7.3);
+  float correctForHLTDefinition(
+      reco::GsfElectron e, bool isData = false, float intL_AB = 5.5, float intL_C = 6.7, float intL_D = 7.3);
   // Run dependent correction
-  float correctForHLTDefinition(reco::GsfElectron e, int runNumber, bool isData=false);
-  float correctForHLTDefinition(reco::GsfElectron e, std::string runName, bool isData=false);
+  float correctForHLTDefinition(reco::GsfElectron e, int runNumber, bool isData = false);
+  float correctForHLTDefinition(reco::GsfElectron e, std::string runName, bool isData = false);
 
   // Global correction for ABCD together
-  float correctForNoise(reco::Photon p, bool isData=false, float intL_AB=5.5, float intL_C=6.7, float intL_D=7.3);
+  float correctForNoise(
+      reco::Photon p, bool isData = false, float intL_AB = 5.5, float intL_C = 6.7, float intL_D = 7.3);
   // Run dependent correction
-  float correctForNoise(reco::Photon p, int runNumber, bool isData=false);
-  float correctForNoise(reco::Photon p, std::string runName, bool isData=false);
+  float correctForNoise(reco::Photon p, int runNumber, bool isData = false);
+  float correctForNoise(reco::Photon p, std::string runName, bool isData = false);
 
   // Global correction for ABCD together
-  float correctForHLTDefinition(reco::Photon p, bool isData=false, float intL_AB=5.5, float intL_C=6.7, float intL_D=7.3);
+  float correctForHLTDefinition(
+      reco::Photon p, bool isData = false, float intL_AB = 5.5, float intL_C = 6.7, float intL_D = 7.3);
   // Run dependent correction
-  float correctForHLTDefinition(reco::Photon p, int runNumber, bool isData=false);
-  float correctForHLTDefinition(reco::Photon p, std::string runName, bool isData=false);
+  float correctForHLTDefinition(reco::Photon p, int runNumber, bool isData = false);
+  float correctForHLTDefinition(reco::Photon p, std::string runName, bool isData = false);
 
   // Global correction for ABCD together
-  float correctForNoise(pat::Electron e, bool isData=false, float intL_AB=5.5, float intL_C=6.7, float intL_D=7.3);
+  float correctForNoise(
+      pat::Electron e, bool isData = false, float intL_AB = 5.5, float intL_C = 6.7, float intL_D = 7.3);
   // Run dependent correction
-  float correctForNoise(pat::Electron e, int runNumber, bool isData=false);
-  float correctForNoise(pat::Electron e, std::string runName, bool isData=false);
+  float correctForNoise(pat::Electron e, int runNumber, bool isData = false);
+  float correctForNoise(pat::Electron e, std::string runName, bool isData = false);
 
   // Global correction for ABCD together
-  float correctForHLTDefinition(pat::Electron e, bool isData=false, float intL_AB=5.5, float intL_C=6.7, float intL_D=7.3);
+  float correctForHLTDefinition(
+      pat::Electron e, bool isData = false, float intL_AB = 5.5, float intL_C = 6.7, float intL_D = 7.3);
   // Run dependent correction
-  float correctForHLTDefinition(pat::Electron e, int runNumber, bool isData=false);
-  float correctForHLTDefinition(pat::Electron e, std::string runName, bool isData=false);
+  float correctForHLTDefinition(pat::Electron e, int runNumber, bool isData = false);
+  float correctForHLTDefinition(pat::Electron e, std::string runName, bool isData = false);
 
   // Global correction for ABCD together
-  float correctForNoise(pat::Photon p, bool isData=false, float intL_AB=5.5, float intL_C=6.7, float intL_D=7.3);
+  float correctForNoise(pat::Photon p, bool isData = false, float intL_AB = 5.5, float intL_C = 6.7, float intL_D = 7.3);
   // Run dependent correction
-  float correctForNoise(pat::Photon p, int runNumber, bool isData=false);
-  float correctForNoise(pat::Photon p, std::string runName, bool isData=false);
+  float correctForNoise(pat::Photon p, int runNumber, bool isData = false);
+  float correctForNoise(pat::Photon p, std::string runName, bool isData = false);
 
   // Global correction for ABCD together
-  float correctForHLTDefinition(pat::Photon p, bool isData=false, float intL_AB=5.5, float intL_C=6.7, float intL_D=7.3);
+  float correctForHLTDefinition(
+      pat::Photon p, bool isData = false, float intL_AB = 5.5, float intL_C = 6.7, float intL_D = 7.3);
   // Run dependent correction
-  float correctForHLTDefinition(pat::Photon p, int runNumber, bool isData=false);
-  float correctForHLTDefinition(pat::Photon p, std::string runName, bool isData=false);
+  float correctForHLTDefinition(pat::Photon p, int runNumber, bool isData = false);
+  float correctForHLTDefinition(pat::Photon p, std::string runName, bool isData = false);
 #else
   // Global correction for ABCD together
-  float correctForNoise(float unCorrIso, bool isBarrel, bool isData=false, float intL_AB=5.5, float intL_C=6.7, float intL_D=7.3);
+  float correctForNoise(
+      float unCorrIso, bool isBarrel, bool isData = false, float intL_AB = 5.5, float intL_C = 6.7, float intL_D = 7.3);
   // Run dependent correction
-  float correctForNoise(float unCorrIso, bool isBarrel, int runNumber, bool isData=false);
-  float correctForNoise(float unCorrIso, bool isBarrel, std::string runName, bool isData=false);
+  float correctForNoise(float unCorrIso, bool isBarrel, int runNumber, bool isData = false);
+  float correctForNoise(float unCorrIso, bool isBarrel, std::string runName, bool isData = false);
 
   // Global correction for ABCD together
-  float correctForHLTDefinition(float unCorrIso, bool isBarrrel, bool isData=false, float intL_AB=5.5, float intL_C=6.7, float intL_D=7.3);
+  float correctForHLTDefinition(float unCorrIso,
+                                bool isBarrrel,
+                                bool isData = false,
+                                float intL_AB = 5.5,
+                                float intL_C = 6.7,
+                                float intL_D = 7.3);
   // Run dependent correction
-  float correctForHLTDefinition(float unCorrIso, bool isBarrel, int runNumber, bool isData=false);
-  float correctForHLTDefinition(float unCorrIso, bool isBarrel, std::string runName, bool isData=false);
+  float correctForHLTDefinition(float unCorrIso, bool isBarrel, int runNumber, bool isData = false);
+  float correctForHLTDefinition(float unCorrIso, bool isBarrel, std::string runName, bool isData = false);
 #endif
 
- protected:
+protected:
   RunRange checkRunRange(int runNumber);
   float correctForNoise(float iso, bool isBarrel, RunRange runRange, bool isData);
   float correctForHLTDefinition(float iso, bool isBarrel, RunRange runRange);
 
- private:
+private:
   bool isElectron_;
 };

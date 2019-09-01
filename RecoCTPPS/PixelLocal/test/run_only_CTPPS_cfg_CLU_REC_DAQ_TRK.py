@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process('CTPPS2',eras.Run2_25ns)
+from Configuration.Eras.Era_Run2_25ns_cff import Run2_25ns
+process = cms.Process('CTPPS2',Run2_25ns)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

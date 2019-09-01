@@ -13,15 +13,12 @@
    @brief Analyzes FEC (and FED) cabling object(s)
 */
 class test_AnalyzeCabling : public edm::EDAnalyzer {
+public:
+  test_AnalyzeCabling(const edm::ParameterSet&) { ; }
+  virtual ~test_AnalyzeCabling() { ; }
 
- public:
-  
-  test_AnalyzeCabling( const edm::ParameterSet& ) {;}
-  virtual ~test_AnalyzeCabling() {;}
-  
-  void beginRun( const edm::Run&, const edm::EventSetup& );
-  void analyze( const edm::Event&, const edm::EventSetup& ) {;}
-  
+  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) { ; }
 };
 
-#endif // OnlineDB_SiStripESSources_test_AnalyzeCabling_H
+#endif  // OnlineDB_SiStripESSources_test_AnalyzeCabling_H

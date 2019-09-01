@@ -1,14 +1,16 @@
+from __future__ import print_function
 # Benedikt Hegner, DESY
 # benedikt.hegner@cern.ch
 #
 # this tool is based on Luca Lista's tree drawer module
 
 
+from builtins import range
 class ParticleDecayDrawer(object):
     """Draws particle decay tree """
     
     def __init__(self):
-        print "Init particleDecayDrawer"
+        print("Init particleDecayDrawer")
         #  booleans: printP4 printPtEtaPhi printVertex   
         
     def _accept(self, candidate, skipList):
@@ -20,7 +22,7 @@ class ParticleDecayDrawer(object):
          
     def _hasValidDaughters(self, candidate):
         nDaughters = candidate.numChildren()
-        for i in xrange(nDaughters):
+        for i in range(nDaughters):
             if self._select(candidate.listChildren()[i]): return True
         return False        
 
@@ -40,13 +42,13 @@ class ParticleDecayDrawer(object):
     
           validDau = 0
           nOfDaughters = candidate.numChildren()
-          for i in xrange(nOfDaughters):
+          for i in range(nOfDaughters):
               if self._accept(candidate.listChildren()[i], skipList): validDau+=1
           if validDau == 0: return out
     
           out += " ->"
     
-          for i in xrange(nOfDaughters):
+          for i in range(nOfDaughters):
               d = candidate.listChildren()[i]
               if self._accept(d, skipList):
                   decString = self._decay(d, skipList)
@@ -64,35 +66,35 @@ class ParticleDecayDrawer(object):
                 if self._select(particle):
                     skipList.append(particle)
                     nodesList.append(particle)
-                    for j in xrange(particle.numParents()):
+                    for j in range(particle.numParents()):
                         mom = particle.listParents()[j]
                         while (mom.mother()):# != None ):
                             mom = mom.mother()
                         if self._select(mom):
                             momsList.append(mom)
 
-        print "-- decay --"  
+        print("-- decay --")  
         if len(momsList) > 0:
             if len(momsList) > 1:
-                for m in xrange(len(momsList)):
+                for m in range(len(momsList)):
                     decString = self._decay( momsList[m], skipList)
                     if len(decString) > 0:
-                       print "{ %s } " %decString
+                       print("{ %s } " %decString)
             else:
-                print self._decay(momsList[0], skipList)   
+                print(self._decay(momsList[0], skipList))   
   
         if len(nodesList) > 0:
-            print "-> "
+            print("-> ")
             if len(nodesList) > 1:
                 for node in nodesList:
                    skipList.remove(node)
                    decString = self._decay(node, skipList)
                    if len(decString) > 0:
-                       if "->" in decString:  print " ( %s ) " %decString
-                       else:  print " " + decString
+                       if "->" in decString:  print(" ( %s ) " %decString)
+                       else:  print(" " + decString)
             else:
                 skipList.remove(nodesList[0])
-                print self._decay(nodesList[0], skipList)
+                print(self._decay(nodesList[0], skipList))
           
-        print
+        print()
     

@@ -2,7 +2,7 @@
 //
 // Package:    CalibTracker/SiStripDCS/plugins
 // Class:      SyncDCSO2O
-// 
+//
 /**\class FilterTrackerOn FilterTrackerOn.cc
 
  Description: EDFilter returning true when the number of modules with HV on in the Tracker is
@@ -27,16 +27,15 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class FilterTrackerOn : public edm::EDFilter
-{
- public:
+class FilterTrackerOn : public edm::EDFilter {
+public:
   explicit FilterTrackerOn(const edm::ParameterSet&);
   ~FilterTrackerOn() override;
 
- private:
-  void beginJob() override ;
+private:
+  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
 
   int minModulesWithHVoff_;
 };

@@ -25,7 +25,7 @@ public:
   typedef reco::VertexCollection collection;
   typedef std::vector<const reco::Vertex*> container;
   typedef container::const_iterator const_iterator;
-  PATPrimaryVertexSelector (const edm::ParameterSet& cfg, edm::ConsumesCollector && iC);
+  PATPrimaryVertexSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
   /// needed for use with an ObjectSelector
   const_iterator begin() const { return selected_.begin(); }
   /// needed for use with an ObjectSelector
@@ -35,22 +35,22 @@ public:
   /// needed for use with an ObjectSelector
   size_t size() const { return selected_.size(); }
   /// operator used in sorting the selected vertices
-  bool operator() (const reco::Vertex*, const reco::Vertex*) const;
-private:
-  /// access to track-related vertex quantities (multiplicity and pt-sum)
-  void getVertexVariables (const reco::Vertex&, unsigned int&, double&) const;
-  /// track selection
-  bool acceptTrack (const reco::Track&) const;
+  bool operator()(const reco::Vertex*, const reco::Vertex*) const;
 
 private:
-  container selected_;               /// container of selected vertices
-  unsigned int multiplicityCut_;     /// minimum multiplicity of (selected) associated tracks
-  float ptSumCut_;                   /// minimum pt sum o (selected) associated tracks
-  float trackEtaCut_;                /// eta cut used for the track selection
-  float chi2Cut_;                    /// cut on the normalized chi2
-  float dr2Cut_;                     /// cut on the (squared) transverse position
-  float dzCut_;                      /// cut on the longitudinal position
+  /// access to track-related vertex quantities (multiplicity and pt-sum)
+  void getVertexVariables(const reco::Vertex&, unsigned int&, double&) const;
+  /// track selection
+  bool acceptTrack(const reco::Track&) const;
+
+private:
+  container selected_;            /// container of selected vertices
+  unsigned int multiplicityCut_;  /// minimum multiplicity of (selected) associated tracks
+  float ptSumCut_;                /// minimum pt sum o (selected) associated tracks
+  float trackEtaCut_;             /// eta cut used for the track selection
+  float chi2Cut_;                 /// cut on the normalized chi2
+  float dr2Cut_;                  /// cut on the (squared) transverse position
+  float dzCut_;                   /// cut on the longitudinal position
 };
 
 #endif
-

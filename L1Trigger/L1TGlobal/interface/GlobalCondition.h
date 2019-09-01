@@ -29,149 +29,97 @@
 
 // forward declarations
 
-
-
 // class declaration
-class GlobalCondition
-{
+class GlobalCondition {
+public:
+  /// constructor(s)
+  ///
+  GlobalCondition();
+
+  ///   constructor from condition name
+  GlobalCondition(const std::string&);
+
+  ///   constructor from condition name, category and type
+  GlobalCondition(const std::string&, const l1t::GtConditionCategory&, const l1t::GtConditionType&);
+
+  /// destructor
+  virtual ~GlobalCondition();
 
 public:
+  /// get / set condition name
+  inline const std::string& condName() const { return m_condName; }
 
-    /// constructor(s)
-    ///
-    GlobalCondition();
+  inline void setCondName(const std::string& cName) { m_condName = cName; }
 
-    ///   constructor from condition name
-    GlobalCondition(const std::string& );
+  /// get / set the category of the condition
+  inline const l1t::GtConditionCategory& condCategory() const { return m_condCategory; }
 
-    ///   constructor from condition name, category and type
-    GlobalCondition(const std::string&,
-                  const l1t::GtConditionCategory&, const l1t::GtConditionType& );
+  inline void setCondCategory(const l1t::GtConditionCategory& cCategory) { m_condCategory = cCategory; }
 
-    /// destructor
-    virtual ~GlobalCondition();
+  /// get / set the type of the condition (1s, etc)
+  inline const l1t::GtConditionType& condType() const { return m_condType; }
 
-public:
+  inline void setCondType(const l1t::GtConditionType& cType) { m_condType = cType; }
 
-    /// get / set condition name
-    inline const std::string& condName() const
-    {
-        return m_condName;
-    }
+  /// get / set the trigger object type(s) in the condition
+  inline const std::vector<l1t::GlobalObject>& objectType() const { return m_objectType; }
 
-    inline void setCondName(const std::string& cName)
-    {
-        m_condName = cName;
-    }
+  inline void setObjectType(const std::vector<l1t::GlobalObject>& objType) { m_objectType = objType; }
 
-    /// get / set the category of the condition
-    inline const l1t::GtConditionCategory& condCategory() const
-    {
-        return m_condCategory;
-    }
+  /// get / set condition GEq flag
+  inline const bool condGEq() const { return m_condGEq; }
 
-    inline void setCondCategory(const l1t::GtConditionCategory& cCategory)
-    {
-        m_condCategory = cCategory;
-    }
+  inline void setCondGEq(const bool& cGEq) { m_condGEq = cGEq; }
 
-    /// get / set the type of the condition (1s, etc)
-    inline const l1t::GtConditionType& condType() const
-    {
-        return m_condType;
-    }
+  /// get / set the condition-chip number the condition is located on
+  inline const int& condChipNr() const { return m_condChipNr; }
 
-    inline void setCondType(const l1t::GtConditionType& cType)
-    {
-        m_condType = cType;
-    }
+  inline void setCondChipNr(const int& cChipNr) { m_condChipNr = cChipNr; }
 
-    /// get / set the trigger object type(s) in the condition
-    inline const std::vector<l1t::GlobalObject>& objectType() const
-    {
-        return m_objectType;
-    }
+  /// get / set the condition relative bx
+  inline const int& condRelativeBx() const { return m_condRelativeBx; }
 
-    inline void setObjectType(const std::vector<l1t::GlobalObject>& objType)
-    {
-        m_objectType = objType;
-    }
-
-    /// get / set condition GEq flag
-    inline const bool condGEq() const
-    {
-        return m_condGEq;
-    }
-
-    inline void setCondGEq(const bool& cGEq)
-    {
-        m_condGEq = cGEq;
-    }
-
-    /// get / set the condition-chip number the condition is located on
-    inline const int& condChipNr() const
-    {
-        return m_condChipNr;
-    }
-
-    inline void setCondChipNr(const int& cChipNr)
-    {
-        m_condChipNr = cChipNr;
-    }
-
-    /// get / set the condition relative bx
-    inline const int& condRelativeBx() const
-    {
-        return m_condRelativeBx;
-    }
-
-    inline void setCondRelativeBx(const int& cRelativeBx)
-    {
-        m_condRelativeBx = cRelativeBx;
-    }
-
+  inline void setCondRelativeBx(const int& cRelativeBx) { m_condRelativeBx = cRelativeBx; }
 
 public:
+  /// get number of trigger objects
+  const int nrObjects() const;
 
-    /// get number of trigger objects
-    const int nrObjects() const;
+  /// get logic flag for conditions, same type of trigger objects,
+  /// and with spatial correlations
+  const bool wsc() const;
 
-    /// get logic flag for conditions, same type of trigger objects,
-    /// and with spatial correlations
-    const bool wsc() const;
+  /// get logic flag for conditions, different type of trigger objects,
+  /// and with spatial correlations
+  const bool corr() const;
 
-    /// get logic flag for conditions, different type of trigger objects,
-    /// and with spatial correlations
-    const bool corr() const;
+  /// print condition
+  virtual void print(std::ostream& myCout) const;
 
-    /// print condition
-    virtual void print(std::ostream& myCout) const;
-
-    /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const GlobalCondition&);
+  /// output stream operator
+  friend std::ostream& operator<<(std::ostream&, const GlobalCondition&);
 
 protected:
+  /// the name of the condition
+  std::string m_condName;
 
-    /// the name of the condition
-    std::string m_condName;
+  /// the category of the condition
+  l1t::GtConditionCategory m_condCategory;
 
-    /// the category of the condition
-    l1t::GtConditionCategory m_condCategory;
+  /// the type of the condition (1s, etc)
+  l1t::GtConditionType m_condType;
 
-    /// the type of the condition (1s, etc)
-    l1t::GtConditionType m_condType;
+  /// the trigger object type(s)
+  std::vector<l1t::GlobalObject> m_objectType;
 
-    /// the trigger object type(s)
-    std::vector<l1t::GlobalObject> m_objectType;
+  /// the operator used for the condition (>=, =): true for >=
+  bool m_condGEq;
 
-    /// the operator used for the condition (>=, =): true for >=
-    bool m_condGEq;
+  /// condition is located on condition chip m_condChipNr
+  int m_condChipNr;
 
-    /// condition is located on condition chip m_condChipNr
-    int m_condChipNr;
-
-    // Relative bunch crossing offset for input data.
-    int m_condRelativeBx;
+  // Relative bunch crossing offset for input data.
+  int m_condRelativeBx;
 };
 
 #endif /*L1Trigger_L1TGlobal_GtCondition_h*/

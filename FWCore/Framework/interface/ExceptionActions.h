@@ -8,16 +8,10 @@
 
 namespace edm {
   namespace exception_actions {
-    enum ActionCodes {
-      IgnoreCompletely=0,
-      Rethrow,
-      SkipEvent,
-      FailPath,
-      LastCode
-    };
+    enum ActionCodes { IgnoreCompletely = 0, Rethrow, SkipEvent, FailPath, LastCode };
 
     const char* actionName(ActionCodes code);
-  }
+  }  // namespace exception_actions
 
   class ExceptionToActionTable {
   public:
@@ -34,5 +28,5 @@ namespace edm {
     void addDefaults();
     ActionMap map_;
   };
-}
+}  // namespace edm
 #endif

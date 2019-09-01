@@ -17,7 +17,6 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -30,19 +29,19 @@
 
 class PixelVTXMonitor : public edm::EDAnalyzer {
 public:
-  PixelVTXMonitor( const edm::ParameterSet& );
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+  PixelVTXMonitor(const edm::ParameterSet&);
   ~PixelVTXMonitor() override;
 
 protected:
-
   void beginJob() override;
   void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-  void endRun(edm::Run const& iRun,  edm::EventSetup const& iSetup) override;
+  void endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void endJob() override;
 
 private:
-
   void bookHistograms();
 
   edm::ParameterSet parameters_;
@@ -57,10 +56,10 @@ private:
   edm::InputTag hltInputTag_;
   float minVtxDoF_;
 
-  DQMStore * dbe_;
+  DQMStore* dbe_;
   HLTConfigProvider hltConfig_;
 
-  struct PixelMEs{
+  struct PixelMEs {
     MonitorElement* clusME;
     MonitorElement* vtxME;
   };
@@ -68,7 +67,7 @@ private:
   std::map<std::string, PixelMEs> histoMap_;
 };
 
-#endif // PIXELVTXMONITOR_H
+#endif  // PIXELVTXMONITOR_H
 
 // Local Variables:
 // show-trailing-whitespace: t

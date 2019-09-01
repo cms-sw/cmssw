@@ -2,7 +2,7 @@
 //
 // Package:    METAlgorithms
 // Class:      PFSpecificAlgo
-// 
+//
 /**\class PFSpecificAlgo PFSpecificAlgo.h RecoMET/METAlgorithms/interface/PFSpecificAlgo.h
 
  Description: Adds Particle Flow specific information to MET
@@ -24,15 +24,12 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 //____________________________________________________________________________||
-class PFSpecificAlgo
-{
- public:
-  PFSpecificAlgo() { }
-  
-  SpecificPFMETData run(const edm::View<reco::Candidate>& pfCands);
+class PFSpecificAlgo {
+public:
+  PFSpecificAlgo() {}
 
+  SpecificPFMETData run(const edm::View<reco::Candidate>& pfCands);
 };
 
 //____________________________________________________________________________||
-#endif // METAlgorithms_PFMETInfo_h
-
+#endif  // METAlgorithms_PFMETInfo_h

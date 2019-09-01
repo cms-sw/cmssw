@@ -1,4 +1,4 @@
-#ifndef TTUGLOBALSIGNAL_H 
+#ifndef TTUGLOBALSIGNAL_H
 #define TTUGLOBALSIGNAL_H 1
 
 // Include files
@@ -14,21 +14,19 @@
  *  @date   2008-11-29
  */
 class TTUGlobalSignal : public RPCInputSignal {
-public: 
+public:
   /// Standard constructor
-  TTUGlobalSignal( ) { };
+  TTUGlobalSignal(){};
 
-  TTUGlobalSignal( std::map< int, TTUInput* >  * );
+  TTUGlobalSignal(std::map<int, TTUInput*>*);
 
-  ~TTUGlobalSignal( ) override; ///< Destructor
-  
-  void clear() override { };
+  ~TTUGlobalSignal() override;  ///< Destructor
 
-  std::map< int, TTUInput* >  * m_wheelmap;
-  
+  void clear() override{};
+
+  std::map<int, TTUInput*>* m_wheelmap;
+
 protected:
-  
 private:
-  
 };
-#endif // TTUGLOBALSIGNAL_H
+#endif  // TTUGLOBALSIGNAL_H

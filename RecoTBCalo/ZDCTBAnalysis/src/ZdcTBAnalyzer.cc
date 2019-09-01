@@ -19,10 +19,8 @@
 #include <iostream>
 #include <memory>
 
-
 class ZdcTBAnalyzer : public edm::EDAnalyzer {
-
- public:
+public:
   explicit ZdcTBAnalyzer(const edm::ParameterSet&);
   ~ZdcTBAnalyzer() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -45,27 +43,26 @@ private:
 };
 
 ZdcTBAnalyzer::ZdcTBAnalyzer(const edm::ParameterSet& iConfig) {
-
   tok_zdc_ = consumes<ZDCRecHitCollection>(iConfig.getParameter<edm::InputTag>("zdcRecHitCollectionTag"));
   tok_tb_ = consumes<HcalTBTriggerData>(iConfig.getParameter<edm::InputTag>("hcalTBTriggerDataTag"));
   tok_timing_ = consumes<HcalTBTiming>(iConfig.getParameter<edm::InputTag>("hcalTBTimingTag"));
   tok_bc_ = consumes<HcalTBBeamCounters>(iConfig.getParameter<edm::InputTag>("hcalTBBeamCountersTag"));
   tok_pos_ = consumes<HcalTBEventPosition>(iConfig.getParameter<edm::InputTag>("hcalTBEventPositionTag"));
 
-  std::cout<<"**************** ZdcTBAnalizer Start**************************"<<std::endl;
+  std::cout << "**************** ZdcTBAnalizer Start**************************" << std::endl;
   edm::ParameterSet para = iConfig.getParameter<edm::ParameterSet>("ZdcTBAnalyzer");
-  
+
   beamDetectorsADCInfo = para.getParameter<bool>("beamDetectorsADCInfoFlag");
   beamDetectorsTDCInfo = para.getParameter<bool>("beamDetectorsTDCInfoFlag");
   wireChambersInfo = para.getParameter<bool>("wireChambersInfoFlag");
   triggerInfo = para.getParameter<bool>("triggerInfoFlag");
-  outputFileName =  para.getParameter<std::string>("ntupleOutputFileName");
+  outputFileName = para.getParameter<std::string>("ntupleOutputFileName");
   zdcTBAnalysis.setup(outputFileName);
 }
 
-ZdcTBAnalyzer::~ZdcTBAnalyzer(){;}
+ZdcTBAnalyzer::~ZdcTBAnalyzer() { ; }
 
-void ZdcTBAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&){
+void ZdcTBAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   using namespace edm;
   edm::Handle<ZDCRecHitCollection> zdcRecHits;
   edm::Handle<HcalTBTriggerData> triggers;
@@ -74,29 +71,29 @@ void ZdcTBAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&){
   edm::Handle<HcalTBEventPosition> chpos;
 
   e.getByToken(tok_zdc_, zdcRecHits);
-  if(triggerInfo){
+  if (triggerInfo) {
     e.getByToken(tok_tb_, triggers);
     zdcTBAnalysis.analyze(*triggers);
   }
-  if(beamDetectorsTDCInfo){
+  if (beamDetectorsTDCInfo) {
     e.getByToken(tok_timing_, times);  // e.getByLabel("tbunpacker2",times);
     zdcTBAnalysis.analyze(*times);
   }
-  if(beamDetectorsADCInfo){
+  if (beamDetectorsADCInfo) {
     e.getByToken(tok_bc_, bc);
-     zdcTBAnalysis.analyze(*bc);
+    zdcTBAnalysis.analyze(*bc);
   }
-  if(wireChambersInfo){
+  if (wireChambersInfo) {
     e.getByToken(tok_pos_, chpos);
     zdcTBAnalysis.analyze(*chpos);
-  }     
+  }
   zdcTBAnalysis.analyze(*zdcRecHits);
   zdcTBAnalysis.fillTree();
 }
 
-void ZdcTBAnalyzer::endJob(){
+void ZdcTBAnalyzer::endJob() {
   zdcTBAnalysis.done();
-std::cout<<"****************ZdcTBAnalizer End**************************"<<std::endl;
+  std::cout << "****************ZdcTBAnalizer End**************************" << std::endl;
 }
 
 //define this as a plug-in

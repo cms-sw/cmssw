@@ -13,13 +13,21 @@ hcalminbiasHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     throw = False #dont throw except on unknown path name 
 )
 
+## customizations for the pp_on_AA_2018 eras
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(hcalminbiasHLT,
+                       eventSetupPathsKey='HcalCalMinBiasHI'
+)
+
+
 import RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi
 hbherecoMBNZS = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbheprereco.clone(
     digiLabelQIE8  = cms.InputTag("hcalDigiAlCaMB"),
     digiLabelQIE11 = cms.InputTag("hcalDigiAlCaMB"),
-    tsFromDB = cms.bool(False),
+###    tsFromDB = cms.bool(False),
     dropZSmarkedPassed = cms.bool(False),
     algorithm = dict(
+        useMahi = cms.bool(False),
         useM2 = cms.bool(False),
         useM3 = cms.bool(False)
     ),
@@ -34,8 +42,7 @@ hbherecoMBNZS = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbhep
     setLegacyFlagsQIE11 = cms.bool(False),
 )
 
-hbherecoMBNZS.algorithm.firstSample = 4
-hbherecoMBNZS.algorithm.samplesToAdd = 4
+hbherecoMBNZS.algorithm.firstSampleShift = 0 # explicitly repeating the default
 
 import RecoLocalCalo.HcalRecProducers.hosimplereco_cfi
 horecoMBNZS = RecoLocalCalo.HcalRecProducers.hosimplereco_cfi.hosimplereco.clone()
@@ -49,7 +56,7 @@ horecoMBNZS.dropZSmarkedPassed = cms.bool(False)
 import RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi
 hfrecoMBNZS = RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi.hfsimplereco.clone()
 
-hfrecoMBNZS.firstSample = 2
+hfrecoMBNZS.firstSample = 2   # Run 2 default before 2017
 hfrecoMBNZS.samplesToAdd = 2
 hfrecoMBNZS.digiLabel = 'hcalDigiAlCaMB'
 hfrecoMBNZS.tsFromDB = cms.bool(False)
@@ -59,6 +66,12 @@ seqALCARECOHcalCalMinBiasDigi = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDig
 seqALCARECOHcalCalMinBiasDigiNoHLT = cms.Sequence(hcalDigiAlCaMB*gtDigisAlCaMB)
 
 seqALCARECOHcalCalMinBias = cms.Sequence(hbherecoMBNZS*horecoMBNZS*hbherecoNoise*hfrecoNoise*hfrecoMBNZS*horecoNoise)
+
+#Specify to use HI output for the pp_on_AA_2018 eras
+seqALCARECOHcalCalMinBiasHI = cms.Sequence(hbherecoNoise*hfrecoNoise*hfrecoMBNZS*horecoNoise)
+pp_on_AA_2018.toReplaceWith(seqALCARECOHcalCalMinBias,
+                            seqALCARECOHcalCalMinBiasHI
+)
 
 import RecoLocalCalo.HcalRecProducers.hfprereco_cfi
 hfprerecoNoise = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(

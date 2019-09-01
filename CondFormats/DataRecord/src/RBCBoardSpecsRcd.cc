@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     RBCBoardSpecsRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Thu Dec 11 17:47:19 CET 2008
 // $Id$
 

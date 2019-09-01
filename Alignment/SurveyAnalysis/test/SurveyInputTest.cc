@@ -6,19 +6,12 @@
 
 using namespace align;
 
-SurveyInputTest::SurveyInputTest(const edm::ParameterSet& cfg):
-  theConfig(cfg)
-{
-}
+SurveyInputTest::SurveyInputTest(const edm::ParameterSet& cfg) : theConfig(cfg) {}
 
-void SurveyInputTest::beginJob()
-{
-  addComponent( create( theConfig.getParameter<std::string>("detector") ) );
-}
+void SurveyInputTest::beginJob() { addComponent(create(theConfig.getParameter<std::string>("detector"))); }
 
-Alignable* SurveyInputTest::create(const std::string& parName)
-{
-  typedef std::vector<double>      Doubles;
+Alignable* SurveyInputTest::create(const std::string& parName) {
+  typedef std::vector<double> Doubles;
   typedef std::vector<std::string> Strings;
 
   static const Doubles zero3Vector(3, 0.);
@@ -34,42 +27,43 @@ Alignable* SurveyInputTest::create(const std::string& parName)
 
   ErrorMatrix cov;
 
-  for (unsigned int i = 0; i < 6; ++i) cov(i, i) = errors[i];
+  for (unsigned int i = 0; i < 6; ++i)
+    cov(i, i) = errors[i];
 
   PositionType pos(center[0], center[1], center[2]);
   EulerAngles ang(3);
 
-  ang(1) = angles[0], ang(2) = angles[1]; ang(3) = angles[2];
+  ang(1) = angles[0], ang(2) = angles[1];
+  ang(3) = angles[2];
 
-  AlignableSurface surf( pos, toMatrix(ang) );
+  AlignableSurface surf(pos, toMatrix(ang));
 
-  surf.setWidth ( pars.getUntrackedParameter<double>("width" , 0.) );
-  surf.setLength( pars.getUntrackedParameter<double>("length", 0.) );
+  surf.setWidth(pars.getUntrackedParameter<double>("width", 0.));
+  surf.setLength(pars.getUntrackedParameter<double>("length", 0.));
 
-          int type = pars.getParameter<int>        ("typeId");
+  int type = pars.getParameter<int>("typeId");
   std::string name = pars.getParameter<std::string>("object");
 
   // FIXME: - currently defaulting to RunI as this was the previous behaviour
   //        - check this, when resurrecting this code in the future
   AlignableObjectId alignableObjectId{AlignableObjectId::Geometry::General};
 
-  Alignable* ali = new AlignableComposite( type, alignableObjectId.stringToId(name),
-					   surf.rotation() );
+  Alignable* ali = new AlignableComposite(type, alignableObjectId.stringToId(name), surf.rotation());
 
   Strings comp = pars.getUntrackedParameter<Strings>("compon", emptyString);
 
   unsigned int nComp = comp.size();
 
-  for (unsigned int i = 0; i < nComp; ++i)
-  {
-    ali->addComponent( create(comp[i]) );
+  for (unsigned int i = 0; i < nComp; ++i) {
+    ali->addComponent(create(comp[i]));
   }
 
-  ang(1) = shifts[3], ang(2) = shifts[4]; ang(3) = shifts[5];
+  ang(1) = shifts[3], ang(2) = shifts[4];
+  ang(3) = shifts[5];
 
-  ali->setSurvey( new SurveyDet(surf, cov) );
-  ali->move( surf.toGlobal( align::LocalVector(shifts[0], shifts[1], shifts[2]) ) );
-  ali->rotateInLocalFrame( toMatrix(ang) );
+  ali->setSurvey(new SurveyDet(surf, cov));
+  ali->move(surf.toGlobal(align::LocalVector(shifts[0], shifts[1], shifts[2])));
+  ali->rotateInLocalFrame(toMatrix(ang));
 
   return ali;
 }

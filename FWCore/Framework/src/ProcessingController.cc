@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     ProcessingController
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -27,15 +27,13 @@ using namespace edm;
 //
 // constructors and destructor
 //
-ProcessingController::ProcessingController(ForwardState forwardState, ReverseState reverseState, bool iCanRandomAccess) :
-forwardState_(forwardState),
-reverseState_(reverseState),
-transition_(kToNextEvent),
-specifiedEvent_(),
-canRandomAccess_(iCanRandomAccess),
-lastOperationSucceeded_(true)
-{
-}
+ProcessingController::ProcessingController(ForwardState forwardState, ReverseState reverseState, bool iCanRandomAccess)
+    : forwardState_(forwardState),
+      reverseState_(reverseState),
+      transition_(kToNextEvent),
+      specifiedEvent_(),
+      canRandomAccess_(iCanRandomAccess),
+      lastOperationSucceeded_(true) {}
 
 // ProcessingController::ProcessingController(const ProcessingController& rhs)
 // {
@@ -61,67 +59,28 @@ lastOperationSucceeded_(true)
 //
 // member functions
 //
-void 
-ProcessingController::setTransitionToNextEvent()
-{
-   transition_ = kToNextEvent;
+void ProcessingController::setTransitionToNextEvent() { transition_ = kToNextEvent; }
+
+void ProcessingController::setTransitionToPreviousEvent() { transition_ = kToPreviousEvent; }
+
+void ProcessingController::setTransitionToEvent(edm::EventID const& iID) {
+  transition_ = kToSpecifiedEvent;
+  specifiedEvent_ = iID;
 }
 
-void 
-ProcessingController::setTransitionToPreviousEvent()
-{
-   transition_ = kToPreviousEvent;
-}
-
-void 
-ProcessingController::setTransitionToEvent( edm::EventID const& iID)
-{
-   transition_ = kToSpecifiedEvent;
-   specifiedEvent_ =iID;
-}
-
-void
-ProcessingController::setLastOperationSucceeded(bool value)
-{
-  lastOperationSucceeded_ = value;
-}
+void ProcessingController::setLastOperationSucceeded(bool value) { lastOperationSucceeded_ = value; }
 
 //
 // const member functions
 //
-ProcessingController::ForwardState 
-ProcessingController::forwardState() const
-{
-   return forwardState_;
-}
+ProcessingController::ForwardState ProcessingController::forwardState() const { return forwardState_; }
 
-ProcessingController::ReverseState 
-ProcessingController::reverseState() const
-{
-   return reverseState_;
-}
+ProcessingController::ReverseState ProcessingController::reverseState() const { return reverseState_; }
 
-bool 
-ProcessingController::canRandomAccess() const
-{
-   return canRandomAccess_;
-}
+bool ProcessingController::canRandomAccess() const { return canRandomAccess_; }
 
-ProcessingController::Transition 
-ProcessingController::requestedTransition() const
-{
-   return transition_;
-}
+ProcessingController::Transition ProcessingController::requestedTransition() const { return transition_; }
 
+edm::EventID ProcessingController::specifiedEventTransition() const { return specifiedEvent_; }
 
-edm::EventID 
-ProcessingController::specifiedEventTransition() const
-{
-   return specifiedEvent_;
-}
-
-bool
-ProcessingController::lastOperationSucceeded() const
-{
-  return lastOperationSucceeded_;
-}
+bool ProcessingController::lastOperationSucceeded() const { return lastOperationSucceeded_; }

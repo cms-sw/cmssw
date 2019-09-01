@@ -19,27 +19,23 @@ MVA_COMPUTER_CONTAINER_DEFINE(TtSemiLepJetCombMVA);  // defines TtSemiLepJetComb
 #endif
 
 class TtSemiLepJetCombMVAComputer : public edm::EDProducer {
-
- public:
-
+public:
   explicit TtSemiLepJetCombMVAComputer(const edm::ParameterSet&);
   ~TtSemiLepJetCombMVAComputer() override;
 
- private:
-
+private:
   void beginJob() override;
   void produce(edm::Event& evt, const edm::EventSetup& setup) override;
   void endJob() override;
 
-  edm::EDGetTokenT< edm::View<reco::RecoCandidate>> lepsToken_;
-  edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
-  edm::EDGetTokenT< std::vector<pat::MET> > metsToken_;
+  edm::EDGetTokenT<edm::View<reco::RecoCandidate>> lepsToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet>> jetsToken_;
+  edm::EDGetTokenT<std::vector<pat::MET>> metsToken_;
 
   int maxNJets_;
   int maxNComb_;
 
   PhysicsTools::MVAComputerCache mvaComputer;
-
 };
 
 #endif

@@ -1,10 +1,12 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import logging
 import sys
 import os
 from importlib import import_module
 import subprocess
 import time
-import tools
+from . import tools
 
 log = logging.getLogger(__name__)
 class CrabHelper(object):
@@ -29,10 +31,14 @@ class CrabHelper(object):
         #submit crab job
         log.info("Submitting crab job")
         self.crab.submit(full_crab_config_filename)
-        log.info("crab job submitted. Waiting 30 seconds before first status call")
-        time.sleep( 30 )
+        log.info("crab job submitted. Waiting 120 seconds before first status call")
+        time.sleep( 120 )
+
         task = self.crabFunctions.CrabTask(crab_config = full_crab_config_filename)
         task.update()
+        if task.state =="UNKNOWN":
+            time.sleep( 30 )
+            task.update()
         success_states = ( 'QUEUED', 'SUBMITTED', "COMPLETED", "FINISHED")
         if task.state in success_states:
             log.info("Job in state %s" % task.state )
@@ -42,7 +48,7 @@ class CrabHelper(object):
             raise RuntimeError("Job submission not successful, crab state:%s" % task.state)
 
     def check_crabtask(self):
-        print self.crab_config_filepath
+        print(self.crab_config_filepath)
         task = self.crabFunctions.CrabTask(crab_config = self.crab_config_filepath,
                                             initUpdate = False)
         if self.options.no_exec:
@@ -51,12 +57,12 @@ class CrabHelper(object):
         for n_check in range(self.options.max_checks):
             task.update()
             if task.state in ( "COMPLETED"):
-                print "Crab task complete. Getting output locally"
+                print("Crab task complete. Getting output locally")
                 output_path = os.path.join( self.local_path, "unmerged_results" )
                 self.get_output_files(task, output_path)
                 return True
             if task.state in ("SUBMITFAILED", "FAILED"):
-                print "Crab task failed"
+                print("Crab task failed")
                 return False
             possible_job_states =  ["nUnsubmitted",
                                     "nIdle",
@@ -82,8 +88,8 @@ class CrabHelper(object):
             user_input = tools.stdinWait(prompt_text, "", self.options.check_interval)
             if user_input in ("q","Q"):
                 return False
-        print "Task not completed after %d checks (%d minutes)" % ( self.options.max_checks,
-            int( self.options.check_interval / 60. ))
+        print("Task not completed after %d checks (%d minutes)" % ( self.options.max_checks,
+            int( self.options.check_interval / 60. )))
         return False
 
     def voms_proxy_time_left(self):
@@ -232,3 +238,7 @@ class CrabHelper(object):
             taskname+= self.options.workflow_mode + "_"
         taskname += "run_" + str(self.options.run) + "_v" + str(self.options.trial)
         return taskname
+
+## Exception for the VOMS proxy
+class ProxyError(Exception):
+    pass

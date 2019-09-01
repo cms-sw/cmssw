@@ -5,7 +5,6 @@
 //
 // This class adds physical values of eta, phi, and pt to the L1 Dataformats
 
-
 // system include files
 #include <memory>
 
@@ -34,28 +33,26 @@
 // class declaration
 //
 
+class L1TPhysicalEtAdder : public edm::global::EDProducer<> {
+public:
+  explicit L1TPhysicalEtAdder(const edm::ParameterSet& ps);
+  ~L1TPhysicalEtAdder() override;
 
-  class L1TPhysicalEtAdder : public edm::global::EDProducer<> {
-  public:
-    explicit L1TPhysicalEtAdder(const edm::ParameterSet& ps);
-    ~L1TPhysicalEtAdder() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  private:
-      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  // ----------member data ---------------------------
 
-      // ----------member data ---------------------------
-
-      edm::EDGetToken EGammaToken_;
-      edm::EDGetToken RlxTauToken_;
-      edm::EDGetToken IsoTauToken_;
-      edm::EDGetToken JetToken_;
-      edm::EDGetToken preGtJetToken_;
-      edm::EDGetToken EtSumToken_;
-      edm::EDGetToken HfSumsToken_;
-      edm::EDGetToken HfCountsToken_;
-  };
-
+  edm::EDGetToken EGammaToken_;
+  edm::EDGetToken RlxTauToken_;
+  edm::EDGetToken IsoTauToken_;
+  edm::EDGetToken JetToken_;
+  edm::EDGetToken preGtJetToken_;
+  edm::EDGetToken EtSumToken_;
+  edm::EDGetToken HfSumsToken_;
+  edm::EDGetToken HfCountsToken_;
+};
 
 #endif

@@ -7,8 +7,8 @@
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
 #include "boost/mpl/vector.hpp"
 
-class TrackerTopologyRcd :
-public edm::eventsetup::DependentRecordImplementation<TrackerTopologyRcd,
-  boost::mpl::vector<IdealGeometryRecord, PTrackerParametersRcd> > {};
+class TrackerTopologyRcd : public edm::eventsetup::DependentRecordImplementation<
+                               TrackerTopologyRcd,
+                               boost::mpl::vector<IdealGeometryRecord, PTrackerParametersRcd> > {};
 
 #endif

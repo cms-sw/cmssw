@@ -1,5 +1,6 @@
 import os
 import collections
+import six
 
 def _lowerFirst(s):
     return s[0].lower()+s[1:]
@@ -167,6 +168,7 @@ _pageNameMap = {
     "timing": "Timing",
     "hlt": "HLT",
     "pixel": "Pixel tracks",
+    "pf": "PF",
 }
 
 _sectionNameMapOrder = collections.OrderedDict([
@@ -298,6 +300,7 @@ class PlotPurpose:
     class Timing: pass
     class HLT: pass
     class Pixel: pass
+    class PF: pass
 
 class Page(object):
     def __init__(self, title, sampleName):
@@ -325,7 +328,7 @@ class Page(object):
         self._tables[section] = table
 
     def isEmpty(self):
-        for plotSet in self._plotSets.itervalues():
+        for plotSet in six.itervalues(self._plotSets):
             if len(plotSet) > 0:
                 return False
 
@@ -416,6 +419,12 @@ class Page(object):
         self._content.extend([
             '  </table>',
         ])
+
+        if len(fileTable):
+            first_row = fileTable[0]
+            self._content.extend([
+              '  <a href="%s">Browse Folder</a>' % (first_row[1][0:first_row[1].rfind('/')])
+            ])
 
     def _appendColumnHeader(self, header):
         leg = ""
@@ -675,6 +684,7 @@ class IndexSection:
         self._vertexPage = PageSet(*params)
         self._miniaodPage = PageSet(*params)
         self._timingPage = PageSet(*params)
+        self._pfPages = PageSet(*params)
         self._hltPages = PageSet(*params, dqmSubFolderTranslatedToSectionName=lambda algoQuality: algoQuality[0])
         self._pixelPages = PageSet(*params, dqmSubFolderTranslatedToSectionName=lambda algoQuality: algoQuality[0])
         self._otherPages = PageSet(*params)
@@ -685,6 +695,7 @@ class IndexSection:
             PlotPurpose.Vertexing: self._vertexPage,
             PlotPurpose.MiniAOD: self._miniaodPage,
             PlotPurpose.Timing: self._timingPage,
+            PlotPurpose.PF: self._pfPages,
             PlotPurpose.HLT: self._hltPages,
             PlotPurpose.Pixel: self._pixelPages,
         }
@@ -708,7 +719,7 @@ class IndexSection:
             "  <ul>",
             ]
 
-        for pages in [self._summaryPage, self._iterationPages, self._pixelPages, self._vertexPage, self._miniaodPage, self._timingPage, self._hltPages, self._otherPages]:
+        for pages in [self._summaryPage, self._iterationPages, self._pixelPages, self._vertexPage, self._miniaodPage, self._timingPage, self._hltPages, self._pfPages, self._otherPages]:
             labelFiles = pages.write(baseDir)
             for label, fname in labelFiles:
                 ret.append('   <li><a href="%s">%s</a></li>' % (fname, label))

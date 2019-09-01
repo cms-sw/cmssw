@@ -7,16 +7,18 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.EgammaPhotonProducers.photonCore_cfi import *
 from RecoEgamma.EgammaPhotonProducers.photons_cfi import *
 
-photonSequence = cms.Sequence( photonCore + photons )
-_photonSequenceFromMultiCl = photonSequence.copy()
-_photonSequenceFromMultiCl += ( photonCoreFromMultiCl + photonsFromMultiCl)
-_photonSequenceWithIsland = photonSequence.copy()
-_photonSequenceWithIsland += ( islandPhotonCore + islandPhotons )
+photonTask = cms.Task(photonCore,photons)
+photonSequence = cms.Sequence(photonTask)
+
+_photonTaskFromMultiCl = photonTask.copy()
+_photonTaskFromMultiCl.add(photonCoreFromMultiCl,photonsFromMultiCl)
+_photonTaskWithIsland = photonTask.copy()
+_photonTaskWithIsland.add(islandPhotonCore,islandPhotons)
 
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(
- photonSequence, _photonSequenceFromMultiCl
+ photonTask, _photonTaskFromMultiCl
 )
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
@@ -25,4 +27,4 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 for e in [pA_2016, peripheralPbPb, pp_on_AA_2018, pp_on_XeXe_2017, ppRef_2017]:
-    e.toReplaceWith(photonSequence, _photonSequenceWithIsland)
+    e.toReplaceWith(photonTask, _photonTaskWithIsland)

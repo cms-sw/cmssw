@@ -15,17 +15,15 @@
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 
-
 namespace l1t {
-    
-  class Stage2TowerDecompressAlgorithm { 
+
+  class Stage2TowerDecompressAlgorithm {
   public:
-    virtual void processEvent(const std::vector<l1t::CaloTower> & inTowers,
-			      std::vector<l1t::CaloTower> & outTowers) = 0;    
+    virtual void processEvent(const std::vector<l1t::CaloTower>& inTowers, std::vector<l1t::CaloTower>& outTowers) = 0;
 
     virtual ~Stage2TowerDecompressAlgorithm(){};
-  }; 
-  
-} 
+  };
+
+}  // namespace l1t
 
 #endif

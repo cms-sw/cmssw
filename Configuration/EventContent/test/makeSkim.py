@@ -4,11 +4,12 @@ r'''
 cmsRun Configuration file that skims the data from the reconstructed events.
 It is very general and allows to set in the metaconfig the parameters for the skimming.
 '''
+from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 # The meta configuration: 3 parameters
 import metaconfig
-print 'metaconfig.__dict__=%s'%metaconfig.__dict__
+print('metaconfig.__dict__=%s'%metaconfig.__dict__)
 
 # The cff and cfi management
 import fragments

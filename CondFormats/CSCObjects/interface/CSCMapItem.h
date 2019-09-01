@@ -5,12 +5,12 @@
 
 #include <string>
 
-class CSCMapItem{
- public:
+class CSCMapItem {
+public:
   CSCMapItem();
   ~CSCMapItem();
 
-  struct MapItem{
+  struct MapItem {
     std::string chamberLabel;
     int chamberId;
     int endcap;
@@ -38,11 +38,11 @@ class CSCMapItem{
     int fiber_crate;
     int fiber_pos;
     std::string fiber_socket;
-  
-  COND_SERIALIZABLE;
-};
 
- COND_SERIALIZABLE;
+    COND_SERIALIZABLE;
+  };
+
+  COND_SERIALIZABLE;
 };
 
 #endif

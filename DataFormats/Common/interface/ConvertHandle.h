@@ -4,38 +4,48 @@
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include <typeinfo>
 #include <algorithm>
+#include <memory>
 
 namespace edm {
 
   namespace handleimpl {
-    void throwInvalidReference();
     void throwConvertTypeError(std::type_info const& expected, std::type_info const& actual);
-  }
+    std::shared_ptr<edm::HandleExceptionFactory> makeInvalidReferenceException();
+  }  // namespace handleimpl
 
   // Convert from handle-to-void to handle-to-T
-  template<typename T>
-  void convert_handle(BasicHandle && bh,
-		      Handle<T>& result) {
-    if(bh.failedToGet()) {
-      Handle<T> h(std::move(bh.whyFailedFactory()));
-      result = std::move(h);
-      return;
-    }
+  template <typename T>
+  Handle<T> convert_handle(BasicHandle&& bh) noexcept(true) {
+    if
+      UNLIKELY(bh.failedToGet()) { return Handle<T>(std::move(bh.whyFailedFactory())); }
     void const* basicWrapper = bh.wrapper();
-    if(basicWrapper == nullptr) {
-      handleimpl::throwInvalidReference();
-    }
-    if(!(bh.wrapper()->dynamicTypeInfo() == typeid(T))) {
-      handleimpl::throwConvertTypeError(typeid(T), bh.wrapper()->dynamicTypeInfo());
-    }
+    if
+      UNLIKELY(nullptr == basicWrapper) { return Handle<T>{handleimpl::makeInvalidReferenceException()}; }
+    auto wrapper = static_cast<Wrapper<T> const*>(basicWrapper);
+
+    return Handle<T>(wrapper->product(), bh.provenance());
+  }
+
+  template <typename T>
+  Handle<T> convert_handle_check_type(BasicHandle&& bh) {
+    if
+      UNLIKELY(bh.failedToGet()) { return Handle<T>(std::move(bh.whyFailedFactory())); }
+    void const* basicWrapper = bh.wrapper();
+    if
+      UNLIKELY(basicWrapper == nullptr) { return Handle<T>{handleimpl::makeInvalidReferenceException()}; }
+    if
+      UNLIKELY(!(bh.wrapper()->dynamicTypeInfo() == typeid(T))) {
+        handleimpl::throwConvertTypeError(typeid(T), bh.wrapper()->dynamicTypeInfo());
+      }
     Wrapper<T> const* wrapper = static_cast<Wrapper<T> const*>(basicWrapper);
 
-    Handle<T> h(wrapper->product(), bh.provenance());
-    h.swap(result);
+    return Handle<T>(wrapper->product(), bh.provenance());
   }
-}
+
+}  // namespace edm
 
 #endif

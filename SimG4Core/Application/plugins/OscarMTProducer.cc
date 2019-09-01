@@ -7,7 +7,7 @@
 #include "SimG4Core/Application/interface/OscarMTProducer.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
-#include "SimG4Core/Application/interface/G4SimEvent.h"
+#include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
@@ -30,39 +30,39 @@
 #include <iostream>
 
 namespace edm {
-    class StreamID;
+  class StreamID;
 }
 
 namespace {
-    //
-    // this machinery allows to set CLHEP static engine
-    // to the one defined by RandomNumberGenerator service
-    // at the beginning of an event, and reset it back to
-    // "default-default" at the end of the event;
-    // Dave D. has decided to implement it this way because
-    // we don't know if there're other modules using CLHEP
-    // static engine, thus we want to ensure that the one
-    // we use for OscarMTProducer is unique to OscarMTProducer
-    //
-    // !!! This not only sets the random engine used by GEANT.
-    // There are a few SimWatchers/SimProducers that generate
-    // random number and also use the global CLHEP random engine
-    // set by this code. If we ever change this design be careful
-    // not to forget about them!!!
+  //
+  // this machinery allows to set CLHEP static engine
+  // to the one defined by RandomNumberGenerator service
+  // at the beginning of an event, and reset it back to
+  // "default-default" at the end of the event;
+  // Dave D. has decided to implement it this way because
+  // we don't know if there're other modules using CLHEP
+  // static engine, thus we want to ensure that the one
+  // we use for OscarMTProducer is unique to OscarMTProducer
+  //
+  // !!! This not only sets the random engine used by GEANT.
+  // There are a few SimWatchers/SimProducers that generate
+  // random number and also use the global CLHEP random engine
+  // set by this code. If we ever change this design be careful
+  // not to forget about them!!!
 
-    class StaticRandomEngineSetUnset {
-    public:
-        StaticRandomEngineSetUnset(edm::StreamID const&);
-        explicit StaticRandomEngineSetUnset(CLHEP::HepRandomEngine * engine);
-        ~StaticRandomEngineSetUnset();
-    private:
-        CLHEP::HepRandomEngine* m_currentEngine;
-        CLHEP::HepRandomEngine* m_previousEngine;
-    };
-}
+  class StaticRandomEngineSetUnset {
+  public:
+    StaticRandomEngineSetUnset(edm::StreamID const&);
+    explicit StaticRandomEngineSetUnset(CLHEP::HepRandomEngine* engine);
+    ~StaticRandomEngineSetUnset();
 
-OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const OscarMTMasterThread *)
-{
+  private:
+    CLHEP::HepRandomEngine* m_currentEngine;
+    CLHEP::HepRandomEngine* m_previousEngine;
+  };
+}  // namespace
+
+OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread*) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
@@ -82,10 +82,12 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const OscarMTMaste
   produces<edm::PSimHitContainer>("TrackerHitsTOBHighTof");
   produces<edm::PSimHitContainer>("TrackerHitsTECLowTof");
   produces<edm::PSimHitContainer>("TrackerHitsTECHighTof");
-    
+
   produces<edm::PSimHitContainer>("TotemHitsT1");
   produces<edm::PSimHitContainer>("TotemHitsT2Gem");
   produces<edm::PSimHitContainer>("TotemHitsRP");
+  produces<edm::PSimHitContainer>("CTPPSPixelHits");
+  produces<edm::PSimHitContainer>("CTPPSTimingHits");
   produces<edm::PSimHitContainer>("FP420SI");
   produces<edm::PSimHitContainer>("BSCHits");
   produces<edm::PSimHitContainer>("PLTHits");
@@ -118,19 +120,17 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const OscarMTMaste
   produces<edm::PCaloHitContainer>("ChamberHits");
   produces<edm::PCaloHitContainer>("FibreHits");
   produces<edm::PCaloHitContainer>("WedgeHits");
+  produces<edm::PCaloHitContainer>("HFNoseHits");
 
   //register any products
   m_producers = m_runManagerWorker->producers();
 
-  for(Producers::iterator itProd = m_producers.begin();
-      itProd != m_producers.end(); ++itProd) {
-
+  for (Producers::iterator itProd = m_producers.begin(); itProd != m_producers.end(); ++itProd) {
     (*itProd)->registerProducts(*this);
   }
 }
 
-OscarMTProducer::~OscarMTProducer() 
-{ }
+OscarMTProducer::~OscarMTProducer() {}
 
 std::unique_ptr<OscarMTMasterThread> OscarMTProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
   // Random number generation not allowed here
@@ -139,7 +139,9 @@ std::unique_ptr<OscarMTMasterThread> OscarMTProducer::initializeGlobalCache(cons
   return std::unique_ptr<OscarMTMasterThread>(new OscarMTMasterThread(iConfig));
 }
 
-std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const OscarMTMasterThread *masterThread) {
+std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run& iRun,
+                                                     const edm::EventSetup& iSetup,
+                                                     const OscarMTMasterThread* masterThread) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
@@ -148,98 +150,77 @@ std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run& iRun, const
   return std::shared_ptr<int>();
 }
 
-void OscarMTProducer::globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext *iContext) {
+void OscarMTProducer::globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext* iContext) {
   iContext->global()->endRun();
 }
 
-void OscarMTProducer::globalEndJob(OscarMTMasterThread *masterThread) {
-  masterThread->stopThread();
-}
+void OscarMTProducer::globalEndJob(OscarMTMasterThread* masterThread) { masterThread->stopThread(); }
 
-void 
-OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&)
-{
+void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
   m_runManagerWorker->endRun();
 }
 
-void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
-{
+void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   StaticRandomEngineSetUnset random(e.streamID());
-  LogDebug("SimG4CoreApplication") 
-    << "Produce event " << e.id() << " stream " << e.streamID() 
-    << " rand= " << G4UniformRand();
+  LogDebug("SimG4CoreApplication") << "Produce event " << e.id() << " stream " << e.streamID()
+                                   << " rand= " << G4UniformRand();
 
-  std::vector<SensitiveTkDetector*>& sTk =
-    m_runManagerWorker->sensTkDetectors();
-  std::vector<SensitiveCaloDetector*>& sCalo =
-    m_runManagerWorker->sensCaloDetectors();
+  auto& sTk = m_runManagerWorker->sensTkDetectors();
+  auto& sCalo = m_runManagerWorker->sensCaloDetectors();
 
-  try { m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster()); }
-  catch ( const SimG4Exception& simg4ex ) {
-       
-    edm::LogWarning("SimG4CoreApplication") << "SimG4Exception caght! " 
-					    << simg4ex.what();
-       
-    throw edm::Exception( edm::errors::EventCorruption ) 
-      << "SimG4CoreApplication exception in generation of event "
-      << e.id() << " in stream " << e.streamID() << " \n"
-      << simg4ex.what();
+  std::unique_ptr<G4SimEvent> evt;
+  try {
+    evt = m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
+  } catch (const SimG4Exception& simg4ex) {
+    edm::LogWarning("SimG4CoreApplication") << "SimG4Exception caght! " << simg4ex.what();
+
+    throw edm::Exception(edm::errors::EventCorruption)
+        << "SimG4CoreApplication exception in generation of event " << e.id() << " in stream " << e.streamID() << " \n"
+        << simg4ex.what();
   }
 
-  std::unique_ptr<edm::SimTrackContainer>
-    p1(new edm::SimTrackContainer);
-  std::unique_ptr<edm::SimVertexContainer>
-    p2(new edm::SimVertexContainer);
-  G4SimEvent * evt = m_runManagerWorker->simEvent();
+  std::unique_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
+  std::unique_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
   evt->load(*p1);
-  evt->load(*p2);   
+  evt->load(*p2);
 
   e.put(std::move(p1));
   e.put(std::move(p2));
 
-  for (auto & tracker : sTk) {
-
+  for (auto& tracker : sTk) {
     const std::vector<std::string>& v = tracker->getNames();
-    for (auto & name : v) {
-
-      std::unique_ptr<edm::PSimHitContainer>
-	product(new edm::PSimHitContainer);
-      tracker->fillHits(*product,name);
-      e.put(std::move(product),name);
+    for (auto& name : v) {
+      std::unique_ptr<edm::PSimHitContainer> product(new edm::PSimHitContainer);
+      tracker->fillHits(*product, name);
+      e.put(std::move(product), name);
     }
   }
-  for (auto & calo : sCalo) {
-
+  for (auto& calo : sCalo) {
     const std::vector<std::string>& v = calo->getNames();
 
-    for (auto & name : v) {
-
-      std::unique_ptr<edm::PCaloHitContainer>
-	product(new edm::PCaloHitContainer);
-      calo->fillHits(*product,name);
-      e.put(std::move(product),name);
+    for (auto& name : v) {
+      std::unique_ptr<edm::PCaloHitContainer> product(new edm::PCaloHitContainer);
+      calo->fillHits(*product, name);
+      e.put(std::move(product), name);
     }
   }
 
-  for(auto & prod :  m_producers) {
-    prod.get()->produce(e,es);
+  for (auto& prod : m_producers) {
+    prod.get()->produce(e, es);
   }
-  LogDebug("SimG4CoreApplication") 
-    << "Event is produced " << e.id() << " stream " << e.streamID() 
-    << " rand= " << G4UniformRand();
+  LogDebug("SimG4CoreApplication") << "Event is produced " << e.id() << " stream " << e.streamID()
+                                   << " rand= " << G4UniformRand();
 }
 
-StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(
-      edm::StreamID const& streamID)
-{
+StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(edm::StreamID const& streamID) {
   edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
+  if (!rng.isAvailable()) {
     throw cms::Exception("Configuration")
-      << "The OscarMTProducer module requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file if you want to run OscarMTProducer";
+        << "The OscarMTProducer module requires the RandomNumberGeneratorService\n"
+           "which is not present in the configuration file.  You must add the service\n"
+           "in the configuration file if you want to run OscarMTProducer";
   }
   m_currentEngine = &(rng->getEngine(streamID));
 
@@ -247,17 +228,12 @@ StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(
   G4Random::setTheEngine(m_currentEngine);
 }
 
-StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(
-      CLHEP::HepRandomEngine * engine) 
-{
+StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(CLHEP::HepRandomEngine* engine) {
   m_currentEngine = engine;
   m_previousEngine = G4Random::getTheEngine();
   G4Random::setTheEngine(m_currentEngine);
 }
 
-StaticRandomEngineSetUnset::~StaticRandomEngineSetUnset() 
-{
-  G4Random::setTheEngine(m_previousEngine);
-}
+StaticRandomEngineSetUnset::~StaticRandomEngineSetUnset() { G4Random::setTheEngine(m_previousEngine); }
 
 DEFINE_FWK_MODULE(OscarMTProducer);

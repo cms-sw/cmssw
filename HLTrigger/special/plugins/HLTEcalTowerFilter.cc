@@ -22,56 +22,52 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-
 //
 // class declaration
 //
 
 class HLTEcalTowerFilter : public HLTFilter {
 public:
-  explicit HLTEcalTowerFilter(const edm::ParameterSet &);
+  explicit HLTEcalTowerFilter(const edm::ParameterSet&);
   ~HLTEcalTowerFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
   edm::EDGetTokenT<CaloTowerCollection> inputToken_;
-  edm::InputTag inputTag_; // input tag identifying product
-  double min_E_;           // energy threshold in GeV
-  double max_Eta_;         // maximum eta
-  int min_N_;              // minimum number
-
+  edm::InputTag inputTag_;  // input tag identifying product
+  double min_E_;            // energy threshold in GeV
+  double max_Eta_;          // maximum eta
+  int min_N_;               // minimum number
 };
 
 //
 // constructors and destructor
 //
-HLTEcalTowerFilter::HLTEcalTowerFilter(const edm::ParameterSet& config) : HLTFilter(config),
-  inputTag_ (config.getParameter<edm::InputTag>("inputTag")),
-  min_E_    (config.getParameter<double>       ("MinE"   )),
-  max_Eta_  (config.getParameter<double>       ("MaxEta"   )),
-  min_N_    (config.getParameter<int>          ("MinN"   ))
-{
+HLTEcalTowerFilter::HLTEcalTowerFilter(const edm::ParameterSet& config)
+    : HLTFilter(config),
+      inputTag_(config.getParameter<edm::InputTag>("inputTag")),
+      min_E_(config.getParameter<double>("MinE")),
+      max_Eta_(config.getParameter<double>("MaxEta")),
+      min_N_(config.getParameter<int>("MinN")) {
   inputToken_ = consumes<CaloTowerCollection>(inputTag_);
-  LogDebug("") << "Input/ecut/etacut/ncut : "
-               << inputTag_.encode() << " "
-               << min_E_ << " "
-               << max_Eta_ << " "
-               << min_N_ ;
+  LogDebug("") << "Input/ecut/etacut/ncut : " << inputTag_.encode() << " " << min_E_ << " " << max_Eta_ << " "
+               << min_N_;
 }
 
 HLTEcalTowerFilter::~HLTEcalTowerFilter() = default;
 
-void
-HLTEcalTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTEcalTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltTowerMakerForEcal"));
-  desc.add<double>("MinE",10.);
-  desc.add<double>("MaxEta",3.);
-  desc.add<int>("MinN",1);
-  descriptions.add("hltEcalTowerFilter",desc);
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("hltTowerMakerForEcal"));
+  desc.add<double>("MinE", 10.);
+  desc.add<double>("MaxEta", 3.);
+  desc.add<int>("MinN", 1);
+  descriptions.add("hltEcalTowerFilter", desc);
 }
 
 //
@@ -79,9 +75,9 @@ HLTEcalTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 //
 
 // ------------ method called to produce the data  ------------
-  bool
-HLTEcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
-{
+bool HLTEcalTowerFilter::hltFilter(edm::Event& event,
+                                   const edm::EventSetup& setup,
+                                   trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -92,7 +88,8 @@ HLTEcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
   // this HLT filter, and place it in the Event.
 
   // The filter object
-  if (saveTags()) filterproduct.addCollectionTag(inputTag_);
+  if (saveTags())
+    filterproduct.addCollectionTag(inputTag_);
 
   // get hold of collection of objects
   Handle<CaloTowerCollection> towers;
@@ -102,7 +99,7 @@ HLTEcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
 
   // look at all objects, check cuts and add to filter object
   int n = 0;
-  for (auto const & i : *towers) {
+  for (auto const& i : *towers) {
     if (i.emEnergy() >= min_E_ and fabs(i.eta()) <= max_Eta_) {
       ++n;
       //edm::Ref<CaloTowerCollection> ref(towers, std::distance(towers->begin(), i));
@@ -110,10 +107,11 @@ HLTEcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
     }
   }
 
-  LogDebug("HLTEcalTowerFilter") << "Number of towers with eta < " << max_Eta_ << " and energy > " << min_E_ << ": " << n;
+  LogDebug("HLTEcalTowerFilter") << "Number of towers with eta < " << max_Eta_ << " and energy > " << min_E_ << ": "
+                                 << n;
 
   // filter decision
-  bool accept(n>=min_N_);
+  bool accept(n >= min_N_);
 
   return accept;
 }

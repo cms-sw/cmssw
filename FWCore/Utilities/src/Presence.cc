@@ -5,4 +5,4 @@
 
 namespace edm {
   Presence::~Presence() {}
-}
+}  // namespace edm

@@ -12,14 +12,14 @@
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
 #include "boost/mpl/vector.hpp"
 
-class TrackerDigiGeometryRecord : 
-  public edm::eventsetup::DependentRecordImplementation<TrackerDigiGeometryRecord,
-                boost::mpl::vector<IdealGeometryRecord,
-                TrackerAlignmentRcd, 
-                TrackerAlignmentErrorExtendedRcd,
-                TrackerSurfaceDeformationRcd,
-                GlobalPositionRcd,
-                TrackerTopologyRcd,
-                PTrackerParametersRcd> > {};
+class TrackerDigiGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<TrackerDigiGeometryRecord,
+                                                            boost::mpl::vector<IdealGeometryRecord,
+                                                                               TrackerAlignmentRcd,
+                                                                               TrackerAlignmentErrorExtendedRcd,
+                                                                               TrackerSurfaceDeformationRcd,
+                                                                               GlobalPositionRcd,
+                                                                               TrackerTopologyRcd,
+                                                                               PTrackerParametersRcd> > {};
 
 #endif /* RECORDS_TRACKERDIGIGEOMETRYRECORD_H */

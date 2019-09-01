@@ -8,34 +8,27 @@
 /**
  * StripGeomDetType is the abstract class for SiStripGeomDetType.
  */
-class StripGeomDetType final : public GeomDetType
-{
-
+class StripGeomDetType final : public GeomDetType {
 public:
+  typedef StripTopology TopologyType;
 
-  typedef  StripTopology        TopologyType;
+  StripGeomDetType(TopologyType* t, std::string const& name, SubDetector& det, bool stereo)
+      : GeomDetType(name, det), theTopology(t), theStereoFlag(stereo) {}
 
-  StripGeomDetType(TopologyType* t, std::string const & name,SubDetector& det,bool stereo) : GeomDetType(name,det),
-    theTopology(t),theStereoFlag(stereo){}
-
-  ~StripGeomDetType() override {
-    delete theTopology;
-  }
+  ~StripGeomDetType() override { delete theTopology; }
 
   // Access to topologies
-  const Topology&  topology() const override { return *theTopology;}
-  
-  virtual const  TopologyType& specificTopology() const { return *theTopology;}
+  const Topology& topology() const override { return *theTopology; }
 
-  void setTopology( TopologyType* topol);
+  virtual const TopologyType& specificTopology() const { return *theTopology; }
 
-  bool isStereo() const {return theStereoFlag;}
+  void setTopology(TopologyType* topol);
+
+  bool isStereo() const { return theStereoFlag; }
 
 private:
-
-  TopologyType*    theTopology;
-  bool           theStereoFlag;
-
+  TopologyType* theTopology;
+  bool theStereoFlag;
 };
 
-#endif // StripGeomDetType_H
+#endif  // StripGeomDetType_H

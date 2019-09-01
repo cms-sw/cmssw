@@ -2,7 +2,6 @@
 #ifndef LaserAlignment_LaserAlignment_H
 #define LaserAlignment_LaserAlignment_H
 
-
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
@@ -12,13 +11,11 @@
  *  \author Jan Olzem
  */
 
-
-
 #include <sstream>
 #include <iostream>
 #include <cmath>
 
-#include "FWCore/Framework/interface/Event.h" 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -70,72 +67,65 @@
 #include "TFile.h"
 #include "TF1.h"
 
-
-
-
-
-
-
-
 ///
 ///
 ///
 class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer> {
-
- public:
-
-  explicit LaserAlignment( edm::ParameterSet const& theConf );
+public:
+  explicit LaserAlignment(edm::ParameterSet const& theConf);
   ~LaserAlignment() override;
   void beginJob() override;
-  void produce( edm::Event&, edm::EventSetup const& ) override;
+  void produce(edm::Event&, edm::EventSetup const&) override;
   void endJob() override;
-  void endRunProduce(edm::Run&, const edm::EventSetup& ) override;
+  void endRunProduce(edm::Run&, const edm::EventSetup&) override;
 
   /// for debugging & testing only, will disappear..
-  void testRoutine( void );
+  void testRoutine(void);
 
-
- private:
-
+private:
   /// fill profiles from SiStrip(Raw)Digi container
-  void fillDataProfiles( edm::Event const&, edm::EventSetup const& );
+  void fillDataProfiles(edm::Event const&, edm::EventSetup const&);
 
   /// fill pedestals from dbase
-  void fillPedestalProfiles( edm::ESHandle<SiStripPedestals>&  );
+  void fillPedestalProfiles(edm::ESHandle<SiStripPedestals>&);
 
   /// decide whether TEC or AT beams have fired
-  bool isTECBeam( void );
-  bool isATBeam( void );
+  bool isTECBeam(void);
+  bool isATBeam(void);
 
   /// returns the nominal beam position (strips) in TOB for the profileJudge
-  double getTIBTOBNominalBeamOffset( unsigned int, unsigned int, unsigned int );
+  double getTIBTOBNominalBeamOffset(unsigned int, unsigned int, unsigned int);
 
   /// returns the nominal beam position (strips) in TEC (AT) for the profileJudge
-  double getTEC2TECNominalBeamOffset( unsigned int, unsigned int, unsigned int );
+  double getTEC2TECNominalBeamOffset(unsigned int, unsigned int, unsigned int);
 
   /// fill hard coded detIds
-  void fillDetectorId( void );
+  void fillDetectorId(void);
 
   /// convert an angle in the [-pi,pi] range to the [0,2*pi] range
-  double ConvertAngle( double );
+  double ConvertAngle(double);
 
   /// fills a LASGlobalData<LASCoordinateSet> with nominal module positions
-  void CalculateNominalCoordinates( void );
-  
-  /// for debugging only, will disappear
-  void DumpPosFileSet( LASGlobalData<LASCoordinateSet>& );
+  void CalculateNominalCoordinates(void);
 
   /// for debugging only, will disappear
-  void DumpStripFileSet( LASGlobalData<std::pair<float,float> >& );
+  void DumpPosFileSet(LASGlobalData<LASCoordinateSet>&);
 
   /// for debugging only, will disappear
-  void DumpHitmaps( LASGlobalData<int>& );
+  void DumpStripFileSet(LASGlobalData<std::pair<float, float> >&);
+
+  /// for debugging only, will disappear
+  void DumpHitmaps(LASGlobalData<int>&);
 
   /// apply endcap correction to masked modules in TEC
-  void ApplyEndcapMaskingCorrections( LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>&, LASEndcapAlignmentParameterSet& );
-  
+  void ApplyEndcapMaskingCorrections(LASGlobalData<LASCoordinateSet>&,
+                                     LASGlobalData<LASCoordinateSet>&,
+                                     LASEndcapAlignmentParameterSet&);
+
   /// same for alignment tube modules
-  void ApplyATMaskingCorrections( LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>&, LASBarrelAlignmentParameterSet& ); 
+  void ApplyATMaskingCorrections(LASGlobalData<LASCoordinateSet>&,
+                                 LASGlobalData<LASCoordinateSet>&,
+                                 LASBarrelAlignmentParameterSet&);
 
   /// counter for the total number of events processed
   int theEvents;
@@ -186,7 +176,7 @@ class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer> {
   /// config switch
   bool theSetNominalStrips;
 
-  // this object can judge if 
+  // this object can judge if
   // a LASModuleProfile is usable for position measurement
   LASProfileJudge judge;
 
@@ -230,14 +220,13 @@ class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer> {
   LASGlobalLoop moduleLoop;
 
   /// Tree stuff
-  TFile * theFile;
+  TFile* theFile;
   TDirectory* singleModulesDir;
 
   /// tracker geometry;
   edm::ESHandle<GeometricDet> gD;
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
   edm::ESHandle<Alignments> theGlobalPositionRcd;
-
 
   AlignableTracker* theAlignableTracker;
 

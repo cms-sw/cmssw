@@ -1,46 +1,33 @@
 #ifndef CastorSim_CastorSimParameters_h
 #define CastorSim_CastorSimParameters_h
 
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 
-class CastorSimParameters : public CaloSimParameters
-{
+class CastorSimParameters : public CaloSimParameters {
 public:
+  CastorSimParameters(double simHitToPhotoelectrons,
+                      double photoelectronsToAnalog,
+                      double samplingFactor,
+                      double timePhase,
+                      bool syncPhase);
+  CastorSimParameters(const edm::ParameterSet &p);
 
-CastorSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog, double samplingFactor, double timePhase, bool syncPhase);
-CastorSimParameters(const edm::ParameterSet & p);
+  ~CastorSimParameters() override {}
 
-  /*
-  CastorSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog,
-                double samplingFactor, double timePhase,
-                int readoutFrameSize, int binOfMaximum,
-                bool doPhotostatistics, bool syncPhase,
-                int firstRing, const std::vector<double> & samplingFactors);
- CastorSimParameters(const edm::ParameterSet & p);
-  */
+  void setDbService(const CastorDbService *service) { theDbService = service; }
 
-~CastorSimParameters() override {}
+  double getNominalfCperPE() const;
 
-void setDbService(const CastorDbService * service) {theDbService = service;}
+  double photoelectronsToAnalog(const DetId &detId) const override;
 
-//virtual double simHitToPhotoelectrons(const DetId & detId) const;
-
-double photoelectronsToAnalog(const DetId & detId) const override;
-
-double fCtoGeV(const DetId & detId) const;
-
-  /// the ratio of actual incident energy to deposited energy
-  /// in the SimHit
-//  virtual double samplingFactor(const DetId & detId) const;
-
+  double fCtoGeV(const DetId &detId) const;
 
 private:
-const CastorDbService * theDbService;
-double theSamplingFactor;
-//std::vector<double> theSamplingFactors;
+  const CastorDbService *theDbService;
+  double theSamplingFactor;
+  double nominalfCperPE;
 };
 
 #endif
-  

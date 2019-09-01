@@ -12,13 +12,12 @@
 
 // system include files
 #include <cassert>
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "TVirtualCollectionProxy.h"
 
 // user include files
 #include "Fireworks/Core/src/FWItemTVirtualCollectionProxyAccessor.h"
-
 
 //
 // constants, enums and typedefs
@@ -32,24 +31,15 @@
 // constructors and destructor
 //
 FWItemTVirtualCollectionProxyAccessor::FWItemTVirtualCollectionProxyAccessor(
-   const TClass* iType,
-   std::shared_ptr<TVirtualCollectionProxy> iProxy,
-   size_t iOffset)
-   : m_type(iType),
-     m_colProxy(iProxy),
-     m_data(nullptr),
-     m_offset(iOffset)
-{
-}
+    const TClass* iType, std::shared_ptr<TVirtualCollectionProxy> iProxy, size_t iOffset)
+    : m_type(iType), m_colProxy(iProxy), m_data(nullptr), m_offset(iOffset) {}
 
 // FWItemTVirtualCollectionProxyAccessor::FWItemTVirtualCollectionProxyAccessor(const FWItemTVirtualCollectionProxyAccessor& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWItemTVirtualCollectionProxyAccessor::~FWItemTVirtualCollectionProxyAccessor()
-{
-}
+FWItemTVirtualCollectionProxyAccessor::~FWItemTVirtualCollectionProxyAccessor() {}
 
 //
 // assignment operators
@@ -66,72 +56,48 @@ FWItemTVirtualCollectionProxyAccessor::~FWItemTVirtualCollectionProxyAccessor()
 //
 // member functions
 //
-void
-FWItemTVirtualCollectionProxyAccessor::setData(const edm::ObjectWithDict& product)
-{
-   if (product.address() == nullptr)
-   {
-      reset();
-      return;
-   }
+void FWItemTVirtualCollectionProxyAccessor::setData(const edm::ObjectWithDict& product) {
+  if (product.address() == nullptr) {
+    reset();
+    return;
+  }
 
-   m_data = product.address();
-   assert(nullptr!=m_data);
-   m_colProxy->PushProxy(static_cast<char*>(const_cast<void*>(m_data))+m_offset);
+  m_data = product.address();
+  assert(nullptr != m_data);
+  m_colProxy->PushProxy(static_cast<char*>(const_cast<void*>(m_data)) + m_offset);
 }
 
-void
-FWItemTVirtualCollectionProxyAccessor::reset()
-{
-   if (nullptr != m_data)
-   {
-      m_data=nullptr;
-      m_colProxy->PopProxy();
-   }
+void FWItemTVirtualCollectionProxyAccessor::reset() {
+  if (nullptr != m_data) {
+    m_data = nullptr;
+    m_colProxy->PopProxy();
+  }
 }
 
 //
 // const member functions
 //
-const void*
-FWItemTVirtualCollectionProxyAccessor::modelData(int iIndex) const
-{
-   if ( nullptr == m_data) { return m_data; }
-   return m_colProxy->At(iIndex);
+const void* FWItemTVirtualCollectionProxyAccessor::modelData(int iIndex) const {
+  if (nullptr == m_data) {
+    return m_data;
+  }
+  return m_colProxy->At(iIndex);
 }
 
-const void*
-FWItemTVirtualCollectionProxyAccessor::data() const
-{
-   return m_data;
+const void* FWItemTVirtualCollectionProxyAccessor::data() const { return m_data; }
+
+unsigned int FWItemTVirtualCollectionProxyAccessor::size() const {
+  if (m_data == nullptr) {
+    return 0;
+  }
+  return m_colProxy->Size();
 }
 
-unsigned int
-FWItemTVirtualCollectionProxyAccessor::size() const
-{
-   if(m_data==nullptr) {
-      return 0;
-   }
-   return m_colProxy->Size();
-}
+const TClass* FWItemTVirtualCollectionProxyAccessor::modelType() const { return m_colProxy->GetValueClass(); }
 
-const TClass*
-FWItemTVirtualCollectionProxyAccessor::modelType() const
-{
-   return m_colProxy->GetValueClass();
-}
+const TClass* FWItemTVirtualCollectionProxyAccessor::type() const { return m_type; }
 
-const TClass*
-FWItemTVirtualCollectionProxyAccessor::type() const
-{
-   return m_type;
-}
-
-bool
-FWItemTVirtualCollectionProxyAccessor::isCollection() const
-{
-   return true;
-}
+bool FWItemTVirtualCollectionProxyAccessor::isCollection() const { return true; }
 
 //
 // static member functions

@@ -10,14 +10,14 @@
  *  this class.
  */
 
-class SimG4Exception : public std::exception 
-{
+class SimG4Exception : public std::exception {
 public:
-    SimG4Exception(const std::string & message) : error_(message) {}
-    ~SimG4Exception() throw() override {}
-    const char * what () const throw() override { return error_.c_str(); }
+  SimG4Exception(const std::string& message) : error_(message) {}
+  ~SimG4Exception() throw() override {}
+  const char* what() const throw() override { return error_.c_str(); }
+
 private:
-    std::string error_;    
+  std::string error_;
 };
 
 #endif

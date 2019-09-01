@@ -1,91 +1,123 @@
 ///////////////////////////////////////////////////////////////////////////////
 // File: DDMuonAngular.cc
-// Description: Position inside the mother according to (eta,phi) 
+// Description: Position inside the mother according to (eta,phi)
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cmath>
 #include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "Geometry/MuonCommonData/plugins/DDMuonAngular.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
+
+class DDMuonAngular : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDMuonAngular();
+  ~DDMuonAngular() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  double startAngle;  //Start angle
+  double stepAngle;   //Step  angle
+  double zoffset;     //Offset in z
+  int n;              //Mumber of copies
+  int startCopyNo;    //Start copy Number
+  int incrCopyNo;     //Increment copy Number
+
+  std::string rotns;        //Namespace for rotation matrix
+  std::string idNameSpace;  //Namespace of this and ALL sub-parts
+  std::string childName;    //Children name
+};
+
+using namespace geant_units::operators;
+
+//#define EDM_ML_DEBUG
 
 DDMuonAngular::DDMuonAngular() {
-  edm::LogInfo("MuonGeom") << "DDMuonAngular test: Creating an instance";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonGeom") << "DDMuonAngular: Creating an instance";
+#endif
 }
 
 DDMuonAngular::~DDMuonAngular() {}
 
-void DDMuonAngular::initialize(const DDNumericArguments & nArgs,
-			       const DDVectorArguments & ,
-			       const DDMapArguments & ,
-			       const DDStringArguments & sArgs,
-			       const DDStringVectorArguments & ) {
-
-  startAngle  = nArgs["startAngle"];
-  stepAngle   = nArgs["stepAngle"];
-  zoffset     = nArgs["zoffset"];
-  n           = int (nArgs["n"]);
-  startCopyNo = int (nArgs["startCopyNo"]);
-  incrCopyNo  = int (nArgs["incrCopyNo"]);
-  edm::LogInfo("MuonGeom") << "DDMuonAngular debug: Parameters for positioning-- "
-		       << n << " copies in steps of " << stepAngle/CLHEP::deg 
-		       << " from " << startAngle/CLHEP::deg << " \tZoffest " 
-		       << zoffset << "\tStart and inremental copy nos " 
-		       << startCopyNo << ", " << incrCopyNo;
-
-  rotns       = sArgs["RotNameSpace"];
+void DDMuonAngular::initialize(const DDNumericArguments& nArgs,
+                               const DDVectorArguments&,
+                               const DDMapArguments&,
+                               const DDStringArguments& sArgs,
+                               const DDStringVectorArguments&) {
+  startAngle = nArgs["startAngle"];
+  stepAngle = nArgs["stepAngle"];
+  zoffset = nArgs["zoffset"];
+  n = int(nArgs["n"]);
+  startCopyNo = int(nArgs["startCopyNo"]);
+  incrCopyNo = int(nArgs["incrCopyNo"]);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonGeom") << "DDMuonAngular: Parameters for positioning-- " << n << " copies in steps of "
+                               << convertRadToDeg(stepAngle) << " from " << convertRadToDeg(startAngle) << " \tZoffest "
+                               << zoffset << "\tStart and inremental copy nos " << startCopyNo << ", " << incrCopyNo;
+#endif
+  rotns = sArgs["RotNameSpace"];
   idNameSpace = DDCurrentNamespace::ns();
-  childName   = sArgs["ChildName"]; 
-  DDName parentName = parent().name(); 
-  edm::LogInfo("MuonGeom") << "DDMuonAngular debug: Parent " << parentName 
-		       << "\tChild " << childName << "\tNameSpace "
-		       << idNameSpace << "\tRotation Namespace " << rotns;
+  childName = sArgs["ChildName"];
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonGeom") << "DDMuonAngular debug: Parent " << parent().name() << "\tChild " << childName
+                               << "\tNameSpace " << idNameSpace << "\tRotation Namespace " << rotns;
+#endif
 }
 
 void DDMuonAngular::execute(DDCompactView& cpv) {
+  double phi = startAngle;
+  int copyNo = startCopyNo;
 
-  double phi    = startAngle;
-  int    copyNo = startCopyNo;
-
-  for (int ii=0; ii<n; ii++) {
-
-    double phideg = phi/CLHEP::deg;
-    int    iphi;
-    if (phideg > 0)  iphi = int(phideg+0.1);
-    else             iphi = int(phideg-0.1);
-    if (iphi >= 360) iphi   -= 360;
-    phideg = iphi;
+  for (int ii = 0; ii < n; ii++) {
+    double phitmp = phi;
+    if (phitmp >= 2._pi)
+      phitmp -= 2._pi;
     DDRotation rotation;
     std::string rotstr("NULL");
 
-    if (iphi != 0) {
-      rotstr = "R"; 
-      if (phideg >=0 && phideg < 10) rotstr = "R00"; 
-      else if (phideg < 100)         rotstr = "R0";
-      rotstr = rotstr + std::to_string(phideg);
-      rotation = DDRotation(DDName(rotstr, rotns)); 
+    if (std::abs(phitmp) >= 1.0_deg) {
+      rotstr = "R" + formatAsDegrees(phitmp);
+      rotation = DDRotation(DDName(rotstr, rotns));
       if (!rotation) {
-        edm::LogInfo("MuonGeom") << "DDMuonAngular test: Creating a new rotation "
-			     << DDName(rotstr, idNameSpace) << "\t90, " 
-			     << phideg << ", 90, " << (phideg+90) << ", 0, 0";
-        rotation = DDrot(DDName(rotstr, rotns), 90*CLHEP::deg, 
-			 phideg*CLHEP::deg, 90*CLHEP::deg, 
-			 (90+phideg)*CLHEP::deg, 0*CLHEP::deg,  0*CLHEP::deg);
-      } 
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("MuonGeom") << "DDMuonAngular: Creating a new rotation " << DDName(rotstr, idNameSpace)
+                                     << "\t90, " << convertRadToDeg(phitmp) << ", 90, "
+                                     << convertRadToDeg(phitmp + 90._deg) << ", 0, 0";
+#endif
+        rotation = DDrot(DDName(rotstr, rotns), 90._deg, phitmp, 90._deg, 90._deg + phitmp, 0., 0.);
+      }
     }
-    
+
     DDTranslation tran(0, 0, zoffset);
-  
-    DDName parentName = parent().name(); 
-    cpv.position(DDName(childName,idNameSpace), parentName, copyNo, tran, rotation);
-    edm::LogInfo("MuonGeom") << "DDMuonAngular test: " 
-			 << DDName(childName, idNameSpace) << " number " 
-			 << copyNo << " positioned in " << parentName << " at "
-			     << tran << " with " << rotstr << " " << rotation;
-    phi    += stepAngle;
+
+    DDName parentName = parent().name();
+    cpv.position(DDName(childName, idNameSpace), parentName, copyNo, tran, rotation);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("MuonGeom") << "DDMuonAngular: " << DDName(childName, idNameSpace) << " number " << copyNo
+                                 << " positioned in " << parentName << " at " << tran << " with " << rotstr << " "
+                                 << rotation;
+#endif
+    phi += stepAngle;
     copyNo += incrCopyNo;
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDMuonAngular, "muon:DDMuonAngular");

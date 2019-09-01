@@ -6,23 +6,21 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class EgammaHLTTimeCleanedRechitProducer : public edm::EDProducer {
-  
- public:
-  
+class EgammaHLTTimeCleanedRechitProducer : public edm::global::EDProducer<> {
+public:
   EgammaHLTTimeCleanedRechitProducer(const edm::ParameterSet& ps);
   ~EgammaHLTTimeCleanedRechitProducer() override;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   double timeMax_;
   double timeMin_;
   std::vector<edm::InputTag> hitLabels;
@@ -31,7 +29,4 @@ class EgammaHLTTimeCleanedRechitProducer : public edm::EDProducer {
   std::vector<edm::EDGetTokenT<EcalUncalibratedRecHitCollection>> uncalibHitTokens;
 };
 
-
 #endif
-
-

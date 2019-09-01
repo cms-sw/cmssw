@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os, sys
 
 #====================== check input ==========================
 
 VERSION = os.environ.get('CMSSW_VERSION')
 if VERSION is None:
-	print '''No environment CMSSW_VERSION'''
+	print('''No environment CMSSW_VERSION''')
         sys.exit()
 
 if len(sys.argv) < 5:
-	print 'Usage: python run.py PhysList Particle Fhcal VAR'
-	print 'Example: python run.py FTFP_BERT pi- 106.5 RR'
+	print('Usage: python run.py PhysList Particle Fhcal VAR')
+	print('Example: python run.py FTFP_BERT pi- 106.5 RR')
 	sys.exit()
 else:	
 	phys = sys.argv[1]
@@ -20,7 +21,7 @@ else:
 	var  = sys.argv[4]
 
 text = 'Start RUN for ' + phys + ' ' + part + ' ' + hcal + ' ' + var
-print text
+print(text)
 
 cmd = 'mkdir -p ' + VERSION
 os.system(cmd)
@@ -98,7 +99,7 @@ outf = fname + '.log'
 cmd4 = 'rm -f ' + outf
 os.system(cmd4)
 cmd1 = 'echo "Start loop" > ' + outf
-print cmd1
+print(cmd1)
 os.system(cmd1)
 
 for i in range( nE) :
@@ -114,18 +115,18 @@ for i in range( nE) :
   pfile.write('process.TFileService = cms.Service("TFileService", \n')
   pfile.write('  fileName = cms.string("' + fname + listP[i] + 'gev.root") \n')
   pfile.write(') \n\n')
-  pfile.write('process.common_beam_parameters.MinE = cms.double('+listE[i]+') \n')
-  pfile.write('process.common_beam_parameters.MaxE = cms.double('+listE[i]+') \n')
-  pfile.write('process.common_beam_parameters.PartID = cms.vint32('+pdg+') \n')
-  pfile.write('process.generator.PGunParameters.MinE = process.common_beam_parameters.MinE \n')
-  pfile.write('process.generator.PGunParameters.MaxE = process.common_beam_parameters.MaxE \n')
-  pfile.write('process.generator.PGunParameters.PartID = process.common_beam_parameters.PartID \n')
-  pfile.write('process.VtxSmeared.MinE = process.common_beam_parameters.MinE \n')
-  pfile.write('process.VtxSmeared.MaxE = process.common_beam_parameters.MaxE \n')
-  pfile.write('process.VtxSmeared.PartID = process.common_beam_parameters.PartID \n')
-  pfile.write('process.testbeam.MinE = process.common_beam_parameters.MinE \n')
-  pfile.write('process.testbeam.MaxE = process.common_beam_parameters.MaxE \n')
-  pfile.write('process.testbeam.PartID = process.common_beam_parameters.PartID \n')
+  pfile.write('process.common_beam_direction_parameters.MinE = cms.double('+listE[i]+') \n')
+  pfile.write('process.common_beam_direction_parameters.MaxE = cms.double('+listE[i]+') \n')
+  pfile.write('process.common_beam_direction_parameters.PartID = cms.vint32('+pdg+') \n')
+  pfile.write('process.generator.PGunParameters.MinE = process.common_beam_direction_parameters.MinE \n')
+  pfile.write('process.generator.PGunParameters.MaxE = process.common_beam_direction_parameters.MaxE \n')
+  pfile.write('process.generator.PGunParameters.PartID = process.common_beam_direction_parameters.PartID \n')
+  pfile.write('process.VtxSmeared.MinE = process.common_beam_direction_parameters.MinE \n')
+  pfile.write('process.VtxSmeared.MaxE = process.common_beam_direction_parameters.MaxE \n')
+  pfile.write('process.VtxSmeared.PartID = process.common_beam_direction_parameters.PartID \n')
+  pfile.write('process.testbeam.MinE = process.common_beam_direction_parameters.MinE \n')
+  pfile.write('process.testbeam.MaxE = process.common_beam_direction_parameters.MaxE \n')
+  pfile.write('process.testbeam.PartID = process.common_beam_direction_parameters.PartID \n')
   if(part == 'e-') : pfile.write('process.testbeam.ECAL = cms.bool(False) \n')
   if(var == 'NO') : pfile.write('process.testbeam.ECAL = cms.bool(False) \n')
   pfile.write('process.testbeam.TestBeamAnalysis.EcalFactor = cms.double(' + ecal + ') \n')

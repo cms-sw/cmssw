@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
 import os
 import sys
 import math
@@ -6,11 +9,12 @@ import array
 import difflib
 import collections
 
+import six
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-import html
+from . import html
 
 verbose=False
 _ratioYTitle = "Ratio"
@@ -47,7 +51,7 @@ def _getObject(tdirectory, name):
     obj = tdirectory.Get(name)
     if not obj:
         if verbose:
-            print "Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath())
+            print("Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath()))
         return None
     return obj
 
@@ -81,14 +85,14 @@ def _getDirectoryDetailed(tfile, possibleDirs, subDir=None):
                     return d
                 else:
                     if verbose:
-                        print "Did not find subdirectory '%s' from directory '%s' in file %s" % (subDir, pdf, tfile.GetName())
+                        print("Did not find subdirectory '%s' from directory '%s' in file %s" % (subDir, pdf, tfile.GetName()))
 #                        if "Step" in subDir:
 #                            raise Exception("Foo")
                     return GetDirectoryCode.SubDirNotExist
             else:
                 return d
     if verbose:
-        print "Did not find any of directories '%s' from file %s" % (",".join(possibleDirs), tfile.GetName())
+        print("Did not find any of directories '%s' from file %s" % (",".join(possibleDirs), tfile.GetName()))
     return GetDirectoryCode.PossibleDirsNotExist
 
 def _getDirectory(*args, **kwargs):
@@ -96,7 +100,7 @@ def _getDirectory(*args, **kwargs):
 
 def _th1ToOrderedDict(th1, renameBin=None):
     values = collections.OrderedDict()
-    for i in xrange(1, th1.GetNbinsX()+1):
+    for i in range(1, th1.GetNbinsX()+1):
         binLabel = th1.GetXaxis().GetBinLabel(i)
         if renameBin is not None:
             binLabel = renameBin(binLabel)
@@ -195,7 +199,7 @@ def _calculateRatios(histos, ratioUncertainty=False):
             xaxis = th1.GetXaxis()
             xaxis_arr = xaxis.GetXbins()
             if xaxis_arr.GetSize() > 0: # unequal binning
-                lst = [xaxis_arr[i] for i in xrange(0, xaxis_arr.GetSize())]
+                lst = [xaxis_arr[i] for i in range(0, xaxis_arr.GetSize())]
                 arr = array.array("d", lst)
                 self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), arr)
             else:
@@ -317,11 +321,11 @@ def _calculateRatios(histos, ratioUncertainty=False):
     ref = wrappers[0]
 
     wrappers_bins = []
-    ref_bins = [ref.xvalues(b) for b in xrange(ref.begin(), ref.end())]
+    ref_bins = [ref.xvalues(b) for b in range(ref.begin(), ref.end())]
     for w in wrappers:
         wrappers_bins.append(findBins(w, ref_bins))
 
-    for i, bin in enumerate(xrange(ref.begin(), ref.end())):
+    for i, bin in enumerate(range(ref.begin(), ref.end())):
         (scale, ylow, yhigh) = ref.yvalues(bin)
         for w, bins in zip(wrappers, wrappers_bins):
             if bins[i] is None:
@@ -338,7 +342,7 @@ def _getXmin(obj, limitToNonZeroContent=False):
     if isinstance(obj, ROOT.TH1):
         xaxis = obj.GetXaxis()
         if limitToNonZeroContent:
-            for i in xrange(1, obj.GetNbinsX()+1):
+            for i in range(1, obj.GetNbinsX()+1):
                 if obj.GetBinContent(i) != 0:
                     return xaxis.GetBinLowEdge(i)
             # None for all bins being zero
@@ -346,7 +350,7 @@ def _getXmin(obj, limitToNonZeroContent=False):
         else:
             return xaxis.GetBinLowEdge(xaxis.GetFirst())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        m = min([obj.GetX()[i] for i in xrange(0, obj.GetN())])
+        m = min([obj.GetX()[i] for i in range(0, obj.GetN())])
         return m*0.9 if m > 0 else m*1.1
     raise Exception("Unsupported type %s" % str(obj))
 
@@ -354,7 +358,7 @@ def _getXmax(obj, limitToNonZeroContent=False):
     if isinstance(obj, ROOT.TH1):
         xaxis = obj.GetXaxis()
         if limitToNonZeroContent:
-            for i in xrange(obj.GetNbinsX(), 0, -1):
+            for i in range(obj.GetNbinsX(), 0, -1):
                 if obj.GetBinContent(i) != 0:
                     return xaxis.GetBinUpEdge(i)
             # None for all bins being zero
@@ -362,7 +366,7 @@ def _getXmax(obj, limitToNonZeroContent=False):
         else:
             return xaxis.GetBinUpEdge(xaxis.GetLast())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        m = max([obj.GetX()[i] for i in xrange(0, obj.GetN())])
+        m = max([obj.GetX()[i] for i in range(0, obj.GetN())])
         return m*1.1 if m > 0 else m*0.9
     raise Exception("Unsupported type %s" % str(obj))
 
@@ -372,12 +376,12 @@ def _getYmin(obj, limitToNonZeroContent=False):
         return yaxis.GetBinLowEdge(yaxis.GetFirst())
     elif isinstance(obj, ROOT.TH1):
         if limitToNonZeroContent:
-            lst = [obj.GetBinContent(i) for i in xrange(1, obj.GetNbinsX()+1) if obj.GetBinContent(i) != 0 ]
+            lst = [obj.GetBinContent(i) for i in range(1, obj.GetNbinsX()+1) if obj.GetBinContent(i) != 0 ]
             return min(lst) if len(lst) != 0 else 0
         else:
             return obj.GetMinimum()
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        m = min([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+        m = min([obj.GetY()[i] for i in range(0, obj.GetN())])
         return m*0.9 if m > 0 else m*1.1
     raise Exception("Unsupported type %s" % str(obj))
 
@@ -387,21 +391,20 @@ def _getYmax(obj, limitToNonZeroContent=False):
         return yaxis.GetBinUpEdge(yaxis.GetLast())
     elif isinstance(obj, ROOT.TH1):
         if limitToNonZeroContent:
-            lst = [obj.GetBinContent(i) for i in xrange(1, obj.GetNbinsX()+1) if obj.GetBinContent(i) != 0 ]
+            lst = [obj.GetBinContent(i) for i in range(1, obj.GetNbinsX()+1) if obj.GetBinContent(i) != 0 ]
             return max(lst) if len(lst) != 0 else 0
         else:
             return obj.GetMaximum()
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        m = max([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+        m = max([obj.GetY()[i] for i in range(0, obj.GetN())])
         return m*1.1 if m > 0 else m*0.9
     raise Exception("Unsupported type %s" % str(obj))
 
 def _getYmaxWithError(th1):
-    return max([th1.GetBinContent(i)+th1.GetBinError(i) for i in xrange(1, th1.GetNbinsX()+1)])
+    return max([th1.GetBinContent(i)+th1.GetBinError(i) for i in range(1, th1.GetNbinsX()+1)])
 
 def _getYminIgnoreOutlier(th1):
-    yvals = filter(lambda n: n>0, [th1.GetBinContent(i) for i in xrange(1, th1.GetNbinsX()+1)])
-    yvals.sort()
+    yvals = sorted([n for n in [th1.GetBinContent(i) for i in range(1, th1.GetNbinsX()+1)] if n>0])
     if len(yvals) == 0:
         return th1.GetMinimum()
     if len(yvals) == 1:
@@ -410,7 +413,7 @@ def _getYminIgnoreOutlier(th1):
     # Define outlier as being x10 less than minimum of the 95 % of the non-zero largest values
     ind_min = len(yvals)-1 - int(len(yvals)*0.95)
     min_val = yvals[ind_min]
-    for i in xrange(0, ind_min):
+    for i in range(0, ind_min):
         if yvals[i] > 0.1*min_val:
             return yvals[i]
 
@@ -424,10 +427,10 @@ def _getYminMaxAroundMedian(obj, coverage, coverageRange=None):
         inRange2 = lambda xmin,xmax: coverageRange[0] <= xmin and xmax <= coverageRange[1]
 
     if isinstance(obj, ROOT.TH1):
-        yvals = [obj.GetBinContent(i) for i in xrange(1, obj.GetNbinsX()+1) if inRange2(obj.GetXaxis().GetBinLowEdge(i), obj.GetXaxis().GetBinUpEdge(i))]
-        yvals = filter(lambda x: x != 0, yvals)
+        yvals = [obj.GetBinContent(i) for i in range(1, obj.GetNbinsX()+1) if inRange2(obj.GetXaxis().GetBinLowEdge(i), obj.GetXaxis().GetBinUpEdge(i))]
+        yvals = [x for x in yvals if x != 0]
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        yvals = [obj.GetY()[i] for i in xrange(0, obj.GetN()) if inRange(obj.GetX()[i])]
+        yvals = [obj.GetY()[i] for i in range(0, obj.GetN()) if inRange(obj.GetX()[i])]
     else:
         raise Exception("Unsupported type %s" % str(obj))
     if len(yvals) == 0:
@@ -476,8 +479,8 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
             xmaxs.append(_getXmax(th1, limitToNonZeroContent=isinstance(xmax, list)))
 
         # Filter out cases where histograms have zero content
-        xmins = filter(lambda h: h is not None, xmins)
-        xmaxs = filter(lambda h: h is not None, xmaxs)
+        xmins = [h for h in xmins if h is not None]
+        xmaxs = [h for h in xmaxs if h is not None]
 
         if xmin is None:
             xmin = min(xmins)
@@ -485,15 +488,15 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
             if len(xmins) == 0: # all histograms zero
                 xmin = min(xmin)
                 if verbose:
-                    print "Histogram is zero, using the smallest given value for xmin from", str(xmin)
+                    print("Histogram is zero, using the smallest given value for xmin from", str(xmin))
             else:
                 xm = min(xmins)
-                xmins_below = filter(lambda x: x<=xm, xmin)
+                xmins_below = [x for x in xmin if x<=xm]
                 if len(xmins_below) == 0:
                     xmin = min(xmin)
                     if xm < xmin:
                         if verbose:
-                            print "Histogram minimum x %f is below all given xmin values %s, using the smallest one" % (xm, str(xmin))
+                            print("Histogram minimum x %f is below all given xmin values %s, using the smallest one" % (xm, str(xmin)))
                 else:
                     xmin = max(xmins_below)
 
@@ -503,15 +506,15 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
             if len(xmaxs) == 0: # all histograms zero
                 xmax = max(xmax)
                 if verbose:
-                    print "Histogram is zero, using the smallest given value for xmax from", str(xmin)
+                    print("Histogram is zero, using the smallest given value for xmax from", str(xmin))
             else:
                 xm = max(xmaxs)
-                xmaxs_above = filter(lambda x: x>xm, xmax)
+                xmaxs_above = [x for x in xmax if x>xm]
                 if len(xmaxs_above) == 0:
                     xmax = max(xmax)
                     if xm > xmax:
                         if verbose:
-                            print "Histogram maximum x %f is above all given xmax values %s, using the maximum one" % (xm, str(xmax))
+                            print("Histogram maximum x %f is above all given xmax values %s, using the maximum one" % (xm, str(xmax)))
                 else:
                     xmax = min(xmaxs_above)
 
@@ -531,7 +534,7 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
     ymin -- Minimum y value; if None, take the minimum of TH1s
     ymax -- Maximum y value; if None, take the maximum of TH1s
     coverage -- If set, use only values within the 'coverage' part around the median are used for min/max (useful for ratio)
-    coverageRange -- If coverage and this are set, use only the x axis specified by an (xmin,xmax) pair for the coverage 
+    coverageRange -- If coverage and this are set, use only the x axis specified by an (xmin,xmax) pair for the coverage
     """
     if coverage is not None or isinstance(th1s[0], ROOT.TH2):
         # the only use case for coverage for now is ratio, for which
@@ -570,12 +573,12 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
         elif isinstance(ymin, list):
             ym_unscaled = min(ymins)
             ym = y_scale_min(ym_unscaled)
-            ymins_below = filter(lambda y: y<=ym, ymin)
+            ymins_below = [y for y in ymin if y<=ym]
             if len(ymins_below) == 0:
                 ymin = min(ymin)
                 if ym_unscaled < ymin:
                     if verbose:
-                        print "Histogram minimum y %f is below all given ymin values %s, using the smallest one" % (ym, str(ymin))
+                        print("Histogram minimum y %f is below all given ymin values %s, using the smallest one" % (ym, str(ymin)))
             else:
                 ymin = max(ymins_below)
 
@@ -586,12 +589,12 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
         elif isinstance(ymax, list):
             ym_unscaled = max(ymaxs)
             ym = y_scale_max(ym_unscaled)
-            ymaxs_above = filter(lambda y: y>ym, ymax)
+            ymaxs_above = [y for y in ymax if y>ym]
             if len(ymaxs_above) == 0:
                 ymax = max(ymax)
                 if ym_unscaled > ymax:
                     if verbose:
-                        print "Histogram maximum y %f is above all given ymax values %s, using the maximum one" % (ym_unscaled, str(ymax))
+                        print("Histogram maximum y %f is above all given ymax values %s, using the maximum one" % (ym_unscaled, str(ymax)))
             else:
                 ymax = min(ymaxs_above)
 
@@ -602,7 +605,7 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
 
 def _th1RemoveEmptyBins(histos, xbinlabels):
     binsToRemove = set()
-    for b in xrange(1, histos[0].GetNbinsX()+1):
+    for b in range(1, histos[0].GetNbinsX()+1):
         binEmpty = True
         for h in histos:
             if h.GetBinContent(b) > 0:
@@ -614,7 +617,7 @@ def _th1RemoveEmptyBins(histos, xbinlabels):
     if len(binsToRemove) > 0:
         # filter xbinlabels
         xbinlab_new = []
-        for i in xrange(len(xbinlabels)):
+        for i in range(len(xbinlabels)):
             if (i+1) not in binsToRemove:
                 xbinlab_new.append(xbinlabels[i])
         xbinlabels = xbinlab_new
@@ -623,7 +626,7 @@ def _th1RemoveEmptyBins(histos, xbinlabels):
         histos_new = []
         for h in histos:
             values = []
-            for b in xrange(1, h.GetNbinsX()+1):
+            for b in range(1, h.GetNbinsX()+1):
                 if b not in binsToRemove:
                     values.append( (h.GetXaxis().GetBinLabel(b), h.GetBinContent(b), h.GetBinError(b)) )
 
@@ -644,9 +647,9 @@ def _th2RemoveEmptyBins(histos, xbinlabels, ybinlabels):
     xbinsToRemove = set()
     ybinsToRemove = set()
     for ih, h in enumerate(histos):
-        for bx in xrange(1, h.GetNbinsX()+1):
+        for bx in range(1, h.GetNbinsX()+1):
             binEmpty = True
-            for by in xrange(1, h.GetNbinsY()+1):
+            for by in range(1, h.GetNbinsY()+1):
                 if h.GetBinContent(bx, by) > 0:
                     binEmpty = False
                     break
@@ -655,9 +658,9 @@ def _th2RemoveEmptyBins(histos, xbinlabels, ybinlabels):
             elif ih > 0:
                 xbinsToRemove.discard(bx)
 
-        for by in xrange(1, h.GetNbinsY()+1):
+        for by in range(1, h.GetNbinsY()+1):
             binEmpty = True
-            for bx in xrange(1, h.GetNbinsX()+1):
+            for bx in range(1, h.GetNbinsX()+1):
                 if h.GetBinContent(bx, by) > 0:
                     binEmpty = False
                     break
@@ -669,14 +672,14 @@ def _th2RemoveEmptyBins(histos, xbinlabels, ybinlabels):
     if len(xbinsToRemove) > 0 or len(ybinsToRemove) > 0:
         xbinlabels_new = []
         xbins = []
-        for b in xrange(1, len(xbinlabels)+1):
+        for b in range(1, len(xbinlabels)+1):
             if b not in xbinsToRemove:
                 xbinlabels_new.append(histos[0].GetXaxis().GetBinLabel(b))
                 xbins.append(b)
         xbinlabels = xbinlabels_new
         ybinlabels_new = []
         ybins = []
-        for b in xrange(1, len(ybinlabels)+1):
+        for b in range(1, len(ybinlabels)+1):
             if b not in ybinsToRemove:
                 ybinlabels.append(histos[0].GetYaxis().GetBinLabel(b))
                 ybins.append(b)
@@ -701,10 +704,10 @@ def _th2RemoveEmptyBins(histos, xbinlabels, ybinlabels):
     return (histos, xbinlabels, ybinlabels)
 
 def _mergeBinLabelsX(histos):
-    return _mergeBinLabels([[h.GetXaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsX()+1)] for h in histos])
+    return _mergeBinLabels([[h.GetXaxis().GetBinLabel(i) for i in range(1, h.GetNbinsX()+1)] for h in histos])
 
 def _mergeBinLabelsY(histos):
-    return _mergeBinLabels([[h.GetYaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsY()+1)] for h in histos])
+    return _mergeBinLabels([[h.GetYaxis().GetBinLabel(i) for i in range(1, h.GetNbinsY()+1)] for h in histos])
 
 def _mergeBinLabels(labelsAll):
     labels_merged = labelsAll[0]
@@ -795,7 +798,7 @@ class Subtract:
         # effects downstream
         ret.SetCanExtend(False)
 
-        for i in xrange(0, histoA.GetNbinsX()+2): # include under- and overflow too
+        for i in range(0, histoA.GetNbinsX()+2): # include under- and overflow too
             val = histoA.GetBinContent(i)-histoB.GetBinContent(i)
             ret.SetBinContent(i, val)
             ret.SetBinError(i, math.sqrt(val))
@@ -835,7 +838,7 @@ class Transform:
         # effects downstream
         ret.SetCanExtend(False)
 
-        for i in xrange(0, histo.GetNbinsX()+2):
+        for i in range(0, histo.GetNbinsX()+2):
             ret.SetBinContent(i, self._func(histo.GetBinContent(i)))
         return ret
 
@@ -879,7 +882,7 @@ class FakeDuplicate:
         hfakedup = hreco.Clone(self._name)
         hfakedup.SetTitle(self._title)
 
-        for i in xrange(1, hassoc.GetNbinsX()+1):
+        for i in range(1, hassoc.GetNbinsX()+1):
             numerVal = hassoc.GetBinContent(i) - hdup.GetBinContent(i)
             denomVal = hreco.GetBinContent(i)
 
@@ -933,7 +936,7 @@ class CutEfficiency:
         ret.SetTitle(self._title)
 
         # calculate efficiency
-        for i in xrange(1, histo.GetNbinsX()+1):
+        for i in range(1, histo.GetNbinsX()+1):
             n = histo.GetBinContent(i)
             val = n/n_tot
             errVal = math.sqrt(val*(1-val)/n_tot)
@@ -994,7 +997,7 @@ class AggregateBins:
         values = _th1ToOrderedDict(th1, self._renameBin)
 
         binIndexOrder = [] # for reordering bins if self._originalOrder is True
-        for i, (key, labels) in enumerate(self._mapping.iteritems()):
+        for i, (key, labels) in enumerate(six.iteritems(self._mapping)):
             sumTime = 0.
             sumErrorSq = 0.
             nsum = 0
@@ -1024,7 +1027,7 @@ class AggregateBins:
             binIndexOrder.sort(key=lambda t: t[0])
             tmpVal = []
             tmpLab = []
-            for i in xrange(0, len(binValues)):
+            for i in range(0, len(binValues)):
                 fromIndex = binIndexOrder[i][1]
                 tmpVal.append(binValues[fromIndex])
                 tmpLab.append(binLabels[fromIndex])
@@ -1042,8 +1045,8 @@ class AggregateBins:
             for i, val in enumerate(binValues):
                 if val is None:
                     binLabels[i] = None
-            binValues = filter(lambda v: v is not None, binValues)
-            binLabels = filter(lambda v: v is not None, binLabels)
+            binValues = [v for v in binValues if v is not None]
+            binLabels = [v for v in binLabels if v is not None]
             if len(binValues) == 0:
                 return None
 
@@ -1057,7 +1060,7 @@ class AggregateBins:
         if self._normalizeTo is not None:
             bin = th1.GetXaxis().FindBin(self._normalizeTo)
             if bin <= 0:
-                print "Trying to normalize {name} to {binlabel}, which does not exist".format(name=self._name, binlabel=self._normalizeTo)
+                print("Trying to normalize {name} to {binlabel}, which does not exist".format(name=self._name, binlabel=self._normalizeTo))
                 sys.exit(1)
             value = th1.GetBinContent(bin)
             if value != 0:
@@ -1091,7 +1094,7 @@ class AggregateHistos:
     def create(self, tdirectory):
         """Create and return the histogram from a TDirectory"""
         result = []
-        for key, histoName in self._mapping.iteritems():
+        for key, histoName in six.iteritems(self._mapping):
             th1 = _getObject(tdirectory, histoName)
             if th1 is None:
                 continue
@@ -1151,7 +1154,7 @@ class ROC:
         yerrdown = []
         z = []
 
-        for i in xrange(1, xhisto.GetNbinsX()+1):
+        for i in range(1, xhisto.GetNbinsX()+1):
             x.append(xhisto.GetBinContent(i))
             xerrup.append(xhisto.GetBinError(i))
             xerrdown.append(xhisto.GetBinError(i))
@@ -1214,7 +1217,7 @@ def _drawFrame(pad, bounds, zmax=None, xbinlabels=None, xbinlabelsize=None, xbin
         frame.Draw("")
 
         xaxis = frame.GetXaxis()
-        for i in xrange(nbins):
+        for i in range(nbins):
             xaxis.SetBinLabel(i+1, xbinlabels[i])
         if xbinlabelsize is not None:
             xaxis.SetLabelSize(xbinlabelsize)
@@ -1552,7 +1555,7 @@ class PlotText:
             self._l.SetTextFont(font)
         if size is not None:
             self._l.SetTextSize(size)
-        if isinstance(align, basestring):
+        if isinstance(align, str):
             if align.lower() == "left":
                 self._l.SetTextAlign(11)
             elif align.lower() == "center":
@@ -1825,7 +1828,7 @@ class Plot:
         self._histograms = []
 
     def setProperties(self, **kwargs):
-        for name, value in kwargs.iteritems():
+        for name, value in six.iteritems(kwargs):
             if not hasattr(self, "_"+name):
                 raise Exception("No attribute '%s'" % name)
             setattr(self, "_"+name, value)
@@ -1839,7 +1842,7 @@ class Plot:
 
     def getNumberOfHistograms(self):
         """Return number of existing histograms."""
-        return len(filter(lambda h: h is not None, self._histograms))
+        return len([h for h in self._histograms if h is not None])
 
     def isEmpty(self):
         """Return true if there are no histograms created for the plot"""
@@ -1888,7 +1891,7 @@ class Plot:
 
         if self._fallback is not None:
             profileX = [self._profileX]*len(self._histograms)
-            for i in xrange(0, len(self._histograms)):
+            for i in range(0, len(self._histograms)):
                 if self._histograms[i] is None:
                     self._histograms[i] = self._createOne(self._fallback["name"], i, tdirNEvents[i][0], tdirNEvents[i][1])
                     profileX[i] = self._fallback.get("profileX", self._profileX)
@@ -2034,7 +2037,7 @@ class Plot:
             histos.append(h)
         if len(histos) == 0:
             if verbose:
-                print "No histograms for plot {name}".format(name=self.getName())
+                print("No histograms for plot {name}".format(name=self.getName()))
             return
 
         # Extract x bin labels, make sure that only bins with same
@@ -2064,20 +2067,20 @@ class Plot:
             self._tmp_histos = histos # need to keep these in memory too ...
             if len(histos) == 0:
                 if verbose:
-                    print "No histograms with non-empty bins for plot {name}".format(name=self.getName())
+                    print("No histograms with non-empty bins for plot {name}".format(name=self.getName()))
                 return
 
         if self._printBins and histosHaveBinLabels:
-            print "####################"
-            print self._name
+            print("####################")
+            print(self._name)
             width = max([len(l) for l in xbinlabels])
             tmp = "%%-%ds " % width
-            for b in xrange(1, histos[0].GetNbinsX()+1):
+            for b in range(1, histos[0].GetNbinsX()+1):
                 s = tmp % xbinlabels[b-1]
                 for h in histos:
                     s += "%.3f " % h.GetBinContent(b)
-                print s
-            print
+                print(s)
+            print()
 
         bounds = _findBounds(histos, self._ylog,
                              xmin=self._xmin, xmax=self._xmax,
@@ -2092,7 +2095,7 @@ class Plot:
 
         if ratio:
             self._ratios = _calculateRatios(histos, self._ratioUncertainty) # need to keep these in memory too ...
-            ratioHistos = filter(lambda h: h is not None, [r.getRatio() for r in self._ratios[1:]])
+            ratioHistos = [h for h in [r.getRatio() for r in self._ratios[1:]] if h is not None]
 
             if len(ratioHistos) > 0:
                 ratioBoundsY = _findBoundsY(ratioHistos, ylog=False, ymin=self._ratioYmin, ymax=self._ratioYmax, coverage=0.68, coverageRange=self._ratioCoverageXrange)
@@ -2155,7 +2158,9 @@ class Plot:
 
         # Set properties of frame
         frame.setTitle(histos[0].GetTitle())
-        if self._xtitle is not None:
+        if self._xtitle == 'Default':
+            frame.setXTitle( histos[0].GetXaxis().GetTitle() )
+        elif self._xtitle is not None:
             frame.setXTitle(self._xtitle)
         if self._xtitlesize is not None:
             frame.setXTitleSize(self._xtitlesize)
@@ -2163,7 +2168,9 @@ class Plot:
             frame.setXTitleOffset(self._xtitleoffset)
         if self._xlabelsize is not None:
             frame.setXLabelSize(self._xlabelsize)
-        if self._ytitle is not None:
+        if self._ytitle == 'Default':
+            frame.setYTitle( histos[0].GetYaxis().GetTitle() )
+        elif self._ytitle is not None:
             frame.setYTitle(self._ytitle)
         if self._ytitlesize is not None:
             frame.setYTitleSize(self._ytitlesize)
@@ -2278,7 +2285,7 @@ class PlotGroup(object):
         self._ratioFactor = 1.25
 
     def setProperties(self, **kwargs):
-        for name, value in kwargs.iteritems():
+        for name, value in six.iteritems(kwargs):
             if not hasattr(self, "_"+name):
                 raise Exception("No attribute '%s'" % name)
             setattr(self, "_"+name, value)
@@ -2530,6 +2537,7 @@ class PlotOnSideGroup(PlotGroup):
     def draw(self, *args, **kwargs):
         kargs = copy.copy(kwargs)
         kargs["ratio"] = False
+        kargs["separate"] = False
         return super(PlotOnSideGroup, self).draw(*args, **kargs)
 
 class PlotFolder:
@@ -2670,7 +2678,7 @@ class PlotFolder:
         """Return True if this subfolder should be processed
 
         Arguments:
-        limitOnlyTo            -- List/set/similar containing the translatedDqmSubFolder 
+        limitOnlyTo            -- List/set/similar containing the translatedDqmSubFolder
         translatedDqmSubFolder -- Return value of translateSubFolder
         """
         return translatedDqmSubFolder in limitOnlyTo
@@ -2768,7 +2776,7 @@ class PlotterFolder:
         if limitOnlyTo is None:
             return self._dqmSubFolders
 
-        return filter(lambda s: self._plotFolder.limitSubFolder(limitOnlyTo, s.translated), self._dqmSubFolders)
+        return [s for s in self._dqmSubFolders if self._plotFolder.limitSubFolder(limitOnlyTo, s.translated)]
 
     def getTableCreators(self):
         return self._tableCreators
@@ -2824,7 +2832,7 @@ class PlotterFolder:
 class PlotterInstance:
     """Instance of plotter that knows the directory content, holds many folders."""
     def __init__(self, folders):
-        self._plotterFolders = filter(lambda f: f is not None, folders)
+        self._plotterFolders = [f for f in folders if f is not None]
 
     def iterFolders(self, limitSubFoldersOnlyTo=None):
         for plotterFolder in self._plotterFolders:
@@ -2944,7 +2952,7 @@ class PlotterTableItem:
             return None
 
         # Replace all None columns with lists of column length
-        for i in xrange(len(tbl)):
+        for i in range(len(tbl)):
             if tbl[i] is None:
                 tbl[i] = [None]*colLen
 

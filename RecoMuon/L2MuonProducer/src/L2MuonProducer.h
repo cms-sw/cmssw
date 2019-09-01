@@ -25,37 +25,38 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class MuonTrackFinder;
 class MuonServiceProxy;
 
 class L2MuonProducer : public edm::stream::EDProducer<> {
-
-  public:
-
+public:
   /// constructor with config
   L2MuonProducer(const edm::ParameterSet&);
-  
+
   /// destructor
-  ~L2MuonProducer() override; 
-  
+  ~L2MuonProducer() override;
+
   /// reconstruct muons
   void produce(edm::Event&, const edm::EventSetup&) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);   
- private:
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+private:
   // MuonSeed Collection Label
   edm::InputTag theSeedCollectionLabel;
 
   /// the track finder
-  MuonTrackFinder* theTrackFinder; //It isn't the same as in ORCA
+  MuonTrackFinder* theTrackFinder;  //It isn't the same as in ORCA
 
   /// the event setup proxy, it takes care the services update
-  MuonServiceProxy *theService;
-  
-  edm::EDGetTokenT<edm::View<TrajectorySeed> > seedsToken;
+  MuonServiceProxy* theService;
 
+  edm::EDGetTokenT<edm::View<TrajectorySeed> > seedsToken;
 };
 
 #endif

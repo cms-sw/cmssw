@@ -8,6 +8,7 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 
 class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLSAX2ExpressionHandler is the first pass SAX2 Handler for XML files found in the configuration file.
 /** @class DDLSAX2ExpressionHandler
@@ -21,18 +22,14 @@ class DDCompactView;
  *  to make it as elaborate as the second pass parser.
  *
  */
-class DDLSAX2ExpressionHandler : public DDLSAX2FileHandler 
-{
- public:
-
-  DDLSAX2ExpressionHandler(DDCompactView& cpv);
+class DDLSAX2ExpressionHandler : public DDLSAX2FileHandler {
+public:
+  DDLSAX2ExpressionHandler(DDCompactView& cpv, DDLElementRegistry&);
   ~DDLSAX2ExpressionHandler() override;
 
-  void startElement( const XMLCh* uri, const XMLCh* localname,
-		     const XMLCh* qname, const Attributes& attrs) override;
-  
-  void endElement( const XMLCh* uri, const XMLCh* localname,
-		   const XMLCh* qname) override;
+  void startElement(const XMLCh* uri, const XMLCh* localname, const XMLCh* qname, const Attributes& attrs) override;
+
+  void endElement(const XMLCh* uri, const XMLCh* localname, const XMLCh* qname) override;
 };
 
 #endif

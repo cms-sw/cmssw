@@ -23,7 +23,6 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -32,19 +31,17 @@
 
 #include "Validation/EventGenerator/interface/DQMHelper.h"
 
-
-
 class BPhysicsSpectrum : public DQMEDAnalyzer {
- public:
-  explicit BPhysicsSpectrum(const edm::ParameterSet&);
+public:
+  explicit BPhysicsSpectrum(const edm::ParameterSet &);
   ~BPhysicsSpectrum() override;
 
   void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
-  void analyze(edm::Event const&, edm::EventSetup const&) override;
-  
- private:
-  MonitorElement *mass, *Nobj; 
+  void dqmBeginRun(const edm::Run &r, const edm::EventSetup &c) override;
+  void analyze(edm::Event const &, edm::EventSetup const &) override;
+
+private:
+  MonitorElement *mass, *Nobj;
   edm::InputTag genparticleCollection_;
   edm::EDGetTokenT<reco::GenParticleCollection> genparticleCollectionToken_;
   std::string name;

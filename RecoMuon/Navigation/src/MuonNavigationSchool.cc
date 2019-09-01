@@ -39,141 +39,131 @@
 using namespace std;
 
 /// Constructor
-MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout, bool enableRPC, bool enableCSC, bool enableGEM, bool enableME0 ) : theMuonDetLayerGeometry(muonLayout) {
+MuonNavigationSchool::MuonNavigationSchool(
+    const MuonDetLayerGeometry* muonLayout, bool enableRPC, bool enableCSC, bool enableGEM, bool enableME0)
+    : theMuonDetLayerGeometry(muonLayout) {
+  theAllDetLayersInSystem = &muonLayout->allLayers();
+  theAllNavigableLayer.resize(muonLayout->allLayers().size(), nullptr);
 
-  theAllDetLayersInSystem=&muonLayout->allLayers(); 
-  theAllNavigableLayer.resize(muonLayout->allLayers().size(),nullptr);
-
-
-
-  // get all barrel DetLayers (DT + optional RPC) 
+  // get all barrel DetLayers (DT + optional RPC)
   vector<const DetLayer*> barrel;
-  if ( enableRPC ) barrel = muonLayout->allBarrelLayers();
-  else barrel = muonLayout->allDTLayers();
+  if (enableRPC)
+    barrel = muonLayout->allBarrelLayers();
+  else
+    barrel = muonLayout->allDTLayers();
 
-  for ( auto i = barrel.begin(); i != barrel.end(); i++ ) {
+  for (auto i = barrel.begin(); i != barrel.end(); i++) {
     const BarrelDetLayer* mbp = dynamic_cast<const BarrelDetLayer*>(*i);
-    if ( mbp == nullptr ) throw cms::Exception("MuonNavigationSchool", "Bad BarrelDetLayer");
+    if (mbp == nullptr)
+      throw cms::Exception("MuonNavigationSchool", "Bad BarrelDetLayer");
     addBarrelLayer(mbp);
   }
 
-
   // get all endcap DetLayers (CSC + optional RPC, GEM, ME0)
   vector<const DetLayer*> endcap;
-  if ( enableCSC & enableGEM & enableRPC & enableME0) endcap = muonLayout->allEndcapLayers(); //CSC + RPC + GEM +ME0
-  else if ( enableCSC & enableGEM & !enableRPC & !enableME0) endcap = muonLayout->allEndcapCscGemLayers(); // CSC + GEM
-  else if ( !enableCSC & enableGEM & !enableRPC & !enableME0) endcap = muonLayout->allGEMLayers(); //GEM only
-  else if ( enableCSC & !enableGEM & !enableRPC & !enableME0) endcap = muonLayout->allCSCLayers(); //CSC only
-  else if ( enableCSC & !enableGEM & !enableRPC & enableME0) endcap = muonLayout->allEndcapCscME0Layers(); // CSC + ME0
-  else if ( !enableCSC & !enableGEM & !enableRPC & enableME0) endcap = muonLayout->allME0Layers(); // ME0 only
+  if (enableCSC & enableGEM & enableRPC & enableME0)
+    endcap = muonLayout->allEndcapLayers();  //CSC + RPC + GEM +ME0
+  else if (enableCSC & enableGEM & !enableRPC & !enableME0)
+    endcap = muonLayout->allEndcapCscGemLayers();  // CSC + GEM
+  else if (!enableCSC & enableGEM & !enableRPC & !enableME0)
+    endcap = muonLayout->allGEMLayers();  //GEM only
+  else if (enableCSC & !enableGEM & !enableRPC & !enableME0)
+    endcap = muonLayout->allCSCLayers();  //CSC only
+  else if (enableCSC & !enableGEM & !enableRPC & enableME0)
+    endcap = muonLayout->allEndcapCscME0Layers();  // CSC + ME0
+  else if (!enableCSC & !enableGEM & !enableRPC & enableME0)
+    endcap = muonLayout->allME0Layers();  // ME0 only
   //else endcap = muonLayout->allCSCLayers(); //CSC only for all the remaining cases
   //Trying allEndcaplayers in all other cases, as in the GEM PR
-  else endcap = muonLayout->allEndcapLayers();
+  else
+    endcap = muonLayout->allEndcapLayers();
 
-  for ( auto i = endcap.begin(); i != endcap.end(); i++ ) {
+  for (auto i = endcap.begin(); i != endcap.end(); i++) {
     const ForwardDetLayer* mep = dynamic_cast<const ForwardDetLayer*>(*i);
-    if ( mep == nullptr ) throw cms::Exception("MuonNavigationSchool", "Bad ForwardDetLayer");
+    if (mep == nullptr)
+      throw cms::Exception("MuonNavigationSchool", "Bad ForwardDetLayer");
     addEndcapLayer(mep);
   }
 
   // create outward links for all DetLayers
   linkBarrelLayers();
-  linkEndcapLayers(theForwardLayers,theForwardNLC);
-  linkEndcapLayers(theBackwardLayers,theBackwardNLC);
+  linkEndcapLayers(theForwardLayers, theForwardNLC);
+  linkEndcapLayers(theBackwardLayers, theBackwardNLC);
 
   // create inverse links
   createInverseLinks();
-
 }
-
 
 /// Destructor
 MuonNavigationSchool::~MuonNavigationSchool() {
-
-   for_each(theBarrelNLC.begin(),theBarrelNLC.end(), delete_layer());
-   for_each(theForwardNLC.begin(),theForwardNLC.end(), delete_layer());
-   for_each(theBackwardNLC.begin(),theBackwardNLC.end(), delete_layer());
-
+  for_each(theBarrelNLC.begin(), theBarrelNLC.end(), delete_layer());
+  for_each(theForwardNLC.begin(), theForwardNLC.end(), delete_layer());
+  for_each(theBackwardNLC.begin(), theBackwardNLC.end(), delete_layer());
 }
 
-
 /// return all Navigable layers
-MuonNavigationSchool::StateType 
-MuonNavigationSchool::navigableLayers() {
-
+MuonNavigationSchool::StateType MuonNavigationSchool::navigableLayers() {
   StateType result;
-  
+
   vector<MuonBarrelNavigableLayer*>::const_iterator ib;
   vector<MuonForwardNavigableLayer*>::const_iterator ie;
 
-  for ( ib = theBarrelNLC.begin(); ib != theBarrelNLC.end(); ib++ ) {
+  for (ib = theBarrelNLC.begin(); ib != theBarrelNLC.end(); ib++) {
     result.push_back(*ib);
   }
 
-  for ( ie = theForwardNLC.begin(); ie != theForwardNLC.end(); ie++ ) {
+  for (ie = theForwardNLC.begin(); ie != theForwardNLC.end(); ie++) {
     result.push_back(*ie);
   }
 
-  for ( ie = theBackwardNLC.begin(); ie != theBackwardNLC.end(); ie++ ) {
+  for (ie = theBackwardNLC.begin(); ie != theBackwardNLC.end(); ie++) {
     result.push_back(*ie);
   }
-  
+
   return result;
-
 }
-
 
 /// create barrel layer map
 void MuonNavigationSchool::addBarrelLayer(const BarrelDetLayer* mbp) {
-
   const BoundCylinder& bc = mbp->specificSurface();
   float radius = bc.radius();
-  float length = bc.bounds().length()/2.;
+  float length = bc.bounds().length() / 2.;
 
   float eta_max = calculateEta(radius, length);
   float eta_min = -eta_max;
 
   theBarrelLayers[mbp] = MuonEtaRange(eta_max, eta_min);
-
 }
-
 
 /// create forwrad/backward layer maps
 void MuonNavigationSchool::addEndcapLayer(const ForwardDetLayer* mep) {
-
   const BoundDisk& bd = mep->specificSurface();
   float outRadius = bd.outerRadius();
   float inRadius = bd.innerRadius();
-  float thick = bd.bounds().length()/2.;
+  float thick = bd.bounds().length() / 2.;
   float z = bd.position().z();
 
-  if ( z > 0. ) {
-    float eta_min = calculateEta(outRadius, z-thick);
-    float eta_max = calculateEta(inRadius, z+thick);
+  if (z > 0.) {
+    float eta_min = calculateEta(outRadius, z - thick);
+    float eta_max = calculateEta(inRadius, z + thick);
     theForwardLayers[mep] = MuonEtaRange(eta_max, eta_min);
   } else {
-    float eta_max = calculateEta(outRadius, z+thick);
-    float eta_min = calculateEta(inRadius, z-thick);
+    float eta_max = calculateEta(outRadius, z + thick);
+    float eta_min = calculateEta(inRadius, z - thick);
     theBackwardLayers[mep] = MuonEtaRange(eta_max, eta_min);
   }
-
 }
-
 
 /// calculate pseudorapidity from r and z
 float MuonNavigationSchool::calculateEta(const float& r, const float& z) const {
-
-  if ( z > 0 ) return -log((tan(atan(r/z)/2.)));
-  return log(-(tan(atan(r/z)/2.)));
-
+  if (z > 0)
+    return -log((tan(atan(r / z) / 2.)));
+  return log(-(tan(atan(r / z) / 2.)));
 }
 
 /// linking barrel layers outwards
 void MuonNavigationSchool::linkBarrelLayers() {
-
-  for (MapBI bl  = theBarrelLayers.begin();
-             bl != theBarrelLayers.end(); bl++) {
-
+  for (MapBI bl = theBarrelLayers.begin(); bl != theBarrelLayers.end(); bl++) {
     MuonEtaRange range = (*bl).second;
 
     // first add next barrel layer
@@ -181,24 +171,24 @@ void MuonNavigationSchool::linkBarrelLayers() {
     plusOne++;
     MapB outerBarrel;
     MapB allOuterBarrel;
-    if ( plusOne != theBarrelLayers.end() ) { outerBarrel.insert(*plusOne);}
+    if (plusOne != theBarrelLayers.end()) {
+      outerBarrel.insert(*plusOne);
+    }
     // add all outer barrel layers
-    for ( MapBI iMBI = plusOne; iMBI!= theBarrelLayers.end(); iMBI++){
+    for (MapBI iMBI = plusOne; iMBI != theBarrelLayers.end(); iMBI++) {
       allOuterBarrel.insert(*iMBI);
     }
     // then add all compatible backward layers with an eta criteria
     MapE allOuterBackward;
-    for (MapEI el  = theBackwardLayers.begin();
-               el != theBackwardLayers.end(); el++) {
-      if ( (*el).second.isCompatible(range) ) {
+    for (MapEI el = theBackwardLayers.begin(); el != theBackwardLayers.end(); el++) {
+      if ((*el).second.isCompatible(range)) {
         allOuterBackward.insert(*el);
       }
     }
     //add the backward next layer with an eta criteria
     MapE outerBackward;
-    for (MapEI el  = theBackwardLayers.begin();
-               el != theBackwardLayers.end(); el++) {
-      if ( (*el).second.isCompatible(range) ) {
+    for (MapEI el = theBackwardLayers.begin(); el != theBackwardLayers.end(); el++) {
+      if ((*el).second.isCompatible(range)) {
         outerBackward.insert(*el);
         break;
       }
@@ -206,52 +196,44 @@ void MuonNavigationSchool::linkBarrelLayers() {
 
     // then add all compatible forward layers with an eta criteria
     MapE allOuterForward;
-    for (MapEI el  = theForwardLayers.begin();
-               el != theForwardLayers.end(); el++) {
-      if ( (*el).second.isCompatible(range) ) {
+    for (MapEI el = theForwardLayers.begin(); el != theForwardLayers.end(); el++) {
+      if ((*el).second.isCompatible(range)) {
         allOuterForward.insert(*el);
       }
     }
 
     // then add forward next layer with an eta criteria
     MapE outerForward;
-    for (MapEI el  = theForwardLayers.begin();
-               el != theForwardLayers.end(); el++) {
-      if ( (*el).second.isCompatible(range) ) {
+    for (MapEI el = theForwardLayers.begin(); el != theForwardLayers.end(); el++) {
+      if ((*el).second.isCompatible(range)) {
         outerForward.insert(*el);
         break;
       }
     }
 
     theBarrelNLC.push_back(new MuonBarrelNavigableLayer(
-                       (*bl).first,outerBarrel, outerBackward, outerForward,
-                       allOuterBarrel,allOuterBackward,allOuterForward));
-
+        (*bl).first, outerBarrel, outerBackward, outerForward, allOuterBarrel, allOuterBackward, allOuterForward));
   }
-
 }
 /// linking forward/backward layers outwards
-void MuonNavigationSchool::linkEndcapLayers(const MapE& layers,
-                                            vector<MuonForwardNavigableLayer*>& result) {
-
+void MuonNavigationSchool::linkEndcapLayers(const MapE& layers, vector<MuonForwardNavigableLayer*>& result) {
   for (MapEI el = layers.begin(); el != layers.end(); el++) {
-
     MuonEtaRange range = (*el).second;
     // first add next endcap layer (if compatible)
-    MapEI plusOne(el); 
+    MapEI plusOne(el);
     plusOne++;
     MapE outerLayers;
-    if ( plusOne != layers.end() && (*plusOne).second.isCompatible(range) ) {
-        outerLayers.insert(*plusOne);
-      if ( !range.isInside((*plusOne).second) ) {
+    if (plusOne != layers.end() && (*plusOne).second.isCompatible(range)) {
+      outerLayers.insert(*plusOne);
+      if (!range.isInside((*plusOne).second)) {
         // then look if the next layer has a wider eta range, if so add it
         MapEI tmpel(plusOne);
         tmpel++;
         MuonEtaRange max((*plusOne).second);
-        for ( MapEI l = tmpel; l != layers.end(); l++ ) {
+        for (MapEI l = tmpel; l != layers.end(); l++) {
           MuonEtaRange next = (*l).second;
-          if ( next.isCompatible(max) && !range.isInside(next) &&
-               !next.isInside(max) && next.subtract(max).isInside(range) ) {
+          if (next.isCompatible(max) && !range.isInside(next) && !next.isInside(max) &&
+              next.subtract(max).isInside(range)) {
             max = max.add(next);
             outerLayers.insert(*l);
           }
@@ -260,25 +242,21 @@ void MuonNavigationSchool::linkEndcapLayers(const MapE& layers,
     }
 
     MapE allOuterLayers;
-    for (MapEI iMEI = plusOne; iMEI!=layers.end(); iMEI++){
-      if ((*iMEI).second.isCompatible(range)) allOuterLayers.insert(*iMEI);
+    for (MapEI iMEI = plusOne; iMEI != layers.end(); iMEI++) {
+      if ((*iMEI).second.isCompatible(range))
+        allOuterLayers.insert(*iMEI);
     }
-    
-    result.push_back(new MuonForwardNavigableLayer(
-                   (*el).first,outerLayers, allOuterLayers));
-  }
 
+    result.push_back(new MuonForwardNavigableLayer((*el).first, outerLayers, allOuterLayers));
+  }
 }
 
-
 /// create inverse links (i.e. inwards)
-void MuonNavigationSchool::createInverseLinks()  {
-
+void MuonNavigationSchool::createInverseLinks() {
   // set outward link
   // NavigationSetter setter(*this);
 
   setState(navigableLayers());
-
 
   // find for each layer which are the layers pointing to it
   typedef map<const DetLayer*, MapB, less<const DetLayer*> > BarrelMapType;
@@ -293,102 +271,89 @@ void MuonNavigationSchool::createInverseLinks()  {
   ForwardMapType compatibleForwardLayersMap;
 
   // collect all reacheable layers starting from a barrel layer
-  for ( MapBI bli  = theBarrelLayers.begin(); 
-              bli != theBarrelLayers.end(); bli++ ) {
+  for (MapBI bli = theBarrelLayers.begin(); bli != theBarrelLayers.end(); bli++) {
     // barrel
     MuonBarrelNavigableLayer* mbnl =
-      dynamic_cast<MuonBarrelNavigableLayer*>(theAllNavigableLayer[((*bli).first)->seqNum()]);
+        dynamic_cast<MuonBarrelNavigableLayer*>(theAllNavigableLayer[((*bli).first)->seqNum()]);
     MapB reacheableB = mbnl->getOuterBarrelLayers();
-    for (MapBI i = reacheableB.begin(); i != reacheableB.end(); i++ ) {
+    for (MapBI i = reacheableB.begin(); i != reacheableB.end(); i++) {
       reachedBarrelLayersMap[(*i).first].insert(*bli);
     }
     MapB compatibleB = mbnl->getAllOuterBarrelLayers();
-    for (MapBI i = compatibleB.begin(); i != compatibleB.end(); i++ ) {
+    for (MapBI i = compatibleB.begin(); i != compatibleB.end(); i++) {
       compatibleBarrelLayersMap[(*i).first].insert(*bli);
     }
     MapE reacheableE = mbnl->getOuterBackwardLayers();
-    for (MapEI i = reacheableE.begin(); i != reacheableE.end(); i++ ) {
+    for (MapEI i = reacheableE.begin(); i != reacheableE.end(); i++) {
       reachedBarrelLayersMap[(*i).first].insert(*bli);
     }
     reacheableE = mbnl->getOuterForwardLayers();
-    for (MapEI i = reacheableE.begin(); i != reacheableE.end(); i++ ) {
+    for (MapEI i = reacheableE.begin(); i != reacheableE.end(); i++) {
       reachedBarrelLayersMap[(*i).first].insert(*bli);
     }
     MapE compatibleE = mbnl->getAllOuterBackwardLayers();
-    for (MapEI i = compatibleE.begin(); i != compatibleE.end(); i++ ) {
+    for (MapEI i = compatibleE.begin(); i != compatibleE.end(); i++) {
       compatibleBarrelLayersMap[(*i).first].insert(*bli);
     }
     compatibleE = mbnl->getAllOuterForwardLayers();
-    for (MapEI i = compatibleE.begin(); i != compatibleE.end(); i++ ) {
+    for (MapEI i = compatibleE.begin(); i != compatibleE.end(); i++) {
       compatibleBarrelLayersMap[(*i).first].insert(*bli);
     }
-
   }
 
   // collect all reacheable layer starting from a backward layer
-  for ( MapEI eli  = theBackwardLayers.begin(); 
-              eli != theBackwardLayers.end(); eli++ ) {
+  for (MapEI eli = theBackwardLayers.begin(); eli != theBackwardLayers.end(); eli++) {
     MapE reacheableE =
-      dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()])->getOuterEndcapLayers();
-    for (MapEI i = reacheableE.begin(); i != reacheableE.end(); i++ ) {
+        dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()])->getOuterEndcapLayers();
+    for (MapEI i = reacheableE.begin(); i != reacheableE.end(); i++) {
       reachedForwardLayersMap[(*i).first].insert(*eli);
     }
-  // collect all compatible layer starting from a backward layer
-    MapE compatibleE =
-      dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()])->getAllOuterEndcapLayers();
-    for (MapEI i = compatibleE.begin(); i != compatibleE.end(); i++ ) {
+    // collect all compatible layer starting from a backward layer
+    MapE compatibleE = dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()])
+                           ->getAllOuterEndcapLayers();
+    for (MapEI i = compatibleE.begin(); i != compatibleE.end(); i++) {
       compatibleForwardLayersMap[(*i).first].insert(*eli);
     }
   }
 
-  for ( MapEI eli  = theForwardLayers.begin(); 
-              eli != theForwardLayers.end(); eli++ ) {
-  // collect all reacheable layer starting from a forward layer
+  for (MapEI eli = theForwardLayers.begin(); eli != theForwardLayers.end(); eli++) {
+    // collect all reacheable layer starting from a forward layer
     MapE reacheableE =
-      dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()])->getOuterEndcapLayers();
-    for (MapEI i = reacheableE.begin(); i != reacheableE.end(); i++ ) {
+        dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()])->getOuterEndcapLayers();
+    for (MapEI i = reacheableE.begin(); i != reacheableE.end(); i++) {
       reachedForwardLayersMap[(*i).first].insert(*eli);
     }
-  // collect all compatible layer starting from a forward layer
-    MapE compatibleE =
-      dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()])->getAllOuterEndcapLayers();
-    for (MapEI i = compatibleE.begin(); i != compatibleE.end(); i++ ) {
+    // collect all compatible layer starting from a forward layer
+    MapE compatibleE = dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()])
+                           ->getAllOuterEndcapLayers();
+    for (MapEI i = compatibleE.begin(); i != compatibleE.end(); i++) {
       compatibleForwardLayersMap[(*i).first].insert(*eli);
     }
   }
 
   // now set inverse link for barrel layers
-  for ( MapBI bli  = theBarrelLayers.begin(); 
-              bli != theBarrelLayers.end(); bli++ ) {
+  for (MapBI bli = theBarrelLayers.begin(); bli != theBarrelLayers.end(); bli++) {
     MuonBarrelNavigableLayer* mbnl =
-      dynamic_cast<MuonBarrelNavigableLayer*>(theAllNavigableLayer[((*bli).first)->seqNum()]);
+        dynamic_cast<MuonBarrelNavigableLayer*>(theAllNavigableLayer[((*bli).first)->seqNum()]);
     mbnl->setInwardLinks(reachedBarrelLayersMap[(*bli).first]);
     mbnl->setInwardCompatibleLinks(compatibleBarrelLayersMap[(*bli).first]);
-
   }
   //BACKWARD
-  for ( MapEI eli  = theBackwardLayers.begin(); 
-              eli != theBackwardLayers.end(); eli++ ) {
-    MuonForwardNavigableLayer* mfnl =      
-      dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()]);
+  for (MapEI eli = theBackwardLayers.begin(); eli != theBackwardLayers.end(); eli++) {
+    MuonForwardNavigableLayer* mfnl =
+        dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()]);
     // for backward next layers
-    mfnl->setInwardLinks(reachedBarrelLayersMap[(*eli).first],
-                         reachedForwardLayersMap[(*eli).first]);
-  // for backward compatible layers
-    mfnl->setInwardCompatibleLinks(compatibleBarrelLayersMap[(*eli).first],
-                         compatibleForwardLayersMap[(*eli).first]);
+    mfnl->setInwardLinks(reachedBarrelLayersMap[(*eli).first], reachedForwardLayersMap[(*eli).first]);
+    // for backward compatible layers
+    mfnl->setInwardCompatibleLinks(compatibleBarrelLayersMap[(*eli).first], compatibleForwardLayersMap[(*eli).first]);
   }
   //FORWARD
-  for ( MapEI eli  = theForwardLayers.begin(); 
-              eli != theForwardLayers.end(); eli++ ) {
-    MuonForwardNavigableLayer* mfnl = 
-      dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()]);
+  for (MapEI eli = theForwardLayers.begin(); eli != theForwardLayers.end(); eli++) {
+    MuonForwardNavigableLayer* mfnl =
+        dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()]);
     // and for forward next layers
-    mfnl->setInwardLinks(reachedBarrelLayersMap[(*eli).first],
-                         reachedForwardLayersMap[(*eli).first]);
-  // and for forward compatible layers
-    mfnl->setInwardCompatibleLinks(compatibleBarrelLayersMap[(*eli).first],
-                         compatibleForwardLayersMap[(*eli).first]);
+    mfnl->setInwardLinks(reachedBarrelLayersMap[(*eli).first], reachedForwardLayersMap[(*eli).first]);
+    // and for forward compatible layers
+    mfnl->setInwardCompatibleLinks(compatibleBarrelLayersMap[(*eli).first], compatibleForwardLayersMap[(*eli).first]);
   }
-
 }

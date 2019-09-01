@@ -5,7 +5,7 @@
 extern CLHEP::HepRandomEngine* _BeamHalo_randomEngine;
 
 extern "C" {
-  double bhgpyr_(int*);
+double bhgpyr_(int*);
 }
 
 #endif

@@ -3,18 +3,15 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
 
 class FastLinearCMNSubtractor : public SiStripCommonModeNoiseSubtractor {
-
   friend class SiStripRawProcessingFactory;
 
- public:  
+public:
+  void subtract(uint32_t detId, uint16_t firstAPV, std::vector<int16_t>& digis) override;
+  void subtract(uint32_t detId, uint16_t firstAPV, std::vector<float>& digis) override;
 
-  void subtract(const uint32_t&,const uint16_t&, std::vector<int16_t>&) override;
-  void subtract(const uint32_t&,const uint16_t&, std::vector<float>&) override;
-
- private:
-
-  template<typename T> void subtract_(const uint32_t&, const uint16_t&, std::vector<T>&);
+private:
+  template <typename T>
+  void subtract_(uint32_t detId, uint16_t firstAPV, std::vector<T>& digis);
   FastLinearCMNSubtractor(){};
-
 };
 #endif

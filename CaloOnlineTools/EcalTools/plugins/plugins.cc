@@ -15,7 +15,6 @@
 #include "CaloOnlineTools/EcalTools/plugins/EcalDisplaysByEvent.h"
 #include "CaloOnlineTools/EcalTools/plugins/EcalFEDErrorFilter.h"
 
-
 DEFINE_FWK_MODULE(EcalDigiDisplay);
 DEFINE_FWK_MODULE(EcalPnGraphs);
 DEFINE_FWK_MODULE(EcalDCCHeaderDisplay);

@@ -2,12 +2,12 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step2 --conditions auto:phase2_realistic -s DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:@fake2,RAW2DIGI,L1Reco,RECO --datatier GEN-SIM-RECO -n 10 --geometry Extended2023D21 --era Phase2 --eventcontent FEVTDEBUGHLT --filein file:SingleMuPt1000_pythia8_cfi_GEN_SIM.root --runUnscheduled --no_exec
+# with command line options: step2 --conditions auto:phase2_realistic -s DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:@fake2,RAW2DIGI,L1Reco,RECO --datatier GEN-SIM-RECO -n 10 --geometry Extended2023D41 --era Phase2 --eventcontent FEVTDEBUGHLT --filein file:SingleMuPt1000_pythia8_cfi_GEN_SIM.root --runUnscheduled --no_exec
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('Phase2PixelNtuple',eras.Phase2)
+from Configuration.Eras.Era_Phase2C8_timing_layer_bar_cff import Phase2C8_timing_layer_bar
+process = cms.Process('Phase2PixelNtuple',Phase2C8_timing_layer_bar)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -15,7 +15,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D21Reco_cff')
+#process.load('SimGeneral.MixingModule.mix_POISSON_average_cfi')
+process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
@@ -34,7 +35,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_10_0_0_pre1/RelValSingleMuPt10/GEN-SIM/94X_upgrade2023_realistic_v2_2023D21noPU-v2/10000/F2B83850-E6CE-E711-8185-0CC47A78A4B0.root'
+       '/store/relval/CMSSW_10_6_0_patch2/RelValSingleMuPt10/GEN-SIM/106X_upgrade2023_realistic_v3_2023D41noPU-v1/10000/7377ED92-245C-CC4D-9F05-25ABB5522A08.root'
     )
 )
 
@@ -49,6 +50,10 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
+
+# MC vertice analyzer
+process.load("Validation.RecoVertex.mcverticesanalyzer_cfi")
+process.mcverticesanalyzer.pileupSummaryCollection = cms.InputTag("addPileupInfo","","HLT")
 
 # Output definition
 
@@ -86,13 +91,18 @@ process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 
 # This pset is specific for producing simulated events for the designers of the PROC (InnerTracker)
 # They need pixel RecHits where the charge is stored with high-granularity and large dinamic range
+
+# digitizer
 process.mix.digitizers.pixel.PixelDigitizerAlgorithm.AdcFullScale   = cms.int32(255)
 process.mix.digitizers.pixel.PixelDigitizerAlgorithm.ElectronPerAdc = cms.double(135.)
-process.siPixelClusters.ElectronPerADCGain=cms.double(135.)
-process.siPixelClustersPreSplitting.ElectronPerADCGain=cms.double(135.)
+process.mix.digitizers.pixel.PixelDigitizerAlgorithm.AddXTalk = cms.bool(False)
+
+# clusterizer
+process.siPixelClusters.ElectronPerADCGain  = cms.double(135.)
+process.siPixelClustersPreSplitting.ElectronPerADCGain  = cms.double(135.)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T14', '')
 
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi_valid)
@@ -102,7 +112,7 @@ process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction)
-process.user_step 		= cms.Path(process.ReadLocalMeasurement)
+process.user_step = cms.Path(process.ReadLocalMeasurement + process.mcverticesanalyzer)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 #process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
@@ -140,5 +150,4 @@ process = customiseEarlyDelete(process)
 process.TFileService = cms.Service('TFileService',
 fileName = cms.string("pixelntuple.root")
 )
-
 

@@ -10,74 +10,70 @@
 
 #include <vector>
 
-namespace L1Analysis
-{
-  struct L1AnalysisRecoJetDataFormat
-  {
-    L1AnalysisRecoJetDataFormat(){Reset();};
-    ~L1AnalysisRecoJetDataFormat(){Reset();};
+namespace L1Analysis {
+  struct L1AnalysisRecoJetDataFormat {
+    L1AnalysisRecoJetDataFormat() { Reset(); };
+    ~L1AnalysisRecoJetDataFormat() { Reset(); };
 
-    void Reset()
-    {
-    nJets=0;
+    void Reset() {
+      nJets = 0;
 
-    e.clear();
-    et.clear();
-    etCorr.clear();
-    corrFactor.clear();
-    eta.clear();
-    phi.clear();
+      e.clear();
+      et.clear();
+      etCorr.clear();
+      corrFactor.clear();
+      eta.clear();
+      phi.clear();
 
-    nCaloJets=0;
-    
-    caloE.clear();
-    caloEt.clear();
-    caloEtCorr.clear();
-    caloCorrFactor.clear();
-    caloEta.clear();
-    caloPhi.clear();
+      nCaloJets = 0;
 
-    // calo quantities
-    eEMF.clear();
-    eEmEB.clear();
-    eEmEE.clear();
-    eEmHF.clear();
-    eHadHB.clear();
-    eHadHE.clear();
-    eHadHO.clear();
-    eHadHF.clear();
-    eMaxEcalTow.clear();
-    eMaxHcalTow.clear();
-    towerArea.clear();
-    towerSize.clear();
-    n60.clear();
-    n90.clear();
-    n90hits.clear();
-    fHPD.clear();
-    fRBX.clear();
+      caloE.clear();
+      caloEt.clear();
+      caloEtCorr.clear();
+      caloCorrFactor.clear();
+      caloEta.clear();
+      caloPhi.clear();
 
-    // PF quantities
-    chef.clear();
-    nhef.clear();
-    pef.clear();
-    eef.clear();
-    mef.clear();
-    hfhef.clear();
-    hfemef.clear();
-    chMult.clear();
-    nhMult.clear();
-    phMult.clear();
-    elMult.clear();
-    muMult.clear();
-    hfhMult.clear();
-    hfemMult.clear();
+      // calo quantities
+      eEMF.clear();
+      eEmEB.clear();
+      eEmEE.clear();
+      eEmHF.clear();
+      eHadHB.clear();
+      eHadHE.clear();
+      eHadHO.clear();
+      eHadHF.clear();
+      eMaxEcalTow.clear();
+      eMaxHcalTow.clear();
+      towerArea.clear();
+      towerSize.clear();
+      n60.clear();
+      n90.clear();
+      n90hits.clear();
+      fHPD.clear();
+      fRBX.clear();
 
-    cemef.clear();	  
-    cmef.clear();	  
-    nemef.clear();	  
-    cMult.clear();
-    nMult.clear(); 
+      // PF quantities
+      chef.clear();
+      nhef.clear();
+      pef.clear();
+      eef.clear();
+      mef.clear();
+      hfhef.clear();
+      hfemef.clear();
+      chMult.clear();
+      nhMult.clear();
+      phMult.clear();
+      elMult.clear();
+      muMult.clear();
+      hfhMult.clear();
+      hfemMult.clear();
 
+      cemef.clear();
+      cmef.clear();
+      nemef.clear();
+      cMult.clear();
+      nMult.clear();
     }
 
     unsigned short nJets;
@@ -133,11 +129,8 @@ namespace L1Analysis
     std::vector<float> cemef;
     std::vector<float> cmef;
     std::vector<float> nemef;
-    std::vector<int>   cMult;
-    std::vector<int>   nMult; 
-
+    std::vector<int> cMult;
+    std::vector<int> nMult;
   };
-}
+}  // namespace L1Analysis
 #endif
-
-

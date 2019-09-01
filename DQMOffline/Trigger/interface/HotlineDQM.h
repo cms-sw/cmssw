@@ -8,7 +8,6 @@
 //DQM
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //Muon
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -36,19 +35,18 @@
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-class HotlineDQM: public DQMEDAnalyzer{
-
-  public:
+class HotlineDQM : public DQMEDAnalyzer {
+public:
   HotlineDQM(const edm::ParameterSet& ps);
   ~HotlineDQM() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
-  private:
+private:
   //variables from config file
   edm::EDGetTokenT<reco::MuonCollection> theMuonCollection_;
   edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollection_;

@@ -40,7 +40,8 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
        uncertaintyKeyEE = cms.string('pfscecal_EEUncertainty_offline_v2'),
        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
-       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
+       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
+       applySigmaIetaIphiBug = cms.bool(False)
        ),
 
     #threshold for final SuperCluster Et
@@ -59,9 +60,6 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
 
     phiwidth_SuperClusterEndcap = cms.double(0.28),
     etawidth_SuperClusterEndcap = cms.double(0.04),
-
-    # threshold in preshower
-    thresh_PFClusterES = cms.double(0.),                                          
 
     # turn on merging of the seed cluster to its nearest neighbors
     # that share a rechit
@@ -101,9 +99,6 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     PFBasicClusterCollectionPreshower = cms.string("particleFlowBasicClusterECALPreshower"),
     PFSuperClusterCollectionEndcapWithPreshower = cms.string("particleFlowSuperClusterECALEndcapWithPreshower"),                                          
 
-    #use preshower ?
-    use_preshower = cms.bool(True),
-
     # are the seed thresholds Et or Energy?
     seedThresholdIsET = cms.bool(True),
     # regression setup
@@ -115,7 +110,8 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
        uncertaintyKeyEE = cms.string('pfscecal_EEUncertainty_offline_v2'),
        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
-       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
+       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
+       applySigmaIetaIphiBug = cms.bool(False)
        ),
        
     #threshold for final SuperCluster Et
@@ -154,3 +150,15 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
 
 #define the default clustering type
 particleFlowSuperClusterECAL = particleFlowSuperClusterECALMustache.clone()
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(particleFlowSuperClusterECAL, useDynamicDPhiWindow = False)
+pp_on_AA_2018.toModify(particleFlowSuperClusterECAL, phiwidth_SuperClusterBarrel = 0.20)
+pp_on_AA_2018.toModify(particleFlowSuperClusterECAL, phiwidth_SuperClusterEndcap = 0.20)
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(particleFlowSuperClusterECAL,
+                           thresh_SCEt = 1.0,
+                           thresh_PFClusterSeedBarrel = 0.5,
+                           thresh_PFClusterSeedEndcap = 0.5)
+

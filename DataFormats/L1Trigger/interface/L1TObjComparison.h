@@ -14,6 +14,6 @@ namespace l1t {
   using ObjectRefPair = std::pair<edm::Ref<BXVector<T>>, edm::Ref<BXVector<T>>>;
   template <typename T>
   using ObjectRefPairBxCollection = BXVector<ObjectRefPair<T>>;
-}
+}  // namespace l1t
 
 #endif

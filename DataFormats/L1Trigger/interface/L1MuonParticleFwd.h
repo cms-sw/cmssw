@@ -4,7 +4,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1MuonParticleFwd
-// 
+//
 /**\class L1MuonParticleCollection \file L1MuonParticleFwd.h DataFormats/L1Trigger/interface/L1MuonParticleFwd.h
 
  Description: typedefs for L1MuonParticleCollection and associated containers.
@@ -23,16 +23,15 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-
 namespace l1extra {
 
-   class L1MuonParticle ;
+  class L1MuonParticle;
 
-   typedef std::vector< L1MuonParticle > L1MuonParticleCollection ;
+  typedef std::vector<L1MuonParticle> L1MuonParticleCollection;
 
-   typedef edm::Ref< L1MuonParticleCollection > L1MuonParticleRef ;
-   typedef edm::RefVector< L1MuonParticleCollection > L1MuonParticleRefVector ;
-   typedef std::vector< L1MuonParticleRef > L1MuonParticleVectorRef ;
-}
+  typedef edm::Ref<L1MuonParticleCollection> L1MuonParticleRef;
+  typedef edm::RefVector<L1MuonParticleCollection> L1MuonParticleRefVector;
+  typedef std::vector<L1MuonParticleRef> L1MuonParticleVectorRef;
+}  // namespace l1extra
 
 #endif

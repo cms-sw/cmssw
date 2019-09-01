@@ -3,126 +3,89 @@
 
 namespace cms {
 
-  Exception::Exception(std::string const& aCategory) :
-    std::exception(),
-    ost_(),
-    category_(aCategory),
-    what_(),
-    context_(),
-    additionalInfo_(),
-    alreadyPrinted_(false)
-  {
-  }
+  Exception::Exception(std::string const& aCategory)
+      : std::exception(), ost_(), category_(aCategory), what_(), context_(), additionalInfo_(), alreadyPrinted_(false) {}
 
-  Exception::Exception(char const* aCategory)  :
-    std::exception(),
-    ost_(),
-    category_(std::string(aCategory)),
-    what_(),
-    context_(),
-    additionalInfo_(),
-    alreadyPrinted_(false)
-  {
-  }
+  Exception::Exception(char const* aCategory)
+      : std::exception(),
+        ost_(),
+        category_(std::string(aCategory)),
+        what_(),
+        context_(),
+        additionalInfo_(),
+        alreadyPrinted_(false) {}
 
-  Exception::Exception(std::string const& aCategory,
-		       std::string const& message) :
-    std::exception(),
-    ost_(),
-    category_(aCategory),
-    what_(),
-    context_(),
-    additionalInfo_(),
-    alreadyPrinted_(false)
-  {
+  Exception::Exception(std::string const& aCategory, std::string const& message)
+      : std::exception(), ost_(), category_(aCategory), what_(), context_(), additionalInfo_(), alreadyPrinted_(false) {
     init(message);
   }
 
-  Exception::Exception(char const* aCategory,
-	               std::string const& message) :
-    std::exception(),
-    ost_(),
-    category_(std::string(aCategory)),
-    what_(),
-    context_(),
-    additionalInfo_(),
-    alreadyPrinted_(false)
-  {
+  Exception::Exception(char const* aCategory, std::string const& message)
+      : std::exception(),
+        ost_(),
+        category_(std::string(aCategory)),
+        what_(),
+        context_(),
+        additionalInfo_(),
+        alreadyPrinted_(false) {
     init(message);
   }
 
-
-  Exception::Exception(std::string const& aCategory,
-                       char const* message) :
-    std::exception(),
-    ost_(),
-    category_(aCategory),
-    what_(),
-    context_(),
-    additionalInfo_(),
-    alreadyPrinted_(false)
-  {
+  Exception::Exception(std::string const& aCategory, char const* message)
+      : std::exception(), ost_(), category_(aCategory), what_(), context_(), additionalInfo_(), alreadyPrinted_(false) {
     init(std::string(message));
   }
 
-
-  Exception::Exception(char const* aCategory,
-                       char const* message) :
-    std::exception(),
-    ost_(),
-    category_(std::string(aCategory)),
-    what_(),
-    context_(),
-    additionalInfo_(),
-    alreadyPrinted_(false)
-  {
+  Exception::Exception(char const* aCategory, char const* message)
+      : std::exception(),
+        ost_(),
+        category_(std::string(aCategory)),
+        what_(),
+        context_(),
+        additionalInfo_(),
+        alreadyPrinted_(false) {
     init(std::string(message));
   }
 
   void Exception::init(std::string const& message) {
     ost_ << message;
-    if(!message.empty()) {
-	unsigned sz = message.size()-1;
-	if(message[sz] != '\n' && message[sz] != ' ') ost_ << " ";
+    if (!message.empty()) {
+      unsigned sz = message.size() - 1;
+      if (message[sz] != '\n' && message[sz] != ' ')
+        ost_ << " ";
     }
   }
 
-  Exception::Exception(std::string const& aCategory,
-                       std::string const& message,
-                       Exception const& another) :
-    std::exception(),
-    ost_(),
-    category_(aCategory),
-    what_(),
-    context_(another.context()),
-    additionalInfo_(another.additionalInfo()),
-    alreadyPrinted_(false)
-  {
+  Exception::Exception(std::string const& aCategory, std::string const& message, Exception const& another)
+      : std::exception(),
+        ost_(),
+        category_(aCategory),
+        what_(),
+        context_(another.context()),
+        additionalInfo_(another.additionalInfo()),
+        alreadyPrinted_(false) {
     ost_ << message;
     // check for newline at end of message first
-    if(!message.empty() && message[message.size()-1]!='\n') {
+    if (!message.empty() && message[message.size() - 1] != '\n') {
       ost_ << "\n";
     }
     append(another);
   }
 
-  Exception::Exception(Exception const& other):
-    std::exception(),
-    ost_(),
-    category_(other.category_),
-    what_(other.what_),
-    context_(other.context_),
-    additionalInfo_(other.additionalInfo_),
-    alreadyPrinted_(other.alreadyPrinted_)
-  {
+  Exception::Exception(Exception const& other)
+      : std::exception(),
+        ost_(),
+        category_(other.category_),
+        what_(other.what_),
+        context_(other.context_),
+        additionalInfo_(other.additionalInfo_),
+        alreadyPrinted_(other.alreadyPrinted_) {
     ost_ << other.ost_.str();
   }
 
-  Exception::~Exception() noexcept {
-  }
+  Exception::~Exception() noexcept {}
 
-  void
-  Exception::swap(Exception& other) {
+  void Exception::swap(Exception& other) {
     ost_ << other.ost_.str();
     category_.swap(other.category_);
     what_.swap(other.what_);
@@ -131,13 +94,12 @@ namespace cms {
     std::swap(alreadyPrinted_, other.alreadyPrinted_);
   }
 
-  Exception&
-  Exception::operator=(Exception const& other) {
+  Exception& Exception::operator=(Exception const& other) {
     Exception temp(other);
     this->swap(temp);
     return *this;
   }
-  
+
   char const* Exception::what() const noexcept {
     what_ = explainSelf();
     return what_.c_str();
@@ -148,13 +110,11 @@ namespace cms {
 
     if (context_.empty()) {
       ost << "An exception of category '" << category_ << "' occurred.\n";
-    }
-    else {
+    } else {
       ost << "An exception of category '" << category_ << "' occurred while\n";
       int count = 0;
-      for (std::list<std::string>::const_reverse_iterator i = context_.rbegin(),
-	     iEnd = context_.rend();
-           i != iEnd; ++i, ++count) {
+      for (std::list<std::string>::const_reverse_iterator i = context_.rbegin(), iEnd = context_.rend(); i != iEnd;
+           ++i, ++count) {
         ost << "   [" << count << "] " << *i << "\n";
       }
     }
@@ -171,106 +131,62 @@ namespace cms {
     if (!additionalInfo_.empty()) {
       ost << "   Additional Info:\n";
       char c = 'a';
-      for (std::list<std::string>::const_reverse_iterator i = additionalInfo_.rbegin(),
-	     iEnd = additionalInfo_.rend();
-           i != iEnd; ++i, ++c) {
+      for (std::list<std::string>::const_reverse_iterator i = additionalInfo_.rbegin(), iEnd = additionalInfo_.rend();
+           i != iEnd;
+           ++i, ++c) {
         ost << "      [" << c << "] " << *i << "\n";
       }
     }
     return ost.str();
   }
 
-  std::string const& Exception::category() const {
-    return category_;
-  }
-  
-  std::string Exception::message() const {
-    return ost_.str();
-  }
+  std::string const& Exception::category() const { return category_; }
 
-  std::list<std::string> const& Exception::context() const {
-    return context_;
-  }
+  std::string Exception::message() const { return ost_.str(); }
 
-  std::list<std::string> const& Exception::additionalInfo() const {
-    return additionalInfo_;
-  }
+  std::list<std::string> const& Exception::context() const { return context_; }
 
-  int  Exception::returnCode() const {
-    return returnCode_();
-  }
+  std::list<std::string> const& Exception::additionalInfo() const { return additionalInfo_; }
 
-  void Exception::append(Exception const& another) {
-    ost_ << another.message();
-  }
+  int Exception::returnCode() const { return returnCode_(); }
 
-  void Exception::append(std::string const& more_information) {
-    ost_ << more_information;
-  }
+  void Exception::append(Exception const& another) { ost_ << another.message(); }
 
-  void Exception::append(char const* more_information) {
-    ost_ << more_information;
-  }
+  void Exception::append(std::string const& more_information) { ost_ << more_information; }
 
-  void Exception::clearMessage() {
-    ost_.str("");
-  }
+  void Exception::append(char const* more_information) { ost_ << more_information; }
 
-  void Exception::clearContext() {
-    context_.clear();
-  }
+  void Exception::clearMessage() { ost_.str(""); }
 
-  void Exception::clearAdditionalInfo() {
-    additionalInfo_.clear();
-  }
+  void Exception::clearContext() { context_.clear(); }
 
-  void Exception::addContext(std::string const& context) {
-    context_.push_back(context);
-  }
+  void Exception::clearAdditionalInfo() { additionalInfo_.clear(); }
 
-  void Exception::addContext(char const* context) {
-    context_.push_back(std::string(context));
-  }
+  void Exception::addContext(std::string const& context) { context_.push_back(context); }
 
-  void Exception::addAdditionalInfo(std::string const& info) {
-    additionalInfo_.push_back(info);
-  }
+  void Exception::addContext(char const* context) { context_.push_back(std::string(context)); }
 
-  void Exception::addAdditionalInfo(char const* info) {
-    additionalInfo_.push_back(std::string(info));
-  }
+  void Exception::addAdditionalInfo(std::string const& info) { additionalInfo_.push_back(info); }
 
-  void Exception::setContext(std::list<std::string> const& context) {
-    context_ = context;
-  }
+  void Exception::addAdditionalInfo(char const* info) { additionalInfo_.push_back(std::string(info)); }
 
-  void Exception::setAdditionalInfo(std::list<std::string> const& info) {
-    additionalInfo_ = info;
-  }
+  void Exception::setContext(std::list<std::string> const& context) { context_ = context; }
 
-  bool Exception::alreadyPrinted() const {
-    return alreadyPrinted_;
-  }
+  void Exception::setAdditionalInfo(std::list<std::string> const& info) { additionalInfo_ = info; }
 
-  void Exception::setAlreadyPrinted(bool value) {
-    alreadyPrinted_ = value;
-  }
+  bool Exception::alreadyPrinted() const { return alreadyPrinted_; }
 
-  Exception* Exception::clone() const {
-    return new Exception(*this);
-  }
+  void Exception::setAlreadyPrinted(bool value) { alreadyPrinted_ = value; }
 
-  void Exception::rethrow() {
-    throw *this;
-  }
+  Exception* Exception::clone() const { return new Exception(*this); }
 
-  int  Exception::returnCode_() const {
-    return 8001;
-  }
+  void Exception::rethrow() { throw *this; }
+
+  int Exception::returnCode_() const { return 8001; }
 
   std::list<std::string> Exception::history() const {
     std::list<std::string> returnValue;
     returnValue.push_back(category_);
     return returnValue;
   }
-}
+}  // namespace cms

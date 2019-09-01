@@ -2,103 +2,70 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DataFormats/Math/interface/deltaR.h" // reco::deltaR
+#include "DataFormats/Math/interface/deltaR.h"  // reco::deltaR
 
-
-ElectronMatchedCandidateProducer::ElectronMatchedCandidateProducer(const edm::ParameterSet &params)
-{
-
+ElectronMatchedCandidateProducer::ElectronMatchedCandidateProducer(const edm::ParameterSet &params) {
   const edm::InputTag allelectrons("gsfElectrons");
-  electronCollectionToken_ =
-    consumes<edm::View<reco::GsfElectron> >(params.getUntrackedParameter<edm::InputTag>("ReferenceElectronCollection",
-						allelectrons));
-  scCollectionToken_ =
-    consumes<edm::View<reco::Candidate> >(params.getParameter<edm::InputTag>("src"));
+  electronCollectionToken_ = consumes<edm::View<reco::GsfElectron>>(
+      params.getUntrackedParameter<edm::InputTag>("ReferenceElectronCollection", allelectrons));
+  scCollectionToken_ = consumes<edm::View<reco::Candidate>>(params.getParameter<edm::InputTag>("src"));
 
-  delRMatchingCut_ = params.getUntrackedParameter<double>("deltaR",
-							   0.30);
+  delRMatchingCut_ = params.getUntrackedParameter<double>("deltaR", 0.30);
 
-  produces< edm::PtrVector<reco::Candidate> >();
-  produces< edm::RefToBaseVector<reco::Candidate> >();
+  produces<edm::PtrVector<reco::Candidate>>();
+  produces<edm::RefToBaseVector<reco::Candidate>>();
 }
 
-
-
-
-ElectronMatchedCandidateProducer::~ElectronMatchedCandidateProducer()
-{
-
-}
-
+ElectronMatchedCandidateProducer::~ElectronMatchedCandidateProducer() {}
 
 //
 // member functions
 //
 
-
 // ------------ method called to produce the data  ------------
 
-void ElectronMatchedCandidateProducer::produce(edm::Event &event,
-			      const edm::EventSetup &eventSetup)
-{
-   // Create the output collection
+void ElectronMatchedCandidateProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
+  // Create the output collection
   auto outColRef = std::make_unique<edm::RefToBaseVector<reco::Candidate>>();
   auto outColPtr = std::make_unique<edm::PtrVector<reco::Candidate>>();
 
-
   // Read electrons
-  edm::Handle<edm::View<reco::GsfElectron> > electrons;
+  edm::Handle<edm::View<reco::GsfElectron>> electrons;
   event.getByToken(electronCollectionToken_, electrons);
 
-
-
   //Read candidates
-  edm::Handle<edm::View<reco::Candidate> > recoCandColl;
-  event.getByToken( scCollectionToken_ , recoCandColl);
+  edm::Handle<edm::View<reco::Candidate>> recoCandColl;
+  event.getByToken(scCollectionToken_, recoCandColl);
 
-
-  unsigned int counter=0;
+  unsigned int counter = 0;
 
   // Loop over candidates
-  for(edm::View<reco::Candidate>::const_iterator scIt = recoCandColl->begin();
-      scIt != recoCandColl->end(); ++scIt, ++counter){
+  for (edm::View<reco::Candidate>::const_iterator scIt = recoCandColl->begin(); scIt != recoCandColl->end();
+       ++scIt, ++counter) {
     // Now loop over electrons
-    for(edm::View<reco::GsfElectron>::const_iterator  elec = electrons->begin();
-	elec != electrons->end();  ++elec) {
-
+    for (edm::View<reco::GsfElectron>::const_iterator elec = electrons->begin(); elec != electrons->end(); ++elec) {
       reco::SuperClusterRef eSC = elec->superCluster();
 
-      double dRval = reco::deltaR((float)eSC->eta(), (float)eSC->phi(),
-				  scIt->eta(), scIt->phi());
+      double dRval = reco::deltaR((float)eSC->eta(), (float)eSC->phi(), scIt->eta(), scIt->phi());
 
-      if( dRval < delRMatchingCut_ ) {
-	//outCol->push_back( *scIt );
-	outColRef->push_back( recoCandColl->refAt(counter) );
-	outColPtr->push_back( recoCandColl->ptrAt(counter) );
-      } // end if loop
-    } // end electron loop
+      if (dRval < delRMatchingCut_) {
+        //outCol->push_back( *scIt );
+        outColRef->push_back(recoCandColl->refAt(counter));
+        outColPtr->push_back(recoCandColl->ptrAt(counter));
+      }  // end if loop
+    }    // end electron loop
 
-  } // end candidate loop
+  }  // end candidate loop
 
   event.put(std::move(outColRef));
   event.put(std::move(outColPtr));
 }
 
-
-
-
 // ------ method called once each job just before starting event loop  ---
-
-
 
 void ElectronMatchedCandidateProducer::beginJob() {}
 
-
-
 void ElectronMatchedCandidateProducer::endJob() {}
 
-
-
 //define this as a plug-in
-DEFINE_FWK_MODULE( ElectronMatchedCandidateProducer );
-
+DEFINE_FWK_MODULE(ElectronMatchedCandidateProducer);

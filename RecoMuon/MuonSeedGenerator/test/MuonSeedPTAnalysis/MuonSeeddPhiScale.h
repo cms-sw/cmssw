@@ -37,7 +37,7 @@
 #include <Geometry/DTGeometry/interface/DTChamber.h>
 #include <Geometry/DTGeometry/interface/DTLayer.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-	
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -48,19 +48,18 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <utility> 
+#include <utility>
 
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 //class PSimHit;
 
-class MuonSeeddPhiScale  {
+class MuonSeeddPhiScale {
 public:
-
   /// Constructor
   MuonSeeddPhiScale(const edm::ParameterSet& pset);
 
@@ -68,19 +67,17 @@ public:
   virtual ~MuonSeeddPhiScale();
 
   // Utility functions
-  void ScaleCSCdPhi(double dPhiP1[2][5][5], double EtaP1[2][5] );
+  void ScaleCSCdPhi(double dPhiP1[2][5][5], double EtaP1[2][5]);
 
-  void ScaleDTdPhi(double dPhiP3[2][5][5], double EtaP3[2][5] );
+  void ScaleDTdPhi(double dPhiP3[2][5][5], double EtaP3[2][5]);
 
-  void ScaleOLdPhi( double dPhiP2[2][5][5], bool MBPath[2][5][3], bool MEPath[2][5][4] );
+  void ScaleOLdPhi(double dPhiP2[2][5][5], bool MBPath[2][5][3], bool MEPath[2][5][4]);
 
-  void ScaleMESingle( double ME_phi[2][5][4], bool MEPath[2][5][4] );
-  void ScaleMBSingle( double MB_phi[2][5][3], bool MBPath[2][5][3] ); 
+  void ScaleMESingle(double ME_phi[2][5][4], bool MEPath[2][5][4]);
+  void ScaleMBSingle(double MB_phi[2][5][3], bool MBPath[2][5][3]);
 
 protected:
-
 private:
-
   std::vector<double> CSC01_1;
   std::vector<double> CSC12_1;
   std::vector<double> CSC12_2;
@@ -127,9 +124,6 @@ private:
   std::vector<double> SME_13S;
   std::vector<double> SME_21S;
   std::vector<double> SME_22S;
-
 };
 
-
 #endif
-

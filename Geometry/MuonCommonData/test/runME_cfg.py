@@ -10,6 +10,8 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.HcalCommonData.hcalParameters_cfi")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
+process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
+process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
@@ -19,21 +21,11 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run1_mc']
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('G4cout', 'G4cerr'),
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
-    )
-)
+process.load('FWCore.MessageService.MessageLogger_cfi')
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.categories.append('G4cerr')
+    process.MessageLogger.categories.append('G4cout')
+    process.MessageLogger.categories.append('MuonGeom')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

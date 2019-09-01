@@ -15,7 +15,7 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"  
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
@@ -29,31 +29,29 @@ typedef std::vector<std::string> MyStrings;
   */
 class HLTMCtruth {
 public:
-  HLTMCtruth(); 
+  HLTMCtruth();
 
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const edm::Handle<reco::CandidateView> & mctruth,
-	       const double        & pthat,
-	       const double        & weight,
-	       const edm::Handle<std::vector<SimTrack> > & simTracks,
-	       const edm::Handle<std::vector<SimVertex> > & simVertices,
-	       const edm::Handle<std::vector< PileupSummaryInfo > > & PupInfo, 
-	       TTree* tree);
+  void analyze(const edm::Handle<reco::CandidateView>& mctruth,
+               const double& pthat,
+               const double& weight,
+               const edm::Handle<std::vector<SimTrack> >& simTracks,
+               const edm::Handle<std::vector<SimVertex> >& simVertices,
+               const edm::Handle<std::vector<PileupSummaryInfo> >& PupInfo,
+               TTree* tree);
 
 private:
-
   // Tree variables
   float *mcvx, *mcvy, *mcvz, *mcpt, *mceta, *mcphi;
   int *mcpid, *mcstatus;
-  int nmcpart,nmu3,nel3,nab,nbb,nwenu,nwmunu,nzee,nzmumu;
+  int nmcpart, nmu3, nel3, nab, nbb, nwenu, nwmunu, nzee, nzmumu;
   int npubx0, npuvertbx0;
   float pthatf, weightf, weightsignf;
-  float ptEleMax,ptMuMax;
+  float ptEleMax, ptMuMax;
   // input variables
-  bool _Monte,_Debug,_Gen;
-
+  bool _Monte, _Debug, _Gen;
 };
 
 #endif

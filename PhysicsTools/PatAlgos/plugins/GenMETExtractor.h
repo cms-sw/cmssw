@@ -13,7 +13,6 @@
   \version  $Id: GenMETExtractor.h,v 1.0 2015/07/22 mmarionn Exp $
 */
 
-
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -26,21 +25,16 @@
 namespace pat {
 
   class GenMETExtractor : public edm::global::EDProducer<> {
-
-    public:
-
+  public:
     explicit GenMETExtractor(const edm::ParameterSet& iConfig);
     ~GenMETExtractor() override;
 
-    void produce(edm::StreamID streamID, edm::Event & iEvent,
-			 const edm::EventSetup & iSetup) const override;
+    void produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   private:
-
     edm::EDGetTokenT<std::vector<pat::MET> > metSrcToken_;
-    
   };
 
-}
+}  // namespace pat
 
 #endif

@@ -61,9 +61,13 @@ phase2_tracker.toModify(offlinePrimaryVertices,
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(offlinePrimaryVertices,
-               TkFilterParameters = dict(maxD0Significance = 3.0),
+(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(offlinePrimaryVertices,
+               TkFilterParameters = dict(
+                   maxD0Significance = 2.0,
+                   minPixelLayersWithHits=3,
+                   minPt = 0.7,
+                   trackQuality = "highPurity"
+               ),
                TkClusParameters = cms.PSet(
             algorithm = cms.string("gap"),
             TkGapClusParameters = cms.PSet(
@@ -72,3 +76,18 @@ for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
             )
                )
     
+from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
+highBetaStar_2018.toModify(offlinePrimaryVertices,
+     TkFilterParameters = dict(
+         maxNormalizedChi2 = 80.0,
+         minPixelLayersWithHits = 1,
+         minSiliconLayersWithHits = 3,
+         maxD0Significance = 7.0,
+         maxEta = 2.5
+     ),
+     vertexCollections = {
+         0: dict(chi2cutoff = 4.0, minNdof = -1.1),
+         1: dict(chi2cutoff = 4.0, minNdof = -2.0),
+     }
+)
+

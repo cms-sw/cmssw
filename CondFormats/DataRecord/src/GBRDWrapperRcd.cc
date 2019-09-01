@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     GBRDWrapperRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
-// Author:      
+// Author:
 // Created:     Tue Nov  8 22:18:56 CET 2011
 // $Id$
 

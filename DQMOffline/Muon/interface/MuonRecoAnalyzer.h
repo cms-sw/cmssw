@@ -18,39 +18,50 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 
 class MuonRecoAnalyzer : public DQMEDAnalyzer {
- public:
-
+public:
   /// Constructor
   MuonRecoAnalyzer(const edm::ParameterSet&);
-  
+
   /// Destructor
   ~MuonRecoAnalyzer() override;
 
   /// Inizialize parameters for histo binning
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
- 
-  //calculate residual & pull:
-  void GetRes( reco::TrackRef t1, reco::TrackRef t2, std::string par, float &res, float &pull);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
- private:
+  //calculate residual & pull:
+  void GetRes(reco::TrackRef t1, reco::TrackRef t2, std::string par, float& res, float& pull);
+
+  //Functions needed by the SoftMuon MVA monitoring
+  double getDeltaR(reco::Track track1, reco::Track track2);
+
+  int getPv(int tidx, const reco::VertexCollection* vc);
+
+private:
   // ----------member data ---------------------------
-    MuonServiceProxy *theService;
+  MuonServiceProxy* theService;
   edm::ParameterSet parameters;
-  
-  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
+
+  edm::EDGetTokenT<edm::View<reco::Muon> > theMuonCollectionLabel_;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
+  edm::EDGetTokenT<reco::BeamSpot> theBeamSpotLabel_;
+  edm::EDGetTokenT<DcsStatusCollection> dcsStatusCollection_;
+
   // Switch for verbosity
   std::string metname;
-    
+  bool doMVA;
 
   //histo binning parameters
   int etaBin;
@@ -110,8 +121,40 @@ class MuonRecoAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement*> rhAnalysis;
   std::vector<MonitorElement*> muVStkSytemRotation;
   std::vector<MonitorElement*> phiVsetaGlbTrack;
+  std::vector<MonitorElement*> phiVsetaGlbTrack_badlumi;
 
- 
+  //Soft MVA Muon
+  MonitorElement* ptSoftMuonMVA;
+  MonitorElement* deltaRSoftMuonMVA;
+  MonitorElement* gNchi2SoftMuonMVA;
+  MonitorElement* vMuHitsSoftMuonMVA;
+  MonitorElement* mNuStationsSoftMuonMVA;
+  MonitorElement* dxyRefSoftMuonMVA;
+  MonitorElement* dzRefSoftMuonMVA;
+  MonitorElement* LWHSoftMuonMVA;
+  MonitorElement* valPixHitsSoftMuonMVA;
+  MonitorElement* innerChi2SoftMuonMVA;
+  MonitorElement* outerChi2SoftMuonMVA;
+  MonitorElement* iValFracSoftMuonMVA;
+  MonitorElement* segCompSoftMuonMVA;
+  MonitorElement* chi2LocMomSoftMuonMVA;
+  MonitorElement* chi2LocPosSoftMuonMVA;
+  MonitorElement* glbTrackTailProbSoftMuonMVA;
+  MonitorElement* NTrkVHitsSoftMuonMVA;
+  MonitorElement* kinkFinderSoftMuonMVA;
+  MonitorElement* vRPChitsSoftMuonMVA;
+  MonitorElement* glbKinkFinderSoftMuonMVA;
+  MonitorElement* glbKinkFinderLogSoftMuonMVA;
+  MonitorElement* staRelChi2SoftMuonMVA;
+  MonitorElement* glbDeltaEtaPhiSoftMuonMVA;
+  MonitorElement* trkRelChi2SoftMuonMVA;
+  MonitorElement* vDThitsSoftMuonMVA;
+  MonitorElement* vCSChitsSoftMuonMVA;
+  MonitorElement* timeAtIpInOutSoftMuonMVA;
+  MonitorElement* timeAtIpInOutErrSoftMuonMVA;
+  MonitorElement* getMuonHitsPerStationSoftMuonMVA;
+  MonitorElement* QprodSoftMuonMVA;
+
   MonitorElement* tunePResolution;
 
   MonitorElement* etaPull;

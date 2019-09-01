@@ -1,19 +1,16 @@
 #include "PhysicsTools/PatUtils/plugins/ShiftedParticleMETcorrInputProducer.h"
 
 ShiftedParticleMETcorrInputProducer::ShiftedParticleMETcorrInputProducer(const edm::ParameterSet& cfg)
-  : srcOriginalToken_(consumes<CandidateView>(cfg.getParameter<edm::InputTag>("srcOriginal")))
-  , srcShiftedToken_(consumes<CandidateView>(cfg.getParameter<edm::InputTag>("srcShifted")))
-{
+    : srcOriginalToken_(consumes<CandidateView>(cfg.getParameter<edm::InputTag>("srcOriginal"))),
+      srcShiftedToken_(consumes<CandidateView>(cfg.getParameter<edm::InputTag>("srcShifted"))) {
   produces<CorrMETData>();
 }
 
-ShiftedParticleMETcorrInputProducer::~ShiftedParticleMETcorrInputProducer()
-{
-// nothing to be done yet...
+ShiftedParticleMETcorrInputProducer::~ShiftedParticleMETcorrInputProducer() {
+  // nothing to be done yet...
 }
 
-void ShiftedParticleMETcorrInputProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const
-{
+void ShiftedParticleMETcorrInputProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
   edm::Handle<CandidateView> originalParticles;
   evt.getByToken(srcOriginalToken_, originalParticles);
 
@@ -22,17 +19,19 @@ void ShiftedParticleMETcorrInputProducer::produce(edm::StreamID, edm::Event& evt
 
   auto metCorrection = std::make_unique<CorrMETData>();
 
-  for ( CandidateView::const_iterator originalParticle = originalParticles->begin();
-	originalParticle != originalParticles->end(); ++originalParticle ) {
-    metCorrection->mex   += originalParticle->px();
-    metCorrection->mey   += originalParticle->py();
+  for (CandidateView::const_iterator originalParticle = originalParticles->begin();
+       originalParticle != originalParticles->end();
+       ++originalParticle) {
+    metCorrection->mex += originalParticle->px();
+    metCorrection->mey += originalParticle->py();
     metCorrection->sumet -= originalParticle->et();
   }
 
-  for ( CandidateView::const_iterator shiftedParticle = shiftedParticles->begin();
-	shiftedParticle != shiftedParticles->end(); ++shiftedParticle ) {
-    metCorrection->mex   -= shiftedParticle->px();
-    metCorrection->mey   -= shiftedParticle->py();
+  for (CandidateView::const_iterator shiftedParticle = shiftedParticles->begin();
+       shiftedParticle != shiftedParticles->end();
+       ++shiftedParticle) {
+    metCorrection->mex -= shiftedParticle->px();
+    metCorrection->mey -= shiftedParticle->py();
     metCorrection->sumet += shiftedParticle->et();
   }
 
@@ -42,5 +41,3 @@ void ShiftedParticleMETcorrInputProducer::produce(edm::StreamID, edm::Event& evt
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(ShiftedParticleMETcorrInputProducer);
-
-

@@ -1,29 +1,30 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "Rtypes.h" 
-#include "Math/Cartesian3D.h" 
-#include "Math/Polar3D.h" 
-#include "Math/CylindricalEta3D.h" 
-#include <boost/cstdint.hpp> 
+#include "Rtypes.h"
+#include "Math/Cartesian3D.h"
+#include "Math/Polar3D.h"
+#include "Math/CylindricalEta3D.h"
+#include <boost/cstdint.hpp>
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
-#include "DataFormats/GeometrySurface/interface/Surface.h" 
-#include "DataFormats/CLHEP/interface/Migration.h" 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
-#include "boost/intrusive_ptr.hpp" 
-#include "DataFormats/GeometryVector/interface/LocalVector.h" 
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
-#include "DataFormats/Common/interface/AssociationMap.h" 
-#include "DataFormats/Common/interface/OneToOne.h" 
-#include "DataFormats/Common/interface/OwnVector.h" 
-#include "DataFormats/Common/interface/Wrapper.h" 
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/CLHEP/interface/Migration.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "boost/intrusive_ptr.hpp"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/OneToOne.h"
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include <vector>
 
 typedef TrajectoryStateOnSurface TrackParamConstraint;
-typedef edm::AssociationMap<edm::OneToOne<reco::TrackCollection, std::vector<TrajectoryStateOnSurface> > > TrackParamConstraintAssociationCollection;
+typedef edm::AssociationMap<edm::OneToOne<reco::TrackCollection, std::vector<TrajectoryStateOnSurface> > >
+    TrackParamConstraintAssociationCollection;
 typedef TrackParamConstraintAssociationCollection::value_type TrackParamConstraintAssociation;
 typedef edm::Ref<TrackParamConstraintAssociationCollection> TrackParamConstraintAssociationRef;
 typedef edm::RefProd<TrackParamConstraintAssociationCollection> TrackParamConstraintAssociationRefProd;
@@ -34,7 +35,7 @@ namespace TrackingTools_TrajectoryState {
     TrajectoryStateOnSurface dummytsos;
     std::vector<TrajectoryStateOnSurface> jjj2;
     edm::Wrapper<std::vector<TrajectoryStateOnSurface> > jjj3;
-  
+
     TrackParamConstraintAssociationCollection iii1;
     edm::Wrapper<TrackParamConstraintAssociationCollection> iii2;
     TrackParamConstraintAssociation iii3;
@@ -42,4 +43,4 @@ namespace TrackingTools_TrajectoryState {
     TrackParamConstraintAssociationRefProd iii5;
     TrackParamConstraintAssociationRefVector iii6;
   };
-}
+}  // namespace TrackingTools_TrajectoryState

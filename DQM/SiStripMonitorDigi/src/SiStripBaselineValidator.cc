@@ -2,7 +2,6 @@
 //         Created:  Mon Jul 28 14:10:52 CEST 2008
 //
 //
- 
 
 // system include files
 #include <memory>
@@ -19,7 +18,6 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 //ROOT inclusion
 #include "TH1F.h"
 #include "TH2F.h"
@@ -29,79 +27,72 @@
 
 class TFile;
 
-
-
 using namespace edm;
 using namespace std;
 
-SiStripBaselineValidator::SiStripBaselineValidator(const edm::ParameterSet& conf){
-
-  srcProcessedRawDigi_ =  conf.getParameter<edm::InputTag>( "srcProcessedRawDigi" );
-  moduleRawDigiToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(conf.getParameter<edm::InputTag>( "srcProcessedRawDigi" ) );
+SiStripBaselineValidator::SiStripBaselineValidator(const edm::ParameterSet& conf) {
+  srcProcessedRawDigi_ = conf.getParameter<edm::InputTag>("srcProcessedRawDigi");
+  moduleRawDigiToken_ =
+      consumes<edm::DetSetVector<SiStripDigi> >(conf.getParameter<edm::InputTag>("srcProcessedRawDigi"));
 }
 
-SiStripBaselineValidator::~SiStripBaselineValidator()
-{
-}
+SiStripBaselineValidator::~SiStripBaselineValidator() {}
 
-void SiStripBaselineValidator::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run & run, const edm::EventSetup & es)
-{
+void SiStripBaselineValidator::bookHistograms(DQMStore::IBooker& ibooker,
+                                              const edm::Run& run,
+                                              const edm::EventSetup& es) {
   ///Setting the DQM top directories
   ibooker.setCurrentFolder("SiStrip/BaselineValidator");
-  
-  h1NumbadAPVsRes_ = ibooker.book1D("ResAPVs",";#ResAPVs", 100, 1.0, 10001);
-  ibooker.tag(h1NumbadAPVsRes_,1);
-  
-  h1ADC_vs_strip_ = ibooker.book2D("ADCvsAPVs",";ADCvsAPVs", 768,-0.5,767.5,  1023, -0.5, 1022.5);
-  ibooker.tag(h1ADC_vs_strip_,2);
-  
+
+  h1NumbadAPVsRes_ = ibooker.book1D("ResAPVs", ";#ResAPVs", 100, 1.0, 10001);
+  ibooker.tag(h1NumbadAPVsRes_, 1);
+
+  h1ADC_vs_strip_ = ibooker.book2D("ADCvsAPVs", ";ADCvsAPVs", 768, -0.5, 767.5, 1023, -0.5, 1022.5);
+  ibooker.tag(h1ADC_vs_strip_, 2);
+
   return;
 }
 
-void SiStripBaselineValidator::analyze(const edm::Event& e, const edm::EventSetup& es)
-{
-  edm::Handle< edm::DetSetVector<SiStripRawDigi> > moduleRawDigi;
-  e.getByToken( moduleRawDigiToken_, moduleRawDigi );
-  edm::DetSetVector<SiStripRawDigi>::const_iterator itRawDigis = moduleRawDigi->begin();
- 
-   int NumResAPVs=0;
-   for (; itRawDigis != moduleRawDigi->end(); ++itRawDigis) {   ///loop over modules
-     
+void SiStripBaselineValidator::analyze(const edm::Event& e, const edm::EventSetup& es) {
+  edm::Handle<edm::DetSetVector<SiStripDigi> > moduleRawDigi;
+  e.getByToken(moduleRawDigiToken_, moduleRawDigi);
+  edm::DetSetVector<SiStripDigi>::const_iterator itRawDigis = moduleRawDigi->begin();
 
-     edm::DetSet<SiStripRawDigi>::const_iterator itRaw = itRawDigis->begin(); 
-     int strip =0, totADC=0;
+  int NumResAPVs = 0;
+  for (; itRawDigis != moduleRawDigi->end(); ++itRawDigis) {  ///loop over modules
 
-     for(;itRaw != itRawDigis->end(); ++itRaw, ++strip){  /// loop over strips
-       
-       float adc = itRaw->adc();
-       h1ADC_vs_strip_->Fill(strip,adc); /// adc vs strip
+    edm::DetSet<SiStripDigi>::const_iterator itRaw = itRawDigis->begin();
+    int strip = 0, totStripAPV = 0, apv = 0, prevapv = itRaw->strip() / 128;
 
+    for (; itRaw != itRawDigis->end(); ++itRaw) {  /// loop over strips
 
+      strip = itRaw->strip();
+      apv = strip / 128;
+      float adc = itRaw->adc();
+      h1ADC_vs_strip_->Fill(strip, adc);  /// adc vs strip
 
-       totADC+= adc;
-       
-       if(strip%127 ==0){
-	 if(totADC!= 0){
-	   totADC =0;
-	   
-	   NumResAPVs++;
+      if (prevapv != apv) {
+        if (totStripAPV > 64) {
+          NumResAPVs++;
+        }
+        prevapv = apv;
+        totStripAPV = 0;
+      }
+      if (adc > 0)
+        ++totStripAPV;
 
-	 }
-       }
-       
-     } ///strip loop ends
-   
-     
-   }  /// module loop
+    }  ///strip loop ends
+    if (totStripAPV > 64) {
+      NumResAPVs++;
+    }
 
-       ///std::cout<< " napvs  : " << NumResAPVs << std::endl;
+  }  /// module loop
 
-   h1NumbadAPVsRes_->Fill(NumResAPVs); /// for all modules
+  ///std::cout<< " napvs  : " << NumResAPVs << std::endl;
 
+  h1NumbadAPVsRes_->Fill(NumResAPVs);  /// for all modules
 
-
-} /// analyzer loop
+}  /// analyzer loop
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiStripBaselineValidator);
-

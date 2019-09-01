@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys, os
 import glob
 import time
@@ -8,13 +9,25 @@ import shutil
 import re
 import json
 
-readers = { 'CMSSW_9_0_1'        : ['slc6_amd64_gcc530'], 
+# Boost 1.51 [no writers available - a back-port is required!]
+#readers = { 'CMSSW_7_1_0'        : ['slc6_amd64_gcc490'], 
+#          }
+
+# Boost 1.57
+#readers = { 'CMSSW_7_5_0'        : ['slc6_amd64_gcc491'], 
+#          }
+
+# Boost 1.63
+#readers = { 'CMSSW_9_0_0'        : ['slc6_amd64_gcc530'], 
+#          }
+
+# Boost 1.67 [No reference release yet...]
+readers = {
           }
 
-writers = { 'CMSSW_9_0_1'        : [ ('slc6_amd64_gcc530', 'ref901-s6530.db') ],
-            'CMSSW_8_1_0'        : [ ('slc6_amd64_gcc530', 'ref810-s6530.db') ],
-            'CMSSW_8_0_26'       : [ ('slc6_amd64_gcc530', 'ref8026-s6530.db')],
-            'CMSSW_7_6_6'        : [ ('slc6_amd64_gcc493', 'ref766-s6493.db')],
+writers = { 'CMSSW_9_0_1'        : [ ('slc6_amd64_gcc630', 'ref901-s6630.db')],
+            'CMSSW_8_1_0'        : [ ('slc6_amd64_gcc530', 'ref750-s6530.db'),('slc6_amd64_gcc600', 'ref750-s600.db')],
+            'CMSSW_7_6_6'        : [ ('slc6_amd64_gcc493', 'ref750-s6493.db')]
           }
 
 def check_output(*popenargs, **kwargs):
@@ -44,7 +57,7 @@ def print_timing(func):
         t1 = time.time()
         res = func(*arg)
         t2 = time.time()
-        print '\n%s(%s) took %0.3f ms\n' % (func.__name__, ','.join([str(x) for x in arg[1:]]), (t2-t1)*1000.0)
+        print('\n%s(%s) took %0.3f ms\n' % (func.__name__, ','.join([str(x) for x in arg[1:]]), (t2-t1)*1000.0))
         return res
     return wrapper
 
@@ -97,20 +110,20 @@ class CondRegressionTester(object):
               for reader in sorted(allReaders.keys()):
                   for arch in allReaders[reader]:
                       if reader == 'SELF':
-                          readerArch = 'Read: %s' %reader
+                          readerArch = 'Read: %s [%s]' %(self.rel,self.arch)
                       else:
                           readerArch = 'Read: %s [%s]' %(reader,arch)
                       fmt += '| %' + '%s' %len(readerArch) + 's '
                       header += tuple([readerArch])
               fmt += '|'
-              print 'SELF: %s [%s]\n' %(self.rel,self.arch)
-              print fmt %header
+              print('SELF: %s [%s]\n' %(self.rel,self.arch))
+              print(fmt %header)
               for result in sorted(self.status.keys()):
                   params = (result,)+tuple([self.status[result][key] for key in sorted(self.status[result].keys())])
-                  print fmt %params
+                  print(fmt %params)
 
           if jsonOut:
-              print json.dumps( self.status, sort_keys=True, indent=4 )
+              print(json.dumps( self.status, sort_keys=True, indent=4 ))
 
           overall = True
           for result in sorted(self.status.keys()):
@@ -155,12 +168,12 @@ class CondRegressionTester(object):
           if dbNameIn : dbName = dbNameIn
           
           if readOrWrite == 'write':
-              self.dbList['SELF'] = dbName
+              self.dbList['%s [%s]'%(self.rel,self.arch)] = dbName
 
           execName = 'test/%s/testReadWritePayloads' %self.arch
           executable = '%s/%s' %(os.environ['LOCALRT'],execName)
           if not os.path.exists(executable):
-              print 'Executable %s not found in local release.'
+              print('Executable %s not found in local release.')
               executable = None
               for rel_base_env in ['CMSSW_BASE', 'CMSSW_RELEASE_BASE', 'CMSSW_FULL_RELEASE_BASE' ]:
                   if os.getenv(rel_base_env) and os.path.exists(str(os.environ[rel_base_env])+'/%s' %execName):
@@ -194,16 +207,16 @@ class CondRegressionTester(object):
       def runAll(self):
 
           # write all DBs (including the one from this IB/devArea)
-          print '='*80
-          print "going to write DBs ..."
+          print('='*80)
+          print("going to write DBs ...")
           self.runSelf('write')
           for rel in writers.keys():
              for arch,dbName in writers[rel]:
                  self.run(rel, arch, 'write', dbName)
           
           # now try to read back with all reference releases all the DBs written before ...
-          print '='*80
-          print "going to read back DBs ..."
+          print('='*80)
+          print("going to read back DBs ...")
           for rel in readers.keys():
              for arch in readers[rel]:
                  for writer in self.dbList.keys(): # for any given rel/arch we check all written DBs
@@ -211,10 +224,10 @@ class CondRegressionTester(object):
                      try:
                          self.run(rel, arch, 'read', dbName)
                          status = True
-                         print "rel %s reading %s was OK." % (rel, writer)
+                         print("rel %s reading %s was OK." % (rel, writer))
                      except:
                          status = False
-                         print "rel %s reading %s FAILED." % (rel, writer)
+                         print("rel %s reading %s FAILED." % (rel, writer))
                      if writer not in self.status.keys():
                          key = '%s [%s]' %(rel,arch)
                          self.status[writer] = { key : status }
@@ -227,20 +240,20 @@ class CondRegressionTester(object):
              try:
                 self.runSelf('read', dbName)
                 status = True
-                print "rel %s reading %s was OK." % (self.rel, writer)
+                print("rel %s reading %s was OK." % (self.rel, writer))
              except:
                 status = False
-                print "rel %s reading %s FAILED." % (self.rel, writer)
+                print("rel %s reading %s FAILED." % (self.rel, writer))
              if writer not in self.status.keys():
                  self.status[writer] = { 'SELF': status }
              else:
                  self.status[writer]['SELF'] = status 
-          print '='*80
+          print('='*80)
 
 crt = CondRegressionTester()
 crt.runAll()
 status = crt.summary(verbose=True)
-print "\n==> overall status: ", status
+print("\n==> overall status: ", status)
 
 # return the overall result to the caller:
 if status: 

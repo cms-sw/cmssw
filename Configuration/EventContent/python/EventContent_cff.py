@@ -18,7 +18,7 @@ import FWCore.ParameterSet.Config as cms
 #    slimmed-down version of RAWSIM for small transient disk size during MC production, contains Gen+Rawdata
 #
 #  PREMIX
-#    extension of GENRAW with special Digi collection(s) for pre-mixing minbias events for pileup simulation
+#    contains special Digi collection(s) for pre-mixing minbias events for pileup simulation
 #    Raw2Digi step is done on this file.
 #
 #  PREMIXRAW
@@ -78,6 +78,7 @@ from SimG4Core.Configuration.SimG4Core_EventContent_cff import *
 from SimTracker.Configuration.SimTracker_EventContent_cff import *
 from SimMuon.Configuration.SimMuon_EventContent_cff import *
 from SimCalorimetry.Configuration.SimCalorimetry_EventContent_cff import *
+from SimFastTiming.Configuration.SimFastTiming_EventContent_cff import *
 from SimGeneral.Configuration.SimGeneral_EventContent_cff import *
 from IOMC.RandomEngine.IOMC_EventContent_cff import *
 #
@@ -201,7 +202,7 @@ RAWSIMEventContent = cms.PSet(
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize=cms.untracked.int32(20*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
-    compressionLevel=cms.untracked.int32(9)
+    compressionLevel=cms.untracked.int32(1)
 )
 #
 #
@@ -411,7 +412,8 @@ REPACKRAWEventContent = cms.PSet(
       'drop *',
       'drop FEDRawDataCollection_*_*_*',
       'keep FEDRawDataCollection_rawDataRepacker_*_*',
-      'keep FEDRawDataCollection_virginRawDataRepacker_*_*'),
+      'keep FEDRawDataCollection_virginRawDataRepacker_*_*',
+      'keep FEDRawDataCollection_rawDataReducedFormat_*_*'),
     splitLevel = cms.untracked.int32(0),
     )
 REPACKRAWSIMEventContent = cms.PSet(
@@ -501,6 +503,7 @@ RAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(SimFastTimingRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
@@ -519,6 +522,7 @@ GENRAWEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
 GENRAWEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
 GENRAWEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
 GENRAWEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
+GENRAWEventContent.outputCommands.extend(SimFastTimingRECO.outputCommands)
 GENRAWEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 GENRAWEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
 GENRAWEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
@@ -527,64 +531,15 @@ GENRAWEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 GENRAWEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 GENRAWEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 
-PREMIXEventContent.outputCommands.extend(RAWEventContent.outputCommands)
-PREMIXEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
-PREMIXEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
-PREMIXEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
 PREMIXEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
-PREMIXEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
-PREMIXEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
-PREMIXEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 PREMIXEventContent.outputCommands.extend(IOMCRAW.outputCommands)
-PREMIXEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 PREMIXEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-PREMIXEventContent.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_simMuonRPCDigis_*_*')
-PREMIXEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
-PREMIXEventContent.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simSiStripDigis_*_*')
-PREMIXEventContent.outputCommands.append('keep PixelDigiSimLinkedmDetSetVector_simSiPixelDigis_*_*')
-PREMIXEventContent.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simMuonCSCDigis_*_*')
-PREMIXEventContent.outputCommands.append('keep RPCDigiSimLinkedmDetSetVector_*_*_*')
-PREMIXEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
+PREMIXEventContent.outputCommands.extend(SimTrackerPREMIX.outputCommands)
+PREMIXEventContent.outputCommands.extend(SimCalorimetryPREMIX.outputCommands)
+PREMIXEventContent.outputCommands.extend(SimFastTimingPREMIX.outputCommands)
+PREMIXEventContent.outputCommands.extend(SimMuonPREMIX.outputCommands)
+PREMIXEventContent.outputCommands.extend(SimGeneralPREMIX.outputCommands)
 fastSim.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+fastSimEC.extraPremixContent)
-# Phase2 essentially extends the content to DIGI
-# We could split this by subdetector-eras, but let's start with simple
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+[
-        # Tracker
-        'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
-        'keep *_simSiPixelDigis_*_*', # covers digis and digiSimLinks
-        # MTD
-        # ???
-        # ECAL
-        'keep *_simEcalDigis_ebDigis_*',
-        'keep ESDigiCollection_simEcalUnsuppressedDigis_*_*',
-        # HCAL
-        'keep *_simHcalDigis_*_*',
-        'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
-        # HGCAL
-        'keep *_mix_HGCDigisEE_*',
-        'keep *_mix_HGCDigisHEfront_*',
-        'keep *_mix_HGCDigisHEback_*',
-        # DT
-        'keep *_simMuonDTDigis_*_*',
-        # CSC
-        'keep *_simMuonCSCDigis_*_*',
-        'keep *_simMuonCscTriggerPrimitiveDigis_*_*',
-        # RPC
-        'keep *_simMuonRPCDigis_*_*',
-        # GEM
-        'keep *_simMuonGEMDigis_*_*',
-        # ME0
-        'keep *_simMuonME0Digis_*_*',
-        # CaloParticles
-        'keep *_mix_MergedCaloTruth_*',
-])
-
-
-from Configuration.Eras.Modifier_hcalSkipPacker_cff import hcalSkipPacker
-hcalSkipPacker.toModify(PREMIXEventContent.outputCommands,
-    func=lambda outputCommands: outputCommands.append('keep *_simHcalDigis_*_*')
-)
 
 PREMIXRAWEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoNew_*_*_*')
@@ -603,6 +558,7 @@ REPACKRAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(SimFastTimingRAW.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
@@ -620,6 +576,7 @@ RECOSIMEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimTrackerRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(SimFastTimingRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 
@@ -629,6 +586,7 @@ AODSIMEventContent.outputCommands.extend(SimG4CoreAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(SimTrackerAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(SimMuonAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(SimCalorimetryAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(SimFastTimingAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(RecoGenJetsAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(RecoGenMETAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(SimGeneralAOD.outputCommands)
@@ -642,6 +600,7 @@ RAWRECOSIMHLTEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
 RAWRECOSIMHLTEventContent.outputCommands.extend(SimTrackerRECO.outputCommands)
 RAWRECOSIMHLTEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
 RAWRECOSIMHLTEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(SimFastTimingRECO.outputCommands)
 RAWRECOSIMHLTEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 RAWRECOSIMHLTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 RAWRECOSIMHLTEventContent.outputCommands.extend(HLTDebugRAW.outputCommands)
@@ -687,6 +646,7 @@ FEVTSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimFastTimingRAW.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
@@ -721,6 +681,7 @@ FEVTSIMEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimTrackerRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimFastTimingRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
@@ -740,23 +701,35 @@ FEVTDEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimTrackerFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimMuonFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(SimFastTimingFEVTDEBUG.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.extend(FEVTDEBUGEventContent.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
-FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MuonCSCStripDigiSimLinks_*')
-FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MuonCSCWireDigiSimLinks_*')
-FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_RPCDigiSimLink_*')
-FEVTDEBUGHLTEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
 RECODEBUGEventContent.outputCommands.extend(RECOSIMEventContent.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+(premix_stage2 & phase2_tracker).toModify(FEVTDEBUGHLTEventContent, outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+    'keep *_*_Phase2OTDigiSimLink_*'
+])
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+(premix_stage2 & phase2_muon).toModify(FEVTDEBUGHLTEventContent, outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+    'keep *_*_GEMDigiSimLink_*',
+    'keep *_*_GEMStripDigiSimLink_*',
+    'keep *_*_ME0DigiSimLink_*',
+    'keep *_*_ME0StripDigiSimLink_*',
+])
 
 REPACKRAWSIMEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
                                                 'drop FEDRawDataCollection_rawDataCollector_*_*'])
 REPACKRAWEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
                                                 'drop FEDRawDataCollection_rawDataCollector_*_*'])
+
+
 
 #from modules in Configuration.StandardSequence.Generator_cff fixGenInfo
 REGENEventContent = cms.PSet(
@@ -900,7 +873,6 @@ for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropPatTrigger)
 
 
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
     phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + [
         'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
@@ -911,11 +883,12 @@ for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
     run2_GEM_2017.toModify(_entry, outputCommands = _entry.outputCommands + ['keep *_muonGEMDigis_*_*'])
     run3_GEM.toModify(_entry, outputCommands = _entry.outputCommands + ['keep *_muonGEMDigis_*_*'])
     phase2_muon.toModify(_entry, outputCommands = _entry.outputCommands + ['keep *_muonGEMDigis_*_*'])
-
+    pp_on_AA_2018.toModify(_entry, outputCommands = _entry.outputCommands + ['keep FEDRawDataCollection_rawDataRepacker_*_*'])
 
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import RecoLocalFastTimeFEVT, RecoLocalFastTimeRECO, RecoLocalFastTimeAOD
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
@@ -927,3 +900,10 @@ _addOutputCommands(FEVTDEBUGHLTEventContent,RecoLocalFastTimeFEVT)
 _addOutputCommands(FEVTEventContent,RecoLocalFastTimeFEVT)
 _addOutputCommands(RECOSIMEventContent,RecoLocalFastTimeRECO)
 _addOutputCommands(AODSIMEventContent,RecoLocalFastTimeAOD)
+
+from RecoMTD.Configuration.RecoMTD_EventContent_cff import RecoMTDFEVT, RecoMTDRECO, RecoMTDAOD
+_addOutputCommands(FEVTDEBUGEventContent,RecoMTDFEVT)
+_addOutputCommands(FEVTDEBUGHLTEventContent,RecoMTDFEVT)
+_addOutputCommands(FEVTEventContent,RecoMTDFEVT)
+_addOutputCommands(RECOSIMEventContent,RecoMTDRECO)
+_addOutputCommands(AODSIMEventContent,RecoMTDAOD)

@@ -6,17 +6,16 @@
  *  DQM Client to check the data integrity
  *
  *  \author S. Bolognesi - INFN TO
- *   
+ *
  */
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class DT4DSegmentClients: public DQMEDHarvester {
-
+class DT4DSegmentClients : public DQMEDHarvester {
 public:
   /// Constructor
-  DT4DSegmentClients(const edm::ParameterSet& ps);
+  DT4DSegmentClients(const edm::ParameterSet &ps);
   /// Destructor
   ~DT4DSegmentClients() override;
 
@@ -26,7 +25,6 @@ protected:
 
 private:
   bool doall_;
-
 };
 
-#endif // Validation_DTRecHits_DT4DSegmentClients_h
+#endif  // Validation_DTRecHits_DT4DSegmentClients_h

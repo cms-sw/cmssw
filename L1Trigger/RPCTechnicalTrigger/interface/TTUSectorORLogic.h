@@ -1,4 +1,4 @@
-#ifndef INTERFACE_TTUSECTORORLOGIC_H 
+#ifndef INTERFACE_TTUSECTORORLOGIC_H
 #define INTERFACE_TTUSECTORORLOGIC_H 1
 
 // Include files
@@ -15,27 +15,24 @@
  *  @date   2009-06-15
  */
 class TTUSectorORLogic : public TTULogic {
-public: 
+public:
   /// Standard constructor
-  TTUSectorORLogic( ); 
+  TTUSectorORLogic();
 
-  ~TTUSectorORLogic( ) override; ///< Destructor
+  ~TTUSectorORLogic() override;  ///< Destructor
 
   //... from TTULogic interface:
-  
-  bool process( const TTUInput & ) override;
-  
-  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & ) override;
+
+  bool process(const TTUInput&) override;
+
+  void setBoardSpecs(const TTUBoardSpecs::TTUBoardConfig&) override;
 
   //...
-      
-protected:
-  
-private:
-  
-  bool m_debug;
-  
-  int m_maxsectors;
 
+protected:
+private:
+  bool m_debug;
+
+  int m_maxsectors;
 };
-#endif // INTERFACE_TTUSECTORORLOGIC_H
+#endif  // INTERFACE_TTUSECTORORLOGIC_H

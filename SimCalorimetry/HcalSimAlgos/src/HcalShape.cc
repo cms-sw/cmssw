@@ -1,26 +1,16 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
-  
-HcalShape::HcalShape()
-{
-   // no default shape is defined (since cmssw 5x)
+
+HcalShape::HcalShape() {
+  // no default shape is defined (since cmssw 5x)
 }
 
-void HcalShape::setShape(int shapeType)
-{
-   // keep pulse shape for HPD, HO SiPM, HF PMT, depending on shapeType 
+void HcalShape::setShape(int shapeType) {
+  // keep pulse shape for HPD, HO SiPM, HF PMT, depending on shapeType
   // (101,102 etc.)
- //  std::cout << "- HcalShape::setShape for type " << shapeType << std::endl;
-   shape_=HcalPulseShapes().getShape(shapeType);
+  //  std::cout << "- HcalShape::setShape for type " << shapeType << std::endl;
+  shape_ = HcalPulseShapes().getShape(shapeType);
 }
 
-double HcalShape::timeToRise() const 
-{
-   return 0.;
-}
+double HcalShape::timeToRise() const { return 0.; }
 
-double HcalShape::operator () (double time_) const
-{
-  return shape_.at(time_);
-}
-
-
+double HcalShape::operator()(double time_) const { return shape_.at(time_); }

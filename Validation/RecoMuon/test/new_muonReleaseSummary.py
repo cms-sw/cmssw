@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os
 import shutil
 import sys
@@ -11,7 +12,7 @@ import new_userparams
 # Input parameters
 #
 
-print "Reading input parameters" 
+print("Reading input parameters") 
 
 #
 #specify macros used to plot here
@@ -75,7 +76,7 @@ def GetFastSimSuffix(params):
 
 def replace(map, filein, fileout):
     replace_items = map.items()
-    while 1:
+    while True:
         line = filein.readline()
         if not line: break
         for old, new in replace_items:
@@ -100,13 +101,13 @@ def downloadfile(url):
 	return True
     else:
         print('   + ERROR! ' + str(output[0]))
-	print "Skipping " + url
-	print "Please check the name of the file in the repository: "+GetGuiRepository(new_userparams.NewParams)
+	print("Skipping " + url)
+	print("Please check the name of the file in the repository: "+GetGuiRepository(new_userparams.NewParams))
         sys.exit('Exiting...');
-	# return False
+	return False
 
 def GetSamplePath(params, sample):
-    return params['Release']+'/'+GetTag(params)+'/'+sample
+    return params['Release']+'/'+GetTag(params)+'/'+sample+'_'+params['Energy']
 
 def GetLocalSampleName(params, sample):
     return GetSamplePath(params, sample) + '/val.' + sample + '.root'
@@ -144,41 +145,41 @@ def getSampleFiles(params, sample):
     sampleOnWeb=new_userparams.WebRepository+'/'+ localsample
 
     if (os.path.isfile(localsample)==True):
-        print '   + ' + params['Type'] + ' sample file found at: ' +localsample + '. Using that one'
+        print('   + ' + params['Type'] + ' sample file found at: ' +localsample + '. Using that one')
 
     elif (new_userparams.NewParams['GetFilesFrom']=='GUI'):
         theGuiSample = sample
         
-        guiFileName='DQM_V0001_R000000001__'+theGuiSample+'__'+params['Release']+'-'+GetLabel(params)+'__'+params['Format']+'.root'
+        guiFileName='DQM_V0001_R000000001__'+theGuiSample+'_'+params['Energy']+'__'+params['Release']+'-'+GetLabel(params)+'__'+params['Format']+'.root'
         guiFullURL=GetGuiRepository(params)+guiFileName
-        print ">> Downloading file from the GUI: " + guiFullURL
+        print(">> Downloading file from the GUI: " + guiFullURL)
 
         if (downloadfile(guiFullURL)==True):
-		print('   + Moving ' + guiFileName + ' to ' + localsample)
-        	shutil.move(guiFileName,localsample)
+            print('   + Moving ' + guiFileName + ' to ' + localsample)
+            shutil.move(guiFileName,localsample)
 
     elif ((params['GetFilesFrom']=='WEB') & (os.path.isfile(sampleOnWeb))) :
-        print "NOTE: New file found at: "+newSample+' -> Copy that one'
+        print("NOTE: New file found at: "+newSample+' -> Copy that one')
         os.system('cp '+sampleOnWeb+' '+path)
 
     elif ((params['GetFilesFrom']=='EOS')) :
-        print "creating a symbolic link to a file from eos: "
-        eosFileName='DQM_V0001_R000000001__'+sample+'__'+params['Release']+'-'+GetLabel(params)+'__'+params['Format']+'.root'
+        print("creating a symbolic link to a file from eos: ")
+        eosFileName='DQM_V0001_R000000001__'+sample+'_'+params['Energy']+'__'+params['Release']+'-'+GetLabel(params)+'__'+params['Format']+'.root'
         eosRepository=GetEosRepository(params)
         sampleOnEOS=eosRepository+eosFileName
 
         if (os.path.isfile(sampleOnEOS)) :
-            print sampleOnEOS 
+            print(sampleOnEOS) 
             #cp_command = 'cp '+sampleOnEOS+' '+path+'/val.'+ sample+'.root'
             #os.system(cp_command)
             ln_command = 'ln -s '+sampleOnEOS+' '+path+'/val.'+ sample+'.root'
             os.system(ln_command)
         else :
-            print "ERROR: File "+sampleOnEOS+" NOT found."
+            print("ERROR: File "+sampleOnEOS+" NOT found.")
             quit()
 
     else:
-        print '*** WARNING: no signal file was found'
+        print('*** WARNING: no signal file was found')
 
 def getReplaceMap(newparams, refparams, sample, datatype, cfgkey, cfgfile):
     newLocalSample=GetLocalSampleName(newparams, sample)
@@ -186,8 +187,8 @@ def getReplaceMap(newparams, refparams, sample, datatype, cfgkey, cfgfile):
     replace_map = { 'DATATYPE': datatype,
                     'NEW_FILE':newLocalSample,
                     'REF_FILE':refLocalSample,
-                    'REF_LABEL':sample,
-                    'NEW_LABEL': sample,
+                    'REF_LABEL':sample+'_'+refparams['Energy'],
+                    'NEW_LABEL': sample+'_'+newparams['Energy'],
                     'REF_RELEASE':refparams['Release'],
                     'NEW_RELEASE':newparams['Release'],
                     'REFSELECTION':GetTag(refparams),
@@ -214,13 +215,13 @@ for i in new_userparams.NewParams:
 # + Things needed by GUI
 if ((new_userparams.NewParams['GetFilesFrom']=='GUI')|(new_userparams.RefParams['GetFilesFrom']=='GUI')):
     if os.getenv('X509_USER_PROXY','') == '':
-        print "ERROR: It seems you did not configure your environment to be able"
-        print "       to download files from the GUI. Your should follow these steps:"
-        print " > source /cvmfs/cms.cern.ch/crab3/crab.csh"
-        print " > voms-proxy-init --voms cms"
-        print " > setenv X509_CERT_DIR $HOME/.globus"
-        print " > setenv X509_USER_PROXY /tmp/x509up_uVWXYZ (where VWXYZ = your unix Id on lxplus)"
-        print " >  or similarly for bash shell"
+        print("ERROR: It seems you did not configure your environment to be able")
+        print("       to download files from the GUI. Your should follow these steps:")
+        print(" > source /cvmfs/cms.cern.ch/crab3/crab.csh")
+        print(" > voms-proxy-init --voms cms")
+        print(" > setenv X509_CERT_DIR $HOME/.globus")
+        print(" > setenv X509_USER_PROXY /tmp/x509up_uVWXYZ (where VWXYZ = your unix Id on lxplus)")
+        print(" >  or similarly for bash shell")
         quit()
 
 if (new_userparams.NewParams['FastSim']|new_userparams.RefParams['FastSim']):
@@ -231,7 +232,6 @@ if (new_userparams.NewParams['HeavyIons']|new_userparams.RefParams['HeavyIons'])
     new_userparams.ValidateHLT=False
     new_userparams.ValidateRECO=False
     new_userparams.ValidateISO=False
-
 
 # Iterate over new_userparams.samples
 print('>> Selected samples:')
@@ -279,7 +279,7 @@ for sample in new_userparams.samples :
             replace_map_RECO = getReplaceMap(new_userparams.NewParams, new_userparams.RefParams, sample, 'RECO', 'RecoMuonValHistoPublisher', recomuoncfgFileName)
             replace_map_RECO['IS_FSIM']=''
     else:
-        print "No reference file found at: ", refpath
+        print("No reference file found at: ", refpath)
         replace_map = getReplaceMap(new_userparams.NewParams, new_userparams.NewParams, sample, 'RECO', 'new_TrackValHistoPublisher', cfgFileName)
         if (new_userparams.ValidateHLT):
             replace_map_HLT = getReplaceMap(new_userparams.NewParams, new_userparams.NewParams, sample, 'HLT', 'new_TrackValHistoPublisher', hltcfgFileName)
@@ -338,6 +338,9 @@ for sample in new_userparams.samples :
                 else:
                     print('ERROR: Could not find "' + newpath + '/RecoMuonV.pdf')
 
+    os.system('mkdir '+newpath+'/PDF')
+    os.system('mv '+newpath+'/*.pdf '+newpath+'/PDF/.')
+
     if(new_userparams.Publish):
         newpath = GetSamplePath(new_userparams.NewParams,sample)
         newlocalsample = GetLocalSampleName(new_userparams.NewParams, sample)
@@ -348,7 +351,7 @@ for sample in new_userparams.samples :
             # os.makedirs(newdir)
             # os.system('rm '+ newlocalsample)  
             # os.system('scp -r '+newpath+'/* ' + newdir)
-        os.system('scp -r '+newpath+'/*.pdf '+new_userparams.User+'@lxplus.cern.ch:' + newdir)
+        os.system('scp -r '+newpath+'/* '+new_userparams.User+'@lxplus.cern.ch:' + newdir)
 
         if(new_userparams.Publish_rootfile):            
             os.system('scp -r '+newpath+'/val.*.root '+new_userparams.User+'@lxplus.cern.ch:' + newdir)

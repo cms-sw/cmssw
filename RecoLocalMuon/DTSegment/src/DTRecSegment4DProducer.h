@@ -15,13 +15,13 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 class DTRecSegment4DBaseAlgo;
 
-class DTRecSegment4DProducer: public edm::stream::EDProducer<> {
+class DTRecSegment4DProducer : public edm::stream::EDProducer<> {
 public:
   /// Constructor
-  DTRecSegment4DProducer(const edm::ParameterSet&) ;
+  DTRecSegment4DProducer(const edm::ParameterSet&);
 
   /// Destructor
   ~DTRecSegment4DProducer() override;
@@ -30,21 +30,15 @@ public:
 
   /// The method which produces the 4D rec segments
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
-  
 
 protected:
-
 private:
-
   // Switch on verbosity
   bool debug;
 
   edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
-  //static std::string theAlgoName;
   edm::EDGetTokenT<DTRecSegment2DCollection> recHits2DToken_;
   // The 4D-segments reconstruction algorithm
-  DTRecSegment4DBaseAlgo* the4DAlgo;
+  std::unique_ptr<DTRecSegment4DBaseAlgo> the4DAlgo;
 };
 #endif
-
-

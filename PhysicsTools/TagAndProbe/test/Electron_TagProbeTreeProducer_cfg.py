@@ -926,7 +926,6 @@ TagVariablesToStore = cms.PSet(
 
 CommonStuffForGsfElectronProbe = cms.PSet(
     variables = cms.PSet(ProbeVariablesToStore),
-    ignoreExceptions =  cms.bool (False),
     addRunLumiInfo   =  cms.bool (True),
     addEventVariablesInfo   =  cms.bool (True),
     pairVariables =  cms.PSet(ZVariablesToStore),
@@ -1249,7 +1248,6 @@ process.WP95ToHLT = cms.EDAnalyzer("TagProbeFitTreeProducer",
       probe_gsfEle_isEE           = cms.string("isEE"),
       probe_gsfEle_isGap          = cms.string("isGap"),
     ),
-    ignoreExceptions =  cms.bool (False),
     addRunLumiInfo   =  cms.bool (False),
     addEventVariablesInfo   =  cms.bool (False),                                                        
     tagProbePairs = cms.InputTag("tagWP95"),

@@ -5,7 +5,7 @@
 //
 // Package:    JetMETHLTOffline
 // Class:      JetMETHLTOffline
-// 
+//
 /*
  Description: This is a DQM client meant to plot high-level HLT trigger quantities 
  as stored in the HLT results object TriggerResults for the JetMET triggers
@@ -22,7 +22,6 @@
 #include <unistd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
@@ -47,12 +46,8 @@
 #include <fstream>
 #include <vector>
 
-class DQMStore;
-class MonitorElement;
-
 class JetMETHLTOfflineClient : public DQMEDHarvester {
- 
- private:
+private:
   edm::ParameterSet conf_;
 
   bool debug_;
@@ -62,12 +57,11 @@ class JetMETHLTOfflineClient : public DQMEDHarvester {
   std::string hltTag_;
   std::string processname_;
 
- public:
-  explicit JetMETHLTOfflineClient(const edm::ParameterSet& );
+public:
+  explicit JetMETHLTOfflineClient(const edm::ParameterSet &);
   ~JetMETHLTOfflineClient() override;
 
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
-  
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 };
- 
+
 #endif

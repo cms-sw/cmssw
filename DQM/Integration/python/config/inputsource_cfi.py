@@ -1,8 +1,10 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 import sys
-from dqmPythonTypes import *
+from .dqmPythonTypes import *
 
 options = VarParsing.VarParsing('analysis')
 
@@ -74,8 +76,8 @@ if not options.inputFiles:
         endOfRunKills  = cms.untracked.bool(endOfRunKills),
     )
 else:
-    print "The list of input files is provided. Disabling discovery and running on everything."
-    files = map(lambda x: "file://" + x, options.inputFiles)
+    print("The list of input files is provided. Disabling discovery and running on everything.")
+    files = ["file://" + x for x in options.inputFiles]
     source = cms.Source("PoolSource",
         fileNames = cms.untracked.vstring(files),
         secondaryFileNames = cms.untracked.vstring()
@@ -88,4 +90,4 @@ else:
 #    secondaryFileNames = cms.untracked.vstring()
 #)
 
-print "Source:", source
+print("Source:", source)

@@ -18,96 +18,91 @@
 // Original Author:  R. Capra
 //         Created:  Tue May 16 10:14:34 CEST 2006
 //
- 
+
 // system include files
 
 // user include files
 
 #include "SimG4CMS/Forward/interface/TotemVDetectorOrganization.h"
-#include "globals.hh"
 
 class TotemT1Organization : public TotemVDetectorOrganization {
-
-public: 
-  
+public:
   // ---------- public enums -------------------------------
 
-  enum ObjectType  {
-   Undefined=0,
-   Upper=1,
-   Lower=2,
-   InternalUpper=3,
-   InternalLower=4,
-   Frame1=5,
-   Frame2Left=6,
-   Frame2Right=7,
-   Frame3Left=8,
-   Frame3Right=9,
-   Frame4Left=10,
-   Frame4Right=11,
-   Frame5=12,
-   Triangle6Left=13,
-   Triangle6Right=14,
-   MaxObjectTypes=15
+  enum ObjectType {
+    Undefined = 0,
+    Upper = 1,
+    Lower = 2,
+    InternalUpper = 3,
+    InternalLower = 4,
+    Frame1 = 5,
+    Frame2Left = 6,
+    Frame2Right = 7,
+    Frame3Left = 8,
+    Frame3Right = 9,
+    Frame4Left = 10,
+    Frame4Right = 11,
+    Frame5 = 12,
+    Triangle6Left = 13,
+    Triangle6Right = 14,
+    MaxObjectTypes = 15
   };
 
 public:
-
   // ---------- Constructor and destructor -----------------
   TotemT1Organization();
-           ~TotemT1Organization() override;
+  ~TotemT1Organization() override;
 
   // ---------- member functions ---------------------------
-  uint32_t         GetUnitID(const G4Step* aStep);
-  uint32_t         GetUnitID(const G4Step* aStep) const override;
-  
-  int              GetCurrentUnitID(void) const;
-  void             SetCurrentUnitID(int currentUnitID);
+  uint32_t getUnitID(const G4Step* aStep) const override;
+
+  int getCurrentUnitID(void) const;
+  void setCurrentUnitID(int currentUnitID);
 
   // ---------- Detector position --------------------------
 
-  int              GetCurrentDetectorPosition(void) const;
-  void             SetCurrentDetectorPosition(int currentDetectorPosition);
+  int getCurrentDetectorPosition(void) const;
+  void setCurrentDetectorPosition(int currentDetectorPosition);
 
   // ---------- Plane: between 0 and (nPlanes-1) (or -1 for Undefined)
-  int              GetCurrentPlane(void) const;
-  void             SetCurrentPlane(int currentPlane);
+  int getCurrentPlane(void) const;
+  void setCurrentPlane(int currentPlane);
 
   // ---------- CSC: between 0 and 5 (or -1 for Undefined)
-  int              GetCurrentCSC(void) const;
-  void             SetCurrentCSC(int currentCSC);
+  int getCurrentCSC(void) const;
+  void setCurrentCSC(int currentCSC);
 
   // ---------- Layer: between 0 and (nLayers-1) (or -1 for Undefined)
-  int              GetCurrentLayer(void) const;
-  void             SetCurrentLayer(int currentLayer);
+  int getCurrentLayer(void) const;
+  void setCurrentLayer(int currentLayer);
 
   // ---------- Object Type --------------------------------
 
-  ObjectType       GetCurrentObjectType(void) const;
-  inline void      SetCurrentObjectType(ObjectType currentObjectType);
+  ObjectType getCurrentObjectType(void) const;
+  void setCurrentObjectType(ObjectType currentObjectType);
 
-  int              FromObjectTypeToInt(ObjectType objectType);
-  int              FromObjectTypeToInt(ObjectType objectType, int layer);
+  int fromObjectTypeToInt(ObjectType objectType);
+  int fromObjectTypeToInt(ObjectType objectType, int layer);
 
-private:
   // ---------- Private methods ----------------------------
-  void             _checkUnitIDUpdate(void) const;
-  void             _checkDataUpdate(void) const;
-
-  void             _FromUnitIDToData(void);
-  void             _FromDataToUnitID(void);
-
 
 private:
-  // ---------- Private data members -----------------------
-  bool             _needUpdateUnitID;
-  bool             _needUpdateData;
-  int              _currentUnitID;
-  int              _currentDetectorPosition ;
-  int              _currentPlane;
-  int              _currentCSC;
-  int              _currentLayer;
-  ObjectType       _currentObjectType;
+  uint32_t getUnitID(const G4Step* aStep);
 
+  void _checkUnitIDUpdate(void) const;
+  void _checkDataUpdate(void) const;
+
+  void _FromUnitIDToData(void);
+  void _FromDataToUnitID(void);
+
+  // ---------- Private data members -----------------------
+  bool _needUpdateUnitID;
+  bool _needUpdateData;
+  int _currentUnitID;
+  int _currentDetectorPosition;
+  int _currentPlane;
+  int _currentCSC;
+  int _currentLayer;
+  ObjectType _currentObjectType;
 };
 #endif

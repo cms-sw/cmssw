@@ -26,18 +26,15 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTDeadFlagValidateHandler: public popcon::PopConSourceHandler<DTDeadFlag> {
-
- public:
-
+class DTDeadFlagValidateHandler : public popcon::PopConSourceHandler<DTDeadFlag> {
+public:
   /** Constructor
    */
-  DTDeadFlagValidateHandler( const edm::ParameterSet& ps );
+  DTDeadFlagValidateHandler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -45,26 +42,17 @@ class DTDeadFlagValidateHandler: public popcon::PopConSourceHandler<DTDeadFlag> 
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects();
   std::string id() const;
 
- private:
-
+private:
   int firstRun;
-  int  lastRun;
+  int lastRun;
   std::string dataVersion;
   std::string dataFileName;
   std::string elogFileName;
-  void addNewObject( int runNumber );
-
+  void addNewObject(int runNumber);
 };
 
-
-#endif // DTDeadFlagValidateHandler_H
-
-
-
-
-
-
+#endif  // DTDeadFlagValidateHandler_H

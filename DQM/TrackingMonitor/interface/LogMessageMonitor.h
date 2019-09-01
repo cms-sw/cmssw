@@ -2,7 +2,7 @@
 //
 // Package:    LogMessageMonitor
 // Class:      LogMessageMonitor
-// 
+//
 /**\class LogMessageMonitor LogMessageMonitor.cc DQM/LogMonitor/src/LogMessageMonitor.cc
 
  Description: [one line class summary]
@@ -32,7 +32,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
@@ -41,7 +41,6 @@
 #include <string>
 #include <map>
 
-class DQMStore;
 class GenericTriggerEventFlag;
 
 class GetLumi;
@@ -51,50 +50,46 @@ class GetLumi;
 //
 
 class LogMessageMonitor : public DQMEDAnalyzer {
-   public:
-      explicit LogMessageMonitor(const edm::ParameterSet&);
-      ~LogMessageMonitor() override;
+public:
+  explicit LogMessageMonitor(const edm::ParameterSet&);
+  ~LogMessageMonitor() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-
-   private:
+private:
   //      virtual void beginJob() ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   //      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-      void endRun(edm::Run const&, edm::EventSetup const&) override;
-      void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
   edm::EDGetTokenT<std::vector<edm::ErrorSummaryEntry> > errorToken_;
 
-      std::string histname;  //for naming the histograms according to algorithm used
-      
-      DQMStore * dqmStore_;
-      edm::ParameterSet conf_;
+  std::string histname;  //for naming the histograms according to algorithm used
 
-      std::map<std::string,int> modulesMap;
+  DQMStore* dqmStore_;
+  edm::ParameterSet conf_;
 
-      // from parameters
+  std::map<std::string, int> modulesMap;
+
+  // from parameters
   std::string pluginsMonName_;
   std::vector<std::string> modules_vector_;
   std::vector<std::string> categories_vector_;
-  
+
   GetLumi* lumiDetails_;
   GenericTriggerEventFlag* genTriggerEventFlag_;
-  
+
   // MEs
   std::vector<MonitorElement*> ModulesErrorsVsBXlumi;
   std::vector<MonitorElement*> ModulesWarningsVsBXlumi;
-  
+
   MonitorElement* CategoriesVsModules;
 
   bool doWarningsPlots_;
   bool doPUmonitoring_;
-      
 };

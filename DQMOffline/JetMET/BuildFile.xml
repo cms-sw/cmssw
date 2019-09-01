@@ -44,4 +44,5 @@
 <use   name="RecoMuon/TrackingTools"/>
 <use   name="CommonTools/RecoAlgos"/> 
 <use   name="JetMETCorrections/Objects"/>
+<use   name="JetMETCorrections/JetCorrector"/>
 <flags   EDM_PLUGIN="1"/>

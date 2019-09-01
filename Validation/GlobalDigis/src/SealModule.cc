@@ -2,8 +2,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-
 #include <Validation/GlobalDigis/interface/GlobalDigisProducer.h>
 DEFINE_FWK_MODULE(GlobalDigisProducer);
 

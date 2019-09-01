@@ -37,16 +37,17 @@ namespace edm {
     using InputSource::productRegistryUpdate;
 
     // const accessors
-    bool skipBadFiles() const {return skipBadFiles_;}
-    bool dropDescendants() const {return dropDescendants_;}
-    bool bypassVersionCheck() const {return bypassVersionCheck_;}
-    bool labelRawDataLikeMC() const {return labelRawDataLikeMC_;}
-    unsigned int nStreams() const {return nStreams_;}
-    int treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
-    ProductSelectorRules const& productSelectorRules() const {return productSelectorRules_;}
-    RunHelperBase* runHelper() {return runHelper_.get();}
+    bool skipBadFiles() const { return skipBadFiles_; }
+    bool dropDescendants() const { return dropDescendants_; }
+    bool bypassVersionCheck() const { return bypassVersionCheck_; }
+    bool labelRawDataLikeMC() const { return labelRawDataLikeMC_; }
+    unsigned int nStreams() const { return nStreams_; }
+    int treeMaxVirtualSize() const { return treeMaxVirtualSize_; }
+    ProductSelectorRules const& productSelectorRules() const { return productSelectorRules_; }
+    RunHelperBase* runHelper() { return runHelper_.get(); }
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
+
   protected:
     ItemType getNextItemType() override;
     void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) override;
@@ -67,15 +68,15 @@ namespace edm {
     ProcessingController::ForwardState forwardState_() const override;
     ProcessingController::ReverseState reverseState_() const override;
 
-    std::pair<SharedResourcesAcquirer*,std::recursive_mutex*> resourceSharedWithDelayedReader_() override;
-    
+    std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> resourceSharedWithDelayedReader_() override;
+
     RootServiceChecker rootServiceChecker_;
     InputFileCatalog catalog_;
     InputFileCatalog secondaryCatalog_;
     edm::propagate_const<std::shared_ptr<RunPrincipal>> secondaryRunPrincipal_;
     edm::propagate_const<std::shared_ptr<LuminosityBlockPrincipal>> secondaryLumiPrincipal_;
     std::vector<edm::propagate_const<std::unique_ptr<EventPrincipal>>> secondaryEventPrincipals_;
-    std::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
+    std::array<std::vector<BranchID>, NumBranchTypes> branchIDsToReplace_;
 
     unsigned int nStreams_;
     bool skipBadFiles_;
@@ -85,12 +86,13 @@ namespace edm {
     bool dropDescendants_;
     bool labelRawDataLikeMC_;
     bool delayReadingEventProducts_;
-    
+
     edm::propagate_const<std::unique_ptr<RunHelperBase>> runHelper_;
-    std::unique_ptr<SharedResourcesAcquirer> resourceSharedWithDelayedReaderPtr_; // We do not use propagate_const because the acquirer is itself mutable.
+    std::unique_ptr<SharedResourcesAcquirer>
+        resourceSharedWithDelayedReaderPtr_;  // We do not use propagate_const because the acquirer is itself mutable.
     std::shared_ptr<std::recursive_mutex> mutexSharedWithDelayedReader_;
     edm::propagate_const<std::unique_ptr<RootPrimaryFileSequence>> primaryFileSequence_;
     edm::propagate_const<std::unique_ptr<RootSecondaryFileSequence>> secondaryFileSequence_;
-  }; // class PoolSource
-}
+  };  // class PoolSource
+}  // namespace edm
 #endif

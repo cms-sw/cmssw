@@ -1,11 +1,12 @@
+from __future__ import print_function
 
 import sys
 import os
 import DQMOffline.EGamma.electronDataDiscovery as dd
 import FWCore.ParameterSet.Config as cms
 
-print 'Number of arguments:', len(sys.argv), 'arguments.'
-print 'Argument List:', str(sys.argv)
+print('Number of arguments:', len(sys.argv), 'arguments.')
+print('Argument List:', str(sys.argv))
 # first arg : cmsRun
 # second arg : name of the _cfg file
 # third arg : sample name (ex. ZEE_14)
@@ -16,11 +17,12 @@ cmsEnv = env() # be careful, cmsEnv != cmsenv. cmsEnv is local
 cmsEnv.checkSample() # check the sample value
 cmsEnv.checkValues()
 
-from Configuration.StandardSequences.Eras import eras 
 if cmsEnv.beginTag() == 'Run2_2017':
-    process = cms.Process("electronValidation",eras.Run2_2017)
+    from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+    process = cms.Process("electronValidation",Run2_2017)
 else:
-    process = cms.Process('electronValidation',eras.Phase2) 
+    from Configuration.Eras.Era_Phase2_cff import Phase2
+    process = cms.Process('electronValidation',Phase2) 
 
 process.DQMStore = cms.Service("DQMStore")
 process.load("DQMServices.Components.DQMStoreStats_cfi")

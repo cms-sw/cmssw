@@ -13,4 +13,3 @@
 typedef MuonDigiCollection<RPCDetId, RPCDigi> RPCDigiCollection;
 
 #endif
-

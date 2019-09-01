@@ -42,24 +42,24 @@
 
 #include <iostream>
 #include <string>
-#include "../interface/PhotonFix.h"
+#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 class PhotonFixCMS {
- public:
+public:
   PhotonFixCMS(const reco::Photon &p);
 
   // Must be called before instantiating any PhotonFix objects
-  static bool initialise(const edm::EventSetup &iSetup, const std::string &s="Nominal");
+  static bool initialise(const edm::EventSetup &iSetup, const std::string &s = "Nominal");
 
   // Corrected energy and sigma
   double fixedEnergy() const;
   double sigmaEnergy() const;
 
   const PhotonFix &photonFix() const;
-  
- private:
+
+private:
   PhotonFix pf;
 };
 #endif

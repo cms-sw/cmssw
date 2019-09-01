@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function
+from builtins import range
 import sys,os,commands,re
 from CommonMethods import *
 def main():
@@ -12,12 +14,12 @@ def main():
 
     if not os.path.isdir(path):
         error = "WARNING: path directory doesn't exist! Creating it..."
-        print error
+        print(error)
         os.mkdir(path)
 
     if not os.path.isdir(finalDir):
         error = "WARNING: final dir directory doesn't exist! Creating it..."
-        print error
+        print(error)
         os.mkdir(finalDir)
 
     #for n in range(0,3):
@@ -25,12 +27,12 @@ def main():
         sourceDir = sourceDirList[n] + '/'
         destDir   = path + destDirList[n] + '/'
         if not dirExists(sourceDir):
-	    print sourceDir + " doesn't exist!"
+            print(sourceDir + " doesn't exist!")
             continue
         fileList = ls(sourceDir)
         if not os.path.isdir(destDir):
             error = "WARNING: destination directory doesn't exist! Creating it..."
-            print error
+            print(error)
             os.mkdir(destDir)
         copiedFiles = cp(sourceDir,destDir,fileList,False,False)
 
@@ -43,9 +45,9 @@ def main():
             regExp = re.search('(\D+)(\d+)_(\d+)_[a-zA-Z0-9]+.txt',fileName)
             #if regExp:
                 #print regExp.group(1) + regExp.group(2) + "_" + str(1) + "_" + regExp.group(3) + ".txt" 
-                
+
             fullFileName = destDir + fileName
-            print fullFileName
+            print(fullFileName)
             runNumber = -1
             with open(fullFileName,'r') as file:
                 allTxt = '' 
@@ -66,7 +68,7 @@ def main():
                                 #if output[0] != 0:
                                     #print output[1]
                             else:
-                                print "WARNING: I can't match the regular espression for file: " + fileName
+                                print("WARNING: I can't match the regular espression for file: " + fileName)
                         runNumber = int(line.split(' ')[1])
                     allTxt += line
             file.close()
@@ -79,6 +81,6 @@ def main():
 
 
 
-        
+
 if __name__ == "__main__":
     main()

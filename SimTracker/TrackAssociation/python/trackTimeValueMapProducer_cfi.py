@@ -16,3 +16,9 @@ trackTimeValueMapProducer = cms.EDProducer(
     pMin = cms.double(0.7),
     etaMaxForPtThreshold = cms.double(1.5),
     )
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(trackTimeValueMapProducer,
+    trackingParticleSrc = "mixData:MergedTrackTruth",
+    trackingVertexSrc = "mixData:MergedTrackTruth",
+)

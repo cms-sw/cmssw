@@ -35,21 +35,21 @@ namespace edm {
 //
 // class declaration
 //
-template<typename T>
+template <typename T>
 class HLTJetHbbFilter : public HLTFilter {
- public:
-  typedef std::pair<double,unsigned int> Jpair;
-  static bool comparator ( const Jpair& l, const Jpair& r) {
-    return l.first < r.first;
-  }
+public:
+  typedef std::pair<double, unsigned int> Jpair;
+  static bool comparator(const Jpair& l, const Jpair& r) { return l.first < r.first; }
 
   explicit HLTJetHbbFilter(const edm::ParameterSet&);
   ~HLTJetHbbFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  static float findCSV(const  typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection & jetTags);	
-  bool hltFilter(edm::Event&, const edm::EventSetup&,trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static float findCSV(const typename std::vector<T>::const_iterator& jet, const reco::JetTagCollection& jetTags);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
- private:
+private:
   edm::EDGetTokenT<std::vector<T>> m_theJetsToken;
   edm::EDGetTokenT<reco::JetTagCollection> m_theJetTagsToken;
   edm::InputTag inputJets_;
@@ -58,7 +58,7 @@ class HLTJetHbbFilter : public HLTFilter {
   double maxmbb_;
   double minptb1_;
   double minptb2_;
-  double maxetab_; 
+  double maxetab_;
   double minptbb_;
   double maxptbb_;
   double mintag1_;

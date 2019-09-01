@@ -24,39 +24,28 @@ class Alignments;
 class AlignTransform;
 struct SurveyErrors;
 
-class SurveyDBUploader:
-  public edm::EDAnalyzer
-{
+class SurveyDBUploader : public edm::EDAnalyzer {
   typedef AlignTransform SurveyValue;
-  typedef Alignments     SurveyValues;
+  typedef Alignments SurveyValues;
 
-  public:
-
+public:
   /// Set value & error tag names for survey records.
-  SurveyDBUploader(
-		   const edm::ParameterSet&
-		   );
+  SurveyDBUploader(const edm::ParameterSet&);
 
-  void analyze(
-		       const edm::Event&,
-		       const edm::EventSetup&
-		       ) override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
 
   /// Upload to DB
   void endJob() override;
 
-  private:
-
+private:
   /// Get survey info of an alignable in the detector.
-  void getSurveyInfo(
-		     const Alignable*
-		     );
+  void getSurveyInfo(const Alignable*);
 
-  std::string theValueRcd; // tag name of survey values record in DB
-  std::string theErrorExtendedRcd; // tag name of survey errors record in DB
+  std::string theValueRcd;          // tag name of survey values record in DB
+  std::string theErrorExtendedRcd;  // tag name of survey errors record in DB
 
-  SurveyValues* theValues; // survey values for all alignables in detector
-  SurveyErrors* theErrors; // survey errors for all alignables in detector
+  SurveyValues* theValues;  // survey values for all alignables in detector
+  SurveyErrors* theErrors;  // survey errors for all alignables in detector
 };
 
 #endif

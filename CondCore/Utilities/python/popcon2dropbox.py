@@ -1,3 +1,4 @@
+from __future__ import print_function
 import subprocess
 import json
 import netrc
@@ -9,8 +10,8 @@ import logging
 from datetime import datetime
 
 errorInImportFileFolder = 'import_errors'
-dateformatForFolder = "%y-%m-%d-%H-%M-%S"
-dateformatForLabel = "%y-%m-%d %H:%M:%S"
+dateformatForFolder = "%Y-%m-%d-%H-%M-%S"
+dateformatForLabel = "%Y-%m-%d %H:%M:%S"
 
 auth_path_key = 'COND_AUTH_PATH'
 
@@ -108,7 +109,7 @@ def upload( args, dbName ):
     try:
        pipe = subprocess.Popen( uploadCommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
        stdout = pipe.communicate()[0]
-       print stdout
+       print(stdout)
        retCode = pipe.returncode
        if retCode != 0:
            saveFileForImportErrors( datef, dbName, True )
@@ -142,7 +143,7 @@ def copy( args, dbName ):
     try:
         pipe = subprocess.Popen( copyCommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
         stdout = pipe.communicate()[0]
-        print stdout
+        print(stdout)
         retCode = pipe.returncode
         if retCode != 0:
             saveFileForImportErrors( datef, dbName )
@@ -176,17 +177,17 @@ def run( args ):
     pipe = subprocess.Popen( command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
     stdout = pipe.communicate()[0]
     retCode = pipe.returncode
-    print stdout
+    print(stdout)
     logger.info('PopCon Analyzer return code is: %s' %retCode )
     if retCode!=0:
        logger.error( 'O2O job failed. Skipping upload.' )
        return retCode
 
     ret = checkFile( dbName )
-    if ret < 0:
-        return ret
-    elif ret == 0:
-        return 0
-    if args.copy:
-        return copy( args, dbName )
-    return upload( args, dbName )
+    if ret > 0:
+        if args.copy:
+            ret = copy( args, dbName )
+        else:
+            ret = upload( args, dbName )
+    os.remove( '%s.db' %dbName )
+    return ret

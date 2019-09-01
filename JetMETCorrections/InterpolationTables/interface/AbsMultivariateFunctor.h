@@ -12,26 +12,24 @@
 */
 
 namespace npstat {
-    /**
+  /**
     // Base class for a variety of multivariate functor-based calculations
     */
-    struct AbsMultivariateFunctor
-    {
-        inline virtual ~AbsMultivariateFunctor() {}
+  struct AbsMultivariateFunctor {
+    inline virtual ~AbsMultivariateFunctor() {}
 
-        /** Function value */
-        virtual double operator()(const double* point, unsigned dim) const = 0;
+    /** Function value */
+    virtual double operator()(const double* point, unsigned dim) const = 0;
 
-        /** Minimum expected dimensionality */
-        virtual unsigned minDim() const = 0;
+    /** Minimum expected dimensionality */
+    virtual unsigned minDim() const = 0;
 
-        /** 
+    /** 
         // Maximum expected dimensionality
         // (will typically be equal to the minimum)
         */
-        virtual unsigned maxDim() const {return minDim();}
-    };
-}
+    virtual unsigned maxDim() const { return minDim(); }
+  };
+}  // namespace npstat
 
-#endif // NPSTAT_ABSMULTIVARIATEFUNCTOR_HH_
-
+#endif  // NPSTAT_ABSMULTIVARIATEFUNCTOR_HH_

@@ -1,4 +1,4 @@
-#ifndef LOGICTOOL_H 
+#ifndef LOGICTOOL_H
 #define LOGICTOOL_H 1
 
 // Include files
@@ -17,109 +17,66 @@
  *
  *  @date   2008-10-12
  */
-template <class GenLogic> 
+template <class GenLogic>
 class LogicTool {
-public: 
+public:
   /// Standard constructor
-  LogicTool( ) { }; 
-  
-  virtual ~LogicTool( ) { 
-    m_logkeys.clear();
-  }; ///< Destructor
+  LogicTool() {}
 
   ///...
 
-  typedef LogicFactory< GenLogic, std::string> RBCLogicType;
-  
-  GenLogic * (*createlogic) ();
-    
-  RBCLogicType m_rbclogic;
-  
-  bool initialise() 
-  {
+  std::unique_ptr<GenLogic> retrieve(const std::string& _logic_name) { return rbclogic().CreateObject(_logic_name); };
+
+protected:
+private:
+  using RBCLogicType = LogicFactory<GenLogic, std::string>;
+
+  static RBCLogicType initialise() {
+    GenLogic* (*createlogic)();
     bool status(true);
 
+    RBCLogicType rbclogic;
     //...
     std::string key = std::string("ChamberORLogic");
-    createlogic = (GenLogic * (*)()) &createChamberORLogic;
-    status = m_rbclogic.Register( key , createlogic );
-    
-    m_logkeys.push_back( key );
-        
+    createlogic = (GenLogic * (*)()) & createChamberORLogic;
+    status = rbclogic.Register(key, createlogic);
+
     key = std::string("TestLogic");
-    createlogic = (GenLogic * (*)()) &createTestLogic;
-    status = m_rbclogic.Register( key , createlogic );
-    
-    m_logkeys.push_back( key );
+    createlogic = (GenLogic * (*)()) & createTestLogic;
+    status = rbclogic.Register(key, createlogic);
 
     key = std::string("PatternLogic");
-    createlogic = (GenLogic * (*)()) &createPatternLogic;
-    status = m_rbclogic.Register( key , createlogic );
+    createlogic = (GenLogic * (*)()) & createPatternLogic;
+    status = rbclogic.Register(key, createlogic);
     //...
-    
-    m_logkeys.push_back( key );
 
     key = std::string("TrackingAlg");
-    createlogic = (GenLogic * (*)()) &createTrackingAlg;
-    status = m_rbclogic.Register( key , createlogic );
+    createlogic = (GenLogic * (*)()) & createTrackingAlg;
+    status = rbclogic.Register(key, createlogic);
 
-    m_logkeys.push_back( key );
-    
     key = std::string("SectorORLogic");
-    createlogic = (GenLogic * (*)()) &createSectorORLogic;
-    status = m_rbclogic.Register( key , createlogic );
-    
-    m_logkeys.push_back( key );
+    createlogic = (GenLogic * (*)()) & createSectorORLogic;
+    status = rbclogic.Register(key, createlogic);
 
     key = std::string("TwoORLogic");
-    createlogic = (GenLogic * (*)()) &createTwoORLogic;
-    status = m_rbclogic.Register( key , createlogic );
-
-    m_logkeys.push_back( key );
+    createlogic = (GenLogic * (*)()) & createTwoORLogic;
+    status = rbclogic.Register(key, createlogic);
 
     key = std::string("WedgeORLogic");
-    createlogic = (GenLogic * (*)()) &createWedgeORLogic;
-    status = m_rbclogic.Register( key , createlogic );
-    
-    m_logkeys.push_back( key );
+    createlogic = (GenLogic * (*)()) & createWedgeORLogic;
+    status = rbclogic.Register(key, createlogic);
 
     key = std::string("PointingLogic");
-    createlogic = (GenLogic * (*)()) &createPointingLogic;
-    status = m_rbclogic.Register( key , createlogic );
-    
-    m_logkeys.push_back( key );
-    
-    return status;
-    
+    createlogic = (GenLogic * (*)()) & createPointingLogic;
+    status = rbclogic.Register(key, createlogic);
+
+    assert(status);
+    return rbclogic;
   };
-  
-  
-  GenLogic * retrieve( const std::string & _logic_name ) 
-  {
-    GenLogic * _obj;
-    _obj = m_rbclogic.CreateObject( _logic_name );
-    return _obj;
-  };
-  
-  bool endjob()
-  {
-    bool status(true);
-    typename std::vector<std::string>::iterator itr = m_logkeys.begin();
-    while ( itr != m_logkeys.end() ) 
-    {
-      status = status && ( m_rbclogic.Unregister( (*itr) ) );
-      ++itr;
-    }
-    return status;
-    
-  };
-  
-  
-protected:
-  
-private:
-  
-  typename std::vector<std::string> m_logkeys;
-  
+
+  static RBCLogicType const& rbclogic() {
+    static const RBCLogicType s_rbclogic = initialise();
+    return s_rbclogic;
+  }
 };
-#endif // LOGICTOOL_H
+#endif  // LOGICTOOL_H

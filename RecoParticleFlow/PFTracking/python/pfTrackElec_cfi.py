@@ -35,11 +35,11 @@ pfTrackElec = cms.EDProducer("PFElecTkProducer",
     pf_convBremFinderID_mvaCutBarrelHighPt =  cms.double(0.97),
     pf_convBremFinderID_mvaCutEndcapsLowPt =  cms.double(0.9),
     pf_convBremFinderID_mvaCutEndcapsHighPt =  cms.double(0.995),
-    pf_convBremFinderID_mvaWeightFileBarrelLowPt = cms.string('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetlt20absetalt1_479_BDT.weights.xml'),
-    pf_convBremFinderID_mvaWeightFileBarrelHighPt = cms.string('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetgt20absetalt1_479_BDT.weights.xml'),
-    pf_convBremFinderID_mvaWeightFileEndcapsLowPt = cms.string('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetlt20absetagt1_479_BDT.weights.xml'),
-    pf_convBremFinderID_mvaWeightFileEndcapsHighPt = cms.string('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetgt20absetagt1_479_BDT.weights.xml')
+    pf_convBremFinderID_mvaWeightFileBarrelLowPt = cms.FileInPath('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetlt20absetalt1_479_BDT.weights.xml'),
+    pf_convBremFinderID_mvaWeightFileBarrelHighPt = cms.FileInPath('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetgt20absetalt1_479_BDT.weights.xml'),
+    pf_convBremFinderID_mvaWeightFileEndcapsLowPt = cms.FileInPath('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetlt20absetagt1_479_BDT.weights.xml'),
+    pf_convBremFinderID_mvaWeightFileEndcapsHighPt = cms.FileInPath('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetgt20absetagt1_479_BDT.weights.xml')
 )
 
-
-
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(pfTrackElec,MinSCEnergy = 1.0)

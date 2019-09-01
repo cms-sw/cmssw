@@ -32,25 +32,21 @@
 using namespace edm;
 using namespace std;
 
-DTTTrigCorrection::DTTTrigCorrection(const ParameterSet& pset): 
-  dbLabel_( pset.getUntrackedParameter<string>("dbLabel", "") ) {
-
+DTTTrigCorrection::DTTTrigCorrection(const ParameterSet& pset)
+    : dbLabel_(pset.getUntrackedParameter<string>("dbLabel", "")),
+      correctionAlgo_{DTTTrigCorrectionFactory::get()->create(
+          pset.getParameter<string>("correctionAlgo"), pset.getParameter<ParameterSet>("correctionAlgoConfig"))} {
   LogVerbatim("Calibration") << "[DTTTrigCorrection] Constructor called" << endl;
-
-  // Get the concrete algo from the factory
-  string theAlgoName = pset.getParameter<string>("correctionAlgo");
-  correctionAlgo_ = DTTTrigCorrectionFactory::get()->create(theAlgoName,pset.getParameter<ParameterSet>("correctionAlgoConfig"));
 }
 
-DTTTrigCorrection::~DTTTrigCorrection(){
+DTTTrigCorrection::~DTTTrigCorrection() {
   LogVerbatim("Calibration") << "[DTTTrigCorrection] Destructor called" << endl;
-  delete correctionAlgo_;
 }
 
-void DTTTrigCorrection::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {
+void DTTTrigCorrection::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   // Get tTrig record from DB
   ESHandle<DTTtrig> tTrig;
-  setup.get<DTTtrigRcd>().get(dbLabel_,tTrig);
+  setup.get<DTTtrigRcd>().get(dbLabel_, tTrig);
   tTrigMap_ = &*tTrig;
   LogVerbatim("Calibration") << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
 
@@ -63,42 +59,40 @@ void DTTTrigCorrection::beginRun( const edm::Run& run, const edm::EventSetup& se
 
 void DTTTrigCorrection::endJob() {
   // Create the object to be written to DB
-  DTTtrig* tTrigNewMap = new DTTtrig();  
+  DTTtrig* tTrigNewMap = new DTTtrig();
 
-  for(vector<const DTSuperLayer*>::const_iterator sl = muonGeom_->superLayers().begin();
-                                            sl != muonGeom_->superLayers().end(); ++sl) {
+  for (vector<const DTSuperLayer*>::const_iterator sl = muonGeom_->superLayers().begin();
+       sl != muonGeom_->superLayers().end();
+       ++sl) {
     // Get old value from DB
-    float tTrigMean,tTrigSigma,kFactor;
-    int status = tTrigMap_->get((*sl)->id(),tTrigMean,tTrigSigma,kFactor,DTTimeUnits::ns);
+    float tTrigMean, tTrigSigma, kFactor;
+    int status = tTrigMap_->get((*sl)->id(), tTrigMean, tTrigSigma, kFactor, DTTimeUnits::ns);
 
     //Compute new ttrig
-    try{
+    try {
       dtCalibration::DTTTrigData tTrigCorr = correctionAlgo_->correction((*sl)->id());
       float tTrigMeanNew = tTrigCorr.mean;
-      float tTrigSigmaNew = tTrigCorr.sigma; 
+      float tTrigSigmaNew = tTrigCorr.sigma;
       float kFactorNew = tTrigCorr.kFactor;
-      tTrigNewMap->set((*sl)->id(),tTrigMeanNew,tTrigSigmaNew,kFactorNew,DTTimeUnits::ns);
+      tTrigNewMap->set((*sl)->id(), tTrigMeanNew, tTrigSigmaNew, kFactorNew, DTTimeUnits::ns);
 
-      LogVerbatim("Calibration") << "New tTrig for: " << (*sl)->id()
-				 << " mean from " << tTrigMean << " to " << tTrigMeanNew
-				 << " sigma from " << tTrigSigma << " to " << tTrigSigmaNew
-				 << " kFactor from " << kFactor << " to " << kFactorNew << endl;
-    } catch(cms::Exception& e){
+      LogVerbatim("Calibration") << "New tTrig for: " << (*sl)->id() << " mean from " << tTrigMean << " to "
+                                 << tTrigMeanNew << " sigma from " << tTrigSigma << " to " << tTrigSigmaNew
+                                 << " kFactor from " << kFactor << " to " << kFactorNew << endl;
+    } catch (cms::Exception& e) {
       LogError("Calibration") << e.explainSelf();
       // Set db to the old value, if it was there in the first place
-      if(!status){
-         tTrigNewMap->set((*sl)->id(),tTrigMean,tTrigSigma,kFactor,DTTimeUnits::ns);
-         LogVerbatim("Calibration") << "Keep old tTrig for: " << (*sl)->id()
-                                    << " mean " << tTrigMean
-                                    << " sigma " << tTrigSigma
-                                    << " kFactor " << kFactor << endl;
-      } 
+      if (!status) {
+        tTrigNewMap->set((*sl)->id(), tTrigMean, tTrigSigma, kFactor, DTTimeUnits::ns);
+        LogVerbatim("Calibration") << "Keep old tTrig for: " << (*sl)->id() << " mean " << tTrigMean << " sigma "
+                                   << tTrigSigma << " kFactor " << kFactor << endl;
+      }
       continue;
     }
-  }//End of loop on superlayers 
+  }  //End of loop on superlayers
 
   //Write object to DB
   LogVerbatim("Calibration") << "[DTTTrigCorrection]: Writing ttrig object to DB!" << endl;
   string record = "DTTtrigRcd";
   DTCalibDBUtils::writeToDB<DTTtrig>(record, tTrigNewMap);
-} 
+}

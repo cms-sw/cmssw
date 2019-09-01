@@ -27,25 +27,24 @@ namespace edm {
 
   class RootSecondaryFileSequence : public RootInputFileSequence {
   public:
-    explicit RootSecondaryFileSequence(ParameterSet const& pset,
-                                   PoolSource& input,
-                                   InputFileCatalog const& catalog);
+    explicit RootSecondaryFileSequence(ParameterSet const& pset, PoolSource& input, InputFileCatalog const& catalog);
     ~RootSecondaryFileSequence() override;
 
-    RootSecondaryFileSequence(RootSecondaryFileSequence const&) = delete; // Disallow copying and moving
-    RootSecondaryFileSequence& operator=(RootSecondaryFileSequence const&) = delete; // Disallow copying and moving
+    RootSecondaryFileSequence(RootSecondaryFileSequence const&) = delete;             // Disallow copying and moving
+    RootSecondaryFileSequence& operator=(RootSecondaryFileSequence const&) = delete;  // Disallow copying and moving
 
     void closeFile_() override;
     void endJob();
     void initAssociationsFromSecondary(std::set<BranchID> const&);
+
   private:
     void initFile_(bool skipBadFiles) override;
-    RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override; 
+    RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override;
 
     PoolSource& input_;
     std::vector<BranchID> associationsFromSecondary_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
     bool enablePrefetching_;
-  }; // class RootSecondaryFileSequence
-}
+  };  // class RootSecondaryFileSequence
+}  // namespace edm
 #endif

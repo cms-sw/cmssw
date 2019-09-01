@@ -20,37 +20,37 @@
 #include "Geometry/EcalTestBeam/interface/EcalTBCrystalMap.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h" 
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+class TBPositionCalc {
+public:
+  TBPositionCalc(const std::map<std::string, double>& providedParameters,
+                 const std::string& mapFile,
+                 const CaloSubdetectorGeometry* passedGeometry);
 
-class TBPositionCalc
-{
- public:
-  
-  TBPositionCalc(const std::map<std::string,double>& providedParameters, const std::string& mapFile, const CaloSubdetectorGeometry *passedGeometry);  
-
-  TBPositionCalc() { };
+  TBPositionCalc(){};
 
   ~TBPositionCalc();
 
-  CLHEP::Hep3Vector CalculateTBPos(const std::vector<EBDetId>& passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
-  
-  CLHEP::Hep3Vector CalculateCMSPos(const std::vector<EBDetId>& passedDetIds, int myCrystal, EcalRecHitCollection const *passedRecHitsMap);
-  
-  void computeRotation(int myCrystal, CLHEP::HepRotation & CMStoTB );
-    
+  CLHEP::Hep3Vector CalculateTBPos(const std::vector<EBDetId>& passedDetIds,
+                                   int myCrystal,
+                                   EcalRecHitCollection const* passedRecHitsMap);
 
- private:
-  bool        param_LogWeighted_;
-  Double32_t  param_X0_;
-  Double32_t  param_T0_;
-  Double32_t  param_W0_;
+  CLHEP::Hep3Vector CalculateCMSPos(const std::vector<EBDetId>& passedDetIds,
+                                    int myCrystal,
+                                    EcalRecHitCollection const* passedRecHitsMap);
 
-  EcalTBCrystalMap * theTestMap;
+  void computeRotation(int myCrystal, CLHEP::HepRotation& CMStoTB);
 
-  const CaloSubdetectorGeometry *theGeometry_;
+private:
+  bool param_LogWeighted_;
+  Double32_t param_X0_;
+  Double32_t param_T0_;
+  Double32_t param_W0_;
+
+  EcalTBCrystalMap* theTestMap;
+
+  const CaloSubdetectorGeometry* theGeometry_;
 };
-  
+
 #endif
-
-

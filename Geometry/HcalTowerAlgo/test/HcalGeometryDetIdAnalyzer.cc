@@ -12,54 +12,51 @@
 
 class HcalGeometryDetIdAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit HcalGeometryDetIdAnalyzer( const edm::ParameterSet& );
-  ~HcalGeometryDetIdAnalyzer( void ) override;
-    
+  explicit HcalGeometryDetIdAnalyzer(const edm::ParameterSet&);
+  ~HcalGeometryDetIdAnalyzer(void) override;
+
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
 
 private:
-  edm::ParameterSet ps0_;
-  bool              useOld_;
+  bool useOld_;
 };
 
-HcalGeometryDetIdAnalyzer::HcalGeometryDetIdAnalyzer(const edm::ParameterSet& iConfig ) : ps0_(iConfig) {
+HcalGeometryDetIdAnalyzer::HcalGeometryDetIdAnalyzer(const edm::ParameterSet& iConfig) {
   useOld_ = iConfig.getParameter<bool>("UseOldLoader");
 }
 
-HcalGeometryDetIdAnalyzer::~HcalGeometryDetIdAnalyzer( void ) {}
+HcalGeometryDetIdAnalyzer::~HcalGeometryDetIdAnalyzer(void) {}
 
-void
-HcalGeometryDetIdAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup ) {
+void HcalGeometryDetIdAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
   edm::ESHandle<HcalDDDRecConstants> hDRCons;
   iSetup.get<HcalRecNumberingRecord>().get(hDRCons);
   const HcalDDDRecConstants hcons = (*hDRCons);
   edm::ESHandle<HcalTopology> topologyHandle;
-  iSetup.get<HcalRecNumberingRecord>().get( topologyHandle );
+  iSetup.get<HcalRecNumberingRecord>().get(topologyHandle);
   const HcalTopology topology = (*topologyHandle);
 
   CaloSubdetectorGeometry* caloGeom(nullptr);
   if (useOld_) {
-    HcalHardcodeGeometryLoader m_loader(ps0_);
+    HcalHardcodeGeometryLoader m_loader;
     caloGeom = m_loader.load(topology);
   } else {
-    HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
+    HcalFlexiHardcodeGeometryLoader m_loader;
     caloGeom = m_loader.load(topology, hcons);
   }
   const std::vector<DetId>& ids = caloGeom->getValidDetIds();
 
   int counter = 0;
-  for (std::vector<DetId>::const_iterator i = ids.begin(), iEnd = ids.end();
-       i != iEnd; ++i, ++counter )  {
+  for (std::vector<DetId>::const_iterator i = ids.begin(), iEnd = ids.end(); i != iEnd; ++i, ++counter) {
     HcalDetId hid = (*i);
     unsigned int did = topology.detId2denseId(*i);
     HcalDetId rhid = topology.denseId2detId(did);
-	
-    std::cout << counter << ": din " << std::hex << did << std::dec << ": " 
-	      << hid << " == " << rhid << std::endl;
+
+    std::cout << counter << ": din " << std::hex << did << std::dec << ": " << hid << " == " << rhid << std::endl;
     assert(hid == rhid);
   }
+  std::cout << "No error found among " << counter << " HCAL valid ID's\n";
 }
 
 DEFINE_FWK_MODULE(HcalGeometryDetIdAnalyzer);

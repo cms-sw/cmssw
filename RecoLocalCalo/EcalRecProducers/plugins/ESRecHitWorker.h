@@ -22,21 +22,18 @@
 namespace edm {
   class ParameterSet;
   class EventSetup;
-}
+}  // namespace edm
 
 class ESRecHitWorker : public ESRecHitWorkerBaseClass {
-
- public:
-
-  ESRecHitWorker(const edm::ParameterSet& ps);
+public:
+  ESRecHitWorker(const edm::ParameterSet &ps);
   ~ESRecHitWorker() override;
-  
-  void set(const edm::EventSetup& es) override;
-  bool run(const ESDigiCollection::const_iterator & digi, ESRecHitCollection & result) override;
 
- private:
+  void set(const edm::EventSetup &es) override;
+  bool run(const ESDigiCollection::const_iterator &digi, ESRecHitCollection &result) override;
 
-  int recoAlgo_;  
+private:
+  int recoAlgo_;
   ESRecHitSimAlgo *algoW_;
   ESRecHitFitAlgo *algoF_;
   ESRecHitAnalyticAlgo *algoA_;
@@ -49,6 +46,5 @@ class ESRecHitWorker : public ESRecHitWorkerBaseClass {
   edm::ESHandle<ESChannelStatus> esChannelStatus_;
   edm::ESHandle<ESRecHitRatioCuts> esRatioCuts_;
   edm::ESHandle<ESAngleCorrectionFactors> esAngleCorrFactors_;
-
 };
 #endif

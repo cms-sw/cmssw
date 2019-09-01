@@ -1,7 +1,6 @@
 #ifndef DataFormats_Provenance_DuplicateChecker_h
 #define DataFormats_Provenance_DuplicateChecker_h
 
-
 /*----------------------------------------------------------------------
 
 IOPool/Input/src/DuplicateChecker.h
@@ -23,7 +22,6 @@ files or does not check for duplicates at all.
 #include <string>
 #include <vector>
 
-
 namespace edm {
 
   class ParameterSet;
@@ -31,16 +29,14 @@ namespace edm {
 
   class DuplicateChecker {
   public:
-
     DuplicateChecker(ParameterSet const& pset);
 
     void disable();
 
-    void inputFileOpened(
-      bool realData,
-      IndexIntoFile const& indexIntoFile,
-      std::vector<std::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
-      std::vector<std::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile);
+    void inputFileOpened(bool realData,
+                         IndexIntoFile const& indexIntoFile,
+                         std::vector<std::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
+                         std::vector<std::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile);
 
     void inputFileClosed();
 
@@ -48,24 +44,19 @@ namespace edm {
 
     bool checkDisabled() const {
       return duplicateCheckMode_ == noDuplicateCheck ||
-	(duplicateCheckMode_ == checkEachRealDataFile && dataType_ == isSimulation) ||
-        disabled_;
+             (duplicateCheckMode_ == checkEachRealDataFile && dataType_ == isSimulation) || disabled_;
     }
 
     // Note that all references to the ProcessHistoryID in this class are to
     // the "reduced" process history, including the index argument to this function.
-    bool isDuplicateAndCheckActive(int index,
-                                   RunNumber_t run,
-                                   LuminosityBlockNumber_t lumi,
-                                   EventNumber_t event,
-                                   std::string const& fileName);
+    bool isDuplicateAndCheckActive(
+        int index, RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, std::string const& fileName);
 
-    bool checkingAllFiles() const {return checkAllFilesOpened == duplicateCheckMode_;} 
+    bool checkingAllFiles() const { return checkAllFilesOpened == duplicateCheckMode_; }
 
-    static void fillDescription(ParameterSetDescription & desc);
+    static void fillDescription(ParameterSetDescription& desc);
 
   private:
-
     enum DuplicateCheckMode { noDuplicateCheck, checkEachFile, checkEachRealDataFile, checkAllFilesOpened };
 
     DuplicateCheckMode duplicateCheckMode_;
@@ -85,5 +76,5 @@ namespace edm {
 
     bool disabled_;
   };
-}
+}  // namespace edm
 #endif

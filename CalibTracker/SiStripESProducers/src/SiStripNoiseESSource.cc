@@ -9,35 +9,30 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-SiStripNoiseESSource::SiStripNoiseESSource( const edm::ParameterSet& pset ) {
-  setWhatProduced( this );
+SiStripNoiseESSource::SiStripNoiseESSource(const edm::ParameterSet& pset) {
+  setWhatProduced(this);
   findingRecord<SiStripNoisesRcd>();
 }
 
 // -----------------------------------------------------------------------------
 //
-std::unique_ptr<SiStripNoises> SiStripNoiseESSource::produce( const SiStripNoisesRcd& ) { 
-  
+std::unique_ptr<SiStripNoises> SiStripNoiseESSource::produce(const SiStripNoisesRcd&) {
   SiStripNoises* noise = makeNoise();
-  
-  if ( !noise ) {
-    edm::LogWarning(mlESSources_)
-      << "[SiStripNoiseESSource::" << __func__ << "]"
-      << " Null pointer to SiStripNoises object!";
+
+  if (!noise) {
+    edm::LogWarning(mlESSources_) << "[SiStripNoiseESSource::" << __func__ << "]"
+                                  << " Null pointer to SiStripNoises object!";
   }
-  
+
   std::unique_ptr<SiStripNoises> ptr(noise);
   return ptr;
-
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripNoiseESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, 
-					   const edm::IOVSyncValue& iosv, 
-					   edm::ValidityInterval& oValidity ) {
-  
-  edm::ValidityInterval infinity( iosv.beginOfTime(), iosv.endOfTime() );
+void SiStripNoiseESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                                          const edm::IOVSyncValue& iosv,
+                                          edm::ValidityInterval& oValidity) {
+  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
   oValidity = infinity;
-  
 }

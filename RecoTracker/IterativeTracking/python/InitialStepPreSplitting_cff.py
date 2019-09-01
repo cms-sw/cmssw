@@ -38,7 +38,7 @@ initialStepHitDoubletsPreSplitting = _hitPairEDProducer.clone(
     seedingLayers = "initialStepSeedLayersPreSplitting",
     trackingRegions = "initialStepTrackingRegionsPreSplitting",
     clusterCheck = "trackerClusterCheckPreSplitting",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
@@ -140,6 +140,10 @@ from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlineP
 firstStepPrimaryVerticesPreSplitting = _offlinePrimaryVertices.clone()
 firstStepPrimaryVerticesPreSplitting.TrackLabel = cms.InputTag("initialStepTracksPreSplitting")
 firstStepPrimaryVerticesPreSplitting.vertexCollections = [_offlinePrimaryVertices.vertexCollections[0].clone()]
+
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(firstStepPrimaryVerticesPreSplitting, TkFilterParameters = dict(trackQuality = "any"))
 
 #Jet Core emulation to identify jet-tracks
 from RecoTracker.IterativeTracking.InitialStep_cff import initialStepTrackRefsForJets, caloTowerForTrk, ak4CaloJetsForTrk

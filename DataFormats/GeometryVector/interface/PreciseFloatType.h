@@ -21,32 +21,28 @@
 
 template <typename T, typename U>
 struct PreciseFloatType {
-
   typedef double Type;
-
 };
 
 /// If the two types are identical that is also the precise type
 
 template <typename T>
-struct PreciseFloatType<T,T> {
-
+struct PreciseFloatType<T, T> {
   typedef T Type;
-
 };
 
 /// long double is more precise by default than other types
 
 template <typename T>
-struct PreciseFloatType< long double, T> {
+struct PreciseFloatType<long double, T> {
   typedef long double Type;
 };
 template <typename T>
-struct PreciseFloatType< T, long double> {
+struct PreciseFloatType<T, long double> {
   typedef long double Type;
 };
 template <>
-struct PreciseFloatType< long double, long double> {
+struct PreciseFloatType<long double, long double> {
   typedef long double Type;
 };
 

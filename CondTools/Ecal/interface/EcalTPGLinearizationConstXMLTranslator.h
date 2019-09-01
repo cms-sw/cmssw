@@ -12,16 +12,13 @@
 #include <string>
 
 class EcalTPGLinearizationConstXMLTranslator {
-
 public:
+  static int writeXML(const std::string& filename,
+                      const EcalCondHeader& header,
+                      const EcalTPGLinearizationConst& record);
 
-  static int writeXML (const std::string& filename,
-		       const EcalCondHeader& header,
-		       const EcalTPGLinearizationConst& record);
- private:
-  
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalTPGLinearizationConst& record);
+private:
+  static std::string dumpXML(const EcalCondHeader& header, const EcalTPGLinearizationConst& record);
 };
 
-#endif // __EcalTPGLinearizationConstXMLTranslator_h_
+#endif  // __EcalTPGLinearizationConstXMLTranslator_h_

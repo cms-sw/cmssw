@@ -1,4 +1,4 @@
-// ESSource to generate default HCAL/CASTOR calibration objects 
+// ESSource to generate default HCAL/CASTOR calibration objects
 //
 #include <map>
 #include <string>
@@ -20,29 +20,26 @@ class CastorElectronicsMapRcd;
 class CastorRecoParamsRcd;
 class CastorSaturationCorrsRcd;
 
-class CastorHardcodeCalibrations : public edm::ESProducer,
-		       public edm::EventSetupRecordIntervalFinder
-{
+class CastorHardcodeCalibrations : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
-  CastorHardcodeCalibrations (const edm::ParameterSet& );
-  ~CastorHardcodeCalibrations () override;
+  CastorHardcodeCalibrations(const edm::ParameterSet&);
+  ~CastorHardcodeCalibrations() override;
 
-  void produce () {};
-  
+  void produce(){};
+
 protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-			      const edm::IOVSyncValue& , 
-			      edm::ValidityInterval&) override ;
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
 
-  std::unique_ptr<CastorPedestals> producePedestals (const CastorPedestalsRcd& rcd);
-  std::unique_ptr<CastorPedestalWidths> producePedestalWidths (const CastorPedestalWidthsRcd& rcd);
-  std::unique_ptr<CastorGains> produceGains (const CastorGainsRcd& rcd);
-  std::unique_ptr<CastorGainWidths> produceGainWidths (const CastorGainWidthsRcd& rcd);
-  std::unique_ptr<CastorQIEData> produceQIEData (const CastorQIEDataRcd& rcd);
-  std::unique_ptr<CastorChannelQuality> produceChannelQuality (const CastorChannelQualityRcd& rcd);
-  std::unique_ptr<CastorElectronicsMap> produceElectronicsMap (const CastorElectronicsMapRcd& rcd);
-  std::unique_ptr<CastorRecoParams> produceRecoParams (const CastorRecoParamsRcd& rcd);
-  std::unique_ptr<CastorSaturationCorrs> produceSaturationCorrs (const CastorSaturationCorrsRcd& rcd);
+  std::unique_ptr<CastorPedestals> producePedestals(const CastorPedestalsRcd& rcd);
+  std::unique_ptr<CastorPedestalWidths> producePedestalWidths(const CastorPedestalWidthsRcd& rcd);
+  std::unique_ptr<CastorGains> produceGains(const CastorGainsRcd& rcd);
+  std::unique_ptr<CastorGainWidths> produceGainWidths(const CastorGainWidthsRcd& rcd);
+  std::unique_ptr<CastorQIEData> produceQIEData(const CastorQIEDataRcd& rcd);
+  std::unique_ptr<CastorChannelQuality> produceChannelQuality(const CastorChannelQualityRcd& rcd);
+  std::unique_ptr<CastorElectronicsMap> produceElectronicsMap(const CastorElectronicsMapRcd& rcd);
+  std::unique_ptr<CastorRecoParams> produceRecoParams(const CastorRecoParamsRcd& rcd);
+  std::unique_ptr<CastorSaturationCorrs> produceSaturationCorrs(const CastorSaturationCorrsRcd& rcd);
   bool h2mode_;
 };
-

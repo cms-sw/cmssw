@@ -14,40 +14,45 @@ class DaqScopeModeAnalysis;
 */
 
 class DaqScopeModeAlgorithm : public CommissioningAlgorithm {
-  
- public:
-  
-  DaqScopeModeAlgorithm( const edm::ParameterSet & pset, DaqScopeModeAnalysis* const );
+public:
+  DaqScopeModeAlgorithm(const edm::ParameterSet& pset, DaqScopeModeAnalysis* const);
 
-  ~DaqScopeModeAlgorithm() override {;}
-  
-  inline const float& entries() const;
-  inline const float& mean() const; 
-  inline const float& median() const; 
-  inline const float& mode() const; 
-  inline const float& rms() const; 
-  inline const float& min() const; 
-  inline const float& max() const; 
-  
+  ~DaqScopeModeAlgorithm() override { ; }
+
+  inline const Histo& hPeds() const;
+  inline const Histo& hNoise() const;
   inline const Histo& histo() const;
-  
- private:
-  
-  DaqScopeModeAlgorithm() {;}
-  
-  void extract( const std::vector<TH1*>& ) override;
+  inline const Histo& headerLow() const;
+  inline const Histo& headerHigh() const;
+
+private:
+  DaqScopeModeAlgorithm() { ; }
+
+  void extract(const std::vector<TH1*>&) override;
 
   void analyse() override;
-  
- private:
-  
+
+private:
   /** Histogram of scope mode data. */
   Histo histo_;
-  
+  /** Histogram of header low. */
+  Histo headerLow_;
+  /** Histogram of header high. */
+  Histo headerHigh_;
+  /** Pedestals and raw noise */
+  Histo hPeds_;
+  /** Residuals and noise */
+  Histo hNoise_;
+
+  /** Analysis parameters */
+  float deadStripMax_;
+  float noisyStripMin_;
 };
+
 const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::histo() const { return histo_; }
+const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::headerLow() const { return headerLow_; }
+const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::headerHigh() const { return headerHigh_; }
+const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::hPeds() const { return hPeds_; }
+const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::hNoise() const { return hNoise_; }
 
-#endif // DQM_SiStripCommissioningAnalysis_DaqScopeModeAlgorithm_H
-
-
-
+#endif  // DQM_SiStripCommissioningAnalysis_DaqScopeModeAlgorithm_H

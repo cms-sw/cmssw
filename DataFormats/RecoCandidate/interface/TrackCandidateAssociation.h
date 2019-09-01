@@ -8,7 +8,8 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 namespace reco {
-  typedef edm::AssociationMap<edm::OneToOne<reco::TrackCollection, reco::CandidateCollection> > TrackCandidateAssociation;
+  typedef edm::AssociationMap<edm::OneToOne<reco::TrackCollection, reco::CandidateCollection> >
+      TrackCandidateAssociation;
 }
 
 #endif

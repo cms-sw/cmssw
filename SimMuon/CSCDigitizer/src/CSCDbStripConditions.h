@@ -1,37 +1,39 @@
 #ifndef CSCDigitizer_CSCDbStripConditions_h
 #define CSCDigitizer_CSCDbStripConditions_h
 
-#include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCConditions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
 
-class CSCDbStripConditions : public CSCStripConditions
-{
+class CSCDbStripConditions : public CSCStripConditions {
 public:
-  explicit CSCDbStripConditions(const edm::ParameterSet & pset);
+  explicit CSCDbStripConditions(const edm::ParameterSet &pset);
   ~CSCDbStripConditions() override;
 
   /// fetch the maps from the database
-  void initializeEvent(const edm::EventSetup & es) override;
+  void initializeEvent(const edm::EventSetup &es) override;
 
   /// channels count from 1
-  float gain(const CSCDetId & detId, int channel) const override;
+  float gain(const CSCDetId &detId, int channel) const override;
   /// total calibration precision
-  float gainSigma(const CSCDetId & detId, int channel) const override {return 0.005;}
+  float gainSigma(const CSCDetId &detId, int channel) const override { return 0.005; }
 
   /// in ADC counts
-  float pedestal(const CSCDetId & detId, int channel) const override;
-  float pedestalSigma(const CSCDetId & detId, int channel) const override;
+  float pedestal(const CSCDetId &detId, int channel) const override;
+  float pedestalSigma(const CSCDetId &detId, int channel) const override;
 
-  void crosstalk(const CSCDetId&detId, int channel,
-                 double stripLength, bool leftRight,
-                 float & capacitive, float & resistive) const override;
+  void crosstalk(const CSCDetId &detId,
+                 int channel,
+                 double stripLength,
+                 bool leftRight,
+                 float &capacitive,
+                 float &resistive) const override;
 
   /// check list of bad chambers from db
-  bool isInBadChamber( const CSCDetId& id ) const override;
+  bool isInBadChamber(const CSCDetId &id) const override;
 
 private:
-  void fetchNoisifier(const CSCDetId & detId, int istrip) override;  
+  void fetchNoisifier(const CSCDetId &detId, int istrip) override;
 
   CSCConditions theConditions;
 
@@ -46,5 +48,3 @@ private:
 };
 
 #endif
-
-

@@ -12,26 +12,22 @@
  */
 
 class GsfVertexWeightCalculator {
-
 public:
-
   typedef ReferenceCountingPointer<LinearizedTrackState<5> > RefCountedLinearizedTrackState;
 
-/**
+  /**
  *  Method to calculate the weight
  *  A negative weight is returned in case of error.
  *
  */
 
-   double calculate(const VertexState & oldVertex,
-        const RefCountedLinearizedTrackState track, double cov) const;
+  double calculate(const VertexState& oldVertex, const RefCountedLinearizedTrackState track, double cov) const;
 
 private:
   typedef LinearizedTrackState<5>::AlgebraicVectorN AlgebraicVectorN;
   typedef LinearizedTrackState<5>::AlgebraicMatrixN3 AlgebraicMatrixN3;
-  typedef LinearizedTrackState<5>::AlgebraicMatrixNM   AlgebraicMatrixNM;
+  typedef LinearizedTrackState<5>::AlgebraicMatrixNM AlgebraicMatrixNM;
   typedef LinearizedTrackState<5>::AlgebraicSymMatrixNN AlgebraicSymMatrixNN;
-
 };
 
 #endif

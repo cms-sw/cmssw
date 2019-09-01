@@ -3,15 +3,12 @@
 
 #include <vector>
 
-namespace L1Analysis
-{
-  struct L1AnalysisL1UpgradeTfMuonDataFormat
-  {
-    L1AnalysisL1UpgradeTfMuonDataFormat(){ Reset();};
+namespace L1Analysis {
+  struct L1AnalysisL1UpgradeTfMuonDataFormat {
+    L1AnalysisL1UpgradeTfMuonDataFormat() { Reset(); };
     ~L1AnalysisL1UpgradeTfMuonDataFormat(){};
-    
-    void Reset()
-    {
+
+    void Reset() {
       nTfMuons = 0;
       tfMuonHwPt.clear();
       tfMuonHwEta.clear();
@@ -28,7 +25,7 @@ namespace L1Analysis
       tfMuonWh.clear();
       tfMuonTrAdd.clear();
     }
-   
+
     unsigned short int nTfMuons;
     std::vector<short int> tfMuonHwPt;
     std::vector<short int> tfMuonHwEta;
@@ -44,7 +41,6 @@ namespace L1Analysis
     std::vector<short int> tfMuonBx;
     std::vector<short int> tfMuonWh;
     std::vector<short int> tfMuonTrAdd;
-  }; 
-}
+  };
+}  // namespace L1Analysis
 #endif
-

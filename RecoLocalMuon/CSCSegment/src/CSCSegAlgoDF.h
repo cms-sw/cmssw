@@ -46,17 +46,14 @@ class CSCSegAlgoShowering;
 class CSCSegFit;
 
 class CSCSegAlgoDF : public CSCSegmentAlgorithm {
-
 public:
-
-    
   /// Typedefs
-    
+
   typedef std::vector<int> LayerIndex;
   typedef std::vector<const CSCRecHit2D*> ChamberHitContainer;
   typedef std::vector<const CSCRecHit2D*>::const_iterator ChamberHitContainerCIt;
   typedef std::deque<bool> BoolContainer;
-    
+
   /// Constructor
   explicit CSCSegAlgoDF(const edm::ParameterSet& ps);
 
@@ -72,11 +69,10 @@ public:
   /**
    * Here we must implement the algorithm
    */
-  std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) override; 
+  std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) override;
 
 private:
-
-  /// Utility functions 
+  /// Utility functions
 
   /**
    * Try adding non-used hits to segment<BR>
@@ -90,16 +86,16 @@ private:
    *      then replace the original segment with the new one                            <BR>
    *    - if not, copy the segment, add the hit if it's within a certain range.         <BR>
    */
-  void tryAddingHitsToSegment( const ChamberHitContainer& rechitsInChamber,
-                               const ChamberHitContainerCIt i1, 
-                               const ChamberHitContainerCIt i2,
-                               const LayerIndex& layerIndex);
+  void tryAddingHitsToSegment(const ChamberHitContainer& rechitsInChamber,
+                              const ChamberHitContainerCIt i1,
+                              const ChamberHitContainerCIt i2,
+                              const LayerIndex& layerIndex);
 
   /**
    * Flag hits on segment as used
    */
   void flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber);
- 
+
   /** 
    * Prune bad segment from the worse hit based on residuals
    */
@@ -110,10 +106,10 @@ private:
   void updateParameters(void);
   bool hasHitOnLayer(int layer) const;
   void compareProtoSegment(const CSCRecHit2D* h, int layer);
-  void dumpSegment( const CSCSegment& seg ) const;
+  void dumpSegment(const CSCSegment& seg) const;
 
   // Member variables
-  const std::string myName; 
+  const std::string myName;
   const CSCChamber* theChamber;
   BoolContainer usedHits;
 
@@ -123,15 +119,15 @@ private:
   ChamberHitContainer secondSeedHits;
 
   // input from .cfi file
-  bool   debug;
-  bool   preClustering;
-  int    minHitsForPreClustering;
+  bool debug;
+  bool preClustering;
+  int minHitsForPreClustering;
   //  bool   testSeg;
-  bool   Pruning;
-  int    minLayersApart;
-  int    nHitsPerClusterIsShower;
+  bool Pruning;
+  int minLayersApart;
+  int nHitsPerClusterIsShower;
   //  float  nSigmaFromSegment;
-  int    minHitsPerSegment;
+  int minHitsPerSegment;
   //  int    muonsPerChamberMax;
   double dRPhiFineMax;
   double dPhiFineMax;
@@ -143,7 +139,6 @@ private:
   CSCSegAlgoPreClustering* preCluster_;
   CSCSegAlgoShowering* showering_;
   CSCSegFit* sfit_;
-
 };
 
 #endif

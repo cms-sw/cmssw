@@ -3,8 +3,9 @@ import FWCore.ParameterSet.Config as cms
 # Start with Standard Digitization:
 
 from SimCalorimetry.Configuration.SimCalorimetry_cff import *
+from SimMuon.Configuration.SimMuon_cff import *
 
-from SimGeneral.DataMixingModule.mixOne_simraw_on_sim_cfi import *
+from SimGeneral.PreMixingModule.mixOne_premix_on_sim_cfi import *
 
 # Run after the DataMixer only.
 #
@@ -14,6 +15,7 @@ from SimGeneral.DataMixingModule.mixOne_simraw_on_sim_cfi import *
 # clone these sequences:
 
 DMEcalTriggerPrimitiveDigis = simEcalTriggerPrimitiveDigis.clone()
+DMEcalEBTriggerPrimitiveDigis = simEcalEBTriggerPrimitiveDigis.clone()
 DMEcalDigis = simEcalDigis.clone()
 DMEcalPreshowerDigis = simEcalPreshowerDigis.clone()
 
@@ -21,6 +23,8 @@ DMEcalPreshowerDigis = simEcalPreshowerDigis.clone()
 DMEcalTriggerPrimitiveDigis.Label = cms.string('mixData')
 DMEcalTriggerPrimitiveDigis.InstanceEB = cms.string('')
 DMEcalTriggerPrimitiveDigis.InstanceEE = cms.string('')
+#
+DMEcalEBTriggerPrimitiveDigis.barrelEcalDigis = 'mixData'
 #
 DMEcalDigis.digiProducer = cms.string('mixData')
 DMEcalDigis.EBdigiCollection = cms.string('')
@@ -30,7 +34,11 @@ DMEcalDigis.trigPrimProducer = cms.string('DMEcalTriggerPrimitiveDigis')
 DMEcalPreshowerDigis.digiProducer = cms.string('mixData')
 #DMEcalPreshowerDigis.ESdigiCollection = cms.string('ESDigiCollectionDM')
 
-ecalDigiSequenceDM = cms.Sequence(DMEcalTriggerPrimitiveDigis*DMEcalDigis*DMEcalPreshowerDigis)
+ecalDigiTaskDM = cms.Task(DMEcalTriggerPrimitiveDigis, DMEcalDigis, DMEcalPreshowerDigis)
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+_phase2_ecalDigiTaskDM = ecalDigiTaskDM.copy()
+_phase2_ecalDigiTaskDM.add(DMEcalEBTriggerPrimitiveDigis)
+phase2_common.toReplaceWith(ecalDigiTaskDM, _phase2_ecalDigiTaskDM)
 
 # same for Hcal:
 
@@ -46,9 +54,9 @@ DMHcalTriggerPrimitiveDigis.inputUpgradeLabel = cms.VInputTag(cms.InputTag('mixD
 DMHcalDigis.digiLabel = cms.string('mixData')
 DMHcalTTPDigis.HFDigiCollection = cms.InputTag("mixData")
 
-hcalDigiSequenceDM = cms.Sequence(DMHcalTriggerPrimitiveDigis+DMHcalDigis*DMHcalTTPDigis)
+hcalDigiTaskDM = cms.Task(DMHcalTriggerPrimitiveDigis, DMHcalDigis, DMHcalTTPDigis)
 
-postDMDigi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM)
+postDMDigi = cms.Task(ecalDigiTaskDM, hcalDigiTaskDM, muonDigiTask)
 
 # disable adding noise to HCAL cells with no MC signal
 #mixData.doEmpty = False
@@ -60,8 +68,8 @@ postDMDigi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM)
 from SimGeneral.PileupInformation.AddPileupSummary_cfi import *
 
 
-
-pdatamix = cms.Sequence(mixData+postDMDigi+addPileupInfo)
+pdatamixTask = cms.Task(mixData, postDMDigi, addPileupInfo)
+pdatamix = cms.Sequence(pdatamixTask)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 def _fastSimDigis(process):

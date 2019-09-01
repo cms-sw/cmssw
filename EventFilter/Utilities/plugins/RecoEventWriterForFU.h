@@ -1,5 +1,5 @@
 #ifndef IOPool_Streamer_RecoEventWriterForFU_h
-#define IOPool_Streamer_RecoEventWriterForFU_h 
+#define IOPool_Streamer_RecoEventWriterForFU_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -17,13 +17,10 @@
 #include <memory>
 #include <string>
 
-namespace evf
-{
+namespace evf {
   class ParameterSetDescription;
-  class RecoEventWriterForFU 
-  {
+  class RecoEventWriterForFU {
   public:
-
     explicit RecoEventWriterForFU(edm::ParameterSet const& ps);
     ~RecoEventWriterForFU();
 
@@ -33,24 +30,22 @@ namespace evf
     void setOutputFile(std::string const&);
     void closeOutputFile();
 
-    void doOutputHeader(InitMsgBuilder const& init_message);    
-    void doOutputHeader(InitMsgView const& init_message);    
+    void doOutputHeader(InitMsgBuilder const& init_message);
+    void doOutputHeader(InitMsgView const& init_message);
 
     void doOutputEvent(EventMsgBuilder const& msg);
     void doOutputEvent(EventMsgView const& msg);
 
-    void start(){}
-    void stop(){}
+    void start() {}
+    void stop() {}
 
-    uint32 get_adler32_ini() const { return preamble_adler32_;}
-    uint32 get_adler32() const { return stream_writer_events_->adler32();}
+    uint32 get_adler32_ini() const { return preamble_adler32_; }
+    uint32 get_adler32() const { return stream_writer_events_->adler32(); }
 
   private:
-
     boost::shared_ptr<StreamerOutputFile> stream_writer_preamble_;
     boost::shared_ptr<StreamerOutputFile> stream_writer_events_;
-    uint32 preamble_adler32_=1;
-
+    uint32 preamble_adler32_ = 1;
   };
-}
+}  // namespace evf
 #endif

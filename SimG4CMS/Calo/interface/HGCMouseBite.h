@@ -7,19 +7,16 @@
 #include <vector>
 
 class HGCMouseBite {
+public:
+  HGCMouseBite(const HGCalDDDConstants& hgc, const std::vector<double>& angle, double maxLength, bool waferRotate);
+  bool exclude(G4ThreeVector& point, int zside, int waferU, int waferV);
 
-public:    
-
-  HGCMouseBite(const HGCalDDDConstants& hgc, const std::vector<double>& angle,
-	       double maxLength, bool waferRotate); 
-  bool         exclude(G4ThreeVector& point, int zside, int wafer);
-
-private:    
-
-  const HGCalDDDConstants&               hgcons_;
-  double                                 cut_;
-  bool                                   rot_;
-  std::vector<std::pair<double,double> > projXY_;
+private:
+  const HGCalDDDConstants& hgcons_;
+  double cut_;
+  bool rot_;
+  bool modeUV_;
+  std::vector<std::pair<double, double> > projXY_;
 };
 
-#endif // HGCMouseBite_h
+#endif  // HGCMouseBite_h

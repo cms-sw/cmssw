@@ -5,7 +5,7 @@
 //
 // Package:    ClusterSummaryProducer
 // Class:      ClusterSummaryProducer
-// 
+//
 /**\class ClusterSummaryProducer ClusterSummaryProducer.cc msegala/ClusterSummaryProducer/src/ClusterSummaryProducer.cc
 
  Description: [one line class summary]
@@ -19,13 +19,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <string>
 #include <map>
 #include <vector>
-#include<iostream>
+#include <iostream>
 #include <cstring>
 // user include files
 
@@ -44,11 +43,9 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
-
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 #include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-
 
 #include "DataFormats/TrackerCommon/interface/ClusterSummary.h"
 #include "RecoLocalTracker/SubCollectionProducers/interface/ClusterVariables.h"
@@ -57,43 +54,38 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
 
-
 //
 // class declaration
 //
 class ClusterVariables;
 class ClusterSummary;
 
-
 class ClusterSummaryProducer : public edm::stream::EDProducer<> {
-   public:
-      explicit ClusterSummaryProducer(const edm::ParameterSet&);
-      ~ClusterSummaryProducer() override{};
+public:
+  explicit ClusterSummaryProducer(const edm::ParameterSet&);
+  ~ClusterSummaryProducer() override{};
 
-   private:
-      void beginStream(edm::StreamID) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      
+private:
+  void beginStream(edm::StreamID) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      typedef std::pair<DetIdSelector,ClusterSummary::CMSTracker> ModuleSelection;
-      typedef std::vector<ModuleSelection> ModuleSelections;
+  typedef std::pair<DetIdSelector, ClusterSummary::CMSTracker> ModuleSelection;
+  typedef std::vector<ModuleSelection> ModuleSelections;
 
-      // ----------member data ---------------------------
-      
-      edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
-      edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClusters_;
+  // ----------member data ---------------------------
 
-      ModuleSelections         selectors;
-      std::vector<std::string> moduleNames;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClusters_;
 
-      ClusterSummary cCluster;
-      std::map< std::string, int > EnumMap;
+  ModuleSelections selectors;
+  std::vector<std::string> moduleNames;
 
+  ClusterSummary cCluster;
+  std::map<std::string, int> EnumMap;
 
-      bool doStrips;
-      bool doPixels;
-      bool verbose;
-
+  bool doStrips;
+  bool doPixels;
+  bool verbose;
 };
 
 #endif

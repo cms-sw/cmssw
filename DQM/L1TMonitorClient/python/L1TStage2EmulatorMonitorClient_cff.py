@@ -17,7 +17,6 @@ import FWCore.ParameterSet.Config as cms
 from DQM.L1TMonitorClient.L1TStage2EmulatorQualityTests_cff import *
 
 # Calo trigger layer2 client
-from DQM.L1TMonitorClient.L1TStage2CaloLayer2DEClient_cfi import *
 from DQM.L1TMonitorClient.L1TStage2CaloLayer2DEClientSummary_cfi import *
 
 # uGMT emulator client
@@ -25,6 +24,9 @@ from DQM.L1TMonitorClient.L1TStage2uGMTEmulatorClient_cff import *
 
 # BMTF emulator client
 from DQM.L1TMonitorClient.L1TStage2BMTFEmulatorClient_cff import *
+
+# Second BMTF Emulator Client
+from DQM.L1TMonitorClient.L1TStage2BMTFSecondEmulatorClient_cff import *
 
 # OMTF emulator client
 from DQM.L1TMonitorClient.L1TStage2OMTFEmulatorClient_cff import *
@@ -35,6 +37,8 @@ from DQM.L1TMonitorClient.L1TStage2EMTFEmulatorClient_cff import *
 # L1 emulator event info DQM client 
 from DQM.L1TMonitorClient.L1TStage2EmulatorEventInfoClient_cfi import *
 
+## uGT emulator client
+from DQM.L1TMonitorClient.L1TStage2uGTEmulatorClient_cff import *
 
 #
 # define sequences 
@@ -42,13 +46,14 @@ from DQM.L1TMonitorClient.L1TStage2EmulatorEventInfoClient_cfi import *
 
 # L1T monitor client sequence (system clients and quality tests)
 l1TStage2EmulatorClients = cms.Sequence(
-                        l1tStage2CaloLayer2DEClient
-		      + l1tStage2CaloLayer2DEClientSummary
+		        l1tStage2CaloLayer2DEClientSummary
                       + l1tStage2uGMTEmulatorClient
                       + l1tStage2BMTFEmulatorClient
+                      + l1tStage2BMTFEmulatorSecondClient
                       + l1tStage2OMTFEmulatorClient
                       + l1tStage2EMTFEmulatorClient
-                      + l1tStage2EmulatorEventInfoClient 
+                      + l1tStage2EmulatorEventInfoClient
+                      + l1tStage2uGTEmulatorClient
                         )
 
 l1tStage2EmulatorMonitorClient = cms.Sequence(

@@ -32,21 +32,15 @@
 //
 // constructors and destructor
 //
-FWViewManagerManager::FWViewManagerManager(FWModelChangeManager* iCM,
-                                           FWColorManager* iColorM) :
-   m_changeManager(iCM),
-   m_colorManager(iColorM)
-{
-}
+FWViewManagerManager::FWViewManagerManager(FWModelChangeManager* iCM, FWColorManager* iColorM)
+    : m_changeManager(iCM), m_colorManager(iColorM) {}
 
 // FWViewManagerManager::FWViewManagerManager(const FWViewManagerManager& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWViewManagerManager::~FWViewManagerManager()
-{
-}
+FWViewManagerManager::~FWViewManagerManager() {}
 
 //
 // assignment operators
@@ -63,75 +57,62 @@ FWViewManagerManager::~FWViewManagerManager()
 //
 // member functions
 //
-void
-FWViewManagerManager::add( std::shared_ptr<FWViewManagerBase> iManager)
-{
-   m_viewManagers.push_back(iManager);
-   iManager->setChangeManager(m_changeManager);
-   iManager->setColorManager(m_colorManager);
+void FWViewManagerManager::add(std::shared_ptr<FWViewManagerBase> iManager) {
+  m_viewManagers.push_back(iManager);
+  iManager->setChangeManager(m_changeManager);
+  iManager->setColorManager(m_colorManager);
 
-   for(std::map<std::string,const FWEventItem*>::iterator it=m_typeToItems.begin(), itEnd=m_typeToItems.end();
+  for (std::map<std::string, const FWEventItem*>::iterator it = m_typeToItems.begin(), itEnd = m_typeToItems.end();
        it != itEnd;
        ++it) {
-      iManager->newItem(it->second);
-   }
+    iManager->newItem(it->second);
+  }
 }
 
-void
-FWViewManagerManager::registerEventItem(const FWEventItem*iItem)
-{
-   if ( m_typeToItems.find(iItem->name()) != m_typeToItems.end() ) {
-      fwLog(fwlog::kWarning) << "WARNING: item "<< iItem->name() <<" was already registered. Request ignored.\n";
-      return;
-   }
-   m_typeToItems[iItem->name()]=iItem;
-   iItem->goingToBeDestroyed_.connect(boost::bind(&FWViewManagerManager::removeEventItem,this,_1));
+void FWViewManagerManager::registerEventItem(const FWEventItem* iItem) {
+  if (m_typeToItems.find(iItem->name()) != m_typeToItems.end()) {
+    fwLog(fwlog::kWarning) << "WARNING: item " << iItem->name() << " was already registered. Request ignored.\n";
+    return;
+  }
+  m_typeToItems[iItem->name()] = iItem;
+  iItem->goingToBeDestroyed_.connect(boost::bind(&FWViewManagerManager::removeEventItem, this, _1));
 
-   //std::map<std::string, std::vector<std::string> >::iterator itFind = m_typeToBuilders.find(iItem->name());
-   for(std::vector<std::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
+  //std::map<std::string, std::vector<std::string> >::iterator itFind = m_typeToBuilders.find(iItem->name());
+  for (std::vector<std::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
        itVM != m_viewManagers.end();
        ++itVM) {
-      (*itVM)->newItem(iItem);
-   }
+    (*itVM)->newItem(iItem);
+  }
 }
 
-void
-FWViewManagerManager::removeEventItem(const FWEventItem* iItem)
-{
-   std::map<std::string, const FWEventItem*>::iterator itr =
-      m_typeToItems.find(iItem->name());
-   if ( itr != m_typeToItems.end() ) m_typeToItems.erase( itr );
+void FWViewManagerManager::removeEventItem(const FWEventItem* iItem) {
+  std::map<std::string, const FWEventItem*>::iterator itr = m_typeToItems.find(iItem->name());
+  if (itr != m_typeToItems.end())
+    m_typeToItems.erase(itr);
 }
-
 
 //
 // const member functions
 //
-FWTypeToRepresentations
-FWViewManagerManager::supportedTypesAndRepresentations() const
-{
-   FWTypeToRepresentations returnValue;
-   for(std::vector<std::shared_ptr<FWViewManagerBase> >::const_iterator itVM = m_viewManagers.begin();
+FWTypeToRepresentations FWViewManagerManager::supportedTypesAndRepresentations() const {
+  FWTypeToRepresentations returnValue;
+  for (std::vector<std::shared_ptr<FWViewManagerBase> >::const_iterator itVM = m_viewManagers.begin();
        itVM != m_viewManagers.end();
        ++itVM) {
-      FWTypeToRepresentations v = (*itVM)->supportedTypesAndRepresentations();
-      returnValue.insert(v);
-   }
-   return returnValue;
+    FWTypeToRepresentations v = (*itVM)->supportedTypesAndRepresentations();
+    returnValue.insert(v);
+  }
+  return returnValue;
 }
 
-void
-FWViewManagerManager::eventBegin()
-{
-   for (auto i = m_viewManagers.begin(); i != m_viewManagers.end(); ++i)
-      (*i)->eventBegin();
+void FWViewManagerManager::eventBegin() {
+  for (auto i = m_viewManagers.begin(); i != m_viewManagers.end(); ++i)
+    (*i)->eventBegin();
 }
 
-void
-FWViewManagerManager::eventEnd()
-{
-   for (auto i = m_viewManagers.begin(); i != m_viewManagers.end(); ++i)
-      (*i)->eventEnd();
+void FWViewManagerManager::eventEnd() {
+  for (auto i = m_viewManagers.begin(); i != m_viewManagers.end(); ++i)
+    (*i)->eventEnd();
 }
 
 //

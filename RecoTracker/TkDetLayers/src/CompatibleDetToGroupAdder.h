@@ -4,7 +4,6 @@
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
-
 #pragma GCC visibility push(hidden)
 
 class TrajectoryStateOnSurface;
@@ -13,7 +12,6 @@ class MeasurementEstimator;
 
 class CompatibleDetToGroupAdder {
 public:
-
   /** Checks the det for compatibility with the tsos propagated by prop and according to est;
    *  if the det is compatible, it is added to result and the method returns true, 
    *  if not result is not modified and the method returns false.
@@ -22,19 +20,17 @@ public:
    *  compatible() is used.
    */
 
-  static bool add( const GeometricSearchDet& det,
-	    const TrajectoryStateOnSurface& tsos, 
-	    const Propagator& prop,
-	    const MeasurementEstimator& est,
-	    std::vector<DetGroup>& result) __attribute__ ((hot));
-  
+  static bool add(const GeometricSearchDet& det,
+                  const TrajectoryStateOnSurface& tsos,
+                  const Propagator& prop,
+                  const MeasurementEstimator& est,
+                  std::vector<DetGroup>& result) __attribute__((hot));
 
-  static bool add( const GeomDet& det,
-	    const TrajectoryStateOnSurface& tsos, 
-	    const Propagator& prop,
-	    const MeasurementEstimator& est,
-	    std::vector<DetGroup>& result) __attribute__ ((hot));
-
+  static bool add(const GeomDet& det,
+                  const TrajectoryStateOnSurface& tsos,
+                  const Propagator& prop,
+                  const MeasurementEstimator& est,
+                  std::vector<DetGroup>& result) __attribute__((hot));
 };
 
 #pragma GCC visibility pop

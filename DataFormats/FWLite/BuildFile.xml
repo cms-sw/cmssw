@@ -4,6 +4,7 @@
 <use   name="FWCore/FWLite"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
+<use   name="FWCore/Reflection"/>
 <use   name="rootcore"/>
 <export>
   <lib   name="1"/>

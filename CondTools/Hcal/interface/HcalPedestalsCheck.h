@@ -1,7 +1,7 @@
 #ifndef HcalPedestalsCheck_h
 #define HcalPedestalsCheck_h
 
-// 
+//
 // R.Ofierzynski 9.12.2007
 //
 // Code to check pedestals for completeness and to compare to previous pedestals
@@ -40,16 +40,15 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
-class HcalPedestalsCheck: public edm::EDAnalyzer
-{
- public:
+class HcalPedestalsCheck : public edm::EDAnalyzer {
+public:
   HcalPedestalsCheck(edm::ParameterSet const& ps);
 
   ~HcalPedestalsCheck() override;
 
   void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
 
- private:
+private:
   std::string outfile;
   std::string dumprefs;
   std::string dumpupdate;

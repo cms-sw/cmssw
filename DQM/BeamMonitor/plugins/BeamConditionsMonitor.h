@@ -11,66 +11,49 @@
 #include <string>
 // CMS
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 
 //
 // class declaration
 //
+namespace beamcond {
+  struct RunCache {
+    typedef dqm::reco::MonitorElement MonitorElement;
+    // MonitorElements
+    ConcurrentMonitorElement h_x0_lumi;
+    ConcurrentMonitorElement h_y0_lumi;
+  };
+};  // namespace beamcond
 
-class BeamConditionsMonitor : public edm::EDAnalyzer {
- public:
-  BeamConditionsMonitor( const edm::ParameterSet& );
-  ~BeamConditionsMonitor() override;
+class BeamConditionsMonitor : public DQMGlobalEDAnalyzer<beamcond::RunCache, edm::LuminosityBlockCache<void>> {
+public:
+  BeamConditionsMonitor(const edm::ParameterSet&);
+  ~BeamConditionsMonitor() override = default;
 
- protected:
-   
-  // BeginJob
-  void beginJob() override;
+protected:
+  typedef dqm::reco::DQMStore DQMStore;
+  typedef dqm::reco::MonitorElement MonitorElement;
 
-  // BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
-  
+  // Book Histograms
+  void bookHistograms(DQMStore::ConcurrentBooker& i,
+                      const edm::Run& r,
+                      const edm::EventSetup& c,
+                      beamcond::RunCache&) const override;
+
   // Fake Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-			    const edm::EventSetup& context) override;
-  
-  // DQM Client Diagnostic
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-			  const edm::EventSetup& c) override;
-  
-  // EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
-  
-  // Endjob
-  void endJob() override;
-  
- private:
-  
-  edm::ParameterSet parameters_;
+  void dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, beamcond::RunCache const&) const override;
+
+  // DQM Client Diagnostic (come from edm::LuminosityBlockCache use)
+  std::shared_ptr<void> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+                                                   const edm::EventSetup& c) const override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override;
+
+private:
   std::string monitorName_;
-  edm::InputTag bsSrc_; // beam spot
-  bool debug_;
-  
-  DQMStore* dbe_;
-  
-  int countEvt_;      //counter
-  int countLumi_;      //counter
-  
-  // ----------member data ---------------------------
-  BeamSpotObjects condBeamSpot;
-  
-  // MonitorElements
-  MonitorElement * h_x0_lumi;
-  MonitorElement * h_y0_lumi;
-  
+  const edm::InputTag bsSrc_;  // beam spot
 };
 
 #endif

@@ -16,15 +16,15 @@
 #include "CondFormats/CastorObjects/interface/CastorSaturationCorr.h"
 
 namespace CastorDbHardcode {
-  CastorPedestal makePedestal (HcalGenericDetId fId, bool fSmear = false);
-  CastorPedestalWidth makePedestalWidth (HcalGenericDetId fId);
-  CastorGain makeGain (HcalGenericDetId fId, bool fSmear = false);
-  CastorGainWidth makeGainWidth (HcalGenericDetId fId);
-  CastorQIECoder makeQIECoder (HcalGenericDetId fId);
-  CastorCalibrationQIECoder makeCalibrationQIECoder (HcalGenericDetId fId);
-  CastorQIEShape makeQIEShape ();
-  CastorRecoParam makeRecoParam (HcalGenericDetId fId);
-  CastorSaturationCorr makeSaturationCorr (HcalGenericDetId fId);
+  CastorPedestal makePedestal(HcalGenericDetId fId, bool fSmear = false);
+  CastorPedestalWidth makePedestalWidth(HcalGenericDetId fId);
+  CastorGain makeGain(HcalGenericDetId fId, bool fSmear = false);
+  CastorGainWidth makeGainWidth(HcalGenericDetId fId);
+  CastorQIECoder makeQIECoder(HcalGenericDetId fId);
+  CastorCalibrationQIECoder makeCalibrationQIECoder(HcalGenericDetId fId);
+  CastorQIEShape makeQIEShape();
+  CastorRecoParam makeRecoParam(HcalGenericDetId fId);
+  CastorSaturationCorr makeSaturationCorr(HcalGenericDetId fId);
   void makeHardcodeMap(CastorElectronicsMap& emap);
-}
+}  // namespace CastorDbHardcode
 #endif

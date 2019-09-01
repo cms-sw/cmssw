@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     HcalTimeCorrsRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Sat Mar  1 15:49:28 CET 2008
 // $Id: HcalTimeCorrsRcd.cc,v 1.1 2008/03/03 16:58:17 rofierzy Exp $
 

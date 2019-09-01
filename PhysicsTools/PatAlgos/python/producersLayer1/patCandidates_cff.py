@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cff import *
+from PhysicsTools.PatAlgos.producersLayer1.lowPtElectronProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.photonProducer_cff import *
@@ -13,6 +14,7 @@ patCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
     logName = cms.untracked.string("patCandidates|PATSummaryTables"),
     candidates = cms.VInputTag(
         cms.InputTag("patElectrons"),
+        cms.InputTag("patLowPtElectrons"),
         cms.InputTag("patMuons"),
         cms.InputTag("patTaus"),
         cms.InputTag("patPhotons"),
@@ -24,6 +26,7 @@ patCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
 
 patCandidatesTask = cms.Task(
     makePatElectronsTask,
+    makePatLowPtElectronsTask,
     makePatMuonsTask,
     makePatTausTask,
     makePatPhotonsTask,
@@ -32,3 +35,7 @@ patCandidatesTask = cms.Task(
     makePatMETsTask
 )
 patCandidates = cms.Sequence(patCandidateSummary, patCandidatesTask)
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toReplaceWith(patCandidatesTask, patCandidatesTask.copyAndExclude([makePatOOTPhotonsTask]))
+pp_on_AA_2018.toModify(patCandidateSummary.candidates, func = lambda list: list.remove(cms.InputTag("patOOTPhotons")) )

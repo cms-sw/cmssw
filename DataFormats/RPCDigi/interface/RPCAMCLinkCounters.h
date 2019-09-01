@@ -6,25 +6,24 @@
 
 #include "CondFormats/RPCObjects/interface/RPCAMCLink.h"
 
-class RPCAMCLinkCounters
-{
+class RPCAMCLinkCounters {
 public:
-    typedef std::map<std::pair<unsigned int, std::uint32_t>, unsigned int> map_type;
+  typedef std::map<std::pair<unsigned int, std::uint32_t>, unsigned int> map_type;
 
 public:
-    RPCAMCLinkCounters();
+  RPCAMCLinkCounters();
 
-    void add(unsigned int event, RPCAMCLink const & link, unsigned int count = 1);
-    void reset();
-    void reset(unsigned int event);
-    void reset(unsigned int event, RPCAMCLink const & link);
+  void add(unsigned int event, RPCAMCLink const& link, unsigned int count = 1);
+  void reset();
+  void reset(unsigned int event);
+  void reset(unsigned int event, RPCAMCLink const& link);
 
-    map_type const & getCounters() const;
+  map_type const& getCounters() const;
 
 protected:
-    map_type type_link_count_;
+  map_type type_link_count_;
 };
 
 #include "DataFormats/RPCDigi/interface/RPCAMCLinkCounters.icc"
 
-#endif // DataFormats_RPCDigi_RPCAMCLinkCounters_h
+#endif  // DataFormats_RPCDigi_RPCAMCLinkCounters_h

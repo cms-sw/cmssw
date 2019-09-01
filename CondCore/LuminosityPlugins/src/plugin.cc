@@ -4,7 +4,5 @@
 #include "CondFormats/Luminosity/interface/LumiCorrections.h"
 #include "CondFormats/DataRecord/interface/LumiCorrectionsRcd.h"
 
-
 REGISTER_PLUGIN(LumiSectionDataRcd, lumi::LumiSectionData);
 REGISTER_PLUGIN(LumiCorrectionsRcd, LumiCorrections);
-

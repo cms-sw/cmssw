@@ -10,15 +10,10 @@
 #include "PhysicsTools/SelectorUtils/interface/MakePtrFromCollection.h"
 #include "PhysicsTools/SelectorUtils/interface/PrintVIDToString.h"
 
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Spring16HZZ.h"
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Spring16GeneralPurpose.h"
-
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Fall17.h"
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Fall17NoIso.h"
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Fall17Iso.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2.h"
 
 namespace RecoEgamma_ElectronIdentification {
-  struct dictionary {    
+  struct dictionary {
     typedef MakeVersionedSelector<reco::GsfElectron> MakeVersionedGsfElectronSelector;
     typedef MakePtrFromCollection<reco::GsfElectronCollection> MakeGsfPtrFromCollection;
     typedef PrintVIDToString<reco::GsfElectron> PrintGsfElectronVIDToString;
@@ -28,18 +23,16 @@ namespace RecoEgamma_ElectronIdentification {
     typedef PrintVIDToString<pat::Electron> PrintPatElectronVIDToString;
 
     //for using the selectors in python
-    VersionedGsfElectronSelector vGsfElectronSelector;    
+    VersionedGsfElectronSelector vGsfElectronSelector;
     MakeVersionedGsfElectronSelector vMakeGsfElectronVersionedSelector;
     PrintGsfElectronVIDToString vGsfPrintVIDToString;
-    MakeGsfPtrFromCollection vGsfMakePtrFromCollection;  
-    
-    VersionedPatElectronSelector vPatElectronSelector; 
+    MakeGsfPtrFromCollection vGsfMakePtrFromCollection;
+
+    VersionedPatElectronSelector vPatElectronSelector;
     MakeVersionedPatElectronSelector vMakePatElectronVersionedSelector;
     PrintPatElectronVIDToString vPatPrintVIDToString;
     MakePatPtrFromCollection vPatMakePtrFromCollection;
-    MakePtrFromCollection<std::vector<pat::Electron>, pat::Electron, reco::GsfElectron > vPatToGsfMakePtrFromCollection;;
-    
+    MakePtrFromCollection<std::vector<pat::Electron>, pat::Electron, reco::GsfElectron> vPatToGsfMakePtrFromCollection;
+    ;
   };
-}
-
-
+}  // namespace RecoEgamma_ElectronIdentification

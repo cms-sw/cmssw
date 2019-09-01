@@ -26,46 +26,44 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
-
 namespace edm {
-    class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 // Class declaration
 class HLTHtMhtProducer : public edm::stream::EDProducer<> {
-  public:
-    explicit HLTHtMhtProducer(const edm::ParameterSet & iConfig);
-    ~HLTHtMhtProducer() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+public:
+  explicit HLTHtMhtProducer(const edm::ParameterSet& iConfig);
+  ~HLTHtMhtProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  private:
-    /// Use pt; otherwise, use et.
-    bool usePt_;
+private:
+  /// Use pt; otherwise, use et.
+  bool usePt_;
 
-    /// Exclude PF muons in the MHT calculation (but not HT)
-    /// Ignored if pfCandidatesLabel_ is empty.
-    bool excludePFMuons_;
+  /// Exclude PF muons in the MHT calculation (but not HT)
+  /// Ignored if pfCandidatesLabel_ is empty.
+  bool excludePFMuons_;
 
-    /// Minimum number of jets passing pt and eta requirements
-    int minNJetHt_;
-    int minNJetMht_;
+  /// Minimum number of jets passing pt and eta requirements
+  int minNJetHt_;
+  int minNJetMht_;
 
-    /// Minimum pt requirement for jets
-    double minPtJetHt_;
-    double minPtJetMht_;
+  /// Minimum pt requirement for jets
+  double minPtJetHt_;
+  double minPtJetMht_;
 
-    /// Maximum (abs) eta requirement for jets
-    double maxEtaJetHt_;
-    double maxEtaJetMht_;
+  /// Maximum (abs) eta requirement for jets
+  double maxEtaJetHt_;
+  double maxEtaJetMht_;
 
-    /// Input jet, PFCandidate collections
-    edm::InputTag jetsLabel_;
-    edm::InputTag pfCandidatesLabel_;
+  /// Input jet, PFCandidate collections
+  edm::InputTag jetsLabel_;
+  edm::InputTag pfCandidatesLabel_;
 
-    edm::EDGetTokenT<reco::JetView> m_theJetToken;
-    edm::EDGetTokenT<reco::PFCandidateCollection> m_thePFCandidateToken;
+  edm::EDGetTokenT<reco::JetView> m_theJetToken;
+  edm::EDGetTokenT<reco::PFCandidateCollection> m_thePFCandidateToken;
 };
 
 #endif  // HLTHtMhtProducer_h_
-

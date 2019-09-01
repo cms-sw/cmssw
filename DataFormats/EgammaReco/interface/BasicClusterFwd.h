@@ -37,6 +37,6 @@ namespace reco {
 
   /// iterator over a vector of references to BasicCluster objects
   typedef BasicClusterRefVector::iterator basicCluster_iterator;
-}
+}  // namespace reco
 
 #endif

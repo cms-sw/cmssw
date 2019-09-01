@@ -21,20 +21,17 @@ namespace edm {
   class ModuleCallingContext;
 
   class InternalContext {
-
   public:
+    InternalContext(EventID const& eventID, ModuleCallingContext const*);
 
-    InternalContext(EventID const& eventID,
-                    ModuleCallingContext const*);
-
-    EventID const& eventID() const { return eventID_; } // event#==0 is a lumi, event#==0&lumi#==0 is a run
+    EventID const& eventID() const { return eventID_; }  // event#==0 is a lumi, event#==0&lumi#==0 is a run
     ModuleCallingContext const* moduleCallingContext() const { return moduleCallingContext_; }
 
   private:
-    EventID eventID_; // event#==0 is a lumi, event#==0&lumi#==0 is a run
+    EventID eventID_;  // event#==0 is a lumi, event#==0&lumi#==0 is a run
     ModuleCallingContext const* moduleCallingContext_;
   };
 
   std::ostream& operator<<(std::ostream&, InternalContext const&);
-}
+}  // namespace edm
 #endif

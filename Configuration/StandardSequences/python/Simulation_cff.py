@@ -35,6 +35,7 @@ from Configuration.StandardSequences.Sim_cff import *
 #
 from Configuration.StandardSequences.Digi_cff import *
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
-simulation = cms.Sequence(psim*pdigi)
+simulationTask = cms.Task(psimTask)
+simulation = cms.Sequence(pdigi, simulationTask)
 
 

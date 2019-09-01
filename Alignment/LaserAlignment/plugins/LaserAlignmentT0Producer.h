@@ -12,7 +12,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <algorithm>
@@ -34,14 +33,14 @@
 
 class LaserAlignmentT0Producer : public edm::EDProducer {
 public:
-  explicit LaserAlignmentT0Producer( const edm::ParameterSet& );
+  explicit LaserAlignmentT0Producer(const edm::ParameterSet&);
   ~LaserAlignmentT0Producer() override;
-  
+
 private:
-  void beginJob() override ;
-  void produce( edm::Event&, const edm::EventSetup& ) override;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
-  void FillDetIds( void );
+  void FillDetIds(void);
 
   // container for cfg data
   std::vector<edm::ParameterSet> digiProducerList;
@@ -51,6 +50,4 @@ private:
 
   // this one stores the det ids for all the 434 LAS modules
   std::vector<unsigned int> theLasDetIds;
-
 };
-

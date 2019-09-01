@@ -10,3 +10,4 @@
   <lib   name="PlotCompareUtility"/>
   <lib   name="HistoData"/>
 </bin>
+<bin name="offsetStack" file="offsetStack.cc"/>

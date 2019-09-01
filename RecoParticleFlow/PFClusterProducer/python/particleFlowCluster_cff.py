@@ -14,11 +14,11 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALUncorrected_cfi i
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cff import *
 
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHETimeSelected_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHF_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHO_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterPS_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowBadHcalPseudoCluster_cff import *
 
 particleFlowClusterECALTask = cms.Task(particleFlowClusterECAL)
 particleFlowClusterECALSequence = cms.Sequence(particleFlowClusterECALTask)
@@ -31,8 +31,6 @@ pfClusteringECAL = cms.Sequence(pfClusteringECALTask)
 pfClusteringPSTask = cms.Task(particleFlowRecHitPS,particleFlowClusterPS)
 pfClusteringPS = cms.Sequence(pfClusteringPSTask)
 
-#pfClusteringHBHEHF = cms.Sequence(towerMakerPF*particleFlowRecHitHCAL*particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
-
 pfClusteringHBHEHFTask = cms.Task(particleFlowRecHitHBHE,particleFlowRecHitHF,particleFlowClusterHBHE,particleFlowClusterHF,particleFlowClusterHCAL)
 pfClusteringHBHEHF = cms.Sequence(pfClusteringHBHEHFTask)
 
@@ -40,6 +38,7 @@ pfClusteringHOTask = cms.Task(particleFlowRecHitHO,particleFlowClusterHO)
 pfClusteringHO = cms.Sequence(pfClusteringHOTask)
 
 particleFlowClusterWithoutHOTask = cms.Sequence(
+    particleFlowBadHcalPseudoCluster,
     pfClusteringPSTask,
     pfClusteringECALTask,
     pfClusteringHBHEHFTask
@@ -47,6 +46,7 @@ particleFlowClusterWithoutHOTask = cms.Sequence(
 particleFlowClusterWithoutHO = cms.Sequence(particleFlowClusterWithoutHOTask)
 
 particleFlowClusterTask = cms.Task(
+    particleFlowBadHcalPseudoCluster,
     pfClusteringPSTask,
     pfClusteringECALTask,
     pfClusteringHBHEHFTask,

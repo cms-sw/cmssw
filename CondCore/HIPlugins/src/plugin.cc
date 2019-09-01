@@ -6,6 +6,6 @@
 #include "CondFormats/HIObjects/interface/UETable.h"
 #include "CondFormats/HIObjects/interface/RPFlatParams.h"
 
-REGISTER_PLUGIN(HeavyIonRPRcd,RPFlatParams);
-REGISTER_PLUGIN(HeavyIonRcd,CentralityTable);
-REGISTER_PLUGIN(HeavyIonUERcd,UETable);
+REGISTER_PLUGIN(HeavyIonRPRcd, RPFlatParams);
+REGISTER_PLUGIN(HeavyIonRcd, CentralityTable);
+REGISTER_PLUGIN(HeavyIonUERcd, UETable);

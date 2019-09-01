@@ -11,11 +11,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 namespace edmtest {
   class ThingExtSource : public edm::ProducerSourceFromFiles {
   public:
-
     // The following is not yet used, but will be the primary
     // constructor when the parameter set system is available.
     //
@@ -31,13 +31,14 @@ namespace edmtest {
 
     void beginLuminosityBlock(edm::LuminosityBlock& lb) override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     //Not called by the framework, only used internally
     void endRun(edm::Run& r);
     void endLuminosityBlock(edm::LuminosityBlock& lb);
-    
+
     ThingAlgorithm alg_;
   };
-}
+}  // namespace edmtest
 #endif

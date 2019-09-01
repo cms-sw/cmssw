@@ -2,11 +2,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoParticleFlow/PFProducer/plugins/PFPhotonTranslator.h"
-
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
@@ -15,64 +12,157 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-//#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-
-//#include "Geometry/Records/interface/CaloGeometryRecord.h"
-//#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-//#include "Geometry/CaloTopology/interface/CaloTopology.h"
-//#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-//#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-//#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-//#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-//#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-//#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-//#include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
-//#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-//#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
-//#include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
-//#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
-
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/Common/interface/AssociationVector.h"
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 
-#include <Math/VectorUtil.h>
-#include <vector>
-#include "TLorentzVector.h"
-#include "TMath.h"
+class CaloGeometry;
+class CaloTopology;
+class DetId;
+namespace edm {
+  class EventSetup;
+}  // namespace edm
+
+class PFPhotonTranslator : public edm::stream::EDProducer<> {
+public:
+  explicit PFPhotonTranslator(const edm::ParameterSet &);
+  ~PFPhotonTranslator() override;
+
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+  typedef std::vector<edm::Handle<edm::ValueMap<double> > > IsolationValueMaps;
+
+private:
+  // to retrieve the collection from the event
+  bool fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection> &c,
+                                const edm::InputTag &tag,
+                                const edm::Event &iEvent) const;
+
+  // makes a basic cluster from PFBlockElement and add it to the collection ; the corrected energy is taken
+  // from the PFCandidate
+  void createBasicCluster(const reco::PFBlockElement &,
+                          reco::BasicClusterCollection &basicClusters,
+                          std::vector<const reco::PFCluster *> &,
+                          const reco::PFCandidate &coCandidate) const;
+  // makes a preshower cluster from of PFBlockElement and add it to the collection
+  void createPreshowerCluster(const reco::PFBlockElement &PFBE,
+                              reco::PreshowerClusterCollection &preshowerClusters,
+                              unsigned plane) const;
+
+  // create the basic cluster Ptr
+  void createBasicClusterPtrs(const edm::OrphanHandle<reco::BasicClusterCollection> &basicClustersHandle);
+
+  // create the preshower cluster Refs
+  void createPreshowerClusterPtrs(const edm::OrphanHandle<reco::PreshowerClusterCollection> &preshowerClustersHandle);
+
+  // make a super cluster from its ingredients and add it to the collection
+  void createSuperClusters(const reco::PFCandidateCollection &, reco::SuperClusterCollection &superClusters) const;
+
+  void createOneLegConversions(const edm::OrphanHandle<reco::SuperClusterCollection> &superClustersHandle,
+                               reco::ConversionCollection &oneLegConversions);
+
+  //create photon cores
+  void createPhotonCores(const edm::OrphanHandle<reco::SuperClusterCollection> &superClustersHandle,
+                         const edm::OrphanHandle<reco::ConversionCollection> &oneLegConversionHandle,
+                         reco::PhotonCoreCollection &photonCores);
+
+  void createPhotons(reco::VertexCollection &vertexCollection,
+                     edm::Handle<reco::PhotonCollection> &egPhotons,
+                     const edm::OrphanHandle<reco::PhotonCoreCollection> &photonCoresHandle,
+                     const IsolationValueMaps &isolationValues,
+                     reco::PhotonCollection &photons);
+
+  const reco::PFCandidate &correspondingDaughterCandidate(const reco::PFCandidate &cand,
+                                                          const reco::PFBlockElement &pfbe) const;
+
+  edm::InputTag inputTagPFCandidates_;
+  std::vector<edm::InputTag> inputTagIsoVals_;
+  std::string PFBasicClusterCollection_;
+  std::string PFPreshowerClusterCollection_;
+  std::string PFSuperClusterCollection_;
+  std::string PFPhotonCoreCollection_;
+  std::string PFPhotonCollection_;
+  std::string PFConversionCollection_;
+  std::string EGPhotonCollection_;
+  std::string vertexProducer_;
+  edm::InputTag barrelEcalHits_;
+  edm::InputTag endcapEcalHits_;
+  edm::InputTag hcalTowers_;
+  double hOverEConeSize_;
+
+  // the collection of basic clusters associated to a photon
+  std::vector<reco::BasicClusterCollection> basicClusters_;
+  // the correcsponding PFCluster ref
+  std::vector<std::vector<const reco::PFCluster *> > pfClusters_;
+  // the collection of preshower clusters associated to a photon
+  std::vector<reco::PreshowerClusterCollection> preshowerClusters_;
+  // the super cluster collection (actually only one) associated to a photon
+  std::vector<reco::SuperClusterCollection> superClusters_;
+  // the references to the basic clusters associated to a photon
+  std::vector<reco::CaloClusterPtrVector> basicClusterPtr_;
+  // the references to the basic clusters associated to a photon
+  std::vector<reco::CaloClusterPtrVector> preshowerClusterPtr_;
+  // keep track of the index of the PF Candidate
+  std::vector<int> photPFCandidateIndex_;
+  // the list of candidatePtr
+  std::vector<reco::CandidatePtr> CandidatePtr_;
+  // the e/g SC associated
+  std::vector<reco::SuperClusterRef> egSCRef_;
+  // the e/g photon associated
+  std::vector<reco::PhotonRef> egPhotonRef_;
+  // the PF MVA and regression
+  std::vector<float> pfPhotonMva_;
+  std::vector<float> energyRegression_;
+  std::vector<float> energyRegressionError_;
+
+  //Vector of vector of Conversions Refs
+  std::vector<reco::ConversionRefVector> pfConv_;
+  std::vector<std::vector<reco::TrackRef> > pfSingleLegConv_;
+  std::vector<std::vector<float> > pfSingleLegConvMva_;
+
+  std::vector<int> conv1legPFCandidateIndex_;
+  std::vector<int> conv2legPFCandidateIndex_;
+
+  edm::ESHandle<CaloTopology> theCaloTopo_;
+  edm::ESHandle<CaloGeometry> theCaloGeom_;
+
+  bool emptyIsOk_;
+};
+
+DEFINE_FWK_MODULE(PFPhotonTranslator);
 
 using namespace edm;
 using namespace std;
 using namespace reco;
 
-using namespace ROOT::Math::VectorUtil;
 typedef math::XYZTLorentzVector LorentzVector;
 typedef math::XYZPoint Point;
 typedef math::XYZVector Vector;
 
-
-PFPhotonTranslator::PFPhotonTranslator(const edm::ParameterSet & iConfig) {
-
+PFPhotonTranslator::PFPhotonTranslator(const edm::ParameterSet &iConfig) {
   //std::cout << "PFPhotonTranslator" << std::endl;
 
-  inputTagPFCandidates_ 
-    = iConfig.getParameter<edm::InputTag>("PFCandidate");
-  
-  edm::ParameterSet isoVals  = iConfig.getParameter<edm::ParameterSet> ("isolationValues");
+  inputTagPFCandidates_ = iConfig.getParameter<edm::InputTag>("PFCandidate");
+
+  edm::ParameterSet isoVals = iConfig.getParameter<edm::ParameterSet>("isolationValues");
   inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfChargedHadrons"));
   inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfPhotons"));
   inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfNeutralHadrons"));
-  
 
   PFBasicClusterCollection_ = iConfig.getParameter<std::string>("PFBasicClusters");
   PFPreshowerClusterCollection_ = iConfig.getParameter<std::string>("PFPreshowerClusters");
@@ -83,30 +173,30 @@ PFPhotonTranslator::PFPhotonTranslator(const edm::ParameterSet & iConfig) {
 
   EGPhotonCollection_ = iConfig.getParameter<std::string>("EGPhotons");
 
-  vertexProducer_   = iConfig.getParameter<std::string>("primaryVertexProducer");
+  vertexProducer_ = iConfig.getParameter<std::string>("primaryVertexProducer");
 
-  barrelEcalHits_   = iConfig.getParameter<edm::InputTag>("barrelEcalHits");
-  endcapEcalHits_   = iConfig.getParameter<edm::InputTag>("endcapEcalHits");
+  barrelEcalHits_ = iConfig.getParameter<edm::InputTag>("barrelEcalHits");
+  endcapEcalHits_ = iConfig.getParameter<edm::InputTag>("endcapEcalHits");
 
   hcalTowers_ = iConfig.getParameter<edm::InputTag>("hcalTowers");
-  hOverEConeSize_   = iConfig.getParameter<double>("hOverEConeSize");
+  hOverEConeSize_ = iConfig.getParameter<double>("hOverEConeSize");
 
-  if (iConfig.exists("emptyIsOk")) emptyIsOk_ = iConfig.getParameter<bool>("emptyIsOk");
-  else emptyIsOk_=false;
+  if (iConfig.exists("emptyIsOk"))
+    emptyIsOk_ = iConfig.getParameter<bool>("emptyIsOk");
+  else
+    emptyIsOk_ = false;
 
-  produces<reco::BasicClusterCollection>(PFBasicClusterCollection_); 
-  produces<reco::PreshowerClusterCollection>(PFPreshowerClusterCollection_); 
-  produces<reco::SuperClusterCollection>(PFSuperClusterCollection_); 
+  produces<reco::BasicClusterCollection>(PFBasicClusterCollection_);
+  produces<reco::PreshowerClusterCollection>(PFPreshowerClusterCollection_);
+  produces<reco::SuperClusterCollection>(PFSuperClusterCollection_);
   produces<reco::PhotonCoreCollection>(PFPhotonCoreCollection_);
-  produces<reco::PhotonCollection>(PFPhotonCollection_); 
+  produces<reco::PhotonCollection>(PFPhotonCollection_);
   produces<reco::ConversionCollection>(PFConversionCollection_);
 }
 
 PFPhotonTranslator::~PFPhotonTranslator() {}
 
-void PFPhotonTranslator::produce(edm::Event& iEvent,  
-				    const edm::EventSetup& iSetup) { 
-
+void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //cout << "NEW EVENT"<<endl;
 
   auto basicClusters_p = std::make_unique<reco::BasicClusterCollection>();
@@ -127,24 +217,18 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   outputPhotonCoreCollection.clear();
   outputPhotonCollection.clear();
 
-
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
-  bool status=fetchCandidateCollection(pfCandidates, 
-				       inputTagPFCandidates_, 
-				       iEvent );
+  bool status = fetchCandidateCollection(pfCandidates, inputTagPFCandidates_, iEvent);
 
   edm::Handle<reco::PhotonCollection> egPhotons;
   iEvent.getByLabel(EGPhotonCollection_, egPhotons);
-  
 
   Handle<reco::VertexCollection> vertexHandle;
 
-  
   IsolationValueMaps isolationValues(inputTagIsoVals_.size());
-  for (size_t j = 0; j<inputTagIsoVals_.size(); ++j) {
+  for (size_t j = 0; j < inputTagIsoVals_.size(); ++j) {
     iEvent.getByLabel(inputTagIsoVals_[j], isolationValues[j]);
   }
-  
 
   // clear the vectors
   photPFCandidateIndex_.clear();
@@ -166,69 +250,64 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   conv1legPFCandidateIndex_.clear();
   conv2legPFCandidateIndex_.clear();
 
-  // loop on the candidates 
+  // loop on the candidates
   //CC@@
-  // we need first to create AND put the SuperCluster, 
-  // basic clusters and presh clusters collection 
+  // we need first to create AND put the SuperCluster,
+  // basic clusters and presh clusters collection
   // in order to get a working Handle
-  unsigned ncand=(status)?pfCandidates->size():0;
+  unsigned ncand = (status) ? pfCandidates->size() : 0;
 
-  unsigned iphot=0;
-  unsigned iconv1leg=0;
-  unsigned iconv2leg=0;
+  unsigned iphot = 0;
+  unsigned iconv1leg = 0;
+  unsigned iconv2leg = 0;
 
-  for( unsigned i=0; i<ncand; ++i ) {
-
-    const reco::PFCandidate& cand = (*pfCandidates)[i];    
-    if(cand.particleId()!=reco::PFCandidate::gamma) continue;
+  for (unsigned i = 0; i < ncand; ++i) {
+    const reco::PFCandidate &cand = (*pfCandidates)[i];
+    if (cand.particleId() != reco::PFCandidate::gamma)
+      continue;
     //cout << "cand.mva_nothing_gamma()="<<cand. mva_nothing_gamma()<<endl;
-    if(cand. mva_nothing_gamma()>0.001)//Found PFPhoton with PFPhoton Extras saved
-      {
+    if (cand.mva_nothing_gamma() > 0.001)  //Found PFPhoton with PFPhoton Extras saved
+    {
+      //cout << "NEW PHOTON" << endl;
 
-	//cout << "NEW PHOTON" << endl;
+      //std::cout << "nDoubleLegConv="<<cand.photonExtraRef()->conversionRef().size()<<std::endl;
 
-	//std::cout << "nDoubleLegConv="<<cand.photonExtraRef()->conversionRef().size()<<std::endl;
+      if (!cand.photonExtraRef()->conversionRef().empty()) {
+        pfConv_.push_back(reco::ConversionRefVector());
 
-	if (!cand.photonExtraRef()->conversionRef().empty()){
+        const reco::ConversionRefVector &doubleLegConvColl = cand.photonExtraRef()->conversionRef();
+        for (unsigned int iconv = 0; iconv < doubleLegConvColl.size(); iconv++) {
+          pfConv_[iconv2leg].push_back(doubleLegConvColl[iconv]);
+        }
 
-	  pfConv_.push_back(reco::ConversionRefVector());
+        conv2legPFCandidateIndex_.push_back(iconv2leg);
+        iconv2leg++;
+      } else
+        conv2legPFCandidateIndex_.push_back(-1);
 
-	  const reco::ConversionRefVector & doubleLegConvColl = cand.photonExtraRef()->conversionRef();
-	  for (unsigned int iconv=0; iconv<doubleLegConvColl.size(); iconv++){
-	    pfConv_[iconv2leg].push_back(doubleLegConvColl[iconv]);
-	  }
+      const std::vector<reco::TrackRef> &singleLegConvColl = cand.photonExtraRef()->singleLegConvTrackRef();
+      const std::vector<float> &singleLegConvCollMva = cand.photonExtraRef()->singleLegConvMva();
 
-	  conv2legPFCandidateIndex_.push_back(iconv2leg);
-	  iconv2leg++;
-	}
-	else conv2legPFCandidateIndex_.push_back(-1);
+      //std::cout << "nSingleLegConv=" <<singleLegConvColl.size() << std::endl;
 
-	const std::vector<reco::TrackRef> & singleLegConvColl = cand.photonExtraRef()->singleLegConvTrackRef();
-	const std::vector<float>& singleLegConvCollMva = cand.photonExtraRef()->singleLegConvMva();
-	
-	//std::cout << "nSingleLegConv=" <<singleLegConvColl.size() << std::endl;
+      if (!singleLegConvColl.empty()) {
+        pfSingleLegConv_.push_back(std::vector<reco::TrackRef>());
+        pfSingleLegConvMva_.push_back(std::vector<float>());
 
-	if (!singleLegConvColl.empty()){
+        //cout << "nTracks="<< singleLegConvColl.size()<<endl;
+        for (unsigned int itk = 0; itk < singleLegConvColl.size(); itk++) {
+          //cout << "Track pt="<< singleLegConvColl[itk]->pt() <<endl;
 
-	  pfSingleLegConv_.push_back(std::vector<reco::TrackRef>());
-	  pfSingleLegConvMva_.push_back(std::vector<float>());
+          pfSingleLegConv_[iconv1leg].push_back(singleLegConvColl[itk]);
+          pfSingleLegConvMva_[iconv1leg].push_back(singleLegConvCollMva[itk]);
+        }
 
-          //cout << "nTracks="<< singleLegConvColl.size()<<endl;
-          for (unsigned int itk=0; itk<singleLegConvColl.size(); itk++){
-            //cout << "Track pt="<< singleLegConvColl[itk]->pt() <<endl;
+        conv1legPFCandidateIndex_.push_back(iconv1leg);
 
-            pfSingleLegConv_[iconv1leg].push_back(singleLegConvColl[itk]);
-            pfSingleLegConvMva_[iconv1leg].push_back(singleLegConvCollMva[itk]);
-          }
-
-
-	  conv1legPFCandidateIndex_.push_back(iconv1leg);
-	
-	  iconv1leg++;
-	}
-	else conv1legPFCandidateIndex_.push_back(-1);
-	
-      }
+        iconv1leg++;
+      } else
+        conv1legPFCandidateIndex_.push_back(-1);
+    }
 
     photPFCandidateIndex_.push_back(i);
     pfPhotonMva_.push_back(cand.mva_nothing_gamma());
@@ -239,93 +318,88 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
     preshowerClusters_.push_back(reco::PreshowerClusterCollection());
     superClusters_.push_back(reco::SuperClusterCollection());
 
-    reco::PFCandidatePtr ptrToPFPhoton(pfCandidates,i);
-    CandidatePtr_.push_back(ptrToPFPhoton);  
+    reco::PFCandidatePtr ptrToPFPhoton(pfCandidates, i);
+    CandidatePtr_.push_back(ptrToPFPhoton);
     egSCRef_.push_back(cand.superClusterRef());
     //std::cout << "PFPhoton cand " << iphot << std::endl;
 
-    int iegphot=0;
-    for (reco::PhotonCollection::const_iterator gamIter = egPhotons->begin(); gamIter != egPhotons->end(); ++gamIter){
-      if (cand.superClusterRef()==gamIter->superCluster()){
-	reco::PhotonRef PhotRef(reco::PhotonRef(egPhotons, iegphot));
-	egPhotonRef_.push_back(PhotRef);
+    int iegphot = 0;
+    for (reco::PhotonCollection::const_iterator gamIter = egPhotons->begin(); gamIter != egPhotons->end(); ++gamIter) {
+      if (cand.superClusterRef() == gamIter->superCluster()) {
+        reco::PhotonRef PhotRef(reco::PhotonRef(egPhotons, iegphot));
+        egPhotonRef_.push_back(PhotRef);
       }
       iegphot++;
     }
 
-
     //std::cout << "Cand elements in blocks : " << cand.elementsInBlocks().size() << std::endl;
 
-    for(unsigned iele=0; iele<cand.elementsInBlocks().size(); ++iele) {
-      // first get the block 
+    for (unsigned iele = 0; iele < cand.elementsInBlocks().size(); ++iele) {
+      // first get the block
       reco::PFBlockRef blockRef = cand.elementsInBlocks()[iele].first;
       //
       unsigned elementIndex = cand.elementsInBlocks()[iele].second;
-      // check it actually exists 
-      if(blockRef.isNull()) continue;
-      
+      // check it actually exists
+      if (blockRef.isNull())
+        continue;
+
       // then get the elements of the block
-      const edm::OwnVector< reco::PFBlockElement >&  elements = (*blockRef).elements();
-      
-      const reco::PFBlockElement & pfbe (elements[elementIndex]); 
+      const edm::OwnVector<reco::PFBlockElement> &elements = (*blockRef).elements();
+
+      const reco::PFBlockElement &pfbe(elements[elementIndex]);
       // The first ECAL element should be the cluster associated to the GSF; defined as the seed
-      if(pfbe.type()==reco::PFBlockElement::ECAL)
-	{	  
+      if (pfbe.type() == reco::PFBlockElement::ECAL) {
+        //std::cout << "BlockElement ECAL" << std::endl;
+        // the Brem photons are saved as daughter PFCandidate; this
+        // is convenient to access the corrected energy
+        //	  std::cout << " Found candidate "  << correspondingDaughterCandidate(coCandidate,pfbe) << " " << coCandidate << std::endl;
+        createBasicCluster(pfbe, basicClusters_[iphot], pfClusters_[iphot], correspondingDaughterCandidate(cand, pfbe));
+      }
+      if (pfbe.type() == reco::PFBlockElement::PS1) {
+        //std::cout << "BlockElement PS1" << std::endl;
+        createPreshowerCluster(pfbe, preshowerClusters_[iphot], 1);
+      }
+      if (pfbe.type() == reco::PFBlockElement::PS2) {
+        //std::cout << "BlockElement PS2" << std::endl;
+        createPreshowerCluster(pfbe, preshowerClusters_[iphot], 2);
+      }
 
-	  //std::cout << "BlockElement ECAL" << std::endl;
-	  // the Brem photons are saved as daughter PFCandidate; this 
-	  // is convenient to access the corrected energy
-	  //	  std::cout << " Found candidate "  << correspondingDaughterCandidate(coCandidate,pfbe) << " " << coCandidate << std::endl;
-	  createBasicCluster(pfbe,basicClusters_[iphot],pfClusters_[iphot],correspondingDaughterCandidate(cand,pfbe));
-	}
-      if(pfbe.type()==reco::PFBlockElement::PS1)
-	{
-	  //std::cout << "BlockElement PS1" << std::endl;
-	  createPreshowerCluster(pfbe,preshowerClusters_[iphot],1);
-	}
-      if(pfbe.type()==reco::PFBlockElement::PS2)
-	{
-	  //std::cout << "BlockElement PS2" << std::endl;
-	  createPreshowerCluster(pfbe,preshowerClusters_[iphot],2);
-	}    
+    }  // loop on the elements
 
-
-    }   // loop on the elements
-
-        // save the basic clusters
-    basicClusters_p->insert(basicClusters_p->end(),basicClusters_[iphot].begin(), basicClusters_[iphot].end());
+    // save the basic clusters
+    basicClusters_p->insert(basicClusters_p->end(), basicClusters_[iphot].begin(), basicClusters_[iphot].end());
     // save the preshower clusters
-    psClusters_p->insert(psClusters_p->end(),preshowerClusters_[iphot].begin(),preshowerClusters_[iphot].end());
+    psClusters_p->insert(psClusters_p->end(), preshowerClusters_[iphot].begin(), preshowerClusters_[iphot].end());
 
     ++iphot;
 
-  } // loop on PFCandidates
+  }  // loop on PFCandidates
 
-
-   //Save the basic clusters and get an handle as to be able to create valid Refs (thanks to Claude)
+  //Save the basic clusters and get an handle as to be able to create valid Refs (thanks to Claude)
   //  std::cout << " Number of basic clusters " << basicClusters_p->size() << std::endl;
-  const edm::OrphanHandle<reco::BasicClusterCollection> bcRefProd = 
-    iEvent.put(std::move(basicClusters_p),PFBasicClusterCollection_);
+  const edm::OrphanHandle<reco::BasicClusterCollection> bcRefProd =
+      iEvent.put(std::move(basicClusters_p), PFBasicClusterCollection_);
 
   //preshower clusters
-  const edm::OrphanHandle<reco::PreshowerClusterCollection> psRefProd = 
-    iEvent.put(std::move(psClusters_p),PFPreshowerClusterCollection_);
-  
+  const edm::OrphanHandle<reco::PreshowerClusterCollection> psRefProd =
+      iEvent.put(std::move(psClusters_p), PFPreshowerClusterCollection_);
+
   // now that the Basic clusters are in the event, the Ref can be created
   createBasicClusterPtrs(bcRefProd);
   // now that the preshower clusters are in the event, the Ref can be created
   createPreshowerClusterPtrs(psRefProd);
 
-  // and now the Super cluster can be created with valid references  
+  // and now the Super cluster can be created with valid references
   //if(status) createSuperClusters(*pfCandidates,*superClusters_p);
-  if(status) createSuperClusters(*pfCandidates,outputSuperClusterCollection);
-  
+  if (status)
+    createSuperClusters(*pfCandidates, outputSuperClusterCollection);
+
   //std::cout << "nb superclusters in collection : "<<outputSuperClusterCollection.size()<<std::endl;
 
   // Let's put the super clusters in the event
-  auto superClusters_p = std::make_unique<reco::SuperClusterCollection>(outputSuperClusterCollection);  
-  const edm::OrphanHandle<reco::SuperClusterCollection> scRefProd = iEvent.put(std::move(superClusters_p),PFSuperClusterCollection_); 
-
+  auto superClusters_p = std::make_unique<reco::SuperClusterCollection>(outputSuperClusterCollection);
+  const edm::OrphanHandle<reco::SuperClusterCollection> scRefProd =
+      iEvent.put(std::move(superClusters_p), PFSuperClusterCollection_);
 
   /*
   int ipho=0;
@@ -335,15 +409,14 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   }
   */
 
-
   //1-leg conversions
 
+  if (status)
+    createOneLegConversions(scRefProd, outputOneLegConversionCollection);
 
-  if (status) createOneLegConversions(scRefProd, outputOneLegConversionCollection);
-
-
-  auto SingleLeg_p = std::make_unique<reco::ConversionCollection>(outputOneLegConversionCollection);  
-  const edm::OrphanHandle<reco::ConversionCollection> ConvRefProd = iEvent.put(std::move(SingleLeg_p),PFConversionCollection_);
+  auto SingleLeg_p = std::make_unique<reco::ConversionCollection>(outputOneLegConversionCollection);
+  const edm::OrphanHandle<reco::ConversionCollection> ConvRefProd =
+      iEvent.put(std::move(SingleLeg_p), PFConversionCollection_);
   /*
   int iconv = 0;
   for (reco::ConversionCollection::const_iterator convIter = ConvRefProd->begin(); convIter != ConvRefProd->end(); ++convIter){
@@ -360,15 +433,17 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 
   //create photon cores
   //if(status) createPhotonCores(pfCandidates, scRefProd, *photonCores_p);
-  if(status) createPhotonCores(scRefProd, ConvRefProd, outputPhotonCoreCollection);
-  
+  if (status)
+    createPhotonCores(scRefProd, ConvRefProd, outputPhotonCoreCollection);
+
   //std::cout << "nb photoncores in collection : "<<outputPhotonCoreCollection.size()<<std::endl;
 
   // Put the photon cores in the event
-  auto photonCores_p = std::make_unique<reco::PhotonCoreCollection>(outputPhotonCoreCollection);  
+  auto photonCores_p = std::make_unique<reco::PhotonCoreCollection>(outputPhotonCoreCollection);
   //std::cout << "photon core collection put in unique_ptr"<<std::endl;
-  const edm::OrphanHandle<reco::PhotonCoreCollection> pcRefProd = iEvent.put(std::move(photonCores_p),PFPhotonCoreCollection_); 
-  
+  const edm::OrphanHandle<reco::PhotonCoreCollection> pcRefProd =
+      iEvent.put(std::move(photonCores_p), PFPhotonCoreCollection_);
+
   //std::cout << "photon core have been put in the event"<<std::endl;
   /*
   int ipho=0;
@@ -400,13 +475,15 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 
   //load vertices
   reco::VertexCollection vertexCollection;
-  bool validVertex=true;
+  bool validVertex = true;
   iEvent.getByLabel(vertexProducer_, vertexHandle);
   if (!vertexHandle.isValid()) {
-    edm::LogWarning("PhotonProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
-    validVertex=false;
+    edm::LogWarning("PhotonProducer") << "Error! Can't get the product primary Vertex Collection "
+                                      << "\n";
+    validVertex = false;
   }
-  if (validVertex) vertexCollection = *(vertexHandle.product());
+  if (validVertex)
+    vertexCollection = *(vertexHandle.product());
 
   /*
   //load Ecal rechits
@@ -443,14 +520,15 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 
   //create photon collection
   //if(status) createPhotons(vertexCollection, pcRefProd, topology, &barrelRecHits, &endcapRecHits, hcalTowersHandle, isolationValues, outputPhotonCollection);
-  if(status) createPhotons(vertexCollection, egPhotons, pcRefProd, isolationValues, outputPhotonCollection);
+  if (status)
+    createPhotons(vertexCollection, egPhotons, pcRefProd, isolationValues, outputPhotonCollection);
 
   // Put the photons in the event
-  auto photons_p = std::make_unique<reco::PhotonCollection>(outputPhotonCollection);  
+  auto photons_p = std::make_unique<reco::PhotonCollection>(outputPhotonCollection);
   //std::cout << "photon collection put in unique_ptr"<<std::endl;
-  const edm::OrphanHandle<reco::PhotonCollection> photonRefProd = iEvent.put(std::move(photons_p),PFPhotonCollection_); 
+  const edm::OrphanHandle<reco::PhotonCollection> photonRefProd = iEvent.put(std::move(photons_p), PFPhotonCollection_);
   //std::cout << "photons have been put in the event"<<std::endl;
-  
+
   /*
   ipho=0;
   for (reco::PhotonCollection::const_iterator gamIter = photonRefProd->begin(); gamIter != photonRefProd->end(); ++gamIter){
@@ -498,275 +576,245 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
     ipho++;
   }
   */
-  
 }
 
-bool PFPhotonTranslator::fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection>& c, 
-					      const edm::InputTag& tag, 
-					      const edm::Event& iEvent) const {  
+bool PFPhotonTranslator::fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection> &c,
+                                                  const edm::InputTag &tag,
+                                                  const edm::Event &iEvent) const {
   bool found = iEvent.getByLabel(tag, c);
 
-  if(!found && !emptyIsOk_)
-    {
-      std::ostringstream  err;
-      err<<" cannot get PFCandidates: "
-	 <<tag<<std::endl;
-      edm::LogError("PFPhotonTranslator")<<err.str();
-    }
+  if (!found && !emptyIsOk_) {
+    std::ostringstream err;
+    err << " cannot get PFCandidates: " << tag << std::endl;
+    edm::LogError("PFPhotonTranslator") << err.str();
+  }
   return found;
-      
 }
 
-// The basic cluster is a copy of the PFCluster -> the energy is not corrected 
+// The basic cluster is a copy of the PFCluster -> the energy is not corrected
 // It should be possible to get the corrected energy (including the associated PS energy)
-// from the PFCandidate daugthers ; Needs some work 
-void PFPhotonTranslator::createBasicCluster(const reco::PFBlockElement & PFBE, 
-					      reco::BasicClusterCollection & basicClusters, 
-					      std::vector<const reco::PFCluster *> & pfClusters,
-					      const reco::PFCandidate & coCandidate) const
-{
-  const reco::PFClusterRef& myPFClusterRef = PFBE.clusterRef();
-  if(myPFClusterRef.isNull()) return;  
+// from the PFCandidate daugthers ; Needs some work
+void PFPhotonTranslator::createBasicCluster(const reco::PFBlockElement &PFBE,
+                                            reco::BasicClusterCollection &basicClusters,
+                                            std::vector<const reco::PFCluster *> &pfClusters,
+                                            const reco::PFCandidate &coCandidate) const {
+  const reco::PFClusterRef &myPFClusterRef = PFBE.clusterRef();
+  if (myPFClusterRef.isNull())
+    return;
 
-  const reco::PFCluster & myPFCluster (*myPFClusterRef);
+  const reco::PFCluster &myPFCluster(*myPFClusterRef);
   pfClusters.push_back(&myPFCluster);
   //std::cout << " Creating BC " << myPFCluster.energy() << " " << coCandidate.ecalEnergy() <<" "<<  coCandidate.rawEcalEnergy() <<std::endl;
   //std::cout << " # hits " << myPFCluster.hitsAndFractions().size() << std::endl;
 
-//  basicClusters.push_back(reco::CaloCluster(myPFCluster.energy(),
-  basicClusters.push_back(reco::CaloCluster(//coCandidate.rawEcalEnergy(),
-					    myPFCluster.energy(),
-					    myPFCluster.position(),
-					    myPFCluster.caloID(),
-					    myPFCluster.hitsAndFractions(),
-					    myPFCluster.algo(),
-					    myPFCluster.seed()));
+  //  basicClusters.push_back(reco::CaloCluster(myPFCluster.energy(),
+  basicClusters.push_back(reco::CaloCluster(  //coCandidate.rawEcalEnergy(),
+      myPFCluster.energy(),
+      myPFCluster.position(),
+      myPFCluster.caloID(),
+      myPFCluster.hitsAndFractions(),
+      myPFCluster.algo(),
+      myPFCluster.seed()));
 }
 
-void PFPhotonTranslator::createPreshowerCluster(const reco::PFBlockElement & PFBE, reco::PreshowerClusterCollection& preshowerClusters,unsigned plane) const
-{
-  const reco::PFClusterRef&  myPFClusterRef= PFBE.clusterRef();
-  preshowerClusters.push_back(reco::PreshowerCluster(myPFClusterRef->energy(),myPFClusterRef->position(),
-					       myPFClusterRef->hitsAndFractions(),plane));
+void PFPhotonTranslator::createPreshowerCluster(const reco::PFBlockElement &PFBE,
+                                                reco::PreshowerClusterCollection &preshowerClusters,
+                                                unsigned plane) const {
+  const reco::PFClusterRef &myPFClusterRef = PFBE.clusterRef();
+  preshowerClusters.push_back(reco::PreshowerCluster(
+      myPFClusterRef->energy(), myPFClusterRef->position(), myPFClusterRef->hitsAndFractions(), plane));
 }
 
-void PFPhotonTranslator::createBasicClusterPtrs(const edm::OrphanHandle<reco::BasicClusterCollection> & basicClustersHandle )
-{
-  unsigned size=photPFCandidateIndex_.size();
-  unsigned basicClusterCounter=0;
+void PFPhotonTranslator::createBasicClusterPtrs(
+    const edm::OrphanHandle<reco::BasicClusterCollection> &basicClustersHandle) {
+  unsigned size = photPFCandidateIndex_.size();
+  unsigned basicClusterCounter = 0;
   basicClusterPtr_.resize(size);
 
-  for(unsigned iphot=0;iphot<size;++iphot) // loop on tracks
+  for (unsigned iphot = 0; iphot < size; ++iphot)  // loop on tracks
+  {
+    unsigned nbc = basicClusters_[iphot].size();
+    for (unsigned ibc = 0; ibc < nbc; ++ibc)  // loop on basic clusters
     {
-      unsigned nbc=basicClusters_[iphot].size();
-      for(unsigned ibc=0;ibc<nbc;++ibc) // loop on basic clusters
-	{
-	  //	  std::cout <<  "Track "<< iGSF << " ref " << basicClusterCounter << std::endl;
-	  reco::CaloClusterPtr bcPtr(basicClustersHandle,basicClusterCounter);
-	  basicClusterPtr_[iphot].push_back(bcPtr);
-	  ++basicClusterCounter;
-	}
+      //	  std::cout <<  "Track "<< iGSF << " ref " << basicClusterCounter << std::endl;
+      reco::CaloClusterPtr bcPtr(basicClustersHandle, basicClusterCounter);
+      basicClusterPtr_[iphot].push_back(bcPtr);
+      ++basicClusterCounter;
     }
+  }
 }
 
-void PFPhotonTranslator::createPreshowerClusterPtrs(const edm::OrphanHandle<reco::PreshowerClusterCollection> & preshowerClustersHandle )
-{
-  unsigned size=photPFCandidateIndex_.size();
-  unsigned psClusterCounter=0;
+void PFPhotonTranslator::createPreshowerClusterPtrs(
+    const edm::OrphanHandle<reco::PreshowerClusterCollection> &preshowerClustersHandle) {
+  unsigned size = photPFCandidateIndex_.size();
+  unsigned psClusterCounter = 0;
   preshowerClusterPtr_.resize(size);
 
-  for(unsigned iphot=0;iphot<size;++iphot) // loop on tracks
+  for (unsigned iphot = 0; iphot < size; ++iphot)  // loop on tracks
+  {
+    unsigned nbc = preshowerClusters_[iphot].size();
+    for (unsigned ibc = 0; ibc < nbc; ++ibc)  // loop on basic clusters
     {
-      unsigned nbc=preshowerClusters_[iphot].size();
-      for(unsigned ibc=0;ibc<nbc;++ibc) // loop on basic clusters
-	{
-	  //	  std::cout <<  "Track "<< iGSF << " ref " << basicClusterCounter << std::endl;
-	  reco::CaloClusterPtr psPtr(preshowerClustersHandle,psClusterCounter);
-	  preshowerClusterPtr_[iphot].push_back(psPtr);
-	  ++psClusterCounter;
-	}
+      //	  std::cout <<  "Track "<< iGSF << " ref " << basicClusterCounter << std::endl;
+      reco::CaloClusterPtr psPtr(preshowerClustersHandle, psClusterCounter);
+      preshowerClusterPtr_[iphot].push_back(psPtr);
+      ++psClusterCounter;
     }
+  }
 }
 
-void PFPhotonTranslator::createSuperClusters(const reco::PFCandidateCollection & pfCand,
-					       reco::SuperClusterCollection &superClusters) const
-{
-  unsigned nphot=photPFCandidateIndex_.size();
-  for(unsigned iphot=0;iphot<nphot;++iphot)
-    {
+void PFPhotonTranslator::createSuperClusters(const reco::PFCandidateCollection &pfCand,
+                                             reco::SuperClusterCollection &superClusters) const {
+  unsigned nphot = photPFCandidateIndex_.size();
+  for (unsigned iphot = 0; iphot < nphot; ++iphot) {
+    //cout << "SC iphot=" << iphot << endl;
 
-      //cout << "SC iphot=" << iphot << endl;
+    // Computes energy position a la e/gamma
+    double sclusterE = 0;
+    double posX = 0.;
+    double posY = 0.;
+    double posZ = 0.;
 
-      // Computes energy position a la e/gamma 
-      double sclusterE=0;
-      double posX=0.;
-      double posY=0.;
-      double posZ=0.;
-      
-      unsigned nbasics=basicClusters_[iphot].size();
-      for(unsigned ibc=0;ibc<nbasics;++ibc)
-	{
-	  //cout << "BC in SC : iphot="<<iphot<<endl;
-	  
-	  double e = basicClusters_[iphot][ibc].energy();
-	  sclusterE += e;
-	  posX += e * basicClusters_[iphot][ibc].position().X();
-	  posY += e * basicClusters_[iphot][ibc].position().Y();
-	  posZ += e * basicClusters_[iphot][ibc].position().Z();	  
-	}
-      posX /=sclusterE;
-      posY /=sclusterE;
-      posZ /=sclusterE;
-      
-      /*
+    unsigned nbasics = basicClusters_[iphot].size();
+    for (unsigned ibc = 0; ibc < nbasics; ++ibc) {
+      //cout << "BC in SC : iphot="<<iphot<<endl;
+
+      double e = basicClusters_[iphot][ibc].energy();
+      sclusterE += e;
+      posX += e * basicClusters_[iphot][ibc].position().X();
+      posY += e * basicClusters_[iphot][ibc].position().Y();
+      posZ += e * basicClusters_[iphot][ibc].position().Z();
+    }
+    posX /= sclusterE;
+    posY /= sclusterE;
+    posZ /= sclusterE;
+
+    /*
       if(pfCand[gsfPFCandidateIndex_[iphot]].gsfTrackRef()!=GsfTrackRef_[iphot])
 	{
 	  edm::LogError("PFElectronTranslator") << " Major problem in PFElectron Translator" << std::endl;
 	}
-      */      
+      */
 
-      // compute the width
-      PFClusterWidthAlgo pfwidth(pfClusters_[iphot]);
-      
-      double correctedEnergy=pfCand[photPFCandidateIndex_[iphot]].ecalEnergy();
-      reco::SuperCluster mySuperCluster(correctedEnergy,math::XYZPoint(posX,posY,posZ));
-      // protection against empty basic cluster collection ; the value is -2 in this case
-      if(nbasics)
-	{
-//	  std::cout << "SuperCluster creation; energy " << pfCand[gsfPFCandidateIndex_[iphot]].ecalEnergy();
-//	  std::cout << " " <<   pfCand[gsfPFCandidateIndex_[iphot]].rawEcalEnergy() << std::endl;
-//	  std::cout << "Seed energy from basic " << basicClusters_[iphot][0].energy() << std::endl;
-	  mySuperCluster.setSeed(basicClusterPtr_[iphot][0]);
-	}
-      else
-	{
-	  //	  std::cout << "SuperCluster creation ; seed energy " << 0 << std::endl;
-	  //std::cout << "SuperCluster creation ; energy " << pfCand[photPFCandidateIndex_[iphot]].ecalEnergy();
-	  //std::cout << " " <<   pfCand[photPFCandidateIndex_[iphot]].rawEcalEnergy() << std::endl;
-//	  std::cout << " No seed found " << 0 << std::endl;	  
-//	  std::cout << " MVA " << pfCand[gsfPFCandidateIndex_[iphot]].mva_e_pi() << std::endl;
-	  mySuperCluster.setSeed(reco::CaloClusterPtr());
-	}
-      // the seed should be the first basic cluster
+    // compute the width
+    PFClusterWidthAlgo pfwidth(pfClusters_[iphot]);
 
-      for(unsigned ibc=0;ibc<nbasics;++ibc)
-	{
-	  mySuperCluster.addCluster(basicClusterPtr_[iphot][ibc]);
-	  //	  std::cout <<"Adding Ref to SC " << basicClusterPtr_[iphot][ibc].index() << std::endl;
-	  const std::vector< std::pair<DetId, float> > & v1 = basicClusters_[iphot][ibc].hitsAndFractions();
-	  //	  std::cout << " Number of cells " << v1.size() << std::endl;
-	  for( std::vector< std::pair<DetId, float> >::const_iterator diIt = v1.begin();
-	       diIt != v1.end();
-	       ++diIt ) {
-	    //	    std::cout << " Adding DetId " << (diIt->first).rawId() << " " << diIt->second << std::endl;
-	    mySuperCluster.addHitAndFraction(diIt->first,diIt->second);
-	  } // loop over rechits      
-	}      
-
-      unsigned nps=preshowerClusterPtr_[iphot].size();
-      for(unsigned ips=0;ips<nps;++ips)
-	{
-	  mySuperCluster.addPreshowerCluster(preshowerClusterPtr_[iphot][ips]);
-	}
-      
-
-      // Set the preshower energy
-      mySuperCluster.setPreshowerEnergy(pfCand[photPFCandidateIndex_[iphot]].pS1Energy()+
-					pfCand[photPFCandidateIndex_[iphot]].pS2Energy());
-
-      // Set the cluster width
-      mySuperCluster.setEtaWidth(pfwidth.pflowEtaWidth());
-      mySuperCluster.setPhiWidth(pfwidth.pflowPhiWidth());
-      // Force the computation of rawEnergy_ of the reco::SuperCluster
-      mySuperCluster.rawEnergy();
-
-      //cout << "SC energy="<< mySuperCluster.energy()<<endl;
-
-      superClusters.push_back(mySuperCluster);
-      //std::cout << "nb super clusters in collection : "<<superClusters.size()<<std::endl;
+    double correctedEnergy = pfCand[photPFCandidateIndex_[iphot]].ecalEnergy();
+    reco::SuperCluster mySuperCluster(correctedEnergy, math::XYZPoint(posX, posY, posZ));
+    // protection against empty basic cluster collection ; the value is -2 in this case
+    if (nbasics) {
+      //	  std::cout << "SuperCluster creation; energy " << pfCand[gsfPFCandidateIndex_[iphot]].ecalEnergy();
+      //	  std::cout << " " <<   pfCand[gsfPFCandidateIndex_[iphot]].rawEcalEnergy() << std::endl;
+      //	  std::cout << "Seed energy from basic " << basicClusters_[iphot][0].energy() << std::endl;
+      mySuperCluster.setSeed(basicClusterPtr_[iphot][0]);
+    } else {
+      //	  std::cout << "SuperCluster creation ; seed energy " << 0 << std::endl;
+      //std::cout << "SuperCluster creation ; energy " << pfCand[photPFCandidateIndex_[iphot]].ecalEnergy();
+      //std::cout << " " <<   pfCand[photPFCandidateIndex_[iphot]].rawEcalEnergy() << std::endl;
+      //	  std::cout << " No seed found " << 0 << std::endl;
+      //	  std::cout << " MVA " << pfCand[gsfPFCandidateIndex_[iphot]].mva_e_pi() << std::endl;
+      mySuperCluster.setSeed(reco::CaloClusterPtr());
     }
+    // the seed should be the first basic cluster
+
+    for (unsigned ibc = 0; ibc < nbasics; ++ibc) {
+      mySuperCluster.addCluster(basicClusterPtr_[iphot][ibc]);
+      //	  std::cout <<"Adding Ref to SC " << basicClusterPtr_[iphot][ibc].index() << std::endl;
+      const std::vector<std::pair<DetId, float> > &v1 = basicClusters_[iphot][ibc].hitsAndFractions();
+      //	  std::cout << " Number of cells " << v1.size() << std::endl;
+      for (std::vector<std::pair<DetId, float> >::const_iterator diIt = v1.begin(); diIt != v1.end(); ++diIt) {
+        //	    std::cout << " Adding DetId " << (diIt->first).rawId() << " " << diIt->second << std::endl;
+        mySuperCluster.addHitAndFraction(diIt->first, diIt->second);
+      }  // loop over rechits
+    }
+
+    unsigned nps = preshowerClusterPtr_[iphot].size();
+    for (unsigned ips = 0; ips < nps; ++ips) {
+      mySuperCluster.addPreshowerCluster(preshowerClusterPtr_[iphot][ips]);
+    }
+
+    // Set the preshower energy
+    mySuperCluster.setPreshowerEnergy(pfCand[photPFCandidateIndex_[iphot]].pS1Energy() +
+                                      pfCand[photPFCandidateIndex_[iphot]].pS2Energy());
+
+    // Set the cluster width
+    mySuperCluster.setEtaWidth(pfwidth.pflowEtaWidth());
+    mySuperCluster.setPhiWidth(pfwidth.pflowPhiWidth());
+    // Force the computation of rawEnergy_ of the reco::SuperCluster
+    mySuperCluster.rawEnergy();
+
+    //cout << "SC energy="<< mySuperCluster.energy()<<endl;
+
+    superClusters.push_back(mySuperCluster);
+    //std::cout << "nb super clusters in collection : "<<superClusters.size()<<std::endl;
+  }
 }
 
-void PFPhotonTranslator::createOneLegConversions(const edm::OrphanHandle<reco::SuperClusterCollection> & superClustersHandle, reco::ConversionCollection &oneLegConversions)
-{
-
+void PFPhotonTranslator::createOneLegConversions(
+    const edm::OrphanHandle<reco::SuperClusterCollection> &superClustersHandle,
+    reco::ConversionCollection &oneLegConversions) {
   //std::cout << "createOneLegConversions" << std::endl;
 
-    unsigned nphot=photPFCandidateIndex_.size();
-    for(unsigned iphot=0;iphot<nphot;++iphot)
-      {
+  unsigned nphot = photPFCandidateIndex_.size();
+  for (unsigned iphot = 0; iphot < nphot; ++iphot) {
+    //if (conv1legPFCandidateIndex_[iphot]==-1) cout << "No OneLegConversions to add"<<endl;
+    //else std::cout << "Phot "<<iphot<< " nOneLegConversions to add : "<<pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]].size()<<endl;
 
-	//if (conv1legPFCandidateIndex_[iphot]==-1) cout << "No OneLegConversions to add"<<endl;
-	//else std::cout << "Phot "<<iphot<< " nOneLegConversions to add : "<<pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]].size()<<endl;
+    if (conv1legPFCandidateIndex_[iphot] > -1) {
+      for (unsigned iConv = 0; iConv < pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]].size(); iConv++) {
+        reco::CaloClusterPtrVector scPtrVec;
+        std::vector<reco::CaloClusterPtr> matchingBC;
+        math::Error<3>::type error;
+        const reco::Vertex *convVtx =
+            new reco::Vertex(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->innerPosition(), error);
 
+        //cout << "Vtx x="<<convVtx->x() << " y="<< convVtx->y()<<" z="<<convVtx->z()<< endl;
+        //cout << "VtxError x=" << convVtx->xError() << endl;
 
-	if (conv1legPFCandidateIndex_[iphot]>-1){
+        std::vector<reco::TrackRef> OneLegConvVector;
+        OneLegConvVector.push_back(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]);
 
-	  for (unsigned iConv=0; iConv<pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]].size(); iConv++){
+        std::vector<reco::TrackRef> tr = OneLegConvVector;
+        std::vector<math::XYZPointF> trackPositionAtEcalVec;
+        std::vector<math::XYZPointF> innPointVec;
+        std::vector<math::XYZVectorF> trackPinVec;
+        std::vector<math::XYZVectorF> trackPoutVec;
+        math::XYZPointF trackPositionAtEcal(
+            pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->outerPosition().X(),
+            pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->outerPosition().Y(),
+            pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->outerPosition().Z());
+        math::XYZPointF innPoint(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->innerPosition().X(),
+                                 pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->innerPosition().Y(),
+                                 pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->innerPosition().Z());
+        math::XYZVectorF trackPin(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->innerMomentum().X(),
+                                  pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->innerMomentum().Y(),
+                                  pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->innerMomentum().Z());
+        math::XYZVectorF trackPout(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->outerMomentum().X(),
+                                   pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->outerMomentum().Y(),
+                                   pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->outerMomentum().Z());
+        float DCA = pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->d0();
+        trackPositionAtEcalVec.push_back(trackPositionAtEcal);
+        innPointVec.push_back(innPoint);
+        trackPinVec.push_back(trackPin);
+        trackPoutVec.push_back(trackPout);
+        std::vector<float> OneLegMvaVector;
+        reco::Conversion myOneLegConversion(scPtrVec,
+                                            OneLegConvVector,
+                                            trackPositionAtEcalVec,
+                                            *convVtx,
+                                            matchingBC,
+                                            DCA,
+                                            innPointVec,
+                                            trackPinVec,
+                                            trackPoutVec,
+                                            pfSingleLegConvMva_[conv1legPFCandidateIndex_[iphot]][iConv],
+                                            reco::Conversion::pflow);
+        OneLegMvaVector.push_back(pfSingleLegConvMva_[conv1legPFCandidateIndex_[iphot]][iConv]);
+        myOneLegConversion.setOneLegMVA(OneLegMvaVector);
+        //reco::Conversion myOneLegConversion(scPtrVec,
+        //OneLegConvVector, *convVtx, reco::Conversion::pflow);
 
-	    reco::CaloClusterPtrVector scPtrVec;
-	    std::vector<reco::CaloClusterPtr>matchingBC;
-	    math::Error<3>::type error;
-	    const reco::Vertex  * convVtx = new reco::Vertex(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->innerPosition(), error);
-	    
-	    //cout << "Vtx x="<<convVtx->x() << " y="<< convVtx->y()<<" z="<<convVtx->z()<< endl;
-	    //cout << "VtxError x=" << convVtx->xError() << endl;
-
-	    std::vector<reco::TrackRef> OneLegConvVector;
-	    OneLegConvVector.push_back(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]);
-	    
-	    std::vector<reco::TrackRef> tr=OneLegConvVector;
-	    std::vector<math::XYZPointF>trackPositionAtEcalVec;
-	    std::vector<math::XYZPointF>innPointVec;
-	    std::vector<math::XYZVectorF>trackPinVec;
-	    std::vector<math::XYZVectorF>trackPoutVec;
-	    math::XYZPointF trackPositionAtEcal(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-						outerPosition().X(), 
-						pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-						outerPosition().Y(),
-						pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-						outerPosition().Z());
-	    math::XYZPointF innPoint(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				     innerPosition().X(), 
-				     pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				     innerPosition().Y(),
-				     pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				     innerPosition().Z());
-	    math::XYZVectorF trackPin(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				     innerMomentum().X(), 
-				     pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				     innerMomentum().Y(),
-				     pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				     innerMomentum().Z());
-	    math::XYZVectorF trackPout(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				      outerMomentum().X(), 
-				      pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				      outerMomentum().Y(),
-				      pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				      outerMomentum().Z());
-	    float DCA=pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->d0();
-	    trackPositionAtEcalVec.push_back(trackPositionAtEcal);
-	    innPointVec.push_back(innPoint);
-	    trackPinVec.push_back(trackPin);
-	    trackPoutVec.push_back(trackPout);
-	    std::vector< float > OneLegMvaVector;
-	    reco::Conversion myOneLegConversion(scPtrVec, 
-						OneLegConvVector,
-						trackPositionAtEcalVec,
-						*convVtx,
-						matchingBC,
-						DCA,
-						innPointVec,
-						trackPinVec,
-						trackPoutVec,
-						pfSingleLegConvMva_[conv1legPFCandidateIndex_[iphot]][iConv],			  
-						reco::Conversion::pflow);
-	    OneLegMvaVector.push_back(pfSingleLegConvMva_[conv1legPFCandidateIndex_[iphot]][iConv]);
-	    myOneLegConversion.setOneLegMVA(OneLegMvaVector);
-	    //reco::Conversion myOneLegConversion(scPtrVec, 
-	    //OneLegConvVector, *convVtx, reco::Conversion::pflow);
-	    
-	    /*
+        /*
 	    std::cout << "One leg conversion created" << endl;
 	    std::vector<edm::RefToBase<reco::Track> > convtracks = myOneLegConversion.tracks();
 	    const std::vector<float> mvalist = myOneLegConversion.oneLegMVA();
@@ -778,56 +826,52 @@ void PFPhotonTranslator::createOneLegConversions(const edm::OrphanHandle<reco::S
 	      std::cout << "Track mva="<< mvalist[itk] << std::endl;
 	    }   
 	    */
-	    oneLegConversions.push_back(myOneLegConversion);
-	    
-	    //cout << "OneLegConv added"<<endl;
-	    
-	  }
-	}
+        oneLegConversions.push_back(myOneLegConversion);
+
+        //cout << "OneLegConv added"<<endl;
       }
+    }
+  }
 }
 
-
-void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperClusterCollection> & superClustersHandle, const edm::OrphanHandle<reco::ConversionCollection> & oneLegConversionHandle, reco::PhotonCoreCollection &photonCores)
-{
-  
+void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperClusterCollection> &superClustersHandle,
+                                           const edm::OrphanHandle<reco::ConversionCollection> &oneLegConversionHandle,
+                                           reco::PhotonCoreCollection &photonCores) {
   //std::cout << "createPhotonCores" << std::endl;
 
-  unsigned nphot=photPFCandidateIndex_.size();
+  unsigned nphot = photPFCandidateIndex_.size();
 
   unsigned i1legtot = 0;
 
-  for(unsigned iphot=0;iphot<nphot;++iphot)
-    {
-      //std::cout << "iphot="<<iphot<<std::endl;
+  for (unsigned iphot = 0; iphot < nphot; ++iphot) {
+    //std::cout << "iphot="<<iphot<<std::endl;
 
-      reco::PhotonCore myPhotonCore;
+    reco::PhotonCore myPhotonCore;
 
-      reco::SuperClusterRef SCref(reco::SuperClusterRef(superClustersHandle, iphot));
-      
-      myPhotonCore.setPFlowPhoton(true);
-      myPhotonCore.setStandardPhoton(false);
-      myPhotonCore.setParentSuperCluster(SCref);
-      myPhotonCore.setSuperCluster(egSCRef_[iphot]);
+    reco::SuperClusterRef SCref(reco::SuperClusterRef(superClustersHandle, iphot));
 
-      reco::ElectronSeedRefVector pixelSeeds = egPhotonRef_[iphot]->electronPixelSeeds();
-      for (unsigned iseed=0; iseed<pixelSeeds.size(); iseed++){
-	myPhotonCore.addElectronPixelSeed(pixelSeeds[iseed]);
-      }
+    myPhotonCore.setPFlowPhoton(true);
+    myPhotonCore.setStandardPhoton(false);
+    myPhotonCore.setParentSuperCluster(SCref);
+    myPhotonCore.setSuperCluster(egSCRef_[iphot]);
 
-      //cout << "PhotonCores : SC OK" << endl;
+    reco::ElectronSeedRefVector pixelSeeds = egPhotonRef_[iphot]->electronPixelSeeds();
+    for (unsigned iseed = 0; iseed < pixelSeeds.size(); iseed++) {
+      myPhotonCore.addElectronPixelSeed(pixelSeeds[iseed]);
+    }
 
-      //cout << "conv1legPFCandidateIndex_[iphot]="<<conv1legPFCandidateIndex_[iphot]<<endl;
-      //cout << "conv2legPFCandidateIndex_[iphot]="<<conv2legPFCandidateIndex_[iphot]<<endl;
+    //cout << "PhotonCores : SC OK" << endl;
 
-      if (conv1legPFCandidateIndex_[iphot]>-1){
-	for (unsigned int iConv=0; iConv<pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]].size(); iConv++){
-	  
-	  const reco::ConversionRef & OneLegRef(reco::ConversionRef(oneLegConversionHandle, i1legtot));
-	  myPhotonCore.addOneLegConversion(OneLegRef);
-	  
-	  //cout << "PhotonCores : 1-leg OK" << endl;
-	  /*
+    //cout << "conv1legPFCandidateIndex_[iphot]="<<conv1legPFCandidateIndex_[iphot]<<endl;
+    //cout << "conv2legPFCandidateIndex_[iphot]="<<conv2legPFCandidateIndex_[iphot]<<endl;
+
+    if (conv1legPFCandidateIndex_[iphot] > -1) {
+      for (unsigned int iConv = 0; iConv < pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]].size(); iConv++) {
+        const reco::ConversionRef &OneLegRef(reco::ConversionRef(oneLegConversionHandle, i1legtot));
+        myPhotonCore.addOneLegConversion(OneLegRef);
+
+        //cout << "PhotonCores : 1-leg OK" << endl;
+        /*
 	  cout << "Testing 1-leg :"<<endl;
 	  const reco::ConversionRefVector & conv = myPhotonCore.conversionsOneLeg();
 	  for (unsigned int iconv=0; iconv<conv.size(); iconv++){
@@ -843,20 +887,18 @@ void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperCl
 	  }
 	  */
 
-	  i1legtot++;
-	}
+        i1legtot++;
       }
+    }
 
-      if (conv2legPFCandidateIndex_[iphot]>-1){
-	for(unsigned int iConv=0; iConv<pfConv_[conv2legPFCandidateIndex_[iphot]].size(); iConv++) {
+    if (conv2legPFCandidateIndex_[iphot] > -1) {
+      for (unsigned int iConv = 0; iConv < pfConv_[conv2legPFCandidateIndex_[iphot]].size(); iConv++) {
+        const reco::ConversionRef &TwoLegRef(pfConv_[conv2legPFCandidateIndex_[iphot]][iConv]);
+        myPhotonCore.addConversion(TwoLegRef);
+      }
+      //cout << "PhotonCores : 2-leg OK" << endl;
 
-	  const reco::ConversionRef & TwoLegRef(pfConv_[conv2legPFCandidateIndex_[iphot]][iConv]);
-	  myPhotonCore.addConversion(TwoLegRef);
-
-	}
-	//cout << "PhotonCores : 2-leg OK" << endl;
-
-	/*
+      /*
 	cout << "Testing 2-leg :"<<endl;
 	const reco::ConversionRefVector & conv = myPhotonCore.conversions();
 	for (unsigned int iconv=0; iconv<conv.size(); iconv++){
@@ -871,116 +913,111 @@ void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperCl
 	  }  
 	}
 	*/
-      }
-
-      photonCores.push_back(myPhotonCore);
-      
     }
+
+    photonCores.push_back(myPhotonCore);
+  }
 
   //std::cout << "end of createPhotonCores"<<std::endl;
 }
 
-
-void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection, edm::Handle<reco::PhotonCollection> &egPhotons, const edm::OrphanHandle<reco::PhotonCoreCollection> & photonCoresHandle, const IsolationValueMaps& isolationValues, reco::PhotonCollection &photons) 
-{
-
+void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
+                                       edm::Handle<reco::PhotonCollection> &egPhotons,
+                                       const edm::OrphanHandle<reco::PhotonCoreCollection> &photonCoresHandle,
+                                       const IsolationValueMaps &isolationValues,
+                                       reco::PhotonCollection &photons) {
   //cout << "createPhotons" << endl;
-  
-  unsigned nphot=photPFCandidateIndex_.size();
 
-  for(unsigned iphot=0;iphot<nphot;++iphot)
-    {
-      //std::cout << "iphot="<<iphot<<std::endl;
+  unsigned nphot = photPFCandidateIndex_.size();
 
-      reco::PhotonCoreRef PCref(reco::PhotonCoreRef(photonCoresHandle, iphot));
+  for (unsigned iphot = 0; iphot < nphot; ++iphot) {
+    //std::cout << "iphot="<<iphot<<std::endl;
 
-      math::XYZPoint vtx(0.,0.,0.);
-      if (!vertexCollection.empty()) vtx = vertexCollection.begin()->position();
-      //std::cout << "vtx made" << std::endl;
+    reco::PhotonCoreRef PCref(reco::PhotonCoreRef(photonCoresHandle, iphot));
 
-      math::XYZVector direction =  PCref->parentSuperCluster()->position() - vtx;
+    math::XYZPoint vtx(0., 0., 0.);
+    if (!vertexCollection.empty())
+      vtx = vertexCollection.begin()->position();
+    //std::cout << "vtx made" << std::endl;
 
-      //It could be that pfSC energy gives not the best resolution : use smaller agregates for some cases ?
-      math::XYZVector P3 = direction.unit() * PCref->parentSuperCluster()->energy();
-      LorentzVector P4(P3.x(), P3.y(), P3.z(), PCref->parentSuperCluster()->energy());
+    math::XYZVector direction = PCref->parentSuperCluster()->position() - vtx;
 
-      reco::Photon myPhoton(P4, PCref->parentSuperCluster()->position(), PCref, vtx);
-      //cout << "photon created"<<endl;
+    //It could be that pfSC energy gives not the best resolution : use smaller agregates for some cases ?
+    math::XYZVector P3 = direction.unit() * PCref->parentSuperCluster()->energy();
+    LorentzVector P4(P3.x(), P3.y(), P3.z(), PCref->parentSuperCluster()->energy());
 
+    reco::Photon myPhoton(P4, PCref->parentSuperCluster()->position(), PCref, vtx);
+    //cout << "photon created"<<endl;
 
+    reco::Photon::ShowerShape showerShape;
+    reco::Photon::SaturationInfo saturationInfo;
+    reco::Photon::FiducialFlags fiducialFlags;
+    reco::Photon::IsolationVariables isolationVariables03;
+    reco::Photon::IsolationVariables isolationVariables04;
 
-      reco::Photon::ShowerShape  showerShape;
-      reco::Photon::SaturationInfo saturationInfo;
-      reco::Photon::FiducialFlags fiducialFlags;
-      reco::Photon::IsolationVariables isolationVariables03;
-      reco::Photon::IsolationVariables isolationVariables04;
+    showerShape.e1x5 = egPhotonRef_[iphot]->e1x5();
+    showerShape.e2x5 = egPhotonRef_[iphot]->e2x5();
+    showerShape.e3x3 = egPhotonRef_[iphot]->e3x3();
+    showerShape.e5x5 = egPhotonRef_[iphot]->e5x5();
+    showerShape.maxEnergyXtal = egPhotonRef_[iphot]->maxEnergyXtal();
+    showerShape.sigmaEtaEta = egPhotonRef_[iphot]->sigmaEtaEta();
+    showerShape.sigmaIetaIeta = egPhotonRef_[iphot]->sigmaIetaIeta();
+    showerShape.hcalDepth1OverEcal = egPhotonRef_[iphot]->hadronicDepth1OverEm();
+    showerShape.hcalDepth2OverEcal = egPhotonRef_[iphot]->hadronicDepth2OverEm();
+    myPhoton.setShowerShapeVariables(showerShape);
 
-      showerShape.e1x5= egPhotonRef_[iphot]->e1x5();
-      showerShape.e2x5= egPhotonRef_[iphot]->e2x5();
-      showerShape.e3x3= egPhotonRef_[iphot]->e3x3();
-      showerShape.e5x5= egPhotonRef_[iphot]->e5x5();
-      showerShape.maxEnergyXtal =  egPhotonRef_[iphot]->maxEnergyXtal();
-      showerShape.sigmaEtaEta =    egPhotonRef_[iphot]->sigmaEtaEta();
-      showerShape.sigmaIetaIeta =  egPhotonRef_[iphot]->sigmaIetaIeta();
-      showerShape.hcalDepth1OverEcal = egPhotonRef_[iphot]->hadronicDepth1OverEm();
-      showerShape.hcalDepth2OverEcal = egPhotonRef_[iphot]->hadronicDepth2OverEm();
-      myPhoton.setShowerShapeVariables ( showerShape ); 
+    saturationInfo.nSaturatedXtals = egPhotonRef_[iphot]->nSaturatedXtals();
+    saturationInfo.isSeedSaturated = egPhotonRef_[iphot]->isSeedSaturated();
+    myPhoton.setSaturationInfo(saturationInfo);
 
-      
-      saturationInfo.nSaturatedXtals = egPhotonRef_[iphot]->nSaturatedXtals();
-      saturationInfo.isSeedSaturated = egPhotonRef_[iphot]->isSeedSaturated();
-      myPhoton.setSaturationInfo(saturationInfo);
+    fiducialFlags.isEB = egPhotonRef_[iphot]->isEB();
+    fiducialFlags.isEE = egPhotonRef_[iphot]->isEE();
+    fiducialFlags.isEBEtaGap = egPhotonRef_[iphot]->isEBEtaGap();
+    fiducialFlags.isEBPhiGap = egPhotonRef_[iphot]->isEBPhiGap();
+    fiducialFlags.isEERingGap = egPhotonRef_[iphot]->isEERingGap();
+    fiducialFlags.isEEDeeGap = egPhotonRef_[iphot]->isEEDeeGap();
+    fiducialFlags.isEBEEGap = egPhotonRef_[iphot]->isEBEEGap();
+    myPhoton.setFiducialVolumeFlags(fiducialFlags);
 
-      fiducialFlags.isEB = egPhotonRef_[iphot]->isEB();
-      fiducialFlags.isEE = egPhotonRef_[iphot]->isEE();
-      fiducialFlags.isEBEtaGap = egPhotonRef_[iphot]->isEBEtaGap();
-      fiducialFlags.isEBPhiGap = egPhotonRef_[iphot]->isEBPhiGap();
-      fiducialFlags.isEERingGap = egPhotonRef_[iphot]->isEERingGap();
-      fiducialFlags.isEEDeeGap = egPhotonRef_[iphot]->isEEDeeGap();
-      fiducialFlags.isEBEEGap = egPhotonRef_[iphot]->isEBEEGap();
-      myPhoton.setFiducialVolumeFlags ( fiducialFlags );
+    isolationVariables03.ecalRecHitSumEt = egPhotonRef_[iphot]->ecalRecHitSumEtConeDR03();
+    isolationVariables03.hcalTowerSumEt = egPhotonRef_[iphot]->hcalTowerSumEtConeDR03();
+    isolationVariables03.hcalDepth1TowerSumEt = egPhotonRef_[iphot]->hcalDepth1TowerSumEtConeDR03();
+    isolationVariables03.hcalDepth2TowerSumEt = egPhotonRef_[iphot]->hcalDepth2TowerSumEtConeDR03();
+    isolationVariables03.trkSumPtSolidCone = egPhotonRef_[iphot]->trkSumPtSolidConeDR03();
+    isolationVariables03.trkSumPtHollowCone = egPhotonRef_[iphot]->trkSumPtHollowConeDR03();
+    isolationVariables03.nTrkSolidCone = egPhotonRef_[iphot]->nTrkSolidConeDR03();
+    isolationVariables03.nTrkHollowCone = egPhotonRef_[iphot]->nTrkHollowConeDR03();
+    isolationVariables04.ecalRecHitSumEt = egPhotonRef_[iphot]->ecalRecHitSumEtConeDR04();
+    isolationVariables04.hcalTowerSumEt = egPhotonRef_[iphot]->hcalTowerSumEtConeDR04();
+    isolationVariables04.hcalDepth1TowerSumEt = egPhotonRef_[iphot]->hcalDepth1TowerSumEtConeDR04();
+    isolationVariables04.hcalDepth2TowerSumEt = egPhotonRef_[iphot]->hcalDepth2TowerSumEtConeDR04();
+    isolationVariables04.trkSumPtSolidCone = egPhotonRef_[iphot]->trkSumPtSolidConeDR04();
+    isolationVariables04.trkSumPtHollowCone = egPhotonRef_[iphot]->trkSumPtHollowConeDR04();
+    isolationVariables04.nTrkSolidCone = egPhotonRef_[iphot]->nTrkSolidConeDR04();
+    isolationVariables04.nTrkHollowCone = egPhotonRef_[iphot]->nTrkHollowConeDR04();
+    myPhoton.setIsolationVariables(isolationVariables04, isolationVariables03);
 
-      isolationVariables03.ecalRecHitSumEt = egPhotonRef_[iphot]->ecalRecHitSumEtConeDR03();
-      isolationVariables03.hcalTowerSumEt = egPhotonRef_[iphot]->hcalTowerSumEtConeDR03();
-      isolationVariables03.hcalDepth1TowerSumEt = egPhotonRef_[iphot]->hcalDepth1TowerSumEtConeDR03();
-      isolationVariables03.hcalDepth2TowerSumEt = egPhotonRef_[iphot]->hcalDepth2TowerSumEtConeDR03();
-      isolationVariables03.trkSumPtSolidCone = egPhotonRef_[iphot]->trkSumPtSolidConeDR03();
-      isolationVariables03.trkSumPtHollowCone = egPhotonRef_[iphot]->trkSumPtHollowConeDR03();
-      isolationVariables03.nTrkSolidCone = egPhotonRef_[iphot]->nTrkSolidConeDR03();
-      isolationVariables03.nTrkHollowCone = egPhotonRef_[iphot]->nTrkHollowConeDR03();
-      isolationVariables04.ecalRecHitSumEt = egPhotonRef_[iphot]->ecalRecHitSumEtConeDR04();
-      isolationVariables04.hcalTowerSumEt = egPhotonRef_[iphot]->hcalTowerSumEtConeDR04();
-      isolationVariables04.hcalDepth1TowerSumEt = egPhotonRef_[iphot]->hcalDepth1TowerSumEtConeDR04();
-      isolationVariables04.hcalDepth2TowerSumEt = egPhotonRef_[iphot]->hcalDepth2TowerSumEtConeDR04();
-      isolationVariables04.trkSumPtSolidCone = egPhotonRef_[iphot]->trkSumPtSolidConeDR04();
-      isolationVariables04.trkSumPtHollowCone = egPhotonRef_[iphot]->trkSumPtHollowConeDR04();
-      isolationVariables04.nTrkSolidCone = egPhotonRef_[iphot]->nTrkSolidConeDR04();
-      isolationVariables04.nTrkHollowCone = egPhotonRef_[iphot]->nTrkHollowConeDR04();
-      myPhoton.setIsolationVariables(isolationVariables04, isolationVariables03);
-     
-	  
-      
+    reco::Photon::PflowIsolationVariables myPFIso;
+    myPFIso.chargedHadronIso = (*isolationValues[0])[CandidatePtr_[iphot]];
+    myPFIso.photonIso = (*isolationValues[1])[CandidatePtr_[iphot]];
+    myPFIso.neutralHadronIso = (*isolationValues[2])[CandidatePtr_[iphot]];
+    myPhoton.setPflowIsolationVariables(myPFIso);
 
-      reco::Photon::PflowIsolationVariables myPFIso;
-      myPFIso.chargedHadronIso=(*isolationValues[0])[CandidatePtr_[iphot]];
-      myPFIso.photonIso=(*isolationValues[1])[CandidatePtr_[iphot]];
-      myPFIso.neutralHadronIso=(*isolationValues[2])[CandidatePtr_[iphot]];   
-      myPhoton.setPflowIsolationVariables(myPFIso);
-      
-      reco::Photon::PflowIDVariables myPFVariables;
+    reco::Photon::PflowIDVariables myPFVariables;
 
-      reco::Mustache myMustache;
-      myMustache.MustacheID(*(myPhoton.parentSuperCluster()), myPFVariables.nClusterOutsideMustache, myPFVariables.etOutsideMustache );
-      myPFVariables.mva = pfPhotonMva_[iphot];
-      myPhoton.setPflowIDVariables(myPFVariables);
+    reco::Mustache myMustache;
+    myMustache.MustacheID(
+        *(myPhoton.parentSuperCluster()), myPFVariables.nClusterOutsideMustache, myPFVariables.etOutsideMustache);
+    myPFVariables.mva = pfPhotonMva_[iphot];
+    myPhoton.setPflowIDVariables(myPFVariables);
 
-      //cout << "chargedHadronIso="<<myPhoton.chargedHadronIso()<<" photonIso="<<myPhoton.photonIso()<<" neutralHadronIso="<<myPhoton.neutralHadronIso()<<endl;
-      
-      // set PF-regression energy
-      myPhoton.setCorrectedEnergy(reco::Photon::regression2,energyRegression_[iphot],energyRegressionError_[iphot],false);
-      
+    //cout << "chargedHadronIso="<<myPhoton.chargedHadronIso()<<" photonIso="<<myPhoton.photonIso()<<" neutralHadronIso="<<myPhoton.neutralHadronIso()<<endl;
 
-      /*
+    // set PF-regression energy
+    myPhoton.setCorrectedEnergy(
+        reco::Photon::regression2, energyRegression_[iphot], energyRegressionError_[iphot], false);
+
+    /*
       if (basicClusters_[iphot].size()>0){
       // Cluster shape variables
       //Algorithms from EcalClusterTools could be adapted to PF photons ? (not based on 5x5 BC)
@@ -1033,37 +1070,30 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       //cout << "shower shape variables filled"<<endl;
       }
       */
-      
 
-      photons.push_back(myPhoton);
-
-    }
+    photons.push_back(myPhoton);
+  }
 
   //std::cout << "end of createPhotons"<<std::endl;
 }
 
-
-const reco::PFCandidate & PFPhotonTranslator::correspondingDaughterCandidate(const reco::PFCandidate & cand, const reco::PFBlockElement & pfbe) const
-{
-  unsigned refindex=pfbe.index();
+const reco::PFCandidate &PFPhotonTranslator::correspondingDaughterCandidate(const reco::PFCandidate &cand,
+                                                                            const reco::PFBlockElement &pfbe) const {
+  unsigned refindex = pfbe.index();
   //  std::cout << " N daughters " << cand.numberOfDaughters() << std::endl;
-  reco::PFCandidate::const_iterator myDaughterCandidate=cand.begin();
-  reco::PFCandidate::const_iterator itend=cand.end();
+  reco::PFCandidate::const_iterator myDaughterCandidate = cand.begin();
+  reco::PFCandidate::const_iterator itend = cand.end();
 
-  for(;myDaughterCandidate!=itend;++myDaughterCandidate)
-    {
-      const reco::PFCandidate * myPFCandidate = (const reco::PFCandidate*)&*myDaughterCandidate;
-      if(myPFCandidate->elementsInBlocks().size()!=1)
-	{
-	  //	  std::cout << " Daughter with " << myPFCandidate.elementsInBlocks().size()<< " element in block " << std::endl;
-	  return cand;
-	}
-      if(myPFCandidate->elementsInBlocks()[0].second==refindex) 
-	{
-	  //	  std::cout << " Found it " << cand << std::endl;
-	  return *myPFCandidate;
-	}      
+  for (; myDaughterCandidate != itend; ++myDaughterCandidate) {
+    const reco::PFCandidate *myPFCandidate = (const reco::PFCandidate *)&*myDaughterCandidate;
+    if (myPFCandidate->elementsInBlocks().size() != 1) {
+      //	  std::cout << " Daughter with " << myPFCandidate.elementsInBlocks().size()<< " element in block " << std::endl;
+      return cand;
     }
+    if (myPFCandidate->elementsInBlocks()[0].second == refindex) {
+      //	  std::cout << " Found it " << cand << std::endl;
+      return *myPFCandidate;
+    }
+  }
   return cand;
 }
-

@@ -4,7 +4,7 @@
 //
 // Package:     TableWidget
 // Class  :     FWTabularWidget
-// 
+//
 /**\class FWTabularWidget FWTabularWidget.h Fireworks/TableWidget/interface/FWTabularWidget.h
 
  Description: Widget that draws part of a table [Implementation detail of FWTableWidget]
@@ -27,71 +27,68 @@
 // forward declarations
 class FWTableManagerBase;
 
-class FWTabularWidget : public TGFrame
-{
-
+class FWTabularWidget : public TGFrame {
 public:
-   static const TGGC&  getDefaultGC();
-      
-   static const int kTextBuffer;
-   static const int kSeperatorWidth;
+  static const TGGC& getDefaultGC();
 
-   FWTabularWidget(FWTableManagerBase* iManager,const TGWindow* p=nullptr, GContext_t context = getDefaultGC()());
-   ~FWTabularWidget() override;
+  static const int kTextBuffer;
+  static const int kSeperatorWidth;
 
-   // ---------- const member functions ---------------------
-   const std::vector<unsigned int>& widthOfTextInColumns() const { return m_widthOfTextInColumns;}
-   UInt_t verticalOffset() const {return m_vOffset;}
-   UInt_t horizontalOffset() const { return m_hOffset;}
+  FWTabularWidget(FWTableManagerBase* iManager, const TGWindow* p = nullptr, GContext_t context = getDefaultGC()());
+  ~FWTabularWidget() override;
 
-   // ---------- static member functions --------------------
+  // ---------- const member functions ---------------------
+  const std::vector<unsigned int>& widthOfTextInColumns() const { return m_widthOfTextInColumns; }
+  UInt_t verticalOffset() const { return m_vOffset; }
+  UInt_t horizontalOffset() const { return m_hOffset; }
 
-   // ---------- member functions ---------------------------
-   void setWidthOfTextInColumns(const std::vector<unsigned int>& );
-   void DoRedraw() override;
-   TGDimension GetDefaultSize() const override;
+  // ---------- static member functions --------------------
 
-   void setVerticalOffset(UInt_t);
-   void setHorizontalOffset(UInt_t);
+  // ---------- member functions ---------------------------
+  void setWidthOfTextInColumns(const std::vector<unsigned int>&);
+  void DoRedraw() override;
+  TGDimension GetDefaultSize() const override;
 
-   Bool_t HandleButton(Event_t *event) override;
+  void setVerticalOffset(UInt_t);
+  void setHorizontalOffset(UInt_t);
 
-   void buttonPressed(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY); //*SIGNAL*
-   void buttonReleased(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY); //*SIGNAL*
+  Bool_t HandleButton(Event_t* event) override;
 
-   void dataChanged();
-   void needToRedraw();
+  void buttonPressed(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY);   //*SIGNAL*
+  void buttonReleased(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY);  //*SIGNAL*
 
-   ClassDefOverride(FWTabularWidget,0);
-   
-   void setLineContext(GContext_t iContext);
-   void setBackgroundAreaContext(GContext_t iContext);
-   
-   void disableGrowInWidth() { m_growInWidth = false; }
+  void dataChanged();
+  void needToRedraw();
+
+  ClassDefOverride(FWTabularWidget, 0);
+
+  void setLineContext(GContext_t iContext);
+  void setBackgroundAreaContext(GContext_t iContext);
+
+  void disableGrowInWidth() { m_growInWidth = false; }
 
 private:
-   //FWTabularWidget(const FWTabularWidget&); // stop default
+  //FWTabularWidget(const FWTabularWidget&); // stop default
 
-   //const FWTabularWidget& operator=(const FWTabularWidget&); // stop default
+  //const FWTabularWidget& operator=(const FWTabularWidget&); // stop default
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   void translateToRowColumn(Int_t iX, Int_t iY, Int_t& oRow, Int_t& oCol, Int_t&oRelX, Int_t& oRelY) const;
+  void translateToRowColumn(Int_t iX, Int_t iY, Int_t& oRow, Int_t& oCol, Int_t& oRelX, Int_t& oRelY) const;
 
-   FWTableManagerBase* m_table;
-   std::vector<unsigned int> m_widthOfTextInColumns;
-   std::vector<unsigned int> m_widthOfTextInColumnsMax;
-   int m_textHeight;
-   int m_tableWidth;
+  FWTableManagerBase* m_table;
+  std::vector<unsigned int> m_widthOfTextInColumns;
+  std::vector<unsigned int> m_widthOfTextInColumnsMax;
+  int m_textHeight;
+  int m_tableWidth;
 
-   unsigned int m_vOffset;
-   unsigned int m_hOffset;
+  unsigned int m_vOffset;
+  unsigned int m_hOffset;
 
-   GContext_t m_normGC;
-   GContext_t m_backgroundGC;
+  GContext_t m_normGC;
+  GContext_t m_backgroundGC;
 
-   bool m_growInWidth;
+  bool m_growInWidth;
 };
-
 
 #endif

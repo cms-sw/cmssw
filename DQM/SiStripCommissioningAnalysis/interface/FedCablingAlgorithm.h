@@ -14,43 +14,37 @@ class TH1;
    @brief Histogram-based analysis for connection loop.
 */
 class FedCablingAlgorithm : public CommissioningAlgorithm {
-  
- public:
-
+public:
   // ---------- Con(de)structors and typedefs ----------
 
-  FedCablingAlgorithm( const edm::ParameterSet & pset, FedCablingAnalysis* const );
+  FedCablingAlgorithm(const edm::ParameterSet& pset, FedCablingAnalysis* const);
 
-  ~FedCablingAlgorithm() override {;}
-  
+  ~FedCablingAlgorithm() override { ; }
+
   /** Pointer to FED id histogram. */
   inline const Histo& hFedId() const;
-  
+
   /** Pointer to FED channel histogram. */
   inline const Histo& hFedCh() const;
-  
- private:
-  
-  FedCablingAlgorithm() {;}
+
+private:
+  FedCablingAlgorithm() { ; }
 
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& ) override;
+  void extract(const std::vector<TH1*>&) override;
 
   /** Performs histogram anaysis. */
   void analyse() override;
-  
- private:
 
+private:
   /** Histo containing FED id */
   Histo hFedId_;
 
   /** Histo containing FED channel */
   Histo hFedCh_;
-
 };
 
 const FedCablingAlgorithm::Histo& FedCablingAlgorithm::hFedId() const { return hFedId_; }
 const FedCablingAlgorithm::Histo& FedCablingAlgorithm::hFedCh() const { return hFedCh_; }
 
-#endif // DQM_SiStripCommissioningAnalysis_FedCablingAlgorithm_H
-
+#endif  // DQM_SiStripCommissioningAnalysis_FedCablingAlgorithm_H

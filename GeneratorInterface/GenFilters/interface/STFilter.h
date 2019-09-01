@@ -11,32 +11,34 @@
 #include "TString.h"
 
 class STFilter : public edm::EDFilter {
-   public:
-      explicit STFilter(const edm::ParameterSet&);
-      ~STFilter() override;
-   private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-   private:
-      double pTMax_;
-      // debug level
-      int DEBUGLVL;    
-      // counters
-      unsigned int input_events;
-      unsigned int accepted_events;
-      // histograms
-      bool m_produceHistos;
-      TH1D* hbPt; TH1D* hbPtFiltered;
-      TH1D* hbEta; TH1D* hbEtaFiltered;
-      // histogram output file
-      std::string fOutputFileName ;
-      TFile*  hOutputFile ;
-      //
-      edm::ParameterSet conf_;
-      edm::InputTag hepMCProductTag_;
+public:
+  explicit STFilter(const edm::ParameterSet&);
+  ~STFilter() override;
+
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+private:
+  double pTMax_;
+  // debug level
+  int DEBUGLVL;
+  // counters
+  unsigned int input_events;
+  unsigned int accepted_events;
+  // histograms
+  bool m_produceHistos;
+  TH1D* hbPt;
+  TH1D* hbPtFiltered;
+  TH1D* hbEta;
+  TH1D* hbEtaFiltered;
+  // histogram output file
+  std::string fOutputFileName;
+  TFile* hOutputFile;
+  //
+  edm::ParameterSet conf_;
+  edm::InputTag hepMCProductTag_;
 };
-
-
 
 #endif

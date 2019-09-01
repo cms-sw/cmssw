@@ -127,7 +127,7 @@ process.myprefer = cms.ESPrefer("PoolDBESSource","DBReaderFrontier")
 #process.SiStripDigiToRaw.InputModuleLabel = 'mix'
 # my new 
 process.siPixelRawData.InputLabel = 'simSiPixelDigis'
-process.SiStripDigiToRaw.InputModuleLabel = 'simSiPixelDigis'
+process.SiStripDigiToRaw.InputDigis = cms.InputTag('simSiPixelDigis', "ZeroSuppressed")
 # for Raw2digi for simulations 
 process.siPixelDigis.InputLabel = 'siPixelRawData'
 process.siStripDigis.ProductLabel = 'SiStripDigiToRaw'

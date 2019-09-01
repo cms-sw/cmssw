@@ -24,11 +24,9 @@ objects from OMDS to ORCON.
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CondTools/SiPixel/interface/PixelPopConSourceHandler.h"
 
-
 // class definition
 class PixelPopConCalibSourceHandler : public PixelPopConSourceHandler<SiPixelCalibConfiguration> {
-  
- public:
+public:
   // specific implementations of getNewObjects
   void getNewObjects_coral() override;
   void getNewObjects_file() override;
@@ -36,9 +34,7 @@ class PixelPopConCalibSourceHandler : public PixelPopConSourceHandler<SiPixelCal
   PixelPopConCalibSourceHandler(edm::ParameterSet const &);
   std::string id() const override;
 
- private:
-
+private:
 };
-
 
 #endif

@@ -21,28 +21,29 @@
 class LocalTrajectoryError {
 public:
   // construct
-  LocalTrajectoryError(){}
+  LocalTrajectoryError() {}
 
-  LocalTrajectoryError(InvalidError) : theCovarianceMatrix(ROOT::Math::SMatrixNoInit()) {theCovarianceMatrix(0,0)=-99999.e10;}
+  LocalTrajectoryError(InvalidError) : theCovarianceMatrix(ROOT::Math::SMatrixNoInit()) {
+    theCovarianceMatrix(0, 0) = -99999.e10;
+  }
   // destruct
-  ~LocalTrajectoryError(){}
+  ~LocalTrajectoryError() {}
 
-  bool invalid() const { return theCovarianceMatrix(0,0)<-1.e10;}
-  bool valid() const { return !invalid();}
+  bool invalid() const { return theCovarianceMatrix(0, 0) < -1.e10; }
+  bool valid() const { return !invalid(); }
 
   // not really full check of posdef
-  bool posDef() const { 
-    return (theCovarianceMatrix(0,0)>=0) && (theCovarianceMatrix(1,1)>=0) && 
-      (theCovarianceMatrix(2,2)>=0) && (theCovarianceMatrix(3,3)>=0) && (theCovarianceMatrix(4,4)>=0);
+  bool posDef() const {
+    return (theCovarianceMatrix(0, 0) >= 0) && (theCovarianceMatrix(1, 1) >= 0) && (theCovarianceMatrix(2, 2) >= 0) &&
+           (theCovarianceMatrix(3, 3) >= 0) && (theCovarianceMatrix(4, 4) >= 0);
   }
-
 
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.
    */
 
-  LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix):
-    theCovarianceMatrix(aCovarianceMatrix), theWeightMatrixPtr() { }
+  LocalTrajectoryError(const AlgebraicSymMatrix55 &aCovarianceMatrix)
+      : theCovarianceMatrix(aCovarianceMatrix), theWeightMatrixPtr() {}
 
   /** Constructing class from standard deviations of the individual parameters, making
    *  the covariance matrix diagonal. The sequence of the input parameters is sigma(x), sigma(y),
@@ -50,39 +51,36 @@ public:
    *  same structure as the one described above.
    */
 
-  LocalTrajectoryError( float dx, float dy, float dxdir, float dydir,
-			float dpinv);
+  LocalTrajectoryError(float dx, float dy, float dxdir, float dydir, float dpinv);
 
-// access
+  // access
 
   /** Returns the covariance matrix.
    */
 
-  const AlgebraicSymMatrix55 &matrix() const {
-    return theCovarianceMatrix;
-  }
+  const AlgebraicSymMatrix55 &matrix() const { return theCovarianceMatrix; }
 
   /** Returns the inverse of covariance matrix.
    */
- const AlgebraicSymMatrix55 &weightMatrix() const;
-
+  const AlgebraicSymMatrix55 &weightMatrix() const;
 
   /** Enables the multiplication of the covariance matrix with the scalar "factor".
    */
 
-  LocalTrajectoryError & operator *= (double factor) {
+  LocalTrajectoryError &operator*=(double factor) {
     theCovarianceMatrix *= factor;
-    if ((theWeightMatrixPtr.get() != nullptr) && (factor != 0.0)) { (*theWeightMatrixPtr) /= factor; } 
+    if ((theWeightMatrixPtr.get() != nullptr) && (factor != 0.0)) {
+      (*theWeightMatrixPtr) /= factor;
+    }
     return *this;
   }
 
   /** Returns the two-by-two submatrix of the covariance matrix which yields the local
    *  position errors as well as the correlation between them.
    */
-  
+
   LocalError positionError() const {
-    return LocalError( theCovarianceMatrix(3,3),theCovarianceMatrix(3,4),
-		       theCovarianceMatrix(4,4));
+    return LocalError(theCovarianceMatrix(3, 3), theCovarianceMatrix(3, 4), theCovarianceMatrix(4, 4));
   }
 
 private:

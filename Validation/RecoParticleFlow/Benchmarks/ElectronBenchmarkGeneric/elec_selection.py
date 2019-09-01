@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 
 def selection():
@@ -25,4 +26,4 @@ def deltaR():
         
 if __name__ == "__main__":
     for statement in selection():
-        print statement
+        print(statement)

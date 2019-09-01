@@ -2,7 +2,7 @@
 //
 // Package:    Castor
 // Class:      CastorDumpConditions
-// 
+//
 /**\class Castor CastorDumpConditions.cc CondTools/Castor/src/CastorDumpConditions.cc
 
  Description: <one line class summary>
@@ -17,7 +17,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <iostream>
@@ -27,12 +26,15 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/DataRecord/interface/CastorPedestalsRcd.h"
@@ -51,21 +53,22 @@
 // class decleration
 //
 
-class CastorDumpConditions : public edm::EDAnalyzer {
-   public:
-      explicit CastorDumpConditions(const edm::ParameterSet&);
-      ~CastorDumpConditions() override;
+class CastorDumpConditions : public edm::one::EDAnalyzer<> {
+public:
+  explicit CastorDumpConditions(const edm::ParameterSet&);
 
-       template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name);
+  template <class S, class SRcd>
+  void dumpIt(const std::vector<std::string>& mDumpRequest,
+              const edm::Event& e,
+              const edm::EventSetup& context,
+              const std::string name);
 
-   private:
-      std::string file_prefix;
-      std::vector<std::string> mDumpRequest;
-      virtual void beginJob(const edm::EventSetup&) ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+private:
+  std::string file_prefix;
+  std::vector<std::string> mDumpRequest;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 };
 
 //
@@ -82,119 +85,63 @@ class CastorDumpConditions : public edm::EDAnalyzer {
 CastorDumpConditions::CastorDumpConditions(const edm::ParameterSet& iConfig)
 
 {
-   file_prefix = iConfig.getUntrackedParameter<std::string>("outFilePrefix","Dump");
-   mDumpRequest= iConfig.getUntrackedParameter<std::vector<std::string> >("dump",std::vector<std::string>());
-   if (mDumpRequest.empty()) {
-      std::cout << "CastorDumpConditions: No record to dump. Exiting." << std::endl;
-      exit(0);
-   }
-
+  file_prefix = iConfig.getUntrackedParameter<std::string>("outFilePrefix", "Dump");
+  mDumpRequest = iConfig.getUntrackedParameter<std::vector<std::string> >("dump", std::vector<std::string>());
+  if (mDumpRequest.empty()) {
+    throw cms::Exception("Bad Config") << "CastorDumpConditions: No record to dump.";
+  }
 }
-
-
-CastorDumpConditions::~CastorDumpConditions()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void
-CastorDumpConditions::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+void CastorDumpConditions::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
-   
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
-   std::cout << "I AM IN THE RUN " << iEvent.id().run() << std::endl;
-   std::cout << "What to dump? "<< std::endl;
-   if (mDumpRequest.empty()) {
-      std::cout<< "CastorDumpConditions: Empty request" << std::endl;
+  {
+    edm::LogAbsolute log("CastorDumpConditions");
+    log << "I AM IN THE RUN " << iEvent.id().run() << "\n";
+    log << "What to dump? " << std::endl;
+    if (mDumpRequest.empty()) {
+      log << "CastorDumpConditions: Empty request \n";
       return;
-   }
+    }
+  }
 
-   for(std::vector<std::string>::const_iterator it=mDumpRequest.begin();it!=mDumpRequest.end();it++)
-      std::cout << *it << std::endl;
+  for (std::vector<std::string>::const_iterator it = mDumpRequest.begin(); it != mDumpRequest.end(); it++)
+    LogAbsolute("CastorDumpConditions") << *it << "\n";
 
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ElectronicsMap")) != mDumpRequest.end())
-      dumpIt(new CastorElectronicsMap(), new CastorElectronicsMapRcd(), iEvent,iSetup,"ElectronicsMap");
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end())
-      dumpIt(new CastorQIEData(), new CastorQIEDataRcd(), iEvent,iSetup,"QIEData"); 
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Pedestals")) != mDumpRequest.end()) 
-      dumpIt(new CastorPedestals(), new CastorPedestalsRcd(), iEvent,iSetup,"Pedestals");
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PedestalWidths")) != mDumpRequest.end())
-      dumpIt(new CastorPedestalWidths(), new CastorPedestalWidthsRcd(), iEvent,iSetup,"PedestalWidths");
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Gains")) != mDumpRequest.end())
-      dumpIt(new CastorGains(), new CastorGainsRcd(), iEvent,iSetup,"Gains");
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("GainWidths")) != mDumpRequest.end())
-      dumpIt(new CastorGainWidths(), new CastorGainWidthsRcd(), iEvent,iSetup,"GainWidths");
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ChannelQuality")) != mDumpRequest.end())
-      dumpIt(new CastorChannelQuality(), new CastorChannelQualityRcd(), iEvent,iSetup,"ChannelQuality");
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RecoParams")) != mDumpRequest.end())
-      dumpIt(new CastorRecoParams(), new CastorRecoParamsRcd(), iEvent,iSetup,"RecoParams");
-      
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SaturationCorrs")) != mDumpRequest.end())
-      dumpIt(new CastorSaturationCorrs(), new CastorSaturationCorrsRcd(), iEvent,iSetup,"SaturationCorrs");
-
-/*
-   ESHandle<CastorPedestals> p;
-   iSetup.get<CastorPedestalsRcd>().get(p);
-   CastorPedestals* mypeds = new CastorPedestals(*p.product());
-   std::ostringstream file;
-   std::string name = "CastorPedestal";
-   file << file_prefix << name.c_str() << "_Run" << iEvent.id().run()<< ".txt";
-   std::ofstream outStream(file.str().c_str() );
-   std::cout << "CastorDumpConditions: ---- Dumping " << name.c_str() << " ----" << std::endl;
-   CastorDbASCIIIO::dumpObject (outStream, (*mypeds) );
-
-*/   
+  // dumpIt called for all possible ValueMaps. The function checks if the dump is actually requested.
+  dumpIt<CastorElectronicsMap, CastorElectronicsMapRcd>(mDumpRequest, iEvent, iSetup, "ElectronicsMap");
+  dumpIt<CastorQIEData, CastorQIEDataRcd>(mDumpRequest, iEvent, iSetup, "QIEData");
+  dumpIt<CastorPedestals, CastorPedestalsRcd>(mDumpRequest, iEvent, iSetup, "Pedestals");
+  dumpIt<CastorPedestalWidths, CastorPedestalWidthsRcd>(mDumpRequest, iEvent, iSetup, "PedestalWidths");
+  dumpIt<CastorGains, CastorGainsRcd>(mDumpRequest, iEvent, iSetup, "Gains");
+  dumpIt<CastorGainWidths, CastorGainWidthsRcd>(mDumpRequest, iEvent, iSetup, "GainWidths");
+  dumpIt<CastorChannelQuality, CastorChannelQualityRcd>(mDumpRequest, iEvent, iSetup, "ChannelQuality");
+  dumpIt<CastorRecoParams, CastorRecoParamsRcd>(mDumpRequest, iEvent, iSetup, "RecoParams");
+  dumpIt<CastorSaturationCorrs, CastorSaturationCorrsRcd>(mDumpRequest, iEvent, iSetup, "SaturationCorrs");
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-CastorDumpConditions::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-CastorDumpConditions::endJob() {
-}
-
-template<class S, class SRcd>
-  void CastorDumpConditions::dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name) {
+template <class S, class SRcd>
+void CastorDumpConditions::dumpIt(const std::vector<std::string>& mDumpRequest,
+                                  const edm::Event& e,
+                                  const edm::EventSetup& context,
+                                  const std::string name) {
+  if (std::find(mDumpRequest.begin(), mDumpRequest.end(), name) != mDumpRequest.end()) {
     int myrun = e.id().run();
     edm::ESHandle<S> p;
     context.get<SRcd>().get(p);
-    S* myobject = new S(*p.product());
+    S myobject(*p.product());
 
     std::ostringstream file;
     file << file_prefix << name.c_str() << "_Run" << myrun << ".txt";
-    std::ofstream outStream(file.str().c_str() );
-    CastorDbASCIIIO::dumpObject (outStream, (*myobject) );
+    std::ofstream outStream(file.str().c_str());
+    CastorDbASCIIIO::dumpObject(outStream, myobject);
   }
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CastorDumpConditions);

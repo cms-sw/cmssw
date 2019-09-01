@@ -22,6 +22,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "CLHEP/Random/RandGauss.h"
 
 #include "Math/GenVector/VectorUtil.h"
@@ -33,11 +36,13 @@ using namespace edm;
 using namespace std;
 
 class PFRecoTauTagInfoProducer : public edm::global::EDProducer<> {
- public:
+public:
   explicit PFRecoTauTagInfoProducer(const edm::ParameterSet& iConfig);
   ~PFRecoTauTagInfoProducer() override;
-  void produce(edm::StreamID, edm::Event&,const edm::EventSetup&) const override;
- private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
   std::unique_ptr<const PFRecoTauTagInfoAlgorithm> PFRecoTauTagInfoAlgo_;
   edm::InputTag PFCandidateProducer_;
   edm::InputTag PFJetTracksAssociatorProducer_;
@@ -51,59 +56,118 @@ class PFRecoTauTagInfoProducer : public edm::global::EDProducer<> {
   edm::EDGetTokenT<VertexCollection> PV_token;
 };
 
-PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const edm::ParameterSet& iConfig){
-
-  PFCandidateProducer_                = iConfig.getParameter<edm::InputTag>("PFCandidateProducer");
-  PFJetTracksAssociatorProducer_      = iConfig.getParameter<edm::InputTag>("PFJetTracksAssociatorProducer");
-  PVProducer_                         = iConfig.getParameter<edm::InputTag>("PVProducer");
-  smearedPVsigmaX_                    = iConfig.getParameter<double>("smearedPVsigmaX");
-  smearedPVsigmaY_                    = iConfig.getParameter<double>("smearedPVsigmaY");
-  smearedPVsigmaZ_                    = iConfig.getParameter<double>("smearedPVsigmaZ");	
-  PFRecoTauTagInfoAlgo_.reset( new PFRecoTauTagInfoAlgorithm(iConfig) );
+PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const edm::ParameterSet& iConfig) {
+  PFCandidateProducer_ = iConfig.getParameter<edm::InputTag>("PFCandidateProducer");
+  PFJetTracksAssociatorProducer_ = iConfig.getParameter<edm::InputTag>("PFJetTracksAssociatorProducer");
+  PVProducer_ = iConfig.getParameter<edm::InputTag>("PVProducer");
+  smearedPVsigmaX_ = iConfig.getParameter<double>("smearedPVsigmaX");
+  smearedPVsigmaY_ = iConfig.getParameter<double>("smearedPVsigmaY");
+  smearedPVsigmaZ_ = iConfig.getParameter<double>("smearedPVsigmaZ");
+  PFRecoTauTagInfoAlgo_.reset(new PFRecoTauTagInfoAlgorithm(iConfig));
   PFCandidate_token = consumes<PFCandidateCollection>(PFCandidateProducer_);
   PFJetTracksAssociator_token = consumes<JetTracksAssociationCollection>(PFJetTracksAssociatorProducer_);
   PV_token = consumes<VertexCollection>(PVProducer_);
-  produces<PFTauTagInfoCollection>();      
+  produces<PFTauTagInfoCollection>();
 }
-PFRecoTauTagInfoProducer::~PFRecoTauTagInfoProducer(){
-}
+PFRecoTauTagInfoProducer::~PFRecoTauTagInfoProducer() {}
 
 void PFRecoTauTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<JetTracksAssociationCollection> thePFJetTracksAssociatorCollection;
-  iEvent.getByToken(PFJetTracksAssociator_token,thePFJetTracksAssociatorCollection);
+  iEvent.getByToken(PFJetTracksAssociator_token, thePFJetTracksAssociatorCollection);
   // *** access the PFCandidateCollection in the event in order to retrieve the PFCandidateRefVector which constitutes each PFJet
   edm::Handle<PFCandidateCollection> thePFCandidateCollection;
-  iEvent.getByToken(PFCandidate_token,thePFCandidateCollection);
-  vector<PFCandidatePtr> thePFCandsInTheEvent;
-  for(unsigned int i_PFCand=0;i_PFCand!=thePFCandidateCollection->size();i_PFCand++) { 
-        thePFCandsInTheEvent.push_back(PFCandidatePtr(thePFCandidateCollection,i_PFCand));
+  iEvent.getByToken(PFCandidate_token, thePFCandidateCollection);
+  vector<CandidatePtr> thePFCandsInTheEvent;
+  for (unsigned int i_PFCand = 0; i_PFCand != thePFCandidateCollection->size(); i_PFCand++) {
+    thePFCandsInTheEvent.push_back(CandidatePtr(thePFCandidateCollection, i_PFCand));
   }
   // ***
   // query a rec/sim PV
   edm::Handle<VertexCollection> thePVs;
-  iEvent.getByToken(PV_token,thePVs);
-  const VertexCollection vertCollection=*(thePVs.product());
-  math::XYZPoint V(0,0,-1000.);
+  iEvent.getByToken(PV_token, thePVs);
+  const VertexCollection vertCollection = *(thePVs.product());
+  math::XYZPoint V(0, 0, -1000.);
 
   Vertex thePV;
-  if(!vertCollection.empty()) thePV =*(vertCollection.begin());
-else{
+  if (!vertCollection.empty())
+    thePV = *(vertCollection.begin());
+  else {
     Vertex::Error SimPVError;
-    SimPVError(0,0)=15.*15.;
-    SimPVError(1,1)=15.*15.;
-    SimPVError(2,2)=15.*15.;
-    Vertex::Point SimPVPoint(0.,0.,-1000.);
-    thePV=Vertex(SimPVPoint,SimPVError,1,1,1);    
+    SimPVError(0, 0) = 15. * 15.;
+    SimPVError(1, 1) = 15. * 15.;
+    SimPVError(2, 2) = 15. * 15.;
+    Vertex::Point SimPVPoint(0., 0., -1000.);
+    thePV = Vertex(SimPVPoint, SimPVError, 1, 1, 1);
   }
-  
-  auto resultExt = std::make_unique<PFTauTagInfoCollection>();  
-  for(JetTracksAssociationCollection::const_iterator iAssoc=thePFJetTracksAssociatorCollection->begin();iAssoc!=thePFJetTracksAssociatorCollection->end();iAssoc++){
-    PFTauTagInfo myPFTauTagInfo=PFRecoTauTagInfoAlgo_->buildPFTauTagInfo((*iAssoc).first.castTo<PFJetRef>(),thePFCandsInTheEvent,(*iAssoc).second,thePV);
+
+  auto resultExt = std::make_unique<PFTauTagInfoCollection>();
+  for (JetTracksAssociationCollection::const_iterator iAssoc = thePFJetTracksAssociatorCollection->begin();
+       iAssoc != thePFJetTracksAssociatorCollection->end();
+       iAssoc++) {
+    PFTauTagInfo myPFTauTagInfo = PFRecoTauTagInfoAlgo_->buildPFTauTagInfo(
+        JetBaseRef((*iAssoc).first), thePFCandsInTheEvent, (*iAssoc).second, thePV);
     resultExt->push_back(myPFTauTagInfo);
   }
-  
 
   //  OrphanHandle<PFTauTagInfoCollection> myPFTauTagInfoCollection=iEvent.put(std::move(resultExt));
   iEvent.put(std::move(resultExt));
 }
+
+void PFRecoTauTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  {
+    // pfRecoTauTagInfoProducerInsideOut
+    edm::ParameterSetDescription desc;
+    desc.add<int>("tkminTrackerHitsn", 3);
+    desc.add<double>("tkminPt", 0.5);
+    desc.add<double>("tkmaxChi2", 100.0);
+    desc.add<double>("ChargedHadrCand_AssociationCone", 1.0);
+    desc.add<int>("ChargedHadrCand_tkminTrackerHitsn", 3);
+    desc.add<double>("ChargedHadrCand_tkmaxChi2", 100.0);
+    desc.add<double>("tkPVmaxDZ", 0.2);
+    desc.add<double>("GammaCand_EcalclusMinEt", 1.0);
+    desc.add<int>("tkminPixelHitsn", 0);
+    desc.add<edm::InputTag>("PVProducer", edm::InputTag("offlinePrimaryVertices"));
+    desc.add<edm::InputTag>("PFCandidateProducer", edm::InputTag("particleFlow"));
+    desc.add<double>("ChargedHadrCand_tkminPt", 0.5);
+    desc.add<double>("ChargedHadrCand_tkmaxipt", 0.03);
+    desc.add<int>("ChargedHadrCand_tkminPixelHitsn", 0);
+    desc.add<bool>("UsePVconstraint", true);
+    desc.add<double>("NeutrHadrCand_HcalclusMinEt", 1.0);
+    desc.add<edm::InputTag>("PFJetTracksAssociatorProducer", edm::InputTag("insideOutJetTracksAssociatorAtVertex"));
+    desc.add<double>("smearedPVsigmaY", 0.0015);
+    desc.add<double>("smearedPVsigmaX", 0.0015);
+    desc.add<double>("smearedPVsigmaZ", 0.005);
+    desc.add<double>("ChargedHadrCand_tkPVmaxDZ", 0.2);
+    desc.add<double>("tkmaxipt", 0.03);
+    descriptions.add("pfRecoTauTagInfoProducerInsideOut", desc);
+  }
+  {
+    // pfRecoTauTagInfoProducer
+    edm::ParameterSetDescription desc;
+    desc.add<int>("tkminTrackerHitsn", 3);
+    desc.add<double>("tkminPt", 0.5);
+    desc.add<double>("tkmaxChi2", 100.0);
+    desc.add<double>("ChargedHadrCand_AssociationCone", 0.8);
+    desc.add<int>("ChargedHadrCand_tkminTrackerHitsn", 3);
+    desc.add<double>("ChargedHadrCand_tkmaxChi2", 100.0);
+    desc.add<double>("tkPVmaxDZ", 0.2);
+    desc.add<double>("GammaCand_EcalclusMinEt", 1.0);
+    desc.add<int>("tkminPixelHitsn", 0);
+    desc.add<edm::InputTag>("PVProducer", edm::InputTag("offlinePrimaryVertices"));
+    desc.add<edm::InputTag>("PFCandidateProducer", edm::InputTag("particleFlow"));
+    desc.add<double>("ChargedHadrCand_tkminPt", 0.5);
+    desc.add<double>("ChargedHadrCand_tkmaxipt", 0.03);
+    desc.add<int>("ChargedHadrCand_tkminPixelHitsn", 0);
+    desc.add<bool>("UsePVconstraint", true);
+    desc.add<double>("NeutrHadrCand_HcalclusMinEt", 1.0);
+    desc.add<edm::InputTag>("PFJetTracksAssociatorProducer", edm::InputTag("ak4PFJetTracksAssociatorAtVertex"));
+    desc.add<double>("smearedPVsigmaY", 0.0015);
+    desc.add<double>("smearedPVsigmaX", 0.0015);
+    desc.add<double>("smearedPVsigmaZ", 0.005);
+    desc.add<double>("ChargedHadrCand_tkPVmaxDZ", 0.2);
+    desc.add<double>("tkmaxipt", 0.03);
+    descriptions.add("pfRecoTauTagInfoProducer", desc);
+  }
+}
+
 DEFINE_FWK_MODULE(PFRecoTauTagInfoProducer);

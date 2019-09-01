@@ -4,31 +4,33 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductHost.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 
 #include "CondFormats/RPCObjects/interface/RPCInverseAMCLinkMap.h"
 
 namespace edm {
-class ParameterSet;
-class ConfigurationDescriptions;
-} // namespace edm
+  class ParameterSet;
+  class ConfigurationDescriptions;
+}  // namespace edm
 
 class RPCOMTFLinkMapRcd;
 class RPCInverseOMTFLinkMapRcd;
 
-class RPCInverseOMTFLinkMapESProducer
-    : public edm::ESProducer
-{
+class RPCInverseOMTFLinkMapESProducer : public edm::ESProducer {
 public:
-    explicit RPCInverseOMTFLinkMapESProducer(edm::ParameterSet const & _config);
+  explicit RPCInverseOMTFLinkMapESProducer(edm::ParameterSet const& _config);
 
-    static void fillDescriptions(edm::ConfigurationDescriptions & _descs);
+  static void fillDescriptions(edm::ConfigurationDescriptions& _descs);
 
-    void RPCOMTFLinkMapCallback(RPCOMTFLinkMapRcd const & _rcd);
+  std::shared_ptr<RPCInverseAMCLinkMap> produce(RPCInverseOMTFLinkMapRcd const& _rcd);
 
-    std::shared_ptr<RPCInverseAMCLinkMap> produce(RPCInverseOMTFLinkMapRcd const & _rcd);
+private:
+  using HostType = edm::ESProductHost<RPCInverseAMCLinkMap, RPCOMTFLinkMapRcd>;
 
-protected:
-    std::shared_ptr<RPCInverseAMCLinkMap> inverse_linkmap_;
+  void setupRPCOMTFLinkMap(RPCOMTFLinkMapRcd const&, RPCInverseAMCLinkMap*);
+
+  edm::ReusableObjectHolder<HostType> holder_;
 };
 
-#endif // CondTools_RPC_RPCInverseOMTFLinkMapESProducer_h
+#endif  // CondTools_RPC_RPCInverseOMTFLinkMapESProducer_h

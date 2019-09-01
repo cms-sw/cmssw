@@ -2,6 +2,7 @@
 # set of tools to create and submit validation webpages 
 # author: Colin
 
+from __future__ import print_function
 import shutil, sys, os, re, glob, string 
 
 from optparse import OptionParser
@@ -33,12 +34,12 @@ class webpage:
 
         self.outputDir_ = outputDir
         if os.path.isdir( outputDir ):
-            print outputDir, "already exists"
+            print(outputDir, "already exists")
             if self.options_.force == False:
-                print 'sorry... run the script with the -h option for more information' 
+                print('sorry... run the script with the -h option for more information') 
                 sys.exit(3)
             else:
-                print 'overwriting local output directory...'
+                print('overwriting local output directory...')
         else:
             os.makedirs( outputDir )
 
@@ -57,10 +58,10 @@ class webpage:
                 # : print a warning
                 shutil.copy(picfile, self.outputDir_) 
             except Exception:
-                print 'File %s does not exist. Did you generate the comparison plots?' % picfile
-                print 'Aborting the script.\n'
-                print 'Solution 1: run without the -m "" option, to run the compare.C macro'
-                print 'Solution 2: run with the -m "myMacro.C" option, to run another macro'
+                print('File %s does not exist. Did you generate the comparison plots?' % picfile)
+                print('Aborting the script.\n')
+                print('Solution 1: run without the -m "" option, to run the compare.C macro')
+                print('Solution 2: run with the -m "myMacro.C" option, to run another macro')
                 sys.exit(1)
                 raise
         return images
@@ -80,7 +81,7 @@ class webpage:
             caption = m.group(2)
             return (pic, caption)
         else:
-            print 'bad caption format: "%s"' % line
+            print('bad caption format: "%s"' % line)
             raise Exception
 
 class website:
@@ -94,7 +95,7 @@ class website:
 
     def writeAccess(self):
         if( os.access(self.website_, os.W_OK)==False ):
-            print 'cannot write to the website. Please ask Colin to give you access.'
+            print('cannot write to the website. Please ask Colin to give you access.')
             sys.exit(1)
 
     def listBenchmarks(self, pattern, afs=False, url=False):
@@ -107,12 +108,12 @@ class website:
                 if release == None:
                     # this is a comparison
                     continue
-                print
+                print()
                 bench = benchmark(m.group(1))
-                print bcolors.OKGREEN + m.group(1) + bcolors.ENDC
+                print(bcolors.OKGREEN + m.group(1) + bcolors.ENDC)
                 if afs or url:                        
-                    if afs: print '  ',bench.benchmarkOnWebSite( self )
-                    if url: print '  ',bench.benchmarkUrl( self )
+                    if afs: print('  ',bench.benchmarkOnWebSite( self ))
+                    if url: print('  ',bench.benchmarkUrl( self ))
         
     def listComparisons(self, benchmark):
 
@@ -157,7 +158,7 @@ class benchmark:
 
             # underscore are not allowed in extension names 
             if arg!=None and arg.count('_'):
-                print 'sorry, as said many times, underscores are not allowed in the extension ;P'
+                print('sorry, as said many times, underscores are not allowed in the extension ;P')
                 sys.exit(5)
             
             extension = arg
@@ -199,16 +200,16 @@ class benchmark:
     def makeRelease( self, website):
         rel = self.releaseOnWebSite(website)
         if( os.path.isdir( rel )==False):
-            print 'creating release %s' % self.release_
-            print rel
+            print('creating release %s' % self.release_)
+            print(rel)
             os.mkdir( rel )
 
     def exists( self, website): 
         if( os.path.isdir( self.benchmarkOnWebSite(website) )):
-            print 'benchmark %s exists for release %s' % (self.benchmarkWithExt_, self.release_)
+            print('benchmark %s exists for release %s' % (self.benchmarkWithExt_, self.release_))
             return True
         else:
-            print 'benchmark %s does not exist for release %s' % (self.benchmarkWithExt_, self.release_)
+            print('benchmark %s does not exist for release %s' % (self.benchmarkWithExt_, self.release_))
             return False
 
     def addLinkToComparison( self, website, comparison ):
@@ -241,32 +242,32 @@ class comparison:
                             self.path_ )
 
     def submit(self, website, force=False):
-        print 'Submitting comparison:'
-        print '  from: ',self.path_
-        print '  to  : ',self.comparisonOnWebSite(website)
+        print('Submitting comparison:')
+        print('  from: ',self.path_)
+        print('  to  : ',self.comparisonOnWebSite(website))
 
         if( os.path.isdir(self.comparisonOnWebSite(website) ) ):
-            print 'comparison already exists'
+            print('comparison already exists')
             if force:
-                print 'overwriting comparison on the website...'
+                print('overwriting comparison on the website...')
             else:
-                print 'submission cancelled. run with -h for a solution.'
+                print('submission cancelled. run with -h for a solution.')
                 return False
         else:
-            print 'comparison directory does not yet exist. creating it.'
+            print('comparison directory does not yet exist. creating it.')
             mkdir = 'mkdir -p ' + self.comparisonOnWebSite(website)
-            print mkdir    
+            print(mkdir)    
             if os.system( mkdir ):
-                print 'problem creating the output directory on the website. Aborting.'
+                print('problem creating the output directory on the website. Aborting.')
                 return False
         cp = 'cp %s %s' % (self.path_ + '/*',
                            self.comparisonOnWebSite(website))
         if os.system(cp):
-            print 'problem copying the files to the website aborting'
+            print('problem copying the files to the website aborting')
             return False
 
-        print 'access your comparison here:'
-        print '  ', self.comparisonUrl(website)
+        print('access your comparison here:')
+        print('  ', self.comparisonUrl(website))
 
 
 
@@ -289,12 +290,12 @@ def testFileType( file, ext ):
           return
      
      if os.path.isfile( file ) == False:
-          print '%s is not a file' % file
+          print('%s is not a file' % file)
           sys.exit(2)
      
      (fileroot, fileext) = os.path.splitext( file )
      if fileext != ext:
-          print '%s does not end with %s' % (file, ext) 
+          print('%s does not end with %s' % (file, ext)) 
           sys.exit(3)
 
 

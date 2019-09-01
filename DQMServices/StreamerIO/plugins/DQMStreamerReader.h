@@ -21,72 +21,71 @@
 
 namespace dqmservices {
 
-class DQMStreamerReader : public edm::StreamerInputSource {
- public:
-  DQMStreamerReader(edm::ParameterSet const& pset,
-                    edm::InputSourceDescription const& desc);
-  ~DQMStreamerReader() override;
+  class DQMStreamerReader : public edm::StreamerInputSource {
+  public:
+    DQMStreamerReader(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc);
+    ~DQMStreamerReader() override;
 
-  bool newHeader();
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    bool newHeader();
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  typedef std::vector<std::string> Strings;
+    typedef std::vector<std::string> Strings;
 
- protected:
-  bool checkNextEvent() override; /* from raw input source */
-  void skip(int toSkip) override; /* from raw input source */
+  protected:
+    bool checkNextEvent() override; /* from raw input source */
+    void skip(int toSkip) override; /* from raw input source */
 
- private:
-  // our own, but we do inherit reset(),
-  // which will break things if called
-  void reset_() override;
+  private:
+    // our own, but we do inherit reset(),
+    // which will break things if called
+    void reset_() override;
 
-  void openFile_(const DQMFileIterator::LumiEntry& entry);
-  void closeFile_(const std::string& reason);
+    void openFileImp_(const DQMFileIterator::LumiEntry& entry);
+    void closeFileImp_(const std::string& reason);
 
-  bool openNextFile_();
+    bool openNextFileImp_();
 
-  InitMsgView const* getHeaderMsg();
-  EventMsgView const* getEventMsg();
+    InitMsgView const* getHeaderMsg();
+    EventMsgView const* getEventMsg();
 
-  EventMsgView const* prepareNextEvent();
-  bool prepareNextFile();
-  bool acceptEvent(const EventMsgView*);
+    EventMsgView const* prepareNextEvent();
+    bool prepareNextFile();
+    bool acceptEvent(const EventMsgView*);
 
-  bool triggerSel();
-  bool matchTriggerSel(Strings const& tnames);
-  bool acceptAllEvt_;
-  bool matchTriggerSel_;
+    bool triggerSel();
+    bool matchTriggerSel(Strings const& tnames);
+    bool acceptAllEvt_;
+    bool matchTriggerSel_;
 
-  unsigned int runNumber_;
-  std::string runInputDir_;
-  std::string streamLabel_;
-  Strings hltSel_;
+    unsigned int runNumber_;
+    std::string runInputDir_;
+    std::string streamLabel_;
+    Strings hltSel_;
 
-  unsigned int processedEventPerLs_;
-  unsigned int minEventsPerLs_;
+    unsigned int processedEventPerLs_;
+    unsigned int minEventsPerLs_;
 
-  bool flagSkipFirstLumis_;
-  bool flagEndOfRunKills_;
-  bool flagDeleteDatFiles_;
+    bool flagSkipFirstLumis_;
+    bool flagEndOfRunKills_;
+    bool flagDeleteDatFiles_;
 
-  DQMFileIterator fiterator_;
+    DQMFileIterator fiterator_;
 
-  struct OpenFile {
-    std::unique_ptr<edm::StreamerInputFile> streamFile_;
-    DQMFileIterator::LumiEntry lumi_;
+    struct OpenFile {
+      std::unique_ptr<edm::StreamerInputFile> streamFile_;
+      DQMFileIterator::LumiEntry lumi_;
 
-    bool open() { return (streamFile_.get() != nullptr); }
+      bool open() { return (streamFile_.get() != nullptr); }
 
-  } file_;
+    } file_;
 
-  std::shared_ptr<edm::EventSkipperByID> eventSkipperByID_;
-  std::shared_ptr<TriggerSelector> eventSelector_;
+    std::shared_ptr<edm::EventSkipperByID> eventSkipperByID_;
+    std::shared_ptr<TriggerSelector> eventSelector_;
 
-  /* this is for monitoring */
-  edm::Service<DQMMonitoringService> mon_;
-};
+    /* this is for monitoring */
+    edm::Service<DQMMonitoringService> mon_;
+  };
 
-}  // end-of-namespace-def
+}  // namespace dqmservices
 
 #endif

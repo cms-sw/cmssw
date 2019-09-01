@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Utilities
 // Class  :     CallNTimesNoWait
-// 
+//
 /**\class edm::CallNTimesNoWait CallNTimesNoWait.h "CallNTimesNoWait.h"
 
  Description: Thread safe way to do something N times
@@ -29,33 +29,31 @@
 //
 
 // system include files
-#include<atomic>
+#include <atomic>
 
 // user include files
 
 // forward declarations
 namespace edm {
-  class CallNTimesNoWait
-  {
-    
+  class CallNTimesNoWait {
   public:
-    CallNTimesNoWait( unsigned short iNTimes ): m_ntimes(static_cast<int>(iNTimes)-1), m_done(false){}
-    
+    CallNTimesNoWait(unsigned short iNTimes) : m_ntimes(static_cast<int>(iNTimes) - 1), m_done(false) {}
+
     template <typename T>
     void operator()(T iCall) {
-      if(not m_done.load(std::memory_order_acquire) ) {
-        if(m_ntimes.fetch_sub(1,std::memory_order_acq_rel)<0) {
-          m_done.store(true,std::memory_order_release);
+      if (not m_done.load(std::memory_order_acquire)) {
+        if (m_ntimes.fetch_sub(1, std::memory_order_acq_rel) < 0) {
+          m_done.store(true, std::memory_order_release);
           return;
         };
         iCall();
       }
     }
-    
-	private:
+
+  private:
     std::atomic<int> m_ntimes;
     std::atomic<bool> m_done;
   };
-}
+}  // namespace edm
 
 #endif

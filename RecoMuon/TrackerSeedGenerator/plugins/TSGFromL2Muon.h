@@ -25,18 +25,17 @@ class TSGFromL2Muon : public edm::stream::EDProducer<> {
 public:
   TSGFromL2Muon(const edm::ParameterSet& cfg);
   ~TSGFromL2Muon() override;
-  void beginRun(const edm::Run & run, const edm::EventSetup&es) override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
   void produce(edm::Event& ev, const edm::EventSetup& es) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::ParameterSet theConfig;
   edm::InputTag theL2CollectionLabel;
-  MuonServiceProxy* theService;
-  double thePtCut,thePCut;
-  MuonTrackingRegionBuilder* theRegionBuilder;
-  TrackerSeedGenerator* theTkSeedGenerator;
-  TrackerSeedCleaner* theSeedCleaner;
+  std::unique_ptr<MuonServiceProxy> theService;
+  double thePtCut, thePCut;
+  std::unique_ptr<MuonTrackingRegionBuilder> theRegionBuilder;
+  std::unique_ptr<TrackerSeedGenerator> theTkSeedGenerator;
+  std::unique_ptr<TrackerSeedCleaner> theSeedCleaner;
   edm::EDGetTokenT<reco::TrackCollection> l2muonToken;
 };
 #endif

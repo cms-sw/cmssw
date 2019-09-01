@@ -2,8 +2,8 @@
 #define AnalyticalCurvilinearJacobian_H
 
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
-#include "DataFormats/GeometryVector/interface/GlobalVector.h" 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 /** \class AnalyticalCurvilinearJacobian 
  * Creating Jacobian of transformation within the curvilinear frame.
@@ -18,46 +18,40 @@
 
 class GlobalTrajectoryParameters;
 
-class AnalyticalCurvilinearJacobian  {
- public:
+class AnalyticalCurvilinearJacobian {
+public:
   /// default constructor (for tests)
   AnalyticalCurvilinearJacobian() : theJacobian(ROOT::Math::SMatrixNoInit()) {}
 
   /// get Field at starting state (internally)
   AnalyticalCurvilinearJacobian(const GlobalTrajectoryParameters& globalParameters,
-				const GlobalPoint& x, 
-				const GlobalVector& p, 
-				const double& s);
+                                const GlobalPoint& x,
+                                const GlobalVector& p,
+                                const double& s);
   /// new: give Field as a parameter
   AnalyticalCurvilinearJacobian(const GlobalTrajectoryParameters& globalParameters,
-				const GlobalPoint& x, 
-				const GlobalVector& p, 
-				const GlobalVector& theFieldInInverseGeV, 
-				const double& s);
-  
-  
+                                const GlobalPoint& x,
+                                const GlobalVector& p,
+                                const GlobalVector& theFieldInInverseGeV,
+                                const double& s);
+
 public:
   /// result for non-vanishing curvature
-  void computeFullJacobian (const GlobalTrajectoryParameters&,
-			    const GlobalPoint&, const GlobalVector&, const GlobalVector&, 
-			    const double& s);
+  void computeFullJacobian(
+      const GlobalTrajectoryParameters&, const GlobalPoint&, const GlobalVector&, const GlobalVector&, const double& s);
   /// result for non-vanishing curvature and "small" step
-  void computeInfinitesimalJacobian (const GlobalTrajectoryParameters&,
-				     const GlobalPoint&, const GlobalVector&, const GlobalVector&, 
-				     const double& s);
+  void computeInfinitesimalJacobian(
+      const GlobalTrajectoryParameters&, const GlobalPoint&, const GlobalVector&, const GlobalVector&, const double& s);
   /// straight line approximation
-  void computeStraightLineJacobian (const GlobalTrajectoryParameters&,
-				    const GlobalPoint&, const GlobalVector&, 
-				    const double& s);
+  void computeStraightLineJacobian(const GlobalTrajectoryParameters&,
+                                   const GlobalPoint&,
+                                   const GlobalVector&,
+                                   const double& s);
 
-
-
-  const AlgebraicMatrix55& jacobian() const {return theJacobian;}
+  const AlgebraicMatrix55& jacobian() const { return theJacobian; }
 
 private:
-  
   AlgebraicMatrix55 theJacobian;
-
-};  
+};
 
 #endif

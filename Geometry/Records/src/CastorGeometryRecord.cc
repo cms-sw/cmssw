@@ -2,7 +2,7 @@
 //
 // Package:     Records
 // Class  :     CastorGeometryRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

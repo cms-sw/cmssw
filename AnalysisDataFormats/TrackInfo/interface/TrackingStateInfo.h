@@ -17,31 +17,30 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 namespace reco {
-  class TrackingStateInfo{
-    
+  class TrackingStateInfo {
   public:
     //    enum StateType { Updated=0, Combined=1, FwPredicted=2, BwPredicted=3};
-    
+
     //enum RecHitType { Single=0, Matched=1, Projected=2};
-    
-    TrackingStateInfo(){}
-    TrackingStateInfo(const std::pair<LocalVector, LocalVector>& trackdirections ,const std::pair<LocalPoint, LocalPoint>& trackpositions , PTrajectoryStateOnDet const &trajstate ): 
-      trackdirections_(trackdirections),  trackpositions_(trackpositions), trajstate_(trajstate) {}
-      //const RecHitType  type() const {return type_;}
-      //const StateType  statetype() const {return statetype_;}
-      const LocalVector localTrackMomentumOnMono() const {return trackdirections_.first;}
-      const LocalVector localTrackMomentumOnStereo()const {return trackdirections_.second;}
-      const LocalPoint localTrackPositionOnMono() const {return trackpositions_.first;}
-      const LocalPoint localTrackPositionOnStereo()const {return trackpositions_.second;}
-      const PTrajectoryStateOnDet *stateOnDet() const {return &trajstate_;};
-      
+
+    TrackingStateInfo() {}
+    TrackingStateInfo(const std::pair<LocalVector, LocalVector>& trackdirections,
+                      const std::pair<LocalPoint, LocalPoint>& trackpositions,
+                      PTrajectoryStateOnDet const& trajstate)
+        : trackdirections_(trackdirections), trackpositions_(trackpositions), trajstate_(trajstate) {}
+    //const RecHitType  type() const {return type_;}
+    //const StateType  statetype() const {return statetype_;}
+    const LocalVector localTrackMomentumOnMono() const { return trackdirections_.first; }
+    const LocalVector localTrackMomentumOnStereo() const { return trackdirections_.second; }
+    const LocalPoint localTrackPositionOnMono() const { return trackpositions_.first; }
+    const LocalPoint localTrackPositionOnStereo() const { return trackpositions_.second; }
+    const PTrajectoryStateOnDet* stateOnDet() const { return &trajstate_; };
+
   private:
- 
-      std::pair<LocalVector, LocalVector> trackdirections_;
-      std::pair<LocalPoint, LocalPoint> trackpositions_;
-      PTrajectoryStateOnDet trajstate_;
-      
+    std::pair<LocalVector, LocalVector> trackdirections_;
+    std::pair<LocalPoint, LocalPoint> trackpositions_;
+    PTrajectoryStateOnDet trajstate_;
   };
-  
-}
+
+}  // namespace reco
 #endif

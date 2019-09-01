@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     HcalInterpolatedPulseCollRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

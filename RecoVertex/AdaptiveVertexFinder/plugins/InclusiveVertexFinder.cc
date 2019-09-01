@@ -8,10 +8,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/View.h"
 
-
-typedef TemplatedInclusiveVertexFinder<reco::TrackCollection,reco::Vertex> InclusiveVertexFinder;
-typedef TemplatedInclusiveVertexFinder<edm::View<reco::Candidate>,reco::VertexCompositePtrCandidate > InclusiveCandidateVertexFinder;
-
+typedef TemplatedInclusiveVertexFinder<reco::TrackCollection, reco::Vertex> InclusiveVertexFinder;
+typedef TemplatedInclusiveVertexFinder<edm::View<reco::Candidate>, reco::VertexCompositePtrCandidate>
+    InclusiveCandidateVertexFinder;
 
 DEFINE_FWK_MODULE(InclusiveVertexFinder);
 DEFINE_FWK_MODULE(InclusiveCandidateVertexFinder);

@@ -2,7 +2,7 @@
 //
 // Package:     HBGeometry
 // Class  :     HBAlignmentErrorRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

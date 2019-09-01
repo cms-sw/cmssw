@@ -1,7 +1,6 @@
 #ifndef ERROROBJ_ICC
-  #error ErrorObj.icc erroneously included by file other than ErrorObj.h
+#error ErrorObj.icc erroneously included by file other than ErrorObj.h
 #endif
-
 
 // ----------------------------------------------------------------------
 //
@@ -13,54 +12,48 @@
 
 // ----------------------------------------------------------------------
 
-#include<sstream>
+#include <sstream>
 
-namespace edm {      
+namespace edm {
 
-// ----------------------------------------------------------------------
-// Methods for physicists adding to an ErrorObj:
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
+  // Methods for physicists adding to an ErrorObj:
+  // ----------------------------------------------------------------------
 
-template <class T>
-ErrorObj & 
-ErrorObj::opltlt ( const T & t )  {
-  myOs.str(emptyString);
-  myOs << t;
+  template <class T>
+  ErrorObj& ErrorObj::opltlt(const T& t) {
+    myOs.str(emptyString);
+    myOs << t;
 #ifdef OLD_STYLE_AUTOMATIC_SPACES
-  if ( ! myOs.str().empty() ) emitToken( myOs.str() + ' ' );
+    if (!myOs.str().empty())
+      emitToken(myOs.str() + ' ');
 #else
-  if ( ! myOs.str().empty() ) emitToken( myOs.str() );
+    if (!myOs.str().empty())
+      emitToken(myOs.str());
 #endif
-  return *this;
-}  // operator<< <T>()
+    return *this;
+  }  // operator<< <T>()
 
-// ----------------------------------------------------------------------
-// Global method for physicists adding to an ErrorObj:
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
+  // Global method for physicists adding to an ErrorObj:
+  // ----------------------------------------------------------------------
 
+  template <class T>
+  ErrorObj& operator<<(ErrorObj& e, const T& t) {
+    return e.opltlt(t);
+  }  // operator<< <T>()
 
-template <class T>
-ErrorObj & operator<<( ErrorObj & e, const T & t )  {
-  return e.opltlt(t);
-}  // operator<< <T>()
+  inline ErrorObj& ErrorObj::operator<<(std::ostream& (*f)(std::ostream&)) {
+    f(myOs);
+    myOs.str(emptyString);
+    return *this;
+  }
 
-inline 
-ErrorObj &  
-ErrorObj::operator<< (  std::ostream&(*f)(std::ostream&) ) {
-  f(myOs);
-  myOs.str(emptyString);
-  return *this;
-} 
+  inline ErrorObj& ErrorObj::operator<<(std::ios_base& (*f)(std::ios_base&)) {
+    f(myOs);
+    return *this;
+  }
 
-inline
-ErrorObj &  
-ErrorObj::operator<< ( std::ios_base&(*f)(std::ios_base&) ) {
-  f(myOs);
-  return *this;
-} 
+  // ----------------------------------------------------------------------
 
-
-// ----------------------------------------------------------------------
-
-
-}        // end of namespace edm
+}  // end of namespace edm

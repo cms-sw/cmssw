@@ -14,36 +14,31 @@ class TH1;
    @brief Analysis for timing run using APV tick marks.
 */
 class ApvTimingAlgorithm : public CommissioningAlgorithm {
-  
- public:
+public:
+  ApvTimingAlgorithm(const edm::ParameterSet& pset, ApvTimingAnalysis* const);
 
-  ApvTimingAlgorithm( const edm::ParameterSet & pset, ApvTimingAnalysis* const );
-  
-  ~ApvTimingAlgorithm() override {;}
+  ~ApvTimingAlgorithm() override { ; }
 
   /** Container of histogram pointer and title. */
   inline const Histo& histo() const;
-  
- private:
 
+private:
   /** Private constructor. */
-  ApvTimingAlgorithm() {;}
+  ApvTimingAlgorithm() { ; }
 
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& ) override;
+  void extract(const std::vector<TH1*>&) override;
 
   /** Performs histogram anaysis. */
   void analyse() override;
-  
- private:
-  
+
+private:
   /** Container of histogram pointer and title. */
   Histo histo_;
-
 };
 
 // ---------- Inline methods ----------
 
 const ApvTimingAlgorithm::Histo& ApvTimingAlgorithm::histo() const { return histo_; }
 
-#endif // DQM_SiStripCommissioningAnalysis_ApvTimingAlgorithm_H
+#endif  // DQM_SiStripCommissioningAnalysis_ApvTimingAlgorithm_H

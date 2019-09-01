@@ -18,15 +18,18 @@
 class dso_hidden NavigationSchoolESProducer final : public edm::ESProducer {
 public:
   NavigationSchoolESProducer(const edm::ParameterSet&);
-  ~NavigationSchoolESProducer() override;
-  
+
   typedef std::unique_ptr<NavigationSchool> ReturnType;
 
   virtual ReturnType produce(const NavigationSchoolRecord&);
- protected:
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
   // ----------member data ---------------------------
-  edm::ParameterSet theNavigationPSet;
-  std::string theNavigationSchoolName;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geometricSearchTrackerToken_;
+  const std::string navigationSchoolName_;
 };
 
 //
@@ -34,52 +37,35 @@ public:
 // constructors and destructor
 //
 NavigationSchoolESProducer::NavigationSchoolESProducer(const edm::ParameterSet& iConfig)
-{
-  theNavigationPSet = iConfig;
-  theNavigationSchoolName = theNavigationPSet.getParameter<std::string>("ComponentName");
+    : navigationSchoolName_(iConfig.getParameter<std::string>("ComponentName")) {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this, theNavigationSchoolName);
-  
+
+  setWhatProduced(this, navigationSchoolName_)
+      .setConsumes(magFieldToken_, edm::ESInputTag("", iConfig.getParameter<std::string>("SimpleMagneticField")))
+      .setConsumes(geometricSearchTrackerToken_);
+
   //now do what ever other initialization is needed
 }
-
-
-NavigationSchoolESProducer::~NavigationSchoolESProducer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-NavigationSchoolESProducer::ReturnType
-NavigationSchoolESProducer::produce(const NavigationSchoolRecord& iRecord)
-{
-   using namespace edm::es;
+NavigationSchoolESProducer::ReturnType NavigationSchoolESProducer::produce(const NavigationSchoolRecord& iRecord) {
+  using namespace edm::es;
 
-   // get the field
-   edm::ESHandle<MagneticField>                field;
-   std::string mfName = "";
-   if (theNavigationPSet.exists("SimpleMagneticField"))
-     mfName = theNavigationPSet.getParameter<std::string>("SimpleMagneticField");
-   iRecord.getRecord<IdealMagneticFieldRecord>().get(mfName,field);
-   //   edm::ESInputTag mfESInputTag(mfName);
-   //   iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,field);
+  //get the geometricsearch tracker geometry
+  return ReturnType(NavigationSchoolFactory::get()->create(
+      navigationSchoolName_, &iRecord.get(geometricSearchTrackerToken_), &iRecord.get(magFieldToken_)));
+}
 
-   //get the geometricsearch tracker geometry
-   edm::ESHandle<GeometricSearchTracker>         geometricSearchTracker;
-   iRecord.getRecord<TrackerRecoGeometryRecord>().get(geometricSearchTracker);
-   
-   return ReturnType(NavigationSchoolFactory::get()->create(theNavigationSchoolName,
-								    geometricSearchTracker.product(),
-								    field.product()));
+void NavigationSchoolESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("ComponentName");
+  desc.add<std::string>("SimpleMagneticField", "");
+  descriptions.addDefault(desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

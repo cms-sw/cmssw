@@ -2,6 +2,7 @@
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/ElementID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
@@ -25,6 +26,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/StoredMergeableRunProductMetadata.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
@@ -34,6 +36,7 @@
 #include "DataFormats/Provenance/interface/ESRecordAuxiliary.h"
 #include "DataFormats/Provenance/interface/ViewTypeChecker.h"
 #include "FWCore/Utilities/interface/typedefs.h"
+#include "FWCore/Utilities/interface/VecArray.h"
 #include <map>
 #include <set>
 #include <vector>
@@ -55,41 +58,4 @@
 
 namespace edm {
   typedef Hash<ModuleDescriptionType> ModuleDescriptionID;
-}
-
-namespace DataFormats_Provenance {
-  struct dictionary {
-  std::pair<edm::BranchKey, edm::BranchDescription> dummyPairBranch;
-  std::map<edm::ParameterSetID, edm::ParameterSetBlob> dummyMapParam;
-  std::map<edm::ProcessHistoryID, edm::ProcessHistory> dummyMapProcH;
-  std::vector<edm::ProcessConfigurationID> dummyVectorProcC;
-  std::vector<edm::ProcessHistory> dummyVectorProcH;
-  std::set<edm::ProcessHistoryID> dummySetProcH;
-  std::pair<edm::ParameterSetID, edm::ParameterSetBlob> dummyPairParam;
-  std::pair<edm::ProcessHistoryID, edm::ProcessHistory> dummyPairProcH;
-  edm::ParentageID dummyParentageID;
-  std::vector<edm::ProductID> dummyVectorProductID;
-  std::vector<edm::BranchID> dummyVectorBranchID;
-  std::set<edm::BranchID> dummySetBranchID;
-  std::map<edm::BranchID, std::set<edm::BranchID> > dummyMapSetBranchID;
-  std::pair<edm::BranchID, std::set<edm::BranchID> > dummyPairSetBranchID;
-  std::vector<edm::EventID> dummyVectorEventID;
-  std::vector<std::vector<edm::EventID> > dummyVectorVectorEventID;
-  std::vector<std::vector<std::vector<edm::EventID> > > dummyVectorVectorVectorEventID;
-  std::vector<edm::ProductProvenance> dummyVectorProductProvenance;
-    std::vector<edm::StoredProductProvenance> dummyVectorStoredProductProvenance;
-  std::vector<std::vector<edm::ParameterSetID> > dummyVectorVectorParameterSetID;
-  std::pair<edm::ProductID, unsigned int> ppui1;
-  std::vector<std::pair<edm::ProductID, unsigned int> > vppui1;
-
-  std::vector<TFormula*> dummyvtfp;
-
-  // The remaining ones are for backward compatibility only.
-  std::vector<edm::EventProcessHistoryID> dummyEventProcessHistory;
-  edm::EntryDescriptionID dummyEntryDescriptionID;
-  std::vector<edm::EventEntryInfo> dummyVectorEventEntryInfo;
-  std::vector<edm::RunLumiEntryInfo> dummyVectorRunLumiEntryInfo;
-
-  std::pair<edm::ModuleDescriptionID, edm::ModuleDescription> dummyPairMod;
-};
 }

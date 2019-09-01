@@ -14,7 +14,6 @@ DEFINE_FWK_MODULE(PATCompositeCandidateSelector);
 DEFINE_FWK_MODULE(PATTriggerObjectStandAloneSelector);
 DEFINE_FWK_MODULE(PATGenericParticleSelector);
 
-
 DEFINE_FWK_MODULE(PATElectronRefSelector);
 DEFINE_FWK_MODULE(PATMuonRefSelector);
 DEFINE_FWK_MODULE(PATTauRefSelector);
@@ -25,7 +24,5 @@ DEFINE_FWK_MODULE(PATPFParticleRefSelector);
 DEFINE_FWK_MODULE(PATGenericParticleRefSelector);
 DEFINE_FWK_MODULE(PATCompositeCandidateRefSelector);
 
-
 DEFINE_FWK_MODULE(IsoTrackSelector);
 DEFINE_FWK_MODULE(MuonRefPatCount);
-

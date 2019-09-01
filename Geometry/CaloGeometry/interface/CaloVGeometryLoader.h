@@ -10,14 +10,11 @@ class CaloSubdetectorGeometry;
 
   Abstract base class for a subdetector geometry loader.
  */
-class CaloVGeometryLoader 
-{
-   public:
-      virtual ~CaloVGeometryLoader() = default;
-      /// Load the subdetector geometry for the specified det and subdet
-      virtual std::unique_ptr<CaloSubdetectorGeometry> 
-                     load( DetId::Detector det, int subdet ) = 0;
+class CaloVGeometryLoader {
+public:
+  virtual ~CaloVGeometryLoader() = default;
+  /// Load the subdetector geometry for the specified det and subdet
+  virtual std::unique_ptr<CaloSubdetectorGeometry> load(DetId::Detector det, int subdet) = 0;
 };
 
 #endif
-

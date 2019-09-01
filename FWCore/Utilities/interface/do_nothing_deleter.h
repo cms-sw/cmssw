@@ -34,6 +34,6 @@ namespace edm {
   struct do_nothing_deleter {
     void operator()(void const*) const {}
   };
-}
+}  // namespace edm
 
 #endif

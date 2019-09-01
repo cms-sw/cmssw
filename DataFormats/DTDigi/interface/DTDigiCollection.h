@@ -15,4 +15,3 @@
 typedef MuonDigiCollection<DTLayerId, DTDigi> DTDigiCollection;
 
 #endif
-

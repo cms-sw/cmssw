@@ -11,27 +11,27 @@
     @brief Constants and enumerated type for defining the various
     "sources" of cabling object information.
 */
-namespace sistrip { 
+namespace sistrip {
 
-  // ---------- Constants ---------- 
+  // ---------- Constants ----------
 
-  static const char unknownCablingSource_[]   = "UnknownCablingSource";
+  static const char unknownCablingSource_[] = "UnknownCablingSource";
   static const char undefinedCablingSource_[] = "UndefinedCablingSource";
-  
-  static const char cablingFromConns_[]   = "CablingFromConnections";
+
+  static const char cablingFromConns_[] = "CablingFromConnections";
   static const char cablingFromDevices_[] = "CablingFromDevices";
-  static const char cablingFromDetIds_[]  = "CablingFromDetIds";
+  static const char cablingFromDetIds_[] = "CablingFromDetIds";
 
-  // ---------- Enumerated type ---------- 
-  
-  enum CablingSource { UNKNOWN_CABLING_SOURCE   = sistrip::unknown_,
-		       UNDEFINED_CABLING_SOURCE = sistrip::invalid_,
-		       CABLING_FROM_CONNS       = 1,
-		       CABLING_FROM_DEVICES     = 2,
-		       CABLING_FROM_DETIDS      = 3
+  // ---------- Enumerated type ----------
+
+  enum CablingSource {
+    UNKNOWN_CABLING_SOURCE = sistrip::unknown_,
+    UNDEFINED_CABLING_SOURCE = sistrip::invalid_,
+    CABLING_FROM_CONNS = 1,
+    CABLING_FROM_DEVICES = 2,
+    CABLING_FROM_DETIDS = 3
   };
-  
-}
 
-#endif // DataFormats_SiStripCommon_ConstantsForCablingSource_H
+}  // namespace sistrip
 
+#endif  // DataFormats_SiStripCommon_ConstantsForCablingSource_H

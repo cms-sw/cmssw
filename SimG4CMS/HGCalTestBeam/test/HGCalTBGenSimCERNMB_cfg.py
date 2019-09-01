@@ -1,18 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('SIM')
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process('SIM',Phase2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('SimG4CMS.HGCalTestBeam.HGCalTB161Module8XML_cfi')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTB181Oct1XML_cfi')
+#process.load('SimG4CMS.HGCalTestBeam.HGCalTB161Module8XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
+#process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -25,24 +28,15 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HGCSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-    ),
-    categories = cms.untracked.vstring('HGCSim'),
-    destinations = cms.untracked.vstring('cout','cerr')
-)
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.categories.append('HGCSim')
+
 
 # Input source
 process.source = cms.Source("EmptySource")
 
 process.options = cms.untracked.PSet(
-
 )
 
 # Production Info
@@ -81,18 +75,23 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     AddAntiParticle = cms.bool(False),
     PGunParameters = cms.PSet(
-        MinE = cms.double(9.99),
-        MaxE = cms.double(10.01),
+        MinE = cms.double(99.99),
+        MaxE = cms.double(100.01),
         MinTheta = cms.double(0.0),
         MaxTheta = cms.double(0.0),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
-        PartID = cms.vint32(14)
+#	MinTheta = cms.double(.011837),
+#	MaxTheta = cms.double(.011837),
+#	MinPhi = cms.double(3.649887),
+#	MaxPhi = cms.double(3.649887),
+        PartID = cms.vint32(13)
     ),
     Verbosity = cms.untracked.int32(0),
     firstRun = cms.untracked.uint32(1),
     psethack = cms.string('single muon E 100')
 )
+
 process.VtxSmeared.MinZ = -800.0
 process.VtxSmeared.MaxZ = -800.0
 process.VtxSmeared.MinX = 0
@@ -101,7 +100,6 @@ process.VtxSmeared.MinY = 0
 process.VtxSmeared.MaxY =  0
 process.HGCalTBAnalyzer.DoDigis = False
 process.HGCalTBAnalyzer.DoRecHits = False
-
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
@@ -112,7 +110,14 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.analysis_step,process.endjob_step,process.RAWSIMoutput_step)
+process.schedule = cms.Schedule(
+    process.generation_step,
+    process.genfiltersummary_step,
+    process.simulation_step,
+    process.analysis_step,
+    process.endjob_step,
+    process.RAWSIMoutput_step
+)
 
 # filter all path with the production filter sequence
 for path in process.paths:

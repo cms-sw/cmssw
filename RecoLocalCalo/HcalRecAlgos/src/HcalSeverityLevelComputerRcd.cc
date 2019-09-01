@@ -2,11 +2,11 @@
 //
 // Package:     HcalRecAlgoESProducer
 // Class  :     HcalSeverityLevelComputerRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Mon Feb  9 11:02:08 CET 2009
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"

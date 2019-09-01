@@ -4,7 +4,7 @@
 //
 // Package:     Records
 // Class  :     CaloTowerGeometryRecord
-// 
+//
 //
 // Author:      Brian Heltsley
 // Created:     Tue April 1, 2008
@@ -21,18 +21,14 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
 
-
-class CaloTowerGeometryRecord : 
-   public edm::eventsetup::DependentRecordImplementation<
-   CaloTowerGeometryRecord,
-		boost::mpl::vector<
-                IdealGeometryRecord,
-                HcalRecNumberingRecord,
-		CaloTowerAlignmentRcd, 
-		CaloTowerAlignmentErrorRcd,
-                CaloTowerAlignmentErrorExtendedRcd,
-		GlobalPositionRcd,
-                PCaloTowerRcd               > > {};
+class CaloTowerGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<CaloTowerGeometryRecord,
+                                                            boost::mpl::vector<IdealGeometryRecord,
+                                                                               HcalRecNumberingRecord,
+                                                                               CaloTowerAlignmentRcd,
+                                                                               CaloTowerAlignmentErrorRcd,
+                                                                               CaloTowerAlignmentErrorExtendedRcd,
+                                                                               GlobalPositionRcd,
+                                                                               PCaloTowerRcd> > {};
 
 #endif /* RECORDS_CALOTOWERGEOMETRYRECORD_H */
-

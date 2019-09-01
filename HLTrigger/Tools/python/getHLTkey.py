@@ -1,4 +1,6 @@
 #!/usr/bin/env python 
+from __future__ import print_function
+from __future__ import absolute_import
 from sys import stderr, exit
 import commands
 
@@ -18,38 +20,38 @@ parser.add_option("--HLTkey",    dest="HLTkey",    help="name of the HLTkey e.g.
 parser.add_option("--perKey",    action="store_true",default=False,dest="perKey",help="list the runs per HLT key",metavar="perKey")
 (options, args) = parser.parse_args()
 
-from queryRR import queryRR
+from .queryRR import queryRR
 
 runKeys = queryRR(options.firstRun,options.lastRun,options.groupName)
 runs = runKeys.keys(); runs.sort()
 
 if options.perKey:
- 	runsPerKey={}
-	for run in runs:
-		key = runKeys[run]
-		if not key in runsPerKey.keys():
-			tmpruns=[]
-			tmpruns.append(run)
-			runsPerKey[key] = tmpruns
-		else:
-			runsPerKey[key].append(run)
-	theKeys = runsPerKey.keys()
-	for key in theKeys:
-		theruns = runsPerKey[key]
-		topr=""
-		for r in theruns:
-			topr=topr+"\t"+r
-		print key,topr
-	exit(1)
-			
+    runsPerKey={}
+    for run in runs:
+        key = runKeys[run]
+        if not key in runsPerKey.keys():
+            tmpruns=[]
+            tmpruns.append(run)
+            runsPerKey[key] = tmpruns
+        else:
+            runsPerKey[key].append(run)
+    theKeys = runsPerKey.keys()
+    for key in theKeys:
+        theruns = runsPerKey[key]
+        topr=""
+        for r in theruns:
+            topr=topr+"\t"+r
+        print(key,topr)
+    exit(1)
+
 if options.HLTkey:
-	HLTkey = options.HLTkey
-	print "List of runs taken with HLT key = ",HLTkey 
+    HLTkey = options.HLTkey
+    print("List of runs taken with HLT key = ",HLTkey) 
 for run in runs:
     key = runKeys[run]
 
     if not options.HLTkey:
-       print run,key	
+        print(run,key)	
     else:
-	if key == options.HLTkey:
-	   print run
+        if key == options.HLTkey:
+            print(run)

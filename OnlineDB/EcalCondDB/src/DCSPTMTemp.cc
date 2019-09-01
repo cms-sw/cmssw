@@ -10,75 +10,38 @@
 using namespace std;
 using namespace oracle::occi;
 
-DCSPTMTemp::DCSPTMTemp()
-{
+DCSPTMTemp::DCSPTMTemp() {
   m_conn = nullptr;
- 
 
   m_runStart = Tm();
   m_runEnd = Tm();
-  m_temp=0.;
- 
+  m_temp = 0.;
 }
 
+DCSPTMTemp::~DCSPTMTemp() {}
 
-
-DCSPTMTemp::~DCSPTMTemp()
-{
-}
-
-
-
-
-void DCSPTMTemp::setStart(const Tm& start)
-{
+void DCSPTMTemp::setStart(const Tm& start) {
   if (start != m_runStart) {
     m_ID = 0;
     m_runStart = start;
   }
 }
 
+Tm DCSPTMTemp::getStart() const { return m_runStart; }
 
-
-Tm DCSPTMTemp::getStart() const
-{
-  return m_runStart;
-}
-
-
-
-void DCSPTMTemp::setEnd(const Tm& end)
-{
+void DCSPTMTemp::setEnd(const Tm& end) {
   if (end != m_runEnd) {
     m_ID = 0;
     m_runEnd = end;
   }
 }
 
+Tm DCSPTMTemp::getEnd() const { return m_runEnd; }
 
+float DCSPTMTemp::getTemperature() { return m_temp; }
 
-Tm DCSPTMTemp::getEnd() const
-{
-  return m_runEnd;
-}
+void DCSPTMTemp::setTemperature(float temp) { m_temp = temp; }
 
-float DCSPTMTemp::getTemperature() 
-{
-  return m_temp;
-}
+EcalLogicID DCSPTMTemp::getEcalLogicID() const { return m_ecid; }
 
-void DCSPTMTemp::setTemperature(float temp) 
-{
-  m_temp=temp;
-}
-
-EcalLogicID DCSPTMTemp::getEcalLogicID() const
-{
-  return m_ecid;
-}
-
-void DCSPTMTemp::setEcalLogicID(const EcalLogicID& ecid) 
-{
-  m_ecid=ecid;
-}
-
+void DCSPTMTemp::setEcalLogicID(const EcalLogicID& ecid) { m_ecid = ecid; }

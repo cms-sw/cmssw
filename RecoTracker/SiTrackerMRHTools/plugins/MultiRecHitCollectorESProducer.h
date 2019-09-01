@@ -16,19 +16,17 @@
 
 #include <memory>
 
-class  MultiRecHitCollectorESProducer: public edm::ESProducer{
- public:
+class MultiRecHitCollectorESProducer : public edm::ESProducer {
+public:
   MultiRecHitCollectorESProducer(const edm::ParameterSet& iConfig);
-  ~MultiRecHitCollectorESProducer() override; 
-  std::unique_ptr<MultiRecHitCollector> produce(const MultiRecHitRecord &);
+  ~MultiRecHitCollectorESProducer() override;
+  std::unique_ptr<MultiRecHitCollector> produce(const MultiRecHitRecord&);
 
   // Set parameter set
-  void setConf(const edm::ParameterSet& conf){ conf_ = conf; }
- 
- private:
-  edm::ParameterSet conf_;
+  void setConf(const edm::ParameterSet& conf) { conf_ = conf; }
 
+private:
+  edm::ParameterSet conf_;
 };
 
-
-#endif // RecoLocalTracker_ESProducers_MultiRecHitCollectorESProducer_h
+#endif  // RecoLocalTracker_ESProducers_MultiRecHitCollectorESProducer_h

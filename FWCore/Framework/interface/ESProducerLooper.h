@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     ESProducerLooper
-// 
+//
 /**\class ESProducerLooper ESProducerLooper.h FWCore/Framework/interface/ESProducerLooper.h
 
  Description: <one line class summary>
@@ -30,37 +30,35 @@
 
 // forward declarations
 namespace edm {
-  class ESProducerLooper : public ESProducer, public EventSetupRecordIntervalFinder, public EDLooper
-{
+  class ESProducerLooper : public ESProducer, public EventSetupRecordIntervalFinder, public EDLooper {
+  public:
+    ESProducerLooper();
+    //virtual ~ESProducerLooper();
 
-   public:
-      ESProducerLooper();
-      //virtual ~ESProducerLooper();
+    // ---------- const member functions ---------------------
 
-      // ---------- const member functions ---------------------
+    // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+    std::set<eventsetup::EventSetupRecordKey> modifyingRecords() const override;
+    // ---------- member functions ---------------------------
 
-      std::set<eventsetup::EventSetupRecordKey> modifyingRecords() const override;
-      // ---------- member functions ---------------------------
+  protected:
+    void setIntervalFor(const eventsetup::EventSetupRecordKey& iKey,
+                        const IOVSyncValue& iTime,
+                        ValidityInterval& oInterval) override;
 
-   protected:
-      void setIntervalFor(const eventsetup::EventSetupRecordKey& iKey,
-                          const IOVSyncValue& iTime, 
-                          ValidityInterval& oInterval) override;
-        
-      //use this to 'snoop' on what records are being used by the Producer
-      void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord ,
-                                          std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
-                                          const std::string& iLabel= std::string() ) override;
-private:
-      ESProducerLooper(const ESProducerLooper&) = delete; // stop default
+    //use this to 'snoop' on what records are being used by the Producer
+    void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord,
+                                std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
+                                const std::string& iLabel = std::string()) override;
 
-      const ESProducerLooper& operator=(const ESProducerLooper&) = delete; // stop default
+  private:
+    ESProducerLooper(const ESProducerLooper&) = delete;  // stop default
 
-      // ---------- member data --------------------------------
+    const ESProducerLooper& operator=(const ESProducerLooper&) = delete;  // stop default
 
-};
-}
+    // ---------- member data --------------------------------
+  };
+}  // namespace edm
 
 #endif

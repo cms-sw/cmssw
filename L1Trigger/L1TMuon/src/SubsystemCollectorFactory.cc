@@ -2,5 +2,4 @@
 
 using namespace L1TMuon;
 
-EDM_REGISTER_PLUGINFACTORY( SubsystemCollectorFactory,
-			    "SubsystemCollectorFactory" );
+EDM_REGISTER_PLUGINFACTORY(SubsystemCollectorFactory, "SubsystemCollectorFactory");

@@ -11,18 +11,16 @@
  */
 
 template <typename Range>
-inline bool rangesIntersect( const Range& a, const Range& b) {
-  return !( (a.first > b.second) | (b.first > a.second) );
+inline bool rangesIntersect(const Range& a, const Range& b) {
+  return !((a.first > b.second) | (b.first > a.second));
 }
 
 template <typename Range, typename Less>
-inline bool rangesIntersect( const Range& a, const Range& b, 
-			     Less const &less) {
-  return  !( less(b.second,a.first) | less(a.second,b.first));
+inline bool rangesIntersect(const Range& a, const Range& b, Less const& less) {
+  return !(less(b.second, a.first) | less(a.second, b.first));
 }
 template <typename Range, typename T>
-inline bool rangesIntersect( const Range& a, const Range& b, 
-			     bool (*less)(T,T)) {
-  return  !( less(b.second,a.first) | less(a.second,b.first));
+inline bool rangesIntersect(const Range& a, const Range& b, bool (*less)(T, T)) {
+  return !(less(b.second, a.first) | less(a.second, b.first));
 }
 #endif

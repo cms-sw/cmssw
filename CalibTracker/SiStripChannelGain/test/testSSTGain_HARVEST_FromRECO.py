@@ -5,7 +5,6 @@
 # with command line options: stepHarvest --data --conditions auto:run2_data --scenario pp -s ALCAHARVEST:SiStripGains --filein file:PromptCalibProdSiStripGains.root -n -1 --fileout file:calib.root
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process('ALCAHARVEST')
 

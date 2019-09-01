@@ -4,7 +4,7 @@
 //
 // Package:    PixelVertexProducer
 // Class:      PixelVertexProducer
-// 
+//
 /**\class PixelVertexProducer PixelVertexProducer.h PixelVertexFinding/interface/PixelVertexProducer.h
 
  Description: This produces 1D (z only) primary vertexes using only pixel information.
@@ -33,12 +33,13 @@
 class DivisiveVertexFinder;
 
 class PixelVertexProducer : public edm::stream::EDProducer<> {
- public:
-  explicit PixelVertexProducer(const edm::ParameterSet&);
+public:
+  explicit PixelVertexProducer(const edm::ParameterSet &);
   ~PixelVertexProducer() override;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
- private:
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+private:
   // ----------member data ---------------------------
   // Turn on debug printing if verbose_ > 0
   const int verbose_;
@@ -50,6 +51,5 @@ class PixelVertexProducer : public edm::stream::EDProducer<> {
   const edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot;
 
   DivisiveVertexFinder *dvf_;
-
 };
 #endif

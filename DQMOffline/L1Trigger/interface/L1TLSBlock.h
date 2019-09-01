@@ -41,7 +41,6 @@
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 //
 //#include "DQMServices/Core/interface/DQMStore.h"
-//#include "DQMServices/Core/interface/MonitorElement.h"
 //#include "FWCore/ServiceRegistry/interface/Service.h"
 //#include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
@@ -57,12 +56,10 @@
 
 // Forward declarations
 
-
-
 // Helper
-template<class T1, class T2, class Pred = std::less<T1> >
+template <class T1, class T2, class Pred = std::less<T1> >
 struct sort_pair_first {
-  bool operator()(const std::pair<T1,T2>&left, const std::pair<T1,T2>&right) {
+  bool operator()(const std::pair<T1, T2>& left, const std::pair<T1, T2>& right) {
     Pred p;
     return p(left.first, right.first);
   }
@@ -70,40 +67,39 @@ struct sort_pair_first {
 
 // Class declaration
 class L1TLSBlock {
-  
- public: 
+public:
   // typedefs
-  typedef std::vector<std::pair<int,double> > LumiTestDoubleList;
-  typedef std::vector<std::pair<int,double> > LumiTestIntList;
-  typedef std::pair<int,int> LumiRange;
+  typedef std::vector<std::pair<int, double> > LumiTestDoubleList;
+  typedef std::vector<std::pair<int, double> > LumiTestIntList;
+  typedef std::pair<int, int> LumiRange;
   typedef std::vector<LumiRange> LumiRangeList;
-  
-  enum BLOCKBY{STATISTICS, N_BLOCKINGBY};
- public:
+
+  enum BLOCKBY { STATISTICS, N_BLOCKINGBY };
+
+public:
   // Constructor
-  L1TLSBlock();   
+  L1TLSBlock();
   // Destructor
-  virtual ~L1TLSBlock();                     
+  virtual ~L1TLSBlock();
   LumiRangeList doBlocking(const LumiTestDoubleList&, double, BLOCKBY);
-  LumiRangeList doBlocking(const LumiTestIntList&, int,    BLOCKBY);
-  
+  LumiRangeList doBlocking(const LumiTestIntList&, int, BLOCKBY);
+
   // Private Methods
- private:
+private:
   void initializeIO(bool);
   void blockByStatistics();
   void orderTestDoubleList();
   void orderTestIntList();
-  
+
   double computeErrorFromRange(LumiRange&);
-  
+
   // Variables
- private:
+private:
   LumiTestIntList inputIntList_;
   LumiTestDoubleList inputDoubleList_;
   LumiRangeList outputList_;
   double thresholdD_;
   int thresholdI_;
- 
 };
 
 #endif

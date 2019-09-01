@@ -1,5 +1,8 @@
 <use   name="DetectorDescription/Core"/>
 <use   name="geant4core"/>
+<use   name="DetectorDescription/DDCMS"/>
+<use   name="dd4hep-core"/>
+<use   name="dd4hep-geant4"/>
 <use   name="Geometry/Records"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>

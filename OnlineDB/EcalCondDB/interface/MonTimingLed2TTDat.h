@@ -4,10 +4,9 @@
 #include "OnlineDB/EcalCondDB/interface/ITimingDat.h"
 
 class MonTimingLed2TTDat : public ITimingDat {
- public:
+public:
   // User data methods
-  inline std::string getTable() override { return "MON_TIMING_TT_L2_DAT";}
-   
+  inline std::string getTable() override { return "MON_TIMING_TT_L2_DAT"; }
 };
 
 #endif

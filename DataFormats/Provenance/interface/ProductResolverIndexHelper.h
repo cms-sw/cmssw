@@ -84,14 +84,13 @@ namespace edm {
     // If the TypeID for the wrapped type is already available,
     // it is faster to call getContainedTypeFromWrapper directly.
     TypeID getContainedType(TypeID const& typeID);
-  }
+  }  // namespace productholderindexhelper
 
   class ProductResolverIndexHelper {
   public:
-
     ProductResolverIndexHelper();
 
-    // The accessors below return a ProductResolverIndex that matches 
+    // The accessors below return a ProductResolverIndex that matches
     // the arguments or a set of matching indexes using the Matches
     // class. A returned index can have a value that indicates that it
     // is invalid or ambiguous and the client should check for these
@@ -116,13 +115,14 @@ namespace edm {
     // knows how to search for the product matching the type, module
     // label, and instance and which is from the most recent process.
     ProductResolverIndex index(KindOfType kindOfType,
-                             TypeID const& typeID,
-                             char const* moduleLabel,
-                             char const* instance,
-                             char const* process = nullptr) const;
-    
-    using ModulesToIndiciesMap =std::unordered_multimap<std::string,std::tuple<TypeID const*, const  char*, ProductResolverIndex>>;
-    ModulesToIndiciesMap indiciesForModulesInProcess( const std::string& iProcessName ) const;
+                               TypeID const& typeID,
+                               char const* moduleLabel,
+                               char const* instance,
+                               char const* process = nullptr) const;
+
+    using ModulesToIndiciesMap =
+        std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, ProductResolverIndex>>;
+    ModulesToIndiciesMap indiciesForModulesInProcess(const std::string& iProcessName) const;
 
     class Matches {
     public:
@@ -135,6 +135,7 @@ namespace edm {
       bool isFullyResolved(unsigned int i) const;
       char const* moduleLabel(unsigned int i) const;
       char const* processName(unsigned int i) const;
+
     private:
       ProductResolverIndexHelper const* productResolverIndexHelper_;
       unsigned int startInIndexAndNames_;
@@ -145,16 +146,13 @@ namespace edm {
     // match the type, module label, and product instance name.
     // The pointer arguments must be C style strings terminated
     // by a '\0'.
-    Matches
-    relatedIndexes(KindOfType kindOfType,
-                   TypeID const& typeID,
-                   char const* moduleLabel,
-                   char const* instance) const;
+    Matches relatedIndexes(KindOfType kindOfType,
+                           TypeID const& typeID,
+                           char const* moduleLabel,
+                           char const* instance) const;
 
     // Return indexes for all groups that match the type.
-    Matches
-    relatedIndexes(KindOfType kindOfType,
-                   TypeID const& typeID) const;
+    Matches relatedIndexes(KindOfType kindOfType, TypeID const& typeID) const;
 
     // This will throw if called after the object is frozen.
     // The typeID must be for a type with a dictionary
@@ -178,19 +176,17 @@ namespace edm {
     // 2. If it does not already exist it inserts a new
     // entry with a new ProductResolverIndex for the case
     // which searches for the most recent process.
-    ProductResolverIndex
-    insert(TypeID const& typeID,
-           char const* moduleLabel,
-           char const* instance,
-           char const* process,
-           TypeID const& containedTypeID,
-           std::vector<TypeWithDict>* baseTypesOfContainedType);
+    ProductResolverIndex insert(TypeID const& typeID,
+                                char const* moduleLabel,
+                                char const* instance,
+                                char const* process,
+                                TypeID const& containedTypeID,
+                                std::vector<TypeWithDict>* baseTypesOfContainedType);
 
-    ProductResolverIndex
-    insert(TypeID const& typeID,
-           char const* moduleLabel,
-           char const* instance,
-           char const* process);
+    ProductResolverIndex insert(TypeID const& typeID,
+                                char const* moduleLabel,
+                                char const* instance,
+                                char const* process);
 
     // Before the object is frozen the accessors above will
     // fail to find a match. Once frozen, no more new entries
@@ -201,9 +197,10 @@ namespace edm {
 
     class Range {
     public:
-      Range(unsigned int begin, unsigned int end) : begin_(begin), end_(end) { }
+      Range(unsigned int begin, unsigned int end) : begin_(begin), end_(end) {}
       unsigned int begin() const { return begin_; }
       unsigned int end() const { return end_; }
+
     private:
       unsigned int begin_;
       unsigned int end_;
@@ -211,11 +208,12 @@ namespace edm {
 
     class IndexAndNames {
     public:
-      IndexAndNames(ProductResolverIndex index, unsigned int start, unsigned int startProcess) :
-        index_(index), startInBigNamesContainer_(start), startInProcessNames_(startProcess) { }
+      IndexAndNames(ProductResolverIndex index, unsigned int start, unsigned int startProcess)
+          : index_(index), startInBigNamesContainer_(start), startInProcessNames_(startProcess) {}
       ProductResolverIndex index() const { return index_; }
       unsigned int startInBigNamesContainer() const { return startInBigNamesContainer_; }
       unsigned int startInProcessNames() const { return startInProcessNames_; }
+
     private:
       ProductResolverIndex index_;
       unsigned int startInBigNamesContainer_;
@@ -256,7 +254,6 @@ namespace edm {
     void print(std::ostream& os) const;
 
   private:
-
     // Next available value for a ProductResolverIndex. This just
     // increments by one each time a new value is assigned.
     ProductResolverIndex nextIndexValue_;
@@ -302,7 +299,7 @@ namespace edm {
     // The second vector contains all the process names
     // in alphabetical order with no duplication. The
     // first element is always the empty string.
-    std::vector<char> bigNamesContainer_; 
+    std::vector<char> bigNamesContainer_;
     std::vector<char> processNames_;
 
     // Duplicates the entries in processNames_ in
@@ -345,5 +342,5 @@ namespace edm {
 
     edm::propagate_const<std::unique_ptr<std::set<std::string>>> processItems_;
   };
-}
+}  // namespace edm
 #endif

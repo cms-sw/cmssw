@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,16 +29,15 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTPFNeutralIsolationProducer : public edm::EDProducer {
- public:
+class EgammaHLTPFNeutralIsolationProducer : public edm::global::EDProducer<> {
+public:
   explicit EgammaHLTPFNeutralIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTPFNeutralIsolationProducer() override {};    
-      
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
- 
- private:
+  ~EgammaHLTPFNeutralIsolationProducer() override{};
 
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
   edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateProducer_;
@@ -60,7 +59,6 @@ class EgammaHLTPFNeutralIsolationProducer : public edm::EDProducer {
   bool doRhoCorrection_;
   float rhoScale_;
   float rhoMax_;
-
 };
 
 #endif

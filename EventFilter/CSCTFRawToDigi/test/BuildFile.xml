@@ -11,6 +11,7 @@
 </library>
 
 <bin name="testCSCTFRawToDigi" file="testCSCTFRawToDigi.cpp">
+  <use name="FWCore/ParameterSetReader"/>
   <use name="cppunit"/>
 </bin>
 

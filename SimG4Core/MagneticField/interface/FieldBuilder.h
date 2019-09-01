@@ -1,5 +1,5 @@
-#ifndef SimG4Core_FieldBuilder_H
-#define SimG4Core_FieldBuilder_H
+#ifndef SimG4Core_MagneticField_FieldBuilder_H
+#define SimG4Core_MagneticField_FieldBuilder_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <memory>
@@ -13,28 +13,25 @@ class G4LogicalVolume;
 namespace sim {
   class Field;
   class FieldBuilder {
-
   public:
-
-    FieldBuilder(const MagneticField*, const edm::ParameterSet&);
+    FieldBuilder(const MagneticField *, const edm::ParameterSet &);
 
     ~FieldBuilder();
 
-    void build(CMSFieldManager* fM, G4PropagatorInField* fP);
+    void build(CMSFieldManager *fM, G4PropagatorInField *fP);
 
-    void configureForVolume( const std::string& volName, 
-			     edm::ParameterSet& volPSet,
-			     CMSFieldManager * fM,
-			     G4PropagatorInField * fP);
+    void configureForVolume(const std::string &volName,
+                            edm::ParameterSet &volPSet,
+                            CMSFieldManager *fM,
+                            G4PropagatorInField *fP);
 
   private:
-
-    Field* theField;
+    Field *theField;
     G4Mag_UsualEqRhs *theFieldEquation;
-    G4LogicalVolume  *theTopVolume;	 
+    G4LogicalVolume *theTopVolume;
     edm::ParameterSet thePSet;
-    double delta;
+    double theDelta;
   };
-};
+};  // namespace sim
 
 #endif

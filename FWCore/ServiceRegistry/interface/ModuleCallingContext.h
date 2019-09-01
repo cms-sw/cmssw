@@ -26,10 +26,8 @@ namespace edm {
   class PlaceInPathContext;
   class StreamContext;
 
-
   class ModuleCallingContext {
   public:
-
     typedef ParentContext::Type Type;
 
     enum class State {
@@ -45,9 +43,7 @@ namespace edm {
                          ParentContext const& parent,
                          ModuleCallingContext const* previousOnThread);
 
-    void setContext(State state,
-                    ParentContext const& parent,
-                    ModuleCallingContext const* previousOnThread);
+    void setContext(State state, ParentContext const& parent, ModuleCallingContext const* previousOnThread);
 
     void setState(State state) { state_ = state; }
 
@@ -86,5 +82,5 @@ namespace edm {
   };
 
   std::ostream& operator<<(std::ostream&, ModuleCallingContext const&);
-}
+}  // namespace edm
 #endif

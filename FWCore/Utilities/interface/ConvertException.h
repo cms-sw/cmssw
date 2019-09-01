@@ -14,22 +14,28 @@ namespace edm {
     void charPtrToEDM(char const* c);
     void unknownToEDM();
 
-    template<typename F>
-    auto wrap(F iFunc) -> decltype( iFunc() ) {
+    template <typename F>
+    auto wrap(F iFunc) -> decltype(iFunc()) {
       try {
         return iFunc();
+      } catch (cms::Exception&) {
+        throw;
+      } catch (std::bad_alloc&) {
+        convertException::badAllocToEDM();
+      } catch (std::exception& e) {
+        convertException::stdToEDM(e);
+      } catch (std::string& s) {
+        convertException::stringToEDM(s);
+      } catch (char const* c) {
+        convertException::charPtrToEDM(c);
+      } catch (...) {
+        convertException::unknownToEDM();
       }
-      catch (cms::Exception&)  { throw; }
-      catch(std::bad_alloc&) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
       //Never gets here
-      typedef decltype(iFunc()) ReturnType;      
+      typedef decltype(iFunc()) ReturnType;
       return ReturnType();
     }
-  }
-}
+  }  // namespace convertException
+}  // namespace edm
 
 #endif

@@ -8,7 +8,7 @@
 #include "OnlineDB/EcalCondDB/interface/FEConfigBadTTInfo.h"
 
 class FEConfigBadTTDat : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   FEConfigBadTTDat();
   ~FEConfigBadTTDat() override;
@@ -28,23 +28,17 @@ class FEConfigBadTTDat : public IODConfig {
   inline void setTTId(int dac) { m_tt = dac; }
   inline int getTTId() const { return m_tt; }
 
-
   inline void setStatus(int dac) { m_t1 = dac; }
   inline int getStatus() const { return m_t1; }
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const FEConfigBadTTDat* item, FEConfigBadTTInfo* iov )
-    noexcept(false);
+  void writeDB(const FEConfigBadTTDat* item, FEConfigBadTTInfo* iov) noexcept(false);
 
-  void writeArrayDB(const std::vector< FEConfigBadTTDat >& data, FEConfigBadTTInfo* iov)
-    noexcept(false);
+  void writeArrayDB(const std::vector<FEConfigBadTTDat>& data, FEConfigBadTTInfo* iov) noexcept(false);
 
-
-  void fetchData(std::vector< FEConfigBadTTDat >* fillMap, FEConfigBadTTInfo* iov)
-     noexcept(false);
+  void fetchData(std::vector<FEConfigBadTTDat>* fillMap, FEConfigBadTTInfo* iov) noexcept(false);
 
   // User data
   int m_tcc;
@@ -52,7 +46,6 @@ class FEConfigBadTTDat : public IODConfig {
   int m_tt;
   int m_t1;
   int m_ID;
- 
 };
 
 #endif

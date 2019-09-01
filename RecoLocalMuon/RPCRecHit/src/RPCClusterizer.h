@@ -8,10 +8,10 @@
 #include "RPCCluster.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
-class RPCClusterizer{
- public:
-  RPCClusterizer() {};
-  ~RPCClusterizer() {};
+class RPCClusterizer {
+public:
+  RPCClusterizer(){};
+  ~RPCClusterizer(){};
   RPCClusterContainer doAction(const RPCDigiCollection::Range& digiRange);
 };
 #endif

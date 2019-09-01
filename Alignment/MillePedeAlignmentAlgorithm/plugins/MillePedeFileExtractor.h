@@ -28,22 +28,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/Common/interface/FileBlobCollection.h"
 
-class MillePedeFileExtractor :
-  public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
- public:
+class MillePedeFileExtractor : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
+public:
   explicit MillePedeFileExtractor(const edm::ParameterSet&);
   ~MillePedeFileExtractor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-  void beginLuminosityBlock(const edm::LuminosityBlock&,
-                                    const edm::EventSetup&) override {}
-  void endLuminosityBlock(const edm::LuminosityBlock&,
-                                  const edm::EventSetup&) override;
+private:
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override {}
+  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override {}
 
-  bool enoughBinaries() {
-    return (nBinaries_ >= maxNumberOfBinaries_) && hasBinaryNumberLimit(); }
+  bool enoughBinaries() { return (nBinaries_ >= maxNumberOfBinaries_) && hasBinaryNumberLimit(); }
   bool hasBinaryNumberLimit() { return maxNumberOfBinaries_ > -1; }
 
   static void writeGzipped(const FileBlob&, const std::string&);

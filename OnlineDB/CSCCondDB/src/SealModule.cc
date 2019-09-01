@@ -8,7 +8,6 @@
 #include "OnlineDB/CSCCondDB/interface/CSCMap1Read.h"
 #include "OnlineDB/CSCCondDB/interface/CSCChamberTimeCorrectionsReadTest.h"
 
-
 DEFINE_FWK_MODULE(CSCMap1Read);
 DEFINE_FWK_MODULE(CSCChamberTimeCorrectionsReadTest);
 DEFINE_FWK_EVENTSETUP_SOURCE(CSCChamberMapValues);

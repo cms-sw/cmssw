@@ -20,22 +20,25 @@
 
 class CSCTFAnalyzer : public edm::EDAnalyzer {
 private:
-	edm::InputTag mbProducer, lctProducer, trackProducer, statusProducer;
-	TTree *tree;
-	TFile *file;
-	int dtPhi[12][2];
+  edm::InputTag mbProducer, lctProducer, trackProducer, statusProducer;
+  TTree *tree;
+  TFile *file;
+  int dtPhi[12][2];
 
-	edm::EDGetTokenT<L1CSCStatusDigiCollection> L1CSCS_Tok;
-	edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > CSCTC_Tok;
-	edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> CSCCDC_Tok;
-	edm::EDGetTokenT<L1CSCTrackCollection> L1CST_Tok;
-
+  edm::EDGetTokenT<L1CSCStatusDigiCollection> L1CSCS_Tok;
+  edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > CSCTC_Tok;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> CSCCDC_Tok;
+  edm::EDGetTokenT<L1CSCTrackCollection> L1CST_Tok;
 
 public:
-	void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
-	explicit CSCTFAnalyzer(const edm::ParameterSet &conf);
-	~CSCTFAnalyzer(void) override{ file->cd(); tree->Write(); file->Close(); }
+  explicit CSCTFAnalyzer(const edm::ParameterSet &conf);
+  ~CSCTFAnalyzer(void) override {
+    file->cd();
+    tree->Write();
+    file->Close();
+  }
 };
 
 #endif

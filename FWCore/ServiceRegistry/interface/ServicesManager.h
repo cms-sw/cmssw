@@ -35,137 +35,135 @@
 
 // forward declarations
 namespace edm {
-   class ParameterSet;
-   class ServiceToken;
+  class ParameterSet;
+  class ServiceToken;
 
-   namespace serviceregistry {
+  namespace serviceregistry {
 
-      class ServicesManager {
-public:
-         struct MakerHolder {
-            MakerHolder(std::shared_ptr<ServiceMakerBase> iMaker,
-                        ParameterSet& iPSet,
-                        ActivityRegistry&) ;
-            bool add(ServicesManager&) const;
+    class ServicesManager {
+    public:
+      struct MakerHolder {
+        MakerHolder(std::shared_ptr<ServiceMakerBase> iMaker, ParameterSet& iPSet, ActivityRegistry&);
+        bool add(ServicesManager&) const;
 
-            edm::propagate_const<std::shared_ptr<ServiceMakerBase>> maker_;
-            ParameterSet* pset_;
-            ActivityRegistry* registry_; // We do not use propagate_const because the registry itself is mutable
-            mutable bool wasAdded_;
-         };
-         typedef std::map<TypeIDBase, std::shared_ptr<ServiceWrapperBase> > Type2Service;
-         typedef std::map<TypeIDBase, MakerHolder> Type2Maker;
+        edm::propagate_const<std::shared_ptr<ServiceMakerBase>> maker_;
+        ParameterSet* pset_;
+        ActivityRegistry* registry_;  // We do not use propagate_const because the registry itself is mutable
+        mutable bool wasAdded_;
+      };
+      typedef std::map<TypeIDBase, std::shared_ptr<ServiceWrapperBase>> Type2Service;
+      typedef std::map<TypeIDBase, MakerHolder> Type2Maker;
 
-         ServicesManager(std::vector<ParameterSet>& iConfiguration);
+      ServicesManager(std::vector<ParameterSet>& iConfiguration);
 
-         /** Takes the services described by iToken and places them into the manager.
+      /** Takes the services described by iToken and places them into the manager.
              Conflicts over Services provided by both the iToken and iConfiguration
              are resolved based on the value of iLegacy
          */
-         ServicesManager(ServiceToken iToken,
-                         ServiceLegacy iLegacy,
-                         std::vector<ParameterSet>& iConfiguration,
-                         bool associate = true);
+      ServicesManager(ServiceToken iToken,
+                      ServiceLegacy iLegacy,
+                      std::vector<ParameterSet>& iConfiguration,
+                      bool associate = true);
 
-         ~ServicesManager();
+      ~ServicesManager();
 
-         // ---------- const member functions ---------------------
-         template<typename T>
-         T& get() const {
-            Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
-            Type2Maker::const_iterator itFoundMaker ;
-            if(itFound == type2Service_.end()) {
-               //do on demand building of the service
-               if(nullptr == type2Maker_.get() ||
-                   type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
-                      Exception::throwThis(errors::NotFound,
-                        "Service Request unable to find requested service with compiler type name '",
-                        typeid(T).name(),
-                        "'.\n");
-               } else {
-                  const_cast<ServicesManager&>(*this).createServiceFor(itFoundMaker->second);
-                  itFound = type2Service_.find(TypeIDBase(typeid(T)));
-                  //the 'add()' should have put the service into the list
-                  assert(itFound != type2Service_.end());
-               }
-            }
-            //convert it to its actual type
-            std::shared_ptr<ServiceWrapper<T> > ptr(std::dynamic_pointer_cast<ServiceWrapper<T> >(itFound->second));
-            assert(nullptr != ptr.get());
-            return ptr->get();
-         }
+      // ---------- const member functions ---------------------
+      template <typename T>
+      T& get() const {
+        Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
+        Type2Maker::const_iterator itFoundMaker;
+        if (itFound == type2Service_.end()) {
+          //do on demand building of the service
+          if (nullptr == type2Maker_.get() ||
+              type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
+            Exception::throwThis(errors::NotFound,
+                                 "Service Request unable to find requested service with compiler type name '",
+                                 typeid(T).name(),
+                                 "'.\n");
+          } else {
+            const_cast<ServicesManager&>(*this).createServiceFor(itFoundMaker->second);
+            itFound = type2Service_.find(TypeIDBase(typeid(T)));
+            //the 'add()' should have put the service into the list
+            assert(itFound != type2Service_.end());
+          }
+        }
+        //convert it to its actual type
+        std::shared_ptr<ServiceWrapper<T>> ptr(std::dynamic_pointer_cast<ServiceWrapper<T>>(itFound->second));
+        assert(nullptr != ptr.get());
+        return ptr->get();
+      }
 
-         ///returns true of the particular service is accessible
-         template<typename T>
-         bool isAvailable() const {
-            Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
-            Type2Maker::const_iterator itFoundMaker ;
-            if(itFound == type2Service_.end()) {
-               //do on demand building of the service
-               if(nullptr == type2Maker_.get() ||
-                   type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
-                  return false;
-               } else {
-                  //Actually create the service in order to 'flush out' any
-                  // configuration errors for the service
-                 const_cast<ServicesManager&>(*this).createServiceFor(itFoundMaker->second);
-                  itFound = type2Service_.find(TypeIDBase(typeid(T)));
-                  //the 'add()' should have put the service into the list
-                  assert(itFound != type2Service_.end());
-               }
-            }
-            return true;
-         }
+      ///returns true of the particular service is accessible
+      template <typename T>
+      bool isAvailable() const {
+        Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
+        Type2Maker::const_iterator itFoundMaker;
+        if (itFound == type2Service_.end()) {
+          //do on demand building of the service
+          if (nullptr == type2Maker_.get() ||
+              type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
+            return false;
+          } else {
+            //Actually create the service in order to 'flush out' any
+            // configuration errors for the service
+            const_cast<ServicesManager&>(*this).createServiceFor(itFoundMaker->second);
+            itFound = type2Service_.find(TypeIDBase(typeid(T)));
+            //the 'add()' should have put the service into the list
+            assert(itFound != type2Service_.end());
+          }
+        }
+        return true;
+      }
 
-         // ---------- static member functions --------------------
+      // ---------- static member functions --------------------
 
-         // ---------- member functions ---------------------------
-         ///returns false if put fails because a service of this type already exists
-         template<typename T>
-         bool put(std::shared_ptr<ServiceWrapper<T> > iPtr) {
-            Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
-            if(itFound != type2Service_.end()) {
-               return false;
-            }
-            type2Service_[ TypeIDBase(typeid(T)) ] = iPtr;
-            actualCreationOrder_.push_back(TypeIDBase(typeid(T)));
-            return true;
-         }
+      // ---------- member functions ---------------------------
+      ///returns false if put fails because a service of this type already exists
+      template <typename T>
+      bool put(std::shared_ptr<ServiceWrapper<T>> iPtr) {
+        Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
+        if (itFound != type2Service_.end()) {
+          return false;
+        }
+        type2Service_[TypeIDBase(typeid(T))] = iPtr;
+        actualCreationOrder_.push_back(TypeIDBase(typeid(T)));
+        return true;
+      }
 
-         ///causes our ActivityRegistry's signals to be forwarded to iOther
-         void connect(ActivityRegistry& iOther);
+      ///causes our ActivityRegistry's signals to be forwarded to iOther
+      void connect(ActivityRegistry& iOther);
 
-         ///causes iOther's signals to be forward to us
-         void connectTo(ActivityRegistry& iOther);
+      ///causes iOther's signals to be forward to us
+      void connectTo(ActivityRegistry& iOther);
 
-         ///copy our Service's slots to the argument's signals
-         void copySlotsTo(ActivityRegistry&);
-         ///the copy the argument's slots to the our signals
-         void copySlotsFrom(ActivityRegistry&);
+      ///copy our Service's slots to the argument's signals
+      void copySlotsTo(ActivityRegistry&);
+      ///the copy the argument's slots to the our signals
+      void copySlotsFrom(ActivityRegistry&);
 
-private:
-         ServicesManager(ServicesManager const&) = delete; // stop default
+    private:
+      ServicesManager(ServicesManager const&) = delete;  // stop default
 
-         ServicesManager const& operator=(ServicesManager const&) = delete; // stop default
+      ServicesManager const& operator=(ServicesManager const&) = delete;  // stop default
 
-         void fillListOfMakers(std::vector<ParameterSet>&);
-         void createServices();
-         void createServiceFor(MakerHolder const&);
+      void fillListOfMakers(std::vector<ParameterSet>&);
+      void createServices();
+      void createServiceFor(MakerHolder const&);
 
-         // ---------- member data --------------------------------
-         //hold onto the Manager passed in from the ServiceToken so that
-         // the ActivityRegistry of that Manager does not go out of scope
-         // This must be first to get the Service destructors called in
-         // the correct order.
-         edm::propagate_const<std::shared_ptr<ServicesManager>> associatedManager_;
+      // ---------- member data --------------------------------
+      //hold onto the Manager passed in from the ServiceToken so that
+      // the ActivityRegistry of that Manager does not go out of scope
+      // This must be first to get the Service destructors called in
+      // the correct order.
+      edm::propagate_const<std::shared_ptr<ServicesManager>> associatedManager_;
 
-         ActivityRegistry registry_;
-         Type2Service type2Service_;
-         edm::propagate_const<std::unique_ptr<Type2Maker>> type2Maker_;
-         std::vector<TypeIDBase> requestedCreationOrder_;
-         std::vector<TypeIDBase> actualCreationOrder_;
-      };
-   }
-}
+      ActivityRegistry registry_;
+      Type2Service type2Service_;
+      edm::propagate_const<std::unique_ptr<Type2Maker>> type2Maker_;
+      std::vector<TypeIDBase> requestedCreationOrder_;
+      std::vector<TypeIDBase> actualCreationOrder_;
+    };
+  }  // namespace serviceregistry
+}  // namespace edm
 
 #endif

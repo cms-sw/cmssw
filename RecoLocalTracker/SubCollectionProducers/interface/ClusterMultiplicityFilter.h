@@ -10,19 +10,17 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
-
 class ClusterMultiplicityFilter : public edm::global::EDFilter<> {
-   public:
-      explicit ClusterMultiplicityFilter(const edm::ParameterSet&);
-      ~ClusterMultiplicityFilter() override;
+public:
+  explicit ClusterMultiplicityFilter(const edm::ParameterSet&);
+  ~ClusterMultiplicityFilter() override;
 
-   private:
-      bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+private:
+  bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
-      const unsigned int maxNumberOfClusters_;
-      const edm::InputTag clusterCollectionTag_;
-      const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusters_;
-
+  const unsigned int maxNumberOfClusters_;
+  const edm::InputTag clusterCollectionTag_;
+  const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusters_;
 };
 
 #endif

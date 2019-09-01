@@ -23,4 +23,3 @@ REGISTER_PLUGIN(L1CaloEcalScaleRcd, L1CaloEcalScale);
 #include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
 
 REGISTER_PLUGIN(L1CaloHcalScaleRcd, L1CaloHcalScale);
-

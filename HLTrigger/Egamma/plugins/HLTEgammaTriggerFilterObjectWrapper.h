@@ -21,19 +21,20 @@ namespace edm {
 //
 
 class HLTEgammaTriggerFilterObjectWrapper : public HLTFilter {
+public:
+  explicit HLTEgammaTriggerFilterObjectWrapper(const edm::ParameterSet&);
+  ~HLTEgammaTriggerFilterObjectWrapper() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   public:
-      explicit HLTEgammaTriggerFilterObjectWrapper(const edm::ParameterSet&);
-      ~HLTEgammaTriggerFilterObjectWrapper() override;
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-
-   private:
-      edm::EDGetTokenT<reco::RecoEcalCandidateCollection> candIsolatedToken_;
-      edm::EDGetTokenT<reco::RecoEcalCandidateCollection> candNonIsolatedToken_;
-      edm::InputTag candIsolatedTag_; // input tag identifying product contains egammas
-      edm::InputTag candNonIsolatedTag_; // input tag identifying product contains egammas
-      bool doIsolated_;
+private:
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> candIsolatedToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> candNonIsolatedToken_;
+  edm::InputTag candIsolatedTag_;     // input tag identifying product contains egammas
+  edm::InputTag candNonIsolatedTag_;  // input tag identifying product contains egammas
+  bool doIsolated_;
 };
 
-#endif //HLTEgammaTriggerFilterObjectWrapper_h
+#endif  //HLTEgammaTriggerFilterObjectWrapper_h

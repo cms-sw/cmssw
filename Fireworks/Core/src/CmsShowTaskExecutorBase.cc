@@ -32,8 +32,8 @@
 CmsShowTaskExecutorBase::CmsShowTaskExecutorBase()
 //:m_timer( new TTimer(1) )
 {
-   //m_timer->Connect("Timeout()","CmsShowTaskExecutorBase",this,"doNextTask()");
-   m_taskTimer = new CmsShowTaskTimer(this, 10);
+  //m_timer->Connect("Timeout()","CmsShowTaskExecutorBase",this,"doNextTask()");
+  m_taskTimer = new CmsShowTaskTimer(this, 10);
 }
 
 // CmsShowTaskExecutorBase::CmsShowTaskExecutorBase(const CmsShowTaskExecutorBase& rhs)
@@ -41,9 +41,8 @@ CmsShowTaskExecutorBase::CmsShowTaskExecutorBase()
 //    // do actual copying here;
 // }
 
-CmsShowTaskExecutorBase::~CmsShowTaskExecutorBase()
-{
-   //delete m_timer;
+CmsShowTaskExecutorBase::~CmsShowTaskExecutorBase() {
+  //delete m_timer;
 }
 
 //
@@ -61,29 +60,24 @@ CmsShowTaskExecutorBase::~CmsShowTaskExecutorBase()
 //
 // member functions
 //
-void
-CmsShowTaskExecutorBase::requestNextTask()
-{
-   //NOTE: If I use my own timer then the first time I call Start it works but the second
-   //  time causes a segmentation fault
+void CmsShowTaskExecutorBase::requestNextTask() {
+  //NOTE: If I use my own timer then the first time I call Start it works but the second
+  //  time causes a segmentation fault
 
-   //Emit("requestNextTask()");
-   //m_timer->Start(1,kTRUE);
-   //std::cout <<"requestNextTask"<<std::endl;
-   m_taskTimer->TurnOn();
+  //Emit("requestNextTask()");
+  //m_timer->Start(1,kTRUE);
+  //std::cout <<"requestNextTask"<<std::endl;
+  m_taskTimer->TurnOn();
 }
 
-void
-CmsShowTaskExecutorBase::doNextTask()
-{
-   m_taskTimer->TurnOff();
-   doNextTaskImp();
-   if(moreTasksAvailable()) {
-      requestNextTask();
-   }
-   else {
-      tasksCompleted_.emit();
-   }
+void CmsShowTaskExecutorBase::doNextTask() {
+  m_taskTimer->TurnOff();
+  doNextTaskImp();
+  if (moreTasksAvailable()) {
+    requestNextTask();
+  } else {
+    tasksCompleted_.emit();
+  }
 }
 
 //

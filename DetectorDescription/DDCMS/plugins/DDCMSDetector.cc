@@ -2,47 +2,64 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "DetectorDescription/DDCMS/interface/DDDetector.h"
+#include "Geometry/Records/interface/DDVectorRegistryRcd.h"
+#include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
 #include "DD4hep/Detector.h"
 
 #include <memory>
 #include <string>
 
-class DDCMSDetector : public edm::one::EDAnalyzer<> {
+using namespace std;
+using namespace cms;
+using namespace edm;
+using namespace dd4hep;
+
+class DDCMSDetector : public one::EDAnalyzer<> {
 public:
-  explicit DDCMSDetector(const edm::ParameterSet& p);
+  explicit DDCMSDetector(const ParameterSet& p);
 
   void beginJob() override {}
-  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
+  void analyze(Event const& iEvent, EventSetup const&) override;
+  void endJob() override;
 
 private:
-  
-  std::string confGeomXMLFiles_;
-  std::vector< std::string > relFiles_;
-  std::vector< std::string > files_;
+  const ESInputTag m_tag;
 };
 
-DDCMSDetector::DDCMSDetector(const edm::ParameterSet& iConfig)
-  : confGeomXMLFiles_(iConfig.getParameter<std::string>("confGeomXMLFiles"))
-{
-  relFiles_ = iConfig.getParameter<std::vector<std::string> >("geomXMLFiles");
-  for( auto rit : relFiles_ ) {
-    edm::FileInPath fp(rit);
-    files_.emplace_back(fp.fullPath());
-  }
+DDCMSDetector::DDCMSDetector(const ParameterSet& iConfig) : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")) {}
+
+void DDCMSDetector::analyze(const Event&, const EventSetup& iEventSetup) {
+  ESTransientHandle<DDDetector> det;
+  iEventSetup.get<GeometryFileRcd>().get(m_tag, det);
+
+  LogVerbatim("Geometry") << "Iterate over the detectors:\n";
+  LogVerbatim("Geometry").log([&](auto& log) {
+    for (auto const& it : det->description()->detectors()) {
+      dd4hep::DetElement det(it.second);
+      log << it.first << ": " << det.path();
+    }
+  });
+  LogVerbatim("Geometry") << "..done!";
+
+  ESTransientHandle<DDVectorRegistry> registry;
+  iEventSetup.get<DDVectorRegistryRcd>().get(m_tag, registry);
+
+  LogVerbatim("Geometry") << "DD Vector Registry size: " << registry->vectors.size();
+  LogVerbatim("Geometry").log([&](auto& log) {
+    for (const auto& p : registry->vectors) {
+      log << " " << p.first << " => ";
+      for (const auto& i : p.second)
+        log << i << ", ";
+      log << '\n';
+    }
+  });
 }
 
-void
-DDCMSDetector::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& /*iSetup*/ )
-{
-  dd4hep::Detector& description = dd4hep::Detector::getInstance();
-
-  std::string name("DD4hep_CompactLoader");
-  const char* files[] = { confGeomXMLFiles_.c_str(), nullptr };
-  description.apply(name.c_str(),2,(char**)files);
-  for( auto it : files_ )
-    std::cout << it << std::endl;
-}
+void DDCMSDetector::endJob() {}
 
 DEFINE_FWK_MODULE(DDCMSDetector);

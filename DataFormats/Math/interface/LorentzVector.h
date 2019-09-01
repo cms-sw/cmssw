@@ -27,6 +27,6 @@ namespace math {
   typedef PtEtaPhiELorentzVectorD PtEtaPhiELorentzVector;
   /// Lorentz vector with cylindrical internal representation using pseudorapidity
   typedef XYZTLorentzVectorD XYZTLorentzVector;
-}
+}  // namespace math
 
 #endif

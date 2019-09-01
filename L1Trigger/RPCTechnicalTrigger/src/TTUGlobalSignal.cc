@@ -1,6 +1,4 @@
-// Include files 
-
-
+// Include files
 
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUGlobalSignal.h"
@@ -14,18 +12,10 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-TTUGlobalSignal::TTUGlobalSignal( std::map< int, TTUInput* >  * in ) {
-
-  m_wheelmap = in; 
-  
-}
+TTUGlobalSignal::TTUGlobalSignal(std::map<int, TTUInput*>* in) { m_wheelmap = in; }
 //=============================================================================
 // Destructor
 //=============================================================================
-TTUGlobalSignal::~TTUGlobalSignal() {
-  
-  m_wheelmap = nullptr;
-  
-} 
+TTUGlobalSignal::~TTUGlobalSignal() { m_wheelmap = nullptr; }
 
 //=============================================================================

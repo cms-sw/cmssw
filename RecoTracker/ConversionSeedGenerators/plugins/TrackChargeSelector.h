@@ -7,10 +7,10 @@
  */
 
 struct TrackChargeSelector {
-  TrackChargeSelector( int charge ) : charge_( charge ) { }
-  template<typename T>
-  bool operator()( const T & t ) const {
-    return ( t.charge() == charge_ );
+  TrackChargeSelector(int charge) : charge_(charge) {}
+  template <typename T>
+  bool operator()(const T& t) const {
+    return (t.charge() == charge_);
   }
 
 private:
@@ -23,14 +23,14 @@ private:
 namespace reco {
   namespace modules {
 
-    template<>
+    template <>
     struct ParameterAdapter<TrackChargeSelector> {
-      static TrackChargeSelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
-        return TrackChargeSelector(cfg.getParameter<int>( "charge" ));
+      static TrackChargeSelector make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
+        return TrackChargeSelector(cfg.getParameter<int>("charge"));
       }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif

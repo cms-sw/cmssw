@@ -4,7 +4,7 @@
 //
 // Package:         RecoTracker/FinalTrackSelectors
 // Class:           ConversionTrackMerger
-// 
+//
 // Description:     Hit Dumper
 //
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
@@ -17,7 +17,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
 #include "DataFormats/EgammaTrackReco/interface/ConversionTrack.h"
 #include "DataFormats/EgammaTrackReco/interface/ConversionTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -27,24 +26,21 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-  class ConversionTrackMerger : public edm::stream::EDProducer<>
-  {
-  public:
+class ConversionTrackMerger : public edm::stream::EDProducer<> {
+public:
+  explicit ConversionTrackMerger(const edm::ParameterSet& conf);
 
-    explicit ConversionTrackMerger(const edm::ParameterSet& conf);
+  ~ConversionTrackMerger() override;
 
-    ~ConversionTrackMerger() override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+private:
+  edm::ParameterSet conf_;
 
-  private:
-    edm::ParameterSet conf_;
+  edm::EDGetTokenT<reco::ConversionTrackCollection> trackProducer1;
+  edm::EDGetTokenT<reco::ConversionTrackCollection> trackProducer2;
 
-    edm::EDGetTokenT<reco::ConversionTrackCollection> trackProducer1;
-    edm::EDGetTokenT<reco::ConversionTrackCollection> trackProducer2;
-
-    std::unique_ptr<reco::ConversionTrackCollection> outputTrks;
-  };
-
+  std::unique_ptr<reco::ConversionTrackCollection> outputTrks;
+};
 
 #endif

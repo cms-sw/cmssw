@@ -71,6 +71,23 @@
   <class name="edm::Wrapper<edm::ValueMap<vid::CutFlowResult> >"/>
   <class name="pat::UserHolder<vid::CutFlowResult>"/>
 
+  <class name="pat::HcalDepthEnergyFractions" ClassVersion="3">
+    <version ClassVersion="3" checksum="4055779358"/>
+    <field name="fractions_" transient="true"/>
+  </class>
+  <class name="std::vector<pat::HcalDepthEnergyFractions>"/>
+  <class name="edm::Wrapper<std::vector<pat::HcalDepthEnergyFractions> >"/>
+  <class name="edm::ValueMap<pat::HcalDepthEnergyFractions>" />
+  <class name="edm::Wrapper<edm::ValueMap<pat::HcalDepthEnergyFractions> >"/>
+
+  <ioread sourceClass = "pat::HcalDepthEnergyFractions" version="[1-]"
+                targetClass="pat::HcalDepthEnergyFractions"
+		source="std::vector<uint8_t> fractionsI_"
+		target="fractions_">
+  <![CDATA[ newObj->initFloatVector();
+  ]]>
+  </ioread>
+  
   </selection>
  <exclusion>
  </exclusion>

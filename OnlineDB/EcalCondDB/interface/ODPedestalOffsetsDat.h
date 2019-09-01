@@ -9,7 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODFEPedestalOffsetInfo.h"
 
 class ODPedestalOffsetsDat : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODPedestalOffsetsDat();
   ~ODPedestalOffsetsDat() override;
@@ -41,20 +41,14 @@ class ODPedestalOffsetsDat : public IODConfig {
   inline void setHigh(int dac) { m_high = dac; }
   inline int getHigh() const { return m_high; }
 
+private:
+  void prepareWrite() noexcept(false) override;
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+  void writeDB(const ODPedestalOffsetsDat* item, ODFEPedestalOffsetInfo* iov) noexcept(false);
 
-  void writeDB(const ODPedestalOffsetsDat* item, ODFEPedestalOffsetInfo* iov )
-    noexcept(false);
+  void writeArrayDB(const std::vector<ODPedestalOffsetsDat>& data, ODFEPedestalOffsetInfo* iov) noexcept(false);
 
-  void writeArrayDB(const std::vector< ODPedestalOffsetsDat >& data, ODFEPedestalOffsetInfo* iov)
-    noexcept(false);
-
-
-  void fetchData(std::vector< ODPedestalOffsetsDat >* fillMap, ODFEPedestalOffsetInfo* iov)
-     noexcept(false);
+  void fetchData(std::vector<ODPedestalOffsetsDat>* fillMap, ODFEPedestalOffsetInfo* iov) noexcept(false);
 
   // User data
   int m_sm;
@@ -65,7 +59,6 @@ class ODPedestalOffsetsDat : public IODConfig {
   int m_mid;
   int m_high;
   int m_ID;
- 
 };
 
 #endif

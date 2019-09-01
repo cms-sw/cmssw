@@ -10,6 +10,9 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/METReco/interface/PFMETFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include "TLorentzVector.h"
 
 // Forward declaration
 class TH1D;
@@ -33,7 +36,7 @@ private:
   const edm::InputTag pfmetTag_;
   const edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
   const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
-  const edm::EDGetTokenT<reco::MuonCollection> muonToken_; 
-  const edm::EDGetTokenT<reco::PFMETCollection> pfmetToken_; 
+  const edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  const edm::EDGetTokenT<reco::PFMETCollection> pfmetToken_;
 };
 #endif

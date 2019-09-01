@@ -22,23 +22,8 @@
 <library   file="TrajectoryAnalyzer.cc" name="TrajectoryAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="MomentumConstraintProducer.cc" name="MomentumConstraintProducer">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="VertexConstraintProducer.cc" name="VertexConstraintProducer">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="TwoBodyDecayConstraintProducer.cc" name="TwoBodyDecayConstraintProducer">
-  <use   name="Alignment/TwoBodyDecay"/>
-  <use   name="Alignment/ReferenceTrajectories"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="TwoBodyDecayMomConstraintProducer.cc" name="TwoBodyDecayMomConstraintProducer">
-  <use   name="Alignment/TwoBodyDecay"/>
-  <use   name="Alignment/ReferenceTrajectories"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="GsfVertexConstraintProducer.cc" name="GsfVertexConstraintProducer">
-  <use   name="TrackingTools/GsfTracking"/>
+<library   file="FakeCPEFiller.cc" name="FakeCPEFiller">
+  <use   name="SimTracker/TrackerHitAssociation"/>
+  <use   name="RecoTracker/TransientTrackingRecHit"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

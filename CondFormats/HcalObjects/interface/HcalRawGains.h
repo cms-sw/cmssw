@@ -16,27 +16,28 @@ $Revision: 1.7 $
 #include "CondFormats/HcalObjects/interface/HcalRawGain.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-// 
+//
 class HcalRawGains {
- public:
+public:
   HcalRawGains();
   ~HcalRawGains();
-  /// get value 
-  const HcalRawGain* getValues (DetId fId) const;
+  /// get value
+  const HcalRawGain* getValues(DetId fId) const;
   /// get list of all available channels
-  std::vector<DetId> getAllChannels () const;
+  std::vector<DetId> getAllChannels() const;
   /// check if data are sorted
-  bool sorted () const {return mSorted;}
+  bool sorted() const { return mSorted; }
   /// add new (empty) item
-  HcalRawGain* addItem (DetId fId);
+  HcalRawGain* addItem(DetId fId);
   /// fill values
-  void addValues (DetId fId, const HcalRawGain& fValues);
-  /// sort values by channelId  
-  void sort ();
+  void addValues(DetId fId, const HcalRawGain& fValues);
+  /// sort values by channelId
+  void sort();
   // helper typedefs
   typedef HcalRawGain Item;
-  typedef std::vector <Item> Container;
- private:
+  typedef std::vector<Item> Container;
+
+private:
   Container mItems;
   bool mSorted;
 };

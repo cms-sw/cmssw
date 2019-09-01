@@ -1,70 +1,51 @@
-#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripHashedDetIdFakeESSource.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerNumberingBuilder/interface/utils.h"
+
 #include "CalibFormats/SiStripObjects/interface/SiStripHashedDetId.h"
 #include "CalibTracker/Records/interface/SiStripHashedDetIdRcd.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <sstream>
-#include <vector>
-#include <map>
+
+class SiStripHashedDetIdFakeESSource : public edm::ESProducer {
+public:
+  explicit SiStripHashedDetIdFakeESSource(const edm::ParameterSet&);
+  ~SiStripHashedDetIdFakeESSource() override;
+
+  virtual std::unique_ptr<SiStripHashedDetId> produce(const SiStripHashedDetIdRcd&);
+
+private:
+  edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+};
 
 using namespace sistrip;
 
-// -----------------------------------------------------------------------------
-//
-SiStripHashedDetIdFakeESSource::SiStripHashedDetIdFakeESSource( const edm::ParameterSet& pset )
-  : SiStripHashedDetIdESProducer( pset ),
-    detIds_( pset.getParameter<edm::FileInPath>("DetIdsFile") )
-{
-  findingRecord<SiStripHashedDetIdRcd>();
-  edm::LogVerbatim("HashedDetId") 
-    << "[SiStripHashedDetIdFakeESSource::" << __func__ << "]"
-    << " Constructing object...";
+SiStripHashedDetIdFakeESSource::SiStripHashedDetIdFakeESSource(const edm::ParameterSet& pset) {
+  setWhatProduced(this).setConsumes(geomDetToken_);
 }
 
-// -----------------------------------------------------------------------------
-//
-SiStripHashedDetIdFakeESSource::~SiStripHashedDetIdFakeESSource() {
-  edm::LogVerbatim("HashedDetId")
-    << "[SiStripHashedDetIdFakeESSource::" << __func__ << "]"
-    << " Destructing object...";
-}
+SiStripHashedDetIdFakeESSource::~SiStripHashedDetIdFakeESSource() {}
 
-// -----------------------------------------------------------------------------
-// 
-SiStripHashedDetId* SiStripHashedDetIdFakeESSource::make( const SiStripHashedDetIdRcd& ) {
-  edm::LogVerbatim("HashedDetId")
-    << "[SiStripHashedDetIdFakeESSource::" << __func__ << "]"
-    << " Building \"fake\" hashed DetId map from ascii file";
-  
-  typedef std::map<uint32_t,SiStripDetInfoFileReader::DetInfo>  Dets;
-  Dets det_info = SiStripDetInfoFileReader( detIds_.fullPath() ).getAllData();
-  
-  std::vector<uint32_t> dets;
-  dets.reserve(16000);
+std::unique_ptr<SiStripHashedDetId> SiStripHashedDetIdFakeESSource::produce(const SiStripHashedDetIdRcd& record) {
+  edm::LogVerbatim("HashedDetId") << "[SiStripHashedDetIdFakeESSource::" << __func__ << "]"
+                                  << " Building \"fake\" hashed DetId map from IdealGeometry";
 
-  Dets::const_iterator idet = det_info.begin();
-  Dets::const_iterator jdet = det_info.end();
-  for ( ; idet != jdet; ++idet ) { dets.push_back( idet->first ); }
-  edm::LogVerbatim("HashedDetId")
-    << "[SiStripHashedDetIdESProducer::" << __func__ << "]"
-    << " Retrieved " << dets.size()
-    << " DetIds from ascii file!";
-  
-  SiStripHashedDetId* hash = new SiStripHashedDetId( dets );
-  LogTrace("HashedDetId")
-    << "[SiStripHashedDetIdESProducer::" << __func__ << "]"
-    << " DetId hash map: " << std::endl
-    << *hash;
-  
+  const auto& geomDet = record.getRecord<TrackerDigiGeometryRecord>().get(geomDetToken_);
+
+  const std::vector<uint32_t> dets = TrackerGeometryUtils::getSiStripDetIds(geomDet);
+  edm::LogVerbatim("HashedDetId") << "[SiStripHashedDetIdFakeESSource::" << __func__ << "]"
+                                  << " Retrieved " << dets.size() << " DetIds from IdealGeometry!";
+
+  auto hash = std::make_unique<SiStripHashedDetId>(dets);
+  LogTrace("HashedDetId") << "[SiStripHashedDetIdFakeESSource::" << __func__ << "]"
+                          << " DetId hash map: " << std::endl
+                          << *hash;
+
   return hash;
-  
 }
 
-// -----------------------------------------------------------------------------
-// 
-void SiStripHashedDetIdFakeESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& key, 
-						     const edm::IOVSyncValue& iov_sync, 
-						     edm::ValidityInterval& iov_validity ) {
-  edm::ValidityInterval infinity( iov_sync.beginOfTime(), iov_sync.endOfTime() );
-  iov_validity = infinity;
-}
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+DEFINE_FWK_EVENTSETUP_MODULE(SiStripHashedDetIdFakeESSource);

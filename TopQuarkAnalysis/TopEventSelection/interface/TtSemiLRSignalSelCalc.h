@@ -29,18 +29,15 @@
 #include "TString.h"
 
 class TtSemiLRSignalSelCalc {
-
- public:
-  
+public:
   TtSemiLRSignalSelCalc();
-  TtSemiLRSignalSelCalc(const TString&,const std::vector<int>&);
-  ~TtSemiLRSignalSelCalc();	
-  
-  void  operator()(TtSemiEvtSolution&);
-  
- private:
+  TtSemiLRSignalSelCalc(const TString&, const std::vector<int>&);
+  ~TtSemiLRSignalSelCalc();
 
-  LRHelpFunctions  * myLR;
+  void operator()(TtSemiEvtSolution&);
+
+private:
+  LRHelpFunctions* myLR;
   bool addPurity;
 };
 

@@ -13,16 +13,16 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-class  EcalTPGDBCopy : public edm::EDAnalyzer {
- public:
-  explicit  EcalTPGDBCopy(const edm::ParameterSet& iConfig );
+class EcalTPGDBCopy : public edm::EDAnalyzer {
+public:
+  explicit EcalTPGDBCopy(const edm::ParameterSet& iConfig);
   ~EcalTPGDBCopy() override;
 
-  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
- private:
+private:
   bool shouldCopy(const edm::EventSetup& evtSetup, std::string container);
   void copyToDB(const edm::EventSetup& evtSetup, std::string container);
 

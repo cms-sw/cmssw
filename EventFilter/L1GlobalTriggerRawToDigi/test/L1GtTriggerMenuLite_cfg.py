@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to run the L1GtTriggerMenuLite producer  
 # with the options set in UserOptions_cff.py
@@ -9,10 +10,10 @@ import sys
 
 process = cms.Process("L1T")
 
-print '\n'
+print('\n')
 from L1Trigger.GlobalTriggerAnalyzer.UserOptions_cff import *
 if errorUserOptions == True :
-    print '\nError returned by UserOptions_cff\n'
+    print('\nError returned by UserOptions_cff\n')
     sys.exit()
 
 

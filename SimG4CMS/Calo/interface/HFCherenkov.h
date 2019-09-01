@@ -17,62 +17,59 @@
 #include <vector>
 
 class HFCherenkov {
-  
 public:
+  HFCherenkov(edm::ParameterSet const& p);
+  virtual ~HFCherenkov();
 
-   HFCherenkov(edm::ParameterSet const & p);
-   virtual ~HFCherenkov();
-  
-   int                 computeNPE(const G4Step* step, const G4ParticleDefinition* pDef,
-				  double pBeta, double u, double v, double w, 
-				  double step_length, double zFiber, 
-				  double Dose, int Npe_Dose);
-   
-   int                 computeNPEinPMT(const G4ParticleDefinition* pDef,double pBeta,
-                                       double u, double v, double w, 
-                                       double step_length);
+  int computeNPE(const G4Step* step,
+                 const G4ParticleDefinition* pDef,
+                 double pBeta,
+                 double u,
+                 double v,
+                 double w,
+                 double step_length,
+                 double zFiber,
+                 double Dose,
+                 int Npe_Dose);
 
-   int                 computeNPhTrapped(double pBeta, double u, double v, 
-					 double w, double step_length,
-					 double zFiber, double Dose,
-					 int Npe_Dose);
-   double              smearNPE(G4int Npe);				  
+  int computeNPEinPMT(const G4ParticleDefinition* pDef, double pBeta, double u, double v, double w, double step_length);
 
-   std::vector<double> getMom();
-   std::vector<double> getWL();
-   std::vector<double> getWLIni();
-   std::vector<double> getWLTrap();
-   std::vector<double> getWLAtten();
-   std::vector<double> getWLHEM();
-   std::vector<double> getWLQEff();
-   void                clearVectors();
-					  
-private:
+  int computeNPhTrapped(
+      double pBeta, double u, double v, double w, double step_length, double zFiber, double Dose, int Npe_Dose);
+  double smearNPE(G4int Npe);
 
-   bool                isApplicable(const G4ParticleDefinition* aParticleType);
-   // Returns true -> 'is applicable', for all charged particles.
-   int                 computeNbOfPhotons(double pBeta, double step_length);
-   double              computeQEff(double wavelength);
-   double              computeHEMEff(double wavelength);
+  std::vector<double> getMom();
+  std::vector<double> getWL();
+  std::vector<double> getWLIni();
+  std::vector<double> getWLTrap();
+  std::vector<double> getWLAtten();
+  std::vector<double> getWLHEM();
+  std::vector<double> getWLQEff();
+  void clearVectors();
 
 private:
+  bool isApplicable(const G4ParticleDefinition* aParticleType);
+  // Returns true -> 'is applicable', for all charged particles.
+  int computeNbOfPhotons(double pBeta, double step_length);
+  double computeQEff(double wavelength);
+  double computeHEMEff(double wavelength);
 
-   double              ref_index;
-   double              lambda1, lambda2;
-   double              aperture, aperturetrapped, apertureTrap;
-   double              gain, fibreR, sinPsimax;
-   bool                checkSurvive;
-   bool                UseNewPMT;
+private:
+  double ref_index;
+  double lambda1, lambda2;
+  double aperture, aperturetrapped, apertureTrap;
+  double gain, fibreR, sinPsimax;
+  bool checkSurvive;
+  bool UseNewPMT;
 
-   G4ThreeVector       phMom;
-   std::vector<double> wl;
-   std::vector<double> momZ;
-   std::vector<double> wlini;
-   std::vector<double> wltrap;
-   std::vector<double> wlatten;
-   std::vector<double> wlhem;
-   std::vector<double> wlqeff;
+  G4ThreeVector phMom;
+  std::vector<double> wl;
+  std::vector<double> momZ;
+  std::vector<double> wlini;
+  std::vector<double> wltrap;
+  std::vector<double> wlatten;
+  std::vector<double> wlhem;
+  std::vector<double> wlqeff;
 };
 
 #endif
-

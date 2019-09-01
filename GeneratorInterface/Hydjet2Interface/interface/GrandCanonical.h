@@ -12,40 +12,43 @@ November. 2, 2005
 #include "DatabasePDG.h"
 
 class GrandCanonical {
+private:
+  double fTemperature;
+  double fBaryonPotential;
+  double fStrangePotential;
+  double fElectroPotential;
+  double fCharmPotential;
 
- private:
-
-  double    fTemperature;     
-  double    fBaryonPotential;	
-  double    fStrangePotential;
-  double    fElectroPotential;
-  double    fCharmPotential;
-
-  //  Number of terms for summation, if fNMax = 1 then 
+  //  Number of terms for summation, if fNMax = 1 then
   //  Maxwell-Boltzmann distribution will be recovered
-  int       fNMax;
+  int fNMax;
   bool fInitialized;
 
- public:
+public:
   GrandCanonical();
-  GrandCanonical(int nmax, double temperature, double baryonPotential, double strangePotential, double electroPotential, double charmPotential);
+  GrandCanonical(int nmax,
+                 double temperature,
+                 double baryonPotential,
+                 double strangePotential,
+                 double electroPotential,
+                 double charmPotential);
   ~GrandCanonical();
 
-  void     Temperature(double value); 
+  void Temperature(double value);
   double Temperature() { return fTemperature; }
-  void     BaryonPotential(double value);
+  void BaryonPotential(double value);
   double BaryonPotential() { return fBaryonPotential; }
-  void     StrangePotential(double value);
+  void StrangePotential(double value);
   double StrangePotential() { return fStrangePotential; }
-  void     ElectroPotential(double value);
+  void ElectroPotential(double value);
   double ElectroPotential() { return fElectroPotential; }
-  void     CharmPotential(double value);
+  void CharmPotential(double value);
   double CharmPotential() { return fCharmPotential; }
 
-  void     NMax(int value); 
-  int    NMax() { return fNMax; }
+  void NMax(int value);
+  int NMax() { return fNMax; }
 
-  // compute of system baryon number, system strangeness, system charge and 
+  // compute of system baryon number, system strangeness, system charge and
   // system energy
   // calculate system energy density
   double EnergyDensity(DatabasePDG* database);
@@ -55,13 +58,13 @@ class GrandCanonical {
   double StrangeDensity(DatabasePDG* database);
   // calculate system electro density
   double ElectroDensity(DatabasePDG* database);
-  // compute of particle number density 
+  // compute of particle number density
   double CharmDensity(DatabasePDG* database);
 
   // compute of particle number density
   double ParticleNumberDensity(ParticlePDG* particle);
-  // compute the particle energy density 
-  double ParticleEnergyDensity(ParticlePDG* particle); 
+  // compute the particle energy density
+  double ParticleEnergyDensity(ParticlePDG* particle);
 };
 
 #endif

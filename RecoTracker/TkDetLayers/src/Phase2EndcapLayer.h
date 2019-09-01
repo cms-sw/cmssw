@@ -13,61 +13,64 @@
 
 #pragma GCC visibility push(hidden)
 class Phase2EndcapLayer final : public RingedForwardLayer {
- public:
-  Phase2EndcapLayer(std::vector<const Phase2EndcapRing*>& rings, const bool isOT)  __attribute__ ((cold));
-  ~Phase2EndcapLayer()  override __attribute__ ((cold));
+public:
+  Phase2EndcapLayer(std::vector<const Phase2EndcapRing*>& rings, const bool isOT) __attribute__((cold));
+  ~Phase2EndcapLayer() override __attribute__((cold));
 
   // Default implementations would not properly manage memory
-  Phase2EndcapLayer( const Phase2EndcapLayer& ) = delete;
-  Phase2EndcapLayer& operator=( const Phase2EndcapLayer&) = delete;
+  Phase2EndcapLayer(const Phase2EndcapLayer&) = delete;
+  Phase2EndcapLayer& operator=(const Phase2EndcapLayer&) = delete;
 
   // GeometricSearchDet interface
-  
-  const std::vector<const GeomDet*>& basicComponents() const override {return theBasicComps;}
-  
-  const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold));
 
-  void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-			       const Propagator& prop,
-			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const override __attribute__ ((hot));
+  const std::vector<const GeomDet*>& basicComponents() const override { return theBasicComps; }
+
+  const std::vector<const GeometricSearchDet*>& components() const override __attribute__((cold));
+
+  void groupedCompatibleDetsV(const TrajectoryStateOnSurface& tsos,
+                              const Propagator& prop,
+                              const MeasurementEstimator& est,
+                              std::vector<DetGroup>& result) const override __attribute__((hot));
 
   // DetLayer interface
-  SubDetector subDetector() const override { if(isOuterTracker) return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTEC];
-                                            else return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2PXEC];}
+  SubDetector subDetector() const override {
+    if (isOuterTracker)
+      return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTEC];
+    else
+      return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2PXEC];
+  }
 
-
- private:
+private:
   // private methods for the implementation of groupedCompatibleDets()
-  BoundDisk* computeDisk( const std::vector<const Phase2EndcapRing*>& rings) const __attribute__ ((cold));
+  BoundDisk* computeDisk(const std::vector<const Phase2EndcapRing*>& rings) const __attribute__((cold));
 
-  std::array<int,3> ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
-						   const Propagator& prop ) const;
+  std::array<int, 3> ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
+                                                    const Propagator& prop) const;
 
   //  bool isCompatible( const TrajectoryStateOnSurface& ms,
   //	     const MeasurementEstimator& est) const;
 
-  std::array<int,3> findThreeClosest( std::vector<GlobalPoint> ) const __attribute__ ((hot));
-  
-  bool overlapInR( const TrajectoryStateOnSurface& tsos, int i, double ymax) const __attribute__ ((hot));
-  
-  
-  float computeWindowSize( const GeomDet* det, 
-  			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const __attribute__ ((hot));
-  
-  void fillRingPars(int i) __attribute__ ((cold));
+  std::array<int, 3> findThreeClosest(std::vector<GlobalPoint>) const __attribute__((hot));
 
- private:
+  bool overlapInR(const TrajectoryStateOnSurface& tsos, int i, double ymax) const __attribute__((hot));
+
+  float computeWindowSize(const GeomDet* det,
+                          const TrajectoryStateOnSurface& tsos,
+                          const MeasurementEstimator& est) const __attribute__((hot));
+
+  void fillRingPars(int i) __attribute__((cold));
+
+private:
   std::vector<GeomDet const*> theBasicComps;
   const bool isOuterTracker;
   mutable std::atomic<std::vector<const GeometricSearchDet*>*> theComponents;
   std::vector<const Phase2EndcapRing*> theComps;
-  struct RingPar { float theRingR, thetaRingMin, thetaRingMax;};
+  struct RingPar {
+    float theRingR, thetaRingMin, thetaRingMax;
+  };
   std::vector<RingPar> ringPars;
   int theRingSize;
 };
 
-
 #pragma GCC visibility pop
-#endif 
+#endif

@@ -31,27 +31,23 @@
 
 class DTReadOutMapping;
 
-
 class DTuROSDigiToRaw : public edm::stream::EDProducer<> {
-
 public:
-
   /// Constructor
   DTuROSDigiToRaw(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTuROSDigiToRaw() override ;
+  ~DTuROSDigiToRaw() override;
 
   /// Produce digis out of raw data
-  void produce(edm::Event& e, const edm::EventSetup& c) override ;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   /// Generate and fill FED raw data for a full event
   bool fillRawData(edm::Event& e, const edm::EventSetup& c, FEDRawDataCollection& data);
 
 private:
+  unsigned int eventNum;
 
-  unsigned int eventNum; 
-  
   edm::InputTag DTDigiInputTag_;
 
   bool debug_;
@@ -83,8 +79,7 @@ private:
   int theLNK(int ddu, int ros, int rob);
 
   edm::InputTag getDTDigiInputTag() { return DTDigiInputTag_; }
-  
-  edm::EDGetTokenT<DTDigiCollection> Raw_token;
 
+  edm::EDGetTokenT<DTDigiCollection> Raw_token;
 };
 #endif

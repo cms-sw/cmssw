@@ -29,55 +29,50 @@ class ME0EtaPartition;
 class ME0Geometry;
 class PSimHit;
 
-class ME0DigiModel
-{
+class ME0DigiModel {
 public:
-
   typedef edm::DetSet<StripDigiSimLink> StripDigiSimLinks;
   typedef edm::DetSet<ME0DigiSimLink> ME0DigiSimLinks;
 
   virtual ~ME0DigiModel() {}
 
-  void setGeometry(const ME0Geometry *geom) {geometry_ = geom;}
+  void setGeometry(const ME0Geometry* geom) { geometry_ = geom; }
 
-  const ME0Geometry* getGeometry() {return geometry_;}
+  const ME0Geometry* getGeometry() { return geometry_; }
 
   virtual void simulateSignal(const ME0EtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine* engine) = 0;
 
   virtual void simulateNoise(const ME0EtaPartition*, CLHEP::HepRandomEngine* engine) = 0;
-  
-  virtual std::vector<std::pair<int,int> > 
-    simulateClustering(const ME0EtaPartition*, const PSimHit*, const int, CLHEP::HepRandomEngine* engine) = 0;
+
+  virtual std::vector<std::pair<int, int> > simulateClustering(const ME0EtaPartition*,
+                                                               const PSimHit*,
+                                                               const int,
+                                                               CLHEP::HepRandomEngine* engine) = 0;
 
   void fillDigis(int rollDetId, ME0DigiCollection&);
 
   virtual void setup() = 0;
 
-  const StripDigiSimLinks & stripDigiSimLinks() const {return stripDigiSimLinks_;}
-  const ME0DigiSimLinks & me0DigiSimLinks() const {return theME0DigiSimLinks_;}
+  const StripDigiSimLinks& stripDigiSimLinks() const { return stripDigiSimLinks_; }
+  const ME0DigiSimLinks& me0DigiSimLinks() const { return theME0DigiSimLinks_; }
 
 protected:
-
   ME0DigiModel(const edm::ParameterSet&) {}
 
-  const ME0Geometry * geometry_;
-  
-  std::set< std::pair<int, int> > strips_;
+  const ME0Geometry* geometry_;
+
+  std::set<std::pair<int, int> > strips_;
 
   /// creates links from Digi to SimTrack
-  void addLinks(unsigned int strip,int bx);
-  void addLinksWithPartId(unsigned int strip,int bx);
+  void addLinks(unsigned int strip, int bx);
+  void addLinksWithPartId(unsigned int strip, int bx);
 
   // keeps track of which hits contribute to which channels
-  typedef std::multimap<
-      std::pair<unsigned int, int>,
-      const PSimHit*,
-      std::less<std::pair<unsigned int, int> >
-    >  DetectorHitMap;
+  typedef std::multimap<std::pair<unsigned int, int>, const PSimHit*, std::less<std::pair<unsigned int, int> > >
+      DetectorHitMap;
 
   DetectorHitMap detectorHitMap_;
   StripDigiSimLinks stripDigiSimLinks_;
   ME0DigiSimLinks theME0DigiSimLinks_;
-
 };
 #endif

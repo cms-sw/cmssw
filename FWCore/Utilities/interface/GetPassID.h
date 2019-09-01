@@ -4,11 +4,10 @@
 #include <string>
 
 namespace edm {
-  inline
-  std::string getPassID () {
+  inline std::string getPassID() {
     static std::string const passID;
     // return empty string for now.
-    return passID; 
+    return passID;
   }
-}
+}  // namespace edm
 #endif

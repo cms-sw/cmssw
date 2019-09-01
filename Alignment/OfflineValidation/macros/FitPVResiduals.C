@@ -43,7 +43,7 @@
 #include <TSystem.h>
 #include <TTimeStamp.h>
 #include <TStopwatch.h>
-//#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc" 
+//#include "Alignment/OfflineValidation/macros/TkAlStyle.cc" 
 #include "Alignment/OfflineValidation/macros/CMS_lumi.C"
 #include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
 

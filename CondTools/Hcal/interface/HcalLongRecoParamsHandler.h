@@ -3,7 +3,6 @@
 
 // Radek Ofierzynski, 27.02.2008
 
-
 #include <string>
 #include <iostream>
 #include <typeinfo>
@@ -11,7 +10,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -21,22 +20,19 @@
 #include "CondFormats/DataRecord/interface/HcalLongRecoParamsRcd.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
-
-class HcalLongRecoParamsHandler : public popcon::PopConSourceHandler<HcalLongRecoParams>
-{
- public:
+class HcalLongRecoParamsHandler : public popcon::PopConSourceHandler<HcalLongRecoParams> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~HcalLongRecoParamsHandler() override;
-  HcalLongRecoParamsHandler(edm::ParameterSet const &);
+  HcalLongRecoParamsHandler(edm::ParameterSet const&);
 
   void initObject(HcalLongRecoParams*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   HcalLongRecoParams* myDBObject;
   std::string m_name;
-
 };
 #endif

@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import unittest
 import math
-from value import Value 
+from .value import Value 
 
 class ValueTestCase(unittest.TestCase):
 

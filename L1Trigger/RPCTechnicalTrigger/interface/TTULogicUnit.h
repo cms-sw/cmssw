@@ -1,4 +1,4 @@
-#ifndef TTULOGICUNIT_H 
+#ifndef TTULOGICUNIT_H
 #define TTULOGICUNIT_H 1
 
 // Include files
@@ -19,39 +19,30 @@
  */
 
 class TTULogicUnit : public RPCLogicUnit {
-public: 
+public:
   /// Standard constructor
-  TTULogicUnit( );
-  
-  TTULogicUnit( const char * );
-  
-  ~TTULogicUnit( ) override; ///< Destructor
+  TTULogicUnit();
+
+  TTULogicUnit(const char*);
 
   bool initialise();
-  
-  void setlogic( const char * );
-  
-  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & );
-  
-  void run( const TTUInput & );
 
-  void run( const TTUInput & , int );
-  
-  bool isTriggered() {
-    return m_logic->m_triggersignal;
-  };
-    
+  void setlogic(const char*);
+
+  void setBoardSpecs(const TTUBoardSpecs::TTUBoardConfig&);
+
+  void run(const TTUInput&);
+
+  void run(const TTUInput&, int);
+
+  bool isTriggered() { return m_logic->m_triggersignal; };
+
 protected:
-  
 private:
-  
   std::string m_logtype;
-  
-  TTULogic             * m_logic;
-  
-  LogicTool<TTULogic>  * m_logtool;
+
+  std::unique_ptr<TTULogic> m_logic;
 
   bool m_debug;
-    
 };
-#endif // TTUPAC_H
+#endif  // TTUPAC_H

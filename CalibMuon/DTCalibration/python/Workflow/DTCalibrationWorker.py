@@ -1,9 +1,11 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import sys,os,time
 import subprocess
-from tools import loadCmsProcess
-from DTWorkflow import DTWorkflow
-from DTTtrigWorkflow import DTttrigWorkflow
-from DTVdriftWorkflow import DTvdriftWorkflow
+from .tools import loadCmsProcess
+from .DTWorkflow import DTWorkflow
+from .DTTtrigWorkflow import DTttrigWorkflow
+from .DTVdriftWorkflow import DTvdriftWorkflow
 import logging
 # setup logging
 log = logging.getLogger(__name__)
@@ -14,7 +16,7 @@ class DTCalibrationWorker(object):
         workflows. Additional workflow classes should use the naming scheme
         DT${WORKFLOWNAME}Workflow and implement a classmethod function add_parser_options.
     """
-    available_workflows = ["ttrig","vdrift"]
+    available_workflows = ["ttrig","vdrift","T0Wire"]
     def __init__(self, options):
         self.options = options
         if not self.has_crab3_env:
@@ -40,7 +42,7 @@ class DTCalibrationWorker(object):
         command = ['bash', '-c', 'unset module;source /cvmfs/cms.cern.ch/crab3/crab.sh && env']
         proc = subprocess.Popen(command, stdout = subprocess.PIPE)
 
-        print 'setting up crab'
+        print('setting up crab')
         for line in proc.stdout:
           (key, _, value) = line.partition("=")
           os.environ[key] = value.replace("\n","")

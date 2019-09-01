@@ -7,11 +7,8 @@
 
 #include "boost/mpl/vector.hpp"
 
+class CaloTopologyRecord
+    : public edm::eventsetup::DependentRecordImplementation<CaloTopologyRecord, boost::mpl::vector<CaloGeometryRecord> > {
+};
 
-class CaloTopologyRecord : 
-   public edm::eventsetup::DependentRecordImplementation<
-   CaloTopologyRecord,
-                     boost::mpl::vector<
-                     CaloGeometryRecord> > {};
-
-#endif 
+#endif

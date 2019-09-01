@@ -9,9 +9,8 @@
 
 class DDFilteredViewAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-
-  explicit DDFilteredViewAnalyzer( const edm::ParameterSet& );
-  ~DDFilteredViewAnalyzer( void ) override {}
+  explicit DDFilteredViewAnalyzer(const edm::ParameterSet&);
+  ~DDFilteredViewAnalyzer(void) override {}
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -24,43 +23,39 @@ private:
   DDCompOp m_comp;
 };
 
-DDFilteredViewAnalyzer::DDFilteredViewAnalyzer( const edm::ParameterSet& pset ) {
-  m_attribute = pset.getParameter< std::string >( "attribute" );
-  m_value = pset.getParameter< std::string >( "value" );
-  
-  m_shouldPrint = pset.getUntrackedParameter<bool>("shouldPrint",true);
-  if(pset.getUntrackedParameter<bool>("compareNotEquals",true) ) {
+DDFilteredViewAnalyzer::DDFilteredViewAnalyzer(const edm::ParameterSet& pset) {
+  m_attribute = pset.getParameter<std::string>("attribute");
+  m_value = pset.getParameter<std::string>("value");
+
+  m_shouldPrint = pset.getUntrackedParameter<bool>("shouldPrint", true);
+  if (pset.getUntrackedParameter<bool>("compareNotEquals", true)) {
     m_comp = DDCompOp::not_equals;
   } else {
-    m_comp= DDCompOp::equals;
+    m_comp = DDCompOp::equals;
   }
 }
 
-void
-DDFilteredViewAnalyzer::analyze( const edm::Event& , 
-				 const edm::EventSetup& iSetup ) {
+void DDFilteredViewAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   edm::ESTransientHandle<DDCompactView> cpv;
-  iSetup.get<IdealGeometryRecord>().get( cpv );
- 
-  DDValue val( m_attribute, m_value, 0.0 );
+  iSetup.get<IdealGeometryRecord>().get(cpv);
+
+  DDValue val(m_attribute, m_value, 0.0);
   DDSpecificsFilter filter;
-  filter.setCriteria( val,  // name & value of a variable 
-  		      m_comp
-  		     );
-  DDFilteredView fv( *cpv,filter );
-  if( fv.firstChild()) {
+  filter.setCriteria(val,  // name & value of a variable
+                     m_comp);
+  DDFilteredView fv(*cpv, filter);
+  if (fv.firstChild()) {
     std::cout << "Found attribute " << m_attribute.c_str() << " with value " << m_value.c_str() << std::endl;
     bool dodet = true;
     int i = 0;
-    while( dodet ) {
+    while (dodet) {
       dodet = fv.next();
-      if(m_shouldPrint) {
+      if (m_shouldPrint) {
         std::cout << i++ << ": " << fv.logicalPart().name() << std::endl;
       }
     }
-  }
-  else
+  } else
     std::cout << "No luck..." << std::endl;
 }
 
-DEFINE_FWK_MODULE( DDFilteredViewAnalyzer );
+DEFINE_FWK_MODULE(DDFilteredViewAnalyzer);

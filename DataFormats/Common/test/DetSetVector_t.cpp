@@ -20,16 +20,14 @@ using namespace edm;
 // This is a sample VALUE class, almost the simplest possible.
 //------------------------------------------------------
 namespace {
-  bool is_null(const void* iPtr) {
-    return iPtr == nullptr ;
-  }
-}
+  bool is_null(const void* iPtr) { return iPtr == nullptr; }
+}  // namespace
 
-struct Empty { };
+struct Empty {};
 
-template<typename BASE>
+template <typename BASE>
 class ValueT : public BASE {
- public:
+public:
   // VALUES must be default constructible
   ValueT() : d_(0.0) {}
 
@@ -39,33 +37,29 @@ class ValueT : public BASE {
 
   // This access function is used for testing; it is not required by
   // the concept VALUE.
-  double val() const {return d_;}
+  double val() const { return d_; }
 
   // VALUES must be destructible
   ~ValueT() {}
 
-
   // VALUES must be LessThanComparable
-  bool operator<(ValueT const& other) const {return d_ < other.d_;}
+  bool operator<(ValueT const& other) const { return d_ < other.d_; }
 
   // The private stuff below is all implementation detail, and not
   // required by the concept VALUE.
- private:
+private:
   double d_;
 };
 
 typedef edm::DoNotSortUponInsertion DNS;
 
-template<>
-bool
-ValueT<DNS>::operator<(ValueT<DNS> const& /*other*/) const {
+template <>
+bool ValueT<DNS>::operator<(ValueT<DNS> const& /*other*/) const {
   throw std::logic_error("You can't sort me!");
 }
 
-
 typedef ValueT<Empty> Value;
 //typedef ValueT<DNS> Value; // NoSort;
-
 
 //------------------------------------------------------
 // The stream insertion operator is not required; it is used here
@@ -78,81 +72,74 @@ typedef ValueT<Empty> Value;
 //
 //------------------------------------------------------
 
-template<typename BASE>
-std::ostream&
-operator<<(std::ostream& os, ValueT<BASE> const& v) {
+template <typename BASE>
+std::ostream& operator<<(std::ostream& os, ValueT<BASE> const& v) {
   os << " val: " << v.val();
   return os;
 }
 
-
 typedef edm::DetSetVector<Value> coll_type;
-typedef coll_type::detset        detset;
+typedef coll_type::detset detset;
 
 void check_outer_collection_order(coll_type const& c) {
-  if(c.size() < 2) return;
+  if (c.size() < 2)
+    return;
   coll_type::const_iterator i = c.begin();
   coll_type::const_iterator e = c.end();
   // Invariant: sequence from prev to i is correctly ordered
   coll_type::const_iterator prev(i);
   ++i;
-  for(; i != e; ++i, ++prev) {
-      // We don't use CPPUNIT_ASSERT because it gives us grossly
-      // insufficient context if a failure occurs.
-      assert(prev->id < i->id);
-    }
+  for (; i != e; ++i, ++prev) {
+    // We don't use CPPUNIT_ASSERT because it gives us grossly
+    // insufficient context if a failure occurs.
+    assert(prev->id < i->id);
+  }
 }
 
 void check_inner_collection_order(detset const& d) {
-  if(d.data.size() < 2) return;
+  if (d.data.size() < 2)
+    return;
   detset::const_iterator i = d.data.begin();
   detset::const_iterator e = d.data.end();
   // Invariant: sequence from prev to i is correctly ordered
   detset::const_iterator prev(i);
   ++i;
-  for(; i != e; ++i, ++prev) {
-      // We don't use CPPUNIT_ASSERT because it gives us grossly
-      // insufficient context if a failure occurs.
-      //
-      // We don't check that *prev < *i because they might be equal.
-      // We don't want to require an op<= or op==.
-    assert (! (*i < *prev));
-    }
+  for (; i != e; ++i, ++prev) {
+    // We don't use CPPUNIT_ASSERT because it gives us grossly
+    // insufficient context if a failure occurs.
+    //
+    // We don't check that *prev < *i because they might be equal.
+    // We don't want to require an op<= or op==.
+    assert(!(*i < *prev));
+  }
 }
 
 void printDetSet(detset const& ds, std::ostream& os) {
-  os << "size: " << ds.data.size() << '\n'
-     << "values: ";
-  std::copy(ds.data.begin(), ds.data.end(),
-            std::ostream_iterator<detset::value_type>(os, " "));
+  os << "size: " << ds.data.size() << '\n' << "values: ";
+  std::copy(ds.data.begin(), ds.data.end(), std::ostream_iterator<detset::value_type>(os, " "));
 }
-
 
 void sanity_check(coll_type const& c) {
   check_outer_collection_order(c);
-  for(coll_type::const_iterator i = c.begin(), e = c.end(); i!=e; ++i) {
-//       printDetSet(*i, std::cerr);
-//       std::cerr << '\n';
-      check_inner_collection_order(*i);
-    }
+  for (coll_type::const_iterator i = c.begin(), e = c.end(); i != e; ++i) {
+    //       printDetSet(*i, std::cerr);
+    //       std::cerr << '\n';
+    check_inner_collection_order(*i);
+  }
 }
 
 void check_ids(coll_type const& c) {
   // Long way to get all ids...
   std::vector<det_id_type> all_ids;
-  for(coll_type::const_iterator i = c.begin(),
-       e = c.end();
-       i !=  e;
-       ++i) {
-      all_ids.push_back(i->id);
-    }
+  for (coll_type::const_iterator i = c.begin(), e = c.end(); i != e; ++i) {
+    all_ids.push_back(i->id);
+  }
   assert(c.size() == all_ids.size());
 
   std::vector<det_id_type> nice_ids;
   c.getIds(nice_ids);
   assert(all_ids == nice_ids);
 }
-
 
 void detsetTest() {
   //std::cerr << "\nStart DetSetVector_t detsetTest()\n";
@@ -168,27 +155,22 @@ void detsetTest() {
 }
 
 namespace {
-  template<typename T>
+  template <typename T>
   struct DSVGetter : edm::EDProductGetter {
-
     DSVGetter() : edm::EDProductGetter(), prod_(nullptr) {}
-    virtual WrapperBase const*
-    getIt(ProductID const&) const override {return prod_;}
+    virtual WrapperBase const* getIt(ProductID const&) const override { return prod_; }
 
-    virtual WrapperBase const*
-    getThinnedProduct(ProductID const&, unsigned int&) const override {return nullptr;}
+    virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override { return nullptr; }
 
-    virtual void
-    getThinnedProducts(ProductID const& pid,
-                       std::vector<WrapperBase const*>& wrappers,
-                       std::vector<unsigned int>& keys) const override { }
+    virtual void getThinnedProducts(ProductID const& pid,
+                                    std::vector<WrapperBase const*>& wrappers,
+                                    std::vector<unsigned int>& keys) const override {}
 
-    virtual unsigned int
-    transitionIndex_() const override {return 0U;}
+    virtual unsigned int transitionIndex_() const override { return 0U; }
 
     edm::Wrapper<T> const* prod_;
   };
-}
+}  // namespace
 
 void refTest() {
   coll_type c;
@@ -199,7 +181,7 @@ void refTest() {
   d3.data.push_back(v1);
   d3.data.push_back(v2);
   c.insert(d3);
-  detset    d1;
+  detset d1;
   Value v1a(4.1);
   Value v2a(3.2);
   d1.id = edm::det_id_type(1);
@@ -213,36 +195,35 @@ void refTest() {
   DSVGetter<coll_type> theGetter;
   theGetter.prod_ = &wrapper;
 
-  typedef edm::Ref<coll_type,detset> RefDetSet;
-  typedef edm::Ref<coll_type,Value> RefDet;
+  typedef edm::Ref<coll_type, detset> RefDetSet;
+  typedef edm::Ref<coll_type, Value> RefDet;
 
   {
-    RefDetSet refSet(edm::ProductID(1, 1),0,&theGetter);
-    assert(!(d1 <*refSet) && !(*refSet < d1));
+    RefDetSet refSet(edm::ProductID(1, 1), 0, &theGetter);
+    assert(!(d1 < *refSet) && !(*refSet < d1));
   }
   {
-    RefDetSet refSet(edm::ProductID(1, 1),1,&theGetter);
-    assert(!(d3 <*refSet) && !(*refSet < d3));
+    RefDetSet refSet(edm::ProductID(1, 1), 1, &theGetter);
+    assert(!(d3 < *refSet) && !(*refSet < d3));
   }
   {
-    RefDet refDet(edm::ProductID(1, 1),RefDet::key_type(3,0),&theGetter);
-    assert(!(v1<*refDet)&&!(*refDet < v1));
+    RefDet refDet(edm::ProductID(1, 1), RefDet::key_type(3, 0), &theGetter);
+    assert(!(v1 < *refDet) && !(*refDet < v1));
   }
 
   {
     TestHandle<coll_type> pc2(&c, ProductID(1, 1));
-    RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(3),c[3].data.begin());
-    assert(!(v1<*refDet)&&!(*refDet < v1));
+    RefDet refDet = makeRefToDetSetVector(pc2, det_id_type(3), c[3].data.begin());
+    assert(!(v1 < *refDet) && !(*refDet < v1));
   }
 
   try {
     //bad detid
     TestHandle<coll_type> pc2(&c, ProductID(1, 1));
-    RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(12),c[3].data.begin());
+    RefDet refDet = makeRefToDetSetVector(pc2, det_id_type(12), c[3].data.begin());
 
     assert("Failed to throw required exception" == 0);
-  }
-  catch (edm::Exception const& x) {
+  } catch (edm::Exception const& x) {
     //std::cout <<x.what()<<std::endl;
     // Test we have the right exception category
     assert(x.categoryCode() == edm::errors::InvalidReference);
@@ -251,16 +232,14 @@ void refTest() {
   try {
     //bad iterator
     TestHandle<coll_type> pc2(&c, ProductID(1, 1));
-    RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(1),c[3].data.begin());
+    RefDet refDet = makeRefToDetSetVector(pc2, det_id_type(1), c[3].data.begin());
 
     assert("Failed to throw required exception" == 0);
-  }
-  catch (edm::Exception const& x) {
+  } catch (edm::Exception const& x) {
     //std::cout <<x.what()<<std::endl;
     // Test we have the right exception category
     assert(x.categoryCode() == edm::errors::InvalidReference);
   }
-
 }
 
 void work() {
@@ -277,7 +256,8 @@ void work() {
   assert(c2.size() == c1.size());
   sanity_check(c2);
   coll_type c;
-  sanity_check(c); {
+  sanity_check(c);
+  {
     detset d;
     Value v1(1.1);
     Value v2(2.2);
@@ -332,8 +312,7 @@ void work() {
     coll_type::iterator i = c.find(edm::det_id_type(11));
     assert(i == c.end());
 
-    coll_type::const_iterator ci =
-      static_cast<coll_type const&>(c).find(edm::det_id_type(11));
+    coll_type::const_iterator ci = static_cast<coll_type const&>(c).find(edm::det_id_type(11));
     assert(ci == c.end());
   }
   {
@@ -349,13 +328,11 @@ void work() {
     try {
       coll_type::reference r = c[edm::det_id_type(100)];
       assert("Failed to throw required exception" == 0);
-      assert(is_null(&r)); // to silence warning of unused r
-    }
-    catch (edm::Exception const& x) {
+      assert(is_null(&r));  // to silence warning of unused r
+    } catch (edm::Exception const& x) {
       // Test we have the right exception category
       assert(x.categoryCode() == edm::errors::InvalidReference);
-    }
-    catch (...) {
+    } catch (...) {
       assert("Failed to throw correct exception type" == 0);
     }
   }
@@ -363,16 +340,13 @@ void work() {
   {
     // We should not find ID=100; op[] should throw.
     try {
-      coll_type::const_reference r
-        = static_cast<coll_type const&>(c)[edm::det_id_type(100)];
+      coll_type::const_reference r = static_cast<coll_type const&>(c)[edm::det_id_type(100)];
       assert("Failed to throw required exception" == 0);
-      assert(is_null(&r)); // to silence warning of unused r
-    }
-    catch (edm::Exception const& x) {
+      assert(is_null(&r));  // to silence warning of unused r
+    } catch (edm::Exception const& x) {
       // Test we have the right exception category
       assert(x.categoryCode() == edm::errors::InvalidReference);
-    }
-    catch (...) {
+    } catch (...) {
       assert("Failed to throw correct exception type" == 0);
     }
   }
@@ -395,7 +369,7 @@ void work() {
     coll_type::reference r = c.find_or_insert(edm::det_id_type(17));
     coll_type::size_type newsize = c.size();
     assert(newsize > oldsize);
-    assert(newsize == (oldsize+1));
+    assert(newsize == (oldsize + 1));
     assert(r.id == edm::det_id_type(17));
     assert(r.data.size() == 0);
     r.data.push_back(Value(10.1));
@@ -410,13 +384,13 @@ void work() {
     unsigned int const numDetSets = 20;
     unsigned int const detSetSize = 14;
     std::vector<detset> v;
-    for(unsigned int i = 0; i < numDetSets; ++i) {
-        detset    d(i);
-        for(unsigned int j = 0; j < detSetSize; ++j) {
-            d.data.push_back(Value(100*i + 1.0/j));
-        }
-        v.push_back(d);
+    for (unsigned int i = 0; i < numDetSets; ++i) {
+      detset d(i);
+      for (unsigned int j = 0; j < detSetSize; ++j) {
+        d.data.push_back(Value(100 * i + 1.0 / j));
       }
+      v.push_back(d);
+    }
     assert(v.size() == numDetSets);
     coll_type c3(v);
     c3.post_insert();
@@ -437,21 +411,17 @@ void work() {
 int main() {
   int rc = -1;
   try {
-      work();
-      rc = 0;
-  }
-  catch (edm::Exception const& x) {
-      //std::cerr << "Exception: " << x << '\n';
-      rc = 1;
-  }
-  catch (std::exception& x) {
-      //std::cerr << "standard exception: " << x.what() << '\n';
-      rc = 3;
-  }
-  catch (...) {
-      //std::cerr << "Unknown exception\n";
-      rc = 2;
+    work();
+    rc = 0;
+  } catch (edm::Exception const& x) {
+    //std::cerr << "Exception: " << x << '\n';
+    rc = 1;
+  } catch (std::exception& x) {
+    //std::cerr << "standard exception: " << x.what() << '\n';
+    rc = 3;
+  } catch (...) {
+    //std::cerr << "Unknown exception\n";
+    rc = 2;
   }
   return rc;
 }
-

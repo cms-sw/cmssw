@@ -10,13 +10,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-
 //
 // class declaration
 //
-
-
 
 class LSNumberFilter : public edm::EDFilter {
 public:
@@ -24,53 +20,38 @@ public:
   ~LSNumberFilter() override;
 
 private:
-
-  void beginJob() override ;
+  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
 
   unsigned int minLS;
 };
 
+LSNumberFilter::LSNumberFilter(const edm::ParameterSet& iConfig)
+    : minLS(iConfig.getUntrackedParameter<unsigned>("minLS", 21)) {}
 
-
-LSNumberFilter::LSNumberFilter(const edm::ParameterSet& iConfig):
-  minLS(iConfig.getUntrackedParameter<unsigned>("minLS",21))
-{}
-
-
-LSNumberFilter::~LSNumberFilter()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+LSNumberFilter::~LSNumberFilter() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool LSNumberFilter::filter(edm::Event& iEvent,
-			    const edm::EventSetup& iSetup) {
+bool LSNumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if (iEvent.luminosityBlock() < minLS)
+    return false;
 
-  if(iEvent.luminosityBlock() < minLS) return false;
-  
   return true;
-
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void
-LSNumberFilter::beginJob()
-{}
+void LSNumberFilter::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void
-LSNumberFilter::endJob() {
-}
+void LSNumberFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(LSNumberFilter);

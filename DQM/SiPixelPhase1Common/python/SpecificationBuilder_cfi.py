@@ -78,7 +78,7 @@ class Specification(cms.PSet):
     return t 
 
   def groupBy(self, cols, mode = "SUM"):
-    cnames = filter(len, val(cols).split("/")) # omit empty items
+    cnames = list(filter(len, val(cols).split("/"))) # omit empty items
     newstate = self._state
 
     # The behaviour of groupBy depends a lot on when it happens:

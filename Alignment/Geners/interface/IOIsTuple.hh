@@ -2,12 +2,10 @@
 #define GENERS_IOISTUPLE_HH_
 
 namespace gs {
-    template <class T>
-    struct IOIsTuple
-    {
-        enum {value = 0};
-    };
-}
+  template <class T>
+  struct IOIsTuple {
+    enum { value = 0 };
+  };
+}  // namespace gs
 
-#endif // GENERS_IOISTUPLE_HH_
-
+#endif  // GENERS_IOISTUPLE_HH_

@@ -1,27 +1,23 @@
 #ifndef TRACKINGDQMCLIENTHEAVYIONS_H
 #define TRACKINGDQMCLIENTHEAVYIONS_H
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include <set>
 #include <string>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <vector>
 #include <TH1.h>
 #include <TEfficiency.h>
 
-class MonitorElement;
-
-class TrackingDQMClientHeavyIons : public DQMEDHarvester
-{
- public:
+class TrackingDQMClientHeavyIons : public DQMEDHarvester {
+public:
   TrackingDQMClientHeavyIons(const edm::ParameterSet& pset);
-  ~TrackingDQMClientHeavyIons() override {};
+  ~TrackingDQMClientHeavyIons() override{};
 
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
- private:
+private:
   unsigned int verbose_;
   bool isWildcardUsed_;
   bool resLimitedFit_;
@@ -30,7 +26,5 @@ class TrackingDQMClientHeavyIons : public DQMEDHarvester
   std::string TopFolder_;
   MonitorElement* DCAStats;
   std::string outputFileName_;
-
 };
 #endif
-

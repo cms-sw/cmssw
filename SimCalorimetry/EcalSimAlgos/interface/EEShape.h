@@ -3,22 +3,19 @@
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShapeBase.h"
 
-class EEShape : public EcalShapeBase
-{
-   public:
-  
-      EEShape() ;
+class EEShape : public EcalShapeBase {
+public:
+  EEShape(bool useDB) : EcalShapeBase(useDB) {
+    if (!useDB)
+      buildMe();
+  }  // if useDB = true, then buildMe is executed when setEventSetup and DB conditions are available}
+     //   EEShape():EcalShapeBase(false){;}
 
-      ~EEShape() override ;
-
-      double threshold() const override ;
-
-   protected:
-  
-      void fillShape( EcalShapeBase::DVec& aVec ) const override ;
+protected:
+  void fillShape(float& time_interval,
+                 double& m_thresh,
+                 EcalShapeBase::DVec& aVec,
+                 const edm::EventSetup* es) const override;
 };
-  
-
 
 #endif
-  

@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // File  :     implementorsMethods
-// 
+//
 /**\file implementorsMethods.h "FWCore/Framework/src/limited/implementorsMethods.h"
 
  Description: [one line class summary]
@@ -28,28 +28,27 @@
 namespace edm {
   namespace limited {
     namespace impl {
-      template< typename T>
+      template <typename T>
       void BeginRunProducer<T>::doBeginRunProduce_(Run& rp, EventSetup const& c) {
-        this->globalBeginRunProduce(rp,c);
+        this->globalBeginRunProduce(rp, c);
       }
 
-      template< typename T>
+      template <typename T>
       void EndRunProducer<T>::doEndRunProduce_(Run& rp, EventSetup const& c) {
-        this->globalEndRunProduce(rp,c);
+        this->globalEndRunProduce(rp, c);
       }
 
-      template< typename T>
+      template <typename T>
       void BeginLuminosityBlockProducer<T>::doBeginLuminosityBlockProduce_(LuminosityBlock& rp, EventSetup const& c) {
-        this->globalBeginLuminosityBlockProduce(rp,c);
+        this->globalBeginLuminosityBlockProduce(rp, c);
       }
-      
-      template< typename T>
-      void EndLuminosityBlockProducer<T>::doEndLuminosityBlockProduce_(LuminosityBlock& rp, EventSetup const& c) {
-        this->globalEndLuminosityBlockProduce(rp,c);
-      }
-    }
-  }
-}
 
+      template <typename T>
+      void EndLuminosityBlockProducer<T>::doEndLuminosityBlockProduce_(LuminosityBlock& rp, EventSetup const& c) {
+        this->globalEndLuminosityBlockProduce(rp, c);
+      }
+    }  // namespace impl
+  }    // namespace limited
+}  // namespace edm
 
 #endif

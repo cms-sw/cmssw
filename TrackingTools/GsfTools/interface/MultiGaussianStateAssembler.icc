@@ -1,31 +1,26 @@
 #include "TrackingTools/GsfTools/interface/GaussianStateLessWeight.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-
 template <unsigned int N>
-void MultiGaussianStateAssembler<N>::addState (const SingleStatePtr& sgs)
-{
+void MultiGaussianStateAssembler<N>::addState(const SingleStatePtr& sgs) {
   //
   // refuse to add states after combination has been done
   //
-  if ( combinationDone )
-    throw cms::Exception("LogicError")
-      << "MultiGaussianStateAssembler: trying to add states after combination";
+  if (combinationDone)
+    throw cms::Exception("LogicError") << "MultiGaussianStateAssembler: trying to add states after combination";
 
   theValidWeightSum += sgs->weight();
 
   theStates.push_back(sgs);
 }
 
-
 template <unsigned int N>
-void MultiGaussianStateAssembler<N>::addState (const MultiState& mgs) {
+void MultiGaussianStateAssembler<N>::addState(const MultiState& mgs) {
   //
   // refuse to add states after combination has been done
   //
-  if ( combinationDone )
-    throw cms::Exception("LogicError") 
-      << "MultiGaussianStateAssembler: trying to add states after combination";
+  if (combinationDone)
+    throw cms::Exception("LogicError") << "MultiGaussianStateAssembler: trying to add states after combination";
   //
   // Add components (i.e. state to be added can be single or multi state)
   //
@@ -34,30 +29,27 @@ void MultiGaussianStateAssembler<N>::addState (const MultiState& mgs) {
 }
 
 template <unsigned int N>
-void MultiGaussianStateAssembler<N>::addStateVector (const SingleStateContainer& states)
-{
+void MultiGaussianStateAssembler<N>::addStateVector(const SingleStateContainer& states) {
   //
   // refuse to add states after combination has been done
   //
-  if ( combinationDone )
-    throw cms::Exception("LogicError") 
-      << "MultiGaussianStateAssembler: trying to add states after combination";
+  if (combinationDone)
+    throw cms::Exception("LogicError") << "MultiGaussianStateAssembler: trying to add states after combination";
   //
   // sum up weights (all components are supposed to be valid!!!)
   //
-  double sum=0.;
-  for (auto const & is : states ) sum += (*is).weight();
+  double sum = 0.;
+  for (auto const& is : states)
+    sum += (*is).weight();
   theValidWeightSum += sum;
   //
   // add to vector of states
   //
-  theStates.insert(theStates.end(),states.begin(),states.end());
+  theStates.insert(theStates.end(), states.begin(), states.end());
 }
 
-
 template <unsigned int N>
-MultiGaussianState<N>
-MultiGaussianStateAssembler<N>::combinedState () {
+MultiGaussianState<N> MultiGaussianStateAssembler<N>::combinedState() {
   //
   // Prepare resulting state vector
   prepareCombinedState();
@@ -65,8 +57,7 @@ MultiGaussianStateAssembler<N>::combinedState () {
 }
 
 template <unsigned int N>
-MultiGaussianState<N>
-MultiGaussianStateAssembler<N>::combinedState (const float newWeight) {
+MultiGaussianState<N> MultiGaussianStateAssembler<N>::combinedState(const float newWeight) {
   //
   // Prepare resulting state vector
   //
@@ -78,52 +69,51 @@ MultiGaussianStateAssembler<N>::combinedState (const float newWeight) {
 }
 
 template <unsigned int N>
-bool
-MultiGaussianStateAssembler<N>::prepareCombinedState () {
+bool MultiGaussianStateAssembler<N>::prepareCombinedState() {
   //
   // remaining part to be done only once
   //
-  if ( combinationDone )  return true;
+  if (combinationDone)
+    return true;
   combinationDone = true;
   //
   // Remove states with negligible weights
   //
   removeSmallWeights();
-  return  !theStates.empty();
+  return !theStates.empty();
 }
 
 template <unsigned int N>
-MultiGaussianState<N>
-MultiGaussianStateAssembler<N>::reweightedCombinedState (const double newWeight) const {
+MultiGaussianState<N> MultiGaussianStateAssembler<N>::reweightedCombinedState(const double newWeight) const {
   //
   // scaling factor
   //
-  double factor = theValidWeightSum>0. ? newWeight/theValidWeightSum : 1;
+  double factor = theValidWeightSum > 0. ? newWeight / theValidWeightSum : 1;
   //
   // create new vector of states & combined state
   //
   SingleStateContainer reweightedStates;
   reweightedStates.reserve(theStates.size());
-  for (auto const & is : theStates) {
+  for (auto const& is : theStates) {
     auto oldWeight = (*is).weight();
-    reweightedStates.emplace_back((*is).mean(),
-					    (*is).covariance(), factor*oldWeight);
+    reweightedStates.emplace_back((*is).mean(), (*is).covariance(), factor * oldWeight);
   }
   return MultiState(reweightedStates);
 }
 
 template <unsigned int N>
-void
-MultiGaussianStateAssembler<N>::removeSmallWeights()
-{
+void MultiGaussianStateAssembler<N>::removeSmallWeights() {
   //
   // check total weight
   //
-  if ( theValidWeightSum == 0. ) {
+  if (theValidWeightSum == 0.) {
     theStates.clear();
     return;
   }
-  theStates.erase(std::remove_if(theStates.begin(),theStates.end(),
-                  [&](typename SingleStateContainer::value_type const & s){ return s->weight() < minFractionalWeight*theValidWeightSum;}),theStates.end()
-                 );
+  theStates.erase(std::remove_if(theStates.begin(),
+                                 theStates.end(),
+                                 [&](typename SingleStateContainer::value_type const& s) {
+                                   return s->weight() < minFractionalWeight * theValidWeightSum;
+                                 }),
+                  theStates.end());
 }

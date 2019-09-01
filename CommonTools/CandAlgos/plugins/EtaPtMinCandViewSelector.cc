@@ -22,13 +22,9 @@
 #include "CommonTools/UtilAlgos/interface/AndSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef SingleObjectSelector<
-          edm::View<reco::Candidate>,
-          AndSelector<
-            PtMinSelector,
-            EtaRangeSelector
-          >,
-          reco::CandidateCollection
-        > EtaPtMinCandViewSelector;
+typedef SingleObjectSelector<edm::View<reco::Candidate>,
+                             AndSelector<PtMinSelector, EtaRangeSelector>,
+                             reco::CandidateCollection>
+    EtaPtMinCandViewSelector;
 
-DEFINE_FWK_MODULE( EtaPtMinCandViewSelector );
+DEFINE_FWK_MODULE(EtaPtMinCandViewSelector);

@@ -2,7 +2,7 @@
 //
 // Package:     SimDataFormats/Associations
 // Class  :     TrackToGenParticleAssociatorBaseImpl
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "SimDataFormats/Associations/interface/TrackToGenParticleAssociatorBaseImpl.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,10 +26,6 @@
 //
 // constructors and destructor
 //
-reco::TrackToGenParticleAssociatorBaseImpl::TrackToGenParticleAssociatorBaseImpl()
-{
-}
+reco::TrackToGenParticleAssociatorBaseImpl::TrackToGenParticleAssociatorBaseImpl() {}
 
-reco::TrackToGenParticleAssociatorBaseImpl::~TrackToGenParticleAssociatorBaseImpl()
-{
-}
+reco::TrackToGenParticleAssociatorBaseImpl::~TrackToGenParticleAssociatorBaseImpl() {}

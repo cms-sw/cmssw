@@ -28,6 +28,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     TrackStep    = cms.untracked.int32(100),
     VerboseLevel = cms.untracked.int32(1),
     DEBUG        = cms.untracked.bool(False),
+    PDGids       = cms.untracked.vint32(),
     type         = cms.string('TrackingVerboseAction')
 ))
 

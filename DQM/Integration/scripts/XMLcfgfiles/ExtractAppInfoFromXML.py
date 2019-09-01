@@ -19,7 +19,9 @@ Notes:
 		 
 	OUTPUT is always unique in a per row bases
 """
+from __future__ import print_function
 ################################################################################
+from builtins import range
 import sys, os.path
 from xml.dom import minidom
 ################################################################################
@@ -31,16 +33,16 @@ def printXMLtree(head,l=0,bn=0):
 	for a in range(l):
 		tabs+="\t"
 	try:
-		print "[%d-%d-%d]"%(l,bn,head.nodeType)+tabs+"+++++>"+head.tagName
+		print("[%d-%d-%d]"%(l,bn,head.nodeType)+tabs+"+++++>"+head.tagName)
 	except AttributeError as e:
-		print "[%d-%d-%d]"%(l,bn,head.nodeType)+tabs+"+++++>"+str(e)
-	print "[%d-%d-%d-v]"%(l,bn,head.nodeType)+tabs+"."+ (head.nodeValue or "None")
+		print("[%d-%d-%d]"%(l,bn,head.nodeType)+tabs+"+++++>"+str(e))
+	print("[%d-%d-%d-v]"%(l,bn,head.nodeType)+tabs+"."+ (head.nodeValue or "None"))
 	try:
 		for katt,vatt in head.attributes.items():
 			if katt!="environmentString":
-				print tabs+"%s=%s"%(katt,vatt)
+				print(tabs+"%s=%s"%(katt,vatt))
 			else:
-				print tabs+"%s= 'Some Stuff'"%(katt,)
+				print(tabs+"%s= 'Some Stuff'"%(katt,))
 	except:
 		pass	
 	i=0
@@ -223,7 +225,7 @@ def printGrid(grid):
 		pline=""
 		for col in range(numcols):
 			pline+=line[col].ljust(maxs[col]+2)
-		print pline
+		print(pline)
 			
 ################################################################################	
 #getAppInfo                                                                    #

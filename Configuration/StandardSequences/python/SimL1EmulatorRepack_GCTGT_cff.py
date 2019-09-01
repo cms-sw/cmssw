@@ -93,14 +93,15 @@ rawDataCollector = EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi.rawD
 ## construct SimL1Emulator sequence
 ##
 
-SimL1Emulator = cms.Sequence(
-      unpackGtDigis      +
-      unpackCastorDigis  +
-      L1TCaloStage1_PPFromRaw +
-      newGtDigis         +
-      packGctDigis       +
-      packL1tDigis       +
-      packL1Gt           +
-      packL1GtEvm        +
+SimL1EmulatorTask = cms.Task(
+      unpackGtDigis      ,
+      unpackCastorDigis  ,
+      L1TCaloStage1_PPFromRawTask ,
+      newGtDigis         ,
+      packGctDigis       ,
+      packL1tDigis       ,
+      packL1Gt           ,
+      packL1GtEvm        ,
       rawDataCollector
 )
+SimL1Emulator = cms.Sequence(SimL1EmulatorTask)

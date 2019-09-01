@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -8,6 +10,7 @@
 #                                                                              
 ################################################################################
 
+from builtins import range
 from array import array
 from copy import deepcopy
 from os import chdir,getcwd,listdir,makedirs,rmdir
@@ -18,8 +21,8 @@ argv=sys.argv
 from ROOT import *
 sys.argv=argv
 
-from definitions import *
-from utils import setTDRStyle
+from .definitions import *
+from .utils import setTDRStyle
 
 
 # Something nice and familiar
@@ -33,7 +36,7 @@ gROOT.SetBatch(kTRUE)
 _log_level=5
 def logger(msg_level,message):
   if msg_level>=_log_level:
-    print "[%s] %s" %(asctime(),message)
+    print("[%s] %s" %(asctime(),message))
 
 #-------------------------------------------------------------------------------
 
@@ -107,12 +110,12 @@ class Directory(Weighted):
     
     self.n_skiped = 0
     self.n_comp_skiped = 0
-    self.n_missing_objs = len(self.different_histograms['file1'].keys())+len(self.different_histograms['file2'].keys())
+    self.n_missing_objs = len(self.different_histograms['file1'])+len(self.different_histograms['file2'])
     if self.n_missing_objs != 0:
-      print "    [*] Missing in %s: %s" %(self.filename1, self.different_histograms['file1'])
-      print "    [*] Missing in %s: %s" %(self.filename2, self.different_histograms['file2'])
+      print("    [*] Missing in %s: %s" %(self.filename1, self.different_histograms['file1']))
+      print("    [*] Missing in %s: %s" %(self.filename2, self.different_histograms['file2']))
     # clean from empty dirs    
-    self.subdirs = filter(lambda subdir: not subdir.is_empty(),self.subdirs)    
+    self.subdirs = [subdir for subdir in self.subdirs if not subdir.is_empty()]    
     
     for comp in self.comparisons:
       if comp.status == SKIPED: #in case its in black list & skiped 
@@ -182,22 +185,22 @@ class Directory(Weighted):
       self.calcStats(make_pie=False)
     # print small failure report
     if verbose:
-      fail_comps=filter(lambda comp:comp.status==FAIL,self.comparisons)
+      fail_comps=[comp for comp in self.comparisons if comp.status==FAIL]
       fail_comps=sorted(fail_comps,key=lambda comp:comp.name )    
       if len(fail_comps)>0:
-        print indent+"* %s/%s:" %(self.mother_dir,self.name)
+        print(indent+"* %s/%s:" %(self.mother_dir,self.name))
         for comp in fail_comps:
-          print indent+" - %s: %s Test Failed (pval = %s) " %(comp.name,comp.test_name,comp.rank)
+          print(indent+" - %s: %s Test Failed (pval = %s) " %(comp.name,comp.test_name,comp.rank))
       for subdir in self.subdirs:
         subdir.print_report(indent+"  ",verbose)
     
     if len(indent)==0:
-      print "\n%s - summary of %s tests:" %(self.name,self.weight)
-      print " o Failiures: %.2f%% (%s/%s)" %(self.get_fail_rate(),self.n_fails,self.weight)
-      print " o Nulls: %.2f%% (%s/%s) " %(self.get_null_rate(),self.n_nulls,self.weight)
-      print " o Successes: %.2f%% (%s/%s) " %(self.get_success_rate(),self.n_successes,self.weight)
-      print " o Skipped: %.2f%% (%s/%s) " %(self.get_skiped_rate(),self.n_skiped,self.weight)
-      print " o Missing objects: %s" %(self.n_missing_objs)
+      print("\n%s - summary of %s tests:" %(self.name,self.weight))
+      print(" o Failiures: %.2f%% (%s/%s)" %(self.get_fail_rate(),self.n_fails,self.weight))
+      print(" o Nulls: %.2f%% (%s/%s) " %(self.get_null_rate(),self.n_nulls,self.weight))
+      print(" o Successes: %.2f%% (%s/%s) " %(self.get_success_rate(),self.n_successes,self.weight))
+      print(" o Skipped: %.2f%% (%s/%s) " %(self.get_skiped_rate(),self.n_skiped,self.weight))
+      print(" o Missing objects: %s" %(self.n_missing_objs))
 
   def get_skiped_rate(self):
     if self.weight == 0: return 0
@@ -261,10 +264,10 @@ class Directory(Weighted):
       pie.Draw("3d  nol");
       can.Print(self.get_summary_chart_name());    
     except:
-      print "self.name = %s" %self.name
-      print "len(vals) = %s (vals=%s)" %(len(vals),vals)
-      print "valsa = %s" %valsa
-      print "colorsa = %s" %colorsa
+      print("self.name = %s" %self.name)
+      print("len(vals) = %s (vals=%s)" %(len(vals),vals))
+      print("valsa = %s" %valsa)
+      print("colorsa = %s" %colorsa)
 
   def prune(self,expandable_dir):
     """Eliminate from the tree the directory the expandable ones.
@@ -287,7 +290,7 @@ class Directory(Weighted):
         #print "*******",subsubdir.mother_dir,
         subsubdir.mother_dir=subsubdir.mother_dir.replace("/"+expandable_dir,"")
         while "//" in subsubdir.mother_dir:
-          print subsubdir.mother_dir
+          print(subsubdir.mother_dir)
           subsubdir.mother_dir=subsubdir.mother_dir.replace("//","/") 
         #print "*******",subsubdir.mother_dir
         self.subdirs.append(subsubdir)
@@ -382,7 +385,7 @@ class Comparison(Weighted):
     n_proc=len(tcanvas_print_processes)
     if n_proc>3:
       p_to_remove=[]
-      for iprocess in xrange(0,n_proc):
+      for iprocess in range(0,n_proc):
         p=tcanvas_print_processes[iprocess]
         p.join()
         p_to_remove.append(iprocess)
@@ -445,7 +448,7 @@ class Comparison(Weighted):
     # Put together the TLatex for the stat test if possible    
     color=kGreen+2 # which is green, as everybody knows
     if self.status==FAIL:
-      print "This comparison failed %f" %self.rank
+      print("This comparison failed %f" %self.rank)
       color=kRed
     elif self.status==NULL:
       color=kYellow

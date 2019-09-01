@@ -2,7 +2,7 @@
 //
 // Package:    RCTConfigTester
 // Class:      RCTConfigTester
-// 
+//
 /**\class RCTConfigTester RCTConfigTester.h L1TriggerConfig/RCTConfigTester/src/RCTConfigTester.cc
 
  Description: <one line class summary>
@@ -39,44 +39,31 @@
 // class declaration
 //
 
-class L1RCTChannelMaskTester: public edm::EDAnalyzer {
+class L1RCTChannelMaskTester : public edm::EDAnalyzer {
 public:
-    explicit L1RCTChannelMaskTester(const edm::ParameterSet&) {
-    }
-    ~L1RCTChannelMaskTester() override {
-    }
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
-
+  explicit L1RCTChannelMaskTester(const edm::ParameterSet&) {}
+  ~L1RCTChannelMaskTester() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 };
 
-void L1RCTChannelMaskTester::analyze(const edm::Event& iEvent,
-        const edm::EventSetup& evSetup) {
+void L1RCTChannelMaskTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  //
+  edm::ESHandle<L1RCTChannelMask> rctChanMask;
+  evSetup.get<L1RCTChannelMaskRcd>().get(rctChanMask);
 
-    //
-    edm::ESHandle<L1RCTChannelMask> rctChanMask;
-    evSetup.get<L1RCTChannelMaskRcd>().get(rctChanMask);
+  rctChanMask->print(std::cout);
 
-    rctChanMask->print(std::cout);
+  if (auto maskRecord = evSetup.tryToGet<L1RCTNoisyChannelMaskRcd>()) {
+    edm::ESHandle<L1RCTNoisyChannelMask> rctNoisyChanMask;
+    maskRecord->get(rctNoisyChanMask);
 
-    //
-    edm::eventsetup::EventSetupRecordKey recordKey(
-            edm::eventsetup::EventSetupRecordKey::TypeTag::findType(
-                    "L1RCTNoisyChannelMaskRcd"));
-
-    if (evSetup.find(recordKey) == nullptr) {
-        //record not found
-        std::cout << "\nRecord \"" << "L1RCTNoisyChannelMaskRcd"
-                << "\" does not exist.\n" << std::endl;
-    } else {
-
-        edm::ESHandle<L1RCTNoisyChannelMask> rctNoisyChanMask;
-        evSetup.get<L1RCTNoisyChannelMaskRcd>().get(rctNoisyChanMask);
-
-        rctNoisyChanMask->print(std::cout);
-
-    }
-
+    rctNoisyChanMask->print(std::cout);
+  } else {
+    std::cout << "\nRecord \""
+              << "L1RCTNoisyChannelMaskRcd"
+              << "\" does not exist.\n"
+              << std::endl;
+  }
 }
 
-DEFINE_FWK_MODULE( L1RCTChannelMaskTester);
-
+DEFINE_FWK_MODULE(L1RCTChannelMaskTester);

@@ -19,22 +19,19 @@ $Id
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIECoder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-
-class HcalCalibrationQIEData: public HcalCondObjectContainer<HcalCalibrationQIECoder>
-{
- public:
-  HcalCalibrationQIEData(const HcalTopology* ht) : HcalCondObjectContainer<HcalCalibrationQIECoder>(ht) { }
+class HcalCalibrationQIEData : public HcalCondObjectContainer<HcalCalibrationQIECoder> {
+public:
+  HcalCalibrationQIEData(const HcalTopology* ht) : HcalCondObjectContainer<HcalCalibrationQIECoder>(ht) {}
   /// get QIE parameters
-  const HcalCalibrationQIECoder* getCoder (DetId fId) const { return getValues(fId); }
+  const HcalCalibrationQIECoder* getCoder(DetId fId) const { return getValues(fId); }
   // check if data are sorted
-  bool sorted () const {return true;}
+  bool sorted() const { return true; }
   // fill values [capid][range]
-  bool addCoder (const HcalCalibrationQIECoder& fCoder) { return addValues(fCoder); }
-   // sort values by channelId  
-  void sort () {}
+  bool addCoder(const HcalCalibrationQIECoder& fCoder) { return addValues(fCoder); }
+  // sort values by channelId
+  void sort() {}
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

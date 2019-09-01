@@ -3,7 +3,7 @@
 #include <vector>
 
 class L1RCTNeighborMap {
- public:
+public:
   std::vector<int> north(int crate, int card, int region);
   std::vector<int> south(int crate, int card, int region);
   std::vector<int> west(int crate, int card, int region);

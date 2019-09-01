@@ -18,19 +18,17 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
 //
 //
 // class decleration
 //
 class SiStripDetVOffReader : public edm::EDAnalyzer {
-
 public:
-  explicit SiStripDetVOffReader( const edm::ParameterSet& );
+  explicit SiStripDetVOffReader(const edm::ParameterSet&);
   ~SiStripDetVOffReader() override;
-    
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
-  
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
 private:
   bool printdebug_;
   std::vector<uint32_t> detids;

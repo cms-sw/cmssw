@@ -1,3 +1,4 @@
+from __future__ import print_function
 #-------------------------------------
 #	Hcal DQM Application using New DQM Sources/Clients
 #	Online Mode
@@ -18,8 +19,8 @@ import FWCore.ParameterSet.Config as cms
 # Configuration/StandardSequences/python/Eras.py
 # PRocess accepts a (*list) of modifiers
 #
-from Configuration.StandardSequences.Eras import eras
-process      = cms.Process('HCALDQM', eras.Run2_2018)
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process      = cms.Process('HCALDQM', Run2_2018)
 subsystem    = 'Hcal2'
 cmssw        = os.getenv("CMSSW_VERSION").split("_")
 debugstr     = "### HcalDQM::cfg::DEBUG: "
@@ -60,7 +61,7 @@ process.source.minEventsPerLumi=5
 #	Note, runType is obtained after importing DQM-related modules
 #	=> DQM-dependent
 runType			= process.runType.getRunType()
-print debugstr, "Running with run type= ", runType
+print(debugstr, "Running with run type= ", runType)
 
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import

@@ -2,6 +2,8 @@
 
 # Script to submit Tau Validation jobs to lxbatch
 #  Author: Evan Friis evan.klose.friis@cern.ch
+from __future__ import print_function
+from builtins import range
 import time
 import random
 from Validation.RecoTau.ValidationOptions_cff import *
@@ -11,27 +13,27 @@ checkOptionsForBadInput()
 
 # Make sure we dont' clobber another directory!
 if not CMSSWEnvironmentIsCurrent():
-   print "CMSSW_BASE points to a different directory, please rerun cmsenv!"
+   print("CMSSW_BASE points to a different directory, please rerun cmsenv!")
    sys.exit()
 
 if options.nJobs == 0:
-   print "Must specify nJobs > 0. Run 'python LXBatchValidation.py help' for options"
+   print("Must specify nJobs > 0. Run 'python LXBatchValidation.py help' for options")
    sys.exit()
 
 if options.maxEvents == -1 and options.nJobs > 1:
-   print "Please use maxEvents to specify the number of events to process per job."
+   print("Please use maxEvents to specify the number of events to process per job.")
    sys.exit()
 
 # Setup path to CASTOR home if desired
 if options.writeEDMFile != "":
    if options.copyToCastorDir == "<home>":
       options.copyToCastorDir = "/castor/cern.ch/user/%s/%s/" % (os.environ["LOGNAME"][0], os.environ["LOGNAME"])
-      print "Setting castor directory to your home @ %s" % options.copyToCastorDir
+      print("Setting castor directory to your home @ %s" % options.copyToCastorDir)
 
 if options.copyToCastorDir != "":
    checkCastor = os.system("nsls %s" % options.copyToCastorDir)
    if checkCastor:
-      print "Error: castor reports an error when checking the supplied castor location: ", options.copyToCastorDir
+      print("Error: castor reports an error when checking the supplied castor location: ", options.copyToCastorDir)
       sys.exit()
 
 #print "Converting all relative paths to absolutes..."
@@ -52,17 +54,17 @@ if options.copyToCastorDir != "":
 
 #ptions.myModifications = absoluteModifications
 
-print "" 
-print "I'm going to submit %i %s jobs, each with %i events, for a total of %i events" % (options.nJobs, options.eventType, options.maxEvents, options.nJobs*options.maxEvents)
+print("") 
+print("I'm going to submit %i %s jobs, each with %i events, for a total of %i events" % (options.nJobs, options.eventType, options.maxEvents, options.nJobs*options.maxEvents))
 
 if options.writeEDMFile != "":
-   print "EDM files with the prefix %s will be produced and stored in %s" % (options.writeEDMFile, castorLocation)
+   print("EDM files with the prefix %s will be produced and stored in %s" % (options.writeEDMFile, castorLocation))
 
-print "Hit Ctrl-c in the next 3 seconds to cancel..."
+print("Hit Ctrl-c in the next 3 seconds to cancel...")
 try:
    time.sleep(2)
 except KeyboardInterrupt:
-   print "Canceled, exiting."
+   print("Canceled, exiting.")
    sys.exit()
 
 # Setup the environment variables
@@ -72,7 +74,7 @@ cleanupCommands = ""
 if options.writeEDMFile != "":
    cleanupCommand += " rfcp *.root %s;" % options.copyToCastorDir
 
-for iJob in xrange(0, options.nJobs):
+for iJob in range(0, options.nJobs):
    options.batchNumber = iJob #increment batch number
    #setupCommands = "cd $PWD; scramv1 runtime -sh > tempEnvs_%s_%i; source tempEnvs_%s_%i; rm tempEnvs_%s_%i; export PYTHONPATH=$PWD:$PYTHONPATH; cd -;" % (options.eventType, iJob, options.eventType, iJob, options.eventType, iJob)
    #cmsRunCommand = "cmsRun $PWD/RunValidation_cfg.py %s;" % returnOptionsString()

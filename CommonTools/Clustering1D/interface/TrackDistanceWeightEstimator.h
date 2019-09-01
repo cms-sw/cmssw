@@ -8,18 +8,11 @@
  */
 
 template <class T>
-class TrackDistanceWeightEstimator : public WeightEstimator<T>
-{
+class TrackDistanceWeightEstimator : public WeightEstimator<T> {
 public:
-    double operator() ( const T * track ) const
-    {
-        return 1.;
-    };
+  double operator()(const T* track) const { return 1.; };
 
-    TrackDistanceWeightEstimator * clone() const
-    {
-        return new TrackDistanceWeightEstimator ( * this );
-    };
+  TrackDistanceWeightEstimator* clone() const { return new TrackDistanceWeightEstimator(*this); };
 };
 
 #endif

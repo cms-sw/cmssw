@@ -15,6 +15,7 @@ TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
     useCombinedTrajectory     = cms.bool(False),
     useOverflowForRMS         = cms.bool(False),
     maxTracks                 = cms.uint64(0),
+    chargeCut                 = cms.int32(0),
     # Normalized X Residuals, normal local coordinates (Strip)
     TH1NormXResStripModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-5.0), xmax = cms.double(5.0)

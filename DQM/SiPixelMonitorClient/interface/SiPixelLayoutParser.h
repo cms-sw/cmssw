@@ -4,33 +4,28 @@
 /** \class SiPixelLayoutParser
  * *
  *  Class that handles the SiPixel Quality Tests
- * 
+ *
  *  \author Suchandra Dutta
-  */
+ */
 
 #include "DQMServices/ClientConfig/interface/DQMParserBase.h"
-#include <vector>
 #include <fstream>
-#include <string>
 #include <map>
-
+#include <string>
+#include <vector>
 
 class SiPixelLayoutParser : public DQMParserBase {
-
- public:
-  
-
+public:
   // Constructor
   SiPixelLayoutParser();
-  
+
   // Destructor
   ~SiPixelLayoutParser() override;
 
   // Get list of Layouts for ME groups
-  bool getAllLayouts(std::map< std::string, std::vector<std::string> >& me_names);
+  bool getAllLayouts(std::map<std::string, std::vector<std::string>> &me_names);
 
- private:
-  
+private:
 };
 
 #endif

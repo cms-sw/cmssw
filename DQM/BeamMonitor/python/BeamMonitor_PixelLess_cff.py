@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
-dqmBeamMonitor_pixelless = cms.EDAnalyzer("BeamMonitor",
+dqmBeamMonitor_pixelless = DQMEDAnalyzer("BeamMonitor",
                               monitorName = cms.untracked.string('BeamMonitor_PixelLess'),
                               beamSpot = cms.untracked.InputTag('offlineBeamSpot'), ## hltOfflineBeamSpot for HLTMON
                               fitEveryNLumi = cms.untracked.int32(5),

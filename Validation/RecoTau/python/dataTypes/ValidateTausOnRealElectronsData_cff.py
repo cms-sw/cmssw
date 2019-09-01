@@ -120,11 +120,26 @@ zttModifier = ApplyFunctionToSequence(lambda m: setBinning(m,binning))
 proc.TauValNumeratorAndDenominatorRealElectronsData.visit(zttModifier)
 #-----------------------------------------
 
+#Set discriminators
+discs_to_retain = ['ByDecayModeFinding', 'ElectronRejection']
+proc.RunHPSValidationRealElectronsData.discriminators = cms.VPSet([p for p in proc.RunHPSValidationRealElectronsData.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
+
 #Sets the correct naming to efficiency histograms
 proc.efficienciesRealElectronsData.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorRealElectronsData)
+proc.efficienciesRealElectronsDataSummary = cms.EDProducer("TauDQMHistEffProducer",
+    plots = cms.PSet(
+        Summary = cms.PSet(
+            denominator = cms.string('RecoTauV/hpsPFTauProducerRealElectronsData_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/hpsPFTauProducerRealElectronsData_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/hpsPFTauProducerRealElectronsData_Summary/#PAR#PlotNum'),
+            parameter = cms.vstring('summary'),
+            stepByStep = cms.bool(True)
+        ),
+    )
+)
 
 #checks what's new in the process (the cloned sequences and modules in them)
-newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('RealElectronsData') != -1), dir(proc) )
+newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('RealElectronsData') != -1)]
 
 #spawns a local variable with the same name as the proc attribute, needed for future process.load
 for newAttr in newProcAttributes:

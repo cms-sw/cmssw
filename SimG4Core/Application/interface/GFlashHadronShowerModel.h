@@ -17,32 +17,29 @@ class GflashAntiProtonShowerProfile;
 class G4Region;
 //class GflashHistogram;
 
-class GFlashHadronShowerModel : public G4VFastSimulationModel 
-{
+class GFlashHadronShowerModel : public G4VFastSimulationModel {
 public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  GFlashHadronShowerModel (G4String modelName, G4Region* envelope, 
-			   const edm::ParameterSet& parSet);
-  ~GFlashHadronShowerModel () override;
+  GFlashHadronShowerModel(G4String modelName, G4Region *envelope, const edm::ParameterSet &parSet);
+  ~GFlashHadronShowerModel() override;
 
   //------------------------------------------------------------------------
   // Virtual methods that should be implemented for this hadron shower model
   //------------------------------------------------------------------------
 
-  G4bool IsApplicable(const G4ParticleDefinition&) override;
+  G4bool IsApplicable(const G4ParticleDefinition &) override;
   G4bool ModelTrigger(const G4FastTrack &) override;
-  void DoIt(const G4FastTrack&, G4FastStep&) override;
+  void DoIt(const G4FastTrack &, G4FastStep &) override;
 
 private:
-  G4bool isFirstInelasticInteraction(const G4FastTrack& fastTrack);
-  G4bool excludeDetectorRegion(const G4FastTrack& fastTrack);
-  void makeHits(const G4FastTrack& fastTrack);
-  void updateGflashStep(const G4ThreeVector& position, G4double time);
+  G4bool isFirstInelasticInteraction(const G4FastTrack &fastTrack);
+  G4bool excludeDetectorRegion(const G4FastTrack &fastTrack);
+  void makeHits(const G4FastTrack &fastTrack);
+  void updateGflashStep(const G4ThreeVector &position, G4double time);
 
-private:  
-
+private:
   G4bool theWatcherOn;
   edm::ParameterSet theParSet;
   GflashHadronShowerProfile *theProfile;
@@ -52,11 +49,11 @@ private:
   GflashProtonShowerProfile *theProtonProfile;
   GflashAntiProtonShowerProfile *theAntiProtonProfile;
 
-  const G4Region* theRegion;
+  const G4Region *theRegion;
 
   G4Step *theGflashStep;
   G4Navigator *theGflashNavigator;
-  G4TouchableHandle  theGflashTouchableHandle;
+  G4TouchableHandle theGflashTouchableHandle;
 
   //debugging histograms
   //GflashHistogram* theHisto;

@@ -5,7 +5,6 @@
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "RecoBTag/ImpactParameter/interface/TemplatedTrackCountingComputer.h"
 
+typedef TemplatedTrackCountingComputer<reco::TrackRefVector, reco::JTATagInfo> TrackCountingComputer;
 
-typedef TemplatedTrackCountingComputer<reco::TrackRefVector,reco::JTATagInfo> TrackCountingComputer;
-
-#endif // ImpactParameter_TrackCountingComputer_h
+#endif  // ImpactParameter_TrackCountingComputer_h

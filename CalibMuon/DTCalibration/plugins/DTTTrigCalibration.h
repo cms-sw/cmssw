@@ -16,12 +16,11 @@
 #include <string>
 #include <map>
 
-
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class TFile;
 class TH1F;
@@ -40,14 +39,12 @@ public:
   // Operations
 
   /// Fill the time boxes
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   /// Fit the time box rising edge and write the resulting ttrig to the DB
   void endJob() override;
 
-
 protected:
-
 private:
   // Generate the time box name
   std::string getTBoxName(const DTSuperLayerId& slId) const;
@@ -72,8 +69,8 @@ private:
   int maxDigiPerLayer;
 
   // The file which will contain the time boxes
-  TFile *theFile;
-  
+  TFile* theFile;
+
   // Map of the histograms by SL
   std::map<DTSuperLayerId, TH1F*> theHistoMap;
   std::map<DTLayerId, TH1F*> theOccupancyMap;
@@ -82,16 +79,14 @@ private:
   bool doSubtractT0;
   // Switch for checking of noisy channels
   bool checkNoisyChannels;
-   //card to switch on/off the DB writing
-  bool findTMeanAndSigma; 
+  //card to switch on/off the DB writing
+  bool findTMeanAndSigma;
   // the kfactor to be uploaded in the ttrig DB
   double kFactor;
 
   // The fitter
-  DTTimeBoxFitter *theFitter;
+  std::unique_ptr<DTTimeBoxFitter> theFitter;
   // The module for t0 subtraction
-  DTTTrigBaseSync *theSync;//FIXME: should be const
-
+  std::unique_ptr<DTTTrigBaseSync> theSync;  //FIXME: should be const
 };
 #endif
-

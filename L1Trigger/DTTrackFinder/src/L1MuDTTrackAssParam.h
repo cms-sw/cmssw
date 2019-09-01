@@ -18,11 +18,10 @@
 const int MAX_TC = 11;
 
 //@@ defined Track Classes ordered in decreasing priority
-enum TrackClass { T1234, T123, T124, T134, T234,
-                  T12,   T14,  T13,  T24,  T23,  T34, UNDEF };
+enum TrackClass { T1234, T123, T124, T134, T234, T12, T14, T13, T24, T23, T34, UNDEF };
 
 // overload output stream operator for TrackClass
-std::ostream& operator<<( std::ostream& s, TrackClass tc);
+std::ostream& operator<<(std::ostream& s, TrackClass tc);
 
 // convert TrackClass to bitmap
 const unsigned int tc2bitmap(const TrackClass tc);

@@ -12,25 +12,25 @@
 #include <iostream>
 
 class EcalWeight {
-  public:
-    EcalWeight();
-    EcalWeight(const double& awgt);
-    EcalWeight(const EcalWeight& awgt);
-    EcalWeight& operator=(const EcalWeight&rhs);
+public:
+  EcalWeight();
+  EcalWeight(const double& awgt);
+  EcalWeight(const EcalWeight& awgt);
+  EcalWeight& operator=(const EcalWeight& rhs);
 
-    double value() const { return wgt_; }
-    double operator()() const { return wgt_; }
+  double value() const { return wgt_; }
+  double operator()() const { return wgt_; }
 
-    void setValue(const double& awgt) { wgt_ = awgt; }
-    bool operator ==(const EcalWeight&rhs) const { return (wgt_ == rhs.wgt_); }
-    bool operator !=(const EcalWeight&rhs) const { return (wgt_ != rhs.wgt_); }
-    bool operator <(const EcalWeight&rhs) const { return (wgt_ < rhs.wgt_); }
-    bool operator >(const EcalWeight&rhs) const { return (wgt_ > rhs.wgt_); }
-    bool operator <=(const EcalWeight&rhs) const { return (wgt_ <= rhs.wgt_); }
-    bool operator >=(const EcalWeight&rhs) const { return (wgt_ >= rhs.wgt_); }
+  void setValue(const double& awgt) { wgt_ = awgt; }
+  bool operator==(const EcalWeight& rhs) const { return (wgt_ == rhs.wgt_); }
+  bool operator!=(const EcalWeight& rhs) const { return (wgt_ != rhs.wgt_); }
+  bool operator<(const EcalWeight& rhs) const { return (wgt_ < rhs.wgt_); }
+  bool operator>(const EcalWeight& rhs) const { return (wgt_ > rhs.wgt_); }
+  bool operator<=(const EcalWeight& rhs) const { return (wgt_ <= rhs.wgt_); }
+  bool operator>=(const EcalWeight& rhs) const { return (wgt_ >= rhs.wgt_); }
 
-  private:
-   double wgt_;
+private:
+  double wgt_;
 };
 
 //std::ostream& operator<<(std::ostream& os, const EcalWeight& wg) {

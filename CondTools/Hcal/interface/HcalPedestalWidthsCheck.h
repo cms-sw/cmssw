@@ -1,7 +1,7 @@
 #ifndef HcalPedestalWidthsCheck_h
 #define HcalPedestalWidthsCheck_h
 
-// 
+//
 // R.Ofierzynski 9.12.2007
 //
 // Code to check pedestals for completeness and to compare to previous pedestals
@@ -40,16 +40,15 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
-class HcalPedestalWidthsCheck: public edm::EDAnalyzer
-{
- public:
+class HcalPedestalWidthsCheck : public edm::EDAnalyzer {
+public:
   HcalPedestalWidthsCheck(edm::ParameterSet const& ps);
 
   ~HcalPedestalWidthsCheck() override;
 
   void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
 
- private:
+private:
   std::string outfile;
   std::string dumprefs;
   std::string dumpupdate;
@@ -57,7 +56,5 @@ class HcalPedestalWidthsCheck: public edm::EDAnalyzer
   bool validateflag;
   double epsilon;
   //  vecDetId getMissingDetIds(std::vector<HcalPedestalWidths> &);
-  
-
 };
 #endif

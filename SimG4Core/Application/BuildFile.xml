@@ -6,8 +6,12 @@
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimG4Core/Generators"/>
 <use   name="SimG4Core/Geometry"/>
+<use   name="SimG4Core/DD4hepGeometry"/>
+<use   name="DetectorDescription/DDCMS"/>
 <use   name="SimG4Core/MagneticField"/>
 <use   name="SimG4Core/Notification"/>
+<use   name="SimG4Core/PhysicsLists"/>
+<use   name="SimG4Core/CustomPhysics"/>
 <use   name="SimG4Core/Physics"/>
 <use   name="SimG4Core/SensitiveDetector"/>
 <use   name="SimG4Core/Watcher"/>

@@ -1,19 +1,22 @@
 #!/usr/bin/env python
+from __future__ import print_function
+from builtins import range
 from optparse import OptionParser
 import json
+import six
 
 def root2map(dir,ana,treename):
     import ROOT
     tfile = ROOT.TFile.Open("%s/%s/%s.root"%(dir,ana,treename))
     if not tfile:
-        print "Error: dir %s does not contain %s/%s.root" % (dir,ana,treename)
+        print("Error: dir %s does not contain %s/%s.root" % (dir,ana,treename))
         return None
     tree = tfile.Get(treename)
     if not tree:
-        print "Error: rootfile %s/%s/%s.root does not contain a TTree %s" % (dir,ana,treename,treename)
+        print("Error: rootfile %s/%s/%s.root does not contain a TTree %s" % (dir,ana,treename,treename))
         return None
     jsonind = {}
-    for e in xrange(tree.GetEntries()):
+    for e in range(tree.GetEntries()):
         tree.GetEntry(e)
         run,lumi = tree.run, tree.lumi
         if run not in jsonind:
@@ -25,9 +28,9 @@ def root2map(dir,ana,treename):
         jsonind[run] =  list(set(jsonind[run]))
 
     nruns = len(jsonind)
-    nlumis = sum(len(v) for v in jsonind.itervalues())
+    nlumis = sum(len(v) for v in six.itervalues(jsonind))
     jsonmap = {}
-    for r,lumis in jsonind.iteritems():
+    for r,lumis in six.iteritems(jsonind):
         if len(lumis) == 0: continue # shouldn't happen
         lumis.sort()
         ranges = [ [ lumis[0], lumis[0] ] ]
@@ -47,7 +50,7 @@ if __name__ == '__main__':
     parser.add_option("-o", "--out", dest="outputFile", default="lumiSummary.json", help="Name of the output file")
     (options,args) = parser.parse_args()
     if len(args)==0:
-        print 'provide at least one directory in argument. Use -h to display help'
+        print('provide at least one directory in argument. Use -h to display help')
         exit()
     for a in args:
         summary = root2map(a,options.jsonAnalyzer,options.treeName)
@@ -55,4 +58,4 @@ if __name__ == '__main__':
             oname = "%s/%s" % (a,options.outputFile)
             jmap, runs, lumis = summary
             json.dump(jmap,open(oname,'w'))
-            print "Saved %s (%d runs, %d lumis)" % (oname, runs, lumis)
+            print("Saved %s (%d runs, %d lumis)" % (oname, runs, lumis))

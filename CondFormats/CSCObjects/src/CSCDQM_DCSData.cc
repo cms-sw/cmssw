@@ -29,7 +29,6 @@ namespace cscdqm {
     lvi_mode = 0.0;
   }
 
-  DCSData::~DCSData() {
-  }
+  DCSData::~DCSData() {}
 
-}
+}  // namespace cscdqm

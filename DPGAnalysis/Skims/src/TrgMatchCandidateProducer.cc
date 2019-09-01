@@ -3,4 +3,4 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 typedef TriggerMatchProducer<reco::Candidate> trgMatchCandidateProducer;
-DEFINE_FWK_MODULE( trgMatchCandidateProducer );
+DEFINE_FWK_MODULE(trgMatchCandidateProducer);

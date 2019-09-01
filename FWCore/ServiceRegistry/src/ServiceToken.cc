@@ -2,7 +2,7 @@
 //
 // Package:     ServiceRegistry
 // Class  :     ServiceToken
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
-
 
 //
 // constants, enums and typedefs
@@ -31,7 +30,7 @@
 //ServiceToken::ServiceToken()
 //{
 //}
-   
+
 // ServiceToken::ServiceToken(const ServiceToken& rhs)
 // {
 //    // do actual copying here;
@@ -40,7 +39,7 @@
 //ServiceToken::~ServiceToken()
 //{
 //}
-   
+
 //
 // assignment operators
 //
@@ -56,32 +55,24 @@
 //
 // member functions
 //
-void
-edm::ServiceToken::connectTo(edm::ActivityRegistry& iConnectTo)
-{
-   if(nullptr!=manager_.get()){
-      manager_->connectTo(iConnectTo);
-   }
+void edm::ServiceToken::connectTo(edm::ActivityRegistry& iConnectTo) {
+  if (nullptr != manager_.get()) {
+    manager_->connectTo(iConnectTo);
+  }
 }
-void
-edm::ServiceToken::connect(edm::ActivityRegistry& iConnectTo)
-{
-   if(nullptr!=manager_.get()){
-      manager_->connect(iConnectTo);
-   }
+void edm::ServiceToken::connect(edm::ActivityRegistry& iConnectTo) {
+  if (nullptr != manager_.get()) {
+    manager_->connect(iConnectTo);
+  }
 }
 
-void
-edm::ServiceToken::copySlotsTo(edm::ActivityRegistry& iConnectTo)
-{
-  if(nullptr!=manager_.get()){
+void edm::ServiceToken::copySlotsTo(edm::ActivityRegistry& iConnectTo) {
+  if (nullptr != manager_.get()) {
     manager_->copySlotsTo(iConnectTo);
   }
 }
-void
-edm::ServiceToken::copySlotsFrom(edm::ActivityRegistry& iConnectTo)
-{
-  if(nullptr!=manager_.get()){
+void edm::ServiceToken::copySlotsFrom(edm::ActivityRegistry& iConnectTo) {
+  if (nullptr != manager_.get()) {
     manager_->copySlotsFrom(iConnectTo);
   }
 }

@@ -23,18 +23,15 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class BPHParticlePtSelect: public BPHRecoSelect {
-
- public:
-
+class BPHParticlePtSelect : public BPHRecoSelect {
+public:
   /** Constructor
    */
-  BPHParticlePtSelect( double pt ): ptMin( pt ) {}
+  BPHParticlePtSelect(double pt) : ptMin(pt) {}
 
   /** Destructor
    */
@@ -43,26 +40,23 @@ class BPHParticlePtSelect: public BPHRecoSelect {
   /** Operations
    */
   /// select particle
-  bool accept( const reco::Candidate& cand ) const override {
-    return ( cand.p4().pt() > ptMin );
-  }
+  bool accept(const reco::Candidate& cand) const override { return (cand.p4().pt() > ptMin); }
 
   /// set pt min
-  void setPtMin( double pt ) { ptMin = pt; return; }
+  void setPtMin(double pt) {
+    ptMin = pt;
+    return;
+  }
 
   /// get current pt min
   double getPtMin() const { return ptMin; }
 
- private:
-
+private:
   // private copy and assigment constructors
-  BPHParticlePtSelect           ( const BPHParticlePtSelect& x ) = delete;
-  BPHParticlePtSelect& operator=( const BPHParticlePtSelect& x ) = delete;
+  BPHParticlePtSelect(const BPHParticlePtSelect& x) = delete;
+  BPHParticlePtSelect& operator=(const BPHParticlePtSelect& x) = delete;
 
   double ptMin;
-
 };
 
-
 #endif
-

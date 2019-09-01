@@ -30,24 +30,18 @@
 using namespace std;
 using namespace edm;
 
-DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset):
-  granularity_( pset.getUntrackedParameter<string>("calibGranularity","bySL") ) {
-
+DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset)
+    : granularity_(pset.getUntrackedParameter<string>("calibGranularity", "bySL")),
+      vDriftAlgo_{DTVDriftPluginFactory::get()->create(pset.getParameter<string>("vDriftAlgo"),
+                                                       pset.getParameter<ParameterSet>("vDriftAlgoConfig"))} {
   LogVerbatim("Calibration") << "[DTVDriftWriter]Constructor called!";
 
-  if(granularity_ != "bySL")
-     throw cms::Exception("Configuration") << "[DTVDriftWriter] Check parameter calibGranularity: " << granularity_ << " option not available.";
-
-  // Get the concrete algo from the factory
-  string algoName = pset.getParameter<string>("vDriftAlgo");
-  ParameterSet algoPSet = pset.getParameter<ParameterSet>("vDriftAlgoConfig");
-  vDriftAlgo_ = DTVDriftPluginFactory::get()->create(algoName,algoPSet);
+  if (granularity_ != "bySL")
+    throw cms::Exception("Configuration")
+        << "[DTVDriftWriter] Check parameter calibGranularity: " << granularity_ << " option not available.";
 }
 
-DTVDriftWriter::~DTVDriftWriter(){
-  LogVerbatim("Calibration") << "[DTVDriftWriter]Destructor called!";
-  delete vDriftAlgo_;
-}
+DTVDriftWriter::~DTVDriftWriter() { LogVerbatim("Calibration") << "[DTVDriftWriter]Destructor called!"; }
 
 void DTVDriftWriter::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   // Get the map of ttrig from the Setup
@@ -58,52 +52,44 @@ void DTVDriftWriter::beginRun(const edm::Run& run, const edm::EventSetup& setup)
   // Get geometry from Event Setup
   setup.get<MuonGeometryRecord>().get(dtGeom_);
   // Pass EventSetup to concrete implementation
-  vDriftAlgo_->setES(setup); 
+  vDriftAlgo_->setES(setup);
 }
 
 void DTVDriftWriter::endJob() {
   // Create the object to be written to DB
   DTMtime* mTimeNewMap = new DTMtime();
 
-  if(granularity_ == "bySL") {    
-     // Get all the sls from the geometry
-     const vector<const DTSuperLayer*>& superLayers = dtGeom_->superLayers(); 
-     auto sl = superLayers.begin();
-     auto sl_end = superLayers.end();
-     for(; sl != sl_end; ++sl){
-        DTSuperLayerId slId = (*sl)->id();
-        // Get original value from DB
-        float vDrift = 0., resolution = 0.;
-        // vdrift is cm/ns , resolution is cm
-        int status = mTimeMap_->get(slId,vDrift,resolution,DTVelocityUnits::cm_per_ns);
+  if (granularity_ == "bySL") {
+    // Get all the sls from the geometry
+    const vector<const DTSuperLayer*>& superLayers = dtGeom_->superLayers();
+    auto sl = superLayers.begin();
+    auto sl_end = superLayers.end();
+    for (; sl != sl_end; ++sl) {
+      DTSuperLayerId slId = (*sl)->id();
+      // Get original value from DB
+      float vDrift = 0., resolution = 0.;
+      // vdrift is cm/ns , resolution is cm
+      int status = mTimeMap_->get(slId, vDrift, resolution, DTVelocityUnits::cm_per_ns);
 
-        // Compute vDrift
-        try{
-           dtCalibration::DTVDriftData vDriftData = vDriftAlgo_->compute(slId);
-           float vDriftNew = vDriftData.vdrift;
-           float resolutionNew = vDriftData.resolution; 
-           // vdrift is cm/ns , resolution is cm
-           mTimeNewMap->set(slId,
-                            vDriftNew,
-		            resolutionNew,
-		            DTVelocityUnits::cm_per_ns);
-           LogVerbatim("Calibration") << "vDrift for: " << slId
-                                      << " Mean " << vDriftNew
-                                      << " Resolution " << resolutionNew;
-        } catch(cms::Exception& e){
-           LogError("Calibration") << e.explainSelf();
-           // Go back to original value in case of error
-           if(!status){  
-              mTimeNewMap->set(slId,
-                               vDrift,
-                               resolution,
-                               DTVelocityUnits::cm_per_ns);
-              LogVerbatim("Calibration") << "Keep original vDrift for: " << slId
-                                         << " Mean " << vDrift
-                                         << " Resolution " << resolution;
-           }
+      // Compute vDrift
+      try {
+        dtCalibration::DTVDriftData vDriftData = vDriftAlgo_->compute(slId);
+        float vDriftNew = vDriftData.vdrift;
+        float resolutionNew = vDriftData.resolution;
+        // vdrift is cm/ns , resolution is cm
+        mTimeNewMap->set(slId, vDriftNew, resolutionNew, DTVelocityUnits::cm_per_ns);
+        LogVerbatim("Calibration") << "vDrift for: " << slId << " Mean " << vDriftNew << " Resolution "
+                                   << resolutionNew;
+      } catch (cms::Exception& e) {
+        LogError("Calibration") << e.explainSelf();
+        // Go back to original value in case of error
+        if (!status) {
+          mTimeNewMap->set(slId, vDrift, resolution, DTVelocityUnits::cm_per_ns);
+          LogVerbatim("Calibration") << "Keep original vDrift for: " << slId << " Mean " << vDrift << " Resolution "
+                                     << resolution;
         }
-     } // End of loop on superlayers
+      }
+    }  // End of loop on superlayers
   }
 
   // Write the vDrift object to DB

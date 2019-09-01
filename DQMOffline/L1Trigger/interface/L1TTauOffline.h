@@ -1,7 +1,7 @@
 #ifndef DQMOFFLINE_L1TRIGGER_L1TTAUOFFLINE_H
 #define DQMOFFLINE_L1TRIGGER_L1TTAUOFFLINE_H
 
-//DataFormats
+// DataFormats
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
@@ -16,7 +16,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-//FWCore
+// FWCore
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -26,20 +26,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-//TrackingTools
+// TrackingTools
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-//DQMServices
-#include "DQMServices/Core/interface/MonitorElement.h"
+// DQMServices
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DQMOffline/L1Trigger/interface/HistDefinition.h"
 
-//MagneticField
+// MagneticField
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-//HLTrigger
+// HLTrigger
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include <iostream>
@@ -48,77 +48,73 @@
 #include <vector>
 
 class TauL1TPair {
-
- public :
-
-  TauL1TPair(const reco::PFTau *tau, const l1t::Tau *regTau) :
-  m_tau(tau), m_regTau(regTau), m_eta(999.), m_phi_bar(999.), m_phi_end(999.) { };
+public:
+  TauL1TPair(const reco::PFTau* tau, const l1t::Tau* regTau)
+      : m_tau(tau), m_regTau(regTau), m_eta(999.), m_phi_bar(999.), m_phi_end(999.){};
 
   TauL1TPair(const TauL1TPair& tauL1tPair);
 
-  ~TauL1TPair() { };
+  ~TauL1TPair(){};
 
   double dR();
   double eta() const { return m_tau->eta(); };
   double phi() const { return m_tau->phi(); };
-  double pt()  const { return m_tau->pt(); };
-
+  double pt() const { return m_tau->pt(); };
   double l1tPt() const { return m_regTau ? m_regTau->pt() : -1.; };
   double l1tIso() const { return m_regTau ? m_regTau->hwIso() : -1.; };
   double l1tPhi() const { return m_regTau ? m_regTau->phi() : -5.; };
   double l1tEta() const { return m_regTau ? m_regTau->eta() : -5.; };
 
-private :
-
-  const reco::PFTau *m_tau;
-  const l1t::Tau *m_regTau;
+private:
+  const reco::PFTau* m_tau;
+  const l1t::Tau* m_regTau;
 
   double m_eta;
   double m_phi_bar;
   double m_phi_end;
-
 };
 
-class L1TTauOffline: public DQMEDAnalyzer {
-
+class L1TTauOffline : public DQMEDAnalyzer {
 public:
-
   L1TTauOffline(const edm::ParameterSet& ps);
   ~L1TTauOffline() override;
 
-  enum PlotConfig {
-    nVertex,
-    ETvsET,
-    PHIvsPHI
-  };
+  enum PlotConfig { nVertex, ETvsET, PHIvsPHI };
 
   static const std::map<std::string, unsigned int> PlotConfigNames;
 
 protected:
-
   void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
   /* void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override; */
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void endJob() override;
 
-  const reco::Vertex getPrimaryVertex( edm::Handle<reco::VertexCollection> const& vertex, edm::Handle<reco::BeamSpot> const& beamSpot );
-  bool matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEvent, const reco::Muon * muon);
+  const reco::Vertex getPrimaryVertex(edm::Handle<reco::VertexCollection> const& vertex,
+                                      edm::Handle<reco::BeamSpot> const& beamSpot);
+  bool matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEvent, const reco::Muon* muon);
 
   // Cut and Matching
   void getTauL1tPairs(edm::Handle<l1t::TauBxCollection> const& l1tCands);
-  void getTightMuons(edm::Handle<reco::MuonCollection> const& muons, edm::Handle<reco::PFMETCollection> const& mets, const reco::Vertex & vertex, edm::Handle<trigger::TriggerEvent> const& trigEvent);
-  void getProbeTaus(const edm::Event& e, edm::Handle<reco::PFTauCollection> const& taus, edm::Handle<reco::MuonCollection> const& muons, const reco::Vertex & vertex);
+  void getTightMuons(edm::Handle<reco::MuonCollection> const& muons,
+                     edm::Handle<reco::PFMETCollection> const& mets,
+                     const reco::Vertex& vertex,
+                     edm::Handle<trigger::TriggerEvent> const& trigEvent);
+  void getProbeTaus(const edm::Event& e,
+                    edm::Handle<reco::PFTauCollection> const& taus,
+                    edm::Handle<reco::MuonCollection> const& muons,
+                    const reco::Vertex& vertex);
 
 private:
-  void bookTauHistos(DQMStore::IBooker &);
+  void bookTauHistos(DQMStore::IBooker&);
 
-  //other functions
-  double Distance(const reco::Candidate & c1, const reco::Candidate & c2);
-  double DistancePhi(const reco::Candidate & c1, const reco::Candidate & c2);
+  // other functions
+  double Distance(const reco::Candidate& c1, const reco::Candidate& c2);
+  double DistancePhi(const reco::Candidate& c1, const reco::Candidate& c2);
   double calcDeltaPhi(double phi1, double phi2);
+
+  void normalise2DHistogramsToBinArea();
 
   math::XYZPoint PVPoint_;
 
@@ -128,7 +124,7 @@ private:
   edm::ESHandle<Propagator> m_propagatorAlong;
   edm::ESHandle<Propagator> m_propagatorOpposite;
 
-  //variables from config file
+  // variables from config file
   edm::EDGetTokenT<reco::PFTauCollection> theTauCollection_;
   edm::EDGetTokenT<reco::PFTauDiscriminator> AntiMuInputTag_;
   edm::EDGetTokenT<reco::PFTauDiscriminator> AntiEleInputTag_;
@@ -149,15 +145,14 @@ private:
   std::vector<double> tauEfficiencyBins_;
   dqmoffline::l1t::HistDefinitions histDefinitions_;
 
-  std::vector<const reco::Muon*>  m_TightMuons;
-  std::vector<const reco::PFTau*>  m_ProbeTaus;
-  std::vector<TauL1TPair>  m_TauL1tPairs;
+  std::vector<const reco::Muon*> m_TightMuons;
+  std::vector<const reco::PFTau*> m_ProbeTaus;
+  std::vector<TauL1TPair> m_TauL1tPairs;
 
-
-  std::vector<reco::PFTauCollection>  m_RecoTaus;
-  std::vector<l1t::TauBxCollection>  m_L1tTaus;
-  std::vector<reco::PFTau>  m_RecoRecoTaus;
-  BXVector<l1t::Tau>  m_L1tL1tTaus;
+  std::vector<reco::PFTauCollection> m_RecoTaus;
+  std::vector<l1t::TauBxCollection> m_L1tTaus;
+  std::vector<reco::PFTau> m_RecoRecoTaus;
+  BXVector<l1t::Tau> m_L1tL1tTaus;
 
   // config params
   std::vector<int> m_L1tPtCuts;
@@ -212,7 +207,6 @@ private:
   std::map<double, MonitorElement*> h_efficiencyNonIsoTauET_EB_total_;
   std::map<double, MonitorElement*> h_efficiencyNonIsoTauET_EE_total_;
   std::map<double, MonitorElement*> h_efficiencyNonIsoTauET_EB_EE_total_;
-
 };
 
 #endif

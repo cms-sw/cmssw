@@ -16,20 +16,20 @@
 #include <vector>
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryID.h" 
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 
 namespace edm {
   class History {
   public:
     typedef std::size_t size_type;
-    
+
     // Compiler-generated default c'tor, copy c'tor, assignment and
     // d'tor are all correct.
 
     // Return the number of 'processing steps' recorded in this
     // History.
     size_type size() const;
-    
+
     // Add the given entry to this History. When a new data member is
     // added to the History class, this function should be modified to
     // take an instance of the type of the new data member.
@@ -39,19 +39,19 @@ namespace edm {
 
     EventSelectionID const& getEventSelectionID(size_type i) const;
 
-    EventSelectionIDVector const& eventSelectionIDs() const {return eventSelections_;}
+    EventSelectionIDVector const& eventSelectionIDs() const { return eventSelections_; }
 
-    EventSelectionIDVector& eventSelectionIDs() {return eventSelections_;}
-    
-    ProcessHistoryID const& processHistoryID() const {return processHistoryID_;}
+    EventSelectionIDVector& eventSelectionIDs() { return eventSelections_; }
 
-    void setProcessHistoryID(ProcessHistoryID const& phid) {processHistoryID_ = phid;}
+    ProcessHistoryID const& processHistoryID() const { return processHistoryID_; }
 
-    BranchListIndexes const& branchListIndexes() const {return branchListIndexes_;}
+    void setProcessHistoryID(ProcessHistoryID const& phid) { processHistoryID_ = phid; }
 
-    BranchListIndexes& branchListIndexes() {return branchListIndexes_;}
+    BranchListIndexes const& branchListIndexes() const { return branchListIndexes_; }
+
+    BranchListIndexes& branchListIndexes() { return branchListIndexes_; }
+
   private:
-    
     // Note: We could, instead, define a struct that contains the
     // appropriate information for each history entry, and then contain
     // only one data member: a vector of this struct. This might make
@@ -65,6 +65,6 @@ namespace edm {
     ProcessHistoryID processHistoryID_;
   };
 
-}
+}  // namespace edm
 
 #endif

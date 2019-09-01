@@ -27,13 +27,17 @@ namespace edm {
     VParameterSetEntry(std::vector<ParameterSet> const& vpset, bool isTracked);
     VParameterSetEntry(std::string const& rep);
 
-    ~VParameterSetEntry();
+    ~VParameterSetEntry() = default;
+    VParameterSetEntry(VParameterSetEntry const&) = default;
+    VParameterSetEntry(VParameterSetEntry&&) = default;
+    VParameterSetEntry& operator=(VParameterSetEntry const&) = default;
+    VParameterSetEntry& operator=(VParameterSetEntry&&) = default;
 
     std::string toString() const;
     void toString(std::string& result) const;
-    void toDigest(cms::Digest &digest) const;
+    void toDigest(cms::Digest& digest) const;
 
-    bool isTracked() const {return tracked_;}
+    bool isTracked() const { return tracked_; }
 
     /// returns the VPSet
     std::vector<ParameterSet> const& vpset() const;
@@ -42,7 +46,7 @@ namespace edm {
     void fillVPSet() const;
     ParameterSet& psetInVector(int i);
 
-    std::vector<ParameterSet>::size_type size() const { return vpset().size(); }
+    std::vector<ParameterSet>::size_type size() const;
 
     void registerPsetsAndUpdateIDs();
 
@@ -50,10 +54,9 @@ namespace edm {
     friend std::ostream& operator<<(std::ostream& os, VParameterSetEntry const& vpsetEntry);
 
   private:
-
     bool tracked_;
     mutable atomic_value_ptr<std::vector<ParameterSet> > theVPSet_;
     value_ptr<std::vector<ParameterSetID> > theIDs_;
   };
-}
+}  // namespace edm
 #endif

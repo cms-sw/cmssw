@@ -29,54 +29,51 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 
-
 namespace egammaisolation {
 
-  class EgammaTowerExtractor  : public reco::isodeposit::IsoDepositExtractor {
+  class EgammaTowerExtractor : public reco::isodeposit::IsoDepositExtractor {
+  public:
+    enum HcalDepth { AllDepths = -1, Undefined = 0, Depth1 = 1, Depth2 = 2 };
 
-      public:
-         enum HcalDepth{AllDepths=-1,Undefined=0,Depth1=1,Depth2=2};
+  public:
+    EgammaTowerExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC) : EgammaTowerExtractor(par, iC) {}
+    EgammaTowerExtractor(const edm::ParameterSet& par, edm::ConsumesCollector& iC)
+        : extRadius2_(par.getParameter<double>("extRadius")),
+          intRadius_(par.getParameter<double>("intRadius")),
+          etLow_(par.getParameter<double>("etMin")),
+          caloTowerToken(iC.consumes<CaloTowerCollection>(par.getParameter<edm::InputTag>("caloTowers"))),
+          depth_(par.getParameter<int>("hcalDepth")) {
+      extRadius2_ *= extRadius2_;
+      //lets just check we have a valid depth
+      //should we throw an exception or just warn and then fail gracefully later?
+      if (depth_ != AllDepths && depth_ != Depth1 && depth_ != Depth2) {
+        throw cms::Exception("Configuration Error")
+            << "hcalDepth passed to EgammaTowerExtractor is invalid " << std::endl;
+      }
+    }
 
+    ~EgammaTowerExtractor() override;
 
-      public:
-         EgammaTowerExtractor ( const edm::ParameterSet& par, edm::ConsumesCollector && iC ) :
-           EgammaTowerExtractor(par, iC) {}
-         EgammaTowerExtractor ( const edm::ParameterSet& par, edm::ConsumesCollector & iC ) :
-            extRadius2_(par.getParameter<double>("extRadius")),
-            intRadius_(par.getParameter<double>("intRadius")),
-            etLow_(par.getParameter<double>("etMin")),
-            caloTowerToken(iC.consumes<CaloTowerCollection>(par.getParameter<edm::InputTag>("caloTowers"))),
-	    depth_(par.getParameter<int>("hcalDepth"))
-         {
-            extRadius2_ *= extRadius2_;
-	    //lets just check we have a valid depth
-	    //should we throw an exception or just warn and then fail gracefully later?
-	    if(depth_!=AllDepths && depth_!=Depth1 && depth_!=Depth2){
-	      throw cms::Exception("Configuration Error") << "hcalDepth passed to EgammaTowerExtractor is invalid "<<std::endl;
-	    }
-         }
+    void fillVetos(const edm::Event& ev, const edm::EventSetup& evSetup, const reco::TrackCollection& tracks) override {
+    }
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Track& track) const override {
+      throw cms::Exception("Configuration Error")
+          << "This extractor " << (typeid(this).name()) << " is not made for tracks";
+    }
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Candidate& c) const override;
 
-         ~EgammaTowerExtractor() override ;
+  private:
+    double extRadius2_;
+    double intRadius_;
+    double etLow_;
 
-         void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup,
-                                 const reco::TrackCollection & tracks) override { }
-         reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
-                                             const reco::Track & track) const override {
-            throw cms::Exception("Configuration Error") <<
-                     "This extractor " << (typeid(this).name()) << " is not made for tracks";
-         }
-         reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
-                                              const reco::Candidate & c) const override ;
-
-      private:
-         double extRadius2_ ;
-         double intRadius_ ;
-         double etLow_ ;
-
-
-         edm::EDGetTokenT<CaloTowerCollection> caloTowerToken;
-         int depth_;
-         //const CaloTowerCollection *towercollection_ ;
-   };
-}
+    edm::EDGetTokenT<CaloTowerCollection> caloTowerToken;
+    int depth_;
+    //const CaloTowerCollection *towercollection_ ;
+  };
+}  // namespace egammaisolation
 #endif

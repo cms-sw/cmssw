@@ -1,3 +1,4 @@
+from __future__ import print_function
 # This CMS code is based on previous work done by Toby Dickenson, as indiciated below
 #
 # for questions: Benedikt.Hegner@cern.ch
@@ -23,8 +24,10 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from builtins import range
 import sys, os, inspect, copy, struct, dis, imp
 import modulefinder
+import six
 
 def packageNameFromFilename(name):
     return ".".join(name.replace("python/","").replace(".py","").split("/")[-3:])
@@ -59,7 +62,7 @@ class Package(object):
             self.module = __import__(name,[],[],"*")
     def dump(self,level):
         indent = "  " * level
-        print indent, "+", Color.info, self.name, Color.none
+        print(indent, "+", Color.info, self.name, Color.none)
         # sort dependencies alphabetically
         self.dependencies.sort(key = lambda x: x.name)
         for package in self.dependencies:
@@ -218,7 +221,7 @@ class mymf(modulefinder.ModuleFinder):
                             # The argument is a variable. I can get the name of the variable quite easily but
                             # not the value, unless I execute all of the opcodes. Not sure what to do here,
                             # guess I'll just print a warning so that the user knows?
-                            print "Unable to determine the value of variable '"+names[indexInTable]+"' to see if it is a proces.load(...) statement in file "+co.co_filename
+                            print("Unable to determine the value of variable '"+names[indexInTable]+"' to see if it is a proces.load(...) statement in file "+co.co_filename)
                         
                         code=code[9:]
                         continue
@@ -249,10 +252,10 @@ def removeRecursiveLoops( node, verbose=False, currentStack=None ) :
     try :
         duplicateIndex=currentStack.index( node ) # If there isn't a recursive loop this will raise a ValueError
         if verbose :
-            print "Removing recursive loop in:"
-            for index in xrange(duplicateIndex,len(currentStack)) :
-                print "   ",currentStack[index].name,"-->"
-            print "   ",node.name
+            print("Removing recursive loop in:")
+            for index in range(duplicateIndex,len(currentStack)) :
+                print("   ",currentStack[index].name,"-->")
+            print("   ",node.name)
         currentStack[-1].dependencies.remove(node)
     except ValueError:
         # No recursive loop found, so continue traversing the tree
@@ -266,13 +269,13 @@ def transformIntoGraph(depgraph,toplevel):
     packageDict[toplevel] = Package(toplevel, top = True) 
 
     # create package objects
-    for key, value in depgraph.iteritems():
+    for key, value in six.iteritems(depgraph):
         if key.count(".") == 2 and key != toplevel: 
             packageDict[key] = Package(key)
         for name in value.keys():
             if name.count(".") == 2: packageDict[name] = Package(name)
     # now create dependencies
-    for key, value in depgraph.iteritems():
+    for key, value in six.iteritems(depgraph):
         if key.count(".") == 2 or key == toplevel:
             package = packageDict[key]
             package.dependencies = [packageDict[name] for name in value.keys() if name.count(".") == 2]

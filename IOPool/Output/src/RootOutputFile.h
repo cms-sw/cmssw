@@ -28,6 +28,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
+#include "DataFormats/Provenance/interface/StoredMergeableRunProductMetadata.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "IOPool/Output/interface/PoolOutputModule.h"
@@ -46,8 +47,10 @@ namespace edm {
     typedef PoolOutputModule::OutputItem OutputItem;
     typedef PoolOutputModule::OutputItemList OutputItemList;
     typedef std::array<edm::propagate_const<RootOutputTree*>, NumBranchTypes> RootOutputTreePtrArray;
-    explicit RootOutputFile(PoolOutputModule* om, std::string const& fileName,
-                            std::string const& logicalFileName);
+    explicit RootOutputFile(PoolOutputModule* om,
+                            std::string const& fileName,
+                            std::string const& logicalFileName,
+                            std::vector<std::string> const& processesWithSelectedMergeableRunProducts);
     ~RootOutputFile() {}
     void writeOne(EventForOutput const& e);
     //void endFile();
@@ -56,6 +59,7 @@ namespace edm {
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeIndexIntoFile();
+    void writeStoredMergeableRunProductMetadata();
     void writeProcessHistoryRegistry();
     void writeParameterSetRegistry();
     void writeProductDescriptionRegistry();
@@ -69,10 +73,9 @@ namespace edm {
     void respondToCloseInputFile(FileBlock const& fb);
     bool shouldWeCloseFile() const;
 
-    std::string const& fileName() const {return file_;}
+    std::string const& fileName() const { return file_; }
 
   private:
-
     //-------------------------------
     // Local types
     //
@@ -87,19 +90,20 @@ namespace edm {
                       StoredProductProvenanceVector* productProvenanceVecPtr = nullptr,
                       ProductProvenanceRetriever const* provRetriever = nullptr);
 
-     void insertAncestors(ProductProvenance const& iGetParents,
-                          ProductProvenanceRetriever const* iMapper,
-                          bool produced,
-                          std::set<BranchID> const& producedBranches,
-                          std::set<StoredProductProvenance>& oToFill);
+    void insertAncestors(ProductProvenance const& iGetParents,
+                         ProductProvenanceRetriever const* iMapper,
+                         bool produced,
+                         std::set<BranchID> const& producedBranches,
+                         std::set<StoredProductProvenance>& oToFill);
 
-    bool insertProductProvenance(const ProductProvenance&,
-                                 std::set<StoredProductProvenance>& oToInsert);
+    bool insertProductProvenance(const ProductProvenance&, std::set<StoredProductProvenance>& oToInsert);
 
-    std::shared_ptr<TFile const> filePtr() const {return get_underlying_safe(filePtr_);}
-    std::shared_ptr<TFile>& filePtr() {return get_underlying_safe(filePtr_);}
-    StoredProductProvenanceVector const* pEventEntryInfoVector() const {return get_underlying_safe(pEventEntryInfoVector_);}
-    StoredProductProvenanceVector*& pEventEntryInfoVector() {return get_underlying_safe(pEventEntryInfoVector_);}
+    std::shared_ptr<TFile const> filePtr() const { return get_underlying_safe(filePtr_); }
+    std::shared_ptr<TFile>& filePtr() { return get_underlying_safe(filePtr_); }
+    StoredProductProvenanceVector const* pEventEntryInfoVector() const {
+      return get_underlying_safe(pEventEntryInfoVector_);
+    }
+    StoredProductProvenanceVector*& pEventEntryInfoVector() { return get_underlying_safe(pEventEntryInfoVector_); }
 
     //-------------------------------
     // Member data
@@ -116,30 +120,31 @@ namespace edm {
     IndexIntoFile::EntryNumber_t lumiEntryNumber_;
     IndexIntoFile::EntryNumber_t runEntryNumber_;
     IndexIntoFile indexIntoFile_;
+    StoredMergeableRunProductMetadata storedMergeableRunProductMetadata_;
     unsigned long nEventsInLumi_;
     edm::propagate_const<TTree*> metaDataTree_;
     edm::propagate_const<TTree*> parameterSetsTree_;
     edm::propagate_const<TTree*> parentageTree_;
-    LuminosityBlockAuxiliary  lumiAux_;
-    RunAuxiliary              runAux_;
-    EventAuxiliary const*           pEventAux_;
+    LuminosityBlockAuxiliary lumiAux_;
+    RunAuxiliary runAux_;
+    EventAuxiliary const* pEventAux_;
     LuminosityBlockAuxiliary const* pLumiAux_;
-    RunAuxiliary const*             pRunAux_;
+    RunAuxiliary const* pRunAux_;
     StoredProductProvenanceVector eventEntryInfoVector_;
     edm::propagate_const<StoredProductProvenanceVector*> pEventEntryInfoVector_;
-    BranchListIndexes const*        pBranchListIndexes_;
-    EventSelectionIDVector const*   pEventSelectionIDs_;
+    BranchListIndexes const* pBranchListIndexes_;
+    EventSelectionIDVector const* pEventSelectionIDs_;
     RootOutputTree eventTree_;
     RootOutputTree lumiTree_;
     RootOutputTree runTree_;
     RootOutputTreePtrArray treePointers_;
     bool dataTypeReported_;
     ProcessHistoryRegistry processHistoryRegistry_;
-    std::map<ParentageID,unsigned int> parentageIDs_;
+    std::map<ParentageID, unsigned int> parentageIDs_;
     std::set<BranchID> branchesWithStoredHistory_;
     edm::propagate_const<TClass*> wrapperBaseTClass_;
   };
 
-}
+}  // namespace edm
 
 #endif

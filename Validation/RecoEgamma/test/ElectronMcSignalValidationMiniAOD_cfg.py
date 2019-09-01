@@ -1,14 +1,16 @@
+from __future__ import print_function
 
 import sys
 import os
 import DQMOffline.EGamma.electronDataDiscovery as dd
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras 
 
 #process = cms.Process("electronValidation")
-#process = cms.Process("electronValidation",eras.Run2_2017)
-process = cms.Process('electronValidation',eras.Phase2) 
+#from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+#process = cms.Process("electronValidation",Run2_2017)
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process('electronValidation',Phase2) 
 
 process.options = cms.untracked.PSet( )
 
@@ -21,7 +23,7 @@ dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 
 # OLD WAY
 
-print "reading files ..."
+print("reading files ...")
 max_number = -1 # number of events
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(max_number))
 process.source = cms.Source ("PoolSource",
@@ -38,7 +40,7 @@ fileNames = cms.untracked.vstring([
     ]),
 secondaryFileNames = cms.untracked.vstring() )
 process.source.fileNames.extend(dd.search())
-print "reading files done"
+print("reading files done")
 
 #process.printTree = cms.EDAnalyzer("ParticleListDrawer",
 #  maxEventsToPrint = cms.untracked.int32(1),
@@ -85,10 +87,10 @@ process.load("Validation.RecoEgamma.electronIsoFromDeps_cff")
 process.load("Validation.RecoEgamma.ElectronIsolation_cfi")
 process.load("Validation.RecoEgamma.ElectronMcSignalValidatorMiniAOD_cfi")
 
-print "miniAODElectronIsolation call"
+print("miniAODElectronIsolation call")
 from Validation.RecoEgamma.electronValidationSequenceMiniAOD_cff import miniAODElectronIsolation # as _ElectronIsolationCITK
 process.miniAODElectronIsolation = miniAODElectronIsolation
-print "miniAODElectronIsolation clone done"
+print("miniAODElectronIsolation clone done")
 
 # load DQM
 process.load("DQMServices.Core.DQM_cfg")

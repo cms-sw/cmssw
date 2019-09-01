@@ -13,30 +13,21 @@ namespace edm {
   class ParameterDescriptionNode;
 
   class DocFormatHelper {
-
   public:
+    enum DescriptionParent { TOP, OR, XOR, AND, OTHER };
 
-    enum DescriptionParent {
-      TOP,
-      OR,
-      XOR,
-      AND,
-      OTHER      
-    };
-
-    DocFormatHelper() :
-      brief_(false),
-      lineWidth_(80),
-      indentation_(4),
-      startColumn2_(24U),
-      section_(),
-      pass_(0),
-      column1_(0),
-      column2_(0),
-      column3_(0),
-      counter_(0),
-      parent_(OTHER)
-    { }
+    DocFormatHelper()
+        : brief_(false),
+          lineWidth_(80),
+          indentation_(4),
+          startColumn2_(24U),
+          section_(),
+          pass_(0),
+          column1_(0),
+          column2_(0),
+          column3_(0),
+          counter_(0),
+          parent_(OTHER) {}
 
     void init();
 
@@ -59,9 +50,18 @@ namespace edm {
     size_t column2() const { return column2_; }
     size_t column3() const { return column3_; }
 
-    void setAtLeast1(size_t width) { if (width > column1_) column1_ = width; }
-    void setAtLeast2(size_t width) { if (width > column2_) column2_ = width; }
-    void setAtLeast3(size_t width) { if (width > column3_) column3_ = width; }
+    void setAtLeast1(size_t width) {
+      if (width > column1_)
+        column1_ = width;
+    }
+    void setAtLeast2(size_t width) {
+      if (width > column2_)
+        column2_ = width;
+    }
+    void setAtLeast3(size_t width) {
+      if (width > column3_)
+        column3_ = width;
+    }
 
     int counter() const { return counter_; }
     void setCounter(int value) { counter_ = value; }
@@ -73,20 +73,16 @@ namespace edm {
 
     size_t commentWidth() const;
 
-    static void wrapAndPrintText(std::ostream & os,
-                                 std::string const& text,
-                                 size_t indent,
-                                 size_t suggestedWidth);
+    static void wrapAndPrintText(std::ostream& os, std::string const& text, size_t indent, size_t suggestedWidth);
 
-    void indent(std::ostream & os) const;
-    void indent2(std::ostream & os) const;
+    void indent(std::ostream& os) const;
+    void indent2(std::ostream& os) const;
 
     static int offsetModuleLabel() { return 2; }
     static int offsetTopLevelPSet() { return 2; }
     static int offsetSectionContent() { return 4; }
 
   private:
-
     bool brief_;
     size_t lineWidth_;
     int indentation_;
@@ -104,5 +100,5 @@ namespace edm {
 
     DescriptionParent parent_;
   };
-}
+}  // namespace edm
 #endif

@@ -29,9 +29,9 @@ process.dqmSaver.tag = 'FED'
 folder_name = 'FEDIntegrity_EvF'
 
 # L1T sequence:
-process.load('DQM.L1TMonitor.L1TFED_cfi')
+process.load('DQM.L1TMonitor.L1TStage2FED_cff') # stage2 L1T
 path = 'L1T/%s/' % folder_name
-process.l1tfed.FEDDirName = cms.untracked.string(path)
+process.l1tStage2Fed.FEDDirName = cms.untracked.string(path)
 # Pixel sequence:
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi')
@@ -65,9 +65,8 @@ process.load('DQM.DTMonitorModule.dtDataIntegrityTask_EvF_cff')
 process.DTDataIntegrityTask.processingMode = 'SM'
 path = 'DT/%s/' % folder_name
 process.DTDataIntegrityTask.fedIntegrityFolder = path
-process.dtunpacker.fedbyType = cms.bool(True)
-process.dtunpacker.useStandardFEDid = cms.bool(True)
-process.dtunpacker.dqmOnly = cms.bool(True)
+process.DTDataIntegrityTask.checkUros = True
+process.DTDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
 # RPC sequence:
 process.load('EventFilter.RPCRawToDigi.rpcUnpacker_cfi')
 process.load('DQM.RPCMonitorClient.RPCFEDIntegrity_cfi')
@@ -80,7 +79,7 @@ process.cscDQMEvF.EventProcessor.FOLDER_EMU = cms.untracked.string(path)
 
 # Setting raw data collection label for all subsytem modules, depending on run type:
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.l1tfed.rawTag = cms.InputTag('rawDataRepacker')
+    process.l1tStage2Fed.rawTag = cms.InputTag('rawDataRepacker')
     process.siPixelDigis.InputLabel = cms.InputTag('rawDataRepacker')
     process.SiPixelHLTSource.RawInput = cms.InputTag('rawDataRepacker')
     process.siStripFEDCheck.RawDataTag = cms.InputTag('rawDataRepacker')
@@ -93,7 +92,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.rpcunpacker.InputLabel = cms.InputTag('rawDataRepacker')
     process.cscDQMEvF.InputObjects = cms.untracked.InputTag('rawDataRepacker')
 else:
-    process.l1tfed.rawTag = cms.InputTag('rawDataCollector')
+    process.l1tStage2Fed.rawTag = cms.InputTag('rawDataCollector')
     process.siPixelDigis.InputLabel = cms.InputTag('rawDataCollector')
     process.SiPixelHLTSource.RawInput = cms.InputTag('rawDataCollector')
     process.siStripFEDCheck.RawDataTag = cms.InputTag('rawDataCollector')
@@ -114,7 +113,7 @@ process.dqmFEDIntegrity.fedFolderName = cms.untracked.string(folder_name)
 
 # Modules for the FED
 process.FEDModulesPath = cms.Path(
-			                        process.l1tfed
+			                        process.l1tStage2Fed
  			                      + process.siPixelDigis
                                   + process.SiPixelHLTSource
                                   + process.siStripFEDCheck

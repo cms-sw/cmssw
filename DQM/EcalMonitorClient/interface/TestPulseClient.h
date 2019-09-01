@@ -3,12 +3,11 @@
 
 #include "DQWorkerClient.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class TestPulseClient : public DQWorkerClient {
   public:
     TestPulseClient();
-    ~TestPulseClient() {}
+    ~TestPulseClient() override {}
 
     void producePlots(ProcessType) override;
 
@@ -25,6 +24,6 @@ namespace ecaldqm
     std::vector<float> tolerancePNRMS_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif

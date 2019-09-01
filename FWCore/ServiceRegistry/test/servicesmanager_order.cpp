@@ -57,7 +57,7 @@ int main() try {
   std::string typeName1("DummyServiceA1");
   ps1.addParameter("@service_type", typeName1);
   vps1.push_back(ps1);
-      
+
   // The next two are intentionally swapped to test build
   // on demand feature.  DummyServiceB3 depends on DummyServiceD2
   // so they should end up getting built in the reverse of the
@@ -76,7 +76,6 @@ int main() try {
   auto legacy2 = std::make_shared<ServicesManager>(legacyToken, kTokenOverrides, vps1);
   edm::ServiceToken legacyToken2 = TestServicesManagerOrder::makeToken(legacy2);
 
-
   ServicesManager sm(legacyToken2, kOverlapIsError, vps);
 
   edm::ActivityRegistry ar4;
@@ -84,17 +83,16 @@ int main() try {
   sm.put(std::make_shared<ServiceWrapper<Service4>>(std::make_unique<Service4>(pset4, ar4)));
   sm.copySlotsFrom(ar4);
 
-
   edm::ActivityRegistry actReg;
   sm.connectTo(actReg);
   actReg.postBeginJobSignal_();
   actReg.postEndJobSignal_();
 
   return 0;
-} catch(cms::Exception const& e) {
+} catch (cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;
   return 1;
-} catch(std::exception const& e) {
+} catch (std::exception const& e) {
   std::cerr << e.what() << std::endl;
   return 1;
 }

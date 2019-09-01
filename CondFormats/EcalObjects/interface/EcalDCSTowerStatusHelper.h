@@ -7,15 +7,13 @@
  **/
 
 class EcalDCSTowerStatusHelper {
- public:
-
-  static const int LVSTATUS=0;
-  static const int LVNOMINALSTATUS=1;
-  static const int HVSTATUS=2;
-  static const int HVNOMINALSTATUS=3;
-  static const int HVEEDSTATUS=4;
-  static const int HVEEDNOMINALSTATUS=5;
-
+public:
+  static const int LVSTATUS = 0;
+  static const int LVNOMINALSTATUS = 1;
+  static const int HVSTATUS = 2;
+  static const int HVNOMINALSTATUS = 3;
+  static const int HVEEDSTATUS = 4;
+  static const int HVEEDNOMINALSTATUS = 5;
 };
 
 #endif

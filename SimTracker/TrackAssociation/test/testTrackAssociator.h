@@ -9,25 +9,24 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <iostream>
-#include <string>
 #include <map>
 #include <set>
+#include <string>
 
 namespace reco {
   class TrackToTrackingParticleAssociator;
 }
 
 class testTrackAssociator : public edm::EDAnalyzer {
-  
- public:
-  testTrackAssociator(const edm::ParameterSet& conf);
+public:
+  testTrackAssociator(const edm::ParameterSet &conf);
   ~testTrackAssociator() override;
-  void beginJob() override {}  
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  
- private:
-  reco::TrackToTrackingParticleAssociator const * associatorByChi2;
-  reco::TrackToTrackingParticleAssociator const * associatorByHits;
+  void beginJob() override {}
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+
+private:
+  reco::TrackToTrackingParticleAssociator const *associatorByChi2;
+  reco::TrackToTrackingParticleAssociator const *associatorByHits;
   edm::InputTag tracksTag, tpTag, simtracksTag, simvtxTag;
 };
 

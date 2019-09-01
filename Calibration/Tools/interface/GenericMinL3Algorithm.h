@@ -11,9 +11,7 @@
 #include <vector>
 #include <iostream>
 
-
-class GenericMinL3Algorithm
-{
+class GenericMinL3Algorithm {
 public:
   /// Default constructor
   /// CAVEAT: use normalise = true only if you know what you're doing!
@@ -24,18 +22,18 @@ public:
 
   /// run the Minimization L3 Algorithm "nIter" number of times, recalibrating the event matrix after each iteration with the new solution
   /// returns the vector of calibration coefficients built from all iteration solutions
-  std::vector<float> iterate(const std::vector<std::vector<float> >& eventMatrix, const std::vector<float>& energyVector, int nIter);
+  std::vector<float> iterate(const std::vector<std::vector<float> >& eventMatrix,
+                             const std::vector<float>& energyVector,
+                             int nIter);
 
   /// perform one iteration using the Minimization L3 Algorithm
   /// returns the vector of calibration coefficients
-  std::vector<float> iterate(const std::vector<std::vector<float> >& eventMatrix, const std::vector<float>& energyVector);
+  std::vector<float> iterate(const std::vector<std::vector<float> >& eventMatrix,
+                             const std::vector<float>& energyVector);
 
 protected:
-
-
 private:
   bool normaliseFlag;
-
 };
 
-#endif // GenericMinL3Algorithm_H
+#endif  // GenericMinL3Algorithm_H

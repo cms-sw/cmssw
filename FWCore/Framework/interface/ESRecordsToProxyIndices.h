@@ -1,0 +1,71 @@
+#ifndef FWCore_Framework_ESRecordsToProxyIndices_h
+#define FWCore_Framework_ESRecordsToProxyIndices_h
+// -*- C++ -*-
+//
+// Package:     Framework
+// Class  :     ESRecordsToProxyIndices
+//
+/**\class ESRecordsToProxyIndices ESRecordsToProxyIndices.h FWCore/Framework/interface/ESRecordsToProxyIndices.h
+
+ Description: Key used to identify data within a EventSetupRecord
+
+ Usage:
+    <usage>
+
+*/
+//
+// Author:      Chris Jones
+// Created:     Tues Feb 12 14:31:03 EST 2019
+//
+
+// system include files
+#include <limits>
+
+// user include files
+#include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
+
+#include <vector>
+// forward declarations
+namespace edm::eventsetup {
+  struct ComponentDescription;
+
+  class ESRecordsToProxyIndices {
+  public:
+    ESRecordsToProxyIndices(std::vector<EventSetupRecordKey> iRecords);
+
+    // ---------- const member functions ---------------------
+    ///If the index is not found, returns missingProxyIndex()
+    ESProxyIndex indexInRecord(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
+
+    ComponentDescription const* component(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
+
+    static constexpr ESProxyIndex missingProxyIndex() noexcept { return ESProxyIndex{std::numeric_limits<int>::max()}; }
+    static constexpr ESRecordIndex missingRecordIndex() noexcept {
+      return ESRecordIndex{std::numeric_limits<int>::max()};
+    }
+
+    ESRecordIndex recordIndexFor(EventSetupRecordKey const& iRK) const noexcept;
+    // ---------- member functions ---------------------------
+    ///This should be called for all records in the list passed to the constructor and
+    /// in the same order as the list.
+    unsigned int dataKeysInRecord(unsigned int iRecordIndex,
+                                  EventSetupRecordKey const& iRecord,
+                                  std::vector<DataKey> const& iDataKeys,
+                                  std::vector<ComponentDescription const*> const& iComponents);
+
+  private:
+    // ---------- member data --------------------------------
+    std::vector<EventSetupRecordKey> recordKeys_;
+    //for each item in recordKeys_ this holds the index to the first
+    // DataKey for that item in dataKeys_
+    // recordOffset_ is 1 size larger than recordKeys_ with the
+    // last entry being dataKeys_.size()
+    std::vector<unsigned int> recordOffsets_;
+    std::vector<DataKey> dataKeys_;
+    std::vector<ComponentDescription const*> components_;
+  };
+
+}  // namespace edm::eventsetup
+#endif

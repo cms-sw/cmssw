@@ -10,22 +10,18 @@
 //class RPCLogCone;
 //class RPCPacData;
 
+class RPCPac : public RPCPacBase {
+public:
+  RPCPac(const RPCPacData*, int tower, int logSector, int logSegment);
 
-class RPCPac: public RPCPacBase {
-  
-  public: 
-    RPCPac(const RPCPacData *, int tower, int logSector, int logSegment);
+  RPCPacMuon run(const RPCLogCone& cone) const;
 
-    RPCPacMuon run(const RPCLogCone& cone) const;
-    
-  private:
-    
-    RPCPacMuon runTrackPatternsGroup(const RPCLogCone& cone) const;
-    
-    RPCPacMuon runEnergeticPatternsGroups(const RPCLogCone& cone) const;
-    
-    const RPCPacData* m_pacData;
+private:
+  RPCPacMuon runTrackPatternsGroup(const RPCLogCone& cone) const;
+
+  RPCPacMuon runEnergeticPatternsGroups(const RPCLogCone& cone) const;
+
+  const RPCPacData* m_pacData;
 };
-  
 
 #endif

@@ -9,8 +9,8 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class FEConfigLinDat : public IDataItem {
- public:
-  friend class EcalCondDBInterface; // XXX temp should not need
+public:
+  friend class EcalCondDBInterface;  // XXX temp should not need
   FEConfigLinDat();
   ~FEConfigLinDat() override;
 
@@ -24,7 +24,6 @@ class FEConfigLinDat : public IDataItem {
   inline void setShift6(int x) { m_shift6 = x; }
   inline void setShift1(int x) { m_shift1 = x; }
 
-
   inline int getMultX12() const { return m_multx12; }
   inline int getMultX6() const { return m_multx6; }
   inline int getMultX1() const { return m_multx1; }
@@ -32,16 +31,14 @@ class FEConfigLinDat : public IDataItem {
   inline int getShift6() const { return m_shift6; }
   inline int getShift1() const { return m_shift1; }
 
- private:
+private:
   void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigLinDat* item, FEConfigLinInfo* iconf) noexcept(false);
 
+  void writeArrayDB(const std::map<EcalLogicID, FEConfigLinDat>* data, FEConfigLinInfo* iconf) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigLinDat>* data, FEConfigLinInfo* iconf) noexcept(false);
-
-
-  void fetchData(std::map< EcalLogicID, FEConfigLinDat >* fillMap, FEConfigLinInfo* iconf) noexcept(false);
+  void fetchData(std::map<EcalLogicID, FEConfigLinDat>* fillMap, FEConfigLinInfo* iconf) noexcept(false);
 
   // User data
   int m_multx12;
@@ -50,8 +47,6 @@ class FEConfigLinDat : public IDataItem {
   int m_shift12;
   int m_shift6;
   int m_shift1;
-
-
 };
 
 #endif

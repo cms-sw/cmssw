@@ -1,7 +1,6 @@
 import os
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
-from Configuration.StandardSequences.Eras import eras
 
 
 def get_root_files(path):
@@ -36,7 +35,8 @@ inputFilesRAW = {
 }
 
 
-process = cms.Process('L1TStage2EmulatorDQM', eras.Run2_2016)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process('L1TStage2EmulatorDQM', Run2_2016)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -101,7 +101,13 @@ if os.environ.get('DEBUG', False):
         '*',
     )
 
+# pfMETT1 from https://github.com/cms-sw/cmssw/blob/master/DQMOffline/JetMET/python/jetMETDQMOfflineSource_cff.py#L109,
+# is difficult to set up, let's use pfMet for testing
+process.l1tPFMetNoMuForDQM.pfMETCollection = 'pfMet'
+
 process.dqmoffline_step = cms.Path(
+    process.goodPFJetsForL1T *
+    process.l1tPFMetNoMuForDQM *
     process.l1tEtSumJetOfflineDQMEmu +
     process.l1tEtSumJetOfflineDQM +
     process.l1tEGammaOfflineDQM +

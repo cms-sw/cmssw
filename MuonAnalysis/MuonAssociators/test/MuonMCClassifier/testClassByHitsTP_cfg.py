@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('MuonClassif',eras.Phase2)
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process('MuonClassif',Phase2)
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')

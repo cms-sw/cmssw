@@ -38,27 +38,26 @@ namespace CLHEP {
 }
 
 RPCandIRPCDigiProducer::RPCandIRPCDigiProducer(const edm::ParameterSet& ps) {
-
   produces<RPCDigiCollection>();
   produces<RPCDigitizerSimLinks>("RPCDigiSimLink");
-  
-  //Name of Collection used for create the XF 
+
+  //Name of Collection used for create the XF
   mix_ = ps.getParameter<std::string>("mixLabel");
   collection_for_XF = ps.getParameter<std::string>("InputCollection");
 
   edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-   throw cms::Exception("Configuration")
-     << "RPCDigitizer requires the RandomNumberGeneratorService\n"
-        "which is not present in the configuration file.  You must add the service\n"
-        "in the configuration file or remove the modules that require it.";
+  if (!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+        << "RPCDigitizer requires the RandomNumberGeneratorService\n"
+           "which is not present in the configuration file.  You must add the service\n"
+           "in the configuration file or remove the modules that require it.";
   };
-  
-  theRPCSimSetUpRPC =  new RPCSimSetUp(ps);
+
+  theRPCSimSetUpRPC = new RPCSimSetUp(ps);
   theRPCSimSetUpIRPC = new RPCSimSetUp(ps);
   theRPCDigitizer = new RPCDigitizer(ps);
   theIRPCDigitizer = new IRPCDigitizer(ps);
-  crossingFrameToken = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_,collection_for_XF));
+  crossingFrameToken = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_for_XF));
 }
 
 RPCandIRPCDigiProducer::~RPCandIRPCDigiProducer() {
@@ -68,56 +67,54 @@ RPCandIRPCDigiProducer::~RPCandIRPCDigiProducer() {
   delete theRPCSimSetUpIRPC;
 }
 
-void RPCandIRPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& eventSetup){
-
+void RPCandIRPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& eventSetup) {
   edm::ESHandle<RPCGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get( hGeom );
-  const RPCGeometry *pGeom = &*hGeom;
+  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  const RPCGeometry* pGeom = &*hGeom;
   _pGeom = &*hGeom;
   edm::ESHandle<RPCStripNoises> noiseRcd;
   eventSetup.get<RPCStripNoisesRcd>().get(noiseRcd);
 
-   edm::ESHandle<RPCClusterSize> clsRcd;
-   eventSetup.get<RPCClusterSizeRcd>().get(clsRcd);
+  edm::ESHandle<RPCClusterSize> clsRcd;
+  eventSetup.get<RPCClusterSizeRcd>().get(clsRcd);
 
- 
-   //setup the two digi models
-   theRPCSimSetUpRPC->setGeometry( pGeom );
-   theRPCSimSetUpRPC->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
-   theRPCSimSetUpIRPC->setGeometry( pGeom );
-   theRPCSimSetUpIRPC->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
+  //setup the two digi models
+  theRPCSimSetUpRPC->setGeometry(pGeom);
+  theRPCSimSetUpRPC->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
+  theRPCSimSetUpIRPC->setGeometry(pGeom);
+  theRPCSimSetUpIRPC->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
 
-   //setup the two digitizers
-   theRPCDigitizer->setGeometry( pGeom );
-   theIRPCDigitizer->setGeometry( pGeom );
-   theRPCDigitizer->setRPCSimSetUp( theRPCSimSetUpRPC );
-   theIRPCDigitizer->setRPCSimSetUp( theRPCSimSetUpIRPC );
-
+  //setup the two digitizers
+  theRPCDigitizer->setGeometry(pGeom);
+  theIRPCDigitizer->setGeometry(pGeom);
+  theRPCDigitizer->setRPCSimSetUp(theRPCSimSetUpRPC);
+  theIRPCDigitizer->setRPCSimSetUp(theRPCSimSetUpIRPC);
 }
 
 void RPCandIRPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
-  
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
-  
-  LogDebug ("RPCandIRPCDigiProducer")<<"[RPCandIRPCDigiProducer::produce] got the CLHEP::HepRandomEngine engine from the edm::Event.streamID() and edm::Service<edm::RandomNumberGenerator>";
-  LogDebug ("RPCandIRPCDigiProducer")<<"[RPCandIRPCDigiProducer::produce] test the CLHEP::HepRandomEngine by firing once RandFlat ---- this must be the first time in SimMuon/RPCDigitizer";
-  LogDebug ("RPCandIRPCDigiProducer")<<"[RPCandIRPCDigiProducer::produce] to activate the test go in RPCandIRPCDigiProducer.cc and uncomment the line below";
-  
-  edm::Handle<CrossingFrame<PSimHit> > cf;
+
+  LogDebug("RPCandIRPCDigiProducer") << "[RPCandIRPCDigiProducer::produce] got the CLHEP::HepRandomEngine engine from "
+                                        "the edm::Event.streamID() and edm::Service<edm::RandomNumberGenerator>";
+  LogDebug("RPCandIRPCDigiProducer") << "[RPCandIRPCDigiProducer::produce] test the CLHEP::HepRandomEngine by firing "
+                                        "once RandFlat ---- this must be the first time in SimMuon/RPCDigitizer";
+  LogDebug("RPCandIRPCDigiProducer") << "[RPCandIRPCDigiProducer::produce] to activate the test go in "
+                                        "RPCandIRPCDigiProducer.cc and uncomment the line below";
+
+  edm::Handle<CrossingFrame<PSimHit>> cf;
   e.getByToken(crossingFrameToken, cf);
 
-  std::unique_ptr<MixCollection<PSimHit> > 
-    hits( new MixCollection<PSimHit>(cf.product()) );
+  std::unique_ptr<MixCollection<PSimHit>> hits(new MixCollection<PSimHit>(cf.product()));
 
   // Create empty output
   std::unique_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
-  std::unique_ptr<RPCDigitizerSimLinks> RPCDigitSimLink(new RPCDigitizerSimLinks() );
+  std::unique_ptr<RPCDigitizerSimLinks> RPCDigitSimLink(new RPCDigitizerSimLinks());
 
-  theRPCDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink, engine); //make "bakelite RPC" digitizer do the action
-  theIRPCDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink, engine); //make "IRPC" digitizer do the action
-  
-  e.put( std::move(pDigis));
+  theRPCDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink, engine);   //make "bakelite RPC" digitizer do the action
+  theIRPCDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink, engine);  //make "IRPC" digitizer do the action
+
+  e.put(std::move(pDigis));
   //store the SimDigiLinks in the event
-  e.put(std::move(RPCDigitSimLink),"RPCDigiSimLink");
+  e.put(std::move(RPCDigitSimLink), "RPCDigiSimLink");
 }

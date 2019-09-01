@@ -40,38 +40,34 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include<cstring>
-#include<string>
-#include<vector>
-#include<cstdlib>
+#include <cstring>
+#include <string>
+#include <vector>
+#include <cstdlib>
 #include <utility>
 #include <map>
 
 using namespace edm;
 
-RPCDBPerformanceHandler::RPCDBPerformanceHandler(const edm::ParameterSet& pset) :
-  m_since(pset.getUntrackedParameter<int >("firstSince")),
-  dataTag(   pset.getParameter<std::string>  (  "tag" ) ){
-  theRPCSimSetUp  =  new RPCDBSimSetUp(pset);
+RPCDBPerformanceHandler::RPCDBPerformanceHandler(const edm::ParameterSet& pset)
+    : m_since(pset.getUntrackedParameter<int>("firstSince")), dataTag(pset.getParameter<std::string>("tag")) {
+  theRPCSimSetUp = new RPCDBSimSetUp(pset);
 }
 
-RPCDBPerformanceHandler::~RPCDBPerformanceHandler(){}
+RPCDBPerformanceHandler::~RPCDBPerformanceHandler() {}
 
-
-void RPCDBPerformanceHandler::getNewObjects(){
-
-  std::cout << " - > getNewObjects\n" << 
-    //check whats already inside of database
-    "got offlineInfo"<<
-    tagInfo().name << ", size " << tagInfo().size 
-	    << ", last object valid since " 
-	    << tagInfo().lastInterval.first << std::endl;
+void RPCDBPerformanceHandler::getNewObjects() {
+  std::cout << " - > getNewObjects\n"
+            <<
+      //check whats already inside of database
+      "got offlineInfo" << tagInfo().name << ", size " << tagInfo().size << ", last object valid since "
+            << tagInfo().lastInterval.first << std::endl;
 
   RPCStripNoises* obj = new RPCStripNoises();
 
-  std::map< int, std::vector<double> >::iterator itc;
-  for(itc = (theRPCSimSetUp->_clsMap).begin();itc != (theRPCSimSetUp->_clsMap).end();++itc){
-    for(unsigned int n = 0; n < (itc->second).size();++n){
+  std::map<int, std::vector<double> >::iterator itc;
+  for (itc = (theRPCSimSetUp->_clsMap).begin(); itc != (theRPCSimSetUp->_clsMap).end(); ++itc) {
+    for (unsigned int n = 0; n < (itc->second).size(); ++n) {
       (obj->v_cls).push_back((itc->second)[n]);
     }
   }
@@ -79,34 +75,25 @@ void RPCDBPerformanceHandler::getNewObjects(){
   RPCStripNoises::NoiseItem tipoprova;
 
   int i = 0;
-  for(std::map<uint32_t, std::vector<float> >::iterator it = (theRPCSimSetUp->_mapDetIdNoise).begin(); 
-      it != (theRPCSimSetUp->_mapDetIdNoise).end(); it++){
-
+  for (std::map<uint32_t, std::vector<float> >::iterator it = (theRPCSimSetUp->_mapDetIdNoise).begin();
+       it != (theRPCSimSetUp->_mapDetIdNoise).end();
+       it++) {
     tipoprova.dpid = it->first;
-    tipoprova.time =  theRPCSimSetUp->getTime(it->first);
+    tipoprova.time = theRPCSimSetUp->getTime(it->first);
 
-    for(unsigned int k = 0; k < 96; ++k){
-
+    for (unsigned int k = 0; k < 96; ++k) {
       tipoprova.noise = ((it->second))[k];
       tipoprova.eff = (theRPCSimSetUp->getEff(it->first))[k];
       (obj->v_noises).push_back(tipoprova);
     }
-    
-    edm::LogError("RPCStripNoisesBuilder")<<"[RPCStripNoisesBuilder::analyze] detid already exists"<<std::endl;
-    
+
+    edm::LogError("RPCStripNoisesBuilder") << "[RPCStripNoisesBuilder::analyze] detid already exists" << std::endl;
+
     i++;
   }
 
   // prepare for transfer:
-  m_to_transfer.push_back( std::make_pair((RPCStripNoises*)obj,m_since) );
- 
+  m_to_transfer.push_back(std::make_pair((RPCStripNoises*)obj, m_since));
 }
 
-std::string RPCDBPerformanceHandler::id() const {
-  return dataTag;
-}
-
-
-
-
-
+std::string RPCDBPerformanceHandler::id() const { return dataTag; }

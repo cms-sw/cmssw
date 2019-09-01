@@ -3,12 +3,11 @@
 
 #include "DQWorkerClient.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class PresampleClient : public DQWorkerClient {
   public:
     PresampleClient();
-    ~PresampleClient() {}
+    ~PresampleClient() override {}
 
     void producePlots(ProcessType) override;
 
@@ -17,12 +16,12 @@ namespace ecaldqm
 
     int minChannelEntries_;
     float expectedMean_;
-    float toleranceMean_;
+    float toleranceLow_;
+    float toleranceHigh_;
     float toleranceRMS_;
     float toleranceRMSFwd_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

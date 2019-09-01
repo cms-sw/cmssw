@@ -4,7 +4,6 @@
  *
  */
 
-
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
@@ -21,26 +20,24 @@
 #include <cstdio>
 #include <fstream>
 
-#include <iomanip> 
+#include <iomanip>
 
+class EcalHexDisplay : public edm::EDAnalyzer {
+public:
+  EcalHexDisplay(const edm::ParameterSet& ps);
 
-class EcalHexDisplay: public edm::EDAnalyzer {
+protected:
+  int verbosity_;
+  int beg_fed_id_;
+  int end_fed_id_;
+  int first_event_;
+  int last_event_;
+  int event_;
+  bool writeDcc_;
+  std::string filename_;
 
-  public:
-    EcalHexDisplay(const edm::ParameterSet& ps);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  protected:
-    int      verbosity_;
-    int      beg_fed_id_;
-    int      end_fed_id_;
-    int      first_event_;
-    int      last_event_;
-    int      event_;
-    bool     writeDcc_;
-    std::string   filename_;
-
-    void analyze(const edm::Event & e, const  edm::EventSetup& c) override;
-
-  private:
-    edm::InputTag fedRawDataCollectionTag_;
+private:
+  edm::InputTag fedRawDataCollectionTag_;
 };

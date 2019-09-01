@@ -2,7 +2,7 @@
 //
 //   Class: L1MuDTSecProcMap
 //
-//   Description: Sector Processor container 
+//   Description: Sector Processor container
 //
 //
 //
@@ -47,16 +47,13 @@ L1MuDTSecProcMap::L1MuDTSecProcMap() : m_map() {}
 //--------------
 
 L1MuDTSecProcMap::~L1MuDTSecProcMap() {
-
   SPmap_iter iter = m_map.begin();
-  while ( iter != m_map.end() ) {
+  while (iter != m_map.end()) {
     delete (*iter).second;
     iter++;
-  }  
+  }
   m_map.clear();
-
 }
-
 
 //--------------
 // Operations --
@@ -65,27 +62,22 @@ L1MuDTSecProcMap::~L1MuDTSecProcMap() {
 //
 // return Sector Processor
 //
-L1MuDTSectorProcessor* L1MuDTSecProcMap::sp(const L1MuDTSecProcId& id ) const {
-
+L1MuDTSectorProcessor* L1MuDTSecProcMap::sp(const L1MuDTSecProcId& id) const {
   SPmap::const_iterator it = m_map.find(id);
-  if ( it == m_map.end() ) { 
+  if (it == m_map.end()) {
     //    cerr << "Error: Sector Processor not in the map" << endl;
     return nullptr;
   }
   return (*it).second;
-
 }
-
 
 //
 // insert Sector Processor into container
 //
-void L1MuDTSecProcMap::insert(const L1MuDTSecProcId& id, L1MuDTSectorProcessor* sp)  { 
-
+void L1MuDTSecProcMap::insert(const L1MuDTSecProcId& id, L1MuDTSectorProcessor* sp) {
   //SPmap::const_iterator it = m_map.find(id);
-  //  if ( it != m_map.end() ) 
-    //    cerr << "Error: More than one Sector Processor with same identifier" 
-    //         << endl;    
+  //  if ( it != m_map.end() )
+  //    cerr << "Error: More than one Sector Processor with same identifier"
+  //         << endl;
   m_map[id] = sp;
-
 }

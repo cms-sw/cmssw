@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 """
 _RunPromptReco_
-
 Test wrapper to generate a reco config and actually push it into cmsRun for
 testing with a few input files etc from the command line
-
 """
+from __future__ import print_function
 
 import sys
 import getopt
@@ -13,7 +12,6 @@ import traceback
 import pickle
 
 from Configuration.DataProcessing.GetScenario import getScenario
-
 
 
 class RunPromptReco:
@@ -33,6 +31,7 @@ class RunPromptReco:
         self.dqmSeq = None
         self.setRepacked = False
         self.isRepacked = False
+        self.nThreads = None
 
     def __call__(self):
         if self.scenario == None:
@@ -53,28 +52,28 @@ class RunPromptReco:
             msg += str(ex)
             raise RuntimeError(msg)
 
-        print "Retrieved Scenario: %s" % self.scenario
-        print "Using Global Tag: %s" % self.globalTag
+        print("Retrieved Scenario: %s" % self.scenario)
+        print("Using Global Tag: %s" % self.globalTag)
 
         dataTiers = []
         if self.writeRECO:
             dataTiers.append("RECO")
-            print "Configuring to Write out RECO"
+            print("Configuring to Write out RECO")
         if self.writeAOD:
             dataTiers.append("AOD")
-            print "Configuring to Write out AOD"
+            print("Configuring to Write out AOD")
         if self.writeMINIAOD:
             dataTiers.append("MINIAOD")
-            print "Configuring to Write out MiniAOD"
+            print("Configuring to Write out MiniAOD")
 	if self.writeDQM:
             dataTiers.append("DQM")
-            print "Configuring to Write out DQM"
+            print("Configuring to Write out DQM")
 	if self.writeDQMIO:
             dataTiers.append("DQMIO")
-            print "Configuring to Write out DQMIO"
+            print("Configuring to Write out DQMIO")
         if self.alcaRecos:
             dataTiers.append("ALCARECO")
-            print "Configuring to Write out ALCARECO"
+            print("Configuring to Write out ALCARECO")
 
         try:
             kwds = {}
@@ -91,6 +90,7 @@ class RunPromptReco:
 
                 if self.alcaRecos:
                     kwds['skims'] = self.alcaRecos
+
                 if self.PhysicsSkims:
                     kwds['PhysicsSkims'] = self.PhysicsSkims
 
@@ -99,11 +99,14 @@ class RunPromptReco:
 
                 if self.setRepacked:
                     kwds['repacked'] = self.isRepacked
+                
+                if self.nThreads:
+                    kwds['nThreads'] = self.nThreads
 
             process = scenario.promptReco(self.globalTag, **kwds)
 
         except NotImplementedError as ex:
-            print "This scenario does not support Prompt Reco:\n"
+            print("This scenario does not support Prompt Reco:\n")
             return
         except Exception as ex:
             msg = "Error creating Prompt Reco config:\n"
@@ -135,17 +138,16 @@ class RunPromptReco:
             pklFile.close()
 
         cmsRun = "cmsRun -e RunPromptRecoCfg.py"
-        print "Now do:\n%s" % cmsRun
+        print("Now do:\n%s" % cmsRun)
 
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "reco", "aod", "miniaod","dqm", "dqmio", "no-output",
+    valid = ["scenario=", "reco", "aod", "miniaod","dqm", "dqmio", "no-output", "nThreads=", 
              "global-tag=", "lfn=", "alcarecos=", "PhysicsSkims=", "dqmSeq=", "isRepacked", "isNotRepacked" ]
     usage = \
 """
 RunPromptReco.py <options>
-
 Where options are:
  --scenario=ScenarioName
  --reco (to enable RECO output)
@@ -160,21 +162,17 @@ Where options are:
  --alcarecos=alcareco_plus_seprated_list
  --PhysicsSkims=skim_plus_seprated_list
  --dqmSeq=dqmSeq_plus_separated_list
-
+ --nThreads=Number_of_cores_or_Threads_used
 Example:
-
 python RunPromptReco.py --scenario=cosmics --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcarecos=TkAlCosmics0T+MuAlGlobalCosmics
-
 python RunPromptReco.py --scenario=pp --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcarecos=TkAlMinBias+SiStripCalMinBias
-
 python RunPromptReco.py --scenario=ppEra_Run2_2016 --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcarecos=TkAlMinBias+SiStripCalMinBias --PhysicsSkims=@SingleMuon
-
 """
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
     except getopt.GetoptError as ex:
-        print usage
-        print str(ex)
+        print(usage)
+        print(str(ex))
         sys.exit(1)
 
 
@@ -195,6 +193,8 @@ python RunPromptReco.py --scenario=ppEra_Run2_2016 --reco --aod --dqmio --global
             recoinator.writeDQMIO = True
         if opt == "--no-output":
             recoinator.noOutput = True
+        if opt == "--nThreads":
+            recoinator.nThreads = arg
         if opt == "--global-tag":
             recoinator.globalTag = arg
         if opt == "--lfn" :
@@ -211,6 +211,5 @@ python RunPromptReco.py --scenario=ppEra_Run2_2016 --reco --aod --dqmio --global
         if opt == "--isNotRepacked":
             recoinator.setRepacked = True
             recoinator.isRepacked = False
-
 
     recoinator()
