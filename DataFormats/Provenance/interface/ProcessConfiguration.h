@@ -14,20 +14,18 @@ namespace edm {
   class ProcessConfiguration {
   public:
     ProcessConfiguration();
-    ProcessConfiguration(std::string const& procName,
-                         ReleaseVersion const& relVersion,
-                         PassID const& pass);
+    ProcessConfiguration(std::string const& procName, ReleaseVersion const& relVersion, PassID const& pass);
 
     ProcessConfiguration(std::string const& procName,
                          ParameterSetID const& pSetID,
                          ReleaseVersion const& relVersion,
                          PassID const& pass);
 
-    std::string const& processName() const {return processName_;}
+    std::string const& processName() const { return processName_; }
     ParameterSetID const& parameterSetID() const;
-    bool isParameterSetValid() const {return parameterSetID_.isValid();}
-    ReleaseVersion const& releaseVersion() const {return releaseVersion_;}
-    PassID const& passID() const {return passID_;}
+    bool isParameterSetValid() const { return parameterSetID_.isValid(); }
+    ReleaseVersion const& releaseVersion() const { return releaseVersion_; }
+    PassID const& passID() const { return passID_; }
     ProcessConfigurationID id() const;
 
     void setParameterSetID(ParameterSetID const& pSetID);
@@ -36,7 +34,7 @@ namespace edm {
 
     void reduce();
 
-    void initializeTransients() {transient_.reset();}
+    void initializeTransients() { transient_.reset(); }
 
     struct Transients {
       Transients() : pcid_(), isCurrentProcess_(false) {}
@@ -50,9 +48,9 @@ namespace edm {
     };
 
   private:
-    void setPCID(ProcessConfigurationID const& pcid) {transient_.pcid_ = pcid;}
-    bool isCurrentProcess() const {return transient_.isCurrentProcess_;}
-    void setCurrentProcess() {transient_.isCurrentProcess_ = true;}
+    void setPCID(ProcessConfigurationID const& pcid) { transient_.pcid_ = pcid; }
+    bool isCurrentProcess() const { return transient_.isCurrentProcess_; }
+    void setCurrentProcess() { transient_.isCurrentProcess_ = true; }
 
     std::string processName_;
     ParameterSetID parameterSetID_;
@@ -63,26 +61,16 @@ namespace edm {
 
   typedef std::vector<ProcessConfiguration> ProcessConfigurationVector;
 
-  bool
-  operator<(ProcessConfiguration const& a, ProcessConfiguration const& b);
+  bool operator<(ProcessConfiguration const& a, ProcessConfiguration const& b);
 
-  inline
-  bool
-  operator==(ProcessConfiguration const& a, ProcessConfiguration const& b) {
-    return a.processName() == b.processName() &&
-    a.parameterSetID() == b.parameterSetID() &&
-    a.releaseVersion() == b.releaseVersion() &&
-    a.passID() == b.passID();
+  inline bool operator==(ProcessConfiguration const& a, ProcessConfiguration const& b) {
+    return a.processName() == b.processName() && a.parameterSetID() == b.parameterSetID() &&
+           a.releaseVersion() == b.releaseVersion() && a.passID() == b.passID();
   }
 
-  inline
-  bool
-  operator!=(ProcessConfiguration const& a, ProcessConfiguration const& b) {
-    return !(a == b);
-  }
+  inline bool operator!=(ProcessConfiguration const& a, ProcessConfiguration const& b) { return !(a == b); }
 
-  std::ostream&
-  operator<<(std::ostream& os, ProcessConfiguration const& pc);
-}
+  std::ostream& operator<<(std::ostream& os, ProcessConfiguration const& pc);
+}  // namespace edm
 
 #endif

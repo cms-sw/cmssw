@@ -1,10 +1,10 @@
 #include "CommonTools/Utils/src/ExpressionVar.h"
 #include "CommonTools/Utils/src/MethodInvoker.h"
 
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/FunctionWithDict.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/FunctionWithDict.h"
+#include "FWCore/Reflection/interface/MemberWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include <cassert>
 #include <map>
@@ -12,49 +12,37 @@
 using namespace reco::parser;
 using namespace std;
 
-void ExpressionVar::initObjects_()
-{
+void ExpressionVar::initObjects_() {
   objects_.resize(methods_.size());
   std::vector<edm::ObjectWithDict>::iterator IO = objects_.begin();
   for (std::vector<MethodInvoker>::const_iterator I = methods_.begin(), E = methods_.end(); I != E; ++IO, ++I) {
     if (I->isFunction()) {
       edm::TypeWithDict retType = I->method().finalReturnType();
       needsDestructor_.push_back(makeStorage(*IO, retType));
-    }
-    else {
+    } else {
       *IO = edm::ObjectWithDict();
       needsDestructor_.push_back(false);
     }
   }
 }
 
-ExpressionVar::ExpressionVar(const vector<MethodInvoker>& methods,
-                             method::TypeCode retType)
-  : methods_(methods)
-  , retType_(retType)
-{
+ExpressionVar::ExpressionVar(const vector<MethodInvoker>& methods, method::TypeCode retType)
+    : methods_(methods), retType_(retType) {
   initObjects_();
 }
 
-ExpressionVar::ExpressionVar(const ExpressionVar& rhs)
-  : methods_(rhs.methods_)
-  , retType_(rhs.retType_)
-{
+ExpressionVar::ExpressionVar(const ExpressionVar& rhs) : methods_(rhs.methods_), retType_(rhs.retType_) {
   initObjects_();
 }
 
-ExpressionVar::~ExpressionVar()
-{
-  for (std::vector<edm::ObjectWithDict>::iterator I = objects_.begin(),
-      E = objects_.end(); I != E; ++I) {
+ExpressionVar::~ExpressionVar() {
+  for (std::vector<edm::ObjectWithDict>::iterator I = objects_.begin(), E = objects_.end(); I != E; ++I) {
     delStorage(*I);
   }
   objects_.clear();
 }
 
-void
-ExpressionVar::delStorage(edm::ObjectWithDict& obj)
-{
+void ExpressionVar::delStorage(edm::ObjectWithDict& obj) {
   if (!obj.address()) {
     return;
   }
@@ -62,28 +50,22 @@ ExpressionVar::delStorage(edm::ObjectWithDict& obj)
     // just delete a void*, as that's what it was
     void** p = static_cast<void**>(obj.address());
     delete p;
-  }
-  else {
+  } else {
     //std::cout << "Calling Destruct on a " <<
     //  obj.typeOf().qualifiedName() << std::endl;
     obj.typeOf().deallocate(obj.address());
   }
 }
 
-bool
-ExpressionVar::makeStorage(edm::ObjectWithDict& obj,
-                           const edm::TypeWithDict& retType)
-{
+bool ExpressionVar::makeStorage(edm::ObjectWithDict& obj, const edm::TypeWithDict& retType) {
   static const edm::TypeWithDict tVoid(edm::TypeWithDict::byName("void"));
   bool ret = false;
   if (retType == tVoid) {
     obj = edm::ObjectWithDict::byType(tVoid);
-  }
-  else if (retType.isPointer() || retType.isReference()) {
+  } else if (retType.isPointer() || retType.isReference()) {
     // in this case, I have to allocate a void*, not an object!
     obj = edm::ObjectWithDict(retType, new void*);
-  }
-  else {
+  } else {
     obj = edm::ObjectWithDict(retType, retType.allocate());
     ret = retType.isClass();
     //std::cout << "ExpressionVar: reserved memory at "  << obj.address() <<
@@ -93,45 +75,44 @@ ExpressionVar::makeStorage(edm::ObjectWithDict& obj,
   return ret;
 }
 
-bool ExpressionVar::isValidReturnType(method::TypeCode retType)
-{
+bool ExpressionVar::isValidReturnType(method::TypeCode retType) {
   using namespace method;
   bool ret = false;
   switch (retType) {
-    case (doubleType) :
+    case (doubleType):
       ret = true;
       break;
-    case (floatType) :
+    case (floatType):
       ret = true;
       break;
-    case (intType) :
+    case (intType):
       ret = true;
       break;
-    case (uIntType) :
+    case (uIntType):
       ret = true;
       break;
-    case (shortType) :
+    case (shortType):
       ret = true;
       break;
-    case (uShortType) :
+    case (uShortType):
       ret = true;
       break;
-    case (longType) :
+    case (longType):
       ret = true;
       break;
-    case (uLongType) :
+    case (uLongType):
       ret = true;
       break;
-    case (charType) :
+    case (charType):
       ret = true;
       break;
-    case (uCharType) :
+    case (uCharType):
       ret = true;
       break;
-    case (boolType) :
+    case (boolType):
       ret = true;
       break;
-    case (enumType) :
+    case (enumType):
       ret = true;
       break;
     case (invalid):
@@ -141,8 +122,7 @@ bool ExpressionVar::isValidReturnType(method::TypeCode retType)
   return ret;
 }
 
-double ExpressionVar::value(const edm::ObjectWithDict& obj) const
-{
+double ExpressionVar::value(const edm::ObjectWithDict& obj) const {
   edm::ObjectWithDict val(obj);
   std::vector<edm::ObjectWithDict>::iterator IO = objects_.begin();
   for (std::vector<MethodInvoker>::const_iterator I = methods_.begin(), E = methods_.end(); I != E; ++I, ++IO) {
@@ -150,7 +130,8 @@ double ExpressionVar::value(const edm::ObjectWithDict& obj) const
   }
   double ret = objToDouble(val, retType_);
   std::vector<bool>::const_reverse_iterator RIB = needsDestructor_.rbegin();
-  for (std::vector<edm::ObjectWithDict>::reverse_iterator RI = objects_.rbegin(), RE = objects_.rend(); RI != RE; ++RIB, ++RI) {
+  for (std::vector<edm::ObjectWithDict>::reverse_iterator RI = objects_.rbegin(), RE = objects_.rend(); RI != RE;
+       ++RIB, ++RI) {
     if (*RIB) {
       RI->destruct(false);
     }
@@ -158,10 +139,7 @@ double ExpressionVar::value(const edm::ObjectWithDict& obj) const
   return ret;
 }
 
-double
-ExpressionVar::objToDouble(const edm::ObjectWithDict& obj,
-                           method::TypeCode type)
-{
+double ExpressionVar::objToDouble(const edm::ObjectWithDict& obj, method::TypeCode type) {
   using namespace method;
   void* addr = obj.address();
   double ret = 0.0;
@@ -210,18 +188,11 @@ ExpressionVar::objToDouble(const edm::ObjectWithDict& obj,
   return ret;
 }
 
-ExpressionLazyVar::ExpressionLazyVar(const std::vector<LazyInvoker>& methods)
-  : methods_(methods)
-{
-}
+ExpressionLazyVar::ExpressionLazyVar(const std::vector<LazyInvoker>& methods) : methods_(methods) {}
 
-ExpressionLazyVar::~ExpressionLazyVar()
-{
-}
+ExpressionLazyVar::~ExpressionLazyVar() {}
 
-double
-ExpressionLazyVar::value(const edm::ObjectWithDict& o) const
-{
+double ExpressionLazyVar::value(const edm::ObjectWithDict& o) const {
   edm::ObjectWithDict val = o;
   std::vector<LazyInvoker>::const_iterator I = methods_.begin();
   std::vector<LazyInvoker>::const_iterator E = methods_.end() - 1;
@@ -229,11 +200,10 @@ ExpressionLazyVar::value(const edm::ObjectWithDict& o) const
     val = I->invoke(val, objects_);
   }
   double ret = I->invokeLast(val, objects_);
-  for (std::vector<edm::ObjectWithDict>::reverse_iterator RI =
-      objects_.rbegin(), RE = objects_.rend(); RI != RE; ++RI) {
+  for (std::vector<edm::ObjectWithDict>::reverse_iterator RI = objects_.rbegin(), RE = objects_.rend(); RI != RE;
+       ++RI) {
     RI->destruct(false);
   }
   objects_.clear();
   return ret;
 }
-

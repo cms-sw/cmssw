@@ -6,32 +6,25 @@
 
 class ECALAndBREMLinker : public BlockElementLinkerBase {
 public:
-  ECALAndBREMLinker(const edm::ParameterSet& conf) :
-    BlockElementLinkerBase(conf),
-    _useKDTree(conf.getParameter<bool>("useKDTree")),
-    _debug(conf.getUntrackedParameter<bool>("debug",false)) {}
-  
-  double testLink 
-  ( const reco::PFBlockElement*,
-    const reco::PFBlockElement* ) const override;
+  ECALAndBREMLinker(const edm::ParameterSet& conf)
+      : BlockElementLinkerBase(conf),
+        _useKDTree(conf.getParameter<bool>("useKDTree")),
+        _debug(conf.getUntrackedParameter<bool>("debug", false)) {}
+
+  double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
 private:
-  bool _useKDTree,_debug;
+  bool _useKDTree, _debug;
 };
 
-DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, 
-		  ECALAndBREMLinker, 
-		  "ECALAndBREMLinker");
+DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, ECALAndBREMLinker, "ECALAndBREMLinker");
 
-double ECALAndBREMLinker::testLink
-  ( const reco::PFBlockElement* elem1,
-    const reco::PFBlockElement* elem2) const { 
-  constexpr reco::PFTrajectoryPoint::LayerType ECALShowerMax =
-    reco::PFTrajectoryPoint::ECALShowerMax;
-  const reco::PFBlockElementCluster *ecalelem(nullptr);
-  const reco::PFBlockElementBrem    *bremelem(nullptr);
+double ECALAndBREMLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
+  constexpr reco::PFTrajectoryPoint::LayerType ECALShowerMax = reco::PFTrajectoryPoint::ECALShowerMax;
+  const reco::PFBlockElementCluster* ecalelem(nullptr);
+  const reco::PFBlockElementBrem* bremelem(nullptr);
   double dist(-1.0);
-  if( elem1->type() < elem2->type() ) {
+  if (elem1->type() < elem2->type()) {
     ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);
     bremelem = static_cast<const reco::PFBlockElementBrem*>(elem2);
   } else {
@@ -40,11 +33,9 @@ double ECALAndBREMLinker::testLink
   }
   const reco::PFClusterRef& clusterref = ecalelem->clusterRef();
   const reco::PFRecTrack& track = bremelem->trackPF();
-  const reco::PFTrajectoryPoint& tkAtECAL =
-    track.extrapolatedPoint( ECALShowerMax );
-  if( tkAtECAL.isValid() ) {
-    dist = LinkByRecHit::testTrackAndClusterByRecHit( track, *clusterref, 
-						      true, _debug );
-  }  
+  const reco::PFTrajectoryPoint& tkAtECAL = track.extrapolatedPoint(ECALShowerMax);
+  if (tkAtECAL.isValid()) {
+    dist = LinkByRecHit::testTrackAndClusterByRecHit(track, *clusterref, true, _debug);
+  }
   return dist;
 }

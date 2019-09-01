@@ -5,31 +5,30 @@
 
 namespace dqmservices {
 
-class ModuleCallingContext;
-class ParameterSet;
+  class ModuleCallingContext;
+  class ParameterSet;
 
-class JsonWritingTimeoutPoolOutputModule : public edm::TimeoutPoolOutputModule {
- public:
-  explicit JsonWritingTimeoutPoolOutputModule(edm::ParameterSet const& ps);
-  ~JsonWritingTimeoutPoolOutputModule() override{};
+  class JsonWritingTimeoutPoolOutputModule : public edm::TimeoutPoolOutputModule {
+  public:
+    explicit JsonWritingTimeoutPoolOutputModule(edm::ParameterSet const& ps);
+    ~JsonWritingTimeoutPoolOutputModule() override{};
 
-  static void fillDescriptions(edm::ConfigurationDescriptions&);
+    static void fillDescriptions(edm::ConfigurationDescriptions&);
 
- protected:
-  std::pair<std::string, std::string> physicalAndLogicalNameForNewFile()
-      override;
-  void doExtrasAfterCloseFile() override;
+  protected:
+    std::pair<std::string, std::string> physicalAndLogicalNameForNewFile() override;
+    void doExtrasAfterCloseFile() override;
 
- protected:
-  uint32_t sequence_;
-  uint32_t runNumber_;
-  std::string streamLabel_;
-  std::string outputPath_;
+  protected:
+    uint32_t sequence_;
+    uint32_t runNumber_;
+    std::string streamLabel_;
+    std::string outputPath_;
 
-  std::string currentFileName_;
-  std::string currentJsonName_;
-};
+    std::string currentFileName_;
+    std::string currentJsonName_;
+  };
 
-}  // end of namespace
+}  // namespace dqmservices
 
 #endif

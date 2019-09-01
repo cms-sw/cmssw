@@ -19,42 +19,42 @@
 
 class RPCAMCLinkCounters;
 
-class RPCCPPFUnpacker
-    : public RPCAMCUnpacker
-{
+class RPCCPPFUnpacker : public RPCAMCUnpacker {
 public:
-    RPCCPPFUnpacker(edm::stream::EDProducerBase & producer, edm::ParameterSet const & config);
+  RPCCPPFUnpacker(edm::stream::EDProducerBase& producer, edm::ParameterSet const& config);
 
-    void beginRun(edm::Run const & run, edm::EventSetup const & setup);
-    void produce(edm::Event & event, edm::EventSetup const & setup
-                 , std::map<RPCAMCLink, rpcamc13::AMCPayload> const & amc_payload);
-
-protected:
-    bool processCPPF(RPCAMCLink const & link, rpcamc13::AMCPayload const & payload
-                     , RPCAMCLinkCounters & counters
-                     , std::set<std::pair<RPCDetId, RPCDigi> > & rpc_digis
-                     , l1t::CPPFDigiCollection & rpc_cppf_digis) const;
-    void processRXRecord(RPCAMCLink link
-                         , unsigned int bx_counter_mod
-                         , rpccppf::RXRecord const & record
-                         , RPCAMCLinkCounters & counters
-                         , std::set<std::pair<RPCDetId, RPCDigi> > & rpc_digis
-                         , int bx_min, int bx_max) const;
-    void processTXRecord(RPCAMCLink link
-                         , unsigned int block
-                         , unsigned int word
-                         , rpccppf::TXRecord const & record
-                         , l1t::CPPFDigiCollection & rpc_cppf_digis) const;
-    void putRPCDigis(edm::Event & event
-                     , std::set<std::pair<RPCDetId, RPCDigi> > const & digis) const;
+  void beginRun(edm::Run const& run, edm::EventSetup const& setup) override;
+  void produce(edm::Event& event,
+               edm::EventSetup const& setup,
+               std::map<RPCAMCLink, rpcamc13::AMCPayload> const& amc_payload) override;
 
 protected:
-    bool fill_counters_;
-    int bx_min_, bx_max_;
+  bool processCPPF(RPCAMCLink const& link,
+                   rpcamc13::AMCPayload const& payload,
+                   RPCAMCLinkCounters& counters,
+                   std::set<std::pair<RPCDetId, RPCDigi> >& rpc_digis,
+                   l1t::CPPFDigiCollection& rpc_cppf_digis) const;
+  void processRXRecord(RPCAMCLink link,
+                       unsigned int bx_counter_mod,
+                       rpccppf::RXRecord const& record,
+                       RPCAMCLinkCounters& counters,
+                       std::set<std::pair<RPCDetId, RPCDigi> >& rpc_digis,
+                       int bx_min,
+                       int bx_max) const;
+  void processTXRecord(RPCAMCLink link,
+                       unsigned int block,
+                       unsigned int word,
+                       rpccppf::TXRecord const& record,
+                       l1t::CPPFDigiCollection& rpc_cppf_digis) const;
+  void putRPCDigis(edm::Event& event, std::set<std::pair<RPCDetId, RPCDigi> > const& digis) const;
 
-    edm::ESWatcher<RPCCPPFLinkMapRcd> es_cppf_link_map_watcher_;
-    edm::ESHandle<RPCAMCLinkMap> es_cppf_link_map_;
-    edm::ESHandle<RPCLBLinkMap> es_lb_link_map_;
+protected:
+  bool fill_counters_;
+  int bx_min_, bx_max_;
+
+  edm::ESWatcher<RPCCPPFLinkMapRcd> es_cppf_link_map_watcher_;
+  edm::ESHandle<RPCAMCLinkMap> es_cppf_link_map_;
+  edm::ESHandle<RPCLBLinkMap> es_lb_link_map_;
 };
 
-#endif // EventFilter_RPCRawToDigi_RPCCPPFUnpacker_h
+#endif  // EventFilter_RPCRawToDigi_RPCCPPFUnpacker_h

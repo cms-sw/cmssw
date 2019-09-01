@@ -22,6 +22,6 @@ namespace reco {
 
   /// iterator over a vector of references to PFSimParticle objects
   typedef PFSimParticleRefVector::iterator pfParticle_iterator;
-}
+}  // namespace reco
 
 #endif

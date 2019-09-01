@@ -16,7 +16,8 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 
-<library   name="L1TriggerL1THGCalPlugins_fe_be" file="fe_codecs/*.cc,be_algorithms/*.cc">
+<library   name="L1TriggerL1THGCalPlugins_fe_be" file="veryfrontend/*.cc, concentrator/*.cc, backend/*.cc">
+  <use   name="CommonTools/MVAUtils"/>
   <use   name="Geometry/HGCalGeometry"/>
   <use   name="Geometry/HcalTowerAlgo"/>
   <use   name="Geometry/CaloTopology"/>
@@ -28,19 +29,3 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 
-<library   name="L1TriggerL1THGCalPlugins_ntuples" file="ntuples/*.cc">
-  <use   name="L1Trigger/L1THGCal"/>
-  <use   name="CommonTools/UtilAlgos"/>
-  <use   name="SimDataFormats/CaloTest"/>
-  <use   name="DataFormats/JetReco"/>
-  <use   name="Geometry/HcalTowerAlgo"/>
-  <use   name="SimDataFormats/PileupSummaryInfo"/>
-  <use   name="SimDataFormats/GeneratorProducts"/>
-  <use   name="TrackPropagation/RungeKutta"/>
-  <use   name="FastSimulation/Event"/>
-  <use   name="FastSimulation/CaloGeometryTools"/>
-  <use   name="MagneticField/Engine"/>
-  <use   name="MagneticField/Records"/>
-  <use name="heppdt"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

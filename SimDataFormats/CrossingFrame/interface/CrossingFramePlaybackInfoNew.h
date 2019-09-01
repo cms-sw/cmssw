@@ -13,7 +13,6 @@
  *
  ************************************************************/
 
-
 #include "DataFormats/Common/interface/SecondaryEventIDAndFileInfo.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -21,10 +20,8 @@
 #include <vector>
 #include <utility>
 
-class CrossingFramePlaybackInfoNew 
-{ 
-
- public:
+class CrossingFramePlaybackInfoNew {
+public:
   // con- and destructors
 
   CrossingFramePlaybackInfoNew() {}
@@ -40,7 +37,7 @@ class CrossingFramePlaybackInfoNew
     sizes_.swap(sizes);
     eventInfo_.swap(eventInfo);
   }
- 
+
   // getters
   std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator getEventId(size_t offset) const {
     std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator iter = eventInfo_.begin();
@@ -49,10 +46,10 @@ class CrossingFramePlaybackInfoNew
   }
 
   size_t getNumberOfEvents(int bunchIdx, size_t sourceNumber) const {
-     return sizes_[((bunchIdx - minBunch_) * maxNbSources_) + sourceNumber];
+    return sizes_[((bunchIdx - minBunch_) * maxNbSources_) + sourceNumber];
   }
 
- //private:
+  //private:
 
   // we need the same info for each bunchcrossing
   unsigned int maxNbSources_;
@@ -62,5 +59,4 @@ class CrossingFramePlaybackInfoNew
   int minBunch_;
 };
 
-
-#endif 
+#endif

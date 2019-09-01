@@ -30,6 +30,3 @@ globaldigisanalyze = DQMEDAnalyzer('GlobalDigisAnalyzer',
     #InputTag HCalDigi  = simHcalUnsuppressedDigis
     HCalDigi = cms.InputTag("simHcalDigis")
 )
-
-
-

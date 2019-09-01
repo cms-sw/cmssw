@@ -80,6 +80,7 @@ if isDA:
                                            useTracksFromRecoVtx = cms.bool(False),
                                            isLightNtuple = cms.bool(True),
                                            askFirstLayerHit = cms.bool(False),
+                                           forceBeamSpot = cms.untracked.bool(.oO[forceBeamSpot]Oo.),
                                            probePt  = cms.untracked.double(.oO[ptCut]Oo.),
                                            probeEta = cms.untracked.double(.oO[etaCut]Oo.),
                                            doBPix   = cms.untracked.bool(.oO[doBPix]Oo.),
@@ -126,6 +127,7 @@ else:
                                            storeNtuple = cms.bool(False),
                                            useTracksFromRecoVtx = cms.bool(False),
                                            askFirstLayerHit = cms.bool(False),
+                                           forceBeamSpot = cms.untracked.bool(.oO[forceBeamSpot]Oo.),
                                            probePt = cms.untracked.double(.oO[ptCut]Oo.),
                                            probeEta = cms.untracked.double(.oO[etaCut]Oo.),
                                            doBPix   = cms.untracked.bool(.oO[doBPix]Oo.),
@@ -162,9 +164,9 @@ process.p = cms.Path(process.goodvertexSkim*
 
 ####################################################################
 ####################################################################
-PVValidationScriptTemplate="""
-#!/bin/bash
+PVValidationScriptTemplate="""#!/bin/bash
 source /afs/cern.ch/cms/caf/setup.sh
+export X509_USER_PROXY=.oO[scriptsdir]Oo./.user_proxy
 
 echo  -----------------------
 echo  Job started at `date`
@@ -179,15 +181,15 @@ export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scram runtime -sh`
 cd $cwd
 
-rfmkdir -p .oO[datadir]Oo.
-rfmkdir -p .oO[workingdir]Oo.
-rfmkdir -p .oO[logdir]Oo.
+mkdir -p .oO[datadir]Oo.
+mkdir -p .oO[workingdir]Oo.
+mkdir -p .oO[logdir]Oo.
 rm -f .oO[logdir]Oo./*.stdout
 rm -f .oO[logdir]Oo./*.stderr
 
 if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
-    rfmkdir -p .oO[workdir]Oo.
+    mkdir -p .oO[workdir]Oo.
     rm -f .oO[workdir]Oo./*
     cd .oO[workdir]Oo.
 else
@@ -199,11 +201,11 @@ fi
 
 ls -lh .
 
-eos mkdir -p /store/caf/user/$USER/.oO[eosdir]Oo./plots/
+eos mkdir -p /store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/
 for RootOutputFile in $(ls *root )
 do
-    xrdcp -f ${RootOutputFile} root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./${RootOutputFile}
-    rfcp ${RootOutputFile}  .oO[workingdir]Oo.
+    xrdcp -f ${RootOutputFile} root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./${RootOutputFile}
+    cp ${RootOutputFile}  .oO[workingdir]Oo.
 done
 
 cp .oO[Alignment/OfflineValidation]Oo./macros/FitPVResiduals.C .
@@ -216,13 +218,13 @@ root -b -q "FitPVResiduals.C(\\"${PWD}/${RootOutputFile}=${theLabel},${PWD}/PVVa
 
 mkdir -p .oO[plotsdir]Oo.
 for PngOutputFile in $(ls *png ); do
-    xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/${PngOutputFile}
-    rfcp ${PngOutputFile}  .oO[plotsdir]Oo.
+    xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PngOutputFile}
+    cp ${PngOutputFile}  .oO[plotsdir]Oo.
 done
 
 for PdfOutputFile in $(ls *pdf ); do
-    xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/${PdfOutputFile}
-    rfcp ${PdfOutputFile}  .oO[plotsdir]Oo.
+    xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PdfOutputFile}
+    cp ${PdfOutputFile}  .oO[plotsdir]Oo.
 done
 
 mkdir .oO[plotsdir]Oo./Biases/
@@ -285,17 +287,17 @@ echo  -----------------------
 PrimaryVertexPlotExecution="""
 #make primary vertex validation plots
 
-rfcp .oO[plottingscriptpath]Oo. .
+cp .oO[plottingscriptpath]Oo. .
 root -x -b -q .oO[plottingscriptname]Oo.++
 
 for PdfOutputFile in $(ls *pdf ); do
-    xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/${PdfOutputFile}
-    rfcp ${PdfOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
+    xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PdfOutputFile}
+    cp ${PdfOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done
 
 for PngOutputFile in $(ls *png ); do
-    xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/${PngOutputFile}
-    rfcp ${PngOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
+    xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PngOutputFile}
+    cp ${PngOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done
 
 """

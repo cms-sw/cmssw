@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
-import popcon2dropbox
+from . import popcon2dropbox
 
 options = VarParsing.VarParsing()
 options.register('targetFile',

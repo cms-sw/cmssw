@@ -15,18 +15,17 @@
 #include "JetMETCorrections/InterpolationTables/interface/DualHistoAxis.h"
 
 namespace npstat {
-    typedef StorableHistoNDFunctor<double,DualHistoAxis> DoubleHistoNDFunctor;
+  typedef StorableHistoNDFunctor<double, DualHistoAxis> DoubleHistoNDFunctor;
 
-    typedef StorableHistoNDFunctor<double,HistoAxis> DoubleUAHistoNDFunctor;
+  typedef StorableHistoNDFunctor<double, HistoAxis> DoubleUAHistoNDFunctor;
 
-    typedef StorableHistoNDFunctor<double,NUHistoAxis> DoubleNUHistoNDFunctor;
+  typedef StorableHistoNDFunctor<double, NUHistoAxis> DoubleNUHistoNDFunctor;
 
-    typedef StorableHistoNDFunctor<float,DualHistoAxis> FloatHistoNDFunctor;
+  typedef StorableHistoNDFunctor<float, DualHistoAxis> FloatHistoNDFunctor;
 
-    typedef StorableHistoNDFunctor<float,HistoAxis> FloatUAHistoNDFunctor;
+  typedef StorableHistoNDFunctor<float, HistoAxis> FloatUAHistoNDFunctor;
 
-    typedef StorableHistoNDFunctor<float,NUHistoAxis> FloatNUHistoNDFunctor;
-}
+  typedef StorableHistoNDFunctor<float, NUHistoAxis> FloatNUHistoNDFunctor;
+}  // namespace npstat
 
-#endif // NPSTAT_HISTONDFUNCTORINSTANCES_HH_
-
+#endif  // NPSTAT_HISTONDFUNCTORINSTANCES_HH_

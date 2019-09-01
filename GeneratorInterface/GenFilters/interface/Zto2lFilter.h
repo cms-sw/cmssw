@@ -5,7 +5,7 @@
 //
 // Package:    Zto2lFilter
 // Class:      Zto2lFilter
-// 
+//
 /**\class Zto2lFilter Zto2lFilter.cc Zbb/Zto2lFilter/src/Zto2lFilter.cc
 
  Description: <one line class summary>
@@ -18,7 +18,6 @@
 //         Created:  Thu Aug 23 11:37:45 CEST 2007
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,14 +36,14 @@
 //
 
 class Zto2lFilter : public edm::EDFilter {
-   public:
-      explicit Zto2lFilter(const edm::ParameterSet&);
-      ~Zto2lFilter() override;
+public:
+  explicit Zto2lFilter(const edm::ParameterSet&);
+  ~Zto2lFilter() override;
 
-   private:
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
   // ----------member data ---------------------------
   std::string fLabel_;
   double minInvariantMass_, maxEtaLepton_;

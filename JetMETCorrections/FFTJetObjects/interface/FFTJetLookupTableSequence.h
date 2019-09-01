@@ -6,6 +6,7 @@
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetDict.h"
 #include "JetMETCorrections/InterpolationTables/interface/StorableMultivariateFunctor.h"
 
-typedef FFTJetDict<std::string, FFTJetDict<std::string, boost::shared_ptr<npstat::StorableMultivariateFunctor> > > FFTJetLookupTableSequence;
+typedef FFTJetDict<std::string, FFTJetDict<std::string, boost::shared_ptr<npstat::StorableMultivariateFunctor> > >
+    FFTJetLookupTableSequence;
 
-#endif // JetMETCorrections_FFTJetObjects_FFTJetLookupTableSequence_h
+#endif  // JetMETCorrections_FFTJetObjects_FFTJetLookupTableSequence_h

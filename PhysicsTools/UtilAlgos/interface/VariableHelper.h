@@ -9,58 +9,60 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 class VariableHelper {
- public:
-  VariableHelper(const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC);
+public:
+  VariableHelper(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC);
   ~VariableHelper() {
-    for (iterator it = variables_.begin() ; it!=variables_.end() ;++it){
+    for (iterator it = variables_.begin(); it != variables_.end(); ++it) {
       delete it->second;
     }
   }
-  typedef std::map<std::string,const CachingVariable*>::const_iterator iterator;
+  typedef std::map<std::string, const CachingVariable*>::const_iterator iterator;
 
-  const CachingVariable* variable(std::string name)const ;
+  const CachingVariable* variable(std::string name) const;
 
-  iterator begin() { return variables_.begin();}
-  iterator end() { return variables_.end();}
+  iterator begin() { return variables_.begin(); }
+  iterator end() { return variables_.end(); }
 
   void setHolder(std::string hn);
   void print() const;
-  std::string printValues(const edm::Event & event) const;
- private:
-  std::map<std::string,const CachingVariable*> variables_;
+  std::string printValues(const edm::Event& event) const;
+
+private:
+  std::map<std::string, const CachingVariable*> variables_;
 };
 
-
-
-
 class VariableHelperService {
- private:
-  VariableHelper * SetVariableHelperUniqueInstance_;
-  std::map<std::string, VariableHelper* > multipleInstance_;
+private:
+  VariableHelper* SetVariableHelperUniqueInstance_;
+  std::map<std::string, VariableHelper*> multipleInstance_;
 
   bool printValuesForEachEvent_;
   std::string printValuesForEachEventCategory_;
- public:
-  VariableHelperService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & r ) : SetVariableHelperUniqueInstance_(nullptr){
+
+public:
+  VariableHelperService(const edm::ParameterSet& iConfig, edm::ActivityRegistry& r)
+      : SetVariableHelperUniqueInstance_(nullptr) {
     //r.watchPreModule(this, &VariableHelperService::preModule );
-    r.watchPreModuleEvent(this, &VariableHelperService::preModule );
+    r.watchPreModuleEvent(this, &VariableHelperService::preModule);
     //r.watchPostProcessEvent(this, &VariableHelperService::postProcess );
     r.watchPostEvent(this, &VariableHelperService::postProcess);
     printValuesForEachEvent_ = iConfig.exists("printValuesForEachEventCategory");
     if (printValuesForEachEvent_)
       printValuesForEachEventCategory_ = iConfig.getParameter<std::string>("printValuesForEachEventCategory");
   }
-  ~VariableHelperService(){
-    for (std::map<std::string, VariableHelper* > :: iterator it=multipleInstance_.begin(); it!=multipleInstance_.end(); ++it){
+  ~VariableHelperService() {
+    for (std::map<std::string, VariableHelper*>::iterator it = multipleInstance_.begin(); it != multipleInstance_.end();
+         ++it) {
       delete it->second;
     }
   }
 
-  VariableHelper & init(std::string user, const edm::ParameterSet & iConfig, edm::ConsumesCollector&& iC){
-    if (multipleInstance_.find(user)!=multipleInstance_.end()){
-      std::cerr<<user<<" VariableHelper user already defined."<<std::endl;
-      throw;}
-    else SetVariableHelperUniqueInstance_ = new VariableHelper(iConfig, iC);
+  VariableHelper& init(std::string user, const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
+    if (multipleInstance_.find(user) != multipleInstance_.end()) {
+      std::cerr << user << " VariableHelper user already defined." << std::endl;
+      throw;
+    } else
+      SetVariableHelperUniqueInstance_ = new VariableHelper(iConfig, iC);
     multipleInstance_[user] = SetVariableHelperUniqueInstance_;
     SetVariableHelperUniqueInstance_->setHolder(user);
 
@@ -68,29 +70,28 @@ class VariableHelperService {
     return (*SetVariableHelperUniqueInstance_);
   }
 
-  VariableHelper & get(){
-    if (!SetVariableHelperUniqueInstance_)
-      {
-	std::cerr<<" none of VariableHelperUniqueInstance_ or SetVariableHelperUniqueInstance_ is valid."<<std::endl;
-	throw;
-      }
-    else return (*SetVariableHelperUniqueInstance_);
+  VariableHelper& get() {
+    if (!SetVariableHelperUniqueInstance_) {
+      std::cerr << " none of VariableHelperUniqueInstance_ or SetVariableHelperUniqueInstance_ is valid." << std::endl;
+      throw;
+    } else
+      return (*SetVariableHelperUniqueInstance_);
   }
 
   void preModule(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
-    const edm::ModuleDescription & desc = *mcc.moduleDescription();
+    const edm::ModuleDescription& desc = *mcc.moduleDescription();
     //does a set with the module name, except that it does not throw on non-configured modules
-    std::map<std::string, VariableHelper* >::iterator f=multipleInstance_.find(desc.moduleLabel());
-    if (f != multipleInstance_.end()) { 
+    std::map<std::string, VariableHelper*>::iterator f = multipleInstance_.find(desc.moduleLabel());
+    if (f != multipleInstance_.end()) {
       SetVariableHelperUniqueInstance_ = (f->second);
-      return ;
+      return;
     }
-    SetVariableHelperUniqueInstance_ =nullptr;
+    SetVariableHelperUniqueInstance_ = nullptr;
   }
 
-  void postProcess(edm::StreamContext const & sc){
-    
-    if (!printValuesForEachEvent_) return;
+  void postProcess(edm::StreamContext const& sc) {
+    if (!printValuesForEachEvent_)
+      return;
 
     /*const edm::Event & event;
       std::map<std::string, VariableHelper* >::iterator f= multipleInstance_.begin();
@@ -104,13 +105,12 @@ class VariableHelperService {
     */
   }
 
-  VariableHelper & set(std::string user){
-    std::map<std::string, VariableHelper* >::iterator f=multipleInstance_.find(user);
-    if (f == multipleInstance_.end()){
-      std::cerr<<user<<" VariableHelper user not defined."<<std::endl;
+  VariableHelper& set(std::string user) {
+    std::map<std::string, VariableHelper*>::iterator f = multipleInstance_.find(user);
+    if (f == multipleInstance_.end()) {
+      std::cerr << user << " VariableHelper user not defined." << std::endl;
       throw;
-    }
-    else{
+    } else {
       SetVariableHelperUniqueInstance_ = (f->second);
       return (*SetVariableHelperUniqueInstance_);
     }

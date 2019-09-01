@@ -29,57 +29,52 @@
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-
 struct HLTriggerJSONMonitoringData {
-
   // variables accumulated event by event in each stream
   struct stream {
-    unsigned int processed;                             // number of events processed
-    std::vector<unsigned int> hltWasRun;                // number of events where each path was run
-    std::vector<unsigned int> hltL1s;                   // number of events where each path passed the L1 seed
-    std::vector<unsigned int> hltPre;                   // number of events where each path passed the prescale
-    std::vector<unsigned int> hltAccept;                // number of events accepted by each path
-    std::vector<unsigned int> hltReject;                // number of events rejected by each path
-    std::vector<unsigned int> hltErrors;                // number of events with errors in each path
-    std::vector<unsigned int> datasets;                 // number of events accepted by each dataset
+    unsigned int processed;               // number of events processed
+    std::vector<unsigned int> hltWasRun;  // number of events where each path was run
+    std::vector<unsigned int> hltL1s;     // number of events where each path passed the L1 seed
+    std::vector<unsigned int> hltPre;     // number of events where each path passed the prescale
+    std::vector<unsigned int> hltAccept;  // number of events accepted by each path
+    std::vector<unsigned int> hltReject;  // number of events rejected by each path
+    std::vector<unsigned int> hltErrors;  // number of events with errors in each path
+    std::vector<unsigned int> datasets;   // number of events accepted by each dataset
   };
 
   // variables initialised for each run
   struct run {
     std::string streamDestination;
     std::string streamMergeType;
-    std::string baseRunDir;                             // base directory from EvFDaqDirector
-    std::string jsdFileName;                            // definition file name for JSON with rates
+    std::string baseRunDir;   // base directory from EvFDaqDirector
+    std::string jsdFileName;  // definition file name for JSON with rates
 
-    HLTConfigProvider hltConfig;                        // HLT configuration for the current run
-    std::vector<int> posL1s;                            // position of last L1T HLT seed filter in each path, or -1 if not present
-    std::vector<int> posPre;                            // position of last HLT prescale filter in each path, or -1 if not present
-    std::vector<std::vector<unsigned int>> datasets;    // list of paths in each dataset
+    HLTConfigProvider hltConfig;  // HLT configuration for the current run
+    std::vector<int> posL1s;      // position of last L1T HLT seed filter in each path, or -1 if not present
+    std::vector<int> posPre;      // position of last HLT prescale filter in each path, or -1 if not present
+    std::vector<std::vector<unsigned int>> datasets;  // list of paths in each dataset
   };
 
   // variables accumulated over the whole lumisection
   struct lumisection {
-    jsoncollector::HistoJ<unsigned int> processed;      // number of events processed
-    jsoncollector::HistoJ<unsigned int> hltWasRun;      // number of events where each path was run
-    jsoncollector::HistoJ<unsigned int> hltL1s;         // number of events where each path passed the L1 seed
-    jsoncollector::HistoJ<unsigned int> hltPre;         // number of events where each path passed the prescale
-    jsoncollector::HistoJ<unsigned int> hltAccept;      // number of events accepted by each path
-    jsoncollector::HistoJ<unsigned int> hltReject;      // number of events rejected by each path
-    jsoncollector::HistoJ<unsigned int> hltErrors;      // number of events with errors in each path
-    jsoncollector::HistoJ<unsigned int> datasets;       // number of events accepted by each dataset
+    jsoncollector::HistoJ<unsigned int> processed;  // number of events processed
+    jsoncollector::HistoJ<unsigned int> hltWasRun;  // number of events where each path was run
+    jsoncollector::HistoJ<unsigned int> hltL1s;     // number of events where each path passed the L1 seed
+    jsoncollector::HistoJ<unsigned int> hltPre;     // number of events where each path passed the prescale
+    jsoncollector::HistoJ<unsigned int> hltAccept;  // number of events accepted by each path
+    jsoncollector::HistoJ<unsigned int> hltReject;  // number of events rejected by each path
+    jsoncollector::HistoJ<unsigned int> hltErrors;  // number of events with errors in each path
+    jsoncollector::HistoJ<unsigned int> datasets;   // number of events accepted by each dataset
   };
-
 };
 
-
 class HLTriggerJSONMonitoring : public edm::global::EDAnalyzer<
-  // per-stream information
-  edm::StreamCache<HLTriggerJSONMonitoringData::stream>,
-  // per-run accounting
-  edm::RunCache<HLTriggerJSONMonitoringData::run>,
-  // accumulate per-lumisection statistics
-  edm::LuminosityBlockSummaryCache<HLTriggerJSONMonitoringData::lumisection>
-> {
+                                    // per-stream information
+                                    edm::StreamCache<HLTriggerJSONMonitoringData::stream>,
+                                    // per-run accounting
+                                    edm::RunCache<HLTriggerJSONMonitoringData::run>,
+                                    // accumulate per-lumisection statistics
+                                    edm::LuminosityBlockSummaryCache<HLTriggerJSONMonitoringData::lumisection>> {
 public:
   // constructor
   explicit HLTriggerJSONMonitoring(const edm::ParameterSet&);
@@ -88,7 +83,7 @@ public:
   ~HLTriggerJSONMonitoring() override = default;
 
   // validate the configuration and optionally fill the default values
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   // called for each Event
   void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
@@ -104,7 +99,8 @@ public:
   // -- inherited from edm::RunCache<HLTriggerJSONMonitoringData::run>
 
   // called each time the Source sees a new Run, and guaranteed to finish before any Stream calls streamBeginRun for that same Run
-  std::shared_ptr<HLTriggerJSONMonitoringData::run> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
+  std::shared_ptr<HLTriggerJSONMonitoringData::run> globalBeginRun(edm::Run const&,
+                                                                   edm::EventSetup const&) const override;
 
   // called after all Streams have finished processing a given Run (i.e. streamEndRun for all Streams have completed)
   void globalEndRun(edm::Run const&, edm::EventSetup const&) const override;
@@ -112,14 +108,19 @@ public:
   // -- inherited from edm::LuminosityBlockSummaryCache<HLTriggerJSONMonitoringData::lumisection>
 
   // called each time the Source sees a new LuminosityBlock
-  std::shared_ptr<HLTriggerJSONMonitoringData::lumisection> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&) const override;
+  std::shared_ptr<HLTriggerJSONMonitoringData::lumisection> globalBeginLuminosityBlockSummary(
+      edm::LuminosityBlock const&, edm::EventSetup const&) const override;
 
   // called when a Stream has finished processing a LuminosityBlock, after streamEndLuminosityBlock
-  void streamEndLuminosityBlockSummary(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&, HLTriggerJSONMonitoringData::lumisection*) const override;
+  void streamEndLuminosityBlockSummary(edm::StreamID,
+                                       edm::LuminosityBlock const&,
+                                       edm::EventSetup const&,
+                                       HLTriggerJSONMonitoringData::lumisection*) const override;
 
   // called after the streamEndLuminosityBlockSummary method for all Streams have finished processing a given LuminosityBlock
-  void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, HLTriggerJSONMonitoringData::lumisection*) const override;
-
+  void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
+                                       edm::EventSetup const&,
+                                       HLTriggerJSONMonitoringData::lumisection*) const override;
 
 private:
   static constexpr const char* streamName_ = "streamHLTRates";
@@ -128,61 +129,53 @@ private:
   static void writeIniFile(HLTriggerJSONMonitoringData::run const&, unsigned int);
 
   // configuration
-  const edm::InputTag triggerResults_;                                  // InputTag for TriggerResults
-  const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;     // Token for TriggerResults
-
+  const edm::InputTag triggerResults_;                               // InputTag for TriggerResults
+  const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;  // Token for TriggerResults
 };
 
-
 // constructor
-HLTriggerJSONMonitoring::HLTriggerJSONMonitoring(edm::ParameterSet const& config) :
-  triggerResults_(config.getParameter<edm::InputTag>("triggerResults")),
-  triggerResultsToken_(consumes<edm::TriggerResults>(triggerResults_))
-{
-}
+HLTriggerJSONMonitoring::HLTriggerJSONMonitoring(edm::ParameterSet const& config)
+    : triggerResults_(config.getParameter<edm::InputTag>("triggerResults")),
+      triggerResultsToken_(consumes<edm::TriggerResults>(triggerResults_)) {}
 
 // validate the configuration and optionally fill the default values
-void
-HLTriggerJSONMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-{
+void HLTriggerJSONMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "HLT"));
   descriptions.add("HLTriggerJSONMonitoring", desc);
 }
 
 // called once for each Stream being used in the job to create the cache object that will be used for that particular Stream
-std::unique_ptr<HLTriggerJSONMonitoringData::stream>
-HLTriggerJSONMonitoring::beginStream(edm::StreamID) const
-{
+std::unique_ptr<HLTriggerJSONMonitoringData::stream> HLTriggerJSONMonitoring::beginStream(edm::StreamID) const {
   return std::make_unique<HLTriggerJSONMonitoringData::stream>();
 }
 
 // called each time the Source sees a new Run, and guaranteed to finish before any Stream calls streamBeginRun for that same Run
-std::shared_ptr<HLTriggerJSONMonitoringData::run>
-HLTriggerJSONMonitoring::globalBeginRun(edm::Run const& run, edm::EventSetup const& setup) const
-{
+std::shared_ptr<HLTriggerJSONMonitoringData::run> HLTriggerJSONMonitoring::globalBeginRun(
+    edm::Run const& run, edm::EventSetup const& setup) const {
   auto rundata = std::make_shared<HLTriggerJSONMonitoringData::run>();
 
   // set the DAQ parameters
   if (edm::Service<evf::EvFDaqDirector>().isAvailable()) {
     rundata->streamDestination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamName_);
-    rundata->streamMergeType   = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamName_, evf::MergeTypeJSNDATA);
-    rundata->baseRunDir        = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
+    rundata->streamMergeType =
+        edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamName_, evf::MergeTypeJSNDATA);
+    rundata->baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
   } else {
     rundata->streamDestination = "";
-    rundata->streamMergeType   = "";
-    rundata->baseRunDir        = ".";
+    rundata->streamMergeType = "";
+    rundata->baseRunDir = ".";
   }
 
   // initialize HLTConfigProvider
   bool changed = true;
   if (not rundata->hltConfig.init(run, setup, triggerResults_.process(), changed)) {
     edm::LogError("HLTriggerJSONMonitoring") << "HLTConfigProvider initialization failed!" << std::endl;
-  } else if (changed){
+  } else if (changed) {
     // update the trigger and dataset names
-    auto const & triggerNames = rundata->hltConfig.triggerNames();
-    auto const & datasetNames = rundata->hltConfig.datasetNames();
-    auto const & datasets     = rundata->hltConfig.datasetContents();
+    auto const& triggerNames = rundata->hltConfig.triggerNames();
+    auto const& datasetNames = rundata->hltConfig.datasetNames();
+    auto const& datasets = rundata->hltConfig.datasetContents();
 
     const unsigned int triggersSize = triggerNames.size();
     const unsigned int datasetsSize = datasetNames.size();
@@ -190,7 +183,7 @@ HLTriggerJSONMonitoring::globalBeginRun(edm::Run const& run, edm::EventSetup con
     // extract the definition of the datasets
     rundata->datasets.resize(datasetsSize);
     for (unsigned int ds = 0; ds < datasetsSize; ++ds) {
-      auto & dataset = rundata->datasets[ds];
+      auto& dataset = rundata->datasets[ds];
       unsigned int paths = datasets[ds].size();
       dataset.reserve(paths);
       for (unsigned int p = 0; p < paths; p++) {
@@ -229,17 +222,12 @@ HLTriggerJSONMonitoring::globalBeginRun(edm::Run const& run, edm::EventSetup con
 }
 
 // called after all Streams have finished processing a given Run (i.e. streamEndRun for all Streams have completed)
-void
-HLTriggerJSONMonitoring::globalEndRun(edm::Run const&, edm::EventSetup const&) const
-{
-}
+void HLTriggerJSONMonitoring::globalEndRun(edm::Run const&, edm::EventSetup const&) const {}
 
 // called for each Event
-void
-HLTriggerJSONMonitoring::analyze(edm::StreamID sid, edm::Event const& event, edm::EventSetup const&) const
-{
-  auto & stream = * streamCache(sid);
-  auto const& rundata = * runCache(event.getRun().index());
+void HLTriggerJSONMonitoring::analyze(edm::StreamID sid, edm::Event const& event, edm::EventSetup const&) const {
+  auto& stream = *streamCache(sid);
+  auto const& rundata = *runCache(event.getRun().index());
 
   ++stream.processed;
 
@@ -249,11 +237,12 @@ HLTriggerJSONMonitoring::analyze(edm::StreamID sid, edm::Event const& event, edm
 
   // get hold of TriggerResults
   edm::Handle<edm::TriggerResults> handle;
-  if (not event.getByToken(triggerResultsToken_, handle) or not handle.isValid()){
-    edm::LogError("HLTriggerJSONMonitoring") << "TriggerResults with label [" + triggerResults_.encode() + "] not present or invalid";
+  if (not event.getByToken(triggerResultsToken_, handle) or not handle.isValid()) {
+    edm::LogError("HLTriggerJSONMonitoring")
+        << "TriggerResults with label [" + triggerResults_.encode() + "] not present or invalid";
     return;
   }
-  edm::TriggerResults const& results = * handle;
+  edm::TriggerResults const& results = *handle;
   assert(results.size() == stream.hltWasRun.size());
 
   // check the results for each HLT path
@@ -266,9 +255,11 @@ HLTriggerJSONMonitoring::analyze(edm::StreamID sid, edm::Event const& event, edm
         ++stream.hltPre[i];
         ++stream.hltAccept[i];
       } else {
-        int index = (int) status.index();
-        if (index > rundata.posL1s[i]) ++stream.hltL1s[i];
-        if (index > rundata.posPre[i]) ++stream.hltPre[i];
+        int index = (int)status.index();
+        if (index > rundata.posL1s[i])
+          ++stream.hltL1s[i];
+        if (index > rundata.posPre[i])
+          ++stream.hltPre[i];
         if (status.error())
           ++stream.hltErrors[i];
         else
@@ -280,19 +271,18 @@ HLTriggerJSONMonitoring::analyze(edm::StreamID sid, edm::Event const& event, edm
   // check the decision for each dataset
   // FIXME this ignores the prescales, "smart" prescales, and event selection applied in the OutputModule itself
   for (unsigned int i = 0; i < rundata.datasets.size(); ++i)
-    if (std::any_of(rundata.datasets[i].begin(), rundata.datasets[i].end(), [&](unsigned int path) { return results.accept(path); }))
+    if (std::any_of(rundata.datasets[i].begin(), rundata.datasets[i].end(), [&](unsigned int path) {
+          return results.accept(path);
+        }))
       ++stream.datasets[i];
-
 }
 
-
 // called each time the Source sees a new LuminosityBlock
-std::shared_ptr<HLTriggerJSONMonitoringData::lumisection>
-HLTriggerJSONMonitoring::globalBeginLuminosityBlockSummary(edm::LuminosityBlock const& lumi, edm::EventSetup const&) const
-{
+std::shared_ptr<HLTriggerJSONMonitoringData::lumisection> HLTriggerJSONMonitoring::globalBeginLuminosityBlockSummary(
+    edm::LuminosityBlock const& lumi, edm::EventSetup const&) const {
   unsigned int triggers = 0;
   unsigned int datasets = 0;
-  auto const& rundata = * runCache(lumi.getRun().index());
+  auto const& rundata = *runCache(lumi.getRun().index());
   if (rundata.hltConfig.inited()) {
     triggers = rundata.hltConfig.triggerNames().size();
     datasets = rundata.hltConfig.datasetNames().size();
@@ -301,37 +291,44 @@ HLTriggerJSONMonitoring::globalBeginLuminosityBlockSummary(edm::LuminosityBlock 
   // the API of jsoncollector::HistoJ does not really match our use case,
   // but it is the only vector-like object available in JsonMonitorable.h
   auto lumidata = std::make_shared<HLTriggerJSONMonitoringData::lumisection>(HLTriggerJSONMonitoringData::lumisection{
-    jsoncollector::HistoJ<unsigned int>(1),             // processed
-    jsoncollector::HistoJ<unsigned int>(triggers),      // hltWasRun
-    jsoncollector::HistoJ<unsigned int>(triggers),      // hltL1s
-    jsoncollector::HistoJ<unsigned int>(triggers),      // hltPre
-    jsoncollector::HistoJ<unsigned int>(triggers),      // hltAccept
-    jsoncollector::HistoJ<unsigned int>(triggers),      // hltReject
-    jsoncollector::HistoJ<unsigned int>(triggers),      // hltErrors
-    jsoncollector::HistoJ<unsigned int>(datasets)       // datasets
+      jsoncollector::HistoJ<unsigned int>(1),         // processed
+      jsoncollector::HistoJ<unsigned int>(triggers),  // hltWasRun
+      jsoncollector::HistoJ<unsigned int>(triggers),  // hltL1s
+      jsoncollector::HistoJ<unsigned int>(triggers),  // hltPre
+      jsoncollector::HistoJ<unsigned int>(triggers),  // hltAccept
+      jsoncollector::HistoJ<unsigned int>(triggers),  // hltReject
+      jsoncollector::HistoJ<unsigned int>(triggers),  // hltErrors
+      jsoncollector::HistoJ<unsigned int>(datasets)   // datasets
   });
   // repeated calls to `update` necessary to set the internal element counter
   lumidata->processed.update(0);
-  for (unsigned int i = 0; i < triggers; ++i) lumidata->hltWasRun.update(0);
-  for (unsigned int i = 0; i < triggers; ++i) lumidata->hltL1s.update(0);
-  for (unsigned int i = 0; i < triggers; ++i) lumidata->hltPre.update(0);
-  for (unsigned int i = 0; i < triggers; ++i) lumidata->hltAccept.update(0);
-  for (unsigned int i = 0; i < triggers; ++i) lumidata->hltReject.update(0);
-  for (unsigned int i = 0; i < triggers; ++i) lumidata->hltErrors.update(0);
-  for (unsigned int i = 0; i < datasets; ++i) lumidata->datasets.update(0);
+  for (unsigned int i = 0; i < triggers; ++i)
+    lumidata->hltWasRun.update(0);
+  for (unsigned int i = 0; i < triggers; ++i)
+    lumidata->hltL1s.update(0);
+  for (unsigned int i = 0; i < triggers; ++i)
+    lumidata->hltPre.update(0);
+  for (unsigned int i = 0; i < triggers; ++i)
+    lumidata->hltAccept.update(0);
+  for (unsigned int i = 0; i < triggers; ++i)
+    lumidata->hltReject.update(0);
+  for (unsigned int i = 0; i < triggers; ++i)
+    lumidata->hltErrors.update(0);
+  for (unsigned int i = 0; i < datasets; ++i)
+    lumidata->datasets.update(0);
 
   return lumidata;
 }
 
 // called when the Stream is switching from one LuminosityBlock to a new LuminosityBlock.
-void
-HLTriggerJSONMonitoring::streamBeginLuminosityBlock(edm::StreamID sid, edm::LuminosityBlock const& lumi, edm::EventSetup const&) const
-{
-  auto & stream = * streamCache(sid);
+void HLTriggerJSONMonitoring::streamBeginLuminosityBlock(edm::StreamID sid,
+                                                         edm::LuminosityBlock const& lumi,
+                                                         edm::EventSetup const&) const {
+  auto& stream = *streamCache(sid);
 
   unsigned int triggers = 0;
   unsigned int datasets = 0;
-  auto const& rundata = * runCache(lumi.getRun().index());
+  auto const& rundata = *runCache(lumi.getRun().index());
   if (rundata.hltConfig.inited()) {
     triggers = rundata.hltConfig.triggerNames().size();
     datasets = rundata.hltConfig.datasetNames().size();
@@ -349,11 +346,12 @@ HLTriggerJSONMonitoring::streamBeginLuminosityBlock(edm::StreamID sid, edm::Lumi
 }
 
 // called when a Stream has finished processing a LuminosityBlock, after streamEndLuminosityBlock
-void
-HLTriggerJSONMonitoring::streamEndLuminosityBlockSummary(edm::StreamID sid, edm::LuminosityBlock const& lumi, edm::EventSetup const&, HLTriggerJSONMonitoringData::lumisection * lumidata) const
-{
-  auto const& stream  = * streamCache(sid);
-  auto const& rundata = * runCache(lumi.getRun().index());
+void HLTriggerJSONMonitoring::streamEndLuminosityBlockSummary(edm::StreamID sid,
+                                                              edm::LuminosityBlock const& lumi,
+                                                              edm::EventSetup const&,
+                                                              HLTriggerJSONMonitoringData::lumisection* lumidata) const {
+  auto const& stream = *streamCache(sid);
+  auto const& rundata = *runCache(lumi.getRun().index());
   lumidata->processed.value()[0] += stream.processed;
 
   // check that the HLTConfigProvider for the current run has been successfully initialised
@@ -363,27 +361,28 @@ HLTriggerJSONMonitoring::streamEndLuminosityBlockSummary(edm::StreamID sid, edm:
   unsigned int triggers = rundata.hltConfig.triggerNames().size();
   for (unsigned int i = 0; i < triggers; ++i) {
     lumidata->hltWasRun.value()[i] += stream.hltWasRun[i];
-    lumidata->hltL1s.value()[i]    += stream.hltL1s[i];
-    lumidata->hltPre.value()[i]    += stream.hltPre[i];
+    lumidata->hltL1s.value()[i] += stream.hltL1s[i];
+    lumidata->hltPre.value()[i] += stream.hltPre[i];
     lumidata->hltAccept.value()[i] += stream.hltAccept[i];
     lumidata->hltReject.value()[i] += stream.hltReject[i];
     lumidata->hltErrors.value()[i] += stream.hltErrors[i];
   }
   unsigned int datasets = rundata.hltConfig.datasetNames().size();
   for (unsigned int i = 0; i < datasets; ++i)
-    lumidata->datasets.value()[i]  += stream.datasets[i];
+    lumidata->datasets.value()[i] += stream.datasets[i];
 }
 
 // called after the streamEndLuminosityBlockSummary method for all Streams have finished processing a given LuminosityBlock
-void
-HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlock const& lumi, edm::EventSetup const&, HLTriggerJSONMonitoringData::lumisection* lumidata) const
-{
-  unsigned int ls  = lumi.luminosityBlock();
+void HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlock const& lumi,
+                                                              edm::EventSetup const&,
+                                                              HLTriggerJSONMonitoringData::lumisection* lumidata) const {
+  unsigned int ls = lumi.luminosityBlock();
   unsigned int run = lumi.run();
 
   bool writeFiles = true;
   if (edm::Service<evf::MicroStateService>().isAvailable()) {
-    evf::FastMonitoringService * fms = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
+    evf::FastMonitoringService* fms =
+        (evf::FastMonitoringService*)(edm::Service<evf::MicroStateService>().operator->());
     if (fms)
       writeFiles = fms->shouldWriteFiles(ls);
   }
@@ -391,7 +390,7 @@ HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlock co
     return;
 
   unsigned int processed = lumidata->processed.value().at(0);
-  auto const& rundata = * runCache(lumi.getRun().index());
+  auto const& rundata = *runCache(lumi.getRun().index());
   Json::StyledWriter writer;
 
   // [SIC]
@@ -401,11 +400,12 @@ HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlock co
 
   // [SIC]
   std::stringstream sOutDef;
-  sOutDef << rundata.baseRunDir << "/" << "output_" << getpid() << ".jsd";
+  sOutDef << rundata.baseRunDir << "/"
+          << "output_" << getpid() << ".jsd";
 
-  std::string  jsndataFileList = "";
+  std::string jsndataFileList = "";
   unsigned int jsndataSize = 0;
-  unsigned int jsndataAdler32 = 1;      // adler32 checksum for an empty file
+  unsigned int jsndataAdler32 = 1;  // adler32 checksum for an empty file
 
   if (processed) {
     // write the .jsndata files which contain the actual rates
@@ -434,11 +434,11 @@ HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlock co
   }
 
   // create a metadata json file for the "HLT rates" pseudo-stream
-  unsigned int jsnProcessed      = processed;
-  unsigned int jsnAccepted       = processed;
-  unsigned int jsnErrorEvents    = 0;
-  unsigned int jsnRetCodeMask    = 0;
-  std::string  jsnInputFiles     = "";
+  unsigned int jsnProcessed = processed;
+  unsigned int jsnAccepted = processed;
+  unsigned int jsnErrorEvents = 0;
+  unsigned int jsnRetCodeMask = 0;
+  std::string jsnInputFiles = "";
   unsigned int jsnHLTErrorEvents = 0;
 
   Json::Value jsn;
@@ -457,15 +457,12 @@ HLTriggerJSONMonitoring::globalEndLuminosityBlockSummary(edm::LuminosityBlock co
   jsn[jsoncollector::DataPoint::DATA].append(jsnHLTErrorEvents);
 
   auto jsnFileName = boost::format("run%06d_ls%04d_streamHLTRates_pid%05d.jsn") % run % ls % getpid();
-  std::ofstream jsnFile( rundata.baseRunDir + "/" + jsnFileName.str() );
+  std::ofstream jsnFile(rundata.baseRunDir + "/" + jsnFileName.str());
   jsnFile << writer.write(jsn);
   jsnFile.close();
 }
 
-
-void
-HLTriggerJSONMonitoring::writeJsdFile(HLTriggerJSONMonitoringData::run const & rundata)
-{
+void HLTriggerJSONMonitoring::writeJsdFile(HLTriggerJSONMonitoringData::run const& rundata) {
   std::ofstream file(rundata.baseRunDir + "/" + rundata.jsdFileName);
   file << R"""({
    "data" : [
@@ -483,13 +480,11 @@ HLTriggerJSONMonitoring::writeJsdFile(HLTriggerJSONMonitoringData::run const & r
   file.close();
 }
 
-void
-HLTriggerJSONMonitoring::writeIniFile(HLTriggerJSONMonitoringData::run const & rundata, unsigned int run)
-{
+void HLTriggerJSONMonitoring::writeIniFile(HLTriggerJSONMonitoringData::run const& rundata, unsigned int run) {
   Json::Value content;
 
   Json::Value triggerNames(Json::arrayValue);
-  for (auto const& name: rundata.hltConfig.triggerNames())
+  for (auto const& name : rundata.hltConfig.triggerNames())
     triggerNames.append(name);
   content["Path-Names"] = triggerNames;
 
@@ -504,7 +499,6 @@ HLTriggerJSONMonitoring::writeIniFile(HLTriggerJSONMonitoringData::run const & r
   file << writer.write(content);
   file.close();
 }
-
 
 // declare as a framework plugin
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"

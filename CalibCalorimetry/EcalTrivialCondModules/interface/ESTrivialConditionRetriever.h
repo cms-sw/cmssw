@@ -33,62 +33,60 @@
 
 // forward declarations
 
-namespace edm{
+namespace edm {
   class ParameterSet;
 }
 
-class ESTrivialConditionRetriever : public edm::ESProducer, 
-                                      public edm::EventSetupRecordIntervalFinder
-{
-
+class ESTrivialConditionRetriever : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
-  ESTrivialConditionRetriever(const edm::ParameterSet&  pset);
+  ESTrivialConditionRetriever(const edm::ParameterSet& pset);
   ~ESTrivialConditionRetriever() override;
 
   // ---------- member functions ---------------------------
-  virtual std::unique_ptr<ESPedestals> produceESPedestals( const ESPedestalsRcd& );
-  virtual std::unique_ptr<ESWeightStripGroups> produceESWeightStripGroups( const ESWeightStripGroupsRcd& );
-  virtual std::unique_ptr<ESIntercalibConstants> produceESIntercalibConstants( const ESIntercalibConstantsRcd& );
+  virtual std::unique_ptr<ESPedestals> produceESPedestals(const ESPedestalsRcd&);
+  virtual std::unique_ptr<ESWeightStripGroups> produceESWeightStripGroups(const ESWeightStripGroupsRcd&);
+  virtual std::unique_ptr<ESIntercalibConstants> produceESIntercalibConstants(const ESIntercalibConstantsRcd&);
 
   //  virtual std::unique_ptr<ESIntercalibErrors> produceESIntercalibErrors( const ESIntercalibErrorsRcd& );
   //  virtual std::unique_ptr<ESIntercalibErrors>  getIntercalibErrorsFromConfiguration ( const ESIntercalibErrorsRcd& ) ;
 
-  virtual std::unique_ptr<ESADCToGeVConstant> produceESADCToGeVConstant( const ESADCToGeVConstantRcd& );
-  virtual std::unique_ptr<ESTBWeights> produceESTBWeights( const ESTBWeightsRcd& );
+  virtual std::unique_ptr<ESADCToGeVConstant> produceESADCToGeVConstant(const ESADCToGeVConstantRcd&);
+  virtual std::unique_ptr<ESTBWeights> produceESTBWeights(const ESTBWeightsRcd&);
   //  virtual std::unique_ptr<ESIntercalibConstants>  getIntercalibConstantsFromConfiguration ( const ESIntercalibConstantsRcd& ) ;
 
-  virtual std::unique_ptr<ESChannelStatus> produceESChannelStatus( const ESChannelStatusRcd& );
-  virtual std::unique_ptr<ESChannelStatus> getChannelStatusFromConfiguration( const ESChannelStatusRcd& );
+  virtual std::unique_ptr<ESChannelStatus> produceESChannelStatus(const ESChannelStatusRcd&);
+  virtual std::unique_ptr<ESChannelStatus> getChannelStatusFromConfiguration(const ESChannelStatusRcd&);
 
 protected:
   //overriding from ContextRecordIntervalFinder
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
-                               const edm::IOVSyncValue& ,
-                               edm::ValidityInterval& ) override ;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
+
 private:
-  ESTrivialConditionRetriever( const ESTrivialConditionRetriever& ) = delete; // stop default
-  const  ESTrivialConditionRetriever& operator=( const ESTrivialConditionRetriever& ) = delete; // stop default
+  ESTrivialConditionRetriever(const ESTrivialConditionRetriever&) = delete;                   // stop default
+  const ESTrivialConditionRetriever& operator=(const ESTrivialConditionRetriever&) = delete;  // stop default
 
   void getWeightsFromConfiguration(const edm::ParameterSet& ps);
 
   // data members
-  double adcToGeVLowConstant_;      // ADC -> GeV scale low
-  double adcToGeVHighConstant_;      // ADC -> GeV scale high
+  double adcToGeVLowConstant_;   // ADC -> GeV scale low
+  double adcToGeVHighConstant_;  // ADC -> GeV scale high
 
-  double intercalibConstantMean_;  // mean of intercalib constant. default: 1.0
-  double intercalibConstantSigma_; // sigma of intercalib constant
-                                  // Gaussian used to generate intercalib constants for
-                                  // each channel. no smearing if sigma=0.0 (default)
+  double intercalibConstantMean_;   // mean of intercalib constant. default: 1.0
+  double intercalibConstantSigma_;  // sigma of intercalib constant
+                                    // Gaussian used to generate intercalib constants for
+                                    // each channel. no smearing if sigma=0.0 (default)
   // double intercalibErrorMean_;  // mean of intercalib constant error
 
-  double ESpedMean_;              // pedestal mean pedestal at gain 12
-  double ESpedRMS_;               // pedestal rms at gain 12
+  double ESpedMean_;  // pedestal mean pedestal at gain 12
+  double ESpedRMS_;   // pedestal rms at gain 12
 
   ESWeightSet amplWeights_;  // weights to compute amplitudes low
 
   std::string amplWeightsFile_;
-  std::string intercalibConstantsFile_ ;
-  std::string channelStatusFile_ ;
+  std::string intercalibConstantsFile_;
+  std::string channelStatusFile_;
 
   bool getWeightsFromFile_;
   bool producedESPedestals_;
@@ -97,7 +95,6 @@ private:
   bool producedESADCToGeVConstant_;
   bool producedESChannelStatus_;
 
-  int    verbose_; // verbosity
-
+  int verbose_;  // verbosity
 };
 #endif

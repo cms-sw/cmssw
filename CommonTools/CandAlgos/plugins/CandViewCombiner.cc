@@ -10,8 +10,6 @@
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "CommonTools/CandAlgos/interface/CandCombiner.h"
 
-typedef reco::modules::CandCombiner<
-                         StringCutObjectSelector<reco::Candidate, true>
-                       > CandViewCombiner;
-      
-DEFINE_FWK_MODULE( CandViewCombiner );
+typedef reco::modules::CandCombiner<StringCutObjectSelector<reco::Candidate, true> > CandViewCombiner;
+
+DEFINE_FWK_MODULE(CandViewCombiner);

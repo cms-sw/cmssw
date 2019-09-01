@@ -15,10 +15,10 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 struct ApplyEnergyCorrection {
-  ApplyEnergyCorrection( double correction ) : correction_( correction ) { }
+  ApplyEnergyCorrection(double correction) : correction_(correction) {}
   /// set up a candidate
-  void set( reco::Candidate& c );
-  
+  void set(reco::Candidate& c);
+
 private:
   double correction_;
 };

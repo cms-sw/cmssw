@@ -7,7 +7,6 @@
 //DQM
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //CaloMET
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -23,33 +22,33 @@
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-class HeavyIonUCCDQM: public DQMEDAnalyzer{
+class HeavyIonUCCDQM : public DQMEDAnalyzer {
 public:
-	HeavyIonUCCDQM(const edm::ParameterSet& ps);
-	~HeavyIonUCCDQM() override;
+  HeavyIonUCCDQM(const edm::ParameterSet& ps);
+  ~HeavyIonUCCDQM() override;
 
 protected:
-	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-	void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
 private:
-	edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-	edm::EDGetTokenT<reco::CaloMETCollection> theCaloMet;
-	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > theSiPixelCluster;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
+  edm::EDGetTokenT<reco::CaloMETCollection> theCaloMet;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > theSiPixelCluster;
 
-	std::string triggerPath_;
+  std::string triggerPath_;
 
-	int nClusters;
-	int minClusters;
-	int maxClusters;
-	int nEt;
-	double minEt;
-	double maxEt;
+  int nClusters;
+  int minClusters;
+  int maxClusters;
+  int nEt;
+  double minEt;
+  double maxEt;
 
-	// histo
-	MonitorElement* h_SumEt;
-	MonitorElement* h_SiPixelClusters;
-	MonitorElement* h_SumEt_SiPixelClusters;
+  // histo
+  MonitorElement* h_SumEt;
+  MonitorElement* h_SiPixelClusters;
+  MonitorElement* h_SumEt_SiPixelClusters;
 };
 
 #endif

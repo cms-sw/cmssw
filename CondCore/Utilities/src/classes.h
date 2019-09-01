@@ -1,7 +1,5 @@
 #include <iostream>
 
 namespace CondCore_Utilities {
-  struct dictionary {
-  };
-}
-
+  struct dictionary {};
+}  // namespace CondCore_Utilities

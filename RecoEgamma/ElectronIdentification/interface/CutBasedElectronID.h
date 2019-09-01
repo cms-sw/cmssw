@@ -8,21 +8,19 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class CutBasedElectronID : public ElectronIDAlgo {
-
 public:
-  
-  CutBasedElectronID(const edm::ParameterSet& conf,edm::ConsumesCollector & iC);
+  CutBasedElectronID(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
 
-  ~CutBasedElectronID() override {};
+  ~CutBasedElectronID() override{};
 
   void setup(const edm::ParameterSet& conf) override;
   double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) override;
   double cicSelection(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
   double robustSelection(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
   int classify(const reco::GsfElectron*);
-  bool compute_cut(double x, double et, double cut_min, double cut_max, bool gtn=false);
+  bool compute_cut(double x, double et, double cut_min, double cut_max, bool gtn = false);
 
- private:
+private:
   bool wantBinning_;
   bool newCategories_;
   std::string type_;
@@ -30,7 +28,6 @@ public:
   std::string version_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > verticesCollection_;
   edm::ParameterSet cuts_;
-
 };
 
-#endif // CutBasedElectronID_H
+#endif  // CutBasedElectronID_H

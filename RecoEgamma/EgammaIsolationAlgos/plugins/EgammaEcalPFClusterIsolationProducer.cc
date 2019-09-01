@@ -15,32 +15,30 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-template<typename T1>
-EgammaEcalPFClusterIsolationProducer<T1>::EgammaEcalPFClusterIsolationProducer(const edm::ParameterSet& config): 
+template <typename T1>
+EgammaEcalPFClusterIsolationProducer<T1>::EgammaEcalPFClusterIsolationProducer(const edm::ParameterSet& config)
+    :
 
-  emObjectProducer_   (consumes<T1Collection>(config.getParameter<edm::InputTag>("candidateProducer"))),
-  pfClusterProducer_  (consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducer"))),
-  drMax_              (config.getParameter<double>("drMax")),
-  drVetoBarrel_       (config.getParameter<double>("drVetoBarrel")),
-  drVetoEndcap_       (config.getParameter<double>("drVetoEndcap")),
-  etaStripBarrel_     (config.getParameter<double>("etaStripBarrel")),
-  etaStripEndcap_     (config.getParameter<double>("etaStripEndcap")),
-  energyBarrel_       (config.getParameter<double>("energyBarrel")),
-  energyEndcap_       (config.getParameter<double>("energyEndcap")) {
-
-  produces <edm::ValueMap<float>>();
+      emObjectProducer_(consumes<T1Collection>(config.getParameter<edm::InputTag>("candidateProducer"))),
+      pfClusterProducer_(consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducer"))),
+      drMax_(config.getParameter<double>("drMax")),
+      drVetoBarrel_(config.getParameter<double>("drVetoBarrel")),
+      drVetoEndcap_(config.getParameter<double>("drVetoEndcap")),
+      etaStripBarrel_(config.getParameter<double>("etaStripBarrel")),
+      etaStripEndcap_(config.getParameter<double>("etaStripEndcap")),
+      energyBarrel_(config.getParameter<double>("energyBarrel")),
+      energyEndcap_(config.getParameter<double>("energyEndcap")) {
+  produces<edm::ValueMap<float>>();
 }
 
-template<typename T1>
-EgammaEcalPFClusterIsolationProducer<T1>::~EgammaEcalPFClusterIsolationProducer()
-{}
+template <typename T1>
+EgammaEcalPFClusterIsolationProducer<T1>::~EgammaEcalPFClusterIsolationProducer() {}
 
-template<typename T1>
+template <typename T1>
 void EgammaEcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("candidateProducer", edm::InputTag("gedGsfElectrons"));
-  desc.add<edm::InputTag>("pfClusterProducer", edm::InputTag("particleFlowClusterECAL")); 
+  desc.add<edm::InputTag>("pfClusterProducer", edm::InputTag("particleFlowClusterECAL"));
   desc.add<double>("drMax", 0.3);
   desc.add<double>("drVetoBarrel", 0.0);
   desc.add<double>("drVetoEndcap", 0.0);
@@ -51,27 +49,27 @@ void EgammaEcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::Configurati
   descriptions.add(defaultModuleLabel<EgammaEcalPFClusterIsolationProducer<T1>>(), desc);
 }
 
-template<typename T1>
+template <typename T1>
 void EgammaEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   edm::Handle<T1Collection> emObjectHandle;
   iEvent.getByToken(emObjectProducer_, emObjectHandle);
 
   auto isoMap = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler(*isoMap);
-  std::vector<float> retV(emObjectHandle->size(),0);
+  std::vector<float> retV(emObjectHandle->size(), 0);
 
   edm::Handle<reco::PFClusterCollection> clusterHandle;
   iEvent.getByToken(pfClusterProducer_, clusterHandle);
 
-  EcalPFClusterIsolation<T1> isoAlgo(drMax_, drVetoBarrel_, drVetoEndcap_, etaStripBarrel_, etaStripEndcap_, energyBarrel_, energyEndcap_);
-  
+  EcalPFClusterIsolation<T1> isoAlgo(
+      drMax_, drVetoBarrel_, drVetoEndcap_, etaStripBarrel_, etaStripEndcap_, energyBarrel_, energyEndcap_);
+
   for (unsigned int iReco = 0; iReco < emObjectHandle->size(); iReco++) {
     T1Ref candRef(emObjectHandle, iReco);
     retV[iReco] = isoAlgo.getSum(candRef, clusterHandle);
   }
-  
-  filler.insert(emObjectHandle,retV.begin(),retV.end());
+
+  filler.insert(emObjectHandle, retV.begin(), retV.end());
   filler.fill();
 
   iEvent.put(std::move(isoMap));

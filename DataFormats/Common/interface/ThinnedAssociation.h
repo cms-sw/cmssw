@@ -13,7 +13,6 @@ namespace edm {
 
   class ThinnedAssociation {
   public:
-
     ThinnedAssociation();
 
     ProductID const& parentCollectionID() const { return parentCollectionID_; }
@@ -27,7 +26,6 @@ namespace edm {
     void push_back(unsigned int index) { indexesIntoParent_.push_back(index); }
 
   private:
-
     ProductID parentCollectionID_;
     ProductID thinnedCollectionID_;
 
@@ -39,5 +37,5 @@ namespace edm {
     // in the parent collection.
     std::vector<unsigned int> indexesIntoParent_;
   };
-}
+}  // namespace edm
 #endif

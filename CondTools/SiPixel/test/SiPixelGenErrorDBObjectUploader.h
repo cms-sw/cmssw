@@ -15,24 +15,23 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
 
 class SiPixelGenErrorDBObjectUploader : public edm::EDAnalyzer {
-   public:
-      explicit SiPixelGenErrorDBObjectUploader(const edm::ParameterSet&);
-      ~SiPixelGenErrorDBObjectUploader();
+public:
+  explicit SiPixelGenErrorDBObjectUploader(const edm::ParameterSet&);
+  ~SiPixelGenErrorDBObjectUploader();
 
-			typedef std::vector<std::string> vstring;
+  typedef std::vector<std::string> vstring;
 
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-			
-			vstring theGenErrorCalibrations ;
-			std::string theGenErrorBaseString;
-			float theVersion;
-			float theMagField;
-			std::vector<uint32_t> theDetIds;
-			std::vector<uint32_t> theTemplIds;
-		
+private:
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
+
+  vstring theGenErrorCalibrations;
+  std::string theGenErrorBaseString;
+  float theVersion;
+  float theMagField;
+  std::vector<uint32_t> theDetIds;
+  std::vector<uint32_t> theTemplIds;
 };
 
 #endif

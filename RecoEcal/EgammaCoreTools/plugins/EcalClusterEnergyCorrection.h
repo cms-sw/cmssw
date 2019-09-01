@@ -13,15 +13,15 @@
 #include "RecoEcal/EgammaCoreTools/plugins/EcalClusterEnergyCorrectionBaseClass.h"
 
 class EcalClusterEnergyCorrection : public EcalClusterEnergyCorrectionBaseClass {
-        public:
-                EcalClusterEnergyCorrection( const edm::ParameterSet &){};
-                // compute the correction
-                float getValue( const reco::SuperCluster &, const int mode ) const override;
-                float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const override { return 0.;};
+public:
+  EcalClusterEnergyCorrection(const edm::ParameterSet &){};
+  // compute the correction
+  float getValue(const reco::SuperCluster &, const int mode) const override;
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override { return 0.; };
 
-	        float fEta  (float e,  float eta, int algorithm) const;
-		float fBrem (float e,  float eta, int algorithm) const;
-		float fEtEta(float et, float eta, int algorithm) const;
+  float fEta(float e, float eta, int algorithm) const;
+  float fBrem(float e, float eta, int algorithm) const;
+  float fEtEta(float et, float eta, int algorithm) const;
 };
 
 #endif

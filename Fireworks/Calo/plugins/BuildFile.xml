@@ -6,6 +6,7 @@
  <use name="DataFormats/HcalRecHit"/>
  <use name="DataFormats/JetReco"/>
  <use name="DataFormats/L1Trigger"/>
+ <use name="DataFormats/L1THGCal"/>
  <use name="DataFormats/METReco"/>
  <use name="DataFormats/PatCandidates"/>
  <use name="DataFormats/TauReco"/>

@@ -8,18 +8,14 @@
 //!  \author Remi Mommsen - Fermilab
 //---------------------------------------------------------------------------
 
-
 #include <cstdint>
 #include <ostream>
 
 #include "DataFormats/OnlineMetaData/interface/OnlineMetaDataRaw.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-
-class OnlineLuminosityRecord
-{
+class OnlineLuminosityRecord {
 public:
-
   OnlineLuminosityRecord();
   OnlineLuminosityRecord(const online::Luminosity_v1&);
   virtual ~OnlineLuminosityRecord();
@@ -39,18 +35,15 @@ public:
   /// Return the average pileup for th current nibble
   float avgPileUp() const { return avgPileUp_; }
 
-
 private:
-
   edm::Timestamp timestamp_;
   float instLumi_;
   float avgPileUp_;
   uint16_t lumiSection_;
   uint16_t lumiNibble_;
-
 };
 
 /// Pretty-print operator for OnlineLuminosityRecord
 std::ostream& operator<<(std::ostream&, const OnlineLuminosityRecord&);
 
-#endif // DATAFORMATS_ONLINEMETADATA_ONLINELUMINOSITYRECORD_H
+#endif  // DATAFORMATS_ONLINEMETADATA_ONLINELUMINOSITYRECORD_H

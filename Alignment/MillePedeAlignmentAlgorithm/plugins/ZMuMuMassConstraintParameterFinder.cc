@@ -21,7 +21,6 @@
 //
 //
 
-
 // system include files
 #include <cmath>
 #include <cstdlib>
@@ -41,19 +40,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
 //
 // class declaration
 //
 
-class ZMuMuMassConstraintParameterFinder :
-  public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class ZMuMuMassConstraintParameterFinder : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit ZMuMuMassConstraintParameterFinder(const edm::ParameterSet&);
   ~ZMuMuMassConstraintParameterFinder() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
 
 private:
   /// helper class containing information about a di-muon system
@@ -100,55 +96,49 @@ private:
   DiMuonInfo muonInfoFromZ_;
 };
 
-
 //
 // constructors and destructor
 //
-ZMuMuMassConstraintParameterFinder
-::ZMuMuMassConstraintParameterFinder(const edm::ParameterSet& iConfig) :
-  genParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag{"genParticles"})),
-  pMin_(iConfig.getParameter<double>("pMin")),
-  ptMin_(iConfig.getParameter<double>("ptMin")),
-  etaMin_(iConfig.getParameter<double>("etaMin")),
-  etaMax_(iConfig.getParameter<double>("etaMax")),
-  phiMin_(iConfig.getParameter<double>("phiMin")),
-  phiMax_(iConfig.getParameter<double>("phiMax")),
-  minMassPair_(iConfig.getParameter<double>("minMassPair")),
-  maxMassPair_(iConfig.getParameter<double>("maxMassPair")),
-  muonInfo_(minMassPair_, maxMassPair_),
-  muonInfoFromZ_(minMassPair_, maxMassPair_)
-{
+ZMuMuMassConstraintParameterFinder ::ZMuMuMassConstraintParameterFinder(const edm::ParameterSet& iConfig)
+    : genParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag{"genParticles"})),
+      pMin_(iConfig.getParameter<double>("pMin")),
+      ptMin_(iConfig.getParameter<double>("ptMin")),
+      etaMin_(iConfig.getParameter<double>("etaMin")),
+      etaMax_(iConfig.getParameter<double>("etaMax")),
+      phiMin_(iConfig.getParameter<double>("phiMin")),
+      phiMax_(iConfig.getParameter<double>("phiMax")),
+      minMassPair_(iConfig.getParameter<double>("minMassPair")),
+      maxMassPair_(iConfig.getParameter<double>("maxMassPair")),
+      muonInfo_(minMassPair_, maxMassPair_),
+      muonInfoFromZ_(minMassPair_, maxMassPair_) {
   usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   muonInfo_.setupTree("di_muon", fs);
   muonInfoFromZ_.setupTree("di_muon_from_Z", fs);
 }
 
-
-ZMuMuMassConstraintParameterFinder
-::~ZMuMuMassConstraintParameterFinder()
-{
-}
-
+ZMuMuMassConstraintParameterFinder ::~ZMuMuMassConstraintParameterFinder() {}
 
 //
 // member functions
 //
 
 // ------------ method called for each event  ------------
-void
-ZMuMuMassConstraintParameterFinder
-::analyze(const edm::Event& iEvent, const edm::EventSetup&)
-{
+void ZMuMuMassConstraintParameterFinder ::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genParticlesToken_, genParticles);
 
-  for (const auto& particle: *(genParticles.product())) {
-    if (std::abs(particle.pdgId()) != muonPdg_ || particle.status() != 1) continue;
-    if (particle.p() < pMin_) continue;
-    if (particle.pt() < ptMin_) continue;
-    if (particle.eta() < etaMin_ || particle.eta() > etaMax_) continue;
-    if (particle.phi() < phiMin_ || particle.phi() > phiMax_) continue;
+  for (const auto& particle : *(genParticles.product())) {
+    if (std::abs(particle.pdgId()) != muonPdg_ || particle.status() != 1)
+      continue;
+    if (particle.p() < pMin_)
+      continue;
+    if (particle.pt() < ptMin_)
+      continue;
+    if (particle.eta() < etaMin_ || particle.eta() > etaMax_)
+      continue;
+    if (particle.phi() < phiMin_ || particle.phi() > phiMax_)
+      continue;
 
     muonInfo_.muons().push_back(particle);
     if (particle.mother()->pdgId() == zBosonPdg_) {
@@ -160,11 +150,8 @@ ZMuMuMassConstraintParameterFinder
   muonInfoFromZ_.fill();
 }
 
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-ZMuMuMassConstraintParameterFinder
-::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void ZMuMuMassConstraintParameterFinder ::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("Extract information on 'Z -> mu mu' decays.");
   desc.add<double>("pMin", 3.0);
@@ -178,22 +165,12 @@ ZMuMuMassConstraintParameterFinder
   descriptions.add("zMuMuMassConstraintParameterFinder", desc);
 }
 
-
 // ------------ helper class definition ------------
-ZMuMuMassConstraintParameterFinder
-::DiMuonInfo
-::DiMuonInfo(double minMass, double maxMass) :
-  minMassPair_{minMass},
-  maxMassPair_{maxMass}
-{
-}
+ZMuMuMassConstraintParameterFinder ::DiMuonInfo ::DiMuonInfo(double minMass, double maxMass)
+    : minMassPair_{minMass}, maxMassPair_{maxMass} {}
 
-
-void
-ZMuMuMassConstraintParameterFinder
-::DiMuonInfo
-::setupTree(const std::string& name, edm::Service<TFileService>& fs)
-{
+void ZMuMuMassConstraintParameterFinder ::DiMuonInfo ::setupTree(const std::string& name,
+                                                                 edm::Service<TFileService>& fs) {
   tree_ = fs->make<TTree>(name.c_str(), name.c_str());
   tree_->Branch("muons", &muons_);
   tree_->Branch("di_muon_mass", &diMuonMass_);
@@ -201,16 +178,12 @@ ZMuMuMassConstraintParameterFinder
   tree_->Branch("in_mass_window", &passed_);
 }
 
-
-void
-ZMuMuMassConstraintParameterFinder
-::DiMuonInfo
-::fill()
-{
+void ZMuMuMassConstraintParameterFinder ::DiMuonInfo ::fill() {
   if (muons_.size() == 2) {
     diMuonMass_ = (muons_[0].p4() + muons_[1].p4()).M();
     pdgMother_ = muons_[0].mother()->pdgId();
-    if (diMuonMass_ > minMassPair_ && diMuonMass_ < maxMassPair_) passed_ = true;
+    if (diMuonMass_ > minMassPair_ && diMuonMass_ < maxMassPair_)
+      passed_ = true;
     tree_->Fill();
   }
   muons_.clear();

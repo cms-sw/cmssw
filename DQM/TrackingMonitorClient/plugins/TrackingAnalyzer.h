@@ -22,19 +22,15 @@ class SiStripDetCabling;
 class TrackingActionExecutor;
 class FEDRawDataCollection;
 
-class TrackingAnalyser: public DQMEDHarvester
-{
-
+class TrackingAnalyser : public DQMEDHarvester {
 public:
-
   /// Constructor
   TrackingAnalyser(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   ~TrackingAnalyser() override;
 
 private:
-
   /// BeginJob
   void beginJob() override;
 
@@ -42,22 +38,25 @@ private:
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   /// Begin Luminosity Block
-  void dqmBeginLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
+  void dqmBeginLuminosityBlock(DQMStore::IBooker& ibooker_,
+                               DQMStore::IGetter& igetter_,
+                               edm::LuminosityBlock const& lumiSeg,
+                               edm::EventSetup const& eSetup);
 
-  /// End Luminosity Block  
-  void dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
+  /// End Luminosity Block
+  void dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
+                             DQMStore::IGetter& igetter_,
+                             edm::LuminosityBlock const& lumiSeg,
+                             edm::EventSetup const& eSetup) override;
 
   /// Endjob
-  void dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_) override;
-
-
+  void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) override;
 
 private:
-
   bool verbose_;
 
-  void checkTrackerFEDsInLS     (DQMStore::IGetter & igetter, double iLS);
-  void checkTrackerFEDsWdataInLS(DQMStore::IGetter & igetter, double iLS);
+  void checkTrackerFEDsInLS(DQMStore::IGetter& igetter, double iLS);
+  void checkTrackerFEDsWdataInLS(DQMStore::IGetter& igetter, double iLS);
 
   int fileSaveFrequency_;
   int staticUpdateFrequency_;
@@ -70,8 +69,8 @@ private:
   std::string outputFileName_;
 
   edm::ParameterSet tkMapPSet_;
-  edm::ESHandle< SiStripFedCabling > fedCabling_;
-  edm::ESHandle< SiStripDetCabling > detCabling_;
+  edm::ESHandle<SiStripFedCabling> fedCabling_;
+  edm::ESHandle<SiStripDetCabling> detCabling_;
   TrackingActionExecutor* actionExecutor_;
 
   unsigned long long m_cacheID_;
@@ -83,8 +82,6 @@ private:
   std::string nFEDinfoDir_;
   std::string nFEDinVsLSname_;
   std::string nFEDinWdataVsLSname_;
-
 };
-
 
 #endif

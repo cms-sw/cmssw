@@ -4,6 +4,10 @@
 #include <boost/cstdint.hpp>
 
 namespace sipixelobjects {
-  struct DetectorIndex { uint32_t rawId; int row; int col; };
-}
+  struct DetectorIndex {
+    uint32_t rawId;
+    int row;
+    int col;
+  };
+}  // namespace sipixelobjects
 #endif

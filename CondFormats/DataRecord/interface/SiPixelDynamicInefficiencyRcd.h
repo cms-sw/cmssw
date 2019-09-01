@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     SiPixelDynamicInefficiencyRcd
-// 
+//
 /**\class SiPixelDynamicInefficiencyRcd SiPixelDynamicInefficiencyRcd.h CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h
 
  Description: [one line class summary]
@@ -20,6 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class SiPixelDynamicInefficiencyRcd : public edm::eventsetup::EventSetupRecordImplementation<SiPixelDynamicInefficiencyRcd> {};
+class SiPixelDynamicInefficiencyRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<SiPixelDynamicInefficiencyRcd> {};
 
 #endif

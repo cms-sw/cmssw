@@ -28,15 +28,11 @@ produces the corresponding collection of PileUpCandidates.
 
 */
 
-
-
-
 class PFPileUp : public edm::stream::EDProducer<> {
- public:
-
-  typedef std::vector< edm::FwdPtr<reco::PFCandidate> >  PFCollection;
-  typedef edm::View<reco::PFCandidate>                   PFView;
-  typedef std::vector<reco::PFCandidate>                 PFCollectionByValue;
+public:
+  typedef std::vector<edm::FwdPtr<reco::PFCandidate> > PFCollection;
+  typedef edm::View<reco::PFCandidate> PFView;
+  typedef std::vector<reco::PFCandidate> PFCollectionByValue;
 
   explicit PFPileUp(const edm::ParameterSet&);
 
@@ -44,27 +40,25 @@ class PFPileUp : public edm::stream::EDProducer<> {
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
-
-  PFPileUpAlgo    pileUpAlgo_;
+private:
+  PFPileUpAlgo pileUpAlgo_;
 
   /// PFCandidates to be analyzed
-  edm::EDGetTokenT<PFCollection>   tokenPFCandidates_;
+  edm::EDGetTokenT<PFCollection> tokenPFCandidates_;
   /// fall-back token
-  edm::EDGetTokenT<PFView>   tokenPFCandidatesView_;
+  edm::EDGetTokenT<PFView> tokenPFCandidatesView_;
 
   /// vertices
-  edm::EDGetTokenT<reco::VertexCollection>   tokenVertices_;
+  edm::EDGetTokenT<reco::VertexCollection> tokenVertices_;
 
   /// enable PFPileUp selection
-  bool   enable_;
+  bool enable_;
 
   /// verbose ?
-  bool   verbose_;
+  bool verbose_;
 
   /// use the closest z vertex if a track is not in a vertex
-  bool   checkClosestZVertex_;
-
+  bool checkClosestZVertex_;
 };
 
 #endif

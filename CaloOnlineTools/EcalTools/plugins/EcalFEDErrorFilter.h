@@ -16,7 +16,6 @@ Implementation:
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -48,11 +47,12 @@ public:
   ~EcalFEDErrorFilter() override;
 
 private:
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
   // ----------member data ---------------------------
 
-  edm::InputTag     DataLabel_;
+  edm::InputTag DataLabel_;
   std::vector<int> fedUnpackList_;
-
 };

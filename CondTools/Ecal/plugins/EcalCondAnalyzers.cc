@@ -48,101 +48,67 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondTools/Ecal/interface/EcalTimeOffsetXMLTranslator.h"
 
+typedef EcalCondHandler<EcalGainRatios, EcalGainRatiosXMLTranslator> EcalGainRatiosHandler;
+typedef popcon::PopConAnalyzer<EcalGainRatiosHandler> EcalGainRatiosAnalyzer;
 
-typedef EcalCondHandler<EcalGainRatios,
-			EcalGainRatiosXMLTranslator> EcalGainRatiosHandler;
-typedef popcon::PopConAnalyzer<EcalGainRatiosHandler>  
-                                         EcalGainRatiosAnalyzer;
+typedef EcalCondHandler<EcalPedestals, EcalPedestalsXMLTranslator> EcalPedestalsHandler;
+typedef popcon::PopConAnalyzer<EcalPedestalsHandler> EcalPedestalsAnalyzer;
 
-typedef EcalCondHandler<EcalPedestals,
-			EcalPedestalsXMLTranslator> EcalPedestalsHandler;
-typedef popcon::PopConAnalyzer<EcalPedestalsHandler>
-                                         EcalPedestalsAnalyzer;
+typedef EcalCondHandler<EcalPulseShapes, EcalPulseShapesXMLTranslator> EcalPulseShapesHandler;
+typedef popcon::PopConAnalyzer<EcalPulseShapesHandler> EcalPulseShapesAnalyzer;
 
-typedef EcalCondHandler<EcalPulseShapes,
-			EcalPulseShapesXMLTranslator> EcalPulseShapesHandler;
-typedef popcon::PopConAnalyzer<EcalPulseShapesHandler>
-                                         EcalPulseShapesAnalyzer;
+typedef EcalCondHandler<EcalPulseSymmCovariances, EcalPulseSymmCovariancesXMLTranslator> EcalPulseSymmCovariancesHandler;
+typedef popcon::PopConAnalyzer<EcalPulseSymmCovariancesHandler> EcalPulseSymmCovariancesAnalyzer;
 
-typedef EcalCondHandler<EcalPulseSymmCovariances,
-			EcalPulseSymmCovariancesXMLTranslator> EcalPulseSymmCovariancesHandler;
-typedef popcon::PopConAnalyzer<EcalPulseSymmCovariancesHandler>
-                                         EcalPulseSymmCovariancesAnalyzer;
+typedef EcalCondHandler<EcalADCToGeVConstant, EcalADCToGeVXMLTranslator> EcalADCToGeVConstantHandler;
+typedef popcon::PopConAnalyzer<EcalADCToGeVConstantHandler> EcalADCToGeVConstantAnalyzer;
 
-typedef EcalCondHandler<EcalADCToGeVConstant,
-			EcalADCToGeVXMLTranslator> EcalADCToGeVConstantHandler;
-typedef popcon::PopConAnalyzer<EcalADCToGeVConstantHandler>  
-                                         EcalADCToGeVConstantAnalyzer;
+typedef EcalCondHandler<EcalWeightXtalGroups, EcalWeightGroupXMLTranslator> EcalWeightGroupHandler;
+typedef popcon::PopConAnalyzer<EcalWeightGroupHandler> EcalWeightGroupAnalyzer;
 
-typedef EcalCondHandler<EcalWeightXtalGroups,
-			EcalWeightGroupXMLTranslator> EcalWeightGroupHandler;
-typedef popcon::PopConAnalyzer<EcalWeightGroupHandler>  
-                                         EcalWeightGroupAnalyzer;
+typedef EcalCondHandler<EcalChannelStatus, EcalChannelStatusXMLTranslator> EcalChannelStatusHandler;
+typedef popcon::PopConAnalyzer<EcalChannelStatusHandler> EcalChannelStatusAnalyzer;
 
-typedef EcalCondHandler<EcalChannelStatus,
-			EcalChannelStatusXMLTranslator> EcalChannelStatusHandler;
-typedef popcon::PopConAnalyzer<EcalChannelStatusHandler>  
-                                         EcalChannelStatusAnalyzer;
+typedef EcalCondHandler<EcalDAQTowerStatus, EcalDAQTowerStatusXMLTranslator> EcalDAQTowerStatusHandler;
+typedef popcon::PopConAnalyzer<EcalDAQTowerStatusHandler> EcalDAQTowerStatusAnalyzer;
 
-typedef EcalCondHandler<EcalDAQTowerStatus,
-			EcalDAQTowerStatusXMLTranslator> EcalDAQTowerStatusHandler;
-typedef popcon::PopConAnalyzer<EcalDAQTowerStatusHandler>  
-                                         EcalDAQTowerStatusAnalyzer;
+typedef EcalCondHandler<EcalDCSTowerStatus, EcalDCSTowerStatusXMLTranslator> EcalDCSTowerStatusHandler;
+typedef popcon::PopConAnalyzer<EcalDCSTowerStatusHandler> EcalDCSTowerStatusAnalyzer;
 
-typedef EcalCondHandler<EcalDCSTowerStatus,
-			EcalDCSTowerStatusXMLTranslator> EcalDCSTowerStatusHandler;
-typedef popcon::PopConAnalyzer<EcalDCSTowerStatusHandler>  
-                                         EcalDCSTowerStatusAnalyzer;
+typedef EcalCondHandler<EcalTBWeights, EcalTBWeightsXMLTranslator> EcalTBWeightsHandler;
 
-typedef EcalCondHandler<EcalTBWeights,
-			EcalTBWeightsXMLTranslator> EcalTBWeightsHandler;
-
-typedef popcon::PopConAnalyzer<EcalTBWeightsHandler>  
-                                         EcalTBWeightsAnalyzer;
-
+typedef popcon::PopConAnalyzer<EcalTBWeightsHandler> EcalTBWeightsAnalyzer;
 
 // typedef EcalCondHandler<EcalLinearCorrections,
 //			EcalFloatCondObjectContainerXMLTranslator> EcalLinearCorrectionsHandler;
 
-// typedef popcon::PopConAnalyzer<EcalLinearCorrectionsHandler>  
+// typedef popcon::PopConAnalyzer<EcalLinearCorrectionsHandler>
 //                                         EcalLinearCorrectionsAnalyzer;
 
-typedef EcalCondHandler<EcalIntercalibConstants,
-			EcalFloatCondObjectContainerXMLTranslator> EcalIntercalibConstantsHandler;
+typedef EcalCondHandler<EcalIntercalibConstants, EcalFloatCondObjectContainerXMLTranslator>
+    EcalIntercalibConstantsHandler;
 
-typedef popcon::PopConAnalyzer<EcalIntercalibConstantsHandler>  
-                                         EcalIntercalibConstantsAnalyzer;
+typedef popcon::PopConAnalyzer<EcalIntercalibConstantsHandler> EcalIntercalibConstantsAnalyzer;
 
+typedef EcalCondHandler<EcalIntercalibErrors, EcalFloatCondObjectContainerXMLTranslator> EcalIntercalibErrorsHandler;
 
-typedef EcalCondHandler<EcalIntercalibErrors,
-			EcalFloatCondObjectContainerXMLTranslator> EcalIntercalibErrorsHandler;
+typedef popcon::PopConAnalyzer<EcalIntercalibErrorsHandler> EcalIntercalibErrorsAnalyzer;
 
-typedef popcon::PopConAnalyzer<EcalIntercalibErrorsHandler>  
-                                         EcalIntercalibErrorsAnalyzer;
+typedef EcalCondHandler<EcalIntercalibConstantsMC, EcalFloatCondObjectContainerXMLTranslator>
+    EcalIntercalibConstantsMCHandler;
 
-typedef EcalCondHandler<EcalIntercalibConstantsMC,
-			EcalFloatCondObjectContainerXMLTranslator> EcalIntercalibConstantsMCHandler;
+typedef popcon::PopConAnalyzer<EcalIntercalibConstantsMCHandler> EcalIntercalibConstantsMCAnalyzer;
 
-typedef popcon::PopConAnalyzer<EcalIntercalibConstantsMCHandler>  
-                                         EcalIntercalibConstantsMCAnalyzer;
+typedef EcalCondHandler<EcalTimeCalibConstants, EcalFloatCondObjectContainerXMLTranslator> EcalTimeCalibConstantsHandler;
 
+typedef popcon::PopConAnalyzer<EcalTimeCalibConstantsHandler> EcalTimeCalibConstantsAnalyzer;
 
-typedef EcalCondHandler<EcalTimeCalibConstants,
-			EcalFloatCondObjectContainerXMLTranslator> EcalTimeCalibConstantsHandler;
+typedef EcalCondHandler<EcalTimeCalibErrors, EcalFloatCondObjectContainerXMLTranslator> EcalTimeCalibErrorsHandler;
 
-typedef popcon::PopConAnalyzer<EcalTimeCalibConstantsHandler>
-                                         EcalTimeCalibConstantsAnalyzer;
+typedef popcon::PopConAnalyzer<EcalTimeCalibErrorsHandler> EcalTimeCalibErrorsAnalyzer;
 
-typedef EcalCondHandler<EcalTimeCalibErrors,
-			EcalFloatCondObjectContainerXMLTranslator> EcalTimeCalibErrorsHandler;
-
-typedef popcon::PopConAnalyzer<EcalTimeCalibErrorsHandler>
-                                         EcalTimeCalibErrorsAnalyzer;
-
-typedef EcalCondHandler<EcalTimeOffsetConstant,
-			EcalTimeOffsetXMLTranslator> EcalTimeOffsetConstantHandler;
-typedef popcon::PopConAnalyzer<EcalTimeOffsetConstantHandler>  
-                                         EcalTimeOffsetConstantAnalyzer;
+typedef EcalCondHandler<EcalTimeOffsetConstant, EcalTimeOffsetXMLTranslator> EcalTimeOffsetConstantHandler;
+typedef popcon::PopConAnalyzer<EcalTimeOffsetConstantHandler> EcalTimeOffsetConstantAnalyzer;
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(EcalGainRatiosAnalyzer);
@@ -159,4 +125,3 @@ DEFINE_FWK_MODULE(EcalTimeCalibConstantsAnalyzer);
 DEFINE_FWK_MODULE(EcalTimeCalibErrorsAnalyzer);
 DEFINE_FWK_MODULE(EcalTimeOffsetConstantAnalyzer);
 // DEFINE_FWK_MODULE(EcalLinearCorrectionsAnalyzer);
-

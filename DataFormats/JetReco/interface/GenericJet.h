@@ -1,7 +1,7 @@
 #ifndef JetReco_GenericJet_h
 #define JetReco_GenericJet_h
 
- /** \class reco::Jet
+/** \class reco::Jet
  *
  * \short Base class for all types of Jets
  *
@@ -19,20 +19,19 @@ namespace reco {
   class GenericJet : public CompositeRefBaseCandidate {
   public:
     /// Default constructor
-    GenericJet () {}
+    GenericJet() {}
     /// Initiator
-    GenericJet (const LorentzVector& fP4, const Point& fVertex, const std::vector<CandidateBaseRef>& fConstituents);
+    GenericJet(const LorentzVector& fP4, const Point& fVertex, const std::vector<CandidateBaseRef>& fConstituents);
     /// Destructor
-    ~GenericJet () override {}
+    ~GenericJet() override {}
 
     /// # of constituents
-    virtual int nConstituents () const;
+    virtual int nConstituents() const;
 
-  /// Print object
-    virtual std::string print () const;
-
+    /// Print object
+    virtual std::string print() const;
   };
-}
+}  // namespace reco
 // temporary fix before include_checcker runs globally
-#include "DataFormats/JetReco/interface/GenericJetCollection.h" //INCLUDECHECKER:SKIP
+#include "DataFormats/JetReco/interface/GenericJetCollection.h"  //INCLUDECHECKER:SKIP
 #endif

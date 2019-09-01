@@ -9,31 +9,28 @@
 
 namespace reco {
 
-typedef edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<reco::JetFlavourInfo> > JetFlavourInfoMatchingCollectionBase;
+  typedef edm::AssociationVector<edm::RefToBaseProd<reco::Jet>, std::vector<reco::JetFlavourInfo> >
+      JetFlavourInfoMatchingCollectionBase;
 
-class JetFlavourInfoMatchingCollection : public JetFlavourInfoMatchingCollectionBase {
-public:
-  JetFlavourInfoMatchingCollection() :
-    JetFlavourInfoMatchingCollectionBase()
-  { }
+  class JetFlavourInfoMatchingCollection : public JetFlavourInfoMatchingCollectionBase {
+  public:
+    JetFlavourInfoMatchingCollection() : JetFlavourInfoMatchingCollectionBase() {}
 
-  JetFlavourInfoMatchingCollection(const reco::CaloJetRefProd & ref) :
-    JetFlavourInfoMatchingCollectionBase(edm::RefToBaseProd<reco::Jet>(ref))
-  { }
+    JetFlavourInfoMatchingCollection(const reco::CaloJetRefProd &ref)
+        : JetFlavourInfoMatchingCollectionBase(edm::RefToBaseProd<reco::Jet>(ref)) {}
 
-  JetFlavourInfoMatchingCollection(const JetFlavourInfoMatchingCollectionBase &v) :
-    JetFlavourInfoMatchingCollectionBase(v)
-  { }
-};
+    JetFlavourInfoMatchingCollection(const JetFlavourInfoMatchingCollectionBase &v)
+        : JetFlavourInfoMatchingCollectionBase(v) {}
+  };
 
-typedef  JetFlavourInfoMatchingCollection::value_type       JetFlavourInfoMatching;
+  typedef JetFlavourInfoMatchingCollection::value_type JetFlavourInfoMatching;
 
-typedef  edm::Ref<JetFlavourInfoMatchingCollection>         JetFlavourInfoMatchingRef;
+  typedef edm::Ref<JetFlavourInfoMatchingCollection> JetFlavourInfoMatchingRef;
 
-typedef  edm::RefProd<JetFlavourInfoMatchingCollection>     JetFlavourInfoMatchingRefProd;
+  typedef edm::RefProd<JetFlavourInfoMatchingCollection> JetFlavourInfoMatchingRefProd;
 
-typedef  edm::RefVector<JetFlavourInfoMatchingCollection>   JetFlavourInfoMatchingRefVector;
+  typedef edm::RefVector<JetFlavourInfoMatchingCollection> JetFlavourInfoMatchingRefVector;
 
-}
+}  // namespace reco
 
-#endif // SimDataFormats_JetMatching_JetFlavourInfoMatching_h
+#endif  // SimDataFormats_JetMatching_JetFlavourInfoMatching_h

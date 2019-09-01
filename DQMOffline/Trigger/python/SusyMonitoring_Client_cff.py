@@ -4,6 +4,7 @@ from DQMOffline.Trigger.VBFSUSYMonitor_Client_cff import *
 from DQMOffline.Trigger.LepHTMonitor_cff import *
 from DQMOffline.Trigger.susyHLTEleCaloJetsClient_cfi import *
 from DQMOffline.Trigger.RazorMonitor_Client_cff import *
+from DQMOffline.Trigger.SoftMuHardJetMETSUSYMonitor_Client_cff import *
 
 #george
 double_soft_muon_muonpt_efficiency = DQMEDHarvester("DQMGenericClient",
@@ -182,4 +183,5 @@ susyClient = cms.Sequence(
   + double_soft_dca_metpt_efficiency
   + susyHLTRazorClient
   + triple_muon_mupt_efficiency
+  + susyHLTSoftMuHardJetMETClient
 )

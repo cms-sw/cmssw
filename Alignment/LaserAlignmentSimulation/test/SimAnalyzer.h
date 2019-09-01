@@ -2,7 +2,8 @@
 #define LaserAlignmentSimulation_SimAnalyzer_H
 
 /** \class SimAnalyzer
- *  Get some statistics and plots about the simulation of the Laser Alignment System
+ *  Get some statistics and plots about the simulation of the Laser Alignment
+ * System
  *
  *  $Date: 2008/01/05 15:30:17 $
  *  $Revision: 1.5 $
@@ -11,9 +12,6 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-
-
-
 // ROOT
 #include "TH1.h"
 #include "TH2.h"
@@ -21,30 +19,30 @@ class TFile;
 
 #include <iostream>
 
-class SimAnalyzer : public edm::EDAnalyzer
-{
- public:
-	/// constructor
-  explicit SimAnalyzer(edm::ParameterSet const& theConf);
-	/// destructor
+class SimAnalyzer : public edm::EDAnalyzer {
+public:
+  /// constructor
+  explicit SimAnalyzer(edm::ParameterSet const &theConf);
+  /// destructor
   ~SimAnalyzer();
-  
-  /// this method will do the user analysis 
-  virtual void analyze(edm::Event const& theEvent, edm::EventSetup const& theSetup);
-	/// begin job
+
+  /// this method will do the user analysis
+  virtual void analyze(edm::Event const &theEvent, edm::EventSetup const &theSetup);
+  /// begin job
   virtual void beginJob();
-    
- private:
-	/// return angle in radian betwee 0 and 2*pi
+
+private:
+  /// return angle in radian betwee 0 and 2*pi
   double angle(double theAngle);
-	/// write the ROOT file with histograms
+  /// write the ROOT file with histograms
   void closeRootFile();
   /// initialize the histograms
   void initHistograms();
-	/// find the dets which are hit by a laser beam and fill the SimHit info into histograms
-  void trackerStatistics(edm::Event const& theEvent, edm::EventSetup const& theSetup);
-  
- private:
+  /// find the dets which are hit by a laser beam and fill the SimHit info into
+  /// histograms
+  void trackerStatistics(edm::Event const &theEvent, edm::EventSetup const &theSetup);
+
+private:
   int theEvents;
   int theDebugLevel;
   double theSearchPhiTIB;
@@ -54,36 +52,36 @@ class SimAnalyzer : public edm::EDAnalyzer
   double theSearchZTOB;
 
   // Tree stuff
-  TFile * theFile;
+  TFile *theFile;
   int theCompression;
   std::string theFileName;
 
   // the histograms for Barrel Hits
-  TH1D * theBarrelSimHitsX;
-  TH1D * theBarrelSimHitsY;
-  TH1D * theBarrelSimHitsZ;
-  TH2D * theBarrelSimHitsYvsX;
-  TH2D * theBarrelSimHitsXvsZ;
-  TH2D * theBarrelSimHitsYvsZ;
-  TH2D * theBarrelSimHitsRvsZ;
-  TH2D * theBarrelSimHitsPhivsX;
-  TH2D * theBarrelSimHitsPhivsY;
-  TH2D * theBarrelSimHitsPhivsZ;
+  TH1D *theBarrelSimHitsX;
+  TH1D *theBarrelSimHitsY;
+  TH1D *theBarrelSimHitsZ;
+  TH2D *theBarrelSimHitsYvsX;
+  TH2D *theBarrelSimHitsXvsZ;
+  TH2D *theBarrelSimHitsYvsZ;
+  TH2D *theBarrelSimHitsRvsZ;
+  TH2D *theBarrelSimHitsPhivsX;
+  TH2D *theBarrelSimHitsPhivsY;
+  TH2D *theBarrelSimHitsPhivsZ;
 
   // the histograms for Endcap Hits
-  TH1D * theEndcapSimHitsX;
-  TH1D * theEndcapSimHitsY;
-  TH1D * theEndcapSimHitsZ;
-  TH2D * theEndcapSimHitsYvsX;
-  TH2D * theEndcapSimHitsXvsZ;
-  TH2D * theEndcapSimHitsYvsZ;
-  TH2D * theEndcapSimHitsRvsZ;
-  TH2D * theEndcapSimHitsPhivsX;
-  TH2D * theEndcapSimHitsPhivsY;
-  TH2D * theEndcapSimHitsPhivsZ;
+  TH1D *theEndcapSimHitsX;
+  TH1D *theEndcapSimHitsY;
+  TH1D *theEndcapSimHitsZ;
+  TH2D *theEndcapSimHitsYvsX;
+  TH2D *theEndcapSimHitsXvsZ;
+  TH2D *theEndcapSimHitsYvsZ;
+  TH2D *theEndcapSimHitsRvsZ;
+  TH2D *theEndcapSimHitsPhivsX;
+  TH2D *theEndcapSimHitsPhivsY;
+  TH2D *theEndcapSimHitsPhivsZ;
 
   // the histograms for all SimHits
-  TH2D * theSimHitsRvsZ;
-  TH2D * theSimHitsPhivsZ;  
+  TH2D *theSimHitsRvsZ;
+  TH2D *theSimHitsPhivsZ;
 };
 #endif

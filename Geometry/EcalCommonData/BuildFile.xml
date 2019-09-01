@@ -1,4 +1,3 @@
-<use   name="DetectorDescription/Core"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="Geometry/CaloGeometry"/>
 <export>

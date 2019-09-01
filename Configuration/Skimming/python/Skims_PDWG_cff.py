@@ -171,6 +171,17 @@ SKIMStreamDiPhoton = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
+########## B-Parking #########
+from Configuration.Skimming.pwdgSkimBPark_cfi import *
+SkimBParkPath = cms.Path(SkimBPark)
+SKIMStreamSkimBPark = cms.FilteredStream(
+    responsible = 'BPH PAG',
+    name = 'SkimBPark',
+    paths = ( SkimBParkPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+)
 
 from Configuration.EventContent.EventContent_cff import AODEventContent
 skimAodContent = AODEventContent.clone()
@@ -399,7 +410,7 @@ SKIMStreamEXOEMu = cms.FilteredStream(
 from Configuration.Skimming.PDWG_MuonPOGSkim_cff import *
 MuonPOGSkimTrackPath = cms.Path(MuonPOGSkimTrackSequence)
 MuonPOGSkimSTAPath   = cms.Path(MuonPOGSkimSTASequence)
-MuonPOGSkim     = cms.FilteredStream(
+SKIMStreamMuonPOGSkim     = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'MuonPOGSkim',
     paths = (MuonPOGSkimTrackPath,MuonPOGSkimSTAPath),
@@ -412,7 +423,7 @@ MuonPOGSkim     = cms.FilteredStream(
 MuonPOGJPsiSkimTrackPath = cms.Path(MuonPOGJPsiSkimTrackSequence)
 MuonPOGJPsiSkimSTAPath   = cms.Path(MuonPOGJPsiSkimSTASequence)
 
-MuonPOGJPsiSkim     = cms.FilteredStream(
+SKIMStreamMuonPOGJPsiSkim     = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'MuonPOGJPsiSkim',
     paths = (MuonPOGJPsiSkimTrackPath,MuonPOGJPsiSkimSTAPath),

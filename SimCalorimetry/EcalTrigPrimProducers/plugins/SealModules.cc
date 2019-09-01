@@ -3,13 +3,12 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EcalTrigPrimProducer.h"
-#include "EcalTrigPrimAnalyzer.h"
-#include "EcalTPInputAnalyzer.h"
 #include "EcalTPCondAnalyzer.h"
+#include "EcalTPInputAnalyzer.h"
+#include "EcalTrigPrimAnalyzer.h"
 #include "EcalTrigPrimESProducer.h"
+#include "EcalTrigPrimProducer.h"
 #include "EcalTrigPrimSpikeESProducer.h"
-
 
 DEFINE_FWK_MODULE(EcalTrigPrimProducer);
 DEFINE_FWK_MODULE(EcalTPInputAnalyzer);

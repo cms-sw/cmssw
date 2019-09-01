@@ -7,10 +7,8 @@
 
 #include "DQMOffline/Trigger/interface/EgHLTEgCutCodes.h"
 
-
-
 namespace egHLT {
-  
+
   struct CutMasks {
     int stdEle;
     int tagEle;
@@ -20,10 +18,10 @@ namespace egHLT {
     int trigTPPho;
     int stdPho;
 
-    void setup(const edm::ParameterSet& conf){
+    void setup(const edm::ParameterSet& conf) {
       stdEle = EgCutCodes::getCode(conf.getParameter<std::string>("stdEle"));
       tagEle = EgCutCodes::getCode(conf.getParameter<std::string>("tagEle"));
-      probeEle= EgCutCodes::getCode(conf.getParameter<std::string>("probeEle"));
+      probeEle = EgCutCodes::getCode(conf.getParameter<std::string>("probeEle"));
       fakeEle = EgCutCodes::getCode(conf.getParameter<std::string>("fakeEle"));
       trigTPEle = EgCutCodes::getCode(conf.getParameter<std::string>("trigTPEle"));
       trigTPPho = EgCutCodes::getCode(conf.getParameter<std::string>("trigTPPho"));
@@ -31,8 +29,6 @@ namespace egHLT {
     }
   };
 
-  
-
-}
+}  // namespace egHLT
 
 #endif

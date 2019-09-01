@@ -1,138 +1,110 @@
 #ifndef EventFilter_GEMRawToDigi_GEBdata_h
 #define EventFilter_GEMRawToDigi_GEBdata_h
-#include <vector>
 #include "VFATdata.h"
-//!A class for GEB data
-/**
-   The number after the ":" indicates how many bits a certain item consists of. 
-*/
+#include <vector>
+
 namespace gem {
-  class GEBdata
-  {
+  // Input status 1 bit for each
+  // BX mismatch GLIB OH / BX mismatch GLIB VFAT / OOS GLIB OH / OOS GLIB VFAT / No VFAT marker
+  // Event size warn / L1AFIFO near full / InFIFO near full / EvtFIFO near full / Event size overflow
+  // L1AFIFO full / InFIFO full / EvtFIFO full
+  union GEBchamberHeader {
+    uint64_t word;
+    struct {
+      uint64_t BxmVvV : 11;           // 1st bit BX mismatch VFAT vs VFAT
+      uint64_t BxmAvV : 1;            // BX mismatch AMC vs VFAT
+      uint64_t OOScVvV : 1;           // OOS (EC mismatch) VFAT vs VFAT
+      uint64_t OOScAvV : 1;           // OOS (EC mismatch) AMC vs VFAT
+      uint64_t noVFAT : 1;            // No VFAT marker
+      uint64_t EvtSzW : 1;            // Event size warning
+      uint64_t L1aNF : 1;             // L1A FIFO near full
+      uint64_t InNF : 1;              // Input FIFO near full
+      uint64_t EvtNF : 1;             // Event FIFO near full
+      uint64_t EvtSzOFW : 1;          // Event size overflow
+      uint64_t L1aF : 1;              // L1A FIFO full
+      uint64_t InF : 1;               // Input FIFO full
+      uint64_t EvtF : 1;              // Event FIFO full
+      uint64_t VfWdCnt : 12;          // VFAT word count (in number of 64-bit words)
+      uint64_t inputID : 5;           // Input link ID
+      uint64_t zeroSupWordsCnt : 24;  // Number of zero suppressed VFAT 64bit words
+    };
+  };
+  union GEBchamberTrailer {
+    uint64_t word;
+    struct {
+      uint64_t ecOH : 20;      // OH event counter
+      uint64_t bcOH : 13;      // OH bunch crossing
+      uint64_t InUfw : 1;      // Input FIFO underflow
+      uint64_t SkD : 1;        // Stuck data
+      uint64_t EvUfw : 1;      // Event FIFO underflow
+      uint64_t VfWdCntT : 12;  // VFAT word count (in number of 64-bit words)
+      uint64_t crc16 : 16;     // CRC of OH data (currently not available – filled with 0)
+    };
+  };
+
+  class GEBdata {
   public:
-    GEBdata(){};
-    ~GEBdata(){m_vfatd.clear();}
+    GEBdata() : ch_(0), ct_(0){};
+    ~GEBdata() { vfatd_.clear(); }
 
-    // need to include all the flags
-    //!Reads the word for the GEM Chamber Header. Puts the thirteen flags in a vector.
-    /**
-       Fills the Zero Suppression, GLIB Input ID, VFAT word count, and Thirteen Flags.
-    */
-    void setChamberHeader(uint64_t word)
-    {
-      m_ZeroSup = 0x00ffffff & (word >> 40);        /*!<Zero Suppression*/
-      m_InputID = 0b00011111 & (word >> 35);        /*!<GLIB Input ID*/
-      m_Vwh = 0x0fff & (word >> 23);                /*!<VFAT word count*/
-      m_ErrorC = 0b0001111111111111 & (word);       /*!<Thirteen Flags*/
-      for(int i=0; i<13; ++i)
-	{
-	  m_GEBflags.push_back(0x01 & (m_ErrorC >> i));
-	}
+    //!Read chamberHeader from the block.
+    void setChamberHeader(uint64_t word) { ch_ = word; }
+    void setChamberHeader(uint16_t vfatWordCnt, uint8_t inputID) {
+      GEBchamberHeader u{0};
+      u.VfWdCnt = vfatWordCnt;
+      u.inputID = inputID;
+      ch_ = u.word;
     }
-    uint64_t getChamberHeader() const
-    {
-      return
-	(static_cast<uint64_t>(m_ZeroSup & 0x00ffffff) <<  40) |
-	(static_cast<uint64_t>(m_InputID & 0b00011111) <<  35) |
-	(static_cast<uint64_t>(m_Vwh & 0x0fff) <<  23) |
-	(static_cast<uint64_t>(m_ErrorC & 0b0001111111111111));
-    }
+    uint64_t getChamberHeader() const { return ch_; }
 
-    //return specific flags
-    //!Returns one of thirteen flags from GEM chamber header.
-    /**
-       Argument must be between 0 and 12. The flags corresponding to a given argument are shown.
-       12->EvtFIFO full    11->InFIFO full    10->L1AFIFO full   9->Even size overflow    8->EvtFIFO near full   5->InFIFO near full    
-       6->L1AFIFO near full    5->Event size warn   4->No VFAT marker    3->OOS GLIB VFAT   2->OOS GLIB OH 
-       1->BX mismatch GLIB VFAT    0->BX mismatch GLIB OH
-    */
-    uint8_t getGEBflag(int c) const
-    {
-      return m_GEBflags.at(c);
+    //!Read chamberTrailer from the block.
+    void setChamberTrailer(uint64_t word) { ct_ = word; }
+    void setChamberTrailer(uint32_t ecOH, uint16_t bcOH, uint16_t vfatWordCntT) {
+      GEBchamberTrailer u{0};
+      u.ecOH = ecOH;
+      u.bcOH = bcOH;
+      u.VfWdCntT = vfatWordCntT;
+      ct_ = u.word;
     }
-    std::vector<uint8_t> getGEBflag() const
-    {
-      return m_GEBflags;
-    }    
-    // need to include all the flags
-    //!Reads the word for GEM Chamber Trailer
-    /**
-       Fills the OH CRC, VFAT word count, InFIFO underflow, and Stuck data.
-    */
-    void setChamberTrailer(uint64_t word)
-    {
-      m_OHCRC = word >> 48;           /*!<OH CRC*/
-      m_Vwt = 0x0fff & (word >> 36);  /*!<VFAT word count*/
-      m_InFu = 0x0f & (word >> 35);   /*!<InFIFO underflow*/
-      m_Stuckd = 0x01 & (word >> 34); /*!<Stuck data*/
-    }
-    uint64_t getChamberTrailer() const
-    {
-      return
-	(static_cast<uint64_t>(m_OHCRC) <<  48) |
-	(static_cast<uint64_t>(m_Vwt & 0x0fff) <<  36) |
-	(static_cast<uint64_t>(m_InFu & 0x0f) <<  35) |
-	(static_cast<uint64_t>(m_Stuckd & 0x01) << 34);
-    }
+    uint64_t getChamberTrailer() const { return ct_; }
 
-    void setVwh(uint16_t n){m_Vwh = n;}             ///<Sets VFAT word count (size of VFAT payload)
-    void setInputID(uint8_t n){m_InputID = n;}      ///<Sets GLIB input ID
+    uint16_t bxmVvV() const { return GEBchamberHeader{ch_}.BxmVvV; }
+    uint8_t bxmAvV() const { return GEBchamberHeader{ch_}.BxmAvV; }
+    uint8_t oOScVvV() const { return GEBchamberHeader{ch_}.OOScVvV; }
+    uint8_t oOScAvV() const { return GEBchamberHeader{ch_}.OOScAvV; }
+    uint8_t noVFAT() const { return GEBchamberHeader{ch_}.noVFAT; }
+    uint8_t evtSzW() const { return GEBchamberHeader{ch_}.EvtSzW; }
+    uint8_t l1aNF() const { return GEBchamberHeader{ch_}.L1aNF; }
+    uint8_t inNF() const { return GEBchamberHeader{ch_}.InNF; }
+    uint8_t evtNF() const { return GEBchamberHeader{ch_}.EvtNF; }
+    uint8_t evtSzOFW() const { return GEBchamberHeader{ch_}.EvtSzOFW; }
+    uint8_t l1aF() const { return GEBchamberHeader{ch_}.L1aF; }
+    uint8_t inF() const { return GEBchamberHeader{ch_}.InF; }
+    uint8_t evtF() const { return GEBchamberHeader{ch_}.EvtF; }
+    uint16_t vfatWordCnt() const { return GEBchamberHeader{ch_}.VfWdCnt; }
+    uint8_t inputID() const { return GEBchamberHeader{ch_}.inputID; }
+    uint32_t zeroSupWordsCnt() const { return GEBchamberHeader{ch_}.zeroSupWordsCnt; }
 
-    uint32_t zeroSup()  const {return m_ZeroSup;}   ///<Returns Zero Suppression flags
-    uint8_t  inputID()  const {return m_InputID;}   ///<Returns GLIB input ID
-    uint16_t vwh()      const {return m_Vwh;}       ///<Returns VFAT word count (size of VFAT payload)
-    uint16_t errorC()   const {return m_ErrorC;}    ///<Returns thirteen flags in GEM Chamber Header
-    
-    uint16_t ohCRC()    const {return m_OHCRC;}     ///<Returns OH CRC 
-    uint16_t vwt()      const {return m_Vwt;}       ///<Returns VFAT word count
-    uint8_t  inFu()     const {return m_InFu;}      ///<Returns InFIFO underflow flag
-    uint8_t  stuckd()   const {return m_Stuckd;}    ///<Returns Stuck data flag
+    uint32_t ecOH() const { return GEBchamberTrailer{ct_}.ecOH; }
+    uint16_t bcOH() const { return GEBchamberTrailer{ct_}.bcOH; }
+    uint8_t inUfw() const { return GEBchamberTrailer{ct_}.InUfw; }
+    uint8_t stuckData() const { return GEBchamberTrailer{ct_}.SkD; }
+    uint8_t evUfw() const { return GEBchamberTrailer{ct_}.EvUfw; }
+    uint16_t vfatWordCntT() const { return GEBchamberTrailer{ct_}.VfWdCntT; }
+    uint16_t crc() const { return GEBchamberTrailer{ct_}.crc16; }
 
     //!Adds VFAT data to the vector
-    void addVFAT(VFATdata v){m_vfatd.push_back(v);}
+    void addVFAT(VFATdata v) { vfatd_.push_back(v); }
     //!Returns the vector of FVAT data
-    const std::vector<VFATdata> * vFATs() const {return &m_vfatd;}  
+    const std::vector<VFATdata>* vFATs() const { return &vfatd_; }
 
     static const int sizeGebID = 5;
-    
+
   private:
-    std::vector<VFATdata> m_vfatd;     ///<Vector of VFAT data
-    std::vector<uint8_t> m_GEBflags;   ///<Vector for thirteen flags in GEM Chamber Header
+    uint64_t ch_;  // GEBchamberHeader
+    uint64_t ct_;  // GEBchamberTrailer
 
-    //GEM chamber header
-
-    //!Zero Suppression Flags:24  (8 zeroes):8
-    /**Bitmask indicating if certain VFAT blocks have been zero suppressed*/
-    uint32_t m_ZeroSup;
-    //!Input ID:5    000:3
-    /**GLIB input ID (starting at 0)*/
-    uint8_t m_InputID;   
-    //!VFAT word count:12   0000:4
-    /**Size of VFAT payload in 64 bit words*/
-    uint16_t m_Vwh;
-    //!Thirteen Flags, only one bit each
-    /** 
-	000:3    EvtFIFO full:1    InFIFO full:1   L1AFIFO full:1    Even size overflow:1    EvtFIFO near full:1   InFIFO near full:1    
-	L1AFIFO near full:1    Event size warn:1   No VFAT marker:1    OOS GLIB VFAT:1   OOS GLIB OH:1   
-	BX mismatch GLIB VFAT:1    BX mismatch GLIB OH:1
-    */
-    uint16_t m_ErrorC;
-
-    //GEM chamber trailer
-		
-    //!OH CRC:16
-    /**CRC of OH data (currently not available)*/
-    uint16_t m_OHCRC;     
-    //!0000:4   VFAT word count:12   
-    /**Same as in header. This one actually counts the number of valid words that were sent to AMC13; the one in header is what we expected to send to AMC13*/
-    uint16_t m_Vwt;      
-    //!(7 0's):7    InFIFO underflow:1   
-    /**Input status (critical): Input FIFO underflow occured while sending this event*/
-    uint8_t m_InFu;    
-    //!(7 0's):7    Stuck data:1    
-    /**Input status (warning): Data in InFIFO or EvtFIFO when L1A FIFO was empty. Only resets with resync or reset*/
-    uint8_t m_Stuckd; 
-
+    std::vector<VFATdata> vfatd_;
   };
-}
+}  // namespace gem
 #endif

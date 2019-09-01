@@ -25,17 +25,15 @@
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
-
-
 // PRODUCER CLASS DEFINITION -------------------------------------
-class Type1PFMET : public edm::EDProducer
-{
- public:
-  explicit Type1PFMET( const edm::ParameterSet& );
+class Type1PFMET : public edm::EDProducer {
+public:
+  explicit Type1PFMET(const edm::ParameterSet&);
   explicit Type1PFMET();
   ~Type1PFMET() override;
-  void produce( edm::Event&, const edm::EventSetup& ) override;
- private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
   edm::EDGetTokenT<reco::METCollection> tokenUncorMet;
   edm::EDGetTokenT<reco::PFJetCollection> tokenUncorJets;
   edm::EDGetTokenT<reco::JetCorrector> correctorToken;
@@ -43,12 +41,12 @@ class Type1PFMET : public edm::EDProducer
   double jetEMfracLimit;
   double jetMufracLimit;
   void run(const reco::METCollection& uncorMET,
-	   const reco::JetCorrector& corrector,
-	   const reco::PFJetCollection& uncorJet,
-	   double jetPTthreshold,
-	   double jetEMfracLimit,
-	   double jetMufracLimit,
-	   reco::METCollection* corMET);
+           const reco::JetCorrector& corrector,
+           const reco::PFJetCollection& uncorJet,
+           double jetPTthreshold,
+           double jetEMfracLimit,
+           double jetMufracLimit,
+           reco::METCollection* corMET);
 };
 
 #endif

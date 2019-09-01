@@ -5,4 +5,4 @@
 
 #include "DetectorDescription/Core/interface/DDConstant.h"
 
-#endif //DD_DDNUMERIC_H
+#endif  //DD_DDNUMERIC_H

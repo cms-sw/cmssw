@@ -16,15 +16,13 @@
 
 #include <vector>
 
-
-class MuonDTSeedFromRecHits : public MuonSeedFromRecHits
-{
-  public:
+class MuonDTSeedFromRecHits : public MuonSeedFromRecHits {
+public:
   MuonDTSeedFromRecHits();
 
   virtual TrajectorySeed seed() const;
 
-  ConstMuonRecHitPointer bestBarrelHit(const MuonRecHitContainer & barrelHits) const;
+  ConstMuonRecHitPointer bestBarrelHit(const MuonRecHitContainer& barrelHits) const;
   // was
   // TrackingRecHit best_cand() const;
 
@@ -35,9 +33,8 @@ private:
 
   // picks the segment that's nearest in eta to the most other segments
   float bestEta() const;
-  void computeMean(const double* pt, const double * weights, int sz,
-                   bool tossOutlyers, float& ptmean, float & sptmean) const;
-
+  void computeMean(
+      const double* pt, const double* weights, int sz, bool tossOutlyers, float& ptmean, float& sptmean) const;
 };
 
 #endif

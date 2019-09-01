@@ -11,14 +11,13 @@
 #include "G4Step.hh"
 
 class ZdcNumberingScheme {
-
 public:
   ZdcNumberingScheme(int);
   virtual ~ZdcNumberingScheme();
 
   void setVerbosity(const int);
 
-  virtual unsigned int getUnitID(const G4Step* aStep) const ;
+  virtual unsigned int getUnitID(const G4Step* aStep) const;
 
   /** pack the Unit ID for Zdc <br>
    *  z = 1,2 = -z,+z; subDet = 1,2,3 = EM,Lum,HAD; fiber = 1-96 (EM,HAD), 1 (Lum);
@@ -27,16 +26,13 @@ public:
   static unsigned int packZdcIndex(int subDet, int layer, int fiber, int channel, int z);
 
   // unpacking Unit ID for Zdc (-z=1, +z=2)
-  static void unpackZdcIndex(const unsigned int& idx, int& subDet, int& layer, int& fiber,
-                             int& channel, int& z);
+  static void unpackZdcIndex(const unsigned int& idx, int& subDet, int& layer, int& fiber, int& channel, int& z);
 
-  int  detectorLevel(const G4Step*) const;
+  int detectorLevel(const G4Step*) const;
   void detectorLevel(const G4Step*, int&, int*, G4String*) const;
 
 private:
-
   int verbosity;
-
 };
 
 #endif

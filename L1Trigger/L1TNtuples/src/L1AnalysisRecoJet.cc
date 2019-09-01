@@ -3,27 +3,18 @@
 //#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
-L1Analysis::L1AnalysisRecoJet::L1AnalysisRecoJet()
-{
-}
+L1Analysis::L1AnalysisRecoJet::L1AnalysisRecoJet() {}
 
-L1Analysis::L1AnalysisRecoJet::~L1AnalysisRecoJet()
-{
-}
-
+L1Analysis::L1AnalysisRecoJet::~L1AnalysisRecoJet() {}
 
 void L1Analysis::L1AnalysisRecoJet::SetCaloJet(const edm::Event& event,
-                 const edm::EventSetup& setup,
-                 edm::Handle<reco::CaloJetCollection> caloJets,
-                 unsigned maxJet)
-{
+                                               const edm::EventSetup& setup,
+                                               edm::Handle<reco::CaloJetCollection> caloJets,
+                                               unsigned maxJet) {
+  recoJet_.nJets = 0;
 
-  recoJet_.nJets=0;
-
-  for(reco::CaloJetCollection::const_iterator it=caloJets->begin();
-      it!=caloJets->end() && recoJet_.nJets < maxJet;
-      ++it) {
-
+  for (reco::CaloJetCollection::const_iterator it = caloJets->begin(); it != caloJets->end() && recoJet_.nJets < maxJet;
+       ++it) {
     recoJet_.et.push_back(it->et());
     // recoJet_.etCorr.push_back(it->et());// * scale);
     // recoJet_.corrFactor.push_back(1.);//scale);
@@ -50,10 +41,8 @@ void L1Analysis::L1AnalysisRecoJet::SetCaloJet(const edm::Event& event,
     // recoJet_.fRBX.push_back(1.); //(*jetsID)[jetRef].fRBX);
 
     recoJet_.nJets++;
-
   }
 }
-
 
 // void L1Analysis::L1AnalysisRecoJet::SetPFJet(const edm::Event& event,
 //                  const edm::EventSetup& setup,

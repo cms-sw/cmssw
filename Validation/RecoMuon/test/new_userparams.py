@@ -21,10 +21,10 @@ Publish=True
 Publish_rootfile=False
 
 # + Location of the AFS place where to put the PDFs
-WebRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
+WebRepository = '/eos/user/c/cmsmupog/www/Validation/'
 
-# User enabled to write in the afs area
-User='giovanni'
+# User enabled to write in the official repository
+User='cprieels'
 
 #
 # Information about the new release
@@ -34,20 +34,18 @@ NewParams = dict(
     Type='New',
     
     # Releases to compare
-    Release='CMSSW_10_1_0_pre1',
+    Release='CMSSW_10_6_0',
 
     # Conditions of the sample
-    #
-    #    FullSim in CMSSW_10_1_0_pre1 
-    Condition='100X_upgrade2018_realistic_v10',
-    #
-    #    FastSim in CMSSW_10_1_0_pre1
-    #Condition='100X_mcRun2_asymptotic_v2',
+    Condition='106X_upgrade2021_realistic_v4_rsb',
 
     # 'no' if no pileup, otherwise set BX spacing
-    PileUp='25ns',
+    PileUp='no',
+    #PileUp='25ns',
     #PileUp='',      # for HeavyIons
-    #PileUp='no',
+
+    # 13 or 14TeV?
+    Energy = '14TeV',
 
     Version='v1',
 
@@ -91,24 +89,11 @@ RefParams = dict(
     # Type of parameters
     Type='Ref',
 
-    Release='CMSSW_10_0_0',
-
-    # Conditions for Special RelVals in CMSSW_10_0_0
-    #
-    #    FullSim NoPU in CMSSW_10_0_0
-    #Condition='100X_upgrade2018_realistic_v6_muVal', 
-    #Condition='100X_upgrade2018_realistic_v6_mahiON', #standard RelVals (v1 and v2)
-    #
-    #    FullSim PU25ns in CMSSW_10_0_0
-    Condition='100X_upgrade2018_realistic_v6_muVal_resubwith4cores',
-    #
-    #    FastSim in CMSSW_10_0_0
-    #Condition='100X_mcRun2_asymptotic_v2_muVal',
-    #Condition='100X_mcRun2_asymptotic_v2', #standard RelVals (v1)
-
+    # Parameters for the reference
+    Release='CMSSW_10_6_0',
+    Condition='106X_upgrade2021_realistic_v4_rsb',
+    Energy = '13',
     Version='v1',
-    #Version='v2',
-
     Label=''
 )
 
@@ -126,20 +111,13 @@ ValidateDQM  = True
 
 # For FullSim No PU
 #samples = ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000',
-#           'RelValZMM_13', 'RelValWM_13', 'RelValJpsiMuMu_Pt-8', 'RelValTTbar_13',
-#           'RelValZpMM_13', 'RelValWpM_13',
-#           'RelValDisplacedSUSY_stopToBottom_M_300_1000mm_13']
+#           'RelValZMM', 'RelValWM', 'RelValJpsiMuMu_Pt-8', 'RelValTTbar',
+#           'RelValZpMM', 'RelValWpM',
+#           'RelValDisplacedSUSY_stopToBottom_M_300_1000mm']
 
-# For FullSim PU 25ns
-samples = ['RelValZMM_13', 'RelValTTbar_13']
+# For FastSim/FullSim PU 25ns
+samples = ['RelValTTbar']
+#samples = ['RelValZMM', 'RelValTTbar']
 
 # For HeavyIons FullSim
 #samples = ['RelValZEEMM_13_HI']
-
-# For FastSim No PU
-#samples = ['RelValSingleMuPt10_UP15', 'RelValSingleMuPt100_UP15',
-#           'RelValZMM_13','RelValTTbar_13']
-
-# For FastSim PU 25ns
-#samples = ['RelValZMM_13','RelValTTbar_13']
-

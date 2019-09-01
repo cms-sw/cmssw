@@ -27,9 +27,7 @@
    a given TriggerPath(s).
 */
 
-inline bool accept(const edm::Event& event,
-                   const edm::TriggerResults& triggerTable,
-                   const std::string& triggerPath) {
+inline bool accept(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::string& triggerPath) {
   bool passed = false;
   const edm::TriggerNames& triggerNames = event.triggerNames(triggerTable);
   for (unsigned int i = 0; i < triggerNames.triggerNames().size(); ++i) {
@@ -70,11 +68,11 @@ inline bool accept(const edm::Event& event,
    b tag information.
 */
 class Calculate_miniAOD {
- public:
+public:
   /// default constructor
   Calculate_miniAOD(int maxNJets, double wMass);
   /// default destructor
-  ~Calculate_miniAOD() {};
+  ~Calculate_miniAOD(){};
 
   /// calculate W boson mass estimate
   double massWBoson(const std::vector<pat::Jet>& jets);
@@ -83,25 +81,19 @@ class Calculate_miniAOD {
   /// calculate b-tagged t-quark mass estimate
   // double massBTopQuark(const std::vector<reco::Jet>& jets, std::vector<bool>
   // bjet);
-  double massBTopQuark(const std::vector<pat::Jet>& jets,
-                       std::vector<double> VbtagWP, double btagWP_);
+  double massBTopQuark(const std::vector<pat::Jet>& jets, std::vector<double> VbtagWP, double btagWP_);
 
   /// calculate W boson transverse mass estimate
-  double tmassWBoson(pat::Muon* lep, const pat::MET& met,
-                     const pat::Jet& b);
+  double tmassWBoson(pat::Muon* lep, const pat::MET& met, const pat::Jet& b);
   /// calculate top quark transverse mass estimate
-  double tmassTopQuark(pat::Muon* lep, const pat::MET& met,
-                       const pat::Jet& b);
-
+  double tmassTopQuark(pat::Muon* lep, const pat::MET& met, const pat::Jet& b);
 
   /// calculate W boson transverse mass estimate
-  double tmassWBoson(pat::Electron* lep, const pat::MET& met,
-                     const pat::Jet& b);
+  double tmassWBoson(pat::Electron* lep, const pat::MET& met, const pat::Jet& b);
   /// calculate top quark transverse mass estimate
-  double tmassTopQuark(pat::Electron* lep, const pat::MET& met,
-                       const pat::Jet& b);
+  double tmassTopQuark(pat::Electron* lep, const pat::MET& met, const pat::Jet& b);
 
- private:
+private:
   /// do the calculation; this is called only once per event by the first
   /// function call to return a mass estimate. The once calculated values
   /// are cached afterwards
@@ -109,13 +101,11 @@ class Calculate_miniAOD {
   /// do the calculation of the t-quark mass with one b-jet
   void operator2(const std::vector<pat::Jet>&, std::vector<double>, double);
   /// do the calculation of the transverse top and W masses
-  void operator()(const pat::Jet& bJet, pat::Electron* lepton,
-                  const pat::MET& met);
+  void operator()(const pat::Jet& bJet, pat::Electron* lepton, const pat::MET& met);
 
-  void operator()(const pat::Jet& bJet, pat::Muon* lepton,
-                  const pat::MET& met);
+  void operator()(const pat::Jet& bJet, pat::Muon* lepton, const pat::MET& met);
 
- private:
+private:
   /// indicate failed associations
   bool failed_;
   /// max. number of jets to be considered
@@ -134,14 +124,12 @@ class Calculate_miniAOD {
   double tmassTopQuark_;
 };
 
-
-
 class Calculate {
- public:
+public:
   /// default constructor
   Calculate(int maxNJets, double wMass);
   /// default destructor
-  ~Calculate() {};
+  ~Calculate(){};
 
   /// calculate W boson mass estimate
   double massWBoson(const std::vector<reco::Jet>& jets);
@@ -150,17 +138,14 @@ class Calculate {
   /// calculate b-tagged t-quark mass estimate
   // double massBTopQuark(const std::vector<reco::Jet>& jets, std::vector<bool>
   // bjet);
-  double massBTopQuark(const std::vector<reco::Jet>& jets,
-                       std::vector<double> VbtagWP, double btagWP_);
+  double massBTopQuark(const std::vector<reco::Jet>& jets, std::vector<double> VbtagWP, double btagWP_);
 
   /// calculate W boson transverse mass estimate
-  double tmassWBoson(reco::RecoCandidate* lep, const reco::MET& met,
-                     const reco::Jet& b);
+  double tmassWBoson(reco::RecoCandidate* lep, const reco::MET& met, const reco::Jet& b);
   /// calculate top quark transverse mass estimate
-  double tmassTopQuark(reco::RecoCandidate* lep, const reco::MET& met,
-                       const reco::Jet& b);
+  double tmassTopQuark(reco::RecoCandidate* lep, const reco::MET& met, const reco::Jet& b);
 
- private:
+private:
   /// do the calculation; this is called only once per event by the first
   /// function call to return a mass estimate. The once calculated values
   /// are cached afterwards
@@ -168,10 +153,9 @@ class Calculate {
   /// do the calculation of the t-quark mass with one b-jet
   void operator2(const std::vector<reco::Jet>&, std::vector<double>, double);
   /// do the calculation of the transverse top and W masses
-  void operator()(const reco::Jet& bJet, reco::RecoCandidate* lepton,
-                  const reco::MET& met);
+  void operator()(const reco::Jet& bJet, reco::RecoCandidate* lepton, const reco::MET& met);
 
- private:
+private:
   /// indicate failed associations
   bool failed_;
   /// max. number of jets to be considered
@@ -251,11 +235,11 @@ class Calculate {
 
 template <typename Object>
 class SelectionStep {
- public:
+public:
   /// default constructor
   SelectionStep(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
   /// default destructor
-  ~SelectionStep() {};
+  ~SelectionStep(){};
 
   /// apply selection
   bool select(const edm::Event& event);
@@ -264,7 +248,7 @@ class SelectionStep {
   bool select(const edm::Event& event, const edm::EventSetup& setup);
   bool selectVertex(const edm::Event& event);
 
- private:
+private:
   /// input collection
   edm::EDGetTokenT<edm::View<Object> > src_;
   /// min/max for object multiplicity
@@ -302,88 +286,77 @@ class SelectionStep {
 
 /// default constructor
 template <typename Object>
-SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg,
-                                     edm::ConsumesCollector&& iC)
+SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
     : select_(cfg.getParameter<std::string>("select")), jetIDSelect_(nullptr) {
-
-  src_ =
-      iC.consumes<edm::View<Object> >(cfg.getParameter<edm::InputTag>("src"));
+  src_ = iC.consumes<edm::View<Object> >(cfg.getParameter<edm::InputTag>("src"));
   // exist otherwise they are initialized with -1
   cfg.exists("min") ? min_ = cfg.getParameter<int>("min") : min_ = -1;
   cfg.exists("max") ? max_ = cfg.getParameter<int>("max") : max_ = -1;
   std::string mygSF = "gedGsfElectrons";
-  gsfEs_ = iC.consumes<edm::View<reco::GsfElectron> >(
-      cfg.getUntrackedParameter<edm::InputTag>("myGSF", mygSF));
+  gsfEs_ = iC.consumes<edm::View<reco::GsfElectron> >(cfg.getUntrackedParameter<edm::InputTag>("myGSF", mygSF));
   if (cfg.existsAs<edm::ParameterSet>("electronId")) {
-    edm::ParameterSet elecId =
-        cfg.getParameter<edm::ParameterSet>("electronId");
-    electronId_ = iC.consumes<edm::ValueMap<float> >(
-        elecId.getParameter<edm::InputTag>("src"));
+    edm::ParameterSet elecId = cfg.getParameter<edm::ParameterSet>("electronId");
+    electronId_ = iC.consumes<edm::ValueMap<float> >(elecId.getParameter<edm::InputTag>("src"));
     eidCutValue_ = elecId.getParameter<double>("cutValue");
   }
   if (cfg.exists("jetCorrector")) {
     jetCorrector_ = cfg.getParameter<std::string>("jetCorrector");
   }
   if (cfg.existsAs<edm::ParameterSet>("jetBTagger")) {
-    edm::ParameterSet jetBTagger =
-        cfg.getParameter<edm::ParameterSet>("jetBTagger");
-    btagLabel_ = iC.consumes<reco::JetTagCollection>(
-        jetBTagger.getParameter<edm::InputTag>("label"));
+    edm::ParameterSet jetBTagger = cfg.getParameter<edm::ParameterSet>("jetBTagger");
+    btagLabel_ = iC.consumes<reco::JetTagCollection>(jetBTagger.getParameter<edm::InputTag>("label"));
     btagWorkingPoint_ = jetBTagger.getParameter<double>("workingPoint");
   }
   if (cfg.existsAs<edm::ParameterSet>("jetID")) {
     edm::ParameterSet jetID = cfg.getParameter<edm::ParameterSet>("jetID");
-    jetIDLabel_ = iC.consumes<reco::JetIDValueMap>(
-        jetID.getParameter<edm::InputTag>("label"));
-    jetIDSelect_ = new StringCutObjectSelector<reco::JetID>(
-        jetID.getParameter<std::string>("select"));
+    jetIDLabel_ = iC.consumes<reco::JetIDValueMap>(jetID.getParameter<edm::InputTag>("label"));
+    jetIDSelect_ = new StringCutObjectSelector<reco::JetID>(jetID.getParameter<std::string>("select"));
   }
 }
 
 /// apply selection
 template <typename Object>
 bool SelectionStep<Object>::select(const edm::Event& event) {
-
   // fetch input collection
   edm::Handle<edm::View<Object> > src;
-  if (!event.getByToken(src_, src)) return false;
+  if (!event.getByToken(src_, src))
+    return false;
 
   // load electronId value map if configured such
   edm::Handle<edm::ValueMap<float> > electronId;
   if (!electronId_.isUninitialized()) {
-    if (!event.getByToken(electronId_, electronId)) return false;
+    if (!event.getByToken(electronId_, electronId))
+      return false;
   }
 
   // determine multiplicity of selected objects
   int n = 0;
-  for (typename edm::View<Object>::const_iterator obj = src->begin();
-       obj != src->end(); ++obj) {
+  for (typename edm::View<Object>::const_iterator obj = src->begin(); obj != src->end(); ++obj) {
     // special treatment for electrons
     if (dynamic_cast<const reco::GsfElectron*>(&*obj)) {
       unsigned int idx = obj - src->begin();
-      if (electronId_.isUninitialized()
-              ? true
-              : ((double)(*electronId)[src->refAt(idx)] >= eidCutValue_)) {
-        if (select_(*obj)) ++n;
+      if (electronId_.isUninitialized() ? true : ((double)(*electronId)[src->refAt(idx)] >= eidCutValue_)) {
+        if (select_(*obj))
+          ++n;
       }
     }
     // normal treatment
     else {
-      if (select_(*obj)) ++n;
+      if (select_(*obj))
+        ++n;
     }
   }
-  bool accept =
-      (min_ >= 0 ? n >= min_ : true) && (max_ >= 0 ? n <= max_ : true);
+  bool accept = (min_ >= 0 ? n >= min_ : true) && (max_ >= 0 ? n <= max_ : true);
   return (min_ < 0 && max_ < 0) ? (n > 0) : accept;
 }
 
 /// apply selection with special treatment for PFCandidates
 template <typename Object>
-bool SelectionStep<Object>::select(const edm::Event& event,
-                                   const std::string& type) {
+bool SelectionStep<Object>::select(const edm::Event& event, const std::string& type) {
   // fetch input collection
   edm::Handle<edm::View<Object> > src;
-  if (!event.getByToken(src_, src)) return false;
+  if (!event.getByToken(src_, src))
+    return false;
 
   // special for gsfElectron
   edm::Handle<edm::View<reco::GsfElectron> > elecs_gsf;
@@ -391,14 +364,13 @@ bool SelectionStep<Object>::select(const edm::Event& event,
   // load electronId value map if configured such
   edm::Handle<edm::ValueMap<float> > electronId;
   if (!electronId_.isUninitialized()) {
-    if (!event.getByToken(electronId_, electronId)) return false;
+    if (!event.getByToken(electronId_, electronId))
+      return false;
   }
 
   // determine multiplicity of selected objects
   int n = 0;
-  for (typename edm::View<Object>::const_iterator obj = src->begin();
-       obj != src->end(); ++obj) {
-
+  for (typename edm::View<Object>::const_iterator obj = src->begin(); obj != src->end(); ++obj) {
     // special treatment for PF candidates
     if (dynamic_cast<const reco::PFCandidate*>(&*obj)) {
       reco::PFCandidate objtmp = dynamic_cast<const reco::PFCandidate&>(*obj);
@@ -411,8 +383,7 @@ bool SelectionStep<Object>::select(const edm::Event& event,
         if (select_(*obj)) {
           if (electronId_.isUninitialized()) {
             ++n;
-          } else if (((double)(*electronId)[obj->gsfElectronRef()] >=
-                      eidCutValue_)) {
+          } else if (((double)(*electronId)[obj->gsfElectronRef()] >= eidCutValue_)) {
             ++n;
           }
         }
@@ -423,20 +394,19 @@ bool SelectionStep<Object>::select(const edm::Event& event,
     // special treatment for electrons
     else if (dynamic_cast<const reco::GsfElectron*>(&*obj)) {
       unsigned int idx = obj - src->begin();
-      if (electronId_.isUninitialized()
-              ? true
-              : ((double)(*electronId)[src->refAt(idx)] >= eidCutValue_)) {
-        if (select_(*obj)) ++n;
+      if (electronId_.isUninitialized() ? true : ((double)(*electronId)[src->refAt(idx)] >= eidCutValue_)) {
+        if (select_(*obj))
+          ++n;
       }
     }
 
     // normal treatment
     else {
-      if (select_(*obj)) ++n;
+      if (select_(*obj))
+        ++n;
     }
   }
-  bool accept =
-      (min_ >= 0 ? n >= min_ : true) && (max_ >= 0 ? n <= max_ : true);
+  bool accept = (min_ >= 0 ? n >= min_ : true) && (max_ >= 0 ? n <= max_ : true);
   return (min_ < 0 && max_ < 0) ? (n > 0) : accept;
 }
 
@@ -444,33 +414,33 @@ template <typename Object>
 bool SelectionStep<Object>::selectVertex(const edm::Event& event) {
   // fetch input collection
   edm::Handle<edm::View<Object> > src;
-  if (!event.getByToken(src_, src)) return false;
+  if (!event.getByToken(src_, src))
+    return false;
 
   // load electronId value map if configured such
   edm::Handle<edm::ValueMap<float> > electronId;
   if (!electronId_.isUninitialized()) {
-    if (!event.getByToken(electronId_, electronId)) return false;
+    if (!event.getByToken(electronId_, electronId))
+      return false;
   }
 
   // determine multiplicity of selected objects
   int n = 0;
-  for (typename edm::View<Object>::const_iterator obj = src->begin();
-       obj != src->end(); ++obj) {
-
-    if (select_(*obj)) ++n;
+  for (typename edm::View<Object>::const_iterator obj = src->begin(); obj != src->end(); ++obj) {
+    if (select_(*obj))
+      ++n;
   }
-  bool accept =
-      (min_ >= 0 ? n >= min_ : true) && (max_ >= 0 ? n <= max_ : true);
+  bool accept = (min_ >= 0 ? n >= min_ : true) && (max_ >= 0 ? n <= max_ : true);
   return (min_ < 0 && max_ < 0) ? (n > 0) : accept;
 }
 
 /// apply selection (w/o using the template class Object), override for jets
 template <typename Object>
-bool SelectionStep<Object>::select(const edm::Event& event,
-                                   const edm::EventSetup& setup) {
+bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetup& setup) {
   // fetch input collection
   edm::Handle<edm::View<Object> > src;
-  if (!event.getByToken(src_, src)) return false;
+  if (!event.getByToken(src_, src))
+    return false;
 
   // load btag collection if configured such
   // NOTE that the JetTagCollection needs an
@@ -480,67 +450,66 @@ bool SelectionStep<Object>::select(const edm::Event& event,
   edm::Handle<reco::JetTagCollection> btagger;
   edm::Handle<edm::View<reco::Vertex> > pvertex;
   if (!btagLabel_.isUninitialized()) {
-    if (!event.getByToken(src_, bjets)) return false;
-    if (!event.getByToken(btagLabel_, btagger)) return false;
-    if (!event.getByToken(pvs_, pvertex)) return false;
+    if (!event.getByToken(src_, bjets))
+      return false;
+    if (!event.getByToken(btagLabel_, btagger))
+      return false;
+    if (!event.getByToken(pvs_, pvertex))
+      return false;
   }
 
   // load jetID value map if configured such
   edm::Handle<reco::JetIDValueMap> jetID;
   if (jetIDSelect_) {
-    if (!event.getByToken(jetIDLabel_, jetID)) return false;
+    if (!event.getByToken(jetIDLabel_, jetID))
+      return false;
   }
 
   // load jet corrector if configured such
   const JetCorrector* corrector = nullptr;
   if (!jetCorrector_.empty()) {
     // check whether a jet correcto is in the event setup or not
-    if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<
-            JetCorrectionsRecord>())) {
+    if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>())) {
       corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
     } else {
-      edm::LogVerbatim("TopDQMHelpers")
-          << "\n"
-          << "---------------------------------------------------------------\n"
-          << " No JetCorrectionsRecord available from EventSetup:\n"
-          << "  - Jets will not be corrected.\n"
-          << "  - If you want to change this add the following lines to your "
-             "cfg file:\n"
-          << "\n"
-          << "  ## load jet corrections\n"
-          << "  process.load(\""
-             "JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff"
-             "\")\n"
-          << "  process.prefer(\"ak5CaloL2L3\")\n"
-          << "---------------------------------------------------------------"
-             "\n";
+      edm::LogVerbatim("TopDQMHelpers") << "\n"
+                                        << "---------------------------------------------------------------\n"
+                                        << " No JetCorrectionsRecord available from EventSetup:\n"
+                                        << "  - Jets will not be corrected.\n"
+                                        << "  - If you want to change this add the following lines to your "
+                                           "cfg file:\n"
+                                        << "\n"
+                                        << "  ## load jet corrections\n"
+                                        << "  process.load(\""
+                                           "JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff"
+                                           "\")\n"
+                                        << "  process.prefer(\"ak5CaloL2L3\")\n"
+                                        << "---------------------------------------------------------------"
+                                           "\n";
     }
   }
   // determine multiplicity of selected objects
   int n = 0;
-  for (typename edm::View<Object>::const_iterator obj = src->begin();
-       obj != src->end(); ++obj) {
+  for (typename edm::View<Object>::const_iterator obj = src->begin(); obj != src->end(); ++obj) {
     // check for chosen btag discriminator to be above the
     // corresponding working point if configured such
     unsigned int idx = obj - src->begin();
-    if (btagLabel_.isUninitialized() ? true : (*btagger)[bjets->refAt(idx)] >
-                                                  btagWorkingPoint_) {
+    if (btagLabel_.isUninitialized() ? true : (*btagger)[bjets->refAt(idx)] > btagWorkingPoint_) {
       bool passedJetID = true;
       // check jetID for calo jets
-      if (jetIDSelect_ &&
-          dynamic_cast<const reco::CaloJet*>(src->refAt(idx).get())) {
+      if (jetIDSelect_ && dynamic_cast<const reco::CaloJet*>(src->refAt(idx).get())) {
         passedJetID = (*jetIDSelect_)((*jetID)[src->refAt(idx)]);
       }
       if (passedJetID) {
         // scale jet energy if configured such
         Object jet = *obj;
         jet.scaleEnergy(corrector ? corrector->correction(*obj) : 1.);
-        if (select_(jet)) ++n;
+        if (select_(jet))
+          ++n;
       }
     }
   }
-  bool accept =
-      (min_ >= 0 ? n >= min_ : true) && (max_ >= 0 ? n <= max_ : true);
+  bool accept = (min_ >= 0 ? n >= min_ : true) && (max_ >= 0 ? n <= max_ : true);
   return (min_ < 0 && max_ < 0) ? (n > 0) : accept;
 }
 

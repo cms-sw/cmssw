@@ -9,36 +9,32 @@
 #include <memory>
 
 //typedef popcon::PopConAnalyzer<DTKeyedConfigHandler> DTKeyedConfigPopConAnalyzer;
-class DTKeyedConfigPopConAnalyzer: public popcon::PopConAnalyzer<DTKeyedConfigHandler> {
- public:
-  DTKeyedConfigPopConAnalyzer(const edm::ParameterSet& pset):
-    popcon::PopConAnalyzer<DTKeyedConfigHandler>( pset ),
-    copyData( pset.getParameter<edm::ParameterSet>("Source").
-                      getUntrackedParameter<bool> ( "copyData", true ) ) 
- {}
-  ~DTKeyedConfigPopConAnalyzer() override{}
-  void analyze(const edm::Event& e, const edm::EventSetup& s) override{
-
-    if ( !copyData ) return;
+class DTKeyedConfigPopConAnalyzer : public popcon::PopConAnalyzer<DTKeyedConfigHandler> {
+public:
+  DTKeyedConfigPopConAnalyzer(const edm::ParameterSet& pset)
+      : popcon::PopConAnalyzer<DTKeyedConfigHandler>(pset),
+        copyData(pset.getParameter<edm::ParameterSet>("Source").getUntrackedParameter<bool>("copyData", true)) {}
+  ~DTKeyedConfigPopConAnalyzer() override {}
+  void analyze(const edm::Event& e, const edm::EventSetup& s) override {
+    if (!copyData)
+      return;
 
     edm::ESHandle<cond::persistency::KeyList> klh;
-    std::cout<<"got eshandle"<<std::endl;
+    std::cout << "got eshandle" << std::endl;
     s.get<DTKeyedConfigListRcd>().get(klh);
-    std::cout<<"got context"<<std::endl;
-    cond::persistency::KeyList const &  kl= *klh.product();
-    cond::persistency::KeyList* list = const_cast<cond::persistency::KeyList*>( &kl );
-    for ( size_t i = 0; i < list->size(); i++ ) {
-      std::shared_ptr<DTKeyedConfig> kelem = list->get<DTKeyedConfig>( i );
-      if ( kelem.get() )
-           std::cout << kelem->getId() << std::endl;
+    std::cout << "got context" << std::endl;
+    cond::persistency::KeyList const& kl = *klh.product();
+    cond::persistency::KeyList* list = const_cast<cond::persistency::KeyList*>(&kl);
+    for (size_t i = 0; i < list->size(); i++) {
+      std::shared_ptr<DTKeyedConfig> kelem = list->get<DTKeyedConfig>(i);
+      if (kelem.get())
+        std::cout << kelem->getId() << std::endl;
     }
-    DTKeyedConfigHandler::setList( list );
-
+    DTKeyedConfigHandler::setList(list);
   }
- private:
+
+private:
   bool copyData;
 };
 
-
 DEFINE_FWK_MODULE(DTKeyedConfigPopConAnalyzer);
-

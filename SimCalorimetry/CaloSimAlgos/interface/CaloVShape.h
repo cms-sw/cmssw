@@ -8,19 +8,16 @@
    \brief Electronic response of the preamp
 */
 
-class CaloVShape 
-{
- public:
-
+class CaloVShape {
+public:
   CaloVShape() {}
   virtual ~CaloVShape() {}
 
-  virtual double       operator () (double) const = 0 ;
-  virtual double       timeToRise()         const = 0 ;
+  virtual double operator()(double) const = 0;
+  virtual double timeToRise() const = 0;
 
- protected:
-
- private:
+protected:
+private:
 };
 
 #endif

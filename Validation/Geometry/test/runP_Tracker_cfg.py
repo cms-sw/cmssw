@@ -2,7 +2,7 @@
 #
 # for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do cmsRun runP_Tracker_cfg.py geom=XYZ label=$t >& /dev/null &; done
 
-
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 import sys, re
@@ -11,16 +11,22 @@ process = cms.Process("PROD")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-# The default geometry is Extended2017Plan1. If a different geoemtry
-# is needed, the appropriate flag has to be passed at command line,
-# e.g.: cmsRun runP_Tracker_cfg.py geom="XYZ"
+"""
 
-# The default component to be monitored is the Tracker. If other
-# components need to be studied, they must be supplied, one at a time,
-# at the command line, e.g.: cmsRun runP_Tracker_cfg.py
-# label="XYZ"
+ The default geometry is Extended2017Plan1. If a different geometry
+ is needed, the appropriate flag has to be passed at command line,
+ e.g.: cmsRun runP_Tracker_cfg.py geom="XYZ"
+
+ The default component to be monitored is the Tracker. If other
+ components need to be studied, they must be supplied, one at a time,
+ at the command line, e.g.: cmsRun runP_Tracker_cfg.py
+ label="XYZ"
+
+"""
 
 from Validation.Geometry.plot_utils import _LABELS2COMPS
+
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
@@ -44,10 +50,20 @@ options.setDefault('inputFiles', ['file:single_neutrino_random.root'])
 options.parseArguments()
 # Option validation
 
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    destinations   = cms.untracked.vstring('info'),
+    categories = cms.untracked.vstring('logMsg'),
+    info = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO'),
+        filename = cms.untracked.string('Log_%s_%s' % (options.label,options.geom)),
+        logMsg = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+        )
+    )
+
 if options.label not in _ALLOWED_LABELS:
-    print "\n*** Error, '%s' not registered as a valid components to monitor." % options.label
-    print "Allowed components:", _ALLOWED_LABELS
-    print
+    print("\n*** Error, '%s' not registered as a valid components to monitor." % options.label)
+    print("Allowed components:", _ALLOWED_LABELS)
     raise RuntimeError("Unknown label")
 
 _components = _LABELS2COMPS[options.label]
@@ -72,7 +88,7 @@ if re.match('.*2016.*', options.geom):
           _components[i] = _adaptToRun2(_components[i])
   else:
       _components = _adaptToRun2(_components)
-    
+
 #
 #Magnetic Field
 #
@@ -106,7 +122,8 @@ process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('MaterialBudgetAction'),
     MaterialBudgetAction = cms.PSet(
-        HistosFile = cms.string('matbdg_%s.root' % options.label),
+        HistosFile = cms.string('matbdg_%s_%s.root' % (options.label,
+                                                       options.geom)),
         AllStepsToTree = cms.bool(True),
         HistogramList = cms.string('Tracker'),
         SelectedVolumes = cms.vstring(_components),

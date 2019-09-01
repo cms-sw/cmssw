@@ -14,7 +14,7 @@
 #include "TRandom.h"
 #include <vector>
 
- /**
+/**
     @file EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialClusterSource.h
     @class SiStripTrivialClusterSource
     @brief Creates a DetSetVector of SiStripDigis created using random
@@ -23,18 +23,14 @@
  */
 
 class SiStripTrivialClusterSource : public edm::EDProducer {
-  
- public:
-  
+public:
   SiStripTrivialClusterSource(const edm::ParameterSet&);
-  ~SiStripTrivialClusterSource();
-  
-  virtual void beginRun( edm::Run&, const edm::EventSetup& );
-  virtual void endJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  
- private: 
+  ~SiStripTrivialClusterSource() override;
 
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
   /** Check for space in module */
   bool available(const edm::DetSet<SiStripDigi>&, const uint16_t, const uint32_t);
 
@@ -54,8 +50,7 @@ class SiStripTrivialClusterSource : public edm::EDProducer {
   uint32_t nstrips_;
 
   /** Random */
-  TRandom random_; 
+  TRandom random_;
 };
 
-#endif // EventFilter_SiStripRawToDigi_SiStripTrivialClusterSource_H
-
+#endif  // EventFilter_SiStripRawToDigi_SiStripTrivialClusterSource_H

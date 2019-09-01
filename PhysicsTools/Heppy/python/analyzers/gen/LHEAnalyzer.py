@@ -1,3 +1,4 @@
+from builtins import range
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 import PhysicsTools.HeppyCore.framework.config as cfg
@@ -43,7 +44,7 @@ class LHEAnalyzer( Analyzer ):
         lBar=None
         nu=None
         nuBar=None 
-        for i in xrange(0,len(pup)):
+        for i in range(0,len(pup)):
           id=hepeup.IDUP[i]
           status = hepeup.ISTUP[i]
           idabs=abs(id)

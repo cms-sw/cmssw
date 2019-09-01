@@ -6,11 +6,11 @@
 #include "TPaveText.h"
 #include "TROOT.h"
 
-#include "../plugins/TkAlStyle.cc"
+#include "../macros/TkAlStyle.cc"
 
 
 void testTkAlStyle() {
-  gROOT->ProcessLine(".L ../plugins/TkAlStyle.cc+");
+  gROOT->ProcessLine(".L ../macros/TkAlStyle.cc+");
   TkAlStyle::set(PRELIMINARY);	// set publication status
 
   TCanvas* can = new TCanvas("can","can",500,500);

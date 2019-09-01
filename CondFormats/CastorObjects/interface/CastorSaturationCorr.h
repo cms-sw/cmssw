@@ -12,21 +12,20 @@ POOL object to store saturation correction values
 #include <boost/cstdint.hpp>
 
 class CastorSaturationCorr {
- public:
-  CastorSaturationCorr():mId(0), mSatCorr(0) {}
+public:
+  CastorSaturationCorr() : mId(0), mSatCorr(0) {}
 
-  CastorSaturationCorr(unsigned long fId, float fSatCorr):
-    mId(fId), mSatCorr(fSatCorr) {}
+  CastorSaturationCorr(unsigned long fId, float fSatCorr) : mId(fId), mSatCorr(fSatCorr) {}
 
-  uint32_t rawId () const {return mId;}
+  uint32_t rawId() const { return mId; }
 
-  float getValue() const {return mSatCorr;}
+  float getValue() const { return mSatCorr; }
 
- private:
+private:
   uint32_t mId;
   float mSatCorr;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     AlignPCLThresholdsRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

@@ -10,13 +10,11 @@
 
 namespace reco {
   class PFClusterMET;
-  /// collection of PFClusterMET objects 
+  /// collection of PFClusterMET objects
   typedef std::vector<PFClusterMET> PFClusterMETCollection;
   /// edm references
   typedef edm::Ref<PFClusterMETCollection> PFClusterMETRef;
   typedef edm::RefVector<PFClusterMETCollection> PFClusterMETRefVector;
   typedef edm::RefProd<PFClusterMETCollection> PFClusterMETRefProd;
-}
+}  // namespace reco
 #endif
-
-

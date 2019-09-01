@@ -17,33 +17,33 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include<vector>
+#include <vector>
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include<string>
+#include <string>
 
 //
 // class declaration
 //
 
-template<typename T>
+template <typename T>
 class HLTSmartSinglet : public HLTFilter {
+public:
+  explicit HLTSmartSinglet(const edm::ParameterSet&);
+  ~HLTSmartSinglet() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-   public:
+private:
+  edm::InputTag inputTag_;                        // input tag identifying product
+  edm::EDGetTokenT<std::vector<T> > inputToken_;  // token identifying product
+  int triggerType_;                               // triggerType
+  std::string cut_;                               // smart cut
+  int min_N_;                                     // number of objects passing cuts required
 
-      explicit HLTSmartSinglet(const edm::ParameterSet&);
-      ~HLTSmartSinglet() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-
-   private:
-      edm::InputTag                     inputTag_;   // input tag identifying product
-      edm::EDGetTokenT<std::vector<T> > inputToken_; // token identifying product
-      int triggerType_;        // triggerType
-      std::string   cut_;      // smart cut
-      int           min_N_;    // number of objects passing cuts required
-
-      StringCutObjectSelector<T,true> select_; // smart selector
+  StringCutObjectSelector<T, true> select_;  // smart selector
 };
 
-#endif //HLTSmartSinglet_h
+#endif  //HLTSmartSinglet_h

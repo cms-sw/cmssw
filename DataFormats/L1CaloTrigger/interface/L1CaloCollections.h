@@ -10,5 +10,4 @@
 typedef std::vector<L1CaloEmCand> L1CaloEmCollection;
 typedef std::vector<L1CaloRegion> L1CaloRegionCollection;
 
-
 #endif

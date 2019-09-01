@@ -18,6 +18,7 @@ loadRecoTauTagMVAsFromPrepDB = cms.ESSource( "PoolDBESSource",
                                              pfnPrefix        = cms.untracked.string( '' ),
                                              )
 
+####
 # register tau ID (= isolation) discriminator MVA
 tauIdDiscrMVA_trainings = {
     'tauIdMVAoldDMwoLT' : "tauIdMVAoldDMwoLT",
@@ -39,6 +40,8 @@ tauIdDiscrMVA_trainings_run2_2016 = {
 }
 tauIdDiscrMVA_trainings_run2_2017 = {
     'tauIdMVAIsoDBoldDMwLT2017' : "tauIdMVAIsoDBoldDMwLT2017",
+    'tauIdMVAIsoDBnewDMwLT2017' : "tauIdMVAIsoDBnewDMwLT2017",
+    'tauIdMVAIsoDBoldDMdR0p3wLT2017' : "tauIdMVAIsoDBoldDMdR0p3wLT2017",
 }
 tauIdDiscrMVA_WPs = {
     'tauIdMVAoldDMwoLT' : {
@@ -151,6 +154,24 @@ tauIdDiscrMVA_WPs_run2_2017 = {
         'Eff60' : "DBoldDMwLTEff60",
         'Eff50' : "DBoldDMwLTEff50",
         'Eff40' : "DBoldDMwLTEff40"
+    },
+    'tauIdMVAIsoDBnewDMwLT2017' : {
+        'Eff95' : "DBnewDMwLTEff95",
+        'Eff90' : "DBnewDMwLTEff90",
+        'Eff80' : "DBnewDMwLTEff80",
+        'Eff70' : "DBnewDMwLTEff70",
+        'Eff60' : "DBnewDMwLTEff60",
+        'Eff50' : "DBnewDMwLTEff50",
+        'Eff40' : "DBnewDMwLTEff40"
+    },
+    'tauIdMVAIsoDBoldDMdR0p3wLT2017' : {
+        'Eff95' : "DBoldDMdR0p3wLTEff95",
+        'Eff90' : "DBoldDMdR0p3wLTEff90",
+        'Eff80' : "DBoldDMdR0p3wLTEff80",
+        'Eff70' : "DBoldDMdR0p3wLTEff70",
+        'Eff60' : "DBoldDMdR0p3wLTEff60",
+        'Eff50' : "DBoldDMdR0p3wLTEff50",
+        'Eff40' : "DBoldDMdR0p3wLTEff40"
     }
 }
 tauIdDiscrMVA_mvaOutput_normalizations = {
@@ -172,7 +193,9 @@ tauIdDiscrMVA_mvaOutput_normalizations_run2_2016 = {
     'tauIdMVAIsoDBnewDMwLT2016' : "mvaOutput_normalization_DBnewDMwLT2016"
 }
 tauIdDiscrMVA_mvaOutput_normalizations_run2_2017 = {
-    'tauIdMVAIsoDBoldDMwLT2017' : "mvaOutput_normalization"
+    'tauIdMVAIsoDBoldDMwLT2017' : "mvaOutput_normalization",
+    'tauIdMVAIsoDBnewDMwLT2017' : "mvaOutput_normalization",
+    'tauIdMVAIsoDBoldDMdR0p3wLT2017' : "mvaOutput_normalization"
 }
 tauIdDiscrMVA_version = "v1"
 for training, gbrForestName in tauIdDiscrMVA_trainings.items():
@@ -221,6 +244,7 @@ for training, gbrForestName in tauIdDiscrMVA_trainings_run2.items():
             label = cms.untracked.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, tauIdDiscrMVA_version))
         )
     )
+# MVAIso 2016
 for training, gbrForestName in tauIdDiscrMVA_trainings_run2_2016.items():
     loadRecoTauTagMVAsFromPrepDB.toGet.append(
 	cms.PSet(
@@ -244,33 +268,38 @@ for training, gbrForestName in tauIdDiscrMVA_trainings_run2_2016.items():
 	    label = cms.untracked.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, tauIdDiscrMVA_version))
 	)
     )
-tauIdDiscrMVA_2017_version = "v1"
-for training, gbrForestName in tauIdDiscrMVA_trainings_run2_2017.items():
-    loadRecoTauTagMVAsFromPrepDB.toGet.append(
-        cms.PSet(
-            record = cms.string('GBRWrapperRcd'),
-            tag = cms.string("RecoTauTag_%s%s" % (gbrForestName, tauIdDiscrMVA_2017_version)),
-            label = cms.untracked.string("RecoTauTag_%s%s" % (gbrForestName, tauIdDiscrMVA_2017_version))
-        )
-    )
-    for WP in tauIdDiscrMVA_WPs_run2_2017[training].keys():
+# MVAIso 2017
+tauIdDiscrMVA_2017_version = ["v1","v2"]
+for ver2017 in tauIdDiscrMVA_2017_version:
+    for training, gbrForestName in tauIdDiscrMVA_trainings_run2_2017.items():
+        if ver2017=="v1" and (training.find("newDM")>-1 or training.find("dR0p3")>-1):
+            continue #skip nonexistent trainings
         loadRecoTauTagMVAsFromPrepDB.toGet.append(
             cms.PSet(
-                record = cms.string('PhysicsTGraphPayloadRcd'),
-                tag = cms.string("RecoTauTag_%s%s_WP%s" % (gbrForestName, tauIdDiscrMVA_2017_version, WP)),
-                label = cms.untracked.string("RecoTauTag_%s%s_WP%s" % (gbrForestName, tauIdDiscrMVA_2017_version, WP))
+                record = cms.string('GBRWrapperRcd'),
+                tag = cms.string("RecoTauTag_%s%s" % (gbrForestName, ver2017)),
+                label = cms.untracked.string("RecoTauTag_%s%s" % (gbrForestName, ver2017))
             )
         )
-    loadRecoTauTagMVAsFromPrepDB.toGet.append(
-	cms.PSet(
-	    record = cms.string('PhysicsTFormulaPayloadRcd'),
-	    tag = cms.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, tauIdDiscrMVA_2017_version)),
-	    label = cms.untracked.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, tauIdDiscrMVA_2017_version))
-	)
-    )
+        for WP in tauIdDiscrMVA_WPs_run2_2017[training].keys():
+            loadRecoTauTagMVAsFromPrepDB.toGet.append(
+                cms.PSet(
+                    record = cms.string('PhysicsTGraphPayloadRcd'),
+                    tag = cms.string("RecoTauTag_%s%s_WP%s" % (gbrForestName, ver2017, WP)),
+                    label = cms.untracked.string("RecoTauTag_%s%s_WP%s" % (gbrForestName, ver2017, WP))
+                )
+            )
+        loadRecoTauTagMVAsFromPrepDB.toGet.append(
+            cms.PSet(
+                record = cms.string('PhysicsTFormulaPayloadRcd'),
+                tag = cms.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, ver2017)),
+                label = cms.untracked.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, ver2017))
+	    )
+        )
 
 ####
-# register anti-electron discriminator MVA
+## register anti-electron discriminator MVA
+# MVA5
 antiElectronDiscrMVA5_categories = {
      '0' : "gbr_NoEleMatch_woGwoGSF_BL",
      '1' : "gbr_NoEleMatch_woGwGSF_BL",
@@ -308,6 +337,7 @@ for category, gbrForestName in antiElectronDiscrMVA5_categories.items():
             )
         )
 
+# MVA6v1
 antiElectronDiscrMVA6_categories = {
      '0' : "gbr_NoEleMatch_woGwoGSF_BL",
      '2' : "gbr_NoEleMatch_wGwoGSF_BL",
@@ -336,7 +366,28 @@ for category, gbrForestName in antiElectronDiscrMVA6_categories.items():
                 label = cms.untracked.string("RecoTauTag_antiElectronMVA6%s_%s_WP%s" % (antiElectronDiscrMVA6_version, gbrForestName, WP))
             )
         )
+# MVA6v3
+# MB: categories as in MVA6v1
+antiElectronDiscrMVA6_2017_WPs = [ "eff98", "eff90", "eff80", "eff70", "eff60" ]
+antiElectronDiscrMVA6_2017_version = "v3_noeveto"
+for category, gbrForestName in antiElectronDiscrMVA6_categories.items():
+    loadRecoTauTagMVAsFromPrepDB.toGet.append(
+        cms.PSet(
+            record = cms.string('GBRWrapperRcd'),
+            tag = cms.string("RecoTauTag_antiElectronMVA6%s_%s" % (antiElectronDiscrMVA6_2017_version, gbrForestName)),
+            label = cms.untracked.string("RecoTauTag_antiElectronMVA6%s_%s" % (antiElectronDiscrMVA6_2017_version, gbrForestName))
+        )
+    )
+    for WP in antiElectronDiscrMVA6_2017_WPs:
+        loadRecoTauTagMVAsFromPrepDB.toGet.append(
+            cms.PSet(
+                record = cms.string('PhysicsTGraphPayloadRcd'),
+                tag = cms.string("RecoTauTag_antiElectronMVA6%s_%s_WP%s" % (antiElectronDiscrMVA6_2017_version, gbrForestName, WP)),
+                label = cms.untracked.string("RecoTauTag_antiElectronMVA6%s_%s_WP%s" % (antiElectronDiscrMVA6_2017_version, gbrForestName, WP))
+            )
+        )
     
+####
 # register anti-muon discriminator MVA
 antiMuonDiscrMVA_WPs = [ "eff99_5", "eff99_0", "eff98_0" ]
 antiMuonDiscrMVA_version = "v1"

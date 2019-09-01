@@ -21,13 +21,13 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 // template object
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 
 // Vectors
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 
-// STL
+// STL.  <memory> needed for uniq_ptr<>
 #include <vector>
 #include <string>
 #include <memory>
@@ -35,95 +35,96 @@
 class TFile;
 class RandomEngineAndDistribution;
 class SimpleHistogramGenerator;
+class PixelResolutionHistograms;
 
-class PixelTemplateSmearerBase:
-    public TrackingRecHitAlgorithm
-{
-    public:
-        //--- Use this type to keep track of groups of hits that need to be merged:
-        struct MergeGroup{
-            std::vector<TrackingRecHitProduct::SimHitIdPair> group;
-            bool smearIt;
-        };
+class PixelTemplateSmearerBase : public TrackingRecHitAlgorithm {
+public:
+  //--- Use this type to keep track of groups of hits that need to be merged:
+  struct MergeGroup {
+    std::vector<TrackingRecHitProduct::SimHitIdPair> group;
+    bool smearIt;
+  };
 
-    protected:
-        bool mergeHitsOn; 
-        std::vector< SiPixelTemplateStore > thePixelTemp_;
-        int templateId;
-        
-        bool isFlipped(const PixelGeomDetUnit* theDet) const;
-        //isForward, true for forward, false for barrel
-        bool isForward;
-        
-        double rescotAlpha_binMin , rescotAlpha_binWidth;
-        unsigned int rescotAlpha_binN;
-        double rescotBeta_binMin  , rescotBeta_binWidth;
-        unsigned int rescotBeta_binN;
-        int resqbin_binMin, resqbin_binWidth;
-        unsigned int resqbin_binN;
-        
+protected:
+  bool mergeHitsOn = false;  // if true then see if neighboring hits might merge
 
-        std::map<unsigned int, const SimpleHistogramGenerator*> theXHistos;
-        std::map<unsigned int, const SimpleHistogramGenerator*> theYHistos;
+  //--- Template DB Object(s)
+  const SiPixelTemplateDBObject* pixelTemplateDBObject_ = nullptr;     // needed for template<-->DetId map.
+  std::vector<SiPixelTemplateStore> thePixelTemp_;                     // our own template storage
+  std::vector<SiPixelTemplateStore>& thePixelTempRef = thePixelTemp_;  // points to the one we will use.
+  int templateId = -1;
 
-        std::unique_ptr<TFile> theEdgePixelResolutionFile;
-        std::string theEdgePixelResolutionFileName;
-        std::unique_ptr<TFile> theBigPixelResolutionFile;
-        std::string theBigPixelResolutionFileName;
-        std::unique_ptr<TFile> theRegularPixelResolutionFile;
-        std::string theRegularPixelResolutionFileName;
-        std::unique_ptr<TFile> theMergingProbabilityFile;
-        std::string theMergingProbabilityFileName;
-        std::unique_ptr<TFile> theMergedPixelResolutionXFile;
-        std::string theMergedPixelResolutionXFileName;
-        std::unique_ptr<TFile> theMergedPixelResolutionYFile;                                                                                        
-        std::string theMergedPixelResolutionYFileName;
+  //--- Flag to tell us whether we are in barrel or in forward.
+  //    This is needed since the parameterization is slightly
+  //    different for forward, since all forward detectors cover
+  //    a smaller range of local incidence angles and thus
+  //    the clusters are shorter and have less charge.
+  bool isBarrel;
 
-        unsigned int theLayer;
+  //--- The histogram storage containers.
+  std::shared_ptr<PixelResolutionHistograms> theEdgePixelResolutions;
+  std::string theEdgePixelResolutionFileName;
 
-    public:
+  std::shared_ptr<PixelResolutionHistograms> theBigPixelResolutions;
+  std::string theBigPixelResolutionFileName;
 
-        explicit PixelTemplateSmearerBase(  const std::string& name,
-			              const edm::ParameterSet& config,
-			              edm::ConsumesCollector& consumesCollector );
+  std::shared_ptr<PixelResolutionHistograms> theRegularPixelResolutions;
+  std::string theRegularPixelResolutionFileName;
 
-        ~PixelTemplateSmearerBase() override;
-        TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const override;
+  //--- Files with hit merging information:
+  std::unique_ptr<TFile> theMergingProbabilityFile;
+  std::string theMergingProbabilityFileName;
 
-        //--- Process all unmerged hits. Calls smearHit() for each.
-        TrackingRecHitProductPtr processUnmergedHits( 
-            std::vector<TrackingRecHitProduct::SimHitIdPair> & unmergedHits,
-	        TrackingRecHitProductPtr product,
-	        const PixelGeomDetUnit * detUnit,
-	        const double boundX, const double boundY,
-	        RandomEngineAndDistribution const * random
-        ) const;
-        //--- Process all groups of merged hits.
-        TrackingRecHitProductPtr processMergeGroups(
-            std::vector< MergeGroup* > & mergeGroups,
-            TrackingRecHitProductPtr product,
-            const PixelGeomDetUnit * detUnit,
-            const double boundX, const double boundY,
-            RandomEngineAndDistribution const * random
-        ) const;
+  std::unique_ptr<TFile> theMergedPixelResolutionXFile;
+  std::string theMergedPixelResolutionXFileName;
 
+  std::unique_ptr<TFile> theMergedPixelResolutionYFile;
+  std::string theMergedPixelResolutionYFileName;
 
-        //--- Process one umerged hit.
-        FastSingleTrackerRecHit smearHit(
-            const PSimHit& simHit, const PixelGeomDetUnit* detUnit, 
-            const double boundX, const double boundY,
-            RandomEngineAndDistribution const*) 
-        const;
+public:
+  explicit PixelTemplateSmearerBase(const std::string& name,
+                                    const edm::ParameterSet& config,
+                                    edm::ConsumesCollector& consumesCollector);
 
-        //--- Process one merge group.
-        FastSingleTrackerRecHit smearMergeGroup(
-            MergeGroup* mg,
-            const PixelGeomDetUnit * detUnit,
-            const double boundX, const double boundY,
-            const RandomEngineAndDistribution* random
-        ) const;
+  ~PixelTemplateSmearerBase() override;
+  TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const override;
+  // void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void beginRun(edm::Run const& run,
+                const edm::EventSetup& eventSetup,
+                const SiPixelTemplateDBObject* pixelTemplateDBObjectPtr,
+                std::vector<SiPixelTemplateStore>& tempStoreRef) override;
+  // void endEvent(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
-        //--- Method to decide if the two hits on the same DetUnit are merged, or not.
-        bool hitsMerge(const PSimHit& simHit1,const PSimHit& simHit2) const;
+  //--- Process all unmerged hits. Calls smearHit() for each.
+  TrackingRecHitProductPtr processUnmergedHits(std::vector<TrackingRecHitProduct::SimHitIdPair>& unmergedHits,
+                                               TrackingRecHitProductPtr product,
+                                               const PixelGeomDetUnit* detUnit,
+                                               const double boundX,
+                                               const double boundY,
+                                               RandomEngineAndDistribution const* random) const;
+  //--- Process all groups of merged hits.
+  TrackingRecHitProductPtr processMergeGroups(std::vector<MergeGroup*>& mergeGroups,
+                                              TrackingRecHitProductPtr product,
+                                              const PixelGeomDetUnit* detUnit,
+                                              const double boundX,
+                                              const double boundY,
+                                              RandomEngineAndDistribution const* random) const;
+
+  //--- Process one umerged hit.
+  FastSingleTrackerRecHit smearHit(const PSimHit& simHit,
+                                   const PixelGeomDetUnit* detUnit,
+                                   const double boundX,
+                                   const double boundY,
+                                   RandomEngineAndDistribution const*) const;
+
+  //--- Process one merge group.
+  FastSingleTrackerRecHit smearMergeGroup(MergeGroup* mg,
+                                          const PixelGeomDetUnit* detUnit,
+                                          const double boundX,
+                                          const double boundY,
+                                          const RandomEngineAndDistribution* random) const;
+
+  //--- Method to decide if the two hits on the same DetUnit are merged, or not.
+  bool hitsMerge(const PSimHit& simHit1, const PSimHit& simHit2) const;
 };
 #endif

@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,82 +39,64 @@ class L1TcsWord;
 class L1GtFdlWord;
 
 // class declaration
-class L1GTEvmDigiToRaw : public edm::EDProducer
-{
-
+class L1GTEvmDigiToRaw : public edm::stream::EDProducer<> {
 public:
-
-    /// constructor(s)
-    explicit L1GTEvmDigiToRaw(const edm::ParameterSet&);
-
-    /// destructor
-    ~L1GTEvmDigiToRaw() override;
+  /// constructor(s)
+  explicit L1GTEvmDigiToRaw(const edm::ParameterSet&);
 
 private:
+  /// loop over events
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-    /// beginning of job stuff
-    void beginJob() override;
+  /// block packers -------------
 
-    /// loop over events
-    void produce(edm::Event&, const edm::EventSetup&) override;
+  /// pack header
+  void packHeader(unsigned char*, edm::Event&);
 
-    /// block packers -------------
+  /// pack the GTFE block
+  /// gives the number of bunch crosses in the event, as well as the active boards
+  /// records for inactive boards are not written in the GT EVM record
+  void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeExtWord&, cms_uint16_t activeBoardsGtValue);
 
-    /// pack header
-    void packHeader(unsigned char*, edm::Event&);
+  /// pack the TCS block
+  void packTCS(const edm::EventSetup& evSetup, unsigned char* ptrGt, L1TcsWord& tcsBlock);
 
-    /// pack the GTFE block
-    /// gives the number of bunch crosses in the event, as well as the active boards
-    /// records for inactive boards are not written in the GT EVM record
-    void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeExtWord&,
-                  cms_uint16_t activeBoardsGtValue);
+  /// pack FDL blocks for various bunch crosses
+  void packFDL(const edm::EventSetup&, unsigned char*, L1GtFdlWord&);
 
-    /// pack the TCS block
-    void packTCS(const edm::EventSetup& evSetup, unsigned char* ptrGt,
-                 L1TcsWord& tcsBlock);
-
-    /// pack FDL blocks for various bunch crosses
-    void packFDL(const edm::EventSetup&, unsigned char*, L1GtFdlWord&);
-
-    /// pack trailer word
-    void packTrailer(unsigned char*, unsigned char*, int);
-
-    /// end of job stuff
-    void endJob() override;
+  /// pack trailer word
+  void packTrailer(unsigned char*, unsigned char*, int);
 
 private:
+  /// FED Id for GT EVM record
+  /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
+  int m_evmGtFedId;
 
-    /// FED Id for GT EVM record
-    /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    int m_evmGtFedId;
+  /// input tag for GT EVM record
+  const edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_evmGtInputToken;
+  const edm::InputTag m_evmGtInputTag;
 
-    /// input tag for GT EVM record
-    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_evmGtInputToken;
-    edm::InputTag m_evmGtInputTag;
+  /// mask for active boards
+  cms_uint16_t m_activeBoardsMaskGt;
 
-    /// mask for active boards
-    cms_uint16_t m_activeBoardsMaskGt;
+  /// total Bx's in the event, obtained from GTFE block
+  int m_totalBxInEvent;
 
-    /// total Bx's in the event, obtained from GTFE block
-    int m_totalBxInEvent;
+  /// min Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
+  /// assume symmetrical number of BX around L1Accept
+  int m_minBxInEvent;
 
-    /// min Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
-    /// assume symmetrical number of BX around L1Accept
-    int m_minBxInEvent;
+  /// max Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
+  /// assume symmetrical number of BX around L1Accept
+  int m_maxBxInEvent;
 
-    /// max Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
-    /// assume symmetrical number of BX around L1Accept
-    int m_maxBxInEvent;
-
-    /// length of BST record (in bytes)
-    int m_bstLengthBytes;
+  /// length of BST record (in bytes)
+  int m_bstLengthBytes;
 
 private:
-
-    /// verbosity level
-    int m_verbosity;
-    bool m_isDebugEnabled;
-
+  /// verbosity level
+  const int m_verbosity;
+  const bool m_isDebugEnabled;
 };
 
-#endif // EventFilter_L1GlobalTriggerRawToDigi_L1GTEvmDigiToRaw_h
+#endif  // EventFilter_L1GlobalTriggerRawToDigi_L1GTEvmDigiToRaw_h

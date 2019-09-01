@@ -2,35 +2,33 @@
 
 #include "SimCalorimetry/EcalSimAlgos/interface/APDShape.h"
 
-#include<cassert>
+#include <cassert>
 
-APDShape::~APDShape()
-{
-}
+void APDShape::fillShape(float& time_interval,
+                         double& m_thresh,
+                         EcalShapeBase::DVec& aVec,
+                         const edm::EventSetup* es) const {
+  if (m_useDBShape) {
+    if (es == nullptr) {
+      throw cms::Exception("EcalShapeBase:: DB conditions are not available, const edm::EventSetup* es == nullptr ");
+    }
+    edm::ESHandle<EcalSimPulseShape> esps;
+    es->get<EcalSimPulseShapeRcd>().get(esps);
 
-APDShape::APDShape( double tStart,
-		    double tau     ) :
-   EcalShapeBase( true ) ,
-   m_tStart ( tStart ) ,
-   m_tau    ( tau    )
-{
-   assert( m_tau    > 1.e-5 ) ;
-   assert( m_tStart > 0     ) ;
-   buildMe() ;
-}
+    aVec = esps->apd_shape;
+    time_interval = esps->time_interval;
+    m_thresh = esps->apd_thresh;
+  } else {
+    m_thresh = 0.0;
+    time_interval = 1.0;
+    aVec.reserve(500);
+    const double m_tStart = 74.5;
+    const double m_tau = 40.5;
 
-double
-APDShape::threshold() const
-{
-   return 0.0 ; 
-}
-
-void
-APDShape::fillShape( EcalShapeBase::DVec& aVec ) const
-{
-   for( unsigned int i ( 0 ) ; i != k1NSecBinsTotal ; ++i )
-   {
-      const double ctime ( ( 1.*i + 0.5 - m_tStart )/m_tau ) ;
-      aVec[i] = ( 0 > ctime ? 0 : ctime * exp( 1. - ctime ) ) ;
-   }
+    for (unsigned int i(0); i != 500; ++i) {
+      const double ctime((1. * i + 0.5 - m_tStart) / m_tau);
+      double val = 0 > ctime ? 0 : ctime * exp(1. - ctime);
+      aVec.push_back(val);
+    }
+  }
 }

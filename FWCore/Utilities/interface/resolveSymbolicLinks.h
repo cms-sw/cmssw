@@ -8,6 +8,6 @@ namespace edm {
   // fullPath will not be modified.
 
   void resolveSymbolicLinks(std::string& fullPath);
-}
+}  // namespace edm
 
 #endif

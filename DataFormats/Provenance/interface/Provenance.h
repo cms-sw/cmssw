@@ -27,8 +27,10 @@ existence.
 */
 
 namespace edm {
+  class MergeableRunProductMetadataBase;
   class ProductProvenance;
   class ProductProvenanceRetriever;
+
   class Provenance {
   public:
     Provenance();
@@ -37,27 +39,30 @@ namespace edm {
 
     Provenance(StableProvenance const&);
 
-    StableProvenance const& stable() const {return stableProvenance_;}
-    StableProvenance& stable() {return stableProvenance_;}
+    StableProvenance const& stable() const { return stableProvenance_; }
+    StableProvenance& stable() { return stableProvenance_; }
 
-    BranchDescription const& branchDescription() const {return stable().branchDescription();}
-    std::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {return stable().constBranchDescriptionPtr();}
+    BranchDescription const& branchDescription() const { return stable().branchDescription(); }
+    std::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {
+      return stable().constBranchDescriptionPtr();
+    }
 
     ProductProvenance const* productProvenance() const;
-    BranchID const& branchID() const {return stable().branchID();}
-    std::string const& branchName() const {return stable().branchName();}
-    std::string const& className() const {return stable().className();}
-    std::string const& moduleLabel() const {return stable().moduleLabel();}
-    std::string const& moduleName() const {return stable().moduleName();}
-    std::string const& processName() const {return stable().processName();}
-    std::string const& productInstanceName() const {return stable().productInstanceName();}
-    std::string const& friendlyClassName() const {return stable().friendlyClassName();}
-    ProductProvenanceRetriever const* store() const {return store_;}
-    ProcessHistory const& processHistory() const {return stable().processHistory();}
-    ProcessHistory const* processHistoryPtr() const {return stable().processHistoryPtr();}
-    bool getProcessConfiguration(ProcessConfiguration& pc) const {return stable().getProcessConfiguration(pc);}
-    ReleaseVersion releaseVersion() const {return stable().releaseVersion();}
-    std::set<std::string> const& branchAliases() const {return stable().branchAliases();}
+    bool knownImproperlyMerged() const;
+    BranchID const& branchID() const { return stable().branchID(); }
+    std::string const& branchName() const { return stable().branchName(); }
+    std::string const& className() const { return stable().className(); }
+    std::string const& moduleLabel() const { return stable().moduleLabel(); }
+    std::string const& moduleName() const { return stable().moduleName(); }
+    std::string const& processName() const { return stable().processName(); }
+    std::string const& productInstanceName() const { return stable().productInstanceName(); }
+    std::string const& friendlyClassName() const { return stable().friendlyClassName(); }
+    ProductProvenanceRetriever const* store() const { return store_; }
+    ProcessHistory const& processHistory() const { return stable().processHistory(); }
+    ProcessHistory const* processHistoryPtr() const { return stable().processHistoryPtr(); }
+    bool getProcessConfiguration(ProcessConfiguration& pc) const { return stable().getProcessConfiguration(pc); }
+    ReleaseVersion releaseVersion() const { return stable().releaseVersion(); }
+    std::set<std::string> const& branchAliases() const { return stable().branchAliases(); }
 
     // Usually branchID() and originalBranchID() return exactly the same result.
     // The return values can differ only in cases where an EDAlias is involved.
@@ -69,35 +74,38 @@ namespace edm {
     // the BranchID of the EDAlias and originalBranchID() returns the BranchID
     // of the branch name that was dropped. One reason the original BranchID can
     // be useful is that Parentage information is stored using the original BranchIDs.
-    BranchID const& originalBranchID() const {return stable().originalBranchID();}
+    BranchID const& originalBranchID() const { return stable().originalBranchID(); }
 
     void write(std::ostream& os) const;
 
-    void setStore(ProductProvenanceRetriever const* store) {store_ = store;}
+    void setStore(ProductProvenanceRetriever const* store) { store_ = store; }
 
-    void setProcessHistory(ProcessHistory const& ph) {stable().setProcessHistory(ph);}
+    void setProcessHistory(ProcessHistory const& ph) { stable().setProcessHistory(ph); }
 
-    ProductID const& productID() const {return stable().productID();}
+    ProductID const& productID() const { return stable().productID(); }
 
-    void setProductID(ProductID const& pid) {stable().setProductID(pid);}
+    void setProductID(ProductID const& pid) { stable().setProductID(pid); }
 
-    void setBranchDescription(std::shared_ptr<BranchDescription const> const& p) {stable().setBranchDescription(p);}
+    void setMergeableRunProductMetadata(MergeableRunProductMetadataBase const* mrpm) {
+      mergeableRunProductMetadata_ = mrpm;
+    }
+
+    void setBranchDescription(std::shared_ptr<BranchDescription const> const& p) { stable().setBranchDescription(p); }
 
     void swap(Provenance&);
 
   private:
     StableProvenance stableProvenance_;
     ProductProvenanceRetriever const* store_;
+    MergeableRunProductMetadataBase const* mergeableRunProductMetadata_;
   };
 
-  inline
-  std::ostream&
-  operator<<(std::ostream& os, Provenance const& p) {
+  inline std::ostream& operator<<(std::ostream& os, Provenance const& p) {
     p.write(os);
     return os;
   }
 
   bool operator==(Provenance const& a, Provenance const& b);
 
-}
+}  // namespace edm
 #endif

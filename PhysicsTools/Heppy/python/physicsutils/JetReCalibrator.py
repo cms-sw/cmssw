@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import range
 import ROOT
 import os, types
 from math import *
@@ -38,7 +40,7 @@ class JetReCalibrator:
         elif os.path.exists("%s/Uncertainty_FAKE.txt" % path):
             self.JetUncertainty = ROOT.JetCorrectionUncertainty("%s/Uncertainty_FAKE.txt" % path);
         else:
-            print 'Missing JEC uncertainty file "%s/%s_Uncertainty_%s.txt", so jet energy uncertainties will not be available' % (path,globalTag,jetFlavour)
+            print('Missing JEC uncertainty file "%s/%s_Uncertainty_%s.txt", so jet energy uncertainties will not be available' % (path,globalTag,jetFlavour))
             self.JetUncertainty = None
         self.separateJetCorrectors = {}
         if calculateSeparateCorrections or calculateType1METCorrection:
@@ -73,7 +75,7 @@ class JetReCalibrator:
             try:
                 jet.jetEnergyCorrUncertainty = self.JetUncertainty.getUncertainty(True) 
             except RuntimeError as r:
-                print "Caught %s when getting uncertainty for jet of pt %.1f, eta %.2f\n" % (r,corr * jet.pt() * jet.rawFactor(),jet.eta())
+                print("Caught %s when getting uncertainty for jet of pt %.1f, eta %.2f\n" % (r,corr * jet.pt() * jet.rawFactor(),jet.eta()))
                 jet.jetEnergyCorrUncertainty = 0.5
             #print "   jet with corr pt %6.2f has an uncertainty %.2f " % (jet.pt()*jet.rawFactor()*corr, jet.jetEnergyCorrUncertainty)
             corr *= max(0, 1+delta*jet.jetEnergyCorrUncertainty)
@@ -87,7 +89,7 @@ class JetReCalibrator:
         if emf > self.type1METParams['skipEMfractionThreshold']:
             return None
         if self.type1METParams['skipMuons']:
-            for idau in xrange(jet.numberOfDaughters()):
+            for idau in range(jet.numberOfDaughters()):
                 pfcand = jet.daughter(idau)
                 if pfcand.isGlobalMuon() or pfcand.isStandAloneMuon(): 
                     p4 -= pfcand.p4()
@@ -147,7 +149,7 @@ class JetReCalibrator:
             ok = self.correct(j,rho,delta,addCorr=addCorr,addShifts=addShifts,metShift=metShift,type1METCorr=type1METCorr)
             if not ok: badJets.append(j)
         if len(badJets) > 0:
-            print "Warning: %d out of %d jets flagged bad by JEC." % (len(badJets), len(jets))
+            print("Warning: %d out of %d jets flagged bad by JEC." % (len(badJets), len(jets)))
         for bj in badJets:
             jets.remove(bj)
 

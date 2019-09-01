@@ -24,12 +24,13 @@
 # }
 
 # External libraries (standard in Python >= 2.4, at least)
+from __future__ import print_function
 from xml.sax import handler, make_parser
 from sys import stdin
 
 # Headers for the CSV file
-print "Alignable, wheel, station, sector, superlayer, layer, relativeto, x, y, z, angletype, phix, phiy, phiz, xx, xy, xz, yy, yz, zz"
-print ", endcap, station, ring, chamber, layer, , , , , , alpha, beta, gamma, , , , , , "
+print("Alignable, wheel, station, sector, superlayer, layer, relativeto, x, y, z, angletype, phix, phiy, phiz, xx, xy, xz, yy, yz, zz")
+print(", endcap, station, ring, chamber, layer, , , , , , alpha, beta, gamma, , , , , , ")
 
 # This class is a subclass of something which knows how to parse XML
 class ContentHandler(handler.ContentHandler):
@@ -41,38 +42,38 @@ class ContentHandler(handler.ContentHandler):
 
         # <DT...>: print wheel/station/sector/superlayer/layer
         if tag[0:2] == "DT":
-            print tag,  # ending with a comma means "don't print end-of-line character"
+            print(tag, end=' ')  # ending with a comma means "don't print end-of-line character"
             for a in "wheel", "station", "sector", "superlayer", "layer":
                 if a in attrib:
-                    print (", %s" % attrib[a]),
+                    print((", %s" % attrib[a]), end=' ')
                 else:
-                    print ", ",
+                    print(", ", end=' ')
 
         # <CSC...>: print endcap/station/ring/chamber/layer
         elif tag[0:3] == "CSC":
-            print tag,
+            print(tag, end=' ')
             for a in "endcap", "station", "ring", "chamber", "layer":
                 if a in attrib:
-                    print (", %s" % attrib[a]),
+                    print((", %s" % attrib[a]), end=' ')
                 else:
-                    print ", ",
+                    print(", ", end=' ')
 
         # <setposition>: print x, y, z and phix, phiy, phiz or alpha, beta, gamma
         elif tag == "setposition":
-            print (", %(relativeto)s, %(x)s, %(y)s, %(z)s" % attrib),
+            print((", %(relativeto)s, %(x)s, %(y)s, %(z)s" % attrib), end=' ')
             if "phix" in attrib:
-                print (", phixyz, %(phix)s, %(phiy)s, %(phiz)s" % attrib),
+                print((", phixyz, %(phix)s, %(phiy)s, %(phiz)s" % attrib), end=' ')
             else:
-                print (", Euler, %(alpha)s, %(beta)s, %(gamma)s" % attrib),
+                print((", Euler, %(alpha)s, %(beta)s, %(gamma)s" % attrib), end=' ')
 
         # <setape>: print xx, xy, xz, yy, yz, zz
         elif tag == "setape":
-            print (", %(xx)s, %(xy)s, %(xz)s, %(yy)s, %(yz)s, %(zz)s" % attrib),
+            print((", %(xx)s, %(xy)s, %(xz)s, %(yy)s, %(yz)s, %(zz)s" % attrib), end=' ')
 
     # what to do when you get to an </endelement>
     def endElement(self, tag):
         if tag == "operation":
-            print ""  # end current line (note: no comma)
+            print("")  # end current line (note: no comma)
 
 # Actually make it and use it on "stdin" (a file object)
 parser = make_parser()

@@ -24,16 +24,14 @@
 class TProfile;
 class TH1D;
 
-class EcalMatacqHist: public edm::EDAnalyzer{  
- public:
-  EcalMatacqHist(const edm::ParameterSet& ps);  
+class EcalMatacqHist : public edm::EDAnalyzer {
+public:
+  EcalMatacqHist(const edm::ParameterSet& ps);
 
   virtual ~EcalMatacqHist();
-  
- protected:
-  void
-  analyze( const edm::Event & e, const  edm::EventSetup& c);
 
+protected:
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 private:
   std::string outFileName;
@@ -42,11 +40,9 @@ private:
   int iEvent;
   double hTTrigMin;
   double hTTrigMax;
-  std::auto_ptr<TFile> outFile;
+  std::unique_ptr<TFile> outFile;
   std::vector<TProfile> profiles;
   //profile->MATACQ CH ID map
   std::vector<int> profChId;
   TH1D* hTTrig;
 };
-
-

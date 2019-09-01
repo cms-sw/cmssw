@@ -4,10 +4,9 @@
 #include <DataFormats/GeometrySurface/interface/GeometricSorting.h>
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
+namespace geomsort {
 
-namespace geomsort{
-
-/** \typedef DetR
+  /** \typedef DetR
  *
  *  functor to sort in R using precomputed_value_sort.
  *  
@@ -18,10 +17,9 @@ namespace geomsort{
  *  \author N. Amapane - CERN
  */
 
-  typedef ExtractR<GeomDet,float> DetR;
+  typedef ExtractR<GeomDet, float> DetR;
 
-
-/** \typedef DetPhi
+  /** \typedef DetPhi
  *
  *  functor to sort in phi (from -pi to pi) using precomputed_value_sort.
  *
@@ -36,10 +34,9 @@ namespace geomsort{
  *  \author N. Amapane - CERN
  */
 
-  typedef ExtractPhi<GeomDet,float> DetPhi;
+  typedef ExtractPhi<GeomDet, float> DetPhi;
 
-
-/** \typedef DetZ
+  /** \typedef DetZ
  *
  *  functor to sort in Z using precomputed_value_sort.
  *  
@@ -50,10 +47,7 @@ namespace geomsort{
  *  \author N. Amapane - CERN
  */
 
-  typedef ExtractZ<GeomDet,float> DetZ;
+  typedef ExtractZ<GeomDet, float> DetZ;
 
-
-}
+}  // namespace geomsort
 #endif
-
-

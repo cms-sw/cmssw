@@ -19,26 +19,20 @@
 // C++ Headers --
 //---------------
 
-
 //-------------------
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-BPHVertexSelect::BPHVertexSelect() {
-}
+BPHVertexSelect::BPHVertexSelect() {}
 
 //--------------
 // Destructor --
 //--------------
-BPHVertexSelect::~BPHVertexSelect() {
-}
+BPHVertexSelect::~BPHVertexSelect() {}
 
 //--------------
 // Operations --
 //--------------
-
-

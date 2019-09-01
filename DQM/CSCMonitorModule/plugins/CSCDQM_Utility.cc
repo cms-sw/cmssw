@@ -31,27 +31,45 @@ namespace cscdqm {
     * @return chamber y-axis position
     */
   int Utility::getCSCTypeBin(const std::string& cstr) {
-    if (cstr == "ME-4/2") return 0;
-    if (cstr == "ME-4/1") return 1;
-    if (cstr == "ME-3/2") return 2;
-    if (cstr == "ME-3/1") return 3;
-    if (cstr == "ME-2/2") return 4;
-    if (cstr == "ME-2/1") return 5;
-    if (cstr == "ME-1/3") return 6;
-    if (cstr == "ME-1/2") return 7;
-    if (cstr == "ME-1/1") return 8;
-    if (cstr == "ME+1/1") return 9;
-    if (cstr == "ME+1/2") return 10;
-    if (cstr == "ME+1/3") return 11;
-    if (cstr == "ME+2/1") return 12;
-    if (cstr == "ME+2/2") return 13;
-    if (cstr == "ME+3/1") return 14;
-    if (cstr == "ME+3/2") return 15;
-    if (cstr == "ME+4/1") return 16;
-    if (cstr == "ME+4/2") return 17;
+    if (cstr == "ME-4/2")
+      return 0;
+    if (cstr == "ME-4/1")
+      return 1;
+    if (cstr == "ME-3/2")
+      return 2;
+    if (cstr == "ME-3/1")
+      return 3;
+    if (cstr == "ME-2/2")
+      return 4;
+    if (cstr == "ME-2/1")
+      return 5;
+    if (cstr == "ME-1/3")
+      return 6;
+    if (cstr == "ME-1/2")
+      return 7;
+    if (cstr == "ME-1/1")
+      return 8;
+    if (cstr == "ME+1/1")
+      return 9;
+    if (cstr == "ME+1/2")
+      return 10;
+    if (cstr == "ME+1/3")
+      return 11;
+    if (cstr == "ME+2/1")
+      return 12;
+    if (cstr == "ME+2/2")
+      return 13;
+    if (cstr == "ME+3/1")
+      return 14;
+    if (cstr == "ME+3/2")
+      return 15;
+    if (cstr == "ME+4/1")
+      return 16;
+    if (cstr == "ME+4/2")
+      return 17;
     return 0;
   }
-  
+
   /**
    * @brief  Get CSC label from CSC parameters
    * @param  endcap Endcap number
@@ -59,14 +77,14 @@ namespace cscdqm {
    * @param  ring Ring number
    * @return chamber label
    */
-  std::string Utility::getCSCTypeLabel(int endcap, int station, int ring ) {
+  std::string Utility::getCSCTypeLabel(int endcap, int station, int ring) {
     std::string label = "Unknown";
     std::ostringstream st;
     if ((endcap > 0) && (station > 0) && (ring > 0)) {
       if (endcap == 1) {
         st << "ME+" << station << "/" << ring;
         label = st.str();
-      } else if (endcap==2) {
+      } else if (endcap == 2) {
         st << "ME-" << station << "/" << ring;
         label = st.str();
       } else {
@@ -75,8 +93,7 @@ namespace cscdqm {
     }
     return label;
   }
-  
-  
+
   /**
    * @brief  Break string into tokens
    * @param  str source string to break
@@ -94,7 +111,7 @@ namespace cscdqm {
     }
     return tokens.size();
   }
-  
+
   /**
    * @brief  Split string according to delimiter
    * @param  str String to split
@@ -104,32 +121,31 @@ namespace cscdqm {
    */
   void Utility::splitString(const std::string& str, const std::string& delim, std::vector<std::string>& results) {
     std::string::size_type lastPos = str.find_first_not_of(delim, 0);
-    std::string::size_type pos     = str.find_first_of(delim, lastPos);
+    std::string::size_type pos = str.find_first_of(delim, lastPos);
     while (std::string::npos != pos || std::string::npos != lastPos) {
       results.push_back(str.substr(lastPos, pos - lastPos));
       lastPos = str.find_first_not_of(delim, pos);
       pos = str.find_first_of(delim, lastPos);
     }
   }
-  
+
   /**
    * @brief  Trim string
    * @param  str string to trim
    */
   void Utility::trimString(std::string& str) {
     std::string::size_type pos = str.find_last_not_of(' ');
-    if(pos != std::string::npos) {
+    if (pos != std::string::npos) {
       str.erase(pos + 1);
       pos = str.find_first_not_of(' ');
-      if(pos != std::string::npos) {
+      if (pos != std::string::npos) {
         str.erase(0, pos);
       }
     } else {
       str.erase(str.begin(), str.end());
     }
   }
-  
-  
+
   /**
    * @brief  Match RegExp expression against string message and return result
    * @param  re_expression RegExp expression to match
@@ -137,7 +153,7 @@ namespace cscdqm {
    * @return true if message matches RegExp expression
    */
   bool Utility::regexMatch(const TPRegexp& re_expression, const std::string& message) {
-    TPRegexp *re = const_cast<TPRegexp*>(&re_expression);
+    TPRegexp* re = const_cast<TPRegexp*>(&re_expression);
     return re->MatchB(message);
   }
 
@@ -170,10 +186,10 @@ namespace cscdqm {
    * @param  replace string to replace matched part 
    */
   void Utility::regexReplace(const TPRegexp& re_expression, std::string& message, const std::string replace) {
-    TString s(message); 
-    TPRegexp *re = const_cast<TPRegexp*>(&re_expression);
+    TString s(message);
+    TPRegexp* re = const_cast<TPRegexp*>(&re_expression);
     re->Substitute(s, replace);
-    message = static_cast<const char *>(s);
+    message = static_cast<const char*>(s);
   }
 
   /**
@@ -184,7 +200,9 @@ namespace cscdqm {
    * @param  replace string to replace matched part 
    * @return modified string
    */
-  std::string Utility::regexReplaceStr(const std::string& expression, const std::string& message, const std::string replace) {
+  std::string Utility::regexReplaceStr(const std::string& expression,
+                                       const std::string& message,
+                                       const std::string replace) {
     return regexReplaceStr(TPRegexp(expression), message, replace);
   }
 
@@ -196,20 +214,23 @@ namespace cscdqm {
    * @param  replace string to replace matched part 
    * @return modified string
    */
-  std::string Utility::regexReplaceStr(const TPRegexp& re_expression, const std::string& message, const std::string replace) {
-    TString s(message); 
-    TPRegexp *re = const_cast<TPRegexp*>(&re_expression);
+  std::string Utility::regexReplaceStr(const TPRegexp& re_expression,
+                                       const std::string& message,
+                                       const std::string replace) {
+    TString s(message);
+    TPRegexp* re = const_cast<TPRegexp*>(&re_expression);
     re->Substitute(s, replace);
     return s.Data();
   }
 
 #undef get16bits
-#if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) || defined(_MSC_VER) || defined (__BORLANDC__) || defined (__TURBOC__)
-#define get16bits(d) (*((const uint16_t *) (d)))
+#if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) || defined(_MSC_VER) || defined(__BORLANDC__) || \
+    defined(__TURBOC__)
+#define get16bits(d) (*((const uint16_t*)(d)))
 #endif
 
-#if !defined (get16bits)
-#define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8) + (uint32_t)(((const uint8_t *)(d))[0]) )
+#if !defined(get16bits)
+#define get16bits(d) ((((uint32_t)(((const uint8_t*)(d))[1])) << 8) + (uint32_t)(((const uint8_t*)(d))[0]))
 #endif
 
   /**
@@ -218,37 +239,41 @@ namespace cscdqm {
   * @param  length of data
   * @return hash result
   */
-  uint32_t Utility::fastHash(const char * data, int len) {
+  uint32_t Utility::fastHash(const char* data, int len) {
     uint32_t hash = len, tmp;
     int rem;
-  
-    if (len <= 0 || data == nullptr) return 0;
+
+    if (len <= 0 || data == nullptr)
+      return 0;
     rem = len & 3;
     len >>= 2;
 
     /* Main loop */
-    for (;len > 0; len--) {
-      hash  += get16bits (data);
-      tmp    = (get16bits (data+2) << 11) ^ hash;
-      hash   = (hash << 16) ^ tmp;
-      data  += 2*sizeof (uint16_t);
-      hash  += hash >> 11;
+    for (; len > 0; len--) {
+      hash += get16bits(data);
+      tmp = (get16bits(data + 2) << 11) ^ hash;
+      hash = (hash << 16) ^ tmp;
+      data += 2 * sizeof(uint16_t);
+      hash += hash >> 11;
     }
 
     /* Handle end cases */
     switch (rem) {
-      case 3: hash += get16bits (data);
-              hash ^= hash << 16;
-              hash ^= data[sizeof (uint16_t)] << 18;
-              hash += hash >> 11;
-              break;
-      case 2: hash += get16bits (data);
-              hash ^= hash << 11;
-              hash += hash >> 17;
-              break;
-      case 1: hash += *data;
-              hash ^= hash << 10;
-              hash += hash >> 1;
+      case 3:
+        hash += get16bits(data);
+        hash ^= hash << 16;
+        hash ^= data[sizeof(uint16_t)] << 18;
+        hash += hash >> 11;
+        break;
+      case 2:
+        hash += get16bits(data);
+        hash ^= hash << 11;
+        hash += hash >> 17;
+        break;
+      case 1:
+        hash += *data;
+        hash ^= hash << 10;
+        hash += hash >> 1;
     }
 
     /* Force "avalanching" of final 127 bits */
@@ -262,7 +287,6 @@ namespace cscdqm {
     return hash;
   }
 
-  
   /**
    * @brief  Check the hypothesis that observed events (n) value is too low or too high comparing with the expected N 
    * @param  N Expected number of events
@@ -275,16 +299,22 @@ namespace cscdqm {
    * (HOT), -1 - observed number of events too low wrt expected (COLD), 0 -
    * observed number of events is fine wrt expected
    */
-  short Utility::checkOccupancy(const unsigned int N, const unsigned int n, const double low_threshold, const double high_threshold, const double low_sigfail, const double high_sigfail) {
+  short Utility::checkOccupancy(const unsigned int N,
+                                const unsigned int n,
+                                const double low_threshold,
+                                const double high_threshold,
+                                const double low_sigfail,
+                                const double high_sigfail) {
     if (N > 0) {
       double eps_meas = (1.0 * n) / (1.0 * N);
       if (eps_meas < low_threshold) {
         double S = Utility::SignificanceLevelLow(N, n, low_threshold);
-        if (S > low_sigfail) return -1;
-      } else 
-      if (eps_meas > high_threshold) {
+        if (S > low_sigfail)
+          return -1;
+      } else if (eps_meas > high_threshold) {
         double S = Utility::SignificanceLevelHigh(N, n);
-        if (S > high_sigfail) return 1;
+        if (S > high_sigfail)
+          return 1;
       }
     }
     return 0;
@@ -305,7 +335,7 @@ namespace cscdqm {
         if (Utility::SignificanceLevelLow(N, n, threshold) > sigfail) {
           return true;
         }
-      } 
+      }
     }
     return false;
   }
@@ -320,28 +350,30 @@ namespace cscdqm {
    * @return Significance level
    */
   double Utility::SignificanceLevelLow(const unsigned int N, const unsigned int n, const double eps) {
-  
     /** std::cout << "N = " << N << ", n = " << n << ", eps = " << eps << "\n"; */
-  
+
     double l_eps = eps;
-    if (l_eps <= 0.0) l_eps = 0.000001;
-    if (l_eps >= 1.0) l_eps = 0.999999;
-  
+    if (l_eps <= 0.0)
+      l_eps = 0.000001;
+    if (l_eps >= 1.0)
+      l_eps = 0.999999;
+
     double eps_meas = (1.0 * n) / (1.0 * N);
     double a = 1.0, b = 1.0;
-  
+
     if (n > 0) {
-      for (unsigned int r = 0; r < n; r++) a = a * (eps_meas / l_eps);
+      for (unsigned int r = 0; r < n; r++)
+        a = a * (eps_meas / l_eps);
     }
-  
+
     if (n < N) {
-      for (unsigned int r = 0; r < (N - n); r++) b = b * (1 - eps_meas) / (1 - l_eps);
+      for (unsigned int r = 0; r < (N - n); r++)
+        b = b * (1 - eps_meas) / (1 - l_eps);
     }
-  
+
     return sqrt(2.0 * log(a * b));
-  
   }
-  
+
   /**
    * @brief  Calculate error significance alpha for the given number of events
    * based on reference number of errors for "hot" elements: actual number of
@@ -351,7 +383,8 @@ namespace cscdqm {
    * @return error significance
    */
   double Utility::SignificanceLevelHigh(const unsigned int N, const unsigned int n) {
-    if (N > n) return 0.0;
+    if (N > n)
+      return 0.0;
     /**  no - n observed, ne - n expected */
     double no = 1.0 * n, ne = 1.0 * N;
     return sqrt(2.0 * (no * (log(no / ne) - 1) + ne));
@@ -363,22 +396,20 @@ namespace cscdqm {
    */
   int Utility::getRUIfromDDUId(unsigned ddu_id) {
     int rui = -1;
-    const unsigned postLS1_map [] = { 841, 842, 843, 844, 845, 846, 847, 848, 849,
-                                     831, 832, 833, 834, 835, 836, 837, 838, 839,
-                                     861, 862, 863, 864, 865, 866, 867, 868, 869,
-                                     851, 852, 853, 854, 855, 856, 857, 858, 859 };
-    if ( (ddu_id >= FEDNumbering::MINCSCDDUFEDID) && (ddu_id <= FEDNumbering::MAXCSCDDUFEDID) )
-      {
-        for ( int i = 0; i < 36; i++)
-        {
-          if (ddu_id == postLS1_map[i]) { rui = i+1; return rui;}
+    const unsigned postLS1_map[] = {841, 842, 843, 844, 845, 846, 847, 848, 849, 831, 832, 833,
+                                    834, 835, 836, 837, 838, 839, 861, 862, 863, 864, 865, 866,
+                                    867, 868, 869, 851, 852, 853, 854, 855, 856, 857, 858, 859};
+    if ((ddu_id >= FEDNumbering::MINCSCDDUFEDID) && (ddu_id <= FEDNumbering::MAXCSCDDUFEDID)) {
+      for (int i = 0; i < 36; i++) {
+        if (ddu_id == postLS1_map[i]) {
+          rui = i + 1;
+          return rui;
         }
-      } else {
-        rui = ddu_id & 0xFF;
       }
+    } else {
+      rui = ddu_id & 0xFF;
+    }
     return rui;
   }
 
- 
-
-}
+}  // namespace cscdqm

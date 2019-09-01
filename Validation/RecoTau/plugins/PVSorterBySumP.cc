@@ -12,13 +12,11 @@
 #include <vector>
 #include <sstream>
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
 class bestPVselector : public edm::global::EDProducer<> {
 public:
-
   explicit bestPVselector(edm::ParameterSet const& iConfig);
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
@@ -26,15 +24,13 @@ private:
   edm::EDGetTokenT<std::vector<reco::Vertex>> src_;
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // construction
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
 bestPVselector::bestPVselector(edm::ParameterSet const& iConfig)
-  : src_{consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("src"))}
-{
+    : src_{consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("src"))} {
   produces<std::vector<reco::Vertex>>();
 }
 
@@ -43,19 +39,18 @@ bestPVselector::bestPVselector(edm::ParameterSet const& iConfig)
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void bestPVselector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
-{
+void bestPVselector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
   edm::Handle<std::vector<reco::Vertex>> vertices;
-  iEvent.getByToken(src_,vertices);
+  iEvent.getByToken(src_, vertices);
 
   auto theBestPV = std::make_unique<std::vector<reco::Vertex>>();
 
   if (!vertices->empty()) {
-    auto sumSquarePt = [](auto const& pv) { return pv.p4().pt()*pv.p4().pt(); };
-    auto bestPV = std::max_element(std::cbegin(*vertices), std::cend(*vertices),
-                                   [sumSquarePt](auto const& v1, auto const& v2) {
-                                     return sumSquarePt(v1) < sumSquarePt(v2);
-                                   });
+    auto sumSquarePt = [](auto const& pv) { return pv.p4().pt() * pv.p4().pt(); };
+    auto bestPV =
+        std::max_element(std::cbegin(*vertices), std::cend(*vertices), [sumSquarePt](auto const& v1, auto const& v2) {
+          return sumSquarePt(v1) < sumSquarePt(v2);
+        });
     theBestPV->push_back(*bestPV);
   }
   iEvent.put(std::move(theBestPV));

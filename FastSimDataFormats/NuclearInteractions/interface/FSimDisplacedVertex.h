@@ -1,5 +1,5 @@
 #ifndef FastSimDataFormats_NuclearInteractions_FSimDisplacedVertex_h
-#define FastSimDataFormats_NuclearInteractions_FSimDisplacedVertex_h 
+#define FastSimDataFormats_NuclearInteractions_FSimDisplacedVertex_h
 
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
@@ -24,22 +24,17 @@ nuclear Interaction: boolean isRecoVertex and int recoVertexId;
 \date November 2009
 */
 
-  
 class FSimDisplacedVertex {
-
-
- public:
-  
+public:
   FSimDisplacedVertex();
-  FSimDisplacedVertex(const SimVertex& vertex, 
-		      unsigned id, int motherId, unsigned nCharged,
-		      const std::vector<int>& daughterIds,
-		      const FSimVertexType::VertexType vertexType
-		      );
+  FSimDisplacedVertex(const SimVertex& vertex,
+                      unsigned id,
+                      int motherId,
+                      unsigned nCharged,
+                      const std::vector<int>& daughterIds,
+                      const FSimVertexType::VertexType vertexType);
 
   FSimDisplacedVertex(const FSimDisplacedVertex& other);
-
-
 
   virtual ~FSimDisplacedVertex() {}
 
@@ -53,23 +48,23 @@ class FSimDisplacedVertex {
   int motherId() const { return motherId_; }
 
   /// \return the number of daughters
-  unsigned int nDaughters() const { return daughterIds_.size();}
-  
+  unsigned int nDaughters() const { return daughterIds_.size(); }
+
   /// \return the number of charged daughters
-  unsigned int nChargedDaughters() const { return nCharged_;}
+  unsigned int nChargedDaughters() const { return nCharged_; }
 
   /// \return vector of daughter ids
-  const std::vector<int>& daughterIds() const {return daughterIds_;}
-  
+  const std::vector<int>& daughterIds() const { return daughterIds_; }
+
   /// \return the vertex type
-  const FSimVertexType::VertexType vertexType() const { return vertexType_;}
+  const FSimVertexType::VertexType vertexType() const { return vertexType_; }
 
   /// \return indicated if there is a Displaced Vertex associated
-  const bool isRecoVertex() const {return isRecoVertex_;}
+  const bool isRecoVertex() const { return isRecoVertex_; }
 
   /// \return the reconstructed Displaced Vertex index
-  const int recoVertexId() const {return recoVertexId_;}
-  
+  const int recoVertexId() const { return recoVertexId_; }
+
   /// Set the associated reconstructed DispacedVertex
   void setRecoVertex(int recoVertexId) {
     isRecoVertex_ = true;
@@ -82,20 +77,17 @@ class FSimDisplacedVertex {
     recoVertexId_ = -1;
   }
 
-
- private:
-
-
-  /// Sim Vertex 
+private:
+  /// Sim Vertex
   SimVertex vertex_;
-     
-  /// \return the id in the vertex in the collection. 
+
+  /// \return the id in the vertex in the collection.
   /// -1 if the default value
   int id_;
 
-  /// id of mother particle. -1 if no mother    
+  /// id of mother particle. -1 if no mother
   int motherId_;
-    
+
   /// Number of charged daughters
   unsigned int nCharged_;
 
@@ -108,16 +100,12 @@ class FSimDisplacedVertex {
   /// Flag to indicate if a reconstructed DisplacedVertex was found and associated
   bool isRecoVertex_;
 
-  /// The index of the reconstructed DisplacedVertex associated. 
+  /// The index of the reconstructed DisplacedVertex associated.
   /// By default the value is -1.
   /// The association may be done in the dedicated algorithm of the producer.
   int recoVertexId_;
 
-  friend std::ostream& operator<<( std::ostream& out, const FSimDisplacedVertex& co );    
-
+  friend std::ostream& operator<<(std::ostream& out, const FSimDisplacedVertex& co);
 };
 
 #endif
-
-
-  

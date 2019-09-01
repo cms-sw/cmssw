@@ -2,7 +2,7 @@
 //
 // Package:    RecHitCorrector
 // Class:      RecHitCorrector
-// 
+//
 /**\class RecHitCorrector RecHitCorrector.cc RecoLocalCalo/Castor/src/RecHitCorrector.cc
 
  Description: [one line class summary]
@@ -16,13 +16,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,26 +43,23 @@
 // class declaration
 //
 
-class RecHitCorrector : public edm::EDProducer {
-   public:
-      explicit RecHitCorrector(const edm::ParameterSet&);
-      ~RecHitCorrector() override;
+class RecHitCorrector : public edm::stream::EDProducer<> {
+public:
+  explicit RecHitCorrector(const edm::ParameterSet&);
+  ~RecHitCorrector() override;
 
-   private:
-      void beginJob() override ;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
-      // ----------member data ---------------------------
-      edm::EDGetTokenT<CastorRecHitCollection> tok_input_;
-      double factor_;
-      bool doInterCalib_;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<CastorRecHitCollection> tok_input_;
+  double factor_;
+  bool doInterCalib_;
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -72,113 +68,80 @@ class RecHitCorrector : public edm::EDProducer {
 //
 // constructors and destructor
 //
-RecHitCorrector::RecHitCorrector(const edm::ParameterSet& iConfig):
-factor_(iConfig.getParameter<double>("revertFactor")),
-doInterCalib_(iConfig.getParameter<bool>("doInterCalib"))
-{
+RecHitCorrector::RecHitCorrector(const edm::ParameterSet& iConfig)
+    : factor_(iConfig.getParameter<double>("revertFactor")), doInterCalib_(iConfig.getParameter<bool>("doInterCalib")) {
   tok_input_ = consumes<CastorRecHitCollection>(iConfig.getParameter<edm::InputTag>("rechitLabel"));
-   //register your products
-   produces<CastorRecHitCollection>();
-   //now do what ever other initialization is needed
+  //register your products
+  produces<CastorRecHitCollection>();
+  //now do what ever other initialization is needed
 }
 
-
-RecHitCorrector::~RecHitCorrector()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+RecHitCorrector::~RecHitCorrector() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   
-   // get original rechits
-   edm::Handle<CastorRecHitCollection> rechits;
-   iEvent.getByToken(tok_input_,rechits);
-   
-   // get conditions
-   edm::ESHandle<CastorDbService> conditions;
-   iSetup.get<CastorDbRecord>().get(conditions);
-   
-   edm::ESHandle<CastorChannelQuality> p;
-   iSetup.get<CastorChannelQualityRcd>().get(p);
-   CastorChannelQuality* myqual = new CastorChannelQuality(*p.product());
-   
-   if (!rechits.isValid()) std::cout << "No valid CastorRecHitCollection found, please check the InputLabel..." << std::endl;
-   
-   CastorCalibrations calibrations;
-   
-   auto rec = std::make_unique<CastorRecHitCollection>();
-   
-   for (unsigned int i=0;i<rechits->size();i++) {
-   	CastorRecHit rechit = (*rechits)[i];
-	//std::cout << "rechit energy = " << rechit.energy() << std::endl;
-	double fC = factor_*rechit.energy();
-	double time = rechit.time();
-	//std::cout << "rechit energy(fC) = " << fC << " time = " << time << std::endl;
-	
-	// do proper gain calibration reading the latest entries in the condDB
-	const CastorCalibrations& calibrations=conditions->getCastorCalibrations(rechit.id());
-	int capid = 0; // take some capid, gains are the same for all capid's
-	
-	double correctedenergy = 0;
-	if (doInterCalib_) {
-		if (rechit.id().module() <= 2) {
-			correctedenergy = 0.5*fC*calibrations.gain(capid);
-			//std::cout << " correctedenergy = " << correctedenergy << " gain = " << calibrations.gain(capid) << std::endl;
-		} else {
-			correctedenergy = fC*calibrations.gain(capid);
-		}
-	} else {
-		if (rechit.id().module() <= 2) {
-			correctedenergy = 0.5*fC;
-		} else {
-			correctedenergy = fC;
-		}
-	}
-	
-	// now check the channelquality of this rechit
-	bool ok = true;
-	DetId detcell=(DetId)rechit.id();
-	std::vector<DetId> channels = myqual->getAllChannels();
-	//std::cout << "number of specified quality flags = " << channels.size() << std::endl;
-	for (std::vector<DetId>::iterator channel = channels.begin();channel !=  channels.end();channel++) {	
-		if (channel->rawId() == detcell.rawId()) {
-			const CastorChannelStatus* mydigistatus=myqual->getValues(*channel);
-			//std::cout << "CastorChannelStatus = " << mydigistatus->getValue() << std::endl;
-			if (mydigistatus->getValue() == 2989) ok = false; // 2989 = BAD
-		}
-	}
-	
-	if (ok) {
-	    CastorRecHit *correctedhit = new CastorRecHit(rechit.id(),correctedenergy,time);
-	    rec->push_back(*correctedhit);
-	}
-   }
-   
-   iEvent.put(std::move(rec));
- 
-}
+void RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-RecHitCorrector::beginJob()
-{
-}
+  // get original rechits
+  edm::Handle<CastorRecHitCollection> rechits;
+  iEvent.getByToken(tok_input_, rechits);
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-RecHitCorrector::endJob() {
+  // get conditions
+  edm::ESHandle<CastorDbService> conditions;
+  iSetup.get<CastorDbRecord>().get(conditions);
+
+  edm::ESHandle<CastorChannelQuality> p;
+  iSetup.get<CastorChannelQualityRcd>().get(p);
+  CastorChannelQuality* myqual = new CastorChannelQuality(*p.product());
+
+  if (!rechits.isValid())
+    edm::LogWarning("CastorRecHitCorrector") << "No valid CastorRecHitCollection found, please check the InputLabel...";
+
+  CastorCalibrations calibrations;
+
+  auto rec = std::make_unique<CastorRecHitCollection>();
+
+  for (unsigned int i = 0; i < rechits->size(); i++) {
+    CastorRecHit rechit = (*rechits)[i];
+    double time = rechit.time();
+    double correctedenergy = factor_ * rechit.energy();
+
+    if (doInterCalib_) {
+      // do proper gain calibration reading the latest entries in the condDB
+      const CastorCalibrations& calibrations = conditions->getCastorCalibrations(rechit.id());
+      int capid = 0;  // take some capid, gains are the same for all capid's
+      correctedenergy *= calibrations.gain(capid);
+    }
+
+    // now check the channelquality of this rechit
+    bool ok = true;
+    DetId detcell = (DetId)rechit.id();
+    std::vector<DetId> channels = myqual->getAllChannels();
+    for (auto channel : channels) {
+      if (channel.rawId() == detcell.rawId()) {
+        const CastorChannelStatus* mydigistatus = myqual->getValues(channel);
+        if (mydigistatus->getValue() == 2989) {
+          ok = false;  // 2989 = BAD
+          break;
+        }
+      }
+    }
+
+    if (ok) {
+      rec->emplace_back(rechit.id(), correctedenergy, time);
+    }
+  }
+
+  iEvent.put(std::move(rec));
+
+  delete myqual;
 }
 
 //define this as a plug-in

@@ -10,9 +10,9 @@
  *   Def for Location information
  */
 class LocationDef : public IDef {
-  public:
+public:
   friend class EcalCondDBInterface;
-  
+
   LocationDef();
   ~LocationDef() override;
 
@@ -27,11 +27,11 @@ class LocationDef : public IDef {
   inline bool operator==(const LocationDef& l) const { return m_loc == l.m_loc; }
   inline bool operator!=(const LocationDef& l) const { return m_loc != l.m_loc; }
 
- protected:
+protected:
   // User data for this def
   std::string m_loc;
 
-  void fetchAllDefs( std::vector<LocationDef>* fillVec) noexcept(false);
+  void fetchAllDefs(std::vector<LocationDef>* fillVec) noexcept(false);
 };
 
 #endif

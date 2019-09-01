@@ -8,9 +8,8 @@
 
 #include "boost/mpl/vector.hpp"
 
+class TrackerRecoGeometryRecord : public edm::eventsetup::DependentRecordImplementation<
+                                      TrackerRecoGeometryRecord,
+                                      boost::mpl::vector<TrackerTopologyRcd, TrackerDigiGeometryRecord> > {};
 
-class TrackerRecoGeometryRecord : public edm::eventsetup::DependentRecordImplementation<TrackerRecoGeometryRecord,
-  boost::mpl::vector<TrackerTopologyRcd,TrackerDigiGeometryRecord> > {};
-
-#endif 
-
+#endif

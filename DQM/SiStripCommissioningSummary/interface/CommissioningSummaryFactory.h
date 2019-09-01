@@ -8,32 +8,28 @@
 
 class CommissioningAnalysis;
 
-template<>
+template <>
 class SummaryPlotFactory<CommissioningAnalysis*> : public SummaryPlotFactoryBase {
-  
- public:
-  
-  SummaryPlotFactory<CommissioningAnalysis*>() {;}
+public:
+  SummaryPlotFactory<CommissioningAnalysis*>() { ; }
 
-  virtual ~SummaryPlotFactory<CommissioningAnalysis*>() {;}
+  virtual ~SummaryPlotFactory<CommissioningAnalysis*>() { ; }
 
-  typedef std::map<uint32_t,CommissioningAnalysis*>::const_iterator Iterator;
-  
-  uint32_t init( const sistrip::Monitorable&, 
-		 const sistrip::Presentation&,
-		 const sistrip::View&, 
-		 const std::string& top_level_dir, 
-		 const sistrip::Granularity&,
-		 const std::map<uint32_t,CommissioningAnalysis*>& data );
-  
-  void fill( TH1& summary_histo );
+  typedef std::map<uint32_t, CommissioningAnalysis*>::const_iterator Iterator;
 
- protected:
-  
-  virtual void extract( Iterator ) {;} 
-  
-  virtual void format() {;}
-  
+  uint32_t init(const sistrip::Monitorable&,
+                const sistrip::Presentation&,
+                const sistrip::View&,
+                const std::string& top_level_dir,
+                const sistrip::Granularity&,
+                const std::map<uint32_t, CommissioningAnalysis*>& data);
+
+  void fill(TH1& summary_histo);
+
+protected:
+  virtual void extract(Iterator) { ; }
+
+  virtual void format() { ; }
 };
 
-#endif // DQM_SiStripCommissioningSummary_CommissioningSummaryFactory_H
+#endif  // DQM_SiStripCommissioningSummary_CommissioningSummaryFactory_H

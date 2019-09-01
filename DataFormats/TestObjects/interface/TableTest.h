@@ -4,7 +4,7 @@
 //
 // Package:     DataFormats/TestObjects
 // Class  :     TableTest
-// 
+//
 /**\class TableTest TableTest.h "DataFormats/TestObjects/interface/TableTest.h"
 
  Description: [one line class summary]
@@ -35,8 +35,7 @@ namespace edmtest {
   SOA_DECLARE_COLUMN(AFloat, float, "aFloat");
   SOA_DECLARE_COLUMN(AString, std::string, "aString");
 
-  using TableTest = edm::soa::Table<AnInt,AFloat,AString>;
-}
-
+  using TableTest = edm::soa::Table<AnInt, AFloat, AString>;
+}  // namespace edmtest
 
 #endif

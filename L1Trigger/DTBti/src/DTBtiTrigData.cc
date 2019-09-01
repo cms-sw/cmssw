@@ -7,7 +7,7 @@
 //
 //   Author List:
 //   C. Grandi
-//   Modifications: 
+//   Modifications:
 //
 //
 //--------------------------------------------------
@@ -34,18 +34,18 @@ using namespace std;
 // Operations --
 //--------------
 
-void 
-DTBtiTrigData::print() const {
-  cout << "BTI Id=" << " ( " << _btiid.wheel()      ;
-  cout              << " , " << _btiid.station()    ;
-  cout              << " , " << _btiid.sector()     ;
-  cout              << " , " << _btiid.superlayer() ;
-  cout              << " # " << _btiid.bti()        ;
-  cout              << " ) " ;
+void DTBtiTrigData::print() const {
+  cout << "BTI Id="
+       << " ( " << _btiid.wheel();
+  cout << " , " << _btiid.station();
+  cout << " , " << _btiid.sector();
+  cout << " , " << _btiid.superlayer();
+  cout << " # " << _btiid.bti();
+  cout << " ) ";
   cout << ", K=" << K() << ", X=" << X() << ", equation=" << eq();
   cout << ", code=" << code();
   cout << " step= " << step();
-/*  cout << " strobe= " << Strobe();
+  /*  cout << " strobe= " << Strobe();
   cout << " Keq values: " << Keq(0) << " " << Keq(1) << " " << Keq(2) << " " 
     << Keq(3) << " " << Keq(4) << " " << Keq(5) << endl;
 */

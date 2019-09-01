@@ -16,28 +16,28 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class TH1I;
 class TH1F;
 class TH2F;
 
-class ExampleMuonAnalyzer: public edm::EDAnalyzer {
+class ExampleMuonAnalyzer : public edm::EDAnalyzer {
 public:
   /// Constructor
-  ExampleMuonAnalyzer(const edm::ParameterSet& pset);
+  ExampleMuonAnalyzer(const edm::ParameterSet &pset);
 
   /// Destructor
   ~ExampleMuonAnalyzer() override;
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
-  void beginJob() override ;
-  void endJob() override ;
+  void beginJob() override;
+  void endJob() override;
+
 protected:
-
 private:
   edm::EDGetTokenT<pat::MuonCollection> theMuonToken;
 
@@ -61,7 +61,5 @@ private:
   TH1F *hMuIso03CaloComb;
 
   TH1F *h4MuInvMass;
-
 };
 #endif
-

@@ -1,7 +1,6 @@
 #ifndef HcalPedestalAnalysis_H
 #define HcalPedestalAnalysis_H
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -34,12 +33,10 @@
 class HcalDbService;
 class TFile;
 
-class HcalPedestalAnalysis{
-  
+class HcalPedestalAnalysis {
 public:
-  
   /// Constructor
-  HcalPedestalAnalysis(const edm::ParameterSet& ps);  
+  HcalPedestalAnalysis(const edm::ParameterSet& ps);
   /// Destructor
   ~HcalPedestalAnalysis();
 
@@ -47,56 +44,68 @@ public:
 
   void SampleAnalysis();
 
-  void setTopology(const HcalTopology* htopo) {fTopology = htopo;}
+  void setTopology(const HcalTopology* htopo) { fTopology = htopo; }
 
-  int done(const HcalPedestals* fInputPedestals, 
-	    const HcalPedestalWidths* fInputWidths,
-	    HcalPedestals* fOutputPedestals, 
-	    HcalPedestalWidths* fOutputWidths);
+  int done(const HcalPedestals* fInputPedestals,
+           const HcalPedestalWidths* fInputWidths,
+           HcalPedestals* fOutputPedestals,
+           HcalPedestalWidths* fOutputWidths);
 
   void processEvent(const HBHEDigiCollection& hbhe,
-		    const HODigiCollection& ho,
-		    const HFDigiCollection& hf,
-		    const HcalDbService& cond);
+                    const HODigiCollection& ho,
+                    const HFDigiCollection& hf,
+                    const HcalDbService& cond);
 
-// pedestal validation: HcalPedVal=-1 means not validated,
-//                                  0 everything OK,
-//                                  N>0 : mod(N,100000) drifts + width changes
-//                                        int(N/100000) missing channels
-  static int HcalPedVal(int nstat[4], const HcalPedestals* fRefPedestals,
-            const HcalPedestalWidths* fRefPedestalWidths,
-            HcalPedestals* fRawPedestals,
-            HcalPedestalWidths* fRawPedestalWidths,
-            HcalPedestals* fValPedestals,
-            HcalPedestalWidths* fValPedestalWidths);
+  // pedestal validation: HcalPedVal=-1 means not validated,
+  //                                  0 everything OK,
+  //                                  N>0 : mod(N,100000) drifts + width changes
+  //                                        int(N/100000) missing channels
+  static int HcalPedVal(int nstat[4],
+                        const HcalPedestals* fRefPedestals,
+                        const HcalPedestalWidths* fRefPedestalWidths,
+                        HcalPedestals* fRawPedestals,
+                        HcalPedestalWidths* fRawPedestalWidths,
+                        HcalPedestals* fValPedestals,
+                        HcalPedestalWidths* fValPedestalWidths);
 
 protected:
-  
-  
 private:
   //###
   //#  PEDBUNCH is used in map<HcalDetId,map<int, PEDBUNCH > > PEDTRENDS;
   //#  For each HcalDetId (channel) a map<int, PEDBUNCH> is associated;
   //#  int is cap-id (1-4);
-  //#  PEDBUNCH is a pair - first element is the main 
+  //#  PEDBUNCH is a pair - first element is the main
   //#  histo with the pedestal distribution and second one is another pair;
   //#  this pair contains map<int, std::vector<double> > as a first element;
   //#  int is cap-id, and vector contains some useful variables;
   //#  the second element is a vector of histos (pointers);
-  //#  for the "trend" analysis the main histo (with pedestals) is reset every 
+  //#  for the "trend" analysis the main histo (with pedestals) is reset every
   //#  nevt_ped events and info is put in the other part of the PEDBUNCH;
   //#  so at the end we have the trends for the variables in concern
-  //#  which are written in THE vector<TH1F*>; 
-  //###  
-  typedef std::pair<TH1F*,std::pair<std::map<int, std::vector<double> >,std::vector<TH1F*> > > PEDBUNCH;
+  //#  which are written in THE vector<TH1F*>;
+  //###
+  typedef std::pair<TH1F*, std::pair<std::map<int, std::vector<double> >, std::vector<TH1F*> > > PEDBUNCH;
 
-  void per2CapsHists(int flag, int id, const HcalDetId detid, const HcalQIESample& qie1, const HcalQIESample& qie2, std::map<HcalDetId, std::map<int,PEDBUNCH> > &toolT,const HcalDbService& cond);
+  void per2CapsHists(int flag,
+                     int id,
+                     const HcalDetId detid,
+                     const HcalQIESample& qie1,
+                     const HcalQIESample& qie2,
+                     std::map<HcalDetId, std::map<int, PEDBUNCH> >& toolT,
+                     const HcalDbService& cond);
 
-  void GetPedConst(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, TH1F* PedMeans, TH1F* PedWidths);
+  void GetPedConst(std::map<HcalDetId, std::map<int, PEDBUNCH> >& toolT, TH1F* PedMeans, TH1F* PedWidths);
 
-  void Trendings(std::map<HcalDetId,std::map<int, PEDBUNCH > > &toolT, TH1F* Chi2, TH1F* CapidAverage, TH1F* CapidChi2);
+  void Trendings(std::map<HcalDetId, std::map<int, PEDBUNCH> >& toolT, TH1F* Chi2, TH1F* CapidAverage, TH1F* CapidChi2);
 
-  void AllChanHists(const HcalDetId detid, const HcalQIESample& qie0, const HcalQIESample& qie1, const HcalQIESample& qie2, const HcalQIESample& qie3, const HcalQIESample& qie4, const HcalQIESample& qie5, std::map<HcalDetId, std::map<int,PEDBUNCH> > &toolT);
+  void AllChanHists(const HcalDetId detid,
+                    const HcalQIESample& qie0,
+                    const HcalQIESample& qie1,
+                    const HcalQIESample& qie2,
+                    const HcalQIESample& qie3,
+                    const HcalQIESample& qie4,
+                    const HcalQIESample& qie5,
+                    std::map<HcalDetId, std::map<int, PEDBUNCH> >& toolT);
 
   TFile* m_file;
 
@@ -111,11 +120,11 @@ private:
   int m_hiSaveflag;
   int m_pedValflag;
   int m_AllPedsOK;
-  
+
   const HcalQIEShape* m_shape;
   const HcalQIECoder* m_coder;
-  struct{
-    std::map<HcalDetId,std::map<int, PEDBUNCH > > PEDTRENDS;
+  struct {
+    std::map<HcalDetId, std::map<int, PEDBUNCH> > PEDTRENDS;
     TH1F* ALLPEDS;
     TH1F* PEDRMS;
     TH1F* PEDMEAN;
@@ -123,7 +132,7 @@ private:
     TH1F* CAPID_AVERAGE;
     TH1F* CAPID_CHI2;
   } hbHists, hfHists, hoHists;
-  std::map<HcalDetId,std::map<int, PEDBUNCH > >::iterator _meot;
+  std::map<HcalDetId, std::map<int, PEDBUNCH> >::iterator _meot;
   const HcalPedestals* fRefPedestals;
   const HcalPedestalWidths* fRefPedestalWidths;
   HcalPedestals* fRawPedestals;
@@ -136,8 +145,8 @@ private:
   float m_stat[4];
   std::vector<bool> state;
   const HcalTopology* fTopology;
-// flag to make gaussian fits to charge dists
-  static const int fitflag=0;
+  // flag to make gaussian fits to charge dists
+  static const int fitflag = 0;
 };
 
 #endif

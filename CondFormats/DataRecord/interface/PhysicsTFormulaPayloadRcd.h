@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     PhysicsTFormulaPayloadRcd
-// 
+//
 /**\class PhysicsTFormulaPayloadRcd PhysicsTFormulaPayloadRcd.h CondFormats/DataRecord/interface/PhysicsTFormulaPayloadRcd.h
 
  Description: [one line class summary]

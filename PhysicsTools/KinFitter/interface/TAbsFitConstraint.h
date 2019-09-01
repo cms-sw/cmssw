@@ -8,24 +8,22 @@
 #include "TString.h"
 
 class TAbsFitConstraint : public TNamed {
-
-public :
-
+public:
   TAbsFitConstraint();
-  TAbsFitConstraint(const TString &name, const TString &title);
+  TAbsFitConstraint(const TString& name, const TString& title);
   ~TAbsFitConstraint() override;
 
   // returns derivative df/dP with P=(p,E) and f the constraint f=0.
   // The matrix contains one row (df/dp, df/dE).
-  virtual TMatrixD* getDerivative( TAbsFitParticle* particle ) = 0 ;
+  virtual TMatrixD* getDerivative(TAbsFitParticle* particle) = 0;
   virtual Double_t getInitValue() = 0;
   virtual Double_t getCurrentValue() = 0;
 
   // new ---  additional parameters
-  Int_t getNPar() { return _nPar; } 
+  Int_t getNPar() { return _nPar; }
 
   virtual TMatrixD* getDerivativeAlpha() { return nullptr; }
-  
+
   virtual const TMatrixD* getCovMatrix() const { return &_covMatrix; }
   virtual void setCovMatrix(const TMatrixD* theCovMatrix);
 
@@ -33,29 +31,26 @@ public :
   virtual void setCovMatrixFit(const TMatrixD* theCovMatrixFit);
 
   virtual const TMatrixD* getCovMatrixDeltaAlpha();
-  
+
   const TMatrixD* getParIni() { return &_iniparameters; }
-  void  setParIni(const TMatrixD* parini);
+  void setParIni(const TMatrixD* parini);
   virtual void applyDeltaAlpha(TMatrixD* corrMatrix);
-  const TMatrixD* getParCurr(){ return &_parameters; }
+  const TMatrixD* getParCurr() { return &_parameters; }
 
   virtual TString getInfoString();
-  virtual void print(); 
+  virtual void print();
   virtual void reset();
 
-protected :
-
+protected:
   void calcCovMatrixDeltaAlpha();
 
   Int_t _nPar;
 
-  TMatrixD _covMatrix;      // covariance matrix
-  TMatrixD _covMatrixFit;   // fitted covariance matrix
+  TMatrixD _covMatrix;            // covariance matrix
+  TMatrixD _covMatrixFit;         // fitted covariance matrix
   TMatrixD _covMatrixDeltaAlpha;  // V(deltaAlpha) == V(alpha_meas) - V(alpha_fit)
-  TMatrixD _iniparameters;  // initialized parameters (parameters values before the fit)
-  TMatrixD _parameters;     // fitted parameters
-
-
+  TMatrixD _iniparameters;        // initialized parameters (parameters values before the fit)
+  TMatrixD _parameters;           // fitted parameters
 };
 
 #endif

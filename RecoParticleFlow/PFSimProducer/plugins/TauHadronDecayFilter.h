@@ -4,13 +4,11 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FastSimulation/Particle/interface/ParticleTable.h"
-
 // -*- C++ -*-
 //
 // Package:    TauHadronDecayFilter
 // Class:      TauHadronDecayFilter
-// 
+//
 /**\class TauHadronDecayFilter 
 
  Description: filters single tau events with a tau decaying hadronically
@@ -21,7 +19,6 @@
 //
 //
 
-
 //
 // class declaration
 //
@@ -29,18 +26,17 @@
 class FSimEvent;
 
 class TauHadronDecayFilter : public edm::EDFilter {
- public:
+public:
   explicit TauHadronDecayFilter(const edm::ParameterSet&);
   ~TauHadronDecayFilter() override;
 
- private:
+private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  
+
   // ----------member data ---------------------------
-  edm::ParameterSet  particleFilter_;
+  edm::ParameterSet particleFilter_;
   FSimEvent* mySimEvent;
-  std::unique_ptr<ParticleTable::Sentry> pTableSentry_;
 };
 
 #endif

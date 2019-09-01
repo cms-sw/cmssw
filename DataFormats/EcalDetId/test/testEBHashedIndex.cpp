@@ -12,32 +12,32 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-int main(int argc, char* argv[]) {
-  FILE *ofile = fopen("eb_next_to_boundary.dat","w");
+int main(int argc, char *argv[]) {
+  FILE *ofile = fopen("eb_next_to_boundary.dat", "w");
   int hi = -1;
   try {
-          for (int ieta=EBDetId::MIN_IETA;ieta<=EBDetId::MAX_IETA;ieta++) {
-                  for (int iphi=EBDetId::MIN_IPHI;iphi<=EBDetId::MAX_IPHI;iphi++) {
-                          if (EBDetId::validDetId(ieta,iphi)) {
-                                  EBDetId id = EBDetId(ieta, iphi);
-                                  if ( EBDetId::isNextToBoundary( id ) ) {
-                                          fprintf(ofile, "%d %d %d %d\n", id.ieta(), id.iphi(), hi, 1);
-                                  } else {
-                                          fprintf(ofile, "%d %d %d %d\n", id.ieta(), id.iphi(), hi, 0);
-                                  }
-                          }
-                          if (EBDetId::validDetId(-ieta,iphi)) {
-                                  EBDetId id = EBDetId(-ieta, iphi);
-                                  if ( EBDetId::isNextToBoundary( id ) ) {
-                                          fprintf(ofile, "%d %d %d %d\n", id.ieta(), id.iphi(), hi, 1);
-                                  } else {
-                                          fprintf(ofile, "%d %d %d %d\n", id.ieta(), id.iphi(), hi, 0);
-                                  }
-                          }
-                  }
-	  }
+    for (int ieta = EBDetId::MIN_IETA; ieta <= EBDetId::MAX_IETA; ieta++) {
+      for (int iphi = EBDetId::MIN_IPHI; iphi <= EBDetId::MAX_IPHI; iphi++) {
+        if (EBDetId::validDetId(ieta, iphi)) {
+          EBDetId id = EBDetId(ieta, iphi);
+          if (EBDetId::isNextToBoundary(id)) {
+            fprintf(ofile, "%d %d %d %d\n", id.ieta(), id.iphi(), hi, 1);
+          } else {
+            fprintf(ofile, "%d %d %d %d\n", id.ieta(), id.iphi(), hi, 0);
+          }
+        }
+        if (EBDetId::validDetId(-ieta, iphi)) {
+          EBDetId id = EBDetId(-ieta, iphi);
+          if (EBDetId::isNextToBoundary(id)) {
+            fprintf(ofile, "%d %d %d %d\n", id.ieta(), id.iphi(), hi, 1);
+          } else {
+            fprintf(ofile, "%d %d %d %d\n", id.ieta(), id.iphi(), hi, 0);
+          }
+        }
+      }
+    }
   } catch (std::exception &e) {
-	  std::cerr << e.what();
+    std::cerr << e.what();
   }
   fclose(ofile);
 }

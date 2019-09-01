@@ -2,53 +2,25 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 
-process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+process.load('SimG4CMS.HcalTestBeam.TB2006Geometry33XML_cfi')
+process.load('SimGeneral.HepPDTESSource.pdt_cfi')
 process.load('Configuration.StandardSequences.Services_cff')
-process.load("SimG4CMS.HcalTestBeam.TB2006Geometry33XML_cfi")
-process.load("Geometry.HcalCommonData.hcalParameters_cfi")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
-process.load("Configuration.EventContent.EventContent_cff")
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Geometry.HcalCommonData.hcalParameters_cfi')
+process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
 process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 process.load('SimG4Core.Application.g4SimHits_cfi')
 process.load('IOMC.RandomEngine.IOMC_cff')
 
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('HCalGeom')
+    process.MessageLogger.categories.append('HcalSim')
+
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('hcaltb06_33.root')
                                    )
-
-process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations = cms.untracked.vstring('cout'),
-                                    categories = cms.untracked.vstring('CaloSim', 
-                                                                       'HCalGeom', 
-                                                                       'HcalSim', 
-                                                                       'HcalTBSim', 
-                                                                       'SimHCalData'),
-                                    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        HcalTBSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        SimHCalData = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            )
-        )
-                                    )
 
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
@@ -118,6 +90,7 @@ process.testbeam = cms.EDAnalyzer("HcalTB06Analysis",
         HcalWidth  = cms.double(0.640),
         EcalFactor = cms.double(1.0),
         HcalFactor = cms.double(100.0),
+        MIP        = cms.double(0.8),
         Verbose    = cms.untracked.bool(True),
         MakeTree   = cms.untracked.bool(True)
         )

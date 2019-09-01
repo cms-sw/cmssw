@@ -23,24 +23,21 @@
 #include <vector>
 
 template <typename T>
-class ShiftedJetProducerByMatchedObjectT : public edm::stream::EDProducer<>  
-{
+class ShiftedJetProducerByMatchedObjectT : public edm::stream::EDProducer<> {
   typedef std::vector<T> JetCollection;
 
- public:
-
+public:
   explicit ShiftedJetProducerByMatchedObjectT(const edm::ParameterSet&);
   ~ShiftedJetProducerByMatchedObjectT() override;
-    
- private:
 
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleLabel_;
 
-  edm::EDGetTokenT<JetCollection> srcJets_; 
-  edm::EDGetTokenT<edm::View<reco::Candidate> > srcUnshiftedObjects_; 
-  edm::EDGetTokenT<edm::View<reco::Candidate> > srcShiftedObjects_; 
+  edm::EDGetTokenT<JetCollection> srcJets_;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > srcUnshiftedObjects_;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > srcShiftedObjects_;
 
   double dRmatch_Jet_;
   double dRmatch_Object_;
@@ -48,18 +45,17 @@ class ShiftedJetProducerByMatchedObjectT : public edm::stream::EDProducer<>
   double dR2match_Jet_;
   double dR2match_Object_;
 
-  struct objectEntryType
-  {
-    objectEntryType(const reco::Candidate::LorentzVector& shiftedObjectP4, 
-		    const reco::Candidate::LorentzVector& unshiftedObjectP4, double dRmatch)
-      : shiftedObjectP4_(shiftedObjectP4),
-	unshiftedObjectP4_(unshiftedObjectP4),
-	dRmatch_(dRmatch),
-	isValidMatch_(false)
-    {
-      if ( unshiftedObjectP4.energy() > 0. ) {
-	shift_ = (shiftedObjectP4.energy()/unshiftedObjectP4.energy()) - 1.;
-	isValidMatch_ = true;
+  struct objectEntryType {
+    objectEntryType(const reco::Candidate::LorentzVector& shiftedObjectP4,
+                    const reco::Candidate::LorentzVector& unshiftedObjectP4,
+                    double dRmatch)
+        : shiftedObjectP4_(shiftedObjectP4),
+          unshiftedObjectP4_(unshiftedObjectP4),
+          dRmatch_(dRmatch),
+          isValidMatch_(false) {
+      if (unshiftedObjectP4.energy() > 0.) {
+        shift_ = (shiftedObjectP4.energy() / unshiftedObjectP4.energy()) - 1.;
+        isValidMatch_ = true;
       }
     }
     ~objectEntryType() {}
@@ -74,7 +70,3 @@ class ShiftedJetProducerByMatchedObjectT : public edm::stream::EDProducer<>
 };
 
 #endif
-
-
- 
-

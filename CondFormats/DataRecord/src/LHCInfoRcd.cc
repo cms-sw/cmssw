@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     LHCInfoRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
-// Author:      
+// Author:
 // Created:     Mon Mar 5 2018
 // $Id$
 

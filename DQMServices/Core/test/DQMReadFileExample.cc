@@ -2,7 +2,7 @@
 //
 // Package:    DQMServices/CoreROOT
 // Class:      DQMReadFileExample
-// 
+//
 /**\class DQMReadFileExample
 
 Description: Simple example showing how to read MonitorElements from ROOT file
@@ -13,7 +13,6 @@ Implementation:
 //
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,19 +36,22 @@ Implementation:
 //
 class DQMReadFileExample : public edm::EDAnalyzer {
 public:
-  explicit DQMReadFileExample( const edm::ParameterSet& );
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
+  explicit DQMReadFileExample(const edm::ParameterSet&);
   ~DQMReadFileExample() override;
-  
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
-  
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
   void endJob() override;
 
 private:
   // ----------member data ---------------------------
-  
+
   // back-end interface
-  DQMStore * dbe;
-  
+  DQMStore* dbe;
+
   // remove all MonitorElements and directories
   void removeAll();
 };
@@ -57,18 +59,17 @@ private:
 //
 // constructors and destructor
 //
-DQMReadFileExample::DQMReadFileExample(const edm::ParameterSet& iConfig ) 
-{
+DQMReadFileExample::DQMReadFileExample(const edm::ParameterSet& iConfig) {
   // get hold of back-end interface
   dbe = edm::Service<DQMStore>().operator->();
 
-  std::string filename = iConfig.getUntrackedParameter<std::string>
-    ("RootFileName", "test_playback.root");
+  std::string filename = iConfig.getUntrackedParameter<std::string>("RootFileName", "test_playback.root");
   dbe->open(filename);
   dbe->showDirStructure();
   removeAll();
 
-  bool overwrite = false; std::string pathname = "Collector/FU0/C1/C2";
+  bool overwrite = false;
+  std::string pathname = "Collector/FU0/C1/C2";
   dbe->open(filename, overwrite, pathname);
   dbe->showDirStructure();
   removeAll();
@@ -79,47 +80,35 @@ DQMReadFileExample::DQMReadFileExample(const edm::ParameterSet& iConfig )
   removeAll();
 }
 
-
-
-DQMReadFileExample::~DQMReadFileExample()
-{
+DQMReadFileExample::~DQMReadFileExample() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  
 }
 
 // remove all MonitorElements and directories
-void DQMReadFileExample::removeAll()
-{
+void DQMReadFileExample::removeAll() {
   // go to top directory
   dbe->cd();
   // remove MEs at top directory
   dbe->removeContents();
   // remove directory (including subdirectories recursively)
-  if(dbe->dirExists("Collector"))
-     dbe->rmdir("Collector");
-  if(dbe->dirExists("Summary"))
-  dbe->rmdir("Summary");
+  if (dbe->dirExists("Collector"))
+    dbe->rmdir("Collector");
+  if (dbe->dirExists("Summary"))
+    dbe->rmdir("Summary");
 }
 
-void DQMReadFileExample::endJob()
-{
+void DQMReadFileExample::endJob() {
   dbe->showDirStructure();
-  // dbe->save("test.root");  
+  // dbe->save("test.root");
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void DQMReadFileExample::analyze(const edm::Event& iEvent, 
-					 const edm::EventSetup& iSetup )
-{
-
-}
+void DQMReadFileExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
 // define this as a plug-in
 DEFINE_FWK_MODULE(DQMReadFileExample);
-

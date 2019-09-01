@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Utilities
 // Class  :     SoATuple
-// 
+//
 /**\class SoATuple SoATuple.h "FWCore/Utilities/interface/SoATuple.h"
 
  Description: Structure of Arrays Tuple
@@ -92,40 +92,39 @@ Explicitly aligned types and defaultly aligned types can be freely mixed in any 
 #include "FWCore/Utilities/interface/SoATupleHelper.h"
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
-
 // forward declarations
 
 namespace edm {
 
   //The class Aligned is used to specify a non-default alignment for a class
   using edm::soahelper::Aligned;
-  
+
   //Proper alignment for doing vectorized operations on CPU
-  template<typename T> using AlignedVec = Aligned<T,16>;
-  
+  template <typename T>
+  using AlignedVec = Aligned<T, 16>;
+
   template <typename... Args>
-  class SoATuple
-  {
-    
+  class SoATuple {
   public:
     typedef typename std::tuple<Args...> element;
 
-    SoATuple(): m_size(0),m_reserved(0){
-      for(auto& v : m_values) {
+    SoATuple() : m_size(0), m_reserved(0) {
+      for (auto& v : m_values) {
         v = nullptr;
       }
     }
-    SoATuple(const SoATuple<Args...>& iOther):m_size(0),m_reserved(0) {
-      for(auto& v : m_values) {
+    SoATuple(const SoATuple<Args...>& iOther) : m_size(0), m_reserved(0) {
+      for (auto& v : m_values) {
         v = nullptr;
       }
       reserve(iOther.m_size);
-      soahelper::SoATupleHelper<sizeof...(Args),Args...>::copyToNew(static_cast<char*>(m_values[0]),iOther.m_size,m_reserved,iOther.m_values,m_values);
+      soahelper::SoATupleHelper<sizeof...(Args), Args...>::copyToNew(
+          static_cast<char*>(m_values[0]), iOther.m_size, m_reserved, iOther.m_values, m_values);
       m_size = iOther.m_size;
     }
 
-    SoATuple(SoATuple<Args...>&& iOther):m_size(0),m_reserved(0) {
-      for(auto& v : m_values) {
+    SoATuple(SoATuple<Args...>&& iOther) : m_size(0), m_reserved(0) {
+      for (auto& v : m_values) {
         v = nullptr;
       }
       this->swap(iOther);
@@ -138,113 +137,123 @@ namespace edm {
     }
 
     ~SoATuple() {
-      soahelper::SoATupleHelper<sizeof...(Args),Args...>::destroy(m_values,m_size);
-      typedef std::aligned_storage<soahelper::SoATupleHelper<sizeof...(Args),Args...>::max_alignment,
-      soahelper::SoATupleHelper<sizeof...(Args),Args...>::max_alignment> AlignedType;
+      soahelper::SoATupleHelper<sizeof...(Args), Args...>::destroy(m_values, m_size);
+      typedef std::aligned_storage<soahelper::SoATupleHelper<sizeof...(Args), Args...>::max_alignment,
+                                   soahelper::SoATupleHelper<sizeof...(Args), Args...>::max_alignment>
+          AlignedType;
 
-      delete [] static_cast<AlignedType*>(m_values[0]);
+      delete[] static_cast<AlignedType*>(m_values[0]);
     }
-    
+
     // ---------- const member functions ---------------------
-    size_t size() const { return m_size;}
-    size_t capacity() const {return m_reserved;}
+    size_t size() const { return m_size; }
+    size_t capacity() const { return m_reserved; }
 
     /** Returns const access to data element I of item iIndex */
-    template<unsigned int I>
-    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type const& get(unsigned int iIndex) const {
-      typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type ReturnType;
-      return *(static_cast<ReturnType const*>(m_values[I])+iIndex);
+    template <unsigned int I>
+    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type const& get(
+        unsigned int iIndex) const {
+      typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type
+          ReturnType;
+      return *(static_cast<ReturnType const*>(m_values[I]) + iIndex);
     }
 
     /** Returns the beginning of the container holding all Ith data elements*/
-    template<unsigned int I>
-    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type const* begin() const {
+    template <unsigned int I>
+    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type const* begin()
+        const {
       typedef soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type> Helper;
       typedef typename Helper::Type ReturnType;
-#if GCC_PREREQUISITE(4,7,0)
-      return static_cast<ReturnType const*>(__builtin_assume_aligned(m_values[I],Helper::kAlignment));
+#if GCC_PREREQUISITE(4, 7, 0)
+      return static_cast<ReturnType const*>(__builtin_assume_aligned(m_values[I], Helper::kAlignment));
 #else
       return static_cast<ReturnType const*>(m_values[I]);
 #endif
     }
     /** Returns the end of the container holding all Ith data elements*/
-    template<unsigned int I>
-    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type const* end() const {
-      typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type ReturnType;
-      return static_cast<ReturnType const*>(m_values[I])+m_size;
+    template <unsigned int I>
+    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type const* end()
+        const {
+      typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type
+          ReturnType;
+      return static_cast<ReturnType const*>(m_values[I]) + m_size;
     }
 
     // ---------- member functions ---------------------------
     /** Makes sure to hold enough memory to contain at least iToSize entries. */
     void reserve(unsigned int iToSize) {
-      if(iToSize > m_reserved) {
+      if (iToSize > m_reserved) {
         changeSize(iToSize);
       }
     }
-    
+
     /** Shrinks the amount of memory used so as to only have just enough to hold all entries.*/
     void shrink_to_fit() {
-      if(m_reserved > m_size) {
+      if (m_reserved > m_size) {
         changeSize(m_size);
       }
     }
 
     /** Adds one entry to the end of the list. Memory grows as needed.*/
     void push_back(element const& values) {
-      if(size()+1>capacity()) {
-        reserve(size()*2+1);
+      if (size() + 1 > capacity()) {
+        reserve(size() * 2 + 1);
       }
-      soahelper::SoATupleHelper<sizeof...(Args),Args...>::push_back(m_values,m_size,values);
+      soahelper::SoATupleHelper<sizeof...(Args), Args...>::push_back(m_values, m_size, values);
       ++m_size;
     }
 
     /** Adds one entry to the end of the list. The arguments are used to instantiate each data element in the order defined in the template arguments.*/
-    template< typename... FArgs>
+    template <typename... FArgs>
     void emplace_back(FArgs&&... values) {
-      if(size()+1>capacity()) {
-        reserve(size()*2+1);
+      if (size() + 1 > capacity()) {
+        reserve(size() * 2 + 1);
       }
-      soahelper::SoATupleHelper<sizeof...(Args),Args...>::emplace_back(m_values,m_size,std::forward<FArgs>(values)...);
+      soahelper::SoATupleHelper<sizeof...(Args), Args...>::emplace_back(
+          m_values, m_size, std::forward<FArgs>(values)...);
       ++m_size;
     }
 
     /** Returns access to data element I of item iIndex */
-    template<unsigned int I>
-    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type& get(unsigned int iIndex) {
-      typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type ReturnType;
-      return *(static_cast<ReturnType*>(m_values[I])+iIndex);
+    template <unsigned int I>
+    typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type& get(
+        unsigned int iIndex) {
+      typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type
+          ReturnType;
+      return *(static_cast<ReturnType*>(m_values[I]) + iIndex);
     }
-    
+
     /** Returns the beginning of the container holding all Ith data elements*/
-    template<unsigned int I>
+    template <unsigned int I>
     typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type* begin() {
       typedef soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type> Helper;
       typedef typename Helper::Type ReturnType;
-#if GCC_PREREQUISITE(4,7,0)
-      return static_cast<ReturnType*>(__builtin_assume_aligned(m_values[I],Helper::kAlignment));
+#if GCC_PREREQUISITE(4, 7, 0)
+      return static_cast<ReturnType*>(__builtin_assume_aligned(m_values[I], Helper::kAlignment));
 #else
       return static_cast<ReturnType*>(m_values[I]);
 #endif
     }
     /** Returns the end of the container holding all Ith data elements*/
-    template<unsigned int I>
+    template <unsigned int I>
     typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type* end() {
-      typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type ReturnType;
-      return static_cast<ReturnType*>(m_values[I])+m_size;
+      typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type
+          ReturnType;
+      return static_cast<ReturnType*>(m_values[I]) + m_size;
     }
-    
+
     void swap(SoATuple<Args...>& iOther) {
-      std::swap(m_size,iOther.m_size);
-      std::swap(m_reserved,iOther.m_reserved);
-      for(unsigned int i=0; i<sizeof...(Args);++i) {
-        std::swap(m_values[i],iOther.m_values[i]);
+      std::swap(m_size, iOther.m_size);
+      std::swap(m_reserved, iOther.m_reserved);
+      for (unsigned int i = 0; i < sizeof...(Args); ++i) {
+        std::swap(m_values[i], iOther.m_values[i]);
       }
     }
+
   private:
-        
     void changeSize(unsigned int iToSize) {
-      assert(m_size<=iToSize);
-      const size_t memoryNeededInBytes = soahelper::SoATupleHelper<sizeof...(Args),Args...>::spaceNeededFor(iToSize);
+      assert(m_size <= iToSize);
+      const size_t memoryNeededInBytes = soahelper::SoATupleHelper<sizeof...(Args), Args...>::spaceNeededFor(iToSize);
       //align memory of the array to be on the strictest alignment boundary for any type in the Tuple
       // This is done by creating an array of a type that has that same alignment restriction and minimum size.
       // This has the draw back of possibly padding the array by one extra element if the memoryNeededInBytes is not
@@ -254,16 +263,17 @@ namespace edm {
       // if the array were for 64 bytes and the strictest requirement of any object was 8 bytes then the entire
       // char array would be aligned on an 8 byte boundary. However, if the SoATuple<char,char> only 1 byte alignment
       // is needed. The following algorithm would require only 1 byte alignment
-      const std::size_t max_alignment = soahelper::SoATupleHelper<sizeof...(Args),Args...>::max_alignment;
-      typedef std::aligned_storage<soahelper::SoATupleHelper<sizeof...(Args),Args...>::max_alignment,
-                                   soahelper::SoATupleHelper<sizeof...(Args),Args...>::max_alignment> AlignedType;
+      const std::size_t max_alignment = soahelper::SoATupleHelper<sizeof...(Args), Args...>::max_alignment;
+      typedef std::aligned_storage<soahelper::SoATupleHelper<sizeof...(Args), Args...>::max_alignment,
+                                   soahelper::SoATupleHelper<sizeof...(Args), Args...>::max_alignment>
+          AlignedType;
       //If needed, pad the number of items by 1
-      const size_t itemsNeeded = (memoryNeededInBytes+max_alignment-1)/sizeof(AlignedType);
-      char * newMemory = static_cast<char*>(static_cast<void*>(new AlignedType[itemsNeeded]));
-      void * oldMemory =m_values[0];
-      soahelper::SoATupleHelper<sizeof...(Args),Args...>::moveToNew(newMemory,m_size, iToSize, m_values);
+      const size_t itemsNeeded = (memoryNeededInBytes + max_alignment - 1) / sizeof(AlignedType);
+      char* newMemory = static_cast<char*>(static_cast<void*>(new AlignedType[itemsNeeded]));
+      void* oldMemory = m_values[0];
+      soahelper::SoATupleHelper<sizeof...(Args), Args...>::moveToNew(newMemory, m_size, iToSize, m_values);
       m_reserved = iToSize;
-      delete [] static_cast<AlignedType*>(oldMemory);
+      delete[] static_cast<AlignedType*>(oldMemory);
     }
     // ---------- member data --------------------------------
     //Pointers to where each column starts in the shared memory array
@@ -272,7 +282,6 @@ namespace edm {
     size_t m_size;
     size_t m_reserved;
   };
-}
-
+}  // namespace edm
 
 #endif

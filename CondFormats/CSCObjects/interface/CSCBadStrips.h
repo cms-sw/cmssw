@@ -5,27 +5,27 @@
 
 #include <vector>
 
-class CSCBadStrips{
- public:
+class CSCBadStrips {
+public:
   CSCBadStrips();
   ~CSCBadStrips();
-  
-  struct BadChamber{
+
+  struct BadChamber {
     int chamber_index;
     int pointer;
     int bad_channels;
-  
-  COND_SERIALIZABLE;
-};
-  struct BadChannel{
+
+    COND_SERIALIZABLE;
+  };
+  struct BadChannel {
     short int layer;
     short int channel;
     short int flag1;
     short int flag2;
     short int flag3;
-  
-  COND_SERIALIZABLE;
-};
+
+    COND_SERIALIZABLE;
+  };
 
   int numberOfBadChannels;
 
@@ -35,7 +35,7 @@ class CSCBadStrips{
   BadChamberContainer chambers;
   BadChannelContainer channels;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

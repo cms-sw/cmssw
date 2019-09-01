@@ -18,7 +18,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include <TFile.h>
 
-  /**
+/**
    * This is a very simple test analyzer mean to test the KalmanVertexFitter
    */
 
@@ -26,14 +26,13 @@ class TrackMix : public edm::EDAnalyzer {
 public:
   explicit TrackMix(const edm::ParameterSet&);
   ~TrackMix();
-  
+
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   virtual void beginJob();
   virtual void endJob();
 
 private:
-
   edm::ParameterSet theConfig;
   edm::EDGetTokenT<edm::View<reco::Track> > token_gsf, token_ckf;
 };

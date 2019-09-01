@@ -7,7 +7,7 @@
 
 /** concrete class for ROOT based IO of AlignmentUserVariables */
 
-class HIPUserVariablesIORoot : public AlignmentIORootBase, public AlignmentUserVariablesIO{
+class HIPUserVariablesIORoot : public AlignmentIORootBase, public AlignmentUserVariablesIO {
 public:
   using Alignables = align::Alignables;
 
@@ -18,9 +18,10 @@ public:
   void writeHIPUserVariables(const Alignables& alivec, const char* filename, int iter, bool validCheck, int& ierr);
 
   /** read user variables */
-  std::vector<AlignmentUserVariables*> readHIPUserVariables(const Alignables& alivec, const char* filename, int iter, int& ierr);
-
-
+  std::vector<AlignmentUserVariables*> readHIPUserVariables(const Alignables& alivec,
+                                                            const char* filename,
+                                                            int iter,
+                                                            int& ierr);
 
 private:
   /** write AlignmentParameters of one Alignable */
@@ -30,10 +31,13 @@ private:
   AlignmentUserVariables* readOne(Alignable* ali, int& ierr) override;
 
   /** open IO */
-  int open(const char* filename, int iteration, bool writemode) override{ newopen=true; return openRoot(filename, iteration, writemode); }
+  int open(const char* filename, int iteration, bool writemode) override {
+    newopen = true;
+    return openRoot(filename, iteration, writemode);
+  }
 
   /** close IO */
-  int close(void) override{ return closeRoot(); }
+  int close(void) override { return closeRoot(); }
 
   // helper functions
 
@@ -43,14 +47,14 @@ private:
 
   // data members
 
-  static const int nparmax=19;
+  static const int nparmax = 19;
 
   /** alignment parameter tree */
   int ObjId;
   unsigned int Id;
   int Nhit, Nparj, Npare;
   int DataType;
-  double Jtvj[nparmax*(nparmax+1)/2];
+  double Jtvj[nparmax * (nparmax + 1) / 2];
   double Jtve[nparmax];
   double AlignableChi2;
   unsigned int AlignableNdof;
@@ -58,9 +62,8 @@ private:
   double ParError[nparmax];
 
   bool newopen;
-  typedef  std::map< std::pair<int, int>, int > treemaptype;
+  typedef std::map<std::pair<int, int>, int> treemaptype;
   treemaptype treemap;
-
 };
 
 #endif

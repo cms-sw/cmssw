@@ -11,5 +11,4 @@
 #define CPP11_auto_ptr std::auto_ptr
 #endif
 
-#endif // GENERS_CPP11_AUTO_PTR_HH_
-
+#endif  // GENERS_CPP11_AUTO_PTR_HH_

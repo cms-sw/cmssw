@@ -22,7 +22,7 @@
 // system include files
 #include <memory>
 #include <map>
-#include <utility>//pair
+#include <utility>  //pair
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -41,10 +41,10 @@ class PATHemisphereProducer : public edm::global::EDProducer<> {
 public:
   explicit PATHemisphereProducer(const edm::ParameterSet&);
   ~PATHemisphereProducer() override;
-  
+
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  
-private:  
+
+private:
   // ----------member data ---------------------------
   /// Input: All PAT objects that are to cross-clean  or needed for that
   const edm::EDGetTokenT<reco::CandidateView> _patJetsToken;
@@ -53,25 +53,23 @@ private:
   const edm::EDGetTokenT<reco::CandidateView> _patElectronsToken;
   const edm::EDGetTokenT<reco::CandidateView> _patPhotonsToken;
   const edm::EDGetTokenT<reco::CandidateView> _patTausToken;
-  
+
   const float _minJetEt;
   const float _minMuonEt;
   const float _minElectronEt;
   const float _minTauEt;
   const float _minPhotonEt;
-  
+
   const float _maxJetEta;
   const float _maxMuonEta;
   const float _maxElectronEta;
   const float _maxTauEta;
   const float _maxPhotonEta;
-  
+
   const int _seedMethod;
   const int _combinationMethod;
-  
+
   typedef std::vector<float> HemiAxis;
 };
 
 #endif
-
-

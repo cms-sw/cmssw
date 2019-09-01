@@ -12,49 +12,41 @@
 #define LOGDRESSED(x) LogDebug(x)
 #endif
 
-PFMultiDepthClusterProducer::PFMultiDepthClusterProducer(const edm::ParameterSet& conf)
-{
-  _clustersLabel = consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("clustersSource")); 
-  _pfClusterBuilder.reset(nullptr);
+PFMultiDepthClusterProducer::PFMultiDepthClusterProducer(const edm::ParameterSet& conf) {
+  _clustersLabel = consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("clustersSource"));
   const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
-  if( !pfcConf.empty() ) {
+  if (!pfcConf.empty()) {
     const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
-    PFCBB* pfcb = PFClusterBuilderFactory::get()->create(pfcName,pfcConf);
-    _pfClusterBuilder.reset(pfcb);
+    _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf);
   }
   // see if new need to apply corrections, setup if there.
-  const edm::ParameterSet& cConf =  conf.getParameterSet("energyCorrector");
-  if( !cConf.empty() ) {
+  const edm::ParameterSet& cConf = conf.getParameterSet("energyCorrector");
+  if (!cConf.empty()) {
     const std::string& cName = cConf.getParameter<std::string>("algoName");
-    PFClusterEnergyCorrectorBase* eCorr =
-      PFClusterEnergyCorrectorFactory::get()->create(cName,cConf);
-    _energyCorrector.reset(eCorr);
+    _energyCorrector = PFClusterEnergyCorrectorFactory::get()->create(cName, cConf);
   }
-  
+
   produces<reco::PFClusterCollection>();
 }
 
-void PFMultiDepthClusterProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, 
-					     const edm::EventSetup& es) {
+void PFMultiDepthClusterProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& es) {
   _pfClusterBuilder->update(es);
-  
 }
 
 void PFMultiDepthClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   _pfClusterBuilder->reset();
 
   edm::Handle<reco::PFClusterCollection> inputClusters;
-  e.getByToken(_clustersLabel,inputClusters);  
-  
+  e.getByToken(_clustersLabel, inputClusters);
+
   std::vector<bool> seedable;
 
   auto pfClusters = std::make_unique<reco::PFClusterCollection>();
   _pfClusterBuilder->buildClusters(*inputClusters, seedable, *pfClusters);
   LOGVERB("PFMultiDepthClusterProducer::produce()") << *_pfClusterBuilder;
 
-  if( _energyCorrector ) {
+  if (_energyCorrector) {
     _energyCorrector->correctEnergies(*pfClusters);
   }
   e.put(std::move(pfClusters));
-
 }

@@ -1,6 +1,6 @@
-//Class to produce a dummy SiStripEventSummary object so that spy channel data can be used with commissioning software. 
-//Run types which need additional parameters from the trigger FED buffer or DAQ registers are not supported. 
-//If an unsupported run type is used, an error message will be printed and parameters will be set to zero. 
+//Class to produce a dummy SiStripEventSummary object so that spy channel data can be used with commissioning software.
+//Run types which need additional parameters from the trigger FED buffer or DAQ registers are not supported.
+//If an unsupported run type is used, an error message will be printed and parameters will be set to zero.
 //Author: Nick Cripps
 //Date: 10/05/2010
 
@@ -26,49 +26,47 @@
 #include "boost/cstdint.hpp"
 
 using edm::LogError;
-using edm::LogWarning;
 using edm::LogInfo;
+using edm::LogWarning;
 
 namespace sistrip {
-  
-  class SpyEventSummaryProducer : public edm::EDProducer
-  {
-    public:
-      SpyEventSummaryProducer(const edm::ParameterSet& config);
-      ~SpyEventSummaryProducer() override;
-      void produce(edm::Event& event, const edm::EventSetup&) override;
-    private:
-      void warnAboutUnsupportedRunType();
-      static const char* messageLabel_;
-      const edm::InputTag rawDataTag_;
+
+  class SpyEventSummaryProducer : public edm::EDProducer {
+  public:
+    SpyEventSummaryProducer(const edm::ParameterSet& config);
+    ~SpyEventSummaryProducer() override;
+    void produce(edm::Event& event, const edm::EventSetup&) override;
+
+  private:
+    void warnAboutUnsupportedRunType();
+    static const char* messageLabel_;
+    const edm::InputTag rawDataTag_;
     edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
-      const sistrip::RunType runType_;
+    const sistrip::RunType runType_;
   };
-  
-}
+
+}  // namespace sistrip
 
 namespace sistrip {
-  
+
   const char* SpyEventSummaryProducer::messageLabel_ = "SiStripSpyEventSummaryProducer";
-  
+
   SpyEventSummaryProducer::SpyEventSummaryProducer(const edm::ParameterSet& config)
-    : rawDataTag_(config.getParameter<edm::InputTag>("RawDataTag")),
-      runType_(sistrip::RunType(config.getParameter<uint32_t>("RunType")))
-  {
+      : rawDataTag_(config.getParameter<edm::InputTag>("RawDataTag")),
+        runType_(sistrip::RunType(config.getParameter<uint32_t>("RunType"))) {
     rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
     produces<SiStripEventSummary>();
     warnAboutUnsupportedRunType();
   }
-  
+
   SpyEventSummaryProducer::~SpyEventSummaryProducer() {}
-  
-  void SpyEventSummaryProducer::produce(edm::Event& event, const edm::EventSetup&)
-  {
+
+  void SpyEventSummaryProducer::produce(edm::Event& event, const edm::EventSetup&) {
     warnAboutUnsupportedRunType();
-    
+
     //get the event number and Bx counter from the first valud FED buffer
     edm::Handle<FEDRawDataCollection> rawDataHandle;
-    event.getByToken(rawDataToken_,rawDataHandle);
+    event.getByToken(rawDataToken_, rawDataHandle);
     const FEDRawDataCollection& rawData = *rawDataHandle;
     bool fedFound = false;
     uint32_t fedEventNumber = 0;
@@ -78,7 +76,7 @@ namespace sistrip {
       if (fedData.size() && fedData.data()) {
         std::unique_ptr<sistrip::FEDBufferBase> pBuffer;
         try {
-          pBuffer.reset(new sistrip::FEDBufferBase(fedData.data(),fedData.size()));
+          pBuffer.reset(new sistrip::FEDBufferBase(fedData.data(), fedData.size()));
         } catch (const cms::Exception& e) {
           LogInfo(messageLabel_) << "Skipping FED " << fedId << " because of exception: " << e.what();
           continue;
@@ -93,7 +91,7 @@ namespace sistrip {
       LogError(messageLabel_) << "No SiStrip FED data found in raw data.";
       return;
     }
-    
+
     //create summary object
     std::unique_ptr<SiStripEventSummary> pSummary(new SiStripEventSummary);
     //set the trigger FED number to zero to indicate that it doesn't exist
@@ -104,7 +102,7 @@ namespace sistrip {
     //create a fake trigger FED buffer to take comissioning parameters from
     const int maxTriggerFedBufferSize = 84;
     boost::scoped_array<uint32_t> fakeTriggerFedData(new uint32_t[maxTriggerFedBufferSize]);
-    for (uint8_t i=0; i<maxTriggerFedBufferSize; ++i) {
+    for (uint8_t i = 0; i < maxTriggerFedBufferSize; ++i) {
       fakeTriggerFedData[i] = 0;
     }
     //set the FED readout mode to virgin raw
@@ -116,15 +114,14 @@ namespace sistrip {
     //set the run type
     fakeTriggerFedData[10] = runType_;
     //fill the summarry using trigger FED buffer  with no data
-    pSummary->commissioningInfo(fakeTriggerFedData.get(),fedEventNumber);
-    
+    pSummary->commissioningInfo(fakeTriggerFedData.get(), fedEventNumber);
+
     //store in event
     event.put(std::move(pSummary));
   }
-  
-  void SpyEventSummaryProducer::warnAboutUnsupportedRunType()
-  {
-    switch(runType_) {
+
+  void SpyEventSummaryProducer::warnAboutUnsupportedRunType() {
+    switch (runType_) {
       case sistrip::DAQ_SCOPE_MODE:
       case sistrip::PHYSICS:
       case sistrip::PHYSICS_ZS:
@@ -151,12 +148,13 @@ namespace sistrip {
       case sistrip::FED_CABLING:
       case sistrip::QUITE_FAST_CABLING:
       case sistrip::VPSP_SCAN:
-        LogWarning(messageLabel_) << "Unsupported run type: " << runType_ << ". Parameters need to be set from real trigger FED. Parameters will be set to 0.";
+        LogWarning(messageLabel_) << "Unsupported run type: " << runType_
+                                  << ". Parameters need to be set from real trigger FED. Parameters will be set to 0.";
         break;
     }
   }
-  
-}
+
+}  // namespace sistrip
 
 typedef sistrip::SpyEventSummaryProducer SiStripSpyEventSummaryProducer;
 DEFINE_FWK_MODULE(SiStripSpyEventSummaryProducer);

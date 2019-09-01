@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelGenErrorDBObjectRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Tue Nov 11 23:08:00 CET 2008
 // $Id$
 

@@ -13,14 +13,13 @@
  *
  */
 
-
-
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include <vector>
 
 namespace edm {
@@ -28,20 +27,20 @@ namespace edm {
 }
 
 class HLTDisplacedmumumuVtxProducer : public edm::EDProducer {
- public:
+public:
   explicit HLTDisplacedmumumuVtxProducer(const edm::ParameterSet&);
   ~HLTDisplacedmumumuVtxProducer() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  void beginJob() override ;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
 
- private:  
+private:
   bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);
 
-  edm::InputTag                                          srcTag_;
+  edm::InputTag srcTag_;
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> srcToken_;
-  edm::InputTag                                          previousCandTag_;
+  edm::InputTag previousCandTag_;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
   double maxEta_;
   double minPt_;

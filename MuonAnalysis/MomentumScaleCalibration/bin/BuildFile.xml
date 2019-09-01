@@ -1,4 +1,3 @@
-<use   name="FWCore/PythonParameterSet"/>
 <use   name="DataFormats/Luminosity"/>
 <use   name="DataFormats/FWLite"/>
 <use   name="FWCore/Framework"/>

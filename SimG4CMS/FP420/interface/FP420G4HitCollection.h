@@ -15,4 +15,3 @@
 typedef G4THitsCollection<FP420G4Hit> FP420G4HitCollection;
 
 #endif
-

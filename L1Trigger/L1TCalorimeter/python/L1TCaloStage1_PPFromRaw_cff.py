@@ -43,9 +43,10 @@ l1ExtraLayer2.muonSource = cms.InputTag("simGmtDigis")
 
 
 # the sequence
-L1TCaloStage1_PPFromRaw = cms.Sequence(
+L1TCaloStage1_PPFromRawTask = cms.Task(
     L1TRerunHCALTP_FromRAW
-    +ecalDigis
-    +simRctDigis
-    +L1TCaloStage1
+    ,ecalDigis
+    ,simRctDigis
+    ,L1TCaloStage1Task
 )
+L1TCaloStage1_PPFromRaw = cms.Sequence(L1TCaloStage1_PPFromRawTask)

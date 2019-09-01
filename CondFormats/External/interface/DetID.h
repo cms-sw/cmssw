@@ -12,11 +12,10 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
-
 namespace boost {
-namespace serialization {
+  namespace serialization {
 
-/*
+    /*
  * Note regarding object tracking: all autos used here
  * must resolve to untracked types, since we use local
  * variables in the stack which could end up with the same
@@ -25,29 +24,26 @@ namespace serialization {
  * by Boost Serialization.
  */
 
-// DataFormats/DetId/interface/DetId.h
-template<class Archive>
-void save(Archive & ar, const DetId & obj, const unsigned int)
-{
-    auto id_ = obj.rawId();
-    ar & BOOST_SERIALIZATION_NVP(id_);
-}
+    // DataFormats/DetId/interface/DetId.h
+    template <class Archive>
+    void save(Archive& ar, const DetId& obj, const unsigned int) {
+      auto id_ = obj.rawId();
+      ar& BOOST_SERIALIZATION_NVP(id_);
+    }
 
-template<class Archive>
-void load(Archive & ar, DetId & obj, const unsigned int)
-{
-    decltype(obj.rawId()) id_;
-    ar & BOOST_SERIALIZATION_NVP(id_);
-    obj = DetId(id_);
-}
+    template <class Archive>
+    void load(Archive& ar, DetId& obj, const unsigned int) {
+      decltype(obj.rawId()) id_;
+      ar& BOOST_SERIALIZATION_NVP(id_);
+      obj = DetId(id_);
+    }
 
-template<class Archive>
-void serialize(Archive & ar, DetId & obj, const unsigned int v)
-{
-    split_free(ar, obj, v);
-}
+    template <class Archive>
+    void serialize(Archive& ar, DetId& obj, const unsigned int v) {
+      split_free(ar, obj, v);
+    }
 
-} // namespace serialization
-} // namespace boost
+  }  // namespace serialization
+}  // namespace boost
 
 #endif

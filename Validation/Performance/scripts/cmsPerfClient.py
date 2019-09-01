@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function
+from builtins import range
 import socket, xml, xmlrpclib, os, sys, threading, Queue, time, random, pickle, exceptions
 import optparse as opt
 from functools import reduce
@@ -24,59 +26,59 @@ def optionparse():
     def _isValidPerfCmdsDef(alist):
         out = True
         for item in alist:
-            isdict = type(item) == type({})
+            isdict = isinstance(item, type({}))
             out = out and isdict
             if isdict:
                 for key in item:
                     out = out and key in validPerfSuitKeys
                     if   key == "cpus":
-                        out = out and type(item[key]) == type("") #has to be a string not a list!
+                        out = out and isinstance(item[key], type("")) #has to be a string not a list!
                     elif key == "cores":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "castordir":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "perfsuitedir":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "TimeSizeEvents":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "TimeSizeCandles":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "CallgrindEvents":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "CallgrindCandles":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "IgProfEvents":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "IgProfCandles":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "MemcheckEvents":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "MemcheckCandles":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "cmsScimark":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "cmsScimarkLarge":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "cmsdriverOptions":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "stepOptions":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "quicktest":
-                        out = out and type(item[key]) == type(False)
+                        out = out and isinstance(item[key], type(False))
                     elif key == "profilers":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "prevrel":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "isAllCandles":
-                        out = out and type(item[key]) == type(False)
+                        out = out and isinstance(item[key], type(False))
                     elif key == "candles":
-                        out = out and type(item[key]) == type("")#has to be a string not a list!
+                        out = out and isinstance(item[key], type(""))#has to be a string not a list!
                     elif key == "bypasshlt":
-                        out = out and type(item[key]) == type(False)
+                        out = out and isinstance(item[key], type(False))
                     elif key == "runonspare":
-                        out = out and type(item[key]) == type(False)
+                        out = out and isinstance(item[key], type(False))
                     elif key == "logfile":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
         return out
 
     parser = opt.OptionParser(usage=("""%s [Options]""" % PROG_NAME))
@@ -150,7 +152,7 @@ def optionparse():
     else:
         for cmscmdfile in cmscmdfiles:
             cmdfile = os.path.abspath(cmscmdfile)
-            print cmdfile
+            print(cmdfile)
             if os.path.isfile(cmdfile):
                 try:
                     execfile(cmdfile)
@@ -163,7 +165,7 @@ def optionparse():
                     sys.exit()
                 except :
                     raise
-                if not type(cmsperf_cmds[-1]) == type([]):
+                if not isinstance(cmsperf_cmds[-1], type([])):
                     parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program 2" % cmdfile)
                     sys.exit()
                 if not _isValidPerfCmdsDef(cmsperf_cmds[-1]):
@@ -231,14 +233,14 @@ def request_benchmark(perfcmds,shost,sport):
         server = xmlrpclib.ServerProxy("http://%s:%s" % (shost,sport))    
         return server.request_benchmark(perfcmds)
     except socket.error as detail:
-        print "ERROR: Could not communicate with server %s:%s:" % (shost,sport), detail
+        print("ERROR: Could not communicate with server %s:%s:" % (shost,sport), detail)
     except xml.parsers.expat.ExpatError as detail:
-        print "ERROR: XML-RPC could not be parsed:", detail
+        print("ERROR: XML-RPC could not be parsed:", detail)
     except xmlrpclib.ProtocolError as detail:
-        print "ERROR: XML-RPC protocol error", detail, "try using -L xxx:localhost:xxx if using ssh to forward"
+        print("ERROR: XML-RPC protocol error", detail, "try using -L xxx:localhost:xxx if using ssh to forward")
     except exceptions as detail:
-        print "ERROR: There was a runtime error thrown by server %s; detail follows." % shost
-        print detail
+        print("ERROR: There was a runtime error thrown by server %s; detail follows." % shost)
+        print(detail)
 
 #################
 # Worker
@@ -257,12 +259,12 @@ class Worker(threading.Thread):
         try:
             data = request_benchmark(self.__perfcmds, self.__host, self.__port)
             #Debugging
-            print "data is %s"%data
-            print "Puttin it in the queue as (%s,%s)"%(self.__host,data)
+            print("data is %s"%data)
+            print("Puttin it in the queue as (%s,%s)"%(self.__host,data))
             self.__queue.put((self.__host, data))
         except (exceptions.Exception, xmlrpclib.Fault) as detail:
-            print "Exception was thrown when receiving/submitting job information to host", self.__host, ". Exception information:"
-            print detail
+            print("Exception was thrown when receiving/submitting job information to host", self.__host, ". Exception information:")
+            print(detail)
             sys.stdout.flush()
 
 ##########################
@@ -274,11 +276,11 @@ def runclient(perfcmds, hosts, port, outfile, cmdindex):
     # start all threads
     workers = []
     for host in hosts:
-        print "Submitting jobs to %s..." % host
+        print("Submitting jobs to %s..." % host)
         w = Worker(host, port, perfcmds[cmdindex[host]], queue)
         w.start()                
         workers.append(w)
-    print "All jobs submitted, waiting for results..."
+    print("All jobs submitted, waiting for results...")
     sys.stdout.flush()
     # run until all servers have returned data
     while reduce(lambda x,y: x or y, map(lambda x: x.isAlive(),workers)):
@@ -293,8 +295,8 @@ def runclient(perfcmds, hosts, port, outfile, cmdindex):
             #cleanup
             presentBenchmarkData(queue,outfile)
             raise
-    print "All job results received"
-    print "The size with the queue containing all data is: %s "%queue.qsize()
+    print("All job results received")
+    print("The size with the queue containing all data is: %s "%queue.qsize())
     presentBenchmarkData(queue,outfile)    
 
 ########################################
@@ -317,14 +319,14 @@ def runclient(perfcmds, hosts, port, outfile, cmdindex):
 # We now massage the data
 #
 def presentBenchmarkData(q,outfile):
-    print "Pickling data to file %s"%outfile
+    print("Pickling data to file %s"%outfile)
     out = []            # match up the commands with each
                         # command that was passed in the config file
     while not q.empty():
-        print "Queue size is still %s"%q.qsize()
+        print("Queue size is still %s"%q.qsize())
         (host, data) = q.get()
         out.append((host,data))
-    print "Dumping at screen the output!\n%s"%out
+    print("Dumping at screen the output!\n%s"%out)
     oh = open(outfile,"wb")
     pickle.dump(out,oh)
     oh.close() 

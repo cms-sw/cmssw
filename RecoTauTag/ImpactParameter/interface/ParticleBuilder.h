@@ -22,23 +22,27 @@
 
 namespace tauImpactParameter {
 
-class ParticleBuilder {
- public:
-  enum CMSSWPerigee{aCurv=0,aTheta,aPhi,aTip,aLip};
+  class ParticleBuilder {
+  public:
+    enum CMSSWPerigee { aCurv = 0, aTheta, aPhi, aTip, aLip };
 
-  ParticleBuilder(){};
-  ~ParticleBuilder(){};
+    ParticleBuilder(){};
+    ~ParticleBuilder(){};
 
-  static LorentzVectorParticle createLorentzVectorParticle(const reco::TransientTrack& transTrk, const reco::Vertex& V, bool fromPerigee, bool useTrackHelixPropagation);
-  static TrackParticle createTrackParticle(const reco::TransientTrack& transTrk, const GlobalPoint& p, bool fromPerigee=true, bool useTrackHelixPropogation=true);
-  static reco::Vertex getVertex(const LorentzVectorParticle& p);
+    static LorentzVectorParticle createLorentzVectorParticle(const reco::TransientTrack& transTrk,
+                                                             const reco::Vertex& V,
+                                                             bool fromPerigee,
+                                                             bool useTrackHelixPropagation);
+    static TrackParticle createTrackParticle(const reco::TransientTrack& transTrk,
+                                             const GlobalPoint& p,
+                                             bool fromPerigee = true,
+                                             bool useTrackHelixPropogation = true);
+    static reco::Vertex getVertex(const LorentzVectorParticle& p);
 
- private:
-  static TVectorT<double> convertCMSSWTrackParToSFTrackPar(const TVectorT<double>& inpar);
-  static TVectorT<double> convertCMSSWTrackPerigeeToSFTrackPar(const TVectorT<double>& inpar);
-};
+  private:
+    static TVectorT<double> convertCMSSWTrackParToSFTrackPar(const TVectorT<double>& inpar);
+    static TVectorT<double> convertCMSSWTrackPerigeeToSFTrackPar(const TVectorT<double>& inpar);
+  };
 
-}
+}  // namespace tauImpactParameter
 #endif
-
-

@@ -22,49 +22,44 @@ class MuonDDDConstants;
 class RecoIdealGeometry;
 
 class DTGeometryParsFromDD {
-  public:
-    /// Constructor
-    DTGeometryParsFromDD();
+public:
+  /// Constructor
+  DTGeometryParsFromDD();
 
-    /// Destructor
-    virtual ~DTGeometryParsFromDD();
+  /// Destructor
+  virtual ~DTGeometryParsFromDD();
 
-    // Operations
-    void build(const DDCompactView* cview, 
-               const MuonDDDConstants& muonConstants,
-               RecoIdealGeometry& rig) ;
+  // Operations
+  void build(const DDCompactView* cview, const MuonDDDConstants& muonConstants, RecoIdealGeometry& rig);
 
-    enum DTDetTag { DTChamberTag, DTSuperLayerTag, DTLayerTag };
-  private:
-    /// create the chamber
-    void insertChamber(DDFilteredView& fv, 
-                       const std::string& type, 
-                       const MuonDDDConstants& muonConstants,
-                       RecoIdealGeometry& rig) const;
+  enum DTDetTag { DTChamberTag, DTSuperLayerTag, DTLayerTag };
 
-    /// create the SL
-    void insertSuperLayer(DDFilteredView& fv,
-                          const std::string& type, 
-                          const MuonDDDConstants& muonConstants,
-                          RecoIdealGeometry& rig) const;
-
-    /// create the layer
-    void insertLayer(DDFilteredView& fv,
-                     const std::string& type, 
+private:
+  /// create the chamber
+  void insertChamber(DDFilteredView& fv,
+                     const std::string& type,
                      const MuonDDDConstants& muonConstants,
                      RecoIdealGeometry& rig) const;
 
-    /// get parameter also for boolean solid.
-    std::vector<double> extractParameters(DDFilteredView& fv) const ;
+  /// create the SL
+  void insertSuperLayer(DDFilteredView& fv,
+                        const std::string& type,
+                        const MuonDDDConstants& muonConstants,
+                        RecoIdealGeometry& rig) const;
 
-    typedef std::pair<std::vector<double>, std::vector<double> > PosRotPair;
+  /// create the layer
+  void insertLayer(DDFilteredView& fv,
+                   const std::string& type,
+                   const MuonDDDConstants& muonConstants,
+                   RecoIdealGeometry& rig) const;
 
-    PosRotPair plane(const DDFilteredView& fv) const ;
+  /// get parameter also for boolean solid.
+  std::vector<double> extractParameters(DDFilteredView& fv) const;
 
-    void buildGeometry(DDFilteredView& fv,
-                       const MuonDDDConstants& muonConstants,
-                       RecoIdealGeometry& rig) const;
+  typedef std::pair<std::vector<double>, std::vector<double> > PosRotPair;
 
+  PosRotPair plane(const DDFilteredView& fv) const;
+
+  void buildGeometry(DDFilteredView& fv, const MuonDDDConstants& muonConstants, RecoIdealGeometry& rig) const;
 };
 #endif
-

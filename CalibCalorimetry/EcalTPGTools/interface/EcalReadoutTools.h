@@ -11,18 +11,17 @@
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 class EcalReadoutTools {
-
- private:
-  const EcalTrigTowerConstituentsMap * triggerTowerMap_;
+private:
+  const EcalTrigTowerConstituentsMap* triggerTowerMap_;
   const EcalElectronicsMapping* elecMap_;
 
- public:
-  EcalReadoutTools(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+public:
+  EcalReadoutTools(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   EcalReadoutTools(const EcalReadoutTools&) = delete;
   EcalReadoutTools& operator=(const EcalReadoutTools&) = delete;
 
   EcalTrigTowerDetId readOutUnitOf(const EBDetId& xtalId) const;
-  EcalScDetId        readOutUnitOf(const EEDetId& xtalId) const;
+  EcalScDetId readOutUnitOf(const EEDetId& xtalId) const;
 };
 
 #endif

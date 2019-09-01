@@ -14,40 +14,38 @@ class TSignalHandler;
 #include <list>
 #include <pthread.h>
 
-class TRootXTReq
-{
+class TRootXTReq {
 private:
-   typedef std::list<TRootXTReq*> lpXTReq_t;
+  typedef std::list<TRootXTReq *> lpXTReq_t;
 
-   TCondition               *m_return_condition;
+  TCondition *m_return_condition;
 
-   static lpXTReq_t          sQueue;
-   static pthread_t          sRootThread;
-   static TMutex            *sQueueMutex;
-   static TSignalHandler    *sSigHandler;
-   static bool               sSheduled;
+  static lpXTReq_t sQueue;
+  static pthread_t sRootThread;
+  static TMutex *sQueueMutex;
+  static TSignalHandler *sSigHandler;
+  static bool sSheduled;
 
-   virtual void Act() = 0;
+  virtual void Act() = 0;
 
 protected:
-   TString                   mName;
+  TString mName;
 
-   void post_request();
+  void post_request();
 
 public:
-   TRootXTReq(const char* n="TRootXTReq");
-   virtual ~TRootXTReq();
+  TRootXTReq(const char *n = "TRootXTReq");
+  virtual ~TRootXTReq();
 
-   void ShootRequest();
-   void ShootRequestAndWait();
+  void ShootRequest();
+  void ShootRequestAndWait();
 
-   // --- Static interface ---
+  // --- Static interface ---
 
-   static void Bootstrap(pthread_t root_thread);
-   static void Shutdown();
+  static void Bootstrap(pthread_t root_thread);
+  static void Shutdown();
 
-   static void ProcessQueue();
-
+  static void ProcessQueue();
 };
 
 #endif

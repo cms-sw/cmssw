@@ -22,6 +22,6 @@ namespace reco {
 
   /// iterator over a vector of references to EgammaTrigger objects
   typedef EgammaTriggerRefVector::iterator egammaTrigger_iterator;
-}
+}  // namespace reco
 
 #endif

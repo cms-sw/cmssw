@@ -28,5 +28,5 @@
 // forward declarations
 class FWModelId;
 typedef std::set<FWModelId> FWModelIds;
-typedef sigc::signal<void,const FWModelIds& > FWModelChangeSignal;
+typedef sigc::signal<void, const FWModelIds&> FWModelChangeSignal;
 #endif

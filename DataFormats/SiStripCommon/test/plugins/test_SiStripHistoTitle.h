@@ -10,17 +10,13 @@
    @brief Simple class that tests SiStripHistoTitle.
 */
 class testSiStripHistoTitle : public edm::EDAnalyzer {
-
- public:
-  
-  testSiStripHistoTitle( const edm::ParameterSet& );
+public:
+  testSiStripHistoTitle(const edm::ParameterSet&);
   ~testSiStripHistoTitle();
-  
+
   void beginJob();
-  void analyze( const edm::Event&, const edm::EventSetup& );
-  void endJob() {;}
-  
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void endJob() { ; }
 };
 
-#endif // DataFormats_SiStripCommon_testSiStripHistoTitle_H
-
+#endif  // DataFormats_SiStripCommon_testSiStripHistoTitle_H

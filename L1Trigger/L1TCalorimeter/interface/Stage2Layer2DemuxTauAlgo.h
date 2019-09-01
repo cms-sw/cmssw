@@ -17,17 +17,15 @@
 
 #include <vector>
 
-
 namespace l1t {
-    
-  class Stage2Layer2DemuxTauAlgo { 
+
+  class Stage2Layer2DemuxTauAlgo {
   public:
-    virtual void processEvent(const std::vector<l1t::Tau> & inputTaus,
-			      std::vector<l1t::Tau> & outputTaus) = 0;    
+    virtual void processEvent(const std::vector<l1t::Tau>& inputTaus, std::vector<l1t::Tau>& outputTaus) = 0;
 
     virtual ~Stage2Layer2DemuxTauAlgo(){};
-  }; 
-  
-} 
+  };
+
+}  // namespace l1t
 
 #endif

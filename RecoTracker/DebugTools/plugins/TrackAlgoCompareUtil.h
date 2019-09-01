@@ -1,4 +1,4 @@
-// Original Author:     Ryan Kelley (UCSD)  
+// Original Author:     Ryan Kelley (UCSD)
 // Created:             Mon Feb 25 19:25:11 PST 2008
 
 // system include files
@@ -46,24 +46,23 @@
 #include <vector>
 #include <TMath.h>
 
-
-
-
-
-class TrackAlgoCompareUtil : public edm::global::EDProducer<>
-{
- public:
-   
-  explicit TrackAlgoCompareUtil(const edm::ParameterSet&);
+class TrackAlgoCompareUtil : public edm::global::EDProducer<> {
+public:
+  explicit TrackAlgoCompareUtil(const edm::ParameterSet &);
   ~TrackAlgoCompareUtil() override;
-  
- private:
-  
-  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  
-  void SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, TPtoRecoTrack& TPRT) const;
-  void SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, RecoTracktoTP& RTTP) const;
-      
+
+private:
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
+
+  void SetTrackingParticleD0Dz(TrackingParticleRef tp,
+                               const reco::BeamSpot &bs,
+                               const MagneticField *bf,
+                               TPtoRecoTrack &TPRT) const;
+  void SetTrackingParticleD0Dz(TrackingParticleRef tp,
+                               const reco::BeamSpot &bs,
+                               const MagneticField *bf,
+                               RecoTracktoTP &RTTP) const;
+
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<reco::Track>> trackLabel_algoA;
   edm::EDGetTokenT<edm::View<reco::Track>> trackLabel_algoB;
@@ -80,9 +79,7 @@ class TrackAlgoCompareUtil : public edm::global::EDProducer<>
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> assocLabel_algoB;
   const bool UseAssociators;
   const bool UseVertex;
-  
 };
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TrackAlgoCompareUtil);

@@ -16,19 +16,15 @@ class MagVolume6Faces;
 
 class VolumeGridTester {
 public:
-
-  VolumeGridTester( const MagVolume6Faces* vol, const MagProviderInterpol* mp) : 
-    volume_(vol), magProvider_(mp) {}
+  VolumeGridTester(const MagVolume6Faces* vol, const MagProviderInterpol* mp) : volume_(vol), magProvider_(mp) {}
 
   bool testInside() const;
 
 private:
-
   const MagVolume6Faces* volume_;
   const MagProviderInterpol* magProvider_;
 
-  void dumpProblem( const MFGrid::LocalPoint& lp, double tolerance) const;
-
+  void dumpProblem(const MFGrid::LocalPoint& lp, double tolerance) const;
 };
 
 #endif

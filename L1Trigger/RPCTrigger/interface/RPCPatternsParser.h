@@ -7,7 +7,6 @@
 *                                                                              *
 *******************************************************************************/
 
-
 #include <string>
 #include <iostream>
 
@@ -18,28 +17,28 @@
 #include "CondFormats/L1TObjects/interface/RPCPattern.h"
 //#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 
-
-class RPCPatternsParser : public XERCES_CPP_NAMESPACE::DefaultHandler  {
+class RPCPatternsParser : public XERCES_CPP_NAMESPACE::DefaultHandler {
 public:
   //class SAX2PatHandler : public DefaultHandler {
   //public:
   //  SAX2PatHandler();
   //  ~SAX2PatHandler();
 
-  //  void startElement(const XMLCh* const uri, const XMLCh* const localname, 
+  //  void startElement(const XMLCh* const uri, const XMLCh* const localname,
   //                    const XMLCh* const qname, const Attributes& attrs);
-  
+
   //  void endElement (const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname);
   //};
 
   RPCPatternsParser();
   ~RPCPatternsParser() override;
 
-  
-  void startElement(const XMLCh* const uri, const XMLCh* const localname, 
-                    const XMLCh* const qname, const XERCES_CPP_NAMESPACE::Attributes& attrs) override;
-  
-  void endElement (const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname) override;
+  void startElement(const XMLCh* const uri,
+                    const XMLCh* const localname,
+                    const XMLCh* const qname,
+                    const XERCES_CPP_NAMESPACE::Attributes& attrs) override;
+
+  void endElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname) override;
 
   void parse(std::string fileName);
 
@@ -47,10 +46,9 @@ public:
 
   const RPCPattern::RPCPatVec& getPatternsVec(const int tower, const int sc, const int sg) const;
 
-  const RPCPattern::TQualityVec & getQualityVec() const{ //XXX - clean me!
+  const RPCPattern::TQualityVec& getQualityVec() const {  //XXX - clean me!
     return m_QualityVec;
   };
-
 
 private:
   //virtual void startElement(const XMLCh* const name, xercesc::AttributeList& attributes);
@@ -66,7 +64,7 @@ private:
   typedef std::map<RPCConst::l1RpcConeCrdnts, RPCPattern::RPCPatVec> TPatternsVecsMap;
 
   TPatternsVecsMap m_PatternsVecsMap;
-  
+
   TPatternsVecsMap::iterator m_CurPacIt;
 
   RPCPattern m_CurPattern;

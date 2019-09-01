@@ -8,19 +8,15 @@
 #include <memory>
 #include <string>
 
-class  TrackerInteractionGeometryESProducer: public edm::ESProducer{
- public:
-  TrackerInteractionGeometryESProducer(const edm::ParameterSet & p);
-  ~TrackerInteractionGeometryESProducer() override; 
+class TrackerInteractionGeometryESProducer : public edm::ESProducer {
+public:
+  TrackerInteractionGeometryESProducer(const edm::ParameterSet &p);
+  ~TrackerInteractionGeometryESProducer() override;
   std::unique_ptr<TrackerInteractionGeometry> produce(const TrackerInteractionGeometryRecord &);
- private:
+
+private:
   std::string _label;
   edm::ParameterSet theTrackerMaterial;
 };
 
-
 #endif
-
-
-
-

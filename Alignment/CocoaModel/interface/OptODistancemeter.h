@@ -3,8 +3,8 @@
 //CAT: Model
 //
 //   Base class to describe Optical Objects of type sensor 2D
-// 
-//   History: v1.0 
+//
+//   History: v1.0
 //   Pedro Arce
 
 #ifndef _OPTODISTANCEMETER1DIM_HH
@@ -15,29 +15,25 @@
 class Measurement;
 class LightRay;
 
-class OptODistancemeter: public OpticalObject
-{
-
+class OptODistancemeter : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptODistancemeter(){ };
-  OptODistancemeter(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
-  OpticalObject( parent, type, name, copy_data){ };
-  ~OptODistancemeter() override{ };
+  OptODistancemeter(){};
+  OptODistancemeter(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
+      : OpticalObject(parent, type, name, copy_data){};
+  ~OptODistancemeter() override{};
 
-  //---------- defaultBehaviour: make measurement 
-  void defaultBehaviour( LightRay& lightray, Measurement& meas ) override;
+  //---------- defaultBehaviour: make measurement
+  void defaultBehaviour(LightRay& lightray, Measurement& meas) override;
 
-  //---------- Make measurement 
-  void makeMeasurement( LightRay& lightray, Measurement& meas ) override;
+  //---------- Make measurement
+  void makeMeasurement(LightRay& lightray, Measurement& meas) override;
 
 #ifdef COCOA_VIS
   void fillVRML();
   virtual void fillIguana();
 #endif
   void constructSolidShape() override;
-
 };
 
 #endif
-

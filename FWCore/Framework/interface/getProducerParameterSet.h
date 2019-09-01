@@ -26,7 +26,6 @@ namespace edm {
   class ParameterSet;
   class Provenance;
 
-  ParameterSet const*
-  getProducerParameterSet(Provenance const& provenance);
-}
+  ParameterSet const* getProducerParameterSet(Provenance const& provenance);
+}  // namespace edm
 #endif

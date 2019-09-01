@@ -60,6 +60,11 @@ DT/EventInfo/DCSContents/hActiveUnits-2
 DT/EventInfo/DCSContents/hActiveUnits0
 DT/EventInfo/DCSContents/hActiveUnits1
 DT/EventInfo/DCSContents/hActiveUnits2
+DT/EventInfo/DCSContents/hDCSFracTrendWh-1
+DT/EventInfo/DCSContents/hDCSFracTrendWh-2
+DT/EventInfo/DCSContents/hDCSFracTrendWh0
+DT/EventInfo/DCSContents/hDCSFracTrendWh1
+DT/EventInfo/DCSContents/hDCSFracTrendWh2
 EcalBarrel/EBIntegrityTask/EBIT
 EcalBarrel/EBRawDataTask/EBRDT
 EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT

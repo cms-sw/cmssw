@@ -15,18 +15,15 @@ class SiStripConfigDb;
    @brief Simple class that tests SiStripConfigDb service
 */
 class testSiStripConfigDb : public edm::EDAnalyzer {
-
- public:
-  
-  testSiStripConfigDb( const edm::ParameterSet& );
+public:
+  testSiStripConfigDb(const edm::ParameterSet&);
   ~testSiStripConfigDb();
-  
+
   void beginJob();
-  void analyze( const edm::Event&, const edm::EventSetup& ) {;}
-  void endJob() {;}
+  void analyze(const edm::Event&, const edm::EventSetup&) { ; }
+  void endJob() { ; }
 
- private:
-
+private:
   SiStripConfigDb* db_;
 
   bool download_;
@@ -42,8 +39,6 @@ class testSiStripConfigDb : public edm::EDAnalyzer {
   bool dcus_;
 
   bool anals_;
-  
 };
 
-#endif // OnlineDB_SiStripConfigDb_testSiStripConfigDb_H
-
+#endif  // OnlineDB_SiStripConfigDb_testSiStripConfigDb_H

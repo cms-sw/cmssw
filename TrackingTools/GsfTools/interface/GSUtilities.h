@@ -8,14 +8,9 @@
 class GSUtilities {
 public:
   /// constructor from arrays of weights, parameters and standard deviations
-  GSUtilities (const unsigned nComp, const float* weights,
-	       const float* parameters, const float* errors) :
-    theNComp(nComp),
-    theWeights(nullptr),
-    theParameters(nullptr),
-    theErrors(nullptr)
-  {
-    if ( theNComp ) {
+  GSUtilities(const unsigned nComp, const float* weights, const float* parameters, const float* errors)
+      : theNComp(nComp), theWeights(nullptr), theParameters(nullptr), theErrors(nullptr) {
+    if (theNComp) {
       theWeights = new float[theNComp];
       theParameters = new float[theNComp];
       theErrors = new float[theNComp];
@@ -26,36 +21,35 @@ public:
     float* wPtr2(theWeights);
     float* pPtr2(theParameters);
     float* ePtr2(theErrors);
-    for ( unsigned i=0; i<theNComp; i++ ) {
+    for (unsigned i = 0; i < theNComp; i++) {
       *(wPtr2++) = weights ? *(wPtr1++) : 1.;
       *(pPtr2++) = *(pPtr1++);
       *(ePtr2++) = *(ePtr1++);
     }
-  } 
-  ~GSUtilities () 
-  {
-    delete [] theWeights;
-    delete [] theParameters;
-    delete [] theErrors;
+  }
+  ~GSUtilities() {
+    delete[] theWeights;
+    delete[] theParameters;
+    delete[] theErrors;
   }
   /** normalised integral from -inf to x
    *  (taking into account under- & overflows) 
    */
-  float quantile (const float) const;
+  float quantile(const float) const;
   /// mode
-  float mode () const;
+  float mode() const;
   /// value of the pdf
-  double pdf (const double&) const;
+  double pdf(const double&) const;
   /// value of integral(pdf)
-  double cdf (const double&) const;
+  double cdf(const double&) const;
   /// first derivative of pdf
-  double dpdf1 (const double&) const;
+  double dpdf1(const double&) const;
   /// second derivative of pdf
-  double dpdf2 (const double&) const;
+  double dpdf2(const double&) const;
 
   /// mean value of combined state
   double combinedMean() const;
-  //  mean value of errors 
+  //  mean value of errors
   double errorCombinedMean() const;
   //  error for the highest weight
   float errorHighestWeight() const;
@@ -68,13 +62,13 @@ public:
 
 private:
   /// value of gaussian distribution
-  double gauss (const double&, const double&, const double&) const;
+  double gauss(const double&, const double&, const double&) const;
   /// integrated value of gaussian distribution
-  double gaussInt (const double&, const double&, const double&) const;
+  double gaussInt(const double&, const double&, const double&) const;
   /// mean value of combined state
   /// double combinedMean() const;
   /// mode from starting value
-  double findMode (const double) const;
+  double findMode(const double) const;
 
 private:
   unsigned theNComp;

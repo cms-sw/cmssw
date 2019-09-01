@@ -15,18 +15,16 @@
 #include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
 
 class SiPixelFakeGenErrorDBSourceReader : public edm::EDAnalyzer {
-   public:
-      explicit SiPixelFakeGenErrorDBSourceReader(const edm::ParameterSet&);
-      ~SiPixelFakeGenErrorDBSourceReader();
+public:
+  explicit SiPixelFakeGenErrorDBSourceReader(const edm::ParameterSet&);
+  ~SiPixelFakeGenErrorDBSourceReader();
 
+private:
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
-   private:
-      virtual void beginJob() ;
-			virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-			
-			edm::ESWatcher<SiPixelGenErrorDBObjectRcd> SiPixelGenErrorDBObjectWatcher_;
-
+  edm::ESWatcher<SiPixelGenErrorDBObjectRcd> SiPixelGenErrorDBObjectWatcher_;
 };
 
 #endif

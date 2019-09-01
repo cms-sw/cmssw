@@ -8,16 +8,17 @@
 class HitRZCompatibility {
 public:
   // only three algos are implemented..
-  enum Algo { zAlgo=0,rAlgo=1,etaAlgo=2};
+  enum Algo { zAlgo = 0, rAlgo = 1, etaAlgo = 2 };
+
 public:
   typedef PixelRecoRange<float> Range;
 
-  explicit HitRZCompatibility(Algo a) : m_algo(a){}
+  explicit HitRZCompatibility(Algo a) : m_algo(a) {}
   virtual ~HitRZCompatibility() {}
-  virtual bool operator() (const float & r, const float & z) const = 0;
-  virtual Range range(const float & rORz) const = 0; 
-  virtual HitRZCompatibility * clone() const = 0;
-  Algo algo() const { return m_algo;}
+  virtual bool operator()(const float& r, const float& z) const = 0;
+  virtual Range range(const float& rORz) const = 0;
+  virtual HitRZCompatibility* clone() const = 0;
+  Algo algo() const { return m_algo; }
   Algo m_algo;
 };
 #endif

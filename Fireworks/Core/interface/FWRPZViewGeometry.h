@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWRPZViewGeometry
-// 
+//
 /**\class FWRPZViewGeometry FWRPZViewGeometry.h Fireworks/Core/interface/FWRPZViewGeometry.h
 
  Description: [one line class summary]
@@ -29,58 +29,54 @@
 // forward declarations
 class TGeoShape;
 
-class FWRPZViewGeometry : public FWViewGeometryList
-{
+class FWRPZViewGeometry : public FWViewGeometryList {
 public:
-   FWRPZViewGeometry(const fireworks::Context& context);
-   ~FWRPZViewGeometry() override;
+  FWRPZViewGeometry(const fireworks::Context& context);
+  ~FWRPZViewGeometry() override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void initStdGeoElements(const FWViewType::EType id);
+  // ---------- member functions ---------------------------
+  void initStdGeoElements(const FWViewType::EType id);
 
-   void showPixelBarrel( bool );
-   void showPixelEndcap( bool );
-   void showTrackerBarrel( bool );
-   void showTrackerEndcap( bool );
-   void showRpcEndcap( bool );
-   void showGEM( bool );
-   void showME0( bool );
+  void showPixelBarrel(bool);
+  void showPixelEndcap(bool);
+  void showTrackerBarrel(bool);
+  void showTrackerEndcap(bool);
+  void showRpcEndcap(bool);
+  void showGEM(bool);
+  void showME0(bool);
 
 private:
-   FWRPZViewGeometry(const FWRPZViewGeometry&); // stop default
-   const FWRPZViewGeometry& operator=(const FWRPZViewGeometry&); // stop default
+  FWRPZViewGeometry(const FWRPZViewGeometry&);                   // stop default
+  const FWRPZViewGeometry& operator=(const FWRPZViewGeometry&);  // stop default
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   TEveElement* makeMuonGeometryRhoPhi();
-   TEveElement* makeMuonGeometryRhoZ();
-   TEveElement* makeCaloOutlineRhoPhi();
-   TEveElement* makeCaloOutlineRhoZ();
-   void estimateProjectionSizeDT( const FWGeometry::GeomDetInfo& info, float&, float&, float&, float& );
-   void estimateProjectionSizeCSC( const FWGeometry::GeomDetInfo& info, float&, float&, float&, float& );
-   void estimateProjectionSize( const float*, float&, float&, float&, float& );
+  TEveElement* makeMuonGeometryRhoPhi();
+  TEveElement* makeMuonGeometryRhoZ();
+  TEveElement* makeCaloOutlineRhoPhi();
+  TEveElement* makeCaloOutlineRhoZ();
+  void estimateProjectionSizeDT(const FWGeometry::GeomDetInfo& info, float&, float&, float&, float&);
+  void estimateProjectionSizeCSC(const FWGeometry::GeomDetInfo& info, float&, float&, float&, float&);
+  void estimateProjectionSize(const float*, float&, float&, float&, float&);
 
-   void importNew(TEveElementList* x);
+  void importNew(TEveElementList* x);
 
-   TEveGeoShape* makeShape( double, double, double, double );
+  TEveGeoShape* makeShape(double, double, double, double);
 
-   TEveElementList*  m_rhoPhiGeo;
-   TEveElementList*  m_rhoZGeo;
+  TEveElementList* m_rhoPhiGeo;
+  TEveElementList* m_rhoZGeo;
 
-
-   TEveElementList*   m_pixelBarrelElements;
-   TEveElementList*   m_pixelEndcapElements;
-   TEveElementList*   m_trackerBarrelElements;
-   TEveElementList*   m_trackerEndcapElements;
-   TEveElementList*   m_rpcEndcapElements;
-   TEveElementList*   m_GEMElements;
-   TEveElementList*   m_ME0Elements;
-
+  TEveElementList* m_pixelBarrelElements;
+  TEveElementList* m_pixelEndcapElements;
+  TEveElementList* m_trackerBarrelElements;
+  TEveElementList* m_trackerEndcapElements;
+  TEveElementList* m_rpcEndcapElements;
+  TEveElementList* m_GEMElements;
+  TEveElementList* m_ME0Elements;
 };
-
 
 #endif

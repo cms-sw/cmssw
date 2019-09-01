@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     RPCDQMObjectRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
-// Author:      
+// Author:
 // Created:     Mon Feb  7 17:00:06 CET 2011
 // $Id: RPCDQMObjectRcd.cc,v 1.1 2011/02/07 16:41:23 tjkim Exp $
 

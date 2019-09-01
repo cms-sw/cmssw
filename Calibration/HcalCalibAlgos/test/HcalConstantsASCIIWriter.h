@@ -45,22 +45,22 @@
 //
 // class decleration
 //
-namespace cms{
-class HcalConstantsASCIIWriter : public edm::EDAnalyzer {
-   public:
-      explicit HcalConstantsASCIIWriter(const edm::ParameterSet&);
-      ~HcalConstantsASCIIWriter();
+namespace cms {
+  class HcalConstantsASCIIWriter : public edm::EDAnalyzer {
+  public:
+    explicit HcalConstantsASCIIWriter(const edm::ParameterSet &);
+    ~HcalConstantsASCIIWriter();
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob() ;
-      virtual void endJob() ;
+    virtual void analyze(const edm::Event &, const edm::EventSetup &);
+    virtual void beginJob();
+    virtual void endJob();
 
-   private:
-  // ----------member data ---------------------------
-       
-   std::ofstream *myout_hcal;
-   std::string file_input;
-   std::string file_output;      
-};
-}
+  private:
+    // ----------member data ---------------------------
+
+    std::ofstream *myout_hcal;
+    std::string file_input;
+    std::string file_output;
+  };
+}  // namespace cms
 #endif

@@ -2,7 +2,9 @@
 
 '''Script that submits CMS Tracker Alignment Primary Vertex Validation workflows
 '''
+from __future__ import print_function
 
+from builtins import range
 __author__ = 'Marco Musich'
 __copyright__ = 'Copyright 2015, CERN CMS'
 __credits__ = ['Ernesto Migliore', 'Salvatore Di Guida', 'Javier Duarte']
@@ -49,7 +51,7 @@ def getCommandOutput(command):
     data = child.read()
     err = child.close()
     if err:
-        print '%s failed w/ exit code %d' % (command, err)
+        print('%s failed w/ exit code %d' % (command, err))
     return data
 
 ##############################################
@@ -158,7 +160,7 @@ def mkdir_eos(out_path):
     (out, err) = p.communicate()
     p.wait()
     if p.returncode !=0:
-        print out
+        print(out)
 
 def split(sequence, size):
 ##########################    
@@ -166,7 +168,7 @@ def split(sequence, size):
 # based on http://sandrotosi.blogspot.com/2011/04/python-group-list-in-sub-lists-of-n.html
 # about generators see also http://stackoverflow.com/questions/231767/the-python-yield-keyword-explained
 ##########################
-    for i in xrange(0, len(sequence), size):
+    for i in range(0, len(sequence), size):
         yield sequence[i:i+size] 
 
 #############
@@ -343,7 +345,7 @@ class Job:
         
     def submit(self):
 ###############################        
-        print "submit job", self.job_id
+        print("submit job", self.job_id)
         job_name = self.output_full_name
         submitcommand1 = "chmod u+x " + os.path.join(self.LSF_dir,self.output_LSF_name)
         child1  = os.system(submitcommand1)
@@ -360,7 +362,7 @@ def main():
 ##############################################
 
     global CopyRights
-    print '\n'+CopyRights
+    print('\n'+CopyRights)
 
     # CMSSW section
     input_CMSSW_BASE = os.environ.get('CMSSW_BASE')
@@ -422,8 +424,8 @@ def main():
     
     if ConfigFile is not None:
 
-        print "********************************************************"
-        print "* Parsing from input file:", ConfigFile," "
+        print("********************************************************")
+        print("* Parsing from input file:", ConfigFile," ")
         
         #config = ConfigParser.ConfigParser()
         #config.read(ConfigFile)
@@ -465,9 +467,9 @@ def main():
                       
     else :
 
-        print "********************************************************"
-        print "* Parsing from command line                            *"
-        print "********************************************************"
+        print("********************************************************")
+        print("* Parsing from command line                            *")
+        print("********************************************************")
           
         jobName         = ['MinBiasQCD_CSA14Ali_CSA14APE']
         isDA            = ['True']   
@@ -500,33 +502,33 @@ def main():
 
     # print some of the configuration
     
-    print "********************************************************"
-    print "* Configuration info *"
-    print "********************************************************"
-    print "- submitted   : ",opts.submit
-    print "- Jobname     : ",jobName           
-    print "- use DA      : ",isDA            
-    print "- is MC       : ",isMC            
-    print "- is run-based: ",doRunBased
-    print "- evts/job    : ",maxevents                    
-    print "- GlobatTag   : ",gt      
-    print "- allFromGT?  : ",allFromGT
-    print "- extraCond?  : ",applyEXTRACOND
-    print "- extraCond   : ",conditions                 
-    print "- Align db    : ",alignmentDB     
-    print "- Align tag   : ",alignmentTAG    
-    print "- APE db      : ",apeDB           
-    print "- APE tag     : ",apeTAG          
-    print "- use bows?   : ",applyBOWS       
-    print "- K&B db      : ",bowDB
-    print "- K&B tag     : ",bowTAG                        
-    print "- VertexColl  : ",vertextype      
-    print "- TrackColl   : ",tracktype                       
-    print "- RunControl? : ",applyruncontrol 
-    print "- Pt>           ",ptcut           
-    print "- run=          ",runboundary     
-    print "- JSON        : ",lumilist        
-    print "********************************************************"
+    print("********************************************************")
+    print("* Configuration info *")
+    print("********************************************************")
+    print("- submitted   : ",opts.submit)
+    print("- Jobname     : ",jobName)           
+    print("- use DA      : ",isDA)            
+    print("- is MC       : ",isMC)            
+    print("- is run-based: ",doRunBased)
+    print("- evts/job    : ",maxevents)                    
+    print("- GlobatTag   : ",gt)      
+    print("- allFromGT?  : ",allFromGT)
+    print("- extraCond?  : ",applyEXTRACOND)
+    print("- extraCond   : ",conditions)                 
+    print("- Align db    : ",alignmentDB)     
+    print("- Align tag   : ",alignmentTAG)    
+    print("- APE db      : ",apeDB)           
+    print("- APE tag     : ",apeTAG)          
+    print("- use bows?   : ",applyBOWS)       
+    print("- K&B db      : ",bowDB)
+    print("- K&B tag     : ",bowTAG)                        
+    print("- VertexColl  : ",vertextype)      
+    print("- TrackColl   : ",tracktype)                       
+    print("- RunControl? : ",applyruncontrol) 
+    print("- Pt>           ",ptcut)           
+    print("- run=          ",runboundary)     
+    print("- JSON        : ",lumilist)        
+    print("********************************************************")
 
     sublogging_dir = os.path.join(AnalysisStep_dir,"submissions")
     if not os.path.exists(sublogging_dir):
@@ -563,10 +565,10 @@ def main():
         log_fout.write("- JSON        : "+lumilist[iConf]+"\n")
         log_fout.write("- output EOS  : "+eosdir+"\n")
 
-    print "Will run on ",len(jobName),"workflows"
+    print("Will run on ",len(jobName),"workflows")
 
     for iConf in range(len(jobName)):
-        print "Preparing",iConf," configurtion to run"
+        print("Preparing",iConf," configurtion to run")
 
         # for hadd script
         scripts_dir = os.path.join(AnalysisStep_dir,"scripts")
@@ -584,7 +586,7 @@ def main():
         
         if (to_bool(isMC[iConf]) or (not to_bool(doRunBased))):
             if(to_bool(isMC[iConf])):
-                print "this is MC"
+                print("this is MC")
                 cmd = 'das_client.py --limit=0 --query \'file dataset='+opts.data+'\''
                 s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
                 out,err = s.communicate()
@@ -597,7 +599,7 @@ def main():
                     inputFiles.append(files)
                     myRuns.append(str(1))
             else:
-                print "this is DATA (not doing full run-based selection)"
+                print("this is DATA (not doing full run-based selection)")
                 cmd = 'das_client.py --limit=0 --query \'file dataset='+opts.data+' run='+runboundary[iConf]+'\''
                 #print cmd
                 s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
@@ -605,13 +607,13 @@ def main():
                 mylist = out.split('\n')
                 mylist.pop()
                 #print "len(mylist):",len(mylist)
-                print "mylist:",mylist
+                print("mylist:",mylist)
                 inputFiles.append(mylist)
                 myRuns.append(str(runboundary[iConf]))
 
         else:
-            print "this is Data"
-            print "doing run based selection"
+            print("this is Data")
+            print("doing run based selection")
             cmd = 'das_client.py --limit=0 --query \'run dataset='+opts.data+'\''
             p = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
             out, err = p.communicate()
@@ -619,8 +621,8 @@ def main():
             listOfRuns.pop()
             listOfRuns.sort()
             myRuns = listOfRuns
-            print "Will run on ",len(listOfRuns), " runs"
-            print listOfRuns
+            print("Will run on ",len(listOfRuns), " runs")
+            print(listOfRuns)
 
             procs = []
 
@@ -636,8 +638,8 @@ def main():
                 
             toolbar_width = len(listOfRuns)
             # setup toolbar
-            print "********************************************************"
-            print " Retrieving run info"
+            print("********************************************************")
+            print(" Retrieving run info")
             
             for i,p in enumerate(procs):
                 out2,err2 = p.communicate()
@@ -653,7 +655,7 @@ def main():
             sys.stdout.write("\n") 
 
         for jobN,theSrcFiles in enumerate(inputFiles):
-            print jobN,"run",myRuns[jobN],theSrcFiles
+            print(jobN,"run",myRuns[jobN],theSrcFiles)
             thejobIndex=None
             batchJobIds = []
 
@@ -690,9 +692,9 @@ def main():
             del aJob
 
         if opts.submit:
-            print "********************************************************"
+            print("********************************************************")
             for theBatchJobId in batchJobIds:
-                print "theBatchJobId is: ",theBatchJobId
+                print("theBatchJobId is: ",theBatchJobId)
 
         fout.write("#!/bin/bash \n")
         fout.write("MAIL = $USER@mail.cern.ch \n")
@@ -711,12 +713,12 @@ def main():
         os.system("chmod u+x "+hadd_script_file)
 
         conditions = '"' + " && ".join(["ended(" + jobId + ")" for jobId in batchJobIds]) + '"'
-        print conditions
+        print(conditions)
         lastJobCommand = "bsub -o harvester"+opts.taskname+".tmp -q 1nh -w "+conditions+" "+hadd_script_file
-        print lastJobCommand
+        print(lastJobCommand)
         if opts.submit:
             lastJobOutput = getCommandOutput(lastJobCommand)
-            print lastJobOutput
+            print(lastJobOutput)
 
         fout.close()
         del output_file_list1

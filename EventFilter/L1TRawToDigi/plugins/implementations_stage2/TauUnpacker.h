@@ -4,12 +4,20 @@
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
 namespace l1t {
-   namespace stage2 {
-      class TauUnpacker : public Unpacker {
-         public:
-            bool unpack(const Block& block, UnpackerCollections *coll) override;
-      };
-   }
-}
+  namespace stage2 {
+    class TauUnpacker : public Unpacker {
+    public:
+      TauUnpacker();
+      ~TauUnpacker() override{};
+
+      bool unpack(const Block& block, UnpackerCollections* coll) override;
+
+      inline void setTauCopy(const unsigned int copy) { TauCopy_ = copy; };
+
+    private:
+      unsigned int TauCopy_;
+    };
+  }  // namespace stage2
+}  // namespace l1t
 
 #endif

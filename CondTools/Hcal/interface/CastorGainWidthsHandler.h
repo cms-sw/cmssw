@@ -11,7 +11,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -21,22 +21,19 @@
 #include "CondFormats/DataRecord/interface/CastorGainWidthsRcd.h"
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"
 
-
-class CastorGainWidthsHandler : public popcon::PopConSourceHandler<CastorGainWidths>
-{
- public:
+class CastorGainWidthsHandler : public popcon::PopConSourceHandler<CastorGainWidths> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~CastorGainWidthsHandler() override;
-  CastorGainWidthsHandler(edm::ParameterSet const &);
+  CastorGainWidthsHandler(edm::ParameterSet const&);
 
   void initObject(CastorGainWidths*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   CastorGainWidths* myDBObject;
   std::string m_name;
-
 };
 #endif

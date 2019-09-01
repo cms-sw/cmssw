@@ -5,7 +5,7 @@
 //
 // Package:    TrackAssociator
 // Class:      TrackAssociatorParameters
-// 
+//
 /*
 
  Description: track associator parameters
@@ -32,82 +32,82 @@
 #include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 
 class TrackAssociatorParameters {
- public:
-   TrackAssociatorParameters(){}
-   TrackAssociatorParameters( const edm::ParameterSet&, edm::ConsumesCollector&& );
-   void loadParameters( const edm::ParameterSet&, edm::ConsumesCollector& );
-   
-   double dREcal;
-   double dRHcal;
-   double dRMuon;
-   
-   double dREcalPreselection;
-   double dRHcalPreselection;
-   double dRMuonPreselection;
-   double dRPreshowerPreselection;
-   
-   /// account for trajectory change for calorimeters.
-   /// allows to compute energy around original track direction 
-   /// (for example neutral particles in a jet) as well as energy
-   /// around track projection on the inner surface of a 
-   /// calorimeter. Affects performance, so use wisely.
-   bool accountForTrajectoryChangeCalo;
-   
-   // account for trajectory change in the muon detector
-   // helps to ensure that all chambers are found. 
-   // Recomended to be used in default configuration
-   // bool accountForTrajectoryChangeMuon;
+public:
+  TrackAssociatorParameters() {}
+  TrackAssociatorParameters(const edm::ParameterSet&, edm::ConsumesCollector&&);
+  void loadParameters(const edm::ParameterSet&, edm::ConsumesCollector&);
 
-   /// maximal distance from a muon chamber. Can be considered as a preselection
-   /// cut and fancier cuts can be applied in a muon producer, since the
-   /// distance from a chamber should be available as output of the TrackAssociation
-   double muonMaxDistanceX;
-   double muonMaxDistanceY;
-   double muonMaxDistanceSigmaX;
-   double muonMaxDistanceSigmaY;
-   
-   bool useEcal;
-   bool useHcal;
-   bool useHO;
-   bool useCalo;
-   bool usePreshower;
-   bool useMuon;
-   bool truthMatch;
-   bool useGEM;
-   bool useME0;
-   
-   /// Labels of the detector EDProducts 
-   edm::InputTag theEBRecHitCollectionLabel;
-   edm::InputTag theEERecHitCollectionLabel;
-   edm::InputTag theCaloTowerCollectionLabel;
-   edm::InputTag theHBHERecHitCollectionLabel;
-   edm::InputTag theHORecHitCollectionLabel;
-   edm::InputTag theDTRecSegment4DCollectionLabel;
-   edm::InputTag theCSCSegmentCollectionLabel;
-   edm::InputTag theGEMSegmentCollectionLabel;
-   edm::InputTag theME0SegmentCollectionLabel;
+  double dREcal;
+  double dRHcal;
+  double dRMuon;
 
-   // Specify if we want to widen the search pass of the crossed
-   // calorimeter elements taking into account uncertainty
-   // of the track trajectory. The parameter below
-   // specifies how many standard deviations
-   // to account for. Negative numbers are ignored
-   // and trajectory is assumed to be known perfectly
-   double trajectoryUncertaintyTolerance;
+  double dREcalPreselection;
+  double dRHcalPreselection;
+  double dRMuonPreselection;
+  double dRPreshowerPreselection;
 
-   edm::EDGetTokenT<EBRecHitCollection> EBRecHitsToken;
-   edm::EDGetTokenT<EERecHitCollection> EERecHitsToken;
-   edm::EDGetTokenT<CaloTowerCollection> caloTowersToken;
-   edm::EDGetTokenT<HBHERecHitCollection> HBHEcollToken;
-   edm::EDGetTokenT<HORecHitCollection> HOcollToken;
-   edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentsToken;
-   edm::EDGetTokenT<CSCSegmentCollection> cscSegmentsToken;
-   edm::EDGetTokenT<GEMSegmentCollection> gemSegmentsToken;
-   edm::EDGetTokenT<ME0SegmentCollection> me0SegmentsToken;
-   edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken;
-   edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken;
-   edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEBToken;
-   edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEEToken;
-   edm::EDGetTokenT<edm::PCaloHitContainer> simHcalHitsToken;
+  /// account for trajectory change for calorimeters.
+  /// allows to compute energy around original track direction
+  /// (for example neutral particles in a jet) as well as energy
+  /// around track projection on the inner surface of a
+  /// calorimeter. Affects performance, so use wisely.
+  bool accountForTrajectoryChangeCalo;
+
+  // account for trajectory change in the muon detector
+  // helps to ensure that all chambers are found.
+  // Recomended to be used in default configuration
+  // bool accountForTrajectoryChangeMuon;
+
+  /// maximal distance from a muon chamber. Can be considered as a preselection
+  /// cut and fancier cuts can be applied in a muon producer, since the
+  /// distance from a chamber should be available as output of the TrackAssociation
+  double muonMaxDistanceX;
+  double muonMaxDistanceY;
+  double muonMaxDistanceSigmaX;
+  double muonMaxDistanceSigmaY;
+
+  bool useEcal;
+  bool useHcal;
+  bool useHO;
+  bool useCalo;
+  bool usePreshower;
+  bool useMuon;
+  bool truthMatch;
+  bool useGEM;
+  bool useME0;
+
+  /// Labels of the detector EDProducts
+  edm::InputTag theEBRecHitCollectionLabel;
+  edm::InputTag theEERecHitCollectionLabel;
+  edm::InputTag theCaloTowerCollectionLabel;
+  edm::InputTag theHBHERecHitCollectionLabel;
+  edm::InputTag theHORecHitCollectionLabel;
+  edm::InputTag theDTRecSegment4DCollectionLabel;
+  edm::InputTag theCSCSegmentCollectionLabel;
+  edm::InputTag theGEMSegmentCollectionLabel;
+  edm::InputTag theME0SegmentCollectionLabel;
+
+  // Specify if we want to widen the search pass of the crossed
+  // calorimeter elements taking into account uncertainty
+  // of the track trajectory. The parameter below
+  // specifies how many standard deviations
+  // to account for. Negative numbers are ignored
+  // and trajectory is assumed to be known perfectly
+  double trajectoryUncertaintyTolerance;
+
+  edm::EDGetTokenT<EBRecHitCollection> EBRecHitsToken;
+  edm::EDGetTokenT<EERecHitCollection> EERecHitsToken;
+  edm::EDGetTokenT<CaloTowerCollection> caloTowersToken;
+  edm::EDGetTokenT<HBHERecHitCollection> HBHEcollToken;
+  edm::EDGetTokenT<HORecHitCollection> HOcollToken;
+  edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentsToken;
+  edm::EDGetTokenT<CSCSegmentCollection> cscSegmentsToken;
+  edm::EDGetTokenT<GEMSegmentCollection> gemSegmentsToken;
+  edm::EDGetTokenT<ME0SegmentCollection> me0SegmentsToken;
+  edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEBToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEEToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> simHcalHitsToken;
 };
 #endif

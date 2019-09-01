@@ -17,26 +17,26 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-#include<fstream>
+#include <fstream>
 #include <atomic>
 
 class SimHitPrinter {
 public:
   SimHitPrinter(std::string);
   ~SimHitPrinter();
-  
+
   void startNewSimHit(std::string);
   void startNewEvent(int);
-  
+
   void printId(int) const;
   void printTrack(int) const;
   void printPabs(float) const;
   void printEloss(float) const;
-  void printLocal(LocalPoint,LocalPoint) const;
+  void printLocal(LocalPoint, LocalPoint) const;
   void printGlobal(GlobalPoint) const;
+
 private:
   static std::atomic<std::ofstream*> theFile;
 };
 
 #endif
-

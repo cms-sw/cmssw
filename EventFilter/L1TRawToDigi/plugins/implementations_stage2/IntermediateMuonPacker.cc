@@ -7,22 +7,19 @@
 #include "IntermediateMuonPacker.h"
 
 namespace l1t {
-   namespace stage2 {
-      Blocks
-      IntermediateMuonPacker::pack(const edm::Event& event, const PackerTokens* toks)
-      {	 
+  namespace stage2 {
+    Blocks IntermediateMuonPacker::pack(const edm::Event& event, const PackerTokens* toks) {
+      //auto imdBmtfToken = static_cast<const GMTTokens*>(toks)->getImdMuonTokenBMTF();
+      //auto imdOmtfNegToken = static_cast<const GMTTokens*>(toks)->getImdMuonTokenOMTFNeg();
+      //auto imdOmtfPosToken = static_cast<const GMTTokens*>(toks)->getImdMuonTokenOMTFPos();
+      //auto imdEmtfNegToken = static_cast<const GMTTokens*>(toks)->getImdMuonTokenEMTFNeg();
+      //auto imdEmtfPosToken = static_cast<const GMTTokens*>(toks)->getImdMuonTokenEMTFPos();
 
-	 //auto imdBmtfToken = static_cast<const GMTTokens*>(toks)->getImdMuonTokenBMTF();
-         //auto imdOmtfNegToken = static_cast<const GMTTokens*>(toks)->getImdMuonTokenOMTFNeg();
-         //auto imdOmtfPosToken = static_cast<const GMTTokens*>(toks)->getImdMuonTokenOMTFPos();
-	 //auto imdEmtfNegToken = static_cast<const GMTTokens*>(toks)->getImdMuonTokenEMTFNeg();
-	 //auto imdEmtfPosToken = static_cast<const GMTTokens*>(toks)->getImdMuonTokenEMTFPos();
+      Blocks blocks;
 
-         Blocks blocks;
-
-         return blocks;
-      }
-   }
-}
+      return blocks;
+    }
+  }  // namespace stage2
+}  // namespace l1t
 
 DEFINE_L1T_PACKER(l1t::stage2::IntermediateMuonPacker);

@@ -43,46 +43,41 @@ class L1MuBMSecProcId;
 //              ---------------------
 
 class L1MuBMMuonSorter : public L1AbstractProcessor {
+public:
+  /// constructor
+  L1MuBMMuonSorter(const L1MuBMTrackFinder&);
 
-  public:
+  /// destructor
+  ~L1MuBMMuonSorter() override;
 
-    /// constructor
-    L1MuBMMuonSorter(const L1MuBMTrackFinder&);
+  /// run Muon Sorter
+  void run() override;
 
-    /// destructor
-    ~L1MuBMMuonSorter() override;
+  /// reset Muon Sorter
+  void reset() override;
 
-    /// run Muon Sorter
-    void run() override;
+  /// print results after sorting
+  void print() const;
 
-    /// reset Muon Sorter
-    void reset() override;
+  /// return number of found muon candidates after sorter
+  inline int numberOfTracks() const { return m_TrackCands.size(); }
 
-    /// print results after sorting
-    void print() const;
+  /// return pointer to a muon candidate
+  inline const L1MuBMTrack* track(int id) const { return m_TrackCands[id]; }
 
-    /// return number of found muon candidates after sorter
-    inline int numberOfTracks() const { return m_TrackCands.size(); }
+  /// return vector of muon candidates
+  inline const std::vector<const L1MuBMTrack*>& tracks() const { return m_TrackCands; }
 
-    /// return pointer to a muon candidate
-    inline const L1MuBMTrack* track(int id) const { return m_TrackCands[id]; }
+private:
+  /// run the Cancel Out Logic of the muon sorter
+  void runCOL(std::vector<L1MuBMTrack*>&) const;
 
-    /// return vector of muon candidates
-    inline const std::vector<const L1MuBMTrack*>& tracks() const { return m_TrackCands; }
+  /// find out if two Sector Processors are neighbours
+  static int neighbour(const L1MuBMSecProcId& spid1, const L1MuBMSecProcId& spid2);
 
-  private:
-
-    /// run the Cancel Out Logic of the muon sorter
-    void runCOL(std::vector<L1MuBMTrack*>&) const;
-
-    /// find out if two Sector Processors are neighbours
-    static int neighbour(const L1MuBMSecProcId& spid1, const L1MuBMSecProcId& spid2);
-
-  private:
-
-    const L1MuBMTrackFinder&        m_tf;
-    std::vector<const L1MuBMTrack*> m_TrackCands;
-
+private:
+  const L1MuBMTrackFinder& m_tf;
+  std::vector<const L1MuBMTrack*> m_TrackCands;
 };
 
 #endif

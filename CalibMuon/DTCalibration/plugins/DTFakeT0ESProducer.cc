@@ -25,46 +25,40 @@
 
 using namespace std;
 
-DTFakeT0ESProducer::DTFakeT0ESProducer(const edm::ParameterSet& pset)
-{
+DTFakeT0ESProducer::DTFakeT0ESProducer(const edm::ParameterSet& pset) {
   //framework
-  setWhatProduced(this,&DTFakeT0ESProducer::produce);
+  setWhatProduced(this, &DTFakeT0ESProducer::produce);
   //  setWhatProduced(this,dependsOn(& DTGeometryESModule::parseDDD()));
   findingRecord<DTT0Rcd>();
-  
+
   //read constant value for t0 from cfg
   t0Mean = pset.getParameter<double>("t0Mean");
   t0Sigma = pset.getParameter<double>("t0Sigma");
 }
 
-
-DTFakeT0ESProducer::~DTFakeT0ESProducer(){
-}
-
+DTFakeT0ESProducer::~DTFakeT0ESProducer() {}
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<DTT0> DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord){
-  
+std::unique_ptr<DTT0> DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord) {
   parseDDD(iRecord);
   auto t0Map = std::make_unique<DTT0>();
-  
+
   //Loop on layerId-nwires map
- for(map<DTLayerId, pair <unsigned int,unsigned int> >::const_iterator lIdWire = theLayerIdWiresMap.begin();
-     lIdWire != theLayerIdWiresMap.end();
-     ++lIdWire){
-   int firstWire = ((*lIdWire).second).first;
-   int nWires = ((*lIdWire).second).second;
-   //Loop on wires of each layer
-   for(int wire=0; wire < nWires; wire++){
-     t0Map->set(DTWireId((*lIdWire).first, wire + firstWire), t0Mean, t0Sigma, DTTimeUnits::counts);
-   }
- }
+  for (map<DTLayerId, pair<unsigned int, unsigned int> >::const_iterator lIdWire = theLayerIdWiresMap.begin();
+       lIdWire != theLayerIdWiresMap.end();
+       ++lIdWire) {
+    int firstWire = ((*lIdWire).second).first;
+    int nWires = ((*lIdWire).second).second;
+    //Loop on wires of each layer
+    for (int wire = 0; wire < nWires; wire++) {
+      t0Map->set(DTWireId((*lIdWire).first, wire + firstWire), t0Mean, t0Sigma, DTTimeUnits::counts);
+    }
+  }
 
   return t0Map;
 }
 
-void DTFakeT0ESProducer::parseDDD(const DTT0Rcd& iRecord){
-
+void DTFakeT0ESProducer::parseDDD(const DTT0Rcd& iRecord) {
   edm::ESTransientHandle<DDCompactView> cpv;
   edm::ESHandle<MuonDDDConstants> mdc;
 
@@ -74,9 +68,8 @@ void DTFakeT0ESProducer::parseDDD(const DTT0Rcd& iRecord){
   DTGeometryParserFromDDD parser(&(*cpv), *mdc, theLayerIdWiresMap);
 }
 
- void DTFakeT0ESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
- edm::ValidityInterval & oValidity){
-   oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),edm::IOVSyncValue::endOfTime());
-  }
-
-
+void DTFakeT0ESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                                        const edm::IOVSyncValue&,
+                                        edm::ValidityInterval& oValidity) {
+  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
+}

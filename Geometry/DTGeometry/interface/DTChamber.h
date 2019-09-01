@@ -22,51 +22,48 @@ class DTSuperLayer;
 class DTLayer;
 
 class DTChamber : public GeomDet {
+public:
+  /// Constructor
+  DTChamber(const DTChamberId& id, const ReferenceCountingPointer<BoundPlane>& plane);
 
-  public:
-    /// Constructor
-    DTChamber(const DTChamberId& id, const ReferenceCountingPointer<BoundPlane>& plane);
+  /// Destructor
+  ~DTChamber() override;
 
-    /// Destructor
-    ~DTChamber() override;
+  /// Return the DTChamberId of this chamber
+  DTChamberId id() const;
 
-    /// Return the DTChamberId of this chamber
-    DTChamberId id() const;
+  // Which subdetector
+  SubDetector subDetector() const override { return GeomDetEnumerators::DT; }
 
-    // Which subdetector
-    SubDetector subDetector() const override {return GeomDetEnumerators::DT;}
+  /// equal if the id is the same
+  bool operator==(const DTChamber& ch) const;
 
-    /// equal if the id is the same
-    bool operator==(const DTChamber& ch) const;
+  /// Add SL to the chamber which takes ownership
+  void add(DTSuperLayer* sl);
 
-    /// Add SL to the chamber which takes ownership
-    void add(DTSuperLayer* sl);
+  /// Return the superlayers in the chamber
+  std::vector<const GeomDet*> components() const override;
 
-    /// Return the superlayers in the chamber
-    std::vector< const GeomDet*> components() const override;
+  /// Return the sub-component (SL or layer) with a given id in this chamber
+  const GeomDet* component(DetId id) const override;
 
-    /// Return the sub-component (SL or layer) with a given id in this chamber
-    const GeomDet* component(DetId id) const override;
+  /// Return the superlayers in the chamber
+  const std::vector<const DTSuperLayer*>& superLayers() const;
 
-    /// Return the superlayers in the chamber
-    const std::vector< const DTSuperLayer*>& superLayers() const;
+  /// Return the superlayer corresponding to the given id
+  const DTSuperLayer* superLayer(const DTSuperLayerId& id) const;
 
-    /// Return the superlayer corresponding to the given id 
-    const DTSuperLayer* superLayer(const DTSuperLayerId& id) const;
-  
-    /// Return the given superlayer.
-    /// Superlayers are numbered 1 (phi), 2 (Z), 3 (phi)
-    const DTSuperLayer* superLayer(int isl) const;
+  /// Return the given superlayer.
+  /// Superlayers are numbered 1 (phi), 2 (Z), 3 (phi)
+  const DTSuperLayer* superLayer(int isl) const;
 
-    /// Return the layer corresponding to the given id 
-    const DTLayer* layer(const DTLayerId& id) const;
+  /// Return the layer corresponding to the given id
+  const DTLayer* layer(const DTLayerId& id) const;
 
-  private:
+private:
+  DTChamberId theId;
 
-    DTChamberId theId;
-
-    // The chamber owns its SL
-    std::vector<const DTSuperLayer*> theSLs;
-
+  // The chamber owns its SL
+  std::vector<const DTSuperLayer*> theSLs;
 };
 #endif

@@ -15,7 +15,7 @@
 namespace edm {
   class ParameterSet;
   class EventSetup;
-}
+}  // namespace edm
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
@@ -29,28 +29,23 @@ class DTSuperLayer;
 
 /* Class DTRecSegment2DBaseAlgo Interface */
 
-class DTRecSegment2DBaseAlgo{
+class DTRecSegment2DBaseAlgo {
+public:
+  /// Constructor
+  DTRecSegment2DBaseAlgo(const edm::ParameterSet&) {}
 
-  public:
+  /// Destructor
+  virtual ~DTRecSegment2DBaseAlgo() {}
 
-/// Constructor
-    DTRecSegment2DBaseAlgo(const edm::ParameterSet& ) {}
+  /* Operations */
+  virtual edm::OwnVector<DTSLRecSegment2D> reconstruct(const DTSuperLayer* sl,
+                                                       const std::vector<DTRecHit1DPair>& hits) = 0;
 
-/// Destructor
-    virtual ~DTRecSegment2DBaseAlgo() {}
+  virtual std::string algoName() const = 0;
 
-/* Operations */ 
-    virtual edm::OwnVector<DTSLRecSegment2D>
-      reconstruct(const DTSuperLayer* sl,
-                  const std::vector<DTRecHit1DPair>& hits) = 0;
-    
-    virtual std::string algoName() const = 0;
-    
-    virtual  void setES(const edm::EventSetup& setup) = 0;
-    
- protected:
-    
-  private:
+  virtual void setES(const edm::EventSetup& setup) = 0;
 
+protected:
+private:
 };
-#endif // DTSegment_DTRecSegment2DBaseAlgo_h
+#endif  // DTSegment_DTRecSegment2DBaseAlgo_h

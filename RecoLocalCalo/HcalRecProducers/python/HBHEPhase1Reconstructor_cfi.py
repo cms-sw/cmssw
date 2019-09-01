@@ -45,6 +45,10 @@ hbheprereco = cms.EDProducer(
     # collection will not include such channels even if this flag is set.
     saveDroppedInfos = cms.bool(False),
 
+    # Flag to use only 8 TSs for reconstruction. This should be in effect
+    # only when there are 10 TSs, e.g., <=2017
+    use8ts = cms.bool(True),
+
     # Parameters which define how we calculate the charge for the basic SiPM
     # nonlinearity correction. To sum up the charge in all time slices
     # (e.g., for cosmics), set sipmQTSShift to -100 and sipmQNTStoSum to 200.
@@ -64,9 +68,6 @@ hbheprereco = cms.EDProducer(
         # Time shift (in ns) to add to TDC timing (for QIE11)
         tdcTimeShift = cms.double(0.0),
 
-        # Parameters for "Method 0"
-        firstSampleShift = cms.int32(0),
-
         # Use "Method 2"?
         useM2 = cms.bool(False),
 
@@ -74,7 +75,10 @@ hbheprereco = cms.EDProducer(
         useM3 = cms.bool(True),
 
         # Use Mahi?
-        useMahi = cms.bool(True)
+        useMahi = cms.bool(True),
+
+        # Apply legacy HB- energy correction?
+        applyLegacyHBMCorrection = cms.bool(True)
     ),
 
     # Reconstruction algorithm configuration data to fetch from DB, if any
@@ -107,3 +111,6 @@ hbheprereco.pulseShapeParametersQIE8.TrianglePeakTS = cms.uint32(10000)
 
 from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
 run2_HE_2017.toModify(hbheprereco, saveEffectivePedestal = cms.bool(True))
+
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+run3_HB.toModify(hbheprereco, algorithm = dict(applyLegacyHBMCorrection = cms.bool(False)))

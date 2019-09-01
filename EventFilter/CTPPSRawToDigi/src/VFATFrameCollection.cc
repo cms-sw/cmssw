@@ -6,13 +6,9 @@
 *    
 ****************************************************************************/
 
-
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
 
-//----------------------------------------------------------------------------------------------------
-    
-const VFATFrame* VFATFrameCollection::GetFrameByIndexID(TotemFramePosition index, unsigned int ID)
-{
+const VFATFrame* VFATFrameCollection::GetFrameByIndexID(TotemFramePosition index, unsigned int ID) {
   const VFATFrame* returnframe = GetFrameByIndex(index);
   if (returnframe == nullptr)
     return nullptr;

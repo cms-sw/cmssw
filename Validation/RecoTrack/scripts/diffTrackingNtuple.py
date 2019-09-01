@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import argparse
 import itertools
 import collections
@@ -7,7 +8,7 @@ import collections
 import Validation.RecoTrack.plotting.ntuple as ntuple
 
 def body(opts, ev1, ev2, printTrack):
-    print ev1.eventIdStr()
+    print(ev1.eventIdStr())
 
     tracks1 = ev1.tracks()
     tracks2 = ev2.tracks()
@@ -18,8 +19,8 @@ def body(opts, ev1, ev2, printTrack):
 
     diff = ntuple.diffTrackListsGeneric(printTrack, tracks1, tracks2, ignoreAdditionalLst2=singleTrack)
     if diff.hasDifference():
-        print str(diff)
-        print
+        print(str(diff))
+        print()
 
 def inOrder(opts, ntpl1, ntpl2, *args, **kwargs):
     if opts.entry is not None:
@@ -55,7 +56,7 @@ def outOfOrder(opts, ntpl1, ntpl2, *args, **kwargs):
             break
 
         if not ev1.eventId() in events2:
-            print "-", ev1.eventIdStr()
+            print("-", ev1.eventIdStr())
             continue
 
         ev2 = ntpl2.getEvent(events2[ev1.eventIdStr()])
@@ -65,14 +66,14 @@ def outOfOrder(opts, ntpl1, ntpl2, *args, **kwargs):
 
 
     for eventIdStr in events2.iterkeys():
-        print "+", eventIdStr
+        print("+", eventIdStr)
 
 def main(opts):
     ntpl1 = ntuple.TrackingNtuple(opts.file1)
     ntpl2 = ntuple.TrackingNtuple(opts.file2)
 
-    print "--- %s" % opts.file1
-    print "+++ %s" % opts.file2
+    print("--- %s" % opts.file1)
+    print("+++ %s" % opts.file2)
 
     printTrack = ntuple.TrackPrinter(trackingParticlePrinter=ntuple.TrackingParticlePrinter(parentage=False), diffForTwiki=opts.twiki)
 

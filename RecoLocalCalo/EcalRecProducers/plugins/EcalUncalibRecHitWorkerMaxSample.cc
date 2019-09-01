@@ -26,43 +26,35 @@
 #include <iostream>
 #include <vector>
 
-EcalUncalibRecHitWorkerMaxSample::EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps, edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerRunOneDigiBase( ps ,c)
-{
+EcalUncalibRecHitWorkerMaxSample::EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps,
+                                                                   edm::ConsumesCollector& c)
+    : EcalUncalibRecHitWorkerRunOneDigiBase(ps, c) {}
+
+void EcalUncalibRecHitWorkerMaxSample::set(const edm::EventSetup& es) {}
+
+bool EcalUncalibRecHitWorkerMaxSample::run(const edm::Event& evt,
+                                           const EcalDigiCollection::const_iterator& itdg,
+                                           EcalUncalibratedRecHitCollection& result) {
+  DetId detid(itdg->id());
+
+  if (detid.subdetId() == EcalBarrel) {
+    result.push_back(ebAlgo_.makeRecHit(*itdg, nullptr, nullptr, nullptr, nullptr));
+  } else {
+    result.push_back(eeAlgo_.makeRecHit(*itdg, nullptr, nullptr, nullptr, nullptr));
+  }
+
+  return true;
 }
 
-
-void
-EcalUncalibRecHitWorkerMaxSample::set(const edm::EventSetup& es)
-{
-}
-
-bool
-EcalUncalibRecHitWorkerMaxSample::run( const edm::Event & evt, 
-                const EcalDigiCollection::const_iterator & itdg, 
-                EcalUncalibratedRecHitCollection & result )
-{
-        DetId detid(itdg->id());
-
-        if ( detid.subdetId() == EcalBarrel ) {
-                result.push_back( ebAlgo_.makeRecHit(*itdg, nullptr, nullptr, nullptr, nullptr ) );
-        } else {
-                result.push_back( eeAlgo_.makeRecHit(*itdg, nullptr, nullptr, nullptr, nullptr ) );
-        }
-
-        return true;
-}
-
-edm::ParameterSetDescription
-EcalUncalibRecHitWorkerMaxSample::getAlgoDescription() {
-
+edm::ParameterSetDescription EcalUncalibRecHitWorkerMaxSample::getAlgoDescription() {
   edm::ParameterSetDescription psd;
-  return psd;//.addNode(std::unique_ptr<edm::ParameterDescriptionNode>(new edm::EmptyGroupDescription()));
+  return psd;  //.addNode(std::unique_ptr<edm::ParameterDescriptionNode>(new edm::EmptyGroupDescription()));
 }
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
-DEFINE_EDM_PLUGIN( EcalUncalibRecHitWorkerFactory, EcalUncalibRecHitWorkerMaxSample, "EcalUncalibRecHitWorkerMaxSample" );
+DEFINE_EDM_PLUGIN(EcalUncalibRecHitWorkerFactory, EcalUncalibRecHitWorkerMaxSample, "EcalUncalibRecHitWorkerMaxSample");
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
-DEFINE_EDM_PLUGIN( EcalUncalibRecHitFillDescriptionWorkerFactory, EcalUncalibRecHitWorkerMaxSample, "EcalUncalibRecHitWorkerMaxSample");
+DEFINE_EDM_PLUGIN(EcalUncalibRecHitFillDescriptionWorkerFactory,
+                  EcalUncalibRecHitWorkerMaxSample,
+                  "EcalUncalibRecHitWorkerMaxSample");

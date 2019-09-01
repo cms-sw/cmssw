@@ -6,11 +6,6 @@
 #include <iostream>
 #include <sstream>
 
-HDQMInspectorConfigSiStrip::HDQMInspectorConfigSiStrip ()
-{
-}
+HDQMInspectorConfigSiStrip::HDQMInspectorConfigSiStrip() {}
 
-
-HDQMInspectorConfigSiStrip::~HDQMInspectorConfigSiStrip ()
-{
-}
+HDQMInspectorConfigSiStrip::~HDQMInspectorConfigSiStrip() {}

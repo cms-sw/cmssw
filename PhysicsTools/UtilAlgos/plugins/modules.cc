@@ -3,10 +3,8 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
-
-
 #include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
-DEFINE_FWK_SERVICE( VariableHelperService );
+DEFINE_FWK_SERVICE(VariableHelperService);
 
 #include "CommonTools/UtilAlgos/interface/EventSelector.h"
 #include "PhysicsTools/UtilAlgos/plugins/VariableEventSelector.h"
@@ -32,7 +30,6 @@ DEFINE_EDM_PLUGIN(VariableComputerFactory, VariableComputerTest, "VariableComput
 
 #include "PhysicsTools/UtilAlgos/interface/Plotter.h"
 DEFINE_EDM_PLUGIN(PlotterFactory, VariablePlotter, "VariablePlotter");
-
 
 #include "PhysicsTools/UtilAlgos/interface/StringBasedNTupler.h"
 DEFINE_EDM_PLUGIN(NTuplerFactory, StringBasedNTupler, "StringBasedNTupler");

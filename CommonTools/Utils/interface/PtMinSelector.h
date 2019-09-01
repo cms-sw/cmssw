@@ -8,9 +8,11 @@
  */
 
 struct PtMinSelector {
-  PtMinSelector( double ptMin ) : ptMin_( ptMin ) { }
-  template<typename T>
-  bool operator()( const T & t ) const { return t.pt() >= ptMin_; }
+  PtMinSelector(double ptMin) : ptMin_(ptMin) {}
+  template <typename T>
+  bool operator()(const T& t) const {
+    return t.pt() >= ptMin_;
+  }
 
 private:
   double ptMin_;

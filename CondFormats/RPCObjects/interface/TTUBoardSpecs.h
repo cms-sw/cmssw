@@ -1,5 +1,5 @@
 // $Id: $
-#ifndef CONFIGCODE_TTUBOARDSPECS_H 
+#ifndef CONFIGCODE_TTUBOARDSPECS_H
 #define CONFIGCODE_TTUBOARDSPECS_H 1
 
 // Include files
@@ -16,17 +16,17 @@
  *  @date   2008-12-15
  */
 class TTUBoardSpecs {
-public: 
+public:
   /// Standard constructor
-  TTUBoardSpecs( ); 
-  
-  virtual ~TTUBoardSpecs( ); ///< Destructor
-  
+  TTUBoardSpecs();
+
+  virtual ~TTUBoardSpecs();  ///< Destructor
+
   class TTUBoardConfig : public RPCTechTriggerConfig {
-  public: 
+  public:
     /// Standard constructor
-    TTUBoardConfig( ) : RPCTechTriggerConfig() {}; 
-    
+    TTUBoardConfig() : RPCTechTriggerConfig(){};
+
     int m_Firmware;
     int m_LengthOfFiber;
     int m_Delay;
@@ -34,19 +34,17 @@ public:
     int m_Wheel1Id;
     int m_Wheel2Id;
     int m_TrackLength;
-        
+
     std::vector<int> m_MaskedSectors;
     std::vector<int> m_ForcedSectors;
-     
+
     std::string m_LogicType;
 
-  
-  COND_SERIALIZABLE;
-};
-  
+    COND_SERIALIZABLE;
+  };
+
   std::vector<TTUBoardConfig> m_boardspecs;
-  
 
   COND_SERIALIZABLE;
 };
-#endif // CONFIGCODE_TTUBOARDSPECS_H
+#endif  // CONFIGCODE_TTUBOARDSPECS_H

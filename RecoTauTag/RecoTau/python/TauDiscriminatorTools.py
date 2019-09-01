@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import six
 
 # require the EXISTANCE of a track - not necessarily above any pt cut (above the basic 0.5 GeV filter)
 leadTrackFinding = cms.PSet(
@@ -17,15 +18,6 @@ requireLeadTrack = cms.PSet(
       leadTrack = leadTrackFinding,
       )
 
-# Require a existence of a lead track in a CaloTau.
-requireLeadTrackCalo = cms.PSet(
-      BooleanOperator = cms.string("and"),
-      leadTrack = cms.PSet(
-         Producer = cms.InputTag('caloRecoTauDiscriminationByLeadingTrackFinding'),
-         cut = cms.double(0.5)
-         )
-      )
-
 # This is equivalent to the lead track case, and shoudl be deprecated.  
 #  Preserved for backwards compatibility
 requireLeadPion = cms.PSet(
@@ -35,7 +27,7 @@ requireLeadPion = cms.PSet(
 
 def subParameterSets(pSet):
    ''' Generator to return all sub-PSets in a PSet '''
-   for name, value in pSet.parameters_().iteritems():
+   for name, value in six.iteritems(pSet.parameters_()):
       if isinstance(value, cms.PSet):
          yield getattr(pSet, name)
 

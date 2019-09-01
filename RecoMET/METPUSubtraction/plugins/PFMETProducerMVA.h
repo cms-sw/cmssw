@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -40,41 +39,49 @@
 #include "RecoJets/JetProducers/interface/PileupJetIdAlgo.h"
 #include <TLorentzVector.h>
 
-namespace reco
-{
-  class PFMETProducerMVA : public edm::stream::EDProducer<>
-  {
-   public:
-
-    PFMETProducerMVA(const edm::ParameterSet&); 
+namespace reco {
+  class PFMETProducerMVA : public edm::stream::EDProducer<> {
+  public:
+    PFMETProducerMVA(const edm::ParameterSet&);
     ~PFMETProducerMVA() override;
 
-   private:
-  
+  private:
     void produce(edm::Event&, const edm::EventSetup&) override;
 
     // auxiliary functions
-    std::vector<reco::PUSubMETCandInfo> computeLeptonInfo(const std::vector<edm::EDGetTokenT<reco::CandidateView > >& srcLeptons_,
-							  const reco::CandidateView& pfCandidates,
-							  const reco::Vertex* hardScatterVertex, 
-							  int& lId, bool& lHasPhotons, edm::Event & iEvent);
+    std::vector<reco::PUSubMETCandInfo> computeLeptonInfo(
+        const std::vector<edm::EDGetTokenT<reco::CandidateView> >& srcLeptons_,
+        const reco::CandidateView& pfCandidates,
+        const reco::Vertex* hardScatterVertex,
+        int& lId,
+        bool& lHasPhotons,
+        edm::Event& iEvent);
 
-    std::vector<reco::PUSubMETCandInfo> computeJetInfo(const reco::PFJetCollection&, const edm::Handle<reco::PFJetCollection>&,
-							  const edm::ValueMap<float>&, const reco::VertexCollection&, 
-							  const reco::Vertex*, const reco::JetCorrector &iCorr,
-							  edm::Event & iEvent,const edm::EventSetup &iSetup,
-							  std::vector<reco::PUSubMETCandInfo> &iLeptons,
-							  std::vector<reco::PUSubMETCandInfo> &iCands);
-    
+    std::vector<reco::PUSubMETCandInfo> computeJetInfo(const reco::PFJetCollection&,
+                                                       const edm::Handle<reco::PFJetCollection>&,
+                                                       const edm::ValueMap<float>&,
+                                                       const reco::VertexCollection&,
+                                                       const reco::Vertex*,
+                                                       const reco::JetCorrector& iCorr,
+                                                       edm::Event& iEvent,
+                                                       const edm::EventSetup& iSetup,
+                                                       std::vector<reco::PUSubMETCandInfo>& iLeptons,
+                                                       std::vector<reco::PUSubMETCandInfo>& iCands);
+
     std::vector<reco::PUSubMETCandInfo> computePFCandidateInfo(const reco::CandidateView&, const reco::Vertex*);
     std::vector<reco::Vertex::Point> computeVertexInfo(const reco::VertexCollection&);
-    double chargedEnFrac(const reco::Candidate *iCand,const reco::CandidateView& pfCandidates,const reco::Vertex* hardScatterVertex);
-    
-    bool   passPFLooseId(const reco::PFJet *iJet);
-    bool   istau        (const reco::Candidate *iCand);
-    double chargedFracInCone(const reco::Candidate *iCand,const reco::CandidateView& pfCandidates,const reco::Vertex* hardScatterVertex,double iDRMax=0.2);
+    double chargedEnFrac(const reco::Candidate* iCand,
+                         const reco::CandidateView& pfCandidates,
+                         const reco::Vertex* hardScatterVertex);
 
-   // configuration parameter
+    bool passPFLooseId(const reco::PFJet* iJet);
+    bool istau(const reco::Candidate* iCand);
+    double chargedFracInCone(const reco::Candidate* iCand,
+                             const reco::CandidateView& pfCandidates,
+                             const reco::Vertex* hardScatterVertex,
+                             double iDRMax = 0.2);
+
+    // configuration parameter
     edm::EDGetTokenT<reco::PFJetCollection> srcCorrJets_;
     edm::EDGetTokenT<reco::PFJetCollection> srcUncorrJets_;
     edm::EDGetTokenT<edm::ValueMap<float> > srcJetIds_;
@@ -83,11 +90,11 @@ namespace reco
     edm::EDGetTokenT<reco::VertexCollection> srcVertices_;
     edm::EDGetTokenT<reco::JetCorrector> mJetCorrector_;
     typedef std::vector<edm::InputTag> vInputTag;
-    std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
-    int minNumLeptons_; // CV: option to skip MVA MET computation in case there are less than specified number of leptons in the event
+    std::vector<edm::EDGetTokenT<reco::CandidateView> > srcLeptons_;
+    int minNumLeptons_;  // CV: option to skip MVA MET computation in case there are less than specified number of leptons in the event
 
     bool useType1_;
-    
+
     double globalThreshold_;
 
     double minCorrJetPt_;
@@ -100,6 +107,6 @@ namespace reco
 
     int verbosity_;
   };
-}
+}  // namespace reco
 
 #endif

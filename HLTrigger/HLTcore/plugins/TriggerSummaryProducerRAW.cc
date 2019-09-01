@@ -26,21 +26,19 @@
 //
 // constructors and destructor
 //
-TriggerSummaryProducerRAW::TriggerSummaryProducerRAW(const edm::ParameterSet& ps) : 
-  pn_(ps.getParameter<std::string>("processName"))
-{
-  if (pn_=="@") {
-    
+TriggerSummaryProducerRAW::TriggerSummaryProducerRAW(const edm::ParameterSet& ps)
+    : pn_(ps.getParameter<std::string>("processName")) {
+  if (pn_ == "@") {
     edm::Service<edm::service::TriggerNamesService> tns;
     if (tns.isAvailable()) {
       pn_ = tns->getProcessName();
     } else {
       edm::LogError("TriggerSummaryProducerRaw") << "HLT Error: TriggerNamesService not available!";
-      pn_="*";
+      pn_ = "*";
     }
   }
 
-  LogDebug("TriggerSummaryProducerRaw") << "Using process name: '" << pn_ <<"'";
+  LogDebug("TriggerSummaryProducerRaw") << "Using process name: '" << pn_ << "'";
   produces<trigger::TriggerEventWithRefs>();
 
   // Tell the getter what type of products to get and
@@ -57,79 +55,69 @@ TriggerSummaryProducerRAW::~TriggerSummaryProducerRAW() = default;
 
 void TriggerSummaryProducerRAW::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("processName","@");
+  desc.add<std::string>("processName", "@");
   descriptions.add("triggerSummaryProducerRAW", desc);
 }
 
 // ------------ method called to produce the data  ------------
-void
-TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&)
-{
-   using namespace std;
-   using namespace edm;
-   using namespace reco;
-   using namespace trigger;
+void TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&) {
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
+  using namespace trigger;
 
-   std::vector<edm::Handle<trigger::TriggerFilterObjectWithRefs> > fobs;
-   getterOfProducts_.fillHandles(iEvent, fobs);
+  std::vector<edm::Handle<trigger::TriggerFilterObjectWithRefs> > fobs;
+  getterOfProducts_.fillHandles(iEvent, fobs);
 
-   const unsigned int nfob(fobs.size());
-   LogDebug("TriggerSummaryProducerRaw") << "Number of filter objects found: " << nfob;
+  const unsigned int nfob(fobs.size());
+  LogDebug("TriggerSummaryProducerRaw") << "Number of filter objects found: " << nfob;
 
-   // construct single RAW product
-   unique_ptr<TriggerEventWithRefs> product(new TriggerEventWithRefs(pn_,nfob));
-   for (unsigned int ifob=0; ifob!=nfob; ++ifob) {
-     const string& label    (fobs[ifob].provenance()->moduleLabel());
-     const string& instance (fobs[ifob].provenance()->productInstanceName());
-     const string& process  (fobs[ifob].provenance()->processName());
-     const InputTag tag(label,instance,process);
-     LogTrace("TriggerSummaryProducerRaw")
-       << ifob << " " << tag << endl
-       << " Sizes: "
-       << " 1/" << fobs[ifob]->photonSize()
-       << " 2/" << fobs[ifob]->electronSize()
-       << " 3/" << fobs[ifob]->muonSize()
-       << " 4/" << fobs[ifob]->jetSize()
-       << " 5/" << fobs[ifob]->compositeSize()
-       << " 6/" << fobs[ifob]->basemetSize()
-       << " 7/" << fobs[ifob]->calometSize()
+  // construct single RAW product
+  unique_ptr<TriggerEventWithRefs> product(new TriggerEventWithRefs(pn_, nfob));
+  for (unsigned int ifob = 0; ifob != nfob; ++ifob) {
+    const string& label(fobs[ifob].provenance()->moduleLabel());
+    const string& instance(fobs[ifob].provenance()->productInstanceName());
+    const string& process(fobs[ifob].provenance()->processName());
+    const InputTag tag(label, instance, process);
+    LogTrace("TriggerSummaryProducerRaw")
+        << ifob << " " << tag << endl
+        << " Sizes: "
+        << " 1/" << fobs[ifob]->photonSize() << " 2/" << fobs[ifob]->electronSize() << " 3/" << fobs[ifob]->muonSize()
+        << " 4/" << fobs[ifob]->jetSize() << " 5/" << fobs[ifob]->compositeSize() << " 6/" << fobs[ifob]->basemetSize()
+        << " 7/" << fobs[ifob]->calometSize()
 
-       << " 8/" << fobs[ifob]->pixtrackSize()
-       << " 9/" << fobs[ifob]->l1emSize()
-       << " A/" << fobs[ifob]->l1muonSize()
-       << " B/" << fobs[ifob]->l1jetSize()
-       << " C/" << fobs[ifob]->l1etmissSize()
-       << " D/" << fobs[ifob]->l1hfringsSize()
-       << " E/" << fobs[ifob]->pfjetSize()
-       << " F/" << fobs[ifob]->pftauSize()
-       << " G/" << fobs[ifob]->pfmetSize()
-       << " I/" << fobs[ifob]->l1tmuonSize()
-       << " J/" << fobs[ifob]->l1tegammaSize()
-       << " K/" << fobs[ifob]->l1tjetSize()
-       << " L/" << fobs[ifob]->l1ttauSize()
-       << " M/" << fobs[ifob]->l1tetsumSize()
-       << endl;
-       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
-       << "\n fobs[ifob]->l1tmuonIds().size() = " << fobs[ifob]->l1tmuonIds().size() 
-       << "\n fobs[ifob]->l1tmuonRefs().size() = " << fobs[ifob]->l1tmuonRefs().size() << endl;
-       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
-       << "\n fobs[ifob]->l1tegammaIds().size() = " << fobs[ifob]->l1tegammaIds().size() 
-       << "\n fobs[ifob]->l1tegammaRefs().size() = " << fobs[ifob]->l1tegammaRefs().size() << endl;
-       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
-       << "\n fobs[ifob]->l1tjetIds().size() = " << fobs[ifob]->l1tjetIds().size() 
-       << "\n fobs[ifob]->l1tjetRefs().size() = " << fobs[ifob]->l1tjetRefs().size() << endl;
-       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
-       << "\n fobs[ifob]->l1ttauIds().size() = " << fobs[ifob]->l1ttauIds().size() 
-       << "\n fobs[ifob]->l1ttauRefs().size() = " << fobs[ifob]->l1ttauRefs().size() << endl;
-       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
-       << "\n fobs[ifob]->l1tetsumIds().size() = " << fobs[ifob]->l1tetsumIds().size() 
-       << "\n fobs[ifob]->l1tetsumRefs().size() = " << fobs[ifob]->l1tetsumRefs().size() << endl;
-     product->addFilterObject(tag,*fobs[ifob]);
-   }
+        << " 8/" << fobs[ifob]->pixtrackSize() << " 9/" << fobs[ifob]->l1emSize() << " A/" << fobs[ifob]->l1muonSize()
+        << " B/" << fobs[ifob]->l1jetSize() << " C/" << fobs[ifob]->l1etmissSize() << " D/"
+        << fobs[ifob]->l1hfringsSize() << " E/" << fobs[ifob]->pfjetSize() << " F/" << fobs[ifob]->pftauSize() << " G/"
+        << fobs[ifob]->pfmetSize() << " I/" << fobs[ifob]->l1tmuonSize() << " J/" << fobs[ifob]->l1tegammaSize()
+        << " K/" << fobs[ifob]->l1tjetSize() << " L/" << fobs[ifob]->l1ttauSize() << " M/" << fobs[ifob]->l1tetsumSize()
+        << endl;
+    LogTrace("TriggerSummaryProducerRaw")
+        << "TriggerSummaryProducerRaw::addFilterObjects(   )"
+        << "\n fobs[ifob]->l1tmuonIds().size() = " << fobs[ifob]->l1tmuonIds().size()
+        << "\n fobs[ifob]->l1tmuonRefs().size() = " << fobs[ifob]->l1tmuonRefs().size() << endl;
+    LogTrace("TriggerSummaryProducerRaw")
+        << "TriggerSummaryProducerRaw::addFilterObjects(   )"
+        << "\n fobs[ifob]->l1tegammaIds().size() = " << fobs[ifob]->l1tegammaIds().size()
+        << "\n fobs[ifob]->l1tegammaRefs().size() = " << fobs[ifob]->l1tegammaRefs().size() << endl;
+    LogTrace("TriggerSummaryProducerRaw")
+        << "TriggerSummaryProducerRaw::addFilterObjects(   )"
+        << "\n fobs[ifob]->l1tjetIds().size() = " << fobs[ifob]->l1tjetIds().size()
+        << "\n fobs[ifob]->l1tjetRefs().size() = " << fobs[ifob]->l1tjetRefs().size() << endl;
+    LogTrace("TriggerSummaryProducerRaw")
+        << "TriggerSummaryProducerRaw::addFilterObjects(   )"
+        << "\n fobs[ifob]->l1ttauIds().size() = " << fobs[ifob]->l1ttauIds().size()
+        << "\n fobs[ifob]->l1ttauRefs().size() = " << fobs[ifob]->l1ttauRefs().size() << endl;
+    LogTrace("TriggerSummaryProducerRaw")
+        << "TriggerSummaryProducerRaw::addFilterObjects(   )"
+        << "\n fobs[ifob]->l1tetsumIds().size() = " << fobs[ifob]->l1tetsumIds().size()
+        << "\n fobs[ifob]->l1tetsumRefs().size() = " << fobs[ifob]->l1tetsumRefs().size() << endl;
+    product->addFilterObject(tag, *fobs[ifob]);
+  }
 
-   // place product in Event
-   OrphanHandle<TriggerEventWithRefs> ref = iEvent.put(std::move(product));
-   LogTrace("TriggerSummaryProducerRaw") << "Number of filter objects packed: " << ref->size();
+  // place product in Event
+  OrphanHandle<TriggerEventWithRefs> ref = iEvent.put(std::move(product));
+  LogTrace("TriggerSummaryProducerRaw") << "Number of filter objects packed: " << ref->size();
 
-   return;
+  return;
 }

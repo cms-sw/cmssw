@@ -2,7 +2,7 @@
 #define IgTools_IgProf_IgProfService_h
 
 //
-//  Description: FWK service to implement hook for igprof memory profile 
+//  Description: FWK service to implement hook for igprof memory profile
 //               dump functionality
 //
 //  Peter Elmer, Princeton University                        18 Nov, 2008
@@ -15,17 +15,15 @@
 namespace edm {
   class GlobalContext;
   class StreamContext;
-  
+
   namespace service {
     class IgProfService {
-
     public:
-
-      IgProfService(const ParameterSet&,ActivityRegistry&);
+      IgProfService(const ParameterSet &, ActivityRegistry &);
 
       void postBeginJob();
 
-      void postBeginRun(GlobalContext const& gc);
+      void postBeginRun(GlobalContext const &gc);
 
       void postBeginLumi(GlobalContext const &gc);
 
@@ -38,22 +36,16 @@ namespace edm {
 
       void postEndJob();
 
-      void postOpenFile(std::string const&, bool);
+      void postOpenFile(std::string const &, bool);
 
-      void postCloseFile(std::string const&, bool);
+      void postCloseFile(std::string const &, bool);
 
-      inline
-      bool isProcessWideService(IgProfService const*) {
-        return true;
-      }
+      inline bool isProcessWideService(IgProfService const *) { return true; }
 
     private:
-
       void makeDump(const std::string &format);
-      static std::string replace(const std::string &s, 
-                                 const char *pat, int val);
-      static std::string replaceU64(const std::string &s, 
-                                    const char *pat, unsigned long long val);
+      static std::string replace(const std::string &s, const char *pat, int val);
+      static std::string replaceU64(const std::string &s, const char *pat, unsigned long long val);
 
       void (*dump_)(const char *);
 
@@ -73,16 +65,14 @@ namespace edm {
 
       int mineventrecord_;
       int prescale_;
-      int nrecord_;      // counter
+      int nrecord_;  // counter
       edm::EventNumber_t nevent_;
       edm::RunNumber_t nrun_;
       edm::LuminosityBlockNumber_t nlumi_;
       int nfileopened_;  // counter of files opened thus far
       int nfileclosed_;  // counter of files closed thus far
-
     };
-  }
-}
-
+  }  // namespace service
+}  // namespace edm
 
 #endif

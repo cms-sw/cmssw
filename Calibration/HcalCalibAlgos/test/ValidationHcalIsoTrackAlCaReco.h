@@ -2,7 +2,7 @@
 //
 // Package:    Calibration/HcalCalibAlgos/plugins
 // Class:      ValidationHcalIsoTrackAlCaReco
-// 
+//
 /**\class ValidationHcalIsoTrackAlCaReco ValidationHcalIsoTrackAlCaReco.cc Calibration/HcalCalibAlgos/plugins/ValidationHcalIsoTrackAlCaReco.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Tue Oct  14 16:10:31 CEST 2008
 //
 //
-
 
 // system include files
 #include <memory>
@@ -50,13 +49,11 @@
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
-
 
 // Sergey +
 
@@ -65,24 +62,23 @@
 
 // Sergey -
 
-
 #include <fstream>
 
 #include "TH1F.h"
 
 class ValidationHcalIsoTrackAlCaReco : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit ValidationHcalIsoTrackAlCaReco(const edm::ParameterSet&);
   ~ValidationHcalIsoTrackAlCaReco();
-  
-  
+
 private:
+  DQMStore* dbe_;
 
-  DQMStore* dbe_;  
-
-  virtual void beginJob() ;
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endJob();
 
   std::string folderName_;
   bool saveToFile_;
@@ -97,7 +93,7 @@ private:
   double pThr_;
   double heLow_;
   double heUp_;
-  
+
   MonitorElement* hl3Pt;
   MonitorElement* hl3eta;
   MonitorElement* hl3AbsEta;
@@ -124,14 +120,14 @@ private:
 
   MonitorElement* hOffEta;
   MonitorElement* hOffPhi;
-  
+
   MonitorElement* hOccupancyFull;
   MonitorElement* hOccupancyHighEn;
 
   MonitorElement* hPurityEta;
   MonitorElement* hPurityPhi;
 
-// Sergey +
+  // Sergey +
 
   MonitorElement* hSimPt;
   MonitorElement* hSimPhi;
@@ -145,19 +141,18 @@ private:
   MonitorElement* hSimNE;
   MonitorElement* hSimNM;
 
-// Sergey -
+  // Sergey -
 
   int nTotal;
   int nHLTL3accepts;
-  
+
   double getDist(double, double, double, double);
 
-// Sergey +
+  // Sergey +
 
   double getDistInCM(double eta1, double phi1, double eta2, double phi2);
 
-// Sergey -
+  // Sergey -
 
   std::pair<int, int> towerIndex(double eta, double phi);
-
 };

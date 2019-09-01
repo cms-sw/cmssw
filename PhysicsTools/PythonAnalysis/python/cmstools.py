@@ -4,16 +4,19 @@ benedikt.hegner@cern.ch
 
 """
 from __future__ import absolute_import
+from __future__ import print_function
+from builtins import range
 import re
 import ROOT
 import exceptions
+import six
 import sys
 ### define tab completion
 try:
   import readline #cmscompleter
   readline.parse_and_bind('tab: complete')
 except:
-  print 'WARNING: Could not load tab completion'
+  print('WARNING: Could not load tab completion')
 
 
 # for adding iterators at runtime
@@ -27,7 +30,7 @@ def all(container):
   if hasattr(container,'GetEntries'):
     try:
       entries = container.GetEntries()
-      for entry in xrange(entries):
+      for entry in range(entries):
         yield entry
     except:
         raise cmserror("Looping of %s failed" %container) 
@@ -36,7 +39,7 @@ def all(container):
   elif hasattr(container, 'size'):
     try:
       entries = container.size()
-      for entry in xrange(entries):
+      for entry in range(entries):
         yield container[entry]
     except:
       pass
@@ -113,7 +116,7 @@ class EventTree(object):
       def tree(self):
           return self._tree
       def __setBranchIndicies(self):
-          for branch in self._usedBranches.itervalues():
+          for branch in six.itervalues(self._usedBranches):
               branch.setIndex(self._index)
       def __getattr__(self, name):
           return self.branch(name)
@@ -131,7 +134,7 @@ class EventTree(object):
           self.__setBranchIndicies()
           self._tree.GetEntry(self._index,0)
           # the real loop
-          for entry in xrange(self._tree.GetEntries()):
+          for entry in range(self._tree.GetEntries()):
               self._index = entry
               self.__setBranchIndicies()
               self._tree.GetEntry(self._index,0)
@@ -174,6 +177,6 @@ class EventBranch(object):
 class cmserror(exceptions.Exception):
     def __init__(self, message):
           length = len(message)+7   #7=len("ERROR: ")
-          print "="*length
-          print "ERROR:", message
-          print "="*length
+          print("="*length)
+          print("ERROR:", message)
+          print("="*length)

@@ -14,17 +14,16 @@
 #include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
 
 class SiPixelCPEGenericErrorParmReader : public edm::EDAnalyzer {
-   public:
-      explicit SiPixelCPEGenericErrorParmReader(const edm::ParameterSet&);
-      ~SiPixelCPEGenericErrorParmReader();
+public:
+  explicit SiPixelCPEGenericErrorParmReader(const edm::ParameterSet&);
+  ~SiPixelCPEGenericErrorParmReader();
 
+private:
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-			
-			edm::ESWatcher<SiPixelCPEGenericErrorParmRcd> SiPixelCPEGenericErrorParmWatcher_;
+  edm::ESWatcher<SiPixelCPEGenericErrorParmRcd> SiPixelCPEGenericErrorParmWatcher_;
 };
 
 #endif

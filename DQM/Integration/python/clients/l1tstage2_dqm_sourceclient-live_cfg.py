@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
-process = cms.Process("L1TStage2DQM", eras.Run2_2018)
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process("L1TStage2DQM", Run2_2018)
 
 #--------------------------------------------------
 # Event Source and Condition
@@ -85,24 +85,17 @@ process.l1tMonitorPath = cms.Path(
 )
 
 # Remove DQM Modules
-#process.l1tStage2online.remove(process.l1tStage2CaloLayer1)
-#process.l1tStage2online.remove(process.l1tStage2CaloLayer2)
-#process.l1tStage2online.remove(process.l1tStage2Bmtf)
-#process.l1tStage2online.remove(process.l1tStage2Emtf)
-#process.l1tStage2online.remove(process.l1tStage2uGMT)
-#process.l1tStage2online.remove(process.l1tStage2uGt)
+#process.l1tStage2OnlineDQM.remove(process.l1tStage2CaloLayer1)
+#process.l1tStage2OnlineDQM.remove(process.l1tStage2CaloLayer2)
+#process.l1tStage2OnlineDQM.remove(process.l1tStage2Bmtf)
+#process.l1tStage2OnlineDQM.remove(process.l1tStage2Emtf)
+#process.l1tStage2OnlineDQM.remove(process.l1tStage2uGMT)
+#process.l1tStage2OnlineDQM.remove(process.l1tStage2uGt)
 
 #--------------------------------------------------
 # Stage2 Quality Tests
 process.load("DQM.L1TMonitorClient.L1TStage2MonitorClient_cff")
 process.l1tStage2MonitorClientPath = cms.Path(process.l1tStage2MonitorClient)
-
-#--------------------------------------------------
-# Legacy DQM EndPath
-# TODO: Is lumi scalers still relevant?
-
-#process.load("DQM.L1TMonitor.L1TMonitor_cff")
-#process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
 
 #--------------------------------------------------
 # Customize for other type of runs
@@ -113,21 +106,26 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
     # Remove Quality Tests for L1T Muon Subsystems since they are not optimized yet for cosmics
     process.l1tStage2MonitorClient.remove(process.l1TStage2uGMTQualityTests)
     process.l1tStage2MonitorClient.remove(process.l1TStage2EMTFQualityTests)
+    #process.l1tStage2MonitorClient.remove(process.l1TStage2OMTFQualityTests)
     process.l1tStage2MonitorClient.remove(process.l1TStage2BMTFQualityTests)
+    process.l1tStage2MonitorClient.remove(process.l1TStage2MuonQualityTestsCollisions)
     process.l1tStage2EventInfoClient.DisableL1Systems = cms.vstring("EMTF", "OMTF", "BMTF", "uGMT")
 
 # Heavy-Ion run
 if (process.runType.getRunType() == process.runType.hi_run):
     process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference_hi.root"
+    process.onlineMetaDataDigis.onlineMetaDataInputLabel = cms.InputTag("rawDataRepacker")
+    process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = cms.InputTag("rawDataRepacker")
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
-    process.ctppsPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.ctppsPixelDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.ecalDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
     process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
     process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.muonGEMDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
     process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
@@ -135,21 +133,28 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.tcdsRawToDigi.InputLabel = cms.InputTag("rawDataRepacker")
     process.totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
     process.totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
+    process.totemTimingRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
     process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
     process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
     process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
     process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
     process.bmtfDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.omtfStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
     process.emtfStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.gmtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.caloLayer1Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.caloStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.l1tStage2CaloLayer1.fedRawDataLabel = cms.InputTag("rawDataRepacker")
     process.l1tStage2uGMTZeroSupp.rawData = cms.InputTag("rawDataRepacker")
     process.l1tStage2uGMTZeroSuppFatEvts.rawData = cms.InputTag("rawDataRepacker")
+    process.l1tStage2BmtfZeroSupp.rawData = cms.InputTag("rawDataRepacker")
+    process.l1tStage2BmtfZeroSuppFatEvts.rawData = cms.InputTag("rawDataRepacker")
     process.selfFatEventFilter.rawInput = cms.InputTag("rawDataRepacker")
+    process.rpcTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+    process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
 
 #--------------------------------------------------
 # L1T Online DQM Schedule

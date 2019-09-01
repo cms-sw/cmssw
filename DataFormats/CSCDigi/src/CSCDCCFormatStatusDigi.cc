@@ -22,7 +22,7 @@
 #include <iostream>
 #include <iomanip>
 
- /**
+/**
    * @brief  setExaminerInfo 
    * @param  fDCC_MASK_ DCC Examiner mask used (for information purposes).
    * @param  fCSC_MASK_ Examiner mask per chamber
@@ -33,13 +33,12 @@
    * @param  mCSC_STATUS_ List of statuses per CSC
    */
 void CSCDCCFormatStatusDigi::setDCCExaminerInfo(const ExaminerMaskType fDCC_MASK_,
-                         const ExaminerMaskType fCSC_MASK_,
-                         const ExaminerStatusType fDDU_SUMMARY_ERRORS_,
-                         const std::map<DDUIdType, ExaminerStatusType>& mDDU_ERRORS_,
-                         const std::map<CSCIdType, ExaminerStatusType>& mCSC_ERRORS_,
-                         const std::map<CSCIdType, ExaminerStatusType>& mCSC_PAYLOADS_,
-                         const std::map<CSCIdType, ExaminerStatusType>& mCSC_STATUS_)
-{
+                                                const ExaminerMaskType fCSC_MASK_,
+                                                const ExaminerStatusType fDDU_SUMMARY_ERRORS_,
+                                                const std::map<DDUIdType, ExaminerStatusType>& mDDU_ERRORS_,
+                                                const std::map<CSCIdType, ExaminerStatusType>& mCSC_ERRORS_,
+                                                const std::map<CSCIdType, ExaminerStatusType>& mCSC_PAYLOADS_,
+                                                const std::map<CSCIdType, ExaminerStatusType>& mCSC_STATUS_) {
   fDCC_MASK = fDCC_MASK_;
   fCSC_MASK = fCSC_MASK_;
   fDDU_SUMMARY_ERRORS = fDDU_SUMMARY_ERRORS_;
@@ -49,78 +48,70 @@ void CSCDCCFormatStatusDigi::setDCCExaminerInfo(const ExaminerMaskType fDCC_MASK
   mCSC_STATUS = mCSC_STATUS_;
 }
 
-
-            /// Debug
+/// Debug
 void CSCDCCFormatStatusDigi::print() const {
-
   // Keep original code in case I messed up the formatting in some subtle way when switching to MessageLogger
   //
-  //   std::cout << "CSCDCCFormatStatusDigi: DCC=" << std::dec << getDCCId() 
+  //   std::cout << "CSCDCCFormatStatusDigi: DCC=" << std::dec << getDCCId()
   //	<< " DCCMask=0x" << std::hex << std::setw(8) << std::setfill('0') << getDCCMask()
   //	<< " CSCMask=0x" << std::hex << std::setw(8) << std::setfill('0') << getCSCMask()
-  //	<< " DCCErrors=0x" << std::hex << std::setw(8) << std::setfill('0') << getDDUSummaryErrors() 
+  //	<< " DCCErrors=0x" << std::hex << std::setw(8) << std::setfill('0') << getDDUSummaryErrors()
   //	<< std::dec << "\n";
   //   std::set<DDUIdType> ddu_list = getListOfDDUs();
   //   for (std::set<DDUIdType>::iterator itr=ddu_list.begin(); itr != ddu_list.end(); ++itr) {
-  //   	std::cout << "DDU_" << std::dec << ((*itr)&0xFF) 
-  //	<< " Errors=0x" << std::hex << std::setw(8) << std::setfill('0') << getDDUErrors(*itr) << "\n"; 
+  //   	std::cout << "DDU_" << std::dec << ((*itr)&0xFF)
+  //	<< " Errors=0x" << std::hex << std::setw(8) << std::setfill('0') << getDDUErrors(*itr) << "\n";
   //   }
   //   std::set<CSCIdType> csc_list = getListOfCSCs();
   //   for (std::set<CSCIdType>::iterator itr=csc_list.begin(); itr != csc_list.end(); ++itr) {
-  //	
-  //        std::cout << "CSC_" << std::dec << (((*itr)>>4)&0xFF) << "_" << ((*itr)&0xF) 
-  //		<< " Errors=0x" << std::hex << std::setw(8) << std::setfill('0') << getCSCErrors(*itr) 
-  //		<< " Payload=0x" << std::setw(8) << std::setfill('0') << getCSCPayload(*itr) 
+  //
+  //        std::cout << "CSC_" << std::dec << (((*itr)>>4)&0xFF) << "_" << ((*itr)&0xF)
+  //		<< " Errors=0x" << std::hex << std::setw(8) << std::setfill('0') << getCSCErrors(*itr)
+  //		<< " Payload=0x" << std::setw(8) << std::setfill('0') << getCSCPayload(*itr)
   //		<< " Status=0x" << std::setw(8) << std::setfill('0') << getCSCStatus(*itr) << "\n";
   //   }
 
-  edm::LogVerbatim("CSCDigi") << "CSCDCCFormatStatusDigi: DCC=" << std::dec << getDCCId() 
-	<< " DCCMask=0x" << std::hex << std::setw(8) << std::setfill('0') << getDCCMask()
-	<< " CSCMask=0x" << std::hex << std::setw(8) << std::setfill('0') << getCSCMask()
-	<< " DCCErrors=0x" << std::hex << std::setw(8) << std::setfill('0') << getDDUSummaryErrors() 
-        << std::dec;
+  edm::LogVerbatim("CSCDigi") << "CSCDCCFormatStatusDigi: DCC=" << std::dec << getDCCId() << " DCCMask=0x" << std::hex
+                              << std::setw(8) << std::setfill('0') << getDCCMask() << " CSCMask=0x" << std::hex
+                              << std::setw(8) << std::setfill('0') << getCSCMask() << " DCCErrors=0x" << std::hex
+                              << std::setw(8) << std::setfill('0') << getDDUSummaryErrors() << std::dec;
 
-   std::ostringstream ost;
+  std::ostringstream ost;
 
-   std::set<DDUIdType> ddu_list = getListOfDDUs();
-   for (std::set<DDUIdType>::iterator itr=ddu_list.begin(); itr != ddu_list.end(); ++itr) {
-   	ost  << "DDU_" << std::dec << ((*itr)&0xFF) 
-	     << " Errors=0x" << std::hex << std::setw(8) << std::setfill('0') << getDDUErrors(*itr);
-	edm::LogVerbatim("CSCDigi") << ost.str();
-	ost.clear();
-   }
+  std::set<DDUIdType> ddu_list = getListOfDDUs();
+  for (std::set<DDUIdType>::iterator itr = ddu_list.begin(); itr != ddu_list.end(); ++itr) {
+    ost << "DDU_" << std::dec << ((*itr) & 0xFF) << " Errors=0x" << std::hex << std::setw(8) << std::setfill('0')
+        << getDDUErrors(*itr);
+    edm::LogVerbatim("CSCDigi") << ost.str();
+    ost.clear();
+  }
 
-   std::set<CSCIdType> csc_list = getListOfCSCs();
-   for (std::set<CSCIdType>::iterator itr=csc_list.begin(); itr != csc_list.end(); ++itr) {
-        ost << "CSC_" << std::dec << (((*itr)>>4)&0xFF) << "_" << ((*itr)&0xF) 
-		<< " Errors=0x" << std::hex << std::setw(8) << std::setfill('0') << getCSCErrors(*itr) 
-		<< " Payload=0x" << std::setw(8) << std::setfill('0') << getCSCPayload(*itr) 
-	    << " Status=0x" << std::setw(8) << std::setfill('0') << getCSCStatus(*itr);
-	edm::LogVerbatim("CSCDigi") << ost.str();
-	ost.clear();
-   }
-
+  std::set<CSCIdType> csc_list = getListOfCSCs();
+  for (std::set<CSCIdType>::iterator itr = csc_list.begin(); itr != csc_list.end(); ++itr) {
+    ost << "CSC_" << std::dec << (((*itr) >> 4) & 0xFF) << "_" << ((*itr) & 0xF) << " Errors=0x" << std::hex
+        << std::setw(8) << std::setfill('0') << getCSCErrors(*itr) << " Payload=0x" << std::setw(8) << std::setfill('0')
+        << getCSCPayload(*itr) << " Status=0x" << std::setw(8) << std::setfill('0') << getCSCStatus(*itr);
+    edm::LogVerbatim("CSCDigi") << ost.str();
+    ost.clear();
+  }
 }
 
-std::ostream & operator<<(std::ostream & o, const CSCDCCFormatStatusDigi& digi) {
-   o << "CSCDCCFormatStatusDigi: DCC=" << std::dec << digi.getDCCId() 
-        << " DCCMask=0x" << std::hex << std::setw(8) << std::setfill('0') << digi.getDCCMask()
-        << " CSCMask=0x" << std::hex << std::setw(8) << std::setfill('0') << digi.getCSCMask()
-        << " DCCErrors=0x" << std::hex << std::setw(8) << std::setfill('0') << digi.getDDUSummaryErrors() 
-        << std::dec << "\n";
-   std::set<DDUIdType> ddu_list = digi.getListOfDDUs();
-   for (std::set<DDUIdType>::iterator itr=ddu_list.begin(); itr != ddu_list.end(); ++itr) {
-        o << "DDU_" << std::dec << ((*itr)&0xFF) 
-        << " Errors=0x" << std::hex << std::setw(8) << std::setfill('0') << digi.getDDUErrors(*itr) << "\n"; 
-   }
-   std::set<CSCIdType> csc_list = digi.getListOfCSCs();
-   for (std::set<CSCIdType>::iterator itr=csc_list.begin(); itr != csc_list.end(); ++itr) {
-        
-        o << "CSC_" << std::dec << (((*itr)>>4)&0xFF) << "_" << ((*itr)&0xF) 
-                << " Errors=0x" << std::hex << std::setw(8) << std::setfill('0') << digi.getCSCErrors(*itr) 
-                << " Payload=0x" << std::setw(8) << std::setfill('0') << digi. getCSCPayload(*itr) 
-                << " Status=0x" << std::setw(8) << std::setfill('0') << digi.getCSCStatus(*itr) << "\n";
-   }
+std::ostream& operator<<(std::ostream& o, const CSCDCCFormatStatusDigi& digi) {
+  o << "CSCDCCFormatStatusDigi: DCC=" << std::dec << digi.getDCCId() << " DCCMask=0x" << std::hex << std::setw(8)
+    << std::setfill('0') << digi.getDCCMask() << " CSCMask=0x" << std::hex << std::setw(8) << std::setfill('0')
+    << digi.getCSCMask() << " DCCErrors=0x" << std::hex << std::setw(8) << std::setfill('0')
+    << digi.getDDUSummaryErrors() << std::dec << "\n";
+  std::set<DDUIdType> ddu_list = digi.getListOfDDUs();
+  for (std::set<DDUIdType>::iterator itr = ddu_list.begin(); itr != ddu_list.end(); ++itr) {
+    o << "DDU_" << std::dec << ((*itr) & 0xFF) << " Errors=0x" << std::hex << std::setw(8) << std::setfill('0')
+      << digi.getDDUErrors(*itr) << "\n";
+  }
+  std::set<CSCIdType> csc_list = digi.getListOfCSCs();
+  for (std::set<CSCIdType>::iterator itr = csc_list.begin(); itr != csc_list.end(); ++itr) {
+    o << "CSC_" << std::dec << (((*itr) >> 4) & 0xFF) << "_" << ((*itr) & 0xF) << " Errors=0x" << std::hex
+      << std::setw(8) << std::setfill('0') << digi.getCSCErrors(*itr) << " Payload=0x" << std::setw(8)
+      << std::setfill('0') << digi.getCSCPayload(*itr) << " Status=0x" << std::setw(8) << std::setfill('0')
+      << digi.getCSCStatus(*itr) << "\n";
+  }
   return o;
 }
-

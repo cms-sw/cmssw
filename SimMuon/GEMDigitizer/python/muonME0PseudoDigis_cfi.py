@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimMuon.GEMDigitizer.muonGEMDigis_cfi import gemDigiCommonParameters
-
 me0PseudoDigiCommonParameters = cms.PSet(
     inputCollection = cms.string('g4SimHitsMuonME0Hits'),
     digiPreRecoModelString = cms.string('PreRecoGaussian'),
@@ -22,11 +20,14 @@ me0PseudoDigiCommonParameters = cms.PSet(
     simulateNeutralBkg  = cms.bool(False),      # True - will simulate neutral (n+g)  background
     minBunch = cms.int32(-5),                   # [x 25 ns], forms the readout window together with maxBunch,
     maxBunch = cms.int32(3),                    # we should think of shrinking this window ...
-    instLumi = gemDigiCommonParameters.instLumi,# in units of 1E34 cm^-2 s^-1. Internally the background is parametrized from FLUKA+GEANT results at 5x10^34 (PU140). We are adding a 1.5 factor for PU200
-    rateFact = gemDigiCommonParameters.rateFact,# We are adding also a safety factor of 2 to take into account the new beam pipe effect (not yet known). Hits can be thrown away later at re-digi step. Parameters are kept in sync with the ones used in the GEM digitizer
-    referenceInstLumi = gemDigiCommonParameters.referenceInstLumi, #reference inst. luminosity 5x10^34 cm-2s-1
+    instLumi = cms.double(7.5), # in units of 1E34 cm^-2 s^-1. Internally the background is parametrized from FLUKA+GEANT results at 5x10^34 (PU140). We are adding a 1.5 factor for PU200
+    rateFact = cms.double(1.0), # We are adding also a safety factor of 2 to take into account the new beam pipe effect (not yet known). Hits can be thrown away later at re-digi step. Parameters are kept in sync with the ones used in the GEM digitizer
+    referenceInstLumi = cms.double(5.),  #reference inst. luminosity 5x10^34 cm-2s-1
     mixLabel = cms.string('mix')
 )
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(me0PseudoDigiCommonParameters, mixLabel = "mixData")
 
 # Module to create simulated ME0 Pre Reco digis.
 simMuonME0PseudoDigis = cms.EDProducer("ME0DigiPreRecoProducer",

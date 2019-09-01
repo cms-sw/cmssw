@@ -17,4 +17,4 @@ TrajectoryBuilderForConversions.maxCand = 5
 TrajectoryBuilderForConversions.lostHitPenalty = 30.
 TrajectoryBuilderForConversions.intermediateCleaning = True
 TrajectoryBuilderForConversions.alwaysUseInvalidHits = True
-
+TrajectoryBuilderForConversions.seedAs5DHit  = False

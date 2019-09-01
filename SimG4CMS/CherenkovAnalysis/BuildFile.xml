@@ -4,15 +4,12 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="SimG4Core/SensitiveDetector"/>
 <use   name="SimG4Core/Notification"/>
-<use   name="SimG4Core/Application"/>
 <use   name="SimG4CMS/Calo"/>
 <use   name="DataFormats/Math"/>
 <use   name="SimDataFormats/SimHitMaker"/>
 <use   name="SimDataFormats/CaloHit"/>
 <use   name="DetectorDescription/Core"/>
-<use   name="boost"/>
 <use   name="geant4core"/>
-<use   name="root"/>
 <export>
   <lib   name="1"/>
 </export>

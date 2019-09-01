@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
     
+from __future__ import print_function
 def manipulate_log(outdir,logfile_name,startevt):
 
     import time
@@ -60,14 +61,14 @@ def manipulate_log(outdir,logfile_name,startevt):
         i+=1
 
     # print maximum rss for this job
-    print 'Maximum rss =', max_rss[1]
+    print('Maximum rss =', max_rss[1])
                                     
     # skim the second entry when the event number is the same BUG!!!!!!!
     # i take elements in couples!
     new_data=[]
     if len(data)>2:
     	if data[0][0]==data[1][0]:
-    	    print 'Two modules seem to have some output.\nCollapsing ...'
+    	    print('Two modules seem to have some output.\nCollapsing ...')
     	    i=0
     	    while True:
     	        dataline1=data[i]
@@ -87,11 +88,11 @@ def manipulate_log(outdir,logfile_name,startevt):
     	        if i==len(data): break
     	             
     	    data=new_data
-    	    print 'Collapsing: Done!'        
+    	    print('Collapsing: Done!')        
         
     npoints=len(data)
     
-    print '%s values read and stored ...' %npoints
+    print('%s values read and stored ...' %npoints)
 
             
     # The Graphs 
@@ -219,7 +220,7 @@ if __name__ == '__main__':
     try:
         startevt=int(options.startevt)        
     except ValueError:
-         print 'Problems in convertng starting event value!'
+         print('Problems in convertng starting event value!')
          
             
     #launch the function!

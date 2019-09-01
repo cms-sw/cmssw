@@ -37,191 +37,143 @@
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationWithOverlapRemovalTemplate.h"
 
-
 // forward declarations
 class GlobalCondition;
 class L1GtAlgorithm;
 class GlobalScales;
 
 // class declaration
-class TriggerMenu
-{
+class TriggerMenu {
+public:
+  // constructor
+  TriggerMenu();
+
+  TriggerMenu(const std::string&,
+              const unsigned int numberConditionChips,
+              const std::vector<std::vector<MuonTemplate> >&,
+              const std::vector<std::vector<CaloTemplate> >&,
+              const std::vector<std::vector<EnergySumTemplate> >&,
+              const std::vector<std::vector<ExternalTemplate> >&,
+              const std::vector<std::vector<CorrelationTemplate> >&,
+              const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&,
+              const std::vector<std::vector<MuonTemplate> >&,
+              const std::vector<std::vector<CaloTemplate> >&,
+              const std::vector<std::vector<EnergySumTemplate> >&);
+
+  // copy constructor
+  TriggerMenu(const TriggerMenu&);
+
+  // destructor
+  virtual ~TriggerMenu();
+
+  // assignment operator
+  TriggerMenu& operator=(const TriggerMenu&);
 
 public:
+  /// get / set / build the condition maps
+  inline const std::vector<l1t::ConditionMap>& gtConditionMap() const { return m_conditionMap; }
 
-    // constructor
-    TriggerMenu();
+  void setGtConditionMap(const std::vector<l1t::ConditionMap>&);
+  void buildGtConditionMap();
 
-    TriggerMenu(const std::string&, const unsigned int numberConditionChips,
-            const std::vector<std::vector<MuonTemplate> >&,
-            const std::vector<std::vector<CaloTemplate> >&,
-            const std::vector<std::vector<EnergySumTemplate> >&,
-            const std::vector<std::vector<ExternalTemplate> >&,
-            const std::vector<std::vector<CorrelationTemplate> >&,
-            const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&,
-            const std::vector<std::vector<MuonTemplate> >&,
-            const std::vector<std::vector<CaloTemplate> >&,
-            const std::vector<std::vector<EnergySumTemplate> >&
-    );
+  /// get / set the trigger menu names
+  inline const std::string& gtTriggerMenuInterface() const { return m_triggerMenuInterface; }
 
-    // copy constructor
-    TriggerMenu(const TriggerMenu&);
+  void setGtTriggerMenuInterface(const std::string&);
 
-    // destructor
-    virtual ~TriggerMenu();
+  //
+  inline const std::string& gtTriggerMenuName() const { return m_triggerMenuName; }
 
-    // assignment operator
-    TriggerMenu& operator=(const TriggerMenu&);
+  void setGtTriggerMenuName(const std::string&);
 
-public:
+  //
+  inline const unsigned long gtTriggerMenuUUID() const { return m_triggerMenuUUID; }
 
-    /// get / set / build the condition maps
-    inline const std::vector<l1t::ConditionMap>& gtConditionMap() const {
-        return m_conditionMap;
-    }
+  void setGtTriggerMenuUUID(const unsigned long uuid);
 
-    void setGtConditionMap(const std::vector<l1t::ConditionMap>&);
-    void buildGtConditionMap();
+  //
+  inline const unsigned long gtTriggerMenuImplementation() const { return m_triggerMenuImplementation; }
 
-    /// get / set the trigger menu names
-    inline const std::string& gtTriggerMenuInterface() const {
-        return m_triggerMenuInterface;
-    }
+  void setGtTriggerMenuImplementation(const unsigned long);
 
-    void setGtTriggerMenuInterface(const std::string&);
+  /// menu associated scale key
+  inline const std::string& gtScaleDbKey() const { return m_scaleDbKey; }
 
-    //
-    inline const std::string& gtTriggerMenuName() const {
-        return m_triggerMenuName;
-    }
+  void setGtScaleDbKey(const std::string&);
 
-    void setGtTriggerMenuName(const std::string&);
+  /// get / set the vectors containing the conditions
+  inline const std::vector<std::vector<MuonTemplate> >& vecMuonTemplate() const { return m_vecMuonTemplate; }
 
-    //
-    inline const unsigned long gtTriggerMenuUUID() const {
-       return m_triggerMenuUUID;
-    }
-    
-    void setGtTriggerMenuUUID(const unsigned long uuid);
+  void setVecMuonTemplate(const std::vector<std::vector<MuonTemplate> >&);
 
+  //
+  inline const std::vector<std::vector<CaloTemplate> >& vecCaloTemplate() const { return m_vecCaloTemplate; }
 
-    //
-    inline const unsigned long gtTriggerMenuImplementation() const {
-        return m_triggerMenuImplementation;
-    }
+  void setVecCaloTemplate(const std::vector<std::vector<CaloTemplate> >&);
 
-    void setGtTriggerMenuImplementation(const unsigned long);
+  //
+  inline const std::vector<std::vector<EnergySumTemplate> >& vecEnergySumTemplate() const {
+    return m_vecEnergySumTemplate;
+  }
 
-    /// menu associated scale key
-    inline const std::string& gtScaleDbKey() const {
-        return m_scaleDbKey;
-    }
+  void setVecEnergySumTemplate(const std::vector<std::vector<EnergySumTemplate> >&);
 
-    void setGtScaleDbKey(const std::string&);
+  inline const std::vector<std::vector<ExternalTemplate> >& vecExternalTemplate() const {
+    return m_vecExternalTemplate;
+  }
 
-    /// get / set the vectors containing the conditions
-    inline const std::vector<std::vector<MuonTemplate> >& vecMuonTemplate() const {
-        return m_vecMuonTemplate;
-    }
+  void setVecExternalTemplate(const std::vector<std::vector<ExternalTemplate> >&);
 
-    void setVecMuonTemplate(const std::vector<std::vector<MuonTemplate> >&);
+  //
+  inline const std::vector<std::vector<CorrelationTemplate> >& vecCorrelationTemplate() const {
+    return m_vecCorrelationTemplate;
+  }
 
-    //
-    inline const std::vector<std::vector<CaloTemplate> >& vecCaloTemplate() const {
-        return m_vecCaloTemplate;
-    }
+  void setVecCorrelationTemplate(const std::vector<std::vector<CorrelationTemplate> >&);
 
-    void setVecCaloTemplate(const std::vector<std::vector<CaloTemplate> >&);
+  //
+  inline const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&
+  vecCorrelationWithOverlapRemovalTemplate() const {
+    return m_vecCorrelationWithOverlapRemovalTemplate;
+  }
 
-    //
-    inline const std::vector<std::vector<EnergySumTemplate> >&
-        vecEnergySumTemplate() const {
+  void setVecCorrelationWithOverlapRemovalTemplate(
+      const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&);
 
-        return m_vecEnergySumTemplate;
-    }
+  //
+  inline const std::vector<std::vector<MuonTemplate> >& corMuonTemplate() const { return m_corMuonTemplate; }
 
-    void setVecEnergySumTemplate(
-            const std::vector<std::vector<EnergySumTemplate> >&);
+  void setCorMuonTemplate(const std::vector<std::vector<MuonTemplate> >&);
 
+  //
+  inline const std::vector<std::vector<CaloTemplate> >& corCaloTemplate() const { return m_corCaloTemplate; }
 
-    inline const std::vector<std::vector<ExternalTemplate> >&
-        vecExternalTemplate() const {
+  void setCorCaloTemplate(const std::vector<std::vector<CaloTemplate> >&);
 
-        return m_vecExternalTemplate;
-    }
+  // get / set the vectors containing the conditions for correlation templates
+  //
+  inline const std::vector<std::vector<EnergySumTemplate> >& corEnergySumTemplate() const {
+    return m_corEnergySumTemplate;
+  }
 
-    void setVecExternalTemplate(
-            const std::vector<std::vector<ExternalTemplate> >&);
+  void setCorEnergySumTemplate(const std::vector<std::vector<EnergySumTemplate> >&);
 
-    //
-    inline const std::vector<std::vector<CorrelationTemplate> >&
-        vecCorrelationTemplate() const {
+  /// get / set the algorithm map (by name)
+  inline const l1t::AlgorithmMap& gtAlgorithmMap() const { return m_algorithmMap; }
 
-        return m_vecCorrelationTemplate;
-    }
+  void setGtAlgorithmMap(const l1t::AlgorithmMap&);
 
-    void setVecCorrelationTemplate(
-            const std::vector<std::vector<CorrelationTemplate> >&);
+  /// get / set the algorithm map (by alias)
+  inline const l1t::AlgorithmMap& gtAlgorithmAliasMap() const { return m_algorithmAliasMap; }
 
-    //
-    inline const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&
-        vecCorrelationWithOverlapRemovalTemplate() const {
+  void setGtAlgorithmAliasMap(const l1t::AlgorithmMap&);
 
-        return m_vecCorrelationWithOverlapRemovalTemplate;
-    }
+  /// get the scales
+  inline const l1t::GlobalScales& gtScales() const { return m_gtScales; }
 
-    void setVecCorrelationWithOverlapRemovalTemplate(
-            const std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >&);
+  void setGtScales(const l1t::GlobalScales&);
 
-    //
-    inline const std::vector<std::vector<MuonTemplate> >& corMuonTemplate() const {
-        return m_corMuonTemplate;
-    }
-
-    void setCorMuonTemplate(const std::vector<std::vector<MuonTemplate> >&);
-
-    //
-    inline const std::vector<std::vector<CaloTemplate> >& corCaloTemplate() const {
-        return m_corCaloTemplate;
-    }
-
-    void setCorCaloTemplate(const std::vector<std::vector<CaloTemplate> >&);
-
-    // get / set the vectors containing the conditions for correlation templates
-    //
-    inline const std::vector<std::vector<EnergySumTemplate> >&
-        corEnergySumTemplate() const {
-
-        return m_corEnergySumTemplate;
-    }
-
-    void setCorEnergySumTemplate(
-            const std::vector<std::vector<EnergySumTemplate> >&);
-
-
-    /// get / set the algorithm map (by name)
-    inline const l1t::AlgorithmMap& gtAlgorithmMap() const {
-        return m_algorithmMap;
-    }
-
-    void setGtAlgorithmMap(const l1t::AlgorithmMap&);
-
-    /// get / set the algorithm map (by alias)
-    inline const l1t::AlgorithmMap& gtAlgorithmAliasMap() const {
-        return m_algorithmAliasMap;
-    }
-
-    void setGtAlgorithmAliasMap(const l1t::AlgorithmMap&);
-
-
-   /// get the scales
-    inline const l1t::GlobalScales& gtScales() const {
-        return m_gtScales;
-    }
-    
-    void setGtScales(const l1t::GlobalScales&);
-
-/*
+  /*
     /// get / set the technical trigger map
     inline const l1t::AlgorithmMap& gtTechnicalTriggerMap() const {
         return m_technicalTriggerMap;
@@ -229,61 +181,55 @@ public:
 
 //    void setGtTechnicalTriggerMap(const l1t::AlgorithmMap&);
 */
-    /// print the trigger menu
-    /// allow various verbosity levels
-    void print(std::ostream&, int&) const;
+  /// print the trigger menu
+  /// allow various verbosity levels
+  void print(std::ostream&, int&) const;
 
 public:
-
-    /// get the result for algorithm with name algName
-    /// use directly the format of decisionWord (no typedef)
-    const bool gtAlgorithmResult(const std::string& algName,
-            const std::vector<bool>& decWord) const;
+  /// get the result for algorithm with name algName
+  /// use directly the format of decisionWord (no typedef)
+  const bool gtAlgorithmResult(const std::string& algName, const std::vector<bool>& decWord) const;
 
 private:
-
-    /// map containing the conditions (per condition chip) - transient
-    std::vector<l1t::ConditionMap> m_conditionMap;
+  /// map containing the conditions (per condition chip) - transient
+  std::vector<l1t::ConditionMap> m_conditionMap;
 
 private:
+  /// menu names
+  std::string m_triggerMenuInterface;
+  std::string m_triggerMenuName;
+  unsigned long m_triggerMenuImplementation;
 
-    /// menu names
-    std::string m_triggerMenuInterface;
-    std::string m_triggerMenuName;
-    unsigned long m_triggerMenuImplementation;
-    
-    unsigned long m_triggerMenuUUID;
+  unsigned long m_triggerMenuUUID;
 
-    /// menu associated scale key
-    std::string m_scaleDbKey;
+  /// menu associated scale key
+  std::string m_scaleDbKey;
 
-    /// vectors containing the conditions
-    /// explicit, due to persistency...
-    std::vector<std::vector<MuonTemplate> > m_vecMuonTemplate;
-    std::vector<std::vector<CaloTemplate> > m_vecCaloTemplate;
-    std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
+  /// vectors containing the conditions
+  /// explicit, due to persistency...
+  std::vector<std::vector<MuonTemplate> > m_vecMuonTemplate;
+  std::vector<std::vector<CaloTemplate> > m_vecCaloTemplate;
+  std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
 
-    std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;
+  std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;
 
-    std::vector<std::vector<CorrelationTemplate> > m_vecCorrelationTemplate;
-    std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> > m_vecCorrelationWithOverlapRemovalTemplate;
-    std::vector<std::vector<MuonTemplate> > m_corMuonTemplate;
-    std::vector<std::vector<CaloTemplate> > m_corCaloTemplate;
-    std::vector<std::vector<EnergySumTemplate> > m_corEnergySumTemplate;
+  std::vector<std::vector<CorrelationTemplate> > m_vecCorrelationTemplate;
+  std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> > m_vecCorrelationWithOverlapRemovalTemplate;
+  std::vector<std::vector<MuonTemplate> > m_corMuonTemplate;
+  std::vector<std::vector<CaloTemplate> > m_corCaloTemplate;
+  std::vector<std::vector<EnergySumTemplate> > m_corEnergySumTemplate;
 
-    /// map containing the physics algorithms (by name)
-    l1t::AlgorithmMap m_algorithmMap;
+  /// map containing the physics algorithms (by name)
+  l1t::AlgorithmMap m_algorithmMap;
 
-    /// map containing the physics algorithms (by alias)
-    l1t::AlgorithmMap m_algorithmAliasMap;
+  /// map containing the physics algorithms (by alias)
+  l1t::AlgorithmMap m_algorithmAliasMap;
 
-    /// map containing the technical triggers
-//    l1t::AlgorithmMap m_technicalTriggerMap;
+  /// map containing the technical triggers
+  //    l1t::AlgorithmMap m_technicalTriggerMap;
 
-    // class containing the scales from the L1 Menu XML
-    l1t::GlobalScales m_gtScales;
-
-
+  // class containing the scales from the L1 Menu XML
+  l1t::GlobalScales m_gtScales;
 };
 
 #endif /*L1Trigger_L1TGlobal_TriggerMenu_h*/

@@ -5,7 +5,9 @@
 Produce a custom number of identical ROOT files and check that their
 final merged output matches what is expected.
 """
+from __future__ import print_function
 
+from builtins import range
 from optparse import OptionParser
 import sys
 import commands
@@ -67,9 +69,9 @@ class FileProducer(object):
             assert m.groups()
             assert h.GetEntries() == word2num[m.group(1)] * self.numFiles_
             assert h.GetMean() == float(m.group(2))
-        print
+        print()
         f.Close()
-        print
+        print()
 
     def createIdenticalFiles(self):
         import ROOT as r
@@ -84,12 +86,12 @@ class FileProducer(object):
             h.book_and_fill(f)
         f.Write()
         f.Close()
-        print 'Wrote %d histograms in %d folders' % (len(self.histos_), len(self.folders_))
+        print('Wrote %d histograms in %d folders' % (len(self.histos_), len(self.folders_)))
         for i in range(1, self.numFiles_):
             commands.getoutput("cp %s_0.root %s_%d.root" % (self.prefix_,
                                                             self.prefix_,
                                                             i))
-            print 'x'
+            print('x')
 
     def prepareHistos(self):
         for folder in self.folders_:
@@ -109,7 +111,7 @@ class FileProducer(object):
                                           20, i+1, 0, i+1, i, folder))
                 self.histos_.append(Histo("FiftyEntries_%d" %i,
                                           50, i+1, 0, i+1, i, folder))
-        print
+        print()
 
 op = OptionParser(usage = __doc__)
 op.add_option("-a", "--action", dest = "action",
@@ -145,11 +147,11 @@ if __name__ == '__main__':
         fp.createIdenticalFiles()
     else:
         if not options.action == 'check':
-            print >> sys.stderr, "Option -a|--action takes only 'produce|check' options."
+            print("Option -a|--action takes only 'produce|check' options.", file=sys.stderr)
             sys.exit(1)
         else:
             if options.file_to_check == '':
-                print >> sys.stderr, "Option -c|--check required to check the content of a file."
+                print("Option -c|--check required to check the content of a file.", file=sys.stderr)
                 sys.exit(1)
             fp.checkCumulative(options.file_to_check)
 

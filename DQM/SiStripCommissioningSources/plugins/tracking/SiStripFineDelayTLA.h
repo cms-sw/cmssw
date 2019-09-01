@@ -11,31 +11,26 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
-
 class TrackerGeometry;
 class TrackingRecHit;
 class TrajectorySeed;
 class Trajectory;
 
-class SiStripFineDelayTLA 
-{
- public:
-  
+class SiStripFineDelayTLA {
+public:
   explicit SiStripFineDelayTLA(const edm::ParameterSet& conf);
   virtual ~SiStripFineDelayTLA();
-  void init(const edm::Event& e,const edm::EventSetup& c);
+  void init(const edm::Event& e, const edm::EventSetup& c);
 
-  std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > findtrackangle(const std::vector<Trajectory>& traj);
-  std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > findtrackangle(const Trajectory& traj);
+  std::vector<std::pair<std::pair<DetId, LocalPoint>, float> > findtrackangle(const std::vector<Trajectory>& traj);
+  std::vector<std::pair<std::pair<DetId, LocalPoint>, float> > findtrackangle(const Trajectory& traj);
 
- private:
-
+private:
   double computeAngleCorr(const LocalVector& v, double pitch, double thickness);
 
- private:
+private:
   edm::ParameterSet conf_;
-  const TrackerGeometry * tracker;
+  const TrackerGeometry* tracker;
 };
-
 
 #endif

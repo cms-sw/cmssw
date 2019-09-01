@@ -3,8 +3,9 @@
 
 /** \class LaserAlignmentProducer
  *  Producer to be used for the Simulation of the Laser Alignment System
- *  an empty MCHepEvent will be generated (needed by OscarProducer). The actual simulation of 
- *  the laser beams is done in the SimWatcher attached to OscarProducer
+ *  an empty MCHepEvent will be generated (needed by OscarProducer). The actual
+ * simulation of the laser beams is done in the SimWatcher attached to
+ * OscarProducer
  *
  *  $Date: 2007/12/04 23:53:06 $
  *  $Revision: 1.3 $
@@ -24,18 +25,17 @@
 // class decleration
 //
 class LaserAlignmentProducer : public edm::one::EDProducer<> {
- public:
-	/// constructor
-  explicit LaserAlignmentProducer(const edm::ParameterSet&);
-	/// destructor
+public:
+  /// constructor
+  explicit LaserAlignmentProducer(const edm::ParameterSet &);
+  /// destructor
   ~LaserAlignmentProducer() override;
 
-  
- private:
-	/// produce the HepMCProduct
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  
+private:
+  /// produce the HepMCProduct
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
   // the event format itself
-  HepMC::GenEvent* theEvent;
+  HepMC::GenEvent *theEvent;
 };
 #endif

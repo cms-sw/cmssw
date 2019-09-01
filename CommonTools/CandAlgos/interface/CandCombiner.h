@@ -37,25 +37,24 @@ namespace edm {
 namespace reco {
   namespace modules {
 
-
     struct RoleNames {
-      explicit RoleNames(const edm::ParameterSet & cfg) {
-
-	if ( cfg.exists("name") )
-	  name_ = cfg.getParameter<std::string>("name");
-	else
-	  name_ = "";
-	if ( cfg.exists("roles") )
-	  roles_ = cfg.getParameter<std::vector<std::string> >("roles");
-	else
-	  roles_ = std::vector<std::string>();
+      explicit RoleNames(const edm::ParameterSet& cfg) {
+        if (cfg.exists("name"))
+          name_ = cfg.getParameter<std::string>("name");
+        else
+          name_ = "";
+        if (cfg.exists("roles"))
+          roles_ = cfg.getParameter<std::vector<std::string> >("roles");
+        else
+          roles_ = std::vector<std::string>();
       }
       const std::vector<std::string> roles() const { return roles_; }
-      void set(reco::CompositeCandidate &c) const {
-	c.setName(name_);
-	c.setRoles(roles_);
-	c.applyRoles();
+      void set(reco::CompositeCandidate& c) const {
+        c.setName(name_);
+        c.setRoles(roles_);
+        c.applyRoles();
       }
+
     private:
       /// Name of this candidate
       std::string name_;
@@ -63,46 +62,47 @@ namespace reco {
       std::vector<std::string> roles_;
     };
 
-
     struct CandCombinerBase : public edm::stream::EDProducer<> {
-      CandCombinerBase(const edm::ParameterSet & cfg) :
-	setLongLived_(false),
-	setMassConstraint_(false),
-	setPdgId_(false) {
+      CandCombinerBase(const edm::ParameterSet& cfg)
+          : setLongLived_(false), setMassConstraint_(false), setPdgId_(false) {
         using namespace cand::parser;
-	using namespace std;
-	string decay(cfg.getParameter<string>("decay"));
-	if(decayParser(decay, labels_))
-	  for(vector<ConjInfo>::iterator label = labels_.begin();
-	       label != labels_.end(); ++label)
-	if(label->mode_ == ConjInfo::kPlus)
-	  dauCharge_.push_back(1);
-	else if (label->mode_ == ConjInfo::kMinus)
-	  dauCharge_.push_back(-1);
-	else
-	  dauCharge_.push_back(0);
-	else
-	  throw edm::Exception(edm::errors::Configuration,
-			       "failed to parse \"" + decay + "\"");
+        using namespace std;
+        string decay(cfg.getParameter<string>("decay"));
+        if (decayParser(decay, labels_))
+          for (vector<ConjInfo>::iterator label = labels_.begin(); label != labels_.end(); ++label)
+            if (label->mode_ == ConjInfo::kPlus)
+              dauCharge_.push_back(1);
+            else if (label->mode_ == ConjInfo::kMinus)
+              dauCharge_.push_back(-1);
+            else
+              dauCharge_.push_back(0);
+        else
+          throw edm::Exception(edm::errors::Configuration, "failed to parse \"" + decay + "\"");
 
-	int lists = labels_.size();
-	if(lists != 2 && lists != 3)
-	  throw edm::Exception(edm::errors::LogicError,
-			       "invalid number of collections");
-	bool found;
-	const string setLongLived("setLongLived");
-	vector<string> vBoolParams = cfg.getParameterNamesForType<bool>();
-	found = find(vBoolParams.begin(), vBoolParams.end(), setLongLived) != vBoolParams.end();
-	if(found) setLongLived_ = cfg.getParameter<bool>("setLongLived");
+        int lists = labels_.size();
+        if (lists != 2 && lists != 3)
+          throw edm::Exception(edm::errors::LogicError, "invalid number of collections");
+        bool found;
+        const string setLongLived("setLongLived");
+        vector<string> vBoolParams = cfg.getParameterNamesForType<bool>();
+        found = find(vBoolParams.begin(), vBoolParams.end(), setLongLived) != vBoolParams.end();
+        if (found)
+          setLongLived_ = cfg.getParameter<bool>("setLongLived");
         const string setMassConstraint("setMassConstraint");
         found = find(vBoolParams.begin(), vBoolParams.end(), setMassConstraint) != vBoolParams.end();
-        if(found) setMassConstraint_ = cfg.getParameter<bool>("setMassConstraint");
-	const string setPdgId("setPdgId");
-	vector<string> vIntParams = cfg.getParameterNamesForType<int>();
-	found = find(vIntParams.begin(), vIntParams.end(), setPdgId) != vIntParams.end();
-	if(found) { setPdgId_ = true; pdgId_ = cfg.getParameter<int>("setPdgId"); }
-	tokens_ = edm::vector_transform( labels_, [this](ConjInfo const & cI){return consumes<CandidateView>(cI.tag_);} );
+        if (found)
+          setMassConstraint_ = cfg.getParameter<bool>("setMassConstraint");
+        const string setPdgId("setPdgId");
+        vector<string> vIntParams = cfg.getParameterNamesForType<int>();
+        found = find(vIntParams.begin(), vIntParams.end(), setPdgId) != vIntParams.end();
+        if (found) {
+          setPdgId_ = true;
+          pdgId_ = cfg.getParameter<int>("setPdgId");
+        }
+        tokens_ =
+            edm::vector_transform(labels_, [this](ConjInfo const& cI) { return consumes<CandidateView>(cI.tag_); });
       }
+
     protected:
       /// label vector
       std::vector<cand::parser::ConjInfo> labels_;
@@ -119,50 +119,52 @@ namespace reco {
       int pdgId_;
     };
 
-    template<typename Selector,
-             typename PairSelector = AnyPairSelector,
-             typename Cloner = ::combiner::helpers::NormalClone,
-             typename OutputCollection = reco::CompositeCandidateCollection,
-             typename Setup = AddFourMomenta,
-             typename Init = typename ::reco::modules::EventSetupInit<Setup>::type
-            >
+    template <typename Selector,
+              typename PairSelector = AnyPairSelector,
+              typename Cloner = ::combiner::helpers::NormalClone,
+              typename OutputCollection = reco::CompositeCandidateCollection,
+              typename Setup = AddFourMomenta,
+              typename Init = typename ::reco::modules::EventSetupInit<Setup>::type>
     class CandCombiner : public CandCombinerBase {
-      public:
+    public:
       /// constructor from parameter settypedef
-      explicit CandCombiner(const edm::ParameterSet & cfg) :
-        CandCombinerBase(cfg),
-        combiner_(reco::modules::make<Selector>(cfg, consumesCollector()),
-		   reco::modules::make<PairSelector>(cfg),
-		   Setup(cfg),
-		   cfg.existsAs<bool>("checkCharge")  ? cfg.getParameter<bool>("checkCharge")  : true,
-		   cfg.existsAs<bool>("checkOverlap") ? cfg.getParameter<bool>("checkOverlap") : true,
-		   dauCharge_),
-      names_(cfg) {
+      explicit CandCombiner(const edm::ParameterSet& cfg)
+          : CandCombinerBase(cfg),
+            combiner_(reco::modules::make<Selector>(cfg, consumesCollector()),
+                      reco::modules::make<PairSelector>(cfg),
+                      Setup(cfg),
+                      cfg.existsAs<bool>("checkCharge") ? cfg.getParameter<bool>("checkCharge") : true,
+                      cfg.existsAs<bool>("checkOverlap") ? cfg.getParameter<bool>("checkOverlap") : true,
+                      dauCharge_),
+            names_(cfg) {
         produces<OutputCollection>();
       }
-	/// destructor
-      ~CandCombiner() override { }
+      /// destructor
+      ~CandCombiner() override {}
 
     private:
       /// process an event
       void produce(edm::Event& evt, const edm::EventSetup& es) override {
-	Init::init(combiner_.setup(), evt, es);
-	int n = labels_.size();
-	std::vector<edm::Handle<CandidateView> > colls(n);
-	for(int i = 0; i < n; ++i)
-	  evt.getByToken(tokens_[i], colls[i]);
+        Init::init(combiner_.setup(), evt, es);
+        int n = labels_.size();
+        std::vector<edm::Handle<CandidateView> > colls(n);
+        for (int i = 0; i < n; ++i)
+          evt.getByToken(tokens_[i], colls[i]);
 
-	std::unique_ptr<OutputCollection> out = combiner_.combine(colls, names_.roles());
-	if(setLongLived_ || setMassConstraint_ || setPdgId_) {
-	  typename OutputCollection::iterator i = out->begin(), e = out->end();
-	  for(; i != e; ++i) {
-	    names_.set(*i);
-	    if(setLongLived_) i->setLongLived();
-	    if(setMassConstraint_) i->setMassConstraint();
-	    if(setPdgId_) i->setPdgId(pdgId_);
-	  }
-	}
-	evt.put(std::move(out));
+        std::unique_ptr<OutputCollection> out = combiner_.combine(colls, names_.roles());
+        if (setLongLived_ || setMassConstraint_ || setPdgId_) {
+          typename OutputCollection::iterator i = out->begin(), e = out->end();
+          for (; i != e; ++i) {
+            names_.set(*i);
+            if (setLongLived_)
+              i->setLongLived();
+            if (setMassConstraint_)
+              i->setMassConstraint();
+            if (setPdgId_)
+              i->setPdgId(pdgId_);
+          }
+        }
+        evt.put(std::move(out));
       }
       /// combiner utility
       ::CandCombiner<Selector, PairSelector, Cloner, OutputCollection, Setup> combiner_;
@@ -170,7 +172,7 @@ namespace reco {
       RoleNames names_;
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif

@@ -1,6 +1,7 @@
+from __future__ import print_function
 import sys
 if len(sys.argv) !=3 :
-  print "usage:" + sys.argv[0] + "   bla bla"
+  print("usage:" + sys.argv[0] + "   bla bla")
   exit
 # go
 mm=0.
@@ -35,7 +36,7 @@ for l1 in file1.readlines() :
         if (x!=0) :
             n+=1
             ave+=abs(x)
-print tot, mm, n, ave/n
+print(tot, mm, n, ave/n)
 #
 ml = ml-5
 file1.seek(0)
@@ -43,5 +44,5 @@ file2.seek(0)
 l1 = file1.readlines()
 l2 = file2.readlines()
 for i in range(10) :
-    print l1[ml+i].rstrip('\n')
-    print l2[ml+i].rstrip('\n')
+    print(l1[ml+i].rstrip('\n'))
+    print(l2[ml+i].rstrip('\n'))

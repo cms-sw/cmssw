@@ -4,9 +4,8 @@
 //
 // Package:    LHEDYdecayFilter
 // Class:      LHEDYdecayFilter
-// 
 //
-
+//
 
 // system include files
 #include <memory>
@@ -21,23 +20,22 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 //
 // class decleration
 //
 
 class LHEDYdecayFilter : public edm::EDFilter {
-   public:
-      explicit LHEDYdecayFilter(const edm::ParameterSet&);
-      ~LHEDYdecayFilter() override;
+public:
+  explicit LHEDYdecayFilter(const edm::ParameterSet&);
+  ~LHEDYdecayFilter() override;
 
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-   private:
-      // ----------member data ---------------------------
-      
-      edm::InputTag src_;
-      int leptonID_;
-      bool verbose_;
+private:
+  // ----------member data ---------------------------
+
+  edm::InputTag src_;
+  int leptonID_;
+  bool verbose_;
 };
 #endif

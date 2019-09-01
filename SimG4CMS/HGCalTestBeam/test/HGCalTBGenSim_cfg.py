@@ -97,8 +97,8 @@ process.VtxSmeared.MeanY  = 0.0
 process.VtxSmeared.SigmaY = 0.65
 process.VtxSmeared.MeanZ  = -3500.0
 process.VtxSmeared.SigmaZ = 0
-process.HGCalTBAnalyzer.DoDigis = False
-process.HGCalTBAnalyzer.DoRecHits = False
+process.HGCalTBAnalyzer.doDigis = False
+process.HGCalTBAnalyzer.doRecHits = False
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

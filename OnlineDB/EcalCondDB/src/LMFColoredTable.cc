@@ -4,36 +4,34 @@ LMFColoredTable::LMFColoredTable() : LMFDat() {
   m_className = "LMFColoredTable";
   m_system = 0;
   m_color = 0;
-  COLOR[0]  = "BLUE";
-  COLOR[1]  = "GREEN";
-  COLOR[2]  = "ORANGE";
-  COLOR[3]  = "IR";
+  COLOR[0] = "BLUE";
+  COLOR[1] = "GREEN";
+  COLOR[2] = "ORANGE";
+  COLOR[3] = "IR";
   SYSTEM[0] = "LASER";
   SYSTEM[1] = "LED";
 }
 
-LMFColoredTable::LMFColoredTable(EcalDBConnection *c) : LMFDat(c) {
+LMFColoredTable::LMFColoredTable(EcalDBConnection* c) : LMFDat(c) {
   m_className = "LMFColoredTable";
   m_system = 0;
   m_color = 0;
-  COLOR[0]  = "BLUE";
-  COLOR[1]  = "GREEN";
-  COLOR[2]  = "ORANGE";
-  COLOR[3]  = "IR";
+  COLOR[0] = "BLUE";
+  COLOR[1] = "GREEN";
+  COLOR[2] = "ORANGE";
+  COLOR[3] = "IR";
   SYSTEM[0] = "LASER";
   SYSTEM[1] = "LED";
 }
 
-LMFColoredTable::LMFColoredTable(oracle::occi::Environment* env,
-				 oracle::occi::Connection* conn) : 
-  LMFDat(env, conn) {
+LMFColoredTable::LMFColoredTable(oracle::occi::Environment* env, oracle::occi::Connection* conn) : LMFDat(env, conn) {
   m_className = "LMFColoredTable";
   m_system = 0;
   m_color = 0;
-  COLOR[0]  = "BLUE";
-  COLOR[1]  = "GREEN";
-  COLOR[2]  = "ORANGE";
-  COLOR[3]  = "IR";
+  COLOR[0] = "BLUE";
+  COLOR[1] = "GREEN";
+  COLOR[2] = "ORANGE";
+  COLOR[3] = "IR";
   SYSTEM[0] = "LASER";
   SYSTEM[1] = "LED";
 }
@@ -86,16 +84,15 @@ LMFColoredTable& LMFColoredTable::setSystem(std::string system) {
   return *this;
 }
 
-int LMFColoredTable::writeDB() 
-  noexcept(false) {
-  // check if the VMIN version has been properly set, otherwise 
+int LMFColoredTable::writeDB() noexcept(false) {
+  // check if the VMIN version has been properly set, otherwise
   // change it to the default value
   std::map<int, std::vector<float> >::iterator i = m_data.begin();
   std::map<int, std::vector<float> >::iterator e = m_data.end();
-  std::list<int> versions; // the list of different versions
+  std::list<int> versions;  // the list of different versions
   while (i != e) {
     int s = i->second.size();
-    if (i->second[s - 2] == 0) { // VMIN cannot be NULL
+    if (i->second[s - 2] == 0) {  // VMIN cannot be NULL
       i->second[s - 2] = 1;
     }
     versions.push_back(i->second[s - 1]);
@@ -107,8 +104,7 @@ int LMFColoredTable::writeDB()
   int ret = 0;
   try {
     ret = LMFDat::writeDB();
-  }
-  catch (std::runtime_error &e) {
+  } catch (std::runtime_error& e) {
     m_conn->rollback();
     throw(e);
   }

@@ -8,16 +8,16 @@
  * Builds map between Det type and an enum
  */
 class CmsTrackerStringToEnum {
- public:
+public:
   typedef std::map<std::string, GeometricDet::GeometricEnumType> MapEnumType;
   typedef std::map<GeometricDet::GeometricEnumType, std::string> ReverseMapEnumType;
-  
-  GeometricDet::GeometricEnumType type(std::string const&) const;
-  std::string const & name(GeometricDet::GeometricEnumType) const;
 
- private:
-  static MapEnumType const & map() { return m_impl._map;}
-  static ReverseMapEnumType const & reverseMap() { return m_impl._reverseMap;}
+  GeometricDet::GeometricEnumType type(std::string const&) const;
+  std::string const& name(GeometricDet::GeometricEnumType) const;
+
+private:
+  static MapEnumType const& map() { return m_impl._map; }
+  static ReverseMapEnumType const& reverseMap() { return m_impl._reverseMap; }
 
   // a quick fix
   struct Impl {
@@ -27,6 +27,5 @@ class CmsTrackerStringToEnum {
   };
 
   static const Impl m_impl;
-
 };
 #endif

@@ -24,3 +24,23 @@ phase2_timing.toModify(
     gsfTrackTimeValueMap = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModel"),
     gsfTrackTimeErrorMap = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModelResolution"),
 )
+
+from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
+from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(
+    simPFProducer,
+    trackTimeValueMap = cms.InputTag("tofPID:t0"),
+    trackTimeErrorMap = cms.InputTag("tofPID:sigmat0"),
+    #this will cause no time to be set for gsf tracks
+    #(since this is not available for the fullsim/reconstruction yet)
+    #*TODO* update when gsf times are available
+    gsfTrackTimeValueMap = cms.InputTag("tofPID:t0"),
+    gsfTrackTimeErrorMap = cms.InputTag("tofPID:sigmat0"),
+)
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(simPFProducer,
+    trackingParticleSrc = "mixData:MergedTrackTruth",
+    caloParticlesSrc = "mixData:MergedCaloTruth",
+    simClusterTruthSrc = "mixData:MergedCaloTruth",
+)

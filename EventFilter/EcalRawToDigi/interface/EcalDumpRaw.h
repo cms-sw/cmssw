@@ -31,18 +31,17 @@
  * Author: Ph. Gras CEA/IRFU Saclay
  *
  */
-class EcalDumpRaw : public edm::stream::EDAnalyzer<>{
+class EcalDumpRaw : public edm::stream::EDAnalyzer<> {
   //ctors
 public:
   explicit EcalDumpRaw(const edm::ParameterSet&);
   ~EcalDumpRaw() override;
 
-
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void analyzeEB(const edm::Event&, const edm::EventSetup&) const;
   void analyzeEE(const edm::Event&, const edm::EventSetup&) const;
-  void endJob();  
+  void endJob();
   //methods
 public:
 private:
@@ -50,32 +49,36 @@ private:
   void analyzeApd();
   std::string toNth(int n);
   bool decode(const uint32_t* data, int iWord32, std::ostream& out);
-  double max(const std::vector<double>& a, unsigned& pos){
+  double max(const std::vector<double>& a, unsigned& pos) {
     pos = 0;
     double m = a[pos];
-    for(unsigned i = 1; i < a.size(); ++i){
-      if(a[i]>m){ m = a[i]; pos = i;}
+    for (unsigned i = 1; i < a.size(); ++i) {
+      if (a[i] > m) {
+        m = a[i];
+        pos = i;
+      }
     }
     return m;
   }
-  double min(const std::vector<double>& a){
+  double min(const std::vector<double>& a) {
     double m = a[0];
-    for(unsigned i = 1; i < a.size(); ++i){
-      if(a[i]<m) m = a[i];
+    for (unsigned i = 1; i < a.size(); ++i) {
+      if (a[i] < m)
+        m = a[i];
     }
     return m;
   }
   //static int lme(int dccId1, int side);
 
-  template<class T>
-  std::string toString(T val){
+  template <class T>
+  std::string toString(T val) {
     std::stringstream s;
     s << val;
     return s.str();
   }
 
   static int sideOfRu(int ru1);
-  
+
   static int modOfRu(int ru1);
 
   static int lmodOfRu(int ru1);
@@ -85,23 +88,22 @@ private:
   std::string ttfTag(int tccType, unsigned iSeq) const;
 
   std::string tpgTag(int tccType, unsigned iSeq) const;
-  
+
   //fields
 private:
-  int      verbosity_;
-  bool     writeDcc_;
-  int      beg_fed_id_;
-  int      end_fed_id_;
-  int      first_event_;
-  int      last_event_;
-  std::string   filename_;
-  int      iEvent_;
+  int verbosity_;
+  bool writeDcc_;
+  int beg_fed_id_;
+  int end_fed_id_;
+  int first_event_;
+  int last_event_;
+  std::string filename_;
+  int iEvent_;
 
   unsigned iTowerWord64_;
   unsigned iSrWord64_;
   unsigned iTccWord64_;
-  enum {inDaqHeader, inDccHeader, inTccBlock, inSrBlock, inTowerBlock}
-  decodeState_;
+  enum { inDaqHeader, inDccHeader, inTccBlock, inSrBlock, inTowerBlock } decodeState_;
   size_t towerBlockLength_;
 
   std::vector<double> adc_;
@@ -124,21 +126,20 @@ private:
   static const int maxTpgsPerTcc_ = 68;
   static const int maxTccsPerDcc_ = 4;
 
-
   //@{
   /** TCC types
    */
-  static const int ebmTcc_    = 0;
-  static const int ebpTcc_    = 1;
-  static const int eeInnerTcc_   = 2;
-  static const int eeOuterTcc_  = 3;
+  static const int ebmTcc_ = 0;
+  static const int ebpTcc_ = 1;
+  static const int eeInnerTcc_ = 2;
+  static const int eeOuterTcc_ = 3;
   static const int nTccTypes_ = 4;
   //@}
 
   /** TT ID in the order the TPG appears in the data
    */
   static const int ttId_[nTccTypes_][maxTpgsPerTcc_];
-  
+
   unsigned fedId_;
   unsigned dccId_;
   unsigned side_;
@@ -188,4 +189,4 @@ private:
   edm::EDGetTokenT<L1AcceptBunchCrossingCollection> l1AcceptBunchCrossingCollectionToken_;
 };
 
-#endif //ECALDUMPRAW_H not defined
+#endif  //ECALDUMPRAW_H not defined

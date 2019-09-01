@@ -10,20 +10,17 @@
 */
 
 class SummaryGeneratorControlView : public SummaryGenerator {
-  
- public:
-  
+public:
   SummaryGeneratorControlView();
-  
-  ~SummaryGeneratorControlView() override {;}
+
+  ~SummaryGeneratorControlView() override { ; }
 
   /** */
-  void fill( const std::string& directory_level,
-	     const sistrip::Granularity&,
-	     const uint32_t& key, 
-	     const float& value, 
-	     const float& error ) override;
-  
+  void fill(const std::string& directory_level,
+            const sistrip::Granularity&,
+            const uint32_t& key,
+            const float& value,
+            const float& error) override;
 };
 
-#endif // DQM_SiStripCommissioningSummary_SummaryGeneratorControlView_H
+#endif  // DQM_SiStripCommissioningSummary_SummaryGeneratorControlView_H

@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import sys
 import os
 import logging
@@ -12,7 +14,7 @@ import FWCore.ParameterSet.Modules as mod
 import FWCore.ParameterSet.Types as typ
 import FWCore.ParameterSet.Mixins as mix
 
-from Vispa.Plugins.ConfigEditor.ConfigDataAccessor import ConfigDataAccessor
+from .Vispa.Plugins.ConfigEditor.ConfigDataAccessor import ConfigDataAccessor
 from FWCore.GuiBrowsers.FileExportPlugin import FileExportPlugin
 
 class DotProducer(object):
@@ -483,7 +485,7 @@ class DotExport(FileExportPlugin):
         dot = self.dotIndenter(dot)
         self.write_output(dot,filename,filetype)
     else:
-      print "WARNING: Empty image. Not saved."
+      print("WARNING: Empty image. Not saved.")
     
   
   def get_png_size(self,filename):
@@ -502,7 +504,7 @@ class DotExport(FileExportPlugin):
       dotfile.write(dot)
       dotfile.close()
     elif filetype=='stdout':
-      print result
+      print(result)
     elif filetype=='pdf':
       dot_p = subprocess.Popen(['dot','-Tps2'],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
       ps2 = dot_p.communicate(dot)[0]
@@ -526,7 +528,7 @@ class DotExport(FileExportPlugin):
       mapfile.close()
       filesize = self.get_png_size('%s.png'%filename)
       if max(filesize) > self.options['png_max_size']:
-        print "png image is too large (%s pixels/%s max pixels), deleting" % (filesize,self.options['png_max_size'])
+        print("png image is too large (%s pixels/%s max pixels), deleting" % (filesize,self.options['png_max_size']))
         os.remove('%s.png'%filename)
         os.remove('%s.map'%filename)
     elif filetype=='png':
@@ -536,7 +538,7 @@ class DotExport(FileExportPlugin):
         raise "dot returned non-zero exit code: %s"%dot_p.returncode
       filesize = self.get_png_size(filename)
       if max(filesize) > self.options['png_max_size']:
-        print "png image is too large (%s pixels/%s max pixels), deleting" % (filesize,self.options['png_max_size'])
+        print("png image is too large (%s pixels/%s max pixels), deleting" % (filesize,self.options['png_max_size']))
         os.remove(filename)
     else:
       dot_p = subprocess.Popen(['dot','-T%s'%(filetype),'-o',filename],stdin=subprocess.PIPE)

@@ -34,13 +34,13 @@ using namespace std;
 /// Constructor
 DTRecSegment2DExtendedProducer::DTRecSegment2DExtendedProducer(const edm::ParameterSet& pset) {
   // Set verbose output
-  debug = pset.getUntrackedParameter<bool>("debug"); 
+  debug = pset.getUntrackedParameter<bool>("debug");
 
   // the name of the 1D rec hits collection
   recHits1DToken_ = consumes<DTRecHitCollection>(pset.getParameter<InputTag>("recHits1DLabel"));
   recClusToken_ = consumes<DTRecClusterCollection>(pset.getParameter<InputTag>("recClusLabel"));
 
-  if(debug)
+  if (debug)
     cout << "[DTRecSegment2DExtendedProducer] Constructor called" << endl;
 
   produces<DTRecSegment2DCollection>();
@@ -51,31 +51,29 @@ DTRecSegment2DExtendedProducer::DTRecSegment2DExtendedProducer(const edm::Parame
 
 /// Destructor
 DTRecSegment2DExtendedProducer::~DTRecSegment2DExtendedProducer() {
-  if(debug)
+  if (debug)
     cout << "[DTRecSegment2DExtendedProducer] Destructor called" << endl;
   delete theAlgo;
 }
 
-/* Operations */ 
-void DTRecSegment2DExtendedProducer::produce(edm::Event& event, const
-                                     edm::EventSetup& setup) {
-  if(debug)
+/* Operations */
+void DTRecSegment2DExtendedProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
+  if (debug)
     cout << "[DTRecSegment2DExtendedProducer] produce called" << endl;
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
   setup.get<MuonGeometryRecord>().get(dtGeom);
 
   theAlgo->setES(setup);
-  
+
   // Get the 1D rechits from the event
-  Handle<DTRecHitCollection> allHits; 
+  Handle<DTRecHitCollection> allHits;
   event.getByToken(recHits1DToken_, allHits);
 
   // Get the 1D clusters from the event
-  Handle<DTRecClusterCollection> dtClusters; 
+  Handle<DTRecClusterCollection> dtClusters;
   event.getByToken(recClusToken_, dtClusters);
-  theAlgo->setClusters(vector<DTSLRecCluster>(dtClusters->begin(),
-                                              dtClusters->end()));
+  theAlgo->setClusters(vector<DTSLRecCluster>(dtClusters->begin(), dtClusters->end()));
 
   // Create the pointer to the collection which will store the rechits
   auto segments = std::make_unique<DTRecSegment2DCollection>();
@@ -83,38 +81,37 @@ void DTRecSegment2DExtendedProducer::produce(edm::Event& event, const
   // Iterate through all hit collections ordered by LayerId
   DTRecHitCollection::id_iterator dtLayerIt;
   DTSuperLayerId oldSlId;
-  for (dtLayerIt = allHits->id_begin(); dtLayerIt != allHits->id_end(); ++dtLayerIt){
+  for (dtLayerIt = allHits->id_begin(); dtLayerIt != allHits->id_end(); ++dtLayerIt) {
     // The layerId
     DTLayerId layerId = (*dtLayerIt);
     const DTSuperLayerId SLId = layerId.superlayerId();
-    if (SLId==oldSlId) continue; // I'm on the same SL as before
+    if (SLId == oldSlId)
+      continue;  // I'm on the same SL as before
     oldSlId = SLId;
 
-    if(debug) cout <<"Reconstructing the 2D segments in "<< SLId << endl;
+    if (debug)
+      cout << "Reconstructing the 2D segments in " << SLId << endl;
 
     const DTSuperLayer* sl = dtGeom->superLayer(SLId);
 
-    // Get all the rec hit in the same superLayer in which layerId relies 
-    DTRecHitCollection::range range =
-      allHits->get(DTRangeMapAccessor::layersBySuperLayer(SLId));
+    // Get all the rec hit in the same superLayer in which layerId relies
+    DTRecHitCollection::range range = allHits->get(DTRangeMapAccessor::layersBySuperLayer(SLId));
 
     // Fill the vector with the 1D RecHit
-    vector<DTRecHit1DPair> pairs(range.first,range.second);
+    vector<DTRecHit1DPair> pairs(range.first, range.second);
 
-    if(debug) cout << "Number of 1D-RecHit pairs " << pairs.size() << endl;
+    if (debug)
+      cout << "Number of 1D-RecHit pairs " << pairs.size() << endl;
 
     //if(debug) cout << "Start the 2D-segments Reco "<< endl;
     OwnVector<DTSLRecSegment2D> segs = theAlgo->reconstruct(sl, pairs);
-    if(debug) {
+    if (debug) {
       cout << "Number of Reconstructed segments: " << segs.size() << endl;
-      copy(segs.begin(), segs.end(),
-           ostream_iterator<DTSLRecSegment2D>(cout, "\n"));
+      copy(segs.begin(), segs.end(), ostream_iterator<DTSLRecSegment2D>(cout, "\n"));
     }
 
-    if (!segs.empty() )
-      segments->put(SLId, segs.begin(),segs.end());
+    if (!segs.empty())
+      segments->put(SLId, segs.begin(), segs.end());
   }
   event.put(std::move(segments));
 }
-
-

@@ -1,9 +1,10 @@
+from __future__ import absolute_import
 import os
-import configTemplates
-import globalDictionaries
-from genericValidation import GenericValidationData, ValidationWithPlots
-from helperFunctions import replaceByMap
-from TkAlExceptions import AllInOneError
+from . import configTemplates
+from . import globalDictionaries
+from .genericValidation import GenericValidationData, ValidationWithPlots
+from .helperFunctions import replaceByMap
+from .TkAlExceptions import AllInOneError
 
 
 class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
@@ -14,6 +15,15 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
     outputBaseName = "ZMuMuValidation"
     defaults = {
         "zmumureference": ("/store/caf/user/emiglior/Alignment/TkAlDiMuonValidation/Reference/BiasCheck_DYToMuMu_Summer12_TkAlZMuMu_IDEAL.root"),
+        "minpt" : "0.",
+        "maxpt" : "1000.",
+        "etamaxneg" : "2.4",
+        "etaminneg" : "-2.4",
+        "etamaxpos" : "2.4",
+        "etaminpos" : "-2.4",
+        "CustomMinY": "90.85",
+        "CustomMaxY": "91.4",
+        "multiIOV":"False",
         }
     deprecateddefaults = {
         "resonance": "",
@@ -25,7 +35,6 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
         }
     defaults.update(deprecateddefaults)
     needpackages = {'MuonAnalysis/MomentumScaleCalibration'}
-    mandatories = {"etamaxneg", "etaminneg", "etamaxpos", "etaminpos"}
     valType = "zmumu"
     def __init__(self, valName, alignment, config):
         super(ZMuMuValidation, self).__init__(valName, alignment, config)
@@ -91,7 +100,7 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
 
     @property
     def trackcollection(self):
-        from plottingOptions import PlottingOptions
+        from .plottingOptions import PlottingOptions
         resonance = PlottingOptions(self.config, self.valType)["resonance"]
         if resonance == "Z":
             return 'ALCARECOTkAlZMuMu'
@@ -108,7 +117,7 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
         returned, else the validation is appended to the list
         """
         repMap = self.getRepMap()
-        return replaceByMap('    filenames.push_back("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./BiasCheck.root");  titles.push_back(".oO[title]Oo.");  colors.push_back(.oO[color]Oo.);  linestyles.push_back(.oO[style]Oo.);\n', repMap)
+        return replaceByMap('    filenames.push_back("root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./BiasCheck.root");  titles.push_back(".oO[title]Oo.");  colors.push_back(.oO[color]Oo.);  linestyles.push_back(.oO[style]Oo.);\n', repMap)
 
     @classmethod
     def plottingscriptname(cls):

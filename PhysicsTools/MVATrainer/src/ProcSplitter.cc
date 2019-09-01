@@ -15,68 +15,55 @@ XERCES_CPP_NAMESPACE_USE
 
 using namespace PhysicsTools;
 
-namespace { // anonymous
+namespace {  // anonymous
 
-class ProcSplitter : public TrainProcessor {
-    public:
-	typedef TrainProcessor::Registry<ProcSplitter>::Type Registry;
+  class ProcSplitter : public TrainProcessor {
+  public:
+    typedef TrainProcessor::Registry<ProcSplitter>::Type Registry;
 
-	ProcSplitter(const char *name, const AtomicId *id,
-	             MVATrainer *trainer);
-	~ProcSplitter() override;
+    ProcSplitter(const char *name, const AtomicId *id, MVATrainer *trainer);
+    ~ProcSplitter() override;
 
-	void configure(DOMElement *elem) override;
-	Calibration::VarProcessor *getCalibration() const override;
+    void configure(DOMElement *elem) override;
+    Calibration::VarProcessor *getCalibration() const override;
 
-    private:
-	unsigned int	count;
-};
+  private:
+    unsigned int count;
+  };
 
-ProcSplitter::Registry registry("ProcSplitter");
+  ProcSplitter::Registry registry("ProcSplitter");
 
-ProcSplitter::ProcSplitter(const char *name, const AtomicId *id,
-                           MVATrainer *trainer) :
-	TrainProcessor(name, id, trainer)
-{
-}
+  ProcSplitter::ProcSplitter(const char *name, const AtomicId *id, MVATrainer *trainer)
+      : TrainProcessor(name, id, trainer) {}
 
-ProcSplitter::~ProcSplitter()
-{
-}
+  ProcSplitter::~ProcSplitter() {}
 
-void ProcSplitter::configure(DOMElement *elem)
-{
-	DOMNode *node = elem->getFirstChild();
-	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
-		node = node->getNextSibling();
+  void ProcSplitter::configure(DOMElement *elem) {
+    DOMNode *node = elem->getFirstChild();
+    while (node && node->getNodeType() != DOMNode::ELEMENT_NODE)
+      node = node->getNextSibling();
 
-	if (!node ||
-	    std::strcmp(XMLSimpleStr(node->getNodeName()), "select") != 0)
-		throw cms::Exception("ProcSplitter")
-			<< "Expected select tag in config section."
-			<< std::endl;
+    if (!node || std::strcmp(XMLSimpleStr(node->getNodeName()), "select") != 0)
+      throw cms::Exception("ProcSplitter") << "Expected select tag in config section." << std::endl;
 
-	elem = static_cast<DOMElement*>(node);
+    elem = static_cast<DOMElement *>(node);
 
-	count = XMLDocument::readAttribute<unsigned int>(elem, "first");
+    count = XMLDocument::readAttribute<unsigned int>(elem, "first");
 
-	node = node->getNextSibling();
-	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
-		node = node->getNextSibling();
+    node = node->getNextSibling();
+    while (node && node->getNodeType() != DOMNode::ELEMENT_NODE)
+      node = node->getNextSibling();
 
-	if (node)
-		throw cms::Exception("ProcSplitter")
-			<< "Superfluous tags in config section."
-			<< std::endl;
+    if (node)
+      throw cms::Exception("ProcSplitter") << "Superfluous tags in config section." << std::endl;
 
-	trained = true;
-}
+    trained = true;
+  }
 
-Calibration::VarProcessor *ProcSplitter::getCalibration() const
-{
-	Calibration::ProcSplitter *calib = new Calibration::ProcSplitter;
-	calib->nFirst = count;
-	return calib;
-}
+  Calibration::VarProcessor *ProcSplitter::getCalibration() const {
+    Calibration::ProcSplitter *calib = new Calibration::ProcSplitter;
+    calib->nFirst = count;
+    return calib;
+  }
 
-} // anonymous namespace
+}  // anonymous namespace

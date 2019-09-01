@@ -2,7 +2,7 @@
 //Id:  NtupleManager.h
 //CAT: Analysis
 //
-//   History: v1.0 
+//   History: v1.0
 //   Luca Scodellaro
 
 #ifndef _NtupleManager_HH
@@ -17,14 +17,12 @@ class TFile;
 class TTree;
 class TClonesArray;
 
-class NtupleManager
-{
-
+class NtupleManager {
 public:
   //---------- Constructors / Destructor
-  NtupleManager(){ };
-  ~NtupleManager(){ };
-  static NtupleManager* getInstance();  
+  NtupleManager(){};
+  ~NtupleManager(){};
+  static NtupleManager* getInstance();
   void BookNtuple();
   void InitNtuple();
   void FillNtupleTree();
@@ -34,28 +32,34 @@ public:
   void FillOptObjects(MatrixMeschach* AtWAMatrix);
   void FillMeasurements();
 
-
 private:
   static NtupleManager* instance;
 
-  void GetGlobalAngles(const CLHEP::HepRotation& rmGlob, double *theta);
- 
-  TFile *theRootFile;
+  void GetGlobalAngles(const CLHEP::HepRotation& rmGlob, double* theta);
 
-  TTree *CocoaTree;
-/*   TTree *FitParametersTree; */
-/*   TTree *MeasurementsTree; */
+  TFile* theRootFile;
 
-  TClonesArray* CloneFitParam;              FitParam              *FitParamA;
-  TClonesArray* CloneOptObject;             OptObject             *OptObjectA;
-  TClonesArray* CloneSensor2DMeas;          Sensor2DMeas          *Sensor2DMeasA;
-  TClonesArray* CloneDistancemeterMeas;     DistancemeterMeas     *DistancemeterMeasA;
-  TClonesArray* CloneDistancemeter1DimMeas; Distancemeter1DimMeas *Distancemeter1DimMeasA;
-  TClonesArray* CloneTiltmeterMeas;         TiltmeterMeas         *TiltmeterMeasA;
-  TClonesArray* CloneCopsMeas;              CopsMeas              *CopsMeasA;
+  TTree* CocoaTree;
+  /*   TTree *FitParametersTree; */
+  /*   TTree *MeasurementsTree; */
 
-/*   bool BookFitParameters; */
-/*   bool BookMeasurements; */
+  TClonesArray* CloneFitParam;
+  FitParam* FitParamA;
+  TClonesArray* CloneOptObject;
+  OptObject* OptObjectA;
+  TClonesArray* CloneSensor2DMeas;
+  Sensor2DMeas* Sensor2DMeasA;
+  TClonesArray* CloneDistancemeterMeas;
+  DistancemeterMeas* DistancemeterMeasA;
+  TClonesArray* CloneDistancemeter1DimMeas;
+  Distancemeter1DimMeas* Distancemeter1DimMeasA;
+  TClonesArray* CloneTiltmeterMeas;
+  TiltmeterMeas* TiltmeterMeasA;
+  TClonesArray* CloneCopsMeas;
+  CopsMeas* CopsMeasA;
+
+  /*   bool BookFitParameters; */
+  /*   bool BookMeasurements; */
 
   double Chi2Measurements, Chi2CalibratedParameters;
   int NDegreesOfFreedom;
@@ -69,4 +73,3 @@ private:
 };
 
 #endif
-

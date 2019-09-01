@@ -31,19 +31,15 @@
 class L1GtStableParameters;
 
 // class declaration
-class L1GtStableParametersTester : public edm::EDAnalyzer
-{
-
+class L1GtStableParametersTester : public edm::EDAnalyzer {
 public:
+  // constructor
+  explicit L1GtStableParametersTester(const edm::ParameterSet&);
 
-    // constructor
-    explicit L1GtStableParametersTester(const edm::ParameterSet&);
+  // destructor
+  ~L1GtStableParametersTester() override;
 
-    // destructor
-    ~L1GtStableParametersTester() override;
-
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
-
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 };
 
 #endif /*L1GtConfigProducers_L1GtStableParametersTester_h*/

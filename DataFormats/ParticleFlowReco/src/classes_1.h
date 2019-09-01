@@ -22,15 +22,13 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
-/* #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h" */
-/* #include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h" */
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"  //Daniele
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"  //Daniele
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h" //Florian
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"      //Daniele
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"          //Daniele
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"  //Florian
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
@@ -40,13 +38,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 #include "DataFormats/ParticleFlowReco/interface/ConvBremSeed.h"
 #include "DataFormats/ParticleFlowReco/interface/ConvBremSeedFwd.h"
-//Includes by Jamie
-#include "DataFormats/ParticleFlowReco/interface/Calibratable.h"
-#include "DataFormats/ParticleFlowReco/interface/CalibrationResultWrapper.h"
-#include "DataFormats/ParticleFlowReco/interface/CalibrationProvenance.h"
-#include "DataFormats/ParticleFlowReco/interface/CaloWindow.h"
-#include "DataFormats/ParticleFlowReco/interface/CaloEllipse.h"
-#include "DataFormats/ParticleFlowReco/interface/CaloBox.h"
 #include "DataFormats/ParticleFlowReco/interface/ParticleFiltrationDecision.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidate.h"
@@ -62,50 +53,3 @@
 #include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidateFwd.h"
 
 #include <map>
-
-namespace DataFormats_ParticleFlowReco {
-  struct dictionary1 {
-
-    /* NuclearInteraction stuffs  */
-    reco::PFNuclearInteraction                                dummy21;
-    std::vector<reco::PFNuclearInteraction>                   dummy22;
-    edm::Wrapper<std::vector<reco::PFNuclearInteraction> >    dummy23;
-    edm::Ref<std::vector<reco::PFNuclearInteraction> >        dummy24;
-    edm::RefProd<std::vector<reco::PFNuclearInteraction> >    dummy25;
-    edm::RefVector<std::vector<reco::PFNuclearInteraction> >  dummy26;
-
-    reco::PFDisplacedTrackerVertex                                dummy21a;
-    std::vector<reco::PFDisplacedTrackerVertex>                   dummy22a;
-    edm::Wrapper<std::vector<reco::PFDisplacedTrackerVertex> >    dummy23a;
-    edm::Ref<std::vector<reco::PFDisplacedTrackerVertex> >        dummy24a;
-    edm::RefProd<std::vector<reco::PFDisplacedTrackerVertex> >    dummy25a;
-    edm::RefVector<std::vector<reco::PFDisplacedTrackerVertex> >  dummy26a;
-    reco::PFConversionCollection dummy27;
-    edm::Wrapper<reco::PFConversionCollection> dummy28;
-    edm::Ref<reco::PFConversionCollection> dummy29;
-    edm::RefProd<reco::PFConversionCollection> dummy30;
-    edm::Wrapper<edm::RefVector<reco::PFConversionCollection> > dummy31;
-    std::vector<edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > > dummy32;
-
-    /* V0 stuffs  */
-    reco::PFV0                                dummy33;
-    std::vector<reco::PFV0>                   dummy34;
-    edm::Wrapper<std::vector<reco::PFV0> >    dummy35;
-    edm::Ref<std::vector<reco::PFV0> >        dummy36;
-    edm::RefProd<std::vector<reco::PFV0> >    dummy37;
-    edm::RefVector<std::vector<reco::PFV0> >  dummy38;
-    edm::Ref<std::vector<reco::VertexCompositeCandidate>,reco::VertexCompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::VertexCompositeCandidate>,reco::VertexCompositeCandidate> > dummy39;
-
-    /* ConvBremSeed stuff */
-    reco::ConvBremSeedCollection dummy40;
-    edm::Wrapper<reco::ConvBremSeedCollection> dummy41;
-    edm::Ref<reco::ConvBremSeedCollection> dummy42;
-    edm::RefProd<reco::ConvBremSeedCollection> dummy43;
-    edm::Wrapper<edm::RefVector<reco::ConvBremSeedCollection> > dummy44;
-    edm::RefToBase<reco::ConvBremSeed> dummy45;
-    edm::reftobase::Holder< reco::ConvBremSeed, edm::Ref<reco::ConvBremSeedCollection> > dummy46;
-    edm::reftobase::RefHolder< edm::Ref<reco::ConvBremSeedCollection> > dummy47;
-
-
-  };
-}

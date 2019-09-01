@@ -7,7 +7,6 @@
  *  \author G. Cerminara - INFN Torino
  */
 
-
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/Common/interface/RangeMap.h"
@@ -15,12 +14,6 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include <functional>
 
-typedef edm::RangeMap <DTLayerId, edm::OwnVector<DTRecHit1DPair> > DTRecHitCollection;
-
-
+typedef edm::RangeMap<DTLayerId, edm::OwnVector<DTRecHit1DPair> > DTRecHitCollection;
 
 #endif
-
-
-
-

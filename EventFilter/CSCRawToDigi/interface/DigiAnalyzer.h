@@ -30,20 +30,15 @@ public:
   void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
 
 private:
-
   int eventNumber;
 
-  edm::EDGetTokenT<CSCWireDigiCollection>             wd_token;
-  edm::EDGetTokenT<CSCStripDigiCollection>            sd_token;
-  edm::EDGetTokenT<CSCComparatorDigiCollection>       cd_token;
-  edm::EDGetTokenT<CSCALCTDigiCollection>             al_token;
-  edm::EDGetTokenT<CSCCLCTDigiCollection>             cl_token;
-  edm::EDGetTokenT<CSCRPCDigiCollection>              rd_token;
-  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection>    co_token;
-  edm::EDGetTokenT<CSCDDUStatusDigiCollection>        dd_token;
-  edm::EDGetTokenT<CSCDCCFormatStatusDigiCollection>  dc_token;
-
+  edm::EDGetTokenT<CSCWireDigiCollection> wd_token;
+  edm::EDGetTokenT<CSCStripDigiCollection> sd_token;
+  edm::EDGetTokenT<CSCComparatorDigiCollection> cd_token;
+  edm::EDGetTokenT<CSCALCTDigiCollection> al_token;
+  edm::EDGetTokenT<CSCCLCTDigiCollection> cl_token;
+  edm::EDGetTokenT<CSCRPCDigiCollection> rd_token;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> co_token;
+  edm::EDGetTokenT<CSCDDUStatusDigiCollection> dd_token;
+  edm::EDGetTokenT<CSCDCCFormatStatusDigiCollection> dc_token;
 };
-
-
-

@@ -14,35 +14,35 @@
 
 namespace XrdAdaptor {
 
-class QualityMetric;
-class QualityMetricSource;
-class QualityMetricUniqueSource;
+  class QualityMetric;
+  class QualityMetricSource;
+  class QualityMetricUniqueSource;
 
-class QualityMetricWatch : boost::noncopyable {
-friend class QualityMetricSource;
+  class QualityMetricWatch : boost::noncopyable {
+    friend class QualityMetricSource;
 
-public:
+  public:
     QualityMetricWatch() : m_parent1(nullptr), m_parent2(nullptr) {}
     QualityMetricWatch(QualityMetricWatch &&);
     ~QualityMetricWatch();
 
     void swap(QualityMetricWatch &);
 
-private:
+  private:
     QualityMetricWatch(QualityMetric *parent1, QualityMetric *parent2);
     timespec m_start;
-    edm::propagate_const<QualityMetric*> m_parent1;
-    edm::propagate_const<QualityMetric*> m_parent2;
-};
+    edm::propagate_const<QualityMetric *> m_parent1;
+    edm::propagate_const<QualityMetric *> m_parent2;
+  };
 
-class QualityMetric : boost::noncopyable {
-friend class QualityMetricWatch;
+  class QualityMetric : boost::noncopyable {
+    friend class QualityMetricWatch;
 
-public:
-    QualityMetric(timespec now, int default_value=260);
+  public:
+    QualityMetric(timespec now, int default_value = 260);
     unsigned get();
 
-private:
+  private:
     void finishWatch(timespec now, int ms);
 
     static const unsigned interval_length = 60;
@@ -57,52 +57,47 @@ private:
     int m_interval4_val;
 
     std::mutex m_mutex;
-};
+  };
 
-class QualityMetricFactory {
+  class QualityMetricFactory {
+    friend class Source;
 
-friend class Source;
-
-private:
-    static
-    std::unique_ptr<QualityMetricSource> get(timespec now, const std::string &id);
+  private:
+    static std::unique_ptr<QualityMetricSource> get(timespec now, const std::string &id);
 
     CMS_THREAD_SAFE static QualityMetricFactory m_instance;
 
-    typedef tbb::concurrent_unordered_map<std::string, QualityMetricUniqueSource*> MetricMap;
+    typedef tbb::concurrent_unordered_map<std::string, QualityMetricUniqueSource *> MetricMap;
     MetricMap m_sources;
-};
+  };
 
-/**
+  /**
  * This QM implementation is meant to be held by each XrdAdaptor::Source
  * instance
  */
-class QualityMetricSource final : public QualityMetric {
+  class QualityMetricSource final : public QualityMetric {
+    friend class QualityMetricUniqueSource;
 
-friend class QualityMetricUniqueSource;
-
-public:
+  public:
     void startWatch(QualityMetricWatch &);
 
-private:
+  private:
     QualityMetricSource(QualityMetricUniqueSource &parent, timespec now, int default_value);
 
     QualityMetricUniqueSource &m_parent;
-};
+  };
 
-/*
+  /*
  * This quality metric tracks all accesses to a given source ID.
  */
-class QualityMetricUniqueSource final : public QualityMetric {
+  class QualityMetricUniqueSource final : public QualityMetric {
+    friend class QualityMetricFactory;
 
-friend class QualityMetricFactory;
-
-private:
+  private:
     QualityMetricUniqueSource(timespec now);
     std::unique_ptr<QualityMetricSource> newSource(timespec now);
-};
+  };
 
-}
+}  // namespace XrdAdaptor
 
-#endif // Utilities_XrdAdaptor_QualityMetric_h
-
+#endif  // Utilities_XrdAdaptor_QualityMetric_h

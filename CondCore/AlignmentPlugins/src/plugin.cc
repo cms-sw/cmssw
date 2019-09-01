@@ -20,6 +20,8 @@
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GEMAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GEMAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTSurveyRcd.h"
@@ -47,6 +49,7 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GEMAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentErrorExtendedRcd.h"
@@ -56,45 +59,48 @@
 #include "CondFormats/AlignmentRecord/interface/HFAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorExtendedRcd.h"
 
-REGISTER_PLUGIN(GlobalPositionRcd,Alignments);
-REGISTER_PLUGIN(TrackerAlignmentRcd,Alignments);
-REGISTER_PLUGIN(TrackerSurfaceDeformationRcd,AlignmentSurfaceDeformations);
-REGISTER_PLUGIN(DTAlignmentRcd,Alignments);
-REGISTER_PLUGIN(DTAlignmentErrorRcd,AlignmentErrors);
-REGISTER_PLUGIN(CSCAlignmentRcd,Alignments);
-REGISTER_PLUGIN(CSCAlignmentErrorRcd,AlignmentErrors);
-REGISTER_PLUGIN(TrackerSurveyRcd,Alignments);
-REGISTER_PLUGIN(TrackerSurveyErrorRcd,SurveyErrors);
-REGISTER_PLUGIN(DTSurveyRcd,Alignments);
-REGISTER_PLUGIN(DTSurveyErrorRcd,SurveyErrors);
-REGISTER_PLUGIN(CSCSurveyRcd,Alignments);
-REGISTER_PLUGIN(CSCSurveyErrorRcd,SurveyErrors);
+REGISTER_PLUGIN(GlobalPositionRcd, Alignments);
+REGISTER_PLUGIN(TrackerAlignmentRcd, Alignments);
+REGISTER_PLUGIN(TrackerSurfaceDeformationRcd, AlignmentSurfaceDeformations);
+REGISTER_PLUGIN(DTAlignmentRcd, Alignments);
+REGISTER_PLUGIN(DTAlignmentErrorRcd, AlignmentErrors);
+REGISTER_PLUGIN(CSCAlignmentRcd, Alignments);
+REGISTER_PLUGIN(CSCAlignmentErrorRcd, AlignmentErrors);
+REGISTER_PLUGIN(GEMAlignmentRcd, Alignments);
+REGISTER_PLUGIN(GEMAlignmentErrorRcd, AlignmentErrors);
+REGISTER_PLUGIN(TrackerSurveyRcd, Alignments);
+REGISTER_PLUGIN(TrackerSurveyErrorRcd, SurveyErrors);
+REGISTER_PLUGIN(DTSurveyRcd, Alignments);
+REGISTER_PLUGIN(DTSurveyErrorRcd, SurveyErrors);
+REGISTER_PLUGIN(CSCSurveyRcd, Alignments);
+REGISTER_PLUGIN(CSCSurveyErrorRcd, SurveyErrors);
 
-REGISTER_PLUGIN(EBAlignmentRcd,Alignments);
-REGISTER_PLUGIN(EBAlignmentErrorRcd,AlignmentErrors);
-REGISTER_PLUGIN(EEAlignmentRcd,Alignments);
-REGISTER_PLUGIN(EEAlignmentErrorRcd,AlignmentErrors);
-REGISTER_PLUGIN(ESAlignmentRcd,Alignments);
-REGISTER_PLUGIN(ESAlignmentErrorRcd,AlignmentErrors);
-REGISTER_PLUGIN(HBAlignmentRcd,Alignments);
-REGISTER_PLUGIN(HBAlignmentErrorRcd,AlignmentErrors);
-REGISTER_PLUGIN(HEAlignmentRcd,Alignments);
-REGISTER_PLUGIN(HEAlignmentErrorRcd,AlignmentErrors);
-REGISTER_PLUGIN(HOAlignmentRcd,Alignments);
-REGISTER_PLUGIN(HOAlignmentErrorRcd,AlignmentErrors);
-REGISTER_PLUGIN(HFAlignmentRcd,Alignments);
-REGISTER_PLUGIN(HFAlignmentErrorRcd,AlignmentErrors);
-REGISTER_PLUGIN(ZDCAlignmentRcd,Alignments);
-REGISTER_PLUGIN(ZDCAlignmentErrorRcd,AlignmentErrors);
-REGISTER_PLUGIN(TrackerAlignmentErrorRcd,AlignmentErrors);
-REGISTER_PLUGIN(TrackerAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
-REGISTER_PLUGIN(DTAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
-REGISTER_PLUGIN(CSCAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
-REGISTER_PLUGIN(EBAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
-REGISTER_PLUGIN(EEAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
-REGISTER_PLUGIN(ESAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
-REGISTER_PLUGIN(HBAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
-REGISTER_PLUGIN(HEAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
-REGISTER_PLUGIN(HOAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
-REGISTER_PLUGIN(HFAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
-REGISTER_PLUGIN(ZDCAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
+REGISTER_PLUGIN(EBAlignmentRcd, Alignments);
+REGISTER_PLUGIN(EBAlignmentErrorRcd, AlignmentErrors);
+REGISTER_PLUGIN(EEAlignmentRcd, Alignments);
+REGISTER_PLUGIN(EEAlignmentErrorRcd, AlignmentErrors);
+REGISTER_PLUGIN(ESAlignmentRcd, Alignments);
+REGISTER_PLUGIN(ESAlignmentErrorRcd, AlignmentErrors);
+REGISTER_PLUGIN(HBAlignmentRcd, Alignments);
+REGISTER_PLUGIN(HBAlignmentErrorRcd, AlignmentErrors);
+REGISTER_PLUGIN(HEAlignmentRcd, Alignments);
+REGISTER_PLUGIN(HEAlignmentErrorRcd, AlignmentErrors);
+REGISTER_PLUGIN(HOAlignmentRcd, Alignments);
+REGISTER_PLUGIN(HOAlignmentErrorRcd, AlignmentErrors);
+REGISTER_PLUGIN(HFAlignmentRcd, Alignments);
+REGISTER_PLUGIN(HFAlignmentErrorRcd, AlignmentErrors);
+REGISTER_PLUGIN(ZDCAlignmentRcd, Alignments);
+REGISTER_PLUGIN(ZDCAlignmentErrorRcd, AlignmentErrors);
+REGISTER_PLUGIN(TrackerAlignmentErrorRcd, AlignmentErrors);
+REGISTER_PLUGIN(TrackerAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
+REGISTER_PLUGIN(DTAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
+REGISTER_PLUGIN(CSCAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
+REGISTER_PLUGIN(GEMAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
+REGISTER_PLUGIN(EBAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
+REGISTER_PLUGIN(EEAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
+REGISTER_PLUGIN(ESAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
+REGISTER_PLUGIN(HBAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
+REGISTER_PLUGIN(HEAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
+REGISTER_PLUGIN(HOAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
+REGISTER_PLUGIN(HFAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
+REGISTER_PLUGIN(ZDCAlignmentErrorExtendedRcd, AlignmentErrorsExtended);

@@ -28,30 +28,25 @@
 #include <string>
 
 class Phase2TrackerRecHits : public edm::global::EDProducer<> {
+public:
+  explicit Phase2TrackerRecHits(const edm::ParameterSet& conf);
+  ~Phase2TrackerRecHits() override{};
+  void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const final;
 
-        public:
-
-            explicit Phase2TrackerRecHits(const edm::ParameterSet& conf);
-            ~Phase2TrackerRecHits() override {};
-            void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const     final;
-
-        private:
-
-            edm::EDGetTokenT< Phase2TrackerCluster1DCollectionNew > token_;
-            edm::ESInputTag cpeTag_;
-
+private:
+  edm::EDGetTokenT<Phase2TrackerCluster1DCollectionNew> token_;
+  edm::ESInputTag cpeTag_;
 };
 
-Phase2TrackerRecHits::Phase2TrackerRecHits(edm::ParameterSet const& conf) : 
-  token_(consumes< Phase2TrackerCluster1DCollectionNew >(conf.getParameter<edm::InputTag>("src"))),
-  cpeTag_(conf.getParameter<edm::ESInputTag>("Phase2StripCPE")) {
-    produces<Phase2TrackerRecHit1DCollectionNew>();
+Phase2TrackerRecHits::Phase2TrackerRecHits(edm::ParameterSet const& conf)
+    : token_(consumes<Phase2TrackerCluster1DCollectionNew>(conf.getParameter<edm::InputTag>("src"))),
+      cpeTag_(conf.getParameter<edm::ESInputTag>("Phase2StripCPE")) {
+  produces<Phase2TrackerRecHit1DCollectionNew>();
 }
 
 void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const {
-
   // Get the Clusters
-  edm::Handle< Phase2TrackerCluster1DCollectionNew > clusters;
+  edm::Handle<Phase2TrackerCluster1DCollectionNew> clusters;
   event.getByToken(token_, clusters);
 
   // load the cpe via the eventsetup
@@ -59,29 +54,30 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
   eventSetup.get<TkStripCPERecord>().get(cpeTag_, cpe);
 
   // Get the geometry
-  edm::ESHandle< TrackerGeometry > geomHandle;
-  eventSetup.get< TrackerDigiGeometryRecord >().get(geomHandle);
+  edm::ESHandle<TrackerGeometry> geomHandle;
+  eventSetup.get<TrackerDigiGeometryRecord>().get(geomHandle);
   const TrackerGeometry* tkGeom(&(*geomHandle));
 
   // Global container for the RecHits of each module
   auto outputRecHits = std::make_unique<Phase2TrackerRecHit1DCollectionNew>();
 
   // Loop over clusters
-  for (const auto &clusterDetSet : *clusters) { 
-  
+  for (const auto& clusterDetSet : *clusters) {
     DetId detId(clusterDetSet.detId());
 
     // Geometry
-    const GeomDetUnit * geomDetUnit(tkGeom->idToDetUnit(detId));
+    const GeomDetUnit* geomDetUnit(tkGeom->idToDetUnit(detId));
 
     // Container for the clusters that will be produced for this modules
     Phase2TrackerRecHit1DCollectionNew::FastFiller rechits(*outputRecHits, clusterDetSet.detId());
 
-    for (const auto &clusterRef : clusterDetSet) { 
-      ClusterParameterEstimator< Phase2TrackerCluster1D >::LocalValues lv = cpe->localParameters(clusterRef, *geomDetUnit);
+    for (const auto& clusterRef : clusterDetSet) {
+      ClusterParameterEstimator<Phase2TrackerCluster1D>::LocalValues lv =
+          cpe->localParameters(clusterRef, *geomDetUnit);
 
       // Create a persistent edm::Ref to the cluster
-      edm::Ref< Phase2TrackerCluster1DCollectionNew, Phase2TrackerCluster1D > cluster = edmNew::makeRefTo(clusters, &clusterRef);
+      edm::Ref<Phase2TrackerCluster1DCollectionNew, Phase2TrackerCluster1D> cluster =
+          edmNew::makeRefTo(clusters, &clusterRef);
 
       // Make a RecHit and add it to the DetSet
       Phase2TrackerRecHit1D hit(lv.first, lv.second, *geomDetUnit, cluster);
@@ -92,7 +88,6 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
 
   outputRecHits->shrink_to_fit();
   event.put(std::move(outputRecHits));
-
 }
 
 DEFINE_FWK_MODULE(Phase2TrackerRecHits);

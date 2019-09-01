@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -42,92 +42,73 @@ class L1GtFdlWord;
 class L1GtPsbWord;
 
 // class declaration
-class L1GTDigiToRaw : public edm::EDProducer
-{
-
+class L1GTDigiToRaw : public edm::stream::EDProducer<> {
 public:
-
-    /// constructor(s)
-    explicit L1GTDigiToRaw(const edm::ParameterSet&);
-
-    /// destructor
-    ~L1GTDigiToRaw() override;
+  /// constructor(s)
+  explicit L1GTDigiToRaw(const edm::ParameterSet&);
 
 private:
+  /// loop over events
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-    /// beginning of job stuff
-    void beginJob() override;
+  /// block packers -------------
 
-    /// loop over events
-    void produce(edm::Event&, const edm::EventSetup&) override;
+  /// pack header
+  void packHeader(unsigned char*, edm::Event&);
 
-    /// block packers -------------
+  /// pack the GTFE block
+  /// gives the number of bunch crosses in the event, as well as the active boards
+  /// records for inactive boards are not written in the GT DAQ record
+  void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeWord&, cms_uint16_t activeBoardsGtValue);
 
-    /// pack header
-    void packHeader(unsigned char*, edm::Event&);
+  /// pack FDL blocks for various bunch crosses
+  void packFDL(const edm::EventSetup&, unsigned char*, L1GtFdlWord&);
 
-    /// pack the GTFE block
-    /// gives the number of bunch crosses in the event, as well as the active boards
-    /// records for inactive boards are not written in the GT DAQ record
-    void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeWord&,
-                  cms_uint16_t activeBoardsGtValue);
+  /// pack PSB blocks
+  /// packing is done in PSB class format
+  void packPSB(const edm::EventSetup&, unsigned char*, L1GtPsbWord&);
 
-    /// pack FDL blocks for various bunch crosses
-    void packFDL(const edm::EventSetup&, unsigned char*, L1GtFdlWord&);
+  /// pack the GMT collection using packGMT (GMT record packing)
+  unsigned int packGmtCollection(unsigned char* ptrGt, L1MuGMTReadoutCollection const* digis);
 
-    /// pack PSB blocks
-    /// packing is done in PSB class format
-    void packPSB(const edm::EventSetup&, unsigned char*, L1GtPsbWord&);
+  /// pack a GMT record
+  unsigned int packGMT(L1MuGMTReadoutRecord const&, unsigned char*);
+  unsigned int flipPtQ(unsigned int);
 
-    /// pack the GMT collection using packGMT (GMT record packing)
-    unsigned int packGmtCollection(
-        unsigned char* ptrGt,
-        L1MuGMTReadoutCollection const* digis);
-
-    /// pack a GMT record
-    unsigned int packGMT(L1MuGMTReadoutRecord const&, unsigned char*);
-    unsigned int flipPtQ(unsigned int);
-
-    /// pack trailer word
-    void packTrailer(unsigned char*, unsigned char*, int);
-
-    /// end of job stuff
-    void endJob() override;
+  /// pack trailer word
+  void packTrailer(unsigned char*, unsigned char*, int);
 
 private:
+  /// FED Id for GT DAQ record
+  /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
+  int m_daqGtFedId;
 
-    /// FED Id for GT DAQ record
-    /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    int m_daqGtFedId;
+  /// input tag for GT DAQ record
+  const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_daqGtInputToken;
 
-    /// input tag for GT DAQ record
-    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_daqGtInputToken;
+  /// input tag for GMT record
+  const edm::EDGetTokenT<L1MuGMTReadoutCollection> m_muGmtInputToken;
+  const edm::InputTag m_daqGtInputTag;
+  const edm::InputTag m_muGmtInputTag;
 
-    /// input tag for GMT record
-    edm::EDGetTokenT<L1MuGMTReadoutCollection> m_muGmtInputToken;
-    edm::InputTag m_daqGtInputTag;
-    edm::InputTag m_muGmtInputTag;
+  /// mask for active boards
+  cms_uint16_t m_activeBoardsMaskGt;
 
-    /// mask for active boards
-    cms_uint16_t m_activeBoardsMaskGt;
+  /// total Bx's in the event, obtained from GTFE block
+  int m_totalBxInEvent;
 
-    /// total Bx's in the event, obtained from GTFE block
-    int m_totalBxInEvent;
+  /// min Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
+  /// assume symmetrical number of BX around L1Accept
+  int m_minBxInEvent;
 
-    /// min Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
-    /// assume symmetrical number of BX around L1Accept
-    int m_minBxInEvent;
-
-    /// max Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
-    /// assume symmetrical number of BX around L1Accept
-    int m_maxBxInEvent;
+  /// max Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
+  /// assume symmetrical number of BX around L1Accept
+  int m_maxBxInEvent;
 
 private:
-
-    /// verbosity level
-    int m_verbosity;
-    bool m_isDebugEnabled;
-
+  /// verbosity level
+  int m_verbosity;
+  bool m_isDebugEnabled;
 };
 
-#endif // EventFilter_L1GlobalTriggerRawToDigi_L1GTDigiToRaw_h
+#endif  // EventFilter_L1GlobalTriggerRawToDigi_L1GTDigiToRaw_h

@@ -17,54 +17,42 @@
 
 #include "HepMC/IO_GenEvent.h"
 
-
 class HepMCEventWriter : public edm::EDAnalyzer {
 public:
   explicit HepMCEventWriter(const edm::ParameterSet &params);
   ~HepMCEventWriter() override;
-  
+
 protected:
   void beginRun(const edm::Run &run, const edm::EventSetup &es) override;
   void endRun(const edm::Run &run, const edm::EventSetup &es) override;
   void analyze(const edm::Event &event, const edm::EventSetup &es) override;
-  
+
 private:
-  edm::propagate_const<HepMC::IO_GenEvent*> _output;
+  edm::propagate_const<HepMC::IO_GenEvent *> _output;
   edm::InputTag hepMCProduct_;
 };
 
-HepMCEventWriter::HepMCEventWriter(const edm::ParameterSet &params) :
-  hepMCProduct_(params.getParameter<edm::InputTag>("hepMCProduct"))
-{
+HepMCEventWriter::HepMCEventWriter(const edm::ParameterSet &params)
+    : hepMCProduct_(params.getParameter<edm::InputTag>("hepMCProduct")) {}
+
+HepMCEventWriter::~HepMCEventWriter() {}
+
+void HepMCEventWriter::beginRun(const edm::Run &run, const edm::EventSetup &es) {
+  _output = new HepMC::IO_GenEvent("GenEvent_ASCII.dat", std::ios::out);
 }
 
-HepMCEventWriter::~HepMCEventWriter()
-{
+void HepMCEventWriter::endRun(const edm::Run &run, const edm::EventSetup &es) {
+  if (_output)
+    delete _output.get();
 }
 
-void HepMCEventWriter::beginRun(const edm::Run &run, const edm::EventSetup &es)
-{
-
-  _output = new HepMC::IO_GenEvent("GenEvent_ASCII.dat",std::ios::out);
-
-}
-
-
-void HepMCEventWriter::endRun(const edm::Run &run, const edm::EventSetup &es)
-{
-  if (_output) delete _output.get();
-}
-
-void HepMCEventWriter::analyze(const edm::Event &event, const edm::EventSetup &es)
-{
-
+void HepMCEventWriter::analyze(const edm::Event &event, const edm::EventSetup &es) {
   edm::Handle<edm::HepMCProduct> product;
   event.getByLabel(hepMCProduct_, product);
 
-  const HepMC::GenEvent* evt = product->GetEvent();
+  const HepMC::GenEvent *evt = product->GetEvent();
 
   _output->write_event(evt);
-
 }
 
 DEFINE_FWK_MODULE(HepMCEventWriter);

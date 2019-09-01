@@ -3,6 +3,4 @@
 
 #include "CalibTracker/SiPixelGainCalibration/test/SimpleTestPrintOutPixelCalibAnalyzer.h"
 
-
-
 DEFINE_FWK_MODULE(SimpleTestPrintOutPixelCalibAnalyzer);

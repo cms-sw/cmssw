@@ -28,7 +28,7 @@ TrackSplittingSequence = "process.cosmicValidation"
 trackSplitPlotExecution="""
 #make track splitting plots
 
-rfcp .oO[trackSplitPlotScriptPath]Oo. .
+cp .oO[trackSplitPlotScriptPath]Oo. .
 root -x -b -q TkAlTrackSplitPlot.C++
 
 """

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// 
+//
 //
 
 // class ParameterCollector provides a tool to parse blocks of PSets
@@ -23,70 +23,68 @@
 
 namespace gen {
 
-class ParameterCollector {
-public:
-   ParameterCollector();
-   ParameterCollector(const edm::ParameterSet &pset);
-   ~ParameterCollector();
+  class ParameterCollector {
+  public:
+    ParameterCollector();
+    ParameterCollector(const edm::ParameterSet &pset);
+    ~ParameterCollector();
 
-   // this iterator makes begin()/end() look like it was
-   // looping over a simple vector<string>
+    // this iterator makes begin()/end() look like it was
+    // looping over a simple vector<string>
 
-   class const_iterator :
-      public boost::iterator_facade<const_iterator, const std::string,
-                                    boost::forward_traversal_tag> {
-   public:
+    class const_iterator
+        : public boost::iterator_facade<const_iterator, const std::string, boost::forward_traversal_tag> {
+    public:
       const_iterator() : collector_(nullptr), dump_(nullptr) {}
 
-   protected:
+    protected:
       friend class ParameterCollector;
 
       inline const_iterator(const ParameterCollector *collector,
                             std::vector<std::string>::const_iterator begin,
                             std::vector<std::string>::const_iterator end,
-                            bool special = false, std::ostream *dump = nullptr);
+                            bool special = false,
+                            std::ostream *dump = nullptr);
 
-   private:
+    private:
       friend class boost::iterator_core_access;
 
       void increment();
       const std::string &dereference() const { return cache_; }
-      bool equal(const const_iterator &other) const
-      { return iter_ == other.iter_; }
+      bool equal(const const_iterator &other) const { return iter_ == other.iter_; }
 
       void next();
 
-      typedef std::pair<std::vector<std::string>::const_iterator,
-                        std::vector<std::string>::const_iterator> IterPair;
+      typedef std::pair<std::vector<std::string>::const_iterator, std::vector<std::string>::const_iterator> IterPair;
 
-      const ParameterCollector	*collector_;
-      std::ostream		*dump_;
-      bool			special_;
-      std::vector<IterPair>	iter_;
-      std::string		cache_;
-   };
+      const ParameterCollector *collector_;
+      std::ostream *dump_;
+      bool special_;
+      std::vector<IterPair> iter_;
+      std::string cache_;
+    };
 
-   // start iterating over blocks listed in "parameterSets"
-   const_iterator begin() const;
-   const_iterator begin(std::ostream &dump) const;
+    // start iterating over blocks listed in "parameterSets"
+    const_iterator begin() const;
+    const_iterator begin(std::ostream &dump) const;
 
-   // start iterating over contents of this particular vstring block
-   const_iterator begin(const std::string &block) const;
-   const_iterator begin(const std::string &block, std::ostream &dump) const;
+    // start iterating over contents of this particular vstring block
+    const_iterator begin(const std::string &block) const;
+    const_iterator begin(const std::string &block, std::ostream &dump) const;
 
-   // the iterator to mark the end of a loop
-   const_iterator end() const { return const_iterator(); }
+    // the iterator to mark the end of a loop
+    const_iterator end() const { return const_iterator(); }
 
-   // this replaces ${...} with environment variables
-   // needed for ThePEG because you need full path to repository
-   static std::string resolve(const std::string &line);
+    // this replaces ${...} with environment variables
+    // needed for ThePEG because you need full path to repository
+    static std::string resolve(const std::string &line);
 
-private:
-   friend class const_iterator;
+  private:
+    friend class const_iterator;
 
-   std::map<std::string, std::vector<std::string> > contents_;
-};
+    std::map<std::string, std::vector<std::string> > contents_;
+  };
 
-} // namespace gen
+}  // namespace gen
 
-#endif // gen_ParameterCollector_h
+#endif  // gen_ParameterCollector_h

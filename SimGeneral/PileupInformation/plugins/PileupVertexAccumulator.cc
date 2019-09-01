@@ -2,7 +2,7 @@
 //
 // Package:    PileupVertexAccumulator
 // Class:      PileupVertexAccumulator
-// 
+//
 /**\class PileupVertexAccumulator PileupVertexAccumulator.cc SimTracker/PileupVertexAccumulator/src/PileupVertexAccumulator.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Wed Jan 21 05:14:48 CET 2015
 //
 //
-
 
 // system include files
 #include <memory>
@@ -49,7 +48,6 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -63,34 +61,30 @@
 //
 //using namespace std;
 
+namespace cms {
+  PileupVertexAccumulator::PileupVertexAccumulator(const edm::ParameterSet& iConfig,
+                                                   edm::ProducerBase& mixMod,
+                                                   edm::ConsumesCollector& iC)
+      : Mtag_(iConfig.getParameter<edm::InputTag>("vtxTag")),
+        fallbackMtag_(iConfig.getParameter<edm::InputTag>("vtxFallbackTag")),
+        saveVtxTimes_(iConfig.getParameter<bool>("saveVtxTimes")) {
+    edm::LogInfo("PixelDigitizer ") << "Enter the Pixel Digitizer";
 
-namespace cms
-{
-  PileupVertexAccumulator::PileupVertexAccumulator(const edm::ParameterSet& iConfig, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) :
-    Mtag_(iConfig.getParameter<edm::InputTag>("vtxTag")),
-    fallbackMtag_(iConfig.getParameter<edm::InputTag>("vtxFallbackTag")),
-    saveVtxTimes_(iConfig.getParameter<bool>("saveVtxTimes"))
-  {
-    edm::LogInfo ("PixelDigitizer ") <<"Enter the Pixel Digitizer";
-    
-    const std::string alias ("PileupVertexAccum"); 
-    
+    const std::string alias("PileupVertexAccum");
+
     mixMod.produces<PileupVertexContent>().setBranchAlias(alias);
 
     iC.consumes<edm::HepMCProduct>(Mtag_);
     iC.mayConsume<edm::HepMCProduct>(fallbackMtag_);
   }
-  
-  PileupVertexAccumulator::~PileupVertexAccumulator(){  
-  }
 
+  PileupVertexAccumulator::~PileupVertexAccumulator() {}
 
   //
   // member functions
   //
-  
-  void
-  PileupVertexAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
+
+  void PileupVertexAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
     // Make sure that the first crossing processed starts indexing the minbias events from zero.
 
     pT_Hats_.clear();
@@ -98,21 +92,20 @@ namespace cms
     t_posns_.clear();
   }
 
-  void
-  PileupVertexAccumulator::accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+  void PileupVertexAccumulator::accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
     // don't do anything for hard-scatter signal events
   }
 
-  void
-  PileupVertexAccumulator::accumulate(PileUpEventPrincipal const& iEvent, edm::EventSetup const& iSetup, edm::StreamID const& streamID) {
-
+  void PileupVertexAccumulator::accumulate(PileUpEventPrincipal const& iEvent,
+                                           edm::EventSetup const& iSetup,
+                                           edm::StreamID const& streamID) {
     edm::Handle<edm::HepMCProduct> MCevt;
     iEvent.getByLabel(Mtag_, MCevt);
-    if(MCevt.whyFailed()) {
+    if (MCevt.whyFailed()) {
       iEvent.getByLabel(fallbackMtag_, MCevt);
     }
 
-    const HepMC::GenEvent *myGenEvent = MCevt->GetEvent();
+    const HepMC::GenEvent* myGenEvent = MCevt->GetEvent();
 
     double pthat = myGenEvent->event_scale();
     float pt_hat = float(pthat);
@@ -124,35 +117,30 @@ namespace cms
     HepMC::GenEvent::vertex_const_iterator vend = myGenEvent->vertices_end();
 
     // for production point, pick first vertex
-    viter=vbegin; 
+    viter = vbegin;
 
-    if(viter!=vend){
+    if (viter != vend) {
       // The origin vertex (turn it to cm's from GenEvent mm's)
-      HepMC::GenVertex* v = *viter;   
-      float zpos = v->position().z()*0.1;
- 
+      HepMC::GenVertex* v = *viter;
+      float zpos = v->position().z() * 0.1;
+
       z_posns_.push_back(zpos);
 
       if (saveVtxTimes_) {
-          float tpos = v->position().t()/299792458e-6; // turn from mm to ns
-          t_posns_.push_back(tpos);
+        float tpos = v->position().t() / 299792458e-6;  // turn from mm to ns
+        t_posns_.push_back(tpos);
       }
     }
 
     //    delete myGenEvent;
-
   }
 
   // ------------ method called to produce write the data  ------------
-  void
-  PileupVertexAccumulator::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+  void PileupVertexAccumulator::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::unique_ptr<PileupVertexContent> PUVtxC(new PileupVertexContent(pT_Hats_, z_posns_, t_posns_));
 
     // write output to event
     iEvent.put(std::move(PUVtxC));
   }
 
-
-}// end namespace cms::
-
+}  // namespace cms

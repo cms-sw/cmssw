@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 from RecoTracker.IterativeTracking.HighPtTripletStep_cff import *
-from HIPixelTripletSeeds_cff import *
-from HIPixel3PrimTracks_cfi import *
+from .HIPixelTripletSeeds_cff import *
+from .HIPixel3PrimTracks_cfi import *
 
 hiHighPtTripletStepClusters = cms.EDProducer("HITrackClusterRemover",
      clusterLessSolution = cms.bool(True),
@@ -54,7 +55,7 @@ hiHighPtTripletStepTracksHitDoubletsCA = _hitPairEDProducer.clone(
     clusterCheck = "",
     seedingLayers = "hiHighPtTripletStepSeedLayers",
     trackingRegions = "hiHighPtTripletStepTrackingRegions",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
     layerPairs = [0,1]
 )

@@ -16,19 +16,16 @@
 #include "OnlineDB/CSCCondDB/interface/CSCDDUMapValues.h"
 #include "OnlineDB/CSCCondDB/interface/CSCMap1.h"
 
-namespace popcon
-{
-  class CSCDDUMapImpl : public popcon::PopConSourceHandler<CSCDDUMap>
-    {
-      
-    public:
-      void getNewObjects();
-      std::string id() const { return m_name;}
-      ~CSCDDUMapImpl(); 
-      CSCDDUMapImpl(const edm::ParameterSet& pset);
-            
-    private:
-      std::string m_name;
-    };
-}
+namespace popcon {
+  class CSCDDUMapImpl : public popcon::PopConSourceHandler<CSCDDUMap> {
+  public:
+    void getNewObjects();
+    std::string id() const { return m_name; }
+    ~CSCDDUMapImpl();
+    CSCDDUMapImpl(const edm::ParameterSet& pset);
+
+  private:
+    std::string m_name;
+  };
+}  // namespace popcon
 #endif

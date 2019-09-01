@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+from __future__ import print_function
+from builtins import range
 import os,subprocess,sys,re,time,random
 from threading import *
 from subprocess import call
 #Some Constants
-STATE_CREATED,STATE_COMPLETED,STATE_ERROR=range(3) 
+STATE_CREATED,STATE_COMPLETED,STATE_ERROR=list(range(3)) 
 
 ### Classes
 class BuildThread(Thread):
@@ -40,7 +42,7 @@ class BuildThread(Thread):
     if rValue == 0: 
       self.BuildNode.State=STATE_COMPLETED
     else:
-      print "Build failed for %s"  % self.BuildNode.LibName
+      print("Build failed for %s"  % self.BuildNode.LibName)
       self.BuildNode.State=STATE_ERROR
     self.QueueList[self.Queue].QueueSem.release()
   

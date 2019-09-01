@@ -2,7 +2,7 @@
 //
 // Package:     Provenance
 // Class  :     ESRecordAuxiliary
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -27,15 +27,10 @@ using namespace edm;
 //
 // constructors and destructor
 //
-ESRecordAuxiliary::ESRecordAuxiliary()
-{
-}
+ESRecordAuxiliary::ESRecordAuxiliary() {}
 
-ESRecordAuxiliary::ESRecordAuxiliary(const edm::EventID& iID, const edm::Timestamp& iTime):
-eventID_(iID),
-timestamp_(iTime)
-{
-}
+ESRecordAuxiliary::ESRecordAuxiliary(const edm::EventID& iID, const edm::Timestamp& iTime)
+    : eventID_(iID), timestamp_(iTime) {}
 // ESRecordAuxiliary::ESRecordAuxiliary(const ESRecordAuxiliary& rhs)
 // {
 //    // do actual copying here;

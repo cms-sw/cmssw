@@ -13,20 +13,21 @@ namespace edm {
   class ParameterSetDescription;
 
   class RunHelperBase {
-  public: 
+  public:
     explicit RunHelperBase() = default;
     virtual ~RunHelperBase();
 
-    virtual InputSource::ItemType nextItemType(
-      InputSource::ItemType const& previousItemType,
-      InputSource::ItemType const& newItemType) {return newItemType;}
-    virtual RunNumber_t runNumberToUseForThisLumi() const {return 0;}
-    virtual bool fakeNewRun() const {return false;} 
+    virtual InputSource::ItemType nextItemType(InputSource::ItemType const& previousItemType,
+                                               InputSource::ItemType const& newItemType) {
+      return newItemType;
+    }
+    virtual RunNumber_t runNumberToUseForThisLumi() const { return 0; }
+    virtual bool fakeNewRun() const { return false; }
     virtual void setForcedRunOffset(RunNumber_t firstRun) {}
     virtual void checkForNewRun(RunNumber_t run) {}
 
     virtual void checkRunConsistency(RunNumber_t run, RunNumber_t origninalRun) const;
-    virtual void checkLumiConsistency(LuminosityBlockNumber_t lumi, LuminosityBlockNumber_t origninalLumi) const; 
+    virtual void checkLumiConsistency(LuminosityBlockNumber_t lumi, LuminosityBlockNumber_t origninalLumi) const;
     virtual void overrideRunNumber(EventID& event, bool isRealData) {}
     virtual void overrideRunNumber(RunID& run) {}
     virtual void overrideRunNumber(LuminosityBlockID& lumi) {}
@@ -41,7 +42,7 @@ namespace edm {
   };
 
   class SetRunHelper : public RunHelperBase {
-  public: 
+  public:
     explicit SetRunHelper(ParameterSet const& pset);
     ~SetRunHelper() override;
 
@@ -59,18 +60,17 @@ namespace edm {
   };
 
   class SetRunForEachLumiHelper : public RunHelperBase {
-  public: 
+  public:
     explicit SetRunForEachLumiHelper(ParameterSet const& pset);
     ~SetRunForEachLumiHelper() override;
 
-    InputSource::ItemType nextItemType(
-      InputSource::ItemType const& previousItemType,
-      InputSource::ItemType const& newIemType) override;
+    InputSource::ItemType nextItemType(InputSource::ItemType const& previousItemType,
+                                       InputSource::ItemType const& newIemType) override;
     RunNumber_t runNumberToUseForThisLumi() const override;
-    bool fakeNewRun() const override {return fakeNewRun_;}
+    bool fakeNewRun() const override { return fakeNewRun_; }
     void checkForNewRun(RunNumber_t run) override;
 
-    void checkRunConsistency(RunNumber_t run, RunNumber_t origninalRun) const override; 
+    void checkRunConsistency(RunNumber_t run, RunNumber_t origninalRun) const override;
     void overrideRunNumber(EventID& event, bool isRealData) override;
     void overrideRunNumber(RunID& run) override;
     void overrideRunNumber(LuminosityBlockID& lumi) override;
@@ -83,8 +83,7 @@ namespace edm {
     bool firstTime_;
   };
 
-  std::unique_ptr<RunHelperBase>
-  makeRunHelper(ParameterSet const& pset);
-}
+  std::unique_ptr<RunHelperBase> makeRunHelper(ParameterSet const& pset);
+}  // namespace edm
 
 #endif

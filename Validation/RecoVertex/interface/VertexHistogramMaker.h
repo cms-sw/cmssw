@@ -21,20 +21,22 @@ namespace edm {
 class LumiDetails;
 
 class VertexHistogramMaker {
-
- public:
+public:
   VertexHistogramMaker(edm::ConsumesCollector&& iC);
   VertexHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
 
   ~VertexHistogramMaker();
 
-  void book(const std::string dirname="");
+  void book(const std::string dirname = "");
   void beginRun(const edm::Run& iRun);
-  void fill(const edm::Event& iEvent, const reco::VertexCollection& vertices, const double weight=1.);
+  void fill(const edm::Event& iEvent, const reco::VertexCollection& vertices, const double weight = 1.);
 
- private:
-
-  void fill(const unsigned int orbit, const int bx, const float bxlumi, const reco::VertexCollection& vertices, const double weight=1.);
+private:
+  void fill(const unsigned int orbit,
+            const int bx,
+            const float bxlumi,
+            const reco::VertexCollection& vertices,
+            const double weight = 1.);
 
   TFileDirectory* m_currdir;
   const unsigned int m_maxLS;
@@ -90,8 +92,6 @@ class VertexHistogramMaker {
   TH2F** m_hvtxxvsbx2drun;
   TH2F** m_hvtxyvsbx2drun;
   TH2F** m_hvtxzvsbx2drun;
-
 };
 
-
-#endif //  Validation_RecoVertex_VertexHistogramMaker_H
+#endif  //  Validation_RecoVertex_VertexHistogramMaker_H

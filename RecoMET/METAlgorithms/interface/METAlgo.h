@@ -2,7 +2,7 @@
 //
 // Package:    METAlgorithms
 // Class:      METAlgo
-// 
+//
 /**\class METAlgo METAlgo.h RecoMET/METAlgorithms/interface/METAlgo.h
 
  Description: Calculates MET for given input
@@ -25,14 +25,12 @@
 #include "DataFormats/METReco/interface/CommonMETData.h"
 
 //____________________________________________________________________________||
-class METAlgo 
-{
+class METAlgo {
 public:
   METAlgo() {}
   virtual ~METAlgo() {}
   CommonMETData run(const edm::View<reco::Candidate>& candidates, double globalThreshold = 0.0);
-
 };
 
 //____________________________________________________________________________||
-#endif // METAlgo_h
+#endif  // METAlgo_h

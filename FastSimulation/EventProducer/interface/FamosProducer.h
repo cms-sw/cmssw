@@ -10,27 +10,22 @@ class ParameterSet;
 class Event;
 class EventSetup;
 
-namespace HepMC { 
+namespace HepMC {
   class GenEvent;
 }
 
-class FamosProducer : public edm::stream::EDProducer <>
-{
-
- public:
-
-  explicit FamosProducer(edm::ParameterSet const & p);
+class FamosProducer : public edm::stream::EDProducer<> {
+public:
+  explicit FamosProducer(edm::ParameterSet const& p);
   ~FamosProducer() override;
-  void beginRun(edm::Run const& run, const edm::EventSetup & es) override;
-  void produce(edm::Event & e, const edm::EventSetup & c) override;
+  void beginRun(edm::Run const& run, const edm::EventSetup& es) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
- private:
-
-  FamosManager * famosManager_;
-  HepMC::GenEvent * evt_;
+private:
+  FamosManager* famosManager_;
+  HepMC::GenEvent* evt_;
   bool simulateMuons;
 
-  
   // token for hepmc from signal event
   edm::EDGetTokenT<edm::HepMCProduct> sourceToken;
 };

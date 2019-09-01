@@ -21,3 +21,11 @@
     <use name="FWCore/Utilities" />
     <use name="PhysicsTools/TensorFlow" />
 </bin>
+
+
+<bin file="tfadd_t.cpp">
+  <flags DNN_NAME="test_graph_tfadd"/>
+  <use name="tensorflow-runtime"/>
+  <use name="tensorflow-xla_compiled_cpu_function"/> 
+</bin>
+

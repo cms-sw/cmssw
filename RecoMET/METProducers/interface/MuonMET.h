@@ -2,7 +2,7 @@
 //
 // Package:    METProducers
 // Class:      MuonMET
-// 
+//
 
 //____________________________________________________________________________||
 #ifndef RecoMET_MuonMET_h
@@ -20,17 +20,14 @@
 
 #include "RecoMET/METAlgorithms/interface/MuonMETAlgo.h"
 
-
 //____________________________________________________________________________||
-namespace cms 
-{
-  class MuonMET : public edm::stream::EDProducer<> 
-  {
+namespace cms {
+  class MuonMET : public edm::stream::EDProducer<> {
   public:
-    explicit MuonMET( const edm::ParameterSet& );
+    explicit MuonMET(const edm::ParameterSet&);
     explicit MuonMET();
-    ~MuonMET() override { }
-    void produce( edm::Event&, const edm::EventSetup& ) override;
+    ~MuonMET() override {}
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
   private:
     MuonMETAlgo alg_;
@@ -40,9 +37,8 @@ namespace cms
     edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > inputValueMapMuonMetCorrToken_;
     edm::EDGetTokenT<edm::View<reco::CaloMET> > inputCaloMETToken_;
     edm::EDGetTokenT<edm::View<reco::MET> > inputMETToken_;
-    
   };
-}
+}  // namespace cms
 
 //____________________________________________________________________________||
-#endif // RecoMET_MuonMET_h
+#endif  // RecoMET_MuonMET_h

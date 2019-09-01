@@ -15,22 +15,17 @@
 #include <ext/hash_map>
 
 class SiStripBadModuleByHandBuilder : public ConditionDBWriter<SiStripBadStrip> {
-
 public:
-
   explicit SiStripBadModuleByHandBuilder(const edm::ParameterSet&);
   ~SiStripBadModuleByHandBuilder() override;
 
-
 private:
-
-  SiStripBadStrip* getNewObject() override;
+  std::unique_ptr<SiStripBadStrip> getNewObject() override;
 
 private:
   edm::FileInPath fp_;
   bool printdebug_;
   std::vector<uint32_t> BadModuleList_;
   SiStripDetInfoFileReader* reader;
-
 };
 #endif

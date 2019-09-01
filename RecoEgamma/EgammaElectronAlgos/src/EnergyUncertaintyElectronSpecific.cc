@@ -3,619 +3,427 @@
 
 #include <iostream>
 
+EnergyUncertaintyElectronSpecific::EnergyUncertaintyElectronSpecific() {}
 
-EnergyUncertaintyElectronSpecific::EnergyUncertaintyElectronSpecific() {
+EnergyUncertaintyElectronSpecific::~EnergyUncertaintyElectronSpecific() {}
+
+void EnergyUncertaintyElectronSpecific::init(const edm::EventSetup& theEventSetup) {}
+
+double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty(reco::GsfElectron::Classification c,
+                                                                           double eta,
+                                                                           double brem,
+                                                                           double energy) {
+  if (c == reco::GsfElectron::GOLDEN)
+    return computeElectronEnergyUncertainty_golden(eta, brem, energy);
+  if (c == reco::GsfElectron::BIGBREM)
+    return computeElectronEnergyUncertainty_bigbrem(eta, brem, energy);
+  if (c == reco::GsfElectron::SHOWERING)
+    return computeElectronEnergyUncertainty_showering(eta, brem, energy);
+  if (c == reco::GsfElectron::BADTRACK)
+    return computeElectronEnergyUncertainty_badtrack(eta, brem, energy);
+  if (c == reco::GsfElectron::GAP)
+    return computeElectronEnergyUncertainty_cracks(eta, brem, energy);
+  throw cms::Exception("GsfElectronAlgo|InternalError") << "unknown classification";
 }
 
-EnergyUncertaintyElectronSpecific::~EnergyUncertaintyElectronSpecific()
- {}
+double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_golden(double eta,
+                                                                                  double brem,
+                                                                                  double energy) {
+  double et = energy / cosh(eta);
 
-void EnergyUncertaintyElectronSpecific::init(  const edm::EventSetup& theEventSetup )
- {}
+  constexpr int nBinsEta = 5;
+  constexpr Double_t EtaBins[nBinsEta + 1] = {0.0, 0.4, 0.8, 1.5, 2.0, 2.5};
 
-double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty( reco::GsfElectron::Classification c, double eta, double brem, double energy)
- {
-  if (c == reco::GsfElectron::GOLDEN) return computeElectronEnergyUncertainty_golden(eta,brem,energy) ;
-  if (c == reco::GsfElectron::BIGBREM) return computeElectronEnergyUncertainty_bigbrem(eta,brem,energy) ;
-  if (c == reco::GsfElectron::SHOWERING) return computeElectronEnergyUncertainty_showering(eta,brem,energy) ;
-  if (c == reco::GsfElectron::BADTRACK) return computeElectronEnergyUncertainty_badtrack(eta,brem,energy) ;
-  if (c == reco::GsfElectron::GAP) return computeElectronEnergyUncertainty_cracks(eta,brem,energy) ;
-  throw cms::Exception("GsfElectronAlgo|InternalError")<<"unknown classification" ;
- }
+  constexpr int nBinsBrem = 6;
+  constexpr Double_t BremBins[nBinsBrem + 1] = {0.8, 1.0, 1.1, 1.2, 1.3, 1.5, 8.0};
 
-double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_golden(double eta, double brem, double energy){
+  constexpr float par0[nBinsEta][nBinsBrem] = {{0.00567891, 0.0065673, 0.00574742, 0.00542964, 0.00523293, 0.00547518},
 
-  double et = energy/cosh(eta);
+                                               {0.00552517, 0.00611188, 0.0062729, 0.00574846, 0.00447373, 0.00595789},
 
-  const int nBinsEta=5;
-  const Double_t EtaBins[nBinsEta+1]  = {0.0, 0.4, 0.8, 1.5, 2.0, 2.5};
+                                               {0.00356679, 0.00503827, 0.00328016, 0.00592303, 0.00512479, 0.00484166},
 
-  const int nBinsBrem=6;
-  const Double_t BremBins[nBinsBrem+1]= {0.8,  1.0, 1.1, 1.2, 1.3, 1.5, 8.0};
+                                               {0.0109195, 0.0102361, 0.0101576, 0.0120683, 0.0155326, 0.0225035},
 
-  float par0[nBinsEta][nBinsBrem];
-  float par1[nBinsEta][nBinsBrem];
-  float par2[nBinsEta][nBinsBrem];
+                                               {0.0109632, 0.0103342, 0.0103486, 0.00862762, 0.0111448, 0.0146648}};
 
-  par0[0][0]=0.00567891;
-  par1[0][0]=0.238685;
-  par2[0][0]=2.12035;
+  static_assert(par0[0][0] == 0.00567891f);
+  static_assert(par0[0][1] == 0.0065673f);
+  static_assert(par0[1][3] == 0.00574846f);
 
-  par0[0][1]=0.0065673;
-  par1[0][1]=0.193642;
-  par2[0][1]=3.41493;
+  constexpr float par1[nBinsEta][nBinsBrem] = {{0.238685, 0.193642, 0.249171, 0.259997, 0.310505, 0.390506},
 
-  par0[0][2]=0.00574742;
-  par1[0][2]=0.249171;
-  par2[0][2]=1.7401;
+                                               {0.288736, 0.312303, 0.294717, 0.294491, 0.379178, 0.38164},
 
-  par0[0][3]=0.00542964;
-  par1[0][3]=0.259997;
-  par2[0][3]=1.46234;
+                                               {0.456456, 0.394912, 0.541713, 0.401744, 0.483151, 0.657995},
 
-  par0[0][4]=0.00523293;
-  par1[0][4]=0.310505;
-  par2[0][4]=0.233226;
+                                               {1.13803, 1.39866, 1.51353, 1.48587, 1.49732, 1.82363},
 
-  par0[0][5]=0.00547518;
-  par1[0][5]=0.390506;
-  par2[0][5]=-2.78168;
+                                               {0.458212, 0.628761, 0.659144, 0.929563, 1.06724, 1.6427}};
 
-  par0[1][0]=0.00552517;
-  par1[1][0]=0.288736;
-  par2[1][0]=1.30552;
+  constexpr float par2[nBinsEta][nBinsBrem] = {{2.12035, 3.41493, 1.7401, 1.46234, 0.233226, -2.78168},
 
-  par0[1][1]=0.00611188;
-  par1[1][1]=0.312303;
-  par2[1][1]=0.137905;
+                                               {1.30552, 0.137905, 0.653793, 0.790746, -1.42584, -2.34653},
 
-  par0[1][2]=0.0062729;
-  par1[1][2]=0.294717;
-  par2[1][2]=0.653793;
+                                               {0.610716, 0.778879, -1.58577, 1.45098, -0.0985911, -3.47167},
+                                               {-3.48281, -6.4736, -8.03308, -7.55974, -7.98843, -10.1027},
 
-  par0[1][3]=0.00574846;
-  par1[1][3]=0.294491;
-  par2[1][3]=0.790746;
-
-  par0[1][4]=0.00447373;
-  par1[1][4]=0.379178;
-  par2[1][4]=-1.42584;
-
-  par0[1][5]=0.00595789;
-  par1[1][5]=0.38164;
-  par2[1][5]=-2.34653;
-
-  par0[2][0]=0.00356679;
-  par1[2][0]=0.456456;
-  par2[2][0]=0.610716;
-
-  par0[2][1]=0.00503827;
-  par1[2][1]=0.394912;
-  par2[2][1]=0.778879;
-
-  par0[2][2]=0.00328016;
-  par1[2][2]=0.541713;
-  par2[2][2]=-1.58577;
-
-  par0[2][3]=0.00592303;
-  par1[2][3]=0.401744;
-  par2[2][3]=1.45098;
-
-  par0[2][4]=0.00512479;
-  par1[2][4]=0.483151;
-  par2[2][4]=-0.0985911;
-
-  par0[2][5]=0.00484166;
-  par1[2][5]=0.657995;
-  par2[2][5]=-3.47167;
-
-  par0[3][0]=0.0109195;
-  par1[3][0]=1.13803;
-  par2[3][0]=-3.48281;
-
-  par0[3][1]=0.0102361;
-  par1[3][1]=1.39866;
-  par2[3][1]=-6.4736;
-
-  par0[3][2]=0.0101576;
-  par1[3][2]=1.51353;
-  par2[3][2]=-8.03308;
-
-  par0[3][3]=0.0120683;
-  par1[3][3]=1.48587;
-  par2[3][3]=-7.55974;
-
-  par0[3][4]=0.0155326;
-  par1[3][4]=1.49732;
-  par2[3][4]=-7.98843;
-
-  par0[3][5]=0.0225035;
-  par1[3][5]=1.82363;
-  par2[3][5]=-10.1027;
-
-  par0[4][0]=0.0109632;
-  par1[4][0]=0.458212;
-  par2[4][0]=0.995183;
-
-  par0[4][1]=0.0103342;
-  par1[4][1]=0.628761;
-  par2[4][1]=-2.42889;
-
-  par0[4][2]=0.0103486;
-  par1[4][2]=0.659144;
-  par2[4][2]=-2.14073;
-
-  par0[4][3]=0.00862762;
-  par1[4][3]=0.929563;
-  par2[4][3]=-6.27768;
-
-  par0[4][4]=0.0111448;
-  par1[4][4]=1.06724;
-  par2[4][4]=-7.68512;
-
-  par0[4][5]=0.0146648;
-  par1[4][5]=1.6427;
-  par2[4][5]=-13.3504;
-
+                                               {0.995183, -2.42889, -2.14073, -6.27768, -7.68512, -13.3504}};
 
   Int_t iEtaSl = -1;
-  for (Int_t iEta = 0; iEta < nBinsEta; ++iEta){
-    if ( EtaBins[iEta] <= fabs(eta) && fabs(eta) <EtaBins[iEta+1] ){
+  for (Int_t iEta = 0; iEta < nBinsEta; ++iEta) {
+    if (EtaBins[iEta] <= fabs(eta) && fabs(eta) < EtaBins[iEta + 1]) {
       iEtaSl = iEta;
     }
   }
 
   Int_t iBremSl = -1;
-  for (Int_t iBrem = 0; iBrem < nBinsBrem; ++iBrem){
-    if ( BremBins[iBrem] <= brem && brem <BremBins[iBrem+1] ){
+  for (Int_t iBrem = 0; iBrem < nBinsBrem; ++iBrem) {
+    if (BremBins[iBrem] <= brem && brem < BremBins[iBrem + 1]) {
       iBremSl = iBrem;
     }
   }
 
-  if (fabs(eta)>2.5) iEtaSl = nBinsEta-1;
-  if (brem<BremBins[0]) iBremSl = 0;
-  if (brem>BremBins[nBinsBrem-1]) iBremSl = nBinsBrem-1;
+  if (fabs(eta) > 2.5)
+    iEtaSl = nBinsEta - 1;
+  if (brem < BremBins[0])
+    iBremSl = 0;
+  if (brem > BremBins[nBinsBrem - 1])
+    iBremSl = nBinsBrem - 1;
+
+  if (iEtaSl == -1) {
+    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeElectronEnergyUncertainty_golden";
+    return 0;
+  }
+
+  if (iBremSl == -1) {
+    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeElectronEnergyUncertainty_golden";
+    return 0;
+  }
 
   float uncertainty = 0;
-  if (et<5) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(5-par2[iEtaSl][iBremSl]);
-  if (et>100) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(100-par2[iEtaSl][iBremSl]);
+  if (et < 5)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (5 - par2[iEtaSl][iBremSl]);
+  if (et > 100)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (100 - par2[iEtaSl][iBremSl]);
 
-  if (et>5 && et<100) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(et-par2[iEtaSl][iBremSl]);
+  if (et > 5 && et < 100)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (et - par2[iEtaSl][iBremSl]);
 
-  return (uncertainty*energy);
-
+  return (uncertainty * energy);
 }
 
-double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_bigbrem(double eta, double brem, double energy){
+double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_bigbrem(double eta,
+                                                                                   double brem,
+                                                                                   double energy) {
+  const double et = energy / cosh(eta);
 
-  double et = energy/cosh(eta);
+  constexpr int nBinsEta = 4;
+  constexpr Double_t EtaBins[nBinsEta + 1] = {0.0, 0.8, 1.5, 2.0, 2.5};
 
-  const int nBinsEta=4;
-  const Double_t EtaBins[nBinsEta+1]  = {0.0,  0.8,  1.5,  2.0,  2.5};
+  constexpr int nBinsBrem = 1;
+  constexpr Double_t BremBins[nBinsBrem + 1] = {0.8, 8.0};
 
-  const int nBinsBrem=1;
-  const Double_t BremBins[nBinsBrem+1]= {0.8,  8.0};
+  constexpr float par0[nBinsEta][nBinsBrem] = {{0.00593389}, {0.00266954}, {0.00500623}, {0.00841038}};
 
-  float par0[nBinsEta][nBinsBrem];
-  float par1[nBinsEta][nBinsBrem];
-  float par2[nBinsEta][nBinsBrem];
-  float par3[nBinsEta][nBinsBrem];
+  constexpr float par1[nBinsEta][nBinsBrem] = {{0.178275}, {0.811415}, {2.34018}, {1.06851}};
 
-  par0[0][0]=0.00593389;
-  par1[0][0]=0.178275;
-  par2[0][0]=-7.28273;
-  par3[0][0]=13.2632;
+  constexpr float par2[nBinsEta][nBinsBrem] = {{-7.28273}, {-1.66063}, {-11.0129}, {-4.1259}};
 
-  par0[1][0]=0.00266954;
-  par1[1][0]=0.811415;
-  par2[1][0]=-1.66063;
-  par3[1][0]=1.03555;
-
-  par0[2][0]=0.00500623;
-  par1[2][0]=2.34018;
-  par2[2][0]=-11.0129;
-  par3[2][0]=-0.200323;
-
-  par0[3][0]=0.00841038;
-  par1[3][0]=1.06851;
-  par2[3][0]=-4.1259;
-  par3[3][0]=-0.0646195;
-
+  constexpr float par3[nBinsEta][nBinsBrem] = {{13.2632}, {1.03555}, {-0.200323}, {-0.0646195}};
 
   Int_t iEtaSl = -1;
-  for (Int_t iEta = 0; iEta < nBinsEta; ++iEta){
-    if ( EtaBins[iEta] <= fabs(eta) && fabs(eta) <EtaBins[iEta+1] ){
+  for (Int_t iEta = 0; iEta < nBinsEta; ++iEta) {
+    if (EtaBins[iEta] <= fabs(eta) && fabs(eta) < EtaBins[iEta + 1]) {
       iEtaSl = iEta;
     }
   }
 
   Int_t iBremSl = -1;
-  for (Int_t iBrem = 0; iBrem < nBinsBrem; ++iBrem){
-    if ( BremBins[iBrem] <= brem && brem <BremBins[iBrem+1] ){
+  for (Int_t iBrem = 0; iBrem < nBinsBrem; ++iBrem) {
+    if (BremBins[iBrem] <= brem && brem < BremBins[iBrem + 1]) {
       iBremSl = iBrem;
     }
   }
 
-  if (fabs(eta)>2.5) iEtaSl = nBinsEta-1;
-  if (brem<BremBins[0]) iBremSl = 0;
-  if (brem>BremBins[nBinsBrem-1]) iBremSl = nBinsBrem-1;
+  if (fabs(eta) > 2.5)
+    iEtaSl = nBinsEta - 1;
+  if (brem < BremBins[0])
+    iBremSl = 0;
+  if (brem > BremBins[nBinsBrem - 1])
+    iBremSl = nBinsBrem - 1;
+
+  if (iEtaSl == -1) {
+    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeElectronEnergyUncertainty_bigbrem";
+    return 0;
+  }
+
+  if (iBremSl == -1) {
+    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeElectronEnergyUncertainty_bigbrem";
+    return 0;
+  }
 
   float uncertainty = 0;
-  if (et<5) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(5-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((5-par2[iEtaSl][iBremSl])*(5-par2[iEtaSl][iBremSl]));
-  if (et>100) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(100-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((100-par2[iEtaSl][iBremSl])*(100-par2[iEtaSl][iBremSl]));
+  if (et < 5)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (5 - par2[iEtaSl][iBremSl]) +
+                  par3[iEtaSl][iBremSl] / ((5 - par2[iEtaSl][iBremSl]) * (5 - par2[iEtaSl][iBremSl]));
+  if (et > 100)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (100 - par2[iEtaSl][iBremSl]) +
+                  par3[iEtaSl][iBremSl] / ((100 - par2[iEtaSl][iBremSl]) * (100 - par2[iEtaSl][iBremSl]));
 
-  if (et>5 && et<100) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(et-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((et-par2[iEtaSl][iBremSl])*(et-par2[iEtaSl][iBremSl]));
+  if (et > 5 && et < 100)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (et - par2[iEtaSl][iBremSl]) +
+                  par3[iEtaSl][iBremSl] / ((et - par2[iEtaSl][iBremSl]) * (et - par2[iEtaSl][iBremSl]));
 
-  return (uncertainty*energy);
-
+  return (uncertainty * energy);
 }
-double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_badtrack(double eta, double brem, double energy){
+double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_badtrack(double eta,
+                                                                                    double brem,
+                                                                                    double energy) {
+  const double et = energy / cosh(eta);
 
-  double et = energy/cosh(eta);
+  constexpr int nBinsEta = 4;
+  constexpr Double_t EtaBins[nBinsEta + 1] = {0.0, 0.7, 1.3, 1.8, 2.5};
 
-  const int nBinsEta=4;
-  const Double_t EtaBins[nBinsEta+1]  = {0.0, 0.7, 1.3, 1.8, 2.5};
+  constexpr int nBinsBrem = 1;
+  constexpr Double_t BremBins[nBinsBrem + 1] = {0.8, 8.0};
 
-  const int nBinsBrem=1;
-  const Double_t BremBins[nBinsBrem+1]= {0.8,  8.0};
+  constexpr float par0[nBinsEta][nBinsBrem] = {{0.00601311}, {0.0059814}, {0.00953032}, {0.00728618}};
 
-  float par0[nBinsEta][nBinsBrem];
-  float par1[nBinsEta][nBinsBrem];
-  float par2[nBinsEta][nBinsBrem];
-  float par3[nBinsEta][nBinsBrem];
+  constexpr float par1[nBinsEta][nBinsBrem] = {{0.390988}, {1.02668}, {2.27491}, {2.08268}};
 
-  par0[0][0]=0.00601311;
-  par1[0][0]=0.390988;
-  par2[0][0]=-4.11919;
-  par3[0][0]=4.61671;
+  constexpr float par2[nBinsEta][nBinsBrem] = {{-4.11919}, {-2.87477}, {-7.61675}, {-8.66756}};
 
-  par0[1][0]=0.0059814;
-  par1[1][0]=1.02668;
-  par2[1][0]=-2.87477;
-  par3[1][0]=0.163447;
-
-  par0[2][0]=0.00953032;
-  par1[2][0]=2.27491;
-  par2[2][0]=-7.61675;
-  par3[2][0]=-0.335786;
-
-  par0[3][0]=0.00728618;
-  par1[3][0]=2.08268;
-  par2[3][0]=-8.66756;
-  par3[3][0]=-1.27831;
-
+  constexpr float par3[nBinsEta][nBinsBrem] = {{4.61671}, {0.163447}, {-0.335786}, {-1.27831}};
 
   Int_t iEtaSl = -1;
-  for (Int_t iEta = 0; iEta < nBinsEta; ++iEta){
-    if ( EtaBins[iEta] <= fabs(eta) && fabs(eta) <EtaBins[iEta+1] ){
+  for (Int_t iEta = 0; iEta < nBinsEta; ++iEta) {
+    if (EtaBins[iEta] <= fabs(eta) && fabs(eta) < EtaBins[iEta + 1]) {
       iEtaSl = iEta;
     }
   }
 
   Int_t iBremSl = -1;
-  for (Int_t iBrem = 0; iBrem < nBinsBrem; ++iBrem){
-    if ( BremBins[iBrem] <= brem && brem <BremBins[iBrem+1] ){
+  for (Int_t iBrem = 0; iBrem < nBinsBrem; ++iBrem) {
+    if (BremBins[iBrem] <= brem && brem < BremBins[iBrem + 1]) {
       iBremSl = iBrem;
     }
   }
 
-  if (fabs(eta)>2.5) iEtaSl = nBinsEta-1;
-  if (brem<BremBins[0]) iBremSl = 0;
-  if (brem>BremBins[nBinsBrem-1]) iBremSl = nBinsBrem-1;
+  if (fabs(eta) > 2.5)
+    iEtaSl = nBinsEta - 1;
+  if (brem < BremBins[0])
+    iBremSl = 0;
+  if (brem > BremBins[nBinsBrem - 1])
+    iBremSl = nBinsBrem - 1;
+
+  if (iEtaSl == -1) {
+    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeElectronEnergyUncertainty_badtrack";
+    return 0;
+  }
+
+  if (iBremSl == -1) {
+    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeElectronEnergyUncertainty_badtrack";
+    return 0;
+  }
 
   float uncertainty = 0;
-  if (et<5) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(5-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((5-par2[iEtaSl][iBremSl])*(5-par2[iEtaSl][iBremSl]));
-  if (et>100) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(100-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((100-par2[iEtaSl][iBremSl])*(100-par2[iEtaSl][iBremSl]));
+  if (et < 5)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (5 - par2[iEtaSl][iBremSl]) +
+                  par3[iEtaSl][iBremSl] / ((5 - par2[iEtaSl][iBremSl]) * (5 - par2[iEtaSl][iBremSl]));
+  if (et > 100)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (100 - par2[iEtaSl][iBremSl]) +
+                  par3[iEtaSl][iBremSl] / ((100 - par2[iEtaSl][iBremSl]) * (100 - par2[iEtaSl][iBremSl]));
 
-  if (et>5 && et<100) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(et-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((et-par2[iEtaSl][iBremSl])*(et-par2[iEtaSl][iBremSl]));
+  if (et > 5 && et < 100)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (et - par2[iEtaSl][iBremSl]) +
+                  par3[iEtaSl][iBremSl] / ((et - par2[iEtaSl][iBremSl]) * (et - par2[iEtaSl][iBremSl]));
 
-  return (uncertainty*energy);
-
+  return (uncertainty * energy);
 }
 
-double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_showering(double eta, double brem, double energy){
+double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_showering(double eta,
+                                                                                     double brem,
+                                                                                     double energy) {
+  const double et = energy / cosh(eta);
 
-  double et = energy/cosh(eta);
+  constexpr int nBinsEta = 4;
+  constexpr Double_t EtaBins[nBinsEta + 1] = {0.0, 0.8, 1.2, 1.7, 2.5};
 
-  const int nBinsEta=4;
-  const Double_t EtaBins[nBinsEta+1]  = {0.0,  0.8,  1.2,  1.7,  2.5};
+  constexpr int nBinsBrem = 5;
+  constexpr Double_t BremBins[nBinsBrem + 1] = {0.8, 1.8, 2.2, 3.0, 4.0, 8.0};
 
-  const int nBinsBrem=5;
-  const Double_t BremBins[nBinsBrem+1]= {0.8,  1.8,  2.2,  3.0,  4.0,  8.0};
+  constexpr float par0[nBinsEta][nBinsBrem] = {{0.0049351, 0.00566155, 0.0051397, 0.00468481, 0.00444475},
 
-  float par0[nBinsEta][nBinsBrem];
-  float par1[nBinsEta][nBinsBrem];
-  float par2[nBinsEta][nBinsBrem];
-  float par3[nBinsEta][nBinsBrem];
+                                               {0.00201762, 0.00431475, 0.00501004, 0.00632666, 0.00636704},
 
-  par0[0][0]=0.0049351;
-  par1[0][0]=0.579925;
-  par2[0][0]=-9.33987;
-  par3[0][0]=1.62129;
+                                               {-0.00729396, 0.00539783, 0.00608149, 0.00465335, 0.00642685},
 
-  par0[0][1]=0.00566155;
-  par1[0][1]=0.496137;
-  par2[0][1]=-5.52543;
-  par3[0][1]=1.19101;
+                                               {0.0149449, 0.0216691, 0.0255957, 0.0206101, 0.0180508}};
 
-  par0[0][2]=0.0051397;
-  par1[0][2]=0.551947;
-  par2[0][2]=-7.30079;
-  par3[0][2]=1.89701;
+  constexpr float par1[nBinsEta][nBinsBrem] = {{0.579925, 0.496137, 0.551947, 0.63011, 0.684261},
 
-  par0[0][3]=0.00468481;
-  par1[0][3]=0.63011;
-  par2[0][3]=-6.7722;
-  par3[0][3]=1.81614;
+                                               {0.914762, 0.824483, 0.888521, 0.960241, 1.25728},
 
-  par0[0][4]=0.00444475;
-  par1[0][4]=0.684261;
-  par2[0][4]=-4.67614;
-  par3[0][4]=1.64415;
+                                               {3.24295, 1.72935, 1.80606, 2.13562, 2.07592},
 
-  par0[1][0]=0.00201762;
-  par1[1][0]=0.914762;
-  par2[1][0]=-4.48042;
-  par3[1][0]=-1.50473;
+                                               {1.00448, 1.18393, 0.00775295, 2.59246, 3.1099}};
 
-  par0[1][1]=0.00431475;
-  par1[1][1]=0.824483;
-  par2[1][1]=-5.02885;
-  par3[1][1]=-0.153502;
+  constexpr float par2[nBinsEta][nBinsBrem] = {{-9.33987, -5.52543, -7.30079, -6.7722, -4.67614},
 
-  par0[1][2]=0.00501004;
-  par1[1][2]=0.888521;
-  par2[1][2]=-4.77311;
-  par3[1][2]=-0.355145;
+                                               {-4.48042, -5.02885, -4.77311, -3.36742, -5.53561},
 
-  par0[1][3]=0.00632666;
-  par1[1][3]=0.960241;
-  par2[1][3]=-3.36742;
-  par3[1][3]=-1.16499;
+                                               {-17.1458, -5.92807, -6.67563, -10.1105, -7.50257},
 
-  par0[1][4]=0.00636704;
-  par1[1][4]=1.25728;
-  par2[1][4]=-5.53561;
-  par3[1][4]=-0.864123;
+                                               {-2.09368, -4.56674, -44.2722, -13.1702, -13.6208}};
 
-  par0[2][0]=-0.00729396;
-  par1[2][0]=3.24295;
-  par2[2][0]=-17.1458;
-  par3[2][0]=-4.69711;
+  constexpr float par3[nBinsEta][nBinsBrem] = {{1.62129, 1.19101, 1.89701, 1.81614, 1.64415},
 
-  par0[2][1]=0.00539783;
-  par1[2][1]=1.72935;
-  par2[2][1]=-5.92807;
-  par3[2][1]=-2.18733;
+                                               {-1.50473, -0.153502, -0.355145, -1.16499, -0.864123},
 
-  par0[2][2]=0.00608149;
-  par1[2][2]=1.80606;
-  par2[2][2]=-6.67563;
-  par3[2][2]=-0.922401;
+                                               {-4.69711, -2.18733, -0.922401, -0.230781, -2.91515},
 
-  par0[2][3]=0.00465335;
-  par1[2][3]=2.13562;
-  par2[2][3]=-10.1105;
-  par3[2][3]=-0.230781;
-
-  par0[2][4]=0.00642685;
-  par1[2][4]=2.07592;
-  par2[2][4]=-7.50257;
-  par3[2][4]=-2.91515;
-
-  par0[3][0]=0.0149449;
-  par1[3][0]=1.00448;
-  par2[3][0]=-2.09368;
-  par3[3][0]=0.455037;
-
-  par0[3][1]=0.0216691;
-  par1[3][1]=1.18393;
-  par2[3][1]=-4.56674;
-  par3[3][1]=-0.601872;
-
-  par0[3][2]=0.0255957;
-  par1[3][2]=0.00775295;
-  par2[3][2]=-44.2722;
-  par3[3][2]=241.516;
-
-  par0[3][3]=0.0206101;
-  par1[3][3]=2.59246;
-  par2[3][3]=-13.1702;
-  par3[3][3]=-2.35024;
-
-  par0[3][4]=0.0180508;
-  par1[3][4]=3.1099;
-  par2[3][4]=-13.6208;
-  par3[3][4]=-2.11069;
-
+                                               {0.455037, -0.601872, 241.516, -2.35024, -2.11069}};
 
   Int_t iEtaSl = -1;
-  for (Int_t iEta = 0; iEta < nBinsEta; ++iEta){
-    if ( EtaBins[iEta] <= fabs(eta) && fabs(eta) <EtaBins[iEta+1] ){
+  for (Int_t iEta = 0; iEta < nBinsEta; ++iEta) {
+    if (EtaBins[iEta] <= fabs(eta) && fabs(eta) < EtaBins[iEta + 1]) {
       iEtaSl = iEta;
     }
   }
 
   Int_t iBremSl = -1;
-  for (Int_t iBrem = 0; iBrem < nBinsBrem; ++iBrem){
-    if ( BremBins[iBrem] <= brem && brem <BremBins[iBrem+1] ){
+  for (Int_t iBrem = 0; iBrem < nBinsBrem; ++iBrem) {
+    if (BremBins[iBrem] <= brem && brem < BremBins[iBrem + 1]) {
       iBremSl = iBrem;
     }
   }
 
-  if (fabs(eta)>2.5) iEtaSl = nBinsEta-1;
-  if (brem<BremBins[0]) iBremSl = 0;
-  if (brem>BremBins[nBinsBrem-1]) iBremSl = nBinsBrem-1;
+  if (fabs(eta) > 2.5)
+    iEtaSl = nBinsEta - 1;
+  if (brem < BremBins[0])
+    iBremSl = 0;
+  if (brem > BremBins[nBinsBrem - 1])
+    iBremSl = nBinsBrem - 1;
+
+  if (iEtaSl == -1) {
+    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeElectronEnergyUncertainty_showering";
+    return 0;
+  }
+
+  if (iBremSl == -1) {
+    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeElectronEnergyUncertainty_showering";
+    return 0;
+  }
 
   float uncertainty = 0;
-  if (et<5) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(5-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((5-par2[iEtaSl][iBremSl])*(5-par2[iEtaSl][iBremSl]));
-  if (et>100) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(100-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((100-par2[iEtaSl][iBremSl])*(100-par2[iEtaSl][iBremSl]));
+  if (et < 5)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (5 - par2[iEtaSl][iBremSl]) +
+                  par3[iEtaSl][iBremSl] / ((5 - par2[iEtaSl][iBremSl]) * (5 - par2[iEtaSl][iBremSl]));
+  if (et > 100)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (100 - par2[iEtaSl][iBremSl]) +
+                  par3[iEtaSl][iBremSl] / ((100 - par2[iEtaSl][iBremSl]) * (100 - par2[iEtaSl][iBremSl]));
 
-  if (et>5 && et<100) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(et-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((et-par2[iEtaSl][iBremSl])*(et-par2[iEtaSl][iBremSl]));
+  if (et > 5 && et < 100)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (et - par2[iEtaSl][iBremSl]) +
+                  par3[iEtaSl][iBremSl] / ((et - par2[iEtaSl][iBremSl]) * (et - par2[iEtaSl][iBremSl]));
 
-  return (uncertainty*energy);
-
+  return (uncertainty * energy);
 }
 
-double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_cracks(double eta, double brem, double energy){
+double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_cracks(double eta,
+                                                                                  double brem,
+                                                                                  double energy) {
+  const double et = energy / cosh(eta);
 
-  double et = energy/cosh(eta);
+  constexpr int nBinsEta = 5;
+  constexpr Double_t EtaBins[nBinsEta + 1] = {0.0, 0.42, 0.78, 1.2, 1.52, 1.65};
 
-  const int nBinsEta=5;
-  const Double_t EtaBins[nBinsEta+1]  = {0.0, 0.42, 0.78, 1.2, 1.52, 1.65};
+  constexpr int nBinsBrem = 6;
+  constexpr Double_t BremBins[nBinsBrem + 1] = {0.8, 1.2, 1.5, 2.1, 3., 4, 8.0};
 
-  const int nBinsBrem=6;
-  const Double_t BremBins[nBinsBrem+1]= {0.8, 1.2, 1.5, 2.1, 3., 4, 8.0};
+  constexpr float par0[nBinsEta][nBinsBrem] = {
+      {0.0139815, 0.00550839, 0.0108292, 0.00596201, -0.00498136, 0.000621696},
 
-  float par0[nBinsEta][nBinsBrem];
-  float par1[nBinsEta][nBinsBrem];
-  float par2[nBinsEta][nBinsBrem];
+      {0.00467498, 0.00808463, 0.00546665, 0.00506318, 0.00608425, -4.45641e-06},
 
-  par0[0][0]=0.0139815;
-  par1[0][0]=0.569273;
-  par2[0][0]=-4.31243;
+      {0.00971734, 0.00063951, -0.0121618, -0.00604365, 0.00492161, -0.00143907},
 
-  par0[0][1]=0.00550839;
-  par1[0][1]=0.674654;
-  par2[0][1]=-3.071;
+      {-0.0844907, -0.0592498, -0.0828631, -0.0740798, -0.0698045, -0.0699518},
 
-  par0[0][2]=0.0108292;
-  par1[0][2]=0.523128;
-  par2[0][2]=-2.56702;
+      {-0.0999971, -0.0999996, -0.0989356, -0.0999965, -0.0833049, -0.020072}};
 
-  par0[0][3]=0.00596201;
-  par1[0][3]=1.02501;
-  par2[0][3]=-7.74555;
+  constexpr float par1[nBinsEta][nBinsBrem] = {{0.569273, 0.674654, 0.523128, 1.02501, 1.75645, 0.955191},
 
-  par0[0][4]=-0.00498136;
-  par1[0][4]=1.75645;
-  par2[0][4]=-21.3726;
+                                               {0.697951, 0.580628, 0.814515, 0.819975, 0.829616, 1.18952},
 
-  par0[0][5]=0.000621696;
-  par1[0][5]=0.955191;
-  par2[0][5]=-6.2189;
+                                               {3.79446, 2.47472, 5.12931, 3.42497, 1.84123, 2.3773},
 
-  par0[1][0]=0.00467498;
-  par1[1][0]=0.697951;
-  par2[1][0]=-6.56009;
+                                               {19.9999, 10.4079, 16.6273, 15.9316, 15.4883, 14.7306},
 
-  par0[1][1]=0.00808463;
-  par1[1][1]=0.580628;
-  par2[1][1]=-3.66067;
+                                               {15.9122, 18.5882, 19.9996, 19.9999, 18.2281, 8.1587}};
 
-  par0[1][2]=0.00546665;
-  par1[1][2]=0.814515;
-  par2[1][2]=-7.8275;
+  constexpr float par2[nBinsEta][nBinsBrem] = {{-4.31243, -3.071, -2.56702, -7.74555, -21.3726, -6.2189},
 
-  par0[1][3]=0.00506318;
-  par1[1][3]=0.819975;
-  par2[1][3]=-6.01641;
+                                               {-6.56009, -3.66067, -7.8275, -6.01641, -7.85456, -8.27071},
 
-  par0[1][4]=0.00608425;
-  par1[1][4]=0.829616;
-  par2[1][4]=-7.85456;
+                                               {-49.9996, -25.0724, -49.985, -28.1932, -10.6485, -15.4014},
 
-  par0[1][5]=-4.45641e-06;
-  par1[1][5]=1.18952;
-  par2[1][5]=-8.27071;
+                                               {-39.9444, -25.1133, -49.9999, -50, -49.9998, -49.9998},
 
-  par0[2][0]=0.00971734;
-  par1[2][0]=3.79446;
-  par2[2][0]=-49.9996;
+                                               {-30.1268, -42.6113, -46.6999, -47.074, -49.9995, -25.2897}};
 
-  par0[2][1]=0.00063951;
-  par1[2][1]=2.47472;
-  par2[2][1]=-25.0724;
+  static_assert(par0[0][3] == 0.00596201f);
+  static_assert(par1[0][3] == 1.02501f);
+  static_assert(par2[0][3] == -7.74555f);
 
-  par0[2][2]=-0.0121618;
-  par1[2][2]=5.12931;
-  par2[2][2]=-49.985;
+  static_assert(par0[2][4] == 0.00492161f);
+  static_assert(par1[2][4] == 1.84123f);
+  static_assert(par2[2][4] == -10.6485f);
 
-  par0[2][3]=-0.00604365;
-  par1[2][3]=3.42497;
-  par2[2][3]=-28.1932;
-
-  par0[2][4]=0.00492161;
-  par1[2][4]=1.84123;
-  par2[2][4]=-10.6485;
-
-  par0[2][5]=-0.00143907;
-  par1[2][5]=2.3773;
-  par2[2][5]=-15.4014;
-
-  par0[3][0]=-0.0844907;
-  par1[3][0]=19.9999;
-  par2[3][0]=-39.9444;
-
-  par0[3][1]=-0.0592498;
-  par1[3][1]=10.4079;
-  par2[3][1]=-25.1133;
-
-  par0[3][2]=-0.0828631;
-  par1[3][2]=16.6273;
-  par2[3][2]=-49.9999;
-
-  par0[3][3]=-0.0740798;
-  par1[3][3]=15.9316;
-  par2[3][3]=-50;
-
-  par0[3][4]=-0.0698045;
-  par1[3][4]=15.4883;
-  par2[3][4]=-49.9998;
-
-  par0[3][5]=-0.0699518;
-  par1[3][5]=14.7306;
-  par2[3][5]=-49.9998;
-
-  par0[4][0]=-0.0999971;
-  par1[4][0]=15.9122;
-  par2[4][0]=-30.1268;
-
-  par0[4][1]=-0.0999996;
-  par1[4][1]=18.5882;
-  par2[4][1]=-42.6113;
-
-  par0[4][2]=-0.0989356;
-  par1[4][2]=19.9996;
-  par2[4][2]=-46.6999;
-
-  par0[4][3]=-0.0999965;
-  par1[4][3]=19.9999;
-  par2[4][3]=-47.074;
-
-  par0[4][4]=-0.0833049;
-  par1[4][4]=18.2281;
-  par2[4][4]=-49.9995;
-
-  par0[4][5]=-0.020072;
-  par1[4][5]=8.1587;
-  par2[4][5]=-25.2897;
-
+  static_assert(par0[4][3] == -0.0999965f);
+  static_assert(par1[4][3] == 19.9999f);
+  static_assert(par2[4][3] == -47.074f);
 
   Int_t iEtaSl = -1;
-  for (Int_t iEta = 0; iEta < nBinsEta; ++iEta){
-    if ( EtaBins[iEta] <= fabs(eta) && fabs(eta) <EtaBins[iEta+1] ){
+  for (Int_t iEta = 0; iEta < nBinsEta; ++iEta) {
+    if (EtaBins[iEta] <= fabs(eta) && fabs(eta) < EtaBins[iEta + 1]) {
       iEtaSl = iEta;
     }
   }
 
   Int_t iBremSl = -1;
-  for (Int_t iBrem = 0; iBrem < nBinsBrem; ++iBrem){
-    if ( BremBins[iBrem] <= brem && brem <BremBins[iBrem+1] ){
+  for (Int_t iBrem = 0; iBrem < nBinsBrem; ++iBrem) {
+    if (BremBins[iBrem] <= brem && brem < BremBins[iBrem + 1]) {
       iBremSl = iBrem;
     }
   }
 
-  if (fabs(eta)>2.5) iEtaSl = nBinsEta-1;
-  if (brem<BremBins[0]) iBremSl = 0;
-  if (brem>BremBins[nBinsBrem-1]) iBremSl = nBinsBrem-1;
+  if (fabs(eta) > 2.5)
+    iEtaSl = nBinsEta - 1;
+  if (brem < BremBins[0])
+    iBremSl = 0;
+  if (brem > BremBins[nBinsBrem - 1])
+    iBremSl = nBinsBrem - 1;
+
+  if (iEtaSl == -1) {
+    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeElectronEnergyUncertainty_cracks";
+    return 0;
+  }
+
+  if (iBremSl == -1) {
+    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeElectronEnergyUncertainty_cracks";
+    return 0;
+  }
 
   float uncertainty = 0;
-  if (et<5) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(5-par2[iEtaSl][iBremSl]);
-  if (et>100) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(100-par2[iEtaSl][iBremSl]);
+  if (et < 5)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (5 - par2[iEtaSl][iBremSl]);
+  if (et > 100)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (100 - par2[iEtaSl][iBremSl]);
 
-  if (et>5 && et<100) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(et-par2[iEtaSl][iBremSl]);
+  if (et > 5 && et < 100)
+    uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (et - par2[iEtaSl][iBremSl]);
 
-  return (uncertainty*energy);
-
+  return (uncertainty * energy);
 }

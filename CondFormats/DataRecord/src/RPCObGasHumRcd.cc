@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     RPCObGasHumRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Fri Oct 10 09:56:32 CEST 2008
 // $Id: RPCObGasHumRcd.cc,v 1.1 2009/12/13 10:05:39 dpagano Exp $
 

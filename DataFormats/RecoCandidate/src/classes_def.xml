@@ -95,8 +95,16 @@
 
   <class name="edm::ValueMap<reco::IsoDeposit>" />
   <class name="edm::ValueMap<reco::FitQuality>" />
-  <class pattern="edm::Wrapper<edm::ValueMap<*>" />
-  <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
+  <!-- <class pattern="edm::Wrapper<edm::ValueMap<*>" /> -->
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<edm::View<reco::Track>,vector<TrackingParticle>,double,unsigned int,edm::RefToBaseProd<reco::Track>,edm::RefProd<vector<TrackingParticle> >,edm::RefToBase<reco::Track>,edm::Ref<vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<vector<TrackingParticle>,TrackingParticle> > > > >" />
+<class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<vector<TrackingParticle>,edm::View<reco::Track>,double,unsigned int,edm::RefProd<vector<TrackingParticle> >,edm::RefToBaseProd<reco::Track>,edm::Ref<vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<vector<TrackingParticle>,TrackingParticle> >,edm::RefToBase<reco::Track> > > >" />
+<class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<vector<reco::Track>,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,unsigned int> > >" />
+<class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::RecoChargedCandidate>,float,unsigned int> > >" />
+<class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<vector<reco::RecoEcalCandidate>,float,unsigned int> > >" />
+<class name="edm::Wrapper<edm::OwnVector<reco::RecoCandidate,edm::ClonePolicy<reco::RecoCandidate> > >" />
+  <!-- <class pattern="edm::Wrapper<edm::AssociationMap<*>" /> -->
+<class name="edm::Wrapper<edm::ValueMap<reco::FitQuality> >" />
+<class name="edm::Wrapper<edm::ValueMap<reco::IsoDeposit> >" />
  
   <class name="edm::reftobase::Holder<reco::Candidate, reco::RecoChargedCandidateRef>" />
   <class name="edm::reftobase::RefHolder<reco::RecoChargedCandidateRef>" />

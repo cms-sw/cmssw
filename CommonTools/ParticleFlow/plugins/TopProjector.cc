@@ -1,6 +1,5 @@
 #include "CommonTools/ParticleFlow/plugins/TopProjector.h"
 
-
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
@@ -23,19 +22,18 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 using namespace std;
 using namespace edm;
 using namespace reco;
 
-typedef TopProjector<PFJet,               PFCandidate> TPPFJetsOnPFCandidates;
-typedef TopProjector<PFCandidate,         PFCandidate> TPPFCandidatesOnPFCandidates;
-typedef TopProjector<PileUpPFCandidate,   PFCandidate> TPPileUpPFCandidatesOnPFCandidates;
+typedef TopProjector<PFJet, PFCandidate> TPPFJetsOnPFCandidates;
+typedef TopProjector<PFCandidate, PFCandidate> TPPFCandidatesOnPFCandidates;
+typedef TopProjector<PileUpPFCandidate, PFCandidate> TPPileUpPFCandidatesOnPFCandidates;
 typedef TopProjector<IsolatedPFCandidate, PFCandidate> TPIsolatedPFCandidatesOnPFCandidates;
 
 typedef TopProjector<PFCandidate, PileUpPFCandidate> TPPFCandidatesOnPileUpPFCandidates;
 typedef TopProjector<PFTau, PFJet> TPPFTausOnPFJets;
-typedef TopProjector<PFTau, PFJet, TopProjectorDeltaROverlap<PFTau,PFJet> > TPPFTausOnPFJetsDeltaR;
+typedef TopProjector<PFTau, PFJet, TopProjectorDeltaROverlap<PFTau, PFJet> > TPPFTausOnPFJetsDeltaR;
 
 DEFINE_FWK_MODULE(TPPFJetsOnPFCandidates);
 DEFINE_FWK_MODULE(TPPFCandidatesOnPFCandidates);
@@ -44,5 +42,3 @@ DEFINE_FWK_MODULE(TPIsolatedPFCandidatesOnPFCandidates);
 DEFINE_FWK_MODULE(TPPFCandidatesOnPileUpPFCandidates);
 DEFINE_FWK_MODULE(TPPFTausOnPFJets);
 DEFINE_FWK_MODULE(TPPFTausOnPFJetsDeltaR);
-
-

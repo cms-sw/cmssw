@@ -1,7 +1,6 @@
 #ifndef _RECOMET_METALGORITHMS_HCALHPDRBXMAP_H_
 #define _RECOMET_METALGORITHMS_HCALHPDRBXMAP_H_
 
-
 //
 // HcalHPDRBXMap.h
 //
@@ -21,19 +20,18 @@
 #include <vector>
 
 class HcalHPDRBXMap {
- public:
-  
+public:
   // "magic numbers"
   // total number of HPDs in the HB and HE
-  const static int NUM_HPDS=288;
+  const static int NUM_HPDS = 288;
   // total number of HPDs per subdetector (HB+, HB-, HE+, HE-)
-  const static int NUM_HPDS_PER_SUBDET=72;
+  const static int NUM_HPDS_PER_SUBDET = 72;
   // number of HPDs per RBX
   const static int NUM_HPDS_PER_RBX = 4;
   // total number of RBXs in the HB and HE
-  const static int NUM_RBXS=72;
+  const static int NUM_RBXS = 72;
   // total number of RBXs per subdetector (e.g. HB+, HB-, HE+, HE-)
-  const static int NUM_RBXS_PER_SUBDET=18;
+  const static int NUM_RBXS_PER_SUBDET = 18;
 
   // access magic numbers by inline function
   inline int static numHPDs(void) { return NUM_HPDS; }
@@ -46,7 +44,7 @@ class HcalHPDRBXMap {
   // HPDs run from [0,NUM_HPDS-1], and RBXs run from [0,NUM_RBXS-1]
   bool static isValidHPD(int index);
   bool static isValidRBX(int index);
-  
+
   // determines whether a HcalDetId corresponds to a valid HPD/RBX
   // this requires that the HcalDetId be in the HB or HE, does not check depth
   bool static isValid(const HcalDetId&);
@@ -84,10 +82,9 @@ class HcalHPDRBXMap {
   void static indexHPDfromEtaPhi(int ieta, int iphi, std::vector<int>& hpdindices);
   void static indexRBXfromEtaPhi(int ieta, int iphi, std::vector<int>& rbxindices);
 
- private:
+private:
   HcalHPDRBXMap();
   ~HcalHPDRBXMap();
-
 };
 
 #endif

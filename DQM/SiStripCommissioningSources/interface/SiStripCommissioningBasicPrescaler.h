@@ -16,25 +16,20 @@
 
 #include <FWCore/Utilities/interface/InputTag.h>
 
-
 //
 // class declaration
 //
 
 class SiStripCommissioningBasicPrescaler : public edm::EDFilter {
+public:
+  explicit SiStripCommissioningBasicPrescaler(const edm::ParameterSet&);
+  ~SiStripCommissioningBasicPrescaler() override {}
 
-   public:
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-      explicit SiStripCommissioningBasicPrescaler(const edm::ParameterSet&);
-      ~SiStripCommissioningBasicPrescaler() override {}
-
-   private:
-
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-
-      // ----------member data ---------------------------
-      uint32_t factor_;
-
+  // ----------member data ---------------------------
+  uint32_t factor_;
 };
 
 #endif

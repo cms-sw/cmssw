@@ -4,8 +4,9 @@
 //
 // Package:     Watcher
 // Class  :     SimWatcherMaker
-// 
-/**\class SimWatcherMaker SimWatcherMaker.h SimG4Core/Watcher/interface/SimWatcherMaker.h
+//
+/**\class SimWatcherMaker SimWatcherMaker.h
+ SimG4Core/Watcher/interface/SimWatcherMaker.h
 
  Description: Makes a particular type of SimWatcher
 
@@ -14,7 +15,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Tue Nov 22 13:03:44 EST 2005
 //
 
@@ -22,44 +23,36 @@
 #include <memory>
 
 // user include files
-#include "SimG4Core/Watcher/interface/SimWatcherMakerBase.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistryEnroller.h"
+#include "SimG4Core/Watcher/interface/SimWatcherMakerBase.h"
 
 // forward declarations
 
-template<class T>
-class SimWatcherMaker : public SimWatcherMakerBase
-{
+template <class T>
+class SimWatcherMaker : public SimWatcherMakerBase {
+public:
+  SimWatcherMaker() {}
 
-   public:
-      SimWatcherMaker(){}
+  // ---------- const member functions ---------------------
+  void make(const edm::ParameterSet &p,
+            SimActivityRegistry &reg,
+            std::shared_ptr<SimWatcher> &oWatcher,
+            std::shared_ptr<SimProducer> &oProd) const override {
+    auto returnValue = std::make_shared<T>(p);
+    SimActivityRegistryEnroller::enroll(reg, returnValue.get());
+    oWatcher = returnValue;
 
-      // ---------- const member functions ---------------------
-      void make(const edm::ParameterSet& p,
-			SimActivityRegistry& reg,
-			std::shared_ptr<SimWatcher>& oWatcher,
-			std::shared_ptr<SimProducer>& oProd
-	 ) const override
-      {
-	auto returnValue = std::make_shared<T>(p);
-	SimActivityRegistryEnroller::enroll(reg, returnValue.get());
-	oWatcher = returnValue;
+    // If this is also a SimProducer, set the value
+    oProd = this->getSimProducer(returnValue.get(), returnValue);
+  }
 
-	//If this is also a SimProducer, set the value
-	oProd = this->getSimProducer(returnValue.get(), returnValue);
-      }
-
-   private:
-      std::shared_ptr<SimProducer>
-      getSimProducer(SimProducer*, std::shared_ptr<T>& iProd) const{
-	 return std::shared_ptr<SimProducer>(iProd);
-      }
-      std::shared_ptr<SimProducer>
-      getSimProducer(void*, std::shared_ptr<T>& iProd) const{
-	 return std::shared_ptr<SimProducer>();
-      }
-
+private:
+  std::shared_ptr<SimProducer> getSimProducer(SimProducer *, std::shared_ptr<T> &iProd) const {
+    return std::shared_ptr<SimProducer>(iProd);
+  }
+  std::shared_ptr<SimProducer> getSimProducer(void *, std::shared_ptr<T> &iProd) const {
+    return std::shared_ptr<SimProducer>();
+  }
 };
-
 
 #endif

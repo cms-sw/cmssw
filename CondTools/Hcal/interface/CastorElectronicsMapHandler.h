@@ -4,7 +4,6 @@
 // Radek Ofierzynski, 27.02.2008
 // Adapted for CASTOR by L. Mundim (26/03/2009)
 
-
 #include <string>
 #include <iostream>
 #include <typeinfo>
@@ -12,7 +11,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -22,22 +21,19 @@
 #include "CondFormats/DataRecord/interface/CastorElectronicsMapRcd.h"
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"
 
-
-class CastorElectronicsMapHandler : public popcon::PopConSourceHandler<CastorElectronicsMap>
-{
- public:
+class CastorElectronicsMapHandler : public popcon::PopConSourceHandler<CastorElectronicsMap> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~CastorElectronicsMapHandler() override;
-  CastorElectronicsMapHandler(edm::ParameterSet const &);
+  CastorElectronicsMapHandler(edm::ParameterSet const&);
 
   void initObject(CastorElectronicsMap*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   CastorElectronicsMap* myDBObject;
   std::string m_name;
-
 };
 #endif

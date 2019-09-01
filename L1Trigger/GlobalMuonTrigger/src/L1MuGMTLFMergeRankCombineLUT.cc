@@ -2,7 +2,7 @@
 //
 //   Class: L1MuGMTLFMergeRankCombineLUT
 //
-// 
+//
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -29,36 +29,19 @@
 // InitParameters  --
 //-------------------
 
-void L1MuGMTLFMergeRankCombineLUT::InitParameters() {
-}
+void L1MuGMTLFMergeRankCombineLUT::InitParameters() {}
 
 //------------------------
 // The Lookup Function  --
 //------------------------
 
-unsigned L1MuGMTLFMergeRankCombineLUT::TheLookupFunction (int idx, unsigned rank_etaq, unsigned rank_ptq, unsigned rank_etaphi) const {
+unsigned L1MuGMTLFMergeRankCombineLUT::TheLookupFunction(int idx,
+                                                         unsigned rank_etaq,
+                                                         unsigned rank_ptq,
+                                                         unsigned rank_etaphi) const {
   // idx is DT, BRPC, CSC, FRPC
   // INPUTS:  rank_etaq(7) rank_ptq(2) rank_etaphi(1)
-  // OUTPUTS: merge_rank(8) 
+  // OUTPUTS: merge_rank(8)
 
-  return rank_etaq + 128*rank_etaphi;
+  return rank_etaq + 128 * rank_etaphi;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

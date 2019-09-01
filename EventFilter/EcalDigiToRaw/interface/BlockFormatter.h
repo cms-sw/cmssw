@@ -10,49 +10,53 @@
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
-
-
- class EcalDigiToRaw;
-
-
 class BlockFormatter {
- public :
-        typedef uint64_t Word64;
-        typedef uint16_t Word16;
+public:
+  typedef uint64_t Word64;
+  typedef uint16_t Word16;
 
-	BlockFormatter();
-	~BlockFormatter();
-	void SetParam(EcalDigiToRaw* base);
-        static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
-	void DigiToRaw(FEDRawDataCollection* productRawData);
-	void print(FEDRawData& rawdata);
-	// void CleanUp(FEDRawDataCollection* productRawData);
-	void CleanUp(FEDRawDataCollection* productRawData,
-			std::map<int, std::map<int,int> >* FEDorder);
-	void PrintSizes(FEDRawDataCollection* productRawData);
+  struct Config {
+    const std::vector<int32_t>* plistDCCId_;
+    bool debug_;
 
- protected :
-        bool debug_;
+    bool doBarrel_;
+    bool doEndCap_;
+    bool doTCC_;
+    bool doSR_;
+    bool doTower_;
+  };
+  struct Params {
+    int counter_;
+    int orbit_number_;
+    int bx_;
+    int lv1_;
+    int runnumber_;
+  };
 
-	bool doBarrel_;
-	bool doEndCap_;
-	bool doTCC_;
-        bool doSR_;
-        bool doTower_;
+  explicit BlockFormatter(Config const& iC, Params const& iP);
+  static const int kCardsPerTower = 5;  // Number of VFE cards per trigger tower
+  void DigiToRaw(FEDRawDataCollection* productRawData);
+  void print(FEDRawData& rawdata);
+  // void CleanUp(FEDRawDataCollection* productRawData);
+  void CleanUp(FEDRawDataCollection* productRawData, std::map<int, std::map<int, int> >* FEDorder);
+  void PrintSizes(FEDRawDataCollection* productRawData);
 
-        std::vector<int32_t> * plistDCCId_;
+protected:
+  const std::vector<int32_t>* plistDCCId_;
 
-        int* pcounter_;
-	int* porbit_number_;
-	int* pbx_;
-	int* plv1_;
-	int* prunnumber_;
+  int counter_;
+  int orbit_number_;
+  int bx_;
+  int lv1_;
+  int runnumber_;
 
+  const bool debug_;
 
+  const bool doBarrel_;
+  const bool doEndCap_;
+  const bool doTCC_;
+  const bool doSR_;
+  const bool doTower_;
 };
 
-
-
 #endif
-
-

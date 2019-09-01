@@ -8,16 +8,16 @@
  */
 
 #include "CommonTools/Utils/src/TypeCode.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 namespace edm {
-class FunctionWithDict;
+  class FunctionWithDict;
 }
 
 namespace reco {
   edm::TypeWithDict returnType(const edm::FunctionWithDict&);
   method::TypeCode returnTypeCode(const edm::FunctionWithDict&);
   method::TypeCode typeCode(const edm::TypeWithDict&);
-}
+}  // namespace reco
 
-#endif // CommonTools_Utils_returnType_h
+#endif  // CommonTools_Utils_returnType_h

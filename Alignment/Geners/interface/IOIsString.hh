@@ -4,36 +4,30 @@
 #include <string>
 
 namespace gs {
-    template <class T>
-    struct IOIsString
-    {
-        enum {value = 0};
-    };
+  template <class T>
+  struct IOIsString {
+    enum { value = 0 };
+  };
 
-    template <>
-    struct IOIsString<std::string>
-    {
-        enum {value = 1};
-    };
+  template <>
+  struct IOIsString<std::string> {
+    enum { value = 1 };
+  };
 
-    template <>
-    struct IOIsString<const std::string>
-    {
-        enum {value = 1};
-    };
+  template <>
+  struct IOIsString<const std::string> {
+    enum { value = 1 };
+  };
 
-    template <>
-    struct IOIsString<volatile std::string>
-    {
-        enum {value = 1};
-    };
+  template <>
+  struct IOIsString<volatile std::string> {
+    enum { value = 1 };
+  };
 
-    template <>
-    struct IOIsString<const volatile std::string>
-    {
-        enum {value = 1};
-    };
-}
+  template <>
+  struct IOIsString<const volatile std::string> {
+    enum { value = 1 };
+  };
+}  // namespace gs
 
-#endif // GENERS_IOISSTRING_HH_
-
+#endif  // GENERS_IOISSTRING_HH_

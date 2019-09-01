@@ -11,7 +11,6 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,8 +21,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-
-
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
@@ -48,43 +45,41 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-namespace popcon
-{
-  class EcalLaserHandler : public popcon::PopConSourceHandler<EcalLaserAPDPNRatios>
-  {
-    
+namespace popcon {
+  class EcalLaserHandler : public popcon::PopConSourceHandler<EcalLaserAPDPNRatios> {
   public:
     void getNewObjects() override;
     double diff(float x, float old_x);
-    ~EcalLaserHandler() override; 
-    EcalLaserHandler(edm::ParameterSet const & ); 
-    
-    EcalCondDBInterface* econn;
-    std::string id() const override { return m_name;}
+    ~EcalLaserHandler() override;
+    EcalLaserHandler(edm::ParameterSet const &);
+
+    EcalCondDBInterface *econn;
+    std::string id() const override { return m_name; }
     void notifyProblems(const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &old,
-			const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &current,
-			int hashedIndex, const std::string &reason);
+                        const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &current,
+                        int hashedIndex,
+                        const std::string &reason);
     bool checkAPDPN(const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &old,
-		    const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &current,
-		    int hashedIndex);
+                    const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &current,
+                    int hashedIndex);
     bool checkAPDPNs(const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &laserMap,
-		     const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &apdpns_popcon);
+                     const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap &apdpns_popcon);
 
     void dumpBarrelPayload(EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap const &laserMap);
     void dumpEndcapPayload(EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap const &laserMap);
-    
+
   private:
-    const EcalLaserAPDPNRatios * myapdpns;
+    const EcalLaserAPDPNRatios *myapdpns;
     unsigned long m_sequences;
     std::string m_sid;
     std::string m_user;
     std::string m_pass;
     std::string m_name;
-    std::string m_maxtime; 
-    bool        m_debug;
-    bool        m_fake;
+    std::string m_maxtime;
+    bool m_debug;
+    bool m_fake;
   };
-}
+}  // namespace popcon
 #endif

@@ -13,7 +13,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -30,51 +29,42 @@
 #include <vector>
 #include <utility>
 
-template <class Key, class Content> class DTBufferTree;
+template <class Key, class Content>
+class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTTPGParametersId   {
-
- public:
-
+class DTTPGParametersId {
+public:
   DTTPGParametersId();
   ~DTTPGParametersId();
 
-  int   wheelId;
+  int wheelId;
   int stationId;
-  int  sectorId;
+  int sectorId;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
 class DTTPGParametersData {
-
- public:
-
+public:
   DTTPGParametersData();
   ~DTTPGParametersData();
 
-  int   nClock;
+  int nClock;
   float tPhase;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
 class DTTPGParameters {
-
- public:
-
+public:
   /** Constructor
    */
   DTTPGParameters();
-  DTTPGParameters( const std::string& version );
+  DTTPGParameters(const std::string& version);
 
   /** Destructor
    */
@@ -83,50 +73,27 @@ class DTTPGParameters {
   /** Operations
    */
   /// get content
-  int get( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int&    nc,
-           float&  ph,
-           DTTimeUnits::type unit ) const;
-  int get( const DTChamberId& id,
-           int&    nc,
-           float&  ph,
-           DTTimeUnits::type unit ) const;
-  float totalTime( int   wheelId,
-                   int stationId,
-                   int  sectorId,
-                   DTTimeUnits::type unit ) const;
-  float totalTime( const DTChamberId& id,
-                   DTTimeUnits::type unit ) const;
-  int   clock() const;
+  int get(int wheelId, int stationId, int sectorId, int& nc, float& ph, DTTimeUnits::type unit) const;
+  int get(const DTChamberId& id, int& nc, float& ph, DTTimeUnits::type unit) const;
+  float totalTime(int wheelId, int stationId, int sectorId, DTTimeUnits::type unit) const;
+  float totalTime(const DTChamberId& id, DTTimeUnits::type unit) const;
+  int clock() const;
   float unit() const;
 
   /// access version
-  const
-  std::string& version() const;
+  const std::string& version() const;
   std::string& version();
 
   /// reset content
   void clear();
 
-  int set( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int    nc,
-           float  ph,
-           DTTimeUnits::type unit );
-  int set( const DTChamberId& id,
-           int    nc,
-           float  ph,
-           DTTimeUnits::type unit );
-  void setClock( int clock );
-  void setUnit( float unit );
+  int set(int wheelId, int stationId, int sectorId, int nc, float ph, DTTimeUnits::type unit);
+  int set(const DTChamberId& id, int nc, float ph, DTTimeUnits::type unit);
+  void setClock(int clock);
+  void setUnit(float unit);
 
   /// Access methods to data
-  typedef std::vector< std::pair<DTTPGParametersId,
-                                 DTTPGParametersData> >::const_iterator
-                                                         const_iterator;
+  typedef std::vector<std::pair<DTTPGParametersId, DTTPGParametersData> >::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
@@ -134,21 +101,19 @@ class DTTPGParameters {
 
   DTTPGParameters& operator=(DTTPGParameters const&);
 
- private:
-
+private:
   DTTPGParameters(DTTPGParameters const&) = delete;
 
   std::string dataVersion;
   float nsPerCount;
-  int   clockLength;
+  int clockLength;
 
-  std::vector< std::pair<DTTPGParametersId,DTTPGParametersData> > dataList;
+  std::vector<std::pair<DTTPGParametersId, DTTPGParametersData> > dataList;
 
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
+  edm::ConstRespectingPtr<DTBufferTree<int, int> > dBuf COND_TRANSIENT;
 
   std::string mapName() const;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-#endif // DTTPGParameters_H
+#endif  // DTTPGParameters_H

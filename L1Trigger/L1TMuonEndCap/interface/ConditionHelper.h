@@ -7,12 +7,11 @@
 namespace edm {
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class L1TMuonEndCapParams;
 class L1TMuonEndCapForest;
 class PtAssignmentEngine;
-
 
 // class declaration
 class ConditionHelper {
@@ -20,7 +19,7 @@ public:
   ConditionHelper();
   ~ConditionHelper();
 
-  bool checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   const L1TMuonEndCapParams& getParams() const { return *params_; }
   const L1TMuonEndCapForest& getForest() const { return *forest_; }
@@ -40,6 +39,5 @@ private:
   edm::ESHandle<L1TMuonEndCapParams> params_;
   edm::ESHandle<L1TMuonEndCapForest> forest_;
 };
-
 
 #endif

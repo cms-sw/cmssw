@@ -4,6 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTTPGParametersHandler> DTTPGParametersPopConAnalyzer;
 
-
 DEFINE_FWK_MODULE(DTTPGParametersPopConAnalyzer);
-

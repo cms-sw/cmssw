@@ -1,7 +1,7 @@
-#ifndef SiPixelPhase1TrackingParticleV_h 
-#define SiPixelPhase1TrackingParticleV_h 
+#ifndef SiPixelPhase1TrackingParticleV_h
+#define SiPixelPhase1TrackingParticleV_h
 // -*- C++ -*-
-// 
+//
 // Package:     SiPixelPhase1TrackingParticleV
 // Class  :     SiPixelPhase1TrackingParticleV
 //
@@ -11,8 +11,8 @@
 
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 namespace reco {
   class TrackToTrackingParticleAssociator;
@@ -35,14 +35,13 @@ class SiPixelPhase1TrackingParticleV : public SiPixelPhase1Base {
     LIP,
   };
 
-  public:
-  explicit SiPixelPhase1TrackingParticleV(const edm::ParameterSet& conf);
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+public:
+  explicit SiPixelPhase1TrackingParticleV(const edm::ParameterSet &conf);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  private:
+private:
   edm::EDGetTokenT<TrackingParticleCollection> vec_TrackingParticle_Token_;
-  std::vector<edm::EDGetTokenT<std::vector<PSimHit> > > simHitTokens_;
+  std::vector<edm::EDGetTokenT<std::vector<PSimHit>>> simHitTokens_;
 };
 
 #endif
-

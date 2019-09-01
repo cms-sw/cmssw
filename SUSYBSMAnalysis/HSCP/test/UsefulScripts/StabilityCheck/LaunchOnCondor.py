@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import urllib
 import string
 import os
@@ -132,7 +133,7 @@ def CreateTheShellFile(argv):
 			shell_file.write('cd -\n')
 		shell_file.write('cmsRun ' + os.getcwd() + '/'+Path_Cfg + '\n')
 	else:
-		print #Program to use is not specified... Guess it is bash command		
+		print() #Program to use is not specified... Guess it is bash command		
                 shell_file.write('#Program to use is not specified... Guess it is bash command\n')
 		shell_file.write(argv[1] + " %s\n" % function_argument)
 
@@ -221,12 +222,12 @@ def SendCluster_Push(Argv):
 	Jobs_Index = "%04i_" % Jobs_Count
         if Jobs_Count==0 and (Argv[0]=="ROOT" or Argv[0]=="FWLITE"):                
                 #First Need to Compile the macro --> Create a temporary shell path with no arguments
-                print "Compiling the Macro..."
+                print("Compiling the Macro...")
                 CreateTheShellFile([Argv[0],Argv[1]])
                 os.system('sh '+Path_Shell)
                 os.system('rm '+Path_Shell)
-		print "Getting the jobs..."
-	print Argv
+		print("Getting the jobs...")
+	print(Argv)
         CreateTheShellFile(Argv)
         AddJobToCmdFile()
 	Jobs_Count = Jobs_Count+1
@@ -235,10 +236,10 @@ def SendCluster_Submit():
 	global CopyRights
         global Jobs_Count
         global Path_Cmd
-        print "condor_submit " + Path_Cmd
+        print("condor_submit " + Path_Cmd)
 	os.system("condor_submit " + Path_Cmd)	
-	print '\n'+CopyRights
-	print '%i Job(s) has/have been submitted on the Computing Cluster' % Jobs_Count
+	print('\n'+CopyRights)
+	print('%i Job(s) has/have been submitted on the Computing Cluster' % Jobs_Count)
 
 def SendSingleJob(FarmDirectory, JobName, Argv):
 	SendCluster_Create(FarmDirectory, JobName, Argv)
@@ -265,7 +266,7 @@ def SendCMSMergeJob(FarmDirectory, JobName, InputFiles, OutputFile, KeepStatemen
         Temp_Cfg   = Farm_Directories[1]+Jobs_Index+Jobs_Name+'_TEMP_cfg.py'
 
 	if len(InputFiles)==0:
-		print 'Empty InputFile List for Job named "%s", Job will not be submitted' % JobName
+		print('Empty InputFile List for Job named "%s", Job will not be submitted' % JobName)
 		return
 
 	InputFilesString = ""

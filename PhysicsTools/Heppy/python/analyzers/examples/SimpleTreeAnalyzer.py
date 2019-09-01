@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 from PhysicsTools.Heppy.analyzers.core.TreeAnalyzerNumpy import TreeAnalyzerNumpy
-import ntuple
+from . import ntuple
 
 class ZJetsTreeAnalyzer(TreeAnalyzerNumpy):
     

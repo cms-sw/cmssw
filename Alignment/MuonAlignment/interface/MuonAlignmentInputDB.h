@@ -4,7 +4,7 @@
 //
 // Package:     MuonAlignment
 // Class  :     MuonAlignmentInputDB
-// 
+//
 /**\class MuonAlignmentInputDB MuonAlignmentInputDB.h Alignment/MuonAlignment/interface/MuonAlignmentInputDB.h
 
  Description: <one line class summary>
@@ -26,30 +26,29 @@
 
 // forward declarations
 
-class MuonAlignmentInputDB: public MuonAlignmentInputMethod {
-   public:
-      MuonAlignmentInputDB();
-      MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel, bool getAPEs);
-      ~MuonAlignmentInputDB() override;
+class MuonAlignmentInputDB : public MuonAlignmentInputMethod {
+public:
+  MuonAlignmentInputDB();
+  MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel, bool getAPEs);
+  ~MuonAlignmentInputDB() override;
 
-      // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-      AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const override;
+  AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const override;
 
-   private:
-      MuonAlignmentInputDB(const MuonAlignmentInputDB&) = delete; // stop default
+private:
+  MuonAlignmentInputDB(const MuonAlignmentInputDB &) = delete;  // stop default
 
-      const MuonAlignmentInputDB& operator=(const MuonAlignmentInputDB&) = delete; // stop default
+  const MuonAlignmentInputDB &operator=(const MuonAlignmentInputDB &) = delete;  // stop default
 
-      // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-      std::string m_dtLabel, m_cscLabel;
-      bool m_getAPEs;
+  std::string m_dtLabel, m_cscLabel;
+  bool m_getAPEs;
 };
-
 
 #endif

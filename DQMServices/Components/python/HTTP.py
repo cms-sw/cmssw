@@ -1,3 +1,4 @@
+from builtins import range
 from cStringIO import StringIO
 from pycurl import *
 
@@ -46,7 +47,7 @@ object as it's created and queued to the idle connection list."""
     self.request_error = request_error or self._request_error
     self.request_init = request_init or self._request_init
     self.cm = CurlMulti()
-    self.handles = [Curl() for i in xrange(0, num_connections)]
+    self.handles = [Curl() for i in range(0, num_connections)]
     self.free = [c for c in self.handles]
     self.queue = []
 

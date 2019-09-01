@@ -20,7 +20,7 @@ gedPhotons = cms.EDProducer("GEDPhotonProducer",
     energyRegressionWeightsDBLocation = cms.string('wgbrph'),
     # refined SC regression setup
     useRegression = cms.bool(True),
-    regressionConfig = regressionModifier.clone(rhoCollection=cms.InputTag("fixedGridRhoFastjetAllTmp")),
+    regressionConfig = regressionModifier.clone(),
     superClusterEnergyCorrFunction =  cms.string("EcalClusterEnergyCorrection"),                  
     superClusterEnergyErrorFunction = cms.string("EcalClusterEnergyUncertainty"),
     superClusterCrackEnergyCorrFunction =  cms.string("EcalClusterCrackCorrection"),                                       
@@ -87,6 +87,7 @@ gedPhotons = cms.EDProducer("GEDPhotonProducer",
     RecHitSeverityToBeExcludedEB = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
     RecHitFlagToBeExcludedEE = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded,
     RecHitSeverityToBeExcludedEE = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
+    checkHcalStatus = cms.bool(True),
 )
 
 

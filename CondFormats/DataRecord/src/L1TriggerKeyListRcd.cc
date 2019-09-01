@@ -2,7 +2,7 @@
 //
 // Package:     DataRecord
 // Class  :     L1TriggerKeyListRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

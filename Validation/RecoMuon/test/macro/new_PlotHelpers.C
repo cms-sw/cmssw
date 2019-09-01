@@ -16,6 +16,11 @@
 void NormalizeHistogramsToFirst(TH1* h1, TH1* h2);
 void NormalizeHistogramsToOne(TH1* h1, TH1* h2);
 void NormalizeHistogramsAsDensity(TH1* h1, TH1* h2);
+TH1* PlotRatiosHistograms(TH1* h1, TH1* h2);
+TH1* AddOverflow(TH1* h);
+
+int ratioCounter = 0;
+int overflowCounter = 0;
 
 // debugging printouts
 bool DEBUGP = false;
@@ -38,6 +43,7 @@ void SetGlobalStyle() {
   //tyle->SetTitleYSize(0.3);
   //gStyle->SetLabelSize(0.6) 
   //gStyle->SetTextSize(0.5);
+  gStyle->SetOptStat(0);
 }
 //
 ////////////////////////////////////////////////////////////
@@ -60,6 +66,10 @@ void SetHistogramStyle(TH1* h, Style_t mstyle, Color_t color, Size_t msize = 0.7
   h->SetLineWidth(lwidth);
   h->GetYaxis()->SetTitleSize(tsize);
   h->GetYaxis()->SetTitleOffset(toffset);
+  h->GetXaxis()->SetLabelFont(63);
+  h->GetXaxis()->SetLabelSize(14); // labels will be 14 pixels
+  h->GetYaxis()->SetLabelFont(63);
+  h->GetYaxis()->SetLabelSize(14);
 }
 //
 ////////////////////////////////////////////////////////////
@@ -261,8 +271,10 @@ void PlotNHistograms(const TString& pdfFile,
     cerr << "   + Plotting histograms for " << canvasTitle << endl;
   }
 
-  TH1* rh   = 0;
-  TH1* sh   = 0;
+  TH1* rh_raw   = 0;
+  TH1* rh       = 0;
+  TH1* sh_raw   = 0;
+  TH1* sh       = 0;
 
   TCanvas* canvas =  0;
   if (nhistos >4)
@@ -289,8 +301,8 @@ void PlotNHistograms(const TString& pdfFile,
     
     if (DEBUGP) cout << " Getting object for reference sample " << (rcollname + "/" + hnames[i]) << endl;
 
-    rdir->GetObject(rcollname + "/" + hnames[i], rh);
-    if (! rh) {
+    rdir->GetObject(rcollname + "/" + hnames[i], rh_raw);
+    if (! rh_raw) {
       cout << "WARNING: Could not find a reference histogram or profile named " << hnames[i]
 	   << " in " << rdir->GetName() << endl;
       cout << "         Skipping" << endl;
@@ -298,12 +310,12 @@ void PlotNHistograms(const TString& pdfFile,
     }
 
     //If it is a 2D project it in Y... is this what we always want?
-    if (TString(rh->IsA()->GetName()) == "TH2F") {
+    if (TString(rh_raw->IsA()->GetName()) == "TH2F") {
 
       if (DEBUGP) cout << " It is a TH2F object... project in Y!" << endl;
 
-      TH1* proj = ((TH2F*) rh)->ProjectionY();
-      rh = proj;
+      TH1* proj = ((TH2F*) rh_raw)->ProjectionY();
+      rh_raw = proj;
     }
 
     // + New release    
@@ -311,8 +323,8 @@ void PlotNHistograms(const TString& pdfFile,
 
     if (DEBUGP) cout << " Getting object for target sample " << (scollname + "/" + hnames[i]) << endl;
 
-    sdir->GetObject(scollname + "/" + hnames[i], sh);
-    if (! sh) {
+    sdir->GetObject(scollname + "/" + hnames[i], sh_raw);
+    if (! sh_raw) {
       cout << "WARNING: Could not find a signal histogram or profile named " << hnames[i] 
 	   << " in " << sdir->GetName() << endl;
       cout << "         Skipping" << endl;
@@ -320,13 +332,16 @@ void PlotNHistograms(const TString& pdfFile,
     }
 
     //If it is a 2D project it in Y... is this what we always want?
-    if (TString(sh->IsA()->GetName()) == "TH2F") {
+    if (TString(sh_raw->IsA()->GetName()) == "TH2F") {
 
       if (DEBUGP) cout << hnames[i] << " is a TH2F object... project in Y!" << endl;
 
-      TH1* proj = ((TH2F*) sh)->ProjectionY();
-      sh = proj;
+      TH1* proj = ((TH2F*) sh_raw)->ProjectionY();
+      sh_raw = proj;
     }
+
+    rh = AddOverflow(rh_raw);
+    sh = AddOverflow(sh_raw);
 
     // Set styles
 
@@ -467,9 +482,24 @@ void PlotNHistograms(const TString& pdfFile,
     // Move to subpad
     canvas->cd(i+1);
     
-    // Check Logy
+    TPad* pad1 = NULL;
+    TPad* pad2 = NULL;
+
+    pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1.0);
+    pad2 = new TPad("pad2", "pad2", 0, 0.0, 1, 0.3);
+
+    pad1->SetTopMargin   (0.08);
+    pad1->SetBottomMargin(0.01);
+    pad1->Draw();
+
+    pad2->SetTopMargin   (0.05);
+    pad2->SetBottomMargin(0.45);
+    pad2->Draw();// Set stat boxes                                                                      
+    pad1->cd();
+
+    // Check Logy                                                                                       
     if (logy[i]) gPad->SetLogy();
-    if (logx[i]) gPad->SetLogx();
+    if (logx[i]) {gPad->SetLogx(); pad2->SetLogx();}
 
     // Set stat boxes
 
@@ -501,7 +531,13 @@ void PlotNHistograms(const TString& pdfFile,
 	  gPad->SetFillColor(kBlue-10);
       }
     }
-  } // End loop
+ 
+    pad2->cd();
+
+    TH1* ratioplot = PlotRatiosHistograms(rh, sh);
+    SetHistogramStyle(ratioplot, 21, 4);
+    ratioplot->Draw("ep");
+ } // End loop
   
    // Draw Legend
 
@@ -526,7 +562,8 @@ void PlotNHistograms(const TString& pdfFile,
   l->Draw();
   
   // Print Canvas
-  canvas->Print(pdfFile);
+  canvas->SaveAs(pdfFile+".pdf");
+  canvas->SaveAs(pdfFile+".png");
 
   // Clean memory
   // delete l;
@@ -660,4 +697,92 @@ void NormalizeHistogramsAsDensity(TH1* h1, TH1* h2) {
     h1->Scale(scale1, "width");
     h2->Scale(scale2, "width");
   }
+}
+///////////////////////////////////////////////////////////
+// 
+// ratio plot from the two histograms
+//  
+/////////////////////////////////////////////////////////
+
+TH1* PlotRatiosHistograms(TH1* h1, TH1* h2){
+
+  ++ratioCounter;
+
+  const Int_t nbinsx = h1->GetNbinsX();
+
+  Double_t xbins[nbinsx+1];
+
+  //Loop necessary since some histograms are TH1 while some are TProfile and do not allow us to use the clone function (SetBinContent do not exists for TProfiles)
+  for (Int_t ibin=1; ibin<=nbinsx+1; ibin++) {
+    Float_t xmin = h1->GetBinLowEdge(ibin);
+    xbins[ibin-1] = xmin;
+  }
+
+
+  TH1F* h_ratio = new TH1F(Form("h_ratio_%d", ratioCounter), "", nbinsx, xbins);
+
+  for (Int_t ibin=1; ibin<=nbinsx; ibin++) {
+
+    Float_t h1Value = h1->GetBinContent(ibin);
+    Float_t h2Value = h2->GetBinContent(ibin);
+
+    Float_t h1Error = h1->GetBinError(ibin);
+    Float_t h2Error = h2->GetBinError(ibin);
+
+    Float_t ratioVal = 999;
+    Float_t ratioErr = 999;
+
+    if (h2Value > 0 || h2Value < 0) {
+      ratioVal = h1Value / h2Value;
+      ratioErr = h1Error / h2Value;
+    }
+
+    h_ratio->SetBinContent(ibin, ratioVal);
+    h_ratio->SetBinError  (ibin, ratioErr);
+
+  }
+
+  h_ratio->SetTitle("");
+  h_ratio->GetYaxis()->SetTitle("");
+  h_ratio->GetYaxis()->SetRangeUser(0.4, 1.6);
+
+  return h_ratio;
+}
+
+TH1* AddOverflow(TH1* h) {
+
+  ++overflowCounter;
+
+  TString  name = h->GetName();
+  const Int_t nx = h->GetNbinsX();
+  Double_t x1   = h->GetBinLowEdge(1);
+
+  Double_t xbins[nx+1];
+
+  //Loop necessary since some histograms are TH1 while some are TProfile and do not allow us to use the clone function (SetBinContent do not exists for TProfiles)
+  for (Int_t ibin=1; ibin<=nx+1; ibin++) {
+    Float_t xmin = h->GetBinLowEdge(ibin);
+    xbins[ibin-1] = xmin;
+  }
+
+  TH1F* htmp = new TH1F(Form(name + "_overflow_%d", overflowCounter), "", nx, xbins);
+
+  // Fill the new histogram including the extra bin for overflows
+  for (Int_t i=1; i<=nx; i++) {
+    htmp->Fill(htmp->GetBinCenter(i), h->GetBinContent(i));
+    htmp->SetBinError(i, h->GetBinError(i));
+  }
+
+  // Fill the underflow
+  htmp->Fill(x1-1, h->GetBinContent(0));
+
+  // Restore the number of entries
+  htmp->SetEntries(h->GetEntries());
+
+  // Cosmetics
+  htmp->SetLineColor(h->GetLineColor());
+  htmp->SetLineWidth(h->GetLineWidth());
+  htmp->GetXaxis()->SetTitleOffset(1.5);
+
+  return htmp;
 }

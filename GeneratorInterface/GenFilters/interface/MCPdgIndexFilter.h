@@ -10,7 +10,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -21,19 +21,20 @@ namespace edm {
   class HepMCProduct;
 }
 
-class MCPdgIndexFilter : public edm::EDFilter {
-   public:
-      explicit MCPdgIndexFilter(const edm::ParameterSet&);
-      ~MCPdgIndexFilter() override {};
+class MCPdgIndexFilter : public edm::global::EDFilter<> {
+public:
+  explicit MCPdgIndexFilter(const edm::ParameterSet&);
+  ~MCPdgIndexFilter() override{};
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-   private:
-      bool pass(const edm::Event&);
-      const edm::EDGetTokenT<edm::HepMCProduct> token_;
-      const std::vector<int> pdgID;
-      const std::vector<unsigned> index;
-      const unsigned maxIndex;
-      const bool taggingMode;
-      const std::string tag;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  bool pass(const edm::Event&) const;
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const std::vector<int> pdgID;
+  const std::vector<unsigned> index;
+  edm::EDPutTokenT<bool> putToken_;
+  const unsigned maxIndex;
+  const bool taggingMode;
 };
 #endif

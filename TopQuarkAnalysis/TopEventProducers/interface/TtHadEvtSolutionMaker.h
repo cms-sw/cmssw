@@ -14,7 +14,6 @@
 #include <vector>
 #include <string>
 
-
 class TtFullHadKinFitter;
 class TtHadSimpleBestJetComb;
 class TtHadLRJetCombObservables;
@@ -23,15 +22,13 @@ class TtHadLRSignalSelObservables;
 class TtHadLRSignalSelCalc;
 
 class TtHadEvtSolutionMaker : public edm::EDProducer {
-
- public:
-
-  explicit TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig);
+public:
+  explicit TtHadEvtSolutionMaker(const edm::ParameterSet& iConfig);
   ~TtHadEvtSolutionMaker() override;
 
-  void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
- private:
+private:
   // configurables
 
   edm::EDGetTokenT<std::vector<pat::Jet> > jetSrcToken_;
@@ -48,13 +45,12 @@ class TtHadEvtSolutionMaker : public edm::EDProducer {
   std::vector<unsigned int> constraints_;
   edm::EDGetTokenT<TtGenEvent> genEvtToken_;
   // tools
-  TtFullHadKinFitter          * myKinFitter;
-  TtHadSimpleBestJetComb      * mySimpleBestJetComb;
-  TtHadLRJetCombObservables   * myLRJetCombObservables;
-  TtHadLRJetCombCalc          * myLRJetCombCalc;
-  TtHadLRSignalSelObservables * myLRSignalSelObservables;
-  TtHadLRSignalSelCalc        * myLRSignalSelCalc;
+  TtFullHadKinFitter* myKinFitter;
+  TtHadSimpleBestJetComb* mySimpleBestJetComb;
+  TtHadLRJetCombObservables* myLRJetCombObservables;
+  TtHadLRJetCombCalc* myLRJetCombCalc;
+  TtHadLRSignalSelObservables* myLRSignalSelObservables;
+  TtHadLRSignalSelCalc* myLRSignalSelCalc;
 };
-
 
 #endif

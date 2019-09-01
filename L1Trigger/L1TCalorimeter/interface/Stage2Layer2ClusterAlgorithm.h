@@ -17,15 +17,14 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
 
 namespace l1t {
-    
-  class Stage2Layer2ClusterAlgorithm { 
+
+  class Stage2Layer2ClusterAlgorithm {
   public:
-    virtual void processEvent(const std::vector<l1t::CaloTower> & towers,
-			      std::vector<l1t::CaloCluster> & clusters) = 0;    
+    virtual void processEvent(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters) = 0;
 
     virtual ~Stage2Layer2ClusterAlgorithm(){};
-  }; 
-  
-} 
+  };
+
+}  // namespace l1t
 
 #endif

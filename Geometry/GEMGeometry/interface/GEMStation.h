@@ -16,9 +16,8 @@
 
 class GEMSuperChamber;
 
-class GEMStation
-{
- public:
+class GEMStation {
+public:
   /// constructor
   GEMStation(int region, int station);
 
@@ -33,14 +32,14 @@ class GEMStation
 
   /// Add ring to the station which takes ownership
   void add(GEMRing* ring);
-  
+
   /// Return the super chambers in the station
   std::vector<const GeomDet*> components() const;
 
   /// Return the sub-component (super chamber) with a given id in this station
   const GeomDet* component(DetId id) const;
 
-  /// Return the chamber corresponding to the given id 
+  /// Return the chamber corresponding to the given id
   const GEMSuperChamber* superChamber(GEMDetId id) const;
 
   /// Return the super chambers in the region
@@ -48,7 +47,7 @@ class GEMStation
 
   /// Get a ring
   const GEMRing* ring(int ring) const;
-  
+
   /// Return the rings in the station
   const std::vector<const GEMRing*>& rings() const;
 
@@ -56,25 +55,23 @@ class GEMStation
   int nRings() const;
 
   /// Set the station name
-  void setName(std::string name); 
+  void setName(std::string name);
 
   /// Set the station name
-  const std::string getName() const; 
+  const std::string getName() const;
 
-  /// Get the region 
+  /// Get the region
   int region() const;
-  
+
   /// Get the station
   int station() const;
 
- private:
-
+private:
   int region_;
   int station_;
 
   // vector of rings for a station
   std::vector<const GEMRing*> rings_;
   std::string name_;
-
 };
 #endif

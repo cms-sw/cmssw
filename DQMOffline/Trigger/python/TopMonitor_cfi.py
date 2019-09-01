@@ -70,6 +70,7 @@ hltTOPmonitoring.histoPSet.MHTPSet = cms.PSet(
 
 
 hltTOPmonitoring.enablePhotonPlot = cms.bool(False)
+hltTOPmonitoring.enableMETplot = cms.bool(False)
 
 #MET and HT binning
 hltTOPmonitoring.histoPSet.metBinning = cms.vdouble(0,20,40,60,80,100,125,150,175,200)
@@ -100,8 +101,7 @@ hltTOPmonitoring.histoPSet.phiBinning2D = cms.vdouble(-3.1416,-1.8849,-0.6283,0.
 hltTOPmonitoring.met       = cms.InputTag("pfMetEI") # pfMet
 hltTOPmonitoring.jets      = cms.InputTag("ak4PFJetsCHS") # ak4PFJets, ak4PFJetsCHS, pfJetsEI
 hltTOPmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
-#ATHER                                                                                                                                                                                                                         
-hltTOPmonitoring.elecID    = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-medium") #Electron ID
+hltTOPmonitoring.elecID    = cms.InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-tight") #Electron ID
 
 hltTOPmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 hltTOPmonitoring.photons   = cms.InputTag("photons") #reco::Photon 
@@ -111,6 +111,7 @@ hltTOPmonitoring.vertices  = cms.InputTag("offlinePrimaryVertices")
 # Marina
 hltTOPmonitoring.btagalgo  = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
 hltTOPmonitoring.workingpoint     = cms.double(0.8484) # Medium
+hltTOPmonitoring.bbtagalgo = cms.InputTag("pfDeepCSVJetTags:probbb")
 
 hltTOPmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 hltTOPmonitoring.leptJetDeltaRmin = cms.double(0.4)

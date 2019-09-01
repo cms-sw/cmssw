@@ -4,15 +4,15 @@
 #include "Calibration/HcalIsolatedTrackReco/interface/IsolatedPixelTrackCandidateL1TProducer.h"
 #include "Calibration/HcalIsolatedTrackReco/interface/IsolatedEcalPixelTrackCandidateProducer.h"
 #include "Calibration/HcalIsolatedTrackReco/interface/EcalIsolatedParticleCandidateProducer.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h" 	 
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h" 	 
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "Calibration/HcalIsolatedTrackReco/interface/SiStripRegFEDSelector.h"
 #include "Calibration/HcalIsolatedTrackReco/interface/ECALRegFEDSelector.h"
 #include "Calibration/HcalIsolatedTrackReco/interface/SubdetFEDSelector.h"
 #include "HITRegionalPixelSeedGenerator.h"
 #include "Calibration/HcalIsolatedTrackReco/interface/IPTCorrector.h"
 
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITRegionalPixelSeedGenerator, "HITRegionalPixelSeedGenerator"); 
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITRegionalPixelSeedGenerator, "HITRegionalPixelSeedGenerator");
 //
 DEFINE_FWK_MODULE(IsolatedPixelTrackCandidateProducer);
 DEFINE_FWK_MODULE(IsolatedPixelTrackCandidateL1TProducer);

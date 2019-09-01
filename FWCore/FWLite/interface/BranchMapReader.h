@@ -65,27 +65,29 @@ namespace fwlite {
       Long_t runEntry_;
       int fileVersion_;
     };
-  }
+  }  // namespace internal
 
   class BranchMapReader {
   public:
     BranchMapReader(TFile* file);
-    BranchMapReader() : strategy_(nullptr),fileVersion_(0) {}
+    BranchMapReader() : strategy_(nullptr), fileVersion_(0) {}
 
-      // ---------- const member functions ---------------------
+    // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+    // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+    // ---------- member functions ---------------------------
     bool updateFile(TFile* file);
     bool updateEvent(Long_t eventEntry);
     bool updateLuminosityBlock(Long_t luminosityBlockEntry);
     bool updateRun(Long_t runEntry);
     edm::BranchID productToBranchID(const edm::ProductID& pid) { return strategy_->productToBranchID(pid); }
     const edm::BranchDescription& productToBranch(const edm::ProductID& pid);
-    const edm::BranchDescription& branchIDToBranch(const edm::BranchID& bid) const { return strategy_->branchIDToBranch(bid); }
+    const edm::BranchDescription& branchIDToBranch(const edm::BranchID& bid) const {
+      return strategy_->branchIDToBranch(bid);
+    }
     int getFileVersion(TFile* file);
-    int getFileVersion() const { return  fileVersion_;}
+    int getFileVersion() const { return fileVersion_; }
 
     TFile const* getFile() const { return strategy_->currentFile_; }
     TFile* getFile() { return strategy_->currentFile_; }
@@ -100,15 +102,20 @@ namespace fwlite {
     Long_t getLuminosityBlockEntry() const { return strategy_->luminosityBlockEntry_; }
     Long_t getRunEntry() const { return strategy_->runEntry_; }
     const std::vector<edm::BranchDescription>& getBranchDescriptions();
-    const edm::BranchListIndexes& branchListIndexes() const { strategy_->updateMap(); return strategy_->branchListIndexes(); }
-    const edm::ThinnedAssociationsHelper& thinnedAssociationsHelper() const { return strategy_->thinnedAssociationsHelper(); }
+    const edm::BranchListIndexes& branchListIndexes() const {
+      strategy_->updateMap();
+      return strategy_->branchListIndexes();
+    }
+    const edm::ThinnedAssociationsHelper& thinnedAssociationsHelper() const {
+      return strategy_->thinnedAssociationsHelper();
+    }
 
-      // ---------- member data --------------------------------
+    // ---------- member data --------------------------------
   private:
     std::unique_ptr<internal::BMRStrategy> newStrategy(TFile* file, int fileVersion);
-    std::unique_ptr<internal::BMRStrategy> strategy_; // Contains caches, so we do not propagate_const
+    std::unique_ptr<internal::BMRStrategy> strategy_;  // Contains caches, so we do not propagate_const
     int fileVersion_;
   };
-}
+}  // namespace fwlite
 
 #endif

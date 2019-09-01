@@ -23,6 +23,7 @@ def hbheCosmic(module):
         tsFromDB = cms.bool(False),
         recoParamsFromDB = cms.bool(False),
         algorithm = dict(
+            useMahi = cms.bool(False),
             useM2 = cms.bool(False),
             useM3 = cms.bool(False),
             firstSampleShift = cms.int32(-1000),
@@ -79,31 +80,32 @@ hfprereco = _hcalLocalReco_cff.hfprereco.clone(
 from RecoLocalCalo.HcalRecProducers.hbheplan1_cfi import hbheplan1
 
 # redefine hcal sequence
-hcalLocalRecoSequence = cms.Sequence(hbhereco+hfreco+horeco+zdcreco)
+hcalLocalRecoTask = cms.Task(hbhereco,hfreco,horeco,zdcreco)
+hcalLocalRecoSequence = cms.Sequence(hcalLocalRecoTask)
 
-_phase1_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
-_phase1_hcalLocalRecoSequence.insert(0,hfprereco)
-run2_HF_2017.toReplaceWith(hcalLocalRecoSequence, _phase1_hcalLocalRecoSequence)
+_phase1_hcalLocalRecoTask = hcalLocalRecoTask.copy()
+_phase1_hcalLocalRecoTask.add(hfprereco)
+run2_HF_2017.toReplaceWith(hcalLocalRecoTask, _phase1_hcalLocalRecoTask)
 
 # shuffle modules so "hbheplan1" produces final collection of hits named "hbhereco"
-_plan1_hcalLocalRecoSequence = _phase1_hcalLocalRecoSequence.copy()
+_plan1_hcalLocalRecoTask = _phase1_hcalLocalRecoTask.copy()
 hbheprereco = hbhereco.clone()
-_plan1_hcalLocalRecoSequence.insert(0,hbheprereco)
+_plan1_hcalLocalRecoTask.add(hbheprereco)
 from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
 run2_HEPlan1_2017.toReplaceWith(hbhereco, hbheplan1)
-run2_HEPlan1_2017.toReplaceWith(hcalLocalRecoSequence, _plan1_hcalLocalRecoSequence)
+run2_HEPlan1_2017.toReplaceWith(hcalLocalRecoTask, _plan1_hcalLocalRecoTask)
 
 hbhecollapse = hbheplan1.clone()
-_collapse_hcalLocalRecoSequence = _phase1_hcalLocalRecoSequence.copy()
-_collapse_hcalLocalRecoSequence.insert(0,hbheprereco)
+_collapse_hcalLocalRecoTask = _phase1_hcalLocalRecoTask.copy()
+_collapse_hcalLocalRecoTask.add(hbheprereco)
 from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
 run2_HECollapse_2018.toReplaceWith(hbhereco, hbhecollapse)
-run2_HECollapse_2018.toReplaceWith(hcalLocalRecoSequence, _collapse_hcalLocalRecoSequence)
-
-calolocalrecoCosmics = cms.Sequence(ecalLocalRecoSequenceCosmics+hcalLocalRecoSequence)
-
+run2_HECollapse_2018.toReplaceWith(hcalLocalRecoTask, _collapse_hcalLocalRecoTask)
+calolocalrecoTaskCosmics = cms.Task(ecalLocalRecoTaskCosmics,hcalLocalRecoTask)
+calolocalrecoCosmics = cms.Sequence(calolocalrecoTaskCosmics)
 #
 # R.Ofierzynski (29.Oct.2009): add NZS sequence
 #
 from RecoLocalCalo.Configuration.hcalLocalRecoNZS_cff import *
-calolocalrecoCosmicsNZS = cms.Sequence(ecalLocalRecoSequenceCosmics+hcalLocalRecoSequence+hcalLocalRecoSequenceNZS) 
+calolocalrecoTaskCosmicsNZS = cms.Task(ecalLocalRecoTaskCosmics,hcalLocalRecoTask,hcalLocalRecoTaskNZS) 
+calolocalrecoCosmicsNZS = cms.Sequence(calolocalrecoTaskCosmicsNZS) 

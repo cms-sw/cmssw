@@ -3,6 +3,6 @@
 
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 
-typedef BasicSingleTrajectoryState    BasicTrajectoryStateOnSurface;
+typedef BasicSingleTrajectoryState BasicTrajectoryStateOnSurface;
 
 #endif

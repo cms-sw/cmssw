@@ -9,4 +9,4 @@ namespace edm {
   ViewTypeChecker::ViewTypeChecker() {}
 
   ViewTypeChecker::~ViewTypeChecker() {}
-}
+}  // namespace edm

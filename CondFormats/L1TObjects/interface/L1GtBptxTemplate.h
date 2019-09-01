@@ -36,45 +36,38 @@
 // forward declarations
 
 // class declaration
-class L1GtBptxTemplate : public L1GtCondition
-{
+class L1GtBptxTemplate : public L1GtCondition {
+public:
+  // constructor
+  L1GtBptxTemplate();
+
+  // constructor
+  L1GtBptxTemplate(const std::string&);
+
+  // constructor
+  L1GtBptxTemplate(const std::string&, const L1GtConditionType&);
+
+  // copy constructor
+  L1GtBptxTemplate(const L1GtBptxTemplate&);
+
+  // destructor
+  ~L1GtBptxTemplate() override;
+
+  // assign operator
+  L1GtBptxTemplate& operator=(const L1GtBptxTemplate&);
 
 public:
+  /// print the condition
+  void print(std::ostream& myCout) const override;
 
-    // constructor
-    L1GtBptxTemplate();
-
-    // constructor
-    L1GtBptxTemplate(const std::string&);
-
-    // constructor
-    L1GtBptxTemplate(const std::string&, const L1GtConditionType&);
-
-    // copy constructor
-    L1GtBptxTemplate(const L1GtBptxTemplate&);
-
-    // destructor
-    ~L1GtBptxTemplate() override;
-
-    // assign operator
-    L1GtBptxTemplate& operator=(const L1GtBptxTemplate&);
-
-public:
-
-    /// print the condition
-    void print(std::ostream& myCout) const override;
-
-    /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const L1GtBptxTemplate&);
-
+  /// output stream operator
+  friend std::ostream& operator<<(std::ostream&, const L1GtBptxTemplate&);
 
 private:
+  /// copy function for copy constructor and operator=
+  void copy(const L1GtBptxTemplate& cp);
 
-    /// copy function for copy constructor and operator=
-    void copy(const L1GtBptxTemplate& cp);
-
-
-    COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

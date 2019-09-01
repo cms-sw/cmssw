@@ -4,5 +4,7 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HcalFrontEndMapRcd : public edm::eventsetup::DependentRecordImplementation<HcalFrontEndMapRcd, boost::mpl::vector<HcalRecNumberingRecord,IdealGeometryRecord> > {};
+class HcalFrontEndMapRcd : public edm::eventsetup::DependentRecordImplementation<
+                               HcalFrontEndMapRcd,
+                               boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 #endif

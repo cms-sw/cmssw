@@ -24,14 +24,13 @@
 
 /* Class RecSegment Interface */
 
-class RecSegment : public TrackingRecHit{
-
- public:
+class RecSegment : public TrackingRecHit {
+public:
   RecSegment(DetId id) : TrackingRecHit(id) {}
-  RecSegment(TrackingRecHit::id_type id=0) : TrackingRecHit(id) {}
+  RecSegment(TrackingRecHit::id_type id = 0) : TrackingRecHit(id) {}
 
   /// Destructor
-  ~RecSegment() override {};
+  ~RecSegment() override{};
 
   /// Local direction
   virtual LocalVector localDirection() const = 0;
@@ -40,14 +39,12 @@ class RecSegment : public TrackingRecHit{
   virtual LocalError localDirectionError() const = 0;
 
   /// Chi2 of the segment fit
-  virtual double chi2() const  = 0 ;
+  virtual double chi2() const = 0;
 
   /// Degrees of freedom of the segment fit
-  virtual int degreesOfFreedom() const = 0 ;
+  virtual int degreesOfFreedom() const = 0;
 
   /// Dimension (in parameter space)
-  int dimension() const override = 0 ;
-
+  int dimension() const override = 0;
 };
-#endif // TrackingRecHit_RecSegment_h
-
+#endif  // TrackingRecHit_RecSegment_h

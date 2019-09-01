@@ -9,32 +9,24 @@
  *  \author Giorgia Mila - INFN Torino
  */
 
-
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
-
 class MuonChi2MeasurementEstimator : public Chi2MeasurementEstimatorBase {
- public:
-  
+public:
   /// Constructor detector indipendent
   MuonChi2MeasurementEstimator(double maxChi2, double nSigma = 3.);
-  
+
   /// Constructor detector dependent
   MuonChi2MeasurementEstimator(double dtMaxChi2, double cscMaxChi2, double rpcMaxChi2, double nSigma);
-  
+
   /// Chi2 estimator
-  std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-					  const TrackingRecHit&) const override;
+  std::pair<bool, double> estimate(const TrajectoryStateOnSurface&, const TrackingRecHit&) const override;
 
-
- private:
-  
+private:
   Chi2MeasurementEstimator theDTChi2Estimator;
   Chi2MeasurementEstimator theCSCChi2Estimator;
   Chi2MeasurementEstimator theRPCChi2Estimator;
-
-
 };
 
 #endif

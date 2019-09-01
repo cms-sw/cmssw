@@ -7,10 +7,9 @@ namespace edm {
   RootServiceChecker::RootServiceChecker() {
     Service<RootHandlers> rootSvc;
     if (!rootSvc.isAvailable()) {
-      throw edm::Exception(errors::Configuration) <<
-	    "The 'InitRootHandlers' service was not specified.\n" <<
-	    "This service must be used if PoolSource or PoolOutputModule is used.\n";
+      throw edm::Exception(errors::Configuration)
+          << "The 'InitRootHandlers' service was not specified.\n"
+          << "This service must be used if PoolSource or PoolOutputModule is used.\n";
     }
   }
-}
-
+}  // namespace edm

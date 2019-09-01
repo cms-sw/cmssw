@@ -23,6 +23,8 @@ getPayloadData.py \
     --test;
 
 estimators=(Mean Min Max RMS)
+plotTypes=(Strip APV Module)
+partition=(TIB TOB TEC TID)
 
 mkdir -p $W_DIR/results
 
@@ -61,3 +63,42 @@ do
 
 done
 
+for j in "${plotTypes[@]}"
+do  
+    getPayloadData.py \
+	--plugin pluginSiStripNoises_PayloadInspector \
+	--plot plot_SiStripNoiseValuePer${j} \
+	--tag SiStripNoise_GR10_v1_hlt \
+	--time_type Run \
+	--iovs  '{"start_iov": "313210", "end_iov": "313120"}' \
+	--db Prod \
+	--test;
+	
+    mv *.png $W_DIR/results/SiStripNoisesPer${j}Values.png
+
+    getPayloadData.py \
+	--plugin pluginSiStripNoises_PayloadInspector \
+	--plot plot_SiStripNoiseValueComparisonPer${j}SingleTag \
+	--tag SiStripNoise_GR10_v1_hlt \
+	--time_type Run \
+	--iovs '{"start_iov": "312968", "end_iov": "313120"}' \
+	--db Prod \
+	--test ;
+
+    mv *.png $W_DIR/results/SiStripNoisesPer${j}ComparisonSingleTag.png
+
+done
+
+for j in "${partition[@]}"
+do
+       getPayloadData.py \
+        --plugin pluginSiStripNoises_PayloadInspector \
+	--plot plot_${j}NoiseLayerRunHistory \
+        --tag SiStripNoise_GR10_v1_hlt \
+	--time_type Run \
+        --iovs  '{"start_iov": "315000", "end_iov": "325000"}' \
+	--db Prod \
+        --test;
+
+    mv *.png $W_DIR/results/${j}NoiseLayerRunHistory.png
+done

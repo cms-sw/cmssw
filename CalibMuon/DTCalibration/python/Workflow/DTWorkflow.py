@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import os,sys
 import glob
 import logging
@@ -7,9 +9,9 @@ import time, datetime
 import urllib2
 import json
 
-import tools
-from CLIHelper import CLIHelper
-from CrabHelper import CrabHelper
+from . import tools
+from .CLIHelper import CLIHelper
+from .CrabHelper import CrabHelper
 import FWCore.ParameterSet.Config as cms
 log = logging.getLogger(__name__)
 
@@ -45,7 +47,7 @@ class DTWorkflow(CLIHelper, CrabHelper):
             for option in requirements_dict[self.options.command]:
                 if not (hasattr(self.options, option)
                     and ( (getattr(self.options,option))
-                          or type(getattr(self.options,option)) == bool )):
+                          or isinstance(getattr(self.options,option), bool) )):
                     missing_options.append(option)
         if len(missing_options) > 0:
             err = "The following CLI options are missing"
@@ -231,7 +233,7 @@ class DTWorkflow(CLIHelper, CrabHelper):
             path = self.result_path
         except:
             path = os.getcwd()
-        print "path", path
+        print("path", path)
         out_path = os.path.abspath(os.path.join(path,
                                                 os.path.splitext(db_path)[0] + ".txt"))
 

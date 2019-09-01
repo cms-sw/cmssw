@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
-process = cms.Process('L1GTSUMMARY',eras.Run2_2016)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process('L1GTSUMMARY',Run2_2016)
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -82,5 +83,5 @@ if rootout:
 dump=False
 if dump:
     outfile = open('dump_config.py','w')
-    print >> outfile,process.dumpPython()
+    print(process.dumpPython(), file=outfile)
     outfile.close()

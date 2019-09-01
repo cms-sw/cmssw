@@ -27,54 +27,50 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class RPCSim
-{
- public:
-
+class RPCSim {
+public:
   typedef edm::DetSet<StripDigiSimLink> DigiSimLinks;
   typedef edm::DetSet<RPCDigiSimLink> RPCDigiSimLinks;
 
   virtual ~RPCSim(){};
 
-  virtual void simulate(const RPCRoll* roll,
-			const edm::PSimHitContainer& rpcHits,
-                        CLHEP::HepRandomEngine*)=0;
+  virtual void simulate(const RPCRoll* roll, const edm::PSimHitContainer& rpcHits, CLHEP::HepRandomEngine*) = 0;
 
-  virtual void simulateNoise(const RPCRoll* roll,
-                             CLHEP::HepRandomEngine*)=0;
+  virtual void simulateNoise(const RPCRoll* roll, CLHEP::HepRandomEngine*) = 0;
 
   virtual void fillDigis(int rollDetId, RPCDigiCollection& digis);
 
-  void setRPCSimSetUp(RPCSimSetUp* setup){theSimSetUp = setup;}
+  void setRPCSimSetUp(RPCSimSetUp* setup) { theSimSetUp = setup; }
 
-  RPCSimSetUp* getRPCSimSetUp(){ return theSimSetUp; }
+  RPCSimSetUp* getRPCSimSetUp() { return theSimSetUp; }
 
-  const DigiSimLinks & digiSimLinks() const {return theDigiSimLinks;}
-  const RPCDigiSimLinks & rpcDigiSimLinks() const {return theRpcDigiSimLinks;}
+  const DigiSimLinks& digiSimLinks() const { return theDigiSimLinks; }
+  const RPCDigiSimLinks& rpcDigiSimLinks() const { return theRpcDigiSimLinks; }
 
- protected:
+protected:
   RPCSim(const edm::ParameterSet& config);
-  virtual void init()=0;
+  virtual void init() = 0;
 
- protected:
-  std::set< std::pair<int,int> > strips;
+protected:
+  std::set<std::pair<int, int> > strips;
   std::set<RPCDigi> irpc_digis;
 
   //--------NEW---------------------
 
   /// creates links from Digi to SimTrack
   /// disabled for now
-    virtual void addLinks(unsigned int strip,int bx);
+  virtual void addLinks(unsigned int strip, int bx);
 
   // keeps track of which hits contribute to which channels
-    typedef std::multimap<std::pair<unsigned int,int>,const PSimHit*,std::less<std::pair<unsigned int, int> > >  DetectorHitMap;
+  typedef std::multimap<std::pair<unsigned int, int>, const PSimHit*, std::less<std::pair<unsigned int, int> > >
+      DetectorHitMap;
 
   DetectorHitMap theDetectorHitMap;
   DigiSimLinks theDigiSimLinks;
   RPCDigiSimLinks theRpcDigiSimLinks;
   //--------------------------------
 
- protected:
+protected:
   RPCSimSetUp* theSimSetUp;
 };
 #endif

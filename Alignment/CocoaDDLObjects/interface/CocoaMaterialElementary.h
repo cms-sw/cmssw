@@ -1,8 +1,9 @@
 //   COCOA class header file
-//Id:  CocoaMaterialElementary.h
-//CAT: Model
+// Id:  CocoaMaterialElementary.h
+// CAT: Model
 //
-//   Class to manage the sets of fitted entries (one set per each measurement data set)
+//   Class to manage the sets of fitted entries (one set per each measurement
+//   data set)
 //
 //   History: v1.0
 //   Pedro Arce
@@ -12,37 +13,26 @@
 
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
-
-class CocoaMaterialElementary
-{
-
+class CocoaMaterialElementary {
 public:
   //---------- Constructors / Destructor
-  CocoaMaterialElementary( ALIstring name, float density, ALIstring symbol, float A, ALIint Z );
-  ~CocoaMaterialElementary(){ };
+  CocoaMaterialElementary(ALIstring name, float density, ALIstring symbol, float A, ALIint Z);
+  ~CocoaMaterialElementary(){};
 
-  ALIstring getName() const {
-    return theName; }
-  float getDensity() const {
-    return theDensity; }
-  ALIstring getSymbol() const {
-    return theSymbol; }
-  float getA() const {
-    return theA; }
-  ALIint getZ() const {
-    return theZ; }
+  ALIstring getName() const { return theName; }
+  float getDensity() const { return theDensity; }
+  ALIstring getSymbol() const { return theSymbol; }
+  float getA() const { return theA; }
+  ALIint getZ() const { return theZ; }
 
-  ALIbool operator==(const CocoaMaterialElementary& mate ) const;
+  ALIbool operator==(const CocoaMaterialElementary &mate) const;
 
 private:
-
   ALIstring theName;
   float theDensity;
   ALIstring theSymbol;
   float theA;
   ALIint theZ;
-
 };
 
 #endif
-

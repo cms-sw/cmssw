@@ -30,7 +30,6 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -38,54 +37,50 @@
 typedef unsigned char myint8;
 
 class DTChambThSegm : public DTTrigData {
+public:
+  /// Constructor
+  DTChambThSegm(DTChamberId, int, int*, int*);
 
-  public:
+  /// Constructor
+  DTChambThSegm(const DTChambThSegm& seg);
 
-    /// Constructor
-    DTChambThSegm(DTChamberId,int,int*,int*);
+  /// Destructor
+  ~DTChambThSegm() override;
 
-    /// Constructor
-    DTChambThSegm(const DTChambThSegm& seg);
-  
-    /// Destructor 
-    ~DTChambThSegm() override;
+  /// Assignment operator
+  DTChambThSegm& operator=(const DTChambThSegm& seg);
 
-    /// Assignment operator
-    DTChambThSegm& operator=(const DTChambThSegm& seg);
+  /// Clear
+  void clear();
 
-    /// Clear
-    void clear();
+  /// Return step number
+  inline int step() const { return m_step; }
 
-    /// Return step number
-    inline int step() const { return m_step; }
+  /// Identifier of the associated chamber
+  DTChamberId ChamberId() const override { return m_chamberid; }
 
-    /// Identifier of the associated chamber
-    DTChamberId ChamberId() const override { return m_chamberid; }
+  /// Print
+  void print() const override;
 
-    /// Print
-    void print() const override;
+  /// Return the code for a given set of 7 BTI
+  int code(const int i) const;
 
-    /// Return the code for a given set of 7 BTI
-    int code(const int i) const;
+  /// Return the position for a given set of 7 BTI
+  int position(const int i) const;
 
-    /// Return the position for a given set of 7 BTI
-    int position(const int i) const;
+  /// Return the quality for a given set of 7 BTI
+  int quality(const int i) const;
 
-    /// Return the quality for a given set of 7 BTI
-    int quality(const int i) const;
+private:
+  /// parent chamber
+  DTChamberId m_chamberid;
 
-  private:
+  /// step number
+  int m_step;
 
-    /// parent chamber
-    DTChamberId m_chamberid;
-
-    /// step number
-    int m_step;
-
-    /// output code
-    myint8 m_outPos[7];
-    myint8 m_outQual[7];
-
+  /// output code
+  myint8 m_outPos[7];
+  myint8 m_outQual[7];
 };
 
 #endif

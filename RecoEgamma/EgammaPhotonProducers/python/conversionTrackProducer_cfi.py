@@ -7,6 +7,7 @@ conversionTrackProducer = cms.EDProducer("ConversionTrackProducer",
                                          useTrajectory = cms.bool(False),
                                          #control which flags are set in output collection
                                          setTrackerOnly = cms.bool(False),
+                                         setIsGsfTrackOpen = cms.bool(False),
                                          setArbitratedEcalSeeded = cms.bool(False),
                                          setArbitratedMerged = cms.bool(True),
                                          setArbitratedMergedEcalGeneral = cms.bool(False),

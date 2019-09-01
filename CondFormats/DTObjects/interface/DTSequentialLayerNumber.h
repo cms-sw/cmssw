@@ -15,31 +15,25 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
-
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class DTSequentialLayerNumber {
-
- public:
-
+public:
   DTSequentialLayerNumber();
   ~DTSequentialLayerNumber();
 
-  static int id( int      wheel, int station, int sector,
-                 int superlayer, int   layer );
+  static int id(int wheel, int station, int sector, int superlayer, int layer);
   static int max();
 };
 
-#endif // DTSequentialLayerNumber_H
+#endif  // DTSequentialLayerNumber_H

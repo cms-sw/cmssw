@@ -18,37 +18,35 @@ class HcalSeverityLevelComputer;
    \author J. Temple and D. Ferencek
 */
 
-
 class HcalHF_S9S1algorithm {
- public:
+public:
   /** Constructors **/
   HcalHF_S9S1algorithm();
-  
-  HcalHF_S9S1algorithm(const std::vector<double>& short_optimumSlope, 
-		       const std::vector<double>& short_Energy, 
-		       const std::vector<double>& short_ET, 
-		       const std::vector<double>& long_optimumSlope, 
-		       const std::vector<double>& long_Energy, 
-		       const std::vector<double>& long_ET,
-		       int HcalAcceptSeverityLevel,
-		       bool isS8S1);
+
+  HcalHF_S9S1algorithm(const std::vector<double>& short_optimumSlope,
+                       const std::vector<double>& short_Energy,
+                       const std::vector<double>& short_ET,
+                       const std::vector<double>& long_optimumSlope,
+                       const std::vector<double>& long_Energy,
+                       const std::vector<double>& long_ET,
+                       int HcalAcceptSeverityLevel,
+                       bool isS8S1);
 
   // Destructor
   ~HcalHF_S9S1algorithm();
 
   void HFSetFlagFromS9S1(HFRecHit& hf,
-			HFRecHitCollection& rec,
-			const HcalChannelQuality* myqual,
-			const HcalSeverityLevelComputer* mySeverity);
+                         HFRecHitCollection& rec,
+                         const HcalChannelQuality* myqual,
+                         const HcalSeverityLevelComputer* mySeverity);
   double CalcSlope(int abs_ieta, const std::vector<double>& params);
-  double CalcEnergyThreshold(double abs_energy,const std::vector<double>& params);
+  double CalcEnergyThreshold(double abs_energy, const std::vector<double>& params);
 
-  double bit(){return HcalCaloFlagLabels::HFLongShort;}
+  double bit() { return HcalCaloFlagLabels::HFLongShort; }
 
- private:
-
+private:
   std::vector<double> short_ET_;
-  std::vector<double> short_Energy_; 
+  std::vector<double> short_Energy_;
   std::vector<double> long_ET_;
   std::vector<double> long_Energy_;
 
@@ -61,6 +59,5 @@ class HcalHF_S9S1algorithm {
   int HcalAcceptSeverityLevel_;
   bool isS8S1_;
 };
-
 
 #endif

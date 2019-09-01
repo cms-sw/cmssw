@@ -20,18 +20,18 @@
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 
 class JetTagProducer : public edm::stream::EDProducer<> {
-    public:
-	explicit JetTagProducer(const edm::ParameterSet&);
-	~JetTagProducer() override;
-	static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+public:
+  explicit JetTagProducer(const edm::ParameterSet&);
+  ~JetTagProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    private:
-	void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-	std::string				m_jetTagComputer;
-	std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo> > > token_tagInfos;
-	unsigned int nTagInfos;
-        edm::ESWatcher<JetTagComputerRecord> recordWatcher_;
+  std::string m_jetTagComputer;
+  std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo> > > token_tagInfos;
+  unsigned int nTagInfos;
+  edm::ESWatcher<JetTagComputerRecord> recordWatcher_;
 };
 
-#endif // RecoBTag_JetTagComputer_JetTagProducer_h
+#endif  // RecoBTag_JetTagComputer_JetTagProducer_h

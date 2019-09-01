@@ -4,7 +4,7 @@
 //
 // Package:    HerwigMaxPtPartonFilter
 // Class:      HerwigMaxPtPartonFilter
-// 
+//
 /**\class HerwigMaxPtPartonFilter HerwigMaxPtPartonFilter.cc IOMC/HerwigMaxPtPartonFilter/src/HerwigMaxPtPartonFilter.cc
 
  Description: <one line class summary>
@@ -21,7 +21,6 @@
 //
 // Special Thanks to Filip Moortgat
 //
-
 
 // system include files
 #include <memory>
@@ -44,23 +43,21 @@ namespace edm {
 }
 
 class HerwigMaxPtPartonFilter : public edm::EDFilter {
-   public:
-      explicit HerwigMaxPtPartonFilter(const edm::ParameterSet&);
-      ~HerwigMaxPtPartonFilter() override;
+public:
+  explicit HerwigMaxPtPartonFilter(const edm::ParameterSet &);
+  ~HerwigMaxPtPartonFilter() override;
 
+  bool filter(edm::Event &, const edm::EventSetup &) override;
 
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  private:
-      // ----------member data ---------------------------
-      
+private:
+  // ----------member data ---------------------------
+
   TH2D *hFSPartons_JS_PtWgting;
-  
 
   edm::EDGetTokenT<edm::HepMCProduct> token_;
-  
+
   double minptcut;
   double maxptcut;
   int processID;
-
 };
 #endif

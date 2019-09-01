@@ -6,10 +6,8 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 
 def appendRPCChamberMaskerAtReco(process):
 
-    if phase2_muon.isChosen():
-        appendRPCChamberMaskerBeforeRecHits(process)
-    else :
-        appendRPCChamberMaskerAtUnpacking(process)
+    phase2_muon.toModify(process, appendRPCChamberMaskerBeforeRecHits)
+    (~phase2_muon).toModify(process, appendRPCChamberMaskerAtUnpacking)
 
     return process
 
@@ -69,9 +67,6 @@ def appendRPCChamberMaskerAtUnpacking(process):
                 muonRPCDigis = cms.PSet(initialSeed = cms.untracked.uint32(789342))
                 )
 
-	process.filteredRPCDigiSequence = cms.Sequence(process.preRPCDigis \
-                                                       + process.muonRPCDigis)
-        process.RawToDigi.replace(process.muonRPCDigis, \
-                                  process.filteredRPCDigiSequence)
-    
+        process.RawToDigiTask.add(process.preRPCDigis)
+
     return process

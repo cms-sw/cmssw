@@ -76,39 +76,41 @@ struct InputTagHash {
   }
 };
 struct GlobalInputTags {
-  GlobalInputTags(): filterTagsGlobal_(),collectionTagsGlobal_(){ }
-  mutable tbb::concurrent_unordered_set<edm::InputTag,InputTagHash> filterTagsGlobal_;
-  mutable tbb::concurrent_unordered_set<edm::InputTag,InputTagHash> collectionTagsGlobal_;
+  GlobalInputTags() : filterTagsGlobal_(), collectionTagsGlobal_() {}
+  mutable tbb::concurrent_unordered_set<edm::InputTag, InputTagHash> filterTagsGlobal_;
+  mutable tbb::concurrent_unordered_set<edm::InputTag, InputTagHash> collectionTagsGlobal_;
 };
- 
+
 class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCache<GlobalInputTags>> {
-  
- public:
-  explicit TriggerSummaryProducerAOD(const edm::ParameterSet&, const GlobalInputTags *);
+public:
+  explicit TriggerSummaryProducerAOD(const edm::ParameterSet&, const GlobalInputTags*);
   ~TriggerSummaryProducerAOD() override;
-  static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
-  static  void globalEndJob(const GlobalInputTags *);
+  static void globalEndJob(const GlobalInputTags*);
 
   // additional
   static std::unique_ptr<GlobalInputTags> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::unique_ptr<GlobalInputTags> (new GlobalInputTags());
+    return std::unique_ptr<GlobalInputTags>(new GlobalInputTags());
   };
 
   template <typename C>
-  void fillTriggerObjectCollections(const edm::Event&, edm::GetterOfProducts<C>& );
+  void fillTriggerObjectCollections(const edm::Event&, edm::GetterOfProducts<C>&);
 
   template <typename T>
-  void fillTriggerObject(const T& );
-  void fillTriggerObject(const l1extra::L1HFRings& );
-  void fillTriggerObject(const l1extra::L1EtMissParticle& );
-  void fillTriggerObject(const reco::PFMET& );
-  void fillTriggerObject(const reco::CaloMET& );
-  void fillTriggerObject(const reco::MET& );
+  void fillTriggerObject(const T&);
+  void fillTriggerObject(const l1extra::L1HFRings&);
+  void fillTriggerObject(const l1extra::L1EtMissParticle&);
+  void fillTriggerObject(const reco::PFMET&);
+  void fillTriggerObject(const reco::CaloMET&);
+  void fillTriggerObject(const reco::MET&);
 
   template <typename C>
-    void fillFilterObjectMembers(const edm::Event&, const edm::InputTag& tag, const trigger::Vids &, const std::vector<edm::Ref<C> >&);
+  void fillFilterObjectMembers(const edm::Event&,
+                               const edm::InputTag& tag,
+                               const trigger::Vids&,
+                               const std::vector<edm::Ref<C>>&);
 
   template <typename C>
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<C>&);
@@ -118,7 +120,7 @@ class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCach
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::CaloMETCollection>&);
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::METCollection>&);
 
- private:
+private:
   /// throw on error
   bool throw_;
   /// process name
@@ -130,22 +132,22 @@ class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCach
   /// InputTag ordering class
   struct OrderInputTag {
     bool ignoreProcess_;
-    OrderInputTag(bool ignoreProcess): ignoreProcess_(ignoreProcess) { };
+    OrderInputTag(bool ignoreProcess) : ignoreProcess_(ignoreProcess){};
     inline bool operator()(const edm::InputTag& l, const edm::InputTag& r) const {
       int c = l.label().compare(r.label());
-      if(0==c) {
-	if(ignoreProcess_) {
-	  return l.instance()<r.instance();
-	}
-	c = l.instance().compare(r.instance());
-	if(0==c) {
-	  return l.process()<r.process();
-	}
+      if (0 == c) {
+        if (ignoreProcess_) {
+          return l.instance() < r.instance();
+        }
+        c = l.instance().compare(r.instance());
+        if (0 == c) {
+          return l.process() < r.process();
+        }
       }
       return c < 0;
     };
   };
-  typedef std::set<edm::InputTag,OrderInputTag> InputTagSet;
+  typedef std::set<edm::InputTag, OrderInputTag> InputTagSet;
 
   /// list of L3 filter tags
   InputTagSet filterTagsEvent_;
@@ -159,7 +161,7 @@ class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCach
   trigger::TriggerObjectCollection toc_;
   std::vector<std::string> tags_;
   /// global map for indices into toc_: offset per input L3 collection
-  std::map<edm::ProductID,unsigned int> offset_;
+  std::map<edm::ProductID, unsigned int> offset_;
 
   /// keys
   trigger::Keys keys_;

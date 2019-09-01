@@ -9,32 +9,24 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 
-
-TSGFromOrderedHits::TSGFromOrderedHits(const edm::ParameterSet &pset,edm::ConsumesCollector & iC)
-  : theLastRun(0), theConfig(pset), theGenerator(nullptr)
-{
-  edm::ParameterSet hitsfactoryPSet =
-      theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
+TSGFromOrderedHits::TSGFromOrderedHits(const edm::ParameterSet &pset, edm::ConsumesCollector &iC) : theLastRun(0) {
+  edm::ParameterSet hitsfactoryPSet = pset.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
-  OrderedHitsGenerator*  hitsGenerator =
-        OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
 
-  edm::ParameterSet seedCreatorPSet = theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+  edm::ParameterSet seedCreatorPSet = pset.getParameter<edm::ParameterSet>("SeedCreatorPSet");
   std::string seedCreatorType = seedCreatorPSet.getParameter<std::string>("ComponentName");
 
-  theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, nullptr, 
-						 SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet)
-						 );
-
+  theGenerator = std::make_unique<SeedGeneratorFromRegionHits>(
+      OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC),
+      nullptr,
+      SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet));
 }
 
-TSGFromOrderedHits::~TSGFromOrderedHits()
-{
-  delete theGenerator; 
-}
+TSGFromOrderedHits::~TSGFromOrderedHits() = default;
 
-void TSGFromOrderedHits::run(TrajectorySeedCollection &seeds, 
-      const edm::Event &ev, const edm::EventSetup &es, const TrackingRegion& region)
-{
-  theGenerator->run( seeds, region, ev, es);
+void TSGFromOrderedHits::run(TrajectorySeedCollection &seeds,
+                             const edm::Event &ev,
+                             const edm::EventSetup &es,
+                             const TrackingRegion &region) {
+  theGenerator->run(seeds, region, ev, es);
 }

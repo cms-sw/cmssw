@@ -24,23 +24,8 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     useHO = cms.bool(True),                                 
 
     # Use electron identification in PFAlgo
-    usePFElectrons = cms.bool(False),
     pf_electron_output_col=cms.string('electrons'),
     pf_electronID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt'),
-    pf_electron_mvaCut = cms.double(-0.1),
-
-    # Use Photon identification in PFAlgo (for now this has NO impact, algo is swicthed off hard-coded
-    usePFPhotons = cms.bool(False),
-    usePhotonReg=cms.bool(False),
-    useRegressionFromDB=cms.bool(True),                                 
-    pf_convID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt'),        
-    pf_conv_mvaCut=cms.double(0.0),                                 
-    pf_locC_mvaWeightFile=cms.string('RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterLCorr_14Dec2011.root'),
-    pf_GlobC_mvaWeightFile=cms.string('RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr_14Dec2011.root'),
-    pf_Res_mvaWeightFile=cms.string('RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes_14Dec2011.root'),
-    X0_Map=cms.string('RecoParticleFlow/PFProducer/data/allX0histos.root'),
-    sumPtTrackIsoForPhoton=cms.double(2.0),
-    sumPtTrackIsoSlopeForPhoton=cms.double(0.001),
 
     useEGammaFilters = cms.bool(True),
     useProtectionsForJetMET = cms.bool(True),    
@@ -51,7 +36,9 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     electron_iso_combIso_barrel = cms.double(10.0),
     electron_iso_combIso_endcap = cms.double(10.0),
     electron_noniso_mvaCut = cms.double(-0.1),                            
-    electron_missinghits = cms.uint32(1), 
+    electron_missinghits = cms.uint32(1),
+    electron_ecalDrivenHademPreselCut = cms.double(0.15),
+    electron_maxElePtForOnlyMVAPresel = cms.double(50.),
     isolatedElectronID_mvaWeightFile = cms.string('RecoEgamma/ElectronIdentification/data/TMVA_BDTSimpleCat_17Feb2011.weights.xml'),
     # maxNtracks,maxHcalE,maxTrackPOverEele,maxE,maxEleHcalEOverEcalE,maxEcalEOverPRes
     # maxEeleOverPoutRes,maxHcalEOverP,maxHcalEOverEcalE,maxEcalEOverP_cut1,axEcalEOverP_cut2,maxEeleOverPout,maxDPhiIN;                             
@@ -70,12 +57,24 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     maxEeleOverPout = cms.double(0.2),
     maxDPhiIN = cms.double(0.1)    
     ),
+    electron_protectionsForBadHcal = cms.PSet(
+        enableProtections = cms.bool(False),   
+        full5x5_sigmaIetaIeta = cms.vdouble(0.0106, 0.0387), # EB, EE; 94Xv2 cut-based medium id
+        eInvPInv = cms.vdouble(0.184, 0.0721),
+        dEta = cms.vdouble(0.0032*2, 0.00632*2), # relax factor 2 to be safer against misalignment
+        dPhi = cms.vdouble(0.0547, 0.0394),
+    ),
     # New photon selection cuts for CMSSW_700
     photon_MinEt = cms.double(10.),
     photon_combIso = cms.double(10.),
     photon_HoE =  cms.double(0.05),
     photon_SigmaiEtaiEta_barrel = cms.double(0.0125),
     photon_SigmaiEtaiEta_endcap = cms.double(0.034),                             
+    photon_protectionsForBadHcal = cms.PSet(
+        enableProtections = cms.bool(False),   
+        solidConeTrkIsoOffset = cms.double(10.),
+        solidConeTrkIsoSlope  = cms.double(0.3),
+    ),
 
     # sumPtTrackIso, sumPtTrackIsoSlope                          
     photon_protectionsForJetMET = cms.PSet(
@@ -86,40 +85,6 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     GedElectronValueMap = cms.InputTag("gedGsfElectronsTmp"),
     GedPhotonValueMap = cms.InputTag("gedPhotonsTmp","valMapPFEgammaCandToPhoton"),
 
-
-                                 
-    # apply the crack corrections                             
-    pf_electronID_crackCorrection = cms.bool(False),
-    usePFSCEleCalib = cms.bool(True),
-                              #new corrections  #MM /*
-    calibPFSCEle_Fbrem_barrel = cms.vdouble(0.6, 6,                                                 #Range of non constant correction
-                                            -0.0255975, 0.0576727, 0.975442, -0.000546394, 1.26147, #standard parameters
-                                            25,                                                     #pt value for switch to low pt corrections
-                                            -0.02025, 0.04537, 0.9728, -0.0008962, 1.172),          # low pt parameters
-    calibPFSCEle_Fbrem_endcap = cms.vdouble(0.9, 6.5,                                               #Range of non constant correction
-                                            -0.0692932, 0.101776, 0.995338, -0.00236548, 0.874998,  #standard parameters eta < switch value
-                                            1.653,                                                  #eta value for correction switch
-                                            -0.0750184, 0.147000, 0.923165, 0.000474665, 1.10782),  #standard parameters eta > switch value
-    calibPFSCEle_barrel = cms.vdouble(1.004, -1.536, 22.88, -1.467,  #standard
-                                      0.3555, 0.6227, 14.65, 2051,   #parameters
-                                      25,                            #pt value for switch to low pt corrections
-                                      0.9932, -0.5444, 0, 0.5438,    #low pt
-                                      0.7109, 7.645, 0.2904, 0),     #parameters
-    calibPFSCEle_endcap = cms.vdouble(1.153, -16.5975, 5.668,
-                                      -0.1772, 16.22, 7.326,
-                                      0.0483, -4.068, 9.406),
-                              #old corrections #MM */
-#    calibPFSCEle_barrel = cms.vdouble(1.0326,-13.71,339.72,0.4862,0.00182,0.36445,1.411,1.0206,0.0059162,-5.14434e-05,1.42516e-07),
-#    calibPFSCEle_endcap = cms.vdouble(0.9995,-12.313,2.8784,-1.057e-04,10.282,3.059,1.3502e-03,-2.2185,3.4206),
-
-    useEGammaSupercluster =  cms.bool(True),
-    sumEtEcalIsoForEgammaSC_barrel = cms.double(1.),
-    sumEtEcalIsoForEgammaSC_endcap = cms.double(2.),
-    coneEcalIsoForEgammaSC = cms.double(0.3),
-    sumPtTrackIsoForEgammaSC_barrel = cms.double(4.),
-    sumPtTrackIsoForEgammaSC_endcap = cms.double(4.),
-    nTrackIsoForEgammaSC = cms.uint32(2),                          
-    coneTrackIsoForEgammaSC = cms.double(0.3),
     useEGammaElectrons = cms.bool(True),                                 
     egammaElectrons = cms.InputTag('mvaElectrons'),                              
 
@@ -186,6 +151,23 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     # Factors to be applied in the four and fifth steps to the pt error
     factors_45 = cms.vdouble(10.,100.),
 
+    # Treatment of tracks in region of bad HCal
+    goodTrackDeadHcal_ptErrRel = cms.double(0.2), # trackRef->ptError()/trackRef->pt() < X
+    goodTrackDeadHcal_chi2n = cms.double(5),      # trackRef->normalizedChi2() < X
+    goodTrackDeadHcal_layers = cms.uint32(4),     # trackRef->hitPattern().trackerLayersWithMeasurement() >= X
+    goodTrackDeadHcal_validFr = cms.double(0.5),  # trackRef->validFraction() > X
+    goodTrackDeadHcal_dxy = cms.double(0.5),      # [cm] abs(trackRef->dxy(primaryVertex_.position())) < X
+
+    goodPixelTrackDeadHcal_minEta = cms.double(2.3),   # abs(trackRef->eta()) > X
+    goodPixelTrackDeadHcal_maxPt  = cms.double(50.),   # trackRef->ptError()/trackRef->pt() < X
+    goodPixelTrackDeadHcal_ptErrRel = cms.double(1.0), # trackRef->ptError()/trackRef->pt() < X
+    goodPixelTrackDeadHcal_chi2n = cms.double(2),      # trackRef->normalizedChi2() < X
+    goodPixelTrackDeadHcal_maxLost3Hit = cms.int32(0), # max missing outer hits for a track with 3 valid pixel layers (can set to -1 to reject all these tracks)
+    goodPixelTrackDeadHcal_maxLost4Hit = cms.int32(1), # max missing outer hits for a track with >= 4 valid pixel layers
+    goodPixelTrackDeadHcal_dxy = cms.double(0.02),     # [cm] abs(trackRef->dxy(primaryVertex_.position())) < X
+    goodPixelTrackDeadHcal_dz  = cms.double(0.05),     # [cm] abs(trackRef->dz(primaryVertex_.position())) < X
+
+ 
     # Post HF cleaning
     postHFCleaning = cms.bool(False),
     # Clean only objects with pt larger than this value
@@ -244,3 +226,10 @@ particleFlowTmp = cms.EDProducer("PFProducer",
 
 
 
+from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
+pf_badHcalMitigation.toModify(particleFlowTmp,
+        electron_protectionsForBadHcal = dict(enableProtections = True),
+        photon_protectionsForBadHcal   = dict(enableProtections = True))
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(particleFlowTmp,photon_MinEt = 1.)

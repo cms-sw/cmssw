@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 // system include files
 #include <memory>
 #include <string>
@@ -30,7 +29,6 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
@@ -42,24 +40,24 @@
 //
 
 class AlCaHcalNoiseProducer : public edm::EDProducer {
-   public:
-      explicit AlCaHcalNoiseProducer(const edm::ParameterSet&);
-      ~AlCaHcalNoiseProducer() override;
+public:
+  explicit AlCaHcalNoiseProducer(const edm::ParameterSet &);
+  ~AlCaHcalNoiseProducer() override;
 
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
-      void produce(edm::Event &, const edm::EventSetup&) override;
-   private:
-      // ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
 
- bool useMet_;
- bool useJet_;
- double MetCut_;
- double JetMinE_;
- double JetHCALminEnergyFraction_;
- int nAnomalousEvents;
- int nEvents;
+  bool useMet_;
+  bool useJet_;
+  double MetCut_;
+  double JetMinE_;
+  double JetHCALminEnergyFraction_;
+  int nAnomalousEvents;
+  int nEvents;
 
- std::vector<edm::InputTag> ecalLabels_;
+  std::vector<edm::InputTag> ecalLabels_;
 
   edm::EDGetTokenT<reco::CaloJetCollection> tok_jets_;
   edm::EDGetTokenT<reco::CaloMETCollection> tok_met_;
@@ -72,5 +70,4 @@ class AlCaHcalNoiseProducer : public edm::EDProducer {
   edm::EDGetTokenT<EcalRecHitCollection> tok_ps_;
   edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
   std::vector<edm::EDGetTokenT<EcalRecHitCollection> > toks_ecal_;
-
 };

@@ -3,66 +3,45 @@
 
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 
-template <class Ttype, uint32_t Tsize> 
-CaloTSamples< Ttype, Tsize >::CaloTSamples() :
-   CaloTSamplesBase< Ttype > ( m_data, Tsize )
-{
+template <class Ttype, uint32_t Tsize>
+CaloTSamples<Ttype, Tsize>::CaloTSamples() : CaloTSamplesBase<Ttype>(m_data, Tsize) {}
+
+template <class Ttype, uint32_t Tsize>
+CaloTSamples<Ttype, Tsize>::CaloTSamples(const CaloTSamples<Ttype, Tsize> &cs) : CaloTSamplesBase<Ttype>(cs) {
+  if (&cs != this) {
+    for (uint32_t i(0); i != Tsize; ++i) {
+      m_data[i] = cs.m_data[i];
+    }
+  }
 }
 
-template <class Ttype, uint32_t Tsize> 
-CaloTSamples< Ttype, Tsize >::CaloTSamples( const CaloTSamples<Ttype,Tsize>& cs ) :
-   CaloTSamplesBase<Ttype>( cs )
-{
-   if( &cs != this ) 
-   {
-      for( uint32_t i ( 0 ) ; i != Tsize ; ++i )
-      {
-	 m_data[ i ] = cs.m_data[ i ] ;
-      }
-   }
+template <class Ttype, uint32_t Tsize>
+CaloTSamples<Ttype, Tsize>::CaloTSamples(const DetId &id, uint32_t size, uint32_t pre)
+    : CaloTSamplesBase<Ttype>(m_data, Tsize, id, size, pre) {}
+
+template <class Ttype, uint32_t Tsize>
+CaloTSamples<Ttype, Tsize>::~CaloTSamples() {}
+
+template <class Ttype, uint32_t Tsize>
+CaloTSamples<Ttype, Tsize> &CaloTSamples<Ttype, Tsize>::operator=(const CaloTSamples<Ttype, Tsize> &cs) {
+  CaloTSamplesBase<Ttype>::operator=(cs);
+  std::copy(cs.m_data, cs.m_data + Tsize, m_data);
+  return *this;
 }
 
-template <class Ttype, uint32_t Tsize> 
-CaloTSamples< Ttype, Tsize >::CaloTSamples( const DetId& id   , 
-					    uint32_t     size ,
-					    uint32_t     pre    ) :
-   CaloTSamplesBase< Ttype > ( m_data, Tsize, id, size, pre )
-{
+template <class Ttype, uint32_t Tsize>
+uint32_t CaloTSamples<Ttype, Tsize>::capacity() const {
+  return Tsize;
 }
 
-template <class Ttype, uint32_t Tsize> 
-CaloTSamples< Ttype, Tsize >::~CaloTSamples()
-{
+template <class Ttype, uint32_t Tsize>
+Ttype *CaloTSamples<Ttype, Tsize>::data(uint32_t i) {
+  return &(m_data[i]);
 }
 
-template <class Ttype, uint32_t Tsize> 
-CaloTSamples<Ttype,Tsize>& 
-CaloTSamples< Ttype, Tsize >::operator=( const CaloTSamples<Ttype,Tsize>& cs )
-{
-   CaloTSamplesBase<Ttype>::operator=( cs ) ;
-   std::copy( cs.m_data, cs.m_data + Tsize, m_data ) ;
-   return *this ;
-}
-
-template <class Ttype, uint32_t Tsize> 
-uint32_t 
-CaloTSamples< Ttype, Tsize >::capacity() const
-{
-   return Tsize ;
-}
-
-template <class Ttype, uint32_t Tsize> 
-Ttype* 
-CaloTSamples< Ttype, Tsize >::data( uint32_t i )
-{
-   return &( m_data[ i ] ) ;
-}
-
-template <class Ttype, uint32_t Tsize> 
-const Ttype* 
-CaloTSamples< Ttype, Tsize >::cdata( uint32_t i ) const
-{
-   return &( m_data[ i ] ) ;
+template <class Ttype, uint32_t Tsize>
+const Ttype *CaloTSamples<Ttype, Tsize>::cdata(uint32_t i) const {
+  return &(m_data[i]);
 }
 
 #endif

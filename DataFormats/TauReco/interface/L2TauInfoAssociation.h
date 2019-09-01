@@ -14,5 +14,5 @@ e-mail: bachtis@hep.wisc.edu
 #include <vector>
 
 namespace reco {
-typedef edm::AssociationMap< edm::OneToValue< reco::CaloJetCollection, reco::L2TauIsolationInfo >  > L2TauInfoAssociation; 
+  typedef edm::AssociationMap<edm::OneToValue<reco::CaloJetCollection, reco::L2TauIsolationInfo> > L2TauInfoAssociation;
 }

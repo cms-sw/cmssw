@@ -32,9 +32,7 @@ using namespace reco;
 //
 // constructors and destructor
 //
-CosmicMuonLinksProducer::CosmicMuonLinksProducer(const ParameterSet& iConfig)
-{
-
+CosmicMuonLinksProducer::CosmicMuonLinksProducer(const ParameterSet& iConfig) {
   category_ = "Muon|RecoMuon|CosmicMuon|CosmicMuonLinksProducer";
 
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
@@ -42,50 +40,44 @@ CosmicMuonLinksProducer::CosmicMuonLinksProducer(const ParameterSet& iConfig)
   theService = new MuonServiceProxy(serviceParameters);
 
   std::vector<edm::ParameterSet> theMapPSets = iConfig.getParameter<std::vector<edm::ParameterSet> >("Maps");
-  for (std::vector<edm::ParameterSet>::const_iterator iMPS = theMapPSets.begin();
-       iMPS != theMapPSets.end(); iMPS++) {
-
+  for (std::vector<edm::ParameterSet>::const_iterator iMPS = theMapPSets.begin(); iMPS != theMapPSets.end(); iMPS++) {
     edm::InputTag sTag = (*iMPS).getParameter<edm::InputTag>("subTrack");
     edm::InputTag pTag = (*iMPS).getParameter<edm::InputTag>("parentTrack");
 
-    edm::EDGetTokenT<reco::TrackCollection> subTrackTag = consumes<reco::TrackCollection>(sTag );
+    edm::EDGetTokenT<reco::TrackCollection> subTrackTag = consumes<reco::TrackCollection>(sTag);
     edm::EDGetTokenT<reco::TrackCollection> parentTrackTag = consumes<reco::TrackCollection>(pTag);
-    theTrackLinks.push_back( make_pair(subTrackTag, parentTrackTag) );
-    theTrackLinkNames.push_back( make_pair(sTag.label(), pTag.label()) );
+    theTrackLinks.push_back(make_pair(subTrackTag, parentTrackTag));
+    theTrackLinkNames.push_back(make_pair(sTag.label(), pTag.label()));
 
-
-    LogDebug(category_) << "preparing map between " << sTag<<" & "<< pTag;
+    LogDebug(category_) << "preparing map between " << sTag << " & " << pTag;
     std::string mapname = sTag.label() + "To" + pTag.label();
     produces<reco::TrackToTrackMap>(mapname);
-
-
   }
-
 }
 
-CosmicMuonLinksProducer::~CosmicMuonLinksProducer()
-{
-  if (theService) delete theService;
+CosmicMuonLinksProducer::~CosmicMuonLinksProducer() {
+  if (theService)
+    delete theService;
 }
-
 
 // ------------ method called to produce the data  ------------
-void
-CosmicMuonLinksProducer::produce(Event& iEvent, const EventSetup& iSetup)
-{
+void CosmicMuonLinksProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   LogInfo(category_) << "Processing event number: " << iEvent.id();
 
   theService->update(iSetup);
 
-  unsigned int counter= 0; ///DAMN I cannot read the label of the TOKEN so I need to do this stupid thing to create the labels of the products!
-  for(std::vector<std::pair<edm::EDGetTokenT<reco::TrackCollection>,edm::EDGetTokenT<reco::TrackCollection> > >::const_iterator iLink = theTrackLinks.begin();
-     iLink != theTrackLinks.end(); iLink++){
+  unsigned int counter =
+      0;  ///DAMN I cannot read the label of the TOKEN so I need to do this stupid thing to create the labels of the products!
+  for (std::vector<std::pair<edm::EDGetTokenT<reco::TrackCollection>,
+                             edm::EDGetTokenT<reco::TrackCollection> > >::const_iterator iLink = theTrackLinks.begin();
+       iLink != theTrackLinks.end();
+       iLink++) {
 #ifdef EDM_ML_DEBUG
     edm::EDConsumerBase::Labels labels_first;
     edm::EDConsumerBase::Labels labels_second;
     labelsForToken(iLink->first, labels_first);
     labelsForToken(iLink->second, labels_second);
-    LogDebug(category_) << "making map between " << labels_first.module <<" and "<< labels_second.module;
+    LogDebug(category_) << "making map between " << labels_first.module << " and " << labels_second.module;
 #endif
     std::string mapname = theTrackLinkNames[counter].first + "To" + theTrackLinkNames[counter].second;
     reco::TrackToTrackMap ttmap;
@@ -95,63 +87,67 @@ CosmicMuonLinksProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     iEvent.getByToken((*iLink).first, subTracks);
     iEvent.getByToken((*iLink).second, parentTracks);
-    
-    ttmap = mapTracks(subTracks, parentTracks); 
-    LogTrace(category_) << "Mapped: "<<
-    theTrackLinkNames[counter].first  <<" "<<subTracks->size()<< " and "<<theTrackLinkNames[counter].second<<" "<<parentTracks->size()<<", results: "<< ttmap.size() <<endl;
+
+    ttmap = mapTracks(subTracks, parentTracks);
+    LogTrace(category_) << "Mapped: " << theTrackLinkNames[counter].first << " " << subTracks->size() << " and "
+                        << theTrackLinkNames[counter].second << " " << parentTracks->size()
+                        << ", results: " << ttmap.size() << endl;
 
     iEvent.put(std::make_unique<reco::TrackToTrackMap>(ttmap), mapname);
 
     counter++;
   }
-
 }
 
-reco::TrackToTrackMap CosmicMuonLinksProducer::mapTracks(const Handle<reco::TrackCollection>& subTracks, const Handle<reco::TrackCollection>& parentTracks) const {
-  reco::TrackToTrackMap map(subTracks, parentTracks) ;
-  for ( unsigned int position1 = 0; position1 != subTracks->size(); ++position1) {
+reco::TrackToTrackMap CosmicMuonLinksProducer::mapTracks(const Handle<reco::TrackCollection>& subTracks,
+                                                         const Handle<reco::TrackCollection>& parentTracks) const {
+  reco::TrackToTrackMap map(subTracks, parentTracks);
+  for (unsigned int position1 = 0; position1 != subTracks->size(); ++position1) {
     TrackRef track1(subTracks, position1);
-    for ( unsigned int position2 = 0; position2 != parentTracks->size(); ++position2) {
+    for (unsigned int position2 = 0; position2 != parentTracks->size(); ++position2) {
       TrackRef track2(parentTracks, position2);
-      int shared = sharedHits(*track1, *track2); 
-      LogTrace(category_)<<"sharedHits "<<shared<<" track1 "<<track1->found()<<" track2 "<<track2->found()<<endl;
- 
-      if (shared > (track1->found())/2 ) map.insert(track1, track2);
+      int shared = sharedHits(*track1, *track2);
+      LogTrace(category_) << "sharedHits " << shared << " track1 " << track1->found() << " track2 " << track2->found()
+                          << endl;
+
+      if (shared > (track1->found()) / 2)
+        map.insert(track1, track2);
     }
   }
 
-  return map; 
+  return map;
 }
 
 int CosmicMuonLinksProducer::sharedHits(const reco::Track& track1, const reco::Track& track2) const {
-
   int match = 0;
 
   for (trackingRecHit_iterator hit1 = track1.recHitsBegin(); hit1 != track1.recHitsEnd(); ++hit1) {
-    if ( !(*hit1)->isValid() ) continue;
+    if (!(*hit1)->isValid())
+      continue;
     DetId id1 = (*hit1)->geographicalId();
-    if ( id1.det() != DetId::Muon ) continue; //ONLY MUON
-    LogTrace(category_)<<"first ID "<<id1.rawId()<<" "<<(*hit1)->localPosition()<<endl;
+    if (id1.det() != DetId::Muon)
+      continue;  //ONLY MUON
+    LogTrace(category_) << "first ID " << id1.rawId() << " " << (*hit1)->localPosition() << endl;
     GlobalPoint pos1 = theService->trackingGeometry()->idToDet(id1)->surface().toGlobal((*hit1)->localPosition());
 
     for (trackingRecHit_iterator hit2 = track2.recHitsBegin(); hit2 != track2.recHitsEnd(); ++hit2) {
+      if (!(*hit2)->isValid())
+        continue;
 
-          if ( !(*hit2)->isValid() ) continue;
+      DetId id2 = (*hit2)->geographicalId();
+      if (id2.det() != DetId::Muon)
+        continue;  //ONLY MUON
 
-          DetId id2 = (*hit2)->geographicalId();
-          if ( id2.det() != DetId::Muon ) continue; //ONLY MUON
+      //          LogTrace(category_)<<"second ID "<<id2.rawId()<< (*hit2)->localPosition()<<endl;
 
-//          LogTrace(category_)<<"second ID "<<id2.rawId()<< (*hit2)->localPosition()<<endl;
+      if (id2.rawId() != id1.rawId())
+        continue;
 
-          if (id2.rawId() != id1.rawId() ) continue;
-
-          GlobalPoint pos2 = theService->trackingGeometry()->idToDet(id2)->surface().toGlobal((*hit2)->localPosition());
-	  if ( ( pos1 - pos2 ).mag()< 10e-5 ) match++;
-
-        }
-
+      GlobalPoint pos2 = theService->trackingGeometry()->idToDet(id2)->surface().toGlobal((*hit2)->localPosition());
+      if ((pos1 - pos2).mag() < 10e-5)
+        match++;
     }
+  }
 
-   return match;
-
+  return match;
 }

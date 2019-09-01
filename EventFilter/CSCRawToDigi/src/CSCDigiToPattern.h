@@ -24,6 +24,3 @@ private:
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> d_token;
   //
 };
-
-
-

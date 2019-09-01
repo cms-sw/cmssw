@@ -10,17 +10,16 @@
 #include "OnlineDB/EcalCondDB/interface/LMFUnique.h"
 
 class LMFColor : public LMFUnique {
- public:
+public:
   friend class EcalCondDBInterface;
 
   LMFColor();
-  LMFColor(oracle::occi::Environment* env,
-	   oracle::occi::Connection* conn);
+  LMFColor(oracle::occi::Environment *env, oracle::occi::Connection *conn);
   LMFColor(EcalDBConnection *c);
   LMFColor(EcalDBConnection *c, std::string col);
   ~LMFColor() override;
 
-  LMFColor& setName(const std::string &s = "blue") {
+  LMFColor &setName(const std::string &s = "blue") {
     setString("sname", s);
     fetchID();
     if (m_ID <= 0) {
@@ -28,7 +27,7 @@ class LMFColor : public LMFUnique {
     }
     return *this;
   }
-  LMFColor& setColor(int index) {
+  LMFColor &setColor(int index) {
     setInt("color", index);
     fetchID();
     if (m_ID <= 0) {
@@ -36,7 +35,7 @@ class LMFColor : public LMFUnique {
     }
     return *this;
   }
-  LMFColor& setColor(const std::string &s = "blue") {
+  LMFColor &setColor(const std::string &s = "blue") {
     setName(s);
     return *this;
   }
@@ -49,15 +48,13 @@ class LMFColor : public LMFUnique {
   bool isValid() override;
 
   // Operators
-  inline bool operator==(const LMFColor &m) const
-    {
-      return ( getShortName()   == m.getShortName() &&
-	       getLongName()    == m.getLongName());
-    }
+  inline bool operator==(const LMFColor &m) const {
+    return (getShortName() == m.getShortName() && getLongName() == m.getLongName());
+  }
 
   inline bool operator!=(const LMFColor &m) const { return !(*this == m); }
 
- private:
+private:
   std::string fetchIdSql(Statement *stmt) override;
   std::string fetchAllSql(Statement *stmt) const override;
   std::string setByIDSql(Statement *stmt, int id) override;

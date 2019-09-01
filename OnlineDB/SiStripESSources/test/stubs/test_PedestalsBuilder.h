@@ -12,17 +12,13 @@
    @brief Simple class that analyzes Digis produced by RawToDigi unpacker
 */
 class test_PedestalsBuilder : public edm::EDAnalyzer {
+public:
+  test_PedestalsBuilder(const edm::ParameterSet&) { ; }
+  virtual ~test_PedestalsBuilder() { ; }
 
- public:
-  
-  test_PedestalsBuilder( const edm::ParameterSet& ) {;}
-  virtual ~test_PedestalsBuilder() {;}
-  
-  void beginJob(){;}
-  void analyze( const edm::Event&, const edm::EventSetup& );
-  void endJob() {;}
-  
+  void beginJob() { ; }
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void endJob() { ; }
 };
 
-#endif // OnlineDB_SiStripESSources_test_PedestalsBuilder_H
-
+#endif  // OnlineDB_SiStripESSources_test_PedestalsBuilder_H

@@ -5,7 +5,7 @@
 //
 // Package:     ParticleFlow
 // Class  :     FWPFEcalRecHitRPProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -32,33 +32,32 @@
 //-----------------------------------------------------------------------------
 // FWPFEcalRecHitRPProxyBuilder
 //-----------------------------------------------------------------------------
-class FWPFEcalRecHitRPProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
-{
-   public:
-      static std::string typeOfBuilder() { return "simple#"; }
+class FWPFEcalRecHitRPProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit> {
+public:
+  static std::string typeOfBuilder() { return "simple#"; }
 
-   // ---------------- Constructor(s)/Destructor ----------------------
-      FWPFEcalRecHitRPProxyBuilder(){}
-      ~FWPFEcalRecHitRPProxyBuilder() override{}
+  // ---------------- Constructor(s)/Destructor ----------------------
+  FWPFEcalRecHitRPProxyBuilder() {}
+  ~FWPFEcalRecHitRPProxyBuilder() override {}
 
-   // --------------------- Member Functions --------------------------
-      void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* ) override;
+  // --------------------- Member Functions --------------------------
+  void build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *) override;
 
-      bool havePerViewProduct( FWViewType::EType ) const override { return true; }
-      void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc ) override;
-      void cleanLocal() override;
+  bool havePerViewProduct(FWViewType::EType) const override { return true; }
+  void scaleProduct(TEveElementList *parent, FWViewType::EType, const FWViewContext *vc) override;
+  void cleanLocal() override;
 
-      REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
-   private:
-      FWPFEcalRecHitRPProxyBuilder( const FWPFEcalRecHitRPProxyBuilder& ) = delete;                    // Stop default
-      const FWPFEcalRecHitRPProxyBuilder& operator=( const FWPFEcalRecHitRPProxyBuilder& ) = delete;   // Stop default
+private:
+  FWPFEcalRecHitRPProxyBuilder(const FWPFEcalRecHitRPProxyBuilder &) = delete;                   // Stop default
+  const FWPFEcalRecHitRPProxyBuilder &operator=(const FWPFEcalRecHitRPProxyBuilder &) = delete;  // Stop default
 
-   // --------------------- Member Functions --------------------------
-      TEveVector calculateCentre( const float *corners );
+  // --------------------- Member Functions --------------------------
+  TEveVector calculateCentre(const float *corners);
 
-   // ----------------------- Data Members ----------------------------
-      std::vector<FWPFRhoPhiRecHit*> m_towers;
+  // ----------------------- Data Members ----------------------------
+  std::vector<FWPFRhoPhiRecHit *> m_towers;
 };
 #endif
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

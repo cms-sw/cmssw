@@ -23,18 +23,15 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class BPHMuonPtSelect: public BPHParticlePtSelect {
-
- public:
-
+class BPHMuonPtSelect : public BPHParticlePtSelect {
+public:
   /** Constructor
    */
-  BPHMuonPtSelect( double pt ): BPHParticlePtSelect( pt ) {}
+  BPHMuonPtSelect(double pt) : BPHParticlePtSelect(pt) {}
 
   /** Destructor
    */
@@ -43,19 +40,16 @@ class BPHMuonPtSelect: public BPHParticlePtSelect {
   /** Operations
    */
   /// select muon
-  bool accept( const reco::Candidate& cand ) const override {
-    if ( dynamic_cast<const pat::Muon*>( &cand ) == nullptr ) return false;
-    return BPHParticlePtSelect::accept( cand );
+  bool accept(const reco::Candidate& cand) const override {
+    if (dynamic_cast<const pat::Muon*>(&cand) == nullptr)
+      return false;
+    return BPHParticlePtSelect::accept(cand);
   }
 
- private:
-
+private:
   // private copy and assigment constructors
-  BPHMuonPtSelect           ( const BPHMuonPtSelect& x ) = delete;
-  BPHMuonPtSelect& operator=( const BPHMuonPtSelect& x ) = delete;
-
+  BPHMuonPtSelect(const BPHMuonPtSelect& x) = delete;
+  BPHMuonPtSelect& operator=(const BPHMuonPtSelect& x) = delete;
 };
 
-
 #endif
-

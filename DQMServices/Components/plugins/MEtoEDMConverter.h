@@ -26,7 +26,6 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 // helper files
 #include <iostream>
@@ -50,27 +49,37 @@
 #include "TProfile2D.h"
 #include "TObjString.h"
 
-class MEtoEDMConverter : public edm::one::EDProducer<edm::one::WatchRuns,
-                                                     edm::one::WatchLuminosityBlocks,
+namespace meedm {
+  struct Void {};
+}  // namespace meedm
+
+//Using RunCache and LuminosityBlockCache tells the framework the module is able to
+// allow multiple concurrent Runs and LuminosityBlocks.
+
+class MEtoEDMConverter : public edm::one::EDProducer<edm::RunCache<meedm::Void>,
+                                                     edm::LuminosityBlockCache<meedm::Void>,
                                                      edm::EndLuminosityBlockProducer,
                                                      edm::EndRunProducer,
-                                                     edm::one::SharedResources>
-{
+                                                     edm::one::SharedResources> {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit MEtoEDMConverter(const edm::ParameterSet&);
   ~MEtoEDMConverter() override;
   void beginJob() override;
   void endJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void beginRun(edm::Run const&, const edm::EventSetup&) override;
-  void endRun(edm::Run const&, const edm::EventSetup&) override;
+  std::shared_ptr<meedm::Void> globalBeginRun(edm::Run const&, const edm::EventSetup&) const override;
+  void globalEndRun(edm::Run const&, const edm::EventSetup&) override;
   void endRunProduce(edm::Run&, const edm::EventSetup&) override;
   void endLuminosityBlockProduce(edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override{};
+  std::shared_ptr<meedm::Void> globalBeginLuminosityBlock(edm::LuminosityBlock const&,
+                                                          edm::EventSetup const&) const override;
 
   template <class T>
-  void putData(DQMStore::IGetter &g, T& iPutTo, bool iLumiOnly, uint32_t run, uint32_t lumi);
+  void putData(DQMStore::IGetter& g, T& iPutTo, bool iLumiOnly, uint32_t run, uint32_t lumi);
 
   using TagList = std::vector<uint32_t>;
 
@@ -83,8 +92,8 @@ private:
   std::string path;
 
   // private statistics information
-  std::map<int,int> iCount;
+  std::map<int, int> iCount;
 
-}; // end class declaration
+};  // end class declaration
 
 #endif

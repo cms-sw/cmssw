@@ -15,16 +15,16 @@ class RandomMultiGauss {
 public:
   /** constructor with explicit vector of mean values
    */
-  RandomMultiGauss (const AlgebraicVector& aVector, const AlgebraicSymMatrix& aMatrix);
+  RandomMultiGauss(const AlgebraicVector& aVector, const AlgebraicSymMatrix& aMatrix);
   /** constructor with covariance matrix only (all means = 0)
    */
-  RandomMultiGauss (const AlgebraicSymMatrix& aMatrix);
+  RandomMultiGauss(const AlgebraicSymMatrix& aMatrix);
   // destructor
   ~RandomMultiGauss() {}
   /** Generation of a vector of random numbers.
    */
   AlgebraicVector fire();
-  
+
 private:
   /** generation of the cholesky decomposition
    */

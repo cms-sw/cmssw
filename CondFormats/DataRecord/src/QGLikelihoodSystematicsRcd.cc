@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/JetMETObjects
 // Class  :     QGLikelihoodSystematicsRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

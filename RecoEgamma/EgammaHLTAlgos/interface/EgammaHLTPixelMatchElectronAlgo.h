@@ -10,7 +10,6 @@
  *
  ************************************************************/
 
-
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 
@@ -26,39 +25,37 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-class MultiTrajectoryStateMode;
 class MultiTrajectoryStateTransform;
 
 class EgammaHLTPixelMatchElectronAlgo {
-
 public:
-
-  EgammaHLTPixelMatchElectronAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
+  EgammaHLTPixelMatchElectronAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC);
 
   ~EgammaHLTPixelMatchElectronAlgo();
 
   //disabling the ability to copy this module (lets hope nobody was actually copying it before as Bad Things (TM) would have happened)
 private:
-  EgammaHLTPixelMatchElectronAlgo(const EgammaHLTPixelMatchElectronAlgo& rhs){}
-  EgammaHLTPixelMatchElectronAlgo& operator=(const EgammaHLTPixelMatchElectronAlgo& rhs){return *this;}
+  EgammaHLTPixelMatchElectronAlgo(const EgammaHLTPixelMatchElectronAlgo& rhs) {}
+  EgammaHLTPixelMatchElectronAlgo& operator=(const EgammaHLTPixelMatchElectronAlgo& rhs) { return *this; }
 
 public:
   void setupES(const edm::EventSetup& setup);
   void run(edm::Event&, reco::ElectronCollection&);
 
- private:
-
+private:
   // create electrons from tracks
-  //void process(edm::Handle<reco::TrackCollection> tracksH, reco::ElectronCollection & outEle, Global3DPoint & bs);  
-  void process(edm::Handle<reco::TrackCollection> tracksH, edm::Handle<reco::GsfTrackCollection> gsfTracksH, reco::ElectronCollection & outEle, Global3DPoint & bs);  
+  //void process(edm::Handle<reco::TrackCollection> tracksH, reco::ElectronCollection & outEle, Global3DPoint & bs);
+  void process(edm::Handle<reco::TrackCollection> tracksH,
+               edm::Handle<reco::GsfTrackCollection> gsfTracksH,
+               reco::ElectronCollection& outEle,
+               Global3DPoint& bs);
   bool isInnerMostWithLostHits(const reco::GsfTrackRef&, const reco::GsfTrackRef&, bool&);
 
-  edm::EDGetTokenT<reco::TrackCollection> trackProducer_; 
-  edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackProducer_; 
+  edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
+  edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackProducer_;
   bool useGsfTracks_;
-  edm::EDGetTokenT<reco::BeamSpot> bsProducer_; 
+  edm::EDGetTokenT<reco::BeamSpot> bsProducer_;
 
-  MultiTrajectoryStateMode* mtsMode_; //its not clear to me why this is a pointer but its not the only one so changing things wouldnt make this class safer
   MultiTrajectoryStateTransform* mtsTransform_;
 
   edm::ESHandle<MagneticField> magField_;
@@ -67,7 +64,4 @@ public:
   unsigned long long cacheIDMagField_;
 };
 
-
-#endif // EgammaHLTPixelMatchElectronAlgo_H
-
-
+#endif  // EgammaHLTPixelMatchElectronAlgo_H

@@ -8,15 +8,15 @@
 class GEMROmap;
 
 class GEMELMap {
- public:
+public:
   GEMELMap();
-  explicit GEMELMap(const std::string & version);
+  explicit GEMELMap(const std::string& version);
 
   virtual ~GEMELMap();
 
-  const std::string & version() const;
-  void convert(GEMROmap & romap);
-  void convertDummy(GEMROmap & romap);
+  const std::string& version() const;
+  void convert(GEMROmap& romap);
+  void convertDummy(GEMROmap& romap);
 
   struct GEMVFatMap {
     int VFATmapTypeId;
@@ -29,7 +29,7 @@ class GEMELMap {
     std::vector<uint16_t> vfatId;
     std::vector<uint16_t> amcId;
     std::vector<uint16_t> gebId;
-    std::vector<int> sec; 
+    std::vector<int> sec;
 
     COND_SERIALIZABLE;
   };
@@ -37,28 +37,28 @@ class GEMELMap {
     std::vector<int> vfatType;
     std::vector<int> vfatCh;
     std::vector<int> vfatStrip;
- 
+
     COND_SERIALIZABLE;
   };
 
-  std::vector<GEMVFatMap>  theVFatMap_;
+  std::vector<GEMVFatMap> theVFatMap_;
   std::vector<GEMStripMap> theStripMap_;
-  
- private:
+
+private:
   std::string theVersion;
 
   COND_SERIALIZABLE;
-  
- public:
+
+public:
   // size of ID bits
   static const int chipIdBits_ = 12;     // ID size from VFat
   static const int chipIdMask_ = 0xfff;  // chipId mask for 12 bits
-  static const int gebIdBits_  = 5;      // ID size from GEB
-  static const int maxGEBs_    = 24;     // 24 gebs per amc
+  static const int gebIdBits_ = 5;       // ID size from GEB
+  static const int maxGEBs_ = 24;        // 24 gebs per amc
   static const int maxVFatGE0_ = 12;     // vFat per eta partition, not known yet for ME0
-  static const int maxVFatGE11_= 3;      // vFat per eta partition in GE11
-  static const int maxVFatGE21_= 6;      // vFat per eta partition in GE21
-  static const int maxChan_    = 128;    // channels per vFat
-  static const int amcBX_      = 25;     // amc BX to get strip bx
+  static const int maxVFatGE11_ = 3;     // vFat per eta partition in GE11
+  static const int maxVFatGE21_ = 6;     // vFat per eta partition in GE21
+  static const int maxChan_ = 128;       // channels per vFat
+  static const int amcBX_ = 25;          // amc BX to get strip bx
 };
-#endif // GEMELMap_H
+#endif  // GEMELMap_H

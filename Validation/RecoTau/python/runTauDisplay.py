@@ -1,7 +1,10 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
 import ROOT, os, math, sys
 import numpy as num
 from DataFormats.FWLite import Events, Handle
-from DeltaR import *
+from .DeltaR import *
 
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Muon import Muon
@@ -32,12 +35,12 @@ argvs = sys.argv
 argc = len(argvs)
 
 if argc != 2:
-    print 'Please specify the runtype : python runTauDisplay.py <ZTT, ZEE, ZMM, QCD>'
+    print('Please specify the runtype : python runTauDisplay.py <ZTT, ZEE, ZMM, QCD>')
     sys.exit(0)
 
 runtype = argvs[1]
 
-print 'You selected', runtype
+print('You selected', runtype)
 
 
 
@@ -101,11 +104,11 @@ for ii in range(1, 4):
     elif runtype == 'QCD':
         filename = 'root://eoscms//eos/cms/store/cmst3/user/ytakahas/TauPOG/QCD_CMSSW_' + RelVal + '_QCD_FlatPt_15_3000HS_13_MINIAODSIM_76X_mcRun2_asymptotic_v11-v1_' + str(ii) + '.root'
 
-    print filename
+    print(filename)
     filelist.append(filename)
 
 events = Events(filelist)
-print len(filelist), 'files will be analyzed'
+print(len(filelist), 'files will be analyzed')
 
 
 outputname = 'Myroot_' + RelVal + '_' + runtype + '.root'
@@ -295,7 +298,7 @@ for event in events:
     eid = event.eventAuxiliary().id().event()
     
     if evtid%1000 == 0:
-        print 'Event ', evtid, 'processed'
+        print('Event ', evtid, 'processed')
 
     event.getByLabel("slimmedTaus", tauH)
     event.getByLabel("offlineSlimmedPrimaryVertices", vertexH)
@@ -451,7 +454,7 @@ for event in events:
 
 
 
-print evtid, 'events are processed !'
+print(evtid, 'events are processed !')
 
 file.Write()
 file.Close()

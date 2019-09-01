@@ -20,17 +20,13 @@ namespace edm {
 
   class SubProcessParentageHelper {
   public:
-
     void update(SubProcessParentageHelper const& parentSubProcessParentageHelper,
                 ProductRegistry const& parentProductRegistry);
 
-    std::vector<BranchID> const& producedProducts() const {
-      return producedProducts_;
-    }
+    std::vector<BranchID> const& producedProducts() const { return producedProducts_; }
 
   private:
-
     std::vector<BranchID> producedProducts_;
   };
-}
+}  // namespace edm
 #endif

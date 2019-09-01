@@ -10,12 +10,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
 #include <vector>
 #include <map>
 
 class CommissioningHistograms;
-class DQMStore;
 class TH1;
 
 /**
@@ -27,33 +27,32 @@ class TH1;
    creates summary histograms.
 */
 class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
+public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
 
- public:
-  
-  SiStripCommissioningOfflineClient( const edm::ParameterSet& );
+  SiStripCommissioningOfflineClient(const edm::ParameterSet&);
   ~SiStripCommissioningOfflineClient() override;
-  
-  void beginRun( const edm::Run&, const edm::EventSetup& ) override;
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
-  
- protected:
 
-  virtual void createHistos( const edm::ParameterSet&, const edm::EventSetup& );
-  virtual void uploadToConfigDb() {;}
-  virtual void setInputFiles( std::vector<std::string>&, const std::string, uint32_t, bool );
-  
- protected:
+protected:
+  virtual void createHistos(const edm::ParameterSet&, const edm::EventSetup&);
+  virtual void uploadToConfigDb() { ; }
+  virtual void setInputFiles(std::vector<std::string>&, const std::string, const std::string, uint32_t, bool);
 
-  /** DQMStore object. */ 
+protected:
+  /** DQMStore object. */
   DQMStore* bei_;
-  
+
   /** Action "executor" */
   CommissioningHistograms* histos_;
-  
+
   /** Input .root file. */
   std::vector<std::string> inputFiles_;
-  
+
   /** Output .root file. */
   std::string outputFileName_;
 
@@ -62,13 +61,13 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
 
   /** */
   bool analyzeHistos_;
-  
+
   /** Input .xml file. */
   std::string xmlFile_;
 
   /** Flag. */
   bool createSummaryPlots_;
-  
+
   /** */
   bool clientHistos_;
 
@@ -77,26 +76,27 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
 
   /** Commissioning runType. */
   sistrip::RunType runType_;
-  
+
   /** Run number. */
   uint32_t runNumber_;
+
+  /** Partition Name */
+  std::string partitionName_;
 
   /** */
   typedef std::vector<TH1*> Histos;
 
   /** */
-  typedef std::map<uint32_t,Histos> HistosMap;
+  typedef std::map<uint32_t, Histos> HistosMap;
 
   /** Map containing commissioning histograms. */
   HistosMap map_;
-  
+
   /** SummaryPlot objects. */
   std::vector<SummaryPlot> plots_;
 
   /** */
   edm::ParameterSet parameters_;
-  
 };
 
-#endif // DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
-
+#endif  // DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H

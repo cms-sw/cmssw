@@ -5,25 +5,23 @@
 // because CSCGasCollisions continues to run assuming muon mass
 // if table is bad or particle type does not exist in it.)
 
-#include "SimMuon/CSCDigitizer/src/CSCGasCollisions.h"
 #include "CLHEP/Random/JamesRandom.h"
-#include <algorithm>
-#include <numeric>
-#include <functional>
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "SimMuon/CSCDigitizer/src/CSCGasCollisions.h"
+#include <algorithm>
+#include <functional>
+#include <numeric>
 
-int main() 
-{
-
+int main() {
   // Set up pset param explicitly required by CSCGasCollisions.
   // Note that it has no effect because this stand-alone program
   // does not activate MessageLogger which now controls output
   // in CSCGasCollisions.
   edm::ParameterSet pset;
-  pset.addUntrackedParameter<bool>("dumpGasCollisions", false); 
+  pset.addUntrackedParameter<bool>("dumpGasCollisions", false);
   pset.registerIt();
 
-  CSCGasCollisions collisions (  pset );
+  CSCGasCollisions collisions(pset);
 
   ParticleDataTable dummyTable;
   // let the code assume a muon
@@ -31,9 +29,8 @@ int main()
 
   CLHEP::HepJamesRandom engine;
 
-  PSimHit simHit(LocalPoint(0.,0.,-0.5), LocalPoint(0.,0.,0.5),
-                 4., 0., 0.000005, 13,
-                 CSCDetId(1,1,1,1,1), 0, 0., 0., 0);
+  PSimHit simHit(
+      LocalPoint(0., 0., -0.5), LocalPoint(0., 0., 0.5), 4., 0., 0.000005, 13, CSCDetId(1, 1, 1, 1, 1), 0, 0., 0., 0);
 
   /*
   PSimHit( const Local3DPoint& entry, const Local3DPoint& exit,
@@ -45,7 +42,7 @@ int main()
   int n = 100;
   int sumElectrons = 0;
   int sumClusters = 0;
-  for(int i = 0; i < n; ++i) {
+  for (int i = 0; i < n; ++i) {
     std::vector<LocalPoint> clusters;
     std::vector<int> electrons;
     collisions.simulate(simHit, clusters, electrons, &engine);
@@ -54,6 +51,6 @@ int main()
     sumClusters += clusters.size();
   }
 
-  std::cout << "Clusters: " << sumClusters/n << "  electrons: " << sumElectrons/n << std::endl;
+  std::cout << "Clusters: " << sumClusters / n << "  electrons: " << sumElectrons / n << std::endl;
   return 0;
 }

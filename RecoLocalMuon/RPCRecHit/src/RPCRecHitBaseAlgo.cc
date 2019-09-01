@@ -25,21 +25,22 @@ edm::OwnVector<RPCRecHit> RPCRecHitBaseAlgo::reconstruct(const RPCRoll& roll,
   RPCClusterizer clizer;
   RPCClusterContainer tcls = clizer.doAction(digiRange);
   RPCMaskReClusterizer mrclizer;
-  RPCClusterContainer cls = mrclizer.doAction(rpcId,tcls,mask);
+  RPCClusterContainer cls = mrclizer.doAction(rpcId, tcls, mask);
 
-  for ( auto cl : cls ) {
+  for (auto cl : cls) {
     LocalError tmpErr;
     LocalPoint point;
     float time = 0, timeErr = -1;
 
     // Call the compute method
     const bool OK = this->compute(roll, cl, point, tmpErr, time, timeErr);
-    if (!OK) continue;
+    if (!OK)
+      continue;
 
     // Build a new pair of 1D rechit
     const int firstClustStrip = cl.firstStrip();
     const int clusterSize = cl.clusterSize();
-    RPCRecHit* recHit = new RPCRecHit(rpcId,cl.bx(),firstClustStrip,clusterSize,point,tmpErr);
+    RPCRecHit* recHit = new RPCRecHit(rpcId, cl.bx(), firstClustStrip, clusterSize, point, tmpErr);
     recHit->setTimeAndError(time, timeErr);
 
     result.push_back(recHit);

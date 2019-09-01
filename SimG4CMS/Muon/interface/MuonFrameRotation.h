@@ -10,19 +10,15 @@
  * Make it base class of each detector FrameRotation  
  */
 
-#include "G4Step.hh"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-class MuonSubDetector;
-class DDCompactView;
+class G4Step;
 
 class MuonFrameRotation {
- public:
-  MuonFrameRotation( ) { };
+public:
+  MuonFrameRotation(){};
   virtual ~MuonFrameRotation(){};
-  virtual Local3DPoint transformPoint(const Local3DPoint &,const G4Step *) const = 0;
-
- private:
+  virtual Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const;
 };
 
 #endif

@@ -35,7 +35,7 @@ private:
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_hlt_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
-      
+
   // ----------member data ---------------------------
 };
 

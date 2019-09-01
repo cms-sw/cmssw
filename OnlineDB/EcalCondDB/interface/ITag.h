@@ -8,7 +8,6 @@
 /**
  *   Abstract base class for a tag object
  */
-class ITag : public IUniqueDBObject {
-};
+class ITag : public IUniqueDBObject {};
 
 #endif

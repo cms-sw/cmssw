@@ -12,17 +12,16 @@ class TrackInformation;
  */
 
 class NewTrackAction {
-
 public:
   NewTrackAction();
-  void primary(const G4Track * aSecondary) const;
-  void primary(G4Track * aSecondary) const;
-  void secondary(const G4Track * aSecondary,const G4Track & mother, int) const;
-  void secondary(G4Track * aSecondary,const G4Track & mother, int) const;
+  void primary(const G4Track* aSecondary) const;
+  void primary(G4Track* aSecondary) const;
+  void secondary(const G4Track* aSecondary, const G4Track& mother, int) const;
+  void secondary(G4Track* aSecondary, const G4Track& mother, int) const;
+
 private:
-  void addUserInfoToPrimary(G4Track * aTrack) const;
-  void addUserInfoToSecondary(G4Track * aTrack, 
-			      const TrackInformation & motherInfo, int) const;
+  void addUserInfoToPrimary(G4Track* aTrack) const;
+  void addUserInfoToSecondary(G4Track* aTrack, const TrackInformation& motherInfo, int) const;
 };
 
 #endif

@@ -5,7 +5,7 @@
 //
 // Package:    GctDigiToRaw
 // Class:      GctDigiToRaw
-// 
+//
 /**\class GctDigiToRaw GctDigiToRaw.cc EventFilter/GctRawToDigi/src/GctDigiToRaw.cc
 
  Description: Produce fake GCT raw data from digis
@@ -19,13 +19,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -38,20 +37,16 @@
 // class decleration
 //
 
-class GctDigiToRaw : public edm::EDProducer {
- public:
+class GctDigiToRaw : public edm::global::EDProducer<> {
+public:
   explicit GctDigiToRaw(const edm::ParameterSet&);
-  ~GctDigiToRaw() override;
-  
- private: // methods
-  void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-  
-  void print(FEDRawData& data);
 
- private:  // members
+private:  // methods
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const final;
 
+  void print(FEDRawData& data) const;
+
+private:  // members
   // input tokens
   edm::EDGetTokenT<L1GctEmCandCollection> tokenL1GctEmCand_isoEm_;
   edm::EDGetTokenT<L1GctEmCandCollection> tokenL1GctEmCand_nonIsoEm_;
@@ -67,23 +62,19 @@ class GctDigiToRaw : public edm::EDProducer {
   edm::EDGetTokenT<L1GctJetCountsCollection> tokenGctJetCounts_;
   edm::EDGetTokenT<L1CaloEmCollection> tokenCaloEm_;
   edm::EDGetTokenT<L1CaloRegionCollection> tokenCaloRegion_;
-
+  edm::EDPutTokenT<FEDRawDataCollection> tokenPut_;
   // pack flags
-  bool packRctEm_;
-  bool packRctCalo_;
+  const bool packRctEm_;
+  const bool packRctCalo_;
 
   // FED numbers
-  int fedId_;            
+  const int fedId_;
 
   // print out for each event
-  bool verbose_;
+  const bool verbose_;
 
   // counter events
-  int counter_;          
-  
-  // digi to block converter
-  GctFormatTranslateMCLegacy formatTranslator_;
-
+  mutable std::atomic<int> counter_;
 };
 
 #endif

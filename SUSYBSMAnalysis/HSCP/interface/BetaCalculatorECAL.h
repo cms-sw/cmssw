@@ -31,39 +31,39 @@
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPCaloInfo.h"
 
 class BetaCalculatorECAL {
+public:
+  BetaCalculatorECAL(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
+  void addInfoToCandidate(susybsm::HSCParticle& candidate,
+                          edm::Handle<reco::TrackCollection>& tracks,
+                          edm::Event& iEvent,
+                          const edm::EventSetup& iSetup,
+                          susybsm::HSCPCaloInfo& caloInfo);
 
-   public:
-       BetaCalculatorECAL(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
-       void  addInfoToCandidate(susybsm::HSCParticle& candidate, edm::Handle<reco::TrackCollection>& tracks, edm::Event& iEvent, const edm::EventSetup& iSetup, susybsm::HSCPCaloInfo& caloInfo);
+private:
+  int getDetailedTrackLengthInXtals(std::map<int, GlobalPoint>& trackExitPositionMap,
+                                    std::map<int, float>& trackCrossedXtalMap,
+                                    double& totalLengthCurved,
+                                    GlobalPoint& internalPointCurved,
+                                    GlobalPoint& externalPointCurved,
+                                    const CaloGeometry* theGeometry,
+                                    const CaloTopology* theTopology,
+                                    const std::vector<SteppingHelixStateInfo>& neckLace);
+  std::vector<SteppingHelixStateInfo> calcEcalDeposit(const FreeTrajectoryState* tkInnerState,
+                                                      const DetIdAssociator& associator);
+  void addStepToXtal(std::map<int, GlobalPoint>& trackExitPositionMap,
+                     std::map<int, float>& trackCrossedXtalMap,
+                     DetId aDetId,
+                     float step,
+                     GlobalPoint point,
+                     const CaloSubdetectorGeometry* theSubdetGeometry);
 
-   private:
-       int getDetailedTrackLengthInXtals(std::map<int,GlobalPoint>& trackExitPositionMap,
-           std::map<int,float>& trackCrossedXtalMap,
-           double& totalLengthCurved,
-           GlobalPoint& internalPointCurved,
-           GlobalPoint& externalPointCurved,
-           const CaloGeometry* theGeometry,
-           const CaloTopology * theTopology,
-           const std::vector<SteppingHelixStateInfo>& neckLace);
-       std::vector<SteppingHelixStateInfo> calcEcalDeposit(const FreeTrajectoryState* tkInnerState,
-           const DetIdAssociator& associator);
-       void addStepToXtal(std::map<int,GlobalPoint>& trackExitPositionMap,
-           std::map<int,float>& trackCrossedXtalMap,
-           DetId aDetId,
-           float step,
-           GlobalPoint point,
-           const CaloSubdetectorGeometry* theSubdetGeometry);
+  // Data members
+  TrackDetectorAssociator trackAssociator_;
+  TrackAssociatorParameters parameters_;
+  edm::EDGetTokenT<EBRecHitCollection> EBRecHitCollectionToken_;
+  edm::EDGetTokenT<EERecHitCollection> EERecHitCollectionToken_;
 
-      // Data members
-      TrackDetectorAssociator trackAssociator_;
-      TrackAssociatorParameters parameters_;
-      edm::EDGetTokenT<EBRecHitCollection> EBRecHitCollectionToken_;
-      edm::EDGetTokenT<EERecHitCollection> EERecHitCollectionToken_;
-
-      edm::ESHandle<DetIdAssociator> ecalDetIdAssociator_;
-      edm::ESHandle<MagneticField> bField_;
-      edm::ESHandle<CaloGeometry> theCaloGeometry_;
-
+  edm::ESHandle<DetIdAssociator> ecalDetIdAssociator_;
+  edm::ESHandle<MagneticField> bField_;
+  edm::ESHandle<CaloGeometry> theCaloGeometry_;
 };
-
-

@@ -10,32 +10,30 @@ namespace edm {
   namespace exception_actions {
     namespace {
       struct ActionNames {
-	ActionNames():table_(LastCode + 1) {
-	  table_[IgnoreCompletely] = "IgnoreCompletely";
-	  table_[Rethrow] = "Rethrow";
-	  table_[SkipEvent] = "SkipEvent";
-	  table_[FailPath] = "FailPath";
-	}
+        ActionNames() : table_(LastCode + 1) {
+          table_[IgnoreCompletely] = "IgnoreCompletely";
+          table_[Rethrow] = "Rethrow";
+          table_[SkipEvent] = "SkipEvent";
+          table_[FailPath] = "FailPath";
+        }
 
-	typedef std::vector<char const*> Table;
-	Table table_;
-      };      
-    }
+        typedef std::vector<char const*> Table;
+        Table table_;
+      };
+    }  // namespace
 
     char const* actionName(ActionCodes code) {
       static ActionNames tab;
-      return static_cast<unsigned int>(code) < tab.table_.size() ?  tab.table_[code] : "UnknownAction";
+      return static_cast<unsigned int>(code) < tab.table_.size() ? tab.table_[code] : "UnknownAction";
     }
-  }
+  }  // namespace exception_actions
 
-  ExceptionToActionTable::ExceptionToActionTable() : map_() {
-    addDefaults();
-  }
+  ExceptionToActionTable::ExceptionToActionTable() : map_() { addDefaults(); }
 
   namespace {
     inline void install(exception_actions::ActionCodes code,
-			ExceptionToActionTable::ActionMap& out,
-			ParameterSet const& pset) {
+                        ExceptionToActionTable::ActionMap& out,
+                        ParameterSet const& pset) {
       typedef std::vector<std::string> vstring;
 
       // we cannot have parameters in the main process section so look
@@ -46,16 +44,15 @@ namespace edm {
       // exception type should be used so the catch can be more
       // specific.
 
-//	cerr << pset.toString() << std::endl;
+      //	cerr << pset.toString() << std::endl;
 
       ParameterSet const& opts = pset.getUntrackedParameterSet("options");
       //cerr << "looking for " << actionName(code) << std::endl;
-      for(auto const& v: opts.getUntrackedParameter<std::vector<std::string>>(actionName(code))) {
+      for (auto const& v : opts.getUntrackedParameter<std::vector<std::string>>(actionName(code))) {
         out[v] = code;
       }
-
-    }  
-  }
+    }
+  }  // namespace
 
   ExceptionToActionTable::ExceptionToActionTable(ParameterSet const& pset) : map_() {
     addDefaults();
@@ -70,17 +67,16 @@ namespace edm {
     // populate defaults that are not 'Rethrow'
     // (There are none as of CMSSW_3_4_X.)
     // 'Rethrow' is the default default.
-    if(2 <= debugit()) {
-	ActionMap::const_iterator ib(map_.begin()),ie(map_.end());
-	for(;ib != ie; ++ib) {
-	  std::cerr << ib->first << ',' << ib->second << '\n';
-	}
-	std::cerr << std::endl;
+    if (2 <= debugit()) {
+      ActionMap::const_iterator ib(map_.begin()), ie(map_.end());
+      for (; ib != ie; ++ib) {
+        std::cerr << ib->first << ',' << ib->second << '\n';
+      }
+      std::cerr << std::endl;
     }
   }
 
-  ExceptionToActionTable::~ExceptionToActionTable() {
-  }
+  ExceptionToActionTable::~ExceptionToActionTable() {}
 
   void ExceptionToActionTable::add(std::string const& category, exception_actions::ActionCodes code) {
     map_[category] = code;
@@ -91,4 +87,4 @@ namespace edm {
     return i != map_.end() ? i->second : exception_actions::Rethrow;
   }
 
-}
+}  // namespace edm

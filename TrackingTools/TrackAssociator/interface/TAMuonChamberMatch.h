@@ -18,16 +18,16 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 class TAMuonChamberMatch {
- public:
-   int station() const;
-   std::string info() const;
-   int detector() const { return id.subdetId(); }
+public:
+  int station() const;
+  std::string info() const;
+  int detector() const { return id.subdetId(); }
 
-   /// distance sign convention: negative - crossed chamber, positive - missed chamber
-   std::vector<TAMuonSegmentMatch> segments;
-   float localDistanceX;
-   float localDistanceY;
-   TrajectoryStateOnSurface tState;
-   DetId id;
+  /// distance sign convention: negative - crossed chamber, positive - missed chamber
+  std::vector<TAMuonSegmentMatch> segments;
+  float localDistanceX;
+  float localDistanceY;
+  TrajectoryStateOnSurface tState;
+  DetId id;
 };
 #endif

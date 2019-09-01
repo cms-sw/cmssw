@@ -4,7 +4,7 @@
 //
 // Package:    LHEVpTFilter
 // Class:      LHEVpTFilter
-// 
+//
 /* 
 
  Description: Filter to select events with V pT in a given range.
@@ -36,23 +36,23 @@
 //
 
 class LHEVpTFilter : public edm::EDFilter {
- public:
+public:
   explicit LHEVpTFilter(const edm::ParameterSet&);
-  ~LHEVpTFilter();
-  
- private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  
+  ~LHEVpTFilter() override;
+
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
   // ----------member data ---------------------------
-  
+
   edm::EDGetTokenT<LHEEventProduct> src_;
   std::vector<lhef::HEPEUP::FiveVector> lheParticles;
   std::vector<ROOT::Math::PxPyPzEVector> lepCands;
 
-  double vptMin_;                // number of particles required to pass filter
-  double vptMax_;                // number of particles required to pass filter
-  int totalEvents_;                // counters
+  double vptMin_;    // number of particles required to pass filter
+  double vptMax_;    // number of particles required to pass filter
+  int totalEvents_;  // counters
   int passedEvents_;
 };
 #endif

@@ -3,7 +3,7 @@
 
 namespace cscdqm {
 
-  ClusterLocalMax::ClusterLocalMax(){}
-  ClusterLocalMax::~ClusterLocalMax(){}
+  ClusterLocalMax::ClusterLocalMax() {}
+  ClusterLocalMax::~ClusterLocalMax() {}
 
-}
+}  // namespace cscdqm

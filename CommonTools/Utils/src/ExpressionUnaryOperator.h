@@ -15,19 +15,19 @@
 
 namespace reco {
   namespace parser {
-    template<typename Op>
+    template <typename Op>
     struct ExpressionUnaryOperator : public ExpressionBase {
-      double value(const edm::ObjectWithDict& o) const override { 
-	return op_((*exp_).value(o));
+      double value(const edm::ObjectWithDict& o) const override { return op_((*exp_).value(o)); }
+      ExpressionUnaryOperator(ExpressionStack& expStack) {
+        exp_ = expStack.back();
+        expStack.pop_back();
       }
-      ExpressionUnaryOperator(ExpressionStack & expStack) { 
-	exp_ = expStack.back(); expStack.pop_back();
-      }
+
     private:
       Op op_;
       ExpressionPtr exp_;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

@@ -6,7 +6,7 @@
 
 namespace AnalysisDataFormats_SUSYBSMObjects {
   susybsm::HSCParticle pa;
-/*  susybsm::DriftTubeTOF dtitof;
+  /*  susybsm::DriftTubeTOF dtitof;
 
   susybsm::TimeMeasurement tm;
   std::vector<susybsm::TimeMeasurement> tmv;
@@ -19,9 +19,9 @@ namespace AnalysisDataFormats_SUSYBSMObjects {
   std::vector<std::pair<edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> >,susybsm::DriftTubeTOF> > a;
   std::vector<susybsm::DriftTubeTOF> b;
   */
-//  susybsm::CaloBetaMeasurement calobeta;
+  //  susybsm::CaloBetaMeasurement calobeta;
   susybsm::RPCBetaMeasurement rpcbeta;
-//susybsm::DeDxBeta dedxbeta;
+  //susybsm::DeDxBeta dedxbeta;
   susybsm::HSCParticleCollection hc;
   susybsm::HSCParticleRef hr;
   susybsm::HSCParticleRefProd hp;
@@ -34,15 +34,17 @@ namespace AnalysisDataFormats_SUSYBSMObjects {
   susybsm::MuonSegmentRefProd msp;
   susybsm::MuonSegmentRefVector msv;
   edm::Wrapper<susybsm::MuonSegmentCollection> mswr1;
-  
+
   susybsm::TracksEcalRecHitsMap terhm;
   edm::Wrapper<susybsm::TracksEcalRecHitsMap> wr2;
-  edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > > hlpr1;
+  edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,
+                       edm::RefProd<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> > > >
+      hlpr1;
 
   susybsm::HSCPIsolation hscpI;
   susybsm::HSCPIsolationCollection hscpIc;
-  susybsm::HSCPIsolationValueMap hscpIvm; 
-  edm::Wrapper<susybsm::HSCPIsolation> hscpIW; 
+  susybsm::HSCPIsolationValueMap hscpIvm;
+  edm::Wrapper<susybsm::HSCPIsolation> hscpIW;
   edm::Wrapper<susybsm::HSCPIsolationCollection> hscpIcW;
   edm::Wrapper<susybsm::HSCPIsolationValueMap> hscpIvmW;
 
@@ -65,4 +67,4 @@ namespace AnalysisDataFormats_SUSYBSMObjects {
   edm::Wrapper<susybsm::HSCPDeDxInfo> hscpDEDXW;
   edm::Wrapper<susybsm::HSCPDeDxInfoCollection> hscpDEDXcW;
   edm::Wrapper<susybsm::HSCPDeDxInfoValueMap> hscpDEDXvmW;
-}
+}  // namespace AnalysisDataFormats_SUSYBSMObjects

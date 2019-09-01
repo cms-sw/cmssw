@@ -7,16 +7,14 @@ namespace cond {
 
   class IOVUserMetaData {
   public:
-    IOVUserMetaData(){}
-    virtual ~ IOVUserMetaData(){}
-    virtual IOVUserMetaData * clone() const { return new  IOVUserMetaData(*this);}
+    IOVUserMetaData() {}
+    virtual ~IOVUserMetaData() {}
+    virtual IOVUserMetaData* clone() const { return new IOVUserMetaData(*this); }
 
   private:
-  
-  COND_SERIALIZABLE;
-};
+    COND_SERIALIZABLE;
+  };
 
-
-}
+}  // namespace cond
 
 #endif

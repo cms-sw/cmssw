@@ -33,126 +33,99 @@
 // forward declarations
 
 // class declaration
-class CorrelationTemplate : public GlobalCondition
-{
+class CorrelationTemplate : public GlobalCondition {
+public:
+  /// constructor(s)
+  ///   default
+  CorrelationTemplate();
+
+  ///   from condition name
+  CorrelationTemplate(const std::string&);
+
+  ///   from condition name, the category of first sub-condition, the category of the
+  ///   second sub-condition, the index of first sub-condition in the cor* vector,
+  ///   the index of second sub-condition in the cor* vector
+  CorrelationTemplate(
+      const std::string&, const l1t::GtConditionCategory&, const l1t::GtConditionCategory&, const int, const int);
+
+  /// copy constructor
+  CorrelationTemplate(const CorrelationTemplate&);
+
+  /// destructor
+  ~CorrelationTemplate() override;
+
+  /// assign operator
+  CorrelationTemplate& operator=(const CorrelationTemplate&);
 
 public:
+  /// typedef for correlation parameters
+  struct CorrelationParameter {
+    //Cut values in hardware
+    long long minEtaCutValue;
+    long long maxEtaCutValue;
+    unsigned int precEtaCut;
 
-    /// constructor(s)
-    ///   default
-    CorrelationTemplate();
+    long long minPhiCutValue;
+    long long maxPhiCutValue;
+    unsigned int precPhiCut;
 
-    ///   from condition name
-    CorrelationTemplate(const std::string& );
+    long long minDRCutValue;
+    long long maxDRCutValue;
+    unsigned int precDRCut;
 
-    ///   from condition name, the category of first sub-condition, the category of the
-    ///   second sub-condition, the index of first sub-condition in the cor* vector,
-    ///   the index of second sub-condition in the cor* vector
-    CorrelationTemplate(const std::string&,
-            const l1t::GtConditionCategory&, const l1t::GtConditionCategory&,
-            const int, const int);
+    long long minMassCutValue;
+    long long maxMassCutValue;
+    unsigned int precMassCut;
 
-    /// copy constructor
-    CorrelationTemplate( const CorrelationTemplate& );
+    long long minTBPTCutValue;
+    long long maxTBPTCutValue;
+    unsigned int precTBPTCut;
 
-    /// destructor
-    ~CorrelationTemplate() override;
+    //Requirement on charge of legs (currently only Mu-Mu).
+    unsigned int chargeCorrelation;
 
-    /// assign operator
-    CorrelationTemplate& operator= (const CorrelationTemplate&);
-
-public:
-
-    /// typedef for correlation parameters
-    struct CorrelationParameter
-    {
-
-        //Cut values in hardware
-        long long minEtaCutValue;
-        long long maxEtaCutValue;
-        unsigned int precEtaCut;
-        
-        long long minPhiCutValue;
-        long long maxPhiCutValue;
-        unsigned int precPhiCut;
-        
-        long long minDRCutValue;
-        long long maxDRCutValue;
-        unsigned int precDRCut;
-        
-        long long minMassCutValue;
-        long long maxMassCutValue;
-        unsigned int precMassCut;
-        
-        long long minTBPTCutValue;
-        long long maxTBPTCutValue;
-        unsigned int precTBPTCut;
-        
-        //Requirement on charge of legs (currently only Mu-Mu).
-        unsigned int chargeCorrelation;
-        
-        int corrCutType;
-
-    };
-
+    int corrCutType;
+  };
 
 public:
+  /// get / set the category of the two sub-conditions
+  inline const l1t::GtConditionCategory cond0Category() const { return m_cond0Category; }
 
-    /// get / set the category of the two sub-conditions
-    inline const l1t::GtConditionCategory cond0Category() const {
-        return m_cond0Category;
-    }
+  inline const l1t::GtConditionCategory cond1Category() const { return m_cond1Category; }
 
-    inline const l1t::GtConditionCategory cond1Category() const {
-        return m_cond1Category;
-    }
+  void setCond0Category(const l1t::GtConditionCategory&);
+  void setCond1Category(const l1t::GtConditionCategory&);
 
-    void setCond0Category(const l1t::GtConditionCategory&);
-    void setCond1Category(const l1t::GtConditionCategory&);
+  /// get / set the index of the two sub-conditions in the cor* vector from menu
+  inline const int cond0Index() const { return m_cond0Index; }
 
-    /// get / set the index of the two sub-conditions in the cor* vector from menu
-    inline const int cond0Index() const {
-        return m_cond0Index;
-    }
+  inline const int cond1Index() const { return m_cond1Index; }
 
-    inline const int cond1Index() const {
-        return m_cond1Index;
-    }
+  void setCond0Index(const int&);
+  void setCond1Index(const int&);
 
-    void setCond0Index(const int&);
-    void setCond1Index(const int&);
+  /// get / set correlation parameters
 
-    /// get / set correlation parameters
+  inline const CorrelationParameter* correlationParameter() const { return &m_correlationParameter; }
 
-    inline const CorrelationParameter* correlationParameter() const
-    {
-        return &m_correlationParameter;
-    }
+  void setCorrelationParameter(const CorrelationParameter& corrParameter);
 
-    void setCorrelationParameter(const CorrelationParameter& corrParameter);
+  /// print the condition
+  void print(std::ostream& myCout) const override;
 
-
-    /// print the condition
-    void print(std::ostream& myCout) const override;
-
-    /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const CorrelationTemplate&);
-
+  /// output stream operator
+  friend std::ostream& operator<<(std::ostream&, const CorrelationTemplate&);
 
 private:
-
-    /// copy function for copy constructor and operator=
-    void copy( const CorrelationTemplate& cp);
-
+  /// copy function for copy constructor and operator=
+  void copy(const CorrelationTemplate& cp);
 
 private:
-
-    l1t::GtConditionCategory m_cond0Category;
-    l1t::GtConditionCategory m_cond1Category;
-    int m_cond0Index;
-    int m_cond1Index;
-    CorrelationParameter m_correlationParameter;
-
+  l1t::GtConditionCategory m_cond0Category;
+  l1t::GtConditionCategory m_cond1Category;
+  int m_cond0Index;
+  int m_cond1Index;
+  CorrelationParameter m_correlationParameter;
 };
 
 #endif

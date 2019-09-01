@@ -15,42 +15,40 @@ uses input sources to retrieve EDProducts from external storage.
 
 namespace edm {
 
-  class BranchKey;
+  class BranchID;
   class EDProductGetter;
   class ModuleCallingContext;
   class SharedResourcesAcquirer;
   class StreamContext;
 
   namespace signalslot {
-    template <typename T> class Signal;
+    template <typename T>
+    class Signal;
   }
 
   class DelayedReader {
   public:
     virtual ~DelayedReader();
-    std::unique_ptr<WrapperBase> getProduct(BranchKey const& k,
+    std::unique_ptr<WrapperBase> getProduct(BranchID const& k,
                                             EDProductGetter const* ep,
                                             ModuleCallingContext const* mcc = nullptr);
 
-    void mergeReaders(DelayedReader* other) {mergeReaders_(other);}
-    void reset() {reset_();}
-    
-    std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> sharedResources() const {
-      return sharedResources_();
-    }
-    
+    void mergeReaders(DelayedReader* other) { mergeReaders_(other); }
+    void reset() { reset_(); }
 
-    virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal() const = 0;
-    virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadFromSourceSignal() const = 0;
+    std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> sharedResources() const { return sharedResources_(); }
 
-    
+    virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const*
+    preEventReadFromSourceSignal() const = 0;
+    virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const*
+    postEventReadFromSourceSignal() const = 0;
+
   private:
-    virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) = 0;
+    virtual std::unique_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) = 0;
     virtual void mergeReaders_(DelayedReader*) = 0;
     virtual void reset_() = 0;
     virtual std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> sharedResources_() const;
-
   };
-}
+}  // namespace edm
 
 #endif

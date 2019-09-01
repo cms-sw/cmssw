@@ -9,46 +9,42 @@
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
-
 #include <vector>
-
 
 #include "Alignment/CommonAlignment/interface/AlignableModifier.h"
 #include "Alignment/CommonAlignment/interface/MisalignmentScenarioBuilder.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 /// Builds a scenario from configuration and applies it to the alignable Muon.
 
-class MuonScenarioBuilder : public MisalignmentScenarioBuilder
-{
-
+class MuonScenarioBuilder : public MisalignmentScenarioBuilder {
 public:
-
   /// Constructor
-  explicit MuonScenarioBuilder( Alignable* alignable );
+  explicit MuonScenarioBuilder(Alignable* alignable);
 
   /// Destructor
-  ~MuonScenarioBuilder() override {};
+  ~MuonScenarioBuilder() override{};
 
   /// Apply misalignment scenario to the Muon
-  void applyScenario( const edm::ParameterSet& scenario ) override;
+  void applyScenario(const edm::ParameterSet& scenario) override;
 
   /// This special method allows to move a DTsector by a same amount
-  void moveDTSectors( const edm::ParameterSet& scenario );
+  void moveDTSectors(const edm::ParameterSet& scenario);
 
   /// this special method allows to move a CSCsector by a same amount
-  void moveCSCSectors( const edm::ParameterSet& scenario );
-  
+  void moveCSCSectors(const edm::ParameterSet& scenario);
+
   /// this special method allows to move the complete muon system by a same amount
-  void moveMuon( const edm::ParameterSet& scenario );
-  
-  align::Scalars extractParameters( const edm::ParameterSet& , const char* );
+  void moveMuon(const edm::ParameterSet& scenario);
 
-  void moveChamberInSector( Alignable *, const align::Scalars&, const align::Scalars&, const align::Scalars&, const align::Scalars& );
-private: // Members
+  align::Scalars extractParameters(const edm::ParameterSet&, const char*);
 
-  AlignableMuon* theAlignableMuon;   ///< Pointer to alignable Muon object
-  
-  AlignableModifier theMuonModifier; 
+  void moveChamberInSector(
+      Alignable*, const align::Scalars&, const align::Scalars&, const align::Scalars&, const align::Scalars&);
+
+private:                            // Members
+  AlignableMuon* theAlignableMuon;  ///< Pointer to alignable Muon object
+
+  AlignableModifier theMuonModifier;
 };
 
 #endif

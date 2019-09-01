@@ -17,7 +17,7 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class DTChamberId;
 class DTTtrig;
@@ -34,14 +34,14 @@ public:
   void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   void endJob() override;
-  
+
 private:
   typedef std::map<DTChamberId, std::vector<TH1F*> > ChamberHistosMap;
   void bookHistos(DTChamberId);
 
-  DTSegmentSelector select_;
+  DTSegmentSelector* select_;
 
-  edm::InputTag  theRecHits4DLabel_;
+  edm::InputTag theRecHits4DLabel_;
   bool doTTrigCorrection_;
   std::string theCalibChamber_;
   std::string dbLabel_;
@@ -51,4 +51,3 @@ private:
   ChamberHistosMap theT0SegHistoMap_;
 };
 #endif
-

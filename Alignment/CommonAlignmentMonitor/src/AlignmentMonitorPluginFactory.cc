@@ -2,7 +2,7 @@
 //
 // Package:     CommonAlignmentMonitor
 // Class  :     AlignmentMonitorPluginFactory
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -21,31 +21,31 @@ EDM_REGISTER_PLUGINFACTORY(AlignmentMonitorPluginFactory, "AlignmentMonitorPlugi
 // //
 // // constants, enums and typedefs
 // //
-// 
+//
 // //
 // // static data member definitions
 // //
-// 
+//
 // AlignmentMonitorPluginFactory AlignmentMonitorPluginFactory::theInstance;
-// 
+//
 // //
 // // constructors and destructor
 // //
-// 
+//
 // //__________________________________________________________________________________________________
 // AlignmentMonitorPluginFactory::AlignmentMonitorPluginFactory()
 //    : seal::PluginFactory<AlignmentMonitorBase* (const edm::ParameterSet&)>("AlignmentMonitorPluginFactory")
 // { }
-// 
+//
 // //__________________________________________________________________________________________________
-// 
+//
 // AlignmentMonitorPluginFactory* AlignmentMonitorPluginFactory::get() {
 //   return &theInstance;
 // }
-// 
+//
 // //__________________________________________________________________________________________________
-// 
-// AlignmentMonitorBase* 
+//
+// AlignmentMonitorBase*
 // AlignmentMonitorPluginFactory::getMonitor(std::string name, const edm::ParameterSet& config) {
 //   return theInstance.create(name, config);
 // }

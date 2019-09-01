@@ -13,32 +13,31 @@
 
 typedef int run_t;
 
-class MonRunList  : public IDBObject {
- public:
+class MonRunList : public IDBObject {
+public:
   friend class EcalCondDBInterface;
 
   MonRunList();
   ~MonRunList() override;
 
   // Methods for user data
-  
+
   void setRunTag(const RunTag& tag);
   RunTag getRunTag() const;
   void setMonRunTag(const MonRunTag& tag);
   MonRunTag getMonRunTag() const;
-  std::vector<MonRunIOV> getRuns() ;
-  
+  std::vector<MonRunIOV> getRuns();
+
   // Methods from IUniqueDBObject
   void fetchRuns() noexcept(false);
   void fetchRuns(int min_run, int max_run) noexcept(false);
-  void fetchLastNRuns( int max_run, int n_runs  )noexcept(false);
+  void fetchLastNRuns(int max_run, int n_runs) noexcept(false);
 
- private:
+private:
   // User data for this IOV
   std::vector<MonRunIOV> m_vec_monruniov;
   RunTag m_runTag;
   MonRunTag m_monrunTag;
-
 };
 
 #endif

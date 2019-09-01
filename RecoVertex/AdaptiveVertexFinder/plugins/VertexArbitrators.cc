@@ -14,10 +14,9 @@
 
 //#define VTXDEBUG
 
-
-typedef TemplatedVertexArbitrator<reco::TrackCollection,reco::Vertex> TrackVertexArbitrator;
-typedef TemplatedVertexArbitrator<edm::View<reco::Candidate>,reco::VertexCompositePtrCandidate> CandidateVertexArbitrator;
+typedef TemplatedVertexArbitrator<reco::TrackCollection, reco::Vertex> TrackVertexArbitrator;
+typedef TemplatedVertexArbitrator<edm::View<reco::Candidate>, reco::VertexCompositePtrCandidate>
+    CandidateVertexArbitrator;
 
 DEFINE_FWK_MODULE(TrackVertexArbitrator);
 DEFINE_FWK_MODULE(CandidateVertexArbitrator);
-

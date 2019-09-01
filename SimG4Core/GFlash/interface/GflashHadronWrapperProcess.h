@@ -12,28 +12,26 @@ class G4ProcessVector;
 class G4VProcess;
 
 class GflashHadronWrapperProcess : public G4WrapperProcess {
-  
 public:
+  GflashHadronWrapperProcess(G4String processName);
+  //  GflashHadronWrapperProcess();
 
-  GflashHadronWrapperProcess(G4String processName);	
-  //  GflashHadronWrapperProcess();	
-  
-  ~GflashHadronWrapperProcess() override;	
-  
+  ~GflashHadronWrapperProcess() override;
+
   // Override PostStepDoIt  method
-  G4VParticleChange* PostStepDoIt(const G4Track& track, const G4Step& step) override;
+  G4VParticleChange *PostStepDoIt(const G4Track &track, const G4Step &step) override;
 
   G4String GetName() { return theProcessName; };
 
-  void Print(const G4Step& astep);
+  void Print(const G4Step &astep);
 
 private:
   G4String theProcessName;
 
-  G4VParticleChange* particleChange;
-  G4ProcessManager*  pmanager;
-  G4ProcessVector*   fProcessVector;
-  G4VProcess*        fProcess;
+  G4VParticleChange *particleChange;
+  G4ProcessManager *pmanager;
+  G4ProcessVector *fProcessVector;
+  G4VProcess *fProcess;
 };
 
 #endif

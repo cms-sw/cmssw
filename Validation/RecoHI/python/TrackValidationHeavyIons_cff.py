@@ -2,9 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # track associator settings
 import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi
-trackAssociatorByHitsRecoDenom = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone(
-    useClusterTPAssociation = False # to do the track<->TP association with TrackerHitAssociator
-)
+# to do the track<->TP association with TrackerHitAssociator
+trackAssociatorByHitsRecoDenom = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHitsTrackerHitAssociator.clone()
 from SimGeneral.TrackingAnalysis.trackingParticleNumberOfLayersProducer_cff import *
 
 # reco track quality cuts
@@ -34,7 +33,8 @@ hiTrackValidator = multiTrackValidator.clone(
     minpT = cms.double(1.0),
     maxpT = cms.double(100.0),
     nintpT = cms.int32(40),
-    useLogPt = cms.untracked.bool(True)
+    useLogPt = cms.untracked.bool(True),
+    cores = cms.InputTag("")
     )
 
 hiTrackValidator.label = cms.VInputTag(cms.InputTag('cutsRecoTracks'),

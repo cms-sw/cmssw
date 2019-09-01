@@ -71,6 +71,7 @@
   <use name="FWCore/PluginManager"/>
   <use name="DataFormats/Provenance"/>
   <use name="DataFormats/Luminosity"/>
+  <use name="Utilities/Xerces"/>
   <use name="xerces-c"/>
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -89,12 +90,14 @@
 <library file="DIPLumiProducer.cc" name="DIPLumiProducer">
   <use name="RecoLuminosity/LumiProducer"/>
   <use name="FWCore/PluginManager"/>
+  <use name="Utilities/Xerces"/>
   <use name="xerces-c"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 <library file="LumiCorrectionSource.cc" name="LumiCorrectionSource">
   <use name="RecoLuminosity/LumiProducer"/>
   <use name="FWCore/PluginManager"/>
+  <use name="Utilities/Xerces"/>
   <use name="xerces-c"/>
   <flags EDM_PLUGIN="1"/>
 </library>

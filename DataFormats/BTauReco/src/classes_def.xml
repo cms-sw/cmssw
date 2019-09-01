@@ -70,6 +70,7 @@
   <class name="reco::BoostedDoubleSVTagInfoRefProd"/>
   <class name="reco::BoostedDoubleSVTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::BoostedDoubleSVTagInfoCollection>"/>
+  <class name="edm::Wrapper<std::vector<reco::BoostedDoubleSVTagInfo> >"/>
 
   <class name="reco::ShallowTagInfo" ClassVersion="3">
 		<version ClassVersion="3" checksum="3904302444"/>
@@ -92,18 +93,6 @@
   <class name="reco::CombinedTauTagInfoRefProd"/>
   <class name="reco::CombinedTauTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::CombinedTauTagInfoCollection>"/>
-
-
-  <class name="reco::EMIsolatedTauTagInfo" ClassVersion="11">
-   <version ClassVersion="11" checksum="1524968186"/>
-   <version ClassVersion="10" checksum="1895814186"/>
-  </class>
-  <class name="reco::EMIsolatedTauTagInfoCollection"/>
-  <class name="reco::EMIsolatedTauTagInfoRef"/>
-  <class name="reco::EMIsolatedTauTagInfoFwdRef"/>
-  <class name="reco::EMIsolatedTauTagInfoRefProd"/>
-  <class name="reco::EMIsolatedTauTagInfoRefVector"/>
-  <class name="edm::Wrapper<reco::EMIsolatedTauTagInfoCollection>"/>
 
   <class name="reco::IsolatedTauTagInfo" ClassVersion="11">
    <version ClassVersion="11" checksum="1582752903"/>
@@ -275,17 +264,6 @@
   <class name="edm::Wrapper<reco::TrackProbabilityTagInfoCollection>"/>
 
 
-  <class name="reco::JetCrystalsAssociation" ClassVersion="11">
-   <version ClassVersion="11" checksum="1768853577"/>
-   <version ClassVersion="10" checksum="2601616757"/>
-  </class>
-  <class name="reco::JetCrystalsAssociation::base_class"/>
-  <class name="reco::JetCrystalsAssociationCollection"/>
-  <class name="reco::JetCrystalsAssociationRef"/>
-  <class name="reco::JetCrystalsAssociationFwdRef"/>
-  <class name="reco::JetCrystalsAssociationRefProd"/>
-  <class name="reco::JetCrystalsAssociationRefVector"/>
-  <class name="edm::Wrapper<reco::JetCrystalsAssociationCollection>"/>
 
   <!--commented out because the typedef resolves to a class with dictionary in DataFormats/JetReco-->
   <!--class name="reco::JetEisolAssociation"/-->
@@ -427,8 +405,9 @@
  <class name="edm::Wrapper<std::vector<edm::FwdRef<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo>>,reco::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >,reco::BaseTagInfo> > > >"/>
  <class name="edm::Wrapper<std::vector<edm::Ref<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo>>,reco::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >,reco::BaseTagInfo> > > >"/>
 
-  <class name="btagbtvdeep::JetFeatures" ClassVersion="3">
+  <class name="btagbtvdeep::JetFeatures" ClassVersion="4">
     <version ClassVersion="3" checksum="386672900"/>
+    <version ClassVersion="4" checksum="113477759"/>
   </class>
   <class name="btagbtvdeep::SecondaryVertexFeatures" ClassVersion="3">
     <version ClassVersion="3" checksum="3610780843"/>
@@ -439,12 +418,27 @@
   <class name="btagbtvdeep::NeutralCandidateFeatures" ClassVersion="3">
     <version ClassVersion="3" checksum="938442516"/>
   </class>
-  <class name="btagbtvdeep::ChargedCandidateFeatures" ClassVersion="3">
+  <class name="btagbtvdeep::ChargedCandidateFeatures" ClassVersion="4">
+    <version ClassVersion="4" checksum="2173116472"/>
     <version ClassVersion="3" checksum="1302021141"/>
   </class>
-  <class name="btagbtvdeep::DeepFlavourFeatures" ClassVersion="3">
-    <version ClassVersion="3" checksum="2487956635"/>
+  <class name="btagbtvdeep::SeedingTrackFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="1570694350"/>
   </class>
+  <class name="btagbtvdeep::TrackPairFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="2028136496"/>
+  </class>
+  <class name="btagbtvdeep::DeepFlavourFeatures" ClassVersion="4">
+    <version ClassVersion="3" checksum="2487956635"/>
+    <version ClassVersion="4" checksum="3827695028"/>
+  </class>
+    <class name="btagbtvdeep::DeepDoubleXFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="1764960743"/>
+  </class>
+  <class name="btagbtvdeep::BoostedDoubleSVTagInfoFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="683471882"/>
+  </class>
+
 
   <class name="reco::DeepFlavourTagInfo"/>
   <class name="reco::DeepFlavourTagInfoCollection"/>
@@ -453,5 +447,32 @@
   <class name="reco::DeepFlavourTagInfoRefProd"/>
   <class name="reco::DeepFlavourTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::DeepFlavourTagInfoCollection>"/>
+  
+  <class name="reco::DeepDoubleXTagInfo"/>
+  <class name="reco::DeepDoubleXTagInfoCollection"/>
+  <class name="reco::DeepDoubleXTagInfoRef"/>
+  <class name="reco::DeepDoubleXTagInfoFwdRef"/>
+  <class name="reco::DeepDoubleXTagInfoRefProd"/>
+  <class name="reco::DeepDoubleXTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::DeepDoubleXTagInfoCollection>"/>
+  
+  <class name="btagbtvdeep::DeepBoostedJetFeatures"/>
+  <class name="reco::DeepBoostedJetTagInfo"/>
+  <class name="reco::DeepBoostedJetTagInfoCollection"/>
+  <class name="reco::DeepBoostedJetTagInfoRef"/>
+  <class name="reco::DeepBoostedJetTagInfoFwdRef"/>
+  <class name="reco::DeepBoostedJetTagInfoRefProd"/>
+  <class name="reco::DeepBoostedJetTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::DeepBoostedJetTagInfoCollection>" persistent="false"/>
+
+  <class name="reco::PixelClusterProperties"/>
+  <class name="reco::PixelClusterData" ClassVersion="3">
+    <version ClassVersion="3" checksum="525314740"/>
+  </class>
+  <class name="reco::PixelClusterTagInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="2876828956"/>
+  </class>
+  <class name="reco::PixelClusterTagInfoCollection"/>
+  <class name="edm::Wrapper<reco::PixelClusterTagInfoCollection>"/>
 
 </lcgdict>

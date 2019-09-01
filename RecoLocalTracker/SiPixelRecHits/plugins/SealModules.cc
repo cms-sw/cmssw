@@ -4,9 +4,6 @@
 //
 //--- Our components which we want Framework to know about:
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-//--- The CPE ES Producers
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericESProducer.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateRecoESProducer.h"
 //---- The RecHit ED producer
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelRecHitConverter.h"
 //--- The header files for the Framework infrastructure (macros etc):
@@ -21,6 +18,3 @@
 using cms::SiPixelRecHitConverter;
 
 DEFINE_FWK_MODULE(SiPixelRecHitConverter);
-DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEGenericESProducer);
-DEFINE_FWK_EVENTSETUP_MODULE(PixelCPETemplateRecoESProducer);
-

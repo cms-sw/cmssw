@@ -16,126 +16,117 @@
 #include <vector>
 #include <atomic>
 
-class EcalBarrelGeometry final : public CaloSubdetectorGeometry 
-{
-   public:
+class EcalBarrelGeometry final : public CaloSubdetectorGeometry {
+public:
+  typedef std::vector<TruncatedPyramid> CellVec;
 
-      typedef std::vector<TruncatedPyramid> CellVec ;
+  typedef CaloCellGeometry::CCGFloat CCGFloat;
+  typedef CaloCellGeometry::Pt3D Pt3D;
+  typedef CaloCellGeometry::Pt3DVec Pt3DVec;
 
-      typedef CaloCellGeometry::CCGFloat CCGFloat ;
-      typedef CaloCellGeometry::Pt3D     Pt3D     ;
-      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+  typedef IdealGeometryRecord IdealRecord;
+  typedef EcalBarrelGeometryRecord AlignedRecord;
+  typedef EBAlignmentRcd AlignmentRecord;
+  typedef PEcalBarrelRcd PGeometryRecord;
 
-      typedef IdealGeometryRecord      IdealRecord   ;
-      typedef EcalBarrelGeometryRecord AlignedRecord ;
-      typedef EBAlignmentRcd           AlignmentRecord ;
-      typedef PEcalBarrelRcd           PGeometryRecord ;
+  typedef EZArrayFL<EEDetId> OrderedListOfEEDetId;  // like an stl vector: begin(), end(), [i]
 
-      typedef EZArrayFL<EEDetId> OrderedListOfEEDetId ; // like an stl vector: begin(), end(), [i]
+  typedef std::vector<OrderedListOfEEDetId*> VecOrdListEEDetIdPtr;
 
-      typedef std::vector<OrderedListOfEEDetId*>  VecOrdListEEDetIdPtr ;
+  typedef EcalBarrelNumberingScheme NumberingScheme;
 
-      typedef EcalBarrelNumberingScheme NumberingScheme ;
+  typedef EBDetId DetIdType;
 
-      typedef EBDetId DetIdType ;
+  enum { k_NumberOfCellsForCorners = EBDetId::kSizeForDenseIndexing };
 
-      enum { k_NumberOfCellsForCorners = EBDetId::kSizeForDenseIndexing } ;
+  enum { k_NumberOfShapes = 17 };
 
-      enum { k_NumberOfShapes = 17 } ;
+  enum { k_NumberOfParametersPerShape = 11 };
 
-      enum { k_NumberOfParametersPerShape = 11 } ;
+  static std::string dbString() { return "PEcalBarrelRcd"; }
 
-      static std::string dbString() { return "PEcalBarrelRcd" ; }
+  unsigned int numberOfShapes() const override { return k_NumberOfShapes; }
+  unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape; }
 
-      unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
-      unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
+  EcalBarrelGeometry();
 
-      EcalBarrelGeometry() ;
-  
-      ~EcalBarrelGeometry() override;
+  ~EcalBarrelGeometry() override;
 
-      int getNumXtalsPhiDirection()           const { return _nnxtalPhi ; }
+  int getNumXtalsPhiDirection() const { return _nnxtalPhi; }
 
-      int getNumXtalsEtaDirection()           const { return _nnxtalEta ; }
+  int getNumXtalsEtaDirection() const { return _nnxtalEta; }
 
-      const std::vector<int>& getEtaBaskets() const { return _EtaBaskets ; }
+  const std::vector<int>& getEtaBaskets() const { return _EtaBaskets; }
 
-      int getBasketSizeInPhi()                const { return _PhiBaskets ; }  
+  int getBasketSizeInPhi() const { return _PhiBaskets; }
 
-      void setNumXtalsPhiDirection( const int& nnxtalPhi )     { _nnxtalPhi=nnxtalPhi ; }
+  void setNumXtalsPhiDirection(const int& nnxtalPhi) { _nnxtalPhi = nnxtalPhi; }
 
-      void setNumXtalsEtaDirection( const int& nnxtalEta )     { _nnxtalEta=nnxtalEta ; }
+  void setNumXtalsEtaDirection(const int& nnxtalEta) { _nnxtalEta = nnxtalEta; }
 
-      void setEtaBaskets( const std::vector<int>& EtaBaskets ) { _EtaBaskets=EtaBaskets ; }
+  void setEtaBaskets(const std::vector<int>& EtaBaskets) { _EtaBaskets = EtaBaskets; }
 
-      void setBasketSizeInPhi( const int& PhiBaskets )         { _PhiBaskets=PhiBaskets ; }
+  void setBasketSizeInPhi(const int& PhiBaskets) { _PhiBaskets = PhiBaskets; }
 
-      const OrderedListOfEEDetId* getClosestEndcapCells( EBDetId id ) const ;
+  const OrderedListOfEEDetId* getClosestEndcapCells(EBDetId id) const;
 
-      // Get closest cell, etc...
+  // Get closest cell, etc...
 
-      DetId getClosestCell( const GlobalPoint& r ) const override ;
+  DetId getClosestCell(const GlobalPoint& r) const override;
 
-      CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
-							  double             dR ) const override ;
+  CaloSubdetectorGeometry::DetIdSet getCells(const GlobalPoint& r, double dR) const override;
 
-      CCGFloat avgRadiusXYFrontFaceCenter() const;
+  CCGFloat avgRadiusXYFrontFaceCenter() const;
 
-      static std::string hitString() { return "EcalHitsEB" ; }
+  static std::string hitString() { return "EcalHitsEB"; }
 
-      static std::string producerTag() { return "EcalBarrel" ; }
+  static std::string producerTag() { return "EcalBarrel"; }
 
-      static unsigned int numberOfAlignments() { return 36 ; }
+  static unsigned int numberOfAlignments() { return 36; }
 
-      static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
+  static unsigned int alignmentTransformIndexLocal(const DetId& id);
 
-      static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
+  static unsigned int alignmentTransformIndexGlobal(const DetId& id);
 
-      static DetId detIdFromLocalAlignmentIndex( unsigned int iLoc ) ;
+  static DetId detIdFromLocalAlignmentIndex(unsigned int iLoc);
 
-      static void localCorners( Pt3DVec&        lc  ,
-				const CCGFloat* pv  , 
-				unsigned int    i   ,
-				Pt3D&           ref   ) ;
+  static void localCorners(Pt3DVec& lc, const CCGFloat* pv, unsigned int i, Pt3D& ref);
 
-      void newCell( const GlobalPoint& f1 ,
-			    const GlobalPoint& f2 ,
-			    const GlobalPoint& f3 ,
-			    const CCGFloat*    parm ,
-			    const DetId&       detId ) override ;
+  void newCell(const GlobalPoint& f1,
+               const GlobalPoint& f2,
+               const GlobalPoint& f3,
+               const CCGFloat* parm,
+               const DetId& detId) override;
 
-      bool present( const DetId& id ) const override;
+  bool present(const DetId& id) const override;
 
-   protected:
+protected:
+  // Modify the RawPtr class
+  const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const override;
 
-      // Modify the RawPtr class
-      const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
+private:
+  /** number of crystals in eta direction */
+  int _nnxtalEta;
 
-   private:
+  /** number of crystals in phi direction */
+  int _nnxtalPhi;
 
-      /** number of crystals in eta direction */
-      int _nnxtalEta;
-  
-      /** number of crystals in phi direction */
-      int _nnxtalPhi;
-  
-      /** size of the baskets in the eta direction. This is needed
+  /** size of the baskets in the eta direction. This is needed
 	  to find out whether two adjacent crystals lie in the same
 	  basked ('module') or not (e.g. this can be used for correcting
 	  cluster energies etc.) */
-      std::vector<int> _EtaBaskets;
-      
-      /** size of one basket in phi */
-      int _PhiBaskets;
+  std::vector<int> _EtaBaskets;
 
-      mutable std::atomic<EZMgrFL<EEDetId>*>     m_borderMgr ;
+  /** size of one basket in phi */
+  int _PhiBaskets;
 
-      mutable std::atomic<VecOrdListEEDetIdPtr*> m_borderPtrVec ;
-      CMS_THREAD_GUARD(m_check) mutable CCGFloat m_radius ; 
-      mutable std::atomic<bool> m_check;
+  mutable std::atomic<EZMgrFL<EEDetId>*> m_borderMgr;
 
-      CellVec m_cellVec ;
+  mutable std::atomic<VecOrdListEEDetIdPtr*> m_borderPtrVec;
+  CMS_THREAD_GUARD(m_check) mutable CCGFloat m_radius;
+  mutable std::atomic<bool> m_check;
+
+  CellVec m_cellVec;
 };
-
 
 #endif

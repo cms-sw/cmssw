@@ -10,4 +10,4 @@ namespace RecoPixelVertexing_PixelTrackFitting {
     PixelTrackFilter ptf;
     edm::Wrapper<PixelTrackFilter> wptf;
   };
-}
+}  // namespace RecoPixelVertexing_PixelTrackFitting

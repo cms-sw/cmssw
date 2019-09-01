@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from builtins import range
 import os
 import re
 import sys
@@ -68,15 +70,15 @@ lib.pedeMem = args.memory
 
 
 if not os.access(args.batch_script, os.R_OK):
-    print "Bad 'batch_script' script name", args.batch_script
+    print("Bad 'batch_script' script name", args.batch_script)
     sys.exit(1)
 
 if not os.access(args.config_template, os.R_OK):
-    print "Bad 'config_template' file name", args.config_template
+    print("Bad 'config_template' file name", args.config_template)
     sys.exit(1)
 
 if not os.access(args.input_file_list, os.R_OK):
-    print "Bad input list file", args.input_file_list
+    print("Bad input list file", args.input_file_list)
     sys.exit(1)
 
 # ignore 'append' flag if mps database is not yet created
@@ -85,12 +87,18 @@ if not os.access("mps.db", os.R_OK): args.append = False
 allowed_mille_classes = ("lxplus", "cmscaf1nh", "cmscaf1nd", "cmscaf1nw",
                          "cmscafspec1nh", "cmscafspec1nd", "cmscafspec1nw",
                          "8nm", "1nh", "8nh", "1nd", "2nd", "1nw", "2nw",
-                         "cmsexpress")
+                         "cmsexpress","htcondor_cafalca_espresso","htcondor_espresso",
+                         "htcondor_cafalca_microcentury","htcondor_microcentury",
+                         "htcondor_cafalca_longlunch", "htcondor_longlunch",
+                         "htcondor_cafalca_workday", "htcondor_workday",
+                         "htcondor_cafalca_tomorrow", "htcondor_tomorrow",
+                         "htcondor_cafalca_testmatch", "htcondor_testmatch",
+                         "htcondor_cafalca_nextweek", "htcondor_nextweek")
 if lib.get_class("mille") not in allowed_mille_classes:
-    print "Bad job class for mille in class", args.job_class
-    print "Allowed classes:"
+    print("Bad job class for mille in class", args.job_class)
+    print("Allowed classes:")
     for mille_class in allowed_mille_classes:
-        print " -", mille_class
+        print(" -", mille_class)
     sys.exit(1)
 
 allowed_pede_classes = ("lxplus", "cmscaf1nh", "cmscaf1nd", "cmscaf1nw",
@@ -104,17 +112,17 @@ allowed_pede_classes = ("lxplus", "cmscaf1nh", "cmscaf1nd", "cmscaf1nw",
                         "htcondor_bigmem_testmatch",
                         "htcondor_bigmem_nextweek")
 if lib.get_class("pede") not in allowed_pede_classes:
-    print "Bad job class for pede in class", args.job_class
-    print "Allowed classes:"
+    print("Bad job class for pede in class", args.job_class)
+    print("Allowed classes:")
     for pede_class in allowed_pede_classes:
-        print " -", pede_class
+        print(" -", pede_class)
     sys.exit(1)
 
 if args.setup_merge:
     if args.merge_script == "":
         args.merge_script = args.batch_script + "merge"
     if not os.access(args.merge_script, os.R_OK):
-        print "Bad merge script file name", args.merge_script
+        print("Bad merge script file name", args.merge_script)
         sys.exit(1)
 
 if args.mss_dir.strip() != "":
@@ -144,7 +152,7 @@ except ValueError:
 # The value specified by the user (-M option) prevails on the one evinced from the executable name.
 # AP - 23.03.2010
 if not args.memory or args.memory < pedeMemMin:
-    print "Memory request ({}) is < {}, using {}.".format(args.memory, pedeMemMin, pedeMemDef),
+    print("Memory request ({}) is < {}, using {}.".format(args.memory, pedeMemMin, pedeMemDef), end=' ')
     lib.pedeMem = args.memory = pedeMemDef
 
 # Create the job directories
@@ -163,15 +171,15 @@ if nJobExist == 0 or nJobExist <=0 or nJobExist > 999: # quite rude method... ->
     os.makedirs("jobData")
     nJobExist = 0;
 
-for j in xrange(1, args.n_jobs + 1):
+for j in range(1, args.n_jobs + 1):
     i = j+nJobExist
     jobdir = "job{0:03d}".format(i)
-    print "jobdir", jobdir
+    print("jobdir", jobdir)
     os.makedirs(os.path.join("jobData", jobdir))
 
 # build the absolute job directory path (needed by mps_script)
 theJobData = os.path.abspath("jobData")
-print "theJobData =", theJobData
+print("theJobData =", theJobData)
 
 if args.append:
     # save current values
@@ -213,7 +221,7 @@ if args.append:
 
 
 # Create (update) the local database
-for j in xrange(1, args.n_jobs + 1):
+for j in range(1, args.n_jobs + 1):
     i = j+nJobExist
     jobdir = "job{0:03d}".format(i)
     lib.JOBDIR.append(jobdir)
@@ -236,12 +244,12 @@ for j in xrange(1, args.n_jobs + 1):
     cmd = ["mps_split.pl", args.input_file_list,
            str(j if args.max_events is None else 1),
            str(args.n_jobs if args.max_events is None else 1)]
-    print " ".join(cmd)+" > jobData/{}/theSplit".format(jobdir)
+    print(" ".join(cmd)+" > jobData/{}/theSplit".format(jobdir))
     with open("jobData/{}/theSplit".format(jobdir), "w") as f:
         try:
             subprocess.check_call(cmd, stdout = f)
         except subprocess.CalledProcessError:
-            print "              split failed"
+            print("              split failed")
             lib.JOBSTATUS[i-1] = "FAIL"
     theIsn = "{0:03d}".format(i)
 
@@ -257,11 +265,11 @@ for j in xrange(1, args.n_jobs + 1):
                       else chunk_size)
         event_options.extend(["--max-events", str(max_events)])
         cmd.extend(event_options)
-    print " ".join(cmd)
+    print(" ".join(cmd))
     mps_tools.run_checked(cmd)
 
     # create the run script
-    print "mps_script.pl {}  jobData/{}/theScript.sh {}/{} the.py jobData/{}/theSplit {} {} {}".format(args.batch_script, jobdir, theJobData, jobdir, jobdir, theIsn, args.mss_dir, lib.mssDirPool)
+    print("mps_script.pl {}  jobData/{}/theScript.sh {}/{} the.py jobData/{}/theSplit {} {} {}".format(args.batch_script, jobdir, theJobData, jobdir, jobdir, theIsn, args.mss_dir, lib.mssDirPool))
     mps_tools.run_checked(["mps_script.pl", args.batch_script,
                            "jobData/{}/theScript.sh".format(jobdir),
                            os.path.join(theJobData, jobdir), "the.py",
@@ -290,19 +298,19 @@ lib.write_db();
 if args.setup_merge:
     shutil.rmtree("jobData/jobm", ignore_errors = True)
     os.makedirs("jobData/jobm")
-    print "Create dir jobData/jobm"
+    print("Create dir jobData/jobm")
 
     # We want to merge old and new jobs
     nJobsMerge = args.n_jobs+nJobExist
 
     # create  merge job cfg
-    print "mps_merge.py -w {} jobData/jobm/alignment_merge.py {}/jobm {}".format(args.config_template, theJobData, nJobsMerge)
+    print("mps_merge.py -w {} jobData/jobm/alignment_merge.py {}/jobm {}".format(args.config_template, theJobData, nJobsMerge))
     mps_tools.run_checked(["mps_merge.py", "-w", args.config_template,
                            "jobData/jobm/alignment_merge.py",
                            os.path.join(theJobData, "jobm"), str(nJobsMerge)])
 
     # create merge job script
-    print "mps_scriptm.pl {} jobData/jobm/theScript.sh {}/jobm alignment_merge.py {} {} {}".format(args.merge_script, theJobData, nJobsMerge, args.mss_dir, lib.mssDirPool)
+    print("mps_scriptm.pl {} jobData/jobm/theScript.sh {}/jobm alignment_merge.py {} {} {}".format(args.merge_script, theJobData, nJobsMerge, args.mss_dir, lib.mssDirPool))
     mps_tools.run_checked(["mps_scriptm.pl", args.merge_script,
                            "jobData/jobm/theScript.sh",
                            os.path.join(theJobData, "jobm"),

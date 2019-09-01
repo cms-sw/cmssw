@@ -10,9 +10,6 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.load("DQMServices.Core.DQMStore_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
-#process.load("DQMServices.Core.DQM_cfg")
-#process.DQM.collectorHost = ''
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
@@ -43,7 +40,32 @@ process.source = cms.Source("PoolSource",
        'file:pi50_22.root',
        'file:pi50_23.root',
        'file:pi50_24.root',
-       'file:pi50_25.root'
+       'file:pi50_25.root',
+       'file:pi50_26.root',
+       'file:pi50_27.root',
+       'file:pi50_28.root',
+       'file:pi50_29.root',
+       'file:pi50_30.root',
+       'file:pi50_31.root',
+       'file:pi50_32.root',
+       'file:pi50_33.root',
+       'file:pi50_34.root',
+       'file:pi50_35.root',
+       'file:pi50_36.root',
+       'file:pi50_37.root',
+       'file:pi50_38.root',
+       'file:pi50_39.root',
+       'file:pi50_40.root',
+       'file:pi50_41.root',
+       'file:pi50_42.root',
+       'file:pi50_43.root',
+       'file:pi50_44.root',
+       'file:pi50_45.root',
+       'file:pi50_46.root',
+       'file:pi50_47.root',
+       'file:pi50_48.root',
+       'file:pi50_49.root',
+       'file:pi50_50.root'
       )
 )
 

@@ -6,4 +6,4 @@ typedef ShallowCloneProducer<reco::MuonCollection> MuonShallowCloneProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( MuonShallowCloneProducer );
+DEFINE_FWK_MODULE(MuonShallowCloneProducer);

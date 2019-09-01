@@ -5,7 +5,7 @@
 //
 // Package:    EgammaHLTRemoveDuplicatedSC
 // Class:      EgammaHLTRemoveDuplicatedSC
-// 
+//
 // Description: Remove from the L1NonIso SCs those SCs that are already
 // there in the L1Iso SCs.
 //
@@ -16,7 +16,7 @@
 #include <memory>
 #include <string>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -28,20 +28,18 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTRemoveDuplicatedSC : public edm::EDProducer {
-  
- public:
+class EgammaHLTRemoveDuplicatedSC : public edm::global::EDProducer<> {
+public:
   explicit EgammaHLTRemoveDuplicatedSC(const edm::ParameterSet&);
   ~EgammaHLTRemoveDuplicatedSC() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   // vars to get products
   edm::EDGetTokenT<reco::SuperClusterCollection> sCInputProducer_;
   edm::EDGetTokenT<reco::SuperClusterCollection> alreadyExistingSC_;
-  
+
   std::string outputCollection_;
-  
 };
 #endif

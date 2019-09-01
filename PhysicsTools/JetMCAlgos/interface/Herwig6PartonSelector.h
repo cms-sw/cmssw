@@ -7,15 +7,13 @@
 
 #include "PhysicsTools/JetMCAlgos/interface/BasePartonSelector.h"
 
+class Herwig6PartonSelector : public BasePartonSelector {
+public:
+  Herwig6PartonSelector();
+  ~Herwig6PartonSelector() override;
 
-class Herwig6PartonSelector : public BasePartonSelector
-{
-  public:
-    Herwig6PartonSelector();
-    ~Herwig6PartonSelector() override;
-
-    void run(const edm::Handle<reco::GenParticleCollection> & particles,
-             std::unique_ptr<reco::GenParticleRefVector> & partons) override;
+  void run(const edm::Handle<reco::GenParticleCollection>& particles,
+           std::unique_ptr<reco::GenParticleRefVector>& partons) override;
 };
 
 #endif

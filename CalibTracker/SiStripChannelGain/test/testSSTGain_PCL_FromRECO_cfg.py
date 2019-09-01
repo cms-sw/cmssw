@@ -1,9 +1,9 @@
+from __future__ import print_function
 # Auto generated configuration file
 # with command line options: stepALCA --datatier ALCARECO --conditions auto:run2_data -s ALCA:PromptCalibProdSiStripGains --eventcontent ALCARECO -n 1000 --dasquery=file dataset=/ZeroBias/Run2016C-SiStripCalMinBias-18Apr2017-v1/ALCARECO run=276243 --no_exec
 import FWCore.ParameterSet.Config as cms
 import os
 
-from Configuration.StandardSequences.Eras import eras
 import Utilities.General.cmssw_das_client as das_client
 
 ###################################################################
@@ -16,7 +16,7 @@ def getFileNames_das_client():
     jsondict = das_client.get_data(query)
     status = jsondict['status']
     if status != 'ok':
-        print "DAS query status: %s"%(status)
+        print("DAS query status: %s"%(status))
         return files
 
     data =  jsondict['data']
@@ -24,13 +24,13 @@ def getFileNames_das_client():
     for element in data:
         viableDS.append(element['dataset'][0]['name'])
 
-    print "Using Dataset:",viableDS[-1]
+    print("Using Dataset:",viableDS[-1])
 
     query = "file dataset=%s site=T2_CH_CERN | grep file.name" % viableDS[-1]
     jsondict = das_client.get_data(query)
     status = jsondict['status']
     if status != 'ok':
-        print "DAS query status: %s"%(status)
+        print("DAS query status: %s"%(status))
         return files
 
     mongo_query = jsondict['mongo_query']
@@ -82,7 +82,7 @@ process.maxEvents = cms.untracked.PSet(
 INPUTFILES=getFileNames_das_client()
 
 if len(INPUTFILES)==0: 
-    print "** WARNING: ** According to a DAS query no suitable data for test is available. Skipping test"
+    print("** WARNING: ** According to a DAS query no suitable data for test is available. Skipping test")
     os._exit(0)
 
 myFiles = cms.untracked.vstring()

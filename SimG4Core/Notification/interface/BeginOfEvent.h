@@ -3,13 +3,13 @@
 
 #include "G4Event.hh"
 
-class BeginOfEvent
-{
+class BeginOfEvent {
 public:
-    BeginOfEvent(const G4Event * tEvent) : anEvent(tEvent) {}
-    const G4Event * operator()() const { return anEvent; }
+  BeginOfEvent(const G4Event* tEvent) : anEvent(tEvent) {}
+  const G4Event* operator()() const { return anEvent; }
+
 private:
-    const G4Event * anEvent;
+  const G4Event* anEvent;
 };
 
 #endif

@@ -14,15 +14,12 @@ class TrajectoryStateOnSurface;
 
 class MultiTrajectoryStateMerger {
 public:
-  MultiTrajectoryStateMerger ( const MultiGaussianStateMerger<5>& merger ) :
-    theMultiStateMerger(merger.clone()) {}
+  MultiTrajectoryStateMerger(const MultiGaussianStateMerger<5>& merger) : theMultiStateMerger(merger.clone()) {}
   TrajectoryStateOnSurface merge(const TrajectoryStateOnSurface& tsos) const;
-  MultiTrajectoryStateMerger* clone() const {
-    return new MultiTrajectoryStateMerger(*this);
-  }
+  MultiTrajectoryStateMerger* clone() const { return new MultiTrajectoryStateMerger(*this); }
 
- private:
-  const std::shared_ptr< const MultiGaussianStateMerger<5> > theMultiStateMerger;
-};  
+private:
+  const std::shared_ptr<const MultiGaussianStateMerger<5> > theMultiStateMerger;
+};
 
 #endif

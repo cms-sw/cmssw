@@ -2,7 +2,7 @@
 //
 // Package:    HcalDbProducer
 // Class:      HcalDbProducer
-// 
+//
 /**\class HcalDbProducer HcalDbProducer.h CalibFormats/HcalDbProducer/interface/HcalDbProducer.h
 
  Description: <one line class summary>
@@ -16,504 +16,282 @@
 //
 //
 
-
 // system include files
 #include <iostream>
 #include <fstream>
+#include <memory>
 
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
+#include "CondFormats/DataRecord/interface/HcalAllRcds.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
-#include "HcalDbProducer.h"
+class HcalDbProducer : public edm::ESProducer {
+public:
+  HcalDbProducer(const edm::ParameterSet&);
+  ~HcalDbProducer() override;
 
-HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
-  : ESProducer(),
-    mService (new HcalDbService (fConfig)),
-    mDumpRequest (),
-    mDumpStream(nullptr)
-{
-  //the following line is needed to tell the framework what data is being produced
-  // comments of dependsOn:
-  // 1) There are two ways one can use 'dependsOn' the first is passing it up to three arguments.  
-  //    However, one can also extend the dependencies by first calling 'dependsOn() and then using '&' to add additional dependencies.  So
-  //      dependsOn(&FooProd::func1, &FooProd::func2, &FooProd::func3)
-  //    gives the same result as
-  //      dependsOn(&FooProd::func1) & (&FooProd::func2) & (&FooProd::func3)
-  // 2) Upon IOV change, all callbacks are called, in the inverse order of their specification below (tested).
-  setWhatProduced (this, (dependsOn (&HcalDbProducer::pedestalsCallback) &
-			  &HcalDbProducer::pedestalWidthsCallback &
-			  &HcalDbProducer::respCorrsCallback &
-			  &HcalDbProducer::gainsCallback &
-			  &HcalDbProducer::LUTCorrsCallback &
-			  &HcalDbProducer::PFCorrsCallback &
-			  &HcalDbProducer::timeCorrsCallback &
-			  &HcalDbProducer::QIEDataCallback &
-			  &HcalDbProducer::QIETypesCallback &
-			  &HcalDbProducer::gainWidthsCallback &
-			  &HcalDbProducer::channelQualityCallback &
-			  &HcalDbProducer::zsThresholdsCallback &
-			  &HcalDbProducer::L1triggerObjectsCallback &
-			  &HcalDbProducer::electronicsMapCallback &
-			  &HcalDbProducer::frontEndMapCallback &
-			  &HcalDbProducer::SiPMParametersCallback &
-			  &HcalDbProducer::SiPMCharacteristicsCallback &
-			  &HcalDbProducer::TPChannelParametersCallback &
-			  &HcalDbProducer::TPParametersCallback &
-			  &HcalDbProducer::lutMetadataCallback &
-			  &HcalDbProducer::MCParamsCallback &
-			  &HcalDbProducer::RecoParamsCallback &
-              &HcalDbProducer::effectivePedestalsCallback &
-              &HcalDbProducer::effectivePedestalWidthsCallback
-			  )
-		   );
+  std::shared_ptr<HcalDbService> produce(const HcalDbRecord&);
 
-  setWhatProduced(this, &HcalDbProducer::produceChannelQualityWithTopo, edm::es::Label("withTopo"));
-  //now do what ever other initialization is needed
+private:
+  using HostType = edm::ESProductHost<HcalDbService,
+                                      HcalPedestalsRcd,
+                                      HcalPedestalWidthsRcd,
+                                      HcalGainsRcd,
+                                      HcalGainWidthsRcd,
+                                      HcalQIEDataRcd,
+                                      HcalQIETypesRcd,
+                                      HcalChannelQualityRcd,
+                                      HcalZSThresholdsRcd,
+                                      HcalRespCorrsRcd,
+                                      HcalL1TriggerObjectsRcd,
+                                      HcalTimeCorrsRcd,
+                                      HcalLUTCorrsRcd,
+                                      HcalPFCorrsRcd,
+                                      HcalLutMetadataRcd,
+                                      HcalSiPMParametersRcd,
+                                      HcalTPChannelParametersRcd,
+                                      HcalMCParamsRcd,
+                                      HcalRecoParamsRcd,
+                                      HcalElectronicsMapRcd,
+                                      HcalFrontEndMapRcd,
+                                      HcalSiPMCharacteristicsRcd,
+                                      HcalTPParametersRcd>;
 
-  mDumpRequest = fConfig.getUntrackedParameter <std::vector <std::string> > ("dump", std::vector<std::string>());
+  // Helper functions and class for the tokens and work for HcalDbService
+  template <typename ProductType>
+  static void serviceSetData(HostType& host, const ProductType& item, std::false_type) {
+    host.setData(&item);
+  }
+  template <typename ProductType>
+  static void serviceSetData(HostType& host, const ProductType& item, std::true_type) {
+    host.setData(&item, true);
+  }
+  template <typename ProductType, typename RecordType, const char* LABEL, typename EffectiveType>
+  class ServiceTokenImpl {
+  public:
+    ServiceTokenImpl()
+        : dumpName_(edm::typeDemangle(typeid(ProductType).name()).substr(4))  // remove leading "Hcal"
+    {
+      if constexpr (EffectiveType::value) {
+        dumpName_ = "Effective" + dumpName_;
+      }
+    }
+    void setConsumes(edm::ESConsumesCollector& cc) { cc.setConsumes(token_, edm::ESInputTag{"", LABEL}); }
+    void setupHcalDbService(HostType& host,
+                            const RecordType& record,
+                            const std::vector<std::string>& dumpRequest,
+                            std::ostream* dumpStream) {
+      const auto& item = record.get(token_);
+      serviceSetData(host, item, EffectiveType{});
+
+      if (std::find(dumpRequest.begin(), dumpRequest.end(), dumpName_) != dumpRequest.end()) {
+        *dumpStream << "New HCAL " << dumpName_ << " set" << std::endl;
+        HcalDbASCIIIO::dumpObject(*dumpStream, item);
+      }
+    }
+
+  private:
+    edm::ESGetToken<ProductType, RecordType> token_;
+    std::string dumpName_;
+  };
+
+  template <typename ProductType, const char* LABEL, typename EffectiveType = std::false_type>
+  struct ServiceToken {
+    using Product = ProductType;
+    static constexpr const char* label = LABEL;
+    using Effective = EffectiveType;
+  };
+
+  template <typename RecordType, typename... TokenHolders>
+  class TokensForServiceHolder {
+  public:
+    void setConsumes(edm::ESConsumesCollector& cc) {
+      std::apply([&cc](auto&&... item) { ((item.setConsumes(cc)), ...); }, tokens_);
+    }
+    void setupHcalDbService(HostType& host,
+                            const HcalDbRecord& record,
+                            const std::vector<std::string>& dumpRequest,
+                            std::ostream* dumpStream) {
+      host.ifRecordChanges<RecordType>(record, [this, &host, &dumpRequest, &dumpStream](auto const& rec) {
+        std::apply([&host, &rec, &dumpRequest, &dumpStream](
+                       auto&&... item) { ((item.setupHcalDbService(host, rec, dumpRequest, dumpStream)), ...); },
+                   tokens_);
+      });
+    }
+
+  private:
+    std::tuple<ServiceTokenImpl<typename TokenHolders::Product,
+                                RecordType,
+                                TokenHolders::label,
+                                typename TokenHolders::Effective>...>
+        tokens_;
+  };
+
+  // Helper class and functions for the individual products
+  template <typename ProductT, typename RecordT>
+  class TokenAndTopologyHolder {
+  public:
+    using Product = ProductT;
+    using Record = RecordT;
+
+    TokenAndTopologyHolder() = default;
+
+    void setConsumes(edm::ESConsumesCollector&& cc, const edm::ESInputTag& tag) {
+      cc.setConsumes(token_, tag).setConsumes(topoToken_);
+    }
+
+    const auto& token() const { return token_; }
+
+    const auto& topoToken() const { return topoToken_; }
+
+  private:
+    edm::ESGetToken<ProductT, RecordT> token_;
+    edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_;
+  };
+
+  template <typename ProductType, typename RecordType, size_t IND1, size_t IND2>
+  std::unique_ptr<ProductType> produceWithTopology(RecordType const& record) {
+    const auto& tokenHolder = std::get<IND2>(std::get<IND1>(tokenHolders_));
+    auto item = record.getTransientHandle(tokenHolder.token());
+
+    auto productWithTopology = std::make_unique<ProductType>(*item);
+    const auto& topo = record.get(tokenHolder.topoToken());
+    productWithTopology->setTopo(&topo);
+
+    return productWithTopology;
+  }
+
+  template <size_t IND1, size_t IND2>
+  void setupProduce(const char* label, const edm::ESInputTag& tag) {
+    auto& holder = std::get<IND2>(std::get<IND1>(tokenHolders_));
+
+    using HolderT = typename std::remove_reference<decltype(holder)>::type;
+    using ProductT = typename HolderT::Product;
+    using RecordT = typename HolderT::Record;
+
+    holder.setConsumes(
+        setWhatProduced(
+            this, &HcalDbProducer::produceWithTopology<ProductT, RecordT, IND1, IND2>, edm::es::Label(label)),
+        tag);
+  }
+
+  template <size_t IND1, size_t... IND2s>
+  void setupProduceAllImpl(const char* label, const edm::ESInputTag& tag, std::index_sequence<IND2s...>) {
+    ((setupProduce<IND1, IND2s>(label, tag)), ...);
+  }
+
+  template <size_t IND1>
+  void setupProduceAll(const char* label, const edm::ESInputTag& tag) {
+    setupProduceAllImpl<IND1>(
+        label, tag, std::make_index_sequence<std::tuple_size_v<std::tuple_element_t<IND1, decltype(tokenHolders_)>>>{});
+  }
+
+  // ----------member data ---------------------------
+  edm::ReusableObjectHolder<HostType> holder_;
+
+  // Tokens for the "service" produce function
+  constexpr static const char kWithTopoEff[] = "withTopoEff";
+  constexpr static const char kWithTopo[] = "withTopo";
+  constexpr static const char kEmpty[] = "";
+  std::tuple<TokensForServiceHolder<HcalPedestalWidthsRcd,
+                                    ServiceToken<HcalPedestalWidths, kWithTopoEff, std::true_type>,
+                                    ServiceToken<HcalPedestalWidths, kWithTopo>>,
+             TokensForServiceHolder<HcalPedestalsRcd,
+                                    ServiceToken<HcalPedestals, kWithTopoEff, std::true_type>,
+                                    ServiceToken<HcalPedestals, kWithTopo>>,
+             TokensForServiceHolder<HcalRecoParamsRcd, ServiceToken<HcalRecoParams, kWithTopo>>,
+             TokensForServiceHolder<HcalMCParamsRcd, ServiceToken<HcalMCParams, kWithTopo>>,
+             TokensForServiceHolder<HcalLutMetadataRcd, ServiceToken<HcalLutMetadata, kWithTopo>>,
+             TokensForServiceHolder<HcalTPParametersRcd, ServiceToken<HcalTPParameters, kEmpty>>,
+             TokensForServiceHolder<HcalTPChannelParametersRcd, ServiceToken<HcalTPChannelParameters, kWithTopo>>,
+             TokensForServiceHolder<HcalSiPMCharacteristicsRcd, ServiceToken<HcalSiPMCharacteristics, kEmpty>>,
+             TokensForServiceHolder<HcalSiPMParametersRcd, ServiceToken<HcalSiPMParameters, kWithTopo>>,
+             TokensForServiceHolder<HcalFrontEndMapRcd, ServiceToken<HcalFrontEndMap, kEmpty>>,
+             TokensForServiceHolder<HcalElectronicsMapRcd, ServiceToken<HcalElectronicsMap, kEmpty>>,
+             TokensForServiceHolder<HcalL1TriggerObjectsRcd, ServiceToken<HcalL1TriggerObjects, kWithTopo>>,
+             TokensForServiceHolder<HcalZSThresholdsRcd, ServiceToken<HcalZSThresholds, kWithTopo>>,
+             TokensForServiceHolder<HcalChannelQualityRcd, ServiceToken<HcalChannelQuality, kWithTopo>>,
+             TokensForServiceHolder<HcalGainWidthsRcd, ServiceToken<HcalGainWidths, kWithTopo>>,
+             TokensForServiceHolder<HcalQIETypesRcd, ServiceToken<HcalQIETypes, kWithTopo>>,
+             TokensForServiceHolder<HcalQIEDataRcd, ServiceToken<HcalQIEData, kWithTopo>>,
+             TokensForServiceHolder<HcalTimeCorrsRcd, ServiceToken<HcalTimeCorrs, kWithTopo>>,
+             TokensForServiceHolder<HcalPFCorrsRcd, ServiceToken<HcalPFCorrs, kWithTopo>>,
+             TokensForServiceHolder<HcalLUTCorrsRcd, ServiceToken<HcalLUTCorrs, kWithTopo>>,
+             TokensForServiceHolder<HcalGainsRcd, ServiceToken<HcalGains, kWithTopo>>,
+             TokensForServiceHolder<HcalRespCorrsRcd, ServiceToken<HcalRespCorrs, kWithTopo>>>
+      tokensForService_;
+
+  // Tokens for the produceWithTopology functions
+  std::tuple<
+      // First are withTopo
+      std::tuple<TokenAndTopologyHolder<HcalPedestals, HcalPedestalsRcd>,
+                 TokenAndTopologyHolder<HcalPedestalWidths, HcalPedestalWidthsRcd>,
+                 TokenAndTopologyHolder<HcalGains, HcalGainsRcd>,
+                 TokenAndTopologyHolder<HcalGainWidths, HcalGainWidthsRcd>,
+                 TokenAndTopologyHolder<HcalQIEData, HcalQIEDataRcd>,
+                 TokenAndTopologyHolder<HcalQIETypes, HcalQIETypesRcd>,
+                 TokenAndTopologyHolder<HcalChannelQuality, HcalChannelQualityRcd>,
+                 TokenAndTopologyHolder<HcalZSThresholds, HcalZSThresholdsRcd>,
+                 TokenAndTopologyHolder<HcalRespCorrs, HcalRespCorrsRcd>,
+                 TokenAndTopologyHolder<HcalL1TriggerObjects, HcalL1TriggerObjectsRcd>,
+                 TokenAndTopologyHolder<HcalTimeCorrs, HcalTimeCorrsRcd>,
+                 TokenAndTopologyHolder<HcalLUTCorrs, HcalLUTCorrsRcd>,
+                 TokenAndTopologyHolder<HcalPFCorrs, HcalPFCorrsRcd>,
+                 TokenAndTopologyHolder<HcalLutMetadata, HcalLutMetadataRcd>,
+                 TokenAndTopologyHolder<HcalSiPMParameters, HcalSiPMParametersRcd>,
+                 TokenAndTopologyHolder<HcalTPChannelParameters, HcalTPChannelParametersRcd>,
+                 TokenAndTopologyHolder<HcalMCParams, HcalMCParamsRcd>,
+                 TokenAndTopologyHolder<HcalRecoParams, HcalRecoParamsRcd>>,
+      // Then withTopoEff
+      std::tuple<TokenAndTopologyHolder<HcalPedestals, HcalPedestalsRcd>,
+                 TokenAndTopologyHolder<HcalPedestalWidths, HcalPedestalWidthsRcd>>>
+      tokenHolders_;
+
+  std::vector<std::string> mDumpRequest;
+  std::ostream* mDumpStream;
+};
+
+HcalDbProducer::HcalDbProducer(const edm::ParameterSet& fConfig) : ESProducer(), mDumpRequest(), mDumpStream(nullptr) {
+  auto cc = setWhatProduced(this);
+  std::apply([&cc](auto&&... item) { ((item.setConsumes(cc)), ...); }, tokensForService_);
+
+  // Setup all withTopo produces functions and their consumes
+  setupProduceAll<0>("withTopo", edm::ESInputTag{});
+  // Setup all withTopoEff produces functions and their consumes
+  setupProduceAll<1>("withTopoEff", edm::ESInputTag{"", "effective"});
+
+  mDumpRequest = fConfig.getUntrackedParameter<std::vector<std::string>>("dump", std::vector<std::string>());
   if (!mDumpRequest.empty()) {
-    std::string otputFile = fConfig.getUntrackedParameter <std::string> ("file", "");
-    mDumpStream = otputFile.empty () ? &std::cout : new std::ofstream (otputFile.c_str());
+    std::string otputFile = fConfig.getUntrackedParameter<std::string>("file", "");
+    mDumpStream = otputFile.empty() ? &std::cout : new std::ofstream(otputFile.c_str());
   }
 }
-
 
 HcalDbProducer::~HcalDbProducer() {
-
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  if (mDumpStream != &std::cout) delete mDumpStream;
+  if (mDumpStream != &std::cout)
+    delete mDumpStream;
 }
-
-
-//
-// member functions
-//
 
 // ------------ method called to produce the data  ------------
-std::shared_ptr<HcalDbService> HcalDbProducer::produce( const HcalDbRecord&)
-{
-  return mService;
+std::shared_ptr<HcalDbService> HcalDbProducer::produce(const HcalDbRecord& record) {
+  auto host = holder_.makeOrGet([]() { return new HostType; });
+
+  std::apply([this, &host, &record](
+                 auto&&... item) { ((item.setupHcalDbService(*host, record, mDumpRequest, mDumpStream)), ...); },
+             tokensForService_);
+
+  return host;
 }
 
-void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
-  edm::ESTransientHandle <HcalPedestals> item;
-  fRecord.get (item);
-
-  mPedestals.reset( new HcalPedestals(*item) );
-  
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mPedestals->setTopo(topo);
-  
-
-  mService->setData (mPedestals.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Pedestals")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL Pedestals set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mPedestals));
-  }
-}
-
-void HcalDbProducer::effectivePedestalsCallback (const HcalPedestalsRcd& fRecord) {
-  edm::ESTransientHandle <HcalPedestals> item;
-  fRecord.get ("effective",item);
-
-  mEffectivePedestals.reset( new HcalPedestals(*item) );
-  
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mEffectivePedestals->setTopo(topo);
-  
-
-  mService->setData (mEffectivePedestals.get(),true);
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("EffectivePedestals")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL EffectivePedestals set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mEffectivePedestals));
-  }
-}
-
-std::shared_ptr<HcalChannelQuality> HcalDbProducer::produceChannelQualityWithTopo(const HcalChannelQualityRcd& fRecord)
-{
-  edm::ESHandle <HcalChannelQuality> item;
-  fRecord.get (item);
-
-  auto channelQuality = std::make_shared<HcalChannelQuality>(*item);
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  channelQuality->setTopo(topo);
-
-  return channelQuality;
-}
-
-void HcalDbProducer::pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord) {
-  edm::ESTransientHandle <HcalPedestalWidths> item;
-  fRecord.get (item);
-
-  mPedestalWidths.reset( new HcalPedestalWidths(*item));
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mPedestalWidths->setTopo(topo);
-
-  mService->setData (mPedestalWidths.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PedestalWidths")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL PedestalWidths set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mPedestalWidths));
-  }
-}
-
-void HcalDbProducer::effectivePedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord) {
-  edm::ESTransientHandle <HcalPedestalWidths> item;
-  fRecord.get ("effective",item);
-
-  mEffectivePedestalWidths.reset( new HcalPedestalWidths(*item));
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mEffectivePedestalWidths->setTopo(topo);
-
-  mService->setData (mEffectivePedestalWidths.get(),true);
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("EffectivePedestalWidths")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL EffectivePedestalWidths set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mEffectivePedestalWidths));
-  }
-}
-
-
-void HcalDbProducer::gainsCallback (const HcalGainsRcd& fRecord) {
-  edm::ESTransientHandle <HcalGains> item;
-  fRecord.get (item);
-
-  mGains.reset( new HcalGains(*item) );
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mGains->setTopo(topo);
-
-
-  mService->setData (mGains.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Gains")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL Gains set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mGains));
-  }
-}
-
-
-void HcalDbProducer::gainWidthsCallback (const HcalGainWidthsRcd& fRecord) {
-  edm::ESTransientHandle <HcalGainWidths> item;
-  fRecord.get (item);
-
-  mGainWidths.reset( new HcalGainWidths(*item));
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mGainWidths->setTopo(topo);
-
-
-  mService->setData (mGainWidths.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("GainWidths")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL GainWidths set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mGainWidths));
-  }
-}
-
-void HcalDbProducer::QIEDataCallback (const HcalQIEDataRcd& fRecord) {
-  edm::ESTransientHandle <HcalQIEData> item;
-  fRecord.get (item);
-
-  mQIEData.reset( new HcalQIEData(*item));
-
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mQIEData->setTopo(topo);
-
-  mService->setData (mQIEData.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL QIEData set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mQIEData));
-  }
-}
-
-void HcalDbProducer::QIETypesCallback (const HcalQIETypesRcd& fRecord) {
-  edm::ESTransientHandle <HcalQIETypes> item;
-  fRecord.get (item);
-
-  mQIETypes.reset( new HcalQIETypes(*item) );
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mQIETypes->setTopo(topo);
-
-  mService->setData (mQIETypes.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIETypes")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL QIETypes set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mQIETypes));
-  }
-}
-
-void HcalDbProducer::channelQualityCallback (const HcalChannelQualityRcd& fRecord) {
-  edm::ESHandle <HcalChannelQuality> item;
-  fRecord.get ("withTopo", item );
-
-  mService->setData (item.product());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ChannelQuality")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL ChannelQuality set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item));
-  }
-}
-
-void HcalDbProducer::respCorrsCallback (const HcalRespCorrsRcd& fRecord) {
-  edm::ESTransientHandle <HcalRespCorrs> item;
-  fRecord.get (item);
-
-  mRespCorrs.reset( new HcalRespCorrs(*item) );
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mRespCorrs->setTopo(topo);
-  
-  mService->setData (mRespCorrs.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RespCorrs")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL RespCorrs set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mRespCorrs));
-  }
-}
-
-void HcalDbProducer::LUTCorrsCallback (const HcalLUTCorrsRcd& fRecord) {
-  edm::ESTransientHandle <HcalLUTCorrs> item;
-  fRecord.get (item);
-
-  mLUTCorrs.reset( new HcalLUTCorrs(*item) );
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mLUTCorrs->setTopo(topo);
-
-  mService->setData (mLUTCorrs.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LUTCorrs")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL LUTCorrs set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mLUTCorrs));
-  }
-}
-
-void HcalDbProducer::PFCorrsCallback (const HcalPFCorrsRcd& fRecord) {
-  edm::ESTransientHandle <HcalPFCorrs> item;
-  fRecord.get (item);
-
-  mPFCorrs.reset( new HcalPFCorrs(*item) );
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mPFCorrs->setTopo(topo);
-
-  mService->setData (mPFCorrs.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PFCorrs")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL PFCorrs set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mPFCorrs));
-  }
-}
-
-void HcalDbProducer::timeCorrsCallback (const HcalTimeCorrsRcd& fRecord) {
-  edm::ESTransientHandle <HcalTimeCorrs> item;
-  fRecord.get (item);
-
-  mTimeCorrs.reset( new HcalTimeCorrs(*item) );
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mTimeCorrs->setTopo(topo);
-
-  mService->setData (mTimeCorrs.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TimeCorrs")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL TimeCorrs set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mTimeCorrs));
-  }
-}
-
-void HcalDbProducer::zsThresholdsCallback (const HcalZSThresholdsRcd& fRecord) {
-  edm::ESTransientHandle <HcalZSThresholds> item;
-  fRecord.get (item);
-
-  mZSThresholds.reset( new HcalZSThresholds(*item) );
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mZSThresholds->setTopo(topo);
-
-  mService->setData (mZSThresholds.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ZSThresholds")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL ZSThresholds set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mZSThresholds));
-  }
-}
-
-void HcalDbProducer::L1triggerObjectsCallback (const HcalL1TriggerObjectsRcd& fRecord) {
-  edm::ESTransientHandle <HcalL1TriggerObjects> item;
-  fRecord.get (item);
-
-  mL1TriggerObjects.reset( new HcalL1TriggerObjects(*item) );
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mL1TriggerObjects->setTopo(topo);
-
-  mService->setData (mL1TriggerObjects.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("L1TriggerObjects")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL L1TriggerObjects set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mL1TriggerObjects));
-  }
-}
-
-void HcalDbProducer::electronicsMapCallback (const HcalElectronicsMapRcd& fRecord) {
-  edm::ESHandle <HcalElectronicsMap> item;
-  fRecord.get (item);
-  mService->setData (item.product ());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ElectronicsMap")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL Electronics Map set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
-  }
-}
-
-void HcalDbProducer::frontEndMapCallback (const HcalFrontEndMapRcd& fRecord) {
-  edm::ESHandle <HcalFrontEndMap> item;
-  fRecord.get (item);
-  mService->setData (item.product ());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("FrontEndMap")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL FrontEnd Map set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
-  }
-}
-
-void HcalDbProducer::lutMetadataCallback (const HcalLutMetadataRcd& fRecord) {
-  edm::ESTransientHandle <HcalLutMetadata> item;
-  fRecord.get (item);
-
-  mLutMetadata.reset( new HcalLutMetadata(*item) );
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mLutMetadata->setTopo(topo);
-
-  mService->setData (mLutMetadata.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LutMetadata")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL LUT Metadata set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mLutMetadata));
-  }
-}
-
-void HcalDbProducer::SiPMParametersCallback (const HcalSiPMParametersRcd& fRecord) {
-  edm::ESTransientHandle <HcalSiPMParameters> item;
-  fRecord.get (item);
-
-  mSiPMParameters.reset( new HcalSiPMParameters(*item) );
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mSiPMParameters->setTopo(topo);
-
-  mService->setData (mSiPMParameters.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SiPMParameters")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL SiPMParameters set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mSiPMParameters));
-  }
-}
-
-void HcalDbProducer::SiPMCharacteristicsCallback (const HcalSiPMCharacteristicsRcd& fRecord) {
-  edm::ESHandle <HcalSiPMCharacteristics> item;
-  fRecord.get (item);
-  mService->setData (item.product ());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SiPMCharacteristics")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL SiPMCharacteristics set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
-  }
-}
-
-void HcalDbProducer::TPChannelParametersCallback (const HcalTPChannelParametersRcd& fRecord) {
-  edm::ESTransientHandle <HcalTPChannelParameters> item;
-  fRecord.get (item);
-
-  mTPChannelParameters.reset( new HcalTPChannelParameters(*item) );
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mTPChannelParameters->setTopo(topo);
-
-  mService->setData (mTPChannelParameters.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TPChannelParameters")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL TPChannelParameters set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mTPChannelParameters));
-  }
-}
-
-void HcalDbProducer::TPParametersCallback (const HcalTPParametersRcd& fRecord){
-
-  edm::ESHandle <HcalTPParameters> item;
-  fRecord.get (item);
-  mService->setData (item.product ());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TPParameters")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL TPParameters set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
-  }
-}
-
-
-void HcalDbProducer::MCParamsCallback (const HcalMCParamsRcd& fRecord) {
-  edm::ESTransientHandle <HcalMCParams> item;
-  fRecord.get (item);
-
-  mMCParams.reset( new HcalMCParams(*item) );
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mMCParams->setTopo(topo);
-
-  mService->setData (mMCParams.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("MCParams")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL MCParams set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mMCParams));
-  }
-}
-
-void HcalDbProducer::RecoParamsCallback (const HcalRecoParamsRcd& fRecord) {
-  edm::ESTransientHandle <HcalRecoParams> item;
-  fRecord.get (item);
-
-  mRecoParams.reset( new HcalRecoParams(*item) );
-
-  edm::ESHandle<HcalTopology> htopo;
-  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  mRecoParams->setTopo(topo);
-
-  mService->setData (mRecoParams.get());
-  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RecoParams")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL RecoParams set" << std::endl;
-    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mRecoParams));
-  }
-}
-
+DEFINE_FWK_EVENTSETUP_MODULE(HcalDbProducer);

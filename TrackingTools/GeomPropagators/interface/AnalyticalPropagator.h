@@ -12,8 +12,7 @@ class Surface;
 class Cylinder;
 class Plane;
 class HelixPlaneCrossing;
-class MagneticField; 
-
+class MagneticField;
 
 /** (Mostly) analytical helix propagation to cylindrical or planar surfaces.
  *  Based on GtfGeometricalPropagator with successive replacement of components
@@ -21,102 +20,90 @@ class MagneticField;
  */
 
 class AnalyticalPropagator final : public Propagator {
-
 public:
-  
-  AnalyticalPropagator( const MagneticField* field,
-		        PropagationDirection dir = alongMomentum,
-			float maxDPhi = 1.6,bool isOld=true) :
-    Propagator(dir),
-    theMaxDPhi2(maxDPhi*maxDPhi),
-    theMaxDBzRatio(0.5),
-    theField(field),
-    isOldPropagationType(isOld) {}
+  AnalyticalPropagator(const MagneticField* field,
+                       PropagationDirection dir = alongMomentum,
+                       float maxDPhi = 1.6,
+                       bool isOld = true)
+      : Propagator(dir),
+        theMaxDPhi2(maxDPhi * maxDPhi),
+        theMaxDBzRatio(0.5),
+        theField(field),
+        isOldPropagationType(isOld) {}
 
   ~AnalyticalPropagator() override {}
 
   //
   // use base class methods where necessary:
-  // - propagation from TrajectoryStateOnSurface 
+  // - propagation from TrajectoryStateOnSurface
   //     (will use propagation from FreeTrajectoryState)
   // - propagation to general Surface
   //     (will use specialised methods for planes or cylinders)
   //
   using Propagator::propagate;
   using Propagator::propagateWithPath;
-  
- private:
-  /// propagation to plane with path length  
-  std::pair<TrajectoryStateOnSurface,double> 
-    propagateWithPath(const FreeTrajectoryState& fts, 
-		    const Plane& plane) const override; 
-  
+
+private:
+  /// propagation to plane with path length
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState& fts,
+                                                                const Plane& plane) const override;
 
   /// propagation to cylinder with path length
-  std::pair<TrajectoryStateOnSurface,double> 
-  propagateWithPath(const FreeTrajectoryState& fts, 
-		    const Cylinder& cylinder) const override;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState& fts,
+                                                                const Cylinder& cylinder) const override;
 
-
- public:
+public:
   /** limitation of change in transverse direction
    *  (to avoid loops).
    */
-  bool setMaxDirectionChange( float phiMax) override { 
-    theMaxDPhi2 = phiMax*phiMax;
+  bool setMaxDirectionChange(float phiMax) override {
+    theMaxDPhi2 = phiMax * phiMax;
     return true;
   }
-  
-  AnalyticalPropagator * clone() const override
-  {
-    return new AnalyticalPropagator(*this);
-  }
-  
+
+  AnalyticalPropagator* clone() const override { return new AnalyticalPropagator(*this); }
+
   /** Set the maximum relative change in Bz (Bz_at_end-Bz_at_start)/Bz_at_start
    * for a single propagation. The default is no limit.
    * NB: this propagator assumes constant, non-zero magnetic field parallel to the z-axis!
    **/
-  void setMaxRelativeChangeInBz (const float maxDBz) {
-    theMaxDBzRatio = maxDBz;
-  }
-
+  void setMaxRelativeChangeInBz(const float maxDBz) { theMaxDBzRatio = maxDBz; }
 
 private:
   /// propagation of errors (if needed) and generation of a new TSOS
-  std::pair<TrajectoryStateOnSurface,double> 
-  propagatedStateWithPath (const FreeTrajectoryState& fts, 
-			   const Surface& surface, 
-			   const GlobalTrajectoryParameters& gtp, 
-			   const double& s) const dso_internal;
+  std::pair<TrajectoryStateOnSurface, double> propagatedStateWithPath(const FreeTrajectoryState& fts,
+                                                                      const Surface& surface,
+                                                                      const GlobalTrajectoryParameters& gtp,
+                                                                      const double& s) const dso_internal;
 
   /// parameter propagation to cylinder (returns position, momentum and path length)
-  bool propagateParametersOnCylinder(const FreeTrajectoryState& fts, 
-				     const Cylinder& cylinder, 
-				     GlobalPoint& x, 
-				     GlobalVector& p, 
-				     double& s) const dso_internal;
+  bool propagateParametersOnCylinder(const FreeTrajectoryState& fts,
+                                     const Cylinder& cylinder,
+                                     GlobalPoint& x,
+                                     GlobalVector& p,
+                                     double& s) const dso_internal;
 
   /// parameter propagation to plane (returns position, momentum and path length)
-  bool propagateParametersOnPlane(const FreeTrajectoryState& fts, 
-				  const Plane& plane, 
-				  GlobalPoint& x, 
-				  GlobalVector& p, 
-				  double& s) const dso_internal;
-  
-  /// straight line parameter propagation to a plane
-  bool propagateWithLineCrossing(const GlobalPoint&, const GlobalVector&, 
-				 const Plane&, GlobalPoint&, double&) const dso_internal;
-  /// straight line parameter propagation to a cylinder
-  bool propagateWithLineCrossing(const GlobalPoint&, const GlobalVector&, 
-				 const Cylinder&, GlobalPoint&, double&) const dso_internal;
-  /// helix parameter propagation to a plane using HelixPlaneCrossing
-  bool propagateWithHelixCrossing(HelixPlaneCrossing&, const Plane&, const float,
-				  GlobalPoint&, GlobalVector&, double& s) const dso_internal;
+  bool propagateParametersOnPlane(const FreeTrajectoryState& fts,
+                                  const Plane& plane,
+                                  GlobalPoint& x,
+                                  GlobalVector& p,
+                                  double& s) const dso_internal;
 
-  const MagneticField* magneticField() const override {return theField;}
+  /// straight line parameter propagation to a plane
+  bool propagateWithLineCrossing(const GlobalPoint&, const GlobalVector&, const Plane&, GlobalPoint&, double&) const
+      dso_internal;
+  /// straight line parameter propagation to a cylinder
+  bool propagateWithLineCrossing(const GlobalPoint&, const GlobalVector&, const Cylinder&, GlobalPoint&, double&) const
+      dso_internal;
+  /// helix parameter propagation to a plane using HelixPlaneCrossing
+  bool propagateWithHelixCrossing(
+      HelixPlaneCrossing&, const Plane&, const float, GlobalPoint&, GlobalVector&, double& s) const dso_internal;
+
+  const MagneticField* magneticField() const override { return theField; }
 
 private:
-  typedef std::pair<TrajectoryStateOnSurface,double> TsosWP;
+  typedef std::pair<TrajectoryStateOnSurface, double> TsosWP;
   float theMaxDPhi2;
   float theMaxDBzRatio;
   const MagneticField* theField;

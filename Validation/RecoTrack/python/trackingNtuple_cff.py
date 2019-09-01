@@ -79,35 +79,32 @@ trackingPhase2PU140.toModify(trackingNtuple, seedTracks = _seedSelectors_trackin
 
 def _seedProdToTrackCands(name):
     return name.replace("seedTracks", "").replace("Seeds", "TrackCandidates")
-trackingNtuple.trackCandidates = map(_seedProdToTrackCands, _seedProducers)
-trackingPhase1.toModify(trackingNtuple, trackCandidates=map(_seedProdToTrackCands, _seedProducers_trackingPhase1))
-trackingPhase2PU140.toModify(trackingNtuple, trackCandidates=map(_seedProdToTrackCands, _seedProducers_trackingPhase2PU140))
+trackingNtuple.trackCandidates = [_seedProdToTrackCands(i) for i in _seedProducers]
+trackingPhase1.toModify(trackingNtuple, trackCandidates=[_seedProdToTrackCands(i) for i in _seedProducers_trackingPhase1])
+trackingPhase2PU140.toModify(trackingNtuple, trackCandidates=[_seedProdToTrackCands(i) for i in _seedProducers_trackingPhase2PU140])
 
-trackingNtupleSequence = cms.Sequence()
+trackingNtupleTask = cms.Task()
 # reproduce hits because they're not stored in RECO
 if _includeHits:
-    trackingNtupleSequence += (
-        siPixelRecHits +
-        siStripMatchedRecHits
-    )
-    _phase2_trackingNtupleSequence = trackingNtupleSequence.copy()
-    _phase2_trackingNtupleSequence.remove(siStripMatchedRecHits)
-    _phase2_trackingNtupleSequence += (siPhase2RecHits)
-    trackingPhase2PU140.toReplaceWith(trackingNtupleSequence, _phase2_trackingNtupleSequence)
+    trackingNtupleTask.add(siPixelRecHits, siStripMatchedRecHits)
+    _phase2_trackingNtupleTask = trackingNtupleTask.copy()
+    _phase2_trackingNtupleTask.remove(siStripMatchedRecHits)
+    _phase2_trackingNtupleTask.add(siPhase2RecHits)
+    trackingPhase2PU140.toReplaceWith(trackingNtupleTask, _phase2_trackingNtupleTask)
 
 if _includeSeeds:
-    trackingNtupleSequence += trackingNtupleSeedSelectors
+    trackingNtupleTask.add(trackingNtupleSeedSelectors)
 
-trackingNtupleSequence += (
+trackingNtupleTask.add(
     # sim information
-    trackingParticlesIntime +
-    simHitTPAssocProducer +
-    tpClusterProducer +
-    quickTrackAssociatorByHits +
-    trackingParticleNumberOfLayersProducer +
-    # ntuplizer
-    trackingNtuple
+    trackingParticlesIntime,
+    simHitTPAssocProducer,
+    tpClusterProducer,
+    quickTrackAssociatorByHits,
+    trackingParticleNumberOfLayersProducer
 )
+# ntuplizer
+trackingNtupleSequence = cms.Sequence(trackingNtuple, trackingNtupleTask)
 
 trackingPhase2PU140.toModify(trackingNtuple, # FIXME
   pixelDigiSimLink = cms.untracked.InputTag('simSiPixelDigis', "Pixel"),

@@ -9,9 +9,9 @@
 
 class TrajMeasLessEstim {
 public:
-  bool operator()( const TrajectoryMeasurement& a, const TrajectoryMeasurement& b) {
+  bool operator()(const TrajectoryMeasurement& a, const TrajectoryMeasurement& b) {
     return a.estimate() < b.estimate();
   }
 };
 
-#endif // Tracker_TrajMeasLessEstim_H
+#endif  // Tracker_TrajMeasLessEstim_H

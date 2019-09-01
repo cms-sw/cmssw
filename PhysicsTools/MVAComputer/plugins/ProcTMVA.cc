@@ -2,7 +2,7 @@
 //
 // Package:     MVAComputer
 // Class  :     ProcTMVA
-// 
+//
 
 // Implementation:
 //     TMVA wrapper, needs n non-optional, non-multiple input variables
@@ -40,87 +40,76 @@
 
 using namespace PhysicsTools;
 
-namespace { // anonymous
+namespace {  // anonymous
 
-class ProcTMVA : public VarProcessor {
-    public:
-	typedef VarProcessor::Registry::Registry<ProcTMVA,
-					Calibration::ProcExternal> Registry;
+  class ProcTMVA : public VarProcessor {
+  public:
+    typedef VarProcessor::Registry::Registry<ProcTMVA, Calibration::ProcExternal> Registry;
 
-	ProcTMVA(const char *name,
-	         const Calibration::ProcExternal *calib,
-	         const MVAComputer *computer);
-	~ProcTMVA() override {}
+    ProcTMVA(const char *name, const Calibration::ProcExternal *calib, const MVAComputer *computer);
+    ~ProcTMVA() override {}
 
-	void configure(ConfIterator iter, unsigned int n) override;
-	void eval(ValueIterator iter, unsigned int n) const override;
+    void configure(ConfIterator iter, unsigned int n) override;
+    void eval(ValueIterator iter, unsigned int n) const override;
 
-    private:
-  std::unique_ptr<TMVA::Reader>     reader;
-  TMVA::MethodBase* method;
-  std::string   methodName;
-  unsigned int  nVars;
+  private:
+    std::unique_ptr<TMVA::Reader> reader;
+    TMVA::MethodBase *method;
+    std::string methodName;
+    unsigned int nVars;
 
-  // FIXME: Gena
-  TString   methodName_t;
-};
+    // FIXME: Gena
+    TString methodName_t;
+  };
 
-ProcTMVA::Registry registry("ProcTMVA");
+  ProcTMVA::Registry registry("ProcTMVA");
 
-ProcTMVA::ProcTMVA(const char *name,
-                   const Calibration::ProcExternal *calib,
-                   const MVAComputer *computer) :
-	VarProcessor(name, calib, computer)
-{
+  ProcTMVA::ProcTMVA(const char *name, const Calibration::ProcExternal *calib, const MVAComputer *computer)
+      : VarProcessor(name, calib, computer) {
+    reader = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
 
-  reader = std::unique_ptr<TMVA::Reader>(new TMVA::Reader( "!Color:Silent" ));
-  
-  ext::imemstream is(
-		     reinterpret_cast<const char*>(&calib->store.front()),
-		     calib->store.size());
-  ext::izstream izs(&is);
-  
-  std::getline(izs, methodName);
+    ext::imemstream is(reinterpret_cast<const char *>(&calib->store.front()), calib->store.size());
+    ext::izstream izs(&is);
 
-  std::string tmp;
-  std::getline(izs, tmp);
-  std::istringstream iss(tmp);
-  iss >> nVars;
-  for(unsigned int i = 0; i < nVars; i++) {
+    std::getline(izs, methodName);
+
+    std::string tmp;
     std::getline(izs, tmp);
-    reader->DataInfo().AddVariable(tmp.c_str());
-  }
-  
-  // The rest of the gzip blob is the weights file
-  std::string weight_text;
-  std::string line;
-  while (std::getline(izs, line)) {
-    weight_text += line;
-    weight_text += "\n";
-  }
+    std::istringstream iss(tmp);
+    iss >> nVars;
+    for (unsigned int i = 0; i < nVars; i++) {
+      std::getline(izs, tmp);
+      reader->DataInfo().AddVariable(tmp.c_str());
+    }
 
+    // The rest of the gzip blob is the weights file
+    std::string weight_text;
+    std::string line;
+    while (std::getline(izs, line)) {
+      weight_text += line;
+      weight_text += "\n";
+    }
 
-  // Build our reader
-  TMVA::Types::EMVA methodType =
-    TMVA::Types::Instance().GetMethodType(methodName);
-  // Check if xml format
-  if (weight_text.find("<?xml") != std::string::npos) {
-     method = dynamic_cast<TMVA::MethodBase*>( reader->BookMVA( methodType, weight_text.c_str() ) );
-  } else {
-    // Write to a temporary file
-    TString weight_file_name(boost::filesystem::unique_path().c_str());
-    std::ofstream weight_file;
-    weight_file.open(weight_file_name.Data());
-    weight_file << weight_text;
-    weight_file.close();
-    edm::LogInfo("LegacyMVA") << "Building legacy TMVA plugin - "
-      << "the weights are being stored in " << weight_file_name << std::endl;
-    methodName_t.Append(methodName.c_str());
-    method = dynamic_cast<TMVA::MethodBase*>( reader->BookMVA( methodName_t, weight_file_name ) );
-    remove(weight_file_name.Data());
-  }
+    // Build our reader
+    TMVA::Types::EMVA methodType = TMVA::Types::Instance().GetMethodType(methodName);
+    // Check if xml format
+    if (weight_text.find("<?xml") != std::string::npos) {
+      method = dynamic_cast<TMVA::MethodBase *>(reader->BookMVA(methodType, weight_text.c_str()));
+    } else {
+      // Write to a temporary file
+      TString weight_file_name(boost::filesystem::unique_path().c_str());
+      std::ofstream weight_file;
+      weight_file.open(weight_file_name.Data());
+      weight_file << weight_text;
+      weight_file.close();
+      edm::LogInfo("LegacyMVA") << "Building legacy TMVA plugin - "
+                                << "the weights are being stored in " << weight_file_name << std::endl;
+      methodName_t.Append(methodName.c_str());
+      method = dynamic_cast<TMVA::MethodBase *>(reader->BookMVA(methodName_t, weight_file_name));
+      remove(weight_file_name.Data());
+    }
 
-  /*
+    /*
   bool isXml = false; // weights in XML (TMVA 4) or plain text
   bool isFirstPass = true;
   TString weight_file_name(tmpnam(0));
@@ -183,31 +172,29 @@ ProcTMVA::ProcTMVA(const char *name,
  }
 
   */
-}
+  }
 
-void ProcTMVA::configure(ConfIterator iter, unsigned int n)
-{
-	if (n != nVars)
-		return;
+  void ProcTMVA::configure(ConfIterator iter, unsigned int n) {
+    if (n != nVars)
+      return;
 
-	for(unsigned int i = 0; i < n; i++)
-		iter++(Variable::FLAG_NONE);
+    for (unsigned int i = 0; i < n; i++)
+      iter++(Variable::FLAG_NONE);
 
-	iter << Variable::FLAG_NONE;
-}
+    iter << Variable::FLAG_NONE;
+  }
 
-void ProcTMVA::eval(ValueIterator iter, unsigned int n) const
-{
-  std::vector<Float_t> inputs;
-  inputs.reserve(n);
-	for(unsigned int i = 0; i < n; i++)
-    inputs.push_back(*iter++);
-  std::unique_ptr<TMVA::Event> evt(new TMVA::Event(inputs, 2));
+  void ProcTMVA::eval(ValueIterator iter, unsigned int n) const {
+    std::vector<Float_t> inputs;
+    inputs.reserve(n);
+    for (unsigned int i = 0; i < n; i++)
+      inputs.push_back(*iter++);
+    std::unique_ptr<TMVA::Event> evt(new TMVA::Event(inputs, 2));
 
-  double result = method->GetMvaValue(evt.get());
+    double result = method->GetMvaValue(evt.get());
 
-  iter(result);
-}
+    iter(result);
+  }
 
-} // anonymous namespace
+}  // anonymous namespace
 MVA_COMPUTER_DEFINE_PLUGIN(ProcTMVA);

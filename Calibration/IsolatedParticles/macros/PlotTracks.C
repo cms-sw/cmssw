@@ -39,7 +39,7 @@
 //   savePlot= Plot to be saved: no (-1), eps (0), gif (1), pdf (2) [-1]
 //
 // void plotEMeanAll(int data, int models, bool ratio, bool approve, 
-//                   int savePlot)
+//                   std::string postfix, int savePlot)
 //
 // Plots mean energy response as a function of track momentum or the ratio
 //
@@ -48,11 +48,12 @@
 //   ratio = flag to say if raw mean will be shown or ratio         [false]
 //           wrt a reference
 //   approve= If meant for approval talks                           [true]
+//   postfix= String to be added in the name of saved file          [""]
 //   savePlot= Plot to be saved: no (-1), eps (0), gif (1), pdf (2) [-1]
 //
 // void plotEMean(std::string fname, std::string hlt, int models, int var,
 //                int eta, int pv, int data, bool ratio, bool approve,
-//                int savePlot)
+//                std::string postfix, int savePlot)
 //
 // Plots mean energy response as a function of track momentum or the ratio
 // MC/Data 
@@ -70,6 +71,7 @@
 //   ratio = flag to say if raw mean will be shown or ratio wrt     [false]
 //           a reference
 //   approve= If meant for approval talks                           [true]
+//   postfix= String to be added in the name of saved file          [""]
 //   savePlot= Plot to be saved: no (-1), eps (0), gif (1), pdf (2) [-1]
 //
 // void plotEnergy(std::string fname, std::string HLT, int var, int ien, 
@@ -188,9 +190,9 @@
 #include <string>
 
 //const int nmodelm=15, nmodelx=16, nmodels=2;
-//const int nmodelm=3, nmodelx=4, nmodels=2;
+const int nmodelm=3, nmodelx=4, nmodels=2;
 //const int nmodelm=4, nmodelx=5, nmodels=2;
-const int nmodelm=2, nmodelx=3, nmodels=2;
+//const int nmodelm=2, nmodelx=3, nmodels=2;
 int         styles[7]  = {20, 21, 24, 22, 23, 33, 25};
 int         colors[7]  = {1, 2, 4, 6, 7, 38, 3};
 std::string names[7]   = {"All", "Quality", "okEcal", "EcalCharIso", 
@@ -295,12 +297,28 @@ std::string typem[nmodelm]={"10.2.p02 FTFP_BERT_EMM",
 			    "10.4 VecGeom FTFP_BERT_EMM",
 			    "10.4 VecGeom+CLHEP FTFP_BERT_EMM"};
 */
-
+/*
 std::string filem[nmodelm]={"pikp/FBE4cMixStudyHLT10.root",
 			    "pikp/FBE4vcMixStudyHLT10.root"};
 std::string typem[nmodelm]={"10.4 CLHEP FTFP_BERT_EMM",
 			    "10.4 VecGeom+CLHEP FTFP_BERT_EMM"};
-
+*/
+/*
+std::string filem[nmodelm]={"pikp/FBE3r9MixStudyHLT.root",
+			    "pikp/FBE4r00MixStudyHLT.root",
+			    "pikp/FBE4r01MixStudyHLT.root"};
+std::string typem[nmodelm]={"10.3.ref09 FTFP_BERT_EMM",
+			    "10.4.ref00 FTFP_BERT_EMM",
+			    "10.4.ref01 FTFP_BERT_EMM"};
+*/
+/*
+std::string filem[nmodelm]={"pikp/QFB3r9MixStudyHLT.root",
+			    "pikp/QFB4r00MixStudyHLT.root",
+			    "pikp/QFB4r01MixStudyHLT.root"};
+std::string typem[nmodelm]={"10.3.ref09 QGSP_FTFP_BERT_EML",
+			    "10.4.ref00 QGSP_FTFP_BERT_EML",
+			    "10.4.ref01 QGSP_FTFP_BERT_EML"};
+*/
 /*
 std::string filem[nmodelm]={"pikp/FBE2p2StudyHLT.root",
 			    "pikp/FBE4r00MixStudyHLT.root",
@@ -317,6 +335,12 @@ std::string typem[nmodelm]={"10.3.ref06 FTFP_BERT_EMM (Native)",
 			    "10.3.ref06 FTFP_BERT_EMM (VecGeom 4)",
 			    "10.3.ref06 FTFP_BERT_EMM (VecGeom Corr)"};
 */
+std::string filem[nmodelm]={"pikp/FBE4r00vMixStudyHLT.root",
+			    "pikp/FBE4r01MixStudyHLT.root",
+			    "pikp/FBE4r01vMixStudyHLT.root"};
+std::string typem[nmodelm]={"10.4 VecGeom FTFP_BERT_EMM",
+			    "10.4.ref01 FTFP_BERT_EMM",
+			    "10.4.ref01 VecGeom FTFP_BERT_EMM"};
 /*
 std::string filex[nmodelx]={"AllDataStudyHLT.root",
 			    "pikp/FBE2p2StudyHLT.root",
@@ -363,14 +387,34 @@ std::string typex[nmodelx]={"Data (2016B)",
 			    "10.4 VecGeom FTFP_BERT_EMM",
 			    "10.4 VecGeom+CLHEP FTFP_BERT_EMM"};
 */
-
+/*
 std::string filex[nmodelx]={"AllDataStudyHLT.root",
                             "pikp/FBE4cMixStudyHLT10.root",
 			    "pikp/FBE4vcMixStudyHLT10.root"};
 std::string typex[nmodelx]={"Data (2016B)",
                             "10.4 CLHEP FTFP_BERT_EMM",
 			    "10.4 VecGeom+CLHEP FTFP_BERT_EMM"};
-
+*/
+/*
+std::string filex[nmodelx]={"AllDataStudyHLT.root",
+			    "pikp/FBE3r9MixStudyHLT.root",
+			    "pikp/FBE4r00MixStudyHLT.root",
+			    "pikp/FBE4r01MixStudyHLT.root"};
+std::string typex[nmodelx]={"Data (2016B)",
+			    "10.3.ref09 FTFP_BERT_EMM",
+			    "10.4.ref00 FTFP_BERT_EMM",
+			    "10.4.ref01 FTFP_BERT_EMM"};
+*/
+/*
+std::string filex[nmodelx]={"AllDataStudyHLT.root",
+			    "pikp/QFB3r9MixStudyHLT.root",
+			    "pikp/QFB4r00MixStudyHLT.root",
+			    "pikp/QFB4r01MixStudyHLT.root"};
+std::string typex[nmodelx]={"Data (2016B)",
+			    "10.3.ref09 QGSP_FTFP_BERT_EML",
+			    "10.4.ref00 QGSP_FTFP_BERT_EML",
+			    "10.4.ref01 QGSP_FTFP_BERT_EML"};
+*/
 /*
 std::string filex[nmodelx]={"AllDataStudyHLT.root",
 			    "pikp/FBE2p2StudyHLT.root",
@@ -391,6 +435,14 @@ std::string typex[nmodelx]={"Data (2016B)",
 			    "10.3.ref06 FTFP_BERT_EMM (VecGeom 4)",
 			    "10.3.ref06 FTFP_BERT_EMM (VecGeom Corr)"};
 */
+std::string filex[nmodelx]={"AllDataStudyHLT.root",
+			    "pikp/FBE4r00vMixStudyHLT.root",
+			    "pikp/FBE4r01MixStudyHLT.root",
+			    "pikp/FBE4r01vMixStudyHLT.root"};
+std::string typex[nmodelx]={"Data (2016B)",
+			    "10.4 VecGeom FTFP_BERT_EMM",
+			    "10.4.ref01 FTFP_BERT_EMM",
+			    "10.4.ref01 VecGeom FTFP_BERT_EMM"};
 /*
   std::string files[nmodelx]={"StudyHLT_ZeroBias_1PV.root","StudyHLT_PixelTrack_1PV.root","StudyHLT_1PV.root"};
   std::string types[nmodels]={"Zero Bias HLT","Pixel Track HLT","All HLTs"};
@@ -404,8 +456,8 @@ std::string typex[nmodelx]={"Data (2016B)",
 
 void plotAll(std::string fname="hlt.root", std::string HLT="All HLTs", int var=-1, int ien=-1, int eta=-1, bool varbin=false, int rebin=1, bool approve=true, bool logy=true, int pos=0, bool pv=false, int savePlot=-1);
 void plotEnergyAll(std::string fname="", std::string hlt="All HLTs", int models=15, int pv=0, int data=4, bool varbin=false, int rebin=5, bool approve=true, bool logy=true, int pos=0, int var=-1, int ene=-1, int eta=-1, int savePlot=-1);
-void plotEMeanAll(int data=4, int models=15, bool ratio=false, bool approve=true, int savePlot=-1);
-void plotEMean(std::string fname="", std::string hlt="All HLTs", int models=15, int var=0, int eta=0, int pv=0, int dataMC=1, bool raio=false, bool approve=true, int savePlot=-1);
+void plotEMeanAll(int data=4, int models=15, bool ratio=false, bool approve=true, std::string postfix="", int savePlot=-1);
+void plotEMean(std::string fname="", std::string hlt="All HLTs", int models=15, int var=0, int eta=0, int pv=0, int dataMC=1, bool raio=false, bool approve=true, std::string postfix="",int savePlot=-1);
 TCanvas* plotEMeanDraw(std::vector<std::string> fnames, std::vector<std::string> hlts, int var, int eta, int pv=0, bool approve=false, std::string dtype="Data", int coloff=0);
 TCanvas* plotEMeanRatioDraw(std::vector<std::string> fnames, std::vector<std::string> hlts, int var, int eta, int pv=0, bool approve=false, std::string dtype="Data", int coloff=0);
 TCanvas* plotEnergies(std::vector<std::string> fnames, std::vector<std::string> hlts, int var=0, int ien=0, int eta=0, int pv=0, bool varbin=false, int rebin=1, bool approve=false, std::string dtype="Data", bool logy=true, int pos=0, int coloff=0);
@@ -508,21 +560,24 @@ void plotEnergyAll(std::string fname, std::string hlt, int models, int pv,
   }
 }
 
-void plotEMeanAll(int data, int models, bool ratio, bool approve, int savePlot){
+void plotEMeanAll(int data, int models, bool ratio, bool approve, 
+		  std::string postfix, int savePlot){
   int varmin(0), varmax(5), pvmin(0), pvmax(0), etamin(0), etamax(3);
 //  std::cout << "Var " << varmin << ":" << varmax << " PV " << pvmin << ":"
 //	    << pvmax << " Eta " << etamin << ":" << etamax << std::endl;
   for (int var=varmin; var<=varmax; ++var) {
     for (int eta=etamin; eta<=etamax; ++eta) {
       for (int pv=pvmin; pv<=pvmax; ++pv) {
-	plotEMean("", "", models, var, eta, pv, data, ratio, approve, savePlot);
+	plotEMean("", "", models, var, eta, pv, data, ratio, approve, postfix,
+		  savePlot);
       }
     }
   }
 }
 
 void plotEMean(std::string fname, std::string hlt, int models, int var, int eta,
-	       int pv, int data, bool ratio, bool approve, int savePlot) {
+	       int pv, int data, bool ratio, bool approve, std::string postfix,
+	       int savePlot) {
 
   std::vector<std::string> fnames, hlts;
   std::string dtype = (data == 1) ? "Data" : "MC";
@@ -579,7 +634,8 @@ void plotEMean(std::string fname, std::string hlt, int models, int var, int eta,
 	if (c != 0 && savePlot >= 0 && savePlot < 3) {
 	  std::string ext[3] = {"eps", "gif", "pdf"};
 	  char name[200];
-	  sprintf (name, "%s.%s", c->GetName(), ext[savePlot].c_str());
+	  sprintf (name, "%s%s.%s", c->GetName(), postfix.c_str(),
+		   ext[savePlot].c_str());
 	  c->Print(name);
 	}
       }

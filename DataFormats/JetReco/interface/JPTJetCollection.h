@@ -9,11 +9,11 @@
 #include "DataFormats/JetReco/interface/JPTJet.h"
 
 namespace reco {
-  /// collection of CaloJet objects 
+  /// collection of CaloJet objects
   typedef std::vector<JPTJet> JPTJetCollection;
   /// edm references
   typedef edm::Ref<JPTJetCollection> JPTJetRef;
   typedef edm::RefVector<JPTJetCollection> JPTJetRefVector;
   typedef edm::RefProd<JPTJetCollection> JPTJetRefProd;
-}
+}  // namespace reco
 #endif

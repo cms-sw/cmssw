@@ -12,30 +12,27 @@
 #include <iostream>
 
 class EcalUncalibRecHitDump : public edm::EDAnalyzer {
- public:
+public:
   explicit EcalUncalibRecHitDump(const edm::ParameterSet&);
 
- private:
+private:
   virtual void beginJob() {}
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() {}
 
- private:
+private:
   edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EBUncalicRecHitCollectionT_;
   edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EEUncalicRecHitCollectionT_;
 };
 
 EcalUncalibRecHitDump::EcalUncalibRecHitDump(const edm::ParameterSet& iConfig) {
   EBUncalicRecHitCollectionT_ =
-	consumes<EcalUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBUncalibRecHitCollection"));
+      consumes<EcalUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBUncalibRecHitCollection"));
   EEUncalicRecHitCollectionT_ =
-	consumes<EcalUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("EEUncalibRecHitCollection"));
+      consumes<EcalUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("EEUncalibRecHitCollection"));
 }
 
-void EcalUncalibRecHitDump::analyze(const edm::Event& ev,
-                                    const edm::EventSetup&) {
-
-
+void EcalUncalibRecHitDump::analyze(const edm::Event& ev, const edm::EventSetup&) {
   edm::Handle<EcalUncalibratedRecHitCollection> EBURecHits_;
   edm::Handle<EcalUncalibratedRecHitCollection> EEURecHits_;
 
@@ -45,15 +42,12 @@ void EcalUncalibRecHitDump::analyze(const edm::Event& ev,
   for (auto const& h : (*EBURecHits_))
     std::cout << "EB id: " << h.id() << " amplitude: " << h.amplitude() << " pedestal: " << h.pedestal()
               << " jitter: " << h.jitter() << " chi2: " << h.chi2() << " amplitudeError: " << h.amplitudeError()
-              << " jitterErrorBits: " << int(h.jitterErrorBits())
-              << std::endl;
+              << " jitterErrorBits: " << int(h.jitterErrorBits()) << std::endl;
 
   for (auto const& h : (*EEURecHits_))
     std::cout << "EE id: " << h.id() << " amplitude: " << h.amplitude() << " pedestal: " << h.pedestal()
               << " jitter: " << h.jitter() << " chi2: " << h.chi2() << " amplitudeError: " << h.amplitudeError()
-              << " jitterErrorBits: " << int(h.jitterErrorBits())
-              << std::endl;
-
+              << " jitterErrorBits: " << int(h.jitterErrorBits()) << std::endl;
 }
 
 DEFINE_FWK_MODULE(EcalUncalibRecHitDump);

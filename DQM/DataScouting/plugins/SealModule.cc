@@ -1,9 +1,9 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
-#include "DQM/DataScouting/plugins/RazorVarAnalyzer.h"
 #include "DQM/DataScouting/plugins/AlphaTVarAnalyzer.h"
 #include "DQM/DataScouting/plugins/DiJetVarAnalyzer.h"
+#include "DQM/DataScouting/plugins/RazorVarAnalyzer.h"
 #include "DQM/DataScouting/plugins/ScoutingTestAnalyzer.h"
 
 DEFINE_FWK_MODULE(RazorVarAnalyzer);

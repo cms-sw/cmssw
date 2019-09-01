@@ -4,30 +4,27 @@
 
 //typedef popcon::PopConAnalyzer<HcalDcsValuesHandler> HcalDcsValuesPopConAnalyzer;
 
-class HcalDcsValuesPopConAnalyzer: public popcon::PopConAnalyzer<HcalDcsValuesHandler>
-{
+class HcalDcsValuesPopConAnalyzer : public popcon::PopConAnalyzer<HcalDcsValuesHandler> {
 public:
   typedef HcalDcsValuesHandler SourceHandler;
 
-  HcalDcsValuesPopConAnalyzer(const edm::ParameterSet& pset): 
-    popcon::PopConAnalyzer<HcalDcsValuesHandler>(pset),
-    m_populator(pset),
-    m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+  HcalDcsValuesPopConAnalyzer(const edm::ParameterSet& pset)
+      : popcon::PopConAnalyzer<HcalDcsValuesHandler>(pset),
+        m_populator(pset),
+        m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
 
 private:
-  void endJob() override 
-  {
+  void endJob() override {
     m_source.initObject(myDBObject);
     write();
   }
 
-  void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override
-  {
+  void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override {
     //Using ES to get the data:
 
     edm::ESHandle<HcalDcsValues> objecthandle;
     esetup.get<HcalDcsRcd>().get(objecthandle);
-    myDBObject = new HcalDcsValues(*objecthandle.product() );
+    myDBObject = new HcalDcsValues(*objecthandle.product());
   }
 
   void write() { m_populator.write(m_source); }

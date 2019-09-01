@@ -28,20 +28,19 @@ namespace edmtest {
 
   class AssociationMapProducer : public edm::one::EDProducer<> {
   public:
-
     explicit AssociationMapProducer(edm::ParameterSet const&);
     virtual ~AssociationMapProducer();
 
     void produce(edm::Event&, edm::EventSetup const&) override;
 
-    typedef edm::AssociationMap<edm::OneToValue<std::vector<int>, double > > AssocOneToValue;
+    typedef edm::AssociationMap<edm::OneToValue<std::vector<int>, double> > AssocOneToValue;
     typedef edm::AssociationMap<edm::OneToOne<std::vector<int>, std::vector<int> > > AssocOneToOne;
     typedef edm::AssociationMap<edm::OneToMany<std::vector<int>, std::vector<int> > > AssocOneToMany;
-    typedef edm::AssociationMap<edm::OneToManyWithQuality<std::vector<int>, std::vector<int>, double > > AssocOneToManyWithQuality;
+    typedef edm::AssociationMap<edm::OneToManyWithQuality<std::vector<int>, std::vector<int>, double> >
+        AssocOneToManyWithQuality;
     typedef edm::AssociationMap<edm::OneToOne<edm::View<int>, edm::View<int> > > AssocOneToOneView;
 
   private:
-
     edm::EDGetTokenT<std::vector<int> > inputToken1_;
     edm::EDGetTokenT<std::vector<int> > inputToken2_;
 
@@ -50,7 +49,6 @@ namespace edmtest {
   };
 
   AssociationMapProducer::AssociationMapProducer(edm::ParameterSet const& pset) {
-
     inputToken1_ = consumes<std::vector<int> >(pset.getParameter<edm::InputTag>("inputTag1"));
     inputToken2_ = consumes<std::vector<int> >(pset.getParameter<edm::InputTag>("inputTag2"));
 
@@ -67,15 +65,12 @@ namespace edmtest {
     produces<AssocOneToOneView>("twoArg");
   }
 
-  AssociationMapProducer::~AssociationMapProducer() { }
+  AssociationMapProducer::~AssociationMapProducer() {}
 
   void AssociationMapProducer::produce(edm::Event& event, edm::EventSetup const&) {
+    edm::Handle<std::vector<int> > inputCollection1 = event.getHandle(inputToken1_);
 
-    edm::Handle<std::vector<int> > inputCollection1;
-    event.getByToken(inputToken1_, inputCollection1);
-
-    edm::Handle<std::vector<int> > inputCollection2;
-    event.getByToken(inputToken2_, inputCollection2);
+    edm::Handle<std::vector<int> > inputCollection2 = event.getHandle(inputToken2_);
 
     // insert some entries into some AssociationMaps, in another
     // module we will readout the contents and check that we readout
@@ -83,17 +78,13 @@ namespace edmtest {
     // used are arbitrary and have no meaning.
 
     auto assoc1 = std::make_unique<AssocOneToOne>(&event.productGetter());
-    assoc1->insert(edm::Ref<std::vector<int> >(inputCollection1, 0),
-                   edm::Ref<std::vector<int> >(inputCollection2, 1));
-    assoc1->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
-                   edm::Ref<std::vector<int> >(inputCollection2, 3));
+    assoc1->insert(edm::Ref<std::vector<int> >(inputCollection1, 0), edm::Ref<std::vector<int> >(inputCollection2, 1));
+    assoc1->insert(edm::Ref<std::vector<int> >(inputCollection1, 2), edm::Ref<std::vector<int> >(inputCollection2, 3));
     event.put(std::move(assoc1));
 
     auto assoc2 = std::make_unique<AssocOneToOne>(inputCollection1, inputCollection2);
-    assoc2->insert(edm::Ref<std::vector<int> >(inputCollection1, 0),
-                   edm::Ref<std::vector<int> >(inputCollection2, 1));
-    assoc2->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
-                   edm::Ref<std::vector<int> >(inputCollection2, 4));
+    assoc2->insert(edm::Ref<std::vector<int> >(inputCollection1, 0), edm::Ref<std::vector<int> >(inputCollection2, 1));
+    assoc2->insert(edm::Ref<std::vector<int> >(inputCollection1, 2), edm::Ref<std::vector<int> >(inputCollection2, 4));
     event.put(std::move(assoc2), "twoArg");
 
     auto assoc3 = std::make_unique<AssocOneToValue>(&event.productGetter());
@@ -107,12 +98,9 @@ namespace edmtest {
     event.put(std::move(assoc4), "handleArg");
 
     auto assoc5 = std::make_unique<AssocOneToMany>(&event.productGetter());
-    assoc5->insert(edm::Ref<std::vector<int> >(inputCollection1, 0),
-                   edm::Ref<std::vector<int> >(inputCollection2, 1));
-    assoc5->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
-                   edm::Ref<std::vector<int> >(inputCollection2, 4));
-    assoc5->insert(edm::Ref<std::vector<int> >(inputCollection1, 2),
-                   edm::Ref<std::vector<int> >(inputCollection2, 6));
+    assoc5->insert(edm::Ref<std::vector<int> >(inputCollection1, 0), edm::Ref<std::vector<int> >(inputCollection2, 1));
+    assoc5->insert(edm::Ref<std::vector<int> >(inputCollection1, 2), edm::Ref<std::vector<int> >(inputCollection2, 4));
+    assoc5->insert(edm::Ref<std::vector<int> >(inputCollection1, 2), edm::Ref<std::vector<int> >(inputCollection2, 6));
     event.put(std::move(assoc5));
 
     auto assoc6 = std::make_unique<AssocOneToManyWithQuality>(&event.productGetter());
@@ -124,24 +112,22 @@ namespace edmtest {
                    AssocOneToManyWithQuality::data_type(edm::Ref<std::vector<int> >(inputCollection2, 7), 33.0));
     event.put(std::move(assoc6));
 
-    edm::Handle<edm::View<int> > inputView1;
-    event.getByToken(inputToken1V_, inputView1);
+    edm::View<int> const& inputView1 = event.get(inputToken1V_);
 
-    edm::Handle<edm::View<int> > inputView2;
-    event.getByToken(inputToken2V_, inputView2);
+    edm::Handle<edm::View<int> > inputView2 = event.getHandle(inputToken2V_);
 
     auto assoc7 = std::make_unique<AssocOneToOneView>(&event.productGetter());
-    assoc7->insert(inputView1->refAt(0), inputView2->refAt(3));
-    assoc7->insert(inputView1->refAt(2), inputView2->refAt(4));
+    assoc7->insert(inputView1.refAt(0), inputView2->refAt(3));
+    assoc7->insert(inputView1.refAt(2), inputView2->refAt(4));
     event.put(std::move(assoc7));
 
-    auto assoc8 = std::make_unique<AssocOneToOneView>(edm::makeRefToBaseProdFrom(inputView1->refAt(0), event),
+    auto assoc8 = std::make_unique<AssocOneToOneView>(edm::makeRefToBaseProdFrom(inputView1.refAt(0), event),
                                                       edm::makeRefToBaseProdFrom(inputView2->refAt(0), event));
 
-    assoc8->insert(inputView1->refAt(0), inputView2->refAt(5));
-    assoc8->insert(inputView1->refAt(2), inputView2->refAt(6));
+    assoc8->insert(inputView1.refAt(0), inputView2->refAt(5));
+    assoc8->insert(inputView1.refAt(2), inputView2->refAt(6));
     event.put(std::move(assoc8), "twoArg");
   }
-}
+}  // namespace edmtest
 using edmtest::AssociationMapProducer;
 DEFINE_FWK_MODULE(AssociationMapProducer);

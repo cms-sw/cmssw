@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
-
-process = cms.Process("GEMDIGI", eras.Phase2C2)
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process("GEMDIGI", Phase2)
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')

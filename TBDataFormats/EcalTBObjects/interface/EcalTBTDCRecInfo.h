@@ -9,25 +9,19 @@
  *
  */
 
-
 class EcalTBTDCRecInfo {
- public:
+public:
+  EcalTBTDCRecInfo(){};
+  EcalTBTDCRecInfo(const float& offset) : offset_(offset){};
 
-  EcalTBTDCRecInfo() {};
-  EcalTBTDCRecInfo(const float& offset): offset_(offset)
-    {
-    };
-  
-  ~EcalTBTDCRecInfo() {};
-  
+  ~EcalTBTDCRecInfo(){};
+
   float offset() const { return offset_; }
 
- private:
-
+private:
   float offset_;
-  
 };
 
 std::ostream& operator<<(std::ostream&, const EcalTBTDCRecInfo&);
-  
+
 #endif

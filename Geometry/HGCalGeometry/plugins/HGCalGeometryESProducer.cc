@@ -2,7 +2,7 @@
 //
 // Package:    HGCalGeometry
 // Class:      HGCalGeometryESProducer
-// 
+//
 /**\class HGCalGeometryESProducer HGCalGeometryESProducer.h 
 
  Description: <one line class summary>
@@ -15,14 +15,13 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
@@ -36,51 +35,43 @@
 //
 
 class HGCalGeometryESProducer : public edm::ESProducer {
-
 public:
-  HGCalGeometryESProducer( const edm::ParameterSet& iP );
-  ~HGCalGeometryESProducer() override ;
+  HGCalGeometryESProducer(const edm::ParameterSet& iP);
+  ~HGCalGeometryESProducer() override;
 
-  typedef std::shared_ptr<HGCalGeometry> ReturnType;
+  using ReturnType = std::unique_ptr<HGCalGeometry>;
 
   ReturnType produce(const IdealGeometryRecord&);
 
 private:
   // ----------member data ---------------------------
-  std::string        name_;
+  edm::ESGetToken<HGCalTopology, IdealGeometryRecord> topologyToken_;
 };
 
-
 HGCalGeometryESProducer::HGCalGeometryESProducer(const edm::ParameterSet& iConfig) {
-
-  name_     = iConfig.getUntrackedParameter<std::string>("Name");
+  auto name = iConfig.getUntrackedParameter<std::string>("Name");
 #ifdef EDM_ML_DEBUG
-  std::cout <<"constructing HGCalGeometry for " << name_ << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "Constructing HGCalGeometry for " << name;
 #endif
-  setWhatProduced(this, name_);
+  auto cc = setWhatProduced(this, name);
+  topologyToken_ = cc.consumes<HGCalTopology>(edm::ESInputTag{"", name});
 }
 
-
-HGCalGeometryESProducer::~HGCalGeometryESProducer() { }
-
+HGCalGeometryESProducer::~HGCalGeometryESProducer() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-HGCalGeometryESProducer::ReturnType
-HGCalGeometryESProducer::produce(const IdealGeometryRecord& iRecord ) {
-
-  edm::ESHandle<HGCalTopology> topo;
-  iRecord.get(name_,topo);
+HGCalGeometryESProducer::ReturnType HGCalGeometryESProducer::produce(const IdealGeometryRecord& iRecord) {
+  const auto& topo = iRecord.get(topologyToken_);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Create HGCalGeometry (*topo)";
+#endif
 
   HGCalGeometryLoader builder;
-  ReturnType ct(builder.build(*topo));
-#ifdef EDM_ML_DEBUG
-  std::cout << "Create HGCalGeometry (*topo)" << std::endl;
-#endif
-  return ct ;
+  return ReturnType(builder.build(topo));
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(HGCalGeometryESProducer);

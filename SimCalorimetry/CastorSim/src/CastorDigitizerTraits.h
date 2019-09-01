@@ -11,6 +11,4 @@ public:
   typedef CastorElectronicsSim ElectronicsSim;
 };
 
-
 #endif
-

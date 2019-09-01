@@ -61,6 +61,8 @@ particleFlowBlock = cms.EDProducer(
         cms.PSet( importerName = cms.string("GenericClusterImporter"),
                   source = cms.InputTag("particleFlowClusterHCAL") ),
         cms.PSet( importerName = cms.string("GenericClusterImporter"),
+                  source = cms.InputTag("particleFlowBadHcalPseudoCluster") ),
+        cms.PSet( importerName = cms.string("GenericClusterImporter"),
                   source = cms.InputTag("particleFlowClusterHO") ),
         cms.PSet( importerName = cms.string("GenericClusterImporter"),
                   source = cms.InputTag("particleFlowClusterHF") ),
@@ -136,12 +138,22 @@ particleFlowBlock = cms.EDProducer(
         )          
 )
 
+for imp in particleFlowBlock.elementImporters:
+  if imp.importerName.value() == "SuperClusterImporter":
+    _scImporter = imp
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(_scImporter,
+                                minSuperClusterPt = 1.0,
+                                minPTforBypass = 0.0)
+
 def _findIndicesByModule(name):
    ret = []
    for i, pset in enumerate(particleFlowBlock.elementImporters):
         if pset.importerName.value() == name:
             ret.append(i)
    return ret
+
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 # kill tracks in the HGCal
@@ -184,7 +196,27 @@ _addTiming.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
                              ) 
                    )
 
+from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
+from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
+_addTimingLayer = particleFlowBlock.elementImporters.copy()
+_addTimingLayer.append( cms.PSet( importerName = cms.string("TrackTimingImporter"),
+                             timeValueMap = cms.InputTag("tofPID:t0"),
+                             timeErrorMap = cms.InputTag("tofPID:sigmat0"),
+                             #this will cause no time to be set for gsf tracks
+                             #(since this is not available for the fullsim/reconstruction yet)
+                             #*TODO* update when gsf times are available
+                             timeValueMapGsf = cms.InputTag("tofPID:t0"),
+                             timeErrorMapGsf = cms.InputTag("tofPID:sigmat0")
+                             ) 
+                   )
+
 phase2_timing.toModify(
     particleFlowBlock,
     elementImporters = _addTiming
 )
+
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toModify(
+    particleFlowBlock,
+    elementImporters = _addTimingLayer
+)
+

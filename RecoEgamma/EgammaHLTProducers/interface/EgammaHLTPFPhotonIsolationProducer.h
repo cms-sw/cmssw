@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,15 +29,15 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTPFPhotonIsolationProducer : public edm::EDProducer {
- public:
+class EgammaHLTPFPhotonIsolationProducer : public edm::global::EDProducer<> {
+public:
   explicit EgammaHLTPFPhotonIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTPFPhotonIsolationProducer() override {};    
-      
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  ~EgammaHLTPFPhotonIsolationProducer() override{};
+
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
- 
- private:
+
+private:
   edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateProducer_;

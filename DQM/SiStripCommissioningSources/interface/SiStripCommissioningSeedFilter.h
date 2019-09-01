@@ -17,28 +17,22 @@
 
 #include <FWCore/Utilities/interface/InputTag.h>
 
-
 //
 // class declaration
 //
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-
 class SiStripCommissioningSeedFilter : public edm::EDFilter {
+public:
+  explicit SiStripCommissioningSeedFilter(const edm::ParameterSet&);
+  ~SiStripCommissioningSeedFilter() override {}
 
-   public:
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-      explicit SiStripCommissioningSeedFilter(const edm::ParameterSet&);
-      ~SiStripCommissioningSeedFilter() override {}
-
-   private:
-
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      
-      // ----------member data ---------------------------
-      //      edm::InputTag inputModuleLabel_;
-      edm::EDGetTokenT<TrajectorySeedCollection> seedcollToken_;
-
+  // ----------member data ---------------------------
+  //      edm::InputTag inputModuleLabel_;
+  edm::EDGetTokenT<TrajectorySeedCollection> seedcollToken_;
 };
 
 #endif

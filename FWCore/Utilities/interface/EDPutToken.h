@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Utilities
 // Class  :     EDPutToken
-// 
+//
 /**\class EDPutToken EDPutToken.h "FWCore/Utilities/interface/EDPutToken.h"
 
  Description: A Token used to put data into the EDM
@@ -29,19 +29,22 @@ The templated form, EDPutTokenT<T>, is the same as EDPutToken except when used t
 // forward declarations
 namespace edm {
   class ProductRegistryHelper;
-  template <typename T> class EDPutTokenT;
-  
-  class EDPutToken
-  {
+  template <typename T>
+  class EDPutTokenT;
+  namespace test {
+    class TestProcessorConfig;
+  }
+
+  class EDPutToken {
     friend class ProductRegistryHelper;
-    
+
   public:
     using value_type = unsigned int;
-    
+
     EDPutToken() : m_value{s_uninitializedValue} {}
 
-    template<typename T>
-    EDPutToken(EDPutTokenT<T> iOther): m_value{iOther.m_value} {}
+    template <typename T>
+    EDPutToken(EDPutTokenT<T> iOther) : m_value{iOther.m_value} {}
 
     // ---------- const member functions ---------------------
     value_type index() const { return m_value; }
@@ -50,27 +53,26 @@ namespace edm {
   private:
     //for testing
     friend class TestEDPutToken;
-    
+
     static const unsigned int s_uninitializedValue = 0xFFFFFFFF;
 
-    explicit EDPutToken(unsigned int iValue) : m_value(iValue) { }
+    explicit EDPutToken(unsigned int iValue) : m_value(iValue) {}
 
     // ---------- member data --------------------------------
     value_type m_value;
   };
 
-  template<typename T>
-  class EDPutTokenT
-  {
+  template <typename T>
+  class EDPutTokenT {
     friend class ProductRegistryHelper;
     friend class EDPutToken;
+    friend class edm::test::TestProcessorConfig;
 
   public:
     using value_type = EDPutToken::value_type;
 
-    
     EDPutTokenT() : m_value{s_uninitializedValue} {}
-  
+
     // ---------- const member functions ---------------------
     value_type index() const { return m_value; }
     bool isUninitialized() const { return m_value == s_uninitializedValue; }
@@ -81,11 +83,11 @@ namespace edm {
 
     static const unsigned int s_uninitializedValue = 0xFFFFFFFF;
 
-    explicit EDPutTokenT(unsigned int iValue) : m_value(iValue) { }
+    explicit EDPutTokenT(unsigned int iValue) : m_value(iValue) {}
 
     // ---------- member data --------------------------------
     value_type m_value;
   };
-}
+}  // namespace edm
 
 #endif

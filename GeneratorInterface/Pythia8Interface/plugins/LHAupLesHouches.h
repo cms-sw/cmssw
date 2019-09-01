@@ -20,33 +20,33 @@
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
 class LHAupLesHouches : public Pythia8::LHAup {
-  public:
-    LHAupLesHouches() : setScalesFromLHEF_(false),fEvAttributes(nullptr) {;}
+public:
+  LHAupLesHouches() : setScalesFromLHEF_(false), fEvAttributes(nullptr) { ; }
 
-    //void loadRunInfo(const boost::shared_ptr<lhef::LHERunInfo> &runInfo)
-    void loadRunInfo(lhef::LHERunInfo* runInfo)
-      { this->runInfo = runInfo; }
+  //void loadRunInfo(const boost::shared_ptr<lhef::LHERunInfo> &runInfo)
+  void loadRunInfo(lhef::LHERunInfo* runInfo) { this->runInfo = runInfo; }
 
-    //void loadEvent(const boost::shared_ptr<lhef::LHEEvent> &event)
-    void loadEvent(lhef::LHEEvent* event)
-      { this->event = event; }
-      
-    void setScalesFromLHEF(bool b) { setScalesFromLHEF_ = b; }
+  //void loadEvent(const boost::shared_ptr<lhef::LHEEvent> &event)
+  void loadEvent(lhef::LHEEvent* event) { this->event = event; }
 
-    ~LHAupLesHouches() override {if(fEvAttributes) delete fEvAttributes;}
+  void setScalesFromLHEF(bool b) { setScalesFromLHEF_ = b; }
 
-  private:
+  ~LHAupLesHouches() override {
+    if (fEvAttributes)
+      delete fEvAttributes;
+  }
 
-    bool setInit() override;
-    bool setEvent(int idProcIn) override;
+private:
+  bool setInit() override;
+  bool setEvent(int idProcIn) override;
 
-    //boost::shared_ptr<lhef::LHERunInfo> runInfo;
-    lhef::LHERunInfo* runInfo;
-    //boost::shared_ptr<lhef::LHEEvent>	event;
-    lhef::LHEEvent* event;
-    
-    // Flag to set particle production scales or not.
-    bool setScalesFromLHEF_;
+  //boost::shared_ptr<lhef::LHERunInfo> runInfo;
+  lhef::LHERunInfo* runInfo;
+  //boost::shared_ptr<lhef::LHEEvent>	event;
+  lhef::LHEEvent* event;
 
-    std::map<std::string, std::string> * fEvAttributes;
+  // Flag to set particle production scales or not.
+  bool setScalesFromLHEF_;
+
+  std::map<std::string, std::string>* fEvAttributes;
 };

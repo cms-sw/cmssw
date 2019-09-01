@@ -17,31 +17,19 @@
 #include <string>
 
 class EcalTBWeightsXMLTranslator {
+public:
+  static int readXML(const std::string& filename, EcalCondHeader& header, EcalTBWeights& record);
 
- public:
-  
-  static int readXML(const std::string& filename,
-		     EcalCondHeader& header,
-		     EcalTBWeights&  record);
-  
-  static int writeXML(const std::string& filename,
-	       const  EcalCondHeader& header,
-	       const  EcalTBWeights&  record);
+  static int writeXML(const std::string& filename, const EcalCondHeader& header, const EcalTBWeights& record);
 
- private:
+private:
+  static std::string dumpXML(const EcalCondHeader& header, const EcalTBWeights& record);
 
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalTBWeights& record);
-  
-  static void readWeightSet(xercesc::DOMNode* parentNode, 
-			    EcalWeightSet& ws);
-  static void writeWeightSet(xercesc::DOMNode* parentNode, 
-			     const EcalWeightSet& ws);
-  static void writeWeightMatrix(xercesc::DOMNode* node,
-				const EcalWeightSet::EcalWeightMatrix& matrix);
-  
-  static void writeChi2WeightMatrix(xercesc::DOMNode* node,
-				    const EcalWeightSet::EcalChi2WeightMatrix& matrix); 
+  static void readWeightSet(xercesc::DOMNode* parentNode, EcalWeightSet& ws);
+  static void writeWeightSet(xercesc::DOMNode* parentNode, const EcalWeightSet& ws);
+  static void writeWeightMatrix(xercesc::DOMNode* node, const EcalWeightSet::EcalWeightMatrix& matrix);
+
+  static void writeChi2WeightMatrix(xercesc::DOMNode* node, const EcalWeightSet::EcalChi2WeightMatrix& matrix);
 };
 
 #endif

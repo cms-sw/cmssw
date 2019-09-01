@@ -21,105 +21,106 @@
 
 class GeomDetType;
 
+namespace cms {
+  class DTGeometryBuilder;
+}
 
 class DTGeometry : public TrackingGeometry {
-
   typedef std::map<DetId, GeomDet*> DTDetMap;
 
-  public:
-    /// Default constructor
-    DTGeometry();
+public:
+  /// Default constructor
+  DTGeometry();
 
-    /// Destructor
-    ~DTGeometry() override;
+  /// Destructor
+  ~DTGeometry() override;
 
-    //---- Base class' interface 
+  void clear();
 
-    // Return a vector of all det types
-    const DetTypeContainer&  detTypes() const override;
+  //---- Base class' interface
 
-    // Returm a vector of all GeomDetUnit
-    const DetContainer&  detUnits() const override;
+  // Return a vector of all det types
+  const DetTypeContainer& detTypes() const override;
 
-    // Returm a vector of all GeomDet (including all GeomDetUnits)
-    const DetContainer& dets() const override;
+  // Returm a vector of all GeomDetUnit
+  const DetContainer& detUnits() const override;
 
-    // Returm a vector of all GeomDetUnit DetIds
-    const DetIdContainer&    detUnitIds() const override;
+  // Returm a vector of all GeomDet (including all GeomDetUnits)
+  const DetContainer& dets() const override;
 
-    // Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
-    const DetIdContainer& detIds() const override;
+  // Returm a vector of all GeomDetUnit DetIds
+  const DetIdContainer& detUnitIds() const override;
 
-    // Return the pointer to the GeomDetUnit corresponding to a given DetId
-    const GeomDet* idToDetUnit(DetId) const override;
+  // Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
+  const DetIdContainer& detIds() const override;
 
-    // Return the pointer to the GeomDet corresponding to a given DetId
-    const GeomDet* idToDet(DetId) const override;
+  // Return the pointer to the GeomDetUnit corresponding to a given DetId
+  const GeomDet* idToDetUnit(DetId) const override;
 
+  // Return the pointer to the GeomDet corresponding to a given DetId
+  const GeomDet* idToDet(DetId) const override;
 
-    //---- Extension of the interface
+  //---- Extension of the interface
 
-    /// Return a vector of all Chamber
-    const std::vector<const DTChamber*>& chambers() const;
+  /// Return a vector of all Chamber
+  const std::vector<const DTChamber*>& chambers() const;
 
-    /// Return a vector of all SuperLayer
-    const std::vector<const DTSuperLayer*>& superLayers() const;
+  /// Return a vector of all SuperLayer
+  const std::vector<const DTSuperLayer*>& superLayers() const;
 
-    /// Return a vector of all SuperLayer
-    const std::vector<const DTLayer*>& layers() const;
+  /// Return a vector of all SuperLayer
+  const std::vector<const DTLayer*>& layers() const;
 
+  /// Return a DTChamber given its id
+  const DTChamber* chamber(const DTChamberId& id) const;
 
-    /// Return a DTChamber given its id
-    const DTChamber* chamber(const DTChamberId& id) const;
+  /// Return a DTSuperLayer given its id
+  const DTSuperLayer* superLayer(const DTSuperLayerId& id) const;
 
-    /// Return a DTSuperLayer given its id
-    const DTSuperLayer* superLayer(const DTSuperLayerId& id) const;
+  /// Return a layer given its id
+  const DTLayer* layer(const DTLayerId& id) const;
 
-    /// Return a layer given its id
-    const DTLayer* layer(const DTLayerId& id) const;
+private:
+  friend class cms::DTGeometryBuilder;
+  friend class DTGeometryBuilderFromDDD;
+  friend class DTGeometryBuilderFromCondDB;
 
+  friend class GeometryAligner;
 
-  private:
-  
-    friend class DTGeometryBuilderFromDDD;
-    friend class DTGeometryBuilderFromCondDB;
+  void deallocate();
 
-    friend class GeometryAligner;
+  /// Add a DTChamber to Geometry
+  void add(DTChamber* ch);
 
+  /// Add a DTSuperLayer to Geometry
+  void add(DTSuperLayer* sl);
 
-    /// Add a DTChamber to Geometry
-    void add(DTChamber* ch);
+  /// Add a DTLayer to Geometry
+  void add(DTLayer* l);
 
-    /// Add a DTSuperLayer to Geometry
-    void add(DTSuperLayer* sl);
+  // The chambers are owned by the geometry (and in turn own superlayers
+  // and layers)
+  std::vector<const DTChamber*> theChambers;
 
-    /// Add a DTLayer to Geometry
-    void add(DTLayer* l);
+  // All following pointers are redundant; they are used only for an
+  // efficient implementation of the interface, and are NOT owned.
 
+  std::vector<const DTSuperLayer*> theSuperLayers;
+  std::vector<const DTLayer*> theLayers;
 
-    // The chambers are owned by the geometry (and in turn own superlayers
-    // and layers)
-    std::vector<const DTChamber*> theChambers; 
+  // Map for efficient lookup by DetId
+  DTDetMap theMap;
 
-    // All following pointers are redundant; they are used only for an
-    // efficient implementation of the interface, and are NOT owned.
+  // These are used rarely; they could be computed at runtime
+  // to save memory.
+  DetContainer theDetUnits;  // all layers
+  DetContainer theDets;      // all chambers, SL, layers
 
-    std::vector<const DTSuperLayer*> theSuperLayers; 
-    std::vector<const DTLayer*> theLayers;
-
-    // Map for efficient lookup by DetId 
-    DTDetMap          theMap;
-
-    // These are used rarely; they could be computed at runtime 
-    // to save memory.
-    DetContainer      theDetUnits;       // all layers
-    DetContainer      theDets;           // all chambers, SL, layers
-
-    // Replace local static with mutable members
-    // to allow lazy evaluation if (ever) needed.
-    DetTypeContainer  theDetTypes;
-    DetIdContainer    theDetUnitIds;
-    DetIdContainer    theDetIds;
+  // Replace local static with mutable members
+  // to allow lazy evaluation if (ever) needed.
+  DetTypeContainer theDetTypes;
+  DetIdContainer theDetUnitIds;
+  DetIdContainer theDetIds;
 };
 
 #endif

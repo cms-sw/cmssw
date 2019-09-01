@@ -4,5 +4,6 @@ pfTauEnergyAlgorithmPlugin = cms.PSet(
     dRaddNeutralHadron = cms.double(0.12), # CV: enabled adding PFNeutralHadrons
     minNeutralHadronEt = cms.double(50.),
     dRaddPhoton = cms.double(-1.), # CV: disabled adding PFGammas
-    minGammaEt = cms.double(10.)
+    minGammaEt = cms.double(10.),
+    verbosity = cms.int32(0)
 )

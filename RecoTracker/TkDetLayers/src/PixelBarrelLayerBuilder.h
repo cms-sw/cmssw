@@ -1,7 +1,6 @@
 #ifndef TkDetLayers_PixelBarrelLayerBuilder_h
 #define TkDetLayers_PixelBarrelLayerBuilder_h
 
-
 #include "PixelBarrelLayer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,15 +11,12 @@
  */
 
 #pragma GCC visibility push(hidden)
-class PixelBarrelLayerBuilder {  
- public:
+class PixelBarrelLayerBuilder {
+public:
   PixelBarrelLayerBuilder(){};
-  PixelBarrelLayer* build(const GeometricDet* aPixelBarrelLayer,
-			  const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
-
-  
+  PixelBarrelLayer* build(const GeometricDet* aPixelBarrelLayer, const TrackerGeometry* theGeomDetGeometry)
+      __attribute__((cold));
 };
 
-
 #pragma GCC visibility pop
-#endif 
+#endif

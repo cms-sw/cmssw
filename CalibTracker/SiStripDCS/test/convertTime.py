@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import time
 import calendar
@@ -77,14 +78,14 @@ def timeStamptoDate(i, localTime = True):
         date = addZeros(date[2]) +'/'+ addZeros(date[1]) +'/'+  date[4] +' '+ date[3]
     except:
         #Handle the case of last IOV (or any IOV) timestamp being "out of range" by returning -1 instead of the date...
-        print "Could not unpack time stamp %s, unpacked to %s!"%(i,unpack(i)[0])
+        print("Could not unpack time stamp %s, unpacked to %s!"%(i,unpack(i)[0]))
         date=-1
     return date
     
 def printUsage():
-    print 'usage: ./convertTime.py time localTime'
-    print '   - "time" is either a  64bit timestamp or a string formatted "DD/MM/YYYY HH:MM:SS"'
-    print '   - "useUTC" is a bool that defaults to True (set to False for local time)'
+    print('usage: ./convertTime.py time localTime')
+    print('   - "time" is either a  64bit timestamp or a string formatted "DD/MM/YYYY HH:MM:SS"')
+    print('   - "useUTC" is a bool that defaults to True (set to False for local time)')
 
 
 
@@ -119,7 +120,7 @@ if __name__ == "__main__":
     
     for time0 in args:
       time1 = main(time0, not useUTC)
-      print time0, '->', time1
+      print(time0, '->', time1)
 
 
 

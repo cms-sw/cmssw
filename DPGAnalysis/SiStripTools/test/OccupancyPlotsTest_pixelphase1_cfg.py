@@ -274,8 +274,6 @@ process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
     cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )
 )
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
-
 process.TFileService = cms.Service('TFileService',
 #                                   fileName = cms.string('OccupancyPlotsTest_newschema.root')
 #                                   fileName = cms.string('OccupancyPlotsTest_pixelphase1.root')

@@ -11,11 +11,10 @@
 
 class L1GctCand {
 public:
-
   L1GctCand();
 
   virtual ~L1GctCand();
- 
+
   /// access origin of candidate
   virtual L1CaloRegionDetId regionId() const = 0;
 
@@ -26,25 +25,20 @@ public:
   ///
   /// Note that the precise meaning of the bits returned by this method
   /// (ie. the Et scale) may differ depending on the concrete type
-  virtual unsigned rank() const = 0; 
+  virtual unsigned rank() const = 0;
 
   /// get eta index (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
   virtual unsigned etaIndex() const = 0;
 
   /// get eta sign bit (1 for -ve Z, 0 for +ve Z)
   virtual unsigned etaSign() const = 0;
-  
+
   /// get phi index (0-17)
   virtual unsigned phiIndex() const = 0;
 
- private:
-
+private:
   /// dummy data member to make derived classes perstistable
   bool dummy_;
-
-
 };
-
-
 
 #endif

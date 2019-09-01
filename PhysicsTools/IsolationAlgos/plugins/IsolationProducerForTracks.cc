@@ -10,7 +10,8 @@
 
 class IsolationProducerForTracks : public edm::EDProducer {
 public:
-  IsolationProducerForTracks(const edm::ParameterSet & );
+  IsolationProducerForTracks(const edm::ParameterSet&);
+
 private:
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
@@ -19,9 +20,7 @@ private:
   edm::EDGetTokenT<reco::IsoDepositMap> isoDepsToken_;
   double trackPtMin_;
   double coneSize_;
-
 };
-
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Association.h"
@@ -36,17 +35,16 @@ using namespace reco;
 
 typedef edm::ValueMap<float> TkIsoMap;
 
-IsolationProducerForTracks::IsolationProducerForTracks(const ParameterSet & pset) :
-  tracksToken_( consumes<CandidateView>( pset.getParameter<InputTag>( "tracks" ) ) ),
-  highPtTracksToken_( consumes<CandidateView>( pset.getParameter<InputTag>( "highPtTracks" ) ) ),
-  isoDepsToken_( consumes<IsoDepositMap>( pset.getParameter<InputTag>( "isoDeps" ) ) ),
-  trackPtMin_( pset.getParameter<double>( "trackPtMin" ) ),
-  coneSize_( pset.getParameter<double>( "coneSize" ) )
- {
+IsolationProducerForTracks::IsolationProducerForTracks(const ParameterSet& pset)
+    : tracksToken_(consumes<CandidateView>(pset.getParameter<InputTag>("tracks"))),
+      highPtTracksToken_(consumes<CandidateView>(pset.getParameter<InputTag>("highPtTracks"))),
+      isoDepsToken_(consumes<IsoDepositMap>(pset.getParameter<InputTag>("isoDeps"))),
+      trackPtMin_(pset.getParameter<double>("trackPtMin")),
+      coneSize_(pset.getParameter<double>("coneSize")) {
   produces<TkIsoMap>();
- }
+}
 
-void IsolationProducerForTracks::produce(Event & event, const EventSetup & setup) {
+void IsolationProducerForTracks::produce(Event& event, const EventSetup& setup) {
   auto caloIsolations = std::make_unique<TkIsoMap>();
   TkIsoMap::Filler filler(*caloIsolations);
   {
@@ -65,19 +63,19 @@ void IsolationProducerForTracks::produce(Event & event, const EventSetup & setup
 
     OverlapChecker overlap;
 
-    for(int i = 0; i < nTracks; ++i ) {
-      const Candidate & tkCand = (*tracks)[ i ];
-      double caloIso = - 1.0;
-      if( tkCand.pt() > trackPtMin_) {
-	for(int j = 0; j < nHighPtTracks; ++j ) {
-	  const Candidate & highPtTkCand = (*highPtTracks)[ j ];
-	  if(overlap(tkCand, highPtTkCand) ) {
-	    CandidateBaseRef tkRef = highPtTracks->refAt(j);
-	    const IsoDeposit &isoDep = (*isoDeps)[tkRef];
-	    caloIso = isoDep.depositWithin(coneSize_);
-	    break;
-	  }
-	}
+    for (int i = 0; i < nTracks; ++i) {
+      const Candidate& tkCand = (*tracks)[i];
+      double caloIso = -1.0;
+      if (tkCand.pt() > trackPtMin_) {
+        for (int j = 0; j < nHighPtTracks; ++j) {
+          const Candidate& highPtTkCand = (*highPtTracks)[j];
+          if (overlap(tkCand, highPtTkCand)) {
+            CandidateBaseRef tkRef = highPtTracks->refAt(j);
+            const IsoDeposit& isoDep = (*isoDeps)[tkRef];
+            caloIso = isoDep.depositWithin(coneSize_);
+            break;
+          }
+        }
       }
       iso[i] = caloIso;
     }

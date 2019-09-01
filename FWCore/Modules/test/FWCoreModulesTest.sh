@@ -14,5 +14,7 @@ echo checkcacheidentifier
 cmsRun ${LOCAL_TEST_DIR}/checkcacheidentifier_cfg.py || die 'failed running cmsRun checkcacheidentifier_cfg.py' $?
 echo testPathStatusFilter
 cmsRun ${LOCAL_TEST_DIR}/testPathStatusFilter_cfg.py || die 'failed running cmsRun testPathStatusFilter_cfg.py' $?
+echo sleepingModules
+cmsRun ${LOCAL_TEST_DIR}/sleepingModules_cfg.py || die 'failed running cmsRun sleepingModules_cfg.py' $?
 
 popd

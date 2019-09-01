@@ -16,56 +16,51 @@
 #include <cstdint>
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
 
-class SiPixelCalibConfiguration
-{
-  
- public :
-
-  SiPixelCalibConfiguration() {;}
+class SiPixelCalibConfiguration {
+public:
+  SiPixelCalibConfiguration() { ; }
   SiPixelCalibConfiguration(const pos::PixelCalibConfiguration &fancyConfig);
 
-  virtual ~SiPixelCalibConfiguration(){;}
+  virtual ~SiPixelCalibConfiguration() { ; }
 
- //-- Setter/Getter
-  
-  short  getNTriggers() const { return fNTriggers;}
-  void  setNTriggers(const  short & in) { fNTriggers = in; }
+  //-- Setter/Getter
 
-  std::vector<short> getRowPattern() const { return fRowPattern;}
-  void  setRowPattern(const std::vector<short> & in) { fRowPattern = in; }
+  short getNTriggers() const { return fNTriggers; }
+  void setNTriggers(const short &in) { fNTriggers = in; }
 
-  std::vector<short> getColumnPattern() const { return fColumnPattern;}
-  void  setColumnPattern(const std::vector<short> & in) { fColumnPattern = in; }
+  std::vector<short> getRowPattern() const { return fRowPattern; }
+  void setRowPattern(const std::vector<short> &in) { fRowPattern = in; }
 
-  void setCalibrationMode(const std::string & in) { fMode = in; }
-  std::string getCalibrationMode() const {return fMode;}
+  std::vector<short> getColumnPattern() const { return fColumnPattern; }
+  void setColumnPattern(const std::vector<short> &in) { fColumnPattern = in; }
 
-  const std::vector<short> getVCalValues() const { return fVCalValues;}
-  void  setVCalValues(const std::vector< short> & in) { fVCalValues = in; }
-  
+  void setCalibrationMode(const std::string &in) { fMode = in; }
+  std::string getCalibrationMode() const { return fMode; }
+
+  const std::vector<short> getVCalValues() const { return fVCalValues; }
+  void setVCalValues(const std::vector<short> &in) { fVCalValues = in; }
+
   // interface with calibration analyzers:
-  short vcalForEvent(const uint32_t & eventnumber) const;
-  short vcalIndexForEvent(const uint32_t & eventnumber) const;
-  std::vector<short> columnPatternForEvent(const uint32_t & eventnumber) const;
-  std::vector<short> rowPatternForEvent(const uint32_t & eventnumber) const;
-  uint32_t nextPatternChangeForEvent(const uint32_t & eventnumber) const;
-  uint32_t expectedTotalEvents () const;
-  uint32_t  patternSize() const {return fNTriggers*fVCalValues.size();}
-  uint32_t nPatterns() const {return nRowPatterns()*nColumnPatterns();}
-  uint32_t nColumnPatterns() const ;
-  uint32_t nRowPatterns() const ;
-  uint32_t nVCal() const { return fVCalValues.size();}
-    
- private :
+  short vcalForEvent(const uint32_t &eventnumber) const;
+  short vcalIndexForEvent(const uint32_t &eventnumber) const;
+  std::vector<short> columnPatternForEvent(const uint32_t &eventnumber) const;
+  std::vector<short> rowPatternForEvent(const uint32_t &eventnumber) const;
+  uint32_t nextPatternChangeForEvent(const uint32_t &eventnumber) const;
+  uint32_t expectedTotalEvents() const;
+  uint32_t patternSize() const { return fNTriggers * fVCalValues.size(); }
+  uint32_t nPatterns() const { return nRowPatterns() * nColumnPatterns(); }
+  uint32_t nColumnPatterns() const;
+  uint32_t nRowPatterns() const;
+  uint32_t nVCal() const { return fVCalValues.size(); }
 
-  short                     fNTriggers;//
-  std::vector<short>        fRowPattern;//
-  std::vector<short>        fColumnPattern;//
-  std::vector<short>        fVCalValues;//
-  std::string               fMode;
+private:
+  short fNTriggers;                   //
+  std::vector<short> fRowPattern;     //
+  std::vector<short> fColumnPattern;  //
+  std::vector<short> fVCalValues;     //
+  std::string fMode;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif
-

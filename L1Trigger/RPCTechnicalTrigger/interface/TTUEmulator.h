@@ -1,4 +1,4 @@
-#ifndef TTUEMULATOR_H 
+#ifndef TTUEMULATOR_H
 #define TTUEMULATOR_H 1
 
 // Include files
@@ -11,6 +11,8 @@
 
 #include <map>
 #include <bitset>
+#include <array>
+#include <memory>
 
 /** @class TTUEmulator TTUEmulator.h
  *  
@@ -35,102 +37,88 @@
  */
 
 class TTUEmulator {
-public: 
+public:
   /// Standard constructor
-  TTUEmulator( ) { }; 
-  
-  TTUEmulator( int, int );
-  
-  TTUEmulator( int, const char *, const char *, int );
-  
-  TTUEmulator( int, const char *, const char * , const char *, int );
-  
-  virtual ~TTUEmulator( ); ///< Destructor
-  
+  TTUEmulator(){};
+
+  TTUEmulator(int, int);
+
+  TTUEmulator(int, const char *, const char *, int);
+
+  TTUEmulator(int, const char *, const char *, const char *, int);
+
   bool initialise();
-  
+
   void emulate();
-  
-  void processTtu( RPCInputSignal * );
-  
-  void processTtu( RPCInputSignal * , int );
-  
-  void printinfo();
-  
-  void setSpecifications( const TTUBoardSpecs *, const RBCBoardSpecs *);
-  
+
+  void processTtu(RPCInputSignal *);
+
+  void processTtu(RPCInputSignal *, int);
+
+  void printinfo() const;
+
+  void setSpecifications(const TTUBoardSpecs *, const RBCBoardSpecs *);
+
   void clearTriggerResponse();
-  
-  int mode() {
-    return m_mode;
-  };
-  
-  void setmode(int mode) {
-    m_mode = mode;
-  };
-  
-  int line() {
-    return m_line;
-  };
-  
-  void SetLineId( int );
-  
+
+  int mode() const { return m_mode; };
+
+  void setmode(int mode) { m_mode = mode; };
+
+  int line() const { return m_line; };
+
+  void SetLineId(int);
+
   void setSpecs();
-  
+
   int m_maxWheels;
-  
-  RPCWheel * m_Wheels;
+
+  std::array<RPCWheel, 2> m_Wheels;
   std::bitset<2> m_trigger;
   std::map<int, std::bitset<2> > m_triggerBx;
 
-  class TriggerResponse 
-  {
+  class TriggerResponse {
   public:
-    
-    TriggerResponse() { m_bx = 0; m_wedge = 0; m_trigger.reset(); };
-    ~TriggerResponse() {;};
-    
-    void setTriggerBits( int bx , const std::bitset<2> & inbits )
-    {
+    TriggerResponse() {
+      m_bx = 0;
+      m_wedge = 0;
+      m_trigger.reset();
+    };
+    ~TriggerResponse() { ; };
+
+    void setTriggerBits(int bx, const std::bitset<2> &inbits) {
       m_bx = bx;
       m_trigger = inbits;
     };
-    
-    void setTriggerBits( int bx , int wdg, const std::bitset<2> & inbits )
-    {
+
+    void setTriggerBits(int bx, int wdg, const std::bitset<2> &inbits) {
       m_bx = bx;
       m_wedge = wdg;
       m_trigger = inbits;
     };
-    
+
     int m_bx;
     int m_wedge;
     std::bitset<2> m_trigger;
-    
   };
-  
-  std::vector<TriggerResponse*> m_triggerBxVec;
-  
+
+  std::vector<TriggerResponse> m_triggerBxVec;
+
 protected:
-  
 private:
-  
   int m_id;
   int m_bx;
   int m_mode;
   int m_line;
-  
-  int * m_wheelIds;
-  
+
+  std::array<int, 6> m_wheelIds;
+
   std::string m_logtype;
-  
-  TTUInput         * m_ttuin;
-  
-  TTUConfiguration * m_ttuconf;
-  
+
+  std::array<TTUInput, 2> m_ttuin;
+
+  std::unique_ptr<TTUConfiguration> m_ttuconf;
+
   bool m_debug;
-
-
-  
 };
-#endif // TTUEMULATOR_H
+#endif  // TTUEMULATOR_H

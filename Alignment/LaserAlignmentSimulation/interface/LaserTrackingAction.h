@@ -13,19 +13,18 @@
 
 #include "G4TrackingManager.hh"
 
-class LaserTrackingAction : public G4UserTrackingAction
-{
- public:
-	/// constructor
-  LaserTrackingAction(edm::ParameterSet const& theConf);
-	/// destructor
+class LaserTrackingAction : public G4UserTrackingAction {
+public:
+  /// constructor
+  LaserTrackingAction(edm::ParameterSet const &theConf);
+  /// destructor
   ~LaserTrackingAction() override;
 
-	/// pre tracking action
-  void PreUserTrackingAction(const G4Track * theTrack) override;
-	/// post tracking action
-  void PostUserTrackingAction(const G4Track * theTrack) override;
+  /// pre tracking action
+  void PreUserTrackingAction(const G4Track *theTrack) override;
+  /// post tracking action
+  void PostUserTrackingAction(const G4Track *theTrack) override;
 
- protected:
+protected:
 };
 #endif

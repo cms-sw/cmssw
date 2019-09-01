@@ -15,28 +15,31 @@
 
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 
-class FWL1JetParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1JetParticle>
-{
+class FWL1JetParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1JetParticle> {
 public:
-   FWL1JetParticleProxyBuilder( void ) {}
-   ~FWL1JetParticleProxyBuilder( void ) override {}
+  FWL1JetParticleProxyBuilder(void) {}
+  ~FWL1JetParticleProxyBuilder(void) override {}
 
-   REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWL1JetParticleProxyBuilder( const FWL1JetParticleProxyBuilder& ) = delete;    // stop default
-   const FWL1JetParticleProxyBuilder& operator=( const FWL1JetParticleProxyBuilder& ) = delete;    // stop default
-  
-   using FWSimpleProxyBuilderTemplate<l1extra::L1JetParticle>::build;
-   void build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* ) override;
+  FWL1JetParticleProxyBuilder(const FWL1JetParticleProxyBuilder&) = delete;                   // stop default
+  const FWL1JetParticleProxyBuilder& operator=(const FWL1JetParticleProxyBuilder&) = delete;  // stop default
+
+  using FWSimpleProxyBuilderTemplate<l1extra::L1JetParticle>::build;
+  void build(const l1extra::L1JetParticle& iData,
+             unsigned int iIndex,
+             TEveElement& oItemHolder,
+             const FWViewContext*) override;
 };
 
-void
-FWL1JetParticleProxyBuilder::build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* ) 
-{
-   double scale = 10;
+void FWL1JetParticleProxyBuilder::build(const l1extra::L1JetParticle& iData,
+                                        unsigned int iIndex,
+                                        TEveElement& oItemHolder,
+                                        const FWViewContext*) {
+  double scale = 10;
 
-   fireworks::addDashedLine( iData.phi(), iData.theta(), iData.pt() * scale, &oItemHolder, this );
+  fireworks::addDashedLine(iData.phi(), iData.theta(), iData.pt() * scale, &oItemHolder, this);
 }
 
-REGISTER_FWPROXYBUILDER( FWL1JetParticleProxyBuilder, l1extra::L1JetParticle, "L1JetParticle", FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER(FWL1JetParticleProxyBuilder, l1extra::L1JetParticle, "L1JetParticle", FWViewType::kAllRPZBits);

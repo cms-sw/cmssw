@@ -14,18 +14,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-
 class SiStripDeDxMipReader : public edm::EDAnalyzer {
-
- public:
-  explicit SiStripDeDxMipReader( const edm::ParameterSet& );
+public:
+  explicit SiStripDeDxMipReader(const edm::ParameterSet&);
   ~SiStripDeDxMipReader();
-  
-  void analyze( const edm::Event&, const edm::EventSetup& );
 
- private:
+  void analyze(const edm::Event&, const edm::EventSetup&);
+
+private:
   //  uint32_t printdebug_;
-
 };
 #endif

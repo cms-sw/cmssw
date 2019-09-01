@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Module:      EventSetup
-// 
+//
 // Description: <one line class summary>
 //
 // Implementation:
@@ -17,105 +17,45 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/Framework/interface/EventSetupKnownRecordsSupplier.h"
 
 namespace edm {
-//
-// constants, enums and typedefs
-//
+  //
+  // constants, enums and typedefs
+  //
 
-//
-// static data member definitions
-//
+  //
+  // static data member definitions
+  //
 
-//
-// constructors and destructor
-//
-EventSetup::EventSetup(ActivityRegistry* activityRegistry) :
-   recordMap_(),
-   activityRegistry_(activityRegistry)
+  //
+  // constructors and destructor
+  //
 
-{
-}
+  // EventSetup::EventSetup(EventSetup const& rhs)
+  // {
+  //    // do actual copying here;
+  // }
 
-// EventSetup::EventSetup(EventSetup const& rhs)
-// {
-//    // do actual copying here;
-// }
+  //
+  // assignment operators
+  //
+  // EventSetup const& EventSetup::operator=(EventSetup const& rhs)
+  // {
+  //   //An exception safe implementation is
+  //   EventSetup temp(rhs);
+  //   swap(rhs);
+  //
+  //   return *this;
+  // }
 
-EventSetup::~EventSetup()
-{
-}
+  //
+  // member functions
+  //
+  //
+  // const member functions
+  //
 
-//
-// assignment operators
-//
-// EventSetup const& EventSetup::operator=(EventSetup const& rhs)
-// {
-//   //An exception safe implementation is
-//   EventSetup temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-void
-EventSetup::insert(const eventsetup::EventSetupRecordKey& iKey,
-                const eventsetup::EventSetupRecord* iRecord)
-{
-   recordMap_[iKey]= iRecord;
-}
-
-void
-EventSetup::clear()
-{
-   recordMap_.clear();
-}
-   
-void 
-EventSetup::add(const eventsetup::EventSetupRecord& iRecord) 
-{
-   insert(iRecord.key(), &iRecord);
-}
-   
-//
-// const member functions
-//
-const eventsetup::EventSetupRecord* 
-EventSetup::find(const eventsetup::EventSetupRecordKey& iKey) const
-{
-   std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *>::const_iterator itFind
-   = recordMap_.find(iKey);
-   if(itFind == recordMap_.end()) {
-      return nullptr;
-   }
-   return itFind->second;
-}
-
-void 
-EventSetup::fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const
-{
-  oToFill.clear();
-  oToFill.reserve(recordMap_.size());
-  
-  typedef std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *> KeyToRecordMap;
-  for(KeyToRecordMap::const_iterator it = recordMap_.begin(), itEnd=recordMap_.end();
-      it != itEnd;
-      ++it) {
-    oToFill.push_back(it->first);
-  }
-}
-
-bool
-EventSetup::recordIsProvidedByAModule( eventsetup::EventSetupRecordKey const& iKey) const
-{
-  return knownRecords_->isKnown(iKey);
-}
-
-//
-// static member functions
-//
-}
+  //
+  // static member functions
+  //
+}  // namespace edm

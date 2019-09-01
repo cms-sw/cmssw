@@ -22,14 +22,22 @@ bool checkRunOrLumiEntry(edm::IndexIntoFile::RunOrLumiEntry const& rl,
                          edm::LuminosityBlockNumber_t lumi,
                          edm::IndexIntoFile::EntryNumber_t beginEvents,
                          edm::IndexIntoFile::EntryNumber_t endEvents) {
-  if (rl.orderPHIDRun() != orderPHIDRun) return false;
-  if (rl.orderPHIDRunLumi() != orderPHIDRunLumi) return false;
-  if (rl.entry() != entry) return false;
-  if (rl.processHistoryIDIndex() != processHistoryIDIndex) return false;
-  if (rl.run() != run) return false;
-  if (rl.lumi() != lumi) return false;
-  if (rl.beginEvents() != beginEvents) return false;
-  if (rl.endEvents() != endEvents) return false;
+  if (rl.orderPHIDRun() != orderPHIDRun)
+    return false;
+  if (rl.orderPHIDRunLumi() != orderPHIDRunLumi)
+    return false;
+  if (rl.entry() != entry)
+    return false;
+  if (rl.processHistoryIDIndex() != processHistoryIDIndex)
+    return false;
+  if (rl.run() != run)
+    return false;
+  if (rl.lumi() != lumi)
+    return false;
+  if (rl.beginEvents() != beginEvents)
+    return false;
+  if (rl.endEvents() != endEvents)
+    return false;
   return true;
 }
 
@@ -64,13 +72,12 @@ int main() try {
   pnl4.push_back(iHLT);
   edm::ProcessHistoryID id4 = pnl4.setProcessHistoryID();
   assert(pnl4 == pnl2);
-  assert (id4 == id2);
+  assert(id4 == id2);
 
   edm::ProcessHistory pnl5;
   pnl5 = pnl3;
   assert(pnl5 == pnl3);
   assert(pnl5.id() == pnl3.id());
-
 
   edm::ProcessConfiguration pc1(std::string("HLT"), psetID, std::string(""), edm::getPassID());
   edm::ProcessConfiguration pc2(std::string("HLT"), psetID, std::string("a"), edm::getPassID());
@@ -234,28 +241,28 @@ int main() try {
     assert(v[3] == rph4.id());
 
     edm::IndexIntoFile indexIntoFile1;
-    indexIntoFile1.addEntry(phid1,  1, 11, 0, 0);
-    indexIntoFile1.addEntry(phid1,  1, 12, 0, 1);
-    indexIntoFile1.addEntry(phid1,  1, 0,  0, 0);
-    indexIntoFile1.addEntry(phid2,  2, 11, 0, 2);
-    indexIntoFile1.addEntry(phid2,  2, 12, 0, 3);
-    indexIntoFile1.addEntry(phid2,  2, 0,  0, 1);
+    indexIntoFile1.addEntry(phid1, 1, 11, 0, 0);
+    indexIntoFile1.addEntry(phid1, 1, 12, 0, 1);
+    indexIntoFile1.addEntry(phid1, 1, 0, 0, 0);
+    indexIntoFile1.addEntry(phid2, 2, 11, 0, 2);
+    indexIntoFile1.addEntry(phid2, 2, 12, 0, 3);
+    indexIntoFile1.addEntry(phid2, 2, 0, 0, 1);
     indexIntoFile1.addEntry(phid1a, 1, 11, 1, 0);
     indexIntoFile1.addEntry(phid1a, 1, 11, 2, 1);
     indexIntoFile1.addEntry(phid1a, 1, 11, 0, 4);
     indexIntoFile1.addEntry(phid1a, 1, 12, 1, 2);
     indexIntoFile1.addEntry(phid1a, 1, 12, 2, 3);
     indexIntoFile1.addEntry(phid1a, 1, 12, 0, 5);
-    indexIntoFile1.addEntry(phid1a, 1, 0,  0, 2);
-    indexIntoFile1.addEntry(phid3,  3, 0,  0, 3);
-    indexIntoFile1.addEntry(phid2a, 2, 0,  0, 4);
-    indexIntoFile1.addEntry(phid2b, 2, 0,  0, 5);
-    indexIntoFile1.addEntry(phid4,  4, 0,  0, 6);
-    indexIntoFile1.addEntry(phid1b, 1, 0,  0, 7);
-    indexIntoFile1.addEntry(phid1,  5, 11, 0, 6);
-    indexIntoFile1.addEntry(phid1,  5, 0,  0, 8);
-    indexIntoFile1.addEntry(phid4,  1, 11, 0, 7);
-    indexIntoFile1.addEntry(phid4,  1, 0,  0, 9);
+    indexIntoFile1.addEntry(phid1a, 1, 0, 0, 2);
+    indexIntoFile1.addEntry(phid3, 3, 0, 0, 3);
+    indexIntoFile1.addEntry(phid2a, 2, 0, 0, 4);
+    indexIntoFile1.addEntry(phid2b, 2, 0, 0, 5);
+    indexIntoFile1.addEntry(phid4, 4, 0, 0, 6);
+    indexIntoFile1.addEntry(phid1b, 1, 0, 0, 7);
+    indexIntoFile1.addEntry(phid1, 5, 11, 0, 6);
+    indexIntoFile1.addEntry(phid1, 5, 0, 0, 8);
+    indexIntoFile1.addEntry(phid4, 1, 11, 0, 7);
+    indexIntoFile1.addEntry(phid4, 1, 0, 0, 9);
 
     indexIntoFile1.sortVector_Run_Or_Lumi_Entries();
 
@@ -294,33 +301,30 @@ int main() try {
     }
     */
 
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(0),  0, -1, 0, 0, 1,  0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(1),  0, -1, 2, 0, 1,  0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(2),  0, -1, 7, 0, 1,  0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(3),  0,  0, 0, 0, 1, 11, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(4),  0,  0, 4, 0, 1, 11,  0,  2));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(5),  0,  1, 1, 0, 1, 12, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(6),  0,  1, 5, 0, 1, 12,  2,  4));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(7),  1, -1, 1, 1, 2,  0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(8),  1, -1, 4, 1, 2,  0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(9),  1, -1, 5, 1, 2,  0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(10), 1,  2, 2, 1, 2, 11, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(11), 1,  3, 3, 1, 2, 12, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(12), 3, -1, 3, 2, 3,  0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(13), 6, -1, 6, 3, 4,  0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(14), 8, -1, 8, 0, 5,  0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(15), 8,  6, 6, 0, 5, 11, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(16), 9, -1, 9, 3, 1,  0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(17), 9,  7, 7, 3, 1, 11, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(0), 0, -1, 0, 0, 1, 0, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(1), 0, -1, 2, 0, 1, 0, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(2), 0, -1, 7, 0, 1, 0, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(3), 0, 0, 0, 0, 1, 11, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(4), 0, 0, 4, 0, 1, 11, 0, 2));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(5), 0, 1, 1, 0, 1, 12, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(6), 0, 1, 5, 0, 1, 12, 2, 4));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(7), 1, -1, 1, 1, 2, 0, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(8), 1, -1, 4, 1, 2, 0, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(9), 1, -1, 5, 1, 2, 0, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(10), 1, 2, 2, 1, 2, 11, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(11), 1, 3, 3, 1, 2, 12, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(12), 3, -1, 3, 2, 3, 0, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(13), 6, -1, 6, 3, 4, 0, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(14), 8, -1, 8, 0, 5, 0, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(15), 8, 6, 6, 0, 5, 11, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(16), 9, -1, 9, 3, 1, 0, -1, -1));
+    assert(checkRunOrLumiEntry(runOrLumiEntries.at(17), 9, 7, 7, 3, 1, 11, -1, -1));
   }
   return 0;
-}
-catch(cms::Exception const& e) {
+} catch (cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;
   return 1;
-}
-catch(std::exception const& e) {
+} catch (std::exception const& e) {
   std::cerr << e.what() << std::endl;
   return 1;
 }
-

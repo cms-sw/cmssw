@@ -8,9 +8,10 @@
  */
 class SmsModeFinder3d : public ModeFinder3d {
 public:
-  SmsModeFinder3d ( const SMS & algo = SMS() );
-  GlobalPoint operator () ( const std::vector< PointAndDistance> & values ) const override;
-  SmsModeFinder3d * clone() const override;
+  SmsModeFinder3d(const SMS& algo = SMS());
+  GlobalPoint operator()(const std::vector<PointAndDistance>& values) const override;
+  SmsModeFinder3d* clone() const override;
+
 private:
   SMS theAlgo;
 };

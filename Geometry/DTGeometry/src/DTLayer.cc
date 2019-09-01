@@ -16,49 +16,32 @@
 
 /* ====================================================================== */
 
-/* Constructor */ 
+/* Constructor */
 DTLayer::DTLayer(const DTLayerId& id,
                  ReferenceCountingPointer<BoundPlane>& plane,
                  const DTTopology& topo,
                  const DTLayerType& type,
-                 const DTSuperLayer* sl) :
-  GeomDetUnit(*&plane), theId(id) , theTopo(topo), theType(type) , theSL(sl){
-      setDetId(id);
+                 const DTSuperLayer* sl)
+    : GeomDetUnit(*&plane), theId(id), theTopo(topo), theType(type), theSL(sl) {
+  setDetId(id);
 }
 
-/* Destructor */ 
-DTLayer::~DTLayer() {
-}
+/* Destructor */
+DTLayer::~DTLayer() {}
 
-/* Operations */ 
-const Topology& DTLayer::topology() const {
-  return theTopo;
-}
+/* Operations */
+const Topology& DTLayer::topology() const { return theTopo; }
 
-const GeomDetType& DTLayer::type() const{
-  return theType;
-}
+const GeomDetType& DTLayer::type() const { return theType; }
 
-const DTTopology& DTLayer::specificTopology() const {
-  return theTopo;
-}
+const DTTopology& DTLayer::specificTopology() const { return theTopo; }
 
-DTLayerId DTLayer::id() const {
-  return theId;
-}
+DTLayerId DTLayer::id() const { return theId; }
 
-bool DTLayer::operator==(const DTLayer& l) const {
-  return id()==l.id();
-}
+bool DTLayer::operator==(const DTLayer& l) const { return id() == l.id(); }
 
-const DTSuperLayer* DTLayer::superLayer() const {
-  return theSL;
-}
+const DTSuperLayer* DTLayer::superLayer() const { return theSL; }
 
-const DTChamber* DTLayer::chamber() const {
-  return (theSL) ? theSL->chamber() : nullptr;
-}
+const DTChamber* DTLayer::chamber() const { return (theSL) ? theSL->chamber() : nullptr; }
 
-std::vector< const GeomDet*> DTLayer::components() const {
-  return std::vector< const GeomDet*>();
-}
+std::vector<const GeomDet*> DTLayer::components() const { return std::vector<const GeomDet*>(); }

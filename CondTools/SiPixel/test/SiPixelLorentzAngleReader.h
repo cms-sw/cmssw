@@ -17,24 +17,22 @@
 #include "TFile.h"
 #include "TH2F.h"
 
-
 //
 //
 // class decleration
 //
-  class SiPixelLorentzAngleReader : public edm::EDAnalyzer {
+class SiPixelLorentzAngleReader : public edm::EDAnalyzer {
+public:
+  explicit SiPixelLorentzAngleReader(const edm::ParameterSet&);
+  ~SiPixelLorentzAngleReader();
 
-  public:
-    explicit SiPixelLorentzAngleReader( const edm::ParameterSet& );
-    ~SiPixelLorentzAngleReader();
-  
-    void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup&);
 
-  private:
-    bool printdebug_;
-    TH1F* LorentzAngleBarrel_;
-    TH1F* LorentzAngleForward_;
-    bool useSimRcd_;
-  };
+private:
+  bool printdebug_;
+  TH1F* LorentzAngleBarrel_;
+  TH1F* LorentzAngleForward_;
+  bool useSimRcd_;
+};
 
 #endif

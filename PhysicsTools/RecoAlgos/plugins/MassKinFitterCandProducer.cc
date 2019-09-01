@@ -7,5 +7,4 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( MassKinFitterCandProducer );
-
+DEFINE_FWK_MODULE(MassKinFitterCandProducer);

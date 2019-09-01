@@ -15,4 +15,3 @@ DEFINE_FWK_MODULE(TrackerizerFP420);
 
 using cms::ReconstructerFP420;
 DEFINE_FWK_MODULE(ReconstructerFP420);
-

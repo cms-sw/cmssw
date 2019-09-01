@@ -2,6 +2,8 @@
 # Original Author:  Marco Rovere
 #         Created:  Tue Feb 9 10:06:02 CEST 2010
 
+from __future__ import print_function
+from builtins import range
 import re
 import sys, os
 import sqlite3
@@ -23,23 +25,23 @@ class visitor:
         self.t = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
         
     def enter(self, value):
-        if type(value) == cms.Sequence:
+        if isinstance(value, cms.Sequence):
             self.out.write('<ol><div class=sequence>%s</div>\n' % value.label())
             self.level_ +=1
             self.level[self.level_] = 0
         else:
-            if type(value) == cms.EDAnalyzer:
+            if isinstance(value, cms.EDAnalyzer):
                 self.out.write( '<li>EDAnalyzer ' )
-            elif type(value) == cms.EDProducer:
+            elif isinstance(value, cms.EDProducer):
                 self.out.write( '<li>EDProducer ' )
-            elif type(value) == cms.EDFilter:
+            elif isinstance(value, cms.EDFilter):
                 self.out.write( '<li>EDFilter ' )
             mem = self.dumpProducerOrFilter(value)
             for i in range(len(mem)):
                 self.t[i] += int(mem[i])
                 self.level[self.level_] += int(mem[i])
     def leave(self, value):
-        if type(value) == cms.Sequence:
+        if isinstance(value, cms.Sequence):
             self.out.write('(%s, %s, %s, %s, %s) %f [%f] - %s' % (prettyInt(self.t[0]),\
                                                                   prettyInt(self.t[1]),\
                                                                   prettyInt(self.t[2]),\
@@ -135,15 +137,15 @@ def endDocument():
 def checkRel():
     env = os.getenv('CMSSW_RELEASE_BASE')
     if env is not None:
-        print 'Working with release ', os.getenv('CMSSW_VERSION'), ' in area ', env
-        print os.getcwd()
+        print('Working with release ', os.getenv('CMSSW_VERSION'), ' in area ', env)
+        print(os.getcwd())
     else:
-        print 'You must set a proper CMSSW environment first. Quitting.'
+        print('You must set a proper CMSSW environment first. Quitting.')
         sys.exit(1)
 
 # Check argument list
 if len(sys.argv) < 3:
-    print 'Error.\nUsage py2tex python_config_file igprof_report'
+    print('Error.\nUsage py2tex python_config_file igprof_report')
     sys.exit(1)
 else:
     toload = sys.argv[1]
@@ -156,11 +158,11 @@ pwd = os.getenv('PWD') +'/'
 sys.path.append(pwd)
 checkRel()
 
-print "Trying to load", toload
+print("Trying to load", toload)
 try:
     a = __import__(str(toload))
 except:
-    print 'Import Failed, quitting...'
+    print('Import Failed, quitting...')
     sys.exit(1)
 
 if not os.path.exists(pwd+'html'):
@@ -176,9 +178,9 @@ out = open('./html/'+towrite,'w')
 # top of it.
 
 try:
-    print a.process.process
+    print(a.process.process)
 except:
-    print 'No process defined in the supplied configuration file: creating a DUMMY one'
+    print('No process defined in the supplied configuration file: creating a DUMMY one')
     cmsswBase = os.getenv('CMSSW_BASE')
     tmpFile = open('dummy.py','w')
     tmpFile.write("import FWCore.ParameterSet.Config as cms\n")

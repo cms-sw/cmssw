@@ -2,7 +2,7 @@
 //
 // Package:     HOGeometry
 // Class  :     HOAlignmentRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

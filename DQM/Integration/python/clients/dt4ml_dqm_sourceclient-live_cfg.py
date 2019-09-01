@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import os
 
@@ -40,9 +41,9 @@ process.dqmSaver.keepBackupLumi = True
 process.dqmSaver.path = filePath
 
 # disable DQM gui
-print "old:",process.DQM.collectorHost
+print("old:",process.DQM.collectorHost)
 process.DQM.collectorHost = cms.untracked.string('dqm-blackhole.cms')
-print "new:",process.DQM.collectorHost
+print("new:",process.DQM.collectorHost)
 ### END OF CUSTOMIZE FOR ML
 
 # DT reco and DQM sequences
@@ -72,7 +73,7 @@ process.dtunpacker.inputLabel = cms.InputTag("rawDataCollector")
 process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
 process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
 
-print "Running with run type = ", process.runType.getRunType()
+print("Running with run type = ", process.runType.getRunType())
 
 #----------------------------
 #### pp run settings 
@@ -95,7 +96,6 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 #----------------------------
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.dtunpacker.fedbyType = cms.bool(False)
     process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
     process.dtunpacker.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")

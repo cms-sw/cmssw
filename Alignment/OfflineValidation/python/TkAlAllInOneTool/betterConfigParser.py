@@ -1,9 +1,11 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import ConfigParser
 import os
 import re
 import copy
 import collections
-from TkAlExceptions import AllInOneError
+from .TkAlExceptions import AllInOneError
 
 
 class AdaptedDict(collections.OrderedDict):
@@ -145,7 +147,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
                                 knownSimpleOptions = ["levels", "dbOutput","moduleList","modulesToPlot","useDefaultRange","plotOnlyGlobal","plotPng","makeProfilePlots",
                                                       "dx_min","dx_max","dy_min","dy_max","dz_min","dz_max","dr_min","dr_max","rdphi_min","rdphi_max",
                                                       "dalpha_min","dalpha_max","dbeta_min","dbeta_max","dgamma_min","dgamma_max",
-                                                      "jobmode", "3DSubdetector1", "3Dubdetector2", "3DTranslationalScaleFactor", "jobid"])
+                                                      "jobmode", "3DSubdetector1", "3Dubdetector2", "3DTranslationalScaleFactor", "jobid", "multiIOV"])
                 levels = self.get( section, "levels" )
                 dbOutput = self.get( section, "dbOutput" )
                 compares[section.split(":")[1]] = ( levels, dbOutput )
@@ -156,10 +158,12 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             "jobmode":"interactive",
             "datadir":os.getcwd(),
             "logdir":os.getcwd(),
-            "eosdir": "",
             }
-        self.checkInput("general", knownSimpleOptions = defaults.keys())
-        general = self.getResultingSection( "general", defaultDict = defaults )
+        mandatories = [
+            "eosdir",
+        ]
+        self.checkInput("general", knownSimpleOptions = defaults.keys() + mandatories)
+        general = self.getResultingSection( "general", defaultDict = defaults, demandPars = mandatories )
         internal_section = "internals"
         if not self.has_section(internal_section):
             self.add_section(internal_section)

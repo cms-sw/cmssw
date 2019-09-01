@@ -1,7 +1,9 @@
+from __future__ import print_function
+from __future__ import absolute_import
 from optparse import OptionParser
 import sys,os, re, subprocess, datetime
 
-import eostools as castortools
+from . import eostools as castortools
 
 class logger:
     '''COLIN: do something cleaner with tagPackage'''
@@ -43,8 +45,8 @@ class logger:
     isTgzDirOnCastor = isTgzDirOnEOS
 
     def dump(self):
-        print 'local dir      :', self.dirLocal
-        print 'castor archive :',self.tgzDirOnCastor
+        print('local dir      :', self.dirLocal)
+        print('castor archive :',self.tgzDirOnCastor)
 
     def addFile(self, file):
         #        if self.dirLocal == None:
@@ -74,7 +76,7 @@ class logger:
         oldPwd = os.getcwd()
         os.chdir( os.getenv('CMSSW_BASE') + '/src/' )
         diffCmd = 'git diff -p --stat --color=never > %s/%s 2> /dev/null' % (oldPwd, log)
-        print diffCmd
+        print(diffCmd)
         os.system( diffCmd )
         os.chdir( oldPwd )
 
@@ -97,34 +99,34 @@ class logger:
         if self.tgzDirOnCastor != None:
             # castortools.xrdcp( '.', [self.tgzDirOnCastor] )
             cmsStage = 'cmsStage -f ' + self.tgzDirOnCastor + ' .'
-            print cmsStage
+            print(cmsStage)
             os.system( cmsStage ) 
             tgzDir = os.path.basename( self.tgzDirOnCastor )
-            print tgzDir 
+            print(tgzDir) 
             os.system('tar -zxvf ' + tgzDir)
             os.system('rm ' + tgzDir )
             (root, ext) = os.path.splitext(tgzDir)
             self.dirLocal = root
         else:
-            print 'cannot stage in, the log had not been staged out'
+            print('cannot stage in, the log had not been staged out')
 
     def stageOut(self, castorDir):
 
         castorDir = castortools.eosToLFN( castorDir )
         if not castortools.isLFN( castorDir ):
-            print 'cannot stage out, you need to provide an LFN as a destination directory, beginning with /store .'
+            print('cannot stage out, you need to provide an LFN as a destination directory, beginning with /store .')
             return False
         
         if self.dirLocal != None:
             tgzDir = self.dirLocal + '.tgz'
             tgzCmd = 'tar -zcvf ' + tgzDir + ' ' + self.dirLocal
-            print tgzCmd
+            print(tgzCmd)
             os.system( tgzCmd)
             cmsStage = 'cmsStage -f %s %s' % (tgzDir, castorDir )
-            print cmsStage
+            print(cmsStage)
             os.system( cmsStage )
             os.system('rm ' + tgzDir )
             self.tgzDirOnCastor =  castorDir + '/' + tgzDir
         else:
-            print 'cannot stage out, the log is not staged in'
+            print('cannot stage out, the log is not staged in')
             

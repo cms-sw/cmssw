@@ -15,10 +15,9 @@
 
 // convert phi from rad (-pi, pi] to deg (0, 360)
 const double rad2deg(const double& phiRad) {
-
-    if (phiRad < 0.) {
-        return (phiRad * PiConversion) + 360.;
-    } else {
-        return (phiRad * PiConversion);
-    }
+  if (phiRad < 0.) {
+    return (phiRad * PiConversion) + 360.;
+  } else {
+    return (phiRad * PiConversion);
+  }
 }

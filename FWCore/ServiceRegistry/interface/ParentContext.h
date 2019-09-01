@@ -26,15 +26,7 @@ namespace edm {
 
   class ParentContext {
   public:
-
-    enum class Type {
-      kGlobal,
-      kInternal,
-      kModule,
-      kPlaceInPath,
-      kStream,
-      kInvalid
-    };
+    enum class Type { kGlobal, kInternal, kModule, kPlaceInPath, kStream, kInvalid };
 
     ParentContext();
     ParentContext(GlobalContext const*);
@@ -46,7 +38,7 @@ namespace edm {
     Type type() const { return type_; }
 
     bool isAtEndTransition() const;
-    
+
     GlobalContext const* globalContext() const;
     InternalContext const* internalContext() const;
     ModuleCallingContext const* moduleCallingContext() const;
@@ -66,5 +58,5 @@ namespace edm {
   };
 
   std::ostream& operator<<(std::ostream&, ParentContext const&);
-}
+}  // namespace edm
 #endif

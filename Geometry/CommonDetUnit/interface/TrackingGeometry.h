@@ -23,20 +23,19 @@
 #include <vector>
 #include <unordered_map>
 
-class TrackingGeometry
-{
+class TrackingGeometry {
 public:
-  using DetTypeContainer = std::vector< const GeomDetType* >;
-  using DetContainer = std::vector< const GeomDet* >;
-  using DetIdContainer = std::vector< DetId >;
-  using mapIdToDetUnit =  std::unordered_map< unsigned int, const GeomDet* >;
-  using mapIdToDet =  std::unordered_map< unsigned int, const GeomDet* >;
+  using DetTypeContainer = std::vector<const GeomDetType*>;
+  using DetContainer = std::vector<const GeomDet*>;
+  using DetIdContainer = std::vector<DetId>;
+  using mapIdToDetUnit = std::unordered_map<unsigned int, const GeomDet*>;
+  using mapIdToDet = std::unordered_map<unsigned int, const GeomDet*>;
 
   /// Destructor.
   virtual ~TrackingGeometry() {}
-  
+
   /// Return a vector of all det types.
-  virtual const DetTypeContainer&  detTypes() const = 0;
+  virtual const DetTypeContainer& detTypes() const = 0;
 
   /// Returm a vector of all GeomDet
   virtual const DetContainer& detUnits() const = 0;

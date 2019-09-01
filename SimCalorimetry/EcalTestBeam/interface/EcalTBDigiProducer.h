@@ -1,10 +1,10 @@
 #ifndef SimCalorimetry_EcalTestBeam_EcalTBDigiProducer_h
 #define SimCalorimetry_EcalTestBeam_EcalTBDigiProducer_h
 
-#include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "SimCalorimetry/EcalTestBeamAlgos/interface/EcalTBReadout.h"
 #include "RecoTBCalo/EcalTBTDCReconstructor/interface/EcalTBTDCRecInfoAlgo.h"
+#include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
+#include "SimCalorimetry/EcalTestBeamAlgos/interface/EcalTBReadout.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRawInfo.h"
 
 namespace edm {
@@ -13,50 +13,46 @@ namespace edm {
   class Event;
   class EventSetup;
   class ParameterSet;
-}
+}  // namespace edm
 class PEcalTBInfo;
 class PileUpEventPrincipal;
 
-class EcalTBDigiProducer : public EcalDigiProducer
-{
-   public:
+class EcalTBDigiProducer : public EcalDigiProducer {
+public:
+  EcalTBDigiProducer(const edm::ParameterSet &params, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC);
+  ~EcalTBDigiProducer() override;
 
-      EcalTBDigiProducer( const edm::ParameterSet& params, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) ;
-      ~EcalTBDigiProducer() override ;
+  void initializeEvent(edm::Event const &, edm::EventSetup const &) override;
+  void finalizeEvent(edm::Event &, edm::EventSetup const &) override;
 
+private:
+  void cacheEBDigis(const EBDigiCollection *ebDigiPtr) const override;
+  void cacheEEDigis(const EEDigiCollection *eeDigiPtr) const override;
 
-      void initializeEvent(edm::Event const&, edm::EventSetup const&) override;
-      void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
+  void setPhaseShift(const DetId &detId);
 
-   private:
+  void fillTBTDCRawInfo(EcalTBTDCRawInfo &theTBTDCRawInfo);
 
-      void cacheEBDigis( const EBDigiCollection* ebDigiPtr ) const override ;
-      void cacheEEDigis( const EEDigiCollection* eeDigiPtr ) const override ; 
+  const EcalTrigTowerConstituentsMap m_theTTmap;
+  EcalTBReadout *m_theTBReadout;
 
-      void setPhaseShift( const DetId& detId ) ;
+  std::string m_ecalTBInfoLabel;
+  std::string m_EBdigiFinalTag;
+  std::string m_EBdigiTempTag;
 
-      void fillTBTDCRawInfo( EcalTBTDCRawInfo& theTBTDCRawInfo ) ;
+  bool m_doPhaseShift;
+  double m_thisPhaseShift;
 
-      const EcalTrigTowerConstituentsMap m_theTTmap        ;
-      EcalTBReadout*                     m_theTBReadout    ;
+  bool m_doReadout;
 
-      std::string m_ecalTBInfoLabel ;
-      std::string m_EBdigiFinalTag  ;
-      std::string m_EBdigiTempTag   ;
+  std::vector<EcalTBTDCRecInfoAlgo::EcalTBTDCRanges> m_tdcRanges;
+  bool m_use2004OffsetConvention;
 
-      bool   m_doPhaseShift   ;
-      double m_thisPhaseShift ;
+  double m_tunePhaseShift;
 
-      bool   m_doReadout      ;
-
-      std::vector<EcalTBTDCRecInfoAlgo::EcalTBTDCRanges> m_tdcRanges ;
-      bool   m_use2004OffsetConvention ;
-      
-      double m_tunePhaseShift ;
-
-      mutable std::unique_ptr<EBDigiCollection> m_ebDigis ;
-      mutable std::unique_ptr<EEDigiCollection> m_eeDigis ;
-      mutable std::unique_ptr<EcalTBTDCRawInfo> m_TDCproduct ;
+  mutable std::unique_ptr<EBDigiCollection> m_ebDigis;
+  mutable std::unique_ptr<EEDigiCollection> m_eeDigis;
+  mutable std::unique_ptr<EcalTBTDCRawInfo> m_TDCproduct;
 };
 
-#endif 
+#endif

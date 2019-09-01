@@ -24,74 +24,60 @@ If failedToGet() returns false but isValid() is also false then no attempt
   to get data has occurred
 
 ----------------------------------------------------------------------*/
-#include <typeinfo>
 
 #include "DataFormats/Common/interface/HandleBase.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
 
   template <typename T>
   class Handle : public HandleBase {
   public:
-    typedef T element_type;
+    using element_type = T;
 
     // Default constructed handles are invalid.
     Handle();
 
     Handle(T const* prod, Provenance const* prov);
-    
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-    Handle(std::shared_ptr<HandleExceptionFactory> &&);
+
+    Handle(std::shared_ptr<HandleExceptionFactory>&&);
     Handle(Handle const&) = default;
-    
     Handle& operator=(Handle&&) = default;
     Handle& operator=(Handle const&) = default;
-#endif
-    
+
     ~Handle();
 
     T const* product() const;
-    T const* operator->() const; // alias for product()
+    T const* operator->() const;  // alias for product()
     T const& operator*() const;
 
   private:
   };
 
   template <class T>
-  Handle<T>::Handle() : HandleBase()
-  { }
+  Handle<T>::Handle() : HandleBase() {}
 
   template <class T>
-  Handle<T>::Handle(T const* prod, Provenance const* prov) : HandleBase(prod, prov) { 
-  }
+  Handle<T>::Handle(T const* prod, Provenance const* prov) : HandleBase(prod, prov) {}
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   template <class T>
-  Handle<T>::Handle(std::shared_ptr<edm::HandleExceptionFactory> && iWhyFailed) :
-  HandleBase(std::move(iWhyFailed))
-  { }
-#endif
+  Handle<T>::Handle(std::shared_ptr<edm::HandleExceptionFactory>&& iWhyFailed) : HandleBase(std::move(iWhyFailed)) {}
 
   template <class T>
   Handle<T>::~Handle() {}
 
   template <class T>
-  T const* 
-  Handle<T>::product() const { 
+  T const* Handle<T>::product() const {
     return static_cast<T const*>(productStorage());
   }
 
   template <class T>
-  T const* 
-  Handle<T>::operator->() const {
+  T const* Handle<T>::operator->() const {
     return product();
   }
 
   template <class T>
-  T const& 
-  Handle<T>::operator*() const {
+  T const& Handle<T>::operator*() const {
     return *product();
   }
-}
+}  // namespace edm
 #endif

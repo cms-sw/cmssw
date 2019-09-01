@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DQM")
+from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
+process = cms.Process("DQM", run2_HECollapse_2018)
 # for live online DQM in P5
 process.load("DQM.Integration.config.inputsource_cfi")
 # used in the old input source
@@ -22,8 +23,15 @@ process.dqmSaver.tag = 'HLT'
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer" ) # for muon hlt dqm
+process.HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
+process.ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProducer",
+    ComponentName = cms.string( "ClusterShapeHitFilter" ),
+    PixelShapeFileL1 = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_loose.par" ),
+    clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+    PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par" )
+)
 #SiStrip Local Reco
-process.load("CalibTracker.SiStripCommon.TkDetMap_cff")
+process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 
 #---- for P5 (online) DB access
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")

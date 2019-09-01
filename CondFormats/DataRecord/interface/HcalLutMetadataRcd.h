@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     HcalLutMetadataRcd
-// 
+//
 /**\class HcalLutMetadataRcd HcalLutMetadataRcd.h CondFormats/DataRecord/interface/HcalLutMetadataRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Sat Mar  1 15:49:28 CET 2008
 //
 
@@ -22,6 +22,8 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HcalLutMetadataRcd : public edm::eventsetup::DependentRecordImplementation<HcalLutMetadataRcd, boost::mpl::vector<HcalRecNumberingRecord,IdealGeometryRecord> > {};
+class HcalLutMetadataRcd : public edm::eventsetup::DependentRecordImplementation<
+                               HcalLutMetadataRcd,
+                               boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 
 #endif

@@ -17,7 +17,8 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h" 
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -45,7 +46,7 @@
 class TrackerTopology;
 
 class HitEff : public edm::EDAnalyzer {
- public:  
+public:
   explicit HitEff(const edm::ParameterSet& conf);
   double checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr);
   bool isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) const;
@@ -53,55 +54,67 @@ class HitEff : public edm::EDAnalyzer {
   ~HitEff() override;
   unsigned int checkLayer(unsigned int iidd, const TrackerTopology* tTopo);
 
- private:
+private:
   void beginJob() override;
-  void endJob() override; 
+  void endJob() override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-        // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   const edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
   const edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > commonModeToken_;
-  
+
   bool addLumi_;
   bool addCommonMode_;
   bool cutOnTracks_;
   unsigned int trackMultiplicityCut_;
-  
-  const edm::EDGetTokenT< reco::TrackCollection > combinatorialTracks_token_;
-  const edm::EDGetTokenT< std::vector<Trajectory> > trajectories_token_;
-  const edm::EDGetTokenT< edmNew::DetSetVector<SiStripCluster> > clusters_token_;
+  bool useFirstMeas_;
+  bool useLastMeas_;
+  bool useAllHitsFromTracksWithMissingHits_;
+
+  const edm::EDGetTokenT<reco::TrackCollection> combinatorialTracks_token_;
+  const edm::EDGetTokenT<std::vector<Trajectory> > trajectories_token_;
+  const edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackAsso_token_;
+  const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusters_token_;
   const edm::EDGetTokenT<DetIdCollection> digis_token_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
 
   edm::ParameterSet conf_;
-  
+
   TTree* traj;
-  int events,EventTrackCKF;
-  
+  int events, EventTrackCKF;
+
+  int compSettings;
   unsigned int layers;
   bool DEBUG;
   unsigned int whatlayer;
-  
-  // Tree declarations
-  // Trajectory positions for modules included in the study
-  float TrajGlbX, TrajGlbY, TrajGlbZ;
-  float TrajLocX, TrajLocY, TrajLocErrX, TrajLocErrY, TrajLocAngleX, TrajLocAngleY;
-  float ClusterLocX, ClusterLocY, ClusterLocErrX, ClusterLocErrY, ClusterStoN;
-  float ResX, ResXSig;
-  unsigned int ModIsBad; unsigned int Id; unsigned int SiStripQualBad; bool withinAcceptance;
-  int nHits, nLostHits; 
-  float p, pT, chi2;
-  unsigned int trajHitValid, run, event, bunchx;
+
+// Tree declarations
+// Trajectory positions for modules included in the study
+#ifdef ExtendedCALIBTree
   float timeDT, timeDTErr;
   int timeDTDOF;
   float timeECAL, dedx;
   int dedxNOM;
+  int nLostHits;
+  float p, chi2;
+#endif
+  float TrajGlbX, TrajGlbY, TrajGlbZ;
+  float TrajLocX, TrajLocY, TrajLocAngleX, TrajLocAngleY;
+  float TrajLocErrX, TrajLocErrY;
+  float ClusterLocX, ClusterLocY, ClusterLocErrX, ClusterLocErrY, ClusterStoN;
+  float ResX, ResXSig;
+  unsigned int ModIsBad;
+  unsigned int Id;
+  unsigned int SiStripQualBad;
+  bool withinAcceptance;
+  bool highPurity;
+  int nHits;
+  float pT;
+  unsigned int trajHitValid, run, event, bunchx;
   int tquality;
-  int istep;
   float instLumi, PU;
   float commonMode;
 };
-
 
 //#endif

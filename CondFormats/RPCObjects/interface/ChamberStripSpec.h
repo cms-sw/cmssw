@@ -12,9 +12,9 @@ struct ChamberStripSpec {
   int cablePinNumber;
   int chamberStripNumber;
   int cmsStripNumber;
-  
+
   /// debug printout
-  std::string print( int depth = 0) const;
+  std::string print(int depth = 0) const;
 
   COND_SERIALIZABLE;
 };

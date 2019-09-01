@@ -32,6 +32,7 @@
 <use   name="RecoPixelVertexing/PixelTrackFitting"/>
 <use   name="DataFormats/VertexReco"/>
 <lib   name="MathMore"/>
+<use   name="DataFormats/Candidate"/>
 <library   file="*.cc" name="ValidationRecoTrackPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

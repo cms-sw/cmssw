@@ -5,20 +5,16 @@
  **/
 
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
-EcalWeightSet::EcalWeightSet() {
-
-}
+EcalWeightSet::EcalWeightSet() {}
 
 EcalWeightSet::EcalWeightSet(const EcalWeightSet& rhs) {
   wgtBeforeSwitch_ = rhs.wgtBeforeSwitch_;
   wgtAfterSwitch_ = rhs.wgtAfterSwitch_;
   wgtChi2BeforeSwitch_ = rhs.wgtChi2BeforeSwitch_;
   wgtChi2AfterSwitch_ = rhs.wgtChi2AfterSwitch_;
-
 }
 
 EcalWeightSet& EcalWeightSet::operator=(const EcalWeightSet& rhs) {
-
   wgtBeforeSwitch_ = rhs.wgtBeforeSwitch_;
   wgtAfterSwitch_ = rhs.wgtAfterSwitch_;
   wgtChi2BeforeSwitch_ = rhs.wgtChi2BeforeSwitch_;
@@ -26,5 +22,4 @@ EcalWeightSet& EcalWeightSet::operator=(const EcalWeightSet& rhs) {
   return *this;
 }
 
-EcalWeightSet::~EcalWeightSet() {
-}
+EcalWeightSet::~EcalWeightSet() {}

@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<MaterialSection label="ectkcablematerial.xml">
+  <CompositeMaterial name="TS_PowerCable" density="4.02080*g/cm3" method="mixture by weight" symbol=" ">
+    <MaterialFraction fraction="0.10028">
+      <rMaterial name="materials:Copper" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.89972">
+      <rMaterial name="materials:Polyethylene" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="TS_SignalCable" density="3.13035*g/cm3" method="mixture by weight" symbol=" ">
+    <MaterialFraction fraction="0.10018">
+      <rMaterial name="materials:Copper" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.89982">
+      <rMaterial name="materials:Polyethylene" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="CAB_Al60" density="1.37448*g/cm3" method="mixture by weight" symbol=" ">
+    <MaterialFraction fraction="0.29872">
+      <rMaterial name="materials:Copper" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.35518">
+      <rMaterial name="materials:Aluminium" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.2691">
+      <rMaterial name="materials:Polyethylene" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.02224">
+      <rMaterial name="materials:T_Kapton" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.05475">
+      <rMaterial name="materials:Silver" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="CAB_Al48" density="1.14748*g/cm3" method="mixture by weight" symbol=" ">
+    <MaterialFraction fraction="0.31894">
+      <rMaterial name="materials:Copper" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.32994">
+      <rMaterial name="materials:Aluminium" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.28131">
+      <rMaterial name="materials:Polyethylene" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.02411">
+      <rMaterial name="materials:T_Kapton" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0457">
+      <rMaterial name="materials:Silver" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="CAB_Al36" density="1.06783*g/cm3" method="mixture by weight" symbol=" ">
+    <MaterialFraction fraction="0.32521">
+      <rMaterial name="materials:Copper" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.31456">
+      <rMaterial name="materials:Aluminium" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.29435">
+      <rMaterial name="materials:Polyethylene" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.02564">
+      <rMaterial name="materials:T_Kapton" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.04024">
+      <rMaterial name="materials:Silver" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="T_C6F14_F2_-30C" density="1.87917*g/cm3" method="mixture by weight" symbol=" ">
+    <MaterialFraction fraction="1.00000000">
+      <rMaterial name="materials:C6F14" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="T_RuggRibbon" density="0.83457*g/cm3" method="mixture by weight" symbol=" ">
+    <MaterialFraction fraction="0.67776">
+      <rMaterial name="materials:Polyethylene" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.13932">
+      <rMaterial name="materials:Kevlar" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.06569">
+      <rMaterial name="materials:Acrylate" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.04524">
+      <rMaterial name="materials:Silica" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.07199">
+      <rMaterial name="materials:Acrylate" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Tk_Cables_PP1" density="2.07590*g/cm3" method="mixture by weight" symbol=" ">
+    <MaterialFraction fraction="0.00998">
+      <rMaterial name="ectkcablemat:TS_PowerCable" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.06704">
+      <rMaterial name="materials:Steel-008" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0">
+      <rMaterial name="materials:C6F14_3M_-15C" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.22783">
+      <rMaterial name="ectkcablemat:CAB_Al60" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.01863">
+      <rMaterial name="materials:Polyethylene" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.13358">
+      <rMaterial name="ectkcablemat:T_C6F14_F2_-30C" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.10686">
+      <rMaterial name="materials:Copper" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.08857">
+      <rMaterial name="ectkcablemat:T_RuggRibbon" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.12643">
+      <rMaterial name="ectkcablemat:CAB_Al48" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.21136">
+      <rMaterial name="ectkcablemat:CAB_Al36" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.00972">
+      <rMaterial name="ectkcablemat:TS_SignalCable" />
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Tk_Connectors_PP1" density="0.30245*g/cm3" method="mixture by weight" symbol=" ">
+    <MaterialFraction fraction="0.22194">
+      <rMaterial name="ectkcablemat:CAB_Al36" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.08451">
+      <rMaterial name="ectkcablemat:CAB_Al48" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.27443">
+      <rMaterial name="ectkcablemat:CAB_Al60" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.13535">
+      <rMaterial name="ectkcablemat:T_RuggRibbon" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.01331">
+      <rMaterial name="ectkcablemat:T_RuggRibbon" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.01320">
+      <rMaterial name="materials:Copper" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.22420">
+      <rMaterial name="ectkcablemat:T_C6F14_F2_-30C" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.01676">
+      <rMaterial name="ectkcablemat:TS_PowerCable" />
+    </MaterialFraction>
+    <MaterialFraction fraction="0.01631">
+      <rMaterial name="ectkcablemat:TS_SignalCable" />
+    </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+
+</DDDefinition>

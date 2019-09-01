@@ -7,11 +7,12 @@ from RecoEcal.EgammaClusterProducers.multi5x5ClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.multi5x5PreshowerClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.preshowerClusteringSequence_cff import *
 from RecoHI.HiEgammaAlgos.HiIsolationCommonParameters_cff import *
-from RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff import *
+from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECAL_cfi import *
 
 particleFlowSuperClusterECAL.regressionConfig.vertexCollection = 'hiSelectedVertex'
 
-hiEcalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence*preshowerClusteringSequence*particleFlowSuperClusteringSequence)
+hiEcalClusteringTask = cms.Task(islandClusteringTask,hybridClusteringTask,multi5x5ClusteringTask,multi5x5PreshowerClusteringTask,preshowerClusteringTask,particleFlowSuperClusterECAL)
+hiEcalClusteringSequence = cms.Sequence(hiEcalClusteringTask)
 
 
 # reco photon producer
@@ -31,7 +32,8 @@ photons.primaryVertexProducer = cms.InputTag('hiSelectedVertex') # replace the p
 photons.isolationSumsCalculatorSet.trackProducer = isolationInputParameters.track    # cms.InputTag("highPurityTracks")
 
 from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducer
-hiPhotonSequence = cms.Sequence(photonSequence * photonIsolationHIProducer)
+hiPhotonTask = cms.Task(photonTask,photonIsolationHIProducer)
+hiPhotonSequence = cms.Sequence(hiPhotonTask)
 
 # HI Ecal reconstruction
 hiEcalClusters = cms.Sequence(hiEcalClusteringSequence)
@@ -47,6 +49,7 @@ cleanPhotons = photons.clone(
     photonCoreProducer = cms.InputTag("cleanPhotonCore")
 )
 
-hiPhotonCleaningSequence = cms.Sequence(hiSpikeCleanedSC *
-                                        cleanPhotonCore  *
-                                        cleanPhotons)
+hiPhotonCleaningTask = cms.Task(hiSpikeCleanedSC,
+                                cleanPhotonCore,
+                                cleanPhotons)
+hiPhotonCleaningSequence = cms.Sequence(hiPhotonCleaningTask)

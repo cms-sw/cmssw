@@ -13,14 +13,10 @@
 
 class TrajectoryStateOnSurface;
 
-class SegmentAlignmentDerivatives4D 
-{
+class SegmentAlignmentDerivatives4D {
 public:
-  
   /// Returns 6x4 jacobian matrix
   AlgebraicMatrix operator()(const TrajectoryStateOnSurface &tsos) const;
-  
 };
 
 #endif
-

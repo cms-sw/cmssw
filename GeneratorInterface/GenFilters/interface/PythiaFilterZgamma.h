@@ -27,27 +27,25 @@ namespace edm {
 }
 
 class PythiaFilterZgamma : public edm::EDFilter {
-   public:
-      explicit PythiaFilterZgamma(const edm::ParameterSet&);
-      ~PythiaFilterZgamma() override;
+public:
+  explicit PythiaFilterZgamma(const edm::ParameterSet&);
+  ~PythiaFilterZgamma() override;
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-   private:
-      
-       edm::EDGetTokenT<edm::HepMCProduct> token_;
-       
-       int selProc; // sel_Proc = 1 : ->Z->e+e-, sel_Proc = 2: Z->mu+mu-
-       
-       double ptElMin;
-       double ptMuMin;
-       double ptPhotonMin;
-       
-       double etaElMax;
-       double etaMuMax;
-       double etaPhotonMax;
+private:
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
 
-       int theNumberOfSelected;
+  int selProc;  // sel_Proc = 1 : ->Z->e+e-, sel_Proc = 2: Z->mu+mu-
 
+  double ptElMin;
+  double ptMuMin;
+  double ptPhotonMin;
+
+  double etaElMax;
+  double etaMuMax;
+  double etaPhotonMax;
+
+  int theNumberOfSelected;
 };
 #endif

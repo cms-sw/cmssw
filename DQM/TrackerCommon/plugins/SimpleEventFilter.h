@@ -3,13 +3,14 @@
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- 
+
 class SimpleEventFilter : public edm::EDFilter {
- public:
- SimpleEventFilter( const edm::ParameterSet & );
- ~SimpleEventFilter() override;
-  private:
-  bool filter( edm::Event &, edm::EventSetup const& ) override;
+public:
+  SimpleEventFilter(const edm::ParameterSet &);
+  ~SimpleEventFilter() override;
+
+private:
+  bool filter(edm::Event &, edm::EventSetup const &) override;
   int nEvent_;
   int nInterval_;
   bool verbose_;

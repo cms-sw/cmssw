@@ -4,44 +4,45 @@
 //
 // Package:     SensitiveDetector
 // Class  :     SensitiveDetectorMaker
-// 
 //
-// Original Author:  
+//
+// Original Author:
 //         Created:  Mon Nov 14 11:56:05 EST 2005
 //
 
-// system include files
-#include <memory>
-
 // user include files
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorMakerBase.h"
+#include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistryEnroller.h"
 
-// forward declarations
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-template<class T>
-class SensitiveDetectorMaker : public SensitiveDetectorMakerBase
-{
+// forward declarations
+class SimTrackManager;
+class SimActivityRegistry;
+class SensitiveDetectorCatalog;
+
+namespace edm {
+  class EventSetup;
+  class ParameterSet;
+}  // namespace edm
+
+template <class T>
+class SensitiveDetectorMaker : public SensitiveDetectorMakerBase {
 public:
-  SensitiveDetectorMaker(){}
+  explicit SensitiveDetectorMaker(){};
 
   // ---------- const member functions ---------------------
-  void make(const std::string& iname,
-	    const DDCompactView& cpv,
-	    const SensitiveDetectorCatalog& clg,
-	    const edm::ParameterSet& p,
-	    const SimTrackManager* man,
-	    SimActivityRegistry& reg,
-	    std::auto_ptr<SensitiveTkDetector>& oTK,
-	    std::auto_ptr<SensitiveCaloDetector>& oCalo) const override
-  {
-    std::auto_ptr<T> returnValue(new T(iname, cpv, clg, p, man));
-    SimActivityRegistryEnroller::enroll(reg, returnValue.get());
-
-    convertTo(returnValue.get(), oTK, oCalo);
-    //ownership was passed in the previous function
-    returnValue.release();
-  }
+  SensitiveDetector* make(const std::string& iname,
+                          const edm::EventSetup& es,
+                          const SensitiveDetectorCatalog& clg,
+                          const edm::ParameterSet& p,
+                          const SimTrackManager* man,
+                          SimActivityRegistry& reg) const override {
+    T* sd = new T(iname, es, clg, p, man);
+    SimActivityRegistryEnroller::enroll(reg, sd);
+    return static_cast<SensitiveDetector*>(sd);
+  };
 
 private:
   SensitiveDetectorMaker(const SensitiveDetectorMaker&) = delete;

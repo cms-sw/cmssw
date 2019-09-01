@@ -1,7 +1,6 @@
 #ifndef DTLocalTriggerSynchTest_H
 #define DTLocalTriggerSynchTest_H
 
-
 /** \class DTLocalTriggerSynchTest
  * *
  *  DQM Test Client
@@ -13,38 +12,33 @@
  *   
  */
 
-
 #include "DQM/DTMonitorClient/src/DTLocalTriggerBaseTest.h"
 #include "CondFormats/DTObjects/interface/DTTPGParameters.h"
 
 class DTTrigGeomUtils;
 
-class DTLocalTriggerSynchTest: public DTLocalTriggerBaseTest{
-
+class DTLocalTriggerSynchTest : public DTLocalTriggerBaseTest {
 public:
-
   /// Constructor
-  DTLocalTriggerSynchTest(const edm::ParameterSet& ps);
-  
+  DTLocalTriggerSynchTest(const edm::ParameterSet &ps);
+
   /// Destructor
   ~DTLocalTriggerSynchTest() override;
 
 protected:
-
   /// Book the new MEs (for each chamber)
 
-  void bookChambHistos(DQMStore::IBooker &,DTChamberId chambId, std::string htype, std::string subfolder="");
+  void bookChambHistos(DQMStore::IBooker &, DTChamberId chambId, std::string htype, std::string subfolder = "");
 
   /// Compute efficiency plots
-  void makeRatioME(TH1F* numerator, TH1F* denominator, MonitorElement* result);
+  void makeRatioME(TH1F *numerator, TH1F *denominator, MonitorElement *result);
 
   /// Get float MEs
 
-  float getFloatFromME(DQMStore::IGetter &,DTChamberId chId, std::string meType);
+  float getFloatFromME(DQMStore::IGetter &, DTChamberId chId, std::string meType);
 
   /// begin Run
-  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
-
+  void beginRun(const edm::Run &run, const edm::EventSetup &c) override;
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
@@ -52,12 +46,13 @@ protected:
 
   void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, 
-                          edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;
 
- private:
-
-  std::map<uint32_t,std::map<std::string,MonitorElement*> > chambME;
+private:
+  std::map<uint32_t, std::map<std::string, MonitorElement *> > chambME;
   std::string numHistoTag;
   std::string denHistoTag;
   std::string ratioHistoTag;
@@ -70,7 +65,6 @@ protected:
   DTTPGParameters wPhaseMap;
 
   bool bookingdone;
-
 };
 
 #endif

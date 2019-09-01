@@ -17,7 +17,7 @@ void testGivenString(std::string const& s) {
   assert(r1 == r2);
 
   // The result should be valid *iff* s is non-empty.
-  assert(r1.isValid() == !s.empty() );
+  assert(r1.isValid() == !s.empty());
   assert(r1.toString().size() == 32);
   assert(r1.compactForm().size() == 16);
 }
@@ -38,9 +38,9 @@ void testConversions() {
   //check the MD5Result lookup table
   MD5Result lookup;
   MD5Result fromHex;
-  for(unsigned int i=0; i<256; ++i) {
-    for(unsigned int j=0; j<16; ++j) {
-      lookup.bytes[j]=static_cast<char>(i);
+  for (unsigned int i = 0; i < 256; ++i) {
+    for (unsigned int j = 0; j < 16; ++j) {
+      lookup.bytes[j] = static_cast<char>(i);
       fromHex.fromHexifiedString(lookup.toString());
       assert(lookup == fromHex);
       assert(lookup.toString() == fromHex.toString());
@@ -82,9 +82,8 @@ int main() {
   testEmptyString();
   try {
     testConversions();
-  }
-  catch(cms::Exception const& e) {
-    std::cerr << e.explainSelf() << std::endl; 
+  } catch (cms::Exception const& e) {
+    std::cerr << e.explainSelf() << std::endl;
     return 1;
   }
   return 0;

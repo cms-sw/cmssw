@@ -37,23 +37,18 @@
 
 // DQM
 #include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
 
 class CSCDaqInfo : public DQMEDHarvester {
+public:
+  explicit CSCDaqInfo(const edm::ParameterSet &);
+  ~CSCDaqInfo() override {}
 
-  public:
+protected:
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-    explicit CSCDaqInfo(const edm::ParameterSet&);
-    ~CSCDaqInfo() override { }
-
-  protected:
-    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
-
-  private:
-                    
-    std::map<std::string, MonitorElement*> mos;
-                          
+private:
+  std::map<std::string, MonitorElement *> mos;
 };
 
 #endif

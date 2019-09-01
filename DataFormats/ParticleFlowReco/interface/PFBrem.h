@@ -7,32 +7,22 @@
 
 namespace reco {
 
-  
   class PFBrem : public PFRecTrack {
-
   public:
- 
-    PFBrem(){}
-    PFBrem(double DP,
-	   double SigmaDP,
-	   unsigned int PointInd): 
-      deltaP_(DP),
-      sigmadeltaP_(SigmaDP),
-      indPoint_(PointInd) {}
-      
-      
-      double DeltaP() const {return deltaP_;}
-      double SigmaDeltaP() const {return sigmadeltaP_;}
-      unsigned int indTrajPoint() const {return indPoint_;}
+    PFBrem() {}
+    PFBrem(double DP, double SigmaDP, unsigned int PointInd)
+        : deltaP_(DP), sigmadeltaP_(SigmaDP), indPoint_(PointInd) {}
+
+    double DeltaP() const { return deltaP_; }
+    double SigmaDeltaP() const { return sigmadeltaP_; }
+    unsigned int indTrajPoint() const { return indPoint_; }
 
   private:
-      
-      double deltaP_;
-      double sigmadeltaP_;
-      unsigned int indPoint_;
+    double deltaP_;
+    double sigmadeltaP_;
+    unsigned int indPoint_;
   };
-  
-  
-}
+
+}  // namespace reco
 
 #endif

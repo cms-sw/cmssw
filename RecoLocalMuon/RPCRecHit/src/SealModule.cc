@@ -8,7 +8,6 @@
 #include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitAlgoFactory.h"
 #include "RecoLocalMuon/RPCRecHit/src/RPCRecHitStandardAlgo.h"
 
-
 DEFINE_FWK_MODULE(RPCRecHitProducer);
 DEFINE_FWK_MODULE(RPCPointProducer);
-DEFINE_EDM_PLUGIN (RPCRecHitAlgoFactory, RPCRecHitStandardAlgo, "RPCRecHitStandardAlgo");
+DEFINE_EDM_PLUGIN(RPCRecHitAlgoFactory, RPCRecHitStandardAlgo, "RPCRecHitStandardAlgo");

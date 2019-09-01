@@ -5,7 +5,5 @@
 #include "HFEMClusterProducer.h"
 #include "HFRecoEcalCandidateProducer.h"
 
-
-
 DEFINE_FWK_MODULE(HFEMClusterProducer);
 DEFINE_FWK_MODULE(HFRecoEcalCandidateProducer);

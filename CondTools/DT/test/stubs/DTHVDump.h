@@ -14,13 +14,13 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 
 namespace edmtest {
-  class DTHVDump : public edm::EDAnalyzer
-  {
+  class DTHVDump : public edm::EDAnalyzer {
   public:
-    explicit  DTHVDump(edm::ParameterSet const& p);
-    explicit  DTHVDump(int i) ;
-    virtual ~ DTHVDump();
+    explicit DTHVDump(edm::ParameterSet const& p);
+    explicit DTHVDump(int i);
+    virtual ~DTHVDump();
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+
   private:
   };
-}
+}  // namespace edmtest

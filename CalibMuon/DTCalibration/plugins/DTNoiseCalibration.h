@@ -21,23 +21,22 @@
 class DTGeometry;
 class DTChamberId;
 class DTSuperLayerId;
-class DTLayerId; 
+class DTLayerId;
 class DTWireId;
 class DTTtrig;
 class TFile;
 class TH2F;
 class TH1F;
 
-class DTNoiseCalibration: public edm::EDAnalyzer{
-
- public:
+class DTNoiseCalibration : public edm::EDAnalyzer {
+public:
   /// Constructor
   DTNoiseCalibration(const edm::ParameterSet& ps);
   /// Destructor
   ~DTNoiseCalibration() override;
 
   void beginJob() override;
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup ) override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void endJob() override;
 
@@ -55,7 +54,7 @@ private:
   double triggerWidth_;
   int timeWindowOffset_;
   double maximumNoiseRate_;
-  bool useAbsoluteRate_; 
+  bool useAbsoluteRate_;
 
   /*bool fastAnalysis;
   int wh;
@@ -88,7 +87,7 @@ private:
   // Map of occupancy by lumi by chamber
   std::map<DTChamberId, TH1F*> chamberOccupancyVsLumiMap_;
   // Map of occupancy by time by chamber
-  std::map<DTChamberId, TH1F*> chamberOccupancyVsTimeMap_; 
+  std::map<DTChamberId, TH1F*> chamberOccupancyVsTimeMap_;
   // Map of the histograms with the number of events per evt per wire
   //std::map<DTLayerId, TH2F*> theHistoEvtPerWireMap_;
   // Map of skipped histograms

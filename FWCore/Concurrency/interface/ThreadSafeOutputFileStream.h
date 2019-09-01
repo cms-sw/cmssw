@@ -18,9 +18,9 @@ namespace edm {
 
   private:
     std::ofstream file_;
-    std::atomic<bool> msgBeingLogged_ {false};
-    tbb::concurrent_queue<std::string> waitingMessages_ {};
+    std::atomic<bool> msgBeingLogged_{false};
+    tbb::concurrent_queue<std::string> waitingMessages_{};
   };
-}
+}  // namespace edm
 
 #endif

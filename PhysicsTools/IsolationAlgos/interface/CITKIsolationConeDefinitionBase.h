@@ -16,21 +16,17 @@
 namespace citk {
   class IsolationConeDefinitionBase {
   public:
-  IsolationConeDefinitionBase(const edm::ParameterSet& c) :
-    _coneSize2(std::pow(c.getParameter<double>("coneSize"),2.0)),
-    _name(c.getParameter<std::string>("isolationAlgo")) {
-    }
+    IsolationConeDefinitionBase(const edm::ParameterSet& c)
+        : _coneSize2(std::pow(c.getParameter<double>("coneSize"), 2.0)),
+          _name(c.getParameter<std::string>("isolationAlgo")) {}
     IsolationConeDefinitionBase(const IsolationConeDefinitionBase&) = delete;
-    IsolationConeDefinitionBase& operator=(const IsolationConeDefinitionBase&) =delete;
-    
-
+    IsolationConeDefinitionBase& operator=(const IsolationConeDefinitionBase&) = delete;
 
     virtual void getEventSetupInfo(const edm::EventSetup&) {}
     virtual void getEventInfo(const edm::Event&) {}
     virtual void setConsumes(edm::ConsumesCollector) = 0;
 
-    virtual bool isInIsolationCone(const reco::CandidatePtr& physob,
-				   const reco::CandidatePtr& other) const = 0;
+    virtual bool isInIsolationCone(const reco::CandidatePtr& physob, const reco::CandidatePtr& other) const = 0;
 
     const std::string& name() const { return _name; }
 
@@ -42,13 +38,14 @@ namespace citk {
   protected:
     const float _coneSize2;
     std::string _additionalCode;
-    
-  private:    
+
+  private:
     const std::string _name;
   };
-}// ns citk
+}  // namespace citk
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< citk::IsolationConeDefinitionBase* (const edm::ParameterSet&) > CITKIsolationConeDefinitionFactory;
+typedef edmplugin::PluginFactory<citk::IsolationConeDefinitionBase*(const edm::ParameterSet&)>
+    CITKIsolationConeDefinitionFactory;
 
 #endif

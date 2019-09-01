@@ -9,40 +9,34 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class ESFEDIntegrityTask : public DQMEDAnalyzer {
-  
- public:
-  
+public:
   ESFEDIntegrityTask(const edm::ParameterSet& ps);
   ~ESFEDIntegrityTask() override {}
-  
- protected:
 
+protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  
+
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   void endJob() override;
-  
- private:
-  
+
+private:
   int ievt_;
-  
+
   std::string prefixME_;
   std::string fedDirName_;
   bool debug_;
 
   edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
-  edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_; 
-  
+  edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
+
   MonitorElement* meESFedsEntries_;
   MonitorElement* meESFedsFatal_;
   MonitorElement* meESFedsNonFatal_;
-
 };
 
 #endif

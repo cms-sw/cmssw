@@ -3,33 +3,36 @@
 
 #include "MESetEcal.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   /* class MESetTrend
-     time on xaxis
-     channel id is used to identify the plot
-  */
+   time on xaxis
+   channel id is used to identify the plot
+*/
 
-  class MESetTrend : public MESetEcal
-  {
-  public :
-    MESetTrend(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = nullptr, binning::AxisSpecs const* = nullptr);
-    MESetTrend(MESetTrend const&);
+  class MESetTrend : public MESetEcal {
+  public:
+    MESetTrend(std::string const &,
+               binning::ObjectType,
+               binning::BinningType,
+               MonitorElement::Kind,
+               binning::AxisSpecs const * = nullptr,
+               binning::AxisSpecs const * = nullptr);
+    MESetTrend(MESetTrend const &);
     ~MESetTrend() override {}
 
-    MESet& operator=(MESet const&) override;
+    MESet &operator=(MESet const &) override;
 
-    MESet* clone(std::string const& = "") const override;
+    MESet *clone(std::string const & = "") const override;
 
-    void book(DQMStore::IBooker&) override;
+    void book(DQMStore::IBooker &) override;
 
-    void fill(DetId const&, double, double = 1., double = 1.) override;
-    void fill(EcalElectronicsId const&, double, double = 1., double = 1.) override;
+    void fill(DetId const &, double, double = 1., double = 1.) override;
+    void fill(EcalElectronicsId const &, double, double = 1., double = 1.) override;
     void fill(int, double, double = 1., double = 1.) override;
     void fill(double, double = 1., double = 1.) override;
 
-    int findBin(DetId const&, double, double = 0.) const override;
-    int findBin(EcalElectronicsId const&, double, double = 0.) const override;
+    int findBin(DetId const &, double, double = 0.) const override;
+    int findBin(EcalElectronicsId const &, double, double = 0.) const override;
     int findBin(int, double, double = 0.) const override;
     int findBin(double, double = 0.) const;
 
@@ -45,10 +48,10 @@ namespace ecaldqm
   private:
     bool shift_(unsigned);
 
-    bool minutely_; // if true, bins in minutes instead of lumis
-    bool shiftAxis_; // if true, shift x values
-    int currentBin_; // only used for cumulative case
+    bool minutely_;   // if true, bins in minutes instead of lumis
+    bool shiftAxis_;  // if true, shift x values
+    int currentBin_;  // only used for cumulative case
   };
-}
+}  // namespace ecaldqm
 
 #endif

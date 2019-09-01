@@ -1,4 +1,4 @@
-<flags   CXXFLAGS="-Ofast"/>
+<use   name="ofast-flag"/>
 <use   name="RecoTracker/FinalTrackSelectors"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/DetId"/>
@@ -35,6 +35,7 @@
 <use   name="RecoTracker/Record"/>
 <use   name="clhep"/>
 <use   name="roottmva"/>
+<use   name="lwtnn"/>
 <library   file="*.cc" name="RecoTrackerFinalTrackSelectorsPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

@@ -6,17 +6,17 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
-#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"  
+#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Riostream.h"
 
-#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h" 	 
-#include "DataFormats/Alignment/interface/AliClusterValueMap.h" 	 
-#include "Utilities/General/interface/ClassName.h" 	 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h" 	 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h" 	 
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h" 	 
+#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
+#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
+#include "Utilities/General/interface/ClassName.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
@@ -25,13 +25,11 @@
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignableSpecificParameters.h"
 #include "TFormula.h"
 
-
 class TFile;
 class TTree;
 
-class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase{
+class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase {
 public:
-
   /// Constructor
   HIPAlignmentAlgorithm(const edm::ParameterSet& cfg);
 
@@ -39,11 +37,11 @@ public:
   ~HIPAlignmentAlgorithm() override{};
 
   /// Call at beginning of job
-  void initialize(
-    const edm::EventSetup& setup,
-    AlignableTracker* tracker, AlignableMuon* muon, AlignableExtras* extras,
-    AlignmentParameterStore* store
-    ) override;
+  void initialize(const edm::EventSetup& setup,
+                  AlignableTracker* tracker,
+                  AlignableMuon* muon,
+                  AlignableExtras* extras,
+                  AlignmentParameterStore* store) override;
 
   /// Call at end of job
   void terminate(const edm::EventSetup& setup) override;
@@ -55,23 +53,19 @@ public:
   void run(const edm::EventSetup& setup, const EventInfo& eventInfo) override;
 
 private:
-  bool processHit1D(
-    const AlignableDetOrUnitPtr& alidet,
-    const Alignable* ali,
-    const HIPAlignableSpecificParameters* alispecifics,
-    const TrajectoryStateOnSurface& tsos,
-    const TrackingRecHit* hit,
-    double hitwt
-    );
+  bool processHit1D(const AlignableDetOrUnitPtr& alidet,
+                    const Alignable* ali,
+                    const HIPAlignableSpecificParameters* alispecifics,
+                    const TrajectoryStateOnSurface& tsos,
+                    const TrackingRecHit* hit,
+                    double hitwt);
 
-  bool processHit2D(
-    const AlignableDetOrUnitPtr& alidet,
-    const Alignable* ali,
-    const HIPAlignableSpecificParameters* alispecifics,
-    const TrajectoryStateOnSurface& tsos,
-    const TrackingRecHit* hit,
-    double hitwt
-    );
+  bool processHit2D(const AlignableDetOrUnitPtr& alidet,
+                    const Alignable* ali,
+                    const HIPAlignableSpecificParameters* alispecifics,
+                    const TrajectoryStateOnSurface& tsos,
+                    const TrackingRecHit* hit,
+                    double hitwt);
 
   int readIterationFile(std::string filename);
   void writeIterationFile(std::string filename, int iter);
@@ -129,7 +123,7 @@ private:
   bool isCollector;
   int theCollectorNJobs;
   std::string theCollectorPath;
-  int theDataGroup; // The data type specified in the cfg
+  int theDataGroup;  // The data type specified in the cfg
   bool trackPs, trackWt, IsCollision, uniEta, rewgtPerAli;
   std::string uniEtaFormula;
   double Scale, cos_cut, col_cut;
@@ -137,30 +131,20 @@ private:
 
   std::unique_ptr<TFormula> theEtaFormula;
 
-
   const std::vector<std::string> surveyResiduals_;
-  std::vector<align::StructureType> theLevels; // for survey residuals
+  std::vector<align::StructureType> theLevels;  // for survey residuals
 
   // root tree variables
   TFile* theTrackHitMonitorIORootFile;
-  TTree* theTrackMonitorTree; // event-wise tree
-  TTree* theHitMonitorTree; // hit-wise tree
+  TTree* theTrackMonitorTree;  // event-wise tree
+  TTree* theHitMonitorTree;    // hit-wise tree
   TFile* theAlignablesMonitorIORootFile;
-  TTree* theAlignablesMonitorTree; // alignable-wise tree
+  TTree* theAlignablesMonitorTree;  // alignable-wise tree
   TFile* theSurveyIORootFile;
-  TTree* theSurveyTree; // survey tree
+  TTree* theSurveyTree;  // survey tree
 
-  // variables for event-wise tree
-  int m_Ntracks;
-  std::vector<int> m_Nhits, m_nhPXB, m_nhPXF, m_nhTIB, m_nhTOB, m_nhTID, m_nhTEC;
-  std::vector<float> m_Pt, m_Eta, m_Phi, m_Chi2n, m_P, m_d0, m_dz, m_wt;
-
-  // variables for hit-wise tree
-  bool m_hasHitProb;
-  float m_sinTheta, m_hitwt, m_angle, m_probXY, m_probQ;
-  unsigned int m_rawQualityWord;
+  // common variables for monitor trees
   int m_datatype;
-  align::ID m_detId;
 
   // variables for alignable-wise tree
   align::ID m2_Id;
@@ -172,7 +156,7 @@ private:
   unsigned int m2_nsurfdef;
   std::vector<float> m2_surfDef;
 
-  // variables for survey tree 
+  // variables for survey tree
   align::ID m3_Id;
   align::StructureType m3_ObjId;
   float m3_par[6];

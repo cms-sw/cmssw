@@ -5,7 +5,6 @@
  * Created: 14 Nov 2006
  **/
 
-
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
@@ -17,61 +16,47 @@
  */
 
 class EcalChannelStatusCode {
+public:
+  enum Code {
+    kOk = 0,
+    kDAC,
+    kNoLaser,
+    kNoisy,
+    kNNoisy,
+    kNNNoisy,
+    kNNNNoisy,
+    kNNNNNoisy,
+    kFixedG6,
+    kFixedG1,
+    kFixedG0,
+    kNonRespondingIsolated,
+    kDeadVFE,
+    kDeadFE,
+    kNoDataNoTP
+  };
 
+  enum Bits { kHV = 0, kLV, kDAQ, kTP, kTrigger, kTemperature, kNextToDead };
 
- public :
+public:
+  EcalChannelStatusCode() : status_(0) {}
+  EcalChannelStatusCode(const uint16_t& encodedStatus) : status_(encodedStatus){};
 
-    enum Code {
-      kOk=0,
-      kDAC,
-      kNoLaser,
-      kNoisy,
-      kNNoisy,
-      kNNNoisy,
-      kNNNNoisy,
-      kNNNNNoisy,
-      kFixedG6,
-      kFixedG1,
-      kFixedG0,
-      kNonRespondingIsolated,
-      kDeadVFE,
-      kDeadFE,
-      kNoDataNoTP      
-    };
+  void print(std::ostream& s) const { s << "status is: " << status_; }
 
-    enum Bits {
-      kHV=0,
-      kLV,
-      kDAQ,
-      kTP,
-      kTrigger,
-      kTemperature,
-      kNextToDead
-    };
+  /// return decoded status
+  Code getStatusCode() const { return Code(status_ & chStatusMask); }
 
-  public:
+  /// Return the encoded raw status
+  uint16_t getEncodedStatusCode() const { return status_; }
 
-  EcalChannelStatusCode() : status_(0){}
-  EcalChannelStatusCode(const uint16_t& encodedStatus) : status_(encodedStatus) {};
+  /// Check status of desired bit
+  bool checkBit(Bits bit) { return status_ & (0x1 << (bit + kBitsOffset)); }
 
+  static const int chStatusMask = 0x1F;
 
-    void print(std::ostream& s) const { s << "status is: " << status_; }
-
-    /// return decoded status
-    Code  getStatusCode() const { return Code(status_&chStatusMask); }
-
-    /// Return the encoded raw status
-    uint16_t getEncodedStatusCode() const { return status_; }
-
-    /// Check status of desired bit
-    bool checkBit(Bits bit) {return status_& (0x1<<(bit+kBitsOffset));}
-
-    static const int chStatusMask      = 0x1F;
- 
-  private:
-
-    static const int kBitsOffset= 5;
-    /* bits 1-5 store a status code:
+private:
+  static const int kBitsOffset = 5;
+  /* bits 1-5 store a status code:
        	0 	channel ok 
   	1 	DAC settings problem, pedestal not in the design range 	
   	2 	channel with no laser, ok elsewhere    
@@ -95,7 +80,7 @@ class EcalChannelStatusCode {
         bit 11: Temperature ok/not ok 	 
         bit 12: channel next to a dead channel 
      */
-    uint16_t status_;
+  uint16_t status_;
 
   COND_SERIALIZABLE;
 };

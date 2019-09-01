@@ -51,7 +51,10 @@ simHcalDigis.HElevel = cms.int32(-10000)
 simHcalDigis.HOlevel   = cms.int32(-10000)
 simHcalDigis.HFlevel   = cms.int32(-10000)
 
-doAllDigi = cms.Sequence(calDigi+muonDigi)
-pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi)
-pdigi_valid = cms.Sequence(pdigi)
+doAllDigiTask = cms.Task(calDigiTask, muonDigiTask)
+pdigiTask = cms.Task(cms.TaskPlaceholder("randomEngineStateProducer"), cms.TaskPlaceholder("mix"), doAllDigiTask)
+
+doAllDigi = cms.Sequence(doAllDigiTask)
+pdigi = cms.Sequence(pdigiTask)
+pdigi_valid = cms.Sequence(pdigiTask)
 

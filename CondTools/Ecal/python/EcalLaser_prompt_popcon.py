@@ -1,3 +1,4 @@
+import FWCore.ParameterSet.Config as cms
 from CondCore.Utilities.popcon2dropbox_job_conf import options, psetForRecord, setup_popcon
 import CondTools.Ecal.db_credentials as auth
 

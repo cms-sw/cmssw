@@ -18,26 +18,17 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-class SurveyDBReader:
-  public edm::EDAnalyzer
-{
-  public:
-
+class SurveyDBReader : public edm::EDAnalyzer {
+public:
   /// Set file name
-  SurveyDBReader(
-		 const edm::ParameterSet&
-		 );
+  SurveyDBReader(const edm::ParameterSet&);
 
   /// Read from DB and print survey info.
   virtual void beginJob() { theFirstEvent = true; }
 
-  virtual void analyze(
-		       const edm::Event&,
-		       const edm::EventSetup&
-		       );
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  private:
-
+private:
   std::string theFileName;
 
   bool theFirstEvent;

@@ -20,6 +20,7 @@ from Validation.RecoMET.METPostProcessor_cff import *
 from Validation.L1T.postProcessorL1Gen_cff import *
 from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_harvestingV_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
+from Validation.SiOuterTrackerV.SiOuterTrackerMCHarvesting_cff import *
 
 
 postValidationTracking = cms.Sequence(
@@ -49,7 +50,7 @@ postValidation_preprod = cms.Sequence(
     recoMuonPostProcessors
   + postProcessorTrackSequence
   + MuIsoValPostProcessor
-)  
+)
 
 
 postValidation_fastsim = cms.Sequence(
@@ -66,6 +67,7 @@ from Validation.MuonGEMDigis.PostProcessor_cff import *
 from Validation.MuonGEMRecHits.PostProcessor_cff import *
 from Validation.MuonME0Validation.PostProcessor_cff import *
 from Validation.HGCalValidation.HGCalPostProcessor_cff import *
+from Validation.MtdValidation.MtdPostProcessor_cff import *
 
 postValidation_common = cms.Sequence()
 
@@ -94,7 +96,7 @@ postValidation_HCAL = cms.Sequence(
     + hcalrechitsPostProcessor
     + calotowersPostProcessor
 )
- 
+
 postValidation_gen = cms.Sequence(
     EventGeneratorPostProcessor
 )
@@ -106,6 +108,8 @@ postValidationCosmics = cms.Sequence(
 postValidationMiniAOD = cms.Sequence(
     electronPostValidationSequenceMiniAOD
 )
+
+postValidationOuterTracker = cms.Sequence( OuterTracker_harvestingV )
 
 _phase1_postValidation = postValidation.copy()
 _phase1_postValidation += siPixelPhase1OfflineDQM_harvestingV
@@ -122,10 +126,9 @@ _phase2_postValidation += hgcalPostProcessor
 _phase2_postValidation += MuonME0DigisPostProcessors
 _phase2_postValidation += MuonME0SegPostProcessors
 
-from Configuration.Eras.Modifier_run2_GEM_2017_MCTest_cff import run2_GEM_2017_MCTest
-run2_GEM_2017_MCTest.toReplaceWith( postValidation, _run3_postValidation )
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+run2_GEM_2017.toReplaceWith( postValidation, _run3_postValidation )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( postValidation, _run3_postValidation )
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( postValidation, _phase2_postValidation )
-

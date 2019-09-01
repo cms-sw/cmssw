@@ -4,7 +4,7 @@
 //
 // Package:     ServiceRegistry
 // Class  :     Signal
-// 
+//
 /**\class Signal Signal.h FWCore/ServiceRegistry/interface/Signal.h
 
  Description: A simple implementation of the signal/slot pattern
@@ -32,54 +32,51 @@
 namespace edm {
   namespace signalslot {
     template <typename T>
-    class Signal
-    {
-      
+    class Signal {
     public:
       typedef std::function<T> slot_type;
       typedef std::vector<slot_type> slot_list_type;
-      
+
       Signal() = default;
       ~Signal() = default;
       Signal(Signal&&) = default;
-      
+
       // ---------- const member functions ---------------------
-      template<typename... Args>
+      template <typename... Args>
       void emit(Args&&... args) const {
-        for(auto& slot:m_slots) {
+        for (auto& slot : m_slots) {
           slot(std::forward<Args>(args)...);
         }
       }
-      
-      template<typename... Args>
+
+      template <typename... Args>
       void operator()(Args&&... args) const {
         emit(std::forward<Args>(args)...);
       }
-      
-      slot_list_type const& slots() const {return m_slots;}
+
+      slot_list_type const& slots() const { return m_slots; }
       // ---------- static member functions --------------------
-      
+
       // ---------- member functions ---------------------------
-      template<typename U>
+      template <typename U>
       void connect(U iFunc) {
         m_slots.push_back(std::function<T>(iFunc));
       }
 
-      template<typename U>
+      template <typename U>
       void connect_front(U iFunc) {
-        m_slots.insert(m_slots.begin(),std::function<T>(iFunc));
+        m_slots.insert(m_slots.begin(), std::function<T>(iFunc));
       }
 
     private:
-      Signal(const Signal&) = delete; // stop default
-      
-      const Signal& operator=(const Signal&) = delete; // stop default
-      
+      Signal(const Signal&) = delete;  // stop default
+
+      const Signal& operator=(const Signal&) = delete;  // stop default
+
       // ---------- member data --------------------------------
       slot_list_type m_slots;
-      
     };
-  }
-}
+  }  // namespace signalslot
+}  // namespace edm
 
 #endif

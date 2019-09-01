@@ -25,17 +25,15 @@
 
 ********************************************************************/
 namespace {
-  void
-  reformatter(std::string& input, char const* exp, char const* format) {
+  void reformatter(std::string& input, char const* exp, char const* format) {
     std::regex regexp(exp, std::regex::egrep);
-    while(std::regex_match(input, regexp)) {
+    while (std::regex_match(input, regexp)) {
       std::string newstring = std::regex_replace(input, regexp, format);
       input.swap(newstring);
     }
   }
 
-  void
-  removeParameter(std::string& demangledName, std::string const& toRemove) {
+  void removeParameter(std::string& demangledName, std::string const& toRemove) {
     std::string::size_type const asize = toRemove.size();
     char const* const delimiters = "<>";
     std::string::size_type index = std::string::npos;
@@ -57,11 +55,10 @@ namespace {
         }
         ++inx;
       }
-    } 
+    }
   }
 
-  void
-  constBeforeIdentifier(std::string& demangledName) {
+  void constBeforeIdentifier(std::string& demangledName) {
     std::string const toBeMoved(" const");
     std::string::size_type const asize = toBeMoved.size();
     std::string::size_type index = std::string::npos;
@@ -73,7 +70,8 @@ namespace {
         if (c == '>') {
           ++depth;
         } else if (depth > 0) {
-          if (c == '<') --depth;
+          if (c == '<')
+            --depth;
         } else if (c == '<' || c == ',') {
           demangledName.insert(inx + 1, "const ");
           break;
@@ -81,30 +79,28 @@ namespace {
       }
     }
   }
-}
+}  // namespace
 
 namespace edm {
-  void
-  replaceString(std::string& demangledName, std::string const& from, std::string const& to) {
+  void replaceString(std::string& demangledName, std::string const& from, std::string const& to) {
     // from must not be a substring of to.
-    std::string::size_type length = from.size(); 
+    std::string::size_type length = from.size();
     std::string::size_type pos = 0;
-    while((pos = demangledName.find(from, pos)) != std::string::npos) {
-       demangledName.replace(pos, length, to); 
+    while ((pos = demangledName.find(from, pos)) != std::string::npos) {
+      demangledName.replace(pos, length, to);
     }
   }
 
-  std::string
-  typeDemangle(char const* mangledName) {
+  std::string typeDemangle(char const* mangledName) {
     int status = 0;
     size_t* const nullSize = nullptr;
     char* const null = nullptr;
-    
+
     // The demangled C style string is allocated with malloc, so it must be deleted with free().
     char* demangled = abi::__cxa_demangle(mangledName, null, nullSize, &status);
     if (status != 0) {
       throw cms::Exception("Demangling error") << " '" << mangledName << "'\n";
-    } 
+    }
     std::string demangledName(demangled);
     free(demangled);
     // We must use the same conventions previously used by REFLEX.
@@ -125,7 +121,7 @@ namespace edm {
     removeParameter(demangledName, comparator);
     // Put const qualifier before identifier.
     constBeforeIdentifier(demangledName);
-    // No two consecutive '>' 
+    // No two consecutive '>'
     replaceString(demangledName, ">>", "> >");
     // No u or l qualifiers for integers.
     reformatter(demangledName, "(.*[<,][0-9]+)[ul]l*([,>].*)", "$1$2");
@@ -135,4 +131,4 @@ namespace edm {
     replaceString(demangledName, "long long", "Long64_t");
     return demangledName;
   }
-}
+}  // namespace edm

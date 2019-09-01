@@ -31,44 +31,46 @@ namespace edm {
 
 /***************************************
 ****************************************/
-class PedeReader
-{
- public:
+class PedeReader {
+public:
+  typedef PedeLabelerBase::RunNumber RunNumber;
+  typedef PedeLabelerBase::RunRange RunRange;
 
-  typedef PedeLabelerBase::RunNumber  RunNumber;
-  typedef PedeLabelerBase::RunRange   RunRange;
-
-  PedeReader(const edm::ParameterSet &config, const PedeSteerer &steerer,
-	     const PedeLabelerBase &labels, const RunRange &runrange);
+  PedeReader(const edm::ParameterSet &config,
+             const PedeSteerer &steerer,
+             const PedeLabelerBase &labels,
+             const RunRange &runrange);
   /// non virtual destructor: do not inherit from this class
   ~PedeReader() {}
   /// Read pede output into AlignmentParameters attached to 'alignables'
   /// (if they fit to the run range). If (setUserVars == true) also care about
   /// MillePedeVariables.
   /// Also treats parameters belonging to a IntegratedCalibrationBase.
-  bool read(align::Alignables& alignables, bool setUserVars);
+  bool read(align::Alignables &alignables, bool setUserVars);
   /// true if 'outValue' could be read via operator >> from the current line (!) of aStream,
   /// false otherwise
-  template<class T>
-    bool readIfSameLine(std::ifstream &aStream, T &outValue) const;
-  /// Set pede results stored in 'buf' to AlignmentParameters 
+  template <class T>
+  bool readIfSameLine(std::ifstream &aStream, T &outValue) const;
+  /// Set pede results stored in 'buf' to AlignmentParameters
   /// and (if setUserVars == true) to MillePedeVariables, return corresponding Alignable.
-  Alignable* setParameter(unsigned int paramLabel, unsigned int bufLength, const float *buf,
-			  bool setUserVars) const;
+  Alignable *setParameter(unsigned int paramLabel, unsigned int bufLength, const float *buf, bool setUserVars) const;
   /// Set pede results stored in 'buf' to parameter 'paramNum' of IntegratedCalibrationBase.
-  bool setCalibrationParameter(IntegratedCalibrationBase* calib, unsigned int paramNum,
-                               unsigned int bufLength, const float *buf) const;
+  bool setCalibrationParameter(IntegratedCalibrationBase *calib,
+                               unsigned int paramNum,
+                               unsigned int bufLength,
+                               const float *buf) const;
 
   /// returns parameters of alignable (creates if not yet existing, but MillePedeVariables
   /// are only created if createUserVars == true)
-  AlignmentParameters* checkAliParams(Alignable *alignable, bool createUserVars) const;
- private:
+  AlignmentParameters *checkAliParams(Alignable *alignable, bool createUserVars) const;
+
+private:
   //  PedeReader() {} // no default ctr.
 
-  std::ifstream          myPedeResult;
-  const PedeSteerer      &mySteerer;
-  const PedeLabelerBase  &myLabels;
-  const RunRange          myRunRange;
+  std::ifstream myPedeResult;
+  const PedeSteerer &mySteerer;
+  const PedeLabelerBase &myLabels;
+  const RunRange myRunRange;
 
   static const unsigned int myMaxNumValPerParam;
 };

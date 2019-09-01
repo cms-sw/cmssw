@@ -14,20 +14,21 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMDefinitions.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <TH1.h>
 
 #include <vector>
 #include <string>
 
-class TauDQMFileLoader : public edm::EDAnalyzer
-{
+class TauDQMFileLoader : public edm::EDAnalyzer {
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   typedef std::vector<std::string> vstring;
   typedef std::set<std::string> sstring;
 
-  struct cfgEntryFileSet
-  {
+  struct cfgEntryFileSet {
     cfgEntryFileSet(const std::string&, const edm::ParameterSet&);
     void print() const;
     std::string name_;
@@ -36,12 +37,12 @@ class TauDQMFileLoader : public edm::EDAnalyzer
     std::string dqmDirectory_store_;
   };
 
- public:
+public:
   explicit TauDQMFileLoader(const edm::ParameterSet&);
   ~TauDQMFileLoader() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override{}
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;  
+  void endJob() override {}
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   std::map<std::string, cfgEntryFileSet> fileSets_;
@@ -50,5 +51,3 @@ private:
 };
 
 #endif
-
-

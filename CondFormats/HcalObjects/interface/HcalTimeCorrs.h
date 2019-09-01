@@ -14,19 +14,17 @@ POOL object to store time offsets
 
 //typedef HcalCondObjectContainer<HcalTimeCorr> HcalTimeCorrs;
 
-class HcalTimeCorrs: public HcalCondObjectContainer<HcalTimeCorr>
-{
- public:
+class HcalTimeCorrs : public HcalCondObjectContainer<HcalTimeCorr> {
+public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalTimeCorrs():HcalCondObjectContainer<HcalTimeCorr>(nullptr) {}
+  HcalTimeCorrs() : HcalCondObjectContainer<HcalTimeCorr>(nullptr) {}
 #endif
-  HcalTimeCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalTimeCorr>(topo) {}
+  HcalTimeCorrs(const HcalTopology* topo) : HcalCondObjectContainer<HcalTimeCorr>(topo) {}
 
-  std::string myname() const override {return (std::string)"HcalTimeCorrs";}
+  std::string myname() const override { return (std::string) "HcalTimeCorrs"; }
 
- private:
-
- COND_SERIALIZABLE;
+private:
+  COND_SERIALIZABLE;
 };
 
 #endif

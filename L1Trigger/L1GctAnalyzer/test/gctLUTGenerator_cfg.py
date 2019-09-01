@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import sys
@@ -9,11 +10,11 @@ if (len(sys.argv)>1) :
 else :
     key='Default'
 
-print "Generating LUT files for GCT key %s" % (key)
+print("Generating LUT files for GCT key %s" % (key))
 
 if (not ("TNS_ADMIN" in os.environ.keys())):
-    print "Please set TNS_ADMIN using :"
-    print "export TNS_ADMIN=/nfshome0/popcondev/conddb"
+    print("Please set TNS_ADMIN using :")
+    print("export TNS_ADMIN=/nfshome0/popcondev/conddb")
 
 
 # CMSSW config

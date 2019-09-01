@@ -37,133 +37,129 @@
 #include "TEveGeoNode.h"
 #include "TEveVSDStructs.h"
 
-class FWVertexCandidateProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::VertexCompositePtrCandidate> 
-{
+class FWVertexCandidateProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::VertexCompositePtrCandidate> {
 public:
-   FWVertexCandidateProxyBuilder() {}
-   ~FWVertexCandidateProxyBuilder() override {}
-   
-   void setItem(const FWEventItem* iItem) override
-   {
-      FWProxyBuilderBase::setItem(iItem);
-      if (iItem)
-      {
-         iItem->getConfig()->assertParam("Draw Tracks", false);
-         iItem->getConfig()->assertParam("Draw Pseudo Track", false);
-         iItem->getConfig()->assertParam("Draw Ellipse", false);
-         iItem->getConfig()->assertParam("Scale Ellipse",2l, 1l, 10l);
-         iItem->getConfig()->assertParam("Ellipse Color Index",  6l, 0l, (long)context().colorManager()->numberOfLimitedColors());
-      }
-   }
-   
-   REGISTER_PROXYBUILDER_METHODS();
-   
+  FWVertexCandidateProxyBuilder() {}
+  ~FWVertexCandidateProxyBuilder() override {}
+
+  void setItem(const FWEventItem* iItem) override {
+    FWProxyBuilderBase::setItem(iItem);
+    if (iItem) {
+      iItem->getConfig()->assertParam("Draw Tracks", false);
+      iItem->getConfig()->assertParam("Draw Pseudo Track", false);
+      iItem->getConfig()->assertParam("Draw Ellipse", false);
+      iItem->getConfig()->assertParam("Scale Ellipse", 2l, 1l, 10l);
+      iItem->getConfig()->assertParam(
+          "Ellipse Color Index", 6l, 0l, (long)context().colorManager()->numberOfLimitedColors());
+    }
+  }
+
+  REGISTER_PROXYBUILDER_METHODS();
+
 private:
-   FWVertexCandidateProxyBuilder(const FWVertexCandidateProxyBuilder&) = delete; // stop default
-   const FWVertexCandidateProxyBuilder& operator=(const FWVertexCandidateProxyBuilder&) = delete; // stop default
+  FWVertexCandidateProxyBuilder(const FWVertexCandidateProxyBuilder&) = delete;                   // stop default
+  const FWVertexCandidateProxyBuilder& operator=(const FWVertexCandidateProxyBuilder&) = delete;  // stop default
 
-   using FWSimpleProxyBuilderTemplate<reco::VertexCompositePtrCandidate> ::build;
-   void build(const reco::VertexCompositePtrCandidate& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;
+  using FWSimpleProxyBuilderTemplate<reco::VertexCompositePtrCandidate>::build;
+  void build(const reco::VertexCompositePtrCandidate& iData,
+             unsigned int iIndex,
+             TEveElement& oItemHolder,
+             const FWViewContext*) override;
 
-   void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                  FWViewType::EType viewType, const FWViewContext* vc) override;
-
+  void localModelChanges(const FWModelId& iId,
+                         TEveElement* iCompound,
+                         FWViewType::EType viewType,
+                         const FWViewContext* vc) override;
 };
 
+void FWVertexCandidateProxyBuilder::build(const reco::VertexCompositePtrCandidate& iData,
+                                          unsigned int iIndex,
+                                          TEveElement& oItemHolder,
+                                          const FWViewContext*) {
+  const reco::VertexCompositePtrCandidate& v = iData;
 
-void
-FWVertexCandidateProxyBuilder::build(const reco::VertexCompositePtrCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*)
-{
-   const reco::VertexCompositePtrCandidate & v = iData;
-  
-   // marker
-   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
-   TEvePointSet* pointSet = new TEvePointSet();
-   pointSet->SetNextPoint( v.vx(), v.vy(), v.vz() );  
-   setupAddElement(pointSet, &oItemHolder);
-  
+  // marker
+  TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
+  TEvePointSet* pointSet = new TEvePointSet();
+  pointSet->SetNextPoint(v.vx(), v.vy(), v.vz());
+  setupAddElement(pointSet, &oItemHolder);
 
-   // ellipse
-   if ( item()->getConfig()->value<bool>("Draw Ellipse"))
-   {
-    
-      TEveEllipsoid* eveEllipsoid = new TEveEllipsoid("Ellipsoid", Form("Ellipsoid %d", iIndex)); 
+  // ellipse
+  if (item()->getConfig()->value<bool>("Draw Ellipse")) {
+    TEveEllipsoid* eveEllipsoid = new TEveEllipsoid("Ellipsoid", Form("Ellipsoid %d", iIndex));
 
-      eveEllipsoid->RefPos().Set(v.vx(),v.vy(),v.vz());
+    eveEllipsoid->RefPos().Set(v.vx(), v.vy(), v.vz());
 
-      reco::Vertex::Error e= v.error();      
-      TMatrixDSym m(3);
-      for(int i=0;i<3;i++)
-         for(int j=0;j<3;j++)
-         {
-            m(i,j) = e(i,j);
-            eveEllipsoid->RefEMtx()(i+1, j+1) =  e(i,j);
-         }
-
-      // external scaling
-      double ellipseScale = 1.;
-      if ( item()->getConfig()->value<long>("Scale Ellipse"))
-         ellipseScale = item()->getConfig()->value<long>("Scale Ellipse");
-     
-      eveEllipsoid->SetScale(ellipseScale);
-
-      // cache 3D extend used in eval bbox and render 3D
-      TMatrixDEigen eig(m);
-      TVectorD vv ( eig.GetEigenValuesRe());
-      eveEllipsoid->RefExtent3D().Set(sqrt(vv(0))*ellipseScale,sqrt(vv(1))*ellipseScale,sqrt(vv(2))*ellipseScale); 
-
-      eveEllipsoid->SetLineWidth(2);
-      setupAddElement(eveEllipsoid, &oItemHolder);
-      eveEllipsoid->SetMainTransparency(TMath::Min(100, 80 + item()->defaultDisplayProperties().transparency() / 5)); 
-      
-      
-      
-      Color_t color = item()->getConfig()->value<long>("Ellipse Color Index");
-     // eveEllipsoid->SetFillColor(item()->defaultDisplayProperties().color());
-     // eveEllipsoid->SetLineColor(item()->defaultDisplayProperties().color());    
-      eveEllipsoid->SetMainColor(color + context().colorManager()->offsetOfLimitedColors());
-   }
-
-   // tracks
-   if ( item()->getConfig()->value<bool>("Draw Tracks")) 
-   {    
-      for(unsigned int j=0;j<v.numberOfDaughters();j++)
-      {
-        const reco::Candidate * c =  v.daughter(j);
-        std::cout << c << std::endl;
-        TEveTrack* trk = fireworks::prepareCandidate( *c, context().getTrackPropagator() );
-
-         trk->SetMainColor(item()->defaultDisplayProperties().color());
-         trk->MakeTrack();
-         setupAddElement(trk, &oItemHolder);
+    reco::Vertex::Error e = v.error();
+    TMatrixDSym m(3);
+    for (int i = 0; i < 3; i++)
+      for (int j = 0; j < 3; j++) {
+        m(i, j) = e(i, j);
+        eveEllipsoid->RefEMtx()(i + 1, j + 1) = e(i, j);
       }
-   }
-   if ( item()->getConfig()->value<bool>("Draw Pseudo Track"))
-   {
-      TEveRecTrack t;
-      t.fBeta = 1.;
-      t.fV = TEveVector(v.vx(),v.vy(),v.vz());
-      t.fP = TEveVector(-v.p4().px(), -v.p4().py(), -v.p4().pz());
-      t.fSign = 1;
-      TEveTrack* trk = new TEveTrack(&t, context().getTrackPropagator());
-      trk->SetLineStyle(7);
+
+    // external scaling
+    double ellipseScale = 1.;
+    if (item()->getConfig()->value<long>("Scale Ellipse"))
+      ellipseScale = item()->getConfig()->value<long>("Scale Ellipse");
+
+    eveEllipsoid->SetScale(ellipseScale);
+
+    // cache 3D extend used in eval bbox and render 3D
+    TMatrixDEigen eig(m);
+    TVectorD vv(eig.GetEigenValuesRe());
+    eveEllipsoid->RefExtent3D().Set(sqrt(vv(0)) * ellipseScale, sqrt(vv(1)) * ellipseScale, sqrt(vv(2)) * ellipseScale);
+
+    eveEllipsoid->SetLineWidth(2);
+    setupAddElement(eveEllipsoid, &oItemHolder);
+    eveEllipsoid->SetMainTransparency(TMath::Min(100, 80 + item()->defaultDisplayProperties().transparency() / 5));
+
+    Color_t color = item()->getConfig()->value<long>("Ellipse Color Index");
+    // eveEllipsoid->SetFillColor(item()->defaultDisplayProperties().color());
+    // eveEllipsoid->SetLineColor(item()->defaultDisplayProperties().color());
+    eveEllipsoid->SetMainColor(color + context().colorManager()->offsetOfLimitedColors());
+  }
+
+  // tracks
+  if (item()->getConfig()->value<bool>("Draw Tracks")) {
+    for (unsigned int j = 0; j < v.numberOfDaughters(); j++) {
+      const reco::Candidate* c = v.daughter(j);
+      std::cout << c << std::endl;
+      TEveTrack* trk = fireworks::prepareCandidate(*c, context().getTrackPropagator());
+
+      trk->SetMainColor(item()->defaultDisplayProperties().color());
       trk->MakeTrack();
       setupAddElement(trk, &oItemHolder);
-      
-   }
+    }
+  }
+  if (item()->getConfig()->value<bool>("Draw Pseudo Track")) {
+    TEveRecTrack t;
+    t.fBeta = 1.;
+    t.fV = TEveVector(v.vx(), v.vy(), v.vz());
+    t.fP = TEveVector(-v.p4().px(), -v.p4().py(), -v.p4().pz());
+    t.fSign = 1;
+    TEveTrack* trk = new TEveTrack(&t, context().getTrackPropagator());
+    trk->SetLineStyle(7);
+    trk->MakeTrack();
+    setupAddElement(trk, &oItemHolder);
+  }
 }
 
-void
-FWVertexCandidateProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                     FWViewType::EType viewType, const FWViewContext* vc)
-{
-   increaseComponentTransparency(iId.index(), iCompound, "Ellipsoid", 80);
-   TEveElement* el = iCompound->FindChild("Ellipsoid");
-   if (el)
-      el->SetMainColor(item()->getConfig()->value<long>("Ellipse Color Index") + context().colorManager()->offsetOfLimitedColors());
+void FWVertexCandidateProxyBuilder::localModelChanges(const FWModelId& iId,
+                                                      TEveElement* iCompound,
+                                                      FWViewType::EType viewType,
+                                                      const FWViewContext* vc) {
+  increaseComponentTransparency(iId.index(), iCompound, "Ellipsoid", 80);
+  TEveElement* el = iCompound->FindChild("Ellipsoid");
+  if (el)
+    el->SetMainColor(item()->getConfig()->value<long>("Ellipse Color Index") +
+                     context().colorManager()->offsetOfLimitedColors());
 }
 
 //
 // static member functions
 //
-REGISTER_FWPROXYBUILDER(FWVertexCandidateProxyBuilder, reco::VertexCompositePtrCandidate, "CandVertices", FWViewType::k3DBit | FWViewType::kAllRPZBits);
+REGISTER_FWPROXYBUILDER(FWVertexCandidateProxyBuilder,
+                        reco::VertexCompositePtrCandidate,
+                        "CandVertices",
+                        FWViewType::k3DBit | FWViewType::kAllRPZBits);

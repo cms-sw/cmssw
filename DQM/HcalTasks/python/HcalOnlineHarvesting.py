@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+from DQM.HcalTasks.DigiTask import digiTask
 
 hcalOnlineHarvesting = DQMEDHarvester(
 	"HcalOnlineHarvesting",
@@ -11,4 +12,5 @@ hcalOnlineHarvesting = DQMEDHarvester(
 	ptype = cms.untracked.int32(0),
 	mtype = cms.untracked.bool(True),
 	subsystem = cms.untracked.string("Hcal"),
+	refDigiSize = digiTask.refDigiSize,
 )

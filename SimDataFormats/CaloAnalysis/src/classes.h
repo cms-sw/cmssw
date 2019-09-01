@@ -1,8 +1,7 @@
-#include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
-#include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
+#include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
-
+#include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 
 namespace SimDataFormats {
   namespace CaloAnalysis {
@@ -13,7 +12,7 @@ namespace SimDataFormats {
     SimClusterRef scr;
     SimClusterRefVector scrv;
     SimClusterRefProd scrp;
-    SimClusterContainer scc;    
+    SimClusterContainer scc;
 
     CaloParticle cp;
     CaloParticleCollection vcp;
@@ -23,5 +22,5 @@ namespace SimDataFormats {
     CaloParticleRefVector cprv;
     CaloParticleRefProd cprp;
     CaloParticleContainer cpc;
-  }
-}
+  }  // namespace CaloAnalysis
+}  // namespace SimDataFormats

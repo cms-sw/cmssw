@@ -31,21 +31,16 @@ if "generic" in optpy.CPEtype: # CPE type is defaulted to "template" in HipPyOpt
 sourceFileList=[
   <FILE>
 ]
-if strflaglower == "cosmics":
-  process.source = cms.Source("PoolSource",
-                              #useCSA08Kludge = cms.untracked.bool(True),
-                              fileNames = cms.untracked.vstring(sourceFileList)
-                              )
-elif strflaglower == "cdcs":
-  process.source = cms.Source("PoolSource",
-                              #useCSA08Kludge = cms.untracked.bool(True),
-                              fileNames = cms.untracked.vstring(sourceFileList)
-                              )
-else:
-  process.source = cms.Source("PoolSource",
-                              #useCSA08Kludge = cms.untracked.bool(True),
-                              fileNames = cms.untracked.vstring(sourceFileList)
-                              )
+import os, sys
+if sys.argv[0] == "cmsRun": __file__ = sys.argv[1]
+try:
+  sourceFileList = [_ for _ in sourceFileList if _ not in open(os.path.join(os.path.dirname(__file__), "../../../run/DataFiles/baddatafiles.txt")).read()]
+except IOError:
+  pass
+
+process.source = cms.Source("PoolSource",
+                            fileNames = cms.untracked.vstring(sourceFileList)
+                            )
 
 if hasattr(optpy, "LumiJSON"):
    import FWCore.PythonUtilities.LumiList as LumiList
@@ -55,6 +50,10 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 # "including" selection for this track sample
 <SELECTION>
+
+# Override track hit filter commands
+if hasattr(optpy, "hitfiltercommands"):
+   process.TrackerTrackHitFilter.commands = cms.vstring(optpy.hitfiltercommands)
 
 # parameters for HIP
 process.AlignmentProducer.tjTkAssociationMapTag = 'FinalTrackRefitter'

@@ -1,5 +1,5 @@
 <use   name="CondCore/Utilities"/>
-<use   name="FWCore/Concurrency"/>
+<use   name="Utilities/Xerces"/>
 <flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable -ftemplate-depth=600"/>
 
 <bin   file="cmscond_key_mgr.cpp" name="cmscond_key_mgr">
@@ -25,6 +25,9 @@
   <use   name="CondCore/CondDB"/>
 </bin>
 <bin   file="conddb_test.cpp" name="conddb_test">
+  <use   name="CondCore/CondDB"/>
+</bin>
+<bin   file="conddb_test_read.cpp" name="conddb_test_read">
   <use   name="CondCore/CondDB"/>
 </bin>
 <bin   file="conddb_edit_tag.cpp" name="conddb_edit_tag">

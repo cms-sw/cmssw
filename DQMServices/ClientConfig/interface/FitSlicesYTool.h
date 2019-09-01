@@ -9,11 +9,12 @@
 
 #include <TH2F.h>
 #include <TH1F.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
 
 class FitSlicesYTool {
- public:
+public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
   FitSlicesYTool(MonitorElement*);
   /// Constructor: needs a TH2F
   /*   FitSlicesYTool(TH2F*); */
@@ -27,7 +28,8 @@ class FitSlicesYTool {
   void getFittedMeanWithError(MonitorElement*);
   /// Fill the ME with the sigma value (with error) of the gaussian fit in each slice
   void getFittedSigmaWithError(MonitorElement*);
- private:
+
+private:
   TH1* h0;
   TH1* h1;
   TH1* h2;

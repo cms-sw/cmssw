@@ -32,32 +32,38 @@
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PVClusterComparer.h"
 
 class DivisiveVertexFinder {
- public:
-  DivisiveVertexFinder(double track_pt_min, double track_pt_max, double track_chi2_max, double track_prob_min,
-		       double zOffset=5.0, int ntrkMin=5, bool useError=true, 
-		       double zSeparation=0.05, bool wtAverage=true, int verbosity=0);
+public:
+  DivisiveVertexFinder(double track_pt_min,
+                       double track_pt_max,
+                       double track_chi2_max,
+                       double track_prob_min,
+                       double zOffset = 5.0,
+                       int ntrkMin = 5,
+                       bool useError = true,
+                       double zSeparation = 0.05,
+                       bool wtAverage = true,
+                       int verbosity = 0);
   ~DivisiveVertexFinder();
-  
+
   /// Run the divisive algorithm and return a vector of vertexes for the input track collection
-  bool findVertexes(const reco::TrackRefVector &trks,  // input
-		    reco::VertexCollection &vertexes); // output
+  bool findVertexes(const reco::TrackRefVector &trks,     // input
+                    reco::VertexCollection &vertexes);    // output
   bool findVertexesAlt(const reco::TrackRefVector &trks,  // input
-		       reco::VertexCollection &vertexes, const math::XYZPoint & bs); // output
- private:
+                       reco::VertexCollection &vertexes,
+                       const math::XYZPoint &bs);  // output
+private:
   /// Cuts on vertex formation and other options
   double zOffset_, zSeparation_;
   int ntrkMin_;
   bool useError_, wtAverage_;
 
   /// We use Wolfgang's templated class that implements the actual divisive method
-  pixeltemp::DivisiveClusterizer1D< reco::Track > divmeth_;
+  pixeltemp::DivisiveClusterizer1D<reco::Track> divmeth_;
   //  DivisiveClusterizer1D< reco::Track > divmeth_;
 
   // How loud should I be?
   int verbose_;
 
-  
-  PVClusterComparer* pvComparer_;
-    
+  PVClusterComparer *pvComparer_;
 };
 #endif

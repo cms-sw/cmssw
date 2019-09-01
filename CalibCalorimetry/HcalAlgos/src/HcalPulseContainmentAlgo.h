@@ -8,14 +8,13 @@ class HcalTimeSlew;
 
 class HcalPulseContainmentAlgo {
 public:
-  HcalPulseContainmentAlgo(const HcalPulseShape * shape,
-			   int num_samples,
-			   double fixedphase_ns,
-			   const HcalTimeSlew* hcalTimeSlew_delay);
-  HcalPulseContainmentAlgo(int num_samples,
-			   double fixedphase_ns,
-			   const HcalTimeSlew* hcalTimeSlew_delay);
-  std::pair<double,double> calcpair(double);
+  HcalPulseContainmentAlgo(const HcalPulseShape* shape,
+                           int num_samples,
+                           double fixedphase_ns,
+                           const HcalTimeSlew* hcalTimeSlew_delay);
+  HcalPulseContainmentAlgo(int num_samples, double fixedphase_ns, const HcalTimeSlew* hcalTimeSlew_delay);
+  std::pair<double, double> calcpair(double);
+
 private:
   void init(int num_samples);
   double fixedphasens_;
@@ -26,4 +25,3 @@ private:
 };
 
 #endif
-

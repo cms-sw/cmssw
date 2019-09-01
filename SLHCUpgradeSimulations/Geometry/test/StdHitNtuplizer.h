@@ -7,8 +7,8 @@
  ************************************************************/
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -20,7 +20,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-//#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
@@ -40,36 +40,34 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class PTrajectoryStateOnDet;
 
-class StdHitNtuplizer : public edm::EDAnalyzer
-{
- public:
-  
+class StdHitNtuplizer : public edm::EDAnalyzer {
+public:
   explicit StdHitNtuplizer(const edm::ParameterSet& conf);
   virtual ~StdHitNtuplizer();
   virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event& e, const edm::EventSetup& es);
 
- protected:
-
-  void fillEvt(const edm::Event& );
-  void fillSRecHit(const int subid, SiStripRecHit2DCollection::DetSet::const_iterator pixeliter,
-		   const GeomDet* theGeom);
-  void fillSRecHit(const int subid, SiStripMatchedRecHit2DCollection::DetSet::const_iterator pixeliter,
-		   const GeomDet* theGeom);  
-  void fillSRecHit(const int subid, const FastTrackerRecHit & hit,
-		   const GeomDet* theGeom);
+protected:
+  void fillEvt(const edm::Event&);
+  void fillSRecHit(const int subid,
+                   SiStripRecHit2DCollection::DetSet::const_iterator pixeliter,
+                   const GeomDet* theGeom);
+  void fillSRecHit(const int subid,
+                   SiStripMatchedRecHit2DCollection::DetSet::const_iterator pixeliter,
+                   const GeomDet* theGeom);
+  void fillSRecHit(const int subid, const FastTrackerRecHit& hit, const GeomDet* theGeom);
   //void fillPRecHit(const int subid, SiPixelRecHitCollection::const_iterator pixeliter,
   //                 const GeomDet* PixGeom);
-  void fillPRecHit(const int subid, const int layer_num,
+  void fillPRecHit(const int subid,
+                   const int layer_num,
                    SiPixelRecHitCollection::DetSet::const_iterator pixeliter,
                    const int num_simhit,
                    std::vector<PSimHit>::const_iterator closest_simhit,
                    const GeomDet* PixGeom);
-  void fillPRecHit(const int subid, trackingRecHit_iterator pixeliter,
-                   const GeomDet* PixGeom);
+  void fillPRecHit(const int subid, trackingRecHit_iterator pixeliter, const GeomDet* PixGeom);
 
- private:
+private:
   edm::ParameterSet conf_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   edm::InputTag src_;
@@ -78,18 +76,16 @@ class StdHitNtuplizer : public edm::EDAnalyzer
   edm::InputTag matchedRecHits_;
 
   void init();
-  
+
   //--- Structures for ntupling:
-  struct evt
-  {
+  struct evt {
     int run;
     int evtnum;
-    
+
     void init();
-  } evt_,stripevt_;
-  
-  struct RecHit 
-  {
+  } evt_, stripevt_;
+
+  struct RecHit {
     float x;
     float y;
     float xx;
@@ -106,15 +102,14 @@ class StdHitNtuplizer : public edm::EDAnalyzer
     float hx, hy;
     float tx, ty;
     float theta, phi;
-    
 
     void init();
   } recHit_, striprecHit_;
 
-  TFile * tfile_;
-  TTree * pixeltree_;
-  TTree * striptree_;
-  TTree * pixeltree2_;
+  TFile* tfile_;
+  TTree* pixeltree_;
+  TTree* striptree_;
+  TTree* pixeltree2_;
 };
 
 #endif

@@ -24,50 +24,45 @@
 #include "G4FTFPNeutronBuilder.hh"
 #include "G4QGSPNeutronBuilder.hh"
 
-#include "G4FTFBinaryNeutronBuilder.hh"  
+#include "G4FTFBinaryNeutronBuilder.hh"
 #include "G4FTFBinaryPiKBuilder.hh"
 #include "G4FTFBinaryProtonBuilder.hh"
 
 class HadronPhysicsCMS : public G4VPhysicsConstructor {
-
 public:
-
-  HadronPhysicsCMS(const G4String& name ="QGSP", G4bool quasiElastic=true);
+  HadronPhysicsCMS(const G4String& name = "QGSP", G4bool quasiElastic = true);
   ~HadronPhysicsCMS() override;
 
   void ConstructParticle() override;
   void ConstructProcess() override;
 
 private:
-
   void CreateModels();
 
-  G4NeutronBuilder          * theNeutrons;
-  G4BertiniNeutronBuilder   * theBertiniNeutron;
-  G4BinaryNeutronBuilder    * theBinaryNeutron;
-  G4FTFPNeutronBuilder      * theFTFPNeutron;
-  G4QGSPNeutronBuilder      * theQGSPNeutron;
-    
-  G4PiKBuilder              * thePiK;
-  G4BertiniPiKBuilder       * theBertiniPiK;
-  G4BinaryPiKBuilder        * theBinaryPiK;
-  G4FTFPPiKBuilder          * theFTFPPiK;
-  G4QGSPPiKBuilder          * theQGSPPiK;
-    
-  G4ProtonBuilder           * thePro;
-  G4BertiniProtonBuilder    * theBertiniPro;
-  G4BinaryProtonBuilder     * theBinaryPro;
-  G4FTFPProtonBuilder       * theFTFPPro;
-  G4QGSPProtonBuilder       * theQGSPPro;    
-    
+  G4NeutronBuilder* theNeutrons;
+  G4BertiniNeutronBuilder* theBertiniNeutron;
+  G4BinaryNeutronBuilder* theBinaryNeutron;
+  G4FTFPNeutronBuilder* theFTFPNeutron;
+  G4QGSPNeutronBuilder* theQGSPNeutron;
 
-  G4FTFBinaryNeutronBuilder * theFTFNeutron;
-  G4FTFBinaryPiKBuilder     * theFTFPiK;
-  G4FTFBinaryProtonBuilder  * theFTFPro;
+  G4PiKBuilder* thePiK;
+  G4BertiniPiKBuilder* theBertiniPiK;
+  G4BinaryPiKBuilder* theBinaryPiK;
+  G4FTFPPiKBuilder* theFTFPPiK;
+  G4QGSPPiKBuilder* theQGSPPiK;
 
-  G4String                    modelName;
-  G4bool                      QuasiElastic;
+  G4ProtonBuilder* thePro;
+  G4BertiniProtonBuilder* theBertiniPro;
+  G4BinaryProtonBuilder* theBinaryPro;
+  G4FTFPProtonBuilder* theFTFPPro;
+  G4QGSPProtonBuilder* theQGSPPro;
+
+  G4FTFBinaryNeutronBuilder* theFTFNeutron;
+  G4FTFBinaryPiKBuilder* theFTFPiK;
+  G4FTFBinaryProtonBuilder* theFTFPro;
+
+  G4String modelName;
+  G4bool QuasiElastic;
 };
 
 #endif
-

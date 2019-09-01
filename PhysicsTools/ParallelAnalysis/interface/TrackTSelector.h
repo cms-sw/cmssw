@@ -16,24 +16,22 @@
 
 namespace examples {
 
-  class TrackTSelector : 
-    public TFWLiteSelector<TrackAnalysisAlgorithm> {
-  public :
+  class TrackTSelector : public TFWLiteSelector<TrackAnalysisAlgorithm> {
+  public:
     /// default constructor
     TrackTSelector();
     /// begin processing
-    void begin( TList * & ) override;
+    void begin(TList*&) override;
     /// terminate processing
-    void terminate( TList & ) override;
+    void terminate(TList&) override;
 
-    ClassDefOverride(TrackTSelector,2)
-  private:
-    /// avoid copy constructor
-    TrackTSelector( const TrackTSelector & );
+    ClassDefOverride(TrackTSelector, 2) private :
+        /// avoid copy constructor
+        TrackTSelector(const TrackTSelector&);
     /// avoid assignment operator
-    TrackTSelector operator=( TrackTSelector const & );
+    TrackTSelector operator=(TrackTSelector const&);
   };
-  
-}
+
+}  // namespace examples
 
 #endif

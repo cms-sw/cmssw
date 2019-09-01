@@ -57,7 +57,12 @@ VtxSmeared = {
     'Realistic100ns13TeVCollisionBetaStar90m' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic100ns13TeVCollisionBetaStar90m_cfi',
     'Realistic100ns13TeVCollisionBetaStar90mLowBunches' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic100ns13TeVCollisionBetaStar90mLowBunches_cfi',
     'Realistic25ns13TeVEarly2017Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13TeVEarly2017Collision_cfi',
-
+    'Realistic25ns13TeVEarly2018Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13TeVEarly2018Collision_cfi',
+    'RealisticPbPbCollision2018' : 'IOMC.EventVertexGenerators.VtxSmearedRealisticPbPbCollision2018_cfi',
+    'Run3RoundOptics25ns13TeVLowSigmaZ'  : 'IOMC.EventVertexGenerators.VtxSmearedRun3RoundOptics25ns13TeVLowSigmaZ_cfi',
+    'Run3RoundOptics25ns13TeVHighSigmaZ' : 'IOMC.EventVertexGenerators.VtxSmearedRun3RoundOptics25ns13TeVHighSigmaZ_cfi',
+    'Run3FlatOpticsGaussSigmaZ4p2cm'     : 'IOMC.EventVertexGenerators.VtxSmearedRun3FlatOpticsGaussSigmaZ4p2cm_cfi',
+    'Run3FlatOpticsGaussSigmaZ5p3cm'     : 'IOMC.EventVertexGenerators.VtxSmearedRun3FlatOpticsGaussSigmaZ5p3cm_cfi',
 }
 VtxSmearedDefaultKey='Realistic50ns13TeVCollision'
-VtxSmearedHIDefaultKey='RealisticHICollision2015'
+VtxSmearedHIDefaultKey='RealisticPbPbCollision2018'

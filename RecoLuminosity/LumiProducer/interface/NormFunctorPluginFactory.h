@@ -5,7 +5,7 @@
 #include "RecoLuminosity/LumiProducer/interface/NormFunctor.h"
 #include <string>
 
-namespace lumi{
-  typedef edmplugin::PluginFactory< lumi::NormFunctor*() > NormFunctorPluginFactory;
-}//ns lumi
+namespace lumi {
+  typedef edmplugin::PluginFactory<lumi::NormFunctor*()> NormFunctorPluginFactory;
+}  // namespace lumi
 #endif

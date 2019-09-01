@@ -4,7 +4,7 @@
 //
 // Package:     Utilities
 // Class  :     typelookup
-// 
+//
 /**\class typelookup typelookup.h FWCore/Utilities/interface/typelookup.h
 
  Description: Allow looking up a c++ type_info via its name
@@ -47,54 +47,60 @@
 // user include files
 
 namespace edm {
-   class TypeIDBase;
-   
-   namespace typelookup
-   {
-      /**Returns a std::type_info and a long lived const char* containing the name 
+  class TypeIDBase;
+
+  namespace typelookup {
+    /**Returns a std::type_info and a long lived const char* containing the name 
        associated with the string iClassName. If the string is not associated with a known 
        type then returns two null pointers */
-       std::pair<const char*, const std::type_info*> findType(const char* iClassName);
-      
-      /**Returns the registered string (usually the class name) for the type T
-       */
-      template <typename T>
-      const char* className();
+    std::pair<const char*, const std::type_info*> findType(const char* iClassName);
 
-      /**Returns the std::type_info for the class T.  This is done just by calling
+    /**Returns the registered string (usually the class name) for the type T
+       */
+    template <typename T>
+    const char* className();
+
+    /**Returns the std::type_info for the class T.  This is done just by calling
        typeid(T).  So why bother? The call to typeid(T) requires one to include the
        header file which defines class T while the call to classTypeInfo<T>() does not.
        */
-      template <typename T>
-      const std::type_info& classTypeInfo();
+    template <typename T>
+    const std::type_info& classTypeInfo();
 
-      /**Used to create file static variables which register the string iTypeName to the C++ class
+    /**Used to create file static variables which register the string iTypeName to the C++ class
        type associated to the std::type_info.
        */
-      class NameRegistrar {
-      public:
-         NameRegistrar(const char* iTypeName,const std::type_info& iInfo);
-      };
-      
-   }
-}
+    class NameRegistrar {
+    public:
+      NameRegistrar(const char* iTypeName, const std::type_info& iInfo);
+    };
 
-#define TYPELOOKUP_METHODS(Tname) \
-namespace edm { namespace typelookup { \
-template<> const char* className< Tname >() \
-{ return #Tname ; } \
-template<> const std::type_info& classTypeInfo< Tname > () \
-{ return typeid( Tname ); } } }
+  }  // namespace typelookup
+}  // namespace edm
 
+#define TYPELOOKUP_METHODS(Tname)                    \
+  namespace edm {                                    \
+    namespace typelookup {                           \
+      template <>                                    \
+      const char* className<Tname>() {               \
+        return #Tname;                               \
+      }                                              \
+      template <>                                    \
+      const std::type_info& classTypeInfo<Tname>() { \
+        return typeid(Tname);                        \
+      }                                              \
+    }                                                \
+  }
 
-#define EDM_TYPELOOKUP_SYM(x,y) EDM_TYPELOOKUP_SYM2(x,y)
-#define EDM_TYPELOOKUP_SYM2(x,y) x ## y
+#define EDM_TYPELOOKUP_SYM(x, y) EDM_TYPELOOKUP_SYM2(x, y)
+#define EDM_TYPELOOKUP_SYM2(x, y) x##y
 
-#define DEFINE_TYPELOOKUP_REGISTRATION(type) \
-static const edm::typelookup::NameRegistrar EDM_TYPELOOKUP_SYM(s_register , __LINE__ ) (edm::typelookup::className<type>(),typeid(type))
+#define DEFINE_TYPELOOKUP_REGISTRATION(type)                                            \
+  static const edm::typelookup::NameRegistrar EDM_TYPELOOKUP_SYM(s_register, __LINE__)( \
+      edm::typelookup::className<type>(), typeid(type))
 
-#define TYPELOOKUP_DATA_REG(_dataclass_) TYPELOOKUP_METHODS(_dataclass_) \
-DEFINE_TYPELOOKUP_REGISTRATION(_dataclass_)
-
+#define TYPELOOKUP_DATA_REG(_dataclass_) \
+  TYPELOOKUP_METHODS(_dataclass_)        \
+  DEFINE_TYPELOOKUP_REGISTRATION(_dataclass_)
 
 #endif

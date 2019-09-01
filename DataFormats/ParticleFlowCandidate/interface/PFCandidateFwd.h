@@ -14,10 +14,10 @@ namespace reco {
   /// collection of PFCandidates
   typedef std::vector<reco::PFCandidate> PFCandidateCollection;
 
-  /// iterator 
+  /// iterator
   typedef PFCandidateCollection::const_iterator PFCandidateConstIterator;
 
-  /// iterator 
+  /// iterator
   typedef PFCandidateCollection::iterator PFCandidateIterator;
 
   /// persistent reference to a PFCandidate
@@ -32,19 +32,18 @@ namespace reco {
   /// vector of reference to GenParticleCandidate in the same collection
   typedef edm::RefVector<PFCandidateCollection> PFCandidateRefVector;
 
-   /// persistent "forward" reference to a PFCandidate
-   typedef edm::FwdRef<PFCandidateCollection> PFCandidateFwdRef;
- 
-   /// persistent FwdPtr to a PFCandidate
-   typedef edm::FwdPtr<PFCandidate> PFCandidateFwdPtr;
- 
-   /// vector of "forward" reference
-   typedef std::vector<PFCandidateFwdRef> PFCandidateFwdRefVector;
- 
-   /// vector of "forward" reference
-   typedef std::vector<PFCandidateFwdPtr> PFCandidateFwdPtrVector;
+  /// persistent "forward" reference to a PFCandidate
+  typedef edm::FwdRef<PFCandidateCollection> PFCandidateFwdRef;
 
-  
-}
+  /// persistent FwdPtr to a PFCandidate
+  typedef edm::FwdPtr<PFCandidate> PFCandidateFwdPtr;
+
+  /// vector of "forward" reference
+  typedef std::vector<PFCandidateFwdRef> PFCandidateFwdRefVector;
+
+  /// vector of "forward" reference
+  typedef std::vector<PFCandidateFwdPtr> PFCandidateFwdPtrVector;
+
+}  // namespace reco
 
 #endif

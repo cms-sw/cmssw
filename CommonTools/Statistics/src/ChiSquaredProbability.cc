@@ -10,10 +10,12 @@
  *  it is to observe as high (or higher) a chi-squared. 
  *  source: Numerical Recipes
  */
-float ChiSquaredProbability( double chiSquared, double nrDOF )
-{ return IncompleteGammaComplement::value( nrDOF / 2 , chiSquared / 2 ); }
+float ChiSquaredProbability(double chiSquared, double nrDOF) {
+  return IncompleteGammaComplement::value(nrDOF / 2, chiSquared / 2);
+}
 
-float LnChiSquaredProbability( double chiSquared, double nrDOF )
-{ return IncompleteGammaComplement::ln( nrDOF / 2 , chiSquared / 2 ); }
+float LnChiSquaredProbability(double chiSquared, double nrDOF) {
+  return IncompleteGammaComplement::ln(nrDOF / 2, chiSquared / 2);
+}
 
 #endif

@@ -24,69 +24,65 @@
 
 #include "DPGAnalysis/Skims/interface/FilterOutScraping.h"
 
-
 using namespace edm;
 using namespace std;
 
-FilterOutScraping::FilterOutScraping(const edm::ParameterSet& iConfig)
-{
-  
-  applyfilter = iConfig.getUntrackedParameter<bool>("applyfilter",true);
-  debugOn     = iConfig.getUntrackedParameter<bool>("debugOn",false);
-  thresh =  iConfig.getUntrackedParameter<double>("thresh",0.2);
-  numtrack = iConfig.getUntrackedParameter<unsigned int>("numtrack",10);
-  tracks_ = consumes<reco::TrackCollection>(iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generalTracks")));
+FilterOutScraping::FilterOutScraping(const edm::ParameterSet& iConfig) {
+  applyfilter = iConfig.getUntrackedParameter<bool>("applyfilter", true);
+  debugOn = iConfig.getUntrackedParameter<bool>("debugOn", false);
+  thresh = iConfig.getUntrackedParameter<double>("thresh", 0.2);
+  numtrack = iConfig.getUntrackedParameter<unsigned int>("numtrack", 10);
+  tracks_ = consumes<reco::TrackCollection>(
+      iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("generalTracks")));
 }
 
-FilterOutScraping::~FilterOutScraping()
-{
-}
+FilterOutScraping::~FilterOutScraping() {}
 
-bool FilterOutScraping::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
+bool FilterOutScraping::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   bool accepted = false;
-  float fraction = 0;  
+  float fraction = 0;
   // get GeneralTracks collection
 
   edm::Handle<reco::TrackCollection> tkRef;
-  iEvent.getByToken(tracks_,tkRef);    
+  iEvent.getByToken(tracks_, tkRef);
   const reco::TrackCollection* tkColl = tkRef.product();
 
   //std::cout << "Total Number of Tracks " << tkColl->size() << std::endl;
-  
-  int numhighpurity=0;
+
+  int numhighpurity = 0;
   _trackQuality = reco::TrackBase::qualityByName("highPurity");
 
-  if(tkColl->size()>numtrack){ 
+  if (tkColl->size() > numtrack) {
     reco::TrackCollection::const_iterator itk = tkColl->begin();
     reco::TrackCollection::const_iterator itk_e = tkColl->end();
-    for(;itk!=itk_e;++itk){
+    for (; itk != itk_e; ++itk) {
       // std::cout << "HighPurity?  " << itk->quality(_trackQuality) << std::endl;
-      if(itk->quality(_trackQuality)) numhighpurity++;
+      if (itk->quality(_trackQuality))
+        numhighpurity++;
     }
-    fraction = (float)numhighpurity/(float)tkColl->size();
-    if(fraction>thresh) accepted=true;
-  }else{
-    //if less than 10 Tracks accept the event anyway    
-    accepted= true;
+    fraction = (float)numhighpurity / (float)tkColl->size();
+    if (fraction > thresh)
+      accepted = true;
+  } else {
+    //if less than 10 Tracks accept the event anyway
+    accepted = true;
   }
-  
-  
+
   if (debugOn) {
     int ievt = iEvent.id().event();
     int irun = iEvent.id().run();
     int ils = iEvent.luminosityBlock();
     int bx = iEvent.bunchCrossing();
-    
-    std::cout << "FilterOutScraping_debug: Run " << irun << " Event " << ievt << " Lumi Block " << ils << " Bunch Crossing " << bx << " Fraction " << fraction << " NTracks " << tkColl->size() << " Accepted " << accepted << std::endl;
+
+    std::cout << "FilterOutScraping_debug: Run " << irun << " Event " << ievt << " Lumi Block " << ils
+              << " Bunch Crossing " << bx << " Fraction " << fraction << " NTracks " << tkColl->size() << " Accepted "
+              << accepted << std::endl;
   }
- 
+
   if (applyfilter)
     return accepted;
   else
     return true;
-
 }
 
 //define this as a plug-in

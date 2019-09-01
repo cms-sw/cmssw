@@ -15,6 +15,6 @@ namespace edmtestprod {
     std::vector<cms_int32_t> data_;
   };
 
-}
+}  // namespace edmtestprod
 
 #endif

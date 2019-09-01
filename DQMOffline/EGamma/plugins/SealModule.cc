@@ -10,9 +10,6 @@
 #include "DQMOffline/EGamma/plugins/ElectronTagProbeAnalyzer.h"
 #include "DQMOffline/EGamma/plugins/ElectronOfflineClient.h"
 
-
-
-
 DEFINE_FWK_MODULE(PhotonAnalyzer);
 DEFINE_FWK_MODULE(ZToMuMuGammaAnalyzer);
 DEFINE_FWK_MODULE(PhotonOfflineClient);

@@ -5,9 +5,9 @@
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
-namespace gen
-{
-   typedef edm::GeneratorFilter<gen::ReggeGribovPartonMCHadronizer, gen::ExternalDecayDriver> ReggeGribovPartonMCGeneratorFilter;
+namespace gen {
+  typedef edm::GeneratorFilter<gen::ReggeGribovPartonMCHadronizer, gen::ExternalDecayDriver>
+      ReggeGribovPartonMCGeneratorFilter;
 }
 
-#endif //#ifndef REGGEGRIBOVPARTONMCGENERATORFILTER_H
+#endif  //#ifndef REGGEGRIBOVPARTONMCGENERATORFILTER_H

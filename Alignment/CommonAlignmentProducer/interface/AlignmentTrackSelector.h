@@ -14,21 +14,18 @@ namespace edm {
   class Event;
   class EventSetup;
   class ParameterSet;
-}
+}  // namespace edm
 
 class TrackingRecHit;
 class SiStripRecHit1D;
 class SiStripRecHit2D;
 
-class AlignmentTrackSelector
-{
-
- public:
-
-  typedef std::vector<const reco::Track*> Tracks; 
+class AlignmentTrackSelector {
+public:
+  typedef std::vector<const reco::Track*> Tracks;
 
   /// constructor
-  AlignmentTrackSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
+  AlignmentTrackSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   /// destructor
   ~AlignmentTrackSelector();
@@ -38,18 +35,16 @@ class AlignmentTrackSelector
   ///returns if any of the Filters is used.
   bool useThisFilter();
 
-
- private:
-
+private:
   /// apply basic cuts on pt,eta,phi,nhit
   Tracks basicCuts(const Tracks& tracks, const edm::Event& evt, const edm::EventSetup& eSetup) const;
   /// checking hit requirements beyond simple number of valid hits
   bool detailedHitsCheck(const reco::Track* track, const edm::Event& evt, const edm::EventSetup& eSetup) const;
-  bool isHit2D(const TrackingRecHit &hit) const;
-  /// if valid, check for minimum charge (currently only in strip), if invalid give true 
+  bool isHit2D(const TrackingRecHit& hit) const;
+  /// if valid, check for minimum charge (currently only in strip), if invalid give true
   bool isOkCharge(const TrackingRecHit* therechit) const;
-  bool isOkChargeStripHit(const SiStripRecHit1D &siStripRecHit1D) const;
-  bool isOkChargeStripHit(const SiStripRecHit2D &siStripRecHit2D) const;
+  bool isOkChargeStripHit(const SiStripRecHit1D& siStripRecHit1D) const;
+  bool isOkChargeStripHit(const SiStripRecHit2D& siStripRecHit2D) const;
   bool isIsolated(const TrackingRecHit* therechit, const edm::Event& evt) const;
   bool isOkTrkQuality(const reco::Track* track) const;
 
@@ -61,9 +56,7 @@ class AlignmentTrackSelector
 
   /// compare two tracks in pt (used by theNHighestPtTracks)
   struct ComparePt {
-    bool operator()( const reco::Track* t1, const reco::Track* t2 ) const {
-      return t1->pt()> t2->pt();
-    }
+    bool operator()(const reco::Track* t1, const reco::Track* t2) const { return t1->pt() > t2->pt(); }
   };
   ComparePt ptComparator;
 
@@ -71,14 +64,14 @@ class AlignmentTrackSelector
   const int seedOnlyFromAbove_;
   const bool applyIsolation_, chargeCheck_;
   const int nHighestPt_, minMultiplicity_, maxMultiplicity_;
-  const bool multiplicityOnInput_; /// if true, cut min/maxMultiplicity on input instead of on final result
-  const double ptMin_,ptMax_,pMin_,pMax_,etaMin_,etaMax_,phiMin_,phiMax_;
-  const double nHitMin_,nHitMax_,chi2nMax_, d0Min_,d0Max_,dzMin_,dzMax_;
+  const bool multiplicityOnInput_;  /// if true, cut min/maxMultiplicity on input instead of on final result
+  const double ptMin_, ptMax_, pMin_, pMax_, etaMin_, etaMax_, phiMin_, phiMax_;
+  const double nHitMin_, nHitMax_, chi2nMax_, d0Min_, d0Max_, dzMin_, dzMax_;
   const int theCharge_;
   const double minHitChargeStrip_, minHitIsolation_;
   edm::EDGetTokenT<SiStripRecHit2DCollection> rphirecHitsToken_;
   edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matchedrecHitsToken_;
-  const bool countStereoHitAs2D_; // count hits on stereo components of GluedDet for nHitMin2D_?
+  const bool countStereoHitAs2D_;  // count hits on stereo components of GluedDet for nHitMin2D_?
   const unsigned int nHitMin2D_;
   const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_;
   const int minHitsinBPIX_, minHitsinFPIX_, minHitsinPIX_;
@@ -92,7 +85,7 @@ class AlignmentTrackSelector
   std::vector<double> RorZofLastHitMin_;
   std::vector<double> RorZofLastHitMax_;
 
-  const edm::InputTag clusterValueMapTag_;  // ValueMap containing association cluster - flag
+  const edm::InputTag clusterValueMapTag_;                     // ValueMap containing association cluster - flag
   edm::EDGetTokenT<AliClusterValueMap> clusterValueMapToken_;  // ValueMap containing association cluster - flag
   const int minPrescaledHits_;
   const bool applyPrescaledHitsFilter_;
@@ -105,4 +98,3 @@ class AlignmentTrackSelector
 };
 
 #endif
-

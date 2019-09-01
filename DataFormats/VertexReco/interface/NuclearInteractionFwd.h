@@ -14,7 +14,6 @@ namespace reco {
   typedef edm::RefVector<NuclearInteractionCollection> NuclearInteractionRefVector;
   /// iterator over a vector of reference to Track in the same collection
   typedef NuclearInteractionRefVector::iterator NuclearInteraction_iterator;
-}
+}  // namespace reco
 
 #endif
-

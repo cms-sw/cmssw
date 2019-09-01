@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
+from builtins import range
 import sys, os
 import time
 import optparse
@@ -151,12 +153,12 @@ def manipulate_log(outdir, logfile_name, secsperbin):
     # Comment out next 2 line to round uncertainty to the most significant digit
     #rounded_uncertainty=round(uncertainty, -int(floor(log10(uncertainty))))
     #print 'Rounded uncertainty=' , rounded_uncertainty  
-    print '------ Statistics ------'
-    print 'last event = {}'.format(last_event)
-    print 'Minval = {} maxval = {} interval = {}'.format(min_val, max_val, interval)
-    print 'Total Time = {}'.format(total_time)
-    print 'Average Time = {}'.format(average_time)
-    print 'Uncertainty of Average Time = {} +/- {}'.format(average_time, uncertainty)
+    print('------ Statistics ------')
+    print('last event = {}'.format(last_event))
+    print('Minval = {} maxval = {} interval = {}'.format(min_val, max_val, interval))
+    print('Total Time = {}'.format(total_time))
+    print('Average Time = {}'.format(average_time))
+    print('Uncertainty of Average Time = {} +/- {}'.format(average_time, uncertainty))
 
 #################################################################################################    
         
@@ -193,7 +195,7 @@ if __name__ == '__main__':
     try:
         startevt = float(options.startevt)        
     except ValueError:
-         print 'Problems in convertng starting event value!'
+         print('Problems in convertng starting event value!')
 
     # launch the function!
     manipulate_log(options.outdir,options.profile,startevt)

@@ -64,6 +64,9 @@ process.siStripQualityESProducer.UseEmptyRunInfo = cms.bool(False)
 #-------------------------------------------------
 # Services for the TkHistoMap
 #-------------------------------------------------
+process.load("Configuration.Geometry.GeometryExtended2017_cff")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
+process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
 process.load("DQM.SiStripCommon.TkHistoMap_cff")
 #-------------------------------------------------
 process.stat = cms.EDAnalyzer("TrackHitPositions",

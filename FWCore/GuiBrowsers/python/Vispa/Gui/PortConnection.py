@@ -1,3 +1,4 @@
+from builtins import range
 import logging
 
 from PyQt4.QtCore import Qt, QPoint, QPointF, QRectF, QSizeF, SIGNAL

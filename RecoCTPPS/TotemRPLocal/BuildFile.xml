@@ -1,4 +1,5 @@
 <use name="FWCore/ParameterSet"/>
+<use name="CommonTools/Utils"/>
 
 <use name="DataFormats/Common"/>
 <use name="DataFormats/CTPPSDigi"/>
@@ -6,6 +7,7 @@
 
 <use name="Geometry/VeryForwardGeometryBuilder"/>
 <use name="Geometry/VeryForwardRPTopology"/>
+<use name="CondFormats/CTPPSReadoutObjects"/>
 
 <use name="root"/>
 

@@ -11,7 +11,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -21,22 +21,19 @@
 #include "CondFormats/DataRecord/interface/CastorPedestalsRcd.h"
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"
 
-
-class CastorPedestalsHandler : public popcon::PopConSourceHandler<CastorPedestals>
-{
- public:
+class CastorPedestalsHandler : public popcon::PopConSourceHandler<CastorPedestals> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~CastorPedestalsHandler() override;
-  CastorPedestalsHandler(edm::ParameterSet const &);
+  CastorPedestalsHandler(edm::ParameterSet const&);
 
   void initObject(CastorPedestals*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   CastorPedestals* myDBObject;
   std::string m_name;
-
 };
 #endif

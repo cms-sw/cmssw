@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 rpcRecHits = cms.EDProducer("RPCRecHitProducer",

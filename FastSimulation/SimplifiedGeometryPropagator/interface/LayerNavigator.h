@@ -3,23 +3,20 @@
 
 #include <string>
 
-
 ///////////////////////////////////////////////
 // Author: L. Vanelderen, S. Kurz
 // Date: 29 May 2017
 //////////////////////////////////////////////////////////
 
+namespace fastsim {
+  class SimplifiedGeometry;
+  class ForwardSimplifiedGeometry;
+  class BarrelSimplifiedGeometry;
+  class Geometry;
+  class Particle;
 
-namespace fastsim
-{
-    class SimplifiedGeometry;
-    class ForwardSimplifiedGeometry;
-    class BarrelSimplifiedGeometry;
-    class Geometry;
-    class Particle;
-
-    //! Handles/tracks (possible) intersections of particle's trajectory and tracker layers.
-    /*!
+  //! Handles/tracks (possible) intersections of particle's trajectory and tracker layers.
+  /*!
         the geometry is described by 2 sets of layers:
             - forward layers: 
                 flat layers, perpendicular to the z-axis, positioned at a given z
@@ -48,31 +45,34 @@ namespace fastsim
             - move the particle to the earliest intersection time
             - select and return the layer with the earliest positive intersection time
     */
-    class LayerNavigator
-    {
-        public:
-        //! Constructor.
-        /*!
+  class LayerNavigator {
+  public:
+    //! Constructor.
+    /*!
             \param geometry The geometry of the tracker material.
         */
-        LayerNavigator(const Geometry & geometry);
+    LayerNavigator(const Geometry& geometry);
 
-        //! Move particle along its trajectory to the next intersection with any of the tracker layers.
-        /*!
+    //! Move particle along its trajectory to the next intersection with any of the tracker layers.
+    /*!
             \param particle The particle that has to be moved to the next layer.
             \param layer The layer to which the particle was moved in the previous call of this function (0 if first call). Returns the layer this particle was then moved to.
             \return true / false if propagation succeeded / failed.
         */
-        bool moveParticleToNextLayer(Particle & particle, const SimplifiedGeometry * & layer);
+    bool moveParticleToNextLayer(Particle& particle, const SimplifiedGeometry*& layer);
 
-        private:
-        const Geometry * const geometry_;  //!< The geometry of the tracker material
-        const BarrelSimplifiedGeometry * nextBarrelLayer_;  //!< Pointer to the next (direction of the particle's momentum) barrel layer
-        const BarrelSimplifiedGeometry * previousBarrelLayer_;  //!< Pointer to the previous (opposite direction of the particle's momentum) barrel layer
-        const ForwardSimplifiedGeometry * nextForwardLayer_;  //!< Pointer to the next (direction of the particle's momentum) forward layer
-        const ForwardSimplifiedGeometry * previousForwardLayer_;  //!< Pointer to the previous (opposite direction of the particle's momentum) forward layer
-        static const std::string MESSAGECATEGORY;
-    };
-}
+  private:
+    const Geometry* const geometry_;  //!< The geometry of the tracker material
+    const BarrelSimplifiedGeometry*
+        nextBarrelLayer_;  //!< Pointer to the next (direction of the particle's momentum) barrel layer
+    const BarrelSimplifiedGeometry*
+        previousBarrelLayer_;  //!< Pointer to the previous (opposite direction of the particle's momentum) barrel layer
+    const ForwardSimplifiedGeometry*
+        nextForwardLayer_;  //!< Pointer to the next (direction of the particle's momentum) forward layer
+    const ForwardSimplifiedGeometry*
+        previousForwardLayer_;  //!< Pointer to the previous (opposite direction of the particle's momentum) forward layer
+    static const std::string MESSAGECATEGORY;
+  };
+}  // namespace fastsim
 
 #endif

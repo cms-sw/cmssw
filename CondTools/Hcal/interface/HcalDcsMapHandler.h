@@ -3,7 +3,6 @@
 
 // Gena Kukartsev, February 5, 2010
 
-
 #include <string>
 #include <iostream>
 #include <typeinfo>
@@ -11,7 +10,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -21,22 +20,19 @@
 #include "CondFormats/DataRecord/interface/HcalDcsMapRcd.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
-
-class HcalDcsMapHandler : public popcon::PopConSourceHandler<HcalDcsMap>
-{
- public:
+class HcalDcsMapHandler : public popcon::PopConSourceHandler<HcalDcsMap> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~HcalDcsMapHandler() override;
-  HcalDcsMapHandler(edm::ParameterSet const &);
+  HcalDcsMapHandler(edm::ParameterSet const&);
 
   void initObject(HcalDcsMap*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   HcalDcsMap* myDBObject;
   std::string m_name;
-
 };
 #endif

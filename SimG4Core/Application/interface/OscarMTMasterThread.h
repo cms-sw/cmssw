@@ -21,6 +21,10 @@ class RunManagerMT;
 class DDCompactView;
 class MagneticField;
 
+namespace cms {
+  class DDCompactView;
+}
+
 namespace HepPDT {
   class ParticleDataTable;
 }
@@ -35,16 +39,14 @@ public:
   void stopThread();
 
   inline RunManagerMT& runManagerMaster() const { return *m_runManagerMaster; }
-  inline RunManagerMT *runManagerMasterPtr() const { return m_runManagerMaster.get(); }
+  inline RunManagerMT* runManagerMasterPtr() const { return m_runManagerMaster.get(); }
 
 private:
   void readES(const edm::EventSetup& iSetup) const;
 
-  enum class ThreadState {
-    NotExist=0, BeginRun=1, EndRun=2, Destruct=3
-  };
+  enum class ThreadState { NotExist = 0, BeginRun = 1, EndRun = 2, Destruct = 3 };
 
-  const bool m_pUseMagneticField;
+  const bool m_pGeoFromDD4hep;
 
   std::shared_ptr<RunManagerMT> m_runManagerMaster;
   std::thread m_masterThread;
@@ -52,9 +54,9 @@ private:
   // ES products needed for Geant4 initialization
   mutable edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
   mutable edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
-  mutable const DDCompactView *m_pDD;
-  mutable const MagneticField *m_pMF;
-  mutable const HepPDT::ParticleDataTable *m_pTable;
+  mutable const DDCompactView* m_pDD;
+  mutable const cms::DDCompactView* m_pDD4hep;
+  mutable const HepPDT::ParticleDataTable* m_pTable;
 
   mutable std::mutex m_protectMutex;
   mutable std::mutex m_threadMutex;
@@ -68,6 +70,5 @@ private:
   mutable bool m_firstRun;
   mutable bool m_stopped;
 };
-
 
 #endif

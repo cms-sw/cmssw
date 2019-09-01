@@ -5,7 +5,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "SimTracker/SiStripDigitizer/interface/SiPileUpSignals.h"
 
-#include<map>
+#include <map>
 
 class TrackerTopology;
 class StripDet;
@@ -14,14 +14,14 @@ class StripDet;
  * Given a SignalPoint, computes the charge on each strip.
  */
 
-
-class SiInduceChargeOnStrips{
+class SiInduceChargeOnStrips {
 public:
-  
-  virtual ~SiInduceChargeOnStrips() { }
-  virtual void induce(const SiChargeCollectionDrifter::collection_type&, const StripGeomDetUnit&, 
-		      std::vector<float>&, size_t&, size_t&,
-		      const TrackerTopology *tTopo) const=0;
-
+  virtual ~SiInduceChargeOnStrips() {}
+  virtual void induce(const SiChargeCollectionDrifter::collection_type &,
+                      const StripGeomDetUnit &,
+                      std::vector<float> &,
+                      size_t &,
+                      size_t &,
+                      const TrackerTopology *tTopo) const = 0;
 };
 #endif

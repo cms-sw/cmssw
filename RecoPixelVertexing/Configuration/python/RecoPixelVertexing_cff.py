@@ -6,4 +6,5 @@ from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
 #
 #from RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cff import *
 from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
-recopixelvertexing = cms.Sequence(pixelTracksSequence*pixelVertices)
+recopixelvertexingTask = cms.Task(pixelTracksTask,pixelVertices)
+recopixelvertexing = cms.Sequence(recopixelvertexingTask)

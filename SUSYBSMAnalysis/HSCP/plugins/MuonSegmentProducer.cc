@@ -2,7 +2,7 @@
 //
 // Package:    MuonSegmentProducer
 // Class:      MuonSegmentProducer
-// 
+//
 /**\class MuonSegmentProducer MuonSegmentProducer.cc SUSYBSMAnalysis/MuonSegmentProducer/src/MuonSegmentProducer.cc
 
  Description: Producer muon segments with global position info to be used in FWLite
@@ -42,21 +42,21 @@
 #include <vector>
 #include <iostream>
 
-//                                                                                                                                                                                 
-// class decleration                                                                                                                                                               
-//                                                                                                                                                                                 
+//
+// class decleration
+//
 class MuonSegmentProducer : public edm::EDProducer {
 public:
   explicit MuonSegmentProducer(const edm::ParameterSet&);
   ~MuonSegmentProducer() override;
 
 private:
-  void beginJob() override ;
+  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
 
-  edm::EDGetTokenT< CSCSegmentCollection > m_cscSegmentToken;
-  edm::EDGetTokenT< DTRecSegment4DCollection > m_dtSegmentToken;
+  edm::EDGetTokenT<CSCSegmentCollection> m_cscSegmentToken;
+  edm::EDGetTokenT<DTRecSegment4DCollection> m_dtSegmentToken;
 };
 
 using namespace susybsm;
@@ -65,16 +65,15 @@ MuonSegmentProducer::MuonSegmentProducer(const edm::ParameterSet& iConfig) {
   using namespace edm;
   using namespace std;
 
+  m_cscSegmentToken = consumes<CSCSegmentCollection>(iConfig.getParameter<edm::InputTag>("CSCSegments"));
+  m_dtSegmentToken = consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("DTSegments"));
 
-  m_cscSegmentToken = consumes< CSCSegmentCollection >( iConfig.getParameter<edm::InputTag>("CSCSegments" ) );
-  m_dtSegmentToken  = consumes< DTRecSegment4DCollection >(iConfig.getParameter<edm::InputTag>("DTSegments" ) );
-
-  produces<susybsm::MuonSegmentCollection >();
+  produces<susybsm::MuonSegmentCollection>();
 }
 
 MuonSegmentProducer::~MuonSegmentProducer() {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -82,9 +81,7 @@ MuonSegmentProducer::~MuonSegmentProducer() {
 //
 
 // ------------ method called to produce the data  ------------
-void
-MuonSegmentProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+void MuonSegmentProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace std;
   using namespace susybsm;
@@ -101,8 +98,8 @@ MuonSegmentProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   edm::Handle<DTRecSegment4DCollection> dtSegments;
   iEvent.getByToken(m_dtSegmentToken, dtSegments);
 
-  for (unsigned int d=0; d<dtSegments->size(); d++) {
-    DTRecSegment4DRef SegRef  = DTRecSegment4DRef( dtSegments, d );
+  for (unsigned int d = 0; d < dtSegments->size(); d++) {
+    DTRecSegment4DRef SegRef = DTRecSegment4DRef(dtSegments, d);
     MuonSegment muonSegment;
     muonSegment.setDTSegmentRef(SegRef);
 
@@ -115,8 +112,8 @@ MuonSegmentProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   edm::Handle<CSCSegmentCollection> cscSegments;
   iEvent.getByToken(m_cscSegmentToken, cscSegments);
 
-  for (unsigned int c=0; c<cscSegments->size(); c++) {
-    CSCSegmentRef SegRef  = CSCSegmentRef( cscSegments, c );
+  for (unsigned int c = 0; c < cscSegments->size(); c++) {
+    CSCSegmentRef SegRef = CSCSegmentRef(cscSegments, c);
     MuonSegment muonSegment;
     muonSegment.setCSCSegmentRef(SegRef);
 
@@ -130,33 +127,10 @@ MuonSegmentProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-MuonSegmentProducer::beginJob() {
-}
+void MuonSegmentProducer::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-MuonSegmentProducer::endJob() {
-}
+void MuonSegmentProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(MuonSegmentProducer);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

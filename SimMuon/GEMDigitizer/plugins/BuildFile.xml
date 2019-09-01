@@ -1,15 +1,2 @@
-
-<library file="*.cc" name="SimMuonGEMDigitizerPlugins"> 
-  <use name="FWCore/Utilities"/>
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/ServiceRegistry"/>
-  <use name="CommonTools/UtilAlgos"/>
-  <use name="CondFormats/RecoMuonObjects"/>
-  <use name="DataFormats/Common"/>
-  <use name="DataFormats/MuonDetId"/>
-  <use name="DataFormats/GeometryVector"/>
-  <use name="Geometry/Records"/>
-  <use name="CondFormats/DataRecord"/>
-
-  <flags EDM_PLUGIN="1"/>
-</library>
+<use   name="SimMuon/GEMDigitizer"/>
+<flags   EDM_PLUGIN="1"/>

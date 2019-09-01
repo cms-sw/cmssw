@@ -28,25 +28,23 @@ namespace edm {
 }
 
 class PythiaFilterZJetWithOutBg : public edm::EDFilter {
-   public:
-      explicit PythiaFilterZJetWithOutBg(const edm::ParameterSet&);
-      ~PythiaFilterZJetWithOutBg() override;
+public:
+  explicit PythiaFilterZJetWithOutBg(const edm::ParameterSet&);
+  ~PythiaFilterZJetWithOutBg() override;
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-   private:
-      
-       edm::EDGetTokenT<edm::HepMCProduct> token_;
-       double etaMuMax;
-       double ptMuMin;
-       double ptZMin;
-       double ptZMax;
-       double m_z;
-       double dm_z;
-       int nmu;
+private:
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
+  double etaMuMax;
+  double ptMuMin;
+  double ptZMin;
+  double ptZMax;
+  double m_z;
+  double dm_z;
+  int nmu;
 
-       int theNumberOfSelected;
-       int maxnumberofeventsinrun;
-
+  int theNumberOfSelected;
+  int maxnumberofeventsinrun;
 };
 #endif

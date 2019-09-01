@@ -1,46 +1,45 @@
 #ifndef __PhysicsTools_PatAlgos_MuonMvaEstimator__
 #define __PhysicsTools_PatAlgos_MuonMvaEstimator__
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
+
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "TMVA/Reader.h"
+
+#include <memory>
+#include <string>
+
+class GBRForest;
+
+namespace pat {
+  class Muon;
+}
 
 namespace reco {
   class JetCorrector;
+  class Vertex;
+}  // namespace reco
+
+namespace edm {
+  class FileInPath;
 }
+
 namespace pat {
-  class MuonMvaEstimator{
+  class MuonMvaEstimator {
   public:
-    MuonMvaEstimator();
-    void initialize(std::string weightsfile, 
-		    float dRmax);
-    void computeMva(const pat::Muon& imuon,
-		    const reco::Vertex& vertex,
-		    const reco::JetTagCollection& bTags,
-		    const reco::JetCorrector* correctorL1=nullptr,
-		    const reco::JetCorrector* correctorL1L2L3Res=nullptr);
-    float mva() const {return mva_;}
-    float jetPtRatio() const {return jetPtRatio_;}
-    float jetPtRel() const {return jetPtRel_;}
+    MuonMvaEstimator(const edm::FileInPath& weightsfile, float dRmax);
+
+    ~MuonMvaEstimator();
+
+    float computeMva(const pat::Muon& imuon,
+                     const reco::Vertex& vertex,
+                     const reco::JetTagCollection& bTags,
+                     float& jetPtRatio,
+                     float& jetPtRel,
+                     float& miniIsoValue,
+                     const reco::JetCorrector* correctorL1 = nullptr,
+                     const reco::JetCorrector* correctorL1L2L3Res = nullptr) const;
+
   private:
-    TMVA::Reader tmvaReader_;
-    bool initialized_;
-    float mva_;
+    std::unique_ptr<const GBRForest> gbrForest_;
     float dRmax_;
-    
-    /// MVA VAriables
-    float pt_;
-    float eta_;
-    float jetNDauCharged_;
-    float miniRelIsoCharged_;
-    float miniRelIsoNeutral_;
-    float jetPtRel_;
-    float jetPtRatio_;
-    float jetBTagCSV_;
-    float sip_;
-    float log_abs_dxyBS_; 
-    float log_abs_dzPV_;            
-    float segmentCompatibility_;
   };
-}
+}  // namespace pat
 #endif

@@ -1,13 +1,15 @@
+from __future__ import absolute_import
 import os
-from genericValidation import GenericValidation, GenericValidationData
-from geometryComparison import GeometryComparison
-from helperFunctions import getCommandOutput2, parsecolor, parsestyle
-from monteCarloValidation import MonteCarloValidation
-from offlineValidation import OfflineValidation
-from plottingOptions import PlottingOptions
-from TkAlExceptions import AllInOneError
-from trackSplittingValidation import TrackSplittingValidation
-from zMuMuValidation import ZMuMuValidation
+from .genericValidation import GenericValidation, GenericValidationData
+from .geometryComparison import GeometryComparison
+from .helperFunctions import boolfromstring, getCommandOutput2, parsecolor, parsestyle
+from .monteCarloValidation import MonteCarloValidation
+from .offlineValidation import OfflineValidation
+from .primaryVertexValidation import PrimaryVertexValidation
+from .plottingOptions import PlottingOptions
+from .TkAlExceptions import AllInOneError
+from .trackSplittingValidation import TrackSplittingValidation
+from .zMuMuValidation import ZMuMuValidation
 
 class PreexistingValidation(GenericValidation):
     """
@@ -15,7 +17,7 @@ class PreexistingValidation(GenericValidation):
     but should be included in plots.
     """
     defaults = {"title": ".oO[name]Oo."}
-    mandatories = {"file", "color", "style"}
+    mandatories = {"file", "color", "style", "originalValName", "eosdirName", "multiIOV"}
     removemandatories = {"dataset", "maxevents", "trackcollection"}
     def __init__(self, valName, config):
         self.general = config.getGeneral()
@@ -27,11 +29,12 @@ class PreexistingValidation(GenericValidation):
                                                demandPars = self.mandatories)
         self.general.update(theUpdate)
 
+        self.originalValName = self.general["originalValName"]
         self.title = self.general["title"]
         if "|" in self.title or "," in self.title or '"' in self.title:
             msg = "The characters '|', '\"', and ',' cannot be used in the alignment title!"
             raise AllInOneError(msg)
-        self.needsproxy = bool(int(self.general["needsproxy"]))
+        self.needsproxy = boolfromstring(self.general["needsproxy"], "needsproxy")
         self.jobid = self.general["jobid"]
         if self.jobid:
             try:  #make sure it's actually a valid jobid
@@ -95,6 +98,18 @@ class PreexistingOfflineValidation(PreexistingValidation, OfflineValidation):
 
     def getRepMap(self):
         result = super(PreexistingOfflineValidation, self).getRepMap()
+        result.update({
+                       "filetoplot": self.general["file"],
+                     })
+        return result
+
+    def appendToMerge(self, *args, **kwargs):
+        raise AllInOneError("Shouldn't be here...")
+
+class PreexistingPrimaryVertexValidation(PreexistingValidation, PrimaryVertexValidation):
+    removemandatories = {"isda","ismc","runboundary","vertexcollection","lumilist","ptCut","etaCut","runControl","numberOfBins"}
+    def getRepMap(self):
+        result = super(PreexistingPrimaryVertexValidation, self).getRepMap()
         result.update({
                        "filetoplot": self.general["file"],
                      })

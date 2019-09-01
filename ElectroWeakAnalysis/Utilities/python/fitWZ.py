@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import division
+from __future__ import print_function
 from math import *
 from ROOT import *
 from array import array
@@ -53,4 +54,4 @@ errpar0 = Double(0.0)
 gMinuit.GetParameter(0,par0,errpar0)
 
 # Extract statistical uncertainty on W/Z including efficiency uncertainties
-print "\n*** Statistical uncertainty on W/Z (including eff. unc.): %.4f" % (errpar0)
+print("\n*** Statistical uncertainty on W/Z (including eff. unc.): %.4f" % (errpar0))

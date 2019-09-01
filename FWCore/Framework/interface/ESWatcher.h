@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     ESWatcher
-// 
+//
 /**\class ESWatcher ESWatcher.h FWCore/Framework/interface/ESWatcher.h
 
  Description: Watches an EventSetup Record and reports when it changes
@@ -28,50 +28,46 @@
 
 namespace edm {
   template <class T>
-  class ESWatcher
-  {
-
-   public:
-    
+  class ESWatcher {
+  public:
     struct NullFunction {
-      void operator()(const T& ) {}
+      void operator()(const T&) {}
     };
-    
-    ESWatcher() :callback_(NullFunction()), cacheId_(0) {}
-    
+
+    ESWatcher() : callback_(NullFunction()), cacheId_(0) {}
+
     template <class TFunc>
-    ESWatcher(TFunc iFunctor):callback_(iFunctor),cacheId_(0) {}
-    
+    ESWatcher(TFunc iFunctor) : callback_(iFunctor), cacheId_(0) {}
+
     template <class TObj, class TMemFunc>
-    ESWatcher(TObj const& iObj, TMemFunc iFunc):
-    callback_(std::bind(iFunc,iObj,std::placeholders::_1)),
-    cacheId_(0)
-     {}
-      //virtual ~ESWatcher();
+    ESWatcher(TObj const& iObj, TMemFunc iFunc)
+        : callback_(std::bind(iFunc, iObj, std::placeholders::_1)), cacheId_(0) {}
+    //virtual ~ESWatcher();
 
-      // ---------- const member functions ---------------------
-    
-      // ---------- static member functions --------------------
+    // ---------- const member functions ---------------------
 
-      // ---------- member functions ---------------------------
-      bool check(const edm::EventSetup& iSetup) {
-        const T& record = iSetup.template get<T>();
-        bool result = cacheId_ != record.cacheIdentifier();
-        if(result) {
-          callback_(record);
-        }
-        cacheId_ = record.cacheIdentifier();
-        return result;
+    // ---------- static member functions --------------------
+
+    // ---------- member functions ---------------------------
+    bool check(const edm::EventSetup& iSetup) {
+      const T& record = iSetup.template get<T>();
+      bool result = cacheId_ != record.cacheIdentifier();
+      if (result) {
+        callback_(record);
       }
-   private:
-      ESWatcher(const ESWatcher&) = delete; // stop default
+      cacheId_ = record.cacheIdentifier();
+      return result;
+    }
 
-      const ESWatcher& operator=(const ESWatcher&) = delete; // stop default
+  private:
+    ESWatcher(const ESWatcher&) = delete;  // stop default
 
-      // ---------- member data --------------------------------
-      std::function<void (const T&)> callback_;
-      unsigned long long cacheId_;
-};
-}
+    const ESWatcher& operator=(const ESWatcher&) = delete;  // stop default
+
+    // ---------- member data --------------------------------
+    std::function<void(const T&)> callback_;
+    unsigned long long cacheId_;
+  };
+}  // namespace edm
 
 #endif

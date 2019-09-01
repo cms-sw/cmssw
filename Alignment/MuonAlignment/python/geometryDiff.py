@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from builtins import range
 from Alignment.MuonAlignment.geometryXMLparser import MuonGeometry, dtorder, cscorder
 import sys, getopt
 
@@ -8,17 +10,17 @@ usage = "Usage: geometryDiff.py [-h|--help] [-e|--epsilon epsilon] geometry1.xml
 try:
   opts, args = getopt.getopt(sys.argv[1:], "he:", ["help", "epsilon="])
 except getopt.GetoptError as msg:
-  print >>sys.stderr, usage
+  print(usage, file=sys.stderr)
   sys.exit(2)
 
 if len(args) != 2:
-  print >>sys.stderr, usage
+  print(usage, file=sys.stderr)
   sys.exit(2)
 
 opts = dict(opts)
 
 if "-h" in opts or "--help" in opts:
-  print usage
+  print(usage)
   sys.exit(0)
 
 epsilon = 1e-6
@@ -77,11 +79,11 @@ def loopover(which):
       g2 = geom2.csc[key]
 
     if g1.relativeto != g2.relativeto:
-      print "%s %s relativeto=\"%s\" versus relativeto=\"%s\"" % (which, str(key), g1.relativeto, g2.relativeto)
+      print("%s %s relativeto=\"%s\" versus relativeto=\"%s\"" % (which, str(key), g1.relativeto, g2.relativeto))
 
     if abs(g1.x - g2.x) > epsilon or abs(g1.y - g2.y) > epsilon or abs(g1.z - g2.z) > epsilon:
-      print "%s %s position difference: (%g, %g, %g) - (%g, %g, %g) = (%g, %g, %g)" % \
-            (which, str(key), g1.x, g1.y, g1.z, g2.x, g2.y, g2.z, g1.x - g2.x, g1.y - g2.y, g1.z - g2.z)
+      print("%s %s position difference: (%g, %g, %g) - (%g, %g, %g) = (%g, %g, %g)" % \
+            (which, str(key), g1.x, g1.y, g1.z, g2.x, g2.y, g2.z, g1.x - g2.x, g1.y - g2.y, g1.z - g2.z))
 
     if "phix" in g1.__dict__:
       g1type = "phi"
@@ -104,8 +106,8 @@ def loopover(which):
     diff = matrixmult(g1rot, transpose(g2rot))
     if abs(diff[0][0] - 1.) > sqrtepsilon or abs(diff[1][1] - 1.) > sqrtepsilon or abs(diff[2][2] - 1.) > sqrtepsilon or \
        abs(diff[0][1]) > epsilon or abs(diff[0][2]) > epsilon or abs(diff[1][2]) > epsilon:
-      print "%s %s rotation difference: %s(%g, %g, %g) - %s(%g, %g, %g) = %s" % \
-            (which, str(key), g1type, g1a, g1b, g1c, g2type, g2a, g2b, g2c, str(diff))
+      print("%s %s rotation difference: %s(%g, %g, %g) - %s(%g, %g, %g) = %s" % \
+            (which, str(key), g1type, g1a, g1b, g1c, g2type, g2a, g2b, g2c, str(diff)))
 
 loopover("DT")
 loopover("CSC")

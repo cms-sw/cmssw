@@ -6,6 +6,8 @@
 ### also run it with -h option
 ######################################################
 
+from __future__ import print_function
+from builtins import range
 import os,sys, DLFCN
 import optparse
 
@@ -24,11 +26,11 @@ except:
     try:
         import simplejson as json
     except:
-        print "Please use lxplus or set an environment (for example crab) with json lib available"
+        print("Please use lxplus or set an environment (for example crab) with json lib available")
         sys.exit(1)
 
 ######################################################
-print "### command line:"
+print("### command line:")
 copyargs = sys.argv[:]
 for i in range(len(copyargs)):
   if copyargs[i] == "":
@@ -37,7 +39,7 @@ for i in range(len(copyargs)):
     copyargs[i] = "\"%s\"" % copyargs[i]
 commandline = " ".join(copyargs)
 
-print commandline
+print(commandline)
 infotofile = ["### %s\n" % commandline]
 
 ######################################################
@@ -164,14 +166,14 @@ options,args=parser.parse_args()
 
 
 if options.alcaDataset=='' and not options.printTags:
-    print "--alcaDataset /your/dataset/name is required!"
+    print("--alcaDataset /your/dataset/name is required!")
     sys.exit()
     
 if options.dqDataset=='':
     options.dqDataset = options.alcaDataset
 
 if not (options.isMC=='true' or options.isMC=='false'):
-    print "--isMC option can have only 'true' or 'false' arguments"
+    print("--isMC option can have only 'true' or 'false' arguments")
     sys.exit()
 
 v = options.verbose
@@ -192,8 +194,8 @@ allOptions = '### ' + copyargs[0] + ' --alcaDataset ' + options.alcaDataset + ' 
              ' --dbTag ' + options.dbTag + ' --dqDataset ' + options.dqDataset + ' --dqCriteria "' + options.dqCriteria + '"'\
              ' --outputFile ' + options.outputFile
 
-print "### all options, including default:"
-print allOptions
+print("### all options, including default:")
+print(allOptions)
 
 
 ######################################################
@@ -216,9 +218,9 @@ def getGoodBRuns():
     tags = db.allTags()
 
     if options.printTags:
-        print  "\nOverview of all tags in "+options.dbName+" :\n"
-        print tags
-        print "\n"
+        print("\nOverview of all tags in "+options.dbName+" :\n")
+        print(tags)
+        print("\n")
         sys.exit()
 
     # for inspecting last run after run has started  
@@ -239,30 +241,30 @@ def getGoodBRuns():
         #print iov.list()
     
         if v>1 :
-            print "######## summries ########"
+            print("######## summries ########")
             for x in  iov.summaries():
-                print x[0], x[1], x[2] ,x[3]
+                print(x[0], x[1], x[2] ,x[3])
     
         what={}
     
         if v>1 :
-            print "###(start_current,stop_current,avg_current,max_current,min_current,run_interval_micros) vs runnumber###"
-            print iov.trend(what)
+            print("###(start_current,stop_current,avg_current,max_current,min_current,run_interval_micros) vs runnumber###")
+            print(iov.trend(what))
     
         if v>0:
-            print "######## trends ########"
+            print("######## trends ########")
         for x in iov.trendinrange(what,options.startRun-1,options.endRun+1):
             if v>0 or x[0]==67647 or x[0]==66893 or x[0]==67264:
-                print x[0],x[1] ,x[2], x[2][4], x[2][3]
+                print(x[0],x[1] ,x[2], x[2][4], x[2][3])
                 #print x[0],x[1] ,x[2], x[2][4], timeStamptoUTC(x[2][6]), timeStamptoUTC(x[2][7])
             if x[2][4] >= minI and x[2][3] <= maxI:
                 runs_b_on.append(int(x[0]))
 
     except Exception as er :
-        print er
+        print(er)
 
-    print "### runs with good B field ###"
-    print runs_b_on
+    print("### runs with good B field ###")
+    print(runs_b_on)
 
     return runs_b_on
 
@@ -275,7 +277,7 @@ def getGoodQRuns():
     runs_good_dq = []
 
     dbs_quiery = "find run where dataset="+options.dqDataset+" and dq="+options.dqCriteria
-    print 'dbs search --noheader --query="'+dbs_quiery+'" | sort'
+    print('dbs search --noheader --query="'+dbs_quiery+'" | sort')
 
     os.system('python $DBSCMD_HOME/dbsCommandLine.py -c  search --noheader --query="'+dbs_quiery+'" | sort > /tmp/runs_full_of_pink_bunnies')
 
@@ -290,8 +292,8 @@ def getGoodQRuns():
 
     os.system('rm /tmp/runs_full_of_pink_bunnies')
 
-    print "### runs with good quality ###"
-    print runs_good_dq
+    print("### runs with good quality ###")
+    print(runs_good_dq)
 
     return runs_good_dq
 
@@ -365,8 +367,8 @@ if options.isMC=='false' and not options.runRegistry and options.json=='':
     # find intersection of runs_b_on and runs_good_dq
     runs_good = [val for val in runs_b_on if val in runs_good_dq]
 
-    print "### runs with good B field and quality ###"
-    print runs_good
+    print("### runs with good B field and quality ###")
+    print(runs_good)
 
     infotofile.append("### runs with good B field and quality ###\n")
     infotofile.append("### %s\n" % str(runs_good))
@@ -376,8 +378,8 @@ if options.isMC=='false' and not options.runRegistry and options.json=='':
 
 if options.isMC=='false' and options.runRegistry and options.json=='':
     runs_good = getRunRegistryGoodRuns()
-    print "### runs with good B field and quality ###"
-    print runs_good
+    print("### runs with good B field and quality ###")
+    print(runs_good)
     
     #infotofile.append("### runs with good B field and quality ###\n")
     #infotofile.append("### %s\n" % str(runs_good))
@@ -387,8 +389,8 @@ if options.isMC=='false' and options.runRegistry and options.json=='':
 
 if options.isMC=='false' and options.json!='':
     runs_good = getJSONGoodRuns()
-    print "### good runs from JSON file ###"
-    print runs_good
+    print("### good runs from JSON file ###")
+    print(runs_good)
 
 ######################################################
 # Find files for good runs
@@ -416,11 +418,10 @@ for line in ff:
 ff.close()
 #os.system('rm /tmp/runs_and_files_full_of_pink_bunnies')
 
-uniq_list_of_runs = list(set(list_of_runs))
-uniq_list_of_runs.sort()
+uniq_list_of_runs = sorted(set(list_of_runs))
 
-print "### list of runs with good B field and quality in the dataset: ###"
-print uniq_list_of_runs
+print("### list of runs with good B field and quality in the dataset: ###")
+print(uniq_list_of_runs)
 infotofile.append("### list of runs with good B field and quality in the dataset: ###\n")
 infotofile.append("### %s\n" % str(uniq_list_of_runs))
 
@@ -431,7 +432,7 @@ unique_files_events = list(set(files_events))
 list_of_files, list_of_numevents = map(list, list(zip(*unique_files_events)))
 total_numevents = sum( map(int, list_of_numevents) )
 
-print "### total number of events in those "+str(len(uniq_list_of_runs))+" runs = "+str(total_numevents)
+print("### total number of events in those "+str(len(uniq_list_of_runs))+" runs = "+str(total_numevents))
 
 infotofile.append("### total number of events in those "+str(len(uniq_list_of_runs))+" runs = "+str(total_numevents))
 

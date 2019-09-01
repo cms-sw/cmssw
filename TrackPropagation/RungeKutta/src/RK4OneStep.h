@@ -8,14 +8,9 @@ class RKCartesianDerivative;
 
 class dso_internal RK4OneStep {
 public:
-
-  CartesianState
-  operator()( const CartesianState& start, const RKCartesianDerivative& deriv,
-	      double step) const;
-
+  CartesianState operator()(const CartesianState& start, const RKCartesianDerivative& deriv, double step) const;
 
   //  DeltaState errorEstimate();
-
 };
 
 #endif

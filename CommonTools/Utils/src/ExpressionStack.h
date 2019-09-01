@@ -18,7 +18,7 @@ namespace reco {
     struct ExpressionBase;
 
     typedef std::vector<boost::shared_ptr<ExpressionBase> > ExpressionStack;
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

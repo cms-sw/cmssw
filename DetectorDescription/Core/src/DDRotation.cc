@@ -4,193 +4,140 @@
 #include <sstream>
 #include <string>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
-#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Math/GenVector/AxisAngle.h"
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
 
-std::ostream & operator<<(std::ostream & os, const DDRotation & r)
-{
-  DDBase<DDName,DDRotationMatrix*>::def_type defined(r.isDefined());
+using namespace geant_units::operators;
+
+std::ostream& operator<<(std::ostream& os, const DDRotation& r) {
+  DDBase<DDName, DDRotationMatrix*>::def_type defined(r.isDefined());
   if (defined.first) {
     os << *(defined.first) << " ";
     if (defined.second) {
-      const DDRotationMatrix & rm = *(r.rotation());
-      DDAxisAngle   ra(rm);
-      os << "t=" << ra.Axis().Theta()/deg << "deg "
-         << "p=" << ra.Axis().Phi()/deg << "deg "
-	 << "a=" << ra.Angle()/deg << "deg"; 
+      const DDRotationMatrix& rm = r.rotation();
+      DDAxisAngle ra(rm);
+      os << "t=" << convertRadToDeg(ra.Axis().Theta()) << "deg "
+         << "p=" << convertRadToDeg(ra.Axis().Phi()) << "deg "
+         << "a=" << convertRadToDeg(ra.Angle()) << "deg";
+    } else {
+      os << "* rotation not defined * ";
     }
-    else {
-      os << "* rotation not defined * ";  
-    }
-  }  
-  else {
-    os << "* rotation not declared * ";  
-  }  
+  } else {
+    os << "* rotation not declared * ";
+  }
   return os;
 }
 
-
-DDRotation::DDRotation() : DDBase<DDName,DDRotationMatrix*>()
-{
+DDRotation::DDRotation() : DDBase<DDName, std::unique_ptr<DDRotationMatrix>>() {
   constexpr char const* baseName = "DdBlNa";
   // In this particular case, we do not really care about multiple threads
-  // using the same counter, we simply need to have a unique id for the 
+  // using the same counter, we simply need to have a unique id for the
   // blank matrix being created, so just making this static an atomic should do
-  // the trick. In order to ensure repeatibility one should also include some 
+  // the trick. In order to ensure repeatibility one should also include some
   // some run specific Id, I guess. Not sure it really matters.
   static std::atomic<int> countBlank;
   char buf[64];
   snprintf(buf, 64, "%s%i", baseName, countBlank++);
-  prep_ = StoreT::instance().create(DDName(buf,baseName), new DDRotationMatrix );
-  // std::cout << "making a BLANK " << buf << " named rotation, " << prep_->second << std::endl;
+  create(DDName(buf, baseName), std::make_unique<DDRotationMatrix>());
 }
 
+DDRotation::DDRotation(const DDName& name) : DDBase<DDName, std::unique_ptr<DDRotationMatrix>>() { create(name); }
 
-DDRotation::DDRotation(const DDName & name) : DDBase<DDName,DDRotationMatrix*>()
-{
-   prep_ = StoreT::instance().create(name);
-
+DDRotation::DDRotation(const DDName& name, std::unique_ptr<DDRotationMatrix> rot)
+    : DDBase<DDName, std::unique_ptr<DDRotationMatrix>>() {
+  create(name, std::move(rot));
 }
 
-
-DDRotation::DDRotation(const DDName & name, DDRotationMatrix * rot)
- : DDBase<DDName,DDRotationMatrix*>()
-{
-  prep_ = StoreT::instance().create(name,rot);
-
-}
-
-
-DDRotation::DDRotation(DDRotationMatrix * rot)
- : DDBase<DDName,DDRotationMatrix*>()
-{
+DDRotation::DDRotation(std::unique_ptr<DDRotationMatrix> rot) : DDBase<DDName, std::unique_ptr<DDRotationMatrix>>() {
   static std::atomic<int> countNN;
   char buf[64];
   snprintf(buf, 64, "DdNoNa%i", countNN++);
-  prep_ = StoreT::instance().create(DDName(buf, "DdNoNa"), rot);
-  // std::cout << "making a NO-NAME " << buf << " named rotation, " << prep_->second << std::endl;
+  create(DDName(buf, "DdNoNa"), std::move(rot));
 }
 
-// void DDRotation::clear()
-// {
-//   StoreT::instance().clear();
-// }
-
-DDRotation DDrot(const DDName & ddname, DDRotationMatrix * rot)
-{
-   // memory of rot goes sto DDRotationImpl!!
-   return DDRotation(ddname, rot);
+DDRotation DDrot(const DDName& ddname, std::unique_ptr<DDRotationMatrix> rot) {
+  // memory of rot goes sto DDRotationImpl!!
+  return DDRotation(ddname, std::move(rot));
 }
 
-std::unique_ptr<DDRotation> DDrotPtr(const DDName & ddname, DDRotationMatrix * rot)
-{
-   // memory of rot goes sto DDRotationImpl!!
-  return std::make_unique<DDRotation>(ddname, rot);
+std::unique_ptr<DDRotation> DDrotPtr(const DDName& ddname, std::unique_ptr<DDRotationMatrix> rot) {
+  // memory of rot goes sto DDRotationImpl!!
+  return std::make_unique<DDRotation>(ddname, std::move(rot));
 }
- 
+
 // makes sure that the DDRotationMatrix constructed is right-handed and orthogonal.
-DDRotation DDrot(const DDName & ddname,
-                         double thetaX, double phiX,
-			 double thetaY, double phiY,
-			 double thetaZ, double phiZ)
-{
-   // define 3 unit std::vectors
-   DD3Vector x(cos(phiX)*sin(thetaX), sin(phiX)*sin(thetaX), cos(thetaX));
-   DD3Vector y(cos(phiY)*sin(thetaY), sin(phiY)*sin(thetaY), cos(thetaY));
-   DD3Vector z(cos(phiZ)*sin(thetaZ), sin(phiZ)*sin(thetaZ), cos(thetaZ));
-   
-   double tol = 1.0e-3; // Geant4 compatible
-   double check = (x.Cross(y)).Dot(z); // in case of a LEFT-handed orthogonal system this must be -1
-   if (fabs(1.-check)>tol) {
-     edm::LogError("DDRotation") << ddname << " is not a RIGHT-handed orthonormal matrix!" << std::endl;
-     throw cms::Exception("DDException") << ddname.name() << " is not RIGHT-handed!";
-   }
+DDRotation DDrot(
+    const DDName& ddname, double thetaX, double phiX, double thetaY, double phiY, double thetaZ, double phiZ) {
+  // define 3 unit std::vectors
+  DD3Vector x(cos(phiX) * sin(thetaX), sin(phiX) * sin(thetaX), cos(thetaX));
+  DD3Vector y(cos(phiY) * sin(thetaY), sin(phiY) * sin(thetaY), cos(thetaY));
+  DD3Vector z(cos(phiZ) * sin(thetaZ), sin(phiZ) * sin(thetaZ), cos(thetaZ));
 
-   DDRotationMatrix* rot = new DDRotationMatrix(x.x(),y.x(),z.x(),
-						x.y(),y.y(),z.y(),
-						x.z(),y.z(),z.z());
+  double tol = 1.0e-3;                 // Geant4 compatible
+  double check = (x.Cross(y)).Dot(z);  // in case of a LEFT-handed orthogonal system this must be -1
+  if (fabs(1. - check) > tol) {
+    edm::LogError("DDRotation") << ddname << " is not a RIGHT-handed orthonormal matrix!" << std::endl;
+    throw cms::Exception("DDException") << ddname.name() << " is not RIGHT-handed!";
+  }
 
-   return DDRotation(ddname, rot);  
-   
-}
- 
-   
-DDRotation DDrotReflect(const DDName & ddname, DDRotationMatrix * rot)
-{
-   // memory of rot goes sto DDRotationImpl!!
-   return DDRotation(ddname, rot);
+  return DDRotation(ddname,
+                    std::make_unique<DDRotationMatrix>(x.x(), y.x(), z.x(), x.y(), y.y(), z.y(), x.z(), y.z(), z.z()));
 }
 
+DDRotation DDrotReflect(const DDName& ddname, std::unique_ptr<DDRotationMatrix> rot) {
+  return DDRotation(ddname, std::move(rot));
+}
 
 // makes sure that the DDRotationMatrix built is LEFT-handed coordinate system (i.e. reflected)
-DDRotation DDrotReflect(const DDName & ddname,
-                         double thetaX, double phiX,
-			 double thetaY, double phiY,
-			 double thetaZ, double phiZ)
-{
-   
-   // define 3 unit std::vectors forming the new left-handed axes 
-   DD3Vector x(cos(phiX)*sin(thetaX), sin(phiX)*sin(thetaX), cos(thetaX));
-   DD3Vector y(cos(phiY)*sin(thetaY), sin(phiY)*sin(thetaY), cos(thetaY));
-   DD3Vector z(cos(phiZ)*sin(thetaZ), sin(phiZ)*sin(thetaZ), cos(thetaZ));
-   
-   double tol = 1.0e-3; // Geant4 compatible
-   double check = (x.Cross(y)).Dot(z); // in case of a LEFT-handed orthogonal system this must be -1
-   if (fabs(1.+check)>tol) {
-     edm::LogError("DDRotation") << ddname << " is not a LEFT-handed orthonormal matrix!" << std::endl;
-     throw cms::Exception("DDException") << ddname.name() << " is not LEFT-handed!";
-   }
-   
-   DDRotationMatrix* rot = new DDRotationMatrix(x.x(),y.x(),z.x(),
-						x.y(),y.y(),z.y(),
-						x.z(),y.z(),z.z());
+DDRotation DDrotReflect(
+    const DDName& ddname, double thetaX, double phiX, double thetaY, double phiY, double thetaZ, double phiZ) {
+  // define 3 unit std::vectors forming the new left-handed axes
+  DD3Vector x(cos(phiX) * sin(thetaX), sin(phiX) * sin(thetaX), cos(thetaX));
+  DD3Vector y(cos(phiY) * sin(thetaY), sin(phiY) * sin(thetaY), cos(thetaY));
+  DD3Vector z(cos(phiZ) * sin(thetaZ), sin(phiZ) * sin(thetaZ), cos(thetaZ));
 
-   return DDRotation(ddname, rot);  
-}		
+  double tol = 1.0e-3;                 // Geant4 compatible
+  double check = (x.Cross(y)).Dot(z);  // in case of a LEFT-handed orthogonal system this must be -1
+  if (fabs(1. + check) > tol) {
+    edm::LogError("DDRotation") << ddname << " is not a LEFT-handed orthonormal matrix!" << std::endl;
+    throw cms::Exception("DDException") << ddname.name() << " is not LEFT-handed!";
+  }
 
+  return DDRotation(ddname,
+                    std::make_unique<DDRotationMatrix>(x.x(), y.x(), z.x(), x.y(), y.y(), z.y(), x.z(), y.z(), z.z()));
+}
 
 // does NOT check LEFT or Right handed coordinate system takes either.
-DDRotationMatrix * DDcreateRotationMatrix(double thetaX, double phiX,
-			 double thetaY, double phiY,
-			 double thetaZ, double phiZ)
-{
-   // define 3 unit std::vectors forming the new left-handed axes 
-   DD3Vector x(cos(phiX)*sin(thetaX), sin(phiX)*sin(thetaX), cos(thetaX));
-   DD3Vector y(cos(phiY)*sin(thetaY), sin(phiY)*sin(thetaY), cos(thetaY));
-   DD3Vector z(cos(phiZ)*sin(thetaZ), sin(phiZ)*sin(thetaZ), cos(thetaZ));
-   
-   double tol = 1.0e-3; // Geant4 compatible
-   double check = (x.Cross(y)).Dot(z);// in case of a LEFT-handed orthogonal system this must be -1, RIGHT-handed: +1
-   if ((1.-fabs(check))>tol) {
-     std::ostringstream o;
-     o << "matrix is not an (left or right handed) orthonormal matrix! (in deg)" << std::endl
-       << " thetaX=" << thetaX/deg << " phiX=" << phiX/deg << std::endl
-       << " thetaY=" << thetaY/deg << " phiY=" << phiY/deg << std::endl
-       << " thetaZ=" << thetaZ/deg << " phiZ=" << phiZ/deg << std::endl;
-     edm::LogError("DDRotation") << o.str() << std::endl;
-     
-     
-     throw cms::Exception("DDException") << o.str();
-   }
-   
-   return new DDRotationMatrix(x.x(),y.x(),z.x(),
-			       x.y(),y.y(),z.y(),
-			       x.z(),y.z(),z.z());
-}			 
+std::unique_ptr<DDRotationMatrix> DDcreateRotationMatrix(
+    double thetaX, double phiX, double thetaY, double phiY, double thetaZ, double phiZ) {
+  // define 3 unit std::vectors forming the new left-handed axes
+  DD3Vector x(cos(phiX) * sin(thetaX), sin(phiX) * sin(thetaX), cos(thetaX));
+  DD3Vector y(cos(phiY) * sin(thetaY), sin(phiY) * sin(thetaY), cos(thetaY));
+  DD3Vector z(cos(phiZ) * sin(thetaZ), sin(phiZ) * sin(thetaZ), cos(thetaZ));
 
-							 							 
-DDRotation DDanonymousRot(DDRotationMatrix * rot)
-{
-  return DDRotation(rot);
+  double tol = 1.0e-3;                 // Geant4 compatible
+  double check = (x.Cross(y)).Dot(z);  // in case of a LEFT-handed orthogonal system this must be -1, RIGHT-handed: +1
+  if ((1. - fabs(check)) > tol) {
+    std::ostringstream o;
+    o << "matrix is not an (left or right handed) orthonormal matrix! (in deg)" << std::endl
+      << " thetaX=" << convertRadToDeg(thetaX) << " phiX=" << convertRadToDeg(phiX) << std::endl
+      << " thetaY=" << convertRadToDeg(thetaY) << " phiY=" << convertRadToDeg(phiY) << std::endl
+      << " thetaZ=" << convertRadToDeg(thetaZ) << " phiZ=" << convertRadToDeg(phiZ) << std::endl;
+    edm::LogError("DDRotation") << o.str() << std::endl;
+
+    throw cms::Exception("DDException") << o.str();
+  }
+
+  return std::make_unique<DDRotationMatrix>(x.x(), y.x(), z.x(), x.y(), y.y(), z.y(), x.z(), y.z(), z.z());
 }
+
+DDRotation DDanonymousRot(std::unique_ptr<DDRotationMatrix> rot) { return DDRotation(std::move(rot)); }

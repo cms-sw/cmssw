@@ -5,7 +5,6 @@
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "RecoBTag/ImpactParameter/interface/TemplatedJetBProbabilityComputer.h"
 
+typedef TemplatedJetBProbabilityComputer<reco::TrackRefVector, reco::JTATagInfo> JetBProbabilityComputer;
 
-typedef TemplatedJetBProbabilityComputer<reco::TrackRefVector,reco::JTATagInfo> JetBProbabilityComputer;
-
-#endif // ImpactParameter_JetBProbabilityComputer_h
+#endif  // ImpactParameter_JetBProbabilityComputer_h

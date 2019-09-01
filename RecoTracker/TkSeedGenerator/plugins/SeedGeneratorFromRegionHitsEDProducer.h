@@ -5,14 +5,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 
-namespace edm { class Event; class EventSetup; }
+namespace edm {
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class SeedGeneratorFromRegionHits;
 class TrackingRegionProducer;
 
 class dso_hidden SeedGeneratorFromRegionHitsEDProducer : public edm::stream::EDProducer<> {
 public:
-
   SeedGeneratorFromRegionHitsEDProducer(const edm::ParameterSet& cfg);
   ~SeedGeneratorFromRegionHitsEDProducer() override;
 

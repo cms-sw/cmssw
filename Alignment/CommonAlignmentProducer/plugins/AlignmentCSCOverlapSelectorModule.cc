@@ -11,35 +11,30 @@
 #include "CommonTools/RecoAlgos/interface/TrackSelector.h"
 
 struct CSCOverlapConfigSelector {
-
-  typedef std::vector<const reco::Track*> container;
+  typedef std::vector<const reco::Track *> container;
   typedef container::const_iterator const_iterator;
   typedef reco::TrackCollection collection;
 
-  CSCOverlapConfigSelector( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
-    theSelector(cfg) {}
+  CSCOverlapConfigSelector(const edm::ParameterSet &cfg, edm::ConsumesCollector &&iC) : theSelector(cfg) {}
 
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
   size_t size() const { return selected_.size(); }
 
-  void select( const edm::Handle<reco::TrackCollection> & c,  const edm::Event & evt,
-               const edm::EventSetup &/*dummy*/)
-  {
+  void select(const edm::Handle<reco::TrackCollection> &c, const edm::Event &evt, const edm::EventSetup & /*dummy*/) {
     all_.clear();
     selected_.clear();
-    for (collection::const_iterator i = c.product()->begin(), iE = c.product()->end();
-         i != iE; ++i){
-      all_.push_back(& * i );
+    for (collection::const_iterator i = c.product()->begin(), iE = c.product()->end(); i != iE; ++i) {
+      all_.push_back(&*i);
     }
-    selected_ = theSelector.select(all_, evt); // might add dummy...
+    selected_ = theSelector.select(all_, evt);  // might add dummy...
   }
 
 private:
-  container all_,selected_;
+  container all_, selected_;
   AlignmentCSCOverlapSelector theSelector;
 };
 
-typedef ObjectSelectorStream<CSCOverlapConfigSelector>  AlignmentCSCOverlapSelectorModule;
+typedef ObjectSelectorStream<CSCOverlapConfigSelector> AlignmentCSCOverlapSelectorModule;
 
-DEFINE_FWK_MODULE( AlignmentCSCOverlapSelectorModule );
+DEFINE_FWK_MODULE(AlignmentCSCOverlapSelectorModule);

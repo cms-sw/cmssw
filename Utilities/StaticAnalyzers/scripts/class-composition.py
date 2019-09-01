@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import print_function
 import re
 stdcl = re.compile("^std::(.*)[^>]$")
 stdptr = re.compile("(.*)_ptr$")
@@ -80,26 +81,26 @@ for node in nodes:
 	if node in I :
 		Q=nx.dfs_preorder_nodes(I,node)
 		for q in Q:
-			print "class '"+q+"'"
+			print("class '"+q+"'")
 			if q in H : 
 				stack.append(  ( q, iter( H[q] ) ) )
 	while stack:
 		parent,children = stack[-1]
-		print "class '"+parent+"'"
+		print("class '"+parent+"'")
 		try:
 			child = next(children)
 			if child not in visited:
 				visited.add(child)
 				if not stdcl.search(child): 
-					print "class '"+child+"'"
+					print("class '"+child+"'")
 					stack.append( ( child, iter( H[child] ) ) )
 					kind=H[parent][child]['kind']
-					print parent, kind, child 
+					print(parent, kind, child) 
 					if stdptr.search(kind):
 						if child in I :
 							Q=nx.dfs_preorder_nodes(I,child)
 							for q in Q :
-								print "class '"+q+"'"
+								print("class '"+q+"'")
 								if q in H : 
 									stack.append(  ( q, iter( H[q] ) ) )
 		except StopIteration:

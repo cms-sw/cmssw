@@ -16,6 +16,13 @@ genParticles2HepMC = cms.EDProducer("GenParticles2HepMCConverter",
     signalParticlePdgIds = cms.vint32(),
 )
 
+genParticles2HepMCHiggsVtx = cms.EDProducer("GenParticles2HepMCConverter",
+     genParticles = cms.InputTag("mergedGenParticles"),
+     genEventInfo = cms.InputTag("generator"),
+     signalParticlePdgIds = cms.vint32(25), ## for the Higgs analysis
+)
+
+
 particleLevel = cms.EDProducer("ParticleLevelProducer",
     src = cms.InputTag("genParticles2HepMC:unsmeared"),
     
@@ -39,6 +46,11 @@ particleLevel = cms.EDProducer("ParticleLevelProducer",
     fatJetMaxEta   = cms.double(999.),
 )
 
+rivetProducerHTXS = cms.EDProducer('HTXSRivetProducer',
+   HepMCCollection = cms.InputTag('genParticles2HepMCHiggsVtx','unsmeared'),
+   LHERunInfo = cms.InputTag('externalLHEProducer'),
+   ProductionMode = cms.string('AUTO'),
+)
 
 
 ##################### Tables for final output and docs ##########################
@@ -49,10 +61,18 @@ rivetLeptonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     doc = cms.string("Dressed leptons from Rivet-based ParticleLevelProducer"),
     singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(False), # this is the main table
+    externalVariables = cms.PSet(
+        hasTauAnc = ExtVar(cms.InputTag("tautagger"),bool, doc="true if Dressed lepton has a tau as ancestor"),
+        ),
     variables = cms.PSet(
         P4Vars,
         pdgId = Var("pdgId", int, doc="PDG id"), 
     )
+)
+
+
+tautagger = cms.EDProducer("GenJetTauTaggerProducer",
+    src = rivetLeptonTable.src,
 )
 
 #rivetJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
@@ -107,5 +127,28 @@ rivetMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 
-particleLevelSequence = cms.Sequence(mergedGenParticles + genParticles2HepMC + particleLevel)
-particleLevelTables = cms.Sequence(rivetLeptonTable + rivetMetTable)
+HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
+    src = cms.InputTag("rivetProducerHTXS","HiggsClassification"),
+    cut = cms.string(""),
+    name = cms.string("HTXS"),
+    doc = cms.string("HTXS classification"),
+    singleton = cms.bool(True),
+    extension = cms.bool(False),
+    variables=cms.PSet(
+        stage_0 = Var("stage0_cat",int, doc="HTXS stage-0 category"),
+        stage_1_pTjet30 = Var("stage1_cat_pTjet30GeV",int, doc="HTXS stage-1 category (jet pt>30 GeV)"),
+        stage_1_pTjet25 = Var("stage1_cat_pTjet25GeV",int, doc="HTXS stage-1 category (jet pt>25 GeV)"),
+        stage1_1_cat_pTjet30GeV = Var("stage1_1_cat_pTjet30GeV",int,doc="HTXS stage-1.1 category(jet pt>30 GeV)"),
+        stage1_1_cat_pTjet25GeV = Var("stage1_1_cat_pTjet25GeV",int,doc="HTXS stage-1.1 category(jet pt>25 GeV)"),
+        stage1_1_fine_cat_pTjet30GeV = Var("stage1_1_fine_cat_pTjet30GeV",int,doc="HTXS stage-1.1-fine category(jet pt>30 GeV)"),
+        stage1_1_fine_cat_pTjet25GeV = Var("stage1_1_fine_cat_pTjet25GeV",int,doc="HTXS stage-1.1-fine category(jet pt>25 GeV)"),
+        Higgs_pt = Var("higgs.Pt()",float, doc="pt of the Higgs boson as identified in HTXS", precision=14),
+        Higgs_y = Var("higgs.Rapidity()",float, doc="rapidity of the Higgs boson as identified in HTXS", precision=12),
+        njets30 = Var("jets30.size()","uint8", doc="number of jets with pt>30 GeV as identified in HTXS"),
+        njets25 = Var("jets25.size()","uint8", doc="number of jets with pt>25 GeV as identified in HTXS"),
+   )
+)
+
+
+particleLevelSequence = cms.Sequence(mergedGenParticles + genParticles2HepMC + particleLevel + tautagger + genParticles2HepMCHiggsVtx + rivetProducerHTXS)
+particleLevelTables = cms.Sequence(rivetLeptonTable + rivetMetTable + HTXSCategoryTable)

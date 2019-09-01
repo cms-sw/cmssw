@@ -26,18 +26,15 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTTPGParametersValidateHandler: public popcon::PopConSourceHandler<DTTPGParameters> {
-
- public:
-
+class DTTPGParametersValidateHandler : public popcon::PopConSourceHandler<DTTPGParameters> {
+public:
   /** Constructor
    */
-  DTTPGParametersValidateHandler( const edm::ParameterSet& ps );
+  DTTPGParametersValidateHandler(const edm::ParameterSet& ps);
 
   /** Destructor
    */
@@ -45,26 +42,17 @@ class DTTPGParametersValidateHandler: public popcon::PopConSourceHandler<DTTPGPa
 
   /** Operations
    */
-  /// 
+  ///
   void getNewObjects();
   std::string id() const;
 
- private:
-
+private:
   int firstRun;
-  int  lastRun;
+  int lastRun;
   std::string dataVersion;
   std::string dataFileName;
   std::string elogFileName;
-  void addNewObject( int runNumber );
-
+  void addNewObject(int runNumber);
 };
 
-
-#endif // DTTPGParametersValidateHandler_H
-
-
-
-
-
-
+#endif  // DTTPGParametersValidateHandler_H

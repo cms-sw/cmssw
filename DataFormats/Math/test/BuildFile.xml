@@ -34,18 +34,25 @@
 </release>
 <bin   file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
 </bin>
+<bin   file="crossV4_t.cpp" name="DataFormatscrossV4_t">
+  <use name="ofast-flag"/>
+</bin>
 <bin   file="sign_t.cpp" name="DataFormatsSign_t">
 </bin>
 <bin   file="eta_t.cpp" name="DataFormatsEta_t">
 </bin>
 <bin   file="arc.cpp" name="DataFormatsAsin_t">
 </bin>
-<bin file="testAtan2.cpp" />
+<bin file="testAtan2.cpp">
+  <flags CXXFLAGS="-fwrapv"/>
+</bin>
 <bin file="testAtan2.cpp" name="testAtan2FastMath">
-   <flags CXXFLAGS="-ffast-math"/>
+  <use name="ofast-flag"/>
+  <flags CXXFLAGS="-fwrapv"/>
 </bin>
 <bin file="testAtan2.cpp" name="testAtan2VDT">
   <use   name="vdt"/>
+  <flags CXXFLAGS="-fwrapv"/>
 </bin>
 
 <bin   file="deltaR_t.cpp" name="DataFormatsDeltaR_t">
@@ -57,7 +64,7 @@
 <bin   file="Similarity_t.cpp" name="DataFormatsSimilarity_t">
 </bin>
 <bin   file="Similarity_t.cpp" name="DataFormatsSimilarityFast_t">
-<flags CXXFLAGS="-Ofast"/>
+  <use name="ofast-flag"/>
 </bin>
 
 <bin   file="MulSymMatrix_t.cpp" name="DataFormatsMulSymMatrix_t">
@@ -65,3 +72,32 @@
 
 <bin file="testGraph.cpp">
 </bin>
+
+<bin name="testDataFormatsMathPacking" file="testMiniFloat.cpp,testlogintpack.cpp,testRunner.cpp">
+  <use   name="cppunit"/>
+</bin>
+<iftool name="cuda-gcc-support">
+<bin file="cudaAtan2Test.cu" name="DFM_Atan2">
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+  <use   name="vdt_headers"/>
+  <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
+  <flags CXXFLAGS="-O3 -fwrapv"/>
+</bin>
+
+<bin file="cudaMathTest.cu" name="DFM_Math">
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+  <use   name="vdt_headers"/>
+  <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
+  <flags CXXFLAGS="-O3 -fwrapv"/>
+</bin>
+
+<bin file="cudaMathTest.cu" name="DFM_MathRepr">
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+  <use   name="vdt_headers"/>
+  <flags CUDA_FLAGS="--expt-relaxed-constexpr -fmad=false -ftz=false -prec-div=true -prec-sqrt=true"/>
+  <flags CXXFLAGS="-ffp-contract=off"/>
+</bin>
+</iftool>

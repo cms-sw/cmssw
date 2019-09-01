@@ -31,21 +31,23 @@ class MuonNavigationSchool;
 #include <string>
 
 class MuonNavigationPrinter {
-  public:
+public:
+  MuonNavigationPrinter(const MuonDetLayerGeometry *,
+                        MuonNavigationSchool const &,
+                        bool enableRPC = true,
+                        bool enableCSC = true,
+                        bool enableGEM = false,
+                        bool enableME0 = false);
+  MuonNavigationPrinter(const MuonDetLayerGeometry *, MuonNavigationSchool const &, const GeometricSearchTracker *);
 
-  MuonNavigationPrinter(const MuonDetLayerGeometry *, MuonNavigationSchool const &, bool enableRPC = true, bool enableCSC = true, bool enableGEM = false, bool enableME0 = false );
-  MuonNavigationPrinter(const MuonDetLayerGeometry *,MuonNavigationSchool const &, const GeometricSearchTracker *);
+private:
+  void printLayer(const DetLayer *) const;
+  void printLayers(const std::vector<const DetLayer *> &) const;
+  /// return detector part (barrel, forward, backward)
+  //    std::string layerPart(const DetLayer*) const;
+  /// return detector module (pixel, silicon, msgc, dt, csc, rpc)
+  //    std::string layerModule(const DetLayer*) const;
 
-  private:
-    void printLayer(const DetLayer*) const;
-    void printLayers(const std::vector<const DetLayer*>&) const;
-    /// return detector part (barrel, forward, backward)
-//    std::string layerPart(const DetLayer*) const;
-    /// return detector module (pixel, silicon, msgc, dt, csc, rpc)
-//    std::string layerModule(const DetLayer*) const;
-
-
-  MuonNavigationSchool const * school=nullptr;
-
+  MuonNavigationSchool const *school = nullptr;
 };
 #endif

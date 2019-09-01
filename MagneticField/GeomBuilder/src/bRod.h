@@ -21,18 +21,16 @@ public:
 
   /// Destructor
   ~bRod();
- 
+
   /// Distance from center along sector normal.
-  const float RN() const {
-    return volumes.front()->RN();
-  }
+  const float RN() const { return volumes.front()->RN(); }
 
   /// Construct the MagBRod upon request.
   MagBRod* buildMagBRod() const;
 
 private:
   std::vector<bSlab> slabs;
-  handles volumes; // pointers to all volumes in the rod
+  handles volumes;  // pointers to all volumes in the rod
   mutable MagBRod* mrod;
 };
 

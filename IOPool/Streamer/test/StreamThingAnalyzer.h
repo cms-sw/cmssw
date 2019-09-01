@@ -18,14 +18,13 @@ typedef edmtestprod::IntArray WriteThis;
 
 namespace edmtest_thing {
 
-  class StreamThingAnalyzer : public edm::EDAnalyzer
-  {
+  class StreamThingAnalyzer : public edm::EDAnalyzer {
   public:
     explicit StreamThingAnalyzer(edm::ParameterSet const&);
-    
-    virtual ~StreamThingAnalyzer();
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    ~StreamThingAnalyzer() override;
+
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
   private:
     std::string name_;
@@ -34,6 +33,6 @@ namespace edmtest_thing {
     int cnt_;
     edm::GetterOfProducts<WriteThis> getterUsingLabel_;
   };
-}
+}  // namespace edmtest_thing
 
 #endif

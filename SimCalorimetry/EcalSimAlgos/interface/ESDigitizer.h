@@ -5,60 +5,48 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
 
 namespace CLHEP {
-   class RandGeneral;
-   class HepRandomEngine;
-}
+  class RandGeneral;
+  class HepRandomEngine;
+}  // namespace CLHEP
 
 #include <vector>
 
-class ESDigitizer : public EcalTDigitizer< ESDigitizerTraits >
-{
-   public:
+class ESDigitizer : public EcalTDigitizer<ESDigitizerTraits> {
+public:
+  typedef ESDigitizerTraits::ElectronicsSim ElectronicsSim;
 
-      typedef ESDigitizerTraits::ElectronicsSim ElectronicsSim ;
+  ESDigitizer(EcalHitResponse* hitResponse, ElectronicsSim* electronicsSim, bool addNoise);
 
-      ESDigitizer( EcalHitResponse* hitResponse    ,
-		   ElectronicsSim*  electronicsSim ,
-		   bool             addNoise         ) ;
+  ~ESDigitizer() override;
 
-      ~ESDigitizer() override ;
+  void run(ESDigiCollection& output, CLHEP::HepRandomEngine*) override;
 
-      void run( ESDigiCollection& output, CLHEP::HepRandomEngine* ) override;
+  void setDetIds(const std::vector<DetId>& detIds);
 
-      void setDetIds( const std::vector<DetId>& detIds ) ;
+  void setGain(const int gain);
 
-      void setGain( const int gain ) ;
+private:
+  void createNoisyList(std::vector<DetId>& abThreshCh, CLHEP::HepRandomEngine*);
 
-   private:
+  const std::vector<DetId>* m_detIds;
+  CLHEP::RandGeneral* m_ranGeneral;
+  int m_ESGain;
+  double m_histoBin;
+  double m_histoInf;
+  double m_histoWid;
+  double m_meanNoisy;
 
-      void createNoisyList( std::vector<DetId>& abThreshCh, CLHEP::HepRandomEngine* ) ;
+  class Triplet {
+  public:
+    Triplet() : first(0), second(0), third(0) {}
+    Triplet(uint32_t a0, uint32_t a1, uint32_t a2) : first(a0), second(a1), third(a2) {}
+    ~Triplet(){};
+    uint32_t first;
+    uint32_t second;
+    uint32_t third;
+  };
 
-      const std::vector<DetId>* m_detIds      ;
-      CLHEP::RandGeneral*       m_ranGeneral  ;
-      int                       m_ESGain      ;
-      double                    m_histoBin    ;
-      double                    m_histoInf    ;
-      double                    m_histoWid    ;
-      double                    m_meanNoisy   ;
-
-      class Triplet
-      {
-	 public:
-	    Triplet() : first ( 0 ), second ( 0 ), third ( 0 ) {}
-	    Triplet( uint32_t a0 ,
-		     uint32_t a1 ,
-		     uint32_t a2  ) :
-	       first ( a0 ), second ( a1 ), third ( a2 ) {}
-	    ~Triplet() {} ;
-	    uint32_t first  ;
-	    uint32_t second ;
-	    uint32_t third  ;
-      };
-
-
-
-
-      std::vector<Triplet> m_trip ;
+  std::vector<Triplet> m_trip;
 };
 
 #endif

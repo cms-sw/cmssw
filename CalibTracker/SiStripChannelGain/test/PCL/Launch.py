@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import urllib
 import string
 import os
@@ -10,8 +11,7 @@ DATASET="/MinimumBias/Run2012C-SiStripCalMinBias-v2/ALCARECO"
 FIRSTRUN=0 #200190
 
 runs = []
-results = commands.getstatusoutput('dbs search --query="find run,sum(block.numevents) where dataset='+DATASET+' and run>='+str(FIRSTRUN)+'"')[1].splitlines()
-results.sort()
+results = sorted(commands.getstatusoutput('dbs search --query="find run,sum(block.numevents) where dataset='+DATASET+' and run>='+str(FIRSTRUN)+'"')[1].splitlines())
 for line in results:
    linesplit = line.split('   ')
    if(len(linesplit)<2):continue
@@ -28,7 +28,7 @@ for r in runs:
     initEnv+='source /afs/cern.ch/cms/cmsset_default.sh' + ';'
     initEnv+='eval `scramv1 runtime -sh`;'
     commands.getstatusoutput('mkdir -p runs/'+str(r))
-    print "submitting jobs for run " + str(r)
+    print("submitting jobs for run " + str(r))
     config_file=open('runs/'+str(r)+'/cmsDriver.sh','w')
     config_file.write( initEnv + 'cmsDriver.py run'+str(r)+' --datatier ALCARECO --conditions auto:com10 -s ALCA:PromptCalibProdSiStripGains --eventcontent ALCARECO -n -1 --dasquery=\'file dataset=/MinimumBias/Run2012C-SiStripCalMinBias-v2/ALCARECO run='+str(r)+'\'  --fileout file:run'+str(r)+'_out.root')
     config_file.close()

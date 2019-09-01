@@ -8,7 +8,7 @@
   <class name="edm::DetSetVector<TotemRPDigi>"/>
   <class name="edm::Wrapper<edm::DetSet<TotemRPDigi> >"/>
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPDigi> >"/>
-  
+
   <class name="TotemTriggerCounters" ClassVersion="2">
     <version ClassVersion="2" checksum="719923071"/>
   </class>
@@ -28,7 +28,7 @@
 
   <class name="std::bitset<8>"/>
   <class name="edm::Wrapper<std::bitset<8> >"/>
-  
+
   <class name="TotemFEDInfo" ClassVersion="2">
     <version ClassVersion="2" checksum="2844972317"/>
   </class>
@@ -38,7 +38,7 @@
   <class name="CTPPSDiamondDigi" ClassVersion="3">
     <version ClassVersion="3" checksum="2494057280"/>
   </class>
-  
+
   <class name="edm::DetSet<CTPPSDiamondDigi>"/>
   <class name="std::vector<edm::DetSet<CTPPSDiamondDigi> >"/>
   <class name="std::vector<CTPPSDiamondDigi>"/>
@@ -46,10 +46,31 @@
   <class name="edm::Wrapper<edm::DetSet<CTPPSDiamondDigi> >"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondDigi> >"/>
 
+
+  <class name="TotemTimingDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="4151875064"/>
+  </class>
+  <class name="edm::DetSet<TotemTimingDigi>"/>
+  <class name="std::vector<edm::DetSet<TotemTimingDigi> >"/>
+  <class name="std::vector<TotemTimingDigi>"/>
+  <class name="edm::DetSetVector<TotemTimingDigi>"/>
+  <class name="edm::Wrapper<edm::DetSet<TotemTimingDigi> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemTimingDigi> >"/>
+
+  <class name="TotemTimingEventInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="3539649521"/>
+  </class>
+  <class name="edm::DetSet<TotemTimingEventInfo>"/>
+  <class name="std::vector<edm::DetSet<TotemTimingEventInfo> >"/>
+  <class name="std::vector<TotemTimingEventInfo>"/>
+  <class name="edm::DetSetVector<TotemTimingEventInfo>"/>
+  <class name="edm::Wrapper<edm::DetSet<TotemTimingEventInfo> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemTimingEventInfo> >"/>
+
   <class name="HPTDCErrorFlags" ClassVersion="3">
     <version ClassVersion="3" checksum="508529379"/>
   </class>
-  
+
   <class name="CTPPSPixelDigi" ClassVersion="3">
     <version ClassVersion="3" checksum="125589380"/>
   </class>

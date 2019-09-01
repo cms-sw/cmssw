@@ -13,42 +13,40 @@ class PixelModuleName;
 
 namespace sipixelobjects {
 
-class PixelFEDCabling {
-public:
+  class PixelFEDCabling {
+  public:
+    typedef std::vector<PixelFEDLink> Links;
 
-  typedef std::vector<PixelFEDLink> Links;
-  
-  PixelFEDCabling(unsigned int id = 0) : theFedId(id) { }
+    PixelFEDCabling(unsigned int id = 0) : theFedId(id) {}
 
-  void setLinks(Links & links);
+    void setLinks(Links& links);
 
-  void addLink(const PixelFEDLink & link);
+    void addLink(const PixelFEDLink& link);
 
-  /// return link identified by id. Link id's are ranged [1, numberOfLinks]
-  const PixelFEDLink * link(unsigned int id) const 
-    { return (id > 0 && id <= theLinks.size()) ? &theLinks[id-1] : nullptr; }
+    /// return link identified by id. Link id's are ranged [1, numberOfLinks]
+    const PixelFEDLink* link(unsigned int id) const {
+      return (id > 0 && id <= theLinks.size()) ? &theLinks[id - 1] : nullptr;
+    }
 
-  /// number of links in FED
-  unsigned int numberOfLinks() const { return theLinks.size(); }
+    /// number of links in FED
+    unsigned int numberOfLinks() const { return theLinks.size(); }
 
-  unsigned int id() const { return theFedId; } 
+    unsigned int id() const { return theFedId; }
 
-  std::string print(int depth = 0) const;
+    std::string print(int depth = 0) const;
 
-  void  addItem(unsigned int linkId, const PixelROC & roc);
+    void addItem(unsigned int linkId, const PixelROC& roc);
 
-  /// check link numbering consistency, ie. that link position in vector
-  /// is the same as its id. Futhermore it checks numbering consistency for
-  /// ROCs belonging to Link. 
-  bool checkLinkNumbering() const;
-private:
-  
-private:
+    /// check link numbering consistency, ie. that link position in vector
+    /// is the same as its id. Futhermore it checks numbering consistency for
+    /// ROCs belonging to Link.
+    bool checkLinkNumbering() const;
 
-  unsigned int   theFedId;
-  Links theLinks;
-
-}; 
-}
+  private:
+  private:
+    unsigned int theFedId;
+    Links theLinks;
+  };
+}  // namespace sipixelobjects
 
 #endif

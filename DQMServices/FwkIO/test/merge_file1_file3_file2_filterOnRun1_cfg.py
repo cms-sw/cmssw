@@ -13,6 +13,6 @@ process.out = cms.OutputModule("DQMRootOutputModule",
                                filterOnRun = cms.untracked.uint32(1))
 process.e = cms.EndPath(process.out)
 
-process.add_(cms.Service("DQMStore"))
+process.add_(cms.Service("DQMStore", forceResetOnBeginLumi = cms.untracked.bool(True)))
 #process.add_(cms.Service("Tracer"))
 

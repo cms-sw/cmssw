@@ -5,4 +5,4 @@
 
 class MVAComputerRecord : public edm::eventsetup::EventSetupRecordImplementation<MVAComputerRecord> {};
 
-#endif // PhysicsTools_MVAComputer_MVAComputerRecord_h
+#endif  // PhysicsTools_MVAComputer_MVAComputerRecord_h

@@ -24,14 +24,14 @@ namespace l1t {
 
   class Stage1Layer2HFRingSumAlgorithm {
   public:
-    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      const std::vector<l1t::Tau> * taus,
-			      l1t::CaloSpare * spare) = 0;
+    virtual void processEvent(const std::vector<l1t::CaloRegion>& regions,
+                              const std::vector<l1t::CaloEmCand>& EMCands,
+                              const std::vector<l1t::Tau>* taus,
+                              l1t::CaloSpare* spare) = 0;
 
     virtual ~Stage1Layer2HFRingSumAlgorithm(){};
   };
 
-}
+}  // namespace l1t
 
 #endif

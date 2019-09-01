@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT
 import sys
 
@@ -10,9 +11,9 @@ def compare_bx_vector(xs, ys):
     y_total_size = ys.getLastBX() - ys.getLastBX() + 1
 
     if x_total_size != y_total_size:
-        print "> BX count mismatch:", x_total_size, "vs", y_total_size
-        print ">", xs.getFirstBX(), ",", ys.getFirstBX()
-        print ">", xs.getLastBX(), ",", ys.getLastBX()
+        print("> BX count mismatch:", x_total_size, "vs", y_total_size)
+        print(">", xs.getFirstBX(), ",", ys.getFirstBX())
+        print(">", xs.getLastBX(), ",", ys.getLastBX())
         return
 
     for bx in range(xs.getFirstBX(), xs.getLastBX() + 1):
@@ -20,7 +21,7 @@ def compare_bx_vector(xs, ys):
         y_size = ys.size(bx)
 
         if x_size != y_size:
-            print ">> BX size mismatch:", x_size, "vs", y_size, "@", bx
+            print(">> BX size mismatch:", x_size, "vs", y_size, "@", bx)
 
         for i in range(x_size):
             x = xs.at(bx, i)
@@ -28,15 +29,15 @@ def compare_bx_vector(xs, ys):
                 y = ys.at(bx, m)
                 
                 if x.getType() == y.getType():
-                    print ">>> Pt :", x.hwPt(), "vs", y.hwPt()
-                    print ">>> eta :", x.hwPhi(), "vs", y.hwPhi()
-                    print ">>> overflow :", (x.hwQual()&0x1), "vs", (y.hwQual()&0x1)
-                    print ">>> type :", x.getType(), "vs", y.getType()
+                    print(">>> Pt :", x.hwPt(), "vs", y.hwPt())
+                    print(">>> eta :", x.hwPhi(), "vs", y.hwPhi())
+                    print(">>> overflow :", (x.hwQual()&0x1), "vs", (y.hwQual()&0x1))
+                    print(">>> type :", x.getType(), "vs", y.getType())
                     
-                    if x.hwPt() != y.hwPt(): print ">>> Pt mismatch", x.hwPt(), "vs", y.hwPt()
-                    if x.hwPhi() != y.hwPhi(): print ">>> Phi mismatch", x.hwPhi(), "vs", y.hwPhi()
-                    if (x.hwQual()&0x1) != (y.hwQual()&0x1): print ">>> Qual mismatch",(x.hwQual()&0x1), "vs", (y.hwQual()&0x1)
-                    if x.getType() != y.getType(): print ">>> Type mismatch", x.hwPt(), "vs", y.hwPt()
+                    if x.hwPt() != y.hwPt(): print(">>> Pt mismatch", x.hwPt(), "vs", y.hwPt())
+                    if x.hwPhi() != y.hwPhi(): print(">>> Phi mismatch", x.hwPhi(), "vs", y.hwPhi())
+                    if (x.hwQual()&0x1) != (y.hwQual()&0x1): print(">>> Qual mismatch",(x.hwQual()&0x1), "vs", (y.hwQual()&0x1))
+                    if x.getType() != y.getType(): print(">>> Type mismatch", x.hwPt(), "vs", y.hwPt())
                     yield x,y
                     
                 
@@ -70,7 +71,7 @@ in_bit_label = ("caloStage1FinalDigis", "HFBitCounts")
 out_bit_label = ("l1tRawToDigi", "HFBitCounts")
 
 for event in events:
-    print "< New event"
+    print("< New event")
     event.getByLabel(in_ring_label, spares_in)
     event.getByLabel(in_label, egammas_in)
     event.getByLabel(in_label, etsums_in)
@@ -83,7 +84,7 @@ for event in events:
     event.getByLabel(out_label, jets_out)
     event.getByLabel(out_label, taus_out)
 
-    print "Checking etsums"
+    print("Checking etsums")
     for a, b in compare_bx_vector(etsums_in.product(), etsums_out.product()):
         if a.getType() != b.getType():
-            print ">>> Type different:", a.getType(), "vs", b.getType()
+            print(">>> Type different:", a.getType(), "vs", b.getType())

@@ -4,7 +4,7 @@
 //
 // Package:         RecoTracker/FinalTrackSelectors
 // Class:           ConversionTrackProducer
-// 
+//
 // Description:     Hit Dumper
 //
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
@@ -40,46 +40,42 @@ namespace reco {
 #include "RecoTracker/ConversionSeedGenerators/interface/IdealHelixParameters.h"
 //--------------------------------------------------
 
-  class ConversionTrackProducer : public edm::stream::EDProducer<>
-  {
-
-    typedef edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,
-      reco::GsfTrackCollection,unsigned short> > 
+class ConversionTrackProducer : public edm::stream::EDProducer<> {
+  typedef edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>, reco::GsfTrackCollection, unsigned short> >
       TrajGsfTrackAssociationCollection;
 
-  public:
+public:
+  explicit ConversionTrackProducer(const edm::ParameterSet& conf);
 
-    explicit ConversionTrackProducer(const edm::ParameterSet& conf);
+  ~ConversionTrackProducer() override;
 
-    ~ConversionTrackProducer() override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
-    void produce(edm::Event& e, const edm::EventSetup& c) override;
+private:
+  edm::ParameterSet conf_;
 
-  private:
+  std::string trackProducer;
+  edm::EDGetTokenT<edm::View<reco::Track> > genericTracks;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> kfTrajectories;
+  edm::EDGetTokenT<TrajGsfTrackAssociationCollection> gsfTrajectories;
+  bool useTrajectory;
+  bool setTrackerOnly;
+  bool setIsGsfTrackOpen;
+  bool setArbitratedEcalSeeded;
+  bool setArbitratedMerged;
+  bool setArbitratedMergedEcalGeneral;
 
-    edm::ParameterSet conf_;
+  //--------------------------------------------------
+  //Added by D. Giordano
+  // 2011/08/05
+  // Reduction of the track sample based on geometric hypothesis for conversion tracks
 
-    std::string trackProducer;
-    edm::EDGetTokenT<edm::View<reco::Track> > genericTracks ;
-    edm::EDGetTokenT<TrajTrackAssociationCollection> kfTrajectories; 
-    edm::EDGetTokenT<TrajGsfTrackAssociationCollection> gsfTrajectories;
-    bool useTrajectory;
-    bool setTrackerOnly;
-    bool setArbitratedEcalSeeded;
-    bool setArbitratedMerged;
-    bool setArbitratedMergedEcalGeneral;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotInputTag;
+  bool filterOnConvTrackHyp;
+  double minConvRadius;
+  IdealHelixParameters ConvTrackPreSelector;
+  //--------------------------------------------------
 
-    //--------------------------------------------------
-    //Added by D. Giordano
-    // 2011/08/05
-    // Reduction of the track sample based on geometric hypothesis for conversion tracks
-
-    edm::EDGetTokenT<reco::BeamSpot> beamSpotInputTag;
-    bool filterOnConvTrackHyp;
-    double minConvRadius;
-    IdealHelixParameters ConvTrackPreSelector;
-    //--------------------------------------------------
-
-    std::unique_ptr<reco::ConversionTrackCollection> outputTrks;
-  };
+  std::unique_ptr<reco::ConversionTrackCollection> outputTrks;
+};
 #endif

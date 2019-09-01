@@ -3,6 +3,6 @@
 
 // SiStripLatency::singleReadOutMode() returns
 // 1: all in peak, 0: all in deco, -1: mixed state
-enum {kDeconvolutionMode = 0, kPeakMode = 1};
+enum { kDeconvolutionMode = 0, kPeakMode = 1 };
 
 #endif

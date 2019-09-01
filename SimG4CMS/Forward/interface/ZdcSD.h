@@ -9,36 +9,35 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4CMS/Forward/interface/ZdcShowerLibrary.h"
 #include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
-#undef debug
 
 class ZdcSD : public CaloSD {
+public:
+  ZdcSD(const std::string &,
+        const edm::EventSetup &,
+        const SensitiveDetectorCatalog &,
+        edm::ParameterSet const &,
+        const SimTrackManager *);
 
-public:    
-  ZdcSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
-	edm::ParameterSet const &,const SimTrackManager*);
- 
-  ~ZdcSD() override;
-  bool ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
-  uint32_t setDetUnitId(const G4Step* step) override;
-  double getEnergyDeposit(const G4Step*, edm::ParameterSet const &);
- 
-  void setNumberingScheme(ZdcNumberingScheme* scheme);
-  void getFromLibrary(G4Step * step);
- 
+  ~ZdcSD() override = default;
+
+  uint32_t setDetUnitId(const G4Step *step) override;
+
+  void setNumberingScheme(ZdcNumberingScheme *scheme);
+
 protected:
+  double getEnergyDeposit(const G4Step *) override;
+  bool getFromLibrary(const G4Step *) override;
   void initRun() override;
-private:    
 
+private:
   int verbosity;
-  bool  useShowerLibrary,useShowerHits; 
-  int   setTrackID(G4Step * step);
+  bool useShowerLibrary, useShowerHits;
   double thFibDir;
   double zdcHitEnergyCut;
-  ZdcShowerLibrary *    showerLibrary;
-  ZdcNumberingScheme * numberingScheme;
 
+  std::unique_ptr<ZdcShowerLibrary> showerLibrary;
+  std::unique_ptr<ZdcNumberingScheme> numberingScheme;
   std::vector<ZdcShowerLibrary::Hit> hits;
-
 };
 
-#endif // ZdcSD_h
+#endif  // ZdcSD_h

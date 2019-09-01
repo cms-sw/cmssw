@@ -26,14 +26,13 @@
 #include "GeneratorInterface/GenFilters/interface/HeavyQuarkFromMPIFilterAlgo.h"
 
 class HeavyQuarkFromMPIFilter : public edm::EDFilter {
- public:
-  explicit HeavyQuarkFromMPIFilter(const edm::ParameterSet&);
+public:
+  explicit HeavyQuarkFromMPIFilter(const edm::ParameterSet &);
   ~HeavyQuarkFromMPIFilter() override;
-  
-  bool filter(edm::Event&, const edm::EventSetup&) override;
-  
- private:
+
+  bool filter(edm::Event &, const edm::EventSetup &) override;
+
+private:
   HeavyQuarkFromMPIFilterAlgo *HeavyQuarkFromMPIFilterAlgo_;
-  
 };
 #endif

@@ -8,7 +8,6 @@
  *  FR 060906
  */
 
-
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/DTDigi/interface/DTLocalTriggerCollection.h>
@@ -16,9 +15,7 @@
 class DTReadOutMapping;
 
 class DTUnpacker {
-
- public:
-  
+public:
   /// Constructor
   DTUnpacker() {}
 
@@ -29,16 +26,15 @@ class DTUnpacker {
   /// index is the pointer to the beginning of the buffer.
   /// datasize is the size of the buffer in bytes
 
+  virtual void interpretRawData(const unsigned int* index,
+                                int datasize,
+                                int dduID,
+                                edm::ESHandle<DTReadOutMapping>& mapping,
+                                std::unique_ptr<DTDigiCollection>& product,
+                                std::unique_ptr<DTLocalTriggerCollection>& product2,
+                                uint16_t rosList = 0) = 0;
 
-  virtual void interpretRawData(const unsigned int* index, int datasize,
-				int dduID,
-				edm::ESHandle<DTReadOutMapping>& mapping, 
-				std::unique_ptr<DTDigiCollection>& product, 
-				std::unique_ptr<DTLocalTriggerCollection>& product2, 
-                                uint16_t rosList=0) = 0;
-
- protected:
-
+protected:
 };
 
 #endif

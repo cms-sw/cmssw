@@ -44,100 +44,79 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-
 #include <vector>
 #include "TH2D.h"
 
-
 /// Constructor
-MuonMillepedeTrackRefitter::MuonMillepedeTrackRefitter( const edm::ParameterSet& pset )
-{
-  
-  SACollectionTag = pset.getParameter<edm::InputTag>( "SATrackCollectionTag" );
-  
-  //Products
-  produces<std::vector<Trajectory> >();
-  produces<TrajTrackAssociationCollection>();
+MuonMillepedeTrackRefitter::MuonMillepedeTrackRefitter(const edm::ParameterSet& pset) {
+  SACollectionTag = pset.getParameter<edm::InputTag>("SATrackCollectionTag");
 
+  //Products
+  produces<std::vector<Trajectory>>();
+  produces<TrajTrackAssociationCollection>();
 }
 
 // Destructor
-MuonMillepedeTrackRefitter::~MuonMillepedeTrackRefitter()
-{
-}
+MuonMillepedeTrackRefitter::~MuonMillepedeTrackRefitter() {}
 
-
-void MuonMillepedeTrackRefitter::produce( edm::Event & event, const edm::EventSetup& eventSetup )
-{
- 
+void MuonMillepedeTrackRefitter::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
   //Get collections from the event
 
   edm::Handle<reco::TrackCollection> tracksSA;
-  event.getByLabel( SACollectionTag, tracksSA );
+  event.getByLabel(SACollectionTag, tracksSA);
 
   edm::ESHandle<MagneticField> theMGField;
-  eventSetup.get<IdealMagneticFieldRecord>().get( theMGField );
+  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  eventSetup.get<GlobalTrackingGeometryRecord>().get( theTrackingGeometry );
+  eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
-  edm::RefProd<std::vector<Trajectory> > trajectoryCollectionRefProd 
-    = event.getRefBeforePut<std::vector<Trajectory> >();
+  edm::RefProd<std::vector<Trajectory>> trajectoryCollectionRefProd = event.getRefBeforePut<std::vector<Trajectory>>();
 
   //Allocate collection of tracks
   auto trajectoryCollection = std::make_unique<std::vector<Trajectory>>();
   // Association map between Trajectory and Track
   auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>();
- 
 
   //Create the propagator
- 
-  std::map<edm::Ref<std::vector<Trajectory> >::key_type, edm::Ref<reco::TrackCollection>::key_type> trajToTrack_map;
-  
-  edm::Ref<std::vector<Trajectory> >::key_type trajectoryIndex = 0;
-     
+
+  std::map<edm::Ref<std::vector<Trajectory>>::key_type, edm::Ref<reco::TrackCollection>::key_type> trajToTrack_map;
+
+  edm::Ref<std::vector<Trajectory>>::key_type trajectoryIndex = 0;
+
   reco::TrackRef::key_type trackIndex = 0;
 
-  for (reco::TrackCollection::const_iterator trackSA = tracksSA->begin();  trackSA != tracksSA->end();  ++trackSA ) {
-   
-    reco::TransientTrack tTrackSA( *trackSA, &*theMGField, theTrackingGeometry );
+  for (reco::TrackCollection::const_iterator trackSA = tracksSA->begin(); trackSA != tracksSA->end(); ++trackSA) {
+    reco::TransientTrack tTrackSA(*trackSA, &*theMGField, theTrackingGeometry);
 
     //Create an empty trajectory
     Trajectory myTraj;
 
     TrajectoryStateOnSurface innerTSOS = tTrackSA.innermostMeasurementState();
-    
 
-    for(trackingRecHit_iterator theHit = tTrackSA.recHitsBegin(); theHit != tTrackSA.recHitsEnd(); ++theHit) {
-  
-      TrackingRecHit *myClone = (*theHit)->clone(); 
-      const GeomDet* myDet = theTrackingGeometry->idToDet( (*theHit)->geographicalId() );
-      TrajectoryMeasurement myMeas(innerTSOS, MuonTransientTrackingRecHit::specificBuild(myDet, (TrackingRecHit *) &*myClone));
+    for (trackingRecHit_iterator theHit = tTrackSA.recHitsBegin(); theHit != tTrackSA.recHitsEnd(); ++theHit) {
+      TrackingRecHit* myClone = (*theHit)->clone();
+      const GeomDet* myDet = theTrackingGeometry->idToDet((*theHit)->geographicalId());
+      TrajectoryMeasurement myMeas(innerTSOS,
+                                   MuonTransientTrackingRecHit::specificBuild(myDet, (TrackingRecHit*)&*myClone));
       myTraj.push(myMeas);
-
     }
- 
+
     trajectoryCollection->push_back(myTraj);
-    trajToTrack_map[trajectoryIndex] = trackIndex;          
+    trajToTrack_map[trajectoryIndex] = trackIndex;
     ++trajectoryIndex;
     ++trackIndex;
-  } 
-
-  edm::OrphanHandle<std::vector<Trajectory> > trajsRef = event.put(std::move(trajectoryCollection));
-  
-  for( trajectoryIndex = 0; trajectoryIndex < tracksSA->size(); ++trajectoryIndex) 
-  {      
-    edm::Ref<reco::TrackCollection>::key_type trackCounter = trajToTrack_map[trajectoryIndex];
-    trajTrackMap->insert(edm::Ref<std::vector<Trajectory> >(trajsRef, trajectoryIndex), edm::Ref<reco::TrackCollection>(tracksSA, trackCounter));
   }
-  
+
+  edm::OrphanHandle<std::vector<Trajectory>> trajsRef = event.put(std::move(trajectoryCollection));
+
+  for (trajectoryIndex = 0; trajectoryIndex < tracksSA->size(); ++trajectoryIndex) {
+    edm::Ref<reco::TrackCollection>::key_type trackCounter = trajToTrack_map[trajectoryIndex];
+    trajTrackMap->insert(edm::Ref<std::vector<Trajectory>>(trajsRef, trajectoryIndex),
+                         edm::Ref<reco::TrackCollection>(tracksSA, trackCounter));
+  }
+
   event.put(std::move(trajTrackMap));
- 
 }
 
-
-
 DEFINE_FWK_MODULE(MuonMillepedeTrackRefitter);
-
-
-

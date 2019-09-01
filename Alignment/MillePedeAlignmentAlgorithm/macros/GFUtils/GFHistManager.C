@@ -31,7 +31,7 @@
 #include "GFHistManager.h"
 #include "GFUtils/GFHistArray.h"
 
-ClassImp(GFHistManager)
+ClassImp(GFHistManager);
 
 const Int_t GFHistManager::kDefaultPadsPerCanX = 1;
 const Int_t GFHistManager::kDefaultPadsPerCanY = 1;

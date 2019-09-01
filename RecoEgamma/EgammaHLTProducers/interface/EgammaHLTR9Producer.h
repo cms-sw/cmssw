@@ -2,7 +2,7 @@
 //
 // Package:    EgammaHLTProducers
 // Class:      EgammaHLTR9Producer
-// 
+//
 /**\class EgammaHLTR9Producer EgammaHLTR9Producer.cc RecoEgamma/EgammaHLTProducers/interface/EgammaHLTR9Producer.h
 */
 //
@@ -11,7 +11,6 @@
 // $Id: EgammaHLTR9Producer.h,v 1.1 2010/02/11 10:06:38 ghezzi Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -41,17 +40,16 @@ class EgammaHLTR9Producer : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTR9Producer(const edm::ParameterSet&);
   ~EgammaHLTR9Producer() override;
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEBToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEEToken_;
-  
+
   const bool useSwissCross_;
 };
-

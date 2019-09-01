@@ -2,7 +2,7 @@
 //
 // Package:    SiStripQuality
 // Class:      SiStripHotStripAlgorithmFromClusterOccupancy
-// 
+//
 /**\class SiStripHotStripAlgorithmFromClusterOccupancy SiStripHotStripAlgorithmFromClusterOccupancy.h CalibTracker/SiStripQuality/src/SiStripHotStripAlgorithmFromClusterOccupancy.cc
 
  Description: <one line class summary>
@@ -49,43 +49,45 @@
 class SiStripQuality;
 class TrackerTopology;
 
-class SiStripHotStripAlgorithmFromClusterOccupancy{
-
+class SiStripHotStripAlgorithmFromClusterOccupancy {
 public:
-  typedef SiStrip::QualityHistosMap HistoMap;  
-  
+  typedef SiStrip::QualityHistosMap HistoMap;
 
   SiStripHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet&, const TrackerTopology*);
 
   virtual ~SiStripHotStripAlgorithmFromClusterOccupancy();
 
-  void setProbabilityThreshold(long double prob){prob_=prob;}
-  void setMinNumEntries(unsigned short m){MinNumEntries_=m;}
-  void setMinNumEntriesPerStrip(unsigned short m){MinNumEntriesPerStrip_=m;}
-  void setOccupancyThreshold(long double occupancy){occupancy_=occupancy;minNevents_=occupancy_*Nevents_;}
+  void setProbabilityThreshold(long double prob) { prob_ = prob; }
+  void setMinNumEntries(unsigned short m) { MinNumEntries_ = m; }
+  void setMinNumEntriesPerStrip(unsigned short m) { MinNumEntriesPerStrip_ = m; }
+  void setOccupancyThreshold(long double occupancy) {
+    occupancy_ = occupancy;
+    minNevents_ = occupancy_ * Nevents_;
+  }
   void setNumberOfEvents(double Nevents);
-  void setOutputFileName(std::string OutputFileName, bool WriteOutputFile){OutFileName_=OutputFileName; WriteOutputFile_=WriteOutputFile;}
-  void setTrackerGeometry(const TrackerGeometry* tkgeom){TkGeom = tkgeom;}
-  void extractBadStrips(SiStripQuality*,HistoMap&,  edm::ESHandle<SiStripQuality>&);
+  void setOutputFileName(std::string OutputFileName, bool WriteOutputFile) {
+    OutFileName_ = OutputFileName;
+    WriteOutputFile_ = WriteOutputFile;
+  }
+  void setTrackerGeometry(const TrackerGeometry* tkgeom) { TkGeom = tkgeom; }
+  void extractBadStrips(SiStripQuality*, HistoMap&, edm::ESHandle<SiStripQuality>&);
 
- private:
-
+private:
   // unsigned long long m_cacheID_;
   //std::string dataLabel_;
   //edm::FileInPath fp_;
   //SiStripDetInfoFileReader* reader;
 
-  struct pHisto{   
-
-    pHisto():_NEntries(0),_NEmptyBins(0),_SubdetId(0){};
+  struct pHisto {
+    pHisto() : _NEntries(0), _NEmptyBins(0), _SubdetId(0){};
     TH1F* _th1f;
     int _NEntries;
     int _NEmptyBins;
     int _SubdetId;
   };
 
-  void iterativeSearch(pHisto&,std::vector<unsigned int>&,int);
-  void evaluatePoissonian(std::vector<long double>& , long double& meanVal);
+  void iterativeSearch(pHisto&, std::vector<unsigned int>&, int);
+  void evaluatePoissonian(std::vector<long double>&, long double& meanVal);
 
   long double prob_;
   long double ratio_;
@@ -99,7 +101,7 @@ public:
   const TrackerGeometry* TkGeom;
   const TrackerTopology* tTopo;
 
-  SiStripQuality *pQuality;
+  SiStripQuality* pQuality;
 
   TFile* f;
   TTree* striptree;
@@ -140,8 +142,6 @@ public:
   double medianapvhits[6];
   double avgapvhits[6];
 
-
-  std::stringstream ss;   
+  std::stringstream ss;
 };
 #endif
-

@@ -10,7 +10,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class MonOccupancyDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   MonOccupancyDat();
   ~MonOccupancyDat() override;
@@ -20,26 +20,21 @@ class MonOccupancyDat : public IDataItem {
 
   void setEventsOverLowThreshold(int events) { m_eventsOverLowThreshold = events; }
   int getEventsOverLowThreshold() const { return m_eventsOverLowThreshold; }
-  
+
   void setEventsOverHighThreshold(int events) { m_eventsOverHighThreshold = events; }
   int getEventsOverHighThreshold() const { return m_eventsOverHighThreshold; }
 
   void setAvgEnergy(float energy) { m_avgEnergy = energy; }
   float getAvgEnergy() const { return m_avgEnergy; }
-  
- private:
-  void prepareWrite() 
-    noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const MonOccupancyDat* item, MonRunIOV* iov)
-    noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeArrayDB(const std::map< EcalLogicID, MonOccupancyDat >* data, MonRunIOV* iov)
-    noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const MonOccupancyDat* item, MonRunIOV* iov) noexcept(false);
 
+  void writeArrayDB(const std::map<EcalLogicID, MonOccupancyDat>* data, MonRunIOV* iov) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, MonOccupancyDat >* fillVec, MonRunIOV* iov)
-     noexcept(false);
+  void fetchData(std::map<EcalLogicID, MonOccupancyDat>* fillVec, MonRunIOV* iov) noexcept(false);
 
   // User data
   int m_eventsOverLowThreshold;

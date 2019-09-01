@@ -30,16 +30,13 @@
 #include <Math/VectorUtil.h>
 
 class TtSemiSimpleBestJetComb {
-
- public:
-  
+public:
   TtSemiSimpleBestJetComb();
-  ~TtSemiSimpleBestJetComb();	
-  
-  int  operator()(std::vector<TtSemiEvtSolution> &);
-  
- private:
-  
+  ~TtSemiSimpleBestJetComb();
+
+  int operator()(std::vector<TtSemiEvtSolution> &);
+
+private:
 };
 
 #endif

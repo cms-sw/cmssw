@@ -15,15 +15,10 @@
 #include "CommonTools/UtilAlgos/interface/FreeFunctionSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef SingleObjectSelector<
-          reco::CandidateView,
-          DummySelector
-        > DummyCandSelector;
+typedef SingleObjectSelector<reco::CandidateView, DummySelector> DummyCandSelector;
 
-typedef SingleObjectSelector<
-          reco::CandidateView,
-          FreeFunctionSelector<reco::Candidate, dummy::select>
-        > DummyFunCandSelector;
+typedef SingleObjectSelector<reco::CandidateView, FreeFunctionSelector<reco::Candidate, dummy::select> >
+    DummyFunCandSelector;
 
-DEFINE_FWK_MODULE( DummyCandSelector );
-DEFINE_FWK_MODULE( DummyFunCandSelector );
+DEFINE_FWK_MODULE(DummyCandSelector);
+DEFINE_FWK_MODULE(DummyFunCandSelector);

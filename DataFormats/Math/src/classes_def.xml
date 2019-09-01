@@ -2,12 +2,9 @@
 <selection>
   <class pattern="ROOT::Math::SMatrix<*>" />
   <class pattern="ROOT::Math::MatRepStd<*>" />
-  <class pattern="ROOT::Math::MatRepSym<*>" >
-    <field name="fOff" transient="true"/>
-  </class>
   <class pattern="ROOT::Math::RowOffsets<*>" />
   <class pattern="ROOT::Math::SVector<*>" />
-  <class pattern="std::vector<ROOT::Math::*>" />
+  <class pattern="std::vector<ROOT::Math::SMatrix<*>>" />
   <class pattern="edm::Wrapper<*>" />
   <class pattern="edm::RefVector<*>" />
   <class pattern="edm::ValueMap<*>" />
@@ -46,17 +43,42 @@
   <class name= "ROOT::Math::SMatrix<float,5,5,ROOT::Math::MatRepSym<float,5> >"/>
   <class name= "ROOT::Math::SMatrix<float,6,6,ROOT::Math::MatRepSym<float,6> >"/>
   <class name= "ROOT::Math::SMatrix<float,7,7,ROOT::Math::MatRepSym<float,7> >"/>
+  <class name="ROOT::Math::MatRepStd<double,3,4>"/>
+  <class name="ROOT::Math::MatRepStd<double,3u,4u>"/>
+  <class name="ROOT::Math::MatRepStd<double,4,3>"/>
+  <class name="ROOT::Math::MatRepStd<double,4u,3u>"/>
+  <class name="ROOT::Math::MatRepStd<double,9,7>"/>
+  <class name="ROOT::Math::MatRepStd<double,9u,7u>"/>
+  <class name="ROOT::Math::MatRepStd<float,3,4>"/>
+  <class name="ROOT::Math::MatRepStd<float,3u,4u>"/>
+  <class name="ROOT::Math::MatRepStd<float,4,3>"/>
+  <class name="ROOT::Math::MatRepStd<float,4u,3u>"/>
+  <class name="ROOT::Math::MatRepStd<float,9,7>"/>
+  <class name="ROOT::Math::MatRepStd<float,9u,7u>"/>
+  <class name="ROOT::Math::SMatrix<double,3,4,ROOT::Math::MatRepStd<double,3,4> >"/>
+  <class name="ROOT::Math::SMatrix<double,3u,4u,ROOT::Math::MatRepStd<double,3u,4u> >"/>
+  <class name="ROOT::Math::SMatrix<double,4,3,ROOT::Math::MatRepStd<double,4,3> >"/>
+  <class name="ROOT::Math::SMatrix<double,4u,3u,ROOT::Math::MatRepStd<double,4u,3u> >"/>
+  <class name="ROOT::Math::SMatrix<double,9,7,ROOT::Math::MatRepStd<double,9,7> >"/>
+  <class name="ROOT::Math::SMatrix<double,9u,7u,ROOT::Math::MatRepStd<double,9u,7u> >"/>
+  <class name="ROOT::Math::SMatrix<float,3,4,ROOT::Math::MatRepStd<float,3,4> >"/>
+  <class name="ROOT::Math::SMatrix<float,3u,4u,ROOT::Math::MatRepStd<float,3u,4u> >"/>
+  <class name="ROOT::Math::SMatrix<float,4,3,ROOT::Math::MatRepStd<float,4,3> >"/>
+  <class name="ROOT::Math::SMatrix<float,4u,3u,ROOT::Math::MatRepStd<float,4u,3u> >"/>
+  <class name="ROOT::Math::SMatrix<float,9,7,ROOT::Math::MatRepStd<float,9,7> >"/>
+  <class name="ROOT::Math::SMatrix<float,9u,7u,ROOT::Math::MatRepStd<float,9u,7u> >"/>
   <class name= "ROOT::Math::SVector<double,2>"/>
   <class name= "ROOT::Math::SVector<double,3>"/>
   <class name= "ROOT::Math::SVector<double,4>"/>
   <class name= "ROOT::Math::SVector<double,5>"/>
   <class name= "ROOT::Math::SVector<double,6>"/>
+  <class name= "ROOT::Math::SVector<double,7>"/>
+  <class name= "ROOT::Math::SVector<double,7u>"/>
   <class name= "ROOT::Math::SVector<float,2>"/>
   <class name= "ROOT::Math::SVector<float,3>"/>
   <class name= "ROOT::Math::SVector<float,4>"/>
   <class name= "ROOT::Math::SVector<float,5>"/>
   <class name= "ROOT::Math::SVector<float,6>"/>
   <class name= "ROOT::Math::SVector<float,7>"/>
-
 </exclusion>
 </lcgdict>

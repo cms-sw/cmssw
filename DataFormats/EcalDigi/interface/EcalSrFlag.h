@@ -31,55 +31,48 @@ public:
 public:
   /** Destructor
    */
-  virtual ~EcalSrFlag() {};    
+  virtual ~EcalSrFlag(){};
 
   /** Gets the Det Id the flag is associated to.
    * @return the det id of the readout unit (a barrel TT or a SC).
    */
-  virtual const DetId& id() const=0;
+  virtual const DetId& id() const = 0;
 
   /** SR flag value. See SRF_XXX constants.
    * @return the flag value
    */
-  int value() const{ return flag_;}
+  int value() const { return flag_; }
 
   /** Set the SR flag value. See SRF_XXX constants.
    * @param flag new flag value. Must be between 0 and 7.
    */
-  void setValue(const int& flag) { flag_ = (unsigned char) flag; }
+  void setValue(const int& flag) { flag_ = (unsigned char)flag; }
 
   /** Cast to int: same as value().
    * @return the SR flag value
    */
-  operator int() const{
-    return flag_;
-  }
+  operator int() const { return flag_; }
 
   /** Return a human readable flag name from its integer value.
    * @param flag the flag value
    * @return the human readable string (which can contain space).
    */
-  static std::string flagName(const int& flag){
-    return (flag==(flag&0x7))?srfNames[flag]:"Invalid";
-  }
+  static std::string flagName(const int& flag) { return (flag == (flag & 0x7)) ? srfNames[flag] : "Invalid"; }
 
   /** Return a human readable flag name from the flag value.
    * @return the human readable string (which can contain space).
    */
-  std::string flagName() const{
-    return flagName(flag_);
-  }
-  
+  std::string flagName() const { return flagName(flag_); }
+
 protected:
   /** The SRP flag.
    */
   unsigned char flag_;
-  
+
 private:
   /** Human readable flag value names
    */
   static const char* const srfNames[];
 };
-  
-#endif //ECALSRFLAG not defined
 
+#endif  //ECALSRFLAG not defined

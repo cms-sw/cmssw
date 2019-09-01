@@ -9,21 +9,22 @@
 #include <string>
 #include <vector>
 
-GeometryConfiguration::GeometryConfiguration( const edm::ParameterSet& pset ) : dummyLocation_("") { 
+GeometryConfiguration::GeometryConfiguration(const edm::ParameterSet& pset) : dummyLocation_("") {
   relFiles_ = pset.getParameter<std::vector<std::string> >("geomXMLFiles");
-  for (std::vector<std::string>::const_iterator rit = relFiles_.begin(), ritEnd = relFiles_.end();
-      rit != ritEnd; ++rit ) {
+  for (std::vector<std::string>::const_iterator rit = relFiles_.begin(), ritEnd = relFiles_.end(); rit != ritEnd;
+       ++rit) {
     edm::FileInPath fp(*rit);
     files_.emplace_back(fp.fullPath());
     emptyStrings_.emplace_back("");
   }
 }
 
-GeometryConfiguration::~GeometryConfiguration() { }
+GeometryConfiguration::~GeometryConfiguration() {}
 
 /// Return the Schema Location.
 std::string GeometryConfiguration::getSchemaLocation() const {
-  edm::LogError("GeometryConfiguration") << " This sub-class of DDLDocumentProvider does not USE XML parsing!!!" << std::endl;
+  edm::LogError("GeometryConfiguration") << " This sub-class of DDLDocumentProvider does not USE XML parsing!!!"
+                                         << std::endl;
   return dummyLocation_;
 }
 
@@ -34,17 +35,14 @@ bool GeometryConfiguration::doValidation() const {
 }
 
 /// Return a list of files as a vector of strings.
-const std::vector < std::string >  & GeometryConfiguration::getFileList(void) const {
-  return files_;
-}
+const std::vector<std::string>& GeometryConfiguration::getFileList(void) const { return files_; }
 
 /// Return a list of urls as a vector of strings.
 /**
    The EDM should not allow URLs because of provenance.
    This vector will always be empty.
 **/
-const std::vector < std::string >  & GeometryConfiguration::getURLList(void) const
-{
+const std::vector<std::string>& GeometryConfiguration::getURLList(void) const {
   LogDebug("GeometryConfiguration") << " the getURLList of this DDLDocumentProvider empty strings" << std::endl;
   //  return relFiles_;
   return emptyStrings_;
@@ -54,12 +52,11 @@ const std::vector < std::string >  & GeometryConfiguration::getURLList(void) con
 void GeometryConfiguration::dumpFileList(void) const {
   std::cout << "File List:" << std::endl;
   std::cout << "  number of files=" << files_.size() << std::endl;
-  for (const auto & file : files_)
+  for (const auto& file : files_)
     std::cout << file << std::endl;
 }
 
-int GeometryConfiguration::readConfig( const std::string& fname ) {
+int GeometryConfiguration::readConfig(const std::string& fname) {
   edm::LogWarning("GeometryConfiguration") << " The readConfig of this DDLDocumentProvider is not valid!" << std::endl;
   return 0;
 }
-

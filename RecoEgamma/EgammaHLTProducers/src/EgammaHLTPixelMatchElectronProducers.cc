@@ -2,7 +2,7 @@
 //
 // Package:    EgammaHLTProducers
 // Class:      EgammaHLTPixelMatchElectronProducers
-// 
+//
 /**\class EgammaHLTPixelMatchElectronProducers RecoEgamma/ElectronProducers/src/EgammaHLTPixelMatchElectronProducers.cc
 
  Description: EDProducer of HLT Electron objects
@@ -19,6 +19,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPixelMatchElectronProducers.h"
 
@@ -30,48 +31,34 @@
 #include <iostream>
 
 using namespace reco;
- 
-EgammaHLTPixelMatchElectronProducers::EgammaHLTPixelMatchElectronProducers(const edm::ParameterSet& iConfig) : conf_(iConfig) {
 
-  consumes<TrackCollection>(conf_.getParameter<edm::InputTag>("TrackProducer"));
-  consumes<GsfTrackCollection>(conf_.getParameter<edm::InputTag>("GsfTrackProducer"));
-  consumes<BeamSpot>(conf_.getParameter<edm::InputTag>("BSProducer"));
-
-  //create algo
-  algo_ = new EgammaHLTPixelMatchElectronAlgo(conf_, consumesCollector());
-
-  //register your products
-  produces<ElectronCollection>();
-}
-
-
-EgammaHLTPixelMatchElectronProducers::~EgammaHLTPixelMatchElectronProducers() {
-  delete algo_;
+EgammaHLTPixelMatchElectronProducers::EgammaHLTPixelMatchElectronProducers(const edm::ParameterSet& iConfig)
+    : algo_(iConfig, consumesCollector()), token_(produces<ElectronCollection>()) {
+  consumes<TrackCollection>(iConfig.getParameter<edm::InputTag>("TrackProducer"));
+  consumes<GsfTrackCollection>(iConfig.getParameter<edm::InputTag>("GsfTrackProducer"));
+  consumes<BeamSpot>(iConfig.getParameter<edm::InputTag>("BSProducer"));
 }
 
 void EgammaHLTPixelMatchElectronProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>(("TrackProducer"), edm::InputTag("hltEleAnyWP80CleanMergedTracks"));
   desc.add<edm::InputTag>(("GsfTrackProducer"), edm::InputTag(""));
   desc.add<bool>(("UseGsfTracks"), false);
-  desc.add<edm::InputTag>(("BSProducer"), edm::InputTag("hltOnlineBeamSpot")); 
-  descriptions.add(("hltEgammaHLTPixelMatchElectronProducers"), desc);  
+  desc.add<edm::InputTag>(("BSProducer"), edm::InputTag("hltOnlineBeamSpot"));
+  descriptions.add(("hltEgammaHLTPixelMatchElectronProducers"), desc);
 }
 
 // ------------ method called to produce the data  ------------
-void EgammaHLTPixelMatchElectronProducers::produce(edm::StreamID sid, edm::Event& e, const edm::EventSetup& iSetup) const {
+void EgammaHLTPixelMatchElectronProducers::produce(edm::Event& e, const edm::EventSetup& iSetup) {
   // Update the algorithm conditions
-  algo_->setupES(iSetup);  
-  
-  // Create the output collections   
-  auto pOutEle = std::make_unique<ElectronCollection>();
-  
+  algo_.setupES(iSetup);
+
+  // Create the output collections
+  ElectronCollection outEle;
+
   // invoke algorithm
-    algo_->run(e,*pOutEle);
+  algo_.run(e, outEle);
 
   // put result into the Event
-    e.put(std::move(pOutEle));
+  e.emplace(token_, std::move(outEle));
 }
-
-

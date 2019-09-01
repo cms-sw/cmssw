@@ -5,7 +5,7 @@
 //
 // Package:    ResolutionAnalyzer
 // Class:      ResolutionAnalyzer
-// 
+//
 /**\class ResolutionAnalyzer ResolutionAnalyzer.cc MuonAnalysis/MomentumScaleCalibration/plugins/ResolutionAnalyzer.cc
 
  Description: <one line class summary>
@@ -69,32 +69,33 @@ public:
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {};
+  void endJob() override{};
 
-  template<typename T>
-  std::vector<reco::LeafCandidate> fillMuonCollection (const std::vector<T>& tracks) {
+  template <typename T>
+  std::vector<reco::LeafCandidate> fillMuonCollection(const std::vector<T>& tracks) {
     std::vector<reco::LeafCandidate> muons;
     typename std::vector<T>::const_iterator track;
-    for (track = tracks.begin(); track != tracks.end(); ++track){
-      reco::Particle::LorentzVector mu(track->px(),track->py(),track->pz(),
-				       sqrt(track->p()*track->p() + MuScleFitUtils::mMu2));
+    for (track = tracks.begin(); track != tracks.end(); ++track) {
+      reco::Particle::LorentzVector mu(
+          track->px(), track->py(), track->pz(), sqrt(track->p() * track->p() + MuScleFitUtils::mMu2));
       MuScleFitUtils::goodmuon++;
-      if (debug_>0) std::cout <<std::setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon 
-			      << ": initial value   Pt = " << mu.Pt() << std::endl;
-      reco::LeafCandidate muon(track->charge(),mu);
+      if (debug_ > 0)
+        std::cout << std::setprecision(9) << "Muon #" << MuScleFitUtils::goodmuon
+                  << ": initial value   Pt = " << mu.Pt() << std::endl;
+      reco::LeafCandidate muon(track->charge(), mu);
       // Store muon
       // ----------
-      muons.push_back( muon );
+      muons.push_back(muon);
     }
     return muons;
-  } 
+  }
 
   /// Used to fill the map with the histograms needed
   void fillHistoMap();
   /// Writes the histograms in the map
   void writeHistoMap();
   /// Returns true if the two particles have DeltaR < cut
-  bool checkDeltaR(const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recMu);
+  bool checkDeltaR(const reco::Particle::LorentzVector& genMu, const reco::Particle::LorentzVector& recMu);
 
   // ----------member data ---------------------------
 
@@ -107,7 +108,7 @@ private:
   std::string theCovariancesRootFileName_;
   bool debug_;
   std::map<std::string, Histograms*> mapHisto_;
-  TFile * outputFile_;
+  TFile* outputFile_;
 
   int eventCounter_;
   bool resonance_;
@@ -115,14 +116,14 @@ private:
 
   TString treeFileName_;
   int32_t maxEvents_;
-  
+
   double ptMax_;
-  
-  HCovarianceVSxy * massResolutionVsPtEta_;
-  TH2D * recoPtVsgenPt_;
-  TH2D * recoPtVsgenPtEta12_;
-  TH1D * deltaPtOverPt_;
-  TH1D * deltaPtOverPtForEta12_;
+
+  HCovarianceVSxy* massResolutionVsPtEta_;
+  TH2D* recoPtVsgenPt_;
+  TH2D* recoPtVsgenPtEta12_;
+  TH1D* deltaPtOverPt_;
+  TH1D* deltaPtOverPtForEta12_;
 };
 
-#endif // RESOLUTIONANALYZER_HH
+#endif  // RESOLUTIONANALYZER_HH

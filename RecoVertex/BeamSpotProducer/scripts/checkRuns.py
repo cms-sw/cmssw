@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function
+from builtins import range
 import sys,os,commands,re
 import xmlrpclib
 from CommonMethods import *
@@ -8,7 +10,7 @@ except:
     try:
         import simplejson as json
     except:
-        print "Please set a crab environment in order to get the proper JSON lib"
+        print("Please set a crab environment in order to get the proper JSON lib")
         sys.exit(1)
 
 #####################################################################################
@@ -46,12 +48,12 @@ def getListOfRunsAndLumiFromRR(firstRun=-1,error=""):
             break
         except:
             tries += 1
-            print "Trying to get run data. This fails only 2-3 times so don't panic yet...", tries, "/", maxAttempts
+            print("Trying to get run data. This fails only 2-3 times so don't panic yet...", tries, "/", maxAttempts)
             time.sleep(1)
-            print "Exception type: ", sys.exc_info()[0]
+            print("Exception type: ", sys.exc_info()[0])
         if tries==maxAttempts:
             error = "Ok, now panic...run registry unaccessible...I'll get the runs from a json file!"
-            print error;
+            print(error);
             return {};
             
     listOfRuns=[]
@@ -72,13 +74,13 @@ def getListOfRunsAndLumiFromRR(firstRun=-1,error=""):
             break
         except:
             tries += 1
-            print "I was able to get the list of runs and now I am trying to access the detector status", tries, "/", maxAttempts
+            print("I was able to get the list of runs and now I am trying to access the detector status", tries, "/", maxAttempts)
             time.sleep(1)
-            print "Exception type: ", sys.exc_info()[0]
+            print("Exception type: ", sys.exc_info()[0])
             
     if tries==maxAttempts:
         error = "Ok, now panic...run registry unaccessible...I'll get the runs from a json file!"
-        print error;
+        print(error);
         return {};
             
     selected_dcs={}
@@ -144,7 +146,7 @@ def main():
                     if not run in runsAndLumisProcessed:
                         runsAndLumisProcessed[run] = []
                     if begLumi in runsAndLumisProcessed[run]:
-                        print "Lumi " + str(begLumi) + " in event " + str(run) + " already exist. This MUST not happen but right now I will ignore this lumi!"
+                        print("Lumi " + str(begLumi) + " in event " + str(run) + " already exist. This MUST not happen but right now I will ignore this lumi!")
                     else:
                         runsAndLumisProcessed[run].append(begLumi)
         file.close()
@@ -156,12 +158,12 @@ def main():
             #print str(counter) + "->" + str(lumi)
             #counter += 1
             if(run not in runFiles):   
-                print "Can't find run", run, "in the files!"        
+                print("Can't find run", run, "in the files!")        
                 break ;
             elif( not lumi in runsAndLumisProcessed[run]):
                 missingLumis.append(lumi)
         if(len(missingLumis) != 0):        
-            print "In run", run, "these lumis are missing ->", missingLumis          
+            print("In run", run, "these lumis are missing ->", missingLumis)          
                                                      
                             
 if __name__ == "__main__":

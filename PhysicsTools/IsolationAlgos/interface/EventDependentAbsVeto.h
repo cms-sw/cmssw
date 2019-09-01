@@ -6,14 +6,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 namespace reco {
- namespace isodeposit {
+  namespace isodeposit {
     class EventDependentAbsVeto : public AbsVeto {
-        public:
-            ~EventDependentAbsVeto() override {}
-            virtual void setEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) = 0;
+    public:
+      ~EventDependentAbsVeto() override {}
+      virtual void setEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) = 0;
     };
     typedef std::vector<EventDependentAbsVeto *> EventDependentAbsVetos;
- }
-}
+  }  // namespace isodeposit
+}  // namespace reco
 
 #endif

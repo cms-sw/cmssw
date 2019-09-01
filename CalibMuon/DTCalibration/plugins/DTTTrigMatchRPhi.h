@@ -20,22 +20,22 @@ class DTTtrig;
 
 namespace dtCalibration {
 
-class DTTTrigMatchRPhi: public DTTTrigBaseCorrection {
-public:
-  // Constructor
-  DTTTrigMatchRPhi(const edm::ParameterSet&);
+  class DTTTrigMatchRPhi : public DTTTrigBaseCorrection {
+  public:
+    // Constructor
+    DTTTrigMatchRPhi(const edm::ParameterSet&);
 
-  // Destructor
-  ~DTTTrigMatchRPhi() override;
+    // Destructor
+    ~DTTTrigMatchRPhi() override;
 
-  void setES(const edm::EventSetup& setup) override;
-  DTTTrigData correction(const DTSuperLayerId&) override;
+    void setES(const edm::EventSetup& setup) override;
+    DTTTrigData correction(const DTSuperLayerId&) override;
 
-private:
-  const DTTtrig *tTrigMap_;
+  private:
+    const DTTtrig* tTrigMap_;
 
-  std::string dbLabel;
-};
+    std::string dbLabel;
+  };
 
-} // namespace
+}  // namespace dtCalibration
 #endif

@@ -13,7 +13,6 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessor.h"
 
-
 class TrackFinder {
 public:
   explicit TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iConsumes);
@@ -21,35 +20,30 @@ public:
 
   void process(
       // Input
-      const edm::Event& iEvent, const edm::EventSetup& iSetup,
+      const edm::Event& iEvent,
+      const edm::EventSetup& iSetup,
       // Output
       EMTFHitCollection& out_hits,
-      EMTFTrackCollection& out_tracks
-  );
+      EMTFTrackCollection& out_tracks);
 
 private:
   GeometryTranslator geometry_translator_;
 
   ConditionHelper condition_helper_;
-  unsigned int fw_version_;
-  unsigned int pt_lut_version_;
-  unsigned int pc_lut_version_;
 
   SectorProcessorLUT sector_processor_lut_;
 
-  PtAssignmentEngine* pt_assign_engine_;
-  std::unique_ptr<PtAssignmentEngine> pt_assign_engine_2016_;
-  std::unique_ptr<PtAssignmentEngine> pt_assign_engine_2017_;
+  std::unique_ptr<PtAssignmentEngine> pt_assign_engine_;
 
   emtf::sector_array<SectorProcessor> sector_processors_;
 
   const edm::ParameterSet config_;
 
-  const edm::EDGetToken tokenCSC_, tokenRPC_, tokenGEM_;
+  const edm::EDGetToken tokenCSC_, tokenRPC_, tokenCPPF_, tokenGEM_;
 
-  int verbose_;
+  int verbose_, primConvLUT_;
 
-  bool useCSC_, useRPC_, useGEM_;
+  bool fwConfig_, useCSC_, useRPC_, useCPPF_, useGEM_;
 
   std::string era_;
 };

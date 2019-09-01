@@ -5,7 +5,7 @@
 //
 // Package:    MuonIdentification
 // Class:      MuonIdProducer
-// 
+//
 /*
 
  Description: reco::Muon producer that can fill various information:
@@ -22,7 +22,6 @@
 // Original Author:  Dmytro Kovalskyi
 //
 //
-
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -47,8 +46,9 @@
 #include "RecoMuon/MuonIdentification/interface/MuonTimingFiller.h"
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
-// RPC-Muon stuffs
+#include "RecoMuon/MuonIdentification/interface/MuonShowerDigiFiller.h"
 
+// RPC-Muon stuffs
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/MuonReco/interface/MuonRPCHitMatch.h"
@@ -60,193 +60,212 @@
 #include "RecoMuon/MuonIdentification/interface/MuonArbitrationMethods.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-
 class MuonMesh;
 class MuonKinkFinder;
 
 class MuonIdProducer : public edm::stream::EDProducer<> {
- public:
-   typedef reco::Muon::MuonTrackType TrackType;
-  
-   explicit MuonIdProducer(const edm::ParameterSet&);
-   
-   ~MuonIdProducer() override;
-   
-   void produce(edm::Event&, const edm::EventSetup&) override;
-   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-   
-   static double sectorPhi( const DetId& id );
+public:
+  typedef reco::Muon::MuonTrackType TrackType;
 
-   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-   
- private:
-   void          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon&, 
-			     TrackDetectorAssociator::Direction direction = TrackDetectorAssociator::InsideOut );
-   void          fillArbitrationInfo( reco::MuonCollection*, unsigned int muonType = reco::Muon::TrackerMuon );
-   void          arbitrateMuons( reco::MuonCollection*, reco::CaloMuonCollection* );
-   void          fillMuonIsolation( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon,
-				    reco::IsoDeposit& trackDep, reco::IsoDeposit& ecalDep, reco::IsoDeposit& hcalDep, reco::IsoDeposit& hoDep,
-				    reco::IsoDeposit& jetDep);
-   void          fillGlbQuality( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
-   void          fillTrackerKink( reco::Muon& aMuon ); 
-   void          init( edm::Event&, const edm::EventSetup& );
-   
-   // make a muon based on a track ref
-   reco::Muon    makeMuon( edm::Event& iEvent, const edm::EventSetup& iSetup, 
-			   const reco::TrackRef& track, TrackType type);
-   // make a global muon based on the links object
-   reco::Muon    makeMuon( const reco::MuonTrackLinks& links );
-   
-   // make a muon based on track (p4)
-   reco::Muon    makeMuon( const reco::Track& track );
-   
-   reco::CaloMuon makeCaloMuon( const reco::Muon& );
+  explicit MuonIdProducer(const edm::ParameterSet&);
 
-   // check if a silicon track satisfies the trackerMuon requirements
-   bool          isGoodTrack( const reco::Track& track );
-   
-   bool          isGoodTrackerMuon( const reco::Muon& muon );
-   bool          isGoodCaloMuon( const reco::CaloMuon& muon );
-   bool          isGoodRPCMuon( const reco::Muon& muon );
-   bool          isGoodGEMMuon( const reco::Muon& muon );
-   bool          isGoodME0Muon( const reco::Muon& muon );
-   
-   // check number of common DetIds for a given trackerMuon and a stand alone
-   // muon track
-   int           overlap(const reco::Muon& muon, const reco::Track& track);
+  ~MuonIdProducer() override;
 
-   unsigned int  chamberId(const DetId&);
-   
-   double phiOfMuonIneteractionRegion( const reco::Muon& muon ) const;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-   bool checkLinks(const reco::MuonTrackLinks*) const ;
-   inline bool approxEqual(const double a, const double b, const double tol=1E-3) const
-   {
-     return std::abs(a-b) < tol;
-   }
+  static double sectorPhi(const DetId& id);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   /// get the segment matches of the appropriate type
-   std::vector<reco::MuonSegmentMatch> * getSegmentMatches(reco::MuonChamberMatch & chamber, unsigned int muonType) const {
-       if      (muonType == reco::Muon::TrackerMuon) return & chamber.segmentMatches;
-       else if (muonType == reco::Muon::ME0Muon)     return & chamber.me0Matches;
-       else if (muonType == reco::Muon::GEMMuon)     return & chamber.gemMatches;
-       else throw cms::Exception("getSegmentMatches called with unsupported muonType");
-   }
-     
-   TrackDetectorAssociator trackAssociator_;
-   TrackAssociatorParameters parameters_;
+private:
+  void fillMuonId(edm::Event&,
+                  const edm::EventSetup&,
+                  reco::Muon&,
+                  TrackDetectorAssociator::Direction direction = TrackDetectorAssociator::InsideOut);
+  void fillArbitrationInfo(reco::MuonCollection*, unsigned int muonType = reco::Muon::TrackerMuon);
+  void arbitrateMuons(reco::MuonCollection*, reco::CaloMuonCollection*);
+  void fillMuonIsolation(edm::Event&,
+                         const edm::EventSetup&,
+                         reco::Muon& aMuon,
+                         reco::IsoDeposit& trackDep,
+                         reco::IsoDeposit& ecalDep,
+                         reco::IsoDeposit& hcalDep,
+                         reco::IsoDeposit& hoDep,
+                         reco::IsoDeposit& jetDep);
+  void fillGlbQuality(edm::Event&, const edm::EventSetup&, reco::Muon& aMuon);
+  void fillTrackerKink(reco::Muon& aMuon);
+  void init(edm::Event&, const edm::EventSetup&);
 
-   struct ICTypes
-   {
-     enum ICTypeKey {
-       INNER_TRACKS, OUTER_TRACKS,
-       LINKS, MUONS,
-       TEV_FIRSTHIT, TEV_PICKY, TEV_DYT,
-       NONE
-     };
+  // make a muon based on a track ref
+  reco::Muon makeMuon(edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::TrackRef& track, TrackType type);
+  // make a global muon based on the links object
+  reco::Muon makeMuon(const reco::MuonTrackLinks& links);
 
-     static ICTypeKey toKey(const std::string& s) {
-       if      ( s == "inner tracks" ) return INNER_TRACKS;
-       else if ( s == "outer tracks" ) return OUTER_TRACKS;
-       else if ( s == "links" ) return LINKS;
-       else if ( s == "muons" ) return MUONS;
-       else if ( s == "tev firstHit" ) return TEV_FIRSTHIT;
-       else if ( s == "tev picky"    ) return TEV_PICKY   ;
-       else if ( s == "tev dyt"      ) return TEV_DYT     ;
+  // make a muon based on track (p4)
+  reco::Muon makeMuon(const reco::Track& track);
 
-       throw cms::Exception("FatalError") << "Unknown input collection type: " << s;
-     }
+  reco::CaloMuon makeCaloMuon(const reco::Muon&);
 
-     static std::string toStr(const ICTypeKey k) {
-       switch ( k ) {
-         case INNER_TRACKS: return "inner tracks";
-         case OUTER_TRACKS: return "outer tracks";
-         case LINKS       : return "links"       ;
-         case MUONS       : return "muons"       ;
-         case TEV_FIRSTHIT: return "tev firstHit";
-         case TEV_PICKY   : return "tev picky"   ;
-         case TEV_DYT     : return "tev dyt"     ;
-         default: throw cms::Exception("FatalError") << "Unknown input collection type";
-       }
-       return "";
-     }
-   };
-   std::vector<edm::InputTag> inputCollectionLabels_;
-   std::vector<ICTypes::ICTypeKey> inputCollectionTypes_;
+  // check if a silicon track satisfies the trackerMuon requirements
+  bool isGoodTrack(const reco::Track& track);
 
-   MuonTimingFiller* theTimingFiller_;
+  bool isGoodTrackerMuon(const reco::Muon& muon);
+  bool isGoodCaloMuon(const reco::CaloMuon& muon);
+  bool isGoodRPCMuon(const reco::Muon& muon);
+  bool isGoodGEMMuon(const reco::Muon& muon);
+  bool isGoodME0Muon(const reco::Muon& muon);
 
-   // selections
-   double minPt_;
-   double minP_;
-   double minPCaloMuon_;
-   int    minNumberOfMatches_;
-   double maxAbsEta_;
-   bool   addExtraSoftMuons_;
-   
-   // matching
-   double maxAbsDx_;
-   double maxAbsPullX_;
-   double maxAbsDy_;
-   double maxAbsPullY_;
-   
-   // what information to fill
-   bool fillCaloCompatibility_;
-   bool fillEnergy_;
-   bool fillMatching_;
-   bool fillIsolation_;
-   bool writeIsoDeposits_;
-   double ptThresholdToFillCandidateP4WithGlobalFit_;
-   double sigmaThresholdToFillCandidateP4WithGlobalFit_;
-   
-   bool arbitrateTrackerMuons_;
+  // check number of common DetIds for a given trackerMuon and a stand alone
+  // muon track
+  int overlap(const reco::Muon& muon, const reco::Track& track);
 
-   bool debugWithTruthMatching_;
+  unsigned int chamberId(const DetId&);
 
-   edm::Handle<reco::TrackCollection>             innerTrackCollectionHandle_;
-   edm::Handle<reco::TrackCollection>             outerTrackCollectionHandle_;
-   edm::Handle<reco::MuonCollection>              muonCollectionHandle_;
-   edm::Handle<reco::MuonTrackLinksCollection>    linkCollectionHandle_;
-   edm::Handle<reco::TrackToTrackMap>             tpfmsCollectionHandle_;
-   edm::Handle<reco::TrackToTrackMap>             pickyCollectionHandle_;
-   edm::Handle<reco::TrackToTrackMap>             dytCollectionHandle_;
+  double phiOfMuonIneteractionRegion(const reco::Muon& muon) const;
 
-   edm::EDGetTokenT<reco::TrackCollection>             innerTrackCollectionToken_;
-   edm::EDGetTokenT<reco::TrackCollection>             outerTrackCollectionToken_;
-   edm::EDGetTokenT<reco::MuonCollection>              muonCollectionToken_;
-   edm::EDGetTokenT<reco::MuonTrackLinksCollection>    linkCollectionToken_;
-   edm::EDGetTokenT<reco::TrackToTrackMap>             tpfmsCollectionToken_;
-   edm::EDGetTokenT<reco::TrackToTrackMap>             pickyCollectionToken_;
-   edm::EDGetTokenT<reco::TrackToTrackMap>             dytCollectionToken_;
+  bool checkLinks(const reco::MuonTrackLinks*) const;
+  inline bool approxEqual(const double a, const double b, const double tol = 1E-3) const {
+    return std::abs(a - b) < tol;
+  }
 
-   edm::EDGetTokenT<RPCRecHitCollection> rpcHitToken_;
-   edm::EDGetTokenT<edm::ValueMap<reco::MuonQuality> > glbQualToken_;
+  /// get the segment matches of the appropriate type
+  std::vector<reco::MuonSegmentMatch>* getSegmentMatches(reco::MuonChamberMatch& chamber, unsigned int muonType) const {
+    if (muonType == reco::Muon::TrackerMuon)
+      return &chamber.segmentMatches;
+    else if (muonType == reco::Muon::ME0Muon)
+      return &chamber.me0Matches;
+    else if (muonType == reco::Muon::GEMMuon)
+      return &chamber.gemMatches;
+    else
+      throw cms::Exception("getSegmentMatches called with unsupported muonType");
+  }
 
-   edm::Handle<RPCRecHitCollection> rpcHitHandle_;
-   edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualHandle_;
-   
-   MuonCaloCompatibility muonCaloCompatibility_;
-   reco::isodeposit::IsoDepositExtractor* muIsoExtractorCalo_;
-   reco::isodeposit::IsoDepositExtractor* muIsoExtractorTrack_;
-   reco::isodeposit::IsoDepositExtractor* muIsoExtractorJet_;
-   std::string trackDepositName_;
-   std::string ecalDepositName_;
-   std::string hcalDepositName_;
-   std::string hoDepositName_;
-   std::string jetDepositName_;
+  TrackDetectorAssociator trackAssociator_;
+  TrackAssociatorParameters parameters_;
 
-   bool          fillGlobalTrackQuality_;
-   bool          fillGlobalTrackRefits_ ;
-   edm::InputTag globalTrackQualityInputTag_;
+  struct ICTypes {
+    enum ICTypeKey { INNER_TRACKS, OUTER_TRACKS, LINKS, MUONS, TEV_FIRSTHIT, TEV_PICKY, TEV_DYT, NONE };
 
-   bool fillTrackerKink_;
-   std::unique_ptr<MuonKinkFinder> trackerKinkFinder_;
+    static ICTypeKey toKey(const std::string& s) {
+      if (s == "inner tracks")
+        return INNER_TRACKS;
+      else if (s == "outer tracks")
+        return OUTER_TRACKS;
+      else if (s == "links")
+        return LINKS;
+      else if (s == "muons")
+        return MUONS;
+      else if (s == "tev firstHit")
+        return TEV_FIRSTHIT;
+      else if (s == "tev picky")
+        return TEV_PICKY;
+      else if (s == "tev dyt")
+        return TEV_DYT;
 
-   double caloCut_;
-   
-   bool arbClean_;
-   MuonMesh* meshAlgo_;
+      throw cms::Exception("FatalError") << "Unknown input collection type: " << s;
+    }
 
+    static std::string toStr(const ICTypeKey k) {
+      switch (k) {
+        case INNER_TRACKS:
+          return "inner tracks";
+        case OUTER_TRACKS:
+          return "outer tracks";
+        case LINKS:
+          return "links";
+        case MUONS:
+          return "muons";
+        case TEV_FIRSTHIT:
+          return "tev firstHit";
+        case TEV_PICKY:
+          return "tev picky";
+        case TEV_DYT:
+          return "tev dyt";
+        default:
+          throw cms::Exception("FatalError") << "Unknown input collection type";
+      }
+      return "";
+    }
+  };
+  std::vector<edm::InputTag> inputCollectionLabels_;
+  std::vector<ICTypes::ICTypeKey> inputCollectionTypes_;
+
+  std::unique_ptr<MuonTimingFiller> theTimingFiller_;
+
+  std::unique_ptr<MuonShowerDigiFiller> theShowerDigiFiller_;
+
+  // selections
+  double minPt_;
+  double minP_;
+  double minPCaloMuon_;
+  int minNumberOfMatches_;
+  double maxAbsEta_;
+  bool addExtraSoftMuons_;
+
+  // matching
+  double maxAbsDx_;
+  double maxAbsPullX_;
+  double maxAbsDy_;
+  double maxAbsPullY_;
+
+  // what information to fill
+  bool fillCaloCompatibility_;
+  bool fillEnergy_;
+  bool storeCrossedHcalRecHits_;
+  bool fillMatching_;
+  bool fillShowerDigis_;
+  bool fillIsolation_;
+  bool writeIsoDeposits_;
+  double ptThresholdToFillCandidateP4WithGlobalFit_;
+  double sigmaThresholdToFillCandidateP4WithGlobalFit_;
+
+  bool arbitrateTrackerMuons_;
+
+  bool debugWithTruthMatching_;
+
+  edm::Handle<reco::TrackCollection> innerTrackCollectionHandle_;
+  edm::Handle<reco::TrackCollection> outerTrackCollectionHandle_;
+  edm::Handle<reco::MuonCollection> muonCollectionHandle_;
+  edm::Handle<reco::MuonTrackLinksCollection> linkCollectionHandle_;
+  edm::Handle<reco::TrackToTrackMap> tpfmsCollectionHandle_;
+  edm::Handle<reco::TrackToTrackMap> pickyCollectionHandle_;
+  edm::Handle<reco::TrackToTrackMap> dytCollectionHandle_;
+
+  edm::EDGetTokenT<reco::TrackCollection> innerTrackCollectionToken_;
+  edm::EDGetTokenT<reco::TrackCollection> outerTrackCollectionToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muonCollectionToken_;
+  edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkCollectionToken_;
+  edm::EDGetTokenT<reco::TrackToTrackMap> tpfmsCollectionToken_;
+  edm::EDGetTokenT<reco::TrackToTrackMap> pickyCollectionToken_;
+  edm::EDGetTokenT<reco::TrackToTrackMap> dytCollectionToken_;
+
+  edm::EDGetTokenT<RPCRecHitCollection> rpcHitToken_;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonQuality> > glbQualToken_;
+
+  edm::Handle<RPCRecHitCollection> rpcHitHandle_;
+  edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualHandle_;
+
+  MuonCaloCompatibility muonCaloCompatibility_;
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorCalo_;
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorTrack_;
+  std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorJet_;
+  std::string trackDepositName_;
+  std::string ecalDepositName_;
+  std::string hcalDepositName_;
+  std::string hoDepositName_;
+  std::string jetDepositName_;
+
+  bool fillGlobalTrackQuality_;
+  bool fillGlobalTrackRefits_;
+  edm::InputTag globalTrackQualityInputTag_;
+
+  bool fillTrackerKink_;
+  std::unique_ptr<MuonKinkFinder> trackerKinkFinder_;
+
+  double caloCut_;
+
+  bool arbClean_;
+  std::unique_ptr<MuonMesh> meshAlgo_;
 };
 #endif

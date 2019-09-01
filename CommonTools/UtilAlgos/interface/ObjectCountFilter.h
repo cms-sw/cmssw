@@ -22,12 +22,12 @@
 #include "CommonTools/UtilAlgos/interface/EventSelectorAdapter.h"
 #include "CommonTools/UtilAlgos/interface/ObjectCountEventSelector.h"
 
-template<typename C, 
-	 typename S = AnySelector,
-	 typename N = MinNumberSelector,
-	 typename CS = typename helper::CollectionFilterTrait<C, S, N>::type>
+template <typename C,
+          typename S = AnySelector,
+          typename N = MinNumberSelector,
+          typename CS = typename helper::CollectionFilterTrait<C, S, N>::type>
 struct ObjectCountFilter {
-  typedef EventSelectorAdapter< ObjectCountEventSelector<C, S, N, CS> > type;
+  typedef EventSelectorAdapter<ObjectCountEventSelector<C, S, N, CS> > type;
 };
 
 #endif

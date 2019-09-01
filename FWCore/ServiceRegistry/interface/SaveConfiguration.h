@@ -4,7 +4,7 @@
 //
 // Package:     ServiceRegistry
 // Class  :     SaveConfiguration
-// 
+//
 /**\class SaveConfiguration SaveConfiguration.h FWCore/ServiceRegistry/interface/SaveConfiguration.h
 
  Description: 'Concept' class used to decide if a Service's parameters should be saved
@@ -26,11 +26,9 @@
 // forward declarations
 
 namespace edm {
-   namespace serviceregistry {
-      class SaveConfiguration
-      {
-      };
-   }
-}
+  namespace serviceregistry {
+    class SaveConfiguration {};
+  }  // namespace serviceregistry
+}  // namespace edm
 
 #endif

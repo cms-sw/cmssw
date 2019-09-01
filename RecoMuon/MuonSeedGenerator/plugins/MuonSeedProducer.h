@@ -22,29 +22,25 @@
 
 class MuonSeedBuilder;
 
-class MuonSeedProducer: public edm::stream::EDProducer<> {
- public:
-
+class MuonSeedProducer : public edm::stream::EDProducer<> {
+public:
   /// Constructor
   MuonSeedProducer(const edm::ParameterSet&);
-  
+
   /// Destructor
   ~MuonSeedProducer() override;
-  
+
   // Operations
 
   /// Get event properties to send to builder to fill seed collection
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   // This Producer private debug flag
   bool debug;
 
   /// Builder where seeds are formed
   MuonSeedBuilder* muonSeedBuilder_;
-
 };
 
 #endif
-

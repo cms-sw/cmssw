@@ -32,14 +32,13 @@
 **/
 
 class TtFullLepHypothesis : public edm::EDProducer {
-
- public:
+public:
   /// default constructor
   explicit TtFullLepHypothesis(const edm::ParameterSet&);
   /// default destructor
   ~TtFullLepHypothesis() override;
 
- protected:
+protected:
   /// produce the event hypothesis as CompositeCandidate and Key
   void produce(edm::Event&, const edm::EventSetup&) override;
   /// reset candidate pointers before hypo build process
@@ -48,13 +47,18 @@ class TtFullLepHypothesis : public edm::EDProducer {
   template <typename C>
   void setCandidate(const edm::Handle<C>& handle, const int& idx, reco::ShallowClonePtrCandidate*& clone);
   /// use one object in a jet collection to set a ShallowClonePtrCandidate with proper jet corrections
-  void setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle, const int& idx, reco::ShallowClonePtrCandidate*& clone, const std::string& correctionLevel);
+  void setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle,
+                    const int& idx,
+                    reco::ShallowClonePtrCandidate*& clone,
+                    const std::string& correctionLevel);
   /// return key
   int key() const { return key_; };
   /// return event hypothesis
   reco::CompositeCandidate hypo();
   /// check if index is in valid range of selected jets
-  bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets){ return (0<=idx && idx<(int)jets->size()); };
+  bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets) {
+    return (0 <= idx && idx < (int)jets->size());
+  };
 
   // -----------------------------------------
   // implemet the following two functions
@@ -65,14 +69,14 @@ class TtFullLepHypothesis : public edm::EDProducer {
   virtual void buildKey() = 0;
   /// build event hypothesis from the reco objects of a semi-leptonic event
   virtual void buildHypo(edm::Event& evt,
-			 const edm::Handle<std::vector<pat::Electron > >& elecs,
-			 const edm::Handle<std::vector<pat::Muon> >& mus,
-			 const edm::Handle<std::vector<pat::Jet> >& jets,
-			 const edm::Handle<std::vector<pat::MET> >& mets,
-			 std::vector<int>& match,
-			 const unsigned int iComb) = 0;
+                         const edm::Handle<std::vector<pat::Electron> >& elecs,
+                         const edm::Handle<std::vector<pat::Muon> >& mus,
+                         const edm::Handle<std::vector<pat::Jet> >& jets,
+                         const edm::Handle<std::vector<pat::MET> >& mets,
+                         std::vector<int>& match,
+                         const unsigned int iComb) = 0;
 
- protected:
+protected:
   /// internal check whether the match information exists or not,
   /// if false a blind dummy match vector will be used internally
   bool getMatch_;
@@ -89,12 +93,12 @@ class TtFullLepHypothesis : public edm::EDProducer {
   int key_;
   /// candidates for internal use for the creation of the hypothesis
   /// candidate
-  reco::ShallowClonePtrCandidate *lepton_;
-  reco::ShallowClonePtrCandidate *leptonBar_;
-  reco::ShallowClonePtrCandidate *b_;
-  reco::ShallowClonePtrCandidate *bBar_;
-  reco::ShallowClonePtrCandidate *neutrino_;
-  reco::ShallowClonePtrCandidate *neutrinoBar_;
+  reco::ShallowClonePtrCandidate* lepton_;
+  reco::ShallowClonePtrCandidate* leptonBar_;
+  reco::ShallowClonePtrCandidate* b_;
+  reco::ShallowClonePtrCandidate* bBar_;
+  reco::ShallowClonePtrCandidate* neutrino_;
+  reco::ShallowClonePtrCandidate* neutrinoBar_;
   //reco::ShallowClonePtrCandidate *met_;
 
   /// candidates needed for the genmatch hypothesis
@@ -104,12 +108,13 @@ class TtFullLepHypothesis : public edm::EDProducer {
 
 // unfortunately this has to be placed in the header since otherwise the function template
 // would cause unresolved references in classes derived from this base class
-template<typename C>
-void
-TtFullLepHypothesis::setCandidate(const edm::Handle<C>& handle, const int& idx, reco::ShallowClonePtrCandidate* &clone) {
+template <typename C>
+void TtFullLepHypothesis::setCandidate(const edm::Handle<C>& handle,
+                                       const int& idx,
+                                       reco::ShallowClonePtrCandidate*& clone) {
   typedef typename C::value_type O;
   edm::Ptr<O> ptr = edm::Ptr<O>(handle, idx);
-  clone = new reco::ShallowClonePtrCandidate( ptr, ptr->charge(), ptr->p4(), ptr->vertex() );
+  clone = new reco::ShallowClonePtrCandidate(ptr, ptr->charge(), ptr->p4(), ptr->vertex());
 }
 
 #endif

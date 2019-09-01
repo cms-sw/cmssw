@@ -2,7 +2,7 @@
 //
 // Package:    FFTJetImageRecorder
 // Class:      FFTJetImageRecorder
-// 
+//
 /**\class FFTJetImageRecorder FFTJetImageRecorder.cc RecoJets/JetAnalyzers/src/FFTJetImageRecorder.cc
 
  Description: collects the info produced by FFTJetEFlowSmoother
@@ -39,90 +39,74 @@
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
-#define init_param(type, varname) varname (ps.getParameter< type >( #varname ))
+#define init_param(type, varname) varname(ps.getParameter<type>(#varname))
 
 //
 // class declaration
 //
-class FFTJetImageRecorder : public edm::EDAnalyzer
-{
+class FFTJetImageRecorder : public edm::EDAnalyzer {
 public:
-    explicit FFTJetImageRecorder(const edm::ParameterSet&);
-    ~FFTJetImageRecorder() override;
+  explicit FFTJetImageRecorder(const edm::ParameterSet&);
+  ~FFTJetImageRecorder() override;
 
 private:
-    FFTJetImageRecorder() = delete;
-    FFTJetImageRecorder(const FFTJetImageRecorder&) = delete;
-    FFTJetImageRecorder& operator=(const FFTJetImageRecorder&) = delete;
+  FFTJetImageRecorder() = delete;
+  FFTJetImageRecorder(const FFTJetImageRecorder&) = delete;
+  FFTJetImageRecorder& operator=(const FFTJetImageRecorder&) = delete;
 
-    void beginJob() override ;
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
-    void endJob() override ;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-    edm::InputTag histoLabel;
-    unsigned long counter;
+  edm::InputTag histoLabel;
+  unsigned long counter;
 
-    edm::EDGetTokenT<TH3F> histoToken;
+  edm::EDGetTokenT<TH3F> histoToken;
 };
 
 //
 // constructors and destructor
 //
 FFTJetImageRecorder::FFTJetImageRecorder(const edm::ParameterSet& ps)
-    : init_param(edm::InputTag, histoLabel),
-      counter(0)
-{
-    histoToken = consumes<TH3F>(histoLabel);
+    : init_param(edm::InputTag, histoLabel), counter(0) {
+  histoToken = consumes<TH3F>(histoLabel);
 }
 
-
-FFTJetImageRecorder::~FFTJetImageRecorder()
-{
-}
-
+FFTJetImageRecorder::~FFTJetImageRecorder() {}
 
 //
 // member functions
 //
 
 // ------------ method called once each job just before starting event loop
-void FFTJetImageRecorder::beginJob()
-{
-    edm::Service<TFileService> fs;
-    fs->make<TNtuple>("dummy", "dummy", "var");
+void FFTJetImageRecorder::beginJob() {
+  edm::Service<TFileService> fs;
+  fs->make<TNtuple>("dummy", "dummy", "var");
 }
-
 
 // ------------ method called to for each event  ------------
-void FFTJetImageRecorder::analyze(const edm::Event& iEvent,
-                                  const edm::EventSetup& iSetup)
-{
-    edm::RunNumber_t const runnumber = iEvent.id().run();
-    edm::EventNumber_t const eventnumber = iEvent.id().event();
+void FFTJetImageRecorder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::RunNumber_t const runnumber = iEvent.id().run();
+  edm::EventNumber_t const eventnumber = iEvent.id().event();
 
-    edm::Handle<TH3F> input;
-    iEvent.getByToken(histoToken, input);
+  edm::Handle<TH3F> input;
+  iEvent.getByToken(histoToken, input);
 
-    edm::Service<TFileService> fs;
-    TH3F* copy = new TH3F(*input);
+  edm::Service<TFileService> fs;
+  TH3F* copy = new TH3F(*input);
 
-    std::ostringstream os;
-    os << copy->GetName() << '_' << counter << '_'
-       << runnumber << '_' << eventnumber;
-    const std::string& newname(os.str());
-    copy->SetNameTitle(newname.c_str(), newname.c_str());
+  std::ostringstream os;
+  os << copy->GetName() << '_' << counter << '_' << runnumber << '_' << eventnumber;
+  const std::string& newname(os.str());
+  copy->SetNameTitle(newname.c_str(), newname.c_str());
 
-    copy->SetDirectory(fs->getBareDirectory());
+  copy->SetDirectory(fs->getBareDirectory());
 
-    ++counter;
+  ++counter;
 }
-
 
 // ------------ method called once each job just after ending the event loop
-void FFTJetImageRecorder::endJob()
-{
-}
-
+void FFTJetImageRecorder::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FFTJetImageRecorder);

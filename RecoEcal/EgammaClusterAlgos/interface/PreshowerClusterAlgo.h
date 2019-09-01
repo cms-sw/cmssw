@@ -19,53 +19,41 @@
 class CaloSubdetectorGeometry;
 class CaloSubdetectorTopology;
 
-
 class PreshowerClusterAlgo {
+public:
+  typedef math::XYZPoint Point;
 
+  typedef std::map<DetId, EcalRecHit> RecHitsMap;
+  typedef std::set<DetId> HitsID;
 
- public:
+  PreshowerClusterAlgo() : preshStripEnergyCut_(0.), preshClusterEnergyCut_(0.), preshSeededNstr_(15) {}
 
+  PreshowerClusterAlgo(double stripEnergyCut, double clusterEnergyCut, int nStripCut)
+      : preshStripEnergyCut_(stripEnergyCut), preshClusterEnergyCut_(clusterEnergyCut), preshSeededNstr_(nStripCut) {}
 
-   typedef math::XYZPoint Point;
+  ~PreshowerClusterAlgo(){};
 
-   typedef std::map<DetId, EcalRecHit> RecHitsMap;
-   typedef std::set<DetId> HitsID;
+  reco::PreshowerCluster makeOneCluster(ESDetId strip,
+                                        HitsID *used_strips,
+                                        RecHitsMap *rechits_map,
+                                        const CaloSubdetectorGeometry *geometry_p,
+                                        const CaloSubdetectorTopology *topology_p);
 
-   PreshowerClusterAlgo() : 
-   preshStripEnergyCut_(0.), preshClusterEnergyCut_(0.), preshSeededNstr_(15)
-   {}
+  bool goodStrip(RecHitsMap::iterator candidate_it);
 
-   PreshowerClusterAlgo(double stripEnergyCut, double clusterEnergyCut, int nStripCut) :
-   preshStripEnergyCut_(stripEnergyCut), preshClusterEnergyCut_(clusterEnergyCut), preshSeededNstr_(nStripCut)
-   {}
+  void findRoad(ESDetId strip, EcalPreshowerNavigator theESNav, int plane);
 
-   ~PreshowerClusterAlgo() {};
+private:
+  double preshStripEnergyCut_;
+  double preshClusterEnergyCut_;
+  int preshSeededNstr_;
 
-   reco::PreshowerCluster makeOneCluster(ESDetId strip,
-					 HitsID *used_strips,
-                                         RecHitsMap *rechits_map,
-                                         const CaloSubdetectorGeometry*& geometry_p,
-                                         CaloSubdetectorTopology*& topology_p);
+  std::vector<ESDetId> road_2d;
 
-   bool goodStrip(RecHitsMap::iterator candidate_it);
+  // The map of hits
+  RecHitsMap *rechits_map;
 
-   void findRoad(ESDetId strip, EcalPreshowerNavigator theESNav, int plane);
-
- private:
-  
-   double preshStripEnergyCut_;
-   double preshClusterEnergyCut_;
-   int preshSeededNstr_;
-  
-
-   std::vector<ESDetId> road_2d;
-
-   // The map of hits
-   RecHitsMap *rechits_map;
-
-   // The set of used DetID's
-   HitsID *used_s;
-
+  // The set of used DetID's
+  HitsID *used_s;
 };
 #endif
-

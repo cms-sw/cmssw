@@ -23,13 +23,11 @@
 class MuonSegFit;
 
 class GEMSegmentAlgorithm : public GEMSegmentAlgorithmBase {
-
 public:
-
   /// Typedefs
   typedef std::vector<const GEMRecHit*> EnsembleHitContainer;
   typedef std::vector<EnsembleHitContainer> ProtoSegments;
-  
+
   /// Constructor
   explicit GEMSegmentAlgorithm(const edm::ParameterSet& ps);
   /// Destructor
@@ -38,10 +36,10 @@ public:
   /**
    * Build segments for all desired groups of hits
    */
-  std::vector<GEMSegment> run(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits) override; 
+  std::vector<GEMSegment> run(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits) override;
 
 private:
-  /// Utility functions 
+  /// Utility functions
 
   //  Build groups of rechits that are separated in x and y to save time on the segment finding
   ProtoSegments clusterHits(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits);
@@ -49,32 +47,35 @@ private:
   // Build groups of rechits that are separated in strip numbers and Z to save time on the segment finding
   ProtoSegments chainHits(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits);
 
-  bool isGoodToMerge(const GEMEnsemble& ensemble, const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain);
+  bool isGoodToMerge(const GEMEnsemble& ensemble,
+                     const EnsembleHitContainer& newChain,
+                     const EnsembleHitContainer& oldChain);
 
   // Build track segments in this chamber (this is where the actual segment-building algorithm hides.)
-  void buildSegments(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits, std::vector<GEMSegment>& gemsegs);
+  void buildSegments(const GEMEnsemble& ensemble,
+                     const EnsembleHitContainer& rechits,
+                     std::vector<GEMSegment>& gemsegs);
 
   // Member variables
-  const std::string myName; 
+  const std::string myName;
 
   // input from .cfi file
-  bool    debug;
-  unsigned int     minHitsPerSegment;
-  bool    preClustering;
-  double  dXclusBoxMax;
-  double  dYclusBoxMax;
-  bool    preClustering_useChaining;
-  double  dPhiChainBoxMax;
-  double  dEtaChainBoxMax;
-  int     maxRecHitsInCluster;
-  bool    clusterOnlySameBXRecHits;
-  
+  bool debug;
+  unsigned int minHitsPerSegment;
+  bool preClustering;
+  double dXclusBoxMax;
+  double dYclusBoxMax;
+  bool preClustering_useChaining;
+  double dPhiChainBoxMax;
+  double dEtaChainBoxMax;
+  int maxRecHitsInCluster;
+  bool clusterOnlySameBXRecHits;
+
   EnsembleHitContainer proto_segment;
-  GEMDetId    theChamberId;
+  GEMDetId theChamberId;
 
-  static constexpr float running_max=std::numeric_limits<float>::max();
+  static constexpr float running_max = std::numeric_limits<float>::max();
   std::unique_ptr<MuonSegFit> sfit_;
-
 };
 
 #endif

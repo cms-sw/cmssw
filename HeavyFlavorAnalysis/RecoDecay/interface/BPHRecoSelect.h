@@ -13,7 +13,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -33,9 +32,7 @@ namespace reco {
 //              ---------------------
 
 class BPHRecoSelect {
-
- public:
-
+public:
   /** Constructor
    */
   BPHRecoSelect();
@@ -44,30 +41,24 @@ class BPHRecoSelect {
    */
   virtual ~BPHRecoSelect();
 
+  using AcceptArg = reco::Candidate;
   /** Operations
    */
   /// accept function
-  /// pointers to other particles in the decays can be obtained 
-  /// by the function "get" giving the particle name (passing the pointer 
+  /// pointers to other particles in the decays can be obtained
+  /// by the function "get" giving the particle name (passing the pointer
   /// to the builder)
-  virtual bool accept( const reco::Candidate& cand ) const;
-  virtual bool accept( const reco::Candidate& cand,
-                       const BPHRecoBuilder* build ) const;
+  virtual bool accept(const reco::Candidate& cand) const;
+  virtual bool accept(const reco::Candidate& cand, const BPHRecoBuilder* build) const;
 
- protected:
-
+protected:
   // function to get other particles pointers
-  const reco::Candidate* get( const std::string& name,
-                              const BPHRecoBuilder* build ) const;
+  const reco::Candidate* get(const std::string& name, const BPHRecoBuilder* build) const;
 
- private:
-
+private:
   // private copy and assigment constructors
-  BPHRecoSelect           ( const BPHRecoSelect& x ) = delete;
-  BPHRecoSelect& operator=( const BPHRecoSelect& x ) = delete;
-
+  BPHRecoSelect(const BPHRecoSelect& x) = delete;
+  BPHRecoSelect& operator=(const BPHRecoSelect& x) = delete;
 };
 
-
 #endif
-

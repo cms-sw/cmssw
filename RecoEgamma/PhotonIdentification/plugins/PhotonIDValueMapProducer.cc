@@ -1,662 +1,417 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
-
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-
+#include "DataFormats/PatCandidates/interface/Photon.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/isFinite.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "FWCore/Framework/interface/Event.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
-// Introduce these two types for brevity of casting 
-typedef edm::Ptr<reco::PFCandidate> recoCandPtr;
-typedef edm::Ptr<pat::PackedCandidate> patCandPtr;
+namespace {
 
-// This template function finds whether theCandidate is in thefootprint 
-// collection. It is templated to be able to handle both reco and pat
-// photons (from AOD and miniAOD, respectively).
-template <class T, class U>
-bool isInFootprint(const T& thefootprint, const U& theCandidate) {
-  for ( auto itr = thefootprint.begin(); itr != thefootprint.end(); ++itr ) {
-    if( itr->key() == theCandidate.key() ) return true;
-  }
-  return false;
-}
-
-class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
-
-  public:
-  
-  explicit PhotonIDValueMapProducer(const edm::ParameterSet&);
-  ~PhotonIDValueMapProducer() override;
-  
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-  private:
-  
-  void produce(edm::Event&, const edm::EventSetup&) override;
-
-  void writeValueMap(edm::Event &iEvent,
-		     const edm::Handle<edm::View<reco::Photon> > & handle,
-		     const std::vector<float> & values,
-		     const std::string    & label) const ;
-  
-  // This function computes charged hadron isolation 
-  // with respect to multiple PVs and returns the worst
-  // of the found isolation values.
-  //   The function implements the computation method taken directly
-  // from Run 1 code of H->gamma gamma, specifically from
-  // the class CiCPhotonID of the HiggsTo2photons anaysis code.
-  //    Template is introduced to handle reco/pat photons and aod/miniAOD
-  // PF candidates collections
-  template <class T, class U>
-  float computeWorstPFChargedIsolation(const T& photon,
-				       const U& pfCandidates,
-				       const edm::Handle<reco::VertexCollection> vertices,
-				       bool isAOD, bool isPVConstraint,const reco::Vertex& pv,
-				       float dRmax, float dxyMax, float dzMax,
-				       float dRvetoBarrel, float dRvetoEndcap, float ptMin);
-
-  // Some helper functions that are needed to access info in
-  // AOD vs miniAOD
-  reco::PFCandidate::ParticleType
-  candidatePdgId(const edm::Ptr<reco::Candidate> candidate, bool isAOD);
-
-  const reco::Track* getTrackPointer(const edm::Ptr<reco::Candidate> candidate, bool isAOD);
-  void getImpactParameters(const edm::Ptr<reco::Candidate>& candidate,
-                           bool isAOD, const reco::Vertex& pv, float &dxy, float &dz);
-
-
-
-  // The object that will compute 5x5 quantities  
-  std::unique_ptr<noZS::EcalClusterLazyTools> lazyToolnoZS;
-
-  // for AOD case
-  edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
-  edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
-  edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
-  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
-  edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationToken_;
-  edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandidatesToken_;
-  edm::EDGetToken src_;
-
-  // for miniAOD case
-  edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollectionMiniAOD_;
-  edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollectionMiniAOD_;
-  edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollectionMiniAOD_;
-  edm::EDGetTokenT<reco::VertexCollection> vtxTokenMiniAOD_;
-  edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationTokenMiniAOD_;
-  edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandidatesTokenMiniAOD_;
-  edm::EDGetToken srcMiniAOD_;
-
-  // check whether a non-null preshower is there
-  bool usesES_;
-
-  // Cluster shapes
-  constexpr static char phoFull5x5SigmaIEtaIEta_[] = "phoFull5x5SigmaIEtaIEta";
-  constexpr static char phoFull5x5SigmaIEtaIPhi_[] = "phoFull5x5SigmaIEtaIPhi";
-  constexpr static char phoFull5x5E1x3_[] = "phoFull5x5E1x3";
-  constexpr static char phoFull5x5E2x2_[] = "phoFull5x5E2x2";
-  constexpr static char phoFull5x5E2x5Max_[] = "phoFull5x5E2x5Max";
-  constexpr static char phoFull5x5E5x5_[] = "phoFull5x5E5x5";
-  constexpr static char phoESEffSigmaRR_[] = "phoESEffSigmaRR";
-  // Isolations
-  constexpr static char phoChargedIsolation_[] = "phoChargedIsolation";
-  constexpr static char phoNeutralHadronIsolation_[] = "phoNeutralHadronIsolation";
-  constexpr static char phoPhotonIsolation_[] = "phoPhotonIsolation";
-  constexpr static char phoWorstChargedIsolation_[] = "phoWorstChargedIsolation";
-  constexpr static char phoWorstChargedIsolationWithConeVeto_[] = "phoWorstChargedIsolationWithConeVeto";
-  constexpr static char phoWorstChargedIsolationWithPVConstraint_[] = "phoWorstChargedIsolationWithPVConstraint";
-  constexpr static char phoWorstChargedIsolationWithConeVetoWithPVConstraint_[] = "phoWorstChargedIsolationWithConeVetoWithPVConstraint";
-
-  //PFCluster Isolation
-  constexpr static char phoTrkIsolation_[] = "phoTrkIsolation";
-  constexpr static char phoHcalPFClIsolation_[] = "phoHcalPFClIsolation";
-  constexpr static char phoEcalPFClIsolation_[] = "phoEcalPFClIsolation";
-
-};
-
-// Cluster shapes
-constexpr char PhotonIDValueMapProducer::phoFull5x5SigmaIEtaIEta_[];
-constexpr char PhotonIDValueMapProducer::phoFull5x5SigmaIEtaIPhi_[];
-constexpr char PhotonIDValueMapProducer::phoFull5x5E1x3_[];
-constexpr char PhotonIDValueMapProducer::phoFull5x5E2x2_[];
-constexpr char PhotonIDValueMapProducer::phoFull5x5E2x5Max_[];
-constexpr char PhotonIDValueMapProducer::phoFull5x5E5x5_[];
-constexpr char PhotonIDValueMapProducer::phoESEffSigmaRR_[];
-// Isolations
-constexpr char PhotonIDValueMapProducer::phoChargedIsolation_[];
-constexpr char PhotonIDValueMapProducer::phoNeutralHadronIsolation_[];
-constexpr char PhotonIDValueMapProducer::phoPhotonIsolation_[];
-constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolation_[];
-constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolationWithConeVeto_[];
-constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolationWithPVConstraint_[];
-constexpr char PhotonIDValueMapProducer::phoWorstChargedIsolationWithConeVetoWithPVConstraint_[];
-
-//PFCluster Isolation
-constexpr char PhotonIDValueMapProducer::phoTrkIsolation_[];
-constexpr char PhotonIDValueMapProducer::phoHcalPFClIsolation_[];
-constexpr char PhotonIDValueMapProducer::phoEcalPFClIsolation_[];
-
-
-PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& iConfig) {
-
-  //
-  // Declare consummables, handle both AOD and miniAOD case
-  //
-  ebReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("ebReducedRecHitCollection"));
-  ebReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("ebReducedRecHitCollectionMiniAOD"));
-
-  eeReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("eeReducedRecHitCollection"));
-  eeReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("eeReducedRecHitCollectionMiniAOD"));
-
-  if (!iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection").label().empty() ||
-      !iConfig.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD").label().empty()) {
-      usesES_ = true;
-      esReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-                                                                           ("esReducedRecHitCollection"));
-      esReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-                                                                           ("esReducedRecHitCollectionMiniAOD"));
-      
-  } else {
-      usesES_ = false;
+  // This template function finds whether theCandidate is in thefootprint
+  // collection. It is templated to be able to handle both reco and pat
+  // photons (from AOD and miniAOD, respectively).
+  template <class T>
+  bool isInFootprint(const T& footprint, const edm::Ptr<reco::Candidate>& candidate) {
+    for (auto& it : footprint) {
+      if (it.key() == candidate.key())
+        return true;
+    }
+    return false;
   }
 
-  vtxToken_        = mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
-  vtxTokenMiniAOD_ = mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("verticesMiniAOD"));
+  struct CachingPtrCandidate {
+    CachingPtrCandidate(const reco::Candidate* cPtr, bool isAOD)
+        : candidate(cPtr),
+          track(isAOD ? &*static_cast<const reco::PFCandidate*>(cPtr)->trackRef() : nullptr),
+          packed(isAOD ? nullptr : static_cast<const pat::PackedCandidate*>(cPtr)) {}
 
-  // reco photons are castable into pat photons, so no need to handle reco/pat seprately
-  src_        = mayConsume<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("src"));
-  srcMiniAOD_ = mayConsume<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"));
+    const reco::Candidate* candidate;
+    const reco::Track* track;
+    const pat::PackedCandidate* packed;
+  };
 
-  // The particleBasedIsolation object is relevant only for AOD, RECO format
-  particleBasedIsolationToken_ = mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef > > >
-    (iConfig.getParameter<edm::InputTag>("particleBasedIsolation"));
-  
-  // AOD has reco::PFCandidate vector, and miniAOD has pat::PackedCandidate vector.
-  // Both inherit from reco::Candidate, so we go to the base class. We can cast into
-  // the full type later if needed. Since the collection names are different, we
-  // introduce both collections
-  pfCandidatesToken_        = mayConsume< edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("pfCandidates")); 
-  pfCandidatesTokenMiniAOD_ = mayConsume< edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("pfCandidatesMiniAOD")); 
-
-  //
-  // Declare producibles
-  //
-  // Cluster shapes
-  produces<edm::ValueMap<float> >(phoFull5x5SigmaIEtaIEta_);  
-  produces<edm::ValueMap<float> >(phoFull5x5SigmaIEtaIPhi_);  
-  produces<edm::ValueMap<float> >(phoFull5x5E1x3_);  
-  produces<edm::ValueMap<float> >(phoFull5x5E2x2_);  
-  produces<edm::ValueMap<float> >(phoFull5x5E2x5Max_);  
-  produces<edm::ValueMap<float> >(phoFull5x5E5x5_);  
-  produces<edm::ValueMap<float> >(phoESEffSigmaRR_);  
-  // Isolations
-  produces<edm::ValueMap<float> >(phoChargedIsolation_);  
-  produces<edm::ValueMap<float> >(phoNeutralHadronIsolation_);  
-  produces<edm::ValueMap<float> >(phoPhotonIsolation_);  
-  produces<edm::ValueMap<float> >(phoWorstChargedIsolation_);  
-  produces<edm::ValueMap<float> >(phoWorstChargedIsolationWithConeVeto_);  
-  produces<edm::ValueMap<float> >(phoWorstChargedIsolationWithPVConstraint_);  
-  produces<edm::ValueMap<float> >(phoWorstChargedIsolationWithConeVetoWithPVConstraint_);  
-
-  //PFCluster  Isolations
-  produces<edm::ValueMap<float> >(phoTrkIsolation_);  
-  produces<edm::ValueMap<float> >(phoHcalPFClIsolation_);  
-  produces<edm::ValueMap<float> >(phoEcalPFClIsolation_);  
-
-
-}
-
-PhotonIDValueMapProducer::~PhotonIDValueMapProducer() {
-}
-
-void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
-  using namespace edm;
-
-  // Constants 
-  const float coneSizeDR = 0.3;
-  const float dxyMax = 0.1;
-  const float dzMax  = 0.2;
-
-  edm::Handle<edm::View<reco::Photon> > src;
-
-  bool isAOD = true;
-  iEvent.getByToken(src_, src);
-  if( !src.isValid() ){
-    isAOD = false;
-    iEvent.getByToken(srcMiniAOD_,src);
-  }
-  if( !src.isValid() ) {
-    throw cms::Exception("IllDefinedDataTier")
-      << "DataFormat does not contain a photon source!";
-  }
-
-  // Configure Lazy Tools
-  if (usesES_) {
-      if( isAOD )
-        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
-                                                      ebReducedRecHitCollection_,
-                                                      eeReducedRecHitCollection_,
-                                                      esReducedRecHitCollection_);
-      else
-        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
-                                                      ebReducedRecHitCollectionMiniAOD_,
-                                                      eeReducedRecHitCollectionMiniAOD_,
-                                                      esReducedRecHitCollectionMiniAOD_); 
-  } else {
-      if( isAOD )
-        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
-                                                      ebReducedRecHitCollection_,
-                                                      eeReducedRecHitCollection_);
-      else
-        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
-                                                      ebReducedRecHitCollectionMiniAOD_,
-                                                      eeReducedRecHitCollectionMiniAOD_); 
-
-  }
-  
-  // Get PV
-  edm::Handle<reco::VertexCollection> vertices;
-  iEvent.getByToken(vtxToken_, vertices);
-  if( !vertices.isValid() )
-    iEvent.getByToken(vtxTokenMiniAOD_, vertices);
-  if (vertices->empty()) return; // skip the event if no PV found
-  const reco::Vertex &pv = vertices->front();
-  
-  edm::Handle< edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationMap;
-  if( isAOD ){
-    // this exists only in AOD
-    iEvent.getByToken(particleBasedIsolationToken_, particleBasedIsolationMap);
-  }
-
-  edm::Handle< edm::View<reco::Candidate> > pfCandidatesHandle;
-
-  iEvent.getByToken(pfCandidatesToken_, pfCandidatesHandle);
-  if( !pfCandidatesHandle.isValid() )
-    iEvent.getByToken(pfCandidatesTokenMiniAOD_, pfCandidatesHandle);
-
-  if( !isAOD && !src->empty() ) {
-    edm::Ptr<pat::Photon> test(src->ptrAt(0));
-    if( test.isNull() || !test.isAvailable() ) {
-      throw cms::Exception("InvalidConfiguration")
-	<<"DataFormat is detected as miniAOD but cannot cast to pat::Photon!";
+  void getImpactParameters(const CachingPtrCandidate& candidate, const reco::Vertex& pv, float& dxy, float& dz) {
+    if (candidate.track != nullptr) {
+      dxy = candidate.track->dxy(pv.position());
+      dz = candidate.track->dz(pv.position());
+    } else {
+      dxy = candidate.packed->dxy(pv.position());
+      dz = candidate.packed->dz(pv.position());
     }
   }
 
-  // size_t n = src->size();
-  // Cluster shapes
-  std::vector<float> phoFull5x5SigmaIEtaIEta;
-  std::vector<float> phoFull5x5SigmaIEtaIPhi;
-  std::vector<float> phoFull5x5E1x3;
-  std::vector<float> phoFull5x5E2x2;
-  std::vector<float> phoFull5x5E2x5Max;
-  std::vector<float> phoFull5x5E5x5;
-  std::vector<float> phoESEffSigmaRR;
-  // Isolations
-  std::vector<float> phoChargedIsolation;
-  std::vector<float> phoNeutralHadronIsolation;
-  std::vector<float> phoPhotonIsolation;
-  std::vector<float> phoWorstChargedIsolation;
-  std::vector<float> phoWorstChargedIsolationWithConeVeto;
-  std::vector<float> phoWorstChargedIsolationWithPVConstraint;
-  std::vector<float> phoWorstChargedIsolationWithConeVetoWithPVConstraint;
+  // Some helper functions that are needed to access info in
+  // AOD vs miniAOD
+  reco::PFCandidate::ParticleType getCandidatePdgId(const reco::Candidate* candidate, bool isAOD) {
+    if (isAOD)
+      return static_cast<const reco::PFCandidate*>(candidate)->particleId();
 
-  //PFCluster Isolations
-  std::vector<float> phoTrkIsolation;
-  std::vector<float> phoHcalPFClIsolation;
-  std::vector<float> phoEcalPFClIsolation;
-  
+    // the neutral hadrons and charged hadrons can be of pdgId types
+    // only 130 (K0L) and +-211 (pi+-) in packed candidates
+    const int pdgId = static_cast<const pat::PackedCandidate*>(candidate)->pdgId();
+    if (pdgId == 22)
+      return reco::PFCandidate::gamma;
+    else if (abs(pdgId) == 130)  // PDG ID for K0L
+      return reco::PFCandidate::h0;
+    else if (abs(pdgId) == 211)  // PDG ID for pi+-
+      return reco::PFCandidate::h;
+    else
+      return reco::PFCandidate::X;
+  }
+
+};  // namespace
+
+class PhotonIDValueMapProducer : public edm::global::EDProducer<> {
+public:
+  explicit PhotonIDValueMapProducer(const edm::ParameterSet&);
+  ~PhotonIDValueMapProducer() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  // This function computes charged hadron isolation with respect to multiple
+  // PVs and returns the worst of the found isolation values. The function
+  // implements the computation method taken directly from Run 1 code of
+  // H->gamma gamma, specifically from the class CiCPhotonID of the
+  // HiggsTo2photons anaysis code. Template is introduced to handle reco/pat
+  // photons and aod/miniAOD PF candidates collections
+  float computeWorstPFChargedIsolation(const reco::Photon& photon,
+                                       const edm::View<reco::Candidate>& pfCands,
+                                       const reco::VertexCollection& vertices,
+                                       const reco::Vertex& pv,
+                                       unsigned char options,
+                                       bool isAOD) const;
+
+  // check whether a non-null preshower is there
+  const bool usesES_;
+
+  // Tokens
+  const edm::EDGetTokenT<edm::View<reco::Photon>> src_;
+  const edm::EDGetTokenT<EcalRecHitCollection> ebRecHits_;
+  const edm::EDGetTokenT<EcalRecHitCollection> eeRecHits_;
+  const edm::EDGetTokenT<EcalRecHitCollection> esRecHits_;
+  const edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate>> pfCandsToken_;
+  const edm::EDGetToken particleBasedIsolationToken_;
+
+  const bool isAOD_;
+};
+
+constexpr int nVars_ = 19;
+
+const std::string names[nVars_] = {
+    // Cluster shapes
+    "phoFull5x5SigmaIEtaIEta",  // 0
+    "phoFull5x5SigmaIEtaIPhi",
+    "phoFull5x5E1x3",
+    "phoFull5x5E2x2",
+    "phoFull5x5E2x5Max",
+    "phoFull5x5E5x5",  // 5
+    "phoESEffSigmaRR",
+    // Cluster shape ratios
+    "phoFull5x5E1x3byE5x5",
+    "phoFull5x5E2x2byE5x5",
+    "phoFull5x5E2x5byE5x5",
+    // Isolations
+    "phoChargedIsolation",  // 10
+    "phoNeutralHadronIsolation",
+    "phoPhotonIsolation",
+    "phoWorstChargedIsolation",
+    "phoWorstChargedIsolationConeVeto",
+    "phoWorstChargedIsolationConeVetoPVConstr",  // 15
+    // PFCluster Isolation
+    "phoTrkIsolation",
+    "phoHcalPFClIsolation",
+    "phoEcalPFClIsolation"};
+
+// options and bitflags
+constexpr float coneSizeDR2 = 0.3 * 0.3;
+constexpr float dxyMax = 0.1;
+constexpr float dzMax = 0.2;
+constexpr float dRveto2Barrel = 0.02 * 0.02;
+constexpr float dRveto2Endcap = 0.02 * 0.02;
+constexpr float ptMin = 0.1;
+
+const unsigned char PV_CONSTRAINT = 0x1;
+const unsigned char DR_VETO = 0x2;
+const unsigned char PT_MIN_THRESH = 0x8;
+
+PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& cfg)
+    : usesES_(!cfg.getParameter<edm::InputTag>("esReducedRecHitCollection").label().empty()),
+      src_(consumes<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("src"))),
+      ebRecHits_(consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebReducedRecHitCollection"))),
+      eeRecHits_(consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeReducedRecHitCollection"))),
+      esRecHits_(consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("esReducedRecHitCollection"))),
+      vtxToken_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
+      pfCandsToken_(consumes<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("pfCandidates"))),
+      particleBasedIsolationToken_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
+          cfg.getParameter<edm::InputTag>("particleBasedIsolation")) /* ...only for AOD... */),
+      isAOD_(cfg.getParameter<bool>("isAOD")) {
+  // Declare producibles
+  for (int i = 0; i < nVars_; ++i)
+    produces<edm::ValueMap<float>>(names[i]);
+}
+
+void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  // Get the handles
+  auto src = iEvent.getHandle(src_);
+  auto vertices = iEvent.getHandle(vtxToken_);
+  auto pfCandsHandle = iEvent.getHandle(pfCandsToken_);
+
+  edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationMap;
+  if (isAOD_) {  // this exists only in AOD
+    iEvent.getByToken(particleBasedIsolationToken_, particleBasedIsolationMap);
+  } else if (!src->empty()) {
+    edm::Ptr<pat::Photon> test(src->ptrAt(0));
+    if (test.isNull() || !test.isAvailable()) {
+      throw cms::Exception("InvalidConfiguration")
+          << "DataFormat is detected as miniAOD but cannot cast to pat::Photon!";
+    }
+  }
+
+  // Configure Lazy Tools, which will compute 5x5 quantities
+  auto lazyToolnoZS = usesES_ ? noZS::EcalClusterLazyTools(iEvent, iSetup, ebRecHits_, eeRecHits_, esRecHits_)
+                              : noZS::EcalClusterLazyTools(iEvent, iSetup, ebRecHits_, eeRecHits_);
+
+  // Get PV
+  if (vertices->empty())
+    return;  // skip the event if no PV found
+  const reco::Vertex& pv = vertices->front();
+
+  std::vector<float> vars[nVars_];
+
   // reco::Photon::superCluster() is virtual so we can exploit polymorphism
-  for (unsigned idxpho = 0; idxpho < src->size(); ++idxpho) {
-    const auto& iPho = src->ptrAt(idxpho);
-
-    //    
+  for (auto const& iPho : src->ptrs()) {
+    //
     // Compute full 5x5 quantities
     //
-    const auto& theseed = *(iPho->superCluster()->seed());
-    
+    const auto& seed = *(iPho->superCluster()->seed());
+
     // For full5x5_sigmaIetaIeta, for 720 we use: lazy tools for AOD,
     // and userFloats or lazy tools for miniAOD. From some point in 72X and on, one can
     // retrieve the full5x5 directly from the object with ->full5x5_sigmaIetaIeta()
     // for both formats.
-    float see = -999;
-    std::vector<float> vCov = lazyToolnoZS->localCovariances( theseed );
-    see = (isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
-    float sep = vCov[1];
-    phoFull5x5SigmaIEtaIEta.push_back(see);
-    phoFull5x5SigmaIEtaIPhi.push_back(sep);
+    std::vector<float> vCov = lazyToolnoZS.localCovariances(seed);
+    vars[0].push_back(edm::isNotFinite(vCov[0]) ? 0. : sqrt(vCov[0]));
+    vars[1].push_back(vCov[1]);
+    vars[2].push_back(lazyToolnoZS.e1x3(seed));
+    vars[3].push_back(lazyToolnoZS.e2x2(seed));
+    vars[4].push_back(lazyToolnoZS.e2x5Max(seed));
+    vars[5].push_back(lazyToolnoZS.e5x5(seed));
+    vars[6].push_back(lazyToolnoZS.eseffsirir(*(iPho->superCluster())));
+    vars[7].push_back(vars[2].back() / vars[5].back());
+    vars[8].push_back(vars[3].back() / vars[5].back());
+    vars[9].push_back(vars[4].back() / vars[5].back());
 
-    phoFull5x5E1x3   .push_back(lazyToolnoZS-> e1x3   (theseed) );
-    phoFull5x5E2x2   .push_back(lazyToolnoZS-> e2x2   (theseed) );
-    phoFull5x5E2x5Max.push_back(lazyToolnoZS-> e2x5Max(theseed) );
-    phoFull5x5E5x5   .push_back(lazyToolnoZS-> e5x5   (theseed) );
-
-    phoESEffSigmaRR  .push_back(lazyToolnoZS->eseffsirir( *(iPho->superCluster()) ) );
-
-    // 
+    //
     // Compute absolute uncorrected isolations with footprint removal
     //
-    
+
     // First, find photon direction with respect to the good PV
-    math::XYZVector photon_directionWrtVtx(iPho->superCluster()->x() - pv.x(),
-                                           iPho->superCluster()->y() - pv.y(),
-                                           iPho->superCluster()->z() - pv.z());
+    math::XYZVector phoWrtVtx(
+        iPho->superCluster()->x() - pv.x(), iPho->superCluster()->y() - pv.y(), iPho->superCluster()->z() - pv.z());
 
-    //PFCluster Isolations
-    phoTrkIsolation      .push_back( iPho->trkSumPtSolidConeDR04());
-    if (isAOD)                                                                                                                                                                  
-      {                                                                                                                                                                          
-	phoHcalPFClIsolation .push_back(0.f);
-	phoEcalPFClIsolation .push_back(0.f);
-      }
-    else
-      {
-	edm::Ptr<pat::Photon> patPhotonPtr(src->ptrAt(idxpho));
-	phoHcalPFClIsolation .push_back(patPhotonPtr->hcalPFClusterIso());
-	phoEcalPFClIsolation .push_back(patPhotonPtr->ecalPFClusterIso());
-      }
-
-
-    // Zero the isolation sums
-    float chargedIsoSum = 0;
-    float neutralHadronIsoSum = 0;
-    float photonIsoSum = 0;
+    // isolation sums
+    float chargedIsoSum = 0.;
+    float neutralHadronIsoSum = 0.;
+    float photonIsoSum = 0.;
 
     // Loop over all PF candidates
-    for (unsigned idxcand = 0; idxcand < pfCandidatesHandle->size(); ++idxcand ){
-
+    for (auto const& iCand : pfCandsHandle->ptrs()) {
       // Here, the type will be a simple reco::Candidate. We cast it
       // for full PFCandidate or PackedCandidate below as necessary
-      const auto& iCand = pfCandidatesHandle->ptrAt(idxcand);
 
-      // One would think that we should check that this iCand from 
-      // the generic PF collection is not identical to the iPho photon
-      // for which we are computing the isolations. However, it turns out
-      // to be unnecessary. Below, in the function isInFootprint(), we drop
+      // One would think that we should check that this iCand from the
+      // generic PF collection is not identical to the iPho photon for
+      // which we are computing the isolations. However, it turns out to
+      // be unnecessary. Below, in the function isInFootprint(), we drop
       // this iCand if it is in the footprint, and this always removes
-      // the iCand if it matches the iPho.
-      //     The explicit check at this point is not totally trivial because
-      // of non-triviality of implementation of this check for miniAOD (PackedCandidates
-      // of the PF collection do not contain the supercluser link, so can't use that).
-      // if( isAOD ){
-      //  	if( ((const recoCandPtr)iCand)->superClusterRef() == iPho->superCluster() ) continue;
+      // the iCand if it matches the iPho. The explicit check at this
+      // point is not totally trivial because of non-triviality of
+      // implementation of this check for miniAOD (PackedCandidates of
+      // the PF collection do not contain the supercluser link, so can't
+      // use that).
+      //
+      // if( isAOD_ ) {
+      //     if( ((const edm::Ptr<reco::PFCandidate>)iCand)->superClusterRef() == iPho->superCluster() )
+      //     continue;
       // }
 
-
       // Check if this candidate is within the isolation cone
-      float dR2 = deltaR2(photon_directionWrtVtx.Eta(),photon_directionWrtVtx.Phi(), 
-			iCand->eta(), iCand->phi());
-      if( dR2 > coneSizeDR*coneSizeDR ) continue;
+      float dR2 = deltaR2(phoWrtVtx.Eta(), phoWrtVtx.Phi(), iCand->eta(), iCand->phi());
+      if (dR2 > coneSizeDR2)
+        continue;
 
       // Check if this candidate is not in the footprint
-      bool inFootprint = false;
-      if(isAOD) {
-      	inFootprint = isInFootprint( (*particleBasedIsolationMap)[iPho], iCand );
-      } else {	
-      	edm::Ptr<pat::Photon> patPhotonPtr(src->ptrAt(idxpho));
-      	inFootprint = isInFootprint(patPhotonPtr->associatedPackedPFCandidates(), iCand);
+      if (isAOD_) {
+        if (isInFootprint((*particleBasedIsolationMap)[iPho], iCand))
+          continue;
+      } else {
+        edm::Ptr<pat::Photon> patPhotonPtr(iPho);
+        if (isInFootprint(patPhotonPtr->associatedPackedPFCandidates(), iCand))
+          continue;
       }
-
-      if( inFootprint ) continue;
 
       // Find candidate type
-      reco::PFCandidate::ParticleType thisCandidateType = candidatePdgId(iCand, isAOD);
+      reco::PFCandidate::ParticleType thisCandidateType = getCandidatePdgId(&*iCand, isAOD_);
 
       // Increment the appropriate isolation sum
-      if( thisCandidateType == reco::PFCandidate::h ){
-	// for charged hadrons, additionally check consistency
-	// with the PV
-	float dxy = -999, dz=-999;
-        getImpactParameters(iCand, isAOD, pv, dxy, dz);
+      if (thisCandidateType == reco::PFCandidate::h) {
+        // for charged hadrons, additionally check consistency
+        // with the PV
+        float dxy = -999;
+        float dz = -999;
 
+        getImpactParameters(CachingPtrCandidate(&*iCand, isAOD_), pv, dxy, dz);
 
-	if(fabs(dxy) > dxyMax) continue;
-	if (fabs(dz) > dzMax) continue;
+        if (fabs(dxy) > dxyMax || fabs(dz) > dzMax)
+          continue;
 
-	// The candidate is eligible, increment the isolaiton
-	chargedIsoSum += iCand->pt();
+        // The candidate is eligible, increment the isolaiton
+        chargedIsoSum += iCand->pt();
       }
 
-      if( thisCandidateType == reco::PFCandidate::h0 )
-	neutralHadronIsoSum += iCand->pt();
+      if (thisCandidateType == reco::PFCandidate::h0)
+        neutralHadronIsoSum += iCand->pt();
 
-      if( thisCandidateType == reco::PFCandidate::gamma )
-	photonIsoSum += iCand->pt();
+      if (thisCandidateType == reco::PFCandidate::gamma)
+        photonIsoSum += iCand->pt();
     }
 
-    phoChargedIsolation      .push_back( chargedIsoSum       );
-    phoNeutralHadronIsolation.push_back( neutralHadronIsoSum );
-    phoPhotonIsolation       .push_back( photonIsoSum        );
+    vars[10].push_back(chargedIsoSum);
+    vars[11].push_back(neutralHadronIsoSum);
+    vars[12].push_back(photonIsoSum);
 
-    // Worst isolation computed with no vetos or ptMin cut, as in
-    // Run 1 Hgg code.
-    float dRvetoBarrel = 0.0;
-    float dRvetoEndcap = 0.0;
-    float ptMin = 0.0;
-    bool isPVConstraint=false;
-    float worstChargedIso =
-      computeWorstPFChargedIsolation(iPho, pfCandidatesHandle, vertices, 
-				     isAOD, isPVConstraint,pv,coneSizeDR, dxyMax, dzMax,
-				     dRvetoBarrel, dRvetoEndcap, ptMin);
-    phoWorstChargedIsolation .push_back( worstChargedIso );
+    // Worst isolation computed with no vetos or ptMin cut, as in Run 1 Hgg code.
+    unsigned char options = 0;
+    vars[13].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD_));
 
-    // Worst isolation computed with cone vetos and a ptMin cut, as in 
-    // Run 2 Hgg code.
-    dRvetoBarrel = 0.02;
-    dRvetoEndcap = 0.02;
-    ptMin = 0.1;
-    float worstChargedIsoWithConeVeto =
-      computeWorstPFChargedIsolation(iPho, pfCandidatesHandle, vertices, 
-				     isAOD, isPVConstraint,pv, coneSizeDR, dxyMax, dzMax,
-				     dRvetoBarrel, dRvetoEndcap, ptMin);
-    phoWorstChargedIsolationWithConeVeto .push_back( worstChargedIsoWithConeVeto );
+    // Worst isolation computed with cone vetos and a ptMin cut, as in Run 2 Hgg code.
+    options |= PT_MIN_THRESH | DR_VETO;
+    vars[14].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD_));
 
-    isPVConstraint=true;
-    float worstChargedIsoWithPVConstraint =
-      computeWorstPFChargedIsolation(iPho, pfCandidatesHandle, vertices, 
-				     isAOD, isPVConstraint,pv,coneSizeDR, dxyMax, dzMax,
-				     dRvetoBarrel, dRvetoEndcap, ptMin);
-    phoWorstChargedIsolationWithPVConstraint .push_back( worstChargedIsoWithPVConstraint );
+    // Like before, but adding primary vertex constraint
+    options |= PV_CONSTRAINT;
+    vars[15].push_back(computeWorstPFChargedIsolation(*iPho, *pfCandsHandle, *vertices, pv, options, isAOD_));
 
-    // Worst isolation computed with cone vetos and a ptMin cut, as in 
-    // Run 2 Hgg code.
-    dRvetoBarrel = 0.02;
-    dRvetoEndcap = 0.02;
-    ptMin = 0.1;
-    float worstChargedIsoWithConeVetoWithPVConstraint =
-      computeWorstPFChargedIsolation(iPho, pfCandidatesHandle, vertices, 
-				     isAOD,isPVConstraint, pv, coneSizeDR, dxyMax, dzMax,
-				     dRvetoBarrel, dRvetoEndcap, ptMin);
-    phoWorstChargedIsolationWithConeVetoWithPVConstraint .push_back( worstChargedIsoWithConeVetoWithPVConstraint );
-
-    
-
+    // PFCluster Isolations
+    vars[16].push_back(iPho->trkSumPtSolidConeDR04());
+    if (isAOD_) {
+      vars[17].push_back(0.f);
+      vars[18].push_back(0.f);
+    } else {
+      edm::Ptr<pat::Photon> patPhotonPtr{iPho};
+      vars[17].push_back(patPhotonPtr->hcalPFClusterIso());
+      vars[18].push_back(patPhotonPtr->ecalPFClusterIso());
+    }
   }
-  
-  // Cluster shapes
-  writeValueMap(iEvent, src, phoFull5x5SigmaIEtaIEta, phoFull5x5SigmaIEtaIEta_);  
-  writeValueMap(iEvent, src, phoFull5x5SigmaIEtaIPhi, phoFull5x5SigmaIEtaIPhi_);  
-  writeValueMap(iEvent, src, phoFull5x5E1x3   , phoFull5x5E1x3_);  
-  writeValueMap(iEvent, src, phoFull5x5E2x2   , phoFull5x5E2x2_);  
-  writeValueMap(iEvent, src, phoFull5x5E2x5Max, phoFull5x5E2x5Max_);  
-  writeValueMap(iEvent, src, phoFull5x5E5x5   , phoFull5x5E5x5_);  
-  writeValueMap(iEvent, src, phoESEffSigmaRR  , phoESEffSigmaRR_);  
-  // Isolation
-  writeValueMap(iEvent, src, phoChargedIsolation, phoChargedIsolation_);  
-  writeValueMap(iEvent, src, phoNeutralHadronIsolation, phoNeutralHadronIsolation_);  
-  writeValueMap(iEvent, src, phoPhotonIsolation, phoPhotonIsolation_);  
-  writeValueMap(iEvent, src, phoWorstChargedIsolation, phoWorstChargedIsolation_);  
-  writeValueMap(iEvent, src, phoWorstChargedIsolationWithConeVeto, phoWorstChargedIsolationWithConeVeto_);  
-  writeValueMap(iEvent, src, phoWorstChargedIsolationWithPVConstraint, phoWorstChargedIsolationWithPVConstraint_);  
-  writeValueMap(iEvent, src, phoWorstChargedIsolationWithConeVetoWithPVConstraint, phoWorstChargedIsolationWithConeVetoWithPVConstraint_);  
-  //PFCluster  Isolation
-  writeValueMap(iEvent, src, phoTrkIsolation, phoTrkIsolation_);  
-  writeValueMap(iEvent, src, phoHcalPFClIsolation, phoHcalPFClIsolation_);  
-  writeValueMap(iEvent, src, phoEcalPFClIsolation, phoEcalPFClIsolation_);  
 
-}
-
-void PhotonIDValueMapProducer::writeValueMap(edm::Event &iEvent,
-					     const edm::Handle<edm::View<reco::Photon> > & handle,
-					     const std::vector<float> & values,
-					     const std::string    & label) const 
-{
-  using namespace edm; 
-  using namespace std;
-  auto valMap = std::make_unique<ValueMap<float>>();
-  edm::ValueMap<float>::Filler filler(*valMap);
-  filler.insert(handle, values.begin(), values.end());
-  filler.fill();
-  iEvent.put(std::move(valMap), label);
+  // write the value maps
+  for (int i = 0; i < nVars_; ++i) {
+    auto valMap = std::make_unique<edm::ValueMap<float>>();
+    typename edm::ValueMap<float>::Filler filler(*valMap);
+    filler.insert(src, vars[i].begin(), vars[i].end());
+    filler.fill();
+    iEvent.put(std::move(valMap), names[i]);
+  }
 }
 
 void PhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  // photonIDValueMapProducer
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("particleBasedIsolation", edm::InputTag("particleBasedIsolation", "gedPhotons"));
+  desc.add<edm::InputTag>("src", edm::InputTag("slimmedPhotons", "", "@skipCurrentProcess"));
+  desc.add<edm::InputTag>("esReducedRecHitCollection", edm::InputTag("reducedEgamma", "reducedESRecHits"));
+  desc.add<edm::InputTag>("ebReducedRecHitCollection", edm::InputTag("reducedEgamma", "reducedEBRecHits"));
+  desc.add<edm::InputTag>("eeReducedRecHitCollection", edm::InputTag("reducedEgamma", "reducedEERecHits"));
+  desc.add<edm::InputTag>("pfCandidates", edm::InputTag("packedPFCandidates"));
+  desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
+  desc.add<bool>("isAOD", false);
+  descriptions.add("photonIDValueMapProducer", desc);
 }
 
 // Charged isolation with respect to the worst vertex. See more
 // comments above at the function declaration.
-template <class T, class U>
-float PhotonIDValueMapProducer
-::computeWorstPFChargedIsolation(const T& photon, const U& pfCandidates,
-				 const edm::Handle<reco::VertexCollection> vertices,
-				 bool isAOD, bool isPVConstraint,const reco::Vertex& pv,
-				 float dRmax, float dxyMax, float dzMax,
-				 float dRvetoBarrel, float dRvetoEndcap, float ptMin){
+float PhotonIDValueMapProducer::computeWorstPFChargedIsolation(const reco::Photon& photon,
+                                                               const edm::View<reco::Candidate>& pfCands,
+                                                               const reco::VertexCollection& vertices,
+                                                               const reco::Vertex& pv,
+                                                               unsigned char options,
+                                                               bool isAOD) const {
+  float worstIsolation = 0.0;
 
+  const float dRveto2 = photon.isEB() ? dRveto2Barrel : dRveto2Endcap;
 
-  float worstIsolation = 999;
-  std::vector<float> allIsolations;
+  std::vector<CachingPtrCandidate> chargedCands;
+  chargedCands.reserve(pfCands.size());
+  for (auto const& aCand : pfCands) {
+    // require that PFCandidate is a charged hadron
+    reco::PFCandidate::ParticleType thisCandidateType = getCandidatePdgId(&aCand, isAOD);
+    if (thisCandidateType != reco::PFCandidate::h)
+      continue;
 
-  float dRveto;
-  if (photon->isEB())
-    dRveto = dRvetoBarrel;
-  else
-    dRveto = dRvetoEndcap;
+    if ((options & PT_MIN_THRESH) && aCand.pt() < ptMin)
+      continue;
 
-  //Calculate isolation sum separately for each vertex
-  for(unsigned int ivtx=0; ivtx<vertices->size(); ++ivtx) {
-    
+    chargedCands.emplace_back(&aCand, isAOD);
+  }
+
+  // Calculate isolation sum separately for each vertex
+  for (unsigned int ivtx = 0; ivtx < vertices.size(); ++ivtx) {
     // Shift the photon according to the vertex
-    reco::VertexRef vtx(vertices, ivtx);
-    math::XYZVector photon_directionWrtVtx(photon->superCluster()->x() - vtx->x(),
-					   photon->superCluster()->y() - vtx->y(),
-					   photon->superCluster()->z() - vtx->z());
-    
+    const reco::VertexRef vtx(&vertices, ivtx);
+    math::XYZVector phoWrtVtx(photon.superCluster()->x() - vtx->x(),
+                              photon.superCluster()->y() - vtx->y(),
+                              photon.superCluster()->z() - vtx->z());
+
+    const float phoWrtVtxPhi = phoWrtVtx.phi();
+    const float phoWrtVtxEta = phoWrtVtx.eta();
+
     float sum = 0;
     // Loop over the PFCandidates
-    for(unsigned i=0; i<pfCandidates->size(); i++) {
-      
-      const auto& iCand = pfCandidates->ptrAt(i);
+    for (auto const& aCCand : chargedCands) {
+      auto iCand = aCCand.candidate;
+      float dR2 = deltaR2(phoWrtVtxEta, phoWrtVtxPhi, iCand->eta(), iCand->phi());
+      if (dR2 > coneSizeDR2 || (options & DR_VETO && dR2 < dRveto2))
+        continue;
 
-      //require that PFCandidate is a charged hadron
-      reco::PFCandidate::ParticleType thisCandidateType = candidatePdgId(iCand, isAOD);
-      if (thisCandidateType != reco::PFCandidate::h) 
-	continue;
+      float dxy = -999;
+      float dz = -999;
+      if (options & PV_CONSTRAINT)
+        getImpactParameters(aCCand, pv, dxy, dz);
+      else
+        getImpactParameters(aCCand, *vtx, dxy, dz);
 
-      if (iCand->pt() < ptMin)
-	continue;
-      
-      float dxy=-999, dz=-999;
-      if(isPVConstraint) getImpactParameters(iCand, isAOD, pv, dxy, dz);
-      else getImpactParameters(iCand, isAOD, *vtx, dxy, dz);
+      if (fabs(dxy) > dxyMax || fabs(dz) > dzMax)
+        continue;
 
-
-
-      if( fabs(dxy) > dxyMax) continue;
-      if ( fabs(dz) > dzMax) continue;
-      
-      float dR2 = deltaR2(photon_directionWrtVtx.Eta(), photon_directionWrtVtx.Phi(), 
-                          iCand->eta(),      iCand->phi());
-      if(dR2 > dRmax*dRmax || dR2 < dRveto*dRveto) continue;
-      
       sum += iCand->pt();
     }
 
-    allIsolations.push_back(sum);
+    worstIsolation = std::max(sum, worstIsolation);
   }
 
-  if( !allIsolations.empty() )
-    worstIsolation = * std::max_element( allIsolations.begin(), allIsolations.end() );
-  
   return worstIsolation;
-}
-
-
-reco::PFCandidate::ParticleType
-PhotonIDValueMapProducer::candidatePdgId(const edm::Ptr<reco::Candidate> candidate, 
-					 bool isAOD){
-  
-  reco::PFCandidate::ParticleType thisCandidateType = reco::PFCandidate::X;
-  if( isAOD )
-    thisCandidateType = ( (const recoCandPtr)candidate)->particleId();
-  else {
-    // the neutral hadrons and charged hadrons can be of pdgId types
-    // only 130 (K0L) and +-211 (pi+-) in packed candidates
-    const int pdgId = ( (const patCandPtr)candidate)->pdgId();
-    if( pdgId == 22 )
-      thisCandidateType = reco::PFCandidate::gamma;
-    else if( abs(pdgId) == 130) // PDG ID for K0L
-      thisCandidateType = reco::PFCandidate::h0;
-    else if( abs(pdgId) == 211) // PDG ID for pi+-
-      thisCandidateType = reco::PFCandidate::h;
-  }
-  return thisCandidateType;
-}
-
-const reco::Track* 
-PhotonIDValueMapProducer::getTrackPointer(const edm::Ptr<reco::Candidate> candidate, bool isAOD){
-
-  const reco::Track* theTrack = nullptr;
-  if( isAOD )
-    theTrack = &*( ((const recoCandPtr) candidate)->trackRef());
-  else
-    theTrack = &( ((const patCandPtr) candidate)->pseudoTrack());
-
-  return theTrack;
-}
-
-void PhotonIDValueMapProducer::getImpactParameters(const edm::Ptr<reco::Candidate>& candidate,
-                                                   bool isAOD, const reco::Vertex& pv,
-                                                   float &dxy, float &dz){
-
-  dxy=-999;
-  dz=-999;
-  if( isAOD ) {
-    const reco::Track *theTrack = &*( ((const recoCandPtr) candidate)->trackRef());
-    dxy = theTrack->dxy(pv.position());
-    dz  = theTrack->dz(pv.position());
-  } else {
-    const pat::PackedCandidate & aCand = *(patCandPtr(candidate)); 
-    dxy = aCand.dxy(pv.position());
-    dz = aCand.dz(pv.position());
-
-  }
-
 }
 
 DEFINE_FWK_MODULE(PhotonIDValueMapProducer);

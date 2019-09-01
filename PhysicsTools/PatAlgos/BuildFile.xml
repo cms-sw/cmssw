@@ -1,3 +1,4 @@
+<use   name="CommonTools/MVAUtils"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/EgammaCandidates"/>
@@ -10,6 +11,7 @@
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
+<use   name="JetMETCorrections/JetCorrector"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>

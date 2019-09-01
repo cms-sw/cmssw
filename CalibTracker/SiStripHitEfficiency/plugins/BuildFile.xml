@@ -1,4 +1,3 @@
-<use   name="AnalysisDataFormats/SiStripClusterInfo"/>
 <use   name="CommonTools/TrackerMap"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="CondCore/DBOutputService"/>

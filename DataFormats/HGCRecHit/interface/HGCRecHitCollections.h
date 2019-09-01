@@ -7,7 +7,6 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-
 typedef edm::SortedCollection<HGCRecHit> HGCRecHitCollection;
 typedef edm::Ref<HGCRecHitCollection> HGCRecHitRef;
 typedef edm::RefVector<HGCRecHitCollection> HGCRecHitRefs;
@@ -16,6 +15,7 @@ typedef edm::RefProd<HGCRecHitCollection> HGCRecHitsRef;
 typedef HGCRecHitCollection HGCeeRecHitCollection;
 typedef HGCRecHitCollection HGChefRecHitCollection;
 typedef HGCRecHitCollection HGChebRecHitCollection;
+typedef HGCRecHitCollection HGChfnoseRecHitCollection;
 
 typedef edm::SortedCollection<HGCUncalibratedRecHit> HGCUncalibratedRecHitCollection;
 typedef edm::Ref<HGCUncalibratedRecHitCollection> HGCUncalibratedRecHitRef;
@@ -25,5 +25,6 @@ typedef edm::RefProd<HGCUncalibratedRecHitCollection> HGCUncalibratedRecHitsRef;
 typedef HGCUncalibratedRecHitCollection HGCeeUncalibratedRecHitCollection;
 typedef HGCUncalibratedRecHitCollection HGChefUncalibratedRecHitCollection;
 typedef HGCUncalibratedRecHitCollection HGChebUncalibratedRecHitCollection;
+typedef HGCUncalibratedRecHitCollection HGChfnoseUncalibratedRecHitCollection;
 
 #endif

@@ -4,6 +4,9 @@
 </bin>
 <bin   file="EntryDescription_t.cpp">
 </bin>
+<bin   file="ElementID_t.cpp">
+  <use name="catch2"/>
+</bin>
 <bin   name="testProductResolverIndexHelper" file="testRunner.cpp productResolverIndexHelper_t.cppunit.cc">
   <use name="DataFormats/TestObjects"/>
 </bin>

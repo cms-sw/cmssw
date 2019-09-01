@@ -10,7 +10,7 @@
 //using namespace std;
 //using namespace boost;
 
-int main() { 
+int main() {
   typedef funct::Product<funct::Parameter, funct::BreitWigner>::type FitFunction;
   typedef fit::HistoChiSquare<FitFunction> ChiSquared;
   try {
@@ -18,7 +18,7 @@ int main() {
     funct::Parameter mass("Mass", 91.2);
     funct::Parameter gamma("Gamma", 2.50);
     funct::BreitWigner bw(mass, gamma);
-    
+
     FitFunction f = yield * bw;
     TF1 startFun = root::tf1("startFun", f, 0, 200, yield, mass, gamma);
     TH1D histo("histo", "Z mass (GeV/c)", 200, 0, 200);
@@ -30,10 +30,10 @@ int main() {
     minuit.addParameter(gamma, 1, 0, 5);
     minuit.minimize();
     minuit.migrad();
-  } catch(std::exception & err){
+  } catch (std::exception& err) {
     std::cerr << "Exception caught:\n" << err.what() << std::endl;
     return 1;
   }
-  
+
   return 0;
 }

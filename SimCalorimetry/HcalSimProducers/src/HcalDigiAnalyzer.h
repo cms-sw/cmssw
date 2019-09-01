@@ -1,17 +1,17 @@
 #ifndef HcalSimProducers_HcalDigiAnalyzer_h
 #define HcalSimProducers_HcalDigiAnalyzer_h
 
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloHitAnalyzer.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloHitAnalyzer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
 #include "SimCalorimetry/HcalSimProducers/src/HcalDigiStatistics.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include <string>
 
 /** Studies Hcal digis
@@ -19,14 +19,10 @@
   \Author Rick Wilkinson, Caltech
 */
 
-
-class HcalDigiAnalyzer : public edm::one::EDAnalyzer<>
-{
+class HcalDigiAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-
-  explicit HcalDigiAnalyzer(edm::ParameterSet const& conf);
-  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
-
+  explicit HcalDigiAnalyzer(edm::ParameterSet const &conf);
+  void analyze(edm::Event const &e, edm::EventSetup const &c) override;
 
 private:
   std::string hitReadoutName_;
@@ -50,5 +46,3 @@ private:
 };
 
 #endif
-
-

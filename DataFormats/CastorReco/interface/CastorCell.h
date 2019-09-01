@@ -21,9 +21,8 @@ namespace reco {
 
   class CastorCell {
   public:
-
     /// default constructor. Sets energy and position to zero
-    CastorCell() : energy_(0.), position_(ROOT::Math::XYZPoint(0.,0.,0.)) { }
+    CastorCell() : energy_(0.), position_(ROOT::Math::XYZPoint(0., 0., 0.)) {}
 
     /// constructor from values
     CastorCell(const double energy, const ROOT::Math::XYZPoint& position);
@@ -38,16 +37,16 @@ namespace reco {
     ROOT::Math::XYZPoint position() const { return position_; }
 
     /// comparison >= operator
-    bool operator >=(const CastorCell& rhs) const { return (energy_>=rhs.energy_); }
+    bool operator>=(const CastorCell& rhs) const { return (energy_ >= rhs.energy_); }
 
     /// comparison > operator
-    bool operator > (const CastorCell& rhs) const { return (energy_> rhs.energy_); }
+    bool operator>(const CastorCell& rhs) const { return (energy_ > rhs.energy_); }
 
     /// comparison <= operator
-    bool operator <=(const CastorCell& rhs) const { return (energy_<=rhs.energy_); }
+    bool operator<=(const CastorCell& rhs) const { return (energy_ <= rhs.energy_); }
 
     /// comparison <= operator
-    bool operator < (const CastorCell& rhs) const { return (energy_< rhs.energy_); }
+    bool operator<(const CastorCell& rhs) const { return (energy_ < rhs.energy_); }
 
     /// z coordinate of cell centroid
     double z() const { return position_.z(); }
@@ -68,25 +67,24 @@ namespace reco {
     double eta() const { return position_.eta(); }
 
   private:
-
     /// cell energy
     double energy_;
 
     /// cell centroid position
     ROOT::Math::XYZPoint position_;
   };
-  
+
   /// collection of CastorCell objects
   typedef std::vector<CastorCell> CastorCellCollection;
 
   // persistent reference to CastorCell objects
   typedef edm::Ref<CastorCellCollection> CastorCellRef;
- 
+
   /// vector of references to CastorCell objects all in the same collection
   typedef edm::RefVector<CastorCellCollection> CastorCellRefVector;
- 
+
   /// iterator over a vector of references to CastorCell objects all in the same collection
   typedef CastorCellRefVector::iterator CastorCell_iterator;
-}
+}  // namespace reco
 
 #endif

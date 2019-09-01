@@ -1,6 +1,5 @@
-#ifndef  TRACKTORPC_H
-#define  TRACKTORPC_H
-
+#ifndef TRACKTORPC_H
+#define TRACKTORPC_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -58,9 +57,13 @@ typedef std::vector<Trajectory> Trajectories;
 
 class TracktoRPC {
 public:
-  TracktoRPC(reco::TrackCollection const* alltracks, edm::EventSetup const& iSetup, bool debug, const edm::ParameterSet& iConfig, const edm::InputTag & tracklabel);
+  TracktoRPC(reco::TrackCollection const* alltracks,
+             edm::EventSetup const& iSetup,
+             bool debug,
+             const edm::ParameterSet& iConfig,
+             const edm::InputTag& tracklabel);
   ~TracktoRPC();
-  std::unique_ptr<RPCRecHitCollection> && thePoints(){ return std::move(_ThePoints); }
+  std::unique_ptr<RPCRecHitCollection>&& thePoints() { return std::move(_ThePoints); }
 
 private:
   bool ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const edm::EventSetup& iSetup);
@@ -69,8 +72,8 @@ private:
   edm::OwnVector<RPCRecHit> RPCPointVector;
   double MaxD;
 
- TrackTransformerBase *theTrackTransformer;
- edm::ESHandle<Propagator> thePropagator;
+  TrackTransformerBase* theTrackTransformer;
+  edm::ESHandle<Propagator> thePropagator;
 };
 
 #endif

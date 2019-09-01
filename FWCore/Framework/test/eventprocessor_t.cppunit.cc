@@ -5,6 +5,7 @@ Test of the EventProcessor class.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -12,12 +13,13 @@ Test of the EventProcessor class.
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/ParameterSetReader/interface/ProcessDescImpl.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 
@@ -31,23 +33,22 @@ Test of the EventProcessor class.
 // defined in the other cppunit
 void doInit();
 
-class testeventprocessor: public CppUnit::TestFixture {
+class testeventprocessor : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testeventprocessor);
   CPPUNIT_TEST(parseTest);
   CPPUNIT_TEST(beginEndTest);
   CPPUNIT_TEST(cleanupJobTest);
   CPPUNIT_TEST(activityRegistryTest);
-  CPPUNIT_TEST(moduleFailureTest);
   CPPUNIT_TEST(endpathTest);
   CPPUNIT_TEST(serviceConfigSaveTest);
+  CPPUNIT_TEST(moduleFailureTest);
   CPPUNIT_TEST_SUITE_END();
 
- public:
-
+public:
   void setUp() {
     //std::cout << "setting up testeventprocessor" << std::endl;
     doInit();
-    m_handler = std::make_unique<edm::AssertHandler>(); // propagate_const<T> has no reset() function
+    m_handler = std::make_unique<edm::AssertHandler>();  // propagate_const<T> has no reset() function
     sleep_secs_ = 0;
   }
 
@@ -60,22 +61,22 @@ class testeventprocessor: public CppUnit::TestFixture {
   void endpathTest();
   void serviceConfigSaveTest();
 
- private:
+private:
   edm::propagate_const<std::unique_ptr<edm::AssertHandler>> m_handler;
   void work() {
     //std::cout << "work in testeventprocessor" << std::endl;
     std::string configuration(
-      "import FWCore.ParameterSet.Config as cms\n"
-      "process = cms.Process('p')\n"
-      "process.maxEvents = cms.untracked.PSet(\n"
-      "    input = cms.untracked.int32(5))\n"
-      "process.source = cms.Source('EmptySource')\n"
-      "process.m1 = cms.EDProducer('TestMod',\n"
-      "    ivalue = cms.int32(10))\n"
-      "process.m2 = cms.EDProducer('TestMod',\n"
-      "    ivalue = cms.int32(-3))\n"
-      "process.p1 = cms.Path(process.m1*process.m2)\n");
-    edm::EventProcessor proc(configuration, true);
+        "import FWCore.ParameterSet.Config as cms\n"
+        "process = cms.Process('p')\n"
+        "process.maxEvents = cms.untracked.PSet(\n"
+        "    input = cms.untracked.int32(5))\n"
+        "process.source = cms.Source('EmptySource')\n"
+        "process.m1 = cms.EDProducer('TestMod',\n"
+        "    ivalue = cms.int32(10))\n"
+        "process.m2 = cms.EDProducer('TestMod',\n"
+        "    ivalue = cms.int32(-3))\n"
+        "process.p1 = cms.Path(process.m1*process.m2)\n");
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.beginJob();
     proc.run();
     proc.endJob();
@@ -87,19 +88,16 @@ class testeventprocessor: public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE_REGISTRATION(testeventprocessor);
 
 void testeventprocessor::parseTest() {
-  try { work();}
-  catch (cms::Exception& e) {
-      std::cerr << "cms exception caught: "
-                << e.explainSelf() << std::endl;
-      CPPUNIT_ASSERT("Caught cms::Exception " == 0);
-  }
-  catch (std::exception& e) {
-      std::cerr << "Standard library exception caught: "
-                << e.what() << std::endl;
-      CPPUNIT_ASSERT("Caught std::exception " == 0);
-  }
-  catch (...) {
-      CPPUNIT_ASSERT("Caught unknown exception " == 0);
+  try {
+    work();
+  } catch (cms::Exception& e) {
+    std::cerr << "cms exception caught: " << e.explainSelf() << std::endl;
+    CPPUNIT_ASSERT("Caught cms::Exception " == 0);
+  } catch (std::exception& e) {
+    std::cerr << "Standard library exception caught: " << e.what() << std::endl;
+    CPPUNIT_ASSERT("Caught std::exception " == 0);
+  } catch (...) {
+    CPPUNIT_ASSERT("Caught unknown exception " == 0);
   }
 }
 
@@ -121,7 +119,7 @@ void testeventprocessor::beginEndTest() {
     TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
-    edm::EventProcessor proc(configuration, true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginJobCalled);
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
@@ -132,9 +130,9 @@ void testeventprocessor::beginEndTest() {
     CPPUNIT_ASSERT(0 == proc.totalEvents());
 
     proc.beginJob();
- 
+
     //std::cout << "beginEndTest 1 af" << std::endl;
- 
+
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginRunCalled);
@@ -153,7 +151,7 @@ void testeventprocessor::beginEndTest() {
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(0 == proc.totalEvents());
 
-     CPPUNIT_ASSERT(not edm::pset::Registry::instance()->empty());
+    CPPUNIT_ASSERT(not edm::pset::Registry::instance()->empty());
   }
   CPPUNIT_ASSERT(edm::pset::Registry::instance()->empty());
 
@@ -167,7 +165,7 @@ void testeventprocessor::beginEndTest() {
     TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
-    edm::EventProcessor proc(configuration, true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.runToCompletion();
 
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
@@ -190,7 +188,7 @@ void testeventprocessor::beginEndTest() {
     TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
-    edm::EventProcessor proc(configuration, true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.beginJob();
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
 
@@ -221,7 +219,7 @@ void testeventprocessor::beginEndTest() {
     TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
-    edm::EventProcessor proc(configuration, true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.beginJob();
 
     // Check that beginJob is not called again
@@ -236,13 +234,12 @@ void testeventprocessor::beginEndTest() {
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginLumiCalled);
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(10 == proc.totalEvents());
-    
+
     proc.endJob();
-    
+
     // Check that these are not called again
     TestBeginEndJobAnalyzer::control().endRunCalled = false;
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
-
   }
   CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endRunCalled);
   CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endLumiCalled);
@@ -254,7 +251,7 @@ void testeventprocessor::beginEndTest() {
     TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
-    edm::EventProcessor proc(configuration, true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.run();
 
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
@@ -297,7 +294,7 @@ void testeventprocessor::beginEndTest() {
     TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
-    edm::EventProcessor proc(configuration, true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.run();
 
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
@@ -313,9 +310,8 @@ void testeventprocessor::beginEndTest() {
   CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endLumiCalled);
 }
 
-void testeventprocessor::cleanupJobTest()
-{
-  //std::cout << "cleanup " << std::endl; 
+void testeventprocessor::cleanupJobTest() {
+  //std::cout << "cleanup " << std::endl;
   std::string configuration(
       "import FWCore.ParameterSet.Config as cms\n"
       "process = cms.Process('p')\n"
@@ -325,10 +321,10 @@ void testeventprocessor::cleanupJobTest()
       "process.m1 = cms.EDAnalyzer('TestBeginEndJobAnalyzer')\n"
       "process.p1 = cms.Path(process.m1)\n");
   {
-      //std::cout << "cleanup 1" << std::endl;
+    //std::cout << "cleanup 1" << std::endl;
 
     TestBeginEndJobAnalyzer::control().destructorCalled = false;
-    edm::EventProcessor proc(configuration, true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().destructorCalled);
     proc.beginJob();
@@ -338,53 +334,46 @@ void testeventprocessor::cleanupJobTest()
   }
   CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().destructorCalled);
   {
-      //std::cout << "cleanup 2" << std::endl;
+    //std::cout << "cleanup 2" << std::endl;
 
     TestBeginEndJobAnalyzer::control().destructorCalled = false;
-    edm::EventProcessor proc(configuration, true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().destructorCalled);
     proc.run();
     CPPUNIT_ASSERT(2 == proc.totalEvents());
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().destructorCalled);
-
   }
   CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().destructorCalled);
 }
 
 namespace {
-  struct Listener{
-    Listener(edm::ActivityRegistry& iAR) :
-      postBeginJob_(0),
-      postEndJob_(0),
-      preEventProcessing_(0),
-      postEventProcessing_(0),
-      preModule_(0),
-      postModule_(0) {
-        iAR.watchPostBeginJob(this, &Listener::postBeginJob);
-        iAR.watchPostEndJob(this, &Listener::postEndJob);
+  struct Listener {
+    Listener(edm::ActivityRegistry& iAR)
+        : postBeginJob_(0),
+          postEndJob_(0),
+          preEventProcessing_(0),
+          postEventProcessing_(0),
+          preModule_(0),
+          postModule_(0) {
+      iAR.watchPostBeginJob(this, &Listener::postBeginJob);
+      iAR.watchPostEndJob(this, &Listener::postEndJob);
 
-        iAR.watchPreEvent(this, &Listener::preEventProcessing);
-        iAR.watchPostEvent(this, &Listener::postEventProcessing);
+      iAR.watchPreEvent(this, &Listener::preEventProcessing);
+      iAR.watchPostEvent(this, &Listener::postEventProcessing);
 
-        iAR.watchPreModuleEvent(this, &Listener::preModule);
-        iAR.watchPostModuleEvent(this, &Listener::postModule);
-      }
-
-    void postBeginJob() {++postBeginJob_;}
-    void postEndJob() {++postEndJob_;}
-
-    void preEventProcessing(edm::StreamContext const&) {
-      ++preEventProcessing_;}
-    void postEventProcessing(edm::StreamContext const&) {
-      ++postEventProcessing_;}
-
-    void preModule(edm::StreamContext const&, edm::ModuleCallingContext const&) {
-      ++preModule_;
+      iAR.watchPreModuleEvent(this, &Listener::preModule);
+      iAR.watchPostModuleEvent(this, &Listener::postModule);
     }
-    void postModule(edm::StreamContext const&, edm::ModuleCallingContext const&) {
-      ++postModule_;
-    }
+
+    void postBeginJob() { ++postBeginJob_; }
+    void postEndJob() { ++postEndJob_; }
+
+    void preEventProcessing(edm::StreamContext const&) { ++preEventProcessing_; }
+    void postEventProcessing(edm::StreamContext const&) { ++postEventProcessing_; }
+
+    void preModule(edm::StreamContext const&, edm::ModuleCallingContext const&) { ++preModule_; }
+    void postModule(edm::StreamContext const&, edm::ModuleCallingContext const&) { ++postModule_; }
 
     unsigned int postBeginJob_;
     unsigned int postEndJob_;
@@ -393,10 +382,9 @@ namespace {
     unsigned int preModule_;
     unsigned int postModule_;
   };
-}
+}  // namespace
 
-void
-testeventprocessor::activityRegistryTest() {
+void testeventprocessor::activityRegistryTest() {
   std::string configuration(
       "import FWCore.ParameterSet.Config as cms\n"
       "process = cms.Process('p')\n"
@@ -407,7 +395,7 @@ testeventprocessor::activityRegistryTest() {
       "   ivalue = cms.int32(-3))\n"
       "process.p1 = cms.Path(process.m1)\n");
 
-  std::shared_ptr<edm::ParameterSet> parameterSet = PythonProcessDesc(configuration).parameterSet();
+  std::shared_ptr<edm::ParameterSet> parameterSet = ProcessDescImpl(configuration).parameterSet();
   auto processDesc = std::make_shared<edm::ProcessDesc>(parameterSet);
 
   //We don't want any services, we just want an ActivityRegistry to be created
@@ -435,11 +423,9 @@ testeventprocessor::activityRegistryTest() {
 
   typedef std::vector<edm::ModuleDescription const*> ModuleDescs;
   ModuleDescs allModules = proc.getAllModuleDescriptions();
-  CPPUNIT_ASSERT(3 == allModules.size()); // TestMod & TriggerResults
+  CPPUNIT_ASSERT(3 == allModules.size());  // TestMod & TriggerResults
   //std::cout << "\nModuleDescriptions in testeventprocessor::activityRegistryTest()---\n";
-  for (ModuleDescs::const_iterator i = allModules.begin(), e = allModules.end();
-       i != e ;
-       ++i) {
+  for (ModuleDescs::const_iterator i = allModules.begin(), e = allModules.end(); i != e; ++i) {
     CPPUNIT_ASSERT(*i != 0);
     //std::cout << **i << '\n';
   }
@@ -449,38 +435,34 @@ testeventprocessor::activityRegistryTest() {
   CPPUNIT_ASSERT(5 == proc.totalEventsPassed());
 }
 
-static
-bool
-findModuleName(std::string const& iMessage) {
+static bool findModuleName(std::string const& iMessage) {
   static std::regex const expr("TestFailuresAnalyzer");
   return regex_search(iMessage, expr);
 }
 
-void
-testeventprocessor::moduleFailureTest() {
+void testeventprocessor::moduleFailureTest() {
   try {
-
     std::string const preC(
-      "import FWCore.ParameterSet.Config as cms\n"
-      "process = cms.Process('p')\n"
-      "process.maxEvents = cms.untracked.PSet(\n"
-      "    input = cms.untracked.int32(2))\n"
-      "process.source = cms.Source('EmptySource')\n"
-      "process.m1 = cms.EDAnalyzer('TestFailuresAnalyzer',\n"
-      "    whichFailure = cms.int32(");
+        "import FWCore.ParameterSet.Config as cms\n"
+        "process = cms.Process('p')\n"
+        "process.maxEvents = cms.untracked.PSet(\n"
+        "    input = cms.untracked.int32(2))\n"
+        "process.source = cms.Source('EmptySource')\n"
+        "process.m1 = cms.EDAnalyzer('TestFailuresAnalyzer',\n"
+        "    whichFailure = cms.int32(");
 
     std::string const postC(
-      "))\n"
-      "process.p1 = cms.Path(process.m1)\n");
+        "))\n"
+        "process.p1 = cms.Path(process.m1)\n");
 
     {
-      std::string const configuration = preC +"0"+postC;
+      std::string const configuration = preC + "0" + postC;
       bool threw = true;
       try {
-        edm::EventProcessor proc(configuration, true);
+        edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
         threw = false;
-      } catch(cms::Exception const& iException) {
-        if(!findModuleName(iException.explainSelf())) {
+      } catch (cms::Exception const& iException) {
+        if (!findModuleName(iException.explainSelf())) {
           std::cout << iException.explainSelf() << std::endl;
           CPPUNIT_ASSERT(0 == "module name not in exception message");
         }
@@ -488,15 +470,15 @@ testeventprocessor::moduleFailureTest() {
       CPPUNIT_ASSERT(threw && 0 != "exception never thrown");
     }
     {
-      std::string const configuration = preC +"1"+postC;
+      std::string const configuration = preC + "1" + postC;
       bool threw = true;
-      edm::EventProcessor proc(configuration, true);
+      edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
       try {
         proc.beginJob();
         threw = false;
-      } catch(cms::Exception const& iException) {
-        if(!findModuleName(iException.explainSelf())) {
+      } catch (cms::Exception const& iException) {
+        if (!findModuleName(iException.explainSelf())) {
           std::cout << iException.explainSelf() << std::endl;
           CPPUNIT_ASSERT(0 == "module name not in exception message");
         }
@@ -505,16 +487,16 @@ testeventprocessor::moduleFailureTest() {
     }
 
     {
-      std::string const configuration = preC +"2"+postC;
+      std::string const configuration = preC + "2" + postC;
       bool threw = true;
-      edm::EventProcessor proc(configuration, true);
+      edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
       proc.beginJob();
       try {
         proc.run();
         threw = false;
-      } catch(cms::Exception const& iException) {
-        if(!findModuleName(iException.explainSelf())) {
+      } catch (cms::Exception const& iException) {
+        if (!findModuleName(iException.explainSelf())) {
           std::cout << iException.explainSelf() << std::endl;
           CPPUNIT_ASSERT(0 == "module name not in exception message");
         }
@@ -523,16 +505,16 @@ testeventprocessor::moduleFailureTest() {
       proc.endJob();
     }
     {
-      std::string const configuration = preC +"3"+postC;
+      std::string const configuration = preC + "3" + postC;
       bool threw = true;
-      edm::EventProcessor proc(configuration, true);
+      edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
       proc.beginJob();
       try {
         proc.endJob();
         threw = false;
-      } catch(cms::Exception const& iException) {
-        if(!findModuleName(iException.explainSelf())) {
+      } catch (cms::Exception const& iException) {
+        if (!findModuleName(iException.explainSelf())) {
           std::cout << iException.explainSelf() << std::endl;
           CPPUNIT_ASSERT(0 == "module name not in exception message");
         }
@@ -544,49 +526,46 @@ testeventprocessor::moduleFailureTest() {
       bool threw = true;
       try {
         std::string configuration(
-          "import FWCore.ParameterSet.Config as cms\n"
-          "process = cms.Process('p')\n"
-          "process.maxEvents = cms.untracked.PSet(\n"
-          "    input = cms.untracked.int32(2))\n"
-          "process.source = cms.Source('EmptySource')\n"
-          "process.p1 = cms.Path(process.m1)\n");
-        edm::EventProcessor proc(configuration, true);
+            "import FWCore.ParameterSet.Config as cms\n"
+            "process = cms.Process('p')\n"
+            "process.maxEvents = cms.untracked.PSet(\n"
+            "    input = cms.untracked.int32(2))\n"
+            "process.source = cms.Source('EmptySource')\n"
+            "process.p1 = cms.Path(process.m1)\n");
+        edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
         threw = false;
-      } catch(cms::Exception const& iException) {
+      } catch (cms::Exception const& iException) {
         static std::regex const expr("m1");
-        if(!regex_search(iException.explainSelf(), expr)) {
+        if (!regex_search(iException.explainSelf(), expr)) {
           std::cout << iException.explainSelf() << std::endl;
           CPPUNIT_ASSERT(0 == "module name not in exception message");
         }
       }
       CPPUNIT_ASSERT(threw && 0 != "exception never thrown");
     }
-  } catch(cms::Exception const& iException) {
+  } catch (cms::Exception const& iException) {
     std::cout << "Unexpected exception " << iException.explainSelf() << std::endl;
     throw;
   }
 }
 
-void
-testeventprocessor::serviceConfigSaveTest() {
-   std::string configuration(
-                             "import FWCore.ParameterSet.Config as cms\n"
-                             "process = cms.Process('p')\n"
-                             "process.add_(cms.Service('DummyStoreConfigService'))\n"
-                             "process.maxEvents = cms.untracked.PSet(\n"
-                             "    input = cms.untracked.int32(5))\n"
-                             "process.source = cms.Source('EmptySource')\n"
-                             "process.m1 = cms.EDProducer('TestMod',\n"
-                             "   ivalue = cms.int32(-3))\n"
-                             "process.p1 = cms.Path(process.m1)\n");
+void testeventprocessor::serviceConfigSaveTest() {
+  std::string configuration(
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('p')\n"
+      "process.add_(cms.Service('DummyStoreConfigService'))\n"
+      "process.maxEvents = cms.untracked.PSet(\n"
+      "    input = cms.untracked.int32(5))\n"
+      "process.source = cms.Source('EmptySource')\n"
+      "process.m1 = cms.EDProducer('TestMod',\n"
+      "   ivalue = cms.int32(-3))\n"
+      "process.p1 = cms.Path(process.m1)\n");
 
-   edm::EventProcessor proc(configuration, true);
-   edm::ProcessConfiguration const& processConfiguration = proc.processConfiguration();
-   edm::ParameterSet const& topPset(edm::getParameterSet(processConfiguration.parameterSetID()));
-   CPPUNIT_ASSERT(topPset.existsAs<edm::ParameterSet>("DummyStoreConfigService", true));
+  edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
+  edm::ProcessConfiguration const& processConfiguration = proc.processConfiguration();
+  edm::ParameterSet const& topPset(edm::getParameterSet(processConfiguration.parameterSetID()));
+  CPPUNIT_ASSERT(topPset.existsAs<edm::ParameterSet>("DummyStoreConfigService", true));
 }
 
-void
-testeventprocessor::endpathTest() {
-}
+void testeventprocessor::endpathTest() {}

@@ -12,21 +12,13 @@
 #include <string>
 
 class EcalTPGStripStatusXMLTranslator {
-
 public:
+  static int readXML(const std::string& filename, EcalCondHeader& header, EcalTPGStripStatus& record);
 
-  static int readXML (const std::string& filename, 
-	              EcalCondHeader& header,
-	              EcalTPGStripStatus& record);
+  static int writeXML(const std::string& filename, const EcalCondHeader& header, const EcalTPGStripStatus& record);
 
-  static  int writeXML(const std::string& filename, 
-		       const EcalCondHeader& header,
-		       const EcalTPGStripStatus& record);
- private:
-  
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalTPGStripStatus& record);
-
+private:
+  static std::string dumpXML(const EcalCondHeader& header, const EcalTPGStripStatus& record);
 };
 
-#endif // __EcalTPGStripStatusXMLTranslator_h_
+#endif  // __EcalTPGStripStatusXMLTranslator_h_

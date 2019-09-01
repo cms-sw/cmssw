@@ -14,4 +14,3 @@
 typedef MuonDigiCollection<DTChamberId, DTLocalTrigger> DTLocalTriggerCollection;
 
 #endif
-

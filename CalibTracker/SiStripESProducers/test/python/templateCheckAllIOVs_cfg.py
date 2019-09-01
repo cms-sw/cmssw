@@ -1,3 +1,4 @@
+from __future__ import print_function
 def pack(high,low):
     """pack high,low 32bit unsigned int to one unsigned 64bit long long
        Note:the print value of result number may appear signed, if the sign bit is used.
@@ -47,8 +48,8 @@ process.maxEvents = cms.untracked.PSet(
 # print packFromString("28/07/2009 08:53:53")
 # print "converting end date = 28/07/2009 14:13:31 to ",
 # print packFromString("28/07/2009 14:13:31")
-print "using an interval of 1 second = ",
-print intervalSinceEpoch("01/01/1970 00:00:01")
+print("using an interval of 1 second = ", end=' ')
+print(intervalSinceEpoch("01/01/1970 00:00:01"))
 
 process.source = cms.Source("EmptyIOVSource",
     timetype   = cms.string('timestamp'),

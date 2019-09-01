@@ -16,15 +16,16 @@
 #include "DataFormats/JetReco/interface/TrackJetCollection.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 
-template<typename T>
+template <typename T>
 class HLTJetL1MatchProducer : public edm::stream::EDProducer<> {
- public:
-  explicit HLTJetL1MatchProducer(const edm::ParameterSet&);
+public:
+  explicit HLTJetL1MatchProducer(const edm::ParameterSet &);
   ~HLTJetL1MatchProducer() override;
-  static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void beginJob() ; 
-  void produce(edm::Event &, const edm::EventSetup&) override;
- private:
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  virtual void beginJob();
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+private:
   edm::EDGetTokenT<std::vector<T>> m_theJetToken;
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_theL1TauJetToken;
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_theL1CenJetToken;
@@ -34,7 +35,7 @@ class HLTJetL1MatchProducer : public edm::stream::EDProducer<> {
   edm::InputTag L1CenJets_;
   edm::InputTag L1ForJets_;
   //  std::string jetType_;
-  double DeltaR_;         // DeltaR(HLT,L1)
+  double DeltaR_;  // DeltaR(HLT,L1)
 };
 
 #endif

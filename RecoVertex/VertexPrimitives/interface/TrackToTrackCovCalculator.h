@@ -13,16 +13,13 @@
 
 template <unsigned int N>
 class TrackToTrackCovCalculator {
-
 public:
-
   TrackToTrackCovCalculator() {}
   virtual ~TrackToTrackCovCalculator() {}
 
-  virtual typename CachingVertex<N>::TrackToTrackMap operator() (const CachingVertex<N> &) const = 0;
-  
-  virtual TrackToTrackCovCalculator * clone() const = 0;
+  virtual typename CachingVertex<N>::TrackToTrackMap operator()(const CachingVertex<N> &) const = 0;
 
+  virtual TrackToTrackCovCalculator *clone() const = 0;
 };
 
 #endif

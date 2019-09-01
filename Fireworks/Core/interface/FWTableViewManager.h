@@ -23,7 +23,7 @@
 #include <vector>
 #include <set>
 #include <map>
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // user include files
 
@@ -35,91 +35,85 @@ class FWViewBase;
 class FWGUIManager;
 class TEveWindowSlot;
 
-class FWTableViewManager : public FWViewManagerBase, public FWConfigurable 
-{
-   friend class FWTableView;
-   friend class FWTableViewTableManager;
+class FWTableViewManager : public FWViewManagerBase, public FWConfigurable {
+  friend class FWTableView;
+  friend class FWTableViewTableManager;
+
 public:
-   struct TableEntry {
-      enum { INT = 0, INT_HEX = -1, BOOL = -2 };
-      std::string    expression;
-      std::string    name;
-      int            precision;
-   };
+  struct TableEntry {
+    enum { INT = 0, INT_HEX = -1, BOOL = -2 };
+    std::string expression;
+    std::string name;
+    int precision;
+  };
 
-   /** Container for the event items which have a table. */
-   typedef std::vector<const FWEventItem *>                Items;
-   /** Container for the description of the columns of a given table. */
-   typedef std::vector<TableEntry> TableEntries;
-   /** Type for the collection specific (i.e. those that do not use
+  /** Container for the event items which have a table. */
+  typedef std::vector<const FWEventItem *> Items;
+  /** Container for the description of the columns of a given table. */
+  typedef std::vector<TableEntry> TableEntries;
+  /** Type for the collection specific (i.e. those that do not use
        default) table definition. */
-   typedef std::map<std::string, TableEntries> TableSpecs;
+  typedef std::map<std::string, TableEntries> TableSpecs;
 
-   FWTableViewManager(FWGUIManager*);
-   ~FWTableViewManager() override;
+  FWTableViewManager(FWGUIManager *);
+  ~FWTableViewManager() override;
 
-   // ---------- const member functions ---------------------
-   FWTypeToRepresentations supportedTypesAndRepresentations() const override;
-   // ---------- static member functions --------------------
+  // ---------- const member functions ---------------------
+  FWTypeToRepresentations supportedTypesAndRepresentations() const override;
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void            newItem(const FWEventItem*) override;
-   void                    destroyItem(const FWEventItem *item);
-   void                    removeAllItems(void);
-   FWViewBase *            buildView(TEveWindowSlot *iParent, const std::string& type);
-   const Items &           items() const { return m_items; }
-   TableSpecs::iterator    tableFormats(const edm::TypeWithDict &key);
-   TableSpecs::iterator    tableFormats(const TClass &key);
-   void                    addTo(FWConfiguration&) const override;
-   void                    addToImpl(FWConfiguration&) const;
-   void                    setFrom(const FWConfiguration&) override;
+  // ---------- member functions ---------------------------
+  void newItem(const FWEventItem *) override;
+  void destroyItem(const FWEventItem *item);
+  void removeAllItems(void);
+  FWViewBase *buildView(TEveWindowSlot *iParent, const std::string &type);
+  const Items &items() const { return m_items; }
+  TableSpecs::iterator tableFormats(const edm::TypeWithDict &key);
+  TableSpecs::iterator tableFormats(const TClass &key);
+  void addTo(FWConfiguration &) const override;
+  void addToImpl(FWConfiguration &) const;
+  void setFrom(const FWConfiguration &) override;
 
-   void                    notifyViews();
+  void notifyViews();
 
-   static const std::string kConfigTypeNames;
-   static const std::string kConfigColumns;
+  static const std::string kConfigTypeNames;
+  static const std::string kConfigColumns;
 
 protected:
-   FWTableViewManager();
+  FWTableViewManager();
 
-   /** Called when models have changed and so the display must be updated. */
-   void modelChangesComing() override;
-   void modelChangesDone() override;
-   void colorsChanged() override;
-   void dataChanged ();
+  /** Called when models have changed and so the display must be updated. */
+  void modelChangesComing() override;
+  void modelChangesDone() override;
+  void colorsChanged() override;
+  void dataChanged();
 
-   typedef std::vector<std::shared_ptr<FWTableView> >    Views;
+  typedef std::vector<std::shared_ptr<FWTableView> > Views;
 
-   Views       m_views;
-   Items       m_items;
-   TableSpecs  m_tableFormats;
+  Views m_views;
+  Items m_items;
+  TableSpecs m_tableFormats;
+
 private:
-   TableSpecs::iterator tableFormatsImpl(const edm::TypeWithDict &key);
-   FWTableViewManager(const FWTableViewManager&);    // stop default
-   const FWTableViewManager& operator=(const FWTableViewManager&);    // stop default
+  TableSpecs::iterator tableFormatsImpl(const edm::TypeWithDict &key);
+  FWTableViewManager(const FWTableViewManager &);                   // stop default
+  const FWTableViewManager &operator=(const FWTableViewManager &);  // stop default
 
-   void beingDestroyed(const FWViewBase*);
-   
-   class TableHandle
-   {
-   public: 
-      TableHandle &column(const char *formula, int precision, const char *name);
-      TableHandle &column(const char *label, int precision)
-         {
-            return column(label, precision, label);
-         }
+  void beingDestroyed(const FWViewBase *);
 
-      TableHandle(const char *name, TableSpecs &specs)
-         :m_name(name), m_specs(specs) 
-         {
-            m_specs[name].clear();
-         }
-   private:
-      std::string  m_name;
-      TableSpecs  &m_specs;
-   };
+  class TableHandle {
+  public:
+    TableHandle &column(const char *formula, int precision, const char *name);
+    TableHandle &column(const char *label, int precision) { return column(label, precision, label); }
 
-   TableHandle table(const char *collection);
+    TableHandle(const char *name, TableSpecs &specs) : m_name(name), m_specs(specs) { m_specs[name].clear(); }
+
+  private:
+    std::string m_name;
+    TableSpecs &m_specs;
+  };
+
+  TableHandle table(const char *collection);
 };
 
 #endif

@@ -5,26 +5,20 @@
 #include <iostream>
 #include <string>
 
-namespace edmtest
-{
+namespace edmtest {
 
+  void UnitTestClient_K::analyze(edm::Event const& /*unused*/
+                                 ,
+                                 edm::EventSetup const& /*unused*/
+  ) {
+    for (int i = 0; i < 10; ++i) {
+      edm::LogPrint("cat_P") << "LogPrint: " << i;
+      edm::LogSystem("cat_S") << "LogSystem: " << i;
+    }
 
-void
-  UnitTestClient_K::analyze( edm::Event      const & /*unused*/
-                           , edm::EventSetup const & /*unused*/
-                              )
-{
-  
-  for (int i=0; i<10; ++i) {
-    edm::LogPrint  ("cat_P") << "LogPrint: " << i; 
-    edm::LogSystem ("cat_S") << "LogSystem: " << i; 
-  }
-
-}  // MessageLoggerClient::analyze()
-
+  }  // MessageLoggerClient::analyze()
 
 }  // namespace edmtest
-
 
 using edmtest::UnitTestClient_K;
 DEFINE_FWK_MODULE(UnitTestClient_K);

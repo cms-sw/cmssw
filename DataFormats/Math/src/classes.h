@@ -5,12 +5,12 @@
 #include <Math/SMatrix.h>
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "Rtypes.h" 
-#include "Math/PxPyPzE4D.h" 
+#include "Rtypes.h"
+#include "Math/PxPyPzE4D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
-#include "Math/Cartesian3D.h" 
-#include "Math/Polar3D.h" 
-#include "Math/CylindricalEta3D.h" 
+#include "Math/Cartesian3D.h"
+#include "Math/Polar3D.h"
+#include "Math/CylindricalEta3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
@@ -24,7 +24,7 @@ namespace DataFormats_Math {
   struct dictionary {
     math::XYZVector v1;
     math::XYZVectorD vd1;
-    math::XYZVectorF vf1; 
+    math::XYZVectorF vf1;
     math::RhoEtaPhiVector v2;
     math::RhoEtaPhiVectorD vd2;
     math::RhoEtaPhiVectorF vf2;
@@ -50,8 +50,8 @@ namespace DataFormats_Math {
     math::GlobalVector gv1;
 
     std::vector<math::XYZVector> vv1;
-    std::vector<math::XYZVectorD> vvd1; 
-    std::vector<math::XYZVectorF> vvf1; 
+    std::vector<math::XYZVectorD> vvd1;
+    std::vector<math::XYZVectorF> vvf1;
     std::vector<math::RhoEtaPhiVector> vv2;
     std::vector<math::RhoEtaPhiVectorD> vvd2;
     std::vector<math::RhoEtaPhiVectorF> vvf2;
@@ -72,8 +72,8 @@ namespace DataFormats_Math {
     std::vector<math::XYZTLorentzVectorF> vlf2;
 
     edm::Wrapper<math::XYZVector> wv1;
-    edm::Wrapper<math::XYZVectorD> wvd1; 
-    edm::Wrapper<math::XYZVectorF> wvf1; 
+    edm::Wrapper<math::XYZVectorD> wvd1;
+    edm::Wrapper<math::XYZVectorF> wvf1;
     edm::Wrapper<math::RhoEtaPhiVector> wv2;
     edm::Wrapper<math::RhoEtaPhiVectorD> wvd2;
     edm::Wrapper<math::RhoEtaPhiVectorF> wvf2;
@@ -94,8 +94,8 @@ namespace DataFormats_Math {
     edm::Wrapper<math::XYZTLorentzVectorF> wlf2;
 
     edm::Wrapper<std::vector<math::XYZVector> > wvvv1;
-    edm::Wrapper<std::vector<math::XYZVectorD> > wvvd1; 
-    edm::Wrapper<std::vector<math::XYZVectorF> > wvvf1; 
+    edm::Wrapper<std::vector<math::XYZVectorD> > wvvd1;
+    edm::Wrapper<std::vector<math::XYZVectorF> > wvvf1;
     edm::Wrapper<std::vector<math::RhoEtaPhiVector> > wvv2;
     edm::Wrapper<std::vector<math::RhoEtaPhiVectorD> > wvvd2;
     edm::Wrapper<std::vector<math::RhoEtaPhiVectorF> > wvvf2;
@@ -114,7 +114,7 @@ namespace DataFormats_Math {
     edm::Wrapper<std::vector<math::XYZTLorentzVector> > wvl2;
     edm::Wrapper<std::vector<math::XYZTLorentzVectorD> > wvld2;
     edm::Wrapper<std::vector<math::XYZTLorentzVectorF> > wvlf2;
- 
+
     //    math::Vector<1>::type vV1;
     math::Vector<2>::type vV2;
     math::Vector<3>::type vV3;
@@ -135,14 +135,14 @@ namespace DataFormats_Math {
     math::VectorF<6>::type vVf6;
     math::VectorF<7>::type vVf7;
 
-  //    math::Error<1>::type e1;
+    //    math::Error<1>::type e1;
     math::Error<2>::type e2;
     math::Error<3>::type e3;
     math::Error<4>::type e4;
     math::Error<5>::type e5;
-    math::Error<6>::type e6; 
+    math::Error<6>::type e6;
     math::Error<7>::type e7;
-    
+
     //     math::ErrorD<1>::type ed1;
     math::ErrorD<2>::type ed2;
     math::ErrorD<3>::type ed3;
@@ -181,7 +181,6 @@ namespace DataFormats_Math {
     edm::Wrapper<std::vector<math::Error<6>::type> > wve6;
     edm::Wrapper<std::vector<math::Error<7>::type> > wve7;
 
-
     edm::RefVector<std::vector<math::PtEtaPhiELorentzVector> > rvl2;
     edm::RefVector<std::vector<math::PtEtaPhiELorentzVectorD> > rvld2;
     edm::RefVector<std::vector<math::PtEtaPhiELorentzVectorF> > rvlf2;
@@ -207,22 +206,25 @@ namespace DataFormats_Math {
     ROOT::Math::MatRepSym<float, 5> smf5;
     ROOT::Math::MatRepSym<float, 6> smf6;
     ROOT::Math::MatRepSym<float, 7> smf7;
-	
+
     //Used by ECAL Weights reconstruction
     //Used by ECAL Weights reconstruction
-    math::Matrix<3,10>::type mw; 
-    math::Matrix<10,10>::type mcw; 
-    math::Matrix<2,3>::type mw1; 
-    ROOT::Math::MatRepStd<double, 3 ,10> smdw;
-    ROOT::Math::MatRepStd<double, 10 , 10> smdcw;
-    ROOT::Math::MatRepStd<double, 2 , 3> smdcw1;
+    math::Matrix<3, 10>::type mw;
+    math::Matrix<10, 10>::type mcw;
+    math::Matrix<2, 3>::type mw1;
+    ROOT::Math::MatRepStd<double, 3, 10> smdw;
+    ROOT::Math::MatRepStd<double, 10, 10> smdcw;
+    ROOT::Math::MatRepStd<double, 2, 3> smdcw1;
 
     //Used by TauReco
-//    std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> calotti_ppf;
-    std::vector<std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> > vcalotti_ppf;
+    //    std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> calotti_ppf;
+    std::vector<
+        std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>, ROOT::Math::DefaultCoordinateSystemTag>,
+                  float> >
+        vcalotti_ppf;
 
     // Used by CommonTools/PileupModules
-    edm::ValueMap< math::XYZTLorentzVector > vmp4;
-    edm::Wrapper< edm::ValueMap< math::XYZTLorentzVector > > wvmp4;
-   };
-}
+    edm::ValueMap<math::XYZTLorentzVector> vmp4;
+    edm::Wrapper<edm::ValueMap<math::XYZTLorentzVector> > wvmp4;
+  };
+}  // namespace DataFormats_Math

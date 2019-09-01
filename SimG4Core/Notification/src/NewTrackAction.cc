@@ -11,49 +11,45 @@
 
 NewTrackAction::NewTrackAction() {}
 
-void NewTrackAction::primary(const G4Track * aTrack) const {
-  primary(const_cast<G4Track *>(aTrack)); 
+void NewTrackAction::primary(const G4Track *aTrack) const { primary(const_cast<G4Track *>(aTrack)); }
+
+void NewTrackAction::primary(G4Track *aTrack) const { addUserInfoToPrimary(aTrack); }
+
+void NewTrackAction::secondary(const G4Track *aSecondary, const G4Track &mother, int flag) const {
+  secondary(const_cast<G4Track *>(aSecondary), mother, flag);
 }
 
-void NewTrackAction::primary(G4Track * aTrack) const {
-  addUserInfoToPrimary(aTrack);
-}
-
-void NewTrackAction::secondary(const G4Track * aSecondary,const G4Track & mother, int flag) const {
-  secondary(const_cast<G4Track *>(aSecondary),mother,flag); 
-}
-
-void NewTrackAction::secondary(G4Track * aSecondary,const G4Track & mother, int flag) const {
-  if (aSecondary->GetParentID() != mother.GetTrackID()) 
+void NewTrackAction::secondary(G4Track *aSecondary, const G4Track &mother, int flag) const {
+  if (aSecondary->GetParentID() != mother.GetTrackID())
     throw SimG4Exception("NewTrackAction: secondary parent ID does not match mother id");
   TrackInformationExtractor extractor;
-  const TrackInformation & motherInfo(extractor(mother));
-  addUserInfoToSecondary(aSecondary,motherInfo,flag);
+  const TrackInformation &motherInfo(extractor(mother));
+  addUserInfoToSecondary(aSecondary, motherInfo, flag);
 #ifdef DebugLog
-  LogDebug("SimTrackManager") << "NewTrackAction: Add track " << aSecondary->GetTrackID() << " from mother " << mother.GetTrackID();
+  LogDebug("SimTrackManager") << "NewTrackAction: Add track " << aSecondary->GetTrackID() << " from mother "
+                              << mother.GetTrackID();
 #endif
 }
 
-void NewTrackAction::addUserInfoToPrimary(G4Track * aTrack) const {
-  TrackInformation * trkInfo = new TrackInformation();
+void NewTrackAction::addUserInfoToPrimary(G4Track *aTrack) const {
+  TrackInformation *trkInfo = new TrackInformation();
   trkInfo->isPrimary(true);
   trkInfo->storeTrack(true);
   trkInfo->putInHistory();
   trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
   trkInfo->setGenParticleP(aTrack->GetMomentum().mag());
-  aTrack->SetUserInformation(trkInfo);  
+  aTrack->SetUserInformation(trkInfo);
 }
 
-void NewTrackAction::addUserInfoToSecondary(G4Track * aTrack,const TrackInformation & motherInfo, int flag) const {
-
+void NewTrackAction::addUserInfoToSecondary(G4Track *aTrack, const TrackInformation &motherInfo, int flag) const {
   // ralf.ulrich@kit.edu: it is more efficient to use the constructor to copy all data and modify later only when needed
 
-  TrackInformation * trkInfo = new TrackInformation();
-//  LogDebug("SimG4CoreApplication") << "NewTrackAction called for "
-//				   << aTrack->GetTrackID()
-//				   << " mother " << motherInfo.isPrimary()
-//				   << " flag " << flag;
-  
+  TrackInformation *trkInfo = new TrackInformation();
+  //  LogDebug("SimG4CoreApplication") << "NewTrackAction called for "
+  //				   << aTrack->GetTrackID()
+  //				   << " mother " << motherInfo.isPrimary()
+  //				   << " flag " << flag;
+
   // Take care of cascade decays
   if (flag == 1) {
     trkInfo->isPrimary(true);
@@ -69,22 +65,22 @@ void NewTrackAction::addUserInfoToSecondary(G4Track * aTrack,const TrackInformat
     trkInfo->storeTrack(true);
     trkInfo->putInHistory();
     trkInfo->setIDonCaloSurface(aTrack->GetTrackID(),
-				motherInfo.getIDCaloVolume(),
-				motherInfo.getIDLastVolume(),
-				aTrack->GetDefinition()->GetPDGEncoding(),
-				aTrack->GetMomentum().mag());
+                                motherInfo.getIDCaloVolume(),
+                                motherInfo.getIDLastVolume(),
+                                aTrack->GetDefinition()->GetPDGEncoding(),
+                                aTrack->GetMomentum().mag());
   } else {
     // transfer calo ID from mother (to be checked in TrackingAction)
     trkInfo->setIDonCaloSurface(motherInfo.getIDonCaloSurface(),
-				motherInfo.getIDCaloVolume(),
-				motherInfo.getIDLastVolume(),
-				motherInfo.caloSurfaceParticlePID(),
-				motherInfo.caloSurfaceParticleP());
+                                motherInfo.getIDCaloVolume(),
+                                motherInfo.getIDLastVolume(),
+                                motherInfo.caloSurfaceParticlePID(),
+                                motherInfo.caloSurfaceParticleP());
   }
-  
+
   if (motherInfo.hasCastorHit()) {
     trkInfo->setCastorHitPID(motherInfo.getCastorHitPID());
   }
 
-  aTrack->SetUserInformation(trkInfo);  
+  aTrack->SetUserInformation(trkInfo);
 }

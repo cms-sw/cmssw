@@ -111,10 +111,6 @@
   <ZSection z="[TotemMuonZ1]"  rMin="[TotemMuonR2]" rMax="[CMSR1]" />
   <ZSection z="[MuonBeamZ2]"   rMin="[TotemMuonR2]" rMax="[CMSR1]" />
  </Polycone> 
- <Tubs name="MB"   rMin="[MBarRmin]" rMax="[CMSR1]"  dz="[MBarZ]" 
-                   startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="MBWheel" rMin="[MBarRmin]" rMax="[MBarRmax]" dz="[MBRingZ]" 
-                   startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>
 
 <LogicalPartSection label="cms.xml">
@@ -138,30 +134,6 @@
   <rSolid name="MUON"/>
   <rMaterial name="materials:Air"/>
  </LogicalPart>
- <LogicalPart name="MB" category="unspecified">
-  <rSolid name="MB"/>
-  <rMaterial name="materials:M_B_Air"/>
- </LogicalPart>
-<LogicalPart name="MBWheel_0" category="unspecified">
-  <rSolid name="MBWheel"/>
-  <rMaterial name="materials:M_B_Air"/>
- </LogicalPart>
- <LogicalPart name="MBWheel_1P" category="unspecified">
-  <rSolid name="MBWheel"/>
-  <rMaterial name="materials:M_B_Air"/>
- </LogicalPart>
- <LogicalPart name="MBWheel_2P" category="unspecified">
-  <rSolid name="MBWheel"/>
-  <rMaterial name="materials:M_B_Air"/>
- </LogicalPart>
- <LogicalPart name="MBWheel_1N" category="unspecified">
-  <rSolid name="MBWheel"/>
-  <rMaterial name="materials:M_B_Air"/>
- </LogicalPart>
- <LogicalPart name="MBWheel_2N" category="unspecified">
-  <rSolid name="MBWheel"/>
-  <rMaterial name="materials:M_B_Air"/>
- </LogicalPart>
 </LogicalPartSection>
 
 <PosPartSection label="cms.xml">
@@ -184,40 +156,6 @@
    <rParent name="cms:CMSE"/>
    <rChild name="cms:MUON"/>
   <rRotation name="rotations:000D"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="cms:MUON"/>
-   <rChild name="cms:MB"/>
-  <rRotation name="rotations:000D"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="cms:MB"/>
-   <rChild name="cms:MBWheel_2N"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="0*fm" z="-5.342*m" />
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="cms:MB"/>
-   <rChild name="cms:MBWheel_1N"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="0*fm" z="-2.686*m" />
- </PosPart>
-<PosPart copyNumber="3">
-   <rParent name="cms:MB"/>
-   <rChild name="cms:MBWheel_0"/>
-  <rRotation name="rotations:000D"/>
- </PosPart>
- <PosPart copyNumber="4">
-   <rParent name="cms:MB"/>
-   <rChild name="cms:MBWheel_1P"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="0*fm" z="2.686*m" />
- </PosPart>
- <PosPart copyNumber="5">
-   <rParent name="cms:MB"/>
-   <rChild name="cms:MBWheel_2P"/>
-  <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="0*fm" z="5.342*m" />
  </PosPart>
 </PosPartSection>
 

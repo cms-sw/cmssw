@@ -19,8 +19,12 @@ public:
 
   ///Constructor. All parameters are set.
   RPCMuon(const RPCConst::l1RpcConeCrdnts coneCrdnts,
-          int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
-  
+          int ptCode,
+          int quality,
+          int sign,
+          int patternNum,
+          unsigned short firedPlanes);
+
   ///Constructor.
   RPCMuon(int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
 
@@ -60,25 +64,24 @@ public:
 
   void setRefStripNum(int refStripNum);
 
-/** continous number of strip in reference plane, set by	RPCPacData::run
+  /** continous number of strip in reference plane, set by	RPCPacData::run
   * int refStripNum =
   * getPattern(bestMuon.getPatternNum()).getStripFrom(m_REF_PLANE[abs(m_CurrConeCrdnts.m_Tower)])
   * + m_CurrConeCrdnts.m_LogSector * 96 + m_CurrConeCrdnts.m_LogSegment * 8;
   */
   int getRefStripNum() const;
- 
- 
+
   struct TDigiLink {
-     TDigiLink(short int l, short int d) : m_layer(l), m_digiIdx(d) {};
-     short int m_layer;
-     short int m_digiIdx;  // vec?
+    TDigiLink(short int l, short int d) : m_layer(l), m_digiIdx(d){};
+    short int m_layer;
+    short int m_digiIdx;  // vec?
   };
 
-  typedef std::vector<TDigiLink > TDigiLinkVec; 
+  typedef std::vector<TDigiLink> TDigiLinkVec;
 
-  TDigiLinkVec getDigiIdxVec() const {return m_digiIdxVec;};
-  void setDigiIdxVec(const TDigiLinkVec& d) {m_digiIdxVec = d;};
-  
+  TDigiLinkVec getDigiIdxVec() const { return m_digiIdxVec; };
+  void setDigiIdxVec(const TDigiLinkVec& d) { m_digiIdxVec = d; };
+
 protected:
   ///The coordinates of LogCone, in which the muon was found.
   RPCConst::l1RpcConeCrdnts m_ConeCrdnts;
@@ -93,18 +96,16 @@ protected:
   unsigned int m_Sign;
 
   ///number of pattern (in given Pac), that was fit to this muon.
-  int m_PatternNum;  
+  int m_PatternNum;
 
   int m_LogConeIdx;
 
-  ///bits of this number denotes fired planes that conform to pattern pattern 
+  ///bits of this number denotes fired planes that conform to pattern pattern
   unsigned short m_FiredPlanes;
 
   int m_RefStripNum;
 
-
   TDigiLinkVec m_digiIdxVec;
-
 };
 
 typedef std::vector<RPCMuon> L1RpcMuonsVec;

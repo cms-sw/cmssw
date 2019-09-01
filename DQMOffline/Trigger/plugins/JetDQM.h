@@ -10,32 +10,30 @@
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class JetDQM : public TriggerDQMBase
-{
- public:
+class JetDQM : public TriggerDQMBase {
+public:
   JetDQM();
   ~JetDQM() override;
 
   void initialise(const edm::ParameterSet& iConfig);
-  void bookHistograms(DQMStore::IBooker &);
-  void fillHistograms(const std::vector<reco::PFJet> & jets,
-		      const reco::PFMET & pfmet,
-		      const int & ls,
-		      const bool passCond);
-  static void fillJetDescription(edm::ParameterSetDescription & histoPSet);
+  void bookHistograms(DQMStore::IBooker&);
+  void fillHistograms(const std::vector<reco::PFJet>& jets,
+                      const reco::PFMET& pfmet,
+                      const int& ls,
+                      const bool passCond);
+  static void fillJetDescription(edm::ParameterSetDescription& histoPSet);
 
 private:
-
   std::vector<double> jetpt_variable_binning_;
   std::vector<double> jet1pt_variable_binning_;
   std::vector<double> jet2pt_variable_binning_;
   std::vector<double> mjj_variable_binning_;
-  MEbinning           jeteta_binning_;
-  MEbinning           detajj_binning_;
-  MEbinning           dphijj_binning_;
-  MEbinning           mindphijmet_binning_;
+  MEbinning jeteta_binning_;
+  MEbinning detajj_binning_;
+  MEbinning dphijj_binning_;
+  MEbinning mindphijmet_binning_;
 
-  MEbinning           ls_binning_;
+  MEbinning ls_binning_;
 
   //leading jets pT and eta
   ObjME jet1ptME_;
@@ -58,6 +56,6 @@ private:
   ObjME mjjVsLS_;
   ObjME mindphijmetVsLS_;
 
-};//class
+};  //class
 
-#endif //DQMOffline_Trigger_JetDQM_H
+#endif  //DQMOffline_Trigger_JetDQM_H

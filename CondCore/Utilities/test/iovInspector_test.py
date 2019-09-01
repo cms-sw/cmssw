@@ -1,3 +1,4 @@
+from __future__ import print_function
 # test of iovInpector
 
 import os,os.path,string,commands
@@ -42,7 +43,7 @@ class TestWhat :
 ts = TestWhat()
 wd = inspect.WhatDescription(ts)
 d = wd.describe()
-print d
+print(d)
 
 ret={}
 for key in d.keys() :
@@ -54,6 +55,6 @@ for key in d.keys() :
 
 inspect.setWhat(ts,ret)
 
-print ts.how()
-print [v for v in ts.which()]
-print [v for v in ts.lost()]
+print(ts.how())
+print([v for v in ts.which()])
+print([v for v in ts.lost()])

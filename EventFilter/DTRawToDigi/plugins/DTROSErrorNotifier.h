@@ -10,24 +10,20 @@
 //class DTROSErrorWord;
 
 class DTROSErrorNotifier {
-
 public:
-  
   /// Constructor
-  DTROSErrorNotifier(DTROSErrorWord error ); 
+  DTROSErrorNotifier(DTROSErrorWord error);
 
   /// Destructor
-  virtual ~DTROSErrorNotifier(); 
+  virtual ~DTROSErrorNotifier();
 
   /// Print out the error information >>> FIXME: to be implemented
-  void print(); 
+  void print();
 
   // >>> FIXME: Other methods to notify? to whom?
 
 private:
-
   DTROSErrorWord error_;
-
 };
 
 #endif

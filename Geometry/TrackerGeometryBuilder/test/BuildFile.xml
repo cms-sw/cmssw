@@ -1,29 +1,31 @@
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="Geometry/TrackerNumberingBuilder"/>
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="FWCore/Framework"/>
-<library   file="TrackerDigiGeometryAnalyzer.cc" name="TrackerDigiGeometryAnalyzer">
-  <use   name="CondFormats/Alignment"/>
-  <use   name="Geometry/Records"/>
-  <flags   EDM_PLUGIN="1"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/TrackerNumberingBuilder"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="FWCore/Framework"/>
+<library file="TrackerDigiGeometryAnalyzer.cc" name="TrackerDigiGeometryAnalyzer">
+  <use name="CondFormats/Alignment"/>
+  <use name="Geometry/Records"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="TrackerParametersAnalyzer.cc" name="TrackerParametersAnalyzer">
-  <use   name="CondFormats/Alignment"/>
-  <use   name="CondFormats/GeometryObjects"/>
-  <use   name="Geometry/Records"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="TrackerParametersAnalyzer.cc" name="TrackerParametersAnalyzer">
+  <use name="CondFormats/Alignment"/>
+  <use name="CondFormats/GeometryObjects"/>
+  <use name="Geometry/Records"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="TrackerMapTool.cc" name="TrackerMapTool">
-  <use   name="CondFormats/Alignment"/>
-  <use   name="Geometry/Records"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="TrackerMapTool.cc" name="TrackerMapTool">
+  <use name="CondFormats/Alignment"/>
+  <use name="Geometry/Records"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="ModuleInfo.cc" name="ModuleInfo">
-  <use   name="CondFormats/Alignment"/>
-  <use   name="Geometry/Records"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="ModuleInfo.cc" name="ModuleInfo">
+  <use name="CondFormats/Alignment"/>
+  <use name="Geometry/Records"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
-<library   file="GeoHierarchyTest.cc" name="GeoHierarchyTest">
-  <use   name="Geometry/Records"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="GeoHierarchyTest.cc" name="GeoHierarchyTest">
+  <use name="Geometry/Records"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
+
+<bin file="phase1PixelTopology_t.cpp"/>

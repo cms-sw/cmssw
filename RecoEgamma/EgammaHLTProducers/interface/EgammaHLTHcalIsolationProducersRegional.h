@@ -2,7 +2,7 @@
 //
 // Package:    EgammaHLTProducers
 // Class:      EgammaHLTHcalIsolationProducersRegional
-// 
+//
 /**\class EgammaHLTHcalIsolationProducersRegional EgammaHLTHcalIsolationProducersRegional.cc RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationProducersRegional.h
 */
 //
@@ -12,13 +12,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,29 +34,25 @@ namespace edm {
 
 class EgammaHLTHcalIsolation;
 
-class EgammaHLTHcalIsolationProducersRegional : public edm::EDProducer {
+class EgammaHLTHcalIsolationProducersRegional : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTHcalIsolationProducersRegional(const edm::ParameterSet&);
   ~EgammaHLTHcalIsolationProducersRegional() override;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  EgammaHLTHcalIsolationProducersRegional(const EgammaHLTHcalIsolationProducersRegional& rhs){}
-  EgammaHLTHcalIsolationProducersRegional& operator=(const EgammaHLTHcalIsolationProducersRegional& rhs){return *this;}
-  
-  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
-  edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitProducer_;
-  edm::EDGetTokenT<double> rhoProducer_;
+  const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  const edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitProducer_;
+  const edm::EDGetTokenT<double> rhoProducer_;
 
-  bool doRhoCorrection_;
-  float rhoScale_;
-  float rhoMax_;
-  bool doEtSum_;
-  float effectiveAreaBarrel_;
-  float effectiveAreaEndcap_;
+  const bool doRhoCorrection_;
+  const float rhoMax_;
+  const float rhoScale_;
+  const bool doEtSum_;
+  const float effectiveAreaBarrel_;
+  const float effectiveAreaEndcap_;
 
-  EgammaHLTHcalIsolation* isolAlgo_;
+  EgammaHLTHcalIsolation const* const isolAlgo_;
 };
-

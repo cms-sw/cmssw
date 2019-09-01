@@ -8,29 +8,29 @@ import sys
 #
 # Legacy Trigger:
 #
-from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-if not (stage2L1Trigger.isChosen()):
 #
 # -  Global Trigger emulator
 #
-    import L1Trigger.GlobalTrigger.gtDigis_cfi
-    simGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
-    simGtDigis.GmtInputTag = 'simGmtDigis'
-    simGtDigis.GctInputTag = 'simGctDigis'
-    simGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
-        cms.InputTag( 'simBscDigis' ), 
-        cms.InputTag( 'simRpcTechTrigDigis' ),
-        cms.InputTag( 'simHcalTechTrigDigis' ),
-        cms.InputTag( 'simCastorTechTrigDigis' )
-        )
-    SimL1TGlobal = cms.Sequence(simGtDigis)
+import L1Trigger.GlobalTrigger.gtDigis_cfi
+simGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone(
+    GmtInputTag = 'simGmtDigis',
+    GctInputTag = 'simGctDigis',
+    TechnicalTriggersInputTags = [
+        'simBscDigis',
+        'simRpcTechTrigDigis',
+        'simHcalTechTrigDigis',
+        'simCastorTechTrigDigis'
+    ]
+)
+SimL1TGlobalTask = cms.Task(simGtDigis)
+SimL1TGlobal = cms.Sequence(SimL1TGlobalTask)
 
 #
 # Stage-2 Trigger
 #
-if stage2L1Trigger.isChosen():
 #
 # -  Global Trigger emulator
 #
-    from L1Trigger.L1TGlobal.simGtStage2Digis_cfi import *
-    SimL1TGlobal = cms.Sequence(simGtStage2Digis)
+from L1Trigger.L1TGlobal.simGtStage2Digis_cfi import *
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toReplaceWith(SimL1TGlobalTask, cms.Task(simGtStage2Digis))

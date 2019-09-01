@@ -12,19 +12,14 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class DTROMapValidateDBRead : public edm::EDAnalyzer {
-
- public:
-
-  explicit  DTROMapValidateDBRead(edm::ParameterSet const& p);
-  explicit  DTROMapValidateDBRead(int i) ;
-  virtual ~ DTROMapValidateDBRead();
+public:
+  explicit DTROMapValidateDBRead(edm::ParameterSet const& p);
+  explicit DTROMapValidateDBRead(int i);
+  virtual ~DTROMapValidateDBRead();
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   virtual void endJob();
 
- private:
-
+private:
   std::string dataFileName;
   std::string elogFileName;
-
 };
-

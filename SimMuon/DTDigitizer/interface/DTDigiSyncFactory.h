@@ -14,9 +14,10 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "SimMuon/DTDigitizer/interface/DTDigiSyncBase.h"
 
-namespace edm {class ParameterSet;}
+namespace edm {
+  class ParameterSet;
+}
 
 typedef edmplugin::PluginFactory<DTDigiSyncBase *(const edm::ParameterSet &)> DTDigiSyncFactory;
-  
-#endif
 
+#endif

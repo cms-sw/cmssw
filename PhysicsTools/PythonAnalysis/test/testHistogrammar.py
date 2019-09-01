@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from builtins import range
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as pyplot
@@ -9,7 +10,7 @@ import histogrammar as hg
 
 # generate a stream of uniform random numbers
 import random
-data = [random.random() for i in xrange(2000)]
+data = [random.random() for i in range(2000)]
 
 # aggregation structure and fill rule
 histogram = hg.Bin(num=20, low=0, high=1, quantity=lambda x: x, value=hg.Count())

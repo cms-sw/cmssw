@@ -1,14 +1,15 @@
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 
 # define binning for efficiency plots
 # pt
-effVsPtBins = range(0, 50, 2)
-effVsPtBins += range(50, 70, 5)
-effVsPtBins += range(70, 100, 10)
-effVsPtBins += range(100, 200, 25)
-effVsPtBins += range(200, 300, 50)
-effVsPtBins += range(300, 500, 100)
-effVsPtBins.append(500)
+import itertools
+effVsPtBins=list(itertools.chain(range(0, 30, 1), range(30, 50, 2), 
+                                 range(50, 70, 5), range(70, 100, 10), 
+                                 range(100, 200, 25), range(200, 300, 50), 
+                                 range(300, 500, 100), range(500, 700, 200), 
+                                 range(700, 1000, 300)))
+effVsPtBins.append(1000)
 
 # phi
 nPhiBins = 34
@@ -26,7 +27,7 @@ effVsEtaBins = [i*(etaMax-etaMin)/nEtaBins + etaMin for i in range(nEtaBins+1)]
 effVsVtxBins = range(0, 101)
 
 # A list of pt cut + quality cut pairs for which efficiency plots should be made
-ptQualCuts = [[25, 12], [15, 8], [7, 8], [3, 4]]
+ptQualCuts = [[22, 12], [15, 8], [7, 8], [3, 4]]
 cutsPSets = []
 for ptQualCut in ptQualCuts:
     cutsPSets.append(cms.untracked.PSet(ptCut = cms.untracked.int32(ptQualCut[0]),
@@ -35,10 +36,10 @@ for ptQualCut in ptQualCuts:
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 l1tMuonDQMOffline = DQMEDAnalyzer('L1TMuonDQMOffline',
     histFolder = cms.untracked.string('L1T/L1TObjects/L1TMuon/L1TriggerVsReco'),
-    tagPtCut = cms.untracked.double(30.),
-    recoToL1PtCutFactor = cms.untracked.double(1.25),
+    tagPtCut = cms.untracked.double(26.),
+    recoToL1PtCutFactor = cms.untracked.double(1.2),
     cuts = cms.untracked.VPSet(cutsPSets),
-    useL1AtVtxCoord = cms.untracked.bool(True),
+    useL1AtVtxCoord = cms.untracked.bool(False),
 
     muonInputTag = cms.untracked.InputTag("muons"),
     gmtInputTag  = cms.untracked.InputTag("gmtStage2Digis","Muon"),
@@ -58,7 +59,22 @@ l1tMuonDQMOffline = DQMEDAnalyzer('L1TMuonDQMOffline',
     efficiencyVsEtaBins = cms.untracked.vdouble(effVsEtaBins),
     efficiencyVsVtxBins = cms.untracked.vdouble(effVsVtxBins),
 
+    # muon track extrapolation to 2nd station
+    muProp = cms.PSet(
+        useTrack = cms.string("tracker"),  # 'none' to use Candidate P4; or 'tracker', 'muon', 'global'
+        useState = cms.string("atVertex"), # 'innermost' and 'outermost' require the TrackExtra
+        useSimpleGeometry = cms.bool(True),
+        useStation2 = cms.bool(True),
+        fallbackToME1 = cms.bool(False),
+    ),
+
     verbose   = cms.untracked.bool(False)
+)
+
+# emulator module
+l1tMuonDQMOfflineEmu = l1tMuonDQMOffline.clone(
+    gmtInputTag  = cms.untracked.InputTag("simGmtStage2Digis"),
+    histFolder = cms.untracked.string('L1TEMU/L1TObjects/L1TMuon/L1TriggerVsReco')
 )
 
 # modifications for the pp reference run
@@ -76,4 +92,12 @@ ppRef_2017.toModify(l1tMuonDQMOffline,
         "HLT_HIL3Mu12_v*",
     )
 )
+ppRef_2017.toModify(l1tMuonDQMOfflineEmu,
+    tagPtCut = cms.untracked.double(14.),
+    cuts = cms.untracked.VPSet(cutsPSets_HI),
+    triggerNames = cms.untracked.vstring(
+        "HLT_HIL3Mu12_v*",
+    )
+)
+
 

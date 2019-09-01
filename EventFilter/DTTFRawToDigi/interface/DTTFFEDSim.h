@@ -27,30 +27,26 @@
 #include <string>
 
 class DTTFFEDSim : public edm::stream::EDProducer<> {
-
- public:
-
+public:
   /// Constructor
-  DTTFFEDSim(const edm::ParameterSet& pset);
+  DTTFFEDSim(const edm::ParameterSet &pset);
 
   /// Destructor
   ~DTTFFEDSim() override;
 
   /// Produce digis out of raw data
-  void produce(edm::Event & e, const edm::EventSetup& c) override;
+  void produce(edm::Event &e, const edm::EventSetup &c) override;
 
   /// Generate and fill FED raw data for a full event
-  bool fillRawData(edm::Event& e,
-                   FEDRawDataCollection& data);
+  bool fillRawData(edm::Event &e, FEDRawDataCollection &data);
 
- private:
-  
+private:
   unsigned int eventNum;
 
   edm::InputTag DTDigiInputTag;
   edm::InputTag DTPHTFInputTag;
 
- // utilities
+  // utilities
   int channel(int wheel, int sector, int bx);
 
   int bxNr(int channel);
@@ -64,8 +60,6 @@ class DTTFFEDSim : public edm::stream::EDProducer<> {
 
   edm::EDGetTokenT<L1MuDTChambPhContainer> ChPh_tok;
   edm::EDGetTokenT<L1MuDTChambThContainer> ChTh_tok;
-  edm::EDGetTokenT<L1MuDTTrackContainer>   Trk_tok;
-
-
+  edm::EDGetTokenT<L1MuDTTrackContainer> Trk_tok;
 };
 #endif

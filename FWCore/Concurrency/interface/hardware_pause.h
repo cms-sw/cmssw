@@ -4,7 +4,7 @@
 //
 // Package:     Concurrency
 // Class  :     hardware_pause
-// 
+//
 /**\class hardware_pause hardware_pause.h FWCore/Concurrency/interface/hardware_pause.h
 
  Description: assembler instruction to allow a short pause
@@ -23,12 +23,11 @@
 
 //NOTE: Taken from libdispatch shims/atomics.h
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2)
-#define hardware_pause()      asm("")
+#define hardware_pause() asm("")
 #endif
 #if defined(__x86_64__) || defined(__i386__)
 #undef hardware_pause
 #define hardware_pause() asm("pause")
 #endif
-
 
 #endif

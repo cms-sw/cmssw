@@ -2,7 +2,7 @@
 //
 // Package:    HLTrigger/TestBXVectorRefProducer
 // Class:      TestBXVectorRefProducer
-// 
+//
 /**\class TestBXVectorRefProducer TestBXVectorRefProducer.cc HLTrigger/TestBXVectorRefProducer/plugins/TestBXVectorRefProducer.cc
 
  Description: Simple testing producer to test storing of Ref<BXVector>  (example of <l1t::JetRef>) in the Event.
@@ -15,7 +15,6 @@
 //         Created:  Fri, 12 Feb 2016 09:56:04 GMT
 //
 //
-
 
 // system include files
 #include <memory>
@@ -38,32 +37,31 @@
 //
 
 class TestBXVectorRefProducer : public edm::stream::EDProducer<> {
-   public:
-      explicit TestBXVectorRefProducer(const edm::ParameterSet&);
-      ~TestBXVectorRefProducer() override;
+public:
+  explicit TestBXVectorRefProducer(const edm::ParameterSet&);
+  ~TestBXVectorRefProducer() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void beginStream(edm::StreamID) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endStream() override;
+private:
+  void beginStream(edm::StreamID) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override;
 
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-      // ----------member data ---------------------------
-      bool doRefs_;
-      edm::InputTag src_;
-      edm::EDGetTokenT<l1t::JetBxCollection> token_;
+  // ----------member data ---------------------------
+  bool doRefs_;
+  edm::InputTag src_;
+  edm::EDGetTokenT<l1t::JetBxCollection> token_;
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -72,86 +70,68 @@ class TestBXVectorRefProducer : public edm::stream::EDProducer<> {
 //
 // constructors and destructor
 //
-TestBXVectorRefProducer::TestBXVectorRefProducer(const edm::ParameterSet& iConfig)
-{
+TestBXVectorRefProducer::TestBXVectorRefProducer(const edm::ParameterSet& iConfig) {
+  //now do what ever other initialization is needed
+  src_ = iConfig.getParameter<edm::InputTag>("src");
+  doRefs_ = iConfig.getParameter<bool>("doRefs");
+  token_ = consumes<l1t::JetBxCollection>(src_);
 
-   //now do what ever other initialization is needed
-   src_       = iConfig.getParameter<edm::InputTag>( "src" );
-   doRefs_    = iConfig.getParameter<bool>("doRefs");
-   token_     = consumes<l1t::JetBxCollection>(src_);
+  //register your products
+  produces<vector<int>>("jetPt").setBranchAlias("jetPt");
 
-   //register your products
-   produces<vector<int>>( "jetPt" ).setBranchAlias( "jetPt");
-
-   if(doRefs_) {
-
-    produces<l1t::JetRefVector>( "l1tJetRef" ).setBranchAlias( "l1tJetRef");
-
-   }
-
+  if (doRefs_) {
+    produces<l1t::JetRefVector>("l1tJetRef").setBranchAlias("l1tJetRef");
+  }
 }
 
-
-TestBXVectorRefProducer::~TestBXVectorRefProducer()
-{
- 
-   // do anything here that needs to be done at destruction time
-   // (e.g. close files, deallocate resources etc.)
-
+TestBXVectorRefProducer::~TestBXVectorRefProducer() {
+  // do anything here that needs to be done at destruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-TestBXVectorRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+void TestBXVectorRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   unique_ptr<vector<int>> jetMom ( new vector<int> );
-   unique_ptr<l1t::JetRefVector> jetRef ( new l1t::JetRefVector );
+  unique_ptr<vector<int>> jetMom(new vector<int>);
+  unique_ptr<l1t::JetRefVector> jetRef(new l1t::JetRefVector);
 
-   // retrieve the tracks
-   Handle<l1t::JetBxCollection> jets;
-   iEvent.getByToken( token_, jets );
-   if(!jets.isValid()) return;
+  // retrieve the tracks
+  Handle<l1t::JetBxCollection> jets;
+  iEvent.getByToken(token_, jets);
+  if (!jets.isValid())
+    return;
 
-   const int size = jets->size();
-   jetMom->reserve( size );
+  const int size = jets->size();
+  jetMom->reserve(size);
 
-   l1t::JetBxCollection::const_iterator iter;
+  l1t::JetBxCollection::const_iterator iter;
 
-   for (iter = jets->begin(0); iter != jets->end(0); ++iter){
-
+  for (iter = jets->begin(0); iter != jets->end(0); ++iter) {
     jetMom->push_back(iter->pt());
 
-    l1t::JetRef myref(jets, jets->key(iter ));
+    l1t::JetRef myref(jets, jets->key(iter));
     jetRef->push_back(myref);
 
+  }  // end for
 
-   } // end for 
+  iEvent.put(std::move(jetMom), "jetPt");
 
-   iEvent.put(std::move(jetMom),"jetPt");
-   
-   if (doRefs_) iEvent.put(std::move(jetRef),"l1tJetRef");
+  if (doRefs_)
+    iEvent.put(std::move(jetRef), "l1tJetRef");
 
-   return;
- 
+  return;
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
-void
-TestBXVectorRefProducer::beginStream(edm::StreamID)
-{
-}
+void TestBXVectorRefProducer::beginStream(edm::StreamID) {}
 
 // ------------ method called once each stream after processing all runs, lumis and events  ------------
-void
-TestBXVectorRefProducer::endStream() {
-}
+void TestBXVectorRefProducer::endStream() {}
 
 // ------------ method called when starting to processes a run  ------------
 /*
@@ -160,7 +140,7 @@ TestBXVectorRefProducer::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
- 
+
 // ------------ method called when ending the processing of a run  ------------
 /*
 void
@@ -168,7 +148,7 @@ TestBXVectorRefProducer::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
- 
+
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
@@ -176,7 +156,7 @@ TestBXVectorRefProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::
 {
 }
 */
- 
+
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
@@ -184,10 +164,9 @@ TestBXVectorRefProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::Ev
 {
 }
 */
- 
+
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-TestBXVectorRefProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void TestBXVectorRefProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

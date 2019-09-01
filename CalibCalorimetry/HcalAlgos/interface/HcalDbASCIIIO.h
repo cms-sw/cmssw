@@ -54,86 +54,90 @@ Text file formats for different data types is as following:
 namespace HcalDbASCIIIO {
   //alternate function for creating certain objects
   template <class T>
-  std::unique_ptr<T> createObject (std::istream& fInput){
-    assert(0); //no general case, relies on specializations defined in cc file
+  std::unique_ptr<T> createObject(std::istream& fInput) {
+    assert(0);  //no general case, relies on specializations defined in cc file
     return std::make_unique<T>();
   }
 
-  bool getObject (std::istream& fInput, HcalPedestals* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalPedestals& fObject);
-  bool getObject (std::istream& fInput, HcalPedestalWidths* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalPedestalWidths& fObject);
-  bool getObject (std::istream& fInput, HcalGains* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalGains& fObject);
-  bool getObject (std::istream& fInput, HcalGainWidths* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalGainWidths& fObject);
-  bool getObject (std::istream& fInput, HcalQIEData* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalQIEData& fObject);
-  bool getObject (std::istream& fInput, HcalCalibrationQIEData* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalCalibrationQIEData& fObject);
-  bool getObject (std::istream& fInput, HcalQIETypes* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalQIETypes& fObject);
-  template<> std::unique_ptr<HcalElectronicsMap> createObject<HcalElectronicsMap>(std::istream& fInput);
-  bool dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject);
-  bool getObject (std::istream& fInput, HcalChannelQuality* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalChannelQuality& fObject);
-  bool getObject (std::istream& fInput, HcalRespCorrs* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalRespCorrs& fObject);
-  bool getObject (std::istream& fInput, HcalLUTCorrs* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalLUTCorrs& fObject);
-  bool getObject (std::istream& fInput, HcalPFCorrs* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalPFCorrs& fObject);
-  bool getObject (std::istream& fInput, HcalTimeCorrs* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalTimeCorrs& fObject);
-  bool getObject (std::istream& fInput, HcalZSThresholds* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject);
-  bool getObject (std::istream& fInput, HcalL1TriggerObjects* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject);
-  template<> std::unique_ptr<HcalFrontEndMap> createObject<HcalFrontEndMap>(std::istream& fInput);
-  bool dumpObject (std::ostream& fOutput, const HcalFrontEndMap& fObject);
+  bool getObject(std::istream& fInput, HcalPedestals* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalPedestals& fObject);
+  bool getObject(std::istream& fInput, HcalPedestalWidths* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalPedestalWidths& fObject);
+  bool getObject(std::istream& fInput, HcalGains* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalGains& fObject);
+  bool getObject(std::istream& fInput, HcalGainWidths* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalGainWidths& fObject);
+  bool getObject(std::istream& fInput, HcalQIEData* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalQIEData& fObject);
+  bool getObject(std::istream& fInput, HcalCalibrationQIEData* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalCalibrationQIEData& fObject);
+  bool getObject(std::istream& fInput, HcalQIETypes* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalQIETypes& fObject);
+  template <>
+  std::unique_ptr<HcalElectronicsMap> createObject<HcalElectronicsMap>(std::istream& fInput);
+  bool dumpObject(std::ostream& fOutput, const HcalElectronicsMap& fObject);
+  bool getObject(std::istream& fInput, HcalChannelQuality* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalChannelQuality& fObject);
+  bool getObject(std::istream& fInput, HcalRespCorrs* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalRespCorrs& fObject);
+  bool getObject(std::istream& fInput, HcalLUTCorrs* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalLUTCorrs& fObject);
+  bool getObject(std::istream& fInput, HcalPFCorrs* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalPFCorrs& fObject);
+  bool getObject(std::istream& fInput, HcalTimeCorrs* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalTimeCorrs& fObject);
+  bool getObject(std::istream& fInput, HcalZSThresholds* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalZSThresholds& fObject);
+  bool getObject(std::istream& fInput, HcalL1TriggerObjects* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalL1TriggerObjects& fObject);
+  template <>
+  std::unique_ptr<HcalFrontEndMap> createObject<HcalFrontEndMap>(std::istream& fInput);
+  bool dumpObject(std::ostream& fOutput, const HcalFrontEndMap& fObject);
 
-  bool getObject (std::istream& fInput, HcalValidationCorrs* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalValidationCorrs& fObject);
-  bool getObject (std::istream& fInput, HcalLutMetadata* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalLutMetadata& fObject);
-  bool getObject (std::istream& fInput, HcalDcsValues* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalDcsValues& fObject);
-  template <> std::unique_ptr<HcalDcsMap> createObject<HcalDcsMap>(std::istream& fInput);
-  bool dumpObject (std::ostream& fOutput, const HcalDcsMap& fObject);
+  bool getObject(std::istream& fInput, HcalValidationCorrs* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalValidationCorrs& fObject);
+  bool getObject(std::istream& fInput, HcalLutMetadata* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalLutMetadata& fObject);
+  bool getObject(std::istream& fInput, HcalDcsValues* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalDcsValues& fObject);
+  template <>
+  std::unique_ptr<HcalDcsMap> createObject<HcalDcsMap>(std::istream& fInput);
+  bool dumpObject(std::ostream& fOutput, const HcalDcsMap& fObject);
 
-  bool getObject (std::istream& fInput, HcalRecoParams* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalRecoParams& fObject);
-  bool getObject (std::istream& fInput, HcalLongRecoParams* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalLongRecoParams& fObject);
+  bool getObject(std::istream& fInput, HcalRecoParams* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalRecoParams& fObject);
+  bool getObject(std::istream& fInput, HcalLongRecoParams* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalLongRecoParams& fObject);
 
-  bool getObject (std::istream& fInput, HcalZDCLowGainFractions* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalZDCLowGainFractions& fObject);
+  bool getObject(std::istream& fInput, HcalZDCLowGainFractions* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalZDCLowGainFractions& fObject);
 
-  bool getObject (std::istream& fInput, HcalTimingParams* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalTimingParams& fObject);
+  bool getObject(std::istream& fInput, HcalTimingParams* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalTimingParams& fObject);
 
-  bool getObject (std::istream& fInput, HcalMCParams* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalMCParams& fObject);
+  bool getObject(std::istream& fInput, HcalMCParams* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalMCParams& fObject);
 
   // Getting/Dumping Hcal Flag information
-  bool getObject (std::istream& fInput, HcalFlagHFDigiTimeParams* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeParams& fObject);
+  bool getObject(std::istream& fInput, HcalFlagHFDigiTimeParams* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalFlagHFDigiTimeParams& fObject);
 
-  bool getObject (std::istream& fInput, HcalSiPMParameters* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalSiPMParameters& fObject);
-  template<> std::unique_ptr<HcalSiPMCharacteristics> createObject<HcalSiPMCharacteristics>(std::istream& fInput);
-  bool dumpObject (std::ostream& fOutput, const HcalSiPMCharacteristics& fObject);
+  bool getObject(std::istream& fInput, HcalSiPMParameters* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalSiPMParameters& fObject);
+  template <>
+  std::unique_ptr<HcalSiPMCharacteristics> createObject<HcalSiPMCharacteristics>(std::istream& fInput);
+  bool dumpObject(std::ostream& fOutput, const HcalSiPMCharacteristics& fObject);
 
-  bool getObject (std::istream& fInput, HcalTPParameters* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalTPParameters& fObject);
-  bool getObject (std::istream& fInput, HcalTPChannelParameters* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalTPChannelParameters& fObject);
+  bool getObject(std::istream& fInput, HcalTPParameters* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalTPParameters& fObject);
+  bool getObject(std::istream& fInput, HcalTPChannelParameters* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalTPChannelParameters& fObject);
 
-  bool dumpObject (std::ostream& fOutput, const HcalCalibrationsSet& fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalCalibrationWidthsSet& fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalCalibrationsSet& fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalCalibrationWidthsSet& fObject);
 
-  DetId getId (const std::vector <std::string> & items);
-  void dumpId (std::ostream& fOutput, DetId id);
-  void dumpIdShort (std::ostream& fOutput, DetId id);
-} 
+  DetId getId(const std::vector<std::string>& items);
+  void dumpId(std::ostream& fOutput, DetId id);
+  void dumpIdShort(std::ostream& fOutput, DetId id);
+}  // namespace HcalDbASCIIIO
 #endif

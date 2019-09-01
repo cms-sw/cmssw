@@ -32,92 +32,84 @@
 // forward declarations
 
 namespace edm {
-   class ActivityRegistry;
-   class ParameterSet;
+  class ActivityRegistry;
+  class ParameterSet;
 
-   namespace serviceregistry {
+  namespace serviceregistry {
 
-      template<typename T, typename TConcrete>
-      struct MakerBase {
-         typedef T interface_t;
-         typedef TConcrete concrete_t;
-      };
+    template <typename T, typename TConcrete>
+    struct MakerBase {
+      typedef T interface_t;
+      typedef TConcrete concrete_t;
+    };
 
-      template<typename T, typename TConcrete = T>
-         struct AllArgsMaker : public MakerBase<T, TConcrete> {
+    template <typename T, typename TConcrete = T>
+    struct AllArgsMaker : public MakerBase<T, TConcrete> {
+      std::unique_ptr<T> make(ParameterSet const& iPS, ActivityRegistry& iAR) const {
+        return std::make_unique<TConcrete>(iPS, iAR);
+      }
+    };
 
-         std::unique_ptr<T> make(ParameterSet const& iPS,
-                               ActivityRegistry& iAR) const {
-            return std::make_unique<TConcrete>(iPS, iAR);
-         }
-      };
+    template <typename T, typename TConcrete = T>
+    struct ParameterSetMaker : public MakerBase<T, TConcrete> {
+      std::unique_ptr<T> make(ParameterSet const& iPS, ActivityRegistry& /* iAR */) const {
+        return std::make_unique<TConcrete>(iPS);
+      }
+    };
 
-      template<typename T, typename TConcrete = T>
-      struct ParameterSetMaker : public MakerBase<T, TConcrete> {
-         std::unique_ptr<T> make(ParameterSet const& iPS,
-                               ActivityRegistry& /* iAR */) const {
-            return std::make_unique<TConcrete>(iPS);
-         }
-      };
+    template <typename T, typename TConcrete = T>
+    struct NoArgsMaker : public MakerBase<T, TConcrete> {
+      std::unique_ptr<T> make(ParameterSet const& /* iPS */, ActivityRegistry& /* iAR */) const {
+        return std::make_unique<TConcrete>();
+      }
+    };
 
-      template<typename T, typename TConcrete = T>
-      struct NoArgsMaker : public MakerBase<T, TConcrete> {
-         std::unique_ptr<T> make(ParameterSet const& /* iPS */,
-                               ActivityRegistry& /* iAR */) const {
-            return std::make_unique<TConcrete>();
-         }
-      };
+    template <typename T, typename TMaker = AllArgsMaker<T> >
+    class ServiceMaker : public ServiceMakerBase {
+    public:
+      ServiceMaker() {}
+      //virtual ~ServiceMaker();
 
-      template<typename T, typename TMaker = AllArgsMaker<T> >
-      class ServiceMaker : public ServiceMakerBase {
+      // ---------- const member functions ---------------------
+      std::type_info const& serviceType() const override { return typeid(T); }
 
-public:
-         ServiceMaker() {}
-         //virtual ~ServiceMaker();
+      bool make(ParameterSet const& iPS, ActivityRegistry& iAR, ServicesManager& oSM) const override {
+        TMaker maker;
+        std::unique_ptr<T> pService(maker.make(iPS, iAR));
+        auto ptr = std::make_shared<ServiceWrapper<T> >(std::move(pService));
+        return oSM.put(ptr);
+      }
 
-         // ---------- const member functions ---------------------
-         std::type_info const& serviceType() const override { return typeid(T); }
+      bool saveConfiguration() const override {
+        return ServiceMakerBase::testSaveConfiguration(static_cast<typename TMaker::concrete_t const*>(nullptr));
+      }
 
-         bool make(ParameterSet const& iPS,
-                           ActivityRegistry& iAR,
-                           ServicesManager& oSM) const override {
-            TMaker maker;
-            std::unique_ptr<T> pService(maker.make(iPS, iAR));
-            auto ptr = std::make_shared<ServiceWrapper<T> >(std::move(pService));
-            return oSM.put(ptr);
-         }
+      bool processWideService() const override {
+        return service::isProcessWideService(static_cast<typename TMaker::concrete_t const*>(nullptr));
+      }
 
-         bool saveConfiguration() const override {
-            return ServiceMakerBase::testSaveConfiguration(static_cast<typename TMaker::concrete_t const*>(nullptr));
-         }
+      // ---------- static member functions --------------------
 
-         bool processWideService() const override {
-            return service::isProcessWideService(static_cast<typename TMaker::concrete_t const*>(nullptr));
-         }
+      // ---------- member functions ---------------------------
 
-         // ---------- static member functions --------------------
+    private:
+      ServiceMaker(ServiceMaker const&) = delete;  // stop default
 
-         // ---------- member functions ---------------------------
+      ServiceMaker const& operator=(ServiceMaker const&) = delete;  // stop default
 
-private:
-         ServiceMaker(ServiceMaker const&) = delete; // stop default
+      // ---------- member data --------------------------------
+    };
+  }  // namespace serviceregistry
+}  // namespace edm
 
-         ServiceMaker const& operator=(ServiceMaker const&) = delete; // stop default
+#define DEFINE_FWK_SERVICE(type)                                                                                  \
+  DEFINE_EDM_PLUGIN(edm::serviceregistry::ServicePluginFactory, edm::serviceregistry::ServiceMaker<type>, #type); \
+  DEFINE_DESC_FILLER_FOR_SERVICES(type, type)
 
-         // ---------- member data --------------------------------
-
-      };
-   }
-}
-
-#define DEFINE_FWK_SERVICE(type) \
-DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory, edm::serviceregistry::ServiceMaker<type>, #type); \
-DEFINE_DESC_FILLER_FOR_SERVICES(type, type)
-
-#define DEFINE_FWK_SERVICE_MAKER(concrete, maker) \
-typedef edm::serviceregistry::ServiceMaker<maker::interface_t, maker> concrete ## _ ## _t; \
-DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory, concrete ## _ ##  _t , #concrete); \
-typedef maker::concrete_t concrete ## _ ## _ ## _t; \
-DEFINE_DESC_FILLER_FOR_SERVICES(concrete, concrete ## _ ## _ ## _t)
+#define DEFINE_FWK_SERVICE_MAKER(concrete, maker)                                            \
+  typedef edm::serviceregistry::ServiceMaker<maker::interface_t, maker> concrete##_##_t;     \
+  DEFINE_EDM_PLUGIN(edm::serviceregistry::ServicePluginFactory, concrete##_##_t, #concrete); \
+  typedef maker::concrete_t concrete##_##_##_t;                                              \
+  DEFINE_DESC_FILLER_FOR_SERVICES(concrete, concrete##_##_##_t)
 
 #endif

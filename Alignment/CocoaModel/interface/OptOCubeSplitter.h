@@ -3,8 +3,8 @@
 //CAT: Model
 //
 //   Base class to describe Optical Objects of type sensor 2D
-// 
-//   History: v1.0 
+//
+//   History: v1.0
 //   Pedro Arce
 
 #ifndef _OPTOCUBESPLITTER_HH
@@ -15,24 +15,22 @@
 class Measurement;
 class LightRay;
 
-class OptOCubeSplitter: public OpticalObject
-{
-
+class OptOCubeSplitter : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOCubeSplitter(){ };
-  OptOCubeSplitter(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
-  OpticalObject( parent, type, name, copy_data){ };
-  ~OptOCubeSplitter() override{ };
+  OptOCubeSplitter(){};
+  OptOCubeSplitter(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
+      : OpticalObject(parent, type, name, copy_data){};
+  ~OptOCubeSplitter() override{};
 
   //---------- Fast simulation of deviation of the light ray (reflection, shift, ...)
-  void fastDeviatesLightRay( LightRay& lightray ) override;
+  void fastDeviatesLightRay(LightRay& lightray) override;
   //---------- Detailed simulation of the light ray traversing
-  void fastTraversesLightRay( LightRay& lightray ) override;
+  void fastTraversesLightRay(LightRay& lightray) override;
   //---------- Detailed simulation of deviation of the light ray (reflection, shift, ...)
-  void detailedDeviatesLightRay( LightRay& lightray ) override;
+  void detailedDeviatesLightRay(LightRay& lightray) override;
   //---------- Fast simulation of the light ray traversing
-  void detailedTraversesLightRay( LightRay& lightray ) override;
+  void detailedTraversesLightRay(LightRay& lightray) override;
 
   ALIPlane getMiddlePlate();
   ALIPlane getUpperPlate();
@@ -41,8 +39,6 @@ public:
   virtual void fillIguana();
 #endif
   void constructSolidShape() override;
-
 };
 
 #endif
-

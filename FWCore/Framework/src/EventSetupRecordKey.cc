@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordKey
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -15,55 +15,52 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
-
 //
 // constants, enums and typedefs
 //
 
 namespace edm {
-   namespace eventsetup {
-//
-// static data member definitions
-//
+  namespace eventsetup {
+    //
+    // static data member definitions
+    //
 
-//
-// constructors and destructor
-//
-EventSetupRecordKey::EventSetupRecordKey() : type_()
-{
-}
+    //
+    // constructors and destructor
+    //
+    EventSetupRecordKey::EventSetupRecordKey() : type_() {}
 
-// EventSetupRecordKey::EventSetupRecordKey(const EventSetupRecordKey& rhs)
-// {
-//    // do actual copying here;
-// }
+    // EventSetupRecordKey::EventSetupRecordKey(const EventSetupRecordKey& rhs)
+    // {
+    //    // do actual copying here;
+    // }
 
-//EventSetupRecordKey::~EventSetupRecordKey()
-//{
-//}
+    //EventSetupRecordKey::~EventSetupRecordKey()
+    //{
+    //}
 
-//
-// assignment operators
-//
-// const EventSetupRecordKey& EventSetupRecordKey::operator=(const EventSetupRecordKey& rhs)
-// {
-//   //An exception safe implementation is
-//   EventSetupRecordKey temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
+    //
+    // assignment operators
+    //
+    // const EventSetupRecordKey& EventSetupRecordKey::operator=(const EventSetupRecordKey& rhs)
+    // {
+    //   //An exception safe implementation is
+    //   EventSetupRecordKey temp(rhs);
+    //   swap(rhs);
+    //
+    //   return *this;
+    // }
 
-//
-// member functions
-//
+    //
+    // member functions
+    //
 
-//
-// const member functions
-//
+    //
+    // const member functions
+    //
 
-//
-// static member functions
-//
-   }
-}
+    //
+    // static member functions
+    //
+  }  // namespace eventsetup
+}  // namespace edm

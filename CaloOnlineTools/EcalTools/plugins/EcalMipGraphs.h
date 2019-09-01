@@ -1,8 +1,8 @@
 // -*- C++ -*-
 //
-// Package:   EcalMipGraphs 
-// Class:     EcalMipGraphs 
-// 
+// Package:   EcalMipGraphs
+// Class:     EcalMipGraphs
+//
 /**\class EcalMipGraphs EcalMipGraphs.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Th Nov 22 5:46:22 CEST 2007
 //
 //
-
 
 // system include files
 #include <memory>
@@ -53,31 +52,28 @@
 #include "TGraph.h"
 #include "TTree.h"
 
-
 //
 // class declaration
 //
 
 class EcalMipGraphs : public edm::EDAnalyzer {
-   public:
-      explicit EcalMipGraphs(const edm::ParameterSet&);
-      ~EcalMipGraphs() override;
+public:
+  explicit EcalMipGraphs(const edm::ParameterSet&);
+  ~EcalMipGraphs() override;
 
+private:
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override;
+  std::string intToString(int num);
+  std::string floatToString(float num);
+  void writeGraphs();
+  void initHists(int);
+  void selectHits(edm::Handle<EcalRecHitCollection> hits, int ievt, edm::ESHandle<CaloTopology> caloTopo);
+  TGraph* selectDigi(DetId det, int ievt);
+  int getEEIndex(EcalElectronicsId elecId);
 
-   private:
-      void beginRun(edm::Run const &, edm::EventSetup const &) override ;
-      void analyze(edm::Event const &, edm::EventSetup const &) override;
-      void endJob() override ;
-      std::string intToString(int num);
-      std::string floatToString(float num);
-      void writeGraphs();
-      void initHists(int);
-      void selectHits(edm::Handle<EcalRecHitCollection> hits,
-          int ievt, edm::ESHandle<CaloTopology> caloTopo);
-      TGraph* selectDigi(DetId det, int ievt);
-      int getEEIndex(EcalElectronicsId elecId);
-
-    // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   edm::InputTag EBRecHitCollection_;
   edm::InputTag EERecHitCollection_;
@@ -95,7 +91,7 @@ class EcalMipGraphs : public edm::EDAnalyzer {
 
   std::set<EBDetId> listEBChannels;
   std::set<EEDetId> listEEChannels;
-    
+
   int abscissa[10];
   int ordinate[10];
 
@@ -107,17 +103,17 @@ class EcalMipGraphs : public edm::EDAnalyzer {
   std::vector<int> maskedFEDs_;
   std::vector<int> seedCrys_;
   std::vector<std::string> maskedEBs_;
-  std::map<int,TH1F*> FEDsAndTimingHists_;
-  std::map<int,float> crysAndAmplitudesMap_;
-  std::map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_;
-  std::map<std::string,int> seedFrequencyMap_;
-  
+  std::map<int, TH1F*> FEDsAndTimingHists_;
+  std::map<int, float> crysAndAmplitudesMap_;
+  std::map<int, EcalDCCHeaderBlock> FEDsAndDCCHeaders_;
+  std::map<std::string, int> seedFrequencyMap_;
+
   TH1F* allFedsTimingHist_;
-  
+
   TFile* file_;
   TTree* canvasNames_;
   EcalFedMap* fedMap_;
   const EcalElectronicsMapping* ecalElectronicsMap_;
- 
-  int naiveEvtNum_; 
+
+  int naiveEvtNum_;
 };

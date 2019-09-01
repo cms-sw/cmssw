@@ -12,7 +12,6 @@
 
 ________________________________________________________________**/
 
-
 // C++ standard
 #include <string>
 // CMS
@@ -22,26 +21,23 @@ ________________________________________________________________**/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 
-
 class BeamSpotAnalyzer : public edm::EDAnalyzer {
- public:
+public:
   explicit BeamSpotAnalyzer(const edm::ParameterSet&);
   ~BeamSpotAnalyzer() override;
 
- private:
-  void beginJob() override ;
+private:
+  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-									const edm::EventSetup& context) override ;
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-								  const edm::EventSetup& c) override;
+  void endJob() override;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
 
-  int    ftotalevents;
+  int ftotalevents;
   int fitNLumi_;
   int resetFitNLumi_;
   // int countEvt_;       //counter
-  int countLumi_;      //counter
+  int countLumi_;  //counter
   int Org_resetFitNLumi_;
   int previousLumi_;
   int previousRun_;
@@ -55,7 +51,7 @@ class BeamSpotAnalyzer : public edm::EDAnalyzer {
   bool runallfitters_;
   //  double inputBeamWidth_;
 
-  BeamFitter * theBeamFitter;
+  BeamFitter* theBeamFitter;
 };
 
 #endif

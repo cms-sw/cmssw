@@ -30,9 +30,8 @@ int main() {
     ed4.setParents(std::vector<edm::BranchID>(1));
     edm::ParentageID id4 = ed4.id();
     assert(ed4 == ed2);
-    assert (id4 == id2);
-  }
-  catch(cms::Exception const& e) {
+    assert(id4 == id2);
+  } catch (cms::Exception const& e) {
     std::cerr << e.explainSelf() << std::endl;
     return 1;
   }

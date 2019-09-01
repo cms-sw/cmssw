@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     RPCObGasMixRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Fri Oct 10 09:56:32 CEST 2008
 // $Id: RPCObGasMixRcd.cc,v 1.2 2008/12/12 17:32:40 dpagano Exp $
 

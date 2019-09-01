@@ -5,6 +5,7 @@ from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 from RecoLocalCalo.Configuration.RecoLocalCalo_cff import *
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_cff import *
+from RecoMTD.Configuration.RecoMTD_cff import *
 from RecoTracker.Configuration.RecoTracker_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 from TrackingTools.Configuration.TrackingTools_cff import *
@@ -50,6 +51,14 @@ from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 # Cosmic During Collisions
 from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *
 
+# Low pT electrons
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSequence_cff import *
+
+# Conversions from lowPtGsfTracks
+from RecoEgamma.EgammaPhotonProducers.conversionOpenTrackSequence_cff import *
+from RecoEgamma.EgammaPhotonProducers.gsfTracksOpenConversionSequence_cff import *
+
+
 localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
 localreco_HcalNZS = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
@@ -79,7 +88,12 @@ ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
 ###########################################
 # no castor, zdc, Totem/CTPPS RP in FastSim
 ###########################################
-_fastSim_localreco = localreco.copyAndExclude([castorreco,totemRPLocalReconstruction,ctppsDiamondLocalReconstruction,ctppsLocalTrackLiteProducer,ctppsPixelLocalReconstruction,trackerlocalreco])
+_fastSim_localreco = localreco.copyAndExclude([
+    castorreco,
+    totemRPLocalReconstruction,totemTimingLocalReconstruction,ctppsDiamondLocalReconstruction,
+      ctppsLocalTrackLiteProducer,ctppsPixelLocalReconstruction,ctppsProtons,
+    trackerlocalreco
+])
 fastSim.toReplaceWith(localreco, _fastSim_localreco)
 
 #
@@ -106,10 +120,16 @@ trackingLowPU.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU)
 _fastSim_globalreco_tracking = globalreco_tracking.copyAndExclude([offlineBeamSpot,MeasurementTrackerEventPreSplitting,siPixelClusterShapeCachePreSplitting])
 fastSim.toReplaceWith(globalreco_tracking,_fastSim_globalreco_tracking)
 
+_phase2_timing_layer_globalreco_tracking = globalreco_tracking.copy()
+_phase2_timing_layer_globalreco_tracking += fastTimingGlobalReco
+from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
+from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(globalreco_tracking,_phase2_timing_layer_globalreco_tracking)
+
 globalreco = cms.Sequence(globalreco_tracking*
                           particleFlowCluster*
                           ecalClusters*
-                          caloTowersRec*                          
+                          caloTowersRec*
                           egammaGlobalReco*
                           jetGlobalReco*
                           muonGlobalReco*
@@ -142,17 +162,24 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              recoPFMET*
                              PFTau*
                              reducedRecHits*
-                             cosmicDCTracksSeq
+                             cosmicDCTracksSeq*
+                             lowPtGsfElectronSequence*
+                             conversionOpenTrackSequence*
+                             gsfTracksOpenConversionSequence 
                              )
 
-# XeXe data with pp reco
+# AA data with pp reco
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from RecoHI.HiTracking.HILowPtConformalPixelTracks_cfi import *
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import hiCentrality
 from RecoHI.HiCentralityAlgos.HiClusterCompatibility_cfi import hiClusterCompatibility
 _highlevelreco_HI = highlevelreco.copy()
+_highlevelreco_HI += hiConformalPixelTracksSequencePhase1
 _highlevelreco_HI += hiCentrality
 _highlevelreco_HI += hiClusterCompatibility
-pp_on_XeXe_2017.toReplaceWith(highlevelreco, _highlevelreco_HI)
+(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(highlevelreco, _highlevelreco_HI)
+pp_on_AA_2018.toReplaceWith(highlevelreco,highlevelreco.copyAndExclude([PFTau]))
 
 # not commisoned and not relevant in FastSim (?):
 _fastSim_highlevelreco = highlevelreco.copyAndExclude([cosmicDCTracksSeq,muoncosmichighlevelreco])
@@ -208,6 +235,7 @@ modulesToRemove.append(dt1DRecHits)
 modulesToRemove.append(dt1DCosmicRecHits)
 modulesToRemove.append(csc2DRecHits)
 modulesToRemove.append(rpcRecHits)
+modulesToRemove.append(gemRecHits)
 #modulesToRemove.append(ecalGlobalUncalibRecHit)
 modulesToRemove.append(ecalMultiFitUncalibRecHit)
 modulesToRemove.append(ecalDetIdToBeRecovered)
@@ -266,9 +294,3 @@ reconstruction_HcalNZS = cms.Sequence(localreco_HcalNZS*globalreco       *highle
 #sequences without some stuffs
 #
 reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
-
-
-# define a standard candle. please note I am picking up individual
-# modules instead of sequences
-#
-reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*electronSequence*photonSequence)

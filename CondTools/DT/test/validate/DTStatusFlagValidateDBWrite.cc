@@ -4,7 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTStatusFlagValidateHandler> DTStatusFlagValidateDBWrite;
 
-
 DEFINE_FWK_MODULE(DTStatusFlagValidateDBWrite);
-
-

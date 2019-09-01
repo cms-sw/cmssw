@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function
+from builtins import range
 import re
 import argparse
 import math
@@ -58,7 +60,7 @@ numberOfFiles   = len(fileNames)
 numberOfExtends = int(math.ceil(numberOfFiles/255.))
 
 # Create and insert the readFile.extend lines
-for j in xrange(numberOfExtends):
+for j in range(numberOfExtends):
     insertBlock = "readFiles.extend([\n    "
     i=0
     currentStart = j*255
@@ -71,9 +73,9 @@ for j in xrange(numberOfExtends):
         i+=1
 
     for line in fileinput.input(outCfg, inplace=1):
-        print line,
+        print(line,end='')
         if re.match('readFiles\s*=\s*cms.untracked.vstring()',line):
-            print insertBlock,
+            print(insertBlock,end='')
 
 if args.skip_events is not None:
     with open(outCfg, "a") as f:

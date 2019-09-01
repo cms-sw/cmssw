@@ -22,14 +22,14 @@
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 // extract the candidate type
-template<typename T>
-int getObjectType(const T &) {
+template <typename T>
+int getObjectType(const T&) {
   return 0;
 }
 
 // specialize for type l1extra::L1EmParticle
-template<typename T>
-int getObjectType(const l1extra::L1EmParticle & candidate) {
+template <typename T>
+int getObjectType(const l1extra::L1EmParticle& candidate) {
   switch (candidate.type()) {
     case l1extra::L1EmParticle::kIsolated:
       return trigger::TriggerL1IsoEG;
@@ -41,8 +41,8 @@ int getObjectType(const l1extra::L1EmParticle & candidate) {
 }
 
 // specialize for type l1extra::L1EtMissParticle
-template<typename T>
-int getObjectType(const l1extra::L1EtMissParticle & candidate) {
+template <typename T>
+int getObjectType(const l1extra::L1EtMissParticle& candidate) {
   switch (candidate.type()) {
     case l1extra::L1EtMissParticle::kMET:
       return trigger::TriggerL1ETM;
@@ -54,8 +54,8 @@ int getObjectType(const l1extra::L1EtMissParticle & candidate) {
 }
 
 // specialize for type l1extra::L1JetParticle
-template<typename T>
-int getObjectType(const l1extra::L1JetParticle & candidate) {
+template <typename T>
+int getObjectType(const l1extra::L1JetParticle& candidate) {
   switch (candidate.type()) {
     case l1extra::L1JetParticle::kCentral:
       return trigger::TriggerL1CenJet;
@@ -68,46 +68,42 @@ int getObjectType(const l1extra::L1JetParticle & candidate) {
   }
 }
 
-
 //
 // constructors and destructor
 //
-template<typename T>
-HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
-  inputTag_    (iConfig.template getParameter<edm::InputTag>("inputTag")),
-  inputToken_  (consumes<std::vector<T> >(inputTag_)),
-  triggerType_ (iConfig.template getParameter<int>("triggerType")),
-  min_N_    (iConfig.template getParameter<int>          ("MinN"    )),
-  min_E_    (iConfig.template getParameter<double>       ("MinE"    )),
-  min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
-  min_Mass_ (iConfig.template getParameter<double>       ("MinMass" )),
-  max_Mass_ (iConfig.template getParameter<double>       ("MaxMass" )),
-  min_Eta_  (iConfig.template getParameter<double>       ("MinEta"  )),
-  max_Eta_  (iConfig.template getParameter<double>       ("MaxEta"  ))
-{
-   LogDebug("") << "Input/ptcut/etacut/ncut : "
-		<< inputTag_.encode() << " "
-		<< min_E_ << " " << min_Pt_ << " " << min_Mass_ << " " << max_Mass_ << " "
-		<< min_Eta_ << " " << max_Eta_ << " " << min_N_ ;
+template <typename T>
+HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig),
+      inputTag_(iConfig.template getParameter<edm::InputTag>("inputTag")),
+      inputToken_(consumes<std::vector<T>>(inputTag_)),
+      triggerType_(iConfig.template getParameter<int>("triggerType")),
+      min_N_(iConfig.template getParameter<int>("MinN")),
+      min_E_(iConfig.template getParameter<double>("MinE")),
+      min_Pt_(iConfig.template getParameter<double>("MinPt")),
+      min_Mass_(iConfig.template getParameter<double>("MinMass")),
+      max_Mass_(iConfig.template getParameter<double>("MaxMass")),
+      min_Eta_(iConfig.template getParameter<double>("MinEta")),
+      max_Eta_(iConfig.template getParameter<double>("MaxEta")) {
+  LogDebug("") << "Input/ptcut/etacut/ncut : " << inputTag_.encode() << " " << min_E_ << " " << min_Pt_ << " "
+               << min_Mass_ << " " << max_Mass_ << " " << min_Eta_ << " " << max_Eta_ << " " << min_N_;
 }
 
-template<typename T>
+template <typename T>
 HLTSinglet<T>::~HLTSinglet() = default;
 
-template<typename T>
-void
-HLTSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename T>
+void HLTSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltCollection"));
-  desc.add<int>("triggerType",0);
-  desc.add<double>("MinE",-1.0);
-  desc.add<double>("MinPt",-1.0);
-  desc.add<double>("MinMass",-1.0);
-  desc.add<double>("MaxMass",-1.0);
-  desc.add<double>("MinEta",-1.0);
-  desc.add<double>("MaxEta",-1.0);
-  desc.add<int>("MinN",1);
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("hltCollection"));
+  desc.add<int>("triggerType", 0);
+  desc.add<double>("MinE", -1.0);
+  desc.add<double>("MinPt", -1.0);
+  desc.add<double>("MinMass", -1.0);
+  desc.add<double>("MaxMass", -1.0);
+  desc.add<double>("MinEta", -1.0);
+  desc.add<double>("MaxEta", -1.0);
+  desc.add<int>("MinN", 1);
   descriptions.add(defaultModuleLabel<HLTSinglet<T>>(), desc);
 }
 
@@ -116,54 +112,51 @@ HLTSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 //
 
 // ------------ method called to produce the data  ------------
-template<typename T>
-bool
-HLTSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
-{
-   using namespace std;
-   using namespace edm;
-   using namespace reco;
-   using namespace trigger;
+template <typename T>
+bool HLTSinglet<T>::hltFilter(edm::Event& iEvent,
+                              const edm::EventSetup& iSetup,
+                              trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
+  using namespace trigger;
 
-   typedef vector<T> TCollection;
-   typedef Ref<TCollection> TRef;
+  typedef vector<T> TCollection;
+  typedef Ref<TCollection> TRef;
 
-   // All HLT filters must create and fill an HLT filter object,
-   // recording any reconstructed physics objects satisfying (or not)
-   // this HLT filter, and place it in the Event.
+  // All HLT filters must create and fill an HLT filter object,
+  // recording any reconstructed physics objects satisfying (or not)
+  // this HLT filter, and place it in the Event.
 
-   // The filter object
-   if (saveTags()) filterproduct.addCollectionTag(inputTag_);
+  // The filter object
+  if (saveTags())
+    filterproduct.addCollectionTag(inputTag_);
 
-   // Ref to Candidate object to be recorded in filter object
-   TRef ref;
+  // Ref to Candidate object to be recorded in filter object
+  TRef ref;
 
+  // get hold of collection of objects
+  Handle<TCollection> objects;
+  iEvent.getByToken(inputToken_, objects);
 
-   // get hold of collection of objects
-   Handle<TCollection> objects;
-   iEvent.getByToken(inputToken_,objects);
+  // look at all objects, check cuts and add to filter object
+  int n(0);
+  typename TCollection::const_iterator i(objects->begin());
+  for (; i != objects->end(); i++) {
+    if ((i->energy() >= min_E_) && (i->pt() >= min_Pt_) && (i->mass() >= min_Mass_) &&
+        ((max_Mass_ < 0.0) || (i->mass() <= max_Mass_)) && ((min_Eta_ < 0.0) || (std::abs(i->eta()) >= min_Eta_)) &&
+        ((max_Eta_ < 0.0) || (std::abs(i->eta()) <= max_Eta_))) {
+      n++;
+      ref = TRef(objects, distance(objects->begin(), i));
+      int tid = getObjectType<T>(*i);
+      if (tid == 0)
+        tid = triggerType_;
+      filterproduct.addObject(tid, ref);
+    }
+  }
 
-   // look at all objects, check cuts and add to filter object
-   int n(0);
-   typename TCollection::const_iterator i ( objects->begin() );
-   for (; i!=objects->end(); i++) {
-     if ( (i->energy() >= min_E_) &&
-	  (i->pt() >= min_Pt_) &&
-	  (i->mass() >= min_Mass_) &&
-	  ( (max_Mass_ < 0.0) || (i->mass() <= max_Mass_ ) ) &&
-	  ( (min_Eta_ < 0.0) || (std::abs(i->eta()) >= min_Eta_) )  &&
-	  ( (max_Eta_ < 0.0) || (std::abs(i->eta()) <= max_Eta_) ) ) {
-       n++;
-       ref=TRef(objects,distance(objects->begin(),i));
-       int tid = getObjectType<T>(*i);
-       if (tid == 0)
-         tid = triggerType_;
-       filterproduct.addObject(tid, ref);
-     }
-   }
+  // filter decision
+  bool accept(n >= min_N_);
 
-   // filter decision
-   bool accept(n>=min_N_);
-
-   return accept;
+  return accept;
 }

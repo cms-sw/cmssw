@@ -30,20 +30,14 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 
 class KFUpdator final : public TrajectoryStateUpdator {
-
 public:
-
   // methods of Updator
 
   KFUpdator() {}
 
-  TrajectoryStateOnSurface update(const TrajectoryStateOnSurface&,
-                                  const TrackingRecHit&) const override;
+  TrajectoryStateOnSurface update(const TrajectoryStateOnSurface&, const TrackingRecHit&) const override;
 
-
-  KFUpdator * clone() const override {
-    return new KFUpdator(*this);
-  }
+  KFUpdator* clone() const override { return new KFUpdator(*this); }
 };
 
 #endif

@@ -55,6 +55,8 @@ OR
      This will run the performance tests only for the steps "GEN,SIM" (at once), "DIGI" and "RECO" taking care of running the necessary intermediate steps to make sure all steps can be run.
 
 """
+from __future__ import print_function
+from builtins import range
 import os
 #Get some environment variables to use
 cmssw_base=os.environ["CMSSW_BASE"]
@@ -71,7 +73,7 @@ import getopt
 import sys
 
 def usage():
-    print __doc__
+    print(__doc__)
 
 def main(argv):
     #Some default values:
@@ -99,7 +101,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "n:hd", ["cpu=","cores=","numevts=","candle=","step=","repeat=","help"])
     except getopt.GetoptError:
-        print "This argument option is not accepted"
+        print("This argument option is not accepted")
         usage()
         sys.exit(2)
     for opt, arg in opts:
@@ -128,21 +130,21 @@ def main(argv):
             repeatOption = int(arg)
     #Case with no arguments (using defaults)
     if opts == []:
-        print "No arguments given, so DEFAULT test will be run:"
+        print("No arguments given, so DEFAULT test will be run:")
     #Print a time stamp at the beginning:
     import time
     date=time.ctime()
     path=os.path.abspath(".")
-    print "CMS Benchmarking started running at %s on %s in directory %s, run by user %s" % (date,host,path,user)
+    print("CMS Benchmarking started running at %s on %s in directory %s, run by user %s" % (date,host,path,user))
     #showtags=os.popen4("showtags -r")[1].read()
     #print showtags
     #For the log:
-    print "This machine (%s) is assumed to have %s cores, and the suite will be run on cpu(s) %s" %(host,coresOption,cpuOption)
-    print "%s events per test will be run" % numevtsOption
+    print("This machine (%s) is assumed to have %s cores, and the suite will be run on cpu(s) %s" %(host,coresOption,cpuOption))
+    print("%s events per test will be run" % numevtsOption)
     if candleOption !="":
-        print "Running only %s candle, instead of all the candles in the performance suite" % candleOption
+        print("Running only %s candle, instead of all the candles in the performance suite" % candleOption)
     if stepOption != "":
-        print "Profiling only the following steps: %s" % stepOption
+        print("Profiling only the following steps: %s" % stepOption)
         step=" --step="+stepOption
         #This "unpacking" of the steps is better done in cmsPerfSuite.py or the cmsSimPyRelVal.py (.pl for now)
         #steps=stepOption.split(",")
@@ -151,7 +153,7 @@ def main(argv):
         #    newstep=reduce(lambda a,b:a+","+b,step.split("-"))
         #    cmsPerfSuiteSteps.append(newstep)
     if repeatOption !=1:
-        print "The benchmarking will be repeated %s times" % repeatOption
+        print("The benchmarking will be repeated %s times" % repeatOption)
     #Now let's play!
     for repetition in range(repeatOption):
         mkdircdcmd="mkdir Run"+str(repetition+1)+";cd Run"+str(repetition+1)
@@ -161,12 +163,12 @@ def main(argv):
         #print "Here we'd launch cmsPerfSuite.py!"
         PerfSuitecmd="cmsPerfSuite.py" + cpu + cores + numevts + igprofevts + valgrindevts + candle + step + ">& cmsPerfSuiteRun" + str(repetition + 1) + ".log"
         launchcmd=mkdircdcmd+";"+PerfSuitecmd
-        print launchcmd
+        print(launchcmd)
         sys.stdout.flush()
         #Obsolete popen4-> subprocess.Popen
         #launchcmdstdout=os.popen4(launchcmd)[1].read()
         launchcmdstdout=Popen(launchcmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).stdout.read()
-        print launchcmdstdout
+        print(launchcmdstdout)
         
 if __name__ == "__main__":
     main(sys.argv[1:])

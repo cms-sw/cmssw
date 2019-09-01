@@ -1,5 +1,7 @@
 <use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/ForwardDetId"/>
 <use   name="DetectorDescription/Core"/>
+<use   name="FWCore/ParameterSet"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -17,31 +17,30 @@
 
 class ThresholdPtTrajectoryFilter : public TrajectoryFilter {
 public:
+  explicit ThresholdPtTrajectoryFilter(double ptThreshold, float nSigma = 5.F, int nH = 3)
+      : thePtThreshold(ptThreshold), theNSigma(nSigma), theMinHits(nH) {}
 
-  explicit ThresholdPtTrajectoryFilter( double ptThreshold, float nSigma = 5.F, int nH=3): thePtThreshold( ptThreshold), theNSigma(nSigma), theMinHits(nH) {}
+  explicit ThresholdPtTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC)
+      : thePtThreshold(pset.getParameter<double>("thresholdPt")),
+        theNSigma(pset.getParameter<double>("nSigmaThresholdPt")),
+        theMinHits(pset.getParameter<int>("minHitsThresholdPt")) {}
 
-  explicit ThresholdPtTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC) :
-    thePtThreshold(pset.getParameter<double>("thresholdPt")),
-    theNSigma(pset.getParameter<double>("nSigmaThresholdPt")),
-    theMinHits(pset.getParameter<int>("minHitsThresholdPt"))
-      {}
+  bool qualityFilter(const Trajectory& traj) const override { return !test(traj.lastMeasurement(), traj.foundHits()); }
+  bool qualityFilter(const TempTrajectory& traj) const override {
+    return !test(traj.lastMeasurement(), traj.foundHits());
+  }
 
-  bool qualityFilter( const Trajectory& traj) const override { return !test(traj.lastMeasurement(),traj.foundHits());}
-  bool qualityFilter( const TempTrajectory& traj) const override { return !test(traj.lastMeasurement(),traj.foundHits());}
-   
-  bool toBeContinued( Trajectory& traj) const override { return test(traj.lastMeasurement(),traj.foundHits()); }
-  bool toBeContinued( TempTrajectory& traj) const override { return test(traj.lastMeasurement(),traj.foundHits()); }
-  
-  std::string name() const override {return "ThresholdPtTrajectoryFilter";}
+  bool toBeContinued(Trajectory& traj) const override { return test(traj.lastMeasurement(), traj.foundHits()); }
+  bool toBeContinued(TempTrajectory& traj) const override { return test(traj.lastMeasurement(), traj.foundHits()); }
 
- protected:
+  std::string name() const override { return "ThresholdPtTrajectoryFilter"; }
 
-  bool test( const TrajectoryMeasurement & tm, int foundHits) const;
+protected:
+  bool test(const TrajectoryMeasurement& tm, int foundHits) const;
 
   double thePtThreshold;
   double theNSigma;
   int theMinHits;
-
 };
 
 #endif

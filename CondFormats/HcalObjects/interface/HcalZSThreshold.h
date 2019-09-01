@@ -11,21 +11,20 @@ contains one threshold + corresponding DetId
 
 #include <boost/cstdint.hpp>
 
-class HcalZSThreshold
-{
- public:
-  HcalZSThreshold(): mId(0), mLevel(0) {}
-  HcalZSThreshold(unsigned long fid, int level): mId(fid), mLevel(level) {}
+class HcalZSThreshold {
+public:
+  HcalZSThreshold() : mId(0), mLevel(0) {}
+  HcalZSThreshold(unsigned long fid, int level) : mId(fid), mLevel(level) {}
 
-  uint32_t rawId() const {return mId;}
+  uint32_t rawId() const { return mId; }
 
-  int getValue() const {return mLevel;}
+  int getValue() const { return mLevel; }
 
- private:
+private:
   uint32_t mId;
   int mLevel;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

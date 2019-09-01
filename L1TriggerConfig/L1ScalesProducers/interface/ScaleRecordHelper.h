@@ -18,8 +18,7 @@
 
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
 
-class ScaleRecordHelper 
-{
+class ScaleRecordHelper {
 public:
   ScaleRecordHelper(const std::string& binPrefix, unsigned int maxBin);
 
@@ -32,7 +31,7 @@ protected:
 
 private:
   std::string binPrefix_;
-  unsigned int maxBin_;  
+  unsigned int maxBin_;
 };
 
 #endif

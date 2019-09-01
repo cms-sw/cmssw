@@ -1,6 +1,6 @@
 #!/bin/sh
 conddb --yes copy EcalIntercalibConstants_V1_hlt --destdb EcalIntercalibConstants_V1_hlt_O2OTEST.db --o2oTest
-conddb --yes copy EcalIntercalibConstants_0 --destdb EcalIntercalibConstants_V1_hlt_O2OTEST.db
+conddb --yes copy EcalIntercalibConstants_0T --destdb EcalIntercalibConstants_V1_hlt_O2OTEST.db
 conddb --yes copy EcalIntercalibConstants_3.8T_v2 --destdb EcalIntercalibConstants_V1_hlt_O2OTEST.db
 lastRun=`conddb list EcalIntercalibConstants_V1_hlt  | tail -2 | awk '{print $1}'`
 conddb --yes copy runinfo_start_31X_hlt --destdb EcalIntercalibConstants_V1_hlt_O2OTEST.db -f $lastRun -t $lastRun

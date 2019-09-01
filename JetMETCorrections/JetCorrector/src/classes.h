@@ -5,4 +5,4 @@ namespace JetMETCorrections_JetCorrector {
   struct dictionary {
     edm::Wrapper<reco::JetCorrector> wslsn;
   };
-}
+}  // namespace JetMETCorrections_JetCorrector

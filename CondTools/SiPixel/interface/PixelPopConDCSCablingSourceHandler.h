@@ -15,13 +15,10 @@
 // class definition
 // no object for dcs cabling map, yet, so just stick in a bool
 class PixelPopConDCSCablingSourceHandler : public PixelPopConSourceHandler<bool> {
+public:
+  PixelPopConDCSCablingSourceHandler(edm::ParameterSet const &) { ; }
 
- public:
-  PixelPopConDCSCablingSourceHandler(edm::ParameterSet const &) {;}
-
- private:
-
+private:
 };
-
 
 #endif

@@ -18,14 +18,11 @@
 
 // system include files
 #include <memory>
-#include <functional>
 #include <unistd.h>
-
 
 #include <iostream>
 #include <fstream>
 #include <vector>
-
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -54,33 +51,28 @@
 
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 // Trigger Headers
-
-
 
 //
 // class declaration
 //
 
 class L1TCompare : public DQMEDAnalyzer {
-
 public:
-
-// Constructor
+  // Constructor
   L1TCompare(const edm::ParameterSet& ps);
 
-// Destructor
- ~L1TCompare() override;
+  // Destructor
+  ~L1TCompare() override;
 
 protected:
-// Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  // Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-// BeginRun
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+  // BeginRun
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 private:
@@ -102,10 +94,8 @@ private:
   MonitorElement* ecalTpgRctLeadingEmPhi_;
   MonitorElement* ecalTpgRctLeadingEmRank_;
 
-
-
-  int nev_; // Number of events processed
-  std::string outputFile_; //file name for ROOT ouput
+  int nev_;                 // Number of events processed
+  std::string outputFile_;  //file name for ROOT ouput
   bool verbose_;
   bool verbose() const { return verbose_; };
   bool monitorDaemon_;
@@ -122,44 +112,31 @@ private:
   edm::EDGetTokenT<L1GctJetCandCollection> gctCenJetsToken_;
   edm::EDGetTokenT<L1GctEmCandCollection> gctIsoEmCandsToken_;
   edm::EDGetTokenT<L1GctEmCandCollection> gctNonIsoEmCandsToken_;
-  
+
   class RctObject {
   public:
-    RctObject(int eta, int phi, int rank):
-      eta_(eta), phi_(phi), rank_(rank)
-    {}
+    RctObject(int eta, int phi, int rank) : eta_(eta), phi_(phi), rank_(rank) {}
     virtual ~RctObject() {}
     int eta_, phi_;
     int rank_;
-    
   };
   typedef std::vector<L1TCompare::RctObject> RctObjectCollection;
 
-  // functor for sorting the above collection based on rank.
+  // function for sorting the above collection based on rank.
   // note it's then reverse-sorted (low to high) so you have to use
   // the rbegin() and rend() and reverse_iterators.
-  class RctObjectComp: public std::binary_function<L1TCompare::RctObject, 
-						   L1TCompare::RctObject, bool>
-  {
-  public:
-    bool operator()(const RctObject &a, const RctObject &b) const
-    {
-      // for equal rank I don't know what the appropriate sorting is.
-      if ( a.rank_ == b.rank_ ) {
-	if ( a.eta_ == b.eta_ ) {
-	  return a.phi_ < b.phi_;
-	}
-	else {
-	  return a.eta_ < b.eta_;
-	}
+  static bool rctObjectComp(const RctObject& a, const RctObject& b) {
+    // for equal rank I don't know what the appropriate sorting is.
+    if (a.rank_ == b.rank_) {
+      if (a.eta_ == b.eta_) {
+        return a.phi_ < b.phi_;
+      } else {
+        return a.eta_ < b.eta_;
       }
-      else {
-	return a.rank_ < b.rank_;
-      }
+    } else {
+      return a.rank_ < b.rank_;
     }
-  };
-
-
+  }
 };
 
-#endif // L1TCOMPARE_H
+#endif  // L1TCOMPARE_H

@@ -3,15 +3,14 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-template <class T> 
-std::pair<TrajectoryStateOnSurface,double>
-MultiStatePropagation<T>::propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-					     const T& surface) const {
+template <class T>
+std::pair<TrajectoryStateOnSurface, double> MultiStatePropagation<T>::propagateWithPath(
+    const TrajectoryStateOnSurface& tsos, const T& surface) const {
   // weighted path length
   double sWeight(0.);
   double sWeightPath(0.);
   // decomposition of input state
-  MultiTSOS const & input = tsos.components();
+  MultiTSOS const& input = tsos.components();
   // vector of result states
   MultiTrajectoryStateAssembler result;
   //
@@ -19,7 +18,7 @@ MultiStatePropagation<T>::propagateWithPath (const TrajectoryStateOnSurface& tso
   //
   bool firstPropagation(true);
   SurfaceSideDefinition::SurfaceSide firstSide(SurfaceSideDefinition::atCenterOfSurface);
-  for ( auto const & iTsos : input) {
+  for (auto const& iTsos : input) {
     //
     // weight of component
     //
@@ -27,27 +26,24 @@ MultiStatePropagation<T>::propagateWithPath (const TrajectoryStateOnSurface& tso
     //
     // geometrical propagation (assumption: only one output state!)
     //
-    TsosWP newTsosWP = 
-      thePropagator.propagateWithPath(iTsos,surface);
+    TsosWP newTsosWP = thePropagator.propagateWithPath(iTsos, surface);
     // check validity
-    if ( !(newTsosWP.first).isValid() ) {
+    if (!(newTsosWP.first).isValid()) {
       LogDebug("GsfTrackFitters") << "adding invalid state";
       result.addInvalidState(weight);
       continue;
     }
     // set weight
-    TrajectoryStateOnSurface weightedTsos(setWeight(newTsosWP.first,weight));
+    TrajectoryStateOnSurface weightedTsos(setWeight(newTsosWP.first, weight));
     // trap mix of forward / backward propagations
-    if ( firstPropagation ) {
+    if (firstPropagation) {
       firstSide = weightedTsos.surfaceSide();
       firstPropagation = false;
-    }
-    else {
-      if ( weightedTsos.surfaceSide()!=firstSide ) {
-	edm::LogInfo("GsfTrackFitters") 
-	  << "MultiStatePropagation resulted in states "
-	  << "on different sides of the target surface";
-	return TsosWP(TrajectoryStateOnSurface(),0.);
+    } else {
+      if (weightedTsos.surfaceSide() != firstSide) {
+        edm::LogInfo("GsfTrackFitters") << "MultiStatePropagation resulted in states "
+                                        << "on different sides of the target surface";
+        return TsosWP(TrajectoryStateOnSurface(), 0.);
       }
     }
     //
@@ -58,28 +54,29 @@ MultiStatePropagation<T>::propagateWithPath (const TrajectoryStateOnSurface& tso
     // calculation of weighted path length
     //
     sWeight += weight;
-    sWeightPath += weight*newTsosWP.second;
+    sWeightPath += weight * newTsosWP.second;
   }
   //
   // check validity
   //
   TrajectoryStateOnSurface propagatedState(result.combinedState());
-  if ( !propagatedState.isValid() )
-    return TsosWP(propagatedState,0.);
+  if (!propagatedState.isValid())
+    return TsosWP(propagatedState, 0.);
   //
   // return with weighted path length
   //
-  if ( sWeight!=0. )  sWeightPath /= sWeight;
-  return TsosWP(propagatedState,sWeightPath);
+  if (sWeight != 0.)
+    sWeightPath /= sWeight;
+  return TsosWP(propagatedState, sWeightPath);
 }
 
 template <class T>
-TrajectoryStateOnSurface 
-MultiStatePropagation<T>::setWeight (const TrajectoryStateOnSurface state,
-				     const double weight) const {
-  return TrajectoryStateOnSurface(weight, state.localParameters(),
-				  state.localError(),
-				  state.surface(),
-				  &(state.globalParameters().magneticField()),
-				  state.surfaceSide());
+TrajectoryStateOnSurface MultiStatePropagation<T>::setWeight(const TrajectoryStateOnSurface state,
+                                                             const double weight) const {
+  return TrajectoryStateOnSurface(weight,
+                                  state.localParameters(),
+                                  state.localError(),
+                                  state.surface(),
+                                  &(state.globalParameters().magneticField()),
+                                  state.surfaceSide());
 }

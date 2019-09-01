@@ -26,17 +26,14 @@ namespace edm {
   typedef unsigned short ProductIndex;
   class ProductID {
   public:
-    ProductID() : processIndex_(0),
-		  productIndex_(0) {}
-    explicit
-    ProductID(ProductIndex prodIndex) : processIndex_(0), productIndex_(prodIndex) {}
-    ProductID(ProcessIndex procIndex, ProductIndex prodIndex) :
-      processIndex_(procIndex), productIndex_(prodIndex) {}
-    bool isValid() const {return productIndex_ != 0;}
-    ProcessIndex processIndex() const {return processIndex_;}
-    ProcessIndex productIndex() const {return productIndex_;}
-    ProductIndex id() const {return productIndex_;} // backward compatibility
-    void reset() {processIndex_ = productIndex_ = 0;}
+    ProductID() : processIndex_(0), productIndex_(0) {}
+    explicit ProductID(ProductIndex prodIndex) : processIndex_(0), productIndex_(prodIndex) {}
+    ProductID(ProcessIndex procIndex, ProductIndex prodIndex) : processIndex_(procIndex), productIndex_(prodIndex) {}
+    bool isValid() const { return productIndex_ != 0; }
+    ProcessIndex processIndex() const { return processIndex_; }
+    ProcessIndex productIndex() const { return productIndex_; }
+    ProductIndex id() const { return productIndex_; }  // backward compatibility
+    void reset() { processIndex_ = productIndex_ = 0; }
 
     void swap(ProductID& other);
 
@@ -45,23 +42,15 @@ namespace edm {
     ProductIndex productIndex_;
   };
 
-  inline
-  void swap(ProductID& a, ProductID& b) {
-    a.swap(b);
-  }
+  inline void swap(ProductID& a, ProductID& b) { a.swap(b); }
 
-  inline
-  bool operator==(ProductID const& lh, ProductID const& rh) {
+  inline bool operator==(ProductID const& lh, ProductID const& rh) {
     return lh.processIndex() == rh.processIndex() && lh.productIndex() == rh.productIndex();
   }
-  inline
-  bool operator!=(ProductID const& lh, ProductID const& rh) {
-    return !(lh == rh);
-  }
+  inline bool operator!=(ProductID const& lh, ProductID const& rh) { return !(lh == rh); }
 
   bool operator<(ProductID const& lh, ProductID const& rh);
 
-  std::ostream&
-  operator<<(std::ostream& os, ProductID const& id);
-}
+  std::ostream& operator<<(std::ostream& os, ProductID const& id);
+}  // namespace edm
 #endif

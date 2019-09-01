@@ -7,11 +7,10 @@
 #include "DataFormats/BTauReco/interface/IPTagInfo.h"
 
 namespace reco {
-typedef IPTagInfo<std::vector<CandidatePtr>,JetTagInfo> CandIPTagInfo;
+  typedef IPTagInfo<std::vector<CandidatePtr>, JetTagInfo> CandIPTagInfo;
 
+  DECLARE_EDM_REFS(CandIPTagInfo)
 
-DECLARE_EDM_REFS( CandIPTagInfo )
-
-}
+}  // namespace reco
 
 #endif

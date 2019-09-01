@@ -13,9 +13,8 @@
 
 class CSCPairConstraint {
 public:
-  CSCPairConstraint(int i, int j, double value, double error)
-    : m_i(i), m_j(j), m_value(value), m_error(error) {};
-  virtual ~CSCPairConstraint() {};
+  CSCPairConstraint(int i, int j, double value, double error) : m_i(i), m_j(j), m_value(value), m_error(error){};
+  virtual ~CSCPairConstraint(){};
 
   virtual int i() const { return m_i; };
   virtual int j() const { return m_j; };
@@ -28,4 +27,4 @@ protected:
   double m_value, m_error;
 };
 
-#endif // Alignment_MuonAlignmentAlgorithms_CSCPairConstraint_H
+#endif  // Alignment_MuonAlignmentAlgorithms_CSCPairConstraint_H

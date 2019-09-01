@@ -17,9 +17,10 @@ public:
   void setCalibrationWidths(const DetId id, const CastorCalibrationWidths& ca);
   void sort();
   void clear();
+
 private:
   struct CalibWidthSetObject {
-    CalibWidthSetObject(const DetId& aid) : id(aid) { }
+    CalibWidthSetObject(const DetId& aid) : id(aid) {}
     DetId id;
     CastorCalibrationWidths calib;
     bool operator<(const CalibWidthSetObject& cso) const { return id < cso.id; }

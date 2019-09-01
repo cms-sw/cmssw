@@ -15,14 +15,15 @@
 namespace reco {
   namespace parser {
     struct ExpressionConditionSetter {
-      ExpressionConditionSetter(ExpressionStack & expStack, SelectorStack & selStack) : 
-	expStack_(expStack), selStack_(selStack) { }
+      ExpressionConditionSetter(ExpressionStack &expStack, SelectorStack &selStack)
+          : expStack_(expStack), selStack_(selStack) {}
       void operator()(const char *, const char *) const;
+
     private:
-      ExpressionStack & expStack_;
-      SelectorStack & selStack_;
+      ExpressionStack &expStack_;
+      SelectorStack &selStack_;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

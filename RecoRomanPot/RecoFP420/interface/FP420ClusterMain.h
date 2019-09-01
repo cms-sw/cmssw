@@ -1,6 +1,6 @@
 #ifndef FP420ClusterMain_h
 #define FP420ClusterMain_h
-   
+
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,40 +19,32 @@
 #include <iostream>
 #include <vector>
 
-
 class ClusterNoiseFP420;
 class ClusterProducerFP420;
 
-class FP420ClusterMain 
-{
- public:
-  
-
-    FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn, int pn, int rn);
+class FP420ClusterMain {
+public:
+  FP420ClusterMain(const edm::ParameterSet &conf, int dn, int sn, int pn, int rn);
   //  FP420ClusterMain();
 
   ~FP420ClusterMain();
 
   /// Runs the algorithm
 
-//         void run(const DigiCollectionFP420 &input,
-//       	   ClusterCollectionFP420 &soutput,
-//       	   const std::vector<ClusterNoiseFP420>& noise 
-//     	   );
-    void run(edm::Handle<DigiCollectionFP420> &input,
-       	   ClusterCollectionFP420 *soutput,
-       	   std::vector<ClusterNoiseFP420>& noise 
-     	   );
+  //         void run(const DigiCollectionFP420 &input,
+  //       	   ClusterCollectionFP420 &soutput,
+  //       	   const std::vector<ClusterNoiseFP420>& noise
+  //     	   );
+  void run(edm::Handle<DigiCollectionFP420> &input,
+           ClusterCollectionFP420 *soutput,
+           std::vector<ClusterNoiseFP420> &noise);
 
- private:
-
-
+private:
   ClusterProducerFP420 *threeThreshold_;
   std::string clusterMode_;
 
   //std::vector<HDigiFP420> collector;
   edm::ParameterSet conf_;
-
 
   bool validClusterizer_;
   double ElectronPerADC_;
@@ -63,39 +55,38 @@ class FP420ClusterMain
   double ChannelThreshold;
   double SeedThreshold;
   double ClusterThreshold;
-  int MaxVoidsInCluster;	
+  int MaxVoidsInCluster;
 
   double ldriftX;
   double ldriftY;
   double ldrift;
-  double pitchX;          // pitchX
-  double pitchY;          // pitchY
-  double pitch;          // pitch automatic
-  float moduleThicknessX; // plate thicknessX 
-  float moduleThicknessY; // plate thicknessY 
-  float moduleThickness; // plate thickness 
-  int numStripsX, numStripsXW;    // number of strips in the moduleX
-  int numStripsY, numStripsYW;    // number of strips in the moduleY
-  int numStrips;    // number of strips in the module
+  double pitchX;                // pitchX
+  double pitchY;                // pitchY
+  double pitch;                 // pitch automatic
+  float moduleThicknessX;       // plate thicknessX
+  float moduleThicknessY;       // plate thicknessY
+  float moduleThickness;        // plate thickness
+  int numStripsX, numStripsXW;  // number of strips in the moduleX
+  int numStripsY, numStripsYW;  // number of strips in the moduleY
+  int numStrips;                // number of strips in the module
 
   float Thick300;
 
- // Number of Detectors:
-   int dn0;
- // Number of Stations:
-   int sn0;
- // Number of planes:
-   int pn0;
- // Number of sensors:
-   int rn0;
- // Type of planes:
-   int xytype;
+  // Number of Detectors:
+  int dn0;
+  // Number of Stations:
+  int sn0;
+  // Number of planes:
+  int pn0;
+  // Number of sensors:
+  int rn0;
+  // Type of planes:
+  int xytype;
 
-   int verbosity;
+  int verbosity;
 
- //float sigma1_;
- //float sigma2_;
-
+  //float sigma1_;
+  //float sigma2_;
 };
 
 #endif

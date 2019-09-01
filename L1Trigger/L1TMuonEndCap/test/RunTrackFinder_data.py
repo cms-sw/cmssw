@@ -1,3 +1,4 @@
+from __future__ import print_function
 ## 11.02.16: Copied from https://raw.githubusercontent.com/dcurry09/EMTF8/master/L1Trigger/L1TMuonEndCap/test/runMuonEndCap.py
 
 import FWCore.ParameterSet.Config as cms
@@ -5,7 +6,6 @@ import os
 import sys
 import commands
 import subprocess
-from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process('L1TMuonEmulation')
 
@@ -99,7 +99,7 @@ in_dir_name = '/eos/cms/tier0/store/data/Run2017D/DoubleMuon/RAW/v1/000/302/663/
 iFile = 0
 for in_file_name in subprocess.check_output([eos_cmd, 'ls', in_dir_name]).splitlines():
     if not ('.root' in in_file_name): continue
-    print in_file_name
+    print(in_file_name)
     iFile += 1
     if iFile > 1: break  ## Just test on one file
     # readFiles.extend( cms.untracked.vstring(in_dir_name+in_file_name) )

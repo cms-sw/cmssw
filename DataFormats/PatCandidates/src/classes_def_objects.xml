@@ -59,9 +59,17 @@
   <ioread sourceClass="pat::Electron"  targetClass="pat::Electron" version="[-28]" target="cachedIP_" source="std::vector<bool> cachedIP_" embed="false">
     <![CDATA[ cachedIP_ = onfile.cachedIP_[1] + 2*onfile.cachedIP_[2] + 4*onfile.cachedIP_[3] + 8*onfile.cachedIP_[4]; ]]>
   </ioread>
+  <ioread sourceClass="pat::Electron"  targetClass="pat::Electron" version="[-37]" target="" source="float ecalPFClusIso_;float hcalPFClusIso_">
+    <![CDATA[reco::GsfElectron::PflowIsolationVariables pfIsoVar = newObj->pfIsolationVariables();
+             pfIsoVar.sumEcalClusterEt = onfile.ecalPFClusIso_;
+             pfIsoVar.sumHcalClusterEt = onfile.hcalPFClusIso_;
+             newObj->setPfIsolationVariables(pfIsoVar);]]>
+  </ioread>
 
 
-  <class name="pat::Muon"  ClassVersion="25">
+  <class name="pat::Muon"  ClassVersion="27">
+   <version ClassVersion="27" checksum="3473399161"/>
+   <version ClassVersion="26" checksum="1156855644"/>
    <version ClassVersion="25" checksum="574733987"/>
    <version ClassVersion="24" checksum="2298704767"/>
    <version ClassVersion="23" checksum="3471390119"/>
@@ -89,7 +97,8 @@
     <![CDATA[ cachedIP_ = onfile.cachedIP_[1] + 2*onfile.cachedIP_[2] + 4*onfile.cachedIP_[3] + 8*onfile.cachedIP_[4]; ]]>
   </ioread>
 
-  <class name="pat::Tau"  ClassVersion="18">
+  <class name="pat::Tau"  ClassVersion="19">
+   <version ClassVersion="19" checksum="4141787547"/>
    <version ClassVersion="18" checksum="3279584614"/>
    <version ClassVersion="17" checksum="2561486007"/>
    <version ClassVersion="16" checksum="2793593983"/>
@@ -158,7 +167,8 @@
   <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFGammaCandsTransientPtrs_">
   <![CDATA[isolationPFGammaCandsTransientPtrs_.reset();]]>
   </ioread>
-  <class name="pat::tau::TauPFSpecific"  ClassVersion="15">
+  <class name="pat::tau::TauPFSpecific"  ClassVersion="16">
+   <version ClassVersion="16" checksum="443572625"/>
    <version ClassVersion="15" checksum="3425877587"/>
    <version ClassVersion="14" checksum="1401440164"/>
    <version ClassVersion="13" checksum="3129436753"/>
@@ -167,11 +177,7 @@
    <version ClassVersion="10" checksum="2617942038"/>
   </class>
   <class name="std::vector<pat::tau::TauPFSpecific>" />
-  <class name="pat::tau::TauCaloSpecific"  ClassVersion="11">
-   <version ClassVersion="11" checksum="943826557"/>
-   <version ClassVersion="10" checksum="2692173055"/>
-  </class>
-  <class name="std::vector<pat::tau::TauCaloSpecific>" />
+
   <class name="pat::tau::TauPFEssential" ClassVersion="14">
     <version ClassVersion="14" checksum="524735083" /> 
     <version ClassVersion="13" checksum="1052833547" />
@@ -234,8 +240,15 @@
   <ioread sourceClass="pat::Photon" targetClass="pat::Photon" version="[1-]" source="" target="superClusterRelinked_">
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
+  <ioread sourceClass="pat::Photon"  targetClass="pat::Photon" version="[-20]" target="" source="float ecalPFClusIso_;float hcalPFClusIso_">
+    <![CDATA[reco::Photon::PflowIsolationVariables pfIsoVar = newObj->getPflowIsolationVariables();
+             pfIsoVar.sumEcalClusterEt = onfile.ecalPFClusIso_;
+             pfIsoVar.sumHcalClusterEt = onfile.hcalPFClusIso_;
+             newObj->setPflowIsolationVariables(pfIsoVar);]]>
+  </ioread>
 
   <class name="pat::Jet"  ClassVersion="16">
+   <field name="daughtersTemp_" transient="true"/>
    <version ClassVersion="16" checksum="4069285947"/>
    <version ClassVersion="15" checksum="727883729"/>
    <version ClassVersion="14" checksum="1304049301"/>
@@ -248,6 +261,15 @@
   </class>
   <ioread sourceClass = "pat::Jet" version="[1-11]" targetClass="pat::Jet" source="int partonFlavour_" target="jetFlavourInfo_">
     <![CDATA[jetFlavourInfo_ = reco::JetFlavourInfo(0,onfile.partonFlavour_);]]>
+  </ioread>
+  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="caloTowersTemp_">
+    <![CDATA[caloTowersTemp_.reset();]]>
+  </ioread>
+  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="pfCandidatesTemp_">
+    <![CDATA[pfCandidatesTemp_.reset();]]>
+  </ioread>
+  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="daughtersTemp_">
+    <![CDATA[daughtersTemp_.reset();]]>
   </ioread>
   <class name="pat::MET"  ClassVersion="15">
     <version ClassVersion="15" checksum="428901429"/>
@@ -312,7 +334,9 @@
   <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
    <version ClassVersion="3" checksum="3320406063"/>
   </class>
-  <class name="pat::PackedCandidate" ClassVersion="32">
+  <class name="pat::PackedCandidate" ClassVersion="34">
+   <version ClassVersion="34" checksum="3953181632"/>
+   <version ClassVersion="33" checksum="1092680546"/>
    <version ClassVersion="32" checksum="926869123"/>
    <version ClassVersion="31" checksum="1248040002"/>
    <version ClassVersion="30" checksum="3338823671"/>
@@ -382,7 +406,30 @@
             packedCovariance_.dphidphi = onfile.packedCovarianceDphiDphi_;
    ]]>
    </ioread>
-
+  <ioread sourceClass="pat::PackedCandidate" source="int8_t packedPuppiweight_" version="[-32]" targetClass="pat::PackedCandidate"
+   target="packedPuppiweight_" include="DataFormats/Math/interface/liblogintpack.h">
+   <![CDATA[
+            packedPuppiweight_ = std::numeric_limits<uint8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2. + 0.5);
+   ]]>
+   </ioread>
+  <ioread sourceClass="pat::PackedCandidate" source="int8_t packedPuppiweightNoLepDiff_; int8_t packedPuppiweight_" version="[-32]" targetClass="pat::PackedCandidate"
+   target="packedPuppiweightNoLepDiff_" include="DataFormats/Math/interface/liblogintpack.h">
+   <![CDATA[
+            packedPuppiweightNoLepDiff_ = std::numeric_limits<int8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweightNoLepDiff_+onfile.packedPuppiweight_,-2,0,64)/2. - logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2.);
+   ]]>
+   </ioread>
+  <ioread sourceClass="pat::PackedCandidate" source="int8_t hcalFraction_; int pdgId_" version="[-33]" targetClass="pat::PackedCandidate" target="rawHcalFraction_,hcalFraction_,pdgId_">
+   <![CDATA[
+      int absPdgId = abs(onfile.pdgId_);
+      if (absPdgId == 211 || absPdgId == 11 || absPdgId == 13) {
+        rawHcalFraction_ = onfile.hcalFraction_;
+        hcalFraction_ = 0;
+      } else {
+        hcalFraction_ = onfile.hcalFraction_;
+      }
+      pdgId_ = onfile.pdgId_;
+   ]]>
+   </ioread>
 
 
   <class name="pat::PackedGenParticle" ClassVersion="12">
@@ -582,6 +629,16 @@
   <class name="std::vector< std::vector<edm::Ptr<pat::Jet> > >" />
   <class name="edm::Wrapper< std::vector<edm::Ptr<pat::Jet> > >" />
   <class name="edm::Wrapper< std::vector< std::vector<edm::Ptr<pat::Jet> > > >" />
+
+  <!--  Association for Jet, and AssociationMap Jet-PackedCandidate -->
+  <class name="edm::Association<std::vector<pat::Jet> >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<pat::Jet> > >"/>
+  <class name="edm::RefProd<vector<pat::Jet> >"/>
+  <class name="edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<pat::Jet> >,edm::RefProd<vector<pat::PackedCandidate> > >"/>
 
   <class name="pat::PATTauDiscriminatorBase">
     <field name="transientVector_" transient="true"/>

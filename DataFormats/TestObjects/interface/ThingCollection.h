@@ -6,8 +6,7 @@
 #include "DataFormats/TestObjects/interface/Thing.h"
 
 namespace edmtest {
-   typedef std::vector<edmtest::Thing> ThingCollection;
+  typedef std::vector<edmtest::Thing> ThingCollection;
 }
 
 #endif
-

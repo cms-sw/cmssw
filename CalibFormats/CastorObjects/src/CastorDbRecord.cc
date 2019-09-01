@@ -2,7 +2,7 @@
 //
 // Package:     CastorDbProducer
 // Class  :     CastorDbRecord
-// 
+//
 // Implementation:
 //     first version copy from HcalDbRecord
 //

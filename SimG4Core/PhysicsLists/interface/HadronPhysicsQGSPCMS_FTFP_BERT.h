@@ -25,41 +25,39 @@
 #include "G4AntiBarionBuilder.hh"
 #include "G4FTFPAntiBarionBuilder.hh"
 
-class HadronPhysicsQGSPCMS_FTFP_BERT : public G4VPhysicsConstructor
-{
-  public:
-    HadronPhysicsQGSPCMS_FTFP_BERT(G4int verbose);
-    ~HadronPhysicsQGSPCMS_FTFP_BERT() override;
+class HadronPhysicsQGSPCMS_FTFP_BERT : public G4VPhysicsConstructor {
+public:
+  HadronPhysicsQGSPCMS_FTFP_BERT(G4int verbose);
+  ~HadronPhysicsQGSPCMS_FTFP_BERT() override;
 
-    void ConstructParticle() override;
-    void ConstructProcess() override;
+  void ConstructParticle() override;
+  void ConstructProcess() override;
 
-  private:
-    void CreateModels();
+private:
+  void CreateModels();
 
-    struct ThreadPrivate {
-      G4NeutronBuilder * theNeutrons;
-      G4FTFPNeutronBuilder * theFTFPNeutron;
-      G4QGSPNeutronBuilder * theQGSPNeutron;
-      G4BertiniNeutronBuilder * theBertiniNeutron;
-    
-      G4PiKBuilder * thePiK;
-      G4FTFPPiKBuilder * theFTFPPiK;
-      G4QGSPPiKBuilder * theQGSPPiK;
-      G4BertiniPiKBuilder * theBertiniPiK;
-    
-      G4ProtonBuilder * thePro;
-      G4FTFPProtonBuilder * theFTFPPro;
-      G4QGSPProtonBuilder * theQGSPPro; 
-      G4BertiniProtonBuilder * theBertiniPro;
-    
-      G4HyperonFTFPBuilder *theHyperon;
+  struct ThreadPrivate {
+    G4NeutronBuilder *theNeutrons;
+    G4FTFPNeutronBuilder *theFTFPNeutron;
+    G4QGSPNeutronBuilder *theQGSPNeutron;
+    G4BertiniNeutronBuilder *theBertiniNeutron;
 
-      G4AntiBarionBuilder     *theAntiBaryon;
-      G4FTFPAntiBarionBuilder *theFTFPAntiBaryon;
-    };
-    static G4ThreadLocal ThreadPrivate* tpdata;    
+    G4PiKBuilder *thePiK;
+    G4FTFPPiKBuilder *theFTFPPiK;
+    G4QGSPPiKBuilder *theQGSPPiK;
+    G4BertiniPiKBuilder *theBertiniPiK;
+
+    G4ProtonBuilder *thePro;
+    G4FTFPProtonBuilder *theFTFPPro;
+    G4QGSPProtonBuilder *theQGSPPro;
+    G4BertiniProtonBuilder *theBertiniPro;
+
+    G4HyperonFTFPBuilder *theHyperon;
+
+    G4AntiBarionBuilder *theAntiBaryon;
+    G4FTFPAntiBarionBuilder *theFTFPAntiBaryon;
+  };
+  static G4ThreadLocal ThreadPrivate *tpdata;
 };
 
 #endif
-

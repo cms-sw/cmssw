@@ -3,6 +3,7 @@
 # In particular here we create a second tree producer containing only information and then, 
 # cloning it in two copies, we store it both in the same file as the main tree and in separate file
 
+from __future__ import print_function
 import ROOT
 import PhysicsTools.HeppyCore.framework.config as cfg
 # avoid creating subdirs, in case subdirs are wanted the treeProducer should have different names (set name="blabla" in the config)
@@ -143,7 +144,7 @@ output_service2= cfg.Service(
 # they are not needed for running on your own samples
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
 testfiles=miniAodFiles()
-print "Running on test file %s" % testfiles
+print("Running on test file %s" % testfiles)
 
 sample = cfg.MCComponent(
 #specify the file you want to run on

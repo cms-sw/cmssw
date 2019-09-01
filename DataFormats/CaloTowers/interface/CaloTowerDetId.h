@@ -23,16 +23,15 @@ public:
   CaloTowerDetId& operator=(const DetId& id);
 
   /// get the z-side of the tower (1/-1)
-  int zside() const { return (id_&0x2000)?(1):(-1); }
+  int zside() const { return (id_ & 0x2000) ? (1) : (-1); }
   /// get the absolute value of the tower ieta
-  int ietaAbs() const { return (id_>>7)&0x3f; }
+  int ietaAbs() const { return (id_ >> 7) & 0x3f; }
   /// get the tower ieta
-  int ieta() const { return zside()*ietaAbs(); }
+  int ieta() const { return zside() * ietaAbs(); }
   /// get the tower iphi
   int iphi() const;
 
   static const int SubdetId = 1;
-
 };
 
 std::ostream& operator<<(std::ostream&, const CaloTowerDetId& id);

@@ -6,14 +6,18 @@
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
-class GEMDigiSimLink
-{
+class GEMDigiSimLink {
 public:
-  GEMDigiSimLink(std::pair<unsigned int, int> digi, Local3DPoint entryPoint, LocalVector momentumAtEntry,
-      float timeOfFlight, float energyLoss, int particleType, unsigned int detUnitId, unsigned int trackId,
-      EncodedEventId eventId, unsigned short processType)
-  {
-
+  GEMDigiSimLink(std::pair<unsigned int, int> digi,
+                 Local3DPoint entryPoint,
+                 LocalVector momentumAtEntry,
+                 float timeOfFlight,
+                 float energyLoss,
+                 int particleType,
+                 unsigned int detUnitId,
+                 unsigned int trackId,
+                 EncodedEventId eventId,
+                 unsigned short processType) {
     _entryPoint = entryPoint;
     _momentumAtEntry = momentumAtEntry;
     _timeOfFlight = timeOfFlight;
@@ -26,23 +30,23 @@ public:
     _digi = digi;
   }
 
-  GEMDigiSimLink()    {;}
+  GEMDigiSimLink() { ; }
 
-  ~GEMDigiSimLink()   {;}
+  ~GEMDigiSimLink() { ; }
 
-  unsigned int getStrip()           const {return _digi.first;}
-  unsigned int getBx()              const{return _digi.second;}
-  Local3DPoint getEntryPoint()      const{return _entryPoint;}
-  LocalVector getMomentumAtEntry()  const{return _momentumAtEntry;}
-  float getTimeOfFlight()           const{return _timeOfFlight;}
-  float getEnergyLoss()             const{return _energyLoss;}
-  int getParticleType()             const{return _particleType;}
-  unsigned int getDetUnitId()       const{return _detUnitId;}
-  unsigned int getTrackId()         const{return _trackId;}
-  EncodedEventId getEventId()       const{return _eventId;}
-  unsigned short getProcessType()   const{return _processType;}
+  unsigned int getStrip() const { return _digi.first; }
+  unsigned int getBx() const { return _digi.second; }
+  Local3DPoint getEntryPoint() const { return _entryPoint; }
+  LocalVector getMomentumAtEntry() const { return _momentumAtEntry; }
+  float getTimeOfFlight() const { return _timeOfFlight; }
+  float getEnergyLoss() const { return _energyLoss; }
+  int getParticleType() const { return _particleType; }
+  unsigned int getDetUnitId() const { return _detUnitId; }
+  unsigned int getTrackId() const { return _trackId; }
+  EncodedEventId getEventId() const { return _eventId; }
+  unsigned short getProcessType() const { return _processType; }
 
-  inline bool operator<(const GEMDigiSimLink& other)    const{return getStrip() < other.getStrip();}
+  inline bool operator<(const GEMDigiSimLink& other) const { return getStrip() < other.getStrip(); }
 
 private:
   std::pair<unsigned int, int> _digi;
@@ -56,6 +60,5 @@ private:
   unsigned int _trackId;
   EncodedEventId _eventId;
   unsigned short _processType;
-
 };
 #endif

@@ -1,35 +1,36 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-import sys, os, operator
+import sys, os
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
-from pprint import pprint
-from Configuration.Geometry.dict2023Geometry import detectorVersionDict
+from Configuration.Geometry.dict2026Geometry import detectorVersionDict
 
-varType = Enumerate ("Run1 2015 2015dev 2017 2017Muon 2019 2023")
+varType = Enumerate ("Run1 2015 2015dev 2017 2017Muon 2021 2026")
 defaultVersion=str();
 
 def help():
-   print "Usage: cmsRun dumpSimGeometry_cfg.py  tag=TAG version=VERSION "
-   print "   tag=tagname"
-   print "       indentify geometry scenario "
-   print "      ", varType.keys()
-   print ""
-   print "   version=versionNumber"
-   print "       scenario version from 2023 dictionary:"
-   print ""
-   print "   out=outputFileName"
-   print "       default is cmsSimGeom<tag><version>.root"
-   print 
+   print("Usage: cmsRun dumpSimGeometry_cfg.py  tag=TAG version=VERSION ")
+   print("   tag=tagname")
+   print("       identify geometry scenario ")
+   print("      ", varType.keys())
+   print("")
+   print("   version=versionNumber")
+   print("       scenario version from 2026 dictionary")
+   print("")
+   print("   out=outputFileName")
+   print("       default is cmsSimGeom<tag><version>.root")
+   print() 
    os._exit(1);
 
 def versionCheck(ver):
    if ver == "":
-      print "Please, specify 2023 scenario version\n"
-      pprint(sorted(detectorVersionDict.items(),key=operator.itemgetter(1)))
+      print("Please, specify 2026 scenario version\n")
+      print(sorted([x[1] for x in detectorVersionDict.items()]))
+      print("")
       help()
 
 def simGeoLoad(score):
-    print "Loading configuration for scenario", options.tag , options.version ,"...\n"
+    print("Loading configuration for scenario", options.tag , options.version ,"...\n")
     if score == "Run1":
        process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
@@ -45,12 +46,12 @@ def simGeoLoad(score):
     elif score == "2017Muon":
        process.load("Geometry.CMSCommonData.cmsExtendedGeometry2017MuonXML_cfi")
 
-    elif score == "2019":
-       process.load("Geometry.CMSCommonData.cmsExtendedGeometry2019XML_cfi")
+    elif score == "2021":
+       process.load("Geometry.CMSCommonData.cmsExtendedGeometry2021XML_cfi")
 
-    elif score == "2023":
+    elif score == "2026":
        versionCheck(options.version)
-       process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023" + options.version + "XML_cfi")
+       process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026" + options.version + "XML_cfi")
  
     else:
       help()
@@ -70,7 +71,7 @@ options.register ('version',
                   defaultVersion, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "info about 2023 geometry scenario version")
+                  "info about 2026 geometry scenario version")
 options.register ('out',
                   defaultOutputFileName, # default value
                   VarParsing.VarParsing.multiplicity.singleton,

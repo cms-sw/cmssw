@@ -8,18 +8,16 @@ namespace edm {
 namespace CLHEP {
   class RandGeneral;
   class HepRandomEngine;
-}
+}  // namespace CLHEP
 
-namespace gen
-{
+namespace gen {
   class PtYDistributor {
   public:
-    PtYDistributor() {};
+    PtYDistributor(){};
     //PtYDistributor(std::string inputfile, CLHEP::HepRandomEngine& fRandomEngine, double ptmax, double ptmin, double ymax, double ymin, int ptbins, int ybins);
-    PtYDistributor(const edm::FileInPath& fip,
-                   double ptmax, double ptmin, double ymax, double ymin, 
-		   int ptbins, int ybins);
-    virtual ~PtYDistributor() {};
+    PtYDistributor(
+        const edm::FileInPath& fip, double ptmax, double ptmin, double ymax, double ymin, int ptbins, int ybins);
+    virtual ~PtYDistributor(){};
 
     double fireY(CLHEP::HepRandomEngine*);
     double firePt(CLHEP::HepRandomEngine*);
@@ -38,5 +36,5 @@ namespace gen
     CLHEP::RandGeneral* fYGenerator;
     CLHEP::RandGeneral* fPtGenerator;
   };
-}
+}  // namespace gen
 #endif

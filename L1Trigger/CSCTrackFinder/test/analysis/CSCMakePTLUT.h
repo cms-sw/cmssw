@@ -23,19 +23,19 @@
 class CSCTFPtLUT;
 
 class CSCMakePTLUT : public edm::EDAnalyzer {
- public:
+public:
   explicit CSCMakePTLUT(edm::ParameterSet const& conf);
   virtual ~CSCMakePTLUT();
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   //virtual void endJob();
- private:
+private:
   // variables persistent across events should be declared here.
   //
 
   std::string fileSuffix() const;
   //CSCTFPtLUT* myTF[2][6][2][4]; // [Endcap][Sector][Subsector][Station]
   CSCTFPtLUT* myTF;
-  //bool writeLocalPhi, writeGlobalPhi, writeGlobalEta, 
+  //bool writeLocalPhi, writeGlobalPhi, writeGlobalEta,
   bool binary;
   int endcap, sector, station;
   edm::ParameterSet LUTparam;

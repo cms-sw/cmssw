@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import copy
 
@@ -12,11 +13,7 @@ def CreatePlotEntry(analyzer, discriminatorLabel=None, step=True):
     ext = analyzer.ExtensionName.pythonValue()[1:-1]
     if discriminatorLabel == None:
         num = 'RecoTauV/%s%s_Matched/%sMatched_vs_#PAR#TauVisible'%(producer,ext,producer)
-        #out = 'RecoTauV/%s%s_Matched/PFJetMatchingEff#PAR#'%(producer,ext)
-        if producer.find('caloReco') != -1:
-            out = 'RecoTauV/%s%s_Matched/CaloJetMatchingEff#PAR#'%(producer,ext)
-        else:
-            out = 'RecoTauV/%s%s_Matched/PFJetMatchingEff#PAR#'%(producer,ext)
+        out = 'RecoTauV/%s%s_Matched/PFJetMatchingEff#PAR#'%(producer,ext)
     else:
         num = 'RecoTauV/%s%s_%s/%s_vs_#PAR#TauVisible'%(producer,ext,discriminatorLabel,discriminatorLabel)
         if discriminatorLabel.find('DiscriminationBy') != -1:
@@ -53,8 +50,6 @@ def NameVariable(analyzer, discriminatorLabel=None):
         first='HPS'
     elif analyzer.TauProducer.pythonValue()[1:-1] == 'hpsTancTaus':
         first='HPSTanc'+analyzer.ExtensionName.value()
-    elif analyzer.TauProducer.pythonValue()[1:-1] == 'caloRecoTauProducer':
-        first='CaloTau'
     else:
         #print 'Case not found check the available cases in Validation/RecoTau/python/ValidationUtils.py -- NameVariable'
         first=analyzer.TauProducer.pythonValue()[1:-1]+analyzer.ExtensionName.pythonValue()[1:-1]
@@ -146,20 +141,20 @@ def SpawnPSet(lArgument, subPset):
     ret = cms.PSet()
     for spawn in lArgument:
         if len(spawn) != 3:
-            print "ERROR! SpawnPSet uses argument of three data\n"
-            print self.__doc__
+            print("ERROR! SpawnPSet uses argument of three data\n")
+            print(self.__doc__)
             return None
         if len(spawn[1]) != len(spawn[2]):
-            print "ERROR! Lists of arguments to replace must have the same length"
-            print self.__doc__
+            print("ERROR! Lists of arguments to replace must have the same length")
+            print(self.__doc__)
             return None
         spawnArg = copy.deepcopy(subPset)
         for par, val in zip(spawn[1],spawn[2]):
-            if type(val) is str :
+            if isinstance(val, str) :
                 setattr(spawnArg,par,cms.string(val))
-            elif type(val) is int :
+            elif isinstance(val, int) :
                 setattr(spawnArg,par,cms.int32(val))
-            elif type(val) is float :
+            elif isinstance(val, float) :
                 setattr(spawnArg,par,cms.double(val))
         setattr(ret,spawn[0],spawnArg)
     return ret

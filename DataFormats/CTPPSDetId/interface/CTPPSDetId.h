@@ -29,133 +29,128 @@
  * The ...Name() methods implement the official naming scheme based on EDMS 906715.
 **/
 
-class CTPPSDetId : public DetId
-{  
-  public:
-    /// CTPPS sub-detectors
-    enum SubDetector { sdTrackingStrip = 3, sdTrackingPixel = 4, sdTimingDiamond = 5, sdTimingFastSilicon = 6 };
+class CTPPSDetId : public DetId {
+public:
+  /// CTPPS sub-detectors
+  enum SubDetector { sdTrackingStrip = 3, sdTrackingPixel = 4, sdTimingDiamond = 5, sdTimingFastSilicon = 6 };
 
-    /// Construct from a raw id.
-    explicit CTPPSDetId(uint32_t id);
-  
-    /// Construct from hierarchy indeces.
-    CTPPSDetId(uint32_t SubDet, uint32_t Arm, uint32_t Station, uint32_t RomanPot=0);
+  /// Construct from a raw id.
+  explicit CTPPSDetId(uint32_t id);
 
-    //-------------------- bit assignment --------------------
-  
-    static const uint32_t startArmBit, maskArm, maxArm, lowMaskArm;
-    static const uint32_t startStationBit, maskStation, maxStation, lowMaskStation;
-    static const uint32_t startRPBit, maskRP, maxRP, lowMaskRP;
-    
-    //-------------------- component getters and setters --------------------
-     
-    uint32_t arm() const
-    {
-      return ((id_>>startArmBit) & maskArm);
+  /// Construct from hierarchy indeces.
+  CTPPSDetId(uint32_t SubDet, uint32_t Arm, uint32_t Station, uint32_t RomanPot = 0);
+
+  //-------------------- bit assignment --------------------
+
+  static const uint32_t startArmBit, maskArm, maxArm, lowMaskArm;
+  static const uint32_t startStationBit, maskStation, maxStation, lowMaskStation;
+  static const uint32_t startRPBit, maskRP, maxRP, lowMaskRP;
+
+  //-------------------- component getters and setters --------------------
+
+  uint32_t arm() const { return ((id_ >> startArmBit) & maskArm); }
+
+  void setArm(uint32_t arm) {
+    id_ &= ~(maskArm << startArmBit);
+    id_ |= ((arm & maskArm) << startArmBit);
+  }
+
+  uint32_t station() const { return ((id_ >> startStationBit) & maskStation); }
+
+  void setStation(uint32_t station) {
+    id_ &= ~(maskStation << startStationBit);
+    id_ |= ((station & maskStation) << startStationBit);
+  }
+
+  uint32_t rp() const { return ((id_ >> startRPBit) & maskRP); }
+
+  void setRP(uint32_t rp) {
+    id_ &= ~(maskRP << startRPBit);
+    id_ |= ((rp & maskRP) << startRPBit);
+  }
+
+  //-------------------- id getters for higher-level objects --------------------
+
+  CTPPSDetId getArmId() const { return CTPPSDetId(rawId() & (~lowMaskArm)); }
+
+  CTPPSDetId getStationId() const { return CTPPSDetId(rawId() & (~lowMaskStation)); }
+
+  CTPPSDetId getRPId() const { return CTPPSDetId(rawId() & (~lowMaskRP)); }
+
+  //-------------------- name methods --------------------
+
+  /// type of name returned by *Name functions
+  enum NameFlag { nShort, nFull, nPath };
+
+  inline void subDetectorName(std::string &name, NameFlag flag = nFull) const {
+    if (flag == nPath)
+      name = subDetectorPaths[subdetId()];
+    else
+      name = subDetectorNames[subdetId()];
+  }
+
+  inline void armName(std::string &name, NameFlag flag = nFull) const {
+    switch (flag) {
+      case nShort:
+        name = "";
+        break;
+      case nFull:
+        subDetectorName(name, flag);
+        name += "_";
+        break;
+      case nPath:
+        subDetectorName(name, flag);
+        name += "/sector ";
+        break;
     }
 
-    void setArm(uint32_t arm)
-    {
-      id_ &= ~(maskArm << startArmBit);
-      id_ |= ((arm & maskArm) << startArmBit);
+    name += armNames[arm()];
+  }
+
+  inline void stationName(std::string &name, NameFlag flag = nFull) const {
+    switch (flag) {
+      case nShort:
+        name = "";
+        break;
+      case nFull:
+        armName(name, flag);
+        name += "_";
+        break;
+      case nPath:
+        armName(name, flag);
+        name += "/station ";
+        break;
     }
 
-    uint32_t station() const
-    {
-      return ((id_>>startStationBit) & maskStation);
+    name += stationNames[station()];
+  }
+
+  inline void rpName(std::string &name, NameFlag flag = nFull) const {
+    switch (flag) {
+      case nShort:
+        name = "";
+        break;
+      case nFull:
+        stationName(name, flag);
+        name += "_";
+        break;
+      case nPath:
+        stationName(name, flag);
+        name += "/";
+        break;
     }
 
-    void setStation(uint32_t station)
-    {
-      id_ &= ~(maskStation << startStationBit);
-      id_ |= ((station & maskStation) << startStationBit);
-    }
+    name += rpNames[rp()];
+  }
 
-    uint32_t rp() const
-    {
-      return ((id_>>startRPBit) & maskRP);
-    }
-
-    void setRP(uint32_t rp)
-    {
-      id_ &= ~(maskRP << startRPBit);
-      id_ |= ((rp & maskRP) << startRPBit);
-    }
-
-    //-------------------- id getters for higher-level objects --------------------
-
-    CTPPSDetId getArmId() const
-    {
-      return CTPPSDetId( rawId() & (~lowMaskArm) );
-    }
-
-    CTPPSDetId getStationId() const
-    {
-      return CTPPSDetId( rawId() & (~lowMaskStation) );
-    }
-
-    CTPPSDetId getRPId() const
-    {
-      return CTPPSDetId( rawId() & (~lowMaskRP) );
-    }
-
-    //-------------------- name methods --------------------
-
-    /// type of name returned by *Name functions
-    enum NameFlag { nShort, nFull, nPath };
-
-    inline void subDetectorName(std::string &name, NameFlag flag = nFull) const
-    {
-      if (flag == nPath)
-        name = subDetectorPaths[subdetId()];
-      else
-        name = subDetectorNames[subdetId()];
-    }
-
-    inline void armName(std::string &name, NameFlag flag = nFull) const
-    {
-      switch (flag)
-      {
-        case nShort: name = ""; break;
-        case nFull: subDetectorName(name, flag); name += "_"; break;
-        case nPath: subDetectorName(name, flag); name += "/sector "; break;
-      }
-
-      name += armNames[arm()];
-    }
-
-    inline void stationName(std::string &name, NameFlag flag = nFull) const
-    {
-      switch (flag)
-      {
-        case nShort: name = ""; break;
-        case nFull: armName(name, flag); name += "_"; break;
-        case nPath: armName(name, flag); name += "/station "; break;
-      }
-
-      name += stationNames[station()];
-    }
-
-    inline void rpName(std::string &name, NameFlag flag = nFull) const
-    {
-      switch (flag)
-      {
-        case nShort: name = ""; break;
-        case nFull: stationName(name, flag); name += "_"; break;
-        case nPath: stationName(name, flag); name += "/"; break;
-      }
-
-      name += rpNames[rp()];
-    }
-
-  private:
-    static const std::string subDetectorNames[];
-    static const std::string subDetectorPaths[];
-    static const std::string armNames[];
-    static const std::string stationNames[];
-    static const std::string rpNames[];
+private:
+  static const std::string subDetectorNames[];
+  static const std::string subDetectorPaths[];
+  static const std::string armNames[];
+  static const std::string stationNames[];
+  static const std::string rpNames[];
 };
 
-std::ostream& operator<<(std::ostream& os, const CTPPSDetId& id);
+std::ostream &operator<<(std::ostream &os, const CTPPSDetId &id);
 
-#endif 
+#endif

@@ -15,43 +15,30 @@ XERCES_CPP_NAMESPACE_USE
 
 using namespace PhysicsTools;
 
-namespace { // anonymous
+namespace {  // anonymous
 
-class ProcCount : public TrainProcessor {
-    public:
-	typedef TrainProcessor::Registry<ProcCount>::Type Registry;
+  class ProcCount : public TrainProcessor {
+  public:
+    typedef TrainProcessor::Registry<ProcCount>::Type Registry;
 
-	ProcCount(const char *name, const AtomicId *id,
-	          MVATrainer *trainer);
-	~ProcCount() override;
+    ProcCount(const char *name, const AtomicId *id, MVATrainer *trainer);
+    ~ProcCount() override;
 
-	void configure(DOMElement *elem) override;
-	Calibration::VarProcessor *getCalibration() const override;
+    void configure(DOMElement *elem) override;
+    Calibration::VarProcessor *getCalibration() const override;
 
-    private:
-	std::vector<double>	neutrals;
-};
+  private:
+    std::vector<double> neutrals;
+  };
 
-ProcCount::Registry registry("ProcCount");
+  ProcCount::Registry registry("ProcCount");
 
-ProcCount::ProcCount(const char *name, const AtomicId *id,
-                             MVATrainer *trainer) :
-	TrainProcessor(name, id, trainer)
-{
-}
+  ProcCount::ProcCount(const char *name, const AtomicId *id, MVATrainer *trainer) : TrainProcessor(name, id, trainer) {}
 
-ProcCount::~ProcCount()
-{
-}
+  ProcCount::~ProcCount() {}
 
-void ProcCount::configure(DOMElement *elem)
-{
-	trained = true;
-}
+  void ProcCount::configure(DOMElement *elem) { trained = true; }
 
-Calibration::VarProcessor *ProcCount::getCalibration() const
-{
-	return new Calibration::ProcCount;
-}
+  Calibration::VarProcessor *ProcCount::getCalibration() const { return new Calibration::ProcCount; }
 
-} // anonymous namespace
+}  // anonymous namespace

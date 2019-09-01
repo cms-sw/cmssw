@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # from https://gist.github.com/IevaZarina/ef63197e089169a9ea9f3109058a9679
 
+from __future__ import print_function
 import numpy as np
 import xgboost as xgb
 from sklearn import datasets
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 from sklearn.datasets import dump_svmlight_file
 from sklearn.externals import joblib
 from sklearn.metrics import precision_score
@@ -41,7 +42,7 @@ preds = bst.predict(dtest)
 
 # extracting most confident predictions
 best_preds = np.asarray([np.argmax(line) for line in preds])
-print "Numpy array precision:", precision_score(y_test, best_preds, average='macro')
+print("Numpy array precision:", precision_score(y_test, best_preds, average='macro'))
 
 # ------------- svm file ---------------------
 # training and testing - svm file
@@ -50,7 +51,7 @@ preds = bst.predict(dtest_svm)
 
 # extracting most confident predictions
 best_preds_svm = [np.argmax(line) for line in preds]
-print "Svm file precision:",precision_score(y_test, best_preds_svm, average='macro')
+print("Svm file precision:",precision_score(y_test, best_preds_svm, average='macro'))
 # --------------------------------------------
 
 # dump the models

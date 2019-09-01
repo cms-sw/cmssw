@@ -2,7 +2,7 @@
 //
 // Package:    NMaxPerLumi
 // Class:      NMaxPerLumi
-// 
+//
 /**\class NMaxPerLumi NMaxPerLumi.cc WorkSpace/NMaxPerLumi/src/NMaxPerLumi.cc
 
  Description: [one line class summary]
@@ -16,7 +16,6 @@
 // $Id: NMaxPerLumi.cc,v 1.3 2010/10/03 10:15:07 elmer Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -35,17 +34,17 @@
 //
 
 class NMaxPerLumi : public edm::EDFilter {
-   public:
-      explicit NMaxPerLumi(const edm::ParameterSet&);
-      ~NMaxPerLumi() override;
+public:
+  explicit NMaxPerLumi(const edm::ParameterSet&);
+  ~NMaxPerLumi() override;
 
-   private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
   // ----------member data ---------------------------
-  std::map< unsigned int , std::map < unsigned int, unsigned int > > counters;
+  std::map<unsigned int, std::map<unsigned int, unsigned int> > counters;
   unsigned int nMaxPerLumi_;
 };
 
@@ -60,52 +59,38 @@ class NMaxPerLumi : public edm::EDFilter {
 //
 // constructors and destructor
 //
-NMaxPerLumi::NMaxPerLumi(const edm::ParameterSet& iConfig)
-{
-   //now do what ever initialization is needed
+NMaxPerLumi::NMaxPerLumi(const edm::ParameterSet& iConfig) {
+  //now do what ever initialization is needed
 
   nMaxPerLumi_ = iConfig.getParameter<unsigned int>("nMaxPerLumi");
 }
 
-
-NMaxPerLumi::~NMaxPerLumi()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+NMaxPerLumi::~NMaxPerLumi() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-NMaxPerLumi::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+bool NMaxPerLumi::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  const edm::EventID& id = iEvent.id();
 
-  const edm::EventID & id = iEvent.id();
-
-  if (counters[id.run()][id.luminosityBlock()]>=nMaxPerLumi_)
+  if (counters[id.run()][id.luminosityBlock()] >= nMaxPerLumi_)
     return false;
-  else{
+  else {
     counters[id.run()][id.luminosityBlock()]++;
     return true;
   }
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-NMaxPerLumi::beginJob()
-{
-}
+void NMaxPerLumi::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-NMaxPerLumi::endJob() {
-}
+void NMaxPerLumi::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(NMaxPerLumi);

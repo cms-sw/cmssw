@@ -15,9 +15,9 @@
 #include <cstdlib>
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibBase.h"
 
-namespace pos{
+namespace pos {
 
-/*! \ingroup CalibrationObjects
+  /*! \ingroup CalibrationObjects
 *
 *   @{
 *
@@ -27,40 +27,27 @@ namespace pos{
 *   A longer explanation will be placed here later
 */
   class PixelFEDTestDAC : public PixelCalibBase {
-
   public:
     PixelFEDTestDAC(std::string filename);
-    PixelFEDTestDAC(std::vector< std::vector<std::string> > &);
-    std::string mode() const override {return mode_;}
-    std::vector<unsigned int> dacs() {return dacs_;}
-    void writeXMLHeader(  pos::PixelConfigKey key, 
-				  int version, 
-				  std::string path, 
-				  std::ofstream *out,
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 = nullptr
-				  ) const override ;
-    void writeXML( 	  std::ofstream *out,		        				    
-			   	  std::ofstream *out1 = nullptr ,	       
-			   	  std::ofstream *out2 = nullptr ) const override ; 
-    void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = nullptr,
-				  std::ofstream *out2 = nullptr
-				  ) const override ;
+    PixelFEDTestDAC(std::vector<std::vector<std::string> > &);
+    std::string mode() const override { return mode_; }
+    std::vector<unsigned int> dacs() { return dacs_; }
+    void writeXMLHeader(pos::PixelConfigKey key,
+                        int version,
+                        std::string path,
+                        std::ofstream *out,
+                        std::ofstream *out1 = nullptr,
+                        std::ofstream *out2 = nullptr) const override;
+    void writeXML(std::ofstream *out, std::ofstream *out1 = nullptr, std::ofstream *out2 = nullptr) const override;
+    void writeXMLTrailer(std::ofstream *out,
+                         std::ofstream *out1 = nullptr,
+                         std::ofstream *out2 = nullptr) const override;
 
   private:
-
     unsigned int levelEncoder(int level);
     std::vector<unsigned int> decimalToBaseX(unsigned int a, unsigned int x, unsigned int length);
     std::vector<unsigned int> dacs_;
-
   };
-}
+}  // namespace pos
 /* @} */
 #endif
-
-
-
-
-	
-	

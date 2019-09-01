@@ -1,12 +1,14 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import ROOT
-from drawHistoAllChambers import drawHisto
+from .drawHistoAllChambers import drawHisto
 
 def binNumber(station,sl):
     if sl is 3 and station is 4: return 11
     if sl is 2 and station is 4: return None
     start = (station - 1)*3
     return start + sl
- 
+
 def plot(fileName,sl,run,ymin=-5,ymax=5,option="HISTOP",draw=True):
     path = "DQMData/Run "+str(run)+"/DT/Run summary/DtCalib/TTrigDBValidation/"
     slType = sl
@@ -35,20 +37,20 @@ def plot(fileName,sl,run,ymin=-5,ymax=5,option="HISTOP",draw=True):
         nSectors = 12
         if st == 4: nSectors = 14 
         if st == 4 and sl == 2: continue
-        if verbose: print "Station",st
+        if verbose: print("Station",st)
         for wh in wheels:
-            if verbose: print "Wheel",wh 
+            if verbose: print("Wheel",wh) 
             for sec in range(1,nSectors+1):
-                if verbose: print "Sector",sec
+                if verbose: print("Sector",sec)
                 binHisto = binNumber(st,sl)
-                if verbose: print "Bin from histos:",binHisto 
+                if verbose: print("Bin from histos:",binHisto) 
                 histoName = path+'Wheel%d/TTrigDifference_W%d_Sec%d' % (wh,wh,sec)
                 value = file.Get(histoName).GetBinContent(binHisto)
 
                 binHistoNew = (st - 1)*60 + (wh + 2)*nSectors + sec
-                if verbose: print "Bin final",binHistoNew,value
+                if verbose: print("Bin final",binHistoNew,value)
                 histo.SetBinContent(binHistoNew,value) 
-  
+
                 if sec == 1:
                     label = "Wheel %d" % wh
                     if wh == -2: label += " MB%d" % st  
@@ -64,7 +66,7 @@ def SLcompare(fileName,sls,run,ymin=-5,ymax=5,labels=[]):
     option = "HISTOP"
     colors = (2,4,12,44,55,38,27,46)
     markers = (24,25,26,27,28,30,32,5)
-    
+
     idx = 0
     canvas = None
     objects = None
@@ -92,7 +94,7 @@ def SLcompare(fileName,sls,run,ymin=-5,ymax=5,labels=[]):
 
     legend = ROOT.TLegend(0.4,0.7,0.95,0.8)
     for idx in range( len(histos) ):
-	histo = histos[idx]
+        histo = histos[idx]
         label = histo.GetName()
         if len(labels): label = labels[idx]
         legend.AddEntry(histo,label,"LP")
@@ -111,7 +113,7 @@ def compareDiff(fileNames,sl,ymin=-15.,ymax=15.):
     option = "HISTOP"
     colors = (2,4,9,12,38,44,46,55)
     markers = (24,25,26,27,28,30,32,5)
-    
+
     idx = 0
     canvases = [None,None]
     objects = None
@@ -127,7 +129,7 @@ def compareDiff(fileNames,sl,ymin=-15.,ymax=15.):
             histos[-1].Reset()
         else:
             histos[-1].Add(histoRef,-1.) 
-       
+
         draw = False
         if not idx: draw = True
 
@@ -138,7 +140,7 @@ def compareDiff(fileNames,sl,ymin=-15.,ymax=15.):
         if not idx: 
             canvases[0] = objs[0]
             objects = objs[2]
-            
+
         if idx:
             canvases[0].cd()
             histos[-1].SetLineColor(colors[ (idx - 1) % len(colors) ])
@@ -156,8 +158,8 @@ def compareDiff(fileNames,sl,ymin=-15.,ymax=15.):
             histosDist[-1].SetMarkerStyle(markers[ (idx - 1) % len(markers) ])
 
         idx += 1
-    
-    
+
+
     canvases[1] = ROOT.TCanvas("c_tTrigDist")
     canvases[1].SetGridy()
     canvases[1].SetFillColor(0)

@@ -3,7 +3,6 @@
 
 #include <vector>
 
-
 namespace edm {
   /**
    * A simple class representing a set of indices to another container
@@ -23,7 +22,7 @@ namespace edm {
   class IndexSet {
   public:
     /// Construct empty set
-    IndexSet(): numTrueElements_(0) {}
+    IndexSet() : numTrueElements_(0) {}
 
     /// Check if the set is empty
     bool empty() const { return numTrueElements_ == 0; }
@@ -33,7 +32,7 @@ namespace edm {
 
     /// Reserve memory for the set
     void reserve(unsigned int size) {
-      if(size >= content_.size()) {
+      if (size >= content_.size()) {
         content_.resize(size, false);
       }
     }
@@ -46,20 +45,19 @@ namespace edm {
 
     /// Insert an element (=index) to the set
     void insert(unsigned int index) {
-      reserve(index+1);
-      numTrueElements_ += !content_[index]; // count increases if value was false
+      reserve(index + 1);
+      numTrueElements_ += !content_[index];  // count increases if value was false
       content_[index] = true;
     }
 
     /// Check if an element (=index) is in the set
-    bool has(unsigned int index) const {
-      return index < content_.size() && content_[index];
-    }
+    bool has(unsigned int index) const { return index < content_.size() && content_[index]; }
 
   private:
-    std::vector<bool> content_;    /// Each possible element of the set corresponds an index in this vector. The value of an element tells if that index exists in the set (true) or not (false).
-    unsigned int numTrueElements_; /// Count of true elements is equivalent of "size()" of std::set
+    std::vector<bool>
+        content_;  /// Each possible element of the set corresponds an index in this vector. The value of an element tells if that index exists in the set (true) or not (false).
+    unsigned int numTrueElements_;  /// Count of true elements is equivalent of "size()" of std::set
   };
-}
+}  // namespace edm
 
 #endif

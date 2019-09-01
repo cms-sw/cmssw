@@ -9,20 +9,20 @@
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetSignalVertexCompatibilityAlgo.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 class JetSignalVertexCompatibility : public edm::EDProducer {
-    public:
-	JetSignalVertexCompatibility(const edm::ParameterSet &params);
-	~JetSignalVertexCompatibility() override;
+public:
+  JetSignalVertexCompatibility(const edm::ParameterSet &params);
+  ~JetSignalVertexCompatibility() override;
 
-	void produce(edm::Event &event, const edm::EventSetup &es) override;
+  void produce(edm::Event &event, const edm::EventSetup &es) override;
 
-    private:
-	reco::JetSignalVertexCompatibilityAlgo	algo;
+private:
+  reco::JetSignalVertexCompatibilityAlgo algo;
 
-	edm::EDGetTokenT<reco::JetTracksAssociationCollection> jetTracksAssocToken;
-	edm::EDGetTokenT<reco::VertexCollection> primaryVerticesToken;
-
+  edm::EDGetTokenT<reco::JetTracksAssociationCollection> jetTracksAssocToken;
+  edm::EDGetTokenT<reco::VertexCollection> primaryVerticesToken;
 };
 
-#endif // JetSignalVertexCompatibility_h
+#endif  // JetSignalVertexCompatibility_h

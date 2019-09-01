@@ -38,71 +38,63 @@ class FWModelChangeManager;
 class FWColorManager;
 class FWTypeToRepresentations;
 
-namespace fireworks
-{
-class Context;
+namespace fireworks {
+  class Context;
 }
 
-class FWViewManagerBase
-{
-
+class FWViewManagerBase {
 public:
-   virtual ~FWViewManagerBase();
+  virtual ~FWViewManagerBase();
 
-   // ---------- const member functions ---------------------
-   virtual FWTypeToRepresentations supportedTypesAndRepresentations() const = 0;
-   // ---------- static member functions --------------------
+  // ---------- const member functions ---------------------
+  virtual FWTypeToRepresentations supportedTypesAndRepresentations() const = 0;
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   virtual void newItem(const FWEventItem*) = 0;
+  // ---------- member functions ---------------------------
+  virtual void newItem(const FWEventItem*) = 0;
 
-   virtual void setContext(const fireworks::Context* x) { m_context = x; }
-   
-   void setChangeManager(FWModelChangeManager* iCM);
-   void setColorManager(FWColorManager* iCM);
+  virtual void setContext(const fireworks::Context* x) { m_context = x; }
 
+  void setChangeManager(FWModelChangeManager* iCM);
+  void setColorManager(FWColorManager* iCM);
 
-   void modelChangesComingSlot();
-   void modelChangesDoneSlot();
-   void colorsChangedSlot();
-   virtual void eventBegin(){
-   };
-   virtual void eventEnd(){
-   };
+  void modelChangesComingSlot();
+  void modelChangesDoneSlot();
+  void colorsChangedSlot();
+  virtual void eventBegin(){};
+  virtual void eventEnd(){};
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   const fireworks::Context& context() const { return *m_context; }
+  const fireworks::Context& context() const { return *m_context; }
 
 protected:
-   FWViewManagerBase();
+  FWViewManagerBase();
 
-   /**handles dynamic loading of a library or macro containing the class
+  /**handles dynamic loading of a library or macro containing the class
       named iNameOfClass which inherits from iBaseClass.  The returned
       void* will correspond to the address of the 'BaseClass'
    */
-   void* createInstanceOf(const TClass* iBaseClass,
-                          const char* iNameOfClass);
+  void* createInstanceOf(const TClass* iBaseClass, const char* iNameOfClass);
 
-   /** called when models have changed and so the display must be updated*/
-   virtual void modelChangesComing() = 0;
-   virtual void modelChangesDone() = 0;
-   virtual void colorsChanged() = 0;
+  /** called when models have changed and so the display must be updated*/
+  virtual void modelChangesComing() = 0;
+  virtual void modelChangesDone() = 0;
+  virtual void colorsChanged() = 0;
 
-   FWModelChangeManager& changeManager() const;
-   FWColorManager& colorManager() const;
+  FWModelChangeManager& changeManager() const;
+  FWColorManager& colorManager() const;
 
 private:
-   FWViewManagerBase(const FWViewManagerBase&) = delete;    // stop default
+  FWViewManagerBase(const FWViewManagerBase&) = delete;  // stop default
 
-   const FWViewManagerBase& operator=(const FWViewManagerBase&) = delete;    // stop default
+  const FWViewManagerBase& operator=(const FWViewManagerBase&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   const fireworks::Context*   m_context;
+  // ---------- member data --------------------------------
+  const fireworks::Context* m_context;
 
-   FWModelChangeManager* m_changeManager;
-   FWColorManager*       m_colorManager;
+  FWModelChangeManager* m_changeManager;
+  FWColorManager* m_colorManager;
 };
-
 
 #endif

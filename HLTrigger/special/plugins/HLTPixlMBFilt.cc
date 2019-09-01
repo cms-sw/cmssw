@@ -28,30 +28,30 @@
 // constructors and destructor
 //
 
-HLTPixlMBFilt::HLTPixlMBFilt(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
-    pixlTag_ (iConfig.getParameter<edm::InputTag>("pixlTag")),
-    min_Pt_  (iConfig.getParameter<double>("MinPt")),
-    min_trks_  (iConfig.getParameter<unsigned int>("MinTrks")),
-    min_sep_  (iConfig.getParameter<double>("MinSep"))
+HLTPixlMBFilt::HLTPixlMBFilt(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig),
+      pixlTag_(iConfig.getParameter<edm::InputTag>("pixlTag")),
+      min_Pt_(iConfig.getParameter<double>("MinPt")),
+      min_trks_(iConfig.getParameter<unsigned int>("MinTrks")),
+      min_sep_(iConfig.getParameter<double>("MinSep"))
 
 {
   pixlToken_ = consumes<reco::RecoChargedCandidateCollection>(pixlTag_);
-  LogDebug("") << "MinPt cut " << min_Pt_   << "pixl: " << pixlTag_.encode();
+  LogDebug("") << "MinPt cut " << min_Pt_ << "pixl: " << pixlTag_.encode();
   LogDebug("") << "Requesting : " << min_trks_ << " tracks from same vertex ";
   LogDebug("") << "Requesting tracks from same vertex eta-phi separation by " << min_sep_;
 }
 
 HLTPixlMBFilt::~HLTPixlMBFilt() = default;
 
-void
-HLTPixlMBFilt::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTPixlMBFilt::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("pixlTag",edm::InputTag("hltPixelCands"));
-  desc.add<double>("MinPt",0.);
-  desc.add<unsigned int>("MinTrks",2);
-  desc.add<double>("MinSep",1.);
-  descriptions.add("hltPixlMBFilt",desc);
+  desc.add<edm::InputTag>("pixlTag", edm::InputTag("hltPixelCands"));
+  desc.add<double>("MinPt", 0.);
+  desc.add<unsigned int>("MinTrks", 2);
+  desc.add<double>("MinSep", 1.);
+  descriptions.add("hltPixlMBFilt", desc);
 }
 
 //
@@ -59,123 +59,128 @@ HLTPixlMBFilt::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
-{
-   using namespace std;
-   using namespace edm;
-   using namespace reco;
-   using namespace trigger;
+bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent,
+                              const edm::EventSetup& iSetup,
+                              trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
+  using namespace trigger;
 
-   // All HLT filters must create and fill an HLT filter object,
-   // recording any reconstructed physics objects satisfying (or not)
-   // this HLT filter, and place it in the Event.
-   if (saveTags()) {
-       filterproduct.addCollectionTag(pixlTag_);
-   }
+  // All HLT filters must create and fill an HLT filter object,
+  // recording any reconstructed physics objects satisfying (or not)
+  // this HLT filter, and place it in the Event.
+  if (saveTags()) {
+    filterproduct.addCollectionTag(pixlTag_);
+  }
 
-   // Specific filter code
+  // Specific filter code
 
-   // get hold of products from Event
+  // get hold of products from Event
 
-   Handle<RecoChargedCandidateCollection> tracks;
-   iEvent.getByToken(pixlToken_,tracks);
+  Handle<RecoChargedCandidateCollection> tracks;
+  iEvent.getByToken(pixlToken_, tracks);
 
-   // pixel tracks
-   int npixl_tot = 0;
-   vector<double> etastore;
-   vector<double> phistore;
-   vector<int> itstore;
-   bool accept;
-   auto apixl(tracks->begin());
-   auto epixl(tracks->end());
-   RecoChargedCandidateCollection::const_iterator ipixl, jpixl;
-   unsigned int nsame_vtx=0;
-   int itrk = -1;
-   if (tracks->size() >= min_trks_) {
-     for (ipixl=apixl; ipixl!=epixl; ipixl++){
-       if (ipixl->pt() < min_Pt_) continue;
-       itrk++;
-       const double& ztrk1 = ipixl->vz();		
-       const double& etatrk1 = ipixl->momentum().eta();
-       const double& phitrk1 = ipixl->momentum().phi();
-       nsame_vtx=1;
-       etastore.clear();
-       phistore.clear();
-       itstore.clear();
-       etastore.push_back(etatrk1);
-       phistore.push_back(phitrk1);
-       itstore.push_back(itrk);
-       if (fabs(ztrk1) < 15.0) {
-         //  check this track against all others to see if others start from same point
-	 int jtrk=-1;
-         for (jpixl=apixl; jpixl!=epixl; jpixl++) {
-	   if (jpixl->pt() < min_Pt_) continue;
-	   jtrk++;
-	   if (jpixl==ipixl) continue;
-           const double& ztrk2 = jpixl->vz();		
-           const double& etatrk2 = jpixl->momentum().eta();
-           const double& phitrk2 = jpixl->momentum().phi();
-           double eta_dist=etatrk2-etatrk1;
-           double phi_dist=phitrk2-phitrk1;
-           double etaphi_dist=sqrt(eta_dist*eta_dist + phi_dist*phi_dist);
-           if (fabs(ztrk2-ztrk1) < 1.0 && etaphi_dist > min_sep_) {
-	      if (min_trks_ <= 2 || itstore.size() <= 1) {
-	        etastore.push_back(etatrk2);
-	        phistore.push_back(phitrk2);
-		itstore.push_back(jtrk);
-                nsame_vtx++;
-              } else {
-                // check also separation to already found 'second' tracks
-		LogDebug("") << "HLTPixlMBFilt: with mintrks=2 we should not be here...";
-		bool isok = true;
-		for (unsigned int k=1; k < itstore.size(); k++) {
-                  eta_dist=etatrk2-etastore.at(k);
-                  phi_dist=phitrk2-phistore.at(k);
-                  etaphi_dist=sqrt(eta_dist*eta_dist + phi_dist*phi_dist);
-		  if (etaphi_dist < min_sep_) {
-		    isok=false;
-		    break;
-                  }
-		}
-		if (isok) {
-	          etastore.push_back(etatrk2);
-	          phistore.push_back(phitrk2);
-                  itstore.push_back(jtrk);
-                  nsame_vtx++;
+  // pixel tracks
+  int npixl_tot = 0;
+  vector<double> etastore;
+  vector<double> phistore;
+  vector<int> itstore;
+  bool accept;
+  auto apixl(tracks->begin());
+  auto epixl(tracks->end());
+  RecoChargedCandidateCollection::const_iterator ipixl, jpixl;
+  unsigned int nsame_vtx = 0;
+  int itrk = -1;
+  if (tracks->size() >= min_trks_) {
+    for (ipixl = apixl; ipixl != epixl; ipixl++) {
+      if (ipixl->pt() < min_Pt_)
+        continue;
+      itrk++;
+      const double& ztrk1 = ipixl->vz();
+      const double& etatrk1 = ipixl->momentum().eta();
+      const double& phitrk1 = ipixl->momentum().phi();
+      nsame_vtx = 1;
+      etastore.clear();
+      phistore.clear();
+      itstore.clear();
+      etastore.push_back(etatrk1);
+      phistore.push_back(phitrk1);
+      itstore.push_back(itrk);
+      if (fabs(ztrk1) < 15.0) {
+        //  check this track against all others to see if others start from same point
+        int jtrk = -1;
+        for (jpixl = apixl; jpixl != epixl; jpixl++) {
+          if (jpixl->pt() < min_Pt_)
+            continue;
+          jtrk++;
+          if (jpixl == ipixl)
+            continue;
+          const double& ztrk2 = jpixl->vz();
+          const double& etatrk2 = jpixl->momentum().eta();
+          const double& phitrk2 = jpixl->momentum().phi();
+          double eta_dist = etatrk2 - etatrk1;
+          double phi_dist = phitrk2 - phitrk1;
+          double etaphi_dist = sqrt(eta_dist * eta_dist + phi_dist * phi_dist);
+          if (fabs(ztrk2 - ztrk1) < 1.0 && etaphi_dist > min_sep_) {
+            if (min_trks_ <= 2 || itstore.size() <= 1) {
+              etastore.push_back(etatrk2);
+              phistore.push_back(phitrk2);
+              itstore.push_back(jtrk);
+              nsame_vtx++;
+            } else {
+              // check also separation to already found 'second' tracks
+              LogDebug("") << "HLTPixlMBFilt: with mintrks=2 we should not be here...";
+              bool isok = true;
+              for (unsigned int k = 1; k < itstore.size(); k++) {
+                eta_dist = etatrk2 - etastore.at(k);
+                phi_dist = phitrk2 - phistore.at(k);
+                etaphi_dist = sqrt(eta_dist * eta_dist + phi_dist * phi_dist);
+                if (etaphi_dist < min_sep_) {
+                  isok = false;
+                  break;
                 }
-	      }
-	   }
-           if (nsame_vtx >= min_trks_) break;
-         }
-       }
-       npixl_tot++;
+              }
+              if (isok) {
+                etastore.push_back(etatrk2);
+                phistore.push_back(phitrk2);
+                itstore.push_back(jtrk);
+                nsame_vtx++;
+              }
+            }
+          }
+          if (nsame_vtx >= min_trks_)
+            break;
+        }
+      }
+      npixl_tot++;
 
-       if (nsame_vtx >= min_trks_) break;
-     }
+      if (nsame_vtx >= min_trks_)
+        break;
+    }
 
-     //   final filter decision:
-     //   request at least min_trks_ tracks compatible with vertex-region
-     accept = (nsame_vtx >= min_trks_ ) ;
+    //   final filter decision:
+    //   request at least min_trks_ tracks compatible with vertex-region
+    accept = (nsame_vtx >= min_trks_);
 
-   } else {
-     accept = false;
-   }
+  } else {
+    accept = false;
+  }
 
-   // At this point we have the indices of the accepted tracks stored in itstore
-   // we now move them to the filterproduct
+  // At this point we have the indices of the accepted tracks stored in itstore
+  // we now move them to the filterproduct
 
-   if (accept) {
-     for (int iaddr : itstore) {
-       filterproduct.addObject(TriggerTrack,RecoChargedCandidateRef(tracks,iaddr));
-     }
-   }
+  if (accept) {
+    for (int iaddr : itstore) {
+      filterproduct.addObject(TriggerTrack, RecoChargedCandidateRef(tracks, iaddr));
+    }
+  }
 
   LogDebug("") << "Number of pixel-track objects accepted:"
                << " " << npixl_tot;
 
   // return with final filter decision
   return accept;
-
 }
 
 // declare this class as a framework plugin

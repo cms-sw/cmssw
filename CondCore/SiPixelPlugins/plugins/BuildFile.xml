@@ -1,0 +1,15 @@
+<library file="SiPixelQuality_PayloadInspector.cc" name="SiPixelQuality_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
+  <use   name="boost_python"/>
+</library>
+
+<library file="SiPixelLorentzAngle_PayloadInspector.cc" name="SiPixelLorentzAngle_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
+  <use   name="boost_python"/>
+</library>

@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     DependentRecordTag
-// 
+//
 /**\class DependentRecordTag DependentRecordTag.h FWCore/Framework/interface/DependentRecordTag.h
 
  Description: Identifies a Record as being dependent upon other Records
@@ -24,9 +24,9 @@
 
 // forward declarations
 namespace edm {
-namespace eventsetup {
-   struct DependentRecordTag {};
-  }
-}
+  namespace eventsetup {
+    struct DependentRecordTag {};
+  }  // namespace eventsetup
+}  // namespace edm
 
 #endif

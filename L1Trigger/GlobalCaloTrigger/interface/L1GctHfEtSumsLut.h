@@ -15,23 +15,23 @@
  *
  */
 
-
 class L1CaloEtScale;
 
-class L1GctHfEtSumsLut : public L1GctLut<8,3>
+class L1GctHfEtSumsLut : public L1GctLut<8, 3>
 
 {
 public:
-
-  enum hfLutType { bitCountPosEtaRing1, 
-		   bitCountPosEtaRing2, 
-		   bitCountNegEtaRing1, 
-		   bitCountNegEtaRing2,
-		   etSumPosEtaRing1,  
-		   etSumPosEtaRing2,    
-		   etSumNegEtaRing1,    
-		   etSumNegEtaRing2,
-		   numberOfLutTypes};
+  enum hfLutType {
+    bitCountPosEtaRing1,
+    bitCountPosEtaRing2,
+    bitCountNegEtaRing1,
+    bitCountNegEtaRing2,
+    etSumPosEtaRing1,
+    etSumPosEtaRing2,
+    etSumNegEtaRing1,
+    etSumNegEtaRing2,
+    numberOfLutTypes
+  };
 
   // Definitions.
   static const int NAddress, NData;
@@ -46,15 +46,20 @@ public:
   L1GctHfEtSumsLut(const L1GctHfEtSumsLut& lut);
   /// Destructor
   ~L1GctHfEtSumsLut() override;
-  
+
   /// Overload = operator
-  L1GctHfEtSumsLut operator= (const L1GctHfEtSumsLut& lut);
+  L1GctHfEtSumsLut operator=(const L1GctHfEtSumsLut& lut);
 
   /// Overload << operator
-  friend std::ostream& operator << (std::ostream& os, const L1GctHfEtSumsLut& lut);
+  friend std::ostream& operator<<(std::ostream& os, const L1GctHfEtSumsLut& lut);
 
   /// Set the function
-  void setFunction(const L1CaloEtScale* const fn) { if (fn != nullptr) { m_lutFunction = fn; m_setupOk = true; } }
+  void setFunction(const L1CaloEtScale* const fn) {
+    if (fn != nullptr) {
+      m_lutFunction = fn;
+      m_setupOk = true;
+    }
+  }
 
   /// Return the type of Lut
   L1GctHfEtSumsLut::hfLutType lutType() const { return m_lutType; }
@@ -63,22 +68,17 @@ public:
   const L1CaloEtScale* lutFunction() const { return m_lutFunction; }
 
   /// Get thresholds
-  std::vector<double>   getThresholdsGeV() const;
+  std::vector<double> getThresholdsGeV() const;
   std::vector<unsigned> getThresholdsGct() const;
 
 protected:
-  
-
-  uint16_t value (const uint16_t lutAddress) const override;
+  uint16_t value(const uint16_t lutAddress) const override;
 
 private:
-
   const L1CaloEtScale* m_lutFunction;
   L1GctHfEtSumsLut::hfLutType m_lutType;
-  
 };
 
-
-std::ostream& operator << (std::ostream& os, const L1GctHfEtSumsLut& lut);
+std::ostream& operator<<(std::ostream& os, const L1GctHfEtSumsLut& lut);
 
 #endif /*L1GCTHFETSUMSLUT_H_*/

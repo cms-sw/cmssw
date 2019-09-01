@@ -11,6 +11,8 @@
 #            However, copytree does not use ignore patterns (for filtering files)
 #            before python v2.6, when we upgrade to python 2.6 we should use this
 #            functionality.
+from __future__ import print_function
+from builtins import range
 import tempfile as tmp
 import optparse as opt
 import cmsPerfRegress as cpr
@@ -52,7 +54,7 @@ DirName=( #These need to match the candle directory names ending (depending on t
           )
 #Defining Steps as a union of Step and ProductionSteps:
 Steps=set(Step+ProductionSteps+["GEN,FASTSIM","GEN,FASTSIM_PILEUP"]) #Adding GEN,FASTSIM too by hand.
-print Steps
+print(Steps)
 
 ##################
 #
@@ -63,7 +65,7 @@ class ReldirExcept(Exception):
     "Relative directory could not be determined"
 
 def fail(errstr=""):
-    print errstr
+    print(errstr)
     delTmpDir()
     sys.exit()
 
@@ -83,7 +85,7 @@ def getcmdBasic(cmd):
 
 def getcmd(command):
     if _debug > 2:
-        print command
+        print(command)
     #Obsolete popen4-> subprocess.Popen
     #return os.popen4(command)[1].read().strip()
     return subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).stdout.read().strip()
@@ -207,8 +209,8 @@ def main():
     def _copyReportsToStaging(repdir,LogFiles,cmsScimarkDir,stage):
         """Use function syscp to copy LogFiles and cmsScimarkDir over to staging area"""
         if _verbose:
-            print "Copying the logfiles to %s/." % stage
-            print "Copying the cmsScimark2 results to the %s/." % stage  
+            print("Copying the logfiles to %s/." % stage)
+            print("Copying the cmsScimark2 results to the %s/." % stage)  
 
         syscp(LogFiles     , stage + "/")
         syscp(cmsScimarkDir, stage + "/")
@@ -219,32 +221,32 @@ def main():
         try:
             LOG = open(LogFile,"w")
             if _verbose:
-                print "Writing Production Host, Location, Release and Tags information in %s" % LogFile 
+                print("Writing Production Host, Location, Release and Tags information in %s" % LogFile) 
             LOG.write("These performance tests were executed on host %s and published on %s" % (HOST,date))
             LOG.write("They were run in %s" % LocalPath)
             LOG.write("Results of showtags -r in the local release:\n%s" % ShowTagsResult)
             LOG.close()
         except IOError as detail:
-            print "WARNING: Can't create log file"            
-            print detail
+            print("WARNING: Can't create log file")            
+            print(detail)
 
     # Print Program header
     print_header()
 
     # Get environment variables
     #FIXME: should check into this and make sure the proper variables for the tests being published are read from logfile (case of deprecated releases...)
-    print "\n Getting Environment variables..."
+    print("\n Getting Environment variables...")
     (LocalPath, ShowTagsResult) = get_environ()
 
     # Parse options
     (options,args) = optionparse()
 
     # Determine program parameters and input/staging locations
-    print "\n Determining locations for input and staging..."
+    print("\n Determining locations for input and staging...")
     (drive,path,remote,stage,port,repdir,prevrev,igprof_remotedir) = getStageRepDirs(options,args)
 
     #Get the number of events for each test from logfile:
-    print "\n Getting the number of events for each test..."
+    print("\n Getting the number of events for each test...")
     #Let's do a quick implementation of something that looks at the logfile:
     cmsPerfSuiteLogfile="%s/cmsPerfSuite.log"%repdir
 
@@ -255,45 +257,45 @@ def main():
             (CMSSW_arch,CMSSW_version)=getArchVersionFromLog(cmsPerfSuiteLogfile)
             #For now keep the dangerous default? Better set it to a negative number...
         except:
-            print "There was an issue in reading out the number of events for the various tests or the architecture/CMSSW version using the standard logfile %s"%cmsPerfSuiteLogFile
-            print "Check that the format was not changed: this scripts relies on the initial perfsuite arguments to be dumped in the logfile one per line!"
-            print "For now taking the default values for all tests (0)!"
+            print("There was an issue in reading out the number of events for the various tests or the architecture/CMSSW version using the standard logfile %s"%cmsPerfSuiteLogFile)
+            print("Check that the format was not changed: this scripts relies on the initial perfsuite arguments to be dumped in the logfile one per line!")
+            print("For now taking the default values for all tests (0)!")
 
-    print "\n Scan report directory..."
+    print("\n Scan report directory...")
     # Retrieve some directories and information about them
     (ExecutionDate,LogFiles,date,cmsScimarkResults,cmsScimarkDir) = scanReportArea(repdir)
-    print "cmsScimarkResults are %s"%cmsScimarkResults
-    print "\n Copy report files to staging directory..."
+    print("cmsScimarkResults are %s"%cmsScimarkResults)
+    print("\n Copy report files to staging directory...")
     # Copy reports to staging area 
     _copyReportsToStaging(repdir,LogFiles,cmsScimarkDir,stage)
 
-    print "\n Creating log file..."
+    print("\n Creating log file...")
     # Produce a small logfile with basic info on the Production area
     _createLogFile("%s/ProductionLog.txt" % stage,date,repdir,ShowTagsResult)
 
     #Check if there are IgProf tests:
     for dirname in os.listdir(repdir):
         if "IgProf" in dirname:
-            print "\n Handling IgProf reports..."
+            print("\n Handling IgProf reports...")
             # add a function to handle the IgProf reports
             stageIgProfReports(igprof_remotedir,CMSSW_arch,CMSSW_version)
     
-    print "\n Creating HTML files..."
+    print("\n Creating HTML files...")
     # create HTML files
     createWebReports(stage,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev)
 
-    print "\n Copy profiling logs to staging directory..."
+    print("\n Copy profiling logs to staging directory...")
     # Copy over profiling logs...
     getDirnameDirs(repdir,stage)
 
     # Send files to remote location
     if remote:
-        print "\n Uploading web report to remote location..."
+        print("\n Uploading web report to remote location...")
         syncToRemoteLoc(stage,drive,path,port)
-        print "\n Finished uploading! Now removing staging directory..."
+        print("\n Finished uploading! Now removing staging directory...")
         delTmpDir()
 
-    print "\n Finished!!!"
+    print("\n Finished!!!")
 
 ##########################
 #
@@ -320,7 +322,7 @@ def get_environ():
     PerformancePkg="%s/src/Validation/Performance"        % CMSSW_BASE
     if (os.path.exists(PerformancePkg)):
         BASE_PERFORMANCE=PerformancePkg
-        print "**Using LOCAL version of Validation/Performance instead of the RELEASE version**"
+        print("**Using LOCAL version of Validation/Performance instead of the RELEASE version**")
     else:
         BASE_PERFORMANCE="%s/src/Validation/Performance"  % CMSSW_RELEASE_BASE
 
@@ -512,11 +514,11 @@ def getStageRepDirs(options,args):
             split       = base.split(".")
             previousrev = split[1]
             currentrel  = split[3]
-            print "Regression Identification file exists, renaming report title for regression report. Old ver: %s" % previousrev
+            print("Regression Identification file exists, renaming report title for regression report. Old ver: %s" % previousrev)
         else:
-            print "No regression ID file exists and previous release name was not specified. Producing normal report."
+            print("No regression ID file exists and previous release name was not specified. Producing normal report.")
     else:
-        print "Previous release name was specified, renaming report title for regression report. Old ver %s" % previousrev
+        print("Previous release name was specified, renaming report title for regression report. Old ver %s" % previousrev)
     
     uri = ""
     defaultlocal = False
@@ -565,12 +567,12 @@ def getStageRepDirs(options,args):
             except socket.gaierror:
                 unResolved = True
             if unResolved:
-                print "ERROR: Can not determine your hostname or ipv{4,6} address %s" % drive
+                print("ERROR: Can not determine your hostname or ipv{4,6} address %s" % drive)
                 if not (_dryrun or _test):
                     fail("exiting...")
 
     if (not remote) and (not options.port == 873) :
-        print "WARNING: Can not use a port if not performing a remote copy, ignoring"
+        print("WARNING: Can not use a port if not performing a remote copy, ignoring")
     port = options.port
 
     ###
@@ -590,7 +592,7 @@ def getStageRepDirs(options,args):
     elif defaultlocal and localExists:
         TMP_DIR=tmp.mkdtemp(prefix="%s/%s" % (CMSSW_WORK,CMSSW_VERSION))
         StagingArea = TMP_DIR
-        print "WARNING: %s already exists, creating a temporary staging area %s" % (CMSSW_WORK,TMP_DIR)
+        print("WARNING: %s already exists, creating a temporary staging area %s" % (CMSSW_WORK,TMP_DIR))
     #Local cases
     elif defaultlocal:
         StagingArea = CMSSW_WORK
@@ -599,9 +601,9 @@ def getStageRepDirs(options,args):
             os.mkdir(os.path.join(CMSSW_BASE,"work","Results"))
         except OSError:
             pass
-        print "**User did not specify location of results, staging in default %s**" % StagingArea 
+        print("**User did not specify location of results, staging in default %s**" % StagingArea) 
     else:
-        print "**User chose to publish results in a local directory**" 
+        print("**User chose to publish results in a local directory**") 
         StagingArea = path
         if not os.path.exists(path):
             try:
@@ -645,13 +647,13 @@ def scanReportArea(repdir):
     date=getDate()
     LogFiles  = glob.glob(repdir + "cms*.log")
     if _verbose:
-        print "Found the following log files:"
-        print LogFiles
+        print("Found the following log files:")
+        print(LogFiles)
 
     cmsScimarkDir = glob.glob(repdir + "cmsScimarkResults_*")
     if _verbose:
-        print "Found the following cmsScimark2 results directories:"
-        print cmsScimarkDir
+        print("Found the following cmsScimark2 results directories:")
+        print(cmsScimarkDir)
 
     cmsScimarkResults = []
     for adir in cmsScimarkDir:
@@ -670,7 +672,7 @@ def scanReportArea(repdir):
             ExecutionDateLastSec = os.stat(logf)[ST_CTIME]
             ExecutionDateLast    = os.stat(logf)[ST_MTIME]
             if _verbose:
-                print "Execution (completion) date for %s was: %s" % (logf,ExecutionDateLast)
+                print("Execution (completion) date for %s was: %s" % (logf,ExecutionDateLast))
             if (ExecutionDateLastSec > ExecutionDateSec):
                 ExecutionDateSec = ExecutionDateLastSec
                 ExecutionDate    = ExecutionDateLast
@@ -703,7 +705,7 @@ def createRegressHTML(reghtml,repdir,outd,CurrentCandle,htmNames):
             else:
                 REGR.write(line)
     except IOError as detail:
-        print "ERROR: Could not write regression html %s because %s" % (os.path.basename(reghtml),detail)                
+        print("ERROR: Could not write regression html %s because %s" % (os.path.basename(reghtml),detail))                
 
 def getOutputNames(base,reportName):
     logreg   = re.compile("(.*)\.log$")
@@ -828,8 +830,8 @@ def step_cmp(x,y):
         y_idx = last_y
 
     if x_idx == -1 or y_idx == -1:
-        print "WARNING: No valid step names could be found in the logfiles or root filenames being sorted: x: %s y: %s." % (xstr,ystr)
-        print "x", x_idx, "y", y_idx
+        print("WARNING: No valid step names could be found in the logfiles or root filenames being sorted: x: %s y: %s." % (xstr,ystr))
+        print("x", x_idx, "y", y_idx)
 
     if x_idx < y_idx:
         return -1
@@ -985,7 +987,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                 CAND.write("</h2>\n")
 
                 if _verbose:
-                    print "Producing candles html: ", CurrentCandle
+                    print("Producing candles html: ", CurrentCandle)
                 
                 for CurDir in DirName:
 
@@ -1013,7 +1015,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                         #This for cycle takes care of the case in which there are regression reports to link to the html:
                         for prof in profs:
                             if _verbose:
-                                print "Scanning for profile information for: ", prof
+                                print("Scanning for profile information for: ", prof)
                                 
                             printed = False
                             fullprof = (CurrentCandle,prof)
@@ -1115,7 +1117,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                     CandleLogFiles = []
                     if os.path.exists(LocalPath):
                         thedir = os.listdir(LocalPath)
-                        CandleLogFiles = filter(lambda x: (x.endswith(".log") or x.endswith("EdmSize")) and not os.path.isdir(x) and os.path.exists(x), map(lambda x: os.path.abspath(os.path.join(LocalPath,x)),thedir))                    
+                        CandleLogFiles = [x for x in map(lambda x: os.path.abspath(os.path.join(LocalPath,x)),thedir) if (x.endswith(".log") or x.endswith("EdmSize")) and not os.path.isdir(x) and os.path.exists(x)]                    
 
                     if (len(CandleLogFiles)>0):
                         
@@ -1126,7 +1128,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                         for cand in CandleLogFiles:
                             cand = os.path.basename(cand)
                             if _verbose:
-                                print "Found %s in %s\n" % (cand,LocalPath)
+                                print("Found %s in %s\n" % (cand,LocalPath))
                                 
                             if not "EdmSize" in cand:
                                 lfileshtml += "<a href=\"./%s/%s\">%s </a><br/>" % (base,cand,cand)
@@ -1234,7 +1236,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
 
         CAND.close()
     except IOError as detail:
-        print "ERROR: Could not write candle html %s because %s" % (os.path.basename(candlHTML),detail)
+        print("ERROR: Could not write candle html %s because %s" % (os.path.basename(candlHTML),detail))
 
 
 def populateFromTupleRoot(tupname,repdir,rootfile,pureg):
@@ -1404,11 +1406,11 @@ def stageIgProfReports(remotedir,arch,version):
 
     #Create remote dir:
     try:
-        print mkdir_cmd
+        print(mkdir_cmd)
         os.system(mkdir_cmd)
-        print "Successfully created publication directory"
+        print("Successfully created publication directory")
     except:
-        print "Issues with publication directory existence/creation!"
+        print("Issues with publication directory existence/creation!")
         
     #Copy files over to remote dir
     #replacing rsync with tar pipes since it can hang on AFS (Andreas' experience):
@@ -1420,11 +1422,11 @@ def stageIgProfReports(remotedir,arch,version):
     try:
     #    print rsync_cmd
     #    os.system(rsync_cmd)
-        print tarpipe_cmd
+        print(tarpipe_cmd)
         os.system(tarpipe_cmd)
-        print "Successfully copied IgProf reports to %s"%remotedir
+        print("Successfully copied IgProf reports to %s"%remotedir)
     except:
-        print "Issues with rsyncing to the remote directory %s!"%remotedir
+        print("Issues with rsyncing to the remote directory %s!"%remotedir)
 
     #Make sure permissions are set for group to be able to write:
     if ":" in remotedir: #Remote host local directory case
@@ -1432,11 +1434,11 @@ def stageIgProfReports(remotedir,arch,version):
     else:
         chmod_cmd="chmod -R 775 %s/%s"%(remotedir,arch)
     try:
-        print chmod_cmd
+        print(chmod_cmd)
         os.system(chmod_cmd)
-        print "Successfully set permissions for IgProf reports directory %s"%remotedir
+        print("Successfully set permissions for IgProf reports directory %s"%remotedir)
     except:
-        print "(Potential) issues with chmoding the remote directory %s!"%remotedir
+        print("(Potential) issues with chmoding the remote directory %s!"%remotedir)
     
     return #Later, report here something like the web link to the reports in igprof-navigator...
 
@@ -1473,8 +1475,8 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
 
     CandlTmpltHTML="%s/doc/candle.html" % BASE_PERFORMANCE
     if _verbose:
-        print "Copying %s/doc/perf_style.css style file to %s/." % (BASE_PERFORMANCE,WebArea)    
-        print "Template used: %s" % TemplateHtml
+        print("Copying %s/doc/perf_style.css style file to %s/." % (BASE_PERFORMANCE,WebArea))    
+        print("Template used: %s" % TemplateHtml)
 
     syscp((BASE_PERFORMANCE + "/doc/perf_style.css"),WebArea + "/.")
     pureg = re.compile("(.*)_PILEUP")    
@@ -1547,9 +1549,9 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                         
                                     curRow.addEntry(step,fsize)       
                             except IOError as detail:
-                                print detail
+                                print(detail)
                             except OSError as detail:
-                                print detail
+                                print(detail)
                         if puRow == None:
                             pass
                         else:
@@ -1616,7 +1618,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                         statinfo = os.stat(oldfile)
                                         fsize1   = statinfo.st_size
                                     else:
-                                        print "######DID NOT FIND Previous file (needed for the filesize table): %s"%oldfile
+                                        print("######DID NOT FIND Previous file (needed for the filesize table): %s"%oldfile)
                                             
                                     if createNewRow:
                                         createNewRow = False
@@ -1632,9 +1634,9 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
 
                                         curRow.addEntry(step,data_tuple)
                                 except IOError as detail:
-                                    print detail
+                                    print(detail)
                                 except OSError as detail:
-                                    print detail
+                                    print(detail)
                             if puRow == None:
                                 pass
                             else:
@@ -1649,9 +1651,9 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                           "Table showing previous release ROOT filesizes, fs1, latest sizes, fs2, and the difference between them &#x0394; in (k/M/G) bytes.",
                                           "Filesizes",1)
                     except IOError as detail:
-                        print detail
+                        print(detail)
                     except OSError as detail:
-                        print detail
+                        print(detail)
             #CPU Time Summary Table    
             elif cpureg.search(NewFileLine):
                 #Case of NO REGRESSION
@@ -1696,7 +1698,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                             try:
                                 mean = mean / float(i)
                             except ZeroDivisionError as detail:
-                                print "WARNING: Could not calculate mean CPU time from log because no events could be parsed", log
+                                print("WARNING: Could not calculate mean CPU time from log because no events could be parsed", log)
 
                             if "PILEUP" in step:
                                 puRow.addEntry(realstep,mean)
@@ -1755,7 +1757,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                 for log in LogFiles:
                     log = os.path.basename(log)
                     if _verbose:
-                        print "linking log file %s" % log
+                        print("linking log file %s" % log)
                     INDEX.write("<a href=\"./%s\"> %s </a>" % (log,log))
                     INDEX.write("<br />\n")
                 #Add the cmsScimark results here:
@@ -1800,7 +1802,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
         #End of while loop on template html file
         INDEX.close()
     except IOError as detail:
-        print "Error: Could not create index Html file for some reason, check position. Details : %s" % detail
+        print("Error: Could not create index Html file for some reason, check position. Details : %s" % detail)
 
 ########################
 #
@@ -1812,9 +1814,9 @@ def getDirnameDirs(repdir,WebArea):
         return reduce(lambda x,y: x or y,map(lambda x: x in elem, DirName))
     def _print4Lambda(elem,WebArea):
         if _verbose:
-            print "Copying %s to %s\n" %  (elem,WebArea)
+            print("Copying %s to %s\n" %  (elem,WebArea))
 
-    dirstocp = filter(lambda x: _containsDirName(x),map(lambda x: repdir + x,Dir))
+    dirstocp = [x for x in map(lambda x: repdir + x,Dir) if _containsDirName(x)]
     map(lambda x: _print4Lambda(x,WebArea),dirstocp)
     syscp(dirstocp,WebArea + "/")
     os.mkdir("%s/DirectoryBrowsing" % WebArea)
@@ -1835,10 +1837,10 @@ def syncToRemoteLoc(stage,drive,path,port):
     args = "--port=%s %s %s:%s" % (port,os.path.normpath(stage),drive,path)
     retval = -1
     if _dryrun:
-        print              cmd + " --dry-run " + args 
+        print(cmd + " --dry-run " + args) 
         retval = os.system(cmd + " --dry-run " + args )
     else:
-        print cmd+" "+args
+        print(cmd+" "+args)
         retval = os.system(cmd + " " + args)
     return retval
 
@@ -1884,7 +1886,7 @@ def getRelativeDir(parent,child,keepTop=True):
         for x in range(n):
             next(cwalk)
     except StopIteration:
-        print "ERROR: Unable to determine relative dir"
+        print("ERROR: Unable to determine relative dir")
         raise ReldirExcept
 
     relpath = ""
@@ -1899,12 +1901,12 @@ def docopy(src,dest):
     try:
         copy2(src,dest)
     except OSError as detail:
-        print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)        
+        print("WARNING: Could not copy %s to %s because %s" % (src,dest,detail))        
     except IOError as detail:
-        print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)
+        print("WARNING: Could not copy %s to %s because %s" % (src,dest,detail))
     else:
         if _verbose:
-            print "Copied %s to %s" % (src,dest)
+            print("Copied %s to %s" % (src,dest))
 
 def copytree4(src,dest,keepTop=True):
     def _getNewLocation(source,child,dst,keepTop=keepTop):
@@ -1925,23 +1927,23 @@ def copytree4(src,dest,keepTop=True):
                     else:
                         copy2(node,newnode)
                 except IOError as detail:
-                    print "WARNING: Could not copy %s to %s because %s" % (node,newnode,detail)
+                    print("WARNING: Could not copy %s to %s because %s" % (node,newnode,detail))
                 except OSError as detail:
-                    print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)                    
+                    print("WARNING: Could not copy %s to %s because %s" % (src,dest,detail))                    
                 except ReldirExcept:
-                    print "WARNING: Could not determine new location for source %s into destination %s" % (source,dst)
+                    print("WARNING: Could not determine new location for source %s into destination %s" % (source,dst))
                 else:
                     if len(filter) > 0:
                         try:
                             match = fnmatch.fnmatch(node,filter[0])
                             assert not match
                         except AssertionError as detail:
-                            print node, filter[0], match
+                            print(node, filter[0], match)
                             raise RuntimeError
                     if _verbose:
                         if "root" in node:                            
-                            print "Filter %s Copied %s to %s" % (dontFilter,node,newnode)
-                            print "fnmatch %s" % fnmatch.fnmatch(node,cpFileFilter[0]) 
+                            print("Filter %s Copied %s to %s" % (dontFilter,node,newnode))
+                            print("fnmatch %s" % fnmatch.fnmatch(node,cpFileFilter[0])) 
                     
     gen  = os.walk(src)
     try:
@@ -1961,21 +1963,21 @@ def copytree4(src,dest,keepTop=True):
         except StopIteration:
             pass        
     except IOError as detail:
-        print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)
+        print("WARNING: Could not copy %s to %s because %s" % (src,dest,detail))
     except OSError as detail:
-        print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)        
+        print("WARNING: Could not copy %s to %s because %s" % (src,dest,detail))        
     except ReldirExcept:
-        print "WARNING: Could not determine the new location for source %s into destination %s" % (src,dest)
+        print("WARNING: Could not determine the new location for source %s into destination %s" % (src,dest))
         
 def syscp(srcs,dest):
-    if type(srcs) == type(""):
+    if isinstance(srcs, type("")):
         if os.path.exists(srcs):
             if os.path.isdir(srcs):
                 copytree4(srcs,dest)
             else:
                 docopy(srcs,dest)
         else:
-            print "ERROR: file to be copied %s does not exist" % foo            
+            print("ERROR: file to be copied %s does not exist" % foo)            
     else:
         for src in srcs:
             if os.path.exists(src):
@@ -1985,10 +1987,10 @@ def syscp(srcs,dest):
                 else:
                     docopy(src,dest)
             else:
-                print "ERROR: file to be copied %s does not exist" % foo
+                print("ERROR: file to be copied %s does not exist" % foo)
             
 def print_header():
-    print "%s\n" % PROG_NAME
+    print("%s\n" % PROG_NAME)
 
 if __name__ == "__main__":
     main()

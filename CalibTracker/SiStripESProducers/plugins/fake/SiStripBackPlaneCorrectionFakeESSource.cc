@@ -17,68 +17,68 @@
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerNumberingBuilder/interface/utils.h"
 
 class SiStripBackPlaneCorrectionFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripBackPlaneCorrectionFakeESSource(const edm::ParameterSet&);
   ~SiStripBackPlaneCorrectionFakeESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue& iov,
+                      edm::ValidityInterval& iValidity) override;
 
   typedef std::unique_ptr<SiStripBackPlaneCorrection> ReturnType;
   ReturnType produce(const SiStripBackPlaneCorrectionRcd&);
 
 private:
   std::vector<double> m_valuePerModuleGeometry;
-  edm::FileInPath m_file;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_tTopoToken;
+  edm::ESGetToken<GeometricDet, IdealGeometryRecord> m_geomDetToken;
 };
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
-SiStripBackPlaneCorrectionFakeESSource::SiStripBackPlaneCorrectionFakeESSource(const edm::ParameterSet& iConfig)
-{
-  setWhatProduced(this);
+SiStripBackPlaneCorrectionFakeESSource::SiStripBackPlaneCorrectionFakeESSource(const edm::ParameterSet& iConfig) {
+  setWhatProduced(this).setConsumes(m_tTopoToken).setConsumes(m_geomDetToken);
   findingRecord<SiStripBackPlaneCorrectionRcd>();
 
   m_valuePerModuleGeometry = iConfig.getParameter<std::vector<double>>("BackPlaneCorrection_PerModuleGeometry");
-  m_file = iConfig.getParameter<edm::FileInPath>("file");
 }
 
 SiStripBackPlaneCorrectionFakeESSource::~SiStripBackPlaneCorrectionFakeESSource() {}
 
-void SiStripBackPlaneCorrectionFakeESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity )
-{
+void SiStripBackPlaneCorrectionFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                                                            const edm::IOVSyncValue& iov,
+                                                            edm::ValidityInterval& iValidity) {
   iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
 }
 
 // ------------ method called to produce the data  ------------
-SiStripBackPlaneCorrectionFakeESSource::ReturnType
-SiStripBackPlaneCorrectionFakeESSource::produce(const SiStripBackPlaneCorrectionRcd& iRecord)
-{
+SiStripBackPlaneCorrectionFakeESSource::ReturnType SiStripBackPlaneCorrectionFakeESSource::produce(
+    const SiStripBackPlaneCorrectionRcd& iRecord) {
   using namespace edm::es;
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  iRecord.getRecord<TrackerTopologyRcd>().get(tTopo);
+  const auto& geomDet = iRecord.getRecord<TrackerTopologyRcd>().get(m_geomDetToken);
+  const auto& tTopo = iRecord.get(m_tTopoToken);
 
   auto backPlaneCorrection = std::make_unique<SiStripBackPlaneCorrection>();
 
-  SiStripDetInfoFileReader reader{m_file.fullPath()};
-
-  for ( const auto& detId : reader.getAllDetIds() ) {
-    unsigned int moduleGeometry = tTopo->moduleGeometry(DetId(detId))-1;
-    if ( moduleGeometry > m_valuePerModuleGeometry.size() ) {
-      edm::LogError("SiStripBackPlaneCorrectionGenerator") << " BackPlaneCorrection_PerModuleGeometry only contains " << m_valuePerModuleGeometry.size() << "elements and module is out of range";
+  for (const auto detId : TrackerGeometryUtils::getSiStripDetIds(geomDet)) {
+    const auto moduleGeometry = static_cast<unsigned int>(tTopo.moduleGeometry(DetId(detId))) - 1;
+    if (moduleGeometry > m_valuePerModuleGeometry.size()) {
+      edm::LogError("SiStripBackPlaneCorrectionGenerator")
+          << " BackPlaneCorrection_PerModuleGeometry only contains " << m_valuePerModuleGeometry.size()
+          << "elements and module is out of range";
     }
     float value = m_valuePerModuleGeometry[moduleGeometry];
-    if ( ! backPlaneCorrection->putBackPlaneCorrection(detId, value) ) {
-      edm::LogError("SiStripBackPlaneCorrectionGenerator")<<" detid already exists";
+    if (!backPlaneCorrection->putBackPlaneCorrection(detId, value)) {
+      edm::LogError("SiStripBackPlaneCorrectionGenerator") << " detid already exists";
     }
   }
 

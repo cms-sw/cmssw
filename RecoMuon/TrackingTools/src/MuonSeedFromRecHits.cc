@@ -28,45 +28,39 @@
 
 using namespace std;
 
-template <class T> T sqr(const T& t) {return t*t;}
-
-MuonSeedFromRecHits::MuonSeedFromRecHits()
-: theField(nullptr)
-{
+template <class T>
+T sqr(const T& t) {
+  return t * t;
 }
 
+MuonSeedFromRecHits::MuonSeedFromRecHits() : theField(nullptr) {}
 
-TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
-					       float sptmean,
-					       ConstMuonRecHitPointer last) const
-{
-  
+TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean, float sptmean, ConstMuonRecHitPointer last) const {
   const std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";
 
   MuonPatternRecoDumper debug;
 
   // FIXME: put it into a parameter set!
   double theMinMomentum = 3.0;
-  int charge=std::copysign(1,ptmean);
+  int charge = std::copysign(1, ptmean);
 
   // Minimal pt
-  if ( fabs(ptmean) < theMinMomentum ) ptmean = theMinMomentum * charge ;
+  if (fabs(ptmean) < theMinMomentum)
+    ptmean = theMinMomentum * charge;
 
   AlgebraicVector t(4);
-  AlgebraicSymMatrix mat(5,0) ;
+  AlgebraicSymMatrix mat(5, 0);
 
   // Fill the LocalTrajectoryParameters
-  LocalPoint segPos=last->localPosition();
-  GlobalVector mom=last->globalPosition()-GlobalPoint();
-  GlobalVector polar(GlobalVector::Spherical(mom.theta(),
-                                             last->globalDirection().phi(),
-                                             1.));
-  polar *=fabs(ptmean)/polar.perp();
-  LocalVector segDirFromPos=last->det()->toLocal(polar);
+  LocalPoint segPos = last->localPosition();
+  GlobalVector mom = last->globalPosition() - GlobalPoint();
+  GlobalVector polar(GlobalVector::Spherical(mom.theta(), last->globalDirection().phi(), 1.));
+  polar *= fabs(ptmean) / polar.perp();
+  LocalVector segDirFromPos = last->det()->toLocal(polar);
 
-  LocalTrajectoryParameters param(segPos,segDirFromPos, charge);
+  LocalTrajectoryParameters param(segPos, segDirFromPos, charge);
 
-  // this perform H.T() * parErr * H, which is the projection of the 
+  // this perform H.T() * parErr * H, which is the projection of the
   // the measurement error (rechit rf) to the state error (TSOS rf)
   // Legenda:
   // H => is the 4x5 projection matrix
@@ -75,15 +69,13 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   // LogTrace(metname) << "Projection matrix:\n" << last->projectionMatrix();
   // LogTrace(metname) << "Error matrix:\n" << last->parametersError();
 
-  mat = last->parametersError().similarityT( last->projectionMatrix() );
-  
+  mat = last->parametersError().similarityT(last->projectionMatrix());
 
-  float p_err = sqr(sptmean/(ptmean*ptmean));
-  mat[0][0]= p_err;
-  
+  float p_err = sqr(sptmean / (ptmean * ptmean));
+  mat[0][0] = p_err;
 
   LocalTrajectoryError error(asSMatrix<5>(mat));
-  
+
   // Create the TrajectoryStateOnSurface
   TrajectoryStateOnSurface tsos(param, error, last->det()->surface(), theField);
 
@@ -92,7 +84,7 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   // (when LogTrace/LogDebug is activated)
   //LogTrace(metname) << "Trajectory State on Surface before the extrapolation"<<endl;
   //LogTrace(metname) << debug.dumpTSOS(tsos);
-  
+
   // Take the DetLayer on which relies the rechit
   DetId id = last->geographicalId();
   // Segment layer
@@ -101,21 +93,15 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   //LogTrace(metname) << debug.dumpTSOS(tsos);
 
   // Transform it in a TrajectoryStateOnSurface
-  
-  
-  PTrajectoryStateOnDet const & seedTSOS =
-    trajectoryStateTransform::persistentState( tsos ,id.rawId());
-  
+
+  PTrajectoryStateOnDet const& seedTSOS = trajectoryStateTransform::persistentState(tsos, id.rawId());
+
   edm::OwnVector<TrackingRecHit> container;
-  for (unsigned l=0; l<theRhits.size(); l++) {
-      container.push_back( theRhits[l]->hit()->clone() );
+  for (unsigned l = 0; l < theRhits.size(); l++) {
+    container.push_back(theRhits[l]->hit()->clone());
   }
 
-  TrajectorySeed theSeed(seedTSOS,container,alongMomentum);
-   
+  TrajectorySeed theSeed(seedTSOS, container, alongMomentum);
+
   return theSeed;
 }
-
-
-
-

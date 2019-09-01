@@ -14,21 +14,13 @@
 #include <string>
 
 class EcalLinearCorrectionsXMLTranslator {
-
 public:
+  static int readXML(const std::string& filename, EcalCondHeader& header, EcalLinearCorrections& record);
 
-  static int readXML  (const std::string& filename,
-		       EcalCondHeader& header,
-		       EcalLinearCorrections& record);
+  static int writeXML(const std::string& filename, const EcalCondHeader& header, const EcalLinearCorrections& record);
 
-  static int writeXML (const std::string& filename,
-		       const EcalCondHeader& header,
-		       const EcalLinearCorrections& record);
-
- private:
-  
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalLinearCorrections& record);
+private:
+  static std::string dumpXML(const EcalCondHeader& header, const EcalLinearCorrections& record);
 };
 
-#endif // __EcalLinearCorrectionsXMLTranslator_h_
+#endif  // __EcalLinearCorrectionsXMLTranslator_h_

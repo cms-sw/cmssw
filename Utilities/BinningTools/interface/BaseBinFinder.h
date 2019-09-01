@@ -10,23 +10,20 @@
 template <class T>
 class BaseBinFinder {
 public:
-  
-  BaseBinFinder() {};
+  BaseBinFinder(){};
 
-  virtual ~BaseBinFinder(){}
+  virtual ~BaseBinFinder() {}
 
   /// Return the index of bin at given position.
-  virtual int binIndex( T pos) const =0;
-  
+  virtual int binIndex(T pos) const = 0;
+
   /// Returns an index in the valid range
-  virtual int binIndex( int i) const =0;
-  
+  virtual int binIndex(int i) const = 0;
+
   /// The middle of the ind-th bin
-  virtual T binPosition( int ind) const = 0;
+  virtual T binPosition(int ind) const = 0;
 
 private:
   //  int theNbins;
-
 };
 #endif
-

@@ -18,18 +18,15 @@
 
 namespace clangcms {
 
-class EDMPluginDumper : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::ClassTemplateDecl> > {
+  class EDMPluginDumper : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::ClassTemplateDecl> > {
+  public:
+    void checkASTDecl(const clang::ClassTemplateDecl *TD,
+                      clang::ento::AnalysisManager &mgr,
+                      clang::ento::BugReporter &BR) const;
 
-public:
+  private:
+    CmsException m_exception;
+  };
 
-  void checkASTDecl(const clang::ClassTemplateDecl *TD, clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR ) const ;
-
-private:
-  CmsException m_exception;
-
-};
-
-
-}
+}  // namespace clangcms
 #endif

@@ -17,6 +17,6 @@ namespace reco {
   typedef edm::RefVector<PFTau3ProngSummaryCollection> PFTau3ProngSummaryRefVector;
   /// iterator over a vector of references to PFTau3ProngSummary objects all in the same collection
   typedef PFTau3ProngSummaryRefVector::iterator PFTau3ProngSummary_iterator;
-}
+}  // namespace reco
 
 #endif

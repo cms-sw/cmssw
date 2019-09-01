@@ -4,7 +4,7 @@
 //
 // Package:     TrackingMonitorClient
 // Class  :     TrackingOfflineDQM
-// 
+//
 /**\class TrackingOfflineDQM TrackingOfflineDQM.h DQM/TrackingMonitorCluster/interface/TrackingOfflineDQM.h
 
  Description: 
@@ -30,7 +30,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -40,45 +39,42 @@
 class TrackingActionExecutor;
 class SiStripDetCabling;
 
-class TrackingOfflineDQM: public DQMEDHarvester
-{
-
- public:
-
+class TrackingOfflineDQM : public DQMEDHarvester {
+public:
   /// Constructor
   TrackingOfflineDQM(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   ~TrackingOfflineDQM() override;
 
- private:
-
+private:
   /// BeginJob
   void beginJob() override;
 
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
-  /// End Luminosity Block  
-  void dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
+  /// End Luminosity Block
+  void dqmEndLuminosityBlock(DQMStore::IBooker& ibooker_,
+                             DQMStore::IGetter& igetter_,
+                             edm::LuminosityBlock const& lumiSeg,
+                             edm::EventSetup const& eSetup) override;
 
   /// Endjob
-  void dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_) override;
+  void dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) override;
 
 private:
-
   bool openInputFile();
 
   TrackingActionExecutor* actionExecutor_;
 
   std::string inputFileName_;
   std::string outputFileName_;
-  int globalStatusFilling_; 
+  int globalStatusFilling_;
   bool usedWithEDMtoMEConverter_;
   bool trackerFEDsFound_;
   bool allpixelFEDsFound_;
 
   edm::ParameterSet configPar_;
-
 };
 #endif

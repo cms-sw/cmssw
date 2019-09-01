@@ -11,16 +11,18 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
 
-namespace edm { class ObjectWithDict; }
+namespace edm {
+  class ObjectWithDict;
+}
 
 namespace reco {
   namespace parser {
     struct ExpressionBase {
-      virtual ~ExpressionBase() { }
-      virtual double value( const edm::ObjectWithDict & ) const = 0;
+      virtual ~ExpressionBase() {}
+      virtual double value(const edm::ObjectWithDict&) const = 0;
     };
     typedef boost::shared_ptr<ExpressionBase> ExpressionPtr;
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

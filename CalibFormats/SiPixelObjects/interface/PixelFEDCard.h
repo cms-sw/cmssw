@@ -13,8 +13,8 @@
 #include <string>
 #include <cstdint>
 
-namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
+namespace pos {
+  /*!  \ingroup ConfigurationObjects "Configuration Objects"
 *    
 *  @{
 *
@@ -24,10 +24,8 @@ namespace pos{
 *  The structure which holds all the informations needed to setup 
 *  a pixel FED. Danek Kotlinski 18/4/06
 */
-  class PixelFEDCard : public PixelConfigBase{
-
+  class PixelFEDCard : public PixelConfigBase {
   public:
-    
     //Return true or false depending on if iChannel is used
     //iChannel=1..36
     bool useChannel(unsigned int iChannel);
@@ -39,148 +37,139 @@ namespace pos{
     void restoreBaselinAndChannelMasks();
     void restoreControlAndModeRegister();
 
-
     // Constructor and destructor
-    PixelFEDCard(); // empty
-    PixelFEDCard(std::string filename); // create from files
-    PixelFEDCard(std::vector<std::vector<std::string> > & tab); // create from DB
-    ~PixelFEDCard() override {};
+    PixelFEDCard();                                             // empty
+    PixelFEDCard(std::string filename);                         // create from files
+    PixelFEDCard(std::vector<std::vector<std::string> > &tab);  // create from DB
+    ~PixelFEDCard() override{};
 
-    void readDBTBMLevels(std::vector<std::vector<std::string> > &tableMat, int first, int last) ;
-    void readDBROCLevels(std::vector<std::vector<std::string> > &tableMat, int first, int last) ;
-    void writeASCII(std::string dir="") const override; // write to files
-    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const override ;
-    void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const override ;
-    void writeXML(                                                              std::ofstream *out) const override ;
-    void writeXMLTrailer(                                                       std::ofstream *out) const override ;
-    void writeXMLHeader(pos::PixelConfigKey key, 
-				int version, 
-				std::string path, 
-				std::ofstream *fedstream, 
-				std::ofstream *roclvlstream, 
-				std::ofstream *tbmlvlsteram) const override ;
-    void writeXML(std::ofstream *fedstream,
-			  std::ofstream *rocstream,
-			  std::ofstream *tbmstream) const override ;
-    void writeXMLTrailer(std::ofstream *fedstream,
-				 std::ofstream *recostream,
-				 std::ofstream *tbmstream) const override ;
+    void readDBTBMLevels(std::vector<std::vector<std::string> > &tableMat, int first, int last);
+    void readDBROCLevels(std::vector<std::vector<std::string> > &tableMat, int first, int last);
+    void writeASCII(std::string dir = "") const override;  // write to files
+    void writeXML(pos::PixelConfigKey key, int version, std::string path) const override;
+    void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const override;
+    void writeXML(std::ofstream *out) const override;
+    void writeXMLTrailer(std::ofstream *out) const override;
+    void writeXMLHeader(pos::PixelConfigKey key,
+                        int version,
+                        std::string path,
+                        std::ofstream *fedstream,
+                        std::ofstream *roclvlstream,
+                        std::ofstream *tbmlvlsteram) const override;
+    void writeXML(std::ofstream *fedstream, std::ofstream *rocstream, std::ofstream *tbmstream) const override;
+    void writeXMLTrailer(std::ofstream *fedstream, std::ofstream *recostream, std::ofstream *tbmstream) const override;
     uint64_t enabledChannels();  // returns 64-bit integer mask 35..0
 
-
     //Settable optical input parameters (one for each 12-receiver)
-    int opt_cap[3];   // Capacitor adjust
-    int opt_inadj[3]; // DC-input offset
-    int opt_ouadj[3]; // DC-output offset
-  
+    int opt_cap[3];    // Capacitor adjust
+    int opt_inadj[3];  // DC-input offset
+    int opt_ouadj[3];  // DC-output offset
+
     //input offset dac (one for each channel)
     int offs_dac[36];
-  
+
     //clock phases, use bits 0-8, select the clock edge
-    unsigned int clkphs1_9,clkphs10_18,clkphs19_27,clkphs28_36;
+    unsigned int clkphs1_9, clkphs10_18, clkphs19_27, clkphs28_36;
 
     //Channel delays, one for each channel, 0=15
     int DelayCh[36];
-  
+
     //Blacks and Ultra-blacks, 3 limit per channel
     int BlackHi[36];
     int BlackLo[36];
     int Ublack[36];
-    
+
     //Signal levels for the TBM, one per channel
-    int TBM_L0[36],TBM_L1[36],TBM_L2[36],TBM_L3[36],TBM_L4[36];
-    int TRL_L0[36],TRL_L1[36],TRL_L2[36],TRL_L3[36],TRL_L4[36];
+    int TBM_L0[36], TBM_L1[36], TBM_L2[36], TBM_L3[36], TBM_L4[36];
+    int TRL_L0[36], TRL_L1[36], TRL_L2[36], TRL_L3[36], TRL_L4[36];
     // Address levels 1 per channel (36) per roc(max=26)
-    int ROC_L0[36][26],ROC_L1[36][26],ROC_L2[36][26],ROC_L3[36][26],
-      ROC_L4[36][26];
+    int ROC_L0[36][26], ROC_L1[36][26], ROC_L2[36][26], ROC_L3[36][26], ROC_L4[36][26];
 
     //These bits turn off(1) and on(0) channels
-    unsigned int Ncntrl,NCcntrl,SCcntrl,Scntrl;
+    unsigned int Ncntrl, NCcntrl, SCcntrl, Scntrl;
 
     //The values as read from file so that they can be restored after
     //calibration
-    unsigned int Ncntrl_original,NCcntrl_original,SCcntrl_original,Scntrl_original;
+    unsigned int Ncntrl_original, NCcntrl_original, SCcntrl_original, Scntrl_original;
 
-     //Bits (1st 8) used to mask TBM trailer bits
-    unsigned int N_TBMmask,NC_TBMmask,SC_TBMmask,S_TBMmask;
-    
+    //Bits (1st 8) used to mask TBM trailer bits
+    unsigned int N_TBMmask, NC_TBMmask, SC_TBMmask, S_TBMmask;
+
     //Bits (1st 8) used to set the Private Word in the gap and filler words
-    unsigned int N_Pword,NC_Pword,SC_Pword,S_Pword;
+    unsigned int N_Pword, NC_Pword, SC_Pword, S_Pword;
 
     // 1 = Special Random trigger DAC mode on, 0=off
     unsigned int SpecialDac;
- 
+
     // Control register and delays for the TTCrx
-    int CoarseDel,FineDes2Del,FineDes1Del;
-    unsigned int ClkDes2; 
+    int CoarseDel, FineDes2Del, FineDes1Del;
+    unsigned int ClkDes2;
 
     //Main control reg for determining the DAQ mode
-    unsigned int Ccntrl; // "CtrlReg" in LAD_C
- 
+    unsigned int Ccntrl;  // "CtrlReg" in LAD_C
+
     //Mode register
-    int modeRegister; // "ModeReg" in LAD_C
-  
+    int modeRegister;  // "ModeReg" in LAD_C
+
     //Number of ROCS per FED channel
     int NRocs[36];
 
     //Control Regs for setting ADC 1Vpp and 2Vpp
-    unsigned int Nadcg,NCadcg,SCadcg,Sadcg;
+    unsigned int Nadcg, NCadcg, SCadcg, Sadcg;
 
     //Control and data Regs for setting Baseline Adjustment
-    unsigned int Nbaseln,NCbaseln,SCbaseln,Sbaseln;
+    unsigned int Nbaseln, NCbaseln, SCbaseln, Sbaseln;
 
     //data Regs for TTs adjustable levels
-    int Ooslvl,Errlvl;
+    int Ooslvl, Errlvl;
 
     //data Regs adjustable fifo Almost Full levels
-    int Nfifo1Bzlvl,NCfifo1Bzlvl,SCfifo1Bzlvl,Sfifo1Bzlvl,fifo3Wrnlvl;
-		
-		//Master delay for FED TTC signals 
-		int FedTTCDelay;
+    int Nfifo1Bzlvl, NCfifo1Bzlvl, SCfifo1Bzlvl, Sfifo1Bzlvl, fifo3Wrnlvl;
+
+    //Master delay for FED TTC signals
+    int FedTTCDelay;
 
     //data Regs adjustable hit limits in fifo1s by fpga
-    int N_hitlimit,NC_hitlimit,SC_hitlimit,S_hitlimit;
-    
+    int N_hitlimit, NC_hitlimit, SC_hitlimit, S_hitlimit;
+
     //data Regs to skip bad ROCs by fpga
-    int N_testreg,NC_testreg,SC_testreg,S_testreg;
-    
+    int N_testreg, NC_testreg, SC_testreg, S_testreg;
+
     //The values as read from file so that they can be restored after
     //calibration
-    int Nbaseln_original,NCbaseln_original,SCbaseln_original,
-        Sbaseln_original;
+    int Nbaseln_original, NCbaseln_original, SCbaseln_original, Sbaseln_original;
 
     int Ccntrl_original;
     int modeRegister_original;
 
-    //VME base address 
+    //VME base address
     unsigned long FEDBASE_0, fedNumber;
 
     // Most recent additions requested by Will and Danek (Dario)
-    int BusyHoldMin       ;
-    int BusyWhenBehind    ;
-    int FeatureRegister   ;
-    int FIFO2Limit    	  ;
-    int LastDacOff    	  ;
-    int SimHitsPerRoc 	  ;
-    int TimeoutOROOSLimit ;
-    int TriggerHoldoff    ;
-    int SPARE1  	  ;
-    int SPARE2  	  ;
-    int SPARE3  	  ;
-    int SPARE4  	  ;
-    int SPARE5  	  ;
-    int SPARE6  	  ;
-    int SPARE7  	  ;
-    int SPARE8  	  ;
-    int SPARE9  	  ;
-    int SPARE10 	  ;
-    
- private: 
- 
-    // Added by Dario (March 26th 2008)
-    void clear(void) ;
+    int BusyHoldMin;
+    int BusyWhenBehind;
+    int FeatureRegister;
+    int FIFO2Limit;
+    int LastDacOff;
+    int SimHitsPerRoc;
+    int TimeoutOROOSLimit;
+    int TriggerHoldoff;
+    int SPARE1;
+    int SPARE2;
+    int SPARE3;
+    int SPARE4;
+    int SPARE5;
+    int SPARE6;
+    int SPARE7;
+    int SPARE8;
+    int SPARE9;
+    int SPARE10;
 
-  }; // end class PixelFEDCard
-}
+  private:
+    // Added by Dario (March 26th 2008)
+    void clear(void);
+
+  };  // end class PixelFEDCard
+}  // namespace pos
 /* @} */
-#endif // ifdef include
+#endif  // ifdef include

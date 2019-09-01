@@ -12,18 +12,17 @@
 #include <cstdint>
 #include <iosfwd>
 
-class GEMPadDigi{
-
+class GEMPadDigi {
 public:
-  explicit GEMPadDigi (int pad, int bx);
-  GEMPadDigi ();
+  explicit GEMPadDigi(int pad, int bx);
+  GEMPadDigi();
 
   bool operator==(const GEMPadDigi& digi) const;
   bool operator!=(const GEMPadDigi& digi) const;
   bool operator<(const GEMPadDigi& digi) const;
   bool isValid() const;
 
-  // return the pad number. counts from 1.
+  // return the pad number. counts from 0.
   int pad() const { return pad_; }
   int bx() const { return bx_; }
 
@@ -31,10 +30,9 @@ public:
 
 private:
   uint16_t pad_;
-  int16_t  bx_; 
+  int16_t bx_;
 };
 
-std::ostream & operator<<(std::ostream & o, const GEMPadDigi& digi);
+std::ostream& operator<<(std::ostream& o, const GEMPadDigi& digi);
 
 #endif
-

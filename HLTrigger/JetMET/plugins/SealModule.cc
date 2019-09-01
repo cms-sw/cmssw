@@ -101,63 +101,63 @@ using namespace reco;
 using namespace trigger;
 
 typedef HLTAlphaTFilter<CaloJet> HLTAlphaTCaloJetFilter;
-typedef HLTAlphaTFilter<  PFJet> HLTAlphaTPFJetFilter;
+typedef HLTAlphaTFilter<PFJet> HLTAlphaTPFJetFilter;
 
 typedef HLTDiJetAveFilter<CaloJet> HLTDiCaloJetAveFilter;
-typedef HLTDiJetAveFilter<  PFJet> HLTDiPFJetAveFilter;
+typedef HLTDiJetAveFilter<PFJet> HLTDiPFJetAveFilter;
 
 typedef HLTDiJetAveEtaFilter<CaloJet> HLTDiCaloJetAveEtaFilter;
-typedef HLTDiJetAveEtaFilter<  PFJet> HLTDiPFJetAveEtaFilter;
+typedef HLTDiJetAveEtaFilter<PFJet> HLTDiPFJetAveEtaFilter;
 
 typedef HLTDiJetEtaTopologyFilter<CaloJet> HLTDiCaloJetEtaTopologyFilter;
-typedef HLTDiJetEtaTopologyFilter<  PFJet> HLTDiPFJetEtaTopologyFilter;
+typedef HLTDiJetEtaTopologyFilter<PFJet> HLTDiPFJetEtaTopologyFilter;
 
 typedef HLTJetEtaTopologyFilter<CaloJet> HLTCaloJetEtaTopologyFilter;
-typedef HLTJetEtaTopologyFilter<  PFJet> HLTPFJetEtaTopologyFilter;
+typedef HLTJetEtaTopologyFilter<PFJet> HLTPFJetEtaTopologyFilter;
 
 typedef HLTJetSortedVBFFilter<CaloJet> HLTCaloJetSortedVBFFilter;
-typedef HLTJetSortedVBFFilter<  PFJet> HLTPFJetSortedVBFFilter;
+typedef HLTJetSortedVBFFilter<PFJet> HLTPFJetSortedVBFFilter;
 
 typedef HLTJetL1MatchProducer<CaloJet> HLTCaloJetL1MatchProducer;
-typedef HLTJetL1MatchProducer<  PFJet> HLTPFJetL1MatchProducer;
+typedef HLTJetL1MatchProducer<PFJet> HLTPFJetL1MatchProducer;
 
 typedef HLTJetL1TMatchProducer<CaloJet> HLTCaloJetL1TMatchProducer;
-typedef HLTJetL1TMatchProducer<  PFJet> HLTPFJetL1TMatchProducer;
+typedef HLTJetL1TMatchProducer<PFJet> HLTPFJetL1TMatchProducer;
 
 typedef HLTMonoJetFilter<CaloJet> HLTMonoCaloJetFilter;
-typedef HLTMonoJetFilter<  PFJet> HLTMonoPFJetFilter;
+typedef HLTMonoJetFilter<PFJet> HLTMonoPFJetFilter;
 
 typedef HLTJetCollForElePlusJets<CaloJet> HLTCaloJetCollForElePlusJets;
-typedef HLTJetCollForElePlusJets<  PFJet> HLTPFJetCollForElePlusJets;
+typedef HLTJetCollForElePlusJets<PFJet> HLTPFJetCollForElePlusJets;
 
 typedef HLTJetCollectionsForElePlusJets<CaloJet> HLTCaloJetCollectionsForElePlusJets;
-typedef HLTJetCollectionsForElePlusJets<  PFJet> HLTPFJetCollectionsForElePlusJets;
+typedef HLTJetCollectionsForElePlusJets<PFJet> HLTPFJetCollectionsForElePlusJets;
 
-typedef HLTJetCollectionsForBoostedLeptonPlusJets<  PFJet> HLTPFJetCollectionsForBoostedLeptonPlusJets;
+typedef HLTJetCollectionsForBoostedLeptonPlusJets<PFJet> HLTPFJetCollectionsForBoostedLeptonPlusJets;
 
 typedef HLTJetCollectionsForLeptonPlusJets<CaloJet> HLTCaloJetCollectionsForLeptonPlusJets;
-typedef HLTJetCollectionsForLeptonPlusJets<  PFJet> HLTPFJetCollectionsForLeptonPlusJets;
+typedef HLTJetCollectionsForLeptonPlusJets<PFJet> HLTPFJetCollectionsForLeptonPlusJets;
 
 typedef HLTJetsCleanedFromLeadingLeptons<CaloJet> HLTCaloJetsCleanedFromLeadingLeptons;
-typedef HLTJetsCleanedFromLeadingLeptons<  PFJet> HLTPFJetsCleanedFromLeadingLeptons;
+typedef HLTJetsCleanedFromLeadingLeptons<PFJet> HLTPFJetsCleanedFromLeadingLeptons;
 
 typedef HLTJetCollectionsFilter<CaloJet> HLTCaloJetCollectionsFilter;
-typedef HLTJetCollectionsFilter<  PFJet> HLTPFJetCollectionsFilter;
+typedef HLTJetCollectionsFilter<PFJet> HLTPFJetCollectionsFilter;
 
 typedef HLTJetCollectionsVBFFilter<CaloJet> HLTCaloJetCollectionsVBFFilter;
-typedef HLTJetCollectionsVBFFilter<  PFJet> HLTPFJetCollectionsVBFFilter;
+typedef HLTJetCollectionsVBFFilter<PFJet> HLTPFJetCollectionsVBFFilter;
 
 typedef HLTJetVBFFilter<CaloJet> HLTCaloJetVBFFilter;
-typedef HLTJetVBFFilter<  PFJet> HLTPFJetVBFFilter;
+typedef HLTJetVBFFilter<PFJet> HLTPFJetVBFFilter;
 
 typedef HLTForwardBackwardJetsFilter<CaloJet> HLTForwardBackwardCaloJetsFilter;
-typedef HLTForwardBackwardJetsFilter<  PFJet> HLTForwardBackwardPFJetsFilter;
+typedef HLTForwardBackwardJetsFilter<PFJet> HLTForwardBackwardPFJetsFilter;
 
 typedef HLTFatJetMassFilter<CaloJet> HLTFatCaloJetMassFilter;
-typedef HLTFatJetMassFilter<  PFJet> HLTFatPFJetMassFilter;
+typedef HLTFatJetMassFilter<PFJet> HLTFatPFJetMassFilter;
 
 typedef HLTExclDiJetFilter<CaloJet> HLTExclDiCaloJetFilter;
-typedef HLTExclDiJetFilter<  PFJet> HLTExclDiPFJetFilter;
+typedef HLTExclDiJetFilter<PFJet> HLTExclDiPFJetFilter;
 
 //No changes
 DEFINE_FWK_MODULE(AnyJetToCaloJetProducer);

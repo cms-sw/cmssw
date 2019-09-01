@@ -7,18 +7,14 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalLaserEventFilter2012.h"
 
 class HcalLaserEventFiltProducer2012 : public edm::EDProducer {
-
- public:
+public:
   explicit HcalLaserEventFiltProducer2012(const edm::ParameterSet& iConfig);
-  ~HcalLaserEventFiltProducer2012() override{
-    delete hcalLaserEventFilter2012;
-} 
+  ~HcalLaserEventFiltProducer2012() override { delete hcalLaserEventFilter2012; }
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   void endJob() override;
-  HcalLaserEventFilter2012 *hcalLaserEventFilter2012;
+  HcalLaserEventFilter2012* hcalLaserEventFilter2012;
 };
-
 
 #endif

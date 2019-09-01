@@ -26,30 +26,25 @@ MVA_COMPUTER_CONTAINER_DEFINE(TtSemiLepSignalSelMVA);  // defines TtSemiLepSigna
 #endif
 
 class TtSemiLepSignalSelMVATrainer : public edm::EDAnalyzer {
-
- public:
-
+public:
   explicit TtSemiLepSignalSelMVATrainer(const edm::ParameterSet&);
   ~TtSemiLepSignalSelMVATrainer() override;
 
- private:
-
+private:
   void analyze(const edm::Event& evt, const edm::EventSetup& setup) override;
   void beginJob() override;
 
-  double DeltaPhi(const math::XYZTLorentzVector& v1,const math::XYZTLorentzVector& v2);
-  double DeltaR(const math::XYZTLorentzVector& v1,const math::XYZTLorentzVector& v2);
+  double DeltaPhi(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2);
+  double DeltaR(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2);
 
   // pt sorting stuff
   struct JetwithHigherPt {
-    bool operator() ( const pat::Jet& j1, const pat::Jet& j2) const {
-      return j1.pt() > j2.pt();
-    };
+    bool operator()(const pat::Jet& j1, const pat::Jet& j2) const { return j1.pt() > j2.pt(); };
   };
 
-  edm::EDGetTokenT< edm::View<pat::Muon> > muonsToken_;
-  edm::EDGetTokenT< edm::View<pat::Electron> > electronsToken_;
-  edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<edm::View<pat::Muon> > muonsToken_;
+  edm::EDGetTokenT<edm::View<pat::Electron> > electronsToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
   edm::EDGetTokenT<edm::View<pat::MET> > METsToken_;
   edm::EDGetTokenT<TtGenEvent> genEvtToken_;
 
@@ -59,7 +54,6 @@ class TtSemiLepSignalSelMVATrainer : public edm::EDAnalyzer {
   int selEv;
 
   PhysicsTools::MVAComputerCache mvaComputer;
-
 };
 
 #endif

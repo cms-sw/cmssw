@@ -8,10 +8,11 @@ class testValueMap : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testValueMap);
   CPPUNIT_TEST(checkAll);
   CPPUNIT_TEST_SUITE_END();
+
 public:
   void setUp() {}
   void tearDown() {}
-  void checkAll(); 
+  void checkAll();
   void dummy();
 };
 
@@ -27,18 +28,21 @@ void testValueMap::checkAll() {
 }
 
 // just check that some stuff compiles
-void  testValueMap::dummy() {
+void testValueMap::dummy() {
   typedef std::vector<int> CKey;
   typedef double Val;
   typedef edm::AssociationMap<edm::OneToValue<CKey, Val, unsigned char> > Assoc;
   Assoc v;
   v.insert(edm::Ref<CKey>(), 3.145);
-  v.insert(Assoc::value_type(edm::Ref<CKey>(), 3.145));  
+  v.insert(Assoc::value_type(edm::Ref<CKey>(), 3.145));
   Assoc::const_iterator b = v.begin(), e = v.end();
-  ++b; ++e;
+  ++b;
+  ++e;
   Assoc::const_iterator f = v.find(edm::Ref<CKey>());
   v.numberOfAssociations(edm::Ref<CKey>());
-  const double & x = v[edm::Ref<CKey>()]; double y = x; ++y;
+  const double& x = v[edm::Ref<CKey>()];
+  double y = x;
+  ++y;
   ++f;
   edm::Ref<Assoc> r;
   v.erase(edm::Ref<CKey>());

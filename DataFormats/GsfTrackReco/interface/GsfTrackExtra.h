@@ -27,64 +27,48 @@ namespace reco {
     typedef math::XYZVector Vector;
 
     /// default constructor
-    GsfTrackExtra() { }
+    GsfTrackExtra() {}
     /// constructor from outermost position and momentum
-    GsfTrackExtra( const std::vector<GsfComponent5D>& outerStates,
-		   const double& outerLocalPzSign, 
-		   const std::vector<GsfComponent5D>& innerStates, 
-		   const double& innerLocalPzSign,
-		   const std::vector<GsfTangent>& tangents);
+    GsfTrackExtra(const std::vector<GsfComponent5D>& outerStates,
+                  const double& outerLocalPzSign,
+                  const std::vector<GsfComponent5D>& innerStates,
+                  const double& innerLocalPzSign,
+                  const std::vector<GsfTangent>& tangents);
     /// sign of local P_z at outermost state
-    double outerStateLocalPzSign() const {return positiveOuterStatePz_ ? 1. : -1.;}
+    double outerStateLocalPzSign() const { return positiveOuterStatePz_ ? 1. : -1.; }
     /// weights at outermost state
     std::vector<double> outerStateWeights() const { return weights(outerStates_); }
     /// local parameters at outermost state
-    std::vector<LocalParameterVector> outerStateLocalParameters() const { 
-      return parameters(outerStates_); 
-    }
+    std::vector<LocalParameterVector> outerStateLocalParameters() const { return parameters(outerStates_); }
     /// local covariance matrices at outermost state
-    std::vector<LocalCovarianceMatrix> outerStateCovariances() const {
-      return covariances(outerStates_);
-    }
+    std::vector<LocalCovarianceMatrix> outerStateCovariances() const { return covariances(outerStates_); }
     /// sign of local P_z at innermost state
-    double innerStateLocalPzSign() const {return positiveInnerStatePz_ ? 1. : -1.;}
+    double innerStateLocalPzSign() const { return positiveInnerStatePz_ ? 1. : -1.; }
     /// weights at innermost state
     std::vector<double> innerStateWeights() const { return weights(innerStates_); }
     /// local parameters at innermost state
-    std::vector<LocalParameterVector> innerStateLocalParameters() const { 
-      return parameters(innerStates_); 
-    }
+    std::vector<LocalParameterVector> innerStateLocalParameters() const { return parameters(innerStates_); }
     /// local covariance matrices at innermost state
-    std::vector<LocalCovarianceMatrix> innerStateCovariances() const {
-      return covariances(innerStates_);
-    }
+    std::vector<LocalCovarianceMatrix> innerStateCovariances() const { return covariances(innerStates_); }
     /// number of objects with information for tangents to the electron track
-    inline unsigned int tangentsSize() const {return tangents_.size();}
+    inline unsigned int tangentsSize() const { return tangents_.size(); }
     /// access to tangent information
-    const std::vector<GsfTangent>& tangents() const {
-      return tangents_;
-    }
+    const std::vector<GsfTangent>& tangents() const { return tangents_; }
     /// global position for tangent
-    const Point& tangentPosition (unsigned int index) const {
-      return tangents_[index].position();
-    }
+    const Point& tangentPosition(unsigned int index) const { return tangents_[index].position(); }
     /// global momentum for tangent
-    const Vector& tangentMomentum (unsigned int index) const {
-      return tangents_[index].momentum();
-    }
+    const Vector& tangentMomentum(unsigned int index) const { return tangents_[index].momentum(); }
     /// deltaP for tangent
-    Measurement1D tangentDeltaP (unsigned int index) const {
-      return tangents_[index].deltaP();
-    }
+    Measurement1D tangentDeltaP(unsigned int index) const { return tangents_[index].deltaP(); }
 
   private:
     /// extract weights from states
-    std::vector<double> weights (const std::vector<GsfComponent5D>& states) const;
+    std::vector<double> weights(const std::vector<GsfComponent5D>& states) const;
     /// extract parameters from states
-    std::vector<LocalParameterVector> parameters (const std::vector<GsfComponent5D>& states) const;
+    std::vector<LocalParameterVector> parameters(const std::vector<GsfComponent5D>& states) const;
     /// extract covariance matrices from states
-    std::vector<LocalCovarianceMatrix> covariances (const std::vector<GsfComponent5D>& states) const;
-    
+    std::vector<LocalCovarianceMatrix> covariances(const std::vector<GsfComponent5D>& states) const;
+
   private:
     /// states at outermost point
     std::vector<GsfComponent5D> outerStates_;
@@ -98,6 +82,6 @@ namespace reco {
     std::vector<GsfTangent> tangents_;
   };
 
-}
+}  // namespace reco
 
 #endif

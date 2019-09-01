@@ -7,5 +7,4 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 #endif

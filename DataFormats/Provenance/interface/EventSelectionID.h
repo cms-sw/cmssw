@@ -11,10 +11,9 @@ of the event selector subsystem of an OutputModule.
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include <vector>
 
-namespace edm
-{
+namespace edm {
   typedef ParameterSetID EventSelectionID;
   typedef std::vector<EventSelectionID> EventSelectionIDVector;
-}
+}  // namespace edm
 
 #endif

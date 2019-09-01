@@ -30,7 +30,7 @@ def testbeam2006(process):
 
     process.generator = cms.EDProducer("FlatRandomEGunProducer",
         PGunParameters = cms.PSet(
-            process.common_beam_parameters
+            process.common_beam_direction_parameters
         ),
         Verbosity       = cms.untracked.int32(0),
         AddAntiParticle = cms.bool(False)

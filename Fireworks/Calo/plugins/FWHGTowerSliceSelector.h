@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     FWHGTowerSliceSelector
-// 
+//
 /**\class FWHGTowerSliceSelector FWHGTowerSliceSelector.h Fireworks/Calo/interface/FWHGTowerSliceSelector.h
 
  Description: [one line class summary]
@@ -21,28 +21,25 @@
 // system include files
 
 // user include files
-class HGCalDetId;
+class DetId;
 class TEveCaloDataVec;
 
 #include "Fireworks/Calo/src/FWFromSliceSelector.h"
 
 // forward declarations
 
-class FWHGTowerSliceSelector : public FWFromSliceSelector
-{
+class FWHGTowerSliceSelector : public FWFromSliceSelector {
 public:
-   FWHGTowerSliceSelector(const FWEventItem* i, TEveCaloDataVec* data) : 
-      FWFromSliceSelector(i), m_vecData(data) {}
+  FWHGTowerSliceSelector(const FWEventItem* i, TEveCaloDataVec* data) : FWFromSliceSelector(i), m_vecData(data) {}
 
-   ~FWHGTowerSliceSelector() override {}
+  ~FWHGTowerSliceSelector() override {}
 
-   void doSelect(const TEveCaloData::CellId_t&) override;
-   void doUnselect(const TEveCaloData::CellId_t&) override;
-   
+  void doSelect(const TEveCaloData::CellId_t&) override;
+  void doUnselect(const TEveCaloData::CellId_t&) override;
+
 private:
-   bool findBinFromId(HGCalDetId& id, int tower) const;
-   TEveCaloDataVec* m_vecData;
+  bool findBinFromId(DetId& id, int tower) const;
+  TEveCaloDataVec* m_vecData;
 };
-
 
 #endif

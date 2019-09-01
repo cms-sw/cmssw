@@ -1,6 +1,7 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/RunInfo"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="DataFormats/OnlineMetaData"/>
 <use   name="DataFormats/Provenance"/>
 <use   name="DataFormats/Scalers"/>
 <use   name="DataFormats/TCDS"/>
