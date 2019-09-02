@@ -14,7 +14,7 @@ public:
   CmsTrackerPixelPhase1EndcapBuilder() {}
 
 private:
-  void sortNS( T&, GeometricDet*) override;
+  void sortNS(T&, GeometricDet*) override;
   void buildComponent(T&, GeometricDet*, std::string) override;
 };
 

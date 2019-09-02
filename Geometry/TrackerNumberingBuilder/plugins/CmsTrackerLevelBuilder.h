@@ -53,7 +53,7 @@ protected:
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
 
 private:
-  virtual void sortNS( T&, GeometricDet*) {}
+  virtual void sortNS(T&, GeometricDet*) {}
   CmsTrackerStringToEnum _CmsTrackerStringToEnum;
 };
 

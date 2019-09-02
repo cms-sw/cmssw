@@ -8,7 +8,7 @@
 /**
  * Class which contructs Phase2 Pixel Tracker/Discs.
  */
-template<class T>
+template <class T>
 class CmsTrackerPixelPhase2DiskBuilder : public CmsTrackerLevelBuilder<T> {
 private:
   void sortNS(T&, GeometricDet*) override;

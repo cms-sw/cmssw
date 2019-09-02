@@ -11,7 +11,7 @@
 #include <vector>
 #include <bitset>
 
-template<>
+template <>
 void CmsTrackerWheelBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
   CmsTrackerRingBuilder<DDFilteredView> theCmsTrackerRingBuilder;
   CmsTrackerPetalBuilder<DDFilteredView> theCmsTrackerPetalBuilder;
@@ -31,8 +31,8 @@ void CmsTrackerWheelBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, 
   g->addComponent(subdet);
 }
 
-template<>
-void CmsTrackerWheelBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
+template <>
+void CmsTrackerWheelBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   if (!comp.empty()) {

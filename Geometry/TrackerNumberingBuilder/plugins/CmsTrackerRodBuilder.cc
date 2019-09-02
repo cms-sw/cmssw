@@ -7,13 +7,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
-template<>
+template <>
 void CmsTrackerRodBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
   CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-template<>
+template <>
 void CmsTrackerRodBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 

@@ -12,7 +12,7 @@
 #include <vector>
 #include <bitset>
 
-template<>
+template <>
 void CmsTrackerLayerBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, const std::string s) {
   CmsTrackerStringBuilder<DDFilteredView> theCmsTrackerStringBuilder;
   CmsTrackerRodBuilder<DDFilteredView> theCmsTrackerRodBuilder;
@@ -36,7 +36,7 @@ void CmsTrackerLayerBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, 
   g->addComponent(subdet);
 }
 
-template<>
+template <>
 void CmsTrackerLayerBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 

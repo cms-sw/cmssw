@@ -7,7 +7,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <vector>
 
-template<>
+template <>
 void CmsTrackerPanelBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
   CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
   switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
@@ -21,8 +21,8 @@ void CmsTrackerPanelBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, 
   }
 }
 
-template<>
-void CmsTrackerPanelBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
+template <>
+void CmsTrackerPanelBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   if (comp.front()->type() == GeometricDet::DetUnit)

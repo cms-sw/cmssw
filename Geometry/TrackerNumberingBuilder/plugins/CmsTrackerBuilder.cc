@@ -11,7 +11,7 @@
 
 #include <bitset>
 
-template<>
+template <>
 void CmsTrackerBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
   CmsTrackerSubStrctBuilder<DDFilteredView> theCmsTrackerSubStrctBuilder;
   CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView> theCmsTrackerPixelPhase1EndcapBuilder;
@@ -63,7 +63,7 @@ void CmsTrackerBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, Geome
   g->addComponent(subdet);
 }
 
-template<>
+template <>
 void CmsTrackerBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
   std::stable_sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::subDetByType);
@@ -76,12 +76,12 @@ void CmsTrackerBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet*
   }
 }
 
-template<>
+template <>
 void CmsTrackerBuilder<cms::DDFilteredView>::buildComponent(cms::DDFilteredView& fv, GeometricDet* g, std::string s) {
   // FIXME: not implemented yet
 }
 
-template<>
+template <>
 void CmsTrackerBuilder<cms::DDFilteredView>::sortNS(cms::DDFilteredView& fv, GeometricDet* det) {
   // FIXME: not implemented yet
 }

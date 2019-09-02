@@ -10,8 +10,10 @@
 
 using namespace std;
 
-template<>
-void CmsTrackerPixelPhase2DiskBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+template <>
+void CmsTrackerPixelPhase2DiskBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv,
+                                                                      GeometricDet* g,
+                                                                      std::string s) {
   CmsTrackerPixelPhase2RingBuilder<DDFilteredView> theCmsTrackerPixelPhase2RingBuilder;
   GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
 
@@ -26,7 +28,7 @@ void CmsTrackerPixelPhase2DiskBuilder<DDFilteredView>::buildComponent(DDFiltered
   g->addComponent(subdet);
 }
 
-template<>
+template <>
 void CmsTrackerPixelPhase2DiskBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 

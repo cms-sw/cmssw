@@ -9,14 +9,14 @@
 
 #include <vector>
 
-template<>
+template <>
 void CmsTrackerOTRingBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
   CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-template<>
-void CmsTrackerOTRingBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
+template <>
+void CmsTrackerOTRingBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   //increasing phi taking into account the sub-modules

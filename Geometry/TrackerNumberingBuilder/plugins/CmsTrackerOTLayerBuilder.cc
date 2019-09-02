@@ -11,7 +11,7 @@
 #include <vector>
 #include <bitset>
 
-template<>
+template <>
 void CmsTrackerOTLayerBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
   LogTrace("DetConstruction") << " CmsTrackerOTLayerBuilder::buildComponent ";
   CmsTrackerLadderBuilder<DDFilteredView> theCmsTrackerLadderBuilder;
@@ -32,8 +32,8 @@ void CmsTrackerOTLayerBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv
   g->addComponent(subdet);
 }
 
-template<>
-void CmsTrackerOTLayerBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
+template <>
+void CmsTrackerOTLayerBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer comp = det->components();
 
   //order ladder and rings together

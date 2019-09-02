@@ -137,7 +137,7 @@ bool CmsTrackerLevelBuilderHelper::isLessRModule(const GeometricDet* a, const Ge
 
 bool CmsTrackerLevelBuilderHelper::isLessR(const GeometricDet* a, const GeometricDet* b) { return a->rho() < b->rho(); }
 
-template<>
+template <>
 void CmsTrackerLevelBuilder<DDFilteredView>::build(DDFilteredView& fv, GeometricDet* tracker, std::string attribute) {
   LogTrace("GeometricDetBuilding") << std::string(3 * fv.history().size(), '-') << "+ "
                                    << ExtractStringFromDDD::getString(attribute, &fv) << " " << tracker->type() << " "
@@ -155,8 +155,10 @@ void CmsTrackerLevelBuilder<DDFilteredView>::build(DDFilteredView& fv, Geometric
   sortNS(fv, tracker);
 }
 
-template<>
-void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv, GeometricDet* tracker, std::string attribute) {
+template <>
+void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv,
+                                                        GeometricDet* tracker,
+                                                        std::string attribute) {
   // LogTrace("GeometricDetBuilding") << std::string(3 * fv.history().size(), '-') << "+ "
   //                                  << ExtractStringFromDDD::getString(attribute, &fv) << " " << tracker->type() << " "
   //                                  << tracker->name() << std::endl;

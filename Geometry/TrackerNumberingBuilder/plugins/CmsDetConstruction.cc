@@ -2,10 +2,10 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-template<>
+template <>
 void CmsDetConstruction<DDFilteredView>::buildSmallDetsforGlued(DDFilteredView& fv,
-                                                GeometricDet* mother,
-                                                const std::string& attribute) {
+                                                                GeometricDet* mother,
+                                                                const std::string& attribute) {
   GeometricDet* det =
       new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute, &fv)));
   static const std::string stereo = "TrackerStereoDetectors";
@@ -21,10 +21,10 @@ void CmsDetConstruction<DDFilteredView>::buildSmallDetsforGlued(DDFilteredView& 
   mother->addComponent(det);
 }
 
-template<>
+template <>
 void CmsDetConstruction<DDFilteredView>::buildSmallDetsforStack(DDFilteredView& fv,
-                                                GeometricDet* mother,
-                                                const std::string& attribute) {
+                                                                GeometricDet* mother,
+                                                                const std::string& attribute) {
   GeometricDet* det =
       new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute, &fv)));
   static const std::string isLower = "TrackerLowerDetectors";
@@ -42,8 +42,10 @@ void CmsDetConstruction<DDFilteredView>::buildSmallDetsforStack(DDFilteredView& 
   mother->addComponent(det);
 }
 
-template<>
-void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* mother, std::string attribute) {
+template <>
+void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv,
+                                                        GeometricDet* mother,
+                                                        std::string attribute) {
   //
   // at this level I check whether it is a merged detector or not
   //
@@ -79,4 +81,3 @@ void CmsDetConstruction<DDFilteredView>::buildComponent(DDFilteredView& fv, Geom
 
   mother->addComponent(det);
 }
-
