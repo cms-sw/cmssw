@@ -426,7 +426,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track &muon, std::vector<Trajecto
             edm::LogWarning(theCategory) << "ran out of layers to find a seed: no seed.";
             return;
           }
-          [[fallthrough]];
+          break;
         }
         case GeomDetEnumerators::PixelBarrel: {
           edm::LogError(theCategory)
