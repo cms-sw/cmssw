@@ -57,11 +57,7 @@ void CSCRecHitDBuilder::build(const CSCStripDigiCollection* stripdc,
   // N.B.  I've sorted the hits from layer 1-6 always, so can test if there are "holes",
   // that is layers without hits for a given chamber.
 
-  // Vector to store rechit within layer
-  std::vector<CSCRecHit2D> hitsInLayer;
-
   int layer_idx = 0;
-  int hits_in_layer = 0;
   CSCDetId old_id;
 
   for (CSCStripDigiCollection::DigiRangeIterator it = stripdc->begin(); it != stripdc->end(); ++it) {
@@ -112,9 +108,6 @@ void CSCRecHitDBuilder::build(const CSCStripDigiCollection* stripdc,
     if (cscStripHit.empty())
       continue;
 
-    hitsInLayer.clear();
-    hits_in_layer = 0;
-
     // now build collection of wire only hits !
     std::vector<CSCWireHit> const& cscWireHit = hitsFromWireOnly_->runWire(compId, layer, rwired);
 
@@ -123,6 +116,10 @@ void CSCRecHitDBuilder::build(const CSCStripDigiCollection* stripdc,
 
     LogTrace("CSCRecHitBuilder") << "[CSCRecHitDBuilder] found " << cscStripHit.size() << " strip and "
                                  << cscWireHit.size() << " wire hits in layer " << sDetId;
+
+    // Vector to store rechit within layer
+    std::vector<CSCRecHit2D> hitsInLayer;
+    unsigned int hits_in_layer = 0;
 
     for (auto const& s_hit : cscStripHit) {
       for (auto const& w_hit : cscWireHit) {
@@ -137,14 +134,11 @@ void CSCRecHitDBuilder::build(const CSCStripDigiCollection* stripdc,
     }
 
     LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId;
-    // std::cout << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId << std::endl;
 
     // output vector of 2D rechits to collection
     if (hits_in_layer > 0) {
       oc.put(sDetId, hitsInLayer.begin(), hitsInLayer.end());
-      hitsInLayer.clear();
     }
-    hits_in_layer = 0;
     layer_idx++;
     old_id = sDetId;
   }

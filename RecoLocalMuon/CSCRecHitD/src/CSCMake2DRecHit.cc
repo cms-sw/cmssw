@@ -325,7 +325,6 @@ float CSCMake2DRecHit::findWireBx(const std::vector<int>& timeBinsOn, float tpea
       unchanged) {                                                         // Make sure one next to it exists
     if (timeBinsOn[bestMatch] == (timeBinsOn[bestMatch - side] + side)) {  // See if nextbin on is consecutive in time
       wireBx = wireBx - 0.5f * side;
-      unchanged = false;
     }
   }
   return wireBx - anode_bx_offset;  // expect collision muons to be centered near 0 bx
