@@ -11,129 +11,17 @@
 using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
-void HGCHEbackSignalScaler::setDoseMap(const std::string& fullpath) { doseMap_ = readDosePars(fullpath); }
-
-void HGCHEbackSignalScaler::setGeometry(const CaloSubdetectorGeometry* geom) {
-  hgcalGeom_ = static_cast<const HGCalGeometry*>(geom);
-}
-
-std::map<int, HGCHEbackSignalScaler::DoseParameters> HGCHEbackSignalScaler::readDosePars(const std::string& fullpath) {
-  std::map<int, DoseParameters> result;
-
-  //no dose file means no aging
-  if (fullpath.empty())
-    return result;
-
-  edm::FileInPath fp(fullpath);
-  std::ifstream infile(fp.fullPath());
-  if (!infile.is_open()) {
-    throw cms::Exception("FileNotFound") << "Unable to open '" << fullpath << "'" << std::endl;
-  }
-  std::string line;
-  while (getline(infile, line)) {
-    int layer;
-    DoseParameters dosePars;
-
-    //space-separated
-    std::stringstream linestream(line);
-    linestream >> layer >> dosePars.a_ >> dosePars.b_ >> dosePars.c_ >> dosePars.d_ >> dosePars.e_ >> dosePars.f_ >>
-        dosePars.g_ >> dosePars.h_ >> dosePars.i_ >> dosePars.j_;
-
-    result[layer] = dosePars;
-  }
-  return result;
-}
-
-double HGCHEbackSignalScaler::getDoseValue(const int layer, const std::array<double, 8>& radius) {
-  double cellDose = std::pow(10,
-                             doseMap_[layer].a_ + doseMap_[layer].b_ * radius[4] + doseMap_[layer].c_ * radius[5] +
-                                 doseMap_[layer].d_ * radius[6] + doseMap_[layer].e_ * radius[7]);  //dose in grey
-  return cellDose * greyToKrad_;                                                                    //convert to kRad
-}
-
-double HGCHEbackSignalScaler::getFluenceValue(const int layer, const std::array<double, 8>& radius) {
-  double cellFluence = std::pow(10,
-                                doseMap_[layer].f_ + doseMap_[layer].g_ * radius[0] + doseMap_[layer].h_ * radius[1] +
-                                    doseMap_[layer].i_ * radius[2] + doseMap_[layer].j_ * radius[3]);  //dose in grey
-  return cellFluence;
-}
-
-std::pair<float, float> HGCHEbackSignalScaler::scaleByDose(const HGCScintillatorDetId& cellId,
-                                                           const std::array<double, 8>& radius) {
-  if (doseMap_.empty())
-    return std::make_pair(1., 0.);
-
-  int layer = cellId.layer();
-  double cellDose = getDoseValue(layer, radius);  //in kRad
-  constexpr double expofactor = 1. / 199.6;
-  double scaleFactor = std::exp(-std::pow(cellDose, 0.65) * expofactor);
-
-  double cellFluence = getFluenceValue(layer, radius);  //in 1-Mev-equivalent neutrons per cm2
-
-  constexpr double factor = 2. / (2 * 1e13);  //SiPM area = 2mm^2
-  double noise = 2.18 * sqrt(cellFluence * factor);
-
-  if (verbose_) {
-    LogDebug("HGCHEbackSignalScaler") << "HGCHEbackSignalScaler::scaleByDose - Dose, scaleFactor, fluence, noise: "
-                                      << cellDose << " " << scaleFactor << " " << cellFluence << " " << noise;
-
-    LogDebug("HGCHEbackSignalScaler") << "HGCHEbackSignalScaler::setDoseMap - layer, a, b, c, d, e, f: " << layer << " "
-                                      << doseMap_[layer].a_ << " " << doseMap_[layer].b_ << " " << doseMap_[layer].c_
-                                      << " " << doseMap_[layer].d_ << " " << doseMap_[layer].e_ << " "
-                                      << doseMap_[layer].f_;
-  }
-
-  return std::make_pair(scaleFactor, noise);
-}
-
-float HGCHEbackSignalScaler::scaleByArea(const HGCScintillatorDetId& cellId, const std::array<double, 8>& radius) {
-  float edge;
-  if (cellId.type() == 0) {
-    constexpr double factor = 2 * M_PI * 1. / 360.;
-    edge = radius[0] * factor;  //1 degree
-  } else {
-    constexpr double factor = 2 * M_PI * 1. / 288.;
-    edge = radius[0] * factor;  //1.25 degrees
-  }
-
-  float scaleFactor = refEdge_ / edge;  //assume reference 3cm of edge
-
-  if (verbose_) {
-    LogDebug("HGCHEbackSignalScaler") << "HGCHEbackSignalScaler::scaleByArea - Type, layer, edge, radius, SF: "
-                                      << cellId.type() << " " << cellId.layer() << " " << edge << " " << radius[0]
-                                      << " " << scaleFactor << std::endl;
-  }
-
-  return scaleFactor;
-}
-
-std::array<double, 8> HGCHEbackSignalScaler::computeRadius(const HGCScintillatorDetId& cellId) {
-  GlobalPoint global = hgcalGeom_->getPosition(cellId);
-
-  double radius2 = std::pow(global.x(), 2) + std::pow(global.y(), 2);  //in cm
-  double radius4 = std::pow(radius2, 2);
-  double radius = sqrt(radius2);
-  double radius3 = radius2 * radius;
-
-  double radius_m100 = radius - 100;
-  double radius_m100_2 = std::pow(radius_m100, 2);
-  double radius_m100_3 = radius_m100_2 * radius_m100;
-  double radius_m100_4 = std::pow(radius_m100_2, 2);
-
-  std::array<double, 8> radii{
-      {radius, radius2, radius3, radius4, radius_m100, radius_m100_2, radius_m100_3, radius_m100_4}};
-  return radii;
-}
-
-//--- the actual digitizer --------------------------------------------------------------------------------------------------
+//
 HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitizerBase(ps) {
   edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
   algo_ = cfg.getParameter<uint32_t>("algo");
-  scaleByArea_ = cfg.getParameter<bool>("scaleByArea");
+  scaleByTileArea_ = cfg.getParameter<bool>("scaleByTileArea");
+  scaleBySipmArea_ = cfg.getParameter<bool>("scaleBySipmArea");
+  sipmMapFile_ = cfg.getParameter<std::string>("sipmMap");
   scaleByDose_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<bool>("scaleByDose");
   doseMapFile_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<std::string>("doseMap");
   noise_MIP_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("noise_MIP");
-  calibDigis_ = cfg.getParameter<bool>("calibDigis");
+  thresholdFollowsMIP_ = cfg.getParameter<bool>("thresholdFollowsMIP");
   keV2MIP_ = cfg.getParameter<double>("keV2MIP");
   this->keV2fC_ = 1.0;  //keV2MIP_; // hack for HEB
   nPEperMIP_ = cfg.getParameter<double>("nPEperMIP");
@@ -142,6 +30,7 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitiz
   sdPixels_ = cfg.getParameter<double>("sdPixels");
 
   scal_.setDoseMap(doseMapFile_);
+  scal_.setSipmMap(sipmMapFile_);
 }
 
 //
@@ -187,7 +76,7 @@ void HGCHEbackDigitizer::runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection>&
 
     //init a new data frame and run shaper
     HGCalDataFrame newDataFrame(id);
-    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, 1, engine);
+    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, engine);
 
     //prepare the output
     this->updateOutput(digiColl, newDataFrame);
@@ -220,21 +109,30 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
     float scaledPePerMip = nPEperMIP_;           //needed to scale according to tile geometry
     float tunedNoise = nPEperMIP_ * noise_MIP_;  //flat noise case
+    float sipmFactor = 1.;                       //standard 2 mm^2 sipm
 
     if (id.det() == DetId::HGCalHSc)  //skip those geometries that have HE used as BH
     {
-      std::array<double, 8> radius;
-      if (scaleByArea_ or scaleByDose_)
+      radiiVec radius;
+      if (scaleByTileArea_ or scaleByDose_ or scaleBySipmArea_)
         radius = scal_.computeRadius(id);
 
-      if (scaleByArea_)
-        scaledPePerMip *= scal_.scaleByArea(id, radius);
+      //take into account the tile size
+      if (scaleByTileArea_)
+        scaledPePerMip *= scal_.scaleByTileArea(id, radius);
 
       //take into account the darkening of the scintillator and SiPM dark current
       if (scaleByDose_) {
         auto dosePair = scal_.scaleByDose(id, radius);
         scaledPePerMip *= dosePair.first;
         tunedNoise = dosePair.second;
+      }
+
+      //take into account the sipm size
+      if (scaleBySipmArea_) {
+        sipmFactor = scal_.scaleBySipmArea(id, radius[0]);
+        scaledPePerMip *= sipmFactor;
+        tunedNoise *= sqrt(sipmFactor);
       }
     }
 
@@ -255,16 +153,17 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
       const uint32_t npe = npeS + npeN;
 
       //take into account SiPM saturation
-      const float x = vdt::fast_expf(-((float)npe) / nTotalPE_);
+      float nTotalPixels = nTotalPE_ * sipmFactor;
+      const float x = vdt::fast_expf(-((float)npe) / nTotalPixels);
       uint32_t nPixel(0);
       if (xTalk_ * x != 1)
-        nPixel = (uint32_t)std::max(nTotalPE_ * (1.f - x) / (1.f - xTalk_ * x), 0.f);
+        nPixel = (uint32_t)std::max(nTotalPixels * (1.f - x) / (1.f - xTalk_ * x), 0.f);
 
       //take into account the gain fluctuations of each pixel
       //const float nPixelTot = nPixel + sqrt(nPixel) * CLHEP::RandGaussQ::shoot(engine, 0., 0.05); //FDG: just a note for now, par to be defined
 
-      //scale to calibrated response depending on the calibDigis_ flag
-      float totalMIPs = calibDigis_ ? std::max((npe - meanN), 0.f) / scaledPePerMip : nPixel / nPEperMIP_;
+      //scale to calibrated response depending on the thresholdFollowsMIP_ flag
+      float totalMIPs = thresholdFollowsMIP_ ? std::max((npe - meanN), 0.f) / nPEperMIP_ : nPixel / nPEperMIP_;
 
       if (debug && totalIniMIPs > 0) {
         LogDebug("HGCHEbackDigitizer") << "npeS: " << npeS << " npeN: " << npeN << " npe: " << npe
@@ -280,7 +179,12 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
     //init a new data frame and run shaper
     HGCalDataFrame newDataFrame(id);
-    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, 1, engine);
+    float adcThr = this->myFEelectronics_->getADCThreshold();  //this is in MIPs
+    float adcLsb = this->myFEelectronics_->getADClsb();
+    uint32_t thrADC(thresholdFollowsMIP_ ? std::floor(adcThr / adcLsb * scaledPePerMip / nPEperMIP_)
+                                         : std::floor(adcThr / adcLsb));
+
+    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, engine, thrADC);
 
     //prepare the output
     this->updateOutput(digiColl, newDataFrame);
@@ -347,7 +251,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollect
 
     //init a new data frame and run shaper
     HGCalDataFrame newDataFrame(id);
-    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, 1, engine);
+    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, engine);
 
     //prepare the output
     this->updateOutput(digiColl, newDataFrame);
