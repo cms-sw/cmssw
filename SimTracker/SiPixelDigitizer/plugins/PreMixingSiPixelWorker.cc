@@ -281,8 +281,8 @@ void PreMixingSiPixelWorker::put(edm::Event& e,
   iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology* tTopo = tTopoHand.product();
 
-  if(digitizer_.killBadFEDChannels()){
-    std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ = digitizer_.chooseScenario(ps,engine);
+  if (digitizer_.killBadFEDChannels()) {
+    std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ = digitizer_.chooseScenario(ps, engine);
     if (PixelFEDChannelCollection_ == nullptr) {
       throw cms::Exception("NullPointerError") << "PixelFEDChannelCollection not set in chooseScenario function.\n";
     }

@@ -895,16 +895,15 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(const std::vector<Pileup
 
 bool SiPixelDigitizerAlgorithm::killBadFEDChannels() const { return KillBadFEDChannels; }
 
-
-std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScenario(const std::vector<PileupSummaryInfo>& ps ,CLHEP::HepRandomEngine* engine) 
-{
+std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScenario(
+    const std::vector<PileupSummaryInfo>& ps, CLHEP::HepRandomEngine* engine) {
   std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_ = nullptr;
   pixelEfficiencies_.PixelFEDChannelCollection_ = nullptr;
 
   std::vector<int> bunchCrossing;
   std::vector<float> TrueInteractionList;
 
-  for (unsigned int i = 0; i < ps.size(); i++){
+  for (unsigned int i = 0; i < ps.size(); i++) {
     bunchCrossing.push_back(ps[i].getBunchCrossing());
     TrueInteractionList.push_back(ps[i].getTrueNumInteractions());
   }
@@ -920,7 +919,7 @@ std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScen
     }
     pui++;
   }
-  
+
   if (pu0 != bunchCrossing.end()) {
     unsigned int PUBin = TrueInteractionList.at(p);  // case delta PU=1, fix me
     const auto& theProbabilitiesPerScenario = scenarioProbabilityHandle->getProbabilities(PUBin);
@@ -937,12 +936,11 @@ std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScen
 
     PixelFEDChannelCollection_ = std::make_unique<PixelFEDChannelCollection>(quality_map->at(scenario));
     pixelEfficiencies_.PixelFEDChannelCollection_ =
-      std::make_unique<PixelFEDChannelCollection>(quality_map->at(scenario));
+        std::make_unique<PixelFEDChannelCollection>(quality_map->at(scenario));
   }
 
   return PixelFEDChannelCollection_;
 }
-
 
 std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScenario(PileupMixingContent* puInfo,
                                                                                      CLHEP::HepRandomEngine* engine) {
