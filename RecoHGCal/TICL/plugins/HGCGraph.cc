@@ -136,13 +136,23 @@ bool HGCGraph::areTimeCompatible(int innerIdx,
 //also return a vector of seedIndex for the reconstructed tracksters
 void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
                             std::vector<int> &seedIndices,
-                            const unsigned int minClustersPerNtuplet) {
+                            const unsigned int minClustersPerNtuplet, 
+                            const bool outInDFS, unsigned int maxOutInHops) {
   HGCDoublet::HGCntuplet tmpNtuplet;
   tmpNtuplet.reserve(minClustersPerNtuplet);
+  std::vector<std::pair<unsigned int, unsigned int > > outInToVisit;
   for (auto rootDoublet : theRootDoublets_) {
     tmpNtuplet.clear();
+    outInToVisit.clear();
     int seedIndex = allDoublets_[rootDoublet].seedIndex();
-    allDoublets_[rootDoublet].findNtuplets(allDoublets_, tmpNtuplet, seedIndex);
+    int outInHops = 0; 
+    allDoublets_[rootDoublet].findNtuplets(allDoublets_, tmpNtuplet, seedIndex, outInDFS, outInHops, maxOutInHops, outInToVisit);
+    while(!outInToVisit.empty())
+    {
+      allDoublets_[outInToVisit.back().first].findNtuplets(allDoublets_, tmpNtuplet, seedIndex, outInDFS, outInToVisit.back().second, maxOutInHops, outInToVisit);
+      outInToVisit.pop_back();
+    }
+    
     if (tmpNtuplet.size() > minClustersPerNtuplet) {
       foundNtuplets.push_back(tmpNtuplet);
       seedIndices.push_back(seedIndex);

@@ -74,6 +74,8 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<int>("missing_layers", 0);
   desc.add<int>("min_clusters_per_ntuplet", 10);
   desc.add<double>("max_delta_time", 0.09);
+  desc.add<bool>("out_in_dfs", true);
+  desc.add<int>("max_out_in_hops", 10);
   descriptions.add("trackstersProducer", desc);
 }
 
