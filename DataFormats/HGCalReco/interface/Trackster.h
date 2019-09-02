@@ -32,23 +32,26 @@ namespace ticl {
     // regressed energy
     float regressed_energy;
 
+    // types considered by the particle identification
+    enum ParticleType {
+      photon = 0,
+      electron,
+      muon,
+      neutral_pion,
+      charged_hadron,
+      neutral_hadron,
+      ambiguous,
+      unknown,
+    };
+
     // trackster ID probabilities
-    std::array<float, 7> id_probabilities;
+    std::array<float, 8> id_probabilities;
 
-    // convenience methods to return certain id probabilities
-    inline float photon_probability() { return id_probabilities[0]; };
-
-    inline float electron_probability() { return id_probabilities[1]; };
-
-    inline float muon_probability() { return id_probabilities[2]; };
-
-    inline float charged_hadron_probability() { return id_probabilities[3]; };
-
-    inline float neutral_hadron_probability() { return id_probabilities[4]; };
-
-    inline float ambiguous_probability() { return id_probabilities[5]; };
-
-    inline float unknown_probability() { return id_probabilities[6]; };
+    // convenience method to return the ID probability for a certain particle type
+    inline float id_probability(ParticleType type) {
+      // probabilities are stored in the same order as defined in the ParticleType enum
+      return id_probabilities[(int)type];
+    }
   };
 }  // namespace ticl
 #endif
