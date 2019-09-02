@@ -12,7 +12,7 @@
 
 using namespace std;
 
-template<>
+template <>
 void CmsTrackerDiskBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
   CmsTrackerPanelBuilder<DDFilteredView> theCmsTrackerPanelBuilder;
   GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
@@ -28,8 +28,8 @@ void CmsTrackerDiskBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, G
   g->addComponent(subdet);
 }
 
-template<>
-void CmsTrackerDiskBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
+template <>
+void CmsTrackerDiskBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (det->components().front()->type()) {

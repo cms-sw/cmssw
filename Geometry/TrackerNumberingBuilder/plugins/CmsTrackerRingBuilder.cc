@@ -10,13 +10,13 @@
 #include <vector>
 #include <bitset>
 
-template<>
+template <>
 void CmsTrackerRingBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
   CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-template<>
+template <>
 void CmsTrackerRingBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
   fv.firstChild();

@@ -141,7 +141,7 @@ namespace cms {
     //! return the stack of sibling numbers which indicates
     //  the current position in the DDFilteredView
     nav_type navPos() const;
-    
+
   private:
     bool accept(std::string_view);
     bool addPath(Node* const);

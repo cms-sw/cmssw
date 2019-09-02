@@ -171,13 +171,13 @@ std::unique_ptr<std::vector<GeometricDetExtra> > TrackerGeometricDetExtraESModul
     edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(dd4hepToken_);
     edm::LogInfo("GeometricDetExtra") << " Top node is  " << tracker << " " << tracker->name() << std::endl;
     edm::LogInfo("GeometricDetExtra") << "    radLength " << tracker->radLength() << "\n"
-				      << "           xi " << tracker->xi() << "\n"
-				      << " PixelROCRows " << tracker->pixROCRows() << "\n"
-				      << "   PixROCCols " << tracker->pixROCCols() << "\n"
-				      << "   PixelROC_X " << tracker->pixROCx() << "\n"
-				      << "   PixelROC_Y " << tracker->pixROCy() << "\n"
-				      << "TrackerStereoDetectors " << (tracker->stereo() ? "true" : "false") << "\n"
-				      << "SiliconAPVNumber " << tracker->siliconAPVNum() << "\n";
+                                      << "           xi " << tracker->xi() << "\n"
+                                      << " PixelROCRows " << tracker->pixROCRows() << "\n"
+                                      << "   PixROCCols " << tracker->pixROCCols() << "\n"
+                                      << "   PixelROC_X " << tracker->pixROCx() << "\n"
+                                      << "   PixelROC_Y " << tracker->pixROCy() << "\n"
+                                      << "TrackerStereoDetectors " << (tracker->stereo() ? "true" : "false") << "\n"
+                                      << "SiliconAPVNumber " << tracker->siliconAPVNum() << "\n";
   } else {
     // if it is not from the DD, then just get the GDE from ES and match w/ GD.
     PGeometricDetExtra const& pgde = iRecord.getRecord<PGeometricDetExtraRcd>().get(pgToken_);

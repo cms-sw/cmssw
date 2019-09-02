@@ -11,8 +11,10 @@
 
 #include <bitset>
 
-template<>
-void CmsTrackerPixelPhase2EndcapBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+template <>
+void CmsTrackerPixelPhase2EndcapBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv,
+                                                                        GeometricDet* g,
+                                                                        std::string s) {
   CmsTrackerPhase2TPDiskBuilder<DDFilteredView> theCmsTrackerPhase2DiskBuilder;
   CmsTrackerPixelPhase2DiskBuilder<DDFilteredView> theCmsTrackerPixelPhase2DiskBuilder;
   CmsTrackerOTDiscBuilder<DDFilteredView> theCmsTrackerOTDiscBuilder;
@@ -40,7 +42,7 @@ void CmsTrackerPixelPhase2EndcapBuilder<DDFilteredView>::buildComponent(DDFilter
   g->addComponent(subdet);
 }
 
-template<>
+template <>
 void CmsTrackerPixelPhase2EndcapBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 

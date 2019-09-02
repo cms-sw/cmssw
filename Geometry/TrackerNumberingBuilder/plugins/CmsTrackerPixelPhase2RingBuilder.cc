@@ -9,13 +9,15 @@
 
 #include <vector>
 
-template<>
-void CmsTrackerPixelPhase2RingBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+template <>
+void CmsTrackerPixelPhase2RingBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv,
+                                                                      GeometricDet* g,
+                                                                      std::string s) {
   CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-template<>
+template <>
 void CmsTrackerPixelPhase2RingBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 

@@ -9,8 +9,10 @@
 
 #include <bitset>
 
-template<>
-void CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+template <>
+void CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv,
+                                                                        GeometricDet* g,
+                                                                        std::string s) {
   CmsTrackerPhase1DiskBuilder<DDFilteredView> theCmsTrackerPhase1DiskBuilder;
 
   GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
@@ -29,8 +31,8 @@ void CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView>::buildComponent(DDFilter
   g->addComponent(subdet);
 }
 
-template<>
-void CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView>::sortNS( DDFilteredView& fv, GeometricDet* det) {
+template <>
+void CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (comp.front()->type()) {
