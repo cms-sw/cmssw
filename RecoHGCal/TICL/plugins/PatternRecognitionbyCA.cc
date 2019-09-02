@@ -117,16 +117,25 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
 void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
                                                    std::vector<Trackster> &tracksters) {
   // Energy regression and particle identification strategy:
+  //
   // 1. Set default values for regressed energy and particle id for each trackster.
   // 2. Store indices of tracksters whose total sum of cluster energies is above the
   //    eidMinClusterEnergy_ (GeV) treshold. Inference is not applied for soft tracksters.
-  // 3. Create input and output tensors. The batch dimension is determined by the number of
-  //    tracksters passing 2.
-  // 4. Fill input tensors with variables of tracksters. Per layer, tracksters are ordered
-  //    descending by energy. Given that tensor data is contiguous in memory, we can use pointer
-  //    arithmetic to fill values, even with batching.
-  // 5. Batched inference.
-  // 6. Assign regressed energy and id probabilities to each trackster.
+  // 3. When no trackster passes the selection, return.
+  // 4. Create input and output tensors. The batch dimension is determined by the number of
+  //    selected tracksters.
+  // 5. Fill input tensors with layer cluster features. Per layer, clusters are ordered descending
+  //    by energy. Given that tensor data is contiguous in memory, we can use pointer arithmetic to
+  //    fill values, even with batching.
+  // 6. Zero-fill features for empty clusters in each layer.
+  // 7. Batched inference.
+  // 8. Assign the regressed energy and id probabilities to each trackster.
+  //
+  // Indices used throughout this method:
+  // i -> batch / trackster
+  // j -> layer
+  // k -> cluster
+  // l -> feature
 
   // set default values per trackster, determine if the cluster energy threshold is passed,
   // and store indices of hard tracksters
@@ -134,16 +143,16 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
   for (int i = 0; i < (int)tracksters.size(); i++) {
     // set default values (1)
     tracksters[i].regressed_energy = 0.;
-    for (size_t j = 0; j < tracksters[i].id_probabilities.size(); j++) {
-      tracksters[i].id_probabilities[j] = 0.;
+    for (int p = 0; p < (int)tracksters[i].id_probabilities.size(); p++) {
+      tracksters[i].id_probabilities[p] = 0.;
     }
 
     // calculate the cluster energy sum (2)
-    // note: after the loop, sumClusterEnergy might be just above the treshold which is enough to
+    // note: after the loop, sumClusterEnergy might be just above the threshold which is enough to
     // decide whether to run inference for the trackster or not
     float sumClusterEnergy = 0.;
-    for (size_t cluster = 0; cluster < tracksters[i].vertices.size(); cluster++) {
-      sumClusterEnergy += (float)layerClusters[tracksters[i].vertices[cluster]].energy();
+    for (int k = 0; k < (int)tracksters[i].vertices.size(); k++) {
+      sumClusterEnergy += (float)layerClusters[tracksters[i].vertices[k]].energy();
       // there might be many clusters, so try to stop early
       if (sumClusterEnergy >= eidMinClusterEnergy_) {
         tracksterIndices.push_back(i);
@@ -152,13 +161,16 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     }
   }
 
-  // create input and output tensors (3)
+  // do nothing when no trackster passes the selection (3)
   int batchSize = (int)tracksterIndices.size();
+  if (batchSize == 0) {
+    return;
+  }
 
+  // create input and output tensors (4)
   tensorflow::TensorShape shape({batchSize, eidNLayers_, eidNClusters_, eidNFeatures_});
   tensorflow::Tensor input(tensorflow::DT_FLOAT, shape);
   tensorflow::NamedTensorList inputList = {{eidInputName_, input}};
-  float *inputData = input.flat<float>().data();
 
   std::vector<tensorflow::Tensor> outputs;
   std::vector<std::string> outputNames;
@@ -169,52 +181,58 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     outputNames.push_back(eidOutputNameId_);
   }
 
-  // fill input tensor (4)
-  for (int i : tracksterIndices) {
-    // get features per layer and cluster and store them in a nested vector
-    // this is necessary since layer information is stored per layer cluster, not vice versa
-    // also, this allows for convenient re-ordering
-    std::vector<std::vector<std::array<float, eidNFeatures_> > > tracksterFeatures;
-    tracksterFeatures.resize(eidNLayers_);
-    for (int cluster = 0; cluster < (int)tracksters[i].vertices.size(); cluster++) {
-      const reco::CaloCluster &lc = layerClusters[tracksters[i].vertices[cluster]];
-      int layer = rhtools_.getLayerWithOffset(lc.hitsAndFractions()[0].first) - 1;
-      if (layer < eidNLayers_) {
-        std::array<float, eidNFeatures_> features{{float(lc.eta()), float(lc.phi()), float(lc.energy())}};
-        tracksterFeatures[layer].push_back(features);
+  // fill input tensor (5)
+  for (int i = 0; i < batchSize; i++) {
+    const Trackster &trackster = tracksters[tracksterIndices[i]];
+
+    // per layer, we only consider the first eidNClusters_ clusters in terms of energy, so in order
+    // to avoid creating large / nested structures to do the sorting for an unknown number of total
+    // clusters, create a sorted list of layer cluster indices to keep track of the filled clusters
+    std::vector<int> clusterIndices(trackster.vertices.size());
+    for (int k = 0; k < (int)trackster.vertices.size(); k++) {
+      clusterIndices[k] = k;
+    }
+    sort(clusterIndices.begin(), clusterIndices.end(), [&layerClusters, &trackster](const int &a, const int &b) {
+      return layerClusters[trackster.vertices[a]].energy() > layerClusters[trackster.vertices[b]].energy();
+    });
+
+    // keep track of the number of seen clusters per layer
+    std::vector<int> seenClusters(eidNLayers_);
+
+    // loop through clusters by descending energy
+    for (int k : clusterIndices) {
+      // get features per layer and cluster and store the values directly in the input tensor
+      const reco::CaloCluster &cluster = layerClusters[trackster.vertices[k]];
+      int j = rhtools_.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
+      if (j < eidNLayers_ && seenClusters[j] < eidNClusters_) {
+        // get the pointer to the first feature value for the current batch, layer and cluster
+        float *features = &input.tensor<float, 4>()(i, j, seenClusters[j], 0);
+
+        // fill features
+        *(features++) = float(cluster.eta());
+        *(features++) = float(cluster.phi());
+        *features = float(cluster.energy());
+
+        // increment seen clusters
+        seenClusters[j]++;
       }
     }
 
-    // start filling input tensor data
-    for (int layer = 0; layer < eidNLayers_; layer++) {
-      // per layer, sort tracksters by decreasing energy
-      std::vector<std::array<float, eidNFeatures_> > &layerData = tracksterFeatures[layer];
-      sort(layerData.begin(),
-           layerData.end(),
-           [](const std::array<float, eidNFeatures_> &a, const std::array<float, eidNFeatures_> &b) {
-             return a[2] > b[2];
-           });
-
-      for (int cluster = 0; cluster < eidNClusters_; cluster++) {
-        // if there are not enough clusters, fill zeros
-        if (cluster < (int)tracksterFeatures[layer].size()) {
-          std::array<float, eidNFeatures_> &features = layerData[cluster];
-          for (int j = 0; j < eidNFeatures_; j++) {
-            *(inputData++) = features[j];
-          }
-        } else {
-          for (int j = 0; j < eidNFeatures_; j++) {
-            *(inputData++) = 0.f;
-          }
+    // zero-fill features of empty clusters in each layer (6)
+    for (int j = 0; j < eidNLayers_; j++) {
+      for (int k = seenClusters[j]; k < eidNClusters_; k++) {
+        float *features = &input.tensor<float, 4>()(i, j, k, 0);
+        for (int l = 0; l < eidNFeatures_; l++, features++) {
+          *features = 0.f;
         }
       }
     }
   }
 
-  // run the inference (5)
+  // run the inference (7)
   tensorflow::run(eidSession_, inputList, outputNames, &outputs);
 
-  // store regressed energy per trackster (6)
+  // store regressed energy per trackster (8)
   if (!eidOutputNameEnergy_.empty()) {
     // get the pointer to the energy tensor, dimension is batch x 1
     float *energy = outputs[0].flat<float>().data();
@@ -224,15 +242,15 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     }
   }
 
-  // store id probabilities per trackster (6)
+  // store id probabilities per trackster (8)
   if (!eidOutputNameId_.empty()) {
     // get the pointer to the id probability tensor, dimension is batch x id_probabilities.size()
-    size_t probsIdx = eidOutputNameEnergy_.empty() ? 0 : 1;
+    int probsIdx = eidOutputNameEnergy_.empty() ? 0 : 1;
     float *probs = outputs[probsIdx].flat<float>().data();
 
     for (int i : tracksterIndices) {
-      for (size_t j = 0; j < tracksters[i].id_probabilities.size(); j++) {
-        tracksters[i].id_probabilities[j] = *(probs++);
+      for (int p = 0; p < (int)tracksters[i].id_probabilities.size(); p++) {
+        tracksters[i].id_probabilities[p] = *(probs++);
       }
     }
   }
