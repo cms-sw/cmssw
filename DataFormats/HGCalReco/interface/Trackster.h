@@ -28,6 +28,30 @@ namespace ticl {
 
     edm::ProductID seedID;
     int seedIndex;
+
+    // regressed energy
+    float regressed_energy;
+
+    // types considered by the particle identification
+    enum ParticleType {
+      photon = 0,
+      electron,
+      muon,
+      neutral_pion,
+      charged_hadron,
+      neutral_hadron,
+      ambiguous,
+      unknown,
+    };
+
+    // trackster ID probabilities
+    std::array<float, 8> id_probabilities;
+
+    // convenience method to return the ID probability for a certain particle type
+    inline float id_probability(ParticleType type) {
+      // probabilities are stored in the same order as defined in the ParticleType enum
+      return id_probabilities[(int)type];
+    }
   };
 }  // namespace ticl
 #endif

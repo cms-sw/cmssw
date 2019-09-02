@@ -1,7 +1,9 @@
 
 <lcgdict>
-  <class name="ticl::Trackster" ClassVersion="4">
-   <version ClassVersion="4" checksum="2963413313"/>
+  <class name="ticl::Trackster" ClassVersion="5">
+    <version ClassVersion="5" checksum="1679804166"/>
+    <version ClassVersion="4" checksum="2963413313"/>
+    <version ClassVersion="3" checksum="3878166595"/>
   </class>
   <class name="std::vector<ticl::Trackster>" />
   <class name="edm::Wrapper<ticl::Trackster>" />
