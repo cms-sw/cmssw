@@ -1481,7 +1481,6 @@ PlotAlignmentValidation::fitGauss(TH1 *hist,int color)
       }
     }
   }
-  storeHistogramInRootfile(hist,func);
   return func;
 }
 
@@ -1490,12 +1489,11 @@ PlotAlignmentValidation::fitGauss(TH1 *hist,int color)
 /*! \fn storeHistogramInRootfile
  *  \brief Store the histogram and the gaussian function resulting from the fitGauss function into a root file
  */
-void PlotAlignmentValidation::storeHistogramInRootfile(TH1* hist, TF1* func)
+void PlotAlignmentValidation::storeHistogramInRootfile(TH1* hist)
 {
   //Store histogram and fit function in the root summary file
   rootsummaryfile->cd();
   hist->Write();
-  func->Write(); 
 }
 
 //------------------------------------------------------------------------------
@@ -1850,10 +1848,14 @@ plotDMRHistogram(PlotAlignmentValidation::DMRPlotInfo& plotinfo, int direction, 
 {
   TH1F* h = 0;
   //Create a name for the histogram that summarize all relevant information: name of the geometry, variable plotted, structure, layer, and whether the modules considered point inward or outward.
-  TString histoname(plotinfo.vars->getName());
+
+  TString histoname="";
+  if(plotinfo.variable == "medianX" || plotinfo.variable == "medianY" )histoname="median";
+  else if(plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY")histoname="DrmsNR";
+  histoname+="_";  histoname+=plotinfo.vars->getName();
   histoname.ReplaceAll(" ","_");
   histoname+="_";  histoname+=subdet.c_str();
-  if (plotinfo.variable == "medianY")histoname+="_y";
+  if (plotinfo.variable == "medianY" || plotinfo.variable == "rmsNormY")histoname+="_y";
   if(layer!=0){
     if(subdet=="TID"||subdet=="TEC")histoname+="_disc";
     else histoname+="_layer";
@@ -1871,6 +1873,9 @@ plotDMRHistogram(PlotAlignmentValidation::DMRPlotInfo& plotinfo, int direction, 
     else if (direction == 1) { plotinfo.h2 = h; }
     else { plotinfo.h = h; }
   }
+  if(plotinfo.variable == "medianX" || plotinfo.variable == "medianY" || plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY")
+    storeHistogramInRootfile(h);
+
 }
 
 void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend)
