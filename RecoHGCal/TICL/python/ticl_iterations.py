@@ -159,7 +159,7 @@ def TICL_iterations(process):
       seeding_regions = "ticlSeedingGlobal",
       missing_layers = 3,
       min_clusters_per_ntuplet = 15,
-      min_cos_theta = 0.985, # ~10 degrees
+      min_cos_theta = 0.99, # ~10 degrees
   )
 
   process.multiClustersFromTrackstersMIP = multiClustersFromTrackstersProducer.clone(
@@ -181,7 +181,7 @@ def TICL_iterations(process):
       missing_layers = 2,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.94, # ~20 degrees
-      min_cos_pointing = 0.7,
+      min_cos_pointing = 0.7
   )
 
   process.multiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(
