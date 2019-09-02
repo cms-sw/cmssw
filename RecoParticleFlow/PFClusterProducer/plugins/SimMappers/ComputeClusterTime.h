@@ -19,8 +19,12 @@ namespace hgcalsimclustertime {
 
   //time-interval based on that ~210ps wide and with the highest number of hits
   float fixSizeHighestDensity(std::vector<float>& t,
+			      std::vector<float> w = std::vector<float>(),
                               float deltaT = 0.210 /*time window in ns*/,
                               float timeWidthBy = 0.5) {
+
+    if(w.size() == 0) w.resize(t.size(), 1.);
+
     float tolerance = 0.05f;
     std::sort(t.begin(), t.end());
 
@@ -57,8 +61,8 @@ namespace hgcalsimclustertime {
       if (t[ij] > (t[start_el] - HalfTimeDiff)) {
         for (int kl = ij; kl < totSize; ++kl) {
           if (t[kl] < (t[end_el] + HalfTimeDiff)) {
-            sum += t[kl];
-            ++num;
+	    sum += t[kl] * w[kl];
+	    num += w[kl];
           } else
             break;
         }
