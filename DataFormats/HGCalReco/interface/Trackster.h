@@ -48,7 +48,7 @@ namespace ticl {
     std::array<float, 8> id_probabilities;
 
     // convenience method to return the ID probability for a certain particle type
-    inline float id_probability(ParticleType type) {
+    inline float id_probability(ParticleType type) const {
       // probabilities are stored in the same order as defined in the ParticleType enum
       return id_probabilities[(int)type];
     }

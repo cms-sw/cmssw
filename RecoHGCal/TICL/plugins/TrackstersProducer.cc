@@ -68,10 +68,8 @@ std::unique_ptr<TrackstersCache> TrackstersProducer::initializeGlobalCache(const
 }
 
 void TrackstersProducer::globalEndJob(TrackstersCache* cache) {
-  if (cache->eidGraphDef != nullptr) {
-    delete cache->eidGraphDef;
-    cache->eidGraphDef = nullptr;
-  }
+  delete cache->eidGraphDef;
+  cache->eidGraphDef = nullptr;
 }
 
 TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const TrackstersCache* cache)

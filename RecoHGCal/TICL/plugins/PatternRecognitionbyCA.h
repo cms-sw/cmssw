@@ -30,13 +30,14 @@ namespace ticl {
     int missing_layers_;
     int min_clusters_per_ntuplet_;
     float max_delta_time_;
-    tensorflow::Session* eidSession_;
     std::string eidInputName_;
     std::string eidOutputNameEnergy_;
     std::string eidOutputNameId_;
     float eidMinClusterEnergy_;
     int eidNLayers_;
     int eidNClusters_;
+
+    tensorflow::Session* eidSession_;
 
     static const int eidNFeatures_ = 3;
   };
