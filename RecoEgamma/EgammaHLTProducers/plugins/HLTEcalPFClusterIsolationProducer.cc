@@ -59,7 +59,6 @@ private:
   const edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducer_;
   const edm::EDGetTokenT<double> rhoProducer_;
 
-  double drVeto2_;
   const double drMax_;
   const double drVetoBarrel_;
   const double drVetoEndcap_;

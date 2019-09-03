@@ -90,22 +90,6 @@ public:
         token_(consumesColl.consumes<T1>(para.getParameter<edm::InputTag>("inputColl"))) {}
 
   void getEtaPhiRegions(const edm::Event&, std::vector<EtaPhiRegion>&) const override;
-  template <typename T2>
-  static typename T2::const_iterator beginIt(const T2& coll) {
-    return coll.begin();
-  }
-  template <typename T2>
-  static typename T2::const_iterator endIt(const T2& coll) {
-    return coll.end();
-  }
-  template <typename T2>
-  static typename BXVector<T2>::const_iterator beginIt(const BXVector<T2>& coll) {
-    return coll.begin(0);
-  }
-  template <typename T2>
-  static typename BXVector<T2>::const_iterator endIt(const BXVector<T2>& coll) {
-    return coll.end(0);
-  }
 };
 
 template <typename CaloObjType, typename CaloObjCollType = edm::SortedCollection<CaloObjType>>
@@ -308,9 +292,9 @@ void EtaPhiRegionData<CandCollType>::getEtaPhiRegions(const edm::Event& event,
   edm::Handle<CandCollType> cands;
   event.getByToken(token_, cands);
 
-  for (auto candIt = beginIt(*cands); candIt != endIt(*cands); ++candIt) {
-    if (candIt->et() >= minEt_ && (maxEt_ < 0 || candIt->et() < maxEt_)) {
-      regions.push_back(EtaPhiRegion(candIt->eta(), candIt->phi(), maxDeltaR_, maxDEta_, maxDPhi_));
+  for (auto const& cand : *cands) {
+    if (cand.et() >= minEt_ && (maxEt_ < 0 || cand.et() < maxEt_)) {
+      regions.push_back(EtaPhiRegion(cand.eta(), cand.phi(), maxDeltaR_, maxDEta_, maxDPhi_));
     }
   }
 }
@@ -327,7 +311,6 @@ using HLTHcalQIE11DigisInRegionsProducer = HLTCaloObjInRegionsProducer<QIE11Data
 DEFINE_FWK_MODULE(HLTHcalQIE11DigisInRegionsProducer);
 
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 using HLTHcalQIE10DigisInRegionsProducer = HLTCaloObjInRegionsProducer<QIE10DataFrame, QIE10DigiCollection>;
 DEFINE_FWK_MODULE(HLTHcalQIE10DigisInRegionsProducer);
 
