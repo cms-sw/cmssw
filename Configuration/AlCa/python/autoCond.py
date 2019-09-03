@@ -14,15 +14,15 @@ autoCond = {
     # GlobalTag for MC production (L1 Trigger Stage1) with starup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
     'run2_mc_l1stage1'  :   '106X_mcRun2_asymptotic_l1stage1_v4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '106X_mcRun2_design_v5',
+    'run2_design'       :   '106X_mcRun2_design_v6',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '106X_mcRun2_asymptotic_v5',
+    'run2_mc'           :   '106X_mcRun2_asymptotic_v6',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '106X_mcRun2cosmics_startup_deco_v2',
+    'run2_mc_cosmics'   :   '106X_mcRun2cosmics_startup_deco_v3',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
     'run2_mc_hi'        :   '106X_mcRun2_HeavyIon_v4',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
-    'run2_mc_pa'        :   '106X_mcRun2_pA_v4',
+    'run2_mc_pa'        :   '106X_mcRun2_pA_v5',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '106X_dataRun2_v20',
     # GlobalTag for Run2 data reprocessing
