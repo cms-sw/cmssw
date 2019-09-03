@@ -24,7 +24,7 @@ public:
   FilteredLayerClustersProducer(const edm::ParameterSet&);
   ~FilteredLayerClustersProducer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -34,7 +34,6 @@ private:
   std::string iteration_label_;
   std::unique_ptr<const ticl::ClusterFilterBase> theFilter_;
   hgcal::RecHitTools rhtools_;
-
 };
 
 DEFINE_FWK_MODULE(FilteredLayerClustersProducer);
@@ -49,7 +48,7 @@ FilteredLayerClustersProducer::FilteredLayerClustersProducer(const edm::Paramete
   produces<std::vector<float>>(iteration_label_);
 }
 
-void FilteredLayerClustersProducer::beginRun(edm::Run const &, edm::EventSetup const &es) { rhtools_.getEventSetup(es); }
+void FilteredLayerClustersProducer::beginRun(edm::Run const&, edm::EventSetup const& es) { rhtools_.getEventSetup(es); }
 
 void FilteredLayerClustersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalMultiClusters
