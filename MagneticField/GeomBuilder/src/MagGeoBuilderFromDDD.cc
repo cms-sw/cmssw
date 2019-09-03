@@ -4,15 +4,15 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
-#include "MagneticField/GeomBuilder/src/volumeHandle.h"
-#include "MagneticField/GeomBuilder/src/bSlab.h"
-#include "MagneticField/GeomBuilder/src/bRod.h"
-#include "MagneticField/GeomBuilder/src/bSector.h"
-#include "MagneticField/GeomBuilder/src/bLayer.h"
-#include "MagneticField/GeomBuilder/src/eSector.h"
-#include "MagneticField/GeomBuilder/src/eLayer.h"
-#include "MagneticField/GeomBuilder/src/FakeInterpolator.h"
+#include "MagGeoBuilderFromDDD.h"
+#include "volumeHandle.h"
+#include "bSlab.h"
+#include "bRod.h"
+#include "bSector.h"
+#include "bLayer.h"
+#include "eSector.h"
+#include "eLayer.h"
+#include "FakeInterpolator.h"
 
 #include "MagneticField/Layers/interface/MagBLayer.h"
 #include "MagneticField/Layers/interface/MagESector.h"

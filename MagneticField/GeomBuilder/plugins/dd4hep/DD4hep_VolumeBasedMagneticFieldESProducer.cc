@@ -22,15 +22,12 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 
-#include <iostream>
 #include <string>
-#include <vector>
 
 using namespace cms;
-using namespace std;
 using namespace magneticfield;
 
-namespace cms {
+namespace cms::magneticfield {
   class DD4hep_VolumeBasedMagneticFieldESProducer : public edm::ESProducer {
   public:
     DD4hep_VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig);
