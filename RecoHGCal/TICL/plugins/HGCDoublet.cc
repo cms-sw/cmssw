@@ -110,18 +110,25 @@ int HGCDoublet::areAligned(double xi,
   return (cosTheta > minCosTheta) && (cosTheta_pointing > minCosPointing);
 }
 
-void HGCDoublet::findNtuplets(std::vector<HGCDoublet> &allDoublets, HGCntuplet &tmpNtuplet, int seedIndex, const bool outInDFS, const unsigned int outInHops, const unsigned int maxOutInHops, std::vector<std::pair<unsigned int, unsigned int > >& outInToVisit) {
+void HGCDoublet::findNtuplets(std::vector<HGCDoublet> &allDoublets,
+                              HGCntuplet &tmpNtuplet,
+                              int seedIndex,
+                              const bool outInDFS,
+                              const unsigned int outInHops,
+                              const unsigned int maxOutInHops,
+                              std::vector<std::pair<unsigned int, unsigned int> > &outInToVisit) {
   if (!alreadyVisited_ && seedIndex == seedIndex_) {
     alreadyVisited_ = true;
     tmpNtuplet.push_back(theDoubletId_);
     unsigned int numberOfOuterNeighbors = outerNeighbors_.size();
     for (unsigned int i = 0; i < numberOfOuterNeighbors; ++i) {
-      allDoublets[outerNeighbors_[i]].findNtuplets(allDoublets, tmpNtuplet, seedIndex, outInDFS, outInHops, maxOutInHops, outInToVisit);
+      allDoublets[outerNeighbors_[i]].findNtuplets(
+          allDoublets, tmpNtuplet, seedIndex, outInDFS, outInHops, maxOutInHops, outInToVisit);
     }
     if (outInDFS && outInHops < maxOutInHops) {
       unsigned int numberOfInnerNeighbors = innerNeighbors_.size();
       for (unsigned int i = 0; i < numberOfInnerNeighbors; ++i) {
-        outInToVisit.emplace_back(innerNeighbors_[i], outInHops+1); 
+        outInToVisit.emplace_back(innerNeighbors_[i], outInHops + 1);
       }
     }
   }

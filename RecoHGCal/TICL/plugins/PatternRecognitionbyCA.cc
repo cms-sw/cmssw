@@ -10,11 +10,10 @@
 
 using namespace ticl;
 
-PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf) : 
-  PatternRecognitionAlgoBase(conf), 
-  out_in_dfs_(conf.getParameter<bool>("out_in_dfs")),
-  max_out_in_hops_(conf.getParameter<int>("max_out_in_hops"))
-  {
+PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf)
+    : PatternRecognitionAlgoBase(conf),
+      out_in_dfs_(conf.getParameter<bool>("out_in_dfs")),
+      max_out_in_hops_(conf.getParameter<int>("max_out_in_hops")) {
   theGraph_ = std::make_unique<HGCGraph>();
   min_cos_theta_ = conf.getParameter<double>("min_cos_theta");
   min_cos_pointing_ = conf.getParameter<double>("min_cos_pointing");

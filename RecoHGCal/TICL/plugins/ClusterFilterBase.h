@@ -27,7 +27,6 @@ namespace ticl {
                                                            const HgcalClusterFilterMask& mask,
                                                            std::vector<float>& layerClustersMask,
                                                            hgcal::RecHitTools& rhtools) const = 0;
-
   };
 }  // namespace ticl
 
