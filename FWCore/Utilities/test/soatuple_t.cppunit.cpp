@@ -9,6 +9,7 @@ Changed by Viji on 29-06-2005
 #include <cstdint>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <cppunit/extensions/HelperMacros.h>
 #include "FWCore/Utilities/interface/SoATuple.h"
 
@@ -22,6 +23,7 @@ class testSoATuple : public CppUnit::TestFixture {
   CPPUNIT_TEST(loopTest);
   CPPUNIT_TEST(copyConstructorTest);
   CPPUNIT_TEST(assignmentTest);
+  CPPUNIT_TEST(moveAssignmentTest);
   CPPUNIT_TEST(emplace_backTest);
   CPPUNIT_TEST(alignmentTest);
 
@@ -38,6 +40,7 @@ public:
   void loopTest();
   void copyConstructorTest();
   void assignmentTest();
+  void moveAssignmentTest();
   void emplace_backTest();
   void alignmentTest();
 };
@@ -251,6 +254,34 @@ void testSoATuple::assignmentTest() {
 
   sAssign = s;
   CPPUNIT_ASSERT(sAssign.size() == s.size());
+  CPPUNIT_ASSERT(sAssign.size() == sValues.size());
+
+  i = 0;
+  for (auto const& v : sValues) {
+    CPPUNIT_ASSERT(v == sAssign.get<0>(i));
+    CPPUNIT_ASSERT(i == sAssign.get<1>(i));
+    ++i;
+  }
+}
+
+void testSoATuple::moveAssignmentTest() {
+  const std::vector<std::string> sValues = {"foo", "fii", "fee"};
+  edm::SoATuple<std::string, int> s;
+  s.reserve(sValues.size());
+  int i = 0;
+  for (auto const& v : sValues) {
+    s.push_back(std::make_tuple(v, i));
+    ++i;
+  }
+
+  edm::SoATuple<std::string, int> sAssign;
+  sAssign.reserve(2);
+  sAssign.push_back(std::make_tuple("barney", 10));
+  sAssign.push_back(std::make_tuple("fred", 7));
+  CPPUNIT_ASSERT(sAssign.size() == 2);
+
+  sAssign = std::move(s);
+  CPPUNIT_ASSERT(0 == s.size());
   CPPUNIT_ASSERT(sAssign.size() == sValues.size());
 
   i = 0;
