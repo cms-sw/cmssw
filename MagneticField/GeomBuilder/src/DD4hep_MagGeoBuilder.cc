@@ -98,8 +98,11 @@ void MagGeoBuilder::summary(handles& volumes) const {
   }    // end for
   iunique = ptrs.size();
 
-  LogTrace("MagGeoBuilder") << "    volumes   " << ivolumes << "    surfaces  " << isurfaces << "    assigned  "
-                            << iassigned << "    unique    " << iunique << "    iref_ass  " << iref_ass
+  LogTrace("MagGeoBuilder") << "    volumes   " << ivolumes << endl
+                            << "    surfaces  " << isurfaces << endl
+                            << "    assigned  " << iassigned << endl
+                            << "    unique    " << iunique << endl
+                            << "    iref_ass  " << iref_ass << endl
                             << "    iref_nass " << iref_nass;
 }
 
@@ -220,8 +223,8 @@ void MagGeoBuilder::build(const DDDetector* det) {
     doSubDets = fv.next(0);  // end of loop over MAGF
   }
 
-  LogTrace("MagGeoBuilder") << "Number of volumes (barrel): " << bVolumes_.size()
-                            << "  Number of volumes (endcap): " << eVolumes_.size();
+  LogTrace("MagGeoBuilder") << "Number of volumes (barrel): " << bVolumes_.size() << endl
+                            << "Number of volumes (endcap): " << eVolumes_.size();
   LogTrace("MagGeoBuilder") << "**********************************************************";
 
   // Now all volumeHandles are there, and parameters for each of the planes
@@ -361,16 +364,13 @@ void MagGeoBuilder::build(const DDDetector* det) {
   for (auto ilay : layers) {
     mBLayers_.push_back(ilay.buildMagBLayer());
   }
-
+  LogTrace("MagGeoBuilder") << "*** BARREL ********************************************" << endl
+                            << "Number of different volumes   = " << bVolCount << endl
+                            << "Number of interpolators built = " << bInterpolators.size() << endl
+                            << "Number of MagBLayers built    = " << mBLayers_.size();
   if (debug_) {
-    LogTrace("MagGeoBuilder") << "*** BARREL ********************************************"
-                              << " Number of different volumes   = " << bVolCount
-                              << " Number of interpolators built = " << bInterpolators.size()
-                              << " Number of MagBLayers built    = " << mBLayers_.size();
-
     testInside(bVolumes_);  // FIXME: all volumes should be checked in one go.
   }
-
   //--- Endcap
   // Build MagVolumes  and associate interpolators to them
   buildMagVolumes(eVolumes_, eInterpolators);
@@ -379,13 +379,11 @@ void MagGeoBuilder::build(const DDDetector* det) {
   for (auto isec : sectors) {
     mESectors_.push_back(isec.buildMagESector());
   }
-
+  LogTrace("MagGeoBuilder") << "*** ENDCAP ********************************************" << endl
+                            << "Number of different volumes   = " << eVolCount << endl
+                            << "Number of interpolators built = " << eInterpolators.size() << endl
+                            << "Number of MagESector built    = " << mESectors_.size();
   if (debug_) {
-    LogTrace("MagGeoBuilder") << "*** ENDCAP ********************************************"
-                              << " Number of different volumes   = " << eVolCount
-                              << " Number of interpolators built = " << eInterpolators.size()
-                              << " Number of MagESector built    = " << mESectors_.size();
-
     testInside(eVolumes_);  // FIXME: all volumes should be checked in one go.
   }
 }
@@ -438,11 +436,10 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
   // Phi of the master sector
   double masterSectorPhi = (vol->masterSector - 1) * 1._pi / 6.;
 
+  LogTrace("MagGeoBuilder") << "Building interpolator from " << vol->volumeno << " copyno " << vol->copyno << " at "
+                            << vol->center() << " phi: " << static_cast<double>(vol->center().phi()) / 1._pi
+                            << " pi,  file: " << vol->magFile << " master: " << vol->masterSector;
   if (debug_) {
-    LogTrace("MagGeoBuilder") << "Building interpolator from " << vol->volumeno << " copyno " << vol->copyno << " at "
-                              << vol->center() << " phi: " << static_cast<double>(vol->center().phi()) / 1._pi
-                              << " pi,  file: " << vol->magFile << " master: " << vol->masterSector;
-
     double delta = std::abs(vol->center().phi() - masterSectorPhi);
     if (delta > (1._pi / 9.)) {
       LogTrace("MagGeoBuilder") << "***WARNING wrong sector? Vol delta from master sector is " << delta / 1._pi
