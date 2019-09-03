@@ -9,12 +9,14 @@ class TauIDEmbedder(object):
     """class to rerun the tau seq and acces trainings from the database"""
     availableDiscriminators = [
         "2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
-        "deepTau2017v1", "deepTau2017v2", "DPFTau_2016_v0", "DPFTau_2016_v1", "againstEle2018"
+        "deepTau2017v1", "deepTau2017v2", "deepTau2017v2p1",
+        "DPFTau_2016_v0", "DPFTau_2016_v1",
+        "againstEle2018"
     ]
 
     def __init__(self, process, cms, debug = False,
                  updatedTauName = "slimmedTausNewID",
-                 toKeep =  ["deepTau2017v2"],
+                 toKeep =  ["deepTau2017v2p1"],
                  tauIdDiscrMVA_trainings_run2_2017 = { 'tauIdMVAIsoDBoldDMwLT2017' : "tauIdMVAIsoDBoldDMwLT2017", },
                  tauIdDiscrMVA_WPs_run2_2017 = {
                     'tauIdMVAIsoDBoldDMwLT2017' : {
@@ -644,7 +646,9 @@ class TauIDEmbedder(object):
                 rho                    = self.cms.InputTag('fixedGridRhoAll'),
                 graph_file             = self.cms.vstring(file_names),
                 mem_mapped             = self.cms.bool(False),
-                version                = self.cms.uint32(self.getDeepTauVersion(file_names[0])[1])
+                version                = self.cms.uint32(self.getDeepTauVersion(file_names[0])[1]),
+                debug_level            = self.cms.int32(0),
+                disable_dxy_pca        = self.cms.bool(False)
             )
 
             self.processDeepProducer('deepTau2017v1', tauIDSources, workingPoints_)
@@ -699,14 +703,70 @@ class TauIDEmbedder(object):
                 graph_file             = self.cms.vstring(file_names),
                 mem_mapped             = self.cms.bool(True),
                 version                = self.cms.uint32(self.getDeepTauVersion(file_names[0])[1]),
-                debug_level            = self.cms.int32(0)
-
+                debug_level            = self.cms.int32(0),
+                disable_dxy_pca        = self.cms.bool(False)
             )
 
             self.processDeepProducer('deepTau2017v2', tauIDSources, workingPoints_)
 
             self.process.rerunMvaIsolationTask.add(self.process.deepTau2017v2)
             self.process.rerunMvaIsolationSequence += self.process.deepTau2017v2
+
+        if "deepTau2017v2p1" in self.toKeep:
+            if self.debug: print ("Adding DeepTau IDs")
+
+            workingPoints_ = {
+                "e": {
+                    "VVVLoose": 0.0630386,
+                    "VVLoose": 0.1686942,
+                    "VLoose": 0.3628130,
+                    "Loose": 0.6815435,
+                    "Medium": 0.8847544,
+                    "Tight": 0.9675541,
+                    "VTight": 0.9859251,
+                    "VVTight": 0.9928449,
+                },
+                "mu": {
+                    "VLoose": 0.1058354,
+                    "Loose": 0.2158633,
+                    "Medium": 0.5551894,
+                    "Tight": 0.8754835,
+                },
+                "jet": {
+                    "VVVLoose": 0.2599605,
+                    "VVLoose": 0.4249705,
+                    "VLoose": 0.5983682,
+                    "Loose": 0.7848675,
+                    "Medium": 0.8834768,
+                    "Tight": 0.9308689,
+                    "VTight": 0.9573137,
+                    "VVTight": 0.9733927,
+                },
+            }
+
+            file_names = [
+                'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_core.pb',
+                'inner:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_inner.pb',
+                'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_outer.pb',
+            ]
+            self.process.deepTau2017v2p1 = self.cms.EDProducer("DeepTauId",
+                electrons                = self.cms.InputTag('slimmedElectrons'),
+                muons                    = self.cms.InputTag('slimmedMuons'),
+                taus                     = self.cms.InputTag('slimmedTaus'),
+                pfcands                  = self.cms.InputTag('packedPFCandidates'),
+                vertices                 = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
+                rho                      = self.cms.InputTag('fixedGridRhoAll'),
+                graph_file               = self.cms.vstring(file_names),
+                mem_mapped               = self.cms.bool(True),
+                version                  = self.cms.uint32(self.getDeepTauVersion(file_names[0])[1]),
+                debug_level              = self.cms.int32(0),
+                disable_dxy_pca          = self.cms.bool(True)
+            )
+
+            self.processDeepProducer('deepTau2017v2p1', tauIDSources, workingPoints_)
+
+            self.process.rerunMvaIsolationTask.add(self.process.deepTau2017v2p1)
+            self.process.rerunMvaIsolationSequence += self.process.deepTau2017v2p1
 
         if "DPFTau_2016_v0" in self.toKeep:
             if self.debug: print ("Adding DPFTau isolation (v0)")
