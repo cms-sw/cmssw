@@ -14,23 +14,22 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf, co
     : PatternRecognitionAlgoBase(conf, cache),
       out_in_dfs_(conf.getParameter<bool>("out_in_dfs")),
       max_out_in_hops_(conf.getParameter<int>("max_out_in_hops")),
+      theGraph_(std::make_unique<HGCGraph>()),
+      min_cos_theta_(conf.getParameter<double>("min_cos_theta")),
+      min_cos_pointing_(conf.getParameter<double>("min_cos_pointing")),
+      missing_layers_(conf.getParameter<int>("missing_layers")),
+      min_clusters_per_ntuplet_(conf.getParameter<int>("min_clusters_per_ntuplet")),
+      max_delta_time_(conf.getParameter<double>("max_delta_time")),
+      eidInputName_(conf.getParameter<std::string>("eid_input_name")),
+      eidOutputNameEnergy_(conf.getParameter<std::string>("eid_output_name_energy")),
+      eidOutputNameId_(conf.getParameter<std::string>("eid_output_name_id")),
+      eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
+      eidNLayers_(conf.getParameter<int>("eid_n_layers")),
+      eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
       eidSession_(nullptr) {
-  theGraph_ = std::make_unique<HGCGraph>();
-  min_cos_theta_ = conf.getParameter<double>("min_cos_theta");
-  min_cos_pointing_ = conf.getParameter<double>("min_cos_pointing");
-  missing_layers_ = conf.getParameter<int>("missing_layers");
-  min_clusters_per_ntuplet_ = conf.getParameter<int>("min_clusters_per_ntuplet");
-  max_delta_time_ = conf.getParameter<double>("max_delta_time");
-  eidInputName_ = conf.getParameter<std::string>("eid_input_name");
-  eidOutputNameEnergy_ = conf.getParameter<std::string>("eid_output_name_energy");
-  eidOutputNameId_ = conf.getParameter<std::string>("eid_output_name_id");
-  eidMinClusterEnergy_ = conf.getParameter<double>("eid_min_cluster_energy");
-  eidNLayers_ = conf.getParameter<int>("eid_n_layers");
-  eidNClusters_ = conf.getParameter<int>("eid_n_clusters");
-
   // mount the tensorflow graph onto the session when set
   const TrackstersCache *trackstersCache = dynamic_cast<const TrackstersCache *>(cache);
-  if (trackstersCache->eidGraphDef != nullptr) {
+  if (trackstersCache != nullptr && trackstersCache->eidGraphDef != nullptr) {
     eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
   }
 }
@@ -225,8 +224,8 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     for (int j = 0; j < eidNLayers_; j++) {
       for (int k = seenClusters[j]; k < eidNClusters_; k++) {
         float *features = &input.tensor<float, 4>()(i, j, k, 0);
-        for (int l = 0; l < eidNFeatures_; l++, features++) {
-          *features = 0.f;
+        for (int l = 0; l < eidNFeatures_; l++) {
+          *(features++) = 0.f;
         }
       }
     }
