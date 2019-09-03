@@ -495,6 +495,10 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
     cout << " Inside the segment updator, now loop on hits:   ( x == z_loc , y == x_loc) " << endl;
 
   vector<DTRecHit1D> hits = phiSeg->specificRecHits();
+  const size_t N = hits.size();
+  if (N < 3)
+    return;
+
   for (vector<DTRecHit1D>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
     // I have to get the hits position (the hit is in the layer rf) in SL frame...
     GlobalPoint glbPos = (theGeom->layer(hit->wireId().layerId()))->toGlobal(hit->localPosition());
@@ -519,11 +523,6 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
   float Sy2 = 0.;
   float Sxy = 0.;
 
-  size_t N = x.size();
-
-  if (N == 0)
-    return;
-
   for (size_t i = 0; i < N; ++i) {
     Sx += x.at(i);
     Sy += y.at(i);
@@ -541,12 +540,10 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
 
   // Calc residuals:
   float residuals[N];
-
-  for (size_t i = 0; i < N; ++i)
-    residuals[i] = 0;
-
+  float mean_residual = 0.;  //mean of the absolute values of residuals
   for (size_t i = 0; i < N; ++i) {
     residuals[i] = y.at(i) - par[1] * x.at(i) - par[0];
+    mean_residual += std::abs(residuals[i]);
     if (debug) {
       cout << " i: " << i << " y_i " << y.at(i) << " x_i " << x.at(i) << " res_i " << residuals[i];
       if (i == N - 1)
@@ -557,36 +554,27 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
   if (debug)
     cout << " Residuals computed! " << endl;
 
-  // Perform bad hit rejecting -- update hits
-  vector<DTRecHit1D> updatedRecHits;
-
-  float mean_residual = 0.;  //mean of the absolute values of residuals
-
-  for (size_t i = 0; i < N; ++i)
-    mean_residual += fabs(residuals[i]);
-
   mean_residual = mean_residual / (N - 2);
-
   if (debug)
     cout << " mean_residual: " << mean_residual << endl;
 
   int i = 0;
 
+  // Perform bad hit rejecting -- update hits
+  vector<DTRecHit1D> updatedRecHits;
   for (vector<DTRecHit1D>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
-    DTRecHit1D newHit1D = (*hit);
-
-    float normResidual = mean_residual > 0 ? fabs(residuals[i]) / mean_residual : 0;
+    float normResidual = mean_residual > 0 ? std::abs(residuals[i]) / mean_residual : 0;
+    ++i;
     if (normResidual < 1.5) {
+      DTRecHit1D newHit1D = (*hit);
       updatedRecHits.push_back(newHit1D);
       if (debug)
-        cout << " accepted " << i + 1 << "th hit"
+        cout << " accepted " << i << "th hit"
              << "  Irej: " << normResidual << endl;
-      ++i;
     } else {
       if (debug)
-        cout << " rejected " << i + 1 << "th hit"
+        cout << " rejected " << i << "th hit"
              << "  Irej: " << normResidual << endl;
-      ++i;
       continue;
     }
   }
