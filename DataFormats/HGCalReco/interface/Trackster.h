@@ -33,7 +33,7 @@ namespace ticl {
     float regressed_energy;
 
     // types considered by the particle identification
-    enum ParticleType {
+    enum class ParticleType {
       photon = 0,
       electron,
       muon,
