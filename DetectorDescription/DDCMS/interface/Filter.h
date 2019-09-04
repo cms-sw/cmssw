@@ -23,7 +23,7 @@
 
 namespace cms {
   struct DDSpecPar;
-  
+
   struct Filter {
     std::vector<std::string_view> keys;
     std::unique_ptr<Filter> next;

@@ -17,7 +17,8 @@ void CmsTrackerWheelBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::stri
   CmsTrackerRingBuilder<T> theCmsTrackerRingBuilder;
   CmsTrackerPetalBuilder<T> theCmsTrackerPetalBuilder;
 
-  GeometricDet* subdet = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
+  GeometricDet* subdet = new GeometricDet(
+      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
   switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::ring:
       theCmsTrackerRingBuilder.build(fv, subdet, s);

@@ -30,5 +30,5 @@ std::string ExtractStringFromDDD<DDFilteredView>::getString(std::string const &s
 template <>
 std::string ExtractStringFromDDD<cms::DDFilteredView>::getString(std::string const &s, cms::DDFilteredView *fv) {
   auto result = fv->getString(s.c_str());
-  return { result.data(), result.size() };
+  return {result.data(), result.size()};
 }

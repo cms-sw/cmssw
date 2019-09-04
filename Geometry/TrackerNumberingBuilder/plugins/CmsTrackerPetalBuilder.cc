@@ -10,7 +10,8 @@
 
 template <class T>
 void CmsTrackerPetalBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
-  GeometricDet* det = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
+  GeometricDet* det = new GeometricDet(
+      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
   CmsTrackerRingBuilder<T> theCmsTrackerRingBuilder;
   theCmsTrackerRingBuilder.build(fv, det, s);
   g->addComponent(det);
