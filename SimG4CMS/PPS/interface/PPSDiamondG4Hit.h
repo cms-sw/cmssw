@@ -22,59 +22,59 @@ public:
   void Print() override;
 
 public:
-  const G4ThreeVector &getEntry() const;
+  const G4ThreeVector &entry() const;
   void setEntry(const G4ThreeVector &xyz);
-  const G4ThreeVector &getExit() const;
+  const G4ThreeVector &exit() const;
   void setExit(const G4ThreeVector &xyz);
 
   void setLocalEntry(const G4ThreeVector &theLocalEntryPoint);
   void setLocalExit(const G4ThreeVector &theLocalExitPoint);
-  const G4ThreeVector &getLocalEntry() const;
-  const G4ThreeVector &getLocalExit() const;
+  const G4ThreeVector &localEntry() const;
+  const G4ThreeVector &localExit() const;
 
-  double getIncidentEnergy() const;
+  double incidentEnergy() const;
   void setIncidentEnergy(double e);
 
-  unsigned int getTrackID() const;
+  unsigned int trackID() const;
   void setTrackID(int i);
 
-  int getUnitID() const;
+  int unitID() const;
   void setUnitID(unsigned int i);
 
-  double getTimeSlice() const;
+  double timeSlice() const;
   void setTimeSlice(double d);
-  int getTimeSliceID() const;
+  int timeSliceID() const;
 
-  double getPabs() const;
-  double getTof() const;
-  double getEnergyLoss() const;
-  int getParticleType() const;
+  double p() const;
+  double tof() const;
+  double energyLoss() const;
+  int particleType() const;
 
-  void setPabs(double e);
+  void setP(double e);
   void setTof(double e);
   void setEnergyLoss(double e);
   void setParticleType(short i);
 
   void addEnergyLoss(double e);
 
-  double getThetaAtEntry() const;
-  double getPhiAtEntry() const;
+  double thetaAtEntry() const;
+  double phiAtEntry() const;
 
   void setThetaAtEntry(double t);
   void setPhiAtEntry(double f);
 
-  double getX() const;
-  double getY() const;
-  double getZ() const;
+  double x() const;
+  double y() const;
+  double z() const;
 
   void setX(double t);
   void setY(double t);
   void setZ(double t);
 
-  int getParentId() const;
-  double getVx() const;
-  double getVy() const;
-  double getVz() const;
+  int parentId() const;
+  double vx() const;
+  double vy() const;
+  double vz() const;
 
   void setParentId(int p);
   void setVx(double p);
@@ -84,11 +84,11 @@ public:
   void setPx(double p);
   void setPy(double p);
   void setPz(double p);
-  double getPx() const;
-  double getPy() const;
-  double getPz() const;
+  double px() const;
+  double py() const;
+  double pz() const;
 
-  double getGlobalTimehit() const;
+  double globalTimehit() const;
   void setGlobalTimehit(double h);
 
 private:

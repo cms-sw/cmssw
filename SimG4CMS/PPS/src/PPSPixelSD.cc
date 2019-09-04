@@ -58,11 +58,10 @@ PPSPixelSD::PPSPixelSD(const std::string& name_,
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("PPSPixelSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
-  verbn = 10000;
   SetVerboseLevel(verbn);
-  slave_ = new TrackingSlaveSD(name_);
+  slave_ = std::make_unique<TrackingSlaveSD>(name_);
   if (name_ == "CTPPSPixelHits") {
-    numberingScheme_ = dynamic_cast<PPSVDetectorOrganization*>(new PPSPixelNumberingScheme());
+    numberingScheme_ = std::make_unique<PPSPixelNumberingScheme>();
   } else {
     edm::LogWarning("PPSSim") << "PPSPixelSD: ReadoutName not supported\n";
   }
@@ -70,25 +69,20 @@ PPSPixelSD::PPSPixelSD(const std::string& name_,
   edm::LogInfo("PPSSim") << "PPSPixelSD: Instantiation completed";
 }
 
-PPSPixelSD::~PPSPixelSD() {
-  delete slave_;
-  delete numberingScheme_;
-}
+PPSPixelSD::~PPSPixelSD() {}
 
 bool PPSPixelSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   if (!aStep)
     return true;
 
-  GetStepInfo(aStep);
-  if (!HitExists() && edeposit_ > 0.)
-    CreateNewHit();
-  else if (!HitExists() && ((unitID_ == 1111 || unitID_ == 2222) && ParentId_ == 0 && ParticleType_ == 2212))
-    CreateNewHitEvo();
+  stepInfo(aStep);
+  if (!hitExists() && edeposit_ > 0.)
+    createNewHit();
   return true;
 }
 
 uint32_t PPSPixelSD::setDetUnitId(const G4Step* aStep) {
-  return (numberingScheme_ == nullptr ? 0 : numberingScheme_->GetUnitID(aStep));
+  return (numberingScheme_ == nullptr ? 0 : numberingScheme_->unitID(aStep));
 }
 
 void PPSPixelSD::Initialize(G4HCofThisEvent* HCE) {
@@ -107,30 +101,30 @@ void PPSPixelSD::Initialize(G4HCofThisEvent* HCE) {
 
 void PPSPixelSD::EndOfEvent(G4HCofThisEvent*) {
   // here we loop over transient hits and make them persistent
-  for (int j = 0; j < theHC_->entries() && j < 15000; j++) {
+  for (int j = 0; j < theHC_->entries() && j < maxPixelHits_; j++) {
     PPSPixelG4Hit* aHit = (*theHC_)[j];
 #ifdef debug
-    LogDebug("PPSSim") << "HIT NUMERO " << j << "unit ID = " << aHit->getUnitID() << "\n"
+    LogDebug("PPSSim") << "HIT NUMERO " << j << "unit ID = " << aHit->unitID() << "\n"
                        << "               "
-                       << "enrty z " << aHit->getEntry().z() << "\n"
+                       << "enrty z " << aHit->entry().z() << "\n"
                        << "               "
-                       << "theta   " << aHit->getThetaAtEntry() << "\n";
+                       << "theta   " << aHit->thetaAtEntry() << "\n";
 #endif
 
-    Local3DPoint Enter(aHit->getEntryPoint().x(), aHit->getEntryPoint().y(), aHit->getEntryPoint().z());
-    Local3DPoint Exit(aHit->getExitPoint().x(), aHit->getExitPoint().y(), aHit->getExitPoint().z());
+    Local3DPoint Enter(aHit->entryPoint().x(), aHit->entryPoint().y(), aHit->entryPoint().z());
+    Local3DPoint Exit(aHit->exitPoint().x(), aHit->exitPoint().y(), aHit->exitPoint().z());
     slave_->processHits(PSimHit(Enter,
                                 Exit,
-                                aHit->getPabs(),
-                                aHit->getTof(),
-                                aHit->getEnergyLoss(),
-                                aHit->getParticleType(),
-                                aHit->getUnitID(),
-                                aHit->getTrackID(),
-                                aHit->getThetaAtEntry(),
-                                aHit->getPhiAtEntry()));
+                                aHit->p(),
+                                aHit->tof(),
+                                aHit->energyLoss(),
+                                aHit->particleType(),
+                                aHit->unitID(),
+                                aHit->trackID(),
+                                aHit->thetaAtEntry(),
+                                aHit->phiAtEntry()));
   }
-  Summarize();
+  summarize();
 }
 
 void PPSPixelSD::clear() {}
@@ -158,14 +152,14 @@ void PPSPixelSD::update(const ::EndOfEvent*) {}
 
 void PPSPixelSD::clearHits() { slave_->Initialize(); }
 
-G4ThreeVector PPSPixelSD::SetToLocal(const G4ThreeVector& global) {
+G4ThreeVector PPSPixelSD::setToLocal(const G4ThreeVector& global) {
   G4ThreeVector localPoint;
   const G4VTouchable* touch = preStepPoint_->GetTouchable();
   localPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);
   return localPoint;
 }
 
-void PPSPixelSD::GetStepInfo(const G4Step* aStep) {
+void PPSPixelSD::stepInfo(const G4Step* aStep) {
   preStepPoint_ = aStep->GetPreStepPoint();
   postStepPoint_ = aStep->GetPostStepPoint();
   theTrack_ = aStep->GetTrack();
@@ -199,7 +193,7 @@ void PPSPixelSD::GetStepInfo(const G4Step* aStep) {
   theExitPoint_.setY(TheExitPoint.y());
   theExitPoint_.setZ(TheExitPoint.z());
 
-  Posizio_ = hitPoint_;
+  position_ = hitPoint_;
   Pabs_ = aStep->GetPreStepPoint()->GetMomentum().mag() / GeV;
   Tof_ = aStep->GetPostStepPoint()->GetGlobalTime() / nanosecond;
 
@@ -215,20 +209,20 @@ void PPSPixelSD::GetStepInfo(const G4Step* aStep) {
   Vz_ = theTrack_->GetVertexPosition().z();
 }
 
-bool PPSPixelSD::HitExists() {
+bool PPSPixelSD::hitExists() {
   if (primaryID_ < 1) {
     edm::LogWarning("PPSSim") << "***** PPSPixelSD error: primaryID = " << primaryID_ << " maybe detector name changed";
   }
 
   // Update if in the same detector, time-slice and for same track
   if (tSliceID_ == tsID_ && unitID_ == previousUnitID_) {
-    UpdateHit();
+    updateHit();
     return true;
   }
 
   // Reset entry point for new primary
   if (primaryID_ != primID_)
-    ResetForNewPrimary();
+    resetForNewPrimary();
 
   //look in the HitContainer whether a hit with the same primID_, unitID_,
   //tSliceID_ already exists:
@@ -236,21 +230,21 @@ bool PPSPixelSD::HitExists() {
 
   for (int j = 0; j < theHC_->entries() && !found; j++) {
     PPSPixelG4Hit* aPreviousHit = (*theHC_)[j];
-    if (aPreviousHit->getTrackID() == primaryID_ && aPreviousHit->getTimeSliceID() == tSliceID_ &&
-        aPreviousHit->getUnitID() == unitID_) {
+    if (aPreviousHit->trackID() == primaryID_ && aPreviousHit->timeSliceID() == tSliceID_ &&
+        aPreviousHit->unitID() == unitID_) {
       currentHit_ = aPreviousHit;
       found = true;
     }
   }
 
   if (found) {
-    UpdateHit();
+    updateHit();
     return true;
   }
   return false;
 }
 
-void PPSPixelSD::CreateNewHit() {
+void PPSPixelSD::createNewHit() {
 #ifdef debug
   LogDebug("PPSSim") << "PPSPixelSD CreateNewHit for"
                      << " PV " << currentPV_->GetName() << " PVid = " << currentPV_->GetCopyNo()
@@ -276,14 +270,14 @@ void PPSPixelSD::CreateNewHit() {
   currentHit_->setUnitID(unitID_);
   currentHit_->setIncidentEnergy(incidentEnergy_);
 
-  currentHit_->setPabs(Pabs_);
+  currentHit_->setP(Pabs_);
   currentHit_->setTof(Tof_);
   currentHit_->setEnergyLoss(Eloss_);
   currentHit_->setParticleType(ParticleType_);
   currentHit_->setThetaAtEntry(ThetaAtEntry_);
   currentHit_->setPhiAtEntry(PhiAtEntry_);
 
-  currentHit_->setMeanPosition(Posizio_);
+  currentHit_->setMeanPosition(position_);
   currentHit_->setEntryPoint(theEntryPoint_);
   currentHit_->setExitPoint(theExitPoint_);
 
@@ -292,118 +286,12 @@ void PPSPixelSD::CreateNewHit() {
   currentHit_->setVy(Vy_);
   currentHit_->setVz(Vz_);
 
-  UpdateHit();
+  updateHit();
 
-  StoreHit(currentHit_);
+  storeHit(currentHit_);
 }
 
-void PPSPixelSD::CreateNewHitEvo() {
-  currentHit_ = new PPSPixelG4Hit;
-  currentHit_->setTrackID(primaryID_);
-  currentHit_->setTimeSlice(tSlice_);
-  currentHit_->setUnitID(unitID_);
-  currentHit_->setIncidentEnergy(incidentEnergy_);
-
-  currentHit_->setPabs(Pabs_);
-  currentHit_->setTof(Tof_);
-  currentHit_->setEnergyLoss(Eloss_);
-  currentHit_->setParticleType(ParticleType_);
-  currentHit_->setThetaAtEntry(ThetaAtEntry_);
-  currentHit_->setPhiAtEntry(PhiAtEntry_);
-
-  currentHit_->setEntryPoint(theEntryPoint_);
-  currentHit_->setExitPoint(theExitPoint_);
-
-  currentHit_->setParentId(ParentId_);
-  currentHit_->setVx(Vx_);
-  currentHit_->setVy(Vy_);
-  currentHit_->setVz(Vz_);
-
-  G4ThreeVector _PosizioEvo;
-  int flagAcc = 0;
-  _PosizioEvo = PosizioEvo(Posizio_, Vx_, Vy_, Vz_, Pabs_, flagAcc);
-
-  if (flagAcc == 1) {
-    currentHit_->setMeanPosition(_PosizioEvo);
-
-    UpdateHit();
-
-    StoreHit(currentHit_);
-  }
-}
-
-G4ThreeVector PPSPixelSD::PosizioEvo(
-    const G4ThreeVector& Pos, double vx, double vy, double vz, double pabs, int& accettanza) {
-  accettanza = 0;
-  //Pos.xyz() in mm
-  G4ThreeVector PosEvo;
-  double ThetaX = atan((Pos.x() - vx) / (Pos.z() - vz));
-  double ThetaY = atan((Pos.y() - vy) / (Pos.z() - vz));
-  double X_at_0 = (vx - ((Pos.x() - vx) / (Pos.z() - vz)) * vz) / 1000.;
-  double Y_at_0 = (vy - ((Pos.y() - vy) / (Pos.z() - vz)) * vz) / 1000.;
-
-  double csi = fabs((7000. - pabs) / 7000.);
-
-  // all in m
-  const int no_rp = 4;
-  double x_par[no_rp + 1];
-  double y_par[no_rp + 1];
-  //rp z position
-  double rp[no_rp] = {141., 149., 198., 220.};
-  //{lx0,mlx} for each rp; Lx=lx0+mlx*csi
-  double leffx[][2] = {{122.5429, -46.9312}, {125.4194, -49.1849}, {152.6, -81.157}, {98.8914, -131.8390}};
-  //{ly0,mly} for each rp; Ly=ly0+mly*csi
-  double leffy[][2] = {{124.2314, -55.4852}, {127.7825, -57.4503}, {179.455, -76.274}, {273.0931, -40.4626}};
-  //{vx0,mvx0} for each rp; vx=vx0+mvx*csi
-  double avx[][2] = {{0.515483, -1.0123}, {0.494122, -1.0534}, {0.2217, -1.483}, {0.004633, -1.0719}};
-  //{vy0,mvy0} for each rp; vy=vy0+mvy*csi
-  double avy[][2] = {{0.371418, -1.6327}, {0.349035, -1.6955}, {0.0815, -2.59}, {0.007592, -4.0841}};
-  //{D0,md,a,b} for each rp; D=D0+(md+a*thetax)*csi+b*thetax
-  double ddx[][4] = {{-0.082336, -0.092513, 112.3436, -82.5029},
-                     {-0.086927, -0.097670, 114.9513, -82.9835},
-                     {-0.092117, -0.0915, 180.6236, -82.443},
-                     {-0.050470, 0.058837, 208.1106, 20.8198}};
-  // {10sigma_x+0.5mm,10sigma_y+0.5mm}
-  double detlim[][2] = {{0, 0}, {0.0028, 0.0021}, {0, 0}, {0.0008, 0.0013}};
-  //{rmax,dmax}
-  double pipelim[][2] = {{0.026, 0.026}, {0.04, 0.04}, {0.0226, 0.0177}, {0.04, 0.04}};
-
-  for (int j = 0; j < no_rp; j++) {
-    y_par[j] = ThetaY * (leffy[j][0] + leffy[j][1] * csi) + (avy[j][0] + avy[j][1] * csi) * Y_at_0;
-    x_par[j] = ThetaX * (leffx[j][0] + leffx[j][1] * csi) + (avx[j][0] + avx[j][1] * csi) * X_at_0 -
-               csi * (ddx[j][0] + (ddx[j][1] + ddx[j][2] * ThetaX) * csi + ddx[j][3] * ThetaX);
-  }
-
-  //pass TAN@141
-  if (fabs(y_par[0]) < pipelim[0][1] && sqrt((y_par[0] * y_par[0]) + (x_par[0] * x_par[0])) < pipelim[0][0]) {
-    //pass 149
-    if ((sqrt((y_par[1] * y_par[1]) + (x_par[1] * x_par[1])) < pipelim[1][0]) &&
-        (fabs(y_par[1]) > detlim[1][1] || x_par[1] > detlim[1][0])) {
-      accettanza = 1;
-    }
-  }
-
-  //pass TAN@141
-  if (fabs(y_par[0]) < pipelim[0][1] && sqrt((y_par[0]) * (y_par[0]) + (x_par[0]) * (x_par[0])) < pipelim[0][0]) {
-    //pass Q5@198
-    if (fabs(y_par[2]) < pipelim[2][1] && sqrt((y_par[2] * y_par[2]) + (x_par[2] * x_par[2])) < pipelim[2][0]) {
-      //pass 220
-      if ((sqrt((y_par[3] * y_par[3]) + (x_par[3] * x_par[3])) < pipelim[3][0]) &&
-          (fabs(y_par[3]) > detlim[3][1] || x_par[3] > detlim[3][0])) {
-        accettanza = 1;
-
-        PosEvo.setX(1000 * x_par[3]);
-        PosEvo.setY(1000 * y_par[3]);
-        PosEvo.setZ(1000 * rp[3]);
-        if (Pos.z() < vz)
-          PosEvo.setZ(-1000 * rp[3]);
-      }
-    }
-  }
-  return PosEvo;
-}
-
-void PPSPixelSD::UpdateHit() {
+void PPSPixelSD::updateHit() {
   if (Eloss_ > 0.) {
 #ifdef debug
     LogDebug("PPSSim") << "G4PPSPixelSD updateHit: add eloss " << Eloss_ << "\nCurrentHit=" << currentHit_
@@ -417,7 +305,7 @@ void PPSPixelSD::UpdateHit() {
   previousUnitID_ = unitID_;
 }
 
-void PPSPixelSD::StoreHit(PPSPixelG4Hit* hit) {
+void PPSPixelSD::storeHit(PPSPixelG4Hit* hit) {
   if (primID_ < 0)
     return;
   if (hit == nullptr) {
@@ -428,10 +316,10 @@ void PPSPixelSD::StoreHit(PPSPixelG4Hit* hit) {
   theHC_->insert(hit);
 }
 
-void PPSPixelSD::ResetForNewPrimary() {
-  entrancePoint_ = SetToLocal(hitPoint_);
+void PPSPixelSD::resetForNewPrimary() {
+  entrancePoint_ = setToLocal(hitPoint_);
 
   incidentEnergy_ = preStepPoint_->GetKineticEnergy();
 }
 
-void PPSPixelSD::Summarize() {}
+void PPSPixelSD::summarize() {}

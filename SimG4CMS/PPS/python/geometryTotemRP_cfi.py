@@ -47,14 +47,10 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/TotemRPData/data/RP_Detectors_Assembly.xml',
         'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_000.xml',
         'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_001.xml',
-#        'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_002.xml',
 
         'Geometry/PPSCommonData/data/PPS_Tracker_Assembly_Box_Real_002.xml',
         'Geometry/PPSCommonData/data/PPS_Tracker_Assembly_Box_Real_003.xml',
 
-
-
-#        'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_003.xml',
         'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_004.xml',
         'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_005.xml',
         'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_020.xml',
@@ -65,13 +61,10 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_025.xml',
         'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_100.xml',
         'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_101.xml',
-#        'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_102.xml',
-#        'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_103.xml',
 
         'Geometry/PPSCommonData/data/PPS_Tracker_Assembly_Box_Real_102.xml',
         'Geometry/PPSCommonData/data/PPS_Tracker_Assembly_Box_Real_103.xml',
                      
-#
         'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_104.xml',
         'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_105.xml',
         'Geometry/TotemRPData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_120.xml',
@@ -93,7 +86,6 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/TotemRPData/data/TotemRPGlobal.xml',
         'Geometry/TotemRPData/data/RP_Param_Beam_Region.xml',
 
-######
         'Geometry/PPSCommonData/data/ppstrackerMaterials.xml',
         'Geometry/PPSCommonData/data/PPSTrackerModule.xml',
         'Geometry/PPSSimData/data/PPSTrackersens.xml',
@@ -102,31 +94,27 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/PPSCommonData/data/PPSTrackerModule.xml',  
         'Geometry/PPSSimData/data/PPSTrackersens.xml',
         
-         'Geometry/PPSCommonData/data/PPS_Materials.xml',
-         'Geometry/PPSCommonData/data/PPS_Transformations.xml',
-         'Geometry/PPSCommonData/data/Cylindrical_pot.xml',
-         'Geometry/PPSCommonData/data/RP_Timing_Lbar.xml', 
-         'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_A13.xml',
-         'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_A24.xml',
-         'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_B13.xml',
-         'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_B24.xml',
-         'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_C13.xml',
-         'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_C24.xml',
-         'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_D13.xml',
-         'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_D24.xml',
-         'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_E13.xml',
-         'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_E24.xml',
-         'Geometry/PPSCommonData/data/RP_Timing_Box_Left.xml',
-         'Geometry/PPSCommonData/data/RP_Timing_Box_Right.xml',
-         'Geometry/PPSCommonData/data/RP_215_Left_Detector_Assembly.xml',
-         'Geometry/PPSCommonData/data/RP_215_Right_Detector_Assembly.xml',
-#                               'Geometry/PPSCommonData/data/RP_215_Right_Station.xml',
-#                               'Geometry/PPSCommonData/data/RP_215_Left_Station.xml', 
-#                               'Geometry/PPSCommonData/data/PPS_Stations_Assembly.xml',
-         'Geometry/PPSCommonData/data/PPS_timing_Sensitive_Dets.xml'),
+        'Geometry/PPSCommonData/data/PPS_Materials.xml',
+        'Geometry/PPSCommonData/data/PPS_Transformations.xml',
+        'Geometry/PPSCommonData/data/Cylindrical_pot.xml',
+        'Geometry/PPSCommonData/data/RP_Timing_Lbar.xml', 
+        'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_A13.xml',
+        'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_A24.xml',
+        'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_B13.xml',
+        'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_B24.xml',
+        'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_C13.xml',
+        'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_C24.xml',
+        'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_D13.xml',
+        'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_D24.xml',
+        'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_E13.xml',
+        'Geometry/PPSCommonData/data/RP_Timing_Lbar/RP_Timing_Lbar_E24.xml',
+        'Geometry/PPSCommonData/data/RP_Timing_Box_Left.xml',
+        'Geometry/PPSCommonData/data/RP_Timing_Box_Right.xml',
+        'Geometry/PPSCommonData/data/RP_215_Left_Detector_Assembly.xml',
+        'Geometry/PPSCommonData/data/RP_215_Right_Detector_Assembly.xml',
+        'Geometry/PPSCommonData/data/PPS_timing_Sensitive_Dets.xml'),
 
-
-          rootNodeName = cms.string('TotemRPGlobal:OTOTEM')
+        rootNodeName = cms.string('TotemRPGlobal:OTOTEM')
 )
 
 # real geometry

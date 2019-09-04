@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-uint32_t PPSStripOrganization::GetUnitID(const G4Step* aStep) {
+uint32_t PPSStripOrganization::unitID(const G4Step* aStep) {
   G4VPhysicalVolume* physVol;
   unsigned int arm = 0;
   unsigned int station = 0;
@@ -28,13 +28,6 @@ uint32_t PPSStripOrganization::GetUnitID(const G4Step* aStep) {
       station = (cpy_no / 10) % 10;
       roman_pot = cpy_no % 10;
     }
-
-#ifdef SCRIVI
-    edm::LogInfo("TotemRP") << "physVol=" << physVol->GetName() << ", level=" << ii
-                            << ", physVol->GetCopyNo()=" << physVol->GetCopyNo() << endl;
-#endif
   }
-
-  //  return UNITA;
   return TotemRPDetId(arm, station, roman_pot, detector).rawId();
 }

@@ -13,7 +13,7 @@ public:
   PPSDiamondOrganization();
   ~PPSDiamondOrganization() override = default;
 
-  uint32_t GetUnitID(const G4Step* aStep) override;
+  uint32_t unitID(const G4Step* aStep) override;
 
 private:
   unsigned int theArm_;

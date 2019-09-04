@@ -7,7 +7,7 @@ class TotemRPVDetectorOrganization {
 public:
   TotemRPVDetectorOrganization(){};
   virtual ~TotemRPVDetectorOrganization(){};
-  virtual uint32_t GetUnitID(const G4Step* aStep) = 0;
+  virtual uint32_t unitID(const G4Step* aStep) = 0;
 };
 
 #endif  //TotemRPVDetectorOrganization_h

@@ -35,40 +35,41 @@ public:
                edm::ParameterSet const&,
                const SimTrackManager*);
   ~PPSDiamondSD() override;
-  void Print_Hit_Info();
+  void printHitInfo();
 
   void Initialize(G4HCofThisEvent* HCE) override;
   void EndOfEvent(G4HCofThisEvent* eventHC) override;
   void clear() override;
-  void cleartrack();
   void clearTrack(G4Track* Track);
   void DrawAll() override;
   void PrintAll() override;
   void fillHits(edm::PSimHitContainer&, const std::string&) override;
 
 private:
+  static constexpr unsigned int maxDiamondHits_ = 15000;
+
   void clearHits() override;
   bool ProcessHits(G4Step* step, G4TouchableHistory* tHistory) override;
   uint32_t setDetUnitId(const G4Step* step) override;
   void update(const BeginOfEvent*) override;
   void update(const ::EndOfEvent*) override;
-  void SetNumberingScheme(PPSVDetectorOrganization* scheme);
+  void setNumberingScheme(PPSVDetectorOrganization* scheme);
 
-  TrackingSlaveSD* slave_;
-  PPSVDetectorOrganization* numberingScheme_;
+  std::unique_ptr<TrackingSlaveSD> slave_;
+  std::unique_ptr<PPSVDetectorOrganization> numberingScheme_;
 
   int verbosity_;
   int theMPDebug_;
 
-  G4ThreeVector SetToLocal(const G4ThreeVector& globalPoint);
-  void GetStepInfo(const G4Step* aStep);
-  G4bool HitExists();
-  void ImportInfotoHit();  //added pps
-  void UpdateHit();
-  void StoreHit(PPSDiamondG4Hit*);
-  void ResetForNewPrimary();
-  void Summarize();
-  bool IsPrimary(const G4Track* track);
+  G4ThreeVector setToLocal(const G4ThreeVector& globalPoint);
+  void stepInfo(const G4Step* aStep);
+  G4bool hitExists();
+  void importInfoToHit();  //added pps
+  void updateHit();
+  void storeHit(PPSDiamondG4Hit*);
+  void resetForNewPrimary();
+  void summarize();
+  bool isPrimary(const G4Track* track);
 
   G4ThreeVector entrancePoint_;
   double incidentEnergy_;

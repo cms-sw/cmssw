@@ -44,13 +44,6 @@ class PPSPixelSD : public SensitiveTkDetector,
                    public Observer<const BeginOfEvent*>,
                    public Observer<const EndOfEvent*> {
 public:
-  /*
-   * std::string,
-   * EventSetup const&,
-   * SensitiveDetectorCatalog&,
-   * edm::ParameterSet const&,
-   * SimTrackManager const*
-   */
   PPSPixelSD(const std::string&,
              const edm::EventSetup&,
              const SensitiveDetectorCatalog&,
@@ -75,20 +68,19 @@ private:
   void clearHits() override;
 
 private:
-  G4ThreeVector SetToLocal(const G4ThreeVector& globalPoint);
-  void GetStepInfo(const G4Step* aStep);
-  bool HitExists();
-  void CreateNewHit();
-  void CreateNewHitEvo();
-  G4ThreeVector PosizioEvo(const G4ThreeVector&, double, double, double, double, int&);
-  void UpdateHit();
-  void StoreHit(PPSPixelG4Hit*);
-  void ResetForNewPrimary();
-  void Summarize();
+  static constexpr unsigned int maxPixelHits_ = 15000;
+  G4ThreeVector setToLocal(const G4ThreeVector& globalPoint);
+  void stepInfo(const G4Step* aStep);
+  bool hitExists();
+  void createNewHit();
+  void updateHit();
+  void storeHit(PPSPixelG4Hit*);
+  void resetForNewPrimary();
+  void summarize();
 
 private:
-  TrackingSlaveSD* slave_;
-  PPSVDetectorOrganization* numberingScheme_;
+  std::unique_ptr<TrackingSlaveSD> slave_;
+  std::unique_ptr<PPSVDetectorOrganization> numberingScheme_;
 
   // Data relative to primary particle (the one which triggers a shower)
   // These data are common to all Hits of a given shower.
@@ -117,7 +109,7 @@ private:
   float edeposit_;
   G4ThreeVector hitPoint_;
 
-  G4ThreeVector Posizio_;
+  G4ThreeVector position_;
   G4ThreeVector theEntryPoint_;
   G4ThreeVector theExitPoint_;
   float Pabs_;

@@ -17,7 +17,7 @@
 PPSDiamondOrganization ::PPSDiamondOrganization()
     : theArm_(-1), theStation_(-1), theRoman_pot_(-1), thePlane_(-1), theDetector_(-1) {}
 
-uint32_t PPSDiamondOrganization::GetUnitID(const G4Step* aStep) {
+uint32_t PPSDiamondOrganization::unitID(const G4Step* aStep) {
   G4VPhysicalVolume* physVol;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
 

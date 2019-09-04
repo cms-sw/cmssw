@@ -1,12 +1,3 @@
-/** fake sensitive detector modelled after PSimHit for a user example;
-    the ORCA/CommonDet/BasicDet/interface/PSimHit.h and
-    ORCA/CommonDet/PBasicDet/interface/PSimHitROUFactory.h
-    are copied under Mantis/USDHitExample/test/stubs;
-    the user must provide links to ORCA libraries PBasicDet, BasicDet and
-    DetGeometry which must be loaded before the USDHitExample library -
-    see sens.macro under Mantis/G4Notification/test
- */
-
 #ifndef PPS_TotemRPSD_h
 #define PPS_TotemRPSD_h
 
@@ -42,7 +33,7 @@ public:
             const SimTrackManager*);
   ~TotemRPSD() override;
 
-  void Print_Hit_Info();
+  void printHitInfo();
 
   void Initialize(G4HCofThisEvent* HCE) override;
   void EndOfEvent(G4HCofThisEvent* eventHC) override;
@@ -54,29 +45,30 @@ public:
   static constexpr double rp_garage_position_ = 40.0;
 
 private:
+  static constexpr unsigned int maxTotemHits_ = 15000;
   void clearHits() override;
   bool ProcessHits(G4Step* step, G4TouchableHistory* tHistory) override;
   uint32_t setDetUnitId(const G4Step* step) override;
   void update(const BeginOfEvent*) override;
   void update(const ::EndOfEvent*) override;
 
-  void SetNumberingScheme(TotemRPVDetectorOrganization* scheme);
+  void setNumberingScheme(TotemRPVDetectorOrganization* scheme);
 
-  TrackingSlaveSD* slave;
-  TotemRPVDetectorOrganization* numberingScheme;
+  std::unique_ptr<TrackingSlaveSD> slave_;
+  std::unique_ptr<TotemRPVDetectorOrganization> numberingScheme_;
 
 private:
   int verbosity_;
 
-  G4ThreeVector SetToLocal(const G4ThreeVector& globalPoint);
-  void GetStepInfo(const G4Step* aStep);
-  G4bool HitExists();
-  void CreateNewHit();
-  void UpdateHit();
-  void StoreHit(TotemRPG4Hit*);
-  void ResetForNewPrimary();
-  void Summarize();
-  bool IsPrimary(const G4Track* track);
+  G4ThreeVector setToLocal(const G4ThreeVector& globalPoint);
+  void stepInfo(const G4Step* aStep);
+  G4bool hitExists();
+  void createNewHit();
+  void updateHit();
+  void storeHit(TotemRPG4Hit*);
+  void resetForNewPrimary();
+  void summarize();
+  bool isPrimary(const G4Track* track);
 
 private:
   // Data relative to primary particle (the one which triggers a shower)
@@ -118,7 +110,7 @@ private:
   double Vx_, Vy_, Vz_;
 
   // Hist
-  static TotemTestHitHBNtuple* theNtuple_;
+  //static TotemTestHitHBNtuple* theNtuple_;
   int eventno_;
 };
 
