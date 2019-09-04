@@ -39,9 +39,7 @@ def TICL_iterations_withReco(process):
     missing_layers = 3,
     min_clusters_per_ntuplet = 5,
     min_cos_theta = 0.99, # ~10 degrees                                              
-    min_cos_pointing = 0.9,
-    out_in_dfs = True, 
-    max_out_in_hops = 10,
+    min_cos_pointing = 0.9
   )
 
   process.multiClustersFromTrackstersTrk = multiClustersFromTrackstersProducer.clone(
@@ -91,9 +89,7 @@ def TICL_iterations_withReco(process):
       missing_layers = 2,
       min_clusters_per_ntuplet = 10,
       min_cos_theta = 0.94, # ~20 degrees
-      min_cos_pointing = 0.7,
-      out_in_dfs = True,
-      max_out_in_hops = 10,
+      min_cos_pointing = 0.7
   )
 
   process.multiClustersFromTrackstersEM = multiClustersFromTrackstersProducer.clone(
@@ -106,10 +102,8 @@ def TICL_iterations_withReco(process):
       seeding_regions = "ticlSeedingGlobal",
       missing_layers = 2,
       min_clusters_per_ntuplet = 10,
-      min_cos_theta = 0.8, # ~20 degrees
-      min_cos_pointing = 0.7,
-      out_in_dfs = True,
-      max_out_in_hops = 10,
+      min_cos_theta = 0.8, 
+      min_cos_pointing = 0.7
   )
 
   process.multiClustersFromTrackstersHAD = multiClustersFromTrackstersProducer.clone(
