@@ -15,7 +15,6 @@
 // Original Author: Aniello Spiezia On August 13, 2019
 // user include files
 
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,16 +33,16 @@
 #include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-struct histoInfo{
+struct histoInfo {
   int nbins;
   double min;
   double max;
-  histoInfo(int n, double m, double M){
+  histoInfo(int n, double m, double M) {
     nbins = n;
     min = m;
     max = M;
   }
-  histoInfo(const edm::ParameterSet& config){
+  histoInfo(const edm::ParameterSet &config) {
     nbins = config.getParameter<int>("nbins");
     min = config.getParameter<double>("min");
     max = config.getParameter<double>("max");
@@ -51,22 +50,22 @@ struct histoInfo{
 };
 
 // class declaration
-class TauValidationMiniAOD : public DQMEDAnalyzer{
-
+class TauValidationMiniAOD : public DQMEDAnalyzer {
 public:
-  explicit TauValidationMiniAOD(const edm::ParameterSet&);
+  explicit TauValidationMiniAOD(const edm::ParameterSet &);
   ~TauValidationMiniAOD() override;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
 private:
   edm::EDGetTokenT<std::vector<pat::Tau> > tauCollection_;
   edm::EDGetTokenT<edm::View<reco::Candidate> > refCollectionInputTagToken_;
-  std::map<std::string,  MonitorElement *> ptMap, etaMap, phiMap, massMap, decayModeFindingMap, decayModeMap, byDeepTau2017v2VSerawMap, byDeepTau2017v2VSjetrawMap, byDeepTau2017v2VSmurawMap, summaryMap;
+  std::map<std::string, MonitorElement *> ptMap, etaMap, phiMap, massMap, decayModeFindingMap, decayModeMap,
+      byDeepTau2017v2VSerawMap, byDeepTau2017v2VSjetrawMap, byDeepTau2017v2VSmurawMap, summaryMap;
   edm::ParameterSet histoSettings_;
   std::string extensionName_;
-  std::vector< edm::ParameterSet > discriminators_;
+  std::vector<edm::ParameterSet> discriminators_;
 };
 
 #endif
