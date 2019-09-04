@@ -11,7 +11,7 @@
 #include <vector>
 
 template <class T>
-void CmsTrackerOTRingBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+void CmsTrackerOTRingBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
   CmsDetConstruction<T> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }

@@ -1,7 +1,10 @@
 #ifndef DETECTOR_DESCRIPTION_DDCMS_DD_SOLID_SHAPES_H
 #define DETECTOR_DESCRIPTION_DDCMS_DD_SOLID_SHAPES_H
 
-#include <iosfwd>
+#include <algorithm>
+#include <array>
+#include <iterator>
+#include <string>
 
 namespace cms {
   namespace dd {

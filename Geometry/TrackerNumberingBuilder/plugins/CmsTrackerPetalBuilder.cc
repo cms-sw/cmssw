@@ -9,7 +9,7 @@
 #include <vector>
 
 template <class T>
-void CmsTrackerPetalBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+void CmsTrackerPetalBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
   GeometricDet* det = new GeometricDet(
       &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
   CmsTrackerRingBuilder<T> theCmsTrackerRingBuilder;

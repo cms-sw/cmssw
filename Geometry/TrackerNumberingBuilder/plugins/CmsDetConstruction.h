@@ -11,10 +11,10 @@
 template <class T>
 class CmsDetConstruction : public CmsTrackerLevelBuilder<T> {
 public:
-  void buildComponent(T&, GeometricDet*, std::string) override;
+  void buildComponent(T&, GeometricDet*, const std::string&) override;
 
 private:
-  void buildDets(const T&, GeometricDet*, std::string);
+  void buildDets(const T&, GeometricDet*, const std::string&);
   void buildSmallDetsforGlued(T&, GeometricDet*, const std::string&);
   void buildSmallDetsforStack(T&, GeometricDet*, const std::string&);
 };

@@ -12,7 +12,7 @@
 using namespace std;
 
 template <class T>
-void CmsTrackerPixelPhase2DiskBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+void CmsTrackerPixelPhase2DiskBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
   CmsTrackerPixelPhase2RingBuilder<T> theCmsTrackerPixelPhase2RingBuilder;
   GeometricDet* subdet = new GeometricDet(
       &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));

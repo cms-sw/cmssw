@@ -13,7 +13,7 @@
 #include <bitset>
 
 template <class T>
-void CmsTrackerPixelPhase2EndcapBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+void CmsTrackerPixelPhase2EndcapBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
   CmsTrackerPhase2TPDiskBuilder<T> theCmsTrackerPhase2DiskBuilder;
   CmsTrackerPixelPhase2DiskBuilder<T> theCmsTrackerPixelPhase2DiskBuilder;
   CmsTrackerOTDiscBuilder<T> theCmsTrackerOTDiscBuilder;

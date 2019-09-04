@@ -12,7 +12,7 @@ template <class T>
 class CmsTrackerRodBuilder : public CmsTrackerLevelBuilder<T> {
 private:
   void sortNS(T&, GeometricDet*) override;
-  void buildComponent(T&, GeometricDet*, std::string) override;
+  void buildComponent(T&, GeometricDet*, const std::string&) override;
 };
 
 #endif

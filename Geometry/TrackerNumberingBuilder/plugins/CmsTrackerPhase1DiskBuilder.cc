@@ -65,7 +65,7 @@ void CmsTrackerPhase1DiskBuilder<T>::PhiPosNegSplit_innerOuter(std::vector<Geome
 }
 
 template <class T>
-void CmsTrackerPhase1DiskBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+void CmsTrackerPhase1DiskBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
   CmsTrackerPanelBuilder<T> theCmsTrackerPanelBuilder;
   GeometricDet* subdet = new GeometricDet(
       &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));

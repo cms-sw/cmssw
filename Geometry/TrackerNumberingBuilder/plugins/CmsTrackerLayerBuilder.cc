@@ -14,7 +14,7 @@
 #include <bitset>
 
 template <class T>
-void CmsTrackerLayerBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string s) {
+void CmsTrackerLayerBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
   CmsTrackerStringBuilder<T> theCmsTrackerStringBuilder;
   CmsTrackerRodBuilder<T> theCmsTrackerRodBuilder;
   CmsTrackerLadderBuilder<T> theCmsTrackerLadderBuilder;
