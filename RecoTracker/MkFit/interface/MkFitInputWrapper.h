@@ -25,8 +25,8 @@ public:
 
   MkFitInputWrapper(MkFitInputWrapper const&) = delete;
   MkFitInputWrapper& operator=(MkFitInputWrapper const&) = delete;
-  MkFitInputWrapper(MkFitInputWrapper&&) = default;
-  MkFitInputWrapper& operator=(MkFitInputWrapper&&) = default;
+  MkFitInputWrapper(MkFitInputWrapper&&);
+  MkFitInputWrapper& operator=(MkFitInputWrapper&&);
 
   MkFitIndexLayer const& indexLayers() const { return indexLayers_; }
   mkfit::TrackVec const& seeds() const { return *seeds_; }

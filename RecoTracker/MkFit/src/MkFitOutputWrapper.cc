@@ -9,3 +9,6 @@ MkFitOutputWrapper::MkFitOutputWrapper(mkfit::TrackVec&& candidateTracks, mkfit:
     : candidateTracks_{std::move(candidateTracks)}, fitTracks_{std::move(fitTracks)} {}
 
 MkFitOutputWrapper::~MkFitOutputWrapper() = default;
+
+MkFitOutputWrapper::MkFitOutputWrapper(MkFitOutputWrapper&&) = default;
+MkFitOutputWrapper& MkFitOutputWrapper::operator=(MkFitOutputWrapper&&) = default;
