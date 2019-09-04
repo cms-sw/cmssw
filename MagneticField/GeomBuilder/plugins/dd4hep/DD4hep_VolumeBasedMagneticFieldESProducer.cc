@@ -25,9 +25,11 @@
 #include <string>
 
 using namespace cms;
+using namespace cms::dd4hepmagfield;
 using namespace magneticfield;
 
-namespace cms::magneticfield {
+namespace cms::dd4hepmagfield {
+
   class DD4hep_VolumeBasedMagneticFieldESProducer : public edm::ESProducer {
   public:
     DD4hep_VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig);
@@ -63,7 +65,7 @@ DD4hep_VolumeBasedMagneticFieldESProducer::DD4hep_VolumeBasedMagneticFieldESProd
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
   cc.setConsumes(cpvToken_, edm::ESInputTag{"", "magfield"});
   if (useParametrizedTrackerField_) {
-    cc.setConsumes(paramFieldToken_, edm::ESInputTag{"", iConfig.getParameter<string>("paramLabel")});
+    cc.setConsumes(paramFieldToken_, edm::ESInputTag{"", iConfig.getParameter<std::string>("paramLabel")});
   }
 }
 

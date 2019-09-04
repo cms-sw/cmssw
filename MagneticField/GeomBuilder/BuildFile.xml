@@ -12,7 +12,6 @@
 <use   name="Utilities/BinningTools"/>
 <use   name="CondFormats/MFObjects"/>
 <use   name="clhep"/>
-  <use name="dd4hep"/>
 <export>
   <lib   name="1"/>
 </export>
