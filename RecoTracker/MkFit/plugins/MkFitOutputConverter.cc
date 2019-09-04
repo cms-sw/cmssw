@@ -318,8 +318,9 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
         if (detLayer == nullptr) {
           throw cms::Exception("LogicError") << "DetLayer for layer index " << hitOnTrack.layer << " is null!";
         }
-        // Actually it is necessary to leave dealing with invalid hits to the TrackProducer?
-        //recHits.push_back(new InvalidTrackingRecHitNoDet(detLayer->surface(), TrackingRecHit::missing)); // let's put them all as missing for now
+        // In principle an InvalidTrackingRecHitNoDet could be
+        // inserted here, but it seems that it is best to deal with
+        // them in the TrackProducer.
         lastHitInvalid = true;
       } else {
         recHits.push_back(indexLayers.getHitPtr(hitOnTrack.layer, hitOnTrack.index)->clone());
@@ -557,7 +558,6 @@ std::pair<TrajectoryStateOnSurface, const GeomDet*> MkFitOutputConverter::conver
     tsosDouble = propagatorOpposite.propagateWithPath(fts, firstHitSurface);
   }
 
-  //return std::make_pair(TrajectoryStateOnSurface(fts, det->surface()), det);
   return std::make_pair(tsosDouble.first, det);
 }
 
