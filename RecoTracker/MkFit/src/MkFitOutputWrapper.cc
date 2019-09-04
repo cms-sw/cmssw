@@ -1,6 +1,6 @@
 #include "RecoTracker/MkFit/interface/MkFitOutputWrapper.h"
 
-// MkFit includes
+// mkFit includes
 #include "Track.h"
 
 MkFitOutputWrapper::MkFitOutputWrapper() = default;

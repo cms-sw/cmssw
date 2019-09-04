@@ -13,7 +13,7 @@ def customizeInitialStepOnly(process):
     process.initialStepHitQuadruplets.SeedComparitorPSet.clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
     process.initialStepSeeds.SeedComparitorPSet.ClusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
     if hasattr(process.initialStepTrackCandidates, "measurementTrackerEvent"):
-        # MkFit case
+        # mkFit case
         process.initialStepTrackCandidates.measurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
         process.initialStepTrackCandidatesMkFitInput.pixelRecHits = "siPixelRecHitsPreSplitting"
     else:

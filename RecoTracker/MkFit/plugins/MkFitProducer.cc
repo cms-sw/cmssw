@@ -14,7 +14,7 @@
 #include "RecoTracker/MkFit/interface/MkFitInputWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitOutputWrapper.h"
 
-// MkFit includes
+// mkFit includes
 #include "ConfigWrapper.h"
 #include "Event.h"
 #include "mkFit/buildtestMPlex.h"
@@ -43,7 +43,7 @@ private:
   edm::EDPutTokenT<MkFitOutputWrapper> putToken_;
   std::function<double(mkfit::Event&, mkfit::MkBuilder&)> buildFunction_;
   bool backwardFitInCMSSW_;
-  bool mkfitSilent_;
+  bool mkFitSilent_;
 };
 
 MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
@@ -51,7 +51,7 @@ MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
       geomToken_{esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()},
       putToken_{produces<MkFitOutputWrapper>()},
       backwardFitInCMSSW_{iConfig.getParameter<bool>("backwardFitInCMSSW")},
-      mkfitSilent_{iConfig.getUntrackedParameter<bool>("mkfitSilent")} {
+      mkFitSilent_{iConfig.getUntrackedParameter<bool>("mkFitSilent")} {
   const auto build = iConfig.getParameter<std::string>("buildingRoutine");
   bool isFV = false;
   if (build == "bestHit") {
@@ -84,7 +84,7 @@ MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
 
   // TODO: what to do when we have multiple instances of MkFitProducer in a job?
   mkfit::MkBuilderWrapper::populate(isFV);
-  mkfit::ConfigWrapper::initializeForCMSSW(seedCleanOpt, backwardFitOpt, mkfitSilent_);
+  mkfit::ConfigWrapper::initializeForCMSSW(seedCleanOpt, backwardFitOpt, mkFitSilent_);
 }
 
 void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -96,7 +96,7 @@ void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<std::string>("seedCleaning", "N2")->setComment("Valid values are: 'none', 'N2'");
   desc.add("backwardFitInCMSSW", false)
       ->setComment("Do backward fit (to innermost hit) in CMSSW (true) or mkFit (false)");
-  desc.addUntracked("mkfitSilent", true)->setComment("Allows to enables printouts from mkfit with 'False'");
+  desc.addUntracked("mkFitSilent", true)->setComment("Allows to enables printouts from mkFit with 'False'");
 
   descriptions.add("mkFitProducer", desc);
 }
@@ -116,7 +116,7 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
   // TODO: the mechanism needs to be improved...
   std::call_once(geometryFlag, [&geom, nlayers = hitsSeeds.nlayers()]() {
     // TODO: eventually automatize fully
-    // For now it is easier to use purely the infrastructure from mkfit
+    // For now it is easier to use purely the infrastructure from mkFit
     /*
       const auto barrelLayers = geom.numberOfLayers(PixelSubdetector::PixelBarrel) + geom.numberOfLayers(StripSubdetector::TIB) + geom.numberOfLayers(StripSubdetector::TOB);
       const auto endcapLayers = geom.numberOfLayers(PixelSubdetector::PixelEndcap) + geom.numberOfLayers(StripSubdetector::TID) + geom.numberOfLayers(StripSubdetector::TEC);
@@ -135,7 +135,7 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
 
   // CMSSW event ID (64-bit unsigned) does not fit in int
   // In addition, unique ID requires also lumi and run
-  // But does the event ID really matter within mkfit?
+  // But does the event ID really matter within mkFit?
   mkfit::Event ev(iEvent.id().event());
 
   ev.setInputFromCMSSW(hitsSeeds.hits(), hitsSeeds.seeds());

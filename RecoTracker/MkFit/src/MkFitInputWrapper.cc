@@ -1,6 +1,6 @@
 #include "RecoTracker/MkFit/interface/MkFitInputWrapper.h"
 
-// MkFit includes
+// mkFit includes
 #include "Hit.h"
 #include "LayerNumberConverter.h"
 #include "Track.h"
