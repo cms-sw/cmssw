@@ -24,6 +24,8 @@ public:
 
   MkFitIndexLayer() = default;
 
+  void resizeByClusterIndex(edm::ProductID id, size_t clusterIndex);
+  void increaseLayerSize(int layer, size_t additionalSize);
   void insert(edm::ProductID id, size_t clusterIndex, int hit, int layer, const TrackingRecHit *hitPtr);
 
   const HitInfo &get(edm::ProductID id, size_t clusterIndex) const;

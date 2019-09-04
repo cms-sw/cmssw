@@ -4,18 +4,39 @@
 
 #include <algorithm>
 
+namespace {
+  template <typename T>
+  auto resizeByClusterIndexImpl(T& cmsswToMkFit, edm::ProductID id, size_t clusterIndex) -> typename T::iterator {
+    auto found = std::find_if(cmsswToMkFit.begin(), cmsswToMkFit.end(), [&](const auto& item) { return item.productID == id; });
+    if (found == cmsswToMkFit.end()) {
+      found = cmsswToMkFit.emplace(cmsswToMkFit.end(), id);
+    }
+    if (found->infos.size() <= clusterIndex) {
+      found->infos.resize(clusterIndex + 1);
+    }
+    return found;
+  }
+}
+
+void MkFitIndexLayer::resizeByClusterIndex(edm::ProductID id, size_t clusterIndex) {
+  resizeByClusterIndexImpl(colls_, id, clusterIndex);
+}
+
+void MkFitIndexLayer::increaseLayerSize(int layer, size_t additionalSize) {
+  if (layer >= static_cast<int>(hits_.size())) {
+    hits_.resize(layer + 1);
+  }
+  hits_[layer].resize(hits_[layer].size() + additionalSize);
+}
+
 void MkFitIndexLayer::insert(edm::ProductID id, size_t clusterIndex, int hit, int layer, const TrackingRecHit* hitPtr) {
   // mapping CMSSW->mkfit
-  auto found = std::find_if(colls_.begin(), colls_.end(), [&](const auto& item) { return item.productID == id; });
-  if (found == colls_.end()) {
-    found = colls_.emplace(colls_.end(), id);
-  }
-  if (found->infos.size() <= clusterIndex) {
-    found->infos.resize(clusterIndex + 1);
-  }
+  auto found = resizeByClusterIndexImpl(colls_, id, clusterIndex);
   found->infos[clusterIndex] = HitInfo(hit, layer);
 
   // mapping mkfit->CMSSW
+  // when client calls increaseLayerSize() the two checks below are
+  // redundant, but better to keep them
   if (layer >= static_cast<int>(hits_.size())) {
     hits_.resize(layer + 1);
   }
