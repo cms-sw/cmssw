@@ -15,7 +15,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 
-#include "SimCalorimetry/HGCalSimProducers/interface/HGCHEbackDigitizer.h"
+#include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSciNoiseMap.h"
 
 //ROOT headers
 #include <TProfile2D.h>
@@ -56,26 +56,31 @@ private:
   edm::Service<TFileService> fs;
 
   std::string doseMap_;
+  std::string sipmMap_;
   uint32_t nPEperMIP_;
 
   std::map<int, std::map<int, float>> layerRadiusMap_;
   std::map<int, double> layerMap_;
   std::map<int, std::vector<float>> hgcrocMap_;
+  std::map<int, std::vector<int>> hgcrocNcellsMap_;
 
   const HGCalGeometry* gHGCal_;
   const HGCalDDDConstants* hgcCons_;
 
   int firstLayer_, lastLayer_;
-  float radiusMin_ = 70;   //cm
-  float radiusMax_ = 280;  //cm
-  int radiusBins_ = 525;
+  const float radiusMin_ = 70;   //cm
+  const float radiusMax_ = 280;  //cm
+  const int radiusBins_ = 525;   //cm
+  const int nWedges_ = 72;
 };
 
 //
 // constructors and destructor
 //
 HGCHEbackSignalScalerAnalyzer::HGCHEbackSignalScalerAnalyzer(const edm::ParameterSet& iConfig)
-    : doseMap_(iConfig.getParameter<std::string>("doseMap")), nPEperMIP_(iConfig.getParameter<uint32_t>("nPEperMIP")) {
+    : doseMap_(iConfig.getParameter<std::string>("doseMap")),
+      sipmMap_(iConfig.getParameter<std::string>("sipmMap")),
+      nPEperMIP_(iConfig.getParameter<uint32_t>("nPEperMIP")) {
   usesResource("TFileService");
   fs->file().cd();
 }
@@ -124,8 +129,8 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
       fs->make<TProfile2D>("fluenceMap", "fluenceMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
   TProfile2D* scaleByDoseMap =
       fs->make<TProfile2D>("scaleByDoseMap", "scaleByDoseMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
-  TProfile2D* scaleByAreaMap =
-      fs->make<TProfile2D>("scaleByAreaMap", "scaleByAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* scaleByTileAreaMap = fs->make<TProfile2D>(
+      "scaleByTileAreaMap", "scaleByTileAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
   TProfile2D* scaleByDoseAreaMap = fs->make<TProfile2D>(
       "scaleByDoseAreaMap", "scaleByDoseAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
   TProfile2D* noiseByFluenceMap = fs->make<TProfile2D>(
@@ -141,6 +146,13 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
       "signalToNoiseAreaMap", "signalToNoiseAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
   TProfile2D* signalToNoiseDoseAreaMap = fs->make<TProfile2D>(
       "signalToNoiseDoseAreaMap", "signalToNoiseDoseAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* signalToNoiseDoseAreaSipmMap = fs->make<TProfile2D>("signalToNoiseDoseAreaSipmMap",
+                                                                  "signalToNoiseDoseAreaSipmMap",
+                                                                  nzBins,
+                                                                  zBins,
+                                                                  radiusBins_,
+                                                                  radiusMin_,
+                                                                  radiusMax_);
 
   TProfile2D* saturationMap =
       fs->make<TProfile2D>("saturationMap", "saturationMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
@@ -154,8 +166,9 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
                                                                hgcrocMap_[lay.first].data());
 
   //instantiate scaler
-  HGCHEbackSignalScaler scal;
+  HGCalSciNoiseMap scal;
   scal.setDoseMap(doseMap_);
+  scal.setSipmMap(sipmMap_);
   scal.setGeometry(gHGCal_);
 
   //loop over valid detId from the HGCHEback
@@ -164,18 +177,21 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
     HGCScintillatorDetId scId(myId->rawId());
 
     int layer = scId.layer();
-    std::array<double, 8> radius = scal.computeRadius(scId);
-    double dose = scal.getDoseValue(layer, radius);
-    double fluence = scal.getFluenceValue(layer, radius);
+    radiiVec radius = scal.computeRadius(scId);
+    double dose = scal.getDoseValue(DetId::HGCalHSc, layer, radius);
+    double fluence = scal.getFluenceValue(DetId::HGCalHSc, layer, radius);
 
     auto dosePair = scal.scaleByDose(scId, radius);
+    float scaleFactorBySipmArea = scal.scaleBySipmArea(scId, radius[0]);
+    float scaleFactorByTileArea = scal.scaleByTileArea(scId, radius);
     float scaleFactorByDose = dosePair.first;
     float noiseByFluence = dosePair.second;
-    float scaleFactorByArea = scal.scaleByArea(scId, radius);
+    float expNoise = noiseByFluence * sqrt(scaleFactorBySipmArea);
 
     TF1 mypois("mypois", "TMath::Poisson(x+[0],[0])", 0, 10000);  //subtract ped mean
-    mypois.SetParameter(0, std::pow(noiseByFluence, 2));
-    double prob = mypois.Integral(nPEperMIP_ * scaleFactorByArea * 0.5, 10000);
+    mypois.SetParameter(0, std::pow(expNoise, 2));
+    double prob =
+        mypois.Integral(nPEperMIP_ * scaleFactorByTileArea * scaleFactorBySipmArea * scaleFactorByDose * 0.5, 10000);
 
     int ilayer = scId.layer();
     int iradius = scId.iradiusAbs();
@@ -194,29 +210,56 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
       doseMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), dose);
       fluenceMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), fluence);
       scaleByDoseMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByDose);
-      scaleByAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByArea);
+      scaleByTileAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByTileArea);
       scaleByDoseAreaMap->Fill(
-          zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByDose * scaleFactorByArea);
+          zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByDose * scaleFactorByTileArea);
       noiseByFluenceMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), noiseByFluence);
       probNoiseAboveHalfMip->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), prob);
 
-      signalToNoiseFlatAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), 100 * scaleFactorByArea);
+      signalToNoiseFlatAreaMap->Fill(zpos,
+                                     scaleByDoseMap->GetYaxis()->GetBinCenter(bin),
+                                     100 * scaleFactorByTileArea * scaleFactorBySipmArea / expNoise);
       signalToNoiseDoseMap->Fill(
           zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByDose / noiseByFluence);
       signalToNoiseAreaMap->Fill(
-          zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByArea / noiseByFluence);
+          zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByTileArea / noiseByFluence);
       signalToNoiseDoseAreaMap->Fill(zpos,
                                      scaleByDoseMap->GetYaxis()->GetBinCenter(bin),
-                                     nPEperMIP_ * scaleFactorByArea * scaleFactorByDose / noiseByFluence);
-      saturationMap->Fill(zpos,
-                          scaleByDoseMap->GetYaxis()->GetBinCenter(bin),
-                          nPEperMIP_ * scaleFactorByArea * scaleFactorByDose + std::pow(noiseByFluence, 2));
+                                     nPEperMIP_ * scaleFactorByTileArea * scaleFactorByDose / noiseByFluence);
+      signalToNoiseDoseAreaSipmMap->Fill(
+          zpos,
+          scaleByDoseMap->GetYaxis()->GetBinCenter(bin),
+          nPEperMIP_ * scaleFactorByTileArea * scaleFactorByDose * scaleFactorBySipmArea / expNoise);
+      saturationMap->Fill(
+          zpos,
+          scaleByDoseMap->GetYaxis()->GetBinCenter(bin),
+          nPEperMIP_ * scaleFactorByTileArea * scaleFactorByDose * scaleFactorBySipmArea + std::pow(expNoise, 2));
 
       ++bin;
     }
 
     //fill per layer plots
-    probNoiseAboveHalfMip_layerMap[ilayer]->Fill(inradius * 10, prob);
+    //float rpos = sqrt(global.x()*global.x() + global.y()*global.y());
+    int rocbin = probNoiseAboveHalfMip_layerMap[ilayer]->FindBin(radius[0] * 10);
+    double scaleValue = prob / nWedges_ / hgcrocNcellsMap_[ilayer][rocbin - 1];
+    probNoiseAboveHalfMip_layerMap[ilayer]->Fill(radius[0] * 10, scaleValue);
+  }
+
+  //print boundaries for S/N < 5 --> define where sipms get more area
+  std::cout << std::endl;
+  std::cout << "S/N > 5 boundaries" << std::endl;
+  std::cout << std::setw(5) << "layer" << std::setw(15) << "boundary" << std::endl;
+  for (int xx = 1; xx < signalToNoiseDoseAreaMap->GetNbinsX() + 1; ++xx) {
+    bool print = true;
+    float SoN = 0;
+    for (int yy = 1; yy < signalToNoiseDoseAreaMap->GetNbinsY() + 1; ++yy) {
+      SoN = signalToNoiseDoseAreaMap->GetBinContent(xx, yy);
+      if (SoN > 5 && print == true) {
+        std::cout << std::setprecision(5) << std::setw(5) << xx + 8 << std::setw(15)
+                  << signalToNoiseDoseAreaMap->GetYaxis()->GetBinLowEdge(yy) << std::endl;
+        print = false;
+      }
+    }
   }
 }
 
@@ -277,6 +320,34 @@ void HGCHEbackSignalScalerAnalyzer::createBinning(const std::vector<DetId>& detI
   hgcrocMap_[21] = arr21;
   std::vector<float> arr22 = {1037.8, 1157.5, 1503.9, 1790.7, 2132.2, 2484.0};
   hgcrocMap_[22] = arr22;
+  std::vector<int> ncells9 = {64, 32};
+  hgcrocNcellsMap_[9] = ncells9;
+  std::vector<int> ncells10 = {64, 48};
+  hgcrocNcellsMap_[10] = ncells10;
+  std::vector<int> ncells11 = {64, 56};
+  hgcrocNcellsMap_[11] = ncells11;
+  std::vector<int> ncells12 = {64, 64};
+  hgcrocNcellsMap_[12] = ncells12;
+  std::vector<int> ncells13 = {40, 64, 64, 24};
+  hgcrocNcellsMap_[13] = ncells13;
+  std::vector<int> ncells14 = {40, 64, 64, 40};
+  hgcrocNcellsMap_[14] = ncells14;
+  std::vector<int> ncells15 = {88, 64, 64, 56};
+  hgcrocNcellsMap_[15] = ncells15;
+  std::vector<int> ncells16 = {88, 64, 64, 64};
+  hgcrocNcellsMap_[16] = ncells16;
+  std::vector<int> ncells17 = {88, 64, 64, 64};
+  hgcrocNcellsMap_[17] = ncells17;
+  std::vector<int> ncells18 = {88, 64, 64, 64};
+  hgcrocNcellsMap_[18] = ncells18;
+  std::vector<int> ncells19 = {40, 96, 64, 64, 64};
+  hgcrocNcellsMap_[19] = ncells19;
+  std::vector<int> ncells20 = {40, 96, 64, 64, 64};
+  hgcrocNcellsMap_[20] = ncells20;
+  std::vector<int> ncells21 = {40, 96, 64, 64, 64};
+  hgcrocNcellsMap_[21] = ncells21;
+  std::vector<int> ncells22 = {40, 96, 64, 64, 48};
+  hgcrocNcellsMap_[22] = ncells22;
 }
 
 void HGCHEbackSignalScalerAnalyzer::printBoundaries() {
