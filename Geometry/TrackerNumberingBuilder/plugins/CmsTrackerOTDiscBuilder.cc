@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerOTDiscBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerOTRingBuilder.h"
@@ -10,24 +11,24 @@
 
 using namespace std;
 
-template <>
-void CmsTrackerOTDiscBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerOTRingBuilder<DDFilteredView> theCmsTrackerOTRingBuilder;
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
+template <class T>
+void CmsTrackerOTDiscBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+  CmsTrackerOTRingBuilder<T> theCmsTrackerOTRingBuilder;
+  GeometricDet* subdet = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
 
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::panel:
       theCmsTrackerOTRingBuilder.build(fv, subdet, s);
       break;
     default:
       edm::LogError("CmsTrackerOTDiscBuilder")
-          << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD::getString(s, &fv);
+          << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }
 
-template <>
-void CmsTrackerOTDiscBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerOTDiscBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (det->components().front()->type()) {
@@ -53,3 +54,6 @@ void CmsTrackerOTDiscBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, Geometr
   det->clearComponents();
   det->addComponents(rings);
 }
+
+template class CmsTrackerOTDiscBuilder<DDFilteredView>;
+template class CmsTrackerOTDiscBuilder<cms::DDFilteredView>;

@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLayerBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerStringBuilder.h"
@@ -12,14 +13,14 @@
 #include <vector>
 #include <bitset>
 
-template <>
-void CmsTrackerLayerBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, const std::string s) {
-  CmsTrackerStringBuilder<DDFilteredView> theCmsTrackerStringBuilder;
-  CmsTrackerRodBuilder<DDFilteredView> theCmsTrackerRodBuilder;
-  CmsTrackerLadderBuilder<DDFilteredView> theCmsTrackerLadderBuilder;
+template <class T>
+void CmsTrackerLayerBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string s) {
+  CmsTrackerStringBuilder<T> theCmsTrackerStringBuilder;
+  CmsTrackerRodBuilder<T> theCmsTrackerRodBuilder;
+  CmsTrackerLadderBuilder<T> theCmsTrackerLadderBuilder;
 
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  GeometricDet* subdet = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
+  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::strng:
       theCmsTrackerStringBuilder.build(fv, subdet, s);
       break;
@@ -31,13 +32,13 @@ void CmsTrackerLayerBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, 
       break;
     default:
       edm::LogError("CmsTrackerLayerBuilder")
-          << " ERROR - I was expecting a String, Rod or Ladder, I got a " << ExtractStringFromDDD::getString(s, &fv);
+          << " ERROR - I was expecting a String, Rod or Ladder, I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }
 
-template <>
-void CmsTrackerLayerBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerLayerBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   // TIB
@@ -173,3 +174,6 @@ void CmsTrackerLayerBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, Geometri
         << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();
   }
 }
+
+template class CmsTrackerLayerBuilder<DDFilteredView>;
+template class CmsTrackerLayerBuilder<cms::DDFilteredView>;

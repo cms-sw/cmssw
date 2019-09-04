@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPixelPhase2RingBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsDetConstruction.h"
@@ -9,16 +10,16 @@
 
 #include <vector>
 
-template <>
-void CmsTrackerPixelPhase2RingBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv,
+template <class T>
+void CmsTrackerPixelPhase2RingBuilder<T>::buildComponent(T& fv,
                                                                       GeometricDet* g,
                                                                       std::string s) {
-  CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
+  CmsDetConstruction<T> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-template <>
-void CmsTrackerPixelPhase2RingBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerPixelPhase2RingBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   //increasing phi taking into account the sub-modules
@@ -29,3 +30,6 @@ void CmsTrackerPixelPhase2RingBuilder<DDFilteredView>::sortNS(DDFilteredView& fv
     det->component(i)->setGeographicalID(i + 1);
   }
 }
+
+template class CmsTrackerPixelPhase2RingBuilder<DDFilteredView>;
+template class CmsTrackerPixelPhase2RingBuilder<cms::DDFilteredView>;

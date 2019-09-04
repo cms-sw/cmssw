@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPixelPhase1EndcapBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -9,15 +10,15 @@
 
 #include <bitset>
 
-template <>
-void CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv,
-                                                                        GeometricDet* g,
-                                                                        std::string s) {
-  CmsTrackerPhase1DiskBuilder<DDFilteredView> theCmsTrackerPhase1DiskBuilder;
+template <class T>
+void CmsTrackerPixelPhase1EndcapBuilder<T>::buildComponent(T& fv,
+							   GeometricDet* g,
+							   std::string s) {
+  CmsTrackerPhase1DiskBuilder<T> theCmsTrackerPhase1DiskBuilder;
 
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
+  GeometricDet* subdet = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
   const std::string& subdet_name = subdet->name();
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::PixelPhase1Disk:
       LogDebug("DiskNames") << "The name of the components is: " << subdet_name;
       theCmsTrackerPhase1DiskBuilder.build(fv, subdet, s);
@@ -25,14 +26,14 @@ void CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView>::buildComponent(DDFilter
 
     default:
       edm::LogError("CmsTrackerPixelPhase1EndcapBuilder")
-          << " ERROR - I was expecting a Disk... I got a " << ExtractStringFromDDD::getString(s, &fv);
+          << " ERROR - I was expecting a Disk... I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
   }
 
   g->addComponent(subdet);
 }
 
-template <>
-void CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerPixelPhase1EndcapBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (comp.front()->type()) {
@@ -48,3 +49,6 @@ void CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView>::sortNS(DDFilteredView& 
     det->component(i)->setGeographicalID(i + 1);  // Every subdetector: Disk Number
   }
 }
+
+template class CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView>;
+template class CmsTrackerPixelPhase1EndcapBuilder<cms::DDFilteredView>;

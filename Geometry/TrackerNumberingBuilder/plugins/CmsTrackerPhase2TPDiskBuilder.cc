@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPhase2TPDiskBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPanelBuilder.h"
@@ -62,24 +63,24 @@ void CmsTrackerPhase2TPDiskBuilder<T>::PhiPosNegSplit_innerOuter(std::vector<Geo
   std::copy(theCompsInnerOuter.begin(), theCompsInnerOuter.end(), begin);
 }
 
-template <>
-void CmsTrackerPhase2TPDiskBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerPanelBuilder<DDFilteredView> theCmsTrackerPanelBuilder;
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
+template <class T>
+void CmsTrackerPhase2TPDiskBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+  CmsTrackerPanelBuilder<T> theCmsTrackerPanelBuilder;
+  GeometricDet* subdet = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
 
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::panel:
       theCmsTrackerPanelBuilder.build(fv, subdet, s);
       break;
     default:
       edm::LogError("CmsTrackerPhase2TPDiskBuilder")
-          << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD::getString(s, &fv);
+          << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }
 
-template <>
-void CmsTrackerPhase2TPDiskBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerPhase2TPDiskBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (det->components().front()->type()) {
@@ -130,3 +131,6 @@ void CmsTrackerPhase2TPDiskBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, G
   det->addComponents(zminpanels);
   det->addComponents(zmaxpanels);
 }
+
+template class CmsTrackerPhase2TPDiskBuilder<DDFilteredView>;
+template class CmsTrackerPhase2TPDiskBuilder<cms::DDFilteredView>;

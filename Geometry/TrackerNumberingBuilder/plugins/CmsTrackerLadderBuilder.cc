@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLadderBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -7,14 +8,14 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsDetConstruction.h"
 #include <vector>
 
-template <>
-void CmsTrackerLadderBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
+template <class T>
+void CmsTrackerLadderBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+  CmsDetConstruction<T> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-template <>
-void CmsTrackerLadderBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerLadderBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   //sorting for PhaseI & PhaseII pixel ladder modules
@@ -29,3 +30,6 @@ void CmsTrackerLadderBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, Geometr
     edm::LogError("CmsTrackerLadderBuilder") << "Where are the OT Phase2/ pixel barrel modules modules?";
   }
 }
+
+template class CmsTrackerLadderBuilder<DDFilteredView>;
+template class CmsTrackerLadderBuilder<cms::DDFilteredView>;

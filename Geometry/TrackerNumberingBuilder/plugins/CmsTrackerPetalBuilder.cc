@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPetalBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerRingBuilder.h"
@@ -7,16 +8,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
-template <>
-void CmsTrackerPetalBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  GeometricDet* det = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
-  CmsTrackerRingBuilder<DDFilteredView> theCmsTrackerRingBuilder;
+template <class T>
+void CmsTrackerPetalBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+  GeometricDet* det = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
+  CmsTrackerRingBuilder<T> theCmsTrackerRingBuilder;
   theCmsTrackerRingBuilder.build(fv, det, s);
   g->addComponent(det);
 }
 
-template <>
-void CmsTrackerPetalBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerPetalBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   if (comp.front()->type() == GeometricDet::ring)
@@ -35,3 +36,6 @@ void CmsTrackerPetalBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, Geometri
     det->component(i)->setGeographicalID(startring + i);
   }
 }
+
+template class CmsTrackerPetalBuilder<DDFilteredView>;
+template class CmsTrackerPetalBuilder<cms::DDFilteredView>;

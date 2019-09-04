@@ -2,6 +2,8 @@
 #define Geometry_TrackerNumberingBuilder_CmsTrackerBuilder_H
 
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLevelBuilder.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "FWCore/ParameterSet/interface/types.h"
 #include <string>
 

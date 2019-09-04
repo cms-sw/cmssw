@@ -1,5 +1,4 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerBuilder.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -11,14 +10,14 @@
 
 #include <bitset>
 
-template <>
-void CmsTrackerBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerSubStrctBuilder<DDFilteredView> theCmsTrackerSubStrctBuilder;
-  CmsTrackerPixelPhase1EndcapBuilder<DDFilteredView> theCmsTrackerPixelPhase1EndcapBuilder;
-  CmsTrackerPixelPhase2EndcapBuilder<DDFilteredView> theCmsTrackerPixelPhase2EndcapBuilder;
+template <class T>
+void CmsTrackerBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+  CmsTrackerSubStrctBuilder<T> theCmsTrackerSubStrctBuilder;
+  CmsTrackerPixelPhase1EndcapBuilder<T> theCmsTrackerPixelPhase1EndcapBuilder;
+  CmsTrackerPixelPhase2EndcapBuilder<T> theCmsTrackerPixelPhase2EndcapBuilder;
 
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  GeometricDet* subdet = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
+  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::PixelBarrel:
       theCmsTrackerSubStrctBuilder.build(fv, subdet, s);
       break;
@@ -57,14 +56,14 @@ void CmsTrackerBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, Geome
       break;
     default:
       edm::LogError("CmsTrackerBuilder") << " ERROR - I was expecting a SubDet, I got a "
-                                         << ExtractStringFromDDD::getString(s, &fv);
+                                         << ExtractStringFromDDD<T>::getString(s, &fv);
   }
 
   g->addComponent(subdet);
 }
 
-template <>
-void CmsTrackerBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerBuilder<T>::sortNS(T&, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
   std::stable_sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::subDetByType);
 
@@ -76,12 +75,6 @@ void CmsTrackerBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet*
   }
 }
 
-template <>
-void CmsTrackerBuilder<cms::DDFilteredView>::buildComponent(cms::DDFilteredView& fv, GeometricDet* g, std::string s) {
-  // FIXME: not implemented yet
-}
+template class CmsTrackerBuilder<DDFilteredView>;
+template class CmsTrackerBuilder<cms::DDFilteredView>;
 
-template <>
-void CmsTrackerBuilder<cms::DDFilteredView>::sortNS(cms::DDFilteredView& fv, GeometricDet* det) {
-  // FIXME: not implemented yet
-}

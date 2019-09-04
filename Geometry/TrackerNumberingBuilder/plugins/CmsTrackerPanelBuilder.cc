@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPanelBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsDetConstruction.h"
@@ -7,22 +8,22 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <vector>
 
-template <>
-void CmsTrackerPanelBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+template <class T>
+void CmsTrackerPanelBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+  CmsDetConstruction<T> theCmsDetConstruction;
+  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::DetUnit:
       theCmsDetConstruction.buildComponent(fv, g, s);
       break;
     default:
       edm::LogError("CmsTrackerPanelBuilder")
-          << " ERROR - I was expecting a Plaq, I got a " << ExtractStringFromDDD::getString(s, &fv);
+          << " ERROR - I was expecting a Plaq, I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
       ;
   }
 }
 
-template <>
-void CmsTrackerPanelBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerPanelBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   if (comp.front()->type() == GeometricDet::DetUnit)
@@ -35,3 +36,6 @@ void CmsTrackerPanelBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, Geometri
     det->component(i)->setGeographicalID(i + 1);
   }
 }
+
+template class CmsTrackerPanelBuilder<DDFilteredView>;
+template class CmsTrackerPanelBuilder<cms::DDFilteredView>;

@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPixelPhase2DiskBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPixelPhase2RingBuilder.h"
@@ -10,26 +11,26 @@
 
 using namespace std;
 
-template <>
-void CmsTrackerPixelPhase2DiskBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv,
+template <class T>
+void CmsTrackerPixelPhase2DiskBuilder<T>::buildComponent(T& fv,
                                                                       GeometricDet* g,
                                                                       std::string s) {
-  CmsTrackerPixelPhase2RingBuilder<DDFilteredView> theCmsTrackerPixelPhase2RingBuilder;
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
+  CmsTrackerPixelPhase2RingBuilder<T> theCmsTrackerPixelPhase2RingBuilder;
+  GeometricDet* subdet = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
 
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::panel:
       theCmsTrackerPixelPhase2RingBuilder.build(fv, subdet, s);
       break;
     default:
       edm::LogError("CmsTrackerPixelPhase2DiskBuilder")
-          << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD::getString(s, &fv);
+          << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }
 
-template <>
-void CmsTrackerPixelPhase2DiskBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerPixelPhase2DiskBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (det->components().front()->type()) {
@@ -55,3 +56,6 @@ void CmsTrackerPixelPhase2DiskBuilder<DDFilteredView>::sortNS(DDFilteredView& fv
   det->clearComponents();
   det->addComponents(rings);
 }
+
+template class CmsTrackerPixelPhase2DiskBuilder<DDFilteredView>;
+template class CmsTrackerPixelPhase2DiskBuilder<cms::DDFilteredView>;

@@ -13,17 +13,17 @@
 
 std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const DDCompactView& cpv,
                                                                   std::vector<int> const& detidShifts) {
-  std::string attribute = "TkDDDStructure";  // could come from .orcarc
+  std::string attribute = "TkDDDStructure";
   DDSpecificsHasNamedValueFilter filter{attribute};
 
   DDFilteredView fv(cpv, filter);
 
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
-  if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute, &fv)) != GeometricDet::Tracker) {
+  if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv)) != GeometricDet::Tracker) {
     fv.firstChild();
-    if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute, &fv)) != GeometricDet::Tracker) {
+    if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv)) != GeometricDet::Tracker) {
       throw cms::Exception("Configuration") << " The first child of the DDFilteredView is not what is expected \n"
-                                            << ExtractStringFromDDD::getString(attribute, &fv) << "\n";
+                                            << ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv) << "\n";
     }
   }
 
@@ -48,24 +48,21 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const DDCompac
 
 std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDCompactView& cpv,
                                                                   std::vector<int> const& detidShifts) {
-  const cms::DDFilter attribute("TkDDDStructure");
-  cms::DDFilteredView fv(cpv, attribute);
-  std::string name{fv.name().data(), fv.name().size()};
-  edm::LogVerbatim("Geometry") << "Before the first child: " << name << ".";
+  std::string attribute("TkDDDStructure");
+  cms::DDFilteredView fv(cpv, cms::DDFilter(attribute));
 
-  if (name != "Tracker") {
-    bool flag = fv.firstChild();
-    name = {fv.name().data(), fv.name().size()};
-    edm::LogVerbatim("Geometry") << "After the firat child: " << name << ".";
-    if (!flag || name != "Tracker") {
-      throw cms::Exception("Configuration") << " The first child of the DDFilteredView is not what is expected \n"
-                                            << name << "\n";
-    }
+  CmsTrackerStringToEnum theCmsTrackerStringToEnum;
+  if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD<cms::DDFilteredView>::getString("TkDDDStructure", &fv)) != GeometricDet::Tracker) {
+     fv.firstChild();
+     if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)) != GeometricDet::Tracker) {
+       throw cms::Exception("Configuration") << " The first child of the DDFilteredView is not what is expected \n"
+					     << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv) << "\n";
+     }
   }
-
+   
   auto tracker = std::make_unique<GeometricDet>(&fv, GeometricDet::Tracker);
   CmsTrackerBuilder<cms::DDFilteredView> theCmsTrackerBuilder;
-  theCmsTrackerBuilder.build(fv, tracker.get(), {attribute.data(), attribute.size()});
+  theCmsTrackerBuilder.build(fv, tracker.get(), attribute);
 
   return tracker;
 }
