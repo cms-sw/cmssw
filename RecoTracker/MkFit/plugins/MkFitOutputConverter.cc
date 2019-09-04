@@ -303,13 +303,14 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
         // them in the TrackProducer.
         lastHitInvalid = true;
       } else {
-        recHits.push_back(hitIndexMap.getHitPtr(hitOnTrack.layer, hitOnTrack.index)->clone());
+        recHits.push_back(hitIndexMap.hitPtr(MkFitHitIndexMap::MkFitHit{hitOnTrack.index, hitOnTrack.layer})->clone());
         LogTrace("MkFitOutputConverter") << "  pos " << recHits.back().globalPosition().x() << " "
                                          << recHits.back().globalPosition().y() << " "
                                          << recHits.back().globalPosition().z() << " mag2 "
                                          << recHits.back().globalPosition().mag2() << " detid "
                                          << recHits.back().geographicalId().rawId() << " cluster "
-                                         << hitIndexMap.getClusterIndex(hitOnTrack.layer, hitOnTrack.index);
+                                         << hitIndexMap.clusterIndex(
+                                                MkFitHitIndexMap::MkFitHit{hitOnTrack.index, hitOnTrack.layer});
         lastHitInvalid = false;
       }
     }
