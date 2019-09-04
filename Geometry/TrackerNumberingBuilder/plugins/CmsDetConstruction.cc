@@ -5,11 +5,10 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 template <class T>
-void CmsDetConstruction<T>::buildSmallDetsforGlued(T& fv,
-						   GeometricDet* mother,
-						   const std::string& attribute) {
-  GeometricDet* det =
-    new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(attribute, &fv)));
+void CmsDetConstruction<T>::buildSmallDetsforGlued(T& fv, GeometricDet* mother, const std::string& attribute) {
+  GeometricDet* det = new GeometricDet(
+      &fv,
+      CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(attribute, &fv)));
   static const std::string stereo = "TrackerStereoDetectors";
 
   if (ExtractStringFromDDD<T>::getString(stereo, &fv) == "true") {
@@ -24,11 +23,10 @@ void CmsDetConstruction<T>::buildSmallDetsforGlued(T& fv,
 }
 
 template <class T>
-void CmsDetConstruction<T>::buildSmallDetsforStack(T& fv,
-						   GeometricDet* mother,
-						   const std::string& attribute) {
-  GeometricDet* det =
-    new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(attribute, &fv)));
+void CmsDetConstruction<T>::buildSmallDetsforStack(T& fv, GeometricDet* mother, const std::string& attribute) {
+  GeometricDet* det = new GeometricDet(
+      &fv,
+      CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(attribute, &fv)));
   static const std::string isLower = "TrackerLowerDetectors";
   static const std::string isUpper = "TrackerUpperDetectors";
 
@@ -45,18 +43,18 @@ void CmsDetConstruction<T>::buildSmallDetsforStack(T& fv,
 }
 
 template <class T>
-void CmsDetConstruction<T>::buildComponent(T& fv,
-                                                        GeometricDet* mother,
-                                                        std::string attribute) {
+void CmsDetConstruction<T>::buildComponent(T& fv, GeometricDet* mother, std::string attribute) {
   //
   // at this level I check whether it is a merged detector or not
   //
 
-  GeometricDet* det =
-      new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(attribute, &fv)));
+  GeometricDet* det = new GeometricDet(
+      &fv,
+      CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(attribute, &fv)));
 
   //Phase1 mergedDet: searching for sensors
-  if (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(attribute, &fv)) == GeometricDet::mergedDet) {
+  if (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(attribute, &fv)) ==
+      GeometricDet::mergedDet) {
     // I have to go one step lower ...
     bool dodets = fv.firstChild();  // descend to the first Layer
     while (dodets) {
@@ -71,8 +69,8 @@ void CmsDetConstruction<T>::buildComponent(T& fv,
   }
 
   //Phase2 stackDet: same procedure, different nomenclature
-  else if (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(attribute, &fv)) ==
-           GeometricDet::OTPhase2Stack) {
+  else if (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(
+               ExtractStringFromDDD<T>::getString(attribute, &fv)) == GeometricDet::OTPhase2Stack) {
     bool dodets = fv.firstChild();
     while (dodets) {
       buildSmallDetsforStack(fv, det, attribute);

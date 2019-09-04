@@ -12,8 +12,7 @@ using namespace edm;
 using namespace std;
 using namespace cms::dd;
 
-DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume)
-    : registry_(&det->specpars()) {
+DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume) : registry_(&det->specpars()) {
   it_.emplace_back(Iterator(volume));
 }
 
@@ -336,8 +335,7 @@ double DDFilteredView::get<double>(const char* key) const {
   return result;
 }
 
-std::string_view
-DDFilteredView::getString(const std::string& key) const {
+std::string_view DDFilteredView::getString(const std::string& key) const {
   assert(currentFilter_);
   assert(currentFilter_->spec);
   return currentFilter_->spec->strValue(key.c_str());

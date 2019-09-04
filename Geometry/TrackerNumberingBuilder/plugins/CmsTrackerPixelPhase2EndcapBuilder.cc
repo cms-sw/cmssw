@@ -13,14 +13,13 @@
 #include <bitset>
 
 template <class T>
-void CmsTrackerPixelPhase2EndcapBuilder<T>::buildComponent(T& fv,
-							   GeometricDet* g,
-							   std::string s) {
+void CmsTrackerPixelPhase2EndcapBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
   CmsTrackerPhase2TPDiskBuilder<T> theCmsTrackerPhase2DiskBuilder;
   CmsTrackerPixelPhase2DiskBuilder<T> theCmsTrackerPixelPhase2DiskBuilder;
   CmsTrackerOTDiscBuilder<T> theCmsTrackerOTDiscBuilder;
 
-  GeometricDet* subdet = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
+  GeometricDet* subdet = new GeometricDet(
+      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
   switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::PixelPhase2FullDisk:
       theCmsTrackerPhase2DiskBuilder.build(fv, subdet, s);

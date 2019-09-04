@@ -19,9 +19,11 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const DDCompac
   DDFilteredView fv(cpv, filter);
 
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
-  if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv)) != GeometricDet::Tracker) {
+  if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv)) !=
+      GeometricDet::Tracker) {
     fv.firstChild();
-    if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv)) != GeometricDet::Tracker) {
+    if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv)) !=
+        GeometricDet::Tracker) {
       throw cms::Exception("Configuration") << " The first child of the DDFilteredView is not what is expected \n"
                                             << ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv) << "\n";
     }
@@ -52,14 +54,17 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDC
   cms::DDFilteredView fv(cpv, cms::DDFilter(attribute));
 
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
-  if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD<cms::DDFilteredView>::getString("TkDDDStructure", &fv)) != GeometricDet::Tracker) {
-     fv.firstChild();
-     if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)) != GeometricDet::Tracker) {
-       throw cms::Exception("Configuration") << " The first child of the DDFilteredView is not what is expected \n"
-					     << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv) << "\n";
-     }
+  if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD<cms::DDFilteredView>::getString("TkDDDStructure", &fv)) !=
+      GeometricDet::Tracker) {
+    fv.firstChild();
+    if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv)) !=
+        GeometricDet::Tracker) {
+      throw cms::Exception("Configuration")
+          << " The first child of the DDFilteredView is not what is expected \n"
+          << ExtractStringFromDDD<cms::DDFilteredView>::getString(attribute, &fv) << "\n";
+    }
   }
-   
+
   auto tracker = std::make_unique<GeometricDet>(&fv, GeometricDet::Tracker);
   CmsTrackerBuilder<cms::DDFilteredView> theCmsTrackerBuilder;
   theCmsTrackerBuilder.build(fv, tracker.get(), attribute);

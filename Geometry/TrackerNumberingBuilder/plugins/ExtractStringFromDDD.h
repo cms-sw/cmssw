@@ -11,7 +11,7 @@
 template <class T>
 class ExtractStringFromDDD {
 public:
-  static std::string getString(std::string const &, T*);
+  static std::string getString(std::string const &, T *);
 };
 
 #endif

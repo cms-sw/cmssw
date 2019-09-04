@@ -11,12 +11,11 @@
 #include <bitset>
 
 template <class T>
-void CmsTrackerPixelPhase1EndcapBuilder<T>::buildComponent(T& fv,
-							   GeometricDet* g,
-							   std::string s) {
+void CmsTrackerPixelPhase1EndcapBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
   CmsTrackerPhase1DiskBuilder<T> theCmsTrackerPhase1DiskBuilder;
 
-  GeometricDet* subdet = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
+  GeometricDet* subdet = new GeometricDet(
+      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
   const std::string& subdet_name = subdet->name();
   switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::PixelPhase1Disk:

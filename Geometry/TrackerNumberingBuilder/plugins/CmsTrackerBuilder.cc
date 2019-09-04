@@ -16,7 +16,8 @@ void CmsTrackerBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s)
   CmsTrackerPixelPhase1EndcapBuilder<T> theCmsTrackerPixelPhase1EndcapBuilder;
   CmsTrackerPixelPhase2EndcapBuilder<T> theCmsTrackerPixelPhase2EndcapBuilder;
 
-  GeometricDet* subdet = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
+  GeometricDet* subdet = new GeometricDet(
+      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
   switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::PixelBarrel:
       theCmsTrackerSubStrctBuilder.build(fv, subdet, s);
@@ -77,4 +78,3 @@ void CmsTrackerBuilder<T>::sortNS(T&, GeometricDet* det) {
 
 template class CmsTrackerBuilder<DDFilteredView>;
 template class CmsTrackerBuilder<cms::DDFilteredView>;
-

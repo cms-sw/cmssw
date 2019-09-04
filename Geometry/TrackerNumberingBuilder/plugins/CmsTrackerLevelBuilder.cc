@@ -139,9 +139,9 @@ bool CmsTrackerLevelBuilderHelper::isLessR(const GeometricDet* a, const Geometri
 
 template <class T>
 void CmsTrackerLevelBuilder<T>::build(T& fv, GeometricDet* tracker, std::string attribute) {
-  LogTrace("GeometricDetBuilding") //<< std::string(3 * fv.history().size(), '-') << "+ "
-                                   << ExtractStringFromDDD<T>::getString(attribute, &fv) << " " << tracker->type() << " "
-                                   << tracker->name() << std::endl;
+  LogTrace("GeometricDetBuilding")  //<< std::string(3 * fv.history().size(), '-') << "+ "
+      << ExtractStringFromDDD<T>::getString(attribute, &fv) << " " << tracker->type() << " " << tracker->name()
+      << std::endl;
 
   bool doLayers = fv.firstChild();  // descend to the first Layer
 

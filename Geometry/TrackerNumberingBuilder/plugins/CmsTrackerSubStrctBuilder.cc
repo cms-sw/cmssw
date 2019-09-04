@@ -20,7 +20,8 @@ void CmsTrackerSubStrctBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::s
   CmsTrackerWheelBuilder<T> theCmsTrackerWheelBuilder;
   CmsTrackerDiskBuilder<T> theCmsTrackerDiskBuilder;
 
-  GeometricDet* subdet = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
+  GeometricDet* subdet = new GeometricDet(
+      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
   switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::layer:
       theCmsTrackerLayerBuilder.build(fv, subdet, s);
@@ -36,8 +37,8 @@ void CmsTrackerSubStrctBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::s
       break;
 
     default:
-      edm::LogError("CmsTrackerSubStrctBuilder")
-          << " ERROR - I was expecting a Layer ,Wheel or Disk... I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
+      edm::LogError("CmsTrackerSubStrctBuilder") << " ERROR - I was expecting a Layer ,Wheel or Disk... I got a "
+                                                 << ExtractStringFromDDD<T>::getString(s, &fv);
   }
 
   g->addComponent(subdet);
