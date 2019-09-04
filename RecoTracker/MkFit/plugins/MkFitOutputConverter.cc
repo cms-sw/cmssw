@@ -90,15 +90,6 @@ private:
                                                                   bool lastHitWasInvalid,
                                                                   bool lastHitWasChanged) const;
 
-  std::pair<TrajectoryStateOnSurface, const GeomDet*> backwardFitImpl(
-      const FreeTrajectoryState& fts,
-      const TransientTrackingRecHit::ConstRecHitContainer& firstHits,
-      const Propagator& propagatorAlong,
-      const Propagator& propagatorOpposite,
-      const TkClonerImpl& hitCloner,
-      bool lastHitWasInvalid,
-      bool lastHitWasChanged) const;
-
   std::pair<TrajectoryStateOnSurface, const GeomDet*> convertInnermostState(const FreeTrajectoryState& fts,
                                                                             const edm::OwnVector<TrackingRecHit>& hits,
                                                                             const Propagator& propagatorAlong,
@@ -457,19 +448,6 @@ std::pair<TrajectoryStateOnSurface, const GeomDet*> MkFitOutputConverter::backwa
     }
   }
 
-  auto ret = backwardFitImpl(
-      fts, firstHits, propagatorAlong, propagatorOpposite, hitCloner, lastHitWasInvalid, lastHitWasChanged);
-  return ret;
-}
-
-std::pair<TrajectoryStateOnSurface, const GeomDet*> MkFitOutputConverter::backwardFitImpl(
-    const FreeTrajectoryState& fts,
-    const TransientTrackingRecHit::ConstRecHitContainer& firstHits,
-    const Propagator& propagatorAlong,
-    const Propagator& propagatorOpposite,
-    const TkClonerImpl& hitCloner,
-    bool lastHitWasInvalid,
-    bool lastHitWasChanged) const {
   // Then propagate along to the surface of the last hit to get a TSOS
   const auto& lastHitSurface = firstHits.front()->det()->surface();
 
