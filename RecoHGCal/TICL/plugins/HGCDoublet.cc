@@ -126,9 +126,8 @@ void HGCDoublet::findNtuplets(std::vector<HGCDoublet> &allDoublets,
           allDoublets, tmpNtuplet, seedIndex, outInDFS, outInHops, maxOutInHops, outInToVisit);
     }
     if (outInDFS && outInHops < maxOutInHops) {
-      unsigned int numberOfInnerNeighbors = innerNeighbors_.size();
-      for (unsigned int i = 0; i < numberOfInnerNeighbors; ++i) {
-        outInToVisit.emplace_back(innerNeighbors_[i], outInHops + 1);
+      for (auto inN : innerNeighbors_) {
+	outInToVisit.emplace_back(inN, outInHops + 1);
       }
     }
   }
