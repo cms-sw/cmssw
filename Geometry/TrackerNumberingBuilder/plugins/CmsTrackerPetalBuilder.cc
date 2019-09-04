@@ -8,17 +8,18 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
-template <class T>
-void CmsTrackerPetalBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
-  GeometricDet* det = new GeometricDet(
-      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
-  CmsTrackerRingBuilder<T> theCmsTrackerRingBuilder;
+template <class FilteredView>
+void CmsTrackerPetalBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  GeometricDet* det = new GeometricDet(&fv,
+                                       CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                           ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
+  CmsTrackerRingBuilder<FilteredView> theCmsTrackerRingBuilder;
   theCmsTrackerRingBuilder.build(fv, det, s);
   g->addComponent(det);
 }
 
-template <class T>
-void CmsTrackerPetalBuilder<T>::sortNS(T& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerPetalBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   if (comp.front()->type() == GeometricDet::ring)

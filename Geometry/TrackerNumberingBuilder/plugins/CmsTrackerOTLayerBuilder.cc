@@ -12,15 +12,17 @@
 #include <vector>
 #include <bitset>
 
-template <class T>
-void CmsTrackerOTLayerBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
+template <class FilteredView>
+void CmsTrackerOTLayerBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
   LogTrace("DetConstruction") << " CmsTrackerOTLayerBuilder::buildComponent ";
-  CmsTrackerLadderBuilder<T> theCmsTrackerLadderBuilder;
-  CmsTrackerOTRingBuilder<T> theCmsTrackerOTRingBuilder;
+  CmsTrackerLadderBuilder<FilteredView> theCmsTrackerLadderBuilder;
+  CmsTrackerOTRingBuilder<FilteredView> theCmsTrackerOTRingBuilder;
 
-  GeometricDet* subdet = new GeometricDet(
-      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
-  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
+  GeometricDet* subdet = new GeometricDet(&fv,
+                                          CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                              ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::ladder:
       theCmsTrackerLadderBuilder.build(fv, subdet, s);
       break;
@@ -28,14 +30,14 @@ void CmsTrackerOTLayerBuilder<T>::buildComponent(T& fv, GeometricDet* g, const s
       theCmsTrackerOTRingBuilder.build(fv, subdet, s);
       break;
     default:
-      edm::LogError("CmsTrackerOTLayerBuilder")
-          << " ERROR - I was expecting a ladder or a panel, I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
+      edm::LogError("CmsTrackerOTLayerBuilder") << " ERROR - I was expecting a ladder or a panel, I got a "
+                                                << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }
 
-template <class T>
-void CmsTrackerOTLayerBuilder<T>::sortNS(T& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerOTLayerBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer comp = det->components();
 
   //order ladder and rings together

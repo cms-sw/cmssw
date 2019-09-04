@@ -10,14 +10,16 @@
 
 #include <vector>
 
-template <class T>
-void CmsTrackerPixelPhase2RingBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
-  CmsDetConstruction<T> theCmsDetConstruction;
+template <class FilteredView>
+void CmsTrackerPixelPhase2RingBuilder<FilteredView>::buildComponent(FilteredView& fv,
+                                                                    GeometricDet* g,
+                                                                    const std::string& s) {
+  CmsDetConstruction<FilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-template <class T>
-void CmsTrackerPixelPhase2RingBuilder<T>::sortNS(T& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerPixelPhase2RingBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   //increasing phi taking into account the sub-modules

@@ -8,22 +8,23 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <vector>
 
-template <class T>
-void CmsTrackerPanelBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
-  CmsDetConstruction<T> theCmsDetConstruction;
-  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
+template <class FilteredView>
+void CmsTrackerPanelBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  CmsDetConstruction<FilteredView> theCmsDetConstruction;
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::DetUnit:
       theCmsDetConstruction.buildComponent(fv, g, s);
       break;
     default:
       edm::LogError("CmsTrackerPanelBuilder")
-          << " ERROR - I was expecting a Plaq, I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
+          << " ERROR - I was expecting a Plaq, I got a " << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
       ;
   }
 }
 
-template <class T>
-void CmsTrackerPanelBuilder<T>::sortNS(T& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerPanelBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   if (comp.front()->type() == GeometricDet::DetUnit)

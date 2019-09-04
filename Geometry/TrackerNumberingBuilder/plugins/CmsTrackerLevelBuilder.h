@@ -27,21 +27,20 @@ public:
 /**
  * Abstract Class to construct a Level in the hierarchy
  */
-template <class T>
-class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction<T> {
+template <class FilteredView>
+class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction<FilteredView> {
 public:
-
-  void build(T&, GeometricDet*, const std::string &) override;
+  void build(FilteredView&, GeometricDet*, const std::string&) override;
   ~CmsTrackerLevelBuilder() override {}
 
 private:
-  virtual void buildComponent(T&, GeometricDet*, const std::string &) = 0;
+  virtual void buildComponent(FilteredView&, GeometricDet*, const std::string&) = 0;
 
 protected:
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
 
 private:
-  virtual void sortNS(T&, GeometricDet*) {}
+  virtual void sortNS(FilteredView&, GeometricDet*) {}
   CmsTrackerStringToEnum _CmsTrackerStringToEnum;
 };
 

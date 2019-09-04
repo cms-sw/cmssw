@@ -11,25 +11,27 @@
 
 using namespace std;
 
-template <class T>
-void CmsTrackerOTDiscBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
-  CmsTrackerOTRingBuilder<T> theCmsTrackerOTRingBuilder;
-  GeometricDet* subdet = new GeometricDet(
-      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
+template <class FilteredView>
+void CmsTrackerOTDiscBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  CmsTrackerOTRingBuilder<FilteredView> theCmsTrackerOTRingBuilder;
+  GeometricDet* subdet = new GeometricDet(&fv,
+                                          CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                              ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
 
-  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::panel:
       theCmsTrackerOTRingBuilder.build(fv, subdet, s);
       break;
     default:
       edm::LogError("CmsTrackerOTDiscBuilder")
-          << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
+          << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }
 
-template <class T>
-void CmsTrackerOTDiscBuilder<T>::sortNS(T& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerOTDiscBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (det->components().front()->type()) {

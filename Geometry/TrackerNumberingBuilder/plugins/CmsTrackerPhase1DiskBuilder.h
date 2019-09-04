@@ -8,11 +8,11 @@
 /**
  * Class which contructs PixelForward/Disk.
  */
-template <class T>
-class CmsTrackerPhase1DiskBuilder : public CmsTrackerLevelBuilder<T> {
+template <class FilteredView>
+class CmsTrackerPhase1DiskBuilder : public CmsTrackerLevelBuilder<FilteredView> {
 private:
-  void sortNS(T&, GeometricDet*) override;
-  void buildComponent(T&, GeometricDet*, const std::string&) override;
+  void sortNS(FilteredView&, GeometricDet*) override;
+  void buildComponent(FilteredView&, GeometricDet*, const std::string&) override;
 
   static bool PhiSort(const GeometricDet* Panel1, const GeometricDet* Panel2);
 

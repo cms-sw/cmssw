@@ -8,10 +8,10 @@ class GeometricDet;
 /**
  * Abstract Class to construct a Tracker SubDet
  */
-template <class T>
+template <class FilteredView>
 class CmsTrackerAbstractConstruction {
 public:
   virtual ~CmsTrackerAbstractConstruction() = default;
-  virtual void build(T&, GeometricDet*, const std::string &) = 0;
+  virtual void build(FilteredView &, GeometricDet *, const std::string &) = 0;
 };
 #endif

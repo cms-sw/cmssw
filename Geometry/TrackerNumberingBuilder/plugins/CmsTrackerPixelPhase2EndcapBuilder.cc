@@ -12,15 +12,19 @@
 
 #include <bitset>
 
-template <class T>
-void CmsTrackerPixelPhase2EndcapBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
-  CmsTrackerPhase2TPDiskBuilder<T> theCmsTrackerPhase2DiskBuilder;
-  CmsTrackerPixelPhase2DiskBuilder<T> theCmsTrackerPixelPhase2DiskBuilder;
-  CmsTrackerOTDiscBuilder<T> theCmsTrackerOTDiscBuilder;
+template <class FilteredView>
+void CmsTrackerPixelPhase2EndcapBuilder<FilteredView>::buildComponent(FilteredView& fv,
+                                                                      GeometricDet* g,
+                                                                      const std::string& s) {
+  CmsTrackerPhase2TPDiskBuilder<FilteredView> theCmsTrackerPhase2DiskBuilder;
+  CmsTrackerPixelPhase2DiskBuilder<FilteredView> theCmsTrackerPixelPhase2DiskBuilder;
+  CmsTrackerOTDiscBuilder<FilteredView> theCmsTrackerOTDiscBuilder;
 
-  GeometricDet* subdet = new GeometricDet(
-      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
-  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
+  GeometricDet* subdet = new GeometricDet(&fv,
+                                          CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                              ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::PixelPhase2FullDisk:
       theCmsTrackerPhase2DiskBuilder.build(fv, subdet, s);
       break;
@@ -36,14 +40,14 @@ void CmsTrackerPixelPhase2EndcapBuilder<T>::buildComponent(T& fv, GeometricDet* 
 
     default:
       edm::LogError("CmsTrackerPixelPhase2EndcapBuilder")
-          << " ERROR - I was expecting a Disk... I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
+          << " ERROR - I was expecting a Disk... I got a " << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
 
   g->addComponent(subdet);
 }
 
-template <class T>
-void CmsTrackerPixelPhase2EndcapBuilder<T>::sortNS(T& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerPixelPhase2EndcapBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessModZ);

@@ -11,14 +11,14 @@
 #include <vector>
 #include <bitset>
 
-template <class T>
-void CmsTrackerRingBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
-  CmsDetConstruction<T> theCmsDetConstruction;
+template <class FilteredView>
+void CmsTrackerRingBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  CmsDetConstruction<FilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-template <class T>
-void CmsTrackerRingBuilder<T>::sortNS(T& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerRingBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
   fv.firstChild();
   GeometricDet::GeometricDetContainer compfw;
@@ -40,7 +40,7 @@ void CmsTrackerRingBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   static std::string const TECGluedDet("TECGluedDet");
   static std::string const TECDet("TECDet");
 
-  std::string const pname = ExtractStringFromDDD<T>::getString(part, &fv);
+  std::string const pname = ExtractStringFromDDD<FilteredView>::getString(part, &fv);
 
   // TEC
   // Module Number: 3 bits [1,...,5 at most]

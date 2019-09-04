@@ -13,16 +13,18 @@
 
 #include <bitset>
 
-template <class T>
-void CmsTrackerSubStrctBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
-  CmsTrackerLayerBuilder<T> theCmsTrackerLayerBuilder;
-  CmsTrackerOTLayerBuilder<T> theCmsTrackerOTLayerBuilder;
-  CmsTrackerWheelBuilder<T> theCmsTrackerWheelBuilder;
-  CmsTrackerDiskBuilder<T> theCmsTrackerDiskBuilder;
+template <class FilteredView>
+void CmsTrackerSubStrctBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  CmsTrackerLayerBuilder<FilteredView> theCmsTrackerLayerBuilder;
+  CmsTrackerOTLayerBuilder<FilteredView> theCmsTrackerOTLayerBuilder;
+  CmsTrackerWheelBuilder<FilteredView> theCmsTrackerWheelBuilder;
+  CmsTrackerDiskBuilder<FilteredView> theCmsTrackerDiskBuilder;
 
-  GeometricDet* subdet = new GeometricDet(
-      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
-  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
+  GeometricDet* subdet = new GeometricDet(&fv,
+                                          CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                              ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::layer:
       theCmsTrackerLayerBuilder.build(fv, subdet, s);
       break;
@@ -38,14 +40,14 @@ void CmsTrackerSubStrctBuilder<T>::buildComponent(T& fv, GeometricDet* g, const 
 
     default:
       edm::LogError("CmsTrackerSubStrctBuilder") << " ERROR - I was expecting a Layer ,Wheel or Disk... I got a "
-                                                 << ExtractStringFromDDD<T>::getString(s, &fv);
+                                                 << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
 
   g->addComponent(subdet);
 }
 
-template <class T>
-void CmsTrackerSubStrctBuilder<T>::sortNS(T& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerSubStrctBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (comp.front()->type()) {

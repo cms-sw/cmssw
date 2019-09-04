@@ -8,14 +8,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
-template <class T>
-void CmsTrackerRodBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
-  CmsDetConstruction<T> theCmsDetConstruction;
+template <class FilteredView>
+void CmsTrackerRodBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  CmsDetConstruction<FilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-template <class T>
-void CmsTrackerRodBuilder<T>::sortNS(T& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerRodBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   std::stable_sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessModZ);
