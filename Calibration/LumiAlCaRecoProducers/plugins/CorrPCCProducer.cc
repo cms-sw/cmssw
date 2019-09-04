@@ -324,14 +324,30 @@ void CorrPCCProducer::calculateCorrections(std::vector<float> uncorrected,
     }
   }
 
+  float lumiMax = getMaximum(corrected_tmp_);
+  float threshold = lumiMax*0.2;
+  
+  //here subtract the pedestal
+  float ped=0.;
+  int nped=0;
+  for(size_t i=0; i<LumiConstants::numBX; i++){
+    if(corrected_tmp_.at(i)<threshold){
+      ped+=corrected_tmp_.at(i);
+      nped++;
+    }
+  }
+  if(nped>0)ped=ped/nped;
+  for(size_t i=0; i<LumiConstants::numBX; i++){
+    corrected_tmp_.at(i)=corrected_tmp_.at(i)-ped;
+  }
+  
+  
   evaluateCorrectionResiduals(corrected_tmp_);
 
   float integral_uncorr_clusters = 0;
   float integral_corr_clusters = 0;
 
   //Calculate Per-BX correction factor and overall correction factor
-  float lumiMax = getMaximum(corrected_tmp_);
-  float threshold = lumiMax * 0.2;
   for (size_t ibx = 0; ibx < corrected_tmp_.size(); ibx++) {
     if (corrected_tmp_.at(ibx) > threshold) {
       integral_uncorr_clusters += uncorrected.at(ibx);
