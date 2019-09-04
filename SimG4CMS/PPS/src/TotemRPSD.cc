@@ -140,7 +140,7 @@ void TotemRPSD::stepInfo(const G4Step* aStep) {
   unitID_ = setDetUnitId(aStep);
 
   if (verbosity_)
-    LogDebug("TotemRP") << "UNITa " << unitID_ << std::endl;
+    LogDebug("TotemRP") << "UNIT " << unitID_ << std::endl;
 
   primaryID_ = theTrack_->GetTrackID();
 
