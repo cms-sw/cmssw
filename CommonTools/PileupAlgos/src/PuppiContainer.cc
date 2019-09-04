@@ -19,8 +19,6 @@ PuppiContainer::PuppiContainer(const edm::ParameterSet &iConfig) {
   fEtaMaxPhotons = iConfig.getParameter<double>("EtaMaxPhotons");
   fPtMaxNeutrals = iConfig.getParameter<double>("PtMaxNeutrals");
   fPtMaxStartNeutrals = iConfig.getParameter<double>("PtMaxStartNeutrals");
-  fPtMaxCharged = iConfig.getParameter<double>("PtMaxCharged");
-  fPtMaxStartCharged = iConfig.getParameter<double>("PtMaxStartCharged");
   std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
   fNAlgos = lAlgos.size();
   for (unsigned int i0 = 0; i0 < lAlgos.size(); i0++) {
@@ -334,8 +332,6 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
     if ((fPtMaxNeutrals > 0) && (rParticle.id == 0))
       pWeight = min(max(pWeight, (fPFParticles[i0].pt() - fPtMaxStartNeutrals) / (fPtMaxNeutrals - fPtMaxStartNeutrals)), 1.);
     // Protect high pT charged (e.g. high pT particles with bad vertex association)
-    if ((fPtMaxCharged > 0) && (rParticle.id > 0))
-      pWeight = min(max(pWeight, (fPFParticles[i0].pt() - fPtMaxStartCharged) / (fPtMaxCharged - fPtMaxStartCharged)), 1.);
     if (pWeight < fPuppiWeightCut)
       pWeight = 0;  //==> Elminate the low Weight stuff
     if (fInvert)
