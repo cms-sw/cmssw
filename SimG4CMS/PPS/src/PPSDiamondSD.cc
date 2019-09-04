@@ -153,7 +153,7 @@ void PPSDiamondSD::stepInfo(const G4Step* aStep) {
   unitID_ = setDetUnitId(aStep);
 
   if (verbosity_)
-    LogDebug("PPSSimDiamond") << "UNITa " << unitID_ << "\n";
+    LogDebug("PPSSimDiamond") << "UNIT " << unitID_ << "\n";
 
   primaryID_ = theTrack_->GetTrackID();
   Pabs_ = (aStep->GetPreStepPoint()->GetMomentum().mag()) / GeV;
