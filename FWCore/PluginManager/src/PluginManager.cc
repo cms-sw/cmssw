@@ -247,9 +247,9 @@ namespace edmplugin {
           R__LOCKGUARD2(gInterpreterMutex);
           try {
             ptr = std::make_shared<SharedLibrary>(p);
-          } catch (cms::Exception const& e) {
-            throw cms::Exception("PluginLoadError")
-                << "could not load plugin " << iPlugin << " because " << e.message();
+          } catch (cms::Exception& e) {
+            e.addContext("While attempting to load plugin " + iPlugin);
+            throw;
           }
         }
         loadables_[p] = ptr;
@@ -288,9 +288,9 @@ namespace edmplugin {
           R__LOCKGUARD(gInterpreterMutex);
           try {
             ptr = std::make_shared<SharedLibrary>(p);
-          } catch (cms::Exception const& e) {
-            throw cms::Exception("PluginLoadError")
-                << "could not load plugin " << iPlugin << " because " << e.message();
+          } catch (cms::Exception& e) {
+            e.addContext("While attempting to load plugin " + iPlugin);
+            throw;
           }
         }
         loadables_[p] = ptr;
