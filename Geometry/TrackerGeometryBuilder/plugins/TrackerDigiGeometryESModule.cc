@@ -85,12 +85,14 @@ TrackerDigiGeometryESModule::~TrackerDigiGeometryESModule() {}
 void TrackerDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription descDB;
   descDB.add<std::string>("appendToDataLabel", "");
+  descDB.add<bool>("fromDDD", false);
   descDB.add<bool>("applyAlignment", true);
   descDB.add<std::string>("alignmentsLabel", "");
   descriptions.add("trackerGeometryDB", descDB);
 
   edm::ParameterSetDescription desc;
   desc.add<std::string>("appendToDataLabel", "");
+  desc.add<bool>("fromDDD", true);
   desc.add<bool>("applyAlignment", true);
   desc.add<std::string>("alignmentsLabel", "");
   descriptions.add("trackerGeometry", desc);
