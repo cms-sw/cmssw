@@ -2,7 +2,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 #include "RecoEgamma/EgammaTools/interface/ThreadSafeStringCut.h"
-#include "RecoEgamma/ElectronIdentification/interface/EBEECutValues.h"
+#include "RecoEgamma/EgammaTools/interface/EBEECutValues.h"
 
 class PhoGenericRhoPtScaledCut : public CutApplicatorWithEventContentBase {
 public:

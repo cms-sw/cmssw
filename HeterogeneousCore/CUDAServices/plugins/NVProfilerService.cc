@@ -46,7 +46,7 @@ using namespace std::string_literals;
 
 namespace {
   int nvtxDomainRangePush(nvtxDomainHandle_t domain, const char* message) {
-    nvtxEventAttributes_t eventAttrib = {0};
+    nvtxEventAttributes_t eventAttrib = {};
     eventAttrib.version = NVTX_VERSION;
     eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
     eventAttrib.messageType = NVTX_MESSAGE_TYPE_ASCII;
@@ -55,7 +55,7 @@ namespace {
   }
 
   __attribute__((unused)) int nvtxDomainRangePushColor(nvtxDomainHandle_t domain, const char* message, uint32_t color) {
-    nvtxEventAttributes_t eventAttrib = {0};
+    nvtxEventAttributes_t eventAttrib = {};
     eventAttrib.version = NVTX_VERSION;
     eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
     eventAttrib.colorType = NVTX_COLOR_ARGB;
@@ -66,7 +66,7 @@ namespace {
   }
 
   __attribute__((unused)) nvtxRangeId_t nvtxDomainRangeStart(nvtxDomainHandle_t domain, const char* message) {
-    nvtxEventAttributes_t eventAttrib = {0};
+    nvtxEventAttributes_t eventAttrib = {};
     eventAttrib.version = NVTX_VERSION;
     eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
     eventAttrib.messageType = NVTX_MESSAGE_TYPE_ASCII;
@@ -75,7 +75,7 @@ namespace {
   }
 
   nvtxRangeId_t nvtxDomainRangeStartColor(nvtxDomainHandle_t domain, const char* message, uint32_t color) {
-    nvtxEventAttributes_t eventAttrib = {0};
+    nvtxEventAttributes_t eventAttrib = {};
     eventAttrib.version = NVTX_VERSION;
     eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
     eventAttrib.colorType = NVTX_COLOR_ARGB;
@@ -86,7 +86,7 @@ namespace {
   }
 
   void nvtxDomainMark(nvtxDomainHandle_t domain, const char* message) {
-    nvtxEventAttributes_t eventAttrib = {0};
+    nvtxEventAttributes_t eventAttrib = {};
     eventAttrib.version = NVTX_VERSION;
     eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
     eventAttrib.messageType = NVTX_MESSAGE_TYPE_ASCII;
@@ -95,7 +95,7 @@ namespace {
   }
 
   __attribute__((unused)) void nvtxDomainMarkColor(nvtxDomainHandle_t domain, const char* message, uint32_t color) {
-    nvtxEventAttributes_t eventAttrib = {0};
+    nvtxEventAttributes_t eventAttrib = {};
     eventAttrib.version = NVTX_VERSION;
     eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
     eventAttrib.colorType = NVTX_COLOR_ARGB;

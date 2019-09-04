@@ -55,7 +55,7 @@ public:
     return (etBits);
   }
 
-  L1GObject(const L1GObject& t) {
+  L1GObject(const L1GObject& t) : reco::LeafCandidate::LeafCandidate() {
     myName = t.myName;
     myPhi = t.myPhi;
     myEta = t.myEta;
