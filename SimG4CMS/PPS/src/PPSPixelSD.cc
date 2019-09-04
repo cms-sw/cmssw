@@ -101,7 +101,7 @@ void PPSPixelSD::Initialize(G4HCofThisEvent* HCE) {
 
 void PPSPixelSD::EndOfEvent(G4HCofThisEvent*) {
   // here we loop over transient hits and make them persistent
-  for (int j = 0; j < theHC_->entries() && j < maxPixelHits_; j++) {
+  for (unsigned int j = 0; j < (unsigned int)theHC_->entries() && j < maxPixelHits_; j++) {
     PPSPixelG4Hit* aHit = (*theHC_)[j];
 #ifdef debug
     LogDebug("PPSSim") << "HIT NUMERO " << j << "unit ID = " << aHit->unitID() << "\n"
