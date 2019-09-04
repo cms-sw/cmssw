@@ -226,7 +226,9 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         }
       }
       // Protect high pT photons (important for gamma to hadronic recoil balance)
-      if((fPtMaxPhotons>0)&&(lPack->pdgId()==22)&&(std::abs(lPack->eta())<fEtaMaxPhotons)&&(lPack->pt()>fPtMaxPhotons)) curpupweight=1;
+      if ((fPtMaxPhotons > 0) && (lPack->pdgId() == 22) && (std::abs(lPack->eta()) < fEtaMaxPhotons) &&
+          (lPack->pt() > fPtMaxPhotons))
+        curpupweight = 1;
       lWeights.push_back(curpupweight);
       PuppiCandidate curjet(curpupweight * lPack->px(),
                             curpupweight * lPack->py(),
