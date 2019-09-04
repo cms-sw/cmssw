@@ -331,7 +331,6 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
     // Protect high pT neutrals
     if ((fPtMaxNeutrals > 0) && (rParticle.id == 0))
       pWeight = min(max(pWeight, (fPFParticles[i0].pt() - fPtMaxStartNeutrals) / (fPtMaxNeutrals - fPtMaxStartNeutrals)), 1.);
-    // Protect high pT charged (e.g. high pT particles with bad vertex association)
     if (pWeight < fPuppiWeightCut)
       pWeight = 0;  //==> Elminate the low Weight stuff
     if (fInvert)
