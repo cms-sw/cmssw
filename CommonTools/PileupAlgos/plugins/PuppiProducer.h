@@ -48,7 +48,12 @@ private:
   bool fPuppiForLeptons;
   bool fUseDZ;
   float fDZCut;
-  float fPtMax;
+  double fPtMaxPhotons;
+  double fEtaMaxPhotons;
+  double fPtMaxNeutrals;
+  double fPtMaxStartNeutrals;
+  double fPtMaxCharged;
+  double fPtMaxStartCharged;
   bool fUseExistingWeights;
   bool fUseWeightsNoLep;
   bool fClonePackedCands;
