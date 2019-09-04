@@ -44,7 +44,7 @@
 using namespace std;
 using namespace magneticfield;
 using namespace cms;
-using namespace cms::magneticfield;
+using namespace cms::dd4hepmagfield;
 using namespace edm;
 using namespace angle_units::operators;
 

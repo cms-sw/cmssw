@@ -176,7 +176,7 @@ bool BaseVolumeHandle::sameSurface(const Surface &s1, Sides which_side, float to
   return false;
 }
 
-bool BaseVolumeHandle::setSurface(Surface &s1, Sides which_side) {
+bool BaseVolumeHandle::setSurface(const Surface &s1, Sides which_side) {
   //Check for null assignment
   if (&s1 == (surfaces[which_side]).get()) {
     isAssigned[which_side] = true;
