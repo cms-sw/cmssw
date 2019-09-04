@@ -57,9 +57,11 @@ def customizeInitialStepOnly(process):
             mod.dodEdxPlots = False
             mod.doResolutionPlotsForLabels = []
 
-    setInput(["trackValidatorTrackingOnly", "trackValidatorAllTPEfficStandalone", "trackValidatorTPPtLess09Standalone", "trackValidatorBHadronTrackingOnly"],
+    setInput(["trackValidatorTrackingOnly", "trackValidatorAllTPEfficStandalone",
+              "trackValidatorTPPtLess09Standalone", "trackValidatorBHadronTrackingOnly"],
              ["cutsRecoTracksInitialStep", "cutsRecoTracksPt09InitialStep"])
-    setInput(["trackValidatorFromPVStandalone", "trackValidatorFromPVAllTPStandalone"], ["cutsRecoTracksFromPVInitialStep", "cutsRecoTracksFromPVPt09InitialStep"])
+    setInput(["trackValidatorFromPVStandalone", "trackValidatorFromPVAllTPStandalone"],
+             ["cutsRecoTracksFromPVInitialStep", "cutsRecoTracksFromPVPt09InitialStep"])
     setInput(["trackValidatorSeedingTrackingOnly"], ["seedTracksinitialStepSeeds"])
     setInput(["trackValidatorBuilding"], ["initialStepTracks"])
     process.trackValidatorBuilding.mvaLabels = cms.untracked.PSet(initialStepTracks = cms.untracked.vstring('initialStep'))
