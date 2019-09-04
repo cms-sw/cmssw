@@ -1,6 +1,10 @@
 #ifndef DETECTOR_DESCRIPTION_DDCMS_DD_SOLID_SHAPES_H
 #define DETECTOR_DESCRIPTION_DDCMS_DD_SOLID_SHAPES_H
 
+// Keep this include until DD4hep migration is complete.
+// Some migrated code will not compile without the old DDSolidShape.
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+
 #include <iosfwd>
 #include <array>
 #include <algorithm>
@@ -37,6 +41,9 @@ namespace cms {
     }
   };  // namespace dd
 
+  // This version of DDSolidShape must be commented out until DD4hep migration is complete.
+  // Having two versions of DDSolidShape will cause compile errors for some migrated code.
+  /*
   enum class DDSolidShape {
     dd_not_init = 0,
     ddbox = 1,
@@ -57,6 +64,7 @@ namespace cms {
     ddcuttubs = 16,
     ddextrudedpolygon = 17,
   };
+  */
 
   const std::array<const cms::dd::NameValuePair<DDSolidShape>, 18> DDSolidShapeMap{
       {{DDSolidShape::dd_not_init, "Solid not initialized"},
@@ -64,8 +72,8 @@ namespace cms {
        {DDSolidShape::ddtubs, "Tube"},
        {DDSolidShape::ddtrap, "Trapezoid"},
        {DDSolidShape::ddcons, "Cone"},
-       {DDSolidShape::ddpolycone, "Polycone"},
-       {DDSolidShape::ddpolyhedra, "Polyhedra"},
+       {DDSolidShape::ddpolycone_rz, "Polycone"},
+       {DDSolidShape::ddpolyhedra_rz, "Polyhedra"},
        {DDSolidShape::ddtorus, "Torus"},
        {DDSolidShape::ddunion, "Union"},
        {DDSolidShape::ddsubtraction, "Subtraction"},
