@@ -1,5 +1,5 @@
-#ifndef RecoTracker_MkFit_MkFitIndexLayer_h
-#define RecoTracker_MkFit_MkFitIndexLayer_h
+#ifndef RecoTracker_MkFit_MkFitHitIndexMap_h
+#define RecoTracker_MkFit_MkFitHitIndexMap_h
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 
@@ -7,7 +7,7 @@
 
 class TrackingRecHit;
 
-class MkFitIndexLayer {
+class MkFitHitIndexMap {
 public:
   struct HitInfo {
     HitInfo() : index(-1), layer(-1) {}
@@ -22,7 +22,7 @@ public:
     std::vector<HitInfo> infos;  // indexed by cluster index
   };
 
-  MkFitIndexLayer() = default;
+  MkFitHitIndexMap() = default;
 
   void resizeByClusterIndex(edm::ProductID id, size_t clusterIndex);
   void increaseLayerSize(int layer, size_t additionalSize);
