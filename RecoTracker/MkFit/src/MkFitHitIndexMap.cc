@@ -1,4 +1,4 @@
-#include "RecoTracker/MkFit/interface/MkFitIndexLayer.h"
+#include "RecoTracker/MkFit/interface/MkFitHitIndexMap.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -18,18 +18,18 @@ namespace {
   }
 }
 
-void MkFitIndexLayer::resizeByClusterIndex(edm::ProductID id, size_t clusterIndex) {
+void MkFitHitIndexMap::resizeByClusterIndex(edm::ProductID id, size_t clusterIndex) {
   resizeByClusterIndexImpl(colls_, id, clusterIndex);
 }
 
-void MkFitIndexLayer::increaseLayerSize(int layer, size_t additionalSize) {
+void MkFitHitIndexMap::increaseLayerSize(int layer, size_t additionalSize) {
   if (layer >= static_cast<int>(hits_.size())) {
     hits_.resize(layer + 1);
   }
   hits_[layer].resize(hits_[layer].size() + additionalSize);
 }
 
-void MkFitIndexLayer::insert(edm::ProductID id, size_t clusterIndex, int hit, int layer, const TrackingRecHit* hitPtr) {
+void MkFitHitIndexMap::insert(edm::ProductID id, size_t clusterIndex, int hit, int layer, const TrackingRecHit* hitPtr) {
   // mapping CMSSW->mkfit
   auto found = resizeByClusterIndexImpl(colls_, id, clusterIndex);
   found->infos[clusterIndex] = HitInfo(hit, layer);
@@ -47,7 +47,7 @@ void MkFitIndexLayer::insert(edm::ProductID id, size_t clusterIndex, int hit, in
   hits_[layer][hit].clusterIndex = clusterIndex;
 }
 
-const MkFitIndexLayer::HitInfo& MkFitIndexLayer::get(edm::ProductID id, size_t clusterIndex) const {
+const MkFitHitIndexMap::HitInfo& MkFitHitIndexMap::get(edm::ProductID id, size_t clusterIndex) const {
   auto found = std::find_if(colls_.begin(), colls_.end(), [&](const auto& item) { return item.productID == id; });
   if (found == colls_.end()) {
     auto exp = cms::Exception("Assert");

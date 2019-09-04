@@ -73,7 +73,7 @@ private:
                                                const TrackerTopology& ttopo) const;
 
   TrackCandidateCollection convertCandidates(const MkFitOutputWrapper& mkFitOutput,
-                                             const MkFitIndexLayer& indexLayers,
+                                             const MkFitHitIndexMap& hitIndexMap,
                                              const edm::View<TrajectorySeed>& seeds,
                                              const TrackerGeometry& geom,
                                              const MagneticField& mf,
@@ -164,7 +164,7 @@ void MkFitOutputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const 
       createDetLayers(hitsSeeds.layerNumberConverter(), *(mte.geometricSearchTracker()), iSetup.getData(ttopoToken_));
   iEvent.emplace(putTrackCandidateToken_,
                  convertCandidates(iEvent.get(tracksToken_),
-                                   hitsSeeds.indexLayers(),
+                                   hitsSeeds.hitIndexMap(),
                                    seeds,
                                    iSetup.getData(geomToken_),
                                    iSetup.getData(mfToken_),
@@ -252,7 +252,7 @@ std::vector<const DetLayer*> MkFitOutputConverter::createDetLayers(const mkfit::
 }
 
 TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutputWrapper& mkFitOutput,
-                                                                 const MkFitIndexLayer& indexLayers,
+                                                                 const MkFitHitIndexMap& hitIndexMap,
                                                                  const edm::View<TrajectorySeed>& seeds,
                                                                  const TrackerGeometry& geom,
                                                                  const MagneticField& mf,
@@ -303,13 +303,13 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
         // them in the TrackProducer.
         lastHitInvalid = true;
       } else {
-        recHits.push_back(indexLayers.getHitPtr(hitOnTrack.layer, hitOnTrack.index)->clone());
+        recHits.push_back(hitIndexMap.getHitPtr(hitOnTrack.layer, hitOnTrack.index)->clone());
         LogTrace("MkFitOutputConverter") << "  pos " << recHits.back().globalPosition().x() << " "
                                          << recHits.back().globalPosition().y() << " "
                                          << recHits.back().globalPosition().z() << " mag2 "
                                          << recHits.back().globalPosition().mag2() << " detid "
                                          << recHits.back().geographicalId().rawId() << " cluster "
-                                         << indexLayers.getClusterIndex(hitOnTrack.layer, hitOnTrack.index);
+                                         << hitIndexMap.getClusterIndex(hitOnTrack.layer, hitOnTrack.index);
         lastHitInvalid = false;
       }
     }
