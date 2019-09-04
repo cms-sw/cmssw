@@ -26,7 +26,12 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fPuppiForLeptons = iConfig.getParameter<bool>("puppiForLeptons");
   fUseDZ = iConfig.getParameter<bool>("UseDeltaZCut");
   fDZCut = iConfig.getParameter<double>("DeltaZCut");
-  fPtMax = iConfig.getParameter<double>("PtMaxNeutrals");
+  fPtMaxPhotons = iConfig.getParameter<double>("PtMaxPhotons");
+  fEtaMaxPhotons = iConfig.getParameter<double>("EtaMaxPhotons");
+  fPtMaxNeutrals = iConfig.getParameter<double>("PtMaxNeutrals");
+  fPtMaxStartNeutrals = iConfig.getParameter<double>("PtMaxStartNeutrals");
+  fPtMaxCharged = iConfig.getParameter<double>("PtMaxCharged");
+  fPtMaxStartCharged = iConfig.getParameter<double>("PtMaxStartCharged");
   fUseExistingWeights = iConfig.getParameter<bool>("useExistingWeights");
   fUseWeightsNoLep = iConfig.getParameter<bool>("useWeightsNoLep");
   fClonePackedCands = iConfig.getParameter<bool>("clonePackedCands");
@@ -86,6 +91,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     pReco.m = aPF.mass();
     pReco.rapidity = aPF.rapidity();
     pReco.charge = aPF.charge();
+    pReco.pdgId = aPF.pdgId();
     const reco::Vertex* closestVtx = nullptr;
     double pDZ = -9999;
     double pD0 = -9999;
@@ -222,6 +228,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           curpupweight = lPack->puppiWeight();
         }
       }
+      // Protect high pT photons (important for gamma to hadronic recoil balance)
+      if((fPtMaxPhotons>0)&&(lPack->pdgId()==22)&&(std::abs(lPack->eta())<fEtaMaxPhotons)&&(lPack->pt()>fPtMaxPhotons)) curpupweight=1;
       lWeights.push_back(curpupweight);
       PuppiCandidate curjet(curpupweight * lPack->px(),
                             curpupweight * lPack->py(),
