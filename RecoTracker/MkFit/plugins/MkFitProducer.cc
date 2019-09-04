@@ -112,26 +112,15 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
   const auto& hitsSeeds = iEvent.get(hitsSeedsToken_);
   const auto& geom = iSetup.getData(geomToken_);
 
-  // First do some initialization
+  if (geom.numberOfLayers(PixelSubdetector::PixelBarrel) != 4 ||
+      geom.numberOfLayers(PixelSubdetector::PixelEndcap) != 3) {
+    throw cms::Exception("Assert") << "For now this code works only with phase1 tracker, you have something else";
+  }
+
+  // Initialize the number of layers, has to be done exactly once in
+  // the whole program.
   // TODO: the mechanism needs to be improved...
-  std::call_once(geometryFlag, [&geom, nlayers = hitsSeeds.nlayers()]() {
-    // TODO: eventually automatize fully
-    // For now it is easier to use purely the infrastructure from mkFit
-    /*
-      const auto barrelLayers = geom.numberOfLayers(PixelSubdetector::PixelBarrel) + geom.numberOfLayers(StripSubdetector::TIB) + geom.numberOfLayers(StripSubdetector::TOB);
-      const auto endcapLayers = geom.numberOfLayers(PixelSubdetector::PixelEndcap) + geom.numberOfLayers(StripSubdetector::TID) + geom.numberOfLayers(StripSubdetector::TEC);
-      // TODO: Number of stereo layers is hardcoded for now, so this won't work for phase2 tracker
-      const auto barrelStereo = 2 + 2;
-      const auto endcapStereo = geom.numberOfLayers(StripSubdetector::TID) + geom.numberOfLayers(StripSubdetector::TEC);
-      const auto nlayers = barrelLayers + barrelStereo + 2*(endcapLayers + endcapStereo);
-      LogDebug("MkFitProducer") << "Total number of tracker layers (stereo counted separately) " << nlayers;
-      */
-    if (geom.numberOfLayers(PixelSubdetector::PixelBarrel) != 4 ||
-        geom.numberOfLayers(PixelSubdetector::PixelEndcap) != 3) {
-      throw cms::Exception("Assert") << "For now this code works only with phase1 tracker, you have something else";
-    }
-    mkfit::ConfigWrapper::setNTotalLayers(nlayers);
-  });
+  std::call_once(geometryFlag, [nlayers = hitsSeeds.nlayers()]() { mkfit::ConfigWrapper::setNTotalLayers(nlayers); });
 
   // CMSSW event ID (64-bit unsigned) does not fit in int
   // In addition, unique ID requires also lumi and run
