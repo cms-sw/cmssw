@@ -1,4 +1,0 @@
-#ifndef Geometry_TrackerGeometryBuilder_TrackerDigiGeometryESModule_H
-#define Geometry_TrackerGeometryBuilder_TrackerDigiGeometryESModule_H
-
-#endif
