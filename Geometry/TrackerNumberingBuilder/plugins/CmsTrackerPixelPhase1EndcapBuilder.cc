@@ -10,14 +10,18 @@
 
 #include <bitset>
 
-template <class T>
-void CmsTrackerPixelPhase1EndcapBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
-  CmsTrackerPhase1DiskBuilder<T> theCmsTrackerPhase1DiskBuilder;
+template <class FilteredView>
+void CmsTrackerPixelPhase1EndcapBuilder<FilteredView>::buildComponent(FilteredView& fv,
+                                                                      GeometricDet* g,
+                                                                      const std::string& s) {
+  CmsTrackerPhase1DiskBuilder<FilteredView> theCmsTrackerPhase1DiskBuilder;
 
-  GeometricDet* subdet = new GeometricDet(
-      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
+  GeometricDet* subdet = new GeometricDet(&fv,
+                                          CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                              ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
   const std::string& subdet_name = subdet->name();
-  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::PixelPhase1Disk:
       LogDebug("DiskNames") << "The name of the components is: " << subdet_name;
       theCmsTrackerPhase1DiskBuilder.build(fv, subdet, s);
@@ -25,14 +29,14 @@ void CmsTrackerPixelPhase1EndcapBuilder<T>::buildComponent(T& fv, GeometricDet* 
 
     default:
       edm::LogError("CmsTrackerPixelPhase1EndcapBuilder")
-          << " ERROR - I was expecting a Disk... I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
+          << " ERROR - I was expecting a Disk... I got a " << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
 
   g->addComponent(subdet);
 }
 
-template <class T>
-void CmsTrackerPixelPhase1EndcapBuilder<T>::sortNS(T& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerPixelPhase1EndcapBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (comp.front()->type()) {

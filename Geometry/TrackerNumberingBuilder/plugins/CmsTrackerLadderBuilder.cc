@@ -8,14 +8,14 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsDetConstruction.h"
 #include <vector>
 
-template <class T>
-void CmsTrackerLadderBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
-  CmsDetConstruction<T> theCmsDetConstruction;
+template <class FilteredView>
+void CmsTrackerLadderBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  CmsDetConstruction<FilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-template <class T>
-void CmsTrackerLadderBuilder<T>::sortNS(T& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerLadderBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   //sorting for PhaseI & PhaseII pixel ladder modules

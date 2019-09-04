@@ -137,11 +137,13 @@ bool CmsTrackerLevelBuilderHelper::isLessRModule(const GeometricDet* a, const Ge
 
 bool CmsTrackerLevelBuilderHelper::isLessR(const GeometricDet* a, const GeometricDet* b) { return a->rho() < b->rho(); }
 
-template <class T>
-void CmsTrackerLevelBuilder<T>::build(T& fv, GeometricDet* tracker, const std::string& attribute) {
+template <class FilteredView>
+void CmsTrackerLevelBuilder<FilteredView>::build(FilteredView& fv,
+                                                 GeometricDet* tracker,
+                                                 const std::string& attribute) {
   LogTrace("GeometricDetBuilding")  //<< std::string(3 * fv.history().size(), '-') << "+ "
-      << ExtractStringFromDDD<T>::getString(attribute, &fv) << " " << tracker->type() << " " << tracker->name()
-      << std::endl;
+      << ExtractStringFromDDD<FilteredView>::getString(attribute, &fv) << " " << tracker->type() << " "
+      << tracker->name() << std::endl;
 
   bool doLayers = fv.firstChild();  // descend to the first Layer
 

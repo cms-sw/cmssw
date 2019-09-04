@@ -12,14 +12,16 @@
 #include <vector>
 #include <bitset>
 
-template <class T>
-void CmsTrackerWheelBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
-  CmsTrackerRingBuilder<T> theCmsTrackerRingBuilder;
-  CmsTrackerPetalBuilder<T> theCmsTrackerPetalBuilder;
+template <class FilteredView>
+void CmsTrackerWheelBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  CmsTrackerRingBuilder<FilteredView> theCmsTrackerRingBuilder;
+  CmsTrackerPetalBuilder<FilteredView> theCmsTrackerPetalBuilder;
 
-  GeometricDet* subdet = new GeometricDet(
-      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
-  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
+  GeometricDet* subdet = new GeometricDet(&fv,
+                                          CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                              ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::ring:
       theCmsTrackerRingBuilder.build(fv, subdet, s);
       break;
@@ -27,14 +29,14 @@ void CmsTrackerWheelBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std
       theCmsTrackerPetalBuilder.build(fv, subdet, s);
       break;
     default:
-      edm::LogError("CmsTrackerWheelBuilder")
-          << " ERROR - I was expecting a Ring or Petal, I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
+      edm::LogError("CmsTrackerWheelBuilder") << " ERROR - I was expecting a Ring or Petal, I got a "
+                                              << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }
 
-template <class T>
-void CmsTrackerWheelBuilder<T>::sortNS(T& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerWheelBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   if (!comp.empty()) {

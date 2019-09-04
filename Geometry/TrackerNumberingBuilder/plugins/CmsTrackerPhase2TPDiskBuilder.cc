@@ -11,14 +11,14 @@
 
 using namespace std;
 
-template <class T>
-bool CmsTrackerPhase2TPDiskBuilder<T>::PhiSort(const GeometricDet* Panel1, const GeometricDet* Panel2) {
+template <class FilteredView>
+bool CmsTrackerPhase2TPDiskBuilder<FilteredView>::PhiSort(const GeometricDet* Panel1, const GeometricDet* Panel2) {
   return (Panel1->phi() < Panel2->phi());
 }
 
-template <class T>
-void CmsTrackerPhase2TPDiskBuilder<T>::PhiPosNegSplit_innerOuter(std::vector<GeometricDet const*>::iterator begin,
-                                                                 std::vector<GeometricDet const*>::iterator end) {
+template <class FilteredView>
+void CmsTrackerPhase2TPDiskBuilder<FilteredView>::PhiPosNegSplit_innerOuter(
+    std::vector<GeometricDet const*>::iterator begin, std::vector<GeometricDet const*>::iterator end) {
   // first sort in phi, lowest first (-pi to +pi)
   std::sort(begin, end, PhiSort);
 
@@ -63,25 +63,29 @@ void CmsTrackerPhase2TPDiskBuilder<T>::PhiPosNegSplit_innerOuter(std::vector<Geo
   std::copy(theCompsInnerOuter.begin(), theCompsInnerOuter.end(), begin);
 }
 
-template <class T>
-void CmsTrackerPhase2TPDiskBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
-  CmsTrackerPanelBuilder<T> theCmsTrackerPanelBuilder;
-  GeometricDet* subdet = new GeometricDet(
-      &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
+template <class FilteredView>
+void CmsTrackerPhase2TPDiskBuilder<FilteredView>::buildComponent(FilteredView& fv,
+                                                                 GeometricDet* g,
+                                                                 const std::string& s) {
+  CmsTrackerPanelBuilder<FilteredView> theCmsTrackerPanelBuilder;
+  GeometricDet* subdet = new GeometricDet(&fv,
+                                          CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                              ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
 
-  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::panel:
       theCmsTrackerPanelBuilder.build(fv, subdet, s);
       break;
     default:
       edm::LogError("CmsTrackerPhase2TPDiskBuilder")
-          << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
+          << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }
 
-template <class T>
-void CmsTrackerPhase2TPDiskBuilder<T>::sortNS(T& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerPhase2TPDiskBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (det->components().front()->type()) {

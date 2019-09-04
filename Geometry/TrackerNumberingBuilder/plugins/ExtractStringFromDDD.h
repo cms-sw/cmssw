@@ -8,10 +8,10 @@
  * Helper function to extract a string from a SpecPar; only returns the 
  * first one and complains if more than 1 is found.
  */
-template <class T>
+template <class FilteredView>
 class ExtractStringFromDDD {
 public:
-  static std::string getString(const std::string &, T *);
+  static std::string getString(const std::string &, FilteredView *);
 };
 
 #endif

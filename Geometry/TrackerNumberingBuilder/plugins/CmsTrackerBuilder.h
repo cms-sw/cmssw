@@ -10,14 +10,14 @@
 /**
  * Abstract Class to construct a Level in the hierarchy
  */
-template <class T>
-class CmsTrackerBuilder : public CmsTrackerLevelBuilder<T> {
+template <class FilteredView>
+class CmsTrackerBuilder : public CmsTrackerLevelBuilder<FilteredView> {
 public:
   CmsTrackerBuilder() {}
 
 private:
-  void sortNS(T&, GeometricDet*) override;
-  void buildComponent(T&, GeometricDet*, const std::string&) override;
+  void sortNS(FilteredView&, GeometricDet*) override;
+  void buildComponent(FilteredView&, GeometricDet*, const std::string&) override;
 };
 
 #endif

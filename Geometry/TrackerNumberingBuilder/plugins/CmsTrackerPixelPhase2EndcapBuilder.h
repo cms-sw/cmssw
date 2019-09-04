@@ -8,14 +8,14 @@
 /**
  * Class which builds the pixel phase 2 endcap
  */
-template <class T>
-class CmsTrackerPixelPhase2EndcapBuilder : public CmsTrackerLevelBuilder<T> {
+template <class FilteredView>
+class CmsTrackerPixelPhase2EndcapBuilder : public CmsTrackerLevelBuilder<FilteredView> {
 public:
   CmsTrackerPixelPhase2EndcapBuilder() {}
 
 private:
-  void sortNS(T&, GeometricDet*) override;
-  void buildComponent(T&, GeometricDet*, const std::string&) override;
+  void sortNS(FilteredView&, GeometricDet*) override;
+  void buildComponent(FilteredView&, GeometricDet*, const std::string&) override;
 };
 
 #endif
