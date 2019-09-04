@@ -26,7 +26,7 @@
 #include "Math/SVector.h"
 #include "Math/SMatrix.h"
 
-// MkFit includes
+// mkFit includes
 #include "Hit.h"
 #include "Track.h"
 #include "LayerNumberConverter.h"
@@ -43,7 +43,7 @@ private:
 
   template <typename HitCollection>
   void convertHits(const HitCollection& hits,
-                   std::vector<mkfit::HitVec>& mkfitHits,
+                   std::vector<mkfit::HitVec>& mkFitHits,
                    MkFitIndexLayer& indexLayers,
                    int& totalHits,
                    const TrackerTopology& ttopo,
@@ -104,17 +104,17 @@ void MkFitInputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const e
   const auto& ttrhBuilder = iSetup.getData(ttrhBuilderToken_);
   const auto& ttopo = iSetup.getData(ttopoToken_);
 
-  std::vector<mkfit::HitVec> mkfitHits(lnc.nLayers());
+  std::vector<mkfit::HitVec> mkFitHits(lnc.nLayers());
   MkFitIndexLayer indexLayers;
   int totalHits = 0;  // I need to have a global hit index in order to have the hit remapping working?
-  convertHits(iEvent.get(pixelRecHitToken_), mkfitHits, indexLayers, totalHits, ttopo, ttrhBuilder, lnc);
-  convertHits(iEvent.get(stripRphiRecHitToken_), mkfitHits, indexLayers, totalHits, ttopo, ttrhBuilder, lnc);
-  convertHits(iEvent.get(stripStereoRecHitToken_), mkfitHits, indexLayers, totalHits, ttopo, ttrhBuilder, lnc);
+  convertHits(iEvent.get(pixelRecHitToken_), mkFitHits, indexLayers, totalHits, ttopo, ttrhBuilder, lnc);
+  convertHits(iEvent.get(stripRphiRecHitToken_), mkFitHits, indexLayers, totalHits, ttopo, ttrhBuilder, lnc);
+  convertHits(iEvent.get(stripStereoRecHitToken_), mkFitHits, indexLayers, totalHits, ttopo, ttrhBuilder, lnc);
 
   // Then import seeds
-  auto mkfitSeeds = convertSeeds(iEvent.get(seedToken_), indexLayers, ttrhBuilder, iSetup.getData(mfToken_));
+  auto mkFitSeeds = convertSeeds(iEvent.get(seedToken_), indexLayers, ttrhBuilder, iSetup.getData(mfToken_));
 
-  iEvent.emplace(putToken_, std::move(indexLayers), std::move(mkfitHits), std::move(mkfitSeeds), std::move(lnc));
+  iEvent.emplace(putToken_, std::move(indexLayers), std::move(mkFitHits), std::move(mkFitSeeds), std::move(lnc));
 }
 
 bool MkFitInputConverter::passCCC(const SiStripRecHit2D& hit, const DetId hitId) const {
@@ -125,7 +125,7 @@ bool MkFitInputConverter::passCCC(const SiPixelRecHit& hit, const DetId hitId) c
 
 template <typename HitCollection>
 void MkFitInputConverter::convertHits(const HitCollection& hits,
-                                      std::vector<mkfit::HitVec>& mkfitHits,
+                                      std::vector<mkfit::HitVec>& mkFitHits,
                                       MkFitIndexLayer& indexLayers,
                                       int& totalHits,
                                       const TrackerTopology& ttopo,
@@ -157,8 +157,8 @@ void MkFitInputConverter::convertHits(const HitCollection& hits,
                                       << layer << " isStereo " << isStereo << " zplus " << (gpos.z() > 0) << " ilay "
                                       << ilay;
 
-      indexLayers.insert(hit.firstClusterRef().id(), hit.firstClusterRef().index(), mkfitHits[ilay].size(), ilay, &hit);
-      mkfitHits[ilay].emplace_back(pos, err, totalHits);
+      indexLayers.insert(hit.firstClusterRef().id(), hit.firstClusterRef().index(), mkFitHits[ilay].size(), ilay, &hit);
+      mkFitHits[ilay].emplace_back(pos, err, totalHits);
       ++totalHits;
     }
   }

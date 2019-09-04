@@ -38,8 +38,8 @@ private:
     size_t clusterIndex = 0;
   };
 
-  std::vector<Coll> colls_;                   // mapping from CMSSW(ProductID, index) -> mkfit(index, layer)
-  std::vector<std::vector<CMSSWHit> > hits_;  // reverse mapping, mkfit(layer, index) -> CMSSW hit
+  std::vector<Coll> colls_;                   // mapping from CMSSW(ProductID, index) -> mkFit(index, layer)
+  std::vector<std::vector<CMSSWHit> > hits_;  // reverse mapping, mkFit(layer, index) -> CMSSW hit
 };
 
 #endif

@@ -39,7 +39,7 @@
 #include "RecoTracker/MkFit/interface/MkFitInputWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitOutputWrapper.h"
 
-// MkFit indludes
+// mkFit indludes
 #include "LayerNumberConverter.h"
 #include "Track.h"
 
@@ -71,7 +71,7 @@ private:
                                                const GeometricSearchTracker& tracker,
                                                const TrackerTopology& ttopo) const;
 
-  TrackCandidateCollection convertCandidates(const MkFitOutputWrapper& mkfitOutput,
+  TrackCandidateCollection convertCandidates(const MkFitOutputWrapper& mkFitOutput,
                                              const MkFitIndexLayer& indexLayers,
                                              const edm::View<TrajectorySeed>& seeds,
                                              const TrackerGeometry& geom,
@@ -80,7 +80,7 @@ private:
                                              const Propagator& propagatorOpposite,
                                              const TkClonerImpl& hitCloner,
                                              const std::vector<const DetLayer*>& detLayers,
-                                             const mkfit::TrackVec& mkfitSeeds) const;
+                                             const mkfit::TrackVec& mkFitSeeds) const;
 
   std::pair<TrajectoryStateOnSurface, const GeomDet*> backwardFit(const FreeTrajectoryState& fts,
                                                                   const edm::OwnVector<TrackingRecHit>& hits,
@@ -144,7 +144,7 @@ void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
 
   desc.add("hitsSeeds", edm::InputTag{"mkFitInputConverter"});
-  desc.add("tracks", edm::InputTag{"mkfitProducer"});
+  desc.add("tracks", edm::InputTag{"mkFitProducer"});
   desc.add("seeds", edm::InputTag{"initialStepSeeds"});
   desc.add("measurementTrackerEvent", edm::InputTag{"MeasurementTrackerEvent"});
   desc.add("ttrhBuilder", edm::ESInputTag{"", "WithTrackAngle"});
@@ -280,7 +280,7 @@ std::vector<const DetLayer*> MkFitOutputConverter::createDetLayers(const mkfit::
   return dets;
 }
 
-TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutputWrapper& mkfitOutput,
+TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutputWrapper& mkFitOutput,
                                                                  const MkFitIndexLayer& indexLayers,
                                                                  const edm::View<TrajectorySeed>& seeds,
                                                                  const TrackerGeometry& geom,
@@ -289,12 +289,12 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
                                                                  const Propagator& propagatorOpposite,
                                                                  const TkClonerImpl& hitCloner,
                                                                  const std::vector<const DetLayer*>& detLayers,
-                                                                 const mkfit::TrackVec& mkfitSeeds) const {
+                                                                 const mkfit::TrackVec& mkFitSeeds) const {
   TrackCandidateCollection output;
-  const auto& candidates = backwardFitInCMSSW_ ? mkfitOutput.candidateTracks() : mkfitOutput.fitTracks();
+  const auto& candidates = backwardFitInCMSSW_ ? mkFitOutput.candidateTracks() : mkFitOutput.fitTracks();
   output.reserve(candidates.size());
 
-  LogTrace("MkFitOutputConverter") << "Number of candidates " << mkfitOutput.candidateTracks().size();
+  LogTrace("MkFitOutputConverter") << "Number of candidates " << mkFitOutput.candidateTracks().size();
 
   int candIndex = -1;
   for (const auto& cand : candidates) {
@@ -364,7 +364,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     // seed
     const auto seedIndex = cand.label();
     LogTrace("MkFitOutputConverter") << " from seed " << seedIndex << " seed hits";
-    const auto& mkseed = mkfitSeeds.at(cand.label());
+    const auto& mkseed = mkFitSeeds.at(cand.label());
     for (int i = 0; i < mkseed.nTotalHits(); ++i) {
       const auto& hitOnTrack = mkseed.getHitOnTrack(i);
       LogTrace("MkFitOutputConverter") << "  hit on layer " << hitOnTrack.layer << " index " << hitOnTrack.index;
