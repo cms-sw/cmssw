@@ -16,8 +16,8 @@ public:
 
   MkFitOutputWrapper(MkFitOutputWrapper const&) = delete;
   MkFitOutputWrapper& operator=(MkFitOutputWrapper const&) = delete;
-  MkFitOutputWrapper(MkFitOutputWrapper&&) = default;
-  MkFitOutputWrapper& operator=(MkFitOutputWrapper&&) = default;
+  MkFitOutputWrapper(MkFitOutputWrapper&&);
+  MkFitOutputWrapper& operator=(MkFitOutputWrapper&&);
 
   mkfit::TrackVec const& candidateTracks() const { return candidateTracks_; }
   mkfit::TrackVec const& fitTracks() const { return fitTracks_; }
