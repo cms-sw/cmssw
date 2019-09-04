@@ -15,6 +15,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
@@ -182,7 +183,7 @@ std::vector<const DetLayer*> MkFitOutputConverter::createDetLayers(const mkfit::
                                                                    const TrackerTopology& ttopo) const {
   std::vector<const DetLayer*> dets(lnc.nLayers(), nullptr);
 
-  auto set = [&](unsigned int index, DetId id) {
+  auto setDet = [&](unsigned int index, DetId id) {
     auto layer = tracker.idToLayer(id);
     if (layer == nullptr) {
       throw cms::Exception("LogicError") << "No layer for DetId " << id.rawId();
@@ -193,80 +194,59 @@ std::vector<const DetLayer*> MkFitOutputConverter::createDetLayers(const mkfit::
     dets[index] = layer;
   };
 
-  // TODO: currently hardcoded...
-  // Logic copied from mkfit::LayerNumberConverter
-  unsigned int off = 0;
-  // BPix
-  set(off + 0, ttopo.pxbDetId(1, 0, 0));
-  set(off + 1, ttopo.pxbDetId(2, 0, 0));
-  set(off + 2, ttopo.pxbDetId(3, 0, 0));
-  set(off + 3, ttopo.pxbDetId(4, 0, 0));
-  // offset needs to be increased by 1 here to accommodate the 4th
-  // pixel barrel layer, while keeping the off+N numbering consistent
-  // with mkfit::LayerNumberConverter (that, to limited degree,
-  // supports the layer numbering for phase0 pixel as well)
-  off += 1;
-  // TIB
-  set(off + 3, ttopo.tibDetId(1, 0, 0, 0, 0, 0));
-  set(off + 4, ttopo.tibDetId(1, 0, 0, 0, 0, 1));
-  set(off + 5, ttopo.tibDetId(2, 0, 0, 0, 0, 0));
-  set(off + 6, ttopo.tibDetId(2, 0, 0, 0, 0, 1));
-  set(off + 7, ttopo.tibDetId(3, 0, 0, 0, 0, 0));
-  set(off + 8, ttopo.tibDetId(4, 0, 0, 0, 0, 0));
-  // TOB
-  set(off + 9, ttopo.tobDetId(1, 0, 0, 0, 0));
-  set(off + 10, ttopo.tobDetId(1, 0, 0, 0, 1));
-  set(off + 11, ttopo.tobDetId(2, 0, 0, 0, 0));
-  set(off + 12, ttopo.tobDetId(2, 0, 0, 0, 1));
-  set(off + 13, ttopo.tobDetId(3, 0, 0, 0, 0));
-  set(off + 14, ttopo.tobDetId(4, 0, 0, 0, 0));
-  set(off + 15, ttopo.tobDetId(5, 0, 0, 0, 0));
-  set(off + 16, ttopo.tobDetId(6, 0, 0, 0, 0));
-
-  auto setForward = [&set, &ttopo](unsigned int off, unsigned int side) {
-    // FPix
-    set(off + 0, ttopo.pxfDetId(side, 1, 0, 0, 0));
-    set(off + 1, ttopo.pxfDetId(side, 2, 0, 0, 0));
-    set(off + 2, ttopo.pxfDetId(side, 3, 0, 0, 0));
-    // TID+
-    off += 1;  // see comment above for barrel
-    set(off + 2, ttopo.tidDetId(side, 1, 0, 0, 0, 0));
-    set(off + 3, ttopo.tidDetId(side, 1, 0, 0, 0, 1));
-    set(off + 4, ttopo.tidDetId(side, 2, 0, 0, 0, 0));
-    set(off + 5, ttopo.tidDetId(side, 2, 0, 0, 0, 1));
-    set(off + 6, ttopo.tidDetId(side, 3, 0, 0, 0, 0));
-    set(off + 7, ttopo.tidDetId(side, 3, 0, 0, 0, 1));
-    // TEC
-    set(off + 8, ttopo.tecDetId(side, 1, 0, 0, 0, 0, 0));
-    set(off + 9, ttopo.tecDetId(side, 1, 0, 0, 0, 0, 1));
-    set(off + 10, ttopo.tecDetId(side, 2, 0, 0, 0, 0, 0));
-    set(off + 11, ttopo.tecDetId(side, 2, 0, 0, 0, 0, 1));
-    set(off + 12, ttopo.tecDetId(side, 3, 0, 0, 0, 0, 0));
-    set(off + 13, ttopo.tecDetId(side, 3, 0, 0, 0, 0, 1));
-    set(off + 14, ttopo.tecDetId(side, 4, 0, 0, 0, 0, 0));
-    set(off + 15, ttopo.tecDetId(side, 4, 0, 0, 0, 0, 1));
-    set(off + 16, ttopo.tecDetId(side, 5, 0, 0, 0, 0, 0));
-    set(off + 17, ttopo.tecDetId(side, 5, 0, 0, 0, 0, 1));
-    set(off + 18, ttopo.tecDetId(side, 6, 0, 0, 0, 0, 0));
-    set(off + 19, ttopo.tecDetId(side, 6, 0, 0, 0, 0, 1));
-    set(off + 20, ttopo.tecDetId(side, 7, 0, 0, 0, 0, 0));
-    set(off + 21, ttopo.tecDetId(side, 7, 0, 0, 0, 0, 1));
-    set(off + 22, ttopo.tecDetId(side, 8, 0, 0, 0, 0, 0));
-    set(off + 23, ttopo.tecDetId(side, 8, 0, 0, 0, 0, 1));
-    set(off + 24, ttopo.tecDetId(side, 9, 0, 0, 0, 0, 0));
-    set(off + 25, ttopo.tecDetId(side, 9, 0, 0, 0, 0, 1));
+  auto setBarrel = [&](int det, auto detIdFunc, int layer, int stereo) {
+    setDet(lnc.convertLayerNumber(det, layer, false, stereo, true), detIdFunc(layer, stereo));
+  };
+  auto setForward = [&](int det, auto detIdFunc, int disk, int stereo) {
+    // minus side
+    setDet(lnc.convertLayerNumber(det, disk, false, stereo, false),
+           detIdFunc(static_cast<unsigned>(TrackerDetSide::NegEndcap), disk, stereo));
+    // plus side
+    setDet(lnc.convertLayerNumber(det, disk, false, stereo, true),
+           detIdFunc(static_cast<unsigned>(TrackerDetSide::PosEndcap), disk, stereo));
   };
 
-  constexpr unsigned int nlay_barrel = 16 + 1;  // 16 in phase0, 1 more in phase1
-  constexpr unsigned int nlay_endcap = 25 + 1;  // 25 in phase0, 1 more in phase1
+  auto pxbDetId = [&ttopo](int layer, int stereo) { return ttopo.pxbDetId(layer, 0, 0); };
+  auto tibDetId = [&ttopo](int layer, int stereo) { return ttopo.tibDetId(layer, 0, 0, 0, 0, stereo); };
+  auto tobDetId = [&ttopo](int layer, int stereo) { return ttopo.tobDetId(layer, 0, 0, 0, stereo); };
 
-  // plus
-  off = nlay_barrel + 1;  // +1 to move to next slot
-  setForward(off, 2);
+  auto pxfDetId = [&ttopo](int side, int disk, int stereo) { return ttopo.pxfDetId(side, disk, 0, 0, 0); };
+  auto tidDetId = [&ttopo](int side, int disk, int stereo) { return ttopo.tidDetId(side, disk, 0, 0, 0, stereo); };
+  auto tecDetId = [&ttopo](int side, int disk, int stereo) { return ttopo.tecDetId(side, disk, 0, 0, 0, 0, stereo); };
 
-  // minus
-  off += nlay_endcap + 1;  // +1 to move to next slot
-  setForward(off, 1);
+  // TODO: detector structure currently hardcoded...
+  // BPix
+  for (int layer = 1; layer <= 4; ++layer) {
+    setBarrel(PixelSubdetector::PixelBarrel, pxbDetId, layer, 0);
+  }
+  // TIB
+  for (int layer = 1; layer <= 4; ++layer) {
+    setBarrel(StripSubdetector::TIB, tibDetId, layer, 0);
+    if (layer == 1 or layer == 2) {
+      setBarrel(StripSubdetector::TIB, tibDetId, layer, 1);
+    }
+  }
+  // TOB
+  for (int layer = 1; layer <= 6; ++layer) {
+    setBarrel(StripSubdetector::TOB, tobDetId, layer, 0);
+    if (layer == 1 or layer == 2) {
+      setBarrel(StripSubdetector::TOB, tobDetId, layer, 1);
+    }
+  }
+  // FPix
+  for (int disk = 1; disk <= 3; ++disk) {
+    setForward(PixelSubdetector::PixelEndcap, pxfDetId, disk, 0);
+  }
+  // TID
+  for (int disk = 1; disk <= 3; ++disk) {
+    setForward(StripSubdetector::TID, tidDetId, disk, 0);
+    setForward(StripSubdetector::TID, tidDetId, disk, 1);
+  }
+  // TEC
+  for (int disk = 1; disk <= 9; ++disk) {
+    setForward(StripSubdetector::TEC, tecDetId, disk, 0);
+    setForward(StripSubdetector::TEC, tecDetId, disk, 1);
+  }
 
   return dets;
 }
