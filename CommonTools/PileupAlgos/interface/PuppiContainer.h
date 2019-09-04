@@ -64,8 +64,6 @@ protected:
   double fEtaMaxPhotons;
   double fPtMaxNeutrals;
   double fPtMaxStartNeutrals;
-  double fPtMaxCharged;
-  double fPtMaxStartCharged;
   int fNAlgos;
   int fNPV;
   double fPVFrac;

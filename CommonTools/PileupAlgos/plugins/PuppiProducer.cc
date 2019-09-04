@@ -30,8 +30,6 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fEtaMaxPhotons = iConfig.getParameter<double>("EtaMaxPhotons");
   fPtMaxNeutrals = iConfig.getParameter<double>("PtMaxNeutrals");
   fPtMaxStartNeutrals = iConfig.getParameter<double>("PtMaxStartNeutrals");
-  fPtMaxCharged = iConfig.getParameter<double>("PtMaxCharged");
-  fPtMaxStartCharged = iConfig.getParameter<double>("PtMaxStartCharged");
   fUseExistingWeights = iConfig.getParameter<bool>("useExistingWeights");
   fUseWeightsNoLep = iConfig.getParameter<bool>("useWeightsNoLep");
   fClonePackedCands = iConfig.getParameter<bool>("clonePackedCands");
