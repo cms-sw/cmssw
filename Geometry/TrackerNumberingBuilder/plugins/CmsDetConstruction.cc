@@ -43,7 +43,7 @@ void CmsDetConstruction<T>::buildSmallDetsforStack(T& fv, GeometricDet* mother, 
 }
 
 template <class T>
-void CmsDetConstruction<T>::buildComponent(T& fv, GeometricDet* mother, std::string attribute) {
+void CmsDetConstruction<T>::buildComponent(T& fv, GeometricDet* mother, const std::string & attribute) {
   //
   // at this level I check whether it is a merged detector or not
   //

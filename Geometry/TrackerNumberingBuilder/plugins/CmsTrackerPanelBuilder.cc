@@ -9,7 +9,7 @@
 #include <vector>
 
 template <class T>
-void CmsTrackerPanelBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+void CmsTrackerPanelBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
   CmsDetConstruction<T> theCmsDetConstruction;
   switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::DetUnit:

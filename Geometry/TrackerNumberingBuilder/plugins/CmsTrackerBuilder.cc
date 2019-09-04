@@ -11,7 +11,7 @@
 #include <bitset>
 
 template <class T>
-void CmsTrackerBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+void CmsTrackerBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
   CmsTrackerSubStrctBuilder<T> theCmsTrackerSubStrctBuilder;
   CmsTrackerPixelPhase1EndcapBuilder<T> theCmsTrackerPixelPhase1EndcapBuilder;
   CmsTrackerPixelPhase2EndcapBuilder<T> theCmsTrackerPixelPhase2EndcapBuilder;

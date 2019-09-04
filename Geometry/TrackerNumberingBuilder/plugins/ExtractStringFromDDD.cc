@@ -6,7 +6,7 @@
 #include <string>
 
 template <>
-std::string ExtractStringFromDDD<DDFilteredView>::getString(std::string const &s, DDFilteredView *fv) {
+std::string ExtractStringFromDDD<DDFilteredView>::getString(const std::string &s, DDFilteredView *fv) {
   DDValue val(s);
   std::vector<const DDsvalues_type *> result;
   fv->specificsV(result);
@@ -28,7 +28,7 @@ std::string ExtractStringFromDDD<DDFilteredView>::getString(std::string const &s
 }
 
 template <>
-std::string ExtractStringFromDDD<cms::DDFilteredView>::getString(std::string const &s, cms::DDFilteredView *fv) {
-  auto result = fv->getString(s.c_str());
+std::string ExtractStringFromDDD<cms::DDFilteredView>::getString(const std::string &s, cms::DDFilteredView *fv) {
+  auto result = fv->getString(s);
   return {result.data(), result.size()};
 }

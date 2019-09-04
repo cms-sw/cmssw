@@ -11,7 +11,7 @@
 #include <vector>
 
 template <class T>
-void CmsTrackerPixelPhase2RingBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+void CmsTrackerPixelPhase2RingBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
   CmsDetConstruction<T> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }

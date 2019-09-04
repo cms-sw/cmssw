@@ -14,7 +14,7 @@
 using namespace std;
 
 template <class T>
-void CmsTrackerDiskBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+void CmsTrackerDiskBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
   CmsTrackerPanelBuilder<T> theCmsTrackerPanelBuilder;
   GeometricDet* subdet = new GeometricDet(
       &fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));

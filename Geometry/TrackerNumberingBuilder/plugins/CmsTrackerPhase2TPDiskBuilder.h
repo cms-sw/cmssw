@@ -12,7 +12,7 @@ template <class T>
 class CmsTrackerPhase2TPDiskBuilder : public CmsTrackerLevelBuilder<T> {
 private:
   void sortNS(T&, GeometricDet*) override;
-  void buildComponent(T&, GeometricDet*, std::string) override;
+  void buildComponent(T&, GeometricDet*, const std::string&) override;
 
   static bool PhiSort(const GeometricDet* Panel1, const GeometricDet* Panel2);
 

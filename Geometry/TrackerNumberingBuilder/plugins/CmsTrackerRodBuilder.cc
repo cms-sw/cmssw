@@ -9,7 +9,7 @@
 #include <vector>
 
 template <class T>
-void CmsTrackerRodBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+void CmsTrackerRodBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
   CmsDetConstruction<T> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }

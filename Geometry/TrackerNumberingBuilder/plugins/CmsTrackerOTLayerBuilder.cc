@@ -13,7 +13,7 @@
 #include <bitset>
 
 template <class T>
-void CmsTrackerOTLayerBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+void CmsTrackerOTLayerBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
   LogTrace("DetConstruction") << " CmsTrackerOTLayerBuilder::buildComponent ";
   CmsTrackerLadderBuilder<T> theCmsTrackerLadderBuilder;
   CmsTrackerOTRingBuilder<T> theCmsTrackerOTRingBuilder;

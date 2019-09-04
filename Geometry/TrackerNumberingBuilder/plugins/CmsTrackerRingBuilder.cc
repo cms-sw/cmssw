@@ -12,7 +12,7 @@
 #include <bitset>
 
 template <class T>
-void CmsTrackerRingBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+void CmsTrackerRingBuilder<T>::buildComponent(T& fv, GeometricDet* g, const std::string& s) {
   CmsDetConstruction<T> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
