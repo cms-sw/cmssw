@@ -183,7 +183,10 @@ void MkFitInputConverter::convertHits(const HitCollection& hits,
                                       << layer << " isStereo " << isStereo << " zplus " << isPlusSide(detid) << " ilay "
                                       << ilay;
 
-      hitIndexMap.insert(hit.firstClusterRef().id(), hit.firstClusterRef().index(), mkFitHits[ilay].size(), ilay, &hit);
+      hitIndexMap.insert(hit.firstClusterRef().id(),
+                         hit.firstClusterRef().index(),
+                         MkFitHitIndexMap::MkFitHit{static_cast<int>(mkFitHits[ilay].size()), ilay},
+                         &hit);
       mkFitHits[ilay].emplace_back(pos, err, totalHits);
       ++totalHits;
     }
@@ -226,8 +229,8 @@ mkfit::TrackVec MkFitInputConverter::convertSeeds(const edm::View<TrajectorySeed
         throw cms::Exception("Assert") << "Encountered a seed with a hit which is not trackerHitRTTI::isFromDet()";
       }
       const auto& clusterRef = static_cast<const BaseTrackerRecHit&>(*iHit).firstClusterRef();
-      const auto& info = hitIndexMap.get(clusterRef.id(), clusterRef.index());
-      ret.back().addHitIdx(info.index, info.layer, 0);  // per-hit chi2 is not known
+      const auto& mkFitHit = hitIndexMap.mkFitHit(clusterRef.id(), clusterRef.index());
+      ret.back().addHitIdx(mkFitHit.index(), mkFitHit.layer(), 0);  // per-hit chi2 is not known
     }
     ++index;
   }
