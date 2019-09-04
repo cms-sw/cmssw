@@ -61,7 +61,7 @@ namespace edm {
     SubProcess(SubProcess const&) = delete;             // Disallow copying
     SubProcess& operator=(SubProcess const&) = delete;  // Disallow copying
     SubProcess(SubProcess&&) = default;                 // Allow Moving
-    SubProcess& operator=(SubProcess&&) = default;      // Allow moving
+    SubProcess& operator=(SubProcess&&) = delete;       // Move not supported by PrincipalCache
 
     //From OutputModule
     void selectProducts(ProductRegistry const& preg,

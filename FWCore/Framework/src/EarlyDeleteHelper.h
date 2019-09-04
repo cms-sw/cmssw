@@ -43,7 +43,7 @@ namespace edm {
                       unsigned int* iEndIndexItr,
                       std::vector<BranchToCount>* iBranchCounts);
     EarlyDeleteHelper(const EarlyDeleteHelper&);
-    EarlyDeleteHelper& operator=(const EarlyDeleteHelper&) = default;
+    EarlyDeleteHelper& operator=(const EarlyDeleteHelper&) = delete;
     //virtual ~EarlyDeleteHelper();
 
     // ---------- const member functions ---------------------
