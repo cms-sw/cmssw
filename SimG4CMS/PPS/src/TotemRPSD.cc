@@ -236,7 +236,7 @@ G4ThreeVector TotemRPSD::setToLocal(const G4ThreeVector& global) {
 
 void TotemRPSD::EndOfEvent(G4HCofThisEvent*) {
   // here we loop over transient hits and make them persistent
-  for (int j = 0; j < theHC_->entries() && j < maxTotemHits_; j++) {
+  for (unsigned int j = 0; j < (unsigned int)theHC_->entries() && j < maxTotemHits_; j++) {
     TotemRPG4Hit* aHit = (*theHC_)[j];
 
     Local3DPoint entry(aHit->localEntry().x(), aHit->localEntry().y(), aHit->localEntry().z());
