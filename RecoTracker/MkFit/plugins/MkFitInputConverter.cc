@@ -71,6 +71,7 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
   edm::EDPutTokenT<MkFitInputWrapper> putToken_;
+  const float minGoodStripCharge_;
 };
 
 MkFitInputConverter::MkFitInputConverter(edm::ParameterSet const& iConfig)
@@ -84,7 +85,9 @@ MkFitInputConverter::MkFitInputConverter(edm::ParameterSet const& iConfig)
           iConfig.getParameter<edm::ESInputTag>("ttrhBuilder"))},
       ttopoToken_{esConsumes<TrackerTopology, TrackerTopologyRcd>()},
       mfToken_{esConsumes<MagneticField, IdealMagneticFieldRecord>()},
-      putToken_{produces<MkFitInputWrapper>()} {}
+      putToken_{produces<MkFitInputWrapper>()},
+      minGoodStripCharge_{static_cast<float>(
+          iConfig.getParameter<edm::ParameterSet>("minGoodStripCharge").getParameter<double>("value"))} {}
 
 void MkFitInputConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -95,7 +98,11 @@ void MkFitInputConverter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add("seeds", edm::InputTag{"initialStepSeeds"});
   desc.add("ttrhBuilder", edm::ESInputTag{"", "WithTrackAngle"});
 
-  descriptions.addWithDefaultLabel(desc);
+  edm::ParameterSetDescription descCCC;
+  descCCC.add<double>("value");
+  desc.add("minGoodStripCharge", descCCC);
+
+  descriptions.add("mkFitInputConverterDefault", desc);
 }
 
 void MkFitInputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
@@ -119,7 +126,7 @@ void MkFitInputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const e
 }
 
 bool MkFitInputConverter::passCCC(const SiStripRecHit2D& hit, const DetId hitId) const {
-  return (siStripClusterTools::chargePerCM(hitId, hit.firstClusterRef().stripCluster()) >= 1620);
+  return (siStripClusterTools::chargePerCM(hitId, hit.firstClusterRef().stripCluster()) > minGoodStripCharge_);
 }
 
 bool MkFitInputConverter::passCCC(const SiPixelRecHit& hit, const DetId hitId) const { return true; }
