@@ -109,21 +109,21 @@ void testOwnVector::checkAll() {
   CPPUNIT_ASSERT(deleted[2]);
   CPPUNIT_ASSERT(deleted[3]);
   {
-    edm::OwnVector<test::a> v;
+    edm::OwnVector<test::a> v1;
     test::a* aa = new test::ClassB(2);
-    v.push_back(aa);
+    v1.push_back(aa);
     aa = new test::ClassB(1);
-    v.push_back(aa);
+    v1.push_back(aa);
     aa = new test::ClassB(3);
-    v.push_back(aa);
-    v.sort(test::ss());
+    v1.push_back(aa);
+    v1.sort(test::ss());
     std::cout << "OwnVector : dumping contents" << std::endl;
-    std::copy(v.begin(), v.end(), std::ostream_iterator<test::a>(std::cout, "\t"));
+    std::copy(v1.begin(), v1.end(), std::ostream_iterator<test::a>(std::cout, "\t"));
 
     edm::Ptr<test::a> ptr_v;
     unsigned long index(0);
-    void const* data = &v[0];
-    v.setPtr(typeid(test::a), index, data);
+    void const* data = &v1[0];
+    v1.setPtr(typeid(test::a), index, data);
     test::a const* data_a = static_cast<test::a const*>(data);
     test::ClassB const* data_b = dynamic_cast<test::ClassB const*>(data_a);
     CPPUNIT_ASSERT(data != 0);

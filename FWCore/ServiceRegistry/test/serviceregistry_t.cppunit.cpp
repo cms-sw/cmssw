@@ -94,9 +94,9 @@ void testServiceRegistry::externalServiceTest() {
       ps.addParameter("value", value);
       pss.push_back(ps);
 
-      edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
+      edm::ServiceToken token3(edm::ServiceRegistry::createSet(pss));
       edm::ServiceToken token2(
-          edm::ServiceRegistry::createContaining(std::move(dummyPtr), token, edm::serviceregistry::kOverlapIsError));
+          edm::ServiceRegistry::createContaining(std::move(dummyPtr), token3, edm::serviceregistry::kOverlapIsError));
 
       edm::ServiceRegistry::Operate operate(token2);
       edm::Service<testserviceregistry::DummyService> dummy;
@@ -130,9 +130,9 @@ void testServiceRegistry::externalServiceTest() {
       ps.addParameter("value", value);
       pss.push_back(ps);
 
-      edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
+      edm::ServiceToken token3(edm::ServiceRegistry::createSet(pss));
       edm::ServiceToken token2(
-          edm::ServiceRegistry::createContaining(std::move(dummyPtr), token, edm::serviceregistry::kOverlapIsError));
+          edm::ServiceRegistry::createContaining(std::move(dummyPtr), token3, edm::serviceregistry::kOverlapIsError));
 
       edm::ServiceRegistry::Operate operate(token2);
       edm::Service<testserviceregistry::DummyService> dummy;
@@ -264,8 +264,8 @@ void testServiceRegistry::threadTest() {
     edm::ParameterSet ps;
     std::string typeName("DummyService");
     ps.addParameter("@service_type", typeName);
-    int value = 1;
-    ps.addParameter("value", value);
+    int value1 = 1;
+    ps.addParameter("value", value1);
     pss.push_back(ps);
   }
   edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));

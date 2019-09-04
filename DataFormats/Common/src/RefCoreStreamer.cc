@@ -72,8 +72,8 @@ namespace edm {
       cl->AdoptStreamer(new RefCoreStreamer());
     }
     {
-      TClass* cl = TClass::GetClass("edm::RefCoreWithIndex");
-      TClassStreamer* st = cl->GetStreamer();
+      cl = TClass::GetClass("edm::RefCoreWithIndex");
+      st = cl->GetStreamer();
       if (st == nullptr) {
         cl->AdoptStreamer(new RefCoreWithIndexStreamer());
       }

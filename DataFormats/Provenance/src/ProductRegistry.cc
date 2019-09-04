@@ -376,8 +376,8 @@ namespace edm {
           }
 
           if (hasContainedType) {
-            auto iter = containedTypeToBaseTypesMap.find(containedTypeID);
-            if (iter == containedTypeToBaseTypesMap.end()) {
+            auto iter1 = containedTypeToBaseTypesMap.find(containedTypeID);
+            if (iter1 == containedTypeToBaseTypesMap.end()) {
               std::vector<TypeWithDict> baseTypes;
               if (!public_base_classes(missingDictionaries, containedTypeID, baseTypes)) {
                 branchNamesForMissing.emplace_back(desc.branchName());
@@ -388,9 +388,9 @@ namespace edm {
                 }
                 continue;
               }
-              iter = containedTypeToBaseTypesMap.insert(std::make_pair(containedTypeID, baseTypes)).first;
+              iter1 = containedTypeToBaseTypesMap.insert(std::make_pair(containedTypeID, baseTypes)).first;
             }
-            baseTypesOfContainedType = &iter->second;
+            baseTypesOfContainedType = &iter1->second;
           }
 
           // Do this after the dictionary checks of constituents so the list of branch names for missing types
@@ -398,9 +398,9 @@ namespace edm {
           containedTypeMap.emplace(typeID, containedTypeID);
         } else {
           if (hasContainedType) {
-            auto iter = containedTypeToBaseTypesMap.find(containedTypeID);
-            if (iter != containedTypeToBaseTypesMap.end()) {
-              baseTypesOfContainedType = &iter->second;
+            auto iter2 = containedTypeToBaseTypesMap.find(containedTypeID);
+            if (iter2 != containedTypeToBaseTypesMap.end()) {
+              baseTypesOfContainedType = &iter2->second;
             }
           }
         }

@@ -176,19 +176,19 @@ namespace edm {
           continue;
         }
 
-        std::stringstream ss;
-        ss << dfh.section() << "." << dfh.counter();
-        std::string newSection = ss.str();
+        std::stringstream ss1;
+        ss1 << dfh.section() << "." << dfh.counter();
+        std::string newSection1 = ss1.str();
         printSpaces(os, indentation);
-        os << "Section " << newSection << "." << ++pluginCount << " " << info.name_ << " Plugin description:\n";
+        os << "Section " << newSection1 << "." << ++pluginCount << " " << info.name_ << " Plugin description:\n";
         if (!dfh.brief())
           os << "\n";
 
-        DocFormatHelper new_dfh(dfh);
-        new_dfh.init();
-        new_dfh.setSection(newSection);
+        DocFormatHelper new_dfh1(dfh);
+        new_dfh1.init();
+        new_dfh1.setSection(newSection1);
 
-        loadDescription(info.name_)->print(os, new_dfh);
+        loadDescription(info.name_)->print(os, new_dfh1);
 
         previousName = info.name_;
       }

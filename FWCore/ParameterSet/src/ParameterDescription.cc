@@ -417,9 +417,9 @@ namespace edm {
       result = s.str();
 
       if (result.size() > 15 && std::string::npos != result.find(".")) {
-        std::stringstream s;
-        s << std::setprecision(15) << value;
-        std::string resultLessPrecision = s.str();
+        std::stringstream s1;
+        s1 << std::setprecision(15) << value;
+        std::string resultLessPrecision = s1.str();
 
         if (resultLessPrecision.size() < result.size() - 2) {
           double test = std::strtod(resultLessPrecision.c_str(), nullptr);

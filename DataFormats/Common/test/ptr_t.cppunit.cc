@@ -334,44 +334,44 @@ void testPtr::getTest() {
 
   {
     typedef std::vector<IntValue2> SDCollection;
-    auto ptr = std::make_unique<SDCollection>();
+    auto ptr1 = std::make_unique<SDCollection>();
 
-    ptr->push_back(IntValue2(0));
-    ptr->back().value_ = 0;
-    ptr->push_back(IntValue2(1));
-    ptr->back().value_ = 1;
+    ptr1->push_back(IntValue2(0));
+    ptr1->back().value_ = 0;
+    ptr1->push_back(IntValue2(1));
+    ptr1->back().value_ = 1;
 
-    edm::Wrapper<SDCollection> wrapper(std::move(ptr));
-    TestGetter tester;
-    tester.hold_ = &wrapper;
+    edm::Wrapper<SDCollection> wrapper1(std::move(ptr1));
+    TestGetter tester1;
+    tester1.hold_ = &wrapper1;
 
-    ProductID const pid(1, 1);
+    ProductID const pid1(1, 1);
 
-    SDCollection const* wptr = dynamic_cast<SDCollection const*>(wrapper.product());
+    SDCollection const* wptr1 = dynamic_cast<SDCollection const*>(wrapper1.product());
 
-    OrphanHandle<SDCollection> handle(wptr, pid);
+    OrphanHandle<SDCollection> handle1(wptr1, pid1);
 
-    Ptr<IntValue> ref0(pid, 0, &tester);
-    CPPUNIT_ASSERT(!ref0.hasProductCache());
+    Ptr<IntValue> ref00(pid1, 0, &tester1);
+    CPPUNIT_ASSERT(!ref00.hasProductCache());
 
-    Ptr<IntValue> ref1(pid, 1, &tester);
+    Ptr<IntValue> ref11(pid1, 1, &tester1);
 
-    Ptr<IntValue> ref2(pid, 1, &tester);
+    Ptr<IntValue> ref22(pid1, 1, &tester1);
 
-    CPPUNIT_ASSERT(0 == ref0->value_);
-    CPPUNIT_ASSERT(ref0.hasProductCache());
-    CPPUNIT_ASSERT(1 == ref1->value_);
-    CPPUNIT_ASSERT(1 == ref2->value_);
-    CPPUNIT_ASSERT(1 == (*ref1).value_);
+    CPPUNIT_ASSERT(0 == ref00->value_);
+    CPPUNIT_ASSERT(ref00.hasProductCache());
+    CPPUNIT_ASSERT(1 == ref11->value_);
+    CPPUNIT_ASSERT(1 == ref22->value_);
+    CPPUNIT_ASSERT(1 == (*ref11).value_);
   }
 
   {
-    TestGetter tester;
-    tester.hold_ = nullptr;
-    ProductID const pid(1, 1);
+    TestGetter tester2;
+    tester2.hold_ = nullptr;
+    ProductID const pid2(1, 1);
 
-    Ptr<IntValue> ref0(pid, 0, &tester);
-    CPPUNIT_ASSERT_THROW((*ref0), cms::Exception);
-    CPPUNIT_ASSERT_THROW((ref0.operator->()), cms::Exception);
+    Ptr<IntValue> ref00(pid2, 0, &tester2);
+    CPPUNIT_ASSERT_THROW((*ref00), cms::Exception);
+    CPPUNIT_ASSERT_THROW((ref00.operator->()), cms::Exception);
   }
 }

@@ -98,12 +98,12 @@ void WaitingTaskList_test::addThenDone() {
   called = false;
 
   {
-    std::exception_ptr excPtr;
+    std::exception_ptr excPtr1;
 
     auto waitTask = edm::make_empty_waiting_task();
     waitTask->set_ref_count(2);
 
-    auto t = new (waitTask->allocate_child()) TestCalledTask{called, excPtr};
+    auto t = new (waitTask->allocate_child()) TestCalledTask{called, excPtr1};
 
     waitList.add(t);
 
@@ -113,7 +113,7 @@ void WaitingTaskList_test::addThenDone() {
     waitList.doneWaiting(std::exception_ptr{});
     waitTask->wait_for_all();
     CPPUNIT_ASSERT(true == called);
-    CPPUNIT_ASSERT(bool(excPtr) == false);
+    CPPUNIT_ASSERT(bool(excPtr1) == false);
   }
 }
 
@@ -143,12 +143,12 @@ void WaitingTaskList_test::addThenDoneFailed() {
 
   edm::WaitingTaskList waitList;
   {
-    std::exception_ptr excPtr;
+    std::exception_ptr excPtr1;
 
     auto waitTask = edm::make_empty_waiting_task();
     waitTask->set_ref_count(2);
 
-    auto t = new (waitTask->allocate_child()) TestCalledTask{called, excPtr};
+    auto t = new (waitTask->allocate_child()) TestCalledTask{called, excPtr1};
 
     waitList.add(t);
 
@@ -158,7 +158,7 @@ void WaitingTaskList_test::addThenDoneFailed() {
     waitList.doneWaiting(std::make_exception_ptr(std::string("failed")));
     waitTask->wait_for_all();
     CPPUNIT_ASSERT(true == called);
-    CPPUNIT_ASSERT(bool(excPtr) == true);
+    CPPUNIT_ASSERT(bool(excPtr1) == true);
   }
 }
 

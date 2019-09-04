@@ -236,9 +236,9 @@ namespace edm {
               } else {
                 bool productMadeAtEnd = false;
                 //Need to know if the product from this processes is added at end of transition
-                for (unsigned int i = 0; i < matchingHolders.size(); ++i) {
-                  if ((not ambiguous[i]) and ProductResolverIndexInvalid != matchingHolders[i] and
-                      productResolvers_[matchingHolders[i]]->branchDescription().availableOnlyAtEndTransition()) {
+                for (unsigned int j = 0; j < matchingHolders.size(); ++j) {
+                  if ((not ambiguous[j]) and ProductResolverIndexInvalid != matchingHolders[j] and
+                      productResolvers_[matchingHolders[j]]->branchDescription().availableOnlyAtEndTransition()) {
                     productMadeAtEnd = true;
                     break;
                   }
@@ -460,11 +460,11 @@ namespace edm {
       }
 
       for (auto iEnd = processHistoryPtr_->rend(); iter != iEnd; ++iter) {
-        auto nameIter = std::find(lookupProcessNames.begin(), lookupProcessNames.end(), iter->processName());
-        if (nameIter == lookupProcessNames.end()) {
+        auto nameIter1 = std::find(lookupProcessNames.begin(), lookupProcessNames.end(), iter->processName());
+        if (nameIter1 == lookupProcessNames.end()) {
           continue;
         }
-        lookupProcessOrder_.at(k) = nameIter - lookupProcessNames.begin();
+        lookupProcessOrder_.at(k) = nameIter1 - lookupProcessNames.begin();
         ++k;
       }
       orderProcessHistoryID_ = processHistoryID_;

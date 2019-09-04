@@ -147,16 +147,16 @@ void testServicesManager::legacyTest() {
 
   edm::AssertHandler ah;
 
-  std::vector<edm::ParameterSet> pss;
+  std::vector<edm::ParameterSet> pss1;
 
-  edm::ParameterSet ps;
-  std::string typeName("DummyService");
-  ps.addParameter("@service_type", typeName);
-  int value = 1;
-  ps.addParameter("value", value);
-  pss.push_back(ps);
+  edm::ParameterSet ps1;
+  std::string typeName1("DummyService");
+  ps1.addParameter("@service_type", typeName1);
+  int value1 = 1;
+  ps1.addParameter("value", value1);
+  pss1.push_back(ps1);
 
-  auto legacy = std::make_shared<ServicesManager>(pss);
+  auto legacy = std::make_shared<ServicesManager>(pss1);
   CPPUNIT_ASSERT(1 == legacy->get<TestService>().value());
 
   edm::ServiceToken legacyToken(legacy);

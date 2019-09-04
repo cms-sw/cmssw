@@ -263,7 +263,7 @@ void LimitedTaskQueue_test::stressTest() {
             for (unsigned int i = 0; i < nTasks; ++i) {
               pWaitTask->increment_ref_count();
               queue.push([&count, pWaitTask, &nRunningTasks] {
-                std::shared_ptr<tbb::task> guard{pWaitTask, [](tbb::task* iTask) { iTask->decrement_ref_count(); }};
+                std::shared_ptr<tbb::task> guard1{pWaitTask, [](tbb::task* iTask) { iTask->decrement_ref_count(); }};
                 auto nrt = nRunningTasks++;
                 if (nrt >= kMax) {
                   std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;

@@ -724,8 +724,8 @@ namespace edm {
       if (measurementUnderway_.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
         std::shared_ptr<void> guard(
             nullptr, [this](void const*) { measurementUnderway_.store(false, std::memory_order_release); });
-        bool expected = false;
-        if (moduleMeasurementUnderway_.compare_exchange_strong(expected, true)) {
+        bool expected1 = false;
+        if (moduleMeasurementUnderway_.compare_exchange_strong(expected1, true)) {
           update();
           // changelog 2
           moduleEntryVsize_ = current_->vsize;
@@ -757,7 +757,7 @@ namespace edm {
               nullptr, [this](void const*) { moduleMeasurementUnderway_.store(false, std::memory_order_release); });
           bool expected = false;
           if (measurementUnderway_.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
-            std::shared_ptr<void> guard(
+            std::shared_ptr<void> guard1(
                 nullptr, [this](void const*) { measurementUnderway_.store(false, std::memory_order_release); });
             if (oncePerEventMode_) {
               update();

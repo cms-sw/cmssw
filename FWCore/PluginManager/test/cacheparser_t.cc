@@ -93,10 +93,10 @@ void TestCacheParser::testReadWrite() {
     CPPUNIT_ASSERT(categoryToInfos.size() == readValues.size());
 
     {
-      std::stringstream s;
-      CacheParser::write(readValues, s);
-      std::cout << s.str() << std::endl;
-      CPPUNIT_ASSERT(match == s.str());
+      std::stringstream s1;
+      CacheParser::write(readValues, s1);
+      std::cout << s1.str() << std::endl;
+      CPPUNIT_ASSERT(match == s1.str());
     }
   }
 }

@@ -228,15 +228,15 @@ namespace fwlite {
         //We do not already have this data as another key
 
         //create an instance of the object to be used as a buffer
-        edm::TypeWithDict type(iInfo);
-        if (!bool(type)) {
+        edm::TypeWithDict type1(iInfo);
+        if (!bool(type1)) {
           throw cms::Exception("UnknownType") << "No dictionary exists for type " << iInfo.name();
         }
 
-        edm::ObjectWithDict obj = edm::ObjectWithDict::byType(type);
+        edm::ObjectWithDict obj = edm::ObjectWithDict::byType(type1);
 
         if (obj.address() == nullptr) {
-          throw cms::Exception("ConstructionFailed") << "failed to construct an instance of " << type.name();
+          throw cms::Exception("ConstructionFailed") << "failed to construct an instance of " << type1.name();
         }
         auto newData = std::make_shared<internal::Data>();
         newData->branch_ = branch;
@@ -254,9 +254,9 @@ namespace fwlite {
         newProcess = new char[foundProcessLabel.size() + 1];
         std::strcpy(newProcess, foundProcessLabel.c_str());
         labels_.push_back(newProcess);
-        internal::DataKey newKey(edm::TypeID(iInfo), newModule, newProduct, newProcess);
+        internal::DataKey newKey1(edm::TypeID(iInfo), newModule, newProduct, newProcess);
 
-        data_.insert(std::make_pair(newKey, theData));
+        data_.insert(std::make_pair(newKey1, theData));
       }
     }
     return *(itFind->second);

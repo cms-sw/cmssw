@@ -1047,9 +1047,9 @@ namespace testParameterSetDescription {
       } catch (edm::Exception const&) { /* There should be an exception */
       }
 
-      std::vector<std::string> labels1;
-      labels1.push_back(std::string("vSetD"));
-      psetC.addParameter<std::vector<std::string>>("allowedLabelsC", labels1);
+      std::vector<std::string> labels2;
+      labels2.push_back(std::string("vSetD"));
+      psetC.addParameter<std::vector<std::string>>("allowedLabelsC", labels2);
 
       // Now vSetB should be an allowed parameter
       psetDesc14.validate(psetC);
@@ -1068,12 +1068,12 @@ namespace testParameterSetDescription {
       }
 
       // Now include "y" in the description and it should once again pass validation
-      edm::ParameterSetDescription psetDesc6;
-      edm::ParameterSetDescription psetDesc7;
-      psetDesc7.add<int>("y", 1);
+      edm::ParameterSetDescription psetDesc106;
+      edm::ParameterSetDescription psetDesc107;
+      psetDesc107.add<int>("y", 1);
 
-      psetDesc6.labelsFrom<std::vector<edm::ParameterSet>>("allowedLabelsC", psetDesc7);
-      psetDesc6.validate(psetC);
+      psetDesc106.labelsFrom<std::vector<edm::ParameterSet>>("allowedLabelsC", psetDesc107);
+      psetDesc106.validate(psetC);
 
       // A minor variation, repeat with a string argument
       edm::ParameterSetDescription psetDesc18;
@@ -1082,7 +1082,7 @@ namespace testParameterSetDescription {
       psetDesc18.labelsFrom<std::vector<edm::ParameterSet>>(std::string("allowedLabelsC"));
       psetDesc19.labelsFrom<std::vector<edm::ParameterSet>>(std::string("allowedLabelsC"),
                                                             edm::ParameterSetDescription());
-      psetDesc20.labelsFrom<std::vector<edm::ParameterSet>>(std::string("allowedLabelsC"), psetDesc7);
+      psetDesc20.labelsFrom<std::vector<edm::ParameterSet>>(std::string("allowedLabelsC"), psetDesc107);
       psetDesc18.validate(psetC);
       try {
         psetDesc19.validate(psetC);
@@ -1600,20 +1600,20 @@ int main(int, char**) try {
   testDescriptions.push_back(psetDesc);
   testDescriptions.push_back(psetDesc);
 
-  for (int i = 0; i < 3; ++i) {
+  for (int ii = 0; ii < 3; ++ii) {
     edm::ParameterSetDescription nestLevel2;
 
     // for the first test do not put a parameter in the description
     // so there will be an extra parameter in the ParameterSet and
     // validation should fail.
-    if (i > 0)
+    if (ii > 0)
       nestLevel2.add<int>("intLevel2a", 1);
 
     // for the next test validation should pass
 
     // For the last test add an extra required parameter in the
     // description that is not in the ParameterSet.
-    if (i == 2)
+    if (ii == 2)
       nestLevel2.add<int>("intLevel2extra", 11);
 
     nestLevel2.addUntracked<int>("intLevel2b", 1);
@@ -1626,7 +1626,7 @@ int main(int, char**) try {
     nestLevel1.add<int>("intLevel1a", 1);
     nestLevel1.add<edm::ParameterSetDescription>("nestLevel1b", nestLevel2);
 
-    testDescriptions[i].addVPSetUntracked("nestLevel0", nestLevel1);
+    testDescriptions[ii].addVPSetUntracked("nestLevel0", nestLevel1);
   }
 
   // Now run the validation and make sure we get the expected results

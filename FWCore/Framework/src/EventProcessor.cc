@@ -1114,7 +1114,7 @@ namespace edm {
                   if (looper_) {
                     try {
                       //make the services available
-                      ServiceRegistry::Operate operate(serviceToken_);
+                      ServiceRegistry::Operate operate1(serviceToken_);
                       looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
                     } catch (...) {
                       status.reset();
@@ -1129,10 +1129,10 @@ namespace edm {
                       streamQueues_[i].pause();
 
                       auto eventTask = edm::make_waiting_task(
-                          tbb::task::allocate_root(), [this, i, h = holder](std::exception_ptr const* iPtr) mutable {
-                            if (iPtr) {
+                          tbb::task::allocate_root(), [this, i, h = holder](std::exception_ptr const* iPtr1) mutable {
+                            if (iPtr1) {
                               WaitingTaskHolder tmp(h);
-                              tmp.doneWaiting(*iPtr);
+                              tmp.doneWaiting(*iPtr1);
                               streamEndLumiAsync(h, i, streamLumiStatus_[i]);
                             } else {
                               handleNextEventForStreamAsync(std::move(h), i);
@@ -1287,9 +1287,9 @@ namespace edm {
             try {
               ServiceRegistry::Operate operate(serviceToken_);
               if (looper_) {
-                auto& lp = *(status->lumiPrincipal());
+                auto& lp1 = *(status->lumiPrincipal());
                 EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
-                looper_->doEndLuminosityBlock(lp, es, &processContext_);
+                looper_->doEndLuminosityBlock(lp1, es, &processContext_);
               }
             } catch (...) {
               ptr = std::current_exception();
@@ -1708,7 +1708,7 @@ namespace edm {
         tbb::task::allocate_root(), [this, pep, iHolder, iStreamIndex](std::exception_ptr const* iPtr) mutable {
           //NOTE: If we have a looper we only have one Stream
           if (looper_) {
-            ServiceRegistry::Operate operate(serviceToken_);
+            ServiceRegistry::Operate operate1(serviceToken_);
             processEventWithLooper(*pep, iStreamIndex);
           }
 

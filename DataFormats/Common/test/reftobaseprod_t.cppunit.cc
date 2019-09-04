@@ -230,50 +230,50 @@ void testRefToBaseProd::getTest() {
 
   {
     typedef std::vector<IntValue2> SDCollection;
-    auto ptr = std::make_unique<SDCollection>();
+    auto ptr1 = std::make_unique<SDCollection>();
 
-    ptr->push_back(IntValue2(0));
-    ptr->back().value_ = 0;
-    ptr->push_back(IntValue2(1));
-    ptr->back().value_ = 1;
+    ptr1->push_back(IntValue2(0));
+    ptr1->back().value_ = 0;
+    ptr1->push_back(IntValue2(1));
+    ptr1->back().value_ = 1;
 
-    edm::Wrapper<SDCollection> wrapper(std::move(ptr));
-    TestGetter tester;
-    tester.hold_ = &wrapper;
+    edm::Wrapper<SDCollection> wrapper1(std::move(ptr1));
+    TestGetter tester1;
+    tester1.hold_ = &wrapper1;
 
-    ProductID const pid(1, 1);
+    ProductID const pid1(1, 1);
 
-    SDCollection const* wptr = dynamic_cast<SDCollection const*>(wrapper.product());
+    SDCollection const* wptr1 = dynamic_cast<SDCollection const*>(wrapper1.product());
 
-    OrphanHandle<SDCollection> handle(wptr, pid);
+    OrphanHandle<SDCollection> handle1(wptr1, pid1);
 
     //NOTE: ROOT will touch the private variables directly and since the RefToBaseProd
     // has no constructor which takes RefCore, I have to play this dirty trick
     assert(sizeof(edm::RefCore) == sizeof(edm::RefToBaseProd<IntValue>));
 
-    RefCore core(pid, nullptr, &tester, false);
-    RefToBaseProd<IntValue>& prod = reinterpret_cast<RefToBaseProd<IntValue>&>(core);
+    RefCore core1(pid1, nullptr, &tester1, false);
+    RefToBaseProd<IntValue>& prod1 = reinterpret_cast<RefToBaseProd<IntValue>&>(core1);
 
-    CPPUNIT_ASSERT(!prod.hasCache());
+    CPPUNIT_ASSERT(!prod1.hasCache());
 
-    CPPUNIT_ASSERT(0 != prod.get());
-    CPPUNIT_ASSERT(prod.hasCache());
-    compareTo(prod, *wptr);
+    CPPUNIT_ASSERT(0 != prod1.get());
+    CPPUNIT_ASSERT(prod1.hasCache());
+    compareTo(prod1, *wptr1);
   }
 
   {
-    TestGetter tester;
-    tester.hold_ = nullptr;
-    ProductID const pid(1, 1);
+    TestGetter tester2;
+    tester2.hold_ = nullptr;
+    ProductID const pid2(1, 1);
 
     //NOTE: ROOT will touch the private variables directly and since the RefToBaseProd
     // has no constructor which takes RefCore, I have to play this dirty trick
     assert(sizeof(edm::RefCore) == sizeof(edm::RefToBaseProd<IntValue>));
 
-    RefCore core(pid, nullptr, &tester, false);
-    RefToBaseProd<IntValue>& prod = reinterpret_cast<RefToBaseProd<IntValue>&>(core);
+    RefCore core2(pid2, nullptr, &tester2, false);
+    RefToBaseProd<IntValue>& prod2 = reinterpret_cast<RefToBaseProd<IntValue>&>(core2);
 
-    CPPUNIT_ASSERT_THROW((*prod), cms::Exception);
-    CPPUNIT_ASSERT_THROW((prod.operator->()), cms::Exception);
+    CPPUNIT_ASSERT_THROW((*prod2), cms::Exception);
+    CPPUNIT_ASSERT_THROW((prod2.operator->()), cms::Exception);
   }
 }

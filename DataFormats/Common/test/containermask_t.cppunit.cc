@@ -61,12 +61,12 @@ void testContainerMask::testVector() {
   CPPUNIT_ASSERT(!alternate[3]);
 
   {
-    std::vector<bool> alternate(3, false);
-    cMask.copyMaskTo(alternate);
-    CPPUNIT_ASSERT(alternate[0]);
-    CPPUNIT_ASSERT(!alternate[1]);
-    CPPUNIT_ASSERT(alternate[2]);
-    CPPUNIT_ASSERT(!alternate[3]);
+    std::vector<bool> alternate1(3, false);
+    cMask.copyMaskTo(alternate1);
+    CPPUNIT_ASSERT(alternate1[0]);
+    CPPUNIT_ASSERT(!alternate1[1]);
+    CPPUNIT_ASSERT(alternate1[2]);
+    CPPUNIT_ASSERT(!alternate1[3]);
   }
 }
 

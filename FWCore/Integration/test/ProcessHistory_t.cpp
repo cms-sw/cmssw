@@ -167,27 +167,27 @@ int main() try {
     edm::ProcessHistory ph3;
     edm::ProcessHistory ph4;
 
-    edm::ParameterSet dummyPset;
-    dummyPset.registerIt();
-    edm::ParameterSetID psetID = dummyPset.id();
+    edm::ParameterSet dummyPset1;
+    dummyPset1.registerIt();
+    edm::ParameterSetID psetID1 = dummyPset1.id();
 
-    edm::ProcessConfiguration pc1(std::string("HLT"), psetID, std::string("CMSSW_5_1_40"), std::string(""));
-    edm::ProcessConfiguration pc1a(std::string("HLT"), psetID, std::string("CMSSW_5_1_40patch1"), std::string(""));
-    edm::ProcessConfiguration pc1b(std::string("HLT"), psetID, std::string("CMSSW_5_1_40patch2"), std::string(""));
-    edm::ProcessConfiguration pc2(std::string("HLT"), psetID, std::string("CMSSW_5_2_40"), std::string(""));
-    edm::ProcessConfiguration pc2a(std::string("HLT"), psetID, std::string("CMSSW_5_2_40patch1"), std::string(""));
-    edm::ProcessConfiguration pc2b(std::string("HLT"), psetID, std::string("CMSSW_5_2_40patch2"), std::string(""));
-    edm::ProcessConfiguration pc3(std::string("HLT"), psetID, std::string("CMSSW_5_3_40"), std::string(""));
-    edm::ProcessConfiguration pc4(std::string("HLT"), psetID, std::string("CMSSW_5_4_40"), std::string(""));
+    edm::ProcessConfiguration pcfg1(std::string("HLT"), psetID1, std::string("CMSSW_5_1_40"), std::string(""));
+    edm::ProcessConfiguration pcfg1a(std::string("HLT"), psetID1, std::string("CMSSW_5_1_40patch1"), std::string(""));
+    edm::ProcessConfiguration pcfg1b(std::string("HLT"), psetID1, std::string("CMSSW_5_1_40patch2"), std::string(""));
+    edm::ProcessConfiguration pcfg2(std::string("HLT"), psetID1, std::string("CMSSW_5_2_40"), std::string(""));
+    edm::ProcessConfiguration pcfg2a(std::string("HLT"), psetID1, std::string("CMSSW_5_2_40patch1"), std::string(""));
+    edm::ProcessConfiguration pcfg2b(std::string("HLT"), psetID1, std::string("CMSSW_5_2_40patch2"), std::string(""));
+    edm::ProcessConfiguration pcfg3(std::string("HLT"), psetID1, std::string("CMSSW_5_3_40"), std::string(""));
+    edm::ProcessConfiguration pcfg4(std::string("HLT"), psetID1, std::string("CMSSW_5_4_40"), std::string(""));
 
-    ph1.push_back(pc1);
-    ph1a.push_back(pc1a);
-    ph1b.push_back(pc1b);
-    ph2.push_back(pc2);
-    ph2a.push_back(pc2a);
-    ph2b.push_back(pc2b);
-    ph3.push_back(pc3);
-    ph4.push_back(pc4);
+    ph1.push_back(pcfg1);
+    ph1a.push_back(pcfg1a);
+    ph1b.push_back(pcfg1b);
+    ph2.push_back(pcfg2);
+    ph2a.push_back(pcfg2a);
+    ph2b.push_back(pcfg2b);
+    ph3.push_back(pcfg3);
+    ph4.push_back(pcfg4);
 
     edm::ProcessHistoryID phid1 = ph1.setProcessHistoryID();
     edm::ProcessHistoryID phid1a = ph1a.setProcessHistoryID();

@@ -168,8 +168,8 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
 
     REQUIRE(mergeableRunProductProcesses.size() == 2);
 
-    std::vector<std::string> expected{"AAPROD", "APROD"};
-    REQUIRE(mergeableRunProductProcesses.processesWithMergeableRunProducts() == expected);
+    std::vector<std::string> expected0{"AAPROD", "APROD"};
+    REQUIRE(mergeableRunProductProcesses.processesWithMergeableRunProducts() == expected0);
 
     std::vector<std::string> storedProcesses{"AAAPROD", "AAPROD", "APROD", "ZPROD"};
     edm::StoredMergeableRunProductMetadata storedMetadata(storedProcesses);
@@ -654,63 +654,63 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
 
       // ---------------------------------------------------
 
-      std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntry>& singleRunEntries =
+      std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntry>& singleRunEntries1 =
           storedMetadataOutput.singleRunEntries();
-      REQUIRE(singleRunEntries.size() == 4);
-      REQUIRE(singleRunEntries[0].beginProcess() == 0);
-      REQUIRE(singleRunEntries[0].endProcess() == 0);
-      REQUIRE(singleRunEntries[1].beginProcess() == 0);
-      REQUIRE(singleRunEntries[1].endProcess() == 1);
-      REQUIRE(singleRunEntries[2].beginProcess() == 1);
-      REQUIRE(singleRunEntries[2].endProcess() == 3);
-      REQUIRE(singleRunEntries[3].beginProcess() == 3);
-      REQUIRE(singleRunEntries[3].endProcess() == 5);
+      REQUIRE(singleRunEntries1.size() == 4);
+      REQUIRE(singleRunEntries1[0].beginProcess() == 0);
+      REQUIRE(singleRunEntries1[0].endProcess() == 0);
+      REQUIRE(singleRunEntries1[1].beginProcess() == 0);
+      REQUIRE(singleRunEntries1[1].endProcess() == 1);
+      REQUIRE(singleRunEntries1[2].beginProcess() == 1);
+      REQUIRE(singleRunEntries1[2].endProcess() == 3);
+      REQUIRE(singleRunEntries1[3].beginProcess() == 3);
+      REQUIRE(singleRunEntries1[3].endProcess() == 5);
 
-      std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntryAndProcess>& singleRunEntryAndProcesses =
+      std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntryAndProcess>& singleRunEntryAndProcesses1 =
           storedMetadataOutput.singleRunEntryAndProcesses();
-      REQUIRE(singleRunEntryAndProcesses.size() == 5);
+      REQUIRE(singleRunEntryAndProcesses1.size() == 5);
 
-      REQUIRE(singleRunEntryAndProcesses[0].beginLumi() == 0);
-      REQUIRE(singleRunEntryAndProcesses[0].endLumi() == 0);
-      REQUIRE(singleRunEntryAndProcesses[0].process() == 2);
-      REQUIRE(!singleRunEntryAndProcesses[0].valid());
-      REQUIRE(singleRunEntryAndProcesses[0].useIndexIntoFile());
+      REQUIRE(singleRunEntryAndProcesses1[0].beginLumi() == 0);
+      REQUIRE(singleRunEntryAndProcesses1[0].endLumi() == 0);
+      REQUIRE(singleRunEntryAndProcesses1[0].process() == 2);
+      REQUIRE(!singleRunEntryAndProcesses1[0].valid());
+      REQUIRE(singleRunEntryAndProcesses1[0].useIndexIntoFile());
 
-      REQUIRE(singleRunEntryAndProcesses[1].beginLumi() == 0);
-      REQUIRE(singleRunEntryAndProcesses[1].endLumi() == 2);
-      REQUIRE(singleRunEntryAndProcesses[1].process() == 1);
-      REQUIRE(singleRunEntryAndProcesses[1].valid());
-      REQUIRE(!singleRunEntryAndProcesses[1].useIndexIntoFile());
+      REQUIRE(singleRunEntryAndProcesses1[1].beginLumi() == 0);
+      REQUIRE(singleRunEntryAndProcesses1[1].endLumi() == 2);
+      REQUIRE(singleRunEntryAndProcesses1[1].process() == 1);
+      REQUIRE(singleRunEntryAndProcesses1[1].valid());
+      REQUIRE(!singleRunEntryAndProcesses1[1].useIndexIntoFile());
 
-      REQUIRE(singleRunEntryAndProcesses[2].beginLumi() == 0);
-      REQUIRE(singleRunEntryAndProcesses[2].endLumi() == 2);
-      REQUIRE(singleRunEntryAndProcesses[2].process() == 2);
-      REQUIRE(!singleRunEntryAndProcesses[2].valid());
-      REQUIRE(!singleRunEntryAndProcesses[2].useIndexIntoFile());
+      REQUIRE(singleRunEntryAndProcesses1[2].beginLumi() == 0);
+      REQUIRE(singleRunEntryAndProcesses1[2].endLumi() == 2);
+      REQUIRE(singleRunEntryAndProcesses1[2].process() == 2);
+      REQUIRE(!singleRunEntryAndProcesses1[2].valid());
+      REQUIRE(!singleRunEntryAndProcesses1[2].useIndexIntoFile());
 
-      REQUIRE(singleRunEntryAndProcesses[3].beginLumi() == 2);
-      REQUIRE(singleRunEntryAndProcesses[3].endLumi() == 4);
-      REQUIRE(singleRunEntryAndProcesses[3].process() == 1);
-      REQUIRE(singleRunEntryAndProcesses[3].valid());
-      REQUIRE(!singleRunEntryAndProcesses[3].useIndexIntoFile());
+      REQUIRE(singleRunEntryAndProcesses1[3].beginLumi() == 2);
+      REQUIRE(singleRunEntryAndProcesses1[3].endLumi() == 4);
+      REQUIRE(singleRunEntryAndProcesses1[3].process() == 1);
+      REQUIRE(singleRunEntryAndProcesses1[3].valid());
+      REQUIRE(!singleRunEntryAndProcesses1[3].useIndexIntoFile());
 
-      REQUIRE(singleRunEntryAndProcesses[4].beginLumi() == 4);
-      REQUIRE(singleRunEntryAndProcesses[4].endLumi() == 9);
-      REQUIRE(singleRunEntryAndProcesses[4].process() == 2);
-      REQUIRE(!singleRunEntryAndProcesses[4].valid());
-      REQUIRE(!singleRunEntryAndProcesses[4].useIndexIntoFile());
+      REQUIRE(singleRunEntryAndProcesses1[4].beginLumi() == 4);
+      REQUIRE(singleRunEntryAndProcesses1[4].endLumi() == 9);
+      REQUIRE(singleRunEntryAndProcesses1[4].process() == 2);
+      REQUIRE(!singleRunEntryAndProcesses1[4].valid());
+      REQUIRE(!singleRunEntryAndProcesses1[4].useIndexIntoFile());
 
-      std::vector<edm::LuminosityBlockNumber_t>& lumis = storedMetadataOutput.lumis();
-      REQUIRE(lumis.size() == 9);
-      REQUIRE(lumis[0] == 1001);
-      REQUIRE(lumis[1] == 1003);
-      REQUIRE(lumis[2] == 1001);
-      REQUIRE(lumis[3] == 1003);
-      REQUIRE(lumis[4] == 1000);
-      REQUIRE(lumis[5] == 1001);
-      REQUIRE(lumis[6] == 1002);
-      REQUIRE(lumis[7] == 1003);
-      REQUIRE(lumis[8] == 1004);
+      std::vector<edm::LuminosityBlockNumber_t>& lumis1 = storedMetadataOutput.lumis();
+      REQUIRE(lumis1.size() == 9);
+      REQUIRE(lumis1[0] == 1001);
+      REQUIRE(lumis1[1] == 1003);
+      REQUIRE(lumis1[2] == 1001);
+      REQUIRE(lumis1[3] == 1003);
+      REQUIRE(lumis1[4] == 1000);
+      REQUIRE(lumis1[5] == 1001);
+      REQUIRE(lumis1[6] == 1002);
+      REQUIRE(lumis1[7] == 1003);
+      REQUIRE(lumis1[8] == 1004);
 
       REQUIRE(!storedMetadataOutput.allValidAndUseIndexIntoFile());
     }

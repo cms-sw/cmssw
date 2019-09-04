@@ -993,51 +993,51 @@ void TestIndexIntoFile3::testOverlappingLumis() {
   CPPUNIT_ASSERT(i == 16);
 
   {
-    edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::numericalOrder);
-    edm::IndexIntoFile::IndexIntoFileItr iterFirstEnd = indexIntoFile.end(IndexIntoFile::numericalOrder);
-    int i = 0;
-    for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
+    edm::IndexIntoFile::IndexIntoFileItr iterFirst1 = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+    edm::IndexIntoFile::IndexIntoFileItr iterFirstEnd1 = indexIntoFile.end(IndexIntoFile::numericalOrder);
+    int j = 0;
+    for (j = 0; iterFirst1 != iterFirstEnd1; ++iterFirst1, ++j) {
       //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
-      if (i == 0) {
-        check(iterFirst, kRun, 0, 2, 1, 0, 2);
+      if (j == 0) {
+        check(iterFirst1, kRun, 0, 2, 1, 0, 2);
 
-        iterFirst.getLumisInRun(lumis);
+        iterFirst1.getLumisInRun(lumis);
         std::vector<LuminosityBlockNumber_t> expected{102, 103, 104};
         CPPUNIT_ASSERT(lumis == expected);
-      } else if (i == 1)
-        check(iterFirst, kLumi, 0, 2, 1, 0, 2);
-      else if (i == 2)
-        check(iterFirst, kEvent, 0, 2, 1, 0, 2);
-      else if (i == 3)
-        check(iterFirst, kEvent, 0, 2, 1, 1, 2);
-      else if (i == 4)
-        check(iterFirst, kLumi, 0, 4, 3, 0, 4);
-      else if (i == 5)
-        check(iterFirst, kEvent, 0, 4, 3, 0, 4);
-      else if (i == 6)
-        check(iterFirst, kEvent, 0, 4, 3, 1, 4);
-      else if (i == 7)
-        check(iterFirst, kEvent, 0, 4, 3, 2, 4);
-      else if (i == 8)
-        check(iterFirst, kEvent, 0, 4, 3, 3, 4);
-      else if (i == 9)
-        check(iterFirst, kLumi, 0, 5, -1, 0, 0);
-      else if (i == 10)
-        check(iterFirst, kRun, 6, 8, -1, 0, 0);
-      else if (i == 11)
-        check(iterFirst, kRun, 7, 8, -1, 0, 0);
-      else if (i == 12)
-        check(iterFirst, kLumi, 7, 8, -1, 0, 0);
-      else if (i == 13)
-        check(iterFirst, kLumi, 7, 9, 9, 0, 1);
-      else if (i == 14)
-        check(iterFirst, kLumi, 7, 10, 9, 0, 1);
-      else if (i == 15)
-        check(iterFirst, kEvent, 7, 10, 9, 0, 1);
+      } else if (j == 1)
+        check(iterFirst1, kLumi, 0, 2, 1, 0, 2);
+      else if (j == 2)
+        check(iterFirst1, kEvent, 0, 2, 1, 0, 2);
+      else if (j == 3)
+        check(iterFirst1, kEvent, 0, 2, 1, 1, 2);
+      else if (j == 4)
+        check(iterFirst1, kLumi, 0, 4, 3, 0, 4);
+      else if (j == 5)
+        check(iterFirst1, kEvent, 0, 4, 3, 0, 4);
+      else if (j == 6)
+        check(iterFirst1, kEvent, 0, 4, 3, 1, 4);
+      else if (j == 7)
+        check(iterFirst1, kEvent, 0, 4, 3, 2, 4);
+      else if (j == 8)
+        check(iterFirst1, kEvent, 0, 4, 3, 3, 4);
+      else if (j == 9)
+        check(iterFirst1, kLumi, 0, 5, -1, 0, 0);
+      else if (j == 10)
+        check(iterFirst1, kRun, 6, 8, -1, 0, 0);
+      else if (j == 11)
+        check(iterFirst1, kRun, 7, 8, -1, 0, 0);
+      else if (j == 12)
+        check(iterFirst1, kLumi, 7, 8, -1, 0, 0);
+      else if (j == 13)
+        check(iterFirst1, kLumi, 7, 9, 9, 0, 1);
+      else if (j == 14)
+        check(iterFirst1, kLumi, 7, 10, 9, 0, 1);
+      else if (j == 15)
+        check(iterFirst1, kEvent, 7, 10, 9, 0, 1);
       else
         CPPUNIT_ASSERT(false);
     }
-    CPPUNIT_ASSERT(i == 16);
+    CPPUNIT_ASSERT(j == 16);
   }
 
   edm::IndexIntoFile::IndexIntoFileItr testIter = indexIntoFile.findPosition(11, 103, 7);
@@ -1050,103 +1050,103 @@ void TestIndexIntoFile3::testOverlappingLumis() {
   check(testIter, kLumi, 0, 5, -1, 0, 0);
 
   {
-    edm::IndexIntoFile::IndexIntoFileItr testIter = indexIntoFile.findPosition(11, 0, 7);
-    check(testIter, kRun, 0, 4, 3, 3, 4);
-    ++testIter;
-    check(testIter, kLumi, 0, 4, 3, 3, 4);
-    ++testIter;
-    check(testIter, kEvent, 0, 4, 3, 3, 4);
-    ++testIter;
-    check(testIter, kLumi, 0, 5, -1, 0, 0);
-    skipEventBackward(testIter);
-    check(testIter, kLumi, 0, 4, 3, 3, 4);
+    edm::IndexIntoFile::IndexIntoFileItr testIter1 = indexIntoFile.findPosition(11, 0, 7);
+    check(testIter1, kRun, 0, 4, 3, 3, 4);
+    ++testIter1;
+    check(testIter1, kLumi, 0, 4, 3, 3, 4);
+    ++testIter1;
+    check(testIter1, kEvent, 0, 4, 3, 3, 4);
+    ++testIter1;
+    check(testIter1, kLumi, 0, 5, -1, 0, 0);
+    skipEventBackward(testIter1);
+    check(testIter1, kLumi, 0, 4, 3, 3, 4);
   }
 
   {
-    edm::IndexIntoFile indexIntoFile;
-    indexIntoFile.addEntry(fakePHID1, 11, 101, 7, 0);  // Event
-    indexIntoFile.addEntry(fakePHID1, 11, 101, 6, 1);  // Event
-    indexIntoFile.addEntry(fakePHID1, 11, 101, 5, 2);  // Event
-                                                       //Dummy Lumi gets added
-    indexIntoFile.addEntry(fakePHID1, 11, 102, 5, 4);  // Event
-                                                       //Another dummy lumi gets added
-    indexIntoFile.addEntry(fakePHID1, 11, 101, 4, 3);  // Event
-    indexIntoFile.addEntry(fakePHID1, 11, 101, 0, 0);  // Lumi
+    edm::IndexIntoFile indexIntoFile1;
+    indexIntoFile1.addEntry(fakePHID1, 11, 101, 7, 0);  // Event
+    indexIntoFile1.addEntry(fakePHID1, 11, 101, 6, 1);  // Event
+    indexIntoFile1.addEntry(fakePHID1, 11, 101, 5, 2);  // Event
+                                                        //Dummy Lumi gets added
+    indexIntoFile1.addEntry(fakePHID1, 11, 102, 5, 4);  // Event
+                                                        //Another dummy lumi gets added
+    indexIntoFile1.addEntry(fakePHID1, 11, 101, 4, 3);  // Event
+    indexIntoFile1.addEntry(fakePHID1, 11, 101, 0, 0);  // Lumi
 
-    indexIntoFile.addEntry(fakePHID1, 11, 102, 4, 5);  // Event
-    indexIntoFile.addEntry(fakePHID1, 11, 102, 0, 1);  // Lumi
-    indexIntoFile.addEntry(fakePHID1, 11, 0, 0, 0);    // Run
-    indexIntoFile.addEntry(fakePHID2, 11, 0, 0, 1);    // Run
-    indexIntoFile.addEntry(fakePHID2, 11, 101, 0, 2);  // Lumi
-    indexIntoFile.addEntry(fakePHID2, 11, 102, 0, 3);  // Lumi
-    indexIntoFile.addEntry(fakePHID2, 11, 102, 4, 6);  // Event
-    indexIntoFile.addEntry(fakePHID2, 11, 102, 0, 4);  // Lumi
-    indexIntoFile.addEntry(fakePHID2, 11, 0, 0, 2);    // Run
-    indexIntoFile.sortVector_Run_Or_Lumi_Entries();
+    indexIntoFile1.addEntry(fakePHID1, 11, 102, 4, 5);  // Event
+    indexIntoFile1.addEntry(fakePHID1, 11, 102, 0, 1);  // Lumi
+    indexIntoFile1.addEntry(fakePHID1, 11, 0, 0, 0);    // Run
+    indexIntoFile1.addEntry(fakePHID2, 11, 0, 0, 1);    // Run
+    indexIntoFile1.addEntry(fakePHID2, 11, 101, 0, 2);  // Lumi
+    indexIntoFile1.addEntry(fakePHID2, 11, 102, 0, 3);  // Lumi
+    indexIntoFile1.addEntry(fakePHID2, 11, 102, 4, 6);  // Event
+    indexIntoFile1.addEntry(fakePHID2, 11, 102, 0, 4);  // Lumi
+    indexIntoFile1.addEntry(fakePHID2, 11, 0, 0, 2);    // Run
+    indexIntoFile1.sortVector_Run_Or_Lumi_Entries();
 
-    edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
-    edm::IndexIntoFile::IndexIntoFileItr iterFirstEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
-    int i = 0;
-    for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
-      if (i == 0) {
-        check(iterFirst, kRun, 0, 2, 1, 0, 3);
-        CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-        CPPUNIT_ASSERT(iterFirst.size() == 10);
+    edm::IndexIntoFile::IndexIntoFileItr iterFirst2 = indexIntoFile1.begin(IndexIntoFile::firstAppearanceOrder);
+    edm::IndexIntoFile::IndexIntoFileItr iterFirstEnd2 = indexIntoFile1.end(IndexIntoFile::firstAppearanceOrder);
+    int k = 0;
+    for (k = 0; iterFirst2 != iterFirstEnd2; ++iterFirst2, ++k) {
+      if (k == 0) {
+        check(iterFirst2, kRun, 0, 2, 1, 0, 3);
+        CPPUNIT_ASSERT(iterFirst2.indexIntoFile() == &indexIntoFile1);
+        CPPUNIT_ASSERT(iterFirst2.size() == 10);
 
-        iterFirst.getLumisInRun(lumis);
+        iterFirst2.getLumisInRun(lumis);
         std::vector<LuminosityBlockNumber_t> expected{101, 102};
         CPPUNIT_ASSERT(lumis == expected);
       }
       //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
-      else if (i == 1)
-        check(iterFirst, kLumi, 0, 2, 1, 0, 3);
-      else if (i == 2)
-        check(iterFirst, kEvent, 0, 2, 1, 0, 3);
-      else if (i == 3)
-        check(iterFirst, kEvent, 0, 2, 1, 1, 3);
-      else if (i == 4)
-        check(iterFirst, kEvent, 0, 2, 1, 2, 3);
-      else if (i == 5)
-        check(iterFirst, kEvent, 0, 2, 2, 0, 1);
-      else if (i == 6)
-        check(iterFirst, kLumi, 0, 4, 3, 0, 1);
-      else if (i == 7)
-        check(iterFirst, kEvent, 0, 4, 3, 0, 1);
-      else if (i == 8)
-        check(iterFirst, kEvent, 0, 4, 4, 0, 1);
-      else if (i == 9) {
-        check(iterFirst, kRun, 5, 7, -1, 0, 0);
+      else if (k == 1)
+        check(iterFirst2, kLumi, 0, 2, 1, 0, 3);
+      else if (k == 2)
+        check(iterFirst2, kEvent, 0, 2, 1, 0, 3);
+      else if (k == 3)
+        check(iterFirst2, kEvent, 0, 2, 1, 1, 3);
+      else if (k == 4)
+        check(iterFirst2, kEvent, 0, 2, 1, 2, 3);
+      else if (k == 5)
+        check(iterFirst2, kEvent, 0, 2, 2, 0, 1);
+      else if (k == 6)
+        check(iterFirst2, kLumi, 0, 4, 3, 0, 1);
+      else if (k == 7)
+        check(iterFirst2, kEvent, 0, 4, 3, 0, 1);
+      else if (k == 8)
+        check(iterFirst2, kEvent, 0, 4, 4, 0, 1);
+      else if (k == 9) {
+        check(iterFirst2, kRun, 5, 7, -1, 0, 0);
 
-        iterFirst.getLumisInRun(lumis);
+        iterFirst2.getLumisInRun(lumis);
         std::vector<LuminosityBlockNumber_t> expected{101, 102};
         CPPUNIT_ASSERT(lumis == expected);
-      } else if (i == 10)
-        check(iterFirst, kRun, 6, 7, -1, 0, 0);
-      else if (i == 11)
-        check(iterFirst, kLumi, 6, 7, -1, 0, 0);
-      else if (i == 12)
-        check(iterFirst, kLumi, 6, 8, 9, 0, 1);
-      else if (i == 13)
-        check(iterFirst, kLumi, 6, 9, 9, 0, 1);
-      else if (i == 14)
-        check(iterFirst, kEvent, 6, 9, 9, 0, 1);
+      } else if (k == 10)
+        check(iterFirst2, kRun, 6, 7, -1, 0, 0);
+      else if (k == 11)
+        check(iterFirst2, kLumi, 6, 7, -1, 0, 0);
+      else if (k == 12)
+        check(iterFirst2, kLumi, 6, 8, 9, 0, 1);
+      else if (k == 13)
+        check(iterFirst2, kLumi, 6, 9, 9, 0, 1);
+      else if (k == 14)
+        check(iterFirst2, kEvent, 6, 9, 9, 0, 1);
       else
         CPPUNIT_ASSERT(false);
 
-      if (i == 0)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-      if (i == 8)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-      if (i == 10)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+      if (k == 0)
+        CPPUNIT_ASSERT(iterFirst2.firstEventEntryThisRun() == 0);
+      if (k == 8)
+        CPPUNIT_ASSERT(iterFirst2.firstEventEntryThisRun() == 0);
+      if (k == 10)
+        CPPUNIT_ASSERT(iterFirst2.firstEventEntryThisRun() == 6);
 
-      if (i == 0)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
-      if (i == 8)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
-      if (i == 10)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+      if (k == 0)
+        CPPUNIT_ASSERT(iterFirst2.firstEventEntryThisLumi() == 0);
+      if (k == 8)
+        CPPUNIT_ASSERT(iterFirst2.firstEventEntryThisLumi() == 4);
+      if (k == 10)
+        CPPUNIT_ASSERT(iterFirst2.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
     }
-    CPPUNIT_ASSERT(i == 15);
+    CPPUNIT_ASSERT(k == 15);
   }
 }

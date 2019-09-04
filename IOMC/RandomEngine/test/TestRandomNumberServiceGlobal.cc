@@ -275,13 +275,13 @@ void TestRandomNumberServiceGlobal::analyze(edm::StreamID streamID,
   if (nStreams_ > 1) {
     {
       std::lock_guard<std::mutex> lock(write_mutex);
-      std::ostringstream ss;
+      std::ostringstream ss1;
       if (multiStreamReplay_) {
-        ss << "replay";
+        ss1 << "replay";
       }
-      ss << "testRandomServiceL" << event.eventAuxiliary().luminosityBlock() << "E" << event.eventAuxiliary().event()
-         << ".txt";
-      std::string filename = ss.str();
+      ss1 << "testRandomServiceL" << event.eventAuxiliary().luminosityBlock() << "E" << event.eventAuxiliary().event()
+          << ".txt";
+      std::string filename = ss1.str();
 
       std::ofstream outFile;
       outFile.open(filename.c_str(), std::ofstream::app);
