@@ -77,13 +77,15 @@ public:
                 CLHEP::HepRandomEngine*);
   void calculateInstlumiFactor(PileupMixingContent* puInfo);
   void init_DynIneffDB(const edm::EventSetup&, const unsigned int&);
+  std::unique_ptr<PixelFEDChannelCollection> chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine*);
 
   // for premixing
   void calculateInstlumiFactor(const std::vector<PileupSummaryInfo>& ps,
                                int bunchSpacing);  // TODO: try to remove the duplication of logic...
   void setSimAccumulator(const std::map<uint32_t, std::map<int, int> >& signalMap);
+  std::unique_ptr<PixelFEDChannelCollection> chooseScenario(const std::vector<PileupSummaryInfo>& ps,
+                                                            CLHEP::HepRandomEngine* engine);
 
-  std::unique_ptr<PixelFEDChannelCollection> chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine*);
   bool killBadFEDChannels() const;
   typedef std::unordered_map<std::string, PixelFEDChannelCollection> PixelFEDChannelCollectionMap;
   const PixelFEDChannelCollectionMap* quality_map;

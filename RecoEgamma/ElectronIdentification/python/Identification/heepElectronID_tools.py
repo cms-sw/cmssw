@@ -193,10 +193,10 @@ def psetGsfEleDPhiInCut(wpEB, wpEE):
 # Confugure the full 5x5 sigmaIEtaIEta cut
 def psetGsfEleFull5x5SigmaIEtaIEtaCut(wpEB, wpEE):
     return cms.PSet( 
-        cutName = cms.string('GsfEleFull5x5SigmaIEtaIEtaCut'),
-        full5x5SigmaIEtaIEtaCutValueEB = cms.double( wpEB.full5x5SigmaIEtaIEtaCut ),
-        full5x5SigmaIEtaIEtaCutValueEE = cms.double( wpEE.full5x5SigmaIEtaIEtaCut ),
-        barrelCutOff = cms.double(ebCutOff),
+        cutName = cms.string('GsfEleEBEECut'),
+        cutString = cms.string("full5x5_sigmaIetaIeta"),
+        cutValueEB = cms.double( wpEB.full5x5SigmaIEtaIEtaCut ),
+        cutValueEE = cms.double( wpEE.full5x5SigmaIEtaIEtaCut ),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )

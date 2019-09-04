@@ -1,0 +1,11 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="DataFormats/ForwardDetId"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/HGCalGeometry"/>
+<use   name="Geometry/HcalTowerAlgo"/>
+<use   name="vdt_headers"/>
+<export>
+  <lib   name="1"/>
+</export>

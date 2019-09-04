@@ -1,8 +1,13 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 //Add includes for your classes here
-#include "RecoEgamma/ElectronIdentification/interface/VersionedGsfElectronSelector.h"
-#include "RecoEgamma/ElectronIdentification/interface/VersionedPatElectronSelector.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "PhysicsTools/SelectorUtils/interface/VersionedSelector.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+
+typedef VersionedSelector<edm::Ptr<reco::GsfElectron> > VersionedGsfElectronSelector;
+typedef VersionedSelector<edm::Ptr<pat::Electron> > VersionedPatElectronSelector;
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 

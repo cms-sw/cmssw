@@ -7,7 +7,8 @@ autoSkim = {
  'MET' : 'HighMET+EXOMONOPOLE+LogError+LogErrorMonitor',
  'SingleElectron' : 'LogError+LogErrorMonitor',
  'SinglePhoton' : 'SinglePhotonJetPlusHOFilter+EXOMONOPOLE+LogError+LogErrorMonitor',
- 'DoubleEG' : 'ZElectron+LogError+LogErrorMonitor',
+ 'DoubleEG' : 'ZElectron+EXOMONOPOLE+LogError+LogErrorMonitor',
+ 'EGamma':'SinglePhotonJetPlusHOFilter+ZElectron+EXOMONOPOLE+LogError+LogErrorMonitor',
  'Tau' : 'LogError+LogErrorMonitor',
  'SingleMuon' : 'MuonPOGSkim+ZMu+MuTau+LogError+LogErrorMonitor',
  'DoubleMuon' : 'LogError+LogErrorMonitor',
@@ -25,6 +26,7 @@ autoSkim = {
  'ParkingBPH':'SkimBPark+LogError+LogErrorMonitor',
  
 }
+#2018 EGamma is a merged datasets of SingleElectron, SinglePhoton, DoubleEG
 
 autoSkimRunI = {
     'MinBias':'MuonTrack+BeamBkg+ValSkim+LogError+HSCPSD',
