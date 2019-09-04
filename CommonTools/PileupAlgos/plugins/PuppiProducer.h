@@ -51,7 +51,6 @@ private:
   double fPtMaxPhotons;
   double fEtaMaxPhotons;
   double fPtMaxNeutrals;
-  double fPtMaxStartNeutrals;
   bool fUseExistingWeights;
   bool fUseWeightsNoLep;
   bool fClonePackedCands;
