@@ -50,59 +50,59 @@ public:
   void Draw() override {}
   void Print() override;
 
-  const G4ThreeVector& getMeanPosition() const { return MeanPosition_; };
+  const G4ThreeVector& meanPosition() const { return MeanPosition_; };
   void setMeanPosition(const G4ThreeVector& a) { MeanPosition_ = a; };
 
-  const G4ThreeVector& getEntryPoint() const;
+  const G4ThreeVector& entryPoint() const;
   void setEntryPoint(const G4ThreeVector&);
-  const G4ThreeVector& getExitPoint() const;
+  const G4ThreeVector& exitPoint() const;
   void setExitPoint(const G4ThreeVector&);
 
-  double getEM() const;
+  double eM() const;
   void setEM(double e);
 
-  double getHadr() const;
+  double hadr() const;
   void setHadr(double e);
 
-  double getIncidentEnergy() const;
+  double incidentEnergy() const;
   void setIncidentEnergy(double e);
 
-  int getTrackID() const;
+  int trackID() const;
   void setTrackID(int i);
 
-  uint32_t getUnitID() const;
+  uint32_t unitID() const;
   void setUnitID(uint32_t i);
 
-  double getTimeSlice() const;
+  double timeSlice() const;
   void setTimeSlice(double d);
-  int getTimeSliceID() const;
+  int timeSliceID() const;
 
   void addEnergyDeposit(double em, double hd);
   void addEnergyDeposit(const PPSPixelG4Hit& aHit);
 
-  double getEnergyDeposit() const;
+  double energyDeposit() const;
 
-  float getPabs() const;
-  float getTof() const;
-  float getEnergyLoss() const;
-  int getParticleType() const;
+  float p() const;
+  float tof() const;
+  float energyLoss() const;
+  int particleType() const;
 
-  void setPabs(float e);
+  void setP(float e);
   void setTof(float e);
   void setEnergyLoss(float e);
   void setParticleType(short i);
 
-  float getThetaAtEntry() const;
-  float getPhiAtEntry() const;
+  float thetaAtEntry() const;
+  float phiAtEntry() const;
 
   void setThetaAtEntry(float t);
   void setPhiAtEntry(float f);
-  float getPx() const;
-  float getPy() const;
-  float getPz() const;
-  float getVPx() const;
-  float getVPy() const;
-  float getVPz() const;
+  float px() const;
+  float py() const;
+  float pz() const;
+  float vPx() const;
+  float vPy() const;
+  float vPz() const;
 
   void setPx(float e);
   void setPy(float e);
@@ -110,17 +110,17 @@ public:
   void setVPx(float e);
   void setVPy(float e);
   void setVPz(float e);
-  float getX() const;
-  float getY() const;
-  float getZ() const;
+  float x() const;
+  float y() const;
+  float z() const;
   void setX(float t);
   void setY(float t);
   void setZ(float t);
 
-  int getParentId() const;
-  float getVx() const;
-  float getVy() const;
-  float getVz() const;
+  int parentId() const;
+  float vx() const;
+  float vy() const;
+  float vz() const;
 
   void setParentId(int p);
   void setVx(float p);

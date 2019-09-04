@@ -19,9 +19,6 @@
 //
 // constructors and destructor
 //
-PPSPixelNumberingScheme::PPSPixelNumberingScheme() {
-  edm::LogInfo("PPSSim") << " Creating PPSPixelNumberingScheme";
-  //  SetCurrentDetectorPosition();
-}
+PPSPixelNumberingScheme::PPSPixelNumberingScheme() { edm::LogInfo("PPSSim") << " Creating PPSPixelNumberingScheme"; }
 
 PPSPixelNumberingScheme::~PPSPixelNumberingScheme() { edm::LogInfo("PPSSim") << " Deleting PPSPixelNumberingScheme"; }

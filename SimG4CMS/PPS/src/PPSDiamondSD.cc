@@ -52,10 +52,10 @@ PPSDiamondSD::PPSDiamondSD(const std::string& name_,
                             << "*******************************************************"
                             << "\n";
 
-  slave_ = new TrackingSlaveSD(name_);
+  slave_ = std::make_unique<TrackingSlaveSD>(name_);
 
   if (name_ == "CTPPSTimingHits") {
-    numberingScheme_ = dynamic_cast<PPSVDetectorOrganization*>(new PPSDiamondNumberingScheme());
+    numberingScheme_ = std::make_unique<PPSDiamondNumberingScheme>();
     edm::LogInfo("PPSSimDiamond") << "Find CTPPSDiamondHits as name";
   } else {
     edm::LogWarning("PPSSimDiamond") << "PPSDiamondSD: ReadoutName not supported\n";
@@ -64,10 +64,7 @@ PPSDiamondSD::PPSDiamondSD(const std::string& name_,
   edm::LogInfo("PPSSimDiamond") << "PPSDiamondSD: Instantiation completed";
 }
 
-PPSDiamondSD::~PPSDiamondSD() {
-  delete slave_;
-  delete numberingScheme_;
-}
+PPSDiamondSD::~PPSDiamondSD() {}
 
 void PPSDiamondSD::Initialize(G4HCofThisEvent* HCE) {
   LogDebug("PPSSimDiamond") << "PPSDiamondSD : Initialize called for " << name_;
@@ -79,7 +76,7 @@ void PPSDiamondSD::Initialize(G4HCofThisEvent* HCE) {
   HCE->AddHitsCollection(hcID_, theHC_);
 }
 
-void PPSDiamondSD::Print_Hit_Info() {
+void PPSDiamondSD::printHitInfo() {
   LogDebug("PPSSimDiamond") << theTrack_->GetDefinition()->GetParticleName() << " PPS_Timing_SD CreateNewHit for"
                             << " PV " << currentPV_->GetName() << " PVid = " << currentPV_->GetCopyNo() << " Unit "
                             << unitID_ << "\n";
@@ -129,11 +126,10 @@ bool PPSDiamondSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
                               << "*******************************************************"
                               << "\n";
 
-    GetStepInfo(aStep);
+    stepInfo(aStep);
 
     if (theTrack_->GetDefinition()->GetPDGEncoding() == 2212) {
-      //Print_Hit_Info();
-      ImportInfotoHit();  //in addtion to import info to hit it STORE hit as well
+      importInfoToHit();  //in addtion to import info to hit it STORE hit as well
       LogDebug("PPSSimDiamond") << " information imported to the hit ";
     }
 
@@ -141,15 +137,15 @@ bool PPSDiamondSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   }
 }
 
-void PPSDiamondSD::GetStepInfo(const G4Step* aStep) {
+void PPSDiamondSD::stepInfo(const G4Step* aStep) {
   theTrack_ = aStep->GetTrack();
   preStepPoint_ = aStep->GetPreStepPoint();
   postStepPoint_ = aStep->GetPostStepPoint();
   hitPoint_ = preStepPoint_->GetPosition();
   exitPoint_ = postStepPoint_->GetPosition();
   currentPV_ = preStepPoint_->GetPhysicalVolume();
-  theLocalEntryPoint_ = SetToLocal(hitPoint_);
-  theLocalExitPoint_ = SetToLocal(exitPoint_);
+  theLocalEntryPoint_ = setToLocal(hitPoint_);
+  theLocalExitPoint_ = setToLocal(exitPoint_);
   theglobaltimehit_ = preStepPoint_->GetGlobalTime() / nanosecond;
   incidentEnergy_ = (aStep->GetPreStepPoint()->GetTotalEnergy() / eV);
   tSlice_ = (postStepPoint_->GetGlobalTime()) / nanosecond;
@@ -179,7 +175,7 @@ void PPSDiamondSD::GetStepInfo(const G4Step* aStep) {
   ThetaAtEntry_ = lnmd.theta();
   PhiAtEntry_ = lnmd.phi();
 
-  if (IsPrimary(theTrack_))
+  if (isPrimary(theTrack_))
     ParentId_ = 0;
   else
     ParentId_ = theTrack_->GetParentID();
@@ -190,10 +186,10 @@ void PPSDiamondSD::GetStepInfo(const G4Step* aStep) {
 }
 
 uint32_t PPSDiamondSD::setDetUnitId(const G4Step* aStep) {
-  return (numberingScheme_ == nullptr ? 0 : numberingScheme_->GetUnitID(aStep));
+  return (numberingScheme_ == nullptr ? 0 : numberingScheme_->unitID(aStep));
 }
 
-void PPSDiamondSD::StoreHit(PPSDiamondG4Hit* hit) {
+void PPSDiamondSD::storeHit(PPSDiamondG4Hit* hit) {
   if (hit == nullptr) {
     if (verbosity_)
       LogDebug("PPSSimDiamond") << "PPSDiamond: hit to be stored is NULL !!"
@@ -204,13 +200,13 @@ void PPSDiamondSD::StoreHit(PPSDiamondG4Hit* hit) {
   theHC_->insert(hit);
 }
 
-void PPSDiamondSD::ImportInfotoHit() {
+void PPSDiamondSD::importInfoToHit() {
   currentHit_ = new PPSDiamondG4Hit;
   currentHit_->setTrackID(primaryID_);
   currentHit_->setTimeSlice(tSlice_);
   currentHit_->setUnitID(unitID_);
   currentHit_->setIncidentEnergy(incidentEnergy_);
-  currentHit_->setPabs(Pabs_);
+  currentHit_->setP(Pabs_);
   currentHit_->setTof(Tof_);
   currentHit_->setEnergyLoss(Eloss_);
   currentHit_->setParticleType(ParticleType_);
@@ -229,11 +225,11 @@ void PPSDiamondSD::ImportInfotoHit() {
   currentHit_->setPz(thePz_);
   currentHit_->setGlobalTimehit(Globaltimehit_);
 
-  StoreHit(currentHit_);
+  storeHit(currentHit_);
   LogDebug("PPSSimDiamond") << "STORED HIT IN: " << unitID_ << "\n";
 }
 
-G4ThreeVector PPSDiamondSD::SetToLocal(const G4ThreeVector& global) {
+G4ThreeVector PPSDiamondSD::setToLocal(const G4ThreeVector& global) {
   G4ThreeVector localPoint;
   const G4VTouchable* touch = preStepPoint_->GetTouchable();
   localPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);
@@ -243,26 +239,26 @@ G4ThreeVector PPSDiamondSD::SetToLocal(const G4ThreeVector& global) {
 
 void PPSDiamondSD::EndOfEvent(G4HCofThisEvent*) {
   // here we loop over transient hits and make them persistent
-  for (int j = 0; j < theHC_->entries() && j < 15000; j++) {
+  for (unsigned int j = 0; j < (unsigned int)theHC_->entries() && j < maxDiamondHits_; j++) {
     PPSDiamondG4Hit* aHit = (*theHC_)[j];
 
-    Local3DPoint Entrata(aHit->getLocalEntry().x(), aHit->getLocalEntry().y(), aHit->getLocalEntry().z());
-    Local3DPoint Uscita(aHit->getLocalExit().x(), aHit->getLocalExit().y(), aHit->getLocalExit().z());
-    slave_->processHits(PSimHit(Entrata,
-                                Uscita,
-                                aHit->getPabs(),
-                                aHit->getTof(),
-                                aHit->getEnergyLoss(),
-                                aHit->getParticleType(),
-                                aHit->getUnitID(),
-                                aHit->getTrackID(),
-                                aHit->getThetaAtEntry(),
-                                aHit->getPhiAtEntry()));
+    Local3DPoint entry(aHit->localEntry().x(), aHit->localEntry().y(), aHit->localEntry().z());
+    Local3DPoint exit(aHit->localExit().x(), aHit->localExit().y(), aHit->localExit().z());
+    slave_->processHits(PSimHit(entry,
+                                exit,
+                                aHit->p(),
+                                aHit->tof(),
+                                aHit->energyLoss(),
+                                aHit->particleType(),
+                                aHit->unitID(),
+                                aHit->trackID(),
+                                aHit->thetaAtEntry(),
+                                aHit->phiAtEntry()));
   }
-  Summarize();
+  summarize();
 }
 
-void PPSDiamondSD::Summarize() {}
+void PPSDiamondSD::summarize() {}
 
 void PPSDiamondSD::clear() {}
 
@@ -277,14 +273,12 @@ void PPSDiamondSD::fillHits(edm::PSimHitContainer& c, const std::string& n) {
   if (slave_->name() == n)
     c = slave_->hits();
 }
-
-void PPSDiamondSD::SetNumberingScheme(PPSVDetectorOrganization* scheme) {
-  if (numberingScheme_)
-    delete numberingScheme_;
-  numberingScheme_ = scheme;
-  LogDebug("PPSSimDiamond") << "SetNumberingScheme " << numberingScheme_ << "\n";
+void PPSDiamondSD::setNumberingScheme(PPSVDetectorOrganization* scheme) {
+  if (scheme) {
+    LogDebug("PPSDiamond") << "PPSDiamondSD: updates numbering scheme for " << GetName();
+    numberingScheme_.reset(scheme);
+  }
 }
-
 void PPSDiamondSD::update(const BeginOfEvent* i) {
   LogDebug("PPSSimDiamond") << " Dispatched BeginOfEvent !"
                             << "\n";
@@ -298,7 +292,7 @@ void PPSDiamondSD::clearTrack(G4Track* track) { track->SetTrackStatus(fStopAndKi
 
 void PPSDiamondSD::clearHits() { slave_->Initialize(); }
 
-bool PPSDiamondSD::IsPrimary(const G4Track* track) {
+bool PPSDiamondSD::isPrimary(const G4Track* track) {
   TrackInformation* info = dynamic_cast<TrackInformation*>(track->GetUserInformation());
   return info && info->isPrimary();
 }

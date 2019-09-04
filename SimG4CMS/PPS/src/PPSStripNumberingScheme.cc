@@ -2,7 +2,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
-// #define debug
 
 PPSStripNumberingScheme::PPSStripNumberingScheme(int i) {
   edm::LogInfo("TotemRP") << " Creating PPSStripNumberingScheme" << std::endl;

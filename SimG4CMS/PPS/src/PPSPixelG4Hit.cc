@@ -120,58 +120,58 @@ const PPSPixelG4Hit& PPSPixelG4Hit::operator=(const PPSPixelG4Hit& right) {
 }
 
 void PPSPixelG4Hit::addEnergyDeposit(const PPSPixelG4Hit& aHit) {
-  elem_ += aHit.getEM();
-  hadr_ += aHit.getHadr();
+  elem_ += aHit.eM();
+  hadr_ += aHit.hadr();
 }
 
 void PPSPixelG4Hit::Print() { edm::LogInfo("PPSPixelG4Hit") << (*this); }
 
-const G4ThreeVector& PPSPixelG4Hit::getEntryPoint() const { return theEntryPoint_; }
+const G4ThreeVector& PPSPixelG4Hit::entryPoint() const { return theEntryPoint_; }
 
 void PPSPixelG4Hit::setEntryPoint(const G4ThreeVector& xyz) { theEntryPoint_ = xyz; }
 
-const G4ThreeVector& PPSPixelG4Hit::getExitPoint() const { return theExitPoint_; }
+const G4ThreeVector& PPSPixelG4Hit::exitPoint() const { return theExitPoint_; }
 
 void PPSPixelG4Hit::setExitPoint(const G4ThreeVector& xyz) { theExitPoint_ = xyz; }
 
-double PPSPixelG4Hit::getEM() const { return elem_; }
+double PPSPixelG4Hit::eM() const { return elem_; }
 void PPSPixelG4Hit::setEM(double e) { elem_ = e; }
 
-double PPSPixelG4Hit::getHadr() const { return hadr_; }
+double PPSPixelG4Hit::hadr() const { return hadr_; }
 void PPSPixelG4Hit::setHadr(double e) { hadr_ = e; }
 
-double PPSPixelG4Hit::getIncidentEnergy() const { return theIncidentEnergy_; }
+double PPSPixelG4Hit::incidentEnergy() const { return theIncidentEnergy_; }
 void PPSPixelG4Hit::setIncidentEnergy(double e) { theIncidentEnergy_ = e; }
 
-int PPSPixelG4Hit::getTrackID() const { return theTrackID_; }
+int PPSPixelG4Hit::trackID() const { return theTrackID_; }
 void PPSPixelG4Hit::setTrackID(int i) { theTrackID_ = i; }
 
-uint32_t PPSPixelG4Hit::getUnitID() const { return theUnitID_; }
+uint32_t PPSPixelG4Hit::unitID() const { return theUnitID_; }
 void PPSPixelG4Hit::setUnitID(uint32_t i) { theUnitID_ = i; }
 
-double PPSPixelG4Hit::getTimeSlice() const { return theTimeSlice_; }
+double PPSPixelG4Hit::timeSlice() const { return theTimeSlice_; }
 void PPSPixelG4Hit::setTimeSlice(double d) { theTimeSlice_ = d; }
-int PPSPixelG4Hit::getTimeSliceID() const { return (int)theTimeSlice_; }
+int PPSPixelG4Hit::timeSliceID() const { return (int)theTimeSlice_; }
 
 void PPSPixelG4Hit::addEnergyDeposit(double em, double hd) {
   elem_ += em;
   hadr_ += hd;
 }
 
-double PPSPixelG4Hit::getEnergyDeposit() const { return elem_ + hadr_; }
+double PPSPixelG4Hit::energyDeposit() const { return elem_ + hadr_; }
 
-float PPSPixelG4Hit::getPabs() const { return thePabs_; }
-float PPSPixelG4Hit::getTof() const { return theTof_; }
-float PPSPixelG4Hit::getEnergyLoss() const { return theEnergyLoss_; }
-int PPSPixelG4Hit::getParticleType() const { return theParticleType_; }
-float PPSPixelG4Hit::getPx() const { return thePx_; }
-float PPSPixelG4Hit::getPy() const { return thePy_; }
-float PPSPixelG4Hit::getPz() const { return thePz_; }
-float PPSPixelG4Hit::getVPx() const { return theVPx_; }
-float PPSPixelG4Hit::getVPy() const { return theVPy_; }
-float PPSPixelG4Hit::getVPz() const { return theVPz_; }
+float PPSPixelG4Hit::p() const { return thePabs_; }
+float PPSPixelG4Hit::tof() const { return theTof_; }
+float PPSPixelG4Hit::energyLoss() const { return theEnergyLoss_; }
+int PPSPixelG4Hit::particleType() const { return theParticleType_; }
+float PPSPixelG4Hit::px() const { return thePx_; }
+float PPSPixelG4Hit::py() const { return thePy_; }
+float PPSPixelG4Hit::pz() const { return thePz_; }
+float PPSPixelG4Hit::vPx() const { return theVPx_; }
+float PPSPixelG4Hit::vPy() const { return theVPy_; }
+float PPSPixelG4Hit::vPz() const { return theVPz_; }
 
-void PPSPixelG4Hit::setPabs(float e) { thePabs_ = e; }
+void PPSPixelG4Hit::setP(float e) { thePabs_ = e; }
 void PPSPixelG4Hit::setPx(float e) { thePx_ = e; }
 void PPSPixelG4Hit::setPy(float e) { thePy_ = e; }
 void PPSPixelG4Hit::setPz(float e) { thePz_ = e; }
@@ -182,43 +182,43 @@ void PPSPixelG4Hit::setTof(float e) { theTof_ = e; }
 void PPSPixelG4Hit::setEnergyLoss(float e) { theEnergyLoss_ = e; }
 void PPSPixelG4Hit::setParticleType(short i) { theParticleType_ = i; }
 
-float PPSPixelG4Hit::getThetaAtEntry() const { return theThetaAtEntry_; }
-float PPSPixelG4Hit::getPhiAtEntry() const { return thePhiAtEntry_; }
+float PPSPixelG4Hit::thetaAtEntry() const { return theThetaAtEntry_; }
+float PPSPixelG4Hit::phiAtEntry() const { return thePhiAtEntry_; }
 
 void PPSPixelG4Hit::setThetaAtEntry(float t) { theThetaAtEntry_ = t; }
 void PPSPixelG4Hit::setPhiAtEntry(float f) { thePhiAtEntry_ = f; }
 
-float PPSPixelG4Hit::getX() const { return theX_; }
+float PPSPixelG4Hit::x() const { return theX_; }
 void PPSPixelG4Hit::setX(float t) { theX_ = t; }
 
-float PPSPixelG4Hit::getY() const { return theY_; }
+float PPSPixelG4Hit::y() const { return theY_; }
 void PPSPixelG4Hit::setY(float t) { theY_ = t; }
 
-float PPSPixelG4Hit::getZ() const { return theZ_; }
+float PPSPixelG4Hit::z() const { return theZ_; }
 void PPSPixelG4Hit::setZ(float t) { theZ_ = t; }
 
-int PPSPixelG4Hit::getParentId() const { return theParentId_; }
+int PPSPixelG4Hit::parentId() const { return theParentId_; }
 void PPSPixelG4Hit::setParentId(int p) { theParentId_ = p; }
 
-float PPSPixelG4Hit::getVx() const { return theVx_; }
+float PPSPixelG4Hit::vx() const { return theVx_; }
 void PPSPixelG4Hit::setVx(float t) { theVx_ = t; }
 
-float PPSPixelG4Hit::getVy() const { return theVy_; }
+float PPSPixelG4Hit::vy() const { return theVy_; }
 void PPSPixelG4Hit::setVy(float t) { theVy_ = t; }
 
-float PPSPixelG4Hit::getVz() const { return theVz_; }
+float PPSPixelG4Hit::vz() const { return theVz_; }
 void PPSPixelG4Hit::setVz(float t) { theVz_ = t; }
 
 std::ostream& operator<<(std::ostream& os, const PPSPixelG4Hit& hit) {
   os << " Data of this PPSPixelG4Hit are:\n"
-     << " Time slice ID: " << hit.getTimeSliceID() << "\n"
-     << " EnergyDeposit = " << hit.getEnergyLoss() << "\n"
-     << " Energy of primary particle (ID = " << hit.getTrackID() << ") = " << hit.getIncidentEnergy() << " (MeV)"
+     << " Time slice ID: " << hit.timeSliceID() << "\n"
+     << " EnergyDeposit = " << hit.energyLoss() << "\n"
+     << " Energy of primary particle (ID = " << hit.trackID() << ") = " << hit.incidentEnergy() << " (MeV)"
      << "\n"
-     << " Local entry and exit points in PPS unit number " << hit.getUnitID() << " are: " << hit.getEntryPoint()
-     << " (mm)" << hit.getExitPoint() << " (mm)"
+     << " Local entry and exit points in PPS unit number " << hit.unitID() << " are: " << hit.entryPoint() << " (mm)"
+     << hit.exitPoint() << " (mm)"
      << "\n"
-     << " Global posizion in PPS unit number " << hit.getUnitID() << " are: " << hit.getMeanPosition() << " (mm)"
+     << " Global posizion in PPS unit number " << hit.unitID() << " are: " << hit.meanPosition() << " (mm)"
      << "\n"
      << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
   return os;
