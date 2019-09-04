@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerOTRingBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsDetConstruction.h"
@@ -9,14 +10,14 @@
 
 #include <vector>
 
-template <>
-void CmsTrackerOTRingBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
+template <class T>
+void CmsTrackerOTRingBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+  CmsDetConstruction<T> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-template <>
-void CmsTrackerOTRingBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerOTRingBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   //increasing phi taking into account the sub-modules
@@ -26,3 +27,6 @@ void CmsTrackerOTRingBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, Geometr
     det->component(i)->setGeographicalID(i + 1);
   }
 }
+
+template class CmsTrackerOTRingBuilder<DDFilteredView>;
+template class CmsTrackerOTRingBuilder<cms::DDFilteredView>;

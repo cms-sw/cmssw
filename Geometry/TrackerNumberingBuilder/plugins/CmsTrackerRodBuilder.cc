@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerRodBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -7,14 +8,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
-template <>
-void CmsTrackerRodBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
+template <class T>
+void CmsTrackerRodBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+  CmsDetConstruction<T> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-template <>
-void CmsTrackerRodBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerRodBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   std::stable_sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessModZ);
@@ -27,3 +28,6 @@ void CmsTrackerRodBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricD
     edm::LogError("CmsTrackerRodBuilder") << "Where are the Rod's modules?";
   }
 }
+
+template class CmsTrackerRodBuilder<DDFilteredView>;
+template class CmsTrackerRodBuilder<cms::DDFilteredView>;

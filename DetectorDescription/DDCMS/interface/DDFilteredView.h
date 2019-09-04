@@ -138,6 +138,8 @@ namespace cms {
     template <typename T>
     T get(const char*) const;
 
+    std::string_view getString(const std::string&) const;
+
     //! return the stack of sibling numbers which indicates
     //  the current position in the DDFilteredView
     nav_type navPos() const;
@@ -154,6 +156,7 @@ namespace cms {
     Filter* currentFilter_ = nullptr;
     Node* node_ = nullptr;
     const DDSpecParRegistry* registry_;
+    DDSpecParRefs refs_;
   };
 }  // namespace cms
 

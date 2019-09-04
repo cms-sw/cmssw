@@ -137,10 +137,10 @@ bool CmsTrackerLevelBuilderHelper::isLessRModule(const GeometricDet* a, const Ge
 
 bool CmsTrackerLevelBuilderHelper::isLessR(const GeometricDet* a, const GeometricDet* b) { return a->rho() < b->rho(); }
 
-template <>
-void CmsTrackerLevelBuilder<DDFilteredView>::build(DDFilteredView& fv, GeometricDet* tracker, std::string attribute) {
-  LogTrace("GeometricDetBuilding") << std::string(3 * fv.history().size(), '-') << "+ "
-                                   << ExtractStringFromDDD::getString(attribute, &fv) << " " << tracker->type() << " "
+template <class T>
+void CmsTrackerLevelBuilder<T>::build(T& fv, GeometricDet* tracker, std::string attribute) {
+  LogTrace("GeometricDetBuilding") //<< std::string(3 * fv.history().size(), '-') << "+ "
+                                   << ExtractStringFromDDD<T>::getString(attribute, &fv) << " " << tracker->type() << " "
                                    << tracker->name() << std::endl;
 
   bool doLayers = fv.firstChild();  // descend to the first Layer
@@ -155,22 +155,5 @@ void CmsTrackerLevelBuilder<DDFilteredView>::build(DDFilteredView& fv, Geometric
   sortNS(fv, tracker);
 }
 
-template <>
-void CmsTrackerLevelBuilder<cms::DDFilteredView>::build(cms::DDFilteredView& fv,
-                                                        GeometricDet* tracker,
-                                                        std::string attribute) {
-  // LogTrace("GeometricDetBuilding") << std::string(3 * fv.history().size(), '-') << "+ "
-  //                                  << ExtractStringFromDDD::getString(attribute, &fv) << " " << tracker->type() << " "
-  //                                  << tracker->name() << std::endl;
-
-  bool doLayers = fv.firstChild();  // descend to the first Layer
-
-  while (doLayers) {
-    buildComponent(fv, tracker, attribute);
-    doLayers = fv.nextSibling();  // go to next layer
-  }
-
-  fv.parent();
-
-  sortNS(fv, tracker);
-}
+template class CmsTrackerLevelBuilder<DDFilteredView>;
+template class CmsTrackerLevelBuilder<cms::DDFilteredView>;

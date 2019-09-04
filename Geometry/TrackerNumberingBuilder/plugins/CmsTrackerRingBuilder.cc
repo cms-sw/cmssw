@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerRingBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -10,14 +11,14 @@
 #include <vector>
 #include <bitset>
 
-template <>
-void CmsTrackerRingBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsDetConstruction<DDFilteredView> theCmsDetConstruction;
+template <class T>
+void CmsTrackerRingBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+  CmsDetConstruction<T> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-template <>
-void CmsTrackerRingBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerRingBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
   fv.firstChild();
   GeometricDet::GeometricDetContainer compfw;
@@ -39,7 +40,7 @@ void CmsTrackerRingBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, Geometric
   static std::string const TECGluedDet("TECGluedDet");
   static std::string const TECDet("TECDet");
 
-  std::string const pname = ExtractStringFromDDD::getString(part, &fv);
+  std::string const pname = ExtractStringFromDDD<T>::getString(part, &fv);
 
   // TEC
   // Module Number: 3 bits [1,...,5 at most]
@@ -88,3 +89,6 @@ void CmsTrackerRingBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, Geometric
 
   fv.parent();
 }
+
+template class CmsTrackerRingBuilder<DDFilteredView>;
+template class CmsTrackerRingBuilder<cms::DDFilteredView>;

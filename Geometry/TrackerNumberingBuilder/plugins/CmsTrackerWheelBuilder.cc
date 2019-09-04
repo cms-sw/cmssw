@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerWheelBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -11,13 +12,13 @@
 #include <vector>
 #include <bitset>
 
-template <>
-void CmsTrackerWheelBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerRingBuilder<DDFilteredView> theCmsTrackerRingBuilder;
-  CmsTrackerPetalBuilder<DDFilteredView> theCmsTrackerPetalBuilder;
+template <class T>
+void CmsTrackerWheelBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+  CmsTrackerRingBuilder<T> theCmsTrackerRingBuilder;
+  CmsTrackerPetalBuilder<T> theCmsTrackerPetalBuilder;
 
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  GeometricDet* subdet = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
+  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::ring:
       theCmsTrackerRingBuilder.build(fv, subdet, s);
       break;
@@ -26,13 +27,13 @@ void CmsTrackerWheelBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, 
       break;
     default:
       edm::LogError("CmsTrackerWheelBuilder")
-          << " ERROR - I was expecting a Ring or Petal, I got a " << ExtractStringFromDDD::getString(s, &fv);
+          << " ERROR - I was expecting a Ring or Petal, I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }
 
-template <>
-void CmsTrackerWheelBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerWheelBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   if (!comp.empty()) {
@@ -85,3 +86,6 @@ void CmsTrackerWheelBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, Geometri
     edm::LogError("CmsTrackerWheelBuilder") << "Where are the Petals or Rings?";
   }
 }
+
+template class CmsTrackerWheelBuilder<DDFilteredView>;
+template class CmsTrackerWheelBuilder<cms::DDFilteredView>;

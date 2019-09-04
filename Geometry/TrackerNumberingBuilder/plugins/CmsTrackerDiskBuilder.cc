@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerDiskBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPanelBuilder.h"
@@ -12,24 +13,24 @@
 
 using namespace std;
 
-template <>
-void CmsTrackerDiskBuilder<DDFilteredView>::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerPanelBuilder<DDFilteredView> theCmsTrackerPanelBuilder;
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
+template <class T>
+void CmsTrackerDiskBuilder<T>::buildComponent(T& fv, GeometricDet* g, std::string s) {
+  CmsTrackerPanelBuilder<T> theCmsTrackerPanelBuilder;
+  GeometricDet* subdet = new GeometricDet(&fv, CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv)));
 
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  switch (CmsTrackerLevelBuilder<T>::theCmsTrackerStringToEnum.type(ExtractStringFromDDD<T>::getString(s, &fv))) {
     case GeometricDet::panel:
       theCmsTrackerPanelBuilder.build(fv, subdet, s);
       break;
     default:
       edm::LogError("CmsTrackerDiskBuilder")
-          << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD::getString(s, &fv);
+          << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD<T>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }
 
-template <>
-void CmsTrackerDiskBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class T>
+void CmsTrackerDiskBuilder<T>::sortNS(T& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   switch (det->components().front()->type()) {
@@ -80,3 +81,6 @@ void CmsTrackerDiskBuilder<DDFilteredView>::sortNS(DDFilteredView& fv, Geometric
   det->addComponents(zminpanels);
   det->addComponents(zmaxpanels);
 }
+
+template class CmsTrackerDiskBuilder<DDFilteredView>;
+template class CmsTrackerDiskBuilder<cms::DDFilteredView>;
