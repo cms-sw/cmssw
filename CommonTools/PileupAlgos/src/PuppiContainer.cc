@@ -325,7 +325,8 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
     if (pWeight * fPFParticles[i0].pt() < fPuppiAlgo[pPupId].neutralPt(fNPV) && rParticle.id == 0)
       pWeight = 0;  //threshold cut on the neutral Pt
     // Protect high pT photons (important for gamma to hadronic recoil balance)
-    if ((fPtMaxPhotons > 0) && (rParticle.pdgId == 22) && (std::abs(fPFParticles[i0].eta())<fEtaMaxPhotons) && (fPFParticles[i0].pt()>fPtMaxPhotons))
+    if ((fPtMaxPhotons > 0) && (rParticle.pdgId == 22) && (std::abs(fPFParticles[i0].eta()) < fEtaMaxPhotons) &&
+        (fPFParticles[i0].pt() > fPtMaxPhotons))
       pWeight = 1.;
     // Protect high pT neutrals
     if ((fPtMaxNeutrals > 0) && (rParticle.id == 0))
