@@ -2,6 +2,8 @@
 #define DETECTOR_DESCRIPTION_DDCMS_DD_SOLID_SHAPES_H
 
 #include <iosfwd>
+#include <array>
+#include <algorithm>
 
 namespace cms {
 

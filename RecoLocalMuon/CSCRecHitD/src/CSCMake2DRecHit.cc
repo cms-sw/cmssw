@@ -42,7 +42,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id,
   specs_ = layer->chamber()->specs();
   id_ = id;
 
-  const float sqrt_12 = 3.4641;
+  static constexpr float inv_sqrt_12 = 0.2886751;
 
   float tpeak = -99.f;
 
@@ -133,8 +133,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id,
   }
   tpeak = peakTimeFinder_->peakTime(tmax, adcArray, tpeak);
   // Just for completeness, the start time of the pulse is 133 ns earlier, according to Stan :)
-  float t_zero = tpeak - 133.f;
-  LogTrace("CSCRecHit") << "[CSCMake2DRecHit] " << id << " strip=" << centerStrip << ", t_zero=" << t_zero
+  LogTrace("CSCRecHit") << "[CSCMake2DRecHit] " << id << " strip=" << centerStrip << ", t_zero=" << tpeak - 133.f
                         << ", tpeak=" << tpeak;
 
   float positionWithinTheStrip = -99.;
@@ -148,7 +147,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id,
     lp0 = layergeom_->stripWireIntersection(centerStrip, centerWire);
     positionWithinTheStrip = 0.f;
     stripWidth = layergeom_->stripPitch(lp0);
-    sigmaWithinTheStrip = stripWidth / sqrt_12;
+    sigmaWithinTheStrip = stripWidth * inv_sqrt_12;
     quality = 2;
   } else {
     // If not at the edge, used cluster of size ClusterSize:
@@ -325,7 +324,6 @@ float CSCMake2DRecHit::findWireBx(const std::vector<int>& timeBinsOn, float tpea
       unchanged) {                                                         // Make sure one next to it exists
     if (timeBinsOn[bestMatch] == (timeBinsOn[bestMatch - side] + side)) {  // See if nextbin on is consecutive in time
       wireBx = wireBx - 0.5f * side;
-      unchanged = false;
     }
   }
   return wireBx - anode_bx_offset;  // expect collision muons to be centered near 0 bx

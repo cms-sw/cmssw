@@ -246,7 +246,7 @@ void EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::Even
         int tdcBin = 0;
         if (recTDC->offset() <= 0.)
           tdcBin = 1;
-        if (recTDC->offset() >= 1.)
+        else if (recTDC->offset() >= 1.)
           tdcBin = nbTimeBin_;
         else
           tdcBin = int(recTDC->offset() * float(nbTimeBin_)) + 1;
@@ -387,7 +387,7 @@ void EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::Even
         int tdcBin = 0;
         if (recTDC->offset() <= 0.)
           tdcBin = 1;
-        if (recTDC->offset() >= 1.)
+        else if (recTDC->offset() >= 1.)
           tdcBin = nbTimeBin_;
         else
           tdcBin = int(recTDC->offset() * float(nbTimeBin_)) + 1;
