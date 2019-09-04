@@ -1491,6 +1491,19 @@ steps['Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUET
 steps['LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
 steps['BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',step1GenDefaults)
 
+# Workflows for multiple concurrent lumi blocks
+
+step1LHEGenSimUp2018MultiLumi = merge ([{'--customise_commands': '"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(5)"',
+                                         '--nStreams': 4,
+                                         '--nConcurrentLumis': 2,
+                                         },step1LHEGenSimUp2018Default])
+
+def lhegensim2018ml(fragment,howMuch):
+    global step1LHEGenSimUp2018MultiLumi
+    return merge([{'cfg':fragment},howMuch,step1LHEGenSimUp2018MultiLumi])
+
+steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP18ml']=lhegensim2018ml('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,50))
+
 
 # sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
 overrideFragments={'H125GGgluonfusion_13UP18INPUT':'2'}
@@ -1586,6 +1599,7 @@ steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
 steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults50ns])
 steps['DIGIUP17']=merge([step2Upg2017Defaults])
 steps['DIGIUP18']=merge([step2Upg2018Defaults])
+steps['DIGIUP18ml']=merge([{'--nStreams': 4,'--nConcurrentLumis': 2},step2Upg2018Defaults])
 steps['DIGIUP17PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2017','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2017Defaults])
 steps['DIGIUP18PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2018','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2018Defaults])
 steps['DIGIUP17_PU25']=merge([PU25UP17,step2Upg2017Defaults])
@@ -2120,6 +2134,7 @@ steps['RECOUP17']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 
 steps['RECOUP17_PU25']=merge([PU25UP17,steps['RECOUP17']])
 
 steps['RECOUP18']=merge([{'--conditions':'auto:phase1_2018_realistic','--era' : 'Run2_2018','--geometry' : 'DB:Extended'},steps['RECOUP15']])
+steps['RECOUP18ml']=merge([{'--nStreams': 4,'--nConcurrentLumis': 2},steps['RECOUP18']])
 steps['RECOUP18_PU25']=merge([PU25UP18,steps['RECOUP18']])
 
 # for Run1 PPb data workflow
