@@ -16,7 +16,6 @@
 #include <string>
 
 GFlash::GFlash(const edm::ParameterSet &p) : PhysicsList(p), thePar(p.getParameter<edm::ParameterSet>("GFlash")) {
-
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
   bool emPhys = p.getUntrackedParameter<bool>("EMPhysics", true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics", true);

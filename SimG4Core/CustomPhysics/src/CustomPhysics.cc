@@ -15,7 +15,6 @@
 #include "G4SystemOfUnits.hh"
 
 CustomPhysics::CustomPhysics(const edm::ParameterSet& p) : PhysicsList(p) {
-
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
   bool tracking = p.getParameter<bool>("TrackingCut");
   bool ssPhys = p.getUntrackedParameter<bool>("ExoticaPhysicsSS", false);
