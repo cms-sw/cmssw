@@ -49,10 +49,13 @@ TrackingMaterialAnalyser::TrackingMaterialAnalyser(const edm::ParameterSet& iPSe
   m_saveDetailedPlots = iPSet.getParameter<bool>("SaveDetailedPlots");
   m_saveParameters = iPSet.getParameter<bool>("SaveParameters");
   m_saveXml = iPSet.getParameter<bool>("SaveXML");
-  if (m_saveSummaryPlot)
-    m_plotter = new TrackingMaterialPlotter(300., 120., 10);  // 10x10 points per cm2
-  else
+  m_isHGCal = iPSet.getParameter<bool>("isHGCal");
+  if (m_saveSummaryPlot){
+    if (m_isHGCal){ m_plotter = new TrackingMaterialPlotter( 550., 300., 10 );}
+    else { m_plotter = new TrackingMaterialPlotter(300., 120., 10); }  // 10x10 points per cm2
+  } else {
     m_plotter = nullptr;
+  }
 }
 
 //-------------------------------------------------------------------------
