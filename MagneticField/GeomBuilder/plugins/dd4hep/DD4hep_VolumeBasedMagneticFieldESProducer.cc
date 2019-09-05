@@ -50,7 +50,7 @@ namespace cms::dd4hepmagfield {
     edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> paramFieldToken_;
     edm::ESGetToken<DDCompactView, IdealMagneticFieldRecord> cpvToken_;
   };
-}  // namespace cms
+}  // namespace cms::dd4hepmagfield
 
 DD4hep_VolumeBasedMagneticFieldESProducer::DD4hep_VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig)
     : pset_{iConfig},
