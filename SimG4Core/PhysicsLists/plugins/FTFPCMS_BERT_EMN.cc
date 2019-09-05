@@ -13,7 +13,6 @@
 #include "G4HadronPhysicsFTFP_BERT.hh"
 
 FTFPCMS_BERT_EMN::FTFPCMS_BERT_EMN(const edm::ParameterSet& p) : PhysicsList(p) {
-
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
   bool emPhys = p.getUntrackedParameter<bool>("EMPhysics", true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics", true);

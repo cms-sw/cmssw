@@ -13,7 +13,6 @@
 #include "G4HadronPhysicsQGSP_BERT.hh"
 
 QGSPCMS_BERT_EMV::QGSPCMS_BERT_EMV(const edm::ParameterSet& p) : PhysicsList(p) {
-
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
   bool emPhys = p.getUntrackedParameter<bool>("EMPhysics", true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics", true);

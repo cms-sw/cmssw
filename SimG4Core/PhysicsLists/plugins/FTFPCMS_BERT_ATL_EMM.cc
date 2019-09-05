@@ -12,7 +12,6 @@
 #include "G4HadronicProcessStore.hh"
 
 FTFPCMS_BERT_ATL_EMM::FTFPCMS_BERT_ATL_EMM(const edm::ParameterSet& p) : PhysicsList(p) {
-
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
   bool emPhys = p.getUntrackedParameter<bool>("EMPhysics", true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics", true);
