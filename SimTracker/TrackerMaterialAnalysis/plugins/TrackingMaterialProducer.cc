@@ -89,12 +89,15 @@ TrackingMaterialProducer::TrackingMaterialProducer(const edm::ParameterSet& iPSe
   output_file_ = new TFile("radLen_vs_eta_fromProducer.root", "RECREATE");
   output_file_->cd();
   radLen_vs_eta_ = new TProfile("radLen", "radLen", 250., -5., 5., 0, 10.);
-  
+
   //Check if HGCal volumes are selected
   isHGCal = false;
-  if(std::find(m_selectedNames.begin(), m_selectedNames.end(), "HGCal" ) != m_selectedNames.end()){isHGCal = true;}
-  if (isHGCal) {outVolumeZpositionTxt.open(m_txtOutFile.c_str(), std::ios::out);}
-
+  if (std::find(m_selectedNames.begin(), m_selectedNames.end(), "HGCal") != m_selectedNames.end()) {
+    isHGCal = true;
+  }
+  if (isHGCal) {
+    outVolumeZpositionTxt.open(m_txtOutFile.c_str(), std::ios::out);
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -138,22 +141,24 @@ void TrackingMaterialProducer::update(const BeginOfTrack* event) {
   if (m_primaryTracks and track->GetParentID() != 0) {
     track->SetTrackStatus(fStopAndKill);
   }
-  
-  //For the HGCal case: 
-  //In the beginning of each track, the track will first hit SS and it will 
-  //save the upper z volume boundary. So, the low boundary of the first SS 
-  //volume is never saved. So, here we give the low boundary hardcoded. 
+
+  //For the HGCal case:
+  //In the beginning of each track, the track will first hit SS and it will
+  //save the upper z volume boundary. So, the low boundary of the first SS
+  //volume is never saved. So, here we give the low boundary hardcoded.
   //This can be found by running
   //Geometry/HGCalCommonData/test/testHGCalParameters_cfg.py
-  //on the geometry under study and looking for zFront print out. 
-  if (isHGCal && track->GetTrackStatus() != fStopAndKill && fabs(track->GetMomentum().eta()) > 2.0 && fabs(track->GetMomentum().eta()) < 2.4){
-    if(track->GetMomentum().eta() > 0.){
-      outVolumeZpositionTxt << "StainlessSteel " << m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0 <<std::endl;
-    } else if (track->GetMomentum().eta() <= 0.){
-      outVolumeZpositionTxt << "StainlessSteel " << - m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0 <<std::endl;
+  //on the geometry under study and looking for zFront print out.
+  if (isHGCal && track->GetTrackStatus() != fStopAndKill && fabs(track->GetMomentum().eta()) > 2.0 &&
+      fabs(track->GetMomentum().eta()) < 2.4) {
+    if (track->GetMomentum().eta() > 0.) {
+      outVolumeZpositionTxt << "StainlessSteel " << m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
+                            << std::endl;
+    } else if (track->GetMomentum().eta() <= 0.) {
+      outVolumeZpositionTxt << "StainlessSteel " << -m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
+                            << std::endl;
     }
   }
-
 }
 
 bool TrackingMaterialProducer::isSelectedFast(const G4TouchableHistory* touchable) {
@@ -189,23 +194,26 @@ void TrackingMaterialProducer::update(const G4Step* step) {
   GlobalPoint globalPositionIn(globalPosPre.x() / cm, globalPosPre.y() / cm, globalPosPre.z() / cm);      // mm -> cm
   GlobalPoint globalPositionOut(globalPosPost.x() / cm, globalPosPost.y() / cm, globalPosPost.z() / cm);  // mm -> cm
 
-  G4StepPoint* prePoint  = step->GetPreStepPoint();
+  G4StepPoint* prePoint = step->GetPreStepPoint();
   G4StepPoint* postPoint = step->GetPostStepPoint();
-  CLHEP::Hep3Vector prePos  = prePoint->GetPosition();
-  CLHEP::Hep3Vector postPos = postPoint->GetPosition();
+  const CLHEP::Hep3Vector& postPos = postPoint->GetPosition();
   //Go below only in HGCal case
-  if (isHGCal){
+  if (isHGCal) {
     //A step never spans across boundaries: geometry or physics define the end points
     //If the step is limited by a boundary, the post-step point stands on the
-    //boundary and it logically belongs to the next volume. 
-    if ( postPoint->GetStepStatus() == fGeomBoundary && fabs(postPoint->GetMomentum().eta()) > 2.0 && fabs(postPoint->GetMomentum().eta()) < 2.4){
+    //boundary and it logically belongs to the next volume.
+    if (postPoint->GetStepStatus() == fGeomBoundary && fabs(postPoint->GetMomentum().eta()) > 2.0 &&
+        fabs(postPoint->GetMomentum().eta()) < 2.4) {
       //Post point position is the low z edge of the new volume, or the upper for the prepoint volume.
       //So, premat - postz - posteta - postR - premattotalenergylossEtable - premattotalenergylossEfull
-      //Observe the two zeros at the end which in the past where set to emCalculator.GetDEDX and 
-      //emCalculator.ComputeTotalDEDX but decided not to be used. Will save the structure though for the script. 
-      outVolumeZpositionTxt << prePoint->GetMaterial()->GetName() << " " <<  postPos.z() << " " << postPoint->GetMomentum().eta() << " " << sqrt(postPos.x()*postPos.x()+postPos.y()*postPos.y()) << " " << 0 << " " << 0 <<std::endl;
+      //Observe the two zeros at the end which in the past where set to emCalculator.GetDEDX and
+      //emCalculator.ComputeTotalDEDX but decided not to be used. Will save the structure though for the script.
+      outVolumeZpositionTxt << prePoint->GetMaterial()->GetName() << " " << postPos.z() << " "
+                            << postPoint->GetMomentum().eta() << " "
+                            << sqrt(postPos.x() * postPos.x() + postPos.y() * postPos.y()) << " " << 0 << " " << 0
+                            << std::endl;
     }
-  }//end of isHGCal if
+  }  //end of isHGCal if
 
   // check for a sensitive detector
   bool enter_sensitive = false;
