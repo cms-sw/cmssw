@@ -20,8 +20,9 @@ def makePuppies( process ):
     task.add(process.pfLeptonsPUPPET)
     addToProcessAndTask('puppiNoLep', process.puppi.clone(), process, task)
     process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI') 
-    process.puppiNoLep.PtMaxPhotons = cms.double(20.)
-    process.puppiForMET = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
+    addToProcessAndTask('puppiNoLepPhoton', process.puppiNoLep.clone(), process, task)
+    process.puppiNoLepPhoton.PtMaxPhotons = cms.double(20.)
+    process.puppiForMET = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLepPhoton','pfLeptonsPUPPET'))
     task.add(process.puppiForMET)
 
 def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
@@ -37,13 +38,14 @@ def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
     process.pfLeptonsPUPPET   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) == 13 || abs(pdgId) == 11 || abs(pdgId) == 15"))
     task.add(process.pfLeptonsPUPPET)
     addToProcessAndTask('puppiNoLep', process.puppi.clone(), process, task)
-    process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI') 
+    process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI')
     process.puppiNoLep.useWeightsNoLep = True
-    process.puppiNoLep.PtMaxPhotons = cms.double(20.)
-    process.puppiForMET = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
+    addToProcessAndTask('puppiNoLepPhoton', process.puppiNoLep.clone(), process, task)
+    process.puppiNoLepPhoton.PtMaxPhotons = cms.double(20.)
+    process.puppiForMET = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLepPhoton','pfLeptonsPUPPET'))
     task.add(process.puppiForMET)
 
     #making a sequence for people running the MET tool in scheduled mode
     if createScheduledSequence:
-        puppiMETSequence = cms.Sequence(process.puppi*process.pfLeptonsPUPPET*process.pfNoLepPUPPI*process.puppiNoLep*process.puppiForMET)
+        puppiMETSequence = cms.Sequence(process.puppi*process.pfLeptonsPUPPET*process.pfNoLepPUPPI*process.puppiNoLep*process.puppiNoLepPhoton*process.puppiForMET)
         setattr(process, "puppiMETSequence", puppiMETSequence)
