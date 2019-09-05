@@ -30,10 +30,10 @@ autoCond = {
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
     'run2_data_relval'  :   '106X_dataRun2_relval_v21',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
-    'run2_data_promptlike_HEfail' : '106X_dataRun2_PromptLike_HEfail_v10',
+    'run2_data_promptlike_HEfail' : '106X_dataRun2_PromptLike_HEfail_v11',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
-    'run2_data_promptlike'    : '106X_dataRun2_PromptLike_v11',
-    'run2_data_promptlike_hi' : '106X_dataRun2_PromptLike_HI_v11',
+    'run2_data_promptlike'    : '106X_dataRun2_PromptLike_v12',
+    'run2_data_promptlike_hi' : '106X_dataRun2_PromptLike_HI_v12',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '101X_dataRun2_HLT_frozen_v9',
     # GlobalTag for Run2 HLT: it points to the online GT
