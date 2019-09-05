@@ -25,7 +25,8 @@ void SiStripApvSimulationParametersBuilder::analyze(const edm::Event&, const edm
       mydbservice->createNewIOV<SiStripApvSimulationParameters>(
           obj.get(), mydbservice->beginOfTime(), mydbservice->endOfTime(), "SiStripApvSimulationParametersRcd");
     } else {
-      mydbservice->appendSinceTime<SiStripApvSimulationParameters>(obj.get(), mydbservice->currentTime(), "SiStripApvSimulationParametersRcd");
+      mydbservice->appendSinceTime<SiStripApvSimulationParameters>(
+          obj.get(), mydbservice->currentTime(), "SiStripApvSimulationParametersRcd");
     }
   } else {
     edm::LogError("SiStripApvSimulationParametersBuilder") << "Service is unavailable";
