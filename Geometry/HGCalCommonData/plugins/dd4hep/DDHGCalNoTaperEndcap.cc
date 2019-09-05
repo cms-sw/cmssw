@@ -15,15 +15,15 @@ static long algorithm(dd4hep::Detector& /* description */,
   cms::DDAlgoArguments args(ctxt, e);
   std::string motherName = args.parentName();
 
-  auto const& m_tiltAngle = args.value<double>("tiltAngle");       // Tilt  angle
-  auto const& m_rMin = args.value<double>("rMin");                 // Inner radius
-  auto const& m_rMax = args.value<double>("rMax");                 // Outer radius
-  auto const& m_zoffset = args.value<double>("zoffset");           // Offset in z
-  auto const& m_xyoffset = args.value<double>("xyoffset");         // Offset in x or y
-  auto const& m_startCopyNo = args.value<int>("startCopyNo");      // Start copy Number
-  auto const& m_incrCopyNo = args.value<int>("incrCopyNo");        // Increment copy Number
-  auto const& m_childName = args.value<std::string>("ChildName");  // Children name
-  std::string m_idNameSpace = static_cast<std::string>(ns.name()); // Namespace of this and ALL sub-parts
+  auto const& m_tiltAngle = args.value<double>("tiltAngle");        // Tilt  angle
+  auto const& m_rMin = args.value<double>("rMin");                  // Inner radius
+  auto const& m_rMax = args.value<double>("rMax");                  // Outer radius
+  auto const& m_zoffset = args.value<double>("zoffset");            // Offset in z
+  auto const& m_xyoffset = args.value<double>("xyoffset");          // Offset in x or y
+  auto const& m_startCopyNo = args.value<int>("startCopyNo");       // Start copy Number
+  auto const& m_incrCopyNo = args.value<int>("incrCopyNo");         // Increment copy Number
+  auto const& m_childName = args.value<std::string>("ChildName");   // Children name
+  std::string m_idNameSpace = static_cast<std::string>(ns.name());  // Namespace of this and ALL sub-parts
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalNoTaperEndcap: NameSpace " << m_idNameSpace << "\tParent "
@@ -63,38 +63,39 @@ static long algorithm(dd4hep::Detector& /* description */,
 #endif
       while (std::abs(offsetY) < m_rMax) {
 #ifdef EDM_ML_DEBUG
-	row++;
+        row++;
 #endif
-	double limit1 = sqrt((offsetX + 0.5 * xQuadrant * offsetXY) * (offsetX + 0.5 * xQuadrant * offsetXY) +
-			     (offsetY + 0.5 * yQuadrant * offsetXY) * (offsetY + 0.5 * yQuadrant * offsetXY));
-	double limit2 = sqrt((offsetX - 0.5 * xQuadrant * offsetXY) * (offsetX - 0.5 * xQuadrant * offsetXY) +
-			     (offsetY - 0.5 * yQuadrant * offsetXY) * (offsetY - 0.5 * yQuadrant * offsetXY));
-	// Make sure we do not add supermodules in rMin area
-	if (limit2 > m_rMin && limit1 < m_rMax) {
+        double limit1 = sqrt((offsetX + 0.5 * xQuadrant * offsetXY) * (offsetX + 0.5 * xQuadrant * offsetXY) +
+                             (offsetY + 0.5 * yQuadrant * offsetXY) * (offsetY + 0.5 * yQuadrant * offsetXY));
+        double limit2 = sqrt((offsetX - 0.5 * xQuadrant * offsetXY) * (offsetX - 0.5 * xQuadrant * offsetXY) +
+                             (offsetY - 0.5 * yQuadrant * offsetXY) * (offsetY - 0.5 * yQuadrant * offsetXY));
+        // Make sure we do not add supermodules in rMin area
+        if (limit2 > m_rMin && limit1 < m_rMax) {
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HGCalGeom") << m_childName << " copyNo = " << copyNo << " (" << column << "," << row
-					<< "): offsetX,Y = " << offsetX << "," << offsetY << " limit=" << limit1 << ":"
-					<< limit2 << " rMin, rMax = " << m_rMin << "," << m_rMax;
+          edm::LogVerbatim("HGCalGeom") << m_childName << " copyNo = " << copyNo << " (" << column << "," << row
+                                        << "): offsetX,Y = " << offsetX << "," << offsetY << " limit=" << limit1 << ":"
+                                        << limit2 << " rMin, rMax = " << m_rMin << "," << m_rMax;
 #endif
 
-	  dd4hep::Rotation3D rotation = (cms::makeRotation3D(theta, phiX, theta + yphi, phiY, -yphi, phiZ) * cms::makeRotation3D(theta + xphi, phiX, 90._deg, 90._deg, xphi, 0.0));
+          dd4hep::Rotation3D rotation = (cms::makeRotation3D(theta, phiX, theta + yphi, phiY, -yphi, phiZ) *
+                                         cms::makeRotation3D(theta + xphi, phiX, 90._deg, 90._deg, xphi, 0.0));
 
-	  dd4hep::Position tran(offsetX, offsetY, offsetZ);
+          dd4hep::Position tran(offsetX, offsetY, offsetZ);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HGCalGeom") << "Module " << copyNo << ": location = " << tran << " Rotation " << rotation;
+          edm::LogVerbatim("HGCalGeom") << "Module " << copyNo << ": location = " << tran << " Rotation " << rotation;
 #endif
-	  parent.placeVolume(ns.volume(name), copyNo, dd4hep::Transform3D(rotation, tran));
+          parent.placeVolume(ns.volume(name), copyNo, dd4hep::Transform3D(rotation, tran));
 
-	  copyNo += m_incrCopyNo;
-	} else {
+          copyNo += m_incrCopyNo;
+        } else {
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HGCalGeom") << " (" << column << "," << row << "): offsetX,Y = " << offsetX << "," << offsetY
-					<< " is out of limit=" << limit1 << ":" << limit2 << " rMin, rMax = " << m_rMin
-					<< "," << m_rMax;
+          edm::LogVerbatim("HGCalGeom") << " (" << column << "," << row << "): offsetX,Y = " << offsetX << ","
+                                        << offsetY << " is out of limit=" << limit1 << ":" << limit2
+                                        << " rMin, rMax = " << m_rMin << "," << m_rMax;
 #endif
-	}
-	yphi += yQuadrant * 2. * tiltAngle;
-	offsetY += yQuadrant * offsetXY;
+        }
+        yphi += yQuadrant * 2. * tiltAngle;
+        offsetY += yQuadrant * offsetXY;
       }
 #ifdef EDM_ML_DEBUG
       if (row > rowmax)
@@ -107,7 +108,7 @@ static long algorithm(dd4hep::Detector& /* description */,
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << rowmax << " rows and " << column << " columns in quadrant " << xQuadrant << ":"
-				  << yQuadrant;
+                                  << yQuadrant;
 #endif
   }
 
@@ -116,4 +117,3 @@ static long algorithm(dd4hep::Detector& /* description */,
 
 // first argument is the type from the xml file
 DECLARE_DDCMS_DETELEMENT(DDCMS_hgcal_DDHGCalNoTaperEndcap, algorithm)
-
