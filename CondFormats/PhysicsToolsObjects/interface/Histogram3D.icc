@@ -59,7 +59,7 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
 	strideX(binULimitsX.size() + 1),
         strideY(binULimitsY.size() + 1),
 	binULimitsX(binULimitsX), binULimitsY(binULimitsY), binULimitsZ(binULimitsZ),
-	binValues((binULimitsY.size() + 1) * strideX * strideY),
+	binValues((binULimitsZ.size() + 1) * strideX * strideY),
 	limitsX(AxisX_t(), AxisX_t()), limitsY(AxisY_t(), AxisY_t()), limitsZ(AxisZ_t(), AxisZ_t()),
 	total(Value_t()),
 	sliceTotal(binULimitsZ.size() + 1), rowTotal(binULimitsY.size() + 1), columnTotal(binULimitsX.size() + 1)
