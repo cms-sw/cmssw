@@ -55,8 +55,8 @@ SiStripApvSimulationParametersESSource::SiStripApvSimulationParametersESSource(c
 }
 
 void SiStripApvSimulationParametersESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-    const edm::IOVSyncValue& iov,
-    edm::ValidityInterval& iValidity) {
+                                                            const edm::IOVSyncValue& iov,
+                                                            edm::ValidityInterval& iValidity) {
   iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
 }
 
@@ -111,7 +111,7 @@ SiStripApvSimulationParameters::LayerParameters SiStripApvSimulationParametersES
     unsigned int binInZ = int(apvBaseline.index()) / (nPUBins * baseline_nBins_);
     unsigned int binInPU = int(apvBaseline.index() - binInZ * (nPUBins)*baseline_nBins_) / baseline_nBins_;
 
-    layerParams.setBinContent(binInCurrentHistogram, binInPU+1, binInZ+1, apvBaseline.value());
+    layerParams.setBinContent(binInCurrentHistogram, binInPU + 1, binInZ + 1, apvBaseline.value());
   }
 
   return layerParams;
@@ -122,17 +122,17 @@ std::unique_ptr<SiStripApvSimulationParameters> SiStripApvSimulationParametersES
   auto apvSimParams =
       std::make_unique<SiStripApvSimulationParameters>(baselineFiles_TIB_.size(), baselineFiles_TOB_.size());
   for (unsigned int i{0}; i != baselineFiles_TIB_.size(); ++i) {
-    if ( ! apvSimParams->putTIB(i + 1, makeLayerParameters(baselineFiles_TIB_[i].fullPath())) ) {
-      throw cms::Exception("SiStripApvSimulationParameters") << "Could not add parameters for TIB layer " << (i+1);
+    if (!apvSimParams->putTIB(i + 1, makeLayerParameters(baselineFiles_TIB_[i].fullPath()))) {
+      throw cms::Exception("SiStripApvSimulationParameters") << "Could not add parameters for TIB layer " << (i + 1);
     } else {
-      LogDebug("SiStripApvSimulationParameters") << "Added parameters for TIB layer " << (i+1);
+      LogDebug("SiStripApvSimulationParameters") << "Added parameters for TIB layer " << (i + 1);
     }
   }
   for (unsigned int i{0}; i != baselineFiles_TOB_.size(); ++i) {
-    if ( ! apvSimParams->putTOB(i + 1, makeLayerParameters(baselineFiles_TOB_[i].fullPath())) ) {
-      throw cms::Exception("SiStripApvSimulationParameters") << "Could not add parameters for TOB layer " << (i+1);
+    if (!apvSimParams->putTOB(i + 1, makeLayerParameters(baselineFiles_TOB_[i].fullPath()))) {
+      throw cms::Exception("SiStripApvSimulationParameters") << "Could not add parameters for TOB layer " << (i + 1);
     } else {
-      LogDebug("SiStripApvSimulationParameters") << "Added parameters for TOB layer " << (i+1);
+      LogDebug("SiStripApvSimulationParameters") << "Added parameters for TOB layer " << (i + 1);
     }
   }
   return apvSimParams;
