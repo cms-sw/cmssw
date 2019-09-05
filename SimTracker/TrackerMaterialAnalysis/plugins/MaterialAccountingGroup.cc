@@ -29,15 +29,14 @@ MaterialAccountingGroup::MaterialAccountingGroup(const std::string& name, const 
       m_tracks(0),
       m_counted(false),
       m_file(nullptr) {
-
   // retrieve the elements from DDD
   DDValue namevalue;
-  if ( TString(name.c_str()).Contains( "Tracker" )  ){
+  if (TString(name.c_str()).Contains("Tracker")) {
     namevalue = DDValue("TrackingMaterialGroup", name);
-  } else if ( TString(name.c_str()).Contains( "HGCal" )  ){
+  } else if (TString(name.c_str()).Contains("HGCal")) {
     namevalue = DDValue("Volume", name);
-  } else{
-    std::cout << name  << std::endl;
+  } else {
+    std::cout << name << std::endl;
     std::cerr << "Only Tracker and HGCal is supported" << std::endl;
   }
 
