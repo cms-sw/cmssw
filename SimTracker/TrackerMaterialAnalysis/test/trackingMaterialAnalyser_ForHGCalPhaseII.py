@@ -16,7 +16,7 @@ if readGeometryFromDB:
   from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
   process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 else:
-  process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
+  process.load('Configuration.Geometry.GeometryExtended2026D46Reco_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
