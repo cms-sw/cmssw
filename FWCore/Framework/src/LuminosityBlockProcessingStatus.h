@@ -57,6 +57,8 @@ namespace edm {
       globalLumiQueueResumer_.resume();
     }
 
+    void resetResources();
+
     EventSetupImpl const& eventSetupImpl(unsigned subProcessIndex) const {
       return *eventSetupImpls_.at(subProcessIndex);
     }
