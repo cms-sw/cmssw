@@ -11,8 +11,9 @@ void volumeHandle::buildTubs() {
   double startPhi = tubs.startPhi();
   double deltaPhi = tubs.deltaPhi();
 
-  LogTrace("magneticfield::volumeHandle") << " zhalf    " << zhalf << "\n rIn      " << rIn << "\n rOut     " << rOut
-                                          << "\n startPhi " << startPhi << "\n deltaPhi " << deltaPhi;
+  LogTrace("magneticfield::volumeHandle")
+      << "zhalf    " << zhalf << newln << "rIn      " << rIn << newln << "rOut     " << rOut << newln << "startPhi "
+      << startPhi << newln << "deltaPhi " << deltaPhi;
 
   // recalculate center: (for a DDTubs, DDD gives 0,0,Z)
   double rCentr = (rIn + rOut) / 2.;

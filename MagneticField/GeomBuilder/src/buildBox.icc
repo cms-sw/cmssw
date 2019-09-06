@@ -74,12 +74,12 @@ void volumeHandle::buildBox() {
       << " halfX: " << halfX << "  halfY: " << halfY << "  halfZ: " << halfZ << "  RN: " << theRN;
 
   LogTrace("magneticfield::volumeHandle")
-      << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi() << endl
-      << "pos_inner    " << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi() << endl
-      << "pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " " << pos_zplus.phi() << endl
-      << "pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " " << pos_zminus.phi() << endl
-      << "pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi() << endl
-      << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi();
+      << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi() << newln << "pos_inner    "
+      << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi() << newln << "pos_zplus    " << pos_zplus << " "
+      << pos_zplus.perp() << " " << pos_zplus.phi() << newln << "pos_zminus   " << pos_zminus << " "
+      << pos_zminus.perp() << " " << pos_zminus.phi() << newln << "pos_phiplus  " << pos_phiplus << " "
+      << pos_phiplus.perp() << " " << pos_phiplus.phi() << newln << "pos_phiminus " << pos_phiminus << " "
+      << pos_phiminus.perp() << " " << pos_phiminus.phi();
 
   // Check ordering.
   if (debug) {
@@ -102,8 +102,8 @@ void volumeHandle::buildBox() {
   surfaces[phiplus] = new Plane(pos_phiplus, rot_phi);
   surfaces[phiminus] = new Plane(pos_phiminus, rot_phi);
 
-  LogTrace("magneticfield::volumeHandle") << "rot_R   " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << endl
-                                          << "rot_Z   " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << endl
+  LogTrace("magneticfield::volumeHandle") << "rot_R   " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << newln
+                                          << "rot_Z   " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << newln
                                           << "rot_phi " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.));
 
   // Save volume boundaries

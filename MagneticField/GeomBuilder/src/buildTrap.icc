@@ -23,17 +23,10 @@ void volumeHandle::buildTrap() {
   double alpha1 = trap.alpha1();
   double alpha2 = trap.alpha2();
 
-  LogTrace("magneticfield::volumeHandle") << "x1 " << x1 << endl
-                                          << "x2 " << x2 << endl
-                                          << "x3 " << x3 << endl
-                                          << "x4 " << x4 << endl
-                                          << "y1 " << y1 << endl
-                                          << "y2 " << y2 << endl
-                                          << "theta " << theta << endl
-                                          << "phi " << phi << endl
-                                          << "halfZ " << halfZ << endl
-                                          << "alpha1 " << alpha1 << endl
-                                          << "alpha2 " << alpha2;
+  LogTrace("magneticfield::volumeHandle")
+      << "x1 " << x1 << newln << "x2 " << x2 << newln << "x3 " << x3 << newln << "x4 " << x4 << newln << "y1 " << y1
+      << newln << "y2 " << y2 << newln << "theta  " << theta << newln << "phi    " << phi << newln << "halfZ  " << halfZ
+      << newln << "alpha1 " << alpha1 << newln << "alpha2 " << alpha2;
 
   // Just check assumptions on parameters...
   if (debug) {
@@ -77,13 +70,13 @@ void volumeHandle::buildTrap() {
   GlobalPoint pos_phiminus(refPlane->toGlobal(LocalPoint(halfX, 0., 0.)));
 
   LogTrace("magneticfield::volumeHandle")
-      << "RN           " << theRN << endl
-      << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi() << endl
-      << "pos_inner    " << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi() << endl
-      << "pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " " << pos_zplus.phi() << endl
-      << "pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " " << pos_zminus.phi() << endl
-      << "pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi() << endl
-      << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi();
+      << "RN            " << theRN << newln  // RN line needs extra space to line up
+      << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi() << newln << "pos_inner    "
+      << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi() << newln << "pos_zplus    " << pos_zplus << " "
+      << pos_zplus.perp() << " " << pos_zplus.phi() << newln << "pos_zminus   " << pos_zminus << " "
+      << pos_zminus.perp() << " " << pos_zminus.phi() << newln << "pos_phiplus  " << pos_phiplus << " "
+      << pos_phiplus.perp() << " " << pos_phiplus.phi() << newln << "pos_phiminus " << pos_phiminus << " "
+      << pos_phiminus.perp() << " " << pos_phiminus.phi();
 
   // Check ordering.
   if (debug) {
@@ -103,7 +96,7 @@ void volumeHandle::buildTrap() {
   GlobalVector y_phiminusV = (refPlane->toGlobal(LocalVector((tan(alpha1) * y1 + (x2 - x1) / 2.), y1, 0.)));
   GlobalVector y_phiminus = y_phiminusV.unit();
 
-  LogTrace("magneticfield::volumeHandle") << "y_phiplus  " << y_phiplus << endl << "y_phiminus " << y_phiminus;
+  LogTrace("magneticfield::volumeHandle") << "y_phiplus  " << y_phiplus << newln << "y_phiminus " << y_phiminus;
 
   Surface::RotationType rot_R(planeZAxis, planeXAxis);
   Surface::RotationType rot_Z(planeXAxis, planeYAxis);
@@ -132,11 +125,11 @@ void volumeHandle::buildTrap() {
     thePhiMin = min((pos_phiminus + y_phiminusV).phi(), (pos_phiminus - y_phiminusV).phi());
   }
   LogTrace("magneticfield::volumeHandle")
-      << "rot_R " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << endl
-      << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << endl
-      << "rot_phi+ " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-      << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl
-      << "rot_phi- " << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
+      << "rot_R    " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << newln << "rot_Z    "
+      << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << newln << "rot_phi+ "
+      << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
+      << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << newln << "rot_phi- "
+      << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
       << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)).phi();
   if (debug) {
     if (std::abs(surfaces[phiminus]->position().phi() - thePhiMin) > 1e-5) {

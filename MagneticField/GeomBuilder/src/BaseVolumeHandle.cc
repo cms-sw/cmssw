@@ -79,10 +79,10 @@ void BaseVolumeHandle::buildPhiZSurf(double startPhi, double deltaPhi, double zh
          << "pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi() << endl
          << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi() << endl;
 
-    cout << "y_phiplus " << y_phiplus << endl;
+    cout << "y_phiplus  " << y_phiplus << endl;
     cout << "y_phiminus " << y_phiminus << endl;
 
-    cout << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << endl
+    cout << "rot_Z    " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << endl
          << "rot_phi+ " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
          << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl
          << "rot_phi- " << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
