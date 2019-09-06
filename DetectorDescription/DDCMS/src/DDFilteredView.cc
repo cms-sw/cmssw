@@ -305,7 +305,7 @@ const std::vector<double> DDFilteredView::parameters() const {
 const cms::DDSolidShape DDFilteredView::shape() const {
   return cms::dd::value(cms::DDSolidShapeMap, node_->GetVolume()->GetShape()->GetTitle());
 }
-    
+
 LegacySolidShape DDFilteredView::legacyShape(const cms::DDSolidShape shape) const {
   return cms::dd::value(cms::LegacySolidShapeMap, shape);
 }
