@@ -11,8 +11,10 @@
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/src/ESGlobalMutex.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include <cassert>
+#include <mutex>
 
 using namespace edm::eventsetup;
 namespace edm {
@@ -25,7 +27,10 @@ namespace edm {
     assert(itFound != intervals_.end());
     if (!itFound->second.validFor(iInstance)) {
       if
-        LIKELY(iInstance != IOVSyncValue::invalidIOVSyncValue()) { setIntervalFor(iKey, iInstance, itFound->second); }
+        LIKELY(iInstance != IOVSyncValue::invalidIOVSyncValue()) {
+          std::lock_guard<std::recursive_mutex> guard(esGlobalMutex());
+          setIntervalFor(iKey, iInstance, itFound->second);
+        }
       else {
         itFound->second = ValidityInterval::invalidInterval();
       }
