@@ -406,7 +406,8 @@ workflows[137.8] = ['',['RunEGamma2018C','HLTDR2_2018','RECODR2_2018reHLT_skimEG
 workflows[138.1] = ['',['RunCosmics2019','RECOCOSDRUN3','ALCACOSDRUN3','HARVESTDCRUN3']]
 
 #### Test of lumi section boundary crossing with run2 2018D ####
-workflows[136.8861] = ['',['RunEGamma2018Dml','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQMml','HARVEST2018_L1TEgDQM_Prompt']]
+workflows[136.8861] = ['',['RunEGamma2018Dml1','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQMml','HARVEST2018_L1TEgDQM_Prompt']]
+workflows[136.8862] = ['',['RunEGamma2018Dml2','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQMml','HARVEST2018_L1TEgDQM_Prompt']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
