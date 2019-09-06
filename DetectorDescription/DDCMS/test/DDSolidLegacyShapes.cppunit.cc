@@ -52,19 +52,19 @@ void testDDSolidLegacyShapes::checkDDSolidLegacyShapes() {
 
   LegacySolidShape legacyTrap = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddtrap);
   CPPUNIT_ASSERT(legacyTrap == LegacySolidShape::ddtrap);
-  
+
   LegacySolidShape legacyCons = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddcons);
   CPPUNIT_ASSERT(legacyCons == LegacySolidShape::ddcons);
 
   LegacySolidShape legacyPcon = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddpolycone);
   CPPUNIT_ASSERT(legacyPcon == LegacySolidShape::ddpolycone_rz);
-  
+
   LegacySolidShape legacyPolyhedra = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddpolyhedra);
   CPPUNIT_ASSERT(legacyPolyhedra == LegacySolidShape::ddpolyhedra_rz);
-  
+
   LegacySolidShape legacyTorus = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddtorus);
   CPPUNIT_ASSERT(legacyTorus == LegacySolidShape::ddtorus);
-  
+
   LegacySolidShape legacyUnion = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddunion);
   CPPUNIT_ASSERT(legacyUnion == LegacySolidShape::ddunion);
 
@@ -76,22 +76,23 @@ void testDDSolidLegacyShapes::checkDDSolidLegacyShapes() {
 
   LegacySolidShape legacyShapeless = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddshapeless);
   CPPUNIT_ASSERT(legacyShapeless == LegacySolidShape::ddshapeless);
-  
+
   LegacySolidShape legacyPseudotrap = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddpseudotrap);
   CPPUNIT_ASSERT(legacyPseudotrap == LegacySolidShape::ddpseudotrap);
-  
+
   LegacySolidShape legacyTrunctubs = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddtrunctubs);
   CPPUNIT_ASSERT(legacyTrunctubs == LegacySolidShape::ddtrunctubs);
-  
+
   LegacySolidShape legacySphere = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddsphere);
   CPPUNIT_ASSERT(legacySphere == LegacySolidShape::ddsphere);
-  
+
   LegacySolidShape legacyEllipticaltube = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddellipticaltube);
   CPPUNIT_ASSERT(legacyEllipticaltube == LegacySolidShape::ddellipticaltube);
-  
+
   LegacySolidShape legacyCuttubs = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddcuttubs);
   CPPUNIT_ASSERT(legacyCuttubs == LegacySolidShape::ddcuttubs);
-  
-  LegacySolidShape legacyExtrudedpolygon = cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddextrudedpolygon);
+
+  LegacySolidShape legacyExtrudedpolygon =
+      cms::dd::value(cms::LegacySolidShapeMap, cms::DDSolidShape::ddextrudedpolygon);
   CPPUNIT_ASSERT(legacyExtrudedpolygon == LegacySolidShape::ddextrudedpolygon);
 }

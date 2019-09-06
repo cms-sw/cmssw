@@ -6,7 +6,7 @@
 namespace cms {
 
   enum class DDSolidShape;
-  
+
   namespace dd {
 
     DDSolidShape getCurrentShape(const cms::DDFilteredView &fview);

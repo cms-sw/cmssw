@@ -57,7 +57,7 @@ namespace cms {
       }
       return std::begin(a)->value;
     }
-};  // namespace dd
+  };  // namespace dd
 
   enum class DDSolidShape {
     dd_not_init = 0,
@@ -101,28 +101,28 @@ namespace cms {
        {DDSolidShape::ddextrudedpolygon, "ExtrudedPolygon"}}};
 
   const std::array<const cms::dd::ValuePair<LegacySolidShape, cms::DDSolidShape>, 22> LegacySolidShapeMap{
-    {{LegacySolidShape::dd_not_init, cms::DDSolidShape::dd_not_init},
-     {LegacySolidShape::ddbox, cms::DDSolidShape::ddbox},
-     {LegacySolidShape::ddtubs, cms::DDSolidShape::ddtubs},
-     {LegacySolidShape::ddtrap, cms::DDSolidShape::ddtrap},
-     {LegacySolidShape::ddcons, cms::DDSolidShape::ddcons},
-     {LegacySolidShape::ddpolycone_rz, cms::DDSolidShape::ddpolycone},
-     {LegacySolidShape::ddpolycone_rz, cms::DDSolidShape::ddpolycone},
-     {LegacySolidShape::ddpolycone_rrz, cms::DDSolidShape::ddpolycone},
-     {LegacySolidShape::ddpolyhedra_rz, cms::DDSolidShape::ddpolyhedra},
-     {LegacySolidShape::ddpolyhedra_rz, cms::DDSolidShape::ddpolyhedra},
-     {LegacySolidShape::ddpolyhedra_rrz, cms::DDSolidShape::ddpolyhedra},
-     {LegacySolidShape::ddtorus, cms::DDSolidShape::ddtorus},
-     {LegacySolidShape::ddunion, cms::DDSolidShape::ddunion},
-     {LegacySolidShape::ddsubtraction, cms::DDSolidShape::ddsubtraction},
-     {LegacySolidShape::ddintersection, cms::DDSolidShape::ddintersection},
-     {LegacySolidShape::ddshapeless, cms::DDSolidShape::ddshapeless},
-     {LegacySolidShape::ddpseudotrap, cms::DDSolidShape::ddpseudotrap},
-     {LegacySolidShape::ddtrunctubs, cms::DDSolidShape::ddtrunctubs},
-     {LegacySolidShape::ddsphere, cms::DDSolidShape::ddsphere},
-     {LegacySolidShape::ddellipticaltube, cms::DDSolidShape::ddellipticaltube},
-     {LegacySolidShape::ddcuttubs, cms::DDSolidShape::ddcuttubs},
-     {LegacySolidShape::ddextrudedpolygon, cms::DDSolidShape::ddextrudedpolygon}}};
+      {{LegacySolidShape::dd_not_init, cms::DDSolidShape::dd_not_init},
+       {LegacySolidShape::ddbox, cms::DDSolidShape::ddbox},
+       {LegacySolidShape::ddtubs, cms::DDSolidShape::ddtubs},
+       {LegacySolidShape::ddtrap, cms::DDSolidShape::ddtrap},
+       {LegacySolidShape::ddcons, cms::DDSolidShape::ddcons},
+       {LegacySolidShape::ddpolycone_rz, cms::DDSolidShape::ddpolycone},
+       {LegacySolidShape::ddpolycone_rz, cms::DDSolidShape::ddpolycone},
+       {LegacySolidShape::ddpolycone_rrz, cms::DDSolidShape::ddpolycone},
+       {LegacySolidShape::ddpolyhedra_rz, cms::DDSolidShape::ddpolyhedra},
+       {LegacySolidShape::ddpolyhedra_rz, cms::DDSolidShape::ddpolyhedra},
+       {LegacySolidShape::ddpolyhedra_rrz, cms::DDSolidShape::ddpolyhedra},
+       {LegacySolidShape::ddtorus, cms::DDSolidShape::ddtorus},
+       {LegacySolidShape::ddunion, cms::DDSolidShape::ddunion},
+       {LegacySolidShape::ddsubtraction, cms::DDSolidShape::ddsubtraction},
+       {LegacySolidShape::ddintersection, cms::DDSolidShape::ddintersection},
+       {LegacySolidShape::ddshapeless, cms::DDSolidShape::ddshapeless},
+       {LegacySolidShape::ddpseudotrap, cms::DDSolidShape::ddpseudotrap},
+       {LegacySolidShape::ddtrunctubs, cms::DDSolidShape::ddtrunctubs},
+       {LegacySolidShape::ddsphere, cms::DDSolidShape::ddsphere},
+       {LegacySolidShape::ddellipticaltube, cms::DDSolidShape::ddellipticaltube},
+       {LegacySolidShape::ddcuttubs, cms::DDSolidShape::ddcuttubs},
+       {LegacySolidShape::ddextrudedpolygon, cms::DDSolidShape::ddextrudedpolygon}}};
 
 }  // namespace cms
 
