@@ -8,7 +8,6 @@
 #include <TMath.h>
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-#include <boost/shared_ptr.hpp>
 #include <fastjet/internal/base.hh>
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/JetDefinition.hh"
@@ -55,7 +54,7 @@ namespace heppy {
     double rparam_;
 
     /// fastjet outputs
-    typedef boost::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
+    typedef std::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
     ClusterSequencePtr fjClusterSeq_;
     std::vector<fastjet::PseudoJet> inclusiveJets_;
     std::vector<fastjet::PseudoJet> exclusiveJets_;

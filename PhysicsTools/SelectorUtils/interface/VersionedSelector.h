@@ -22,8 +22,8 @@
 #else
 
 #define CINT_GUARD(CODE)
-#include <boost/shared_ptr.hpp>
-#define SHARED_PTR(T) boost::shared_ptr<T>
+
+#define SHARED_PTR(T) std::shared_ptr<T>
 
 #endif
 

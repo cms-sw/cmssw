@@ -6,7 +6,6 @@
 #ifndef ChainedJetCorrector_h
 #define ChainedJetCorrector_h
 
-#include "boost/shared_ptr.hpp"
 #include <vector>
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"

@@ -12,7 +12,7 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "boost/intrusive_ptr.hpp"
+
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/Common/interface/AssociationMap.h"

@@ -98,8 +98,8 @@ void TestTranslation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   DTGeometryBuilderFromDDD  DTGeometryBuilder;
   CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
-  theDTGeometry   = boost::shared_ptr<DTGeometry>( DTGeometryBuilder.build( &(*cpv) ) );
-  theCSCGeometry  = boost::shared_ptr<CSCGeometry>( CSCGeometryBuilder.build( &(*cpv) ) );
+  theDTGeometry   = std::shared_ptr<DTGeometry>( DTGeometryBuilder.build( &(*cpv) ) );
+  theCSCGeometry  = std::shared_ptr<CSCGeometry>( CSCGeometryBuilder.build( &(*cpv) ) );
 
   AlignableMuon* theAlignableMuon = new AlignableMuon( &(*theDTGeometry) , &(*theCSCGeometry) );
 */

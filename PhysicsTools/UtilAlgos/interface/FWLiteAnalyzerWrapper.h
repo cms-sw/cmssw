@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <boost/shared_ptr.hpp>
 
 #include <TFile.h>
 #include <TSystem.h>
@@ -124,7 +123,7 @@ namespace fwlite {
     /// TFileService for histogram management
     fwlite::TFileService fileService_;
     /// derived class of type BasicAnalyzer
-    boost::shared_ptr<T> analyzer_;
+    std::shared_ptr<T> analyzer_;
   };
 
   /// default contructor
@@ -139,11 +138,11 @@ namespace fwlite {
     const edm::ParameterSet& ana = cfg.getParameter<edm::ParameterSet>(analyzerName.c_str());
     if (directory.empty()) {
       // create analysis class of type BasicAnalyzer
-      analyzer_ = boost::shared_ptr<T>(new T(ana, fileService_));
+      analyzer_ = std::shared_ptr<T>(new T(ana, fileService_));
     } else {
       // create a directory in the file if directory string is non empty
       TFileDirectory dir = fileService_.mkdir(directory);
-      analyzer_ = boost::shared_ptr<T>(new T(ana, dir));
+      analyzer_ = std::shared_ptr<T>(new T(ana, dir));
     }
   }
 

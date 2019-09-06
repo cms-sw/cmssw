@@ -2,7 +2,7 @@
 
 #include "CondFormats/HcalObjects/interface/HcalLinearCompositionFunctor.h"
 
-HcalLinearCompositionFunctor::HcalLinearCompositionFunctor(boost::shared_ptr<AbsHcalFunctor> p,
+HcalLinearCompositionFunctor::HcalLinearCompositionFunctor(std::shared_ptr<AbsHcalFunctor> p,
                                                            const double ia,
                                                            const double ib)
     : other_(p), a_(ia), b_(ib) {

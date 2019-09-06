@@ -88,7 +88,7 @@ void MyDataAnalyzer::endJob() {
     //example for instantiate object by token
     cond::DbSession pooldb=mydbservice->session();
     pooldb.transaction().start(true);
-    boost::shared_ptr<Pedestals> myinstance = pooldb.getTypedObject<Pedestals>( taginfo.lastPayloadToken);
+    std::shared_ptr<Pedestals> myinstance = pooldb.getTypedObject<Pedestals>( taginfo.lastPayloadToken);
     std::cout<<"size of items "<<myinstance->m_pedestals.size()<<std::endl;
     pooldb.transaction().commit();    
     **/
