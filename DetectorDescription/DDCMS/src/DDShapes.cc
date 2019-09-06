@@ -1,5 +1,6 @@
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
 #include "DetectorDescription/DDCMS/interface/DDShapes.h"
+#include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include "DataFormats/GeometryVector/interface/Phi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -15,7 +16,7 @@ bool convFpToBool(T val) {
   return (static_cast<int>(val + 0.5) != 0);
 }
 
-DDSolidShape cms::dd::getCurrentShape(const DDFilteredView &fview) {
+cms::DDSolidShape cms::dd::getCurrentShape(const DDFilteredView &fview) {
   if (fview.isABox())
     return (DDSolidShape::ddbox);
 
