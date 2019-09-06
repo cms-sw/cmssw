@@ -138,7 +138,8 @@ namespace edm {
     void EventSetupRecordProvider::initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier) {
       EventSetupRecordImpl* impl = &recordImpls_[iovIndex];
       recordImpl_ = impl;
-      impl->initializeForNewIOV(cacheIdentifier, validityInterval_);
+      bool hasFinder = finder_.get() != nullptr;
+      impl->initializeForNewIOV(cacheIdentifier, validityInterval_, hasFinder);
       eventSetupImpl_->addRecordImpl(*recordImpl_);
     }
 
