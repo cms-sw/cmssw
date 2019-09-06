@@ -2,15 +2,16 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
 #include <sstream>
 
 //Insert here the include to the algos
@@ -129,7 +130,7 @@ void SiStripQualityHotStripIdentifier::bookHistos() {
     SiStrip::QualityHistosMap::iterator ref = ClusterPositionHistoMap.find(it->first);
     if (ref == ClusterPositionHistoMap.end()) {
       ClusterPositionHistoMap[it->first] =
-          boost::shared_ptr<TH1F>(new TH1F(hname, hname, it->second.nApvs * 128, -0.5, it->second.nApvs * 128 - 0.5));
+          std::make_shared<TH1F>(hname, hname, it->second.nApvs * 128, -0.5, it->second.nApvs * 128 - 0.5);
     } else
       edm::LogError("SiStripQualityHotStripIdentifier")
           << " [SiStripQualityHotStripIdentifier::bookHistos] DetId " << it->first

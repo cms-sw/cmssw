@@ -4,7 +4,7 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <boost/regex.hpp>
-#include <boost/shared_ptr.hpp>
+
 #include <typeinfo>
 #include <iostream>
 #include <type_traits>
@@ -27,7 +27,7 @@ namespace pat {
       virtual bool operator()(const CandRefType &cand, const std::string &role) const = 0;
     };
     // smart pointer to the filter
-    typedef boost::shared_ptr<const ParticleFilter> ParticleFilterPtr;
+    typedef std::shared_ptr<const ParticleFilter> ParticleFilterPtr;
   }  // namespace eventhypothesis
   // the class
   class EventHypothesis {

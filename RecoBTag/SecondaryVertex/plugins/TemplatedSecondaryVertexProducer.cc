@@ -1,11 +1,12 @@
-#include <functional>
 #include <algorithm>
-#include <iterator>
 #include <cstddef>
+#include <functional>
+#include <iterator>
+#include <map>
+#include <memory>
+#include <set>
 #include <string>
 #include <vector>
-#include <map>
-#include <set>
 
 #include <boost/iterator/transform_iterator.hpp>
 
@@ -59,8 +60,8 @@
 //
 // constants, enums and typedefs
 //
-typedef boost::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
-typedef boost::shared_ptr<fastjet::JetDefinition> JetDefPtr;
+typedef std::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
+typedef std::shared_ptr<fastjet::JetDefinition> JetDefPtr;
 
 using namespace reco;
 
@@ -276,11 +277,11 @@ TemplatedSecondaryVertexProducer<IPTI, VTX>::TemplatedSecondaryVertexProducer(co
 
     // set jet algorithm
     if (jetAlgorithm == "Kt")
-      fjJetDefinition = JetDefPtr(new fastjet::JetDefinition(fastjet::kt_algorithm, rParam));
+      fjJetDefinition = std::make_shared<fastjet::JetDefinition>(fastjet::kt_algorithm, rParam);
     else if (jetAlgorithm == "CambridgeAachen")
-      fjJetDefinition = JetDefPtr(new fastjet::JetDefinition(fastjet::cambridge_algorithm, rParam));
+      fjJetDefinition = std::make_shared<fastjet::JetDefinition>(fastjet::cambridge_algorithm, rParam);
     else if (jetAlgorithm == "AntiKt")
-      fjJetDefinition = JetDefPtr(new fastjet::JetDefinition(fastjet::antikt_algorithm, rParam));
+      fjJetDefinition = std::make_shared<fastjet::JetDefinition>(fastjet::antikt_algorithm, rParam);
     else
       throw cms::Exception("InvalidJetAlgorithm") << "Jet clustering algorithm is invalid: " << jetAlgorithm
                                                   << ", use CambridgeAachen | Kt | AntiKt" << std::endl;
@@ -412,7 +413,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
     }
 
     // define jet clustering sequence
-    fjClusterSeq = ClusterSequencePtr(new fastjet::ClusterSequence(fjInputs, *fjJetDefinition));
+    fjClusterSeq = std::make_shared<fastjet::ClusterSequence>(fjInputs, *fjJetDefinition);
     // recluster jet constituents and inserted "ghosts"
     std::vector<fastjet::PseudoJet> inclusiveJets = fastjet::sorted_by_pt(fjClusterSeq->inclusive_jets(jetPtMin));
 

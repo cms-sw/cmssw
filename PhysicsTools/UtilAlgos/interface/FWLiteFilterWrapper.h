@@ -6,8 +6,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <boost/shared_ptr.hpp>
-
 /**
   \class    FWLiteFilterWrapper FWLiteFilterWrapper.h "PhysicsTools/UtilAlgos/interface/FWLiteFilterWrapper.h"
   \brief    Implements a wrapper around an FWLite-friendly selector to "convert" it into a full EDFilter
@@ -19,41 +17,32 @@
   \version  $Id: FWLiteFilterWrapper.h,v 1.2 2010/10/14 09:53:48 snaumann Exp $
 */
 
-
-
 namespace edm {
 
-template<class T>
-class FWLiteFilterWrapper : public EDFilter {
+  template <class T>
+  class FWLiteFilterWrapper : public EDFilter {
+  public:
+    /// Pass the parameters to filter_
+    FWLiteFilterWrapper(const edm::ParameterSet& pset) {
+      edm::LogWarning("FWLiteFilterWrapper") << "Please Note: THIS FILE HAS BEEN DEPRECATED. IT HAS BEEN MOVED TO \n"
+                                             << "PhysicsTools/UtilsAlgos/interface/EDFilterWrapper.h";
 
- public:
+      filter_ = std::shared_ptr<T>(new T(pset));
+    }
 
-  /// Pass the parameters to filter_
- FWLiteFilterWrapper(const edm::ParameterSet& pset)
-  {
-    edm::LogWarning( "FWLiteFilterWrapper" )
-      << "Please Note: THIS FILE HAS BEEN DEPRECATED. IT HAS BEEN MOVED TO \n"
-      << "PhysicsTools/UtilsAlgos/interface/EDFilterWrapper.h";
+    /// Destructor does nothing
+    virtual ~FWLiteFilterWrapper() {}
 
-    filter_  = boost::shared_ptr<T>( new T(pset) );
-  }
+    /// Pass the event to the filter. NOTE! We can't use the eventSetup in FWLite so ignore it.
+    virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup) {
+      edm::EventBase& ev = event;
+      return (*filter_)(ev);
+    }
 
-  /// Destructor does nothing
-  virtual ~FWLiteFilterWrapper() {}
- 
+  protected:
+    std::shared_ptr<T> filter_;
+  };
 
-  /// Pass the event to the filter. NOTE! We can't use the eventSetup in FWLite so ignore it.
-  virtual bool filter( edm::Event & event, const edm::EventSetup& eventSetup)
-  {
-    edm::EventBase & ev = event;
-    return (*filter_)(ev);
-  }
-
-
- protected:
-  boost::shared_ptr<T> filter_;
-};
-
-}
+}  // namespace edm
 
 #endif

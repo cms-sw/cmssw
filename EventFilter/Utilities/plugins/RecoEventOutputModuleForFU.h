@@ -63,7 +63,7 @@ namespace evf {
     jsoncollector::StringJ transferDestination_;
     jsoncollector::StringJ mergeType_;
     jsoncollector::IntJ hltErrorEvents_;
-    boost::shared_ptr<jsoncollector::FastMonitor> jsonMonitor_;
+    std::shared_ptr<jsoncollector::FastMonitor> jsonMonitor_;
     evf::FastMonitoringService* fms_;
     jsoncollector::DataPointDefinition outJsonDef_;
     unsigned char* outBuf_ = nullptr;

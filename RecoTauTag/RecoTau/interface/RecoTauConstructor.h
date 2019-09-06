@@ -32,7 +32,6 @@
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
-#include "boost/shared_ptr.hpp"
 #include <vector>
 
 namespace reco {
@@ -129,7 +128,7 @@ namespace reco {
     private:
       typedef std::pair<Region, ParticleType> CollectionKey;
       typedef std::map<CollectionKey, std::vector<CandidatePtr>*> CollectionMap;
-      typedef boost::shared_ptr<std::vector<CandidatePtr> > SortedListPtr;
+      typedef std::shared_ptr<std::vector<CandidatePtr> > SortedListPtr;
       typedef std::map<CollectionKey, SortedListPtr> SortedCollectionMap;
 
       bool copyGammas_;

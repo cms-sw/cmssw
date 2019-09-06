@@ -17,7 +17,7 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include <boost/shared_ptr.hpp>
+
 #include <boost/filesystem.hpp>
 #include "TFile.h"
 #include "TTree.h"
@@ -211,7 +211,7 @@ private:
   std::string m_fileName;
   std::string m_logicalFileName;
   std::unique_ptr<TFile> m_file;
-  std::vector<boost::shared_ptr<TreeHelperBase> > m_treeHelpers;
+  std::vector<std::shared_ptr<TreeHelperBase> > m_treeHelpers;
 
   unsigned int m_run;
   unsigned int m_lumi;
@@ -282,7 +282,7 @@ DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset)
       m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
       m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")),
       m_file(nullptr),
-      m_treeHelpers(kNIndicies, boost::shared_ptr<TreeHelperBase>()),
+      m_treeHelpers(kNIndicies, std::shared_ptr<TreeHelperBase>()),
       m_presentHistoryIndex(0),
       m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun")),
       m_enableMultiThread(false),
@@ -351,13 +351,12 @@ void DQMRootOutputModule::openFile(edm::FileBlock const&) {
   m_indicesTree->SetDirectory(m_file.get());
 
   unsigned int i = 0;
-  for (std::vector<boost::shared_ptr<TreeHelperBase> >::iterator it = m_treeHelpers.begin(),
-                                                                 itEnd = m_treeHelpers.end();
+  for (std::vector<std::shared_ptr<TreeHelperBase> >::iterator it = m_treeHelpers.begin(), itEnd = m_treeHelpers.end();
        it != itEnd;
        ++it, ++i) {
     //std::cout <<"making "<<kTypeNames[i]<<std::endl;
     TTree* tree = new TTree(kTypeNames[i], kTypeNames[i]);
-    *it = boost::shared_ptr<TreeHelperBase>(makeHelper(i, tree, m_fullNameBufferPtr));
+    *it = std::shared_ptr<TreeHelperBase>(makeHelper(i, tree, m_fullNameBufferPtr));
     tree->SetDirectory(m_file.get());  //TFile takes ownership
   }
 
@@ -411,8 +410,7 @@ void DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
   //Now store the relationship between run/lumi and indices in the other TTrees
   bool storedLumiIndex = false;
   unsigned int typeIndex = 0;
-  for (std::vector<boost::shared_ptr<TreeHelperBase> >::iterator it = m_treeHelpers.begin(),
-                                                                 itEnd = m_treeHelpers.end();
+  for (std::vector<std::shared_ptr<TreeHelperBase> >::iterator it = m_treeHelpers.begin(), itEnd = m_treeHelpers.end();
        it != itEnd;
        ++it, ++typeIndex) {
     if ((*it)->wasFilled()) {
@@ -468,8 +466,7 @@ void DQMRootOutputModule::writeRun(edm::RunForOutput const& iRun) {
 
   //Now store the relationship between run/lumi and indices in the other TTrees
   unsigned int typeIndex = 0;
-  for (std::vector<boost::shared_ptr<TreeHelperBase> >::iterator it = m_treeHelpers.begin(),
-                                                                 itEnd = m_treeHelpers.end();
+  for (std::vector<std::shared_ptr<TreeHelperBase> >::iterator it = m_treeHelpers.begin(), itEnd = m_treeHelpers.end();
        it != itEnd;
        ++it, ++typeIndex) {
     if ((*it)->wasFilled()) {
