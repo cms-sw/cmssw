@@ -171,11 +171,11 @@ unsigned int CkfTrajectoryBuilder::limitedCandidates(const TrajectorySeed& seed,
                                                      TrajectoryContainer& result) const {
   TempTrajectoryContainer candidates;
   candidates.push_back(startingTraj);
-  boost::shared_ptr<const TrajectorySeed> sharedSeed(new TrajectorySeed(seed));
+  std::shared_ptr<const TrajectorySeed> sharedSeed(new TrajectorySeed(seed));
   return limitedCandidates(sharedSeed, candidates, result);
 }
 
-unsigned int CkfTrajectoryBuilder::limitedCandidates(const boost::shared_ptr<const TrajectorySeed>& sharedSeed,
+unsigned int CkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<const TrajectorySeed>& sharedSeed,
                                                      TempTrajectoryContainer& candidates,
                                                      TrajectoryContainer& result) const {
   unsigned int nIter = 1;

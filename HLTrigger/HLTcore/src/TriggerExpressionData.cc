@@ -1,4 +1,4 @@
-#include <boost/shared_ptr.hpp>
+
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

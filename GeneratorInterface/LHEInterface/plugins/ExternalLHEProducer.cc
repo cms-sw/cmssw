@@ -30,7 +30,7 @@ Implementation:
 #include <sys/resource.h>
 
 #include "boost/bind.hpp"
-#include "boost/shared_ptr.hpp"
+
 #include "boost/ptr_container/ptr_deque.hpp"
 
 // user include files

@@ -168,8 +168,8 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
   // ----------member data ---------------------------
-  std::vector<boost::shared_ptr<ReaderBase> > m_runReaders;
-  std::vector<boost::shared_ptr<ReaderBase> > m_lumiReaders;
+  std::vector<std::shared_ptr<ReaderBase> > m_runReaders;
+  std::vector<std::shared_ptr<ReaderBase> > m_lumiReaders;
 };
 
 //
@@ -192,10 +192,10 @@ DummyReadDQMStore::DummyReadDQMStore(const edm::ParameterSet& iConfig) {
   for (PSets::const_iterator it = runElements.begin(), itEnd = runElements.end(); it != itEnd; ++it) {
     switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
       case 1:
-        m_runReaders.push_back(boost::shared_ptr<ReaderBase>(new TH1FReader(*it, *dstore, false)));
+        m_runReaders.push_back(std::shared_ptr<ReaderBase>(new TH1FReader(*it, *dstore, false)));
         break;
       case 2:
-        m_runReaders.push_back(boost::shared_ptr<ReaderBase>(new TH2FReader(*it, *dstore, false)));
+        m_runReaders.push_back(std::shared_ptr<ReaderBase>(new TH2FReader(*it, *dstore, false)));
         break;
     }
   }
@@ -205,10 +205,10 @@ DummyReadDQMStore::DummyReadDQMStore(const edm::ParameterSet& iConfig) {
   for (PSets::const_iterator it = lumiElements.begin(), itEnd = lumiElements.end(); it != itEnd; ++it) {
     switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
       case 1:
-        m_lumiReaders.push_back(boost::shared_ptr<ReaderBase>(new TH1FReader(*it, *dstore, true)));
+        m_lumiReaders.push_back(std::shared_ptr<ReaderBase>(new TH1FReader(*it, *dstore, true)));
         break;
       case 2:
-        m_lumiReaders.push_back(boost::shared_ptr<ReaderBase>(new TH2FReader(*it, *dstore, true)));
+        m_lumiReaders.push_back(std::shared_ptr<ReaderBase>(new TH2FReader(*it, *dstore, true)));
         break;
     }
   }
@@ -255,7 +255,7 @@ void DummyReadDQMStore::beginRun(edm::Run const&, edm::EventSetup const&) {}
 
 // ------------ method called when ending the processing of a run  ------------
 void DummyReadDQMStore::endRun(edm::Run const&, edm::EventSetup const&) {
-  for (std::vector<boost::shared_ptr<ReaderBase> >::iterator it = m_runReaders.begin(), itEnd = m_runReaders.end();
+  for (std::vector<std::shared_ptr<ReaderBase> >::iterator it = m_runReaders.begin(), itEnd = m_runReaders.end();
        it != itEnd;
        ++it) {
     (*it)->read();
@@ -267,7 +267,7 @@ void DummyReadDQMStore::beginLuminosityBlock(edm::LuminosityBlock const&, edm::E
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void DummyReadDQMStore::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-  for (std::vector<boost::shared_ptr<ReaderBase> >::iterator it = m_lumiReaders.begin(), itEnd = m_lumiReaders.end();
+  for (std::vector<std::shared_ptr<ReaderBase> >::iterator it = m_lumiReaders.begin(), itEnd = m_lumiReaders.end();
        it != itEnd;
        ++it) {
     (*it)->read();

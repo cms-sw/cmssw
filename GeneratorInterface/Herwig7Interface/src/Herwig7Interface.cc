@@ -14,7 +14,6 @@
 
 #include <algorithm>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
 
 #include <HepMC/GenEvent.h>

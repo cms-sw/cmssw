@@ -17,7 +17,7 @@ using namespace edm;
 //  ------------------
 void CATopJetAlgorithm::run(const vector<fastjet::PseudoJet>& cell_particles,
                             vector<fastjet::PseudoJet>& hardjetsOutput,
-                            boost::shared_ptr<fastjet::ClusterSequence>& fjClusterSeq) {
+                            std::shared_ptr<fastjet::ClusterSequence>& fjClusterSeq) {
   if (verbose_)
     cout << "Welcome to CATopSubJetAlgorithm::run" << endl;
 
@@ -74,13 +74,13 @@ void CATopJetAlgorithm::run(const vector<fastjet::PseudoJet>& cell_particles,
 
   //cluster the jets with the jet definition jetDef:
   // run algorithm
-  // boost::shared_ptr<fastjet::ClusterSequence> fjClusterSeq;
+  // std::shared_ptr<fastjet::ClusterSequence> fjClusterSeq;
   // if ( !doAreaFastjet_ ) {
-  //   fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequence( cell_particles, jetDef ) );
+  //   fjClusterSeq = std::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequence( cell_particles, jetDef ) );
   // } else if (voronoiRfact_ <= 0) {
-  //   fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequenceArea( cell_particles, jetDef , *fjActiveArea_ ) );
+  //   fjClusterSeq = std::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequenceArea( cell_particles, jetDef , *fjActiveArea_ ) );
   // } else {
-  //   fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequenceVoronoiArea( cell_particles, jetDef , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
+  //   fjClusterSeq = std::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequenceVoronoiArea( cell_particles, jetDef , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
   // }
 
   if (verbose_)

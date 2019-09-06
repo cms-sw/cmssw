@@ -1,6 +1,6 @@
 #ifndef PhysicsTools_Utilities_FunctClone_h
 #define PhysicsTools_Utilities_FunctClone_h
-#include <boost/shared_ptr.hpp>
+
 #include <vector>
 #include <algorithm>
 
@@ -37,7 +37,7 @@ namespace funct {
       clear();
       value_ = (*f_)(x);
     }
-    const boost::shared_ptr<F> f_;
+    const std::shared_ptr<F> f_;
     mutable double value_;
     mutable std::vector<bool> toBeUpdated_;
   };

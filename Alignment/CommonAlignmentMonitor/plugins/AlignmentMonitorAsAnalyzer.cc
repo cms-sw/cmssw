@@ -132,7 +132,7 @@ void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     edm::ESHandle<PTrackerParameters> ptp;
     iSetup.get<PTrackerParametersRcd>().get(ptp);
     TrackerGeomBuilderFromGeometricDet trackerBuilder;
-    boost::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(&(*theGeometricDet), *ptp, tTopo));
+    std::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(&(*theGeometricDet), *ptp, tTopo));
 
     edm::ESHandle<MuonDDDConstants> mdc;
     iSetup.get<MuonNumberingRecord>().get(mdc);
