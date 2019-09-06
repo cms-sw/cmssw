@@ -27,4 +27,7 @@ cmsRun --parameter-set ${LOCAL_TEST_DIR}/testConcurrentIOVsForce_cfg.py || die '
 echo testEventSetupRunLumi_cfg
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/testEventSetupRunLumi_cfg.py || die 'Failed in testEventSetupRunLumi_cfg.py' $?
 
+echo testConcurrentIOVsESSource_cfg.py
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/testConcurrentIOVsESSource_cfg.py || die 'Failed in testConcurrentIOVsESSource_cfg.py' $?
+
 popd
