@@ -483,8 +483,10 @@ steps['RunCosmics2016B']={'INPUT':InputInfo(dataSet='/Cosmics/Run2016B-v1/RAW',l
 steps['RunCosmics2019']={'INPUT':InputInfo(dataSet='/ExpressCosmics/Commissioning2019-Express-v1/FEVT',label='2019GR3',run=[330098],events=100000,location='STD')}
 
 #### Test of lumi section boundary crossing with run2 2018D ####
-Run2018Dml={320822: [[1,1]] , 320823: [[1,1]]}
-steps['RunEGamma2018Dml']={'INPUT':InputInfo(dataSet='/EGamma/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018Dml)}
+Run2018Dml1={320822: [[1,1]] , 320823: [[1,1]]}
+Run2018Dml2={320822: [[1,2]]}
+steps['RunEGamma2018Dml1']={'INPUT':InputInfo(dataSet='/EGamma/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018Dml1)}
+steps['RunEGamma2018Dml2']={'INPUT':InputInfo(dataSet='/EGamma/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018Dml2)}
 
 def gen(fragment,howMuch):
     global step1Defaults
