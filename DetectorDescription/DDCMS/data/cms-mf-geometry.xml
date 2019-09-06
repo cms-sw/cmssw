@@ -26,6 +26,7 @@
     <Include ref='Geometry/CMSCommonData/data/cms.xml'/>
     <Include ref='DetectorDescription/DDCMS/data/cmsMagneticField.xml'/>
     <Include ref='MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_1.xml'/>
+    <Include ref='MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_2.xml'/>
     <Include ref='Geometry/CMSCommonData/data/materials.xml'/>
   </IncludeSection>
   
