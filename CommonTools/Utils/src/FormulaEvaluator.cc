@@ -625,8 +625,6 @@ namespace {
   const std::string k_TMath__Sqrt("TMath::Sqrt");
   const std::string k_abs("abs");
   const std::string k_TMath__Abs("TMath::Abs");
-  
-  // abu's edit
   const std::string k_cos("cos");
   const std::string k_sin("sin");
   const std::string k_tan("tan");
@@ -725,7 +723,6 @@ namespace {
       return info;
     }
     
-    // abu's edit 
     info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
                                    k_cos, [](double iArg)->double { return std::cos(iArg); } );
     if(info.evaluator.get() != nullptr) {
@@ -881,8 +878,6 @@ namespace {
     if(info.evaluator.get() != nullptr) {
       return info;
     }
-
-    // abu's edit end
 
     info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
                                    k_pow, [](double iArg1, double iArg2)->double { return std::pow(iArg1,iArg2); } );
