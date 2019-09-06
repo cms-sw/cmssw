@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
@@ -29,61 +30,73 @@
 // forward declarations
 
 namespace edm {
-  class IOVSyncValue;
   class EventSetupImpl;
   class LuminosityBlockPrincipal;
   class RunPrincipal;
 
   //This is code in common between beginStreamRun and beginStreamLuminosityBlock
-  inline void subProcessDoStreamBeginTransitionAsync(WaitingTaskHolder iHolder,
-                                                     SubProcess& iSubProcess,
-                                                     unsigned int i,
-                                                     LuminosityBlockPrincipal& iPrincipal,
-                                                     IOVSyncValue const& iTS) {
-    iSubProcess.doStreamBeginLuminosityBlockAsync(std::move(iHolder), i, iPrincipal, iTS);
+  inline void subProcessDoStreamBeginTransitionAsync(
+      WaitingTaskHolder iHolder,
+      SubProcess& iSubProcess,
+      unsigned int i,
+      LuminosityBlockPrincipal& iPrincipal,
+      IOVSyncValue const& iTS,
+      std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls) {
+    iSubProcess.doStreamBeginLuminosityBlockAsync(std::move(iHolder), i, iPrincipal, iTS, iEventSetupImpls);
   }
 
-  inline void subProcessDoStreamBeginTransitionAsync(WaitingTaskHolder iHolder,
-                                                     SubProcess& iSubProcess,
-                                                     unsigned int i,
-                                                     RunPrincipal& iPrincipal,
-                                                     IOVSyncValue const& iTS) {
-    iSubProcess.doStreamBeginRunAsync(std::move(iHolder), i, iPrincipal, iTS);
+  inline void subProcessDoStreamBeginTransitionAsync(
+      WaitingTaskHolder iHolder,
+      SubProcess& iSubProcess,
+      unsigned int i,
+      RunPrincipal& iPrincipal,
+      IOVSyncValue const& iTS,
+      std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls) {
+    iSubProcess.doStreamBeginRunAsync(std::move(iHolder), i, iPrincipal, iTS, iEventSetupImpls);
   }
 
-  inline void subProcessDoStreamEndTransitionAsync(WaitingTaskHolder iHolder,
-                                                   SubProcess& iSubProcess,
-                                                   unsigned int i,
-                                                   LuminosityBlockPrincipal& iPrincipal,
-                                                   IOVSyncValue const& iTS,
-                                                   bool cleaningUpAfterException) {
-    iSubProcess.doStreamEndLuminosityBlockAsync(std::move(iHolder), i, iPrincipal, iTS, cleaningUpAfterException);
+  inline void subProcessDoStreamEndTransitionAsync(
+      WaitingTaskHolder iHolder,
+      SubProcess& iSubProcess,
+      unsigned int i,
+      LuminosityBlockPrincipal& iPrincipal,
+      IOVSyncValue const& iTS,
+      std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls,
+      bool cleaningUpAfterException) {
+    iSubProcess.doStreamEndLuminosityBlockAsync(
+        std::move(iHolder), i, iPrincipal, iTS, iEventSetupImpls, cleaningUpAfterException);
   }
 
-  inline void subProcessDoStreamEndTransitionAsync(WaitingTaskHolder iHolder,
-                                                   SubProcess& iSubProcess,
-                                                   unsigned int i,
-                                                   RunPrincipal& iPrincipal,
-                                                   IOVSyncValue const& iTS,
-                                                   bool cleaningUpAfterException) {
-    iSubProcess.doStreamEndRunAsync(std::move(iHolder), i, iPrincipal, iTS, cleaningUpAfterException);
+  inline void subProcessDoStreamEndTransitionAsync(
+      WaitingTaskHolder iHolder,
+      SubProcess& iSubProcess,
+      unsigned int i,
+      RunPrincipal& iPrincipal,
+      IOVSyncValue const& iTS,
+      std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls,
+      bool cleaningUpAfterException) {
+    iSubProcess.doStreamEndRunAsync(std::move(iHolder), i, iPrincipal, iTS, iEventSetupImpls, cleaningUpAfterException);
   }
 
   template <typename Traits, typename P, typename SC>
-  void beginStreamTransitionAsync(WaitingTaskHolder iWait,
-                                  Schedule& iSchedule,
-                                  unsigned int iStreamIndex,
-                                  P& iPrincipal,
-                                  IOVSyncValue const& iTS,
-                                  EventSetupImpl const& iES,
-                                  ServiceToken const& token,
-                                  SC& iSubProcesses) {
+  void beginStreamTransitionAsync(
+      WaitingTaskHolder iWait,
+      Schedule& iSchedule,
+      unsigned int iStreamIndex,
+      P& iPrincipal,
+      IOVSyncValue const& iTS,
+      EventSetupImpl const& iES,
+      std::vector<std::shared_ptr<const EventSetupImpl>> const*
+          iEventSetupImpls,  // always null for runs until we enable concurrent run processing
+      ServiceToken const& token,
+      SC& iSubProcesses) {
     //When we are done processing the stream for this process,
     // we need to run the stream for all SubProcesses
     //NOTE: The subprocesses set their own service tokens
     auto subs = make_waiting_task(
         tbb::task::allocate_root(),
-        [&iSubProcesses, iWait, iStreamIndex, &iPrincipal, iTS](std::exception_ptr const* iPtr) mutable {
+        [&iSubProcesses, iWait, iStreamIndex, &iPrincipal, iTS, iEventSetupImpls](
+            std::exception_ptr const* iPtr) mutable {
           if (iPtr) {
             auto excpt = *iPtr;
             auto delayError =
@@ -91,11 +104,12 @@ namespace edm {
                                   [iWait, excpt](std::exception_ptr const*) mutable { iWait.doneWaiting(excpt); });
             WaitingTaskHolder h(delayError);
             for (auto& subProcess : iSubProcesses) {
-              subProcessDoStreamBeginTransitionAsync(h, subProcess, iStreamIndex, iPrincipal, iTS);
+              subProcessDoStreamBeginTransitionAsync(h, subProcess, iStreamIndex, iPrincipal, iTS, iEventSetupImpls);
             };
           } else {
             for (auto& subProcess : iSubProcesses) {
-              subProcessDoStreamBeginTransitionAsync(iWait, subProcess, iStreamIndex, iPrincipal, iTS);
+              subProcessDoStreamBeginTransitionAsync(
+                  iWait, subProcess, iStreamIndex, iPrincipal, iTS, iEventSetupImpls);
             };
           }
         });
@@ -111,12 +125,13 @@ namespace edm {
                                    P& iPrincipal,
                                    IOVSyncValue const& iTS,
                                    EventSetupImpl const& iES,
+                                   std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls,
                                    ServiceToken const& token,
                                    SC& iSubProcesses) {
     WaitingTaskHolder holdUntilAllStreamsCalled(iWait);
     for (unsigned int i = 0; i < iNStreams; ++i) {
       beginStreamTransitionAsync<Traits>(
-          WaitingTaskHolder(iWait), iSchedule, i, iPrincipal, iTS, iES, token, iSubProcesses);
+          WaitingTaskHolder(iWait), iSchedule, i, iPrincipal, iTS, iES, iEventSetupImpls, token, iSubProcesses);
     }
   }
 
@@ -127,6 +142,8 @@ namespace edm {
                                 P& iPrincipal,
                                 IOVSyncValue const& iTS,
                                 EventSetupImpl const& iES,
+                                std::vector<std::shared_ptr<const EventSetupImpl>> const*
+                                    iEventSetupImpls,  // always null for runs until we enable concurrent run processing
                                 ServiceToken const& token,
                                 SC& iSubProcesses,
                                 bool cleaningUpAfterException) {
@@ -134,27 +151,27 @@ namespace edm {
     // we need to run the stream for all SubProcesses
     //NOTE: The subprocesses set their own service tokens
 
-    auto subs =
-        make_waiting_task(tbb::task::allocate_root(),
-                          [&iSubProcesses, iWait, iStreamIndex, &iPrincipal, iTS, cleaningUpAfterException](
-                              std::exception_ptr const* iPtr) mutable {
-                            if (iPtr) {
-                              auto excpt = *iPtr;
-                              auto delayError = make_waiting_task(
-                                  tbb::task::allocate_root(),
+    auto subs = make_waiting_task(
+        tbb::task::allocate_root(),
+        [&iSubProcesses, iWait, iStreamIndex, &iPrincipal, iTS, iEventSetupImpls, cleaningUpAfterException](
+            std::exception_ptr const* iPtr) mutable {
+          if (iPtr) {
+            auto excpt = *iPtr;
+            auto delayError =
+                make_waiting_task(tbb::task::allocate_root(),
                                   [iWait, excpt](std::exception_ptr const*) mutable { iWait.doneWaiting(excpt); });
-                              WaitingTaskHolder h(delayError);
-                              for (auto& subProcess : iSubProcesses) {
-                                subProcessDoStreamEndTransitionAsync(
-                                    h, subProcess, iStreamIndex, iPrincipal, iTS, cleaningUpAfterException);
-                              }
-                            } else {
-                              for (auto& subProcess : iSubProcesses) {
-                                subProcessDoStreamEndTransitionAsync(
-                                    iWait, subProcess, iStreamIndex, iPrincipal, iTS, cleaningUpAfterException);
-                              }
-                            }
-                          });
+            WaitingTaskHolder h(delayError);
+            for (auto& subProcess : iSubProcesses) {
+              subProcessDoStreamEndTransitionAsync(
+                  h, subProcess, iStreamIndex, iPrincipal, iTS, iEventSetupImpls, cleaningUpAfterException);
+            }
+          } else {
+            for (auto& subProcess : iSubProcesses) {
+              subProcessDoStreamEndTransitionAsync(
+                  iWait, subProcess, iStreamIndex, iPrincipal, iTS, iEventSetupImpls, cleaningUpAfterException);
+            }
+          }
+        });
 
     iSchedule.processOneStreamAsync<Traits>(
         WaitingTaskHolder(subs), iStreamIndex, iPrincipal, iES, token, cleaningUpAfterException);
@@ -167,12 +184,13 @@ namespace edm {
                                  P& iPrincipal,
                                  IOVSyncValue const& iTS,
                                  EventSetupImpl const& iES,
+                                 std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls,
                                  ServiceToken const& iToken,
                                  SC& iSubProcesses,
                                  bool cleaningUpAfterException) {
     for (unsigned int i = 0; i < iNStreams; ++i) {
       endStreamTransitionAsync<Traits>(
-          iWait, iSchedule, i, iPrincipal, iTS, iES, iToken, iSubProcesses, cleaningUpAfterException);
+          iWait, iSchedule, i, iPrincipal, iTS, iES, iEventSetupImpls, iToken, iSubProcesses, cleaningUpAfterException);
     }
   }
 };  // namespace edm

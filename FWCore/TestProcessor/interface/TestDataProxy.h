@@ -36,7 +36,9 @@ namespace edm {
 
       void setData(std::unique_ptr<T> iData) { data_ = std::move(iData); }
 
-      void const* getImpl(eventsetup::EventSetupRecordImpl const&, eventsetup::DataKey const& iKey) final {
+      void const* getImpl(eventsetup::EventSetupRecordImpl const&,
+                          eventsetup::DataKey const&,
+                          EventSetupImpl const*) final {
         return data_.get();
       }
 

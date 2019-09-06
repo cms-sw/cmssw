@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -16,7 +17,7 @@
 
 namespace edmtest {
 
-  class ESTestAnalyzerA : public edm::EDAnalyzer {
+  class ESTestAnalyzerA : public edm::stream::EDAnalyzer<> {
   public:
     explicit ESTestAnalyzerA(edm::ParameterSet const&);
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
@@ -157,9 +158,25 @@ namespace edmtest {
                                            << ": Data values = " << dataA->value() << "  " << dataZ->value();
     }
   }
+
+  class ESTestAnalyzerJ : public edm::stream::EDAnalyzer<> {
+  public:
+    explicit ESTestAnalyzerJ(edm::ParameterSet const&) {}
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+  };
+
+  void ESTestAnalyzerJ::analyze(edm::Event const& ev, edm::EventSetup const& es) {
+    ESTestRecordJ const& recJ = es.get<ESTestRecordJ>();
+    edm::ESHandle<ESTestDataJ> dataJ;
+    recJ.get(dataJ);
+    edm::LogAbsolute("ESTestAnalyzerJ") << "ESTestAnalyzerJ: process = " << moduleDescription().processName()
+                                        << ": Data values = " << dataJ->value();
+  }
+
 }  // namespace edmtest
 using namespace edmtest;
 DEFINE_FWK_MODULE(ESTestAnalyzerA);
 DEFINE_FWK_MODULE(ESTestAnalyzerB);
 DEFINE_FWK_MODULE(ESTestAnalyzerK);
 DEFINE_FWK_MODULE(ESTestAnalyzerAZ);
+DEFINE_FWK_MODULE(ESTestAnalyzerJ);

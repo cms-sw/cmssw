@@ -9,9 +9,19 @@
 
  Description: A DataProxy base class which allows one to write type-safe proxies
 
+              Note that DataProxy types that inherit from this are not allowed
+              to get data from the EventSetup (they cannot consume anything).
+              This is intended mainly for use with ESSources that are also
+              not allowed to get data from the EventSetup. Currently (as of
+              April 2019), this class is used only in PoolDBESSource and
+              Framework unit tests.
+
+              This is also not used with ESProducers that inherit from
+              the ESProducer base class and use the setWhatProduced interface.
+              This class is used instead of CallProxy.
+
  Usage:
     <usage>
-
 */
 //
 // Author:      Chris Jones
@@ -29,7 +39,11 @@
 // forward declarations
 
 namespace edm {
+
+  class EventSetupImpl;
+
   namespace eventsetup {
+
     template <class RecordT, class DataT>
     class DataProxyTemplate : public DataProxy {
     public:
@@ -37,29 +51,18 @@ namespace edm {
       typedef RecordT record_type;
 
       DataProxyTemplate() {}
-      //virtual ~DataProxyTemplate();
 
-      // ---------- const member functions ---------------------
-
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-      const void* getImpl(const EventSetupRecordImpl& iRecord, const DataKey& iKey) override {
+      const void* getImpl(const EventSetupRecordImpl& iRecord,
+                          const DataKey& iKey,
+                          EventSetupImpl const* iEventSetupImpl) override {
         assert(iRecord.key() == RecordT::keyForClass());
         RecordT rec;
-        rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr);
+        rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl);
         return this->make(rec, iKey);
       }
 
     protected:
       virtual const DataT* make(const RecordT&, const DataKey&) = 0;
-
-    private:
-      DataProxyTemplate(const DataProxyTemplate&) = delete;  // stop default
-
-      const DataProxyTemplate& operator=(const DataProxyTemplate&) = delete;  // stop default
-
-      // ---------- member data --------------------------------
     };
 
   }  // namespace eventsetup
