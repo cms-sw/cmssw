@@ -106,7 +106,7 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
   float centreOfStrip = istrip + 0.25 + phiposition2 * 0.5;
   GlobalPoint gp_digi = etapart->toGlobal(etapart->centreOfStrip(centreOfStrip));
 
-  float strippitch_rad = strippitch/gp.perp(); //unit in rad
+  float strippitch_rad = strippitch / gp.perp(); //unit in rad
 
   int idphi = static_cast<int>(fabs(dphi) / (strippitch_rad * dphiresolution_));
   const int max_idphi = 512;
