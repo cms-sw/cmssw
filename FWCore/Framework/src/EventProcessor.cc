@@ -430,6 +430,7 @@ namespace edm {
       nConcurrentLumis = 1;
       nConcurrentRuns = 1;
     }
+    espController_->initialize(nStreams, nConcurrentLumis);
 
     preallocations_ = PreallocationConfiguration{nThreads, nStreams, nConcurrentLumis, nConcurrentRuns};
 

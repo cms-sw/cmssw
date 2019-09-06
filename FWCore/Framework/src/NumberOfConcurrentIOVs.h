@@ -38,6 +38,8 @@ namespace edm {
 
       void initialize(ParameterSet const* eventSetupPset);
 
+      void initialize(unsigned int nStreams, unsigned int nConcurrentLumis);
+
       void initialize(EventSetupProvider const&);
 
       unsigned int numberOfConcurrentIOVs(EventSetupRecordKey const&) const;
@@ -71,6 +73,8 @@ namespace edm {
       // any subset of records. Values in this container override both of the
       // above data members.
       std::vector<std::pair<EventSetupRecordKey, unsigned int>> forceNumberOfConcurrentIOVs_;
+
+      unsigned int maxConcurrentIOVs_ = 1;
     };
 
   }  // namespace eventsetup
