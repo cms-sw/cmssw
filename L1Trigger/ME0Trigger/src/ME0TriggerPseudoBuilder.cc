@@ -106,7 +106,9 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
   float centreOfStrip = istrip + 0.25 + phiposition2 * 0.5;
   GlobalPoint gp_digi = etapart->toGlobal(etapart->centreOfStrip(centreOfStrip));
 
-  int idphi = static_cast<int>(fabs(dphi) / (strippitch * dphiresolution_));
+  float strippitch_rad = strippitch/gp.perp(); //unit in rad
+
+  int idphi = static_cast<int>(fabs(dphi) / (strippitch_rad * dphiresolution_));
   const int max_idphi = 512;
   if (idphi >= max_idphi) {
     LogTrace("L1ME0Trigger") << " ME0 segment dphi " << dphi << " and int type: " << idphi
@@ -125,7 +127,7 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
                              << "\t strip(float) " << strip << " (int) " << istrip << " phiposition " << phiposition
                              << " resolution (in term of strip) " << phi_resolution << " \n"
                              << "\t deltaphi(float) " << dphi << " (int) " << idphi << " resolution "
-                             << strippitch * dphiresolution_ << " bend " << bend << " \n"
+                             << strippitch_rad * dphiresolution_ << " bend " << bend << " \n"
                              << "\t global point eta " << gp.eta() << " phi " << gp.phi() << " trigger digi eta "
                              << gp_digi.eta() << " phi " << gp_digi.phi() << " \n"
                              << "\t time (ns, float) " << time << " BX " << BX << " \n";
