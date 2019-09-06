@@ -52,6 +52,10 @@ namespace edm {
       return returnValue;
     }
 
+    void EventSetupsController::initialize(unsigned int nStreams, unsigned int nConcurrentLumis) {
+      numberOfConcurrentIOVs_.initialize(nStreams, nConcurrentLumis);
+    }
+
     void EventSetupsController::finishConfiguration() {
       if (mustFinishConfiguration_) {
         for (auto& eventSetupProvider : providers_) {

@@ -35,6 +35,13 @@ namespace edm {
       }
     }
 
+    void NumberOfConcurrentIOVs::initialize(unsigned int nStreams, unsigned int nConcurrentLumis) {
+      maxConcurrentIOVs_ = nStreams;
+      if (maxConcurrentIOVs_ > nConcurrentLumis) {
+        maxConcurrentIOVs_ = nConcurrentLumis;
+      }
+    }
+
     void NumberOfConcurrentIOVs::initialize(EventSetupProvider const& eventSetupProvider) {
       eventSetupProvider.fillRecordsNotAllowingConcurrentIOVs(recordsNotAllowingConcurrentIOVs_);
     }
@@ -46,12 +53,12 @@ namespace edm {
                                    std::make_pair(eventSetupKey, 0u),
                                    [](auto const& left, auto const& right) { return left.first < right.first; });
       if (iter != forceNumberOfConcurrentIOVs_.end() && iter->first == eventSetupKey) {
-        return iter->second;
+        return std::min(iter->second, maxConcurrentIOVs_);
       }
       if (recordsNotAllowingConcurrentIOVs_.find(eventSetupKey) != recordsNotAllowingConcurrentIOVs_.end()) {
         return 1;
       }
-      return numberConcurrentIOVs_;
+      return std::min(numberConcurrentIOVs_, maxConcurrentIOVs_);
     }
 
     void NumberOfConcurrentIOVs::clear() {
