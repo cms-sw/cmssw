@@ -214,6 +214,12 @@ namespace magneticfield {
       return false;
     }
   };
+
 }  // namespace magneticfield
+
+namespace {
+  const char* const newln = "\n";
+  // newline for formatting debug messages
+}  // namespace
 
 #endif

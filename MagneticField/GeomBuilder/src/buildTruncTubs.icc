@@ -26,9 +26,9 @@ void volumeHandle::buildTruncTubs() {
   bool cutInside = tubs.cutInside();                    // true, if truncation is on the inner side of the tube-section
 
   LogTrace("magneticfield::volumeHandle")
-      << " zhalf      " << zhalf << "\n rIn        " << rIn << "\n rOut       " << rOut << "\n startPhi   " << startPhi
-      << "\n deltaPhi   " << deltaPhi << "\n cutAtStart " << cutAtStart << "\n cutAtDelta " << cutAtDelta
-      << "\n cutInside  " << cutInside;
+      << "zhalf      " << zhalf << newln << "rIn        " << rIn << newln << "rOut       " << rOut << newln
+      << "startPhi   " << startPhi << newln << "deltaPhi   " << deltaPhi << newln << "cutAtStart " << cutAtStart
+      << newln << "cutAtDelta " << cutAtDelta << newln << "cutInside  " << cutInside;
 
   //
   //  GlobalVector planeXAxis = refPlane->toGlobal(LocalVector( 1, 0, 0));
@@ -87,10 +87,9 @@ void volumeHandle::buildTruncTubs() {
 
   if (debug) {
     LogTrace("magneticfield::volumeHandle")
-        << "pos_Rplane    " << pos_Rplane << " " << pos_Rplane.perp() << " " << pos_Rplane.phi() << endl
+        << "pos_Rplane    " << pos_Rplane << " " << pos_Rplane.perp() << " " << pos_Rplane.phi() << newln
         << "rot_R         " << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-        << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl
-        << "cyl radius    " << rCyl;
+        << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)).phi() << newln << "cyl radius     " << rCyl;
 
     //   // Check ordering.
     if ((pos_Rplane.perp() < rCyl) != cutInside) {

@@ -21,13 +21,10 @@ void volumeHandle::buildCons() {
   double startPhi = cons.phiFrom();
   double deltaPhi = cons.deltaPhi();
 
-  LogTrace("magneticfield::volumeHandle") << "zhalf      " << zhalf << endl
-                                          << "rInMinusZ  " << rInMinusZ << endl
-                                          << "rOutMinusZ " << rOutMinusZ << endl
-                                          << "rInPlusZ   " << rInPlusZ << endl
-                                          << "rOutPlusZ  " << rOutPlusZ << endl
-                                          << "phiFrom    " << startPhi << endl
-                                          << "deltaPhi   " << deltaPhi;
+  LogTrace("magneticfield::volumeHandle")
+      << "zhalf      " << zhalf << newln << "rInMinusZ  " << rInMinusZ << newln << "rOutMinusZ " << rOutMinusZ << newln
+      << "rInPlusZ   " << rInPlusZ << newln << "rOutPlusZ  " << rOutPlusZ << newln << "phiFrom    " << startPhi << newln
+      << "deltaPhi   " << deltaPhi;
 
   // recalculate center: (for a DDCons, DDD gives 0,0,Z)
   double rZmin = (rInMinusZ + rOutMinusZ) / 2.;

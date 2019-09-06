@@ -26,13 +26,9 @@ void volumeHandle::buildPseudoTrap() {
   double radius = convertUnits(ptrap.radius());
   bool atMinusZ = ptrap.atMinusZ();
 
-  LogTrace("magneticfield::volumeHandle") << "halfZ     " << halfZ << endl
-                                          << "x1        " << x1 << endl
-                                          << "x2        " << x2 << endl
-                                          << "y1        " << y1 << endl
-                                          << "y2        " << y2 << endl
-                                          << "radius    " << radius << endl
-                                          << "atMinusZ  " << atMinusZ;
+  LogTrace("magneticfield::volumeHandle")
+      << "halfZ     " << halfZ << newln << "x1        " << x1 << newln << "x2        " << x2 << newln << "y1        "
+      << y1 << newln << "y2        " << y2 << newln << "radius    " << radius << newln << "atMinusZ  " << atMinusZ;
 
   // Just check assumptions on parameters...
   const double epsilon = 1e-5;
@@ -83,19 +79,21 @@ void volumeHandle::buildPseudoTrap() {
 
   if (debug) {
     if (std::abs(rcheck - fR) > 100. * epsilon) {  //FIXME!
-      LogTrace("magneticfield::volumeHandle") << "*** WARNING: Cylinder surface not centered on beam axis " << rcheck
-                                              << " " << fR << " " << std::abs(rcheck - fR);
+      std::stringstream formatOutput;
+      formatOutput << setprecision(10) << rcheck << " " << fR << " " << std::abs(rcheck - fR);
+      LogTrace("magneticfield::volumeHandle")
+          << "*** WARNING: Cylinder surface not centered on beam axis " << formatOutput.str();
     }
   }
 
   if (debug) {
     LogTrace("magneticfield::volumeHandle")
-        << "RN           " << theRN << endl
-        << "pos_Rplane   " << pos_Rplane << " " << pos_Rplane.perp() << " " << pos_Rplane.phi() << endl
-        << "pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " " << pos_zplus.phi() << endl
-        << "pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " " << pos_zminus.phi() << endl
-        << "pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi() << endl
-        << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi();
+        << "RN           " << theRN << newln << "pos_Rplane   " << pos_Rplane << " " << pos_Rplane.perp() << " "
+        << pos_Rplane.phi() << newln << "pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " "
+        << pos_zplus.phi() << newln << "pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " "
+        << pos_zminus.phi() << newln << "pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " "
+        << pos_phiplus.phi() << newln << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " "
+        << pos_phiminus.phi();
   }
 
   // Check ordering.
@@ -112,7 +110,7 @@ void volumeHandle::buildPseudoTrap() {
   GlobalVector z_phiplus = (refPlane->toGlobal(LocalVector((x2 - x1) / 2., 0., halfZ))).unit();
   GlobalVector z_phiminus = (refPlane->toGlobal(LocalVector(-(x2 - x1) / 2., 0., halfZ))).unit();
 
-  LogTrace("magneticfield::volumeHandle") << "z_phiplus  " << z_phiplus << " " << z_phiplus.phi() << endl
+  LogTrace("magneticfield::volumeHandle") << "z_phiplus  " << z_phiplus << " " << z_phiplus.phi() << newln
                                           << "z_phiminus " << z_phiminus << " " << z_phiminus.phi();
 
   Surface::RotationType rot_R(planeYAxis, planeXAxis);
@@ -130,11 +128,11 @@ void volumeHandle::buildPseudoTrap() {
   surfaces[phiminus] = new Plane(pos_phiminus, rot_phiminus);
 
   LogTrace("magneticfield::volumeHandle")
-      << "rot_R " << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)) << endl
-      << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << endl
-      << "rot_phi+ " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-      << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl
-      << "rot_phi- " << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
+      << "rot_R " << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)) << newln << "rot_Z "
+      << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << newln << "rot_phi+ "
+      << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
+      << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << newln << "rot_phi- "
+      << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
       << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)).phi();
 
   // Save volume boundaries

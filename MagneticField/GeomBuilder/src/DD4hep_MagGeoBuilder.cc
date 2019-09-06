@@ -99,12 +99,9 @@ void MagGeoBuilder::summary(handles& volumes) const {
   }    // end for
   iunique = ptrs.size();
 
-  LogTrace("MagGeoBuilder") << "    volumes   " << ivolumes << endl
-                            << "    surfaces  " << isurfaces << endl
-                            << "    assigned  " << iassigned << endl
-                            << "    unique    " << iunique << endl
-                            << "    iref_ass  " << iref_ass << endl
-                            << "    iref_nass " << iref_nass;
+  LogTrace("MagGeoBuilder") << "    volumes   " << ivolumes << newln << "    surfaces  " << isurfaces << newln
+                            << "    assigned  " << iassigned << newln << "    unique    " << iunique << newln
+                            << "    iref_ass  " << iref_ass << newln << "    iref_nass " << iref_nass;
 }
 
 void MagGeoBuilder::build(const DDDetector* det) {
@@ -224,7 +221,7 @@ void MagGeoBuilder::build(const DDDetector* det) {
     doSubDets = fv.next(0);  // end of loop over MAGF
   }
 
-  LogTrace("MagGeoBuilder") << "Number of volumes (barrel): " << bVolumes_.size() << endl
+  LogTrace("MagGeoBuilder") << "Number of volumes (barrel): " << bVolumes_.size() << newln
                             << "Number of volumes (endcap): " << eVolumes_.size();
   LogTrace("MagGeoBuilder") << "**********************************************************";
 
@@ -365,9 +362,9 @@ void MagGeoBuilder::build(const DDDetector* det) {
   for (auto ilay : layers) {
     mBLayers_.push_back(ilay.buildMagBLayer());
   }
-  LogTrace("MagGeoBuilder") << "*** BARREL ********************************************" << endl
-                            << "Number of different volumes   = " << bVolCount << endl
-                            << "Number of interpolators built = " << bInterpolators.size() << endl
+  LogTrace("MagGeoBuilder") << "*** BARREL ********************************************" << newln
+                            << "Number of different volumes   = " << bVolCount << newln
+                            << "Number of interpolators built = " << bInterpolators.size() << newln
                             << "Number of MagBLayers built    = " << mBLayers_.size();
   if (debug_) {
     testInside(bVolumes_);  // FIXME: all volumes should be checked in one go.
@@ -380,9 +377,9 @@ void MagGeoBuilder::build(const DDDetector* det) {
   for (auto isec : sectors) {
     mESectors_.push_back(isec.buildMagESector());
   }
-  LogTrace("MagGeoBuilder") << "*** ENDCAP ********************************************" << endl
-                            << "Number of different volumes   = " << eVolCount << endl
-                            << "Number of interpolators built = " << eInterpolators.size() << endl
+  LogTrace("MagGeoBuilder") << "*** ENDCAP ********************************************" << newln
+                            << "Number of different volumes   = " << eVolCount << newln
+                            << "Number of interpolators built = " << eInterpolators.size() << newln
                             << "Number of MagESector built    = " << mESectors_.size();
   if (debug_) {
     testInside(eVolumes_);  // FIXME: all volumes should be checked in one go.

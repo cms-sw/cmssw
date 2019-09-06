@@ -71,7 +71,7 @@ volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugV
     isIronFlag = true;
 
   if (debug) {
-    LogTrace("magneticfield::volumeHandle") << " RMin =  " << theRMin << endl << " RMax =  " << theRMax;
+    LogTrace("magneticfield::volumeHandle") << " RMin =  " << theRMin << newln << " RMax =  " << theRMax;
 
     if (theRMin < 0 || theRN < theRMin || theRMax < theRN)
       LogTrace("magneticfield::volumeHandle") << "*** WARNING: wrong RMin/RN/RMax";

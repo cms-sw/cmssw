@@ -12,12 +12,12 @@
 
 <library name="DetectorDescriptionPlugins" file="*.cc" >
   <use name="Geometry/Records"/>
+  <use name="MagneticField/Records"/>
   <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <library name="DetectorDescriptionDD4HepPlugins" file="dd4hep/*.cc" >
-  <use name="MagneticField/Records"/>
   <use name="rootgeom"/>
   <flags DD4HEP_PLUGIN="1"/>
 </library>
