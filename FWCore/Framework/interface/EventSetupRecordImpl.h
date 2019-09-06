@@ -122,7 +122,7 @@ namespace edm {
       void clearProxies();
 
       ///Set the cache identifier and validity interval when starting a new IOV
-      void initializeForNewIOV(unsigned long long iCacheIdentifier, ValidityInterval const&);
+      void initializeForNewIOV(unsigned long long iCacheIdentifier, ValidityInterval const&, bool hasFinder);
 
       /**Set the validity interval in a thread safe way. This is used when the
          IOV is already in use and the end of the IOV needs to be updated but
