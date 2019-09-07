@@ -68,7 +68,7 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
   }
   if (rolls.size() > 2 or rolls.empty())
     LogTrace("L1ME0Trigger") << " ME0 segment is crossing " << rolls.size() << " roll !!! \n";
-  assert(rolls.size() <= 2);
+  //assert(rolls.size() <= 2);   // we did found very few ME0 segments crossing 3 rolls!!! this cut is applied offline
   if (rolls.empty())
     return ME0TriggerDigi();
   if (rolls[0] < 1)
