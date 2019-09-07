@@ -100,16 +100,14 @@ namespace cms {
        {DDSolidShape::ddcuttubs, "CutTube"},
        {DDSolidShape::ddextrudedpolygon, "ExtrudedPolygon"}}};
 
-  const std::array<const cms::dd::ValuePair<LegacySolidShape, cms::DDSolidShape>, 22> LegacySolidShapeMap{
+  const std::array<const cms::dd::ValuePair<LegacySolidShape, cms::DDSolidShape>, 20> LegacySolidShapeMap{
       {{LegacySolidShape::dd_not_init, cms::DDSolidShape::dd_not_init},
        {LegacySolidShape::ddbox, cms::DDSolidShape::ddbox},
        {LegacySolidShape::ddtubs, cms::DDSolidShape::ddtubs},
        {LegacySolidShape::ddtrap, cms::DDSolidShape::ddtrap},
        {LegacySolidShape::ddcons, cms::DDSolidShape::ddcons},
        {LegacySolidShape::ddpolycone_rz, cms::DDSolidShape::ddpolycone},
-       {LegacySolidShape::ddpolycone_rz, cms::DDSolidShape::ddpolycone},
        {LegacySolidShape::ddpolycone_rrz, cms::DDSolidShape::ddpolycone},
-       {LegacySolidShape::ddpolyhedra_rz, cms::DDSolidShape::ddpolyhedra},
        {LegacySolidShape::ddpolyhedra_rz, cms::DDSolidShape::ddpolyhedra},
        {LegacySolidShape::ddpolyhedra_rrz, cms::DDSolidShape::ddpolyhedra},
        {LegacySolidShape::ddtorus, cms::DDSolidShape::ddtorus},
