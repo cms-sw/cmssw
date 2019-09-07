@@ -87,9 +87,12 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
     return ME0TriggerDigi();
   }
 
+  //globalpoint from ME0 segment
+  GlobalPoint gp = me0_g->idToDet(segment.me0DetId())->surface().toGlobal(segment.localPosition());
   const ME0EtaPartition* etapart = keylayer->etaPartition(rolls[0]);
-  float strippitch = etapart->localPitch(segment.localPosition());
-  float strip = etapart->strip(segment.localPosition());
+  LocalPoint segment_lp = etapart->surface().toLocal(gp);  // convert segment gp into lp in etapartition coordinate
+  float strippitch = etapart->localPitch(segment_lp);
+  float strip = etapart->strip(segment_lp);
   int totstrip = etapart->nstrips();
   int istrip = static_cast<int>(strip);
   int phiposition = istrip;
@@ -100,8 +103,6 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
   int phiposition2 = (static_cast<int>((strip - phiposition) / phi_resolution) & 1);  // half-strip resolution
   phiposition = (phiposition << 1) | phiposition2;
 
-  //globalpoint from ME0 segment
-  GlobalPoint gp = me0_g->idToDet(segment.me0DetId())->surface().toGlobal(segment.localPosition());
   //gloablpoint from ME0 trigger digi
   float centreOfStrip = istrip + 0.25 + phiposition2 * 0.5;
   GlobalPoint gp_digi = etapart->toGlobal(etapart->centreOfStrip(centreOfStrip));
