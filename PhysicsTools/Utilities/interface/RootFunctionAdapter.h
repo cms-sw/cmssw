@@ -1,6 +1,7 @@
 #ifndef PhysicTools_Utilities_RootFunctionAdapter_h
 #define PhysicTools_Utilities_RootFunctionAdapter_h
 #include <vector>
+#include <memory>
 
 #include "PhysicsTools/Utilities/interface/RootVarsAdapter.h"
 

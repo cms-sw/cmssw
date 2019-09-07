@@ -1,6 +1,8 @@
 #ifndef GeneratorInterface_LHEInterface_LHEProxy_h
 #define GeneratorInterface_LHEInterface_LHEProxy_h
 
+#include <memory>
+
 namespace lhef {
 
   // forward declarations
