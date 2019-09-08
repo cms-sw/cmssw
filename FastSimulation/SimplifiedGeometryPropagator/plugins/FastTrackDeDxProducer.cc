@@ -246,6 +246,13 @@ void FastTrackDeDxProducer::processHit(const FastTrackerRecHit& recHit,
   if (!recHit.isValid())
     return;
 
+  auto const& thit = static_cast<BaseTrackerRecHit const&>(recHit);
+  if (!thit.isValid())
+    return;
+  auto const& clus = thit.firstClusterRef();
+  if (!clus.isValid())
+    return;
+
   if (recHit.isPixel()) {
     if (!usePixel)
       return;
