@@ -73,6 +73,7 @@ void BPHPlusMinusCandidate::add(
                                           << "already containing same sign particle, add rejected";
         return;
       }
+      [[fallthrough]];
     case 0:
       addK(name, daug, searchList, mass, sigma);
   }
