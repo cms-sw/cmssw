@@ -57,13 +57,13 @@ private:
 template <class T>
 void ME0TriggerBuilder::build(const T* me0Pads, ME0TriggerDigiCollection& oc_trig) {
   for (int endc = 0; endc < 2; endc++) {
-    for (int cham = 0; cham < 18; cham++) {
+    for (int cham = ME0DetId::minChamberId; cham < ME0DetId::maxChamberId; cham++) {
       ME0Motherboard* tmb = tmb_[endc][cham].get();
       tmb->setME0Geometry(me0_g);
 
       // 0th layer means whole chamber.
       const int region(endc == 0 ? -1 : 1);
-      ME0DetId detid(region, 0, cham, 0);
+      ME0DetId detid(region, 0, cham + 1, 0);
 
       // Run processors only if chamber exists in geometry.
       if (tmb == nullptr || me0_g->chamber(detid) == nullptr)
