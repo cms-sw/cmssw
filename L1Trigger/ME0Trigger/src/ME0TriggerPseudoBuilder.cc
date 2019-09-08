@@ -20,11 +20,13 @@ ME0TriggerPseudoBuilder::~ME0TriggerPseudoBuilder() {}
 void ME0TriggerPseudoBuilder::build(const ME0SegmentCollection* me0Segments, ME0TriggerDigiCollection& oc_trig) {
   if (info_ > 2)
     dumpAllME0Segments(*me0Segments);
+
   for (int endc = 0; endc < static_cast<int>(trig_me0s::MAX_ENDCAPS); endc++) {
     for (int cham = 0; cham < static_cast<int>(trig_me0s::MAX_CHAMBERS); cham++) {
       // 0th layer means whole chamber.
+      // chamber counts from 1 to 18 in ME0ID
       const int region(endc == 0 ? -1 : 1);
-      ME0DetId detid(region, 0, cham, 0);
+      ME0DetId detid(region, 0, cham + 1, 0);
 
       const auto& drange = me0Segments->get(detid);
       std::vector<ME0TriggerDigi> trigV;
