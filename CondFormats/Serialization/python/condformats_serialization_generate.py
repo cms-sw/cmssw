@@ -510,7 +510,7 @@ class SerializationCodeGenerator(object):
         return os.path.join(self.cmssw_base, self.split_path[0], self.split_path[1], self.split_path[2], *path)
 
     def cleanFlags(self, flagsIn):
-        flags = [ flag for flag in flagsIn if not flag.startswith(('-march', '-mtune', '-fdebug-prefix-map', '-ax', '-wd')) ]
+        flags = [ flag for flag in flagsIn if not flag.startswith(('-march', '-mtune', '-fdebug-prefix-map', '-ax', '-wd', '-fsanitize=')) ]
         blackList = ['--', '-fipa-pta', '-xSSE3', '-fno-crossjumping', '-fno-aggressive-loop-optimizations']
         return [x for x in flags if x not in blackList]
 
