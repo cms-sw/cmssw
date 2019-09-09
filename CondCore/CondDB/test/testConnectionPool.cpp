@@ -1,7 +1,6 @@
 //Framework includes
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 //Module includes
