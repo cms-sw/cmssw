@@ -240,9 +240,10 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
   }
   std::vector<edm::DetSet<SiStripDigi>> theDigiVector;
   std::vector<edm::DetSet<SiStripRawDigi>> theRawDigiVector;
-  std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> theStripAmplitudeVector( new edm::DetSetVector<SiStripRawDigi>());
-  std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> theStripAmplitudeVectorPostAPV( new edm::DetSetVector<SiStripRawDigi>());
-  std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> theStripAPVBaselines( new edm::DetSetVector<SiStripRawDigi>());
+  std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> theStripAmplitudeVector(new edm::DetSetVector<SiStripRawDigi>());
+  std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> theStripAmplitudeVectorPostAPV(
+      new edm::DetSetVector<SiStripRawDigi>());
+  std::unique_ptr<edm::DetSetVector<SiStripRawDigi>> theStripAPVBaselines(new edm::DetSetVector<SiStripRawDigi>());
   std::unique_ptr<edm::DetSetVector<StripDigiSimLink>> pOutputDigiSimLink(new edm::DetSetVector<StripDigiSimLink>);
 
   edm::ESHandle<TrackerTopology> tTopoHand;
@@ -286,10 +287,13 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
                             theAffectedAPVvector,
                             randomEngine_,
                             tTopo);
-      
-      if ( !collectorStripAmplitudes.data.empty() ) theStripAmplitudeVector->insert(collectorStripAmplitudes);
-      if ( !collectorStripAmplitudesPostAPV.data.empty() ) theStripAmplitudeVectorPostAPV->insert(collectorStripAmplitudesPostAPV);
-      if ( !collectorStripAPVBaselines.data.empty() ) theStripAPVBaselines->insert(collectorStripAPVBaselines);
+
+      if (!collectorStripAmplitudes.data.empty())
+        theStripAmplitudeVector->insert(collectorStripAmplitudes);
+      if (!collectorStripAmplitudesPostAPV.data.empty())
+        theStripAmplitudeVectorPostAPV->insert(collectorStripAmplitudesPostAPV);
+      if (!collectorStripAPVBaselines.data.empty())
+        theStripAPVBaselines->insert(collectorStripAPVBaselines);
 
       if (zeroSuppression) {
         if (!collectorZS.data.empty()) {
