@@ -6,7 +6,8 @@
 #include <vector>
 
 struct CALayer {
-  CALayer(const std::string &layerName, const int &seqNum, std::size_t numberOfHits) : theName(layerName), theSeqNum(seqNum) {
+  CALayer(const std::string &layerName, const int &seqNum, std::size_t numberOfHits)
+      : theName(layerName), theSeqNum(seqNum) {
     isOuterHitOfCell.resize(numberOfHits);
   }
 
@@ -16,7 +17,7 @@ struct CALayer {
 
   const std::string &name() const { return theName; }
 
-  const int &seqNum() const {return theSeqNum; }
+  const int &seqNum() const { return theSeqNum; }
 
   std::vector<int> theOuterLayerPairs;
   std::vector<int> theInnerLayerPairs;
@@ -48,10 +49,11 @@ struct CALayerPair {
 
 struct CAGraph {
   int getLayerId(const std::string &layerName) {
-     for(auto thisLayer = theLayers.begin(); thisLayer != theLayers.end(); thisLayer++ ) {
-        if ( (*thisLayer)==layerName) return thisLayer->seqNum();
-     }
-     return -1;
+    for (auto thisLayer = theLayers.begin(); thisLayer != theLayers.end(); thisLayer++) {
+      if ((*thisLayer) == layerName)
+        return thisLayer->seqNum();
+    }
+    return -1;
   }
 
   std::vector<CALayer> theLayers;
