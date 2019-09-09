@@ -62,6 +62,7 @@ DQMDcsInfoClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker, DQMStore::IG
       }
       DCS[nlumi] = word;
     }
+    DCSbyLS_->Reset();
   }
   return; 
 }
