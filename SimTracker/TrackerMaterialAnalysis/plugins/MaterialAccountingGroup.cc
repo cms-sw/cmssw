@@ -36,8 +36,8 @@ MaterialAccountingGroup::MaterialAccountingGroup(const std::string& name, const 
   } else if (TString(name.c_str()).Contains("HGCal")) {
     namevalue = DDValue("Volume", name);
   } else {
-    std::cout << name << std::endl;
-    std::cerr << "Only Tracker and HGCal is supported" << std::endl;
+    LogTrace("MaterialAccountingGroup") << name << std::endl;
+    edm::LogError("MaterialAccountingGroup") << "Only Tracker and HGCal is supported" << std::endl;
   }
 
   DDSpecificsMatchesValueFilter filter{namevalue};
