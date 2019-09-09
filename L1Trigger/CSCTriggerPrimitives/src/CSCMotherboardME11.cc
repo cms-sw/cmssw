@@ -74,7 +74,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
   // CLCT-centric CLCT-to-ALCT matching
   if (clct_to_alct) {
     for (int bx_clct = 0; bx_clct < CSCConstants::MAX_CLCT_TBINS; bx_clct++) {
-      if (clctProc->bestCLCT[bx_clct].isValid()) {
+      if (clctProc->getBestCLCT(bx_clct).isValid()) {
         bool is_matched = false;
         const int bx_alct_start = bx_clct - match_trig_window_size / 2 + alctClctOffset_;
         const int bx_alct_stop = bx_clct + match_trig_window_size / 2 + alctClctOffset_;
@@ -83,16 +83,16 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
             continue;
           if (drop_used_alcts && used_alct_mask[bx_alct])
             continue;
-          if (alctProc->bestALCT[bx_alct].isValid()) {
+          if (alctProc->getBestALCT(bx_alct).isValid()) {
             if (infoV > 1)
               LogTrace("CSCMotherboardME11")
                   << "Successful CLCT-ALCT match in ME11: bx_clct = " << bx_clct << "; match window: [" << bx_alct_start
                   << "; " << bx_alct_stop << "]; bx_alct = " << bx_alct;
             int mbx = bx_alct_stop - bx_alct;
-            correlateLCTsME11(alctProc->bestALCT[bx_alct],
-                              alctProc->secondALCT[bx_alct],
-                              clctProc->bestCLCT[bx_clct],
-                              clctProc->secondCLCT[bx_clct],
+            correlateLCTsME11(alctProc->getBestALCT(bx_alct),
+                              alctProc->getSecondALCT(bx_alct),
+                              clctProc->getBestCLCT(bx_clct),
+                              clctProc->getSecondCLCT(bx_clct),
                               allLCTs(bx_alct, mbx, 0),
                               allLCTs(bx_alct, mbx, 1));
             if (allLCTs(bx_alct, mbx, 0).isValid()) {
@@ -106,7 +106,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
         if (!is_matched) {
           if (infoV > 1)
             LogTrace("CSCMotherboard") << "Unsuccessful ALCT-CLCT match (CLCT only): bx_clct = " << bx_clct
-                                       << " first CLCT " << clctProc->bestCLCT[bx_clct] << "; match window: ["
+                                       << " first CLCT " << clctProc->getBestCLCT(bx_clct) << "; match window: ["
                                        << bx_alct_start << "; " << bx_alct_stop << "]";
         }
       }
@@ -115,7 +115,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
     // ALCT-centric ALCT-to-CLCT matching
   } else {
     for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {
-      if (alctProc->bestALCT[bx_alct].isValid()) {
+      if (alctProc->getBestALCT(bx_alct).isValid()) {
         const int bx_clct_start = bx_alct - match_trig_window_size / 2 - alctClctOffset_;
         const int bx_clct_stop = bx_alct + match_trig_window_size / 2 - alctClctOffset_;
 
@@ -126,16 +126,16 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
             continue;
           if (drop_used_clcts && used_clct_mask[bx_clct])
             continue;
-          if (clctProc->bestCLCT[bx_clct].isValid()) {
+          if (clctProc->getBestCLCT(bx_clct).isValid()) {
             if (infoV > 1)
               LogTrace("CSCMotherboardME11")
                   << "Successful ALCT-CLCT match in ME11: bx_alct = " << bx_alct << "; match window: [" << bx_clct_start
                   << "; " << bx_clct_stop << "]; bx_clct = " << bx_clct;
             int mbx = bx_clct - bx_clct_start;
-            correlateLCTsME11(alctProc->bestALCT[bx_alct],
-                              alctProc->secondALCT[bx_alct],
-                              clctProc->bestCLCT[bx_clct],
-                              clctProc->secondCLCT[bx_clct],
+            correlateLCTsME11(alctProc->getBestALCT(bx_alct),
+                              alctProc->getSecondALCT(bx_alct),
+                              clctProc->getBestCLCT(bx_clct),
+                              clctProc->getSecondCLCT(bx_clct),
                               allLCTs(bx_alct, mbx, 0),
                               allLCTs(bx_alct, mbx, 1));
             if (allLCTs(bx_alct, mbx, 0).isValid()) {
@@ -149,7 +149,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
         if (!is_matched) {
           if (infoV > 1)
             LogTrace("CSCMotherboard") << "Unsuccessful ALCT-CLCT match (ALCT only): bx_alct = " << bx_alct
-                                       << " first ALCT " << alctProc->bestALCT[bx_alct] << "; match window: ["
+                                       << " first ALCT " << alctProc->getBestALCT(bx_alct) << "; match window: ["
                                        << bx_clct_start << "; " << bx_clct_stop << "]";
         }
       }
