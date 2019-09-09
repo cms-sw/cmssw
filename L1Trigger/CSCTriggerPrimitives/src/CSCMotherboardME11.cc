@@ -76,8 +76,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
     for (int bx_clct = 0; bx_clct < CSCConstants::MAX_CLCT_TBINS; bx_clct++) {
       if (clctProc->getBestCLCT(bx_clct).isValid()) {
         bool is_matched = false;
-        const int bx_alct_start = bx_clct - match_trig_window_size / 2 + alctClctOffset_;
-        const int bx_alct_stop = bx_clct + match_trig_window_size / 2 + alctClctOffset_;
+        const int bx_alct_start = bx_clct - match_trig_window_size / 2;
+        const int bx_alct_stop = bx_clct + match_trig_window_size / 2;
         for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
           if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS)
             continue;
@@ -116,8 +116,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
   } else {
     for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {
       if (alctProc->getBestALCT(bx_alct).isValid()) {
-        const int bx_clct_start = bx_alct - match_trig_window_size / 2 - alctClctOffset_;
-        const int bx_clct_stop = bx_alct + match_trig_window_size / 2 - alctClctOffset_;
+        const int bx_clct_start = bx_alct - match_trig_window_size / 2;
+        const int bx_clct_stop = bx_alct + match_trig_window_size / 2;
 
         // matching in ME11
         bool is_matched = false;
