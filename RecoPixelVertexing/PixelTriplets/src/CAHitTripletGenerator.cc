@@ -31,10 +31,8 @@ CAHitTripletGenerator::CAHitTripletGenerator(const edm::ParameterSet& cfg,
           "extraHitRPhitolerance")),  //extra window in ThirdHitPredictionFromCircle range (divide by R to get phi)
       maxChi2(cfg.getParameter<edm::ParameterSet>("maxChi2")),
       useBendingCorrection(cfg.getParameter<bool>("useBendingCorrection")),
-      caThetaCut(cfg.getParameter<double>("CAThetaCut"),
-                 cfg.getParameter<edm::ParameterSet>("CAThetaCut_byLayers")),
-      caPhiCut(cfg.getParameter<double>("CAPhiCut"),
-               cfg.getParameter<edm::ParameterSet>("CAPhiCut_byLayers")),
+      caThetaCut(cfg.getParameter<double>("CAThetaCut"), cfg.getParameter<edm::ParameterSet>("CAThetaCut_byLayers")),
+      caPhiCut(cfg.getParameter<double>("CAPhiCut"), cfg.getParameter<edm::ParameterSet>("CAPhiCut_byLayers")),
       caHardPtCut(cfg.getParameter<double>("CAHardPtCut")) {
   edm::ParameterSet comparitorPSet = cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
