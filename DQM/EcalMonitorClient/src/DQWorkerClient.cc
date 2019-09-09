@@ -176,7 +176,6 @@ namespace ecaldqm
       int i = 0;
       while (auto me = meset.second->getME(i)) {
         if (me->getLumiFlag()) {
-          std::cout << "+++ reset " << me->getFullname() << "\n";
           // reset per-lumi histograms in offline harvesting so that they only show
           // data of the current lumisection.
           me->Reset();
