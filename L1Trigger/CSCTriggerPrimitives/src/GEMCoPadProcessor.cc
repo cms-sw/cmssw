@@ -27,7 +27,6 @@ GEMCoPadProcessor::GEMCoPadProcessor() : theRegion(1), theStation(1), theChamber
 void GEMCoPadProcessor::clear() { gemCoPadV.clear(); }
 
 std::vector<GEMCoPadDigi> GEMCoPadProcessor::run(const GEMPadDigiCollection* in_pads) {
-
   // Build coincidences
   for (auto det_range = in_pads->begin(); det_range != in_pads->end(); ++det_range) {
     const GEMDetId& id = (*det_range).first;
