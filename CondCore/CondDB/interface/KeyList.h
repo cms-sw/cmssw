@@ -32,6 +32,7 @@ namespace cond {
     class KeyList {
     public:
       void init(IOVProxy iovProxy);
+      void init(KeyList const&);
 
       void load(const std::vector<unsigned long long>& keys);
 

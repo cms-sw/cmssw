@@ -4,7 +4,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 //
 #include "CondCore/CondDB/interface/ConnectionPool.h"
-#include "CondCore/CondDB/interface/PayloadProxy.h"
 //
 #include "MyTestData.h"
 //
