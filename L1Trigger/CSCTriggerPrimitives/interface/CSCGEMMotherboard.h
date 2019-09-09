@@ -134,8 +134,11 @@ protected:
   // use this function when the best matching copads are not clear yet
   // the template is ALCT or CLCT
   template <class T>
-  void correlateLCTsGEM(const T& best, const T& second, const GEMCoPadDigiIds& coPads,
-                        CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2) const;
+  void correlateLCTsGEM(const T& best,
+                        const T& second,
+                        const GEMCoPadDigiIds& coPads,
+                        CSCCorrelatedLCTDigi& lct1,
+                        CSCCorrelatedLCTDigi& lct2) const;
 
   // correlate ALCTs/CLCTs with their best matching GEM copads
   // the template is ALCT or CLCT
@@ -293,7 +296,7 @@ void CSCGEMMotherboard::matchingPads(const CSCCLCTDigi& clct, matches<T>& result
   int keyStrip = clct.getKeyStrip();
   //ME1A part, convert halfstrip from 128-223 to 0-95
   if (part == CSCPart::ME1A and keyStrip > CSCConstants::MAX_HALF_STRIP_ME1B)
-    keyStrip = keyStrip -  CSCConstants::MAX_HALF_STRIP_ME1B -1;
+    keyStrip = keyStrip - CSCConstants::MAX_HALF_STRIP_ME1B - 1;
   const int lowPad(mymap[keyStrip].first);
   const int highPad(mymap[keyStrip].second);
 
@@ -449,7 +452,6 @@ void CSCGEMMotherboard::correlateLCTsGEM(const T& bLCT,
                                          const GEMCoPadDigiIds& coPads,
                                          CSCCorrelatedLCTDigi& lct1,
                                          CSCCorrelatedLCTDigi& lct2) const {
-
   T bestLCT = bLCT;
   T secondLCT = sLCT;
 
@@ -469,12 +471,12 @@ void CSCGEMMotherboard::correlateLCTsGEM(const T& bLCT,
   const GEMCoPadDigi& secondCoPad = bestMatchingPad<GEMCoPadDigi>(secondLCT, coPads);
 
   correlateLCTsGEM(bestLCT, secondLCT, bestCoPad, secondCoPad, lct1, lct2);
- }
+}
 
- template <class T>
-   void CSCGEMMotherboard::correlateLCTsGEM(const T& bestLCT,
-                                            const T& secondLCT,
-                                            const GEMCoPadDigi& bestCoPad,
+template <class T>
+void CSCGEMMotherboard::correlateLCTsGEM(const T& bestLCT,
+                                         const T& secondLCT,
+                                         const GEMCoPadDigi& bestCoPad,
                                          const GEMCoPadDigi& secondCoPad,
                                          CSCCorrelatedLCTDigi& lct1,
                                          CSCCorrelatedLCTDigi& lct2) const {

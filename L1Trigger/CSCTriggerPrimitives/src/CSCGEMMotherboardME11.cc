@@ -225,7 +225,8 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
 
           // find the best matching copad
           matches<GEMCoPadDigi> copads;
-          matchingPads<CSCALCTDigi, GEMCoPadDigi>(alctProc->getBestALCT(bx_alct), alctProc->getSecondALCT(bx_alct), copads);
+          matchingPads<CSCALCTDigi, GEMCoPadDigi>(
+              alctProc->getBestALCT(bx_alct), alctProc->getSecondALCT(bx_alct), copads);
 
           if (debug_matching)
             LogTrace("CSCGEMCMotherboardME11")

@@ -1372,17 +1372,9 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() {
   return tmpV;
 }
 
-CSCALCTDigi
-CSCAnodeLCTProcessor::getBestALCT(int bx) const
-{
-  return bestALCT[bx];
-}
+CSCALCTDigi CSCAnodeLCTProcessor::getBestALCT(int bx) const { return bestALCT[bx]; }
 
-CSCALCTDigi
-CSCAnodeLCTProcessor::getSecondALCT(int bx) const
-{
-  return secondALCT[bx];
-}
+CSCALCTDigi CSCAnodeLCTProcessor::getSecondALCT(int bx) const { return secondALCT[bx]; }
 
 ////////////////////////////////////////////////////////////////////////
 ////////////////////////////Test Routines///////////////////////////////
