@@ -76,11 +76,16 @@ public:
   /** Returns vector of all found ALCTs, if any. */
   std::vector<CSCALCTDigi> getALCTs();
 
+  /** Return best/second best ALCTs */
+  CSCALCTDigi getBestALCT(int bx) const;
+  CSCALCTDigi getSecondALCT(int bx) const;
+
   /** Pre-defined patterns. */
   static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
   static const int pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
   static const int pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
 
+protected:
   /** Best LCTs in this chamber, as found by the processor.
       In old ALCT algorithms, up to two best ALCT per Level-1 accept window
       had been reported.
@@ -91,7 +96,6 @@ public:
   /** Second best LCTs in this chamber, as found by the processor. */
   CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_TBINS];
 
-protected:
   /** Access routines to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
   void getDigis(const CSCWireDigiCollection* wiredc, const CSCDetId& id);

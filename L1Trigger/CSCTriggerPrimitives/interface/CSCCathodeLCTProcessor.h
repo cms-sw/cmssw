@@ -73,6 +73,11 @@ public:
   /** Returns vector of all found CLCTs, if any. */
   std::vector<CSCCLCTDigi> getCLCTs() const;
 
+  /** get best/second best CLCT
+   * Note: CLCT has BX shifted */
+  CSCCLCTDigi getBestCLCT(int bx) const;
+  CSCCLCTDigi getSecondCLCT(int bx) const;
+
   std::vector<int> preTriggerBXs() const { return thePreTriggerBXs; }
 
   /** read out CLCTs in ME1a , ME1b */
@@ -80,13 +85,13 @@ public:
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1a() const;
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b() const;
 
+protected:
   /** Best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
 
   /** Second best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
 
-protected:
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);
   void getDigis(const CSCComparatorDigiCollection* compdc, const CSCDetId& id);

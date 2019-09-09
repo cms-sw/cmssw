@@ -1256,3 +1256,15 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() const {
   }
   return tmpV;
 }
+
+CSCCLCTDigi
+CSCCathodeLCTProcessor::getBestCLCT(int bx) const
+{
+  return bestCLCT[bx];
+}
+
+CSCCLCTDigi
+CSCCathodeLCTProcessor::getSecondCLCT(int bx) const
+{
+  return secondCLCT[bx];
+}
