@@ -24,28 +24,11 @@ class LHEEventProduct {
 	LHEEventProduct(const lhef::HEPEUP &hepeup,
 			const double originalXWGTUP) : 
 	  hepeup_(hepeup), originalXWGTUP_(originalXWGTUP) {}
-	LHEEventProduct(LHEEventProduct&& other) {
-	  hepeup_ = std::move(other.hepeup_);
-	  comments_ = std::move(other.comments_);
-	  pdf_ = other.pdf_; // auto_ptr, so copy is actually a move
-	  weights_ = std::move(other.weights_);
-	  originalXWGTUP_ = std::move(other.originalXWGTUP_);
-	  scales_ = std::move(other.scales_);
-	  npLO_ = std::move(other.npLO_);
-	  npNLO_ = std::move(other.npNLO_);
-	}
-	LHEEventProduct& operator=(LHEEventProduct&& other) {
-	  hepeup_ = std::move(other.hepeup_);
-	  comments_ = std::move(other.comments_);
-	  pdf_ = other.pdf_; // auto_ptr, so copy is actually a move
-	  weights_ = std::move(other.weights_);
-	  originalXWGTUP_ = std::move(other.originalXWGTUP_);
-	  scales_ = std::move(other.scales_);
-	  npLO_ = std::move(other.npLO_);
-	  npNLO_ = std::move(other.npNLO_);
-	  return *this;
-	}
-	~LHEEventProduct() {}
+	LHEEventProduct(LHEEventProduct&& other) = default;
+
+	LHEEventProduct& operator=(LHEEventProduct&& other) =default;
+
+	~LHEEventProduct() =default;
 
 	void setPDF(const PDF &pdf) { pdf_.reset(new PDF(pdf)); }
 	void addWeight(const WGT& wgt) { 	  
@@ -119,7 +102,7 @@ class LHEEventProduct {
     private:
 	lhef::HEPEUP			hepeup_;
 	std::vector<std::string>	comments_;
-	std::auto_ptr<PDF>		pdf_;
+	std::unique_ptr<PDF>		pdf_;
 	std::vector<WGT>                weights_;
 	double                          originalXWGTUP_;
         std::vector<float>              scales_; //scale value used to exclude EWK-produced partons from matching
