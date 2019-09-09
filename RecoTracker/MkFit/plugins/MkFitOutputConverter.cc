@@ -183,69 +183,28 @@ std::vector<const DetLayer*> MkFitOutputConverter::createDetLayers(const mkfit::
                                                                    const TrackerTopology& ttopo) const {
   std::vector<const DetLayer*> dets(lnc.nLayers(), nullptr);
 
-  auto setDet = [&](unsigned int index, DetId id) {
-    auto layer = tracker.idToLayer(id);
-    if (layer == nullptr) {
-      throw cms::Exception("LogicError") << "No layer for DetId " << id.rawId();
-    }
-    LogTrace("MkFitOutputConverter") << "Setting DetLayer for index " << index << " subdet " << id.subdetId()
-                                     << " layer " << ttopo.layer(id) << " ptr " << layer;
-
-    dets[index] = layer;
+  auto isPlusSide = [&ttopo](const DetId& detid) {
+    return ttopo.side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap);
   };
-
-  auto setBarrel = [&](int det, auto detIdFunc, int layer, int stereo) {
-    setDet(lnc.convertLayerNumber(det, layer, false, stereo, true), detIdFunc(layer, stereo));
-  };
-  auto setForward = [&](int det, auto detIdFunc, int disk, int stereo) {
-    // minus side
-    setDet(lnc.convertLayerNumber(det, disk, false, stereo, false),
-           detIdFunc(static_cast<unsigned>(TrackerDetSide::NegEndcap), disk, stereo));
-    // plus side
-    setDet(lnc.convertLayerNumber(det, disk, false, stereo, true),
-           detIdFunc(static_cast<unsigned>(TrackerDetSide::PosEndcap), disk, stereo));
-  };
-
-  auto pxbDetId = [&ttopo](int layer, int stereo) { return ttopo.pxbDetId(layer, 0, 0); };
-  auto tibDetId = [&ttopo](int layer, int stereo) { return ttopo.tibDetId(layer, 0, 0, 0, 0, stereo); };
-  auto tobDetId = [&ttopo](int layer, int stereo) { return ttopo.tobDetId(layer, 0, 0, 0, stereo); };
-
-  auto pxfDetId = [&ttopo](int side, int disk, int stereo) { return ttopo.pxfDetId(side, disk, 0, 0, 0); };
-  auto tidDetId = [&ttopo](int side, int disk, int stereo) { return ttopo.tidDetId(side, disk, 0, 0, 0, stereo); };
-  auto tecDetId = [&ttopo](int side, int disk, int stereo) { return ttopo.tecDetId(side, disk, 0, 0, 0, 0, stereo); };
-
-  // TODO: detector structure currently hardcoded...
-  // BPix
-  for (int layer = 1; layer <= 4; ++layer) {
-    setBarrel(PixelSubdetector::PixelBarrel, pxbDetId, layer, 0);
-  }
-  // TIB
-  for (int layer = 1; layer <= 4; ++layer) {
-    setBarrel(StripSubdetector::TIB, tibDetId, layer, 0);
-    if (layer == 1 or layer == 2) {
-      setBarrel(StripSubdetector::TIB, tibDetId, layer, 1);
+  constexpr int isMono = 0;
+  constexpr int isStereo = 1;
+  for (const DetLayer* lay : tracker.allLayers()) {
+    const auto& comp = lay->basicComponents();
+    if (UNLIKELY(comp.empty())) {
+      throw cms::Exception("LogicError") << "Got a tracker layer (subdet " << lay->subDetector()
+                                         << ") with empty basicComponents.";
     }
-  }
-  // TOB
-  for (int layer = 1; layer <= 6; ++layer) {
-    setBarrel(StripSubdetector::TOB, tobDetId, layer, 0);
-    if (layer == 1 or layer == 2) {
-      setBarrel(StripSubdetector::TOB, tobDetId, layer, 1);
+    // First component is enough for layer and side information
+    const auto& detId = comp.front()->geographicalId();
+    const auto subdet = detId.subdetId();
+    const auto layer = ttopo.layer(detId);
+
+    // TODO: mono/stereo structure is still hardcoded for phase0/1 strip tracker
+    dets[lnc.convertLayerNumber(subdet, layer, false, isMono, isPlusSide(detId))] = lay;
+    if (((subdet == StripSubdetector::TIB or StripSubdetector::TOB) and (layer == 1 or layer == 2)) or
+        subdet == StripSubdetector::TID or subdet == StripSubdetector::TEC) {
+      dets[lnc.convertLayerNumber(subdet, layer, false, isStereo, isPlusSide(detId))] = lay;
     }
-  }
-  // FPix
-  for (int disk = 1; disk <= 3; ++disk) {
-    setForward(PixelSubdetector::PixelEndcap, pxfDetId, disk, 0);
-  }
-  // TID
-  for (int disk = 1; disk <= 3; ++disk) {
-    setForward(StripSubdetector::TID, tidDetId, disk, 0);
-    setForward(StripSubdetector::TID, tidDetId, disk, 1);
-  }
-  // TEC
-  for (int disk = 1; disk <= 9; ++disk) {
-    setForward(StripSubdetector::TEC, tecDetId, disk, 0);
-    setForward(StripSubdetector::TEC, tecDetId, disk, 1);
   }
 
   return dets;
