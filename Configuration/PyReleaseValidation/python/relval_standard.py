@@ -625,6 +625,9 @@ workflows[1361.18] = ['', ['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP18','DIGIUP18',
 workflows[1362.18] = ['', ['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP18','DIGIUP18','RECOUP18','HARVESTUP18']]
 workflows[1363.18] = ['', ['VBFHToBB_M125_Pow_py8_Evt_13UP18','DIGIUP18','RECOUP18','HARVESTUP18']]
 
+#2018 workflows starting from gridpacks LHE generation with multiple concurrent lumi sections
+workflows[1361.181] = ['', ['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP18ml','DIGIUP18ml','RECOUP18ml','HARVESTUP18']]
+
 # fullSim 13TeV normal workflows starting from pLHE
 workflows[1370] = ['', ['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13','Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
