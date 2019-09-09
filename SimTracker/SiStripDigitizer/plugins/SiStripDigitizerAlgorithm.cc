@@ -68,9 +68,9 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
       theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
       APVProbabilityFile(conf.getParameter<edm::FileInPath>("APVProbabilityFile")),
       includeAPVSimulation_(conf.getParameter<bool>("includeAPVSimulation")),
-      apv_maxResponse(conf.getParameter<double>("apv_maxResponse")),   
-      apv_rate(conf.getParameter<double>("apv_rate")),                 
-      apv_mVPerQ(conf.getParameter<double>("apv_mVPerQ")),             
+      apv_maxResponse(conf.getParameter<double>("apv_maxResponse")),
+      apv_rate(conf.getParameter<double>("apv_rate")),
+      apv_mVPerQ(conf.getParameter<double>("apv_mVPerQ")),
       apv_fCPerElectron(conf.getParameter<double>("apvfCPerElectron")) {
   if (peakMode) {
     LogDebug("StripDigiInfo") << "APVs running in peak mode (poor time resolution)";
@@ -355,10 +355,9 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
           double rate = apv_rate;
 
           double outputChargeInADC = 0;
-          if ( baselineV < apv_maxResponse ) {
+          if (baselineV < apv_maxResponse) {
             // Convert V0 into baseline charge
             double baselineQ = -1.0 * rate * log(2 * maxResponse / (baselineV + maxResponse) - 1);
-
 
             // Add charge deposited in this BX
             double newStripCharge = baselineQ + stripCharge;
@@ -369,9 +368,8 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
 
             // Convert gain (mV) to charge (assuming linear region of APV) and then to electrons
             double outputCharge = gain / apv_mVPerQ;
-            outputChargeInADC = outputCharge / apv_fCPerElectron;            
+            outputChargeInADC = outputCharge / apv_fCPerElectron;
           }
-
 
           // Output charge back to original container
           detAmpl[strip] = outputChargeInADC;
