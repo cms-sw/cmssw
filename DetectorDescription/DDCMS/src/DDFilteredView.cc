@@ -258,11 +258,11 @@ void DDFilteredView::down() {
 }
 
 void DDFilteredView::up() {
-  if (it_.empty() || currentFilter_ == nullptr)
-    return;
-  it_.pop_back();
-  if (currentFilter_->up)
-    currentFilter_ = currentFilter_->up;
+  if (it_.size() > 1 && currentFilter_ != nullptr) {
+    it_.pop_back();
+    if (currentFilter_->up)
+      currentFilter_ = currentFilter_->up;
+  }
 }
 
 bool DDFilteredView::accept(std::string_view name) {
@@ -352,7 +352,8 @@ bool DDFilteredView::addPath(Node* const node) {
   for (int nit = level; nit > 0; --nit) {
     for_each(begin(registry_->specpars), end(registry_->specpars), [&](auto const& i) {
       auto k = find_if(begin(i.second.paths), end(i.second.paths), [&](auto const& j) {
-        return (compareEqual(it_.back().GetNode(nit)->GetVolume()->GetName(), *begin(split(realTopName(j), "/"))) &&
+        return (compareEqual(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()),
+                             *begin(split(realTopName(j), "/"))) &&
                 (i.second.hasValue("CopyNoTag") || i.second.hasValue("CopyNoOffset")));
       });
       if (k != end(i.second.paths)) {
