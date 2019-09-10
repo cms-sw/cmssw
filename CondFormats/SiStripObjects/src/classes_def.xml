@@ -95,6 +95,7 @@
 
   <class name="SiStripApvSimulationParameters" class_version="0">
     <field name="m_barrelParam_xInt" transient="true"/>
+    <field name="m_endcapParam_xInt" transient="true"/>
   </class>
 
   <class name="Phase2TrackerModule" ClassVersion="11">

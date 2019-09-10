@@ -120,7 +120,7 @@ SiStripApvSimulationParameters::LayerParameters SiStripApvSimulationParametersES
 std::unique_ptr<SiStripApvSimulationParameters> SiStripApvSimulationParametersESSource::produce(
     const SiStripApvSimulationParametersRcd& record) {
   auto apvSimParams =
-      std::make_unique<SiStripApvSimulationParameters>(baselineFiles_TIB_.size(), baselineFiles_TOB_.size());
+      std::make_unique<SiStripApvSimulationParameters>(baselineFiles_TIB_.size(), baselineFiles_TOB_.size(), 0, 0);
   for (unsigned int i{0}; i != baselineFiles_TIB_.size(); ++i) {
     if (!apvSimParams->putTIB(i + 1, makeLayerParameters(baselineFiles_TIB_[i].fullPath()))) {
       throw cms::Exception("SiStripApvSimulationParameters") << "Could not add parameters for TIB layer " << (i + 1);
