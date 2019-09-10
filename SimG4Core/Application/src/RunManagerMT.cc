@@ -64,6 +64,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
       m_PhysicsTablesDir(p.getUntrackedParameter<std::string>("PhysicsTablesDirectory", "")),
       m_StorePhysicsTables(p.getUntrackedParameter<bool>("StorePhysicsTables", false)),
       m_RestorePhysicsTables(p.getUntrackedParameter<bool>("RestorePhysicsTables", false)),
+      m_UseParametrisedEMPhysics(p.getUntrackedParameter<bool>("UseParametrisedEMPhysics")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),
       m_g4overlap(p.getUntrackedParameter<edm::ParameterSet>("G4CheckOverlap")),
@@ -154,7 +155,8 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 
   // adding GFlash, Russian Roulette for eletrons and gamma,
   // step limiters on top of any Physics Lists
-  phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions", m_pPhysics));
+  if (m_UseParametrisedEMPhysics)
+    phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions", m_pPhysics));
 
   if (m_RestorePhysicsTables) {
     m_physicsList->SetPhysicsTableRetrieved(m_PhysicsTablesDir);
