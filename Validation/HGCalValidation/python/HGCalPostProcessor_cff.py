@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Validation.HGCalValidation.HGCalSimHitsClient_cff import *
 from Validation.HGCalValidation.HGCalDigiClient_cff    import *
 from Validation.HGCalValidation.HGCalRecHitsClient_cff import *
-from Validation.HGCalValidation.PostProcessorHGCAL_cfi import postProcessorHGCALlayerclusters,postProcessorHGCALmulticlusters,postProcessorHGCALmultiClustersFromTrackstersEM
+from Validation.HGCalValidation.PostProcessorHGCAL_cfi import postProcessorHGCALlayerclusters,postProcessorHGCALmulticlusters,postProcessorHGCALmultiClustersFromTrackstersEM,postProcessorHGCALmultiClustersFromTrackstersHAD
 
 hgcalPostProcessor = cms.Sequence(hgcalSimHitClientEE
     + hgcalSimHitClientHEF
@@ -18,4 +18,5 @@ hgcalPostProcessor = cms.Sequence(hgcalSimHitClientEE
 hgcalValidatorPostProcessor = cms.Sequence(
     postProcessorHGCALlayerclusters+
     postProcessorHGCALmulticlusters+
-    postProcessorHGCALmultiClustersFromTrackstersEM)
+    postProcessorHGCALmultiClustersFromTrackstersEM+
+    postProcessorHGCALmultiClustersFromTrackstersHAD)
