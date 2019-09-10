@@ -122,6 +122,10 @@ namespace edm {
       void clearProxies();
 
       ///Set the cache identifier and validity interval when starting a new IOV
+      ///In addition, also notify the DataProxy's a new IOV is starting.
+      ///(As a performance optimization, we only notify the DataProxy's if hasFinder
+      ///is true. At the current time, the CondDBESSource DataProxy's are the only
+      ///ones who need to know about this and they always have finders).
       void initializeForNewIOV(unsigned long long iCacheIdentifier, ValidityInterval const&, bool hasFinder);
 
       /**Set the validity interval in a thread safe way. This is used when the
