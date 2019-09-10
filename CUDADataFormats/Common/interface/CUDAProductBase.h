@@ -6,6 +6,10 @@
 
 #include <cuda/api_wrappers.h>
 
+namespace impl {
+  class CUDAScopedContextBase;
+}
+
 /**
  * Base class for all instantiations of CUDA<T> to hold the
  * non-T-dependent members.
@@ -46,7 +50,7 @@ protected:
   {}
 
 private:
-  friend class CUDAScopedContextBase;
+  friend class impl::CUDAScopedContextBase;
   friend class CUDAScopedContextProduce;
 
   // The following functions are intended to be used only from CUDAScopedContext

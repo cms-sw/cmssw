@@ -10,6 +10,9 @@
 namespace edm {
   template <typename T> class Wrapper;
 }
+namespace impl {
+  class CUDAScopedContextGetterBase;
+}
 
 /**
  * The purpose of this class is to wrap CUDA data to edm::Event in a
@@ -37,7 +40,7 @@ public:
   CUDAProduct& operator=(CUDAProduct&&) = default;
 
 private:
-  friend class CUDAScopedContextBase;
+  friend class impl::CUDAScopedContextGetterBase;
   friend class CUDAScopedContextProduce;
   friend class edm::Wrapper<CUDAProduct<T>>;
 

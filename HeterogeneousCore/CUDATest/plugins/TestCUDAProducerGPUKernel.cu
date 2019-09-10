@@ -8,6 +8,13 @@
 namespace {
   template<typename T>
   __global__
+  void vectorAddConstant(T *a, T b, int numElements) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if(i < numElements) { a[i] += b; }
+  }
+
+  template<typename T>
+  __global__
   void vectorAdd(const T *a, const T *b, T *c, int numElements) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if(i < numElements) { c[i] = a[i] + b[i]; }
@@ -109,4 +116,10 @@ cudautils::device::unique_ptr<float[]> TestCUDAProducerGPUKernel::runAlgo(const 
 
   edm::LogVerbatim("TestHeterogeneousEDProducerGPU") << "  " << label << " GPU kernels launched, returning return pointer device " << current_device.id() << " CUDA stream " << stream.id();
   return d_a;
+}
+
+void TestCUDAProducerGPUKernel::runSimpleAlgo(float *d_data, cuda::stream_t<>& stream) const {
+  int threadsPerBlock {32};
+  int blocksPerGrid = (NUM_VALUES + threadsPerBlock - 1) / threadsPerBlock;
+  vectorAddConstant<<<blocksPerGrid, threadsPerBlock, 0, stream.id()>>>(d_data, 1.0f, NUM_VALUES);
 }

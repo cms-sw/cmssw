@@ -50,8 +50,9 @@ void TestCUDAAnalyzerGPU::fillDescriptions(edm::ConfigurationDescriptions& descr
 void TestCUDAAnalyzerGPU::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::LogVerbatim("TestCUDAAnalyzerGPU") << label_ << " TestCUDAAnalyzerGPU::analyze begin event " << iEvent.id().event() << " stream " << iEvent.streamID();
 
-  CUDAScopedContextProduce ctx{iEvent.streamID()}; // creating a new CUDA stream
-  const CUDAThing& input = ctx.get(iEvent.get(srcToken_));
+  const auto& in = iEvent.get(srcToken_);
+  CUDAScopedContextAnalyze ctx{in};
+  const CUDAThing& input = ctx.get(in);
   gpuAlgo_.analyzeAsync(input.get(), ctx.stream());
 
   edm::LogVerbatim("TestCUDAAnalyzerGPU") << label_ << " TestCUDAAnalyzerGPU::analyze end event " << iEvent.id().event() << " stream " << iEvent.streamID();
