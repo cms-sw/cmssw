@@ -9,7 +9,6 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
 
 #include "CAHitNtupletGeneratorKernels.h"

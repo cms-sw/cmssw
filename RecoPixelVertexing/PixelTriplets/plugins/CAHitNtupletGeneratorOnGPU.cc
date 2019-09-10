@@ -153,8 +153,7 @@ void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription &
 PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecHit2DCUDA const& hits_d,
                                                            float bfield,
                                                            cuda::stream_t<>& stream) const {
-  edm::Service<CUDAService> cs;
-  PixelTrackHeterogeneous tracks(cs->make_device_unique<pixelTrack::TrackSoA>(stream));
+  PixelTrackHeterogeneous tracks(cudautils::make_device_unique<pixelTrack::TrackSoA>(stream));
 
   auto * soa = tracks.get();
   

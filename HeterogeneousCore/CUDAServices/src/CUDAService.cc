@@ -12,9 +12,12 @@
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-
-#include "CachingDeviceAllocator.h"
-#include "CachingHostAllocator.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/CUDAEventCache.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/CUDAStreamCache.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/src/getCachingDeviceAllocator.h"
+#include "HeterogeneousCore/CUDAUtilities/src/getCachingHostAllocator.h"
 
 void setCudaLimit(cudaLimit limit, const char* name, size_t request) {
   // read the current device
@@ -94,21 +97,21 @@ namespace {
     }
   }
 
-  void devicePreallocate(CUDAService& cs, int numberOfDevices, const std::vector<unsigned int>& bufferSizes) {
+  void devicePreallocate(int numberOfDevices, const std::vector<unsigned int>& bufferSizes) {
     int device;
     cudaCheck(cudaGetDevice(&device));
     for(int i=0; i<numberOfDevices; ++i) {
       cudaCheck(cudaSetDevice(i));
       preallocate<cudautils::device::unique_ptr>([&](size_t size, cuda::stream_t<>& stream) {
-          return cs.make_device_unique<char[]>(size, stream);
+          return cudautils::make_device_unique<char[]>(size, stream);
         }, bufferSizes);
     }
     cudaCheck(cudaSetDevice(device));
   }
 
-  void hostPreallocate(CUDAService& cs, const std::vector<unsigned int>& bufferSizes) {
+  void hostPreallocate(const std::vector<unsigned int>& bufferSizes) {
     preallocate<cudautils::host::unique_ptr>([&](size_t size, cuda::stream_t<>& stream) {
-        return cs.make_host_unique<char[]>(size, stream);
+        return cudautils::make_host_unique<char[]>(size, stream);
       }, bufferSizes);
   }
 }
@@ -276,82 +279,26 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
     }
     log << '\n';
   }
-
-  // create allocator
-  auto const& allocator = config.getUntrackedParameter<edm::ParameterSet>("allocator");
-  auto allocatorEnabled = allocator.getUntrackedParameter<bool>("enabled");
-  if(allocatorEnabled) {
-    auto binGrowth         = allocator.getUntrackedParameter<unsigned int>("binGrowth");
-    auto minBin            = allocator.getUntrackedParameter<unsigned int>("minBin");
-    auto maxBin            = allocator.getUntrackedParameter<unsigned int>("maxBin");
-    size_t maxCachedBytes  = allocator.getUntrackedParameter<unsigned int>("maxCachedBytes");
-    auto maxCachedFraction = allocator.getUntrackedParameter<double>("maxCachedFraction");
-    auto debug             = allocator.getUntrackedParameter<bool>("debug");
-
-    size_t minCachedBytes = std::numeric_limits<size_t>::max();
-    int currentDevice;
-    cudaCheck(cudaGetDevice(&currentDevice));
-    for (int i = 0; i < numberOfDevices_; ++i) {
-      size_t freeMemory, totalMemory;
-      cudaCheck(cudaSetDevice(i));
-      cudaCheck(cudaMemGetInfo(&freeMemory, &totalMemory));
-      minCachedBytes = std::min(minCachedBytes, static_cast<size_t>(maxCachedFraction * freeMemory));
-    }
-    cudaCheck(cudaSetDevice(currentDevice));
-    if (maxCachedBytes > 0) {
-      minCachedBytes = std::min(minCachedBytes, maxCachedBytes);
-    }
-    log << "cub::CachingDeviceAllocator settings\n"
-        << "  bin growth " << binGrowth << "\n"
-        << "  min bin    " << minBin << "\n"
-        << "  max bin    " << maxBin << "\n"
-        << "  resulting bins:\n";
-    for (auto bin = minBin; bin <= maxBin; ++bin) {
-      auto binSize = notcub::CachingDeviceAllocator::IntPow(binGrowth, bin);
-      if (binSize >= (1<<30) and binSize % (1<<30) == 0) {
-        log << "    " << std::setw(8) << (binSize >> 30) << " GB\n";
-      } else if (binSize >= (1<<20) and binSize % (1<<20) == 0) {
-        log << "    " << std::setw(8) << (binSize >> 20) << " MB\n";
-      } else if (binSize >= (1<<10) and binSize % (1<<10) == 0) {
-        log << "    " << std::setw(8) << (binSize >> 10) << " kB\n";
-      } else {
-        log << "    " << std::setw(9) << binSize << " B\n";
-      }
-    }
-    log << "  maximum amount of cached memory: " << (minCachedBytes >> 20) << " MB\n";
-
-    allocator_ = std::make_unique<Allocator>(notcub::CachingDeviceAllocator::IntPow(binGrowth, maxBin),
-                                             binGrowth, minBin, maxBin, minCachedBytes,
-                                             false, // do not skip cleanup
-                                             debug
-                                             );
-    log << "\n";
-  }
-  else {
-    log << "cub::CachingDeviceAllocator disabled\n";
-  }
-
-  cudaStreamCache_ = std::make_unique<CUDAStreamCache>(numberOfDevices_);
-  cudaEventCache_ = std::make_unique<CUDAEventCache>(numberOfDevices_);
-
   log << "\n";
 
   log << "CUDAService fully initialized";
   enabled_ = true;
 
   // Preallocate buffers if asked to
-  devicePreallocate(*this, numberOfDevices_, allocator.getUntrackedParameter<std::vector<unsigned int> >("devicePreallocate"));
-  hostPreallocate(*this, allocator.getUntrackedParameter<std::vector<unsigned int> >("hostPreallocate"));
+  auto const& allocator = config.getUntrackedParameter<edm::ParameterSet>("allocator");
+  devicePreallocate(numberOfDevices_, allocator.getUntrackedParameter<std::vector<unsigned int> >("devicePreallocate"));
+  hostPreallocate(allocator.getUntrackedParameter<std::vector<unsigned int> >("hostPreallocate"));
 }
 
 CUDAService::~CUDAService() {
   if (enabled_) {
     // Explicitly destruct the allocator before the device resets below
-    if(allocator_) {
-      allocator_.reset();
+    if constexpr(cudautils::allocator::useCaching) {
+        cudautils::allocator::getCachingDeviceAllocator().FreeAllCached();
+        cudautils::allocator::getCachingHostAllocator().FreeAllCached();
     }
-    cudaEventCache_.reset();
-    cudaStreamCache_.reset();
+    cudautils::getCUDAEventCache().clear();
+    cudautils::getCUDAStreamCache().clear();
 
     for (int i = 0; i < numberOfDevices_; ++i) {
       cudaCheck(cudaSetDevice(i));
@@ -377,16 +324,9 @@ void CUDAService::fillDescriptions(edm::ConfigurationDescriptions & descriptions
   desc.addUntracked<edm::ParameterSetDescription>("limits", limits)->setComment("See the documentation of cudaDeviceSetLimit for more information.\nSetting any of these options to -1 keeps the default value.");
 
   edm::ParameterSetDescription allocator;
-  allocator.addUntracked<bool>("enabled", true)->setComment("Enable caching. Setting this to false means to call cudaMalloc for each allocation etc.");
-  allocator.addUntracked<unsigned int>("binGrowth", 8)->setComment("Growth factor (bin_growth in cub::CachingDeviceAllocator");
-  allocator.addUntracked<unsigned int>("minBin", 1)->setComment("Smallest bin, corresponds to binGrowth^minBin bytes (min_bin in cub::CacingDeviceAllocator");
-  allocator.addUntracked<unsigned int>("maxBin", 9)->setComment("Largest bin, corresponds to binGrowth^maxBin bytes (max_bin in cub::CachingDeviceAllocator). Note that unlike in cub, allocations larger than binGrowth^maxBin are set to fail.");
-  allocator.addUntracked<unsigned int>("maxCachedBytes", 0)->setComment("Total storage for the allocator. 0 means no limit.");
-  allocator.addUntracked<double>("maxCachedFraction", 0.8)->setComment("Fraction of total device memory taken for the allocator. In case there are multiple devices with different amounts of memory, the smallest of them is taken. If maxCachedBytes is non-zero, the smallest of them is taken.");
-  allocator.addUntracked<bool>("debug", false)->setComment("Enable debug prints");
   allocator.addUntracked<std::vector<unsigned int> >("devicePreallocate", std::vector<unsigned int>{})->setComment("Preallocates buffers of given bytes on all devices");
   allocator.addUntracked<std::vector<unsigned int> >("hostPreallocate", std::vector<unsigned int>{})->setComment("Preallocates buffers of given bytes on the host");
-  desc.addUntracked<edm::ParameterSetDescription>("allocator", allocator)->setComment("See the documentation of cub::CachingDeviceAllocator for more details.");
+  desc.addUntracked<edm::ParameterSetDescription>("allocator", allocator);
 
   descriptions.add("CUDAService", desc);
 }
@@ -424,103 +364,4 @@ void CUDAService::setCurrentDevice(int device) const {
 
 int CUDAService::getCurrentDevice() const {
   return cuda::device::current::get().id();
-}
-
-
-// allocator
-struct CUDAService::Allocator {
-  template <typename ...Args>
-  Allocator(size_t max, Args&&... args): maxAllocation(max), deviceAllocator(args...), hostAllocator(std::forward<Args>(args)...) {}
-
-  void devicePreallocate(int numberOfDevices, const std::vector<unsigned int>& bytes);
-  void hostPreallocate(int numberOfDevices, const std::vector<unsigned int>& bytes);
-
-  size_t maxAllocation;
-  notcub::CachingDeviceAllocator deviceAllocator;
-  notcub::CachingHostAllocator hostAllocator;
-};
-
-void *CUDAService::allocate_device(int dev, size_t nbytes, cuda::stream_t<>& stream) {
-  void *ptr = nullptr;
-  if(allocator_) {
-    if(nbytes > allocator_->maxAllocation) {
-      throw std::runtime_error("Tried to allocate "+std::to_string(nbytes)+" bytes, but the allocator maximum is "+std::to_string(allocator_->maxAllocation));
-    }
-
-    cuda::throw_if_error(allocator_->deviceAllocator.DeviceAllocate(dev, &ptr, nbytes, stream.id()));
-  }
-  else {
-    cuda::device::current::scoped_override_t<> setDeviceForThisScope(dev);
-    cuda::throw_if_error(cudaMalloc(&ptr, nbytes));
-  }
-  return ptr;
-}
-
-void CUDAService::free_device(int device, void *ptr) {
-  if(allocator_) {
-    cuda::throw_if_error(allocator_->deviceAllocator.DeviceFree(device, ptr));
-  }
-  else {
-    cuda::device::current::scoped_override_t<> setDeviceForThisScope(device);
-    cuda::throw_if_error(cudaFree(ptr));
-  }
-}
-
-void *CUDAService::allocate_host(size_t nbytes, cuda::stream_t<>& stream) {
-  void *ptr = nullptr;
-
-  if(allocator_) {
-    if(nbytes > allocator_->maxAllocation) {
-      throw std::runtime_error("Tried to allocate "+std::to_string(nbytes)+" bytes, but the allocator maximum is "+std::to_string(allocator_->maxAllocation));
-    }
-
-    cuda::throw_if_error(allocator_->hostAllocator.HostAllocate(&ptr, nbytes, stream.id()));
-  }
-  else {
-    cuda::throw_if_error(cudaMallocHost(&ptr, nbytes));
-  }
-
-  return ptr;
-}
-
-void CUDAService::free_host(void *ptr) {
-  if(allocator_) {
-    cuda::throw_if_error(allocator_->hostAllocator.HostFree(ptr));
-  }
-  else {
-    cuda::throw_if_error(cudaFreeHost(ptr));
-  }
-}
-
-
-// CUDA stream cache
-struct CUDAService::CUDAStreamCache {
-  explicit CUDAStreamCache(int ndev): cache(ndev) {}
-
-  // Separate caches for each device for fast lookup
-  std::vector<edm::ReusableObjectHolder<cuda::stream_t<>>> cache;
-};
-
-std::shared_ptr<cuda::stream_t<>> CUDAService::getCUDAStream() {
-  return cudaStreamCache_->cache[getCurrentDevice()].makeOrGet([](){
-      auto current_device = cuda::device::current::get();
-      return std::make_unique<cuda::stream_t<>>(current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream));
-    });
-}
-
-// CUDA event cache
-struct CUDAService::CUDAEventCache {
-  explicit CUDAEventCache(int ndev): cache(ndev) {}
-
-  // Separate caches for each device for fast lookup
-  std::vector<edm::ReusableObjectHolder<cuda::event_t>> cache;
-};
-
-std::shared_ptr<cuda::event_t> CUDAService::getCUDAEvent() {
-  return cudaEventCache_->cache[getCurrentDevice()].makeOrGet([](){
-      auto current_device = cuda::device::current::get();
-      // We should not return a recorded, but not-yet-occurred event
-      return std::make_unique<cuda::event_t>(current_device.create_event(cuda::event::sync_by_busy_waiting,   // default; we should try to avoid explicit synchronization, so maybe the value doesn't matter much?
-                                                                         cuda::event::dont_record_timings)); // it should be a bit faster to ignore timings
-    });
 }

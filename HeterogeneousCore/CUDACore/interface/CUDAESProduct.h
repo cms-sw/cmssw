@@ -7,15 +7,12 @@
 #include <cuda/api_wrappers.h>
 
 #include "FWCore/Concurrency/interface/hardware_pause.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
-#include "HeterogeneousCore/CUDAServices/interface/numberOfCUDADevices.h"
 
 template <typename T>
 class CUDAESProduct {
 public:
-  CUDAESProduct(): gpuDataPerDevice_(numberOfCUDADevices()) {
+  CUDAESProduct(): gpuDataPerDevice_(cuda::device::count()) {
     for(size_t i=0; i<gpuDataPerDevice_.size(); ++i) {
       gpuDataPerDevice_[i].m_event = std::make_unique<cuda::event_t>(cuda::event::create(cuda::device::current::get_id(),
                                                                                          cuda::event::sync_by_busy_waiting, // default; we should try to avoid explicit synchronization, so maybe the value doesn't matter much?
@@ -29,8 +26,7 @@ public:
   // to the CUDA stream
   template <typename F>
   const T& dataForCurrentDeviceAsync(cuda::stream_t<>& cudaStream, F transferAsync) const {
-    edm::Service<CUDAService> cs;
-    auto device = cs->getCurrentDevice();
+    auto device = cuda::device::current::get().id();
 
     auto& data = gpuDataPerDevice_[device];
 

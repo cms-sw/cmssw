@@ -128,5 +128,5 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
 
   cudaCheck(cudaSetDevice(defaultDevice));
   cudaCheck(cudaDeviceSynchronize());
-  // Note: CUDA resources are cleaned up by CUDAService destructor
+  // Note: CUDA resources are cleaned up by the destructors of the global cache objects
 }

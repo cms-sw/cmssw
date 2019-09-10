@@ -4,6 +4,7 @@
   <use name="FWCore/PluginManager"/>
   <use name="FWCore/ParameterSet"/>
   <use name="HeterogeneousCore/CUDACore"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="cuda"/>
   <use name="cuda-api-wrappers"/>
 </library>

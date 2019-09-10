@@ -10,6 +10,7 @@
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDATest/interface/CUDAThing.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/CUDAStreamCache.h"
 
 #include "TestCUDAAnalyzerGPUKernel.h"
 
@@ -28,7 +29,7 @@ private:
   edm::EDGetTokenT<CUDAProduct<CUDAThing>> srcToken_;
   double minValue_;
   double maxValue_;
-  TestCUDAAnalyzerGPUKernel gpuAlgo_;
+  std::unique_ptr<TestCUDAAnalyzerGPUKernel> gpuAlgo_;
 };
 
 TestCUDAAnalyzerGPU::TestCUDAAnalyzerGPU(const edm::ParameterSet& iConfig):
@@ -36,7 +37,13 @@ TestCUDAAnalyzerGPU::TestCUDAAnalyzerGPU(const edm::ParameterSet& iConfig):
   srcToken_(consumes<CUDAProduct<CUDAThing>>(iConfig.getParameter<edm::InputTag>("src"))),
   minValue_(iConfig.getParameter<double>("minValue")),
   maxValue_(iConfig.getParameter<double>("maxValue"))
-{}
+{
+  edm::Service<CUDAService> cs;
+  if(cs->enabled()) {
+    auto streamPtr = cudautils::getCUDAStreamCache().getCUDAStream();
+    gpuAlgo_ = std::make_unique<TestCUDAAnalyzerGPUKernel>(*streamPtr);
+  }
+}
 
 void TestCUDAAnalyzerGPU::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -53,7 +60,7 @@ void TestCUDAAnalyzerGPU::analyze(edm::StreamID, const edm::Event& iEvent, const
   const auto& in = iEvent.get(srcToken_);
   CUDAScopedContextAnalyze ctx{in};
   const CUDAThing& input = ctx.get(in);
-  gpuAlgo_.analyzeAsync(input.get(), ctx.stream());
+  gpuAlgo_->analyzeAsync(input.get(), ctx.stream());
 
   edm::LogVerbatim("TestCUDAAnalyzerGPU") << label_ << " TestCUDAAnalyzerGPU::analyze end event " << iEvent.id().event() << " stream " << iEvent.streamID();
 }
@@ -61,7 +68,8 @@ void TestCUDAAnalyzerGPU::analyze(edm::StreamID, const edm::Event& iEvent, const
 void TestCUDAAnalyzerGPU::endJob() {
   edm::LogVerbatim("TestCUDAAnalyzerGPU") << label_ << " TestCUDAAnalyzerGPU::endJob begin";
 
-  auto value = gpuAlgo_.value();
+  auto streamPtr = cudautils::getCUDAStreamCache().getCUDAStream();
+  auto value = gpuAlgo_->value(*streamPtr);
   edm::LogVerbatim("TestCUDAAnalyzerGPU") << label_ << "  accumulated value " << value;
   assert(minValue_ <= value && value <= maxValue_);
 

@@ -6,8 +6,6 @@
 #include "gpuSortByPt2.h"
 #include "gpuSplitVertices.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 
@@ -52,8 +50,7 @@ namespace gpuVertexFinder {
 #ifdef __CUDACC__
   ZVertexHeterogeneous Producer::makeAsync(cuda::stream_t<>& stream, TkSoA const * tksoa, float ptMin) const {
     // std::cout << "producing Vertices on GPU" << std::endl;
-    edm::Service<CUDAService> cs;
-    ZVertexHeterogeneous vertices(std::move(cs->make_device_unique<ZVertexSoA>(stream)));
+    ZVertexHeterogeneous vertices(std::move(cudautils::make_device_unique<ZVertexSoA>(stream)));
 #else
   ZVertexHeterogeneous Producer::make(TkSoA const * tksoa, float ptMin) const {
      // std::cout << "producing Vertices on  CPU" <<    std::endl;
@@ -64,7 +61,7 @@ namespace gpuVertexFinder {
     assert(soa);
 
 #ifdef __CUDACC__
-    auto ws_d = cs->make_device_unique<WorkSpace>(stream);
+    auto ws_d = cudautils::make_device_unique<WorkSpace>(stream);
 #else
     auto ws_d = std::make_unique<WorkSpace>();
 #endif   

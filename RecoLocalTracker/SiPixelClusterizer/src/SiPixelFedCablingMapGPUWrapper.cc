@@ -14,8 +14,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelFedCablingMapGPUWrapper.h"
 
 SiPixelFedCablingMapGPUWrapper::SiPixelFedCablingMapGPUWrapper(SiPixelFedCablingMap const& cablingMap,
@@ -122,9 +123,8 @@ const unsigned char *SiPixelFedCablingMapGPUWrapper::getModToUnpAllAsync(cuda::s
 }
 
 cudautils::device::unique_ptr<unsigned char[]> SiPixelFedCablingMapGPUWrapper::getModToUnpRegionalAsync(std::set<unsigned int> const& modules, cuda::stream_t<>& cudaStream) const {
-  edm::Service<CUDAService> cs;
-  auto modToUnpDevice = cs->make_device_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
-  auto modToUnpHost = cs->make_host_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
+  auto modToUnpDevice = cudautils::make_device_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
+  auto modToUnpHost = cudautils::make_host_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
 
   std::vector<unsigned int> const& fedIds = cablingMap_->fedIds();
   std::unique_ptr<SiPixelFedCablingTree> const& cabling = cablingMap_->cablingTree();

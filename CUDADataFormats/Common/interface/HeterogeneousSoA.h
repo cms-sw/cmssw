@@ -4,8 +4,6 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
@@ -57,8 +55,7 @@ public:
   cudautils::host::unique_ptr<T>
   toHostAsync(cuda::stream_t<>& stream) const {
     assert(dm_ptr);
-    edm::Service<CUDAService> cs;
-    auto ret = cs->make_host_unique<T>(stream);
+    auto ret = cudautils::make_host_unique<T>(stream);
     cudaCheck(cudaMemcpyAsync(ret.get(), dm_ptr.get(), sizeof(T), cudaMemcpyDefault, stream.id()));
     return ret;
   }
@@ -82,29 +79,29 @@ namespace cudaCompat {
     using unique_ptr =  cudautils::device::unique_ptr<T>;
 
     template<typename T>
-    static auto make_unique(edm::Service<CUDAService> & cs, cuda::stream_t<> &stream)    {
-      return cs->make_device_unique<T>(stream);
+    static auto make_unique(cuda::stream_t<> &stream)    {
+      return cudautils::make_device_unique<T>(stream);
     }
 
     template<typename T>
-    static auto make_unique(edm::Service<CUDAService> & cs, size_t size, cuda::stream_t<> &stream)    {
-      return cs->make_device_unique<T>(size, stream);
+    static auto make_unique(size_t size, cuda::stream_t<> &stream)    {
+      return cudautils::make_device_unique<T>(size, stream);
     }
 
     template<typename T>
-    static auto make_host_unique(edm::Service<CUDAService> & cs, cuda::stream_t<> &stream)    {
-      return cs->make_host_unique<T>(stream);
+    static auto make_host_unique(cuda::stream_t<> &stream)    {
+      return cudautils::make_host_unique<T>(stream);
     }
 
 
     template<typename T>
-    static auto make_device_unique(edm::Service<CUDAService> & cs, cuda::stream_t<> &stream)    {
-      return cs->make_device_unique<T>(stream);
+    static auto make_device_unique(cuda::stream_t<> &stream)    {
+      return cudautils::make_device_unique<T>(stream);
     }
 
     template<typename T>
-    static auto make_device_unique(edm::Service<CUDAService> & cs, size_t size, cuda::stream_t<> &stream)    {
-      return cs->make_device_unique<T>(size, stream);
+    static auto make_device_unique(size_t size, cuda::stream_t<> &stream)    {
+      return cudautils::make_device_unique<T>(size, stream);
     }
 
 
@@ -117,25 +114,25 @@ namespace cudaCompat {
     using unique_ptr =  cudautils::host::unique_ptr<T>;
 
     template<typename T>
-    static auto make_unique(edm::Service<CUDAService> & cs, cuda::stream_t<> &stream)    {
-      return cs->make_host_unique<T>(stream);
+    static auto make_unique(cuda::stream_t<> &stream)    {
+      return cudautils::make_host_unique<T>(stream);
     }
 
 
     template<typename T>
-    static auto make_host_unique(edm::Service<CUDAService> & cs, cuda::stream_t<> &stream)    {
-      return cs->make_host_unique<T>(stream);
+    static auto make_host_unique(cuda::stream_t<> &stream)    {
+      return cudautils::make_host_unique<T>(stream);
     }
 
 
     template<typename T>
-    static auto make_device_unique(edm::Service<CUDAService> & cs, cuda::stream_t<> &stream)    {
-      return cs->make_device_unique<T>(stream);
+    static auto make_device_unique(cuda::stream_t<> &stream)    {
+      return cudautils::make_device_unique<T>(stream);
     }
 
     template<typename T>
-    static auto make_device_unique(edm::Service<CUDAService> & cs, size_t size, cuda::stream_t<> &stream)    {
-      return cs->make_device_unique<T>(size, stream);
+    static auto make_device_unique(size_t size, cuda::stream_t<> &stream)    {
+      return cudautils::make_device_unique<T>(size, stream);
     }
 
 
@@ -148,30 +145,30 @@ namespace cudaCompat {
     using unique_ptr =  std::unique_ptr<T>;
 
     template<typename T>
-    static auto make_unique(edm::Service<CUDAService>&, cuda::stream_t<> &)    {
+    static auto make_unique(cuda::stream_t<> &)    {
       return std::make_unique<T>();
     }
 
 
     template<typename T>
-    static auto make_unique(edm::Service<CUDAService>&, size_t size, cuda::stream_t<> &)    {
+    static auto make_unique(size_t size, cuda::stream_t<> &)    {
       return std::make_unique<T>(size);
     }
 
 
     template<typename T>
-    static auto make_host_unique(edm::Service<CUDAService>&, cuda::stream_t<> &)    {
+    static auto make_host_unique(cuda::stream_t<> &)    {
       return std::make_unique<T>();
     }
 
 
     template<typename T>
-    static auto make_device_unique(edm::Service<CUDAService>&, cuda::stream_t<> &)    {
+    static auto make_device_unique(cuda::stream_t<> &)    {
       return std::make_unique<T>();
     }
 
     template<typename T>
-    static auto make_device_unique(edm::Service<CUDAService>&, size_t size, cuda::stream_t<> &)    {
+    static auto make_device_unique(size_t size, cuda::stream_t<> &)    {
       return std::make_unique<T>(size);
     }
 
@@ -219,8 +216,7 @@ private:
 
 template<typename T, typename Traits>
 HeterogeneousSoAImpl<T,Traits>::HeterogeneousSoAImpl(cuda::stream_t<> &stream) {
-  edm::Service<CUDAService> cs;
-  m_ptr = Traits:: template make_unique<T>(cs,stream);
+  m_ptr = Traits:: template make_unique<T>(stream);
 }
 
 
@@ -228,8 +224,7 @@ HeterogeneousSoAImpl<T,Traits>::HeterogeneousSoAImpl(cuda::stream_t<> &stream) {
 template<typename T, typename Traits>
 cudautils::host::unique_ptr<T>
 HeterogeneousSoAImpl<T,Traits>::toHostAsync(cuda::stream_t<>& stream) const {
-  edm::Service<CUDAService> cs;
-  auto ret = cs->make_host_unique<T>(stream);
+  auto ret = cudautils::make_host_unique<T>(stream);
   cudaCheck(cudaMemcpyAsync(ret.get(), get(), sizeof(T), cudaMemcpyDefault, stream.id()));
   return ret;
 }

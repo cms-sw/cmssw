@@ -7,9 +7,8 @@
 
 // CMSSW headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/SiPixelRawToClusterGPUKernel.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusteringConstants.h"
 
@@ -74,8 +73,7 @@ namespace pixelgpudetails {
     }
 
     if (nHits) {
-      edm::Service<CUDAService> cs;
-      auto hws = cs->make_device_unique<uint8_t[]>(TrackingRecHit2DSOAView::Hist::wsSize(), stream);
+      auto hws = cudautils::make_device_unique<uint8_t[]>(TrackingRecHit2DSOAView::Hist::wsSize(), stream);
       cudautils::fillManyFromVector(
           hits_d.phiBinner(), hws.get(), 10, hits_d.iphi(), hits_d.hitsLayerStart(), nHits, 256, stream.id());
       cudaCheck(cudaGetLastError());

@@ -30,9 +30,9 @@
 
 // CMSSW includes
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelFedCablingMapGPU.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuCalibPixel.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusterChargeCut.h"
@@ -549,8 +549,7 @@ namespace pixelgpudetails {
     }
     clusters_d = SiPixelClustersCUDA(gpuClustering::MaxNumModules, stream);
 
-    edm::Service<CUDAService> cs;
-    nModules_Clusters_h = cs->make_host_unique<uint32_t[]>(2, stream);
+    nModules_Clusters_h = cudautils::make_host_unique<uint32_t[]>(2, stream);
 
     if (wordCounter)  // protect in case of empty event....
     {
@@ -559,8 +558,8 @@ namespace pixelgpudetails {
 
       assert(0 == wordCounter % 2);
       // wordCounter is the total no of words in each event to be trasfered on device
-      auto word_d = cs->make_device_unique<uint32_t[]>(wordCounter, stream);
-      auto fedId_d = cs->make_device_unique<uint8_t[]>(wordCounter, stream);
+      auto word_d = cudautils::make_device_unique<uint32_t[]>(wordCounter, stream);
+      auto fedId_d = cudautils::make_device_unique<uint8_t[]>(wordCounter, stream);
 
       cudaCheck(cudaMemcpyAsync(
           word_d.get(), wordFed.word(), wordCounter * sizeof(uint32_t), cudaMemcpyDefault, stream.id()));

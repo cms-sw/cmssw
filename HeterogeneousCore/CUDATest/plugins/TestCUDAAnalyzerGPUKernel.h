@@ -9,12 +9,12 @@ class TestCUDAAnalyzerGPUKernel {
 public:
   static constexpr int NUM_VALUES = 4000;
 
-  TestCUDAAnalyzerGPUKernel();
+  TestCUDAAnalyzerGPUKernel(cuda::stream_t<>& stream);
   ~TestCUDAAnalyzerGPUKernel() = default;
 
   // returns (owning) pointer to device memory
   void analyzeAsync(const float *d_input, cuda::stream_t<>& stream) const;
-  float value() const;
+  float value(cuda::stream_t<>& stream) const;
 
 private:
   mutable cudautils::device::unique_ptr<float[]> sum_; // all writes are atomic in CUDA

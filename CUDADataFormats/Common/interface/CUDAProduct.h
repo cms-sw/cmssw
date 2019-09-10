@@ -26,8 +26,7 @@ namespace impl {
  * The CUDA event is in practice needed only for stream-stream
  * synchronization, but someone with long-enough lifetime has to own
  * it. Here is a somewhat natural place. If overhead is too much, we
- * can e.g. make CUDAService own them (creating them on demand) and
- * use them only where synchronization between streams is needed.
+ * can use them only where synchronization between streams is needed.
  */
 template <typename T>
 class CUDAProduct: public CUDAProductBase {

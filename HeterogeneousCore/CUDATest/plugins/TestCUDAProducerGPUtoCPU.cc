@@ -4,12 +4,11 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDATest/interface/CUDAThing.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
 #include "TestCUDAProducerGPUKernel.h"
 
@@ -50,8 +49,7 @@ void TestCUDAProducerGPUtoCPU::acquire(const edm::Event& iEvent, const edm::Even
   CUDAScopedContextAcquire ctx{in, std::move(waitingTaskHolder)};
   const CUDAThing& device = ctx.get(in);
 
-  edm::Service<CUDAService> cs;
-  buffer_ = cs->make_host_unique<float[]>(TestCUDAProducerGPUKernel::NUM_VALUES, ctx.stream());
+  buffer_ = cudautils::make_host_unique<float[]>(TestCUDAProducerGPUKernel::NUM_VALUES, ctx.stream());
   // Enqueue async copy, continue in produce once finished
   cuda::memory::async::copy(buffer_.get(), device.get(), TestCUDAProducerGPUKernel::NUM_VALUES*sizeof(float), ctx.stream().id());
 

@@ -14,6 +14,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/CUDAStreamCache.h"
 
 namespace {
   CUDAService makeCUDAService(edm::ParameterSet ps, edm::ActivityRegistry& ar) {
@@ -131,73 +132,6 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
     auto cs = makeCUDAService(ps, ar);
     REQUIRE(cs.enabled() == false);
     REQUIRE(cs.numberOfDevices() == 0);
-  }
-
-  SECTION("Device allocator") {
-    edm::ParameterSet ps;
-    ps.addUntrackedParameter("enabled", true);
-    edm::ParameterSet alloc;
-    alloc.addUntrackedParameter("minBin", 1U);
-    alloc.addUntrackedParameter("maxBin", 3U);
-    ps.addUntrackedParameter("allocator", alloc);
-    auto cs = makeCUDAService(ps, ar);
-    cs.setCurrentDevice(0);
-    auto cudaStreamPtr = cs.getCUDAStream();
-    auto& cudaStream = *cudaStreamPtr;
-    
-    SECTION("Destructor") {
-      auto ptr = cs.make_device_unique<int>(cudaStream);
-      REQUIRE(ptr.get() != nullptr);
-      cudaStream.synchronize();
-    }
-
-    SECTION("Reset") {
-      auto ptr = cs.make_device_unique<int[]>(5, cudaStream);
-      REQUIRE(ptr.get() != nullptr);
-      cudaStream.synchronize();
-
-      ptr.reset();
-      REQUIRE(ptr.get() == nullptr);
-    }
-
-    SECTION("Allocating too much") {
-      auto ptr = cs.make_device_unique<char[]>(512, cudaStream);
-      ptr.reset();
-      REQUIRE_THROWS(ptr = cs.make_device_unique<char[]>(513, cudaStream));
-    }
-  }
-
-
-  SECTION("Host allocator") {
-    edm::ParameterSet ps;
-    ps.addUntrackedParameter("enabled", true);
-    edm::ParameterSet alloc;
-    alloc.addUntrackedParameter("minBin", 1U);
-    alloc.addUntrackedParameter("maxBin", 3U);
-    ps.addUntrackedParameter("allocator", alloc);
-    auto cs = makeCUDAService(ps, ar);
-    cs.setCurrentDevice(0);
-    auto cudaStreamPtr = cs.getCUDAStream();
-    auto& cudaStream = *cudaStreamPtr;
-    
-    SECTION("Destructor") {
-      auto ptr = cs.make_host_unique<int>(cudaStream);
-      REQUIRE(ptr.get() != nullptr);
-    }
-
-    SECTION("Reset") {
-      auto ptr = cs.make_host_unique<int[]>(5, cudaStream);
-      REQUIRE(ptr.get() != nullptr);
-
-      ptr.reset();
-      REQUIRE(ptr.get() == nullptr);
-    }
-
-    SECTION("Allocating too much") {
-      auto ptr = cs.make_host_unique<char[]>(512, cudaStream);
-      ptr.reset();
-      REQUIRE_THROWS(ptr = cs.make_host_unique<char[]>(513, cudaStream));
-    }
   }
 
   //Fake the end-of-job signal.

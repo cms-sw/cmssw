@@ -34,7 +34,7 @@ namespace cudautils {
   }
 
   /**
-   * The difference wrt. CUDAService::make_host_unique is that these
+   * The difference wrt. make_host_unique is that these
    * do not cache, so they should not be called per-event.
    */
   template <typename T>

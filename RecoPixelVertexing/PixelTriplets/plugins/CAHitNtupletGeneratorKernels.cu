@@ -169,8 +169,7 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cuda::s
 #endif
 
   // in principle we can use "nhits" to heuristically dimension the workspace...
-  edm::Service<CUDAService> cs;
-  device_isOuterHitOfCell_ = cs->make_device_unique<GPUCACell::OuterHitOfCell[]>(std::max(1U,nhits), stream);
+  device_isOuterHitOfCell_ = cudautils::make_device_unique<GPUCACell::OuterHitOfCell[]>(std::max(1U,nhits), stream);
   assert(device_isOuterHitOfCell_.get());
   {
     int threadsPerBlock = 128;
@@ -185,7 +184,7 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cuda::s
     cudaCheck(cudaGetLastError());
   }
 
-  device_theCells_ = cs->make_device_unique<GPUCACell[]>(m_params.maxNumberOfDoublets_, stream);
+  device_theCells_ = cudautils::make_device_unique<GPUCACell[]>(m_params.maxNumberOfDoublets_, stream);
 
 #ifdef GPU_DEBUG
   cudaDeviceSynchronize();

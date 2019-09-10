@@ -24,6 +24,7 @@
     * [Class declaration](#class-declaration)
     * [Memory allocation](#memory-allocation)
       * [Caching allocator](#caching-allocator)
+      * [Non-cached pinned host `unique_ptr`](#non-cached-pinned-host-unique_ptr)
       * [CUDA API](#cuda-api)
     * [Setting the current device](#setting-the-current-device)
     * [Getting input](#getting-input)
@@ -578,11 +579,13 @@ is needed, e.g. when transferring data from GPU to CPU.
 
 ##### Caching allocator
 
-The memory allocations should be done dynamically with `CUDAService`
+The memory allocations should be done dynamically with the following functions
 ```cpp
-edm::Service<CUDAService> cs;
-cudautils::device::unique_ptr<float[]> device_buffer = cs->make_device_unique<float[]>(50, cudaStream);
-cudautils::host::unique_ptr<float[]>   host_buffer   = cs->make_host_unique<float[]>(50, cudaStream);
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+
+cudautils::device::unique_ptr<float[]> device_buffer = cudautils::make_device_unique<float[]>(50, cudaStream);
+cudautils::host::unique_ptr<float[]>   host_buffer   = cudautils::make_host_unique<float[]>(50, cudaStream);
 ```
 
 in the `acquire()` and `produce()` functions. The same
@@ -593,6 +596,21 @@ The allocator is based on `cub::CachingDeviceAllocator`. The memory is
 guaranteed to be reserved
 * for the host: up to the destructor of the `unique_ptr`
 * for the device: until all work queued in the `cudaStream` up to the point when the `unique_ptr` destructor is called has finished
+
+##### Non-cached pinned host `unique_ptr`
+
+In producers transferring data to GPU one may want to pinned host
+memory allocated with `cudaHostAllocWriteCombined`. As of now we don't
+want to include the flag dimension to the caching allocator. The CUDA
+API wrapper library does not support allocation flags, so we add our
+own `unique_ptr` for that.
+
+```cpp
+#include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
+
+cudautils::host::noncached_unique_ptr<float[]> host_buffer = cudautils::make_host_noncached_unique<float[]>(50, flags);
+```
+The `flags` is passed directly to `cudaHostAlloc()`.
 
 ##### CUDA API
 
