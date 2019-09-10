@@ -24,13 +24,10 @@
 using namespace SurfaceOrientation;
 using namespace std;
 using namespace magneticfield;
-using namespace cms;
-using namespace cms::dd;
-using namespace cms::dd4hepmagfield;
 using namespace edm;
 
-volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugVal)
-    : BaseVolumeHandle(expand2Pi, debugVal), theShape(getCurrentShape(fv)), solid(fv) {
+volumeHandle::volumeHandle(const cms::DDFilteredView &fv, bool expand2Pi, bool debugVal)
+    : BaseVolumeHandle(expand2Pi, debugVal), theShape(fv.legacyShape(cms::dd::getCurrentShape(fv))), solid(fv) {
   name = fv.name();
   copyno = fv.copyNum();
   const auto *const transArray = fv.trans();
@@ -90,7 +87,7 @@ volumeHandle::volumeHandle(const DDFilteredView &fv, bool expand2Pi, bool debugV
   }
 }
 
-void volumeHandle::referencePlane(const DDFilteredView &fv) {
+void volumeHandle::referencePlane(const cms::DDFilteredView &fv) {
   // The refPlane is the "main plane" for the solid. It corresponds to the
   // x,y plane in the DDD local frame, and defines a frame where the local
   // coordinates are the same as in DDD.
@@ -196,6 +193,8 @@ namespace {
     return (centimeters);
   }
 }  // namespace
+
+using namespace cms::dd;
 
 #include "buildBox.icc"
 #include "buildTrap.icc"

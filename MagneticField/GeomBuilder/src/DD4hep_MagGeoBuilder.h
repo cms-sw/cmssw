@@ -30,25 +30,23 @@ class MagBLayer;
 class MagESector;
 class MagVolume6Faces;
 
-namespace cms::dd4hepmagfield {
+namespace magneticfield {
 
   class MagGeoBuilder {
   public:
-    using handles = magneticfield::handles;
-
     MagGeoBuilder(std::string tableSet, int geometryVersion, bool debug = false);
 
     ~MagGeoBuilder();
 
     // Build the geometry.
-    void build(const DDDetector* det);
+    void build(const cms::DDDetector* det);
 
     ///  Set scaling factors for individual volumes.
     /// "keys" is a vector of 100*volume number + sector (sector 0 = all sectors)
     /// "values" are the corresponding scaling factors
     void setScaling(const std::vector<int>& keys, const std::vector<double>& values);
 
-    void setGridFiles(const magneticfield::TableFileMap& gridFiles);
+    void setGridFiles(const TableFileMap& gridFiles);
 
     /// Get barrel layers
     std::vector<MagBLayer*> barrelLayers() const;
@@ -86,9 +84,9 @@ namespace cms::dd4hepmagfield {
     int geometryVersion_;   // Version of MF geometry
 
     std::map<int, double> theScalingFactors_;
-    const magneticfield::TableFileMap* theGridFiles_;  // Non-owned pointer assumed to be valid until build() is called
+    const TableFileMap* theGridFiles_;  // Non-owned pointer assumed to be valid until build() is called
 
     const bool debug_;
   };
-}  // namespace cms::dd4hepmagfield
+}  // namespace magneticfield
 #endif
