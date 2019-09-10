@@ -71,10 +71,10 @@ public:
   void run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
 
   /** Returns vector of ALCTs in the read-out time window, if any. */
-  std::vector<CSCALCTDigi> readoutALCTs();
+  std::vector<CSCALCTDigi> readoutALCTs() const;
 
   /** Returns vector of all found ALCTs, if any. */
-  std::vector<CSCALCTDigi> getALCTs();
+  std::vector<CSCALCTDigi> getALCTs() const;
 
   /** Return best/second best ALCTs */
   CSCALCTDigi getBestALCT(int bx) const;
