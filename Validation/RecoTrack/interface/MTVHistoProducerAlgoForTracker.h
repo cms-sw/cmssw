@@ -355,6 +355,7 @@ private:
   int nintMVA;
 
   const bool doSeedPlots_;
+  const bool doMTDPlots_;
 
   //
   double ptRes_rangeMin, ptRes_rangeMax;

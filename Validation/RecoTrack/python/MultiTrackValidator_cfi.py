@@ -94,6 +94,7 @@ multiTrackValidator = cms.EDAnalyzer(
     dodEdxPlots = cms.untracked.bool(False),
     doPVAssociationPlots = cms.untracked.bool(False), # do plots that require true PV, if True, label_vertex and vertexAssociator are read
     doSeedPlots = cms.untracked.bool(False), # input comes from TrackFromSeedProducer
+    doMTDPlots  = cms.untracked.bool(False), # meant to be switch on in Phase2 workflows
     doMVAPlots = cms.untracked.bool(False), # needs input from track MVA selectors
 
     ### do resolution plots only for these labels (or all if empty)
