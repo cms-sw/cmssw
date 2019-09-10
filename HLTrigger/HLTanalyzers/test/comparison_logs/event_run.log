@@ -1,0 +1,27 @@
+HLT-Report ---------- Event  Summary ------------
+HLT-Report Summary for Run 1
+HLT-Report Events total = 1 wasrun = 1 passed = 0 errors = 0
+HLT-Report ---------- HLTrig Summary ------------
+HLT-Report   HLT #  WasRun     L1S     Pre     HLT   %L1sPre    Rate  RateHi  Errors Name
+HLT-Report       0       1       1       1       0   0.00000     0.0     0.0       0 HLTriggerFinalPath
+HLT-Report       1       1       1       1       0   0.00000     0.0     0.0       0 p1
+HLT-Report       2       1       1       1       0   0.00000     0.0     0.0       0 p2
+HLT-Report end!
+HLT-Report ---------- Event  Summary ------------
+HLT-Report Summary for Run 2
+HLT-Report Events total = 1 wasrun = 1 passed = 0 errors = 0
+HLT-Report ---------- HLTrig Summary ------------
+HLT-Report   HLT #  WasRun     L1S     Pre     HLT   %L1sPre    Rate  RateHi  Errors Name
+HLT-Report       0       1       1       1       0   0.00000     0.0     0.0       0 HLTriggerFinalPath
+HLT-Report       1       1       1       1       0   0.00000     0.0     0.0       0 p1
+HLT-Report       2       1       1       1       0   0.00000     0.0     0.0       0 p2
+HLT-Report end!
+HLT-Report ---------- Event  Summary ------------
+HLT-Report Summary for Run 3
+HLT-Report Events total = 1 wasrun = 1 passed = 0 errors = 0
+HLT-Report ---------- HLTrig Summary ------------
+HLT-Report   HLT #  WasRun     L1S     Pre     HLT   %L1sPre    Rate  RateHi  Errors Name
+HLT-Report       0       1       1       1       0   0.00000     0.0     0.0       0 HLTriggerFinalPath
+HLT-Report       1       1       1       1       0   0.00000     0.0     0.0       0 p1
+HLT-Report       2       1       1       1       0   0.00000     0.0     0.0       0 p2
+HLT-Report end!
