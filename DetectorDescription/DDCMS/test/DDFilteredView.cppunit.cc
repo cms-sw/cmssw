@@ -37,4 +37,5 @@ void testDDFilteredView::setUp() {
 void testDDFilteredView::checkFilteredView() {
   unique_ptr<DDDetector> det = make_unique<DDDetector>("DUMMY", fileName_);
   DDFilteredView fview(det.get(), det->description()->worldVolume());
+  std::cout << fview.name() << " is a " << cms::dd::name(cms::DDSolidShapeMap, fview.shape()) << "\n";
 }

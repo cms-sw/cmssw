@@ -11,8 +11,8 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedTausBoosted_*_*',
         'keep *_slimmedCaloJets_*_*',
         'keep *_slimmedJets_*_*',
-        # drop content created by MINIAOD DeepFlavour production
-        'drop recoBaseTagInfosOwned_slimmedJets_*_*',
+        # keep slimmedJets TagInfos, currently only PixelClusterTagInfo
+        'keep recoBaseTagInfosOwned_slimmedJets_*_*',
         'keep *_slimmedJetsAK8_*_*',
         # drop content created by MINIAOD DeepDoubleB production
         'drop recoBaseTagInfosOwned_slimmedJetsAK8_*_*',
