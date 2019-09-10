@@ -374,10 +374,13 @@ def miniAOD_customizeCommon(process):
     deepTauIDTaskNew_ = cms.Task(process.deepTau2017v2p1,process.slimmedTaus)
 
     from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-    run2_miniAOD_devel.toReplaceWith(process.slimmedTaus,
-                                     getattr(process, _updatedTauNameNew).clone(src = _noUpdatedTauName))
-    run2_miniAOD_devel.toReplaceWith(process.deepTauIDTask,
-                                     deepTauIDTaskNew_)
+    from Configuration.Eras.Modifier_run2_tau_ul_2016_cff import run2_tau_ul_2016
+    from Configuration.Eras.Modifier_run2_tau_ul_2018_cff import run2_tau_ul_2018
+    for era in [run2_miniAOD_devel,run2_tau_ul_2016,run2_tau_ul_2018]:
+        era.toReplaceWith(process.slimmedTaus,
+                          getattr(process, _updatedTauNameNew).clone(src = _noUpdatedTauName))
+        era.toReplaceWith(process.deepTauIDTask,
+                          deepTauIDTaskNew_)
 
     #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy

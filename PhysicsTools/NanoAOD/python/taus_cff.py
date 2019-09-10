@@ -16,9 +16,12 @@ finalTaus = cms.EDFilter("PATTauRefSelector",
 )
 
 from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-run2_miniAOD_devel.toModify(finalTaus,
-                            cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT2015') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2') || tauID('byVVVLooseDeepTau2017v2p1VSjet'))")
-)
+from Configuration.Eras.Modifier_run2_tau_ul_2016_cff import run2_tau_ul_2016
+from Configuration.Eras.Modifier_run2_tau_ul_2018_cff import run2_tau_ul_2018
+for era in [run2_miniAOD_devel,run2_tau_ul_2016,run2_tau_ul_2018]:
+    era.toModify(finalTaus,
+                 cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT2015') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2') || tauID('byVVVLooseDeepTau2017v2p1VSjet'))")
+    )
 
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
@@ -180,9 +183,10 @@ for era in [run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1]:
                  idDeepTau2017v2VSmu = None,
                  idDeepTau2017v2VSjet = None
     )
-run2_miniAOD_devel.toModify(tauTable,
-                            variables = cms.PSet(_variablesMiniV2,_deepTauVars2017v2p1)
-)
+for era in [run2_miniAOD_devel,run2_tau_ul_2016,run2_tau_ul_2018]:
+    era.toModify(tauTable,
+                 variables = cms.PSet(_variablesMiniV2,_deepTauVars2017v2p1)
+    )
 
 
 tauGenJets.GenParticles = cms.InputTag("prunedGenParticles")
