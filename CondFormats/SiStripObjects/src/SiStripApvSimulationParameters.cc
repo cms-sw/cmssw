@@ -44,6 +44,12 @@ void SiStripApvSimulationParameters::calculateIntegrals() {
       m_barrelParam_xInt[i] = calculateXInt(m_barrelParam[i]);
     }
   }
+  if (m_endcapParam.size() != m_endcapParam_xInt.size()) {
+    m_endcapParam_xInt.resize(m_endcapParam.size());
+    for (unsigned int i{0}; i != m_endcapParam.size(); ++i) {
+      m_endcapParam_xInt[i] = calculateXInt(m_endcapParam[i]);
+    }
+  }
 }
 
 bool SiStripApvSimulationParameters::putTIB(SiStripApvSimulationParameters::layerid layer,
@@ -70,6 +76,30 @@ bool SiStripApvSimulationParameters::putTOB(SiStripApvSimulationParameters::laye
   return true;
 }
 
+bool SiStripApvSimulationParameters::putTID(SiStripApvSimulationParameters::layerid ring,
+                                            SiStripApvSimulationParameters::LayerParameters&& params) {
+  if ((ring > m_nTID) || (ring < 1)) {
+    edm::LogError("SiStripApvSimulationParameters")
+        << "[" << __PRETTY_FUNCTION__ << "] ring index " << ring << " out of range [1," << m_nTID << "]";
+    return false;
+  }
+  m_endcapParam[ring - 1] = params;
+  m_endcapParam_xInt[ring - 1] = calculateXInt(params);
+  return true;
+}
+
+bool SiStripApvSimulationParameters::putTEC(SiStripApvSimulationParameters::layerid ring,
+                                            SiStripApvSimulationParameters::LayerParameters&& params) {
+  if ((ring > m_nTEC) || (ring < 1)) {
+    edm::LogError("SiStripApvSimulationParameters")
+        << "[" << __PRETTY_FUNCTION__ << "] ring index " << ring << " out of range [1," << m_nTEC << ")";
+    return false;
+  }
+  m_endcapParam[m_nTID + ring - 1] = params;
+  m_endcapParam_xInt[m_nTID + ring - 1] = calculateXInt(params);
+  return true;
+}
+
 float SiStripApvSimulationParameters::sampleBarrel(layerid layerIdx,
                                                    float z,
                                                    float pu,
@@ -92,6 +122,34 @@ float SiStripApvSimulationParameters::sampleBarrel(layerid layerIdx,
       sum += layerParam.binContent(i, ip, iz);
       if (sum > val) {
         return xBinPos(layerParam, i, (sum-val)/layerParam.binContent(i, ip, iz));
+      }
+    }
+  }
+  throw cms::Exception("LogicError") << "Problem drawing a random number from the distribution";
+}
+
+float SiStripApvSimulationParameters::sampleEndcap(layerid ringIdx,
+                                                   float z,
+                                                   float pu,
+                                                   CLHEP::HepRandomEngine* engine) const {
+  if (m_endcapParam.size() != m_endcapParam_xInt.size()) {
+    throw cms::Exception("LogicError") << "x-integrals of 3D histograms have not been calculated";
+  }
+  const auto layerParam = m_endcapParam[ringIdx];
+  const int ip = layerParam.findBinY(pu);
+  const int iz = layerParam.findBinZ(z);
+  const float norm = m_endcapParam_xInt[ringIdx].binContent(ip, iz);
+  const auto val = CLHEP::RandFlat::shoot(engine) * norm;
+  if (val < layerParam.binContent(0, ip, iz)) {  // underflow
+    return layerParam.rangeX().min;
+  } else if (norm - val < layerParam.binContent(layerParam.numberOfBinsX() + 1, ip, iz)) {  // overflow
+    return layerParam.rangeX().max;
+  } else {  // loop over bins, return center of our bin
+    float sum = layerParam.binContent(0, ip, iz);
+    for (int i{1}; i != layerParam.numberOfBinsX() + 1; ++i) {
+      sum += layerParam.binContent(i, ip, iz);
+      if (sum > val) {
+        return xBinPos(layerParam, i, (sum - val) / layerParam.binContent(i, ip, iz));
       }
     }
   }
