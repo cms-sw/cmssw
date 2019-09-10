@@ -2609,7 +2609,7 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc& coeff,
         edm::LogError("TopInfo") << "ERROR:LaserAlphe parameter note found!!"
                                  << "\n";
     }
-    if (ECALdetid.subdetId() == 1) {  //ECAL ENDCAP
+    if (ECALdetid.subdetId() == 2) {  //ECAL ENDCAP
       EEDetId endcap_detid(rawId);
       EcalLaserAlphaMap::const_iterator italpha = laserAlphaMap.find(endcap_detid);
       if (italpha != laserAlphaMap.end())
