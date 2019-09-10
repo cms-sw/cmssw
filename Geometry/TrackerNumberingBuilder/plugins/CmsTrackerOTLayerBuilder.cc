@@ -1,5 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerOTLayerBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerOTRingBuilder.h"
@@ -11,13 +12,17 @@
 #include <vector>
 #include <bitset>
 
-void CmsTrackerOTLayerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
+template <class FilteredView>
+void CmsTrackerOTLayerBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
   LogTrace("DetConstruction") << " CmsTrackerOTLayerBuilder::buildComponent ";
-  CmsTrackerLadderBuilder theCmsTrackerLadderBuilder;
-  CmsTrackerOTRingBuilder theCmsTrackerOTRingBuilder;
+  CmsTrackerLadderBuilder<FilteredView> theCmsTrackerLadderBuilder;
+  CmsTrackerOTRingBuilder<FilteredView> theCmsTrackerOTRingBuilder;
 
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  GeometricDet* subdet = new GeometricDet(&fv,
+                                          CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                              ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::ladder:
       theCmsTrackerLadderBuilder.build(fv, subdet, s);
       break;
@@ -25,13 +30,14 @@ void CmsTrackerOTLayerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* 
       theCmsTrackerOTRingBuilder.build(fv, subdet, s);
       break;
     default:
-      edm::LogError("CmsTrackerOTLayerBuilder")
-          << " ERROR - I was expecting a ladder or a panel, I got a " << ExtractStringFromDDD::getString(s, &fv);
+      edm::LogError("CmsTrackerOTLayerBuilder") << " ERROR - I was expecting a ladder or a panel, I got a "
+                                                << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
   g->addComponent(subdet);
 }
 
-void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerOTLayerBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer comp = det->components();
 
   //order ladder and rings together
@@ -60,7 +66,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
 
   // negative rings
   if (!ringsNeg.empty()) {
-    std::sort(ringsNeg.begin(), ringsNeg.end(), isLessZ);
+    std::sort(ringsNeg.begin(), ringsNeg.end(), CmsTrackerLevelBuilderHelper::isLessZ);
     uint32_t totalringsNeg = ringsNeg.size();
 
     LogTrace("DetConstruction") << " Neg rings ordered by z: ";
@@ -77,7 +83,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
 
   // rods
   if (!rods.empty()) {
-    trackerStablePhiSort(rods.begin(), rods.end(), getPhi);
+    trackerStablePhiSort(rods.begin(), rods.end(), CmsTrackerLevelBuilderHelper::getPhi);
     uint32_t totalrods = rods.size();
 
     LogTrace("DetConstruction") << " Rods ordered by phi: ";
@@ -93,7 +99,7 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
 
   // positive rings
   if (!ringsPos.empty()) {
-    std::sort(ringsPos.begin(), ringsPos.end(), isLessZ);
+    std::sort(ringsPos.begin(), ringsPos.end(), CmsTrackerLevelBuilderHelper::isLessZ);
     uint32_t totalringsPos = ringsPos.size();
 
     LogTrace("DetConstruction") << " Pos rings ordered by z: ";
@@ -113,3 +119,6 @@ void CmsTrackerOTLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
   det->addComponents(rods);
   det->addComponents(ringsPos);
 }
+
+template class CmsTrackerOTLayerBuilder<DDFilteredView>;
+template class CmsTrackerOTLayerBuilder<cms::DDFilteredView>;

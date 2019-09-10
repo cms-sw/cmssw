@@ -13,20 +13,17 @@ using namespace edm;
 using namespace std;
 using namespace cms::dd;
 
-DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume)
-    : node_(volume->GetNode(0)), registry_(&det->specpars()) {
+DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume) : registry_(&det->specpars()) {
   it_.emplace_back(Iterator(volume));
 }
 
 DDFilteredView::DDFilteredView(const DDCompactView& cpv, const DDFilter& attribute) : registry_(&cpv.specpars()) {
   it_.emplace_back(Iterator(cpv.detector()->worldVolume()));
-  node_ = cpv.detector()->worldVolume()->GetNode(0);
-  DDSpecParRefs refs;
-  registry_->filter(refs, attribute);
-  mergedSpecifics(refs);
-  LogVerbatim("Geometry").log([&refs](auto& log) {
-    log << "Filtered DD SpecPar Registry size: " << refs.size() << "\n";
-    for (const auto& t : refs) {
+  registry_->filter(refs_, attribute);
+  mergedSpecifics(refs_);
+  LogVerbatim("Geometry").log([&](auto& log) {
+    log << "Filtered DD SpecPar Registry size: " << refs_.size() << "\n";
+    for (const auto& t : refs_) {
       log << "\nRegExps { ";
       for (const auto& ki : t->paths)
         log << ki << " ";
@@ -111,7 +108,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
         return false;
       });
       if (filter == end(filters_)) {
-        filters_.emplace_back(unique_ptr<Filter>(new Filter{{toks.front()}, nullptr, nullptr}));
+        filters_.emplace_back(unique_ptr<Filter>(new Filter{{toks.front()}, nullptr, nullptr, i}));
         currentFilter_ = filters_.back().get();
       }
       // all next levels
@@ -123,7 +120,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
             currentFilter_->keys.emplace_back(toks[pos]);
           }
         } else {
-          currentFilter_->next.reset(new Filter{{toks[pos]}, nullptr, currentFilter_});
+          currentFilter_->next.reset(new Filter{{toks[pos]}, nullptr, currentFilter_, i});
         }
       }
     }
@@ -175,12 +172,19 @@ bool DDFilteredView::nextSibling() {
     return false;
   it_.back().SetType(1);
   unCheckNode();
+  bool cflag(true);
   do {
     if (accepted(currentFilter_->keys, node_->GetVolume()->GetName())) {
       addNode(node_);
       return true;
     }
-  } while ((node_ = it_.back().Next()));
+    Node* curNode = it_.back().Next();
+    if (node_ != curNode) {
+      node_ = curNode;
+    } else {
+      cflag = false;
+    }
+  } while (cflag);
 
   return false;
 }
@@ -334,6 +338,12 @@ double DDFilteredView::get<double>(const char* key) const {
   if (!tmpStrV.empty())
     result = dd4hep::_toDouble({tmpStrV.data(), tmpStrV.size()});
   return result;
+}
+
+std::string_view DDFilteredView::getString(const std::string& key) const {
+  assert(currentFilter_);
+  assert(currentFilter_->spec);
+  return currentFilter_->spec->strValue(key.c_str());
 }
 
 DDFilteredView::nav_type DDFilteredView::navPos() const {
