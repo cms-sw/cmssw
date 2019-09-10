@@ -18,12 +18,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "HeterogeneousCore/CUDACore/interface/GPUCuda.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"

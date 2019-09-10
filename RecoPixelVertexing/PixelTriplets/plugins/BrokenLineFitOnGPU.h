@@ -9,8 +9,6 @@
 #include <cuda_runtime.h>
 
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"

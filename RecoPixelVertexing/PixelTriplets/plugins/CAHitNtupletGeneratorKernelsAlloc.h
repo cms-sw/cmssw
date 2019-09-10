@@ -1,7 +1,5 @@
 #include "CAHitNtupletGeneratorKernels.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 
@@ -15,8 +13,6 @@ void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(cuda::stream_t<>& stream) {
   // ALLOCATIONS FOR THE INTERMEDIATE RESULTS (STAYS ON WORKER)
   //////////////////////////////////////////////////////////
 
-  edm::Service<CUDAService> cs;
-
   /* not used at the moment 
   cudaCheck(cudaMalloc(&device_theCellNeighbors_, sizeof(CAConstants::CellNeighborsVector)));
   cudaCheck(cudaMemset(device_theCellNeighbors_, 0, sizeof(CAConstants::CellNeighborsVector)));
@@ -24,13 +20,13 @@ void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(cuda::stream_t<>& stream) {
   cudaCheck(cudaMemset(device_theCellTracks_, 0, sizeof(CAConstants::CellTracksVector)));
   */
 
-  device_hitToTuple_ = Traits:: template make_unique<HitToTuple>(cs,stream);
+  device_hitToTuple_ = Traits:: template make_unique<HitToTuple>(stream);
 
-  device_tupleMultiplicity_ = Traits:: template make_unique<TupleMultiplicity>(cs,stream);
+  device_tupleMultiplicity_ = Traits:: template make_unique<TupleMultiplicity>(stream);
 
   auto storageSize = 3+(std::max(TupleMultiplicity::wsSize(), HitToTuple::wsSize())+sizeof(AtomicPairCounter::c_type))/sizeof(AtomicPairCounter::c_type);
 
-  device_storage_ = Traits:: template make_unique<AtomicPairCounter::c_type[]>(cs, storageSize,stream);
+  device_storage_ = Traits:: template make_unique<AtomicPairCounter::c_type[]>(storageSize,stream);
   
   device_hitTuple_apc_ = (AtomicPairCounter*)device_storage_.get();
   device_hitToTuple_apc_ = (AtomicPairCounter*)device_storage_.get()+1;
