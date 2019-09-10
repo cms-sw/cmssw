@@ -134,6 +134,9 @@ namespace cms {
 
     const DDSolidShape shape() const;
 
+    // Convert new DD4hep shape id to an old DD one
+    LegacySolidShape legacyShape(const cms::DDSolidShape shape) const;
+
     //! extract attribute value
     template <typename T>
     T get(const char*) const;
