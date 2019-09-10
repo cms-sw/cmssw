@@ -42,9 +42,13 @@ dedxHarmonic2CTFP5LHC                              = dedxHarmonic2.clone()
 dedxHarmonic2CTFP5LHC.tracks                       = cms.InputTag("ctfWithMaterialTracksP5LHCNavigation")
 
 
-doAlldEdXEstimatorsCTF      = cms.Sequence(dedxTruncated40CTF      + dedxHitInfoCTF      + dedxHarmonic2CTF)
-doAlldEdXEstimatorsCosmicTF = cms.Sequence(dedxTruncated40CosmicTF + dedxHitInfoCosmicTF + dedxHarmonic2CosmicTF)
-doAlldEdXEstimatorsCTFP5LHC = cms.Sequence(dedxTruncated40CTFP5LHC + dedxHitInfoCTFP5LHC + dedxHarmonic2CTFP5LHC)
+doAlldEdXEstimatorsCTFTask      = cms.Task(dedxTruncated40CTF      , dedxHitInfoCTF      , dedxHarmonic2CTF)
+doAlldEdXEstimatorsCTF      = cms.Sequence(doAlldEdXEstimatorsCTFTask)
+doAlldEdXEstimatorsCosmicTFTask = cms.Task(dedxTruncated40CosmicTF , dedxHitInfoCosmicTF , dedxHarmonic2CosmicTF)
+doAlldEdXEstimatorsCosmicTF = cms.Sequence(doAlldEdXEstimatorsCosmicTFTask)
+doAlldEdXEstimatorsCTFP5LHCTask = cms.Task(dedxTruncated40CTFP5LHC , dedxHitInfoCTFP5LHC , dedxHarmonic2CTFP5LHC)
+doAlldEdXEstimatorsCTFP5LHC = cms.Sequence(doAlldEdXEstimatorsCTFP5LHCTask)
 
-doAllCosmicdEdXEstimators = cms.Sequence( doAlldEdXEstimatorsCTF + doAlldEdXEstimatorsCosmicTF + doAlldEdXEstimatorsCTFP5LHC)
+doAllCosmicdEdXEstimatorsTaks = cms.Task( doAlldEdXEstimatorsCTF , doAlldEdXEstimatorsCosmicTF , doAlldEdXEstimatorsCTFP5LHC)
+doAllCosmicdEdXEstimators = cms.Sequence(doAllCosmicdEdXEstimatorsTaks)
 

@@ -22,9 +22,10 @@ from RecoParticleFlow.PFTracking.pfConversions_cfi import *
 #HON#pfConversions.OtherOutInCollection      =           cms.VInputTag(cms.InputTag("generalTracks"))
 #HON#pfConversions.OtherInOutCollection      =           cms.VInputTag(cms.InputTag("generalTracks"))
 
-particleFlowTrackWithConversion =cms.Sequence(
-    pfTrackElec*
+particleFlowTrackWithConversionTask =cms.Task(
+    pfTrackElec,
     #HON#trackerOnlyConversionSequence*
     #DON#    softConversionSequence*
     pfConversions
     )
+particleFlowTrackWithConversion =cms.Sequence(particleFlowTrackWithConversionTask)
