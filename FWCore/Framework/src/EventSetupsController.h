@@ -87,7 +87,7 @@ namespace edm {
                                                        ActivityRegistry*,
                                                        ParameterSet const* eventSetupPset = nullptr);
 
-      void initialize(unsigned int nStreams, unsigned int nConcurrentLumis);
+      void setMaxConcurrentIOVs(unsigned int nStreams, unsigned int nConcurrentLumis);
 
       // Pass in an IOVSyncValue to let the EventSetup system know which run and lumi
       // need to be processed and prepare IOVs for it (also could be a time or only a run).

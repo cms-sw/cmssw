@@ -36,13 +36,15 @@ namespace edm {
     public:
       NumberOfConcurrentIOVs();
 
-      void initialize(ParameterSet const* eventSetupPset);
+      void readConfigurationParameters(ParameterSet const* eventSetupPset);
 
-      void initialize(unsigned int nStreams, unsigned int nConcurrentLumis);
+      // Can't have more concurrent IOVs than streams or concurrent lumis
+      void setMaxConcurrentIOVs(unsigned int nStreams, unsigned int nConcurrentLumis);
 
-      void initialize(EventSetupProvider const&);
+      // This depends on bool's hard coded in the EventSetupRecord C++ classes
+      void fillRecordsNotAllowingConcurrentIOVs(EventSetupProvider const&);
 
-      unsigned int numberOfConcurrentIOVs(EventSetupRecordKey const&) const;
+      unsigned int numberOfConcurrentIOVs(EventSetupRecordKey const&, bool printInfoMsg = false) const;
 
       void clear();
 
