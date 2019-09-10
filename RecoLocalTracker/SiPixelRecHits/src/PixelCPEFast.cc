@@ -9,7 +9,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
-#include "HeterogeneousCore/CUDAServices/interface/numberOfCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"

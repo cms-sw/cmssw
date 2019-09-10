@@ -197,7 +197,7 @@ namespace pixelgpudetails {
       // stream is still alive
       //
       // technically the statement above is not true anymore now that
-      // the CUDA streams are cached within the CUDAService, but it is
+      // the CUDA streams are cached within the CUDAStreamCache, but it is
       // still better to release as early as possible
       nModules_Clusters_h.reset();
       return std::make_pair(std::move(digis_d), std::move(clusters_d));
