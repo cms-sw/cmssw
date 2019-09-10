@@ -24,11 +24,7 @@
 
 #include <string>
 
-using namespace cms;
-using namespace cms::dd4hepmagfield;
-using namespace magneticfield;
-
-namespace cms::dd4hepmagfield {
+namespace magneticfield {
 
   class DD4hep_VolumeBasedMagneticFieldESProducer : public edm::ESProducer {
   public:
@@ -48,9 +44,11 @@ namespace cms::dd4hepmagfield {
     const MagFieldConfig conf_;
     const std::string version_;
     edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> paramFieldToken_;
-    edm::ESGetToken<DDCompactView, IdealMagneticFieldRecord> cpvToken_;
+    edm::ESGetToken<cms::DDCompactView, IdealMagneticFieldRecord> cpvToken_;
   };
-}  // namespace cms::dd4hepmagfield
+}  // namespace magneticfield
+
+using namespace magneticfield;
 
 DD4hep_VolumeBasedMagneticFieldESProducer::DD4hep_VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig)
     : pset_{iConfig},
@@ -90,8 +88,8 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducer::produc
   }
 
   auto cpv = iRecord.getTransientHandle(cpvToken_);
-  const DDCompactView* cpvPtr = cpv.product();
-  const DDDetector* det = cpvPtr->detector();
+  const cms::DDCompactView* cpvPtr = cpv.product();
+  const cms::DDDetector* det = cpvPtr->detector();
   builder.build(det);
   edm::LogVerbatim("DD4hep_VolumeBasedMagneticFieldESProducer") << "produce() finished build";
 

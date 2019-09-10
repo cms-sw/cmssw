@@ -43,8 +43,6 @@
 
 using namespace std;
 using namespace magneticfield;
-using namespace cms;
-using namespace cms::dd4hepmagfield;
 using namespace edm;
 using namespace angle_units::operators;
 
@@ -104,9 +102,9 @@ void MagGeoBuilder::summary(handles& volumes) const {
                             << "    iref_ass  " << iref_ass << newln << "    iref_nass " << iref_nass;
 }
 
-void MagGeoBuilder::build(const DDDetector* det) {
-  Volume top = det->worldVolume();
-  DDFilteredView fv(det, top);
+void MagGeoBuilder::build(const cms::DDDetector* det) {
+  cms::Volume top = det->worldVolume();
+  cms::DDFilteredView fv(det, top);
   if (fv.next(0) == false) {
     LogError("MagGeoBuilder") << "Filtered view is empty. Cannot build.";
     return;

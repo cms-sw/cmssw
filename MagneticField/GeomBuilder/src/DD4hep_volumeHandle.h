@@ -16,11 +16,11 @@
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "MagneticField/VolumeGeometry/interface/VolumeSide.h"
 
-namespace cms::dd4hepmagfield {
+namespace magneticfield {
 
   typedef const char* ShapeType;
 
-  class volumeHandle : public magneticfield::BaseVolumeHandle {
+  class volumeHandle : public BaseVolumeHandle {
   public:
     volumeHandle(const cms::DDFilteredView& fv, bool expand2Pi = false, bool debugVal = false);
 
@@ -55,6 +55,6 @@ namespace cms::dd4hepmagfield {
     const cms::DDFilteredView& solid;
     // "solid" name is for backwards compatibility. Can be changed to "fview" after DD4hep migration.
   };
-}  // namespace cms::dd4hepmagfield
+}  // namespace magneticfield
 
 #endif
