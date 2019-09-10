@@ -2,9 +2,11 @@
 #define Detector_Description_DDCMS_DDShapes_h
 
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
-#include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 
 namespace cms {
+
+  enum class DDSolidShape;
+
   namespace dd {
 
     DDSolidShape getCurrentShape(const cms::DDFilteredView &fview);
