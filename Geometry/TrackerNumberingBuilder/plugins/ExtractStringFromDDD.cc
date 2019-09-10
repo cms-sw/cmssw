@@ -1,12 +1,12 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 #include <string>
 
-using namespace cms;
-
-std::string ExtractStringFromDDD::getString(std::string const &s, DDFilteredView *fv) {
+template <>
+std::string ExtractStringFromDDD<DDFilteredView>::getString(const std::string &s, DDFilteredView *fv) {
   DDValue val(s);
   std::vector<const DDsvalues_type *> result;
   fv->specificsV(result);
@@ -25,4 +25,10 @@ std::string ExtractStringFromDDD::getString(std::string const &s, DDFilteredView
     return temp[0];
   }
   return "NotFound";
+}
+
+template <>
+std::string ExtractStringFromDDD<cms::DDFilteredView>::getString(const std::string &s, cms::DDFilteredView *fv) {
+  auto result = fv->getString(s);
+  return {result.data(), result.size()};
 }

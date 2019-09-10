@@ -1,16 +1,16 @@
 #ifndef DETECTOR_DESCRIPTION_DDCMS_DD_SOLID_SHAPES_H
 #define DETECTOR_DESCRIPTION_DDCMS_DD_SOLID_SHAPES_H
 
-#include <iosfwd>
-#include <array>
 #include <algorithm>
+#include <array>
+#include <iterator>
+#include <string>
 
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
 using LegacySolidShape = DDSolidShape;
 
 namespace cms {
-
   namespace dd {
     template <class T>
     struct NameValuePair {
