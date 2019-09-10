@@ -420,7 +420,7 @@ std::vector<SensitiveCaloDetector*>& RunManagerMTWorker::sensCaloDetectors() {
   initializeTLS();
   return m_tls->sensCaloDets;
 }
-std::vector<std::shared_ptr<SimProducer> > RunManagerMTWorker::producers() {
+std::vector<std::shared_ptr<SimProducer> >& RunManagerMTWorker::producers() {
   initializeTLS();
   return m_tls->producers;
 }
