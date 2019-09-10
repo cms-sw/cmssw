@@ -1,4 +1,5 @@
 #include "BrokenLineFitOnGPU.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 void HelixFitOnGPU::launchBrokenLineKernels(HitsView const * hv,
                                             uint32_t hitsInFit,
@@ -10,13 +11,12 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const * hv,
   auto numberOfBlocks = (maxNumberOfConcurrentFits_ + blockSize - 1) / blockSize;
 
   //  Fit internals
-  edm::Service<CUDAService> cs;
-  auto hitsGPU_ = cs->make_device_unique<double[]>(
+  auto hitsGPU_ = cudautils::make_device_unique<double[]>(
       maxNumberOfConcurrentFits_ * sizeof(Rfit::Matrix3xNd<4>) / sizeof(double), stream);
   auto hits_geGPU_ =
-      cs->make_device_unique<float[]>(maxNumberOfConcurrentFits_ * sizeof(Rfit::Matrix6x4f) / sizeof(float), stream);
+      cudautils::make_device_unique<float[]>(maxNumberOfConcurrentFits_ * sizeof(Rfit::Matrix6x4f) / sizeof(float), stream);
   auto fast_fit_resultsGPU_ =
-      cs->make_device_unique<double[]>(maxNumberOfConcurrentFits_ * sizeof(Rfit::Vector4d) / sizeof(double), stream);
+      cudautils::make_device_unique<double[]>(maxNumberOfConcurrentFits_ * sizeof(Rfit::Vector4d) / sizeof(double), stream);
 
   for (uint32_t offset = 0; offset < maxNumberOfTuples; offset += maxNumberOfConcurrentFits_) {
     // fit triplets
