@@ -65,7 +65,7 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
               const auto etaRangeMin = std::max(0, oeta - deltaIEta);
               const auto etaRangeMax = std::min(oeta + deltaIEta, nEtaBins);
 
-	      for (int ieta = etaRangeMin; ieta < etaRangeMax+1; ++ieta) {
+              for (int ieta = etaRangeMin; ieta < etaRangeMax + 1; ++ieta) {
                 // wrap phi bin
                 for (int phiRange = 0; phiRange < 2 * deltaIPhi + 1; ++phiRange) {
                   // The first wrapping is to take into account the
