@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/HCTypeTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -15,7 +16,7 @@ namespace edm {
 
     NumberOfConcurrentIOVs::NumberOfConcurrentIOVs() : numberConcurrentIOVs_(1) {}
 
-    void NumberOfConcurrentIOVs::initialize(ParameterSet const* eventSetupPset) {
+    void NumberOfConcurrentIOVs::readConfigurationParameters(ParameterSet const* eventSetupPset) {
       if (eventSetupPset) {  // this condition is false for SubProcesses
         numberConcurrentIOVs_ = eventSetupPset->getUntrackedParameter<unsigned int>("numberOfConcurrentIOVs");
         if (numberConcurrentIOVs_ == 0) {
@@ -35,28 +36,38 @@ namespace edm {
       }
     }
 
-    void NumberOfConcurrentIOVs::initialize(unsigned int nStreams, unsigned int nConcurrentLumis) {
-      maxConcurrentIOVs_ = nStreams;
-      if (maxConcurrentIOVs_ > nConcurrentLumis) {
-        maxConcurrentIOVs_ = nConcurrentLumis;
-      }
+    void NumberOfConcurrentIOVs::setMaxConcurrentIOVs(unsigned int nStreams, unsigned int nConcurrentLumis) {
+      maxConcurrentIOVs_ = std::min(nStreams, nConcurrentLumis);
     }
 
-    void NumberOfConcurrentIOVs::initialize(EventSetupProvider const& eventSetupProvider) {
+    void NumberOfConcurrentIOVs::fillRecordsNotAllowingConcurrentIOVs(EventSetupProvider const& eventSetupProvider) {
       eventSetupProvider.fillRecordsNotAllowingConcurrentIOVs(recordsNotAllowingConcurrentIOVs_);
     }
 
-    unsigned int NumberOfConcurrentIOVs::numberOfConcurrentIOVs(EventSetupRecordKey const& eventSetupKey) const {
+    unsigned int NumberOfConcurrentIOVs::numberOfConcurrentIOVs(EventSetupRecordKey const& eventSetupKey,
+                                                                bool printInfoMsg) const {
       assert(numberConcurrentIOVs_ != 0);
       auto iter = std::lower_bound(forceNumberOfConcurrentIOVs_.begin(),
                                    forceNumberOfConcurrentIOVs_.end(),
                                    std::make_pair(eventSetupKey, 0u),
                                    [](auto const& left, auto const& right) { return left.first < right.first; });
       if (iter != forceNumberOfConcurrentIOVs_.end() && iter->first == eventSetupKey) {
+        if (printInfoMsg && iter->second > maxConcurrentIOVs_) {
+          LogInfo("Configuration") << "For record " << eventSetupKey.name() << " you have configured " << iter->second
+                                   << " concurrent IOVs.\n"
+                                   << "But you cannot have more concurrent IOVs than lumis or streams.\n"
+                                   << "There will not be more than " << maxConcurrentIOVs_ << " concurrent IOVs.\n";
+        }
         return std::min(iter->second, maxConcurrentIOVs_);
       }
       if (recordsNotAllowingConcurrentIOVs_.find(eventSetupKey) != recordsNotAllowingConcurrentIOVs_.end()) {
         return 1;
+      }
+      if (printInfoMsg && numberConcurrentIOVs_ > maxConcurrentIOVs_) {
+        LogInfo("Configuration") << "For record " << eventSetupKey.name() << " you have configured "
+                                 << numberConcurrentIOVs_ << " concurrent IOVs.\n"
+                                 << "But you cannot have more concurrent IOVs than lumis or streams.\n"
+                                 << "There will not be more than " << maxConcurrentIOVs_ << " concurrent IOVs.\n";
       }
       return std::min(numberConcurrentIOVs_, maxConcurrentIOVs_);
     }
