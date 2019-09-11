@@ -9,6 +9,9 @@
 
 #include "boost/mpl/vector.hpp"
 
-class SiPixelGainCalibrationForHLTGPURcd : public edm::eventsetup::DependentRecordImplementation<SiPixelGainCalibrationForHLTGPURcd, boost::mpl::vector<SiPixelGainCalibrationForHLTRcd, TrackerDigiGeometryRecord> > {};
+class SiPixelGainCalibrationForHLTGPURcd
+    : public edm::eventsetup::DependentRecordImplementation<
+          SiPixelGainCalibrationForHLTGPURcd,
+          boost::mpl::vector<SiPixelGainCalibrationForHLTRcd, TrackerDigiGeometryRecord> > {};
 
 #endif

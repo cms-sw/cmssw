@@ -12,12 +12,13 @@
 
 #include <memory>
 
-class SiPixelGainCalibrationForHLTGPUESProducer: public edm::ESProducer {
+class SiPixelGainCalibrationForHLTGPUESProducer : public edm::ESProducer {
 public:
   explicit SiPixelGainCalibrationForHLTGPUESProducer(const edm::ParameterSet& iConfig);
   std::unique_ptr<SiPixelGainCalibrationForHLTGPU> produce(const SiPixelGainCalibrationForHLTGPURcd& iRecord);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
 };
 
@@ -30,7 +31,8 @@ void SiPixelGainCalibrationForHLTGPUESProducer::fillDescriptions(edm::Configurat
   descriptions.add("siPixelGainCalibrationForHLTGPU", desc);
 }
 
-std::unique_ptr<SiPixelGainCalibrationForHLTGPU> SiPixelGainCalibrationForHLTGPUESProducer::produce(const SiPixelGainCalibrationForHLTGPURcd& iRecord) {
+std::unique_ptr<SiPixelGainCalibrationForHLTGPU> SiPixelGainCalibrationForHLTGPUESProducer::produce(
+    const SiPixelGainCalibrationForHLTGPURcd& iRecord) {
   edm::ESHandle<SiPixelGainCalibrationForHLT> gains;
   iRecord.getRecord<SiPixelGainCalibrationForHLTRcd>().get(gains);
 

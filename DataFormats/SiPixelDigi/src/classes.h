@@ -13,5 +13,4 @@
 #include "boost/cstdint.hpp"
 #include <vector>
 
-
-#endif // SIPIXELDIGI_CLASSES_H
+#endif  // SIPIXELDIGI_CLASSES_H

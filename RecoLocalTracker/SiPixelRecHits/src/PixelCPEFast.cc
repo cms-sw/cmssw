@@ -63,12 +63,11 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const& conf,
   fillParamsForGpu();
 
   cpuData_ = {
-             &m_commonParamsGPU,
-             m_detParamsGPU.data(),
-             &m_layerGeometry,
-             &m_averageGeometry,
-           };
-
+      &m_commonParamsGPU,
+      m_detParamsGPU.data(),
+      &m_layerGeometry,
+      &m_averageGeometry,
+  };
 }
 
 const pixelCPEforGPU::ParamsOnGPU* PixelCPEFast::getGPUProductAsync(cuda::stream_t<>& cudaStream) const {
@@ -114,7 +113,7 @@ void PixelCPEFast::fillParamsForGpu() {
   m_commonParamsGPU.thePitchY = m_DetParams[0].thePitchY;
 
   // zero average geometry
-  memset(&m_averageGeometry,0,sizeof(pixelCPEforGPU::AverageGeometry));
+  memset(&m_averageGeometry, 0, sizeof(pixelCPEforGPU::AverageGeometry));
 
   uint32_t oldLayer = 0;
   uint32_t oldLadder = 0;
@@ -255,37 +254,37 @@ void PixelCPEFast::fillParamsForGpu() {
   }
 
   // compute ladder baricenter (only in global z) for the barrel
-  auto & aveGeom = m_averageGeometry;
-  int il=0;
-  for (int im=0, nm=phase1PixelTopology::numberOfModulesInBarrel; im<nm; ++im) {
-    auto const & g = m_detParamsGPU[im];
-    il = im/8;
-    assert(il<int(phase1PixelTopology::numberOfLaddersInBarrel));
-       auto z = g.frame.z();
-       aveGeom.ladderZ[il] += 0.125f*z;
-       aveGeom.ladderMinZ[il] = std::min(aveGeom.ladderMinZ[il], z);
-       aveGeom.ladderMaxZ[il] = std::max(aveGeom.ladderMaxZ[il], z);
-       aveGeom.ladderX[il] += 0.125f*g.frame.x();
-       aveGeom.ladderY[il] += 0.125f*g.frame.y();
-       aveGeom.ladderR[il] += 0.125*sqrt(g.frame.x()*g.frame.x()+g.frame.y()*g.frame.y());
+  auto& aveGeom = m_averageGeometry;
+  int il = 0;
+  for (int im = 0, nm = phase1PixelTopology::numberOfModulesInBarrel; im < nm; ++im) {
+    auto const& g = m_detParamsGPU[im];
+    il = im / 8;
+    assert(il < int(phase1PixelTopology::numberOfLaddersInBarrel));
+    auto z = g.frame.z();
+    aveGeom.ladderZ[il] += 0.125f * z;
+    aveGeom.ladderMinZ[il] = std::min(aveGeom.ladderMinZ[il], z);
+    aveGeom.ladderMaxZ[il] = std::max(aveGeom.ladderMaxZ[il], z);
+    aveGeom.ladderX[il] += 0.125f * g.frame.x();
+    aveGeom.ladderY[il] += 0.125f * g.frame.y();
+    aveGeom.ladderR[il] += 0.125 * sqrt(g.frame.x() * g.frame.x() + g.frame.y() * g.frame.y());
   }
-  assert(il+1==int(phase1PixelTopology::numberOfLaddersInBarrel));
+  assert(il + 1 == int(phase1PixelTopology::numberOfLaddersInBarrel));
   // add half_module and tollerance
   constexpr float module_length = 6.7f;
   constexpr float module_tolerance = 0.2f;
-  for (int il=0, nl=phase1PixelTopology::numberOfLaddersInBarrel; il<nl; ++il) {
-    aveGeom.ladderMinZ[il] -= (0.5f*module_length-module_tolerance);
-    aveGeom.ladderMaxZ[il] += (0.5f*module_length-module_tolerance);
+  for (int il = 0, nl = phase1PixelTopology::numberOfLaddersInBarrel; il < nl; ++il) {
+    aveGeom.ladderMinZ[il] -= (0.5f * module_length - module_tolerance);
+    aveGeom.ladderMaxZ[il] += (0.5f * module_length - module_tolerance);
   }
 
   // compute "max z" for first layer in endcap (should we restrict to the outermost ring?)
-  for (auto im=phase1PixelTopology::layerStart[4]; im<phase1PixelTopology::layerStart[5]; ++im) {
-     auto const & g = m_detParamsGPU[im];
-     aveGeom.endCapZ[0] = std::max(aveGeom.endCapZ[0],g.frame.z());
+  for (auto im = phase1PixelTopology::layerStart[4]; im < phase1PixelTopology::layerStart[5]; ++im) {
+    auto const& g = m_detParamsGPU[im];
+    aveGeom.endCapZ[0] = std::max(aveGeom.endCapZ[0], g.frame.z());
   }
-  for (auto im=phase1PixelTopology::layerStart[7]; im<phase1PixelTopology::layerStart[8]; ++im) {
-     auto const & g = m_detParamsGPU[im];
-     aveGeom.endCapZ[1] = std::min(aveGeom.endCapZ[1],g.frame.z());
+  for (auto im = phase1PixelTopology::layerStart[7]; im < phase1PixelTopology::layerStart[8]; ++im) {
+    auto const& g = m_detParamsGPU[im];
+    aveGeom.endCapZ[1] = std::min(aveGeom.endCapZ[1], g.frame.z());
   }
   // correct for outer ring being closer
   aveGeom.endCapZ[0] -= 1.5f;

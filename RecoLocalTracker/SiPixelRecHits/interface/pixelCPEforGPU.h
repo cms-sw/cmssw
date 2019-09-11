@@ -44,7 +44,6 @@ namespace pixelCPEforGPU {
     Frame frame;
   };
 
-
   using phase1PixelTopology::AverageGeometry;
 
   struct LayerGeometry {
@@ -53,10 +52,10 @@ namespace pixelCPEforGPU {
   };
 
   struct ParamsOnGPU {
-    CommonParams const * m_commonParams;
-    DetParams const * m_detParams;
-    LayerGeometry const * m_layerGeometry;
-    AverageGeometry const * m_averageGeometry;
+    CommonParams const* m_commonParams;
+    DetParams const* m_detParams;
+    LayerGeometry const* m_layerGeometry;
+    AverageGeometry const* m_averageGeometry;
 
     constexpr CommonParams const& __restrict__ commonParams() const {
       CommonParams const* __restrict__ l = m_commonParams;

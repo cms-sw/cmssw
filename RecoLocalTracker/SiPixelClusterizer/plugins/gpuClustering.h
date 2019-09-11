@@ -13,7 +13,7 @@
 namespace gpuClustering {
 
 #ifdef GPU_DEBUG
-  __device__ uint32_t gMaxHit=0;
+  __device__ uint32_t gMaxHit = 0;
 #endif
 
   __global__ void countModules(uint16_t const* __restrict__ id,
@@ -164,7 +164,7 @@ namespace gpuClustering {
 
     // fill NN
     for (auto j = threadIdx.x, k = 0U; j < hist.size(); j += blockDim.x, ++k) {
-      assert(k<maxiter);
+      assert(k < maxiter);
       auto p = hist.begin() + j;
       auto i = *p + firstPixel;
       assert(id[i] != InvId);
@@ -172,7 +172,7 @@ namespace gpuClustering {
       int be = Hist::bin(y[i] + 1);
       auto e = hist.end(be);
       ++p;
-      assert(0==nnn[k]);
+      assert(0 == nnn[k]);
       for (; p < e; ++p) {
         auto m = (*p) + firstPixel;
         assert(m != i);
@@ -278,14 +278,15 @@ namespace gpuClustering {
       nClustersInModule[thisModuleId] = foundClusters;
       moduleId[blockIdx.x] = thisModuleId;
 #ifdef GPU_DEBUG
-      if (foundClusters>gMaxHit) {
-         gMaxHit = foundClusters;
-         if (foundClusters>8) printf("max hit %d in %d\n",foundClusters, thisModuleId);
+      if (foundClusters > gMaxHit) {
+        gMaxHit = foundClusters;
+        if (foundClusters > 8)
+          printf("max hit %d in %d\n", foundClusters, thisModuleId);
       }
 #endif
 #ifdef GPU_DEBUG
       if (thisModuleId % 100 == 1)
-          printf("%d clusters in module %d\n", foundClusters, thisModuleId);
+        printf("%d clusters in module %d\n", foundClusters, thisModuleId);
 #endif
     }
   }
