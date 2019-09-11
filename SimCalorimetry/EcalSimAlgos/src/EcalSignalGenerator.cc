@@ -41,22 +41,17 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
       LSB[igain] = Emax / (MAXADC * gainRatios[igain]);
   }
 
-  //    std::cout << " intercal, LSBs, egains " << icalconst << " " << LSB[0] << " " << LSB[1] << " " << gainRatios[0] << " " << gainRatios[1] << " " << Emax << std::endl;
-
   CaloSamples result(detId, digi.size());
 
   // correction facotr for premixed sample: ratio of laser corrections
   float correction_factor_for_premixed_sample_transparency = 1.0;
-  //   correction_factor_for_premixed_sample_transparency
   double value_LC = 1.;
   if (detId.subdetId() != 3) {
-//     std::cout << " detId.subdetId() = " << detId.subdetId() << std::endl;
     auto cache = m_valueLCCache_LC.find(detId);
     if (cache != m_valueLCCache_LC.end()) {
       value_LC = cache->second;
     } else {
       value_LC = findLaserConstant_LC(detId);
-//       value_LC = 1.0;
       m_valueLCCache_LC.emplace(detId, value_LC);
     }
   }
@@ -73,7 +68,6 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
   }
   
   correction_factor_for_premixed_sample_transparency = value_LC_prime / value_LC;
-//   std::cout << " EB correction_factor_for_premixed_sample_transparency[" << detId() << "] = " << correction_factor_for_premixed_sample_transparency << " = " << value_LC_prime << " / " << value_LC << std::endl;
   //
   // LC' /  LC  (see formula)
   //
@@ -142,13 +136,10 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
       LSB[igain] = Emax / (MAXADC * gainRatios[igain]);
   }
 
-  //    std::cout << " intercal, LSBs, egains " << icalconst << " " << LSB[0] << " " << LSB[1] << " " << gainRatios[0] << " " << gainRatios[1] << " " << Emax << std::endl;
-
   CaloSamples result(detId, digi.size());
 
   // correction facotr for premixed sample: ratio of laser corrections
   float correction_factor_for_premixed_sample_transparency = 1.0;
-  //   correction_factor_for_premixed_sample_transparency
   double value_LC = 1.;
   if (detId.subdetId() != 3) {
     auto cache = m_valueLCCache_LC.find(detId);
@@ -172,7 +163,6 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
   }
   
   correction_factor_for_premixed_sample_transparency = value_LC_prime / value_LC;
-//   std::cout << " EE correction_factor_for_premixed_sample_transparency[" << detId() << "] = " << correction_factor_for_premixed_sample_transparency << " = " << value_LC_prime << " / " << value_LC << std::endl;
   //
   // LC' /  LC  (see formula)
   //
