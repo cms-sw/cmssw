@@ -161,7 +161,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             lheLabel_(params.getParameter<std::vector<edm::InputTag>>("lheInfo")),
             lheTag_(edm::vector_transform(lheLabel_, [this](const edm::InputTag & tag) { return mayConsume<LHEEventProduct>(tag); })),
             lheRunTag_(edm::vector_transform(lheLabel_, [this](const edm::InputTag & tag) { return mayConsume<LHERunInfoProduct, edm::InRun>(tag); })),
-            genLumiInfoHeadTag_(consumes<GenLumiInfoHeader,edm::InLumi>(params.getParameter<edm::InputTag>("genLumiInfoHeader"))),
+            genLumiInfoHeadTag_(mayConsume<GenLumiInfoHeader,edm::InLumi>(params.getParameter<edm::InputTag>("genLumiInfoHeader"))),
             namedWeightIDs_(params.getParameter<std::vector<std::string>>("namedWeightIDs")),
             namedWeightLabels_(params.getParameter<std::vector<std::string>>("namedWeightLabels")),
             lheWeightPrecision_(params.getParameter<int32_t>("lheWeightPrecision")),
@@ -598,7 +598,8 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
 	  auto counterMap = streamCache(id);
 	  edm::Handle<GenLumiInfoHeader> genLumiInfoHead;
 	  lumiBlock.getByToken(genLumiInfoHeadTag_,genLumiInfoHead);
-	  counterMap->setLabel(genLumiInfoHead->configDescription());
+	  if (!genLumiInfoHead.isValid()) edm::LogWarning("LHETablesProducer") << "No GenLumiInfoHeader product found, will not fill generator model string.\n";
+	  counterMap->setLabel(genLumiInfoHead.isValid() ? genLumiInfoHead->configDescription() : "");
 	}
         // create an empty counter
         std::shared_ptr<CounterMap> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
