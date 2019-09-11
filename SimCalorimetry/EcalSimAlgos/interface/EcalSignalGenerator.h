@@ -79,16 +79,11 @@ public:
     m_peToABarrel = peToABarrel;
     m_peToAEndcap = peToAEndcap;
     
-    
-//     std::cout << " ---> EcalSignalGenerator() : EcalBaseSignalGenerator() " << std::endl;
-    
   }
 
   ~EcalSignalGenerator() override {}
 
   void initializeEvent(const edm::Event* event, const edm::EventSetup* eventSetup) {
-    
-//     std::cout << " ---> EcalSignalGenerator() : initializeEvent() " << std::endl;
     
     theEvent = event;
     eventSetup->get<EcalGainRatiosRcd>().get(grHandle);  // find the gains
@@ -109,6 +104,10 @@ public:
     eventSetup->get<EcalLaserDbRecord>().get(laser);
     
 //     const edm::TimeValue_t eventTimeValue = theEvent->time().value();
+    //
+    // FIXME: is this workaround of using "run" really needed or "time" can be used in MC generation as well?
+    //        check with generation experts
+    //
     const edm::TimeValue_t eventTimeValue = theEvent->run(); 
     //---- NB: this is a trick. Since the time dependent MC 
     //         will be based on "run" (and lumisection)
@@ -122,7 +121,6 @@ public:
     
     
     m_lasercals = laser.product();
-//     std::cout << " ---> EcalSignalGenerator() : initializeEvent() :: eventTimeValue = " << eventTimeValue << std::endl;
 
     //
     // the "prime" is exactly the same as the usual laser service, BUT
@@ -136,9 +134,9 @@ public:
     m_lasercals_prime = laser_prime.product();
     
     //clear the laser cache for each event time
-//     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
-//     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
-//     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
+    //     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
+    //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
+    //     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
     m_valueLCCache_LC.clear();
     m_valueLCCache_LC_prime.clear(); //--- also the "prime" ... yes
     //----
@@ -164,14 +162,10 @@ public:
     else
       ESMIPToGeV = esMipToGeV->getESValueHigh();
     
-//     std::cout << " ---> EcalSignalGenerator() : initializeEvent() [end] " << std::endl;
-    
   }
 
   /// some users use EventPrincipals, not Events.  We support both
   void initializeEvent(const edm::EventPrincipal* eventPrincipal, const edm::EventSetup* eventSetup) {
-
-//     std::cout << " ---> EcalSignalGenerator() : initializeEvent() [second version]" << std::endl;
 
     theEventPrincipal = eventPrincipal;
     eventSetup->get<EcalGainRatiosRcd>().get(grHandle);  // find the gains
@@ -191,6 +185,10 @@ public:
     edm::TimeValue_t eventTimeValue;
     if (theEventPrincipal) {
 //       eventTimeValue = theEventPrincipal->time().value();
+      //
+      // FIXME: is this workaround of using "run" really needed or "time" can be used in MC generation as well?
+      //        check with generation experts
+      //
       eventTimeValue = theEventPrincipal->run();
       //---- NB: this is a trick. Since the time dependent MC 
       //         will be based on "run" (and lumisection)
@@ -237,8 +235,6 @@ public:
       ESMIPToGeV = esMipToGeV->getESValueLow();
     else
       ESMIPToGeV = esMipToGeV->getESValueHigh();
-    
-//     std::cout << " ---> EcalSignalGenerator() : initializeEvent() [end] " << std::endl;
     
   }
 
@@ -305,13 +301,8 @@ private:
   //---- LC that depends with time
   double findLaserConstant_LC(const DetId& detId) const {
     
-//     return 1.0;
-    
 //     const edm::TimeValue_t m_iTime = event.time().value();
     const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
-    
-//     std::cout << " findLaserConstant_LC::evtTimeStamp = " << evtTimeStamp << std::endl;
-    
     return (m_lasercals->getLaserCorrection(detId, evtTimeStamp));
     
   }
@@ -320,8 +311,6 @@ private:
   //---- LC at the beginning of the time (first IOV of the GT == first time)
   //---- Using the different "tag", the one with "MC": exactly the same function as findLaserConstant_LC but with a different object
   double findLaserConstant_LC_prime(const DetId& detId) const {
-    
-//     return 1.0;
     
     const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
     return (m_lasercals_prime->getLaserCorrection(detId, evtTimeStamp));
