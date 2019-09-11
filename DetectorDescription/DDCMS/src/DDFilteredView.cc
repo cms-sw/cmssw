@@ -170,7 +170,7 @@ bool DDFilteredView::nextSibling() {
   assert(node_);
   if (it_.empty() || currentFilter_ == nullptr)
     return false;
-  if(it_.back().GetType() == 0)
+  if (it_.back().GetType() == 0)
     return firstSibling();
   else {
     up();
@@ -178,11 +178,11 @@ bool DDFilteredView::nextSibling() {
     unCheckNode();
     do {
       if (accepted(currentFilter_->keys, noNamespace(node_->GetVolume()->GetName()))) {
-	addNode(node_);
-	return true;
+        addNode(node_);
+        return true;
       }
     } while (it_.back().Next());
-    
+
     return false;
   }
 }
