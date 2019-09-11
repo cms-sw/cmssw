@@ -20,7 +20,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
 
-  const auto& wafers = args.value<std::vector<std::string> >("WaferName");   // Wafers
+  const auto& wafers = args.value<std::vector<std::string> >("WaferName");  // Wafers
   const auto& covers = args.value<std::vector<std::string> >("CoverName");  // Insensitive layers of hexagonal size
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModule: " << wafers.size() << " wafers";
@@ -150,7 +150,7 @@ static long algorithm(dd4hep::Detector& /* description */,
         int incm(0), inrm(0), kount(0), ntot(0), nin(0), nfine(0), ncoarse(0);
         edm::LogVerbatim("HGCalGeom") << glog.name() << " rout " << routF << " Row " << nrow << " Column " << ncol;
 #endif
-	double xc[6], yc[6];
+        double xc[6], yc[6];
         for (int nr = -nrow; nr <= nrow; ++nr) {
           int inr = (nr >= 0) ? nr : -nr;
           for (int nc = -ncol; nc <= ncol; ++nc) {
@@ -158,31 +158,31 @@ static long algorithm(dd4hep::Detector& /* description */,
             if (inr % 2 == inc % 2) {
               double xpos = nc * dx;
               double ypos = nr * dy;
-	      xc[0] = xpos + dx;
-	      yc[0] = ypos - 0.5 * rr;
-	      xc[1] = xpos + dx;
-	      yc[1] = ypos + 0.5 * rr;
-	      xc[2] = xpos;
-	      yc[2] = ypos + rr;
-	      xc[3] = xpos - dx;
-	      yc[3] = ypos + 0.5 * rr;
-	      xc[4] = xpos + dx;
-	      yc[4] = ypos - 0.5 * rr;
-	      xc[5] = xpos;
-	      yc[5] = ypos - rr;
-	      bool cornerAll(true);
-	      for (int k = 0; k < 6; ++k) {
-		double rpos = std::sqrt(xc[k] * xc[k] + yc[k] * yc[k]);
-		if (rpos < rinB || rpos > routF)
-		  cornerAll = false;
-	      }
+              xc[0] = xpos + dx;
+              yc[0] = ypos - 0.5 * rr;
+              xc[1] = xpos + dx;
+              yc[1] = ypos + 0.5 * rr;
+              xc[2] = xpos;
+              yc[2] = ypos + rr;
+              xc[3] = xpos - dx;
+              yc[3] = ypos + 0.5 * rr;
+              xc[4] = xpos + dx;
+              yc[4] = ypos - 0.5 * rr;
+              xc[5] = xpos;
+              yc[5] = ypos - rr;
+              bool cornerAll(true);
+              for (int k = 0; k < 6; ++k) {
+                double rpos = std::sqrt(xc[k] * xc[k] + yc[k] * yc[k]);
+                if (rpos < rinB || rpos > routF)
+                  cornerAll = false;
+              }
 #ifdef EDM_ML_DEBUG
               ++ntot;
 #endif
-	      if (cornerAll) {
-		dd4hep::Volume glog1;
-		if (layerSense[ly] == 1) {
-		  double rpos = std::sqrt(xpos * xpos + ypos * ypos);
+              if (cornerAll) {
+                dd4hep::Volume glog1;
+                if (layerSense[ly] == 1) {
+                  double rpos = std::sqrt(xpos * xpos + ypos * ypos);
                   glog1 = (rpos < rMaxFine) ? ns.volume(wafers[0]) : ns.volume(wafers[1]);
 #ifdef EDM_ML_DEBUG
                   ++nin;
@@ -191,9 +191,9 @@ static long algorithm(dd4hep::Detector& /* description */,
                   else
                     ++ncoarse;
 #endif
-		} else {
-		  glog1 = ns.volume(covers[layerSense[ly] - 2]);
-		}
+                } else {
+                  glog1 = ns.volume(covers[layerSense[ly] - 2]);
+                }
                 int copyL = inr * 100 + inc;
                 if (nc < 0)
                   copyL += 10000;
@@ -207,15 +207,15 @@ static long algorithm(dd4hep::Detector& /* description */,
                 kount++;
                 copies.insert(copy);
 #endif
-		dd4hep::Position tran(xpos, ypos, 0.0);
-		dd4hep::Rotation3D rotation;
-		glog.placeVolume(glog1, copyL, dd4hep::Transform3D(rotation, tran));
+                dd4hep::Position tran(xpos, ypos, 0.0);
+                dd4hep::Rotation3D rotation;
+                glog.placeVolume(glog1, copyL, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
-		edm::LogVerbatim("HGCalGeom")
-		  << "DDHGCalModule: " << glog1.name() << " number " << copyL << " positioned in " << glog.name()
-		  << " at " << tran << " with " << rotation;
+                edm::LogVerbatim("HGCalGeom")
+                    << "DDHGCalModule: " << glog1.name() << " number " << copyL << " positioned in " << glog.name()
+                    << " at " << tran << " with " << rotation;
 #endif
-	      }
+              }
             }
           }
         }
