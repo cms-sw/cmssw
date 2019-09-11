@@ -135,7 +135,7 @@ bool DDFilteredView::firstChild() {
   it_.back().SetType(0);
   Node* node = nullptr;
   while ((node = it_.back().Next())) {
-    if (accept(node->GetVolume()->GetName())) {
+    if (accept(noNamespace(node->GetVolume()->GetName()))) {
       addPath(node);
       return true;
     }
@@ -157,7 +157,7 @@ bool DDFilteredView::firstSibling() {
   else
     return false;
   do {
-    if (accepted(currentFilter_->keys, node_->GetVolume()->GetName())) {
+    if (accepted(currentFilter_->keys, noNamespace(node_->GetVolume()->GetName()))) {
       addNode(node_);
       return true;
     }
@@ -170,23 +170,21 @@ bool DDFilteredView::nextSibling() {
   assert(node_);
   if (it_.empty() || currentFilter_ == nullptr)
     return false;
-  it_.back().SetType(1);
-  unCheckNode();
-  bool cflag(true);
-  do {
-    if (accepted(currentFilter_->keys, node_->GetVolume()->GetName())) {
-      addNode(node_);
-      return true;
-    }
-    Node* curNode = it_.back().Next();
-    if (node_ != curNode) {
-      node_ = curNode;
-    } else {
-      cflag = false;
-    }
-  } while (cflag);
-
-  return false;
+  if(it_.back().GetType() == 0)
+    return firstSibling();
+  else {
+    up();
+    it_.back().SetType(1);
+    unCheckNode();
+    do {
+      if (accepted(currentFilter_->keys, noNamespace(node_->GetVolume()->GetName()))) {
+	addNode(node_);
+	return true;
+      }
+    } while (it_.back().Next());
+    
+    return false;
+  }
 }
 
 bool DDFilteredView::sibling() {
@@ -281,25 +279,6 @@ bool DDFilteredView::accept(std::string_view name) {
   return result;
 }
 
-// FIXME: obsolete
-vector<double> DDFilteredView::extractParameters() const {
-  assert(node_);
-  Volume currVol = node_->GetVolume();
-  if (currVol->GetShape()->IsA() == TGeoBBox::Class()) {
-    const TGeoBBox* box = static_cast<const TGeoBBox*>(currVol->GetShape());
-    return {box->GetDX(), box->GetDY(), box->GetDZ()};
-  } else if (currVol->GetShape()->IsA() == TGeoCompositeShape::Class()) {
-    const TGeoCompositeShape* shape = static_cast<const TGeoCompositeShape*>(currVol->GetShape());
-    const TGeoBoolNode* boolean = shape->GetBoolNode();
-    while (boolean->GetLeftShape()->IsA() != TGeoBBox::Class()) {
-      boolean = static_cast<const TGeoCompositeShape*>(boolean->GetLeftShape())->GetBoolNode();
-    }
-    const TGeoBBox* box = static_cast<const TGeoBBox*>(boolean->GetLeftShape());
-    return {box->GetDX(), box->GetDY(), box->GetDZ()};
-  } else
-    return {1, 1, 1};
-}
-
 const std::vector<double> DDFilteredView::parameters() const {
   assert(node_);
   Volume currVol = node_->GetVolume();
@@ -307,7 +286,7 @@ const std::vector<double> DDFilteredView::parameters() const {
 }
 
 const cms::DDSolidShape DDFilteredView::shape() const {
-  return cms::dd::value(cms::DDSolidShapeMap, node_->GetVolume()->GetShape()->GetTitle());
+  return cms::dd::value(cms::DDSolidShapeMap, std::string(node_->GetVolume()->GetShape()->GetTitle()));
 }
 
 LegacySolidShape DDFilteredView::legacyShape(const cms::DDSolidShape shape) const {

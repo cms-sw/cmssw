@@ -71,9 +71,6 @@ namespace cms {
     //! set the current node to the first child
     bool firstChild();
 
-    //! set the current node to the first sibling
-    bool firstSibling();
-
     //! set the current node to the next sibling
     bool nextSibling();
 
@@ -129,7 +126,6 @@ namespace cms {
     std::string_view materialName() const;
 
     //! extract shape parameters
-    std::vector<double> extractParameters() const;
     const std::vector<double> parameters() const;
 
     const DDSolidShape shape() const;
@@ -152,6 +148,9 @@ namespace cms {
     bool addPath(Node* const);
     bool addNode(Node* const);
     const TClass* getShape() const;
+
+    //! set the current node to the first sibling
+    bool firstSibling();
 
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;
