@@ -356,15 +356,15 @@ std::unique_ptr<HFStripFilter> HFStripFilter::parseParameterSet(const edm::Param
 edm::ParameterSetDescription HFStripFilter::fillDescription() {
   edm::ParameterSetDescription desc;
 
-  desc.add<double>("stripThreshold", 40.0);  // threshold to include hits into strips   
-  desc.add<double>("maxThreshold", 100.0);   // threshold for seed hits in the strips (depth1 and depth2)
-  desc.add<double>("timeMax", 6.0);          // seed hits should have time < timeMax
-  desc.add<double>("maxStripTime", 10.0);    // maximum time for hits in the strips
-  desc.add<double>("wedgeCut", 0.05);        // the possible level of energy leak into adjacent wedges
-  desc.add<int>("seedHitIetaMax", 35);       // maximum possible Ieta value for seed hit
-  desc.add<int>("gap", 2);                   // maximum distance between hits in the strip (along Ieta direction)
-  desc.add<int>("lstrips", 2);               // at least one of strips in depth1 or depth2 is not less than lstrips
-  desc.addUntracked<int>("verboseLevel", 0); // verboseLevel for debugging printouts, should be > 20 to get output
+  desc.add<double>("stripThreshold", 40.0);   // threshold to include hits into strips
+  desc.add<double>("maxThreshold", 100.0);    // threshold for seed hits in the strips (depth1 and depth2)
+  desc.add<double>("timeMax", 6.0);           // seed hits should have time < timeMax
+  desc.add<double>("maxStripTime", 10.0);     // maximum time for hits in the strips
+  desc.add<double>("wedgeCut", 0.05);         // the possible level of energy leak into adjacent wedges
+  desc.add<int>("seedHitIetaMax", 35);        // maximum possible Ieta value for seed hit
+  desc.add<int>("gap", 2);                    // maximum distance between hits in the strip (along Ieta direction)
+  desc.add<int>("lstrips", 2);                // at least one of strips in depth1 or depth2 is not less than lstrips
+  desc.addUntracked<int>("verboseLevel", 0);  // verboseLevel for debugging printouts, should be > 20 to get output
 
   return desc;
 }
