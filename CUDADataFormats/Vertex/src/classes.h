@@ -5,4 +5,4 @@
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-#endif  
+#endif
