@@ -45,27 +45,19 @@ public:
   ~HelixFitOnGPU() { deallocateOnGPU(); }
 
   void setBField(double bField) { bField_ = bField; }
-  void launchRiemannKernels(HitsView const * hv,
+  void launchRiemannKernels(HitsView const *hv,
                             uint32_t nhits,
                             uint32_t maxNumberOfTuples,
                             cuda::stream_t<> &cudaStream);
-  void launchBrokenLineKernels(HitsView const * hv,
+  void launchBrokenLineKernels(HitsView const *hv,
                                uint32_t nhits,
                                uint32_t maxNumberOfTuples,
                                cuda::stream_t<> &cudaStream);
 
-  void launchRiemannKernelsOnCPU(HitsView const * hv,
-                            uint32_t nhits,
-                            uint32_t maxNumberOfTuples);
-  void launchBrokenLineKernelsOnCPU(HitsView const * hv,
-                               uint32_t nhits,
-                               uint32_t maxNumberOfTuples);
+  void launchRiemannKernelsOnCPU(HitsView const *hv, uint32_t nhits, uint32_t maxNumberOfTuples);
+  void launchBrokenLineKernelsOnCPU(HitsView const *hv, uint32_t nhits, uint32_t maxNumberOfTuples);
 
-
-
-  void allocateOnGPU(Tuples const *tuples,
-                     TupleMultiplicity const *tupleMultiplicity,
-                     OutputSoA * outputSoA);
+  void allocateOnGPU(Tuples const *tuples, TupleMultiplicity const *tupleMultiplicity, OutputSoA *outputSoA);
   void deallocateOnGPU();
 
 private:
@@ -74,7 +66,7 @@ private:
   // fowarded
   Tuples const *tuples_d = nullptr;
   TupleMultiplicity const *tupleMultiplicity_d = nullptr;
-  OutputSoA * outputSoa_d;
+  OutputSoA *outputSoa_d;
   float bField_;
 
   const bool fit5as4_;

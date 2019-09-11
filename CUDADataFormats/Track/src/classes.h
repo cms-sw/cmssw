@@ -7,4 +7,4 @@
 #include "CUDADataFormats/Common/interface/ArrayShadow.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-#endif  
+#endif
