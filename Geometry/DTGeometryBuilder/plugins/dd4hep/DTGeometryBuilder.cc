@@ -55,7 +55,7 @@ void DTGeometryBuilder::buildGeometry(DDFilteredView& fview, DTGeometry& geom, c
     DTChamber* chamber = buildChamber(fview, num);
 
     // Loop on SLs
-    bool doSL = fview.firstSibling();
+    bool doSL = fview.nextSibling();
     while (doSL) {
       DTSuperLayer* sl = buildSuperLayer(fview, chamber, num);
 
@@ -70,7 +70,7 @@ void DTGeometryBuilder::buildGeometry(DDFilteredView& fview, DTGeometry& geom, c
         doLayers = fview.sibling();  // go to next Layer
       }
       // Done with layers, go up
-      fview.up();
+      // fview.up();
 
       geom.add(sl);
       doSL = fview.nextSibling();  // go to next SL
@@ -95,7 +95,7 @@ DTGeometryBuilder::RCPPlane DTGeometryBuilder::plane(const DDFilteredView& fview
 DTChamber* DTGeometryBuilder::buildChamber(const DDFilteredView& fview, const MuonNumbering& muonConstants) const {
   int rawid = dtnum_->getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
   DTChamberId detId(rawid);
-  auto const& par = fview.extractParameters();
+  auto const& par = fview.parameters();
   // par[0] r-phi  dimension - different in different chambers
   // par[1] z      dimension - constant 125.55 cm
   // par[2] radial thickness - almost constant about 18 cm
@@ -113,7 +113,7 @@ DTSuperLayer* DTGeometryBuilder::buildSuperLayer(const DDFilteredView& fview,
   int rawid = dtnum_->getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
   DTSuperLayerId slId(rawid);
 
-  auto const& par = fview.extractParameters();
+  auto const& par = fview.parameters();
   // par[0] r-phi  dimension - changes in different chambers
   // par[1] z      dimension - constant 126.8 cm
   // par[2] radial thickness - almost constant about 20 cm
@@ -135,7 +135,7 @@ DTLayer* DTGeometryBuilder::buildLayer(DDFilteredView& fview,
   int rawid = dtnum_->getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
   DTLayerId layId(rawid);
 
-  auto const& par = fview.extractParameters();
+  auto const& par = fview.parameters();
   // Layer specific parameter (size)
   // par[0] r-phi  dimension - changes in different chambers
   // par[1] z      dimension - constant 126.8 cm
@@ -146,7 +146,7 @@ DTLayer* DTGeometryBuilder::buildLayer(DDFilteredView& fview,
   fview.down();
   bool doWire = fview.siblingNoCheck();
   int firstWire = fview.volume()->GetNumber();  // copy no
-  auto const& wpar = fview.extractParameters();
+  auto const& wpar = fview.parameters();
   float wireLength = wpar[1];
 
   int WCounter = 0;
