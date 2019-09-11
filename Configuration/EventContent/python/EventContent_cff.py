@@ -22,7 +22,7 @@ import FWCore.ParameterSet.Config as cms
 #    Raw2Digi step is done on this file.
 #
 #  PREMIXRAW
-#    extension of RAWSIM for output of second stage of PreMixing using the DataMixer.  
+#    extension of RAWSIM for output of second stage of PreMixing using the DataMixer.
 #
 #  RAWDEBUG(RAWSIM+ALL_SIM_INFO), RAWDEBUGHLT(RAWDEBUG+HLTDEBUG)
 #
@@ -59,7 +59,8 @@ from RecoParticleFlow.Configuration.RecoParticleFlow_EventContent_cff import *
 from L1Trigger.Configuration.L1Trigger_EventContent_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
 from CommonTools.ParticleFlow.EITopPAG_EventContent_cff import EITopPAGEventContent
-from RecoPPS.Configuration.RecoCTPPS_EventContent_cff import *
+from RecoCTPPS.Configuration.RecoCTPPS_EventContent_cff import *
+from RecoHGCal.Configuration.TICL_EventContent_cff import *
 
 # raw2digi that are already the final RECO/AOD products
 from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
@@ -459,8 +460,13 @@ RECOEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 RECOEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
+
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 ctpps_2016.toModify(RECOEventContent, outputCommands = RECOEventContent.outputCommands + RecoCTPPSRECO.outputCommands)
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify(RECOEventContent,
+    outputCommands = RECOEventContent.outputCommands + TICL_RECO.outputCommands)
 
 RAWRECOEventContent.outputCommands.extend(RECOEventContent.outputCommands)
 RAWRECOEventContent.outputCommands.extend(cms.untracked.vstring(
@@ -492,6 +498,8 @@ AODEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 AODEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 AODEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 ctpps_2016.toModify(AODEventContent, outputCommands = AODEventContent.outputCommands + RecoCTPPSAOD.outputCommands)
+phase2_hgcal.toModify(AODEventContent,
+    outputCommands = AODEventContent.outputCommands + TICL_AOD.outputCommands)
 
 RAWAODEventContent.outputCommands.extend(AODEventContent.outputCommands)
 RAWAODEventContent.outputCommands.extend(cms.untracked.vstring(
@@ -637,6 +645,8 @@ FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 ctpps_2016.toModify(FEVTEventContent, outputCommands = FEVTEventContent.outputCommands + RecoCTPPSFEVT.outputCommands)
+phase2_hgcal.toModify(FEVTEventContent,
+    outputCommands = FEVTEventContent.outputCommands + TICL_FEVT.outputCommands)
 
 FEVTHLTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
 FEVTHLTALLEventContent.outputCommands.append('keep *_*_*_HLT')
@@ -690,6 +700,8 @@ FEVTSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
+phase2_hgcal.toModify(FEVTSIMEventContent,
+    outputCommands = FEVTSIMEventContent.outputCommands + TICL_FEVT.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
@@ -787,21 +799,21 @@ REDIGIEventContent.inputCommands.append('drop *_randomEngineStateProducer_*_*')
 # ROOT automatically determine when to flush is a surprisingly big overhead.
 #
 
-MINIAODEventContent= cms.PSet(    
+MINIAODEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     eventAutoFlushCompressedSize=cms.untracked.int32(-900),
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
 
-MINIAODSIMEventContent= cms.PSet(    
+MINIAODSIMEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     eventAutoFlushCompressedSize=cms.untracked.int32(-900),
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
 
-MINIGENEventContent= cms.PSet(    
+MINIGENEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
