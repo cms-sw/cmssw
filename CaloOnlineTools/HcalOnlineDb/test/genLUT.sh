@@ -94,7 +94,7 @@ then
     source $card
     for i in ${inputConditions[@]}; do
 	record=$i
-	tag=${!t}
+	tag=${!i}
 	dump 
     done
 
