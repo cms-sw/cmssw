@@ -12,35 +12,34 @@
 
 class EcalGainRatiosGPU {
 public:
-    struct Product {
-        ~Product();
-        float *gain12Over6=nullptr, *gain6Over1=nullptr;
-    };
+  struct Product {
+    ~Product();
+    float *gain12Over6 = nullptr, *gain6Over1 = nullptr;
+  };
 
 #ifndef __CUDACC__
 
-    // rearrange pedestals
-    EcalGainRatiosGPU(EcalGainRatios const&);
+  // rearrange pedestals
+  EcalGainRatiosGPU(EcalGainRatios const&);
 
-    // will call dealloation for Product thru ~Product
-    ~EcalGainRatiosGPU() = default;
+  // will call dealloation for Product thru ~Product
+  ~EcalGainRatiosGPU() = default;
 
-    // get device pointers
-    Product const& getProduct(cuda::stream_t<>&) const;
+  // get device pointers
+  Product const& getProduct(cuda::stream_t<>&) const;
 
-    // 
-    static std::string name() { return std::string{"ecalGainRatiosGPU"}; }
+  //
+  static std::string name() { return std::string{"ecalGainRatiosGPU"}; }
 
 private:
-    // in the future, we need to arrange so to avoid this copy on the host
-    // store eb first then ee
-    std::vector<float, CUDAHostAllocator<float>> gain12Over6_;
-    std::vector<float, CUDAHostAllocator<float>> gain6Over1_;
+  // in the future, we need to arrange so to avoid this copy on the host
+  // store eb first then ee
+  std::vector<float, CUDAHostAllocator<float>> gain12Over6_;
+  std::vector<float, CUDAHostAllocator<float>> gain6Over1_;
 
-    CUDAESProduct<Product> product_;
+  CUDAESProduct<Product> product_;
 
 #endif
 };
-
 
 #endif

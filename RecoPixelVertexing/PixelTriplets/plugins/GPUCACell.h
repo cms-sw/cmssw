@@ -5,7 +5,6 @@
 // Author: Felice Pantaleo, CERN
 //
 
-
 // #define ONLY_TRIPLETS_IN_HOLE
 
 #include <cuda_runtime.h>
@@ -80,10 +79,10 @@ public:
   __device__ __forceinline__ float get_inner_y(Hits const& hh) const { return hh.yGlobal(theInnerHitId); }
   __device__ __forceinline__ float get_outer_y(Hits const& hh) const { return hh.yGlobal(theOuterHitId); }
   __device__ __forceinline__ float get_inner_z(Hits const& hh) const { return theInnerZ; }
-     // { return hh.zGlobal(theInnerHitId); } // { return theInnerZ; }
+  // { return hh.zGlobal(theInnerHitId); } // { return theInnerZ; }
   __device__ __forceinline__ float get_outer_z(Hits const& hh) const { return hh.zGlobal(theOuterHitId); }
   __device__ __forceinline__ float get_inner_r(Hits const& hh) const { return theInnerR; }
-     // { return hh.rGlobal(theInnerHitId); } // { return theInnerR; }
+  // { return hh.rGlobal(theInnerHitId); } // { return theInnerR; }
   __device__ __forceinline__ float get_outer_r(Hits const& hh) const { return hh.rGlobal(theOuterHitId); }
 
   __device__ __forceinline__ auto get_inner_iphi(Hits const& hh) const { return hh.iphi(theInnerHitId); }
@@ -96,12 +95,11 @@ public:
   constexpr unsigned int get_outer_hit_id() const { return theOuterHitId; }
 
   __device__ void print_cell() const {
-    printf(
-        "printing cell: %d, on layerPair: %d, innerHitId: %d, outerHitId: %d \n",
-        theDoubletId,
-        theLayerPairId,
-        theInnerHitId,
-        theOuterHitId);
+    printf("printing cell: %d, on layerPair: %d, innerHitId: %d, outerHitId: %d \n",
+           theDoubletId,
+           theLayerPairId,
+           theInnerHitId,
+           theOuterHitId);
   }
 
   __device__ bool check_alignment(Hits const& hh,
@@ -174,11 +172,14 @@ public:
     return std::abs(eq.dca0()) < region_origin_radius_plus_tolerance * std::abs(eq.curvature());
   }
 
-
-  __device__ __forceinline__ static bool dcaCutH(float x1,float y1, float x2,float y2, float x3,float y3,
-                                const float region_origin_radius_plus_tolerance,
-                                   const float maxCurv) {
-
+  __device__ __forceinline__ static bool dcaCutH(float x1,
+                                                 float y1,
+                                                 float x2,
+                                                 float y2,
+                                                 float x3,
+                                                 float y3,
+                                                 const float region_origin_radius_plus_tolerance,
+                                                 const float maxCurv) {
     CircleEq<float> eq(x1, y1, x2, y2, x3, y3);
 
     if (eq.curvature() > maxCurv)
@@ -187,31 +188,28 @@ public:
     return std::abs(eq.dca0()) < region_origin_radius_plus_tolerance * std::abs(eq.curvature());
   }
 
-
-
   __device__ inline bool hole0(Hits const& hh, GPUCACell const& innerCell) const {
     constexpr uint32_t max_ladder_bpx0 = 12;
     constexpr uint32_t first_ladder_bpx0 = 0;
     constexpr float module_length = 6.7f;
-    constexpr float module_tolerance = 0.4f; // projection to cylinder is inaccurate on BPIX1
+    constexpr float module_tolerance = 0.4f;  // projection to cylinder is inaccurate on BPIX1
     int p = innerCell.get_inner_iphi(hh);
     if (p < 0)
       p += std::numeric_limits<unsigned short>::max();
     p = (max_ladder_bpx0 * p) / std::numeric_limits<unsigned short>::max();
     p %= max_ladder_bpx0;
-    auto il = first_ladder_bpx0+p;
+    auto il = first_ladder_bpx0 + p;
     auto r0 = hh.averageGeometry().ladderR[il];
     auto ri = innerCell.get_inner_r(hh);
     auto zi = innerCell.get_inner_z(hh);
     auto ro = get_outer_r(hh);
     auto zo = get_outer_z(hh);
     auto z0 = zi + (r0 - ri) * (zo - zi) / (ro - ri);
-    auto z_in_ladder = std::abs(z0-hh.averageGeometry().ladderZ[il]);
+    auto z_in_ladder = std::abs(z0 - hh.averageGeometry().ladderZ[il]);
     auto z_in_module = z_in_ladder - module_length * int(z_in_ladder / module_length);
     auto gap = z_in_module < module_tolerance || z_in_module > (module_length - module_tolerance);
     return gap;
   }
-
 
   __device__ inline bool hole4(Hits const& hh, GPUCACell const& innerCell) const {
     constexpr uint32_t max_ladder_bpx4 = 64;
@@ -227,14 +225,14 @@ public:
       p += std::numeric_limits<unsigned short>::max();
     p = (max_ladder_bpx4 * p) / std::numeric_limits<unsigned short>::max();
     p %= max_ladder_bpx4;
-    auto il = first_ladder_bpx4+p;  
+    auto il = first_ladder_bpx4 + p;
     auto r4 = hh.averageGeometry().ladderR[il];
     auto ri = innerCell.get_inner_r(hh);
     auto zi = innerCell.get_inner_z(hh);
     auto ro = get_outer_r(hh);
     auto zo = get_outer_z(hh);
     auto z4 = zo + (r4 - ro) * (zo - zi) / (ro - ri);
-    auto z_in_ladder = std::abs(z4-hh.averageGeometry().ladderZ[il]);
+    auto z_in_ladder = std::abs(z4 - hh.averageGeometry().ladderZ[il]);
     auto z_in_module = z_in_ladder - module_length * int(z_in_ladder / module_length);
     auto gap = z_in_module < module_tolerance || z_in_module > (module_length - module_tolerance);
     auto holeP = z4 > hh.averageGeometry().ladderMaxZ[il] && z4 < hh.averageGeometry().endCapZ[0];
@@ -247,7 +245,7 @@ public:
   __device__ inline void find_ntuplets(Hits const& hh,
                                        GPUCACell* __restrict__ cells,
                                        CellTracksVector& cellTracks,
-                                       HitContainer & foundNtuplets,
+                                       HitContainer& foundNtuplets,
                                        AtomicPairCounter& apc,
                                        Quality* __restrict__ quality,
                                        TmpTuple& tmpNtuplet,
@@ -262,22 +260,21 @@ public:
     tmpNtuplet.push_back_unsafe(theDoubletId);
     assert(tmpNtuplet.size() <= 4);
 
-    bool last=true;
+    bool last = true;
     for (int j = 0; j < outerNeighbors().size(); ++j) {
       auto otherCell = outerNeighbors()[j];
-      if (cells[otherCell].theDoubletId<0) continue; // killed by earlyFishbone
-        last = false;
-        cells[otherCell].find_ntuplets(
-            hh, cells, cellTracks, foundNtuplets, apc, quality, tmpNtuplet, minHitsPerNtuplet,startAt0);
+      if (cells[otherCell].theDoubletId < 0)
+        continue;  // killed by earlyFishbone
+      last = false;
+      cells[otherCell].find_ntuplets(
+          hh, cells, cellTracks, foundNtuplets, apc, quality, tmpNtuplet, minHitsPerNtuplet, startAt0);
     }
-    if(last) {  // if long enough save...
+    if (last) {  // if long enough save...
       if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1) {
 #ifdef ONLY_TRIPLETS_IN_HOLE
         // triplets accepted only pointing to the hole
-        if (tmpNtuplet.size() >= 3 || 
-            ( startAt0&&hole4(hh, cells[tmpNtuplet[0]]) ) ||
-            ( (!startAt0)&&hole0(hh, cells[tmpNtuplet[0]]) )
-        )
+        if (tmpNtuplet.size() >= 3 || (startAt0 && hole4(hh, cells[tmpNtuplet[0]])) ||
+            ((!startAt0) && hole0(hh, cells[tmpNtuplet[0]])))
 #endif
         {
           hindex_type hits[6];
@@ -290,7 +287,7 @@ public:
           if (it >= 0) {  // if negative is overflow....
             for (auto c : tmpNtuplet)
               cells[c].addTrack(it, cellTracks);
-            quality[it] =  bad; // initialize to bad
+            quality[it] = bad;  // initialize to bad
           }
         }
       }
@@ -306,7 +303,7 @@ private:
 public:
   int32_t theDoubletId;
   int16_t theLayerPairId;
-  uint16_t theUsed; // tbd
+  uint16_t theUsed;  // tbd
 
 private:
   float theInnerZ;

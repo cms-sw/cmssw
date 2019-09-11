@@ -9,11 +9,11 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h" // TODO: eventually use something more limited
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"  // TODO: eventually use something more limited
 
 #include <memory>
 
-class SiPixelFedCablingMapGPUWrapperESProducer: public edm::ESProducer {
+class SiPixelFedCablingMapGPUWrapperESProducer : public edm::ESProducer {
 public:
   explicit SiPixelFedCablingMapGPUWrapperESProducer(const edm::ParameterSet& iConfig);
   std::unique_ptr<SiPixelFedCablingMapGPUWrapper> produce(const CkfComponentsRecord& iRecord);
@@ -25,10 +25,9 @@ private:
   bool useQuality_;
 };
 
-SiPixelFedCablingMapGPUWrapperESProducer::SiPixelFedCablingMapGPUWrapperESProducer(const edm::ParameterSet& iConfig):
-  cablingMapLabel_(iConfig.getParameter<std::string>("CablingMapLabel")),
-  useQuality_(iConfig.getParameter<bool>("UseQualityInfo"))
-{
+SiPixelFedCablingMapGPUWrapperESProducer::SiPixelFedCablingMapGPUWrapperESProducer(const edm::ParameterSet& iConfig)
+    : cablingMapLabel_(iConfig.getParameter<std::string>("CablingMapLabel")),
+      useQuality_(iConfig.getParameter<bool>("UseQualityInfo")) {
   std::string myname = iConfig.getParameter<std::string>("ComponentName");
   setWhatProduced(this, myname);
 }
@@ -38,18 +37,19 @@ void SiPixelFedCablingMapGPUWrapperESProducer::fillDescriptions(edm::Configurati
 
   std::string label = "siPixelFedCablingMapGPUWrapper";
   desc.add<std::string>("ComponentName", "");
-  desc.add<std::string>("CablingMapLabel","")->setComment("CablingMap label");
-  desc.add<bool>("UseQualityInfo",false);
+  desc.add<std::string>("CablingMapLabel", "")->setComment("CablingMap label");
+  desc.add<bool>("UseQualityInfo", false);
 
   descriptions.add(label, desc);
 }
 
-std::unique_ptr<SiPixelFedCablingMapGPUWrapper> SiPixelFedCablingMapGPUWrapperESProducer::produce(const CkfComponentsRecord& iRecord) {
+std::unique_ptr<SiPixelFedCablingMapGPUWrapper> SiPixelFedCablingMapGPUWrapperESProducer::produce(
+    const CkfComponentsRecord& iRecord) {
   edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
-  iRecord.getRecord<SiPixelFedCablingMapRcd>().get( cablingMapLabel_, cablingMap );
+  iRecord.getRecord<SiPixelFedCablingMapRcd>().get(cablingMapLabel_, cablingMap);
 
-  const SiPixelQuality *quality = nullptr;
-  if(useQuality_) {
+  const SiPixelQuality* quality = nullptr;
+  if (useQuality_) {
     edm::ESTransientHandle<SiPixelQuality> qualityInfo;
     iRecord.getRecord<SiPixelQualityRcd>().get(qualityInfo);
     quality = qualityInfo.product();

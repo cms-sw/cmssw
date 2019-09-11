@@ -12,16 +12,19 @@
 
 #include "TestCUDAProducerGPUKernel.h"
 
-class TestCUDAProducerGPUtoCPU: public edm::stream::EDProducer<edm::ExternalWork> {
+class TestCUDAProducerGPUtoCPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   explicit TestCUDAProducerGPUtoCPU(const edm::ParameterSet& iConfig);
   ~TestCUDAProducerGPUtoCPU() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void acquire(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
+  void acquire(const edm::Event& iEvent,
+               const edm::EventSetup& iSetup,
+               edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
 private:
   std::string label_;
   edm::EDGetTokenT<CUDAProduct<CUDAThing>> srcToken_;
@@ -29,21 +32,25 @@ private:
   cudautils::host::unique_ptr<float[]> buffer_;
 };
 
-TestCUDAProducerGPUtoCPU::TestCUDAProducerGPUtoCPU(const edm::ParameterSet& iConfig):
-  label_{iConfig.getParameter<std::string>("@module_label")},
-  srcToken_{consumes<CUDAProduct<CUDAThing>>(iConfig.getParameter<edm::InputTag>("src"))},
-  dstToken_{produces<int>()}
-{}
+TestCUDAProducerGPUtoCPU::TestCUDAProducerGPUtoCPU(const edm::ParameterSet& iConfig)
+    : label_{iConfig.getParameter<std::string>("@module_label")},
+      srcToken_{consumes<CUDAProduct<CUDAThing>>(iConfig.getParameter<edm::InputTag>("src"))},
+      dstToken_{produces<int>()} {}
 
 void TestCUDAProducerGPUtoCPU::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag())->setComment("Source for CUDAProduct<CUDAThing>.");
   descriptions.addWithDefaultLabel(desc);
-  descriptions.setComment("This EDProducer is part of the TestCUDAProducer* family. It models the GPU->CPU data transfer and formatting of the data to legacy data format. Produces int, to be compatible with TestCUDAProducerCPU.");
+  descriptions.setComment(
+      "This EDProducer is part of the TestCUDAProducer* family. It models the GPU->CPU data transfer and formatting of "
+      "the data to legacy data format. Produces int, to be compatible with TestCUDAProducerCPU.");
 }
 
-void TestCUDAProducerGPUtoCPU::acquire(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
-  edm::LogVerbatim("TestCUDAProducerGPUtoCPU") << label_ << " TestCUDAProducerGPUtoCPU::acquire begin event " << iEvent.id().event() << " stream " << iEvent.streamID();
+void TestCUDAProducerGPUtoCPU::acquire(const edm::Event& iEvent,
+                                       const edm::EventSetup& iSetup,
+                                       edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
+  edm::LogVerbatim("TestCUDAProducerGPUtoCPU") << label_ << " TestCUDAProducerGPUtoCPU::acquire begin event "
+                                               << iEvent.id().event() << " stream " << iEvent.streamID();
 
   const auto& in = iEvent.get(srcToken_);
   CUDAScopedContextAcquire ctx{in, std::move(waitingTaskHolder)};
@@ -51,23 +58,28 @@ void TestCUDAProducerGPUtoCPU::acquire(const edm::Event& iEvent, const edm::Even
 
   buffer_ = cudautils::make_host_unique<float[]>(TestCUDAProducerGPUKernel::NUM_VALUES, ctx.stream());
   // Enqueue async copy, continue in produce once finished
-  cuda::memory::async::copy(buffer_.get(), device.get(), TestCUDAProducerGPUKernel::NUM_VALUES*sizeof(float), ctx.stream().id());
+  cuda::memory::async::copy(
+      buffer_.get(), device.get(), TestCUDAProducerGPUKernel::NUM_VALUES * sizeof(float), ctx.stream().id());
 
-  edm::LogVerbatim("TestCUDAProducerGPUtoCPU") << label_ << " TestCUDAProducerGPUtoCPU::acquire end event " << iEvent.id().event() << " stream " << iEvent.streamID();
+  edm::LogVerbatim("TestCUDAProducerGPUtoCPU") << label_ << " TestCUDAProducerGPUtoCPU::acquire end event "
+                                               << iEvent.id().event() << " stream " << iEvent.streamID();
 }
 
 void TestCUDAProducerGPUtoCPU::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::LogVerbatim("TestCUDAProducerGPUtoCPU") << label_ << " TestCUDAProducerGPUtoCPU::produce begin event " << iEvent.id().event() << " stream " << iEvent.streamID();
+  edm::LogVerbatim("TestCUDAProducerGPUtoCPU") << label_ << " TestCUDAProducerGPUtoCPU::produce begin event "
+                                               << iEvent.id().event() << " stream " << iEvent.streamID();
 
   int counter = 0;
-  for(int i=0; i<TestCUDAProducerGPUKernel::NUM_VALUES; ++i) {
+  for (int i = 0; i < TestCUDAProducerGPUKernel::NUM_VALUES; ++i) {
     counter += buffer_[i];
   }
-  buffer_.reset(); // not so nice, but no way around?
+  buffer_.reset();  // not so nice, but no way around?
 
   iEvent.emplace(dstToken_, counter);
 
-  edm::LogVerbatim("TestCUDAProducerGPUtoCPU") << label_ << " TestCUDAProducerGPUtoCPU::produce end event " << iEvent.id().event() << " stream " << iEvent.streamID() << " result " << counter;
+  edm::LogVerbatim("TestCUDAProducerGPUtoCPU")
+      << label_ << " TestCUDAProducerGPUtoCPU::produce end event " << iEvent.id().event() << " stream "
+      << iEvent.streamID() << " result " << counter;
 }
 
 DEFINE_FWK_MODULE(TestCUDAProducerGPUtoCPU);

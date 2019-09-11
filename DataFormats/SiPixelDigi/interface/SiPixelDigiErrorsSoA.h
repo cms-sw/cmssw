@@ -16,10 +16,10 @@ public:
 
   const PixelFormatterErrors *formatterErrors() const { return formatterErrors_; }
 
-  const PixelErrorCompact& error(size_t i) const { return error_[i]; }
-  
-  const std::vector<PixelErrorCompact>& errorVector() const { return error_; }
-  
+  const PixelErrorCompact &error(size_t i) const { return error_[i]; }
+
+  const std::vector<PixelErrorCompact> &errorVector() const { return error_; }
+
 private:
   std::vector<PixelErrorCompact> error_;
   const PixelFormatterErrors *formatterErrors_ = nullptr;

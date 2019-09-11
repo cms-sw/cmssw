@@ -8,9 +8,9 @@
 class BeamSpotCUDA {
 public:
   // alignas(128) doesn't really make sense as there is only one
-  // beamspot per event? 
+  // beamspot per event?
   struct Data {
-    float x,y,z;   // position
+    float x, y, z;  // position
     // TODO: add covariance matrix
 
     float sigmaZ;

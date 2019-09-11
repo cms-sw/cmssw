@@ -6,14 +6,13 @@
 class CUDAThing {
 public:
   CUDAThing() = default;
-  CUDAThing(cudautils::device::unique_ptr<float[]> ptr):
-    ptr_(std::move(ptr))
-  {}
+  CUDAThing(cudautils::device::unique_ptr<float[]> ptr) : ptr_(std::move(ptr)) {}
 
   const float *get() const { return ptr_.get(); }
 
 private:
-  cudautils::device::unique_ptr<float[]> ptr_;;
+  cudautils::device::unique_ptr<float[]> ptr_;
+  ;
 };
 
 #endif

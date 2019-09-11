@@ -13,29 +13,29 @@
 namespace cudatest {
   class TestCUDAScopedContext {
   public:
-    static
-    CUDAScopedContextProduce make(int dev, bool createEvent) {
+    static CUDAScopedContextProduce make(int dev, bool createEvent) {
       auto device = cuda::device::get(dev);
       std::unique_ptr<cuda::event_t> event;
-      if(createEvent) {
+      if (createEvent) {
         event = std::make_unique<cuda::event_t>(device.create_event());
       }
       return CUDAScopedContextProduce(dev,
-                                      std::make_unique<cuda::stream_t<>>(device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream)),
+                                      std::make_unique<cuda::stream_t<>>(device.create_stream(
+                                          cuda::stream::implicitly_synchronizes_with_default_stream)),
                                       std::move(event));
     }
   };
-}
+}  // namespace cudatest
 
 namespace {
-  std::unique_ptr<CUDAProduct<int *> > produce(int device, int *d, int *h) {
+  std::unique_ptr<CUDAProduct<int*>> produce(int device, int* d, int* h) {
     auto ctx = cudatest::TestCUDAScopedContext::make(device, true);
 
     cuda::memory::async::copy(d, h, sizeof(int), ctx.stream().id());
     testCUDAScopedContextKernels_single(d, ctx.stream());
     return ctx.wrap(d);
   }
-}
+}  // namespace
 
 TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
   exitSansCUDADevices();
@@ -44,12 +44,10 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
   {
     auto ctx = cudatest::TestCUDAScopedContext::make(defaultDevice, true);
 
-    SECTION("Construct from device ID") {
-      REQUIRE(cuda::device::current::get().id() == defaultDevice);
-    }
+    SECTION("Construct from device ID") { REQUIRE(cuda::device::current::get().id() == defaultDevice); }
 
     SECTION("Wrap T to CUDAProduct<T>") {
-      std::unique_ptr<CUDAProduct<int> > dataPtr = ctx.wrap(10);
+      std::unique_ptr<CUDAProduct<int>> dataPtr = ctx.wrap(10);
       REQUIRE(dataPtr.get() != nullptr);
       REQUIRE(dataPtr->device() == ctx.device());
       REQUIRE(dataPtr->stream().id() == ctx.stream().id());
@@ -71,14 +69,15 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
 
     SECTION("Storing state in CUDAContextState") {
       CUDAContextState ctxstate;
-      { // acquire
+      {  // acquire
         std::unique_ptr<CUDAProduct<int>> dataPtr = ctx.wrap(10);
         const auto& data = *dataPtr;
-        edm::WaitingTaskWithArenaHolder dummy{edm::make_waiting_task(tbb::task::allocate_root(), [](std::exception_ptr const* iPtr){})};
+        edm::WaitingTaskWithArenaHolder dummy{
+            edm::make_waiting_task(tbb::task::allocate_root(), [](std::exception_ptr const* iPtr) {})};
         CUDAScopedContextAcquire ctx2{data, std::move(dummy), ctxstate};
       }
 
-      { // produce
+      {  // produce
         CUDAScopedContextProduce ctx2{ctxstate};
         REQUIRE(cuda::device::current::get().id() == ctx.device());
         REQUIRE(ctx2.stream().id() == ctx.stream().id());

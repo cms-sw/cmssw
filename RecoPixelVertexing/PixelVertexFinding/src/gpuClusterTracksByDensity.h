@@ -24,7 +24,6 @@ namespace gpuVertexFinder {
                                          float errmax,  // max error to be "seed"
                                          float chi2max  // max normalized distance to cluster
   ) {
-
     using namespace gpuVertexFinder;
     constexpr bool verbose = false;  // in principle the compiler should optmize out if false
 

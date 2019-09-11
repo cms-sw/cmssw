@@ -11,7 +11,7 @@
 
 #include "TestCUDAProducerGPUKernel.h"
 
-class TestCUDAProducerGPU: public edm::global::EDProducer<> {
+class TestCUDAProducerGPU : public edm::global::EDProducer<> {
 public:
   explicit TestCUDAProducerGPU(const edm::ParameterSet& iConfig);
   ~TestCUDAProducerGPU() override = default;
@@ -19,6 +19,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+
 private:
   std::string label_;
   edm::EDGetTokenT<CUDAProduct<CUDAThing>> srcToken_;
@@ -26,21 +27,23 @@ private:
   TestCUDAProducerGPUKernel gpuAlgo_;
 };
 
-TestCUDAProducerGPU::TestCUDAProducerGPU(const edm::ParameterSet& iConfig):
-  label_(iConfig.getParameter<std::string>("@module_label")),
-  srcToken_(consumes<CUDAProduct<CUDAThing>>(iConfig.getParameter<edm::InputTag>("src"))),
-  dstToken_(produces<CUDAProduct<CUDAThing>>())
-{}
+TestCUDAProducerGPU::TestCUDAProducerGPU(const edm::ParameterSet& iConfig)
+    : label_(iConfig.getParameter<std::string>("@module_label")),
+      srcToken_(consumes<CUDAProduct<CUDAThing>>(iConfig.getParameter<edm::InputTag>("src"))),
+      dstToken_(produces<CUDAProduct<CUDAThing>>()) {}
 
 void TestCUDAProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag())->setComment("Source of CUDAProduct<CUDAThing>.");
   descriptions.addWithDefaultLabel(desc);
-  descriptions.setComment("This EDProducer is part of the TestCUDAProducer* family. It models a GPU algorithm this is not the first algorithm in the chain of the GPU EDProducers. Produces CUDAProduct<CUDAThing>.");
+  descriptions.setComment(
+      "This EDProducer is part of the TestCUDAProducer* family. It models a GPU algorithm this is not the first "
+      "algorithm in the chain of the GPU EDProducers. Produces CUDAProduct<CUDAThing>.");
 }
 
 void TestCUDAProducerGPU::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  edm::LogVerbatim("TestCUDAProducerGPU") << label_ << " TestCUDAProducerGPU::produce begin event " << iEvent.id().event() << " stream " << iEvent.streamID();
+  edm::LogVerbatim("TestCUDAProducerGPU") << label_ << " TestCUDAProducerGPU::produce begin event "
+                                          << iEvent.id().event() << " stream " << iEvent.streamID();
 
   const auto& in = iEvent.get(srcToken_);
   CUDAScopedContextProduce ctx{in};
@@ -48,7 +51,8 @@ void TestCUDAProducerGPU::produce(edm::StreamID streamID, edm::Event& iEvent, co
 
   ctx.emplace(iEvent, dstToken_, CUDAThing{gpuAlgo_.runAlgo(label_, input.get(), ctx.stream())});
 
-  edm::LogVerbatim("TestCUDAProducerGPU") << label_ << " TestCUDAProducerGPU::produce end event " << iEvent.id().event() << " stream " << iEvent.streamID();
+  edm::LogVerbatim("TestCUDAProducerGPU")
+      << label_ << " TestCUDAProducerGPU::produce end event " << iEvent.id().event() << " stream " << iEvent.streamID();
 }
 
 DEFINE_FWK_MODULE(TestCUDAProducerGPU);

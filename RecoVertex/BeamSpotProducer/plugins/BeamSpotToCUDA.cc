@@ -17,17 +17,15 @@
 namespace {
   class BSHost {
   public:
-    BSHost():
-      bs{cudautils::make_host_noncached_unique<BeamSpotCUDA::Data>(cudaHostAllocWriteCombined)}
-    {}
-    BeamSpotCUDA::Data *get() { return bs.get(); }
+    BSHost() : bs{cudautils::make_host_noncached_unique<BeamSpotCUDA::Data>(cudaHostAllocWriteCombined)} {}
+    BeamSpotCUDA::Data* get() { return bs.get(); }
 
   private:
     cudautils::host::noncached::unique_ptr<BeamSpotCUDA::Data> bs;
   };
-}
+}  // namespace
 
-class BeamSpotToCUDA: public edm::global::EDProducer<edm::StreamCache<BSHost> > {
+class BeamSpotToCUDA : public edm::global::EDProducer<edm::StreamCache<BSHost>> {
 public:
   explicit BeamSpotToCUDA(const edm::ParameterSet& iConfig);
   ~BeamSpotToCUDA() override = default;
@@ -36,10 +34,9 @@ public:
 
   std::unique_ptr<BSHost> beginStream(edm::StreamID) const {
     edm::Service<CUDAService> cs;
-    if(cs->enabled()) {
+    if (cs->enabled()) {
       return std::make_unique<BSHost>();
-    }
-    else {
+    } else {
       return nullptr;
     }
   }
@@ -50,10 +47,9 @@ private:
   edm::EDPutTokenT<CUDAProduct<BeamSpotCUDA>> bsPutToken_;
 };
 
-BeamSpotToCUDA::BeamSpotToCUDA(const edm::ParameterSet& iConfig):
-  bsGetToken_{consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("src"))},
-  bsPutToken_{produces<CUDAProduct<BeamSpotCUDA>>()}
-{}
+BeamSpotToCUDA::BeamSpotToCUDA(const edm::ParameterSet& iConfig)
+    : bsGetToken_{consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("src"))},
+      bsPutToken_{produces<CUDAProduct<BeamSpotCUDA>>()} {}
 
 void BeamSpotToCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -66,7 +62,7 @@ void BeamSpotToCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const e
 
   const reco::BeamSpot& bs = iEvent.get(bsGetToken_);
 
-  BeamSpotCUDA::Data *bsHost = streamCache(streamID)->get();
+  BeamSpotCUDA::Data* bsHost = streamCache(streamID)->get();
 
   bsHost->x = bs.x0();
   bsHost->y = bs.y0();
@@ -85,4 +81,3 @@ void BeamSpotToCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const e
 }
 
 DEFINE_FWK_MODULE(BeamSpotToCUDA);
-

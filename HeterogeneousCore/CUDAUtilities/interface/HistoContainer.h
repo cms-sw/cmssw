@@ -27,7 +27,7 @@ namespace cudautils {
                                   T const *__restrict__ v,
                                   uint32_t const *__restrict__ offsets) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
-    for (int i = first, nt = offsets[nh]; i<nt; i += gridDim.x * blockDim.x) {
+    for (int i = first, nt = offsets[nh]; i < nt; i += gridDim.x * blockDim.x) {
       auto off = cuda_std::upper_bound(offsets, offsets + nh + 1, i);
       assert((*off) > 0);
       int32_t ih = off - offsets - 1;
@@ -43,7 +43,7 @@ namespace cudautils {
                                  T const *__restrict__ v,
                                  uint32_t const *__restrict__ offsets) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
-    for (int i = first, nt = offsets[nh]; i<nt; i += gridDim.x * blockDim.x) {
+    for (int i = first, nt = offsets[nh]; i < nt; i += gridDim.x * blockDim.x) {
       auto off = cuda_std::upper_bound(offsets, offsets + nh + 1, i);
       assert((*off) > 0);
       int32_t ih = off - offsets - 1;
@@ -55,9 +55,9 @@ namespace cudautils {
 
   template <typename Histo>
   inline void launchZero(Histo *__restrict__ h,
-                  cudaStream_t stream
+                         cudaStream_t stream
 #ifndef __CUDACC__
-                  = 0
+                         = 0
 #endif
   ) {
     uint32_t *off = (uint32_t *)((char *)(h) + offsetof(Histo, off));
@@ -70,14 +70,14 @@ namespace cudautils {
 
   template <typename Histo>
   inline void launchFinalize(Histo *__restrict__ h,
-                      uint8_t *__restrict__ ws
+                             uint8_t *__restrict__ ws
 #ifndef __CUDACC__
-                      = nullptr
+                             = nullptr
 #endif
-                      ,
-                      cudaStream_t stream
+                             ,
+                             cudaStream_t stream
 #ifndef __CUDACC__
-                      = 0
+                             = 0
 #endif
   ) {
 #ifdef __CUDACC__
@@ -93,15 +93,15 @@ namespace cudautils {
 
   template <typename Histo, typename T>
   inline void fillManyFromVector(Histo *__restrict__ h,
-                          uint8_t *__restrict__ ws,
-                          uint32_t nh,
-                          T const *__restrict__ v,
-                          uint32_t const *__restrict__ offsets,
-                          uint32_t totSize,
-                          int nthreads,
-                          cudaStream_t stream
+                                 uint8_t *__restrict__ ws,
+                                 uint32_t nh,
+                                 T const *__restrict__ v,
+                                 uint32_t const *__restrict__ offsets,
+                                 uint32_t totSize,
+                                 int nthreads,
+                                 cudaStream_t stream
 #ifndef __CUDACC__
-                          = 0
+                                 = 0
 #endif
   ) {
     launchZero(h, stream);
@@ -215,7 +215,7 @@ public:
 #ifdef __CUDA_ARCH__
       atomicAdd(off + i, co.off[i]);
 #else
-      auto & a = (std::atomic<Counter>&)(off[i]);
+      auto &a = (std::atomic<Counter> &)(off[i]);
       a += co.off[i];
 #endif
     }
@@ -225,7 +225,7 @@ public:
 #ifdef __CUDA_ARCH__
     return atomicAdd(&x, 1);
 #else
-    auto & a = (std::atomic<Counter>&)(x);
+    auto &a = (std::atomic<Counter> &)(x);
     return a++;
 #endif
   }
@@ -234,7 +234,7 @@ public:
 #ifdef __CUDA_ARCH__
     return atomicSub(&x, 1);
 #else
-    auto & a = (std::atomic<Counter>&)(x);
+    auto &a = (std::atomic<Counter> &)(x);
     return a--;
 #endif
   }
@@ -268,8 +268,8 @@ public:
   __device__ __host__ __forceinline__ void bulkFinalizeFill(AtomicPairCounter const &apc) {
     auto m = apc.get().m;
     auto n = apc.get().n;
-    if (m >= nbins()) { // overflow!
-      off[nbins()]=uint32_t(off[nbins()-1]);
+    if (m >= nbins()) {  // overflow!
+      off[nbins()] = uint32_t(off[nbins() - 1]);
       return;
     }
     auto first = m + blockDim.x * blockIdx.x + threadIdx.x;

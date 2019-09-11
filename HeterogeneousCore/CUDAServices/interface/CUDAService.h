@@ -12,7 +12,7 @@ namespace edm {
   class ParameterSet;
   class ActivityRegistry;
   class ConfigurationDescriptions;
-}
+}  // namespace edm
 
 /**
  * TODO:
@@ -27,7 +27,7 @@ public:
   CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iRegistry);
   ~CUDAService();
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   bool enabled() const { return enabled_; }
 
@@ -44,6 +44,7 @@ public:
 
   // Get the current device
   int getCurrentDevice() const;
+
 private:
   int numberOfDevices_ = 0;
   std::vector<std::pair<int, int>> computeCapabilities_;

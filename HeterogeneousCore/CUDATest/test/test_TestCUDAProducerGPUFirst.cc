@@ -13,18 +13,15 @@ static constexpr auto s_tag = "[TestCUDAProducerGPUFirst]";
 
 TEST_CASE("Standard checks of TestCUDAProducerGPUFirst", s_tag) {
   const std::string baseConfig{
-R"_(from FWCore.TestProcessor.TestProcess import *
+      R"_(from FWCore.TestProcessor.TestProcess import *
 process = TestProcess()
 process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
 process.toTest = cms.EDProducer("TestCUDAProducerGPUFirst")
 process.moduleToTest(process.toTest)
-)_"
-  };
+)_"};
 
-  edm::test::TestProcessor::Config config{ baseConfig };
-  SECTION("base configuration is OK") {
-    REQUIRE_NOTHROW(edm::test::TestProcessor(config));
-  }
+  edm::test::TestProcessor::Config config{baseConfig};
+  SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
 
   SECTION("No event data") {
     edm::test::TestProcessor tester(config);
@@ -49,19 +46,17 @@ process.moduleToTest(process.toTest)
 
     REQUIRE_NOTHROW(tester.testLuminosityBlockWithNoEvents());
   }
-
 }
 
 TEST_CASE("TestCUDAProducerGPUFirst operation", s_tag) {
   const std::string baseConfig{
-R"_(from FWCore.TestProcessor.TestProcess import *
+      R"_(from FWCore.TestProcessor.TestProcess import *
 process = TestProcess()
 process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
 process.toTest = cms.EDProducer("TestCUDAProducerGPUFirst")
 process.moduleToTest(process.toTest)
-)_"
-  };
-  edm::test::TestProcessor::Config config{ baseConfig };
+)_"};
+  edm::test::TestProcessor::Config config{baseConfig};
 
   exitSansCUDADevices();
 
@@ -74,11 +69,11 @@ process.moduleToTest(process.toTest)
     REQUIRE(prod->device() == defaultDevice);
     auto ctx = CUDAScopedContextProduce(*prod);
     const CUDAThing& thing = ctx.get(*prod);
-    const float *data = thing.get();
+    const float* data = thing.get();
     REQUIRE(data != nullptr);
 
     float firstElements[10];
-    cuda::memory::async::copy(firstElements, data, sizeof(float)*10, prod->stream().id());
+    cuda::memory::async::copy(firstElements, data, sizeof(float) * 10, prod->stream().id());
 
     std::cout << "Synchronizing with CUDA stream" << std::endl;
     auto stream = prod->stream();

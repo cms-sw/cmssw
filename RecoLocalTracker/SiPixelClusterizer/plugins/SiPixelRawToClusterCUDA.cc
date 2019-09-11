@@ -36,7 +36,7 @@
 #include <string>
 #include <vector>
 
-class SiPixelRawToClusterCUDA: public edm::stream::EDProducer<edm::ExternalWork> {
+class SiPixelRawToClusterCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   explicit SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfig);
   ~SiPixelRawToClusterCUDA() override = default;
@@ -44,7 +44,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void acquire(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
+  void acquire(const edm::Event& iEvent,
+               const edm::EventSetup& iSetup,
+               edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   edm::EDGetTokenT<FEDRawDataCollection> rawGetToken_;
@@ -60,7 +62,7 @@ private:
   std::string cablingMapLabel_;
   std::unique_ptr<SiPixelFedCablingTree> cabling_;
   std::vector<unsigned int> fedIds_;
-  const SiPixelFedCablingMap *cablingMap_ = nullptr;
+  const SiPixelFedCablingMap* cablingMap_ = nullptr;
   std::unique_ptr<PixelUnpackingRegions> regions_;
 
   pixelgpudetails::SiPixelRawToClusterGPUKernel gpuAlgo_;
@@ -72,78 +74,83 @@ private:
   const bool usePilotBlade_;
 };
 
-SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfig):
-  rawGetToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"))),
-  digiPutToken_(produces<CUDAProduct<SiPixelDigisCUDA>>()),
-  clusterPutToken_(produces<CUDAProduct<SiPixelClustersCUDA>>()),
-  cablingMapLabel_(iConfig.getParameter<std::string>("CablingMapLabel")),
-  includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
-  useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
-  usePilotBlade_(iConfig.getParameter<bool> ("UsePilotBlade")) // Control the usage of pilot-blade data, FED=40
+SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfig)
+    : rawGetToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"))),
+      digiPutToken_(produces<CUDAProduct<SiPixelDigisCUDA>>()),
+      clusterPutToken_(produces<CUDAProduct<SiPixelClustersCUDA>>()),
+      cablingMapLabel_(iConfig.getParameter<std::string>("CablingMapLabel")),
+      includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
+      useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
+      usePilotBlade_(iConfig.getParameter<bool>("UsePilotBlade"))  // Control the usage of pilot-blade data, FED=40
 {
-  if(includeErrors_) {
+  if (includeErrors_) {
     digiErrorPutToken_ = produces<CUDAProduct<SiPixelDigiErrorsCUDA>>();
   }
 
   // regions
-  if(!iConfig.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty()) {
+  if (!iConfig.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty()) {
     regions_ = std::make_unique<PixelUnpackingRegions>(iConfig, consumesCollector());
   }
 
-  if(usePilotBlade_) edm::LogInfo("SiPixelRawToCluster")  << " Use pilot blade data (FED 40)";
+  if (usePilotBlade_)
+    edm::LogInfo("SiPixelRawToCluster") << " Use pilot blade data (FED 40)";
 
   edm::Service<CUDAService> cs;
-  if(cs->enabled()) {
+  if (cs->enabled()) {
     wordFedAppender_ = std::make_unique<pixelgpudetails::SiPixelRawToClusterGPUKernel::WordFedAppender>();
   }
 }
 
 void SiPixelRawToClusterCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("IncludeErrors",true);
-  desc.add<bool>("UseQualityInfo",false);
-  desc.add<bool>("UsePilotBlade",false)->setComment("##  Use pilot blades");
-  desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
+  desc.add<bool>("IncludeErrors", true);
+  desc.add<bool>("UseQualityInfo", false);
+  desc.add<bool>("UsePilotBlade", false)->setComment("##  Use pilot blades");
+  desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
   {
     edm::ParameterSetDescription psd0;
     psd0.addOptional<std::vector<edm::InputTag>>("inputs");
     psd0.addOptional<std::vector<double>>("deltaPhi");
     psd0.addOptional<std::vector<double>>("maxZ");
     psd0.addOptional<edm::InputTag>("beamSpot");
-    desc.add<edm::ParameterSetDescription>("Regions",psd0)->setComment("## Empty Regions PSet means complete unpacking");
+    desc.add<edm::ParameterSetDescription>("Regions", psd0)
+        ->setComment("## Empty Regions PSet means complete unpacking");
   }
-  desc.add<std::string>("CablingMapLabel","")->setComment("CablingMap label"); //Tav
+  desc.add<std::string>("CablingMapLabel", "")->setComment("CablingMap label");  //Tav
   descriptions.addWithDefaultLabel(desc);
 }
 
-
-void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
+void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent,
+                                      const edm::EventSetup& iSetup,
+                                      edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   CUDAScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder), ctxState_};
 
   edm::ESHandle<SiPixelFedCablingMapGPUWrapper> hgpuMap;
   iSetup.get<CkfComponentsRecord>().get(hgpuMap);
-  if(hgpuMap->hasQuality() != useQuality_) {
-    throw cms::Exception("LogicError") << "UseQuality of the module (" << useQuality_ << ") differs the one from SiPixelFedCablingMapGPUWrapper. Please fix your configuration.";
+  if (hgpuMap->hasQuality() != useQuality_) {
+    throw cms::Exception("LogicError")
+        << "UseQuality of the module (" << useQuality_
+        << ") differs the one from SiPixelFedCablingMapGPUWrapper. Please fix your configuration.";
   }
   // get the GPU product already here so that the async transfer can begin
-  const auto *gpuMap = hgpuMap->getGPUProductAsync(ctx.stream());
+  const auto* gpuMap = hgpuMap->getGPUProductAsync(ctx.stream());
 
   edm::ESHandle<SiPixelGainCalibrationForHLTGPU> hgains;
   iSetup.get<SiPixelGainCalibrationForHLTGPURcd>().get(hgains);
   // get the GPU product already here so that the async transfer can begin
-  const auto *gpuGains = hgains->getGPUProductAsync(ctx.stream());
+  const auto* gpuGains = hgains->getGPUProductAsync(ctx.stream());
 
   cudautils::device::unique_ptr<unsigned char[]> modulesToUnpackRegional;
-  const unsigned char *gpuModulesToUnpack;
+  const unsigned char* gpuModulesToUnpack;
 
-  if(regions_) {
+  if (regions_) {
     regions_->run(iEvent, iSetup);
-    LogDebug("SiPixelRawToCluster") << "region2unpack #feds: "<<regions_->nFEDs();
-    LogDebug("SiPixelRawToCluster") << "region2unpack #modules (BPIX,EPIX,total): "<<regions_->nBarrelModules()<<" "<<regions_->nForwardModules()<<" "<<regions_->nModules();
+    LogDebug("SiPixelRawToCluster") << "region2unpack #feds: " << regions_->nFEDs();
+    LogDebug("SiPixelRawToCluster") << "region2unpack #modules (BPIX,EPIX,total): " << regions_->nBarrelModules() << " "
+                                    << regions_->nForwardModules() << " " << regions_->nModules();
     modulesToUnpackRegional = hgpuMap->getModToUnpRegionalAsync(*(regions_->modulesToUnpack()), ctx.stream());
     gpuModulesToUnpack = modulesToUnpackRegional.get();
-  }
-  else {
+  } else {
     gpuModulesToUnpack = hgpuMap->getModToUnpAllAsync(ctx.stream());
   }
 
@@ -151,51 +158,54 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent, const edm::Event
   if (recordWatcher.check(iSetup)) {
     // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
     edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
-    iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapLabel_, cablingMap); //Tav
+    iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapLabel_, cablingMap);  //Tav
     cablingMap_ = cablingMap.product();
-    fedIds_  = cablingMap->fedIds();
+    fedIds_ = cablingMap->fedIds();
     cabling_ = cablingMap->cablingTree();
-    LogDebug("map version:")<< cabling_->version();
+    LogDebug("map version:") << cabling_->version();
   }
 
   const auto& buffers = iEvent.get(rawGetToken_);
 
   errors_.clear();
 
-    // GPU specific: Data extraction for RawToDigi GPU
+  // GPU specific: Data extraction for RawToDigi GPU
   unsigned int wordCounterGPU = 0;
   unsigned int fedCounter = 0;
   bool errorsInEvent = false;
 
   // In CPU algorithm this loop is part of PixelDataFormatter::interpretRawData()
   ErrorChecker errorcheck;
-  for(int fedId: fedIds_) {
-    if (!usePilotBlade_ && (fedId==40) ) continue; // skip pilot blade data
-    if (regions_ && !regions_->mayUnpackFED(fedId)) continue;
+  for (int fedId : fedIds_) {
+    if (!usePilotBlade_ && (fedId == 40))
+      continue;  // skip pilot blade data
+    if (regions_ && !regions_->mayUnpackFED(fedId))
+      continue;
 
     // for GPU
     // first 150 index stores the fedId and next 150 will store the
     // start index of word in that fed
-    assert(fedId>=1200);
+    assert(fedId >= 1200);
     fedCounter++;
 
     // get event data for this fed
-    const FEDRawData& rawData = buffers.FEDData( fedId );
+    const FEDRawData& rawData = buffers.FEDData(fedId);
 
     // GPU specific
-    int nWords = rawData.size()/sizeof(cms_uint64_t);
+    int nWords = rawData.size() / sizeof(cms_uint64_t);
     if (nWords == 0) {
       continue;
     }
 
     // check CRC bit
-    const cms_uint64_t* trailer = reinterpret_cast<const cms_uint64_t* >(rawData.data())+(nWords-1);
+    const cms_uint64_t* trailer = reinterpret_cast<const cms_uint64_t*>(rawData.data()) + (nWords - 1);
     if (not errorcheck.checkCRC(errorsInEvent, fedId, trailer, errors_)) {
       continue;
     }
 
     // check headers
-    const cms_uint64_t* header = reinterpret_cast<const cms_uint64_t* >(rawData.data()); header--;
+    const cms_uint64_t* header = reinterpret_cast<const cms_uint64_t*>(rawData.data());
+    header--;
     bool moreHeaders = true;
     while (moreHeaders) {
       header++;
@@ -212,20 +222,24 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent, const edm::Event
       moreTrailers = trailerStatus;
     }
 
-    const cms_uint32_t * bw = (const cms_uint32_t *)(header+1);
-    const cms_uint32_t * ew = (const cms_uint32_t *)(trailer);
+    const cms_uint32_t* bw = (const cms_uint32_t*)(header + 1);
+    const cms_uint32_t* ew = (const cms_uint32_t*)(trailer);
 
-    assert(0 == (ew-bw)%2);
-    wordFedAppender_->initializeWordFed(fedId, wordCounterGPU, bw, (ew-bw));
-    wordCounterGPU+=(ew-bw);
+    assert(0 == (ew - bw) % 2);
+    wordFedAppender_->initializeWordFed(fedId, wordCounterGPU, bw, (ew - bw));
+    wordCounterGPU += (ew - bw);
 
-  } // end of for loop
+  }  // end of for loop
 
-  gpuAlgo_.makeClustersAsync(gpuMap, gpuModulesToUnpack, gpuGains,
+  gpuAlgo_.makeClustersAsync(gpuMap,
+                             gpuModulesToUnpack,
+                             gpuGains,
                              *wordFedAppender_,
                              std::move(errors_),
-                             wordCounterGPU, fedCounter, 
-                             useQuality_, includeErrors_,
+                             wordCounterGPU,
+                             fedCounter,
+                             useQuality_,
+                             includeErrors_,
                              edm::MessageDrop::instance()->debugEnabled,
                              ctx.stream());
 }
@@ -236,7 +250,7 @@ void SiPixelRawToClusterCUDA::produce(edm::Event& iEvent, const edm::EventSetup&
   auto tmp = gpuAlgo_.getResults();
   ctx.emplace(iEvent, digiPutToken_, std::move(tmp.first));
   ctx.emplace(iEvent, clusterPutToken_, std::move(tmp.second));
-  if(includeErrors_) {
+  if (includeErrors_) {
     ctx.emplace(iEvent, digiErrorPutToken_, gpuAlgo_.getErrors());
   }
 }

@@ -23,8 +23,8 @@ namespace eigenSoA {
     __host__ __device__ constexpr Scalar& operator[](int32_t i) { return data_[i]; }
     __device__ constexpr const Scalar operator[](int32_t i) const { return __ldg(data_ + i); }
 
-    __host__ __device__ constexpr Scalar * data() { return data_; }
-    __host__ __device__ constexpr Scalar const * data() const { return data_; }
+    __host__ __device__ constexpr Scalar* data() { return data_; }
+    __host__ __device__ constexpr Scalar const* data() const { return data_; }
 
   private:
     Scalar data_[S];

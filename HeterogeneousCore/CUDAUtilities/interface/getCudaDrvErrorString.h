@@ -6,10 +6,9 @@
 inline const char *getCudaDrvErrorString(CUresult error_id) {
   const char *message;
   auto ret = cuGetErrorName(error_id, &message);
-  if(ret == CUDA_ERROR_INVALID_VALUE) {
+  if (ret == CUDA_ERROR_INVALID_VALUE) {
     return static_cast<const char *>("CUDA_ERROR not found!");
-  }
-  else {
+  } else {
     return message;
   }
 }

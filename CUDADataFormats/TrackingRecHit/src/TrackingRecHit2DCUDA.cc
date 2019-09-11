@@ -4,14 +4,14 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
-template<>
+template <>
 cudautils::host::unique_ptr<float[]> TrackingRecHit2DCUDA::localCoordToHostAsync(cuda::stream_t<> &stream) const {
   auto ret = cudautils::make_host_unique<float[]>(4 * nHits(), stream);
   cudautils::copyAsync(ret, m_store32, 4 * nHits(), stream);
   return ret;
 }
 
-template<>
+template <>
 cudautils::host::unique_ptr<uint32_t[]> TrackingRecHit2DCUDA::hitsModuleStartToHostAsync(
     cuda::stream_t<> &stream) const {
   auto ret = cudautils::make_host_unique<uint32_t[]>(2001, stream);

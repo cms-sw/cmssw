@@ -17,7 +17,6 @@
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
 #include "HeterogeneousCore/CUDACore/interface/GPUCuda.h"
 
-
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 
 class PixelTrackSoAFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
@@ -33,43 +32,34 @@ private:
                edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
 
-
   edm::EDGetTokenT<CUDAProduct<PixelTrackHeterogeneous>> tokenCUDA_;
   edm::EDPutTokenT<PixelTrackHeterogeneous> tokenSOA_;
 
   cudautils::host::unique_ptr<pixelTrack::TrackSoA> m_soa;
-
 };
 
-PixelTrackSoAFromCUDA::PixelTrackSoAFromCUDA(const edm::ParameterSet& iConfig) :
-  tokenCUDA_(consumes<CUDAProduct<PixelTrackHeterogeneous>>(iConfig.getParameter<edm::InputTag>("src"))),
-  tokenSOA_(produces<PixelTrackHeterogeneous>())
-{}
-
+PixelTrackSoAFromCUDA::PixelTrackSoAFromCUDA(const edm::ParameterSet& iConfig)
+    : tokenCUDA_(consumes<CUDAProduct<PixelTrackHeterogeneous>>(iConfig.getParameter<edm::InputTag>("src"))),
+      tokenSOA_(produces<PixelTrackHeterogeneous>()) {}
 
 void PixelTrackSoAFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
 
-   desc.add<edm::InputTag>("src", edm::InputTag("caHitNtupletCUDA"));
-   descriptions.add("pixelTrackSoA", desc);
-
+  desc.add<edm::InputTag>("src", edm::InputTag("caHitNtupletCUDA"));
+  descriptions.add("pixelTrackSoA", desc);
 }
 
-
 void PixelTrackSoAFromCUDA::acquire(edm::Event const& iEvent,
-               edm::EventSetup const& iSetup,
-               edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
+                                    edm::EventSetup const& iSetup,
+                                    edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   CUDAProduct<PixelTrackHeterogeneous> const& inputDataWrapped = iEvent.get(tokenCUDA_);
   CUDAScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
   auto const& inputData = ctx.get(inputDataWrapped);
 
   m_soa = inputData.toHostAsync(ctx.stream());
-
 }
 
 void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
-
   /*
   auto const & tsoa = *m_soa;
   auto maxTracks = tsoa.stride();
@@ -86,10 +76,9 @@ void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& i
   */
 
   // DO NOT  make a copy  (actually TWO....)
-  iEvent.emplace(tokenSOA_,PixelTrackHeterogeneous(std::move(m_soa)));
+  iEvent.emplace(tokenSOA_, PixelTrackHeterogeneous(std::move(m_soa)));
 
   assert(!m_soa);
 }
-
 
 DEFINE_FWK_MODULE(PixelTrackSoAFromCUDA);

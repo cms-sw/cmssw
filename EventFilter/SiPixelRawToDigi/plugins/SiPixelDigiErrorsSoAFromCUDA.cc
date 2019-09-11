@@ -11,7 +11,7 @@
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
-class SiPixelDigiErrorsSoAFromCUDA: public edm::stream::EDProducer<edm::ExternalWork> {
+class SiPixelDigiErrorsSoAFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   explicit SiPixelDigiErrorsSoAFromCUDA(const edm::ParameterSet& iConfig);
   ~SiPixelDigiErrorsSoAFromCUDA() override = default;
@@ -19,7 +19,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void acquire(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
+  void acquire(const edm::Event& iEvent,
+               const edm::EventSetup& iSetup,
+               edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   edm::EDGetTokenT<CUDAProduct<SiPixelDigiErrorsCUDA>> digiErrorGetToken_;
@@ -27,13 +29,12 @@ private:
 
   cudautils::host::unique_ptr<PixelErrorCompact[]> data_;
   GPU::SimpleVector<PixelErrorCompact> error_;
-  const PixelFormatterErrors *formatterErrors_ = nullptr;
+  const PixelFormatterErrors* formatterErrors_ = nullptr;
 };
 
-SiPixelDigiErrorsSoAFromCUDA::SiPixelDigiErrorsSoAFromCUDA(const edm::ParameterSet& iConfig):
-  digiErrorGetToken_(consumes<CUDAProduct<SiPixelDigiErrorsCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
-  digiErrorPutToken_(produces<SiPixelDigiErrorsSoA>())
-{}
+SiPixelDigiErrorsSoAFromCUDA::SiPixelDigiErrorsSoAFromCUDA(const edm::ParameterSet& iConfig)
+    : digiErrorGetToken_(consumes<CUDAProduct<SiPixelDigiErrorsCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
+      digiErrorPutToken_(produces<SiPixelDigiErrorsSoA>()) {}
 
 void SiPixelDigiErrorsSoAFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -41,7 +42,9 @@ void SiPixelDigiErrorsSoAFromCUDA::fillDescriptions(edm::ConfigurationDescriptio
   descriptions.addWithDefaultLabel(desc);
 }
 
-void SiPixelDigiErrorsSoAFromCUDA::acquire(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
+void SiPixelDigiErrorsSoAFromCUDA::acquire(const edm::Event& iEvent,
+                                           const edm::EventSetup& iSetup,
+                                           edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   // Do the transfer in a CUDA stream parallel to the computation CUDA stream
   CUDAScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder)};
 

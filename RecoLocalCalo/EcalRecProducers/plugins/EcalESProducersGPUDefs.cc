@@ -18,32 +18,19 @@
 
 #include <iostream>
 
-using EcalPedestalsGPUESProducer = EcalESProducerGPU<EcalPedestalsGPU,
-                                                     EcalPedestals,
-                                                     EcalPedestalsRcd>;
-using EcalGainRatiosGPUESProducer = EcalESProducerGPU<EcalGainRatiosGPU,
-                                                      EcalGainRatios,
-                                                      EcalGainRatiosRcd>;
-using EcalPulseShapesGPUESProducer = EcalESProducerGPU<EcalPulseShapesGPU,
-                                                       EcalPulseShapes,
-                                                       EcalPulseShapesRcd>;
-using EcalPulseCovariancesGPUESProducer = EcalESProducerGPU<EcalPulseCovariancesGPU,
-                                                            EcalPulseCovariances,
-                                                            EcalPulseCovariancesRcd>;
-using EcalSamplesCorrelationGPUESProducer = EcalESProducerGPU<
-    EcalSamplesCorrelationGPU,
-    EcalSamplesCorrelation,
-    EcalSamplesCorrelationRcd>;
+using EcalPedestalsGPUESProducer = EcalESProducerGPU<EcalPedestalsGPU, EcalPedestals, EcalPedestalsRcd>;
+using EcalGainRatiosGPUESProducer = EcalESProducerGPU<EcalGainRatiosGPU, EcalGainRatios, EcalGainRatiosRcd>;
+using EcalPulseShapesGPUESProducer = EcalESProducerGPU<EcalPulseShapesGPU, EcalPulseShapes, EcalPulseShapesRcd>;
+using EcalPulseCovariancesGPUESProducer =
+    EcalESProducerGPU<EcalPulseCovariancesGPU, EcalPulseCovariances, EcalPulseCovariancesRcd>;
+using EcalSamplesCorrelationGPUESProducer =
+    EcalESProducerGPU<EcalSamplesCorrelationGPU, EcalSamplesCorrelation, EcalSamplesCorrelationRcd>;
 
-using EcalTimeBiasCorrectionsGPUESProducer = EcalESProducerGPU<
-    EcalTimeBiasCorrectionsGPU,
-    EcalTimeBiasCorrections,
-    EcalTimeBiasCorrectionsRcd>;
+using EcalTimeBiasCorrectionsGPUESProducer =
+    EcalESProducerGPU<EcalTimeBiasCorrectionsGPU, EcalTimeBiasCorrections, EcalTimeBiasCorrectionsRcd>;
 
-using EcalTimeCalibConstantsGPUESProducer = EcalESProducerGPU<
-    EcalTimeCalibConstantsGPU,
-    EcalTimeCalibConstants,
-    EcalTimeCalibConstantsRcd>;
+using EcalTimeCalibConstantsGPUESProducer =
+    EcalESProducerGPU<EcalTimeCalibConstantsGPU, EcalTimeCalibConstants, EcalTimeCalibConstantsRcd>;
 
 DEFINE_FWK_EVENTSETUP_MODULE(EcalPedestalsGPUESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(EcalGainRatiosGPUESProducer);

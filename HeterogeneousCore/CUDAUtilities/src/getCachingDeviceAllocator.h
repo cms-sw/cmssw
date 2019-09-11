@@ -23,8 +23,7 @@ namespace cudautils {
     constexpr double maxCachedFraction = 0.8;
     constexpr bool debug = false;
 
-    inline
-    size_t minCachedBytes() {
+    inline size_t minCachedBytes() {
       size_t ret = std::numeric_limits<size_t>::max();
       int currentDevice;
       cudaCheck(cudaGetDevice(&currentDevice));
@@ -42,37 +41,37 @@ namespace cudautils {
       return ret;
     }
 
-    inline
-    notcub::CachingDeviceAllocator& getCachingDeviceAllocator() {
+    inline notcub::CachingDeviceAllocator& getCachingDeviceAllocator() {
       LogDebug("CachingDeviceAllocator").log([](auto& log) {
-          log << "cub::CachingDeviceAllocator settings\n"
-              << "  bin growth " << binGrowth << "\n"
-              << "  min bin    " << minBin << "\n"
-              << "  max bin    " << maxBin << "\n"
-              << "  resulting bins:\n";
-          for (auto bin = minBin; bin <= maxBin; ++bin) {
-            auto binSize = notcub::CachingDeviceAllocator::IntPow(binGrowth, bin);
-            if (binSize >= (1<<30) and binSize % (1<<30) == 0) {
-              log << "    " << std::setw(8) << (binSize >> 30) << " GB\n";
-            } else if (binSize >= (1<<20) and binSize % (1<<20) == 0) {
-              log << "    " << std::setw(8) << (binSize >> 20) << " MB\n";
-            } else if (binSize >= (1<<10) and binSize % (1<<10) == 0) {
-              log << "    " << std::setw(8) << (binSize >> 10) << " kB\n";
-            } else {
-              log << "    " << std::setw(9) << binSize << " B\n";
-            }
+        log << "cub::CachingDeviceAllocator settings\n"
+            << "  bin growth " << binGrowth << "\n"
+            << "  min bin    " << minBin << "\n"
+            << "  max bin    " << maxBin << "\n"
+            << "  resulting bins:\n";
+        for (auto bin = minBin; bin <= maxBin; ++bin) {
+          auto binSize = notcub::CachingDeviceAllocator::IntPow(binGrowth, bin);
+          if (binSize >= (1 << 30) and binSize % (1 << 30) == 0) {
+            log << "    " << std::setw(8) << (binSize >> 30) << " GB\n";
+          } else if (binSize >= (1 << 20) and binSize % (1 << 20) == 0) {
+            log << "    " << std::setw(8) << (binSize >> 20) << " MB\n";
+          } else if (binSize >= (1 << 10) and binSize % (1 << 10) == 0) {
+            log << "    " << std::setw(8) << (binSize >> 10) << " kB\n";
+          } else {
+            log << "    " << std::setw(9) << binSize << " B\n";
           }
-          log << "  maximum amount of cached memory: " << (minCachedBytes() >> 20) << " MB\n";
-        });
+        }
+        log << "  maximum amount of cached memory: " << (minCachedBytes() >> 20) << " MB\n";
+      });
 
-      static notcub::CachingDeviceAllocator allocator {
-        binGrowth, minBin, maxBin, minCachedBytes(),
-          false, // do not skip cleanup
-          debug
-          };
+      static notcub::CachingDeviceAllocator allocator{binGrowth,
+                                                      minBin,
+                                                      maxBin,
+                                                      minCachedBytes(),
+                                                      false,  // do not skip cleanup
+                                                      debug};
       return allocator;
     }
-  }
-}
+  }  // namespace allocator
+}  // namespace cudautils
 
 #endif

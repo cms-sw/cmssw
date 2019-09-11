@@ -23,7 +23,6 @@
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
 
-
 class PixelTrackDumpCUDA : public edm::global::EDAnalyzer<> {
 public:
   explicit PixelTrackDumpCUDA(const edm::ParameterSet& iConfig);
@@ -32,21 +31,21 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void analyze(edm::StreamID streamID, edm::Event const & iEvent, const edm::EventSetup& iSetup) const override;
+  void analyze(edm::StreamID streamID, edm::Event const& iEvent, const edm::EventSetup& iSetup) const override;
   const bool m_onGPU;
   edm::EDGetTokenT<CUDAProduct<PixelTrackHeterogeneous>> tokenGPUTrack_;
   edm::EDGetTokenT<CUDAProduct<ZVertexHeterogeneous>> tokenGPUVertex_;
   edm::EDGetTokenT<PixelTrackHeterogeneous> tokenSoATrack_;
   edm::EDGetTokenT<ZVertexHeterogeneous> tokenSoAVertex_;
-
-
 };
 
-PixelTrackDumpCUDA::PixelTrackDumpCUDA(const edm::ParameterSet& iConfig) :
-  m_onGPU(iConfig.getParameter<bool>("onGPU")) {
+PixelTrackDumpCUDA::PixelTrackDumpCUDA(const edm::ParameterSet& iConfig)
+    : m_onGPU(iConfig.getParameter<bool>("onGPU")) {
   if (m_onGPU) {
-    tokenGPUTrack_ = consumes<CUDAProduct<PixelTrackHeterogeneous>>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
-    tokenGPUVertex_ = consumes<CUDAProduct<ZVertexHeterogeneous>>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
+    tokenGPUTrack_ =
+        consumes<CUDAProduct<PixelTrackHeterogeneous>>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
+    tokenGPUVertex_ =
+        consumes<CUDAProduct<ZVertexHeterogeneous>>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
   } else {
     tokenSoATrack_ = consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
     tokenSoAVertex_ = consumes<ZVertexHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
@@ -56,37 +55,34 @@ PixelTrackDumpCUDA::PixelTrackDumpCUDA(const edm::ParameterSet& iConfig) :
 void PixelTrackDumpCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-   desc.add<bool>("onGPU",true);
-   desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("caHitNtupletCUDA"));
-   desc.add<edm::InputTag>("pixelVertexSrc", edm::InputTag("pixelVertexCUDA"));
-   descriptions.add("pixelTrackDumpCUDA", desc);
+  desc.add<bool>("onGPU", true);
+  desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("caHitNtupletCUDA"));
+  desc.add<edm::InputTag>("pixelVertexSrc", edm::InputTag("pixelVertexCUDA"));
+  descriptions.add("pixelTrackDumpCUDA", desc);
 }
 
-void PixelTrackDumpCUDA::analyze(edm::StreamID streamID, edm::Event const & iEvent, const edm::EventSetup& iSetup) const {
+void PixelTrackDumpCUDA::analyze(edm::StreamID streamID,
+                                 edm::Event const& iEvent,
+                                 const edm::EventSetup& iSetup) const {
   if (m_onGPU) {
-
-    auto const & hTracks = iEvent.get(tokenGPUTrack_);
+    auto const& hTracks = iEvent.get(tokenGPUTrack_);
     CUDAScopedContextProduce ctx{hTracks};
 
     auto const& tracks = ctx.get(hTracks);
-    auto const * tsoa = tracks.get();
+    auto const* tsoa = tracks.get();
     assert(tsoa);
 
     auto const& vertices = ctx.get(iEvent.get(tokenGPUVertex_));
-    auto const * vsoa = vertices.get();
+    auto const* vsoa = vertices.get();
     assert(vsoa);
 
   } else {
-    auto const * tsoa = iEvent.get(tokenSoATrack_).get();
+    auto const* tsoa = iEvent.get(tokenSoATrack_).get();
     assert(tsoa);
 
-    auto const * vsoa = iEvent.get(tokenSoAVertex_).get();
+    auto const* vsoa = iEvent.get(tokenSoAVertex_).get();
     assert(vsoa);
-
   }
-
 }
 
-
 DEFINE_FWK_MODULE(PixelTrackDumpCUDA);
-

@@ -6,69 +6,71 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
 namespace {
-  template<typename T>
-  __global__
-  void vectorAddConstant(T *a, T b, int numElements) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if(i < numElements) { a[i] += b; }
-  }
-
-  template<typename T>
-  __global__
-  void vectorAdd(const T *a, const T *b, T *c, int numElements) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if(i < numElements) { c[i] = a[i] + b[i]; }
-  }
-
   template <typename T>
-  __global__
-  void vectorProd(const T *a, const T *b, T *c, int numElements) {
-    int row = blockIdx.y*blockDim.y + threadIdx.y;
-    int col = blockIdx.x*blockDim.x + threadIdx.x;
-
-    if(row < numElements && col < numElements) {
-      c[row*numElements + col] = a[row]*b[col];
+  __global__ void vectorAddConstant(T *a, T b, int numElements) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < numElements) {
+      a[i] += b;
     }
   }
 
   template <typename T>
-  __global__
-  void matrixMul(const T *a, const T *b, T *c, int numElements) {
-    int row = blockIdx.y*blockDim.y + threadIdx.y;
-    int col = blockIdx.x*blockDim.x + threadIdx.x;
+  __global__ void vectorAdd(const T *a, const T *b, T *c, int numElements) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < numElements) {
+      c[i] = a[i] + b[i];
+    }
+  }
 
-    if(row < numElements && col < numElements) {
+  template <typename T>
+  __global__ void vectorProd(const T *a, const T *b, T *c, int numElements) {
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (row < numElements && col < numElements) {
+      c[row * numElements + col] = a[row] * b[col];
+    }
+  }
+
+  template <typename T>
+  __global__ void matrixMul(const T *a, const T *b, T *c, int numElements) {
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (row < numElements && col < numElements) {
       T tmp = 0;
-      for(int i=0; i<numElements; ++i) {
-        tmp += a[row*numElements + i] * b[i*numElements + col];
+      for (int i = 0; i < numElements; ++i) {
+        tmp += a[row * numElements + i] * b[i * numElements + col];
       }
-      c[row*numElements + col] = tmp;
+      c[row * numElements + col] = tmp;
     }
   }
 
   template <typename T>
-  __global__
-  void matrixMulVector(const T *a, const T *b, T *c, int numElements) {
-    int row = blockIdx.y*blockDim.y + threadIdx.y;
+  __global__ void matrixMulVector(const T *a, const T *b, T *c, int numElements) {
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
 
-    if(row < numElements) {
+    if (row < numElements) {
       T tmp = 0;
-      for(int i=0; i<numElements; ++i) {
-        tmp += a[row*numElements + i] * b[i];
+      for (int i = 0; i < numElements; ++i) {
+        tmp += a[row * numElements + i] * b[i];
       }
       c[row] = tmp;
     }
   }
-}
+}  // namespace
 
-cudautils::device::unique_ptr<float[]> TestCUDAProducerGPUKernel::runAlgo(const std::string& label, const float *d_input, cuda::stream_t<>& stream) const {
+cudautils::device::unique_ptr<float[]> TestCUDAProducerGPUKernel::runAlgo(const std::string &label,
+                                                                          const float *d_input,
+                                                                          cuda::stream_t<> &stream) const {
   // First make the sanity check
-  if(d_input != nullptr) {
+  if (d_input != nullptr) {
     auto h_check = std::make_unique<float[]>(NUM_VALUES);
-    cuda::memory::copy(h_check.get(), d_input, NUM_VALUES*sizeof(float));
-    for(int i=0; i<NUM_VALUES; ++i) {
-      if(h_check[i] != i) {
-        throw cms::Exception("Assert") << "Sanity check on element " << i << " failed, expected " << i << " got " << h_check[i];
+    cuda::memory::copy(h_check.get(), d_input, NUM_VALUES * sizeof(float));
+    for (int i = 0; i < NUM_VALUES; ++i) {
+      if (h_check[i] != i) {
+        throw cms::Exception("Assert") << "Sanity check on element " << i << " failed, expected " << i << " got "
+                                       << h_check[i];
       }
     }
   }
@@ -76,35 +78,36 @@ cudautils::device::unique_ptr<float[]> TestCUDAProducerGPUKernel::runAlgo(const 
   auto h_a = cudautils::make_host_unique<float[]>(NUM_VALUES, stream);
   auto h_b = cudautils::make_host_unique<float[]>(NUM_VALUES, stream);
 
-  for (auto i=0; i<NUM_VALUES; i++) {
+  for (auto i = 0; i < NUM_VALUES; i++) {
     h_a[i] = i;
-    h_b[i] = i*i;
+    h_b[i] = i * i;
   }
 
   auto d_a = cudautils::make_device_unique<float[]>(NUM_VALUES, stream);
   auto d_b = cudautils::make_device_unique<float[]>(NUM_VALUES, stream);
 
-  cuda::memory::async::copy(d_a.get(), h_a.get(), NUM_VALUES*sizeof(float), stream.id());
-  cuda::memory::async::copy(d_b.get(), h_b.get(), NUM_VALUES*sizeof(float), stream.id());
+  cuda::memory::async::copy(d_a.get(), h_a.get(), NUM_VALUES * sizeof(float), stream.id());
+  cuda::memory::async::copy(d_b.get(), h_b.get(), NUM_VALUES * sizeof(float), stream.id());
 
-  int threadsPerBlock {32};
+  int threadsPerBlock{32};
   int blocksPerGrid = (NUM_VALUES + threadsPerBlock - 1) / threadsPerBlock;
 
   auto d_c = cudautils::make_device_unique<float[]>(NUM_VALUES, stream);
   auto current_device = cuda::device::current::get();
-  edm::LogVerbatim("TestHeterogeneousEDProducerGPU") << "  " << label << " GPU launching kernels device " << current_device.id() << " CUDA stream " << stream.id();
+  edm::LogVerbatim("TestHeterogeneousEDProducerGPU")
+      << "  " << label << " GPU launching kernels device " << current_device.id() << " CUDA stream " << stream.id();
   vectorAdd<<<blocksPerGrid, threadsPerBlock, 0, stream.id()>>>(d_a.get(), d_b.get(), d_c.get(), NUM_VALUES);
 
-  auto d_ma = cudautils::make_device_unique<float[]>(NUM_VALUES*NUM_VALUES, stream);
-  auto d_mb = cudautils::make_device_unique<float[]>(NUM_VALUES*NUM_VALUES, stream);
-  auto d_mc = cudautils::make_device_unique<float[]>(NUM_VALUES*NUM_VALUES, stream);
+  auto d_ma = cudautils::make_device_unique<float[]>(NUM_VALUES * NUM_VALUES, stream);
+  auto d_mb = cudautils::make_device_unique<float[]>(NUM_VALUES * NUM_VALUES, stream);
+  auto d_mc = cudautils::make_device_unique<float[]>(NUM_VALUES * NUM_VALUES, stream);
   dim3 threadsPerBlock3{NUM_VALUES, NUM_VALUES};
-  dim3 blocksPerGrid3{1,1};
-  if(NUM_VALUES*NUM_VALUES > 32) {
+  dim3 blocksPerGrid3{1, 1};
+  if (NUM_VALUES * NUM_VALUES > 32) {
     threadsPerBlock3.x = 32;
     threadsPerBlock3.y = 32;
-    blocksPerGrid3.x = ceil(double(NUM_VALUES)/double(threadsPerBlock3.x));
-    blocksPerGrid3.y = ceil(double(NUM_VALUES)/double(threadsPerBlock3.y));
+    blocksPerGrid3.x = ceil(double(NUM_VALUES) / double(threadsPerBlock3.x));
+    blocksPerGrid3.y = ceil(double(NUM_VALUES) / double(threadsPerBlock3.y));
   }
   vectorProd<<<blocksPerGrid3, threadsPerBlock3, 0, stream.id()>>>(d_a.get(), d_b.get(), d_ma.get(), NUM_VALUES);
   vectorProd<<<blocksPerGrid3, threadsPerBlock3, 0, stream.id()>>>(d_a.get(), d_c.get(), d_mb.get(), NUM_VALUES);
@@ -112,12 +115,14 @@ cudautils::device::unique_ptr<float[]> TestCUDAProducerGPUKernel::runAlgo(const 
 
   matrixMulVector<<<blocksPerGrid, threadsPerBlock, 0, stream.id()>>>(d_mc.get(), d_b.get(), d_c.get(), NUM_VALUES);
 
-  edm::LogVerbatim("TestHeterogeneousEDProducerGPU") << "  " << label << " GPU kernels launched, returning return pointer device " << current_device.id() << " CUDA stream " << stream.id();
+  edm::LogVerbatim("TestHeterogeneousEDProducerGPU")
+      << "  " << label << " GPU kernels launched, returning return pointer device " << current_device.id()
+      << " CUDA stream " << stream.id();
   return d_a;
 }
 
-void TestCUDAProducerGPUKernel::runSimpleAlgo(float *d_data, cuda::stream_t<>& stream) const {
-  int threadsPerBlock {32};
+void TestCUDAProducerGPUKernel::runSimpleAlgo(float *d_data, cuda::stream_t<> &stream) const {
+  int threadsPerBlock{32};
   int blocksPerGrid = (NUM_VALUES + threadsPerBlock - 1) / threadsPerBlock;
   vectorAddConstant<<<blocksPerGrid, threadsPerBlock, 0, stream.id()>>>(d_data, 1.0f, NUM_VALUES);
 }

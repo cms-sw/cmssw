@@ -15,10 +15,7 @@ __global__ void vector_pushback(GPU::SimpleVector<int> *foo) {
   foo->push_back(index);
 }
 
-__global__ void vector_reset(GPU::SimpleVector<int> *foo) {
-
-  foo->reset();
-}
+__global__ void vector_reset(GPU::SimpleVector<int> *foo) { foo->reset(); }
 
 __global__ void vector_emplace_back(GPU::SimpleVector<int> *foo) {
   auto index = threadIdx.x + blockIdx.x * blockDim.x;
@@ -58,9 +55,7 @@ int main() {
 
   cudaCheck(cudaMemcpy(obj_ptr, d_obj_ptr, sizeof(GPU::SimpleVector<int>), cudaMemcpyDefault));
 
-  assert(obj_ptr->size() == (numBlocks * numThreadsPerBlock < maxN
-                                 ? numBlocks * numThreadsPerBlock
-                                 : maxN));
+  assert(obj_ptr->size() == (numBlocks * numThreadsPerBlock < maxN ? numBlocks * numThreadsPerBlock : maxN));
   vector_reset<<<numBlocks, numThreadsPerBlock>>>(d_obj_ptr);
   cudaCheck(cudaGetLastError());
   cudaCheck(cudaDeviceSynchronize());
@@ -75,9 +70,7 @@ int main() {
 
   cudaCheck(cudaMemcpy(obj_ptr, d_obj_ptr, sizeof(GPU::SimpleVector<int>), cudaMemcpyDefault));
 
-  assert(obj_ptr->size() == (numBlocks * numThreadsPerBlock < maxN
-                                 ? numBlocks * numThreadsPerBlock
-                                 : maxN));
+  assert(obj_ptr->size() == (numBlocks * numThreadsPerBlock < maxN ? numBlocks * numThreadsPerBlock : maxN));
 
   cudaCheck(cudaMemcpy(data_ptr, d_data_ptr, obj_ptr->size() * sizeof(int), cudaMemcpyDefault));
   cudaCheck(cudaFreeHost(obj_ptr));

@@ -11,17 +11,15 @@
 class SiPixelClustersCUDA {
 public:
   SiPixelClustersCUDA() = default;
-  explicit SiPixelClustersCUDA(size_t maxClusters, cuda::stream_t<>& stream);
+  explicit SiPixelClustersCUDA(size_t maxClusters, cuda::stream_t<> &stream);
   ~SiPixelClustersCUDA() = default;
 
-  SiPixelClustersCUDA(const SiPixelClustersCUDA&) = delete;
-  SiPixelClustersCUDA& operator=(const SiPixelClustersCUDA&) = delete;
-  SiPixelClustersCUDA(SiPixelClustersCUDA&&) = default;
-  SiPixelClustersCUDA& operator=(SiPixelClustersCUDA&&) = default;
+  SiPixelClustersCUDA(const SiPixelClustersCUDA &) = delete;
+  SiPixelClustersCUDA &operator=(const SiPixelClustersCUDA &) = delete;
+  SiPixelClustersCUDA(SiPixelClustersCUDA &&) = default;
+  SiPixelClustersCUDA &operator=(SiPixelClustersCUDA &&) = default;
 
-  void setNClusters(uint32_t nClusters) {
-    nClusters_h = nClusters;
-  }
+  void setNClusters(uint32_t nClusters) { nClusters_h = nClusters; }
 
   uint32_t nClusters() const { return nClusters_h; }
 
@@ -44,14 +42,14 @@ public:
   public:
     // DeviceConstView() = default;
 
-    __device__ __forceinline__ uint32_t moduleStart(int i) const { return __ldg(moduleStart_+i); }
-    __device__ __forceinline__ uint32_t clusInModule(int i) const { return __ldg(clusInModule_+i); }
-    __device__ __forceinline__ uint32_t moduleId(int i) const { return __ldg(moduleId_+i); }
-    __device__ __forceinline__ uint32_t clusModuleStart(int i) const { return __ldg(clusModuleStart_+i); }
+    __device__ __forceinline__ uint32_t moduleStart(int i) const { return __ldg(moduleStart_ + i); }
+    __device__ __forceinline__ uint32_t clusInModule(int i) const { return __ldg(clusInModule_ + i); }
+    __device__ __forceinline__ uint32_t moduleId(int i) const { return __ldg(moduleId_ + i); }
+    __device__ __forceinline__ uint32_t clusModuleStart(int i) const { return __ldg(clusModuleStart_ + i); }
 
     friend SiPixelClustersCUDA;
 
-//   private:
+    //   private:
     uint32_t const *moduleStart_;
     uint32_t const *clusInModule_;
     uint32_t const *moduleId_;
@@ -66,9 +64,9 @@ private:
   cudautils::device::unique_ptr<uint32_t[]> moduleId_d;      // module id of each module
 
   // originally from rechits
-  cudautils::device::unique_ptr<uint32_t[]> clusModuleStart_d; // index of the first cluster of each module
+  cudautils::device::unique_ptr<uint32_t[]> clusModuleStart_d;  // index of the first cluster of each module
 
-  cudautils::device::unique_ptr<DeviceConstView> view_d;    // "me" pointer
+  cudautils::device::unique_ptr<DeviceConstView> view_d;  // "me" pointer
 
   uint32_t nClusters_h;
 };

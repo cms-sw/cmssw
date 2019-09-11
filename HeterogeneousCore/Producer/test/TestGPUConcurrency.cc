@@ -6,16 +6,13 @@
 #include "TestGPUConcurrency.h"
 #include "TestGPUConcurrencyAlgo.h"
 
-TestGPUConcurrency::TestGPUConcurrency(edm::ParameterSet const& config):
-  HeterogeneousEDProducer(config),
-  blocks_(config.getParameter<uint32_t>("blocks")),
-  threads_(config.getParameter<uint32_t>("threads")),
-  sleep_(config.getParameter<uint32_t>("sleep"))
-{
-}
+TestGPUConcurrency::TestGPUConcurrency(edm::ParameterSet const& config)
+    : HeterogeneousEDProducer(config),
+      blocks_(config.getParameter<uint32_t>("blocks")),
+      threads_(config.getParameter<uint32_t>("threads")),
+      sleep_(config.getParameter<uint32_t>("sleep")) {}
 
-void TestGPUConcurrency::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-{
+void TestGPUConcurrency::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   HeterogeneousEDProducer::fillPSetDescription(desc);
   desc.add<uint32_t>("blocks", 100);
@@ -24,23 +21,21 @@ void TestGPUConcurrency::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.add("testGPUConcurrency", desc);
 }
 
-void TestGPUConcurrency::beginStreamGPUCuda(edm::StreamID streamId, cuda::stream_t<>& cudaStream)
-{
+void TestGPUConcurrency::beginStreamGPUCuda(edm::StreamID streamId, cuda::stream_t<>& cudaStream) {
   algo_ = new TestGPUConcurrencyAlgo(blocks_, threads_, sleep_);
 }
 
-void TestGPUConcurrency::acquireGPUCuda(const edm::HeterogeneousEvent& event, const edm::EventSetup& setup, cuda::stream_t<>& cudaStream)
-{
+void TestGPUConcurrency::acquireGPUCuda(const edm::HeterogeneousEvent& event,
+                                        const edm::EventSetup& setup,
+                                        cuda::stream_t<>& cudaStream) {
   algo_->kernelWrapper(cudaStream.id());
 }
 
-void TestGPUConcurrency::produceCPU(edm::HeterogeneousEvent& event, const edm::EventSetup& setup)
-{
-}
+void TestGPUConcurrency::produceCPU(edm::HeterogeneousEvent& event, const edm::EventSetup& setup) {}
 
-void TestGPUConcurrency::produceGPUCuda(edm::HeterogeneousEvent& event, const edm::EventSetup& setup, cuda::stream_t<>& cudaStream)
-{
-}
+void TestGPUConcurrency::produceGPUCuda(edm::HeterogeneousEvent& event,
+                                        const edm::EventSetup& setup,
+                                        cuda::stream_t<>& cudaStream) {}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(TestGPUConcurrency);

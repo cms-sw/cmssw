@@ -30,6 +30,6 @@ namespace cudautils {
   // Gets the global instance of a CUDAEventCache
   // This function is thread safe
   CUDAEventCache& getCUDAEventCache();
-}
+}  // namespace cudautils
 
-#endif 
+#endif

@@ -86,7 +86,7 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
 
   auto collection = std::make_unique<edm::DetSetVector<PixelDigi>>();
   auto outputClusters = std::make_unique<SiPixelClusterCollectionNew>();
-  outputClusters->reserve(2000,nDigis/4);
+  outputClusters->reserve(2000, nDigis / 4);
 
   edm::DetSet<PixelDigi>* detDigis = nullptr;
   for (uint32_t i = 0; i < nDigis; i++) {
@@ -113,7 +113,8 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
       // in any case we cannot  go out of sync with gpu...
       if (acluster.charge < clusterThreshold)
         edm::LogWarning("SiPixelDigisClustersFromSoA") << "cluster below charge Threshold "
-             << "Layer/DetId/clusId " << layer<<'/'<<detId<<'/'<<ic << " size/charge " << acluster.isize<<'/'<<acluster.charge; 
+                                                       << "Layer/DetId/clusId " << layer << '/' << detId << '/' << ic
+                                                       << " size/charge " << acluster.isize << '/' << acluster.charge;
       SiPixelCluster cluster(acluster.isize, acluster.adc, acluster.x, acluster.y, acluster.xmin, acluster.ymin);
       cluster.setOriginalId(ic);
       ++totCluseFilled;

@@ -33,66 +33,66 @@ void setCudaLimit(cudaLimit limit, const char* name, size_t request) {
   size_t value;
   cudaCheck(cudaDeviceGetLimit(&value, limit));
   if (cudaSuccess != result) {
-    edm::LogWarning("CUDAService") << "CUDA device " << device << ": failed to set limit \"" << name << "\" to " << request << ", current value is " << value ;
+    edm::LogWarning("CUDAService") << "CUDA device " << device << ": failed to set limit \"" << name << "\" to "
+                                   << request << ", current value is " << value;
   } else if (value != request) {
-    edm::LogWarning("CUDAService") << "CUDA device " << device << ": limit \"" << name << "\" set to " << value << " instead of requested " << request;
+    edm::LogWarning("CUDAService") << "CUDA device " << device << ": limit \"" << name << "\" set to " << value
+                                   << " instead of requested " << request;
   }
 }
 
-constexpr
-unsigned int getCudaCoresPerSM(unsigned int major, unsigned int minor) {
+constexpr unsigned int getCudaCoresPerSM(unsigned int major, unsigned int minor) {
   switch (major * 10 + minor) {
-  // Fermi architecture
-  case 20:  // SM 2.0: GF100 class
-    return  32;
-  case 21:  // SM 2.1: GF10x class
-    return  48;
+    // Fermi architecture
+    case 20:  // SM 2.0: GF100 class
+      return 32;
+    case 21:  // SM 2.1: GF10x class
+      return 48;
 
-  // Kepler architecture
-  case 30:  // SM 3.0: GK10x class
-  case 32:  // SM 3.2: GK10x class
-  case 35:  // SM 3.5: GK11x class
-  case 37:  // SM 3.7: GK21x class
-    return 192;
+    // Kepler architecture
+    case 30:  // SM 3.0: GK10x class
+    case 32:  // SM 3.2: GK10x class
+    case 35:  // SM 3.5: GK11x class
+    case 37:  // SM 3.7: GK21x class
+      return 192;
 
-  // Maxwell architecture
-  case 50:  // SM 5.0: GM10x class
-  case 52:  // SM 5.2: GM20x class
-  case 53:  // SM 5.3: GM20x class
-    return 128;
+    // Maxwell architecture
+    case 50:  // SM 5.0: GM10x class
+    case 52:  // SM 5.2: GM20x class
+    case 53:  // SM 5.3: GM20x class
+      return 128;
 
-  // Pascal architecture
-  case 60:  // SM 6.0: GP100 class
-    return  64;
-  case 61:  // SM 6.1: GP10x class
-  case 62:  // SM 6.2: GP10x class
-    return 128;
+    // Pascal architecture
+    case 60:  // SM 6.0: GP100 class
+      return 64;
+    case 61:  // SM 6.1: GP10x class
+    case 62:  // SM 6.2: GP10x class
+      return 128;
 
-  // Volta architecture
-  case 70:  // SM 7.0: GV100 class
-  case 72:  // SM 7.2: GV11b class
-    return  64;
+    // Volta architecture
+    case 70:  // SM 7.0: GV100 class
+    case 72:  // SM 7.2: GV11b class
+      return 64;
 
-  // Turing architecture
-  case 75:  // SM 7.5: TU10x class
-    return  64;
+    // Turing architecture
+    case 75:  // SM 7.5: TU10x class
+      return 64;
 
-  // unknown architecture, return a default value
-  default:
-    return  64;
+    // unknown architecture, return a default value
+    default:
+      return 64;
   }
 }
 
 namespace {
-  template <template<typename> typename UniquePtr,
-            typename Allocate>
+  template <template <typename> typename UniquePtr, typename Allocate>
   void preallocate(Allocate allocate, const std::vector<unsigned int>& bufferSizes) {
     auto current_device = cuda::device::current::get();
     auto stream = current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream);
 
     std::vector<UniquePtr<char[]> > buffers;
     buffers.reserve(bufferSizes.size());
-    for(auto size: bufferSizes) {
+    for (auto size : bufferSizes) {
       buffers.push_back(allocate(size, stream));
     }
   }
@@ -100,21 +100,21 @@ namespace {
   void devicePreallocate(int numberOfDevices, const std::vector<unsigned int>& bufferSizes) {
     int device;
     cudaCheck(cudaGetDevice(&device));
-    for(int i=0; i<numberOfDevices; ++i) {
+    for (int i = 0; i < numberOfDevices; ++i) {
       cudaCheck(cudaSetDevice(i));
-      preallocate<cudautils::device::unique_ptr>([&](size_t size, cuda::stream_t<>& stream) {
-          return cudautils::make_device_unique<char[]>(size, stream);
-        }, bufferSizes);
+      preallocate<cudautils::device::unique_ptr>(
+          [&](size_t size, cuda::stream_t<>& stream) { return cudautils::make_device_unique<char[]>(size, stream); },
+          bufferSizes);
     }
     cudaCheck(cudaSetDevice(device));
   }
 
   void hostPreallocate(const std::vector<unsigned int>& bufferSizes) {
-    preallocate<cudautils::host::unique_ptr>([&](size_t size, cuda::stream_t<>& stream) {
-        return cudautils::make_host_unique<char[]>(size, stream);
-      }, bufferSizes);
+    preallocate<cudautils::host::unique_ptr>(
+        [&](size_t size, cuda::stream_t<>& stream) { return cudautils::make_host_unique<char[]>(size, stream); },
+        bufferSizes);
   }
-}
+}  // namespace
 
 /// Constructor
 CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry& iRegistry) {
@@ -126,7 +126,8 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
 
   auto status = cudaGetDeviceCount(&numberOfDevices_);
   if (cudaSuccess != status) {
-    edm::LogWarning("CUDAService") << "Failed to initialize the CUDA runtime.\n" << "Disabling the CUDAService.";
+    edm::LogWarning("CUDAService") << "Failed to initialize the CUDA runtime.\n"
+                                   << "Disabling the CUDAService.";
     return;
   }
   edm::LogInfo log("CUDAService");
@@ -134,10 +135,10 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
   log << "CUDA runtime successfully initialised, found " << numberOfDevices_ << " compute devices.\n\n";
 
   auto const& limits = config.getUntrackedParameter<edm::ParameterSet>("limits");
-  auto printfFifoSize               = limits.getUntrackedParameter<int>("cudaLimitPrintfFifoSize");
-  auto stackSize                    = limits.getUntrackedParameter<int>("cudaLimitStackSize");
-  auto mallocHeapSize               = limits.getUntrackedParameter<int>("cudaLimitMallocHeapSize");
-  auto devRuntimeSyncDepth          = limits.getUntrackedParameter<int>("cudaLimitDevRuntimeSyncDepth");
+  auto printfFifoSize = limits.getUntrackedParameter<int>("cudaLimitPrintfFifoSize");
+  auto stackSize = limits.getUntrackedParameter<int>("cudaLimitStackSize");
+  auto mallocHeapSize = limits.getUntrackedParameter<int>("cudaLimitMallocHeapSize");
+  auto devRuntimeSyncDepth = limits.getUntrackedParameter<int>("cudaLimitDevRuntimeSyncDepth");
   auto devRuntimePendingLaunchCount = limits.getUntrackedParameter<int>("cudaLimitDevRuntimePendingLaunchCount");
 
   for (int i = 0; i < numberOfDevices_; ++i) {
@@ -148,22 +149,24 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
     log << "CUDA device " << i << ": " << properties.name << '\n';
 
     // compute capabilities
-    log << "  compute capability:          " << properties.major << "." << properties.minor << " (sm_" << properties.major << properties.minor << ")\n";
+    log << "  compute capability:          " << properties.major << "." << properties.minor << " (sm_"
+        << properties.major << properties.minor << ")\n";
     computeCapabilities_.emplace_back(properties.major, properties.minor);
     log << "  streaming multiprocessors: " << std::setw(13) << properties.multiProcessorCount << '\n';
-    log << "  CUDA cores: " << std::setw(28) << properties.multiProcessorCount * getCudaCoresPerSM(properties.major, properties.minor ) << '\n';
+    log << "  CUDA cores: " << std::setw(28)
+        << properties.multiProcessorCount * getCudaCoresPerSM(properties.major, properties.minor) << '\n';
     log << "  single to double performance: " << std::setw(8) << properties.singleToDoublePrecisionPerfRatio << ":1\n";
 
     // compute mode
     static constexpr const char* computeModeDescription[] = {
-      "default (shared)",               // cudaComputeModeDefault
-      "exclusive (single thread)",      // cudaComputeModeExclusive
-      "prohibited",                     // cudaComputeModeProhibited
-      "exclusive (single process)",     // cudaComputeModeExclusiveProcess
-      "unknown"
-    };
-    log << "  compute mode:" << std::right << std::setw(27) << computeModeDescription[std::min(properties.computeMode, (int) std::size(computeModeDescription) - 1)] << '\n';
-    
+        "default (shared)",            // cudaComputeModeDefault
+        "exclusive (single thread)",   // cudaComputeModeExclusive
+        "prohibited",                  // cudaComputeModeProhibited
+        "exclusive (single process)",  // cudaComputeModeExclusiveProcess
+        "unknown"};
+    log << "  compute mode:" << std::right << std::setw(27)
+        << computeModeDescription[std::min(properties.computeMode, (int)std::size(computeModeDescription) - 1)] << '\n';
+
     // TODO if a device is in exclusive use, skip it and remove it from the list, instead of failing with abort()
     cudaCheck(cudaSetDevice(i));
     cudaCheck(cudaSetDeviceFlags(cudaDeviceScheduleAuto | cudaDeviceMapHost));
@@ -172,32 +175,40 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
     // see the documentation of cudaMemGetInfo() for more information.
     size_t freeMemory, totalMemory;
     cudaCheck(cudaMemGetInfo(&freeMemory, &totalMemory));
-    log << "  memory: " << std::setw(6) << freeMemory / (1 << 20) << " MB free / " << std::setw(6) << totalMemory / (1 << 20) << " MB total\n";
+    log << "  memory: " << std::setw(6) << freeMemory / (1 << 20) << " MB free / " << std::setw(6)
+        << totalMemory / (1 << 20) << " MB total\n";
     log << "  constant memory:               " << std::setw(6) << properties.totalConstMem / (1 << 10) << " kB\n";
     log << "  L2 cache size:                 " << std::setw(6) << properties.l2CacheSize / (1 << 10) << " kB\n";
 
     // L1 cache behaviour
     static constexpr const char* l1CacheModeDescription[] = {
-      "unknown",
-      "local memory",
-      "global memory",
-      "local and global memory"
-    };
+        "unknown", "local memory", "global memory", "local and global memory"};
     int l1CacheMode = properties.localL1CacheSupported + 2 * properties.globalL1CacheSupported;
     log << "  L1 cache mode:" << std::setw(26) << std::right << l1CacheModeDescription[l1CacheMode] << '\n';
     log << '\n';
 
     log << "Other capabilities\n";
-    log << "  " << (properties.canMapHostMemory ? "can" : "cannot") << " map host memory into the CUDA address space for use with cudaHostAlloc()/cudaHostGetDevicePointer()\n";
-    log << "  " << (properties.pageableMemoryAccess ? "supports" : "does not support") << " coherently accessing pageable memory without calling cudaHostRegister() on it\n";
-    log << "  " << (properties.pageableMemoryAccessUsesHostPageTables ? "can" : "cannot") << " access pageable memory via the host's page tables\n";
-    log << "  " << (properties.canUseHostPointerForRegisteredMem ? "can" : "cannot") << " access host registered memory at the same virtual address as the host\n";
-    log << "  " << (properties.unifiedAddressing ? "shares" : "does not share") << " a unified address space with the host\n";
-    log << "  " << (properties.managedMemory ? "supports" : "does not support") << " allocating managed memory on this system\n";
-    log << "  " << (properties.concurrentManagedAccess ? "can" : "cannot") << " coherently access managed memory concurrently with the host\n";
-    log << "  " << "the host " << (properties.directManagedMemAccessFromHost ? "can" : "cannot") << " directly access managed memory on the device without migration\n";
-    log << "  " << (properties.cooperativeLaunch ? "supports" : "does not support") << " launching cooperative kernels via cudaLaunchCooperativeKernel()\n";
-    log << "  " << (properties.cooperativeMultiDeviceLaunch ? "supports" : "does not support") << " launching cooperative kernels via cudaLaunchCooperativeKernelMultiDevice()\n";
+    log << "  " << (properties.canMapHostMemory ? "can" : "cannot")
+        << " map host memory into the CUDA address space for use with cudaHostAlloc()/cudaHostGetDevicePointer()\n";
+    log << "  " << (properties.pageableMemoryAccess ? "supports" : "does not support")
+        << " coherently accessing pageable memory without calling cudaHostRegister() on it\n";
+    log << "  " << (properties.pageableMemoryAccessUsesHostPageTables ? "can" : "cannot")
+        << " access pageable memory via the host's page tables\n";
+    log << "  " << (properties.canUseHostPointerForRegisteredMem ? "can" : "cannot")
+        << " access host registered memory at the same virtual address as the host\n";
+    log << "  " << (properties.unifiedAddressing ? "shares" : "does not share")
+        << " a unified address space with the host\n";
+    log << "  " << (properties.managedMemory ? "supports" : "does not support")
+        << " allocating managed memory on this system\n";
+    log << "  " << (properties.concurrentManagedAccess ? "can" : "cannot")
+        << " coherently access managed memory concurrently with the host\n";
+    log << "  "
+        << "the host " << (properties.directManagedMemAccessFromHost ? "can" : "cannot")
+        << " directly access managed memory on the device without migration\n";
+    log << "  " << (properties.cooperativeLaunch ? "supports" : "does not support")
+        << " launching cooperative kernels via cudaLaunchCooperativeKernel()\n";
+    log << "  " << (properties.cooperativeMultiDeviceLaunch ? "supports" : "does not support")
+        << " launching cooperative kernels via cudaLaunchCooperativeKernelMultiDevice()\n";
     log << '\n';
 
     // set and read the CUDA device flags.
@@ -259,7 +270,9 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
       // cudaLimitDevRuntimePendingLaunchCount controls the maximum number of outstanding
       // device runtime launches that can be made from the current device.
       if (devRuntimePendingLaunchCount >= 0) {
-        setCudaLimit(cudaLimitDevRuntimePendingLaunchCount, "cudaLimitDevRuntimePendingLaunchCount", devRuntimePendingLaunchCount);
+        setCudaLimit(cudaLimitDevRuntimePendingLaunchCount,
+                     "cudaLimitDevRuntimePendingLaunchCount",
+                     devRuntimePendingLaunchCount);
       }
     }
 
@@ -293,9 +306,9 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
 CUDAService::~CUDAService() {
   if (enabled_) {
     // Explicitly destruct the allocator before the device resets below
-    if constexpr(cudautils::allocator::useCaching) {
-        cudautils::allocator::getCachingDeviceAllocator().FreeAllCached();
-        cudautils::allocator::getCachingHostAllocator().FreeAllCached();
+    if constexpr (cudautils::allocator::useCaching) {
+      cudautils::allocator::getCachingDeviceAllocator().FreeAllCached();
+      cudautils::allocator::getCachingHostAllocator().FreeAllCached();
     }
     cudautils::getCUDAEventCache().clear();
     cudautils::getCUDAStreamCache().clear();
@@ -311,21 +324,30 @@ CUDAService::~CUDAService() {
   }
 }
 
-void CUDAService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+void CUDAService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<bool>("enabled", true);
 
   edm::ParameterSetDescription limits;
-  limits.addUntracked<int>("cudaLimitPrintfFifoSize", -1)->setComment("Size in bytes of the shared FIFO used by the printf() device system call.");
+  limits.addUntracked<int>("cudaLimitPrintfFifoSize", -1)
+      ->setComment("Size in bytes of the shared FIFO used by the printf() device system call.");
   limits.addUntracked<int>("cudaLimitStackSize", -1)->setComment("Stack size in bytes of each GPU thread.");
-  limits.addUntracked<int>("cudaLimitMallocHeapSize", -1)->setComment("Size in bytes of the heap used by the malloc() and free() device system calls.");
-  limits.addUntracked<int>("cudaLimitDevRuntimeSyncDepth", -1)->setComment("Maximum nesting depth of a grid at which a thread can safely call cudaDeviceSynchronize().");
-  limits.addUntracked<int>("cudaLimitDevRuntimePendingLaunchCount", -1)->setComment("Maximum number of outstanding device runtime launches that can be made from the current device.");
-  desc.addUntracked<edm::ParameterSetDescription>("limits", limits)->setComment("See the documentation of cudaDeviceSetLimit for more information.\nSetting any of these options to -1 keeps the default value.");
+  limits.addUntracked<int>("cudaLimitMallocHeapSize", -1)
+      ->setComment("Size in bytes of the heap used by the malloc() and free() device system calls.");
+  limits.addUntracked<int>("cudaLimitDevRuntimeSyncDepth", -1)
+      ->setComment("Maximum nesting depth of a grid at which a thread can safely call cudaDeviceSynchronize().");
+  limits.addUntracked<int>("cudaLimitDevRuntimePendingLaunchCount", -1)
+      ->setComment("Maximum number of outstanding device runtime launches that can be made from the current device.");
+  desc.addUntracked<edm::ParameterSetDescription>("limits", limits)
+      ->setComment(
+          "See the documentation of cudaDeviceSetLimit for more information.\nSetting any of these options to -1 keeps "
+          "the default value.");
 
   edm::ParameterSetDescription allocator;
-  allocator.addUntracked<std::vector<unsigned int> >("devicePreallocate", std::vector<unsigned int>{})->setComment("Preallocates buffers of given bytes on all devices");
-  allocator.addUntracked<std::vector<unsigned int> >("hostPreallocate", std::vector<unsigned int>{})->setComment("Preallocates buffers of given bytes on the host");
+  allocator.addUntracked<std::vector<unsigned int> >("devicePreallocate", std::vector<unsigned int>{})
+      ->setComment("Preallocates buffers of given bytes on all devices");
+  allocator.addUntracked<std::vector<unsigned int> >("hostPreallocate", std::vector<unsigned int>{})
+      ->setComment("Preallocates buffers of given bytes on the host");
   desc.addUntracked<edm::ParameterSetDescription>("allocator", allocator);
 
   descriptions.add("CUDAService", desc);
@@ -338,7 +360,7 @@ int CUDAService::deviceWithMostFreeMemory() const {
 
   size_t maxFreeMemory = 0;
   int device = -1;
-  for(int i = 0; i < numberOfDevices_; ++i) {
+  for (int i = 0; i < numberOfDevices_; ++i) {
     /*
     // TODO: understand why the api-wrappers version gives same value for all devices
     auto device = cuda::device::get(i);
@@ -347,7 +369,8 @@ int CUDAService::deviceWithMostFreeMemory() const {
     size_t freeMemory, totalMemory;
     cudaSetDevice(i);
     cudaMemGetInfo(&freeMemory, &totalMemory);
-    edm::LogPrint("CUDAService") << "CUDA device " << i << ": " << freeMemory / (1 << 20) << " MB free / " << totalMemory / (1 << 20) << " MB total memory";
+    edm::LogPrint("CUDAService") << "CUDA device " << i << ": " << freeMemory / (1 << 20) << " MB free / "
+                                 << totalMemory / (1 << 20) << " MB total memory";
     if (freeMemory > maxFreeMemory) {
       maxFreeMemory = freeMemory;
       device = i;
@@ -358,10 +381,6 @@ int CUDAService::deviceWithMostFreeMemory() const {
   return device;
 }
 
-void CUDAService::setCurrentDevice(int device) const {
-  cuda::device::current::set(device);
-}
+void CUDAService::setCurrentDevice(int device) const { cuda::device::current::set(device); }
 
-int CUDAService::getCurrentDevice() const {
-  return cuda::device::current::get().id();
-}
+int CUDAService::getCurrentDevice() const { return cuda::device::current::get().id(); }

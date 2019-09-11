@@ -30,7 +30,7 @@ TEST_CASE("memsetAsync", "[cudaMemTools]") {
     constexpr int N = 100;
 
     auto host_orig = cudautils::make_host_unique<int[]>(N, stream);
-    for(int i=0; i<N; ++i) {
+    for (int i = 0; i < N; ++i) {
       host_orig[i] = i;
     }
 
@@ -41,9 +41,8 @@ TEST_CASE("memsetAsync", "[cudaMemTools]") {
     cudautils::copyAsync(host, device, N, stream);
     stream.synchronize();
 
-    for(int i=0; i < N; ++i) {
+    for (int i = 0; i < N; ++i) {
       CHECK(host[i] == 0);
     }
   }
 }
-

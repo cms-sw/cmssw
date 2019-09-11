@@ -3,4 +3,4 @@
 
 void exitSansCUDADevices();
 
-#endif // HeterogeneousCore_CUDAUtilities_exitSansCUDADevices_h
+#endif  // HeterogeneousCore_CUDAUtilities_exitSansCUDADevices_h

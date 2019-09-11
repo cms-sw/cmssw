@@ -83,9 +83,9 @@ void SiPixelRecHitFromSOA::produce(edm::Event& iEvent, edm::EventSetup const& es
   // yes a unique ptr of a unique ptr so edm is happy
   auto sizeOfHitModuleStart = gpuClustering::MaxNumModules + 1;
   auto hmsp = std::make_unique<uint32_t[]>(sizeOfHitModuleStart);
-  std::copy(m_hitsModuleStart.get(),m_hitsModuleStart.get()+sizeOfHitModuleStart, hmsp.get());
-  auto hms = std::make_unique<HMSstorage>(std::move(hmsp)); // hmsp is gone
-  iEvent.put(std::move(hms));  // hms is gone!
+  std::copy(m_hitsModuleStart.get(), m_hitsModuleStart.get() + sizeOfHitModuleStart, hmsp.get());
+  auto hms = std::make_unique<HMSstorage>(std::move(hmsp));  // hmsp is gone
+  iEvent.put(std::move(hms));                                // hms is gone!
 
   auto output = std::make_unique<SiPixelRecHitCollectionNew>();
   if (0 == m_nHits) {
@@ -124,11 +124,13 @@ void SiPixelRecHitFromSOA::produce(edm::Event& iEvent, edm::EventSetup const& es
     auto lc = m_hitsModuleStart[gind + 1];
     auto nhits = lc - fc;
 
-    assert(lc>fc);
+    assert(lc > fc);
     // std::cout << "in det " << gind << ": conv " << nhits << " hits from " << DSViter->size() << " legacy clusters"
     //          <<' '<< fc <<','<<lc<<std::endl;
-    if (nhits>MaxHitsInModule) printf("WARNING: too many clusters %d in Module %d. Only first %d Hits converted\n", nhits, gind, MaxHitsInModule);
-    nhits = std::min(nhits,MaxHitsInModule);
+    if (nhits > MaxHitsInModule)
+      printf(
+          "WARNING: too many clusters %d in Module %d. Only first %d Hits converted\n", nhits, gind, MaxHitsInModule);
+    nhits = std::min(nhits, MaxHitsInModule);
 
     //std::cout << "in det " << gind << "conv " << nhits << " hits from " << DSViter->size() << " legacy clusters"
     //          <<' '<< lc <<','<<fc<<std::endl;
@@ -143,7 +145,8 @@ void SiPixelRecHitFromSOA::produce(edm::Event& iEvent, edm::EventSetup const& es
     for (auto const& clust : *DSViter) {
       assert(clust.originalId() >= 0);
       assert(clust.originalId() < DSViter->size());
-      if (clust.originalId()>=nhits) continue;
+      if (clust.originalId() >= nhits)
+        continue;
       auto ij = jnd(clust.originalId());
       if (ij >= TrackingRecHit2DSOAView::maxHits())
         continue;  // overflow...

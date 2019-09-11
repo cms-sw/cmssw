@@ -12,40 +12,35 @@
 
 class EcalSamplesCorrelationGPU {
 public:
-    struct Product {
-        ~Product();
-        double *EBG12SamplesCorrelation=nullptr,
-               *EBG6SamplesCorrelation=nullptr,
-               *EBG1SamplesCorrelation=nullptr;
-        double *EEG12SamplesCorrelation=nullptr,
-               *EEG6SamplesCorrelation=nullptr,
-               *EEG1SamplesCorrelation=nullptr;
-    };
+  struct Product {
+    ~Product();
+    double *EBG12SamplesCorrelation = nullptr, *EBG6SamplesCorrelation = nullptr, *EBG1SamplesCorrelation = nullptr;
+    double *EEG12SamplesCorrelation = nullptr, *EEG6SamplesCorrelation = nullptr, *EEG1SamplesCorrelation = nullptr;
+  };
 
 #ifndef __CUDACC__
-    // rearrange pedestals
-    EcalSamplesCorrelationGPU(EcalSamplesCorrelation const&);
+  // rearrange pedestals
+  EcalSamplesCorrelationGPU(EcalSamplesCorrelation const&);
 
-    // will call dealloation for Product thru ~Product
-    ~EcalSamplesCorrelationGPU() = default;
+  // will call dealloation for Product thru ~Product
+  ~EcalSamplesCorrelationGPU() = default;
 
-    // get device pointers
-    Product const& getProduct(cuda::stream_t<>&) const;
+  // get device pointers
+  Product const& getProduct(cuda::stream_t<>&) const;
 
-    // 
-    static std::string name() { return std::string{"ecalSamplesCorrelationGPU"}; }
+  //
+  static std::string name() { return std::string{"ecalSamplesCorrelationGPU"}; }
 
 private:
-    std::vector<double> const& EBG12SamplesCorrelation_;
-    std::vector<double> const& EBG6SamplesCorrelation_;
-    std::vector<double> const& EBG1SamplesCorrelation_;
-    std::vector<double> const& EEG12SamplesCorrelation_;
-    std::vector<double> const& EEG6SamplesCorrelation_;
-    std::vector<double> const& EEG1SamplesCorrelation_;
+  std::vector<double> const& EBG12SamplesCorrelation_;
+  std::vector<double> const& EBG6SamplesCorrelation_;
+  std::vector<double> const& EBG1SamplesCorrelation_;
+  std::vector<double> const& EEG12SamplesCorrelation_;
+  std::vector<double> const& EEG6SamplesCorrelation_;
+  std::vector<double> const& EEG1SamplesCorrelation_;
 
-    CUDAESProduct<Product> product_;
+  CUDAESProduct<Product> product_;
 #endif
 };
-
 
 #endif

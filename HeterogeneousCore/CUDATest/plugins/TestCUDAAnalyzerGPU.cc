@@ -14,7 +14,7 @@
 
 #include "TestCUDAAnalyzerGPUKernel.h"
 
-class TestCUDAAnalyzerGPU: public edm::global::EDAnalyzer<> {
+class TestCUDAAnalyzerGPU : public edm::global::EDAnalyzer<> {
 public:
   explicit TestCUDAAnalyzerGPU(const edm::ParameterSet& iConfig);
   ~TestCUDAAnalyzerGPU() override = default;
@@ -32,14 +32,13 @@ private:
   std::unique_ptr<TestCUDAAnalyzerGPUKernel> gpuAlgo_;
 };
 
-TestCUDAAnalyzerGPU::TestCUDAAnalyzerGPU(const edm::ParameterSet& iConfig):
-  label_(iConfig.getParameter<std::string>("@module_label")),
-  srcToken_(consumes<CUDAProduct<CUDAThing>>(iConfig.getParameter<edm::InputTag>("src"))),
-  minValue_(iConfig.getParameter<double>("minValue")),
-  maxValue_(iConfig.getParameter<double>("maxValue"))
-{
+TestCUDAAnalyzerGPU::TestCUDAAnalyzerGPU(const edm::ParameterSet& iConfig)
+    : label_(iConfig.getParameter<std::string>("@module_label")),
+      srcToken_(consumes<CUDAProduct<CUDAThing>>(iConfig.getParameter<edm::InputTag>("src"))),
+      minValue_(iConfig.getParameter<double>("minValue")),
+      maxValue_(iConfig.getParameter<double>("maxValue")) {
   edm::Service<CUDAService> cs;
-  if(cs->enabled()) {
+  if (cs->enabled()) {
     auto streamPtr = cudautils::getCUDAStreamCache().getCUDAStream();
     gpuAlgo_ = std::make_unique<TestCUDAAnalyzerGPUKernel>(*streamPtr);
   }
@@ -55,14 +54,16 @@ void TestCUDAAnalyzerGPU::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 void TestCUDAAnalyzerGPU::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  edm::LogVerbatim("TestCUDAAnalyzerGPU") << label_ << " TestCUDAAnalyzerGPU::analyze begin event " << iEvent.id().event() << " stream " << iEvent.streamID();
+  edm::LogVerbatim("TestCUDAAnalyzerGPU") << label_ << " TestCUDAAnalyzerGPU::analyze begin event "
+                                          << iEvent.id().event() << " stream " << iEvent.streamID();
 
   const auto& in = iEvent.get(srcToken_);
   CUDAScopedContextAnalyze ctx{in};
   const CUDAThing& input = ctx.get(in);
   gpuAlgo_->analyzeAsync(input.get(), ctx.stream());
 
-  edm::LogVerbatim("TestCUDAAnalyzerGPU") << label_ << " TestCUDAAnalyzerGPU::analyze end event " << iEvent.id().event() << " stream " << iEvent.streamID();
+  edm::LogVerbatim("TestCUDAAnalyzerGPU")
+      << label_ << " TestCUDAAnalyzerGPU::analyze end event " << iEvent.id().event() << " stream " << iEvent.streamID();
 }
 
 void TestCUDAAnalyzerGPU::endJob() {

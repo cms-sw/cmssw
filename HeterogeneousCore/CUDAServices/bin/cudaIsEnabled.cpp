@@ -7,12 +7,12 @@
 
 int main() {
   int devices = 0;
-  auto status = cudaGetDeviceCount(& devices);
+  auto status = cudaGetDeviceCount(&devices);
   if (status != cudaSuccess) {
     return EXIT_FAILURE;
   }
 
-  int minimumMajor = 6; // min minor is implicitly 0
+  int minimumMajor = 6;  // min minor is implicitly 0
 
   // This approach (requiring all devices are supported) is rather
   // conservative. In principle we could consider just dropping the
@@ -22,7 +22,7 @@ int main() {
     cudaDeviceProp properties;
     cudaGetDeviceProperties(&properties, i);
 
-    if(properties.major < minimumMajor) {
+    if (properties.major < minimumMajor) {
       return EXIT_FAILURE;
     }
   }

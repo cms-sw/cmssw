@@ -11,35 +11,33 @@
 
 #include <iostream>
 
-template<typename Target, typename Source, typename Record>
+template <typename Target, typename Source, typename Record>
 class EcalESProducerGPU : public edm::ESProducer {
 public:
-    explicit EcalESProducerGPU(edm::ParameterSet const& ps) 
-        : label_{ps.getParameter<std::string>("label")}
-    {
-        std::string name = ps.getParameter<std::string>("ComponentName");
-        setWhatProduced(this, name);
-    }
-   
-    std::unique_ptr<Target> produce(Record const& record) {
-        // retrieve conditions in old format 
-        edm::ESTransientHandle<Source> product;
-        record.get(label_, product);
+  explicit EcalESProducerGPU(edm::ParameterSet const& ps) : label_{ps.getParameter<std::string>("label")} {
+    std::string name = ps.getParameter<std::string>("ComponentName");
+    setWhatProduced(this, name);
+  }
 
-        return std::make_unique<Target>(*product);
-    }
+  std::unique_ptr<Target> produce(Record const& record) {
+    // retrieve conditions in old format
+    edm::ESTransientHandle<Source> product;
+    record.get(label_, product);
 
-    static void fillDescriptions(edm::ConfigurationDescriptions& confDesc) {
-        edm::ParameterSetDescription desc;
+    return std::make_unique<Target>(*product);
+  }
 
-        std::string label = Target::name() + "ESProducer";
-        desc.add<std::string>("ComponentName", "");
-        desc.add<std::string>("label", "")->setComment("Product Label");
-        confDesc.add(label, desc);
-    }
+  static void fillDescriptions(edm::ConfigurationDescriptions& confDesc) {
+    edm::ParameterSetDescription desc;
+
+    std::string label = Target::name() + "ESProducer";
+    desc.add<std::string>("ComponentName", "");
+    desc.add<std::string>("label", "")->setComment("Product Label");
+    confDesc.add(label, desc);
+  }
 
 private:
-    std::string label_;
+  std::string label_;
 };
 
 #endif

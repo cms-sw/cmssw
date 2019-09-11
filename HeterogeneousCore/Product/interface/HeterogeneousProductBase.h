@@ -10,7 +10,7 @@
 namespace heterogeneous {
   constexpr const unsigned int kMaxDevices = 16;
   using DeviceBitSet = std::bitset<kMaxDevices>;
-}
+}  // namespace heterogeneous
 
 // For type erasure to ease dictionary generation
 class HeterogeneousProductBase {

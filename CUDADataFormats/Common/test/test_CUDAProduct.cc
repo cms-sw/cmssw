@@ -10,19 +10,19 @@
 namespace cudatest {
   class TestCUDAScopedContext {
   public:
-    static
-    CUDAScopedContextProduce make(int dev, bool createEvent) {
+    static CUDAScopedContextProduce make(int dev, bool createEvent) {
       auto device = cuda::device::get(dev);
       std::unique_ptr<cuda::event_t> event;
-      if(createEvent) {
+      if (createEvent) {
         event = std::make_unique<cuda::event_t>(device.create_event());
       }
       return CUDAScopedContextProduce(dev,
-                                      std::make_unique<cuda::stream_t<>>(device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream)),
+                                      std::make_unique<cuda::stream_t<>>(device.create_stream(
+                                          cuda::stream::implicitly_synchronizes_with_default_stream)),
                                       std::move(event));
     }
   };
-}
+}  // namespace cudatest
 
 TEST_CASE("Use of CUDAProduct template", "[CUDACore]") {
   SECTION("Default constructed") {

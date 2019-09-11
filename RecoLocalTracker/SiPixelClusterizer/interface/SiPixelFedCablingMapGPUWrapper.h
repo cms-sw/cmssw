@@ -17,19 +17,20 @@ class SiPixelQuality;
 // TODO: since this has more information than just cabling map, maybe we should invent a better name?
 class SiPixelFedCablingMapGPUWrapper {
 public:
-  SiPixelFedCablingMapGPUWrapper(SiPixelFedCablingMap const& cablingMap,
-                                 TrackerGeometry const& trackerGeom,
+  SiPixelFedCablingMapGPUWrapper(SiPixelFedCablingMap const &cablingMap,
+                                 TrackerGeometry const &trackerGeom,
                                  SiPixelQuality const *badPixelInfo);
   ~SiPixelFedCablingMapGPUWrapper();
 
   bool hasQuality() const { return hasQuality_; }
 
   // returns pointer to GPU memory
-  const SiPixelFedCablingMapGPU *getGPUProductAsync(cuda::stream_t<>& cudaStream) const;
+  const SiPixelFedCablingMapGPU *getGPUProductAsync(cuda::stream_t<> &cudaStream) const;
 
   // returns pointer to GPU memory
-  const unsigned char *getModToUnpAllAsync(cuda::stream_t<>& cudaStream) const;
-  cudautils::device::unique_ptr<unsigned char[]> getModToUnpRegionalAsync(std::set<unsigned int> const& modules, cuda::stream_t<>& cudaStream) const;
+  const unsigned char *getModToUnpAllAsync(cuda::stream_t<> &cudaStream) const;
+  cudautils::device::unique_ptr<unsigned char[]> getModToUnpRegionalAsync(std::set<unsigned int> const &modules,
+                                                                          cuda::stream_t<> &cudaStream) const;
 
 private:
   const SiPixelFedCablingMap *cablingMap_;
@@ -37,20 +38,19 @@ private:
   unsigned int size;
   bool hasQuality_;
 
-  SiPixelFedCablingMapGPU *cablingMapHost = nullptr; // pointer to struct in CPU
+  SiPixelFedCablingMapGPU *cablingMapHost = nullptr;  // pointer to struct in CPU
 
   struct GPUData {
     ~GPUData();
-    SiPixelFedCablingMapGPU *cablingMapDevice = nullptr; // pointer to struct in GPU
+    SiPixelFedCablingMapGPU *cablingMapDevice = nullptr;  // pointer to struct in GPU
   };
   CUDAESProduct<GPUData> gpuData_;
 
   struct ModulesToUnpack {
     ~ModulesToUnpack();
-    unsigned char *modToUnpDefault = nullptr; // pointer to GPU
+    unsigned char *modToUnpDefault = nullptr;  // pointer to GPU
   };
   CUDAESProduct<ModulesToUnpack> modToUnp_;
 };
-
 
 #endif

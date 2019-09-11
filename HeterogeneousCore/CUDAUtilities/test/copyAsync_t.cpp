@@ -30,7 +30,7 @@ TEST_CASE("copyAsync", "[cudaMemTools]") {
       constexpr int N = 100;
 
       auto host_orig = cudautils::make_host_unique<int[]>(N, stream);
-      for(int i=0; i<N; ++i) {
+      for (int i = 0; i < N; ++i) {
         host_orig[i] = i;
       }
 
@@ -39,23 +39,23 @@ TEST_CASE("copyAsync", "[cudaMemTools]") {
 
       SECTION("Copy all") {
         cudautils::copyAsync(device, host_orig, N, stream);
-        cuda::memory::async::copy(host.get(), device.get(), N*sizeof(int), stream.id());
+        cuda::memory::async::copy(host.get(), device.get(), N * sizeof(int), stream.id());
         stream.synchronize();
-        for(int i=0; i<N; ++i) {
+        for (int i = 0; i < N; ++i) {
           CHECK(host[i] == i);
         }
       }
 
-      for(int i=0; i<N; ++i) {
-        host_orig[i] = 200+i;
+      for (int i = 0; i < N; ++i) {
+        host_orig[i] = 200 + i;
       }
 
       SECTION("Copy some") {
         cudautils::copyAsync(device, host_orig, 42, stream);
-        cuda::memory::async::copy(host.get(), device.get(), 42*sizeof(int), stream.id());
+        cuda::memory::async::copy(host.get(), device.get(), 42 * sizeof(int), stream.id());
         stream.synchronize();
-        for(int i=0; i<42; ++i) {
-          CHECK(host[i] == 200+i);
+        for (int i = 0; i < 42; ++i) {
+          CHECK(host[i] == 200 + i);
         }
       }
     }
@@ -80,7 +80,7 @@ TEST_CASE("copyAsync", "[cudaMemTools]") {
       constexpr int N = 100;
 
       auto host_orig = cudautils::make_host_unique<int[]>(N, stream);
-      for(int i=0; i<N; ++i) {
+      for (int i = 0; i < N; ++i) {
         host_orig[i] = i;
       }
 
@@ -88,27 +88,26 @@ TEST_CASE("copyAsync", "[cudaMemTools]") {
       auto host = cudautils::make_host_unique<int[]>(N, stream);
 
       SECTION("Copy all") {
-        cuda::memory::async::copy(device.get(), host_orig.get(), N*sizeof(int), stream.id());
+        cuda::memory::async::copy(device.get(), host_orig.get(), N * sizeof(int), stream.id());
         cudautils::copyAsync(host, device, N, stream);
         stream.synchronize();
-        for(int i=0; i<N; ++i) {
+        for (int i = 0; i < N; ++i) {
           CHECK(host[i] == i);
         }
       }
 
-      for(int i=0; i<N; ++i) {
-        host_orig[i] = 200+i;
+      for (int i = 0; i < N; ++i) {
+        host_orig[i] = 200 + i;
       }
 
       SECTION("Copy some") {
-        cuda::memory::async::copy(device.get(), host_orig.get(), 42*sizeof(int), stream.id());
+        cuda::memory::async::copy(device.get(), host_orig.get(), 42 * sizeof(int), stream.id());
         cudautils::copyAsync(host, device, 42, stream);
         stream.synchronize();
-        for(int i=0; i<42; ++i) {
-          CHECK(host[i] == 200+i);
+        for (int i = 0; i < 42; ++i) {
+          CHECK(host[i] == 200 + i);
         }
       }
     }
   }
 }
-

@@ -94,7 +94,6 @@ namespace cudaCompat {
 #define __forceinline__ inline __attribute__((always_inline))
 #endif
 
-
 #ifndef __CUDA_ARCH__
 using namespace cudaCompat;
 #endif

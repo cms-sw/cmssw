@@ -23,13 +23,9 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-
-
 class PixelVertexProducerFromSoA : public edm::global::EDProducer<> {
 public:
-
-  using   IndToEdm = std::vector<uint16_t>;
-
+  using IndToEdm = std::vector<uint16_t>;
 
   explicit PixelVertexProducerFromSoA(const edm::ParameterSet &iConfig);
   ~PixelVertexProducerFromSoA() override = default;
@@ -37,27 +33,21 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void produce(edm::StreamID streamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const override;
 
   edm::EDGetTokenT<ZVertexHeterogeneous> tokenVertex_;
   edm::EDGetTokenT<reco::BeamSpot> tokenBeamSpot_;
   edm::EDGetTokenT<reco::TrackCollection> tokenTracks_;
   edm::EDGetTokenT<IndToEdm> tokenIndToEdm_;
-
-
-
 };
 
-
-
-PixelVertexProducerFromSoA::PixelVertexProducerFromSoA(const edm::ParameterSet & conf) :
-     tokenVertex_(consumes<ZVertexHeterogeneous>(conf.getParameter<edm::InputTag>("src"))),
-     tokenBeamSpot_(consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"))),
-     tokenTracks_(consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackCollection"))),
-     tokenIndToEdm_(consumes<IndToEdm>(conf.getParameter<edm::InputTag>("TrackCollection"))) {
-     produces<reco::VertexCollection>();
+PixelVertexProducerFromSoA::PixelVertexProducerFromSoA(const edm::ParameterSet &conf)
+    : tokenVertex_(consumes<ZVertexHeterogeneous>(conf.getParameter<edm::InputTag>("src"))),
+      tokenBeamSpot_(consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"))),
+      tokenTracks_(consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackCollection"))),
+      tokenIndToEdm_(consumes<IndToEdm>(conf.getParameter<edm::InputTag>("TrackCollection"))) {
+  produces<reco::VertexCollection>();
 }
-
 
 void PixelVertexProducerFromSoA::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
@@ -69,17 +59,15 @@ void PixelVertexProducerFromSoA::fillDescriptions(edm::ConfigurationDescriptions
   descriptions.add("pixelVertexFromSoA", desc);
 }
 
-
-void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup&) const {
-
+void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event &iEvent, const edm::EventSetup &) const {
   auto vertexes = std::make_unique<reco::VertexCollection>();
 
   edm::Handle<reco::TrackCollection> trackCollection;
   iEvent.getByToken(tokenTracks_, trackCollection);
-  auto const& tracks = *(trackCollection.product());
+  auto const &tracks = *(trackCollection.product());
   edm::Handle<IndToEdm> indToEdmH;
-  iEvent.getByToken(tokenIndToEdm_,indToEdmH);
-  auto const & indToEdm = *indToEdmH;
+  iEvent.getByToken(tokenIndToEdm_, indToEdmH);
+  auto const &indToEdm = *indToEdmH;
 
   edm::Handle<reco::BeamSpot> bsHandle;
   iEvent.getByToken(tokenBeamSpot_, bsHandle);
@@ -97,7 +85,7 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event& iEv
     dydz = bs.dydz();
   }
 
-  auto const& soa = *(iEvent.get(tokenVertex_).get());
+  auto const &soa = *(iEvent.get(tokenVertex_).get());
 
   int nv = soa.nvFinal;
 
@@ -145,12 +133,11 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event& iEv
     itrk.clear();
   }
 
-
   LogDebug("PixelVertexProducer") << ": Found " << vertexes->size() << " vertexes\n";
   for (unsigned int i = 0; i < vertexes->size(); ++i) {
-      LogDebug("PixelVertexProducer")
-          << "Vertex number " << i << " has " << (*vertexes)[i].tracksSize() << " tracks with a position of "
-          << (*vertexes)[i].z() << " +- " << std::sqrt((*vertexes)[i].covariance(2, 2));
+    LogDebug("PixelVertexProducer") << "Vertex number " << i << " has " << (*vertexes)[i].tracksSize()
+                                    << " tracks with a position of " << (*vertexes)[i].z() << " +- "
+                                    << std::sqrt((*vertexes)[i].covariance(2, 2));
   }
 
   // legacy logic....
@@ -165,29 +152,24 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event& iEv
       we(2, 2) = 10000;
       vertexes->push_back(reco::Vertex(bs.position(), we, 0., 0., 0));
 
-      edm::LogInfo("PixelVertexProducer")
-          << "No vertices found. Beamspot with invalid errors " << bse.matrix()
-          << "\nWill put Vertex derived from dummy-fake BeamSpot into Event.\n"
-          << (*vertexes)[0].x() << "\n"
-          << (*vertexes)[0].y() << "\n"
-          << (*vertexes)[0].z() << "\n";
+      edm::LogInfo("PixelVertexProducer") << "No vertices found. Beamspot with invalid errors " << bse.matrix()
+                                          << "\nWill put Vertex derived from dummy-fake BeamSpot into Event.\n"
+                                          << (*vertexes)[0].x() << "\n"
+                                          << (*vertexes)[0].y() << "\n"
+                                          << (*vertexes)[0].z() << "\n";
     } else {
       vertexes->push_back(reco::Vertex(bs.position(), bs.rotatedCovariance3D(), 0., 0., 0));
 
-      edm::LogInfo("PixelVertexProducer")
-          << "No vertices found. Will put Vertex derived from BeamSpot into Event:\n"
-          << (*vertexes)[0].x() << "\n"
-          << (*vertexes)[0].y() << "\n"
-          << (*vertexes)[0].z() << "\n";
+      edm::LogInfo("PixelVertexProducer") << "No vertices found. Will put Vertex derived from BeamSpot into Event:\n"
+                                          << (*vertexes)[0].x() << "\n"
+                                          << (*vertexes)[0].y() << "\n"
+                                          << (*vertexes)[0].z() << "\n";
     }
   } else if (vertexes->empty() && !bsHandle.isValid()) {
     edm::LogWarning("PixelVertexProducer") << "No beamspot and no vertex found. No vertex returned.";
   }
 
-
   iEvent.put(std::move(vertexes));
-
 }
-
 
 DEFINE_FWK_MODULE(PixelVertexProducerFromSoA);

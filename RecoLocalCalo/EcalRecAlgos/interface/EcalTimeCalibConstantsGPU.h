@@ -12,35 +12,34 @@
 
 class EcalTimeCalibConstantsGPU {
 public:
-    struct Product {
-        ~Product();
-        float *values=nullptr;
-    };
+  struct Product {
+    ~Product();
+    float* values = nullptr;
+  };
 
 #ifndef __CUDACC__
-    // rearrange pedestals
-    EcalTimeCalibConstantsGPU(EcalTimeCalibConstants const&);
+  // rearrange pedestals
+  EcalTimeCalibConstantsGPU(EcalTimeCalibConstants const&);
 
-    // will call dealloation for Product thru ~Product
-    ~EcalTimeCalibConstantsGPU() = default;
+  // will call dealloation for Product thru ~Product
+  ~EcalTimeCalibConstantsGPU() = default;
 
-    // get device pointers
-    Product const& getProduct(cuda::stream_t<>&) const;
+  // get device pointers
+  Product const& getProduct(cuda::stream_t<>&) const;
 
-    // TODO: do this centrally
-    // get offset for hashes. equals number of barrel items
-    uint32_t getOffset() const { return valuesEB_.size(); }
+  // TODO: do this centrally
+  // get offset for hashes. equals number of barrel items
+  uint32_t getOffset() const { return valuesEB_.size(); }
 
-    // 
-    static std::string name() { return std::string{"ecalTimeCalibConstantsGPU"}; }
+  //
+  static std::string name() { return std::string{"ecalTimeCalibConstantsGPU"}; }
 
 private:
-    std::vector<float> const& valuesEB_;
-    std::vector<float> const& valuesEE_;
+  std::vector<float> const& valuesEB_;
+  std::vector<float> const& valuesEE_;
 
-    CUDAESProduct<Product> product_;
+  CUDAESProduct<Product> product_;
 #endif
 };
-
 
 #endif

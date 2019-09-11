@@ -5,14 +5,14 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 SiPixelDigisCUDA::SiPixelDigisCUDA(size_t maxFedWords, cuda::stream_t<>& stream) {
-  xx_d              = cudautils::make_device_unique<uint16_t[]>(maxFedWords, stream);
-  yy_d              = cudautils::make_device_unique<uint16_t[]>(maxFedWords, stream);
-  adc_d             = cudautils::make_device_unique<uint16_t[]>(maxFedWords, stream);
-  moduleInd_d       = cudautils::make_device_unique<uint16_t[]>(maxFedWords, stream);
-  clus_d            = cudautils::make_device_unique< int32_t[]>(maxFedWords, stream);
+  xx_d = cudautils::make_device_unique<uint16_t[]>(maxFedWords, stream);
+  yy_d = cudautils::make_device_unique<uint16_t[]>(maxFedWords, stream);
+  adc_d = cudautils::make_device_unique<uint16_t[]>(maxFedWords, stream);
+  moduleInd_d = cudautils::make_device_unique<uint16_t[]>(maxFedWords, stream);
+  clus_d = cudautils::make_device_unique<int32_t[]>(maxFedWords, stream);
 
-  pdigi_d           = cudautils::make_device_unique<uint32_t[]>(maxFedWords, stream);
-  rawIdArr_d        = cudautils::make_device_unique<uint32_t[]>(maxFedWords, stream);
+  pdigi_d = cudautils::make_device_unique<uint32_t[]>(maxFedWords, stream);
+  rawIdArr_d = cudautils::make_device_unique<uint32_t[]>(maxFedWords, stream);
 
   auto view = cudautils::make_host_unique<DeviceConstView>(stream);
   view->xx_ = xx_d.get();

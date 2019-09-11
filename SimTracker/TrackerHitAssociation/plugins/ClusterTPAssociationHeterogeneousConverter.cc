@@ -8,10 +8,8 @@
 
 #include "trackerHitAssociationHeterogeneousProduct.h"
 
-
-class ClusterTPAssociationHeterogeneousConverter: public edm::global::EDProducer<> {
+class ClusterTPAssociationHeterogeneousConverter : public edm::global::EDProducer<> {
 public:
-
   using Input = trackerHitAssociationHeterogeneousProduct::ClusterTPAHeterogeneousProduct;
   using Product = ClusterTPAssociation;
 
@@ -26,17 +24,16 @@ private:
   edm::EDGetTokenT<HeterogeneousProduct> token_;
 };
 
-ClusterTPAssociationHeterogeneousConverter::ClusterTPAssociationHeterogeneousConverter(edm::ParameterSet const& iConfig):
-  token_(consumes<HeterogeneousProduct>(iConfig.getParameter<edm::InputTag>("src")))
-{
-  produces<Product>(); 
+ClusterTPAssociationHeterogeneousConverter::ClusterTPAssociationHeterogeneousConverter(edm::ParameterSet const& iConfig)
+    : token_(consumes<HeterogeneousProduct>(iConfig.getParameter<edm::InputTag>("src"))) {
+  produces<Product>();
 }
 
 void ClusterTPAssociationHeterogeneousConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("tpClusterProducerHeterogeneos"));
 
-  descriptions.add("tpClusterHeterogeneousConverter",desc);
+  descriptions.add("tpClusterHeterogeneousConverter", desc);
 }
 
 namespace {
@@ -44,9 +41,11 @@ namespace {
   auto copy_unique(const T& t) {
     return std::make_unique<T>(t);
   }
-}
+}  // namespace
 
-void ClusterTPAssociationHeterogeneousConverter::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void ClusterTPAssociationHeterogeneousConverter::produce(edm::StreamID,
+                                                         edm::Event& iEvent,
+                                                         const edm::EventSetup& iSetup) const {
   edm::Handle<HeterogeneousProduct> hinput;
   iEvent.getByToken(token_, hinput);
 
@@ -54,6 +53,5 @@ void ClusterTPAssociationHeterogeneousConverter::produce(edm::StreamID, edm::Eve
 
   iEvent.put(copy_unique(input.collection));
 }
-
 
 DEFINE_FWK_MODULE(ClusterTPAssociationHeterogeneousConverter);

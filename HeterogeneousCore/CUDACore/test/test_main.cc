@@ -6,19 +6,18 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
-class ServiceRegistryListener: public Catch::TestEventListenerBase {
+class ServiceRegistryListener : public Catch::TestEventListenerBase {
 public:
-  using Catch::TestEventListenerBase::TestEventListenerBase; // inherit constructor
+  using Catch::TestEventListenerBase::TestEventListenerBase;  // inherit constructor
 
   void testRunStarting(Catch::TestRunInfo const& testRunInfo) override {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
 
     const std::string config{
-R"_(import FWCore.ParameterSet.Config as cms
+        R"_(import FWCore.ParameterSet.Config as cms
 process = cms.Process('Test')
 process.CUDAService = cms.Service('CUDAService')
-)_"
-  };
+)_"};
 
     std::unique_ptr<edm::ParameterSet> params;
     edm::makeParameterSets(config, params);

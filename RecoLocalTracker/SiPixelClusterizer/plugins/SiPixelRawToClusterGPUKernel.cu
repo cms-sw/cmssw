@@ -585,8 +585,8 @@ namespace pixelgpudetails {
           debug);
       cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
-    cudaDeviceSynchronize();
-    cudaCheck(cudaGetLastError());
+      cudaDeviceSynchronize();
+      cudaCheck(cudaGetLastError());
 #endif
 
       if (includeErrors) {
@@ -613,8 +613,8 @@ namespace pixelgpudetails {
                                                                              clusters_d.clusModuleStart());
       cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
-    cudaDeviceSynchronize();
-    cudaCheck(cudaGetLastError());
+      cudaDeviceSynchronize();
+      cudaCheck(cudaGetLastError());
 #endif
 
 #ifdef GPU_DEBUG
@@ -645,8 +645,8 @@ namespace pixelgpudetails {
                                                             wordCounter);
       cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
-    cudaDeviceSynchronize();
-    cudaCheck(cudaGetLastError());
+      cudaDeviceSynchronize();
+      cudaCheck(cudaGetLastError());
 #endif
 
       // apply charge cut
@@ -675,10 +675,9 @@ namespace pixelgpudetails {
                                 stream.id()));
 
 #ifdef GPU_DEBUG
-    cudaDeviceSynchronize();
-    cudaCheck(cudaGetLastError());
+      cudaDeviceSynchronize();
+      cudaCheck(cudaGetLastError());
 #endif
-
 
     }  // end clusterizer scope
   }

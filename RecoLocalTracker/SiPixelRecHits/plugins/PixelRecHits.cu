@@ -49,12 +49,8 @@ namespace pixelgpudetails {
     std::cout << "launching getHits kernel for " << blocks << " blocks" << std::endl;
 #endif
     if (blocks)  // protect from empty events
-      gpuPixelRecHits::getHits<<<blocks, threadsPerBlock, 0, stream.id()>>>(cpeParams,
-                                                                            bs_d.data(),
-                                                                            digis_d.view(),
-                                                                            digis_d.nDigis(),
-                                                                            clusters_d.view(),
-                                                                            hits_d.view());
+      gpuPixelRecHits::getHits<<<blocks, threadsPerBlock, 0, stream.id()>>>(
+          cpeParams, bs_d.data(), digis_d.view(), digis_d.nDigis(), clusters_d.view(), hits_d.view());
     cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
     cudaDeviceSynchronize();
@@ -79,7 +75,6 @@ namespace pixelgpudetails {
       cudaCheck(cudaGetLastError());
     }
 
-    
 #ifdef GPU_DEBUG
     cudaDeviceSynchronize();
     cudaCheck(cudaGetLastError());

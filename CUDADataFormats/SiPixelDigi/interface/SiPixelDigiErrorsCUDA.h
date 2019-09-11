@@ -21,11 +21,12 @@ public:
 
   const PixelFormatterErrors& formatterErrors() const { return formatterErrors_h; }
 
-  GPU::SimpleVector<PixelErrorCompact> *error() { return error_d.get(); }
-  GPU::SimpleVector<PixelErrorCompact> const *error() const { return error_d.get(); }
-  GPU::SimpleVector<PixelErrorCompact> const *c_error() const { return error_d.get(); }
+  GPU::SimpleVector<PixelErrorCompact>* error() { return error_d.get(); }
+  GPU::SimpleVector<PixelErrorCompact> const* error() const { return error_d.get(); }
+  GPU::SimpleVector<PixelErrorCompact> const* c_error() const { return error_d.get(); }
 
-  using HostDataError = std::pair<GPU::SimpleVector<PixelErrorCompact>, cudautils::host::unique_ptr<PixelErrorCompact[]>>;
+  using HostDataError =
+      std::pair<GPU::SimpleVector<PixelErrorCompact>, cudautils::host::unique_ptr<PixelErrorCompact[]>>;
   HostDataError dataErrorToHostAsync(cuda::stream_t<>& stream) const;
 
   void copyErrorToHostAsync(cuda::stream_t<>& stream);

@@ -25,9 +25,11 @@ public:
   cudautils::device::unique_ptr<float[]> runAlgo(const std::string& label, cuda::stream_t<>& stream) const {
     return runAlgo(label, nullptr, stream);
   }
-  cudautils::device::unique_ptr<float[]> runAlgo(const std::string& label, const float *d_input, cuda::stream_t<>& stream) const;
+  cudautils::device::unique_ptr<float[]> runAlgo(const std::string& label,
+                                                 const float* d_input,
+                                                 cuda::stream_t<>& stream) const;
 
-  void runSimpleAlgo(float *d_data, cuda::stream_t<>& stream) const;
+  void runSimpleAlgo(float* d_data, cuda::stream_t<>& stream) const;
 };
 
 #endif

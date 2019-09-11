@@ -17,7 +17,7 @@
  * configuration...
  */
 
-class SiPixelDigiHeterogeneousConverter: public edm::global::EDProducer<> {
+class SiPixelDigiHeterogeneousConverter : public edm::global::EDProducer<> {
 public:
   explicit SiPixelDigiHeterogeneousConverter(edm::ParameterSet const& iConfig);
   ~SiPixelDigiHeterogeneousConverter() override = default;
@@ -27,7 +27,7 @@ public:
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
-  edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > token_collection_;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> token_collection_;
   edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError>> token_errorcollection_;
   edm::EDGetTokenT<DetIdCollection> token_tkerror_detidcollection_;
   edm::EDGetTokenT<DetIdCollection> token_usererror_detidcollection_;
@@ -35,16 +35,15 @@ private:
   bool includeErrors_;
 };
 
-SiPixelDigiHeterogeneousConverter::SiPixelDigiHeterogeneousConverter(edm::ParameterSet const& iConfig):
-  includeErrors_(iConfig.getParameter<bool>("includeErrors"))
-{
+SiPixelDigiHeterogeneousConverter::SiPixelDigiHeterogeneousConverter(edm::ParameterSet const& iConfig)
+    : includeErrors_(iConfig.getParameter<bool>("includeErrors")) {
   auto src = iConfig.getParameter<edm::InputTag>("src");
 
-  token_collection_ = consumes<edm::DetSetVector<PixelDigi> >(src);
-  produces<edm::DetSetVector<PixelDigi> >();
-  if(includeErrors_) {
+  token_collection_ = consumes<edm::DetSetVector<PixelDigi>>(src);
+  produces<edm::DetSetVector<PixelDigi>>();
+  if (includeErrors_) {
     token_errorcollection_ = consumes<edm::DetSetVector<SiPixelRawDataError>>(src);
-    produces< edm::DetSetVector<SiPixelRawDataError> >();
+    produces<edm::DetSetVector<SiPixelRawDataError>>();
 
     token_tkerror_detidcollection_ = consumes<DetIdCollection>(src);
     produces<DetIdCollection>();
@@ -53,14 +52,14 @@ SiPixelDigiHeterogeneousConverter::SiPixelDigiHeterogeneousConverter(edm::Parame
     produces<DetIdCollection>("UserErrorModules");
 
     token_disabled_channelcollection_ = consumes<edmNew::DetSetVector<PixelFEDChannel>>(src);
-    produces<edmNew::DetSetVector<PixelFEDChannel> >();
+    produces<edmNew::DetSetVector<PixelFEDChannel>>();
   }
 }
 
 void SiPixelDigiHeterogeneousConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelClustersPreSplitting"));
-  desc.add<bool>("includeErrors",true);
+  desc.add<bool>("includeErrors", true);
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -79,17 +78,18 @@ namespace {
     iEvent.getByToken(token, h);
     iEvent.put(std::make_unique<T>(*h), instance);
   }
-}
+}  // namespace
 
-void SiPixelDigiHeterogeneousConverter::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void SiPixelDigiHeterogeneousConverter::produce(edm::StreamID,
+                                                edm::Event& iEvent,
+                                                const edm::EventSetup& iSetup) const {
   copy(iEvent, token_collection_);
-  if(includeErrors_) {
+  if (includeErrors_) {
     copy(iEvent, token_errorcollection_);
     copy(iEvent, token_tkerror_detidcollection_);
     copy(iEvent, token_usererror_detidcollection_, "UserErrorModules");
     copy(iEvent, token_disabled_channelcollection_);
   }
 }
-
 
 DEFINE_FWK_MODULE(SiPixelDigiHeterogeneousConverter);

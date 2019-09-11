@@ -9,27 +9,26 @@
 #include <exception>
 
 namespace heterogeneous {
-  GPUCuda::GPUCuda(const edm::ParameterSet& iConfig):
-    enabled_(iConfig.getUntrackedParameter<bool>("GPUCuda")),
-    forced_(iConfig.getUntrackedParameter<std::string>("force") == "GPUCuda")
-  {
-    if(forced_ && !enabled_) {
-      throw cms::Exception("Configuration") << "It makes no sense to force the module on GPUCuda, and then disable GPUCuda.";
+  GPUCuda::GPUCuda(const edm::ParameterSet& iConfig)
+      : enabled_(iConfig.getUntrackedParameter<bool>("GPUCuda")),
+        forced_(iConfig.getUntrackedParameter<std::string>("force") == "GPUCuda") {
+    if (forced_ && !enabled_) {
+      throw cms::Exception("Configuration")
+          << "It makes no sense to force the module on GPUCuda, and then disable GPUCuda.";
     }
   }
 
   GPUCuda::~GPUCuda() noexcept(false) {}
 
-  void GPUCuda::fillPSetDescription(edm::ParameterSetDescription& desc) {
-    desc.addUntracked<bool>("GPUCuda", true);
-  }
+  void GPUCuda::fillPSetDescription(edm::ParameterSetDescription& desc) { desc.addUntracked<bool>("GPUCuda", true); }
 
   void GPUCuda::call_beginStreamGPUCuda(edm::StreamID id) {
     edm::Service<CUDAService> cudaService;
     enabled_ = (enabled_ && cudaService->enabled());
-    if(!enabled_) {
-      if(forced_) {
-        throw cms::Exception("LogicError") << "This module was forced to run on GPUCuda, but the device is not available.";
+    if (!enabled_) {
+      if (forced_) {
+        throw cms::Exception("LogicError")
+            << "This module was forced to run on GPUCuda, but the device is not available.";
       }
       return;
     }
@@ -52,13 +51,17 @@ namespace heterogeneous {
 
     // Create the CUDA stream for this module-edm::Stream pair
     auto current_device = cuda::device::current::get();
-    cudaStream_ = std::make_unique<cuda::stream_t<>>(current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream));
+    cudaStream_ = std::make_unique<cuda::stream_t<>>(
+        current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream));
 
     beginStreamGPUCuda(id, *cudaStream_);
   }
 
-  bool GPUCuda::call_acquireGPUCuda(DeviceBitSet inputLocation, edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
-    if(!enabled_) {
+  bool GPUCuda::call_acquireGPUCuda(DeviceBitSet inputLocation,
+                                    edm::HeterogeneousEvent& iEvent,
+                                    const edm::EventSetup& iSetup,
+                                    edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
+    if (!enabled_) {
       return false;
     }
 
@@ -70,26 +73,28 @@ namespace heterogeneous {
     try {
       iEvent.setInputLocation(HeterogeneousDeviceId(HeterogeneousDevice::kGPUCuda, 0));
       acquireGPUCuda(iEvent, iSetup, *cudaStream_);
-      cudaStream_->enqueue.callback([deviceId=deviceId_,
-                                     waitingTaskHolder, // copy needed for the catch block
-                                     locationSetter = iEvent.locationSetter()
-                                     ](cuda::stream::id_t streamId, cuda::status_t status) mutable {
-                                      if (status == cudaSuccess) {
-                                        locationSetter(HeterogeneousDeviceId(HeterogeneousDevice::kGPUCuda, deviceId));
-                                        LogTrace("GPUCuda") << "  GPU kernel finished (in callback) device " << deviceId << " CUDA stream " << streamId;
-                                        waitingTaskHolder.doneWaiting(nullptr);
-                                      } else {
-                                        // wrap the exception in a try-catch block to let GDB "catch throw" break on it
-                                        try {
-                                          auto error = cudaGetErrorName(status);
-                                          auto message = cudaGetErrorString(status);
-                                          throw cms::Exception("CUDAError") << "Callback of CUDA stream " << streamId << " in device " << deviceId << " error " << error << ": " << message;
-                                        } catch(cms::Exception &) {
-                                          waitingTaskHolder.doneWaiting(std::current_exception());
-                                        }
-                                      }
-                                    });
-    } catch(...) {
+      cudaStream_->enqueue.callback(
+          [deviceId = deviceId_,
+           waitingTaskHolder,  // copy needed for the catch block
+           locationSetter = iEvent.locationSetter()](cuda::stream::id_t streamId, cuda::status_t status) mutable {
+            if (status == cudaSuccess) {
+              locationSetter(HeterogeneousDeviceId(HeterogeneousDevice::kGPUCuda, deviceId));
+              LogTrace("GPUCuda") << "  GPU kernel finished (in callback) device " << deviceId << " CUDA stream "
+                                  << streamId;
+              waitingTaskHolder.doneWaiting(nullptr);
+            } else {
+              // wrap the exception in a try-catch block to let GDB "catch throw" break on it
+              try {
+                auto error = cudaGetErrorName(status);
+                auto message = cudaGetErrorString(status);
+                throw cms::Exception("CUDAError") << "Callback of CUDA stream " << streamId << " in device " << deviceId
+                                                  << " error " << error << ": " << message;
+              } catch (cms::Exception&) {
+                waitingTaskHolder.doneWaiting(std::current_exception());
+              }
+            }
+          });
+    } catch (...) {
       waitingTaskHolder.doneWaiting(std::current_exception());
     }
     return true;
@@ -102,4 +107,4 @@ namespace heterogeneous {
 
     produceGPUCuda(iEvent, iSetup, *cudaStream_);
   }
-}
+}  // namespace heterogeneous

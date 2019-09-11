@@ -15,4 +15,4 @@ namespace cudacore {
     // TODO: improve the "assignment" logic
     return id % cudaService->numberOfDevices();
   }
-}
+}  // namespace cudacore

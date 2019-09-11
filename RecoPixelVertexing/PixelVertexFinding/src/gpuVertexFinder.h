@@ -32,14 +32,13 @@ namespace gpuVertexFinder {
     }
   };
 
-  __global__ void init(ZVertexSoA * pdata, WorkSpace* pws) {
+  __global__ void init(ZVertexSoA* pdata, WorkSpace* pws) {
     pdata->init();
     pws->init();
   }
 
   class Producer {
   public:
-    
     using ZVertices = ZVertexSoA;
     using WorkSpace = gpuVertexFinder::WorkSpace;
     using TkSoA = pixelTrack::TrackSoA;
@@ -47,10 +46,10 @@ namespace gpuVertexFinder {
     Producer(bool useDensity,
              bool useDBSCAN,
              bool useIterative,
-             int iminT,       // min number of neighbours to be "core"
-             float ieps,      // max absolute distance to cluster
-             float ierrmax,   // max error to be "seed"
-             float ichi2max   // max normalized distance to cluster
+             int iminT,      // min number of neighbours to be "core"
+             float ieps,     // max absolute distance to cluster
+             float ierrmax,  // max error to be "seed"
+             float ichi2max  // max normalized distance to cluster
              )
         : useDensity_(useDensity),
           useDBSCAN_(useDBSCAN),
@@ -62,11 +61,10 @@ namespace gpuVertexFinder {
 
     ~Producer() = default;
 
-    ZVertexHeterogeneous makeAsync(cuda::stream_t<>& stream, TkSoA const * tksoa, float ptMin) const;
-    ZVertexHeterogeneous make(TkSoA const * tksoa, float ptMin) const;
+    ZVertexHeterogeneous makeAsync(cuda::stream_t<>& stream, TkSoA const* tksoa, float ptMin) const;
+    ZVertexHeterogeneous make(TkSoA const* tksoa, float ptMin) const;
 
   private:
-
     const bool useDensity_;
     const bool useDBSCAN_;
     const bool useIterative_;

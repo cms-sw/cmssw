@@ -49,9 +49,7 @@ public:
   // the same cudaStream, or after cudaStreamSynchronize.
   const pixelCPEforGPU::ParamsOnGPU *getGPUProductAsync(cuda::stream_t<> &cudaStream) const;
 
-  pixelCPEforGPU::ParamsOnGPU const & getCPUProduct() const {
-    return cpuData_;
-  }
+  pixelCPEforGPU::ParamsOnGPU const &getCPUProduct() const { return cpuData_; }
 
 private:
   ClusterParam *createClusterParam(const SiPixelCluster &cl) const override;

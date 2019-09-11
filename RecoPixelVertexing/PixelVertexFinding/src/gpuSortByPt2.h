@@ -64,7 +64,6 @@ namespace gpuVertexFinder {
       sortInd[i] = i;
     std::sort(sortInd, sortInd + nvFinal, [&](auto i, auto j) { return ptv2[i] < ptv2[j]; });
 #endif
-
   }
 
 }  // namespace gpuVertexFinder

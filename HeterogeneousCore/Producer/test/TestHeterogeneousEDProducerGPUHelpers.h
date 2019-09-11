@@ -17,7 +17,7 @@ public:
 
   using Ptr = cuda::memory::device::unique_ptr<float[]>;
   using PtrRaw = Ptr::pointer;
-  
+
   using ResultType = std::pair<Ptr, Ptr>;
   using ResultTypeRaw = std::pair<PtrRaw, PtrRaw>;
   using ConstResultTypeRaw = std::pair<const PtrRaw, const PtrRaw>;

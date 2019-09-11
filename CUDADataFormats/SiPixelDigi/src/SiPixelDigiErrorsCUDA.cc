@@ -7,9 +7,8 @@
 
 #include <cassert>
 
-SiPixelDigiErrorsCUDA::SiPixelDigiErrorsCUDA(size_t maxFedWords, PixelFormatterErrors errors, cuda::stream_t<>& stream):
-  formatterErrors_h(std::move(errors))
-{
+SiPixelDigiErrorsCUDA::SiPixelDigiErrorsCUDA(size_t maxFedWords, PixelFormatterErrors errors, cuda::stream_t<>& stream)
+    : formatterErrors_h(std::move(errors)) {
   error_d = cudautils::make_device_unique<GPU::SimpleVector<PixelErrorCompact>>(stream);
   data_d = cudautils::make_device_unique<PixelErrorCompact[]>(maxFedWords, stream);
 

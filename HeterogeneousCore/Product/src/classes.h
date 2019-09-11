@@ -6,4 +6,4 @@ namespace {
   struct dictionary {
     HeterogeneousProduct hp;
   };
-}
+}  // namespace

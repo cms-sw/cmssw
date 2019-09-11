@@ -11,29 +11,29 @@
 
 namespace ecal {
 
-namespace Tag {
+  namespace Tag {
 
-struct soa {};
-struct ptr {};
+    struct soa {};
+    struct ptr {};
 
-}
+  }  // namespace Tag
 
-template<typename T, typename L = Tag::soa>
-struct type_wrapper {
-//#ifndef ECAL_MULTIFIT_DONOT_USE_PINNED_MEM
-//    using type = std::vector<T, CUDAHostAllocator<T>>;
-//#else
+  template <typename T, typename L = Tag::soa>
+  struct type_wrapper {
+    //#ifndef ECAL_MULTIFIT_DONOT_USE_PINNED_MEM
+    //    using type = std::vector<T, CUDAHostAllocator<T>>;
+    //#else
     using type = std::vector<T>;
-//#endif
-};
+    //#endif
+  };
 
-template<typename T>
-struct type_wrapper<T, Tag::ptr> {
+  template <typename T>
+  struct type_wrapper<T, Tag::ptr> {
     using type = T*;
-};
+  };
 
-template<typename L = Tag::soa>
-struct UncalibratedRecHit {
+  template <typename L = Tag::soa>
+  struct UncalibratedRecHit {
     UncalibratedRecHit() = default;
     UncalibratedRecHit(const UncalibratedRecHit&) = default;
     UncalibratedRecHit& operator=(const UncalibratedRecHit&) = default;
@@ -43,8 +43,8 @@ struct UncalibratedRecHit {
 
     // TODO: std::array causes root's dictionary problems
     typename type_wrapper<reco::ComputationScalarType, L>::type amplitudesAll;
-//    typename type_wrapper<std::array<reco::ComputationScalarType, 
-//        EcalDataFrame::MAXSAMPLES>, L>::type amplitudesAll;
+    //    typename type_wrapper<std::array<reco::ComputationScalarType,
+    //        EcalDataFrame::MAXSAMPLES>, L>::type amplitudesAll;
     typename type_wrapper<reco::StorageScalarType, L>::type amplitude;
     typename type_wrapper<reco::StorageScalarType, L>::type chi2;
     typename type_wrapper<reco::StorageScalarType, L>::type pedestal;
@@ -53,22 +53,21 @@ struct UncalibratedRecHit {
     typename type_wrapper<uint32_t, L>::type did;
     typename type_wrapper<uint32_t, L>::type flags;
 
-    template<typename U = L>
-    typename std::enable_if<std::is_same<U, Tag::soa>::value, void>::type 
-    resize(size_t size) {
-        amplitudesAll.resize(size * EcalDataFrame::MAXSAMPLES);
-        amplitude.resize(size);
-        pedestal.resize(size);
-        chi2.resize(size);
-        did.resize(size);
-        flags.resize(size);
-        jitter.resize(size);
-        jitterError.resize(size);
+    template <typename U = L>
+    typename std::enable_if<std::is_same<U, Tag::soa>::value, void>::type resize(size_t size) {
+      amplitudesAll.resize(size * EcalDataFrame::MAXSAMPLES);
+      amplitude.resize(size);
+      pedestal.resize(size);
+      chi2.resize(size);
+      did.resize(size);
+      flags.resize(size);
+      jitter.resize(size);
+      jitterError.resize(size);
     }
-};
+  };
 
-using SoAUncalibratedRecHitCollection = UncalibratedRecHit<Tag::soa>;
+  using SoAUncalibratedRecHitCollection = UncalibratedRecHit<Tag::soa>;
 
-}
+}  // namespace ecal
 
-#endif // RecoLocalCalo_EcalRecAlgos_interface_EcalUncalibratedRecHit_soa_h
+#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalUncalibratedRecHit_soa_h

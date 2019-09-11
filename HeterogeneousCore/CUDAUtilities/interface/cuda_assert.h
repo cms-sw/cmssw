@@ -2,17 +2,17 @@
 // this file multiple times, setting a different value of GPU_DEBUG beforehand.
 
 #ifdef __CUDA_ARCH__
-# ifndef GPU_DEBUG
+#ifndef GPU_DEBUG
 // disable asserts
-#  ifndef NDEBUG
-#   define NDEBUG
-#  endif
-# else
+#ifndef NDEBUG
+#define NDEBUG
+#endif
+#else
 // enable asserts
-#  ifdef NDEBUG
-#   undef NDEBUG
-#  endif
-# endif
-#endif // __CUDA_ARCH__
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#endif
+#endif  // __CUDA_ARCH__
 
 #include <cassert>
