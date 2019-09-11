@@ -54,7 +54,7 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
         auto const &outerLayerHisto = histo[currentOuterLayerId];
         auto const &innerLayerHisto = histo[currentInnerLayerId];
 
-        for (int oeta = startEtaBin; oeta < endEtaBin; ++oeta) {
+        for (int oeta = startEtaBin; oeta < endEtaBin + 1; ++oeta) {
           auto offset = oeta * nPhiBins;
           for (int ophi_it = startPhiBin; ophi_it < endPhiBin; ++ophi_it) {
             int ophi = ((ophi_it % nPhiBins + nPhiBins) % nPhiBins);
