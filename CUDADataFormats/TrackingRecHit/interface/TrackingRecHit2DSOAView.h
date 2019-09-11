@@ -9,7 +9,6 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 #include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
 
-
 namespace pixelCPEforGPU {
   struct ParamsOnGPU;
 }
@@ -23,7 +22,8 @@ public:
 
   using AverageGeometry = phase1PixelTopology::AverageGeometry;
 
-  template<typename> friend class TrackingRecHit2DHeterogeneous;
+  template <typename>
+  friend class TrackingRecHit2DHeterogeneous;
 
   __device__ __forceinline__ uint32_t nHits() const { return m_nHits; }
 
@@ -68,9 +68,8 @@ public:
   __device__ __forceinline__ Hist& phiBinner() { return *m_hist; }
   __device__ __forceinline__ Hist const& phiBinner() const { return *m_hist; }
 
-  __device__ __forceinline__ AverageGeometry & averageGeometry() { return *m_averageGeometry; }
+  __device__ __forceinline__ AverageGeometry& averageGeometry() { return *m_averageGeometry; }
   __device__ __forceinline__ AverageGeometry const& averageGeometry() const { return *m_averageGeometry; }
-
 
 private:
   // local coord
@@ -88,7 +87,7 @@ private:
   uint16_t* m_detInd;
 
   // supporting objects
-  AverageGeometry * m_averageGeometry; // owned (corrected for beam spot: not sure where to host it otherwise)
+  AverageGeometry* m_averageGeometry;  // owned (corrected for beam spot: not sure where to host it otherwise)
   pixelCPEforGPU::ParamsOnGPU const* m_cpeParams;  // forwarded from setup, NOT owned
   uint32_t const* m_hitsModuleStart;               // forwarded from clusters
 
