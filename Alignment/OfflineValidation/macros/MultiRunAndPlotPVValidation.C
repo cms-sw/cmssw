@@ -1,44 +1,53 @@
-#include "TFile.h"
-#include "TSystemDirectory.h"
-#include "TSystemFile.h"
-#include "TObjArray.h"
-#include "TProcPool.h"
-#include "TList.h"
-#include "TMath.h"
+#include "TArrow.h"
 #include "TAxis.h"
-#include "TLegend.h"
+#include "TCanvas.h"
+#include "TF1.h"
+#include "TFile.h"
 #include "TGaxis.h"
-#include "TPaveText.h"
-#include "TPad.h"
-#include "TLatex.h"
-#include "TStyle.h"
-#include "TSystem.h"
-#include "TROOT.h"
-#include "TProfile.h"
+#include "TGraph.h"
+#include "TGraphAsymmErrors.h"
+#include "TGraphErrors.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TF1.h"
-#include "TGraph.h"
-#include "TGraphErrors.h"
-#include "TGraphAsymmErrors.h"
-#include <TStopwatch.h>
-#include "TArrow.h"
-#include "TCanvas.h"
+#include "TLatex.h"
+#include "TLegend.h"
+#include "TList.h"
+#include "TMath.h"
+#include "TObjArray.h"
 #include "TObjString.h"
-#include <iostream>
-#include <vector>
+#include "TPad.h"
+#include "TPaveText.h"
+#include "TProcPool.h"
+#include "TProfile.h"
+#include "TROOT.h"
+#include "TStyle.h"
+#include "TSystem.h"
+#include "TSystemDirectory.h"
+#include "TSystemFile.h"
+#include <TStopwatch.h>
 #include <algorithm>
-#include <map>
-#include <functional>
-#include <iterator>
-#include <fstream>
 #include <bitset>
+#include <fstream>
+#include <functional>
+#include <iostream>
+#include <iterator>
+#include <map>
 #include <sstream>
+#include <vector>
 
+/*!
+ * \def boolean to decide if it is in debug mode
+ */
 #define DEBUG true
 
+/*!
+ * \def number of workers
+ */
 const size_t nWorkers = 10;
 
+/*!
+ * \def basically the y-values of a TGraph
+ */
 typedef std::map<TString, std::vector<double> > alignmentTrend; 
 
 namespace pv{
@@ -51,7 +60,11 @@ namespace pv{
     generic
   };
 
-  // brief method to find first value that doesn not compare lett
+
+  /*! \fn closest
+   *  \brief method to find first value that doesn not compare left
+   */
+
   int closest(std::vector<int> const& vec, int value) {
     auto const it = std::lower_bound(vec.begin(), vec.end(), value);
     if (it == vec.end()) { return -1; }
@@ -60,6 +73,21 @@ namespace pv{
 
   const Int_t markers[8] = {kFullSquare,kOpenCircle,kFullTriangleDown,kOpenSquare,kOpenCircle,kFullTriangleUp,kOpenTriangleDown,kOpenTriangleUp};
   const Int_t colors[8]  = {kBlack,kBlue,kRed,kGreen+2,kMagenta,kViolet,kCyan,kYellow};
+
+  /*! \struct biases
+   *  \brief Structure biases
+   *         Contains characterization of a single run PV bias plot
+   *
+   * @param m_mean:             mean value of the profile points
+   * @param m_rms:              RMS value of the profle points
+   * @param m_w_mean:           mean weighted on the errors
+   * @param m_w_rms:            RMS weighted on the errors
+   * @param m_min:              minimum of the profile
+   * @param m_max:              maximum of the profile
+   * @param m_chi2:             chi2 of a liner fit
+   * @param m_ndf:              number of the dof of the linear fit
+   * @param m_ks:               Kolmogorov-Smirnov score of comparison with flat line
+   */
 
   struct biases {
     
@@ -80,6 +108,10 @@ namespace pv{
     biases(){
       init();
     }    
+
+    /*! \fn init
+     *  \brief initialising all members one by one
+     */
 
     void init(){
       m_mean=0;
@@ -117,7 +149,20 @@ namespace pv{
     double m_ks;
   };
 
-  
+
+   /*! \struct wrappedTrends
+   *  \brief Structure wrappedTrends
+   *         Contains the ensemble vs run number of the alignmentTrend characterization
+   *
+   * @param mean:             alignmentTrend of the mean value of the profile points
+   * @param low:              alignmentTrend of the lowest value of the profle points
+   * @param high:             alignmentTrend of the highest value of the profile points
+   * @param lowerr:           alignmentTrend of the difference between the lowest value and the mean of the profile points
+   * @param higherr:          alignmentTrend of the difference between the highest value and the mean of the profile points
+   * @param chi2:             alignmentTrend of the chi2 value of a linear fit to the profile points
+   * @param KS:               alignmentTrend of the Kolmogorow-Smirnov score of the comarison of the profile points to a flat line
+   */
+
   struct wrappedTrends {
     
     // constructor
@@ -375,11 +420,11 @@ void outputGraphs(const pv::wrappedTrends& allInputs,
 		  TCanvas* &canv,
 		  TCanvas* &mean_canv,
 		  TCanvas* &rms_canv,
-		  TGraph* &g_mean,
-		  TGraph* &g_chi2,
-		  TGraph* &g_KS,	  
-		  TGraph* &g_low,
-		  TGraph* &g_high,
+		  TGraph*  &g_mean,
+		  TGraph*  &g_chi2,
+		  TGraph*  &g_KS,
+		  TGraph*  &g_low,
+		  TGraph*  &g_high,
 		  TGraphAsymmErrors* &g_asym,
 		  TH1F* h_RMS[],      
 		  const pv::bundle& mybundle,
@@ -426,7 +471,8 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
     std::cout<<"##########################################################################################"<<std::endl;
     std::cout<<"msg-i: MultiRunPVValidation(): you're requesting both summary vs lumi and vs time, "<< std::endl;
     std::cout<<"       this combination is inconsistent --> exiting!"<< std::endl;
-    return;
+    //return;
+    exit(EXIT_FAILURE);
   }
 
   // preload the dates from file
