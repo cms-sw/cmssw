@@ -13,7 +13,6 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
   SeedOffset_ = ps.getParameter<unsigned int>("seedOffset"),
   doTimeSamples_ = myCfg_.getParameter<bool>("doTimeSamples");
   thresholdFollowsMIP_ = myCfg_.getParameter<bool>("thresholdFollowsMIP");
-
   if (myCfg_.exists("keV2fC"))
     keV2fC_ = myCfg_.getParameter<double>("keV2fC");
   else
