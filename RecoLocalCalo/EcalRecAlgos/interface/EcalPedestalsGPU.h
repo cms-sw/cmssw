@@ -12,37 +12,37 @@
 
 class EcalPedestalsGPU {
 public:
-    struct Product {
-        ~Product();
-        float *mean_x12=nullptr, *mean_x6=nullptr, *mean_x1=nullptr;
-        float *rms_x12=nullptr, *rms_x6=nullptr, *rms_x1=nullptr;
-    };
+  struct Product {
+    ~Product();
+    float *mean_x12 = nullptr, *mean_x6 = nullptr, *mean_x1 = nullptr;
+    float *rms_x12 = nullptr, *rms_x6 = nullptr, *rms_x1 = nullptr;
+  };
 
 #ifndef __CUDACC__
 
-    // rearrange pedestals
-    EcalPedestalsGPU(EcalPedestals const&);
+  // rearrange pedestals
+  EcalPedestalsGPU(EcalPedestals const &);
 
-    // will call dealloation for Product thru ~Product
-    ~EcalPedestalsGPU() = default;
+  // will call dealloation for Product thru ~Product
+  ~EcalPedestalsGPU() = default;
 
-    // get device pointers
-    Product const& getProduct(cuda::stream_t<>&) const;
+  // get device pointers
+  Product const &getProduct(cuda::stream_t<> &) const;
 
-    // 
-    static std::string name() { return std::string{"ecalPedestalsGPU"}; }
+  //
+  static std::string name() { return std::string{"ecalPedestalsGPU"}; }
 
 private:
-    // in the future, we need to arrange so to avoid this copy on the host
-    // store eb first then ee
-    std::vector<float, CUDAHostAllocator<float>> mean_x12_;
-    std::vector<float, CUDAHostAllocator<float>> rms_x12_;
-    std::vector<float, CUDAHostAllocator<float>> mean_x6_;
-    std::vector<float, CUDAHostAllocator<float>> rms_x6_;
-    std::vector<float, CUDAHostAllocator<float>> mean_x1_;
-    std::vector<float, CUDAHostAllocator<float>> rms_x1_;
+  // in the future, we need to arrange so to avoid this copy on the host
+  // store eb first then ee
+  std::vector<float, CUDAHostAllocator<float>> mean_x12_;
+  std::vector<float, CUDAHostAllocator<float>> rms_x12_;
+  std::vector<float, CUDAHostAllocator<float>> mean_x6_;
+  std::vector<float, CUDAHostAllocator<float>> rms_x6_;
+  std::vector<float, CUDAHostAllocator<float>> mean_x1_;
+  std::vector<float, CUDAHostAllocator<float>> rms_x1_;
 
-    CUDAESProduct<Product> product_;
+  CUDAESProduct<Product> product_;
 #endif
 };
 

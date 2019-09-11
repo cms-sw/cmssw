@@ -12,32 +12,31 @@
 
 class EcalPulseCovariancesGPU {
 public:
-    struct Product {
-        ~Product();
-        EcalPulseCovariance *values=nullptr;
-    };
+  struct Product {
+    ~Product();
+    EcalPulseCovariance* values = nullptr;
+  };
 
 #ifndef __CUDACC__
-    // rearrange pedestals
-    EcalPulseCovariancesGPU(EcalPulseCovariances const&);
+  // rearrange pedestals
+  EcalPulseCovariancesGPU(EcalPulseCovariances const&);
 
-    // will call dealloation for Product thru ~Product
-    ~EcalPulseCovariancesGPU() = default;
+  // will call dealloation for Product thru ~Product
+  ~EcalPulseCovariancesGPU() = default;
 
-    // get device pointers
-    Product const& getProduct(cuda::stream_t<>&) const;
+  // get device pointers
+  Product const& getProduct(cuda::stream_t<>&) const;
 
-    // 
-    static std::string name() { return std::string{"ecalPulseCovariancesGPU"}; }
+  //
+  static std::string name() { return std::string{"ecalPulseCovariancesGPU"}; }
 
 private:
-    // reuse original vectors (although with default allocator)
-    std::vector<EcalPulseCovariance> const& valuesEB_;
-    std::vector<EcalPulseCovariance> const& valuesEE_;
+  // reuse original vectors (although with default allocator)
+  std::vector<EcalPulseCovariance> const& valuesEB_;
+  std::vector<EcalPulseCovariance> const& valuesEE_;
 
-    CUDAESProduct<Product> product_;
+  CUDAESProduct<Product> product_;
 #endif
 };
-
 
 #endif
