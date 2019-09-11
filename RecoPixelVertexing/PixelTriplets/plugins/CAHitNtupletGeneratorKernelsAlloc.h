@@ -2,8 +2,7 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
-
-template<>
+template <>
 #ifdef __CUDACC__
 void CAHitNtupletGeneratorKernelsGPU::allocateOnGPU(cuda::stream_t<>& stream) {
 #else
@@ -20,31 +19,33 @@ void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(cuda::stream_t<>& stream) {
   cudaCheck(cudaMemset(device_theCellTracks_, 0, sizeof(CAConstants::CellTracksVector)));
   */
 
-  device_hitToTuple_ = Traits:: template make_unique<HitToTuple>(stream);
+  device_hitToTuple_ = Traits::template make_unique<HitToTuple>(stream);
 
-  device_tupleMultiplicity_ = Traits:: template make_unique<TupleMultiplicity>(stream);
+  device_tupleMultiplicity_ = Traits::template make_unique<TupleMultiplicity>(stream);
 
-  auto storageSize = 3+(std::max(TupleMultiplicity::wsSize(), HitToTuple::wsSize())+sizeof(AtomicPairCounter::c_type))/sizeof(AtomicPairCounter::c_type);
+  auto storageSize =
+      3 + (std::max(TupleMultiplicity::wsSize(), HitToTuple::wsSize()) + sizeof(AtomicPairCounter::c_type)) /
+              sizeof(AtomicPairCounter::c_type);
 
-  device_storage_ = Traits:: template make_unique<AtomicPairCounter::c_type[]>(storageSize,stream);
-  
+  device_storage_ = Traits::template make_unique<AtomicPairCounter::c_type[]>(storageSize, stream);
+
   device_hitTuple_apc_ = (AtomicPairCounter*)device_storage_.get();
-  device_hitToTuple_apc_ = (AtomicPairCounter*)device_storage_.get()+1;
-  device_nCells_ = (uint32_t *)(device_storage_.get()+2);
-  device_tmws_ = (uint8_t*)(device_storage_.get()+3);
+  device_hitToTuple_apc_ = (AtomicPairCounter*)device_storage_.get() + 1;
+  device_nCells_ = (uint32_t*)(device_storage_.get() + 2);
+  device_tmws_ = (uint8_t*)(device_storage_.get() + 3);
 
-  assert(device_tmws_+std::max(TupleMultiplicity::wsSize(), HitToTuple::wsSize()) <= (uint8_t*)(device_storage_.get()+storageSize));
+  assert(device_tmws_ + std::max(TupleMultiplicity::wsSize(), HitToTuple::wsSize()) <=
+         (uint8_t*)(device_storage_.get() + storageSize));
 
   if
 #ifndef __CUDACC__
-    constexpr
+      constexpr
 #endif
-      (std::is_same<Traits,cudaCompat::GPUTraits>::value) {
+      (std::is_same<Traits, cudaCompat::GPUTraits>::value) {
     cudaCheck(cudaMemsetAsync(device_nCells_, 0, sizeof(uint32_t), stream.id()));
-  }else {
-     *device_nCells_ = 0;
-  }  
+  } else {
+    *device_nCells_ = 0;
+  }
   cudautils::launchZero(device_tupleMultiplicity_.get(), stream.id());
   cudautils::launchZero(device_hitToTuple_.get(), stream.id());  // we may wish to keep it in the edm...
 }
-

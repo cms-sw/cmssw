@@ -200,32 +200,29 @@ namespace Rfit {
     const double temp0 = circle.par.head(2).squaredNorm();
     const double temp1 = sqrt(temp0);
     par_pak << atan2(circle.q * circle.par(0), -circle.q * circle.par(1)), circle.q * (temp1 - circle.par(2)),
-           circle.q/circle.par(2);
-    
-      const double temp2 = sqr(circle.par(0)) * 1. / temp0;
-      const double temp3 = 1. / temp1 * circle.q;
-      Matrix3d J4;
-      J4 << -circle.par(1) * temp2 * 1. / sqr(circle.par(0)), temp2 * 1. / circle.par(0), 0., circle.par(0) * temp3,
-          circle.par(1) * temp3, -circle.q, 0., 0., -circle.q/(circle.par(2)*circle.par(2));
-      circle.cov = J4 * circle.cov * J4.transpose();
-    
+        circle.q / circle.par(2);
+
+    const double temp2 = sqr(circle.par(0)) * 1. / temp0;
+    const double temp3 = 1. / temp1 * circle.q;
+    Matrix3d J4;
+    J4 << -circle.par(1) * temp2 * 1. / sqr(circle.par(0)), temp2 * 1. / circle.par(0), 0., circle.par(0) * temp3,
+        circle.par(1) * temp3, -circle.q, 0., 0., -circle.q / (circle.par(2) * circle.par(2));
+    circle.cov = J4 * circle.cov * J4.transpose();
+
     circle.par = par_pak;
   }
-
-
 
   // transformation between the "perigee" to cmssw localcoord frame
   // the plane of the latter is the perigee plane...
   // from   //!<(phi,Tip,q/pt,cotan(theta)),Zip)
   // to q/p,dx/dz,dy/dz,x,z
-  template<typename VI5, typename MI5, typename VO5, typename MO5>
-  __host__ __device__ inline void transformToPerigeePlane(VI5 const & ip, MI5 const & icov, VO5 & op, MO5 & ocov) {
-
-    auto sinTheta2 = 1./(1.+ip(3)*ip(3));
+  template <typename VI5, typename MI5, typename VO5, typename MO5>
+  __host__ __device__ inline void transformToPerigeePlane(VI5 const& ip, MI5 const& icov, VO5& op, MO5& ocov) {
+    auto sinTheta2 = 1. / (1. + ip(3) * ip(3));
     auto sinTheta = std::sqrt(sinTheta2);
-    auto cosTheta = ip(3)*sinTheta;
+    auto cosTheta = ip(3) * sinTheta;
 
-    op(0) = sinTheta*ip(2);
+    op(0) = sinTheta * ip(2);
     op(1) = 0.;
     op(2) = -ip(3);
     op(3) = ip(1);
@@ -233,15 +230,14 @@ namespace Rfit {
 
     Matrix5d J = Matrix5d::Zero();
 
-    J(0,2) = sinTheta;
-    J(0,3) = -sinTheta2*cosTheta*ip(2);
-    J(1,0) = 1.;
-    J(2,3) = -1.;
-    J(3,1) = 1.;
-    J(4,4) = -1;
+    J(0, 2) = sinTheta;
+    J(0, 3) = -sinTheta2 * cosTheta * ip(2);
+    J(1, 0) = 1.;
+    J(2, 3) = -1.;
+    J(3, 1) = 1.;
+    J(4, 4) = -1;
 
-    ocov=  J*icov*J.transpose();
-
+    ocov = J * icov * J.transpose();
   }
 
 }  // namespace Rfit

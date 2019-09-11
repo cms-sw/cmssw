@@ -5,7 +5,6 @@
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 
-
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -34,7 +33,6 @@ public:
   using HitContainer = pixelTrack::HitContainer;
   using Tuple = HitContainer;
 
-
   using QualityCuts = cAHitNtupletGenerator::QualityCuts;
   using Params = cAHitNtupletGenerator::Params;
   using Counters = cAHitNtupletGenerator::Counters;
@@ -50,30 +48,21 @@ public:
   static const char* fillDescriptionsLabel() { return "caHitNtupletOnGPU"; }
 
   PixelTrackHeterogeneous makeTuplesAsync(TrackingRecHit2DGPU const& hits_d,
-                                float bfield,
-                                cuda::stream_t<>& stream) const;
+                                          float bfield,
+                                          cuda::stream_t<>& stream) const;
 
-  PixelTrackHeterogeneous makeTuples(TrackingRecHit2DCPU const& hits_d,
-                                float bfield) const;
+  PixelTrackHeterogeneous makeTuples(TrackingRecHit2DCPU const& hits_d, float bfield) const;
 
-
- 
 private:
-
   void buildDoublets(HitsOnCPU const& hh, cuda::stream_t<>& stream) const;
 
-  void hitNtuplets(HitsOnCPU const& hh,
-                   const edm::EventSetup& es,
-                   bool useRiemannFit,
-                   cuda::stream_t<>& cudaStream);
+  void hitNtuplets(HitsOnCPU const& hh, const edm::EventSetup& es, bool useRiemannFit, cuda::stream_t<>& cudaStream);
 
   void launchKernels(HitsOnCPU const& hh, bool useRiemannFit, cuda::stream_t<>& cudaStream) const;
 
-
   Params m_params;
 
-  Counters * m_counters = nullptr;
-
+  Counters* m_counters = nullptr;
 };
 
 #endif  // RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorOnGPU_h
