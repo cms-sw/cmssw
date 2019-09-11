@@ -98,6 +98,10 @@ SiPixelSimBlock = cms.PSet(
 ###    DeadModules = cms.VPSet()
 )
 
+# activate charge reweighing for 2016 pixel detector (UL 2016)
+from Configuration.Eras.Modifier_pixel_2016_cff import pixel_2016
+pixel_2016.toModify(SiPixelSimBlock,UseReweighting=True)
+
 #
 # Apply the changes for the different Run 2 running scenarios
 #
