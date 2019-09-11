@@ -22,7 +22,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSiNoiseMap.h"
-
+#include "TRandom.h"
 namespace hgc = hgc_digi;
 
 namespace hgc_digi_utils {
@@ -68,6 +68,10 @@ public:
      @short CTOR
   */
   HGCDigitizerBase(const edm::ParameterSet& ps);
+  /**
+     @short Gaussian Noise Generation Member Function
+  */
+  void GenerateGaussianNoise(const double NoiseMean, const double NoiseStd);
   /**
     @short steer digitization mode
  */
@@ -150,6 +154,13 @@ protected:
 
   //if set to true, threshold will be computed based on the expected meap peak/2
   bool thresholdFollowsMIP_;
+
+  // New NoiseArray Parameters
+  const double NoiseMean_, NoiseStd_;
+  static const size_t NoiseArrayLength_ = 50000;
+  static const size_t samplesize_ = 15;
+  std::array<std::array<double, samplesize_>, NoiseArrayLength_> GaussianNoiseArray_;
+  unsigned int SeedOffset_;
 };
 
 #endif
