@@ -1,10 +1,8 @@
 #To make sure we rebuild this package when python_tools package updated
 <use name="python_tools"/>
 
-<use name="py2-histogrammar"/>
 <use name="rootpy"/>
 
-<test name="testHistogrammar" command="testHistogrammar.py"/>
 <test name="testPandas" command="testPandas.py"/>
 <test name="testRootNumpy" command="testRootNumpy.py"/>
 <test name="test_pycurl" command="test_pycurl.py"/>
