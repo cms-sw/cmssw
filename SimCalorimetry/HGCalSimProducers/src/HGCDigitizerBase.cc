@@ -6,9 +6,11 @@ using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
 template <class DFr>
-HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) : scaleByDose_(false) {
+HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
+    : scaleByDose_(false), NoiseMean_(0.0), NoiseStd_(1.0) {
   bxTime_ = ps.getParameter<double>("bxTime");
   myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
+  SeedOffset_ = ps.getParameter<unsigned int>("seedOffset"),
   doTimeSamples_ = myCfg_.getParameter<bool>("doTimeSamples");
   thresholdFollowsMIP_ = myCfg_.getParameter<bool>("thresholdFollowsMIP");
 
@@ -51,6 +53,19 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) : scaleByDo
   edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
   myFEelectronics_ = std::unique_ptr<HGCFEElectronics<DFr>>(new HGCFEElectronics<DFr>(feCfg));
   myFEelectronics_->SetNoiseValues(noise_fC_);
+  GenerateGaussianNoise(NoiseMean_, NoiseStd_);
+}
+
+template <class DFr>
+void HGCDigitizerBase<DFr>::GenerateGaussianNoise(const double NoiseMean, const double NoiseStd) {
+  unsigned int seed = 123456;
+  seed = seed + SeedOffset_;
+  TRandom trandom(seed);
+  for (size_t i = 0; i < NoiseArrayLength_; i++) {
+    for (size_t j = 0; j < samplesize_; j++) {
+      GaussianNoiseArray_[i][j] = trandom.Gaus(NoiseMean, NoiseStd);
+    }
+  }
 }
 
 template <class DFr>
@@ -87,7 +102,8 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     HGCSimHitDataAccumulator::iterator it = simData.find(id);
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
-
+    size_t hash_index = (CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_ - 1)) + id) % NoiseArrayLength_;
+    auto cellNoiseArray = GaussianNoiseArray_[hash_index];
     //set the noise,cce, LSB and threshold to be used
     float cce(1.f), noiseWidth(0.f), lsbADC(-1.f), maxADC(-1.f);
     uint32_t thrADC(std::floor(myFEelectronics_->getTargetMipValue() / 2));
@@ -122,7 +138,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
         toa[i] = cell.hit_info[1][i] / rawCharge;
 
       //final charge estimation
-      float noise = CLHEP::RandGaussQ::shoot(engine, 0.0, noiseWidth);
+      float noise = (float)cellNoiseArray[i] * noiseWidth;
       float totalCharge(rawCharge * cce + noise);
       if (totalCharge < 0.f)
         totalCharge = 0.f;
@@ -131,7 +147,8 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
 
     //run the shaper to create a new data frame
     DFr rawDataFrame(id);
-    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, engine, thrADC, lsbADC, maxADC, cell.thickness);
+    int thickness = cell.thickness > 0 ? cell.thickness : 1;
+    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, engine, thrADC, lsbADC, maxADC, thickness);
 
     //update the output according to the final shape
     updateOutput(coll, rawDataFrame);
