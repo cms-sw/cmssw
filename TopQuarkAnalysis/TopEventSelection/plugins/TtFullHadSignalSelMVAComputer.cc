@@ -27,7 +27,7 @@ void TtFullHadSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSet
   edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> calibContainer;
   setup.get<TtFullHadSignalSelMVARcd>().get(calibContainer);
   std::vector<PhysicsTools::Calibration::VarProcessor*> processors =
-      (calibContainer->find("ttFullHadSignalSelMVA")).getProcessors();
+      (calibContainer->find("ttFullHadSignalSelMVA"))->getProcessors();
 
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByToken(jetsToken_, jets);

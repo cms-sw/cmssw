@@ -70,7 +70,7 @@ bool GenericMVAComputerCache::update(const MVAComputerContainer *calib) {
       continue;
     }
 
-    const MVAComputer *computerCalib = &calib->find(iter->label);
+    const MVAComputer *computerCalib = calib->find(iter->label);
     if (!computerCalib) {
       iter->computer.reset();
       continue;

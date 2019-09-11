@@ -30,7 +30,7 @@ void TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSet
   edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> calibContainer;
   setup.get<TtSemiLepSignalSelMVARcd>().get(calibContainer);
   std::vector<PhysicsTools::Calibration::VarProcessor*> processors =
-      (calibContainer->find("ttSemiLepSignalSelMVA")).getProcessors();
+      (calibContainer->find("ttSemiLepSignalSelMVA"))->getProcessors();
 
   //make your preselection! This must!! be the same one as in TraintreeSaver.cc
   edm::Handle<edm::View<pat::MET> > MET_handle;

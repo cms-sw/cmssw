@@ -48,10 +48,10 @@ namespace PhysicsTools {
     std::unique_ptr<Calibration::MVAComputerContainer> calib(new Calibration::MVAComputerContainer);
 
     for (std::vector<std::string>::const_iterator iter = toCopy.begin(); iter != toCopy.end(); iter++)
-      calib->add(*iter) = toCopyCalib->find(*iter);
+      calib->add(*iter) = *toCopyCalib->find(*iter);
 
     for (std::vector<std::string>::const_iterator iter = toPut.begin(); iter != toPut.end(); iter++)
-      calib->add(*iter) = toPutCalib->find(*iter);
+      calib->add(*iter) = *toPutCalib->find(*iter);
 
     this->calib = std::move(calib);
   }

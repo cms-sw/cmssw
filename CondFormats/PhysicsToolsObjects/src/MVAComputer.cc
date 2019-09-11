@@ -159,7 +159,7 @@ namespace PhysicsTools {
       return entries.back().second;
     }
 
-    const MVAComputer &MVAComputerContainer::find(const std::string &label) const {
+    const MVAComputer *MVAComputerContainer::find(const std::string &label) const {
       std::vector<Entry>::const_iterator pos =
           std::find_if(entries.begin(), entries.end(), [&label](const MVAComputerContainer::Entry &entry) {
             return entry.first == label;
@@ -169,7 +169,7 @@ namespace PhysicsTools {
         throw cms::Exception("MVAComputerCalibration")
             << "Calibration record " << label << " not found in MVAComputerContainer." << std::endl;
 
-      return pos->second;
+      return &pos->second;
     }
 
     bool MVAComputerContainer::contains(const std::string &label) const {

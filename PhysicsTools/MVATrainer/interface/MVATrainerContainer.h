@@ -15,10 +15,10 @@ namespace PhysicsTools {
   public:
     typedef MVATrainerLooper::TrainObject Value_t;
 
-    const Calibration::MVAComputer &find(const std::string &label) const override {
+    const Calibration::MVAComputer *find(const std::string &label) const override {
       Map_t::const_iterator pos = trainCalibs.find(label);
       if (pos != trainCalibs.end())
-        return *pos->second.get();
+        return pos->second.get();
 
       return Calibration::MVAComputerContainer::find(label);
     }

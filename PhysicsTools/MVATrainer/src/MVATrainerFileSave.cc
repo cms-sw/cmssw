@@ -54,7 +54,7 @@ namespace PhysicsTools {
     edm::LogInfo("MVATrainerFileSave") << "Saving calibration data into plain MVA files.";
 
     for (LabelFileMap::const_iterator iter = toPut.begin(); iter != toPut.end(); iter++) {
-      const Calibration::MVAComputer *calibration = &calib->find(iter->first);
+      const Calibration::MVAComputer *calibration = calib->find(iter->first);
 
       MVAComputer::writeCalibration(iter->second.c_str(), calibration);
     }

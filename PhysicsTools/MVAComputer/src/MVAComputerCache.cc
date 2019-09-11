@@ -37,7 +37,7 @@ namespace PhysicsTools {
       return false;
 
     if (container) {
-      const Calibration::MVAComputer *computer = &container->find(calib);
+      const Calibration::MVAComputer *computer = container->find(calib);
       bool result = update(computer);
       containerCacheId = container->getCacheId();
       return result;

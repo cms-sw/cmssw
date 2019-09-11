@@ -131,7 +131,7 @@ void MVAModuleHelper<Record, Object, Filler>::init(
 	const PhysicsTools::Calibration::MVAComputerContainer *container)
 {
 	const std::vector<PhysicsTools::Calibration::Variable> &vars =
-					container->find(label).inputSet;
+					container->find(label)->inputSet;
 	values.clear();
 	for(std::vector<PhysicsTools::Calibration::Variable>::const_iterator
 			iter = vars.begin(); iter != vars.end(); ++iter)

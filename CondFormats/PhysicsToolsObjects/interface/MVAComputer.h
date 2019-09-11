@@ -255,7 +255,7 @@ namespace PhysicsTools {
       virtual ~MVAComputerContainer() {}
 
       MVAComputer &add(const std::string &label);
-      virtual const MVAComputer &find(const std::string &label) const;
+      virtual const MVAComputer *find(const std::string &label) const;
       virtual bool contains(const std::string &label) const;
 
       // cacheId stuff to detect changes
