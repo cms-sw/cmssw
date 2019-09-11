@@ -12,6 +12,7 @@ earlyGeneralTracks.trackProducers = ['initialStepTracks',
                                      'mixedTripletStepTracks',
                                      'pixelLessStepTracks',
                                      'tobTecStepTracks'
+                                     'siStripTripletStepTracks'
                                      ]
 earlyGeneralTracks.inputClassifiers =["initialStep",
                                       "jetCoreRegionalStep",
@@ -21,7 +22,8 @@ earlyGeneralTracks.inputClassifiers =["initialStep",
                                       "mixedTripletStep",
                                       "pixelLessStep",
                                       "tobTecStep"
-                                      ]
+                                      "siStripTripletStep"
+                                     ]
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(earlyGeneralTracks,
     trackProducers = [
@@ -32,6 +34,7 @@ trackingLowPU.toModify(earlyGeneralTracks,
         'mixedTripletStepTracks',
         'pixelLessStepTracks',
         'tobTecStepTracks'
+        'siStripTripletStepTracks'
     ],
     inputClassifiers = [
         "initialStepSelector",
@@ -41,6 +44,7 @@ trackingLowPU.toModify(earlyGeneralTracks,
         "mixedTripletStep",
         "pixelLessStepSelector",
         "tobTecStep"
+        "siStripTripletStep"
     ]
 )
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
@@ -57,7 +61,8 @@ _forPhase1 = dict(
         'pixelPairStepTracks',
         'mixedTripletStepTracks',
         'pixelLessStepTracks',
-        'tobTecStepTracks'
+        'tobTecStepTracks',
+        'siStripTripletStepTracks'
     ],
     inputClassifiers = [
         "initialStep",
@@ -70,7 +75,8 @@ _forPhase1 = dict(
         "pixelPairStep",
         "mixedTripletStep",
         "pixelLessStep",
-        "tobTecStep"
+        "tobTecStep",
+        "siStripTripletStep"
     ],
 )
 trackingPhase1.toModify(earlyGeneralTracks, **_forPhase1)

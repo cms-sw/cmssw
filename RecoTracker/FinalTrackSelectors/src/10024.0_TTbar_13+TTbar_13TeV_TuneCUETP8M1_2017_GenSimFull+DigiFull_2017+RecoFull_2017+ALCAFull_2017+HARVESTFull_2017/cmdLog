@@ -1,0 +1,8 @@
+
+# in: /grid_mnt/home/ddarej/newiterationstep/CMSSW_9_2_8/src/RecoTracker/FinalTrackSelectors/src going to execute cd 10024.0_TTbar_13+TTbar_13TeV_TuneCUETP8M1_2017_GenSimFull+DigiFull_2017+RecoFull_2017+ALCAFull_2017+HARVESTFull_2017
+ cmsDriver.py TTbar_13TeV_TuneCUETP8M1_cfi  --conditions auto:phase1_2017_realistic -n 10 --era Run2_2017 --eventcontent FEVTDEBUG --relval 9000,50 -s GEN,SIM --datatier GEN-SIM --beamspot Realistic25ns13TeVEarly2017Collision --geometry DB:Extended --fileout file:step1.root  > step1_TTbar_13+TTbar_13TeV_TuneCUETP8M1_2017_GenSimFull+DigiFull_2017+RecoFull_2017+ALCAFull_2017+HARVESTFull_2017.log  2>&1
+ 
+
+# in: /grid_mnt/home/ddarej/newiterationstep/CMSSW_9_2_8/src/RecoTracker/FinalTrackSelectors/src going to execute cd 10024.0_TTbar_13+TTbar_13TeV_TuneCUETP8M1_2017_GenSimFull+DigiFull_2017+RecoFull_2017+ALCAFull_2017+HARVESTFull_2017
+ cmsDriver.py step2  --conditions auto:phase1_2017_realistic -s DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2017 --datatier GEN-SIM-DIGI-RAW -n 10 --geometry DB:Extended --era Run2_2017 --eventcontent FEVTDEBUGHLT --filein file:step1.root  --fileout file:step2.root  > step2_TTbar_13+TTbar_13TeV_TuneCUETP8M1_2017_GenSimFull+DigiFull_2017+RecoFull_2017+ALCAFull_2017+HARVESTFull_2017.log  2>&1
+ 

@@ -1,0 +1,12 @@
+%MSG-w HcalSeverityLevelComputer:  (NoModuleName) 11-Sep-2019 11:47:47 CEST  pre-events
+HcalSeverityLevelComputer: Warning: level 8 already defined. Ignoring new definition.
+%MSG
+%MSG-w HcalSeverityLevelComputer:  (NoModuleName) 11-Sep-2019 11:47:47 CEST  pre-events
+HcalSeverityLevelComputer: Warning: level 8 already defined. Ignoring new definition.
+%MSG
+----- Begin Fatal Exception 11-Sep-2019 11:47:56 CEST-----------------------
+An exception of category 'PluginLibraryLoadError' occurred while
+   [0] Constructing the EventProcessor
+Exception Message:
+unable to load /grid_mnt/home/ddarej/newiterationstep/CMSSW_9_2_8/lib/slc7_amd64_gcc530/poisoned/plugin-poisoned-RecoTrackerFinalTrackSelectorsPlugins.so because /grid_mnt/home/ddarej/newiterationstep/CMSSW_9_2_8/lib/slc7_amd64_gcc530/poisoned/plugin-poisoned-RecoTrackerFinalTrackSelectorsPlugins.so: cannot open shared object file: No such file or directory
+----- End Fatal Exception -------------------------------------------------
