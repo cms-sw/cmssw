@@ -42,7 +42,7 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
       int entryEtaBin = firstLayerHisto.etaBin(r.origin.eta());
       int entryPhiBin = firstLayerHisto.phiBin(r.origin.phi());
       startEtaBin = std::max(entryEtaBin - deltaIEta, 0);
-      endEtaBin = std::min(entryEtaBin + deltaIEta, nEtaBins);
+      endEtaBin = std::min(entryEtaBin + deltaIEta + 1, nEtaBins);
       startPhiBin = entryPhiBin - deltaIPhi;
       endPhiBin = entryPhiBin + deltaIPhi;
     }
@@ -54,7 +54,7 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
         auto const &outerLayerHisto = histo[currentOuterLayerId];
         auto const &innerLayerHisto = histo[currentInnerLayerId];
 
-        for (int oeta = startEtaBin; oeta < endEtaBin + 1; ++oeta) {
+        for (int oeta = startEtaBin; oeta < endEtaBin; ++oeta) {
           auto offset = oeta * nPhiBins;
           for (int ophi_it = startPhiBin; ophi_it < endPhiBin; ++ophi_it) {
             int ophi = ((ophi_it % nPhiBins + nPhiBins) % nPhiBins);
@@ -63,9 +63,9 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
               if (mask[outerClusterId] == 0.)
                 continue;
               const auto etaRangeMin = std::max(0, oeta - deltaIEta);
-              const auto etaRangeMax = std::min(oeta + deltaIEta, nEtaBins);
+              const auto etaRangeMax = std::min(oeta + deltaIEta + 1, nEtaBins);
 
-              for (int ieta = etaRangeMin; ieta < etaRangeMax + 1; ++ieta) {
+              for (int ieta = etaRangeMin; ieta < etaRangeMax; ++ieta) {
                 // wrap phi bin
                 for (int phiRange = 0; phiRange < 2 * deltaIPhi + 1; ++phiRange) {
                   // The first wrapping is to take into account the
