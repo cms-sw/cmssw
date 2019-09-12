@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <cmath>
 #include <vector>
+#include "TF1.h"
+
 
 // functions to select the hits to compute the time of a given cluster
 // start with the only hits with timing information
@@ -15,23 +17,53 @@
 // for charged tracks or heavy particles (longer track length or beta < 1)
 // need to correct the offset at analysis level
 
+
+inline std::vector<size_t> decrease_sorted_indices(const std::vector<float>& v)
+{
+  // initialize original index locations
+  std::vector<size_t> idx(v.size());
+  for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
+
+  // sort indices based on comparing values in v (decreasing order)
+  std::sort(idx.begin(), idx.end(),
+	    [&v](size_t i1, size_t i2) {return v[i1] < v[i2];} );
+
+  return idx;
+}
+
+
+
 namespace hgcalsimclustertime {
 
+  //time resolution vs energy parametrization
+  Double_t timeResolution(Double_t *x, Double_t *par) {
+
+    Double_t funcVal = pow(par[0]/x[0], 2) + pow(par[1], 2);
+      return sqrt(funcVal);
+  }
+
   //time-interval based on that ~210ps wide and with the highest number of hits
-  float fixSizeHighestDensity(std::vector<float>& t,
-			      std::vector<float> w = std::vector<float>(),
+  float fixSizeHighestDensity(std::vector<float>& time,
+			      std::vector<float> weight = std::vector<float>(),
                               float deltaT = 0.210 /*time window in ns*/,
                               float timeWidthBy = 0.5) {
 
-    if(w.size() == 0) w.resize(t.size(), 1.);
 
-    float tolerance = 0.05f;
-    std::sort(t.begin(), t.end());
+    if(weight.size() == 0) weight.resize(time.size(), 1.);
+
+    std::vector<float> t (time.size(), 0.);
+    std::vector<float> w (time.size(), 0.);
+    std::vector<size_t> sortedIndex = decrease_sorted_indices(time);
+    for (std::size_t i=0; i<sortedIndex.size(); ++i) {
+      t[i] = time[sortedIndex[i]];
+      w[i] = weight[sortedIndex[i]];
+    }
 
     int max_elements = 0;
     int start_el = 0;
     int end_el = 0;
     float timeW = 0.f;
+    float tolerance = 0.05f;
 
     for (auto start = t.begin(); start != t.end(); ++start) {
       const auto startRef = *start;
@@ -54,7 +86,7 @@ namespace hgcalsimclustertime {
 
     float HalfTimeDiff = timeW * timeWidthBy;
     float sum = 0.;
-    int num = 0;
+    float num = 0;
     int totSize = t.size();
 
     for (int ij = 0; ij <= start_el; ++ij) {
@@ -74,6 +106,37 @@ namespace hgcalsimclustertime {
       return -99.;
     return sum / num;
   }
+
+
+  float fixSizeHighestDensityResWeig(std::vector<float>& t,
+				     std::vector<float>& w,
+				     std::string& type,
+				     float deltaT = 0.210 /*time window in ns*/,
+				     float timeWidthBy = 0.5){
+
+
+    //range is in GeV units
+    TF1* func = new TF1("func", timeResolution, 0.02, 1000., 2);
+    if(type == "test"){
+      //time is in ns units
+      func->SetParameters(1., 0.02);
+    }
+
+    std::vector<float> weights;
+    weights.resize(t.size());
+
+    for (unsigned int ij = 0; ij < w.size(); ++ij) {
+      float energy = w[ij];
+
+      if(energy > func->GetXmax()) weights[ij] = 1./func->GetParameter(1);
+      else if(energy < func->GetXmin()) weights[ij] = 1./func->GetParameter(0);
+      else weights[ij] = 1./func->Eval(energy);
+    }
+
+    return fixSizeHighestDensity(t, weights, deltaT, timeWidthBy);
+  }
+
+
 
   //useful for future developments - baseline for 0PU
   /*
