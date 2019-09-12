@@ -242,7 +242,8 @@ namespace edm {
 
           EventSetupRecordProvider* recProvider = tryToGetRecordProvider(key);
           if (recProvider == nullptr) {
-            unsigned int nConcurrentIOVs = numberOfConcurrentIOVs.numberOfConcurrentIOVs(key);
+            bool printInfoMsg = true;
+            unsigned int nConcurrentIOVs = numberOfConcurrentIOVs.numberOfConcurrentIOVs(key, printInfoMsg);
 
             //create a provider for this record
             insert(key, std::make_unique<EventSetupRecordProvider>(key, activityRegistry_, nConcurrentIOVs));
@@ -273,6 +274,8 @@ namespace edm {
 
           EventSetupRecordProvider* recProvider = tryToGetRecordProvider(key);
           if (recProvider == nullptr) {
+            bool printInfoMsg = true;
+            nConcurrentIOVs = numberOfConcurrentIOVs.numberOfConcurrentIOVs(key, printInfoMsg);
             //create a provider for this record
             insert(key, std::make_unique<EventSetupRecordProvider>(key, activityRegistry_, nConcurrentIOVs));
             recProvider = tryToGetRecordProvider(key);
