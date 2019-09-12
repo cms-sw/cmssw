@@ -20,7 +20,8 @@ namespace ticl {
 
     std::unique_ptr<HgcalClusterFilterMask> filter(const std::vector<reco::CaloCluster>& layerClusters,
                                                    const HgcalClusterFilterMask& availableLayerClusters,
-                                                   std::vector<float>& layerClustersMask) const override {
+                                                   std::vector<float>& layerClustersMask,
+                                                   hgcal::RecHitTools& rhtools) const override {
       auto filteredLayerClusters = std::make_unique<HgcalClusterFilterMask>();
       for (auto const& cl : availableLayerClusters) {
         if (layerClusters[cl.first].algo() == algo_number_) {
