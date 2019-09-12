@@ -62,11 +62,15 @@ namespace edm {
 
     // ---------- const member functions ---------------------
     element_type const* get() const {
+#if __cplusplus >= 201703L
       if constexpr (std::is_pointer<T>::value) {
         return m_value;
       } else {
         return m_value.get();
       }
+#else
+      return &(*m_value);
+#endif
     }
     element_type const* operator->() const { return this->get(); }
     element_type const& operator*() const { return *m_value; }
@@ -75,11 +79,15 @@ namespace edm {
 
     // ---------- member functions ---------------------------
     element_type* get() {
+#if __cplusplus >= 201703L
       if constexpr (std::is_pointer<T>::value) {
         return m_value;
       } else {
         return m_value.get();
       }
+#else
+      return &(*m_value);
+#endif
     }
     element_type* operator->() { return this->get(); }
     element_type& operator*() { return *m_value; }
