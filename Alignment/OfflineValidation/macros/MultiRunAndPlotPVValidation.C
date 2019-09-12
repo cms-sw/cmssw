@@ -697,8 +697,8 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
   //f_processData(0);
   //std::cout<<" post do-stuff: " <<  runs.size() << std::endl;
 
-  TProcPool procPool(nWorkers);
-  std::vector<size_t> range(nWorkers);
+  TProcPool procPool(std::min(nWorkers,intersection.size()));
+  std::vector<size_t> range(std::min(nWorkers,intersection.size()));
   std::iota(range.begin(),range.end(),0);
   //procPool.Map([&f_processData](size_t a) { f_processData(a); },{1,2,3});
   auto extracts = procPool.Map(f_processData,range);
@@ -964,7 +964,7 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
   for(Int_t j=0; j < nDirs_; j++) {
 
     // check on the sanity
-    std::cout<<"x_ticks.size()= "<<x_ticks.size()<<"d xyPhiMeans_[LegLabels["<<j<<"]].size()="<<dxyPhiMeans_[LegLabels[j]].size()<<std::endl;
+    std::cout<<"x_ticks.size()= "<<x_ticks.size()<<" dxyPhiMeans_[LegLabels["<<j<<"]].size()="<<dxyPhiMeans_[LegLabels[j]].size()<<std::endl;
 
     // *************************************
     // dxy vs phi
@@ -2806,11 +2806,13 @@ outTrends processData(size_t iter,std::vector<int> intersection,const Int_t nDir
   outTrends ret;
   ret.init();
 
-  unsigned int pitch = std::ceil(intersection.size()/nWorkers)+1;
-  unsigned int first = iter*pitch;
-  unsigned int last  = std::min((iter+1)*pitch-1,intersection.size());
+  unsigned int effSize = std::min(nWorkers,intersection.size());
 
-  std::cout<< "pitch: " << pitch<< " first: "<< first << " last: "<< last<< std::endl;
+  unsigned int pitch = std::floor(intersection.size()/effSize);
+  unsigned int first = iter*pitch;
+  unsigned int last  = (iter==(effSize-1) ) ? intersection.size() : ((iter+1)*pitch);
+
+  std::cout<< "iter:" << iter << "| pitch: " << pitch<< " ["<< first << "-"<< last << ")" << std::endl;
 
   ret.m_index=iter;
 
@@ -2821,7 +2823,7 @@ outTrends processData(size_t iter,std::vector<int> intersection,const Int_t nDir
     //if(intersection.at(n)!=283946) 
     //  continue;
 
-    std::cout << n << " "<<intersection.at(n) << std::endl;
+    std::cout << "iter: " << iter << " " << n << " "<<intersection.at(n) << std::endl;
     
     TFile *fins[nDirs_];
 
