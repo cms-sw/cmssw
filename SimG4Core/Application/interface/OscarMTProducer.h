@@ -35,7 +35,6 @@ public:
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  Producers m_producers;
   std::unique_ptr<RunManagerMTWorker> m_runManagerWorker;
 };
 
