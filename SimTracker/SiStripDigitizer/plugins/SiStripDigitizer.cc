@@ -241,7 +241,7 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
 
   std::unique_ptr<bool> simulateAPVInThisEvent = std::make_unique<bool>(false);
   if (includeAPVSimulation_) {
-    if (CLHEP::RandFlat::shoot(randomEngine_) < fracOfEventsToSimAPV_ ) {
+    if (CLHEP::RandFlat::shoot(randomEngine_) < fracOfEventsToSimAPV_) {
       *simulateAPVInThisEvent = true;
       iSetup.get<SiStripApvSimulationParametersRcd>().get(apvSimulationParametersHandle);
     }
