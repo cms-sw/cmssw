@@ -149,7 +149,6 @@ namespace pv{
     double m_ks;
   };
 
-
    /*! \struct wrappedTrends
    *  \brief Structure wrappedTrends
    *         Contains the ensemble vs run number of the alignmentTrend characterization
@@ -164,8 +163,11 @@ namespace pv{
    */
 
   struct wrappedTrends {
+
+    /*! \fn wrappedTrends
+     *  \brief Constructor of structure wrappedTrends, initialising all members from DMRs directly (with split)
+     */
     
-    // constructor
     wrappedTrends(alignmentTrend mean,
 		  alignmentTrend low, 
 		  alignmentTrend high,    
@@ -202,6 +204,19 @@ namespace pv{
     alignmentTrend m_chi2;
     alignmentTrend m_KS;      
   };
+
+  /*! \struct bundle
+   *  \brief Structure bundle
+   *         Contains the ensemble of all the information to build the graphs alignmentTrends
+   *
+   * @param nObjects                     int, number of alignments to be considered
+   * @param dataType                     TString, type of the data to be displayed (time, lumi)
+   * @param dataTypeLabel                TString, x-axis label
+   * @param lumiMapByrun                 std::map of the luminoisty by run number
+   * @param times                        std::map of the date (UTC) by run number
+   * @param lumiaxisformat               boolean, is the x-axis of the type lumi
+   * @param timeaxisformat               boolean, is the x-axis of the type time
+   */
 
   struct bundle{
     
@@ -313,7 +328,40 @@ struct unrolledHisto {
 
 };
 
-// auxilliary struct to be returned by the functor
+
+/*! \struct outTrends
+   *  \brief Structure outTrends
+   *         Contains the ensemble of all the alignmentTrends built by the functor
+   *
+   * @param m_index                     int, to keep track of which chunk of data has been processed
+   * @param m_lumiSoFar                 double, luminosity in this section of the data
+   * @param m_runs                      std::vector, list of the run processed in this section
+   * @param m_lumiByRun                 std::vector, list of the luminisoties per run, indexed
+   * @param m_lumiMarpByRun             std::map, map of the luminosities per run
+   * @param m_dxyPhiMeans               alignmentTrend of the mean values of the profile dxy vs phi
+   * @param m_dxyPhiChi2                alignmentTrend of chi2 of the linear fit per profile dxy vs phi
+   * @param m_dxyPhiKS                  alignmentTrend of Kolmogorow-Smirnov score of comparison of dxy vs phi profile with flat line
+   * @param m_dxyPhiHi                  alignmentTrend of the highest value of the profile dxy vs phi
+   * @param m_dxyPhiLo                  alignmentTrend of the lowest value of the profile dxy vs phi
+   * @param m_dxyEtaMeans               alignmentTrend of the mean values of the profile dxy vs eta
+   * @param m_dxyEtaChi2                alignmentTrend of chi2 of the linear fit per profile dxy vs eta
+   * @param m_dxyEtaKS                  alignmentTrend of Kolmogorow-Smirnov score of comparison of dxy vs eta profile with flat line
+   * @param m_dxyEtaHi                  alignmentTrend of the highest value of the profile dxy vs eta
+   * @param m_dxyEtaLo                  alignmentTrend of the lowest value of the profile dxy vs eta
+   * @param m_dzPhiMeans                alignmentTrend of the mean values of the profile dz vs phi
+   * @param m_dzPhiChi2                 alignmentTrend of chi2 of the linear fit per profile dz vs phi
+   * @param m_dzPhiKS                   alignmentTrend of Kolmogorow-Smirnov score of comparison of dz vs phi profile with flat line
+   * @param m_dzPhiHi                   alignmentTrend of the highest value of the profile dz vs phi
+   * @param m_dzPhiLo                   alignmentTrend of the lowest value of the profile dz vs phi
+   * @param m_dzEtaMeans                alignmentTrend of the mean values of the profile dz vs eta
+   * @param m_dzEtaChi2                 alignmentTrend of chi2 of the linear fit per profile dz vs eta
+   * @param m_dzEtaKS                   alignmentTrend of Kolmogorow-Smirnov score of comparison of dz vs eta profile with flat line
+   * @param m_dzEtaHi                   alignmentTrend of the highest value of the profile dz vs eta
+   * @param m_dzEtaLo                   alignmentTrend of the lowest value of the profile dz vs eta
+   * @param m_dxyVect                   map of the unrolled histograms for dxy residuals
+   * @param m_dzVect                    map of the unrolled histograms for dz residulas
+   */
+
 struct outTrends {
 
   int m_index;
@@ -383,7 +431,7 @@ struct outTrends {
 
 // forward declarations
 void MultiRunPVValidation(TString namesandlabels="",bool lumi_axis_format=false,bool time_axis_format=false,bool useRMS=true);
-outTrends doStuff(size_t iter,std::vector<int> intersection,const Int_t nDirs_,const char* dirs[10], TString LegLabels[10], bool useRMS);
+outTrends processData(size_t iter,std::vector<int> intersection,const Int_t nDirs_,const char* dirs[10], TString LegLabels[10], bool useRMS);
 
 void arrangeOutCanvas(TCanvas *canv,
 		      TH1F* m_11Trend[100],
@@ -435,7 +483,10 @@ void outputGraphs(const pv::wrappedTrends& allInputs,
 		  TLegend* &legend
 		  );
 
-// utility function to split strings
+/*! \fn split
+ *  \brief utility function to split strings
+ */
+
 /*--------------------------------------------------------------------*/
 std::vector<std::string> split(const std::string& s,char delimiter)
 /*--------------------------------------------------------------------*/
@@ -633,21 +684,21 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
   // loop over the runs in the intersection
   //unsigned int last = (DEBUG==true) ? 50 : intersection.size();
   
-  //std::function<void()> f_doStuff = std::bind(doStuff,1,intersection,nDirs_,dirs,LegLabels,lumiSoFar,runs,lumiByRun,lumiMapByRun,useRMS,dxyPhiMeans_,dxyPhiHi_,dxyPhiLo_,dxyEtaMeans_,dxyEtaHi_,dxyEtaLo_,dzPhiMeans_,dzPhiHi_,dzPhiLo_,dzEtaMeans_,dzEtaHi_,dzEtaLo_,dxyVect,dzVect);
+  //std::function<void()> f_processData = std::bind(processData,1,intersection,nDirs_,dirs,LegLabels,lumiSoFar,runs,lumiByRun,lumiMapByRun,useRMS,dxyPhiMeans_,dxyPhiHi_,dxyPhiLo_,dxyEtaMeans_,dxyEtaHi_,dxyEtaLo_,dzPhiMeans_,dzPhiHi_,dzPhiLo_,dzEtaMeans_,dzEtaHi_,dzEtaLo_,dxyVect,dzVect);
   
   std::cout<<" pre do-stuff: " << runs.size() << std::endl;
   
   //we should use std::bind to create a functor and then pass it to the procPool
-  auto f_doStuff = std::bind(doStuff,_1,intersection,nDirs_,dirs,LegLabels,useRMS);
+  auto f_processData = std::bind(processData,_1,intersection,nDirs_,dirs,LegLabels,useRMS);
   
-  //f_doStuff(0);
+  //f_processData(0);
   //std::cout<<" post do-stuff: " <<  runs.size() << std::endl;
 
   TProcPool procPool(nWorkers);
   std::vector<size_t> range(nWorkers);
   std::iota(range.begin(),range.end(),0);
-  //procPool.Map([&f_doStuff](size_t a) { f_doStuff(a); },{1,2,3});
-  auto extracts = procPool.Map(f_doStuff,range);
+  //procPool.Map([&f_processData](size_t a) { f_processData(a); },{1,2,3});
+  auto extracts = procPool.Map(f_processData,range);
   
   // sort the extracts according to the global index
   std::sort(extracts.begin(), extracts.end(), 
@@ -747,7 +798,7 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
 
   // main function call
   /*
-    doStuff(0,intersection,nDirs_,dirs,LegLabels,lumiSoFar,runs,lumiByRun,lumiMapByRun,useRMS,
+    processData(0,intersection,nDirs_,dirs,LegLabels,lumiSoFar,runs,lumiByRun,lumiMapByRun,useRMS,
     dxyPhiMeans_,dxyPhiHi_,dxyPhiLo_,	 	                  
     dxyEtaMeans_,dxyEtaHi_,dxyEtaLo_,	 	                  
     dzPhiMeans_,dzPhiHi_,dzPhiLo_,	 	  
@@ -1517,6 +1568,10 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
 
 }
 
+/*! \fn outputGraphs
+ *  \brief function to build the output graphs
+ */
+
 /*--------------------------------------------------------------------*/
 void outputGraphs(const pv::wrappedTrends& allInputs,
 		  const std::vector<double>& ticks,
@@ -1732,6 +1787,9 @@ void outputGraphs(const pv::wrappedTrends& allInputs,
   
 }
 
+/*! \fn list_files
+ *  \brief utility function to list of filles in a directory
+ */
 
 /*--------------------------------------------------------------------*/
 std::vector<int> list_files(const char *dirname, const char *ext)
@@ -1761,9 +1819,13 @@ std::vector<int> list_files(const char *dirname, const char *ext)
   return theRunNumbers;
 }
 
-//*************************************************************
+/*! \fn arrangeOutCanvas
+ *  \brief utility function to arrange the plots per run nicely in a TCanvas
+ */
+
+/*--------------------------------------------------------------------*/
 void arrangeOutCanvas(TCanvas *canv, TH1F* m_11Trend[100],TH1F* m_12Trend[100],TH1F* m_21Trend[100],TH1F* m_22Trend[100],Int_t nDirs, TString LegLabels[10],unsigned int theRun){
-//*************************************************************
+/*--------------------------------------------------------------------*/
 
   TLegend *lego = new TLegend(0.19,0.80,0.79,0.93);
   //lego-> SetNColumns(2);
@@ -1904,6 +1966,10 @@ void arrangeOutCanvas(TCanvas *canv, TH1F* m_11Trend[100],TH1F* m_12Trend[100],T
   } 
 }
 
+/*! \fn MakeNiceTrendPlotStype
+ *  \brief utility function to embellish trend plot style
+ */
+
 /*--------------------------------------------------------------------*/
 void  MakeNiceTrendPlotStyle(TH1 *hist,Int_t color)
 /*--------------------------------------------------------------------*/
@@ -1934,6 +2000,10 @@ void  MakeNiceTrendPlotStyle(TH1 *hist,Int_t color)
   hist->SetMarkerColor(pv::colors[color]);
 }
 
+
+/*! \fn maxkeNewAxis
+ *  \brief utility function to re-make x-axis with correct binning
+ */
 
 /*--------------------------------------------------------------------*/
 void makeNewXAxis (TH1 *h)
@@ -2004,6 +2074,10 @@ void makeNewXAxis (TH1 *h)
 
 }
 
+
+/*! \fn setStyle
+ *  \brief main function to set the plotting style
+ */
 
 /*--------------------------------------------------------------------*/
 void setStyle(){
@@ -2095,6 +2169,11 @@ void setStyle(){
 // }
 
 
+
+/*! \fn cmsPrel
+ *  \brief utility function to put the CMS paraphernalia on canvas
+ */
+
 /*--------------------------------------------------------------------*/
 void cmsPrel(TPad* pad,size_t ipads) {
 /*--------------------------------------------------------------------*/
@@ -2139,6 +2218,10 @@ void cmsPrel(TPad* pad,size_t ipads) {
   
 }
 
+/*! \fn DrawConstant
+ *  \brief utility function to draw a constant histogram
+ */
+
 /*--------------------------------------------------------------------*/
 TH1F* DrawConstant(TH1F *hist,Int_t iter,Double_t theConst)
 /*--------------------------------------------------------------------*/
@@ -2159,6 +2242,11 @@ TH1F* DrawConstant(TH1F *hist,Int_t iter,Double_t theConst)
   
   return hzero;
 }
+
+
+/*! \fn DrawConstant
+ *  \brief utility function to draw a constant histogram with erros !=0
+ */
 
 /*--------------------------------------------------------------------*/
 TH1F* DrawConstantWithErr(TH1F *hist,Int_t iter,Double_t theConst)
@@ -2181,6 +2269,10 @@ TH1F* DrawConstantWithErr(TH1F *hist,Int_t iter,Double_t theConst)
   
   return hzero;
 }
+
+/*! \fn DrawConstantGraph
+ *  \brief utility function to draw a constant TGraph
+ */
 
 /*--------------------------------------------------------------------*/
 TH1F* DrawConstantGraph(TGraph *graph,Int_t iter,Double_t theConst)
@@ -2205,6 +2297,9 @@ TH1F* DrawConstantGraph(TGraph *graph,Int_t iter,Double_t theConst)
   return hzero;
 }
 
+/*! \fn getUnrolledHisto
+ *  \brief utility function to tranform a TH1 into a vector of floats
+ */
 
 /*--------------------------------------------------------------------*/
 unrolledHisto getUnrolledHisto(TH1F* hist)
@@ -2228,6 +2323,10 @@ unrolledHisto getUnrolledHisto(TH1F* hist)
   return ret;
 
 }
+
+/*! \fn getBiases
+ *  \brief utility function to extract characterization of the PV bias plot
+ */
 
 /*--------------------------------------------------------------------*/
 pv::biases getBiases(TH1F* hist)
@@ -2288,6 +2387,10 @@ pv::biases getBiases(TH1F* hist)
 
 }
 
+/*! \fn beautify
+ *  \brief utility function to beautify a TGraph
+ */
+
 /*--------------------------------------------------------------------*/
 void beautify(TGraph *g){
 /*--------------------------------------------------------------------*/
@@ -2305,6 +2408,10 @@ void beautify(TGraph *g){
   g->GetYaxis()->CenterTitle(true);
   g->GetXaxis()->SetNdivisions(505);
 }
+
+/*! \fn beautify
+ *  \brief utility function to beautify a TH1
+ */
 
 /*--------------------------------------------------------------------*/
 void beautify(TH1 *h){
@@ -2325,6 +2432,10 @@ void beautify(TH1 *h){
   h->GetXaxis()->SetNdivisions(505);
 }
 
+/*! \fn adjustmargins
+ *  \brief utility function to adjust margins of a TCanvas
+ */
+
 /*--------------------------------------------------------------------*/
 void adjustmargins(TCanvas *canv){
 /*--------------------------------------------------------------------*/
@@ -2333,6 +2444,10 @@ void adjustmargins(TCanvas *canv){
   canv->cd()->SetRightMargin(0.03);
   canv->cd()->SetTopMargin(0.06);
 }
+
+/*! \fn adjustmargins
+ *  \brief utility function to adjust margins of a TVirtualPad
+ */
 
 /*--------------------------------------------------------------------*/
 void adjustmargins(TVirtualPad *canv){
@@ -2343,6 +2458,11 @@ void adjustmargins(TVirtualPad *canv){
   canv->SetTopMargin(0.02);
 }
 
+
+/*! \fn checkTH1AndReturn
+ *  \brief utility function to check if a TH1 exists in a TFile before returning it
+ */
+
 /*--------------------------------------------------------------------*/
 TH1F* checkTH1AndReturn(TFile *f,TString address){
 /*--------------------------------------------------------------------*/
@@ -2352,6 +2472,10 @@ TH1F* checkTH1AndReturn(TFile *f,TString address){
   } 
   return h;
 }
+
+/*! \fn checkThView
+ *  \brief utility function to return the pv::view corresponding to a given PV bias plot
+ */
 
 /*--------------------------------------------------------------------*/
 pv::view checkTheView(const TString &toCheck){
@@ -2377,6 +2501,11 @@ pv::view checkTheView(const TString &toCheck){
   } 
 }
 
+
+/*! \fn timify
+ *  \brief utility function to make a histogram x-axis of the time type
+ */
+
 /*--------------------------------------------------------------------*/
 template<typename T>
 void timify(T *mgr)
@@ -2395,6 +2524,11 @@ struct increase
     template<class T>
     bool operator()(T const &a, T const &b) const { return a > b; }
 };
+
+
+/*! \fn getMaximumFromArray
+ *  \brief utility function to extract the maximum out of an array of histograms
+ */
 
 /*--------------------------------------------------------------------*/
 Double_t getMaximumFromArray(TObjArray *array)
@@ -2448,26 +2582,15 @@ Double_t getMaximumFromArray(TObjArray *array)
   return theMaximum;
 }
 
+/*! \fn superImposeIOVBoundaries
+ *  \brief utility function to superimpose the IOV boundaries on the trend plot
+ */
+
 /*--------------------------------------------------------------------*/
 void superImposeIOVBoundaries(TCanvas *c,bool lumi_axis_format,bool time_axis_format,const std::map<int,double> &lumiMapByRun,const std::map<int,TDatime>& timeMap)
 /*--------------------------------------------------------------------*/
 {
- 
-  /*
-    1   296641       2017-11-07 12:31:49  bf4bdd66393bee0623b730e11f3db799674c4daf  Alignments   
-    2   297179       2017-11-07 12:31:49  a5858bccd2e2c031a12aa6cbe38e8adaeca19331  Alignments   
-    3   297281       2017-11-07 12:31:49  b423ed0f118c16d99cf92d12a1bd33bb1902f533  Alignments   
-    4   298653       2017-11-07 12:31:49  3e598e771471289c59d755ef4ebb993e6c4b7890  Alignments   
-    5   299277       2017-11-07 12:31:49  d8631cc034f3971131f7e7551610acf790192cd2  Alignments   
-    6   299443       2017-11-07 12:31:49  58961d0e9322c4d7064b31e73d9edfe9a861e1f8  Alignments   
-    7   300389       2017-11-07 12:31:49  7c0a2dcfa527e8e336ff6b8b198827a5fcb9c287  Alignments   
-    8   301046       2017-11-07 12:31:49  4bf6bfbd7f8a202e8a6bba5e8730b27b00e5142b  Alignments   
-    9   302131       2017-11-07 12:31:49  387e5f629f808464f5c69ab8bb7319576d81e768  Alignments   
-    10  303790       2017-11-07 12:31:49  21b79cc2a163df4fbc6c059eed8c96b86f8a07ff  Alignments   
-    11  304911       2017-11-07 12:31:49  44c7e1e991484d1490ac5ad6b734b6622f1e9d85  Alignments   
-    12  305898       2017-11-28 16:03:38  64aae34a7273b374738ed4b9b20c332abf503ab4  Alignments   
-  */
- 
+
   // get the vector of runs in the lumiMap
   std::vector<int> vruns;
   for(auto const& imap: lumiMapByRun){
@@ -2480,95 +2603,50 @@ void superImposeIOVBoundaries(TCanvas *c,bool lumi_axis_format,bool time_axis_fo
     std::cout<<" run:" << imap.first << " time: "<< imap.second.Convert() << std::endl;
   }
 
-  /* 2018 Prompt IOVs
-     314163       2018-04-13 12:46:08  1486775833f89de0ba96bfac647c11606f882b15  Alignments   
-     316006       2018-05-09 12:32:34  f67aa5b2d86737f947482a21e54074ab74b0ca7b  Alignments   
-     317393       2018-06-04 16:18:49  841254d3c88b0a906c241de3a906394c063a5b9d  Alignments  
+  /* Run-2 Ultra-Legacy ReReco IOVs (from tag SiPixelTemplateDBObject_38T_v16_offline)
+     1      271866   2016-04-28   2cc9ecb98e8ba900b26701d6adf052ba59c1f5e1  SiPixelTemplateDBObject 2016
+     2      276315   2016-07-04   28a6077528012fe0abb03df9ef52e5976137c324  SiPixelTemplateDBObject
+     3      278271   2016-08-05   43744865be66299a3a37599961a9faf5a0d2bd78  SiPixelTemplateDBObject
+     4      280928   2016-09-16   7533fd5b60c10a9c55cddc6d2677d3fae6e8bb14  SiPixelTemplateDBObject
+     5      290543   2017-03-30   05803622f45cf4ee2c07af2bb97875bd1010bfea  SiPixelTemplateDBObject 2017
+     6      297281   2017-06-22   0ed971165dda7ae1db50c6636dab049087cad9a1  SiPixelTemplateDBObject
+     7      298653   2017-07-09   e3af935c8f4eded04455a88959501d7408895501  SiPixelTemplateDBObject
+     8      299443   2017-07-19   e2203ad6babf1885d754ae1392e4841a9b20c02e  SiPixelTemplateDBObject
+     9      300389   2017-08-03   d512d75856a89b7602c143046f9e030e112c81e5  SiPixelTemplateDBObject
+     10     301046   2017-08-12   c624d964356bf70df4a33761c32f8976a0d89257  SiPixelTemplateDBObject
+     11     302131   2017-08-31   ca6f56bb82434b69bd951d5ca89cdce841473ce0  SiPixelTemplateDBObject
+     12     303790   2017-09-23   cbb7b82c563a21f06bf7e57bec3a490625c98d18  SiPixelTemplateDBObject
+     13     303998   2017-09-27   7aec56e15aed26f7b686535ecaff59911947f802  SiPixelTemplateDBObject
+     14     304911   2017-10-13   d5bc4c312735d2d97e617ae3d45c735639a1cd82  SiPixelTemplateDBObject
+     15     313041   2018-03-28   f3752b4a1fac4aa65c6439ab75d216dcc3ed27a9  SiPixelTemplateDBObject 2018
+     16     314881   2018-04-22   bc8784a015d78068c51c9a581328b064299a31b4  SiPixelTemplateDBObject
+     17     316758   2018-05-22   3a8abe693d1d3df829212e1049330e68f3392282  SiPixelTemplateDBObject
+     18     317475   2018-06-05   83e09d34c122040bca0f5daf4b89a0435663c230  SiPixelTemplateDBObject
+     19     317485   2018-06-05   3a8abe693d1d3df829212e1049330e68f3392282  SiPixelTemplateDBObject
+     20     317527   2018-06-06   356b03fcd7e869ef8f28153318f0cd32c27b1f40  SiPixelTemplateDBObject
+     21     317661   2018-06-10   1cbb2fc3edf448c50d00fac3aa47c8cf3b19ac6f  SiPixelTemplateDBObject
+     22     317664   2018-06-11   356b03fcd7e869ef8f28153318f0cd32c27b1f40  SiPixelTemplateDBObject
+     23     318227   2018-06-21   1cbb2fc3edf448c50d00fac3aa47c8cf3b19ac6f  SiPixelTemplateDBObject
+     24     320377   2018-07-26   5e9cd265167ec543aac49685cf706a58014c08f8  SiPixelTemplateDBObject
+     25     321831   2018-08-27   e47d453934b47f06e53a323bd9ae16b38ec1bbd1  SiPixelTemplateDBObject
+     26     322510   2018-09-09   df783de5f30a99bc036d8973e48da78513206aba  SiPixelTemplateDBObject
+     27     322603   2018-09-09   e47d453934b47f06e53a323bd9ae16b38ec1bbd1  SiPixelTemplateDBObject
+     28     323232   2018-09-21   9e660fd65e392f01f69cde77a52f59e934d7737d  SiPixelTemplateDBObject
+     29     324245   2018-10-08   6caa50b30aa80ede330585888cdc5e804853d1da  SiPixelTemplateDBObject
   */
 
-  /* 2018D Prompt IOVs
-     320551       2018-07-30 18:56:08  5ef1b88947a246ff4f44b56e66314c176889e32e  Alignments   
-     320812       2018-08-03 21:15:40  70ebb0c3b83e5a93b1662bd39617ae452da6540b  Alignments   
-     320845       2018-08-05 00:21:08  8b5f42f55164132f6a06889c1f3d96e7176ce924  Alignments   
-     320855       2018-08-05 09:28:41  e2436a8e838aeb1444f6f8214f675a4ab9c06cf4  Alignments   
-     320885       2018-08-05 22:00:35  680e859cdea640ce24744c27c58b564e669c0f9c  Alignments   
-     320901       2018-08-06 05:23:45  f1da7f661c087214fe452bd6714e25b131a58f3f  Alignments   
-     320918       2018-08-06 12:37:42  a6fe27aa494007e065d23e763b680748d8f0293b  Alignments   
-     320924       2018-08-06 23:41:03  f9a1eb4c6e7b44711d4c8e813d9a14270fe1f8ba  Alignments   
-     320932       2018-08-07 02:00:48  4d74559fdb483ca63401426c145110fb2f8d9c67  Alignments   
-     320972       2018-08-07 15:10:14  9d6e3283a09bdeb9beab05094fce4eb55e0a7aa2  Alignments   
-     320981       2018-08-07 15:41:48  ba0ca93b7605378b651afd8a928b51bb34ab01ed  Alignments   
-     320997       2018-08-07 22:00:42  f9a1eb4c6e7b44711d4c8e813d9a14270fe1f8ba  Alignments   
-     321013       2018-08-08 15:31:58  6324bd8162744eaf7ab0fd44e0b01301fb9ff102  Alignments   
-  */
+  static const int nIOVs=29 ; //   1       2       3       4       5       6       7       8       9      10      11      12      13      14      15
+  int IOVboundaries[nIOVs] = {271866, 276315, 278271, 280928, 290543, 297281, 298653, 299443, 300389, 301046, 302131, 303790, 303998, 304911, 313041,
+			      //  16      17      18      19      20      21      22      23      24      25      26      27      28      29
+			      314881, 316758, 317475, 317485, 317527, 317661, 317664, 318227, 320377, 321831, 322510, 322603, 323232, 324245};
 
-  /*2018 ReReco IOVs
-    1   Alignments|313041|a2131f53f578e09de59f48a6707dc8d4ca8ffb1c|2018-08-15 08:32:54.825398
-    2   Alignments|314881|5d354a6bd2a1a256ec2ff5a3f735facccd030f30|2018-08-15 08:33:02.877544
-    3   Alignments|315488|9231ad0c6737600ab90761498d97077afe549905|2018-08-15 08:33:10.975766
-    4   Alignments|315689|ca322cc8364407dde43256235833f92756497caf|2018-08-15 08:33:20.157337
-    5   Alignments|316559|0adc667ed82407644f10f9de96500f83451b29ca|2018-08-15 08:33:31.927466
-    6   Alignments|316758|faa90f0fc255d2b66a4b528f585c375b0053a00b|2018-08-15 08:33:39.992558
-    7   Alignments|317438|3940f07daa4fa5079ec9d2c7ea8571aaa258f605|2018-08-15 08:33:47.803401
-    8   Alignments|317527|08de11788363dc19f94deeb57655d1b3dc1d3926|2018-08-15 08:33:55.853235
-    9   Alignments|318228|35baae799b7a186f0bc6487ae4bdc5af75201acc|2018-08-15 08:34:07.181786
-    10  Alignments|319337|7ddd2bb52fa50f6e7b66af5576a0c064089d56b9|2018-08-15 08:34:15.024333
-    11  Alignments|320377|c8fbff3dbddd3f19a084b280a382f61a6cebdc47|2018-08-15 08:34:22.900776
-    12  Alignments|320688|6060521269c9f119df1bcb0668936caa311cc9b9|2018-08-15 08:34:31.094154
-   */
-
-  // static const int nIOVs=13;//       1       2}       3      4      5      6      7      8      9     10     11     12     13 
-  // int IOVboundaries[nIOVs]  = {320551,  320812,  320845,  320855,  320885,  320901,  320918,  320924,  320932,  320972,  320981,  320997,  321013};
-  // int benchmarkruns[nIOVs]  = {320551,  320812,  320845,  320855,  320885,  320901,  320918,  320924,  320932,  320972,  320981,  320997,  321013};
-
-  /* template IOVs
-     316758       2018-08-28 17:43:26  3a8abe693d1d3df829212e1049330e68f3392282  SiPixelTemplateDBObject  
-     317527       2018-08-28 17:43:26  356b03fcd7e869ef8f28153318f0cd32c27b1f40  SiPixelTemplateDBObject  
-     317661       2018-08-28 17:54:14  1cbb2fc3edf448c50d00fac3aa47c8cf3b19ac6f  SiPixelTemplateDBObject  
-     317664       2018-08-28 17:57:00  356b03fcd7e869ef8f28153318f0cd32c27b1f40  SiPixelTemplateDBObject  
-     318227       2018-08-28 17:58:17  1cbb2fc3edf448c50d00fac3aa47c8cf3b19ac6f  SiPixelTemplateDBObject  
-     320377       2018-09-04 18:20:50  5e9cd265167ec543aac49685cf706a58014c08f8  SiPixelTemplateDBObject  
-  */
-
-  /* 2017 ReReco template IOVs
-     280928       2017-11-07 10:57:51  65a7b7251f96dd52da4a224d921ae6c9e4e560e0  SiPixelTemplateDBObject  
-     290543       2017-11-07 10:59:05  05803622f45cf4ee2c07af2bb97875bd1010bfea  SiPixelTemplateDBObject  
-     297281       2017-11-07 11:04:10  0ed971165dda7ae1db50c6636dab049087cad9a1  SiPixelTemplateDBObject  
-     298653       2017-11-07 11:04:22  e3af935c8f4eded04455a88959501d7408895501  SiPixelTemplateDBObject  
-     299443       2017-11-07 11:04:37  053fae581c8fd47ed38142843774747aeecd0e29  SiPixelTemplateDBObject  
-     300389       2017-11-07 11:04:50  8d6d8297e767fe727b65107871ac6f7dca8c8c39  SiPixelTemplateDBObject  
-     302131       2017-11-07 11:05:03  13a584e147d1f069f8f25a84577721c01dbe9412  SiPixelTemplateDBObject  
-     303790       2017-11-07 11:05:28  db316ff818e117980e5b502a7d4a63064c02bf46  SiPixelTemplateDBObject  
-     304911       2017-11-07 11:05:40  cd4630efcc7c55593bf93a5211ba4b0f95a0ca2b  SiPixelTemplateDBObject  
-     305898       2017-12-01 10:17:44  6a3c710452af7134dd9e6408fb601b8c34542d10  SiPixelTemplateDBObject  
-   */
+  int benchmarkruns[nIOVs] = {271866, 276315, 278271, 280928, 290543, 297281, 298653, 299443, 300389, 301046, 302131, 303790, 303998, 304911, 313041,
+			      314881, 316758, 317475, 317485, 317527, 317661, 317664, 318227, 320377, 321831, 322510, 322603, 323232, 324245};
 
 
-  /*2018 2D Templates
-    314882       2019-01-25 22:39:07  9a89bb756a0c73a673b5bc445e8ca13b6e33ebfc  SiPixel2DTemplateDBObject  
-    316758       2019-01-25 22:42:29  f265af2c72edce9f0ebfddefaf7a3b291cdb4fbd  SiPixel2DTemplateDBObject  
-    317527       2019-01-25 22:43:52  f6d33ce60dd8a9b4543fbf7128c5f1db4854957e  SiPixel2DTemplateDBObject  
-    317661       2019-01-25 22:44:40  cc81e1fdeb11a989a583fdee51ef7678088eb3c4  SiPixel2DTemplateDBObject  
-    317664       2019-01-25 22:45:31  f6d33ce60dd8a9b4543fbf7128c5f1db4854957e  SiPixel2DTemplateDBObject  
-    318227       2019-01-25 22:46:28  cc81e1fdeb11a989a583fdee51ef7678088eb3c4  SiPixel2DTemplateDBObject  
-    320377       2019-01-25 22:47:13  c94706b8e034d272f864171260d3cd685e2c52f9  SiPixel2DTemplateDBObject  
-    321831       2019-01-25 22:48:13  a9c6e8e3f96b1bfd5267ecbdd23bddb41b14e8e6  SiPixel2DTemplateDBObject  
-    322510       2019-01-25 22:51:16  07a7408f23e270fc9fac0f357d7b6130939ea90a  SiPixel2DTemplateDBObject  
-    322603       2019-01-25 22:51:58  a9c6e8e3f96b1bfd5267ecbdd23bddb41b14e8e6  SiPixel2DTemplateDBObject  
-    323232       2019-01-25 22:52:41  916a68aa85d2bbbb4c61f0db8a1bdb6a30008829  SiPixel2DTemplateDBObject  
-    324245       2019-01-25 22:53:29  dd95892c7bcde1c2907c3a1165794763cbf5f519  SiPixel2DTemplateDBObject  
-   */
-
-  static const int nIOVs=12 ;   //       1         2       3        4        5        6        7        8        9       10       11        12   		      
-  //int IOVboundaries[nIOVs]  = {  313041,  314881,  315488,  315689,  316559,  316758,  317438,  317527,  318228,  319337,  320377,  320688};
-  //int IOVboundaries[nIOVs]  = {  316758,  317527,  317661,  317664,  318227,  320377};
-  //int benchmarkruns[nIOVs]  = {  316758,  317527,  317661,  317664,  318227,  320377};
-  //int benchmarkruns[nIOVs]  = {  313041,  314881,  315488,  315689,  316559,  316758,  317438,  317527,  318228,  319337,  320377,  320688};
-  //int IOVboundaries[nIOVs]  = {  290543,  297281,  298653,  299443,  300389,  302131,  303790,  304911,  305898};
-  //int benchmarkruns[nIOVs]  = {  290543,  297281,  298653,  299443,  300389,  302131,  303790,  304911,  305898};
-  
-  int IOVboundaries[nIOVs]    = {  314882,  316758,  317527,  317661,  317664,  318227,  320377,  321831,  322510,  322603,  323232,  324245};
-  int benchmarkruns[nIOVs]    = {  314882,  316758,  317527,  317661,  317664,  318227,  320377,  321831,  322510,  322603,  323232,  324245};
+  std::string dates[nIOVs] = { "2016-04-28", "2016-07-04", "2016-08-05", "2016-09-16", "2017-03-30", "2017-06-22", "2017-07-09", "2017-07-19", "2017-08-03", "2017-08-12", "2017-08-31", "2017-09-23",
+			       "2017-09-27", "2017-10-13", "2018-03-28", "2018-04-22", "2018-05-22", "2018-06-05", "2018-06-05", "2018-06-06", "2018-06-10", "2018-06-11", "2018-06-21", "2018-07-26",
+			       "2018-08-27", "2018-09-09", "2018-09-09", "2018-09-21", "2018-10-08"};
 
   TArrow* IOV_lines[nIOVs];
   c->cd();
@@ -2675,8 +2753,13 @@ void superImposeIOVBoundaries(TCanvas *c,bool lumi_axis_format,bool time_axis_fo
   }
 }
 
+
+/*! \fn processData
+ *  \brief function where the magic happens, take the raw inputs and creates the output trends
+ */
+
 /*--------------------------------------------------------------------*/
-outTrends doStuff(size_t iter,std::vector<int> intersection,const Int_t nDirs_,const char* dirs[10], TString LegLabels[10],bool useRMS)
+outTrends processData(size_t iter,std::vector<int> intersection,const Int_t nDirs_,const char* dirs[10], TString LegLabels[10],bool useRMS)
 /*--------------------------------------------------------------------*/
 {
 
