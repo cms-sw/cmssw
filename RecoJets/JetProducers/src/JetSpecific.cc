@@ -397,6 +397,7 @@ bool reco::makeSpecific(std::vector<reco::CandidatePtr> const& mcparticles, GenJ
         case 13:  // muon
           genJetSpecific->m_MuonEnergy += e;
           ++(genJetSpecific->m_MuonMultiplicity);
+          break;
         case 211:   //pi+-
         case 321:   //K
         case 2212:  //p
