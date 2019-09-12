@@ -68,9 +68,9 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
       theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
       APVProbabilityFile(conf.getParameter<edm::FileInPath>("APVProbabilityFile")),
       includeAPVSimulation_(conf.getParameter<bool>("includeAPVSimulation")),
-      apv_maxResponse_(conf.getParameter<double>("apv_maxResponse")),   
-      apv_rate_(conf.getParameter<double>("apv_rate")),                 
-      apv_mVPerQ_(conf.getParameter<double>("apv_mVPerQ")),             
+      apv_maxResponse_(conf.getParameter<double>("apv_maxResponse")),
+      apv_rate_(conf.getParameter<double>("apv_rate")),
+      apv_mVPerQ_(conf.getParameter<double>("apv_mVPerQ")),
       apv_fCPerElectron_(conf.getParameter<double>("apvfCPerElectron")) {
   if (peakMode) {
     LogDebug("StripDigiInfo") << "APVs running in peak mode (poor time resolution)";
@@ -321,8 +321,7 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
     }
   }
 
-  if (includeAPVSimulation_ && simulateAPVInThisEvent ) {
-
+  if (includeAPVSimulation_ && simulateAPVInThisEvent) {
     // Get index in apv baseline distributions corresponding to z of detSet and PU
     const StripTopology* topol = dynamic_cast<const StripTopology*>(&(det->specificTopology()));
     LocalPoint localPos = topol->localPosition(0);
@@ -382,7 +381,6 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
     outStripAmplitudesPostAPV.reserve(numStrips);
     for (int strip = 0; strip < numStrips; ++strip)
       outStripAmplitudesPostAPV.emplace_back(SiStripRawDigi(detAmpl[strip] / theElectronPerADC));
-
   }
 
   if (APVSaturationFromHIP) {
