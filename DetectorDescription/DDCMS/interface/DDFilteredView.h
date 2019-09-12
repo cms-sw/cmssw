@@ -50,7 +50,7 @@ namespace cms {
     DDFilteredView() = delete;
 
     //! The numbering history of the current node
-    const ExpandedNodes& history() const { return nodes_; }
+    const ExpandedNodes& history();
 
     //! The physical volume of the current node
     const PlacedVolume volume() const;
@@ -76,7 +76,6 @@ namespace cms {
 
     //! set the current node to the next sub sibling
     bool sibling();
-    bool siblingNoCheck();
 
     //! count the number of children matching selection
     bool checkChild();
@@ -92,9 +91,6 @@ namespace cms {
 
     //! set current node to the parent node in the filtered tree
     void up();
-
-    //! pop current node
-    void unCheckNode();
 
     // Shape of current node
     bool isABox() const;
