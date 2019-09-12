@@ -21,13 +21,18 @@ public:
 private:
   std::vector<edm::FileInPath> baselineFiles_TOB_;
   std::vector<edm::FileInPath> baselineFiles_TIB_;
+  std::vector<edm::FileInPath> baselineFiles_TID_;
+  std::vector<edm::FileInPath> baselineFiles_TEC_;
   unsigned int baseline_nBins_;
   float baseline_min_;
   float baseline_max_;
   std::vector<float> puBinEdges_;
   std::vector<float> zBinEdges_;
+  std::vector<float> rBinEdgesTID_;
+  std::vector<float> rBinEdgesTEC_;
 
-  SiStripApvSimulationParameters::LayerParameters makeLayerParameters(const std::string& apvBaselinesFileName) const;
+  SiStripApvSimulationParameters::LayerParameters makeLayerParameters(const std::string& apvBaselinesFileName,
+                                                                      const std::vector<float>& rzBinEdges) const;
 };
 
 SiStripApvSimulationParametersESSource::SiStripApvSimulationParametersESSource(const edm::ParameterSet& conf)
@@ -42,6 +47,12 @@ SiStripApvSimulationParametersESSource::SiStripApvSimulationParametersESSource(c
   for (const auto x : conf.getParameter<std::vector<double>>("apvBaselines_zBinEdges")) {
     zBinEdges_.push_back(x);
   }
+  for (const auto x : conf.getParameter<std::vector<double>>("apvBaselines_rBinEdges_TID")) {
+    rBinEdgesTID_.push_back(x);
+  }
+  for (const auto x : conf.getParameter<std::vector<double>>("apvBaselines_rBinEdges_TEC")) {
+    rBinEdgesTEC_.push_back(x);
+  }
   baselineFiles_TIB_ = {conf.getParameter<edm::FileInPath>("apvBaselinesFile_tib1"),
                         conf.getParameter<edm::FileInPath>("apvBaselinesFile_tib2"),
                         conf.getParameter<edm::FileInPath>("apvBaselinesFile_tib3"),
@@ -52,6 +63,18 @@ SiStripApvSimulationParametersESSource::SiStripApvSimulationParametersESSource(c
                         conf.getParameter<edm::FileInPath>("apvBaselinesFile_tob4"),
                         conf.getParameter<edm::FileInPath>("apvBaselinesFile_tob5"),
                         conf.getParameter<edm::FileInPath>("apvBaselinesFile_tob6")};
+  baselineFiles_TID_ = {conf.getParameter<edm::FileInPath>("apvBaselinesFile_tid1"),
+                        conf.getParameter<edm::FileInPath>("apvBaselinesFile_tid2"),
+                        conf.getParameter<edm::FileInPath>("apvBaselinesFile_tid3")};
+  baselineFiles_TEC_ = {conf.getParameter<edm::FileInPath>("apvBaselinesFile_tec1"),
+                        conf.getParameter<edm::FileInPath>("apvBaselinesFile_tec2"),
+                        conf.getParameter<edm::FileInPath>("apvBaselinesFile_tec3"),
+                        conf.getParameter<edm::FileInPath>("apvBaselinesFile_tec4"),
+                        conf.getParameter<edm::FileInPath>("apvBaselinesFile_tec5"),
+                        conf.getParameter<edm::FileInPath>("apvBaselinesFile_tec6"),
+                        conf.getParameter<edm::FileInPath>("apvBaselinesFile_tec7"),
+                        conf.getParameter<edm::FileInPath>("apvBaselinesFile_tec8"),
+                        conf.getParameter<edm::FileInPath>("apvBaselinesFile_tec9")};
 }
 
 void SiStripApvSimulationParametersESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
@@ -61,9 +84,9 @@ void SiStripApvSimulationParametersESSource::setIntervalFor(const edm::eventsetu
 }
 
 SiStripApvSimulationParameters::LayerParameters SiStripApvSimulationParametersESSource::makeLayerParameters(
-    const std::string& apvBaselinesFileName) const {
+    const std::string& apvBaselinesFileName, const std::vector<float>& rzBinEdges) const {
   // Prepare histograms
-  unsigned int nZBins = zBinEdges_.size();
+  unsigned int nZBins = rzBinEdges.size();
   unsigned int nPUBins = puBinEdges_.size();
 
   if (nPUBins == 0 || nZBins == 0 || baseline_nBins_ == 0) {
@@ -76,7 +99,7 @@ SiStripApvSimulationParameters::LayerParameters SiStripApvSimulationParametersES
   }
   baselineBinEdges.push_back(baseline_max_);
 
-  SiStripApvSimulationParameters::LayerParameters layerParams{baselineBinEdges, puBinEdges_, zBinEdges_};
+  SiStripApvSimulationParameters::LayerParameters layerParams{baselineBinEdges, puBinEdges_, rzBinEdges};
 
   // Read apv baselines from text files
   std::vector<double> theAPVBaselines;
@@ -119,20 +142,35 @@ SiStripApvSimulationParameters::LayerParameters SiStripApvSimulationParametersES
 
 std::unique_ptr<SiStripApvSimulationParameters> SiStripApvSimulationParametersESSource::produce(
     const SiStripApvSimulationParametersRcd& record) {
-  auto apvSimParams =
-      std::make_unique<SiStripApvSimulationParameters>(baselineFiles_TIB_.size(), baselineFiles_TOB_.size(), 0, 0);
+  auto apvSimParams = std::make_unique<SiStripApvSimulationParameters>(
+      baselineFiles_TIB_.size(), baselineFiles_TOB_.size(), baselineFiles_TID_.size(), baselineFiles_TEC_.size());
   for (unsigned int i{0}; i != baselineFiles_TIB_.size(); ++i) {
-    if ( ! apvSimParams->putTIB(i + 1, makeLayerParameters(baselineFiles_TIB_[i].fullPath())) ) {
-      throw cms::Exception("SiStripApvSimulationParameters") << "Could not add parameters for TIB layer " << (i+1);
+
+    if (!apvSimParams->putTIB(i + 1, makeLayerParameters(baselineFiles_TIB_[i].fullPath(), zBinEdges_))) {
+      throw cms::Exception("SiStripApvSimulationParameters") << "Could not add parameters for TIB layer " << (i + 1);
     } else {
       LogDebug("SiStripApvSimulationParameters") << "Added parameters for TIB layer " << (i+1);
     }
   }
   for (unsigned int i{0}; i != baselineFiles_TOB_.size(); ++i) {
-    if ( ! apvSimParams->putTOB(i + 1, makeLayerParameters(baselineFiles_TOB_[i].fullPath())) ) {
-      throw cms::Exception("SiStripApvSimulationParameters") << "Could not add parameters for TOB layer " << (i+1);
+    if (!apvSimParams->putTOB(i + 1, makeLayerParameters(baselineFiles_TOB_[i].fullPath(), zBinEdges_))) {
+      throw cms::Exception("SiStripApvSimulationParameters") << "Could not add parameters for TOB layer " << (i + 1);
     } else {
       LogDebug("SiStripApvSimulationParameters") << "Added parameters for TOB layer " << (i+1);
+    }
+  }
+  for (unsigned int i{0}; i != baselineFiles_TID_.size(); ++i) {
+    if (!apvSimParams->putTID(i + 1, makeLayerParameters(baselineFiles_TID_[i].fullPath(), rBinEdgesTID_))) {
+      throw cms::Exception("SiStripApvSimulationParameters") << "Could not add parameters for TID wheel " << (i + 1);
+    } else {
+      LogDebug("SiStripApvSimulationParameters") << "Added parameters for TID wheel " << (i + 1);
+    }
+  }
+  for (unsigned int i{0}; i != baselineFiles_TEC_.size(); ++i) {
+    if (!apvSimParams->putTEC(i + 1, makeLayerParameters(baselineFiles_TEC_[i].fullPath(), rBinEdgesTEC_))) {
+      throw cms::Exception("SiStripApvSimulationParameters") << "Could not add parameters for TEC wheel " << (i + 1);
+    } else {
+      LogDebug("SiStripApvSimulationParameters") << "Added parameters for TEC wheel " << (i + 1);
     }
   }
   return apvSimParams;
