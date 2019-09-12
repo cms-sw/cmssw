@@ -201,7 +201,7 @@ std::vector<const DetLayer*> MkFitOutputConverter::createDetLayers(const mkfit::
 
     // TODO: mono/stereo structure is still hardcoded for phase0/1 strip tracker
     dets[lnc.convertLayerNumber(subdet, layer, false, isMono, isPlusSide(detId))] = lay;
-    if (((subdet == StripSubdetector::TIB or StripSubdetector::TOB) and (layer == 1 or layer == 2)) or
+    if (((subdet == StripSubdetector::TIB or subdet == StripSubdetector::TOB) and (layer == 1 or layer == 2)) or
         subdet == StripSubdetector::TID or subdet == StripSubdetector::TEC) {
       dets[lnc.convertLayerNumber(subdet, layer, false, isStereo, isPlusSide(detId))] = lay;
     }
