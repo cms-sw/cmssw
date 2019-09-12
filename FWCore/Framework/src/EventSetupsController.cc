@@ -46,16 +46,20 @@ namespace edm {
       // EventSetupsController and in the EventSetupProvider
       fillEventSetupProvider(*this, *returnValue, iPSet);
 
-      numberOfConcurrentIOVs_.initialize(eventSetupPset);
+      numberOfConcurrentIOVs_.readConfigurationParameters(eventSetupPset);
 
       providers_.push_back(returnValue);
       return returnValue;
     }
 
+    void EventSetupsController::setMaxConcurrentIOVs(unsigned int nStreams, unsigned int nConcurrentLumis) {
+      numberOfConcurrentIOVs_.setMaxConcurrentIOVs(nStreams, nConcurrentLumis);
+    }
+
     void EventSetupsController::finishConfiguration() {
       if (mustFinishConfiguration_) {
         for (auto& eventSetupProvider : providers_) {
-          numberOfConcurrentIOVs_.initialize(*eventSetupProvider);
+          numberOfConcurrentIOVs_.fillRecordsNotAllowingConcurrentIOVs(*eventSetupProvider);
         }
 
         for (auto& eventSetupProvider : providers_) {

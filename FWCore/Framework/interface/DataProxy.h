@@ -69,6 +69,8 @@ namespace edm {
 
       void setProviderDescription(ComponentDescription const* iDesc) { description_ = iDesc; }
 
+      virtual void initializeForNewIOV() {}
+
     protected:
       /**This is the function which does the real work of getting the data if it is not
           already cached.  The returning 'void const*' must point to an instance of the class
