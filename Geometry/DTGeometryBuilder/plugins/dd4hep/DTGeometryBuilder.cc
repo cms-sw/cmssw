@@ -64,7 +64,7 @@ void DTGeometryBuilder::buildGeometry(DDFilteredView& fview, DTGeometry& geom, c
       bool doLayers = fview.sibling();
       while (doLayers) {
         DTLayer* l = buildLayer(fview, sl, num);
-        fview.unCheckNode();
+        //fview.unCheckNode();
         geom.add(l);
 
         doLayers = fview.sibling();  // go to next Layer
@@ -92,10 +92,10 @@ DTGeometryBuilder::RCPPlane DTGeometryBuilder::plane(const DDFilteredView& fview
                 bounds));
 }
 
-DTChamber* DTGeometryBuilder::buildChamber(const DDFilteredView& fview, const MuonNumbering& muonConstants) const {
+DTChamber* DTGeometryBuilder::buildChamber(DDFilteredView& fview, const MuonNumbering& muonConstants) const {
   int rawid = dtnum_->getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
   DTChamberId detId(rawid);
-  auto const& par = fview.parameters();
+  auto const par = fview.parameters();
   // par[0] r-phi  dimension - different in different chambers
   // par[1] z      dimension - constant 125.55 cm
   // par[2] radial thickness - almost constant about 18 cm
@@ -107,7 +107,7 @@ DTChamber* DTGeometryBuilder::buildChamber(const DDFilteredView& fview, const Mu
   return chamber;
 }
 
-DTSuperLayer* DTGeometryBuilder::buildSuperLayer(const DDFilteredView& fview,
+DTSuperLayer* DTGeometryBuilder::buildSuperLayer(DDFilteredView& fview,
                                                  DTChamber* chamber,
                                                  const MuonNumbering& muonConstants) const {
   int rawid = dtnum_->getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
@@ -144,7 +144,7 @@ DTLayer* DTGeometryBuilder::buildLayer(DDFilteredView& fview,
 
   // Loop on wires
   fview.down();
-  bool doWire = fview.siblingNoCheck();
+  bool doWire = fview.sibling();
   int firstWire = fview.volume()->GetNumber();  // copy no
   auto const& wpar = fview.parameters();
   float wireLength = wpar[1];
