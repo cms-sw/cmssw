@@ -76,7 +76,7 @@ private:
   TH1F *h_edepEM_[nCalo_], *h_edepHad_[nCalo_], *h_rr_[nCalo_], *h_zz_[nCalo_];
   TH1F *h_eta_[nCalo_], *h_phi_[nCalo_], *h_etot_[nCalo_], *h_etotg_[nCalo_];
   TH2F *h_rz_, *h_rz1_, *h_etaphi_;
-  TH1F *h_hitp_, *h_trackp_, *h_edepp_, *h_timep_;
+  TH1F *h_hitp_, *h_trackp_, *h_edepp_, *h_timep_, *h_stepp_;
   std::vector<TH1F*> h_edepTk_, h_timeTk_;
 };
 
@@ -213,8 +213,11 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
     h_edepp_->GetXaxis()->SetTitle("Energy Deposit (MeV)");
     h_edepp_->GetYaxis()->SetTitle("Hits");
     h_timep_ = tfile->make<TH1F>("timep", "All Steps", 100, 0.0, 100.0);
-    h_hitp_->GetXaxis()->SetTitle("Hits");
-    h_hitp_->GetYaxis()->SetTitle("Hit Time (ns)");
+    h_timep_->GetXaxis()->SetTitle("Hits");
+    h_timep_->GetYaxis()->SetTitle("Hit Time (ns)");
+    h_stepp_ = tfile->make<TH1F>("stepp", "All Steps", 1000, 0.0, 100.0);
+    h_stepp_->GetXaxis()->SetTitle("Hits");
+    h_stepp_->GetYaxis()->SetTitle("Step length (cm)");
     for (unsigned int k = 0; k < detNames_.size(); ++k) {
       sprintf(name, "edept%d", k);
       sprintf(title, "Energy Deposit (MeV) in %s", detNames_[k].c_str());
@@ -449,6 +452,7 @@ void CaloSimHitAnalysis::analyzePassiveHits(std::vector<PassiveHit>& hits) {
       ++(ktr->second);
     h_edepp_->Fill(hit.energy());
     h_timep_->Fill(hit.time());
+    h_stepp_->Fill(hit.stepLength());
     if ((name.find(active) != std::string::npos) || (name.find(sensor) != std::string::npos)) {
       unsigned idet = detNames_.size();
       for (unsigned int k = 0; k < detNames_.size(); ++k) {
