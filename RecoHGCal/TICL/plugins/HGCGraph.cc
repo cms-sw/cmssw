@@ -42,7 +42,7 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
       int entryEtaBin = firstLayerHisto.etaBin(r.origin.eta());
       int entryPhiBin = firstLayerHisto.phiBin(r.origin.phi());
       startEtaBin = std::max(entryEtaBin - deltaIEta, 0);
-      endEtaBin = std::min(entryEtaBin + deltaIEta, nEtaBins);
+      endEtaBin = std::min(entryEtaBin + deltaIEta + 1, nEtaBins);
       startPhiBin = entryPhiBin - deltaIPhi;
       endPhiBin = entryPhiBin + deltaIPhi;
     }
@@ -63,7 +63,7 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
               if (mask[outerClusterId] == 0.)
                 continue;
               const auto etaRangeMin = std::max(0, oeta - deltaIEta);
-              const auto etaRangeMax = std::min(oeta + deltaIEta, nEtaBins);
+              const auto etaRangeMax = std::min(oeta + deltaIEta + 1, nEtaBins);
 
               for (int ieta = etaRangeMin; ieta < etaRangeMax; ++ieta) {
                 // wrap phi bin
@@ -136,13 +136,25 @@ bool HGCGraph::areTimeCompatible(int innerIdx,
 //also return a vector of seedIndex for the reconstructed tracksters
 void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
                             std::vector<int> &seedIndices,
-                            const unsigned int minClustersPerNtuplet) {
+                            const unsigned int minClustersPerNtuplet,
+                            const bool outInDFS,
+                            unsigned int maxOutInHops) {
   HGCDoublet::HGCntuplet tmpNtuplet;
   tmpNtuplet.reserve(minClustersPerNtuplet);
+  std::vector<std::pair<unsigned int, unsigned int> > outInToVisit;
   for (auto rootDoublet : theRootDoublets_) {
     tmpNtuplet.clear();
+    outInToVisit.clear();
     int seedIndex = allDoublets_[rootDoublet].seedIndex();
-    allDoublets_[rootDoublet].findNtuplets(allDoublets_, tmpNtuplet, seedIndex);
+    int outInHops = 0;
+    allDoublets_[rootDoublet].findNtuplets(
+        allDoublets_, tmpNtuplet, seedIndex, outInDFS, outInHops, maxOutInHops, outInToVisit);
+    while (!outInToVisit.empty()) {
+      allDoublets_[outInToVisit.back().first].findNtuplets(
+          allDoublets_, tmpNtuplet, seedIndex, outInDFS, outInToVisit.back().second, maxOutInHops, outInToVisit);
+      outInToVisit.pop_back();
+    }
+
     if (tmpNtuplet.size() > minClustersPerNtuplet) {
       foundNtuplets.push_back(tmpNtuplet);
       seedIndices.push_back(seedIndex);
