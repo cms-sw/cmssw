@@ -11,6 +11,7 @@ from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 from TrackingTools.Configuration.TrackingTools_cff import *
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+from RecoHGCal.Configuration.recoHGCAL_cff import *
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
@@ -120,7 +121,6 @@ trackingLowPU.toReplaceWith(globalreco_trackingTask, _globalreco_tracking_LowPUT
 # offlineBeamSpot is reconstructed before mixing in fastSim
 ##########################################
 _fastSim_globalreco_trackingTask = globalreco_trackingTask.copyAndExclude([offlineBeamSpot,MeasurementTrackerEventPreSplitting,siPixelClusterShapeCachePreSplitting])
-fastSim.toReplaceWith(globalreco_trackingTask,_fastSim_globalreco_trackingTask)
 
 _phase2_timing_layer_globalreco_trackingTask = globalreco_trackingTask.copy()
 _phase2_timing_layer_globalreco_trackingTask.add(fastTimingGlobalRecoTask)
@@ -146,6 +146,12 @@ _fastSim_globalrecoTask = globalrecoTask.copyAndExclude([CastorFullRecoTask,muon
 _fastSim_globalrecoTask.add(newCombinedSeeds,trackExtrapolator,caloTowerForTrk,firstStepPrimaryVerticesUnsorted,ak4CaloJetsForTrk,initialStepTrackRefsForJets,firstStepPrimaryVertices)
 fastSim.toReplaceWith(globalrecoTask,_fastSim_globalrecoTask)
 
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+_phase2HGALReco = globalreco.copy()
+_phase2HGALReco += iterTICL
+phase2_hgcal.toReplaceWith(globalreco, _phase2HGALReco)
+
+
 globalreco_plusPLTask= cms.Task(globalrecoTask,ctfTracksPixelLessTask)
 globalreco_plusPL= cms.Sequence(globalreco_plusPLTask)
 
@@ -167,7 +173,7 @@ highlevelrecoTask = cms.Task(egammaHighLevelRecoPrePFTask,
                              cosmicDCTracksSeqTask,
                              lowPtGsfElectronTask,
                              conversionOpenTrackTask,
-                             gsfTracksOpenConversions 
+                             gsfTracksOpenConversions
                              )
 highlevelreco = cms.Sequence(highlevelrecoTask)
 
