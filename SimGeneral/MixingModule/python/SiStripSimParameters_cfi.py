@@ -123,6 +123,7 @@ SiStripSimBlock = cms.PSet(
     apv_rate                   = cms.double( 66.2 ),
     apv_mVPerQ                 = cms.double( 5.5 ),
     apvfCPerElectron           = cms.double( 1.602e-4 ),
+    fracOfEventsToSimAPV       = cms.double( 0.5376 ),
 )
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
