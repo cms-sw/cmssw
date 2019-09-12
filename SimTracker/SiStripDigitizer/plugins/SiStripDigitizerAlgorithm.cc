@@ -68,10 +68,10 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
       theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
       APVProbabilityFile(conf.getParameter<edm::FileInPath>("APVProbabilityFile")),
       includeAPVSimulation_(conf.getParameter<bool>("includeAPVSimulation")),
-      apv_maxResponse(conf.getParameter<double>("apv_maxResponse")),   
-      apv_rate(conf.getParameter<double>("apv_rate")),                 
-      apv_mVPerQ(conf.getParameter<double>("apv_mVPerQ")),             
-      apv_fCPerElectron(conf.getParameter<double>("apvfCPerElectron")) {
+      apv_maxResponse_(conf.getParameter<double>("apv_maxResponse")),   
+      apv_rate_(conf.getParameter<double>("apv_rate")),                 
+      apv_mVPerQ_(conf.getParameter<double>("apv_mVPerQ")),             
+      apv_fCPerElectron_(conf.getParameter<double>("apvfCPerElectron")) {
   if (peakMode) {
     LogDebug("StripDigiInfo") << "APVs running in peak mode (poor time resolution)";
   } else {
@@ -293,6 +293,7 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
                                          edm::ESHandle<SiStripThreshold>& thresholdHandle,
                                          edm::ESHandle<SiStripNoises>& noiseHandle,
                                          edm::ESHandle<SiStripPedestals>& pedestalHandle,
+                                         bool simulateAPVInThisEvent,
                                          edm::ESHandle<SiStripApvSimulationParameters>& apvSimulationParametersHandle,
                                          std::vector<std::pair<int, std::bitset<6>>>& theAffectedAPVvector,
                                          CLHEP::HepRandomEngine* engine,
@@ -320,7 +321,8 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
     }
   }
 
-  if (includeAPVSimulation_) {
+  if (includeAPVSimulation_ && simulateAPVInThisEvent ) {
+
     // Get index in apv baseline distributions corresponding to z of detSet and PU
     const StripTopology* topol = dynamic_cast<const StripTopology*>(&(det->specificTopology()));
     LocalPoint localPos = topol->localPosition(0);
@@ -338,7 +340,7 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
       for (int strip = 0; strip < numStrips; ++strip) {
         if (detAmpl[strip] > 0) {
           // Convert charge from electrons to fC
-          double stripCharge = detAmpl[strip] * apv_fCPerElectron;
+          double stripCharge = detAmpl[strip] * apv_fCPerElectron_;
 
           // Get APV baseline
           double baselineV = 0;
@@ -351,11 +353,12 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
           outStripAPVBaselines.emplace_back(SiStripRawDigi(baselineV));
 
           // Fitted parameters from G Hall/M Raymond
-          double maxResponse = apv_maxResponse;
-          double rate = apv_rate;
+          double maxResponse = apv_maxResponse_;
+          double rate = apv_rate_;
 
           double outputChargeInADC = 0;
-          if ( baselineV < apv_maxResponse ) {
+
+          if (baselineV < apv_maxResponse_) {
             // Convert V0 into baseline charge
             double baselineQ = -1.0 * rate * log(2 * maxResponse / (baselineV + maxResponse) - 1);
 
@@ -368,8 +371,8 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
             double gain = signalV - baselineV;
 
             // Convert gain (mV) to charge (assuming linear region of APV) and then to electrons
-            double outputCharge = gain / apv_mVPerQ;
-            outputChargeInADC = outputCharge / apv_fCPerElectron;            
+            double outputCharge = gain / apv_mVPerQ_;
+            outputChargeInADC = outputCharge / apv_fCPerElectron_;
           }
 
 
@@ -382,6 +385,7 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
     outStripAmplitudesPostAPV.reserve(numStrips);
     for (int strip = 0; strip < numStrips; ++strip)
       outStripAmplitudesPostAPV.emplace_back(SiStripRawDigi(detAmpl[strip] / theElectronPerADC));
+
   }
 
   if (APVSaturationFromHIP) {

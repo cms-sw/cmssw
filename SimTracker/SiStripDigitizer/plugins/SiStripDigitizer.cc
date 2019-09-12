@@ -55,6 +55,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "CLHEP/Random/RandFlat.h"
 
 SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC)
     : gainLabel(conf.getParameter<std::string>("Gain")),
@@ -68,7 +69,8 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::ProducerB
       useConfFromDB(conf.getParameter<bool>("TrackerConfigurationFromDB")),
       zeroSuppression(conf.getParameter<bool>("ZeroSuppression")),
       makeDigiSimLinks_(conf.getUntrackedParameter<bool>("makeDigiSimLinks", false)),
-      includeAPVSimulation_(conf.getParameter<bool>("includeAPVSimulation")) {
+      includeAPVSimulation_(conf.getParameter<bool>("includeAPVSimulation")),
+      fracOfEventsToSimAPV_(conf.getParameter<double>("fracOfEventsToSimAPV")) {
   const std::string alias("simSiStripDigis");
 
   mixMod.produces<edm::DetSetVector<SiStripDigi>>(ZSDigi).setBranchAlias(ZSDigi);
@@ -80,6 +82,7 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::ProducerB
   mixMod.produces<edm::DetSetVector<SiStripRawDigi>>("StripAPVBaselines").setBranchAlias(alias + "StripAPVBaselines");
   mixMod.produces<edm::DetSetVector<SiStripRawDigi>>(PRDigi).setBranchAlias(alias + PRDigi);
   mixMod.produces<edm::DetSetVector<StripDigiSimLink>>().setBranchAlias(alias + "siStripDigiSimLink");
+  mixMod.produces<bool>("SimulatedAPVDynamicGain").setBranchAlias(alias + "SimulatedAPVDynamicGain");
   mixMod.produces<std::vector<std::pair<int, std::bitset<6>>>>("AffectedAPVList").setBranchAlias(alias + "AffectedAPV");
   for (auto const& trackerContainer : trackerContainers) {
     edm::InputTag tag(hitsProducer, trackerContainer);
@@ -235,8 +238,13 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
   iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
   iSetup.get<SiStripThresholdRcd>().get(thresholdHandle);
   iSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
+
+  std::unique_ptr<bool> simulateAPVInThisEvent = std::make_unique<bool>(false);
   if (includeAPVSimulation_) {
-    iSetup.get<SiStripApvSimulationParametersRcd>().get(apvSimulationParametersHandle);
+    if (CLHEP::RandFlat::shoot(randomEngine_) < fracOfEventsToSimAPV_ ) {
+      *simulateAPVInThisEvent = true;
+      iSetup.get<SiStripApvSimulationParametersRcd>().get(apvSimulationParametersHandle);
+    }
   }
   std::vector<edm::DetSet<SiStripDigi>> theDigiVector;
   std::vector<edm::DetSet<SiStripRawDigi>> theRawDigiVector;
@@ -282,6 +290,7 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
                             thresholdHandle,
                             noiseHandle,
                             pedestalHandle,
+                            *simulateAPVInThisEvent,
                             apvSimulationParametersHandle,
                             theAffectedAPVvector,
                             randomEngine_,
@@ -324,6 +333,7 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
     iEvent.put(std::move(theStripAPVBaselines), "StripAPVBaselines");
     iEvent.put(std::move(output_processedraw), PRDigi);
     iEvent.put(std::move(AffectedAPVList), "AffectedAPVList");
+    iEvent.put(std::move(simulateAPVInThisEvent), "SimulatedAPVDynamicGain");
     if (makeDigiSimLinks_)
       iEvent.put(
           std::move(pOutputDigiSimLink));  // The previous EDProducer didn't name this collection so I won't either
@@ -343,6 +353,7 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
     iEvent.put(std::move(theStripAmplitudeVectorPostAPV), "StripAmplitudesPostAPV");
     iEvent.put(std::move(theStripAPVBaselines), "StripAPVBaselines");
     iEvent.put(std::move(output_processedraw), PRDigi);
+    iEvent.put(std::move(simulateAPVInThisEvent), "SimulatedAPVDynamicGain");
     if (makeDigiSimLinks_)
       iEvent.put(
           std::move(pOutputDigiSimLink));  // The previous EDProducer didn't name this collection so I won't either

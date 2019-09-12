@@ -93,6 +93,7 @@ public:
                 edm::ESHandle<SiStripThreshold>&,
                 edm::ESHandle<SiStripNoises>&,
                 edm::ESHandle<SiStripPedestals>&,
+                bool simulateAPVInThisEvent,
                 edm::ESHandle<SiStripApvSimulationParameters>&,
                 std::vector<std::pair<int, std::bitset<6>>>& theAffectedAPVvector,
                 CLHEP::HepRandomEngine*,
@@ -182,10 +183,10 @@ private:
   int NumberOfBxBetweenHIPandEvent;
 
   bool includeAPVSimulation_;
-  const double apv_maxResponse;
-  const double apv_rate;
-  const double apv_mVPerQ;
-  const double apv_fCPerElectron;
+  const double apv_maxResponse_;
+  const double apv_rate_;
+  const double apv_mVPerQ_;
+  const double apv_fCPerElectron_;
   unsigned int nTruePU_;
 };
 
