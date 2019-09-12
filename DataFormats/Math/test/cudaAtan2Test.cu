@@ -29,6 +29,7 @@ end
 #include "cuda/api_wrappers.h"
 
 #include "DataFormats/Math/interface/approx_atan2.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 constexpr float xmin = -100.001;  // avoid 0
 constexpr float incr = 0.04;
@@ -95,18 +96,7 @@ void go() {
 }
 
 int main() {
-  int count = 0;
-  auto status = cudaGetDeviceCount(&count);
-  if (status != cudaSuccess) {
-    std::cerr << "Failed to initialise the CUDA runtime, the test will be skipped."
-              << "\n";
-    exit(EXIT_SUCCESS);
-  }
-  if (count == 0) {
-    std::cerr << "No CUDA devices on this system, the test will be skipped."
-              << "\n";
-    exit(EXIT_SUCCESS);
-  }
+  exitSansCUDADevices();
 
   try {
     go<3>();

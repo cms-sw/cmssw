@@ -1,0 +1,32 @@
+<library file="TestHeterogeneousEDProducerGPUMock.cc TestHeterogeneousEDProducerAnalyzer.cc" name="HeterogeneousCoreHeterogeneousEDProducerTest">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="HeterogeneousCore/Producer"/>
+  <use name="HeterogeneousCore/Product"/>
+</library>
+
+<library file="TestHeterogeneousEDProducerGPU.cc TestHeterogeneousEDProducerGPUHelpers.cu" name="HeterogeneousCoreHeterogeneousEDProducerTestGPU">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="HeterogeneousCore/Producer"/>
+  <use name="HeterogeneousCore/Product"/>
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+</library>
+
+<library file="TestGPUConcurrency.cc TestGPUConcurrencyAlgo.cu" name="TestGPUConcurrency">
+  <flags EDM_PLUGIN="1"/>
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="HeterogeneousCore/Producer"/>
+  <use name="HeterogeneousCore/Product"/>
+  <use name="HeterogeneousCore/CUDACore"/>
+</library>

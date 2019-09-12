@@ -1,3 +1,7 @@
+<use name="cuda"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="HeterogeneousCore/Producer"/>
+<use name="HeterogeneousCore/Product"/>
 <use   name="CommonTools/RecoAlgos"/>
 <use   name="RecoTracker/TkSeedGenerator"/>
 <use   name="RecoTracker/TkTrackingRegions"/>

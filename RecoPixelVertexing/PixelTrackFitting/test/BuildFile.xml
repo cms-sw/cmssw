@@ -1,16 +1,89 @@
-<use   name="boost"/>
-<use   name="root"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="RecoTracker/TkHitPairs"/>
-<use   name="RecoTracker/TkTrackingRegions"/>
-<use   name="RecoPixelVertexing/PixelTriplets"/>
-<use   name="RecoPixelVertexing/PixelTrackFitting"/>
-<library   file="PixelTrackTest.cc" name="PixelTrackTest">
-  <flags   EDM_PLUGIN="1"/>
+<library file="PixelTrackTest.cc" name="PixelTrackTest">
+  <use name="boost"/>
+  <use name="root"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="DataFormats/TrackerRecHit2D"/>
+  <use name="RecoTracker/TkHitPairs"/>
+  <use name="RecoTracker/TkTrackingRegions"/>
+  <use name="RecoPixelVertexing/PixelTriplets"/>
+  <use name="RecoPixelVertexing/PixelTrackFitting"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
+
+<bin file="testRiemannFit.cpp">
+  <use name="eigen"/>
+  <use name="cuda"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="testRiemannFit.cpp" name="testBrokenLineFit">
+  <use name="eigen"/>
+  <use name="cuda"/>
+  <flags CXXFLAGS="-g -DUSE_BL"/>
+</bin>
+
+<bin file="testRiemannFit.cpp" name="testRiemannFitDump">
+  <use name="eigen"/>
+  <use name="cuda"/>
+  <flags CXXFLAGS="-g -DRFIT_DEBUG"/>
+</bin>
+
+<bin file="testEigenGPU.cu" name="testRiemannFitGPU_t">
+  <use name="eigen"/>
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="testEigenGPU.cu" name="testBrokenLineFitGPU_t">
+  <use name="eigen"/>
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g -DUSE_BL"/>
+</bin>
+
+<bin file="testEigenGPUNoFit.cu" name="testEigenGPUNoFit_t">
+  <use name="eigen"/>
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="PixelTrackRiemannFit.cc">
+  <use name="eigen"/>
+  <use name="cuda"/>
+  <use name="root"/>
+  <flags CXXFLAGS="-DEIGEN_NO_DEBUG"/>
+</bin>
+
+<bin file="PixelTrackRiemannFit.cc" name = "PixelTrackBrokenLineFit">
+  <use name="eigen"/>
+  <use name="cuda"/>
+  <use name="root"/>
+  <flags CXXFLAGS="-DEIGEN_NO_DEBUG -DUSE_BL"/>
+</bin>
+
+<bin file="PixelTrackRiemannFit.cc" name = "PixelTrackRiemannFit_Debug">
+  <use name="eigen"/>
+  <use name="cuda"/>
+  <use name="root"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="testEigenJacobian.cpp">  
+  <use   name="DataFormats/GeometrySurface"/>
+  <use   name="TrackingTools/AnalyticalJacobians"/>
+  <use   name="TrackingTools/TrajectoryParametrization"/>
+  <use   name="MagneticField/Engine"/>
+  <use name="eigen"/>
+  <use name="cuda"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
