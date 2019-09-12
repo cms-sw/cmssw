@@ -71,8 +71,8 @@ namespace pv{
     return *it;
   }
 
-  const Int_t markers[8] = {kFullSquare,kOpenCircle,kFullTriangleDown,kOpenSquare,kOpenCircle,kFullTriangleUp,kOpenTriangleDown,kOpenTriangleUp};
-  const Int_t colors[8]  = {kBlack,kBlue,kRed,kGreen+2,kMagenta,kViolet,kCyan,kYellow};
+  const Int_t markers[8] = {kFullSquare,kFullCircle,kFullTriangleDown,kOpenSquare,kOpenCircle,kFullTriangleUp,kOpenTriangleDown,kOpenTriangleUp};
+  const Int_t colors[8]  = {kBlack,kRed,kBlue,kGreen+2,kMagenta,kViolet,kCyan,kYellow};
 
   /*! \struct biases
    *  \brief Structure biases
@@ -220,13 +220,14 @@ namespace pv{
 
   struct bundle{
     
-    bundle(int nObjects, const TString& dataType,const TString& dataTypeLabel,const std::map<int,double>& lumiMapByRun,const std::map<int,TDatime>& times,const bool& lumiaxisformat,const bool& timeaxisformat){
+    bundle(int nObjects, const TString& dataType,const TString& dataTypeLabel,const std::map<int,double>& lumiMapByRun,const std::map<int,TDatime>& times,const bool& lumiaxisformat,const bool& timeaxisformat, const bool& useRMS){
 
       m_nObjects = nObjects;
       m_datatype = dataType.Data();
       m_datatypelabel = dataTypeLabel.Data();
       m_lumiMapByRun = lumiMapByRun;
       m_times = times;
+      m_useRMS = useRMS;
 
       std::cout<<"pv::bundle c'tor: "<< dataTypeLabel << " member: " <<    m_datatypelabel << std::endl;
 
@@ -260,6 +261,7 @@ namespace pv{
     const std::map<int,TDatime> getTimes() const {return m_times;}	  
     bool isLumiAxis() const {return m_axis_types.test(0);}
     bool isTimeAxis() const {return m_axis_types.test(1);}
+    bool isUsingRMS() const {return m_useRMS;}
     void printAll() {
       std::cout<< "dataType      " << m_datatype << std::endl;
       std::cout<< "dataTypeLabel " << m_datatypelabel << std::endl;
@@ -274,7 +276,8 @@ namespace pv{
     float m_totalLumi;
     std::map<int,double> m_lumiMapByRun;
     std::map<int,TDatime> m_times;
-    std::bitset<2> m_axis_types;          
+    std::bitset<2> m_axis_types;
+    bool m_useRMS;
   };
 
 
@@ -461,7 +464,7 @@ void setStyle();
 pv::view checkTheView(const TString &toCheck);
 template<typename T> void timify(T *mgr);
 Double_t getMaximumFromArray(TObjArray *array);
-void superImposeIOVBoundaries(TCanvas *c,bool lumi_axis_format,bool time_axis_format,const std::map<int,double> &lumiMapByRun,const std::map<int,TDatime>& timeMap);
+void superImposeIOVBoundaries(TCanvas *c,bool lumi_axis_format,bool time_axis_format,const std::map<int,double> &lumiMapByRun,const std::map<int,TDatime>& timeMap,bool drawText=true);
 void outputGraphs(const pv::wrappedTrends& allInputs,
 		  const std::vector<double>& ticks,
 		  const std::vector<double>& ex_ticks,
@@ -829,7 +832,7 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
   TCanvas *Scatter_dz_vs_run  = new TCanvas("Scatter_dz_vs_run","dxy bias vs run number",2000,800);
   Scatter_dz_vs_run->Divide(1,nDirs_);    
 
-  TCanvas *c_chisquare_vs_run = new TCanvas("c_chisquare_vs_run","chi2 of pol0 fit vs run number",2000,1000);
+  TCanvas *c_chisquare_vs_run = new TCanvas("c_chisquare_vs_run","chi2 of pol0 fit vs run number",2000,800);
   c_chisquare_vs_run->Divide(2,2);
 
   TCanvas *c_KSScore_vs_run = new TCanvas("c_KSScore_vs_run","KS score compatibility to 0 vs run number",2000,1000);
@@ -887,7 +890,7 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
   TString theTypeLabel="";
   if(lumi_axis_format){
     theType="luminosity";
-    theTypeLabel="processed luminosity (1/fb)";
+    theTypeLabel="Processed luminosity [1/fb]";
     x_ticks = lumiByRun;
   } else {
     if(!time_axis_format){
@@ -903,8 +906,17 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
     }
   }
   
-  TLegend *my_lego = new TLegend(0.08,0.80,0.18,0.93);
+  //TLegend *my_lego = new TLegend(0.08,0.80,0.18,0.93);
   //my_lego-> SetNColumns(2);
+
+  TLegend *my_lego = new TLegend(0.75,0.76,0.92,0.93);
+  //TLegend *my_lego = new TLegend(0.75,0.26,0.92,0.43);
+  //my_lego->SetHeader("2017 Data","C");
+  TLine *line = new TLine(0,0,1,0);
+  line->SetLineColor(kBlue);
+  line->SetLineStyle(9);
+  line->SetLineWidth(1);
+  my_lego->AddEntry(line,"pixel calibration update","L");
   my_lego->SetFillColor(10);
   my_lego->SetTextSize(0.042);
   my_lego->SetTextFont(42);
@@ -946,7 +958,7 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
   }
   outfile <<  std::endl;
 
-  pv::bundle theBundle = pv::bundle(nDirs_,theType,theTypeLabel,lumiMapByRun,times,lumi_axis_format,time_axis_format);
+  pv::bundle theBundle = pv::bundle(nDirs_,theType,theTypeLabel,lumiMapByRun,times,lumi_axis_format,time_axis_format,useRMS);
   theBundle.printAll();
 
   for(Int_t j=0; j < nDirs_; j++) {
@@ -1162,6 +1174,9 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
     g_chi2_dxy_phi_vs_run[j]->GetXaxis()->SetTitle(theTypeLabel.Data());
     g_chi2_dxy_phi_vs_run[j]->GetYaxis()->SetTitle("log_{10}(#chi^{2}/ndf) of d_{xy}(#phi) pol0 fit");
     g_chi2_dxy_phi_vs_run[j]->GetYaxis()->SetRangeUser(-0.5,4.5);
+    if(lumi_axis_format){
+      g_chi2_dxy_phi_vs_run[j]->GetXaxis()->SetRangeUser(0.,theBundle.getTotalLumi());
+    }
     beautify(g_chi2_dxy_phi_vs_run[j]);
     //g_chi2_dxy_phi_vs_run[j]->GetYaxis()->SetTitleOffset(1.3);
 
@@ -1179,6 +1194,9 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
       my_lego->Draw("same");
     }
 
+    auto current_pad = static_cast<TCanvas*>(gPad);
+    superImposeIOVBoundaries(current_pad,lumi_axis_format,time_axis_format,lumiMapByRun,times,false);
+
     // 2nd pad
     c_chisquare_vs_run->cd(2);
     adjustmargins(c_chisquare_vs_run->cd(2));
@@ -1191,6 +1209,9 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
     g_chi2_dxy_eta_vs_run[j]->GetXaxis()->SetTitle(theTypeLabel.Data());
     g_chi2_dxy_eta_vs_run[j]->GetYaxis()->SetTitle("log_{10}(#chi^{2}/ndf) of d_{xy}(#eta) pol0 fit");
     g_chi2_dxy_eta_vs_run[j]->GetYaxis()->SetRangeUser(-0.5,4.5);
+    if(lumi_axis_format){
+      g_chi2_dxy_eta_vs_run[j]->GetXaxis()->SetRangeUser(0.,theBundle.getTotalLumi());
+    }
     beautify(g_chi2_dxy_eta_vs_run[j]);
     //g_chi2_dxy_eta_vs_run[j]->GetYaxis()->SetTitleOffset(1.3);
 
@@ -1208,6 +1229,9 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
       my_lego->Draw("same");
     }
 
+    current_pad = static_cast<TCanvas*>(gPad);
+    superImposeIOVBoundaries(current_pad,lumi_axis_format,time_axis_format,lumiMapByRun,times,false);
+
     //3d pad
     c_chisquare_vs_run->cd(3);
     adjustmargins(c_chisquare_vs_run->cd(3));
@@ -1220,6 +1244,9 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
     g_chi2_dz_phi_vs_run[j]->GetXaxis()->SetTitle(theTypeLabel.Data());
     g_chi2_dz_phi_vs_run[j]->GetYaxis()->SetTitle("log_{10}(#chi^{2}/ndf) of d_{z}(#phi) pol0 fit");
     g_chi2_dz_phi_vs_run[j]->GetYaxis()->SetRangeUser(-0.5,4.5);
+    if(lumi_axis_format){
+      g_chi2_dz_phi_vs_run[j]->GetXaxis()->SetRangeUser(0.,theBundle.getTotalLumi());
+    }
     beautify(g_chi2_dz_phi_vs_run[j]);
     //g_chi2_dz_phi_vs_run[j]->GetYaxis()->SetTitleOffset(1.3);
 
@@ -1237,6 +1264,9 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
       my_lego->Draw("same");
     }
 
+    current_pad = static_cast<TCanvas*>(gPad);
+    superImposeIOVBoundaries(current_pad,lumi_axis_format,time_axis_format,lumiMapByRun,times,false);
+
     //4th pad
     c_chisquare_vs_run->cd(4);
     adjustmargins(c_chisquare_vs_run->cd(4));
@@ -1249,6 +1279,9 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
     g_chi2_dz_eta_vs_run[j]->GetXaxis()->SetTitle(theTypeLabel.Data());
     g_chi2_dz_eta_vs_run[j]->GetYaxis()->SetTitle("log_{10}(#chi^{2}/ndf) of d_{z}(#eta) pol0 fit");
     g_chi2_dz_eta_vs_run[j]->GetYaxis()->SetRangeUser(-0.5,4.5);
+    if(lumi_axis_format){
+      g_chi2_dz_eta_vs_run[j]->GetXaxis()->SetRangeUser(0.,theBundle.getTotalLumi());
+    }
     beautify(g_chi2_dz_eta_vs_run[j]);
     //g_chi2_dz_eta_vs_run[j]->GetYaxis()->SetTitleOffset(1.3);
 
@@ -1266,6 +1299,8 @@ void MultiRunPVValidation(TString namesandlabels,bool lumi_axis_format,bool time
       my_lego->Draw("same");
     }
 
+    current_pad = static_cast<TCanvas*>(gPad);
+    superImposeIOVBoundaries(current_pad,lumi_axis_format,time_axis_format,lumiMapByRun,times,false);
 
     // **************************************** 
     // Canvas for Kolmogorov-Smirnov test
@@ -1715,9 +1750,9 @@ void outputGraphs(const pv::wrappedTrends& allInputs,
   if(index==0){
     gprime->GetYaxis()->SetRangeUser(-10.,10.);
     if(mybundle.isLumiAxis()) gprime->GetXaxis()->SetRangeUser(0.,mybundle.getTotalLumi());
-    gprime->Draw("APL");
+    gprime->Draw("AP");
   } else {
-    gprime->Draw("PLsame");
+    gprime->Draw("Psame");
   }
   
   if(index==(mybundle.getNObjects()-1)){ 
@@ -1735,7 +1770,7 @@ void outputGraphs(const pv::wrappedTrends& allInputs,
   }
 
   // scatter or RMS TH1
-  h_RMS[index] = new TH1F(Form("h_RMS_dz_eta_%s",label.Data()),Form("scatter of d_{%s}(#%s) vs %s;%s;peak-to-peak deviation of d_{%s}(#%s) [#mum]",coord,kin,mybundle.getDataType(),mybundle.getDataTypeLabel(),coord,kin),ticks.size()-1,&(ticks[0]));
+  h_RMS[index] = new TH1F(Form("h_RMS_dz_eta_%s",label.Data()),Form("scatter of d_{%s}(#%s) vs %s;%s;%s of d_{%s}(#%s) [#mum]",coord,kin,mybundle.getDataType(),mybundle.getDataTypeLabel(),(mybundle.isUsingRMS() ? "RMS" : "peak-to-peak deviation" ),coord,kin),ticks.size()-1,&(ticks[0]));
   h_RMS[index]->SetStats(kFALSE);
    
   int bincounter=0;
@@ -1767,7 +1802,8 @@ void outputGraphs(const pv::wrappedTrends& allInputs,
     std::cout<< "the max for d"<< coord <<"("<<kin<<") RMS is "<< theMax << std::endl;
     
     for(Int_t k=0; k<mybundle.getNObjects() ; k++){
-      h_RMS[k]->GetYaxis()->SetRangeUser(-theMax*0.45,theMax*1.40);
+      //h_RMS[k]->GetYaxis()->SetRangeUser(-theMax*0.45,theMax*1.40);
+      h_RMS[k]->GetYaxis()->SetRangeUser(0.,theMax*1.80);
       if(k==0){
   	h_RMS[k]->Draw("L");
       } else {
@@ -1776,7 +1812,7 @@ void outputGraphs(const pv::wrappedTrends& allInputs,
     }
     legend->Draw("same");
     TH1F* theConst = DrawConstant(h_RMS[index],1,0.);
-    theConst->Draw("same][");
+    //theConst->Draw("same][");
 
     current_pad = static_cast<TPad*>(gPad);
     cmsPrel(current_pad);
@@ -2587,7 +2623,7 @@ Double_t getMaximumFromArray(TObjArray *array)
  */
 
 /*--------------------------------------------------------------------*/
-void superImposeIOVBoundaries(TCanvas *c,bool lumi_axis_format,bool time_axis_format,const std::map<int,double> &lumiMapByRun,const std::map<int,TDatime>& timeMap)
+void superImposeIOVBoundaries(TCanvas *c,bool lumi_axis_format,bool time_axis_format,const std::map<int,double> &lumiMapByRun,const std::map<int,TDatime>& timeMap,bool drawText)
 /*--------------------------------------------------------------------*/
 {
 
@@ -2657,7 +2693,8 @@ void superImposeIOVBoundaries(TCanvas *c,bool lumi_axis_format,bool time_axis_fo
   for(Int_t IOV=0;IOV<nIOVs;IOV++){
 
     // check we are not in the RMS histogram to avoid first line
-    if(IOVboundaries[IOV]<vruns.front() && ((TString)c->GetName()).Contains("RMS")) continue;
+    if(IOVboundaries[IOV]<vruns.front() ) continue;
+    //&& ((TString)c->GetName()).Contains("RMS")) continue;
     int closestrun = pv::closest(vruns,IOVboundaries[IOV]); 
     int closestbenchmark = pv::closest(vruns,benchmarkruns[IOV]);
 
@@ -2666,26 +2703,26 @@ void superImposeIOVBoundaries(TCanvas *c,bool lumi_axis_format,bool time_axis_fo
       if(closestrun<0) continue;
       //std::cout<< "natural boundary: " << IOVboundaries[IOV] << " closest:" << closestrun << std::endl;
 
-      a_lines[IOV] = new TArrow(lumiMapByRun.at(closestrun),(c->GetUymin()),lumiMapByRun.at(closestrun),0.65*c->GetUymax(),0.5,"|>");
+      a_lines[IOV] = new TArrow(lumiMapByRun.at(closestrun),(c->GetUymin()),lumiMapByRun.at(closestrun),c->GetUymax(),0.5,"|>");
 
       if(closestbenchmark<0) continue;
-      b_lines[IOV] = new TArrow(lumiMapByRun.at(closestbenchmark),(c->GetUymin()),lumiMapByRun.at(closestbenchmark),0.65*c->GetUymax(),0.5,"|>");
+      b_lines[IOV] = new TArrow(lumiMapByRun.at(closestbenchmark),(c->GetUymin()),lumiMapByRun.at(closestbenchmark),c->GetUymax(),0.5,"|>");
 
     } else if(time_axis_format){
       
       if(closestrun<0) continue;
       std::cout<< "natural boundary: " << IOVboundaries[IOV] << " closest:" << closestrun << std::endl;
-      a_lines[IOV] = new TArrow(timeMap.at(closestrun).Convert(),(c->GetUymin()),timeMap.at(closestrun).Convert(),0.65*c->GetUymax(),0.5,"|>");
+      a_lines[IOV] = new TArrow(timeMap.at(closestrun).Convert(),(c->GetUymin()),timeMap.at(closestrun).Convert(),c->GetUymax(),0.5,"|>");
 
       if(closestbenchmark<0) continue;
-      b_lines[IOV] = new TArrow(timeMap.at(closestbenchmark).Convert(),(c->GetUymin()),timeMap.at(closestbenchmark).Convert(),0.65*c->GetUymax(),0.5,"|>");
+      b_lines[IOV] = new TArrow(timeMap.at(closestbenchmark).Convert(),(c->GetUymin()),timeMap.at(closestbenchmark).Convert(),c->GetUymax(),0.5,"|>");
 
     } else {
       a_lines[IOV] = new TArrow(IOVboundaries[IOV],(c->GetUymin()),IOVboundaries[IOV],0.65*c->GetUymax(),0.5,"|>"); //(c->GetUymin()+0.2*(c->GetUymax()-c->GetUymin()) ),0.5,"|>");
       b_lines[IOV] = new TArrow(benchmarkruns[IOV],(c->GetUymin()),benchmarkruns[IOV],0.65*c->GetUymax(),0.5,"|>"); //(c->GetUymin()+0.2*(c->GetUymax()-c->GetUymin()) ),0.5,"|>");
       
     }
-    a_lines[IOV]->SetLineColor(kRed);
+    a_lines[IOV]->SetLineColor(kBlue);
     a_lines[IOV]->SetLineStyle(9);
     a_lines[IOV]->SetLineWidth(1);
     a_lines[IOV]->Draw("same");
@@ -2701,7 +2738,8 @@ void superImposeIOVBoundaries(TCanvas *c,bool lumi_axis_format,bool time_axis_fo
   
   for(Int_t IOV=0;IOV<nIOVs;IOV++){
 
-    if(IOVboundaries[IOV]<vruns.front() && ((TString)c->GetName()).Contains("RMS")) continue;
+    if(IOVboundaries[IOV]<vruns.front()) continue;
+    //&& ((TString)c->GetName()).Contains("RMS")) continue;
     int closestrun = pv::closest(vruns,IOVboundaries[IOV]);
     
     Int_t ix1;
@@ -2738,18 +2776,20 @@ void superImposeIOVBoundaries(TCanvas *c,bool lumi_axis_format,bool time_axis_fo
     //   index=IOV-5;
     // }
     
-    runnumbers[IOV] = new TPaveText(_sx+0.001,0.14+(0.03*index),_dx,(0.17+0.03*index),"blNDC");
+    //runnumbers[IOV] = new TPaveText(_sx+0.001,0.14+(0.03*index),_dx,(0.17+0.03*index),"blNDC");
+    runnumbers[IOV] = new TPaveText(_sx+0.001,0.89-(0.05*index),_dx+0.024,(0.92-0.05*index),"blNDC");
     //runnumbers[IOV]->SetTextAlign(11);
     TText *textRun = runnumbers[IOV]->AddText(Form("%i",int(IOVboundaries[IOV])));
-    textRun->SetTextSize(0.028);
-    textRun->SetTextColor(kRed);
+    //TText *textRun = runnumbers[IOV]->AddText(Form("%s",dates[IOV].c_str()));
+    textRun->SetTextSize(0.038);
+    textRun->SetTextColor(kBlue);
     runnumbers[IOV]->SetFillColor(10);
-    runnumbers[IOV]->SetLineColor(kRed);
+    runnumbers[IOV]->SetLineColor(kBlue);
     runnumbers[IOV]->SetBorderSize(1);
     runnumbers[IOV]->SetLineWidth(1);
-    runnumbers[IOV]->SetTextColor(kRed);
+    runnumbers[IOV]->SetTextColor(kBlue);
     runnumbers[IOV]->SetTextFont(42);
-    runnumbers[IOV]->Draw("same");
+    if(drawText) runnumbers[IOV]->Draw("same");
   }
 }
 
@@ -2856,7 +2896,7 @@ outTrends processData(size_t iter,std::vector<int> intersection,const Int_t nDir
 
       Double_t numEvents = h_tracks->GetEntries();
       if(numEvents<2500){
-	std::cout<<"excluding " << intersection[n] << "because it has less than 2.5k events" << std::endl;
+	std::cout<<"excluding " << intersection[n] << " because it has less than 2.5k events" << std::endl;
 	areAllFilesOK = false;
 	lastOpen=j;
 	break;
