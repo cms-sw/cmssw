@@ -76,27 +76,27 @@ bool SiStripApvSimulationParameters::putTOB(SiStripApvSimulationParameters::laye
   return true;
 }
 
-bool SiStripApvSimulationParameters::putTID(SiStripApvSimulationParameters::layerid ring,
+bool SiStripApvSimulationParameters::putTID(SiStripApvSimulationParameters::layerid wheel,
                                             SiStripApvSimulationParameters::LayerParameters&& params) {
-  if ((ring > m_nTID) || (ring < 1)) {
+  if ((wheel > m_nTID) || (wheel < 1)) {
     edm::LogError("SiStripApvSimulationParameters")
-        << "[" << __PRETTY_FUNCTION__ << "] ring index " << ring << " out of range [1," << m_nTID << "]";
+        << "[" << __PRETTY_FUNCTION__ << "] wheel index " << wheel << " out of range [1," << m_nTID << "]";
     return false;
   }
-  m_endcapParam[ring - 1] = params;
-  m_endcapParam_xInt[ring - 1] = calculateXInt(params);
+  m_endcapParam[wheel - 1] = params;
+  m_endcapParam_xInt[wheel - 1] = calculateXInt(params);
   return true;
 }
 
-bool SiStripApvSimulationParameters::putTEC(SiStripApvSimulationParameters::layerid ring,
+bool SiStripApvSimulationParameters::putTEC(SiStripApvSimulationParameters::layerid wheel,
                                             SiStripApvSimulationParameters::LayerParameters&& params) {
-  if ((ring > m_nTEC) || (ring < 1)) {
+  if ((wheel > m_nTEC) || (wheel < 1)) {
     edm::LogError("SiStripApvSimulationParameters")
-        << "[" << __PRETTY_FUNCTION__ << "] ring index " << ring << " out of range [1," << m_nTEC << ")";
+        << "[" << __PRETTY_FUNCTION__ << "] wheel index " << wheel << " out of range [1," << m_nTEC << ")";
     return false;
   }
-  m_endcapParam[m_nTID + ring - 1] = params;
-  m_endcapParam_xInt[m_nTID + ring - 1] = calculateXInt(params);
+  m_endcapParam[m_nTID + wheel - 1] = params;
+  m_endcapParam_xInt[m_nTID + wheel - 1] = calculateXInt(params);
   return true;
 }
 
@@ -128,28 +128,28 @@ float SiStripApvSimulationParameters::sampleBarrel(layerid layerIdx,
   throw cms::Exception("LogicError") << "Problem drawing a random number from the distribution";
 }
 
-float SiStripApvSimulationParameters::sampleEndcap(layerid ringIdx,
-                                                   float z,
+float SiStripApvSimulationParameters::sampleEndcap(layerid wheelIdx,
+                                                   float r,
                                                    float pu,
                                                    CLHEP::HepRandomEngine* engine) const {
   if (m_endcapParam.size() != m_endcapParam_xInt.size()) {
     throw cms::Exception("LogicError") << "x-integrals of 3D histograms have not been calculated";
   }
-  const auto layerParam = m_endcapParam[ringIdx];
+  const auto layerParam = m_endcapParam[wheelIdx];
   const int ip = layerParam.findBinY(pu);
-  const int iz = layerParam.findBinZ(z);
-  const float norm = m_endcapParam_xInt[ringIdx].binContent(ip, iz);
+  const int ir = layerParam.findBinZ(r);
+  const float norm = m_endcapParam_xInt[wheelIdx].binContent(ip, ir);
   const auto val = CLHEP::RandFlat::shoot(engine) * norm;
-  if (val < layerParam.binContent(0, ip, iz)) {  // underflow
+  if (val < layerParam.binContent(0, ip, ir)) {  // underflow
     return layerParam.rangeX().min;
-  } else if (norm - val < layerParam.binContent(layerParam.numberOfBinsX() + 1, ip, iz)) {  // overflow
+  } else if (norm - val < layerParam.binContent(layerParam.numberOfBinsX() + 1, ip, ir)) {  // overflow
     return layerParam.rangeX().max;
   } else {  // loop over bins, return center of our bin
-    float sum = layerParam.binContent(0, ip, iz);
+    float sum = layerParam.binContent(0, ip, ir);
     for (int i{1}; i != layerParam.numberOfBinsX() + 1; ++i) {
-      sum += layerParam.binContent(i, ip, iz);
+      sum += layerParam.binContent(i, ip, ir);
       if (sum > val) {
-        return xBinPos(layerParam, i, (sum - val) / layerParam.binContent(i, ip, iz));
+        return xBinPos(layerParam, i, (sum - val) / layerParam.binContent(i, ip, ir));
       }
     }
   }
