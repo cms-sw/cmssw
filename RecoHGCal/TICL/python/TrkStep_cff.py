@@ -1,16 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoHGCal.TICL.TICLSeedingRegions_cff import ticlSeedingTrk
 from RecoHGCal.TICL.ticlSeedingRegionProducer_cfi import ticlSeedingRegionProducer as _ticlSeedingRegionProducer
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer as _ticlLayerTileProducer
 from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer as _trackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer as _filteredLayerClustersProducer
 from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer as _multiClustersFromTrackstersProducer
-
-# SEEDING REGION
-
-ticlSeedingTrk = _ticlSeedingRegionProducer.clone(
-  algoId = 1
-)
 
 # CLUSTER FILTERING/MASKING
 
@@ -38,9 +33,8 @@ multiClustersFromTrackstersTrk = _multiClustersFromTrackstersProducer.clone(
     Tracksters = "trackstersTrk"
 )
 
-TrkStepTask = cms.Task(ticlSeedingTrk,
-    filteredLayerClustersTrk,
-    trackstersTrk,
-    multiClustersFromTrackstersTrk)
+TrkStepTask = cms.Task(ticlSeedingTrk
+    ,filteredLayerClustersTrk
+    ,trackstersTrk
+    ,multiClustersFromTrackstersTrk)
 
-TrkStep = cms.Sequence(TrkStepTask)
