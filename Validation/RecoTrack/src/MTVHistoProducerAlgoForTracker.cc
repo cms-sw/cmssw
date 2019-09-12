@@ -138,9 +138,7 @@ namespace {
 }  // namespace
 
 MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const bool doSeedPlots)
-  : doSeedPlots_(doSeedPlots),
-    doMTDPlots_ ( pset.getUntrackedParameter<bool>("doMTDPlots") ) {
-
+    : doSeedPlots_(doSeedPlots), doMTDPlots_(pset.getUntrackedParameter<bool>("doMTDPlots")) {
   //parameters for _vs_eta plots
   minEta = pset.getParameter<double>("minEta");
   maxEta = pset.getParameter<double>("maxEta");
@@ -1180,13 +1178,13 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::ConcurrentBooker& 
 
   if (doMTDPlots_) {
     histograms.nMTDhits_vs_eta.push_back(ibook.bookProfile(
-      "MTDhits_vs_eta", "mean # MTD hits vs eta", nintEta, minEta, maxEta, nintHit, minHit, maxHit, " "));
+        "MTDhits_vs_eta", "mean # MTD hits vs eta", nintEta, minEta, maxEta, nintHit, minHit, maxHit, " "));
 
     histograms.nBTLhits_vs_eta.push_back(ibook.bookProfile(
-      "BTLhits_vs_eta", "mean # BTL hits vs eta", nintEta, minEta, maxEta, nintHit, minHit, maxHit, " "));
+        "BTLhits_vs_eta", "mean # BTL hits vs eta", nintEta, minEta, maxEta, nintHit, minHit, maxHit, " "));
 
     histograms.nETLhits_vs_eta.push_back(ibook.bookProfile(
-      "ETLhits_vs_eta", "mean # ETL hits vs eta", nintEta, minEta, maxEta, nintHit, minHit, maxHit, " "));
+        "ETLhits_vs_eta", "mean # ETL hits vs eta", nintEta, minEta, maxEta, nintHit, minHit, maxHit, " "));
   }
 
   histograms.nhits_vs_phi.push_back(
@@ -2258,7 +2256,7 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(const H
     //  const auto mtdHits = track.hitPattern().numberOfValidTimingHits();
     const auto btlHits = track.hitPattern().numberOfValidTimingBTLHits();
     const auto etlHits = track.hitPattern().numberOfValidTimingETLHits();
-    histograms.nMTDhits_vs_eta[count].fill(eta, btlHits+etlHits);
+    histograms.nMTDhits_vs_eta[count].fill(eta, btlHits + etlHits);
     histograms.nBTLhits_vs_eta[count].fill(eta, btlHits);
     histograms.nETLhits_vs_eta[count].fill(eta, etlHits);
   }
