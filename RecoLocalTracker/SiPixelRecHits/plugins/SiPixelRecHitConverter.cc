@@ -31,7 +31,7 @@
 
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 
-// Make heterogeneous framewokr happy....
+// Make heterogeneous framework happy
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CUDADataFormats/Common/interface/HostProduct.h"
 using HMSstorage = HostProduct<unsigned int[]>;
