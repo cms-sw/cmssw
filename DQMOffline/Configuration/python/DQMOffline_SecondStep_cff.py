@@ -18,6 +18,7 @@ from DQMOffline.Hcal.HcalDQMOfflinePostProcessor_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQM.HcalTasks.OfflineHarvestingSequence_pp import *
 from PhysicsTools.NanoAOD.nanoDQM_cff import *
+from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import *
 
 DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              ecal_dqm_client_offline *
@@ -99,6 +100,11 @@ DQMHarvestCommon = cms.Sequence(
                                  runTauEff *
                                  dqmFastTimerServiceClient
                                 )
+
+DQMHarvestCommonFakeHLT = cms.Sequence( DQMHarvestCommon )
+DQMHarvestCommonFakeHLT.remove( triggerOfflineDQMClient )
+DQMHarvestCommonFakeHLT.remove( hltOfflineDQMClient )
+
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(
                                                DQMMessageLoggerClientSeq *
                                                dqmDcsInfoClient *
@@ -113,6 +119,9 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(
                                                runTauEff  *
                                                dqmFastTimerServiceClient
                                                )
+DQMHarvestCommonSiStripZeroBiasFakeHLT = cms.Sequence( DQMHarvestCommonSiStripZeroBias )
+DQMHarvestCommonSiStripZeroBiasFakeHLT.remove( triggerOfflineDQMClient )
+DQMHarvestCommonSiStripZeroBiasFakeHLT.remove( hltOfflineDQMClient )
 
 DQMHarvestTracking = cms.Sequence( TrackingOfflineDQMClient *
                                    dqmFastTimerServiceClient )
@@ -129,6 +138,8 @@ DQMHarvestOuterTracker = cms.Sequence(
                                  )
 
 DQMHarvestLumi = cms.Sequence()
+
+DQMHarvestCTPPS = cms.Sequence()
 
 DQMHarvestMuon = cms.Sequence( dtClients *
                                rpcTier0Client *
@@ -148,7 +159,7 @@ DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )
 
 DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
-DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD)
+DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD * DQMHarvestPF )
 DQMHarvestNanoAOD = cms.Sequence( nanoHarvest )
 
 # L1 trigger sequences
