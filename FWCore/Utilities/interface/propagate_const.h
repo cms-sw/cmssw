@@ -62,11 +62,7 @@ namespace edm {
 
     // ---------- const member functions ---------------------
     element_type const* get() const {
-      if constexpr (std::is_pointer<T>::value) {
-        return m_value;
-      } else {
-        return m_value.get();
-      }
+      return to_raw_pointer(m_value);
     }
     element_type const* operator->() const { return this->get(); }
     element_type const& operator*() const { return *m_value; }
@@ -75,11 +71,7 @@ namespace edm {
 
     // ---------- member functions ---------------------------
     element_type* get() {
-      if constexpr (std::is_pointer<T>::value) {
-        return m_value;
-      } else {
-        return m_value.get();
-      }
+      return to_raw_pointer(m_value);
     }
     element_type* operator->() { return this->get(); }
     element_type& operator*() { return *m_value; }
@@ -87,6 +79,18 @@ namespace edm {
     operator element_type*() { return this->get(); }
 
   private:
+    template <typename Up> static constexpr element_type*
+    to_raw_pointer(Up* u) { return u; }
+
+    template <typename Up> static constexpr element_type*
+    to_raw_pointer(Up& u) { return u.get(); }
+
+    template <typename Up> static constexpr const element_type*
+    to_raw_pointer(const Up* u) { return u; }
+
+    template <typename Up> static constexpr const element_type*
+    to_raw_pointer(const Up& u) { return u.get(); }
+
     // ---------- member data --------------------------------
     T m_value;
   };
