@@ -215,11 +215,11 @@ namespace magneticfield {
     }
   };
 
+  inline const char* const newln = "\n";
+  // Newline for formatting debug messages
+  // Intended to be similar to "endl"
+
 }  // namespace magneticfield
 
-namespace {
-  const char* const newln = "\n";
-  // newline for formatting debug messages
-}  // namespace
 
 #endif

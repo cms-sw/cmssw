@@ -237,6 +237,7 @@ std::vector<VolumeSide> MagGeoBuilderFromDDD::volumeHandle::sides() const {
 #include "DataFormats/Math/interface/GeantUnits.h"
 
 using volumeHandle = MagGeoBuilderFromDDD::volumeHandle;
+using namespace magneticfield;
 
 namespace {
   // Old DD returns lengths in mm, but CMS code uses cm
