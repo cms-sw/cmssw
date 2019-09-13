@@ -1,5 +1,4 @@
 <use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/EcalRecHit"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/Records"/>
