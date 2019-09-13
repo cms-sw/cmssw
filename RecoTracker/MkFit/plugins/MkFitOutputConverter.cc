@@ -186,8 +186,17 @@ std::vector<const DetLayer*> MkFitOutputConverter::createDetLayers(const mkfit::
   auto isPlusSide = [&ttopo](const DetId& detid) {
     return ttopo.side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap);
   };
-  constexpr int isMono = 0;
-  constexpr int isStereo = 1;
+  auto setDet = [&lnc, &dets, &isPlusSide](
+                    const int subdet, const int layer, const int isStereo, const DetId& detId, const DetLayer* lay) {
+    const int index = lnc.convertLayerNumber(subdet, layer, false, isStereo, isPlusSide(detId));
+    if (index < 0 or static_cast<unsigned>(index) >= dets.size()) {
+      throw cms::Exception("LogicError") << "Invalid mkFit layer index " << index << " for DetId " << detId
+                                         << " subdet " << subdet << " layer " << layer << " isStereo " << isStereo;
+    }
+    dets[index] = lay;
+  };
+  constexpr int monoLayer = 0;
+  constexpr int stereoLayer = 1;
   for (const DetLayer* lay : tracker.allLayers()) {
     const auto& comp = lay->basicComponents();
     if (UNLIKELY(comp.empty())) {
@@ -200,10 +209,10 @@ std::vector<const DetLayer*> MkFitOutputConverter::createDetLayers(const mkfit::
     const auto layer = ttopo.layer(detId);
 
     // TODO: mono/stereo structure is still hardcoded for phase0/1 strip tracker
-    dets[lnc.convertLayerNumber(subdet, layer, false, isMono, isPlusSide(detId))] = lay;
+    setDet(subdet, layer, monoLayer, detId, lay);
     if (((subdet == StripSubdetector::TIB or subdet == StripSubdetector::TOB) and (layer == 1 or layer == 2)) or
         subdet == StripSubdetector::TID or subdet == StripSubdetector::TEC) {
-      dets[lnc.convertLayerNumber(subdet, layer, false, isStereo, isPlusSide(detId))] = lay;
+      setDet(subdet, layer, stereoLayer, detId, lay);
     }
   }
 
