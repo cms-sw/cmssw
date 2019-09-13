@@ -27,7 +27,7 @@ namespace magneticfield {
   class VolumeBasedMagneticFieldESProducerFromDB;
   class AutoMagneticFieldESProducer;
   class BaseVolumeHandle;  // Needs to be public to share code with DD4hep
-  typedef std::vector<BaseVolumeHandle*> handles;
+  using handles = std::vector<BaseVolumeHandle*>;
 }  // namespace magneticfield
 
 class MagGeoBuilderFromDDD {
