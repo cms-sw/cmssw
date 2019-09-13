@@ -1091,6 +1091,8 @@ private:
   std::vector<float>
       pix_radL;  //http://cmslxr.fnal.gov/lxr/source/DataFormats/GeometrySurface/interface/MediumProperties.h
   std::vector<float> pix_bbxi;
+  std::vector<int> pix_clustSizeCol;
+  std::vector<int> pix_clustSizeRow;
   ////////////////////
   // strip hits
   // (first) index runs through hits
@@ -1115,6 +1117,7 @@ private:
       str_radL;  //http://cmslxr.fnal.gov/lxr/source/DataFormats/GeometrySurface/interface/MediumProperties.h
   std::vector<float> str_bbxi;
   std::vector<float> str_chargePerCM;
+  std::vector<int> str_clustSize;
   ////////////////////
   // strip matched hits
   // (first) index runs through hits
@@ -1136,6 +1139,8 @@ private:
       glu_radL;  //http://cmslxr.fnal.gov/lxr/source/DataFormats/GeometrySurface/interface/MediumProperties.h
   std::vector<float> glu_bbxi;
   std::vector<float> glu_chargePerCM ;
+  std::vector<int> glu_clustSizeMono;
+  std::vector<int> glu_clustSizeStereo;
   ////////////////////
   // phase2 Outer Tracker hits
   // (first) index runs through hits
@@ -1560,6 +1565,8 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
     t->Branch("pix_zx", &pix_zx);
     t->Branch("pix_radL", &pix_radL);
     t->Branch("pix_bbxi", &pix_bbxi);
+    t->Branch("pix_clustSizeCol", &pix_clustSizeCol);
+    t->Branch("pix_clustSizeRow", &pix_clustSizeRow);
     //strips
     if (includeStripHits_) {
       t->Branch("str_isBarrel", &str_isBarrel);
@@ -1588,6 +1595,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       t->Branch("str_radL", &str_radL);
       t->Branch("str_bbxi", &str_bbxi);
       t->Branch("str_chargePerCM", &str_chargePerCM);
+      t->Branch("str_clustSize", &str_clustSize);
       //matched hits
       t->Branch("glu_isBarrel", &glu_isBarrel);
       glu_detId.book("glu", t);
@@ -1608,6 +1616,8 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       t->Branch("glu_radL", &glu_radL);
       t->Branch("glu_bbxi", &glu_bbxi);
       t->Branch("glu_chargePerCM", &glu_chargePerCM);
+      t->Branch("glu_clustSizeMono", &glu_clustSizeMono);
+      t->Branch("glu_clustSizeStereo", &glu_clustSizeStereo);
     }
     //phase2 OT
     if (includePhase2OTHits_) {
@@ -1929,6 +1939,8 @@ void TrackingNtuple::clearVariables() {
   pix_zx.clear();
   pix_radL.clear();
   pix_bbxi.clear();
+  pix_clustSizeCol.clear();
+  pix_clustSizeRow.clear();
   //strips
   str_isBarrel.clear();
   str_detId.clear();
@@ -1950,6 +1962,7 @@ void TrackingNtuple::clearVariables() {
   str_radL.clear();
   str_bbxi.clear();
   str_chargePerCM.clear();
+  str_clustSize.clear();
   //matched hits
   glu_isBarrel.clear();
   glu_detId.clear();
@@ -1968,6 +1981,8 @@ void TrackingNtuple::clearVariables() {
   glu_radL.clear();
   glu_bbxi.clear();
   glu_chargePerCM.clear();
+  glu_clustSizeMono.clear();
+  glu_clustSizeStereo.clear();
   //phase2 OT
   ph2_isBarrel.clear();
   ph2_detId.clear();
@@ -2725,6 +2740,8 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
       pix_zx.push_back(ttrh->globalPositionError().czx());
       pix_radL.push_back(ttrh->surface()->mediumProperties().radLen());
       pix_bbxi.push_back(ttrh->surface()->mediumProperties().xi());
+      pix_clustSizeCol.push_back(hit->cluster()->sizeY());
+      pix_clustSizeRow.push_back(hit->cluster()->sizeX());
 
       LogTrace("TrackingNtuple") << "pixHit cluster=" << key << " subdId=" << hitId.subdetId() << " lay=" << lay
                                  << " rawId=" << hitId.rawId() << " pos =" << ttrh->globalPosition();
@@ -2795,6 +2812,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
   str_radL.resize(totalStripHits);
   str_bbxi.resize(totalStripHits);
   str_chargePerCM.resize(totalStripHits);
+  str_clustSize.resize(totalStripHits);
 
   auto fill = [&](const SiStripRecHit2DCollection& hits, const char* name) {
     for (const auto& detset : hits) {
@@ -2820,6 +2838,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
         str_radL[key] = ttrh->surface()->mediumProperties().radLen();
         str_bbxi[key] = ttrh->surface()->mediumProperties().xi();
         str_chargePerCM[key] = siStripClusterTools::chargePerCM(hitId,hit.firstClusterRef().stripCluster());
+        str_clustSize[key] = hit.cluster()->amplitudes().size();
         LogTrace("TrackingNtuple") << name << " cluster=" << key << " subdId=" << hitId.subdetId() << " lay=" << lay
                                    << " rawId=" << hitId.rawId() << " pos =" << ttrh->globalPosition();
 
@@ -2885,6 +2904,8 @@ size_t TrackingNtuple::addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
   glu_radL.push_back(ttrh->surface()->mediumProperties().radLen());
   glu_bbxi.push_back(ttrh->surface()->mediumProperties().xi());
   glu_chargePerCM.push_back(siStripClusterTools::chargePerCM(hitId,hit.firstClusterRef().stripCluster()));
+  glu_clustSizeMono.push_back(hit.monoHit().cluster()->amplitudes().size());
+  glu_clustSizeStereo.push_back(hit.stereoHit().cluster()->amplitudes().size());
   LogTrace("TrackingNtuple") << "stripMatchedHit"
                              << " cluster0=" << hit.stereoHit().cluster().key()
                              << " cluster1=" << hit.monoHit().cluster().key() << " subdId=" << hitId.subdetId()
