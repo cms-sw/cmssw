@@ -659,7 +659,7 @@ namespace {
     if (info.evaluator.get() != nullptr) {
       return info;
     }
-    
+
     info = checkForSingleArgFunction(
         iBegin, iEnd, m_expressionFinder, k_TMath__Sqrt, [](double iArg) -> double { return std::sqrt(iArg); });
     if (info.evaluator.get() != nullptr) {
