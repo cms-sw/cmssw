@@ -85,6 +85,7 @@ MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
   // TODO: what to do when we have multiple instances of MkFitProducer in a job?
   mkfit::MkBuilderWrapper::populate(isFV);
   mkfit::ConfigWrapper::initializeForCMSSW(seedCleanOpt, backwardFitOpt, mkFitSilent_);
+  mkfit::ConfigWrapper::setRemoveDuplicates(iConfig.getParameter<bool>("removeDuplicates"));
 }
 
 void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -94,6 +95,7 @@ void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<std::string>("buildingRoutine", "cloneEngine")
       ->setComment("Valid values are: 'bestHit', 'standard', 'cloneEngine', 'fullVector'");
   desc.add<std::string>("seedCleaning", "N2")->setComment("Valid values are: 'none', 'N2'");
+  desc.add("removeDuplicates", true)->setComment("Run duplicate removal within mkFit");
   desc.add("backwardFitInCMSSW", false)
       ->setComment("Do backward fit (to innermost hit) in CMSSW (true) or mkFit (false)");
   desc.addUntracked("mkFitSilent", true)->setComment("Allows to enables printouts from mkFit with 'False'");
