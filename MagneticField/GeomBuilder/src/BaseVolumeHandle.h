@@ -221,5 +221,4 @@ namespace magneticfield {
 
 }  // namespace magneticfield
 
-
 #endif
