@@ -3,7 +3,5 @@
 #include "Validation/RecoTau/interface/TauTagValidation.h"
 #include "Validation/RecoTau/interface/TauValidationMiniAOD.h"
 
-
-DEFINE_FWK_MODULE( TauTagValidation );
-DEFINE_FWK_MODULE( TauValidationMiniAOD );
-
+DEFINE_FWK_MODULE(TauTagValidation);
+DEFINE_FWK_MODULE(TauValidationMiniAOD);
