@@ -10,7 +10,6 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
     : scaleByDose_(false), NoiseMean_(0.0), NoiseStd_(1.0) {
   bxTime_ = ps.getParameter<double>("bxTime");
   myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
-  SeedOffset_ = ps.getParameter<unsigned int>("seedOffset"),
   doTimeSamples_ = myCfg_.getParameter<bool>("doTimeSamples");
   thresholdFollowsMIP_ = myCfg_.getParameter<bool>("thresholdFollowsMIP");
   if (myCfg_.exists("keV2fC"))
@@ -52,17 +51,15 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
   edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
   myFEelectronics_ = std::unique_ptr<HGCFEElectronics<DFr>>(new HGCFEElectronics<DFr>(feCfg));
   myFEelectronics_->SetNoiseValues(noise_fC_);
-  GenerateGaussianNoise(NoiseMean_, NoiseStd_);
 }
 
 template <class DFr>
-void HGCDigitizerBase<DFr>::GenerateGaussianNoise(const double NoiseMean, const double NoiseStd) {
-  unsigned int seed = 123456;
-  seed = seed + SeedOffset_;
-  TRandom trandom(seed);
+void HGCDigitizerBase<DFr>::GenerateGaussianNoise(CLHEP::HepRandomEngine* engine,
+                                                  const double NoiseMean,
+                                                  const double NoiseStd) {
   for (size_t i = 0; i < NoiseArrayLength_; i++) {
     for (size_t j = 0; j < samplesize_; j++) {
-      GaussianNoiseArray_[i][j] = trandom.Gaus(NoiseMean, NoiseStd);
+      GaussianNoiseArray_[i][j] = CLHEP::RandGaussQ::shoot(NoiseMean, NoiseStd);
     }
   }
 }
@@ -94,6 +91,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
   HGCCellInfo zeroData;
   zeroData.hit_info[0].fill(0.f);  //accumulated energy
   zeroData.hit_info[1].fill(0.f);  //time-of-flight
+  GenerateGaussianNoise(engine, NoiseMean_, NoiseStd_);
 
   for (const auto& id : validIds) {
     chargeColl.fill(0.f);
@@ -102,7 +100,9 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
     size_t hash_index = (CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_ - 1)) + id) % NoiseArrayLength_;
+
     auto cellNoiseArray = GaussianNoiseArray_[hash_index];
+
     //set the noise,cce, LSB and threshold to be used
     float cce(1.f), noiseWidth(0.f), lsbADC(-1.f), maxADC(-1.f);
     uint32_t thrADC(std::floor(myFEelectronics_->getTargetMipValue() / 2));
