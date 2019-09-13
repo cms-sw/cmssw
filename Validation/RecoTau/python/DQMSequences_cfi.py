@@ -1,6 +1,7 @@
 from Validation.RecoTau.dataTypes.ValidateTausOnRealElectronsData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealMuonsData_cff import *
+from Validation.RecoTau.RecoTauValidation_cff import *
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 dqmInfoTauV = DQMEDAnalyzer(
@@ -35,6 +36,9 @@ runTauEff = cms.Sequence(
     efficienciesRealData+
     efficienciesRealElectronsData+
     efficienciesRealMuonsData+
+    efficienciesTauValidationMiniAODRealData+
+    efficienciesTauValidationMiniAODRealElectronsData+
+    efficienciesTauValidationMiniAODRealMuonsData+
     normalizePlotsRealMuonsData
     )
 

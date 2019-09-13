@@ -8,6 +8,7 @@ from Validation.RecoTau.dataTypes.ValidateTausOnZEE_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnZMM_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnZTTFastSim_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnZTT_cff import *
+from Validation.RecoTau.RecoTauValidation_cff import *
 
 pfTauRunDQMValidation = cms.Sequence(
     TauValNumeratorAndDenominatorQCD+
@@ -38,6 +39,13 @@ runTauEff = cms.Sequence(
     efficienciesZEE+
     efficienciesZMM+
     efficienciesZTT+
+    efficienciesTauValidationMiniAODZTT+
+    efficienciesTauValidationMiniAODZEE+
+    efficienciesTauValidationMiniAODZMM+
+    efficienciesTauValidationMiniAODQCD+
+    efficienciesTauValidationMiniAODRealData+
+    efficienciesTauValidationMiniAODRealElectronsData+
+    efficienciesTauValidationMiniAODRealMuonsData+
     normalizePlotsZTT
     )
 ##Full sequences, including normalizations
