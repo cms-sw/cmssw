@@ -51,6 +51,7 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
   edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
   myFEelectronics_ = std::unique_ptr<HGCFEElectronics<DFr>>(new HGCFEElectronics<DFr>(feCfg));
   myFEelectronics_->SetNoiseValues(noise_fC_);
+  RandNoiseGenerationFlag_ = 0;
 }
 
 template <class DFr>
@@ -73,6 +74,10 @@ void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiCo
                                 CLHEP::HepRandomEngine* engine) {
   if (scaleByDose_)
     scal_.setGeometry(theGeom);
+  if (RandNoiseGenerationFlag_ == 0) {
+    GenerateGaussianNoise(engine, NoiseMean_, NoiseStd_);
+    RandNoiseGenerationFlag_ = 1;
+  }
   if (digitizationType == 0)
     runSimple(digiColl, simData, theGeom, validIds, engine);
   else
@@ -91,7 +96,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
   HGCCellInfo zeroData;
   zeroData.hit_info[0].fill(0.f);  //accumulated energy
   zeroData.hit_info[1].fill(0.f);  //time-of-flight
-  GenerateGaussianNoise(engine, NoiseMean_, NoiseStd_);
+  //GenerateGaussianNoise(engine, NoiseMean_, NoiseStd_);
 
   for (const auto& id : validIds) {
     chargeColl.fill(0.f);
