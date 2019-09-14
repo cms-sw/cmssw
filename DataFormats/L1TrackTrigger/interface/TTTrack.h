@@ -43,6 +43,10 @@ private:
   float another_MVA_Value;
   int theTrackSeed;
   double theBField;  // needed for unpacking
+  static constexpr unsigned int Npars4 = 4;
+  static constexpr unsigned int Npars5 = 5;
+  static constexpr float MagConstant = 0.3;
+
 
 public:
   /// Constructors
@@ -71,11 +75,11 @@ public:
 
   /// Track momentum
   GlobalVector momentum() const;
-  GlobalVector getMomentum(unsigned int npar = 4) const;
+  GlobalVector getMomentum(unsigned int npar = Npars4) const;
 
   /// Track curvature
   double rInv() const;
-  double getRInv(unsigned int npar = 4) const;
+  double getRInv(unsigned int npar = Npars4) const;
 
   /// Track phi
   double phi() const;
@@ -94,7 +98,7 @@ public:
 
   /// POCA
   GlobalPoint POCA() const;
-  GlobalPoint getPOCA(unsigned int npar = 4) const;
+  GlobalPoint getPOCA(unsigned int npar = Npars4) const;
 
   /// Phi Sector
   unsigned int PhiSector() const { return thePhiSector; }
@@ -172,7 +176,7 @@ TTTrack<T>::TTTrack(double aRinv,
                     unsigned int nPar,
                     double aBfield) {
   theStubRefs.clear();
-  double thePT = 0.3 * aRinv * aBfield;
+  double thePT = MagConstant * aRinv * aBfield;
   theMomentum = GlobalVector(GlobalVector::Cylindrical(thePT, aphi, thePT * sinh(aeta)));
   theRInv = aRinv;
   thePOCA = GlobalPoint(ad0 * cos(aphi), ad0 * sin(aphi), az0);
@@ -202,7 +206,7 @@ void TTTrack<T>::setFitParNo(unsigned int nPar) {
 
 template <typename T>
 GlobalVector TTTrack<T>::momentum() const {
-  if (NumFitPars == 5 || NumFitPars == 4) {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
     return theMomentum;
   } else
     return GlobalVector(0.0, 0.0, 0.0);
@@ -215,7 +219,7 @@ GlobalVector TTTrack<T>::getMomentum(unsigned int npar) const {
 
 template <typename T>
 double TTTrack<T>::rInv() const {
-  if (NumFitPars == 5 || NumFitPars == 4) {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
     return theRInv;
   } else
     return 0.0;
@@ -229,7 +233,7 @@ double TTTrack<T>::getRInv(unsigned int npar) const {  //backwards compatibility
 
 template <typename T>
 double TTTrack<T>::tanL() const {
-  if (NumFitPars == 5 || NumFitPars == 4) {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
     return theTanL;
   } else
     return 0.0;
@@ -237,7 +241,7 @@ double TTTrack<T>::tanL() const {
 
 template <typename T>
 double TTTrack<T>::eta() const {
-  if (NumFitPars == 5 || NumFitPars == 4) {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
     return theEta;
   } else
     return 0.0;
@@ -245,7 +249,7 @@ double TTTrack<T>::eta() const {
 
 template <typename T>
 double TTTrack<T>::phi() const {
-  if (NumFitPars == 5 || NumFitPars == 4) {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
     return thePhi;
   } else
     return 0.0;
@@ -253,7 +257,7 @@ double TTTrack<T>::phi() const {
 
 template <typename T>
 double TTTrack<T>::d0() const {
-  if (NumFitPars == 5 || NumFitPars == 4) {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
     return theD0;
   } else
     return 0.0;
@@ -261,7 +265,7 @@ double TTTrack<T>::d0() const {
 
 template <typename T>
 double TTTrack<T>::z0() const {
-  if (NumFitPars == 5 || NumFitPars == 4) {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
     return theZ0;
   } else
     return 0.0;
@@ -269,7 +273,7 @@ double TTTrack<T>::z0() const {
 
 template <typename T>
 GlobalPoint TTTrack<T>::POCA() const {
-  if (NumFitPars == 5 || NumFitPars == 4) {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
     return thePOCA;
   } else
     return GlobalPoint(0.0, 0.0, 0.0);
@@ -284,7 +288,7 @@ GlobalPoint TTTrack<T>::getPOCA(unsigned int npar) const  //backwards compatibil
 /// Chi2
 template <typename T>
 double TTTrack<T>::chi2() const {
-  if (NumFitPars == 5 || NumFitPars == 4) {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
     return theChi2;
   } else
     return 0.0;
@@ -299,7 +303,7 @@ double TTTrack<T>::getChi2(unsigned int npar) const  //backwards compatibility
 /// Chi2 reduced
 template <typename T>
 double TTTrack<T>::chi2Red() const {
-  if (NumFitPars == 5 || NumFitPars == 4) {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
     return theChi2 / (2 * theStubRefs.size() - NumFitPars);
   } else
     return 0.0;
@@ -322,7 +326,7 @@ void TTTrack<T>::setStubPtConsistency(double aStubPtConsistency) {
 /// StubPtConsistency
 template <typename T>
 double TTTrack<T>::getStubPtConsistency(unsigned int npar) const {
-  if (NumFitPars == 5 || NumFitPars == 4) {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
     return theStubPtConsistency;
   } else
     return 0.0;
@@ -331,7 +335,7 @@ double TTTrack<T>::getStubPtConsistency(unsigned int npar) const {
 /// Set bits in 96-bit Track word
 template <typename T>
 void TTTrack<T>::setTrackWordBits() {
-  if (!(NumFitPars == 4 || NumFitPars == 5)) {
+  if (!(NumFitPars == Npars4 || NumFitPars == Npars5)) {
     edm::LogError("TTTrack") << " setTrackWordBits method is called with NumFitPars=" << NumFitPars
                              << " only possible values are 4/5" << std::endl;
     return;
@@ -354,12 +358,14 @@ void TTTrack<T>::testTrackWordBits() {
   float rZ0 = thePOCA.z();
   float rD0 = thePOCA.perp();
 
-  std::cout << " phi " << rPhi << " " << get_iphi() << std::endl;
-  std::cout << " eta " << rEta << " " << get_ieta() << std::endl;
-  std::cout << " Z0 " << rZ0 << " " << get_iz0() << std::endl;
-  std::cout << " D0 " << rD0 << " " << get_id0() << std::endl;
-  std::cout << " Rinv " << theRInv << " " << get_iRinv() << std::endl;
-  std::cout << " chi2 " << theChi2 << " " << get_ichi2() << std::endl;
+  //this is meant for debugging only.
+
+  //std::cout << " phi " << rPhi << " " << get_iphi() << std::endl;
+  //std::cout << " eta " << rEta << " " << get_ieta() << std::endl;
+  //std::cout << " Z0 " << rZ0 << " " << get_iz0() << std::endl;
+  //std::cout << " D0 " << rD0 << " " << get_id0() << std::endl;
+  //std::cout << " Rinv " << theRInv << " " << get_iRinv() << std::endl;
+  //std::cout << " chi2 " << theChi2 << " " << get_ichi2() << std::endl;
 
   return;
 }
