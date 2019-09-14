@@ -156,10 +156,12 @@ protected:
   bool thresholdFollowsMIP_;
 
   // New NoiseArray Parameters
+
   const double NoiseMean_, NoiseStd_;
-  static const size_t NoiseArrayLength_ = 20000;
+  static const size_t NoiseArrayLength_ = 100000;
   static const size_t samplesize_ = 15;
   std::array<std::array<double, samplesize_>, NoiseArrayLength_> GaussianNoiseArray_;
+  int RandNoiseGenerationFlag_;
 };
 
 #endif
