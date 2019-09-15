@@ -55,7 +55,7 @@ public:
 
   RectangularEtaPhiTrackingRegion& operator=(RectangularEtaPhiTrackingRegion const&) = delete;
   RectangularEtaPhiTrackingRegion(RectangularEtaPhiTrackingRegion&&) = default;
-  RectangularEtaPhiTrackingRegion& operator=(RectangularEtaPhiTrackingRegion&&) = default;
+  RectangularEtaPhiTrackingRegion& operator=(RectangularEtaPhiTrackingRegion&&) = delete;
 
   typedef TkTrackingRegionsMargin<float> Margin;
 
