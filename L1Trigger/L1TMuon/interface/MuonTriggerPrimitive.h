@@ -46,6 +46,7 @@ namespace l1t {
 
 // GEM digi types
 class GEMPadDigi;
+class GEMPadDigiCluster;
 class GEMDetId;
 
 // ME0 digi types
@@ -190,6 +191,7 @@ namespace L1TMuon {
 
     // GEM
     TriggerPrimitive(const GEMDetId& detid, const GEMPadDigi& digi);
+    TriggerPrimitive(const GEMDetId& detid, const GEMPadDigiCluster& digi);
     TriggerPrimitive(const ME0DetId& detid, const ME0PadDigi& digi);
 
     //copy

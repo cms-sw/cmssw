@@ -7,6 +7,7 @@
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCluster.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigi.h"
 
 // detector ID types
@@ -175,6 +176,17 @@ TriggerPrimitive::TriggerPrimitive(const GEMDetId& detid, const GEMPadDigi& digi
   _gem.pad = digi.pad();
   _gem.pad_low = digi.pad();
   _gem.pad_hi = digi.pad();
+  _gem.bx = digi.bx();
+  _gem.bend = 0;
+  _gem.isME0 = false;
+}
+
+TriggerPrimitive::TriggerPrimitive(const GEMDetId& detid, const GEMPadDigiCluster& digi)
+    : _id(detid), _subsystem(TriggerPrimitive::kGEM) {
+  calculateGlobalSector(detid, _globalsector, _subsector);
+  _gem.pad = digi.pads().front();
+  _gem.pad_low = digi.pads().front();
+  _gem.pad_hi = digi.pads().back();
   _gem.bx = digi.bx();
   _gem.bend = 0;
   _gem.isME0 = false;

@@ -16,6 +16,8 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
       tokenRPC_(iConsumes.consumes<RPCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("RPCInput"))),
       tokenCPPF_(iConsumes.consumes<CPPFTag::digi_collection>(iConfig.getParameter<edm::InputTag>("CPPFInput"))),
       tokenGEM_(iConsumes.consumes<GEMTag::digi_collection>(iConfig.getParameter<edm::InputTag>("GEMInput"))),
+      tokenGEMCluster_(
+          iConsumes.consumes<GEMClusterTag::digi_collection>(iConfig.getParameter<edm::InputTag>("GEMClusterInput"))),
       verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
       primConvLUT_(iConfig.getParameter<edm::ParameterSet>("spPCParams16").getParameter<int>("PrimConvLUT")),
       fwConfig_(iConfig.getParameter<bool>("FWConfig")),
@@ -23,6 +25,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
       useRPC_(iConfig.getParameter<bool>("RPCEnable")),
       useCPPF_(iConfig.getParameter<bool>("CPPFEnable")),
       useGEM_(iConfig.getParameter<bool>("GEMEnable")),
+      useGEMClusters_(iConfig.getParameter<bool>("GEMUseClusters")),
       era_(iConfig.getParameter<std::string>("Era")) {
   if (era_ == "Run2_2016") {
     pt_assign_engine_.reset(new PtAssignmentEngine2016());
@@ -162,7 +165,9 @@ void TrackFinder::process(const edm::Event& iEvent,
     collector.extractPrimitives(CPPFTag(), iEvent, tokenCPPF_, muon_primitives);
   else if (useRPC_)
     collector.extractPrimitives(RPCTag(), iEvent, tokenRPC_, muon_primitives);
-  if (useGEM_)
+  if (useGEM_ && useGEMClusters_)
+    collector.extractPrimitives(GEMClusterTag(), iEvent, tokenGEMCluster_, muon_primitives);
+  else if (useGEM_)
     collector.extractPrimitives(GEMTag(), iEvent, tokenGEM_, muon_primitives);
 
   // Check trigger primitives

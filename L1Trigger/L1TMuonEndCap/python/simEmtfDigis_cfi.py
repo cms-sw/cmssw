@@ -25,12 +25,14 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     RPCInput  = cms.InputTag('simMuonRPCDigis'),
     CPPFInput = cms.InputTag('simCPPFDigis'),  ## Cannot use in MC workflow, does not exist yet.  CPPFEnable set to False - AWB 01.06.18
     GEMInput  = cms.InputTag('simMuonGEMPadDigis'),
+    GEMClusterInput  = cms.InputTag('simMuonGEMPadDigiClusters'),
 
     # Run with CSC, RPC, GEM
     CSCEnable = cms.bool(True),   # Use CSC LCTs from the MPCs in track-building
     RPCEnable = cms.bool(True),   # Use clustered RPC hits from CPPF in track-building
     CPPFEnable = cms.bool(False), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits
     GEMEnable = cms.bool(False),  # Use hits from GEMs in track-building
+    GEMUseClusters = cms.bool(False), # Use clusters instead of single hits
 
     # Era (options: 'Run2_2016', 'Run2_2017', 'Run2_2018')
     Era = cms.string('Run2_2018'),

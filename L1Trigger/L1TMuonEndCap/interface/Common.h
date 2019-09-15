@@ -46,6 +46,7 @@ typedef emtf::CSCTag CSCTag;
 typedef emtf::RPCTag RPCTag;
 typedef emtf::CPPFTag CPPFTag;
 typedef emtf::GEMTag GEMTag;
+typedef emtf::GEMClusterTag GEMClusterTag;
 typedef emtf::IRPCTag IRPCTag;
 typedef emtf::ME0Tag ME0Tag;
 typedef emtf::TTTag TTTag;

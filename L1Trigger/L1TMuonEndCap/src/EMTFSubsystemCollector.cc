@@ -117,6 +117,32 @@ void EMTFSubsystemCollector::extractPrimitives(
   return;
 }
 
+template <>
+void EMTFSubsystemCollector::extractPrimitives(
+    GEMClusterTag tag,  // Defined in interface/EMTFSubsystemTag.h, maps to GEMPadDigiCluster
+    const edm::Event& iEvent,
+    const edm::EDGetToken& token,
+    TriggerPrimitiveCollection& out) const {
+  edm::Handle<GEMClusterTag::digi_collection> gemDigis;
+  iEvent.getByToken(token, gemDigis);
+
+  TriggerPrimitiveCollection clus_muon_primitives;
+
+  auto chamber = gemDigis->begin();
+  auto chend = gemDigis->end();
+  for (; chamber != chend; ++chamber) {
+    auto digi = (*chamber).second.first;
+    auto dend = (*chamber).second.second;
+    for (; digi != dend; ++digi) {
+      clus_muon_primitives.emplace_back((*chamber).first, *digi);
+    }
+  }
+
+  // Output
+  std::copy(clus_muon_primitives.begin(), clus_muon_primitives.end(), std::back_inserter(out));
+  return;
+}
+
 // _____________________________________________________________________________
 // RPC functions
 void EMTFSubsystemCollector::cluster_rpc(const TriggerPrimitiveCollection& muon_primitives,

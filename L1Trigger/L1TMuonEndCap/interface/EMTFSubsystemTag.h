@@ -8,6 +8,8 @@
 #include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCluster.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigi.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigiCollection.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
@@ -32,6 +34,11 @@ namespace emtf {
   struct GEMTag {
     typedef GEMPadDigi digi_type;
     typedef GEMPadDigiCollection digi_collection;
+  };
+
+  struct GEMClusterTag {
+    typedef GEMPadDigiCluster digi_type;
+    typedef GEMPadDigiClusterCollection digi_collection;
   };
 
   struct IRPCTag {
