@@ -47,7 +47,6 @@ private:
   static constexpr unsigned int Npars5 = 5;
   static constexpr float MagConstant = 0.3;
 
-
 public:
   /// Constructors
   TTTrack();
