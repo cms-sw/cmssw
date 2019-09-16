@@ -69,7 +69,9 @@ protected:
 
   /// return the top folder
   std::string topFolder(std::string source) {
-    return source == "TM" ? "DT/03-LocalTrigger-TM/" : "DT/04-LocalTrigger-DDU/"; //DDU no longer existing, leaving folder here for past references
+    return source == "TM"
+               ? "DT/03-LocalTrigger-TM/"
+               : "DT/04-LocalTrigger-DDU/";  //DDU no longer existing, leaving folder here for past references
   }
 
   /// Analyze
@@ -82,7 +84,7 @@ private:
 
   std::string SegmArbitration;
 
-  bool processTM,  detailedPlots, checkRPCtriggers;
+  bool processTM, detailedPlots, checkRPCtriggers;
   std::vector<std::string> processTags;
 
   float phiAccRange;

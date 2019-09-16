@@ -70,8 +70,6 @@ private:
                      std::vector<L1MuDTChambPhDigi> const* phOutTrigs,
                      std::vector<L1MuDTChambThDigi> const* thTrigs);
 
-
-
   /// Get the Top folder (different between Physics and TP and TM)
   std::string& topFolder(std::string const& type) { return baseFolder[type == "TM"]; }
 

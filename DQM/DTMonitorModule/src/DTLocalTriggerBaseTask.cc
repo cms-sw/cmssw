@@ -36,9 +36,7 @@ using namespace std;
 
 class DTTPGCompareUnit {
 public:
-  DTTPGCompareUnit() {
-    theQual = -1;
-  }
+  DTTPGCompareUnit() { theQual = -1; }
   ~DTTPGCompareUnit(){};
 
   void setTM(int qual, int bx) {
@@ -49,8 +47,8 @@ public:
   int qualTM() const { return theQual; }
 
 private:
-  int theQual;  
-  int theBX;    
+  int theQual;
+  int theBX;
 };
 
 DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps)

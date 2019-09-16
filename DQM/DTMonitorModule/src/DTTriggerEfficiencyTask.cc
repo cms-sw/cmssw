@@ -60,7 +60,7 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
 
   if (processTM)
     processTags.push_back("TM");
-  if (!processTM )
+  if (!processTM)
     LogError("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")
         << "[DTTriggerEfficiencyTask]: Error, no trigger source (Twinmux) has been selected!!" << endl;
 }
@@ -201,7 +201,7 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
       vector<string>::const_iterator tagIt = processTags.begin();
       vector<string>::const_iterator tagEnd = processTags.end();
       for (; tagIt != tagEnd; ++tagIt) {
-        int qual =  phBestTM.find(dtChId) != phBestTM.end() ? phBestTM[dtChId]->code() : -1;
+        int qual = phBestTM.find(dtChId) != phBestTM.end() ? phBestTM[dtChId]->code() : -1;
         innerWhME.find((*tagIt) + "_TrigEffDenum")->second->Fill(scsector, station);
 
         if (qual >= 0 && qual < 7) {
