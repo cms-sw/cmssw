@@ -32,7 +32,6 @@ using namespace std;
 DTTriggerLutTest::DTTriggerLutTest(const edm::ParameterSet& ps) {
   setConfig(ps, "DTTriggerLut");
   baseFolderTM = "DT/03-LocalTrigger-TM/";
-  baseFolderDDU = "DT/04-LocalTrigger-DDU/";
   thresholdWarnPhi = ps.getUntrackedParameter<double>("thresholdWarnPhi");
   thresholdErrPhi = ps.getUntrackedParameter<double>("thresholdErrPhi");
   thresholdWarnPhiB = ps.getUntrackedParameter<double>("thresholdWarnPhiB");

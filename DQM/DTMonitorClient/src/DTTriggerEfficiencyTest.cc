@@ -36,7 +36,6 @@ using namespace std;
 DTTriggerEfficiencyTest::DTTriggerEfficiencyTest(const edm::ParameterSet& ps) {
   setConfig(ps, "DTTriggerEfficiency");
   baseFolderTM = "DT/03-LocalTrigger-TM/";
-  baseFolderDDU = "DT/04-LocalTrigger-DDU/";
   detailedPlots = ps.getUntrackedParameter<bool>("detailedAnalysis", true);
 
   bookingdone = false;

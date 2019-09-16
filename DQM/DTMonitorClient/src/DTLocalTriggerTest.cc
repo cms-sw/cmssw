@@ -33,7 +33,6 @@ using namespace std;
 DTLocalTriggerTest::DTLocalTriggerTest(const edm::ParameterSet& ps) {
   setConfig(ps, "DTLocalTrigger");
   baseFolderTM = "DT/03-LocalTrigger-TM/";
-  baseFolderDDU = "DT/04-LocalTrigger-DDU/";
   nMinEvts = ps.getUntrackedParameter<int>("nEventsCert", 5000);
 
   bookingdone = false;
@@ -135,39 +134,6 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
             DTChamberId chId(wh, stat, sect);
             int sector_id = (wh + wheelArrayShift) + (sect - 1) * 5;
 
-            if (hwSource == "COM") {
-              // Perform TM-DDU matching test and generates summaries (Phi view)
-              TH2F* DDUvsTM = getHisto<TH2F>(igetter.get(getMEName("QualDDUvsQualTM", "LocalTriggerPhiIn", chId)));
-              if (DDUvsTM) {
-                int matchSummary = 1;
-
-                if (DDUvsTM->GetEntries() > 1) {
-                  double entries = DDUvsTM->GetEntries();
-                  double corrEntries = 0;
-                  for (int ibin = 2; ibin <= 8; ++ibin) {
-                    corrEntries += DDUvsTM->GetBinContent(ibin, ibin);
-                  }
-                  double corrRatio = corrEntries / entries;
-
-                  if (corrRatio < parameters.getUntrackedParameter<double>("matchingFracError", .65)) {
-                    matchSummary = 2;
-                  } else if (corrRatio < parameters.getUntrackedParameter<double>("matchingFracWarning", .85)) {
-                    matchSummary = 3;
-                  } else {
-                    matchSummary = 0;
-                  }
-
-                  if (whME[wh].find(fullName("MatchingPhi")) == whME[wh].end()) {
-                    bookWheelHistos(ibooker, wh, "MatchingPhi");
-                  }
-
-                  whME[wh].find(fullName("MatchingPhi"))->second->setBinContent(sect, stat, corrRatio);
-                }
-
-                whME[wh].find(fullName("MatchingSummary"))->second->setBinContent(sect, stat, matchSummary);
-              }
-            }  //closes COM
-            else {
               // IN part
               TH2F* BXvsQual = getHisto<TH2F>(igetter.get(getMEName("BXvsQual_In", "LocalTriggerPhiIn", chId)));
               TH1F* BestQual = getHisto<TH1F>(igetter.get(getMEName("BestQual_In", "LocalTriggerPhiIn", chId)));
@@ -361,30 +327,7 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
 
               }  // Check on TM source
                  //Theta part
-              if (hwSource == "DDU") {
-                TH2F* ThetaBXvsQual =
-                    getHisto<TH2F>(igetter.get(getMEName("ThetaBXvsQual", "LocalTriggerTheta", chId)));
-                TH1F* ThetaBestQual =
-                    getHisto<TH1F>(igetter.get(getMEName("ThetaBestQual", "LocalTriggerTheta", chId)));
-
-                // no theta triggers in stat 4!
-                if (ThetaBXvsQual && ThetaBestQual && stat < 4 && ThetaBestQual->GetEntries() > 1) {
-                  TH1D* BXH = ThetaBXvsQual->ProjectionY("", 4, 4, "");
-                  int BXOK_bin = BXH->GetEffectiveEntries() >= 1 ? BXH->GetMaximumBin() : 10;
-                  double BX_OK = ThetaBXvsQual->GetYaxis()->GetBinCenter(BXOK_bin);
-                  double trigs = ThetaBestQual->GetEntries();
-                  double trigsH = ThetaBestQual->GetBinContent(4);
-                  delete BXH;
-
-                  if (whME[wh].find(fullName("HFractionTheta")) == whME[wh].end()) {
-                    bookWheelHistos(ibooker, wh, "CorrectBXTheta");
-                    bookWheelHistos(ibooker, wh, "HFractionTheta");
-                  }
-                  std::map<std::string, MonitorElement*>* innerME = &(whME.find(wh)->second);
-                  innerME->find(fullName("CorrectBXTheta"))->second->setBinContent(sect, stat, BX_OK + 0.00001);
-                  innerME->find(fullName("HFractionTheta"))->second->setBinContent(sect, stat, trigsH / trigs);
-                }
-              } else if (hwSource == "TM") {
+	      if (hwSource == "TM") {
                 // Perform TM plot analysis (Theta ones)
                 TH2F* ThetaPosvsBX = getHisto<TH2F>(igetter.get(getMEName("PositionvsBX", "LocalTriggerTheta", chId)));
                 double BX_OK = 48;
@@ -401,7 +344,6 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
                   std::map<std::string, MonitorElement*>* innerME = &(whME.find(wh)->second);
                   innerME->find(fullName("CorrectBXTheta"))->second->setBinContent(sect, stat, BX_OK + 0.00001);
                 }
-                // After TM the DDU is not used and the TM has information on the Theta Quality
                 // Adding trigger info to compute H fraction (11/10/2016) M.C.Fouz
                 TH2F* ThetaBXvsQual =
                     getHisto<TH2F>(igetter.get(getMEName("ThetaBXvsQual", "LocalTriggerTheta", chId)));
@@ -419,7 +361,6 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
                 }
                 // END ADDING H Fraction info
               }
-            }
           }
         }
       }

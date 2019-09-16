@@ -29,9 +29,6 @@
 #include <vector>
 #include <list>
 
-class DTROS25Data;
-class DTDDUData;
-//to remove
 class DTuROSROSData;
 class DTuROSFEDData;
 class DTTimeEvolutionHisto;
@@ -46,15 +43,6 @@ public:
 
   void processuROS(DTuROSROSData& data, int fed, int uRos);
   void processFED(DTuROSFEDData& data, int fed);
-  void processROS25(DTROS25Data& data, int dduID, int ros);
-  void processFED(DTDDUData& dduData, const std::vector<DTROS25Data>& rosData, int dduID);
-
-  // log number of times the payload of each fed is unpacked
-  void fedEntry(int dduID);
-  // log number of times the payload of each fed is skipped (no ROS inside)
-  void fedFatal(int dduID);
-  // log number of times the payload of each fed is partially skipped (some ROS skipped)
-  void fedNonFatal(int dduID);
 
   bool eventHasErrors() const;
 
@@ -125,7 +113,7 @@ private:
   // one for all FEDS
   MonitorElement* hTTSSummary;
 
-  //time histos for DDU/ROS
+  //time histos for ROS
   std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > fedTimeHistos;
   std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > rosTimeHistos;
   // <key, histo> >
@@ -169,9 +157,7 @@ private:
   std::string fedIntegrityFolder;
 
   // The label to retrieve the digis
-  edm::EDGetTokenT<DTDDUCollection> dduToken;
 
-  edm::EDGetTokenT<DTROS25Collection> ros25Token;
 
   edm::EDGetTokenT<DTuROSFEDDataCollection> fedToken;
 };
