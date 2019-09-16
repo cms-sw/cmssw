@@ -1,42 +1,45 @@
 #ifndef bSector_H
 #define bSector_H
 
-/** \class MagGeoBuilderFromDDD::bSector
+/** \class bSector
  *  A sector of volumes in a barrel layer (i.e. only 1 element in R)
  *  One sector is composed of 1 or more rods.
  *
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
-#include "MagneticField/GeomBuilder/src/volumeHandle.h"
-#include "MagneticField/GeomBuilder/src/bRod.h"
+#include "bRod.h"
 
 class MagBSector;
 
-class MagGeoBuilderFromDDD::bSector {
-public:
-  /// Default ctor is needed to have arrays.
-  bSector();
+namespace magneticfield {
 
-  /// Constructor from list of volumes
-  bSector(handles::const_iterator begin, handles::const_iterator end);
+  class bSector {
+  public:
+    /// Default ctor is needed to have arrays.
+    bSector();
 
-  /// Destructor
-  ~bSector();
+    /// Constructor from list of volumes
+    bSector(handles::const_iterator begin, handles::const_iterator end, bool debugVal = false);
 
-  /// Distance  from center along normal of sectors.
-  const float RN() const { return volumes.front()->RN(); }
+    /// Destructor
+    ~bSector() = default;
 
-  /// Return all volumes in this sector
-  const handles& getVolumes() const { return volumes; }
+    /// Distance  from center along normal of sectors.
+    const float RN() const { return volumes.front()->RN(); }
 
-  /// Construct the MagBSector upon request.
-  MagBSector* buildMagBSector() const;
+    /// Return all volumes in this sector
+    const handles& getVolumes() const { return volumes; }
 
-private:
-  std::vector<bRod> rods;  // the rods in this layer
-  handles volumes;         // pointers to all volumes in the sector
-  mutable MagBSector* msector;
-};
+    /// Construct the MagBSector upon request.
+    MagBSector* buildMagBSector() const;
+
+  private:
+    std::vector<bRod> rods;  // the rods in this layer
+    handles volumes;         // pointers to all volumes in the sector
+    mutable MagBSector* msector;
+    bool debug;  // Allow assignment from other bSector objects
+  };
+}  // namespace magneticfield
+
 #endif
