@@ -1,4 +1,4 @@
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,7 +11,7 @@
 #ifdef EDM_ML_DEBUG
 #include <unordered_set>
 #endif
-using namespace geant_units::operators;
+using namespace cms_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */,
                       cms::DDParsingContext& ctxt,
@@ -136,7 +136,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                                       << ":" << absorbH << ":" << 0.5 * thick[ii];
 #endif
       } else {
-        dd4hep::Solid solid = dd4hep::Tube(0.5 * thick[ii], rinB, routF, 0.0, 2 * geant_units::piRadians);
+        dd4hep::Solid solid = dd4hep::Tube(rinB, routF, 0.5 * thick[ii], 0.0, 2 * cms_units::piRadians);
         ns.addSolidNS(ns.prepend(name), solid);
         glog = dd4hep::Volume(solid.name(), solid, matter);
 #ifdef EDM_ML_DEBUG
@@ -208,12 +208,11 @@ static long algorithm(dd4hep::Detector& /* description */,
                 copies.insert(copy);
 #endif
                 dd4hep::Position tran(xpos, ypos, 0.0);
-                dd4hep::Rotation3D rotation;
-                glog.placeVolume(glog1, copyL, dd4hep::Transform3D(rotation, tran));
+                glog.placeVolume(glog1, copyL, tran);
 #ifdef EDM_ML_DEBUG
                 edm::LogVerbatim("HGCalGeom")
                     << "DDHGCalModule: " << glog1.name() << " number " << copyL << " positioned in " << glog.name()
-                    << " at " << tran << " with " << rotation;
+                    << " at " << tran;
 #endif
               }
             }
@@ -226,12 +225,11 @@ static long algorithm(dd4hep::Detector& /* description */,
 #endif
       }
       dd4hep::Position r1(0, 0, zz);
-      dd4hep::Rotation3D rot;
-      module.placeVolume(glog, copy, dd4hep::Transform3D(rot, r1));
+      module.placeVolume(glog, copy, r1);
       ++copyNumber[ii];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModule test: " << glog.name() << " number " << copy
-                                    << " positioned in " << module.name() << " at " << r1 << " with " << rot;
+                                    << " positioned in " << module.name() << " at " << r1;
 #endif
       zz += (0.5 * thick[ii]);
     }  // End of loop over layers in a block
