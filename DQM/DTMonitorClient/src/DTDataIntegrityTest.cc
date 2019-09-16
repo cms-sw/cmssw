@@ -320,27 +320,27 @@ void DTDataIntegrityTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGette
 }
 
 string DTDataIntegrityTest::getMEName(string histoType, int FEDId) {
-  //Use the DDU name to find the ME
-  stringstream dduID_s;
-  dduID_s << FEDId;
+  //Use the FED to find the ME
+  stringstream fedID_s;
+  fedID_s << FEDId;
 
-  string folderName = "DT/00-DataIntegrity/FED" + dduID_s.str();
+  string folderName = "DT/00-DataIntegrity/FED" + fedID_s.str();
 
-  string histoName = folderName + "/FED" + dduID_s.str() + "_" + histoType;
+  string histoName = folderName + "/FED" + fedID_s.str() + "_" + histoType;
   return histoName;
 }
 
-void DTDataIntegrityTest::bookHistos(DQMStore::IBooker& ibooker, string histoType, int dduId) {
-  stringstream dduId_s;
-  dduId_s << dduId;
+void DTDataIntegrityTest::bookHistos(DQMStore::IBooker& ibooker, string histoType, int FEDId) {
+  stringstream fedId_s;
+  fedId_s << FEDId;
 
-  ibooker.setCurrentFolder("DT/00-DataIntegrity/FED" + dduId_s.str());
+  ibooker.setCurrentFolder("DT/00-DataIntegrity/FED" + fedId_s.str());
   string histoName;
 }
 
-int DTDataIntegrityTest::readOutToGeometry(int dduId, int ros, int& wheel, int& sector) {
+int DTDataIntegrityTest::readOutToGeometry(int fedId, int ros, int& wheel, int& sector) {
   int dummy;
-  return mapping->readOutToGeometry(dduId, ros, 2, 2, 2, wheel, dummy, sector, dummy, dummy, dummy);
+  return mapping->readOutToGeometry(fedId, ros, 2, 2, 2, wheel, dummy, sector, dummy, dummy, dummy);
 }
 
 int DTDataIntegrityTest::getROS(int uROS, int link) {
