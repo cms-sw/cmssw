@@ -42,6 +42,12 @@ namespace fastsim {
         */
     SimplifiedGeometry(double geomProperty);
 
+    SimplifiedGeometry(SimplifiedGeometry&&) = default;
+    SimplifiedGeometry(SimplifiedGeometry const&) = delete;
+
+    SimplifiedGeometry& operator=(SimplifiedGeometry&&) = default;
+    SimplifiedGeometry& operator=(SimplifiedGeometry const&) = delete;
+
     //! Default destructor.
     virtual ~SimplifiedGeometry();
 
