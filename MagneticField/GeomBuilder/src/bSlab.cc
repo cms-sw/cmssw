@@ -4,25 +4,26 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/bSlab.h"
+#include "bSlab.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/Layers/interface/MagBSlab.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
+#include <iostream>
+
 using namespace SurfaceOrientation;
 using namespace std;
+using namespace magneticfield;
 
-MagGeoBuilderFromDDD::bSlab::~bSlab() {}
-
-MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const_iterator end)
-    : volumes(begin, end), mslab(nullptr) {
+bSlab::bSlab(handles::const_iterator begin, handles::const_iterator end, bool debugVal)
+    : volumes(begin, end), mslab(nullptr), debug(debugVal) {
   if (volumes.size() > 1) {
     // Sort volumes by dphi i.e. phi(j)-phi(i) > 0 if j>1.
     precomputed_value_sort(volumes.begin(), volumes.end(), ExtractPhiMax(), LessDPhi());
 
-    if (MagGeoBuilderFromDDD::debug)
+    if (debug)
       cout << "        Slab has " << volumes.size() << " volumes" << endl;
 
     // Check that all volumes have the same dZ
@@ -33,7 +34,7 @@ MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const
       const float epsilon = 0.001;
       if (fabs(Zmax - (*i)->surface(zplus).position().z()) > epsilon ||
           fabs(Zmin - (*i)->surface(zminus).position().z()) > epsilon) {
-        if (MagGeoBuilderFromDDD::debug)
+        if (debug)
           cout << "*** WARNING: slabs Z coords not matching: D_Zmax = "
                << fabs(Zmax - (*i)->surface(zplus).position().z())
                << " D_Zmin = " << fabs(Zmin - (*i)->surface(zminus).position().z()) << endl;
@@ -42,11 +43,11 @@ MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const
   }
 }
 
-Geom::Phi<float> MagGeoBuilderFromDDD::bSlab::minPhi() const { return volumes.front()->minPhi(); }
+Geom::Phi<float> bSlab::minPhi() const { return volumes.front()->minPhi(); }
 
-Geom::Phi<float> MagGeoBuilderFromDDD::bSlab::maxPhi() const { return volumes.back()->maxPhi(); }
+Geom::Phi<float> bSlab::maxPhi() const { return volumes.back()->maxPhi(); }
 
-MagBSlab* MagGeoBuilderFromDDD::bSlab::buildMagBSlab() const {
+MagBSlab* bSlab::buildMagBSlab() const {
   if (mslab == nullptr) {
     vector<MagVolume*> mVols;
     for (handles::const_iterator vol = volumes.begin(); vol != volumes.end(); ++vol) {

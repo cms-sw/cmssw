@@ -12,6 +12,7 @@
 
 <library name="DetectorDescriptionPlugins" file="*.cc" >
   <use name="Geometry/Records"/>
+  <use name="MagneticField/Records"/>
   <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>

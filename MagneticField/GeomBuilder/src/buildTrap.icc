@@ -4,43 +4,36 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "Building trapezoid surfaces...: " << endl;
+void volumeHandle::buildTrap() {
+  LogTrace("magneticfield::volumeHandle") << "Building trapezoid surfaces...: ";
 
   DDTrap trap(solid);  //FIXME
 
-  double x1 = trap.x1() / cm;
-  double x2 = trap.x2() / cm;
-  double x3 = trap.x3() / cm;
-  double x4 = trap.x4() / cm;
-  double y1 = trap.y1() / cm;
-  double y2 = trap.y2() / cm;
+  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
+  // convertUnits should be defined appropriately.
+  double x1 = convertUnits(trap.x1());
+  double x2 = convertUnits(trap.x2());
+  double x3 = convertUnits(trap.x3());
+  double x4 = convertUnits(trap.x4());
+  double y1 = convertUnits(trap.y1());
+  double y2 = convertUnits(trap.y2());
   double theta = trap.theta();
   double phi = trap.phi();
-  double halfZ = trap.halfZ() / cm;
+  double halfZ = convertUnits(trap.halfZ());
   double alpha1 = trap.alpha1();
   double alpha2 = trap.alpha2();
 
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "x1 " << x1 << endl
-         << "x2 " << x2 << endl
-         << "x3 " << x3 << endl
-         << "x4 " << x4 << endl
-         << "y1 " << y1 << endl
-         << "y2 " << y2 << endl
-         << "theta " << theta << endl
-         << "phi " << phi << endl
-         << "halfZ " << halfZ << endl
-         << "alpha1 " << alpha1 << endl
-         << "alpha2 " << alpha2 << endl;
+  LogTrace("magneticfield::volumeHandle")
+      << "x1 " << x1 << newln << "x2 " << x2 << newln << "x3 " << x3 << newln << "x4 " << x4 << newln << "y1 " << y1
+      << newln << "y2 " << y2 << newln << "theta  " << theta << newln << "phi    " << phi << newln << "halfZ  " << halfZ
+      << newln << "alpha1 " << alpha1 << newln << "alpha2 " << alpha2;
 
   // Just check assumptions on parameters...
-  if (MagGeoBuilderFromDDD::debug) {
+  if (debug) {
     const double epsilon = 1e-5;
     if (theta > epsilon || phi > epsilon || y1 - y2 > epsilon || x1 - x3 > epsilon || x2 - x4 > epsilon ||
         alpha1 - alpha2 > epsilon) {
-      cout << "*** WARNING: unexpected trapezoid parameters." << endl;
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: unexpected trapezoid parameters.";
     }
   }
 
@@ -59,7 +52,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
   // FIXME Assumption: it is assumed that local Y is always along global R
   // (true for version 1103l, not necessarily in the future)
   GlobalVector Rvol(refPlane->position().x(), refPlane->position().y(), refPlane->position().z());
-  theRN = fabs(planeYAxis.dot(Rvol));
+  theRN = std::abs(planeYAxis.dot(Rvol));
 
   if (planeZAxis.z() < 0.) {
     x1 = -x1;
@@ -76,25 +69,25 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
   GlobalPoint pos_phiplus(refPlane->toGlobal(LocalPoint(-halfX, 0., 0.)));
   GlobalPoint pos_phiminus(refPlane->toGlobal(LocalPoint(halfX, 0., 0.)));
 
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "RN           " << theRN << endl
-         << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi() << endl
-         << "pos_inner    " << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi() << endl
-         << "pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " " << pos_zplus.phi() << endl
-         << "pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " " << pos_zminus.phi() << endl
-         << "pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi() << endl
-         << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi() << endl;
+  LogTrace("magneticfield::volumeHandle")
+      << "RN            " << theRN << newln  // RN line needs extra space to line up
+      << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi() << newln << "pos_inner    "
+      << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi() << newln << "pos_zplus    " << pos_zplus << " "
+      << pos_zplus.perp() << " " << pos_zplus.phi() << newln << "pos_zminus   " << pos_zminus << " "
+      << pos_zminus.perp() << " " << pos_zminus.phi() << newln << "pos_phiplus  " << pos_phiplus << " "
+      << pos_phiplus.perp() << " " << pos_phiplus.phi() << newln << "pos_phiminus " << pos_phiminus << " "
+      << pos_phiminus.perp() << " " << pos_phiminus.phi();
 
   // Check ordering.
-  if (MagGeoBuilderFromDDD::debug) {
+  if (debug) {
     if (pos_outer.perp() < pos_inner.perp()) {
-      cout << "*** WARNING: pos_outer < pos_inner for trapezoid" << endl;
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner for trapezoid";
     }
     if (pos_zplus.z() < pos_zminus.z()) {
-      cout << "*** WARNING: pos_zplus < pos_zminus for trapezoid" << endl;
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_zplus < pos_zminus for trapezoid";
     }
     if (Geom::Phi<float>(pos_phiplus.phi() - pos_phiminus.phi()) < 0.) {
-      cout << "*** WARNING: pos_phiplus < pos_phiminus for trapezoid" << endl;
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_phiplus < pos_phiminus for trapezoid";
     }
   }
 
@@ -103,10 +96,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
   GlobalVector y_phiminusV = (refPlane->toGlobal(LocalVector((tan(alpha1) * y1 + (x2 - x1) / 2.), y1, 0.)));
   GlobalVector y_phiminus = y_phiminusV.unit();
 
-  if (MagGeoBuilderFromDDD::debug) {
-    cout << "y_phiplus " << y_phiplus << endl;
-    cout << "y_phiminus " << y_phiminus << endl;
-  }
+  LogTrace("magneticfield::volumeHandle") << "y_phiplus  " << y_phiplus << newln << "y_phiminus " << y_phiminus;
 
   Surface::RotationType rot_R(planeZAxis, planeXAxis);
   Surface::RotationType rot_Z(planeXAxis, planeYAxis);
@@ -122,8 +112,8 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
   surfaces[phiminus] = new Plane(pos_phiminus, rot_phiminus);
 
   // Save volume boundaries
-  theRMin = fabs(surfaces[inner]->toLocal(GlobalPoint(0, 0, 0)).z());
-  theRMax = fabs(surfaces[outer]->toLocal(GlobalPoint(0, 0, 0)).z());
+  theRMin = std::abs(surfaces[inner]->toLocal(GlobalPoint(0, 0, 0)).z());
+  theRMax = std::abs(surfaces[outer]->toLocal(GlobalPoint(0, 0, 0)).z());
 
   // Setting "absolute" phi boundary spots a problem in V85l
   // e.g. vol 139 (origin: small inconsistency in volumes.txt)
@@ -134,17 +124,16 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
   } else {
     thePhiMin = min((pos_phiminus + y_phiminusV).phi(), (pos_phiminus - y_phiminusV).phi());
   }
-
-  if (MagGeoBuilderFromDDD::debug) {
-    cout << "rot_R " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << endl
-         << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << endl
-         << "rot_phi+ " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-         << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl
-         << "rot_phi- " << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-         << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl;
-
-    if (fabs(surfaces[phiminus]->position().phi() - thePhiMin) > 1e-5) {
-      cout << " Trapez. phiMin = " << thePhiMin << endl;
+  LogTrace("magneticfield::volumeHandle")
+      << "rot_R    " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << newln << "rot_Z    "
+      << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << newln << "rot_phi+ "
+      << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
+      << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << newln << "rot_phi- "
+      << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
+      << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)).phi();
+  if (debug) {
+    if (std::abs(surfaces[phiminus]->position().phi() - thePhiMin) > 1e-5) {
+      LogTrace("magneticfield::volumeHandle") << " Trapez. phiMin = " << thePhiMin;
     }
   }
 }
