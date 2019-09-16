@@ -158,7 +158,6 @@ private:
 
   // The label to retrieve the digis
 
-
   edm::EDGetTokenT<DTuROSFEDDataCollection> fedToken;
 };
 

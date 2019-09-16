@@ -81,10 +81,8 @@ protected:
   /// Run analysis on TM data
   void runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs, std::vector<L1MuDTChambThDigi> const* thTrigs);
 
-
   /// Run analysis using DT 4D segments
   void runSegmentAnalysis(edm::Handle<DTRecSegment4DCollection>& segments4D);
-
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;

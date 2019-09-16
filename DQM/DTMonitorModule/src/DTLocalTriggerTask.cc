@@ -107,7 +107,6 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker& ibooker,
               bookHistos(ibooker, dtChId, "LocalTriggerPhiIn", "TM_BXvsQual" + (*trigSrcIt));
               bookHistos(ibooker, dtChId, "LocalTriggerPhiIn", "TM_QualvsPhirad" + (*trigSrcIt));
             }
-
           }
         }
       }  // end of loop
@@ -158,7 +157,6 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker& ibooker,
                   }
                 }
               }
-
             }
           }
           for (int sect = 13; sect < 15; ++sect) {
@@ -260,8 +258,8 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker& ibooker,
 
   string histoType = histoTag.substr(3, histoTag.find("_", 3) - 3);
 
-  ibooker.setCurrentFolder(topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" +
-                           station.str() + "/" + folder);
+  ibooker.setCurrentFolder(topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() +
+                           "/" + folder);
 
   string histoName = histoTag + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
@@ -273,7 +271,7 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker& ibooker,
     if (histoTag.substr(0, 2) == "TM") {
       minBX = parameters.getUntrackedParameter<int>("minBXTM", -2) - 0.5;
       maxBX = parameters.getUntrackedParameter<int>("maxBXTM", 2) + 0.5;
-    } 
+    }
     rangeBX = (int)(maxBX - minBX);
   }
 
@@ -408,7 +406,6 @@ void DTLocalTriggerTask::bookWheelHistos(DQMStore::IBooker& ibooker, int wh, str
 
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask")
       << "[DTLocalTriggerTask]: booking " << topFolder() << "Wheel" << wheel.str() << "/" << histoName << endl;
-
 }
 
 void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs,
@@ -652,7 +649,6 @@ void DTLocalTriggerTask::runSegmentAnalysis(Handle<DTRecSegment4DCollection>& se
     }
   }
 }
-
 
 void DTLocalTriggerTask::setQLabels(MonitorElement* me, short int iaxis) {
   TH1* histo = me->getTH1();
