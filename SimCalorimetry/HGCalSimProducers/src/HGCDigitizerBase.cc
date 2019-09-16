@@ -60,7 +60,7 @@ void HGCDigitizerBase<DFr>::GenerateGaussianNoise(CLHEP::HepRandomEngine* engine
                                                   const double NoiseStd) {
   for (size_t i = 0; i < NoiseArrayLength_; i++) {
     for (size_t j = 0; j < samplesize_; j++) {
-      GaussianNoiseArray_[i][j] = CLHEP::RandGaussQ::shoot(NoiseMean, NoiseStd);
+      GaussianNoiseArray_[i][j] = CLHEP::RandGaussQ::shoot(engine, NoiseMean, NoiseStd);
     }
   }
 }
@@ -74,9 +74,9 @@ void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiCo
                                 CLHEP::HepRandomEngine* engine) {
   if (scaleByDose_)
     scal_.setGeometry(theGeom);
-  if (RandNoiseGenerationFlag_ == 0) {
+  if (RandNoiseGenerationFlag_ == false) {
     GenerateGaussianNoise(engine, NoiseMean_, NoiseStd_);
-    RandNoiseGenerationFlag_ = 1;
+    RandNoiseGenerationFlag_ = true;
   }
   if (digitizationType == 0)
     runSimple(digiColl, simData, theGeom, validIds, engine);
@@ -96,7 +96,6 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
   HGCCellInfo zeroData;
   zeroData.hit_info[0].fill(0.f);  //accumulated energy
   zeroData.hit_info[1].fill(0.f);  //time-of-flight
-  //GenerateGaussianNoise(engine, NoiseMean_, NoiseStd_);
 
   for (const auto& id : validIds) {
     chargeColl.fill(0.f);
