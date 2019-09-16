@@ -33,10 +33,7 @@ namespace DDHGCalGeom {
                        const double& waferTot,
                        const double& rMax,
                        const double& rMaxFine,
-#ifdef EDM_ML_DEBUG
-                       int block,
                        std::unordered_set<int>& copies,
-#endif
                        int firstLayer,
                        int lastLayer,
                        double zFront,
@@ -46,11 +43,6 @@ namespace DDHGCalGeom {
 
     static constexpr double tolerance = 0.00001;
     static const double tan30deg = tan(30._deg);
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: \t\tInside Block " << block << " Layers " << firstLayer << ":"
-                                  << lastLayer << " zFront " << convertCmToMm(zFront) << " thickness "
-                                  << convertCmToMm(totalWidth) << " ignore Center " << ignoreCenter;
-#endif
     double zi(zFront), thickTot(0);
     for (int ly = firstLayer; ly <= lastLayer; ++ly) {
       int ii = layerType[ly];
@@ -77,11 +69,10 @@ namespace DDHGCalGeom {
                                       << convertCmToMm(0.5 * layerThick[ii]);
 #endif
         dd4hep::Position r1(0, 0, zz);
-        dd4hep::Rotation3D rot;
-        module.placeVolume(glog, copy, dd4hep::Transform3D(rot, r1));
+        module.placeVolume(glog, copy, r1);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: " << glog.name() << " number " << copy << " positioned in "
-                                      << module.name() << " at " << r1 << " with " << rot;
+                                      << module.name() << " at " << r1 << " with no rotation";
 #endif
       } else if (layerSense[ly] > 0) {
         double dx = 0.5 * waferTot;
@@ -130,7 +121,6 @@ namespace DDHGCalGeom {
               if (cornerAll) {
                 double rpos = std::sqrt(xpos * xpos + ypos * ypos);
                 dd4hep::Position tran(xpos, ypos, zz);
-                dd4hep::Rotation3D rotation;
                 int copyx = inr * 100 + inc;
                 if (nc < 0)
                   copyx += 10000;
@@ -142,30 +132,30 @@ namespace DDHGCalGeom {
                   if (strchr(name0.c_str(), NAMESPACE_SEP) == nullptr)
                     name0 = ns.name() + name0;
                   dd4hep::Volume glog1 = dd4hep::Volume(name0, solid, matter);
-                  module.placeVolume(glog1, copy, dd4hep::Transform3D(rotation, tran));
+                  module.placeVolume(glog1, copy, tran);
 #ifdef EDM_ML_DEBUG
                   edm::LogVerbatim("HGCalGeom")
                       << "DDHGCalTBModuleX: " << glog1.name() << " number " << copy << " positioned in "
-                      << module.name() << " at " << tran << " with " << rotation;
+                      << module.name() << " at " << tran << " with no rotation";
 #endif
                   dd4hep::Volume glog2 = (rpos < rMaxFine) ? ns.volume(wafers[0]) : ns.volume(wafers[1]);
                   dd4hep::Position tran1;
-                  glog1.placeVolume(glog2, copyx, dd4hep::Transform3D(rotation, tran1));
+                  glog1.placeVolume(glog2, copyx, tran1);
 #ifdef EDM_ML_DEBUG
                   edm::LogVerbatim("HGCalGeom")
                       << "DDHGCalTBModuleX: " << glog2.name() << " number " << copyx << " positioned in "
-                      << glog1.name() << " at " << tran1 << " with " << rotation;
+                      << glog1.name() << " at " << tran1 << " with no rotation";
+#endif
                   if (layerSense[ly] == 1)
                     copies.insert(copy);
-#endif
                 } else {
                   dd4hep::Volume glog2 = ns.volume(covers[layerSense[ly] - 1]);
                   copyx += (copy * 1000000);
-                  module.placeVolume(glog2, copyx, dd4hep::Transform3D(rotation, tran));
+                  module.placeVolume(glog2, copyx, tran);
 #ifdef EDM_ML_DEBUG
                   edm::LogVerbatim("HGCalGeom")
                       << "DDHGCalTBModuleX: " << glog2.name() << " number " << copyx << " positioned in "
-                      << module.name() << " at " << tran << " with " << rotation;
+                      << module.name() << " at " << tran << " with no rotation";
 #endif
                 }
 #ifdef EDM_ML_DEBUG
@@ -287,9 +277,9 @@ static long algorithm(dd4hep::Detector& /* description */,
                                 << convertCmToMm(absorbW) << " absorber height " << convertCmToMm(absorbH) << " rMax "
                                 << convertCmToMm(rMax) << ":" << convertCmToMm(rMaxB);
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: NameSpace " << ns.name() << " Parent Name " << idName;
+#endif
   std::unordered_set<int> copies;  // List of copy #'s
   copies.clear();
-#endif
 
   dd4hep::Volume parent = ns.volume(args.parentName());
   double zi(zMinBlock);
@@ -302,16 +292,18 @@ static long algorithm(dd4hep::Detector& /* description */,
                                   << convertCmToMm(blockThick[i]);
 #endif
     dd4hep::Material matter = ns.material(genMat);
-    dd4hep::Solid solid = dd4hep::Tube(0.5 * blockThick[i], 0, rMaxB, 0.0, 2._pi);
+    dd4hep::Solid solid = dd4hep::Tube(0, rMaxB, 0.5 * blockThick[i], 0.0, 2._pi);
     ns.addSolidNS(ns.prepend(name), solid);
     dd4hep::Volume glog = dd4hep::Volume(solid.name(), solid, matter);
     double zz = zi + 0.5 * blockThick[i];
     dd4hep::Position r1(0, 0, zz);
-    dd4hep::Rotation3D rot;
-    parent.placeVolume(glog, i, dd4hep::Transform3D(rot, r1));
+    parent.placeVolume(glog, i, r1);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: " << glog.name() << " number " << i << " positioned in "
-                                  << args.parentName() << " at " << r1 << " with " << rot;
+                                  << args.parentName() << " at " << r1 << " with no rotation";
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: \t\tInside Block " << i << " Layers " << layerFrontIn[i] << ":"
+				  << layerBackIn[i] << " zFront " << convertCmToMm(-0.5 * blockThick[i]) << " thickness "
+                                  << convertCmToMm(blockThick[i]) << " ignore Center 0";
 #endif
     DDHGCalGeom::constructLayers(ns,
                                  wafers,
@@ -328,17 +320,19 @@ static long algorithm(dd4hep::Detector& /* description */,
                                  waferTot,
                                  rMax,
                                  rMaxFine,
-#ifdef EDM_ML_DEBUG
-                                 i,
                                  copies,
-#endif
                                  layerFrontIn[i],
                                  layerBackIn[i],
                                  -0.5 * blockThick[i],
                                  blockThick[i],
                                  false,
                                  glog);
-    if (inOut > 1)
+    if (inOut > 1) {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: \t\tInside Block " << i << " Layers " << layerFrontOut[i] << ":"
+				  << layerBackOut[i] << " zFront " << convertCmToMm(-0.5 * blockThick[i]) << " thickness "
+                                  << convertCmToMm(blockThick[i]) << " ignore Center 0";
+#endif
       DDHGCalGeom::constructLayers(ns,
                                    wafers,
                                    covers,
@@ -354,21 +348,19 @@ static long algorithm(dd4hep::Detector& /* description */,
                                    waferTot,
                                    rMax,
                                    rMaxFine,
-#ifdef EDM_ML_DEBUG
-                                   i,
                                    copies,
-#endif
-                                   layerFrontIn[i],
-                                   layerBackIn[i],
-                                   -0.5 * blockThick[i],
+				   layerFrontOut[i], 
+				   layerBackOut[i],
+				   -0.5 * blockThick[i],
                                    blockThick[i],
                                    true,
                                    glog);
+    }
     zi = zo;
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: All blocks are placed in " << convertCmToMm(zMinBlock) << ":"
-                                << convertCmToMm(zi);
+                                << convertCmToMm(zi) << " with " << copies.size() << " different wafer copy numbers";
 #endif
 
   return 1;
