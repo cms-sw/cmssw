@@ -21,4 +21,9 @@ dtTriggerEfficiencyMonitor = DQMEDAnalyzer('DTTriggerEfficiencyTask',
     detailedAnalysis = cms.untracked.bool(False), #if true enables detailed analysis plots
 )
 
+#
+# Modify for running in run 2 2016 data
+#
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( dtTriggerEfficiencyMonitor, inputTagTM = cms.untracked.InputTag('twinMuxStage2Digis:PhIn'))
 
