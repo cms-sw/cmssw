@@ -352,10 +352,10 @@ void TTTrack<T>::setTrackWordBits() {
 /// Test bits in 96-bit Track word
 template <typename T>
 void TTTrack<T>::testTrackWordBits() {
-  float rPhi = theMomentum.phi();  // this needs to be phi relative to center of sector ****
-  float rEta = theMomentum.eta();
-  float rZ0 = thePOCA.z();
-  float rD0 = thePOCA.perp();
+  //  float rPhi = theMomentum.phi();  // this needs to be phi relative to center of sector ****
+  //float rEta = theMomentum.eta();
+  //float rZ0 = thePOCA.z();
+  //float rD0 = thePOCA.perp();
 
   //this is meant for debugging only.
 
