@@ -986,7 +986,6 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
                          const reco::PFBlockRef& blockref,
                          ElementIndices& inds,
                          std::vector<bool>& deadArea) {
-
   LogTrace("PFAlgo|elementLoop") << "start of function PFAlgo::elementLoop, elements.size()" << elements.size();
 
   for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
@@ -996,7 +995,6 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
     //only process TRACK elements, but fill the ElementIndices vector with indices for all elements.
     //Mark the active & deadArea for bad HCAL
     auto ret_decideType = decideType(elements, type, active, inds, deadArea, iEle);
-
     if (ret_decideType == 1 || PFBlockForHF) {
       LogTrace("PFAlgo|elementLoop") << "ret_decideType==1, continuing";
       continue;
