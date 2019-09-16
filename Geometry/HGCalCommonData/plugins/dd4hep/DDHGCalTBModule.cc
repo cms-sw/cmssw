@@ -210,9 +210,8 @@ static long algorithm(dd4hep::Detector& /* description */,
                 dd4hep::Position tran(xpos, ypos, 0.0);
                 glog.placeVolume(glog1, copyL, tran);
 #ifdef EDM_ML_DEBUG
-                edm::LogVerbatim("HGCalGeom")
-                    << "DDHGCalModule: " << glog1.name() << " number " << copyL << " positioned in " << glog.name()
-                    << " at " << tran;
+                edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: " << glog1.name() << " number " << copyL
+                                              << " positioned in " << glog.name() << " at " << tran;
 #endif
               }
             }
