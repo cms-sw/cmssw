@@ -154,6 +154,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     RPCRollSpecs* rollspecs = nullptr;
     Bounds* bounds = nullptr;
 
+    //cout<<"MYDEBUG: tran.z() "<<tran.z()<<endl;
     if (dpar.size() == 3) {
 
       const float width = dpar[0] / cm;
@@ -164,10 +165,12 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       bounds = new RectangularPlaneBounds(width, length, thickness);
       const std::vector<float> pars = {width, length, float(numbOfStrips.doubles()[0]) /*h/2*/};
 
+
       if (!theComp11Flag) {
         //Correction of the orientation to get the REAL geometry.
         //Change of axes for the +z part only.
         //Including the 0 wheel
+
         if (tran.z() > -1500.) {
           Basic3DVector<float> newX(-1., 0., 0.);
           Basic3DVector<float> newY(0., -1., 0.);
@@ -220,6 +223,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     if((pos.z() > -1.0e-9) && (pos.z() < 1.0e-9)) pos_z = 0.0;
     cout<<"MYDEBUG, detid: "<<detid<<" name: "<<fview.name()<<" pos: "<<pos_x<<" "<<pos_y<<" "<<pos_z<<endl;
     */
+    /*
     float rot_xx = rot.xx();
     float rot_xy = rot.xy();
     float rot_xz = rot.xz();
@@ -239,7 +243,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     if((rot.zy() > -1.0e-7) && (rot.zy() < 1.0e-7)) rot_zy = 0.0;
     if((rot.zz() > -1.0e-7) && (rot.zz() < 1.0e-7)) rot_zz = 0.0;
     cout<<"MYDEBUG, detid "<<detid<<" name: "<<fview.name()<< "rot: [ "<<rot_xx << ", "<< rot_xy << ", " << rot_xz << "], [" << rot_yx << ", " << rot_yy << ", " << rot_yz << "], ["<< rot_zx << ", " << rot_zy << ", " << rot_zz << "]" <<endl;
-   
+    */
     BoundPlane* bp = new BoundPlane(pos, rot, bounds);
     ReferenceCountingPointer<BoundPlane> surf(bp);
     RPCRoll* r = new RPCRoll(rpcid, surf, rollspecs);
@@ -427,7 +431,11 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(cms::DDFilteredView& fview
     //if(fview.isATruncTube() == 1)cout<< "MYDEBUG Test Shape, Trunc Tube detid:" <<detid<<" name: "<<fview.name()<<endl;
     //if(fview.isATubeSeg() == 1)cout<< "MYDEBUG Test Shape, Tube Seg detid:" <<detid<<" name: "<<fview.name()<<endl;
     // end test shape
-    if (fview.shape() == cms::DDSolidShape::ddbox)  {//new line 
+
+    //    cout<<"MYDEBUG: tran.z() "<<tran[2]<<endl;
+
+    if (fview.isABox() == 1)  {//new line 
+    //if (fview.shape() == cms::DDSolidShape::ddbox)  {//it is wrong 
 	const float width = dpar[0];
 	const float length = dpar[1];
 	const float thickness = dpar[2];
@@ -436,9 +444,12 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(cms::DDFilteredView& fview
 	// const std::vector<float> pars = {width, length, float(numbOfStrips.doubles()[0])};//DDD
 	//cout<<"MYDEBUG: float(nStrips) "<<float(nStrips)<<endl;
 	const std::vector<float> pars = {width, length, float(nStrips)};//to be implemented for DD4HEP     
+
+
 	
 	if (!theComp11Flag) {
 	  //if (tran.z() > -1500.) {//DDD
+
 	 	  if (tran[2] > -1500.) {
 	    //ROOT::Math::Rotation3D myMatrix = ROOT::Math::Rotation3D(-1.,0.,0.,0.,-1.,0.,0.,0.,1.);
 	    // //	    ROOT::Math::Rotation3D MYR;
@@ -505,6 +516,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(cms::DDFilteredView& fview
     if((pos.z() > -1.0e-9) && (pos.z() < 1.0e-9)) pos_z = 0.0;
      cout<<"MYDEBUG, detid: "<<detid<<" name: "<<fview.name()<<" pos: "<<pos_x<<" "<<pos_y<<" "<<pos_z<<endl;
     */
+    /*
      float rot_xx = rot.xx();
     float rot_xy = rot.xy();
     float rot_xz = rot.xz();
@@ -524,7 +536,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(cms::DDFilteredView& fview
     if((rot.zy() > -1.0e-7) && (rot.zy() < 1.0e-7)) rot_zy = 0.0;
     if((rot.zz() > -1.0e-7) && (rot.zz() < 1.0e-7)) rot_zz = 0.0;
     cout<<"MYDEBUG, detid "<<detid<<" name: "<<fview.name()<< "rot: [ "<<rot_xx << ", "<< rot_xy << ", " << rot_xz << "], [" << rot_yx << ", " << rot_yy << ", " << rot_yz << "], ["<< rot_zx << ", " << rot_zy << ", " << rot_zz << "]" <<endl;
-
+    */
     BoundPlane* bp = new BoundPlane(pos, rot, bounds);
     ReferenceCountingPointer<BoundPlane> surf(bp);
     RPCRoll* r = new RPCRoll(rpcid, surf, rollspecs);
