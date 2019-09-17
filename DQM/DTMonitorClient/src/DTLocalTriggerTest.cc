@@ -471,7 +471,7 @@ void DTLocalTriggerTest::fillGlobalSummary(DQMStore::IGetter& igetter) {
       int corr = cmsME.find(fullName("CorrFractionSummaryIn"))->second->getBinContent(sect, wh + wheelArrayShift);
       int second = cmsME.find(fullName("2ndFractionSummaryIn"))->second->getBinContent(sect, wh + wheelArrayShift);
       int lut = 0;
-      MonitorElement* lutsME = igetter.get(topFolder(hwSource == "TM") + "Summaries/TrigLutSummary");
+      MonitorElement* lutsME = igetter.get(topFolder() + "Summaries/TrigLutSummary");
       if (lutsME) {
         lut = lutsME->getBinContent(sect, wh + wheelArrayShift);
         maxErr += 4;

@@ -292,7 +292,7 @@ int DTTriggerLutTest::performLutTest(double perc, double thresholdWarn, double t
 }
 
 void DTTriggerLutTest::bookCmsHistos1d(DQMStore::IBooker& ibooker, string hTag, string folder) {
-  string basedir = topFolder(true);
+  string basedir = topFolder();
   if (!folder.empty()) {
     basedir += folder + "/";
   }
