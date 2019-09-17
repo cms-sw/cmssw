@@ -146,6 +146,7 @@ void RPCGeometryValidate::validateRPCChamberGeometry() {
       continue;
     }
     // cout<<"MYDEBUG: before compareShape"<<endl;
+    //cout<<"MYVALIDATE: DetId, Trap Shape (0,1,2,3,4): "<<chId.rawId()<<" "<<shape[0]<<" "<<shape[1]<<" "<<shape[2]<<" "<<shape[3]<<" "<<shape[4]<<endl;//it was OK the same values for DD and DD4HEP
     compareShape(it, shape);
   }
   //cout<<"MYDEBUG: before makeHistograms"<<endl;
@@ -263,11 +264,13 @@ void RPCGeometryValidate::compareShape(const GeomDet* det, const float* shape) {
     topWidth = ps[1];
     thickness = ps[2];
     length = ps[3];
+    //cout<<"MYVALIDATE: Trap: "<<bottomWidth<<" "<<topWidth<<" "<<thickness<<" "<<length<<endl;
   } else if ((dynamic_cast<const RectangularPlaneBounds*>(bounds))) {
     length = det->surface().bounds().length() * 0.5;
     topWidth = det->surface().bounds().width() * 0.5;
     bottomWidth = topWidth;
     thickness = det->surface().bounds().thickness() * 0.5;
+    //cout<<"MYVALIDATE: Rect: "<<bottomWidth<<" "<<topWidth<<" "<<thickness<<" "<<length<<endl;
   } else {
     LogVerbatim("RPCGeometry") << "Failed to get bounds";
     cout<<"MYDEBUG: Failed to get bounds"<<endl;
