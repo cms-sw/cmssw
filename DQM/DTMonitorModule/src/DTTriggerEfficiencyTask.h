@@ -69,7 +69,7 @@ protected:
 
   /// return the top folder
   std::string topFolder() {
-    return "DT/03-LocalTrigger-TM/"; //DDU no longer existing, leaving folder here for past references
+    return "DT/03-LocalTrigger-TM/";  //DDU no longer existing, leaving folder here for past references
   }
 
   /// Analyze
