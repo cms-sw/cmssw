@@ -213,8 +213,7 @@ float DTLocalTriggerSynchTest::getFloatFromME(DQMStore::IGetter& igetter, DTCham
   stringstream sector;
   sector << chId.sector();
 
-  string folderName =
-      topFolder(hwSource == "TM") + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() + "/";
+  string folderName = topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() + "/";
 
   string histoname =
       sourceFolder + folderName + meType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
@@ -242,10 +241,9 @@ void DTLocalTriggerSynchTest::bookChambHistos(DQMStore::IBooker& ibooker,
   sector << chambId.sector();
 
   string fullType = fullName(htype);
-  bool isTM = hwSource == "TM";
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  string folder = topFolder(isTM) + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
+  string folder = topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
   if (!subfolder.empty()) {
     folder += "7" + subfolder;
   }

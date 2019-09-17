@@ -263,7 +263,7 @@ void DTTriggerEfficiencyTask::bookChamberHistos(DQMStore::IBooker& ibooker,
   stringstream sector;
   sector << sc;
 
-  string hwFolder = topFolder(histoType);
+  string hwFolder = topFolder();
   string bookingFolder =
       hwFolder + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() + "/" + folder;
   string histoTag = "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
@@ -301,9 +301,9 @@ void DTTriggerEfficiencyTask::bookWheelHistos(DQMStore::IBooker& ibooker, int wh
   wh << wheel;
   string basedir;
   if (hTag.find("Summary") != string::npos) {
-    basedir = topFolder(hTag);  //Book summary histo outside folder directory
+    basedir = topFolder();  //Book summary histo outside folder directory
   } else {
-    basedir = topFolder(hTag) + folder + "/";
+    basedir = topFolder() + folder + "/";
   }
 
   ibooker.setCurrentFolder(basedir);
