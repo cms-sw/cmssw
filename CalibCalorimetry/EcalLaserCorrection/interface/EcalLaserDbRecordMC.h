@@ -17,8 +17,11 @@
 
 // class EcalLaserDbRecordMC : public edm::eventsetup::EventSetupRecordMCImplementation<EcalLaserDbRecordMC> {};
 
-class EcalLaserDbRecordMC : public edm::eventsetup::DependentRecordImplementation <EcalLaserDbRecordMC,  
-  boost::mpl::vector<EcalLaserAlphasRcd, EcalLaserAPDPNRatiosRefRcd, EcalLaserAPDPNRatiosMCRcd, EcalLinearCorrectionsRcd> > {}; 
+class EcalLaserDbRecordMC
+    : public edm::eventsetup::DependentRecordImplementation<EcalLaserDbRecordMC,
+                                                            boost::mpl::vector<EcalLaserAlphasRcd,
+                                                                               EcalLaserAPDPNRatiosRefRcd,
+                                                                               EcalLaserAPDPNRatiosMCRcd,
+                                                                               EcalLinearCorrectionsRcd> > {};
 
 #endif /* ECALLASERCORRECTION_ECALLASERDBRECORDMC_H */
-

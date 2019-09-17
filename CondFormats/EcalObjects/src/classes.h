@@ -129,10 +129,10 @@ namespace CondFormats_EcalObjects {
     EcalLaserAPDPNRatiosMC laser_mc_map;
     std::vector<EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair> laser_mc_pair_map;
     std::vector<EcalLaserAPDPNRatiosMC::EcalLaserTimeStamp> laser_mc_time_map;
-    EcalContainer<EEDetId,EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair> laser_mc_ec_eeDetId_pair;
-    EcalContainer<EBDetId,EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair> laser_mc_ec_ebDetId_pair;
+    EcalContainer<EEDetId, EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair> laser_mc_ec_eeDetId_pair;
+    EcalContainer<EBDetId, EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair> laser_mc_ec_ebDetId_pair;
     EcalCondObjectContainer<EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair> laser_mc_map_dm;
-    
+
     EcalTimeDependentCorrections correction_map;
     std::vector<EcalTimeDependentCorrections::Values> value_map;
     std::vector<EcalTimeDependentCorrections::Times> time_map;

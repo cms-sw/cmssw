@@ -20,30 +20,24 @@ class EcalLaserDbRecordMC;
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosMCRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
 
-
 class EcalLaserCorrectionServiceMC : public edm::ESProducer {
 public:
-  EcalLaserCorrectionServiceMC( const edm::ParameterSet& );
+  EcalLaserCorrectionServiceMC(const edm::ParameterSet&);
   ~EcalLaserCorrectionServiceMC() override;
-  
-  std::shared_ptr<EcalLaserDbServiceMC> produce( const EcalLaserDbRecordMC& );
+
+  std::shared_ptr<EcalLaserDbServiceMC> produce(const EcalLaserDbRecordMC&);
 
 private:
-
   using HostType = edm::ESProductHost<EcalLaserDbServiceMC,
                                       EcalLaserAlphasRcd,
                                       EcalLaserAPDPNRatiosRefRcd,
                                       EcalLaserAPDPNRatiosMCRcd,
                                       EcalLinearCorrectionsRcd>;
 
-  void setupAlpha(const EcalLaserAlphasRcd& fRecord,
-                  EcalLaserDbServiceMC& service);
-  void setupApdpnRef(const EcalLaserAPDPNRatiosRefRcd& fRecord,
-                     EcalLaserDbServiceMC& service);
-  void setupApdpn(const EcalLaserAPDPNRatiosMCRcd& fRecord,
-                  EcalLaserDbServiceMC& service);
-  void setupLinear(const EcalLinearCorrectionsRcd& fRecord,
-                   EcalLaserDbServiceMC& service);
+  void setupAlpha(const EcalLaserAlphasRcd& fRecord, EcalLaserDbServiceMC& service);
+  void setupApdpnRef(const EcalLaserAPDPNRatiosRefRcd& fRecord, EcalLaserDbServiceMC& service);
+  void setupApdpn(const EcalLaserAPDPNRatiosMCRcd& fRecord, EcalLaserDbServiceMC& service);
+  void setupLinear(const EcalLinearCorrectionsRcd& fRecord, EcalLaserDbServiceMC& service);
 
   // ----------member data ---------------------------
   edm::ReusableObjectHolder<HostType> holder_;

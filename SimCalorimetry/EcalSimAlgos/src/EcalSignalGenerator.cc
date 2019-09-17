@@ -1,9 +1,5 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSignalGenerator.h"
 
-
-
-
-
 template <>
 CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi) {
   // calibration, for future reference:  (same block for all Ecal types)
@@ -55,7 +51,7 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
       m_valueLCCache_LC.emplace(detId, value_LC);
     }
   }
-  
+
   double value_LC_prime = 1.;
   if (detId.subdetId() != 3) {
     auto cache = m_valueLCCache_LC_prime.find(detId);
@@ -66,23 +62,27 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
       m_valueLCCache_LC_prime.emplace(detId, value_LC_prime);
     }
   }
-  
+
   correction_factor_for_premixed_sample_transparency = value_LC_prime / value_LC;
   //
   // LC' /  LC  (see formula)
   //
-  
+
   for (int isample = 0; isample < digi.size(); ++isample) {
     int gainId = digi[isample].gainId();
     //int gainId = 1;
 
     if (gainId == 1) {
-      result[isample] = float(digi[isample].adc()) / 1000. / peToA * correction_factor_for_premixed_sample_transparency;  // special coding, save low level info
+      result[isample] = float(digi[isample].adc()) / 1000. / peToA *
+                        correction_factor_for_premixed_sample_transparency;  // special coding, save low level info
     } else if (gainId > 1) {
-      result[isample] = float(digi[isample].adc()) * LSB[gainId - 1] * icalconst / peToA * correction_factor_for_premixed_sample_transparency; // bet that no pileup hit has an energy over Emax/2
-    } 
-    else {  // gain = 0
-      result[isample] = float(digi[isample].adc()) * LSB[gainId] * icalconst / peToA * correction_factor_for_premixed_sample_transparency;  //not sure we ever get here at gain=0, but hit wil be saturated anyway
+      result[isample] =
+          float(digi[isample].adc()) * LSB[gainId - 1] * icalconst / peToA *
+          correction_factor_for_premixed_sample_transparency;  // bet that no pileup hit has an energy over Emax/2
+    } else {                                                   // gain = 0
+      result[isample] =
+          float(digi[isample].adc()) * LSB[gainId] * icalconst / peToA *
+          correction_factor_for_premixed_sample_transparency;  //not sure we ever get here at gain=0, but hit wil be saturated anyway
       // in EcalCoder.cc it is actually "LSB[3]" -> grrr
     }
 
@@ -90,13 +90,13 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
     //result[isample] = float(digi[isample].adc())*LSB[gainId]*icalconst/peToA;
   }
 
-//   std::cout << " EcalSignalGenerator:EB noise input " << digi << std::endl;
-// 
-//   std::cout << " converted noise sample " << std::endl;
-//   for(int isample = 0; isample<digi.size(); ++isample){
-//    std::cout << " " << result[isample] ;
-//   }
-//   std::cout << std::endl;
+  //   std::cout << " EcalSignalGenerator:EB noise input " << digi << std::endl;
+  //
+  //   std::cout << " converted noise sample " << std::endl;
+  //   for(int isample = 0; isample<digi.size(); ++isample){
+  //    std::cout << " " << result[isample] ;
+  //   }
+  //   std::cout << std::endl;
 
   return result;
 }
@@ -150,7 +150,7 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
       m_valueLCCache_LC.emplace(detId, value_LC);
     }
   }
-  
+
   double value_LC_prime = 1.;
   if (detId.subdetId() != 3) {
     auto cache = m_valueLCCache_LC_prime.find(detId);
@@ -161,36 +161,39 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
       m_valueLCCache_LC_prime.emplace(detId, value_LC_prime);
     }
   }
-  
+
   correction_factor_for_premixed_sample_transparency = value_LC_prime / value_LC;
   //
   // LC' /  LC  (see formula)
   //
-  
+
   for (int isample = 0; isample < digi.size(); ++isample) {
     int gainId = digi[isample].gainId();
     //int gainId = 1;
 
     if (gainId == 1) {
-      result[isample] = float(digi[isample].adc()) / 1000. / peToA * correction_factor_for_premixed_sample_transparency;  // special coding
+      result[isample] = float(digi[isample].adc()) / 1000. / peToA *
+                        correction_factor_for_premixed_sample_transparency;  // special coding
     } else if (gainId > 1) {
-      result[isample] = float(digi[isample].adc()) * LSB[gainId - 1] * icalconst / peToA * correction_factor_for_premixed_sample_transparency;
+      result[isample] = float(digi[isample].adc()) * LSB[gainId - 1] * icalconst / peToA *
+                        correction_factor_for_premixed_sample_transparency;
     }  // gain = 0
     else {
-      result[isample] = float(digi[isample].adc()) * LSB[gainId] * icalconst / peToA * correction_factor_for_premixed_sample_transparency;
+      result[isample] = float(digi[isample].adc()) * LSB[gainId] * icalconst / peToA *
+                        correction_factor_for_premixed_sample_transparency;
     }
 
     // old version
     //result[isample] = float(digi[isample].adc())*LSB[gainId]*icalconst/peToA;
   }
 
-//   std::cout << " EcalSignalGenerator:EE noise input " << digi << std::endl;
-// 
-//   std::cout << " converted noise sample " << std::endl;
-//   for(int isample = 0; isample<digi.size(); ++isample){
-//    std::cout << " " << result[isample] ;
-//   }
-//   std::cout << std::endl;
+  //   std::cout << " EcalSignalGenerator:EE noise input " << digi << std::endl;
+  //
+  //   std::cout << " converted noise sample " << std::endl;
+  //   for(int isample = 0; isample<digi.size(); ++isample){
+  //    std::cout << " " << result[isample] ;
+  //   }
+  //   std::cout << std::endl;
 
   return result;
 }
@@ -223,13 +226,13 @@ CaloSamples EcalSignalGenerator<ESDigitizerTraits>::samplesInPE(const DIGI &digi
     result[isample] = float(digi[isample].adc()) / icalconst * ESMIPToGeV;
   }
 
-//   std::cout << " EcalSignalGenerator:ES noise input " << digi << std::endl;
-// 
-//   std::cout << " converted noise sample " << std::endl;
-//   for(int isample = 0; isample<digi.size(); ++isample){
-//    std::cout << " " << result[isample] ;
-//   }
-//   std::cout << std::endl;
+  //   std::cout << " EcalSignalGenerator:ES noise input " << digi << std::endl;
+  //
+  //   std::cout << " converted noise sample " << std::endl;
+  //   for(int isample = 0; isample<digi.size(); ++isample){
+  //    std::cout << " " << result[isample] ;
+  //   }
+  //   std::cout << std::endl;
 
   return result;
 }
