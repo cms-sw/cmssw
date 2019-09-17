@@ -455,7 +455,6 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
       }
     }
   }
-
   fillGlobalSummary(igetter);
 }
 

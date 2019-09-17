@@ -68,10 +68,8 @@ protected:
   bool hasRPCTriggers(const edm::Event& e);
 
   /// return the top folder
-  std::string topFolder(std::string source) {
-    return source == "TM"
-               ? "DT/03-LocalTrigger-TM/"
-               : "DT/04-LocalTrigger-DDU/";  //DDU no longer existing, leaving folder here for past references
+  std::string topFolder() {
+    return "DT/03-LocalTrigger-TM/"; //DDU no longer existing, leaving folder here for past references
   }
 
   /// Analyze
