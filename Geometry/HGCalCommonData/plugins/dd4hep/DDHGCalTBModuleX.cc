@@ -330,7 +330,7 @@ static long algorithm(dd4hep::Detector& /* description */,
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: \t\tInside Block " << i << " Layers " << layerFrontOut[i]
                                     << ":" << layerBackOut[i] << " zFront " << convertCmToMm(-0.5 * blockThick[i])
-                                    << " thickness " << convertCmToMm(blockThick[i]) << " ignore Center 0";
+                                    << " thickness " << convertCmToMm(blockThick[i]) << " ignore Center 1";
 #endif
       DDHGCalGeom::constructLayers(ns,
                                    wafers,
