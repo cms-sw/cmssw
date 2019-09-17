@@ -15,7 +15,9 @@
 
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
 #include <Geometry/MuonNumbering/interface/MuonDDDConstants.h>
+#include <Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h>
 #include <DetectorDescription/Core/interface/DDCompactView.h>
+#include <DetectorDescription/DDCMS/interface/DDCompactView.h>
 
 #include "Geometry/Records/interface/RPCRecoGeometryRcd.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
@@ -37,11 +39,15 @@ private:
   //Used without DDD
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> idealGeomToken_;
   edm::ESGetToken<MuonDDDConstants, MuonNumberingRecord> dddConstantsToken_;
+  // dd4hep
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> idealDD4hepGeomToken_;
+  edm::ESGetToken<cms::MuonNumbering, MuonNumberingRecord> dd4hepConstantsToken_;
 
   //Used with DDD
   edm::ESGetToken<RecoIdealGeometry, RPCRecoGeometryRcd> recoIdealToken_;
 
-  const bool comp11;
-  const bool useDDD;
+  const bool comp11_;
+  const bool useDDD_;
+  const bool useDD4hep_;
 };
 #endif

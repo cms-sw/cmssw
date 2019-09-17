@@ -1,8 +1,21 @@
-#include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
-#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+// -*- C++ -*-
+//
+//
+/*
+
+ Description: RPC Numbering Scheme for DD4HEP 
+              based on DT Numbering Scheme made by Ianna Osburne 
+
+*/
+//
+//         Author:  Sergio Lo Meo (INFN Section of Bologna - Italy) sergio.lomeo@cern.ch
+//         Created:  Wed, 21 August 2019 16:00 CET
+//
+//
+#include "Geometry/MuonNumbering/interface/DD4hep_RPCNumberingScheme.h"
+#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,70 +23,70 @@
 #include <iostream>
 #include <math.h>
 
+#include <cassert>
+
+using namespace cms;
 using namespace std;
 
-//#define LOCAL_DEBUG
+RPCNumberingScheme::RPCNumberingScheme(const MuonConstants& muonConstants) { initMe(muonConstants); }
 
-RPCNumberingScheme::RPCNumberingScheme(const MuonDDDConstants& muonConstants) { initMe(muonConstants); }
 
-RPCNumberingScheme::RPCNumberingScheme(const DDCompactView& cpv) {
-  MuonDDDConstants muonConstants(cpv);
-  initMe(muonConstants);
+void RPCNumberingScheme::initMe(const MuonConstants& muonConstants) {
+
+  int levelPart = get("level", muonConstants);
+
+  assert(levelPart != 0);
+  theRegionLevel = get("mr_region", muonConstants) / levelPart;
+  theBWheelLevel = get("mr_bwheel", muonConstants) / levelPart;
+  theBStationLevel = get("mr_bstation", muonConstants) / levelPart;
+  theBPlaneLevel = get("mr_bplane", muonConstants) / levelPart;
+  theBChamberLevel = get("mr_bchamber", muonConstants) / levelPart;
+  theEPlaneLevel = get("mr_eplane", muonConstants) / levelPart;
+  theESectorLevel = get("mr_esector", muonConstants) / levelPart;
+  theERollLevel = get("mr_eroll", muonConstants) / levelPart;
+  /* 
+  cout<<"------------myDEBUG------------"<<endl;
+  cout<<"levelPart: "<<levelPart<<endl;
+  cout<<"RegionLevel: "<<theRegionLevel<<endl;
+  cout<<"BWheelLevel: "<<theBWheelLevel<<endl;
+  cout<<"BStationLevel: "<<theBStationLevel<<endl;
+  cout<<"BPlaneLevel: "<<theBPlaneLevel<<endl;
+  cout<<"BChamberLevel: "<<theBChamberLevel<<endl;
+  cout<<"EPlaneLevel: "<<theEPlaneLevel<<endl;
+  cout<<"ESectorLevel: "<<theESectorLevel<<endl;
+  cout<<"ERollLevel: "<<theERollLevel<<endl;
+  cout<<"-------------------------------"<<endl;
+  */
+  // RPCDetId(int region, int ring, int station, int sector, int layer, int subsector, int roll);
 }
 
-void RPCNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
-  int theLevelPart = muonConstants.getValue("level");
-  theRegionLevel = muonConstants.getValue("mr_region") / theLevelPart;
-  theBWheelLevel = muonConstants.getValue("mr_bwheel") / theLevelPart;
-  theBStationLevel = muonConstants.getValue("mr_bstation") / theLevelPart;
-  theBPlaneLevel = muonConstants.getValue("mr_bplane") / theLevelPart;
-  theBChamberLevel = muonConstants.getValue("mr_bchamber") / theLevelPart;
-  theEPlaneLevel = muonConstants.getValue("mr_eplane") / theLevelPart;
-  theESectorLevel = muonConstants.getValue("mr_esector") / theLevelPart;
-  theERollLevel = muonConstants.getValue("mr_eroll") / theLevelPart;
-#ifdef LOCAL_DEBUG
-  edm::LogVerbatim("RPCNumberingScheme") << "RPCNumberingScheme::theRegionLevel " << theRegionLevel
-                                         << "\ntheBWheelLevel " << theBWheelLevel << "\ntheBStationLevel "
-                                         << theBStationLevel << "\ntheBPlaneLevel " << theBPlaneLevel
-                                         << "\ntheBChamberLevel " << theBChamberLevel << "\ntheEPlaneLevel "
-                                         << theEPlaneLevel << "\ntheESectorLevel " << theESectorLevel
-                                         << "\ntheERollLevel " << theERollLevel;
-#endif
-}
+void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
-int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
-
-  const int mylevel = num.getLevels();
-  //cout<<"------------myDEBUG DDD-------------------------------------------"<<endl;
-  // cout<<"RPCNumberingScheme.cc: levels "<<num.getLevels()<<endl;
-  //cout<<"RPCNumberingScheme.cc: superNo "<<num.getSuperNo(mylevel)<<endl;
-  //cout<<"RPCNumberingScheme.cc: baseNo "<<num.getBaseNo(mylevel)<<endl;
+ 
+  const int mylevel = num.getLevels();// that's the problem: first round of the loop OK num.getLevels = 5, second round num.getLevels= 4 and not 5
+  //cout<<"------------myDEBUG DD4HEP-------------------------------------------"<<endl;
+  //cout<<"DD4hep_RPCNumberingScheme.cc: levels "<<num.getLevels()<<endl;
+  //cout<<"DD4hep_RPCNumberingScheme.cc: superNo "<<num.getSuperNo(mylevel)<<endl;
+  //cout<<"DD4hep_RPCNumberingScheme.cc: baseNo "<<num.getBaseNo(mylevel)<<endl;
   //cout<<"---------------------------------------------------------------------"<<endl;
-
-#ifdef LOCAL_DEBUG
-  edm::LogVerbatim("RPCNumberingScheme") << "RPCNumbering " << num.getLevels();
-  for (int level = 1; level <= num.getLevels(); level++) {
-    edm::LogVerbatim("RPCNumberingScheme") << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
-  }
-#endif
-
-  const int barrel = num.getSuperNo(theRegionLevel);
-  // cout<<"DDD RPCNumberingScheme.cc: barrel "<<barrel<<endl;
+  //cout<<"DD4hep_RPCNumberingScheme.cc: theRegionLevel "<<theRegionLevel<<endl;
+  //cout<<"DD4hep_RPCNumberingScheme.cc: num.getSuperNo(theRegionLevel) "<<num.getSuperNo(theRegionLevel)<<endl;
+  const int barrel = num.getSuperNo(theRegionLevel);// that's the problem: first round of the loop OK barrel = 1, second round barrel = 0
+  //cout<<"DD4hep_RPCNumberingScheme.cc: barrel "<<barrel<<endl;
   bool barrel_muon = (barrel == 1);
-  int maxLevel;
+   int maxLevel;
   if (barrel_muon) {
     maxLevel = theBChamberLevel;
-    //  cout<<"(if) DDD RPCNumberingScheme.cc: maxLevel "<<maxLevel<<endl;
+    //cout<<"(if) DD4hep_RPCNumberingScheme.cc: maxLevel "<<maxLevel<<endl;
   } else {
     maxLevel = theERollLevel;
-    // cout<<"(else) DDD RPCNumberingScheme.cc: maxLevel "<<maxLevel<<endl;
+    //cout<<"(else) DD4hep_RPCNumberingScheme.cc: maxLevel "<<maxLevel<<endl;
   }
 
-  if (num.getLevels() != maxLevel) {
-    edm::LogWarning("RPCNumberingScheme")
-        << "RPCNumberingScheme::BNToUN: BaseNumber has " << num.getLevels() << " levels, need " << maxLevel;
-    // cout<<"ATTENTION -from DDD RPC NumberingScheme - num.getLevels not equal to maxLevel - return 0"<<endl;
-    return 0;
+   if (num.getLevels() != maxLevel) {
+     cout<<"ATTENTION -from DD4hep RPC NumberingScheme - num.getLevels not equal to maxLevel - ABORT RUN"<<endl;
+    abort();
+    //    return 0;
   }
 
   int plane_id = 0;
@@ -205,28 +218,30 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   // collect all info
 
   int trIndex = (eta_id * 10000 + plane_id * 1000 + sector_id * 10 + copy_id) * 10 + roll_id;
-
-#ifdef LOCAL_DEBUG
-  if (barrel_muon) {
-    edm::LogVerbatim("RPCNumberingScheme") << "RPCNumberingScheme (barrel): ";
-  } else {
-    if (forward) {
-      edm::LogVerbatim("RPCNumberingScheme") << "RPCNumberingScheme (forward): ";
-    } else {
-      edm::LogVerbatim("RPCNumberingScheme") << "RPCNumberingScheme (backward): ";
-    }
-  }
-  edm::LogVerbatim("RPCNumberingScheme") << " roll " << roll_id << " copy " << copy_id << " sector " << sector_id
-                                         << " plane " << plane_id << " eta " << eta_id << " rr12 " << rr12_id;
-#endif
+  // fare delle print di questi parametri sia con DDD che con DD4HEP
 
   // Build the actual numbering
   RPCDetId id;
   id.buildfromTrIndex(trIndex);
+  //  cout<<"From DD4Hep_RPCNumebringScheme.cc "<<endl;
+  //cout<<"------------myDEBUG------------"<<endl;
+  //cout<<"trIndex: "<<trIndex<<endl;
+  //cout<<"-------------------------------"<<endl;
 
-#ifdef LOCAL_DEBUG
-  edm::LogVerbatim("RPCNumberingScheme") << "RPCNumberingScheme:: DetId " << id;
-#endif
+  //cout<<"------------myDEBUG------------"<<endl;
+  //cout<<"id.rawId: "<<id.rawId()<<endl;
+  //cout<<"-------------------------------"<<endl;
 
-  return id.rawId();
+  SetDetId(id.rawId());  
+  //  return id.rawId();
+
 }
+
+const int RPCNumberingScheme::get(const char* key, const MuonConstants& muonConstants) const {
+  int result(0);
+  auto const& it = (muonConstants.find(key));
+  if (it != end(muonConstants))
+    result = it->second;
+  return result;
+}
+
