@@ -40,7 +40,6 @@ namespace DDHGCalGeom {
                        double totalWidth,
                        bool ignoreCenter,
                        dd4hep::Volume& module) {
-
     static constexpr double tolerance = 0.00001;
     static const double tan30deg = tan(30._deg);
     double zi(zFront), thickTot(0);
@@ -302,8 +301,8 @@ static long algorithm(dd4hep::Detector& /* description */,
     edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: " << glog.name() << " number " << i << " positioned in "
                                   << args.parentName() << " at " << r1 << " with no rotation";
     edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: \t\tInside Block " << i << " Layers " << layerFrontIn[i] << ":"
-				  << layerBackIn[i] << " zFront " << convertCmToMm(-0.5 * blockThick[i]) << " thickness "
-                                  << convertCmToMm(blockThick[i]) << " ignore Center 0";
+                                  << layerBackIn[i] << " zFront " << convertCmToMm(-0.5 * blockThick[i])
+                                  << " thickness " << convertCmToMm(blockThick[i]) << " ignore Center 0";
 #endif
     DDHGCalGeom::constructLayers(ns,
                                  wafers,
@@ -329,9 +328,9 @@ static long algorithm(dd4hep::Detector& /* description */,
                                  glog);
     if (inOut > 1) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: \t\tInside Block " << i << " Layers " << layerFrontOut[i] << ":"
-				  << layerBackOut[i] << " zFront " << convertCmToMm(-0.5 * blockThick[i]) << " thickness "
-                                  << convertCmToMm(blockThick[i]) << " ignore Center 0";
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: \t\tInside Block " << i << " Layers " << layerFrontOut[i]
+                                    << ":" << layerBackOut[i] << " zFront " << convertCmToMm(-0.5 * blockThick[i])
+                                    << " thickness " << convertCmToMm(blockThick[i]) << " ignore Center 0";
 #endif
       DDHGCalGeom::constructLayers(ns,
                                    wafers,
@@ -349,9 +348,9 @@ static long algorithm(dd4hep::Detector& /* description */,
                                    rMax,
                                    rMaxFine,
                                    copies,
-				   layerFrontOut[i], 
-				   layerBackOut[i],
-				   -0.5 * blockThick[i],
+                                   layerFrontOut[i],
+                                   layerBackOut[i],
+                                   -0.5 * blockThick[i],
                                    blockThick[i],
                                    true,
                                    glog);
