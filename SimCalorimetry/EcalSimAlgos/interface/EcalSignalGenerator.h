@@ -12,9 +12,9 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
-// 
+//
 // This code is only to add pileup
-// 
+//
 
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
@@ -41,8 +41,6 @@
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbServiceMC.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecordMC.h"
 
-
-
 /** Converts digis back into analog signals, to be used
  *  as noise 
  */
@@ -61,7 +59,7 @@ public:
   typedef typename ECALDIGITIZERTRAITS::DigiCollection COLLECTION;
 
   typedef std::unordered_map<uint32_t, double> CalibCache;
-  
+
   EcalSignalGenerator() : EcalBaseSignalGenerator() {}
 
   EcalSignalGenerator(const edm::InputTag& inputTag,
@@ -78,13 +76,11 @@ public:
     m_EEs25notCont = EEs25notCont;
     m_peToABarrel = peToABarrel;
     m_peToAEndcap = peToAEndcap;
-    
   }
 
   ~EcalSignalGenerator() override {}
 
   void initializeEvent(const edm::Event* event, const edm::EventSetup* eventSetup) {
-    
     theEvent = event;
     eventSetup->get<EcalGainRatiosRcd>().get(grHandle);  // find the gains
     // Ecal Intercalibration Constants
@@ -97,29 +93,26 @@ public:
     m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * MAXADC * m_EBs25notCont;
     m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * MAXADC * m_EEs25notCont;
 
- 
     //----
     // Ecal LaserCorrection Constants for laser correction ratio
     edm::ESHandle<EcalLaserDbService> laser;
     eventSetup->get<EcalLaserDbRecord>().get(laser);
-    
-//     const edm::TimeValue_t eventTimeValue = theEvent->time().value();
+
+    //     const edm::TimeValue_t eventTimeValue = theEvent->time().value();
     //
     // FIXME: is this workaround of using "run" really needed or "time" can be used in MC generation as well?
     //        check with generation experts
     //
-    const edm::TimeValue_t eventTimeValue = theEvent->run(); 
-    //---- NB: this is a trick. Since the time dependent MC 
+    const edm::TimeValue_t eventTimeValue = theEvent->run();
+    //---- NB: this is a trick. Since the time dependent MC
     //         will be based on "run" (and lumisection)
     //         to identify the IOV.
-    //         The "time" defined here as "run" 
-    //         will have to match in the generation of the tag 
+    //         The "time" defined here as "run"
+    //         will have to match in the generation of the tag
     //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
     //
     m_iTime = eventTimeValue;
-    
-    
-    
+
     m_lasercals = laser.product();
 
     //
@@ -132,19 +125,18 @@ public:
     eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
     //     const edm::TimeValue_t eventTimeValue = event.time().value();
     m_lasercals_prime = laser_prime.product();
-    
+
     //clear the laser cache for each event time
     //     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
     //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
     //     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
     m_valueLCCache_LC.clear();
-    m_valueLCCache_LC_prime.clear(); //--- also the "prime" ... yes
+    m_valueLCCache_LC_prime.clear();  //--- also the "prime" ... yes
     //----
 
-    
     eventSetup->get<EcalIntercalibConstantsMCRcd>().get(pIcal);
     ical = pIcal.product();
-    
+
     //ES
     eventSetup->get<ESGainRcd>().get(hesgain);
     eventSetup->get<ESMIPToGeVConstantRcd>().get(hesMIPToGeV);
@@ -161,12 +153,10 @@ public:
       ESMIPToGeV = esMipToGeV->getESValueLow();
     else
       ESMIPToGeV = esMipToGeV->getESValueHigh();
-    
   }
 
   /// some users use EventPrincipals, not Events.  We support both
   void initializeEvent(const edm::EventPrincipal* eventPrincipal, const edm::EventSetup* eventSetup) {
-
     theEventPrincipal = eventPrincipal;
     eventSetup->get<EcalGainRatiosRcd>().get(grHandle);  // find the gains
     // Ecal Intercalibration Constants
@@ -184,41 +174,39 @@ public:
     eventSetup->get<EcalLaserDbRecord>().get(laser);
     edm::TimeValue_t eventTimeValue;
     if (theEventPrincipal) {
-//       eventTimeValue = theEventPrincipal->time().value();
+      //       eventTimeValue = theEventPrincipal->time().value();
       //
       // FIXME: is this workaround of using "run" really needed or "time" can be used in MC generation as well?
       //        check with generation experts
       //
       eventTimeValue = theEventPrincipal->run();
-      //---- NB: this is a trick. Since the time dependent MC 
+      //---- NB: this is a trick. Since the time dependent MC
       //         will be based on "run" (and lumisection)
       //         to identify the IOV.
-      //         The "time" defined here as "run" 
-      //         will have to match in the generation of the tag 
+      //         The "time" defined here as "run"
+      //         will have to match in the generation of the tag
       //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
       //
-    }
-    else {
+    } else {
       std::cout << " theEventPrincipal not defined??? " << std::endl;
     }
     m_iTime = eventTimeValue;
     m_lasercals = laser.product();
-//     std::cout << " ---> EcalSignalGenerator() : initializeEvent() :: eventTimeValue = " << eventTimeValue << std::endl;
-    
+    //     std::cout << " ---> EcalSignalGenerator() : initializeEvent() :: eventTimeValue = " << eventTimeValue << std::endl;
+
     edm::ESHandle<EcalLaserDbServiceMC> laser_prime;
     eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
     //     const edm::TimeValue_t eventTimeValue = event.time().value();
     m_lasercals_prime = laser_prime.product();
-    
+
     //clear the laser cache for each event time
     //     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
     //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
     //     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
     m_valueLCCache_LC.clear();
-    m_valueLCCache_LC_prime.clear(); //--- also the "prime" ... yes
+    m_valueLCCache_LC_prime.clear();  //--- also the "prime" ... yes
     //----
-    
-    
+
     //ES
     eventSetup->get<ESGainRcd>().get(hesgain);
     eventSetup->get<ESMIPToGeVConstantRcd>().get(hesMIPToGeV);
@@ -235,7 +223,6 @@ public:
       ESMIPToGeV = esMipToGeV->getESValueLow();
     else
       ESMIPToGeV = esMipToGeV->getESValueHigh();
-    
   }
 
   virtual void fill(edm::ModuleCallingContext const* mcc) {
@@ -295,30 +282,20 @@ private:
 
   CaloSamples samplesInPE(const DIGI& digi);  // have to define this separately for ES
 
-  
-  
-
   //---- LC that depends with time
   double findLaserConstant_LC(const DetId& detId) const {
-    
-//     const edm::TimeValue_t m_iTime = event.time().value();
+    //     const edm::TimeValue_t m_iTime = event.time().value();
     const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
     return (m_lasercals->getLaserCorrection(detId, evtTimeStamp));
-    
   }
-  
-  
+
   //---- LC at the beginning of the time (first IOV of the GT == first time)
   //---- Using the different "tag", the one with "MC": exactly the same function as findLaserConstant_LC but with a different object
   double findLaserConstant_LC_prime(const DetId& detId) const {
-    
     const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
     return (m_lasercals_prime->getLaserCorrection(detId, evtTimeStamp));
-    
   }
-  
-    
-  
+
   const std::vector<float> GetGainRatios(const DetId& detid) {
     std::vector<float> gainRatios(4);
     // get gain ratios
@@ -377,8 +354,7 @@ private:
   CalibCache m_valueLCCache_LC_prime;
   const EcalLaserDbService* m_lasercals;
   const EcalLaserDbServiceMC* m_lasercals_prime;
-  
-  
+
   double theDefaultGains[NGAINS];
 };
 
