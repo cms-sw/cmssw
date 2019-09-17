@@ -148,21 +148,20 @@ def _modifyForPhase1(pset):
     pset.maxEta = 3
     pset.nintEta = 60
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+#phase1Pixel.toModify(MTVHistoProducerAlgoForTrackerBlock, dict(minEta = -3, maxEta = 3, nintEta = 60) )
 phase1Pixel.toModify(MTVHistoProducerAlgoForTrackerBlock, _modifyForPhase1)
 
 def _modifyForPhase2(pset):
     pset.minEta = -4.5
     pset.maxEta = 4.5
     pset.nintEta = 90
-
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+#phase2_tracker.toModify(MTVHistoProducerAlgoForTrackerBlock, dict(minEta = -4.5, maxEta = 4.5, nintEta = 90) )
 phase2_tracker.toModify(MTVHistoProducerAlgoForTrackerBlock, _modifyForPhase2)
 
 def _modifyForPhase2wMTD(pset):
-    pset.minEta = -4.5
-    pset.maxEta = 4.5
-    pset.nintEta = 90
-    doMTDPlots = cms.untracked.bool(True)
-
+    pset.doMTDPlots = True
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
-phase2_timing_layer.toModify(MTVHistoProducerAlgoForTrackerBlock, _modifyForPhase2wMTD )
+#phase2_timing_layer.toModify(MTVHistoProducerAlgoForTrackerBlock, dict(doMTDPlots = True) )
+phase2_timing_layer.toModify(MTVHistoProducerAlgoForTrackerBlock, _modifyForPhase2wMTD)
+
