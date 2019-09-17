@@ -150,7 +150,7 @@ void DTLocalTriggerSynchTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
                             << endl;
 
     DTTPGParameters* delayMap = new DTTPGParameters();
-    hwSource = "TM" ;
+    hwSource = "TM";
     std::vector<const DTChamber*>::const_iterator chambIt = muonGeom->chambers().begin();
     std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
     for (; chambIt != chambEnd; ++chambIt) {
