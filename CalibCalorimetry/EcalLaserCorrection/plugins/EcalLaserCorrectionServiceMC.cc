@@ -106,3 +106,5 @@ void EcalLaserCorrectionServiceMC::setupLinear(const EcalLinearCorrectionsRcd& f
   fRecord.get (item);
   service.setLinearCorrectionsData (item.product ());
 }
+
+DEFINE_FWK_EVENTSETUP_MODULE(EcalLaserCorrectionServiceMC);
