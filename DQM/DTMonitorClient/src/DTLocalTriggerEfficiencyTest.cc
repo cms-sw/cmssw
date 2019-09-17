@@ -34,7 +34,6 @@ using namespace std;
 DTLocalTriggerEfficiencyTest::DTLocalTriggerEfficiencyTest(const edm::ParameterSet& ps) : trigGeomUtils(nullptr) {
   setConfig(ps, "DTLocalTriggerEfficiency");
   baseFolderTM = "DT/03-LocalTrigger-TM/";
-  baseFolderDDU = "DT/04-LocalTrigger-DDU/";
 
   bookingdone = false;
 }
