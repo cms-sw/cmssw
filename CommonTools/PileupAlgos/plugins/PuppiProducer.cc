@@ -18,7 +18,7 @@
 #include "DataFormats/Common/interface/Association.h"
 //Main File
 #include "CommonTools/PileupAlgos/plugins/PuppiProducer.h"
-#include "CommonTools/PileupAlgos/plugins/PuppiCandidate.h"
+#include "CommonTools/PileupAlgos/interface/PuppiCandidate.h"
 
 
 // ------------------------------------------------------------------------------------------
