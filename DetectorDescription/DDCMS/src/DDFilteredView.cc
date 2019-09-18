@@ -302,12 +302,12 @@ std::string_view DDFilteredView::get<string_view>(const char* key) const {
       int count = names.size();
       bool flag = false;
       for (int nit = level; count > 0 && nit > 0; --nit) {
-	if(!compareEqual(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()), names[--count])) {
-	  flag = false;
-	  break;
-	} else {
-	  flag = true;
-	}
+        if (!compareEqual(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()), names[--count])) {
+          flag = false;
+          break;
+        } else {
+          flag = true;
+        }
       }
       return flag;
     });
