@@ -290,13 +290,12 @@ struct HGCalEEAlgo {
         }
 
         dd4hep::Position r1(0, 0, zz);
-        dd4hep::Rotation3D rot;
-        mother_.placeVolume(glog, copy, dd4hep::Transform3D(rot, r1));
+        mother_.placeVolume(glog, copy, r1);
         ++copyNumber_[ii];
 
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.name() << " number " << copy << " positioned in "
-                                      << module.name() << " at " << r1 << " with " << rot;
+                                      << module.name() << " at " << r1 << " with no rotation";
 #endif
         zz += hthick;
       }  // End of loop over layers in a block
@@ -381,14 +380,13 @@ struct HGCalEEAlgo {
 #endif
 
             dd4hep::Position tran(xpos, ypos, 0.0);
-            dd4hep::Rotation3D rotation;
             if (layertype > 1)
               type += 3;
-            glog.placeVolume(ns.volume(wafers_[type]), copy, dd4hep::Transform3D(rotation, tran));
+            glog.placeVolume(ns.volume(wafers_[type]), copy, tran);
 #ifdef EDM_ML_DEBUG
             ++ntype[type];
             edm::LogVerbatim("HGCalGeom") << " DDHGCalEEAlgo: " << wafers_[type] << " number " << copy
-                                          << " positioned in " << glog.name() << " at " << tran << " with " << rotation;
+                                          << " positioned in " << glog.name() << " at " << tran << " with no rotation";
 #endif
           }
         }
