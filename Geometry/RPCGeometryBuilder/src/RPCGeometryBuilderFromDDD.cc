@@ -125,6 +125,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     }
 
     LogDebug("RPCGeometryBuilderFromDDD") << ((nStrips == 0) ? ("No strip found!!") : (""));
+    cout<<"MYDEBUG, detid: "<<detid<<" name: "<<fview.name()<<" number of Strips: "<<nStrips<<endl;
 
     std::vector<double> dpar = fview.logicalPart().solid().parameters();
     std::string name = fview.logicalPart().name().name();
@@ -378,10 +379,18 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(cms::DDFilteredView& fview
     RPCDetId rpcid(detid);   
     RPCDetId chid(rpcid.region(), rpcid.ring(), rpcid.station(), rpcid.sector(), rpcid.layer(), rpcid.subsector(), 0);
 
-    // DD4HEP: to be implemented
-    // DDValue numbOfStrips("nStrips");
-    const int nStrips = 42;
-      
+    /* // DDD
+    std::vector<const DDsvalues_type*> specs(fview.specifics());
+    int nStrips = 0;
+    for (auto& spec : specs) {
+      if (DDfetch(spec, numbOfStrips)) {
+        nStrips = int(numbOfStrips.doubles()[0]);
+      }
+    }
+    */
+    auto nStrips = fview.get<double>("nStrips");
+
+    cout<<"MYDEBUG, detid: "<<detid<<" name: "<<fview.name()<<" number of Strips: "<<nStrips<<endl;      
     // std::vector<double> dpar = fview.logicalPart().solid().parameters(); //DDD
     std::vector<double> dpar = fview.parameters();// extractParameters() is wrong
     //std::string name = fview.logicalPart().name().name();    //DDD

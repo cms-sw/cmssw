@@ -121,21 +121,23 @@ void RPCGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup
 }
 
 void RPCGeometryValidate::validateRPCChamberGeometry() {
-  // cout<<"MYDEBUG: Starting Validate RPC geometry"<<endl;
+  
   clearData();
 
-  for (auto const& it : rpcGeometry_->chambers()) {
+  for (auto const& it : rpcGeometry_->rolls()) {// it was chambers but it does't work
     RPCDetId chId = it->id();
     GlobalPoint gp = it->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0));
 
     const TGeoMatrix* matrix = fwGeometry_.getMatrix(chId.rawId());
+    //matrix->Print();
 
     if (!matrix) {
       LogVerbatim("RPCGeometry") << "Failed to get matrix of RPC chamber with detid: " << chId.rawId();
       cout<<"MYDEBUG: Failed to get matrix of RPC chamber with detid: "<<chId.rawId()<<endl;
       continue;
     }
-    // cout<<"MYDEBUG: before compareTrasform"<<endl;
+    // cout<<"MYDEBUG: before compareTrasform"<<endl
+    // cout<<"MYVALIDATE detid: "<<chId.rawId()<<endl;;
     compareTransform(gp, matrix);
 
     auto const& shape = fwGeometry_.getShapePars(chId.rawId());
@@ -146,7 +148,7 @@ void RPCGeometryValidate::validateRPCChamberGeometry() {
       continue;
     }
     // cout<<"MYDEBUG: before compareShape"<<endl;
-    //cout<<"MYVALIDATE: DetId, Trap Shape (0,1,2,3,4): "<<chId.rawId()<<" "<<shape[0]<<" "<<shape[1]<<" "<<shape[2]<<" "<<shape[3]<<" "<<shape[4]<<endl;//it was OK the same values for DD and DD4HEP
+    // cout<<"MYVALIDATE: DetId, Shape (0,1,2,3,4): "<<chId.rawId()<<" "<<shape[0]<<" "<<shape[1]<<" "<<shape[2]<<" "<<shape[3]<<" "<<shape[4]<<endl;//it was OK the same values for DD and DD4HEP
     compareShape(it, shape);
   }
   //cout<<"MYDEBUG: before makeHistograms"<<endl;
@@ -224,7 +226,26 @@ void RPCGeometryValidate::compareTransform(const GlobalPoint& gp, const TGeoMatr
   matrix->LocalToMaster(local, global);
 
   float distance = getDistance(GlobalPoint(global[0], global[1], global[2]), gp);
+  if((distance >= 0.0) && (distance < 1.0e-7)) distance = 0.0;// set a tollerance for the distance
   globalDistances_.push_back(distance);
+  /*
+  float glo_x = global[0];
+  float glo_y = global[1];
+  float glo_z = global[2];
+  float gp_x = gp.x();
+  float gp_y = gp.y();
+  float gp_z = gp.z();
+ 
+  if((glo_x > -1.0e-7) && (glo_x < 1.0e-7)) glo_x = 0.0;
+  if((glo_y > -1.0e-7) && (glo_y < 1.0e-7)) glo_y = 0.0;
+  if((glo_z > -1.0e-7) && (glo_z < 1.0e-7)) glo_z = 0.0;
+  if((gp_x > -1.0e-7) && (gp_x < 1.0e-7)) gp_x = 0.0;
+  if((gp_y > -1.0e-7) && (gp_y < 1.0e-7)) gp_y = 0.0;
+  if((gp_z > -1.0e-7) && (gp_z < 1.0e-7)) gp_z = 0.0;
+  if((distance >= 0.0) && (distance < 1.0e-7)) distance = 0.0;
+ 
+  cout<<"MYVALIDATE distance: "<<distance<<", Pos: "<<glo_x<<" "<<glo_y<<" "<<glo_z<<", Pos Reco: "<<gp_x<<" "<<gp_y<<" "<<gp_z<<endl;;
+  */
 }
 
 void RPCGeometryValidate::compareShape(const GeomDet* det, const float* shape) {
