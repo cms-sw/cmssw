@@ -72,10 +72,11 @@ namespace {
 
 void WaitingTaskList_test::addThenDone() {
   std::atomic<bool> called{false};
-  std::exception_ptr excPtr;
 
   edm::WaitingTaskList waitList;
   {
+    std::exception_ptr excPtr;
+
     auto waitTask = edm::make_empty_waiting_task();
     waitTask->set_ref_count(2);
     //NOTE: allocate_child does NOT increment the ref_count of waitTask!
@@ -139,7 +140,6 @@ void WaitingTaskList_test::doneThenAdd() {
 
 void WaitingTaskList_test::addThenDoneFailed() {
   std::atomic<bool> called{false};
-  std::exception_ptr excPtr;
 
   edm::WaitingTaskList waitList;
   {
