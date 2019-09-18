@@ -75,11 +75,11 @@ void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiCo
                                 CLHEP::HepRandomEngine* engine) {
   if (scaleByDose_)
     scal_.setGeometry(theGeom);
-  if (NoiseGeneration_Method_ == true){
-  if (RandNoiseGenerationFlag_ == false) {
-    GenerateGaussianNoise(engine, NoiseMean_, NoiseStd_);
-    RandNoiseGenerationFlag_ = true;
-  }
+  if (NoiseGeneration_Method_ == true) {
+    if (RandNoiseGenerationFlag_ == false) {
+      GenerateGaussianNoise(engine, NoiseMean_, NoiseStd_);
+      RandNoiseGenerationFlag_ = true;
+    }
   }
   if (digitizationType == 0)
     runSimple(digiColl, simData, theGeom, validIds, engine);
@@ -100,7 +100,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
   zeroData.hit_info[0].fill(0.f);  //accumulated energy
   zeroData.hit_info[1].fill(0.f);  //time-of-flight
   std::array<double, samplesize_> cellNoiseArray;
-  for(size_t i = 0; i<samplesize_; i++)
+  for (size_t i = 0; i < samplesize_; i++)
     cellNoiseArray[i] = 0.0;
   for (const auto& id : validIds) {
     chargeColl.fill(0.f);
@@ -108,10 +108,10 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     HGCSimHitDataAccumulator::iterator it = simData.find(id);
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
-    if(NoiseGeneration_Method_ == true){
-    size_t hash_index = (CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_ - 1)) + id) % NoiseArrayLength_;
+    if (NoiseGeneration_Method_ == true) {
+      size_t hash_index = (CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_ - 1)) + id) % NoiseArrayLength_;
 
-    cellNoiseArray = GaussianNoiseArray_[hash_index];
+      cellNoiseArray = GaussianNoiseArray_[hash_index];
     }
     //set the noise,cce, LSB and threshold to be used
     float cce(1.f), noiseWidth(0.f), lsbADC(-1.f), maxADC(-1.f);
@@ -148,10 +148,10 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
 
       //final charge estimation
       float noise;
-      if(NoiseGeneration_Method_ == true)
-	noise = (float)cellNoiseArray[i] * noiseWidth;
+      if (NoiseGeneration_Method_ == true)
+        noise = (float)cellNoiseArray[i] * noiseWidth;
       else
-	noise = CLHEP::RandGaussQ::shoot(engine, cellNoiseArray[i], noiseWidth);
+        noise = CLHEP::RandGaussQ::shoot(engine, cellNoiseArray[i], noiseWidth);
       float totalCharge(rawCharge * cce + noise);
       if (totalCharge < 0.f)
         totalCharge = 0.f;
