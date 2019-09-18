@@ -295,9 +295,21 @@ std::string_view DDFilteredView::get<string_view>(const char* key) const {
   std::string_view result;
   DDSpecParRefs refs;
   registry_->filter(refs, key);
+  int level = it_.back().GetLevel();
   for_each(begin(refs), end(refs), [&](auto const& i) {
     auto k = find_if(begin(i->paths), end(i->paths), [&](auto const& j) {
-      return (compareEqual(name(), *rbegin(split(realTopName(j), "/"))));
+      auto const& names = split(realTopName(j), "/");
+      int count = names.size();
+      bool flag = false;
+      for (int nit = level; count > 0 && nit > 0; --nit) {
+	if(!compareEqual(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()), names[--count])) {
+	  flag = false;
+	  break;
+	} else {
+	  flag = true;
+	}
+      }
+      return flag;
     });
     if (k != end(i->paths)) {
       result = i->strValue(key);
