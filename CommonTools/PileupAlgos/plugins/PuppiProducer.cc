@@ -351,10 +351,56 @@ void PuppiProducer::beginJob() {}
 void PuppiProducer::endJob() {}
 // ------------------------------------------------------------------------------------------
 void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.add<bool>("puppiDiagnostics", false);
+  desc.add<bool>("puppiForLeptons", false);
+  desc.add<bool>("UseDeltaZCut", true);
+  desc.add<double>("DeltaZCut", 0.3);
+  desc.add<double>("PtMaxNeutrals", 200.);
+  desc.add<bool>("useExistingWeights", false);
+  desc.add<bool>("useWeightsNoLep", false);
+  desc.add<bool>("clonePackedCands", false);
+  desc.add<int>("vtxNdofCut", 4);
+  desc.add<double>("vtxZCut", 24);
+  desc.add<edm::InputTag>("candName", edm::InputTag("particleFlow") );
+  desc.add<edm::InputTag>("vertexName", edm::InputTag("offlinePrimaryVertices") );
+  desc.add<bool>("applyCHS", true);
+  desc.add<bool>("invertPuppi", false);
+  desc.add<bool>("useExp", false);
+  desc.add<double>("MinPuppiWeight", .01 );
+
+  edm::ParameterSetDescription puppialgos;
+  puppialgos.add<int>( "algoId", 5 );
+  puppialgos.add<bool>( "useCharged", false );
+  puppialgos.add<bool>( "applyLowPUCorr", false );
+  puppialgos.add<int>( "combOpt", 5 );
+  puppialgos.add<double>( "cone", .4 );
+  puppialgos.add<double>( "rmsPtMin", .1 );
+  puppialgos.add<double>( "rmsScaleFactor", 1.0 );
+
+  edm::ParameterSetDescription algos;
+  std::vector<double> etaMin;
+  algos.add<std::vector<double>>( "etaMin", etaMin );
+  std::vector<double> etaMax;
+  algos.add<std::vector<double>>( "etaMax", etaMax );
+  std::vector<double> ptMin;
+  algos.add<std::vector<double>>( "ptMin", ptMin );
+  std::vector<double> MinNeutralPt;
+  algos.add<std::vector<double>>( "MinNeutralPt", MinNeutralPt );
+  std::vector<double> MinNeutralPtSlope;
+  algos.add<std::vector<double>>( "MinNeutralPtSlope", MinNeutralPtSlope );
+  std::vector<double> RMSEtaSF;
+  algos.add<std::vector<double>>( "RMSEtaSF", RMSEtaSF );
+  std::vector<double> MedEtaSF;
+  algos.add<std::vector<double>>( "MedEtaSF", MedEtaSF );
+  algos.add<double>( "EtaMaxExtrap", 2.0 );
+  std::vector<edm::ParameterSet> VPSetPuppiAlgos(1);
+  algos.addVPSet( "puppiAlgos", puppialgos, VPSetPuppiAlgos );
+
+  std::vector<edm::ParameterSet> VPSetAlgos(1);
+  desc.addVPSet( "algos", algos, VPSetAlgos );
+
   descriptions.addDefault(desc);
 }
 //define this as a plug-in
