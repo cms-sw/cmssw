@@ -16,8 +16,8 @@ except:
 lumi_data = lumi_data['data']
 
 def match_in(sub_list,lumi_list):
-  sub_list = map(int,sub_list)
-  lumi_list = map(int,lumi_list)
+  sub_list = list(map(int,sub_list))
+  lumi_list = list(map(int,lumi_list))
   for i in range(sub_list[0],sub_list[1]+1):
     if i >= lumi_list[0] and i <= lumi_list[1]: return True
   return False
