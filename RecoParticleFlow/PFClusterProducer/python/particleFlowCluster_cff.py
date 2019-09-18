@@ -28,42 +28,43 @@ pfClusteringECALTask = cms.Task(particleFlowRecHitECAL,
                                 particleFlowClusterECALTask)
 pfClusteringECAL = cms.Sequence(pfClusteringECALTask) 
 
-pfClusteringPSTask = cms.Task(particleFlowRecHitPS,particleFlowClusterPS)
+pfClusteringPSTask = cms.Task(particleFlowRecHitPS, particleFlowClusterPS)
 pfClusteringPS = cms.Sequence(pfClusteringPSTask)
 
-pfClusteringHBHEHFTask = cms.Task(particleFlowRecHitHBHE,particleFlowRecHitHF,particleFlowClusterHBHE,particleFlowClusterHF,particleFlowClusterHCAL)
+pfClusteringHBHEHFTask = cms.Task(particleFlowRecHitHBHE,
+                                  particleFlowRecHitHF,
+                                  particleFlowClusterHBHE,
+                                  particleFlowClusterHF,
+                                  particleFlowClusterHCAL)
 pfClusteringHBHEHF = cms.Sequence(pfClusteringHBHEHFTask)
 
 pfClusteringHOTask = cms.Task(particleFlowRecHitHO,particleFlowClusterHO)
 pfClusteringHO = cms.Sequence(pfClusteringHOTask)
 
-particleFlowClusterWithoutHOTask = cms.Sequence(
-    particleFlowBadHcalPseudoCluster,
-    pfClusteringPSTask,
-    pfClusteringECALTask,
-    pfClusteringHBHEHFTask
-)
+particleFlowClusterWithoutHOTask = cms.Task(particleFlowBadHcalPseudoCluster,
+                                            pfClusteringPSTask,
+                                            pfClusteringECALTask,
+                                            pfClusteringHBHEHFTask)
 particleFlowClusterWithoutHO = cms.Sequence(particleFlowClusterWithoutHOTask)
 
-particleFlowClusterTask = cms.Task(
-    particleFlowBadHcalPseudoCluster,
-    pfClusteringPSTask,
-    pfClusteringECALTask,
-    pfClusteringHBHEHFTask,
-    pfClusteringHOTask
-)
+particleFlowClusterTask = cms.Task(particleFlowBadHcalPseudoCluster,
+                                   pfClusteringPSTask,
+                                   pfClusteringECALTask,
+                                   pfClusteringHBHEHFTask,
+                                   pfClusteringHOTask)
 particleFlowCluster = cms.Sequence(particleFlowClusterTask)
 
 #HGCal
 
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cfi import particleFlowRecHitHGC
-pfClusteringHGCal = cms.Sequence(particleFlowRecHitHGC)
+pfClusteringHGCalTask = cms.Task(particleFlowRecHitHGC)
+pfClusteringHGCal = cms.Sequence(pfClusteringHGCalTask)
 
-_phase2_hgcal_particleFlowCluster = particleFlowCluster.copy()
-_phase2_hgcal_particleFlowCluster += pfClusteringHGCal
+_phase2_hgcal_particleFlowClusterTask = particleFlowClusterTask.copy()
+_phase2_hgcal_particleFlowClusterTask.add(pfClusteringHGCalTask)
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toReplaceWith( particleFlowCluster, _phase2_hgcal_particleFlowCluster )
+phase2_hgcal.toReplaceWith( particleFlowClusterTask, _phase2_hgcal_particleFlowClusterTask )
 
 #timing
 
@@ -76,5 +77,5 @@ _phase2_timing_particleFlowClusterECALTask.add(cms.Task(ecalBarrelClusterFastTim
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toReplaceWith(particleFlowClusterECALTask,
                                   _phase2_timing_particleFlowClusterECALTask)
-phase2_timing.toModify(particleFlowClusterECAL,
+phase2_timing.toModify(particleFlowClusterECALTask,
                             inputECAL = cms.InputTag('particleFlowTimeAssignerECAL'))

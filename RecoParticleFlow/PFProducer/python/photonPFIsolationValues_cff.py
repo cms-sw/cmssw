@@ -148,7 +148,7 @@ phPFIsoValuePU04PFId = cms.EDProducer("PFCandIsolatorFromDeposits",
    )
 )
 
-photonPFIsolationValuesSequenceTask = cms.Task(
+photonPFIsolationValuesTask = cms.Task(
     phPFIsoValueCharged03PFId,
     phPFIsoValueChargedAll03PFId,
     phPFIsoValueGamma03PFId,
@@ -161,4 +161,4 @@ photonPFIsolationValuesSequenceTask = cms.Task(
     phPFIsoValueNeutral04PFId,
     phPFIsoValuePU04PFId
     )
-photonPFIsolationValuesSequence = cms.Sequence(photonPFIsolationValuesSequenceTask)
+photonPFIsolationValuesSequence = cms.Sequence(photonPFIsolationValuesTask)
