@@ -125,7 +125,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     }
 
     LogDebug("RPCGeometryBuilderFromDDD") << ((nStrips == 0) ? ("No strip found!!") : (""));
-    cout<<"MYDEBUG, detid: "<<detid<<" name: "<<fview.name()<<" number of Strips: "<<nStrips<<endl;
+    //    cout<<"MYDEBUG, detid: "<<detid<<" name: "<<fview.name()<<" number of Strips: "<<nStrips<<endl;
 
     std::vector<double> dpar = fview.logicalPart().solid().parameters();
     std::string name = fview.logicalPart().name().name();
@@ -390,7 +390,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(cms::DDFilteredView& fview
     */
     auto nStrips = fview.get<double>("nStrips");
 
-    cout<<"MYDEBUG, detid: "<<detid<<" name: "<<fview.name()<<" number of Strips: "<<nStrips<<endl;      
+    //cout<<"MYDEBUG, detid: "<<detid<<" name: "<<fview.name()<<" number of Strips: "<<nStrips<<endl;      
     // std::vector<double> dpar = fview.logicalPart().solid().parameters(); //DDD
     std::vector<double> dpar = fview.parameters();// extractParameters() is wrong
     //std::string name = fview.logicalPart().name().name();    //DDD

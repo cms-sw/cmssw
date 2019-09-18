@@ -8,7 +8,7 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCChamber.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
-
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "Fireworks/Core/interface/FWGeometry.h"
@@ -55,7 +55,7 @@ private:
   void endJob() override;
 
   void validateRPCChamberGeometry();
-  //void validateRPCRollGeometry();
+  void validateRPCStripsGeometry();
 
   void compareTransform(const GlobalPoint&, const TGeoMatrix*);
   void compareShape(const GeomDet*, const float*);
@@ -114,7 +114,7 @@ void RPCGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup
     validateRPCChamberGeometry();
     // cout<<"MYDEBUG: after called validateRPCChamberGeometry"<<endl;   
     // LogVerbatim("RPCGeometry") << "Validating RPC roll geometry";
-    //validateRPCRollGeometry();
+    validateRPCStripsGeometry();
   } else
     LogVerbatim("RPCGeometry") << "Invalid RPC geometry";
   // cout<<"MYDEBUG: Invalid RPC geometry"<<endl;
@@ -155,41 +155,55 @@ void RPCGeometryValidate::validateRPCChamberGeometry() {
   makeHistograms("RPC Chamber");
 }
 
-/* // TO BE IMPLEMENTED
-void DTGeometryValidate::validateRPCRollGeometry() {
+
+ // TO BE IMPLEMENTED
+void RPCGeometryValidate::validateRPCStripsGeometry() {
+  //    cout<<"MYVALIDATE StripsGeometry "<<endl;;
   clearData();
 
-  vector<float> wire_positions;
+  //vector<float> strips_positions;
 
-  for (auto const& it : dtGeometry_->layers()) {
-    DTLayerId layerId = it->id();
-    GlobalPoint gp = it->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0));
+  for (auto const& it : rpcGeometry_->rolls()) {
+    RPCDetId chId = it->id();
+    const int n_strips = it->nstrips();
+    const float n_pitch = it->pitch();
+    const StripTopology& topo = it->specificTopology();
+    const float stripLen = topo.stripLength();
+    cout<<"MYVALIDATE From Geo, detid: "<<chId.rawId()<<" nstrips: "<<n_strips<<" n pitch: "<<n_pitch<<" stripLen: "<<stripLen<<endl; //OK for DDand DD4HEP
 
-    const TGeoMatrix* matrix = fwGeometry_.getMatrix(layerId.rawId());
+    const float* parameters = fwGeometry_.getParameters(chId.rawId());
 
-    if (!matrix) {
-      LogVerbatim("DTGeometry") << "Failed to get matrix of DT layer with detid: " << layerId.rawId();
-      continue;
-    }
+    cout<<"MYVALIDATE From Reco, detid: "<<chId.rawId()<<" nstrips: "<<parameters[0]<<" n pitch: "<<parameters[2]<<" stripLen: "<<parameters[1]<<endl; 
+   
+   
+   
+    /*
+ if (n_strips)  {//OK for DDand DD4HEP
+      // cout<<"MYVALIDATE detid: "<<chId.rawId()<<" nstrips: "<<n_strips<<endl;;
+      for (int istrips = 1; istrips <= n_strips; istrips++) {
+	GlobalPoint gp = it->surface().toGlobal(it->centreOfStrip(istrips));
+	cout<<"MYVALIDATE gp: "<<gp.x()<<" "<<gp.y()<<" "<<gp.z()<<endl;
+      } 
+    } else {cout<<"MYVALIDATE ATTENTION nStrips = "<<n_strips<<endl; }
+   
+    */
+  }
+  
 
+/*
+    const TGeoMatrix* matrix = fwGeometry_.getMatrix(chId.rawId());
+    // matrix->Print();
+    
     compareTransform(gp, matrix);
 
     auto const& shape = fwGeometry_.getShapePars(layerId.rawId());
 
-    if (!shape) {
-      LogVerbatim("DTGeometry") << "Failed to get shape of DT layer with detid: " << layerId.rawId();
-      continue;
-    }
-
+  
     compareShape(it, shape);
 
     auto const& parameters = fwGeometry_.getParameters(layerId.rawId());
 
-    if (parameters == nullptr) {
-      LogVerbatim("DTGeometry") << "Parameters empty for DT layer with detid: " << layerId.rawId();
-      continue;
-    }
-
+  
     float width = it->surface().bounds().width();
     assert(width == parameters[6]);
 
@@ -213,10 +227,11 @@ void DTGeometryValidate::validateRPCRollGeometry() {
     }
   }
 
-  makeHistogram("DT Layer Wire localX", wire_positions);
-  makeHistograms("DT Layer");
-}
+  // makeHistogram("RPC strips position", strips_positions);
+  // makeHistograms("RPC Strips");
 */
+}
+
 
 void RPCGeometryValidate::compareTransform(const GlobalPoint& gp, const TGeoMatrix* matrix) {
   //cout<<"MYDEBUG: Compare Transform"<<endl;
