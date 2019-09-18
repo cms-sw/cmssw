@@ -9,7 +9,7 @@
 //   To plot on the same Canvas plots from Geant4 and GeantV done using
 //   CaloSimHitAnalysis
 //     makeGV2Plots(fnmG4, fnmGV, todomin, todomax, normalize, tag, text, 
-//                  save, dirnm)
+//                  save, mode, dirnm)
 //
 //   To plot from passive hit collection produced using CaloSimHitAnalysis
 //      makeGVSPlots(fnmG4, fnmGV, todomin, todomax, tag, text, save, dirnm)
@@ -23,10 +23,12 @@
 //     ifGV    bool          If the file created using Geant4 (true)
 //     todomin int           The first one in the series to be created (0)
 //     todomax int           The last one in the series to be created
-//                           (3:2:5 for GVPlots:GV2Plots:GVSPlots)
+//                           (3:2:7 for GVPlots:GV2Plots:GVSPlots)
 //     tag     std::string   To be added to the name of the canvas ("")
 //     text    std::string   To be added to the title of the histogram ("")
 //     save    bool          If the canvas is to be saved as jpg file (false)
+//     mode    int           Flag if one file is G4 and other GV (0), or 
+//                           both files are GV (1) or G4 (2) (defualt 0)
 //     dirnm   std::string   Name of the directory ("caloSimHitAnalysis")
 //
 //   The histogram series have different meanings for each function
@@ -46,9 +48,10 @@
 //     "Energy deposit for EM particles", "Energy deposit for non-EM particles",
 //     "R", "Z", "#eta", "phi"
 //
-//   GVSPlots (6 in total):
-//     "Total Hits", "Tracks", "Energy Deposit in all components", 
-//     "Time of all hits", "Energy Deposit in tracker subdetectors", 
+//   GVSPlots (8 in total):
+//     "Total Hits", "Tracks", "Step Length', 
+//     "Energy Deposit in all components", "Time of all hits",
+//     "Energy Deposit in tracker subdetectors", 
 //     "Time of hits in tracker subdetectors"
 //
 //   All plots in GVPlots or GV2Plots happen for EB, EE, HB and HE
@@ -172,7 +175,7 @@ void makeGVPlots(std::string fname="analG4.root", bool ifG4=true,
 void makeGV2Plots(std::string fnmG4="analG4.root", 
 		  std::string fnmGV="analGV.root", int todomin=0, 
 		  int todomax=2, bool normalize=true, std::string tag="",
-		  std::string text="", bool save=false, 
+		  std::string text="", bool save=false, int mode=0,
 		  std::string dirnm="caloSimHitAnalysis") {
 
   std::string names[13] = {"Edep", "Time", "Etot", "Edep15", "EdepT", "EdepT15",
@@ -197,7 +200,7 @@ void makeGV2Plots(std::string fnmG4="analG4.root",
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
 
   if (normalize) gStyle->SetOptStat(0);
-  else           gStyle->SetOptStat(111100);
+  else           gStyle->SetOptStat(111110);
   TFile      *file1 = new TFile(fnmG4.c_str());
   TFile      *file2 = new TFile(fnmGV.c_str());
   if (file1 && file2) {
@@ -208,7 +211,12 @@ void makeGV2Plots(std::string fnmG4="analG4.root",
       for (int i2=todomin; i2<=todomax; ++i2) {
 	sprintf (name, "%s%d", names[i2].c_str(), dets[i1]);
 	sprintf (cname, "%s%d%s", names[i2].c_str(), dets[i1], tag.c_str());
-	sprintf (title, "%s  %s (Geant4 vs GeantV)", text.c_str(), detName[i1].c_str());
+	if (mode == 1)
+	  sprintf (title, "%s  %s (2 runs of GeantV)", text.c_str(), detName[i1].c_str());
+	else if (mode == 2)
+	  sprintf (title, "%s  %s (2 runs of Geant4)", text.c_str(), detName[i1].c_str());
+	else
+	  sprintf (title, "%s  %s (Geant4 vs GeantV)", text.c_str(), detName[i1].c_str());
 	TH1D *hist[2];
 	hist[0] = (TH1D*)dir1->FindObjectAny(name);
 	hist[1] = (TH1D*)dir2->FindObjectAny(name);
@@ -235,7 +243,13 @@ void makeGV2Plots(std::string fnmG4="analG4.root",
 	    hist[i]->SetLineStyle(isty[i]);
 	    hist[i]->SetNdivisions(505,"X");
 	    total[i] = hist[i]->GetEntries();
-	    legend->AddEntry(hist[i],type[i].c_str(),"lp");
+	    if (mode == 1)     
+	      sprintf (name, "%s (run %d)", type[1].c_str(), i);
+	    else if (mode == 2)
+	      sprintf (name, "%s (run %d)", type[0].c_str(), i);
+	    else 
+	      sprintf (name, "%s", type[i].c_str());
+	    legend->AddEntry(hist[i], name, "lp");
 	    if (i == 0) {
 	      if (normalize) hist[i]->DrawNormalized("hist");  
 	      else           hist[i]->Draw();
@@ -335,18 +349,23 @@ void makeGV2Plots(std::string fnmG4="analG4.root",
 
 void makeGVSPlots(std::string fnmG4="analG4.root", 
 		  std::string fnmGV="analGV.root", 
-		  int todomin=0, int todomax=5,
+		  int todomin=0, int todomax=7,
 		  std::string tag="", std::string text="", bool save=false,
 		  std::string dirnm="caloSimHitAnalysis") {
 
-  std::string names[6] = {"hitp", "trackp", "edepp", "timep", "edept", "timet"};
-  std::string xtitle[6] = {"Hits", "Tracks", "Energy Deposit (MeV)",
-			   "Time (ns)", "Energy Deposit (MeV)", "Time (ns)"};
-  std::string ytitle[6] = {"Events", "Events", "Hits", "Hits", "Hits", "Hits"};
+  std::string names[8] = {"hitp", "trackp", "stepp", "edepp", "timep", "volp", 
+			  "edept", "timet"};
+  std::string xtitle[8] = {"Hits", "Tracks", "Step Length (cm)",
+			   "Energy Deposit (MeV)", "Time (ns)", 
+			   "Volume elements", "Energy Deposit (MeV)",
+			   "Time (ns)"};
+  std::string ytitle[8] = {"Events", "Events", "Hits", "Hits", "Hits",
+			   "Events", "Hits", "Hits"};
   std::string detName[6] = {"Barrel Pixel", "Forward Pixel", "TIB", "TID",
 			    "TOB", "TEC"};
-  int boxp[6] = {0, 1, 0, 0, 0, 0};
-  int nhis[6] = {1, 1, 1, 1, 6, 6};
+  std::string particles[3] = {"Electrons", "Positrons", "Photons"};
+  int boxp[8] = {0, 1, 0, 0, 0, 0, 0, 0};
+  int nhis[8] = {-4, -4, -4, 1, 1, 1, 6, 6};
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
@@ -358,11 +377,17 @@ void makeGVSPlots(std::string fnmG4="analG4.root",
     TDirectory *dir2 = (TDirectory*)file2->FindObjectAny(dirnm.c_str());
     char name[100], cname[100], title[100];
     for (int i2=todomin; i2<=todomax; ++i2) {
-      for (int i1=0; i1<nhis[i2]; ++ i1) {
-	if (nhis[i2] == 1) {
+      int nhism = (nhis[i2] >= 0) ? nhis[i2] : -nhis[i2];
+      for (int i1=0; i1<nhism; ++ i1) {
+	if (nhis[i2] <= 1 && i1 == 0) {
 	  sprintf (name, "%s", names[i2].c_str());
 	  sprintf (cname, "%s%s", names[i2].c_str(), tag.c_str());
 	  sprintf (title, "%s (Geant4 vs GeantV)", text.c_str());
+	} else if (nhis[i2] < 0) {
+	  sprintf (name, "%s%d", names[i2].c_str(), i1-1);
+	  sprintf (cname, "%s%d%s", names[i2].c_str(), i1-1, tag.c_str());
+	  sprintf (title, "%s in %s (Geant4 vs GeantV)", 
+		   particles[i1-1].c_str(), text.c_str());
 	} else {
 	  sprintf (name, "%s%d", names[i2].c_str(), i1);
 	  sprintf (cname, "%s%d%s", names[i2].c_str(), i1, tag.c_str());

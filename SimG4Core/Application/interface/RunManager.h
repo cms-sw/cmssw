@@ -114,6 +114,7 @@ private:
   std::string m_PhysicsTablesDir;
   bool m_StorePhysicsTables;
   bool m_RestorePhysicsTables;
+  bool m_UseParametrisedEMPhysics;
   int m_EvtMgrVerbosity;
   bool m_check;
   edm::ParameterSet m_pField;

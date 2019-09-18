@@ -6,28 +6,25 @@
 
 #include "DataFormats/GeometrySurface/interface/SimpleConeBounds.h"
 
-void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "Building cons surfaces...: " << endl;
+void volumeHandle::buildCons() {
+  LogTrace("magneticfield::volumeHandle") << "Building cons surfaces...: ";
 
   DDCons cons(solid);
 
-  double zhalf = cons.zhalf() / cm;
-  double rInMinusZ = cons.rInMinusZ() / cm;
-  double rOutMinusZ = cons.rOutMinusZ() / cm;
-  double rInPlusZ = cons.rInPlusZ() / cm;
-  double rOutPlusZ = cons.rOutPlusZ() / cm;
+  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
+  // convertUnits should be defined appropriately.
+  double zhalf = convertUnits(cons.zhalf());
+  double rInMinusZ = convertUnits(cons.rInMinusZ());
+  double rOutMinusZ = convertUnits(cons.rOutMinusZ());
+  double rInPlusZ = convertUnits(cons.rInPlusZ());
+  double rOutPlusZ = convertUnits(cons.rOutPlusZ());
   double startPhi = cons.phiFrom();
   double deltaPhi = cons.deltaPhi();
 
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "zhalf      " << zhalf << endl
-         << "rInMinusZ  " << rInMinusZ << endl
-         << "rOutMinusZ " << rOutMinusZ << endl
-         << "rInPlusZ   " << rInPlusZ << endl
-         << "rOutPlusZ  " << rOutPlusZ << endl
-         << "phiFrom    " << startPhi << endl
-         << "deltaPhi   " << deltaPhi << endl;
+  LogTrace("magneticfield::volumeHandle")
+      << "zhalf      " << zhalf << newln << "rInMinusZ  " << rInMinusZ << newln << "rOutMinusZ " << rOutMinusZ << newln
+      << "rInPlusZ   " << rInPlusZ << newln << "rOutPlusZ  " << rOutPlusZ << newln << "phiFrom    " << startPhi << newln
+      << "deltaPhi   " << deltaPhi;
 
   // recalculate center: (for a DDCons, DDD gives 0,0,Z)
   double rZmin = (rInMinusZ + rOutMinusZ) / 2.;
@@ -40,7 +37,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
 
   const double epsilon = 1e-5;
 
-  if (abs(rInPlusZ - rInMinusZ) < epsilon) {  // Cylinder
+  if (std::abs(rInPlusZ - rInMinusZ) < epsilon) {  // Cylinder
     // FIXME: use builder
     surfaces[inner] = new Cylinder(rInMinusZ, Surface::PositionType(), Surface::RotationType());
 
@@ -51,10 +48,8 @@ void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
     surfaces[inner] =
         new Cone(Surface::PositionType(0, 0, center_.z()), Surface::RotationType(), cb.vertex(), cb.openingAngle());
   }
-
-  if (abs(rOutPlusZ - rOutMinusZ) < epsilon) {  // Cylinder
+  if (std::abs(rOutPlusZ - rOutMinusZ) < epsilon) {  // Cylinder
     surfaces[outer] = new Cylinder(rOutMinusZ, Surface::PositionType(0, 0, center_.z()), Surface::RotationType());
-
   } else {  // Cone
     // FIXME: trick to compute vertex and angle...
     SimpleConeBounds cb(center_.z() - zhalf, rOutMinusZ, rOutMinusZ, center_.z() + zhalf, rOutPlusZ, rOutPlusZ);
@@ -62,21 +57,11 @@ void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
     surfaces[outer] =
         new Cone(Surface::PositionType(0, 0, center_.z()), Surface::RotationType(), cb.vertex(), cb.openingAngle());
 
-    if (MagGeoBuilderFromDDD::debug)
-      cout << "Outer surface: cone, vtx: " << cb.vertex() << " angle " << cb.openingAngle() << endl;
-
-    //     cout << (cb.vertex().z()-center_.z()-zhalf) *tan(cb.openingAngle()) << endl;
-    //     cout << (cb.vertex().z()-center_.z()+zhalf) *tan(cb.openingAngle()) << endl;
+    LogTrace("magneticfield::volumeHandle")
+        << "Outer surface: cone, vtx: " << cb.vertex() << " angle " << cb.openingAngle();
   }
-
   // All other surfaces
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);
-
-  // Check ordering. //FIXME
-  //   if (dynamic_cast<const BoundCone*>(&(*surfaces[outer]))->bounds().width() <
-  //       dynamic_cast<const BoundCone*>(&(*surfaces[inner]))->bounds().width()){
-  //     cout << "*** WARNING: pos_outer < pos_inner " << endl;
-  //   }
 
   // Save volume boundaries
   theRMin = min(rInMinusZ, rInPlusZ);

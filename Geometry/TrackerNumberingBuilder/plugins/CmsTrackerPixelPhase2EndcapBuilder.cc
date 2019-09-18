@@ -1,5 +1,4 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPixelPhase2EndcapBuilder.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -7,19 +6,25 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPixelPhase2DiskBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerOTDiscBuilder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include <vector>
 
 #include <bitset>
 
-CmsTrackerPixelPhase2EndcapBuilder::CmsTrackerPixelPhase2EndcapBuilder() {}
+template <class FilteredView>
+void CmsTrackerPixelPhase2EndcapBuilder<FilteredView>::buildComponent(FilteredView& fv,
+                                                                      GeometricDet* g,
+                                                                      const std::string& s) {
+  CmsTrackerPhase2TPDiskBuilder<FilteredView> theCmsTrackerPhase2DiskBuilder;
+  CmsTrackerPixelPhase2DiskBuilder<FilteredView> theCmsTrackerPixelPhase2DiskBuilder;
+  CmsTrackerOTDiscBuilder<FilteredView> theCmsTrackerOTDiscBuilder;
 
-void CmsTrackerPixelPhase2EndcapBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
-  CmsTrackerPhase2TPDiskBuilder theCmsTrackerPhase2DiskBuilder;
-  CmsTrackerPixelPhase2DiskBuilder theCmsTrackerPixelPhase2DiskBuilder;
-  CmsTrackerOTDiscBuilder theCmsTrackerOTDiscBuilder;
-
-  GeometricDet* subdet = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv)));
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s, &fv))) {
+  GeometricDet* subdet = new GeometricDet(&fv,
+                                          CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+                                              ExtractStringFromDDD<FilteredView>::getString(s, &fv)));
+  switch (CmsTrackerLevelBuilder<FilteredView>::theCmsTrackerStringToEnum.type(
+      ExtractStringFromDDD<FilteredView>::getString(s, &fv))) {
     case GeometricDet::PixelPhase2FullDisk:
       theCmsTrackerPhase2DiskBuilder.build(fv, subdet, s);
       break;
@@ -35,19 +40,23 @@ void CmsTrackerPixelPhase2EndcapBuilder::buildComponent(DDFilteredView& fv, Geom
 
     default:
       edm::LogError("CmsTrackerPixelPhase2EndcapBuilder")
-          << " ERROR - I was expecting a Disk... I got a " << ExtractStringFromDDD::getString(s, &fv);
+          << " ERROR - I was expecting a Disk... I got a " << ExtractStringFromDDD<FilteredView>::getString(s, &fv);
   }
 
   g->addComponent(subdet);
 }
 
-void CmsTrackerPixelPhase2EndcapBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+template <class FilteredView>
+void CmsTrackerPixelPhase2EndcapBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
-  std::sort(comp.begin(), comp.end(), isLessModZ);
+  std::sort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::isLessModZ);
 
   for (uint32_t i = 0; i < comp.size(); i++) {
     det->component(i)->setGeographicalID(
         i + 1);  // Every subdetector: Inner pixel first, OT later, then sort by disk number
   }
 }
+
+template class CmsTrackerPixelPhase2EndcapBuilder<DDFilteredView>;
+template class CmsTrackerPixelPhase2EndcapBuilder<cms::DDFilteredView>;

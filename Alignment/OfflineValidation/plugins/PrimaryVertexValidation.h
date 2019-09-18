@@ -74,6 +74,7 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
   bool isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const;
+  std::pair<long long, long long> getRunTime(const edm::EventSetup& iSetup) const;
   bool isHit2D(const TrackingRecHit& hit) const;
   bool hasFirstLayerPixelHits(const reco::TransientTrack& track);
   std::pair<bool, bool> pixelHitsCheck(const reco::TransientTrack& track);
@@ -118,7 +119,11 @@ private:
   std::tuple<std::string, std::string, std::string> getTypeString(PVValHelper::residualType type);
   std::tuple<std::string, std::string, std::string> getVarString(PVValHelper::plotVariable var);
 
-  void fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], PVValHelper::estimator fitPar_);
+  void fillMap(TH2F* trendMap,
+               TH1F* residualsMapPlot[100][100],
+               PVValHelper::estimator fitPar_,
+               const int nXBins_,
+               const int nYBins_);
 
   inline double square(double x) { return x * x; }
 
@@ -126,8 +131,8 @@ private:
   edm::ParameterSet theConfig;
   int Nevt_;
 
-  TrackFilterForPVFindingBase* theTrackFilter_;
-  TrackClusterizerInZ* theTrackClusterizer_;
+  std::unique_ptr<TrackFilterForPVFindingBase> theTrackFilter_;
+  std::unique_ptr<TrackClusterizerInZ> theTrackClusterizer_;
 
   // setting of the number of plots
   static const int nMaxBins_ = 100;  // maximum number of bookable histograms
@@ -288,6 +293,10 @@ private:
   TH1F* h_nLadders;
   TH1F* h_pTinfo;
 
+  std::map<unsigned int, std::pair<long long, long long> > runNumbersTimesLog_;
+  TH1I* h_runStartTimes;
+  TH1I* h_runEndTimes;
+
   // ---- directly histograms // ===> unbiased residuals
 
   // absolute residuals
@@ -345,6 +354,13 @@ private:
   TH1F* n_dxyResidualsMap[nMaxBins_][nMaxBins_];
   TH1F* n_dzResidualsMap[nMaxBins_][nMaxBins_];
   TH1F* n_d3DResidualsMap[nMaxBins_][nMaxBins_];
+
+  // for the L1 maps
+
+  TH1F* a_dxyL1ResidualsMap[nMaxBins_][nMaxBins_];
+  TH1F* a_dzL1ResidualsMap[nMaxBins_][nMaxBins_];
+  TH1F* n_dxyL1ResidualsMap[nMaxBins_][nMaxBins_];
+  TH1F* n_dzL1ResidualsMap[nMaxBins_][nMaxBins_];
 
   // ---- trends as function of phi and eta
 
@@ -461,6 +477,20 @@ private:
 
   TH2F* n_dxyWidthMap;
   TH2F* n_dzWidthMap;
+
+  //2D maps of residuals in bins of L1 modules
+
+  TH2F* a_dxyL1MeanMap;
+  TH2F* a_dzL1MeanMap;
+
+  TH2F* n_dxyL1MeanMap;
+  TH2F* n_dzL1MeanMap;
+
+  TH2F* a_dxyL1WidthMap;
+  TH2F* a_dzL1WidthMap;
+
+  TH2F* n_dxyL1WidthMap;
+  TH2F* n_dzL1WidthMap;
 
   //
   // ---- directly histograms
@@ -618,6 +648,10 @@ private:
   TH1F* h_probeL1Ladder_;
   TH1F* h_probeL1Module_;
   TH1I* h_probeHasBPixL1Overlap_;
+
+  TH1F* h_probeL1ClusterProb_;
+  TH2F* h2_probeLayer1Map_;
+  TH2F* h2_probePassingLayer1Map_;
 
   // check vertex
 

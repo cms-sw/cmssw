@@ -71,9 +71,15 @@ namespace edm {
     }
 
     void EventSetupRecordImpl::initializeForNewIOV(unsigned long long iCacheIdentifier,
-                                                   ValidityInterval const& iValidityInterval) {
+                                                   ValidityInterval const& iValidityInterval,
+                                                   bool hasFinder) {
       cacheIdentifier_ = iCacheIdentifier;
       validity_ = iValidityInterval;
+      if (hasFinder) {
+        for (auto& dataProxy : proxies_) {
+          dataProxy->initializeForNewIOV();
+        }
+      }
     }
 
     void EventSetupRecordImpl::setSafely(const ValidityInterval& iInterval) const {

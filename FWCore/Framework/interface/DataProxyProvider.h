@@ -160,8 +160,11 @@ namespace edm {
         dataProxyContainer_.fillRecordsNotAllowingConcurrentIOVs(recordsNotAllowingConcurrentIOVs);
       }
 
+      virtual void initConcurrentIOVs(EventSetupRecordKey const& key, unsigned int nConcurrentIOVs) {}
+
       void createKeyedProxies(EventSetupRecordKey const& key, unsigned int nConcurrentIOVs) {
         dataProxyContainer_.createKeyedProxies(key, nConcurrentIOVs);
+        initConcurrentIOVs(key, nConcurrentIOVs);
       }
 
       const ComponentDescription& description() const { return description_; }

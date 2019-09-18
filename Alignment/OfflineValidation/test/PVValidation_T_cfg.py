@@ -191,6 +191,8 @@ import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
 process.seqTrackselRefit = trackselRefit.getSequence(process,'TRACKTYPETEMPLATE')
 process.HighPurityTrackSelector.trackQualities = cms.vstring()
 process.HighPurityTrackSelector.pMin     = cms.double(0.)
+#process.TrackerTrackHitFilter.usePixelQualityFlag = cms.bool(False)    # do not use the pixel quality flag
+#process.TrackerTrackHitFilter.commands   = cms.vstring("drop PXB 1")   # drop BPix1 hits
 process.AlignmentTrackSelector.pMin      = cms.double(0.)
 process.AlignmentTrackSelector.ptMin     = cms.double(0.)
 process.AlignmentTrackSelector.nHitMin2D = cms.uint32(0)
@@ -222,7 +224,9 @@ if isDA:
                                            askFirstLayerHit = cms.bool(False),
                                            forceBeamSpot = cms.untracked.bool(False),
                                            probePt = cms.untracked.double(PTCUTTEMPLATE),
+                                           probeEta = cms.untracked.double(2.7),
                                            runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
+                                           intLumi = cms.untracked.double(INTLUMITEMPLATE),
                                            runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                            
                                            TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                           
@@ -265,7 +269,9 @@ else:
                                            askFirstLayerHit = cms.bool(False),
                                            forceBeamSpot = cms.untracked.bool(False),
                                            probePt = cms.untracked.double(PTCUTTEMPLATE),
+                                           probeEta = cms.untracked.double(2.7),
                                            runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
+                                           intLumi = cms.untracked.double(INTLUMITEMPLATE),
                                            runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                            
                                            TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                             

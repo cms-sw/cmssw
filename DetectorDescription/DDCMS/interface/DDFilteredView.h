@@ -37,9 +37,9 @@ namespace cms {
   using Filter = cms::Filter;
   using Iterator = TGeoIterator;
   using Node = TGeoNode;
-  using DDFilter = std::string_view;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
   using RotationMatrix = ROOT::Math::Rotation3D;
+  using DDFilter = std::string_view;
 
   class DDFilteredView {
   public:
@@ -134,9 +134,14 @@ namespace cms {
 
     const DDSolidShape shape() const;
 
+    // Convert new DD4hep shape id to an old DD one
+    LegacySolidShape legacyShape(const cms::DDSolidShape shape) const;
+
     //! extract attribute value
     template <typename T>
     T get(const char*) const;
+
+    std::string_view getString(const std::string&) const;
 
     //! return the stack of sibling numbers which indicates
     //  the current position in the DDFilteredView
@@ -154,6 +159,7 @@ namespace cms {
     Filter* currentFilter_ = nullptr;
     Node* node_ = nullptr;
     const DDSpecParRegistry* registry_;
+    DDSpecParRefs refs_;
   };
 }  // namespace cms
 

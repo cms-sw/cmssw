@@ -10,7 +10,10 @@
 
 using namespace ticl;
 
-PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf) : PatternRecognitionAlgoBase(conf) {
+PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf)
+    : PatternRecognitionAlgoBase(conf),
+      out_in_dfs_(conf.getParameter<bool>("out_in_dfs")),
+      max_out_in_hops_(conf.getParameter<int>("max_out_in_hops")) {
   theGraph_ = std::make_unique<HGCGraph>();
   min_cos_theta_ = conf.getParameter<double>("min_cos_theta");
   min_cos_pointing_ = conf.getParameter<double>("min_cos_pointing");
@@ -48,7 +51,7 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
                                     rhtools_.lastLayerFH(),
                                     max_delta_time_);
 
-  theGraph_->findNtuplets(foundNtuplets, seedIndices, min_clusters_per_ntuplet_);
+  theGraph_->findNtuplets(foundNtuplets, seedIndices, min_clusters_per_ntuplet_, out_in_dfs_, max_out_in_hops_);
   //#ifdef FP_DEBUG
   const auto &doublets = theGraph_->getAllDoublets();
   int tracksterId = 0;

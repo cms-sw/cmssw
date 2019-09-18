@@ -3,6 +3,7 @@
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DD4hep/Detector.h"
+#include "DD4hep/Shapes.h"
 #include <TGeoBBox.h>
 #include <TGeoBoolNode.h>
 #include <vector>
@@ -12,20 +13,17 @@ using namespace edm;
 using namespace std;
 using namespace cms::dd;
 
-DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume)
-    : node_(volume->GetNode(0)), registry_(&det->specpars()) {
+DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume) : registry_(&det->specpars()) {
   it_.emplace_back(Iterator(volume));
 }
 
 DDFilteredView::DDFilteredView(const DDCompactView& cpv, const DDFilter& attribute) : registry_(&cpv.specpars()) {
   it_.emplace_back(Iterator(cpv.detector()->worldVolume()));
-  node_ = cpv.detector()->worldVolume()->GetNode(0);
-  DDSpecParRefs refs;
-  registry_->filter(refs, attribute);
-  mergedSpecifics(refs);
-  LogVerbatim("Geometry").log([&refs](auto& log) {
-    log << "Filtered DD SpecPar Registry size: " << refs.size() << "\n";
-    for (const auto& t : refs) {
+  registry_->filter(refs_, attribute);
+  mergedSpecifics(refs_);
+  LogVerbatim("Geometry").log([&](auto& log) {
+    log << "Filtered DD SpecPar Registry size: " << refs_.size() << "\n";
+    for (const auto& t : refs_) {
       log << "\nRegExps { ";
       for (const auto& ki : t->paths)
         log << ki << " ";
@@ -110,7 +108,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
         return false;
       });
       if (filter == end(filters_)) {
-        filters_.emplace_back(unique_ptr<Filter>(new Filter{{toks.front()}, nullptr, nullptr}));
+        filters_.emplace_back(unique_ptr<Filter>(new Filter{{toks.front()}, nullptr, nullptr, i}));
         currentFilter_ = filters_.back().get();
       }
       // all next levels
@@ -122,7 +120,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
             currentFilter_->keys.emplace_back(toks[pos]);
           }
         } else {
-          currentFilter_->next.reset(new Filter{{toks[pos]}, nullptr, currentFilter_});
+          currentFilter_->next.reset(new Filter{{toks[pos]}, nullptr, currentFilter_, i});
         }
       }
     }
@@ -174,12 +172,19 @@ bool DDFilteredView::nextSibling() {
     return false;
   it_.back().SetType(1);
   unCheckNode();
+  bool cflag(true);
   do {
     if (accepted(currentFilter_->keys, node_->GetVolume()->GetName())) {
       addNode(node_);
       return true;
     }
-  } while ((node_ = it_.back().Next()));
+    Node* curNode = it_.back().Next();
+    if (node_ != curNode) {
+      node_ = curNode;
+    } else {
+      cflag = false;
+    }
+  } while (cflag);
 
   return false;
 }
@@ -258,11 +263,11 @@ void DDFilteredView::down() {
 }
 
 void DDFilteredView::up() {
-  if (it_.empty() || currentFilter_ == nullptr)
-    return;
-  it_.pop_back();
-  if (currentFilter_->up)
-    currentFilter_ = currentFilter_->up;
+  if (it_.size() > 1 && currentFilter_ != nullptr) {
+    it_.pop_back();
+    if (currentFilter_->up)
+      currentFilter_ = currentFilter_->up;
+  }
 }
 
 bool DDFilteredView::accept(std::string_view name) {
@@ -301,8 +306,12 @@ const std::vector<double> DDFilteredView::parameters() const {
   return currVol.solid().dimensions();
 }
 
-const DDSolidShape DDFilteredView::shape() const {
+const cms::DDSolidShape DDFilteredView::shape() const {
   return cms::dd::value(cms::DDSolidShapeMap, node_->GetVolume()->GetShape()->GetTitle());
+}
+
+LegacySolidShape DDFilteredView::legacyShape(const cms::DDSolidShape shape) const {
+  return cms::dd::value(cms::LegacySolidShapeMap, shape);
 }
 
 template <>
@@ -331,6 +340,12 @@ double DDFilteredView::get<double>(const char* key) const {
   return result;
 }
 
+std::string_view DDFilteredView::getString(const std::string& key) const {
+  assert(currentFilter_);
+  assert(currentFilter_->spec);
+  return currentFilter_->spec->strValue(key.c_str());
+}
+
 DDFilteredView::nav_type DDFilteredView::navPos() const {
   Int_t level = it_.back().GetLevel();
   nav_type pos(level);
@@ -352,7 +367,8 @@ bool DDFilteredView::addPath(Node* const node) {
   for (int nit = level; nit > 0; --nit) {
     for_each(begin(registry_->specpars), end(registry_->specpars), [&](auto const& i) {
       auto k = find_if(begin(i.second.paths), end(i.second.paths), [&](auto const& j) {
-        return (compareEqual(it_.back().GetNode(nit)->GetVolume()->GetName(), *begin(split(realTopName(j), "/"))) &&
+        return (compareEqual(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()),
+                             *begin(split(realTopName(j), "/"))) &&
                 (i.second.hasValue("CopyNoTag") || i.second.hasValue("CopyNoOffset")));
       });
       if (k != end(i.second.paths)) {

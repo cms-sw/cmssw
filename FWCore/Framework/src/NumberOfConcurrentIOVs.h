@@ -36,11 +36,15 @@ namespace edm {
     public:
       NumberOfConcurrentIOVs();
 
-      void initialize(ParameterSet const* eventSetupPset);
+      void readConfigurationParameters(ParameterSet const* eventSetupPset);
 
-      void initialize(EventSetupProvider const&);
+      // Can't have more concurrent IOVs than streams or concurrent lumis
+      void setMaxConcurrentIOVs(unsigned int nStreams, unsigned int nConcurrentLumis);
 
-      unsigned int numberOfConcurrentIOVs(EventSetupRecordKey const&) const;
+      // This depends on bool's hard coded in the EventSetupRecord C++ classes
+      void fillRecordsNotAllowingConcurrentIOVs(EventSetupProvider const&);
+
+      unsigned int numberOfConcurrentIOVs(EventSetupRecordKey const&, bool printInfoMsg = false) const;
 
       void clear();
 
@@ -71,6 +75,8 @@ namespace edm {
       // any subset of records. Values in this container override both of the
       // above data members.
       std::vector<std::pair<EventSetupRecordKey, unsigned int>> forceNumberOfConcurrentIOVs_;
+
+      unsigned int maxConcurrentIOVs_ = 1;
     };
 
   }  // namespace eventsetup

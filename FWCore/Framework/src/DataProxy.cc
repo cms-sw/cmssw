@@ -18,11 +18,11 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/src/ESGlobalMutex.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 namespace edm {
   namespace eventsetup {
-    static std::recursive_mutex s_esGlobalMutex;
 
     static const ComponentDescription* dummyDescription() {
       static ComponentDescription s_desc;
@@ -97,7 +97,7 @@ namespace edm {
                                EventSetupImpl const* iEventSetupImpl) const {
       if (!cacheIsValid()) {
         ESSignalSentry signalSentry(iRecord, iKey, providerDescription(), activityRegistry);
-        std::lock_guard<std::recursive_mutex> guard(s_esGlobalMutex);
+        std::lock_guard<std::recursive_mutex> guard(esGlobalMutex());
         signalSentry.sendPostLockSignal();
         if (!cacheIsValid()) {
           cache_ = const_cast<DataProxy*>(this)->getImpl(iRecord, iKey, iEventSetupImpl);

@@ -430,6 +430,7 @@ namespace edm {
       nConcurrentLumis = 1;
       nConcurrentRuns = 1;
     }
+    espController_->setMaxConcurrentIOVs(nStreams, nConcurrentLumis);
 
     preallocations_ = PreallocationConfiguration{nThreads, nStreams, nConcurrentLumis, nConcurrentRuns};
 
@@ -1064,15 +1065,19 @@ namespace edm {
     }
 
     // We must be careful with the status object here and in code this function calls. IF we want
-    // endRun to be called, then the status object must be destroyed before the things waiting on
+    // endRun to be called, then we must call resetResources before the things waiting on
     // iHolder are allowed to proceed. Otherwise, there will be race condition (possibly causing
-    // endRun to be called much later than it should be, because it is holding iRunResource).
+    // endRun to be called much later than it should be, because status is holding iRunResource).
+    // Note that this must be done explicitly. Relying on the destructor does not work well
+    // because the LimitedTaskQueue for the lumiWork holds the shared_ptr in each of its internal
+    // queues, plus it is difficult to guarantee the destructor is called  before iHolder gets
+    // destroyed inside this function and lumiWork.
     auto status =
         std::make_shared<LuminosityBlockProcessingStatus>(this, preallocations_.numberOfStreams(), iRunResource);
 
     auto lumiWork = [this, iHolder, status](edm::LimitedTaskQueue::Resumer iResumer) mutable {
       if (iHolder.taskHasFailed()) {
-        status.reset();
+        status->resetResources();
         return;
       }
 
@@ -1105,7 +1110,7 @@ namespace edm {
           auto beginStreamsTask = make_waiting_task(
               tbb::task::allocate_root(), [this, holder = iHolder, status, ts](std::exception_ptr const* iPtr) mutable {
                 if (iPtr) {
-                  status.reset();
+                  status->resetResources();
                   holder.doneWaiting(*iPtr);
                 } else {
                   status->globalBeginDidSucceed();
@@ -1117,7 +1122,7 @@ namespace edm {
                       ServiceRegistry::Operate operate(serviceToken_);
                       looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
                     } catch (...) {
-                      status.reset();
+                      status->resetResources();
                       holder.doneWaiting(std::current_exception());
                       return;
                     }
@@ -1152,10 +1157,8 @@ namespace edm {
                                                          &status->eventSetupImpls(),
                                                          serviceToken_,
                                                          subProcesses_);
-                      status.reset();
                     });
                   }
-                  status.reset();
                 }
               });  // beginStreamTask
 
@@ -1174,9 +1177,8 @@ namespace edm {
                                                serviceToken_,
                                                subProcesses_);
           }
-          status.reset();
         } catch (...) {
-          status.reset();
+          status->resetResources();
           iHolder.doneWaiting(std::current_exception());
         }
       });  // task in sourceResourcesAcquirer
@@ -1207,10 +1209,8 @@ namespace edm {
           // lumi is done and no longer needs its EventSetup IOVs.
           espController_->eventSetupForInstance(
               iSync, queueLumiWorkTaskHolder, status->endIOVWaitingTasks(), status->eventSetupImpls());
-          status.reset();
           sentry.completedSuccessfully();
         } catch (...) {
-          status.reset();
           queueLumiWorkTaskHolder.doneWaiting(std::current_exception());
         }
         queueWhichWaitsForIOVsToFinish_.pause();
@@ -1319,9 +1319,10 @@ namespace edm {
           }
 
           try {
-            // This call to status.reset() must occur before iTask is destroyed.
+            // This call to status.resetResources() must occur before iTask is destroyed.
             // Otherwise there will be a data race which could result in endRun
             // being delayed until it is too late to successfully call it.
+            status->resetResources();
             status.reset();
           } catch (...) {
             if (not ptr) {
@@ -1380,8 +1381,6 @@ namespace edm {
                                       //are we the last one?
                                       if (status->streamFinishedLumi()) {
                                         globalEndLumiAsync(iTask, std::move(status));
-                                      } else {
-                                        status.reset();
                                       }
                                     });
 
@@ -1409,7 +1408,6 @@ namespace edm {
                                        subProcesses_,
                                        cleaningUpAfterException);
     }
-    iLumiStatus.reset();
   }
 
   void EventProcessor::endUnfinishedLumi() {

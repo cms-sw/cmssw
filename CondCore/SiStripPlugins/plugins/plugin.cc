@@ -61,6 +61,16 @@ REGISTER_PLUGIN(SiStripSummaryRcd, SiStripSummary);
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 REGISTER_PLUGIN(SiStripConfObjectRcd, SiStripConfObject);
 
+#include "CondFormats/SiStripObjects/interface/SiStripApvSimulationParameters.h"
+namespace {
+  struct initializeApvSimulationParameters {
+    void operator()(SiStripApvSimulationParameters& param) { param.calculateIntegrals(); }
+  };
+}  // namespace
+REGISTER_PLUGIN_INIT(SiStripApvSimulationParametersRcd,
+                     SiStripApvSimulationParameters,
+                     initializeApvSimulationParameters);
+
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 namespace {
   struct initializeCabling {
