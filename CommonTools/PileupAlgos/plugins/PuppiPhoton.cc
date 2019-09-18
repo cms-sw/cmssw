@@ -21,7 +21,7 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Math/interface/deltaR.h"
 //Main File
-#include "CommonTools/PileupAlgos/interface/PuppiPhoton.h"
+#include "CommonTools/PileupAlgos/plugins/PuppiPhoton.h"
 
 // ------------------------------------------------------------------------------------------
 PuppiPhoton::PuppiPhoton(const edm::ParameterSet& iConfig) {

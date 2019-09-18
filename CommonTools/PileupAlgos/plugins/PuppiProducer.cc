@@ -17,8 +17,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/Common/interface/Association.h"
 //Main File
-#include "CommonTools/PileupAlgos/interface/PuppiProducer.h"
-#include "CommonTools/PileupAlgos/interface/PuppiCandidate.h"
+#include "CommonTools/PileupAlgos/plugins/PuppiProducer.h"
+#include "CommonTools/PileupAlgos/plugins/PuppiCandidate.h"
 
 
 // ------------------------------------------------------------------------------------------
