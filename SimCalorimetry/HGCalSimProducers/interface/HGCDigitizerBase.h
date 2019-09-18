@@ -162,6 +162,8 @@ protected:
   static const size_t samplesize_ = 15;
   std::array<std::array<double, samplesize_>, NoiseArrayLength_> GaussianNoiseArray_;
   bool RandNoiseGenerationFlag_;
+  // A parameter configurable from python configuration to decide which noise generation model to use
+  bool NoiseGeneration_Method_;
 };
 
 #endif
