@@ -50,7 +50,7 @@ namespace cms {
     DDFilteredView() = delete;
 
     //! The numbering history of the current node
-    const ExpandedNodes& history() const { return nodes_; }
+    const ExpandedNodes& history();
 
     //! The physical volume of the current node
     const PlacedVolume volume() const;
@@ -71,15 +71,11 @@ namespace cms {
     //! set the current node to the first child
     bool firstChild();
 
-    //! set the current node to the first sibling
-    bool firstSibling();
-
     //! set the current node to the next sibling
     bool nextSibling();
 
     //! set the current node to the next sub sibling
     bool sibling();
-    bool siblingNoCheck();
 
     //! count the number of children matching selection
     bool checkChild();
@@ -95,9 +91,6 @@ namespace cms {
 
     //! set current node to the parent node in the filtered tree
     void up();
-
-    //! pop current node
-    void unCheckNode();
 
     // Shape of current node
     bool isABox() const;
@@ -129,7 +122,6 @@ namespace cms {
     std::string_view materialName() const;
 
     //! extract shape parameters
-    std::vector<double> extractParameters() const;
     const std::vector<double> parameters() const;
 
     const DDSolidShape shape() const;
@@ -152,6 +144,9 @@ namespace cms {
     bool addPath(Node* const);
     bool addNode(Node* const);
     const TClass* getShape() const;
+
+    //! set the current node to the first sibling
+    bool firstSibling();
 
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;

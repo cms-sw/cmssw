@@ -135,8 +135,8 @@ bool DDFilteredView::firstChild() {
   it_.back().SetType(0);
   Node* node = nullptr;
   while ((node = it_.back().Next())) {
-    if (accept(node->GetVolume()->GetName())) {
-      addPath(node);
+    if (accept(noNamespace(node->GetVolume()->GetName()))) {
+      node_ = node;
       return true;
     }
   }
@@ -148,8 +148,10 @@ bool DDFilteredView::firstSibling() {
   assert(node_);
   if (it_.empty() || currentFilter_ == nullptr)
     return false;
+  Node* node = nullptr;
   if (next(0) == false)
     return false;
+  node = node_;
   it_.emplace_back(Iterator(it_.back()));
   it_.back().SetType(1);
   if (currentFilter_ != nullptr && currentFilter_->next != nullptr)
@@ -157,11 +159,11 @@ bool DDFilteredView::firstSibling() {
   else
     return false;
   do {
-    if (accepted(currentFilter_->keys, node_->GetVolume()->GetName())) {
-      addNode(node_);
+    if (accepted(currentFilter_->keys, noNamespace(node->GetVolume()->GetName()))) {
+      node_ = node;
       return true;
     }
-  } while ((node_ = it_.back().Next()));
+  } while ((node = it_.back().Next()));
 
   return false;
 }
@@ -170,41 +172,24 @@ bool DDFilteredView::nextSibling() {
   assert(node_);
   if (it_.empty() || currentFilter_ == nullptr)
     return false;
-  it_.back().SetType(1);
-  unCheckNode();
-  bool cflag(true);
-  do {
-    if (accepted(currentFilter_->keys, node_->GetVolume()->GetName())) {
-      addNode(node_);
-      return true;
-    }
-    Node* curNode = it_.back().Next();
-    if (node_ != curNode) {
-      node_ = curNode;
-    } else {
-      cflag = false;
-    }
-  } while (cflag);
+  if (it_.back().GetType() == 0)
+    return firstSibling();
+  else {
+    up();
+    it_.back().SetType(1);
+    Node* node = node_;
+    do {
+      if (accepted(currentFilter_->keys, noNamespace(node->GetVolume()->GetName()))) {
+        node_ = node;
+        return true;
+      }
+    } while ((node = it_.back().Next()));
 
-  return false;
+    return false;
+  }
 }
 
 bool DDFilteredView::sibling() {
-  if (it_.empty() || currentFilter_ == nullptr)
-    return false;
-  it_.back().SetType(1);
-  Node* node = nullptr;
-  while ((node = it_.back().Next())) {
-    if (accepted(currentFilter_->keys, node->GetVolume()->GetName())) {
-      addNode(node);
-      return true;
-    }
-  }
-  return false;
-}
-
-bool DDFilteredView::siblingNoCheck() {
-  assert(node_);
   if (it_.empty() || currentFilter_ == nullptr)
     return false;
   it_.back().SetType(1);
@@ -236,7 +221,6 @@ bool DDFilteredView::parent() {
     return false;
   up();
   it_.back().SetType(0);
-  it_.back().Skip();
 
   return true;
 }
@@ -265,6 +249,7 @@ void DDFilteredView::down() {
 void DDFilteredView::up() {
   if (it_.size() > 1 && currentFilter_ != nullptr) {
     it_.pop_back();
+    it_.back().SetType(0);
     if (currentFilter_->up)
       currentFilter_ = currentFilter_->up;
   }
@@ -281,14 +266,11 @@ bool DDFilteredView::accept(std::string_view name) {
   return result;
 }
 
-// FIXME: obsolete
-vector<double> DDFilteredView::extractParameters() const {
+const std::vector<double> DDFilteredView::parameters() const {
   assert(node_);
   Volume currVol = node_->GetVolume();
-  if (currVol->GetShape()->IsA() == TGeoBBox::Class()) {
-    const TGeoBBox* box = static_cast<const TGeoBBox*>(currVol->GetShape());
-    return {box->GetDX(), box->GetDY(), box->GetDZ()};
-  } else if (currVol->GetShape()->IsA() == TGeoCompositeShape::Class()) {
+  // Boolean shapes are a special case
+  if (currVol->GetShape()->IsA() == TGeoCompositeShape::Class()) {
     const TGeoCompositeShape* shape = static_cast<const TGeoCompositeShape*>(currVol->GetShape());
     const TGeoBoolNode* boolean = shape->GetBoolNode();
     while (boolean->GetLeftShape()->IsA() != TGeoBBox::Class()) {
@@ -297,17 +279,11 @@ vector<double> DDFilteredView::extractParameters() const {
     const TGeoBBox* box = static_cast<const TGeoBBox*>(boolean->GetLeftShape());
     return {box->GetDX(), box->GetDY(), box->GetDZ()};
   } else
-    return {1, 1, 1};
-}
-
-const std::vector<double> DDFilteredView::parameters() const {
-  assert(node_);
-  Volume currVol = node_->GetVolume();
-  return currVol.solid().dimensions();
+    return currVol.solid().dimensions();
 }
 
 const cms::DDSolidShape DDFilteredView::shape() const {
-  return cms::dd::value(cms::DDSolidShapeMap, node_->GetVolume()->GetShape()->GetTitle());
+  return cms::dd::value(cms::DDSolidShapeMap, std::string(node_->GetVolume()->GetShape()->GetTitle()));
 }
 
 LegacySolidShape DDFilteredView::legacyShape(const cms::DDSolidShape shape) const {
@@ -382,6 +358,33 @@ bool DDFilteredView::addPath(Node* const node) {
   return result;
 }
 
+const ExpandedNodes& DDFilteredView::history() {
+  assert(registry_);
+  nodes_.tags.clear();
+  nodes_.offsets.clear();
+  nodes_.copyNos.clear();
+  bool result(false);
+
+  int level = it_.back().GetLevel();
+  for (int nit = level; nit > 0; --nit) {
+    for_each(begin(registry_->specpars), end(registry_->specpars), [&](auto const& i) {
+      auto k = find_if(begin(i.second.paths), end(i.second.paths), [&](auto const& j) {
+        return (compareEqual(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()),
+                             *begin(split(realTopName(j), "/"))) &&
+                (i.second.hasValue("CopyNoTag") || i.second.hasValue("CopyNoOffset")));
+      });
+      if (k != end(i.second.paths)) {
+        nodes_.tags.emplace_back(i.second.dblValue("CopyNoTag"));
+        nodes_.offsets.emplace_back(i.second.dblValue("CopyNoOffset"));
+        nodes_.copyNos.emplace_back(it_.back().GetNode(nit)->GetNumber());
+        result = true;
+      }
+    });
+  }
+
+  return nodes_;
+}
+
 bool DDFilteredView::addNode(Node* const node) {
   assert(registry_);
   node_ = node;
@@ -399,12 +402,6 @@ bool DDFilteredView::addNode(Node* const node) {
     }
   });
   return result;
-}
-
-void DDFilteredView::unCheckNode() {
-  nodes_.tags.pop_back();
-  nodes_.offsets.pop_back();
-  nodes_.copyNos.pop_back();
 }
 
 const TClass* DDFilteredView::getShape() const {
