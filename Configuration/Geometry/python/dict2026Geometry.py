@@ -57,7 +57,34 @@ commonDict = {
             'Geometry/CMSCommonData/data/FieldParameters.xml',
         ],
         "era" : "run2_common, run3_common, phase2_common",
-    }    
+    },
+        "O4" : {
+        1 : [
+            'Geometry/CMSCommonData/data/materials.xml',
+            'Geometry/CMSCommonData/data/rotations.xml',
+            'Geometry/CMSCommonData/data/extend/v2/cmsextent.xml',
+            'Geometry/CMSCommonData/data/cmsMother.xml',
+            'Geometry/CMSCommonData/data/eta3/etaMax.xml',
+            'Geometry/CMSCommonData/data/cmsTracker.xml',
+            'Geometry/CMSCommonData/data/cmsCalo.xml',
+            'Geometry/CMSCommonData/data/cmsMuon.xml',
+            'Geometry/CMSCommonData/data/mgnt.xml',
+            'Geometry/CMSCommonData/data/beampipe/2026/v1/beampipe.xml',
+            'Geometry/CMSCommonData/data/cmsBeam/2026/v1/cmsBeam.xml',
+            'Geometry/CMSCommonData/data/muonMB.xml',
+            'Geometry/CMSCommonData/data/muonMagnet.xml',
+            'Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml',
+            'Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml',
+            'Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml',           
+            'Geometry/CMSCommonData/data/cms/2026/v3/cms.xml',
+            'Geometry/CMSCommonData/data/caloBase/2026/v2/caloBase.xml',
+            'Geometry/CMSCommonData/data/muonBase/2026/v3/muonBase.xml',
+        ],
+        5 : [
+            'Geometry/CMSCommonData/data/FieldParameters.xml',
+        ],
+        "era" : "run2_common, run3_common, phase2_common",
+        }       
 }
 
 trackerDict = {
@@ -725,6 +752,51 @@ muonDict = {
         "era" : "phase2_muon, run3_GEM",
     },
 
+    "M4" : {
+        1 : [
+            'Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml',
+            'Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml',
+            'Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml',
+            'Geometry/MuonCommonData/data/mb3/2015/v2/mb3.xml',
+            'Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml',
+            'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
+            'Geometry/MuonCommonData/data/muonYoke/2021/v2/muonYoke.xml',
+            'Geometry/MuonCommonData/data/csc/2021/v1/csc.xml',
+            'Geometry/MuonCommonData/data/mfshield/2017/v1/mfshield.xml',
+            'Geometry/MuonCommonData/data/mf/2026/v2/mf.xml',
+            'Geometry/MuonCommonData/data/rpcf/2026/v2/rpcf.xml',
+            'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
+            'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
+            'Geometry/MuonCommonData/data/gem21/TDR_Dev/gem21.xml',
+            'Geometry/MuonCommonData/data/mfshield/2026/v1/mfshield.xml',
+            'Geometry/MuonCommonData/data/me0/TDR_Dev/v2/me0.xml',
+        ],
+        2 : [
+            'Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/muonNumbering.xml',
+        ],
+        3 : [
+            'Geometry/MuonSimData/data/PhaseII/ME0EtaPart/muonSens.xml',
+            'Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
+            'Geometry/RPCGeometryBuilder/data/2026/v1/RPCSpecs.xml',
+            'Geometry/GEMGeometryBuilder/data/v7/GEMSpecsFilter.xml',
+            'Geometry/GEMGeometryBuilder/data/v7/GEMSpecs.xml',
+        ],
+        4 : [
+            'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
+        ],
+        "reco" : [
+            'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
+            'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *',
+            'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
+            'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
+        ],
+        "era" : "phase2_muon, run3_GEM",
+    }
+
 }
 
 forwardDict = {
@@ -915,7 +987,8 @@ detectorVersionDict = {
     ("O3","T15","C9","M3","F2","I10") : "D46",
     ("O3","T15","C10","M3","F3","I10") : "D47",
     ("O3","T16","C9","M3","F2","I10") : "D48",
-}
+    ("O4","T15","C9","M4","F2","I10") : "D49",
+ }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42" ])
 deprecatedSubdets = set([ "T1", "T2" ,"T3", "T4", "T7", "T8", "T9", "T10", "T11", "T12", "T13", "C1", "C2", "C3", "C5", "C7", "M1", "I1", "I2", "I3", "I4", "I6", "I8", "O1", "F1" ])
