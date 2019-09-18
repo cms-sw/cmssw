@@ -134,8 +134,6 @@ void testGenericHandle::getbyLabelTest() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
-  processConfiguration->setParameterSetID(dummyProcessPset.id());
 
   edm::ParameterSet pset;
   pset.registerIt();
@@ -187,13 +185,9 @@ void testGenericHandle::getbyLabelTest() {
 
   edm::GenericHandle h("edmtest::DummyProduct");
   try {
-    edm::ParameterSet dummyProcessPset;
-    dummyProcessPset.registerIt();
     auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
     processConfiguration->setParameterSetID(dummyProcessPset.id());
 
-    edm::ParameterSet pset;
-    pset.registerIt();
     edm::ModuleDescription modDesc(
         pset.id(), "Blah", "blahs", processConfiguration.get(), edm::ModuleDescription::getUniqueID());
     edm::Event event(ep, modDesc, nullptr);

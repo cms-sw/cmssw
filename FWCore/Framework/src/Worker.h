@@ -462,7 +462,7 @@ namespace edm {
                       sContext = m_context,
                       serviceToken = m_serviceToken]() {
               //Need to make the services available
-              ServiceRegistry::Operate guard(serviceToken);
+              ServiceRegistry::Operate operateRunModule(serviceToken);
 
               //If needed, we pause the queue in begin transition and resume it
               // at the end transition. This guarantees that the module
@@ -560,7 +560,7 @@ namespace edm {
                         serviceToken = m_serviceToken,
                         holder = m_holder]() {
               //Need to make the services available
-              ServiceRegistry::Operate guard(serviceToken);
+              ServiceRegistry::Operate operateRunAcquire(serviceToken);
 
               std::exception_ptr* ptr = nullptr;
               worker->runAcquireAfterAsyncPrefetch(ptr, principal, es, parentContext, holder);
@@ -951,8 +951,8 @@ namespace edm {
       if (auto queue = this->serializeRunModule()) {
         queue.push(toDo);
       } else {
-        auto task = make_functor_task(tbb::task::allocate_root(), toDo);
-        tbb::task::spawn(*task);
+        auto taskToDo = make_functor_task(tbb::task::allocate_root(), toDo);
+        tbb::task::spawn(*taskToDo);
       }
     }
   }

@@ -58,6 +58,10 @@ class testdependentrecord : public CppUnit::TestFixture {
   CPPUNIT_TEST(dependentConstructorTest);
   CPPUNIT_TEST(dependentFinder1Test);
   CPPUNIT_TEST(dependentFinder2Test);
+  CPPUNIT_TEST(testIncomparibleIOVAlgorithm);
+  CPPUNIT_TEST(testInvalidIOVAlgorithm);
+  CPPUNIT_TEST(testInvalidIOVFirstTime);
+  CPPUNIT_TEST(testInvalidIOVFirstEventID);
   CPPUNIT_TEST(timeAndRunTest);
   CPPUNIT_TEST(dependentSetproviderTest);
   CPPUNIT_TEST(getTest);
@@ -79,6 +83,10 @@ public:
   void dependentConstructorTest();
   void dependentFinder1Test();
   void dependentFinder2Test();
+  void testIncomparibleIOVAlgorithm();
+  void testInvalidIOVAlgorithm();
+  void testInvalidIOVFirstTime();
+  void testInvalidIOVFirstEventID();
   void timeAndRunTest();
   void dependentSetproviderTest();
   void getTest();
@@ -103,7 +111,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testdependentrecord);
    DepRecord -----> DummyRecord
                 /
    DepOn2Record---> Dummy2Record
- 
+
  */
 
 namespace {
@@ -293,253 +301,292 @@ void testdependentrecord::dependentFinder2Test() {
   CPPUNIT_ASSERT(overlapInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4))));
 }
 
-void testdependentrecord::timeAndRunTest() {
-  //test case where we have two providers, one synching on time the other on run/lumi/event
-  auto dummyProvider1 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-
-  const edm::EventID eID_1(1, 1, 1);
-  const edm::IOVSyncValue sync_1(eID_1);
-  const edm::ValidityInterval definedInterval1(sync_1, edm::IOVSyncValue(edm::EventID(1, 1, 5)));
-  dummyProvider1->setValidityInterval_forTesting(definedInterval1);
-
-  auto dummyProvider2 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-
-  const edm::Timestamp time_1(1);
-  const edm::IOVSyncValue sync_2(time_1);
-  const edm::ValidityInterval definedInterval2(sync_2, edm::IOVSyncValue(edm::Timestamp(6)));
-  dummyProvider2->setValidityInterval_forTesting(definedInterval2);
-
-  const edm::ValidityInterval overlapInterval(definedInterval2.first(), edm::IOVSyncValue::invalidIOVSyncValue());
-
+void testdependentrecord::testIncomparibleIOVAlgorithm() {
   const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
-
   DependentRecordIntervalFinder finder(depRecordKey);
-  finder.addProviderWeAreDependentOn(dummyProvider1);
-  finder.addProviderWeAreDependentOn(dummyProvider2);
 
-  CPPUNIT_ASSERT(overlapInterval ==
-                 finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4), edm::Timestamp(3))));
+  //test case where we have two providers, one synching on time the other on run/lumi/event
+  auto dummyProviderEventID = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+  auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
 
-  //should give back same interval
-  dummyProvider1->initializeForNewSyncValue();
-  dummyProvider2->initializeForNewSyncValue();
-  CPPUNIT_ASSERT(overlapInterval ==
-                 finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4), edm::Timestamp(4))));
+  finder.addProviderWeAreDependentOn(dummyProviderEventID);
+  finder.addProviderWeAreDependentOn(dummyProviderTime);
 
-  //should give back same interval
-  dummyProvider1->initializeForNewSyncValue();
-  dummyProvider2->initializeForNewSyncValue();
-  CPPUNIT_ASSERT(overlapInterval ==
-                 finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 2), edm::Timestamp(3))));
+  {
+    const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 1)),
+                                           edm::IOVSyncValue(edm::EventID(1, 1, 5)));
+    dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
 
-  //should give back same interval
-  dummyProvider1->initializeForNewSyncValue();
-  dummyProvider2->initializeForNewSyncValue();
-  CPPUNIT_ASSERT(overlapInterval ==
-                 finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(2))));
-  //Change only run/lumi/event based provider
-  const edm::ValidityInterval definedInterval3(edm::IOVSyncValue(edm::EventID(1, 1, 6)),
-                                               edm::IOVSyncValue(edm::EventID(1, 1, 10)));
-  dummyProvider1->setValidityInterval_forTesting(definedInterval3);
+    const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(1)), edm::IOVSyncValue(edm::Timestamp(6)));
+    dummyProviderTime->setValidityInterval_forTesting(iovTime);
 
-  const edm::ValidityInterval overlapInterval2(definedInterval3.first(), edm::IOVSyncValue::invalidIOVSyncValue());
+    const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-  dummyProvider1->initializeForNewSyncValue();
-  dummyProvider2->initializeForNewSyncValue();
-  CPPUNIT_ASSERT(overlapInterval2 ==
-                 finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 6), edm::Timestamp(5))));
+    // The algorithm selects incomparable IOVs from the two providers based on
+    // the least estimated time difference from the start of changed IOVs.
+    // The difference based on lumi numbers is zero in this case (assumes
+    // 23 second lumis). The difference in times is also zero because it is
+    // calculating in seconds and the lower 32 bits of the time argument to
+    // the Timestamp constructor are dropped by the algorithm. So when finding
+    // the closest both time and eventID estimates are zero. On a tie, the algorithm
+    // selects the time IOV.
+    CPPUNIT_ASSERT(expectedIOV ==
+                   finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4), edm::Timestamp(3))));
 
-  //Change only time based provider
-  const edm::ValidityInterval definedInterval4(edm::IOVSyncValue(edm::Timestamp(7)),
-                                               edm::IOVSyncValue(edm::Timestamp(10)));
-  dummyProvider2->setValidityInterval_forTesting(definedInterval4);
+    // With IOVs that are not comparable we just continually get back the same
+    // result when none of the IOVs changes. Next 3 just show that.
 
-  const edm::ValidityInterval overlapInterval3(definedInterval4.first(), edm::IOVSyncValue::invalidIOVSyncValue());
+    //should give back same interval
+    dummyProviderEventID->initializeForNewSyncValue();
+    dummyProviderTime->initializeForNewSyncValue();
+    CPPUNIT_ASSERT(expectedIOV ==
+                   finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4), edm::Timestamp(4))));
 
-  dummyProvider1->initializeForNewSyncValue();
-  dummyProvider2->initializeForNewSyncValue();
-  CPPUNIT_ASSERT(overlapInterval3 ==
-                 finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 7), edm::Timestamp(7))));
+    //should give back same interval
+    dummyProviderEventID->initializeForNewSyncValue();
+    dummyProviderTime->initializeForNewSyncValue();
+    CPPUNIT_ASSERT(expectedIOV ==
+                   finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 2), edm::Timestamp(3))));
+
+    //should give back same interval
+    dummyProviderEventID->initializeForNewSyncValue();
+    dummyProviderTime->initializeForNewSyncValue();
+    CPPUNIT_ASSERT(expectedIOV ==
+                   finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(2))));
+  }
+  {
+    //Change only run/lumi/event based provider. The algorithm picks
+    //the closest of the IOVs that changed, so now gets the EventID based
+    //IOV.
+    const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 6)),
+                                           edm::IOVSyncValue(edm::EventID(1, 1, 10)));
+    dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+
+    const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
+
+    // Don't need to call initializeForNewSyncValue() if setValidityInterval_forTesting
+    // was called.
+    dummyProviderTime->initializeForNewSyncValue();
+    CPPUNIT_ASSERT(expectedIOV ==
+                   finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 6), edm::Timestamp(5))));
+  }
+  {
+    //Change only time based provider
+    const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(7)), edm::IOVSyncValue(edm::Timestamp(10)));
+    dummyProviderTime->setValidityInterval_forTesting(iovTime);
+
+    const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
+
+    dummyProviderEventID->initializeForNewSyncValue();
+    CPPUNIT_ASSERT(expectedIOV ==
+                   finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 7), edm::Timestamp(7))));
+  }
   //Change both but make run/lumi/event 'closer' by having same lumi
   {
-    const edm::ValidityInterval runLumiInterval(edm::IOVSyncValue(edm::EventID(1, 2, 11)),
-                                                edm::IOVSyncValue(edm::EventID(1, 3, 20)));
-    dummyProvider1->setValidityInterval_forTesting(runLumiInterval);
+    const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 2, 11)),
+                                           edm::IOVSyncValue(edm::EventID(1, 3, 20)));
+    dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
 
-    const edm::ValidityInterval timeInterval(edm::IOVSyncValue(edm::Timestamp(1ULL << 32)),
-                                             edm::IOVSyncValue(edm::Timestamp(5ULL << 32)));
-    dummyProvider2->setValidityInterval_forTesting(timeInterval);
+    const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(1ULL << 32)),
+                                        edm::IOVSyncValue(edm::Timestamp(5ULL << 32)));
+    dummyProviderTime->setValidityInterval_forTesting(iovTime);
 
-    const edm::ValidityInterval overlapInterval(runLumiInterval.first(), edm::IOVSyncValue::invalidIOVSyncValue());
-
-    dummyProvider1->initializeForNewSyncValue();
-    dummyProvider2->initializeForNewSyncValue();
+    const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
     CPPUNIT_ASSERT(
-        overlapInterval ==
+        expectedIOV ==
         finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 2, 12), edm::Timestamp(3ULL << 32))));
   }
-
   //Change both but make time 'closer'
   {
-    const edm::ValidityInterval runLumiInterval(edm::IOVSyncValue(edm::EventID(1, 3, 21)),
-                                                edm::IOVSyncValue(edm::EventID(1, 10, 40)));
-    dummyProvider1->setValidityInterval_forTesting(runLumiInterval);
+    const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 3, 21)),
+                                           edm::IOVSyncValue(edm::EventID(1, 10, 40)));
+    dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
 
-    const edm::ValidityInterval timeInterval(edm::IOVSyncValue(edm::Timestamp(7ULL << 32)),
-                                             edm::IOVSyncValue(edm::Timestamp(10ULL << 32)));
-    dummyProvider2->setValidityInterval_forTesting(timeInterval);
+    const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(7ULL << 32)),
+                                        edm::IOVSyncValue(edm::Timestamp(10ULL << 32)));
+    dummyProviderTime->setValidityInterval_forTesting(iovTime);
 
-    const edm::ValidityInterval overlapInterval(timeInterval.first(), edm::IOVSyncValue::invalidIOVSyncValue());
-
-    dummyProvider1->initializeForNewSyncValue();
-    dummyProvider2->initializeForNewSyncValue();
+    const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
     CPPUNIT_ASSERT(
-        overlapInterval ==
+        expectedIOV ==
         finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 4, 30), edm::Timestamp(8ULL << 32))));
   }
-
   //Change both but make run/lumi/event 'closer'
   {
-    const edm::ValidityInterval runLumiInterval(edm::IOVSyncValue(edm::EventID(1, 11, 41)),
-                                                edm::IOVSyncValue(edm::EventID(1, 20, 60)));
-    dummyProvider1->setValidityInterval_forTesting(runLumiInterval);
+    const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 11, 41)),
+                                           edm::IOVSyncValue(edm::EventID(1, 20, 60)));
+    dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
 
-    const edm::ValidityInterval timeInterval(edm::IOVSyncValue(edm::Timestamp(11ULL << 32)),
-                                             edm::IOVSyncValue(edm::Timestamp(100ULL << 32)));
-    dummyProvider2->setValidityInterval_forTesting(timeInterval);
+    const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(11ULL << 32)),
+                                        edm::IOVSyncValue(edm::Timestamp(100ULL << 32)));
+    dummyProviderTime->setValidityInterval_forTesting(iovTime);
 
-    const edm::ValidityInterval overlapInterval(runLumiInterval.first(), edm::IOVSyncValue::invalidIOVSyncValue());
-
-    dummyProvider1->initializeForNewSyncValue();
-    dummyProvider2->initializeForNewSyncValue();
+    const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
     CPPUNIT_ASSERT(
-        overlapInterval ==
+        expectedIOV ==
         finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 12, 50), edm::Timestamp(70ULL << 32))));
   }
 
   //Change both and make it ambiguous because of different run #
   {
-    const edm::ValidityInterval runLumiInterval(edm::IOVSyncValue(edm::EventID(2, 1, 0)),
-                                                edm::IOVSyncValue(edm::EventID(6, 0, 0)));
-    dummyProvider1->setValidityInterval_forTesting(runLumiInterval);
+    const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(2, 1, 0)),
+                                           edm::IOVSyncValue(edm::EventID(6, 0, 0)));
+    dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
 
-    const edm::ValidityInterval timeInterval(edm::IOVSyncValue(edm::Timestamp(200ULL << 32)),
-                                             edm::IOVSyncValue(edm::Timestamp(500ULL << 32)));
-    dummyProvider2->setValidityInterval_forTesting(timeInterval);
+    const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(200ULL << 32)),
+                                        edm::IOVSyncValue(edm::Timestamp(500ULL << 32)));
+    dummyProviderTime->setValidityInterval_forTesting(iovTime);
 
-    const edm::ValidityInterval overlapInterval(timeInterval.first(), edm::IOVSyncValue::invalidIOVSyncValue());
-
-    dummyProvider1->initializeForNewSyncValue();
-    dummyProvider2->initializeForNewSyncValue();
+    const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
     CPPUNIT_ASSERT(
-        overlapInterval ==
+        expectedIOV ==
         finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(4, 12, 50), edm::Timestamp(400ULL << 32))));
   }
+  {
+    const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 6)),
+                                           edm::IOVSyncValue(edm::EventID(1, 1, 10)));
+    dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
 
-  //First reset back to the state expected by the following tests
-  dummyProvider1->setValidityInterval_forTesting(definedInterval3);
-  dummyProvider2->setValidityInterval_forTesting(definedInterval4);
-  dummyProvider1->initializeForNewSyncValue();
-  dummyProvider2->initializeForNewSyncValue();
-  CPPUNIT_ASSERT(overlapInterval3 ==
-                 finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 7), edm::Timestamp(7))));
+    const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(7)), edm::IOVSyncValue(edm::Timestamp(10)));
+    dummyProviderTime->setValidityInterval_forTesting(iovTime);
+
+    const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
+    CPPUNIT_ASSERT(expectedIOV ==
+                   finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 7), edm::Timestamp(7))));
+  }
+}
+
+void testdependentrecord::testInvalidIOVAlgorithm() {
+  const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
+  DependentRecordIntervalFinder finder(depRecordKey);
+
+  auto dummyProviderEventID = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+  auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+
+  finder.addProviderWeAreDependentOn(dummyProviderEventID);
+  finder.addProviderWeAreDependentOn(dummyProviderTime);
+
+  {
+    const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 6)),
+                                           edm::IOVSyncValue(edm::EventID(1, 1, 10)));
+    dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+
+    const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(7)), edm::IOVSyncValue(edm::Timestamp(10)));
+    dummyProviderTime->setValidityInterval_forTesting(iovTime);
+
+    const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
+    CPPUNIT_ASSERT(expectedIOV ==
+                   finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 7), edm::Timestamp(7))));
+  }
 
   //check with invalid intervals
   const edm::ValidityInterval invalid(edm::IOVSyncValue::invalidIOVSyncValue(),
                                       edm::IOVSyncValue::invalidIOVSyncValue());
-  dummyProvider1->setValidityInterval_forTesting(invalid);
-  dummyProvider1->initializeForNewSyncValue();
-  dummyProvider2->initializeForNewSyncValue();
-  CPPUNIT_ASSERT(overlapInterval3 ==
-                 finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 11), edm::Timestamp(8))));
+  {
+    dummyProviderEventID->setValidityInterval_forTesting(invalid);
+    dummyProviderTime->initializeForNewSyncValue();
+    const edm::ValidityInterval expectedIOV(edm::IOVSyncValue(edm::Timestamp(7)),
+                                            edm::IOVSyncValue::invalidIOVSyncValue());
+    CPPUNIT_ASSERT(expectedIOV ==
+                   finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 11), edm::Timestamp(8))));
+  }
+  {
+    const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 12)),
+                                           edm::IOVSyncValue(edm::EventID(1, 1, 20)));
+    dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+    dummyProviderTime->setValidityInterval_forTesting(invalid);
+    const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
+    CPPUNIT_ASSERT(expectedIOV ==
+                   finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 13), edm::Timestamp(11))));
+  }
+  {
+    dummyProviderEventID->setValidityInterval_forTesting(invalid);
+    dummyProviderTime->setValidityInterval_forTesting(invalid);
 
-  const edm::ValidityInterval definedInterval5(edm::IOVSyncValue(edm::EventID(1, 1, 12)),
-                                               edm::IOVSyncValue(edm::EventID(1, 1, 20)));
-  dummyProvider1->setValidityInterval_forTesting(definedInterval5);
-  dummyProvider2->setValidityInterval_forTesting(invalid);
-  const edm::ValidityInterval overlapInterval4(definedInterval5.first(), edm::IOVSyncValue::invalidIOVSyncValue());
+    dummyProviderEventID->initializeForNewSyncValue();
+    CPPUNIT_ASSERT(invalid ==
+                   finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 13), edm::Timestamp(11))));
+  }
+}
 
-  dummyProvider1->initializeForNewSyncValue();
-  dummyProvider2->initializeForNewSyncValue();
-  CPPUNIT_ASSERT(overlapInterval4 ==
-                 finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 13), edm::Timestamp(11))));
+void testdependentrecord::testInvalidIOVFirstTime() {
+  const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
+  DependentRecordIntervalFinder finder(depRecordKey);
 
+  auto dummyProviderEventID = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+  auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+
+  finder.addProviderWeAreDependentOn(dummyProviderEventID);
+  finder.addProviderWeAreDependentOn(dummyProviderTime);
+
+  const edm::ValidityInterval invalid(edm::IOVSyncValue::invalidIOVSyncValue(),
+                                      edm::IOVSyncValue::invalidIOVSyncValue());
   {
     //check for bug which only happens the first time we synchronize
     // have the second one invalid
-    auto dummyProvider1 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 1)),
+                                           edm::IOVSyncValue(edm::EventID(1, 1, 6)));
+    dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
 
-    const edm::EventID eID_1(1, 1, 1);
-    const edm::IOVSyncValue sync_1(eID_1);
-    const edm::ValidityInterval definedInterval1(sync_1, edm::IOVSyncValue(edm::EventID(1, 1, 6)));
-    dummyProvider1->setValidityInterval_forTesting(definedInterval1);
+    auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    dummyProviderTime->setValidityInterval_forTesting(invalid);
 
-    auto dummyProvider2 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-    dummyProvider2->setValidityInterval_forTesting(invalid);
-
-    const edm::ValidityInterval overlapInterval(definedInterval1.first(), edm::IOVSyncValue::invalidIOVSyncValue());
-
-    const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
-
-    DependentRecordIntervalFinder finder(depRecordKey);
-    finder.addProviderWeAreDependentOn(dummyProvider1);
-    finder.addProviderWeAreDependentOn(dummyProvider2);
-
-    CPPUNIT_ASSERT(overlapInterval ==
+    CPPUNIT_ASSERT(expectedIOV ==
                    finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4), edm::Timestamp(1))));
+  }
+  {
+    const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(2)), edm::IOVSyncValue(edm::Timestamp(6)));
+    dummyProviderTime->setValidityInterval_forTesting(iovTime);
 
-    const edm::Timestamp time_1(2);
-    const edm::IOVSyncValue sync_2(time_1);
-    const edm::ValidityInterval definedInterval2(sync_2, edm::IOVSyncValue(edm::Timestamp(6)));
-    dummyProvider2->setValidityInterval_forTesting(definedInterval2);
+    const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-    const edm::ValidityInterval overlapInterval2(definedInterval2.first(), edm::IOVSyncValue::invalidIOVSyncValue());
-
-    dummyProvider1->initializeForNewSyncValue();
-    dummyProvider2->initializeForNewSyncValue();
-    CPPUNIT_ASSERT(overlapInterval2 ==
+    dummyProviderEventID->initializeForNewSyncValue();
+    CPPUNIT_ASSERT(expectedIOV ==
                    finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5), edm::Timestamp(3))));
   }
+}
+
+void testdependentrecord::testInvalidIOVFirstEventID() {
+  const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
+  DependentRecordIntervalFinder finder(depRecordKey);
+
+  auto dummyProviderEventID = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+  auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+
+  finder.addProviderWeAreDependentOn(dummyProviderEventID);
+  finder.addProviderWeAreDependentOn(dummyProviderTime);
+
+  const edm::ValidityInterval invalid(edm::IOVSyncValue::invalidIOVSyncValue(),
+                                      edm::IOVSyncValue::invalidIOVSyncValue());
   {
     //check for bug which only happens the first time we synchronize
     // have the  first one invalid
+    dummyProviderEventID->setValidityInterval_forTesting(invalid);
 
-    auto dummyProvider1 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(1)), edm::IOVSyncValue(edm::Timestamp(6)));
+    dummyProviderTime->setValidityInterval_forTesting(iovTime);
 
-    dummyProvider1->setValidityInterval_forTesting(invalid);
+    const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-    auto dummyProvider2 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-
-    const edm::Timestamp time_1(1);
-    const edm::IOVSyncValue sync_2(time_1);
-    const edm::ValidityInterval definedInterval2(sync_2, edm::IOVSyncValue(edm::Timestamp(6)));
-    dummyProvider2->setValidityInterval_forTesting(definedInterval2);
-
-    const edm::ValidityInterval overlapInterval(definedInterval2.first(), edm::IOVSyncValue::invalidIOVSyncValue());
-
-    const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
-
-    DependentRecordIntervalFinder finder(depRecordKey);
-    finder.addProviderWeAreDependentOn(dummyProvider1);
-    finder.addProviderWeAreDependentOn(dummyProvider2);
-
-    CPPUNIT_ASSERT(overlapInterval ==
+    CPPUNIT_ASSERT(expectedIOV ==
                    finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4), edm::Timestamp(3))));
+  }
+  {
+    const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 5)),
+                                           edm::IOVSyncValue(edm::EventID(1, 1, 10)));
+    dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
 
-    const edm::EventID eID_1(1, 1, 5);
-    const edm::IOVSyncValue sync_1(eID_1);
-    const edm::ValidityInterval definedInterval1(sync_1, edm::IOVSyncValue(edm::EventID(1, 1, 10)));
-    dummyProvider1->setValidityInterval_forTesting(definedInterval1);
-
-    const edm::ValidityInterval overlapInterval2(definedInterval2.first(), edm::IOVSyncValue::invalidIOVSyncValue());
-
-    dummyProvider1->initializeForNewSyncValue();
-    dummyProvider2->initializeForNewSyncValue();
-    CPPUNIT_ASSERT(overlapInterval2 ==
+    const edm::ValidityInterval expectedIOV(edm::IOVSyncValue(edm::Timestamp(1)),
+                                            edm::IOVSyncValue::invalidIOVSyncValue());
+    dummyProviderTime->initializeForNewSyncValue();
+    CPPUNIT_ASSERT(expectedIOV ==
                    finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5), edm::Timestamp(4))));
   }
+}
 
+void testdependentrecord::timeAndRunTest() {
   edm::ParameterSet pset = createDummyPset();
   {
     EventSetupsController controller;

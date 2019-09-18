@@ -73,74 +73,63 @@ namespace {
 void testServiceRegistry::externalServiceTest() {
   edm::AssertHandler ah;
 
+  {{auto dummyPtr = std::make_unique<DummyService>();
+  dummyPtr->value_ = 2;
+  edm::ServiceToken token(edm::ServiceRegistry::createContaining(std::move(dummyPtr)));
+
+  edm::ServiceRegistry::Operate operate(token);
+  edm::Service<DummyService> dummy;
+  CPPUNIT_ASSERT(dummy);
+  CPPUNIT_ASSERT(dummy.isAvailable());
+  CPPUNIT_ASSERT(dummy->value_ == 2);
+}
+{
+  auto dummyPtr = std::make_unique<DummyService>();
+  dummyPtr->value_ = 2;
+
+  std::vector<edm::ParameterSet> pss;
+
+  edm::ParameterSet ps;
+  std::string typeName("DummyService");
+  ps.addParameter("@service_type", typeName);
+  int value = 3;
+  ps.addParameter("value", value);
+  pss.push_back(ps);
+
+  edm::ServiceToken tokenFromConfig(edm::ServiceRegistry::createSet(pss));
+  edm::ServiceToken token(edm::ServiceRegistry::createContaining(
+      std::move(dummyPtr), tokenFromConfig, edm::serviceregistry::kOverlapIsError));
+
+  edm::ServiceRegistry::Operate operate(token);
+  edm::Service<testserviceregistry::DummyService> dummy;
+  CPPUNIT_ASSERT(dummy);
+  CPPUNIT_ASSERT(dummy.isAvailable());
+  CPPUNIT_ASSERT(dummy->value() == 3);
+
+  edm::Service<DummyService> dummyNotFromConfig;
+  CPPUNIT_ASSERT(dummyNotFromConfig);
+  CPPUNIT_ASSERT(dummyNotFromConfig.isAvailable());
+  CPPUNIT_ASSERT(dummyNotFromConfig->value_ == 2);
+}
+}
+
+{
+  // This is very similar to the above test. Pass in a ServiceWrapper to createContaining instead
+  // of a unique_ptr
+  auto dummyPtr = std::make_unique<DummyService>();
+  auto wrapper = std::make_shared<edm::serviceregistry::ServiceWrapper<DummyService> >(std::move(dummyPtr));
+
+  wrapper->get().value_ = 2;
+
   {
-    auto dummyPtr = std::make_unique<DummyService>();
-    dummyPtr->value_ = 2;
-    edm::ServiceToken token(edm::ServiceRegistry::createContaining(std::move(dummyPtr)));
-    {
-      edm::ServiceRegistry::Operate operate(token);
-      edm::Service<DummyService> dummy;
-      CPPUNIT_ASSERT(dummy);
-      CPPUNIT_ASSERT(dummy.isAvailable());
-      CPPUNIT_ASSERT(dummy->value_ == 2);
-    }
-    {
-      std::vector<edm::ParameterSet> pss;
-
-      edm::ParameterSet ps;
-      std::string typeName("DummyService");
-      ps.addParameter("@service_type", typeName);
-      int value = 2;
-      ps.addParameter("value", value);
-      pss.push_back(ps);
-
-      edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
-      edm::ServiceToken token2(
-          edm::ServiceRegistry::createContaining(std::move(dummyPtr), token, edm::serviceregistry::kOverlapIsError));
-
-      edm::ServiceRegistry::Operate operate(token2);
-      edm::Service<testserviceregistry::DummyService> dummy;
-      CPPUNIT_ASSERT(dummy);
-      CPPUNIT_ASSERT(dummy.isAvailable());
-      CPPUNIT_ASSERT(dummy->value() == 2);
-    }
-  }
-
-  {
-    auto dummyPtr = std::make_unique<DummyService>();
-    auto wrapper = std::make_shared<edm::serviceregistry::ServiceWrapper<DummyService> >(std::move(dummyPtr));
     edm::ServiceToken token(edm::ServiceRegistry::createContaining(wrapper));
-
-    wrapper->get().value_ = 2;
-
-    {
-      edm::ServiceRegistry::Operate operate(token);
-      edm::Service<DummyService> dummy;
-      CPPUNIT_ASSERT(dummy);
-      CPPUNIT_ASSERT(dummy.isAvailable());
-      CPPUNIT_ASSERT(dummy->value_ == 2);
-    }
-    {
-      std::vector<edm::ParameterSet> pss;
-
-      edm::ParameterSet ps;
-      std::string typeName("DummyService");
-      ps.addParameter("@service_type", typeName);
-      int value = 2;
-      ps.addParameter("value", value);
-      pss.push_back(ps);
-
-      edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
-      edm::ServiceToken token2(
-          edm::ServiceRegistry::createContaining(std::move(dummyPtr), token, edm::serviceregistry::kOverlapIsError));
-
-      edm::ServiceRegistry::Operate operate(token2);
-      edm::Service<testserviceregistry::DummyService> dummy;
-      CPPUNIT_ASSERT(dummy);
-      CPPUNIT_ASSERT(dummy.isAvailable());
-      CPPUNIT_ASSERT(dummy->value() == 2);
-    }
+    edm::ServiceRegistry::Operate operate(token);
+    edm::Service<DummyService> dummy;
+    CPPUNIT_ASSERT(dummy);
+    CPPUNIT_ASSERT(dummy.isAvailable());
+    CPPUNIT_ASSERT(dummy->value_ == 2);
   }
+}
 }
 
 void testServiceRegistry::saveConfigWithExternalTest() {
@@ -251,8 +240,8 @@ namespace {
 
 void testServiceRegistry::threadTest() {
   UniqueRegistry::isUnique_ = false;
-  void* value = &(edm::ServiceRegistry::instance());
-  UniqueRegistry unique(value);
+  void* serviceRegistry = &(edm::ServiceRegistry::instance());
+  UniqueRegistry unique(serviceRegistry);
   std::thread testUniqueness(unique);
   testUniqueness.join();
   CPPUNIT_ASSERT(UniqueRegistry::isUnique_);

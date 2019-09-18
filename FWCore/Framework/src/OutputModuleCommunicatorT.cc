@@ -90,8 +90,8 @@ namespace edm {
         ModuleCallingContext mcc(desc);
         ModuleContextSentry moduleContextSentry(&mcc, parentContext);
         activityRegistry->preModuleWriteRunSignal_(globalContext, mcc);
-        auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* activityRegistry) {
-          activityRegistry->postModuleWriteRunSignal_(globalContext, mcc);
+        auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* ar) {
+          ar->postModuleWriteRunSignal_(globalContext, mcc);
         }));
         mod.doWriteRun(rp, &mcc, mergeableRunProductMetadata);
       } catch (...) {
@@ -123,8 +123,8 @@ namespace edm {
         ModuleCallingContext mcc(desc);
         ModuleContextSentry moduleContextSentry(&mcc, parentContext);
         activityRegistry->preModuleWriteLumiSignal_(globalContext, mcc);
-        auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* activityRegistry) {
-          activityRegistry->postModuleWriteLumiSignal_(globalContext, mcc);
+        auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* ar) {
+          ar->postModuleWriteLumiSignal_(globalContext, mcc);
         }));
         mod.doWriteLuminosityBlock(lbp, &mcc);
       } catch (...) {

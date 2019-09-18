@@ -111,9 +111,9 @@ namespace edm {
       readProvenance();
       auto ptr = readEntryInfoSet_.load();
       if (ptr) {
-        auto it = ptr->find(ei);
-        if (it != ptr->end()) {
-          return &*it;
+        auto itRead = ptr->find(ei);
+        if (itRead != ptr->end()) {
+          return &*itRead;
         }
       }
       if (nextRetriever_) {
