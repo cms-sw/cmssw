@@ -2112,6 +2112,9 @@ step3_pixelTrackingOnly = {
 step3_trackingLowPU = {
     '--era': 'Run2_2016_trackingLowPU'
 }
+step3_trackingMkFit = {
+    '--customise': 'RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepToMkFit'
+}
 step3_HIPM = {
     '--era': 'Run2_2016_HIPM'
 }
@@ -3263,6 +3266,10 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         stepName = step + upgradeSteps['trackingLowPU']['suffix']
         if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
             upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingLowPU'}, upgradeStepDict[step][k]])
+
+    for step in upgradeSteps['trackingMkFit']['steps']:
+        stepName = step + upgradeSteps['trackingMkFit']['suffix']
+        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_trackingMkFit, upgradeStepDict[step][k]])
 
     for step in upgradeSteps['Neutron']['steps']:
         if 'GenSim' in step:

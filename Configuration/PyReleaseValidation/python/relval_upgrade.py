@@ -73,7 +73,7 @@ for year in upgradeKeys:
             # special workflows for tracker
             if (upgradeDatasetFromFragment[frag]=="TTbar_13" or upgradeDatasetFromFragment[frag]=="TTbar_14TeV") and not 'PU' in key and hasHarvest:
                 # skip ALCA and Nano
-                trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly']
+                trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly','trackingMkFit']
                 for tv in trackingVariations:
                     stepList[tv] = [s for s in stepList[tv] if (("ALCA" not in s) and ("Nano" not in s))]
                 workflows[numWF+upgradeSteps['trackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingOnly']]
@@ -82,6 +82,8 @@ for year in upgradeKeys:
                         workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
                 elif '2018' in key:
                     workflows[numWF+upgradeSteps['pixelTrackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['pixelTrackingOnly']]
+                elif '2021' in key:
+                    workflows[numWF+upgradeSteps['trackingMkFit']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingMkFit']]
 
             # special workflows for HGCAL/TICL
             if (upgradeDatasetFromFragment[frag]=="CloseByParticleGun") and ('2026' in key):
