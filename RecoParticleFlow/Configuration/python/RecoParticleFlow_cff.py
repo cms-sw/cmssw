@@ -27,7 +27,7 @@ fixedGridRhoFastjetAllTmp = fixedGridRhoFastjetAll.clone(pfCandidatesTag = cms.I
 particleFlowTmpTask = cms.Task(particleFlowTmp)
 particleFlowTmpSeq = cms.Sequence(particleFlowTmpTask)
 
-particleFlowRecoTask = cms.Task( particleFlowTrackWithDisplacedVertex,
+particleFlowRecoTask = cms.Task( particleFlowTrackWithDisplacedVertexTask,
                                  pfGsfElectronMVASelectionTask,
                                  particleFlowBlock,
                                  particleFlowEGammaFull,
@@ -38,8 +38,7 @@ particleFlowRecoTask = cms.Task( particleFlowTrackWithDisplacedVertex,
                                  pfParticleSelectionTask )
 particleFlowReco = cms.Sequence(particleFlowRecoTask)
 
-particleFlowLinksTask = cms.Task( particleFlowTmpTask, particleFlowTmpPtrs, chargedHadronPFTrackIsolation, particleBasedIsolationTask)
-particleFlowLinks = cms.Sequence(particleFlowLinksTask)
+particleFlowLinks = cms.Sequence( particleFlow*particleFlowPtrs*chargedHadronPFTrackIsolation*particleBasedIsolationSequence)
 
 from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
 from RecoParticleFlow.PFProducer.simPFProducer_cfi import *

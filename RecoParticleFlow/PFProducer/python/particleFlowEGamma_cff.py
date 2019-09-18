@@ -66,7 +66,7 @@ photonIDValueMaps = cms.EDProducer(
   )
 
 
-particleFlowEGammaFullTask = cms.Task(particleFlowEGamma, gedGsfElectronTaskTmp, gedPhotonsTmp, ootPhotonTask)
+particleFlowEGammaFullTask = cms.Task(particleFlowEGamma, gedGsfElectronTaskTmp, gedPhotonTaskTmp, ootPhotonTask)
 particleFlowEGammaFull = cms.Sequence(particleFlowEGammaFullTask)
 particleFlowEGammaFinalTask = cms.Task(particleBasedIsolationTmp,
                                        pfNoPileUpIsoTask,
@@ -76,9 +76,9 @@ particleFlowEGammaFinalTask = cms.Task(particleBasedIsolationTmp,
                                        egmElectronIsolationCITK,
                                        egmElectronIsolationPileUpCITK,
                                        photonIDValueMaps,
-                                       gedPhotons,
+                                       gedPhotonTask,
                                        gedElectronPFIsoTask)
-particleFlowEGammaFinalTask = cms.Sequence(particleFlowEGammaFinalTask)
+particleFlowEGammaFinal = cms.Sequence(particleFlowEGammaFinalTask)
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toReplaceWith(particleFlowEGammaFullTask, particleFlowEGammaFullTask.copyAndExclude([ootPhotonTask]))
