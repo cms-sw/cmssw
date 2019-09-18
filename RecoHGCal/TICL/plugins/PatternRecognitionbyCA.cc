@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "PatternRecognitionbyCA.h"
 #include "HGCGraph.h"
 
@@ -12,9 +13,9 @@ using namespace ticl;
 
 PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf, const CacheBase *cache)
     : PatternRecognitionAlgoBase(conf, cache),
+      theGraph_(std::make_unique<HGCGraph>()),
       out_in_dfs_(conf.getParameter<bool>("out_in_dfs")),
       max_out_in_hops_(conf.getParameter<int>("max_out_in_hops")),
-      theGraph_(std::make_unique<HGCGraph>()),
       min_cos_theta_(conf.getParameter<double>("min_cos_theta")),
       min_cos_pointing_(conf.getParameter<double>("min_cos_pointing")),
       missing_layers_(conf.getParameter<int>("missing_layers")),
@@ -29,9 +30,11 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf, co
       eidSession_(nullptr) {
   // mount the tensorflow graph onto the session when set
   const TrackstersCache *trackstersCache = dynamic_cast<const TrackstersCache *>(cache);
-  if (trackstersCache != nullptr && trackstersCache->eidGraphDef != nullptr) {
-    eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
+  if (trackstersCache == nullptr || trackstersCache->eidGraphDef == nullptr) {
+    throw cms::Exception("MissingGraphDef")
+        << "PatternRecognitionbyCA received an empty graph definition from the global cache";
   }
+  eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
 }
 
 PatternRecognitionbyCA::~PatternRecognitionbyCA(){};
@@ -110,10 +113,8 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     }
   }
 
-  // energy regression and ID when a session is created
-  if (eidSession_ != nullptr) {
-    energyRegressionAndID(input.layerClusters, result);
-  }
+  // run energy regression and ID
+  energyRegressionAndID(input.layerClusters, result);
 }
 
 void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
@@ -134,7 +135,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
   // 8. Assign the regressed energy and id probabilities to each trackster.
   //
   // Indices used throughout this method:
-  // i -> batch / trackster
+  // i -> batch element / trackster
   // j -> layer
   // k -> cluster
   // l -> feature
@@ -145,16 +146,16 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
   for (int i = 0; i < (int)tracksters.size(); i++) {
     // set default values (1)
     tracksters[i].regressed_energy = 0.;
-    for (int p = 0; p < (int)tracksters[i].id_probabilities.size(); p++) {
-      tracksters[i].id_probabilities[p] = 0.;
+    for (float &p : tracksters[i].id_probabilities) {
+      p = 0.;
     }
 
     // calculate the cluster energy sum (2)
     // note: after the loop, sumClusterEnergy might be just above the threshold which is enough to
     // decide whether to run inference for the trackster or not
     float sumClusterEnergy = 0.;
-    for (int k = 0; k < (int)tracksters[i].vertices.size(); k++) {
-      sumClusterEnergy += (float)layerClusters[tracksters[i].vertices[k]].energy();
+    for (const unsigned int &vertex : tracksters[i].vertices) {
+      sumClusterEnergy += (float)layerClusters[vertex].energy();
       // there might be many clusters, so try to stop early
       if (sumClusterEnergy >= eidMinClusterEnergy_) {
         tracksterIndices.push_back(i);
@@ -202,7 +203,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     std::vector<int> seenClusters(eidNLayers_);
 
     // loop through clusters by descending energy
-    for (int k : clusterIndices) {
+    for (const int &k : clusterIndices) {
       // get features per layer and cluster and store the values directly in the input tensor
       const reco::CaloCluster &cluster = layerClusters[trackster.vertices[k]];
       int j = rhtools_.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
@@ -239,7 +240,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     // get the pointer to the energy tensor, dimension is batch x 1
     float *energy = outputs[0].flat<float>().data();
 
-    for (int i : tracksterIndices) {
+    for (const int &i : tracksterIndices) {
       tracksters[i].regressed_energy = *(energy++);
     }
   }
@@ -250,9 +251,9 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     int probsIdx = eidOutputNameEnergy_.empty() ? 0 : 1;
     float *probs = outputs[probsIdx].flat<float>().data();
 
-    for (int i : tracksterIndices) {
-      for (int p = 0; p < (int)tracksters[i].id_probabilities.size(); p++) {
-        tracksters[i].id_probabilities[p] = *(probs++);
+    for (const int &i : tracksterIndices) {
+      for (float &p : tracksters[i].id_probabilities) {
+        p = *(probs++);
       }
     }
   }
