@@ -3067,15 +3067,15 @@ PUDataSets={}
 for ds in defaultDataSets:
     key='MinBias_14TeV_pythia8_TuneCUETP8M1'+'_'+ds
     name=baseDataSetReleaseBetter[key]
-    if '2017' in name:
+    if '2017' in ds:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    elif '2018' in name:
+    elif '2018' in ds:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    elif '2021' in name:
+    elif '2021' in ds:
       PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
-    elif 'postLS2' in name:
+    elif 'postLS2' in ds:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    elif '2026' in name:
+    elif '2026' in ds:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_200_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
     else:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
