@@ -139,6 +139,6 @@ for year in upgradeKeys:
                                                       [slist[0]] +                      # Start with signal generation
                                                       stepList['Premix'] +              # Premixing stage1
                                                       [slist[1].replace("PUPRMX", "PUPRMXCombined")] + # Premixing stage2, customized for the combined (defined in relval_steps.py)
-                                                      map(nano, slist[2:])]             # Remaining standard steps
+                                                      list(map(nano, slist[2:]))]             # Remaining standard steps
 
             numWF+=1

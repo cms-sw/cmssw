@@ -3047,9 +3047,9 @@ defaultDataSets['2024']='CMSSW_10_6_1-106X_mcRun3_2021_realistic_v1_rsb-v'
 defaultDataSets['2026D35']='CMSSW_10_4_0_mtd3-103X_upgrade2023_realistic_v2_2023D35noPU_2-v'
 defaultDataSets['2026D41']='CMSSW_10_6_0_patch2-106X_upgrade2023_realistic_v3_2023D41noPU-v'
 
-keys=defaultDataSets.keys()
-for key in keys:
-  defaultDataSets[key+'PU']=defaultDataSets[key]
+puDataSets = {}
+for key, value in defaultDataSets.items(): puDataSets[key+'PU'] = value
+defaultDataSets.update(puDataSets)
 
 # sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
 versionOverrides={'BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_2017':'2','HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_2017':'2','RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV_pythia8_2017':'2','WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_2017':'2','DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_2017':'2','TenE_E_0_200_pythia8_2017':'2','TenE_E_0_200_pythia8_2017PU':'2', 'TenTau_E_15_500_pythia8_2018':'2','PhotonJet_Pt_10_13TeV_TuneCUETP8M1_2018':'2','Wjet_Pt_80_120_13TeV_TuneCUETP8M1_2018':'2'}
