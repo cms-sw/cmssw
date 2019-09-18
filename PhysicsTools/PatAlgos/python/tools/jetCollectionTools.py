@@ -9,6 +9,7 @@ from RecoJets.JetProducers.PFJetParameters_cfi import PFJetParameters
 from RecoJets.JetProducers.GenJetParameters_cfi import GenJetParameters
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import AnomalousCellParameters
 from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJetsCS
 
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection, supportedJetAlgos
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import updatedPatJets
@@ -347,20 +348,16 @@ class RecoJetAdder(object):
         if jetCollection in self.main:
           raise ValueError("Step '%s' already implemented" % jetCollection)
 
-        setattr(proc, jetCollection,
-          cms.EDProducer("FastjetJetProducer",
-            PFJetParameters.clone(
-              src           = pfCand,
-              doAreaFastjet = True,
-              jetPtMin      = minPt,
-            ),
-            AnomalousCellParameters,
-            jetAlgorithm              = cms.string(supportedJetAlgos[recoJetInfo.jetAlgo]),
-            rParam                    = cms.double(recoJetInfo.jetSizeNr),
-            useConstituentSubtraction = cms.bool(recoJetInfo.doCS),
-            csRParam                  = cms.double(0.4 if recoJetInfo.doCS else -1.),
-            csRho_EtaMax              = PFJetParameters.Rho_EtaMax if recoJetInfo.doCS else cms.double(-1.),
-            useExplicitGhosts         = cms.bool(recoJetInfo.doCS or recoJetInfo.jetPUMethod == "sk"),
+        setattr(proc, jetCollection, ak4PFJetsCS.clone(
+            src                       = pfCand,
+            doAreaFastjet             = True,
+            jetPtMin                  = minPt,
+            jetAlgorithm              = supportedJetAlgos[recoJetInfo.jetAlgo],
+            rParam                    = recoJetInfo.jetSizeNr,
+            useConstituentSubtraction = recoJetInfo.doCS,
+            csRParam                  = 0.4 if recoJetInfo.doCS else -1.,
+            csRho_EtaMax              = PFJetParameters.Rho_EtaMax if recoJetInfo.doCS else -1.,
+            useExplicitGhosts         = recoJetInfo.doCS or recoJetInfo.jetPUMethod == "sk",
           )
         )
         currentTasks.append(jetCollection)
@@ -470,7 +467,7 @@ class RecoJetAdder(object):
       for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
         selectedPatJetsWithUserDataObj = getattr(proc, selectedPatJetsWithUserData)
         modifier.toModify(selectedPatJetsWithUserDataObj.userInts,
-          looseId        = cms.InputTag(looseJetId),
+          looseId        = looseJetId,
           tightIdLepVeto = None,
         )
       currentTasks.append(selectedPatJetsWithUserData)
@@ -502,7 +499,7 @@ class RecoJetAdder(object):
     setattr(proc, updatedJets, updatedPatJets.clone(
         addBTagInfo          = False,
         jetSource            = selectedPatJetsWithUserData,
-        jetCorrFactorsSource = cms.VInputTag(cms.InputTag(jetCorrFactors)),
+        jetCorrFactorsSource = [jetCorrFactors],
       )
     )
 
