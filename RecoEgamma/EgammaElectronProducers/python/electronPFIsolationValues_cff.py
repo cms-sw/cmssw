@@ -90,7 +90,7 @@ elPFIsoValuePU04.deposits[0].deltaR = cms.double(0.4)
 
 
 
-electronPFIsolationValuesTask = cms.Task (
+electronPFIsolationValuesTask = cms.Task(
     elPFIsoValueCharged03,
     elPFIsoValueChargedAll03,
     elPFIsoValueGamma03,
@@ -178,10 +178,10 @@ gedElPFIsoValuePU03 = cms.EDProducer("PFCandIsolatorFromDeposits",
    )
 )
 
-gedElectronPFIsolationValuesTask = cms.Task (
+gedElectronPFIsolationValuesTask = cms.Task(
     gedElPFIsoValueCharged03,
     gedElPFIsoValueChargedAll03,
     gedElPFIsoValueGamma03,
     gedElPFIsoValueNeutral03,
     gedElPFIsoValuePU03 )
-gedElectronPFIsolationValuesSequence = cms.Sequence (gedElectronPFIsolationValuesTask)
+gedElectronPFIsolationValuesSequence = cms.Sequence(gedElectronPFIsolationValuesTask)
