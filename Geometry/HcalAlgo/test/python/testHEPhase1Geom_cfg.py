@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DDHOTest")
+process = cms.Process("DDHEPhase1Test")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.source = cms.Source("EmptySource")
@@ -13,13 +13,13 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.categories.append('HCalGeom')
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/HcalAlgo/data/cms-test-ddhcalHO-algorithm.xml'),
-                                            appendToDataLabel = cms.string('DDHCalHO')
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/HcalAlgo/data/cms-test-ddhcalHEPhase1-algorithm.xml'),
+                                            appendToDataLabel = cms.string('DDHCalHEPhase1')
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  outputFileName = cms.untracked.string('HODD4Hep.root'),
-                                  DDDetector = cms.ESInputTag('','DDHCalHO')
+                                  outputFileName = cms.untracked.string('HEPhase1DD4Hep.root'),
+                                  DDDetector = cms.ESInputTag('','DDHCalHEPhase1')
                                   )
 
 process.p = cms.Path(process.testDump)
