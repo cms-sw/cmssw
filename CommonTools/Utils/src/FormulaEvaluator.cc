@@ -607,7 +607,7 @@ namespace {
   const std::string k_TMath__ASinH("TMath::ASinH");
   const std::string k_atanh("atanh");
   const std::string k_TMath__ATanH("TMath::ATanH");
-  
+
   EvaluatorInfo FunctionFinder::createEvaluator(std::string::const_iterator iBegin,
                                                 std::string::const_iterator iEnd) const {
     EvaluatorInfo info;
