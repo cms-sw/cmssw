@@ -16,7 +16,7 @@
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace cms_units::operators;
 
 struct HCalEndcapModuleAlgo {
@@ -189,7 +189,7 @@ struct HCalEndcapModuleAlgo {
     int layer0 = layerNumber[1];
     std::string name;
     dd4hep::Solid solid;
-    dd4hep::Volume glog, plog;
+    dd4hep::Volume glog;
     for (unsigned int iphi = 0; iphi < phiName.size(); iphi++) {
       HCalEndcapModuleAlgo::HcalEndcapPar parm = parameterLayer0(iphi);
       name = idName + modName + layerName[0] + phiName[iphi];
