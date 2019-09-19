@@ -64,22 +64,22 @@ SiStripApvSimulationParametersESSource::SiStripApvSimulationParametersESSource(c
                         conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tob5"),
                         conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tob6")};
 
-  if(rBinEdgesTID_.size()>0){
+  if (!rBinEdgesTID_.empty()) {
     baselineFiles_TID_ = {conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tid1"),
-			  conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tid2"),
-			  conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tid3")};
+                          conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tid2"),
+                          conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tid3")};
   }
 
-  if( rBinEdgesTEC_.size()>0){
+  if (!rBinEdgesTEC_.empty()) {
     baselineFiles_TEC_ = {conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec1"),
-			  conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec2"),
-			  conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec3"),
-			  conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec4"),
-			  conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec5"),
-			  conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec6"),
-			  conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec7"),
-			  conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec8"),
-			  conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec9")};
+                          conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec2"),
+                          conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec3"),
+                          conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec4"),
+                          conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec5"),
+                          conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec6"),
+                          conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec7"),
+                          conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec8"),
+                          conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec9")};
   }
 }
 
