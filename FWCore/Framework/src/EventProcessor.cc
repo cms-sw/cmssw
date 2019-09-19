@@ -1289,8 +1289,8 @@ namespace edm {
               ServiceRegistry::Operate operate(serviceToken_);
               if (looper_) {
                 auto& lumiPrincipal = *(status->lumiPrincipal());
-                EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
-                looper_->doEndLuminosityBlock(lumiPrincipal, es, &processContext_);
+                EventSetupImpl const& eventSetupImpl = status->eventSetupImpl(esp_->subProcessIndex());
+                looper_->doEndLuminosityBlock(lumiPrincipal, eventSetupImpl, &processContext_);
               }
             } catch (...) {
               ptr = std::current_exception();

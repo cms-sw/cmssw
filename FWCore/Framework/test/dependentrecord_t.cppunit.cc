@@ -528,7 +528,6 @@ void testdependentrecord::testInvalidIOVFirstTime() {
                                            edm::IOVSyncValue(edm::EventID(1, 1, 6)));
     dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
 
-    auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
     dummyProviderTime->setValidityInterval_forTesting(invalid);
 
     const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
