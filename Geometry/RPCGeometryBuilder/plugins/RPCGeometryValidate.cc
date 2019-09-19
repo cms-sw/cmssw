@@ -64,6 +64,7 @@ private:
   float getDiff(const float, const float);
 
   void makeHistograms(const char*);
+  void makeHistograms2(const char*);
   void makeHistogram(const string&, vector<float>&);
 
   void clearData() {
@@ -72,6 +73,12 @@ private:
     bottomWidths_.clear();
     lengths_.clear();
     thicknesses_.clear();
+  }
+
+  void clearData2() {
+    nstrips_.clear();
+    pitch_.clear();
+    stripslen_.clear();
   }
 
   //edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeometryToken_;
@@ -84,6 +91,9 @@ private:
   vector<float> bottomWidths_;
   vector<float> lengths_;
   vector<float> thicknesses_;
+  vector<float> nstrips_;
+  vector<float> pitch_;
+  vector<float> stripslen_;
   string infileName_;
   string outfileName_;
   int tolerance_;
@@ -158,10 +168,8 @@ void RPCGeometryValidate::validateRPCChamberGeometry() {
 
  // TO BE IMPLEMENTED
 void RPCGeometryValidate::validateRPCStripsGeometry() {
-  //    cout<<"MYVALIDATE StripsGeometry "<<endl;;
-  clearData();
 
-  //vector<float> strips_positions;
+  clearData2();
 
   for (auto const& it : rpcGeometry_->rolls()) {
     RPCDetId chId = it->id();
@@ -169,67 +177,35 @@ void RPCGeometryValidate::validateRPCStripsGeometry() {
     const float n_pitch = it->pitch();
     const StripTopology& topo = it->specificTopology();
     const float stripLen = topo.stripLength();
-    cout<<"MYVALIDATE From Geo, detid: "<<chId.rawId()<<" nstrips: "<<n_strips<<" n pitch: "<<n_pitch<<" stripLen: "<<stripLen<<endl; //OK for DDand DD4HEP
+    //    cout<<"MYVALIDATE From Geo, detid: "<<chId.rawId()<<" nstrips: "<<n_strips<<" n pitch: "<<n_pitch<<" stripLen: "<<stripLen<<endl; //OK for DDand DD4HEP
 
     const float* parameters = fwGeometry_.getParameters(chId.rawId());
 
-    cout<<"MYVALIDATE From Reco, detid: "<<chId.rawId()<<" nstrips: "<<parameters[0]<<" n pitch: "<<parameters[2]<<" stripLen: "<<parameters[1]<<endl; 
-   
-   
-   
-    /*
+    // cout<<"MYVALIDATE From Reco, detid: "<<chId.rawId()<<" nstrips: "<<parameters[0]<<" n pitch: "<<parameters[2]<<" stripLen: "<<parameters[1]<<endl; 
+
+
+    //    cout<<"MYVALIDATE (fabs(n_strips - parameters[0])) "<<fabs(n_strips - parameters[0])<<endl;
+    // cout<<"MYVALIDATE (fabs(n_pitch - parameters[2])) "<<fabs(n_pitch - parameters[2])<<endl;
+    // cout<<"MYVALIDATE (fabs(stripLen - parameters[1])) "<<fabs(stripLen - parameters[1])<<endl;
+
+      
  if (n_strips)  {//OK for DDand DD4HEP
-      // cout<<"MYVALIDATE detid: "<<chId.rawId()<<" nstrips: "<<n_strips<<endl;;
+   cout<<"MYVALIDATE detid: "<<chId.rawId()<<" nstrips: "<<n_strips<<endl;;
       for (int istrips = 1; istrips <= n_strips; istrips++) {
 	GlobalPoint gp = it->surface().toGlobal(it->centreOfStrip(istrips));
-	cout<<"MYVALIDATE gp: "<<gp.x()<<" "<<gp.y()<<" "<<gp.z()<<endl;
+	//	cout<<"MYVALIDATE detId "<<chId.rawId()<<" nstrips: "<<n_strips<<" n pitch: "<<n_pitch<<" stripLen: "<<stripLen<<" gp "<<gp.x()<<" "<<gp.y()<<" "<<gp.z()<<endl;
+	cout<<"MYVALIDATE  gp "<<gp.x()<<" "<<gp.y()<<" "<<gp.z()<<endl;
+	nstrips_.push_back(fabs(n_strips - parameters[0]));
+	pitch_.push_back(fabs(n_pitch - parameters[2]));
+	stripslen_.push_back(fabs(stripLen - parameters[1]));
       } 
     } else {cout<<"MYVALIDATE ATTENTION nStrips = "<<n_strips<<endl; }
    
-    */
+   
   }
   
 
-/*
-    const TGeoMatrix* matrix = fwGeometry_.getMatrix(chId.rawId());
-    // matrix->Print();
-    
-    compareTransform(gp, matrix);
-
-    auto const& shape = fwGeometry_.getShapePars(layerId.rawId());
-
-  
-    compareShape(it, shape);
-
-    auto const& parameters = fwGeometry_.getParameters(layerId.rawId());
-
-  
-    float width = it->surface().bounds().width();
-    assert(width == parameters[6]);
-
-    float thickness = it->surface().bounds().thickness();
-    assert(thickness == parameters[7]);
-
-    float length = it->surface().bounds().length();
-    assert(length == parameters[8]);
-
-    int firstChannel = it->specificTopology().firstChannel();
-    assert(firstChannel == parameters[3]);
-
-    int lastChannel = it->specificTopology().lastChannel();
-    int nChannels = parameters[5];
-    assert(nChannels == (lastChannel - firstChannel) + 1);
-
-    for (int wireN = firstChannel; wireN - lastChannel <= 0; ++wireN) {
-      float localX1 = it->specificTopology().wirePosition(wireN);
-      float localX2 = (wireN - (firstChannel - 1) - 0.5f) * parameters[0] - nChannels / 2.0f * parameters[0];
-      wire_positions.emplace_back(getDiff(localX1, localX2));
-    }
-  }
-
-  // makeHistogram("RPC strips position", strips_positions);
-  // makeHistograms("RPC Strips");
-*/
+  makeHistograms2("RPC Strips");
 }
 
 
@@ -349,7 +325,24 @@ void RPCGeometryValidate::makeHistograms(const char* detector) {
 
   string tn = d + ": absolute difference between thicknesses (along Z)";
   makeHistogram(tn, thicknesses_);
+
 }
+
+void RPCGeometryValidate::makeHistograms2(const char* detector) {
+  outFile_->cd();
+
+  string d(detector);
+
+  string ns = d + ": absolute difference between nStrips";
+  makeHistogram(ns, nstrips_);
+
+  string pi = d + ": absolute difference between Strips Pitch";
+  makeHistogram(pi, pitch_);
+
+  string pl = d + ": absolute difference between Strips Length";
+  makeHistogram(pl, stripslen_);
+}
+
 
 void RPCGeometryValidate::makeHistogram(const string& name, vector<float>& data) {
   if (data.empty())
@@ -364,11 +357,9 @@ void RPCGeometryValidate::makeHistogram(const string& name, vector<float>& data)
 
   hist.GetXaxis()->SetTitle("[cm]");
   hist.Write();
-  //  cout<<"MYDEBUG: Making Histos"<<endl;
 }
 
 void RPCGeometryValidate::beginJob() {
-  //cout<<"MYDEBUG: Begin Job"<<endl;
  outFile_->cd(); 
 
 }
