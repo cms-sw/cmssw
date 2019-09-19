@@ -144,7 +144,6 @@ class AbstractPkg(object):
         "Return keyword arguments to be used in methods"
         kwds  = {'__pkgname__': self.config.get('pkgname', 'Package'),
                  '__author__': self.author,
-                 '__user__': os.getlogin(),
                  '__date__': self.date,
                  '__class__': self.pname,
                  '__class_lowercase__': self.pname.lower(),
