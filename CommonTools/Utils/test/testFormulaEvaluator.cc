@@ -590,7 +590,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::cos(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::cos(0.5)) < 1e-9);
   }
 
   {
@@ -598,7 +598,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::Cos(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - TMath::Cos(0.5)) < 1e-9);
   }
 
   {
@@ -606,7 +606,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::sin(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::sin(0.5)) < 1e-9);
   }
 
   {
@@ -614,7 +614,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::Sin(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - TMath::Sin(0.5)) < 1e-9);
   }
 
   {
@@ -622,7 +622,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::tan(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::tan(0.5)) < 1e-9);
   }
 
   {
@@ -630,7 +630,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::Tan(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - TMath::Tan(0.5)) < 1e-9);
   }
 
   {
@@ -638,7 +638,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::acos(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::acos(0.5)) < 1e-9);
   }
 
   {
@@ -646,7 +646,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ACos(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - TMath::ACos(0.5)) < 1e-9);
   }
 
   {
@@ -654,7 +654,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::asin(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::asin(0.5)) < 1e-9);
   }
 
   {
@@ -662,7 +662,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ASin(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - TMath::ASin(0.5)) < 1e-9);
   }
 
   {
@@ -670,7 +670,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::atan(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::atan(0.5)) < 1e-9);
   }
 
   {
@@ -678,7 +678,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ATan(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - TMath::ATan(0.5)) < 1e-9);
   }
 
   {
@@ -686,7 +686,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::atan2(-0.5, 0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::atan2(-0.5, 0.5)) < 1e-9);
   }
 
   {
@@ -694,7 +694,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ATan2(-0.5, 0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - TMath::ATan2(-0.5, 0.5)) < 1e-9);
   }
 
   {
@@ -702,7 +702,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::cosh(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::cosh(0.5)) < 1e-9);
   }
 
   {
@@ -710,7 +710,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::CosH(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - TMath::CosH(0.5)) < 1e-9);
   }
 
   {
@@ -718,7 +718,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::sinh(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::sinh(0.5)) < 1e-9);
   }
 
   {
@@ -726,7 +726,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::SinH(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - TMath::SinH(0.5)) < 1e-9);
   }
 
   {
@@ -734,7 +734,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::tanh(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::tanh(0.5)) < 1e-9);
   }
 
   {
@@ -742,7 +742,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::TanH(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - TMath::TanH(0.5)) < 1e-9);
   }
 
   {
@@ -750,7 +750,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::acosh(2.0));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::acosh(2.0)) < 1e-9);
   }
 
   {
@@ -758,7 +758,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ACosH(2.0));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - TMath::ACosH(2.0)) < 1e-9);
   }
 
   {
@@ -766,7 +766,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::asinh(2.0));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::asinh(2.0)) < 1e-9);
   }
 
   {
@@ -774,7 +774,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ASinH(2.0));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - TMath::ASinH(2.0)) < 1e-9);
   }
 
   {
@@ -782,7 +782,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == std::atanh(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - std::atanh(0.5)) < 1e-9);
   }
 
   {
@@ -790,7 +790,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> emptyV;
 
-    CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::ATanH(0.5));
+    CPPUNIT_ASSERT(fabs(f.evaluate(emptyV, emptyV) - TMath::ATanH(0.5)) < 1e-9);
   }
 
   {
