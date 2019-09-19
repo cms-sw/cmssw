@@ -7,10 +7,10 @@ def activateSiStripAPVDynamicGain(process):
 
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'strip'):
         print("activating SiStrip APV Dynamic Gain simulation")
-        process.mix.digitizers.strip.includeAPVSimulation = cms.bool(True)
+        process.mix.digitizers.strip.includeAPVSimulation = True
     if hasattr(process, "mixData") and hasattr(process.mixData, "workers") and hasattr(process.mixData.workers, "strip"):
         print("activating SiStrip APV Dynamic Gain simulation (premixing)")
-        process.mixData.workers.strip.includeAPVSimulation = cms.bool(True)
+        process.mixData.workers.strip.includeAPVSimulation = True
 
     if not hasattr(process.GlobalTag,'toGet'):
         process.GlobalTag.toGet=cms.VPSet()
