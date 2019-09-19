@@ -1,4 +1,5 @@
 #include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "Math/ProbFunc.h"
 #include "TMath.h"
@@ -348,4 +349,25 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
     fPupParticles.push_back(curjet);
   }
   return fWeights;
+}
+// ------------------------------------------------------------------------------------------
+void PuppiContainer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("puppiDiagnostics", false);
+  desc.add<bool>("applyCHS", true);
+  desc.add<bool>("invertPuppi", false);
+  desc.add<bool>("useExp", false);
+  desc.add<double>("MinPuppiWeight", .01);
+  desc.add<double>("PtMaxNeutrals", 200.);
+  fillDescriptionsPuppiContainer(desc);
+  descriptions.addDefault(desc);
+}
+
+void PuppiContainer::fillDescriptionsPuppiContainer(edm::ParameterSetDescription& desc) {
+
+  edm::ParameterSetDescription algos;
+  PuppiAlgo::fillDescriptionsPuppiAlgo(algos);
+  std::vector<edm::ParameterSet> VPSetAlgos(1);
+  desc.addVPSet("algos", algos, VPSetAlgos);
+
 }
