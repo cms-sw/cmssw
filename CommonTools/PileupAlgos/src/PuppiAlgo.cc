@@ -1,6 +1,7 @@
 #include "CommonTools/PileupAlgos/interface/PuppiAlgo.h"
 #include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "Math/QuantFuncMathCore.h"
 #include "Math/SpecFuncMathCore.h"
 #include "Math/ProbFunc.h"
@@ -225,4 +226,41 @@ double PuppiAlgo::compute(std::vector<double> const &iVals, double iChi2) const 
   //Top it off with the last calc
   lPVal *= ROOT::Math::chisquared_cdf(lVal, lNDOF);
   return lPVal;
+}
+// ------------------------------------------------------------------------------------------
+void PuppiAlgo::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  fillDescriptionsPuppiAlgo(desc);
+  descriptions.addDefault(desc);
+}
+
+void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription& desc) {
+
+  std::vector<double> etaMin;
+  desc.add<std::vector<double>>("etaMin", etaMin);
+  std::vector<double> etaMax;
+  desc.add<std::vector<double>>("etaMax", etaMax);
+  std::vector<double> ptMin;
+  desc.add<std::vector<double>>("ptMin", ptMin);
+  std::vector<double> MinNeutralPt;
+  desc.add<std::vector<double>>("MinNeutralPt", MinNeutralPt);
+  std::vector<double> MinNeutralPtSlope;
+  desc.add<std::vector<double>>("MinNeutralPtSlope", MinNeutralPtSlope);
+  std::vector<double> RMSEtaSF;
+  desc.add<std::vector<double>>("RMSEtaSF", RMSEtaSF);
+  std::vector<double> MedEtaSF;
+  desc.add<std::vector<double>>("MedEtaSF", MedEtaSF);
+  desc.add<double>("EtaMaxExtrap", 2.0);
+
+  edm::ParameterSetDescription puppialgos;
+  puppialgos.add<int>("algoId", 5);
+  puppialgos.add<bool>("useCharged", false);
+  puppialgos.add<bool>("applyLowPUCorr", false);
+  puppialgos.add<int>("combOpt", 5);
+  puppialgos.add<double>("cone", .4);
+  puppialgos.add<double>("rmsPtMin", .1);
+  puppialgos.add<double>("rmsScaleFactor", 1.0);
+  std::vector<edm::ParameterSet> VPSetPuppiAlgos(1);
+  desc.addVPSet("puppiAlgos", puppialgos, VPSetPuppiAlgos);
+
 }
