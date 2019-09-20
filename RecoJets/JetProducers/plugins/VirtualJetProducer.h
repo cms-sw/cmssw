@@ -206,6 +206,7 @@ protected:
 
   int verbosity_;                       // flag to enable/disable debug output
   bool fromHTTTopJetProducer_ = false;  // for running the v2.0 HEPTopTagger
+  bool applyPuppiWeight_;               // Apply puppi weights stored in PFCandidate
 
 private:
   std::unique_ptr<AnomalousTower> anomalousTowerDef_;  // anomalous tower definition

@@ -45,7 +45,9 @@ PFCandidate::PFCandidate()
       getter_(nullptr),
       storedRefsBitPattern_(0),
       time_(0.f),
-      timeError_(-1.f) {
+      timeError_(-1.f),
+      puppiWeight_(0.f),
+      puppiWeightNoLep_(0.f) {
   muonTrackType_ = reco::Muon::None;
 
   setPdgId(translateTypeToPdgId(X));
@@ -84,7 +86,9 @@ PFCandidate::PFCandidate(Charge charge, const LorentzVector& p4, ParticleType pa
       getter_(nullptr),
       storedRefsBitPattern_(0),
       time_(0.f),
-      timeError_(-1.f) {
+      timeError_(-1.f),
+      puppiWeight_(0.f),
+      puppiWeightNoLep_(0.f) {
   refsInfo_.reserve(3);
   blocksStorage_.reserve(10);
   elementsStorage_.reserve(10);
@@ -144,7 +148,9 @@ PFCandidate::PFCandidate(PFCandidate const& iOther)
       refsCollectionCache_(iOther.refsCollectionCache_),
       time_(iOther.time_),
       timeError_(iOther.timeError_),
-      hcalDepthEnergyFractions_(iOther.hcalDepthEnergyFractions_) {
+      hcalDepthEnergyFractions_(iOther.hcalDepthEnergyFractions_),
+      puppiWeight_(iOther.puppiWeight_),
+      puppiWeightNoLep_(iOther.puppiWeightNoLep_) {
   auto tmp = iOther.elementsInBlocks_.load(std::memory_order_acquire);
   if (nullptr != tmp) {
     elementsInBlocks_.store(new ElementsInBlocks{*tmp}, std::memory_order_release);
@@ -189,6 +195,8 @@ PFCandidate& PFCandidate::operator=(PFCandidate const& iOther) {
   time_ = iOther.time_;
   timeError_ = iOther.timeError_;
   hcalDepthEnergyFractions_ = iOther.hcalDepthEnergyFractions_;
+  puppiWeight_ = iOther.puppiWeight_;
+  puppiWeightNoLep_ = iOther.puppiWeightNoLep_;
   return *this;
 }
 

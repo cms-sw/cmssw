@@ -48,8 +48,10 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
 
   if (fUseExistingWeights || fClonePackedCands)
     produces<pat::PackedCandidateCollection>();
-  else
+  else {
     produces<reco::PFCandidateCollection>();
+    produces<reco::PFCandidateCollection>("weighted");
+  }
 
   if (fPuppiDiagnostics) {
     produces<double>("PuppiNAlgos");
@@ -250,6 +252,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // to search the "puppi" particles to find a match for each input. If none is found,
   // the input is set to have a four-vector of 0,0,0,0
   fPuppiCandidates.reset(new PFOutputCollection);
+  fPuppiCandidatesWeighted.reset(new PFOutputCollection);
   fPackedPuppiCandidates.reset(new PackedOutputCollection);
   std::unique_ptr<edm::ValueMap<LorentzVector>> p4PupOut(new edm::ValueMap<LorentzVector>());
   LorentzVectorCollection puppiP4s;
@@ -260,6 +263,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     ++iCand;
     std::unique_ptr<pat::PackedCandidate> pCand;
     std::unique_ptr<reco::PFCandidate> pfCand;
+    std::unique_ptr<reco::PFCandidate> pfCandWeighted;
+
     if (fUseExistingWeights || fClonePackedCands) {
       const pat::PackedCandidate* cand = dynamic_cast<const pat::PackedCandidate*>(&aCand);
       if (!cand)
@@ -269,6 +274,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(aCand.pdgId());
       const reco::PFCandidate* cand = dynamic_cast<const reco::PFCandidate*>(&aCand);
       pfCand.reset(new reco::PFCandidate(cand ? *cand : reco::PFCandidate(aCand.charge(), aCand.p4(), id)));
+      pfCandWeighted.reset(new reco::PFCandidate(*pfCand));
     }
 
     if (fClonePackedCands && (!fUseExistingWeights)) {
@@ -288,9 +294,17 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pCand->setSourceCandidatePtr(aCand.sourceCandidatePtr(0));
       fPackedPuppiCandidates->push_back(*pCand);
     } else {
-      pfCand->setP4(puppiP4s.back());
+      pfCandWeighted->setP4(puppiP4s.back());
+      pfCandWeighted->setSourceCandidatePtr(aCand.sourceCandidatePtr(0));
+      pfCand->setP4(aCand.p4());
       pfCand->setSourceCandidatePtr(aCand.sourceCandidatePtr(0));
+      if (fPuppiForLeptons) {
+        pfCandWeighted->setPuppiWeight(1.0, lWeights[iCand]);
+      } else {
+        pfCandWeighted->setPuppiWeight(lWeights[iCand]);
+      }
       fPuppiCandidates->push_back(*pfCand);
+      fPuppiCandidatesWeighted->push_back(*pfCandWeighted);
     }
   }
 
@@ -308,6 +322,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       values[ic] = pkref;
     }
   } else {
+    iEvent.put(std::move(fPuppiCandidatesWeighted), "weighted");
     edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put(std::move(fPuppiCandidates));
     for (unsigned int ic = 0, nc = oh->size(); ic < nc; ++ic) {
       reco::CandidatePtr pkref(oh, ic);

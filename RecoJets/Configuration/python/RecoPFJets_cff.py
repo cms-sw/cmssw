@@ -5,13 +5,11 @@ from RecoJets.JetProducers.ak8PFJets_cfi import *
 from RecoJets.JetProducers.kt4PFJets_cfi import *
 from RecoJets.JetProducers.kt6PFJets_cfi import *
 from RecoJets.JetProducers.ca15PFJets_cfi import *
-from RecoJets.JetProducers.caTopTaggers_cff import cmsTopTagPFJetsCHS
 from CommonTools.ParticleFlow.pfNoPileUpJME_cff  import *
-from CommonTools.PileupAlgos.Puppi_cff import puppi
 from CommonTools.PileupAlgos.softKiller_cfi import softKiller
 from RecoJets.JetProducers.fixedGridRhoProducer_cfi import fixedGridRhoAll
 from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import fixedGridRhoFastjetAll
-from RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi import ak8PFJetsCHSPrunedMass, ak8PFJetsCHSFilteredMass, ak8PFJetsCHSTrimmedMass, ak8PFJetsCHSSoftDropMass
+from RecoJets.JetProducers.ak8PFJetsPuppi_groomingValueMaps_cfi import ak8PFJetsPuppiSoftDropMass
 
 
 fixedGridRhoFastjetCentral = fixedGridRhoFastjetAll.clone(
@@ -35,11 +33,11 @@ recoPFJetsTask   =cms.Task(fixedGridRhoAll,
                            fixedGridRhoFastjetCentralNeutral,
                            ak4PFJets,
                            ak4PFJetsCHS,
-                           ak8PFJetsCHS,
-                           ak8PFJetsCHSConstituents,
-                           ak8PFJetsCHSSoftDrop,
-                           ak8PFJetsCHSSoftDropMass,
-                           cmsTopTagPFJetsCHS,
+                           ak4PFJetsPuppi,
+                           ak8PFJetsPuppi,
+                           ak8PFJetsPuppiConstituents,
+                           ak8PFJetsPuppiSoftDrop,
+                           ak8PFJetsPuppiSoftDropMass,
                            pfNoPileUpJMETask
     )
 recoPFJets   = cms.Sequence(recoPFJetsTask)
@@ -51,23 +49,13 @@ recoAllPFJetsTask=cms.Task(fixedGridRhoAll,
                            fixedGridRhoFastjetCentralNeutral,
                            ak4PFJets,ak8PFJets,
                            pfNoPileUpJMETask,
-                           ak8PFJetsCHS,
-                           ak8PFJetsCHSPruned,
-                           ak8PFJetsCHSFiltered,
-                           ak8PFJetsCHSTrimmed,
-                           ak8PFJetsCHSSoftDrop,
-                           ak4PFJetsCHS, 
-                           ak8PFJetsCHS,
-                           ak8PFJetsCHSPruned,
-                           ak8PFJetsCHSFiltered,
-                           ak8PFJetsCHSTrimmed,
-                           ak8PFJetsCHSSoftDrop,
-                           ak8PFJetsCHSPrunedMass,
-                           ak8PFJetsCHSTrimmedMass,
-                           ak8PFJetsCHSSoftDropMass,
-                           ak8PFJetsCHSFilteredMass,
-                           ca15PFJetsCHSMassDropFiltered,
-                           ca15PFJetsCHSFiltered
+                           ak8PFJetsPuppi,
+                           ak8PFJetsPuppiSoftDrop,
+                           ak4PFJetsCHS,
+                           ak4PFJetsPuppi,
+                           ak8PFJetsPuppi,
+                           ak8PFJetsPuppiSoftDrop,
+                           ak8PFJetsPuppiSoftDropMass
     )
 recoAllPFJets=cms.Sequence(recoAllPFJetsTask)
 
@@ -79,27 +67,16 @@ recoPFJetsWithSubstructureTask=cms.Task(
                            fixedGridRhoFastjetCentralNeutral,
                            ak4PFJets,ak8PFJets,
                            pfNoPileUpJMETask,
-                           ak8PFJetsCHS,
-                           ak8PFJetsCHSPruned,
-                           ak8PFJetsCHSFiltered,
-                           ak8PFJetsCHSTrimmed,
-                           ak8PFJetsCHSSoftDrop,
-                           ak4PFJetsCHS,                                                      
-                           ak8PFJetsCHS,
-                           ak8PFJetsCHSPruned,
-                           ak8PFJetsCHSFiltered,
-                           ak8PFJetsCHSTrimmed,
-                           ak8PFJetsCHSSoftDrop,
-                           ak8PFJetsCHSConstituents,
-                           ak8PFJetsCHSPrunedMass,
-                           ak8PFJetsCHSTrimmedMass,
-                           ak8PFJetsCHSSoftDropMass,
-                           ak8PFJetsCHSFilteredMass,
-                           ca15PFJetsCHSMassDropFiltered,
-                           ca15PFJetsCHSFiltered,
+                           ak8PFJetsPuppi,
+                           ak8PFJetsPuppiSoftDrop,
+                           ak4PFJetsCHS,
+                           ak4PFJetsPuppi,
+                           ak8PFJetsPuppi,
+                           ak8PFJetsPuppiSoftDrop,
+                           ak8PFJetsPuppiConstituents,
+                           ak8PFJetsPuppiSoftDropMass,
                            ak8PFJetsCS,
-                           ak8PFJetsCSConstituents,
-                           puppi,
+                           ak8PFJetsCSConstituents,                           
                            ak4PFJetsPuppi,
                            softKiller,
                            ak4PFJetsSK

@@ -84,7 +84,7 @@ void DeepDoubleXTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<double>("min_candidate_pt", 0.95);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
-  desc.add<edm::InputTag>("jets", edm::InputTag("ak8PFJetsCHS"));
+  desc.add<edm::InputTag>("jets", edm::InputTag("ak8PFJetsPuppi"));
   descriptions.add("pfDeepDoubleXTagInfos", desc);
 }
 

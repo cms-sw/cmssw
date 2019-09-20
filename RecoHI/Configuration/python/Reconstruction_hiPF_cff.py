@@ -87,6 +87,7 @@ pfNoPileUpIso.enable = False
 pfPileUpIso.Enable = False
 pfNoPileUp.enable = False
 pfPileUp.Enable = False
+particleFlow = particleFlowTmp2.clone()
 particleFlow.Muons = cms.InputTag("muons","hiMuons1stStep2muonsMap")
 
 

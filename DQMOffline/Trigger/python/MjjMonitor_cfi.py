@@ -16,7 +16,7 @@ hltMjjmonitoring.histoPSet.htPSet = cms.PSet(
   xmax  = cms.double(19999.5),
 )
 hltMjjmonitoring.met       = cms.InputTag("pfMetEI")
-hltMjjmonitoring.jets      = cms.InputTag("ak8PFJetsCHS")
+hltMjjmonitoring.jets      = cms.InputTag("ak8PFJetsPuppi")
 hltMjjmonitoring.electrons = cms.InputTag("gedGsfElectrons")
 hltMjjmonitoring.muons     = cms.InputTag("muons")
 
