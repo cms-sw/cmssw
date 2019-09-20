@@ -167,6 +167,14 @@ _variables80X =  cms.PSet(
 
 tauTable.variables = cms.PSet(_variablesMiniV2,_deepTauVars2017v2)
 
+for era in [run2_miniAOD_devel,run2_tau_ul_2016,run2_tau_ul_2018]:
+    era.toModify(tauTable,
+                 variables = cms.PSet(_variablesMiniV2,_deepTauVars2017v2p1)
+    )
+for era in [run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1]:
+    era.toModify(tauTable,
+                 variables = _variablesMiniV2
+    )
 for era in [run2_nanoAOD_94XMiniAODv1,]:
     era.toModify(tauTable,
                  variables = _variablesMiniV1
@@ -174,19 +182,6 @@ for era in [run2_nanoAOD_94XMiniAODv1,]:
 run2_miniAOD_80XLegacy.toModify(tauTable,
                                 variables = _variables80X
 )
-for era in [run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1]:
-    era.toModify(tauTable.variables,
-                 rawDeepTau2017v2VSe = None,
-                 rawDeepTau2017v2VSmu = None,
-                 rawDeepTau2017v2VSjet = None,
-                 idDeepTau2017v2VSe = None,
-                 idDeepTau2017v2VSmu = None,
-                 idDeepTau2017v2VSjet = None
-    )
-for era in [run2_miniAOD_devel,run2_tau_ul_2016,run2_tau_ul_2018]:
-    era.toModify(tauTable,
-                 variables = cms.PSet(_variablesMiniV2,_deepTauVars2017v2p1)
-    )
 
 
 tauGenJets.GenParticles = cms.InputTag("prunedGenParticles")
