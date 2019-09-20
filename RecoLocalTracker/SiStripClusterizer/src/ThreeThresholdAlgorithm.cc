@@ -134,8 +134,6 @@ void ThreeThresholdAlgorithm::clusterizeDetUnit(const edmNew::DetSet<SiStripDigi
   clusterizeDetUnit_(digis, output);
 }
 
-StripClusterizerAlgorithm::Det ThreeThresholdAlgorithm::stripByStripBegin(uint32_t id) const { return findDetId(id); }
-
 void ThreeThresholdAlgorithm::stripByStripAdd(State& state,
                                               uint16_t strip,
                                               uint8_t adc,

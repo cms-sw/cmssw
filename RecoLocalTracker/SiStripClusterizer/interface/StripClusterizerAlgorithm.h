@@ -24,6 +24,7 @@ public:
   // state of detID
   struct Det {
     bool valid() const { return ind != invalidI; }
+    uint16_t rawNoise(const uint16_t& strip) const { return SiStripNoises::getRawNoise(strip, noiseRange); }
     float noise(const uint16_t& strip) const { return SiStripNoises::getNoise(strip, noiseRange); }
     float weight(const uint16_t& strip) const { return m_weight[strip/128];}
     bool bad(const uint16_t& strip) const { return quality->IsStripBad(qualityRange, strip); }
@@ -42,7 +43,7 @@ public:
 
   //state of the candidate cluster
   struct State {
-    State(Det const& idet) : m_det(idet) { ADCs.reserve(128); }
+    State(Det const& idet) : m_det(idet) { } // ADCs.reserve(8); }
     Det const& det() const { return m_det; }
     std::vector<uint8_t> ADCs;
     uint16_t lastStrip = 0;
@@ -64,7 +65,7 @@ public:
   virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const = 0;
 
   //HLT stripByStrip interface
-  virtual Det stripByStripBegin(uint32_t id) const = 0;
+  Det const & stripByStripBegin(uint32_t id) const {return findDetId(id);}
 
   virtual void addFed(Det const& det,
                       sistrip::FEDZSChannelUnpacker& unpacker,

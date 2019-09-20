@@ -264,8 +264,36 @@ void SiStripClusterizerFromRaw::run(const FEDRawDataCollection& rawColl, edmNew:
 }
 
 namespace {
+  template<typename OUT>
+  void clustersFromZS(uint8_t const * data, int offset, int lenght, uint16_t stripOffset, StripClusterizerAlgorithm::Det const & det, OUT & out) {
+    int ic=0;
+    while (ic<lenght) {
+       uint16_t firstStrip = stripOffset + data[(offset++) ^ 7];
+       int clusSize = data[offset++ ^ 7];
+       ic+=clusSize+2;
+       int sum=0;
+       int noise2=0;
+       std::vector<uint8_t> adc(clusSize);
+       for (int ic=0; ic<clusSize; ++ic) {
+         uint16_t strip = firstStrip+ic;
+         adc[ic]=data[(offset++) ^ 7];
+         sum += adc[ic]; // no way it can overflow
+         int noise = det.rawNoise(strip);
+         noise2 += noise*noise;  // ditto
+       }       
+       if (4*sum*sum < noise2) continue;
+       // calibrate and store;
+       for (int ic=0; ic<clusSize; ++ic) {
+         uint16_t strip = firstStrip+ic;
+         adc[ic] = 0.5f+float(adc[ic])*det.weight(strip);
+       }
+       out.push_back(std::move(SiStripCluster(firstStrip,std::move(adc))));
+    }
+  }
+
+
   template <typename OUT>
-  OUT unpackZS(const sistrip::FEDChannel& chan, sistrip::FEDReadoutMode mode, uint16_t stripOffset, OUT out) {
+  void unpackZS(const sistrip::FEDChannel& chan, sistrip::FEDReadoutMode mode, uint16_t stripOffset, OUT out) {
     using namespace sistrip;
     switch (mode) {
       case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
@@ -338,7 +366,6 @@ namespace {
       } break;
       default:;
     }
-    return out;
   }
 
   class StripByStripAdder {
@@ -442,7 +469,14 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
           try {
             auto perStripAdder = StripByStripAdder(clusterizer, state, record);
             if
-              LIKELY(!hybridZeroSuppressed_) { unpackZS(buffer->channel(fedCh), mode, ipair * 256, perStripAdder); }
+              LIKELY(!hybridZeroSuppressed_) { 
+               if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8 ||
+                   mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE) {
+                   auto const & ch = buffer->channel(fedCh);
+                   clustersFromZS(ch.data(), ch.offset() + 2, ch.length()-2, ipair * 256, state.det(), record);
+               } else
+                  unpackZS(buffer->channel(fedCh), mode, ipair * 256, perStripAdder); 
+            }
             else {
               const uint32_t id = conn->detId();
               edm::DetSet<SiStripDigi> unpDigis{id};
