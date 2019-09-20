@@ -563,7 +563,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
 
         const uint32_t SubDet = DetId(detID).subdetId();
         // Simulate APV response for each strip
-        if (SubDet == SiStripSubdetector::TIB || SubDet == SiStripSubdetector::TOB) {
+        if (SubDet == StripSubdetector::TIB || SubDet == StripSubdetector::TOB) {
           for (int strip = 0; strip < numStrips; ++strip) {
             if (detAmpl[strip] > 0) {
               // Convert charge from electrons to fC
@@ -571,9 +571,9 @@ void PreMixingSiStripWorker::put(edm::Event& e,
 
               // Get APV baseline
               double baselineV = 0;
-              if (SubDet == SiStripSubdetector::TIB) {
+              if (SubDet == StripSubdetector::TIB) {
                 baselineV = apvSimulationParametersHandle->sampleTIB(tTopo->tibLayer(detID), detSet_z, nTruePU, engine);
-              } else if (SubDet == SiStripSubdetector::TOB) {
+              } else if (SubDet == StripSubdetector::TOB) {
                 baselineV = apvSimulationParametersHandle->sampleTOB(tTopo->tobLayer(detID), detSet_z, nTruePU, engine);
               }
               // Fitted parameters from G Hall/M Raymond
