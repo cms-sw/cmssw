@@ -1666,8 +1666,6 @@ premixUp2015Defaults = {
     '--era'         : 'Run2_2016' # temporary replacement for premix; to be brought back to customisePostLS1 *EDIT - This comment possibly no longer relevant with switch to eras
 }
 
-premixUp2015APVSimuDefaults = merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},premixUp2015Defaults])
-
 premixUp2015Defaults50ns = merge([{'--conditions':'auto:run2_mc_50ns'},
                                   {'--era':'Run2_50ns'},
                                   premixUp2015Defaults])
@@ -1681,8 +1679,6 @@ premixUp2018Defaults = merge([{'--conditions':'auto:phase1_2018_realistic'},
                                   premixUp2015Defaults])
 
 steps['PREMIXUP15_PU25']=merge([PU25,Kby(100,100),premixUp2015Defaults])
-steps['PREMIXUP15APVSimu_PU25']=merge([PU25,Kby(100,100),premixUp2015APVSimuDefaults])
-
 steps['PREMIXUP15_PU50']=merge([PU50,Kby(100,100),premixUp2015Defaults50ns])
 steps['PREMIXUP17_PU25']=merge([PU25UP17,Kby(100,100),premixUp2017Defaults])
 steps['PREMIXUP18_PU25']=merge([PU25UP18,Kby(100,100),premixUp2018Defaults])
@@ -1742,8 +1738,8 @@ digiPremixUp2018Defaults25ns = {
 digiPremixLocalPileupUp2018Defaults25ns = merge([digiPremixLocalPileup,
                                                  digiPremixUp2018Defaults25ns])
 
-
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15APVSimu_PU25']=merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXLOCALUP15_PU25']=merge([digiPremixLocalPileupUp2015Defaults25ns])
 steps['DIGIPRMXLOCALUP15APVSimu_PU25']=merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},digiPremixLocalPileupUp2015Defaults25ns])
 
