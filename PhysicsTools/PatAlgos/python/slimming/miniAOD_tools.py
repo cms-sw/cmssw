@@ -343,45 +343,23 @@ def miniAOD_customizeCommon(process):
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
     #-- Adding DeepTauID
-    # deepTau v2
-    _updatedTauName = 'slimmedTausDeepIDsv2'
-    _noUpdatedTauName = 'slimmedTausNoDeepIDs'
+    updatedTauName = 'slimmedTausDeepIDs'
+    noUpdatedTauName = 'slimmedTausNoDeepIDs'
     import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
     tauIdEmbedder = tauIdConfig.TauIDEmbedder(
         process, cms, debug = False,
-        updatedTauName = _updatedTauName,
+        updatedTauName = updatedTauName,
         toKeep = ['deepTau2017v2']
     )
     tauIdEmbedder.runTauID()
-    addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
+    addToProcessAndTask(noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')
-    process.deepTau2017v2.taus = _noUpdatedTauName
-    process.slimmedTaus = getattr(process, _updatedTauName).clone(
-        src = _noUpdatedTauName
+    process.deepTau2017v2.taus = noUpdatedTauName
+    process.slimmedTaus = getattr(process, updatedTauName).clone(
+        src = noUpdatedTauName
     )
-    process.deepTauIDTask = cms.Task(process.deepTau2017v2, process.slimmedTaus)
-    task.add(process.deepTauIDTask)
-
-    # deepTau v2p1
-    _updatedTauNameNew = 'slimmedTausDeepIDsv2p1'
-    tauIdEmbedderNew = tauIdConfig.TauIDEmbedder(
-        process, cms, debug = False,
-        updatedTauName = _updatedTauNameNew,
-        toKeep = ['deepTau2017v2p1']
-    )
-    tauIdEmbedderNew.runTauID()
-    process.deepTau2017v2p1.taus = _noUpdatedTauName
-    deepTauIDTaskNew_ = cms.Task(process.deepTau2017v2p1,process.slimmedTaus)
-
-    from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-    from Configuration.Eras.Modifier_run2_tau_ul_2016_cff import run2_tau_ul_2016
-    from Configuration.Eras.Modifier_run2_tau_ul_2018_cff import run2_tau_ul_2018
-    for era in [run2_miniAOD_devel,run2_tau_ul_2016,run2_tau_ul_2018]:
-        era.toReplaceWith(process.slimmedTaus,
-                          getattr(process, _updatedTauNameNew).clone(src = _noUpdatedTauName))
-        era.toReplaceWith(process.deepTauIDTask,
-                          deepTauIDTaskNew_)
-
+    process.rerunMvaIsolationTask.add(process.slimmedTaus)
+    task.add(process.rerunMvaIsolationTask)
     #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
