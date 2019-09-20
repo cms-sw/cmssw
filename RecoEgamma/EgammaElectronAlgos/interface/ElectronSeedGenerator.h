@@ -92,7 +92,6 @@ private:
   bool prepareElTrackSeed(ConstRecHitPointer outerhit, ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
 
   const bool dynamicphiroad_;
-  const bool fromTrackerSeeds_;
   edm::Handle<std::vector<reco::Vertex> > vertices_;
   const edm::EDGetTokenT<std::vector<reco::Vertex> > verticesTag_;
 
@@ -130,10 +129,10 @@ private:
   PTrajectoryStateOnDet pts_;
 
   // keep cacheIds to get records only when necessary
-  unsigned long long cacheIDMagField_;
-  unsigned long long cacheIDNavSchool_;
-  unsigned long long cacheIDCkfComp_;
-  unsigned long long cacheIDTrkGeom_;
+  unsigned long long cacheIDMagField_ = 0;
+  unsigned long long cacheIDNavSchool_ = 0;
+  unsigned long long cacheIDCkfComp_ = 0;
+  unsigned long long cacheIDTrkGeom_ = 0;
 
   const std::string measurementTrackerName_;
 

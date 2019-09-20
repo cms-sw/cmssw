@@ -17,46 +17,26 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
-
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 #include <utility>
 
-#ifdef COUNT_ElectronSeeds
-namespace {
-  struct Count {
-    long long s = 0;
-    long long n = 0;
-    ~Count() { std::cout << "ElectronSeeds res " << s << '/' << n << std::endl; }
-  };
-
-  Count stcount;
-}  // namespace
-#endif
-
 ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, const ElectronSeedGenerator::Tokens &ts)
     : dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
-      fromTrackerSeeds_(pset.getParameter<bool>("fromTrackerSeeds")),
       verticesTag_(ts.token_vtx),
       beamSpotTag_(ts.token_bs),
       lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
@@ -74,10 +54,6 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, cons
       measurementTracker_(nullptr),
       measurementTrackerEventTag_(ts.token_measTrkEvt),
       setup_(nullptr),
-      cacheIDMagField_(0),
-      /*cacheIDGeom_(0),*/ cacheIDNavSchool_(0),
-      cacheIDCkfComp_(0),
-      cacheIDTrkGeom_(0),
       measurementTrackerName_(pset.getParameter<std::string>("measurementTrackerName")),
       // use of reco vertex
       useRecoVertex_(pset.getParameter<bool>("useRecoVertex")),
@@ -113,7 +89,12 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, cons
                        pset.getParameter<double>("r2MaxF"),
                        pset.getParameter<double>("rMinI"),
                        pset.getParameter<double>("rMaxI"),
-                       pset.getParameter<bool>("searchInTIDTEC")) {}
+                       pset.getParameter<bool>("searchInTIDTEC")) {
+  if (!pset.getParameter<bool>("fromTrackerSeeds")) {
+    throw cms::Exception("NotSupported")
+        << "Setting the fromTrackerSeeds parameter in ElectronSeedGenerator to True is not supported anymore.\n";
+  }
+}
 
 void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
   // get records if necessary (called once per event)
@@ -126,15 +107,6 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
     tochange = true;
   }
 
-  if (!fromTrackerSeeds_ && cacheIDCkfComp_ != setup.get<CkfComponentsRecord>().cacheIdentifier()) {
-    edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-    setup.get<CkfComponentsRecord>().get(measurementTrackerName_, measurementTrackerHandle);
-    cacheIDCkfComp_ = setup.get<CkfComponentsRecord>().cacheIdentifier();
-    measurementTracker_ = measurementTrackerHandle.product();
-    tochange = true;
-  }
-
-  //edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
   if (cacheIDTrkGeom_ != setup.get<TrackerDigiGeometryRecord>().cacheIdentifier()) {
     cacheIDTrkGeom_ = setup.get<TrackerDigiGeometryRecord>().cacheIdentifier();
     setup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
@@ -152,17 +124,6 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
     cacheIDNavSchool_ = setup.get<NavigationSchoolRecord>().cacheIdentifier();
     navigationSchool_ = nav.product();
   }
-}
-
-void display_seed(const std::string &title1,
-                  const std::string &title2,
-                  const reco::ElectronSeed &seed,
-                  edm::ESHandle<TrackerGeometry> trackerGeometry) {
-  const PTrajectoryStateOnDet &startingState = seed.startingState();
-  const LocalTrajectoryParameters &parameters = startingState.parameters();
-  std::cout << title1 << " (" << seed.subDet2() << "/" << seed.dRz2() << "/" << seed.dPhi2() << ")"
-            << " (" << seed.direction() << "/" << startingState.detId() << "/" << startingState.surfaceSide() << "/"
-            << parameters.charge() << "/" << parameters.position() << "/" << parameters.momentum() << ")" << std::endl;
 }
 
 bool equivalent(const TrajectorySeed &s1, const TrajectorySeed &s2) {
@@ -192,28 +153,6 @@ void ElectronSeedGenerator::run(edm::Event &e,
                                 const std::vector<const TrajectorySeedCollection *> &seedsV,
                                 reco::ElectronSeedCollection &out) {
   initialSeedCollectionVector_ = &seedsV;
-  //  bool duplicateTrajectorySeeds =false ;
-  //  unsigned int i,j ;
-  //  for (i=0;i<seeds->size();++i)
-  //    for (j=i+1;j<seeds->size();++j)
-  //     {
-  //      const TrajectorySeed & s1 =(*seeds)[i] ;
-  //      const TrajectorySeed & s2 =(*seeds)[j] ;
-  //      if ( equivalent(s1,s2) )
-  //       {
-  //        const PTrajectoryStateOnDet & ss1 = s1.startingState() ;
-  //        const LocalTrajectoryParameters & p1 = ss1.parameters() ;
-  //        const PTrajectoryStateOnDet & ss2 = s2.startingState() ;
-  //        const LocalTrajectoryParameters & p2 = ss2.parameters() ;
-  //        duplicateTrajectorySeeds = true ;
-  //        std::cout<<"Same hits for "
-  //          <<"\n  s["<<i<<"] ("<<s1.direction()<<"/"<<ss1.detId()<<"/"<<ss1.surfaceSide()<<"/"<<p1.charge()<<"/"<<p1.position()<<"/"<<p1.momentum()<<")"
-  //          <<"\n  s["<<j<<"] ("<<s2.direction()<<"/"<<ss2.detId()<<"/"<<ss2.surfaceSide()<<"/"<<p2.charge()<<"/"<<p2.position()<<"/"<<p2.momentum()<<")"
-  //          <<std::endl ;
-  //       }
-  //     }
-  //  if (duplicateTrajectorySeeds)
-  //   { edm::LogWarning("ElectronSeedGenerator|DuplicateTrajectorySeeds")<<"We see several identical trajectory seeds." ; }
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
@@ -235,12 +174,6 @@ void ElectronSeedGenerator::run(edm::Event &e,
   if (useRecoVertex_)
     e.getByToken(verticesTag_, vertices_);
 
-  if (!fromTrackerSeeds_) {
-    throw cms::Exception("NotSupported")
-        << "Here in ElectronSeedGenerator " << __FILE__ << ":" << __LINE__
-        << " I would like to do measurementTracker_->update(e); but that no longer makes sense.\n";
-  }
-
   for (unsigned int i = 0; i < sclRefs.size(); ++i) {
     // Find the seeds
     recHits_.clear();
@@ -252,11 +185,6 @@ void ElectronSeedGenerator::run(edm::Event &e,
   LogDebug("ElectronSeedGenerator") << ": For event " << e.id();
   LogDebug("ElectronSeedGenerator") << "Nr of superclusters after filter: " << sclRefs.size()
                                     << ", no. of ElectronSeeds found  = " << out.size();
-
-#ifdef COUNT_ElectronSeeds
-  stcount.s += sclRefs.size();
-  stcount.n += out.size();
-#endif
 }
 
 void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster,
@@ -267,9 +195,6 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
   float clusterEnergy = seedCluster->energy();
   GlobalPoint clusterPos(seedCluster->position().x(), seedCluster->position().y(), seedCluster->position().z());
   reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster);
-
-  //LogDebug("") << "[ElectronSeedGenerator::seedsFromThisCluster] new supercluster with energy: " << clusterEnergy ;
-  //LogDebug("") << "[ElectronSeedGenerator::seedsFromThisCluster] and position: " << clusterPos ;
 
   if (dynamicphiroad_) {
     float clusterEnergyT = clusterEnergy / cosh(EleRelPoint(clusterPos, beamSpot_->position()).eta());
@@ -299,8 +224,6 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
     positronMatcher_.set2ndLayer(phimin2B, phimax2B, phimin2F, phimax2F);
   }
 
-  PropagationDirection dir = alongMomentum;
-
   if (!useRecoVertex_)  // here use the beam spot position
   {
     double sigmaZ = beamSpot_->sigmaZ();
@@ -315,27 +238,14 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
     electronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
     positronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
 
-    if (!fromTrackerSeeds_) {
-      // try electron
-      auto elePixelHits =
-          electronMatcher_.compatibleHits(clusterPos, vertexPos, clusterEnergy, -1., tTopo, *navigationSchool_);
-      GlobalPoint eleVertex(beamSpot_->position().x(), beamSpot_->position().y(), electronMatcher_.getVertex());
-      seedsFromRecHits(elePixelHits, dir, eleVertex, caloCluster, out, false);
-      // try positron
-      auto posPixelHits =
-          positronMatcher_.compatibleHits(clusterPos, vertexPos, clusterEnergy, 1., tTopo, *navigationSchool_);
-      GlobalPoint posVertex(beamSpot_->position().x(), beamSpot_->position().y(), positronMatcher_.getVertex());
-      seedsFromRecHits(posPixelHits, dir, posVertex, caloCluster, out, true);
-    } else {
-      // try electron
-      auto elePixelSeeds =
-          electronMatcher_.compatibleSeeds(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
-      seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, hoe1, hoe2, out, false);
-      // try positron
-      auto posPixelSeeds =
-          positronMatcher_.compatibleSeeds(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
-      seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, hoe1, hoe2, out, true);
-    }
+    // try electron
+    auto elePixelSeeds =
+        electronMatcher_.compatibleSeeds(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
+    seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, hoe1, hoe2, out, false);
+    // try positron
+    auto posPixelSeeds =
+        positronMatcher_.compatibleSeeds(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
+    seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, hoe1, hoe2, out, true);
 
   } else  // here we use the reco vertices
   {
@@ -361,25 +271,14 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
       electronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
       positronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
 
-      if (!fromTrackerSeeds_) {
-        // try electron
-        auto elePixelHits =
-            electronMatcher_.compatibleHits(clusterPos, vertexPos, clusterEnergy, -1., tTopo, *navigationSchool_);
-        seedsFromRecHits(elePixelHits, dir, vertexPos, caloCluster, out, false);
-        // try positron
-        auto posPixelHits =
-            positronMatcher_.compatibleHits(clusterPos, vertexPos, clusterEnergy, 1., tTopo, *navigationSchool_);
-        seedsFromRecHits(posPixelHits, dir, vertexPos, caloCluster, out, true);
-      } else {
-        // try electron
-        auto elePixelSeeds =
-            electronMatcher_.compatibleSeeds(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
-        seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, hoe1, hoe2, out, false);
-        // try positron
-        auto posPixelSeeds =
-            positronMatcher_.compatibleSeeds(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
-        seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, hoe1, hoe2, out, true);
-      }
+      // try electron
+      auto elePixelSeeds =
+          electronMatcher_.compatibleSeeds(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
+      seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, hoe1, hoe2, out, false);
+      // try positron
+      auto posPixelSeeds =
+          positronMatcher_.compatibleSeeds(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
+      seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, hoe1, hoe2, out, true);
     }
   }
 
@@ -442,8 +341,7 @@ void ElectronSeedGenerator::addSeed(reco::ElectronSeed &seed,
   } else {
     seed.setNegAttributes(info->dRz2(), info->dPhi2(), info->dRz1(), info->dPhi1());
   }
-  reco::ElectronSeedCollection::iterator resItr;
-  for (resItr = out.begin(); resItr != out.end(); ++resItr) {
+  for (auto resItr = out.begin(); resItr != out.end(); ++resItr) {
     if ((seed.caloCluster().key() == resItr->caloCluster().key()) && (seed.hitsMask() == resItr->hitsMask()) &&
         equivalent(seed, *resItr)) {
       if (positron) {
@@ -462,21 +360,7 @@ void ElectronSeedGenerator::addSeed(reco::ElectronSeed &seed,
                   << "\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: " << (unsigned int)seed.hitsMask() << "/"
                   << seed.dRz2() << "/" << seed.dPhi2() << "/" << seed.dRz2Pos() << "/" << seed.dPhi2Pos();
             }
-            //            else
-            //             {
-            //              edm::LogWarning("ElectronSeedGenerator|UnexpectedValue")
-            //               <<"this old seed already knows its dRz2Pos, we suspect duplicates in input trajectry seeds"
-            //               <<"\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)resItr->hitsMask()<<"/"<<resItr->dRz2()<<"/"<<resItr->dPhi2()<<"/"<<resItr->dRz2Pos()<<"/"<<resItr->dPhi2Pos()
-            //               <<"\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)seed.hitsMask()<<"/"<<seed.dRz2()<<"/"<<seed.dPhi2()<<"/"<<seed.dRz2Pos()<<"/"<<seed.dPhi2Pos() ;
-            //             }
           }
-          //          if (resItr->dRz2()==std::numeric_limits<float>::infinity())
-          //           {
-          //            edm::LogWarning("ElectronSeedGenerator|BadValue")
-          //             <<"this old seed has no dRz2, we suspect duplicates in input trajectry seeds"
-          //             <<"\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)resItr->hitsMask()<<"/"<<resItr->dRz2()<<"/"<<resItr->dPhi2()<<"/"<<resItr->dRz2Pos()<<"/"<<resItr->dPhi2Pos()
-          //             <<"\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)seed.hitsMask()<<"/"<<seed.dRz2()<<"/"<<seed.dPhi2()<<"/"<<seed.dRz2Pos()<<"/"<<seed.dPhi2Pos() ;
-          //           }
         }
       } else {
         if (resItr->dRz2() == std::numeric_limits<float>::infinity() &&
@@ -494,22 +378,7 @@ void ElectronSeedGenerator::addSeed(reco::ElectronSeed &seed,
                   << "\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: " << (unsigned int)seed.hitsMask() << "/"
                   << seed.dRz2() << "/" << seed.dPhi2() << "/" << seed.dRz2Pos() << "/" << seed.dPhi2Pos();
             }
-            //        else
-            //         {
-            //          edm::LogWarning("ElectronSeedGenerator|UnexpectedValue")
-            //           <<"this old seed already knows its dRz2, we suspect duplicates in input trajectry seeds"
-            //           <<"\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)resItr->hitsMask()<<"/"<<resItr->dRz2()<<"/"<<resItr->dPhi2()<<"/"<<resItr->dRz2Pos()<<"/"<<resItr->dPhi2Pos()
-            //           <<"\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)seed.hitsMask()<<"/"<<seed.dRz2()<<"/"<<seed.dPhi2()<<"/"<<seed.dRz2Pos()<<"/"<<seed.dPhi2Pos() ;
-            //          seed.setPosAttributes(resItr->dRz2Pos(),resItr->dPhi2Pos(),resItr->dRz1Pos(),resItr->dPhi1Pos()) ;
-            //         }
           }
-          //          if (resItr->dRz2Pos()==std::numeric_limits<float>::infinity())
-          //           {
-          //            edm::LogWarning("ElectronSeedGenerator|BadValue")
-          //             <<"this old seed has no dRz2Pos"
-          //             <<"\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)resItr->hitsMask()<<"/"<<resItr->dRz2()<<"/"<<resItr->dPhi2()<<"/"<<resItr->dRz2Pos()<<"/"<<resItr->dPhi2Pos()
-          //             <<"\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: "<<(unsigned int)seed.hitsMask()<<"/"<<seed.dRz2()<<"/"<<seed.dPhi2()<<"/"<<seed.dRz2Pos()<<"/"<<seed.dPhi2Pos() ;
-          //           }
         }
       }
     }
@@ -548,8 +417,6 @@ bool ElectronSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
       return false;
   }
 
-  typedef TrajectoryStateOnSurface TSOS;
-
   // FIXME to be optimized outside the loop
   edm::ESHandle<MagneticField> bfield;
   setup_->get<IdealMagneticFieldRecord>().get(bfield);
@@ -561,15 +428,15 @@ bool ElectronSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
     return false;
   }
   FreeTrajectoryState fts(helix.stateAtVertex());
-  TSOS propagatedState = propagator_->propagate(fts, innerhit->det()->surface());
+  auto propagatedState = propagator_->propagate(fts, innerhit->det()->surface());
   if (!propagatedState.isValid())
     return false;
-  TSOS updatedState = updator_.update(propagatedState, *innerhit);
+  auto updatedState = updator_.update(propagatedState, *innerhit);
 
-  TSOS propagatedState_out = propagator_->propagate(updatedState, outerhit->det()->surface());
+  auto propagatedState_out = propagator_->propagate(updatedState, outerhit->det()->surface());
   if (!propagatedState_out.isValid())
     return false;
-  TSOS updatedState_out = updator_.update(propagatedState_out, *outerhit);
+  auto updatedState_out = updator_.update(propagatedState_out, *outerhit);
   // debug prints
   LogDebug("") << "[ElectronSeedGenerator::prepareElTrackSeed] final TSOS, position: "
                << updatedState_out.globalPosition() << " momentum: " << updatedState_out.globalMomentum();
