@@ -24,18 +24,14 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
-//#include "DataFormats/EgammaReco/interface/EcalCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-//#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-//#include "DataFormats/Common/interface/Handle.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
@@ -61,52 +57,37 @@ namespace {
 ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, const ElectronSeedGenerator::Tokens &ts)
     : dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
       fromTrackerSeeds_(pset.getParameter<bool>("fromTrackerSeeds")),
-      useRecoVertex_(false),
       verticesTag_(ts.token_vtx),
       beamSpotTag_(ts.token_bs),
       lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
       highPtThreshold_(pset.getParameter<double>("HighPtThreshold")),
       nSigmasDeltaZ1_(pset.getParameter<double>("nSigmasDeltaZ1")),
-      deltaZ1WithVertex_(0.5),
+      deltaZ1WithVertex_(pset.getParameter<double>("deltaZ1WithVertex")),
       sizeWindowENeg_(pset.getParameter<double>("SizeWindowENeg")),
       deltaPhi1Low_(pset.getParameter<double>("DeltaPhi1Low")),
       deltaPhi1High_(pset.getParameter<double>("DeltaPhi1High")),
-      deltaPhi1Coef1_(0.),
-      deltaPhi1Coef2_(0.),
-      myMatchEle(nullptr),
-      myMatchPos(nullptr),
-      thePropagator(nullptr),
+      // so that deltaPhi1 = deltaPhi1Coef1_ + deltaPhi1Coef2_/clusterEnergyT
+      deltaPhi1Coef1_(dynamicphiroad_ ? deltaPhi1Low_ - deltaPhi1Coef2_ / lowPtThreshold_ : 0.),
+      deltaPhi1Coef2_(dynamicphiroad_ ? (deltaPhi1Low_ - deltaPhi1High_) / (1. / lowPtThreshold_ - 1. / highPtThreshold_): 0.),
+      propagator_(nullptr),
       theMeasurementTracker(nullptr),
       theMeasurementTrackerEventTag(ts.token_measTrkEvt),
       theSetup(nullptr),
       cacheIDMagField_(0),
       /*cacheIDGeom_(0),*/ cacheIDNavSchool_(0),
       cacheIDCkfComp_(0),
-      cacheIDTrkGeom_(0) {
-  // so that deltaPhi1 = deltaPhi1Coef1_ + deltaPhi1Coef2_/clusterEnergyT
-  if (dynamicphiroad_) {
-    deltaPhi1Coef2_ = (deltaPhi1Low_ - deltaPhi1High_) / (1. / lowPtThreshold_ - 1. / highPtThreshold_);
-    deltaPhi1Coef1_ = deltaPhi1Low_ - deltaPhi1Coef2_ / lowPtThreshold_;
-  }
-
-  theMeasurementTrackerName = pset.getParameter<std::string>("measurementTrackerName");
-
-  // use of reco vertex
-  useRecoVertex_ = pset.getParameter<bool>("useRecoVertex");
-  deltaZ1WithVertex_ = pset.getParameter<double>("deltaZ1WithVertex");
-
-  // new B/F configurables
-  deltaPhi2B_ = pset.getParameter<double>("DeltaPhi2B");
-  deltaPhi2F_ = pset.getParameter<double>("DeltaPhi2F");
-
-  phiMin2B_ = pset.getParameter<double>("PhiMin2B");
-  phiMin2F_ = pset.getParameter<double>("PhiMin2F");
-
-  phiMax2B_ = pset.getParameter<double>("PhiMax2B");
-  phiMax2F_ = pset.getParameter<double>("PhiMax2F");
-
-  // Instantiate the pixel hit matchers
-  myMatchEle = new PixelHitMatcher(pset.getParameter<double>("ePhiMin1"),
+      cacheIDTrkGeom_(0),
+      measurementTrackerName_(pset.getParameter<std::string>("measurementTrackerName")),
+      // use of reco vertex
+      useRecoVertex_(pset.getParameter<bool>("useRecoVertex")),
+      // new B/F configurables
+      deltaPhi2B_(pset.getParameter<double>("DeltaPhi2B")),
+      deltaPhi2F_(pset.getParameter<double>("DeltaPhi2F")),
+      phiMin2B_(pset.getParameter<double>("PhiMin2B")),
+      phiMin2F_(pset.getParameter<double>("PhiMin2F")),
+      phiMax2B_(pset.getParameter<double>("PhiMax2B")),
+      phiMax2F_(pset.getParameter<double>("PhiMax2F")),
+  electronMatcher_(pset.getParameter<double>("ePhiMin1"),
                                    pset.getParameter<double>("ePhiMax1"),
                                    phiMin2B_,
                                    phiMax2B_,
@@ -118,9 +99,8 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, cons
                                    pset.getParameter<double>("r2MaxF"),
                                    pset.getParameter<double>("rMinI"),
                                    pset.getParameter<double>("rMaxI"),
-                                   pset.getParameter<bool>("searchInTIDTEC"));
-
-  myMatchPos = new PixelHitMatcher(pset.getParameter<double>("pPhiMin1"),
+                                   pset.getParameter<bool>("searchInTIDTEC")),
+  positronMatcher_(pset.getParameter<double>("pPhiMin1"),
                                    pset.getParameter<double>("pPhiMax1"),
                                    phiMin2B_,
                                    phiMax2B_,
@@ -132,16 +112,8 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, cons
                                    pset.getParameter<double>("r2MaxF"),
                                    pset.getParameter<double>("rMinI"),
                                    pset.getParameter<double>("rMaxI"),
-                                   pset.getParameter<bool>("searchInTIDTEC"));
-
-  theUpdator = new KFUpdator();
-}
-
-ElectronSeedGenerator::~ElectronSeedGenerator() {
-  delete myMatchEle;
-  delete myMatchPos;
-  delete thePropagator;
-  delete theUpdator;
+                                   pset.getParameter<bool>("searchInTIDTEC"))
+{
 }
 
 void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
@@ -151,15 +123,13 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
   if (cacheIDMagField_ != setup.get<IdealMagneticFieldRecord>().cacheIdentifier()) {
     setup.get<IdealMagneticFieldRecord>().get(theMagField);
     cacheIDMagField_ = setup.get<IdealMagneticFieldRecord>().cacheIdentifier();
-    if (thePropagator)
-      delete thePropagator;
-    thePropagator = new PropagatorWithMaterial(alongMomentum, .000511, &(*theMagField));
+    propagator_ = std::make_unique<PropagatorWithMaterial>(alongMomentum, .000511, &(*theMagField));
     tochange = true;
   }
 
   if (!fromTrackerSeeds_ && cacheIDCkfComp_ != setup.get<CkfComponentsRecord>().cacheIdentifier()) {
     edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-    setup.get<CkfComponentsRecord>().get(theMeasurementTrackerName, measurementTrackerHandle);
+    setup.get<CkfComponentsRecord>().get(measurementTrackerName_, measurementTrackerHandle);
     cacheIDCkfComp_ = setup.get<CkfComponentsRecord>().cacheIdentifier();
     theMeasurementTracker = measurementTrackerHandle.product();
     tochange = true;
@@ -173,8 +143,8 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
   }
 
   if (tochange) {
-    myMatchEle->setES(&(*theMagField), theMeasurementTracker, theTrackerGeometry.product());
-    myMatchPos->setES(&(*theMagField), theMeasurementTracker, theTrackerGeometry.product());
+    electronMatcher_.setES(&(*theMagField), theMeasurementTracker, theTrackerGeometry.product());
+    positronMatcher_.setES(&(*theMagField), theMeasurementTracker, theTrackerGeometry.product());
   }
 
   if (cacheIDNavSchool_ != setup.get<NavigationSchoolRecord>().cacheIdentifier()) {
@@ -184,10 +154,6 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
     theNavigationSchool = nav.product();
   }
 
-  //  if (cacheIDGeom_!=setup.get<TrackerRecoGeometryRecord>().cacheIdentifier()) {
-  //    setup.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
-  //    cacheIDGeom_=setup.get<TrackerRecoGeometryRecord>().cacheIdentifier();
-  //  }
 }
 
 void display_seed(const std::string &title1,
@@ -261,8 +227,8 @@ void ElectronSeedGenerator::run(edm::Event &e,
   // Step A: set Event for the TrajectoryBuilder
   edm::Handle<MeasurementTrackerEvent> data;
   e.getByToken(theMeasurementTrackerEventTag, data);
-  myMatchEle->setEvent(*data);
-  myMatchPos->setEvent(*data);
+  electronMatcher_.setEvent(*data);
+  positronMatcher_.setEvent(*data);
 
   // get the beamspot from the Event:
   //e.getByType(theBeamSpot);
@@ -330,10 +296,10 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
     float phimin2F = -deltaPhi2F_ / 2.;
     float phimax2F = deltaPhi2F_ / 2.;
 
-    myMatchEle->set1stLayer(ephimin1, ephimax1);
-    myMatchPos->set1stLayer(pphimin1, pphimax1);
-    myMatchEle->set2ndLayer(phimin2B, phimax2B, phimin2F, phimax2F);
-    myMatchPos->set2ndLayer(phimin2B, phimax2B, phimin2F, phimax2F);
+    electronMatcher_.set1stLayer(ephimin1, ephimax1);
+    positronMatcher_.set1stLayer(pphimin1, pphimax1);
+    electronMatcher_.set2ndLayer(phimin2B, phimax2B, phimin2F, phimax2F);
+    positronMatcher_.set2ndLayer(phimin2B, phimax2B, phimin2F, phimax2F);
   }
 
   PropagationDirection dir = alongMomentum;
@@ -349,35 +315,35 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
     GlobalPoint vertexPos;
     ele_convert(theBeamSpot->position(), vertexPos);
 
-    myMatchEle->set1stLayerZRange(myZmin1, myZmax1);
-    myMatchPos->set1stLayerZRange(myZmin1, myZmax1);
+    electronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
+    positronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
 
     if (!fromTrackerSeeds_) {
       // try electron
       std::vector<std::pair<RecHitWithDist, ConstRecHitPointer> > elePixelHits =
-          myMatchEle->compatibleHits(clusterPos, vertexPos, clusterEnergy, -1., tTopo, *theNavigationSchool);
-      GlobalPoint eleVertex(theBeamSpot->position().x(), theBeamSpot->position().y(), myMatchEle->getVertex());
+          electronMatcher_.compatibleHits(clusterPos, vertexPos, clusterEnergy, -1., tTopo, *theNavigationSchool);
+      GlobalPoint eleVertex(theBeamSpot->position().x(), theBeamSpot->position().y(), electronMatcher_.getVertex());
       seedsFromRecHits(elePixelHits, dir, eleVertex, caloCluster, out, false);
       // try positron
       std::vector<std::pair<RecHitWithDist, ConstRecHitPointer> > posPixelHits =
-          myMatchPos->compatibleHits(clusterPos, vertexPos, clusterEnergy, 1., tTopo, *theNavigationSchool);
-      GlobalPoint posVertex(theBeamSpot->position().x(), theBeamSpot->position().y(), myMatchPos->getVertex());
+          positronMatcher_.compatibleHits(clusterPos, vertexPos, clusterEnergy, 1., tTopo, *theNavigationSchool);
+      GlobalPoint posVertex(theBeamSpot->position().x(), theBeamSpot->position().y(), positronMatcher_.getVertex());
       seedsFromRecHits(posPixelHits, dir, posVertex, caloCluster, out, true);
     } else {
       // try electron
       std::vector<SeedWithInfo> elePixelSeeds =
-          myMatchEle->compatibleSeeds(*theInitialSeedCollV, clusterPos, vertexPos, clusterEnergy, -1.);
+          electronMatcher_.compatibleSeeds(*theInitialSeedCollV, clusterPos, vertexPos, clusterEnergy, -1.);
       seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, hoe1, hoe2, out, false);
       // try positron
       std::vector<SeedWithInfo> posPixelSeeds =
-          myMatchPos->compatibleSeeds(*theInitialSeedCollV, clusterPos, vertexPos, clusterEnergy, 1.);
+          positronMatcher_.compatibleSeeds(*theInitialSeedCollV, clusterPos, vertexPos, clusterEnergy, 1.);
       seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, hoe1, hoe2, out, true);
     }
 
   } else  // here we use the reco vertices
   {
-    myMatchEle->setUseRecoVertex(true);  //Hit matchers need to know that the vertex is known
-    myMatchPos->setUseRecoVertex(true);
+    electronMatcher_.setUseRecoVertex(true);  //Hit matchers need to know that the vertex is known
+    positronMatcher_.setUseRecoVertex(true);
 
     const std::vector<reco::Vertex> *vtxCollection = theVertices.product();
     std::vector<reco::Vertex>::const_iterator vtxIter;
@@ -395,26 +361,26 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
         myZmax1 = vtxIter->position().z() + deltaZ1WithVertex_;
       }
 
-      myMatchEle->set1stLayerZRange(myZmin1, myZmax1);
-      myMatchPos->set1stLayerZRange(myZmin1, myZmax1);
+      electronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
+      positronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
 
       if (!fromTrackerSeeds_) {
         // try electron
         std::vector<std::pair<RecHitWithDist, ConstRecHitPointer> > elePixelHits =
-            myMatchEle->compatibleHits(clusterPos, vertexPos, clusterEnergy, -1., tTopo, *theNavigationSchool);
+            electronMatcher_.compatibleHits(clusterPos, vertexPos, clusterEnergy, -1., tTopo, *theNavigationSchool);
         seedsFromRecHits(elePixelHits, dir, vertexPos, caloCluster, out, false);
         // try positron
         std::vector<std::pair<RecHitWithDist, ConstRecHitPointer> > posPixelHits =
-            myMatchPos->compatibleHits(clusterPos, vertexPos, clusterEnergy, 1., tTopo, *theNavigationSchool);
+            positronMatcher_.compatibleHits(clusterPos, vertexPos, clusterEnergy, 1., tTopo, *theNavigationSchool);
         seedsFromRecHits(posPixelHits, dir, vertexPos, caloCluster, out, true);
       } else {
         // try electron
         std::vector<SeedWithInfo> elePixelSeeds =
-            myMatchEle->compatibleSeeds(*theInitialSeedCollV, clusterPos, vertexPos, clusterEnergy, -1.);
+            electronMatcher_.compatibleSeeds(*theInitialSeedCollV, clusterPos, vertexPos, clusterEnergy, -1.);
         seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, hoe1, hoe2, out, false);
         // try positron
         std::vector<SeedWithInfo> posPixelSeeds =
-            myMatchPos->compatibleSeeds(*theInitialSeedCollV, clusterPos, vertexPos, clusterEnergy, 1.);
+            positronMatcher_.compatibleSeeds(*theInitialSeedCollV, clusterPos, vertexPos, clusterEnergy, 1.);
         seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, hoe1, hoe2, out, true);
       }
     }
@@ -433,12 +399,11 @@ void ElectronSeedGenerator::seedsFromRecHits(std::vector<std::pair<RecHitWithDis
     LogDebug("ElectronSeedGenerator") << "Compatible " << (positron ? "positron" : "electron") << " hits found.";
   }
 
-  std::vector<std::pair<RecHitWithDist, ConstRecHitPointer> >::iterator v;
-  for (v = pixelHits.begin(); v != pixelHits.end(); v++) {
+  for(auto& v : pixelHits) {
     if (!positron) {
-      (*v).first.invert();
+      v.first.invert();
     }
-    if (!prepareElTrackSeed((*v).first.recHit(), (*v).second, vertexPos)) {
+    if (!prepareElTrackSeed(v.first.recHit(), v.second, vertexPos)) {
       continue;
     }
     reco::ElectronSeed seed(pts_, recHits_, dir);
@@ -599,15 +564,15 @@ bool ElectronSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
     return false;
   }
   FreeTrajectoryState fts(helix.stateAtVertex());
-  TSOS propagatedState = thePropagator->propagate(fts, innerhit->det()->surface());
+  TSOS propagatedState = propagator_->propagate(fts, innerhit->det()->surface());
   if (!propagatedState.isValid())
     return false;
-  TSOS updatedState = theUpdator->update(propagatedState, *innerhit);
+  TSOS updatedState = updator_.update(propagatedState, *innerhit);
 
-  TSOS propagatedState_out = thePropagator->propagate(updatedState, outerhit->det()->surface());
+  TSOS propagatedState_out = propagator_->propagate(updatedState, outerhit->det()->surface());
   if (!propagatedState_out.isValid())
     return false;
-  TSOS updatedState_out = theUpdator->update(propagatedState_out, *outerhit);
+  TSOS updatedState_out = updator_.update(propagatedState_out, *outerhit);
   // debug prints
   LogDebug("") << "[ElectronSeedGenerator::prepareElTrackSeed] final TSOS, position: "
                << updatedState_out.globalPosition() << " momentum: " << updatedState_out.globalMomentum();
