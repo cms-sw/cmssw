@@ -25,7 +25,6 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-//#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -38,9 +37,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 
+#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+
 class PropagatorWithMaterial;
 class KFUpdator;
-class PixelHitMatcher;
+class PixelHitMatcher_;
 class MeasurementTracker;
 class NavigationSchool;
 class TrackerTopology;
@@ -59,7 +60,6 @@ public:
   typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
 
   ElectronSeedGenerator(const edm::ParameterSet&, const Tokens&);
-  ~ElectronSeedGenerator();
 
   void setupES(const edm::EventSetup& setup);
   void run(edm::Event&,
@@ -91,45 +91,35 @@ private:
   void addSeed(reco::ElectronSeed& seed, const SeedWithInfo* info, bool positron, reco::ElectronSeedCollection& out);
   bool prepareElTrackSeed(ConstRecHitPointer outerhit, ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
 
-  bool dynamicphiroad_;
-  bool fromTrackerSeeds_;
-  //  edm::EDGetTokenT<SomeClass> initialSeeds_;
-  bool useRecoVertex_;
+  const bool dynamicphiroad_;
+  const bool fromTrackerSeeds_;
   edm::Handle<std::vector<reco::Vertex> > theVertices;
   edm::EDGetTokenT<std::vector<reco::Vertex> > verticesTag_;
 
   edm::Handle<reco::BeamSpot> theBeamSpot;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
 
-  float lowPtThreshold_;
-  float highPtThreshold_;
-  float nSigmasDeltaZ1_;     // first z window size if not using the reco vertex
-  float deltaZ1WithVertex_;  // first z window size when using the reco vertex
-  float sizeWindowENeg_;
-  float phiMin2B_;
-  float phiMax2B_;
-  float phiMin2F_;
-  float phiMax2F_;
-  float deltaPhi1Low_, deltaPhi1High_;
-  float deltaPhi2B_;
-  float deltaPhi2F_;
+  const float lowPtThreshold_;
+  const float highPtThreshold_;
+  const float nSigmasDeltaZ1_;     // first z window size if not using the reco vertex
+  const float deltaZ1WithVertex_;  // first z window size when using the reco vertex
+  const float sizeWindowENeg_;
+
+  const float deltaPhi1Low_;
+  const float deltaPhi1High_;
 
   // so that deltaPhi1 = deltaPhi1Coef1_ + deltaPhi1Coef2_/clusterEnergyT
-  double deltaPhi1Coef1_;
-  double deltaPhi1Coef2_;
-
-  PixelHitMatcher* myMatchEle;
-  PixelHitMatcher* myMatchPos;
+  const double deltaPhi1Coef1_;
+  const double deltaPhi1Coef2_;
 
   const std::vector<const TrajectorySeedCollection*>* theInitialSeedCollV = nullptr;
 
   edm::ESHandle<MagneticField> theMagField;
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
   //edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
-  KFUpdator* theUpdator;
-  PropagatorWithMaterial* thePropagator;
+  KFUpdator updator_;
+  std::unique_ptr<PropagatorWithMaterial> propagator_;
 
-  std::string theMeasurementTrackerName;
   const MeasurementTracker* theMeasurementTracker;
   edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventTag;
 
@@ -146,6 +136,22 @@ private:
   unsigned long long cacheIDNavSchool_;
   unsigned long long cacheIDCkfComp_;
   unsigned long long cacheIDTrkGeom_;
+
+  std::string measurementTrackerName_;
+
+  bool useRecoVertex_;
+
+  float deltaPhi2B_;
+  float deltaPhi2F_;
+
+  float phiMin2B_;
+  float phiMin2F_;
+  float phiMax2B_;
+  float phiMax2F_;
+
+  PixelHitMatcher electronMatcher_;
+  PixelHitMatcher positronMatcher_;
+
 };
 
 #endif  // ElectronSeedGenerator_H
