@@ -70,7 +70,7 @@ void PixelHitMatcher::setUseRecoVertex(bool val) { useRecoVertex_ = val; }
 
 void PixelHitMatcher::setEvent(const MeasurementTrackerEvent &trackerData) {
   theTrackerEvent = &trackerData;
-  theLayerMeasurements = LayerMeasurements(*theTracker, *theTrackerEvent);
+  theLayerMeasurements = std::make_unique<LayerMeasurements>(*theTracker, *theTrackerEvent);
 }
 void PixelHitMatcher::setES(const MagneticField *magField,
                             const MeasurementTracker *theMeasurementTracker,
@@ -279,7 +279,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
 
   if (tsos.isValid()) {
     vector<TrajectoryMeasurement> pixelMeasurements =
-        theLayerMeasurements.measurements(**firstLayer, tsos, *prop1stLayer, meas1stBLayer);
+        theLayerMeasurements->measurements(**firstLayer, tsos, *prop1stLayer, meas1stBLayer);
 
     LogDebug("") << "[PixelHitMatcher::compatibleHits] nbr of hits compatible with extrapolation to first layer: "
                  << pixelMeasurements.size();
@@ -311,7 +311,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
     firstLayer++;
 
     vector<TrajectoryMeasurement> pixel2Measurements =
-        theLayerMeasurements.measurements(**firstLayer, tsos, *prop1stLayer, meas1stBLayer);
+        theLayerMeasurements->measurements(**firstLayer, tsos, *prop1stLayer, meas1stBLayer);
 
     for (aMeas m = pixel2Measurements.begin(); m != pixel2Measurements.end(); m++) {
       if (m->recHit()->isValid()) {
@@ -352,7 +352,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
         continue;
 
       vector<TrajectoryMeasurement> pixelMeasurements =
-          theLayerMeasurements.measurements(**flayer, tsosfwd, *prop1stLayer, meas1stFLayer);
+          theLayerMeasurements->measurements(**flayer, tsosfwd, *prop1stLayer, meas1stFLayer);
 
       for (aMeas m = pixelMeasurements.begin(); m != pixelMeasurements.end(); m++) {
         if (m->recHit()->isValid()) {
@@ -373,7 +373,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
         flayer++;
 
         vector<TrajectoryMeasurement> pixel2Measurements =
-            theLayerMeasurements.measurements(**flayer, tsosfwd, *prop1stLayer, meas1stFLayer);
+            theLayerMeasurements->measurements(**flayer, tsosfwd, *prop1stLayer, meas1stFLayer);
 
         for (aMeas m = pixel2Measurements.begin(); m != pixel2Measurements.end(); m++) {
           if (m->recHit()->isValid()) {
@@ -428,7 +428,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
 
     FreeTrajectoryState secondFTS = FTSFromVertexToPointFactory::get(*theMagField, hitPos, vertexPred, energy, charge);
 
-    PixelMatchNextLayers secondHit(&theLayerMeasurements,
+    PixelMatchNextLayers secondHit(theLayerMeasurements.get(),
                                    newLayer,
                                    secondFTS,
                                    prop2ndLayer,
