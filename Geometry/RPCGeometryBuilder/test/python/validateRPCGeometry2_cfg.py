@@ -13,12 +13,6 @@ process.load('Configuration.Geometry.GeometryExtended2021_cff')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
-
-#process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-#                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml'),
-#                                            appendToDataLabel = cms.string('MUON')
-#                                            )
-
 process.RPCGeometryESProducer = cms.ESProducer("RPCGeometryESModule",
                                                DDDetector = cms.ESInputTag('',''),
                                                comp11 = cms.untracked.bool(True),
