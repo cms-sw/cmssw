@@ -93,11 +93,11 @@ private:
 
   const bool dynamicphiroad_;
   const bool fromTrackerSeeds_;
-  edm::Handle<std::vector<reco::Vertex> > theVertices;
-  edm::EDGetTokenT<std::vector<reco::Vertex> > verticesTag_;
+  edm::Handle<std::vector<reco::Vertex> > vertices_;
+  const edm::EDGetTokenT<std::vector<reco::Vertex> > verticesTag_;
 
-  edm::Handle<reco::BeamSpot> theBeamSpot;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
+  edm::Handle<reco::BeamSpot> beamSpot_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
 
   const float lowPtThreshold_;
   const float highPtThreshold_;
@@ -112,46 +112,43 @@ private:
   const double deltaPhi1Coef1_;
   const double deltaPhi1Coef2_;
 
-  const std::vector<const TrajectorySeedCollection*>* theInitialSeedCollV = nullptr;
+  const std::vector<const TrajectorySeedCollection*>* initialSeedCollectionVector_ = nullptr;
 
-  edm::ESHandle<MagneticField> theMagField;
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-  //edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
+  edm::ESHandle<MagneticField> magField_;
+  edm::ESHandle<TrackerGeometry> trackerGeometry_;
   KFUpdator updator_;
   std::unique_ptr<PropagatorWithMaterial> propagator_;
 
-  const MeasurementTracker* theMeasurementTracker;
-  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventTag;
+  const MeasurementTracker* measurementTracker_;
+  const edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventTag_;
 
-  const NavigationSchool* theNavigationSchool;
+  const NavigationSchool* navigationSchool_;
 
-  const edm::EventSetup* theSetup;
+  const edm::EventSetup* setup_;
 
   PRecHitContainer recHits_;
   PTrajectoryStateOnDet pts_;
 
   // keep cacheIds to get records only when necessary
   unsigned long long cacheIDMagField_;
-  //  unsigned long long cacheIDGeom_;
   unsigned long long cacheIDNavSchool_;
   unsigned long long cacheIDCkfComp_;
   unsigned long long cacheIDTrkGeom_;
 
-  std::string measurementTrackerName_;
+  const std::string measurementTrackerName_;
 
-  bool useRecoVertex_;
+  const bool useRecoVertex_;
 
-  float deltaPhi2B_;
-  float deltaPhi2F_;
+  const float deltaPhi2B_;
+  const float deltaPhi2F_;
 
-  float phiMin2B_;
-  float phiMin2F_;
-  float phiMax2B_;
-  float phiMax2F_;
+  const float phiMin2B_;
+  const float phiMin2F_;
+  const float phiMax2B_;
+  const float phiMax2F_;
 
   PixelHitMatcher electronMatcher_;
   PixelHitMatcher positronMatcher_;
-
 };
 
 #endif  // ElectronSeedGenerator_H
