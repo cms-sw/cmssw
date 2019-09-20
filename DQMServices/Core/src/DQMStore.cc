@@ -755,13 +755,9 @@ namespace dqm::impl {
       readFile(ref, true, "", s_referenceDirName, StripRunDirs, false);
     }
 
-    initQCriterion<Comp2RefChi2>(qalgos_);
-    initQCriterion<Comp2Ref2DChi2>(qalgos_);
-    initQCriterion<Comp2RefKolmogorov>(qalgos_);
     initQCriterion<ContentsXRange>(qalgos_);
     initQCriterion<ContentsYRange>(qalgos_);
     initQCriterion<MeanWithinExpected>(qalgos_);
-    initQCriterion<Comp2RefEqualH>(qalgos_);
     initQCriterion<DeadChannel>(qalgos_);
     initQCriterion<NoisyChannel>(qalgos_);
     initQCriterion<ContentSigma>(qalgos_);

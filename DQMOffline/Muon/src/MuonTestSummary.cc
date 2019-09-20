@@ -508,28 +508,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter &igetter, string muonT
         else
           kinematicsSummaryMap->setBinContent(bin, 1, 0);
       }
-
-      //QT based on comp wrt reference based on chi2
-      LogTrace(metname) << "chi2 kin test based on comp wrt reference on terms of chi2 for " << muonType << endl;
-      const QReport *myQReport = chi2Histo->getQReport("Mu_Comp2RefChi2");  //get QReport associated to your ME
-      if (myQReport) {
-        LogTrace(metname) << "Chi2Report exists!!";
-        float qtresult = myQReport->getQTresult();  // get QT result value
-        int qtstatus = myQReport->getStatus();      // get QT status value (see table below)
-        LogTrace(metname) << "qtresult " << qtresult << " qtstatus " << qtstatus << endl;
-        chi2TestSummaryMap->setBinContent(bin, 1, qtresult);
-      }
-      //QT based on comp wrt reference based on kolmogorov test
-      LogTrace(metname) << "chi2 kin test based on comp wrt reference using kolmogorov for " << muonType << endl;
-      const QReport *myQReportKolmo = chi2Histo->getQReport("Mu_Comp2RefKolmogorov");
-      if (myQReportKolmo) {
-        LogTrace(metname) << "Chi2Report Kolmogorov exists!!";
-        float qtresult = myQReportKolmo->getQTresult();  // get QT result value
-        int qtstatus = myQReportKolmo->getStatus();      // get QT status value (see table below)
-        LogTrace(metname) << "qtresult " << qtresult << " qtstatus " << qtstatus << endl;
-        KolmogorovTestSummaryMap->setBinContent(bin, 1, qtresult);
-      }
-
     } else {
       LogTrace(metname) << "[MuonTestSummary]: Test of Chi2 Kin not performed for " << muonType
                         << " because # entries < 20 ";
@@ -568,28 +546,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter &igetter, string muonT
           kinematicsSummaryMap->setBinContent(bin, 2, 1);
         else
           kinematicsSummaryMap->setBinContent(bin, 2, 0);
-      }
-
-      //QT based on comp wrt reference based on chi2
-      LogTrace(metname) << "eta kin test based on comp wrt reference on terms of chi2 for " << muonType << endl;
-      const QReport *myQReport = etaHisto->getQReport("Mu_Comp2RefChi2");  //get QReport associated to your ME
-      if (myQReport) {
-        LogTrace(metname) << "EtaReport exists!!";
-        float qtresult = myQReport->getQTresult();  // get QT result value
-        int qtstatus = myQReport->getStatus();      // get QT status value (see table below)
-        LogTrace(metname) << "qtresult " << qtresult << " qtstatus " << qtstatus << endl;
-        chi2TestSummaryMap->setBinContent(bin, 2, qtresult);
-      }
-
-      //QT based on comp wrt reference based on kolmogorov test
-      LogTrace(metname) << "eta kin test based on comp wrt reference using kolmogorov for " << muonType << endl;
-      const QReport *myQReportKolmo = etaHisto->getQReport("Mu_Comp2RefKolmogorov");
-      if (myQReportKolmo) {
-        LogTrace(metname) << "EtaReport Kolmogorov exists!!";
-        float qtresult = myQReportKolmo->getQTresult();  // get QT result value
-        int qtstatus = myQReportKolmo->getStatus();      // get QT status value (see table below)
-        LogTrace(metname) << "qtresult " << qtresult << " qtstatus " << qtstatus << endl;
-        KolmogorovTestSummaryMap->setBinContent(bin, 2, qtresult);
       }
 
     } else {
@@ -632,28 +588,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter &igetter, string muonT
           kinematicsSummaryMap->setBinContent(bin, 3, 0);
       }
 
-      //QT based on comp wrt reference based on chi2
-      LogTrace(metname) << "phi kin test based on comp wrt reference on terms of chi2 for " << muonType << endl;
-      const QReport *myQReport = phiHisto->getQReport("Mu_Comp2RefChi2");  //get QReport associated to your ME
-      if (myQReport) {
-        LogTrace(metname) << "PhiReport exists!!";
-        float qtresult = myQReport->getQTresult();  // get QT result value
-        int qtstatus = myQReport->getStatus();      // get QT status value (see table below)
-        LogTrace(metname) << "qtresult " << qtresult << " qtstatus " << qtstatus << endl;
-        chi2TestSummaryMap->setBinContent(bin, 3, qtresult);
-      }
-
-      //QT based on comp wrt reference based on kolmogorov test
-      LogTrace(metname) << "phi kin test based on comp wrt reference using kolmogorov for " << muonType << endl;
-      const QReport *myQReportKolmo = phiHisto->getQReport("Mu_Comp2RefKolmogorov");
-      if (myQReportKolmo) {
-        LogTrace(metname) << "PhiReport Kolmogorov exists!!";
-        float qtresult = myQReportKolmo->getQTresult();  // get QT result value
-        int qtstatus = myQReportKolmo->getStatus();      // get QT status value (see table below)
-        LogTrace(metname) << "qtresult " << qtresult << " qtstatus " << qtstatus << endl;
-        KolmogorovTestSummaryMap->setBinContent(bin, 3, qtresult);
-      }
-
     } else {
       LogTrace(metname) << "[MuonTestSummary]: Test of Phi Kin not performed for " << muonType
                         << " because # entries < 20 ";
@@ -664,69 +598,10 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter &igetter, string muonT
   path = "Muons/MuonRecoAnalyzer/" + muonType + "pt";
   MonitorElement *ptHisto = igetter.get(path);
 
-  if (ptHisto) {
-    TH1F *ptHisto_root = ptHisto->getTH1F();
-    if (ptHisto_root->GetEntries() > 20) {
-      //QT based on comp wrt reference based on chi2
-      LogTrace(metname) << "pt kin test based on comp wrt reference on terms of chi2 for " << muonType << endl;
-      const QReport *myQReport = ptHisto->getQReport("Mu_Comp2RefChi2");  //get QReport associated to your ME
-      if (myQReport) {
-        LogTrace(metname) << "PtReport exists!!";
-        float qtresult = myQReport->getQTresult();  // get QT result value
-        int qtstatus = myQReport->getStatus();      // get QT status value (see table below)
-        LogTrace(metname) << "qtresult " << qtresult << " qtstatus " << qtstatus << endl;
-        chi2TestSummaryMap->setBinContent(bin, 4, qtresult);
-      }
-
-      //QT based on comp wrt reference based on kolmogorov test
-      LogTrace(metname) << "pt kin test based on comp wrt reference using kolmogorov for " << muonType << endl;
-      const QReport *myQReportKolmo = ptHisto->getQReport("Mu_Comp2RefKolmogorov");
-      if (myQReportKolmo) {
-        LogTrace(metname) << "PtReport Kolmogorov exists!!";
-        float qtresult = myQReportKolmo->getQTresult();  // get QT result value
-        int qtstatus = myQReportKolmo->getStatus();      // get QT status value (see table below)
-        LogTrace(metname) << "qtresult " << qtresult << " qtstatus " << qtstatus << endl;
-        KolmogorovTestSummaryMap->setBinContent(bin, 4, qtresult);
-      }
-    } else {
-      LogTrace(metname) << "[MuonTestSummary]: Test of Pt Kin not performed for " << muonType
-                        << " because # entries < 20 ";
-    }
-  }
-
   // q test
   path = "Muons/MuonRecoAnalyzer/" + muonType + "q";
   MonitorElement *qHisto = igetter.get(path);
 
-  if (ptHisto) {
-    TH1F *qHisto_root = qHisto->getTH1F();
-    if (qHisto_root->GetEntries() > 20) {
-      //QT based on comp wrt reference based on chi2
-      LogTrace(metname) << "q kin test based on comp wrt reference on terms of chi2 for " << muonType << endl;
-      const QReport *myQReport = qHisto->getQReport("Mu_Comp2RefChi2");  //get QReport associated to your ME
-      if (myQReport) {
-        LogTrace(metname) << "qReport exists!!";
-        float qtresult = myQReport->getQTresult();  // get QT result value
-        int qtstatus = myQReport->getStatus();      // get QT status value (see table below)
-        LogTrace(metname) << "qtresult " << qtresult << " qtstatus " << qtstatus << endl;
-        chi2TestSummaryMap->setBinContent(bin, 5, qtresult);
-      }
-
-      //QT based on comp wrt reference based on kolmogorov test
-      LogTrace(metname) << "q kin test based on comp wrt reference using kolmogorov for " << muonType << endl;
-      const QReport *myQReportKolmo = qHisto->getQReport("Mu_Comp2RefKolmogorov");
-      if (myQReportKolmo) {
-        LogTrace(metname) << "qReport Kolmogorov exists!!";
-        float qtresult = myQReportKolmo->getQTresult();  // get QT result value
-        int qtstatus = myQReportKolmo->getStatus();      // get QT status value (see table below)
-        LogTrace(metname) << "qtresult " << qtresult << " qtstatus " << qtstatus << endl;
-        KolmogorovTestSummaryMap->setBinContent(bin, 5, qtresult);
-      }
-    } else {
-      LogTrace(metname) << "[MuonTestSummary]: Test of q Kin not performed for " << muonType
-                        << " because # entries < 20 ";
-    }
-  }
 }
 //--GH new
 void MuonTestSummary::GaussFit(
