@@ -34,7 +34,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "TH1F.h"
 

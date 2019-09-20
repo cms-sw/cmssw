@@ -336,7 +336,7 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
     }
 
     // Simulate APV response for each strip
-    if (SubDet == SiStripSubdetector::TIB || SubDet == SiStripSubdetector::TOB) {
+    if (SubDet == StripSubdetector::TIB || SubDet == StripSubdetector::TOB) {
       for (int strip = 0; strip < numStrips; ++strip) {
         if (detAmpl[strip] > 0) {
           // Convert charge from electrons to fC
@@ -344,9 +344,9 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
 
           // Get APV baseline
           double baselineV = 0;
-          if (SubDet == SiStripSubdetector::TIB) {
+          if (SubDet == StripSubdetector::TIB) {
             baselineV = apvSimulationParametersHandle->sampleTIB(tTopo->tibLayer(detId), detSet_z, nTruePU_, engine);
-          } else if (SubDet == SiStripSubdetector::TOB) {
+          } else if (SubDet == StripSubdetector::TOB) {
             baselineV = apvSimulationParametersHandle->sampleTOB(tTopo->tobLayer(detId), detSet_z, nTruePU_, engine);
           }
           // Store APV baseline for this strip
@@ -582,16 +582,16 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
       float cmnRMS = 0.;
       DetId detId(detID);
       switch (detId.subdetId()) {
-        case SiStripSubdetector::TIB:
+        case StripSubdetector::TIB:
           cmnRMS = cmnRMStib;
           break;
-        case SiStripSubdetector::TID:
+        case StripSubdetector::TID:
           cmnRMS = cmnRMStid;
           break;
-        case SiStripSubdetector::TOB:
+        case StripSubdetector::TOB:
           cmnRMS = cmnRMStob;
           break;
-        case SiStripSubdetector::TEC:
+        case StripSubdetector::TEC:
           cmnRMS = cmnRMStec;
           break;
       }
