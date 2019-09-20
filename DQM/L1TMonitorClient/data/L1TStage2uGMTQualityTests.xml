@@ -61,29 +61,7 @@
       <TestName activate="true">uGMT_BMTFBXMeanAtBX0</TestName>
   </LINK>
 
-
-  <!-- uGMT BMTF Global HW Phi -->
-
-  <QTEST name="uGMT_BMTFhwPhiSpectrum">
-    <TYPE>Comp2RefKolmogorov</TYPE>
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.001</PARAM>
-    <PARAM name="warning">0.003</PARAM>
-  </QTEST>
-
-  
-  <LINK name="*/L1TStage2uGMT/*/ugmtBMTFglbhwPhi">
-      <TestName activate="true">uGMT_BMTFhwPhiSpectrum</TestName>
-  </LINK>
-
   <!-- uGMT BMTF HW Eta -->
-
-  <QTEST name="uGMT_BMTFhwEtaSpectrum">
-    <TYPE>Comp2RefKolmogorov</TYPE>
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.00000001</PARAM>
-    <PARAM name="warning">0.003</PARAM>
-  </QTEST>
 
   <QTEST name="uGMT_BMTFhwEtaMeanAt0">
     <TYPE>MeanWithinExpected</TYPE>
@@ -100,7 +78,6 @@
 
   
   <LINK name="*/L1TStage2uGMT/*/ugmtBMTFhwEta">
-      <TestName activate="true">uGMT_BMTFhwEtaSpectrum</TestName>
       <TestName activate="true">uGMT_BMTFhwEtaMeanAt0</TestName>
   </LINK>
 
@@ -156,42 +133,7 @@
       <TestName activate="true">uGMT_OMTFBXMeanAtBX0</TestName>
   </LINK>
 
-  <!-- uGMT OMTF Global HW Phi Negative Side -->
-
-  <QTEST name="uGMT_OMTFhwPhiNegSpectrum">
-    <TYPE>Comp2RefKolmogorov</TYPE>
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.001</PARAM>
-    <PARAM name="warning">0.003</PARAM>
-  </QTEST>
-
-  
-  <LINK name="*/L1TStage2uGMT/*/ugmtOMTFglbhwPhiNeg">
-      <TestName activate="true">uGMT_OMTFhwPhiNegSpectrum</TestName>
-  </LINK>
-
-  <!-- uGMT OMTF Global HW Phi Positive Side -->
-
-  <QTEST name="uGMT_OMTFhwPhiPosSpectrum" activate="true">
-    <TYPE>Comp2RefKolmogorov</TYPE>
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.001</PARAM>
-    <PARAM name="warning">0.003</PARAM>
-  </QTEST>
-
-  
-  <LINK name="*/L1TStage2uGMT/*/ugmtOMTFglbhwPhiPos">
-      <TestName activate="true">uGMT_OMTFhwPhiPosSpectrum</TestName>
-  </LINK>
-
   <!-- uGMT OMTF HW Eta -->
-
-  <QTEST name="uGMT_OMTFhwEtaSpectrum">
-    <TYPE>Comp2RefKolmogorov</TYPE>
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.00000001</PARAM>
-    <PARAM name="warning">0.003</PARAM>
-  </QTEST>
 
   <QTEST name="uGMT_OMTFhwEtaMeanAt0">
     <TYPE>MeanWithinExpected</TYPE>
@@ -208,7 +150,6 @@
 
   
   <LINK name="*/L1TStage2uGMT/*/ugmtOMTFhwEta">
-      <TestName activate="true">uGMT_OMTFhwEtaSpectrum</TestName>
       <TestName activate="true">uGMT_OMTFhwEtaMeanAt0</TestName>
   </LINK>
 
@@ -280,13 +221,6 @@
 
   <!-- uGMT EMTF Muon Phi -->
 
-  <QTEST name="uGMT_EMTFMuonPhiSpectrum">
-    <TYPE>Comp2RefChi2</TYPE>
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.001</PARAM>
-    <PARAM name="warning">0.003</PARAM>
-  </QTEST>
-
   <QTEST name="uGMT_EMTFMuonPhiMeanAt0">
     <TYPE>MeanWithinExpected</TYPE>
     <PARAM name="mean">0.0</PARAM>
@@ -301,7 +235,6 @@
   </QTEST>
 
   <LINK name="*/L1TStage2uGMT/ugmtMuonPhiEmtf">
-      <TestName activate="true">uGMT_EMTFMuonPhiSpectrum</TestName>
       <TestName activate="true">uGMT_EMTFMuonPhiMeanAt0</TestName>
   </LINK>
 

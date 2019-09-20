@@ -343,18 +343,6 @@ namespace dqm::impl {
     TProfile *getTProfile() const;
     TProfile2D *getTProfile2D() const;
 
-    TObject *getRefRootObject() const;
-    TH1 *getRefTH1() const;
-    TH1F *getRefTH1F() const;
-    TH1S *getRefTH1S() const;
-    TH1D *getRefTH1D() const;
-    TH2F *getRefTH2F() const;
-    TH2S *getRefTH2S() const;
-    TH2D *getRefTH2D() const;
-    TH3F *getRefTH3F() const;
-    TProfile *getRefTProfile() const;
-    TProfile2D *getRefTProfile2D() const;
-
     int64_t getIntValue() const {
       assert(kind() == Kind::INT);
       return scalar_.num;
