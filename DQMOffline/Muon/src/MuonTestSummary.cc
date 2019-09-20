@@ -559,7 +559,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter &igetter, string muonT
   // q test
   path = "Muons/MuonRecoAnalyzer/" + muonType + "q";
   MonitorElement *qHisto = igetter.get(path);
-
 }
 //--GH new
 void MuonTestSummary::GaussFit(

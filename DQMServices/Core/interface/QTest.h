@@ -177,7 +177,6 @@ protected:
 //========= Classes for particular QUALITY TESTS ================//
 //===============================================================//
 
-
 //==================== ContentsXRange =========================//
 //== Check that histogram contents are between [Xmin, Xmax] ==//
 class ContentsXRange : public SimpleTest {

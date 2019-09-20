@@ -1295,5 +1295,4 @@ namespace dqm::impl {
     return static_cast<TProfile2D *>(accessRootObject(__PRETTY_FUNCTION__, 2));
   }
 
-
 }  // namespace dqm::impl
