@@ -172,6 +172,7 @@ PreMixingSiStripWorker::PreMixingSiStripWorker(const edm::ParameterSet& ps,
   SistripAPVListDM_ = ps.getParameter<std::string>("SiStripAPVListDM");
 
   producer.produces<edm::DetSetVector<SiStripDigi>>(SiStripDigiCollectionDM_);
+  producer.produces<bool>(SiStripDigiCollectionDM_ + "SimulatedAPVDynamicGain");
 
   if (APVSaturationFromHIP_) {
     SistripAPVLabelSig_ = ps.getParameter<edm::InputTag>("SistripAPVLabelSig");
@@ -364,12 +365,10 @@ void PreMixingSiStripWorker::put(edm::Event& e,
         std::begin(ps), std::end(ps), [](const PileupSummaryInfo& bxps) { return bxps.getBunchCrossing() == 0; });
     if (it != std::begin(ps)) {
       nTruePU = it->getTrueNumInteractions();
-      edm::LogInfo("PreMixingSiStripWorker") << "True number of interactions for current bunch crossing: " << nTruePU;
     } else {
       edm::LogWarning("PreMixingSiStripWorker") << "Could not find PileupSummaryInfo for current bunch crossing";
       nTruePU = std::begin(ps)->getTrueNumInteractions();
     }
-  } else {
   }
 
   std::map<int, std::bitset<6>> DeadAPVList;
@@ -699,6 +698,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
   // put collection
 
   e.put(std::move(MySiStripDigis), SiStripDigiCollectionDM_);
+  e.put(std::make_unique<bool>(simulateAPVInThisEvent), SiStripDigiCollectionDM_ + "SimulatedAPVDynamicGain");
 
   // clear local storage for this event
   SiHitStorage_.clear();
