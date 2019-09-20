@@ -371,7 +371,8 @@ def miniAOD_customizeCommon(process):
         process.makePatTausTask, _makePatTausTaskWithTauReReco
         )
     
-    # Adding puppi jets
+    # puppi jets : Updated 2019 by S. Rappoccio. PUPPI now being placed into RECO.
+    # If this is a RE-MINIAOD or otherwise, this will pick up the later PUPPI, including tunes. 
     if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
         process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
         task.add(process.ak4PFJets)
@@ -520,7 +521,7 @@ def miniAOD_customizeMC(process):
     process.patJetPartonMatch.matched = "prunedGenParticles"
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"
-    process.patJetGenJetMatchAK8.matched =  "slimmedGenJetsAK8"
+    process.patJetGenJetMatchAK8Puppi.matched =  "slimmedGenJetsAK8"
     process.patMuons.embedGenMatch = False
     process.patElectrons.embedGenMatch = False
     process.patPhotons.embedGenMatch = False
