@@ -80,7 +80,6 @@ void SiStripCommissioningOfflineClient::beginRun(const edm::Run& run, const edm:
                                 << " Aborting...";
     return;
   }
-  bei_->setVerbose(0);
 
   // Check if .root file can be opened
   std::vector<std::string>::const_iterator ifile = inputFiles_.begin();
