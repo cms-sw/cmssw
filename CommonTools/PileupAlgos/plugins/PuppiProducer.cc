@@ -351,7 +351,6 @@ void PuppiProducer::beginJob() {}
 void PuppiProducer::endJob() {}
 // ------------------------------------------------------------------------------------------
 void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
   desc.add<bool>("puppiDiagnostics", false);
   desc.add<bool>("puppiForLeptons", false);

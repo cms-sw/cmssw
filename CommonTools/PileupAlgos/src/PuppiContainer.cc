@@ -351,7 +351,7 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
   return fWeights;
 }
 // ------------------------------------------------------------------------------------------
-void PuppiContainer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void PuppiContainer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("puppiDiagnostics", false);
   desc.add<bool>("applyCHS", true);
@@ -363,11 +363,9 @@ void PuppiContainer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descriptions.addDefault(desc);
 }
 
-void PuppiContainer::fillDescriptionsPuppiContainer(edm::ParameterSetDescription& desc) {
-
+void PuppiContainer::fillDescriptionsPuppiContainer(edm::ParameterSetDescription &desc) {
   edm::ParameterSetDescription algos;
   PuppiAlgo::fillDescriptionsPuppiAlgo(algos);
   std::vector<edm::ParameterSet> VPSetAlgos(1);
   desc.addVPSet("algos", algos, VPSetAlgos);
-
 }
