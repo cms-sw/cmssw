@@ -148,11 +148,40 @@ def L1REPACK(process,sequence="Full"):
         getattr(process,path).insert(0,process.SimL1Emulator)
 
     # special L1T cleanup
-    for obj in ('SimL1TCalorimeter','SimL1TMuonCommon','SimL1TMuon','SimL1TechnicalTriggers','SimL1EmulatorCore','ecalDigiSequence','hcalDigiSequence','calDigi','me0TriggerPseudoDigiTask','hgcalTriggerPrimitives','hgcalTriggerGeometryESProducer','hgcalVFE','hgcalBackEndLayer2','hgcalTowerMap','hgcalConcentrator','hgcalBackEndLayer1','hgcalTower'):
-        if hasattr(process,obj):
-            delattr(process,obj)
-
-    for obj in ('SimL1TCalorimeterTask','SimL1TMuonCommonTask','SimL1TMuonTask','SimL1TechnicalTriggersTask','SimL1EmulatorCoreTask','ecalDigiTask','hcalDigiTask','calDigiTask','me0TriggerPseudoDigiTask','hgcalTriggerPrimitivesTask','hgcalTriggerGeometryESProducer','hgcalVFEProducer','hgcalBackEndLayer2Producer','hgcalTowerMapProducer','hgcalConcentratorProducer','hgcalBackEndLayer1Producer','hgcalTowerProducer'):
+    cleanupL1T = ('SimL1TCalorimeter'
+                  ,'SimL1TCalorimeterTask'
+                  ,'SimL1TMuonCommon'
+                  ,'SimL1TMuonCommonTask'
+                  ,'SimL1TMuon'
+                  ,'SimL1TMuonTask'
+                  ,'SimL1TechnicalTriggers'
+                  ,'SimL1TechnicalTriggersTask'
+                  ,'SimL1EmulatorCore'
+                  ,'SimL1EmulatorCoreTask'
+                  ,'ecalDigiSequence'
+                  ,'ecalDigiTask'
+                  ,'hcalDigiSequence'
+                  ,'hcalDigiTask'
+                  ,'calDigi'
+                  ,'calDigiTask'
+                  ,'me0TriggerPseudoDigis'
+                  ,'me0TriggerPseudoDigiTask'
+                  ,'hgcalTriggerPrimitives'
+                  ,'hgcalTriggerPrimitivesTask'
+                  ,'hgcalVFE'
+                  ,'hgcalVFEProducer'
+                  ,'hgcalBackEndLayer2'
+                  ,'hgcalBackEndLayer2Producer'
+                  ,'hgcalTowerMap'
+                  ,'hgcalTowerMapProducer'
+                  ,'hgcalConcentrator'
+                  ,'hgcalConcentratorProducer'
+                  ,'hgcalBackEndLayer1'
+                  ,'hgcalBackEndLayer1Producer'
+                  ,'hgcalTower'
+                  ,'hgcalTowerProducer'
+                  ,'hgcalTriggerGeometryESProducer')
+    for obj in cleanupL1T:
         if hasattr(process,obj):
             delattr(process,obj)
 
