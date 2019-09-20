@@ -88,6 +88,7 @@ public:
 
   SiStripDetCabling const* cabling() const { return theCabling; }
   std::vector<uint32_t> const& allDetIds() const { return detIds; }
+  auto const & allDets() const { return dets;}
 
   std::vector<const FedChannelConnection*> const& currentConnection(const Det& det) const {
     return connections[det.ind];
