@@ -46,27 +46,22 @@
 
 <LINK name="JetMET/MET/*/*/METPhi">              
    <TestName activate="true">phiQTest</TestName>
-   <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
 <LINK name="JetMET/MET/*/*/MEx">              
    <TestName activate="true">meanMExyTest</TestName>
-   <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
 <LINK name="JetMET/MET/*/*/MEy">              
    <TestName activate="true">meanMExyTest</TestName>
-   <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
 <LINK name="JetMET/MET/*/*/MET">              
    <TestName activate="true">meanMETTest</TestName>
-   <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
 <LINK name="JetMET/MET/*/*/SumET">              
    <TestName activate="true">meanSumETTest</TestName>
-   <TestName activate="true">KolmogorovTest</TestName>
 </LINK>
 
 
