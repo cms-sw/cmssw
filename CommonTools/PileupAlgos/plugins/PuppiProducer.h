@@ -63,6 +63,7 @@ private:
   std::unique_ptr<PuppiContainer> fPuppiContainer;
   std::vector<RecoObj> fRecoObjCollection;
   std::unique_ptr<PFOutputCollection> fPuppiCandidates;
+  std::unique_ptr<PFOutputCollection> fPuppiCandidatesWeighted;
   std::unique_ptr<PackedOutputCollection> fPackedPuppiCandidates;
 };
 #endif
