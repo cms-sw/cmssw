@@ -107,8 +107,6 @@ namespace {
           legacy_(legacy),
           hybridZeroSuppressed_(hybridZeroSuppressed) {
       incTot(clusterizer.allDets().size());
-      for (auto& d : done)
-        d = nullptr;
     }
 
     ~ClusterFiller() { printStat(); }
@@ -117,7 +115,6 @@ namespace {
 
   private:
     std::unique_ptr<sistrip::FEDBuffer> buffers[1024];
-    std::atomic<sistrip::FEDBuffer*> done[1024];
 
     const FEDRawDataCollection& rawColl;
 
@@ -312,15 +309,10 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::Det const & det,
         UNLIKELY(!fedId || !conn->isConnected()) { continue; }
 
       // If Fed hasnt already been initialised, extract data and initialise
-      sistrip::FEDBuffer* buffer = done[fedId];
-      if (!buffer) {
-        buffer = fillBuffer(fedId, rawColl).release();
-        if (!buffer) {
-          continue;
-        }
-        buffers[fedId].reset(buffer);
-      }
-      assert(buffer);
+      if (!buffers[fedId])
+        buffers[fedId].reset(fillBuffer(fedId, rawColl).release());
+      if (!buffers[fedId]) continue;
+      auto buffer = buffers[fedId].get();
 
       buffer->setLegacyMode(legacy_);
 
