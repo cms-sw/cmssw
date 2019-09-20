@@ -57,7 +57,6 @@ bool QTestConfigure::enableTests(const std::map<std::string, std::map<std::strin
   return false;
 }
 
-
 void QTestConfigure::EnableXRangeTest(std::string testName,
                                       const std::map<std::string, std::string> &params,
                                       DQMStore *bei) {
