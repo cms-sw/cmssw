@@ -236,20 +236,13 @@ void PuppiAlgo::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription& desc) {
 
-  std::vector<double> etaMin;
-  desc.add<std::vector<double>>("etaMin", etaMin);
-  std::vector<double> etaMax;
-  desc.add<std::vector<double>>("etaMax", etaMax);
-  std::vector<double> ptMin;
-  desc.add<std::vector<double>>("ptMin", ptMin);
-  std::vector<double> MinNeutralPt;
-  desc.add<std::vector<double>>("MinNeutralPt", MinNeutralPt);
-  std::vector<double> MinNeutralPtSlope;
-  desc.add<std::vector<double>>("MinNeutralPtSlope", MinNeutralPtSlope);
-  std::vector<double> RMSEtaSF;
-  desc.add<std::vector<double>>("RMSEtaSF", RMSEtaSF);
-  std::vector<double> MedEtaSF;
-  desc.add<std::vector<double>>("MedEtaSF", MedEtaSF);
+  desc.add<std::vector<double>>("etaMin", {0.});
+  desc.add<std::vector<double>>("etaMax", {2.5});
+  desc.add<std::vector<double>>("ptMin", {0.});
+  desc.add<std::vector<double>>("MinNeutralPt", {0.2});
+  desc.add<std::vector<double>>("MinNeutralPtSlope", {0.015});
+  desc.add<std::vector<double>>("RMSEtaSF", {1.0});
+  desc.add<std::vector<double>>("MedEtaSF", {1.0});
   desc.add<double>("EtaMaxExtrap", 2.0);
 
   edm::ParameterSetDescription puppialgos;
