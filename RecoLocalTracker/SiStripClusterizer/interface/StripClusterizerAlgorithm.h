@@ -95,13 +95,16 @@ public:
 protected:
   StripClusterizerAlgorithm() : qualityLabel(""), noise_cache_id(0), gain_cache_id(0), quality_cache_id(0) {}
 
-  Det findDetId(const uint32_t) const;
+  Det const & findDetId(const uint32_t) const;
   bool isModuleBad(const uint32_t& id) const { return qualityHandle->IsModuleBad(id); }
   bool isModuleUsable(const uint32_t& id) const { return qualityHandle->IsModuleUsable(id); }
 
   std::string qualityLabel;
 
 private:
+ 
+  void fillDets();
+
   template <class T>
   void clusterize_(const T& input, output_t& output) const {
     for (typename T::const_iterator it = input.begin(); it != input.end(); it++) {
@@ -116,6 +119,7 @@ private:
     unsigned short gi = invalidI, ni = invalidI, qi = invalidI;
   };
   std::vector<uint32_t> detIds;  // from cabling (connected and not bad)
+  std::vector<Det> dets;
   std::vector<std::vector<const FedChannelConnection*> > connections;
   std::vector<Index> indices;
   edm::ESHandle<SiStripGain> gainHandle;
