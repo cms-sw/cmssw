@@ -1,3 +1,13 @@
+/*
+//\class RPCGeometryValidate
+
+ Description: RPC GeometryValidate from DD & DD4hep
+
+//
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+//          Created:  Fri, 20 Sep 2019 
+*/
+
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -81,9 +91,7 @@ private:
     stripslen_.clear();
   }
 
-  //edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeometryToken_;
   edm::ESHandle<RPCGeometry> rpcGeometry_;
-  // RPCGeometry rpcGeometry;
   FWGeometry fwGeometry_;
   TFile* outFile_;
   vector<float> globalDistances_;
@@ -100,147 +108,89 @@ private:
 };
 
 RPCGeometryValidate::RPCGeometryValidate(const edm::ParameterSet& iConfig)
-  : //rpcGeometryToken_{esConsumes<RPCGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
-      infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
+  :   infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
       outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateRPCGeometry.root")),
       tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
   fwGeometry_.loadMap(infileName_.c_str());
   outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
-  //  cout<<"MYDEBUG: RPCGeometryValide Constructor"<<endl;
 }
 
 void RPCGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
 
-  //cout<<"MYDEBUG: Start Analyze 1"<<endl;
-  //edm::ESHandle<RPCGeometry> rpcGeometry;
-  //cout<<"MYDEBUG: Start Analyze 2"<<endl;
+  
   eventSetup.get<MuonGeometryRecord>().get(rpcGeometry_);
-  //cout<<"MYDEBUG: Start Analyze 3"<<endl;  
-  //rpcGeometry_ = eventSetup.getHandle(rpcGeometryToken_);
-  // cout<<"MYDEBUG: after eventSetup.getHandle(rpcGeometryToken_)"<<endl;
   if (rpcGeometry_.isValid()) {
     LogVerbatim("RPCGeometry") << "Validating RPC chamber geometry";
-    // cout<<"MYDEBUG: Calling validateRPCChamberGeometry"<<endl;   
-    validateRPCChamberGeometry();
-    // cout<<"MYDEBUG: after called validateRPCChamberGeometry"<<endl;   
-    // LogVerbatim("RPCGeometry") << "Validating RPC roll geometry";
-    validateRPCStripsGeometry();
+      validateRPCChamberGeometry();
+      validateRPCStripsGeometry();
   } else
     LogVerbatim("RPCGeometry") << "Invalid RPC geometry";
-  // cout<<"MYDEBUG: Invalid RPC geometry"<<endl;
 }
 
 void RPCGeometryValidate::validateRPCChamberGeometry() {
   
   clearData();
 
-  for (auto const& it : rpcGeometry_->rolls()) {// it was chambers but it does't work
+  for (auto const& it : rpcGeometry_->rolls()) {
     RPCDetId chId = it->id();
     GlobalPoint gp = it->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0));
 
     const TGeoMatrix* matrix = fwGeometry_.getMatrix(chId.rawId());
-    //matrix->Print();
-
+  
     if (!matrix) {
       LogVerbatim("RPCGeometry") << "Failed to get matrix of RPC chamber with detid: " << chId.rawId();
-      cout<<"MYDEBUG: Failed to get matrix of RPC chamber with detid: "<<chId.rawId()<<endl;
       continue;
     }
-    // cout<<"MYDEBUG: before compareTrasform"<<endl
-    // cout<<"MYVALIDATE detid: "<<chId.rawId()<<endl;;
     compareTransform(gp, matrix);
 
     auto const& shape = fwGeometry_.getShapePars(chId.rawId());
 
     if (!shape) {
       LogVerbatim("RPCGeometry") << "Failed to get shape of RPC chamber with detid: " << chId.rawId();
-      cout<<"MYDEBUG: Failed to get shape of RPC chamber with detid: "<<chId.rawId()<<endl;
       continue;
     }
-    // cout<<"MYDEBUG: before compareShape"<<endl;
-    // cout<<"MYVALIDATE: DetId, Shape (0,1,2,3,4): "<<chId.rawId()<<" "<<shape[0]<<" "<<shape[1]<<" "<<shape[2]<<" "<<shape[3]<<" "<<shape[4]<<endl;//it was OK the same values for DD and DD4HEP
     compareShape(it, shape);
   }
-  //cout<<"MYDEBUG: before makeHistograms"<<endl;
   makeHistograms("RPC Chamber");
 }
 
 
- // TO BE IMPLEMENTED
 void RPCGeometryValidate::validateRPCStripsGeometry() {
 
   clearData2();
-
+  
   for (auto const& it : rpcGeometry_->rolls()) {
     RPCDetId chId = it->id();
     const int n_strips = it->nstrips();
     const float n_pitch = it->pitch();
     const StripTopology& topo = it->specificTopology();
     const float stripLen = topo.stripLength();
-    //    cout<<"MYVALIDATE From Geo, detid: "<<chId.rawId()<<" nstrips: "<<n_strips<<" n pitch: "<<n_pitch<<" stripLen: "<<stripLen<<endl; //OK for DDand DD4HEP
-
     const float* parameters = fwGeometry_.getParameters(chId.rawId());
-
-    // cout<<"MYVALIDATE From Reco, detid: "<<chId.rawId()<<" nstrips: "<<parameters[0]<<" n pitch: "<<parameters[2]<<" stripLen: "<<parameters[1]<<endl; 
-
-
-    //    cout<<"MYVALIDATE (fabs(n_strips - parameters[0])) "<<fabs(n_strips - parameters[0])<<endl;
-    // cout<<"MYVALIDATE (fabs(n_pitch - parameters[2])) "<<fabs(n_pitch - parameters[2])<<endl;
-    // cout<<"MYVALIDATE (fabs(stripLen - parameters[1])) "<<fabs(stripLen - parameters[1])<<endl;
-
-      
- if (n_strips)  {//OK for DDand DD4HEP
-   cout<<"MYVALIDATE detid: "<<chId.rawId()<<" nstrips: "<<n_strips<<endl;;
+    
+    if (n_strips)  {
       for (int istrips = 1; istrips <= n_strips; istrips++) {
-	GlobalPoint gp = it->surface().toGlobal(it->centreOfStrip(istrips));
-	//	cout<<"MYVALIDATE detId "<<chId.rawId()<<" nstrips: "<<n_strips<<" n pitch: "<<n_pitch<<" stripLen: "<<stripLen<<" gp "<<gp.x()<<" "<<gp.y()<<" "<<gp.z()<<endl;
-	cout<<"MYVALIDATE  gp "<<gp.x()<<" "<<gp.y()<<" "<<gp.z()<<endl;
 	nstrips_.push_back(fabs(n_strips - parameters[0]));
 	pitch_.push_back(fabs(n_pitch - parameters[2]));
 	stripslen_.push_back(fabs(stripLen - parameters[1]));
       } 
-    } else {cout<<"MYVALIDATE ATTENTION nStrips = "<<n_strips<<endl; }
-   
-   
+    } else {    LogVerbatim("RPCGeometry") << "ATTENTION! nStrips == 0"; }
   }
-  
-
   makeHistograms2("RPC Strips");
 }
 
 
 void RPCGeometryValidate::compareTransform(const GlobalPoint& gp, const TGeoMatrix* matrix) {
-  //cout<<"MYDEBUG: Compare Transform"<<endl;
   double local[3] = {0.0, 0.0, 0.0};
   double global[3];
 
   matrix->LocalToMaster(local, global);
 
   float distance = getDistance(GlobalPoint(global[0], global[1], global[2]), gp);
-  if((distance >= 0.0) && (distance < 1.0e-7)) distance = 0.0;// set a tollerance for the distance
+  if((distance >= 0.0) && (distance < 1.0e-7)) distance = 0.0;// set a tollerance for the distance inside Histos
   globalDistances_.push_back(distance);
-  /*
-  float glo_x = global[0];
-  float glo_y = global[1];
-  float glo_z = global[2];
-  float gp_x = gp.x();
-  float gp_y = gp.y();
-  float gp_z = gp.z();
- 
-  if((glo_x > -1.0e-7) && (glo_x < 1.0e-7)) glo_x = 0.0;
-  if((glo_y > -1.0e-7) && (glo_y < 1.0e-7)) glo_y = 0.0;
-  if((glo_z > -1.0e-7) && (glo_z < 1.0e-7)) glo_z = 0.0;
-  if((gp_x > -1.0e-7) && (gp_x < 1.0e-7)) gp_x = 0.0;
-  if((gp_y > -1.0e-7) && (gp_y < 1.0e-7)) gp_y = 0.0;
-  if((gp_z > -1.0e-7) && (gp_z < 1.0e-7)) gp_z = 0.0;
-  if((distance >= 0.0) && (distance < 1.0e-7)) distance = 0.0;
- 
-  cout<<"MYVALIDATE distance: "<<distance<<", Pos: "<<glo_x<<" "<<glo_y<<" "<<glo_z<<", Pos Reco: "<<gp_x<<" "<<gp_y<<" "<<gp_z<<endl;;
-  */
 }
 
 void RPCGeometryValidate::compareShape(const GeomDet* det, const float* shape) {
-  //cout<<"MYDEBUG: Compare Shape"<<endl;
   float shapeTopWidth;
   float shapeBottomWidth;
   float shapeLength;
@@ -266,7 +216,6 @@ void RPCGeometryValidate::compareShape(const GeomDet* det, const float* shape) {
   float length, thickness;
 
   const Bounds* bounds = &(det->surface().bounds());
-  //  cout<<"MYDEBUG: Before the first dynamic_cast"<<endl;
   if (const TrapezoidalPlaneBounds* tpbs = dynamic_cast<const TrapezoidalPlaneBounds*>(bounds)) {
     array<const float, 4> const& ps = tpbs->parameters();
 
@@ -276,13 +225,11 @@ void RPCGeometryValidate::compareShape(const GeomDet* det, const float* shape) {
     topWidth = ps[1];
     thickness = ps[2];
     length = ps[3];
-    //cout<<"MYVALIDATE: Trap: "<<bottomWidth<<" "<<topWidth<<" "<<thickness<<" "<<length<<endl;
   } else if ((dynamic_cast<const RectangularPlaneBounds*>(bounds))) {
     length = det->surface().bounds().length() * 0.5;
     topWidth = det->surface().bounds().width() * 0.5;
     bottomWidth = topWidth;
     thickness = det->surface().bounds().thickness() * 0.5;
-    //cout<<"MYVALIDATE: Rect: "<<bottomWidth<<" "<<topWidth<<" "<<thickness<<" "<<length<<endl;
   } else {
     LogVerbatim("RPCGeometry") << "Failed to get bounds";
     cout<<"MYDEBUG: Failed to get bounds"<<endl;
@@ -368,7 +315,6 @@ void RPCGeometryValidate::endJob() {
   LogVerbatim("RPCGeometry") << "Done.";
   LogVerbatim("RPCGeometry") << "Results written to " << outfileName_;
   outFile_->Close();
-  // cout<<"MYDEBUG: That's all folks!"<<endl;
 }
 
 DEFINE_FWK_MODULE(RPCGeometryValidate);

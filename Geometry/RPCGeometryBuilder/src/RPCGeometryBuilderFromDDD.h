@@ -1,9 +1,16 @@
 #ifndef RPCGeometry_RPCGeometryBuilderFromDDD_H
 #define RPCGeometry_RPCGeometryBuilderFromDDD_H
 
-/** 
- *
- */
+/*
+//\class RPCGeometryBuilder
+
+ Description: RPC Geometry builder from DD & DD4hep
+              DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
+//
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+//          Created:  Fri, 20 Sep 2019 
+*/
+
 #include "Geometry/MuonNumbering/interface/DD4hep_RPCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include <string>

@@ -1,17 +1,13 @@
 // -*- C++ -*-
-//
-//
 /*
+//\class RPCNumberingScheme
 
- Description: RPC Numbering Scheme for DD4HEP 
-              based on DT Numbering Scheme made by Ianna Osburne 
-
+ Description: RPC Numbering Scheme for DD4hep
+              
+//
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+//          Created:  Fri, 20 Sep 2019 
 */
-//
-//         Author:  Sergio Lo Meo (INFN Section of Bologna - Italy) sergio.lomeo@cern.ch
-//         Created:  Wed, 21 August 2019 16:00 CET
-//
-//
 #include "Geometry/MuonNumbering/interface/DD4hep_RPCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
@@ -44,50 +40,24 @@ void RPCNumberingScheme::initMe(const MuonConstants& muonConstants) {
   theEPlaneLevel = get("mr_eplane", muonConstants) / levelPart;
   theESectorLevel = get("mr_esector", muonConstants) / levelPart;
   theERollLevel = get("mr_eroll", muonConstants) / levelPart;
-  /* 
-  cout<<"------------myDEBUG------------"<<endl;
-  cout<<"levelPart: "<<levelPart<<endl;
-  cout<<"RegionLevel: "<<theRegionLevel<<endl;
-  cout<<"BWheelLevel: "<<theBWheelLevel<<endl;
-  cout<<"BStationLevel: "<<theBStationLevel<<endl;
-  cout<<"BPlaneLevel: "<<theBPlaneLevel<<endl;
-  cout<<"BChamberLevel: "<<theBChamberLevel<<endl;
-  cout<<"EPlaneLevel: "<<theEPlaneLevel<<endl;
-  cout<<"ESectorLevel: "<<theESectorLevel<<endl;
-  cout<<"ERollLevel: "<<theERollLevel<<endl;
-  cout<<"-------------------------------"<<endl;
-  */
-  // RPCDetId(int region, int ring, int station, int sector, int layer, int subsector, int roll);
 }
 
 void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
-
  
-  const int mylevel = num.getLevels();// that's the problem: first round of the loop OK num.getLevels = 5, second round num.getLevels= 4 and not 5
-  //cout<<"------------myDEBUG DD4HEP-------------------------------------------"<<endl;
-  //cout<<"DD4hep_RPCNumberingScheme.cc: levels "<<num.getLevels()<<endl;
-  //cout<<"DD4hep_RPCNumberingScheme.cc: superNo "<<num.getSuperNo(mylevel)<<endl;
-  //cout<<"DD4hep_RPCNumberingScheme.cc: baseNo "<<num.getBaseNo(mylevel)<<endl;
-  //cout<<"---------------------------------------------------------------------"<<endl;
-  //cout<<"DD4hep_RPCNumberingScheme.cc: theRegionLevel "<<theRegionLevel<<endl;
-  //cout<<"DD4hep_RPCNumberingScheme.cc: num.getSuperNo(theRegionLevel) "<<num.getSuperNo(theRegionLevel)<<endl;
-  const int barrel = num.getSuperNo(theRegionLevel);// that's the problem: first round of the loop OK barrel = 1, second round barrel = 0
-  //cout<<"DD4hep_RPCNumberingScheme.cc: barrel "<<barrel<<endl;
+  const int barrel = num.getSuperNo(theRegionLevel);
+ 
   bool barrel_muon = (barrel == 1);
    int maxLevel;
   if (barrel_muon) {
     maxLevel = theBChamberLevel;
-    //cout<<"(if) DD4hep_RPCNumberingScheme.cc: maxLevel "<<maxLevel<<endl;
   } else {
     maxLevel = theERollLevel;
-    //cout<<"(else) DD4hep_RPCNumberingScheme.cc: maxLevel "<<maxLevel<<endl;
   }
 
    if (num.getLevels() != maxLevel) {
      cout<<"ATTENTION -from DD4hep RPC NumberingScheme - num.getLevels not equal to maxLevel - ABORT RUN"<<endl;
     abort();
-    //    return 0;
-  }
+   }
 
   int plane_id = 0;
   int sector_id = 0;
@@ -218,22 +188,12 @@ void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   // collect all info
 
   int trIndex = (eta_id * 10000 + plane_id * 1000 + sector_id * 10 + copy_id) * 10 + roll_id;
-  // fare delle print di questi parametri sia con DDD che con DD4HEP
 
   // Build the actual numbering
   RPCDetId id;
   id.buildfromTrIndex(trIndex);
-  //  cout<<"From DD4Hep_RPCNumebringScheme.cc "<<endl;
-  //cout<<"------------myDEBUG------------"<<endl;
-  //cout<<"trIndex: "<<trIndex<<endl;
-  //cout<<"-------------------------------"<<endl;
-
-  //cout<<"------------myDEBUG------------"<<endl;
-  //cout<<"id.rawId: "<<id.rawId()<<endl;
-  //cout<<"-------------------------------"<<endl;
 
   SetDetId(id.rawId());  
-  //  return id.rawId();
 
 }
 

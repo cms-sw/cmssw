@@ -1,20 +1,15 @@
 #ifndef GEOMETRY_MUON_NUMBERING_RPC_NUMBERING_SCHEME_H
 #define GEOMETRY_MUON_NUMBERING_RPC_NUMBERING_SCHEME_H
 
-// -*- C++ -*-
-//
-//
 /*
+//\class RPCNumberingScheme
 
- Description: RPC Numbering Scheme for DD4HEP 
-              based on DT Numbering Scheme made by Ianna Osburne 
-
+ Description: RPC Numbering Scheme for DD4hep
+              
+//
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+//          Created:  Fri, 20 Sep 2019 
 */
-//
-//         Author:  Sergio Lo Meo (INFN Section of Bologna - Italy) sergio.lomeo@cern.ch
-//         Created:  Wed, 21 August 2019 16:00 CET
-//
-//
 
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 
@@ -47,5 +42,5 @@ private:
 
   int detId;
 };
-}  // namespace cms
+}  
 #endif

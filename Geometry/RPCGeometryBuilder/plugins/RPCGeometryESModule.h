@@ -1,12 +1,15 @@
 #ifndef RPCGeometry_RPCGeometryESModule_h
 #define RPCGeometry_RPCGeometryESModule_h
 
-/** \class RPCGeometryESModule
- * 
- *  ESProducer for RPCGeometry in MuonGeometryRecord
- *
- *  \author M. Maggi - INFN Bari
- */
+/*
+//\class RPCGeometryESModule
+
+ Description: RPC GeometryESModule from DD & DD4hep
+              DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
+//
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+//          Created:  Fri, 20 Sep 2019 
+*/
 
 #include <FWCore/Framework/interface/ESProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
