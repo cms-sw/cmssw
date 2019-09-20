@@ -278,8 +278,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
   TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
 
   if (tsos.isValid()) {
-    vector<TrajectoryMeasurement> pixelMeasurements =
-        theLayerMeasurements->measurements(**firstLayer, tsos, *prop1stLayer, meas1stBLayer);
+    auto pixelMeasurements = theLayerMeasurements->measurements(**firstLayer, tsos, *prop1stLayer, meas1stBLayer);
 
     LogDebug("") << "[PixelHitMatcher::compatibleHits] nbr of hits compatible with extrapolation to first layer: "
                  << pixelMeasurements.size();
@@ -310,8 +309,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
     // check if there are compatible 1st hits in the second layer
     firstLayer++;
 
-    vector<TrajectoryMeasurement> pixel2Measurements =
-        theLayerMeasurements->measurements(**firstLayer, tsos, *prop1stLayer, meas1stBLayer);
+    auto pixel2Measurements = theLayerMeasurements->measurements(**firstLayer, tsos, *prop1stLayer, meas1stBLayer);
 
     for (aMeas m = pixel2Measurements.begin(); m != pixel2Measurements.end(); m++) {
       if (m->recHit()->isValid()) {
@@ -351,8 +349,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
       if (i == 1 && xmeas.z() > 100.)
         continue;
 
-      vector<TrajectoryMeasurement> pixelMeasurements =
-          theLayerMeasurements->measurements(**flayer, tsosfwd, *prop1stLayer, meas1stFLayer);
+      auto pixelMeasurements = theLayerMeasurements->measurements(**flayer, tsosfwd, *prop1stLayer, meas1stFLayer);
 
       for (aMeas m = pixelMeasurements.begin(); m != pixelMeasurements.end(); m++) {
         if (m->recHit()->isValid()) {
@@ -372,8 +369,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
       if (searchInTIDTEC_) {
         flayer++;
 
-        vector<TrajectoryMeasurement> pixel2Measurements =
-            theLayerMeasurements->measurements(**flayer, tsosfwd, *prop1stLayer, meas1stFLayer);
+        auto pixel2Measurements = theLayerMeasurements->measurements(**flayer, tsosfwd, *prop1stLayer, meas1stFLayer);
 
         for (aMeas m = pixel2Measurements.begin(); m != pixel2Measurements.end(); m++) {
           if (m->recHit()->isValid()) {
