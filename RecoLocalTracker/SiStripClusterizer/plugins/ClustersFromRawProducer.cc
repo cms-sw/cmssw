@@ -129,8 +129,8 @@ namespace {
 
     bool legacy_;
     bool hybridZeroSuppressed_;
-
-#ifdef VIDEBUG
+// #define VISTAT
+#ifdef VISTAT
     struct Stat {
       Stat() : totDet(0), detReady(0), detSet(0), detAct(0), detNoZ(0), detAbrt(0), totClus(0) {}
       std::atomic<int> totDet;    // all dets
@@ -152,7 +152,7 @@ namespace {
     void incAbrt() const { stat.detAbrt++; }
     void incClus(int n) const { stat.totClus += n; }
     void printStat() const {
-      COUT << "VI clusters " << stat.totDet << ',' << stat.detReady << ',' << stat.detSet << ',' << stat.detAct << ','
+      std::cout << "VI clusters " << stat.totDet << ',' << stat.detReady << ',' << stat.detSet << ',' << stat.detAct << ','
            << stat.detNoZ << ',' << stat.detAbrt << ',' << stat.totClus << std::endl;
     }
 

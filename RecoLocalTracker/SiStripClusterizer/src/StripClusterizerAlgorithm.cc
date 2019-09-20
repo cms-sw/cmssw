@@ -174,9 +174,15 @@ StripClusterizerAlgorithm::Det StripClusterizerAlgorithm::findDetId(const uint32
 
   det.detId = id;
   det.noiseRange = noiseHandle->getRangeByPos(indices[det.ind].ni);
-  det.gainRange = gainHandle->getRangeByPos(indices[det.ind].gi);
   det.qualityRange = qualityHandle->getRangeByPos(indices[det.ind].qi);
   det.quality = qualityHandle.product();
+
+  auto gainRange = gainHandle->getRangeByPos(indices[det.ind].gi);
+  int s = gainRange.second-gainRange.first;
+//  assert(s==4 || s==6);
+  for (int i=0; i<s; ++i)
+   det.m_weight[i] = 1.f/(*(gainRange.first+i));
+    
 
 #ifdef EDM_ML_DEBUG
   assert(detIds[det.ind] == det.detId);

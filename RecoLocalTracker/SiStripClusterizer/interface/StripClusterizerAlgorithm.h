@@ -25,7 +25,7 @@ public:
   struct Det {
     bool valid() const { return ind != invalidI; }
     float noise(const uint16_t& strip) const { return SiStripNoises::getNoise(strip, noiseRange); }
-    float gain(const uint16_t& strip) const { return SiStripGain::getStripGain(strip, gainRange); }
+    float weight(const uint16_t& strip) const { return m_weight[strip/128];}
     bool bad(const uint16_t& strip) const { return quality->IsStripBad(qualityRange, strip); }
     bool allBadBetween(uint16_t L, const uint16_t& R) const {
       while (++L < R && bad(L)) {
@@ -33,9 +33,9 @@ public:
       return L == R;
     }
     SiStripQuality const* quality;
-    SiStripApvGain::Range gainRange;
     SiStripNoises::Range noiseRange;
     SiStripQuality::Range qualityRange;
+    float m_weight[6];
     uint32_t detId = 0;
     unsigned short ind = invalidI;
   };
