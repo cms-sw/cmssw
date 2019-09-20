@@ -8,16 +8,16 @@
 #include "TMath.h"
 
 PuppiAlgo::PuppiAlgo(edm::ParameterSet &iConfig) {
-  fEtaMin = iConfig.getParameter<std::vector<double> >("etaMin");
-  fEtaMax = iConfig.getParameter<std::vector<double> >("etaMax");
-  fPtMin = iConfig.getParameter<std::vector<double> >("ptMin");
-  fNeutralPtMin = iConfig.getParameter<std::vector<double> >("MinNeutralPt");         // Weighted Neutral Pt Cut
-  fNeutralPtSlope = iConfig.getParameter<std::vector<double> >("MinNeutralPtSlope");  // Slope vs #pv
-  fRMSEtaSF = iConfig.getParameter<std::vector<double> >("RMSEtaSF");
-  fMedEtaSF = iConfig.getParameter<std::vector<double> >("MedEtaSF");
+  fEtaMin = iConfig.getParameter<std::vector<double>>("etaMin");
+  fEtaMax = iConfig.getParameter<std::vector<double>>("etaMax");
+  fPtMin = iConfig.getParameter<std::vector<double>>("ptMin");
+  fNeutralPtMin = iConfig.getParameter<std::vector<double>>("MinNeutralPt");         // Weighted Neutral Pt Cut
+  fNeutralPtSlope = iConfig.getParameter<std::vector<double>>("MinNeutralPtSlope");  // Slope vs #pv
+  fRMSEtaSF = iConfig.getParameter<std::vector<double>>("RMSEtaSF");
+  fMedEtaSF = iConfig.getParameter<std::vector<double>>("MedEtaSF");
   fEtaMaxExtrap = iConfig.getParameter<double>("EtaMaxExtrap");
 
-  std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("puppiAlgos");
+  std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet>>("puppiAlgos");
   fNAlgos = lAlgos.size();
   //Uber Configurable Puppi
   std::vector<double> tmprms;
@@ -228,14 +228,13 @@ double PuppiAlgo::compute(std::vector<double> const &iVals, double iChi2) const 
   return lPVal;
 }
 // ------------------------------------------------------------------------------------------
-void PuppiAlgo::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void PuppiAlgo::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   fillDescriptionsPuppiAlgo(desc);
   descriptions.addDefault(desc);
 }
 
-void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription& desc) {
-
+void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc) {
   desc.add<std::vector<double>>("etaMin", {0.});
   desc.add<std::vector<double>>("etaMax", {2.5});
   desc.add<std::vector<double>>("ptMin", {0.});
@@ -255,5 +254,4 @@ void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription& desc) {
   puppialgos.add<double>("rmsScaleFactor", 1.0);
   std::vector<edm::ParameterSet> VPSetPuppiAlgos(1);
   desc.addVPSet("puppiAlgos", puppialgos, VPSetPuppiAlgos);
-
 }

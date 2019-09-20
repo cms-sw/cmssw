@@ -11,8 +11,8 @@ class PuppiAlgo {
 public:
   PuppiAlgo(edm::ParameterSet &iConfig);
   ~PuppiAlgo();
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static void fillDescriptionsPuppiAlgo(edm::ParameterSetDescription& desc);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc);
   //Computing Mean and RMS
   void reset();
   void fixAlgoEtaBin(int i_eta);
