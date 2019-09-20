@@ -551,14 +551,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter &igetter, string muonT
                         << " because # entries < 20 ";
     }
   }
-
-  // pt test
-  path = "Muons/MuonRecoAnalyzer/" + muonType + "pt";
-  MonitorElement *ptHisto = igetter.get(path);
-
-  // q test
-  path = "Muons/MuonRecoAnalyzer/" + muonType + "q";
-  MonitorElement *qHisto = igetter.get(path);
 }
 //--GH new
 void MuonTestSummary::GaussFit(
