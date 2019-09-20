@@ -66,14 +66,6 @@ EcalLocalRecoTask::EcalLocalRecoTask(const edm::ParameterSet& ps) {
   dbe_ = edm::Service<DQMStore>().operator->();
 
   if (dbe_) {
-    if (verbose_) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-
-  if (dbe_) {
     if (verbose_)
       dbe_->showDirStructure();
   }
