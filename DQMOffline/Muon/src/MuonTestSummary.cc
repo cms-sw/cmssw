@@ -97,22 +97,6 @@ void MuonTestSummary::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &i
   chi2TestSummaryMap->setBinLabel(4, "#pt", 2);
   chi2TestSummaryMap->setBinLabel(5, "#q", 2);
 
-  //Kolmogorov  kinematics quality test report
-  KolmogorovTestSummaryMap =
-      ibooker.book2D("KolmogorovTestSummaryMap", "Kolmogorov quality test summary", 5, 1, 6, 5, 1, 6);
-  KolmogorovTestSummaryMap->setAxisTitle("track monitored", 1);
-  KolmogorovTestSummaryMap->setBinLabel(1, "GLB", 1);
-  KolmogorovTestSummaryMap->setBinLabel(2, "TKfromGLB", 1);
-  KolmogorovTestSummaryMap->setBinLabel(3, "STAfromGLB", 1);
-  KolmogorovTestSummaryMap->setBinLabel(4, "TK", 1);
-  KolmogorovTestSummaryMap->setBinLabel(5, "STA", 1);
-  KolmogorovTestSummaryMap->setAxisTitle("parameter tested", 2);
-  KolmogorovTestSummaryMap->setBinLabel(1, "#chi^{2}", 2);
-  KolmogorovTestSummaryMap->setBinLabel(2, "#eta", 2);
-  KolmogorovTestSummaryMap->setBinLabel(3, "#phi", 2);
-  KolmogorovTestSummaryMap->setBinLabel(4, "#pt", 2);
-  KolmogorovTestSummaryMap->setBinLabel(5, "#q", 2);
-
   // residuals test report
   residualsSummaryMap = ibooker.book2D("residualsSummaryMap", "Residuals test summary", 4, 1, 5, 4, 1, 5);
   residualsSummaryMap->setAxisTitle("residuals", 1);
@@ -239,7 +223,6 @@ void MuonTestSummary::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &i
     }
     for (int yBin = 1; yBin <= 5; yBin++) {
       chi2TestSummaryMap->Fill(xBin, yBin, 1);
-      KolmogorovTestSummaryMap->Fill(xBin, yBin, 1);
     }
   }
   for (int xBin = 1; xBin <= residualsSummaryMap->getNbinsX(); xBin++) {
@@ -312,31 +295,6 @@ void MuonTestSummary::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &i
   doMultiplicityTests(igetter);
 
   // fill the final report summary
-  //Changed to KolmogorovQuality test--------------------------
-  summaryReportMap->setBinContent(
-      1,
-      1,
-      double(KolmogorovTestSummaryMap->getBinContent(1, 1) + KolmogorovTestSummaryMap->getBinContent(2, 1) +
-             KolmogorovTestSummaryMap->getBinContent(3, 1)) /
-          3.0);
-  summaryReportMap->setBinContent(2, 1, KolmogorovTestSummaryMap->getBinContent(4, 1));
-  summaryReportMap->setBinContent(3, 1, KolmogorovTestSummaryMap->getBinContent(5, 1));
-  summaryReportMap->setBinContent(
-      1,
-      2,
-      double(KolmogorovTestSummaryMap->getBinContent(1, 2) + KolmogorovTestSummaryMap->getBinContent(2, 2) +
-             KolmogorovTestSummaryMap->getBinContent(3, 2)) /
-          3.0);
-  summaryReportMap->setBinContent(2, 2, KolmogorovTestSummaryMap->getBinContent(4, 2));
-  summaryReportMap->setBinContent(3, 2, KolmogorovTestSummaryMap->getBinContent(5, 2));
-  summaryReportMap->setBinContent(
-      1,
-      3,
-      double(KolmogorovTestSummaryMap->getBinContent(1, 3) + KolmogorovTestSummaryMap->getBinContent(2, 3) +
-             KolmogorovTestSummaryMap->getBinContent(3, 3)) /
-          3.0);
-  summaryReportMap->setBinContent(2, 3, KolmogorovTestSummaryMap->getBinContent(4, 3));
-  summaryReportMap->setBinContent(3, 3, KolmogorovTestSummaryMap->getBinContent(5, 3));
 
   //-- modified GH
   double residualsSummary = 0;
