@@ -15,6 +15,9 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
+#include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
+
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -126,7 +129,7 @@ namespace {
 
     bool legacy_;
     bool hybridZeroSuppressed_;
-#define VISTAT
+// #define VISTAT
 #ifdef VISTAT
     struct Stat {
       Stat() : totDet(0), detReady(0), detSet(0), detAct(0), detNoZ(0), detAbrt(0), totClus(0) {}
@@ -257,35 +260,43 @@ namespace {
   template<typename OUT>
   void clustersFromZS(uint8_t const * data, int offset, int lenght, uint16_t stripOffset, 
                       StripClusterizerAlgorithm::Det const & det, OUT & out) {
+    auto sti = siStripClusterTools::sensorThicknessInverse(det.detId);
     int is=0;
     uint16_t endStrip = 6*128+1;
     if (!out.empty()) endStrip = out.back().endStrip();
     while (is<lenght) {
        uint16_t firstStrip = stripOffset + data[(offset++) ^ 7];
+       auto weight = det.weight(firstStrip);
        int clusSize = data[(offset++) ^ 7];
        bool extend = (firstStrip == endStrip);
        if(extend && firstStrip%128!=0) std::cout << "extend?? " << firstStrip <<' '<< firstStrip%128 <<' '<<firstStrip/128 <<' '<< clusSize << std::endl;
        endStrip = firstStrip+clusSize;
        is+=clusSize+2;
        int sum=0;
-       int noise2=0;
+#ifdef DO_NOISE_CUT
+         int noise2=0;
+#endif
        std::vector<uint8_t> adc(clusSize);
        for (int ic=0; ic<clusSize; ++ic) {
-         uint16_t strip = firstStrip+ic;
          adc[ic]=data[(offset++) ^ 7];
          sum += adc[ic]; // no way it can overflow
+#ifdef DO_NOISE_CUT
+         uint16_t strip = firstStrip+ic;
          int noise = det.rawNoise(strip);
          noise2 += noise*noise;  // ditto
+#endif
+         if (adc[ic] < 254) {
+           int charge = 0.5f+float(adc[ic])*weight;
+           adc[ic] = (charge > 1022 ? 255 : (charge > 253 ? 254 : charge));
+         }
        }
+#ifdef DO_NOISE_CUT
        // do not cut if extendable   
        if (!extend && endStrip%128!=0  && 4*sum*sum < noise2) continue;
-       // calibrate and store;
-       for (int ic=0; ic<clusSize; ++ic) {
-         uint16_t strip = firstStrip+ic;
-         adc[ic] = 0.5f+float(adc[ic])*det.weight(strip);
-       }
+#endif
        if (extend) out.back().extend(adc.begin(),adc.end());
-       else out.push_back(std::move(SiStripCluster(firstStrip,std::move(adc))));
+       else if (endStrip%128==0 || sum*weight*sti > 1200.0f)
+         out.push_back(std::move(SiStripCluster(firstStrip,std::move(adc))));
     }
   }
 
@@ -325,7 +336,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::Det const & det,
 
       // check channel
       const uint8_t fedCh = conn->fedCh();
-
+/*
       if
         UNLIKELY(!buffer->channelGood(fedCh, doAPVEmulatorCheck)) {
           if (edm::isDebugEnabled()) {
@@ -335,7 +346,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::Det const & det,
           }
           continue;
         }
-
+*/
       // Determine APV std::pair number
       uint16_t ipair = conn->apvPairNumber();
 
