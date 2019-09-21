@@ -36,20 +36,19 @@
 #include <utility>
 
 ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, const ElectronSeedGenerator::Tokens &ts)
-    : dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
+    : dynamicPhiRoad_(pset.getParameter<bool>("dynamicPhiRoad")),
       verticesTag_(ts.token_vtx),
       beamSpotTag_(ts.token_bs),
-      lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
-      highPtThreshold_(pset.getParameter<double>("HighPtThreshold")),
+      lowPtThresh_(pset.getParameter<double>("LowPtThreshold")),
+      highPtThresh_(pset.getParameter<double>("HighPtThreshold")),
       nSigmasDeltaZ1_(pset.getParameter<double>("nSigmasDeltaZ1")),
       deltaZ1WithVertex_(pset.getParameter<double>("deltaZ1WithVertex")),
       sizeWindowENeg_(pset.getParameter<double>("SizeWindowENeg")),
       deltaPhi1Low_(pset.getParameter<double>("DeltaPhi1Low")),
       deltaPhi1High_(pset.getParameter<double>("DeltaPhi1High")),
-      // so that deltaPhi1 = deltaPhi1Coef1_ + deltaPhi1Coef2_/clusterEnergyT
-      deltaPhi1Coef1_(dynamicphiroad_ ? deltaPhi1Low_ - deltaPhi1Coef2_ / lowPtThreshold_ : 0.),
-      deltaPhi1Coef2_(
-          dynamicphiroad_ ? (deltaPhi1Low_ - deltaPhi1High_) / (1. / lowPtThreshold_ - 1. / highPtThreshold_) : 0.),
+      // so that deltaPhi1 = dPhi1Coef1_ + dPhi1Coef2_/clusterEnergyT
+      dPhi1Coef2_(dynamicPhiRoad_ ? (deltaPhi1Low_ - deltaPhi1High_) / (1. / lowPtThresh_ - 1. / highPtThresh_) : 0.),
+      dPhi1Coef1_(dynamicPhiRoad_ ? deltaPhi1Low_ - dPhi1Coef2_ / lowPtThresh_ : 0.),
       propagator_(nullptr),
       measurementTracker_(nullptr),
       measurementTrackerEventTag_(ts.token_measTrkEvt),
@@ -196,16 +195,16 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
   GlobalPoint clusterPos(seedCluster->position().x(), seedCluster->position().y(), seedCluster->position().z());
   reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster);
 
-  if (dynamicphiroad_) {
+  if (dynamicPhiRoad_) {
     float clusterEnergyT = clusterEnergy / cosh(EleRelPoint(clusterPos, beamSpot_->position()).eta());
 
     float deltaPhi1;
-    if (clusterEnergyT < lowPtThreshold_) {
+    if (clusterEnergyT < lowPtThresh_) {
       deltaPhi1 = deltaPhi1Low_;
-    } else if (clusterEnergyT > highPtThreshold_) {
+    } else if (clusterEnergyT > highPtThresh_) {
       deltaPhi1 = deltaPhi1High_;
     } else {
-      deltaPhi1 = deltaPhi1Coef1_ + deltaPhi1Coef2_ / clusterEnergyT;
+      deltaPhi1 = dPhi1Coef1_ + dPhi1Coef2_ / clusterEnergyT;
     }
 
     float ephimin1 = -deltaPhi1 * sizeWindowENeg_;

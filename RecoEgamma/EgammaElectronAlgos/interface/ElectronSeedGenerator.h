@@ -91,15 +91,15 @@ private:
   void addSeed(reco::ElectronSeed& seed, const SeedWithInfo* info, bool positron, reco::ElectronSeedCollection& out);
   bool prepareElTrackSeed(ConstRecHitPointer outerhit, ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
 
-  const bool dynamicphiroad_;
+  const bool dynamicPhiRoad_;
   edm::Handle<std::vector<reco::Vertex> > vertices_;
   const edm::EDGetTokenT<std::vector<reco::Vertex> > verticesTag_;
 
   edm::Handle<reco::BeamSpot> beamSpot_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
 
-  const float lowPtThreshold_;
-  const float highPtThreshold_;
+  const float lowPtThresh_;
+  const float highPtThresh_;
   const float nSigmasDeltaZ1_;     // first z window size if not using the reco vertex
   const float deltaZ1WithVertex_;  // first z window size when using the reco vertex
   const float sizeWindowENeg_;
@@ -107,9 +107,9 @@ private:
   const float deltaPhi1Low_;
   const float deltaPhi1High_;
 
-  // so that deltaPhi1 = deltaPhi1Coef1_ + deltaPhi1Coef2_/clusterEnergyT
-  const double deltaPhi1Coef1_;
-  const double deltaPhi1Coef2_;
+  // so that deltaPhi1 = dPhi1Coef1_ + dPhi1Coef2_/clusterEnergyT
+  const double dPhi1Coef2_;
+  const double dPhi1Coef1_;
 
   const std::vector<const TrajectorySeedCollection*>* initialSeedCollectionVector_ = nullptr;
 
