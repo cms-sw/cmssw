@@ -126,7 +126,7 @@ namespace {
 
     bool legacy_;
     bool hybridZeroSuppressed_;
-// #define VISTAT
+#define VISTAT
 #ifdef VISTAT
     struct Stat {
       Stat() : totDet(0), detReady(0), detSet(0), detAct(0), detNoZ(0), detAbrt(0), totClus(0) {}
@@ -257,11 +257,16 @@ namespace {
   template<typename OUT>
   void clustersFromZS(uint8_t const * data, int offset, int lenght, uint16_t stripOffset, 
                       StripClusterizerAlgorithm::Det const & det, OUT & out) {
-    int ic=0;
-    while (ic<lenght) {
+    int is=0;
+    uint16_t endStrip = 6*128+1;
+    if (!out.empty()) endStrip = out.back().endStrip();
+    while (is<lenght) {
        uint16_t firstStrip = stripOffset + data[(offset++) ^ 7];
-       int clusSize = data[offset++ ^ 7];
-       ic+=clusSize+2;
+       int clusSize = data[(offset++) ^ 7];
+       bool extend = (firstStrip == endStrip);
+       if(extend && firstStrip%128!=0) std::cout << "extend?? " << firstStrip <<' '<< firstStrip%128 <<' '<<firstStrip/128 <<' '<< clusSize << std::endl;
+       endStrip = firstStrip+clusSize;
+       is+=clusSize+2;
        int sum=0;
        int noise2=0;
        std::vector<uint8_t> adc(clusSize);
@@ -271,14 +276,16 @@ namespace {
          sum += adc[ic]; // no way it can overflow
          int noise = det.rawNoise(strip);
          noise2 += noise*noise;  // ditto
-       }       
-       if (4*sum*sum < noise2) continue;
+       }
+       // do not cut if extendable   
+       if (!extend && endStrip%128!=0  && 4*sum*sum < noise2) continue;
        // calibrate and store;
        for (int ic=0; ic<clusSize; ++ic) {
          uint16_t strip = firstStrip+ic;
          adc[ic] = 0.5f+float(adc[ic])*det.weight(strip);
        }
-       out.push_back(std::move(SiStripCluster(firstStrip,std::move(adc))));
+       if (extend) out.back().extend(adc.begin(),adc.end());
+       else out.push_back(std::move(SiStripCluster(firstStrip,std::move(adc))));
     }
   }
 

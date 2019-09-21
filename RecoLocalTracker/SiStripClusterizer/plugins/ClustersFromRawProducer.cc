@@ -129,7 +129,7 @@ namespace {
 
     bool legacy_;
     bool hybridZeroSuppressed_;
-// #define VISTAT
+#define VISTAT
 #ifdef VISTAT
     struct Stat {
       Stat() : totDet(0), detReady(0), detSet(0), detAct(0), detNoZ(0), detAbrt(0), totClus(0) {}

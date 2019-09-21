@@ -43,7 +43,7 @@ public:
 
   //state of the candidate cluster
   struct State {
-    State(Det const& idet) : m_det(idet) { } // ADCs.reserve(8); }
+    State(Det const& idet) : m_det(idet) { ADCs.reserve(8); }
     Det const& det() const { return m_det; }
     std::vector<uint8_t> ADCs;
     uint16_t lastStrip = 0;
@@ -61,8 +61,8 @@ public:
   typedef edmNew::DetSetVector<SiStripCluster> output_t;
   void clusterize(const edm::DetSetVector<SiStripDigi>&, output_t&) const;
   void clusterize(const edmNew::DetSetVector<SiStripDigi>&, output_t&) const;
-  virtual void clusterizeDetUnit(const edm::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const = 0;
-  virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const = 0;
+  virtual void clusterizeDetUnit(const edm::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const {}
+  virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const {}
 
   //HLT stripByStrip interface
   Det const & stripByStripBegin(uint32_t id) const {return findDetId(id);}

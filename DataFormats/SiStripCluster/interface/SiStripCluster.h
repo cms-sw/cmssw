@@ -35,10 +35,16 @@ public:
       firstStrip_ |= mergedValueMask;  // if this is a candidate merged cluster
   }
 
+  // extend the cluster 
+  template <typename Iter>
+  void extend(Iter begin, Iter end) { amplitudes_.insert(amplitudes_.end(),begin,end); }
+
   /** The number of the first strip in the cluster.
    *  The high bit of firstStrip_ indicates whether the cluster is a candidate for being merged.
    */
   uint16_t firstStrip() const { return firstStrip_ & stripIndexMask; }
+  
+  uint16_t endStrip() const { return firstStrip()+amplitudes().size(); }
 
   /** The amplitudes of the strips forming the cluster.
    *  The amplitudes are on consecutive strips; if a strip is missing
