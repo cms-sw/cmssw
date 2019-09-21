@@ -37,7 +37,6 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 
 class CSCMotherboard : public CSCBaseboard {
 public:
