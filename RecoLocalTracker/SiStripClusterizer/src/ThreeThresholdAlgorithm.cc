@@ -48,6 +48,7 @@ inline void ThreeThresholdAlgorithm::clusterizeDetUnit_(const digiDetSet& digis,
     ApvCleaner.clean(digis, scan, end);
   }
 
+  output.reserve(16);
   State state(det);
   while (scan != end) {
     while (scan != end && !candidateEnded(state, scan->strip()))
@@ -88,7 +89,7 @@ inline void ThreeThresholdAlgorithm::endCandidate(State& state, T& out) const {
     applyGains(state);
     if (MaxAdjacentBad>0) appendBadNeighbors(state);
     if (minGoodCharge<=0 || siStripClusterTools::chargePerCM(state.det().detId, state.ADCs.begin(), state.ADCs.end()) > minGoodCharge)
-      out.push_back(SiStripCluster(firstStrip(state), state.ADCs.begin(), state.ADCs.end()));
+      out.push_back(std::move(SiStripCluster(firstStrip(state), state.ADCs.begin(), state.ADCs.end())));
   }
   clearCandidate(state);
 }

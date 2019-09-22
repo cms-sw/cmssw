@@ -383,7 +383,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
     StripClusterizerAlgorithm::State state(det);
 
     incSet();
-
+    record.reserve(16);
     // Loop over apv-pairs of det
     for (auto const conn : clusterizer.currentConnection(det)) {
       if

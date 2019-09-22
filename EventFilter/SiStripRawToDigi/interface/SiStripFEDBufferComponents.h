@@ -582,12 +582,12 @@ namespace sistrip {
   //holds information about position of a channel in the buffer for use by unpacker
   class FEDChannel {
   public:
-    FEDChannel(const uint8_t* const data, const size_t offset, const uint16_t length);
+    FEDChannel(const uint8_t* const data, const uint32_t offset, const uint16_t length);
     //gets length from first 2 bytes (assuming normal FED channel)
-    FEDChannel(const uint8_t* const data, const size_t offset);
+    FEDChannel(const uint8_t* const data, const uint32_t offset);
     uint16_t length() const;
     const uint8_t* data() const;
-    size_t offset() const;
+    uint32_t offset() const;
     uint16_t cmMedian(const uint8_t apvIndex) const;
     //third byte of channel data for normal FED channels
     uint8_t packetCode() const;
@@ -595,7 +595,7 @@ namespace sistrip {
   private:
     friend class FEDBuffer;
     const uint8_t* data_;
-    size_t offset_;
+    uint32_t offset_;
     uint16_t length_;
   };
 
@@ -1432,11 +1432,11 @@ namespace sistrip {
 
   //FEDChannel
 
-  inline FEDChannel::FEDChannel(const uint8_t* const data, const size_t offset) : data_(data), offset_(offset) {
+  inline FEDChannel::FEDChannel(const uint8_t* const data, const uint32_t offset) : data_(data), offset_(offset) {
     length_ = (data_[(offset_) ^ 7] + (data_[(offset_ + 1) ^ 7] << 8));
   }
 
-  inline FEDChannel::FEDChannel(const uint8_t* const data, const size_t offset, const uint16_t length)
+  inline FEDChannel::FEDChannel(const uint8_t* const data, const uint32_t offset, const uint16_t length)
       : data_(data), offset_(offset), length_(length) {}
 
   inline uint16_t FEDChannel::length() const { return length_; }
@@ -1445,7 +1445,7 @@ namespace sistrip {
 
   inline const uint8_t* FEDChannel::data() const { return data_; }
 
-  inline size_t FEDChannel::offset() const { return offset_; }
+  inline uint32_t FEDChannel::offset() const { return offset_; }
 
 }  // namespace sistrip
 
