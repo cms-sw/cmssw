@@ -13,11 +13,11 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
-#include <math.h>
+#include <string>
 
 #include <cassert>
 
@@ -26,9 +26,7 @@ using namespace std;
 
 RPCNumberingScheme::RPCNumberingScheme(const MuonConstants& muonConstants) { initMe(muonConstants); }
 
-
 void RPCNumberingScheme::initMe(const MuonConstants& muonConstants) {
-
   int levelPart = get("level", muonConstants);
 
   assert(levelPart != 0);
@@ -43,21 +41,20 @@ void RPCNumberingScheme::initMe(const MuonConstants& muonConstants) {
 }
 
 void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
- 
   const int barrel = num.getSuperNo(theRegionLevel);
- 
+
   bool barrel_muon = (barrel == 1);
-   int maxLevel;
+  int maxLevel;
   if (barrel_muon) {
     maxLevel = theBChamberLevel;
   } else {
     maxLevel = theERollLevel;
   }
 
-   if (num.getLevels() != maxLevel) {
-     cout<<"ATTENTION -from DD4hep RPC NumberingScheme - num.getLevels not equal to maxLevel - ABORT RUN"<<endl;
+  if (num.getLevels() != maxLevel) {
+    cout << "ATTENTION -from DD4hep RPC NumberingScheme - num.getLevels not equal to maxLevel - ABORT RUN" << endl;
     abort();
-   }
+  }
 
   int plane_id = 0;
   int sector_id = 0;
@@ -193,8 +190,7 @@ void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   RPCDetId id;
   id.buildfromTrIndex(trIndex);
 
-  SetDetId(id.rawId());  
-
+  SetDetId(id.rawId());
 }
 
 const int RPCNumberingScheme::get(const char* key, const MuonConstants& muonConstants) const {
@@ -204,4 +200,3 @@ const int RPCNumberingScheme::get(const char* key, const MuonConstants& muonCons
     result = it->second;
   return result;
 }
-
