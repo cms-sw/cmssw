@@ -41,7 +41,7 @@ public:
     static_assert(xRange >= 0.);
     constexpr float r = hgcaltilesconstants::nColumns / xRange;
     int xBin = (x - hgcaltilesconstants::minX) * r;
-    xBin = std::clamp(xBin, 0, hgcaltilesconstants::nColumns);
+    xBin = std::clamp(xBin, 0, hgcaltilesconstants::nColumns-1);
     return xBin;
   }
 
@@ -50,7 +50,7 @@ public:
     static_assert(yRange >= 0.);
     constexpr float r = hgcaltilesconstants::nRows / yRange;
     int yBin = (y - hgcaltilesconstants::minY) * r;
-    yBin = std::clamp(yBin, 0, hgcaltilesconstants::nRows);
+    yBin = std::clamp(yBin, 0, hgcaltilesconstants::nRows-1);
     return yBin;
   }
 
@@ -59,7 +59,7 @@ public:
     static_assert(etaRange >= 0.);
     constexpr float r = hgcaltilesconstants::nColumnsEta / etaRange;
     int etaBin = (eta - hgcaltilesconstants::minEta) * r;
-    etaBin = std::clamp(etaBin, 0, hgcaltilesconstants::nColumnsEta);
+    etaBin = std::clamp(etaBin, 0, hgcaltilesconstants::nColumnsEta-1);
     return etaBin;
   }
 
@@ -68,7 +68,7 @@ public:
     static_assert(phiRange >= 0.);
     constexpr float r = hgcaltilesconstants::nRowsPhi / phiRange;
     int phiBin = (phi - hgcaltilesconstants::minPhi) * r;
-    phiBin = std::clamp(phiBin, 0, hgcaltilesconstants::nRowsPhi);
+    phiBin = std::clamp(phiBin, 0, hgcaltilesconstants::nRowsPhi-1);
     return phiBin;
   }
 
