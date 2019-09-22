@@ -18,7 +18,7 @@ public:
     static_assert(etaRange >= 0.f);
     float r = ticl::constants::nEtaBins / etaRange;
     int etaBin = (std::abs(eta) - ticl::constants::minEta) * r;
-    etaBin = std::clamp(etaBin, 0, ticl::constants::nEtaBins);
+    etaBin = std::clamp(etaBin, 0, ticl::constants::nEtaBins-1);
     return etaBin;
   }
 
