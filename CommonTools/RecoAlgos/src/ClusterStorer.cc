@@ -9,6 +9,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 // FastSim hits:
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/FastProjectedTrackerRecHit.h"
@@ -47,6 +48,10 @@ namespace helper {
       //std::cout << "|   It is a Phase2TrackerRecHit1D hit !!" << std::endl;
       phase2OTClusterRecords_.push_back(
           Phase2OTClusterHitRecord(static_cast<Phase2TrackerRecHit1D &>(newHit), hits, index));
+    } else if (hit_type == typeid(VectorHit)) {
+      //FIXME:: this is just temporary solution for phase2,
+      //the VectorHit has 2 clusters but just a hit!
+      phase2OTClusterRecords_.push_back(Phase2OTClusterHitRecord(static_cast<VectorHit&>(newHit), hits, index));
     } else {
       if (hit_type == typeid(FastTrackerRecHit) || hit_type == typeid(FastProjectedTrackerRecHit) ||
           hit_type == typeid(FastMatchedTrackerRecHit)) {
