@@ -17,30 +17,28 @@ class MuonBaseNumber;
 class MuonConstants;
 
 namespace cms {
-class RPCNumberingScheme {
-public:
+  class RPCNumberingScheme {
+  public:
+    RPCNumberingScheme(const MuonConstants& muonConstants);
 
-  RPCNumberingScheme(const MuonConstants& muonConstants);
+    void baseNumberToUnitNumber(const MuonBaseNumber&);
+    void SetDetId(int idnew) { detId = idnew; }
+    int GetDetId() const { return detId; }
 
-  void baseNumberToUnitNumber(const MuonBaseNumber&);
-  void SetDetId(int idnew){detId=idnew;}
-  int GetDetId()const {return detId;}
+  private:
+    const int get(const char*, const MuonConstants&) const;
+    void initMe(const MuonConstants& muonConstants);
 
-private:
+    int theRegionLevel;
+    int theBWheelLevel;
+    int theBStationLevel;
+    int theBPlaneLevel;
+    int theBChamberLevel;
+    int theEPlaneLevel;
+    int theESectorLevel;
+    int theERollLevel;
 
-  const int get(const char*, const MuonConstants&) const;
-  void initMe(const MuonConstants& muonConstants);
-
-  int theRegionLevel;
-  int theBWheelLevel;
-  int theBStationLevel;
-  int theBPlaneLevel;
-  int theBChamberLevel;
-  int theEPlaneLevel;
-  int theESectorLevel;
-  int theERollLevel;
-
-  int detId;
-};
-}  
+    int detId;
+  };
+}  // namespace cms
 #endif

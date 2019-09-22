@@ -4,11 +4,11 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
-#include <math.h>
+#include <string>
 
 using namespace std;
 
@@ -42,7 +42,6 @@ void RPCNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
 }
 
 int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
-
   const int mylevel = num.getLevels();
   //cout<<"------------myDEBUG DDD-------------------------------------------"<<endl;
   // cout<<"RPCNumberingScheme.cc: levels "<<num.getLevels()<<endl;

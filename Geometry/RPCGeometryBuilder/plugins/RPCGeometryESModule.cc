@@ -22,12 +22,12 @@
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include <FWCore/Framework/interface/ESProducer.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
-#include <math.h>
-#include<unordered_map>  
+#include <string>
+#include <unordered_map>
 
 #include <memory>
 
@@ -35,24 +35,23 @@ using namespace edm;
 using namespace std;
 
 RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet& p)
-  : comp11_{p.getUntrackedParameter<bool>("compatibiltyWith11", true)},
-  useDDD_{p.getUntrackedParameter<bool>("useDDD", true)},
-  useDD4hep_{p.getUntrackedParameter<bool>("useDD4hep", true)}
-{
-auto cc = setWhatProduced(this);
+    : comp11_{p.getUntrackedParameter<bool>("compatibiltyWith11", true)},
+      useDDD_{p.getUntrackedParameter<bool>("useDDD", true)},
+      useDD4hep_{p.getUntrackedParameter<bool>("useDD4hep", true)} {
+  auto cc = setWhatProduced(this);
 
- const edm::ESInputTag kEmptyTag;
- if (useDDD_) {
-   idealGeomToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(kEmptyTag);
-   dddConstantsToken_ = cc.consumesFrom<MuonDDDConstants, MuonNumberingRecord>(kEmptyTag);
- } else if (useDD4hep_) {
-   idealDD4hepGeomToken_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(kEmptyTag);
-   dd4hepConstantsToken_ = cc.consumesFrom<cms::MuonNumbering, MuonNumberingRecord>(kEmptyTag);
- } else {
-   recoIdealToken_ = cc.consumesFrom<RecoIdealGeometry, RPCRecoGeometryRcd>(kEmptyTag);
- }
+  const edm::ESInputTag kEmptyTag;
+  if (useDDD_) {
+    idealGeomToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(kEmptyTag);
+    dddConstantsToken_ = cc.consumesFrom<MuonDDDConstants, MuonNumberingRecord>(kEmptyTag);
+  } else if (useDD4hep_) {
+    idealDD4hepGeomToken_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(kEmptyTag);
+    dd4hepConstantsToken_ = cc.consumesFrom<cms::MuonNumbering, MuonNumberingRecord>(kEmptyTag);
+  } else {
+    recoIdealToken_ = cc.consumesFrom<RecoIdealGeometry, RPCRecoGeometryRcd>(kEmptyTag);
+  }
 }
-  
+
 std::unique_ptr<RPCGeometry> RPCGeometryESModule::produce(const MuonGeometryRecord& record) {
   if (useDDD_) {
     edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle(idealGeomToken_);
