@@ -6,3 +6,4 @@ MeasurementTracker = _MeasurementTrackerESProducer_default.clone()
 
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(MeasurementTracker, Phase2StripCPE = cms.string('Phase2StripCPE'))
+trackingPhase2PU140.toModify(MeasurementTracker, Phase2HitMatcher = cms.string('SiPhase2VectorHitMatcher'))

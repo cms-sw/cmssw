@@ -5,10 +5,11 @@ using namespace edm;
 using namespace std;
 
 Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2EndcapRing,
-                                                 const TrackerGeometry* theGeomDetGeometry,
-                                                 const bool useBrothers) {
-  vector<const GeometricDet*> allGeometricDets = aPhase2EndcapRing->components();
-  vector<const GeometricDet*> compGeometricDets;
+		 			         const TrackerGeometry* theGeomDetGeometry,
+			 			 const bool useBrothers)
+{
+  vector<const GeometricDet*>  allGeometricDets = aPhase2EndcapRing->components();
+  vector<const GeometricDet*>  compGeometricDets;
   LogDebug("TkDetLayers") << "Phase2EndcapRingBuilder with #Modules: " << allGeometricDets.size() << std::endl;
 
   vector<const GeomDet*> frontGeomDets;

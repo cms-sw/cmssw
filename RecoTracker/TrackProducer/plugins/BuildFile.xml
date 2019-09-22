@@ -3,6 +3,7 @@
 <use   name="RecoTracker/TrackProducer"/>
 <use   name="RecoTracker/TkDetLayers"/>
 <use   name="TrackingTools/TransientTrack"/>
+<use   name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="FWCore/Utilities"/>
 <library   file="*.cc" name="RecoTrackerTrackProducerPlugins">
   <use   name="Alignment/TwoBodyDecay"/>

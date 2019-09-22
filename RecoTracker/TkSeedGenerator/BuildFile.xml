@@ -20,6 +20,10 @@
 <use   name="TrackingTools/Records"/>
 <use   name="CommonTools/Utils"/>
 <use   name="RecoTracker/TkHitPairs"/>
+<use   name="RecoTracker/MeasurementDet"/>
+<use   name="RecoLocalTracker/Phase2TrackerRecHits"/>
+<use   name="TrackingTools/KalmanUpdators"/>
+<use   name="TrackingTools/MeasurementDet"/>
 <export>
   <lib   name="1"/>
 </export>

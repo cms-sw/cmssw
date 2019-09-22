@@ -5,6 +5,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
+#include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
@@ -40,7 +41,7 @@ private:
   std::optional<edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord>> ppToken_;
   std::optional<edm::ESGetToken<SiStripRecHitMatcher, TkStripCPERecord>> mpToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
-  std::optional<edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkStripCPERecord>> p2OTToken_;
+  std::optional<edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkPhase2OTCPERecord>> p2OTToken_;
   bool const computeCoarseLocalPositionFromDisk_;
 };
 

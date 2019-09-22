@@ -10,12 +10,14 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
+#include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderEDProducer.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
 #include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
+#include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
@@ -53,7 +55,8 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
   edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geometricSearchTrackerToken_;
-  edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkStripCPERecord> phase2TrackerCPEToken_;
+  edm::ESGetToken<ClusterParameterEstimator<Phase2TrackerCluster1D>, TkPhase2OTCPERecord> phase2TrackerCPEToken_;
+  edm::ESGetToken<VectorHitBuilderEDProducer, TkPhase2OTCPERecord> phase2matcherToken_;
 
   MeasurementTrackerImpl::BadStripCutsDet badStripCuts_;
 
@@ -155,9 +158,11 @@ MeasurementTrackerESProducer::MeasurementTrackerESProducer(const edm::ParameterS
 
   //FIXME:: just temporary solution for phase2!
   auto phase2 = p.getParameter<std::string>("Phase2StripCPE");
+  auto phase2Matcher = p.getParameter<std::string>("Phase2HitMatcher");
   if (not phase2.empty()) {
     usePhase2_ = true;
     c.setConsumes(phase2TrackerCPEToken_, edm::ESInputTag("", phase2));
+    c.setConsumes(phase2matcherToken_, edm::ESInputTag("", phase2Matcher));
   }
 }
 
@@ -180,13 +185,16 @@ std::unique_ptr<MeasurementTracker> MeasurementTrackerESProducer::produce(const 
   }
 
   const ClusterParameterEstimator<Phase2TrackerCluster1D> *ptr_phase2TrackerCPE = nullptr;
+  const VectorHitBuilderEDProducer *ptr_phase2Matcher = nullptr;
   if (usePhase2_) {
     ptr_phase2TrackerCPE = &iRecord.get(phase2TrackerCPEToken_);
+    ptr_phase2Matcher = &iRecord.get(phase2matcherToken_);
   }
   return std::make_unique<MeasurementTrackerImpl>(badStripCuts_,
                                                   &iRecord.get(pixelCPEToken_),
                                                   &iRecord.get(stripCPEToken_),
                                                   &iRecord.get(hitMatcherToken_),
+                                                  ptr_phase2Matcher,
                                                   &iRecord.get(trackerTopologyToken_),
                                                   &iRecord.get(trackerGeomToken_),
                                                   &iRecord.get(geometricSearchTrackerToken_),
@@ -210,6 +218,7 @@ void MeasurementTrackerESProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::string>("HitMatcher", "StandardMatcher");
 
   desc.add<std::string>("Phase2StripCPE", "")->setComment("empty string used to turn off Phase 2");
+  desc.add<std::string>("Phase2HitMatcher", "");
 
   desc.add<std::string>("SiStripQualityLabel", "");
   desc.add<bool>("UseStripModuleQualityDB", true);

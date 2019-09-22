@@ -189,5 +189,20 @@
   <class name="edm::Wrapper< MTDTrackingDetSetVector >"/>
   <class name="MTDTrackingOwnVector"/>
   <class name="edm::Wrapper< MTDTrackingOwnVector >"/>
+  <class name="VectorHit" ClassVersion="3">
+   <version ClassVersion="3" checksum="546506376"/>
+  </class>
+  <class name="VectorHit2D" ClassVersion="2">
+   <version ClassVersion="2" checksum="333065919"/>
+  </class>
+
+  <class name="edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>,Phase2TrackerCluster1D,edmNew::DetSetVector<Phase2TrackerCluster1D>::FindForDetSetVector>"/>
+  <class name="edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>,Phase2TrackerCluster1D,edmNew::DetSetVector<Phase2TrackerCluster1D>::FindForDetSetVector> >"/>
+  <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>,Phase2TrackerCluster1D,edmNew::DetSetVector<Phase2TrackerCluster1D>::FindForDetSetVector> > >"/>
+  <class name="edmNew::DetSetVector<VectorHit> "/>
+  <class name="std::vector<VectorHit> "/>
+  <class name="edm::RefProd<VectorHitCollectionNew>"/>
+  <class name="edm::Wrapper< edmNew::DetSetVector<VectorHit> >"/>
+
 
 </lcgdict>

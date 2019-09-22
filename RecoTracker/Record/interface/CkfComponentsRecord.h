@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
+#include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -24,6 +25,7 @@ class CkfComponentsRecord
                                                             boost::mpl::vector<TrackerDigiGeometryRecord,
                                                                                TkPixelCPERecord,
                                                                                TkStripCPERecord,
+                                               				       TkPhase2OTCPERecord,
                                                                                TransientRecHitRecord,
                                                                                TrackingComponentsRecord,
                                                                                TrackerRecoGeometryRecord,
@@ -39,3 +41,4 @@ class CkfComponentsRecord
                                                                                SiStripLorentzAngleDepRcd> > {};
 
 #endif
+

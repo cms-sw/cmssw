@@ -7,8 +7,10 @@ using namespace std;
 using namespace edm;
 
 Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhase2OTBarrelLayer,
-                                                       const TrackerGeometry* theGeomDetGeometry) {
-  // This builder is very similar to TOBLayer one. Most of the code should be put in a
+						       const TrackerGeometry* theGeomDetGeometry,
+						       const bool useBrothers)
+{
+  // This builder is very similar to TOBLayer one. Most of the code should be put in a 
   // common place.
 
   LogTrace("TkDetLayers") << "Phase2OTBarrelLayerBuilder::build";
@@ -40,14 +42,18 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   for (unsigned int index = 0; index != theGeometricDetRods.size(); index++)
     meanR += theGeometricDetRods[index]->positionBounds().perp();
   if (!theGeometricDetRods.empty())
-    meanR /= (double)theGeometricDetRods.size();
 
-  for (unsigned int index = 0; index != theGeometricDetRods.size(); index++) {
-    if (theGeometricDetRods[index]->positionBounds().perp() < meanR)
-      theInnerRods.push_back(myPhase2OTBarrelRodBuilder.build(theGeometricDetRods[index], theGeomDetGeometry));
+    meanR/=(double) theGeometricDetRods.size();
+  
+  for(unsigned int index=0; index!=theGeometricDetRods.size(); index++){    
+    if(theGeometricDetRods[index]->positionBounds().perp() < meanR)
+      theInnerRods.push_back(myPhase2OTBarrelRodBuilder.build(theGeometricDetRods[index],
+						              theGeomDetGeometry, useBrothers) );
 
-    if (theGeometricDetRods[index]->positionBounds().perp() > meanR)
-      theOuterRods.push_back(myPhase2OTBarrelRodBuilder.build(theGeometricDetRods[index], theGeomDetGeometry));
+    if(theGeometricDetRods[index]->positionBounds().perp() > meanR)
+      theOuterRods.push_back(myPhase2OTBarrelRodBuilder.build(theGeometricDetRods[index],
+							      theGeomDetGeometry, useBrothers) );
+
   }
 
   if (theGeometricDetRings.empty())
@@ -63,12 +69,13 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   // properly calculate the meanR value to separate rod in inner/outer.
   double centralZ = 0.0;
 
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricDetRings.begin(); it != theGeometricDetRings.end();
-       it++) {
-    if ((*it)->positionBounds().z() < centralZ)
-      theNegativeRings.push_back(myPhase2EndcapRingBuilder.build(*it, theGeomDetGeometry, true));
-    if ((*it)->positionBounds().z() > centralZ)
-      thePositiveRings.push_back(myPhase2EndcapRingBuilder.build(*it, theGeomDetGeometry, true));
+
+  for(vector<const GeometricDet*>::const_iterator it=theGeometricDetRings.begin();
+      it!=theGeometricDetRings.end();it++){
+    if((*it)->positionBounds().z() < centralZ)
+      theNegativeRings.push_back(myPhase2EndcapRingBuilder.build( *it,theGeomDetGeometry,useBrothers ));
+    if((*it)->positionBounds().z() > centralZ)
+      thePositiveRings.push_back(myPhase2EndcapRingBuilder.build( *it,theGeomDetGeometry,useBrothers ));
   }
 
   return new Phase2OTtiltedBarrelLayer(theInnerRods, theOuterRods, theNegativeRings, thePositiveRings);

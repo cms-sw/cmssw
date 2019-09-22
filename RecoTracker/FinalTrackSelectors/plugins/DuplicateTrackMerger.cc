@@ -477,6 +477,16 @@ namespace {
     gbrVals_[7] = tmva_outer_nMissingInner_;
     gbrVals_[8] = tmva_inner_nMissingOuter_;
 
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " tmva_ddsz_ : gbrVals_[0] " << gbrVals_[0];
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " tmva_ddxy_ : gbrVals_[1] " << gbrVals_[1];
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " tmva_dphi_ : gbrVals_[2] " << gbrVals_[2];
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " tmva_dlambda_ : gbrVals_[3] " << gbrVals_[3];
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " tmva_dqoverp_ : gbrVals_[4] " << gbrVals_[4];
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " tmva_d3dr_ : gbrVals_[5] " << gbrVals_[5];
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " tmva_d3dz_ : gbrVals_[6] " << gbrVals_[6];
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " tmva_outer_nMissingInner_ : gbrVals_[7] " << gbrVals_[7];
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " tmva_inner_nMissingOuter_ : gbrVals_[8] " << gbrVals_[8];
+
     auto mvaBDTG = forest_->GetClassifier(gbrVals_);
     IfLogTrace(debug_, "DuplicateTrackMerger") << " mvaBDTG " << mvaBDTG;
     if (mvaBDTG < minBDTG_)

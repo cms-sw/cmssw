@@ -33,7 +33,8 @@ duplicateTrackClassifier.mva.maxLostLayers = [99,99,99]
 # This customization will be removed once we get the templates for
 # phase2 pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(duplicateTrackCandidates, ttrhBuilderName = "WithTrackAngle") # FIXME
+phase2_tracker.toModify(duplicateTrackCandidates, ttrhBuilderName = "WithTrackAngle", forestLabel = None, minBDTG = -100.)
+#phase2_tracker.toModify(duplicateTrackCandidates, ttrhBuilderName = "WithTrackAngle", forestLabel = None, minBDTG = -100., overlapCheckMaxHits = 100, minDeltaR3d = -100.0) # FIXME
 
 generalTracks = DuplicateListMerger.clone()
 generalTracks.originalSource = cms.InputTag("preDuplicateMergingGeneralTracks")
