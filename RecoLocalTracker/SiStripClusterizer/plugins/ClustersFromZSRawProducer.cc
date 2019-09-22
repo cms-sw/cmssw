@@ -178,7 +178,7 @@ public:
         clusterizer_(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer"))),
         rawAlgos_(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
         doAPVEmulatorCheck_(conf.existsAs<bool>("DoAPVEmulatorCheck") ? conf.getParameter<bool>("DoAPVEmulatorCheck")
-                                                                      : true),
+                                                                      : false),
         legacy_(conf.existsAs<bool>("LegacyUnpacker") ? conf.getParameter<bool>("LegacyUnpacker") : false),
         hybridZeroSuppressed_(conf.getParameter<bool>("HybridZeroSuppressed")) {
     productToken_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("ProductLabel"));
@@ -336,7 +336,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::Det const & det,
 
       // check channel
       const uint8_t fedCh = conn->fedCh();
-/*
+
       if
         UNLIKELY(!buffer->channelGood(fedCh, doAPVEmulatorCheck)) {
           if (edm::isDebugEnabled()) {
@@ -346,7 +346,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::Det const & det,
           }
           continue;
         }
-*/
+
       // Determine APV std::pair number
       uint16_t ipair = conn->apvPairNumber();
 
