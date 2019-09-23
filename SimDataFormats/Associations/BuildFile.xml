@@ -1,5 +1,7 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/RecoCandidate"/>
+<use name="DataFormats/CaloRecHit"/>
+<use name="SimDataFormats/CaloAnalysis"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>
