@@ -445,11 +445,13 @@ namespace edm {
       // The current process might be needed but not be in the process
       // history if all the products produced in the current process are
       // transient.
-      auto nameIterCurrentProcess =
-          std::find(lookupProcessNames.begin(), lookupProcessNames.end(), processConfiguration_->processName());
-      if (nameIterCurrentProcess != lookupProcessNames.end()) {
-        lookupProcessOrder_.at(k) = nameIterCurrentProcess - lookupProcessNames.begin();
-        ++k;
+      {
+        auto nameIterCurrentProcess =
+            std::find(lookupProcessNames.begin(), lookupProcessNames.end(), processConfiguration_->processName());
+        if (nameIterCurrentProcess != lookupProcessNames.end()) {
+          lookupProcessOrder_.at(k) = nameIterCurrentProcess - lookupProcessNames.begin();
+          ++k;
+        }
       }
 
       // We just looked for the current process so skip it if
