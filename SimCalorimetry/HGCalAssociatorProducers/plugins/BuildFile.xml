@@ -2,5 +2,6 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="SimDataFormats/Associations"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
 <flags EDM_PLUGIN="1"/>
 
