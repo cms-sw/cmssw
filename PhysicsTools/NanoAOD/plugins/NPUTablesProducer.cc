@@ -77,18 +77,15 @@ public:
     out.addColumnValue<float>("nTrueInt",
                               nt,
                               "the true mean number of the poisson distribution for this event from which the number "
-                              "of interactions each bunch crossing has been sampled",
-                              nanoaod::FlatTable::FloatColumn);
+                              "of interactions each bunch crossing has been sampled");
     out.addColumnValue<int>(
         "nPU",
         npu,
-        "the number of pileup interactions that have been added to the event in the current bunch crossing",
-        nanoaod::FlatTable::IntColumn);
-    out.addColumnValue<int>("sumEOOT", eoot, "number of early out of time pileup", nanoaod::FlatTable::IntColumn);
-    out.addColumnValue<int>("sumLOOT", loot, "number of late out of time pileup", nanoaod::FlatTable::IntColumn);
-    out.addColumnValue<float>("pudensity", pudensity, "PU vertices / mm", nanoaod::FlatTable::FloatColumn);
-    out.addColumnValue<float>(
-        "gpudensity", gpudensity, "Generator-level PU vertices / mm", nanoaod::FlatTable::FloatColumn);
+        "the number of pileup interactions that have been added to the event in the current bunch crossing");
+    out.addColumnValue<int>("sumEOOT", eoot, "number of early out of time pileup");
+    out.addColumnValue<int>("sumLOOT", loot, "number of late out of time pileup");
+    out.addColumnValue<float>("pudensity", pudensity, "PU vertices / mm");
+    out.addColumnValue<float>("gpudensity", gpudensity, "Generator-level PU vertices / mm");
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
