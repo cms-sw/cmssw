@@ -5,8 +5,11 @@ JetCorePerfectSeedGenerator = cms.EDProducer("JetCorePerfectSeedGenerator",
     pixelClusters=    cms.InputTag("siPixelClustersPreSplitting"),
     cores= cms.InputTag("jetsForCoreTracking"),
     ptMin= cms.double(300),
-    deltaR= cms.double(0.1),
+    deltaR= cms.double(0.3),
     chargeFractionMin= cms.double(18000.0),
+    simTracks= cms.InputTag("g4SimHits"),
+    simVertex= cms.InputTag("g4SimHits"),
+    simHit= cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
     centralMIPCharge= cms.double(2),
     pixelCPE= cms.string( "PixelCPEGeneric" )
 )

@@ -42,6 +42,7 @@
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/TransientTrackingRecHit"/>
 <use name="PhysicsTools/TensorFlow"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
 <library file="*.cc" name="RecoTrackerTkSeedGeneratorPlugins">
   <flags EDM_PLUGIN="1"/>
   <use name="DataFormats/TrackerRecHit2D"/>

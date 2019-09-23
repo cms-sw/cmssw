@@ -170,8 +170,10 @@ CkfBaseTrajectoryFilter_blockLoose = cms.PSet(
 
 
 import RecoTracker.TkSeedGenerator.jetCoreDirectSeedGenerator_cfi
+import RecoTracker.TkSeedGenerator.jetCorePerfectSeedGenerator_cfi
 jetCoreSeeds  = RecoTracker.TkSeedGenerator.jetCoreDirectSeedGenerator_cfi.jetCoreDirectSeedGenerator.clone(
- vertices="firstStepPrimaryVertices"
+# jetCoreSeeds  = RecoTracker.TkSeedGenerator.jetCorePerfectSeedGenerator_cfi.JetCorePerfectSeedGenerator.clone(
+vertices="firstStepPrimaryVertices"
 )
 
 # MAKING OF TRACK CANDIDATES

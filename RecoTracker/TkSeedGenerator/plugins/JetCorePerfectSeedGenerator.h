@@ -182,9 +182,9 @@ class JetCorePerfectSeedGenerator : public edm::one::EDProducer<edm::one::Shared
   std::vector<PSimHit> coreHitsFilling(auto,const GeomDet*,GlobalVector,const reco::Vertex&);
   std::pair<std::vector<SimTrack>,std::vector<SimVertex>> coreTracksFilling(std::vector<PSimHit>, const auto &, const auto &);
 
-    std::vector<std::array<double,5>> seedParFilling(std::pair<std::vector<SimTrack>,std::vector<SimVertex>>,const GeomDet*);
+  std::vector<std::array<double,5>> seedParFilling(std::pair<std::vector<SimTrack>,std::vector<SimVertex>>,const GeomDet*, const reco::Candidate&);
 
-  std::pair<std::vector<SimTrack>,std::vector<SimVertex>> coreTracksFillingDeltaR( const auto &, const auto &,const GeomDet* , const reco::Candidate& );
+  std::pair<std::vector<SimTrack>,std::vector<SimVertex>> coreTracksFillingDeltaR( const auto &, const auto &,const GeomDet* , const reco::Candidate&,auto );
 
 
 };
