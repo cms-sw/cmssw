@@ -66,19 +66,17 @@ photonIDValueMaps = cms.EDProducer(
   )
 
 
-particleFlowEGammaFullTask = cms.Task(particleFlowEGamma, gedGsfElectronTaskTmp, gedPhotonTaskTmp, ootPhotonTask)
-particleFlowEGammaFull = cms.Sequence(particleFlowEGammaFullTask)
-particleFlowEGammaFinalTask = cms.Task(particleBasedIsolationTmp,
-                                       pfNoPileUpIsoTask,
-                                       cms.ignore(pfNoPileUpCandidates),
-                                       cms.ignore(pfPileUpAllChargedParticles),
-                                       egmPhotonIsolationCITK,
-                                       egmElectronIsolationCITK,
-                                       egmElectronIsolationPileUpCITK,
-                                       photonIDValueMaps,
-                                       gedPhotonTask,
-                                       gedElectronPFIsoTask)
-particleFlowEGammaFinal = cms.Sequence(particleFlowEGammaFinalTask)
+particleFlowEGammaFull = cms.Sequence(particleFlowEGamma*gedGsfElectronSequenceTmp*gedPhotonSequenceTmp*ootPhotonSequence)
+particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*
+                                       pfNoPileUpIsoSequence*
+                                       cms.ignore(pfNoPileUpCandidates)*
+                                       cms.ignore(pfPileUpAllChargedParticles)*
+                                       egmPhotonIsolationCITK*
+                                       egmElectronIsolationCITK*
+                                       egmElectronIsolationPileUpCITK*
+                                       photonIDValueMaps*
+                                       gedPhotonSequence*
+                                       gedElectronPFIsoSequence)
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toReplaceWith(particleFlowEGammaFullTask, particleFlowEGammaFullTask.copyAndExclude([ootPhotonTask]))
+pp_on_AA_2018.toReplaceWith(particleFlowEGammaFull, particleFlowEGammaFull.copyAndExclude([ootPhotonSequence]))
