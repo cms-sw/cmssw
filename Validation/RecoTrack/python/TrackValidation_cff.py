@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 
 from SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi import *
+from SimTracker.TrackAssociatorProducers.trackAssociatorByPosition_cfi import *
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import *
 import Validation.RecoTrack.MultiTrackValidator_cfi
@@ -359,7 +360,8 @@ MTVTrackAssociationByChi2 = trackingParticleRecoTrackAsssociation.clone(
 )
 
 # Select jets for JetCore tracking
-highPtJets = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJets"), cut = cms.string("pt()>1000"))
+# highPtJets = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJets"), cut = cms.string("pt()>1000")) #perfectSeeding used in Connecting the Dots
+highPtJets = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJets"), cut = cms.string("pt()>1000 && eta()<1.4 && eta()>-1.4"))
 highPtJetsForTrk = highPtJetsForTrk = highPtJets.clone(src = "ak4CaloJetsForTrk")
 
 # Select B-hadron TPs
@@ -372,25 +374,28 @@ MTVTrackAssociationByChi2 = trackingParticleRecoTrackAsssociation.clone(
     # UseAssociators = cms.bool(True)
 )
 
-# associatorByHitLoose = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone(
-associatorByHitLoose = quickTrackAssociatorByHits.clone(
-    # AbsoluteNumberOfHits = cms.bool(False),
-	Cut_RecoToSim = cms.double(0.5),
-	# SimToRecoDenominator = cms.string('reco'), # either "sim" or "reco"
-	Quality_SimToReco = cms.double(0.3),
-	Purity_SimToReco = cms.double(0.5),
-	# ThreeHitTracksAreSpecial = cms.bool(True),
-    # PixelHitWeight = cms.double(1.0),
-    # useClusterTPAssociation = cms.bool(True),
-    # cluster2TPSrc = cms.InputTag("tpClusterProducer")
-    usePixels = cms.bool(False)
-)
+# associatorByHitLoose = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
+# associatorByHitLoose = quickTrackAssociatorByHits.clone(
+# 	Cut_RecoToSim = cms.double(0.5),
+# 	Quality_SimToReco = cms.double(0.3),
+# 	Purity_SimToReco = cms.double(0.5),
+#     ThreeHitTracksAreSpecial =cms.bool(False),
+# 	usePixels = cms.bool(False)
+# )
 
+# MTVTrackAssociationByHitsLoose = trackingParticleRecoTrackAsssociation.clone(
+#     associator = cms.InputTag('associatorByHitLoose'),
+# )
 
-MTVTrackAssociationByHitsLoose = trackingParticleRecoTrackAsssociation.clone(
-    associator = cms.InputTag('associatorByHitLoose'),
-    # UseAssociators = cms.bool(True)
-)
+# associatorByDeltaR = trackAssociatorByPosition.clone(
+#     QCut = cms.double(0.01),
+#     method = cms.string('momdr'),
+#     ConsiderAllSimHits = cms.bool(False)
+# )
+# MTVTrackAssociationByDeltaR = trackingParticleRecoTrackAsssociation.clone(
+#     associator = cms.InputTag('associatorByDeltaR'),
+#     # UseAssociators = cms.bool(True)
+# )
 
 
 ## MTV instances
@@ -688,8 +693,10 @@ tracksValidationTruth = cms.Task(
     tpClusterProducerPreSplitting,
     # trackAssociatorByChi2, #uncomment for byChi2 assoc. for jetcore studies (4/5)
     # MTVTrackAssociationByChi2, #uncomment for byChi2 assoc. for jetcore studies (5/5)
-    associatorByHitLoose,
-    MTVTrackAssociationByHitsLoose,
+    # associatorByHitLoose,
+    # associatorByDeltaR,
+    # MTVTrackAssociationByHitsLoose,
+    # MTVTrackAssociationByDeltaR,
     quickTrackAssociatorByHits,
     quickTrackAssociatorByHitsPreSplitting,
     trackingParticleRecoTrackAsssociation,

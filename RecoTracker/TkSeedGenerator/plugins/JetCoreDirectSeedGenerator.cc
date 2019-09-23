@@ -411,6 +411,7 @@ int jet_number = 0;
 //		std::cout << "Rejecting seed" << xx << " " << yy << " " << track_eta << " " << track_phi << " " << seedid << std::endl;
 		continue;
             }
+      if(1){      //1 TO JET CORE; 0=NO JET CORE
 	    ids.insert(seedid);
 //nn	    std::cout << "Creating seed" << xx << " " << yy << " " << track_eta << " " << track_phi << " " << seedid << std::endl;
 
@@ -421,10 +422,10 @@ int jet_number = 0;
             em[5]=0.5e-5;
             em[9]=2e-5;
             em[14]=2e-5;
- /*[2]=1e-5;
-            em[5]=1e-5;
-            em[9]=2e-5;
-            em[14]=2e-5;*/
+            // [2]=1e-5;
+            // em[5]=1e-5;
+            // em[9]=2e-5;
+            // em[14]=2e-5;
             long int detId=globDet->geographicalId();
             LocalTrajectoryParameters localParam(localSeedPoint, localSeedDir, TrackCharge(1));
            result->push_back(TrajectorySeed( PTrajectoryStateOnDet (localParam, pt, em, detId, /*surfaceSide*/ 0), edm::OwnVector< TrackingRecHit >() , PropagationDirection::alongMomentum));
@@ -434,7 +435,7 @@ int jet_number = 0;
            GlobalPoint globalSeedPoint = globDet->surface().toGlobal(localSeedPoint);
 	          reco::Track::CovarianceMatrix mm;
            resultTracks->push_back(reco::Track(1,1,reco::Track::Point(globalSeedPoint.x(),globalSeedPoint.y(),globalSeedPoint.z()),reco::Track::Vector(globSeedDir.x(),globSeedDir.y(),globSeedDir.z()),1,mm));
-
+         }
           }
         }
       }
@@ -454,6 +455,7 @@ int jet_number = 0;
   } //bigcluster
   } //jet > pt
  } //jet
+ std::cout <<"numero di seed=" << result->size() <<", " << resultTracks->size() << std::endl;
 iEvent.put(std::move(result));
 iEvent.put(std::move(resultTracks));
 }

@@ -102,6 +102,7 @@ multiTrackValidator = DQMEDAnalyzer(
     doResolutionPlotsForLabels = cms.VInputTag(),
 
     cores = cms.InputTag("highPtJetsForTrk"), #ak4CaloJets with pt>1 TeV
+
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
