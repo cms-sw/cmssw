@@ -157,9 +157,9 @@ namespace edm {
       }
     }
     if (!doItAgain && !parameterSets_.empty()) {
-      for (StringWithIDList::iterator k = parameterSets_.begin(), kEnd = parameterSets_.end(); k != kEnd; ++k) {
+      for (auto const& k : parameterSets_) {
         std::list<std::string> pieces;
-        split(std::back_inserter(pieces), k->first, '<', ';', '>');
+        split(std::back_inserter(pieces), k.first, '<', ';', '>');
         for (std::list<std::string>::iterator i = pieces.begin(), e = pieces.end(); i != e; ++i) {
           std::string removeName = i->substr(i->find('+'));
           if (removeName.size() >= 4) {

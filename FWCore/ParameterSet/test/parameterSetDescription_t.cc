@@ -928,7 +928,7 @@ namespace testParameterSetDescription {
       std::unique_ptr<edm::ParameterDescriptionNode> node(
           std::make_unique<edm::AllowedLabelsDescription<int>>("allowedLabels", true));
 
-      edm::ParameterSet emptyPset;
+      const edm::ParameterSet emptyPset;
 
       edm::ParameterSet pset;
       std::vector<std::string> labels;

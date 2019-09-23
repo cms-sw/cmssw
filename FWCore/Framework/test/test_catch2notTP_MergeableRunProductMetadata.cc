@@ -168,9 +168,10 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
 
     REQUIRE(mergeableRunProductProcesses.size() == 2);
 
-    std::vector<std::string> expectedProcesses{"AAPROD", "APROD"};
-    REQUIRE(mergeableRunProductProcesses.processesWithMergeableRunProducts() == expectedProcesses);
-
+    {
+      std::vector<std::string> expected{"AAPROD", "APROD"};
+      REQUIRE(mergeableRunProductProcesses.processesWithMergeableRunProducts() == expected);
+    }
     std::vector<std::string> storedProcesses{"AAAPROD", "AAPROD", "APROD", "ZPROD"};
     edm::StoredMergeableRunProductMetadata storedMetadata(storedProcesses);
     REQUIRE(storedMetadata.processesWithMergeableRunProducts() == storedProcesses);
