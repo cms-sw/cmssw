@@ -14,14 +14,16 @@ void nanoaod::FlatTable::addExtension(const nanoaod::FlatTable& other) {
   for (unsigned int i = 0, n = other.nColumns(); i < n; ++i) {
     switch (other.columnType(i)) {
       case FloatColumn:
-        addColumn<float>(other.columnName(i), other.columnData<float>(i), other.columnDoc(i), other.columnType(i));
+        addColumn<float>(other.columnName(i), other.columnData<float>(i), other.columnDoc(i));
         break;
       case IntColumn:
-        addColumn<int>(other.columnName(i), other.columnData<int>(i), other.columnDoc(i), other.columnType(i));
+        addColumn<int>(other.columnName(i), other.columnData<int>(i), other.columnDoc(i));
         break;
-      case BoolColumn:  // as UInt8
+      case BoolColumn:
+        addColumn<bool>(other.columnName(i), other.columnData<uint8_t>(i), other.columnDoc(i));
+        break;
       case UInt8Column:
-        addColumn<uint8_t>(other.columnName(i), other.columnData<uint8_t>(i), other.columnDoc(i), other.columnType(i));
+        addColumn<uint8_t>(other.columnName(i), other.columnData<uint8_t>(i), other.columnDoc(i));
         break;
     }
   }

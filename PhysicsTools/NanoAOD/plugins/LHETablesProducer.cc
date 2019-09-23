@@ -131,38 +131,30 @@ public:
       lheVpt = std::hypot(pup[v.first][0] + pup[v.second][0], pup[v.first][1] + pup[v.second][1]);
     }
 
-    out.addColumnValue<uint8_t>(
-        "Njets", lheNj, "Number of jets (partons) at LHE step", nanoaod::FlatTable::UInt8Column);
-    out.addColumnValue<uint8_t>("Nb", lheNb, "Number of b partons at LHE step", nanoaod::FlatTable::UInt8Column);
-    out.addColumnValue<uint8_t>("Nc", lheNc, "Number of c partons at LHE step", nanoaod::FlatTable::UInt8Column);
-    out.addColumnValue<uint8_t>(
-        "Nuds", lheNuds, "Number of u,d,s partons at LHE step", nanoaod::FlatTable::UInt8Column);
-    out.addColumnValue<uint8_t>(
-        "Nglu", lheNglu, "Number of gluon partons at LHE step", nanoaod::FlatTable::UInt8Column);
-    out.addColumnValue<float>("HT", lheHT, "HT, scalar sum of parton pTs at LHE step", nanoaod::FlatTable::FloatColumn);
+    out.addColumnValue<uint8_t>("Njets", lheNj, "Number of jets (partons) at LHE step");
+    out.addColumnValue<uint8_t>("Nb", lheNb, "Number of b partons at LHE step");
+    out.addColumnValue<uint8_t>("Nc", lheNc, "Number of c partons at LHE step");
+    out.addColumnValue<uint8_t>("Nuds", lheNuds, "Number of u,d,s partons at LHE step");
+    out.addColumnValue<uint8_t>("Nglu", lheNglu, "Number of gluon partons at LHE step");
+    out.addColumnValue<float>("HT", lheHT, "HT, scalar sum of parton pTs at LHE step");
     out.addColumnValue<float>("HTIncoming",
                               lheHTIncoming,
                               "HT, scalar sum of parton pTs at LHE step, restricted to partons",
                               nanoaod::FlatTable::FloatColumn);
-    out.addColumnValue<float>("Vpt", lheVpt, "pT of the W or Z boson at LHE step", nanoaod::FlatTable::FloatColumn);
-    out.addColumnValue<uint8_t>("NpNLO", lheProd.npNLO(), "number of partons at NLO", nanoaod::FlatTable::UInt8Column);
-    out.addColumnValue<uint8_t>("NpLO", lheProd.npLO(), "number of partons at LO", nanoaod::FlatTable::UInt8Column);
-    out.addColumnValue<float>("AlphaS", alphaS, "Per-event alphaS", nanoaod::FlatTable::FloatColumn);
+    out.addColumnValue<float>("Vpt", lheVpt, "pT of the W or Z boson at LHE step");
+    out.addColumnValue<uint8_t>("NpNLO", lheProd.npNLO(), "number of partons at NLO");
+    out.addColumnValue<uint8_t>("NpLO", lheProd.npLO(), "number of partons at LO");
+    out.addColumnValue<float>("AlphaS", alphaS, "Per-event alphaS");
 
     auto outPart = std::make_unique<nanoaod::FlatTable>(vals_pt.size(), "LHEPart", false);
-    outPart->addColumn<float>("pt", vals_pt, "Pt of LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
-    outPart->addColumn<float>(
-        "eta", vals_eta, "Pseodorapidity of LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
-    outPart->addColumn<float>(
-        "phi", vals_phi, "Phi of LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
-    outPart->addColumn<float>(
-        "mass", vals_mass, "Mass of LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
-    outPart->addColumn<float>(
-        "incomingpz", vals_pz, "Pz of incoming LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
-    outPart->addColumn<int>("pdgId", vals_pid, "PDG ID of LHE particles", nanoaod::FlatTable::IntColumn);
-    outPart->addColumn<int>(
-        "status", vals_status, "LHE particle status; -1:incoming, 1:outgoing", nanoaod::FlatTable::IntColumn);
-    outPart->addColumn<int>("spin", vals_spin, "Spin of LHE particles", nanoaod::FlatTable::IntColumn);
+    outPart->addColumn<float>("pt", vals_pt, "Pt of LHE particles", this->precision_);
+    outPart->addColumn<float>("eta", vals_eta, "Pseodorapidity of LHE particles", this->precision_);
+    outPart->addColumn<float>("phi", vals_phi, "Phi of LHE particles", this->precision_);
+    outPart->addColumn<float>("mass", vals_mass, "Mass of LHE particles", this->precision_);
+    outPart->addColumn<float>("incomingpz", vals_pz, "Pz of incoming LHE particles", this->precision_);
+    outPart->addColumn<int>("pdgId", vals_pid, "PDG ID of LHE particles");
+    outPart->addColumn<int>("status", vals_status, "LHE particle status; -1:incoming, 1:outgoing");
+    outPart->addColumn<int>("spin", vals_spin, "Spin of LHE particles");
 
     return outPart;
   }

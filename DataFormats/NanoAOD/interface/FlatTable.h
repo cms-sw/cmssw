@@ -10,6 +10,8 @@
 #include <vector>
 #include <string>
 
+#include <type_traits>
+
 namespace nanoaod {
 
   namespace flatTableHelper {
@@ -104,40 +106,43 @@ namespace nanoaod {
     };
     RowView row(unsigned int row) const { return RowView(*this, row); }
 
-    template <typename T, typename C = std::vector<T>>
-    void addColumn(const std::string &name,
-                   const C &values,
-                   const std::string &docString,
-                   ColumnType type = defaultColumnType<T>(),
-                   int mantissaBits = -1) {
+    template <typename T, typename C>
+    void addColumn(const std::string &name, const C &values, const std::string &docString, int mantissaBits = -1) {
       if (columnIndex(name) != -1)
         throw cms::Exception("LogicError", "Duplicated column: " + name);
       if (values.size() != size())
         throw cms::Exception("LogicError", "Mismatched size for " + name);
-      check_type<T>(type);  // throws if type is wrong
-      auto &vec = bigVector<T>();
-      columns_.emplace_back(name, docString, type, vec.size());
-      vec.insert(vec.end(), values.begin(), values.end());
-      if (type == FloatColumn) {
-        flatTableHelper::MaybeMantissaReduce<T>(mantissaBits).bulk(columnData<T>(columns_.size() - 1));
+      if constexpr (std::is_same<T, bool>()) {
+        columns_.emplace_back(name, docString, ColumnType::BoolColumn, uint8s_.size());
+        uint8s_.insert(uint8s_.end(), values.begin(), values.end());
+      } else if constexpr (std::is_same<T, float>()) {
+        columns_.emplace_back(name, docString, ColumnType::FloatColumn, floats_.size());
+        floats_.insert(floats_.end(), values.begin(), values.end());
+        flatTableHelper::MaybeMantissaReduce<float>(mantissaBits).bulk(columnData<float>(columns_.size() - 1));
+      } else {
+        ColumnType type = defaultColumnType<T>();
+        auto &vec = bigVector<T>();
+        columns_.emplace_back(name, docString, type, vec.size());
+        vec.insert(vec.end(), values.begin(), values.end());
       }
     }
+
     template <typename T, typename C>
-    void addColumnValue(const std::string &name,
-                        const C &value,
-                        const std::string &docString,
-                        ColumnType type = defaultColumnType<T>(),
-                        int mantissaBits = -1) {
+    void addColumnValue(const std::string &name, const C &value, const std::string &docString, int mantissaBits = -1) {
       if (!singleton())
         throw cms::Exception("LogicError", "addColumnValue works only for singleton tables");
       if (columnIndex(name) != -1)
         throw cms::Exception("LogicError", "Duplicated column: " + name);
-      check_type<T>(type);  // throws if type is wrong
-      auto &vec = bigVector<T>();
-      columns_.emplace_back(name, docString, type, vec.size());
-      if (type == FloatColumn) {
-        vec.push_back(flatTableHelper::MaybeMantissaReduce<T>(mantissaBits).one(value));
+      if constexpr (std::is_same<T, bool>()) {
+        columns_.emplace_back(name, docString, ColumnType::BoolColumn, uint8s_.size());
+        uint8s_.push_back(value);
+      } else if constexpr (std::is_same<T, float>()) {
+        columns_.emplace_back(name, docString, ColumnType::FloatColumn, floats_.size());
+        floats_.push_back(flatTableHelper::MaybeMantissaReduce<float>(mantissaBits).one(value));
       } else {
+        ColumnType type = defaultColumnType<T>();
+        auto &vec = bigVector<T>();
+        columns_.emplace_back(name, docString, type, vec.size());
         vec.push_back(value);
       }
     }
@@ -146,6 +151,10 @@ namespace nanoaod {
 
     template <typename T>
     static ColumnType defaultColumnType() {
+      if constexpr (std::is_same<T, int>())
+        return ColumnType::IntColumn;
+      if constexpr (std::is_same<T, uint8_t>())
+        return ColumnType::UInt8Column;
       throw cms::Exception("unsupported type");
     }
 
@@ -163,13 +172,11 @@ namespace nanoaod {
     template <typename T>
     typename std::vector<T>::const_iterator beginData(unsigned int column) const {
       const Column &col = columns_[column];
-      check_type<T>(col.type);  // throws if type is wrong
       return bigVector<T>().begin() + col.firstIndex;
     }
     template <typename T>
     typename std::vector<T>::iterator beginData(unsigned int column) {
       const Column &col = columns_[column];
-      check_type<T>(col.type);  // throws if type is wrong
       return bigVector<T>().begin() + col.firstIndex;
     }
 
@@ -189,28 +196,7 @@ namespace nanoaod {
     std::vector<float> floats_;
     std::vector<int> ints_;
     std::vector<uint8_t> uint8s_;
-
-    template <typename T>
-    static void check_type(FlatTable::ColumnType type) {
-      throw cms::Exception("unsupported type");
-    }
   };
-
-  template <>
-  inline void FlatTable::check_type<float>(FlatTable::ColumnType type) {
-    if (type != FlatTable::FloatColumn)
-      throw cms::Exception("mismatched type");
-  }
-  template <>
-  inline void FlatTable::check_type<int>(FlatTable::ColumnType type) {
-    if (type != FlatTable::IntColumn)
-      throw cms::Exception("mismatched type");
-  }
-  template <>
-  inline void FlatTable::check_type<uint8_t>(FlatTable::ColumnType type) {
-    if (type != FlatTable::UInt8Column && type != FlatTable::BoolColumn)
-      throw cms::Exception("mismatched type");
-  }
 
   template <>
   inline const std::vector<float> &FlatTable::bigVector<float>() const {
