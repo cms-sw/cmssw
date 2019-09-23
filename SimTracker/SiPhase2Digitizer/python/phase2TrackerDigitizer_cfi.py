@@ -59,6 +59,47 @@ phase2TrackerDigitizer = cms.PSet(
       0.999, 0.999 ),#Efficiencies kept as Side2Disk1,Side1Disk1 and so on
       CellsToKill = cms.VPSet()
     ),
+#Pixel-3D Digitizer Algorithm
+    Pixel3DDigitizerAlgorithm = cms.PSet(
+      ElectronPerAdc = cms.double(600.0),
+      ReadoutNoiseInElec = cms.double(0.0),
+      ThresholdInElectrons_Barrel = cms.double(1200.0),
+      ThresholdInElectrons_Endcap = cms.double(1200.0),
+      AddThresholdSmearing = cms.bool(False),
+      ThresholdSmearing_Barrel = cms.double(0.0),
+      ThresholdSmearing_Endcap = cms.double(0.0),
+      HIPThresholdInElectrons_Barrel = cms.double(1.0e10), # very high value to avoid Over threshold bit
+      HIPThresholdInElectrons_Endcap = cms.double(1.0e10), # very high value to avoid Over threshold bit
+      NoiseInElectrons = cms.double(0.0),
+      Phase2ReadoutMode = cms.int32(-1), # Flag to decide Readout Mode :Digital(0) or Analog (linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4) with threshold subtraction
+      AdcFullScale = cms.int32(15),
+      TofUpperCut = cms.double(12.5),
+      TofLowerCut = cms.double(-12.5),
+      AddNoisyPixels = cms.bool(False),
+      Alpha2Order = cms.bool(True),			#D.B.: second order effect, does not switch off magnetic field as described
+      AddNoise = cms.bool(False),
+      AddXTalk = cms.bool(False),			#D.B.
+      InterstripCoupling = cms.double(0.0),	#D.B. # No need to be used in PixelDigitizerAlgorithm
+      Odd_row_interchannelCoupling_next_row = cms.double(0.20),
+      Even_row_interchannelCoupling_next_row = cms.double(0.0),
+      Odd_column_interchannelCoupling_next_column = cms.double(0.0),
+      Even_column_interchannelCoupling_next_column = cms.double(0.0),
+      SigmaZero = cms.double(0.00037),  		#D.B.: 3.7um spread for 300um-thick sensor, renormalized in digitizerAlgo
+      SigmaCoeff = cms.double(1.80),  		#D.B.: to be confirmed with simulations in CMSSW_6.X
+      ClusterWidth = cms.double(3),		#D.B.: this is used as number of sigmas for charge collection (3=+-3sigmas)
+      LorentzAngle_DB = cms.bool(True),			
+      TanLorentzAnglePerTesla_Endcap = cms.double(0.106),
+      TanLorentzAnglePerTesla_Barrel = cms.double(0.106),
+      KillModules = cms.bool(False),
+      DeadModules_DB = cms.bool(False),
+      DeadModules = cms.VPSet(),
+      AddInefficiency = cms.bool(False),
+      Inefficiency_DB = cms.bool(False),				
+      EfficiencyFactors_Barrel = cms.vdouble(0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999 ),
+      EfficiencyFactors_Endcap = cms.vdouble(0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 
+      0.999, 0.999 ),#Efficiencies kept as Side2Disk1,Side1Disk1 and so on
+      CellsToKill = cms.VPSet()
+    ),
 #Pixel in PS Module
     PSPDigitizerAlgorithm = cms.PSet(
       ElectronPerAdc = cms.double(135.0),
