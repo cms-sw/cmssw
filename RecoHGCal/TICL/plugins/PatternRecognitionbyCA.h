@@ -21,22 +21,22 @@ namespace ticl {
     void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& result);
 
   private:
-    hgcal::RecHitTools rhtools_;
-    std::unique_ptr<HGCGraph> theGraph_;
-    const bool out_in_dfs_ = false;
-    const unsigned int max_out_in_hops_ = 99999;
-    float min_cos_theta_;
-    float min_cos_pointing_;
-    int missing_layers_;
-    int min_clusters_per_ntuplet_;
-    float max_delta_time_;
-    std::string eidInputName_;
-    std::string eidOutputNameEnergy_;
-    std::string eidOutputNameId_;
-    float eidMinClusterEnergy_;
-    int eidNLayers_;
-    int eidNClusters_;
+    const std::unique_ptr<HGCGraph> theGraph_;
+    const bool out_in_dfs_;
+    const unsigned int max_out_in_hops_;
+    const float min_cos_theta_;
+    const float min_cos_pointing_;
+    const int missing_layers_;
+    const int min_clusters_per_ntuplet_;
+    const float max_delta_time_;
+    const std::string eidInputName_;
+    const std::string eidOutputNameEnergy_;
+    const std::string eidOutputNameId_;
+    const float eidMinClusterEnergy_;
+    const int eidNLayers_;
+    const int eidNClusters_;
 
+    hgcal::RecHitTools rhtools_;
     tensorflow::Session* eidSession_;
 
     static const int eidNFeatures_ = 3;
