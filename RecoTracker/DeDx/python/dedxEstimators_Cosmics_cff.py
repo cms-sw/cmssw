@@ -48,5 +48,5 @@ doAlldEdXEstimatorsCosmicTF = cms.Sequence(doAlldEdXEstimatorsCosmicTFTask)
 doAlldEdXEstimatorsCTFP5LHCTask = cms.Task(dedxTruncated40CTFP5LHC , dedxHitInfoCTFP5LHC , dedxHarmonic2CTFP5LHC)
 doAlldEdXEstimatorsCTFP5LHC = cms.Sequence(doAlldEdXEstimatorsCTFP5LHCTask)
 
-doAllCosmicdEdXEstimatorsTask = cms.Task( doAlldEdXEstimatorsCTF , doAlldEdXEstimatorsCosmicTF , doAlldEdXEstimatorsCTFP5LHC)
+doAllCosmicdEdXEstimatorsTask = cms.Task( doAlldEdXEstimatorsCTFTask , doAlldEdXEstimatorsCosmicTFTask , doAlldEdXEstimatorsCTFP5LHCTask)
 doAllCosmicdEdXEstimators = cms.Sequence(doAllCosmicdEdXEstimatorsTask)
