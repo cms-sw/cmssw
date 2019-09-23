@@ -13,16 +13,9 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
-#include <string>
-
 #include <cassert>
 
 using namespace cms;
-using namespace std;
 
 RPCNumberingScheme::RPCNumberingScheme(const MuonConstants& muonConstants) { initMe(muonConstants); }
 
@@ -52,7 +45,6 @@ void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   }
 
   if (num.getLevels() != maxLevel) {
-    cout << "ATTENTION -from DD4hep RPC NumberingScheme - num.getLevels not equal to maxLevel - ABORT RUN" << endl;
     abort();
   }
 

@@ -22,17 +22,11 @@
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include <FWCore/Framework/interface/ESProducer.h>
 
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
-#include <string>
 #include <unordered_map>
 
 #include <memory>
 
 using namespace edm;
-using namespace std;
 
 RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet& p)
     : comp11_{p.getUntrackedParameter<bool>("compatibiltyWith11", true)},
