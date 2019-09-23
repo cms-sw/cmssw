@@ -29,13 +29,6 @@
 #include <TFile.h>
 #include <TH1.h>
 
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
-#include <string>
-
-#include <cmath>
 #include <limits>
 #include <string>
 #include <type_traits>
@@ -205,7 +198,7 @@ void RPCGeometryValidate::compareShape(const GeomDet* det, const float* shape) {
     shapeThickness = shape[3];
   } else {
     LogVerbatim("RPCGeometry") << "Failed to get box or trapezoid from shape";
-    cout << "MYDEBUG: Failed to get box or trapezoid from shape" << endl;
+
     return;
   }
 
@@ -229,7 +222,7 @@ void RPCGeometryValidate::compareShape(const GeomDet* det, const float* shape) {
     thickness = det->surface().bounds().thickness() * 0.5;
   } else {
     LogVerbatim("RPCGeometry") << "Failed to get bounds";
-    cout << "MYDEBUG: Failed to get bounds" << endl;
+
     return;
   }
   topWidths_.push_back(fabs(shapeTopWidth - topWidth));

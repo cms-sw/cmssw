@@ -35,17 +35,9 @@
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "Geometry/MuonNumbering/interface/DD4hep_RPCNumberingScheme.h"
 
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <iomanip>
-#include <iostream>
-#include <string>
-
 #include "DataFormats/Math/interface/CMSUnits.h"
 
 using namespace cms_units::operators;
-using namespace std;
 
 RPCGeometryBuilderFromDDD::RPCGeometryBuilderFromDDD(bool comp11) : theComp11Flag(comp11) {}
 

@@ -4,14 +4,6 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
-#include <string>
-
-using namespace std;
-
 //#define LOCAL_DEBUG
 
 RPCNumberingScheme::RPCNumberingScheme(const MuonDDDConstants& muonConstants) { initMe(muonConstants); }
@@ -42,13 +34,6 @@ void RPCNumberingScheme::initMe(const MuonDDDConstants& muonConstants) {
 }
 
 int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
-  const int mylevel = num.getLevels();
-  //cout<<"------------myDEBUG DDD-------------------------------------------"<<endl;
-  // cout<<"RPCNumberingScheme.cc: levels "<<num.getLevels()<<endl;
-  //cout<<"RPCNumberingScheme.cc: superNo "<<num.getSuperNo(mylevel)<<endl;
-  //cout<<"RPCNumberingScheme.cc: baseNo "<<num.getBaseNo(mylevel)<<endl;
-  //cout<<"---------------------------------------------------------------------"<<endl;
-
 #ifdef LOCAL_DEBUG
   edm::LogVerbatim("RPCNumberingScheme") << "RPCNumbering " << num.getLevels();
   for (int level = 1; level <= num.getLevels(); level++) {
@@ -57,21 +42,17 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 #endif
 
   const int barrel = num.getSuperNo(theRegionLevel);
-  // cout<<"DDD RPCNumberingScheme.cc: barrel "<<barrel<<endl;
   bool barrel_muon = (barrel == 1);
   int maxLevel;
   if (barrel_muon) {
     maxLevel = theBChamberLevel;
-    //  cout<<"(if) DDD RPCNumberingScheme.cc: maxLevel "<<maxLevel<<endl;
   } else {
     maxLevel = theERollLevel;
-    // cout<<"(else) DDD RPCNumberingScheme.cc: maxLevel "<<maxLevel<<endl;
   }
 
   if (num.getLevels() != maxLevel) {
     edm::LogWarning("RPCNumberingScheme")
         << "RPCNumberingScheme::BNToUN: BaseNumber has " << num.getLevels() << " levels, need " << maxLevel;
-    // cout<<"ATTENTION -from DDD RPC NumberingScheme - num.getLevels not equal to maxLevel - return 0"<<endl;
     return 0;
   }
 
