@@ -39,13 +39,6 @@
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 
-class PropagatorWithMaterial;
-class KFUpdator;
-class PixelHitMatcher_;
-class MeasurementTracker;
-class NavigationSchool;
-class TrackerTopology;
-
 class ElectronSeedGenerator {
 public:
   struct Tokens {
@@ -74,22 +67,7 @@ private:
   void seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster,
                             float hoe1,
                             float hoe2,
-                            reco::ElectronSeedCollection& out,
-                            const TrackerTopology* tTopo);
-  void seedsFromRecHits(std::vector<std::pair<RecHitWithDist, ConstRecHitPointer> >& elePixelHits,
-                        PropagationDirection& dir,
-                        const GlobalPoint& vertexPos,
-                        const reco::ElectronSeed::CaloClusterRef& cluster,
-                        reco::ElectronSeedCollection& out,
-                        bool positron);
-  void seedsFromTrajectorySeeds(const std::vector<SeedWithInfo>& elePixelSeeds,
-                                const reco::ElectronSeed::CaloClusterRef& cluster,
-                                float hoe1,
-                                float hoe2,
-                                reco::ElectronSeedCollection& out,
-                                bool positron);
-  void addSeed(reco::ElectronSeed& seed, const SeedWithInfo* info, bool positron, reco::ElectronSeedCollection& out);
-  bool prepareElTrackSeed(ConstRecHitPointer outerhit, ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
+                            reco::ElectronSeedCollection& out);
 
   const bool dynamicPhiRoad_;
   edm::Handle<std::vector<reco::Vertex> > vertices_;

@@ -230,12 +230,14 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   }
 
   // store the accumulated result
+#ifdef EDM_ML_DEBUG
   for (auto const& seed : *seeds) {
     SuperClusterRef superCluster = seed.caloCluster().castTo<SuperClusterRef>();
     LogDebug("ElectronSeedProducer") << "new seed with " << seed.nHits() << " hits"
                                      << ", charge " << seed.getCharge() << " and cluster energy "
                                      << superCluster->energy() << " PID " << superCluster.id();
   }
+#endif
   e.put(std::move(seeds));
   if (fromTrackerSeeds_ && prefilteredSeeds_)
     delete theInitialSeedColl;
