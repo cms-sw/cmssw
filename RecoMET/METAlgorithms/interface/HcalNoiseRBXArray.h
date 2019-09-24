@@ -4,7 +4,7 @@
 //
 // HcalNoiseRBXArray.h
 //
-//   description: A boost::array of 72 HcalNoiseRBXs designed to simply search/sorting of elements
+//   description: A std::array of 72 HcalNoiseRBXs designed to simply search/sorting of elements
 //                Automatically labels each RBX individually, and provides O(1) searching tools
 //
 //
@@ -12,7 +12,6 @@
 //
 //
 
-#include "boost/array.hpp"
 
 #include "DataFormats/METReco/interface/HcalNoiseHPD.h"
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
@@ -21,10 +20,11 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "RecoMET/METAlgorithms/interface/HcalHPDRBXMap.h"
+#include <array>
 
 namespace reco {
 
-  class HcalNoiseRBXArray : public boost::array<HcalNoiseRBX, HcalHPDRBXMap::NUM_RBXS> {
+  class HcalNoiseRBXArray : public std::array<HcalNoiseRBX, HcalHPDRBXMap::NUM_RBXS> {
   public:
     // constructor/destructor
     HcalNoiseRBXArray();
