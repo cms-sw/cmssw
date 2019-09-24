@@ -133,7 +133,7 @@ protected:
   }
 
 private:
-  typedef boost::array<std::shared_ptr<Item>, N> StoredArray;
+  typedef std::array<std::shared_ptr<Item>, N> StoredArray;
 
   HcalItemArrayColl<Item, N> coll_;
   HcalIndexLookup lookup_;

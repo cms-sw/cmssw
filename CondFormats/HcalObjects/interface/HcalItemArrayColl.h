@@ -4,7 +4,6 @@
 #include <memory>
 #include <array>
 
-#include "boost/array.hpp"
 #include "boost/serialization/access.hpp"
 #include "boost/serialization/version.hpp"
 #include "boost/serialization/shared_ptr.hpp"
@@ -76,7 +75,7 @@ public:
   inline bool operator!=(const HcalItemArrayColl& r) const { return !(*this == r); }
 
 private:
-  typedef boost::array<std::shared_ptr<Item>, N> StoredArray;
+  typedef std::array<std::shared_ptr<Item>, N> StoredArray;
   std::vector<StoredArray> data_;
 
   friend class boost::serialization::access;

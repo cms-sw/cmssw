@@ -12,6 +12,8 @@
 #endif
 #include "CondFormats/HcalObjects/interface/AbsHcalFunctor.h"
 
+#include <array>
+
 class HFPhase1PMTData {
 public:
   // Functor enum for the cut shapes
@@ -26,7 +28,7 @@ public:
     ASYMM_MAX,    // Maximum allowed asymmetry
     N_PMT_CUTS
   };
-  typedef boost::array<std::shared_ptr<AbsHcalFunctor>, N_PMT_CUTS> Cuts;
+  typedef std::array<std::shared_ptr<AbsHcalFunctor>, N_PMT_CUTS> Cuts;
 
   // Dummy constructor, to be used for deserialization only
   inline HFPhase1PMTData() : minCharge0_(0.0), minCharge1_(0.0), minChargeAsymm_(0.0) {}
