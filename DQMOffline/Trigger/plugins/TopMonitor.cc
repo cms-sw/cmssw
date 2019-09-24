@@ -119,7 +119,7 @@ TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
       MHTcut_(iConfig.getParameter<double>("MHTcut")),
       invMassCutInAllMuPairs_(iConfig.getParameter<bool>("invMassCutInAllMuPairs")),
       enablePhotonPlot_(iConfig.getParameter<bool>("enablePhotonPlot")),
-      enableMETplot_(iConfig.getParameter<bool>("enableMETplot")) {
+      enableMETPlot_(iConfig.getParameter<bool>("enableMETPlot")) {
   ObjME empty;
 
   muPhi_ = std::vector<ObjME>(nmuons_, empty);
@@ -198,7 +198,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   std::string currentFolder = folderName_;
   ibooker.setCurrentFolder(currentFolder);
 
-  if (enableMETplot_) {
+  if (enableMETPlot_) {
     histname = "met";
     histtitle = "PFMET";
     bookME(ibooker, metME_, histname, histtitle, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax);
@@ -730,7 +730,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken(metToken_, metHandle);
-  if ((not metHandle.isValid()) && enableMETplot_) {
+  if ((not metHandle.isValid()) && enableMETPlot_) {
     edm::LogWarning("TopMonitor") << "MET handle not valid \n";
     return;
   }
@@ -738,8 +738,8 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   double met_pt(-99.);
   double met_phi(-99.);
 
-  if (enableMETplot_) {
-    reco::PFMET pfmet = metHandle->front();
+  if (enableMETPlot_) {
+    const reco::PFMET& pfmet = metHandle->front();
 
     if (!metSelection_(pfmet)) {
       return;
@@ -1005,7 +1005,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   // numerator condition
   const bool trg_passed = (num_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->accept(iEvent, iSetup));
 
-  if (enableMETplot_) {
+  if (enableMETPlot_) {
     metME_.fill(trg_passed, met_pt);
     metME_variableBinning_.fill(trg_passed, met_pt);
     metPhiME_.fill(trg_passed, met_phi);
@@ -1189,7 +1189,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<double>("MHTcut", -1);
   desc.add<bool>("invMassCutInAllMuPairs", false);
   desc.add<bool>("enablePhotonPlot", false);
-  desc.add<bool>("enableMETplot", false);
+  desc.add<bool>("enableMETPlot", false);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");

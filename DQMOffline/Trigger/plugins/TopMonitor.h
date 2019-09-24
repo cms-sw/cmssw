@@ -244,7 +244,7 @@ private:
   bool invMassCutInAllMuPairs_;
 
   bool enablePhotonPlot_;
-  bool enableMETplot_;
+  bool enableMETPlot_;
 };
 
 #endif  // DQMOffline_Trigger_TopMonitor_h

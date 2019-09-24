@@ -76,7 +76,7 @@ hltTOPmonitoring.histoPSet.HTBinning2D  = [0,20,40,70,100,150,200,400,700]
 hltTOPmonitoring.histoPSet.phiBinning2D = [-3.1416,-1.8849,-0.6283,0.6283,1.8849,3.1416]
 
 hltTOPmonitoring.enablePhotonPlot = False
-hltTOPmonitoring.enableMETplot = False
+hltTOPmonitoring.enableMETPlot = False
 
 hltTOPmonitoring.applyLeptonPVcuts = False
 hltTOPmonitoring.leptonPVcuts.dxy = 9999.
