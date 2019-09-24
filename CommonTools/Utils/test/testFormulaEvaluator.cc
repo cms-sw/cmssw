@@ -745,7 +745,7 @@ void testFormulaEvaluator::checkFormulaEvaluator() {
     CPPUNIT_ASSERT(f.evaluate(emptyV, emptyV) == TMath::TanH(0.5));
   }
 
-  // std::acosh and std::atanh are using delta fabs instead of equality because gcc compute the value differently at compile time. 
+  // std::acosh and std::atanh are using delta fabs instead of equality because gcc compute the value differently at compile time.
   {
     reco::FormulaEvaluator f("acosh(2.0)");
 
