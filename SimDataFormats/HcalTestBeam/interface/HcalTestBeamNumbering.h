@@ -6,7 +6,6 @@
 // Description: Numbering scheme for high granularity calorimeter (SIM step)
 ///////////////////////////////////////////////////////////////////////////////
 
-
 class HcalTestBeamNumbering {
 public:
   static const int kHcalBeamXValueOffset = 0;

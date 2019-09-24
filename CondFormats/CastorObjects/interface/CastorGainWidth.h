@@ -9,7 +9,6 @@ POOL object to store GainWidth values 4xCapId
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class CastorGainWidth {
 public:
   /// get value for all capId = 0..3

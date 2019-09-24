@@ -37,7 +37,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 class SiPixelPhase1Summary : public DQMEDHarvester {
 public:
   explicit SiPixelPhase1Summary(const edm::ParameterSet& conf);

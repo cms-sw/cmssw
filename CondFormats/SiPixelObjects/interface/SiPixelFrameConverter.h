@@ -11,7 +11,6 @@
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <cstdint>
 
-
 class SiPixelFrameConverter {
 public:
   typedef sipixelobjects::PixelFEDCabling PixelFEDCabling;

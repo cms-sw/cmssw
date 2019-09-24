@@ -44,7 +44,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"

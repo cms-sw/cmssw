@@ -43,7 +43,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <cstdint>
 
-
 class SiPixelDigiSource : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
 public:
   explicit SiPixelDigiSource(const edm::ParameterSet& conf);

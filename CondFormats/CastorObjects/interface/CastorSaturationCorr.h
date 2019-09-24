@@ -10,7 +10,6 @@ POOL object to store saturation correction values
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class CastorSaturationCorr {
 public:
   CastorSaturationCorr() : mId(0), mSatCorr(0) {}

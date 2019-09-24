@@ -10,7 +10,6 @@ POOL object to store timeslice reco values
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class CastorRecoParam {
 public:
   CastorRecoParam() : mId(0), mFirstSample(0), mSamplesToAdd(0) {}

@@ -14,7 +14,6 @@
 #ifndef SiPixelMonitorTrack_SiPixelTrackResidualModule_h
 #define SiPixelMonitorTrack_SiPixelTrackResidualModule_h
 
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"

@@ -30,7 +30,6 @@
 #include <iomanip>
 #include <cmath>
 
-
 #include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -2642,7 +2641,9 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
         case esObjectType::Tau: {
           objType[jj] = gtTau;
         } break;
-        default: { } break; }
+        default: {
+        } break;
+      }
       condCateg[jj] = CondCalo;
 
     } else if (object.getType() == esObjectType::ETM || object.getType() == esObjectType::ETMHF ||
@@ -2666,7 +2667,9 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
         case esObjectType::TOWERCOUNT: {
           objType[jj] = GlobalObject::gtTowerCount;
         } break;
-        default: { } break; }
+        default: {
+        } break;
+      }
       condCateg[jj] = CondEnergySum;
 
     } else {
@@ -2928,7 +2931,9 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(const tmeventset
         case esObjectType::Tau: {
           objType[jj] = gtTau;
         } break;
-        default: { } break; }
+        default: {
+        } break;
+      }
       condCateg[jj] = CondCalo;
 
     } else if (object.getType() == esObjectType::ETM || object.getType() == esObjectType::ETMHF ||
@@ -2952,7 +2957,9 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(const tmeventset
         case esObjectType::TOWERCOUNT: {
           objType[jj] = GlobalObject::gtTowerCount;
         } break;
-        default: { } break; }
+        default: {
+        } break;
+      }
       condCateg[jj] = CondEnergySum;
 
     } else {

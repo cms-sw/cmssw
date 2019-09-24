@@ -1,7 +1,6 @@
 #ifndef RAWECAL_ECALDCCHEADERBLOCK_H
 #define RAWECAL_ECALDCCHEADERBLOCK_H
 
-
 /** \class EcalDCCHeaderBlock
  *  Container for ECAL specific DCC Header information
  *

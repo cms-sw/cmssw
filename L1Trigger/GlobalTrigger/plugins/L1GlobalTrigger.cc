@@ -21,7 +21,6 @@
 #include <iostream>
 #include <memory>
 
-
 // user include files
 //#include
 //"DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"

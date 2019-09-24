@@ -23,7 +23,6 @@
 #include <fstream>
 #include <iomanip>
 
-
 // user include files
 // base class
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtXmlParserTags.h"
@@ -457,9 +456,7 @@ std::string L1GtTriggerMenuXmlParser::getXMLTextValue(XERCES_CPP_NAMESPACE::DOMN
  * @return true if conversion succeeded, false if an error occurred.
  */
 
-bool L1GtTriggerMenuXmlParser::hexString2UInt128(const std::string& hexString,
-                                                 uint64_t& dstL,
-                                                 uint64_t& dstH) {
+bool L1GtTriggerMenuXmlParser::hexString2UInt128(const std::string& hexString, uint64_t& dstL, uint64_t& dstH) {
   // string to determine start of hex value, do not ignore leading zeros
   static const std::string valid_hex_start("0123456789ABCDEFabcdef");
 

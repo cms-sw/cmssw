@@ -1,7 +1,6 @@
 #ifndef L1GCTLUT_H_
 #define L1GCTLUT_H_
 
-
 #include <iomanip>
 #include <sstream>
 #include <cstdint>

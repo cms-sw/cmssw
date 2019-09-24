@@ -2,7 +2,6 @@
 #ifndef DataFormats_Common_ConditionsInEdm_h
 #define DataFormats_Common_ConditionsInEdm_h
 
-
 namespace edm {
 
   class ConditionsInLumiBlock {

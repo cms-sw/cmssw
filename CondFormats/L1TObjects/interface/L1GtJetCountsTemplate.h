@@ -23,7 +23,6 @@
 #include <string>
 #include <iosfwd>
 
-
 // user include files
 
 //   base class

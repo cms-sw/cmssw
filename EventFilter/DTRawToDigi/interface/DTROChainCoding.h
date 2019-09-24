@@ -12,7 +12,6 @@
 #include <vector>
 #include <cstdint>
 
-
 /// FIXEME:
 /*
   A major problem is the numbering of the

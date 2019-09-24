@@ -22,7 +22,6 @@
 
 #include <ostream>
 
-
 // user include files
 //   base class
 

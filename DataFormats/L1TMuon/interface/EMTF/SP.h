@@ -3,7 +3,6 @@
 #ifndef __l1t_emtf_SP_h__
 #define __l1t_emtf_SP_h__
 
-
 #include <vector>
 #include <cstdint>
 

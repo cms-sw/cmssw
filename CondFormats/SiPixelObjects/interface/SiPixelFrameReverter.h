@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <cstdint>
 
-
 class SiPixelFedCablingMap;
 
 class SiPixelFrameReverter {

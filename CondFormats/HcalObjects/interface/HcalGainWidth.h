@@ -12,7 +12,6 @@ $Revision: 1.5 $
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class HcalGainWidth {
 public:
   /// get value for all capId = 0..3

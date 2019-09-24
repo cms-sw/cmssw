@@ -23,7 +23,6 @@
 #include <string>
 #include <vector>
 
-
 // user include files
 
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"

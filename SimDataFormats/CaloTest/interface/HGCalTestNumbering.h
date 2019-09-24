@@ -6,7 +6,6 @@
 // Description: Numbering scheme for high granularity calorimeter (SIM step)
 ///////////////////////////////////////////////////////////////////////////////
 
-
 class HGCalTestNumbering {
 public:
   static const int kHGCalCellSOffset = 0;

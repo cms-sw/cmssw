@@ -10,7 +10,6 @@
  *  \author Chung Khim Lae
  */
 
-
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
 #include "DataFormats/GeometryVector/interface/GlobalTag.h"

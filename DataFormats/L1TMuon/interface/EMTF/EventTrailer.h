@@ -4,7 +4,6 @@
 #ifndef __l1t_emtf_EventTrailer_h__
 #define __l1t_emtf_EventTrailer_h__
 
-
 namespace l1t {
   namespace emtf {
     class EventTrailer {

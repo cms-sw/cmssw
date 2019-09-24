@@ -4,7 +4,6 @@
 #ifndef __l1t_emtf_Counters_h__
 #define __l1t_emtf_Counters_h__
 
-
 namespace l1t {
   namespace emtf {
     class Counters {

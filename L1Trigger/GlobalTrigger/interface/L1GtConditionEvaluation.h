@@ -22,7 +22,6 @@
 #include <string>
 #include <vector>
 
-
 // user include files
 
 //   base class
