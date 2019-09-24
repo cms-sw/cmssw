@@ -41,5 +41,4 @@ private:
 
   // ----------member data ---------------------------
   edm::ReusableObjectHolder<HostType> holder_;
-
 };

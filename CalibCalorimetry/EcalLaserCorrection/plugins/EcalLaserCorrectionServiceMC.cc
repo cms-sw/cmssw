@@ -14,16 +14,11 @@
 
 #include "CalibCalorimetry/EcalLaserCorrection/plugins/EcalLaserCorrectionServiceMC.h"
 
-EcalLaserCorrectionServiceMC::EcalLaserCorrectionServiceMC(const edm::ParameterSet& fConfig)
-    : ESProducer()
-{
-
+EcalLaserCorrectionServiceMC::EcalLaserCorrectionServiceMC(const edm::ParameterSet& fConfig) : ESProducer() {
   setWhatProduced(this);
-
 }
 
-EcalLaserCorrectionServiceMC::~EcalLaserCorrectionServiceMC() {
-}
+EcalLaserCorrectionServiceMC::~EcalLaserCorrectionServiceMC() {}
 
 //
 // member functions
