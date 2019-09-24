@@ -380,7 +380,6 @@ private:
 
   size_t m_fileIndex;
   std::string m_presentlyOpenFileName;
-  std::string m_previousFileName;
   std::list<unsigned int>::iterator m_nextIndexItr;
   std::list<unsigned int>::iterator m_presentIndexItr;
   std::vector<RunLumiToRange> m_runlumiToRange;
@@ -639,7 +638,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     ++m_presentIndexItr;
 
   edm::Service<edm::JobReport> jr;
-  m_jrToken = jr->inputFileOpened(m_previousFileName,
+  m_jrToken = jr->inputFileOpened(m_presentlyOpenFileName,
                                   m_catalog.logicalFileNames()[m_fileIndex - 1],
                                   std::string(),
                                   std::string(),
@@ -762,7 +761,6 @@ bool DQMRootSource::setupFile(unsigned int iIndex) {
   auto fallbackFileName = m_catalog.fallbackFileNames()[iIndex];
   bool hasFallback = !fallbackFileName.empty() && fallbackFileName != m_catalog.fileNames()[iIndex];
 
-  m_previousFileName = m_presentlyOpenFileName;
   m_presentlyOpenFileName.clear();
   m_file.reset();
 
