@@ -41,8 +41,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
 
 class SiPixelDigiSource : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
 public:

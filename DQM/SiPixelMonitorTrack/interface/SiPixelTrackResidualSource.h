@@ -16,7 +16,6 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM
 
-#include <boost/cstdint.hpp>
 
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelTrackResidualModule.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -45,6 +44,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include <cstdint>
 
 class SiPixelTrackResidualSource : public DQMEDAnalyzer {
 public:

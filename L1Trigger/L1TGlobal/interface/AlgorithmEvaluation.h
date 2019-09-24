@@ -29,7 +29,6 @@
 #include <stack>
 #include <queue>
 
-#include <boost/cstdint.hpp>
 
 // if hash map is used
 

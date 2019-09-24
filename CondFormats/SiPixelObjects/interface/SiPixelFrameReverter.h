@@ -10,8 +10,8 @@
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
 
 class SiPixelFedCablingMap;
 

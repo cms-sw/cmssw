@@ -8,7 +8,6 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "boost/cstdint.hpp"
 #include <vector>
 
 #endif  // SIPIXELDIGI_CLASSES_H

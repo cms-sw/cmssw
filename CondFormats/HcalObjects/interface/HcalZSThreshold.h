@@ -8,8 +8,8 @@ contains one threshold + corresponding DetId
 */
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
 
 class HcalZSThreshold {
 public:

@@ -46,8 +46,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
 
 class SiPixelRecHitSource : public DQMEDAnalyzer {
 public:

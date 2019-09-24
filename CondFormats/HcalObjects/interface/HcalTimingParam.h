@@ -2,8 +2,8 @@
 #define HcalTimingParam_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
 
 class HcalTimingParam {
 public:

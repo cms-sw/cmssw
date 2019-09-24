@@ -1,8 +1,8 @@
 #ifndef ECALEBTRIGGERPRIMITIVESAMPLE_H
 #define ECALEBTRIGGERPRIMITIVESAMPLE_H 1
 
-#include <boost/cstdint.hpp>
 #include <ostream>
+#include <cstdint>
 
 
 

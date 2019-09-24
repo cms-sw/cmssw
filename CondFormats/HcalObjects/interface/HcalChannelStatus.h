@@ -8,8 +8,8 @@ contains one channel status and corresponding DetId
 */
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
 
 class HcalChannelStatus {
 public:

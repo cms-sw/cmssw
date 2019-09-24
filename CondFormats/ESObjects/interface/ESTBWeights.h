@@ -4,7 +4,6 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <map>
-#include <boost/cstdint.hpp>
 #include "CondFormats/ESObjects/interface/ESStripGroupId.h"
 #include "CondFormats/ESObjects/interface/ESWeightSet.h"
 

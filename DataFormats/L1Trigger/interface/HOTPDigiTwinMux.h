@@ -1,9 +1,9 @@
 #ifndef DataFormats_L1Trigger_HOTPDigiTwinMux_h
 #define DataFormats_L1Trigger_HOTPDigiTwinMux_h
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include <cstdint>
 
 /** \class HOTPDigiTwinMux
   *  Simple container packer/unpacker for HO TriggerPrimittive in TwinMUX

@@ -4,9 +4,9 @@
 #include "CondFormats/SiStripObjects/interface/CommissioningAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
-#include <boost/cstdint.hpp>
 #include <sstream>
 #include <vector>
+#include <cstdint>
 
 /**
    @class SamplingAnalysis

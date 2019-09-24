@@ -9,8 +9,8 @@
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
 
 class SiPixelFrameConverter {
 public:

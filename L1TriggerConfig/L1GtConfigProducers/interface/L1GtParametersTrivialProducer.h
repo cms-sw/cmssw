@@ -19,7 +19,6 @@
 #include <memory>
 #include <vector>
 
-#include <boost/cstdint.hpp>
 
 // user include files
 //   base class
@@ -29,6 +28,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
+#include <cstdint>
 
 // forward declarations
 
@@ -51,10 +51,10 @@ private:
   int m_totalBxInEvent;
 
   /// active boards in the L1 DAQ record
-  boost::uint16_t m_daqActiveBoards;
+  uint16_t m_daqActiveBoards;
 
   /// active boards in the L1 EVM record
-  boost::uint16_t m_evmActiveBoards;
+  uint16_t m_evmActiveBoards;
 
   /// number of Bx per board in the DAQ record
   std::vector<int> m_daqNrBxBoard;
