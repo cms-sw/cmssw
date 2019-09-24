@@ -796,7 +796,7 @@ bool DQMRootSource::setupFile(unsigned int iIndex) {
         throw ex;
       }
     }
-    originalInfo = e.additionalInfo(); // save in case of fallback error
+    originalInfo = e.additionalInfo();  // save in case of fallback error
     newFile.reset();
   }
   if (newFile && not newFile->IsZombie()) {
@@ -834,10 +834,9 @@ bool DQMRootSource::setupFile(unsigned int iIndex) {
       } else {
         edm::Exception ex(edm::errors::FileOpenError, "", e);
         ex.addContext("Opening DQM Root file");
-        ex << "\nInput file " << m_catalog.fileNames()[iIndex]
-           << " and fallback input file " << fallbackFileName
+        ex << "\nInput file " << m_catalog.fileNames()[iIndex] << " and fallback input file " << fallbackFileName
            << " were not found, could not be opened, or are corrupted.\n";
-        for (auto const & s : originalInfo) {
+        for (auto const& s : originalInfo) {
           ex.addAdditionalInfo(s);
         }
         throw ex;
@@ -851,11 +850,10 @@ bool DQMRootSource::setupFile(unsigned int iIndex) {
         return false;
       } else {
         edm::Exception ex(edm::errors::FileOpenError);
-        ex << "Input file " << m_catalog.fileNames()[iIndex]
-           << " and fallback input file " << fallbackFileName
+        ex << "Input file " << m_catalog.fileNames()[iIndex] << " and fallback input file " << fallbackFileName
            << " could not be opened.\n";
         ex.addContext("Opening DQM Root file");
-        for (auto const & s : originalInfo) {
+        for (auto const& s : originalInfo) {
           ex.addAdditionalInfo(s);
         }
         throw ex;
