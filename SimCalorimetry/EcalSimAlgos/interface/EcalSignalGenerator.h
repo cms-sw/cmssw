@@ -48,6 +48,8 @@
 #include <iostream>
 #include <memory>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 namespace edm {
   class ModuleCallingContext;
 }
@@ -188,7 +190,7 @@ public:
       //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
       //
     } else {
-      std::cout << " theEventPrincipal not defined??? " << std::endl;
+      edm::LogError("EcalSignalGenerator") << " theEventPrincipal not defined??? " << std::endl;
     }
     m_iTime = eventTimeValue;
     m_lasercals = laser.product();

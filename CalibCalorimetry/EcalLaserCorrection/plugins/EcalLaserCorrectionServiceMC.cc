@@ -16,28 +16,13 @@
 
 EcalLaserCorrectionServiceMC::EcalLaserCorrectionServiceMC(const edm::ParameterSet& fConfig)
     : ESProducer()
-//    mDumpRequest (),
-//    mDumpStream(0)
 {
-  //the following line is needed to tell the framework what
-  // data is being produced
-  //  setWhatProduced (this, (dependsOn (&EcalLaserCorrectionServiceMC::apdpnCallback)));
 
   setWhatProduced(this);
 
-  //now do what ever other initialization is needed
-
-  //  mDumpRequest = fConfig.getUntrackedParameter <std::vector <std::string> > ("dump", std::vector<std::string>());
-  //  if (!mDumpRequest.empty()) {
-  //    std::string otputFile = fConfig.getUntrackedParameter <std::string> ("file", "");
-  //    mDumpStream = otputFile.empty () ? &std::cout : new std::ofstream (otputFile.c_str());
-  //  }
 }
 
 EcalLaserCorrectionServiceMC::~EcalLaserCorrectionServiceMC() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  //  if (mDumpStream != &std::cout) delete mDumpStream;
 }
 
 //

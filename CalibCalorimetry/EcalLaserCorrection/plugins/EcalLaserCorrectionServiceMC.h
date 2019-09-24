@@ -42,6 +42,4 @@ private:
   // ----------member data ---------------------------
   edm::ReusableObjectHolder<HostType> holder_;
 
-  //  std::vector<std::string> mDumpRequest;
-  //  std::ostream* mDumpStream;
 };
