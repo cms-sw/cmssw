@@ -28,6 +28,8 @@
 <bin   file="DetSetNewTS_t.cpp">
   <flags CXXFLAGS="-fopenmp"/>
 </bin>
+<bin   file="SmartVector_t.cpp">
+</bin>
 <bin   file="MapOfVectors_t.cpp">
 </bin>
 <bin   file="exDSTV.cpp">

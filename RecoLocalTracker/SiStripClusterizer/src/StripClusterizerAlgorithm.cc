@@ -56,6 +56,7 @@ void StripClusterizerAlgorithm::initialize(const edm::EventSetup& es) {
         detIds.push_back(c.first);
     }
     indices.clear();
+    dets.clear();
     indices.resize(detIds.size());
     COUT << "good detIds " << detIds.size() << std::endl;
 
@@ -155,42 +156,53 @@ void StripClusterizerAlgorithm::initialize(const edm::EventSetup& es) {
       assert(nn <= dum.size());
       COUT << "gain " << dum.size() << " " << nn << std::endl;
     }
+    fillDets();
+    COUT << "dets " << dets.size() << std::endl;
+
   }
 }
 
-StripClusterizerAlgorithm::Det StripClusterizerAlgorithm::findDetId(const uint32_t id) const {
+StripClusterizerAlgorithm::Det const & StripClusterizerAlgorithm::findDetId(const uint32_t id) const {
   auto b = detIds.begin();
   auto e = detIds.end();
   auto p = std::lower_bound(b, e, id);
   if (p == e || id != (*p)) {
 #ifdef NOT_ON_MONTECARLO
-    edm::LogWarning("StripClusterizerAlgorithm") << "id " << id << " not connected. this is impossible on data "
-                                                 << "old id " << detId << std::endl;
+    edm::LogWarning("StripClusterizerAlgorithm") << "id " << id << " not connected. this is impossible on data " << std::endl;
 #endif
-    return Det();
+    static const Det dummy = Det();
+    return dummy;
   }
-  Det det;
-  det.ind = p - detIds.begin();
+  return dets[p - detIds.begin()];
+}
 
-  det.detId = id;
-  det.noiseRange = noiseHandle->getRangeByPos(indices[det.ind].ni);
-  det.gainRange = gainHandle->getRangeByPos(indices[det.ind].gi);
-  det.qualityRange = qualityHandle->getRangeByPos(indices[det.ind].qi);
-  det.quality = qualityHandle.product();
+void StripClusterizerAlgorithm::fillDets() {
+  dets.resize(detIds.size());
+  for (int i=0, ni=detIds.size(); i<ni; ++i) {
+    auto id = detIds[i];
+    auto & det = dets[i];
+    det.ind = i;
+    det.detId = id;
+    det.noiseRange = noiseHandle->getRangeByPos(indices[det.ind].ni);
+    det.qualityRange = qualityHandle->getRangeByPos(indices[det.ind].qi);
+    det.quality = qualityHandle.product();
 
+    auto gainRange = gainHandle->getRangeByPos(indices[det.ind].gi);
+    int s = gainRange.second-gainRange.first;
+    assert(s==4 || s==6);
+    for (int ic=0; ic<s; ++ic)
+      det.m_weight[ic] = 1.f/(*(gainRange.first+ic));
 #ifdef EDM_ML_DEBUG
-  assert(detIds[det.ind] == det.detId);
-  auto oldg = gainHandle->getRange(id);
-  assert(oldg == det.gainRange);
-  auto oldn = noiseHandle->getRange(id);
-  assert(oldn == det.noiseRange);
-  auto oldq = qualityHandle->getRange(id);
-  assert(oldq == det.qualityRange);
+    assert(detIds[det.ind] == det.detId);
+    auto oldn = noiseHandle->getRange(id);
+    assert(oldn == det.noiseRange);
+    auto oldq = qualityHandle->getRange(id);
+    assert(oldq == det.qualityRange);
 #endif
 #ifdef EDM_ML_DEBUG
-  assert(isModuleUsable(id));
+    assert(isModuleUsable(id));
 #endif
-  return det;
+  }
 }
 
 void StripClusterizerAlgorithm::clusterize(const edm::DetSetVector<SiStripDigi>& input, output_t& output) const {

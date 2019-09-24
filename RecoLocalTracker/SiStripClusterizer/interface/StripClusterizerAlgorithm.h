@@ -24,8 +24,9 @@ public:
   // state of detID
   struct Det {
     bool valid() const { return ind != invalidI; }
+    uint16_t rawNoise(const uint16_t& strip) const { return SiStripNoises::getRawNoise(strip, noiseRange); }
     float noise(const uint16_t& strip) const { return SiStripNoises::getNoise(strip, noiseRange); }
-    float gain(const uint16_t& strip) const { return SiStripGain::getStripGain(strip, gainRange); }
+    float weight(const uint16_t& strip) const { return m_weight[strip/128];}
     bool bad(const uint16_t& strip) const { return quality->IsStripBad(qualityRange, strip); }
     bool allBadBetween(uint16_t L, const uint16_t& R) const {
       while (++L < R && bad(L)) {
@@ -33,16 +34,16 @@ public:
       return L == R;
     }
     SiStripQuality const* quality;
-    SiStripApvGain::Range gainRange;
     SiStripNoises::Range noiseRange;
     SiStripQuality::Range qualityRange;
+    float m_weight[6];
     uint32_t detId = 0;
     unsigned short ind = invalidI;
   };
 
   //state of the candidate cluster
   struct State {
-    State(Det const& idet) : m_det(idet) { ADCs.reserve(128); }
+    State(Det const& idet) : m_det(idet) { ADCs.reserve(8); }
     Det const& det() const { return m_det; }
     std::vector<uint8_t> ADCs;
     uint16_t lastStrip = 0;
@@ -60,11 +61,11 @@ public:
   typedef edmNew::DetSetVector<SiStripCluster> output_t;
   void clusterize(const edm::DetSetVector<SiStripDigi>&, output_t&) const;
   void clusterize(const edmNew::DetSetVector<SiStripDigi>&, output_t&) const;
-  virtual void clusterizeDetUnit(const edm::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const = 0;
-  virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const = 0;
+  virtual void clusterizeDetUnit(const edm::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const {}
+  virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const {}
 
   //HLT stripByStrip interface
-  virtual Det stripByStripBegin(uint32_t id) const = 0;
+  Det const & stripByStripBegin(uint32_t id) const {return findDetId(id);}
 
   virtual void addFed(Det const& det,
                       sistrip::FEDZSChannelUnpacker& unpacker,
@@ -87,6 +88,7 @@ public:
 
   SiStripDetCabling const* cabling() const { return theCabling; }
   std::vector<uint32_t> const& allDetIds() const { return detIds; }
+  auto const & allDets() const { return dets;}
 
   std::vector<const FedChannelConnection*> const& currentConnection(const Det& det) const {
     return connections[det.ind];
@@ -95,13 +97,16 @@ public:
 protected:
   StripClusterizerAlgorithm() : qualityLabel(""), noise_cache_id(0), gain_cache_id(0), quality_cache_id(0) {}
 
-  Det findDetId(const uint32_t) const;
+  Det const & findDetId(const uint32_t) const;
   bool isModuleBad(const uint32_t& id) const { return qualityHandle->IsModuleBad(id); }
   bool isModuleUsable(const uint32_t& id) const { return qualityHandle->IsModuleUsable(id); }
 
   std::string qualityLabel;
 
 private:
+ 
+  void fillDets();
+
   template <class T>
   void clusterize_(const T& input, output_t& output) const {
     for (typename T::const_iterator it = input.begin(); it != input.end(); it++) {
@@ -116,6 +121,7 @@ private:
     unsigned short gi = invalidI, ni = invalidI, qi = invalidI;
   };
   std::vector<uint32_t> detIds;  // from cabling (connected and not bad)
+  std::vector<Det> dets;
   std::vector<std::vector<const FedChannelConnection*> > connections;
   std::vector<Index> indices;
   edm::ESHandle<SiStripGain> gainHandle;
