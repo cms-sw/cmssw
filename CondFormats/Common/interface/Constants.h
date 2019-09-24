@@ -3,7 +3,6 @@
 #include<utility>
 #include <string>
 #include <limits>
-#include <boost/cstdint.hpp>
 
 /* constants other than time used in cond
  */

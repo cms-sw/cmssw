@@ -6,10 +6,10 @@
 #include <vector>
 #include <utility>
 #include <iostream>
-#include <boost/cstdint.hpp>
 
 #include <cassert>
 #include <cstring>
+#include <cstdint>
 
 class TrackerTopology;
 

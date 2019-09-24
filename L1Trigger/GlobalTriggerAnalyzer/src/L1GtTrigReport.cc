@@ -363,7 +363,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
                                    << " has gtFdlVector of size " << fdlVecSize << std::endl;
 
         // get Global Trigger finalOR and the decision word
-        boost::uint16_t gtFinalOR = gtReadoutRecord->finalOR();
+        uint16_t gtFinalOR = gtReadoutRecord->finalOR();
 
         gtDecisionWordBeforeMask = gtReadoutRecord->decisionWord();
         technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();

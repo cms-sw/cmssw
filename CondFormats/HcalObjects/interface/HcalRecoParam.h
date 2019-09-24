@@ -11,8 +11,8 @@ mParam1, mParam2 re-define to keep more parameters   28-Oct-2011  sk.
 */
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
 
 class HcalRecoParam {
 public:

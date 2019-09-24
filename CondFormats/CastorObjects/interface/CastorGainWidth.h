@@ -7,8 +7,8 @@
 POOL object to store GainWidth values 4xCapId
 */
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
 
 class CastorGainWidth {
 public:

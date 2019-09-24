@@ -47,8 +47,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
 
 class SiPixelRawDataErrorSource : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
 public:

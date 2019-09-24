@@ -15,10 +15,10 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "boost/cstdint.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 namespace sistrip {
 

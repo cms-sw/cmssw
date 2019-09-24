@@ -1,3 +1,4 @@
+#include <cstdint>
 #ifndef SimDataFormats_HGCalTestNumbering_h
 #define SimDataFormats_HGCalTestNumbering_h
 ///////////////////////////////////////////////////////////////////////////////
@@ -5,7 +6,6 @@
 // Description: Numbering scheme for high granularity calorimeter (SIM step)
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <boost/cstdint.hpp>
 
 class HGCalTestNumbering {
 public:

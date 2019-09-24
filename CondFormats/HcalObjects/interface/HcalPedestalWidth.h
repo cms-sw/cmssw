@@ -10,8 +10,8 @@ $Date: 2008/11/07 16:05:50 $
 $Revision: 1.9 $
 */
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
 
 class HcalPedestalWidth {
 public:

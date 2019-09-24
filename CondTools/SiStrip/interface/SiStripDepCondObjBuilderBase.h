@@ -2,7 +2,6 @@
 #define CondTools_SiStrip_SiStripDepCondObjBuilderBase_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
 

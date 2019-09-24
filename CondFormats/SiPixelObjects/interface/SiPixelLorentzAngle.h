@@ -6,7 +6,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class SiPixelLorentzAngle {
 public:

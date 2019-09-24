@@ -10,7 +10,6 @@
  *  \author Chung Khim Lae
  */
 
-#include <boost/cstdint.hpp>
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
@@ -20,6 +19,7 @@
 #include "DataFormats/GeometryVector/interface/Vector3DBase.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Vector.h"
+#include <cstdint>
 
 namespace align {
   typedef uint32_t ID;

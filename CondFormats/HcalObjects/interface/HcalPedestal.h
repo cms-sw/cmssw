@@ -10,8 +10,8 @@ $Date: 2007/12/14 13:19:53 $
 $Revision: 1.7 $
 */
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
 
 class HcalPedestal {
 public:

@@ -22,8 +22,8 @@
 
 #include <ostream>
 #include <vector>
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
 
 // user include files
 //   base class
@@ -46,14 +46,14 @@ public:
   void setGtTotalBxInEvent(const int&);
 
   /// get / set the active boards for L1 GT DAQ record
-  inline const boost::uint16_t gtDaqActiveBoards() const { return m_daqActiveBoards; }
+  inline const uint16_t gtDaqActiveBoards() const { return m_daqActiveBoards; }
 
-  void setGtDaqActiveBoards(const boost::uint16_t&);
+  void setGtDaqActiveBoards(const uint16_t&);
 
   /// get / set the active boards for L1 GT EVM record
-  inline const boost::uint16_t gtEvmActiveBoards() const { return m_evmActiveBoards; }
+  inline const uint16_t gtEvmActiveBoards() const { return m_evmActiveBoards; }
 
-  void setGtEvmActiveBoards(const boost::uint16_t&);
+  void setGtEvmActiveBoards(const uint16_t&);
 
   /// get / set the number of Bx per board for L1 GT DAQ record
   inline const std::vector<int>& gtDaqNrBxBoard() const { return m_daqNrBxBoard; }
@@ -81,10 +81,10 @@ private:
   int m_totalBxInEvent;
 
   /// active boards in the L1 DAQ record
-  boost::uint16_t m_daqActiveBoards;
+  uint16_t m_daqActiveBoards;
 
   /// active boards in the L1 EVM record
-  boost::uint16_t m_evmActiveBoards;
+  uint16_t m_evmActiveBoards;
 
   /// number of Bx per board in the DAQ record
   std::vector<int> m_daqNrBxBoard;

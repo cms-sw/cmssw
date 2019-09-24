@@ -39,12 +39,12 @@ L1GtParameters::~L1GtParameters() {
 void L1GtParameters::setGtTotalBxInEvent(const int& totalBxInEventValue) { m_totalBxInEvent = totalBxInEventValue; }
 
 // set active boards for L1 GT DAQ record
-void L1GtParameters::setGtDaqActiveBoards(const boost::uint16_t& activeBoardsValue) {
+void L1GtParameters::setGtDaqActiveBoards(const uint16_t& activeBoardsValue) {
   m_daqActiveBoards = activeBoardsValue;
 }
 
 // set active boards for L1 GT EVM record
-void L1GtParameters::setGtEvmActiveBoards(const boost::uint16_t& activeBoardsValue) {
+void L1GtParameters::setGtEvmActiveBoards(const uint16_t& activeBoardsValue) {
   m_evmActiveBoards = activeBoardsValue;
 }
 

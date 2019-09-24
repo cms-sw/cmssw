@@ -4,9 +4,9 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include <sstream>
+#include <cstdint>
 
 class FedChannelConnection;
 

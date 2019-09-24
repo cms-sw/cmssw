@@ -11,10 +11,10 @@ $Revision: 1.9 $
 */
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <boost/cstdint.hpp>
 
 #include <vector>
 #include <algorithm>
+#include <cstdint>
 
 class HcalQIEShape;
 
