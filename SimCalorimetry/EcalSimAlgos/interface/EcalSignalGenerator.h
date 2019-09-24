@@ -172,7 +172,7 @@ public:
     // Ecal LaserCorrection Constants for laser correction ratio
     edm::ESHandle<EcalLaserDbService> laser;
     eventSetup->get<EcalLaserDbRecord>().get(laser);
-    edm::TimeValue_t eventTimeValue = 0; // needed for warning in compilation time. What should be the default?
+    edm::TimeValue_t eventTimeValue = 0;  // needed for warning in compilation time. What should be the default?
     if (theEventPrincipal) {
       //       eventTimeValue = theEventPrincipal->time().value();
       //
