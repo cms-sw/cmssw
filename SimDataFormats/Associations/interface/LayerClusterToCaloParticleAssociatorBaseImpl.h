@@ -1,10 +1,11 @@
 #ifndef SimDataFormats_Associations_LayerClusterToCaloParticleAssociatorBaseImpl_h
 #define SimDataFormats_Associations_LayerClusterToCaloParticleAssociatorBaseImpl_h
 
-/** \class LayerClusterToCaloParticleAssociatorBaseImpl Base class for
- * LayerClusterToCaloParticleAssociators.  Methods take as input the handle of
- * LayerClusters and the CaloParticle collections and return an AssociationMap
- * (oneToManyWithQuality)
+/** \class LayerClusterToCaloParticleAssociatorBaseImpl
+ *
+ * Base class for LayerClusterToCaloParticleAssociators.  Methods take as input
+ * the handle of LayerClusters and the CaloParticle collections and return an
+ * AssociationMap (oneToManyWithQuality)
  *
  *  \author Marco Rovere
  */

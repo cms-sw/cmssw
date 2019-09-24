@@ -10,6 +10,10 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
+namespace edm {
+  class EDProductGetter;
+}
+
 namespace hgcal {
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster &o) const { return clusterId == o.clusterId; };
@@ -38,7 +42,8 @@ namespace hgcal {
 
 class LayerClusterAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToCaloParticleAssociatorBaseImpl {
 public:
-  explicit LayerClusterAssociatorByEnergyScoreImpl(bool,
+  explicit LayerClusterAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
+                                                   bool,
                                                    std::shared_ptr<hgcal::RecHitTools>,
                                                    const std::map<DetId, const HGCRecHit *> *,
                                                    unsigned);
@@ -54,6 +59,7 @@ private:
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
   const std::map<DetId, const HGCRecHit *> *hitMap_;
   unsigned layers_;
+  edm::EDProductGetter const *productGetter_;
   hgcal::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
                                      const edm::Handle<CaloParticleCollection> &cPCH) const;
 };
