@@ -587,7 +587,7 @@ struct HCalEndcapAlgo {
     std::string name;
     double xpos, ypos, zpos;
     dd4hep::Solid solid;
-    dd4hep::Volume glog, plog;
+    dd4hep::Volume glog;
     for (int iphi = 0; iphi < phiSections; iphi++) {
       double yh, bl, tl, alp;
       parameterLayer0(mod, layer, iphi, yh, bl, tl, alp, xpos, ypos, zpos);
