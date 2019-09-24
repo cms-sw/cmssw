@@ -9,11 +9,16 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 
 LayerClusterAssociatorByEnergyScoreImpl::LayerClusterAssociatorByEnergyScoreImpl(
+    edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
     const std::map<DetId, const HGCRecHit*>* hitMap,
     unsigned layers)
-    : hardScatterOnly_(hardScatterOnly), recHitTools_(recHitTools), hitMap_(hitMap), layers_(layers) {}
+    : hardScatterOnly_(hardScatterOnly),
+      recHitTools_(recHitTools),
+      hitMap_(hitMap),
+      layers_(layers),
+      productGetter_(&productGetter) {}
 
 hgcal::association LayerClusterAssociatorByEnergyScoreImpl::makeConnections(
     const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
