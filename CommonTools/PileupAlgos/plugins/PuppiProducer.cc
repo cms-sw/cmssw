@@ -371,7 +371,7 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
 
   PuppiContainer::fillDescriptionsPuppiContainer(desc);
 
-  descriptions.addDefault(desc);
+  descriptions.add("puppiProducer",desc);
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(PuppiProducer);
