@@ -19,9 +19,6 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig) {
   if (!dbe_) {
     LogWarning("Status") << "unable to get DQMStore service?";
   }
-  if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
-    dbe_->setVerbose(0);
-  }
 
   dirname_ = "HLT/FourVectorHLT";
 

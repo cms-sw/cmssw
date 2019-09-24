@@ -137,7 +137,6 @@ void SiStripCommissioningSource::beginRun(edm::Run const& run, const edm::EventS
   edm::LogInfo(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]"
                              << " DQMStore service: " << dqm_;
   dqm(__func__);
-  dqm()->setVerbose(0);
 
   // ---------- Base directory ----------
 
