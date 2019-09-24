@@ -69,6 +69,10 @@ public:
   */
   HGCDigitizerBase(const edm::ParameterSet& ps);
   /**
+     @short Gaussian Noise Generation Member Function
+  */
+  void GenerateGaussianNoise(CLHEP::HepRandomEngine* engine, const double NoiseMean, const double NoiseStd);
+  /**
     @short steer digitization mode
  */
   void run(std::unique_ptr<DColl>& digiColl,
@@ -150,6 +154,16 @@ protected:
 
   //if set to true, threshold will be computed based on the expected meap peak/2
   bool thresholdFollowsMIP_;
+
+  // New NoiseArray Parameters
+
+  const double NoiseMean_, NoiseStd_;
+  static const size_t NoiseArrayLength_ = 200000;
+  static const size_t samplesize_ = 15;
+  std::array<std::array<double, samplesize_>, NoiseArrayLength_> GaussianNoiseArray_;
+  bool RandNoiseGenerationFlag_;
+  // A parameter configurable from python configuration to decide which noise generation model to use
+  bool NoiseGeneration_Method_;
 };
 
 #endif
