@@ -12,7 +12,6 @@ $Revision: 1.9 $
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class HcalPedestalWidth {
 public:
   /// get value for all capId = 0..3, 10 values in total

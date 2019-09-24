@@ -12,7 +12,6 @@ $Revision: 1.7 $
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class HcalPedestal {
 public:
   /// get value for all capId = 0..3

@@ -49,7 +49,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <cstdint>
 
-
 class SiPixelRawDataErrorSource : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
 public:
   explicit SiPixelRawDataErrorSource(const edm::ParameterSet &conf);

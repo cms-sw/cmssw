@@ -4,7 +4,6 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class EcalTPGFineGrainConstEB {
 public:
   EcalTPGFineGrainConstEB();

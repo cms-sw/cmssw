@@ -20,7 +20,6 @@
 
 #include <vector>
 
-
 // user include files
 //   base class
 #include "FWCore/Framework/interface/ESProducer.h"

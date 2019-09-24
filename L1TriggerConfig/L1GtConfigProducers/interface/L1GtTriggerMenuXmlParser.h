@@ -20,7 +20,6 @@
 #include <string>
 #include <vector>
 
-
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>

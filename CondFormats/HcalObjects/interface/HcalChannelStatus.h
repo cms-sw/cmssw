@@ -10,7 +10,6 @@ contains one channel status and corresponding DetId
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class HcalChannelStatus {
 public:
   // contains the defined bits for easy access, see https://twiki.cern.ch/twiki/bin/view/CMS/HcalDataValidationWorkflow

@@ -48,7 +48,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <cstdint>
 
-
 class SiPixelRecHitSource : public DQMEDAnalyzer {
 public:
   explicit SiPixelRecHitSource(const edm::ParameterSet &conf);

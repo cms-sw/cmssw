@@ -432,7 +432,9 @@ void L1GtBoard::print(std::ostream& myCout) const {
         }
 
         break;
-        default: { myCout << " ERROR: Unknown type " << (*itObj); } break;
+        default: {
+          myCout << " ERROR: Unknown type " << (*itObj);
+        } break;
       }
     }
   }

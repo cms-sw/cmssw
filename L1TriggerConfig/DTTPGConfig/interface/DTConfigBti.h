@@ -29,7 +29,6 @@
 #include "L1TriggerConfig/DTTPGConfig/interface/BitArray.h"
 #include <cstdint>
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------

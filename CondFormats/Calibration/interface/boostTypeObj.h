@@ -3,7 +3,6 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class boostTypeObj {
 public:
   int8_t a;

@@ -12,7 +12,6 @@ Modified for CASTOR by L. Mundim
 */
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-
 #include <vector>
 #include <algorithm>
 #include <cstdint>

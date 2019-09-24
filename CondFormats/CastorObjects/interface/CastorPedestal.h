@@ -13,7 +13,6 @@ Adapted for CASTOR by L. Mundim (26/03/2009)
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class CastorPedestal {
 public:
   /// get value for all capId = 0..3

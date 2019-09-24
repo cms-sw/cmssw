@@ -29,7 +29,6 @@
 #include <stack>
 #include <queue>
 
-
 // if hash map is used
 
 #include <ext/hash_map>

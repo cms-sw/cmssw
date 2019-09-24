@@ -2,7 +2,6 @@
 #ifndef DaqSource_DTFileReaderHelpers_h
 #define DaqSource_DTFileReaderHelpers_h
 
-
 template <class T>
 char* dataPointer(const T* ptr) {
   union bPtr {

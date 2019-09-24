@@ -12,7 +12,6 @@
 
 #include <cstdint>
 
-
 class DTLocalTrigger {
 public:
   /// Constructor

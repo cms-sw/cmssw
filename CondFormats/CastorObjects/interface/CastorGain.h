@@ -10,7 +10,6 @@ POOL object to store Gain values 4xCapId
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class CastorGain {
 public:
   /// get value for all capId = 0..3

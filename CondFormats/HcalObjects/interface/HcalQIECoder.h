@@ -11,7 +11,6 @@ $Revision: 1.9 $
 */
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-
 #include <vector>
 #include <algorithm>
 #include <cstdint>

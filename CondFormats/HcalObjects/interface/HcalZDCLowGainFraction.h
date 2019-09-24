@@ -10,7 +10,6 @@ POOL object to store lowGainFrac values
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class HcalZDCLowGainFraction {
 public:
   HcalZDCLowGainFraction() : mId(0), mValue(0) {}

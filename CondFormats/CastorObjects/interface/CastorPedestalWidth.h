@@ -13,7 +13,6 @@ Adapted for CASTOR by L. Mundim
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class CastorPedestalWidth {
 public:
   /// get value for all capId = 0..3, 10 values in total

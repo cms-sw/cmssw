@@ -2,7 +2,6 @@
 #ifndef RecoLocalCalo_HcalRecAlgos_rawEnergy_h
 #define RecoLocalCalo_HcalRecAlgos_rawEnergy_h
 
-
 namespace HcalRecAlgosPrivate {
   template <typename T>
   class IsClassType {

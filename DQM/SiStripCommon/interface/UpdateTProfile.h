@@ -2,7 +2,6 @@
 #ifndef DQM_SiStripCommon_UpdateTProfile_H
 #define DQM_SiStripCommon_UpdateTProfile_H
 
-
 class TProfile;
 
 /** */

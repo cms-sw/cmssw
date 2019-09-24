@@ -27,7 +27,6 @@
 #include <string>
 #include <vector>
 
-
 // if hash map is used
 
 #include <ext/hash_map>

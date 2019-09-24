@@ -43,7 +43,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-
 class SiPixelHLTSource : public DQMEDAnalyzer {
 public:
   explicit SiPixelHLTSource(const edm::ParameterSet &conf);

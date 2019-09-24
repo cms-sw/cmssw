@@ -10,7 +10,6 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class HcalL1TriggerObject {
 public:
   HcalL1TriggerObject() : mId(0), mAvrgPed(0.), mRespCorrGain(0.), mFlag(0) {}

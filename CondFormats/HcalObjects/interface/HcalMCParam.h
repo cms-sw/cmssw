@@ -10,7 +10,6 @@ POOL object to store MC information
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 // definition 8.Feb.2011
 // MC signal shape integer variable assigned to each readout this way:
 // 0 - regular HPD  HB/HE/HO shape

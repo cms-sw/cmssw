@@ -16,7 +16,6 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM
 
-
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelTrackResidualModule.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"

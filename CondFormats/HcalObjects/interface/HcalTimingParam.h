@@ -4,7 +4,6 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <cstdint>
 
-
 class HcalTimingParam {
 public:
   HcalTimingParam() : mId(0), m_nhits(0), m_phase(0.0), m_rms(0.0) {}
