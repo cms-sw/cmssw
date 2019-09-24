@@ -19,7 +19,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 ///Data Format
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
@@ -50,26 +49,23 @@
 //
 
 class L1TStage2CPPF : public DQMEDAnalyzer {
-
 public:
+  // Constructor
+  L1TStage2CPPF(const edm::ParameterSet& ps);
 
-// Constructor
- L1TStage2CPPF(const edm::ParameterSet& ps);
-
-// Destructor
- ~L1TStage2CPPF() override;
+  // Destructor
+  ~L1TStage2CPPF() override;
 
 protected:
-// Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  // Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-// BeginRun
- void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
- void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  // BeginRun
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 private:
   // ----------member data ---------------------------
- 
 
   MonitorElement* CPPFInputNormOccupDisk[10];
   std::map<std::string, MonitorElement*> meInputDiskRing_1st;
@@ -81,7 +77,7 @@ private:
   std::map<std::string, MonitorElement*> meOutputDiskRing_emtf_sector;
   std::map<std::string, MonitorElement*> meOutputDiskRing_emtf_link;
   std::map<std::string, MonitorElement*> meOutputDiskRing_theta;
-  std::map<std::string, MonitorElement*> meOutputDiskRing_phi;  
+  std::map<std::string, MonitorElement*> meOutputDiskRing_phi;
 
   MonitorElement* CPPFInput_DiskRing_Vs_BX;
   MonitorElement* CPPFInput_Occupancy_DiskRing_Vs_Segment;
@@ -93,19 +89,18 @@ private:
   MonitorElement* CPPFOutput_1DPhi[12];
   MonitorElement* CPPFOutput_Occupancy_Ring_Vs_Disk;
 
-  std::map<uint32_t, std::map<std::string, MonitorElement*> >  rpctpgmeCollection;
+  std::map<uint32_t, std::map<std::string, MonitorElement*> > rpctpgmeCollection;
 
-  int nev_; // Number of events processed
-  std::string outputFile_; //file name for ROOT ouput
+  int nev_;                 // Number of events processed
+  std::string outputFile_;  //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
   std::ofstream logFile_;
   edm::InputTag rpcdigiSource_;
   edm::EDGetTokenT<RPCDigiCollection> rpcdigiSource_token_;
   edm::EDGetTokenT<l1t::CPPFDigiCollection> cppfdigiSource_token_;
-  edm::InputTag rpctfSource_ ;
-  edm::EDGetTokenT<L1MuGMTReadoutCollection> rpctfSource_token_ ;
-
+  edm::InputTag rpctfSource_;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> rpctfSource_token_;
 };
 
 #endif
