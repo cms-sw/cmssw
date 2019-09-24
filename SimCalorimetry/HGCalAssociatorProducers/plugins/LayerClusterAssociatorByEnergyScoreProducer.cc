@@ -22,10 +22,6 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
-
-  // ----------member data ---------------------------
-  float qualitySimToReco_;
-  float qualityRecoRoSim_;
 };
 
 LayerClusterAssociatorByEnergyScoreProducer::LayerClusterAssociatorByEnergyScoreProducer(const edm::ParameterSet &) {
@@ -35,9 +31,15 @@ LayerClusterAssociatorByEnergyScoreProducer::LayerClusterAssociatorByEnergyScore
 
 LayerClusterAssociatorByEnergyScoreProducer::~LayerClusterAssociatorByEnergyScoreProducer() {}
 
-void LayerClusterAssociatorByEnergyScoreProducer::fillDescriptions(edm::ConfigurationDescriptions &desc) {}
-
 void LayerClusterAssociatorByEnergyScoreProducer::produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const {}
+
+void LayerClusterAssociatorByEnergyScoreProducer::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("hardScatterOnly", true);
+  desc.add<int>("layers", 50);
+
+  cfg.add("layerClusterAssociatorByEnergyScore", desc);
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(LayerClusterAssociatorByEnergyScoreProducer);
