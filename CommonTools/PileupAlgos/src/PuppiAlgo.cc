@@ -1,7 +1,5 @@
 #include "CommonTools/PileupAlgos/interface/PuppiAlgo.h"
-#include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "Math/QuantFuncMathCore.h"
 #include "Math/SpecFuncMathCore.h"
 #include "Math/ProbFunc.h"
@@ -228,12 +226,6 @@ double PuppiAlgo::compute(std::vector<double> const &iVals, double iChi2) const 
   return lPVal;
 }
 // ------------------------------------------------------------------------------------------
-void PuppiAlgo::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  edm::ParameterSetDescription desc;
-  fillDescriptionsPuppiAlgo(desc);
-  descriptions.addDefault(desc);
-}
-
 void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc) {
   desc.add<std::vector<double>>("etaMin", {0.});
   desc.add<std::vector<double>>("etaMax", {2.5});

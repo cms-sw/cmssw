@@ -2,16 +2,15 @@
 #define CommonTools_PileupAlgos_PuppiAlgo_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/PileupAlgos/interface/PuppiCandidate.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include <vector>
 
 class PuppiAlgo {
 public:
   PuppiAlgo(edm::ParameterSet &iConfig);
   ~PuppiAlgo();
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   static void fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc);
   //Computing Mean and RMS
   void reset();
