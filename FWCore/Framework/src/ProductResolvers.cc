@@ -51,11 +51,11 @@ namespace edm {
     if (callResolver && presentStatus == ProductStatus::ResolveNotRun) {
       //if resolver fails because of exception or not setting product
       // make sure the status goes to failed
-      auto failedStatusSetter = [this](ProductStatus* presentStatus) {
+      auto failedStatusSetter = [this](ProductStatus* iPresentStatus) {
         if (this->status() == ProductStatus::ResolveNotRun) {
           this->setFailedStatus();
         }
-        *presentStatus = this->status();
+        *iPresentStatus = this->status();
       };
       std::unique_ptr<ProductStatus, decltype(failedStatusSetter)> failedStatusGuard(&presentStatus,
                                                                                      failedStatusSetter);
@@ -252,7 +252,7 @@ namespace edm {
     if (m_prefetchRequested.compare_exchange_strong(expected, true)) {
       auto workToDo = [this, mcc, &principal, token]() {
         //need to make sure Service system is activated on the reading thread
-        ServiceRegistry::Operate guard(token);
+        ServiceRegistry::Operate operate(token);
         try {
           resolveProductImpl<true>([this, &principal, mcc]() {
             if (principal.branchType() != InEvent) {
