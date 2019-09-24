@@ -12,7 +12,6 @@
 //
 //
 
-
 #include "DataFormats/METReco/interface/HcalNoiseHPD.h"
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
