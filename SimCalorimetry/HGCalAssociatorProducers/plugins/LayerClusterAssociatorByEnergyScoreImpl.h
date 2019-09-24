@@ -30,6 +30,10 @@ namespace hgcal {
     std::vector<std::pair<DetId, float>> hits_and_fractions;
     std::unordered_map<int, std::pair<float, float>> layerClusterIdToEnergyAndScore;
   };
+
+  typedef std::vector<std::vector<std::pair<unsigned int, float>>> layerClusterToCaloParticle;
+  typedef std::vector<std::vector<hgcal::caloParticleOnLayer>> caloParticleToLayerCluster;
+  typedef std::tuple<layerClusterToCaloParticle, caloParticleToLayerCluster> association;
 }  // namespace hgcal
 
 class LayerClusterAssociatorByEnergyScoreImpl : public hgcal::LayerClusterToCaloParticleAssociatorBaseImpl {
@@ -50,4 +54,6 @@ private:
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
   const std::map<DetId, const HGCRecHit *> *hitMap_;
   unsigned layers_;
+  hgcal::association makeConnections(const edm::Handle<reco::CaloClusterCollection> &cCH,
+                                     const edm::Handle<CaloParticleCollection> &cPCH) const;
 };
