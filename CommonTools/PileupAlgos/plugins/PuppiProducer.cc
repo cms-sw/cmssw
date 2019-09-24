@@ -351,11 +351,27 @@ void PuppiProducer::beginJob() {}
 void PuppiProducer::endJob() {}
 // ------------------------------------------------------------------------------------------
 void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<bool>("puppiDiagnostics", false);
+  desc.add<bool>("puppiForLeptons", false);
+  desc.add<bool>("UseDeltaZCut", true);
+  desc.add<double>("DeltaZCut", 0.3);
+  desc.add<double>("PtMaxNeutrals", 200.);
+  desc.add<bool>("useExistingWeights", false);
+  desc.add<bool>("useWeightsNoLep", false);
+  desc.add<bool>("clonePackedCands", false);
+  desc.add<int>("vtxNdofCut", 4);
+  desc.add<double>("vtxZCut", 24);
+  desc.add<edm::InputTag>("candName", edm::InputTag("particleFlow"));
+  desc.add<edm::InputTag>("vertexName", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("applyCHS", true);
+  desc.add<bool>("invertPuppi", false);
+  desc.add<bool>("useExp", false);
+  desc.add<double>("MinPuppiWeight", .01);
+
+  PuppiContainer::fillDescriptionsPuppiContainer(desc);
+
+  descriptions.add("puppiProducer",desc);
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(PuppiProducer);
