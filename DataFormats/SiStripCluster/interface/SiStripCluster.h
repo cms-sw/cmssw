@@ -20,6 +20,7 @@ public:
 
   SiStripCluster() {}
 
+
   explicit SiStripCluster(const SiStripDigiRange& range);
 
 

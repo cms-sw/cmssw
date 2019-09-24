@@ -1,8 +1,10 @@
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
+
 SiStripCluster::SiStripCluster(const SiStripDigiRange& range) : firstStrip_(range.first->strip()), error_x(-99999.9) {
-  amplitudes_.reserve(range.second - range.first);
+  std::vector<uint8_t> v;
+  v.reserve(range.second - range.first);
 
   uint16_t lastStrip = 0;
   bool firstInloop = true;
@@ -10,15 +12,18 @@ SiStripCluster::SiStripCluster(const SiStripDigiRange& range) : firstStrip_(rang
     /// check if digis consecutive
     if (!firstInloop && i->strip() != lastStrip + 1) {
       for (int j = 0; j < i->strip() - (lastStrip + 1); j++) {
-        amplitudes_.push_back(0);
+        v.push_back(0);
       }
     }
     lastStrip = i->strip();
     firstInloop = false;
 
-    amplitudes_.push_back(i->adc());
+    v.push_back(i->adc());
   }
+  amplitudes_ = v;
 }
+
+
 
 float SiStripCluster::barycenter() const {
   int sumx = 0;
