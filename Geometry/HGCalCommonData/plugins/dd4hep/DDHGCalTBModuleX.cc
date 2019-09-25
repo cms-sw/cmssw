@@ -138,12 +138,11 @@ namespace DDHGCalGeom {
                       << module.name() << " at " << tran << " with no rotation";
 #endif
                   dd4hep::Volume glog2 = (rpos < rMaxFine) ? ns.volume(wafers[0]) : ns.volume(wafers[1]);
-                  dd4hep::Position tran1;
-                  glog1.placeVolume(glog2, copyx, tran1);
+                  glog1.placeVolume(glog2, copyx);
 #ifdef EDM_ML_DEBUG
                   edm::LogVerbatim("HGCalGeom")
                       << "DDHGCalTBModuleX: " << glog2.name() << " number " << copyx << " positioned in "
-                      << glog1.name() << " at " << tran1 << " with no rotation";
+                      << glog1.name() << " at (0, 0, 0) with no rotation";
 #endif
                   if (layerSense[ly] == 1)
                     copies.insert(copy);
