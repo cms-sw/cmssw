@@ -31,7 +31,7 @@ using namespace edm;
 RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet& p)
     : comp11_{p.getUntrackedParameter<bool>("compatibiltyWith11", true)},
       useDDD_{p.getUntrackedParameter<bool>("useDDD", true)},
-      useDD4hep_{p.getUntrackedParameter<bool>("useDD4hep", true)} {
+      useDD4hep_{p.getUntrackedParameter<bool>("useDD4hep", false)} {
   auto cc = setWhatProduced(this);
 
   const edm::ESInputTag kEmptyTag;
