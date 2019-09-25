@@ -174,37 +174,11 @@ public:
     waferType_ = std::make_unique<HGCalWaferType>(
         rad100to200_, rad200to300_, (waferSize_ + waferSepar_), zMinRadPar_, choiceType_, nCutRadPar_, fracAreaMin_);
 
-    ConstructAlgo(ctxt, e);
-  }
-  ~HGCalHEAlgo() {}
-
-  ////////////////////////////////////////////////////////////////////
-  // DDHGCalHEAlgo methods...
-  ////////////////////////////////////////////////////////////////////
-
-  void ConstructAlgo(cms::DDParsingContext& ctxt, xml_h e) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "==>> Constructing DDHGCalHEAlgo...";
     copies_.clear();
 #endif
-    ConstructLayers(ctxt, e);
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << copies_.size() << " different wafer copy numbers";
-    int k(0);
-    for (std::unordered_set<int>::const_iterator itr = copies_.begin(); itr != copies_.end(); ++itr, ++k) {
-      edm::LogVerbatim("HGCalGeom") << "Copy [" << k << "] : " << (*itr);
-    }
-    copies_.clear();
-    edm::LogVerbatim("HGCalGeom") << "<<== End of DDHGCalHEAlgo construction...";
-#endif
-  }
 
-  void ConstructLayers(cms::DDParsingContext& ctxt, xml_h e) {
-    cms::DDNamespace ns(ctxt, e, true);
-
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: \t\tInside Layers";
-#endif
     double zi(zMinBlock_);
     int laymin(0);
     const double tol(0.01);
@@ -288,7 +262,7 @@ public:
                                         << " of dimensions " << rinB << ", " << routF << ", " << hthick
                                         << ", 0.0, 360.0 and positioned in: " << glog.name() << " number " << copy;
 #endif
-          PositionMix(ctxt, e, glog, name, copy, thick_[ii], matter, rinB, rMixLayer_[i], routF, zz);
+          positionMix(ctxt, e, glog, name, copy, thick_[ii], matter, rinB, rMixLayer_[i], routF, zz);
         }
 
         dd4hep::Position r1(0, 0, zz);
@@ -312,9 +286,19 @@ public:
                                      << thickTot << " of the components";
       }
     }  // End of loop over blocks
+
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << copies_.size() << " different wafer copy numbers";
+    int k(0);
+    for (std::unordered_set<int>::const_iterator itr = copies_.begin(); itr != copies_.end(); ++itr, ++k) {
+      edm::LogVerbatim("HGCalGeom") << "Copy [" << k << "] : " << (*itr);
+    }
+    copies_.clear();
+    edm::LogVerbatim("HGCalGeom") << "<<== End of DDHGCalHEAlgo construction...";
+#endif
   }
 
-  void PositionMix(cms::DDParsingContext& ctxt,
+  void positionMix(cms::DDParsingContext& ctxt,
                    xml_h e,
                    const dd4hep::Volume& glog,
                    const std::string& nameM,
@@ -465,7 +449,7 @@ public:
         edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: z " << (zz + zpos) << " Center " << copy << ":"
                                       << (copy - firstLayer_) << ":" << layerCenter_[copy - firstLayer_];
 #endif
-        PositionSensitive(ctxt, e, glog2, rin, rmid, zz + zpos, layerSenseBot_[ly], layerCenter_[copy - firstLayer_]);
+        positionSensitive(ctxt, e, glog2, rin, rmid, zz + zpos, layerSenseBot_[ly], layerCenter_[copy - firstLayer_]);
       }
       zpos += hthickl;
       ++copyNumberBot_[ii];
@@ -481,7 +465,7 @@ public:
     }
   }
 
-  void PositionSensitive(cms::DDParsingContext& ctxt,
+  void positionSensitive(cms::DDParsingContext& ctxt,
                          xml_h e,
                          const dd4hep::Volume& glog,
                          double rin,
@@ -619,7 +603,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                       xml_h e,
                       dd4hep::SensitiveDetector& /* sens */) {
   HGCalHEAlgo healgo(ctxt, e);
-  return 0;
+  return cms::s_executed;
 }
 
 DECLARE_DDCMS_DETELEMENT(DDCMS_hgcal_DDHGCalHEAlgo, algorithm)
