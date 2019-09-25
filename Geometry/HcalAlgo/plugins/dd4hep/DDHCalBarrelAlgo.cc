@@ -916,12 +916,12 @@ struct HcalBarrelAlgo {
     double dx1, dx2, shiftX;
 
     if (type == 1) {
-      if (detPosY[id] > 0)
-        y = -dy + wid;
       wid = 0.5 * detWidth1[id];
       dx1 = 0.5 * detT11[id];
       dx2 = 0.5 * detT21[id];
       shiftX = detdP1[id];
+      if (detPosY[id] > 0)
+        y = -dy + wid;
     } else {
       wid = 0.5 * detWidth2[id];
       dx1 = 0.5 * detT12[id];
