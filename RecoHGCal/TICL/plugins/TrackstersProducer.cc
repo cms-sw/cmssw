@@ -21,18 +21,25 @@
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
+#include "RecoHGCal/TICL/interface/GlobalCache.h"
 #include "PatternRecognitionbyCA.h"
 #include "PatternRecognitionbyMultiClusters.h"
 
+#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+
 using namespace ticl;
 
-class TrackstersProducer : public edm::stream::EDProducer<> {
+class TrackstersProducer : public edm::stream::EDProducer<edm::GlobalCache<TrackstersCache>> {
 public:
-  TrackstersProducer(const edm::ParameterSet&);
+  explicit TrackstersProducer(const edm::ParameterSet&, const TrackstersCache*);
   ~TrackstersProducer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
+
+  // static methods for handling the global cache
+  static std::unique_ptr<TrackstersCache> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(TrackstersCache*);
 
 private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
@@ -46,8 +53,27 @@ private:
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
 
-TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
-    : myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps)) {
+std::unique_ptr<TrackstersCache> TrackstersProducer::initializeGlobalCache(const edm::ParameterSet& params) {
+  // this method is supposed to create, initialize and return a TrackstersCache instance
+  std::unique_ptr<TrackstersCache> cache = std::make_unique<TrackstersCache>(params);
+
+  // load the graph def and save it
+  std::string graphPath = params.getParameter<std::string>("eid_graph_path");
+  if (!graphPath.empty()) {
+    graphPath = edm::FileInPath(graphPath).fullPath();
+    cache->eidGraphDef = tensorflow::loadGraphDef(graphPath);
+  }
+
+  return cache;
+}
+
+void TrackstersProducer::globalEndJob(TrackstersCache* cache) {
+  delete cache->eidGraphDef;
+  cache->eidGraphDef = nullptr;
+}
+
+TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const TrackstersCache* cache)
+    : myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps, cache)) {
   clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"));
   filtered_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"));
   original_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"));
@@ -76,6 +102,13 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("max_delta_time", 0.09);
   desc.add<bool>("out_in_dfs", true);
   desc.add<int>("max_out_in_hops", 10);
+  desc.add<std::string>("eid_graph_path", "RecoHGCal/TICL/data/tf_models/energy_id_v0.pb");
+  desc.add<std::string>("eid_input_name", "input");
+  desc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
+  desc.add<std::string>("eid_output_name_id", "output/id_probabilities");
+  desc.add<double>("eid_min_cluster_energy", 1.);
+  desc.add<int>("eid_n_layers", 50);
+  desc.add<int>("eid_n_clusters", 10);
   descriptions.add("trackstersProducer", desc);
 }
 
