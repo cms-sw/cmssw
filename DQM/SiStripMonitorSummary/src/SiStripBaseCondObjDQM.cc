@@ -762,7 +762,6 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs 
 
     // -----
 
-
   }  // if "lorentzangle"
 }
 // ----
@@ -823,7 +822,6 @@ void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs &C
 
   CondObj_ME.SummaryOfCumulDistr->setAxisTitle(hSummaryOfCumul_xTitle, 1);
   CondObj_ME.SummaryOfCumulDistr->setAxisTitle(hSummaryOfCumul_yTitle, 2);
-
 }
 // -----
 
@@ -908,7 +906,6 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs &CondOb
       CondObj_ME.SummaryDistr->setBinLabel(iBin, sameLayerDetIds_Name);
   }
   // -----
-
 }
 
 //==========================================================
