@@ -8,8 +8,8 @@ BTVHLTOfflineSource = DQMEDAnalyzer("BTVHLTOfflineSource",
     processname             = cms.string("HLT"),
     verbose                 = cms.untracked.bool(False),
 
-    triggerSummaryLabel     = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
-    triggerResultsLabel     = cms.InputTag("TriggerResults","","HLT"),
+    triggerSummaryLabel     = cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
+    triggerResultsLabel     = cms.InputTag("TriggerResults", "", "HLT"),
     onlineDiscrLabelPF      = cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsPF", "probb"),
     onlineDiscrLabelCalo    = cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsCalo", "probb"),
     offlineDiscrLabelb      = cms.InputTag("pfDeepCSVJetTags", "probb"),
@@ -42,4 +42,3 @@ BTVHLTOfflineSource = DQMEDAnalyzer("BTVHLTOfflineSource",
         ),
     ),
 )
-
