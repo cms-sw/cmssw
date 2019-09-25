@@ -61,7 +61,8 @@ struct HGCalEEAlgo {
   std::unordered_set<int> copies_;      // List of copy #'s
   double alpha_, cosAlpha_;
 
-  HGCalEEAlgo() {}
+  HGCalEEAlgo() { throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalEEAlgo"; }
+
   HGCalEEAlgo(cms::DDParsingContext& ctxt, xml_h e) {
     cms::DDNamespace ns(ctxt, e, true);
     cms::DDAlgoArguments args(ctxt, e);
