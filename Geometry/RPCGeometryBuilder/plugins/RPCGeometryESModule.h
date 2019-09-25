@@ -29,24 +29,19 @@
 
 class RPCGeometryESModule : public edm::ESProducer {
 public:
-  /// Constructor
   RPCGeometryESModule(const edm::ParameterSet& p);
-
-  /// Destructor
   ~RPCGeometryESModule() override = default;
-
-  /// Produce RPCGeometry.
   std::unique_ptr<RPCGeometry> produce(const MuonGeometryRecord& record);
 
 private:
-  //Used without DDD
+  //DDD
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> idealGeomToken_;
   edm::ESGetToken<MuonDDDConstants, MuonNumberingRecord> dddConstantsToken_;
   // dd4hep
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> idealDD4hepGeomToken_;
   edm::ESGetToken<cms::MuonNumbering, MuonNumberingRecord> dd4hepConstantsToken_;
 
-  //Used with DDD
+  //DDD
   edm::ESGetToken<RecoIdealGeometry, RPCRecoGeometryRcd> recoIdealToken_;
 
   const bool comp11_;

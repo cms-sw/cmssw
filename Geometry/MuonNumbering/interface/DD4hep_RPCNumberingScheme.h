@@ -20,15 +20,13 @@ namespace cms {
   class RPCNumberingScheme {
   public:
     RPCNumberingScheme(const MuonConstants& muonConstants);
-
     void baseNumberToUnitNumber(const MuonBaseNumber&);
-    void SetDetId(int idnew) { detId = idnew; }
-    int GetDetId() const { return detId; }
+    int getDetId() const { return detId; }
 
   private:
     const int get(const char*, const MuonConstants&) const;
     void initMe(const MuonConstants& muonConstants);
-
+    void setDetId(int idnew) { detId = idnew; }
     int theRegionLevel;
     int theBWheelLevel;
     int theBStationLevel;
