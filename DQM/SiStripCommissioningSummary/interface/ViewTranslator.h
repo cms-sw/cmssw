@@ -2,10 +2,10 @@
 #define DQM_SiStripCommissioningSummary_ViewTranslator_H
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include <boost/cstdint.hpp>
 #include <vector>
 #include <string>
 #include <map>
+#include <cstdint>
 
 /**
    \class ViewTranslator

@@ -21,8 +21,6 @@
 #include <iostream>
 #include <memory>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 //#include
 //"DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -83,6 +81,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <cstdint>
 
 // constructors
 
@@ -646,9 +645,9 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
   // fill in emulator the same bunch crossing (12 bits - hardwired number of
   // bits...) and the same local bunch crossing for all boards
   int bxCross = iEvent.bunchCrossing();
-  boost::uint16_t bxCrossHw = 0;
+  uint16_t bxCrossHw = 0;
   if ((bxCross & 0xFFF) == bxCross) {
-    bxCrossHw = static_cast<boost::uint16_t>(bxCross);
+    bxCrossHw = static_cast<uint16_t>(bxCross);
   } else {
     bxCrossHw = 0;  // Bx number too large, set to 0!
     if (m_verbosity) {
@@ -679,11 +678,11 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
 
               gtfeWordValue.setBoardId(itBoard->gtBoardId());
 
-              // cast int to boost::uint16_t
+              // cast int to uint16_t
               // there are normally 3 or 5 BxInEvent
-              gtfeWordValue.setRecordLength(static_cast<boost::uint16_t>(recordLength0));
+              gtfeWordValue.setRecordLength(static_cast<uint16_t>(recordLength0));
 
-              gtfeWordValue.setRecordLength1(static_cast<boost::uint16_t>(recordLength1));
+              gtfeWordValue.setRecordLength1(static_cast<uint16_t>(recordLength1));
 
               // bunch crossing
               gtfeWordValue.setBxNr(bxCrossHw);
@@ -692,12 +691,12 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
               gtfeWordValue.setActiveBoards(m_activeBoardsGtDaq);
 
               // set alternative for number of BX per board
-              gtfeWordValue.setAltNrBxBoard(static_cast<boost::uint16_t>(m_alternativeNrBxBoardDaq));
+              gtfeWordValue.setAltNrBxBoard(static_cast<uint16_t>(m_alternativeNrBxBoardDaq));
 
               // set the TOTAL_TRIGNR as read from iEvent
               // TODO check again - PTC stuff
 
-              gtfeWordValue.setTotalTriggerNr(static_cast<boost::uint32_t>(iEvent.id().event()));
+              gtfeWordValue.setTotalTriggerNr(static_cast<uint32_t>(iEvent.id().event()));
 
               // ** fill L1GtfeWord in GT DAQ record
 
@@ -768,11 +767,11 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
 
               gtfeWordValue.setBoardId(itBoard->gtBoardId());
 
-              // cast int to boost::uint16_t
+              // cast int to uint16_t
               // there are normally 3 or 5 BxInEvent
-              gtfeWordValue.setRecordLength(static_cast<boost::uint16_t>(recordLength0));
+              gtfeWordValue.setRecordLength(static_cast<uint16_t>(recordLength0));
 
-              gtfeWordValue.setRecordLength1(static_cast<boost::uint16_t>(recordLength1));
+              gtfeWordValue.setRecordLength1(static_cast<uint16_t>(recordLength1));
 
               // bunch crossing
               gtfeWordValue.setBxNr(bxCrossHw);
@@ -781,12 +780,12 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
               gtfeWordValue.setActiveBoards(m_activeBoardsGtEvm);
 
               // set alternative for number of BX per board
-              gtfeWordValue.setAltNrBxBoard(static_cast<boost::uint16_t>(m_alternativeNrBxBoardEvm));
+              gtfeWordValue.setAltNrBxBoard(static_cast<uint16_t>(m_alternativeNrBxBoardEvm));
 
               // set the TOTAL_TRIGNR as read from iEvent
               // TODO check again - PTC stuff
 
-              gtfeWordValue.setTotalTriggerNr(static_cast<boost::uint32_t>(iEvent.id().event()));
+              gtfeWordValue.setTotalTriggerNr(static_cast<uint32_t>(iEvent.id().event()));
 
               // set the GPS time to the value read from Timestamp
               edm::TimeValue_t evTime = iEvent.time().value();
@@ -799,7 +798,7 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
               //<< std::dec << std::endl;
 
               // source of BST message: DDDD simulated data
-              boost::uint16_t bstSourceVal = 0xDDDD;
+              uint16_t bstSourceVal = 0xDDDD;
               gtfeWordValue.setBstSource(bstSourceVal);
 
               // ** fill L1GtfeWord in GT EVM record
@@ -821,17 +820,17 @@ void L1GlobalTrigger::produce(edm::Event &iEvent, const edm::EventSetup &evSetup
               // bunch crossing
               tcsWordValue.setBxNr(bxCrossHw);
 
-              boost::uint16_t trigType = 0x5;  // 0101 simulated event
+              uint16_t trigType = 0x5;  // 0101 simulated event
               tcsWordValue.setTriggerType(trigType);
 
               // luminosity segment number
-              tcsWordValue.setLuminositySegmentNr(static_cast<boost::uint16_t>(iEvent.luminosityBlock()));
+              tcsWordValue.setLuminositySegmentNr(static_cast<uint16_t>(iEvent.luminosityBlock()));
 
               // set the Event_Nr as read from iEvent
-              tcsWordValue.setEventNr(static_cast<boost::uint32_t>(iEvent.id().event()));
+              tcsWordValue.setEventNr(static_cast<uint32_t>(iEvent.id().event()));
 
               // orbit number
-              tcsWordValue.setOrbitNr(static_cast<boost::uint64_t>(iEvent.orbitNumber()));
+              tcsWordValue.setOrbitNr(static_cast<uint64_t>(iEvent.orbitNumber()));
 
               // ** fill L1TcsWord in the EVM record
 

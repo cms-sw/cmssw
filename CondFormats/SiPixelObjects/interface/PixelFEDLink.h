@@ -8,7 +8,6 @@
 #include <utility>
 #include <vector>
 #include <iostream>
-#include <boost/cstdint.hpp>
 
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 class PixelModuleName;

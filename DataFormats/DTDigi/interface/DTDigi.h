@@ -12,7 +12,7 @@
  *
  */
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class DTDigi {
 public:
@@ -73,6 +73,7 @@ private:
 };
 
 #include <iostream>
+#include <cstdint>
 inline std::ostream& operator<<(std::ostream& o, const DTDigi& digi) {
   return o << " " << digi.wire() << " " << digi.time() << " " << digi.number();
 }

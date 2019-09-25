@@ -13,7 +13,6 @@
 #ifndef SiPixelMonitorTrack_SiPixelHitEfficiencyModule_h
 #define SiPixelMonitorTrack_SiPixelHitEfficiencyModule_h
 
-#include <boost/cstdint.hpp>
 #include <utility>
 
 //#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
@@ -22,6 +21,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
+#include <cstdint>
 
 namespace edm {
   class EventSetup;

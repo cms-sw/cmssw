@@ -26,7 +26,6 @@
 
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
 
-#include <boost/cstdint.hpp>
 #include <string>
 #include <map>
 

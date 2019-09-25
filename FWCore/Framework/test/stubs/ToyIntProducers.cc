@@ -333,7 +333,7 @@ namespace edmtest {
 
   private:
     const edm::EDPutTokenT<Int16_tProduct> token_;
-    const boost::int16_t value_;
+    const int16_t value_;
   };
 
   void Int16_tProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
