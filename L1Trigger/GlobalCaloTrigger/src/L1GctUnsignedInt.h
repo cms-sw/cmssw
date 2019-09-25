@@ -1,7 +1,6 @@
 #ifndef L1GCTUNSIGNEDINT_H
 #define L1GCTUNSIGNEDINT_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 
 /*!

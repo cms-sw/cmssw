@@ -16,7 +16,6 @@
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DeviceFactory.h"
 #include "boost/range/iterator_range.hpp"
-#include "boost/cstdint.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -28,6 +27,7 @@
 #include <atomic>
 
 #include "DbClient.h"
+#include <cstdint>
 
 namespace sistrip {
   static const uint16_t FEC_CRATE_OFFSET = 0;  //@@ temporary

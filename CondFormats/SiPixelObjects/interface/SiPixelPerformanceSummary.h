@@ -6,7 +6,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 #define kDetSummarySize 60  // float numbers kept in DetSummary.performanceValues
 #define kDefaultValue -99.9

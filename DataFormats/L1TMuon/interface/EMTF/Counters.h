@@ -1,9 +1,8 @@
+#include <cstdint>
 // Class for Block of Counters
 
 #ifndef __l1t_emtf_Counters_h__
 #define __l1t_emtf_Counters_h__
-
-#include <boost/cstdint.hpp>
 
 namespace l1t {
   namespace emtf {

@@ -31,7 +31,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <boost/cstdint.hpp>
 #include <ctime>
 #include <iomanip>
 #include <memory>
@@ -46,6 +45,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/unistd.h>
+#include <cstdint>
 
 using namespace sistrip;
 

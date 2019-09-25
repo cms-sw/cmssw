@@ -8,7 +8,6 @@
 #include "Math/Polar3D.h"
 #include "Math/CylindricalEta3D.h"
 #include "Math/PxPyPzE4D.h"
-#include <boost/cstdint.hpp>
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
 #include "DataFormats/MuonReco/interface/MuonPFIsolation.h"

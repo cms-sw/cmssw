@@ -5,13 +5,13 @@
 #include <utility>
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "boost/cstdint.hpp"
 #include "boost/serialization/utility.hpp"
 #include "boost/serialization/access.hpp"
 #include "boost/serialization/split_member.hpp"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CondFormats/HcalObjects/interface/PiecewiseScalingPolynomial.h"
+#include <cstdint>
 
 class HBHENegativeEFilter {
 public:

@@ -3,7 +3,6 @@
 
 #include <string>
 #include <iostream>
-#include "boost/cstdint.hpp"
 
 /** \class HcalTBRunData
 
