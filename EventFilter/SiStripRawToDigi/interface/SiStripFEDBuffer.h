@@ -37,7 +37,7 @@ namespace sistrip {
     bool fePresent(uint8_t internalFEUnitNum) const;
     //check that a channel is present in data, found, on a good FE unit and has no errors flagged in status bits
     using sistrip::FEDBufferBase::channelGood;
-    virtual bool channelGood(const uint8_t internalFEDannelNum, const bool doAPVeCheck = true) const;
+    bool channelGood(const uint8_t internalFEDannelNum, const bool doAPVeCheck) const;
     void setLegacyMode(bool legacy) { legacyUnpacker_ = legacy; }
 
     //functions to check buffer. All return true if there is no problem.
@@ -186,6 +186,13 @@ namespace sistrip {
   //FEDBuffer
 
   inline const FEDFEHeader* FEDBuffer::feHeader() const { return feHeader_.get(); }
+
+  inline bool FEDBuffer::channelGood(const uint8_t internalFEDChannelNum, const bool doAPVeCheck) const {
+    return ((internalFEDChannelNum < validChannels_) &&
+            ((doAPVeCheck && feGood(internalFEDChannelNum / FEDCH_PER_FEUNIT)) ||
+             (!doAPVeCheck && feGoodWithoutAPVEmulatorCheck(internalFEDChannelNum / FEDCH_PER_FEUNIT))) &&
+            (this->readoutMode() == sistrip::READOUT_MODE_SCOPE || checkStatusBits(internalFEDChannelNum)));
+  }
 
   inline bool FEDBuffer::feGood(const uint8_t internalFEUnitNum) const {
     return (!majorityAddressErrorForFEUnit(internalFEUnitNum) && !feOverflow(internalFEUnitNum) &&

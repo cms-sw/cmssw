@@ -764,6 +764,7 @@ namespace sistrip {
     }
   }
 
+  /*
   FEDReadoutMode TrackerSpecialHeader::readoutMode() const {
     const uint8_t eventTypeNibble = trackerEventTypeNibble();
     //if it is scope mode then return as is (it cannot be fake data)
@@ -796,6 +797,7 @@ namespace sistrip {
       }
     }
   }
+  */
 
   TrackerSpecialHeader& TrackerSpecialHeader::setBufferFormat(const FEDBufferFormat newBufferFormat) {
     //check if order in buffer is different

@@ -168,7 +168,6 @@ namespace {
     static void printStat() {}
 #endif
   };
-}  // namespace
 
 class SiStripClusterizerFromZSRaw final : public edm::stream::EDProducer<> {
 public:
@@ -230,10 +229,12 @@ private:
   bool legacy_;
   bool hybridZeroSuppressed_;
 };
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripClusterizerFromZSRaw);
 
+namespace {
 
 void SiStripClusterizerFromZSRaw::initialize(const edm::EventSetup& es) {
   (*clusterizer_).initialize(es);
@@ -256,7 +257,6 @@ void SiStripClusterizerFromZSRaw::run(const FEDRawDataCollection& rawColl, edmNe
   }  // end loop over dets
 }
 
-namespace {
   template<typename OUT>
   void clustersFromZS(uint8_t const * data, int offset, int lenght, uint16_t stripOffset, 
                       StripClusterizerAlgorithm::Det const & det, OUT & out) {
@@ -299,8 +299,6 @@ namespace {
          out.push_back(std::move(SiStripCluster(firstStrip,std::move(adc))));
     }
   }
-
-}  // namespace
 
 void ClusterFiller::fill(StripClusterizerAlgorithm::Det const & det, 
                          StripClusterizerAlgorithm::output_t::FastFiller& record) {
@@ -369,4 +367,6 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::Det const & det,
 //    for (auto const& cl : record)
 //      COUT << cl.firstStrip() << ',' << cl.amplitudes().size() << std::endl;
     incClus(record.size());
+}
+
 }
