@@ -43,7 +43,6 @@ void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   } else {
     maxLevel = theERollLevel;
   }
-
   if (num.getLevels() != maxLevel) {
     abort();
   }
@@ -55,13 +54,9 @@ void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   int eta_id = 0;
   int rr12_id = 0;
   bool forward = false;
-
   int sector_copy = 0;
 
-  //decode significant rpc levels
-
   for (int level = 1; level <= maxLevel; level++) {
-    //decode
     if (level == theRegionLevel) {
       if (barrel_muon) {
         roll_id = 0;
@@ -72,11 +67,9 @@ void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
     if (barrel_muon) {
       if (level == theBWheelLevel) {
         const int copyno = num.getBaseNo(level);
-        eta_id = 4 + copyno;  //copyno= [0,4]
+        eta_id = 4 + copyno;
       } else if (level == theBStationLevel) {
-        //-	const int station_tag = num.getSuperNo(level);
         const int copyno = num.getBaseNo(level);
-
         sector_id = copyno + 1;
         if (sector_id == 13) {
           sector_id = 4;
@@ -85,39 +78,22 @@ void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
           sector_id = 10;
           sector_copy = 1;
         }
-        // mltiply by 3 to merge with endcaps
         sector_id *= 3;
-
       } else if (level == theBPlaneLevel) {
         const int plane_tag = num.getSuperNo(level);
-        //        const int copyno = num.getBaseNo(level);
         if (plane_tag == 1) {
           plane_id = 1;
         } else if (plane_tag == 2) {
           plane_id = 5;
         } else if (plane_tag == 3) {
-          //          if(copyno == 1) {
-          //if(eta_id == 4 || eta_id == 8) {
-          //  plane_id=6;
-
           plane_id = 2;
-          // }
-
-          //          std::cout<<" KONTROLA w RPCNumberingScheme: eta_id: "<<eta_id<<", plane_tag: "<<plane_tag<<", plane_id: "<<plane_id<<std::endl;
         } else if (plane_tag == 4) {
-          //          if(copyno == 1) {
-          // if(eta_id == 4 || eta_id == 8) {
-          //  plane_id=2;
-          //} else {
           plane_id = 6;
-          //}
-          //          std::cout<<" KONTROLA w RPCNumberingScheme: eta_id: "<<eta_id<<", plane_tag: "<<plane_tag<<", plane_id: "<<plane_id<<std::endl;
         } else if (plane_tag == 5) {
           plane_id = 3;
         } else {
           plane_id = 4;
         }
-
       } else if (level == theBChamberLevel) {
         const int copyno = num.getBaseNo(level);
         if ((plane_id == 4) && (sector_id == 4 * 3)) {
@@ -130,7 +106,6 @@ void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
         const int rollno = num.getSuperNo(level);
         roll_id = rollno;
       }
-
     } else {
       if (level == theRegionLevel) {
         const int copyno = num.getBaseNo(level);
@@ -151,7 +126,6 @@ void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
       } else if (level == theERollLevel) {
         const int copyno = num.getBaseNo(level);
         const int eta_tag = num.getSuperNo(level);
-
         if ((eta_tag == 1) || (eta_tag == 4) || (eta_tag == 7) || (eta_tag == 8)) {
           eta_id = 1;
         } else if ((eta_tag == 2) || (eta_tag == 5)) {
@@ -159,30 +133,19 @@ void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
         } else if ((eta_tag == 3) || (eta_tag == 6)) {
           eta_id = 3;
         }
-
         if (forward)
           eta_id = 12 - eta_id;
-
-        // increase sector id for 20 degree chambers
-
         if ((eta_tag == 4) || (eta_tag == 7) || (eta_tag == 8)) {
           sector_id *= 2;
         }
-
         roll_id = copyno + 1;
       }
     }
   }
-
-  // collect all info
-
   int trIndex = (eta_id * 10000 + plane_id * 1000 + sector_id * 10 + copy_id) * 10 + roll_id;
-
-  // Build the actual numbering
   RPCDetId id;
   id.buildfromTrIndex(trIndex);
-
-  SetDetId(id.rawId());
+  setDetId(id.rawId());
 }
 
 const int RPCNumberingScheme::get(const char* key, const MuonConstants& muonConstants) const {
