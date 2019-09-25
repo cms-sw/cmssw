@@ -8,8 +8,7 @@ POOL object to store MC information
 */
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 // definition 8.Feb.2011
 // MC signal shape integer variable assigned to each readout this way:

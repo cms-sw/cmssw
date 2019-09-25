@@ -9,7 +9,6 @@
 #include "DQM/SiStripCommissioningSummary/interface/CommissioningSummaryFactory.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <boost/cstdint.hpp>
 #include "TProfile.h"
 #include "TH1.h"
 #include <iostream>
@@ -17,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <cstdint>
 
 class CommissioningAnalysis;
 

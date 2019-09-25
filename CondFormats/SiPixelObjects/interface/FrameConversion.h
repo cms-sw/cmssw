@@ -2,7 +2,6 @@
 #define SiPixelObjects_FrameConversion_H
 
 #include "CondFormats/SiPixelObjects/interface/LinearConversion.h"
-#include <boost/cstdint.hpp>
 
 class PixelEndcapName;
 class PixelBarrelName;

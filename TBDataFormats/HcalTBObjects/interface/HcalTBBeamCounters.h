@@ -4,7 +4,6 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include "boost/cstdint.hpp"
 
 class HcalTBBeamCounters {
 public:

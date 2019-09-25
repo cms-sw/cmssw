@@ -1,10 +1,10 @@
 #ifndef DQM_SiStripMonitorHardware_SiStripFEDSpyBuffer_H
 #define DQM_SiStripMonitorHardware_SiStripFEDSpyBuffer_H
 
-#include "boost/cstdint.hpp"
 #include <string>
 #include <ostream>
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
+#include <cstdint>
 
 namespace sistrip {
 
