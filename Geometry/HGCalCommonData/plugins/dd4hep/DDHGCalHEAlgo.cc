@@ -23,9 +23,7 @@
 using namespace cms_units::operators;
 
 struct HGCalHEAlgo {
-  HGCalHEAlgo() {
-    throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalHEAlgo";
-  }
+  HGCalHEAlgo() { throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalHEAlgo"; }
   HGCalHEAlgo(cms::DDParsingContext& ctxt, xml_h e) {
     cms::DDNamespace ns(ctxt, e, true);
     cms::DDAlgoArguments args(ctxt, e);
