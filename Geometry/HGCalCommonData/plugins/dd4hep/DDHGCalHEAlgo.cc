@@ -24,8 +24,6 @@ using namespace cms_units::operators;
 
 struct HGCalHEAlgo {
 public:
-  // Constructor and Destructor
-  HGCalHEAlgo() {}
   HGCalHEAlgo(cms::DDParsingContext& ctxt, xml_h e) {
     cms::DDNamespace ns(ctxt, e, true);
     cms::DDAlgoArguments args(ctxt, e);
@@ -59,8 +57,8 @@ public:
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "There are " << layerNumbers.size() << " blocks";
     for (unsigned int i = 0; i < layerNumbers.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << layerThick[i] << " Rmid "
-                                    << rMixLayer[i] << " with " << layerNumbers[i] << " layers";
+      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << layerThick[i] << " Rmid " << rMixLayer[i]
+                                    << " with " << layerNumbers[i] << " layers";
 #endif
     layerType = args.value<std::vector<int>>("LayerType");
     layerSense = args.value<std::vector<int>>("LayerSense");
@@ -105,8 +103,7 @@ public:
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << materialsTop.size() << " types of volumes in the top part";
     for (unsigned int i = 0; i < materialsTop.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << namesTop[i] << " of thickness " << layerThickTop[i]
-                                    << " filled with " << materialsTop[i] << " first copy number "
-                                    << copyNumberTop[i];
+                                    << " filled with " << materialsTop[i] << " first copy number " << copyNumberTop[i];
     edm::LogVerbatim("HGCalGeom") << "There are " << layerTypeTop.size() << " layers in the top part";
     for (unsigned int i = 0; i < layerTypeTop.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerTypeTop[i];
@@ -120,12 +117,10 @@ public:
       copyNumberBot.emplace_back(1);
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << materialsBot.size()
-                                  << " types of volumes in the bottom part";
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << materialsBot.size() << " types of volumes in the bottom part";
     for (unsigned int i = 0; i < materialsBot.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << namesBot[i] << " of thickness " << layerThickBot[i]
-                                    << " filled with " << materialsBot[i] << " first copy number "
-                                    << copyNumberBot[i];
+                                    << " filled with " << materialsBot[i] << " first copy number " << copyNumberBot[i];
     edm::LogVerbatim("HGCalGeom") << "There are " << layerTypeBot.size() << " layers in the bottom part";
     for (unsigned int i = 0; i < layerTypeBot.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerTypeBot[i]
@@ -233,8 +228,7 @@ public:
             }
           }
 
-          dd4hep::Solid solid =
-              dd4hep::Polyhedra(sectors, -alpha, 2. * cms_units::piRadians, pgonZ, pgonRin, pgonRout);
+          dd4hep::Solid solid = dd4hep::Polyhedra(sectors, -alpha, 2. * cms_units::piRadians, pgonZ, pgonRin, pgonRout);
           ns.addSolidNS(ns.prepend(name), solid);
           glog = dd4hep::Volume(solid.name(), solid, matter);
           ns.addVolumeNS(glog);
