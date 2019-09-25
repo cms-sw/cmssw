@@ -88,7 +88,10 @@ struct HCalEndcapAlgo {
   int idOffset;                        // Geant4 ID's...    = 4000;
   double tolPos, tolAbs;               //Tolerances
 
-  HCalEndcapAlgo() {}
+  HCalEndcapAlgo() {
+    throw cms::Exception("HCalGeom") << "Wrong initialization to HcalEndcapAlgo";
+  }
+
   HCalEndcapAlgo(cms::DDParsingContext& ctxt, xml_h e) {
     cms::DDNamespace ns(ctxt, e, true);
     cms::DDAlgoArguments args(ctxt, e);
