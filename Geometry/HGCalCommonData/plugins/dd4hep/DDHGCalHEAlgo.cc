@@ -23,7 +23,9 @@
 using namespace cms_units::operators;
 
 struct HGCalHEAlgo {
-public:
+  HGCalHEAlgo() {
+    throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalHEAlgo";
+  }
   HGCalHEAlgo(cms::DDParsingContext& ctxt, xml_h e) {
     cms::DDNamespace ns(ctxt, e, true);
     cms::DDAlgoArguments args(ctxt, e);
@@ -301,7 +303,6 @@ public:
     cms::DDNamespace ns(ctxt, e, true);
 
     dd4hep::Volume glog1;
-    dd4hep::Position tran;
     for (unsigned int ly = 0; ly < layerTypeTop.size(); ++ly) {
       int ii = layerTypeTop[ly];
       copyNumberTop[ii] = copyM;
@@ -322,11 +323,11 @@ public:
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << solid.name() << " Tubs made of " << matter.name()
                                   << " of dimensions " << rmid << ", " << rout << ", " << hthick << ", 0.0, 360.0";
 #endif
-    glog.placeVolume(glog1, 1, tran);
+    glog.placeVolume(glog1, 1);
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog1.name() << " number 1 positioned in " << glog.name()
-                                  << " at " << tran << " with no rotation";
+                                  << " at (0, 0, 0) with no rotation";
 #endif
     double thickTot(0), zpos(-hthick);
     for (unsigned int ly = 0; ly < layerTypeTop.size(); ++ly) {
@@ -389,10 +390,10 @@ public:
                                   << " of dimensions " << rin << ", " << rmid << ", " << hthick << ", 0.0, 360.0";
 #endif
 
-    glog.placeVolume(glog1, 1, tran);
+    glog.placeVolume(glog1, 1);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog1.name() << " number 1 positioned in " << glog.name()
-                                  << " at " << tran << " with no rotation";
+                                  << " at (0, 0, 0) with no rotation";
 #endif
     thickTot = 0;
     zpos = -hthick;
@@ -464,7 +465,7 @@ public:
     double R = 2.0 * r / sqrt3;
     double dy = 0.75 * R;
     int N = (int)(0.5 * rout / r) + 2;
-    std::pair<double, double> xyoff = geomTools_.shiftXY(layercenter, (waferSize + waferSepar));
+    std::pair<double, double> xyoff = geomTools.shiftXY(layercenter, (waferSize + waferSepar));
 #ifdef EDM_ML_DEBUG
     int ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
     std::vector<int> ntype(6, 0);
@@ -533,7 +534,7 @@ public:
   }
 
   //Required data members to cache the values from XML file
-  HGCalGeomTools geomTools_;
+  HGCalGeomTools geomTools;
   std::unique_ptr<HGCalWaferType> waferType;
 
   std::vector<std::string> waferNames;    // Wafer names
