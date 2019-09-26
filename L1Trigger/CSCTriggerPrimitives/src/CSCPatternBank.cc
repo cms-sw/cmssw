@@ -1,9 +1,9 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
 
-const int CSCPatternBank::alct_pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN] = {
-    //Layer
-    {0, 0, 0, 1, 1, 2, 3, 3, 4, 4, 4, 5, 5, 5},
+const int CSCPatternBank::alct_pattern_envelope[CSCConstants::MAX_WIRES_IN_PATTERN] = {
+    0, 0, 0, 1, 1, 2, 3, 3, 4, 4, 4, 5, 5, 5};
 
+const int CSCPatternBank::alct_keywire_offset[2][CSCConstants::MAX_WIRES_IN_PATTERN] = {
     //Keywire offset for ME1 and ME2
     {-2, -1, 0, -1, 0, 0, 0, 1, 0, 1, 2, 0, 1, 2},
 
@@ -12,6 +12,7 @@ const int CSCPatternBank::alct_pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS]
 
 const int CSCPatternBank::alct_pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN] = {
     // Accelerator pattern
+    // For beam-halo muons or displaced muons from long-lived particles
     {0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0},
 
     // Collision pattern A
