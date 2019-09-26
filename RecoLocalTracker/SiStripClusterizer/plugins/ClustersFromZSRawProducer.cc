@@ -257,7 +257,7 @@ void SiStripClusterizerFromZSRaw::run(const FEDRawDataCollection& rawColl, edmNe
   }  // end loop over dets
 }
 
-  template<typename OUT>
+  template<typename OUT, bool NOISE_CUT=false>
   void clustersFromZS(uint8_t const * data, int offset, int lenght, uint16_t stripOffset, 
                       StripClusterizerAlgorithm::Det const & det, OUT & out) {
     auto sti = siStripClusterTools::sensorThicknessInverse(det.detId);
@@ -273,27 +273,25 @@ void SiStripClusterizerFromZSRaw::run(const FEDRawDataCollection& rawColl, edmNe
        endStrip = firstStrip+clusSize;
        is+=clusSize+2;
        int sum=0;
-#ifdef DO_NOISE_CUT
-         int noise2=0;
-#endif
+       int noise2=0;
        std::vector<uint8_t> adc(clusSize);
        for (int ic=0; ic<clusSize; ++ic) {
          adc[ic]=data[(offset++) ^ 7];
          sum += adc[ic]; // no way it can overflow
-#ifdef DO_NOISE_CUT
+       if constexpr (NOISE_CUT) {
          uint16_t strip = firstStrip+ic;
          int noise = det.rawNoise(strip);
          noise2 += noise*noise;  // ditto
-#endif
+       }
          if (adc[ic] < 254) {
            int charge = 0.5f+float(adc[ic])*weight;
            adc[ic] = (charge > 1022 ? 255 : (charge > 253 ? 254 : charge));
          }
        }
-#ifdef DO_NOISE_CUT
-       // do not cut if extendable   
-       if (!extend && endStrip%128!=0  && 4*sum*sum < noise2) continue;
-#endif
+       if constexpr (NOISE_CUT) {
+         // do not cut if extendable   
+         if (!extend && endStrip%128!=0  && 4*sum*sum < noise2) continue;
+       }
        if (extend) out.back().extend(adc.begin(),adc.end());
        else if (endStrip%128==0 || sum*weight*sti > 1200.0f)
          out.push_back(std::move(SiStripCluster(firstStrip,std::move(adc))));
@@ -349,12 +347,14 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::Det const & det,
       uint16_t ipair = conn->apvPairNumber();
 
       const sistrip::FEDReadoutMode mode = buffer->readoutMode();
+      auto const & ch = buffer->channel(fedCh);
       if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8 ||
            mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE) {
-           auto const & ch = buffer->channel(fedCh);
            clustersFromZS(ch.data(), ch.offset() + 2, ch.length()-2, ipair * 256, det, record);
+      } else if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED) {
+           clustersFromZS(ch.data(), ch.offset() + 7, ch.length()-7, ipair * 256, det, record);
       } else {
-       std::cout << "MODE NOT SUPPORTED" << std::endl;
+        std::cout << "MODE NOT SUPPORTED" << std::endl;
       }
     }  // end loop over conn
 
