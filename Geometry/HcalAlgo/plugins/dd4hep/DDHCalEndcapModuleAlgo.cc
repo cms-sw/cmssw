@@ -82,7 +82,8 @@ struct HCalEndcapModuleAlgo {
           zpos(z) {}
   };
 
-  HCalEndcapModuleAlgo() {}
+  HCalEndcapModuleAlgo() = delete;
+
   HCalEndcapModuleAlgo(cms::DDParsingContext& ctxt, xml_h e) {
     cms::DDNamespace ns(ctxt, e, true);
     cms::DDAlgoArguments args(ctxt, e);
@@ -183,7 +184,7 @@ struct HCalEndcapModuleAlgo {
     //Pointers to the Materials
     dd4hep::Material matabsorbr = ns.material(absorberMat);
     dd4hep::Material matplastic = ns.material(plasticMat);
-    dd4hep::Rotation3D rot = getRotation(rotstr);
+    dd4hep::Rotation3D rot = getRotation(rotstr, ns);
 
     int layer = layerNumber[0];
     int layer0 = layerNumber[1];
@@ -293,7 +294,7 @@ struct HCalEndcapModuleAlgo {
     //Pointers to the Rotation Matrices and to the Materials
     dd4hep::Material matter = ns.material(genMaterial);
     dd4hep::Material matplastic = ns.material(plasticMat);
-    dd4hep::Rotation3D rot = getRotation(rotstr);
+    dd4hep::Rotation3D rot = getRotation(rotstr, ns);
 
     double alpha = (1._pi) / sectors;
     double zi = zMinBlock;
@@ -535,9 +536,12 @@ struct HCalEndcapModuleAlgo {
     return r;
   }
 
-  dd4hep::Rotation3D getRotation(const std::string& rotstr) {
-    return ((rotstr == "hcalrotations::YXZ4") ? cms::makeRotation3D(90._deg, -90._deg, 90._deg, 0., 0., 0.)
-                                              : cms::makeRotation3D(90._deg, 0., 90._deg, 90._deg, 0., 0.));
+  dd4hep::Rotation3D getRotation(const std::string& rotstr, cms::DDNamespace& ns) {
+    std::string rot = (strchr(rotstr.c_str(), NAMESPACE_SEP) == nullptr) ? ("rotations:" + rotstr) : rotstr;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HCalGeom") << "getRotation: " << rotstr << ":" << rot << ":" << ns.rotation(rot);
+#endif
+    return ns.rotation(rot);
   }
 };
 
