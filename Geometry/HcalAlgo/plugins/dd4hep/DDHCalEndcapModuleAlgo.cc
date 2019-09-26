@@ -82,7 +82,7 @@ struct HCalEndcapModuleAlgo {
           zpos(z) {}
   };
 
-  HCalEndcapModuleAlgo() { throw cms::Exception("HCalGeom") << "Wrong initialization to HcalEndcapModuleAlgo"; }
+  HCalEndcapModuleAlgo() = delete;
 
   HCalEndcapModuleAlgo(cms::DDParsingContext& ctxt, xml_h e) {
     cms::DDNamespace ns(ctxt, e, true);
