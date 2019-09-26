@@ -10,12 +10,8 @@ public:
   /** This translated TriggerDetId to Module and viceversa for HGCSilicon*/
   HGCSiliconDetIdToModule();
 
-  static const HGCSiliconDetId getModule(HGCalTriggerDetId const& id) {
-    return id.geometryCell();
-  }
-  static const HGCSiliconDetId getModule(HGCSiliconDetId const& id) {
-    return id.geometryCell();
-  }
+  static const HGCSiliconDetId getModule(HGCalTriggerDetId const& id) { return id.geometryCell(); }
+  static const HGCSiliconDetId getModule(HGCSiliconDetId const& id) { return id.geometryCell(); }
   std::vector<HGCSiliconDetId> getDetIds(HGCSiliconDetId const& id) const;
 };
 #endif
