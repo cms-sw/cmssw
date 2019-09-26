@@ -1,10 +1,6 @@
 /*
  */
-#include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingFactory.h"
-
-#include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingAlgorithms.h"
+#include "RecoLocalTracker/SiStripClusterizer/plugins/ClustersFromZSRawAlgorithm.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -13,10 +9,8 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-
 #include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
-
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,12 +18,13 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <sstream>
-#include <memory>
-#include <atomic>
-#include <mutex>
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
@@ -52,8 +47,7 @@ namespace {
     if
       UNLIKELY(!rawData.data()) {
         if (edm::isDebugEnabled()) {
-          edm::LogWarning(sistrip::mlRawToCluster_) << "[ClustersFromZSRawProducer::" << __func__ << "]"
-                                                    << " NULL pointer to FEDRawData for FED id " << fedId;
+          edm::LogWarning("ClustersFromZSRawProducer") << " NULL pointer to FEDRawData for FED id " << fedId;
         }
         return buffer;
       }
@@ -62,8 +56,7 @@ namespace {
     if
       UNLIKELY(!rawData.size()) {
         if (edm::isDebugEnabled()) {
-          edm::LogWarning(sistrip::mlRawToCluster_) << "[ClustersFromZSRawProducer::" << __func__ << "]"
-                                                    << " FEDRawData has zero size for FED id " << fedId;
+          edm::LogWarning("ClustersFromZSRawProducer") << " FEDRawData has zero size for FED id " << fedId;
         }
         return buffer;
       }
@@ -76,7 +69,7 @@ namespace {
       throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << fedId << ".";
     } catch (const cms::Exception& e) {
       if (edm::isDebugEnabled()) {
-        edm::LogWarning(sistrip::mlRawToCluster_)
+        edm::LogWarning("ClustersFromZSRawProducer")
             << "Exception caught when creating FEDBuffer object for FED " << fedId << ": " << e.what();
       }
       return std::unique_ptr<sistrip::FEDBuffer>();
@@ -98,17 +91,12 @@ namespace {
   class ClusterFiller {
   public:
     ClusterFiller(const FEDRawDataCollection& irawColl,
-                  StripClusterizerAlgorithm& iclusterizer,
-                  SiStripRawProcessingAlgorithms& irawAlgos,
-                  bool idoAPVEmulatorCheck,
-                  bool legacy,
-                  bool hybridZeroSuppressed)
+                  ClustersFromZSRawAlgorithm & iclusterizer,
+                  bool idoAPVEmulatorCheck)
         : rawColl(irawColl),
           clusterizer(iclusterizer),
-          rawAlgos(irawAlgos),
-          doAPVEmulatorCheck(idoAPVEmulatorCheck),
-          legacy_(legacy),
-          hybridZeroSuppressed_(hybridZeroSuppressed) {
+          doAPVEmulatorCheck(idoAPVEmulatorCheck)
+    {
       incTot(clusterizer.allDets().size());
     }
 
@@ -121,29 +109,25 @@ namespace {
 
     const FEDRawDataCollection& rawColl;
 
-    StripClusterizerAlgorithm& clusterizer;
-    SiStripRawProcessingAlgorithms& rawAlgos;
+    ClustersFromZSRawAlgorithm & clusterizer;
 
     // March 2012: add flag for disabling APVe check in configuration
     bool doAPVEmulatorCheck;
 
-    bool legacy_;
-    bool hybridZeroSuppressed_;
 // #define VISTAT
 #ifdef VISTAT
     struct Stat {
       Stat() : totDet(0), detReady(0), detSet(0), detAct(0), detNoZ(0), detAbrt(0), totClus(0) {}
-      std::atomic<int> totDet;    // all dets
-      std::atomic<int> detReady;  // dets "updated"
-      std::atomic<int> detSet;    // det actually set not empty
-      std::atomic<int> detAct;    // det actually set with content
-      std::atomic<int> detNoZ;    // det actually set with content
-      std::atomic<int> detAbrt;   // det aborted
-      std::atomic<int> totClus;   // total number of clusters
+      int totDet;    // all dets
+      int detReady;  // dets "updated"
+      int detSet;    // det actually set not empty
+      int detAct;    // det actually set with content
+      int detNoZ;    // det actually set with content
+      int detAbrt;   // det aborted
+      int totClus;   // total number of clusters
     };
 
     mutable Stat stat;
-    // void zeroStat() const { stat = std::move(Stat()); }
     void incTot(int n) const { stat.totDet = n; }
     void incReady() const { stat.detReady++; }
     void incSet() const { stat.detSet++; }
@@ -172,21 +156,24 @@ namespace {
 class SiStripClusterizerFromZSRaw final : public edm::stream::EDProducer<> {
 public:
   explicit SiStripClusterizerFromZSRaw(const edm::ParameterSet& conf)
-      : onDemand(conf.getParameter<bool>("onDemand")),
-        cabling_(nullptr),
-        clusterizer_(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer"))),
-        rawAlgos_(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
-        doAPVEmulatorCheck_(conf.existsAs<bool>("DoAPVEmulatorCheck") ? conf.getParameter<bool>("DoAPVEmulatorCheck")
-                                                                      : false),
-        legacy_(conf.existsAs<bool>("LegacyUnpacker") ? conf.getParameter<bool>("LegacyUnpacker") : false),
-        hybridZeroSuppressed_(conf.getParameter<bool>("HybridZeroSuppressed")) {
-    productToken_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("ProductLabel"));
+    : productToken_(consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("ProductLabel"))),
+    clusterizer_(conf.getParameter<double>("ClusterChargeCut")),
+    doAPVEmulatorCheck_(conf.getParameter<bool>("DoAPVEmulatorCheck")) 
+  {
     produces<edmNew::DetSetVector<SiStripCluster> >();
-    assert(clusterizer_.get());
-    assert(rawAlgos_.get());
-    assert(!legacy_);
-    assert(!onDemand);
   }
+
+  static
+  void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<edm::InputTag>("ProductLabel", edm::InputTag("rawDataCollector"));
+    desc.add<bool>("DoAPVEmulatorCheck",false);
+    desc.add<double>("ClusterChargeCut",1200);
+
+    descriptions.add("SiStripClustersFromZSRawFacility", desc);
+  }
+
 
   void beginRun(const edm::Run&, const edm::EventSetup& es) override { initialize(es); }
 
@@ -200,7 +187,7 @@ public:
     auto output = std::make_unique<edmNew::DetSetVector<SiStripCluster>>();
     assert(!output->onDemand());
 
-    output->reserve(15000, 24 * 10000);
+    output->reserve(15000, 32 * 10000);
 
     run(*rawData, *output);
     output->shrink_to_fit();
@@ -214,20 +201,15 @@ private:
   void run(const FEDRawDataCollection& rawColl, edmNew::DetSetVector<SiStripCluster>& output);
 
 private:
-  bool onDemand;
 
   edm::EDGetTokenT<FEDRawDataCollection> productToken_;
 
-  SiStripDetCabling const* cabling_;
+  ClustersFromZSRawAlgorithm clusterizer_;
 
-  std::unique_ptr<StripClusterizerAlgorithm> clusterizer_;
-  std::unique_ptr<SiStripRawProcessingAlgorithms> rawAlgos_;
 
   // March 2012: add flag for disabling APVe check in configuration
   bool doAPVEmulatorCheck_;
 
-  bool legacy_;
-  bool hybridZeroSuppressed_;
 };
 }
 
@@ -237,16 +219,15 @@ DEFINE_FWK_MODULE(SiStripClusterizerFromZSRaw);
 namespace {
 
 void SiStripClusterizerFromZSRaw::initialize(const edm::EventSetup& es) {
-  (*clusterizer_).initialize(es);
-  cabling_ = (*clusterizer_).cabling();
-  (*rawAlgos_).initialize(es);
+  clusterizer_.initialize(es);
 }
 
 void SiStripClusterizerFromZSRaw::run(const FEDRawDataCollection& rawColl, edmNew::DetSetVector<SiStripCluster>& output) {
-  ClusterFiller filler(rawColl, *clusterizer_, *rawAlgos_, doAPVEmulatorCheck_, legacy_, hybridZeroSuppressed_);
+
+  ClusterFiller filler(rawColl, clusterizer_, doAPVEmulatorCheck_);
 
   // loop over good det in cabling
-  for (auto const & idet : clusterizer_->allDets()) {
+  for (auto const & idet : clusterizer_.allDets()) {
     StripClusterizerAlgorithm::output_t::FastFiller record(output, idet.detId);
 
     filler.fill(idet,record);
@@ -256,47 +237,6 @@ void SiStripClusterizerFromZSRaw::run(const FEDRawDataCollection& rawColl, edmNe
 
   }  // end loop over dets
 }
-
-  template<typename OUT, bool NOISE_CUT=false>
-  void clustersFromZS(uint8_t const * data, int offset, int lenght, uint16_t stripOffset, 
-                      StripClusterizerAlgorithm::Det const & det, OUT & out) {
-    auto sti = siStripClusterTools::sensorThicknessInverse(det.detId);
-    int is=0;
-    uint16_t endStrip = 6*128+1;
-    if (!out.empty()) endStrip = out.back().endStrip();
-    while (is<lenght) {
-       uint16_t firstStrip = stripOffset + data[(offset++) ^ 7];
-       auto weight = det.weight(firstStrip);
-       int clusSize = data[(offset++) ^ 7];
-       bool extend = (firstStrip == endStrip);
-       if(extend && firstStrip%128!=0) std::cout << "extend?? " << firstStrip <<' '<< firstStrip%128 <<' '<<firstStrip/128 <<' '<< clusSize << std::endl;
-       endStrip = firstStrip+clusSize;
-       is+=clusSize+2;
-       int sum=0;
-       int noise2=0;
-       std::vector<uint8_t> adc(clusSize);
-       for (int ic=0; ic<clusSize; ++ic) {
-         adc[ic]=data[(offset++) ^ 7];
-         sum += adc[ic]; // no way it can overflow
-       if constexpr (NOISE_CUT) {
-         uint16_t strip = firstStrip+ic;
-         int noise = det.rawNoise(strip);
-         noise2 += noise*noise;  // ditto
-       }
-         if (adc[ic] < 254) {
-           int charge = 0.5f+float(adc[ic])*weight;
-           adc[ic] = (charge > 1022 ? 255 : (charge > 253 ? 254 : charge));
-         }
-       }
-       if constexpr (NOISE_CUT) {
-         // do not cut if extendable   
-         if (!extend && endStrip%128!=0  && 4*sum*sum < noise2) continue;
-       }
-       if (extend) out.back().extend(adc.begin(),adc.end());
-       else if (endStrip%128==0 || sum*weight*sti > 1200.0f)
-         out.push_back(std::move(SiStripCluster(firstStrip,std::move(adc))));
-    }
-  }
 
 void ClusterFiller::fill(StripClusterizerAlgorithm::Det const & det, 
                          StripClusterizerAlgorithm::output_t::FastFiller& record) {
@@ -328,7 +268,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::Det const & det,
       if (!buffers[fedId]) continue;
       auto buffer = buffers[fedId].get();
 
-      buffer->setLegacyMode(legacy_);
+      buffer->setLegacyMode(false);
 
       // check channel
       const uint8_t fedCh = conn->fedCh();
@@ -338,7 +278,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::Det const & det,
           if (edm::isDebugEnabled()) {
             std::ostringstream ss;
             ss << "Problem unpacking channel " << fedCh << " on FED " << fedId;
-            edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
+            edm::LogWarning("ClustersFromZSRawProducer") << ss.str();
           }
           continue;
         }
@@ -350,11 +290,11 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::Det const & det,
       auto const & ch = buffer->channel(fedCh);
       if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8 ||
            mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE) {
-           clustersFromZS(ch.data(), ch.offset() + 2, ch.length()-2, ipair * 256, det, record);
+           clusterizer.clustersFromZS(ch.data(), ch.offset() + 2, ch.length()-2, ipair * 256, det, record);
       } else if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED) {
-           clustersFromZS(ch.data(), ch.offset() + 7, ch.length()-7, ipair * 256, det, record);
+           clusterizer.clustersFromZS(ch.data(), ch.offset() + 7, ch.length()-7, ipair * 256, det, record);
       } else {
-        std::cout << "MODE NOT SUPPORTED" << std::endl;
+        throw cms::Exception("MODE NOT SUPPORTED by ClusterFromZSRaw ") << mode;
       }
     }  // end loop over conn
 
