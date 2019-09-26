@@ -59,7 +59,7 @@ HFFibre::HFFibre(const std::string& name,
   }
   edm::LogVerbatim("HFShower") << "HFFibre: " << longFL.size() << " Long Fibre Length(cm):" << ss2.str();
 #endif
-  shortFL = hcalsimpar_->longFiberLength_;
+  shortFL = hcalsimpar_->shortFiberLength_;
 #ifdef EDM_ML_DEBUG
   std::stringstream ss3;
   for (unsigned int it = 0; it < shortFL.size(); it++) {

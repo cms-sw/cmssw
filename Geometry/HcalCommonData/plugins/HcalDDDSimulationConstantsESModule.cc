@@ -25,7 +25,7 @@
 #include <Geometry/HcalCommonData/interface/HcalDDDSimulationConstants.h>
 #include <Geometry/Records/interface/HcalSimNumberingRecord.h>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class HcalDDDSimulationConstantsESModule : public edm::ESProducer {
 public:

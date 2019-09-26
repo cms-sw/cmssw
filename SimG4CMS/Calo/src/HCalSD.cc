@@ -190,8 +190,10 @@ HCalSD::HCalSD(const std::string& name,
     std::vector<double> temp = getDDDArray("Levels", sv0);
 
     unsigned int nhf = hfNames.size();
-    std::stringstream ss;
-    ss << "HCalSD: Names to be tested for " << attribute << " = " << value << " has " << nhf << " elements";
+#ifdef EDM_ML_DEBUG
+    std::stringstream ss0;
+    ss0 << "HCalSD: Names to be tested for " << attribute << " = " << value << " has " << nhf << " elements";
+#endif
     for (unsigned int i = 0; i < nhf; ++i) {
       G4String namv = hfNames[i];
       lv = nullptr;
@@ -204,10 +206,13 @@ HCalSD::HCalSD(const std::string& name,
       hfLV.push_back(lv);
       int level = static_cast<int>(temp[i]);
       hfLevels.push_back(level);
-      ss << "\n        HF[" << i << "] = " << namv << " LV " << hfLV[i] << " at level " << hfLevels[i];
+#ifdef EDM_ML_DEBUG
+      ss0 << "\n        HF[" << i << "] = " << namv << " LV " << hfLV[i] << " at level " << hfLevels[i];
+#endif
     }
-    edm::LogVerbatim("HcalSim") << ss.str();
-
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalSim") << ss0.str();
+#endif
     // HF Fibre volume names
     fillLogVolumeVector(attribute, "HFFibre", es, fibreLV, fibreNames);
     std::vector<G4String> tempNames;
@@ -252,15 +257,16 @@ HCalSD::HCalSD(const std::string& name,
     dodet = fv2.next();
   }
 
-  std::stringstream sss;
+#ifdef EDM_ML_DEBUG
+  std::stringstream ss1;
   for (unsigned int i = 0; i < matNames.size(); ++i) {
     if (i / 10 * 10 == i) {
-      sss << "\n";
+      ss1 << "\n";
     }
-    sss << "  " << matNames[i];
+    ss1 << "  " << matNames[i];
   }
-  edm::LogVerbatim("HcalSim") << "HCalSD: Material names for " << attribute << " = " << name << ":" << sss.str();
-
+  edm::LogVerbatim("HcalSim") << "HCalSD: Material names for " << attribute << " = " << name << ":" << ss1.str();
+#endif
   if (useLayerWt) {
     readWeightFromFile(file);
   }
@@ -269,12 +275,12 @@ HCalSD::HCalSD(const std::string& name,
   //Special Geometry parameters
   gpar = hcalConstants_->getGparHF();
 #ifdef EDM_ML_DEBUG
-  std::stringstream sss;
+  std::stringstream ss2;
   for (unsigned int ig = 0; ig < gpar.size(); ig++) {
-    sss << "\n         gpar[" << ig << "] = " << gpar[ig] / cm << " cm";
+    ss2 << "\n         gpar[" << ig << "] = " << gpar[ig] / cm << " cm";
   }
   edm::LogVerbatim("HcalSim") << "Maximum depth for HF " << hcalConstants_->getMaxDepth(2) << gpar.size()
-                              << " gpar (cm)" << sss.str();
+                              << " gpar (cm)" << ss2.str();
 #endif
 
   //Test Hcal Numbering Scheme
@@ -361,8 +367,10 @@ void HCalSD::fillLogVolumeVector(const std::string& attribute,
   lvnames = getNames(fv);
 
   unsigned int nvol = lvnames.size();
-  std::stringstream ss;
-  ss << "HCalSD: " << nvol << " names to be tested for " << attribute << " <" << value << ">:";
+#ifdef EDM_ML_DEBUG
+  std::stringstream ss3;
+  ss3 << "HCalSD: " << nvol << " names to be tested for " << attribute << " <" << value << ">:";
+#endif
   for (unsigned int i = 0; i < nvol; ++i) {
     G4String namv = lvnames[i];
     lv = nullptr;
@@ -373,12 +381,16 @@ void HCalSD::fillLogVolumeVector(const std::string& attribute,
       }
     }
     lvvec.push_back(lv);
+#ifdef EDM_ML_DEBUG
     if (i / 10 * 10 == i) {
-      ss << "\n";
+      ss3 << "\n";
     }
-    ss << "  " << namv;
+    ss3 << "  " << namv;
+#endif
   }
-  edm::LogVerbatim("HcalSim") << ss.str();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalSim") << ss3.str();
+#endif
 }
 
 bool HCalSD::getFromLibrary(const G4Step* aStep) {
@@ -413,7 +425,7 @@ bool HCalSD::getFromLibrary(const G4Step* aStep) {
     if (useParam) {
       getFromParam(aStep, kill);
 #ifdef EDM_ML_DEBUG
-      G4String nameVolume = lv->GetName();
+      G4String nameVolume = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
       edm::LogVerbatim("HcalSim") << "HCalSD: " << getNumberOfHits() << " hits from parametrization in " << nameVolume
                                   << " for Track " << track->GetTrackID() << " ("
                                   << track->GetDefinition()->GetParticleName() << ")";
@@ -832,7 +844,7 @@ void HCalSD::hitForFibre(const G4Step* aStep) {  // if not ParamShower
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalSim") << "HCalSD::hitForFibre " << hits.size() << " hits for " << GetName() << " of "
                               << primaryID << " with " << theTrack->GetDefinition()->GetParticleName() << " of "
-                              << preStepPoint->GetKineticEnergy() / GeV << " GeV in detector type " << det;
+                              << aStep->GetPreStepPoint()->GetKineticEnergy() / GeV << " GeV in detector type " << det;
 #endif
 
   for (unsigned int i = 0; i < hits.size(); ++i) {
@@ -864,7 +876,7 @@ void HCalSD::getFromParam(const G4Step* aStep, bool& isKilled) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalSim") << "HCalSD::getFromParam " << hits.size() << " hits for " << GetName() << " of "
                               << primaryID << " with " << aStep->GetTrack()->GetDefinition()->GetParticleName()
-                              << " of " << preStepPoint->GetKineticEnergy() / GeV << " GeV in detector type " << det;
+                              << " of " << aStep->GetPreStepPoint()->GetKineticEnergy() / GeV << " GeV in detector type " << det;
 #endif
   for (unsigned int i = 0; i < hits.size(); ++i) {
     G4ThreeVector hitPoint = hits[i].position;
