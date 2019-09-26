@@ -8,8 +8,8 @@ std::vector<HGCSiliconDetId> HGCSiliconDetIdToModule::getDetIds(HGCSiliconDetId 
   for (int u = 0; u < 2 * nCells; ++u) {
     for (int v = 0; v < 2 * nCells; ++v) {
       if (((v - u) < nCells) && (u - v) <= nCells) {
-	HGCSiliconDetId newId(id.det(), id.zside(), id.type(), id.layer(), id.waferU(), id.waferV(), u, v);
-	ids.emplace_back(newId);
+        HGCSiliconDetId newId(id.det(), id.zside(), id.type(), id.layer(), id.waferU(), id.waferV(), u, v);
+        ids.emplace_back(newId);
       }
     }
   }

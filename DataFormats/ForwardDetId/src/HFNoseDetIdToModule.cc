@@ -8,11 +8,10 @@ std::vector<HFNoseDetId> HFNoseDetIdToModule::getDetIds(HFNoseDetId const& id) c
   for (int u = 0; u < 2 * nCells; ++u) {
     for (int v = 0; v < 2 * nCells; ++v) {
       if (((v - u) < nCells) && (u - v) <= nCells) {
-	HFNoseDetId newId(id.zside(), id.type(), id.layer(), id.waferU(), id.waferV(), u, v);
-	ids.emplace_back(newId);
+        HFNoseDetId newId(id.zside(), id.type(), id.layer(), id.waferU(), id.waferV(), u, v);
+        ids.emplace_back(newId);
       }
     }
   }
   return ids;
 }
-

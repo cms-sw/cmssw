@@ -194,7 +194,8 @@ void testModule(HGCSiliconDetId const& id) {
   std::string ok = "***** ERROR *****";
   for (auto const& id0 : ids) {
     if (id0 == id) {
-      ok = ""; break;
+      ok = "";
+      break;
     }
   }
   std::cout << "Module ID of " << id << " is " << module << " which has " << ids.size() << " cells " << ok << std::endl;
@@ -212,7 +213,7 @@ int main() {
   testTriggerCell(0);
   testTriggerCell(1);
   testROC();
-  testModule(HGCSiliconDetId(DetId::HGCalEE,1,0,1,5,4,0,10));
-  testModule(HGCSiliconDetId(DetId::HGCalHSi,-1,1,30,-6,-4,5,5));
+  testModule(HGCSiliconDetId(DetId::HGCalEE, 1, 0, 1, 5, 4, 0, 10));
+  testModule(HGCSiliconDetId(DetId::HGCalHSi, -1, 1, 30, -6, -4, 5, 5));
   return 0;
 }
