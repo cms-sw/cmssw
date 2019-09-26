@@ -329,8 +329,8 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
         (fPFParticles[i0].pt() > fPtMaxPhotons))
       pWeight = 1.;
     // Protect high pT neutrals
-    if ((fPtMaxNeutrals > 0) && (rParticle.id == 0))
-      pWeight = min(max(pWeight, fPFParticles[i0].pt() / fPtMaxNeutrals), 1.);
+    else if ((fPtMaxNeutrals > 0) && (rParticle.id == 0))
+      pWeight = std::clamp(pWeight, fPFParticles[i0].pt() / fPtMaxNeutrals, 1.);
     if (pWeight < fPuppiWeightCut)
       pWeight = 0;  //==> Elminate the low Weight stuff
     if (fInvert)
