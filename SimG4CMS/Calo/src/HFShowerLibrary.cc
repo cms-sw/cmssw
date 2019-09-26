@@ -18,7 +18,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 HFShowerLibrary::HFShowerLibrary(const std::string& name,
                                  const HcalDDDSimConstants* hcons,
@@ -78,6 +78,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
     throw cms::Exception("Unknown", "HFShowerLibrary") << "Events tree absent\n";
   }
 
+#ifdef EDM_ML_DEBUG
   std::stringstream ss;
   ss << "HFShowerLibrary: Library " << libVers << " ListVersion " << listVersion << " Events Total " << totEvents
      << " and " << evtPerBin << " per bin\n";
@@ -89,7 +90,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
     ss << "  " << pmom[i] / CLHEP::GeV;
   }
   edm::LogVerbatim("HFShower") << ss.str();
-
+#endif
   std::string nameBr = branchPre + emName + branchPost;
   emBranch = event->GetBranch(nameBr.c_str());
   if (verbose)
@@ -104,13 +105,14 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
     v3version = true;
   }
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << " HFShowerLibrary:Branch " << emName << " has " << emBranch->GetEntries()
                                << " entries and Branch " << hadName << " has " << hadBranch->GetEntries() << " entries"
                                << "\n HFShowerLibrary::No packing information -"
                                << " Assume x, y, z are not in packed form"
                                << "\n Maximum probability cut off " << probMax << "  Back propagation of light prob. "
                                << backProb;
-
+#endif
   fibre_.reset(new HFFibre(name, hcalConstant_, hps, p));
   photo = new HFShowerPhotonCollection;
 
@@ -122,9 +124,10 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
   //Delta phi
   std::vector<double> phibin = hcalConstant_->getPhiTableHF();
   dphi = phibin[0];
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShowerLibrary: rMIN " << rMin / CLHEP::cm << " cm and rMax " << rMax / CLHEP::cm
                                << " (Half) Phi Width of wedge " << dphi / CLHEP::deg;
-
+#endif
   //Special Geometry parameters
   gpar = hcalConstant_->getGparHF();
 }
