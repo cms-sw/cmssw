@@ -18,7 +18,7 @@
 /** for the case when more than 2 LCTs/BX are allowed;
     maximum match window = 15 */
 class LCTContainer {
- public:
+public:
   // constructor
   LCTContainer(unsigned int trig_window_size);
 
@@ -40,7 +40,7 @@ class LCTContainer {
   // 2nd index: BX number of the ALCT-CLCT match in the matching window
   // 3rd index: LCT number in the time bin
   CSCCorrelatedLCTDigi data[CSCConstants::MAX_LCT_TBINS][CSCConstants::MAX_MATCH_WINDOW_SIZE]
-    [CSCConstants::MAX_LCTS_PER_CSC];
+                           [CSCConstants::MAX_LCTS_PER_CSC];
 
   // matching trigger window
   const unsigned int match_trig_window_size_;

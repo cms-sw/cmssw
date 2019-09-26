@@ -1,11 +1,8 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/LCTContainer.h"
 
-LCTContainer::LCTContainer(unsigned int trig_window_size)
-    : match_trig_window_size_(trig_window_size) {}
+LCTContainer::LCTContainer(unsigned int trig_window_size) : match_trig_window_size_(trig_window_size) {}
 
-CSCCorrelatedLCTDigi& LCTContainer::operator()(int bx, int match_bx, int lct) {
-  return data[bx][match_bx][lct];
-}
+CSCCorrelatedLCTDigi& LCTContainer::operator()(int bx, int match_bx, int lct) { return data[bx][match_bx][lct]; }
 
 void LCTContainer::getTimeMatched(const int bx, std::vector<CSCCorrelatedLCTDigi>& lcts) const {
   for (unsigned int mbx = 0; mbx < match_trig_window_size_; mbx++) {
