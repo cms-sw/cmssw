@@ -11,11 +11,13 @@ class CSCPatternBank {
 public:
   /** Pre-defined ALCT patterns. */
 
-  /* This is the pattern envelope, which is used to define the collision
-     patterns A and B.
-     pattern_envelope[0][i]=layer;
-     pattern_envelope[1+MEposition][i]=key_wire offset. */
-  static const int alct_pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+  // This is the pattern envelope, which is used to define the collision
+  // patterns A and B.
+  static const int alct_pattern_envelope[CSCConstants::MAX_WIRES_IN_PATTERN];
+
+  // key wire offsets for ME1 and ME2 are the same
+  // offsets for ME3 and ME4 are the same
+  static const int alct_keywire_offset[2][CSCConstants::MAX_WIRES_IN_PATTERN];
 
   // Since the test beams in 2003, both collision patterns are "completely
   // open".  This is our current default.
