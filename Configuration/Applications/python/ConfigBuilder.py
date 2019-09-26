@@ -899,7 +899,7 @@ class ConfigBuilder(object):
         if self._options.customise_commands:
             import string
             for com in self._options.customise_commands.split('\\n'):
-                com=string.lstrip(com)
+                com=com.lstrip()
                 self.executeAndRemember(com)
                 final_snippet +='\n'+com
 
