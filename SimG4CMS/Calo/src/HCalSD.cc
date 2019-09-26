@@ -876,7 +876,8 @@ void HCalSD::getFromParam(const G4Step* aStep, bool& isKilled) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalSim") << "HCalSD::getFromParam " << hits.size() << " hits for " << GetName() << " of "
                               << primaryID << " with " << aStep->GetTrack()->GetDefinition()->GetParticleName()
-                              << " of " << aStep->GetPreStepPoint()->GetKineticEnergy() / GeV << " GeV in detector type " << det;
+                              << " of " << aStep->GetPreStepPoint()->GetKineticEnergy() / GeV
+                              << " GeV in detector type " << det;
 #endif
   for (unsigned int i = 0; i < hits.size(); ++i) {
     G4ThreeVector hitPoint = hits[i].position;
