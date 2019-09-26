@@ -20,9 +20,8 @@ def makePuppies( process ):
     task.add(process.pfLeptonsPUPPET)
     addToProcessAndTask('puppiNoLep', process.puppi.clone(), process, task)
     process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI') 
-    addToProcessAndTask('puppiNoLepPhoton', process.puppiNoLep.clone(), process, task)
-    process.puppiNoLepPhoton.PtMaxPhotons = cms.double(20.)
-    process.puppiForMET = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLepPhoton','pfLeptonsPUPPET'))
+    process.puppiNoLep.PtMaxPhotons = 20.
+    process.puppiForMET = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
     task.add(process.puppiForMET)
 
 def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
@@ -40,12 +39,11 @@ def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
     addToProcessAndTask('puppiNoLep', process.puppi.clone(), process, task)
     process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI')
     process.puppiNoLep.useWeightsNoLep = True
-    addToProcessAndTask('puppiNoLepPhoton', process.puppiNoLep.clone(), process, task)
-    process.puppiNoLepPhoton.PtMaxPhotons = cms.double(20.)
-    process.puppiForMET = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLepPhoton','pfLeptonsPUPPET'))
+    process.puppiNoLep.PtMaxPhotons = 20.
+    process.puppiForMET = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
     task.add(process.puppiForMET)
 
     #making a sequence for people running the MET tool in scheduled mode
     if createScheduledSequence:
-        puppiMETSequence = cms.Sequence(process.puppi*process.pfLeptonsPUPPET*process.pfNoLepPUPPI*process.puppiNoLep*process.puppiNoLepPhoton*process.puppiForMET)
+        puppiMETSequence = cms.Sequence(process.puppi*process.pfLeptonsPUPPET*process.pfNoLepPUPPI*process.puppiNoLep*process.puppiForMET)
         setattr(process, "puppiMETSequence", puppiMETSequence)
