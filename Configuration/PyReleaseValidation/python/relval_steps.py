@@ -2324,6 +2324,7 @@ steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+
 steps['RECOPU1']=merge([PU,steps['RECO']])
 steps['RECOPU2']=merge([PU2,steps['RECO']])
 steps['RECOUP15_PU25']=merge([PU25,step3Up2015Defaults])
+steps['RECOUP15_PU25_HIPM']=merge([step3_HIPM,steps['RECOUP15_PU25']])
 steps['RECOUP15_PU25_L1TEgDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TEgamma'},steps['RECOUP15_PU25']])
 steps['RECOUP15_PU25_L1TMuDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'},steps['RECOUP15_PU25']])
 steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
@@ -2343,6 +2344,8 @@ steps['RECOUP15_PU25HS']=merge([PU25HS,step3Up2015Defaults])
 steps['RECOPRMXUP15_PU25']=merge([
         {'--era':'Run2_2016','--procModifiers':'premix_stage2'}, # temporary replacement for premix; to be brought back to customisePostLS1; DataMixer customize for rerouting inputs to mixed data.
         step3Up2015Defaults])
+steps['RECOPRMXUP15_HIPM_PU25']=merge([step3_HIPM,steps['RECOPRMXUP15_PU25']])
+
 steps['RECOPRMXUP15_PU50']=merge([
         {'--era':'Run2_50ns','--procModifiers':'premix_stage2'},
         step3Up2015Defaults50ns])

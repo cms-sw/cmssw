@@ -578,6 +578,7 @@ workflows[1325.8] = ['', ['TTbar_13_94Xv1NanoAODINPUT','NANOEDMMC2017_94XMiniAOD
 
 # special workflow including the SiStrip APV dynamic gain simulation for 2016 MC
 workflows[1325.9] = ['', ['TTbar_13','DIGIUP15APVSimu','RECOUP15','HARVESTUP15','ALCATTUP15']]
+workflows[1325.91] = ['', ['TTbar_13','DIGIUP15APVSimu','RECOUP15_HIPM','HARVESTUP15','ALCATTUP15']]
 
 #using ZEE as I cannot find TT at CERN
 workflows[1329.1] = ['', ['ZEE_13_80XNanoAODINPUT','NANOEDMMC2016_80X','HARVESTNANOAODMC2016_80X']]
