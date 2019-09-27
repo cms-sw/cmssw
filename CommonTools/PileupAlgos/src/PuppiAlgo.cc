@@ -227,6 +227,7 @@ double PuppiAlgo::compute(std::vector<double> const &iVals, double iChi2) const 
 }
 // ------------------------------------------------------------------------------------------
 void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc) {
+
   desc.add<std::vector<double>>("etaMin", {0.});
   desc.add<std::vector<double>>("etaMax", {2.5});
   desc.add<std::vector<double>>("ptMin", {0.});
@@ -244,6 +245,16 @@ void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc) {
   puppialgos.add<double>("cone", .4);
   puppialgos.add<double>("rmsPtMin", .1);
   puppialgos.add<double>("rmsScaleFactor", 1.0);
-  std::vector<edm::ParameterSet> VPSetPuppiAlgos(1);
+  std::vector<edm::ParameterSet> VPSetPuppiAlgos;
+  edm::ParameterSet puppiset;
+  puppiset.addParameter<int>("algoId", 5);
+  puppiset.addParameter<bool>("useCharged", false);
+  puppiset.addParameter<bool>("applyLowPUCorr", false);
+  puppiset.addParameter<int>("combOpt", 5);
+  puppiset.addParameter<double>("cone", .4);
+  puppiset.addParameter<double>("rmsPtMin", .1);
+  puppiset.addParameter<double>("rmsScaleFactor", 1.0);
+  VPSetPuppiAlgos.push_back(puppiset);
   desc.addVPSet("puppiAlgos", puppialgos, VPSetPuppiAlgos);
+
 }

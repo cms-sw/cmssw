@@ -350,24 +350,21 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
   return fWeights;
 }
 // ------------------------------------------------------------------------------------------
-void PuppiContainer::fillDescriptionsPuppiContainer(edm::ParameterSetDescription &desc) {
-  edm::ParameterSetDescription puppialgos;
-  puppialgos.add<int>("algoId", 5);
-  puppialgos.add<bool>("useCharged", false);
-  puppialgos.add<bool>("applyLowPUCorr", false);
-  puppialgos.add<int>("combOpt", 5);
-  puppialgos.add<double>("cone", .4);
-  puppialgos.add<double>("rmsPtMin", .1);
-  puppialgos.add<double>("rmsScaleFactor", 1.0);
-  std::vector<edm::ParameterSet> VPSetPuppiAlgos;
-  edm::ParameterSet puppiset;
-  puppiset.addParameter<int>("algoId", 5);
-  puppiset.addParameter<bool>("useCharged", false);
-  puppiset.addParameter<bool>("applyLowPUCorr", false);
-  puppiset.addParameter<int>("combOpt", 5);
-  puppiset.addParameter<double>("cone", .4);
-  puppiset.addParameter<double>("rmsPtMin", .1);
-  puppiset.addParameter<double>("rmsScaleFactor", 1.0);
-  VPSetPuppiAlgos.push_back(puppiset);
-  desc.addVPSet("puppiAlgos", puppialgos, VPSetPuppiAlgos);
+void PuppiContainer::fillDescriptionsPuppiContainer(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("puppiDiagnostics", true);
+  desc.add<bool>("applyCHS", true);
+  desc.add<bool>("invertPuppi", false);
+  desc.add<bool>("useExp", false);
+  desc.add<double>("MinPuppiWeight", .01);
+  desc.add<double>("PtMaxNeutrals", 200.);
+
+  edm::ParameterSetDescription algos;
+  PuppiAlgo::fillDescriptionsPuppiAlgo(algos);
+  std::vector<edm::ParameterSet> VPSetAlgos(1);
+  desc.addVPSet( "algos", algos, VPSetAlgos );
+
+  descriptions.addDefault(desc);
+
 }
