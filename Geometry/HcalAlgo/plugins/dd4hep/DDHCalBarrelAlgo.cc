@@ -137,7 +137,7 @@ struct HcalBarrelAlgo {
   std::string idNameSpace;  //Namespace of this and ALL sub-parts
   int idOffset;             // Geant4 ID's...    = 3000;
 
-  HcalBarrelAlgo() { throw cms::Exception("HCalGeom") << "Wrong initialization to HcalBarrelAlgo"; }
+  HcalBarrelAlgo() = delete;
 
   HcalBarrelAlgo(cms::DDParsingContext& ctxt, xml_h& e) {
     cms::DDNamespace ns(ctxt, e, true);
