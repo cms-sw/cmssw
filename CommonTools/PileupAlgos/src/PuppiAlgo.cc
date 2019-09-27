@@ -227,7 +227,6 @@ double PuppiAlgo::compute(std::vector<double> const &iVals, double iChi2) const 
 }
 // ------------------------------------------------------------------------------------------
 void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc) {
-
   desc.add<std::vector<double>>("etaMin", {0.});
   desc.add<std::vector<double>>("etaMax", {2.5});
   desc.add<std::vector<double>>("ptMin", {0.});
@@ -256,5 +255,4 @@ void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc) {
   puppiset.addParameter<double>("rmsScaleFactor", 1.0);
   VPSetPuppiAlgos.push_back(puppiset);
   desc.addVPSet("puppiAlgos", puppialgos, VPSetPuppiAlgos);
-
 }
