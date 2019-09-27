@@ -128,7 +128,9 @@ void DTLocalTriggerBaseTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
   map<uint32_t, DTTimeEvolutionHisto*>::const_iterator chambIt = trendHistos.begin();
   map<uint32_t, DTTimeEvolutionHisto*>::const_iterator chambEnd = trendHistos.end();
   for (; chambIt != chambEnd; ++chambIt) {
+cout<<"updating time slot in DTLocalTriggerBaseTask"<<endl;
     chambIt->second->updateTimeSlot(lumiSeg.luminosityBlock(), nEventsInLS);
+cout<<"updated time slot in DTLocalTriggerBaseTask"<<endl;
   }
 }
 

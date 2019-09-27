@@ -315,10 +315,8 @@ void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId, int nHits, float c
   } else if (chamberId.sector() == 14) {
     sector = 10;
   }
-
   summaryHistos[chamberId.wheel()]->Fill(sector, chamberId.station());
   histoTimeEvol[chamberId.wheel()][sector]->accumulateValueTimeSlot(1);
-
   vector<MonitorElement*> histos = histosPerCh[chamberId];
   histos[0]->Fill(nHits);
   if (detailedAnalysis) {

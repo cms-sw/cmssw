@@ -106,6 +106,7 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
       return;
     }
   }
+
   map<DTChamberId, const L1MuDTChambPhDigi*> phBestTM;
   // Getting best TM Stuff
   edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
@@ -203,7 +204,6 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
       for (; tagIt != tagEnd; ++tagIt) {
         int qual = phBestTM.find(dtChId) != phBestTM.end() ? phBestTM[dtChId]->code() : -1;
         innerWhME.find((*tagIt) + "_TrigEffDenum")->second->Fill(scsector, station);
-
         if (qual >= 0 && qual < 7) {
           innerWhME.find((*tagIt) + "_TrigEffNum")->second->Fill(scsector, station);
           if (qual >= 4) {

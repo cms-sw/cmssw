@@ -35,15 +35,14 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
     fedToken = consumes<DTuROSFEDDataCollection>(ps.getParameter<InputTag>("dtFEDlabel"));
     FEDIDmin = FEDNumbering::MINDTUROSFEDID;
     FEDIDmax = FEDNumbering::MAXDTUROSFEDID;
+  } 
+  else {
+    FEDIDmin = FEDNumbering::MINDTFEDID;
+    FEDIDmax = FEDNumbering::MAXDTFEDID;
   }
 
   neventsFED = 0;
   neventsuROS = 0;
-
-  //   If you want info VS time histos
-  //   doTimeHisto =  ps.getUntrackedParameter<bool>("doTimeHisto", false);
-  //   Plot quantities about SC
-  getSCInfo = ps.getUntrackedParameter<bool>("getSCInfo", false);
 
   fedIntegrityFolder = ps.getUntrackedParameter<string>("fedIntegrityFolder", "DT/FEDIntegrity");
 
@@ -746,9 +745,7 @@ void DTDataIntegrityTask::processFED(DTuROSFEDData& data, int fed) {
 
   if (mode > 1)
     return;
-
   fedTimeHistos["FEDAvgEvLengthvsLumi"][fed]->accumulateValueTimeSlot(fedEvtLength);
-
   // fill the distribution of the BX ids
   fedHistos["BXID"][fed]->Fill(data.getBXId());
 
@@ -843,7 +840,6 @@ void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
   nEventsLS++;
 
   LogTrace("DTRawToDigi|TDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask]: preProcessEvent" << endl;
-
   if (checkUros) {  //uROS starting on 2018
     // Digi collection
     edm::Handle<DTuROSFEDDataCollection> fedCol;
@@ -861,7 +857,6 @@ void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
           continue;
         }
         processFED(fedData, fed);
-
         if (mode == 3 || mode == 1)
           continue;  //Not needed for FEDIntegrity_EvF
 

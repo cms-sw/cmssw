@@ -54,28 +54,24 @@ void DTLocalTriggerTest::Bookings(DQMStore::IBooker& ibooker, DQMStore::IGetter&
         hwSource = (*iHw);
         // Loop over the TriggerUnits
         for (int wh = -2; wh <= 2; ++wh) {
-          if (hwSource == "COM") {
-            bookWheelHistos(ibooker, wh, "MatchingPhi");
-          } else {
-            for (int sect = 1; sect <= 12; ++sect) {
-              bookSectorHistos(ibooker, wh, sect, "BXDistribPhiIn");
-              bookSectorHistos(ibooker, wh, sect, "QualDistribPhiIn");
-              bookSectorHistos(ibooker, wh, sect, "BXDistribPhiOut");
-              bookSectorHistos(ibooker, wh, sect, "QualDistribPhiOut");
-            }
-
-            bookWheelHistos(ibooker, wh, "CorrectBXPhiIn");
-            bookWheelHistos(ibooker, wh, "ResidualBXPhiIn");
-            bookWheelHistos(ibooker, wh, "CorrFractionPhiIn");
-            bookWheelHistos(ibooker, wh, "2ndFractionPhiIn");
-            bookWheelHistos(ibooker, wh, "TriggerInclusivePhiIn");
-
-            bookWheelHistos(ibooker, wh, "CorrectBXPhiOut");
-            bookWheelHistos(ibooker, wh, "ResidualBXPhiOut");
-            bookWheelHistos(ibooker, wh, "CorrFractionPhiOut");
-            bookWheelHistos(ibooker, wh, "2ndFractionPhiOut");
-            bookWheelHistos(ibooker, wh, "TriggerInclusivePhiOut");
+          for (int sect = 1; sect <= 12; ++sect) {
+            bookSectorHistos(ibooker, wh, sect, "BXDistribPhiIn");
+            bookSectorHistos(ibooker, wh, sect, "QualDistribPhiIn");
+            bookSectorHistos(ibooker, wh, sect, "BXDistribPhiOut");
+            bookSectorHistos(ibooker, wh, sect, "QualDistribPhiOut");
           }
+
+          bookWheelHistos(ibooker, wh, "CorrectBXPhiIn");
+          bookWheelHistos(ibooker, wh, "ResidualBXPhiIn");
+          bookWheelHistos(ibooker, wh, "CorrFractionPhiIn");
+          bookWheelHistos(ibooker, wh, "2ndFractionPhiIn");
+          bookWheelHistos(ibooker, wh, "TriggerInclusivePhiIn");
+
+          bookWheelHistos(ibooker, wh, "CorrectBXPhiOut");
+          bookWheelHistos(ibooker, wh, "ResidualBXPhiOut");
+          bookWheelHistos(ibooker, wh, "CorrFractionPhiOut");
+          bookWheelHistos(ibooker, wh, "2ndFractionPhiOut");
+          bookWheelHistos(ibooker, wh, "TriggerInclusivePhiOut");
         }
       }
     }
@@ -87,23 +83,16 @@ void DTLocalTriggerTest::Bookings(DQMStore::IBooker& ibooker, DQMStore::IGetter&
       hwSource = (*iHw);
       // Loop over the TriggerUnits
       for (int wh = -2; wh <= 2; ++wh) {
-        if (hwSource == "COM") {
-          bookWheelHistos(ibooker, wh, "MatchingSummary", "Summaries");
-        } else {
-          bookWheelHistos(ibooker, wh, "CorrFractionSummaryIn", "Summaries");
-          bookWheelHistos(ibooker, wh, "2ndFractionSummaryIn", "Summaries");
-          bookWheelHistos(ibooker, wh, "CorrFractionSummaryOut", "Summaries");
-          bookWheelHistos(ibooker, wh, "2ndFractionSummaryOut", "Summaries");
-        }
+        bookWheelHistos(ibooker, wh, "CorrFractionSummaryIn", "Summaries");
+        bookWheelHistos(ibooker, wh, "2ndFractionSummaryIn", "Summaries");
+        bookWheelHistos(ibooker, wh, "CorrFractionSummaryOut", "Summaries");
+        bookWheelHistos(ibooker, wh, "2ndFractionSummaryOut", "Summaries");
       }
-      if (hwSource == "COM") {
-        bookCmsHistos(ibooker, "MatchingSummary", "Summaries");
-      } else {
-        bookCmsHistos(ibooker, "CorrFractionSummaryIn");
-        bookCmsHistos(ibooker, "2ndFractionSummaryIn");
-        bookCmsHistos(ibooker, "CorrFractionSummaryOut");
-        bookCmsHistos(ibooker, "2ndFractionSummaryOut");
-      }
+      bookCmsHistos(ibooker, "CorrFractionSummaryIn");
+      bookCmsHistos(ibooker, "2ndFractionSummaryIn");
+      bookCmsHistos(ibooker, "CorrFractionSummaryOut");
+      bookCmsHistos(ibooker, "2ndFractionSummaryOut");
+
       if (hwSource == "TM") {
         bookCmsHistos(ibooker, "TrigGlbSummary", "", true);
       }
@@ -370,87 +359,67 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStor
       hwSource = (*iHw);
       for (int wh = -2; wh <= 2; ++wh) {
         std::map<std::string, MonitorElement*>* innerME = &(whME[wh]);
-        if (hwSource == "COM") {
-          TH2F* matchWhSummary = getHisto<TH2F>(innerME->find(fullName("MatchingSummary"))->second);
-          for (int sect = 1; sect <= 12; ++sect) {
-            int matchErr = 0;
-            int matchNoData = 0;
-            for (int stat = 1; stat <= 4; ++stat) {
-              switch (static_cast<int>(matchWhSummary->GetBinContent(sect, stat))) {
-                case 1:
-                  matchNoData++;
-                  [[fallthrough]];
-                case 2:
-                  matchErr++;
-              }
+        // In part
+        TH2F* corrWhSummaryIn = getHisto<TH2F>(innerME->find(fullName("CorrFractionSummaryIn"))->second);
+        TH2F* secondWhSummaryIn = getHisto<TH2F>(innerME->find(fullName("2ndFractionSummaryIn"))->second);
+        for (int sect = 1; sect <= 12; ++sect) {
+          int corrErr = 0;
+          int secondErr = 0;
+          int corrNoData = 0;
+          int secondNoData = 0;
+          for (int stat = 1; stat <= 4; ++stat) {
+            switch (static_cast<int>(corrWhSummaryIn->GetBinContent(sect, stat))) {
+              case 1:
+                corrNoData++;
+                [[fallthrough]];
+              case 2:
+                corrErr++;
             }
-            if (matchNoData == 4)
-              matchErr = 5;
-            cmsME.find(fullName("MatchingSummary"))->second->setBinContent(sect, wh + wheelArrayShift, matchErr);
-          }
-        } else {
-          // In part
-          TH2F* corrWhSummaryIn = getHisto<TH2F>(innerME->find(fullName("CorrFractionSummaryIn"))->second);
-          TH2F* secondWhSummaryIn = getHisto<TH2F>(innerME->find(fullName("2ndFractionSummaryIn"))->second);
-          for (int sect = 1; sect <= 12; ++sect) {
-            int corrErr = 0;
-            int secondErr = 0;
-            int corrNoData = 0;
-            int secondNoData = 0;
-            for (int stat = 1; stat <= 4; ++stat) {
-              switch (static_cast<int>(corrWhSummaryIn->GetBinContent(sect, stat))) {
-                case 1:
-                  corrNoData++;
-                  [[fallthrough]];
-                case 2:
-                  corrErr++;
-              }
-              switch (static_cast<int>(secondWhSummaryIn->GetBinContent(sect, stat))) {
-                case 1:
-                  secondNoData++;
-                  [[fallthrough]];
-                case 2:
-                  secondErr++;
-              }
+            switch (static_cast<int>(secondWhSummaryIn->GetBinContent(sect, stat))) {
+              case 1:
+                secondNoData++;
+                [[fallthrough]];
+              case 2:
+                secondErr++;
             }
-            if (corrNoData == 4)
-              corrErr = 5;
-            if (secondNoData == 4)
-              secondErr = 5;
-            cmsME.find(fullName("CorrFractionSummaryIn"))->second->setBinContent(sect, wh + wheelArrayShift, corrErr);
-            cmsME.find(fullName("2ndFractionSummaryIn"))->second->setBinContent(sect, wh + wheelArrayShift, secondErr);
           }
-          // Out part
-          TH2F* corrWhSummaryOut = getHisto<TH2F>(innerME->find(fullName("CorrFractionSummaryOut"))->second);
-          TH2F* secondWhSummaryOut = getHisto<TH2F>(innerME->find(fullName("2ndFractionSummaryOut"))->second);
-          for (int sect = 1; sect <= 12; ++sect) {
-            int corrErr = 0;
-            int secondErr = 0;
-            int corrNoData = 0;
-            int secondNoData = 0;
-            for (int stat = 1; stat <= 4; ++stat) {
-              switch (static_cast<int>(corrWhSummaryOut->GetBinContent(sect, stat))) {
-                case 1:
-                  corrNoData++;
-                  [[fallthrough]];
-                case 2:
-                  corrErr++;
-              }
-              switch (static_cast<int>(secondWhSummaryOut->GetBinContent(sect, stat))) {
-                case 1:
-                  secondNoData++;
-                  [[fallthrough]];
-                case 2:
-                  secondErr++;
-              }
+          if (corrNoData == 4)
+            corrErr = 5;
+          if (secondNoData == 4)
+            secondErr = 5;
+          cmsME.find(fullName("CorrFractionSummaryIn"))->second->setBinContent(sect, wh + wheelArrayShift, corrErr);
+          cmsME.find(fullName("2ndFractionSummaryIn"))->second->setBinContent(sect, wh + wheelArrayShift, secondErr);
+        }
+        // Out part
+        TH2F* corrWhSummaryOut = getHisto<TH2F>(innerME->find(fullName("CorrFractionSummaryOut"))->second);
+        TH2F* secondWhSummaryOut = getHisto<TH2F>(innerME->find(fullName("2ndFractionSummaryOut"))->second);
+        for (int sect = 1; sect <= 12; ++sect) {
+          int corrErr = 0;
+          int secondErr = 0;
+          int corrNoData = 0;
+          int secondNoData = 0;
+          for (int stat = 1; stat <= 4; ++stat) {
+            switch (static_cast<int>(corrWhSummaryOut->GetBinContent(sect, stat))) {
+              case 1:
+                corrNoData++;
+                [[fallthrough]];
+              case 2:
+                corrErr++;
             }
-            if (corrNoData == 4)
-              corrErr = 5;
-            if (secondNoData == 4)
-              secondErr = 5;
-            cmsME.find(fullName("CorrFractionSummaryOut"))->second->setBinContent(sect, wh + wheelArrayShift, corrErr);
-            cmsME.find(fullName("2ndFractionSummaryOut"))->second->setBinContent(sect, wh + wheelArrayShift, secondErr);
+            switch (static_cast<int>(secondWhSummaryOut->GetBinContent(sect, stat))) {
+              case 1:
+                secondNoData++;
+                [[fallthrough]];
+              case 2:
+                secondErr++;
+            }
           }
+          if (corrNoData == 4)
+            corrErr = 5;
+          if (secondNoData == 4)
+            secondErr = 5;
+          cmsME.find(fullName("CorrFractionSummaryOut"))->second->setBinContent(sect, wh + wheelArrayShift, corrErr);
+          cmsME.find(fullName("2ndFractionSummaryOut"))->second->setBinContent(sect, wh + wheelArrayShift, secondErr);
         }
       }
     }
