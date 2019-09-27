@@ -27,19 +27,20 @@ fixedGridRhoFastjetAllTmp = fixedGridRhoFastjetAll.clone(pfCandidatesTag = cms.I
 particleFlowTmpTask = cms.Task(particleFlowTmp)
 particleFlowTmpSeq = cms.Sequence(particleFlowTmpTask)
 
-particleFlowTmpSeq = cms.Sequence(particleFlowTmp)
+particleFlowRecoTask = cms.Task( particleFlowTrackWithDisplacedVertexTask,
+#                                pfGsfElectronCiCSelectionSequence,
+                                 pfGsfElectronMVASelectionTask,
+                                 particleFlowBlock,
+                                 particleFlowEGammaFullTask,
+                                 particleFlowTmpTask,
+                                 fixedGridRhoFastjetAllTmp,
+                                 particleFlowTmpPtrs,         
+                                 particleFlowEGammaFinalTask,
+                                 pfParticleSelectionTask )
+particleFlowReco = cms.Sequence(particleFlowRecoTask)
 
-particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
-#                                pfGsfElectronCiCSelectionSequence*
-                                 pfGsfElectronMVASelectionSequence*
-                                 particleFlowBlock*
-                                 particleFlowEGammaFull*
-                                 particleFlowTmpSeq*
-                                 fixedGridRhoFastjetAllTmp*
-                                 particleFlowTmpPtrs*          
-                                 particleFlowEGammaFinal*
-                                 pfParticleSelectionSequence )
-particleFlowLinks = cms.Sequence( particleFlow*particleFlowPtrs*chargedHadronPFTrackIsolation*particleBasedIsolationSequence)
+particleFlowLinksTask = cms.Task( particleFlow, particleFlowPtrs, chargedHadronPFTrackIsolation, particleBasedIsolationTask)
+particleFlowLinks = cms.Sequence(particleFlowLinksTask)
 
 from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
 from RecoParticleFlow.PFProducer.simPFProducer_cfi import *
@@ -58,17 +59,13 @@ _phase2_hgcal_simPFTask = cms.Task( pfTrack ,
                                     tpClusterProducer ,
                                     quickTrackAssociatorByHits ,
                                     simPFProducer )
-_phase2_hgcal_simPFSequence = cms.Sequence( pfTrack +
-                                            hgcalTrackCollection + 
-                                            tpClusterProducer +
-                                            quickTrackAssociatorByHits +
-                                            simPFProducer )
-_phase2_hgcal_particleFlowReco = cms.Sequence( _phase2_hgcal_simPFSequence * particleFlowReco.copy() )
-_phase2_hgcal_particleFlowReco.replace( particleFlowTmpSeq, cms.Sequence( particleFlowTmpBarrel * particleFlowTmp ) )
+_phase2_hgcal_simPFSequence = cms.Sequence(_phase2_hgcal_simPFTask) 
+_phase2_hgcal_particleFlowRecoTask = cms.Task( _phase2_hgcal_simPFTask , particleFlowRecoTask.copy() )
+_phase2_hgcal_particleFlowRecoTask.replace( particleFlowTmpTask, cms.Task( particleFlowTmpBarrel, particleFlowTmp ) )
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toReplaceWith( particleFlowTmp, _phase2_hgcal_particleFlowTmp )
-phase2_hgcal.toReplaceWith( particleFlowReco, _phase2_hgcal_particleFlowReco )
+phase2_hgcal.toReplaceWith( particleFlowTmpTask, _phase2_hgcal_particleFlowTmp )
+phase2_hgcal.toReplaceWith( particleFlowRecoTask, _phase2_hgcal_particleFlowRecoTask )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
