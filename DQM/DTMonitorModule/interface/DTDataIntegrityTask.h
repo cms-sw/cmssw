@@ -44,8 +44,6 @@ public:
   void processuROS(DTuROSROSData& data, int fed, int uRos);
   void processFED(DTuROSFEDData& data, int fed);
 
-  bool eventHasErrors() const;
-
   void beginLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) override;
   void endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) override;
 
@@ -58,17 +56,10 @@ private:
   void bookHistos(DQMStore::IBooker&, const int fedMin, const int fedMax);
   void bookHistos(DQMStore::IBooker&, std::string folder, DTROChainCoding code);
   void bookHistos(DQMStore::IBooker&, std::string folder, const int fed);
-  void bookHistosROS25(DQMStore::IBooker&, DTROChainCoding code);
   void bookHistosuROS(DQMStore::IBooker&, const int fed, const int uRos);
   void bookHistosROS(DQMStore::IBooker&, const int wheel, const int ros);
 
-  void channelsInCEROS(int cerosId, int chMask, std::vector<int>& channels);
-  void channelsInROS(int cerosMask, std::vector<int>& channels);
-
   std::string topFolder(bool isFEDIntegrity) const;
-
-  std::multimap<std::string, std::string> names;
-  std::multimap<std::string, std::string>::iterator it;
 
   edm::ParameterSet parameters;
 
@@ -76,16 +67,10 @@ private:
   int theDDU(int crate, int slot, int link, bool tenDDU);
   int theROS(int slot, int link);
 
-  //If you want info VS time histos
-  bool doTimeHisto;
-  // Plot quantities about SC
-  bool getSCInfo;
   // Check FEDs from uROS, otherwise standard ROS
   bool checkUros;
 
   int nevents;
-
-  DTROChainCoding coding;
 
   // Monitor Elements
   MonitorElement* nEventMonitor;
@@ -93,12 +78,8 @@ private:
   std::map<std::string, std::map<int, MonitorElement*> > fedHistos;
   // <histoType, histo> >
   std::map<std::string, std::map<int, MonitorElement*> > summaryHistos;
-  // <histoType, <index , histo> >
-  std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
   // <key , histo> >
   std::map<unsigned int, MonitorElement*> urosHistos;
-  // <histoType, <tdcID, histo> >
-  std::map<std::string, std::map<int, MonitorElement*> > robHistos;
 
   //enum histoTypes for reduced map of MEs urosHistos
   // key = stringEnum*1000 + (fed-minFED)#*100 + (uROS-minuROS)#
@@ -108,14 +89,9 @@ private:
   MonitorElement* hFEDEntry;
   MonitorElement* hFEDFatal;
   MonitorElement* hFEDNonFatal;
-  MonitorElement* hCorruptionSummary;
-
-  // one for all FEDS
-  MonitorElement* hTTSSummary;
 
   //time histos for ROS
   std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > fedTimeHistos;
-  std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > rosTimeHistos;
   // <key, histo> >
   std::map<unsigned int, DTTimeEvolutionHisto*> urosTimeHistos;
   //key =  (fed-minFED)#*100 + (uROS-minuROS)#
@@ -125,32 +101,11 @@ private:
   int neventsFED;
   int neventsuROS;
 
-  float trigger_counter;
-  std::string outputFile;
-  double rob_max[25];
-  double link_max[72];
-
   int FEDIDmin;
   int FEDIDmax;
 
   // Number of ROS/uROS per FED
   const int NuROS = 12;
-
-  //Event counter for the graphs VS time
-  int myPrevEv;
-
-  //Monitor TTS,ROS,FIFO VS time
-  int myPrevTtsVal;
-  int myPrevRosVal;
-  int myPrevFifoVal[7];
-
-  // event error flag: true when errors are detected
-  // can be used for the selection of the debug stream
-  bool eventErrorFlag;
-
-  std::map<int, std::set<int> > rosBxIdsPerFED;
-  std::set<int> fedBXIds;
-  std::map<int, std::set<int> > rosL1AIdsPerFED;
 
   // flag to toggle the creation of only the summaries (for HLT running)
   int mode;
