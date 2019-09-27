@@ -15,3 +15,17 @@ std::vector<HFNoseDetId> HFNoseDetIdToModule::getDetIds(HFNoseDetId const& id) c
   }
   return ids;
 }
+
+std::vector<HFNoseTriggerDetId> HFNoseDetIdToModule::getTriggerDetIds(HFNoseDetId const& id) const {
+  std::vector<HFNoseTriggerDetId> ids;
+  int nCells = HFNoseDetId::HFNoseFineN / HFNoseDetId::HFNoseFineTrigger;
+  for (int u = 0; u < 2 * nCells; ++u) {
+    for (int v = 0; v < 2 * nCells; ++v) {
+      if (((v - u) < nCells) && (u - v) <= nCells) {
+        HFNoseTriggerDetId newId(HFNoseTrigger, id.zside(), id.type(), id.layer(), id.waferU(), id.waferV(), u, v);
+        ids.emplace_back(newId);
+      }
+    }
+  }
+  return ids;
+}
