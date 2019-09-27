@@ -35,8 +35,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
     fedToken = consumes<DTuROSFEDDataCollection>(ps.getParameter<InputTag>("dtFEDlabel"));
     FEDIDmin = FEDNumbering::MINDTUROSFEDID;
     FEDIDmax = FEDNumbering::MAXDTUROSFEDID;
-  } 
-  else {
+  } else {
     FEDIDmin = FEDNumbering::MINDTFEDID;
     FEDIDmax = FEDNumbering::MAXDTFEDID;
   }
