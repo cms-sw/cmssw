@@ -13,5 +13,6 @@ public:
   static const HGCSiliconDetId getModule(HGCalTriggerDetId const& id) { return id.geometryCell(); }
   static const HGCSiliconDetId getModule(HGCSiliconDetId const& id) { return id.geometryCell(); }
   std::vector<HGCSiliconDetId> getDetIds(HGCSiliconDetId const& id) const;
+  std::vector<HGCalTriggerDetId> getDetTriggerIds(HGCSiliconDetId const& id) const;
 };
 #endif
