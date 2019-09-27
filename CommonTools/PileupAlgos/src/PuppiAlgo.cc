@@ -1,5 +1,4 @@
 #include "CommonTools/PileupAlgos/interface/PuppiAlgo.h"
-#include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Math/QuantFuncMathCore.h"
 #include "Math/SpecFuncMathCore.h"
@@ -7,16 +6,16 @@
 #include "TMath.h"
 
 PuppiAlgo::PuppiAlgo(edm::ParameterSet &iConfig) {
-  fEtaMin = iConfig.getParameter<std::vector<double> >("etaMin");
-  fEtaMax = iConfig.getParameter<std::vector<double> >("etaMax");
-  fPtMin = iConfig.getParameter<std::vector<double> >("ptMin");
-  fNeutralPtMin = iConfig.getParameter<std::vector<double> >("MinNeutralPt");         // Weighted Neutral Pt Cut
-  fNeutralPtSlope = iConfig.getParameter<std::vector<double> >("MinNeutralPtSlope");  // Slope vs #pv
-  fRMSEtaSF = iConfig.getParameter<std::vector<double> >("RMSEtaSF");
-  fMedEtaSF = iConfig.getParameter<std::vector<double> >("MedEtaSF");
+  fEtaMin = iConfig.getParameter<std::vector<double>>("etaMin");
+  fEtaMax = iConfig.getParameter<std::vector<double>>("etaMax");
+  fPtMin = iConfig.getParameter<std::vector<double>>("ptMin");
+  fNeutralPtMin = iConfig.getParameter<std::vector<double>>("MinNeutralPt");         // Weighted Neutral Pt Cut
+  fNeutralPtSlope = iConfig.getParameter<std::vector<double>>("MinNeutralPtSlope");  // Slope vs #pv
+  fRMSEtaSF = iConfig.getParameter<std::vector<double>>("RMSEtaSF");
+  fMedEtaSF = iConfig.getParameter<std::vector<double>>("MedEtaSF");
   fEtaMaxExtrap = iConfig.getParameter<double>("EtaMaxExtrap");
 
-  std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("puppiAlgos");
+  std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet>>("puppiAlgos");
   fNAlgos = lAlgos.size();
   //Uber Configurable Puppi
   std::vector<double> tmprms;
@@ -225,4 +224,37 @@ double PuppiAlgo::compute(std::vector<double> const &iVals, double iChi2) const 
   //Top it off with the last calc
   lPVal *= ROOT::Math::chisquared_cdf(lVal, lNDOF);
   return lPVal;
+}
+// ------------------------------------------------------------------------------------------
+void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc) {
+
+  desc.add<std::vector<double>>("etaMin", {0.});
+  desc.add<std::vector<double>>("etaMax", {2.5});
+  desc.add<std::vector<double>>("ptMin", {0.});
+  desc.add<std::vector<double>>("MinNeutralPt", {0.2});
+  desc.add<std::vector<double>>("MinNeutralPtSlope", {0.015});
+  desc.add<std::vector<double>>("RMSEtaSF", {1.0});
+  desc.add<std::vector<double>>("MedEtaSF", {1.0});
+  desc.add<double>("EtaMaxExtrap", 2.0);
+
+  edm::ParameterSetDescription puppialgos;
+  puppialgos.add<int>("algoId", 5);
+  puppialgos.add<bool>("useCharged", false);
+  puppialgos.add<bool>("applyLowPUCorr", false);
+  puppialgos.add<int>("combOpt", 5);
+  puppialgos.add<double>("cone", .4);
+  puppialgos.add<double>("rmsPtMin", .1);
+  puppialgos.add<double>("rmsScaleFactor", 1.0);
+  std::vector<edm::ParameterSet> VPSetPuppiAlgos;
+  edm::ParameterSet puppiset;
+  puppiset.addParameter<int>("algoId", 5);
+  puppiset.addParameter<bool>("useCharged", false);
+  puppiset.addParameter<bool>("applyLowPUCorr", false);
+  puppiset.addParameter<int>("combOpt", 5);
+  puppiset.addParameter<double>("cone", .4);
+  puppiset.addParameter<double>("rmsPtMin", .1);
+  puppiset.addParameter<double>("rmsScaleFactor", 1.0);
+  VPSetPuppiAlgos.push_back(puppiset);
+  desc.addVPSet("puppiAlgos", puppialgos, VPSetPuppiAlgos);
+
 }
