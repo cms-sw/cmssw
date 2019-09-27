@@ -351,7 +351,6 @@ void PuppiProducer::beginJob() {}
 void PuppiProducer::endJob() {}
 // ------------------------------------------------------------------------------------------
 void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
   edm::ParameterSetDescription desc;
   desc.add<bool>("puppiDiagnostics", false);
   desc.add<bool>("puppiForLeptons", false);
@@ -373,10 +372,9 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription algos;
   PuppiContainer::fillDescriptionsPuppiContainer(algos);
   std::vector<edm::ParameterSet> VPSetAlgos(1);
-  desc.addVPSet( "algos", algos, VPSetAlgos );
+  desc.addVPSet("algos", algos, VPSetAlgos);
 
   descriptions.add("PuppiProducer", desc);
-
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(PuppiProducer);
