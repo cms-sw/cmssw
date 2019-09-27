@@ -49,7 +49,7 @@ dtSourcesCosmics = cms.Sequence(dtDataIntegrityUnpacker  +
                                 dtSegmentAnalysisMonitor +
                                 dtResolutionAnalysisMonitor +
                                 dtEfficiencyMonitor +
-#                                dtTriggerEfficiencyMonitor +
+                                dtTriggerEfficiencyMonitor +
                                 dqmInfoDT)
 
 import EventFilter.DTRawToDigi.dturosunpacker_cfi
