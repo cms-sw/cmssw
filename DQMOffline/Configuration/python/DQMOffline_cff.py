@@ -85,9 +85,7 @@ DQMOffline = cms.Sequence( DQMOfflinePreDPG *
 
 DQMOfflineCTPPS = cms.Sequence( ctppsDQM ) 
 
-DQMOfflineExtraHLT = cms.Sequence(
-    offlineValidationHLTSource
-)
+DQMOfflineExtraHLT = cms.Sequence( offlineValidationHLTSource )
 
 
 DQMOfflineFakeHLT = cms.Sequence( DQMOffline )
@@ -118,7 +116,8 @@ DQMOuterTracker = cms.Sequence( dqmDcsInfo *
                                 dqmPhysics *
                                 pvMonitor 
                                 )
-
+DQMOfflineTAU = cms.Sequence( produceDenomsData *
+				pfTauRunDQMValidation )
 DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
                                  SiStripDQMTier0Common *
@@ -128,8 +127,7 @@ DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  alcaBeamMonitor *
                                  castorSources *
                                  dqmPhysics *
-                                 produceDenomsData *
-                                 pfTauRunDQMValidation
+				 DQMOfflineTAU
                                 )
 
 DQMOfflineCommonFakeHLT = cms.Sequence( DQMOfflineCommon )
