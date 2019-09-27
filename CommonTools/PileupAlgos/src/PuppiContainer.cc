@@ -330,7 +330,7 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
       pWeight = 1.;
     // Protect high pT neutrals
     else if ((fPtMaxNeutrals > 0) && (rParticle.id == 0))
-      pWeight = std::clamp(pWeight, fPFParticles[i0].pt() / fPtMaxNeutrals, 1.);
+      pWeight = std::clamp(fPFParticles[i0].pt() / fPtMaxNeutrals, pWeight, 1.);
     if (pWeight < fPuppiWeightCut)
       pWeight = 0;  //==> Elminate the low Weight stuff
     if (fInvert)
