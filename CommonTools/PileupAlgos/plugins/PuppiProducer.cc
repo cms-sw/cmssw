@@ -370,7 +370,11 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("useExp", false);
   desc.add<double>("MinPuppiWeight", .01);
 
-  PuppiContainer::fillDescriptionsPuppiContainer(descriptions);
+  edm::ParameterSetDescription algos;
+  PuppiContainer::fillDescriptionsPuppiContainer(algos);
+  std::vector<edm::ParameterSet> VPSetAlgos(1);
+  desc.addVPSet( "algos", algos, VPSetAlgos );
+
   descriptions.add("PuppiProducer", desc);
 
 }

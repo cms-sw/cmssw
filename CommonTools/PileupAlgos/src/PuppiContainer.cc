@@ -350,21 +350,14 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
   return fWeights;
 }
 // ------------------------------------------------------------------------------------------
-void PuppiContainer::fillDescriptionsPuppiContainer(edm::ConfigurationDescriptions& descriptions) {
+void PuppiContainer::fillDescriptionsPuppiContainer(edm::ParameterSetDescription& desc) {
 
-  edm::ParameterSetDescription desc;
   desc.add<bool>("puppiDiagnostics", true);
   desc.add<bool>("applyCHS", true);
   desc.add<bool>("invertPuppi", false);
   desc.add<bool>("useExp", false);
   desc.add<double>("MinPuppiWeight", .01);
   desc.add<double>("PtMaxNeutrals", 200.);
-
-  edm::ParameterSetDescription algos;
-  PuppiAlgo::fillDescriptionsPuppiAlgo(algos);
-  std::vector<edm::ParameterSet> VPSetAlgos(1);
-  desc.addVPSet( "algos", algos, VPSetAlgos );
-
-  descriptions.addDefault(desc);
+  PuppiAlgo::fillDescriptionsPuppiAlgo(desc);
 
 }
