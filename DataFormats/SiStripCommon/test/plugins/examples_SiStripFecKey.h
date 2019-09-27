@@ -3,8 +3,8 @@
 #define DataFormats_SiStripCommon_examplesSiStripFecKey_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include <boost/cstdint.hpp>
 #include <vector>
+#include <cstdint>
 
 /**
    @class examplesSiStripFecKey 

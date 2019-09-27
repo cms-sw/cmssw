@@ -921,15 +921,15 @@ void testEventsetup::getTransientHandleWithESGetTokenTest() {
 }
 
 void testEventsetup::sourceProducerResolutionTest() {
-  EventSetupsController controller;
-  edm::ParameterSet pset = createDummyPset();
-  EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
-
-  std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
-  dummyFinder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(2)), IOVSyncValue(Timestamp(3))));
-  provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
-
   {
+    EventSetupsController controller;
+    edm::ParameterSet pset = createDummyPset();
+    EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+
+    std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
+    dummyFinder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(2)), IOVSyncValue(Timestamp(3))));
+    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+
     {
       edm::eventsetup::ComponentDescription description("DummyProxyProvider", "", true);
       auto dummyProv = std::make_shared<DummyProxyProvider>(kBad);

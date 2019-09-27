@@ -3,7 +3,6 @@
 #include "Math/Polar3D.h"
 #include "Math/CylindricalEta3D.h"
 #include "Math/PxPyPzE4D.h"
-#include <boost/cstdint.hpp>
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedRefCandidate.h"

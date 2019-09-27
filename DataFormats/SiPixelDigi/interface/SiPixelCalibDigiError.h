@@ -11,7 +11,7 @@
 #include <iostream>
 #include <utility>
 #include <string>
-#include "boost/cstdint.hpp"
+#include <cstdint>
 
 class SiPixelCalibDigiError {
 private:

@@ -3,9 +3,8 @@
 #ifndef __l1t_emtf_RPC_h__
 #define __l1t_emtf_RPC_h__
 
-#include <boost/cstdint.hpp>
-
 #include <vector>
+#include <cstdint>
 
 namespace l1t {
   namespace emtf {

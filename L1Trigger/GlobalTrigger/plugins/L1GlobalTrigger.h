@@ -23,8 +23,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
@@ -38,6 +36,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include <cstdint>
 
 // forward classes
 class L1GlobalTriggerPSB;
@@ -111,8 +110,8 @@ private:
   int m_totalBxInEvent;
 
   ///    active boards in L1 GT DAQ record and in L1 GT EVM record
-  boost::uint16_t m_activeBoardsGtDaq;
-  boost::uint16_t m_activeBoardsGtEvm;
+  uint16_t m_activeBoardsGtDaq;
+  uint16_t m_activeBoardsGtEvm;
 
   /// length of BST record (in bytes) from event setup
   unsigned int m_bstLengthBytes;

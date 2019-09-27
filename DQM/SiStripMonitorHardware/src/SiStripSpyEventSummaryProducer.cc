@@ -23,7 +23,7 @@
 #include <memory>
 #include <string>
 #include "boost/scoped_array.hpp"
-#include "boost/cstdint.hpp"
+#include <cstdint>
 
 using edm::LogError;
 using edm::LogInfo;

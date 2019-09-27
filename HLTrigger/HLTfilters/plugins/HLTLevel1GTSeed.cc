@@ -272,7 +272,7 @@ bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent,
   }
 
   //
-  boost::uint16_t gtFinalOR = gtReadoutRecord->finalOR();
+  uint16_t gtFinalOR = gtReadoutRecord->finalOR();
   int physicsDaqPartition = 0;
   bool gtDecision = static_cast<bool>(gtFinalOR & (1 << physicsDaqPartition));
 

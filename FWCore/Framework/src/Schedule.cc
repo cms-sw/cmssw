@@ -322,18 +322,20 @@ namespace edm {
             it = inserted.first;
           }
 
-          for (auto const& item : preg.productList()) {
-            if (item.second.branchType() == prod.second.branchType() and
-                item.second.unwrappedTypeID().typeInfo() == prod.second.unwrappedTypeID().typeInfo() and
-                item.first.moduleLabel() == prod.second.switchAliasModuleLabel() and
-                item.first.productInstanceName() == prod.second.productInstanceName()) {
-              if (item.first.processName() != processName) {
+          for (auto const& productIter : preg.productList()) {
+            BranchKey const& branchKey = productIter.first;
+            BranchDescription const& desc = productIter.second;
+            if (desc.branchType() == prod.second.branchType() and
+                desc.unwrappedTypeID().typeInfo() == prod.second.unwrappedTypeID().typeInfo() and
+                branchKey.moduleLabel() == prod.second.switchAliasModuleLabel() and
+                branchKey.productInstanceName() == prod.second.productInstanceName()) {
+              if (branchKey.processName() != processName) {
                 throw Exception(errors::LogicError)
                     << "Encountered a BranchDescription that is aliased-for by SwitchProducer, and whose processName "
-                    << item.first.processName() << " differs from current process " << processName
-                    << ". Module label is " << item.first.moduleLabel() << ".\nPlease contact a framework developer.";
+                    << branchKey.processName() << " differs from current process " << processName
+                    << ". Module label is " << branchKey.moduleLabel() << ".\nPlease contact a framework developer.";
               }
-              prod.second.setSwitchAliasForBranch(item.second);
+              prod.second.setSwitchAliasForBranch(desc);
               it->second.chosenBranches.push_back(prod.first);  // with moduleLabel of the Switch
             }
           }
@@ -392,8 +394,8 @@ namespace edm {
                           << "SwitchProducer does not support ROOT branch aliases. Got the following ROOT branch "
                              "aliases for SwitchProducer with label "
                           << switchLabel << " for case " << caseLabel << ":";
-                for (auto const& item : bd.branchAliases()) {
-                  ex << " " << item;
+                for (auto const& branchAlias : bd.branchAliases()) {
+                  ex << " " << branchAlias;
                 }
                 throw ex;
               }

@@ -14,7 +14,10 @@ from builtins import range
 import copy
 import json
 import re
-import urllib2
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
 
 class LumiList(object):
     """
@@ -57,7 +60,7 @@ class LumiList(object):
             self.compactList = json.load(jsonFile)
         elif url:
             self.url = url
-            jsonFile = urllib2.urlopen(url)
+            jsonFile = urlopen(url)
             self.compactList = json.load(jsonFile)
         elif lumis:
             runsAndLumis = {}
@@ -240,7 +243,7 @@ class LumiList(object):
         """
         theList = []
         runs = self.compactList.keys()
-        runs.sort(key=int)
+        runs = sorted(run, key=int)
         for run in runs:
             lumis = self.compactList[run]
             for lumiPair in sorted(lumis):
@@ -265,7 +268,7 @@ class LumiList(object):
 
         parts = []
         runs = self.compactList.keys()
-        runs.sort(key=int)
+        runs = sorted(runs, key=int)
         for run in runs:
             lumis = self.compactList[run]
             for lumiPair in sorted(lumis):

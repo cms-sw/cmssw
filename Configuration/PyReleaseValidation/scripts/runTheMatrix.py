@@ -273,7 +273,9 @@ if __name__ == '__main__':
     opt,args = parser.parse_args()
     if opt.IBEos:
       import os
-      from commands import getstatusoutput as run_cmd
+      try:from commands import getstatusoutput as run_cmd
+      except:from subprocess import getstatusoutput as run_cmd
+
       ibeos_cache = os.path.join(os.getenv("LOCALRT"), "ibeos_cache.txt")
       if not os.path.exists(ibeos_cache):
         err, out = run_cmd("curl -L -s -o %s https://raw.githubusercontent.com/cms-sw/cms-sw.github.io/master/das_queries/ibeos.txt" % ibeos_cache)

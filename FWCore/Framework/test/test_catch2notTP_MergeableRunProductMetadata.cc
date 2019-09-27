@@ -168,9 +168,10 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
 
     REQUIRE(mergeableRunProductProcesses.size() == 2);
 
-    std::vector<std::string> expected{"AAPROD", "APROD"};
-    REQUIRE(mergeableRunProductProcesses.processesWithMergeableRunProducts() == expected);
-
+    {
+      std::vector<std::string> expected{"AAPROD", "APROD"};
+      REQUIRE(mergeableRunProductProcesses.processesWithMergeableRunProducts() == expected);
+    }
     std::vector<std::string> storedProcesses{"AAAPROD", "AAPROD", "APROD", "ZPROD"};
     edm::StoredMergeableRunProductMetadata storedMetadata(storedProcesses);
     REQUIRE(storedMetadata.processesWithMergeableRunProducts() == storedProcesses);
@@ -204,128 +205,130 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
     //              not there at all
     //              there with a vector and invalid
     // Let AAAPROD and ZPROD be there for all entries 0, 2, 3, 4
-    std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntry>& singleRunEntries =
-        storedMetadata.singleRunEntries();
-    singleRunEntries.emplace_back(0, 3);
-    singleRunEntries.emplace_back(3, 3);
-    singleRunEntries.emplace_back(3, 6);
-    singleRunEntries.emplace_back(6, 8);
-    singleRunEntries.emplace_back(8, 11);
-    singleRunEntries.emplace_back(11, 12);
-    singleRunEntries.emplace_back(12, 13);
-    singleRunEntries.emplace_back(13, 14);
-    singleRunEntries.emplace_back(14, 15);
+    {
+      std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntry>& singleRunEntries =
+          storedMetadata.singleRunEntries();
+      singleRunEntries.emplace_back(0, 3);
+      singleRunEntries.emplace_back(3, 3);
+      singleRunEntries.emplace_back(3, 6);
+      singleRunEntries.emplace_back(6, 8);
+      singleRunEntries.emplace_back(8, 11);
+      singleRunEntries.emplace_back(11, 12);
+      singleRunEntries.emplace_back(12, 13);
+      singleRunEntries.emplace_back(13, 14);
+      singleRunEntries.emplace_back(14, 15);
 
-    std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntryAndProcess>& singleRunEntryAndProcesses =
-        storedMetadata.singleRunEntryAndProcesses();
-    std::vector<edm::LuminosityBlockNumber_t>& lumis = storedMetadata.lumis();
+      std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntryAndProcess>& singleRunEntryAndProcesses =
+          storedMetadata.singleRunEntryAndProcesses();
+      std::vector<edm::LuminosityBlockNumber_t>& lumis = storedMetadata.lumis();
 
-    // arguments: beginLumi, endLumi, process Index, valid, useIndexIntoFile
-    unsigned int iAAAPROD{0};
-    // unsigned int iAAPROD { 1 };
-    unsigned int iAPROD{2};
-    unsigned int iZPROD{3};
+      // arguments: beginLumi, endLumi, process Index, valid, useIndexIntoFile
+      unsigned int iAAAPROD{0};
+      // unsigned int iAAPROD { 1 };
+      unsigned int iAPROD{2};
+      unsigned int iZPROD{3};
 
-    // 0th run entry
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(1);
-    lumis.emplace_back(2);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAAAPROD, true, false);
+      // 0th run entry
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(1);
+      lumis.emplace_back(2);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAAAPROD, true, false);
 
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(101);
-    lumis.emplace_back(102);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, true, false);
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(101);
+      lumis.emplace_back(102);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, true, false);
 
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(1);
-    lumis.emplace_back(2);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iZPROD, true, false);
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(1);
+      lumis.emplace_back(2);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iZPROD, true, false);
 
-    // nothing in the 1st entry
+      // nothing in the 1st entry
 
-    // 2nd run entry
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(1);
-    lumis.emplace_back(2);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAAAPROD, true, false);
+      // 2nd run entry
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(1);
+      lumis.emplace_back(2);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAAAPROD, true, false);
 
-    iBeginLumi = lumis.size();
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, false, true);
+      iBeginLumi = lumis.size();
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, false, true);
 
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(1);
-    lumis.emplace_back(2);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iZPROD, true, false);
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(1);
+      lumis.emplace_back(2);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iZPROD, true, false);
 
-    // 3rd run entry
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(1);
-    lumis.emplace_back(2);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAAAPROD, true, false);
+      // 3rd run entry
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(1);
+      lumis.emplace_back(2);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAAAPROD, true, false);
 
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(1);
-    lumis.emplace_back(2);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iZPROD, true, false);
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(1);
+      lumis.emplace_back(2);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iZPROD, true, false);
 
-    // 4th run entry
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(1);
-    lumis.emplace_back(2);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAAAPROD, true, false);
+      // 4th run entry
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(1);
+      lumis.emplace_back(2);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAAAPROD, true, false);
 
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(111);
-    lumis.emplace_back(112);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, false, false);
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(111);
+      lumis.emplace_back(112);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, false, false);
 
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(1);
-    lumis.emplace_back(2);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iZPROD, true, false);
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(1);
+      lumis.emplace_back(2);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iZPROD, true, false);
 
-    // 5th entry
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(91);
-    lumis.emplace_back(92);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, true, false);
+      // 5th entry
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(91);
+      lumis.emplace_back(92);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, true, false);
 
-    // 6th entry
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(121);
-    lumis.emplace_back(122);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, true, false);
+      // 6th entry
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(121);
+      lumis.emplace_back(122);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, true, false);
 
-    // 7th entry
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(95);
-    lumis.emplace_back(101);
-    lumis.emplace_back(105);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, true, false);
+      // 7th entry
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(95);
+      lumis.emplace_back(101);
+      lumis.emplace_back(105);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, true, false);
 
-    // 8th entry
-    iBeginLumi = lumis.size();
-    lumis.emplace_back(1000);
-    lumis.emplace_back(1002);
-    lumis.emplace_back(1003);
-    lumis.emplace_back(1004);
-    iEndLumi = lumis.size();
-    singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, true, false);
+      // 8th entry
+      iBeginLumi = lumis.size();
+      lumis.emplace_back(1000);
+      lumis.emplace_back(1002);
+      lumis.emplace_back(1003);
+      lumis.emplace_back(1004);
+      iEndLumi = lumis.size();
+      singleRunEntryAndProcesses.emplace_back(iBeginLumi, iEndLumi, iAPROD, true, false);
+    }
 
     storedMetadata.allValidAndUseIndexIntoFile() = false;
 
@@ -505,30 +508,29 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
     mergeableRunProductMetadata.preReadFile();
     mergeableRunProductMetadata.postWriteRun();
     {
-      std::vector<edm::LuminosityBlockNumber_t> expected3;
-      REQUIRE(expected3 == mergeableRunProductMetadata.lumisFromIndexIntoFile());
+      std::vector<edm::LuminosityBlockNumber_t> expected;
+      REQUIRE(expected == mergeableRunProductMetadata.lumisFromIndexIntoFile());
       REQUIRE(!mergeableRunProductMetadata.gotLumisFromIndexIntoFile());
 
       mergeableRunProductMetadata.readRun(1, storedMetadata, edm::IndexIntoFileItrHolder(iter));
 
-      std::vector<edm::LuminosityBlockNumber_t> expected;
       REQUIRE(APRODMetadataForProcess->lumis() == expected);
       REQUIRE(APRODMetadataForProcess->mergeDecision() == edm::MergeableRunProductMetadata::MERGE);
       REQUIRE(APRODMetadataForProcess->valid());
       REQUIRE(APRODMetadataForProcess->useIndexIntoFile());
       REQUIRE(!APRODMetadataForProcess->allLumisProcessed());
 
-      std::vector<edm::LuminosityBlockNumber_t> expected2{1001, 1003};
-      REQUIRE(expected2 == mergeableRunProductMetadata.lumisFromIndexIntoFile());
+      expected = std::vector<edm::LuminosityBlockNumber_t>{1001, 1003};
+      REQUIRE(expected == mergeableRunProductMetadata.lumisFromIndexIntoFile());
       REQUIRE(mergeableRunProductMetadata.gotLumisFromIndexIntoFile());
     }
     mergeableRunProductMetadata.preReadFile();
     {
-      std::vector<edm::LuminosityBlockNumber_t> expected3;
-      REQUIRE(expected3 == mergeableRunProductMetadata.lumisFromIndexIntoFile());
+      std::vector<edm::LuminosityBlockNumber_t> expected;
+      REQUIRE(expected == mergeableRunProductMetadata.lumisFromIndexIntoFile());
       REQUIRE(!mergeableRunProductMetadata.gotLumisFromIndexIntoFile());
 
-      std::vector<edm::LuminosityBlockNumber_t> expected{1001, 1003};
+      expected = std::vector<edm::LuminosityBlockNumber_t>{1001, 1003};
       REQUIRE(APRODMetadataForProcess->lumis() == expected);
       REQUIRE(!APRODMetadataForProcess->useIndexIntoFile());
       REQUIRE(!APRODMetadataForProcess->allLumisProcessed());
@@ -545,8 +547,8 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       REQUIRE(APRODMetadataForProcess->useIndexIntoFile());
       REQUIRE(!APRODMetadataForProcess->allLumisProcessed());
 
-      std::vector<edm::LuminosityBlockNumber_t> expected2{1001, 1003};
-      REQUIRE(expected2 == mergeableRunProductMetadata.lumisFromIndexIntoFile());
+      expected = std::vector<edm::LuminosityBlockNumber_t>{1001, 1003};
+      REQUIRE(expected == mergeableRunProductMetadata.lumisFromIndexIntoFile());
       REQUIRE(mergeableRunProductMetadata.gotLumisFromIndexIntoFile());
     }
     {
@@ -556,8 +558,8 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       mergeableRunProductMetadata.readRun(2, storedMetadata, edm::IndexIntoFileItrHolder(iter));
       REQUIRE(APRODMetadataForProcess->lumis() == expected);
       mergeableRunProductMetadata.preReadFile();
-      std::vector<edm::LuminosityBlockNumber_t> expected2{1000, 1001, 1002, 1003, 1004};
-      REQUIRE(APRODMetadataForProcess->lumis() == expected2);
+      expected = std::vector<edm::LuminosityBlockNumber_t>{1000, 1001, 1002, 1003, 1004};
+      REQUIRE(APRODMetadataForProcess->lumis() == expected);
     }
     mergeableRunProductMetadata.postWriteRun();
 
@@ -565,25 +567,25 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       mergeableRunProductMetadata.readRun(2, storedMetadata, edm::IndexIntoFileItrHolder(iter));
       mergeableRunProductMetadata.readRun(8, storedMetadata, edm::IndexIntoFileItrHolder(iter));
 
-      std::vector<edm::LuminosityBlockNumber_t> expected1{1001, 1003};
-      REQUIRE(expected1 == mergeableRunProductMetadata.lumisFromIndexIntoFile());
+      std::vector<edm::LuminosityBlockNumber_t> expected{1001, 1003};
+      REQUIRE(expected == mergeableRunProductMetadata.lumisFromIndexIntoFile());
       REQUIRE(mergeableRunProductMetadata.gotLumisFromIndexIntoFile());
 
-      std::vector<edm::LuminosityBlockNumber_t> expected2{1000, 1002, 1003, 1004};
-      REQUIRE(APRODMetadataForProcess->lumis() == expected2);
+      expected = std::vector<edm::LuminosityBlockNumber_t>{1000, 1002, 1003, 1004};
+      REQUIRE(APRODMetadataForProcess->lumis() == expected);
 
       mergeableRunProductMetadata.writeLumi(1004);
       mergeableRunProductMetadata.writeLumi(1002);
       mergeableRunProductMetadata.writeLumi(1002);
       mergeableRunProductMetadata.preWriteRun();
 
-      std::vector<edm::LuminosityBlockNumber_t> expected3;
-      REQUIRE(expected3 == mergeableRunProductMetadata.lumisFromIndexIntoFile());
+      expected.clear();
+      REQUIRE(expected == mergeableRunProductMetadata.lumisFromIndexIntoFile());
       REQUIRE(!mergeableRunProductMetadata.gotLumisFromIndexIntoFile());
       REQUIRE(!APRODMetadataForProcess->allLumisProcessed());
 
-      std::vector<edm::LuminosityBlockNumber_t> expected4{1000, 1001, 1002, 1003, 1004};
-      REQUIRE(APRODMetadataForProcess->lumis() == expected4);
+      expected = std::vector<edm::LuminosityBlockNumber_t>{1000, 1001, 1002, 1003, 1004};
+      REQUIRE(APRODMetadataForProcess->lumis() == expected);
     }
     mergeableRunProductMetadata.postWriteRun();
     REQUIRE(mergeableRunProductMetadata.lumisProcessed().empty());
@@ -607,12 +609,12 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       mergeableRunProductMetadata.readRun(2, storedMetadata, edm::IndexIntoFileItrHolder(iter));
       mergeableRunProductMetadata.readRun(8, storedMetadata, edm::IndexIntoFileItrHolder(iter));
 
-      std::vector<edm::LuminosityBlockNumber_t> expected1{1001, 1003};
-      REQUIRE(expected1 == mergeableRunProductMetadata.lumisFromIndexIntoFile());
+      std::vector<edm::LuminosityBlockNumber_t> expected{1001, 1003};
+      REQUIRE(expected == mergeableRunProductMetadata.lumisFromIndexIntoFile());
       REQUIRE(mergeableRunProductMetadata.gotLumisFromIndexIntoFile());
 
-      std::vector<edm::LuminosityBlockNumber_t> expected2{1000, 1002, 1003, 1004};
-      REQUIRE(APRODMetadataForProcess->lumis() == expected2);
+      expected = std::vector<edm::LuminosityBlockNumber_t>{1000, 1002, 1003, 1004};
+      REQUIRE(APRODMetadataForProcess->lumis() == expected);
 
       mergeableRunProductMetadata.writeLumi(1004);
       mergeableRunProductMetadata.writeLumi(1002);
@@ -622,13 +624,13 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       mergeableRunProductMetadata.writeLumi(1003);
       mergeableRunProductMetadata.preWriteRun();
 
-      std::vector<edm::LuminosityBlockNumber_t> expected3;
-      REQUIRE(expected3 == mergeableRunProductMetadata.lumisFromIndexIntoFile());
+      expected.clear();
+      REQUIRE(expected == mergeableRunProductMetadata.lumisFromIndexIntoFile());
       REQUIRE(!mergeableRunProductMetadata.gotLumisFromIndexIntoFile());
       REQUIRE(APRODMetadataForProcess->allLumisProcessed());
 
-      std::vector<edm::LuminosityBlockNumber_t> expected4{1000, 1001, 1002, 1003, 1004};
-      REQUIRE(APRODMetadataForProcess->lumis() == expected4);
+      expected = std::vector<edm::LuminosityBlockNumber_t>{1000, 1001, 1002, 1003, 1004};
+      REQUIRE(APRODMetadataForProcess->lumis() == expected);
 
       mergeableRunProductMetadata.addEntryToStoredMetadata(storedMetadataOutput);
 
@@ -653,65 +655,65 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       mergeableRunProductMetadata.postWriteRun();
 
       // ---------------------------------------------------
+      {
+        std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntry>& singleRunEntries =
+            storedMetadataOutput.singleRunEntries();
+        REQUIRE(singleRunEntries.size() == 4);
+        REQUIRE(singleRunEntries[0].beginProcess() == 0);
+        REQUIRE(singleRunEntries[0].endProcess() == 0);
+        REQUIRE(singleRunEntries[1].beginProcess() == 0);
+        REQUIRE(singleRunEntries[1].endProcess() == 1);
+        REQUIRE(singleRunEntries[2].beginProcess() == 1);
+        REQUIRE(singleRunEntries[2].endProcess() == 3);
+        REQUIRE(singleRunEntries[3].beginProcess() == 3);
+        REQUIRE(singleRunEntries[3].endProcess() == 5);
 
-      std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntry>& singleRunEntries =
-          storedMetadataOutput.singleRunEntries();
-      REQUIRE(singleRunEntries.size() == 4);
-      REQUIRE(singleRunEntries[0].beginProcess() == 0);
-      REQUIRE(singleRunEntries[0].endProcess() == 0);
-      REQUIRE(singleRunEntries[1].beginProcess() == 0);
-      REQUIRE(singleRunEntries[1].endProcess() == 1);
-      REQUIRE(singleRunEntries[2].beginProcess() == 1);
-      REQUIRE(singleRunEntries[2].endProcess() == 3);
-      REQUIRE(singleRunEntries[3].beginProcess() == 3);
-      REQUIRE(singleRunEntries[3].endProcess() == 5);
+        std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntryAndProcess>& singleRunEntryAndProcesses =
+            storedMetadataOutput.singleRunEntryAndProcesses();
+        REQUIRE(singleRunEntryAndProcesses.size() == 5);
 
-      std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntryAndProcess>& singleRunEntryAndProcesses =
-          storedMetadataOutput.singleRunEntryAndProcesses();
-      REQUIRE(singleRunEntryAndProcesses.size() == 5);
+        REQUIRE(singleRunEntryAndProcesses[0].beginLumi() == 0);
+        REQUIRE(singleRunEntryAndProcesses[0].endLumi() == 0);
+        REQUIRE(singleRunEntryAndProcesses[0].process() == 2);
+        REQUIRE(!singleRunEntryAndProcesses[0].valid());
+        REQUIRE(singleRunEntryAndProcesses[0].useIndexIntoFile());
 
-      REQUIRE(singleRunEntryAndProcesses[0].beginLumi() == 0);
-      REQUIRE(singleRunEntryAndProcesses[0].endLumi() == 0);
-      REQUIRE(singleRunEntryAndProcesses[0].process() == 2);
-      REQUIRE(!singleRunEntryAndProcesses[0].valid());
-      REQUIRE(singleRunEntryAndProcesses[0].useIndexIntoFile());
+        REQUIRE(singleRunEntryAndProcesses[1].beginLumi() == 0);
+        REQUIRE(singleRunEntryAndProcesses[1].endLumi() == 2);
+        REQUIRE(singleRunEntryAndProcesses[1].process() == 1);
+        REQUIRE(singleRunEntryAndProcesses[1].valid());
+        REQUIRE(!singleRunEntryAndProcesses[1].useIndexIntoFile());
 
-      REQUIRE(singleRunEntryAndProcesses[1].beginLumi() == 0);
-      REQUIRE(singleRunEntryAndProcesses[1].endLumi() == 2);
-      REQUIRE(singleRunEntryAndProcesses[1].process() == 1);
-      REQUIRE(singleRunEntryAndProcesses[1].valid());
-      REQUIRE(!singleRunEntryAndProcesses[1].useIndexIntoFile());
+        REQUIRE(singleRunEntryAndProcesses[2].beginLumi() == 0);
+        REQUIRE(singleRunEntryAndProcesses[2].endLumi() == 2);
+        REQUIRE(singleRunEntryAndProcesses[2].process() == 2);
+        REQUIRE(!singleRunEntryAndProcesses[2].valid());
+        REQUIRE(!singleRunEntryAndProcesses[2].useIndexIntoFile());
 
-      REQUIRE(singleRunEntryAndProcesses[2].beginLumi() == 0);
-      REQUIRE(singleRunEntryAndProcesses[2].endLumi() == 2);
-      REQUIRE(singleRunEntryAndProcesses[2].process() == 2);
-      REQUIRE(!singleRunEntryAndProcesses[2].valid());
-      REQUIRE(!singleRunEntryAndProcesses[2].useIndexIntoFile());
+        REQUIRE(singleRunEntryAndProcesses[3].beginLumi() == 2);
+        REQUIRE(singleRunEntryAndProcesses[3].endLumi() == 4);
+        REQUIRE(singleRunEntryAndProcesses[3].process() == 1);
+        REQUIRE(singleRunEntryAndProcesses[3].valid());
+        REQUIRE(!singleRunEntryAndProcesses[3].useIndexIntoFile());
 
-      REQUIRE(singleRunEntryAndProcesses[3].beginLumi() == 2);
-      REQUIRE(singleRunEntryAndProcesses[3].endLumi() == 4);
-      REQUIRE(singleRunEntryAndProcesses[3].process() == 1);
-      REQUIRE(singleRunEntryAndProcesses[3].valid());
-      REQUIRE(!singleRunEntryAndProcesses[3].useIndexIntoFile());
+        REQUIRE(singleRunEntryAndProcesses[4].beginLumi() == 4);
+        REQUIRE(singleRunEntryAndProcesses[4].endLumi() == 9);
+        REQUIRE(singleRunEntryAndProcesses[4].process() == 2);
+        REQUIRE(!singleRunEntryAndProcesses[4].valid());
+        REQUIRE(!singleRunEntryAndProcesses[4].useIndexIntoFile());
 
-      REQUIRE(singleRunEntryAndProcesses[4].beginLumi() == 4);
-      REQUIRE(singleRunEntryAndProcesses[4].endLumi() == 9);
-      REQUIRE(singleRunEntryAndProcesses[4].process() == 2);
-      REQUIRE(!singleRunEntryAndProcesses[4].valid());
-      REQUIRE(!singleRunEntryAndProcesses[4].useIndexIntoFile());
-
-      std::vector<edm::LuminosityBlockNumber_t>& lumis = storedMetadataOutput.lumis();
-      REQUIRE(lumis.size() == 9);
-      REQUIRE(lumis[0] == 1001);
-      REQUIRE(lumis[1] == 1003);
-      REQUIRE(lumis[2] == 1001);
-      REQUIRE(lumis[3] == 1003);
-      REQUIRE(lumis[4] == 1000);
-      REQUIRE(lumis[5] == 1001);
-      REQUIRE(lumis[6] == 1002);
-      REQUIRE(lumis[7] == 1003);
-      REQUIRE(lumis[8] == 1004);
-
+        std::vector<edm::LuminosityBlockNumber_t>& lumis = storedMetadataOutput.lumis();
+        REQUIRE(lumis.size() == 9);
+        REQUIRE(lumis[0] == 1001);
+        REQUIRE(lumis[1] == 1003);
+        REQUIRE(lumis[2] == 1001);
+        REQUIRE(lumis[3] == 1003);
+        REQUIRE(lumis[4] == 1000);
+        REQUIRE(lumis[5] == 1001);
+        REQUIRE(lumis[6] == 1002);
+        REQUIRE(lumis[7] == 1003);
+        REQUIRE(lumis[8] == 1004);
+      }
       REQUIRE(!storedMetadataOutput.allValidAndUseIndexIntoFile());
     }
   }

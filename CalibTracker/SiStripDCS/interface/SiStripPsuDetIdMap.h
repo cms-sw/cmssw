@@ -14,13 +14,13 @@
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DeviceFactory.h"
 
-#include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <ostream>
+#include <cstdint>
 
 class SiStripConfigDb;
 
