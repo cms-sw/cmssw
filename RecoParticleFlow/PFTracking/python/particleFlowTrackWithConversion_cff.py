@@ -24,8 +24,8 @@ from RecoParticleFlow.PFTracking.pfConversions_cfi import *
 
 particleFlowTrackWithConversionTask =cms.Task(
     pfTrackElec,
-    #HON#trackerOnlyConversionSequence*
-    #DON#    softConversionSequence*
+    #HON#trackerOnlyConversionSequence,
+    #DON#    softConversionSequence,
     pfConversions
     )
 particleFlowTrackWithConversion =cms.Sequence(particleFlowTrackWithConversionTask)

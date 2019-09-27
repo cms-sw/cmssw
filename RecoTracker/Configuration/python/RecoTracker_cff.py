@@ -23,7 +23,7 @@ ckftracks_woBHTask = cms.Task(iterTrackingTask,
                               doAlldEdXEstimatorsTask)
 ckftracks_woBH = cms.Sequence(ckftracks_woBHTask)
 ckftracksTask = ckftracks_woBHTask.copy() #+ beamhaloTracksSeq) # temporarily out, takes too much resources
-ckftracks = cms.Sequence(ckftracksTask) #+ beamhaloTracksSeq) # temporarily out, takes too much resources
+ckftracks = cms.Sequence(ckftracksTask) 
 
 ckftracks_wodEdXTask = ckftracksTask.copy()
 ckftracks_wodEdXTask.remove(doAlldEdXEstimatorsTask)
