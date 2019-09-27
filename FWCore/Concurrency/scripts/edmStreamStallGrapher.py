@@ -6,7 +6,7 @@ from operator import attrgetter,itemgetter
 import sys
 from collections import defaultdict
 import six
-
+from functools import cmp_to_key
 #----------------------------------------------
 def printHelp():
     s = '''
@@ -424,7 +424,7 @@ def printStalledModulesInOrder(stalledModules):
 
     def sumSort(i,j):
         return cmp(i[1],j[1])
-    priorities.sort(cmp=sumSort, reverse=True)
+    priorities.sort(key=cmp_to_key(sumSort), reverse=True)
 
     nameColumn = "Stalled Module"
     maxNameSize = max(maxNameSize, len(nameColumn))
