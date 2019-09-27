@@ -49,9 +49,9 @@ void DTScalerInfoTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, const 
   map<string, DTTimeEvolutionHisto*>::const_iterator histoIt = trendHistos.begin();
   map<string, DTTimeEvolutionHisto*>::const_iterator histoEnd = trendHistos.end();
   for (; histoIt != histoEnd; ++histoIt) {
-cout<<"Updating TimeHisto in DTScalerInfoTask"<<endl;
+    cout << "Updating TimeHisto in DTScalerInfoTask" << endl;
     histoIt->second->updateTimeSlot(block, nEventsInLS);
-cout<<"Updated TimeHisto in DTScalerInfoTask"<<endl;
+    cout << "Updated TimeHisto in DTScalerInfoTask" << endl;
   }
 }
 

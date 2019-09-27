@@ -93,8 +93,9 @@ void DTDCSByLumiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 }
 
 void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
-  if (DTHVRecordFound){
-    context.get<DTHVStatusRcd>().get(hvStatus);}
+  if (DTHVRecordFound) {
+    context.get<DTHVStatusRcd>().get(hvStatus);
+  }
 
   vector<const DTLayer*>::const_iterator layersIt = theDTGeom->layers().begin();
   vector<const DTLayer*>::const_iterator layersEnd = theDTGeom->layers().end();
