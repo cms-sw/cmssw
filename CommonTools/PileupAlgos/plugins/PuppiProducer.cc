@@ -351,6 +351,7 @@ void PuppiProducer::beginJob() {}
 void PuppiProducer::endJob() {}
 // ------------------------------------------------------------------------------------------
 void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
   edm::ParameterSetDescription desc;
   desc.add<bool>("puppiDiagnostics", false);
   desc.add<bool>("puppiForLeptons", false);
@@ -369,9 +370,9 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("useExp", false);
   desc.add<double>("MinPuppiWeight", .01);
 
-  PuppiContainer::fillDescriptionsPuppiContainer(desc);
+  PuppiContainer::fillDescriptionsPuppiContainer(descriptions);
+  descriptions.add("PuppiProducer", desc);
 
-  descriptions.add("puppiProducer", desc);
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(PuppiProducer);
