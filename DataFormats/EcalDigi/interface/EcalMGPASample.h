@@ -2,7 +2,7 @@
 #define DIGIECAL_ECALMGPASAMPLE_H
 
 #include <iosfwd>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace ecalMGPA {
   typedef uint16_t sample_type;

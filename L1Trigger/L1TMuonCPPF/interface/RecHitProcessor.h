@@ -20,7 +20,6 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
 
-#include <boost/cstdint.hpp>
 #include <iostream>
 #include <memory>
 #include <sstream>

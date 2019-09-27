@@ -144,7 +144,6 @@ namespace edm {
       handles.clear();
       if (branchType_ == edm::InEvent) {
         handles.reserve(tokens_->size());
-        edm::Handle<T> handle;
         for (auto const& token : *tokens_) {
           if (auto handle = event.getHandle(token)) {
             handles.push_back(handle);

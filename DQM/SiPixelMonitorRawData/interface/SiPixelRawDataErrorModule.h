@@ -24,7 +24,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class SiPixelRawDataErrorModule {
 public:

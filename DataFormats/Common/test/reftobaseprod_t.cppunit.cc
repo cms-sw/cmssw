@@ -190,44 +190,45 @@ namespace {
 }  // namespace
 
 void testRefToBaseProd::getTest() {
-  typedef std::vector<IntValue> IntCollection;
-  auto ptr = std::make_unique<IntCollection>();
+  {
+    typedef std::vector<IntValue> IntCollection;
+    auto ptr = std::make_unique<IntCollection>();
 
-  ptr->push_back(0);
-  ptr->push_back(1);
+    ptr->push_back(0);
+    ptr->push_back(1);
 
-  edm::Wrapper<IntCollection> wrapper(std::move(ptr));
-  TestGetter tester;
-  tester.hold_ = &wrapper;
+    edm::Wrapper<IntCollection> wrapper(std::move(ptr));
+    TestGetter tester;
+    tester.hold_ = &wrapper;
 
-  ProductID const pid(1, 1);
+    ProductID const pid(1, 1);
 
-  IntCollection const* wptr = dynamic_cast<IntCollection const*>(wrapper.product());
+    IntCollection const* wptr = dynamic_cast<IntCollection const*>(wrapper.product());
 
-  OrphanHandle<IntCollection> handle(wptr, pid);
+    OrphanHandle<IntCollection> handle(wptr, pid);
 
-  //NOTE: ROOT will touch the private variables directly and since the RefToBaseProd
-  // has no constructor which takes RefCore, I have to play this dirty trick
-  assert(sizeof(edm::RefCore) == sizeof(edm::RefToBaseProd<IntValue>));
+    //NOTE: ROOT will touch the private variables directly and since the RefToBaseProd
+    // has no constructor which takes RefCore, I have to play this dirty trick
+    assert(sizeof(edm::RefCore) == sizeof(edm::RefToBaseProd<IntValue>));
 
-  RefCore core(pid, nullptr, &tester, false);
-  RefToBaseProd<IntValue>& prod = reinterpret_cast<RefToBaseProd<IntValue>&>(core);
+    RefCore core(pid, nullptr, &tester, false);
+    RefToBaseProd<IntValue>& prod = reinterpret_cast<RefToBaseProd<IntValue>&>(core);
 
-  //previously making a copy before reading back would cause seg fault
-  RefToBaseProd<IntValue> prodCopy(prod);
+    //previously making a copy before reading back would cause seg fault
+    RefToBaseProd<IntValue> prodCopy(prod);
 
-  CPPUNIT_ASSERT(!prod.hasCache());
+    CPPUNIT_ASSERT(!prod.hasCache());
 
-  CPPUNIT_ASSERT(0 != prod.get());
-  CPPUNIT_ASSERT(prod.hasCache());
-  compareTo(prod, *wptr);
+    CPPUNIT_ASSERT(0 != prod.get());
+    CPPUNIT_ASSERT(prod.hasCache());
+    compareTo(prod, *wptr);
 
-  CPPUNIT_ASSERT(!prodCopy.hasCache());
+    CPPUNIT_ASSERT(!prodCopy.hasCache());
 
-  CPPUNIT_ASSERT(0 != prodCopy.get());
-  CPPUNIT_ASSERT(prodCopy.hasCache());
-  compareTo(prodCopy, *wptr);
-
+    CPPUNIT_ASSERT(0 != prodCopy.get());
+    CPPUNIT_ASSERT(prodCopy.hasCache());
+    compareTo(prodCopy, *wptr);
+  }
   {
     typedef std::vector<IntValue2> SDCollection;
     auto ptr = std::make_unique<SDCollection>();

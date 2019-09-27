@@ -10,9 +10,9 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
   if (dir) {
     dirString = dir;
   } else {
-    auto dir = getenv("CMSSW_BASE");
-    if (dir) {
-      dirString = dir;
+    auto base_dir = getenv("CMSSW_BASE");
+    if (base_dir) {
+      dirString = base_dir;
       dirString += "/src/FWCore/Services/test";
     }
   }

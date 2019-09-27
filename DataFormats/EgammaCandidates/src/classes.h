@@ -42,4 +42,3 @@
 #include "Math/Polar3D.h"
 #include "Math/CylindricalEta3D.h"
 #include "Math/PxPyPzE4D.h"
-#include <boost/cstdint.hpp>

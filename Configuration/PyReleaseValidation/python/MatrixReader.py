@@ -416,7 +416,7 @@ class MatrixReader(object):
         return workflows
 
     def showWorkFlows(self, selected=None, extended=True, cafVeto=True):
-        if selected: selected = map(float,selected)
+        if selected: selected = list(map(float,selected))
         wfs = self.workFlowsByLocation(cafVeto)
         maxLen = 100 # for summary, limit width of output
         fmt1   = "%-6s %-35s [1]: %s ..."

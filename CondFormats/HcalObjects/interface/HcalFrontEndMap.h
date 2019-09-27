@@ -6,7 +6,6 @@
 #include <set>
 #include <vector>
 #include <algorithm>
-#include <boost/cstdint.hpp>
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
 #endif
@@ -14,6 +13,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalFrontEndId.h"
+#include <cstdint>
 
 //forward declaration
 namespace HcalFrontEndMapAddons {

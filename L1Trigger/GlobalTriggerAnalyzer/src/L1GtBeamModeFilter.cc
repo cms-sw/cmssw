@@ -17,8 +17,6 @@
 #include <vector>
 #include <iostream>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -33,6 +31,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+#include <cstdint>
 
 // constructor(s)
 L1GtBeamModeFilter::L1GtBeamModeFilter(const edm::ParameterSet& parSet)
@@ -92,7 +91,7 @@ bool L1GtBeamModeFilter::filter(edm::Event& iEvent, const edm::EventSetup& evSet
   // data
 
   // initialize beam mode value
-  boost::uint16_t beamModeValue = 0;
+  uint16_t beamModeValue = 0;
 
   // get Run Data - the same code can be run in beginRun, with getByLabel from edm::Run
   // TODO should I cache the run/luminosity section? to be decided after moving beamMode to LumiBlock
