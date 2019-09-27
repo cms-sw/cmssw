@@ -134,9 +134,10 @@ void PixelDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetUnit* pix
   // cross-talk calculation valid for the case of 25x100 pixels
   const float pitch_first = 0.0025;
   const float pitch_second = 0.0100;
+  const double pitch_tolerance(0.0005); // 0.5 um tolerance when comparing the pitch to accommodate the small changes in different TK geometrie (temporary fix)
 
-  if (topol->pitch().first != pitch_first || topol->pitch().second != pitch_second)
-    return;  // please check that units are really cm!
+  if ( abs(topol->pitch().first - pitch_first) > pitch_tolerance ||
+       abs(topol->pitch().second - pitch_second) > pitch_tolerance ) return; 
 
   uint32_t detID = pixdet->geographicalId().rawId();
   signal_map_type& theSignal = _signal[detID];
