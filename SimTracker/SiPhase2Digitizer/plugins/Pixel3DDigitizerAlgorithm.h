@@ -14,6 +14,12 @@
 
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerAlgorithm.h"
 
+// Data formats 
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+
+// system
+#include <functional>
+
 class Pixel3DDigitizerAlgorithm : public Phase2TrackerDigitizerAlgorithm 
 {
     public:
@@ -30,5 +36,28 @@ class Pixel3DDigitizerAlgorithm : public Phase2TrackerDigitizerAlgorithm
                          const unsigned int tofBin,
                          const Phase2TrackerGeomDetUnit* pixdet,
                          const GlobalVector& bfield) override;
+        
+        // overload the mother (drift3d maybe)
+        std::vector<DigitizerUtility::SignalPoint> drift(const PSimHit& hit,
+                const Phase2TrackerGeomDetUnit* pixdet,
+                const GlobalVector& bfield,
+                const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points,
+                bool diffusion_activated);
+        // New diffusion function: check implementation
+        std::vector<DigitizerUtility::EnergyDepositUnit> diffusion(
+                const LocalPoint & pos, const float & ncarriers,
+                const std::function<LocalVector(float,float)> & u_drift, 
+                const std::pair<float,float> pitches,
+                const float & thickness);
+
+    private: 
+        // Raidus of Column np and ohmic 
+        float _np_column_radius;
+        float _ohm_column_radius;
+
+        // Check if a carrier is inside the column: The point should
+        // be described in the pixel cell frame
+        const bool _is_inside_n_column(const LocalPoint & p) const ;
+        const bool _is_inside_ohmic_column(const LocalPoint & p, const std::pair<float,float> & pitch) const;
 };
 #endif
