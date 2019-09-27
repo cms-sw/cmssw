@@ -68,8 +68,7 @@ namespace sistrip {
     }
   }
 
-  FEDBuffer::~FEDBuffer() {}
-
+  inline
   void FEDBuffer::findChannels() {
     //set min length to 2 for ZSLite, 7 for ZS and 3 for raw
     uint16_t minLength;
@@ -160,19 +159,6 @@ namespace sistrip {
         offsetBeginningOfChannel = offsetEndOfChannel;
       }
     }
-  }
-
-  bool FEDBuffer::doChecks(bool doCRC) const {
-    //check that all channels were unpacked properly
-    if (validChannels_ != FEDCH_PER_FED)
-      return false;
-    //do checks from base class
-    if (!FEDBufferBase::doChecks())
-      return false;
-    //check CRC
-    if (doCRC && !checkCRC())
-      return false;
-    return true;
   }
 
   bool FEDBuffer::doCorruptBufferChecks() const {

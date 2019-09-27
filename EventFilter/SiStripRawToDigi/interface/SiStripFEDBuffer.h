@@ -25,7 +25,7 @@ namespace sistrip {
     //construct from buffer
     //if allowBadBuffer is set to true then exceptions will not be thrown if the channel lengths do not make sense or the event format is not recognized
     FEDBuffer(const uint8_t* fedBuffer, const uint16_t fedBufferSize, const bool allowBadBuffer = false);
-    ~FEDBuffer() override;
+    ~FEDBuffer() override {}
     void print(std::ostream& os) const override;
     const FEDFEHeader* feHeader() const;
     //check that a FE unit is enabled, has a good majority address and, if in full debug mode, that it is present
@@ -43,7 +43,7 @@ namespace sistrip {
     //functions to check buffer. All return true if there is no problem.
     //minimum checks to do before using buffer
     using sistrip::FEDBufferBase::doChecks;
-    virtual bool doChecks(bool doCRC = true) const;
+    bool doChecks(bool doCRC) const;
 
     //additional checks to check for corrupt buffers
     //check channel lengths fit inside to buffer length
@@ -212,6 +212,16 @@ namespace sistrip {
   inline bool FEDBuffer::checkStatusBits(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const {
     return checkStatusBits(internalFEDChannelNum(internalFEUnitNum, internalChannelNum));
   }
+
+  inline bool FEDBuffer::doChecks(bool doCRC) const {
+    //check that all channels were unpacked properly
+    return (validChannels_ == FEDCH_PER_FED) &
+    //do checks from base class
+           (FEDBufferBase::doChecks()) &
+    // check crc if required
+           (!doCRC || checkCRC());
+  }
+
 
   //FEDBSChannelUnpacker
 

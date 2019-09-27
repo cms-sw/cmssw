@@ -654,7 +654,7 @@ namespace sistrip {
     //check for errors in DAQ heaqder and trailer (not including bad CRC)
     bool doDAQHeaderAndTrailerChecks() const;
     //do both
-    virtual bool doChecks() const;
+    bool doChecks() const;
     //print the result of all detailed checks
     virtual std::string checkSummary() const;
 
@@ -1314,6 +1314,8 @@ namespace sistrip {
   inline FEDLegacyReadoutMode FEDBufferBase::legacyReadoutMode() const { return specialHeader_.legacyReadoutMode(); }
 
   inline FEDReadoutMode FEDBufferBase::readoutMode() const { return specialHeader_.readoutMode(); }
+
+  inline bool FEDBufferBase::doChecks() const { return doTrackerSpecialHeaderChecks() & doDAQHeaderAndTrailerChecks(); }
 
   inline uint8_t FEDBufferBase::packetCode(bool legacy, const uint8_t internalFEDChannelNum) const {
     if (legacy) {
