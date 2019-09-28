@@ -455,3 +455,45 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(cons
     
     return collection_points;
 }
+
+
+// ====================================================================
+// Signal is already "induced" (actually electrons transported to the 
+// n-column) at the electrode. Just collecting and adding-up all pixel
+// signal and linking it to the simulated energy deposit (hit)
+void Pixel3DDigitizerAlgorithm::induce_signal(
+        const PSimHit & hit,
+        const size_t hitIndex,
+        const unsigned int tofBin,
+        const Phase2TrackerGeomDetUnit * pixdet,
+        const std::vector<DigitizerUtility::SignalPoint> & collection_points) 
+{
+    // X  - Rows, Left-Right
+    // Y  - Columns, Down-Up
+    const Phase2TrackerTopology & topo = pixdet->specificTopology();
+    const uint32_t detId = pixdet->geographicalId().rawId();
+    // Accumulated signal at each channel of this detector
+    signal_map_type & the_signal = _signal[detId];
+
+    // Iterate over collection points on the collection plane
+    for(const auto & pt : collection_points) 
+    {
+        // Find the corresponding (ROC) channel to that pixel
+        MeasurementPoint rowcol(pt.position().x(),pt.position().y());
+        const int channel = topo.channel(topo.localPosition(rowcol));
+    
+        if(makeDigiSimLinks_)
+        {
+            the_signal[channel] += DigitizerUtility::Amplitude(pt.amplitude(), &hit, pt.amplitude(), hitIndex, tofBin);
+        }
+        else
+        {
+            the_signal[channel] += DigitizerUtility::Amplitude(pt.amplitude(), nullptr, pt.amplitude());
+        }
+        
+        LogDebug("Pixel3DDigitizerAlgorithm::induce_signal")
+            << " Induce charge at row,col:" << rowcol << " N_electrons:" << pt.amplitude() 
+            << " [Channel:" << channel << "]\n   [Accumulated signal in this channel:" 
+            << the_signal[channel].ampl() << "]";
+    }
+}
