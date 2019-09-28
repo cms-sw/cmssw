@@ -1,18 +1,9 @@
-// -*- C++ -*-
-/*
-//\class RPCNumberingScheme
 
- Description: RPC Numbering Scheme for DD4hep
-              
-//
-// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
-//          Created:  Fri, 20 Sep 2019 
-*/
 #include "Geometry/MuonNumbering/interface/DD4hep_RPCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-
+#include <FWCore/Utilities/interface/Exception.h>
 #include <cassert>
 
 using namespace cms;
@@ -44,7 +35,7 @@ void RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
     maxLevel = theERollLevel;
   }
   if (num.getLevels() != maxLevel) {
-    abort();
+    throw cms::Exception("DD4hep_RPCNumberingScheme", "num.getLevels() != maxLevel");
   }
 
   int plane_id = 0;
