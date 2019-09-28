@@ -30,14 +30,19 @@ namespace callbacktest {
 
   struct Record {};
 
-  struct UniquePtrProd {
+  struct Base {
+    template <typename A, typename B>
+    void updateFromMayConsumes(A const&, B const&) {}
+  };
+
+  struct UniquePtrProd : public Base {
     UniquePtrProd() : value_(0) {}
     std::unique_ptr<Data> method(const Record&) { return std::make_unique<Data>(++value_); }
 
     int value_;
   };
 
-  struct SharedPtrProd {
+  struct SharedPtrProd : public Base {
     SharedPtrProd() : ptr_(new Data()) {}
     std::shared_ptr<Data> method(const Record&) {
       ++ptr_->value_;
@@ -46,7 +51,7 @@ namespace callbacktest {
     std::shared_ptr<Data> ptr_;
   };
 
-  struct PtrProductsProd {
+  struct PtrProductsProd : public Base {
     PtrProductsProd() : data_(), double_() {}
     edm::ESProducts<std::shared_ptr<Data>, std::shared_ptr<Double>> method(const Record&) {
       using namespace edm::es;
