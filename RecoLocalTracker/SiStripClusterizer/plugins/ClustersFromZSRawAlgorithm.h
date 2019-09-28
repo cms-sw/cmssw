@@ -38,7 +38,7 @@ public:
          if constexpr (NOISE_CUT) {
            uint16_t strip = firstStrip+ic;
            int noise = det.rawNoise(strip);
-           if (10*ladc<2*noise) ladc=0;
+           if (5*ladc<noise) ladc=0;
            else  noise2 += noise*noise;  // cannot overflow
          }
          sum += ladc; // no way it can overflow
