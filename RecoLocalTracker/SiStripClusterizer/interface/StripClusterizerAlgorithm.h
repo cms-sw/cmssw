@@ -24,10 +24,10 @@ public:
   // state of detID
   struct Det {
     bool valid() const { return ind != invalidI; }
-    uint16_t rawNoise(const uint16_t& strip) const { return SiStripNoises::getRawNoise(strip, noiseRange); }
-    float noise(const uint16_t& strip) const { return SiStripNoises::getNoise(strip, noiseRange); }
-    float weight(const uint16_t& strip) const { return m_weight[strip/128];}
-    bool bad(const uint16_t& strip) const { return quality->IsStripBad(qualityRange, strip); }
+    uint16_t rawNoise(const uint16_t strip) const { return SiStripNoises::getRawNoise(strip, noiseRange); }
+    float noise(const uint16_t strip) const { return SiStripNoises::getNoise(strip, noiseRange); }
+    float weight(const uint16_t strip) const { return m_weight[strip/128];}
+    bool bad(const uint16_t strip) const { return quality->IsStripBad(qualityRange, strip); }
     bool allBadBetween(uint16_t L, const uint16_t& R) const {
       while (++L < R && bad(L)) {
       };

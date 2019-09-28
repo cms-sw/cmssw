@@ -34,21 +34,25 @@ public:
        int noise2=0;
        std::vector<uint8_t> adc(clusSize);
        for (int ic=0; ic<clusSize; ++ic) {
-         adc[ic]=data[(offset++) ^ 7];
-         sum += adc[ic]; // no way it can overflow
-       if constexpr (NOISE_CUT) {
-         uint16_t strip = firstStrip+ic;
-         int noise = det.rawNoise(strip); // this is noise*10
-         noise2 += noise*noise;  // ditto
-       }
+         auto ladc = data[(offset++) ^ 7];
+         if constexpr (NOISE_CUT) {
+           uint16_t strip = firstStrip+ic;
+           int noise = det.rawNoise(strip);
+           if (10*ladc<2*noise) ladc=0;
+           else  noise2 += noise*noise;  // cannot overflow
+         }
+         sum += ladc; // no way it can overflow
+         adc[ic]=ladc;
          if (adc[ic] < 254) {
            int charge = 0.5f+float(adc[ic])*weight;
            adc[ic] = (charge > 1022 ? 255 : (charge > 253 ? 254 : charge));
          }
        }
        if constexpr (NOISE_CUT) {
+         if (0==sum) continue;
          // do not cut if extendable
          if (!extend && endStrip%128!=0  && clusterNoiseCutFactor*sum*sum < noise2) continue;
+         // shall we remove leading&trailing zeros?
        }
        if (extend) out.back().extend(adc.begin(),adc.end());
        else if (endStrip%128==0 || sum*weight*sti > m_clusterChargeCut)
