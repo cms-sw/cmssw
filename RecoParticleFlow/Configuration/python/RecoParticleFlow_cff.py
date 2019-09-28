@@ -64,7 +64,7 @@ _phase2_hgcal_particleFlowRecoTask = cms.Task( _phase2_hgcal_simPFTask , particl
 _phase2_hgcal_particleFlowRecoTask.replace( particleFlowTmpTask, cms.Task( particleFlowTmpBarrel, particleFlowTmp ) )
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toReplaceWith( particleFlowTmpTask, _phase2_hgcal_particleFlowTmp )
+phase2_hgcal.toReplaceWith( particleFlowTmp, _phase2_hgcal_particleFlowTmp )
 phase2_hgcal.toReplaceWith( particleFlowRecoTask, _phase2_hgcal_particleFlowRecoTask )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
