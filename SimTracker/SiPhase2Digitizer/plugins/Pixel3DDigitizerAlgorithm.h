@@ -49,6 +49,12 @@ class Pixel3DDigitizerAlgorithm : public Phase2TrackerDigitizerAlgorithm
                 const std::function<LocalVector(float,float)> & u_drift, 
                 const std::pair<float,float> pitches,
                 const float & thickness);
+        // Specific for 3D-pixel
+        void induce_signal(const PSimHit & hit,
+                const size_t hitIndex,
+                const unsigned int tofBin,
+                const Phase2TrackerGeomDetUnit * pixdet,
+                const std::vector<DigitizerUtility::SignalPoint> & collection_points);
 
     private: 
         // Raidus of Column np and ohmic 
