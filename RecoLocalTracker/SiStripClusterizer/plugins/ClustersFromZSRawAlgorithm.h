@@ -11,7 +11,7 @@ public:
 
   using Det = StripClusterizerAlgorithm::Det;
 
-  template<typename OUT, bool NOISE_CUT=false>
+  template<typename OUT, bool NOISE_CUT=true>
   void clustersFromZS(uint8_t const * data, int offset, int lenght, uint16_t stripOffset,
                       Det const & det, OUT & out) const {
 
@@ -52,7 +52,16 @@ public:
          if (0==sum) continue;
          // do not cut if extendable
          if (!extend && endStrip%128!=0  && clusterNoiseCutFactor*sum*sum < noise2) continue;
-         // shall we remove leading&trailing zeros?
+         // remove leading&trailing zeros
+         // gains can be so high that al adc goes to zero...
+         int lc = clusSize;
+         while(adc[lc-1]==0){ if (--lc ==0) break;}
+         if (0==lc) continue;
+         adc.resize(lc);
+         int ic=0;
+         while(adc[ic]==0){++ic;}
+         adc.erase(adc.begin(),adc.begin()+ic);
+         firstStrip+=ic;
        }
        if (extend) out.back().extend(adc.begin(),adc.end());
        else if (endStrip%128==0 || sum*weight*sti > m_clusterChargeCut)
