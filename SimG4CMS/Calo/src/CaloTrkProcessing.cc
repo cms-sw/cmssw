@@ -266,6 +266,7 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
           trkInfo->setCaloIDChecked(true);
           lastTrackID_ = id;
           if (theTrack->GetKineticEnergy() / MeV > eMin_)
+	    trkInfo->putInHistory();
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: set ID on Calo " << ical << " surface (Inside " << inside
                                       << ") to " << id << " of a Track with Kinetic Energy "
