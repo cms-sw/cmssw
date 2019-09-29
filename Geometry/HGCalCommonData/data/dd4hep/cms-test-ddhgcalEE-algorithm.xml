@@ -11,7 +11,6 @@
     <debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
-
     <debug_materials/>
     <debug_visattr/>
 -->
@@ -34,7 +33,7 @@
     <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalEE/v9/hgcalEE.xml"/>
-    <Include ref="Geometry/HGCalCommonData/test/world.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/dd4hep/world.xml"/>
   </IncludeSection>
   
 </DDDefinition>
