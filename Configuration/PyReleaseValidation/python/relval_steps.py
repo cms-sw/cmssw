@@ -2778,6 +2778,17 @@ steps['HARVESTUP15']={
     '--era' : 'Run2_2016',
     '--filetype':'DQM',
     }
+steps['NANOUP15']={
+    '--mc':'',
+    '--step':'NANO', # todo: remove UP from label
+    '--nThreads':'2',
+    '--conditions':'auto:run2_mc',
+    '--datatier':'NANOAODSIM',
+    '-n':'10',
+    '--eventcontent':'NANOEDMAODSIM',
+    '--filein':'file:step3_inMINIAODSIM.root',
+    '--era':'Run2_2016',
+    }
 steps['HARVESTUP15_L1TEgDQM']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM+@L1TEgamma'},steps['HARVESTUP15']])
 steps['HARVESTUP15_L1TMuDQM']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM+@L1TMuon'},steps['HARVESTUP15']])
 
@@ -2786,6 +2797,8 @@ steps['HARVESTMINUP15']=merge([{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHa
 steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 steps['HARVESTUP15_PU25_L1TEgDQM']=steps['HARVESTUP15_L1TEgDQM']
 steps['HARVESTUP15_PU25_L1TMuDQM']=steps['HARVESTUP15_L1TMuDQM']
+
+steps['NANOUP15_PU25']=steps['NANOUP15']
 
 steps['HARVESTUP15_PU50']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM','--era' : 'Run2_50ns'},steps['HARVESTUP15']])
 steps['HARVESTUP15_PU50_L1TEgDQM']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM+@L1TEgamma'},steps['HARVESTUP15_PU50']])
