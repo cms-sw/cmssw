@@ -195,7 +195,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       fineDetectors_.emplace_back(detector);
     }
   }
-  if (fineDetectors_.size() == 0) 
+  if (fineDetectors_.empty())
     doFineCalo_ = false;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: with " << fineDetectors_.size() << " special calorimetric volumes";
