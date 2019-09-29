@@ -41,8 +41,8 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
   eMinFinePhoton_ = m_p.getParameter<double>("EminFinePhoton") * MeV;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Initailised with TestBeam = " << testBeam_ << " Emin = " << eMin_
-                              << ":" << eMinFine_ << ":" << eMinFinePhoton_ << " MeV and Flags "
-                              << putHistory_ << " (History), " << doFineCalo_ << " (Special Calorimeter)";
+                              << ":" << eMinFine_ << ":" << eMinFinePhoton_ << " MeV and Flags " << putHistory_
+                              << " (History), " << doFineCalo_ << " (Special Calorimeter)";
 #endif
   edm::ESTransientHandle<DDCompactView> cpv;
   es.get<IdealGeometryRecord>().get(cpv);
@@ -197,13 +197,13 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: with " << fineDetectors_.size() << " special calorimetric volumes";
-  for (unsigned int i = 0; i < detectors_.size(); i++) 
+  for (unsigned int i = 0; i < detectors_.size(); i++)
     edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Calorimeter volume " << i << " " << detectors_[i].name << " LV "
                                 << detectors_[i].lv << " at level " << detectors_[i].level;
 #endif
 }
 
-CaloTrkProcessing::~CaloTrkProcessing() { }
+CaloTrkProcessing::~CaloTrkProcessing() {}
 
 void CaloTrkProcessing::update(const BeginOfEvent* evt) { lastTrackID_ = -1; }
 
@@ -266,7 +266,7 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
           trkInfo->setCaloIDChecked(true);
           lastTrackID_ = id;
           if (theTrack->GetKineticEnergy() / MeV > eMin_)
-	    trkInfo->putInHistory();
+            trkInfo->putInHistory();
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: set ID on Calo " << ical << " surface (Inside " << inside
                                       << ") to " << id << " of a Track with Kinetic Energy "
@@ -282,11 +282,11 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
       int pdg = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
       double cut = (pdg == 22) ? eMinFinePhoton_ : eMinFine_;
       if (aStep->GetTrack()->GetKineticEnergy() / MeV > cut)
-	trkInfo->putInHistory();
+        trkInfo->putInHistory();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: the track with PDGID " << pdg << " and kinetic energy " 
-				  << aStep->GetTrack()->GetKineticEnergy() / MeV << " is tested against " << cut
-				  << " to be put in history";
+      edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: the track with PDGID " << pdg << " and kinetic energy "
+                                  << aStep->GetTrack()->GetKineticEnergy() / MeV << " is tested against " << cut
+                                  << " to be put in history";
 #endif
     }
   }
