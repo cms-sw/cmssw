@@ -11,7 +11,7 @@ public:
 
   using Det = StripClusterizerAlgorithm::Det;
 
-  template<typename OUT, bool NOISE_CUT=true>
+  template<typename OUT, bool NOISE_CUT=false>
   void clustersFromZS(uint8_t const * data, int offset, int lenght, uint16_t stripOffset,
                       Det const & det, OUT & out) const {
 
