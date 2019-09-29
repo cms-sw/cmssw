@@ -50,8 +50,8 @@ private:
 
   void update(const BeginOfEvent* evt) override;
   void update(const G4Step*) override;
-  std::vector<std::string> getNames(G4String, const DDsvalues_type&);
-  std::vector<double> getNumbers(G4String, const DDsvalues_type&);
+  std::vector<std::string> getNames(G4String, const DDsvalues_type&, bool);
+  std::vector<double> getNumbers(G4String, const DDsvalues_type&, bool);
   int isItCalo(const G4VTouchable*, const std::vector<Detector>&);
   int isItInside(const G4VTouchable*, int, int);
 

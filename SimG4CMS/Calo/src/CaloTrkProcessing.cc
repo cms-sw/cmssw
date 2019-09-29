@@ -55,7 +55,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
   DDsvalues_type sv(fv.mergedSpecifics());
 
   G4String value = "Calorimeter";
-  std::vector<std::string> caloNames = getNames(value, sv);
+  std::vector<std::string> caloNames = getNames(value, sv, false);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << caloNames.size() << " entries for " << value << ":";
   for (unsigned int i = 0; i < caloNames.size(); i++)
@@ -63,7 +63,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
 #endif
 
   value = "Levels";
-  std::vector<double> levels = getNumbers(value, sv);
+  std::vector<double> levels = getNumbers(value, sv, false);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << levels.size() << " entries for " << value << ":";
   for (unsigned int i = 0; i < levels.size(); i++)
@@ -71,7 +71,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
 #endif
 
   value = "Neighbours";
-  std::vector<double> neighbours = getNumbers(value, sv);
+  std::vector<double> neighbours = getNumbers(value, sv, false);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << neighbours.size() << " entries for " << value << ":";
   for (unsigned int i = 0; i < neighbours.size(); i++)
@@ -79,7 +79,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
 #endif
 
   value = "Inside";
-  std::vector<std::string> insideNames = getNames(value, sv);
+  std::vector<std::string> insideNames = getNames(value, sv, false);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << insideNames.size() << " entries for " << value << ":";
   for (unsigned int i = 0; i < insideNames.size(); i++)
@@ -87,7 +87,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
 #endif
 
   value = "InsideLevel";
-  std::vector<double> insideLevel = getNumbers(value, sv);
+  std::vector<double> insideLevel = getNumbers(value, sv, false);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << insideLevel.size() << " ebtries for " << value << ":";
   for (unsigned int i = 0; i < insideLevel.size(); i++)
@@ -95,7 +95,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
 #endif
 
   value = "FineCalorimeter";
-  std::vector<std::string> fCaloNames = getNames(value, sv);
+  std::vector<std::string> fCaloNames = getNames(value, sv, true);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << fCaloNames.size() << " entries for " << value << ":";
   for (unsigned int i = 0; i < fCaloNames.size(); i++)
@@ -103,7 +103,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
 #endif
 
   value = "FineLevels";
-  std::vector<double> fLevels = getNumbers(value, sv);
+  std::vector<double> fLevels = getNumbers(value, sv, true);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << fLevels.size() << " entries for " << value << ":";
   for (unsigned int i = 0; i < fLevels.size(); i++)
@@ -195,6 +195,8 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       fineDetectors_.emplace_back(detector);
     }
   }
+  if (fineDetectors_.size() == 0) 
+    doFineCalo_ = false;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: with " << fineDetectors_.size() << " special calorimetric volumes";
   for (unsigned int i = 0; i < detectors_.size(); i++)
@@ -292,7 +294,7 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
   }
 }
 
-std::vector<std::string> CaloTrkProcessing::getNames(const G4String str, const DDsvalues_type& sv) {
+std::vector<std::string> CaloTrkProcessing::getNames(const G4String str, const DDsvalues_type& sv, bool ignore) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing::getNames called for " << str;
 #endif
@@ -303,11 +305,14 @@ std::vector<std::string> CaloTrkProcessing::getNames(const G4String str, const D
 #endif
     const std::vector<std::string>& fvec = value.strings();
     int nval = fvec.size();
-    if (nval < 1) {
+    if ((nval < 1) && (!ignore)) {
       edm::LogError("CaloSim") << "CaloTrkProcessing: # of " << str << " bins " << nval << " < 1 ==> illegal ";
       throw cms::Exception("Unknown", "CaloTrkProcessing") << "nval < 2 for array " << str << "\n";
     }
 
+    return fvec;
+  } else if (ignore) {
+    std::vector<std::string> fvec;
     return fvec;
   } else {
     edm::LogError("CaloSim") << "CaloTrkProcessing: cannot get array " << str;
@@ -315,7 +320,7 @@ std::vector<std::string> CaloTrkProcessing::getNames(const G4String str, const D
   }
 }
 
-std::vector<double> CaloTrkProcessing::getNumbers(const G4String str, const DDsvalues_type& sv) {
+std::vector<double> CaloTrkProcessing::getNumbers(const G4String str, const DDsvalues_type& sv, bool ignore) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing::getNumbers called for " << str;
 #endif
@@ -326,11 +331,13 @@ std::vector<double> CaloTrkProcessing::getNumbers(const G4String str, const DDsv
 #endif
     const std::vector<double>& fvec = value.doubles();
     int nval = fvec.size();
-    if (nval < 1) {
+    if ((nval < 1) && (!ignore)) {
       edm::LogError("CaloSim") << "CaloTrkProcessing: # of " << str << " bins " << nval << " < 1 ==> illegal ";
       throw cms::Exception("Unknown", "CaloTrkProcessing") << "nval < 2 for array " << str << "\n";
     }
-
+    return fvec;
+  } else if (ignore) {
+    std::vector<double> fvec;
     return fvec;
   } else {
     edm::LogError("CaloSim") << "CaloTrkProcessing: cannot get array " << str;
