@@ -18,7 +18,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  outputFileName = cms.untracked.string('ForwardShieldDD4Hep.root'),
+                                  outputFileName = cms.untracked.string('forwardShieldDD4Hep.root'),
                                   DDDetector = cms.ESInputTag('','DDHCalFibreBundle')
                                   )
 
