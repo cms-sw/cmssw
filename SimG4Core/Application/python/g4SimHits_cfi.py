@@ -345,8 +345,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         EminTrack  = cms.double(0.01),
         PutHistory = cms.bool(False),
         DoFineCalo = cms.bool(False),
-        EminFineTrack = cms.double(2000.0),
-        EminFinePhoton = cms.double(500.0)
+        EminFineTrack = cms.double(50000.0),
+        EminFinePhoton = cms.double(20000.0)
     ),
     HFShower = cms.PSet(
         common_UsePMT,
