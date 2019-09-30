@@ -2,7 +2,8 @@
 #define DQMSERVICES_CORE_MONITOR_ELEMENT_H
 
 #if __GNUC__ && !defined DQM_DEPRECATED
-#define DQM_DEPRECATED __attribute__((deprecated))
+//#define DQM_DEPRECATED __attribute__((deprecated))
+#define DQM_DEPRECATED
 #endif
 
 #include "DQMServices/Core/interface/DQMNet.h"
