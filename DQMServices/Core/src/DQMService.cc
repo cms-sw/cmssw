@@ -118,7 +118,7 @@ void DQMService::flushStandalone() {
 
         default: {
           TBufferFile buffer(TBufferFile::kWrite);
-          buffer.WriteObject(me.object_);
+          buffer.WriteObject(me.getRootObject());
           if (me.reference_)
             buffer.WriteObject(me.reference_);
           else
