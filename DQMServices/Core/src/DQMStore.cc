@@ -1246,7 +1246,7 @@ namespace dqm::impl {
         // dir we assign the object_ of the reference MonitorElement to the
         // reference_ property of our new MonitorElement.
         me->data_.flags |= DQMNet::DQM_PROP_HAS_REFERENCE;
-        me->reference_ = referenceME->object_;
+        me->reference_ = referenceME->getTH1();
       }
 
       // Return the monitor element.
@@ -2311,7 +2311,7 @@ namespace dqm::impl {
         // MonitorElement to the reference_ property of the corresponding
         // non-reference MonitorElement.
         master->data_.flags |= DQMNet::DQM_PROP_HAS_REFERENCE;
-        master->reference_ = refcheck->object_;
+        master->reference_ = refcheck->getTH1();
       }
     }
 
@@ -2371,7 +2371,7 @@ namespace dqm::impl {
     if (me.kind() < MonitorElement::Kind::TH1F) {
       TObjString(me.tagString().c_str()).Write();
     } else {
-      me.object_->Write();
+      me.getRootObject()->Write();
     }
 
     // Save quality reports if this is not in reference section.
@@ -2576,7 +2576,7 @@ namespace dqm::impl {
       TObjString object(me.tagString().c_str());
       buffer.WriteObject(&object);
     } else {
-      buffer.WriteObject(me.object_);
+      buffer.WriteObject(me.getRootObject());
     }
     dqmstorepb::ROOTFilePB::Histo& histo = *file.add_histo();
     histo.set_full_pathname(*me.data_.dirname + '/' + me.data_.objname);
