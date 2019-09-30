@@ -117,7 +117,6 @@ Ref: A template for a interproduct reference to a member of a product_.
 #include "boost/type_traits.hpp"
 #include "boost/mpl/has_xxx.hpp"
 #include "boost/utility/enable_if.hpp"
-
 #include <vector>
 #include <type_traits>
 
