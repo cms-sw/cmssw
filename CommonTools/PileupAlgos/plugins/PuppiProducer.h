@@ -16,7 +16,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
+#include "CommonTools/PileupAlgos/interface/PuppiAlgos.h"
 
 // ------------------------------------------------------------------------------------------
 class PuppiProducer : public edm::stream::EDProducer<> {

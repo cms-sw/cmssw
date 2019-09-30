@@ -227,14 +227,6 @@ double PuppiAlgo::compute(std::vector<double> const &iVals, double iChi2) const 
 }
 // ------------------------------------------------------------------------------------------
 void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc) {
-  desc.add<std::vector<double>>("etaMin", {0.});
-  desc.add<std::vector<double>>("etaMax", {2.5});
-  desc.add<std::vector<double>>("ptMin", {0.});
-  desc.add<std::vector<double>>("MinNeutralPt", {0.2});
-  desc.add<std::vector<double>>("MinNeutralPtSlope", {0.015});
-  desc.add<std::vector<double>>("RMSEtaSF", {1.0});
-  desc.add<std::vector<double>>("MedEtaSF", {1.0});
-  desc.add<double>("EtaMaxExtrap", 2.0);
 
   edm::ParameterSetDescription puppialgos;
   puppialgos.add<int>("algoId", 5);
@@ -254,5 +246,29 @@ void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc) {
   puppiset.addParameter<double>("rmsPtMin", .1);
   puppiset.addParameter<double>("rmsScaleFactor", 1.0);
   VPSetPuppiAlgos.push_back(puppiset);
-  desc.addVPSet("puppiAlgos", puppialgos, VPSetPuppiAlgos);
+  
+  edm::ParameterSetDescription algos;
+  algos.addVPSet("puppiAlgos", puppialgos, VPSetPuppiAlgos);
+  std::vector<edm::ParameterSet> VPSetAlgos;
+  edm::ParameterSet algosset;
+  algos.add<std::vector<double>>("etaMin", {0.});
+  algos.add<std::vector<double>>("etaMax", {2.5});
+  algos.add<std::vector<double>>("ptMin", {0.});
+  algos.add<std::vector<double>>("MinNeutralPt", {0.2});
+  algos.add<std::vector<double>>("MinNeutralPtSlope", {0.015});
+  algos.add<std::vector<double>>("RMSEtaSF", {1.0});
+  algos.add<std::vector<double>>("MedEtaSF", {1.0});
+  algos.add<double>("EtaMaxExtrap", 2.0);
+  algosset.addParameter<std::vector<double>>("etaMin", {0.});
+  algosset.addParameter<std::vector<double>>("etaMax", {2.5});
+  algosset.addParameter<std::vector<double>>("ptMin", {0.});
+  algosset.addParameter<std::vector<double>>("MinNeutralPt", {0.2});
+  algosset.addParameter<std::vector<double>>("MinNeutralPtSlope", {0.015});
+  algosset.addParameter<std::vector<double>>("RMSEtaSF", {1.0});
+  algosset.addParameter<std::vector<double>>("MedEtaSF", {1.0});
+  algosset.addParameter<double>("EtaMaxExtrap", 2.0);
+  algosset.addParameter<std::vector<edm::ParameterSet>>("puppiAlgos", VPSetPuppiAlgos);
+  VPSetAlgos.push_back(algosset);
+  desc.addVPSet("algos", algos, VPSetAlgos);
+
 }
