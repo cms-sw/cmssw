@@ -84,8 +84,8 @@ namespace test {
     int fe = 2;
     int le = 10;
     int di = 5;
-    std::vector<std::string> paths={"p1", "p2", "p3"};
-    std::vector<std::string> ep= {"e1", "e2", "e3"};
+    std::vector<std::string> paths = {"p1", "p2", "p3"};
+    std::vector<std::string> ep = {"e1", "e2", "e3"};
     edm::ParameterSet pset;
     pset.addUntrackedParameter<int>("firstEvent", fe);
     pset.addUntrackedParameter<int>("lastEvent", le);
@@ -314,7 +314,7 @@ namespace test {
     int fe = 2;
     int le = 10;
     std::vector<std::string> paths = {"ALL"};
-    std::vector<std::string> expaths ={"p21"};
+    std::vector<std::string> expaths = {"p21"};
     edm::ParameterSet pset;
     pset.addUntrackedParameter<int>("firstEvent", fe);
     pset.addUntrackedParameter<int>("lastEvent", le);
@@ -384,7 +384,7 @@ namespace test {
     edm::ActivityRegistry activity;
     ProfilerService ps(pset, activity);
 
-    std::vector<std::string> allPaths= {"p1", "p21", "p22", "p3"};
+    std::vector<std::string> allPaths = {"p1", "p21", "p22", "p3"};
 
     CheckPaths cp0(ps, paths, 0);
     CheckPaths cp1(ps, paths, 1);
