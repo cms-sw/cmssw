@@ -2,7 +2,8 @@
 #define DQMServices_Core_DQMStore_h
 
 #if __GNUC__ && !defined DQM_DEPRECATED
-#define DQM_DEPRECATED __attribute__((deprecated))
+//#define DQM_DEPRECATED __attribute__((deprecated))
+#define DQM_DEPRECATED
 #endif
 
 #include <cassert>
