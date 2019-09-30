@@ -13,8 +13,8 @@
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_floating_point.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/mpl/if.hpp>
+#include <boost/utility/enable_if.hpp>
 
 namespace reco {
   namespace parser {
