@@ -345,8 +345,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         EminTrack  = cms.double(0.01),
         PutHistory = cms.bool(False),
         DoFineCalo = cms.bool(False),
-        EminFineTrack = cms.double(100000.0),
-        EminFinePhoton = cms.double(50000.0)
+        EminFineTrack = cms.double(10000.0),
+        EminFinePhoton = cms.double(5000.0)
     ),
     HFShower = cms.PSet(
         common_UsePMT,
@@ -562,5 +562,3 @@ from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify( g4SimHits.ECalSD,
                              StoreLayerTimeSim = cms.untracked.bool(True),
                              TimeSliceUnit = cms.double(0.001) )
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify( g4SimHits.CaloTrkProcessing, DoFineCalo = True)
