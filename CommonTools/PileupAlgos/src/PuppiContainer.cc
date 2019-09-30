@@ -357,5 +357,6 @@ void PuppiContainer::fillDescriptionsPuppiContainer(edm::ParameterSetDescription
   desc.add<bool>("useExp", false);
   desc.add<double>("MinPuppiWeight", .01);
   desc.add<double>("PtMaxNeutrals", 200.);
-  PuppiAlgo::fillDescriptionsPuppiAlgo(desc);
+  //PuppiAlgo::fillDescriptionsPuppiAlgo(desc);
+
 }
