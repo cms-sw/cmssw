@@ -79,6 +79,7 @@ hltTauOfflineMonitor_PFTaus = DQMEDAnalyzer('HLTTauDQMOfflineSource',
     DQMBaseFolder = cms.untracked.string("HLT/TAU/PFTaus"),
     TriggerResultsSrc = cms.untracked.InputTag("TriggerResults", "", hltTauDQMofflineProcess),
     TriggerEventSrc = cms.untracked.InputTag("hltTriggerSummaryAOD", "", hltTauDQMofflineProcess),
+    #Verbose = cms.untracked.bool(True),
     L1Plotter = cms.untracked.PSet(
         DQMFolder             = cms.untracked.string('L1'),
         L1Taus                = cms.untracked.InputTag("caloStage2Digis", "Tau"),

@@ -20,7 +20,8 @@ public:
                      double maxhighpt,
                      bool ref,
                      double dr,
-                     const std::string& dqmBaseFolder);
+                     const std::string& dqmBaseFolder,
+                     bool verb);
   ~HLTTauDQML1Plotter();
 
   using HLTTauDQMPlotter::isValid;
@@ -46,6 +47,8 @@ private:
   const int binsEta_;
   const int binsPhi_;
   const double maxEta_;
+
+  bool verbose;
 
   //MonitorElements general
   MonitorElement* l1tauEt_;

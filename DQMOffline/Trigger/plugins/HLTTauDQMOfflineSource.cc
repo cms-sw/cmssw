@@ -32,6 +32,9 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource(const edm::ParameterSet& ps)
   edm::ParameterSet matching = ps.getParameter<edm::ParameterSet>("Matching");
   doRefAnalysis_ = matching.getUntrackedParameter<bool>("doMatching");
 
+  if (ps.exists("Verbose")) verbose = ps.getUntrackedParameter<bool>("Verbose", false);
+  else verbose = false;
+
   if (ps.exists("L1Plotter") && !ps.exists("TagAndProbe")) {
     l1Plotter_ = std::make_unique<HLTTauDQML1Plotter>(ps.getUntrackedParameter<edm::ParameterSet>("L1Plotter"),
                                                       consumesCollector(),
@@ -40,7 +43,8 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource(const edm::ParameterSet& ps)
                                                       highPtMax_,
                                                       doRefAnalysis_,
                                                       l1MatchDr_,
-                                                      dqmBaseFolder_);
+                                                      dqmBaseFolder_,
+                                                      verbose);
   }
   if (ps.exists("PathSummaryPlotter")) {
     pathSummaryPlotter_ = std::make_unique<HLTTauDQMPathSummaryPlotter>(
@@ -100,7 +104,8 @@ void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventS
                                      ptMax_,
                                      highPtMax_,
                                      l1MatchDr_,
-                                     hltMatchDr_);
+                                     hltMatchDr_,
+                                     verbose);
           if (pathPlotters_.back().isValid()) {
             pathObjects.push_back(pathPlotters_.back().getPathObject());
           }

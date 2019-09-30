@@ -70,6 +70,8 @@ private:
   std::vector<HLTTauDQMPathPlotter> pathPlotters_;
   std::unique_ptr<HLTTauDQMPathSummaryPlotter> pathSummaryPlotter_;
   std::vector<std::unique_ptr<HLTTauDQMTagAndProbePlotter> > tagandprobePlotters_;
+
+  bool verbose;
 };
 
 #endif

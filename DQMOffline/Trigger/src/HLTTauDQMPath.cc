@@ -197,11 +197,13 @@ namespace {
 
   int getParameterSafe(const HLTConfigProvider& HLTCP,
                        const std::string& filterName,
-                       const std::string& parameterName) {
+                       const std::string& parameterName,
+                       bool verbose) {
     const edm::ParameterSet& pset = HLTCP.modulePSet(filterName);
     if (pset.existsAs<int>(parameterName))
       return pset.getParameter<int>(parameterName);
     else {
+      if(verbose)
       edm::LogWarning("HLTTauDQMOfflineSource") << "No parameter '" << parameterName << "' in configuration of filter "
                                                 << filterName << " pset " << pset.dump() << std::endl;
       return 0;
@@ -219,7 +221,8 @@ namespace {
   TauLeptonMultiplicity inferTauLeptonMultiplicity(const HLTConfigProvider& HLTCP,
                                                    const std::string& filterName,
                                                    const std::string& moduleType,
-                                                   const std::string& pathName) {
+                                                   const std::string& pathName,
+                                                   bool verbose) {
     TauLeptonMultiplicity n;
     //std::cout << "check menu " << HLTCP.tableName() << std::endl;
     if (moduleType == "HLTL1TSeed") {
@@ -247,51 +250,51 @@ namespace {
       }
     } else if (moduleType == "HLT1CaloMET") {
       n.level = 2;
-      if (getParameterSafe(HLTCP, filterName, "triggerType") == trigger::TriggerMET) {
+      if (getParameterSafe(HLTCP, filterName, "triggerType", verbose) == trigger::TriggerMET) {
         n.met = 1;
       }
     } else if (moduleType == "HLT1CaloJet") {
       n.level = 2;
-      if (getParameterSafe(HLTCP, filterName, "triggerType") == trigger::TriggerTau) {
-        n.tau = getParameterSafe(HLTCP, filterName, "MinN");
+      if (getParameterSafe(HLTCP, filterName, "triggerType", verbose) == trigger::TriggerTau) {
+        n.tau = getParameterSafe(HLTCP, filterName, "MinN", verbose);
       }
     } else if (moduleType == "HLT1PFJet") {
       n.level = 3;
       //const edm::ParameterSet& pset = HLTCP.modulePSet(filterName);
       //pset.getParameter<int>("triggerType") == trigger::TriggerTau) {
-      if (getParameterSafe(HLTCP, filterName, "triggerType") == trigger::TriggerTau) {
+      if (getParameterSafe(HLTCP, filterName, "triggerType", verbose) == trigger::TriggerTau) {
         //n.tau = pset.getParameter<int>("MinN");
-        n.tau = getParameterSafe(HLTCP, filterName, "MinN");
+        n.tau = getParameterSafe(HLTCP, filterName, "MinN", verbose);
       }
     } else if (moduleType == "HLTCaloJetTag") {
       n.level = 2;
       //const edm::ParameterSet& pset = HLTCP.modulePSet(filterName);
       //if(pset.getParameter<int>("triggerType") == trigger::TriggerTau) {
-      if (getParameterSafe(HLTCP, filterName, "TriggerType") == trigger::TriggerTau) {
+      if (getParameterSafe(HLTCP, filterName, "TriggerType", verbose) == trigger::TriggerTau) {
         //n.tau = pset.getParameter<int>("MinJets");
-        n.tau = getParameterSafe(HLTCP, filterName, "MinJets");
+        n.tau = getParameterSafe(HLTCP, filterName, "MinJets", verbose);
       }
     } else if (moduleType == "HLT1Tau" || moduleType == "HLT1PFTau") {
       n.level = 3;
       //n.tau = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
-      n.tau = getParameterSafe(HLTCP, filterName, "MinN");
+      n.tau = getParameterSafe(HLTCP, filterName, "MinN", verbose);
     } else if (moduleType == "HLTPFTauPairDzMatchFilter") {
       n.level = 3;
       n.tau = 2;
     } else if (moduleType == "HLTEgammaGenericFilter") {
       n.level = 3;
-      n.electron = getParameterSafe(HLTCP, filterName, "ncandcut");
+      n.electron = getParameterSafe(HLTCP, filterName, "ncandcut", verbose);
     } else if (moduleType == "HLTElectronGenericFilter") {
       n.level = 3;
       //n.electron = HLTCP.modulePSet(filterName).getParameter<int>("ncandcut");
-      n.electron = getParameterSafe(HLTCP, filterName, "ncandcut");
+      n.electron = getParameterSafe(HLTCP, filterName, "ncandcut", verbose);
     } else if (moduleType == "HLTMuonL2PreFilter") {
       n.level = 2;
       //n.muon = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
-      n.muon = getParameterSafe(HLTCP, filterName, "MinN");
+      n.muon = getParameterSafe(HLTCP, filterName, "MinN", verbose);
     } else if (moduleType == "HLTMuonIsoFilter" || moduleType == "HLTMuonL3PreFilter") {
       n.level = 3;
-      n.muon = getParameterSafe(HLTCP, filterName, "MinN");
+      n.muon = getParameterSafe(HLTCP, filterName, "MinN", verbose);
     } else if (moduleType == "HLTMuonGenericFilter") {
       n.level = 3;
       n.muon = 1;
@@ -299,13 +302,13 @@ namespace {
                moduleType == "HLT2PhotonPFTau") {
       n.level = 3;
       //int num = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
-      int num = getParameterSafe(HLTCP, filterName, "MinN");
+      int num = getParameterSafe(HLTCP, filterName, "MinN", verbose);
       n.tau = num;
       n.electron = num;
     } else if (moduleType == "HLT2MuonTau" || moduleType == "HLT2MuonPFTau") {
       n.level = 3;
       //int num = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
-      int num = getParameterSafe(HLTCP, filterName, "MinN");
+      int num = getParameterSafe(HLTCP, filterName, "MinN", verbose);
       n.tau = num;
       n.muon = num;
     } else if (moduleType == "HLTPrescaler") {  // || moduleType == "HLT1CaloMET") {
@@ -351,7 +354,8 @@ namespace {
 HLTTauDQMPath::HLTTauDQMPath(std::string pathName,
                              std::string hltProcess,
                              bool doRefAnalysis,
-                             const HLTConfigProvider& HLTCP)
+                             const HLTConfigProvider& HLTCP,
+                             bool verbose)
     : hltProcess_(std::move(hltProcess)),
       doRefAnalysis_(doRefAnalysis),
       pathName_(std::move(pathName)),
@@ -371,6 +375,9 @@ HLTTauDQMPath::HLTTauDQMPath(std::string pathName,
 
       isFirstL1Seed_(false),
       isValid_(false) {
+
+  verbose_ = verbose;
+
 #ifdef EDM_ML_DEBUG
   std::stringstream ss;
   ss << "HLTTauDQMPath: " << pathName_ << "\n";
@@ -400,7 +407,7 @@ HLTTauDQMPath::HLTTauDQMPath(std::string pathName,
     const std::string& filterName = std::get<kName>(filterIndice);
     const std::string& moduleType = HLTCP.moduleType(filterName);
 
-    TauLeptonMultiplicity n = inferTauLeptonMultiplicity(HLTCP, filterName, moduleType, pathName_);
+    TauLeptonMultiplicity n = inferTauLeptonMultiplicity(HLTCP, filterName, moduleType, pathName_, verbose_);
     filterTauN_.push_back(n.tau);
     filterElectronN_.push_back(n.electron);
     filterMuonN_.push_back(n.muon);
@@ -467,7 +474,7 @@ HLTTauDQMPath::HLTTauDQMPath(std::string pathName,
     if(getFilterNTaus(i) > 0 && getFilterNElectrons(i) == 0 && getFilterNMuons(i) == 0)
       lastL3TauFilterIndex_ = i;
   }
-*/
+  */
   for (size_t i = 0; i < filtersSize(); ++i) {
     // Tau
     if (getFilterLevel(i) == 2 && getFilterNTaus(i) > 0 && getFilterNElectrons(i) == 0 && getFilterNMuons(i) == 0)

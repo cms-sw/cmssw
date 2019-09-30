@@ -23,7 +23,8 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const std::string& pathName,
                                            double ptmax,
                                            double highptmax,
                                            double l1MatchDr,
-                                           double hltMatchDr)
+                                           double hltMatchDr,
+                                           bool verbose)
     : HLTTauDQMPlotter(stripVersion(pathName), dqmBaseFolder),
       ptbins_(ptbins),
       etabins_(etabins),
@@ -33,7 +34,7 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const std::string& pathName,
       l1MatchDr_(l1MatchDr),
       hltMatchDr_(hltMatchDr),
       doRefAnalysis_(doRefAnalysis),
-      hltPath_(pathName, hltProcess, doRefAnalysis_, HLTCP) {
+      hltPath_(pathName, hltProcess, doRefAnalysis_, HLTCP, verbose) {
   configValid_ = configValid_ && hltPath_.isValid();
 }
 

@@ -30,7 +30,8 @@ public:
                        double ptmax,
                        double highptmax,
                        double l1MatchDr,
-                       double hltMatchDr);
+                       double hltMatchDr,
+                       bool verbose);
   ~HLTTauDQMPathPlotter();
 
   using HLTTauDQMPlotter::isValid;
@@ -54,6 +55,8 @@ private:
   const double l1MatchDr_;
   const double hltMatchDr_;
   const bool doRefAnalysis_;
+
+  bool verbose_;
 
   HLTTauDQMPath hltPath_;
 

@@ -22,7 +22,8 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps,
                                        double maxhighpt,
                                        bool ref,
                                        double dr,
-                                       const std::string& dqmBaseFolder)
+                                       const std::string& dqmBaseFolder,
+                                       bool verb)
     : HLTTauDQMPlotter(ps, dqmBaseFolder),
       doRefAnalysis_(ref),
       matchDeltaR_(dr),
@@ -34,6 +35,8 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps,
       maxEta_(getMaxEta(binsEta_, ps.getUntrackedParameter<double>("EtaHistoBinWidth", 0.348))) {
   if (!configValid_)
     return;
+
+  verbose = verb;
 
   //Process PSet
   l1stage2Taus_ = ps.getUntrackedParameter<edm::InputTag>("L1Taus");
@@ -218,6 +221,7 @@ void HLTTauDQML1Plotter::analyze(const edm::Event& iEvent,
       }
     }
   } else {
+    if(verbose)
     edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 tau collection "
                                         << l1stage2Taus_.encode();
   }
@@ -233,6 +237,7 @@ void HLTTauDQML1Plotter::analyze(const edm::Event& iEvent,
       }
     }
   } else {
+    if(verbose)
     edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 met collection "
                                         << l1stage2Sums_.encode();
   }

@@ -35,7 +35,7 @@ public:
     const int id;  // from TriggerTypeDefs.h
   };
 
-  HLTTauDQMPath(std::string pathName, std::string hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP);
+  HLTTauDQMPath(std::string pathName, std::string hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP, bool verbose);
   ~HLTTauDQMPath();
 
   bool isValid() const { return isValid_; }
@@ -159,6 +159,8 @@ private:
   size_t firstL2METFilterIndex_;
   bool isFirstL1Seed_;
   bool isValid_;
+
+  bool verbose_;
 };
 
 #endif
