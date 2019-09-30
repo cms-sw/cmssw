@@ -219,7 +219,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset)
 
 MultiTrackValidator::~MultiTrackValidator() {}
 
-void MultiTrackValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook,
+void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook,
                                          edm::Run const&,
                                          edm::EventSetup const& setup,
                                          Histograms& histograms) const {
@@ -232,11 +232,11 @@ void MultiTrackValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook,
   const auto maxColl = label.size() - 0.5;
   const auto nintColl = label.size();
 
-  auto binLabels = [&](ConcurrentMonitorElement me) {
+  auto binLabels = [&](dqm::reco::MonitorElement* me) {
     for (size_t i = 0; i < label.size(); ++i) {
-      me.setBinLabel(i + 1, label[i].label());
+      me->setBinLabel(i + 1, label[i].label());
     }
-    me.disableAlphanumeric();
+    me->disableAlphanumeric();
     return me;
   };
 
@@ -1004,9 +1004,9 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
 
         if (doSummaryPlots_) {
           if (dRtpSelector(tp)) {
-            histograms.h_simul_coll[ww].fill(www);
+            histograms.h_simul_coll[ww]->Fill(www);
             if (matchedTrackPointer) {
-              histograms.h_assoc_coll[ww].fill(www);
+              histograms.h_assoc_coll[ww]->Fill(www);
             }
           }
         }
@@ -1120,14 +1120,14 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
         mvaValues.clear();
 
         if (doSummaryPlots_) {
-          histograms.h_reco_coll[ww].fill(www);
+          histograms.h_reco_coll[ww]->Fill(www);
           if (isSimMatched) {
-            histograms.h_assoc2_coll[ww].fill(www);
+            histograms.h_assoc2_coll[ww]->Fill(www);
             if (numAssocRecoTracks > 1) {
-              histograms.h_looper_coll[ww].fill(www);
+              histograms.h_looper_coll[ww]->Fill(www);
             }
             if (!isSigSimMatched) {
-              histograms.h_pileup_coll[ww].fill(www);
+              histograms.h_pileup_coll[ww]->Fill(www);
             }
           }
         }

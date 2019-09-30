@@ -23,7 +23,7 @@
 #include <classlib/utils/Regexp.h>
 
 #include "DQMServices/Core/interface/DQMDefinitions.h"
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 namespace edm {
   class DQMHttpSource;
@@ -236,134 +236,6 @@ namespace dqm::dqmstoreimpl {
       DQMStore* owner_;
     };  // IBooker
 
-    class ConcurrentBooker : public IBooker {
-    public:
-      friend class DQMStore;
-
-      ConcurrentMonitorElement bookInt(TString const& name);
-      ConcurrentMonitorElement bookFloat(TString const& name);
-      ConcurrentMonitorElement bookString(TString const& name, TString const& value);
-      ConcurrentMonitorElement book1D(
-          TString const& name, TString const& title, int const nchX, double const lowX, double const highX);
-      ConcurrentMonitorElement book1D(TString const& name, TString const& title, int nchX, float const* xbinsize);
-      ConcurrentMonitorElement book1D(TString const& name, TH1F* object);
-      ConcurrentMonitorElement book1S(TString const& name, TString const& title, int nchX, double lowX, double highX);
-      ConcurrentMonitorElement book1S(TString const& name, TH1S* object);
-      ConcurrentMonitorElement book1DD(TString const& name, TString const& title, int nchX, double lowX, double highX);
-      ConcurrentMonitorElement book1DD(TString const& name, TH1D* object);
-      ConcurrentMonitorElement book2D(TString const& name,
-                                      TString const& title,
-                                      int nchX,
-                                      double lowX,
-                                      double highX,
-                                      int nchY,
-                                      double lowY,
-                                      double highY);
-      ConcurrentMonitorElement book2D(
-          TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize);
-      ConcurrentMonitorElement book2D(TString const& name, TH2F* object);
-      ConcurrentMonitorElement book2S(TString const& name,
-                                      TString const& title,
-                                      int nchX,
-                                      double lowX,
-                                      double highX,
-                                      int nchY,
-                                      double lowY,
-                                      double highY);
-      ConcurrentMonitorElement book2S(
-          TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize);
-      ConcurrentMonitorElement book2S(TString const& name, TH2S* object);
-      ConcurrentMonitorElement book2DD(TString const& name,
-                                       TString const& title,
-                                       int nchX,
-                                       double lowX,
-                                       double highX,
-                                       int nchY,
-                                       double lowY,
-                                       double highY);
-      ConcurrentMonitorElement book2DD(TString const& name, TH2D* object);
-      ConcurrentMonitorElement book3D(TString const& name,
-                                      TString const& title,
-                                      int nchX,
-                                      double lowX,
-                                      double highX,
-                                      int nchY,
-                                      double lowY,
-                                      double highY,
-                                      int nchZ,
-                                      double lowZ,
-                                      double highZ);
-      ConcurrentMonitorElement book3D(TString const& name, TH3F* object);
-      ConcurrentMonitorElement bookProfile(TString const& name,
-                                           TString const& title,
-                                           int nchX,
-                                           double lowX,
-                                           double highX,
-                                           int nchY,
-                                           double lowY,
-                                           double highY,
-                                           char const* option = "s");
-      ConcurrentMonitorElement bookProfile(TString const& name,
-                                           TString const& title,
-                                           int nchX,
-                                           double lowX,
-                                           double highX,
-                                           double lowY,
-                                           double highY,
-                                           char const* option = "s");
-      ConcurrentMonitorElement bookProfile(TString const& name,
-                                           TString const& title,
-                                           int nchX,
-                                           double const* xbinsize,
-                                           int nchY,
-                                           double lowY,
-                                           double highY,
-                                           char const* option = "s");
-      ConcurrentMonitorElement bookProfile(TString const& name,
-                                           TString const& title,
-                                           int nchX,
-                                           double const* xbinsize,
-                                           double lowY,
-                                           double highY,
-                                           char const* option = "s");
-      ConcurrentMonitorElement bookProfile(TString const& name, TProfile* object);
-      ConcurrentMonitorElement bookProfile2D(TString const& name,
-                                             TString const& title,
-                                             int nchX,
-                                             double lowX,
-                                             double highX,
-                                             int nchY,
-                                             double lowY,
-                                             double highY,
-                                             double lowZ,
-                                             double highZ,
-                                             char const* option = "s");
-      ConcurrentMonitorElement bookProfile2D(TString const& name,
-                                             TString const& title,
-                                             int nchX,
-                                             double lowX,
-                                             double highX,
-                                             int nchY,
-                                             double lowY,
-                                             double highY,
-                                             int nchZ,
-                                             double lowZ,
-                                             double highZ,
-                                             char const* option = "s");
-      ConcurrentMonitorElement bookProfile2D(TString const& name, TProfile2D* object);
-
-      ConcurrentBooker() = delete;
-      ConcurrentBooker(ConcurrentBooker const&) = delete;
-      ConcurrentBooker(ConcurrentBooker&&) = delete;
-      ConcurrentBooker& operator=(ConcurrentBooker const&) = delete;
-      ConcurrentBooker& operator=(ConcurrentBooker&&) = delete;
-
-    private:
-      explicit ConcurrentBooker(DQMStore* store) noexcept : IBooker{store} {}
-
-      ~ConcurrentBooker() = default;
-    };
-
     class IGetter {
     public:
       friend class DQMStore;
@@ -434,20 +306,24 @@ namespace dqm::dqmstoreimpl {
     }
 
     // Similar function used to book "global" histograms via the
-    // ConcurrentMonitorElement interface.
+    // dqm::reco::MonitorElement* interface.
     template <typename iFunc>
     void bookConcurrentTransaction(iFunc f, uint32_t run) {
       std::lock_guard<std::mutex> guard(book_mutex_);
       /* Set the run_ member only if enableMultiThread is enabled */
       if (enableMultiThread_) {
         run_ = run;
+        moduleId_ = 0;
+        canSaveByLumi_ = false;
       }
-      ConcurrentBooker booker(this);
+      IBooker booker(this);
       f(booker);
 
       /* Reset the run_ member only if enableMultiThread is enabled */
       if (enableMultiThread_) {
         run_ = 0;
+        moduleId_ = 0;
+        canSaveByLumi_ = false;
       }
     }
 
