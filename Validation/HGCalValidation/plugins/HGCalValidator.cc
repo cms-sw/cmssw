@@ -71,7 +71,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
 HGCalValidator::~HGCalValidator() {}
 
-void HGCalValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook,
+void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
                                     edm::Run const&,
                                     edm::EventSetup const& setup,
                                     Histograms& histograms) const {
