@@ -536,7 +536,7 @@ void TestDetSet::onDemand() {
   auto pg = std::make_shared<Getter>(this);
   Getter &g = *pg;
   assert(!g.aborted);
-  std::vector<unsigned int> v = { 21, 23, 25, 27, 1020};
+  std::vector<unsigned int> v = {21, 23, 25, 27, 1020};
   DSTV detsets(pg, v, 2);
   CPPUNIT_ASSERT(g.ntot == 0);
   CPPUNIT_ASSERT(detsets.onDemand());
