@@ -17,7 +17,6 @@ class VectorHit2D {
   LocalError localDirectionError() const { return LocalError(theCovMatrix[0][0],theCovMatrix[0][1],theCovMatrix[1][1]); }
   AlgebraicSymMatrix22 covMatrix() const { return theCovMatrix; }
   double chi2() const  { return theChi2; }
-  int degreesOfFreedom() const { return 0; } //number of hits (2) - dimension
   int dimension() const { return 2; }
 
  private:

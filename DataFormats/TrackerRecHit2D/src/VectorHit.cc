@@ -179,9 +179,9 @@ Global3DVector VectorHit::globalDirection() const {
 
 std::pair<double,double> VectorHit::curvatureORphi(std::string curvORphi) const {
 
-  double curvature = 0.0;
-  double errorCurvature = 0.0;
-  double phi = 0.0;
+  double curvature = -999.;
+  double errorCurvature = -999.;
+  double phi = -999.;
 
   //global pos and errors
   Global3DPoint gPositionLower = lowerGlobalPos();
@@ -361,38 +361,9 @@ float VectorHit::theta(){
 }
 
 AlgebraicMatrix VectorHit::projectionMatrix() const {
-
-//  static bool isInitialized=false;
+  // obsolete (for what tracker is concerned...) interface
   static AlgebraicMatrix the4DProjectionMatrix(4, 5, 0);
-/*
-  static AlgebraicMatrix the2DPhiProjMatrix(2, 5, 0);
-  static AlgebraicMatrix the2DZProjMatrix(2, 5, 0);
-
-  if (!isInitialized) {
-    the4DProjectionMatrix[0][1] = 1;
-    the4DProjectionMatrix[1][2] = 1;
-    the4DProjectionMatrix[2][3] = 1;
-    the4DProjectionMatrix[3][4] = 1;
-
-    the2DPhiProjMatrix[0][1] = 1;
-    the2DPhiProjMatrix[1][3] = 1;
-
-    the2DZProjMatrix[0][2] = 1;
-    the2DZProjMatrix[1][4] = 1;
-
-    isInitialized= true;
-  }
-
-  if (dimension()==4) {
-    return the4DProjectionMatrix;
-  } else if (theProjection==phi) {
-    return the2DPhiProjMatrix;
-  } else if (theProjection==Z) {
-    return the2DZProjMatrix;
-  } else {
-    return AlgebraicMatrix();
-  }
-*/ return the4DProjectionMatrix; //ERICA:QUESTO NON ESISTEVA!!
+  return the4DProjectionMatrix;
 }
 
 
@@ -428,7 +399,7 @@ std::ostream& operator<<(std::ostream& os, const VectorHit& vh) {
         //" Vectorhit theta               : " << vh.theta() << "\n" <<
         //" Cov: " << vh.parametersError() << "\n" <<
         //" Dim: " << vh.dimension() << "\n" <<
-        //" chi2/ndof: " << vh.chi2() << "/" << vh.degreesOfFreedom() << "\n" <<
+        //" chi2: " << vh.chi2()  << "\n" <<
         " Lower cluster global position : " << vh.lowerGlobalPos() << "\n" <<
         " Upper cluster global position : " << vh.upperGlobalPos();
 
