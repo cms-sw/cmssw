@@ -101,14 +101,13 @@ std::string PrintoutHelper::regressionTest(const TrackerGeometry& tracker, std::
     } else
       buffer << "candidate with invalid last measurement state!" << std::endl;
   }
-  buffer<<"=================================================";
-  buffer<<"=========== Traj in details =====================\n";
-  for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
-       it != unsmoothedResult.end(); it++) {
-    for(auto hit : it->measurements()){
-      buffer<< "measurement : " << hit.recHit()->geographicalId().rawId() << std::endl;
+  buffer << "=================================================";
+  buffer << "=========== Traj in details =====================\n";
+  for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
+    for (auto hit : it->measurements()) {
+      buffer << "measurement : " << hit.recHit()->geographicalId().rawId() << std::endl;
     }
-    buffer<<"================\n";
+    buffer << "================\n";
   }
   return buffer.str();
 }

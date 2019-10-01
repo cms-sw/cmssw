@@ -23,7 +23,8 @@ public:
 
   // no position (as in persistent)
   BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) : TrackingRecHit(id, (unsigned int)(rt)), qualWord_(0) {}
-  BaseTrackerRecHit(const GeomDet & idet, trackerHitRTTI::RTTI rt) :  TrackingRecHit(idet,(unsigned int)(rt)),qualWord_(0) {}
+  BaseTrackerRecHit(const GeomDet& idet, trackerHitRTTI::RTTI rt)
+      : TrackingRecHit(idet, (unsigned int)(rt)), qualWord_(0) {}
 
   BaseTrackerRecHit(const LocalPoint& p, const LocalError& e, GeomDet const& idet, trackerHitRTTI::RTTI rt)
       : TrackingRecHit(idet, (unsigned int)(rt)), pos_(p), err_(e), qualWord_(0) {
@@ -51,12 +52,12 @@ public:
 
   bool hasPositionAndError() const override;
 
-  LocalPoint localPosition() const override{ 
+  LocalPoint localPosition() const override {
     check();
     return pos_;
   }
 
-  LocalError localPositionError() const override{
+  LocalError localPositionError() const override {
     check();
     return err_;
   }

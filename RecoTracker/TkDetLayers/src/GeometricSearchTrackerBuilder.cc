@@ -21,14 +21,10 @@
 
 using namespace std;
 
-
-GeometricSearchTracker*
-GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
-				     const TrackerGeometry* theGeomDetGeometry,
-				     const TrackerTopology* tTopo,
-				     const bool usePhase2Stacks)
-{
-
+GeometricSearchTracker* GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
+                                                             const TrackerGeometry* theGeomDetGeometry,
+                                                             const TrackerTopology* tTopo,
+                                                             const bool usePhase2Stacks) {
   PixelBarrelLayerBuilder aPixelBarrelLayerBuilder;
   Phase2OTBarrelLayerBuilder aPhase2OTBarrelLayerBuilder;
   PixelForwardLayerBuilder<PixelBlade, PixelForwardLayer> aPixelForwardLayerBuilder;
@@ -102,9 +98,10 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
     if ((*it)->type() == GeometricDet::OTPhase2Barrel) {
       vector<const GeometricDet*> theTOBGeometricDetLayers = (*it)->components();
 
-      for(vector<const GeometricDet*>::const_iterator it2=theTOBGeometricDetLayers.begin();
-	  it2!=theTOBGeometricDetLayers.end(); it2++){
-	theTOBLayers.push_back( aPhase2OTBarrelLayerBuilder.build(*it2,theGeomDetGeometry,useBrothers) );
+      for (vector<const GeometricDet*>::const_iterator it2 = theTOBGeometricDetLayers.begin();
+           it2 != theTOBGeometricDetLayers.end();
+           it2++) {
+        theTOBLayers.push_back(aPhase2OTBarrelLayerBuilder.build(*it2, theGeomDetGeometry, useBrothers));
       }
     }
 
@@ -174,12 +171,13 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       vector<const GeometricDet*> theTIDGeometricDetLayers = (*it)->components();
 
       bool useBrothers = !usePhase2Stacks;
-      for(vector<const GeometricDet*>::const_iterator it2=theTIDGeometricDetLayers.begin();
-	  it2!=theTIDGeometricDetLayers.end(); it2++){
-	if((*it2)->positionBounds().z() < 0)
-	  theNegTIDLayers.push_back( aPhase2EndcapLayerBuilder.build(*it2,theGeomDetGeometry,useBrothers) );
-	if((*it2)->positionBounds().z() > 0)
-	  thePosTIDLayers.push_back( aPhase2EndcapLayerBuilder.build(*it2,theGeomDetGeometry,useBrothers) );
+      for (vector<const GeometricDet*>::const_iterator it2 = theTIDGeometricDetLayers.begin();
+           it2 != theTIDGeometricDetLayers.end();
+           it2++) {
+        if ((*it2)->positionBounds().z() < 0)
+          theNegTIDLayers.push_back(aPhase2EndcapLayerBuilder.build(*it2, theGeomDetGeometry, useBrothers));
+        if ((*it2)->positionBounds().z() > 0)
+          thePosTIDLayers.push_back(aPhase2EndcapLayerBuilder.build(*it2, theGeomDetGeometry, useBrothers));
       }
     }
 

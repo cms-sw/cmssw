@@ -15,8 +15,8 @@ class Phase2EndcapLayerBuilder {
 public:
   Phase2EndcapLayerBuilder(){};
   Phase2EndcapLayer* build(const GeometricDet* aPhase2EndcapLayer,
-			   const TrackerGeometry* theGeomDetGeometry,
-                           const bool useBrothers) __attribute__ ((cold));
+                           const TrackerGeometry* theGeomDetGeometry,
+                           const bool useBrothers) __attribute__((cold));
 };
 
 #pragma GCC visibility pop

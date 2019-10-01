@@ -408,8 +408,9 @@ private:
 //FIXME:just temporary solution for phase2 OT that works!
 class Phase2OTMeasurementConditionSet {
 public:
-  Phase2OTMeasurementConditionSet(const VectorHitBuilderEDProducer* ph2matcher, const ClusterParameterEstimator<Phase2TrackerCluster1D> *cpe) :
-    thePhase2Matcher(ph2matcher), theCPE(cpe) {}
+  Phase2OTMeasurementConditionSet(const VectorHitBuilderEDProducer* ph2matcher,
+                                  const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpe)
+      : thePhase2Matcher(ph2matcher), theCPE(cpe) {}
 
   void init(int size);
 
@@ -418,7 +419,7 @@ public:
   int find(unsigned int jd, int i = 0) const { return std::lower_bound(id_.begin() + i, id_.end(), jd) - id_.begin(); }
 
   const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpe() const { return theCPE; }
-  const VectorHitBuilderEDProducer*  matcher() const { return thePhase2Matcher;}
+  const VectorHitBuilderEDProducer* matcher() const { return thePhase2Matcher; }
   bool isActiveThisPeriod(int i) const { return activeThisPeriod_[i]; }
 
   /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually).
@@ -431,7 +432,7 @@ private:
   // Globals (not-per-event)
   const VectorHitBuilderEDProducer* thePhase2Matcher;
   const ClusterParameterEstimator<Phase2TrackerCluster1D>* theCPE;
-  
+
   // Locals, per-event
   std::vector<unsigned int> id_;
   std::vector<bool> activeThisPeriod_;

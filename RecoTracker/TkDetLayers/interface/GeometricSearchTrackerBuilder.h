@@ -17,9 +17,9 @@ public:
   ~GeometricSearchTrackerBuilder() {}
 
   GeometricSearchTracker* build(const GeometricDet* theGeometricTracker,
-				const TrackerGeometry* theGeomDetGeometry,
-				const TrackerTopology* tTopo,
-				const bool usePhase2Stacks = false) __attribute__ ((cold));
+                                const TrackerGeometry* theGeomDetGeometry,
+                                const TrackerTopology* tTopo,
+                                const bool usePhase2Stacks = false) __attribute__((cold));
 };
 
 #endif

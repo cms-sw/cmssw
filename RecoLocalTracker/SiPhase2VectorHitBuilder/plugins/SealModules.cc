@@ -8,4 +8,3 @@
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPhase2RecHitMatcherESProducer);
 DEFINE_FWK_MODULE(VectorHitBuilderEDProducer);
-

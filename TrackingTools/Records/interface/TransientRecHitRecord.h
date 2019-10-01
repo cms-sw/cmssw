@@ -18,6 +18,6 @@ class TransientRecHitRecord
                                                                                TrackerDigiGeometryRecord,
                                                                                TkStripCPERecord,
                                                                                TkPixelCPERecord,
-									       TkPhase2OTCPERecord,
+                                                                               TkPhase2OTCPERecord,
                                                                                GlobalTrackingGeometryRecord> > {};
 #endif

@@ -7,17 +7,14 @@
 #include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderEDProducer.h"
 #include <memory>
 
-class SiPhase2RecHitMatcherESProducer: public edm::ESProducer {
- public:
+class SiPhase2RecHitMatcherESProducer : public edm::ESProducer {
+public:
   SiPhase2RecHitMatcherESProducer(const edm::ParameterSet&);
   std::shared_ptr<VectorHitBuilderEDProducer> produce(const TkPhase2OTCPERecord&);
- private:
+
+private:
   std::string name;
   std::shared_ptr<VectorHitBuilderEDProducer> matcher_;
   edm::ParameterSet pset_;
 };
 #endif
-
-
-
-

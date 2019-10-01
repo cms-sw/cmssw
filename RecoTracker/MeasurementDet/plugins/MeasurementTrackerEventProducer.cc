@@ -350,7 +350,6 @@ void MeasurementTrackerEventProducer::updateStrips(const edm::Event& event,
 //FIXME: just a temporary solution for phase2!
 void MeasurementTrackerEventProducer::updatePhase2OT(const edm::Event& event,
                                                      Phase2OTMeasurementDetSet& thePh2OTDets) const {
-
   thePh2OTDets.setEmpty();
 
   // Phase2OT Clusters

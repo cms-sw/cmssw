@@ -25,7 +25,7 @@ class CkfComponentsRecord
                                                             boost::mpl::vector<TrackerDigiGeometryRecord,
                                                                                TkPixelCPERecord,
                                                                                TkStripCPERecord,
-                                               				       TkPhase2OTCPERecord,
+                                                                               TkPhase2OTCPERecord,
                                                                                TransientRecHitRecord,
                                                                                TrackingComponentsRecord,
                                                                                TrackerRecoGeometryRecord,
@@ -41,4 +41,3 @@ class CkfComponentsRecord
                                                                                SiStripLorentzAngleDepRcd> > {};
 
 #endif
-

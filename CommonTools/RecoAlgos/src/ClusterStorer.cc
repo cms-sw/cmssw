@@ -51,7 +51,7 @@ namespace helper {
     } else if (hit_type == typeid(VectorHit)) {
       //FIXME:: this is just temporary solution for phase2,
       //the VectorHit has 2 clusters but just a hit!
-      phase2OTClusterRecords_.push_back(Phase2OTClusterHitRecord(static_cast<VectorHit&>(newHit), hits, index));
+      phase2OTClusterRecords_.push_back(Phase2OTClusterHitRecord(static_cast<VectorHit &>(newHit), hits, index));
     } else {
       if (hit_type == typeid(FastTrackerRecHit) || hit_type == typeid(FastProjectedTrackerRecHit) ||
           hit_type == typeid(FastMatchedTrackerRecHit)) {

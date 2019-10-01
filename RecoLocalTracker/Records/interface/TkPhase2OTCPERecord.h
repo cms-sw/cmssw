@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"      
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
 //#include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
@@ -13,8 +13,14 @@
 
 #include "boost/mpl/vector.hpp"
 
-class  TkPhase2OTCPERecord: public edm::eventsetup::DependentRecordImplementation<TkPhase2OTCPERecord,
-  boost::mpl::vector<TrackerDigiGeometryRecord,TrackerTopologyRcd,IdealMagneticFieldRecord,SiPixelLorentzAngleRcd,SiPixelGenErrorDBObjectRcd,SiPixelTemplateDBObjectESProducerRcd> > {};
+class TkPhase2OTCPERecord
+    : public edm::eventsetup::DependentRecordImplementation<TkPhase2OTCPERecord,
+                                                            boost::mpl::vector<TrackerDigiGeometryRecord,
+                                                                               TrackerTopologyRcd,
+                                                                               IdealMagneticFieldRecord,
+                                                                               SiPixelLorentzAngleRcd,
+                                                                               SiPixelGenErrorDBObjectRcd,
+                                                                               SiPixelTemplateDBObjectESProducerRcd> > {
+};
 
-#endif 
-
+#endif

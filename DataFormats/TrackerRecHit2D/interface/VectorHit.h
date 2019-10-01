@@ -27,58 +27,62 @@
 #include "TkCloner.h"
 
 class VectorHit GCC11_FINAL : public BaseTrackerRecHit {
-
-  public:
-
+public:
   typedef OmniClusterRef::Phase2Cluster1DRef ClusterRef;
 
   VectorHit() : thePosition(), theDirection(), theCovMatrix(), theDimension(0) { setType(bad); }
 
-  VectorHit(const VectorHit& vh) ;
+  VectorHit(const VectorHit& vh);
 
-  VectorHit(const GeomDet& idet, const LocalPoint& posInner, const LocalVector& dir,
-            const AlgebraicSymMatrix& covMatrix, const double& Chi2,
-            OmniClusterRef const& lower, OmniClusterRef const& upper) ;
+  VectorHit(const GeomDet& idet,
+            const LocalPoint& posInner,
+            const LocalVector& dir,
+            const AlgebraicSymMatrix& covMatrix,
+            const double& Chi2,
+            OmniClusterRef const& lower,
+            OmniClusterRef const& upper);
 
-  VectorHit(const GeomDet& idet, const VectorHit2D& vh2Dzx, const VectorHit2D& vh2Dzy,
-            OmniClusterRef const& lower, OmniClusterRef const& upper) ;
+  VectorHit(const GeomDet& idet,
+            const VectorHit2D& vh2Dzx,
+            const VectorHit2D& vh2Dzy,
+            OmniClusterRef const& lower,
+            OmniClusterRef const& upper);
 
-  ~VectorHit() ;
+  ~VectorHit() override;
 
-  virtual VectorHit* clone() const override { return new VectorHit(*this);}
+  VectorHit* clone() const override { return new VectorHit(*this); }
 #ifndef __GCCXML__
-  virtual RecHitPointer cloneSH() const override { return std::make_shared<VectorHit>(*this);}
+  RecHitPointer cloneSH() const override { return std::make_shared<VectorHit>(*this); }
 #endif
 
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const override;
-  bool sharesClusters(VectorHit const & h1, VectorHit const & h2,
-                      SharedInputType what) const ;
+  bool sharesInput(const TrackingRecHit* other, SharedInputType what) const override;
+  bool sharesClusters(VectorHit const& h1, VectorHit const& h2, SharedInputType what) const;
 
   // Parameters of the segment, for the track fit
   // For a 4D segment: (dx/dz,dy/dz,x,y)
-  bool hasPositionAndError() const  GCC11_FINAL{
-  //bool hasPositionAndError() const {
+  bool hasPositionAndError() const GCC11_FINAL {
+    //bool hasPositionAndError() const {
     return true;
-//      return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
-//             (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
+    //      return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
+    //             (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
   };
 
-  virtual AlgebraicVector parameters() const override;
-  virtual void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents4D(holder); }
-  void getKfComponents4D( KfComponentsHolder & holder ) const ;
+  AlgebraicVector parameters() const override;
+  void getKfComponents(KfComponentsHolder& holder) const override { getKfComponents4D(holder); }
+  void getKfComponents4D(KfComponentsHolder& holder) const;
 
   // returning methods
   LocalPoint localPosition() const GCC11_FINAL { return thePosition; }
   virtual LocalVector localDirection() const { return theDirection; }
-  AlgebraicSymMatrix parametersError() const override ;
-  LocalError localPositionError() const GCC11_FINAL ;
-  virtual LocalError localDirectionError() const ;
+  AlgebraicSymMatrix parametersError() const override;
+  LocalError localPositionError() const GCC11_FINAL;
+  virtual LocalError localDirectionError() const;
   Global3DVector globalDirection() const;
 
   virtual double chi2() const { return theChi2; }
-  virtual int dimension() const override { return theDimension; }
+  int dimension() const override { return theDimension; }
 
-  std::pair<double,double> curvatureORphi(std::string curvORphi = "curvature") const ;
+  std::pair<double, double> curvatureORphi(std::string curvORphi = "curvature") const;
   float transverseMomentum(const MagneticField* magField);
   float momentum(const MagneticField* magField);
 
@@ -88,42 +92,42 @@ class VectorHit GCC11_FINAL : public BaseTrackerRecHit {
   OmniClusterRef const upperClusterRef() const { return theUpperCluster; }
 
   //FIXME::to update with a proper CPE maybe...
-  Global3DPoint lowerGlobalPos() const ;
-  Global3DPoint upperGlobalPos() const ;
+  Global3DPoint lowerGlobalPos() const;
+  Global3DPoint upperGlobalPos() const;
   Global3DPoint phase2clusterGlobalPos(const PixelGeomDetUnit* geomDet, ClusterRef cluster) const;
-  GlobalError lowerGlobalPosErr() const ;
-  GlobalError upperGlobalPosErr() const ;
+  GlobalError lowerGlobalPosErr() const;
+  GlobalError upperGlobalPosErr() const;
   GlobalError phase2clusterGlobalPosErr(const PixelGeomDetUnit* geomDet) const;
 
-  virtual bool isPhase2() const override { return true; }
+  bool isPhase2() const override { return true; }
 
   //FIXME: I have always two clusters in a VH
-  virtual OmniClusterRef const & firstClusterRef() const GCC11_FINAL { return theLowerCluster;}
-  ClusterRef cluster()  const { return theLowerCluster.cluster_phase2OT(); }
+  OmniClusterRef const& firstClusterRef() const GCC11_FINAL { return theLowerCluster; }
+  ClusterRef cluster() const { return theLowerCluster.cluster_phase2OT(); }
 
   //This method returns the delta in global coordinates
   Global3DVector globalDelta() const;
   float theta();
 
   /// The projection matrix relates the trajectory state parameters to the segment parameters().
-  virtual AlgebraicMatrix projectionMatrix() const override;
+  AlgebraicMatrix projectionMatrix() const override;
 
   // Access to component RecHits (if any)
-  virtual std::vector<const TrackingRecHit*> recHits() const override;
-  virtual std::vector<TrackingRecHit*> recHits() override ;
+  std::vector<const TrackingRecHit*> recHits() const override;
+  std::vector<TrackingRecHit*> recHits() override;
 
   // setting methods
   void setPosition(LocalPoint pos) { thePosition = pos; }
   void setDirection(LocalVector dir) { theDirection = dir; }
   void setCovMatrix(AlgebraicSymMatrix mat) { theCovMatrix = mat; }
 
- private:
+private:
   // double dispatch
-  virtual VectorHit * clone_(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override{
-    return cloner(*this,tsos).release();
+  VectorHit* clone_(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    return cloner(*this, tsos).release();
   }
-  virtual  RecHitPointer cloneSH_(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override{
-    return cloner.makeShared(*this,tsos);
+  RecHitPointer cloneSH_(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    return cloner.makeShared(*this, tsos);
   }
 
   LocalPoint thePosition;
@@ -141,12 +145,10 @@ class VectorHit GCC11_FINAL : public BaseTrackerRecHit {
   int theDimension;
   OmniClusterRef theLowerCluster;
   OmniClusterRef theUpperCluster;
-
 };
 
-inline bool operator<( const VectorHit& one, const VectorHit& other) {
-
-  if ( one.chi2() < other.chi2() ) {
+inline bool operator<(const VectorHit& one, const VectorHit& other) {
+  if (one.chi2() < other.chi2()) {
     return true;
   }
 
@@ -156,6 +158,6 @@ inline bool operator<( const VectorHit& one, const VectorHit& other) {
 std::ostream& operator<<(std::ostream& os, const VectorHit& vh);
 
 typedef edmNew::DetSetVector<VectorHit> VectorHitCollection;
-typedef VectorHitCollection             VectorHitCollectionNew;
+typedef VectorHitCollection VectorHitCollectionNew;
 
 #endif
