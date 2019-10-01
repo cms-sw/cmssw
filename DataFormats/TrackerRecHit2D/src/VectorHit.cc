@@ -36,8 +36,6 @@ VectorHit::VectorHit(const GeomDet& idet,
   thePosition = LocalPoint(vh2Dzx.localPosition().x(), vh2Dzy.localPosition().x(), 0.);
 
   theDirection = LocalVector(vh2Dzx.localDirection().x(), vh2Dzy.localDirection().x(), 1.);
-  //theDirection = LocalVector(vh2Dzx.localDirection().x(), vh2Dzy.localDirection().x(), vh2Dzy.localDirection().z());
-  //theDirection = theDirection.unit();
 
   //building the cov matrix 4x4 starting from the 2x2
   AlgebraicSymMatrix22 covMatZX = vh2Dzx.covMatrix();
@@ -82,7 +80,6 @@ bool VectorHit::sharesClusters(VectorHit const& h1, VectorHit const& h2, SharedI
 }
 
 void VectorHit::getKfComponents4D(KfComponentsHolder& holder) const {
-  //if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
   AlgebraicVector4& pars = holder.params<4>();
   pars[0] = theDirection.x();
   pars[1] = theDirection.y();
@@ -229,8 +226,6 @@ std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const
     double ytg = -(gPositionLower.x() - xcentre);
 
     //to compute phi at the origin
-    //double xtg = ycentre;
-    //double ytg = -(xcentre);
     phi = atan2(ytg, xtg);
 
     AlgebraicROOTObject<4, 4>::Matrix jacobian;
@@ -268,10 +263,6 @@ std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const
     M[0] = (gPositionLower.y() - ycentre) / pow(rho, 2);   // dphi/dxcentre
     M[1] = -(gPositionLower.x() - xcentre) / pow(rho, 2);  // dphi/dycentre
     //to compute phi at the origin
-    //float x0 = 0.0;
-    //float y0 = 0.0;
-    //M[0] = (y0 - ycentre)/pow(rho,2); // dphi/dxcentre
-    //M[1] =-(x0 - xcentre)/pow(rho,2); // dphi/dycentre
 
     AlgebraicROOTObject<2, 4>::Matrix K;
     K[0][0] =
@@ -342,8 +333,6 @@ std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const
     temp = temp * gErrors;
     errorCurvature = temp[0] * curvatureJacobian[0] + temp[1] * curvatureJacobian[1] + temp[2] * curvatureJacobian[2] +
                      temp[3] * curvatureJacobian[3];
-    //if(curvORphi == "curvature") std::cout << "curvature: " << curvature << std::endl;
-    //if(curvORphi == "curvature") std::cout << "curvature error: " << errorCurvature << std::endl;
 
   } else {
     std::cout << " straight line!" << std::endl;
