@@ -1,5 +1,4 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchNextLayers.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
