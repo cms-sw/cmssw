@@ -2,6 +2,7 @@
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimulationConstants.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -26,10 +27,28 @@ FiberSD::FiberSD(const std::string& iname,
                  const SensitiveDetectorCatalog& clg,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
-    : SensitiveCaloDetector(iname, es, clg, p), m_trackManager(manager), theHCID(-1), theHC(nullptr) {
-  edm::ESTransientHandle<DDCompactView> cpv;
-  es.get<IdealGeometryRecord>().get(cpv);
-  theShower = new HFShower(iname, *cpv, p, 1);
+    : SensitiveCaloDetector(iname, es, clg, p),
+      m_trackManager(manager),
+      theShower(nullptr),
+      theHCID(-1),
+      theHC(nullptr) {
+  // Get pointer to HcalDDDConstant and HcalDDDSimulationConstants
+  edm::ESHandle<HcalDDDSimulationConstants> hdsc;
+  es.get<HcalSimNumberingRecord>().get(hdsc);
+  if (!hdsc.isValid()) {
+    edm::LogError("FiberSim") << "FiberSD : Cannot find HcalDDDSimulationConstant";
+    throw cms::Exception("Unknown", "FiberSD") << "Cannot find HcalDDDSimulationConstant\n";
+  }
+  const HcalDDDSimulationConstants* hsps = hdsc.product();
+  edm::ESHandle<HcalDDDSimConstants> hdc;
+  es.get<HcalSimNumberingRecord>().get(hdc);
+  if (hdc.isValid()) {
+    const HcalDDDSimConstants* hcalConstants = hdc.product();
+    theShower = new HFShower(iname, hcalConstants, hsps->hcalsimpar(), p, 1);
+  } else {
+    edm::LogError("FiberSim") << "FiberSD : Cannot find HcalDDDSimConstant";
+    throw cms::Exception("Unknown", "FiberSD") << "Cannot find HcalDDDSimConstant\n";
+  }
 }
 
 FiberSD::~FiberSD() {
@@ -101,18 +120,7 @@ void FiberSD::DrawAll() {}
 
 void FiberSD::PrintAll() {}
 
-void FiberSD::update(const BeginOfJob* job) {
-  const edm::EventSetup* es = (*job)();
-  edm::ESHandle<HcalDDDSimConstants> hdc;
-  es->get<HcalSimNumberingRecord>().get(hdc);
-  if (hdc.isValid()) {
-    theShower->initRun(hdc.product());
-  } else {
-    edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
-    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant"
-                                              << "\n";
-  }
-}
+void FiberSD::update(const BeginOfJob* job) {}
 
 void FiberSD::update(const BeginOfRun*) {}
 
