@@ -46,7 +46,6 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
 
   muons_Token_ = consumes<reco::MuonCollection>(parameters.getUntrackedParameter<edm::InputTag>("inputTagMuons"));
   tm_Token_ = consumes<L1MuDTChambPhContainer>(parameters.getUntrackedParameter<edm::InputTag>("inputTagTM"));
-  ddu_Token_ = consumes<DTLocalTriggerCollection>(parameters.getUntrackedParameter<edm::InputTag>("inputTagDDU"));
   inputTagSEG = parameters.getUntrackedParameter<edm::InputTag>("inputTagSEG");
   gmt_Token_ = consumes<L1MuGMTReadoutCollection>(parameters.getUntrackedParameter<edm::InputTag>("inputTagGMT"));
 
@@ -54,9 +53,6 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
 
   detailedPlots = parameters.getUntrackedParameter<bool>("detailedAnalysis");
   processTM = parameters.getUntrackedParameter<bool>("processTM");
-  processDDU = parameters.getUntrackedParameter<bool>("processDDU");
-  minBXDDU = parameters.getUntrackedParameter<int>("minBXDDU");
-  maxBXDDU = parameters.getUntrackedParameter<int>("maxBXDDU");
 
   checkRPCtriggers = parameters.getUntrackedParameter<bool>("checkRPCtriggers");
   nMinHitsPhi = parameters.getUntrackedParameter<int>("nMinHitsPhi");
@@ -64,13 +60,9 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
 
   if (processTM)
     processTags.push_back("TM");
-  if (processDDU) {
-    processTags.push_back("DDU");
-    ddu_Token_ = consumes<DTLocalTriggerCollection>(parameters.getUntrackedParameter<edm::InputTag>("inputTagDDU"));
-  }
-  if (!processTM && !processDDU)
+  if (!processTM)
     LogError("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")
-        << "[DTTriggerEfficiencyTask]: Error, no trigger source (DDU or Twinmux) has been selected!!" << endl;
+        << "[DTTriggerEfficiencyTask]: Error, no trigger source (Twinmux) has been selected!!" << endl;
 }
 
 DTTriggerEfficiencyTask::~DTTriggerEfficiencyTask() {
@@ -114,8 +106,8 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
       return;
     }
   }
+
   map<DTChamberId, const L1MuDTChambPhDigi*> phBestTM;
-  map<DTChamberId, const DTLocalTrigger*> phBestDDU;
   // Getting best TM Stuff
   edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
   e.getByToken(tm_Token_, l1DTTPGPh);
@@ -134,27 +126,6 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
     if (phcode < 7 && (phBestTM.find(chId) == phBestTM.end() || phcode > phBestTM[chId]->code()))
       phBestTM[chId] = &(*iph);
   }
-
-  //Getting Best DDU Stuff
-  if (processDDU) {
-    Handle<DTLocalTriggerCollection> trigsDDU;
-    e.getByToken(ddu_Token_, trigsDDU);
-    DTLocalTriggerCollection::DigiRangeIterator detUnitIt;
-
-    for (detUnitIt = trigsDDU->begin(); detUnitIt != trigsDDU->end(); ++detUnitIt) {
-      const DTChamberId& id = (*detUnitIt).first;
-      const DTLocalTriggerCollection::Range& range = (*detUnitIt).second;
-
-      DTLocalTriggerCollection::const_iterator trigIt = range.first;
-      DTLocalTriggerCollection::const_iterator trigEnd = range.second;
-      for (; trigIt != trigEnd; ++trigIt) {
-        int quality = trigIt->quality();
-        if (quality > -1 && quality < 7 &&
-            (phBestDDU.find(id) == phBestDDU.end() || quality > phBestDDU[id]->quality()))
-          phBestDDU[id] = &(*trigIt);
-      }
-    }
-  }  //processDDU
 
   //Getting Best Segments
   vector<const DTRecSegment4D*> best4DSegments;
@@ -231,10 +202,8 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
       vector<string>::const_iterator tagIt = processTags.begin();
       vector<string>::const_iterator tagEnd = processTags.end();
       for (; tagIt != tagEnd; ++tagIt) {
-        int qual = (*tagIt) == "TM" ? phBestTM.find(dtChId) != phBestTM.end() ? phBestTM[dtChId]->code() : -1
-                                    : phBestDDU.find(dtChId) != phBestDDU.end() ? phBestDDU[dtChId]->quality() : -1;
+        int qual = phBestTM.find(dtChId) != phBestTM.end() ? phBestTM[dtChId]->code() : -1;
         innerWhME.find((*tagIt) + "_TrigEffDenum")->second->Fill(scsector, station);
-
         if (qual >= 0 && qual < 7) {
           innerWhME.find((*tagIt) + "_TrigEffNum")->second->Fill(scsector, station);
           if (qual >= 4) {
@@ -294,7 +263,7 @@ void DTTriggerEfficiencyTask::bookChamberHistos(DQMStore::IBooker& ibooker,
   stringstream sector;
   sector << sc;
 
-  string hwFolder = topFolder(histoType);
+  string hwFolder = topFolder();
   string bookingFolder =
       hwFolder + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() + "/" + folder;
   string histoTag = "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
@@ -332,9 +301,9 @@ void DTTriggerEfficiencyTask::bookWheelHistos(DQMStore::IBooker& ibooker, int wh
   wh << wheel;
   string basedir;
   if (hTag.find("Summary") != string::npos) {
-    basedir = topFolder(hTag);  //Book summary histo outside folder directory
+    basedir = topFolder();  //Book summary histo outside folder directory
   } else {
-    basedir = topFolder(hTag) + folder + "/";
+    basedir = topFolder() + folder + "/";
   }
 
   ibooker.setCurrentFolder(basedir);
