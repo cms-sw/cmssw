@@ -11,7 +11,6 @@ public:
   ~ScoutingTestAnalyzer() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void endRun(edm::Run const &, edm::EventSetup const &) override;
 
 private:
   // histograms

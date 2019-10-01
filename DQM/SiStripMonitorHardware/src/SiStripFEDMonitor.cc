@@ -466,11 +466,12 @@ void SiStripFEDMonitorPlugin::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 void SiStripFEDMonitorPlugin::dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-                                                   const edm::EventSetup& context) {
+                                                      const edm::EventSetup& context) {
   fedErrors_.initialiseLumiBlock();
 }
 
-void SiStripFEDMonitorPlugin::dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
+void SiStripFEDMonitorPlugin::dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+                                                    const edm::EventSetup& context) {
   fedHists_.fillLumiHistograms(fedErrors_.getLumiErrors());
 }
 

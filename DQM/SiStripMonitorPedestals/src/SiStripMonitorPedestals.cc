@@ -448,7 +448,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event &iEvent, const edm::Event
 //
 // -- End Run
 //
-void SiStripMonitorPedestals::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SiStripMonitorPedestals::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   if (outputMEsInRootFile) {
     std::string outPutFileName = conf_.getParameter<std::string>("OutPutFileName");

@@ -96,7 +96,7 @@ void CastorMonitorModule::bookHistograms(DQMStore::IBooker &ibooker,
   return;
 }
 
-void CastorMonitorModule::endRun(const edm::Run &r, const edm::EventSetup &context) {
+void CastorMonitorModule::dqmEndRun(const edm::Run &r, const edm::EventSetup &context) {
   if (DigiMon_) {
     DigiMon_->endRun();
   }
