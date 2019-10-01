@@ -17,6 +17,8 @@ private:
   edm::EDGetToken multiclusters_token_;
 
   bool fill_layer_info_;
+  bool fill_interpretation_info_;
+
   std::unique_ptr<HGCalTriggerClusterIdentificationBase> id_;
 
   int cl3d_n_;
@@ -51,12 +53,16 @@ private:
   std::vector<float> cl3d_ntc90_;
   std::vector<float> cl3d_bdteg_;
   std::vector<int> cl3d_quality_;
+  std::vector<std::vector<float>> cl3d_ipt_;
+  std::vector<std::vector<float>> cl3d_ienergy_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCMulticlusters, "HGCalTriggerNtupleHGCMulticlusters");
 
 HGCalTriggerNtupleHGCMulticlusters::HGCalTriggerNtupleHGCMulticlusters(const edm::ParameterSet& conf)
-    : HGCalTriggerNtupleBase(conf), fill_layer_info_(conf.getParameter<bool>("FillLayerInfo")) {}
+    : HGCalTriggerNtupleBase(conf),
+      fill_layer_info_(conf.getParameter<bool>("FillLayerInfo")),
+      fill_interpretation_info_(conf.getParameter<bool>("FillInterpretationInfo")) {}
 
 void HGCalTriggerNtupleHGCMulticlusters::initialize(TTree& tree,
                                                     const edm::ParameterSet& conf,
@@ -107,6 +113,10 @@ void HGCalTriggerNtupleHGCMulticlusters::initialize(TTree& tree,
   tree.Branch(withPrefix("ntc90"), &cl3d_ntc90_);
   tree.Branch(withPrefix("bdteg"), &cl3d_bdteg_);
   tree.Branch(withPrefix("quality"), &cl3d_quality_);
+  if (fill_interpretation_info_) {
+    tree.Branch(withPrefix("ipt"), &cl3d_ipt_);
+    tree.Branch(withPrefix("ienergy"), &cl3d_ienergy_);
+  }
 }
 
 void HGCalTriggerNtupleHGCMulticlusters::fill(const edm::Event& e, const edm::EventSetup& es) {
@@ -151,6 +161,16 @@ void HGCalTriggerNtupleHGCMulticlusters::fill(const edm::Event& e, const edm::Ev
     cl3d_ntc90_.emplace_back(cl3d_itr->triggerCells90percent());
     cl3d_bdteg_.emplace_back(id_->value(*cl3d_itr));
     cl3d_quality_.emplace_back(cl3d_itr->hwQual());
+    if (fill_interpretation_info_) {
+      std::vector<float> iPts(cl3d_itr->interpretations_size());
+      std::vector<float> iEnergies(cl3d_itr->interpretations_size());
+      for (auto interp = cl3d_itr->interpretations_begin(); interp != cl3d_itr->interpretations_end(); ++interp) {
+        iPts.emplace_back(cl3d_itr->iPt(*interp));
+        iEnergies.emplace_back(cl3d_itr->iEnergy(*interp));
+      }
+      cl3d_ipt_.push_back(iPts);
+      cl3d_ienergy_.push_back(iEnergies);
+    }
 
     //Per layer cluster information
     if (fill_layer_info_) {
@@ -204,4 +224,6 @@ void HGCalTriggerNtupleHGCMulticlusters::clear() {
   cl3d_ntc90_.clear();
   cl3d_bdteg_.clear();
   cl3d_quality_.clear();
+  cl3d_ipt_.clear();
+  cl3d_ienergy_.clear();
 }
