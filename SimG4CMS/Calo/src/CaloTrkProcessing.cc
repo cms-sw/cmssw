@@ -39,11 +39,11 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
   doFineCalo_ = m_p.getParameter<bool>("DoFineCalo");
   eMinFine_ = m_p.getParameter<double>("EminFineTrack") * MeV;
   eMinFinePhoton_ = m_p.getParameter<double>("EminFinePhoton") * MeV;
-#ifdef EDM_ML_DEBUG
+
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Initailised with TestBeam = " << testBeam_ << " Emin = " << eMin_
                               << ":" << eMinFine_ << ":" << eMinFinePhoton_ << " MeV and Flags " << putHistory_
                               << " (History), " << doFineCalo_ << " (Special Calorimeter)";
-#endif
+
   edm::ESTransientHandle<DDCompactView> cpv;
   es.get<IdealGeometryRecord>().get(cpv);
 
@@ -163,7 +163,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
     }
     istart += number;
   }
-#ifdef EDM_ML_DEBUG
+
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: with " << detectors_.size() << " calorimetric volumes";
   for (unsigned int i = 0; i < detectors_.size(); i++) {
     edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Calorimeter volume " << i << " " << detectors_[i].name << " LV "
@@ -173,7 +173,6 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       edm::LogVerbatim("CaloSim") << "                   Element " << k << " " << detectors_[i].fromDets[k] << " LV "
                                   << detectors_[i].fromDetL[k] << " at level " << detectors_[i].fromLevels[k];
   }
-#endif
 
   for (unsigned int i = 0; i < fCaloNames.size(); i++) {
     G4LogicalVolume* lv = nullptr;
@@ -197,12 +196,11 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
   }
   if (fineDetectors_.empty())
     doFineCalo_ = false;
-#ifdef EDM_ML_DEBUG
+
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: with " << fineDetectors_.size() << " special calorimetric volumes";
   for (unsigned int i = 0; i < detectors_.size(); i++)
     edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Calorimeter volume " << i << " " << detectors_[i].name << " LV "
                                 << detectors_[i].lv << " at level " << detectors_[i].level;
-#endif
 }
 
 CaloTrkProcessing::~CaloTrkProcessing() {}
