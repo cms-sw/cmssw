@@ -27,8 +27,8 @@ public:
   // framework calls in the order of invocation
   DQMEDAnalyzer() {
     // for whatever reason we need the explicit `template` keyword here.
-    runToken_ = this->template produces<DQMToken, edm::Transition::EndRun>();
-    lumiToken_ = this->template produces<DQMToken, edm::Transition::EndLuminosityBlock>();
+    runToken_ = this->template produces<DQMToken, edm::Transition::EndRun>("DQMGenerationRecoRun");
+    lumiToken_ = this->template produces<DQMToken, edm::Transition::EndLuminosityBlock>("DQMGenerationRecoLumi");
   }
 
   void beginRun(edm::Run const& run, edm::EventSetup const& setup) final {
