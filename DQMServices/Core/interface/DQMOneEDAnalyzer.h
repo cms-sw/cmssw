@@ -1,11 +1,13 @@
-#ifndef DQMServices_Core_DQMOneEDAnalyzer.h
-#define DQMServices_Core_DQMOneEDAnalyzer.h
+#ifndef DQMServices_Core_DQMOneEDAnalyzer_h
+#define DQMServices_Core_DQMOneEDAnalyzer_h
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
 
 /**
  * A "one" module base class that can only produce per-run histograms. This
@@ -14,11 +16,9 @@
  * It can be combined with edm::LuminosityBlockCache to watch per-lumi things,
  * and fill per-run histograms with the results.
  */
-template<typename... Args>
-class DQMOneEDAnalyzer : public edm::one::EDProducer<edm::EndRunProducer,
-                                              edm::one::WatchRuns,
-                                              edm::Accumulator,
-                                              Args...>  {
+template <typename... Args>
+class DQMOneEDAnalyzer
+    : public edm::one::EDProducer<edm::EndRunProducer, edm::one::WatchRuns, edm::Accumulator, Args...> {
 public:
   typedef dqm::reco::DQMStore DQMStore;
   typedef dqm::reco::MonitorElement MonitorElement;
@@ -31,7 +31,7 @@ public:
     runToken_ = this->template produces<DQMToken, edm::Transition::EndRun>();
   }
 
-  void dqmBeginRun(edm::Run const& run, edm::EventSetup const& setup) final {
+  void beginRun(edm::Run const& run, edm::EventSetup const& setup) final {
     dqmBeginRun(run, setup);
     edm::Service<DQMStore>()->bookTransaction(
         [this, &run, &setup](DQMStore::IBooker& booker) {
@@ -43,9 +43,7 @@ public:
         this->getCanSaveByLumi());
   }
 
-  void accumulate(edm::Event const& event, edm::EventSetup const& setup) final {
-    analyze(event, setup);
-  }
+  void accumulate(edm::Event const& event, edm::EventSetup const& setup) final { analyze(event, setup); }
 
   void endRunProduce(edm::Run& run, edm::EventSetup const& setup) final {
     dqmEndRun(run, setup);
@@ -57,13 +55,13 @@ public:
   // noticeable since the product was made already.
   void endRun(edm::Run const&, edm::EventSetup const&) final{};
 
+protected:
   // methods to be implemented by the user, in order of invocation
   virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
   virtual void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) = 0;
   virtual void analyze(edm::Event const&, edm::EventSetup const&) {}
   virtual void dqmEndRun(edm::Run const&, edm::EventSetup const&) {}
 
-protected:
   edm::EDPutTokenT<DQMToken> runToken_;
 };
 
@@ -78,11 +76,10 @@ protected:
  * probaby care about seeing lumisections in order anyways.
  */
 
-template<typename... Args>
-class DQMOneLumiEDAnalyzer : public DQMOneEDAnalyzer<edm::EndLuminosityBlockProducer,
-                                              edm::one::WatchLuminosityBlocks,
-                                              Args...>  {
-
+template <typename... Args>
+class DQMOneLumiEDAnalyzer
+    : public DQMOneEDAnalyzer<edm::EndLuminosityBlockProducer, edm::one::WatchLuminosityBlocks, Args...> {
+public:
   bool getCanSaveByLumi() override { return true; }
 
   // framework calls in the order of invocation
@@ -102,11 +99,10 @@ class DQMOneLumiEDAnalyzer : public DQMOneEDAnalyzer<edm::EndLuminosityBlockProd
   //}
 
   void endLuminosityBlockProduce(edm::LuminosityBlock& lumi, edm::EventSetup const& setup) final {
-    dqmEndLumi(lumi, setup);
-    edm::Service<DQMStore>()->cloneLumiHistograms(
-          lumi.run(),
-          lumi.luminosityBlock(),
-          moduleDescription().id());
+    dqmEndLuminosityBlock(lumi, setup);
+    // fully qualified name required for... reasons.
+    edm::Service<dqm::legacy::DQMStore>()->cloneLumiHistograms(
+        lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
     lumi.emplace(lumiToken_);
   }
 
@@ -114,12 +110,12 @@ class DQMOneLumiEDAnalyzer : public DQMOneEDAnalyzer<edm::EndLuminosityBlockProd
   // noticeable since the product was made already.
   void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final{};
 
+protected:
   // methods to be implemented by the user, in order of invocation
   virtual void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-  virtual void dqmEndLumi(edm::LuminosityBlock const&, edm::EventSetup const&) {}
+  virtual void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 
-private:
   edm::EDPutTokenT<DQMToken> lumiToken_;
 };
 
-#endif  // DQMServices_Core_DQMEDAnalyzer_h
+#endif  // DQMServices_Core_DQMOneEDAnalyzer_h
