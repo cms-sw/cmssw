@@ -16,10 +16,6 @@
 //
 //
 
-#include <vector>
-
-#include "ElectronSeedProducer.h"
-
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
@@ -31,30 +27,89 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
-
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Utilities/interface/transform.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
-#include <string>
+class ElectronSeedProducer : public edm::stream::EDProducer<> {
+public:
+  explicit ElectronSeedProducer(const edm::ParameterSet&);
+  ~ElectronSeedProducer() override;
+
+  void produce(edm::Event&, const edm::EventSetup&) final;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void filterClusters(const reco::BeamSpot& bs,
+                      const edm::Handle<reco::SuperClusterCollection>& superClusters,
+                      reco::SuperClusterRefVector& sclRefs,
+                      std::vector<float>& hoe1s,
+                      std::vector<float>& hoe2s,
+                      edm::Event& e,
+                      const edm::EventSetup& setup);
+  void filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector& sclRefs);
+
+  edm::EDGetTokenT<reco::SuperClusterCollection> superClusters_[2];
+  std::vector<edm::EDGetTokenT<TrajectorySeedCollection>> initialSeeds_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
+  edm::EDGetTokenT<EcalRecHitCollection> ebRecHitCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> eeRecHitCollection_;
+
+  ElectronSeedGenerator* matcher_;
+  std::unique_ptr<SeedFilter> seedFilter_;
+
+  TrajectorySeedCollection* theInitialSeedColl;  //created on the fly
+  std::vector<const TrajectorySeedCollection*> theInitialSeedColls;
+
+  // for the filter
+  // H/E
+  //  edm::InputTag hcalRecHits_;
+  bool applyHOverECut_;
+  ElectronHcalHelper* hcalHelper_;
+  //  edm::ESHandle<CaloGeometry> caloGeom_ ;
+  //  unsigned long long caloGeomCacheId_ ;
+  edm::ESHandle<CaloGeometry> caloGeom_;
+  unsigned long long caloGeomCacheId_;
+  edm::ESHandle<CaloTopology> caloTopo_;
+  unsigned long long caloTopoCacheId_;
+  //  EgammaHcalIsolation * hcalIso_ ;
+  ////  CaloDualConeSelector * doubleConeSel_ ;
+  //  double maxHOverE_ ;
+  double maxHOverEBarrel_;
+  double maxHOverEEndcaps_;
+  double maxHBarrel_;
+  double maxHEndcaps_;
+  //  double hOverEConeSize_;
+  //  double hOverEHBMinE_;
+  //  double hOverEHFMinE_;
+  // super cluster Et cut
+  double SCEtCut_;
+
+  bool applySigmaIEtaIEtaCut_;
+  double maxSigmaIEtaIEtaBarrel_;
+  double maxSigmaIEtaIEtaEndcaps_;
+
+  bool fromTrackerSeeds_;
+  bool prefilteredSeeds_;
+
+  bool allowHGCal_;
+  std::unique_ptr<hgcal::ClusterTools> hgcClusterTools_;
+};
 
 using namespace reco;
 
@@ -156,10 +211,6 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& iConfig)
   //register your products
   produces<ElectronSeedCollection>();
 }
-
-void ElectronSeedProducer::beginRun(edm::Run const&, edm::EventSetup const&) {}
-
-void ElectronSeedProducer::endRun(edm::Run const&, edm::EventSetup const&) {}
 
 ElectronSeedProducer::~ElectronSeedProducer() {
   delete hcalHelper_;
@@ -420,3 +471,6 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
                           edm::InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALBarrel"));
   descriptions.add("ecalDrivenElectronSeeds", desc);
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ElectronSeedProducer);
