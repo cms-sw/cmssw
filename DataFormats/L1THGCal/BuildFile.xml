@@ -6,6 +6,8 @@
 <use   name="DataFormats/GeometryVector"/>
 <use   name="FWCore/Utilities"/>
 <use   name="rootrflx"/>
+<use   name="boost"/>
+
 <export>
   <lib   name="1"/>
 </export>
