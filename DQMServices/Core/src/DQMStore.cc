@@ -52,7 +52,7 @@
 /** @var DQMStore::qalgos_
     Set of all the available quality test algorithms. */
 
-namespace dqm::impl {
+namespace dqm::dqmstoreimpl {
 
   //////////////////////////////////////////////////////////////////////
   /// name of global monitoring folder (containing all sources subdirectories)
@@ -1223,7 +1223,7 @@ namespace dqm::impl {
         // for legacy (not DQMEDAnalyzer) this is not save.
         proto.setLumiFlag();  // default to per-lumi mode for all non-legacy MEs.
       }
-      me = const_cast<MonitorElement&>(*data_.insert(std::move(proto)).first).initialise((MonitorElement::Kind)kind, h);
+      me = (MonitorElement*) const_cast<MonitorElement&>(*data_.insert(std::move(proto)).first).initialise((MonitorElement::Kind)kind, h);
 
       // Initialise quality test information.
       for (auto const& q : qtestspecs_) {
@@ -1289,7 +1289,7 @@ namespace dqm::impl {
         return me;
       }
     }
-    return book_(dir, name, "bookInt")->initialise(MonitorElement::Kind::INT);
+    return (MonitorElement*) book_(dir, name, "bookInt")->initialise(MonitorElement::Kind::INT);
   }
 
   /// Book int.
@@ -1304,7 +1304,7 @@ namespace dqm::impl {
         return me;
       }
     }
-    return book_(dir, name, "bookFloat")->initialise(MonitorElement::Kind::REAL);
+    return (MonitorElement*) book_(dir, name, "bookFloat")->initialise(MonitorElement::Kind::REAL);
   }
 
   /// Book float.
@@ -1317,7 +1317,7 @@ namespace dqm::impl {
       if (MonitorElement* me = findObject(run_, 0, moduleId_, dir, name))
         return me;
     }
-    return book_(dir, name, "bookString")->initialise(MonitorElement::Kind::STRING, value);
+    return (MonitorElement*) book_(dir, name, "bookString")->initialise(MonitorElement::Kind::STRING, value);
   }
 
   /// Book string.

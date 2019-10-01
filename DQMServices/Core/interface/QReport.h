@@ -9,8 +9,13 @@
 class QCriterion;
 namespace dqm::impl {
   class MonitorElement;
+}
+namespace dqm::dqmstoreimpl {
   class DQMStore;
-}  // namespace dqm::impl
+}
+namespace dqm::legacy {
+  class MonitorElement;
+}
 
 /** Class for reporting results of quality tests for Monitoring Elements */
 class QReport {
@@ -36,8 +41,9 @@ public:
 
 private:
   friend class QCriterion;
+  friend class dqm::legacy::MonitorElement;  // for running the quality test
   friend class dqm::impl::MonitorElement;  // for running the quality test
-  friend class dqm::impl::DQMStore;        // for setting QReport parameters after receiving report
+  friend class dqm::dqmstoreimpl::DQMStore;        // for setting QReport parameters after receiving report
 
   QReport(DQMNet::QValue *value, QCriterion *qc) : qvalue_(value), qcriterion_(qc) {}
 
