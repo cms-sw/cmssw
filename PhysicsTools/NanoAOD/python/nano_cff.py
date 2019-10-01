@@ -22,7 +22,7 @@ from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
-from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
 from Configuration.Eras.Modifier_run2_tau_ul_2016_cff import run2_tau_ul_2016
 from Configuration.Eras.Modifier_run2_tau_ul_2018_cff import run2_tau_ul_2018
 
@@ -299,7 +299,15 @@ def nanoAOD_customizeCommon(process):
                                      addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
                                      addDeepDoubleX=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleX_switch,
                                      jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
-    (~(run2_miniAOD_80XLegacy | run2_miniAOD_devel | run2_tau_ul_2016 | run2_tau_ul_2018)).toModify(process, lambda p : nanoAOD_addTauIds(p))
+    addTauIds_switch = cms.PSet(
+        nanoAOD_addTauIds_switch = cms.untracked.bool(True)
+    )
+    run2_miniAOD_80XLegacy.toModify(addTauIds_switch, nanoAOD_addTauIds_switch = cms.untracked.bool(False))
+    (run2_tau_ul_2016 | run2_tau_ul_2018) & \
+    (~(run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1)).toModify(addTauIds_switch,
+                                                                                                                                           nanoAOD_addTauIds_switch = cms.untracked.bool(False))
+    if addTauIds_switch.nanoAOD_addTauIds_switch:
+        process = nanoAOD_addTauIds(process)
     return process
 
 def nanoAOD_customizeData(process):
