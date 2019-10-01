@@ -32,8 +32,10 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource(const edm::ParameterSet& ps)
   edm::ParameterSet matching = ps.getParameter<edm::ParameterSet>("Matching");
   doRefAnalysis_ = matching.getUntrackedParameter<bool>("doMatching");
 
-  if (ps.exists("Verbose")) verbose = ps.getUntrackedParameter<bool>("Verbose", false);
-  else verbose = false;
+  if (ps.exists("Verbose"))
+    verbose = ps.getUntrackedParameter<bool>("Verbose", false);
+  else
+    verbose = false;
 
   if (ps.exists("L1Plotter") && !ps.exists("TagAndProbe")) {
     l1Plotter_ = std::make_unique<HLTTauDQML1Plotter>(ps.getUntrackedParameter<edm::ParameterSet>("L1Plotter"),

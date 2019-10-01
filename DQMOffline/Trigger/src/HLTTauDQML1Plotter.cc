@@ -221,9 +221,9 @@ void HLTTauDQML1Plotter::analyze(const edm::Event& iEvent,
       }
     }
   } else {
-    if(verbose)
-    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 tau collection "
-                                        << l1stage2Taus_.encode();
+    if (verbose)
+      edm::LogWarning("HLTTauDQMOffline")
+          << "HLTTauDQML1Plotter::analyze: unable to read L1 tau collection " << l1stage2Taus_.encode();
   }
 
   if (sums.isValid() && sums.product()->size() > 0) {
@@ -237,9 +237,9 @@ void HLTTauDQML1Plotter::analyze(const edm::Event& iEvent,
       }
     }
   } else {
-    if(verbose)
-    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 met collection "
-                                        << l1stage2Sums_.encode();
+    if (verbose)
+      edm::LogWarning("HLTTauDQMOffline")
+          << "HLTTauDQML1Plotter::analyze: unable to read L1 met collection " << l1stage2Sums_.encode();
   }
 
   //Now do the efficiency matching

@@ -203,9 +203,10 @@ namespace {
     if (pset.existsAs<int>(parameterName))
       return pset.getParameter<int>(parameterName);
     else {
-      if(verbose)
-      edm::LogWarning("HLTTauDQMOfflineSource") << "No parameter '" << parameterName << "' in configuration of filter "
-                                                << filterName << " pset " << pset.dump() << std::endl;
+      if (verbose)
+        edm::LogWarning("HLTTauDQMOfflineSource")
+            << "No parameter '" << parameterName << "' in configuration of filter " << filterName << " pset "
+            << pset.dump() << std::endl;
       return 0;
     }
   }
@@ -351,11 +352,8 @@ namespace {
   }
 }  // namespace
 
-HLTTauDQMPath::HLTTauDQMPath(std::string pathName,
-                             std::string hltProcess,
-                             bool doRefAnalysis,
-                             const HLTConfigProvider& HLTCP,
-                             bool verbose)
+HLTTauDQMPath::HLTTauDQMPath(
+    std::string pathName, std::string hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP, bool verbose)
     : hltProcess_(std::move(hltProcess)),
       doRefAnalysis_(doRefAnalysis),
       pathName_(std::move(pathName)),
@@ -375,7 +373,6 @@ HLTTauDQMPath::HLTTauDQMPath(std::string pathName,
 
       isFirstL1Seed_(false),
       isValid_(false) {
-
   verbose_ = verbose;
 
 #ifdef EDM_ML_DEBUG

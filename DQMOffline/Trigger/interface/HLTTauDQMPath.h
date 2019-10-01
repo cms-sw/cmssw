@@ -35,7 +35,8 @@ public:
     const int id;  // from TriggerTypeDefs.h
   };
 
-  HLTTauDQMPath(std::string pathName, std::string hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP, bool verbose);
+  HLTTauDQMPath(
+      std::string pathName, std::string hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP, bool verbose);
   ~HLTTauDQMPath();
 
   bool isValid() const { return isValid_; }
