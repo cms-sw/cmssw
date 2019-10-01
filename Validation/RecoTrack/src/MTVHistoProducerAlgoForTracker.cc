@@ -385,7 +385,9 @@ std::unique_ptr<RecoTrackSelectorBase> MTVHistoProducerAlgoForTracker::makeRecoT
   psetTrack.addParameter("algorithm", std::vector<std::string>{});
   psetTrack.addParameter("originalAlgorithm", std::vector<std::string>{});
   psetTrack.addParameter("algorithmMaskContains", std::vector<std::string>{});
-
+  psetTrack.addParameter("invertRapidityCut", false);
+  psetTrack.addParameter("minPhi", -3.2);
+  psetTrack.addParameter("maxPhi", 3.2);
   return std::make_unique<RecoTrackSelectorBase>(psetTrack);
 }
 
@@ -1097,11 +1099,17 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::ConcurrentBooker& 
       ibook.bookProfile("chi2mean", "mean #chi^{2} vs #eta", nintEta, minEta, maxEta, 200, 0, 20, " "));
   histograms.chi2_vs_phi.push_back(
       ibook.bookProfile("chi2mean_vs_phi", "mean #chi^{2} vs #phi", nintPhi, minPhi, maxPhi, 200, 0, 20, " "));
+  histograms.chi2_vs_pt.push_back(
+      makeProfileIfLogX(ibook, useLogPt, "chi2mean_vs_pt", "mean #chi^{2} vs p_{T}", nintPt, minPt, maxPt, 0, 20));
 
   histograms.assoc_chi2_vs_eta.push_back(
       ibook.bookProfile("assoc_chi2mean", "mean #chi^{2} vs #eta", nintEta, minEta, maxEta, 200, 0., 20., " "));
   histograms.assoc_chi2prob_vs_eta.push_back(ibook.bookProfile(
       "assoc_chi2prob_vs_eta", "mean #chi^{2} probability vs #eta", nintEta, minEta, maxEta, 100, 0., 1., " "));
+  histograms.assoc_chi2_vs_pt.push_back(makeProfileIfLogX(
+      ibook, useLogPt, "assoc_chi2mean_vs_pt", "mean #chi^{2} vs p_{T}", nintPt, minPt, maxPt, 0., 20.));
+  histograms.assoc_chi2prob_vs_pt.push_back(makeProfileIfLogX(
+      ibook, useLogPt, "assoc_chi2prob_vs_pt", "mean #chi^{2} probability vs p_{T}", nintPt, minPt, maxPt, 0., 20.));
 
   histograms.nhits_vs_eta.push_back(
       ibook.bookProfile("hits_eta", "mean hits vs eta", nintEta, minEta, maxEta, nintHit, minHit, maxHit, " "));
@@ -2043,6 +2051,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
       histograms.h_assoc2chi2prob[count].fill(chi2prob);
       histograms.assoc_chi2_vs_eta[count].fill(eta, chi2);
       histograms.assoc_chi2prob_vs_eta[count].fill(eta, chi2prob);
+      histograms.assoc_chi2_vs_pt[count].fill(pt, chi2);
+      histograms.assoc_chi2prob_vs_pt[count].fill(pt, chi2prob);
       histograms.h_assoc2vertpos[count].fill(vertxy);
       histograms.h_assoc2zpos[count].fill(vertz);
       histograms.h_assoc2dr[count].fill(dR);
@@ -2213,6 +2223,8 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(const H
   const auto eta = getEta(track.eta());
   histograms.chi2_vs_eta[count].fill(eta, track.normalizedChi2());
   histograms.nhits_vs_eta[count].fill(eta, track.numberOfValidHits());
+  const auto pt = getPt(sqrt(track.momentum().perp2()));
+  histograms.chi2_vs_pt[count].fill(pt, track.normalizedChi2());
   const auto pxbHits = track.hitPattern().numberOfValidPixelBarrelHits();
   const auto pxfHits = track.hitPattern().numberOfValidPixelEndcapHits();
   const auto tibHits = track.hitPattern().numberOfValidStripTIBHits();

@@ -48,8 +48,6 @@ public:
           timeMin{0.},
           timeMax{0.} {}
 
-    Counter(Counter&&) = default;
-
     //NOTE: This is needed by tbb::concurrent_unordered_map when it
     // is constructing a new one. This would not give correct results
     // if the object being passed were being updated, but that is not

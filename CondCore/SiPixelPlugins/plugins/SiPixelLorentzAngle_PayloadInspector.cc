@@ -94,8 +94,7 @@ namespace {
       h1->SetFillColor(kRed);
       h1->SetMarkerStyle(20);
       h1->SetMarkerSize(1);
-      h1->Draw("HIST");
-      h1->Draw("Psame");
+      h1->Draw("bar2");
 
       SiPixelPI::makeNicePlotStyle(h1.get());
 
@@ -186,26 +185,30 @@ namespace {
 
       hfirst->SetTitle("");
       hfirst->SetFillColor(kRed);
-      hfirst->SetMarkerStyle(kFullCircle);
-      hfirst->SetMarkerSize(1.5);
-      hfirst->SetMarkerColor(kRed);
-      hfirst->Draw("HIST");
-      hfirst->Draw("Psame");
+      hfirst->SetBarWidth(0.95);
+      hfirst->Draw("histbar");
+
+      //hfirst->SetMarkerStyle(kFullCircle);
+      //hfirst->SetMarkerSize(1.5);
+      //hfirst->SetMarkerColor(kRed);
+      //hfirst->Draw("Psame");
 
       hlast->SetTitle("");
       hlast->SetFillColorAlpha(kBlue, 0.20);
-      hlast->SetMarkerStyle(kOpenCircle);
-      hlast->SetMarkerSize(1.5);
-      hlast->SetMarkerColor(kBlue);
-      hlast->Draw("HISTsame");
-      hlast->Draw("Psame");
+      hlast->SetBarWidth(0.95);
+      hlast->Draw("histbarsame");
+
+      //hlast->SetMarkerStyle(kOpenCircle);
+      //hlast->SetMarkerSize(1.5);
+      //hlast->SetMarkerColor(kBlue);
+      //hlast->Draw("Psame");
 
       SiPixelPI::makeNicePlotStyle(hfirst.get());
       SiPixelPI::makeNicePlotStyle(hlast.get());
 
       canvas.Update();
 
-      TLegend legend = TLegend(0.32, 0.86, 0.95, 0.94);
+      TLegend legend = TLegend(0.30, 0.86, 0.95, 0.94);
       //legend.SetHeader("#font[22]{SiPixel Lorentz Angle Comparison}", "C");  // option "C" allows to center the header
       //legend.AddEntry(hfirst.get(), ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "FL");
       //legend.AddEntry(hlast.get(),  ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "FL");
@@ -217,7 +220,7 @@ namespace {
       auto ltx = TLatex();
       ltx.SetTextFont(62);
       //ltx.SetTextColor(kBlue);
-      ltx.SetTextSize(0.05);
+      ltx.SetTextSize(0.047);
       ltx.SetTextAlign(11);
       ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                        1 - gPad->GetTopMargin() + 0.01,
@@ -372,14 +375,13 @@ namespace {
         summaryFirst->GetXaxis()->SetBinLabel(bin, SiPixelPI::getStringFromRegionEnum(part).c_str());
         // avoid filling the histogram with numerical noise
         float f_mean =
-            FirstLA_spectraByRegion[part]->GetMean() > 10.e-6 ? FirstLA_spectraByRegion[part]->GetMean() : 10.e-6;
+            FirstLA_spectraByRegion[part]->GetMean() > 10.e-6 ? FirstLA_spectraByRegion[part]->GetMean() : 0.;
         summaryFirst->SetBinContent(bin, f_mean);
         //summaryFirst->SetBinError(bin,LA_spectraByRegion[hash]->GetRMS());
 
         summaryLast->GetXaxis()->SetBinLabel(bin, SiPixelPI::getStringFromRegionEnum(part).c_str());
         // avoid filling the histogram with numerical noise
-        float l_mean =
-            LastLA_spectraByRegion[part]->GetMean() > 10.e-6 ? LastLA_spectraByRegion[part]->GetMean() : 10.e-6;
+        float l_mean = LastLA_spectraByRegion[part]->GetMean() > 10.e-6 ? LastLA_spectraByRegion[part]->GetMean() : 0.;
         summaryLast->SetBinContent(bin, l_mean);
         //summaryLast->SetBinError(bin,LA_spectraByRegion[hash]->GetRMS());
         bin++;
@@ -421,10 +423,8 @@ namespace {
 
       summaryFirst->GetYaxis()->SetRangeUser(0., std::max(0., max * 1.40));
 
-      summaryFirst->Draw("bar2");
-      summaryFirst->Draw("text90same");
-      summaryLast->Draw("bar2,same");
-      summaryLast->Draw("text60same");
+      summaryFirst->Draw("b text0");
+      summaryLast->Draw("b text0 same");
 
       TLegend legend = TLegend(0.52, 0.80, 0.98, 0.9);
       legend.SetHeader("#mu_{H} value comparison", "C");  // option "C" allows to center the header
@@ -459,6 +459,224 @@ namespace {
     SiPixelLorentzAngleByRegionComparisonTwoTags() : SiPixelLorentzAngleByRegionComparisonBase() { setTwoTags(true); }
   };
 
+  /************************************************
+   occupancy style map BPix
+  *************************************************/
+
+  class SiPixelBPixLorentzAngleMap : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
+  public:
+    SiPixelBPixLorentzAngleMap()
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelQuality Barrel Pixel Map"),
+          m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
+              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
+      setSingleIov(true);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
+      auto iov = iovs.front();
+      std::shared_ptr<SiPixelLorentzAngle> payload = fetchPayload(std::get<1>(iov));
+
+      static const int n_layers = 4;
+      int nlad_list[n_layers] = {6, 14, 22, 32};
+      int divide_roc = 1;
+
+      // ---------------------    BOOK HISTOGRAMS
+      std::array<TH2D *, n_layers> h_bpix_LA;
+
+      for (unsigned int lay = 1; lay <= 4; lay++) {
+        int nlad = nlad_list[lay - 1];
+
+        std::string name = "occ_LA_Layer_" + std::to_string(lay);
+        std::string title = "; Module # ; Ladder #";
+        h_bpix_LA[lay - 1] = new TH2D(name.c_str(),
+                                      title.c_str(),
+                                      72 * divide_roc,
+                                      -4.5,
+                                      4.5,
+                                      (nlad * 4 + 2) * divide_roc,
+                                      -nlad - 0.5,
+                                      nlad + 0.5);
+      }
+
+      std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
+
+      // hard-coded phase-I
+      std::array<double, 4> minima = {{999., 999., 999., 999.}};
+
+      for (const auto &element : LAMap_) {
+        int subid = DetId(element.first).subdetId();
+        if (subid == PixelSubdetector::PixelBarrel) {
+          auto layer = m_trackerTopo.pxbLayer(DetId(element.first));
+          auto s_ladder = SiPixelPI::signed_ladder(DetId(element.first), m_trackerTopo, true);
+          auto s_module = SiPixelPI::signed_module(DetId(element.first), m_trackerTopo, true);
+
+          auto ladder = m_trackerTopo.pxbLadder(DetId(element.first));
+          auto module = m_trackerTopo.pxbModule(DetId(element.first));
+          COUT << "layer:" << layer << " ladder:" << ladder << " module:" << module << " signed ladder: " << s_ladder
+               << " signed module: " << s_module << std::endl;
+
+          if (element.second < minima.at(layer - 1))
+            minima.at(layer - 1) = element.second;
+
+          auto rocsToMask = SiPixelPI::maskedBarrelRocsToBins(layer, s_ladder, s_module);
+          for (const auto &bin : rocsToMask) {
+            h_bpix_LA[layer - 1]->SetBinContent(bin.first, bin.second, element.second);
+          }
+        }
+      }
+
+      gStyle->SetOptStat(0);
+      //=========================
+      TCanvas canvas("Summary", "Summary", 1200, 1200);
+      canvas.Divide(2, 2);
+
+      for (unsigned int lay = 1; lay <= 4; lay++) {
+        canvas.cd(lay)->SetBottomMargin(0.08);
+        canvas.cd(lay)->SetLeftMargin(0.1);
+        canvas.cd(lay)->SetRightMargin(0.13);
+
+        COUT << " layer:" << lay << " max:" << h_bpix_LA[lay - 1]->GetMaximum() << " min: " << minima.at(lay - 1)
+             << std::endl;
+
+        SiPixelPI::dress_occup_plot(canvas, h_bpix_LA[lay - 1], lay, 0, 1, true, true, false);
+        h_bpix_LA[lay - 1]->GetZaxis()->SetRangeUser(minima.at(lay - 1) - 0.001,
+                                                     h_bpix_LA[lay - 1]->GetMaximum() + 0.001);
+      }
+
+      auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
+
+      for (unsigned int lay = 1; lay <= 4; lay++) {
+        canvas.cd(lay);
+        auto ltx = TLatex();
+        ltx.SetTextFont(62);
+        ltx.SetTextColor(kBlue);
+        ltx.SetTextSize(0.055);
+        ltx.SetTextAlign(11);
+        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                         1 - gPad->GetTopMargin() + 0.01,
+                         unpacked.first == 0
+                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
+                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+      }
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+#ifdef MMDEBUG
+      canvas.SaveAs("outBPix.root");
+#endif
+
+      return true;
+    }
+
+  private:
+    TrackerTopology m_trackerTopo;
+  };
+
+  /************************************************
+   occupancy style map FPix
+  *************************************************/
+
+  class SiPixelFPixLorentzAngleMap : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
+  public:
+    SiPixelFPixLorentzAngleMap()
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelQuality Forward Pixel Map"),
+          m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
+              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
+      setSingleIov(true);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
+      auto iov = iovs.front();
+      std::shared_ptr<SiPixelLorentzAngle> payload = fetchPayload(std::get<1>(iov));
+
+      static const int n_rings = 2;
+      std::array<TH2D *, n_rings> h_fpix_LA;
+      int divide_roc = 1;
+
+      // ---------------------    BOOK HISTOGRAMS
+      for (unsigned int ring = 1; ring <= n_rings; ring++) {
+        int n = ring == 1 ? 92 : 140;
+        float y = ring == 1 ? 11.5 : 17.5;
+        std::string name = "occ_LA_ring_" + std::to_string(ring);
+        std::string title = "; Disk # ; Blade/Panel #";
+
+        h_fpix_LA[ring - 1] = new TH2D(name.c_str(), title.c_str(), 56 * divide_roc, -3.5, 3.5, n * divide_roc, -y, y);
+      }
+
+      std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
+
+      // hardcoded phase-I
+      std::array<double, 2> minima = {{999., 999.}};
+
+      for (const auto &element : LAMap_) {
+        int subid = DetId(element.first).subdetId();
+        if (subid == PixelSubdetector::PixelEndcap) {
+          auto ring = SiPixelPI::ring(DetId(element.first), m_trackerTopo, true);
+          auto s_blade = SiPixelPI::signed_blade(DetId(element.first), m_trackerTopo, true);
+          auto s_disk = SiPixelPI::signed_disk(DetId(element.first), m_trackerTopo, true);
+          auto s_blade_panel = SiPixelPI::signed_blade_panel(DetId(element.first), m_trackerTopo, true);
+          auto panel = m_trackerTopo.pxfPanel(element.first);
+
+          COUT << "ring:" << ring << " blade: " << s_blade << " panel: " << panel
+               << " signed blade/panel: " << s_blade_panel << " disk: " << s_disk << std::endl;
+
+          if (element.second < minima.at(ring - 1))
+            minima.at(ring - 1) = element.second;
+
+          auto rocsToMask = SiPixelPI::maskedForwardRocsToBins(ring, s_blade, panel, s_disk);
+          for (const auto &bin : rocsToMask) {
+            h_fpix_LA[ring - 1]->SetBinContent(bin.first, bin.second, element.second);
+          }
+        }
+      }
+
+      gStyle->SetOptStat(0);
+      //=========================
+      TCanvas canvas("Summary", "Summary", 1200, 600);
+      canvas.Divide(2, 1);
+
+      for (unsigned int ring = 1; ring <= n_rings; ring++) {
+        canvas.cd(ring)->SetBottomMargin(0.08);
+        canvas.cd(ring)->SetLeftMargin(0.1);
+        canvas.cd(ring)->SetRightMargin(0.13);
+
+        COUT << " ringer:" << ring << " max:" << h_fpix_LA[ring - 1]->GetMaximum() << " min: " << minima.at(ring - 1)
+             << std::endl;
+
+        SiPixelPI::dress_occup_plot(canvas, h_fpix_LA[ring - 1], 0, ring, 1, true, true, false);
+        h_fpix_LA[ring - 1]->GetZaxis()->SetRangeUser(minima.at(ring - 1) - 0.001,
+                                                      h_fpix_LA[ring - 1]->GetMaximum() + 0.001);
+      }
+
+      auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
+
+      for (unsigned int ring = 1; ring <= n_rings; ring++) {
+        canvas.cd(ring);
+        auto ltx = TLatex();
+        ltx.SetTextFont(62);
+        ltx.SetTextColor(kBlue);
+        ltx.SetTextSize(0.05);
+        ltx.SetTextAlign(11);
+        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                         1 - gPad->GetTopMargin() + 0.01,
+                         unpacked.first == 0
+                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
+                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+      }
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+#ifdef MMDEBUG
+      canvas.SaveAs("outFPix.root");
+#endif
+
+      return true;
+    }
+
+  private:
+    TrackerTopology m_trackerTopo;
+  };
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiPixelLorentzAngle) {
@@ -468,4 +686,6 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelLorentzAngle) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleValueComparisonTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleByRegionComparisonSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleByRegionComparisonTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelBPixLorentzAngleMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelFPixLorentzAngleMap);
 }

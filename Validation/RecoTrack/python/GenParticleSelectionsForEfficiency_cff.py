@@ -23,7 +23,10 @@ generalGpSelectorBlock = cms.PSet(
     minRapidity = cms.double(-2.5),
     ptMin = cms.double(0.9),
     maxRapidity = cms.double(2.5),
-    tip = cms.double(3.5)
+    tip = cms.double(3.5),
+    invertRapidityCut = cms.bool(False),
+    maxPhi = cms.double(3.2),
+    minPhi = cms.double(-3.2)
 )
 
 
@@ -35,7 +38,10 @@ GpSelectorForEfficiencyVsEtaBlock = cms.PSet(
     minRapidity = cms.double(-2.5),
     ptMin = cms.double(0.9),
     maxRapidity = cms.double(2.5),
-    tip = cms.double(3.5)
+    tip = cms.double(3.5),
+    invertRapidityCut = cms.bool(False),
+    maxPhi = cms.double(3.2),
+    minPhi = cms.double(-3.2)
 )
 
 GpSelectorForEfficiencyVsPhiBlock = cms.PSet(
@@ -46,7 +52,10 @@ GpSelectorForEfficiencyVsPhiBlock = cms.PSet(
     minRapidity = cms.double(-2.5),
     ptMin = cms.double(0.9),
     maxRapidity = cms.double(2.5),
-    tip = cms.double(3.5)
+    tip = cms.double(3.5),
+    invertRapidityCut = cms.bool(False),
+    maxPhi = cms.double(3.2),
+    minPhi = cms.double(-3.2)
 )
 
 GpSelectorForEfficiencyVsPtBlock = cms.PSet(
@@ -58,6 +67,9 @@ GpSelectorForEfficiencyVsPtBlock = cms.PSet(
     ptMin = cms.double(0.050),
     tip = cms.double(3.5),
     lip = cms.double(30.0),
+    invertRapidityCut = cms.bool(False),
+    maxPhi = cms.double(3.2),
+    minPhi = cms.double(-3.2)
 )
 
 GpSelectorForEfficiencyVsVTXRBlock = cms.PSet(
@@ -68,7 +80,10 @@ GpSelectorForEfficiencyVsVTXRBlock = cms.PSet(
     ptMin = cms.double(0.9),
     maxRapidity = cms.double(2.5),
     lip = cms.double(30.0),
-    tip = cms.double(30.0)
+    tip = cms.double(30.0),
+    invertRapidityCut = cms.bool(False),
+    maxPhi = cms.double(3.2),
+    minPhi = cms.double(-3.2)
 )
 
 GpSelectorForEfficiencyVsVTXZBlock = cms.PSet(
@@ -79,7 +94,10 @@ GpSelectorForEfficiencyVsVTXZBlock = cms.PSet(
     ptMin = cms.double(0.9),
     maxRapidity = cms.double(2.5),
     lip = cms.double(35.0),
-    tip = cms.double(3.5)
+    tip = cms.double(3.5),
+    invertRapidityCut = cms.bool(False),
+    maxPhi = cms.double(3.2),
+    minPhi = cms.double(-3.2)
 )
 
 def _modifyForPhase1(pset):

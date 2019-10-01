@@ -1,12 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.load("EcalTrivialAlignment_cfi")
+process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
+process.EcalTrivialConditionRetriever.getEBAlignmentFromFile = cms.untracked.bool(True)
+process.EcalTrivialConditionRetriever.EBAlignmentFile = cms.untracked.string('CalibCalorimetry/EcalTrivialCondModules/data_test/EBAlignment_2018.txt')
+process.EcalTrivialConditionRetriever.getEEAlignmentFromFile = cms.untracked.bool(True)
+process.EcalTrivialConditionRetriever.EEAlignmentFile = cms.untracked.string('CalibCalorimetry/EcalTrivialCondModules/data_test/EEAlignment_2018.txt')
+process.EcalTrivialConditionRetriever.getESAlignmentFromFile = cms.untracked.bool(True)
+process.EcalTrivialConditionRetriever.ESAlignmentFile = cms.untracked.string('CalibCalorimetry/EcalTrivialCondModules/data_test/ESAlignment_2018.txt')
+
+#process.load("EcalTrivialAlignment_cfi")
 
 process.load("CondCore.CondDB.CondDB_cfi")
 #process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_ECAL'
 #process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
-process.CondDB.connect = 'sqlite_file:EBAlignment_2016.db'
+process.CondDB.connect = 'sqlite_file:EBAlignment_test.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
@@ -26,7 +34,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     toPut = cms.VPSet(
        cms.PSet(
           record = cms.string('EBAlignmentRcd'),
-          tag = cms.string('EBAlignment_2016')
+          tag = cms.string('EBAlignment_test')
        )
     )
 )

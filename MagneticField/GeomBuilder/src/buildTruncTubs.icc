@@ -9,30 +9,26 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void MagGeoBuilderFromDDD::volumeHandle::buildTruncTubs(const DDExpandedView &fv) {
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "Building TruncTubs surfaces...: " << endl;
+void volumeHandle::buildTruncTubs() {
+  LogTrace("magneticfield::volumeHandle") << "Building TruncTubs surfaces...: ";
 
   DDTruncTubs tubs(solid);
 
-  double zhalf = tubs.zHalf() / cm;            // half of the z-Axis
-  double rIn = tubs.rIn() / cm;                // inner radius
-  double rOut = tubs.rOut() / cm;              // outer radius
-  double startPhi = tubs.startPhi();           // angular start of the tube-section
-  double deltaPhi = tubs.deltaPhi();           // angular span of the tube-section
-  double cutAtStart = tubs.cutAtStart() / cm;  // truncation at begin of the tube-section
-  double cutAtDelta = tubs.cutAtDelta() / cm;  // truncation at end of the tube-section
-  bool cutInside = tubs.cutInside();           // true, if truncation is on the inner side of the tube-section
+  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
+  // convertUnits should be defined appropriately.
+  double zhalf = convertUnits(tubs.zHalf());            // half of the z-Axis
+  double rIn = convertUnits(tubs.rIn());                // inner radius
+  double rOut = convertUnits(tubs.rOut());              // outer radius
+  double startPhi = tubs.startPhi();                    // angular start of the tube-section
+  double deltaPhi = tubs.deltaPhi();                    // angular span of the tube-section
+  double cutAtStart = convertUnits(tubs.cutAtStart());  // truncation at begin of the tube-section
+  double cutAtDelta = convertUnits(tubs.cutAtDelta());  // truncation at end of the tube-section
+  bool cutInside = tubs.cutInside();                    // true, if truncation is on the inner side of the tube-section
 
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "zhalf      " << zhalf << endl
-         << "rIn        " << rIn << endl
-         << "rOut       " << rOut << endl
-         << "startPhi   " << startPhi << endl
-         << "deltaPhi   " << deltaPhi << endl
-         << "cutAtStart " << cutAtStart << endl
-         << "cutAtDelta " << cutAtDelta << endl
-         << "cutInside  " << cutInside << endl;
+  LogTrace("magneticfield::volumeHandle")
+      << "zhalf      " << zhalf << newln << "rIn        " << rIn << newln << "rOut       " << rOut << newln
+      << "startPhi   " << startPhi << newln << "deltaPhi   " << deltaPhi << newln << "cutAtStart " << cutAtStart
+      << newln << "cutAtDelta " << cutAtDelta << newln << "cutInside  " << cutInside;
 
   //
   //  GlobalVector planeXAxis = refPlane->toGlobal(LocalVector( 1, 0, 0));
@@ -89,18 +85,17 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTruncTubs(const DDExpandedView &fv
   // will be its center, while this is not true for the largest phi face.
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);
 
-  if (MagGeoBuilderFromDDD::debug) {
-    cout << "pos_Rplane    " << pos_Rplane << " " << pos_Rplane.perp() << " " << pos_Rplane.phi() << endl
-         << "rot_R         " << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-         << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl
-         << "cyl radius    " << rCyl << endl;
+  if (debug) {
+    LogTrace("magneticfield::volumeHandle")
+        << "pos_Rplane    " << pos_Rplane << " " << pos_Rplane.perp() << " " << pos_Rplane.phi() << newln
+        << "rot_R         " << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
+        << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)).phi() << newln << "cyl radius     " << rCyl;
 
     //   // Check ordering.
     if ((pos_Rplane.perp() < rCyl) != cutInside) {
-      cout << "*** WARNING: pos_outer < pos_inner " << endl;
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner ";
     }
   }
-
   // Save volume boundaries
   theRMin = rIn;
   theRMax = rOut;

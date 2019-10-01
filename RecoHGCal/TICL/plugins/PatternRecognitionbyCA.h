@@ -15,17 +15,13 @@ namespace ticl {
     PatternRecognitionbyCA(const edm::ParameterSet& conf);
     ~PatternRecognitionbyCA() override;
 
-    void makeTracksters(const edm::Event& ev,
-                        const edm::EventSetup& es,
-                        const std::vector<reco::CaloCluster>& layerClusters,
-                        const std::vector<float>& mask,
-                        const edm::ValueMap<float>& layerClustersTime,
-                        const TICLLayerTiles& tiles,
-                        std::vector<Trackster>& result) override;
+    void makeTracksters(const PatternRecognitionAlgoBase::Inputs& input, std::vector<Trackster>& result) override;
 
   private:
     hgcal::RecHitTools rhtools_;
     std::unique_ptr<HGCGraph> theGraph_;
+    const bool out_in_dfs_ = false;
+    const unsigned int max_out_in_hops_ = 99999;
     float min_cos_theta_;
     float min_cos_pointing_;
     int missing_layers_;

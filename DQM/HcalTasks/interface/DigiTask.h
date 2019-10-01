@@ -68,6 +68,8 @@ protected:
   hcaldqm::filter::HashFilter _filter_FEDHF;
   hcaldqm::filter::HashFilter _filter_QIE1011;
   hcaldqm::filter::HashFilter _filter_QIE8;
+  hcaldqm::filter::HashFilter _filter_TDC2bit;
+  hcaldqm::filter::HashFilter _filter_TDC6bit;
 
   /* hcaldqm::Containers */
   //	ADC, fC - Charge - just filling - no summary!
@@ -147,11 +149,13 @@ protected:
   hcaldqm::ContainerXXX<uint32_t> _xBadCapid;      // online only
 
   // QIE10 TDC histograms
-  hcaldqm::Container2D _cLETDCTimevsADC_SubdetPM;
-  hcaldqm::Container2D _cLETDCvsADC_SubdetPM;
-  hcaldqm::Container2D _cLETDCvsTS_SubdetPM;
+  hcaldqm::Container2D _cLETDCvsADC_2bit_SubdetPM;
+  hcaldqm::Container2D _cLETDCvsADC_6bit_SubdetPM;
+  hcaldqm::Container2D _cLETDCvsTS_2bit_SubdetPM;
+  hcaldqm::Container2D _cLETDCvsTS_6bit_SubdetPM;
   hcaldqm::Container1D _cLETDCTime_SubdetPM;
   hcaldqm::ContainerProf2D _cLETDCTime_depth;
+  hcaldqm::Container2D _cLETDCTimevsADC_SubdetPM;
 
   // Bad TDC histograms
   hcaldqm::Container1D _cBadTDCValues_SubdetPM;

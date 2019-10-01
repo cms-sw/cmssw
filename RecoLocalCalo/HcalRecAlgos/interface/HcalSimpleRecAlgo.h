@@ -2,7 +2,6 @@
 #define HCALSIMPLERECALGO_H 1
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
@@ -50,8 +49,8 @@ public:
   void setLeakCorrection();
 
   // set OOT pileup corrections
-  void setHFPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
-  void setHOPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
+  void setHFPileupCorrection(std::shared_ptr<AbsOOTPileupCorrection> corr);
+  void setHOPileupCorrection(std::shared_ptr<AbsOOTPileupCorrection> corr);
 
   // Set bunch crossing information.
   // This object will not manage the pointer.
@@ -80,9 +79,9 @@ private:
   int pileupCleaningID_;
   const BunchXParameter* bunchCrossingInfo_;
   unsigned lenBunchCrossingInfo_;
-  boost::shared_ptr<AbsOOTPileupCorrection> hbhePileupCorr_;
-  boost::shared_ptr<AbsOOTPileupCorrection> hfPileupCorr_;
-  boost::shared_ptr<AbsOOTPileupCorrection> hoPileupCorr_;
+  std::shared_ptr<AbsOOTPileupCorrection> hbhePileupCorr_;
+  std::shared_ptr<AbsOOTPileupCorrection> hfPileupCorr_;
+  std::shared_ptr<AbsOOTPileupCorrection> hoPileupCorr_;
 
   HcalPulseShapes theHcalPulseShapes_;
 

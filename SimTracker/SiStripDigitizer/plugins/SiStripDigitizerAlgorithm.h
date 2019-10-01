@@ -22,6 +22,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvSimulationParameters.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "SimTracker/SiStripDigitizer/interface/SiTrivialDigitalConverter.h"
 #include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
@@ -33,6 +34,9 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+#include "TH1F.h"
 
 #include <iostream>
 #include <fstream>
@@ -80,14 +84,20 @@ public:
 
   void digitize(edm::DetSet<SiStripDigi>& outDigis,
                 edm::DetSet<SiStripRawDigi>& outRawDigis,
+                edm::DetSet<SiStripRawDigi>& outStripAmplitudes,
+                edm::DetSet<SiStripRawDigi>& outStripAmplitudesPostAPV,
+                edm::DetSet<SiStripRawDigi>& outStripAPVBaselines,
                 edm::DetSet<StripDigiSimLink>& outLink,
                 const StripGeomDetUnit* stripdet,
                 edm::ESHandle<SiStripGain>&,
                 edm::ESHandle<SiStripThreshold>&,
                 edm::ESHandle<SiStripNoises>&,
                 edm::ESHandle<SiStripPedestals>&,
+                bool simulateAPVInThisEvent,
+                edm::ESHandle<SiStripApvSimulationParameters>&,
                 std::vector<std::pair<int, std::bitset<6>>>& theAffectedAPVvector,
-                CLHEP::HepRandomEngine*);
+                CLHEP::HepRandomEngine*,
+                const TrackerTopology* tTopo);
 
   void calculateInstlumiScale(PileupMixingContent* puInfo);
 
@@ -118,6 +128,7 @@ private:
   const int theFedAlgo;
   const bool zeroSuppression;
   const double theElectronPerADC;
+
   const double theTOFCutForPeak;
   const double theTOFCutForDeconvolution;
   const double tofCut;
@@ -170,6 +181,13 @@ private:
   std::map<int, float> mapOfAPVprobabilities;
   std::map<int, std::bitset<6>> SiStripTrackerAffectedAPVMap;
   int NumberOfBxBetweenHIPandEvent;
+
+  bool includeAPVSimulation_;
+  const double apv_maxResponse_;
+  const double apv_rate_;
+  const double apv_mVPerQ_;
+  const double apv_fCPerElectron_;
+  unsigned int nTruePU_;
 };
 
 #endif

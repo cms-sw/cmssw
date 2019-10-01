@@ -21,10 +21,13 @@
 // system include files
 #include <memory>
 #include <atomic>
+#include <vector>
 
 // user include files
-#include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
+#include "FWCore/Concurrency/interface/WaitingTaskList.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
 // forward declarations
@@ -32,7 +35,6 @@ namespace edm {
 #if !defined(TEST_NO_FWD_DECL)
   class EventProcessor;
   class LuminosityBlockPrincipal;
-  class WaitingTaskHolder;
   class LuminosityBlockProcessingStatus;
 #endif
 
@@ -40,6 +42,11 @@ namespace edm {
   public:
     LuminosityBlockProcessingStatus(EventProcessor* iEP, unsigned int iNStreams, std::shared_ptr<void> iRunResource)
         : run_(std::move(iRunResource)), eventProcessor_(iEP), nStreamsStillProcessingLumi_(iNStreams) {}
+
+    LuminosityBlockProcessingStatus(LuminosityBlockProcessingStatus const&) = delete;
+    LuminosityBlockProcessingStatus const& operator=(LuminosityBlockProcessingStatus const&) = delete;
+
+    ~LuminosityBlockProcessingStatus() { endIOVWaitingTasks_.doneWaiting(std::exception_ptr{}); }
 
     std::shared_ptr<LuminosityBlockPrincipal>& lumiPrincipal() { return lumiPrincipal_; }
 
@@ -49,6 +56,17 @@ namespace edm {
       lumiPrincipal_.reset();
       globalLumiQueueResumer_.resume();
     }
+
+    void resetResources();
+
+    EventSetupImpl const& eventSetupImpl(unsigned subProcessIndex) const {
+      return *eventSetupImpls_.at(subProcessIndex);
+    }
+
+    std::vector<std::shared_ptr<const EventSetupImpl>>& eventSetupImpls() { return eventSetupImpls_; }
+    std::vector<std::shared_ptr<const EventSetupImpl>> const& eventSetupImpls() const { return eventSetupImpls_; }
+
+    WaitingTaskList& endIOVWaitingTasks() { return endIOVWaitingTasks_; }
 
     bool streamFinishedLumi() { return 0 == (--nStreamsStillProcessingLumi_); }
 
@@ -94,6 +112,8 @@ namespace edm {
     std::shared_ptr<void> run_;
     LimitedTaskQueue::Resumer globalLumiQueueResumer_;
     std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
+    std::vector<std::shared_ptr<const EventSetupImpl>> eventSetupImpls_;
+    WaitingTaskList endIOVWaitingTasks_;
     EventProcessor* eventProcessor_ = nullptr;
     IOVSyncValue nextSyncValue_;
     std::atomic<unsigned int> nStreamsStillProcessingLumi_{0};  //read/write as streams finish lumi so must be atomic

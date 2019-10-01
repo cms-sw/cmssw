@@ -621,6 +621,7 @@ namespace ecaldqm {
             break;
           }
         }
+          [[fallthrough]];
         case kTriggerTower: {
           // EB-03 DCC 12 TCC 18 TT 3
           EcalTriggerElectronicsId teid(_rawId);

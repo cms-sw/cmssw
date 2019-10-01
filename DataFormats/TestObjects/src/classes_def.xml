@@ -78,6 +78,8 @@
  </ioread>
  <class name="edm::Wrapper<edmtest::DummyProduct>"/>
  <class name="edm::Wrapper<edmtest::IntProduct>"/>
+ <class name="std::vector<std::unique_ptr<edmtest::IntProduct>>"/>
+ <class name="edm::Wrapper<std::vector<std::unique_ptr<edmtest::IntProduct>>>"/>
  <class name="edm::Wrapper<edmtest::UInt64Product>"/>
  <class name="edm::Wrapper<edmtest::TransientIntProduct>" persistent="false"/>
  <class name="edm::Wrapper<edmtest::Int16_tProduct>"/>

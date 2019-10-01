@@ -8,29 +8,31 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
-#include "MagneticField/GeomBuilder/src/volumeHandle.h"
-#include "MagneticField/GeomBuilder/src/eLayer.h"
+#include "eLayer.h"
 
 class MagESector;
 
-class MagGeoBuilderFromDDD::eSector {
-public:
-  /// Constructor from list of volumes
-  eSector(handles::const_iterator begin, handles::const_iterator end);
+namespace magneticfield {
+  class eSector {
+  public:
+    /// Constructor from list of volumes
+    eSector(handles::const_iterator begin, handles::const_iterator end, bool debugFlag = false);
 
-  /// Destructor
-  ~eSector();
+    /// Destructor
+    ~eSector() = default;
 
-  //   /// Return all volumes in this sector
-  //   const handles & getVolumes() const {return volumes;}
+    //   /// Return all volumes in this sector
+    //   const handles & getVolumes() const {return volumes;}
 
-  /// Construct the MagESector upon request.
-  MagESector* buildMagESector() const;
+    /// Construct the MagESector upon request.
+    MagESector* buildMagESector() const;
 
-private:
-  std::vector<eLayer> layers;  // the layers in this sectors
-  handles theVolumes;          // pointers to all volumes in the sector
-  mutable MagESector* msector;
-};
+  private:
+    std::vector<eLayer> layers;  // the layers in this sectors
+    handles theVolumes;          // pointers to all volumes in the sector
+    mutable MagESector* msector;
+    const bool debug;
+  };
+}  // namespace magneticfield
+
 #endif

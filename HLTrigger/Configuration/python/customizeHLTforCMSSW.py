@@ -46,7 +46,6 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 

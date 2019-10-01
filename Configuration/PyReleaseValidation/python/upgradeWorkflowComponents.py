@@ -36,6 +36,10 @@ upgradeKeys[2026] = [
     '2026D45PU',
     '2026D46',
     '2026D46PU',
+    '2026D47',
+    '2026D47PU',
+    '2026D48',
+    '2026D48PU',
 ]
 
 # pre-generation of WF numbers
@@ -89,6 +93,7 @@ upgradeSteps['baseline'] = {
         'HARVESTFull',
         'HARVESTFullGlobal',
         'MiniAODFullGlobal',
+        'NanoFull',
     ],
     'suffix' : '',
     'offset' : 0.0,
@@ -234,7 +239,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2017_realistic',
         'HLTmenu': '@relval2017',
         'Era' : 'Run2_2017',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull','NanoFull'],
     },
     '2017Design' : {
         'Geom' : 'DB:Extended',
@@ -295,7 +300,7 @@ upgradeProperties[2017] = {
 }
 
 upgradeProperties[2017]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
-upgradeProperties[2017]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+upgradeProperties[2017]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
 upgradeProperties[2017]['2017DesignPU'] = deepcopy(upgradeProperties[2017]['2017Design'])
 upgradeProperties[2017]['2017DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 
@@ -353,6 +358,20 @@ upgradeProperties[2026] = {
     },
     '2026D46' : {
         'Geom' : 'Extended2026D46',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C9_timing_layer_bar',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D47' : {
+        'Geom' : 'Extended2026D47',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C10_timing_layer_bar',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D48' : {
+        'Geom' : 'Extended2026D48',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
         'Era' : 'Phase2C9_timing_layer_bar',

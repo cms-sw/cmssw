@@ -4,13 +4,15 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLevelBuilder.h"
 #include "FWCore/ParameterSet/interface/types.h"
 #include <string>
+
 /**
  * Class which constructs TID/TEC rings
  */
-class CmsTrackerRingBuilder : public CmsTrackerLevelBuilder {
+template <class FilteredView>
+class CmsTrackerRingBuilder : public CmsTrackerLevelBuilder<FilteredView> {
 private:
-  void sortNS(DDFilteredView&, GeometricDet*) override;
-  void buildComponent(DDFilteredView&, GeometricDet*, std::string) override;
+  void sortNS(FilteredView&, GeometricDet*) override;
+  void buildComponent(FilteredView&, GeometricDet*, const std::string&) override;
 };
 
 #endif

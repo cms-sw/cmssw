@@ -108,6 +108,7 @@ private:
   bool debug;
   bool interpolate;
   bool onlyMuHits;
+  int base;
 
   std::string syncName;
   std::unique_ptr<DTDigiSyncBase> theSync;

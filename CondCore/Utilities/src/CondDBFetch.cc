@@ -285,6 +285,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE(SiPixelTemplateDBObject)
       FETCH_PAYLOAD_CASE(SiPixel2DTemplateDBObject)
       FETCH_PAYLOAD_CASE(SiStripApvGain)
+      FETCH_PAYLOAD_CASE(SiStripApvSimulationParameters)
       FETCH_PAYLOAD_CASE(SiStripBackPlaneCorrection)
       FETCH_PAYLOAD_CASE(SiStripBadStrip)
       FETCH_PAYLOAD_CASE(SiStripConfObject)

@@ -180,6 +180,7 @@ private:
 
   // energy of rechits
   MonitorElement *meRecHitsEnergyHB;
+  MonitorElement *meRecHitsCleanedEnergyHB;
   MonitorElement *meRecHitsEnergyHBM0;
   MonitorElement *meRecHitsEnergyHBM3;
   MonitorElement *meRecHitsEnergyM2vM0HB;
@@ -188,6 +189,7 @@ private:
   MonitorElement *meRecHitsM2Chi2HB;
 
   MonitorElement *meRecHitsEnergyHE;
+  MonitorElement *meRecHitsCleanedEnergyHE;
   MonitorElement *meRecHitsEnergyHEM0;
   MonitorElement *meRecHitsEnergyHEM3;
   std::vector<MonitorElement *> meRecHitsEnergyHEP17;
@@ -199,8 +201,10 @@ private:
   MonitorElement *meRecHitsM2Chi2HE;
 
   MonitorElement *meRecHitsEnergyHO;
+  MonitorElement *meRecHitsCleanedEnergyHO;
 
   MonitorElement *meRecHitsEnergyHF;
+  MonitorElement *meRecHitsCleanedEnergyHF;
 
   MonitorElement *meTE_Low_HB;
   MonitorElement *meTE_HB;
@@ -288,6 +292,7 @@ private:
   std::vector<double> cz;
   std::vector<uint32_t> cstwd;
   std::vector<uint32_t> cauxstwd;
+  std::vector<int> csevlev;
 
   // counter
   int nevtot;

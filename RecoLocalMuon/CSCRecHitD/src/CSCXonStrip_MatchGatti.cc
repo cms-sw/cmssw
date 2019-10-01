@@ -293,6 +293,7 @@ void CSCXonStrip_MatchGatti::findXOnStrip(const CSCDetId& id,
         noise_level = noise_level_ME1b;
         xt_asymmetry = xt_asymmetry_ME1b;
         const_syst = const_syst_ME1b;
+        break;
 
       case 3:
         noise_level = noise_level_ME12;

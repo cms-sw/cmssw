@@ -11,11 +11,7 @@
 #include "G4NeutronTrackingCut.hh"
 #include "G4HadronicProcessStore.hh"
 
-#include "G4DataQuestionaire.hh"
-
 FTFPCMS_BERT_EMM_TRK::FTFPCMS_BERT_EMM_TRK(const edm::ParameterSet& p) : PhysicsList(p) {
-  G4DataQuestionaire it(photon);
-
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
   bool emPhys = p.getUntrackedParameter<bool>("EMPhysics", true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics", true);

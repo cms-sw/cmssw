@@ -225,6 +225,23 @@ class MatrixInjector(object):
             wmsplit['RECODR2_2018reHLT_skimCharmonium_Prompt']=1
             wmsplit['RECODR2_2018reHLT_skimJetHT_Prompt_HEfail']=1
             wmsplit['RECODR2_2018reHLT_skimJetHT_Prompt_BadHcalMitig']=1
+            wmsplit['RECODR2_2018reHLTAlCaTkCosmics_Prompt']=1
+            wmsplit['RECODR2_2018reHLT_skimDisplacedJet_Prompt']=1
+            wmsplit['RECODR2_2018reHLT_ZBPrompt']=1
+            wmsplit['RECODR2_2018reHLT_Offline']=1
+            wmsplit['RECODR2_2018reHLT_skimSingleMu_Offline_Lumi']=1
+            wmsplit['RECODR2_2018reHLT_skimDoubleEG_Offline']=1
+            wmsplit['RECODR2_2018reHLT_skimJetHT_Offline']=1
+            wmsplit['RECODR2_2018reHLT_skimMET_Offline']=1
+            wmsplit['RECODR2_2018reHLT_skimMuOnia_Offline']=1
+            wmsplit['RECODR2_2018reHLT_skimEGamma_Offline_L1TEgDQM']=1
+            wmsplit['RECODR2_2018reHLT_skimMuonEG_Offline']=1
+            wmsplit['RECODR2_2018reHLT_skimCharmonium_Offline']=1
+            wmsplit['RECODR2_2018reHLT_skimJetHT_Offline_HEfail']=1
+            wmsplit['RECODR2_2018reHLT_skimJetHT_Offline_BadHcalMitig']=1
+            wmsplit['RECODR2_2018reHLTAlCaTkCosmics_Offline']=1
+            wmsplit['RECODR2_2018reHLT_skimDisplacedJet_Offline']=1
+            wmsplit['RECODR2_2018reHLT_ZBOffline']=1
             wmsplit['HLTDR2_50ns']=1
             wmsplit['HLTDR2_25ns']=1
             wmsplit['HLTDR2_2016']=1
@@ -449,6 +466,12 @@ class MatrixInjector(object):
                         for (om,o) in t_input['nowmIO'].items():
                             if primary in o:
                                 #print "found",primary,"procuced by",om,"of",t_input['TaskName']
+                                #ad-hoc fix due to restriction in TaskName of 50 characters
+                                if (len(t_input['TaskName'])>50):
+                                    if (t_input['TaskName'].find('GenSim') != -1):
+                                        t_input['TaskName'] = 'GenSimFull'
+                                    if (t_input['TaskName'].find('Hadronizer') != -1):
+                                        t_input['TaskName'] = 'HadronizerFull'
                                 t_second['InputTask'] = t_input['TaskName']
                                 t_second['InputFromOutputModule'] = om
                                 #print 't_second',pprint.pformat(t_second)

@@ -23,12 +23,14 @@ namespace ticl {
 
     std::unique_ptr<HgcalClusterFilterMask> filter(const std::vector<reco::CaloCluster>& layerClusters,
                                                    const HgcalClusterFilterMask& availableLayerClusters,
-                                                   std::vector<float>& layerClustersMask) const override {
+                                                   std::vector<float>& layerClustersMask,
+                                                   hgcal::RecHitTools& rhtools) const override {
       auto filteredLayerClusters = std::make_unique<HgcalClusterFilterMask>();
       for (auto const& cl : availableLayerClusters) {
-        if (layerClusters[cl.first].algo() == algo_number_ and
-            layerClusters[cl.first].hitsAndFractions().size() <= max_cluster_size_ and
-            layerClusters[cl.first].hitsAndFractions().size() >= min_cluster_size_) {
+        auto const& layerCluster = layerClusters[cl.first];
+        if (layerCluster.algo() == algo_number_ and layerCluster.hitsAndFractions().size() <= max_cluster_size_ and
+            (layerCluster.hitsAndFractions().size() >= min_cluster_size_ or
+             (!(rhtools.isSilicon(layerCluster.hitsAndFractions()[0].first))))) {
           filteredLayerClusters->emplace_back(cl);
         } else {
           layerClustersMask[cl.first] = 0.;

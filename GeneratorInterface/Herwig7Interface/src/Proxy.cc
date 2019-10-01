@@ -1,8 +1,6 @@
 #include <map>
 
 #include <boost/thread.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
 
 #include "GeneratorInterface/Herwig7Interface/interface/Proxy.h"
 
@@ -10,7 +8,7 @@ using namespace ThePEG;
 
 static boost::mutex mutex;
 
-typedef std::map<ProxyBase::ProxyID, boost::weak_ptr<ProxyBase> > ProxyMap;
+typedef std::map<ProxyBase::ProxyID, std::weak_ptr<ProxyBase> > ProxyMap;
 
 static ProxyMap *getProxyMapInstance() {
   static struct Sentinel {
@@ -36,12 +34,12 @@ ProxyBase::~ProxyBase() {
     map->erase(id);
 }
 
-boost::shared_ptr<ProxyBase> ProxyBase::create(ctor_t ctor) {
+std::shared_ptr<ProxyBase> ProxyBase::create(ctor_t ctor) {
   static ProxyBase::ProxyID nextProxyID = 0;
 
   boost::mutex::scoped_lock scoped_lock(mutex);
 
-  boost::shared_ptr<ProxyBase> proxy(ctor(++nextProxyID));
+  std::shared_ptr<ProxyBase> proxy(ctor(++nextProxyID));
 
   ProxyMap *map = getProxyMapInstance();
   if (map)
@@ -50,16 +48,16 @@ boost::shared_ptr<ProxyBase> ProxyBase::create(ctor_t ctor) {
   return proxy;
 }
 
-boost::shared_ptr<ProxyBase> ProxyBase::find(ProxyID id) {
+std::shared_ptr<ProxyBase> ProxyBase::find(ProxyID id) {
   boost::mutex::scoped_lock scoped_lock(mutex);
 
   ProxyMap *map = getProxyMapInstance();
   if (!map)
-    return boost::shared_ptr<ProxyBase>();
+    return std::shared_ptr<ProxyBase>();
 
   ProxyMap::const_iterator pos = map->find(id);
   if (pos == map->end())
-    return boost::shared_ptr<ProxyBase>();
+    return std::shared_ptr<ProxyBase>();
 
-  return boost::shared_ptr<ProxyBase>(pos->second);
+  return std::shared_ptr<ProxyBase>(pos->second);
 }

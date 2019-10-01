@@ -77,6 +77,8 @@ process.generator = cms.EDProducer("BeamMomentumGunProducer",
         MaxTheta = cms.double(.012138),
         MinPhi = cms.double(3.638332),
         MaxPhi = cms.double(3.638332),
+        XOffset = cms.double(0.0),
+        YOffset = cms.double(0.0),
         ZPosition = cms.double(111.0),
         PartID = cms.vint32(11)
     ),

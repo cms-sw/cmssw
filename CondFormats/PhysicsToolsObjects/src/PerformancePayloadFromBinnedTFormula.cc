@@ -14,12 +14,12 @@ using namespace std;
 void PerformancePayloadFromBinnedTFormula::initialize() {
   boost::uuids::random_generator gen;
   for (unsigned int t = 0; t < pls.size(); ++t) {
-    std::vector<boost::shared_ptr<TFormula> > temp;
+    std::vector<std::shared_ptr<TFormula> > temp;
     for (unsigned int i = 0; i < (pls[t].formulas()).size(); ++i) {
       boost::uuids::uuid uniqueFormulaId = gen();
       const auto formulaUniqueName = boost::lexical_cast<std::string>(uniqueFormulaId);
       PhysicsTFormulaPayload tmp = pls[t];
-      boost::shared_ptr<TFormula> tt(new TFormula(formulaUniqueName.c_str(), tmp.formulas()[i].c_str()));
+      std::shared_ptr<TFormula> tt(new TFormula(formulaUniqueName.c_str(), tmp.formulas()[i].c_str()));
       tt->Compile();
       temp.push_back(tt);
     }
@@ -27,8 +27,8 @@ void PerformancePayloadFromBinnedTFormula::initialize() {
   }
 }
 
-const boost::shared_ptr<TFormula>& PerformancePayloadFromBinnedTFormula::getFormula(PerformanceResult::ResultType r,
-                                                                                    const BinningPointByMap& p) const {
+const std::shared_ptr<TFormula>& PerformancePayloadFromBinnedTFormula::getFormula(PerformanceResult::ResultType r,
+                                                                                  const BinningPointByMap& p) const {
   //
   // chooses the correct rectangular region
   //
@@ -57,7 +57,7 @@ float PerformancePayloadFromBinnedTFormula::getResult(PerformanceResult::ResultT
   //  TFormula * formula = compiledFormulas_[resultPos(r)];
   //
 
-  const boost::shared_ptr<TFormula>& formula = getFormula(r, p);
+  const std::shared_ptr<TFormula>& formula = getFormula(r, p);
 
   // prepare the vector to pass, order counts!!!
   //
@@ -128,7 +128,7 @@ void PerformancePayloadFromBinnedTFormula::printFormula(PerformanceResult::Resul
   }
 
   // nice, what to do here???
-  const boost::shared_ptr<TFormula>& formula = getFormula(res, point);
+  const std::shared_ptr<TFormula>& formula = getFormula(res, point);
   unsigned int whichone;
   isOk(point, whichone);
   cout << "-- Formula: " << formula->GetExpFormula("p") << endl;

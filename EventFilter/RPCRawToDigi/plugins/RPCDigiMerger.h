@@ -35,6 +35,11 @@ protected:
   edm::EDGetTokenT<RPCDigiCollection> twinMux_token_;
   edm::EDGetTokenT<RPCDigiCollection> omtf_token_;
   edm::EDGetTokenT<RPCDigiCollection> cppf_token_;
+  edm::EDGetTokenT<RPCDigiCollection> simRPC_token_;
+
+  int bx_minTwinMux_, bx_maxTwinMux_;
+  int bx_minOMTF_, bx_maxOMTF_;
+  int bx_minCPPF_, bx_maxCPPF_;
 };
 
 #endif  // EventFilter_RPCRawToDigi_RPCDigiMerger_h

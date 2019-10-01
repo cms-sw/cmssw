@@ -65,3 +65,13 @@ getPayloadData.py \
 
 mv *.png  $W_DIR/plots_LA/comparisonByRegionPhase0.png
 
+getPayloadData.py \
+     --plugin pluginSiPixelLorentzAngle_PayloadInspector \
+     --plot plot_SiPixelBPixLorentzAngleMap \
+     --tag SiPixelLorentzAngle_v11_offline \
+     --time_type Run \
+     --iovs '{"start_iov": "324245", "end_iov": "324245"}' \
+     --db Prod \
+     --test ;
+
+mv *.png  $W_DIR/plots_LA/SiPixelBPixLorentzAngleMap.png

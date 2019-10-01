@@ -28,8 +28,6 @@
 #include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-#include <boost/shared_ptr.hpp>
-
 #include <map>
 #include <string>
 
@@ -55,7 +53,7 @@ namespace pat {
                                                const std::vector<std::string>&) const;
 
     /// evaluate jet correction factor up to a given level
-    float evaluate(edm::View<reco::BaseTau>::const_iterator&, boost::shared_ptr<FactorizedJetCorrector>&, int);
+    float evaluate(edm::View<reco::BaseTau>::const_iterator&, std::shared_ptr<FactorizedJetCorrector>&, int);
 
   private:
     /// python label of this TauJetCorrFactorsProducer module

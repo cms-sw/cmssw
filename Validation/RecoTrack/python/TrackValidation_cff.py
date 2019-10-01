@@ -9,7 +9,8 @@ from Validation.RecoTrack.trajectorySeedTracks_cfi import trajectorySeedTracks a
 from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
 from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
-from . import cutsRecoTracks_cfi
+import Validation.RecoTrack.cutsRecoTracks_cfi as cutsRecoTracks_cfi
+#from . import cutsRecoTracks_cfi
 
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import *
@@ -403,6 +404,34 @@ trackValidatorTPPtLess09 = trackValidator.clone(
     doResolutionPlotsForLabels = ["disabled"], # resolutions are same as in trackValidator, no need to repeat here
 )
 
+# for high-eta (phase2 : |eta| > 2.7)
+trackValidatorTPEtaGreater2p7 = trackValidator.clone(
+    dirName = "Tracking/TrackTPEtaGreater2p7/",
+    label = [x for x in trackValidator.label.value() if ("Pt09" not in x) and ("BtvLike" not in x) and ("AK4PFJets" not in x)],
+    dodEdxPlots = False,
+#    doPVAssociationPlots = False,
+    minRapidityTP = -2.7,
+    maxRapidityTP = 2.7,
+    invertRapidityCutTP = True,
+#    ptMaxTP = 0.9, # set maximum pT globally
+    histoProducerAlgoBlock = dict(
+        TpSelectorForEfficiencyVsPt   = dict(ptMin=0.005,minRapidity=-2.7,maxRapidity=2.7,invertRapidityCut=True), # enough to set min pT here
+        TpSelectorForEfficiencyVsEta  = dict(ptMin=0.005,minRapidity=-2.7,maxRapidity=2.7,invertRapidityCut=True), # enough to set min pT here
+        TpSelectorForEfficiencyVsPhi  = dict(ptMin=0.005,minRapidity=-2.7,maxRapidity=2.7,invertRapidityCut=True),
+        TpSelectorForEfficiencyVsVTXR = dict(ptMin=0.005,minRapidity=-2.7,maxRapidity=2.7,invertRapidityCut=True),
+        TpSelectorForEfficiencyVsVTXZ = dict(ptMin=0.005,minRapidity=-2.7,maxRapidity=2.7,invertRapidityCut=True),
+        generalTpSelector             = dict(ptMin=0.005,minRapidity=-2.7,maxRapidity=2.7,invertRapidityCut=True),
+#        minEta  = -4.5,
+#        maxEta  =  4.5,
+#        nintEta = 90,
+        #    minPt  = 0.01,
+    ),
+    doSimPlots = False,       # same as in trackValidator, no need to repeat here
+    doRecoTrackPlots = False, # fake rates are same as in trackValidator, no need to repeat here
+    doResolutionPlotsForLabels = ["disabled"] # resolutions are same as in trackValidator, no need to repeat here
+)
+
+
 # For efficiency of signal TPs vs. signal tracks, and fake rate of
 # signal tracks vs. signal TPs
 trackValidatorFromPV = trackValidator.clone(
@@ -596,6 +625,14 @@ tracksValidation = cms.Sequence(
     trackValidatorGsfTracks,
     tracksPreValidation
 )
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+#tracksValidationPhase2 = cms.Sequence(tracksValidation+trackValidatorTPEtaGreater2p7) # it does not work
+tracksValidationPhase2 = tracksValidation.copy()
+tracksValidationPhase2+=trackValidatorTPEtaGreater2p7
+phase2_tracker.toReplaceWith(tracksValidation, tracksValidationPhase2)
+
+
 fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
     trackValidatorBuildingPreSplitting,
     trackValidatorConversion,
@@ -653,7 +690,6 @@ trackValidatorFromPVAllTPStandalone = trackValidatorFromPVAllTP.clone(
 trackValidatorAllTPEfficStandalone = trackValidatorAllTPEffic.clone(
     label = [ x for x in trackValidator.label.value() if x not in ["cutsRecoTracksBtvLike", "cutsRecoTracksAK4PFJets"] and "Pt09" not in x],
     cores = "highPtJets"
-
 )
 
 trackValidatorConversionStandalone = trackValidatorConversion.clone(

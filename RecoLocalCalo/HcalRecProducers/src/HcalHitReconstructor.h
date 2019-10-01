@@ -48,7 +48,7 @@ public:
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  typedef void (HcalSimpleRecAlgo::*SetCorrectionFcn)(boost::shared_ptr<AbsOOTPileupCorrection>);
+  typedef void (HcalSimpleRecAlgo::*SetCorrectionFcn)(std::shared_ptr<AbsOOTPileupCorrection>);
 
   HcalSimpleRecAlgo reco_;
   HcalADCSaturationFlag* saturationFlagSetter_;

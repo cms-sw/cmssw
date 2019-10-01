@@ -234,6 +234,29 @@ void HcalParametersAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Ev
     for (const auto& it : parsim->pmtFiberLeft_)
       std::cout << it << ", ";
     std::cout << std::endl;
+
+    std::cout << "\nhfLevels_: ";
+    for (const auto& it : parsim->hfLevels_)
+      std::cout << it << ", ";
+    std::cout << "\nhfNames_: ";
+    for (const auto& it : parsim->hfNames_)
+      std::cout << it << ", ";
+    std::cout << "\nhfFibreNames_: ";
+    for (const auto& it : parsim->hfFibreNames_)
+      std::cout << it << ", ";
+    std::cout << "\nhfPMTNames_: ";
+    for (const auto& it : parsim->hfPMTNames_)
+      std::cout << it << ", ";
+    std::cout << "\nhfFibreStraightNames_: ";
+    for (const auto& it : parsim->hfFibreStraightNames_)
+      std::cout << it << ", ";
+    std::cout << "\nhfFibreConicalNames_: ";
+    for (const auto& it : parsim->hfFibreConicalNames_)
+      std::cout << it << ", ";
+    std::cout << "\nhcalMaterialNames_: ";
+    for (const auto& it : parsim->hcalMaterialNames_)
+      std::cout << it << ", ";
+    std::cout << std::endl;
   }
 }
 

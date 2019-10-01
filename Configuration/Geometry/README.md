@@ -7,12 +7,14 @@ Tracker:
 * T6: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.0.4) (TEDD slighly rotated + Inner Tracker barrel has lower radii than TDR T5 geometry)
 * T14: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Based from T12. OT: reduced envelope. IT: new chip size, different radii, 2x2 modules everywhere in TEPX, new ring paradigm in TEPX)
 * T15: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Active geometry: same as T14. Material Budget: major update in IT, gathering info from recent Mechanical designs.)
+* T16: Active geometry: skewed Inner Tracker geometry. Material Budget: same as T15.
 
 Calorimeters:
 * C4: HGCal (v9) + Phase2 HCAL and EB
 * C6: HGCal (v9) + HFNose + Phase2 HCAL and EB
 * C8: HGCal (v10 post TDR HGCal Geometry) + Phase2 HCAL and EB + Tracker cables in calorimeter region
-* C9: HGCal (v11 post TDR HGCal Geometry same as V8 + corner centering for HE part)
+* C9: HGCal (v11 post TDR HGCal Geometry same as C8 + corner centering for HE part)
+* C10: HGCal (as in C9) + HFNose + Phase2 HCAL and EB
 
 Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
@@ -37,5 +39,7 @@ Several detector combinations have been generated:
 * D44 = T14+C6+M3+I7+O2+F3
 * D45 = T15+C8+M3+I10+O3+F2
 * D46 = T15+C9+M3+I10+O3+F2
+* D47 = T15+C10+M3+I10+O3+F3
+* D48 = T16+C9+M3+I10+O3+F2
 
 D35 is the baseline for the MTD TDR, and D41 is the baseline for the L1T TDR.

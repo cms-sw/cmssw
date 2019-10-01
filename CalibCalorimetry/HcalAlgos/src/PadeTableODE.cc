@@ -34,8 +34,10 @@ void PadeTableODE::calculate(const double tau,
       switch (row_) {
         case 2U:
           derivative[firstNode] += 0.5 * tau * tau * d2Id2t;
+          [[fallthrough]];
         case 1U:
           derivative[firstNode] -= tau * dIdt;
+          [[fallthrough]];
         case 0U:
           derivative[firstNode] += currentIn;
           break;
