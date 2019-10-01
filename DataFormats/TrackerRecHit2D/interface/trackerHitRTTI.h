@@ -37,7 +37,7 @@ namespace trackerHitRTTI {
   inline bool isFast(TrackingRecHit const& hit) { return (rtti(hit) > 5) & (rtti(hit) <= 9); }
   inline bool isFromDetOrFast(TrackingRecHit const& hit) { return (rtti(hit) > 0) & (rtti(hit) < 10); }
   inline bool isTiming(TrackingRecHit const& hit) { return rtti(hit) == mipTiming; }
-  inline bool isVector(TrackingRecHit const & hit)  { return rtti(hit)==vector;}
+  inline bool isVector(TrackingRecHit const& hit) { return rtti(hit) == vector; }
   inline unsigned int projId(TrackingRecHit const& hit) { return hit.rawId() + int(rtti(hit)) - 1; }
 }  // namespace trackerHitRTTI
 

@@ -193,17 +193,20 @@ namespace {
           collectedPhase2OTs[cluster.key()] = true;
 
         // Phase 2 OT is defined as Pixel detector (for now)
-        const auto &hitType = typeid(hit);
+        const auto& hitType = typeid(hit);
         if (hitType == typeid(VectorHit)) {
-          auto const & vectorHit = reinterpret_cast<VectorHit const&>(hit);
-          auto const & lowCluster = vectorHit.lowerClusterRef();
-          auto const & uppCluster = vectorHit.upperClusterRef();
-          LogTrace("TrackClusterRemoverPhase2")<<"masking a VHit with lowCluster key: " << lowCluster.key() << " and upper key: " << uppCluster.key();
-	  if (lowCluster.isPhase2()) collectedPhase2OTs[lowCluster.key()]=true;
-	  if (uppCluster.isPhase2()) collectedPhase2OTs[uppCluster.key()]=true;
+          auto const& vectorHit = reinterpret_cast<VectorHit const&>(hit);
+          auto const& lowCluster = vectorHit.lowerClusterRef();
+          auto const& uppCluster = vectorHit.upperClusterRef();
+          LogTrace("TrackClusterRemoverPhase2")
+              << "masking a VHit with lowCluster key: " << lowCluster.key() << " and upper key: " << uppCluster.key();
+          if (lowCluster.isPhase2())
+            collectedPhase2OTs[lowCluster.key()] = true;
+          if (uppCluster.isPhase2())
+            collectedPhase2OTs[uppCluster.key()] = true;
         } else {
-          LogTrace("TrackClusterRemoverPhase2")<<"it is not a VHits.";
-        } 
+          LogTrace("TrackClusterRemoverPhase2") << "it is not a VHits.";
+        }
       }
     }
 

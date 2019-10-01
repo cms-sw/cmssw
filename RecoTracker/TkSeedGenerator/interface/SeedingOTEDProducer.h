@@ -23,38 +23,43 @@
 
 class TrajectoryStateUpdator;
 
-class SeedingOTEDProducer : public edm::stream::EDProducer<>
-{
-
- public:
-
+class SeedingOTEDProducer : public edm::stream::EDProducer<> {
+public:
   explicit SeedingOTEDProducer(const edm::ParameterSet&);
-  virtual ~SeedingOTEDProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  ~SeedingOTEDProducer() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-  TrajectorySeedCollection run( edm::Handle< VectorHitCollectionNew > );
-  unsigned int checkLayer( unsigned int iidd );
-  std::vector<VectorHit> collectVHsOnLayer( edm::Handle< VectorHitCollectionNew >, unsigned int );
-  void printVHsOnLayer( edm::Handle< VectorHitCollectionNew >, unsigned int );
-  const TrajectoryStateOnSurface buildInitialTSOS( VectorHit& );
-  AlgebraicSymMatrix assign44To55( AlgebraicSymMatrix );
-  std::pair<bool, TrajectoryStateOnSurface> propagateAndUpdate(const TrajectoryStateOnSurface initialTSOS, const Propagator&, const TrackingRecHit& hit);
+  TrajectorySeedCollection run(edm::Handle<VectorHitCollectionNew>);
+  unsigned int checkLayer(unsigned int iidd);
+  std::vector<VectorHit> collectVHsOnLayer(edm::Handle<VectorHitCollectionNew>, unsigned int);
+  void printVHsOnLayer(edm::Handle<VectorHitCollectionNew>, unsigned int);
+  const TrajectoryStateOnSurface buildInitialTSOS(VectorHit&);
+  AlgebraicSymMatrix assign44To55(AlgebraicSymMatrix);
+  std::pair<bool, TrajectoryStateOnSurface> propagateAndUpdate(const TrajectoryStateOnSurface initialTSOS,
+                                                               const Propagator&,
+                                                               const TrackingRecHit& hit);
   float computeGlobalThetaError(const VectorHit& vh, const double sigmaZ_beamSpot);
-  float computeInverseMomentumError(VectorHit& vh, const float globalTheta, const MagneticField* magField, const double sigmaZ_beamSpot);
+  float computeInverseMomentumError(VectorHit& vh,
+                                    const float globalTheta,
+                                    const MagneticField* magField,
+                                    const double sigmaZ_beamSpot);
 
-  TrajectorySeed createSeed(const TrajectoryStateOnSurface& tsos, const edm::OwnVector<TrackingRecHit>& container, const DetId& id, const Propagator& prop);
+  TrajectorySeed createSeed(const TrajectoryStateOnSurface& tsos,
+                            const edm::OwnVector<TrackingRecHit>& container,
+                            const DetId& id,
+                            const Propagator& prop);
 
   struct isInvalid {
     bool operator()(const TrajectoryMeasurement& measurement) {
-      return ( ((measurement).recHit() == 0) || !((measurement).recHit()->isValid()) || !((measurement).updatedState().isValid()) ); 
+      return (((measurement).recHit() == nullptr) || !((measurement).recHit()->isValid()) ||
+              !((measurement).updatedState().isValid()));
     }
   };
 
- private:
-
-  edm::EDGetTokenT< VectorHitCollectionNew > vhProducerToken;
+private:
+  edm::EDGetTokenT<VectorHitCollectionNew> vhProducerToken;
   const TrackerTopology* tkTopo;
   const MeasurementTracker* measurementTracker;
   const LayerMeasurements* layerMeasurements;

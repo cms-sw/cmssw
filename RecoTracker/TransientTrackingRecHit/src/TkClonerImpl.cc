@@ -57,7 +57,7 @@ std::unique_ptr<Phase2TrackerRecHit1D> TkClonerImpl::operator()(Phase2TrackerRec
   return std::make_unique<Phase2TrackerRecHit1D>(params.first, params.second, *hit.det(), hit.cluster());
 }
 
-std::unique_ptr<VectorHit> TkClonerImpl::operator()(VectorHit const & hit, TrajectoryStateOnSurface const& tsos) const {
+std::unique_ptr<VectorHit> TkClonerImpl::operator()(VectorHit const& hit, TrajectoryStateOnSurface const& tsos) const {
   return std::unique_ptr<VectorHit>{new VectorHit(hit)};
 }
 
@@ -97,7 +97,8 @@ TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(Phase2TrackerRecHit1
   return std::make_unique<Phase2TrackerRecHit1D>(params.first, params.second, *hit.det(), hit.cluster());
 }
 
-TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(VectorHit const & hit, TrajectoryStateOnSurface const& tsos) const {
+TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(VectorHit const& hit,
+                                                            TrajectoryStateOnSurface const& tsos) const {
   return std::make_shared<VectorHit>(hit);
 }
 
