@@ -128,15 +128,31 @@ namespace {
     std::map<std::string, Counter> countermap;
     Counter* active_el = nullptr;
     std::string active_label = "";
-    void merge(const CounterMap & other) {
-      for (const auto &y : other.countermap) countermap[y.first].merge(y.second);
+    void merge(const CounterMap& other) {
+      for (const auto& y : other.countermap)
+        countermap[y.first].merge(y.second);
       active_el = nullptr;
     }
-    void clear() {for (auto x : countermap) x.second.clear();}
-    void setLabel(std::string label) { active_el = &(countermap[label]); active_label = label;}
-    void checkLabelSet() { if (!active_el) throw cms::Exception("LogicError", "Called CounterMap::get() before setting the active label\n"); }
-    Counter* get() { checkLabelSet(); return active_el; }
-    std::string& getLabel() { checkLabelSet(); return active_label; }
+    void clear() {
+      for (auto x : countermap)
+        x.second.clear();
+    }
+    void setLabel(std::string label) {
+      active_el = &(countermap[label]);
+      active_label = label;
+    }
+    void checkLabelSet() {
+      if (!active_el)
+        throw cms::Exception("LogicError", "Called CounterMap::get() before setting the active label\n");
+    }
+    Counter* get() {
+      checkLabelSet();
+      return active_el;
+    }
+    std::string& getLabel() {
+      checkLabelSet();
+      return active_label;
+    }
   };
 
   ///  ---- RunCache object for dynamic choice of LHE IDs ----
@@ -206,7 +222,8 @@ public:
                                       [this](const edm::InputTag& tag) { return mayConsume<LHEEventProduct>(tag); })),
         lheRunTag_(edm::vector_transform(
             lheLabel_, [this](const edm::InputTag& tag) { return mayConsume<LHERunInfoProduct, edm::InRun>(tag); })),
-        genLumiInfoHeadTag_(mayConsume<GenLumiInfoHeader,edm::InLumi>(params.getParameter<edm::InputTag>("genLumiInfoHeader"))),
+        genLumiInfoHeadTag_(
+            mayConsume<GenLumiInfoHeader, edm::InLumi>(params.getParameter<edm::InputTag>("genLumiInfoHeader"))),
         namedWeightIDs_(params.getParameter<std::vector<std::string>>("namedWeightIDs")),
         namedWeightLabels_(params.getParameter<std::vector<std::string>>("namedWeightLabels")),
         lheWeightPrecision_(params.getParameter<int32_t>("lheWeightPrecision")),
@@ -253,7 +270,7 @@ public:
 
     std::string model_label = streamCache(id)->getLabel();
     auto outM = std::make_unique<std::string>((!model_label.empty()) ? std::string("GenModel_") + model_label : "");
-    iEvent.put(std::move(outM),"genModel");
+    iEvent.put(std::move(outM), "genModel");
 
     // tables for LHE weights, may not be filled
     std::unique_ptr<nanoaod::FlatTable> lheScaleTab, lhePdfTab, lheRwgtTab, lheNamedTab;
@@ -751,11 +768,15 @@ public:
   void streamBeginRun(edm::StreamID id, edm::Run const&, edm::EventSetup const&) const override {
     streamCache(id)->clear();
   }
-  void streamBeginLuminosityBlock(edm::StreamID id, edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eventSetup) const override {
+  void streamBeginLuminosityBlock(edm::StreamID id,
+                                  edm::LuminosityBlock const& lumiBlock,
+                                  edm::EventSetup const& eventSetup) const override {
     auto counterMap = streamCache(id);
     edm::Handle<GenLumiInfoHeader> genLumiInfoHead;
-    lumiBlock.getByToken(genLumiInfoHeadTag_,genLumiInfoHead);
-    if (!genLumiInfoHead.isValid()) edm::LogWarning("LHETablesProducer") << "No GenLumiInfoHeader product found, will not fill generator model string.\n";
+    lumiBlock.getByToken(genLumiInfoHeadTag_, genLumiInfoHead);
+    if (!genLumiInfoHead.isValid())
+      edm::LogWarning("LHETablesProducer")
+          << "No GenLumiInfoHeader product found, will not fill generator model string.\n";
     counterMap->setLabel(genLumiInfoHead.isValid() ? genLumiInfoHead->configDescription() : "");
   }
   // create an empty counter
@@ -776,30 +797,42 @@ public:
     auto out = std::make_unique<nanoaod::MergeableCounterTable>();
 
     for (auto x : runCounterMap->countermap) {
-
       auto runCounter = &(x.second);
       std::string label = std::string("_") + x.first;
       std::string doclabel = (!x.first.empty()) ? (std::string(", for model label ") + x.first) : "";
 
-      out->addInt("genEventCount"+label, "event count"+doclabel, runCounter->num);
-      out->addFloat("genEventSumw"+label, "sum of gen weights"+doclabel, runCounter->sumw);
-      out->addFloat("genEventSumw2"+label, "sum of gen (weight^2)"+doclabel, runCounter->sumw2);
+      out->addInt("genEventCount" + label, "event count" + doclabel, runCounter->num);
+      out->addFloat("genEventSumw" + label, "sum of gen weights" + doclabel, runCounter->sumw);
+      out->addFloat("genEventSumw2" + label, "sum of gen (weight^2)" + doclabel, runCounter->sumw2);
 
-      double norm = runCounter->sumw ? 1.0/runCounter->sumw : 1;
-      auto sumScales = runCounter->sumScale; for (auto & val : sumScales) val *= norm;
-      out->addVFloat("LHEScaleSumw"+label, "Sum of genEventWeight * LHEScaleWeight[i], divided by genEventSumw"+doclabel, sumScales);
-      auto sumPDFs = runCounter->sumPDF; for (auto & val : sumPDFs) val *= norm;
-      out->addVFloat("LHEPdfSumw"+label, "Sum of genEventWeight * LHEPdfWeight[i], divided by genEventSumw"+doclabel, sumPDFs);
+      double norm = runCounter->sumw ? 1.0 / runCounter->sumw : 1;
+      auto sumScales = runCounter->sumScale;
+      for (auto& val : sumScales)
+        val *= norm;
+      out->addVFloat("LHEScaleSumw" + label,
+                     "Sum of genEventWeight * LHEScaleWeight[i], divided by genEventSumw" + doclabel,
+                     sumScales);
+      auto sumPDFs = runCounter->sumPDF;
+      for (auto& val : sumPDFs)
+        val *= norm;
+      out->addVFloat(
+          "LHEPdfSumw" + label, "Sum of genEventWeight * LHEPdfWeight[i], divided by genEventSumw" + doclabel, sumPDFs);
       if (!runCounter->sumRwgt.empty()) {
-	auto sumRwgts = runCounter->sumRwgt; for (auto & val : sumRwgts) val *= norm;
-	out->addVFloat("LHEReweightingSumw"+label, "Sum of genEventWeight * LHEReweightingWeight[i], divided by genEventSumw"+doclabel, sumRwgts);
+        auto sumRwgts = runCounter->sumRwgt;
+        for (auto& val : sumRwgts)
+          val *= norm;
+        out->addVFloat("LHEReweightingSumw" + label,
+                       "Sum of genEventWeight * LHEReweightingWeight[i], divided by genEventSumw" + doclabel,
+                       sumRwgts);
       }
-      if (!runCounter->sumNamed.empty()) { // it could be empty if there's no LHE info in the sample
-	for (unsigned int i = 0, n = namedWeightLabels_.size(); i < n; ++i) {
-	  out->addFloat("LHESumw_"+namedWeightLabels_[i]+label, "Sum of genEventWeight * LHEWeight_"+namedWeightLabels_[i]+", divided by genEventSumw"+doclabel, runCounter->sumNamed[i] * norm);
-	}
+      if (!runCounter->sumNamed.empty()) {  // it could be empty if there's no LHE info in the sample
+        for (unsigned int i = 0, n = namedWeightLabels_.size(); i < n; ++i) {
+          out->addFloat(
+              "LHESumw_" + namedWeightLabels_[i] + label,
+              "Sum of genEventWeight * LHEWeight_" + namedWeightLabels_[i] + ", divided by genEventSumw" + doclabel,
+              runCounter->sumNamed[i] * norm);
+        }
       }
-
     }
     iRun.put(std::move(out));
   }
@@ -810,7 +843,8 @@ public:
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("genEvent", edm::InputTag("generator"))
         ->setComment("tag for the GenEventInfoProduct, to get the main weight");
-    desc.add<edm::InputTag>("genLumiInfoHeader", edm::InputTag("generator"))->setComment("tag for the GenLumiInfoProduct, to get the model string");
+    desc.add<edm::InputTag>("genLumiInfoHeader", edm::InputTag("generator"))
+        ->setComment("tag for the GenLumiInfoProduct, to get the model string");
     desc.add<std::vector<edm::InputTag>>("lheInfo", std::vector<edm::InputTag>{{"externalLHEProducer"}, {"source"}})
         ->setComment("tag(s) for the LHE information (LHEEventProduct and LHERunInfoProduct)");
 
