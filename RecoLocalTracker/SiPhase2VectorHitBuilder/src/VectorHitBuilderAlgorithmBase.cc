@@ -2,7 +2,6 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
-#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -17,22 +16,6 @@ VectorHitBuilderAlgorithmBase::VectorHitBuilderAlgorithmBase(const edm::Paramete
 
 void VectorHitBuilderAlgorithmBase::initialize(const edm::EventSetup& es)
 {
-  //FIXME:ask Vincenzo
-  /*
-  uint32_t tk_cache_id = es.get<TrackerDigiGeometryRecord>().cacheIdentifier();
-  uint32_t c_cache_id = es.get<TkPhase2OTCPERecord>().cacheIdentifier();
-
-  if(tk_cache_id != tracker_cache_id) {
-    es.get<TrackerDigiGeometryRecord>().get(tracker);
-    tracker_cache_id = tk_cache_id;
-  }
-  if(c_cache_id != cpe_cache_id) {
-    es.get<TkPhase2OTCPERecord>().get(matcherTag, matcher);
-    es.get<TkPhase2OTCPERecord>().get(cpeTag, cpe);
-    cpe_cache_id = c_cache_id;
-  }
-  */
-
   // get the geometry and topology
   edm::ESHandle< TrackerGeometry > geomHandle;
   es.get< TrackerDigiGeometryRecord >().get( geomHandle );

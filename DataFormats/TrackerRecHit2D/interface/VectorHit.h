@@ -108,9 +108,6 @@ class VectorHit GCC11_FINAL : public BaseTrackerRecHit {
   /// The projection matrix relates the trajectory state parameters to the segment parameters().
   virtual AlgebraicMatrix projectionMatrix() const override;
 
-  // Degrees of freedom of the segment fit
-  virtual int degreesOfFreedom() const { return 0; } //number of hits (2+2) - dimension
-
   // Access to component RecHits (if any)
   virtual std::vector<const TrackingRecHit*> recHits() const override;
   virtual std::vector<TrackingRecHit*> recHits() override ;
@@ -149,7 +146,7 @@ class VectorHit GCC11_FINAL : public BaseTrackerRecHit {
 
 inline bool operator<( const VectorHit& one, const VectorHit& other) {
 
-  if ( one.chi2() > other.chi2() ) {
+  if ( one.chi2() < other.chi2() ) {
     return true;
   }
 
