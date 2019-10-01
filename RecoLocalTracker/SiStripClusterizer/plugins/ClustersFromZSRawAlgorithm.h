@@ -11,7 +11,7 @@ public:
 
   using Det = StripClusterizerAlgorithm::Det;
 
-  template<typename OUT, bool NOISE_CUT=false>
+  template<typename OUT, bool WIDE_CLUS = false, bool NOISE_CUT=false>
   void clustersFromZS(uint8_t const * data, int offset, int lenght, uint16_t stripOffset,
                       Det const & det, OUT & out) const {
 
@@ -61,8 +61,30 @@ public:
          int ic=0;
          while(adc[ic]==0){++ic;}
          adc.erase(adc.begin(),adc.begin()+ic);
-         firstStrip+=ic;
+         firstStrip+=ic; 
+         if(ic>0) extend=false;
+         clusSize=adc.size();
+         endStrip = firstStrip+clusSize;
        }
+       if constexpr (WIDE_CLUS) {
+         // if large remove tails
+         if (clusSize>5) {
+           auto peak = std::max_element(adc.begin(),adc.end());
+           auto lc=peak+2;
+           for (;lc<adc.end(); ++lc) if (*(lc-1) < *(lc)) break;
+           auto fc=peak-1;
+           for (;fc>adc.begin(); --fc) if (*(fc) < *(fc-1)) break;
+           if(lc<adc.end()) adc.erase(lc,adc.end());
+           if(fc>adc.begin()) { 
+             firstStrip+=(fc-adc.begin()); 
+             adc.erase(adc.begin(),fc); 
+             extend=false;
+           }
+           clusSize=adc.size();
+           endStrip = firstStrip+clusSize;
+         }
+       }
+       //
        if (extend) out.back().extend(adc.begin(),adc.end());
        else if (endStrip%128==0 || sum*weight*sti > m_clusterChargeCut)
          out.push_back(std::move(SiStripCluster(firstStrip,std::move(adc))));
