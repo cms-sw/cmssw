@@ -309,10 +309,7 @@ def nanoAOD_customizeCommon(process):
                                      addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
                                      addDeepDoubleX=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleX_switch,
                                      jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
-
-    _unmodifiedPatTauMVAIDsSeq = process.patTauMVAIDsSeq.copy()
-    _unmodifiedTauIDSources = process.slimmedTausUpdated.tauIDSources.clone()
-    process = nanoAOD_addTauIds(process)
+    (~run2_miniAOD_80XLegacy).toModify(process, lambda p : nanoAOD_addTauIds(p))
     return process
 
 def nanoAOD_customizeData(process):
