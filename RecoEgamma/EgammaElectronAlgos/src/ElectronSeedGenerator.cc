@@ -21,7 +21,6 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -149,10 +148,6 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, cons
       dPhi1Coef2_(dynamicPhiRoad_ ? (deltaPhi1Low_ - deltaPhi1High_) / (1. / lowPtThresh_ - 1. / highPtThresh_) : 0.),
       dPhi1Coef1_(dynamicPhiRoad_ ? deltaPhi1Low_ - dPhi1Coef2_ / lowPtThresh_ : 0.),
       propagator_(nullptr),
-      measurementTracker_(nullptr),
-      measurementTrackerEventTag_(ts.token_measTrkEvt),
-      setup_(nullptr),
-      measurementTrackerName_(pset.getParameter<std::string>("measurementTrackerName")),
       // use of reco vertex
       useRecoVertex_(pset.getParameter<bool>("useRecoVertex")),
       // new B/F configurables
@@ -215,13 +210,6 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
     electronMatcher_.setES(magField_.product(), trackerGeometry_.product());
     positronMatcher_.setES(magField_.product(), trackerGeometry_.product());
   }
-
-  if (cacheIDNavSchool_ != setup.get<NavigationSchoolRecord>().cacheIdentifier()) {
-    edm::ESHandle<NavigationSchool> nav;
-    setup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
-    cacheIDNavSchool_ = setup.get<NavigationSchoolRecord>().cacheIdentifier();
-    navigationSchool_ = nav.product();
-  }
 }
 
 void ElectronSeedGenerator::run(edm::Event &e,
@@ -233,22 +221,18 @@ void ElectronSeedGenerator::run(edm::Event &e,
                                 reco::ElectronSeedCollection &out) {
   initialSeedCollectionVector_ = &seedsV;
 
-  setup_ = &setup;
-
   // get the beamspot from the Event:
-  //e.getByType(beamSpot_);
-  e.getByToken(beamSpotTag_, beamSpot_);
+  auto const &beamSpot = e.get(beamSpotTag_);
 
   // if required get the vertices
+  std::vector<reco::Vertex> const *vertices = nullptr;
   if (useRecoVertex_)
-    e.getByToken(verticesTag_, vertices_);
+    vertices = &e.get(verticesTag_);
 
   for (unsigned int i = 0; i < sclRefs.size(); ++i) {
     // Find the seeds
-    recHits_.clear();
-
     LogDebug("ElectronSeedGenerator") << "new cluster, calling seedsFromThisCluster";
-    seedsFromThisCluster(sclRefs[i], hoe1s[i], hoe2s[i], out);
+    seedsFromThisCluster(sclRefs[i], hoe1s[i], hoe2s[i], beamSpot, vertices, out);
   }
 
   LogDebug("ElectronSeedGenerator") << ": For event " << e.id();
@@ -259,13 +243,15 @@ void ElectronSeedGenerator::run(edm::Event &e,
 void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster,
                                                  float hoe1,
                                                  float hoe2,
+                                                 reco::BeamSpot const &beamSpot,
+                                                 std::vector<reco::Vertex> const *vertices,
                                                  reco::ElectronSeedCollection &out) {
   float clusterEnergy = seedCluster->energy();
   GlobalPoint clusterPos(seedCluster->position().x(), seedCluster->position().y(), seedCluster->position().z());
   reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster);
 
   if (dynamicPhiRoad_) {
-    float clusterEnergyT = clusterEnergy / cosh(EleRelPoint(clusterPos, beamSpot_->position()).eta());
+    float clusterEnergyT = clusterEnergy / cosh(EleRelPoint(clusterPos, beamSpot.position()).eta());
 
     float deltaPhi1;
     if (clusterEnergyT < lowPtThresh_) {
@@ -294,14 +280,14 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
 
   if (!useRecoVertex_)  // here use the beam spot position
   {
-    double sigmaZ = beamSpot_->sigmaZ();
-    double sigmaZ0Error = beamSpot_->sigmaZ0Error();
+    double sigmaZ = beamSpot.sigmaZ();
+    double sigmaZ0Error = beamSpot.sigmaZ0Error();
     double sq = sqrt(sigmaZ * sigmaZ + sigmaZ0Error * sigmaZ0Error);
-    double myZmin1 = beamSpot_->position().z() - nSigmasDeltaZ1_ * sq;
-    double myZmax1 = beamSpot_->position().z() + nSigmasDeltaZ1_ * sq;
+    double myZmin1 = beamSpot.position().z() - nSigmasDeltaZ1_ * sq;
+    double myZmax1 = beamSpot.position().z() + nSigmasDeltaZ1_ * sq;
 
     GlobalPoint vertexPos;
-    ele_convert(beamSpot_->position(), vertexPos);
+    ele_convert(beamSpot.position(), vertexPos);
 
     electronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
     positronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
@@ -313,22 +299,20 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
     auto posPixelSeeds = positronMatcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
     seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, hoe1, hoe2, out, true);
 
-  } else  // here we use the reco vertices
+  } else if (vertices)  // here we use the reco vertices
   {
-    const std::vector<reco::Vertex> *vtxCollection = vertices_.product();
-    std::vector<reco::Vertex>::const_iterator vtxIter;
-    for (vtxIter = vtxCollection->begin(); vtxIter != vtxCollection->end(); vtxIter++) {
-      GlobalPoint vertexPos(vtxIter->position().x(), vtxIter->position().y(), vtxIter->position().z());
+    for (auto const &vertex : *vertices) {
+      GlobalPoint vertexPos(vertex.position().x(), vertex.position().y(), vertex.position().z());
       double myZmin1, myZmax1;
-      if (vertexPos.z() == beamSpot_->position().z()) {  // in case vetex not found
-        double sigmaZ = beamSpot_->sigmaZ();
-        double sigmaZ0Error = beamSpot_->sigmaZ0Error();
+      if (vertexPos.z() == beamSpot.position().z()) {  // in case vetex not found
+        double sigmaZ = beamSpot.sigmaZ();
+        double sigmaZ0Error = beamSpot.sigmaZ0Error();
         double sq = sqrt(sigmaZ * sigmaZ + sigmaZ0Error * sigmaZ0Error);
-        myZmin1 = beamSpot_->position().z() - nSigmasDeltaZ1_ * sq;
-        myZmax1 = beamSpot_->position().z() + nSigmasDeltaZ1_ * sq;
+        myZmin1 = beamSpot.position().z() - nSigmasDeltaZ1_ * sq;
+        myZmax1 = beamSpot.position().z() + nSigmasDeltaZ1_ * sq;
       } else {  // a vertex has been recoed
-        myZmin1 = vtxIter->position().z() - deltaZ1WithVertex_;
-        myZmax1 = vtxIter->position().z() + deltaZ1WithVertex_;
+        myZmin1 = vertex.position().z() - deltaZ1WithVertex_;
+        myZmax1 = vertex.position().z() + deltaZ1WithVertex_;
       }
 
       electronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
