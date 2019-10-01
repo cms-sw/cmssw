@@ -63,9 +63,9 @@ namespace {
     }
 
     if (positron) {
-      seed.setPosAttributes(info->dRz2(), info->dPhi2(), info->dRz1(), info->dPhi1());
+      seed.setPosAttributes(info->dRz2, info->dPhi2, info->dRz1, info->dPhi1);
     } else {
-      seed.setNegAttributes(info->dRz2(), info->dPhi2(), info->dRz1(), info->dPhi1());
+      seed.setNegAttributes(info->dRz2, info->dPhi2, info->dRz1, info->dPhi1);
     }
     for (auto resItr = out.begin(); resItr != out.end(); ++resItr) {
       if ((seed.caloCluster().key() == resItr->caloCluster().key()) && (seed.hitsMask() == resItr->hitsMask()) &&
@@ -73,7 +73,7 @@ namespace {
         if (positron) {
           if (resItr->dRz2Pos() == std::numeric_limits<float>::infinity() &&
               resItr->dRz2() != std::numeric_limits<float>::infinity()) {
-            resItr->setPosAttributes(info->dRz2(), info->dPhi2(), info->dRz1(), info->dPhi1());
+            resItr->setPosAttributes(info->dRz2, info->dPhi2, info->dRz1, info->dPhi1);
             seed.setNegAttributes(resItr->dRz2(), resItr->dPhi2(), resItr->dRz1(), resItr->dPhi1());
             break;
           } else {
@@ -91,7 +91,7 @@ namespace {
         } else {
           if (resItr->dRz2() == std::numeric_limits<float>::infinity() &&
               resItr->dRz2Pos() != std::numeric_limits<float>::infinity()) {
-            resItr->setNegAttributes(info->dRz2(), info->dPhi2(), info->dRz1(), info->dPhi1());
+            resItr->setNegAttributes(info->dRz2, info->dPhi2, info->dRz1, info->dPhi1);
             seed.setPosAttributes(resItr->dRz2Pos(), resItr->dPhi2Pos(), resItr->dRz1Pos(), resItr->dPhi1Pos());
             break;
           } else {
@@ -125,9 +125,9 @@ namespace {
 
     std::vector<SeedWithInfo>::const_iterator s;
     for (s = pixelSeeds.begin(); s != pixelSeeds.end(); s++) {
-      reco::ElectronSeed seed(s->seed());
+      reco::ElectronSeed seed(s->seed);
       seed.setCaloCluster(cluster);
-      seed.initTwoHitSeed(s->hitsMask());
+      seed.initTwoHitSeed(s->hitsMask);
       addSeed(seed, &*s, positron, out);
     }
   }
@@ -174,7 +174,7 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, cons
                        pset.getParameter<double>("r2MaxF"),
                        pset.getParameter<double>("rMinI"),
                        pset.getParameter<double>("rMaxI"),
-                       pset.getParameter<bool>("searchInTIDTEC")),
+                       useRecoVertex_),
       positronMatcher_(pset.getParameter<double>("pPhiMin1"),
                        pset.getParameter<double>("pPhiMax1"),
                        phiMin2B_,
@@ -187,7 +187,7 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, cons
                        pset.getParameter<double>("r2MaxF"),
                        pset.getParameter<double>("rMinI"),
                        pset.getParameter<double>("rMaxI"),
-                       pset.getParameter<bool>("searchInTIDTEC")) {
+                       useRecoVertex_) {
   if (!pset.getParameter<bool>("fromTrackerSeeds")) {
     throw cms::Exception("NotSupported")
         << "Setting the fromTrackerSeeds parameter in ElectronSeedGenerator to True is not supported anymore.\n";
@@ -212,8 +212,8 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
   }
 
   if (tochange) {
-    electronMatcher_.setES(magField_.product(), measurementTracker_, trackerGeometry_.product());
-    positronMatcher_.setES(magField_.product(), measurementTracker_, trackerGeometry_.product());
+    electronMatcher_.setES(magField_.product(), trackerGeometry_.product());
+    positronMatcher_.setES(magField_.product(), trackerGeometry_.product());
   }
 
   if (cacheIDNavSchool_ != setup.get<NavigationSchoolRecord>().cacheIdentifier()) {
@@ -234,11 +234,6 @@ void ElectronSeedGenerator::run(edm::Event &e,
   initialSeedCollectionVector_ = &seedsV;
 
   setup_ = &setup;
-
-  // Step A: set Event for the TrajectoryBuilder
-  auto const &data = e.get(measurementTrackerEventTag_);
-  electronMatcher_.setEvent(data);
-  positronMatcher_.setEvent(data);
 
   // get the beamspot from the Event:
   //e.getByType(beamSpot_);
@@ -312,19 +307,14 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
     positronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
 
     // try electron
-    auto elePixelSeeds =
-        electronMatcher_.compatibleSeeds(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
+    auto elePixelSeeds = electronMatcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
     seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, hoe1, hoe2, out, false);
     // try positron
-    auto posPixelSeeds =
-        positronMatcher_.compatibleSeeds(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
+    auto posPixelSeeds = positronMatcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
     seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, hoe1, hoe2, out, true);
 
   } else  // here we use the reco vertices
   {
-    electronMatcher_.setUseRecoVertex(true);  //Hit matchers need to know that the vertex is known
-    positronMatcher_.setUseRecoVertex(true);
-
     const std::vector<reco::Vertex> *vtxCollection = vertices_.product();
     std::vector<reco::Vertex>::const_iterator vtxIter;
     for (vtxIter = vtxCollection->begin(); vtxIter != vtxCollection->end(); vtxIter++) {
@@ -345,15 +335,11 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
       positronMatcher_.set1stLayerZRange(myZmin1, myZmax1);
 
       // try electron
-      auto elePixelSeeds =
-          electronMatcher_.compatibleSeeds(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
+      auto elePixelSeeds = electronMatcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
       seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, hoe1, hoe2, out, false);
       // try positron
-      auto posPixelSeeds =
-          positronMatcher_.compatibleSeeds(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
+      auto posPixelSeeds = positronMatcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
       seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, hoe1, hoe2, out, true);
     }
   }
-
-  return;
 }

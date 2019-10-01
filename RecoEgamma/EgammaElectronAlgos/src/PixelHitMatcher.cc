@@ -28,7 +28,7 @@ PixelHitMatcher::PixelHitMatcher(float phi1min,
                                  float r2maxF,
                                  float rMinI,
                                  float rMaxI,
-                                 bool searchInTIDTEC)
+                                 bool useRecoVertex)
     :  //zmin1 and zmax1 are dummy at this moment, set from beamspot later
       meas1stBLayer(phi1min, phi1max, 0., 0.),
       meas2ndBLayer(phi2minB, phi2maxB, z2minB, z2maxB),
@@ -36,19 +36,9 @@ PixelHitMatcher::PixelHitMatcher(float phi1min,
       meas2ndFLayer(phi2minF, phi2maxF, r2minF, r2maxF),
       prop1stLayer(nullptr),
       prop2ndLayer(nullptr),
-      theGeometricSearchTracker(nullptr),
-      theTrackerEvent(nullptr),
-      theTracker(nullptr),
-      vertex_(0.),
-      searchInTIDTEC_(searchInTIDTEC),
-      useRecoVertex_(false) {
+      useRecoVertex_(useRecoVertex) {
   meas1stFLayer.setRRangeI(rMinI, rMaxI);
   meas2ndFLayer.setRRangeI(rMinI, rMaxI);
-}
-
-PixelHitMatcher::~PixelHitMatcher() {
-  delete prop1stLayer;
-  delete prop2ndLayer;
 }
 
 void PixelHitMatcher::set1stLayer(float dummyphi1min, float dummyphi1max) {
@@ -66,47 +56,19 @@ void PixelHitMatcher::set2ndLayer(float dummyphi2minB, float dummyphi2maxB, floa
   meas2ndFLayer.setPhiRange(dummyphi2minF, dummyphi2maxF);
 }
 
-void PixelHitMatcher::setUseRecoVertex(bool val) { useRecoVertex_ = val; }
-
-void PixelHitMatcher::setEvent(const MeasurementTrackerEvent &trackerData) {
-  theTrackerEvent = &trackerData;
-  theLayerMeasurements = std::make_unique<LayerMeasurements>(*theTracker, *theTrackerEvent);
-}
-void PixelHitMatcher::setES(const MagneticField *magField,
-                            const MeasurementTracker *theMeasurementTracker,
-                            const TrackerGeometry *trackerGeometry) {
-  if (theMeasurementTracker) {
-    theTracker = theMeasurementTracker;
-    theGeometricSearchTracker = theMeasurementTracker->geometricSearchTracker();
-  }
-
+void PixelHitMatcher::setES(const MagneticField *magField, const TrackerGeometry *trackerGeometry) {
   theMagField = magField;
   theTrackerGeometry = trackerGeometry;
   float mass = .000511;  // electron propagation
-  if (prop1stLayer)
-    delete prop1stLayer;
-  prop1stLayer = new PropagatorWithMaterial(oppositeToMomentum, mass, theMagField);
-  if (prop2ndLayer)
-    delete prop2ndLayer;
-  prop2ndLayer = new PropagatorWithMaterial(alongMomentum, mass, theMagField);
+  prop1stLayer = std::make_unique<PropagatorWithMaterial>(oppositeToMomentum, mass, theMagField);
+  prop2ndLayer = std::make_unique<PropagatorWithMaterial>(alongMomentum, mass, theMagField);
 }
 
-vector<CLHEP::Hep3Vector> PixelHitMatcher::predicted1Hits() { return pred1Meas; }
-
-vector<CLHEP::Hep3Vector> PixelHitMatcher::predicted2Hits() { return pred2Meas; }
-
-float PixelHitMatcher::getVertex() { return vertex_; }
-
-std::vector<SeedWithInfo> PixelHitMatcher::compatibleSeeds(const std::vector<const TrajectorySeedCollection *> &seedsV,
-                                                           const GlobalPoint &xmeas,
-                                                           const GlobalPoint &vprim,
-                                                           float energy,
-                                                           float fcharge) {
-  typedef std::unordered_map<const GeomDet *, TrajectoryStateOnSurface> DetTsosAssoc;
-  typedef std::unordered_map<std::pair<const GeomDet *, GlobalPoint>, TrajectoryStateOnSurface> PosTsosAssoc;
-  const int charge = int(fcharge);
-
-  // auto xmeas_phi = xmeas.barePhi();
+std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const TrajectorySeedCollection *> &seedsV,
+                                                      const GlobalPoint &xmeas,
+                                                      const GlobalPoint &vprim,
+                                                      float energy,
+                                                      int charge) const {
   auto xmeas_r = xmeas.perp();
 
   const float phicut = std::cos(2.5);
@@ -120,11 +82,8 @@ std::vector<SeedWithInfo> PixelHitMatcher::compatibleSeeds(const std::vector<con
   for (auto const sc : seedsV)
     allSeedsSize += sc->size();
 
-  mapTsos2_fast_.clear();
-  mapTsos2_fast_.reserve(allSeedsSize);
-
-  // std::vector<TrajectoryStateOnSurface> vTsos(theTrackerGeometry->dets().size());
-  // TrajectoryStateOnSurface vTsos[theTrackerGeometry->dets().size()];
+  std::unordered_map<std::pair<const GeomDet *, GlobalPoint>, TrajectoryStateOnSurface> mapTsos2Fast;
+  mapTsos2Fast.reserve(allSeedsSize);
 
   auto ndets = theTrackerGeometry->dets().size();
 
@@ -136,7 +95,7 @@ std::vector<SeedWithInfo> PixelHitMatcher::compatibleSeeds(const std::vector<con
 
   for (const auto seeds : seedsV) {
     for (const auto &seed : *seeds) {
-      hit_gp_map_.clear();
+      std::vector<GlobalPoint> hitGpMap;
       if (seed.nHits() > 9) {
         edm::LogWarning("GsfElectronAlgo|UnexpectedSeed") << "We cannot deal with seeds having more than 9 hits.";
         continue;
@@ -146,7 +105,7 @@ std::vector<SeedWithInfo> PixelHitMatcher::compatibleSeeds(const std::vector<con
       // cache the global points
 
       for (auto it = hits.first; it != hits.second; ++it) {
-        hit_gp_map_.emplace_back(it->globalPosition());
+        hitGpMap.emplace_back(it->globalPosition());
       }
 
       //iterate on the hits
@@ -165,7 +124,7 @@ std::vector<SeedWithInfo> PixelHitMatcher::compatibleSeeds(const std::vector<con
             if (away) continue;
         */
 
-        const GlobalPoint &hit1Pos = hit_gp_map_[idx1];
+        const GlobalPoint &hit1Pos = hitGpMap[idx1];
         auto dt = hit1Pos.x() * xmeas.x() + hit1Pos.y() * xmeas.y();
         if (dt < 0)
           continue;
@@ -217,16 +176,16 @@ std::vector<SeedWithInfo> PixelHitMatcher::compatibleSeeds(const std::vector<con
           const GeomDet *geomdet2 = it2->det();
           const std::pair<const GeomDet *, GlobalPoint> det_key(geomdet2, hit1Pos);
           const TrajectoryStateOnSurface *tsos2;
-          auto tsos2_itr = mapTsos2_fast_.find(det_key);
-          if (tsos2_itr != mapTsos2_fast_.end()) {
+          auto tsos2_itr = mapTsos2Fast.find(det_key);
+          if (tsos2_itr != mapTsos2Fast.end()) {
             tsos2 = &(tsos2_itr->second);
           } else {
-            auto empl_result = mapTsos2_fast_.emplace(det_key, prop2ndLayer->propagate(fts2, geomdet2->surface()));
+            auto empl_result = mapTsos2Fast.emplace(det_key, prop2ndLayer->propagate(fts2, geomdet2->surface()));
             tsos2 = &(empl_result.first->second);
           }
           if (!tsos2->isValid())
             continue;
-          const GlobalPoint &hit2Pos = hit_gp_map_[idx2];
+          const GlobalPoint &hit2Pos = hitGpMap[idx2];
           std::pair<bool, double> est2 = (id2.subdetId() % 2 ? meas2ndBLayer.estimate(vertex, *tsos2, hit2Pos)
                                                              : meas2ndFLayer.estimate(vertex, *tsos2, hit2Pos));
           if (est2.first) {
@@ -235,229 +194,12 @@ std::vector<SeedWithInfo> PixelHitMatcher::compatibleSeeds(const std::vector<con
             const float dRz2 = (subDet2 % 2 == 1) ? pp2.dZ() : pp2.dPerp();
             const float dPhi2 = pp2.dPhi();
             const unsigned char hitsMask = (1 << idx1) | (1 << idx2);
-            result.push_back(SeedWithInfo(seed, hitsMask, subDet2, dRz2, dPhi2, subDet1, dRz1, dPhi1));
+            result.push_back({seed, hitsMask, subDet2, dRz2, dPhi2, subDet1, dRz1, dPhi1});
           }
         }  // inner loop on hits
       }    // outer loop on hits
     }      // loop on seeds
   }        //loop on vector of seeds
-  mapTsos2_fast_.clear();
 
-  return result;
-}
-
-//========================= OBSOLETE ? =========================
-
-vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatcher::compatibleHits(
-    const GlobalPoint &xmeas,
-    const GlobalPoint &vprim,
-    float energy,
-    float fcharge,
-    const TrackerTopology *tTopo,
-    const NavigationSchool &navigationSchool) {
-  float SCl_phi = xmeas.phi();
-
-  int charge = int(fcharge);
-  // return all compatible RecHit pairs (vector< TSiPixelRecHit>)
-  vector<pair<RecHitWithDist, ConstRecHitPointer> > result;
-  LogDebug("") << "[PixelHitMatcher::compatibleHits] entering .. ";
-
-  vector<TrajectoryMeasurement> validMeasurements;
-  vector<TrajectoryMeasurement> invalidMeasurements;
-
-  typedef vector<TrajectoryMeasurement>::const_iterator aMeas;
-
-  pred1Meas.clear();
-  pred2Meas.clear();
-
-  auto firstLayer = theGeometricSearchTracker->pixelBarrelLayers().begin();
-
-  FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField, xmeas, vprim, energy, charge);
-
-  PerpendicularBoundPlaneBuilder bpb;
-  TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
-
-  if (tsos.isValid()) {
-    auto pixelMeasurements = theLayerMeasurements->measurements(**firstLayer, tsos, *prop1stLayer, meas1stBLayer);
-
-    LogDebug("") << "[PixelHitMatcher::compatibleHits] nbr of hits compatible with extrapolation to first layer: "
-                 << pixelMeasurements.size();
-    for (aMeas m = pixelMeasurements.begin(); m != pixelMeasurements.end(); m++) {
-      if (m->recHit()->isValid()) {
-        float localDphi = normalizedPhi(SCl_phi - m->forwardPredictedState().globalPosition().barePhi());
-        if (std::abs(localDphi) > 2.5)
-          continue;
-        CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
-                                     m->forwardPredictedState().globalPosition().y(),
-                                     m->forwardPredictedState().globalPosition().z());
-        LogDebug("") << "[PixelHitMatcher::compatibleHits] compatible hit position " << m->recHit()->globalPosition();
-        LogDebug("") << "[PixelHitMatcher::compatibleHits] predicted position "
-                     << m->forwardPredictedState().globalPosition();
-        pred1Meas.push_back(prediction);
-
-        validMeasurements.push_back(*m);
-
-        LogDebug("") << "[PixelHitMatcher::compatibleHits] Found a rechit in layer ";
-        const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
-        if (bdetl) {
-          LogDebug("") << " with radius " << bdetl->specificSurface().radius();
-        } else
-          LogDebug("") << "Could not downcast!!";
-      }
-    }
-
-    // check if there are compatible 1st hits in the second layer
-    firstLayer++;
-
-    auto pixel2Measurements = theLayerMeasurements->measurements(**firstLayer, tsos, *prop1stLayer, meas1stBLayer);
-
-    for (aMeas m = pixel2Measurements.begin(); m != pixel2Measurements.end(); m++) {
-      if (m->recHit()->isValid()) {
-        float localDphi = normalizedPhi(SCl_phi - m->forwardPredictedState().globalPosition().barePhi());
-        if (std::abs(localDphi) > 2.5)
-          continue;
-        CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
-                                     m->forwardPredictedState().globalPosition().y(),
-                                     m->forwardPredictedState().globalPosition().z());
-        pred1Meas.push_back(prediction);
-        LogDebug("") << "[PixelHitMatcher::compatibleHits] compatible hit position " << m->recHit()->globalPosition()
-                     << endl;
-        LogDebug("") << "[PixelHitMatcher::compatibleHits] predicted position "
-                     << m->forwardPredictedState().globalPosition() << endl;
-
-        validMeasurements.push_back(*m);
-        LogDebug("") << "[PixelHitMatcher::compatibleHits] Found a rechit in layer ";
-        const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
-        if (bdetl) {
-          LogDebug("") << " with radius " << bdetl->specificSurface().radius();
-        } else
-          LogDebug("") << "Could not downcast!!";
-      }
-    }
-  }
-
-  // check if there are compatible 1st hits the forward disks
-
-  TrajectoryStateOnSurface tsosfwd(fts, *bpb(fts.position(), fts.momentum()));
-  if (tsosfwd.isValid()) {
-    for (int i = 0; i < 2; i++) {
-      auto flayer = i == 0 ? theGeometricSearchTracker->posPixelForwardLayers().begin()
-                           : theGeometricSearchTracker->negPixelForwardLayers().begin();
-
-      if (i == 0 && xmeas.z() < -100.)
-        continue;
-      if (i == 1 && xmeas.z() > 100.)
-        continue;
-
-      auto pixelMeasurements = theLayerMeasurements->measurements(**flayer, tsosfwd, *prop1stLayer, meas1stFLayer);
-
-      for (aMeas m = pixelMeasurements.begin(); m != pixelMeasurements.end(); m++) {
-        if (m->recHit()->isValid()) {
-          float localDphi = normalizedPhi(SCl_phi - m->forwardPredictedState().globalPosition().barePhi());
-          if (std::abs(localDphi) > 2.5)
-            continue;
-          CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
-                                       m->forwardPredictedState().globalPosition().y(),
-                                       m->forwardPredictedState().globalPosition().z());
-          pred1Meas.push_back(prediction);
-
-          validMeasurements.push_back(*m);
-        }
-      }
-
-      //check if there are compatible 1st hits the outer forward disks
-      if (searchInTIDTEC_) {
-        flayer++;
-
-        auto pixel2Measurements = theLayerMeasurements->measurements(**flayer, tsosfwd, *prop1stLayer, meas1stFLayer);
-
-        for (aMeas m = pixel2Measurements.begin(); m != pixel2Measurements.end(); m++) {
-          if (m->recHit()->isValid()) {
-            float localDphi = normalizedPhi(SCl_phi - m->forwardPredictedState().globalPosition().barePhi());
-            if (std::abs(localDphi) > 2.5)
-              continue;
-            CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
-                                         m->forwardPredictedState().globalPosition().y(),
-                                         m->forwardPredictedState().globalPosition().z());
-            pred1Meas.push_back(prediction);
-
-            validMeasurements.push_back(*m);
-          }
-          //	else{std::cout<<" hit non valid "<<std::endl; }
-        }  //end 1st hit in outer f disk
-      }
-    }
-  }
-
-  // now we have the vector of all valid measurements of the first point
-  for (unsigned i = 0; i < validMeasurements.size(); i++) {
-    const DetLayer *newLayer =
-        theGeometricSearchTracker->detLayer(validMeasurements[i].recHit()->det()->geographicalId());
-
-    double zVertex;
-    if (!useRecoVertex_) {
-      // we don't know the z vertex position, get it from linear extrapolation
-      // compute the z vertex from the cluster point and the found pixel hit
-      double pxHit1z =
-          validMeasurements[i].recHit()->det()->surface().toGlobal(validMeasurements[i].recHit()->localPosition()).z();
-      double pxHit1x =
-          validMeasurements[i].recHit()->det()->surface().toGlobal(validMeasurements[i].recHit()->localPosition()).x();
-      double pxHit1y =
-          validMeasurements[i].recHit()->det()->surface().toGlobal(validMeasurements[i].recHit()->localPosition()).y();
-      double r1diff = (pxHit1x - vprim.x()) * (pxHit1x - vprim.x()) + (pxHit1y - vprim.y()) * (pxHit1y - vprim.y());
-      r1diff = sqrt(r1diff);
-      double r2diff = (xmeas.x() - pxHit1x) * (xmeas.x() - pxHit1x) + (xmeas.y() - pxHit1y) * (xmeas.y() - pxHit1y);
-      r2diff = sqrt(r2diff);
-      zVertex = pxHit1z - r1diff * (xmeas.z() - pxHit1z) / r2diff;
-    } else {
-      // here we use the reco vertex z position
-      zVertex = vprim.z();
-    }
-
-    if (i == 0) {
-      vertex_ = zVertex;
-    }
-
-    GlobalPoint vertexPred(vprim.x(), vprim.y(), zVertex);
-    GlobalPoint hitPos(
-        validMeasurements[i].recHit()->det()->surface().toGlobal(validMeasurements[i].recHit()->localPosition()));
-
-    FreeTrajectoryState secondFTS = FTSFromVertexToPointFactory::get(*theMagField, hitPos, vertexPred, energy, charge);
-
-    PixelMatchNextLayers secondHit(theLayerMeasurements.get(),
-                                   newLayer,
-                                   secondFTS,
-                                   prop2ndLayer,
-                                   &meas2ndBLayer,
-                                   &meas2ndFLayer,
-                                   tTopo,
-                                   navigationSchool,
-                                   searchInTIDTEC_);
-    vector<CLHEP::Hep3Vector> predictions = secondHit.predictionInNextLayers();
-
-    for (unsigned it = 0; it < predictions.size(); it++)
-      pred2Meas.push_back(predictions[it]);
-
-    // we may get more than one valid second measurements here even for single electrons:
-    // two hits from the same layer/disk (detector overlap) or from the loop over the
-    // next layers in EPMatchLoopNextLayers. Take only the 1st hit.
-
-    if (!secondHit.measurementsInNextLayers().empty()) {
-      for (unsigned int shit = 0; shit < secondHit.measurementsInNextLayers().size(); shit++) {
-        float dphi = normalizedPhi(pred1Meas[i].phi() - validMeasurements[i].recHit()->globalPosition().barePhi());
-        if (std::abs(dphi) < 2.5) {
-          ConstRecHitPointer pxrh = validMeasurements[i].recHit();
-          RecHitWithDist rh(pxrh, dphi);
-
-          //  pxrh = secondHit.measurementsInNextLayers()[0].recHit();
-          pxrh = secondHit.measurementsInNextLayers()[shit].recHit();
-
-          pair<RecHitWithDist, ConstRecHitPointer> compatiblePair = pair<RecHitWithDist, ConstRecHitPointer>(rh, pxrh);
-          result.push_back(compatiblePair);
-          break;
-        }
-      }
-    }
-  }
   return result;
 }
