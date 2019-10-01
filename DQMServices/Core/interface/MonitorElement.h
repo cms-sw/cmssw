@@ -37,6 +37,9 @@
 
 class QCriterion;
 class DQMService;
+namespace dqm::dqmstoreimpl {
+  class DQMStore;
+}
 
 // tag for a special constructor, see below
 struct MonitorElementNoCloneTag {};
@@ -66,14 +69,14 @@ namespace dqm::impl {
 
   /** The base class for all MonitorElements (ME) */
   class MonitorElement {
-    friend class DQMStore;
+    friend dqm::dqmstoreimpl::DQMStore;
     friend DQMService;
 
   public:
     using Scalar = MonitorElementData::Scalar;
     using Kind = MonitorElementData::Kind;
 
-  private:
+  protected:
     DQMNet::CoreObject data_;  //< Core object information.
     // TODO: we only use the ::Value part so far.
     // Still using the full thing to remain compatible with the new ME implementation.
@@ -399,7 +402,7 @@ namespace dqm::impl {
     void packScalarData(std::string &into, const char *prefix) const;
     void packQualityData(std::string &into) const;
 
-  private:
+  protected:
     void incompatible(const char *func) const;
     TH1 const *accessRootObject(Access const &access, const char *func, int reqdim) const;
     TH1 *accessRootObject(AccessMut const &, const char *func, int reqdim) const;
@@ -433,7 +436,7 @@ namespace dqm::impl {
     TAxis *getAxis(AccessMut const &access, const char *func, int axis) const;
 
     // ------------ Operations for MEs that are normally never reset ---------
-  private:
+  protected:
     void disableSoftReset();
     void addProfiles(TProfile *h1, TProfile *h2, TProfile *sum, float c1, float c2);
     void addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, float c1, float c2);
@@ -455,14 +458,65 @@ namespace dqm::impl {
 }  // namespace dqm::impl
 
 // These will become distinct classes in the future.
-namespace dqm::legacy {
-  typedef dqm::impl::MonitorElement MonitorElement;
-}
 namespace dqm::reco {
   typedef dqm::impl::MonitorElement MonitorElement;
 }
+namespace dqm::legacy {
+  class MonitorElement : public dqm::reco::MonitorElement {
+  public:
+    // import constructors
+    using dqm::reco::MonitorElement::MonitorElement;
+
+    using dqm::reco::MonitorElement::getRootObject;
+    TObject *getRootObject() const override {
+      return const_cast<TObject *>(
+          const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getRootObject());
+    };
+    using dqm::reco::MonitorElement::getTH1;
+    virtual TH1 *getTH1() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH1();
+    };
+    using dqm::reco::MonitorElement::getTH1F;
+    virtual TH1F *getTH1F() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH1F();
+    };
+    using dqm::reco::MonitorElement::getTH1S;
+    virtual TH1S *getTH1S() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH1S();
+    };
+    using dqm::reco::MonitorElement::getTH1D;
+    virtual TH1D *getTH1D() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH1D();
+    };
+    using dqm::reco::MonitorElement::getTH2F;
+    virtual TH2F *getTH2F() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH2F();
+    };
+    using dqm::reco::MonitorElement::getTH2S;
+    virtual TH2S *getTH2S() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH2S();
+    };
+    using dqm::reco::MonitorElement::getTH2D;
+    virtual TH2D *getTH2D() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH2D();
+    };
+    using dqm::reco::MonitorElement::getTH3F;
+    virtual TH3F *getTH3F() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH3F();
+    };
+    using dqm::reco::MonitorElement::getTProfile;
+    virtual TProfile *getTProfile() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTProfile();
+    };
+    using dqm::reco::MonitorElement::getTProfile2D;
+    virtual TProfile2D *getTProfile2D() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTProfile2D();
+    };
+    void runQTests();
+  };
+}
 namespace dqm::harvesting {
-  typedef dqm::impl::MonitorElement MonitorElement;
+  typedef dqm::legacy::MonitorElement MonitorElement;
 }
 
 #endif  // DQMSERVICES_CORE_MONITOR_ELEMENT_H

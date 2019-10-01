@@ -66,9 +66,10 @@ class DQMRootSource;
 class DQMFileSaver;
 class MEtoEDMConverter;
 
-namespace dqm::impl {
-
-  class MonitorElement;
+namespace dqm::dqmstoreimpl {
+  // dqmstoreimpl is a different namespace from dqm::impl, so we can globally 
+  // change the ME subtype here
+  typedef dqm::legacy::MonitorElement MonitorElement;
 
   /** Implements RegEx patterns which occur often in a high-performant
     mattern. For all other expressions, the full RegEx engine is used.
@@ -95,6 +96,9 @@ namespace dqm::impl {
 
   class DQMStore {
   public:
+    // legacy exposes the biggest API and implicitly converts to reco and 
+    // harvesting, with reduced APIs.
+
     enum SaveReferenceTag { SaveWithoutReference, SaveWithReference, SaveWithReferenceForQTest };
     enum OpenRunDirs { KeepRunDirs, StripRunDirs };
 
@@ -843,13 +847,13 @@ namespace dqm::impl {
 
 // These will become distinct classes in the future.
 namespace dqm::legacy {
-  typedef dqm::impl::DQMStore DQMStore;
+  typedef dqm::dqmstoreimpl::DQMStore DQMStore;
 }
 namespace dqm::reco {
-  typedef dqm::impl::DQMStore DQMStore;
+  typedef dqm::dqmstoreimpl::DQMStore DQMStore;
 }
 namespace dqm::harvesting {
-  typedef dqm::impl::DQMStore DQMStore;
+  typedef dqm::dqmstoreimpl::DQMStore DQMStore;
 }
 
 #endif  // DQMServices_Core_DQMStore_h
