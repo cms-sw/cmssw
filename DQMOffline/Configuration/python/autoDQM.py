@@ -38,7 +38,7 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                      'PostDQMOffline',
                      'DQMHarvestHcal'],
 
-            'hcal2': ['HcalDQMOfflineSequence',
+            'hcal2': ['DQMOfflineHcal2',
                       'PostDQMOffline',
                       'HcalDQMOfflinePostProcessor'],
 
@@ -58,13 +58,13 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                       'PostDQMOffline',
                       'DQMHarvestCTPPS'],
             
-            'btag': ['DQMOfflineBTag',
+            'btag': ['DQMOfflineBTAG',
                      'PostDQMOffline',
                      'DQMHarvestBTag'],
 
-            'L1TMon': ['DQMOfflineL1TMonitoring',
+            'L1TMon': ['DQMOfflineL1T',
                        'PostDQMOffline',
-                       'DQMHarvestL1TMonitoring'],
+                       'DQMHarvestL1T'],
 
             'L1TEgamma': ['DQMOfflineL1TEgamma',
                           'PostDQMOffline',
