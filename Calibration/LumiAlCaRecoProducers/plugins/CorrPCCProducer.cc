@@ -383,7 +383,7 @@ void CorrPCCProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, co
 
 //--------------------------------------------------------------------------------------------------
 void CorrPCCProducer::dqmEndRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) {
-  // TODO: why was this code not put here in the first place?  
+  // TODO: why was this code not put here in the first place?
   dqmEndRunProduce(runSeg, iSetup);
 }
 

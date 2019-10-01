@@ -169,7 +169,7 @@ void MuonTrackAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
   }
 }
 
-void MuonTrackAnalyzer::endRun(DQMStore::IBooker &ibooker) {
+void MuonTrackAnalyzer::dqmEndRun(DQMStore::IBooker &ibooker) {
   LogInfo("MuonTrackAnalyzer") << "Number of Sim tracks: " << numberOfSimTracks;
 
   LogInfo("MuonTrackAnalyzer") << "Number of Reco tracks: " << numberOfRecTracks;

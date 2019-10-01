@@ -211,7 +211,8 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps) : DQTask(ps)
   }
 }
 
-/* virtual */ void DigiComparisonTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void DigiComparisonTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                             edm::EventSetup const& es) {
   //	in the end always
   DQTask::dqmEndLuminosityBlock(lb, es);
 }
