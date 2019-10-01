@@ -279,9 +279,9 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
       m_tables.emplace_back(keep.first, keep.second);
     else if (keep.first->className() == "edm::TriggerResults") {
       m_triggers.emplace_back(keep.first, keep.second);
-	  }
-    else if (keep.first->className() == "std::basic_string<char,std::char_traits<char> >" && keep.first->productInstanceName()=="genModel") { // friendlyClassName == "String"
-      m_evstrings.emplace_back(keep.first, keep.second, true); // update only at lumiBlock transitions
+    } else if (keep.first->className() == "std::basic_string<char,std::char_traits<char> >" &&
+               keep.first->productInstanceName() == "genModel") {  // friendlyClassName == "String"
+      m_evstrings.emplace_back(keep.first, keep.second, true);     // update only at lumiBlock transitions
     } else
       throw cms::Exception("Configuration", "NanoAODOutputModule cannot handle class " + keep.first->className());
   }
@@ -362,7 +362,7 @@ void NanoAODOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descr
   const std::vector<std::string> keep = {"drop *",
                                          "keep nanoaodFlatTable_*Table_*_*",
                                          "keep edmTriggerResults_*_*_*",
-					 "keep String_*_genModel_*",
+                                         "keep String_*_genModel_*",
                                          "keep nanoaodMergeableCounterTable_*Table_*_*",
                                          "keep nanoaodUniqueString_nanoMetadata_*_*"};
   edm::OutputModule::fillDescription(desc, keep);
