@@ -13,6 +13,9 @@
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 class VectorHitBuilderEDProducer : public edm::stream::EDProducer<> {
 public:
   explicit VectorHitBuilderEDProducer(const edm::ParameterSet&);
@@ -24,15 +27,16 @@ public:
            edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej,
            VectorHitCollectionNew& outputAcc,
            VectorHitCollectionNew& outputRej);
-  VectorHitBuilderAlgorithmBase* algo() const { return stubsBuilder; };
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  VectorHitBuilderAlgorithmBase* algo() const { return stubsBuilder_; };
 
 private:
-  VectorHitBuilderAlgorithmBase* stubsBuilder;
-  std::string offlinestubsTag;
-  unsigned int maxOfflinestubs;
-  std::string algoTag;
-  edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D> > clusterProducer;
-  bool readytobuild;
+  VectorHitBuilderAlgorithmBase* stubsBuilder_;
+  std::string offlinestubsTag_;
+  unsigned int maxOfflinestubs_;
+  std::string algoTag_;
+  edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D> > clusterProducer_;
+  bool readytobuild_;
 };
 
 #endif
