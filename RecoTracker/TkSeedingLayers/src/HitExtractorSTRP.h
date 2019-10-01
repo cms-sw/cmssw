@@ -46,9 +46,9 @@ namespace ctfseeding {
       theStereoHits = iC.consumes<SiStripRecHit2DCollection>(m);
     }
 
-    void useVectorHits(const edm::InputTag & m, edm::ConsumesCollector& iC) { 
-      hasVectorHits = true; 
-      theVectorHits = iC.consumes<VectorHitCollectionNew>(m); 
+    void useVectorHits(const edm::InputTag& m, edm::ConsumesCollector& iC) {
+      hasVectorHits = true;
+      theVectorHits = iC.consumes<VectorHitCollectionNew>(m);
     }
     void useRingSelector(int minRing, int maxRing);
     void useSimpleRphiHitsCleaner(bool use) { hasSimpleRphiHitsCleaner = use; }
@@ -78,7 +78,7 @@ namespace ctfseeding {
     bool ringRange(int ring) const;
 
     typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > SkipClustersCollection;
-    typedef edm::ContainerMask< Phase2TrackerCluster1DCollectionNew > SkipPhase2ClustersCollection;
+    typedef edm::ContainerMask<Phase2TrackerCluster1DCollectionNew> SkipPhase2ClustersCollection;
     void useSkipClusters_(const edm::InputTag& m, edm::ConsumesCollector& iC) override;
 
   private:

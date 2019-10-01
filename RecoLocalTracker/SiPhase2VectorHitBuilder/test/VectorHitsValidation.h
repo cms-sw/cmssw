@@ -48,97 +48,99 @@
 #include <TArrow.h>
 
 struct VHHistos {
-    THStack* numberVHsMixed;
-    TH1F* numberVHsPS;
-    TH1F* numberVHs2S;
+  THStack* numberVHsMixed;
+  TH1F* numberVHsPS;
+  TH1F* numberVHs2S;
 
-    TGraph* globalPosXY[3];
-    TGraph* localPosXY[3];
+  TGraph* globalPosXY[3];
+  TGraph* localPosXY[3];
 
-    TH1F* deltaXVHSimHits[3];
-    TH1F* deltaYVHSimHits[3];
+  TH1F* deltaXVHSimHits[3];
+  TH1F* deltaYVHSimHits[3];
 
-    TH1F* deltaXVHSimHits_P[3];
-    TH1F* deltaYVHSimHits_P[3];
+  TH1F* deltaXVHSimHits_P[3];
+  TH1F* deltaYVHSimHits_P[3];
 
-    TH1F* digiEfficiency[3];
+  TH1F* digiEfficiency[3];
 
-    TH1F* totalSimHits;
-    TH1F* primarySimHits;
-    TH1F* otherSimHits;
+  TH1F* totalSimHits;
+  TH1F* primarySimHits;
+  TH1F* otherSimHits;
 
-    TH1F* curvature;
-    TH1F* width;
-    TH1F* deltaXlocal;
+  TH1F* curvature;
+  TH1F* width;
+  TH1F* deltaXlocal;
 };
 
 class VectorHitsBuilderValidation : public edm::EDAnalyzer {
+public:
+  typedef edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> Phase2TrackerCluster1DRef;
 
-    public:
-        typedef edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D > Phase2TrackerCluster1DRef;
+  typedef std::map<unsigned int, std::vector<PSimHit> > SimHitsMap;
+  typedef std::map<unsigned int, SimTrack> SimTracksMap;
 
-        typedef std::map< unsigned int, std::vector< PSimHit > > SimHitsMap;
-        typedef std::map< unsigned int, SimTrack > SimTracksMap;
+  explicit VectorHitsBuilderValidation(const edm::ParameterSet&);
+  ~VectorHitsBuilderValidation();
+  void beginJob();
+  void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup&);
 
-        explicit VectorHitsBuilderValidation(const edm::ParameterSet&);
-        ~VectorHitsBuilderValidation();
-        void beginJob();
-        void endJob();
-        void analyze(const edm::Event&, const edm::EventSetup&);
+private:
+  std::map<unsigned int, VHHistos>::iterator createLayerHistograms(unsigned int);
+  void CreateVHsXYGraph(const std::vector<Global3DPoint>, const std::vector<Global3DVector>);
+  void CreateVHsRZGraph(const std::vector<Global3DPoint>, const std::vector<Global3DVector>);
+  void CreateWindowCorrGraph();
 
-    private:
+  unsigned int getLayerNumber(const DetId&);
+  unsigned int getModuleNumber(const DetId& detid);
+  void printCluster(const GeomDetUnit* geomDetUnit, const OmniClusterRef cluster);
 
-        std::map< unsigned int, VHHistos >::iterator createLayerHistograms(unsigned int);
-        void CreateVHsXYGraph( const std::vector<Global3DPoint>,const  std::vector<Global3DVector> );
-        void CreateVHsRZGraph( const std::vector<Global3DPoint>,const  std::vector<Global3DVector> );
-        void CreateWindowCorrGraph();
+  std::pair<bool, uint32_t> isTrue(const VectorHit vh,
+                                   const edm::Handle<edm::DetSetVector<PixelDigiSimLink> >& siphase2SimLinks,
+                                   DetId& detId) const;
+  std::vector<std::pair<uint32_t, EncodedEventId> > getSimTrackIds(
+      const edm::Handle<edm::DetSetVector<PixelDigiSimLink> >&, const DetId&, uint32_t) const;
+  unsigned int getSimTrackId(const edm::Handle<edm::DetSetVector<PixelDigiSimLink> >& pixelSimLinks,
+                             const DetId& detId,
+                             unsigned int channel) const;
 
-        unsigned int getLayerNumber(const DetId&);
-        unsigned int getModuleNumber(const DetId& detid);
-        void printCluster(const GeomDetUnit* geomDetUnit, const OmniClusterRef cluster);
+  edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D> > srcClu_;
+  edm::EDGetTokenT<VectorHitCollectionNew> VHacc_;
+  edm::EDGetTokenT<VectorHitCollectionNew> VHrej_;
+  edm::ESInputTag cpeTag_;
+  const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpe;
 
-        std::pair<bool,uint32_t> isTrue(const VectorHit vh, const edm::Handle< edm::DetSetVector< PixelDigiSimLink > >& siphase2SimLinks, DetId& detId) const;
-        std::vector< std::pair<uint32_t, EncodedEventId> > getSimTrackIds(const edm::Handle< edm::DetSetVector< PixelDigiSimLink > >&, const DetId&, uint32_t) const;
-        unsigned int getSimTrackId(const edm::Handle< edm::DetSetVector< PixelDigiSimLink > >& pixelSimLinks, const DetId& detId, unsigned int channel) const;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinksToken_;
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken_;
+  edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken_;
+  edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
+  //SiPixelVectorHitBuilderAlgorithmBase *algo;
 
-        edm::EDGetTokenT< edmNew::DetSetVector<Phase2TrackerCluster1D> > srcClu_;
-        edm::EDGetTokenT< VectorHitCollectionNew > VHacc_;
-        edm::EDGetTokenT< VectorHitCollectionNew > VHrej_;
-        edm::ESInputTag cpeTag_;
-        const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpe;
+  const TrackerGeometry* tkGeom;
+  const TrackerTopology* tkTopo;
+  const MagneticField* magField;
 
-        edm::EDGetTokenT< edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinksToken_;
-        edm::EDGetTokenT< edm::PSimHitContainer > simHitsToken_;
-        edm::EDGetTokenT< edm::SimTrackContainer> simTracksToken_;
-        edm::EDGetTokenT< edm::SimVertexContainer > simVerticesToken_;
-        edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
-        //SiPixelVectorHitBuilderAlgorithmBase *algo;
+  TTree* tree;
+  TGraph* trackerLayoutRZ_[3];
+  TGraph* trackerLayoutXY_[3];
+  TGraph* trackerLayoutXYBar_;
+  TGraph* trackerLayoutXYEC_;
+  TGraph* localPosXvsDeltaX_[3];
+  TGraph* localPosYvsDeltaY_[3];
+  TCanvas* VHXY_;
+  TCanvas* VHRZ_;
+  std::vector<TArrow*> arrowVHs;
 
-        const TrackerGeometry* tkGeom;
-        const TrackerTopology* tkTopo;
-        const MagneticField* magField;
+  TH2D* ParallaxCorrectionRZ_;
+  TH1F* VHaccLayer_;
+  TH1F* VHrejLayer_;
+  TH1F* VHaccTrueLayer_;
+  TH1F* VHrejTrueLayer_;
+  TH1F* VHaccTrue_signal_Layer_;
+  TH1F* VHrejTrue_signal_Layer_;
+  TH1F* VHaccTrueLayer_ratio;
+  TH1F* VHrejTrueLayer_ratio;
 
-        TTree* tree;
-        TGraph* trackerLayoutRZ_[3];
-        TGraph* trackerLayoutXY_[3];
-        TGraph* trackerLayoutXYBar_;
-        TGraph* trackerLayoutXYEC_;
-        TGraph* localPosXvsDeltaX_[3];
-        TGraph* localPosYvsDeltaY_[3];
-        TCanvas* VHXY_;
-        TCanvas* VHRZ_;
-        std::vector<TArrow*> arrowVHs;
-
-        TH2D* ParallaxCorrectionRZ_;
-        TH1F* VHaccLayer_;
-        TH1F* VHrejLayer_;
-        TH1F* VHaccTrueLayer_;
-        TH1F* VHrejTrueLayer_;
-        TH1F* VHaccTrue_signal_Layer_;
-        TH1F* VHrejTrue_signal_Layer_;
-        TH1F* VHaccTrueLayer_ratio;
-        TH1F* VHrejTrueLayer_ratio;
-
-        std::map< unsigned int, VHHistos > histograms_;
-
+  std::map<unsigned int, VHHistos> histograms_;
 };

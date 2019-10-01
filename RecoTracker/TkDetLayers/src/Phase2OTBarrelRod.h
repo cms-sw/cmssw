@@ -18,7 +18,8 @@ public:
   Phase2OTBarrelRod(std::vector<const GeomDet*>& innerDets,
                     std::vector<const GeomDet*>& outerDets,
                     const std::vector<const GeomDet*>& innerDetBrothers = std::vector<const GeomDet*>(),
-                    const std::vector<const GeomDet*>& outerDetBrothers = std::vector<const GeomDet*>()) __attribute__((cold));
+                    const std::vector<const GeomDet*>& outerDetBrothers = std::vector<const GeomDet*>())
+      __attribute__((cold));
   ~Phase2OTBarrelRod() override __attribute__((cold));
 
   // GeometricSearchDet interface

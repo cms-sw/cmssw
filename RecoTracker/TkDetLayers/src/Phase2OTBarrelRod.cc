@@ -61,8 +61,10 @@ Phase2OTBarrelRod::Phase2OTBarrelRod(vector<const GeomDet*>& innerDets,
                             << " , " << (**i).position().perp() << " , " << (**i).position().eta() << " , "
                             << (**i).position().phi();
   }
-  if(theInnerDetBrothers.empty() && theOuterDetBrothers.empty())   LogDebug("TkDetLayers") << "====       with stacks       =====" ; 
-  if(!theInnerDetBrothers.empty() && !theOuterDetBrothers.empty()) LogDebug("TkDetLayers") << "====     without stacks      =====" ; 
+  if (theInnerDetBrothers.empty() && theOuterDetBrothers.empty())
+    LogDebug("TkDetLayers") << "====       with stacks       =====";
+  if (!theInnerDetBrothers.empty() && !theOuterDetBrothers.empty())
+    LogDebug("TkDetLayers") << "====     without stacks      =====";
 
   for (vector<const GeomDet*>::const_iterator i = theOuterDets.begin(); i != theOuterDets.end(); i++) {
     LogDebug("TkDetLayers") << "outer Phase2OTBarrelRod's Det pos z,perp,eta,phi: " << (**i).position().z() << " , "
@@ -200,7 +202,8 @@ bool Phase2OTBarrelRod::addClosest(const TrajectoryStateOnSurface& tsos,
                                    vector<DetGroup>& brotherresult) const {
   const vector<const GeomDet*>& sRod(subRod(crossing.subLayerIndex()));
   bool firstgroup = CompatibleDetToGroupAdder::add(*sRod[crossing.closestDetIndex()], tsos, prop, est, result);
-  if(theInnerDetBrothers.empty() && theOuterDetBrothers.empty())   return firstgroup;
+  if (theInnerDetBrothers.empty() && theOuterDetBrothers.empty())
+    return firstgroup;
 
   // it assumes that the closestDetIndex is ok also for the brother detectors: the crossing is NOT recomputed
   const vector<const GeomDet*>& sRodBrothers(subRodBrothers(crossing.subLayerIndex()));
@@ -272,7 +275,8 @@ void Phase2OTBarrelRod::searchNeighbors(const TrajectoryStateOnSurface& tsos,
       break;
     if (!Adder::add(*sRod[idet], tsos, prop, est, result))
       break;
-    if(theInnerDetBrothers.empty() && theOuterDetBrothers.empty()) break;
+    if (theInnerDetBrothers.empty() && theOuterDetBrothers.empty())
+      break;
     // If the two above checks are passed also the brother module will be added with no further checks
     Adder::add(*sBrotherRod[idet], tsos, prop, est, brotherresult);
   }
@@ -281,7 +285,8 @@ void Phase2OTBarrelRod::searchNeighbors(const TrajectoryStateOnSurface& tsos,
       break;
     if (!Adder::add(*sRod[idet], tsos, prop, est, result))
       break;
-    if(theInnerDetBrothers.empty() && theOuterDetBrothers.empty()) break;
+    if (theInnerDetBrothers.empty() && theOuterDetBrothers.empty())
+      break;
     // If the two above checks are passed also the brother module will be added with no further checks
     Adder::add(*sBrotherRod[idet], tsos, prop, est, brotherresult);
   }
