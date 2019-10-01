@@ -64,7 +64,7 @@ bool MagGeometryExerciser::testFindVolume(const GlobalPoint& gp) {
   bool ok = (vol != 0);
 
   if (vol == 0) {
-    cout << "ERROR no volume found! " << gp << " " << gp.z() << " " << gp.perp()
+    cout << "Test ERROR: No volume found! Global point: " << gp << " , GP Z = " << gp.z() << ", GP perp = " << gp.perp()
          << " isBarrel: " << theGeometry->inBarrel(gp) << endl;
 
     // Try with a linear search

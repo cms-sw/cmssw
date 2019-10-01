@@ -37,7 +37,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Event.h"
-#include <boost/shared_ptr.hpp>
 
 namespace edm {
 
@@ -45,7 +44,7 @@ namespace edm {
   class FilterWrapper : public edm::global::EDFilter<> {
   public:
     /// default contructor
-    FilterWrapper(const edm::ParameterSet& cfg) { filter_ = boost::shared_ptr<T>(new T(cfg, consumesCollector())); }
+    FilterWrapper(const edm::ParameterSet& cfg) { filter_ = std::shared_ptr<T>(new T(cfg, consumesCollector())); }
     /// default destructor
     ~FilterWrapper() override {}
     /// everything which has to be done during the event loop. NOTE: We can't use the eventSetup in FWLite so ignore it
@@ -57,7 +56,7 @@ namespace edm {
 
   protected:
     /// shared pointer to analysis class of type BasicAnalyzer
-    boost::shared_ptr<T> filter_;
+    std::shared_ptr<T> filter_;
   };
 
 }  // namespace edm

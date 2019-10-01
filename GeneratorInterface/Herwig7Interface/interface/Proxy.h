@@ -1,7 +1,6 @@
 #ifndef GeneratorInterface_Herwig7Interface_Proxy_h
 #define GeneratorInterface_Herwig7Interface_Proxy_h
-
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace ThePEG {
 
@@ -28,8 +27,8 @@ namespace ThePEG {
 
     ProxyBase(ProxyID id);
 
-    static boost::shared_ptr<ProxyBase> create(ctor_t ctor);
-    static boost::shared_ptr<ProxyBase> find(ProxyID id);
+    static std::shared_ptr<ProxyBase> create(ctor_t ctor);
+    static std::shared_ptr<ProxyBase> find(ProxyID id);
 
     // not allowed and not implemented
     ProxyBase(const ProxyBase &orig) = delete;
@@ -43,10 +42,8 @@ namespace ThePEG {
   public:
     typedef Proxy Base;
 
-    static inline boost::shared_ptr<T> create() {
-      return boost::static_pointer_cast<T>(ProxyBase::create(&Proxy::ctor));
-    }
-    static inline boost::shared_ptr<T> find(ProxyID id) { return boost::dynamic_pointer_cast<T>(ProxyBase::find(id)); }
+    static inline std::shared_ptr<T> create() { return std::static_pointer_cast<T>(ProxyBase::create(&Proxy::ctor)); }
+    static inline std::shared_ptr<T> find(ProxyID id) { return std::dynamic_pointer_cast<T>(ProxyBase::find(id)); }
 
   protected:
     inline Proxy(ProxyID id) : ProxyBase(id) {}

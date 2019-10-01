@@ -29,7 +29,7 @@ public:
 void L1MenuViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   edm::ESHandle<L1TUtmTriggerMenu> handle1;
   evSetup.get<L1TUtmTriggerMenuRcd>().get(handle1);
-  boost::shared_ptr<L1TUtmTriggerMenu> ptr1(new L1TUtmTriggerMenu(*(handle1.product())));
+  std::shared_ptr<L1TUtmTriggerMenu> ptr1(new L1TUtmTriggerMenu(*(handle1.product())));
 
   cout << "L1TUtmTriggerMenu: " << endl;
   cout << " name: " << ptr1->getName() << endl;

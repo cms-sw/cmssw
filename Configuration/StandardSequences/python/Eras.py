@@ -49,6 +49,9 @@ class Eras (object):
                  'Phase2C9',
                  'Phase2C9_timing',
                  'Phase2C9_timing_layer_bar',
+                 'Phase2C10',
+                 'Phase2C10_timing',
+                 'Phase2C10_timing_layer_bar',
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
@@ -57,7 +60,7 @@ class Eras (object):
                            'peripheralPbPb', 'pA_2016',
                            'run2_HE_2017', 'stage2L1Trigger', 'stage2L1Trigger_2017',
                            'run2_HF_2017', 'run2_HCAL_2017', 'run2_HEPlan1_2017', 'run2_HB_2018','run2_HE_2018', 
-                           'run3_HB', 'run3_common',
+                           'run3_HB', 'run3_common', 'run3_RPC',
                            'phase1Pixel', 'run3_GEM', 'run2_GEM_2017',
                            'run2_CSC_2018',
                            'phase2_common', 'phase2_tracker',

@@ -21,11 +21,11 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
       tdcOnset_fC_{},
       toaLSB_ns_{},
       tdcResolutionInNs_{1e-9},  // set time resolution very small by default
+      targetMIPvalue_ADC_{},
       jitterNoise2_ns_{},
       jitterConstant2_ns_{},
       noise_fC_{},
-      toaMode_(WEIGHTEDBYE),
-      thresholdFollowsMIP_{ps.getParameter<bool>("thresholdFollowsMIP")} {
+      toaMode_(WEIGHTEDBYE) {
   edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] running with version " << fwVersion_ << std::endl;
   if (ps.exists("adcPulse")) {
     auto temp = ps.getParameter<std::vector<double> >("adcPulse");
@@ -57,6 +57,8 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
     edm::LogVerbatim("HGCFE") << "[HGCFEElectronics] " << tdcNbits << " bit TDC defined with LSB=" << tdcLSB_fC_
                               << " saturation to occur @ " << tdcSaturation_fC_ << std::endl;
   }
+  if (ps.exists("targetMIPvalue_ADC"))
+    targetMIPvalue_ADC_ = ps.getParameter<uint32_t>("targetMIPvalue_ADC");
   if (ps.exists("adcThreshold_fC"))
     adcThreshold_fC_ = ps.getParameter<double>("adcThreshold_fC");
   if (ps.exists("tdcOnset_fC"))
@@ -101,7 +103,8 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
 
 //
 template <class DFr>
-void HGCFEElectronics<DFr>::runTrivialShaper(DFr& dataFrame, HGCSimHitData& chargeColl, int thickness, float cce) {
+void HGCFEElectronics<DFr>::runTrivialShaper(
+    DFr& dataFrame, HGCSimHitData& chargeColl, uint32_t thrADC, float lsbADC, float maxADC) {
   bool debug(false);
 
 #ifdef EDM_ML_DEBUG
@@ -112,14 +115,15 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr& dataFrame, HGCSimHitData& char
   if (debug)
     edm::LogVerbatim("HGCFE") << "[runTrivialShaper]" << std::endl;
 
-  //set new ADCs
-  const float adj_thresh = thresholdFollowsMIP_ ? thickness * adcThreshold_fC_ * cce : thickness * adcThreshold_fC_;
-
+  if (lsbADC < 0)
+    lsbADC = adcLSB_fC_;
+  if (maxADC < 0)
+    maxADC = adcSaturation_fC_;
   for (int it = 0; it < (int)(chargeColl.size()); it++) {
     //brute force saturation, maybe could to better with an exponential like saturation
-    const uint32_t adc = std::floor(std::min(chargeColl[it], adcSaturation_fC_) / adcLSB_fC_);
+    const uint32_t adc = std::floor(std::min(chargeColl[it], maxADC) / lsbADC);
     HGCSample newSample;
-    newSample.set(chargeColl[it] > adj_thresh, false, 0, adc);
+    newSample.set(adc > thrADC, false, 0, adc);
     dataFrame.setSample(it, newSample);
 
     if (debug)
@@ -135,7 +139,8 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr& dataFrame, HGCSimHitData& char
 
 //
 template <class DFr>
-void HGCFEElectronics<DFr>::runSimpleShaper(DFr& dataFrame, HGCSimHitData& chargeColl, int thickness, float cce) {
+void HGCFEElectronics<DFr>::runSimpleShaper(
+    DFr& dataFrame, HGCSimHitData& chargeColl, uint32_t thrADC, float lsbADC, float maxADC) {
   //convolute with pulse shape to compute new ADCs
   newCharge.fill(0.f);
   bool debug(false);
@@ -167,19 +172,15 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr& dataFrame, HGCSimHitData& charg
       edm::LogVerbatim("HGCFE") << std::endl;
   }
 
-  //set new ADCs
-  const float adj_thresh = thresholdFollowsMIP_ ? thickness * adcThreshold_fC_ * cce : thickness * adcThreshold_fC_;
-
   for (int it = 0; it < (int)(newCharge.size()); it++) {
     //brute force saturation, maybe could to better with an exponential like saturation
-    const float saturatedCharge(std::min(newCharge[it], adcSaturation_fC_));
+    const uint32_t adc = std::floor(std::min(newCharge[it], maxADC) / lsbADC);
     HGCSample newSample;
-    newSample.set(newCharge[it] > adj_thresh, false, 0, std::floor(saturatedCharge / adcLSB_fC_));
+    newSample.set(adc > thrADC, false, 0, adc);
     dataFrame.setSample(it, newSample);
 
     if (debug)
-      edm::LogVerbatim("HGCFE") << std::floor(saturatedCharge / adcLSB_fC_) << " (" << saturatedCharge << "/"
-                                << adcLSB_fC_ << " ) ";
+      edm::LogVerbatim("HGCFE") << adc << " (" << std::min(newCharge[it], maxADC) << "/" << lsbADC << " ) ";
   }
 
   if (debug) {
@@ -194,9 +195,11 @@ template <class DFr>
 void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
                                              HGCSimHitData& chargeColl,
                                              HGCSimHitData& toaColl,
-                                             int thickness,
                                              CLHEP::HepRandomEngine* engine,
-                                             float cce) {
+                                             uint32_t thrADC,
+                                             float lsbADC,
+                                             float maxADC,
+                                             int thickness) {
   busyFlags.fill(false);
   totFlags.fill(false);
   toaFlags.fill(false);
@@ -401,7 +404,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
   for(int it=0; it<(int)(newCharge.size()); it++){
     if(toaFlags[it]){
       finalToA = toaFromToT[it];
-      //to avoid +=25 for small negative time taken as 0          
+      //to avoid +=25 for small negative time taken as 0
       while(finalToA < -1.e-5)  finalToA+=25.f;
       while(finalToA > 25.f) finalToA-=25.f;
       toaFromToT[it] = finalToA;
@@ -413,7 +416,10 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
   //set new ADCs and ToA
   if (debug)
     edm::LogVerbatim("HGCFE") << "\t final result : ";
-  const float adj_thresh = thresholdFollowsMIP_ ? thickness * adcThreshold_fC_ * cce : thickness * adcThreshold_fC_;
+  if (lsbADC < 0)
+    lsbADC = adcLSB_fC_;
+  if (maxADC < 0)
+    maxADC = adcSaturation_fC_;
   for (int it = 0; it < (int)(newCharge.size()); it++) {
     if (debug)
       edm::LogVerbatim("HGCFE") << chargeColl[it] << " -> " << newCharge[it] << " ";
@@ -433,12 +439,9 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
       }
     } else {
       //brute force saturation, maybe could to better with an exponential like saturation
-      const float saturatedCharge(std::min(newCharge[it], adcSaturation_fC_));
+      const uint16_t adc = std::floor(std::min(newCharge[it], maxADC) / lsbADC);
       //working version for in-time PU and signal
-      newSample.set(newCharge[it] > adj_thresh,
-                    false,
-                    (uint16_t)(timeToA / toaLSB_ns_),
-                    (uint16_t)(std::floor(saturatedCharge / adcLSB_fC_)));
+      newSample.set(adc > thrADC, false, (uint16_t)(timeToA / toaLSB_ns_), adc);
       if (toaFlags[it])
         newSample.setToAValid(true);
     }

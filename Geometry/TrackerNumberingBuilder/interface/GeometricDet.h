@@ -18,6 +18,10 @@
 
 class DDFilteredView;
 
+namespace cms {
+  class DDFilteredView;
+}
+
 /**
  * Composite class GeometricDet. A composite can contain other composites, and so on;
  * You can understand what you are looking at via enum.
@@ -84,6 +88,7 @@ public:
    * Constructors to be used when looping over DDD
    */
   GeometricDet(DDFilteredView* fv, GeometricEnumType dd);
+  GeometricDet(cms::DDFilteredView* fv, GeometricEnumType dd);
   GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType dd);
 
   /**

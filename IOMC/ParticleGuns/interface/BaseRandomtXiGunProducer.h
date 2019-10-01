@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/Run.h"
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 namespace edm {
 

@@ -61,9 +61,7 @@
 	<class name="HepMC::GenEvent::vertex_const_iterator"/>
 	<class name="std::vector&lt;HepMC::GenParticle*&gt;"/>
 	<!-- <class name="std::iterator&lt;std::forward_iterator_tag,HepMC::GenVertex*,int,HepMC::GenVertex**,HepMC::GenVertex*& &gt;"/> -->
-	<class pattern="std::iterator&lt;std::forward_iterator_tag,HepMC::GenVertex*&gt;"/>
 	<!-- <class name="std::iterator&lt;std::forward_iterator_tag,HepMC::GenParticle*,int,HepMC::GenParticle**,HepMC::GenParticle*& &gt;"/> -->
-	<class pattern="std::iterator&lt;std::forward_iterator_tag,HepMC::GenParticle*&gt;"/>
 	<!--
 		<class name="HepMC::GenVertex::edge_iterator">
 			<field name="m_set_iter" transient="true"/>
@@ -100,10 +98,10 @@
 
 	<!-- Classes shared between different kinds of products -->
 
-	<class name="gen::PdfInfo" ClassVersion="10">
+        <class name="gen::PdfInfo" ClassVersion="10">
   <version ClassVersion="10" checksum="876888052"/>
  </class>
-	<class name="std::auto_ptr&lt;gen::PdfInfo&gt;"/>
+        <class name="std::auto_ptr&lt;gen::PdfInfo&gt;"/>
 
 	<!-- GenRunInfoProduct -->
 
@@ -170,10 +168,14 @@
 
 	<!-- GenEventInfoProduct -->
 
- <class name="GenEventInfoProduct" ClassVersion="11">
+ <class name="GenEventInfoProduct" ClassVersion="12">
+  <version ClassVersion="12" checksum="4234939286"/>
   <version ClassVersion="11" checksum="4154339631"/>
   <version ClassVersion="10" checksum="2479857328"/>
  </class>
+ <ioread sourceClass = "GenEventInfoProduct" version="[11]" targetClass="GenEventInfoProduct" source = "std::auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
+   <![CDATA[pdf_.reset(onfile.pdf_.get()); onfile.pdf_.release();]]>
+ </ioread>
  <ioread sourceClass = "GenEventInfoProduct" version="[-10]" targetClass="GenEventInfoProduct" source = "" target="nMEPartons_">
     <![CDATA[nMEPartons_ = -1;]]>
  </ioread> 
@@ -206,12 +208,16 @@
 	<class name="LHERunInfoProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="2098560362"/>
  </class>
-	<class name="LHEEventProduct" ClassVersion="13">
+	<class name="LHEEventProduct" ClassVersion="14">
   <version ClassVersion="10" checksum="1026978494"/>
   <version ClassVersion="11" checksum="619154414"/>
   <version ClassVersion="12" checksum="259352862"/>
   <version ClassVersion="13" checksum="3927731647"/>
+  <version ClassVersion="14" checksum="905719452"/>
  </class>
+ <ioread sourceClass = "LHEEventProduct" version="[13]" targetClass="LHEEventProduct" source = "std::auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
+   <![CDATA[pdf_.reset(onfile.pdf_.get()); onfile.pdf_.release();]]>
+ </ioread> 
  <ioread sourceClass = "LHEEventProduct" version="[-12]" targetClass="LHEEventProduct" source = "" target="npLO_">
     <![CDATA[npLO_ = -99;]]>
   </ioread> 

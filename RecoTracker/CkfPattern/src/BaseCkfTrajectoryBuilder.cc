@@ -143,7 +143,7 @@ bool BaseCkfTrajectoryBuilder::qualityFilter(const TempTrajectory& traj, bool in
   }
 }
 
-void BaseCkfTrajectoryBuilder::addToResult(boost::shared_ptr<const TrajectorySeed> const& seed,
+void BaseCkfTrajectoryBuilder::addToResult(std::shared_ptr<const TrajectorySeed> const& seed,
                                            TempTrajectory& tmptraj,
                                            TrajectoryContainer& result,
                                            bool inOut) const {

@@ -10,7 +10,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "TMinuit.h"
 #include "Math/SMatrix.h"
-#include <boost/shared_ptr.hpp>
+
 #include <vector>
 #include <string>
 #include <memory>
@@ -23,7 +23,7 @@ namespace fit {
     RootMinuit(const Function &f, bool verbose = false) : initialized_(false), minValue_(0), verbose_(verbose) {
       f_ = f;
     }
-    void addParameter(const std::string &name, boost::shared_ptr<double> val, double err, double min, double max) {
+    void addParameter(const std::string &name, std::shared_ptr<double> val, double err, double min, double max) {
       if (initialized_)
         throw edm::Exception(edm::errors::Configuration)
             << "RootMinuit: can't add parameter " << name << " after minuit initialization\n";
@@ -185,8 +185,8 @@ namespace fit {
     bool initialized_;
     double minValue_;
     std::unique_ptr<TMinuit> minuit_;
-    std::vector<boost::shared_ptr<double> > pars_;
-    static std::vector<boost::shared_ptr<double> > *fPars_;
+    std::vector<std::shared_ptr<double> > pars_;
+    static std::vector<std::shared_ptr<double> > *fPars_;
     bool verbose_;
     static Function f_;
     static void fcn_(int &, double *, double &f, double *par, int) {
@@ -242,7 +242,7 @@ namespace fit {
   Function RootMinuit<Function>::f_;
 
   template <class Function>
-  std::vector<boost::shared_ptr<double> > *RootMinuit<Function>::fPars_ = 0;
+  std::vector<std::shared_ptr<double> > *RootMinuit<Function>::fPars_ = 0;
 }  // namespace fit
 
 #endif

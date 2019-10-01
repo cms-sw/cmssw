@@ -311,6 +311,7 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(SiPixelTemplateDBObject)
         IMPORT_PAYLOAD_CASE(SiPixel2DTemplateDBObject)
         IMPORT_PAYLOAD_CASE(SiStripApvGain)
+        IMPORT_PAYLOAD_CASE(SiStripApvSimulationParameters)
         IMPORT_PAYLOAD_CASE(SiStripBadStrip)
         IMPORT_PAYLOAD_CASE(SiStripBackPlaneCorrection)
         IMPORT_PAYLOAD_CASE(SiStripConfObject)

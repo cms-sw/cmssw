@@ -37,8 +37,8 @@ namespace edm::eventsetup {
   class CallbackProxy : public DataProxy {
   public:
     using smart_pointer_traits = produce::smart_pointer_traits<DataT>;
-    using value_type = typename smart_pointer_traits::type;
-    using record_type = RecordT;
+    using ValueType = typename smart_pointer_traits::type;
+    using RecordType = RecordT;
 
     CallbackProxy(std::shared_ptr<CallbackT>& iCallback) : callback_{iCallback} {
       //The callback fills the data directly.  This is done so that the callback does not have to
@@ -52,10 +52,12 @@ namespace edm::eventsetup {
       callback_->holdOntoPointer(dummy);
     }
 
-    const void* getImpl(const EventSetupRecordImpl& iRecord, const DataKey&) override {
+    const void* getImpl(const EventSetupRecordImpl& iRecord,
+                        const DataKey&,
+                        EventSetupImpl const* iEventSetupImpl) override {
       assert(iRecord.key() == RecordT::keyForClass());
-      record_type rec;
-      rec.setImpl(&iRecord, callback_->transitionID(), callback_->getTokenIndices());
+      RecordType rec;
+      rec.setImpl(&iRecord, callback_->transitionID(), callback_->getTokenIndices(), iEventSetupImpl);
       (*callback_)(rec);
       return smart_pointer_traits::getPointer(data_);
     }

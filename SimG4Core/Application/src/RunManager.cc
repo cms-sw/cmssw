@@ -130,6 +130,7 @@ RunManager::RunManager(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
       m_PhysicsTablesDir(p.getUntrackedParameter<std::string>("PhysicsTablesDirectory", "")),
       m_StorePhysicsTables(p.getUntrackedParameter<bool>("StorePhysicsTables", false)),
       m_RestorePhysicsTables(p.getUntrackedParameter<bool>("RestorePhysicsTables", false)),
+      m_UseParametrisedEMPhysics(p.getUntrackedParameter<bool>("UseParametrisedEMPhysics")),
       m_EvtMgrVerbosity(p.getUntrackedParameter<int>("G4EventManagerVerbosity", 0)),
       m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
       m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
@@ -303,7 +304,8 @@ void RunManager::initG4(const edm::EventSetup& es) {
 
   // adding GFlash, Russian Roulette for eletrons and gamma,
   // step limiters on top of any Physics Lists
-  phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions", m_pPhysics));
+  if (m_UseParametrisedEMPhysics)
+    phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions", m_pPhysics));
 
   std::string tableDir = m_PhysicsTablesDir;
   if (m_RestorePhysicsTables) {

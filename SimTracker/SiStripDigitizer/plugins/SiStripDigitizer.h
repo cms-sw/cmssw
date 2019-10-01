@@ -85,6 +85,8 @@ private:
   const bool useConfFromDB;
   const bool zeroSuppression;
   const bool makeDigiSimLinks_;
+  const bool includeAPVSimulation_;
+  const double fracOfEventsToSimAPV_;
 
   ///< Whether or not to create the association to sim truth collection. Set in configuration.
   /** @brief Offset to add to the index of each sim hit to account for which crossing it's in.

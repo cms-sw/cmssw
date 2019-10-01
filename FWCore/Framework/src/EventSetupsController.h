@@ -19,6 +19,9 @@
 //
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/Framework/src/EventSetupRecordIOVQueue.h"
+#include "FWCore/Framework/src/NumberOfConcurrentIOVs.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>
@@ -27,9 +30,12 @@
 namespace edm {
 
   class ActivityRegistry;
+  class EventSetupImpl;
   class EventSetupRecordIntervalFinder;
   class ParameterSet;
   class IOVSyncValue;
+  class WaitingTaskHolder;
+  class WaitingTaskList;
 
   namespace eventsetup {
 
@@ -42,13 +48,14 @@ namespace edm {
           : pset_(ps), provider_(pr), subProcessIndexes_() {}
 
       ParameterSet const* pset() const { return pset_; }
-      std::shared_ptr<DataProxyProvider> const& provider() const { return provider_; }
+      std::shared_ptr<DataProxyProvider> const& provider() { return get_underlying(provider_); }
+      DataProxyProvider const* providerGet() const { return provider_.get(); }
       std::vector<unsigned>& subProcessIndexes() { return subProcessIndexes_; }
       std::vector<unsigned> const& subProcessIndexes() const { return subProcessIndexes_; }
 
     private:
       ParameterSet const* pset_;
-      std::shared_ptr<DataProxyProvider> provider_;
+      propagate_const<std::shared_ptr<DataProxyProvider>> provider_;
       std::vector<unsigned> subProcessIndexes_;
     };
 
@@ -58,13 +65,14 @@ namespace edm {
           : pset_(ps), finder_(fi), subProcessIndexes_() {}
 
       ParameterSet const* pset() const { return pset_; }
-      std::shared_ptr<EventSetupRecordIntervalFinder> const& finder() const { return finder_; }
+      std::shared_ptr<EventSetupRecordIntervalFinder> const& finder() { return get_underlying(finder_); }
+      EventSetupRecordIntervalFinder const* finderGet() const { return finder_.get(); }
       std::vector<unsigned>& subProcessIndexes() { return subProcessIndexes_; }
       std::vector<unsigned> const& subProcessIndexes() const { return subProcessIndexes_; }
 
     private:
       ParameterSet const* pset_;
-      std::shared_ptr<EventSetupRecordIntervalFinder> finder_;
+      propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> finder_;
       std::vector<unsigned> subProcessIndexes_;
     };
 
@@ -72,13 +80,38 @@ namespace edm {
     public:
       EventSetupsController();
 
-      std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&, ActivityRegistry*);
+      EventSetupsController(EventSetupsController const&) = delete;
+      EventSetupsController const& operator=(EventSetupsController const&) = delete;
 
-      void eventSetupForInstance(IOVSyncValue const& syncValue);
+      std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&,
+                                                       ActivityRegistry*,
+                                                       ParameterSet const* eventSetupPset = nullptr);
 
-      bool isWithinValidityInterval(IOVSyncValue const& syncValue) const;
+      void setMaxConcurrentIOVs(unsigned int nStreams, unsigned int nConcurrentLumis);
 
-      void forceCacheClear() const;
+      // Pass in an IOVSyncValue to let the EventSetup system know which run and lumi
+      // need to be processed and prepare IOVs for it (also could be a time or only a run).
+      // Pass in a WaitingTaskHolder that allows the EventSetup to communicate when all
+      // the IOVs are ready to process this IOVSyncValue. Note this preparation is often
+      // done in asynchronous tasks and the function might return before all the preparation
+      // is complete.
+      // Pass in endIOVWaitingTasks, additions to this WaitingTaskList allow the lumi to notify
+      // the EventSetup when the lumi is done and no longer needs its EventSetup IOVs.
+      // Pass in a vector of EventSetupImpl that gets filled and is used to give clients
+      // of EventSetup access to the EventSetup system such that for each record the IOV
+      // associated with this IOVSyncValue will be used. The first element of the vector
+      // is for the top level process and each additional element corresponds to a SubProcess.
+      void eventSetupForInstance(IOVSyncValue const&,
+                                 WaitingTaskHolder const& taskToStartAfterIOVInit,
+                                 WaitingTaskList& endIOVWaitingTasks,
+                                 std::vector<std::shared_ptr<const EventSetupImpl>>&);
+
+      // Version to use when IOVs are not allowed to run concurrently
+      void eventSetupForInstance(IOVSyncValue const&);
+
+      bool doWeNeedToWaitForIOVsToFinish(IOVSyncValue const&) const;
+
+      void forceCacheClear();
 
       std::shared_ptr<DataProxyProvider> getESProducerAndRegisterProcess(ParameterSet const& pset,
                                                                          unsigned subProcessIndex);
@@ -117,23 +150,26 @@ namespace edm {
 
       ParameterSet const* getESProducerPSet(ParameterSetID const& psetID, unsigned subProcessIndex) const;
 
-      std::vector<std::shared_ptr<EventSetupProvider> > const& providers() const { return providers_; }
+      std::vector<propagate_const<std::shared_ptr<EventSetupProvider>>> const& providers() const { return providers_; }
 
       std::multimap<ParameterSetID, ESProducerInfo> const& esproducers() const { return esproducers_; }
 
       std::multimap<ParameterSetID, ESSourceInfo> const& essources() const { return essources_; }
 
+      bool hasNonconcurrentFinder() const { return hasNonconcurrentFinder_; }
       bool mustFinishConfiguration() const { return mustFinishConfiguration_; }
 
     private:
-      EventSetupsController(EventSetupsController const&) = delete;  // stop default
-
-      EventSetupsController const& operator=(EventSetupsController const&) = delete;  // stop default
-
       void checkESProducerSharing();
+      void initializeEventSetupRecordIOVQueues();
 
       // ---------- member data --------------------------------
-      std::vector<std::shared_ptr<EventSetupProvider> > providers_;
+      std::vector<propagate_const<std::shared_ptr<EventSetupProvider>>> providers_;
+      NumberOfConcurrentIOVs numberOfConcurrentIOVs_;
+
+      // This data member is intentionally declared after providers_
+      // It is important that this is destroyed first.
+      std::vector<propagate_const<std::unique_ptr<EventSetupRecordIOVQueue>>> eventSetupRecordIOVQueues_;
 
       // The following two multimaps have one entry for each unique
       // ParameterSet. The ESProducerInfo or ESSourceInfo object
@@ -148,7 +184,8 @@ namespace edm {
       std::multimap<ParameterSetID, ESProducerInfo> esproducers_;
       std::multimap<ParameterSetID, ESSourceInfo> essources_;
 
-      bool mustFinishConfiguration_;
+      bool hasNonconcurrentFinder_ = false;
+      bool mustFinishConfiguration_ = true;
     };
   }  // namespace eventsetup
 }  // namespace edm

@@ -445,7 +445,7 @@ uint32_t HitPattern::getTrackerLayerCase(HitCategory category, uint16_t substr, 
       uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
       if (hitType < layerCase) {
         // BAD and INACTIVE as the same type (as INACTIVE)
-        layerCase = (hitType == HIT_TYPE::BAD ? HIT_TYPE::INACTIVE : hitType);
+        layerCase = (hitType == HIT_TYPE::BAD ? (uint32_t)HIT_TYPE::INACTIVE : hitType);
         if (layerCase == HIT_TYPE::VALID) {
           break;
         }

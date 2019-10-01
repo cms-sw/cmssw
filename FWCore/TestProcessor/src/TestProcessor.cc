@@ -286,15 +286,21 @@ namespace edm {
       IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0), runPrincipal.beginTime());
       espController_->eventSetupForInstance(ts);
 
-      auto const& es = esp_->eventSetup();
+      auto const& es = esp_->eventSetupImpl();
 
       std::vector<edm::SubProcess> emptyList;
       {
         typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Traits;
         auto globalWaitTask = make_empty_waiting_task();
         globalWaitTask->increment_ref_count();
-        beginGlobalTransitionAsync<Traits>(
-            WaitingTaskHolder(globalWaitTask.get()), *schedule_, runPrincipal, ts, es, serviceToken_, emptyList);
+        beginGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
+                                           *schedule_,
+                                           runPrincipal,
+                                           ts,
+                                           es,
+                                           nullptr,
+                                           serviceToken_,
+                                           emptyList);
         globalWaitTask->wait_for_all();
         if (globalWaitTask->exceptionPtr() != nullptr) {
           std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
@@ -313,6 +319,7 @@ namespace edm {
                                             runPrincipal,
                                             ts,
                                             es,
+                                            nullptr,
                                             serviceToken_,
                                             emptyList);
 
@@ -335,15 +342,21 @@ namespace edm {
       IOVSyncValue ts(EventID(runNumber_, lumiNumber_, eventNumber_), lumiPrincipal_->beginTime());
       espController_->eventSetupForInstance(ts);
 
-      auto const& es = esp_->eventSetup();
+      auto const& es = esp_->eventSetupImpl();
 
       std::vector<edm::SubProcess> emptyList;
       {
         typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Traits;
         auto globalWaitTask = make_empty_waiting_task();
         globalWaitTask->increment_ref_count();
-        beginGlobalTransitionAsync<Traits>(
-            WaitingTaskHolder(globalWaitTask.get()), *schedule_, *lumiPrincipal_, ts, es, serviceToken_, emptyList);
+        beginGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
+                                           *schedule_,
+                                           *lumiPrincipal_,
+                                           ts,
+                                           es,
+                                           nullptr,
+                                           serviceToken_,
+                                           emptyList);
         globalWaitTask->wait_for_all();
         if (globalWaitTask->exceptionPtr() != nullptr) {
           std::rethrow_exception(*(globalWaitTask->exceptionPtr()));
@@ -362,6 +375,7 @@ namespace edm {
                                             *lumiPrincipal_,
                                             ts,
                                             es,
+                                            nullptr,
                                             serviceToken_,
                                             emptyList);
 
@@ -402,7 +416,7 @@ namespace edm {
       waitTask->increment_ref_count();
 
       schedule_->processOneEventAsync(
-          edm::WaitingTaskHolder(waitTask.get()), 0, *pep, esp_->eventSetup(), serviceToken_);
+          edm::WaitingTaskHolder(waitTask.get()), 0, *pep, esp_->eventSetupImpl(), serviceToken_);
 
       waitTask->wait_for_all();
       if (waitTask->exceptionPtr() != nullptr) {
@@ -420,7 +434,7 @@ namespace edm {
         IOVSyncValue ts(EventID(runNumber_, lumiNumber_, eventNumber_), lumiPrincipal->endTime());
         espController_->eventSetupForInstance(ts);
 
-        auto const& es = esp_->eventSetup();
+        auto const& es = esp_->eventSetupImpl();
 
         std::vector<edm::SubProcess> emptyList;
 
@@ -437,6 +451,7 @@ namespace edm {
                                             *lumiPrincipal,
                                             ts,
                                             es,
+                                            nullptr,
                                             serviceToken_,
                                             emptyList,
                                             false);
@@ -456,6 +471,7 @@ namespace edm {
                                            *lumiPrincipal,
                                            ts,
                                            es,
+                                           nullptr,
                                            serviceToken_,
                                            emptyList,
                                            false);
@@ -479,7 +495,7 @@ namespace edm {
             runPrincipal.endTime());
         espController_->eventSetupForInstance(ts);
 
-        auto const& es = esp_->eventSetup();
+        auto const& es = esp_->eventSetupImpl();
 
         std::vector<edm::SubProcess> emptyList;
 
@@ -496,6 +512,7 @@ namespace edm {
                                             runPrincipal,
                                             ts,
                                             es,
+                                            nullptr,
                                             serviceToken_,
                                             emptyList,
                                             false);
@@ -515,6 +532,7 @@ namespace edm {
                                            runPrincipal,
                                            ts,
                                            es,
+                                           nullptr,
                                            serviceToken_,
                                            emptyList,
                                            false);

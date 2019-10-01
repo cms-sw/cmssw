@@ -150,8 +150,8 @@ private:
   void fillerDispose();
 
   // ----------member data ---------------------------
-  std::vector<boost::shared_ptr<FillerBase>> m_runFillers;
-  std::vector<boost::shared_ptr<FillerBase>> m_lumiFillers;
+  std::vector<std::shared_ptr<FillerBase>> m_runFillers;
+  std::vector<std::shared_ptr<FillerBase>> m_lumiFillers;
   std::string folder_;
   bool m_fillRuns;
   bool m_fillLumis;
@@ -207,10 +207,10 @@ void DummyBookFillDQMStore::bookHistograms() {
     for (; it != ite; ++it) {
       switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
         case 1:
-          m_runFillers.push_back(boost::shared_ptr<FillerBase>(new TH1FFiller(*it, *dstore, false)));
+          m_runFillers.push_back(std::shared_ptr<FillerBase>(new TH1FFiller(*it, *dstore, false)));
           break;
         case 2:
-          m_runFillers.push_back(boost::shared_ptr<FillerBase>(new TH2FFiller(*it, *dstore, false)));
+          m_runFillers.push_back(std::shared_ptr<FillerBase>(new TH2FFiller(*it, *dstore, false)));
           break;
       }
     }
@@ -221,10 +221,10 @@ void DummyBookFillDQMStore::bookHistograms() {
     for (auto it = elements_.begin(), itEnd = elements_.end(); it != itEnd; ++it) {
       switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
         case 1:
-          m_lumiFillers.push_back(boost::shared_ptr<FillerBase>(new TH1FFiller(*it, *dstore, true)));
+          m_lumiFillers.push_back(std::shared_ptr<FillerBase>(new TH1FFiller(*it, *dstore, true)));
           break;
         case 2:
-          m_lumiFillers.push_back(boost::shared_ptr<FillerBase>(new TH2FFiller(*it, *dstore, true)));
+          m_lumiFillers.push_back(std::shared_ptr<FillerBase>(new TH2FFiller(*it, *dstore, true)));
           break;
       }
     }

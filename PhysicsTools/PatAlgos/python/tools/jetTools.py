@@ -592,6 +592,10 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.softPFElectronsTagInfos.clone(jets = jetSource, primaryVertex=pvSource, electrons=elSource),
                                     process, task)
+            if btagInfo == 'pixelClusterTagInfos':
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pixelClusterTagInfos.clone(jets = jetSource, vertices=pvSource),
+                                    process, task)
 
             if 'DeepFlavourTagInfos' in btagInfo:
                 svUsed = svSource

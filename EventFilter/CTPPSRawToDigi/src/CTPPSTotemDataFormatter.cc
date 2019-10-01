@@ -61,7 +61,7 @@ void CTPPSTotemDataFormatter::formatRawData(unsigned int lvl1_ID,
       mapIdCh[newrawId].push_back(channel);
     }
     for (auto &pId : mapIdCh) {
-      PPSStripIndex myTest = {pId.first};
+      PPSStripIndex myTest = {pId.first, 0, 0, 0, 0};
 
       // the range has always at most one element
       auto range = std::equal_range(iDdet2fed.begin(), iDdet2fed.end(), myTest, compare);

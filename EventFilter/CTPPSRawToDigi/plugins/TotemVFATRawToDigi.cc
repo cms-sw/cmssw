@@ -52,7 +52,7 @@ private:
 
   edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
 
-  ctpps::RawDataUnpacker rawDataUnpacker;
+  pps::RawDataUnpacker rawDataUnpacker;
   RawToDigiConverter rawToDigiConverter;
 
   template <typename DigiType>

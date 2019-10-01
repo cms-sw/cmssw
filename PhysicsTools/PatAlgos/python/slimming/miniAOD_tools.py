@@ -343,23 +343,25 @@ def miniAOD_customizeCommon(process):
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
     #-- Adding DeepTauID
-    updatedTauName = 'slimmedTausDeepIDs'
-    noUpdatedTauName = 'slimmedTausNoDeepIDs'
+    # deepTau v2p1
+    _updatedTauName = 'slimmedTausDeepIDsv2p1'
+    _noUpdatedTauName = 'slimmedTausNoDeepIDs'
     import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
     tauIdEmbedder = tauIdConfig.TauIDEmbedder(
         process, cms, debug = False,
-        updatedTauName = updatedTauName,
-        toKeep = ['deepTau2017v2']
+        updatedTauName = _updatedTauName,
+        toKeep = ['deepTau2017v2p1']
     )
     tauIdEmbedder.runTauID()
-    addToProcessAndTask(noUpdatedTauName, process.slimmedTaus.clone(),process,task)
+    addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')
-    process.deepTau2017v2.taus = noUpdatedTauName
-    process.slimmedTaus = getattr(process, updatedTauName).clone(
-        src = noUpdatedTauName
+    process.deepTau2017v2p1.taus = _noUpdatedTauName
+    process.slimmedTaus = getattr(process, _updatedTauName).clone(
+        src = _noUpdatedTauName
     )
-    process.rerunMvaIsolationTask.add(process.slimmedTaus)
-    task.add(process.rerunMvaIsolationTask)
+    process.deepTauIDTask = cms.Task(process.deepTau2017v2p1, process.slimmedTaus)
+    task.add(process.deepTauIDTask)
+
     #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
@@ -424,6 +426,21 @@ def miniAOD_customizeCommon(process):
     delattr(process, 'selectedUpdatedPatJetsPuppiJetSpecific')
 
     task.add(process.slimmedJetsPuppi)
+
+    # Embed pixelClusterTagInfos in slimmedJets
+    process.patJets.addTagInfos = True
+    process.patJets.tagInfoSources = cms.VInputTag( cms.InputTag("pixelClusterTagInfos") )
+    process.slimmedJetsNoDeepFlavour.dropTagInfos = '0'
+    process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.addTagInfos = True
+    process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = cms.VInputTag( cms.InputTag("pixelClusterTagInfos") )
+
+    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    run2_miniAOD_80XLegacy.toModify(process.patJets, addTagInfos = False )
+    run2_miniAOD_80XLegacy.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = False )
+ 
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    run2_miniAOD_94XFall17.toModify(process.patJets, addTagInfos = False )
+    run2_miniAOD_94XFall17.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = False )
     
     ## puppi met
     from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
@@ -552,5 +569,11 @@ def miniAOD_customizeAllMCFastSim(process):
     from PhysicsTools.PatAlgos.slimming.isolatedTracks_cfi import miniAOD_customizeIsolatedTracksFastSim
     process = miniAOD_customizeIsolatedTracksFastSim(process)
     process.patMuons.addTriggerMatching = False
+    # Disable pixelClusterTagInfos in FastSim (no siPixelCluster available)
+    from Configuration.Eras.Modifier_fastSim_cff import fastSim
+    fastSim.toModify(process.patJets, addTagInfos = cms.bool(False) )
+    fastSim.toModify(process.slimmedJetsNoDeepFlavour, dropTagInfos = cms.string('1') )
+    fastSim.toModify(process.updatedPatJetsSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
+    fastSim.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
 
     return process
