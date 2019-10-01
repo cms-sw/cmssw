@@ -21,7 +21,7 @@ for era in [eras.run2_nanoAOD_94XMiniAODv1,]:
     )
 eras.run2_miniAOD_80XLegacy.toModify(finalTaus,
                                      src = cms.InputTag("slimmedTaus"),
-                                     cut =  cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT')|| tauID('byVVVLooseDeepTau2017v2p1VSjet'))")
+                                     cut =  cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT'))")
     )
 
 ##################### Tables for final output and docs ##########################
@@ -138,8 +138,7 @@ _variablesMiniV1.idMVAoldDM = _tauId6WPMask( "by%sIsolationMVArun2v1DBoldDMwLT",
 _variablesMiniV1.idMVAoldDM2017v1 = _tauId7WPMask( "by%sIsolationMVArun2v1DBoldDMwLT2017v1", doc="IsolationMVArun2v1DBoldDMwLT ID working point (2017v1)")
 _variables80X =  cms.PSet(
     _tauVarsBase,
-    _mvaIsoVars2015,
-    _deepTauVars2017v2p1
+    _mvaIsoVars2015
 )
 
 tauTable.variables = _variablesMiniV2
