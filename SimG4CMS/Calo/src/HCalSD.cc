@@ -171,7 +171,7 @@ HCalSD::HCalSD(const std::string& name,
       hfshower = std::make_unique<HFShower>(name, hcalConstants_, hcalSimConstants_->hcalsimpar(), p, 0);
     }
   }
-   
+
   // HF volume names
   hfNames = hcalSimConstants_->hcalsimpar()->hfNames_;
   const std::vector<int>& temp = hcalSimConstants_->hcalsimpar()->hfLevels_;
@@ -184,8 +184,8 @@ HCalSD::HCalSD(const std::string& name,
     lv = nullptr;
     for (auto lvol : *lvs) {
       if (lvol->GetName() == namv) {
-	lv = lvol;
-	break;
+        lv = lvol;
+        break;
       }
     }
     hfLV.push_back(lv);
@@ -215,8 +215,8 @@ HCalSD::HCalSD(const std::string& name,
     const G4Material* mat = nullptr;
     for (matite = matTab->begin(); matite != matTab->end(); ++matite) {
       if ((*matite)->GetName() == static_cast<G4String>(namx)) {
-	mat = (*matite);
-	break;
+        mat = (*matite);
+        break;
       }
     }
     materials.push_back(mat);
@@ -316,8 +316,8 @@ HCalSD::HCalSD(const std::string& name,
 }
 
 void HCalSD::fillLogVolumeVector(const std::string& value,
-				 const std::vector<std::string>& lvnames,
-				 std::vector<const G4LogicalVolume*>& lvvec) {
+                                 const std::vector<std::string>& lvnames,
+                                 std::vector<const G4LogicalVolume*>& lvvec) {
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   const G4LogicalVolume* lv;
   std::stringstream ss3;

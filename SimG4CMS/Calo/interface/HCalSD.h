@@ -55,9 +55,7 @@ protected:
   bool filterHit(CaloG4Hit*, double) override;
 
 private:
-  void fillLogVolumeVector(const std::string&, 
-			   const std::vector<std::string>&,
-                           std::vector<const G4LogicalVolume*>&);
+  void fillLogVolumeVector(const std::string&, const std::vector<std::string>&, std::vector<const G4LogicalVolume*>&);
   uint32_t setDetUnitId(int, const G4ThreeVector&, int, int);
   uint32_t setDetUnitId(HcalNumberingFromDDD::HcalID& tmp);
   bool isItHF(const G4Step*);
