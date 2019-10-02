@@ -30,8 +30,8 @@ HFShower::HFShower(const std::string &name,
 
   edm::LogVerbatim("HFShower") << "HFShower:: Maximum probability cut off " << probMax_ << " Check flag " << chkFibre_;
 
-  cherenkov_.reset(new HFCherenkov(m_HF));
-  fibre_.reset(new HFFibre(name, hcalConstant_, hps, p));
+  cherenkov_ = std::make_unique<HFCherenkov>(m_HF);
+  fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
 
   //Special Geometry parameters
   gpar_ = hcalConstant_->getGparHF();
@@ -111,7 +111,7 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
   double zCoor = localPos.z();
   double zFibre = (0.5 * gpar_[1] - zCoor - translation.z());
   double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-  double time = fibre_.get()->tShift(localPos, depth, chkFibre_);
+  double time = fibre_->tShift(localPos, depth, chkFibre_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor << "(" << globalPos.z() << ") "
@@ -124,15 +124,15 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
   std::vector<double> momz;
   if (!applyFidCut_) {  // _____ Tmp close of the cherenkov function
     if (ok)
-      npe = cherenkov_.get()->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
-    wavelength = cherenkov_.get()->getWL();
-    momz = cherenkov_.get()->getMom();
+      npe = cherenkov_->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
+    wavelength = cherenkov_->getWL();
+    momz = cherenkov_->getMom();
   }  // ^^^^^ End of Tmp close of the cherenkov function
   if (ok && npe > 0) {
     for (int i = 0; i < npe; ++i) {
       double p = 1.;
       if (!applyFidCut_)
-        p = fibre_.get()->attLength(wavelength[i]);
+        p = fibre_->attLength(wavelength[i]);
       double r1 = G4UniformRand();
       double r2 = G4UniformRand();
 #ifdef EDM_ML_DEBUG
@@ -236,7 +236,7 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   double zCoor = localPos.z();
   double zFibre = (0.5 * gpar_[1] - zCoor - translation.z());
   double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-  double time = fibre_.get()->tShift(localPos, depth, chkFibre_);
+  double time = fibre_->tShift(localPos, depth, chkFibre_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor << "(" << globalPos.z() << ") "
@@ -249,15 +249,15 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   std::vector<double> momz;
   if (!applyFidCut_) {  // _____ Tmp close of the cherenkov function
     if (ok)
-      npe = cherenkov_.get()->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
-    wavelength = cherenkov_.get()->getWL();
-    momz = cherenkov_.get()->getMom();
+      npe = cherenkov_->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
+    wavelength = cherenkov_->getWL();
+    momz = cherenkov_->getMom();
   }  // ^^^^^ End of Tmp close of the cherenkov function
   if (ok && npe > 0) {
     for (int i = 0; i < npe; ++i) {
       double p = 1.;
       if (!applyFidCut_)
-        p = fibre_.get()->attLength(wavelength[i]);
+        p = fibre_->attLength(wavelength[i]);
       double r1 = G4UniformRand();
       double r2 = G4UniformRand();
 #ifdef EDM_ML_DEBUG
@@ -360,7 +360,7 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   double zCoor = localPos.z();
   double zFibre = (0.5 * gpar_[1] - zCoor - translation.z());
   double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-  double time = fibre_.get()->tShift(localPos, depth, chkFibre_);
+  double time = fibre_->tShift(localPos, depth, chkFibre_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShower::getHits(SL): in " << name << " Z " << zCoor << "(" << globalPos.z() << ") "
@@ -370,9 +370,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
   // npe should be 0
   int npe = 0;
   if (ok)
-    npe = cherenkov_.get()->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
-  std::vector<double> wavelength = cherenkov_.get()->getWL();
-  std::vector<double> momz = cherenkov_.get()->getMom();
+    npe = cherenkov_->computeNPE(aStep, particleDef, pBeta, u, v, w, stepl, zFibre, dose, npeDose);
+  std::vector<double> wavelength = cherenkov_->getWL();
+  std::vector<double> momz = cherenkov_->getMom();
 
   for (int i = 0; i < npe; ++i) {
     hit.time = tSlice + time;
