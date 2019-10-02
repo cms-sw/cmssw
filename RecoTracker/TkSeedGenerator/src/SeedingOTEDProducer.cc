@@ -321,36 +321,30 @@ void SeedingOTEDProducer::printVHsOnLayer(edm::Handle<VectorHitCollectionNew> VH
 }
 
 const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& vHit) {
-  //FIXME::charge is fine 1 every two times!!
-  int charge = 1;
-  //float pT = vHit.transverseMomentum(magField);
-  float p = vHit.momentum(magField);
-  float x = vHit.localPosition().x();
-  float y = vHit.localPosition().y();
-  float dx = vHit.localDirection().x();
-  float dy = vHit.localDirection().y();
-  // Pz and Dz should have the same sign
-  float signPz = copysign(1.0, vHit.globalPosition().z());
 
   // having fun with theta
   Global3DVector gv(vHit.globalPosition().x(), vHit.globalPosition().y(), vHit.globalPosition().z());
   float theta = gv.theta();
-  //std::cout << "\tgv : " << gv << std::endl;
-  //std::cout << "\tgv theta : " << theta << std::endl;
-  //std::cout << "\tgv theta error : " << computeGlobalThetaError(vHit, beamSpot->sigmaZ()) << std::endl;
-  //std::cout << "\tgv eta : " << gv.eta() << std::endl;
   // gv transform to local (lv)
   const Local3DVector lv(vHit.det()->surface().toLocal(gv));
-  //std::cout << "\tlv : " << lv << std::endl;
-  // replace dy with second component of the lv renormalized to the z component
-  dy = lv.y() / lv.z();
+
+  //FIXME::charge is fine 1 every two times!!
+  int charge = 1;
+  float p = vHit.momentum(magField);
+  float x = vHit.localPosition().x();
+  float y = vHit.localPosition().y();
+  float dx = vHit.localDirection().x();
+  // for dy use second component of the lv renormalized to the z component
+  float dy = lv.y() / lv.z();
+
+  // Pz and Dz should have the same sign
+  float signPz = copysign(1.0, vHit.globalPosition().z());
+
 
   LocalTrajectoryParameters ltpar2(charge / p, dx, dy, x, y, signPz);
   AlgebraicSymMatrix mat = assign44To55(vHit.parametersError());
   // set the error on 1/p
   mat[0][0] = pow(computeInverseMomentumError(vHit, theta, magField, beamSpot->sigmaZ()), 2);
-  //std::cout << "\tltraj : " << charge << "," << 1./p <<","<< dx <<","<< dy <<","<< x <<","<< y <<","<< signPz << std::endl;
-  //std::cout << "\tmat   : " << mat << std::endl;
 
   //building tsos
   LocalTrajectoryError lterr(asSMatrix<5>(mat));
