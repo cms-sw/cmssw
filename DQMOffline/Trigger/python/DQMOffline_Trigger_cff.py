@@ -24,7 +24,7 @@ from DQMOffline.Trigger.JetMETHLTOfflineAnalyzer_cff import *
 from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
 
 # BTV
-from DQMOffline.Trigger.BTVHLTOfflineSource_cff import *
+from DQMOffline.Trigger.BTVHLTOfflineSource_cfi import *
 from DQMOffline.Trigger.BTaggingMonitoring_cff import *
 
 from DQMOffline.Trigger.FSQHLTOfflineSource_cff import *
