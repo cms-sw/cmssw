@@ -14,7 +14,7 @@ public:
   void reset();
   void fixAlgoEtaBin(int i_eta);
   void add(const PuppiCandidate &iParticle, const double &iVal, const unsigned int iAlgo);
-  void computeMedRMS(const unsigned int &iAlgo, const double &iPVFrac);
+  void computeMedRMS(const unsigned int &iAlgo);
   //Get the Weight
   double compute(std::vector<double> const &iVals, double iChi2) const;
   const std::vector<float> &alphas() { return fPups; }
