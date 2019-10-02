@@ -23,72 +23,89 @@ public:
     if (!out.empty()) endStrip = out.back().endStrip();
     // ZS clusters are limited to single APV: each channels has 2 APV; 
     while (is<lenght) {
-       uint16_t firstStrip = stripOffset + data[(offset++) ^ 7];
+       uint16_t firstFedStrip = stripOffset + data[(offset++) ^ 7];
+       uint16_t firstStrip = firstFedStrip;
        auto weight = det.weight(firstStrip);
-       int clusSize = data[(offset++) ^ 7];
+       int clusFedSize = data[(offset++) ^ 7];
        bool extend = (firstStrip == endStrip);
-       if(extend && firstStrip%128!=0) std::cout << "extend?? " << firstStrip <<' '<< firstStrip%128 <<' '<<firstStrip/128 <<' '<< clusSize << std::endl;
-       endStrip = firstStrip+clusSize;
-       is+=clusSize+2;
-       int sum=0;
+       endStrip = firstStrip+clusFedSize;
+       is+=clusFedSize+2;
+       int sumRaw=0;
+       // int sumCharge=0;
        int noise2=0;
-       std::vector<uint8_t> adc(clusSize);
-       for (int ic=0; ic<clusSize; ++ic) {
-         auto ladc = data[(offset++) ^ 7];
-         if constexpr (NOISE_CUT) {
-           uint16_t strip = firstStrip+ic;
-           int noise = det.rawNoise(strip);
-           if (5*ladc<noise) ladc=0;
-           else  noise2 += noise*noise;  // cannot overflow
-         }
-         sum += ladc; // no way it can overflow
-         adc[ic]=ladc;
-         if (adc[ic] < 254) {
-           int charge = 0.5f+float(adc[ic])*weight;
-           adc[ic] = (charge > 1022 ? 255 : (charge > 253 ? 254 : charge));
-         }
-       }
-       if constexpr (NOISE_CUT) {
-         if (0==sum) continue;
-         // do not cut if extendable
-         if (!extend && endStrip%128!=0  && clusterNoiseCutFactor*sum*sum < noise2) continue;
-         // remove leading&trailing zeros
-         // gains can be so high that al adc goes to zero...
-         int lc = clusSize;
-         while(adc[lc-1]==0){ if (--lc ==0) break;}
-         if (0==lc) continue;
-         adc.resize(lc);
-         int ic=0;
-         while(adc[ic]==0){++ic;}
-         adc.erase(adc.begin(),adc.begin()+ic);
-         firstStrip+=ic; 
-         if(ic>0) extend=false;
-         clusSize=adc.size();
-         endStrip = firstStrip+clusSize;
-       }
-       if constexpr (WIDE_CLUS) {
-         // if large remove tails
-         if (clusSize>5) {
-           auto peak = std::max_element(adc.begin(),adc.end());
-           auto lc=peak+2;
-           for (;lc<adc.end(); ++lc) if (*(lc-1) < *(lc)) break;
-           auto fc=peak-1;
-           for (;fc>adc.begin(); --fc) if (*(fc) < *(fc-1)) break;
-           if(lc<adc.end()) adc.erase(lc,adc.end());
-           if(fc>adc.begin()) { 
-             firstStrip+=(fc-adc.begin()); 
-             adc.erase(adc.begin(),fc); 
-             extend=false;
+       int clusSize=0;
+       std::vector<uint8_t> adc(clusFedSize);
+       auto saveCluster = [&]() {
+           // save cluster
+           adc.resize(clusSize);
+           if constexpr (NOISE_CUT) {
+             // do not cut if extendable
+             if (!extend && endStrip%128!=0  && clusterNoiseCutFactor*sumRaw*sumRaw < noise2) { 
+               // loop may continue
+               sumRaw=0;
+               // sumCharge=0;
+               noise2=0;
+               clusSize=0;
+               return;
+             }
            }
-           clusSize=adc.size();
+           if constexpr (WIDE_CLUS) {
+             // if large remove tails
+             if (clusSize>5) {
+               auto peak = std::max_element(adc.begin(),adc.end());
+               auto lc=peak+2;
+               for (;lc<adc.end(); ++lc) if (*(lc-1) < *(lc)) break;
+               auto fc=peak-1;
+               for (;fc>adc.begin(); --fc) if (*(fc) < *(fc-1)) break;
+               if(lc<adc.end()) adc.erase(lc,adc.end());
+               if(fc>adc.begin()) { 
+                 firstStrip+=(fc-adc.begin()); 
+                 adc.erase(adc.begin(),fc); 
+                 extend=false;
+               }
+               clusSize=adc.size();
+             } // end
+           }  // end WC
+           //
            endStrip = firstStrip+clusSize;
-         }
-       }
-       //
-       if (extend) out.back().extend(adc.begin(),adc.end());
-       else if (endStrip%128==0 || sum*weight*sti > m_clusterChargeCut)
-         out.push_back(std::move(SiStripCluster(firstStrip,std::move(adc))));
-    }
+           if (extend) out.back().extend(adc.begin(),adc.end());
+           else if (endStrip%128==0 || sumRaw*weight*sti > m_clusterChargeCut)
+             out.push_back(std::move(SiStripCluster(firstStrip,std::move(adc))));
+           // loop may continue
+           sumRaw=0;
+           // sumCharge=0;
+           noise2=0;
+           clusSize=0;
+       }; // end save cluster
+
+      // loop over strips
+      for (int ic=0; ic<clusFedSize; ++ic) {
+        auto ladc = data[(offset++) ^ 7];
+        if (0==ladc) {
+          if (clusSize>0) {
+             saveCluster();
+             adc = std::vector<uint8_t>(clusFedSize-ic);
+          }
+          firstStrip = firstFedStrip + ic+1;
+          extend=false;
+          continue;
+        }
+        if constexpr (NOISE_CUT) {
+          uint16_t strip = firstFedStrip+ic;
+          int noise = det.rawNoise(strip);
+          if (5*ladc<noise) ladc=0;
+          else  noise2 += noise*noise;  // cannot overflow
+        }
+        sumRaw += ladc; // no way it can overflow
+        if (ladc < 254) {
+          int charge = 0.5f+float(ladc)*weight;
+          ladc = (charge > 1022 ? 255 : (charge > 253 ? 254 : charge));
+        }
+        adc[clusSize++]=ladc;
+      } // end loop over strips
+      // save last (hopefully only) cluster
+      if (clusSize>0) saveCluster();
+    }  // end while
   }
 private:
   float m_clusterChargeCut = 1200.0f;
