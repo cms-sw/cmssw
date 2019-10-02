@@ -197,6 +197,10 @@ DQMOfflineMuon = cms.Sequence( dtSources *
 
 DQMOfflineHcal2 = cms.Sequence( hcalOfflineSourceSequence )
 
+#Taus not created in pp conditions for HI
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+_DQMOfflineTAU = cms.Sequence()
+pp_on_AA_2018.toReplaceWith(DQMOfflineTAU, _DQMOfflineTAU)
 
 
 # miniAOD DQM validation
