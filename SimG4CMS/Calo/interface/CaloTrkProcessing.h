@@ -64,7 +64,6 @@ private:
   double eMin_, eMinFine_, eMinFinePhoton_;
   int lastTrackID_;
   std::vector<Detector> detectors_, fineDetectors_;
-  const SimTrackManager* m_trackManager;
 };
 
 #endif
