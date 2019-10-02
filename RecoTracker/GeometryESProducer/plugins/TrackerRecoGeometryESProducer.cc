@@ -59,7 +59,7 @@ std::unique_ptr<GeometricSearchTracker> TrackerRecoGeometryESProducer::produce(
 void TrackerRecoGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<bool>("usePhase2Stacks",false);
+  desc.add<bool>("usePhase2Stacks", false);
   desc.addUntracked<std::string>("trackerGeometryLabel", "");
   descriptions.addDefault(desc);
 }
