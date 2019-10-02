@@ -328,6 +328,22 @@ double DDFilteredView::get<double>(const char* key) const {
   return result;
 }
 
+template <>
+std::vector<double> DDFilteredView::get<std::vector<double>>(const char* name, const char* key) const {
+  if(registry_->hasSpecPar(name))
+    return registry_->specPar(name)->value<std::vector<double>>(key);
+  else
+    return std::vector<double>();
+}
+
+template <>
+std::vector<std::string> DDFilteredView::get<std::vector<std::string>>(const char* name, const char* key) const {
+  if(registry_->hasSpecPar(name))
+    return registry_->specPar(name)->value<std::vector<std::string>>(key);
+  else
+    return std::vector<std::string>();
+}
+
 std::string_view DDFilteredView::getString(const std::string& key) const {
   assert(currentFilter_);
   assert(currentFilter_->spec);
