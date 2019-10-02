@@ -361,7 +361,7 @@ float VectorHit::theta() { return globalDirection().theta(); }
 
 AlgebraicMatrix VectorHit::projectionMatrix() const {
   // obsolete (for what tracker is concerned...) interface
-  static AlgebraicMatrix the4DProjectionMatrix(4, 5, 0);
+  static const AlgebraicMatrix the4DProjectionMatrix(4, 5, 0);
   return the4DProjectionMatrix;
 }
 
