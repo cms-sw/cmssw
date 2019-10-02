@@ -2,9 +2,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DD4hep/Detector.h"
 #include <algorithm>
-#include <iterator>
-#include <regex>
-#include <iostream>
 
 using namespace std;
 using namespace cms;
