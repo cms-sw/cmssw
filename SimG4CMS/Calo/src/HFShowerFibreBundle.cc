@@ -94,11 +94,11 @@ double HFShowerFibreBundle::getHits(const G4Step* aStep, bool type) {
     G4ThreeVector pDir = aTrack->GetDynamicParticle()->GetMomentumDirection();
     G4ThreeVector localMom = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformAxis(pDir);
     if (type) {
-      photons = facCone *
-                cherenkov2_->computeNPEinPMT(particleDef, beta, localMom.x(), localMom.y(), localMom.z(), stepl);
+      photons =
+          facCone * cherenkov2_->computeNPEinPMT(particleDef, beta, localMom.x(), localMom.y(), localMom.z(), stepl);
     } else {
-      photons = facTube *
-                cherenkov1_->computeNPEinPMT(particleDef, beta, localMom.x(), localMom.y(), localMom.z(), stepl);
+      photons =
+          facTube * cherenkov1_->computeNPEinPMT(particleDef, beta, localMom.x(), localMom.y(), localMom.z(), stepl);
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HFShower") << "HFShowerFibreBundle::getHits: for particle " << particleDef->GetParticleName()
