@@ -24,6 +24,6 @@ dtTriggerEfficiencyMonitor = DQMEDAnalyzer('DTTriggerEfficiencyTask',
 #
 # Modify for running in run 2 2016 data
 #
-from Configuration.Eras.Modifier_run2_common_cff import run2_common
-run2_common.toModify( dtTriggerEfficiencyMonitor, inputTagTM = cms.untracked.InputTag('twinMuxStage2Digis:PhIn'))
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify( dtTriggerEfficiencyMonitor, inputTagTM = cms.untracked.InputTag('twinMuxStage2Digis:PhIn'))
 
