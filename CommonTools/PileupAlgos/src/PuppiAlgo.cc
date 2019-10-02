@@ -227,7 +227,6 @@ double PuppiAlgo::compute(std::vector<double> const &iVals, double iChi2) const 
 }
 // ------------------------------------------------------------------------------------------
 void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc) {
-
   edm::ParameterSetDescription puppialgos;
   puppialgos.add<int>("algoId", 5);
   puppialgos.add<bool>("useCharged", false);
@@ -246,7 +245,7 @@ void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc) {
   puppiset.addParameter<double>("rmsPtMin", .1);
   puppiset.addParameter<double>("rmsScaleFactor", 1.0);
   VPSetPuppiAlgos.push_back(puppiset);
-  
+
   edm::ParameterSetDescription algos;
   algos.addVPSet("puppiAlgos", puppialgos, VPSetPuppiAlgos);
   std::vector<edm::ParameterSet> VPSetAlgos;
@@ -270,5 +269,4 @@ void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc) {
   algosset.addParameter<std::vector<edm::ParameterSet>>("puppiAlgos", VPSetPuppiAlgos);
   VPSetAlgos.push_back(algosset);
   desc.addVPSet("algos", algos, VPSetAlgos);
-
 }
