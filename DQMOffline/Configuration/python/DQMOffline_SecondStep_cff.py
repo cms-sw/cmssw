@@ -56,8 +56,8 @@ DQMOffline_SecondStep_PrePOG = cms.Sequence( TrackingOfflineDQMClient *
                                              hltOfflineDQMClient *
                                              bTagCollectorSequenceDATA *
                                              alcaBeamMonitorClient *
-                                             SusyPostProcessorSequence *
-                                             runTauEff)
+                                             SusyPostProcessorSequence)
+
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 DQMOffline_SecondStepPOG = cms.Sequence(
@@ -116,7 +116,6 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(
                                                l1TriggerDqmOfflineClient *
                                                dqmFEDIntegrityClient *
                                                alcaBeamMonitorClient *
-                                               runTauEff  *
                                                dqmFastTimerServiceClient
                                                )
 DQMHarvestCommonSiStripZeroBiasFakeHLT = cms.Sequence( DQMHarvestCommonSiStripZeroBias )
