@@ -1,7 +1,6 @@
 #ifndef COMMONTOOLS_PUPPI_PUPPICONTAINER_H_
 #define COMMONTOOLS_PUPPI_PUPPICONTAINER_H_
 
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "CommonTools/PileupAlgos/interface/PuppiAlgo.h"
 #include "CommonTools/PileupAlgos/interface/RecoObj.h"
 #include "CommonTools/PileupAlgos/interface/PuppiCandidate.h"
@@ -10,7 +9,6 @@ class PuppiContainer {
 public:
   PuppiContainer(const edm::ParameterSet &iConfig);
   ~PuppiContainer();
-  static void fillDescriptionsPuppiContainer(edm::ParameterSetDescription &desc);
   void initialize(const std::vector<RecoObj> &iRecoObjects);
   void setNPV(int iNPV) { fNPV = iNPV; }
 
