@@ -321,7 +321,6 @@ void SeedingOTEDProducer::printVHsOnLayer(edm::Handle<VectorHitCollectionNew> VH
 }
 
 const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& vHit) {
-
   // having fun with theta
   Global3DVector gv(vHit.globalPosition().x(), vHit.globalPosition().y(), vHit.globalPosition().z());
   float theta = gv.theta();
@@ -339,7 +338,6 @@ const TrajectoryStateOnSurface SeedingOTEDProducer::buildInitialTSOS(VectorHit& 
 
   // Pz and Dz should have the same sign
   float signPz = copysign(1.0, vHit.globalPosition().z());
-
 
   LocalTrajectoryParameters ltpar2(charge / p, dx, dy, x, y, signPz);
   AlgebraicSymMatrix mat = assign44To55(vHit.parametersError());
