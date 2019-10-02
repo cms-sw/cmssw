@@ -98,12 +98,12 @@ void PuppiAlgo::add(const PuppiCandidate &iParticle, const double &iVal, const u
   }
 
   // added by Nhan -- for all eta regions, compute mean/RMS from the central charged PU
-  if ((std::abs(iParticle.eta()) < fEtaMaxExtrap) && (puppi_id==2)) {
+  if ((std::abs(iParticle.eta()) < fEtaMaxExtrap) && (puppi_id == 2)) {
     fPups.push_back(iVal);
     fNCount[iAlgo]++;
   }
   // for the low PU case, correction.  for checking that the PU-only median will be below the PV particles
-  if (std::abs(iParticle.eta()) < fEtaMaxExtrap && (puppi_id==1))
+  if (std::abs(iParticle.eta()) < fEtaMaxExtrap && (puppi_id == 1))
     fPupsPV.push_back(iVal);
 }
 
