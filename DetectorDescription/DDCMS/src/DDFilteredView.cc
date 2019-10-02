@@ -330,7 +330,7 @@ double DDFilteredView::get<double>(const char* key) const {
 
 template <>
 std::vector<double> DDFilteredView::get<std::vector<double>>(const char* name, const char* key) const {
-  if(registry_->hasSpecPar(name))
+  if (registry_->hasSpecPar(name))
     return registry_->specPar(name)->value<std::vector<double>>(key);
   else
     return std::vector<double>();
@@ -338,7 +338,7 @@ std::vector<double> DDFilteredView::get<std::vector<double>>(const char* name, c
 
 template <>
 std::vector<std::string> DDFilteredView::get<std::vector<std::string>>(const char* name, const char* key) const {
-  if(registry_->hasSpecPar(name))
+  if (registry_->hasSpecPar(name))
     return registry_->specPar(name)->value<std::vector<std::string>>(key);
   else
     return std::vector<std::string>();
