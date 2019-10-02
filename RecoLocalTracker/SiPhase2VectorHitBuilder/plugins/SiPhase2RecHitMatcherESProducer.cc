@@ -45,34 +45,35 @@ std::shared_ptr<VectorHitBuilderEDProducer> SiPhase2RecHitMatcherESProducer::pro
   return matcher_;
 }
 
-void
-SiPhase2RecHitMatcherESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPhase2RecHitMatcherESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("offlinestubs", "vectorHits");
   desc.add<int>("maxVectorHits", 999999999);
   desc.add<std::string>("Algorithm", "VectorHitBuilderAlgorithm");
   desc.add<std::string>("ComponentName", "SiPhase2VectorHitMatcher");
-  desc.add<edm::ESInputTag>("CPE", edm::ESInputTag("phase2StripCPEESProducer","Phase2StripCPE"));
-  desc.add<std::vector<double>>("BarrelCut", {
-    0.0,
-    0.05,
-    0.06,
-    0.08,
-    0.09,
-    0.12,
-    0.2,
-  });
+  desc.add<edm::ESInputTag>("CPE", edm::ESInputTag("phase2StripCPEESProducer", "Phase2StripCPE"));
+  desc.add<std::vector<double>>("BarrelCut",
+                                {
+                                    0.0,
+                                    0.05,
+                                    0.06,
+                                    0.08,
+                                    0.09,
+                                    0.12,
+                                    0.2,
+                                });
   desc.add<std::string>("Phase2CPE_name", "Phase2StripCPE");
   desc.add<std::string>("Clusters", "siPhase2Clusters");
   desc.add<int>("maxVectorHitsInAStack", 999);
-  desc.add<std::vector<double>>("EndcapCut", {
-    0.0,
-    0.1,
-    0.1,
-    0.1,
-    0.1,
-    0.1,
-  });
+  desc.add<std::vector<double>>("EndcapCut",
+                                {
+                                    0.0,
+                                    0.1,
+                                    0.1,
+                                    0.1,
+                                    0.1,
+                                    0.1,
+                                });
   descriptions.add("SiPhase2RecHitMatcherESProducer", desc);
 }
 

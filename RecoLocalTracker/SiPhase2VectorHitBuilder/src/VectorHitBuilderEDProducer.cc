@@ -9,11 +9,11 @@ VectorHitBuilderEDProducer::VectorHitBuilderEDProducer(edm::ParameterSet const& 
       algoTag_(conf.getParameter<std::string>("Algorithm")),
       //_clusterProducer(conf.getParameter<edm::InputTag>("Clusters")),
       readytobuild_(false) {
-  clusterProducer_ = consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(
-      edm::InputTag(conf.getParameter<std::string>("Clusters")));
+  clusterProducer_ =
+      consumes<edmNew::DetSetVector<Phase2TrackerCluster1D>>(edm::InputTag(conf.getParameter<std::string>("Clusters")));
 
-  produces<edmNew::DetSetVector<Phase2TrackerCluster1D> >("ClustersAccepted");
-  produces<edmNew::DetSetVector<Phase2TrackerCluster1D> >("ClustersRejected");
+  produces<edmNew::DetSetVector<Phase2TrackerCluster1D>>("ClustersAccepted");
+  produces<edmNew::DetSetVector<Phase2TrackerCluster1D>>("ClustersRejected");
   produces<VectorHitCollectionNew>(offlinestubsTag_ + "Accepted");
   produces<VectorHitCollectionNew>(offlinestubsTag_ + "Rejected");
   setupAlgorithm(conf);
@@ -25,13 +25,13 @@ void VectorHitBuilderEDProducer::produce(edm::Event& event, const edm::EventSetu
   LogDebug("VectorHitBuilderEDProducer") << "VectorHitBuilderEDProducer::produce() begin";
 
   // get input clusters data
-  edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > clustersHandle;
+  edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clustersHandle;
   event.getByToken(clusterProducer_, clustersHandle);
 
   // create the final output collection
-  std::unique_ptr<edmNew::DetSetVector<Phase2TrackerCluster1D> > outputClustersAccepted(
+  std::unique_ptr<edmNew::DetSetVector<Phase2TrackerCluster1D>> outputClustersAccepted(
       new edmNew::DetSetVector<Phase2TrackerCluster1D>);
-  std::unique_ptr<edmNew::DetSetVector<Phase2TrackerCluster1D> > outputClustersRejected(
+  std::unique_ptr<edmNew::DetSetVector<Phase2TrackerCluster1D>> outputClustersRejected(
       new edmNew::DetSetVector<Phase2TrackerCluster1D>);
   std::unique_ptr<VectorHitCollectionNew> outputVHAccepted(new VectorHitCollectionNew());
   std::unique_ptr<VectorHitCollectionNew> outputVHRejected(new VectorHitCollectionNew());
@@ -84,7 +84,7 @@ void VectorHitBuilderEDProducer::setupAlgorithm(edm::ParameterSet const& conf) {
   }
 }
 
-void VectorHitBuilderEDProducer::run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > clusters,
+void VectorHitBuilderEDProducer::run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
                                      edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersAcc,
                                      edmNew::DetSetVector<Phase2TrackerCluster1D>& clustersRej,
                                      VectorHitCollectionNew& outputAcc,
@@ -96,32 +96,33 @@ void VectorHitBuilderEDProducer::run(edm::Handle<edmNew::DetSetVector<Phase2Trac
 
   stubsBuilder_->run(clusters, outputAcc, outputRej, clustersAcc, clustersRej);
 }
-void
-VectorHitBuilderEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void VectorHitBuilderEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("offlinestubs", "vectorHits");
   desc.add<int>("maxVectorHits", 999999999);
   desc.add<std::string>("Algorithm", "VectorHitBuilderAlgorithm");
-  desc.add<edm::ESInputTag>("CPE", edm::ESInputTag("phase2StripCPEESProducer","Phase2StripCPE"));
-  desc.add<std::vector<double>>("BarrelCut", {
-    0.0,
-    0.05,
-    0.06,
-    0.08,
-    0.09,
-    0.12,
-    0.2,
-  });
+  desc.add<edm::ESInputTag>("CPE", edm::ESInputTag("phase2StripCPEESProducer", "Phase2StripCPE"));
+  desc.add<std::vector<double>>("BarrelCut",
+                                {
+                                    0.0,
+                                    0.05,
+                                    0.06,
+                                    0.08,
+                                    0.09,
+                                    0.12,
+                                    0.2,
+                                });
   desc.add<std::string>("Clusters", "siPhase2Clusters");
   desc.add<int>("maxVectorHitsInAStack", 999);
-  desc.add<std::vector<double>>("EndcapCut", {
-    0.0,
-    0.1,
-    0.1,
-    0.1,
-    0.1,
-    0.1,
-  });
+  desc.add<std::vector<double>>("EndcapCut",
+                                {
+                                    0.0,
+                                    0.1,
+                                    0.1,
+                                    0.1,
+                                    0.1,
+                                    0.1,
+                                });
   descriptions.add("siPhase2VectorHits", desc);
 }
 
