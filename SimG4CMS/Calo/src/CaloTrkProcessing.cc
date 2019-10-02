@@ -29,8 +29,8 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
                                      const edm::EventSetup& es,
                                      const SensitiveDetectorCatalog& clg,
                                      edm::ParameterSet const& p,
-                                     const SimTrackManager* manager)
-    : SensitiveCaloDetector(name, es, clg, p), lastTrackID_(-1), m_trackManager(manager) {
+                                     const SimTrackManager*)
+    : SensitiveCaloDetector(name, es, clg, p), lastTrackID_(-1) {
   //Initialise the parameter set
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("CaloTrkProcessing");
   testBeam_ = m_p.getParameter<bool>("TestBeam");
