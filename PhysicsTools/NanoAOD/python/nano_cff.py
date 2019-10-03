@@ -160,9 +160,6 @@ def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
     process.load("Configuration.StandardSequences.MagneticField_cff")
     process.jetCorrFactorsNano.src="selectedUpdatedPatJetsWithDeepInfo"
     process.updatedJets.jetSource="selectedUpdatedPatJetsWithDeepInfo"
-    if addDeepFlavour:
-        process.pfDeepFlavourJetTagsWithDeepInfo.graph_path = 'RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb'
-        process.pfDeepFlavourJetTagsWithDeepInfo.lp_names = ["cpf_input_batchnorm/keras_learning_phase"]
     return process
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
