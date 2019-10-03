@@ -4,6 +4,7 @@
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 
 class VectorHit2D {
 public:
