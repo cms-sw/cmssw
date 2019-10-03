@@ -21,13 +21,10 @@ namespace Ort {
 
   class ONNXRuntime {
   public:
-    ONNXRuntime();
+    ONNXRuntime(const std::string& model_path, const SessionOptions* session_options = nullptr);
     ONNXRuntime(const ONNXRuntime&) = delete;
     ONNXRuntime& operator=(const ONNXRuntime&) = delete;
-    virtual ~ONNXRuntime();
-
-    // Creates session
-    void createSession(const std::string& model_path, const SessionOptions* session_options = nullptr);
+    ~ONNXRuntime();
 
     // Run inference and get outputs
     // input_names: list of the names of the input nodes.
@@ -37,7 +34,7 @@ namespace Ort {
     // Returns: a std::vector<std::vector<float>>, with the order matched to `output_names`.
     // When `output_names` is empty, will return all outputs ordered as in `getOutputNames()`.
     FloatArrays run(const std::vector<std::string>& input_names,
-                    FloatArrays input_values,
+                    FloatArrays& input_values,
                     const std::vector<std::string>& output_names = {},
                     int64_t batch_size = 1) const;
 

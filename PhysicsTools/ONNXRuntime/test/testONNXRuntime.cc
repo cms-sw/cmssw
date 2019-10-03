@@ -21,19 +21,13 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testONNXRuntime);
 
 void testONNXRuntime::checkAll() {
   std::string model_path = edm::FileInPath("PhysicsTools/ONNXRuntime/test/data/model.onnx").fullPath();
-  std::vector<std::string> input_names = {"X"};
-
-  // load model and params
-  ONNXRuntime rt;
-  CPPUNIT_ASSERT_NO_THROW(rt.createSession(model_path));
-
+  ONNXRuntime rt(model_path);
   for (const unsigned &batch_size : {1, 2, 4}) {
     FloatArrays input_values{
         std::vector<float>(batch_size * 2, 1),
     };
-
     FloatArrays outputs;
-    CPPUNIT_ASSERT_NO_THROW(outputs = rt.run(input_names, input_values, {"Y"}, batch_size));
+    CPPUNIT_ASSERT_NO_THROW(outputs = rt.run({"X"}, input_values, {"Y"}, batch_size));
     CPPUNIT_ASSERT(outputs.size() == 1);
     CPPUNIT_ASSERT(outputs[0].size() == batch_size);
     for (const auto &v : outputs[0]) {
