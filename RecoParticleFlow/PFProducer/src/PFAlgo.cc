@@ -38,24 +38,20 @@ PFAlgo::PFAlgo(double nSigmaECAL,
   assert(factors45_.size() == 2);
 
   // Bad Hcal Track Parameters
-  const edm::ParameterSet PFBadHcalMitigationParams =
-      pset.getParameter<edm::ParameterSet>("PFBadHcalMitigationParameters");
-  goodTrackDeadHcal_ptErrRel_ = PFBadHcalMitigationParams.getParameter<double>("goodTrackDeadHcal_ptErrRel");
-  goodTrackDeadHcal_chi2n_ = PFBadHcalMitigationParams.getParameter<double>("goodTrackDeadHcal_chi2n");
-  goodTrackDeadHcal_layers_ = PFBadHcalMitigationParams.getParameter<uint32_t>("goodTrackDeadHcal_layers");
-  goodTrackDeadHcal_validFr_ = PFBadHcalMitigationParams.getParameter<double>("goodTrackDeadHcal_validFr");
-  goodTrackDeadHcal_dxy_ = PFBadHcalMitigationParams.getParameter<double>("goodTrackDeadHcal_dxy");
+  goodTrackDeadHcal_ptErrRel_ = pset.getParameter<double>("goodTrackDeadHcal_ptErrRel");
+  goodTrackDeadHcal_chi2n_ = pset.getParameter<double>("goodTrackDeadHcal_chi2n");
+  goodTrackDeadHcal_layers_ = pset.getParameter<uint32_t>("goodTrackDeadHcal_layers");
+  goodTrackDeadHcal_validFr_ = pset.getParameter<double>("goodTrackDeadHcal_validFr");
+  goodTrackDeadHcal_dxy_ = pset.getParameter<double>("goodTrackDeadHcal_dxy");
 
-  goodPixelTrackDeadHcal_minEta_ = PFBadHcalMitigationParams.getParameter<double>("goodPixelTrackDeadHcal_minEta");
-  goodPixelTrackDeadHcal_maxPt_ = PFBadHcalMitigationParams.getParameter<double>("goodPixelTrackDeadHcal_maxPt");
-  goodPixelTrackDeadHcal_ptErrRel_ = PFBadHcalMitigationParams.getParameter<double>("goodPixelTrackDeadHcal_ptErrRel");
-  goodPixelTrackDeadHcal_chi2n_ = PFBadHcalMitigationParams.getParameter<double>("goodPixelTrackDeadHcal_chi2n");
-  goodPixelTrackDeadHcal_maxLost3Hit_ =
-      PFBadHcalMitigationParams.getParameter<int32_t>("goodPixelTrackDeadHcal_maxLost3Hit");
-  goodPixelTrackDeadHcal_maxLost4Hit_ =
-      PFBadHcalMitigationParams.getParameter<int32_t>("goodPixelTrackDeadHcal_maxLost4Hit");
-  goodPixelTrackDeadHcal_dxy_ = PFBadHcalMitigationParams.getParameter<double>("goodPixelTrackDeadHcal_dxy");
-  goodPixelTrackDeadHcal_dz_ = PFBadHcalMitigationParams.getParameter<double>("goodPixelTrackDeadHcal_dz");
+  goodPixelTrackDeadHcal_minEta_ = pset.getParameter<double>("goodPixelTrackDeadHcal_minEta");
+  goodPixelTrackDeadHcal_maxPt_ = pset.getParameter<double>("goodPixelTrackDeadHcal_maxPt");
+  goodPixelTrackDeadHcal_ptErrRel_ = pset.getParameter<double>("goodPixelTrackDeadHcal_ptErrRel");
+  goodPixelTrackDeadHcal_chi2n_ = pset.getParameter<double>("goodPixelTrackDeadHcal_chi2n");
+  goodPixelTrackDeadHcal_maxLost3Hit_ = pset.getParameter<int32_t>("goodPixelTrackDeadHcal_maxLost3Hit");
+  goodPixelTrackDeadHcal_maxLost4Hit_ = pset.getParameter<int32_t>("goodPixelTrackDeadHcal_maxLost4Hit");
+  goodPixelTrackDeadHcal_dxy_ = pset.getParameter<double>("goodPixelTrackDeadHcal_dxy");
+  goodPixelTrackDeadHcal_dz_ = pset.getParameter<double>("goodPixelTrackDeadHcal_dz");
 }
 
 PFMuonAlgo* PFAlgo::getPFMuonAlgo() { return pfmu_.get(); }
@@ -990,7 +986,6 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
                          const reco::PFBlockRef& blockref,
                          ElementIndices& inds,
                          std::vector<bool>& deadArea) {
-
   LogTrace("PFAlgo|elementLoop") << "start of function PFAlgo::elementLoop, elements.size()" << elements.size();
 
   for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
