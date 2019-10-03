@@ -16,11 +16,7 @@ namespace Ort {
 
   const OrtApi* g_api = OrtGetApi(ORT_API_VERSION);
 
-  ONNXRuntime::ONNXRuntime() {}
-
-  ONNXRuntime::~ONNXRuntime() {}
-
-  void ONNXRuntime::createSession(const std::string& model_path, const SessionOptions* session_options) {
+  ONNXRuntime::ONNXRuntime(const std::string& model_path, const SessionOptions* session_options) {
     // create session
     if (session_options) {
       session_.reset(new Session(getEnv(), model_path.c_str(), *session_options));
@@ -80,8 +76,10 @@ namespace Ort {
     }
   }
 
+  ONNXRuntime::~ONNXRuntime() {}
+
   FloatArrays ONNXRuntime::run(const std::vector<std::string>& input_names,
-                               FloatArrays input_values,
+                               FloatArrays& input_values,
                                const std::vector<std::string>& output_names,
                                int64_t batch_size) const {
     // create input tensor objects from data values

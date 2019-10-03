@@ -22,13 +22,6 @@
 
 using namespace Ort;
 
-// Hold the ONNX runtime object in the edm::GlobalCache.
-struct ONNXRuntimeCache {
-  ONNXRuntimeCache() : onnx_runtime(nullptr) {}
-
-  std::atomic<ONNXRuntime *> onnx_runtime;
-};
-
 // struct to hold preprocessing parameters
 struct PreprocessParams {
   struct VarInfo {
@@ -52,23 +45,21 @@ struct PreprocessParams {
   }
 };
 
-class DeepBoostedJetTagsONNXProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntimeCache>> {
+class DeepBoostedJetTagsONNXProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
 public:
-  explicit DeepBoostedJetTagsONNXProducer(const edm::ParameterSet &, const ONNXRuntimeCache *);
+  explicit DeepBoostedJetTagsONNXProducer(const edm::ParameterSet &, const ONNXRuntime *);
   ~DeepBoostedJetTagsONNXProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
-  static std::unique_ptr<ONNXRuntimeCache> initializeGlobalCache(const edm::ParameterSet &);
-  static void globalEndJob(const ONNXRuntimeCache *);
+  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet &);
+  static void globalEndJob(const ONNXRuntime *);
 
 private:
   typedef std::vector<reco::DeepBoostedJetTagInfo> TagInfoCollection;
   typedef reco::JetTagCollection JetTagCollection;
 
-  void beginStream(edm::StreamID) override {}
   void produce(edm::Event &, const edm::EventSetup &) override;
-  void endStream() override {}
 
   std::vector<float> center_norm_pad(const std::vector<float> &input,
                                      float center,
@@ -91,7 +82,7 @@ private:
 };
 
 DeepBoostedJetTagsONNXProducer::DeepBoostedJetTagsONNXProducer(const edm::ParameterSet &iConfig,
-                                                               const ONNXRuntimeCache *cache)
+                                                               const ONNXRuntime *cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       debug_(iConfig.getUntrackedParameter<bool>("debugMode", false)) {
@@ -174,23 +165,11 @@ void DeepBoostedJetTagsONNXProducer::fillDescriptions(edm::ConfigurationDescript
   descriptions.add("pfDeepBoostedJetTags", desc);
 }
 
-std::unique_ptr<ONNXRuntimeCache> DeepBoostedJetTagsONNXProducer::initializeGlobalCache(
-    const edm::ParameterSet &iConfig) {
-  // get the model files
-  std::string model_path = iConfig.getParameter<edm::FileInPath>("model_path").fullPath();
-
-  // load the model and save it in the cache
-  ONNXRuntimeCache *cache = new ONNXRuntimeCache();
-  cache->onnx_runtime = new ONNXRuntime();
-  cache->onnx_runtime.load()->createSession(model_path);
-  return std::unique_ptr<ONNXRuntimeCache>(cache);
+std::unique_ptr<ONNXRuntime> DeepBoostedJetTagsONNXProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
+  return std::make_unique<ONNXRuntime>(iConfig.getParameter<edm::FileInPath>("model_path").fullPath());
 }
 
-void DeepBoostedJetTagsONNXProducer::globalEndJob(const ONNXRuntimeCache *cache) {
-  if (cache->onnx_runtime != nullptr) {
-    delete cache->onnx_runtime;
-  }
-}
+void DeepBoostedJetTagsONNXProducer::globalEndJob(const ONNXRuntime *cache) {}
 
 void DeepBoostedJetTagsONNXProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::Handle<TagInfoCollection> tag_infos;
@@ -218,7 +197,7 @@ void DeepBoostedJetTagsONNXProducer::produce(edm::Event &iEvent, const edm::Even
       // convert inputs
       make_inputs(taginfo);
       // run prediction and get outputs
-      outputs = globalCache()->onnx_runtime.load()->run(input_names_, data_)[0];
+      outputs = globalCache()->run(input_names_, data_)[0];
       assert(outputs.size() == flav_names_.size());
     }
 
