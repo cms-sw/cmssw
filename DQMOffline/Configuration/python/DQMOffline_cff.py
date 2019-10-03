@@ -32,8 +32,9 @@ DQMOfflineL1TMuon = cms.Sequence( l1TriggerMuonDqmOffline )
 DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
 				es_dqm_source_offline )
 
-DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence *
-				HcalDQMOfflineSequence )
+DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
+
+DQMOfflineHcal2 = cms.Sequence( HcalDQMOfflineSequence )
 
 DQMOfflineTrackerStrip = cms.Sequence( SiStripDQMTier0 )
 
@@ -51,6 +52,7 @@ DQMOfflinePreDPG = cms.Sequence( DQMOfflineDCS *
 				 DQMOfflineL1T *
                                  DQMOfflineEcal *
                                  DQMOfflineHcal *
+				 DQMOfflineHcal2 *
                                  DQMOfflineTrackerStrip *
 				 DQMOfflineTrackerPixel *
 				 DQMOfflineMuonDPG *
@@ -86,7 +88,7 @@ DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineTrigger = cms.Sequence( triggerOfflineDQMSource )
 
-DQMOfflineBTAG = cms.Sequence( bTagPlotsDATA )
+DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
 
 DQMOfflineBeam = cms.Sequence( alcaBeamMonitor )
 
@@ -97,7 +99,7 @@ DQMOfflinePrePOG = cms.Sequence( DQMOfflineTracking *
                                  DQMOfflineJetMET *
                                  DQMOfflineEGamma *
                                  DQMOfflineTrigger *
-                                 DQMOfflineBTAG *
+                                 DQMOfflineBTag *
                                  DQMOfflineBeam *
                                  DQMOfflinePhysics )
 
@@ -123,7 +125,7 @@ DQMOfflineFakeHLT.remove( DQMOfflineTrigger )
 
 #MC
 DQMOfflinePrePOGMC = cms.Sequence( DQMOfflineVertex *
-                                   DQMOfflineBTAG *
+                                   DQMOfflineBTag *
                                    DQMOfflinePhysics )
 
 DQMOfflinePOGMC = cms.Sequence( DQMOfflinePrePOGMC *
@@ -196,8 +198,6 @@ DQMOfflineMuon = cms.Sequence( dtSources *
                                cscSources *
                                muonMonitors
                               )
-
-DQMOfflineHcal2 = cms.Sequence( hcalOfflineSourceSequence )
 
 #Taus not created in pp conditions for HI
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
