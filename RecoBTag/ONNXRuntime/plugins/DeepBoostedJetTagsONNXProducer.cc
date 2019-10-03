@@ -90,7 +90,8 @@ private:
   bool debug_ = false;
 };
 
-DeepBoostedJetTagsONNXProducer::DeepBoostedJetTagsONNXProducer(const edm::ParameterSet &iConfig, const ONNXRuntimeCache *cache)
+DeepBoostedJetTagsONNXProducer::DeepBoostedJetTagsONNXProducer(const edm::ParameterSet &iConfig,
+                                                               const ONNXRuntimeCache *cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       debug_(iConfig.getUntrackedParameter<bool>("debugMode", false)) {
@@ -173,7 +174,8 @@ void DeepBoostedJetTagsONNXProducer::fillDescriptions(edm::ConfigurationDescript
   descriptions.add("pfDeepBoostedJetTags", desc);
 }
 
-std::unique_ptr<ONNXRuntimeCache> DeepBoostedJetTagsONNXProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
+std::unique_ptr<ONNXRuntimeCache> DeepBoostedJetTagsONNXProducer::initializeGlobalCache(
+    const edm::ParameterSet &iConfig) {
   // get the model files
   std::string model_path = iConfig.getParameter<edm::FileInPath>("model_path").fullPath();
 
@@ -246,12 +248,12 @@ void DeepBoostedJetTagsONNXProducer::produce(edm::Event &iEvent, const edm::Even
 }
 
 std::vector<float> DeepBoostedJetTagsONNXProducer::center_norm_pad(const std::vector<float> &input,
-                                                               float center,
-                                                               float norm_factor,
-                                                               unsigned target_length,
-                                                               float pad_value,
-                                                               float min,
-                                                               float max) {
+                                                                   float center,
+                                                                   float norm_factor,
+                                                                   unsigned target_length,
+                                                                   float pad_value,
+                                                                   float min,
+                                                                   float max) {
   // do variable shifting/scaling/padding/clipping in one go
 
   assert(min <= pad_value && pad_value <= max);

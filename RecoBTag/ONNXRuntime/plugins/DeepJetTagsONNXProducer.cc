@@ -21,7 +21,7 @@ using namespace Ort;
 struct ONNXRuntimeCache {
   ONNXRuntimeCache() : onnx_runtime(nullptr) {}
 
-  std::atomic<ONNXRuntime *> onnx_runtime;
+  std::atomic<ONNXRuntime*> onnx_runtime;
 };
 
 class DeepJetTagsONNXProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntimeCache>> {
@@ -44,7 +44,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override {}
 
-  void make_inputs(unsigned i_jet, const reco::DeepFlavourTagInfo &taginfo);
+  void make_inputs(unsigned i_jet, const reco::DeepFlavourTagInfo& taginfo);
 
   const edm::EDGetTokenT<TagInfoCollection> src_;
   std::vector<std::string> flav_names_;
@@ -56,25 +56,21 @@ private:
   FloatArrays data_;
 };
 
-DeepJetTagsONNXProducer::DeepJetTagsONNXProducer(const edm::ParameterSet& iConfig,
-                                                           const ONNXRuntimeCache* cache)
+DeepJetTagsONNXProducer::DeepJetTagsONNXProducer(const edm::ParameterSet& iConfig, const ONNXRuntimeCache* cache)
     : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names")),
       input_names_(iConfig.getParameter<std::vector<std::string>>("input_names")),
       input_sizes_({15, 400, 150, 48, 1}),
-      output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")){
-
+      output_names_(iConfig.getParameter<std::vector<std::string>>("output_names")) {
   // get output names from flav_names
-  for (const auto &flav_name : flav_names_) {
+  for (const auto& flav_name : flav_names_) {
     produces<JetTagCollection>(flav_name);
   }
 
   assert(input_names_.size() == input_sizes_.size());
-
 }
 
-DeepJetTagsONNXProducer::~DeepJetTagsONNXProducer() {
-}
+DeepJetTagsONNXProducer::~DeepJetTagsONNXProducer() {}
 
 void DeepJetTagsONNXProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // pfDeepFlavourJetTags
@@ -84,19 +80,18 @@ void DeepJetTagsONNXProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<edm::FileInPath>("model_path",
                             edm::FileInPath("RecoBTag/Combined/data/DeepFlavourV03_10X_training/model.onnx"));
   desc.add<std::vector<std::string>>("output_names", {"ID_pred/Softmax:0"});
-  desc.add<std::vector<std::string>>("flav_names",
-                                     std::vector<std::string>{"probb", "probbb", "problepb", "probc", "probuds", "probg"});
+  desc.add<std::vector<std::string>>(
+      "flav_names", std::vector<std::string>{"probb", "probbb", "problepb", "probc", "probuds", "probg"});
 
   descriptions.add("pfDeepFlavourJetTags", desc);
 }
 
-std::unique_ptr<ONNXRuntimeCache> DeepJetTagsONNXProducer::initializeGlobalCache(
-    const edm::ParameterSet& iConfig) {
+std::unique_ptr<ONNXRuntimeCache> DeepJetTagsONNXProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
   // get the model files
   std::string model_path = iConfig.getParameter<edm::FileInPath>("model_path").fullPath();
 
   // load the model and save it in the cache
-  ONNXRuntimeCache *cache = new ONNXRuntimeCache();
+  ONNXRuntimeCache* cache = new ONNXRuntimeCache();
   cache->onnx_runtime = new ONNXRuntime();
   cache->onnx_runtime.load()->createSession(model_path);
   return std::unique_ptr<ONNXRuntimeCache>(cache);
@@ -128,13 +123,13 @@ void DeepJetTagsONNXProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
   // init data storage
   data_.clear();
-  for (const auto &len : input_sizes_){
+  for (const auto& len : input_sizes_) {
     data_.emplace_back(tag_infos->size() * len, 0);
   }
 
   // convert inputs
   for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-    const auto &taginfo = (*tag_infos)[jet_n];
+    const auto& taginfo = (*tag_infos)[jet_n];
     make_inputs(jet_n, taginfo);
   }
 
@@ -145,7 +140,7 @@ void DeepJetTagsONNXProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   // get the outputs
   unsigned i_output = 0;
   for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-    const auto &jet_ref = tag_infos->at(jet_n).jet();
+    const auto& jet_ref = tag_infos->at(jet_n).jet();
     for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
       (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
       ++i_output;
@@ -158,10 +153,9 @@ void DeepJetTagsONNXProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   }
 }
 
-void DeepJetTagsONNXProducer::make_inputs(unsigned i_jet, const reco::DeepFlavourTagInfo &taginfo) {
-
+void DeepJetTagsONNXProducer::make_inputs(unsigned i_jet, const reco::DeepFlavourTagInfo& taginfo) {
   const auto& features = taginfo.features();
-  float *ptr = nullptr;
+  float* ptr = nullptr;
   unsigned offset = 0;
 
   // jet and other global features
@@ -193,7 +187,7 @@ void DeepJetTagsONNXProducer::make_inputs(unsigned i_jet, const reco::DeepFlavou
   offset = i_jet * input_sizes_[kChargedCandidates];
   for (std::size_t c_pf_n = 0; c_pf_n < max_c_pf_n; c_pf_n++) {
     const auto& c_pf_features = features.c_pf_features.at(c_pf_n);
-    ptr = &data_[1][offset + c_pf_n*16];
+    ptr = &data_[1][offset + c_pf_n * 16];
     *ptr = c_pf_features.btagPf_trackEtaRel;
     *(++ptr) = c_pf_features.btagPf_trackPtRel;
     *(++ptr) = c_pf_features.btagPf_trackPPar;
@@ -217,7 +211,7 @@ void DeepJetTagsONNXProducer::make_inputs(unsigned i_jet, const reco::DeepFlavou
   offset = i_jet * input_sizes_[kNeutralCandidates];
   for (std::size_t n_pf_n = 0; n_pf_n < max_n_pf_n; n_pf_n++) {
     const auto& n_pf_features = features.n_pf_features.at(n_pf_n);
-    ptr = &data_[2][offset + n_pf_n*6];
+    ptr = &data_[2][offset + n_pf_n * 6];
     *ptr = n_pf_features.ptrel;
     *(++ptr) = n_pf_features.deltaR;
     *(++ptr) = n_pf_features.isGamma;
@@ -231,7 +225,7 @@ void DeepJetTagsONNXProducer::make_inputs(unsigned i_jet, const reco::DeepFlavou
   offset = i_jet * input_sizes_[kVertices];
   for (std::size_t sv_n = 0; sv_n < max_sv_n; sv_n++) {
     const auto& sv_features = features.sv_features.at(sv_n);
-    ptr = &data_[3][offset + sv_n*12];
+    ptr = &data_[3][offset + sv_n * 12];
     *ptr = sv_features.pt;
     *(++ptr) = sv_features.deltaR;
     *(++ptr) = sv_features.mass;
