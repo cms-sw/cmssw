@@ -29,8 +29,9 @@ DQMOffline_SecondStepMuonDPG = cms.Sequence( dtClients *
                                              rpcTier0Client *
                                              cscOfflineCollisionsClients )
 
-DQMOffline_SecondStepHcal = cms.Sequence( hcalOfflineHarvesting *
-					  HcalDQMOfflinePostProcessor )
+DQMOffline_SecondStepHcal = cms.Sequence( hcalOfflineHarvesting )
+
+DQMOffline_SecondStepHcal2 = cms.Sequence(  HcalDQMOfflinePostProcessor )
 
 DQMOffline_SecondStepFED = cms.Sequence( dqmFEDIntegrityClient )
 
@@ -42,6 +43,7 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence( DQMOffline_SecondStepDCS *
 					     DQMOffline_SecondStepTrackerPixel *
                                              DQMOffline_SecondStepMuonDPG *
 					     DQMOffline_SecondStepHcal *
+					     DQMOffline_SecondStepHcal2 *
                                              DQMOffline_SecondStepFED *
 					     DQMOffline_SecondStepL1T )
 
@@ -68,7 +70,7 @@ DQMOffline_SecondStepEGamma = cms.Sequence( egammaPostProcessing )
 DQMOffline_SecondStepTrigger = cms.Sequence( triggerOfflineDQMClient *
 						hltOfflineDQMClient )
 
-DQMOffline_SecondStepBTAG = cms.Sequence( bTagCollectorSequenceDATA )
+DQMOffline_SecondStepBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
 DQMOffline_SecondStepBeam = cms.Sequence( alcaBeamMonitorClient )
 
@@ -78,7 +80,7 @@ DQMOffline_SecondStep_PrePOG = cms.Sequence( DQMOffline_SecondStepTracking *
                                              DQMOffline_SecondStepMUO *
                                              DQMOffline_SecondStepEGamma *
                                              DQMOffline_SecondStepTrigger *
-                                             DQMOffline_SecondStepBTAG *
+                                             DQMOffline_SecondStepBTag *
                                              DQMOffline_SecondStepBeam *
                                              DQMOffline_SecondStepJetMET )
 
@@ -197,7 +199,9 @@ DQMHarvestEcal = cms.Sequence( ecal_dqm_client_offline *
                                 es_dqm_client_offline
                               )
 
-DQMHarvestHcal = cms.Sequence(hcalOfflineHarvesting)
+DQMHarvestHcal = cms.Sequence( hcalOfflineHarvesting )
+
+DQMHarvestHcal2 = cms.Sequence( HcalDQMOfflinePostProcessor )
 
 DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
 
