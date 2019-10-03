@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 particleFlowTmp = cms.EDProducer("PFProducer",
 
+    # Verbose and debug flags
+    verbose = cms.untracked.bool(False),
+    debug = cms.untracked.bool(False),
+
     # PF Blocks label
     blocks = cms.InputTag("particleFlowBlock"),
 
@@ -12,10 +16,6 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     # Vertices label
     vertexCollection = cms.InputTag("offlinePrimaryVertices"),
     useVerticesForNeutral = cms.bool(True),
-
-    # Verbose and debug flags
-    verbose = cms.untracked.bool(False),
-    debug = cms.untracked.bool(False),
 
     # Use HO clusters in PF hadron reconstruction
     useHO = cms.bool(True),                                 
@@ -87,27 +87,6 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     ), # PFEGammaFiltersParameters ends
     #----------------------------------
 
-    # Input displaced vertices
-    # It is strongly adviced to keep usePFNuclearInteractions = bCorrect                       
-                          
-    rejectTracks_Bad =  cms.bool(True),
-    rejectTracks_Step45 = cms.bool(True),
-
-    usePFNuclearInteractions = cms.bool(True),
-    usePFConversions = cms.bool(True),
-    usePFDecays = cms.bool(False),
-
-    dptRel_DispVtx = cms.double(10.),
-
-    iCfgCandConnector = cms.PSet(
-         bCorrect         =  cms.bool(True),
-         bCalibPrimary    =  cms.bool(True),
-         dptRel_PrimaryTrack = cms.double(10.),
-         dptRel_MergedTrack = cms.double(5.0),
-         ptErrorSecondary = cms.double(1.0),
-         nuclCalibFactors =  cms.vdouble(0.8, 0.15, 0.5, 0.5, 0.05)
-    ),
-
     # Treatment of muons : 
     # Expected energy in ECAL and HCAL, and RMS
     muon_HCAL = cms.vdouble(3.0,3.0),
@@ -144,11 +123,28 @@ particleFlowTmp = cms.EDProducer("PFProducer",
         cosmicRejectionDistance = cms.double(1.)
     ),
     #----------------------------------
-<<<<<<< HEAD
-                             
-=======
-                                 
->>>>>>> ccd41d9db7baafeb3f7971832eb1d5c106d364df
+
+    # Input displaced vertices
+    # It is strongly adviced to keep usePFNuclearInteractions = bCorrect                       
+                          
+    rejectTracks_Bad =  cms.bool(True),
+    rejectTracks_Step45 = cms.bool(True),
+
+    usePFNuclearInteractions = cms.bool(True),
+    usePFConversions = cms.bool(True),
+    usePFDecays = cms.bool(False),
+
+    dptRel_DispVtx = cms.double(10.),
+
+    iCfgCandConnector = cms.PSet(
+         bCorrect         =  cms.bool(True),
+         bCalibPrimary    =  cms.bool(True),
+         dptRel_PrimaryTrack = cms.double(10.),
+         dptRel_MergedTrack = cms.double(5.0),
+         ptErrorSecondary = cms.double(1.0),
+         nuclCalibFactors =  cms.vdouble(0.8, 0.15, 0.5, 0.5, 0.05)
+    ),
+
     # Treatment of potential fake tracks
     # Number of sigmas for fake track detection
     nsigma_TRACK = cms.double(1.0),
@@ -222,11 +218,6 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     calibHF_b_HADonly = cms.vdouble(1.27541,0.85361,0.86333,0.89091,0.94348,0.94348,0.94370,1.0034,1.0444,1.0444),
     calibHF_a_EMHAD   = cms.vdouble(1.42215,1.00496,0.68961,0.81656,0.98504,0.98504,1.00802,1.0593,1.4576,1.4576),
     calibHF_b_EMHAD   = cms.vdouble(1.27541,0.85361,0.86333,0.89091,0.94348,0.94348,0.94370,1.0034,1.0444,1.0444)
-<<<<<<< HEAD
-
-=======
- 
->>>>>>> ccd41d9db7baafeb3f7971832eb1d5c106d364df
 )
 
 from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
