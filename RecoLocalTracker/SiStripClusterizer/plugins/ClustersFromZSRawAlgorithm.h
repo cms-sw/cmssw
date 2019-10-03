@@ -16,6 +16,7 @@ public:
                       Det const & det, OUT & out) const {
 
     constexpr int clusterNoiseCutFactor = 4;  // 10^2/5^2 : 10 because noise is store *10; 5 because os a 5 sigma S/N cut
+    constexpr int stripNoiseCutFactor = 5; // 10/2
 
     auto sti = siStripClusterTools::sensorThicknessInverse(det.detId);
     int is=0;
@@ -25,9 +26,9 @@ public:
     while (is<lenght) {
        uint16_t firstFedStrip = stripOffset + data[(offset++) ^ 7];
        uint16_t firstStrip = firstFedStrip;
-       auto weight = det.weight(firstStrip);
-       int noise = det.aveNoise(firstStrip);
-       int clusFedSize = data[(offset++) ^ 7];
+       auto const weight = det.weight(firstStrip);
+       const int noise = det.aveNoise(firstStrip);
+       const int clusFedSize = data[(offset++) ^ 7];
        bool extend = (firstStrip == endStrip);
        endStrip = firstStrip+clusFedSize;
        is+=clusFedSize+2;
@@ -85,7 +86,7 @@ public:
         if constexpr (NOISE_CUT) {
           // uint16_t strip = firstFedStrip+ic;
           // int noise = det.rawNoise(strip);
-          if (5*ladc<noise) ladc=0;
+          if (stripNoiseCutFactor*ladc<noise) ladc=0;
           else  noise2 += noise*noise;  // cannot overflow
         }
         if (0==ladc) {
