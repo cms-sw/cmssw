@@ -8,3 +8,5 @@
   <use   name="CondFormats/MFObjects"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<test name="MagneticFieldGeomBuilderTest" command="testMagneticFieldDB.sh"/>
