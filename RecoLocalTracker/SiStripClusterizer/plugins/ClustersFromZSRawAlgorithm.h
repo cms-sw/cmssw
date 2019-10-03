@@ -11,7 +11,7 @@ public:
 
   using Det = StripClusterizerAlgorithm::Det;
 
-  template<typename OUT, bool WIDE_CLUS = false, bool NOISE_CUT=false>
+  template<typename OUT, bool WIDE_CLUS = false, bool NOISE_CUT=true>
   void clustersFromZS(uint8_t const * data, int offset, int lenght, uint16_t stripOffset,
                       Det const & det, OUT & out) const {
 
@@ -26,6 +26,7 @@ public:
        uint16_t firstFedStrip = stripOffset + data[(offset++) ^ 7];
        uint16_t firstStrip = firstFedStrip;
        auto weight = det.weight(firstStrip);
+       int noise = det.aveNoise(firstStrip);
        int clusFedSize = data[(offset++) ^ 7];
        bool extend = (firstStrip == endStrip);
        endStrip = firstStrip+clusFedSize;
@@ -81,6 +82,12 @@ public:
       // loop over strips
       for (int ic=0; ic<clusFedSize; ++ic) {
         auto ladc = data[(offset++) ^ 7];
+        if constexpr (NOISE_CUT) {
+          // uint16_t strip = firstFedStrip+ic;
+          // int noise = det.rawNoise(strip);
+          if (5*ladc<noise) ladc=0;
+          else  noise2 += noise*noise;  // cannot overflow
+        }
         if (0==ladc) {
           if (clusSize>0) {
              saveCluster();
@@ -89,12 +96,6 @@ public:
           firstStrip = firstFedStrip + ic+1;
           extend=false;
           continue;
-        }
-        if constexpr (NOISE_CUT) {
-          uint16_t strip = firstFedStrip+ic;
-          int noise = det.rawNoise(strip);
-          if (5*ladc<noise) ladc=0;
-          else  noise2 += noise*noise;  // cannot overflow
         }
         sumRaw += ladc; // no way it can overflow
         if (ladc < 254) {

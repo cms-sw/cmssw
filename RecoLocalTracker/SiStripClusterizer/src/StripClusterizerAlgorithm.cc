@@ -187,11 +187,25 @@ void StripClusterizerAlgorithm::fillDets() {
     det.qualityRange = qualityHandle->getRangeByPos(indices[det.ind].qi);
     det.quality = qualityHandle.product();
 
+    // fill "weight"
     auto gainRange = gainHandle->getRangeByPos(indices[det.ind].gi);
     int s = gainRange.second-gainRange.first;
     assert(s==4 || s==6);
     for (int ic=0; ic<s; ++ic)
       det.m_weight[ic] = 1.f/(*(gainRange.first+ic));
+    // fill average noise"
+    for (int ic=0; ic<s; ++ic) {
+      auto fs=128*ic;
+      auto ns=0;
+      int an = 0;
+      for (auto is=fs;is<fs+128; ++is) {
+        auto n = det.rawNoise(is);
+        if (n>0 && n<500) {an+=n; ++ns;}
+      }
+      det.m_noise[ic] = ns>0 ?  (an+ns/2)/ns : 0;
+      assert(det.m_noise[ic]<500);
+    }  
+
 #ifdef EDM_ML_DEBUG
     assert(detIds[det.ind] == det.detId);
     auto oldn = noiseHandle->getRange(id);
