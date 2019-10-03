@@ -59,7 +59,6 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm:
       maxBufferedFiles_(pset.getUntrackedParameter<unsigned int>("maxBufferedFiles", 2)),
       getLSFromFilename_(pset.getUntrackedParameter<bool>("getLSFromFilename", true)),
       alwaysStartFromFirstLS_(pset.getUntrackedParameter<bool>("alwaysStartFromFirstLS", false)),
-      verifyAdler32_(pset.getUntrackedParameter<bool>("verifyAdler32", true)),
       verifyChecksum_(pset.getUntrackedParameter<bool>("verifyChecksum", true)),
       useL1EventID_(pset.getUntrackedParameter<bool>("useL1EventID", false)),
       fileNames_(pset.getUntrackedParameter<std::vector<std::string>>("fileNames", std::vector<std::string>())),
@@ -205,8 +204,8 @@ void FedRawDataInputSource::fillDescriptions(edm::ConfigurationDescriptions& des
       ->setComment("Maximum number of simultaneously buffered raw files");
   desc.addUntracked<unsigned int>("alwaysStartFromfirstLS", false)
       ->setComment("Force source to start from LS 1 if server provides higher lumisection number");
-  desc.addUntracked<bool>("verifyAdler32", true)->setComment("Verify event Adler32 checksum with FRDv3 or v4");
-  desc.addUntracked<bool>("verifyChecksum", true)->setComment("Verify event CRC-32C checksum of FRDv5 or higher");
+  desc.addUntracked<bool>("verifyChecksum", true)
+      ->setComment("Verify event CRC-32C checksum of FRDv5 and higher or Adler32 with v3 and v4");
   desc.addUntracked<bool>("useL1EventID", false)
       ->setComment("Use L1 event ID from FED header if true or from TCDS FED if false");
   desc.addUntracked<bool>("fileListMode", false)
@@ -587,7 +586,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
           << "Found a wrong crc32c checksum: expected 0x" << std::hex << event_->crc32c() << " but calculated 0x"
           << crc;
     }
-  } else if (verifyAdler32_ && event_->version() >= 3) {
+  } else if (verifyChecksum_ && event_->version() >= 3) {
     uint32_t adler = adler32(0L, Z_NULL, 0);
     adler = adler32(adler, (Bytef*)event_->payload(), event_->eventSize());
 

@@ -8,8 +8,10 @@
   <use   name="FWCore/Sources"/>
   <use   name="FWCore/Utilities"/>
   <use   name="IOPool/Streamer"/>
+  <use   name="DQMServices/Core"/>
   <use   name="CLHEP"/>
   <use   name="boost"/>
   <use   name="root"/>
+  <use   name="classlib"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
