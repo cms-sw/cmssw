@@ -14,16 +14,29 @@ from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cosmic_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 
-DQMOfflineCosmicsPreDPG = cms.Sequence( dqmDcsInfo *
-                                        ecal_dqm_source_offline *
-                                        hcalOfflineSourceSequence *
-                                        SiStripDQMTier0 *
-                                        siPixelOfflineDQM_cosmics_source *
-                                        dtSourcesCosmics *
-                                        rpcTier0Source *
-                                        cscSources *
-                                        es_dqm_source_offline *
-                                        castorSources )
+DQMOfflineCosmicsDCS = cms.Sequence( dqmDcsInfo )
+
+DQMOfflineCosmicsEcal = cms.Sequence( ecal_dqm_source_offline *
+                                es_dqm_source_offline )
+
+DQMOfflineCosmicsHcal = cms.Sequence( hcalOfflineSourceSequence )
+
+DQMOfflineCosmicsTracker = cms.Sequence( SiStripDQMTier0 *
+				  siPixelOfflineDQM_cosmics_source )
+
+DQMOfflineCosmicsMuonDPG = cms.Sequence( dtSourcesCosmics *
+                                  rpcTier0Source *
+                                  cscSources )
+
+DQMOfflineCosmicsCASTOR = cms.Sequence( castorSources )
+
+DQMOfflineCosmicsPreDPG = cms.Sequence( DQMOfflineCosmicsDCS *
+                                        DQMOfflineCosmicsEcal *
+                                        DQMOfflineCosmicsHcal *
+                                        DQMOfflineCosmicsTracker *
+					DQMOfflineCosmicsMuonDPG *
+                                        DQMOfflineCosmicsCASTOR 
+					)
 
 DQMOfflineCosmicsDPG = cms.Sequence( DQMOfflineCosmicsPreDPG *
                                      DQMMessageLogger )
@@ -36,13 +49,25 @@ from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_cosmics_cff import *
 from DQM.Physics.DQMPhysics_cff import *
 
-DQMOfflineCosmicsPrePOG = cms.Sequence( TrackingDQMTier0 *
-                                        muonCosmicMonitors *
-                                        jetMETDQMOfflineSourceCosmic *
-                                        egammaCosmicPhotonMonitors *
-                                        l1TriggerDqmOfflineCosmics *
-                                        triggerCosmicOfflineDQMSource *
-                                        dqmPhysicsCosmics
+DQMOfflineCosmicsTracking = cms.Sequence( TrackingDQMTier0 )
+
+DQMOfflineCosmicsMUO = cms.Sequence( muonCosmicMonitors )
+
+DQMOfflineCosmicsJetMET = cms.Sequence( jetMETDQMOfflineSourceCosmic )
+
+DQMOfflineCosmicsEGamma = cms.Sequence( egammaCosmicPhotonMonitors )
+
+DQMOfflineCosmicsTrigger = cms.Sequence( l1TriggerDqmOfflineCosmics *
+					 triggerCosmicOfflineDQMSource )
+
+DQMOfflineCosmicsPhysics = cms.Sequence( dqmPhysicsCosmics )
+
+DQMOfflineCosmicsPrePOG = cms.Sequence( DQMOfflineCosmicsTracking *
+                                        DQMOfflineCosmicsMUO *
+                                        DQMOfflineCosmicsJetMET *
+                                        DQMOfflineCosmicsEGamma *
+                                        DQMOfflineCosmicsTrigger *
+					DQMOfflineCosmicsPhysics
                                         )
 
 DQMOfflineCosmicsPOG = cms.Sequence( DQMOfflineCosmicsPrePOG *
@@ -51,5 +76,3 @@ DQMOfflineCosmicsPOG = cms.Sequence( DQMOfflineCosmicsPrePOG *
 DQMOfflineCosmics = cms.Sequence( DQMOfflineCosmicsPreDPG *
                                   DQMOfflineCosmicsPrePOG *
                                   DQMMessageLogger )
-
-DQMOfflineCosmicsPhysics = cms.Sequence( dqmPhysicsCosmics )
