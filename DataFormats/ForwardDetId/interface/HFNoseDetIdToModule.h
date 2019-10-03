@@ -10,8 +10,8 @@ public:
   /** This translated TriggerDetId to Module and viceversa for HFNose*/
   HFNoseDetIdToModule();
 
-  static const HFNoseDetId getModule(HFNoseDetId const& id) { return id.geometryCell(); }
-  static const HFNoseDetId getModule(HFNoseTriggerDetId const& id) { return id.geometryCell(); }
+  static const HFNoseDetId getModule(HFNoseDetId const& id) { return id.moduleId(); }
+  static const HFNoseDetId getModule(HFNoseTriggerDetId const& id) { return id.moduleId(); }
   std::vector<HFNoseDetId> getDetIds(HFNoseDetId const& id) const;
   std::vector<HFNoseTriggerDetId> getTriggerDetIds(HFNoseDetId const& id) const;
 };
