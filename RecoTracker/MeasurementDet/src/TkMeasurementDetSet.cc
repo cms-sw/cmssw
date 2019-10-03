@@ -42,5 +42,6 @@ void PxMeasurementConditionSet::init(int size) {
 void Phase2OTMeasurementConditionSet::init(int size) {
   activeThisPeriod_.resize(size, true);
   id_.resize(size);
-  if (size > 0) matcher()->algo()->initCpe(cpe());
+  if (size > 0)
+    matcher()->algo()->initCpe(cpe());
 }
