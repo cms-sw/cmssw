@@ -35,8 +35,9 @@ DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
 DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence *
 				HcalDQMOfflineSequence )
 
-DQMOfflineTracker = cms.Sequence( SiStripDQMTier0 * 
-				siPixelOfflineDQM_source )
+DQMOfflineTrackerStrip = cms.Sequence( SiStripDQMTier0 )
+
+DQMOfflineTrackerPixel = cms.Sequence( 	siPixelOfflineDQM_source )
 
 DQMOfflineMuonDPG = cms.Sequence( dtSources *
                                   rpcTier0Source *
@@ -50,7 +51,8 @@ DQMOfflinePreDPG = cms.Sequence( DQMOfflineDCS *
 				 DQMOfflineL1T *
                                  DQMOfflineEcal *
                                  DQMOfflineHcal *
-                                 DQMOfflineTracker *
+                                 DQMOfflineTrackerStrip *
+				 DQMOfflineTrackerPixel *
 				 DQMOfflineMuonDPG *
                                  DQMOfflineCASTOR *
                                  DQMOfflineCTPPS )
