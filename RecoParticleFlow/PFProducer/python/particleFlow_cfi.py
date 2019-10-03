@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 particleFlowTmp = cms.EDProducer("PFProducer",
 
+    # Verbose and debug flags
+    verbose = cms.untracked.bool(False),
+    debug = cms.untracked.bool(False),
+
     # PF Blocks label
     blocks = cms.InputTag("particleFlowBlock"),
 
@@ -12,10 +16,6 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     # Vertices label
     vertexCollection = cms.InputTag("offlinePrimaryVertices"),
     useVerticesForNeutral = cms.bool(True),
-
-    # Verbose and debug flags
-    verbose = cms.untracked.bool(False),
-    debug = cms.untracked.bool(False),
 
     # Use HO clusters in PF hadron reconstruction
     useHO = cms.bool(True),                                 
