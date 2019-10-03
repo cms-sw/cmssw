@@ -34,7 +34,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     #----------------------------------
     # For PFEGammaFilters
     #----------------------------------
-    PFEGammaFilterParameters = cms.PSet(
+    PFEGammaFiltersParameters = cms.PSet(
 
         # New electron selection cuts for CMSSW_700
         electron_iso_pt = cms.double(10.0),
@@ -84,12 +84,12 @@ particleFlowTmp = cms.EDProducer("PFProducer",
             sumPtTrackIso = cms.double(4.0),
             sumPtTrackIsoSlope = cms.double(0.001)
         )
-    ), # PFEGammaFilterParameters ends
+    ), # PFEGammaFiltersParameters ends
     #----------------------------------
 
     # Input displaced vertices
     # It is strongly adviced to keep usePFNuclearInteractions = bCorrect                       
-                              
+                          
     rejectTracks_Bad =  cms.bool(True),
     rejectTracks_Step45 = cms.bool(True),
 
@@ -100,12 +100,12 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     dptRel_DispVtx = cms.double(10.),
 
     iCfgCandConnector = cms.PSet(
-	 bCorrect         =  cms.bool(True), 
-	 bCalibPrimary    =  cms.bool(True),
+         bCorrect         =  cms.bool(True), 
+         bCalibPrimary    =  cms.bool(True),
          dptRel_PrimaryTrack = cms.double(10.),
          dptRel_MergedTrack = cms.double(5.0),
          ptErrorSecondary = cms.double(1.0),
-	 nuclCalibFactors =  cms.vdouble(0.8, 0.15, 0.5, 0.5, 0.05)
+         nuclCalibFactors =  cms.vdouble(0.8, 0.15, 0.5, 0.5, 0.05)
     ),
 
     # Treatment of muons : 
@@ -144,7 +144,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
         cosmicRejectionDistance = cms.double(1.)
     ),
     #----------------------------------
-                                 
+                             
     # Treatment of potential fake tracks
     # Number of sigmas for fake track detection
     nsigma_TRACK = cms.double(1.0),
@@ -202,7 +202,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
                 cms.InputTag("particleFlowRecHitHF","Cleaned"),
                 cms.InputTag("particleFlowClusterHF","Cleaned")
                 ),
-    
+  
     # number of sigmas for neutral energy detection
     pf_nsigma_ECAL = cms.double(0.0),
     pf_nsigma_HCAL = cms.double(1.0),
@@ -218,7 +218,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     calibHF_b_HADonly = cms.vdouble(1.27541,0.85361,0.86333,0.89091,0.94348,0.94348,0.94370,1.0034,1.0444,1.0444),
     calibHF_a_EMHAD   = cms.vdouble(1.42215,1.00496,0.68961,0.81656,0.98504,0.98504,1.00802,1.0593,1.4576,1.4576),
     calibHF_b_EMHAD   = cms.vdouble(1.27541,0.85361,0.86333,0.89091,0.94348,0.94348,0.94370,1.0034,1.0444,1.0444)
- 
+
 )
 
 from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
