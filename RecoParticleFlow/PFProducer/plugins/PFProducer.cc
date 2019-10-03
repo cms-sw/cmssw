@@ -49,6 +49,8 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   const edm::EDPutTokenT<reco::PFCandidateCollection> pfCandidatesToken_;
   const edm::EDPutTokenT<reco::PFCandidateCollection> pfCleanedCandidatesToken_;
@@ -182,8 +184,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   pfAlgo_.setEGammaParameters(use_EGammaFilters_, useProtectionsForJetMET);
 
   if (use_EGammaFilters_) {
-    const edm::ParameterSet pfEGammaFilterParams = iConfig.getParameter<edm::ParameterSet>("PFEGammaFilterParameters");
-    pfegamma_ = std::make_unique<PFEGammaFilters>(pfEGammaFilterParams);
+    const edm::ParameterSet pfEGammaFiltersParams = iConfig.getParameter<edm::ParameterSet>("PFEGammaFiltersParameters");
+    pfegamma_ = std::make_unique<PFEGammaFilters>(pfEGammaFiltersParams);
   }
 
   // Secondary tracks and displaced vertices parameters
@@ -306,4 +308,337 @@ void PFProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     // Save added muon candidates
     iEvent.put(muAlgo.transferAddedMuonCandidates(), "AddedMuonsAndHadrons");
   }
+}
+
+void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  // Verbosity and debug flags
+  desc.addUntracked<bool>("verbose", false);
+  desc.addUntracked<bool>("debug", false);
+
+  // PF Blocks label
+  desc.add<edm::InputTag>("blocks", edm::InputTag("particleFlowBlock"));
+
+  // reco::muons label and Post Muon cleaning
+  desc.add<edm::InputTag>("muons", edm::InputTag("muons1stStep"));
+  desc.add<bool>("postMuonCleaning", true);
+
+  // Vertices label
+  desc.add<edm::InputTag>("vertexCollection", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("useVerticesForNeutral", true);
+
+  // Use HO clusters in PF hadron reconstruction
+  desc.add<bool>("useHO", true);
+
+  // EGamma-related
+  desc.add<edm::InputTag>("PFEGammaCandidates", edm::InputTag("particleFlowEGamma"));
+  desc.add<edm::InputTag>("GedElectronValueMap", edm::InputTag("gedGsfElectronsTmp"));
+  desc.add<edm::InputTag>("GedPhotonValueMap", edm::InputTag("gedPhotonsTmp", "valMapPFEgammaCandToPhoton"));
+
+  desc.add<bool>("useEGammaElectrons", true);
+  desc.add<edm::InputTag>("egammaElectrons", edm::InputTag("mvaElectrons"));
+
+  desc.add<bool>("useEGammaFilters", true);
+  desc.add<bool>("useProtectionsForJetMET", true);  // Propagated to PFEGammaFilters
+
+  // For PFEGammaFilters
+  {
+    edm::ParameterSetDescription psd0;
+    
+    // Electron selection cuts
+    psd0.add<double>("electron_iso_pt", 10.0);
+    psd0.add<double>("electron_iso_mva_barrel", -0.1875);
+    psd0.add<double>("electron_iso_mva_endcap", -0.1075);
+    psd0.add<double>("electron_iso_combIso_barrel", 10.0);
+    psd0.add<double>("electron_iso_combIso_endcap", 10.0);
+    psd0.add<double>("electron_noniso_mvaCut", -0.1);
+    psd0.add<unsigned int>("electron_missinghits", 1);
+    psd0.add<double>("electron_ecalDrivenHademPreselCut", 0.15);
+    psd0.add<double>("electron_maxElePtForOnlyMVAPresel", 50.0);
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("maxNtracks", 3.0);  // max tracks pointing at Ele cluster
+      psd1.add<double>("maxHcalE", 10.0);
+      psd1.add<double>("maxTrackPOverEele", 1.0);
+      psd1.add<double>("maxE", 50.0);  // for dphi cut
+      psd1.add<double>("maxEleHcalEOverEcalE", 0.1);
+      psd1.add<double>("maxEcalEOverPRes", 0.2);
+      psd1.add<double>("maxEeleOverPoutRes", 0.5);
+      psd1.add<double>("maxHcalEOverP", 1.0);
+      psd1.add<double>("maxHcalEOverEcalE", 0.1);
+      psd1.add<double>("maxEcalEOverP_1", 0.5);  //pion rejection
+      psd1.add<double>("maxEcalEOverP_2", 0.2);  //weird events
+      psd1.add<double>("maxEeleOverPout", 0.2);
+      psd1.add<double>("maxDPhiIN", 0.1);
+      psd0.add<edm::ParameterSetDescription>("electron_protectionsForJetMET", psd1);
+    }
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<bool>("enableProtections", false);
+      psd1.add<std::vector<double>>("full5x5_sigmaIetaIeta",  // EB, EE; 94Xv2 cut-based medium id
+                                    {
+                                        0.0106,
+                                        0.0387,
+                                    });
+      psd1.add<std::vector<double>>("eInvPInv",
+                                    {
+                                        0.184,
+                                        0.0721,
+                                    });
+      psd1.add<std::vector<double>>("dEta",  // relax factor 2 to be safer against misalignment
+                                    {
+                                        0.0032 * 2,
+                                        0.00632 * 2,
+                                    });
+      psd1.add<std::vector<double>>("dPhi",
+                                    {
+                                        0.0547,
+                                        0.0394,
+                                    });
+      psd0.add<edm::ParameterSetDescription>("electron_protectionsForBadHcal", psd1);
+    }
+
+    // Photon selection cuts
+    psd0.add<double>("photon_MinEt", 10.0);
+    psd0.add<double>("photon_combIso", 10.0);
+    psd0.add<double>("photon_HoE", 0.05);
+    psd0.add<double>("photon_SigmaiEtaiEta_barrel", 0.0125);
+    psd0.add<double>("photon_SigmaiEtaiEta_endcap", 0.034);
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("sumPtTrackIso", 4.0);
+      psd1.add<double>("sumPtTrackIsoSlope", 0.001);
+      psd0.add<edm::ParameterSetDescription>("photon_protectionsForJetMET", psd1);
+    }
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("solidConeTrkIsoSlope", 0.3);
+      psd1.add<bool>("enableProtections", false);
+      psd1.add<double>("solidConeTrkIsoOffset", 10.0);
+      psd0.add<edm::ParameterSetDescription>("photon_protectionsForBadHcal", psd1);
+    }
+
+    desc.add<edm::ParameterSetDescription>("PFEGammaFiltersParameters", psd0);
+  }
+
+  // Treatment of muons :
+  // Expected energy in ECAL and HCAL, and RMS
+  desc.add<std::vector<double>>("muon_HCAL",
+                                {
+                                    3.0,
+                                    3.0,
+                                });
+  desc.add<std::vector<double>>("muon_ECAL",
+                                {
+                                    0.5,
+                                    0.5,
+                                });
+  desc.add<std::vector<double>>("muon_HO",
+                                {
+                                    0.9,
+                                    0.9,
+                                });
+
+  // For PFMuonAlgo
+  {
+    edm::ParameterSetDescription psd0;
+    // Muon ID and post cleaning parameters
+    psd0.add<double>("maxDPtOPt", 1.0);
+    psd0.add<int>("minTrackerHits", 8);
+    psd0.add<int>("minPixelHits", 1);
+    psd0.add<std::string>("trackQuality", "highPurity");
+    psd0.add<double>("dzPV", 0.2);
+    psd0.add<double>("ptErrorScale", 8.0);    
+    psd0.add<double>("minPtForPostCleaning", 20.0);    
+    psd0.add<double>("eventFactorForCosmics", 10.0);
+    psd0.add<double>("metSignificanceForCleaning", 3.0);
+    psd0.add<double>("metSignificanceForRejection", 4.0);    
+    psd0.add<double>("metFactorForCleaning", 4.0);
+    psd0.add<double>("eventFractionForCleaning", 0.5);
+    psd0.add<double>("eventFractionForRejection", 0.8);    
+    psd0.add<double>("metFactorForRejection", 4.0);
+    psd0.add<double>("metFactorForHighEta", 25.0);
+    psd0.add<double>("ptFactorForHighEta", 2.0);
+    psd0.add<double>("metFactorForFakes", 4.0);    
+    psd0.add<double>("minMomentumForPunchThrough", 100.0);
+    psd0.add<double>("minEnergyForPunchThrough", 100.0);    
+    psd0.add<double>("punchThroughFactor", 3.0);
+    psd0.add<double>("punchThroughMETFactor", 4.0);
+    psd0.add<double>("cosmicRejectionDistance", 1.0);
+    desc.add<edm::ParameterSetDescription>("PFMuonAlgoParameters", psd0);
+  }
+
+  // Input displaced vertices
+  // It is strongly adviced to keep usePFNuclearInteractions = bCorrect
+  desc.add<bool>("rejectTracks_Bad", true);
+  desc.add<bool>("rejectTracks_Step45", true);
+
+  desc.add<bool>("usePFNuclearInteractions", true);
+  desc.add<bool>("usePFConversions", true);
+  desc.add<bool>("usePFDecays", false);
+
+  desc.add<double>("dptRel_DispVtx", 10.0);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<bool>("bCorrect", true);
+    psd0.add<bool>("bCalibPrimary", true);
+    psd0.add<double>("dptRel_PrimaryTrack", 10.0);
+    psd0.add<double>("dptRel_MergedTrack", 5.0);
+    psd0.add<double>("ptErrorSecondary", 1.0);
+    psd0.add<std::vector<double>>("nuclCalibFactors",
+                                  {
+                                      0.8,
+                                      0.15,
+                                      0.5,
+                                      0.5,
+                                      0.05,
+                                  });
+    desc.add<edm::ParameterSetDescription>("iCfgCandConnector", psd0);
+  }
+
+  // Treatment of potential fake tracks
+  // Number of sigmas for fake track detection
+  desc.add<double>("nsigma_TRACK", 1.0);
+  // Absolute pt error to detect fake tracks in the first three iterations
+  // dont forget to modify also ptErrorSecondary if you modify this parameter
+  desc.add<double>("pt_Error", 1.0);
+  // Factors to be applied in the four and fifth steps to the pt error
+  desc.add<std::vector<double>>("factors_45",
+                                {
+                                    10.0,
+                                    100.0,
+                                });
+
+  // Treatment of tracks in region of bad HCal
+  {
+    edm::ParameterSetDescription psd0;
+
+    psd0.add<double>("goodTrackDeadHcal_ptErrRel", 0.2);  // trackRef->ptError()/trackRef->pt() < X
+    psd0.add<double>("goodTrackDeadHcal_chi2n", 5);       // trackRef->normalizedChi2() < X
+    psd0.add<unsigned int>("goodTrackDeadHcal_layers",
+                           4);                           // trackRef->hitPattern().trackerLayersWithMeasurement() >= X
+    psd0.add<double>("goodTrackDeadHcal_validFr", 0.5);  // trackRef->validFraction() > X
+    psd0.add<double>("goodTrackDeadHcal_dxy", 0.5);      // [cm] abs(trackRef->dxy(primaryVertex_.position())) < X
+
+    psd0.add<double>("goodPixelTrackDeadHcal_minEta", 2.3);    // abs(trackRef->eta()) > X
+    psd0.add<double>("goodPixelTrackDeadHcal_maxPt", 50.0);    // trackRef->ptError()/trackRef->pt() < X
+    psd0.add<double>("goodPixelTrackDeadHcal_ptErrRel", 1.0);  // trackRef->ptError()/trackRef->pt() < X
+    psd0.add<double>("goodPixelTrackDeadHcal_chi2n", 2);       // trackRef->normalizedChi2() < X
+    psd0.add<int>(
+        "goodPixelTrackDeadHcal_maxLost3Hit",
+        0);  // max missing outer hits for a track with 3 valid pixel layers (can set to -1 to reject all these tracks)
+    psd0.add<int>("goodPixelTrackDeadHcal_maxLost4Hit",
+                  1);  // max missing outer hits for a track with >= 4 valid pixel layers
+    psd0.add<double>("goodPixelTrackDeadHcal_dxy", 0.02);  // [cm] abs(trackRef->dxy(primaryVertex_.position())) < X
+    psd0.add<double>("goodPixelTrackDeadHcal_dz", 0.05);   // [cm] abs(trackRef->dz(primaryVertex_.position())) < X
+
+    desc.add<edm::ParameterSetDescription>("PFBadHcalMitigationParameters", psd0);
+  }
+
+  // number of sigmas for neutral energy detection
+  desc.add<double>("pf_nsigma_ECAL", 0.0);
+  desc.add<double>("pf_nsigma_HCAL", 1.0);
+
+  // ECAL/HCAL PF cluster calibration : take it from global tag ?
+  desc.add<bool>("useCalibrationsFromDB", true);
+  desc.add<std::string>("calibrationsLabel", "");
+
+  // Post HF cleaning
+  desc.add<bool>("postHFCleaning", false);
+  {
+    edm::ParameterSetDescription psd0;
+    // Clean only objects with pt larger than this value
+    psd0.add<double>("minHFCleaningPt", 5.0);
+    // Clean only if the initial MET/sqrt(sumet) is larger than this value
+    psd0.add<double>("maxSignificance", 2.5);
+    // Clean only if the final MET/sqrt(sumet) is smaller than this value
+    psd0.add<double>("minSignificance", 2.5);
+    // Clean only if the significance reduction is larger than this value
+    psd0.add<double>("minSignificanceReduction", 1.4);
+    // Clean only if the MET and the to-be-cleaned object satisfy this DeltaPhi * Pt cut
+    // (the MET angular resoution is in 1/MET)
+    psd0.add<double>("maxDeltaPhiPt", 7.0);
+    // Clean only if the MET relative reduction from the to-be-cleaned object
+    // is larger than this value
+    psd0.add<double>("minDeltaMet", 0.4);  //
+    desc.add<edm::ParameterSetDescription>("PFHFCleaningParameters", psd0);
+  }
+
+  // Check HF cleaning
+  desc.add<std::vector<edm::InputTag>>("cleanedHF",
+                                       {
+                                           edm::InputTag("particleFlowRecHitHF", "Cleaned"),
+                                           edm::InputTag("particleFlowClusterHF", "Cleaned"),
+                                       });
+
+  // calibration parameters for HF:
+  desc.add<bool>("calibHF_use", false);
+  desc.add<std::vector<double>>("calibHF_eta_step",
+                                {
+                                    0.0,
+                                    2.9,
+                                    3.0,
+                                    3.2,
+                                    4.2,
+                                    4.4,
+                                    4.6,
+                                    4.8,
+                                    5.2,
+                                    5.4,
+                                });
+  desc.add<std::vector<double>>("calibHF_a_EMonly",
+                                {
+                                    0.96945,
+                                    0.96701,
+                                    0.76309,
+                                    0.82268,
+                                    0.87583,
+                                    0.89718,
+                                    0.98674,
+                                    1.4681,
+                                    1.458,
+                                    1.458,
+                                });
+  desc.add<std::vector<double>>("calibHF_a_EMHAD",
+                                {
+                                    1.42215,
+                                    1.00496,
+                                    0.68961,
+                                    0.81656,
+                                    0.98504,
+                                    0.98504,
+                                    1.00802,
+                                    1.0593,
+                                    1.4576,
+                                    1.4576,
+                                });
+  desc.add<std::vector<double>>("calibHF_b_HADonly",
+                                {
+                                    1.27541,
+                                    0.85361,
+                                    0.86333,
+                                    0.89091,
+                                    0.94348,
+                                    0.94348,
+                                    0.9437,
+                                    1.0034,
+                                    1.0444,
+                                    1.0444,
+                                });
+  desc.add<std::vector<double>>("calibHF_b_EMHAD",
+                                {
+                                    1.27541,
+                                    0.85361,
+                                    0.86333,
+                                    0.89091,
+                                    0.94348,
+                                    0.94348,
+                                    0.9437,
+                                    1.0034,
+                                    1.0444,
+                                    1.0444,
+                                });
+
+  descriptions.add("particleFlow", desc);
 }
