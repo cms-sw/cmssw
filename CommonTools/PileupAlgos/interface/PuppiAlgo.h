@@ -3,8 +3,8 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CommonTools/PileupAlgos/interface/PuppiCandidate.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include <vector>
 
 class PuppiAlgo {
