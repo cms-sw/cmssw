@@ -5,18 +5,15 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
 #include "RecoTracker/MkFit/interface/MkFitInputWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitOutputWrapper.h"
+#include "RecoTracker/MkFit/interface/MkFitGeometry.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 // mkFit includes
 #include "ConfigWrapper.h"
 #include "Event.h"
+#include "LayerNumberConverter.h"
 #include "mkFit/buildtestMPlex.h"
 #include "mkFit/MkBuilderWrapper.h"
 
@@ -39,7 +36,7 @@ private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   edm::EDGetTokenT<MkFitInputWrapper> hitsSeedsToken_;
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   edm::EDPutTokenT<MkFitOutputWrapper> putToken_;
   std::function<double(mkfit::Event&, mkfit::MkBuilder&)> buildFunction_;
   bool backwardFitInCMSSW_;
@@ -48,7 +45,7 @@ private:
 
 MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
     : hitsSeedsToken_{consumes<MkFitInputWrapper>(iConfig.getParameter<edm::InputTag>("hitsSeeds"))},
-      geomToken_{esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()},
+      mkFitGeomToken_{esConsumes<MkFitGeometry, TrackerRecoGeometryRecord>()},
       putToken_{produces<MkFitOutputWrapper>()},
       backwardFitInCMSSW_{iConfig.getParameter<bool>("backwardFitInCMSSW")},
       mkFitSilent_{iConfig.getUntrackedParameter<bool>("mkFitSilent")} {
@@ -112,17 +109,19 @@ namespace {
 }
 void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   const auto& hitsSeeds = iEvent.get(hitsSeedsToken_);
-  const auto& geom = iSetup.getData(geomToken_);
-
-  if (geom.numberOfLayers(PixelSubdetector::PixelBarrel) != 4 ||
-      geom.numberOfLayers(PixelSubdetector::PixelEndcap) != 3) {
-    throw cms::Exception("Assert") << "For now this code works only with phase1 tracker, you have something else";
-  }
+  // This producer does not strictly speaking need the MkFitGeometry,
+  // but the ESProducer sets global variables (yes, that "feature"
+  // should be removed), so getting the MkFitGeometry makes it
+  // sure that the ESProducer is called even if the input/output
+  // converters
+  const auto& mkFitGeom = iSetup.getData(mkFitGeomToken_);
 
   // Initialize the number of layers, has to be done exactly once in
   // the whole program.
   // TODO: the mechanism needs to be improved...
-  std::call_once(geometryFlag, [nlayers = hitsSeeds.nlayers()]() { mkfit::ConfigWrapper::setNTotalLayers(nlayers); });
+  std::call_once(geometryFlag, [nlayers = mkFitGeom.layerNumberConverter().nLayers()]() {
+    mkfit::ConfigWrapper::setNTotalLayers(nlayers);
+  });
 
   // CMSSW event ID (64-bit unsigned) does not fit in int
   // In addition, unique ID requires also lumi and run

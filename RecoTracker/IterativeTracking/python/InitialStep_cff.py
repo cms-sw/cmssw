@@ -224,6 +224,7 @@ initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
 )
 
 from Configuration.ProcessModifiers.trackingMkFit_cff import trackingMkFit
+from RecoTracker.MkFit.mkFitGeometryESProducer_cfi import mkFitGeometryESProducer
 import RecoTracker.MkFit.mkFitInputConverter_cfi as mkFitInputConverter_cfi
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
@@ -414,7 +415,7 @@ InitialStepTask = cms.Task(initialStepSeedLayers,
 InitialStep = cms.Sequence(InitialStepTask)
 
 _InitialStepTask_trackingMkFit = InitialStepTask.copy()
-_InitialStepTask_trackingMkFit.add(initialStepTrackCandidatesMkFitInput, initialStepTrackCandidatesMkFit)
+_InitialStepTask_trackingMkFit.add(initialStepTrackCandidatesMkFitInput, initialStepTrackCandidatesMkFit, mkFitGeometryESProducer)
 trackingMkFit.toReplaceWith(InitialStepTask, _InitialStepTask_trackingMkFit)
 
 _InitialStepTask_LowPU = InitialStepTask.copyAndExclude([firstStepPrimaryVerticesUnsorted, initialStepTrackRefsForJets, caloJetsForTrkTask, firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])

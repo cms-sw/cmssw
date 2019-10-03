@@ -12,11 +12,9 @@ def customizeInitialStepOnly(process):
     process.initialStepSeedLayers.BPix.HitProducer = 'siPixelRecHitsPreSplitting'
     process.initialStepHitQuadruplets.SeedComparitorPSet.clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
     process.initialStepSeeds.SeedComparitorPSet.ClusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
-    if hasattr(process.initialStepTrackCandidates, "measurementTrackerEvent"):
-        # mkFit case
-        process.initialStepTrackCandidates.measurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
+    if hasattr(process, "initialStepTrackCandidatesMkFitInput"):
         process.initialStepTrackCandidatesMkFitInput.pixelRecHits = "siPixelRecHitsPreSplitting"
-    else:
+    if hasattr(process.initialStepTrackCandidates, "MeasurementTrackerEvent"):
         process.initialStepTrackCandidates.MeasurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
     process.initialStepTracks.MeasurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
     process.iterTrackingTask = cms.Task(process.trackerClusterCheck,

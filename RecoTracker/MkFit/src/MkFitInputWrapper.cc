@@ -9,16 +9,12 @@ MkFitInputWrapper::MkFitInputWrapper() = default;
 
 MkFitInputWrapper::MkFitInputWrapper(MkFitHitIndexMap hitIndexMap,
                                      std::vector<mkfit::HitVec> hits,
-                                     mkfit::TrackVec seeds,
-                                     mkfit::LayerNumberConverter const& lnc)
+                                     mkfit::TrackVec seeds)
     : hitIndexMap_{std::move(hitIndexMap)},
       hits_{std::move(hits)},
-      seeds_{std::make_unique<mkfit::TrackVec>(std::move(seeds))},
-      lnc_{std::make_unique<mkfit::LayerNumberConverter>(lnc)} {}
+      seeds_{std::make_unique<mkfit::TrackVec>(std::move(seeds))} {}
 
 MkFitInputWrapper::~MkFitInputWrapper() = default;
 
 MkFitInputWrapper::MkFitInputWrapper(MkFitInputWrapper&&) = default;
 MkFitInputWrapper& MkFitInputWrapper::operator=(MkFitInputWrapper&&) = default;
-
-unsigned int MkFitInputWrapper::nlayers() const { return lnc_->nLayers(); }

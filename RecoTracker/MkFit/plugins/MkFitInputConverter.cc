@@ -22,6 +22,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "RecoTracker/MkFit/interface/MkFitInputWrapper.h"
+#include "RecoTracker/MkFit/interface/MkFitGeometry.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 // ROOT
 #include "Math/SVector.h"
@@ -106,11 +108,13 @@ void MkFitInputConverter::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 void MkFitInputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  mkfit::LayerNumberConverter lnc{mkfit::TkLayout::phase1};
-
   // Then import hits
   const auto& ttrhBuilder = iSetup.getData(ttrhBuilderToken_);
   const auto& ttopo = iSetup.getData(ttopoToken_);
+
+  edm::ESHandle<MkFitGeometry> mkFitGeom;
+  iSetup.get<TrackerRecoGeometryRecord>().get(mkFitGeom);
+  const auto& lnc = mkFitGeom->layerNumberConverter();
 
   std::vector<mkfit::HitVec> mkFitHits(lnc.nLayers());
   MkFitHitIndexMap hitIndexMap;
@@ -123,7 +127,7 @@ void MkFitInputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const e
   // Then import seeds
   auto mkFitSeeds = convertSeeds(iEvent.get(seedToken_), hitIndexMap, ttrhBuilder, iSetup.getData(mfToken_));
 
-  iEvent.emplace(putToken_, std::move(hitIndexMap), std::move(mkFitHits), std::move(mkFitSeeds), lnc);
+  iEvent.emplace(putToken_, std::move(hitIndexMap), std::move(mkFitHits), std::move(mkFitSeeds));
 }
 
 bool MkFitInputConverter::passCCC(const SiStripRecHit2D& hit, const DetId hitId) const {
