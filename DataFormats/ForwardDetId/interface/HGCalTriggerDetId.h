@@ -54,7 +54,9 @@ public:
 
   /** Converter for a geometry cell id */
   HGCSiliconDetId geometryCell() const { return HGCSiliconDetId(det(), zside(), 0, layer(), waferU(), waferV(), 0, 0); }
-  HGCSiliconDetId moduleId() const { return HGCSiliconDetId(det(), zside(), type(), layer(), waferU(), waferV(), 0, 0); }
+  HGCSiliconDetId moduleId() const {
+    return HGCSiliconDetId(det(), zside(), type(), layer(), waferU(), waferV(), 0, 0);
+  }
 
   /// get the cell #'s in u,v or in x,y
   int triggerCellU() const { return (id_ >> kHGCalCellUOffset) & kHGCalCellUMask; }
