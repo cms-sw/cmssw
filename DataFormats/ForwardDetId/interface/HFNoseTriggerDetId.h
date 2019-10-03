@@ -53,7 +53,8 @@ public:
   int layer() const { return (id_ >> kHFNoseLayerOffset) & kHFNoseLayerMask; }
 
   /** Converter for a geometry cell id */
-  HFNoseDetId geometryCell() const { return HFNoseDetId(zside(), type(), layer(), waferU(), waferV(), 0, 0); }
+  HFNoseDetId geometryCell() const { return HFNoseDetId(zside(), 0, layer(), waferU(), waferV(), 0, 0); }
+  HFNoseDetId moduleId() const { return HFNoseDetId(zside(), type(), layer(), waferU(), waferV(), 0, 0); }
 
   /// get the cell #'s in u,v or in x,y
   int triggerCellU() const { return (id_ >> kHFNoseCellUOffset) & kHFNoseCellUMask; }
