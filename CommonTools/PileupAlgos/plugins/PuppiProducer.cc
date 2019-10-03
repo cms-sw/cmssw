@@ -369,7 +369,6 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("useExp", false);
   desc.add<double>("MinPuppiWeight", .01);
 
-  //PuppiContainer::fillDescriptionsPuppiContainer(desc);
   PuppiAlgo::fillDescriptionsPuppiAlgo(desc);
 
   descriptions.add("PuppiProducer", desc);
