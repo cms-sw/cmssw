@@ -287,18 +287,23 @@ TString lumifileperyear(TString Year, string RunOrIOV) {
  */
 
 vector<int> runlistfromlumifile(TString Year) {
-  TString filename = lumifileperyear(Year, "run");
-  fs::path path(filename.Data());
-  if (fs::is_empty(path)) {
-    cout << "ERROR: Empty file " << path.c_str() << endl;
-    exit(EXIT_FAILURE);
-  }
-  TGraph *scale = new TGraph(filename.Data());
-  double *xscale = scale->GetX();
-  size_t N = scale->GetN();
   vector<int> runs;
-  for (size_t i = 0; i < N; i++)
-    runs.push_back(xscale[i]);
+  vector<TString>Years;
+  if(Year=="fullRun2")Years={"2016","2017","2018"};
+  else Years.push_back(Year);
+  for(TString year : Years){
+    TString filename = lumifileperyear(year, "run");
+    fs::path path(filename.Data());
+    if (fs::is_empty(path)) {
+      cout << "ERROR: Empty file " << path.c_str() << endl;
+      exit(EXIT_FAILURE);
+    }
+    TGraph *scale = new TGraph(filename.Data());
+    double *xscale = scale->GetX();
+    size_t N = scale->GetN();
+    for (size_t i = 0; i < N; i++)
+      runs.push_back(xscale[i]);
+  }
   return runs;
 }
 
@@ -572,6 +577,25 @@ void PixelUpdateLines(TCanvas *c, TString Year, bool showlumi, vector<int> pixel
   double lastlumi = 0.;
   c->cd();
   size_t index = 0;
+  //Due to the way the coordinates within the Canvas are set, the following steps are required to draw the TPaveText:
+  // Compute the gPad coordinates in TRUE normalized space (NDC)
+  int ix1;
+  int ix2;
+  int iw = gPad->GetWw();
+  int ih = gPad->GetWh();
+  double x1p, y1p, x2p, y2p;
+  gPad->GetPadPar(x1p, y1p, x2p, y2p);
+  ix1 = (Int_t)(iw * x1p);
+  ix2 = (Int_t)(iw * x2p);
+  double wndc = TMath::Min(1., (double)iw / (double)ih);
+  double rw = wndc / (double)iw;
+  double x1ndc = (double)ix1 * rw;
+  double x2ndc = (double)ix2 * rw;
+  // Ratios to convert user space in TRUE normalized space (NDC)
+  double rx1, ry1, rx2, ry2;
+  gPad->GetRange(rx1, ry1, rx2, ry2);
+  double rx = (x2ndc - x1ndc) / (rx2 - rx1);
+    
   for (int pixelupdaterun : pixelupdateruns) {
     double lumi = 0.;
     if (showlumi)
@@ -584,24 +608,6 @@ void PixelUpdateLines(TCanvas *c, TString Year, bool showlumi, vector<int> pixel
     line->SetLineColor(kBlue);
     line->SetLineStyle(9);
     line->Draw();
-    //Due to the way the coordinates within the Canvas are set, the following steps are required to draw the TPaveText:
-    // Compute the gPad coordinates in TRUE normalized space (NDC)
-    int ix1;
-    int ix2;
-    int iw = gPad->GetWw();
-    int ih = gPad->GetWh();
-    double x1p, y1p, x2p, y2p;
-    gPad->GetPadPar(x1p, y1p, x2p, y2p);
-    ix1 = (Int_t)(iw * x1p);
-    ix2 = (Int_t)(iw * x2p);
-    double wndc = TMath::Min(1., (double)iw / (double)ih);
-    double rw = wndc / (double)iw;
-    double x1ndc = (double)ix1 * rw;
-    double x2ndc = (double)ix2 * rw;
-    // Ratios to convert user space in TRUE normalized space (NDC)
-    double rx1, ry1, rx2, ry2;
-    gPad->GetRange(rx1, ry1, rx2, ry2);
-    double rx = (x2ndc - x1ndc) / (rx2 - rx1);
     double _sx;
     // Left limit of the TPaveText
     _sx = rx * (lumi - rx1) + x1ndc;
@@ -621,6 +627,21 @@ void PixelUpdateLines(TCanvas *c, TString Year, bool showlumi, vector<int> pixel
 
     gPad->RedrawAxis();
   }
+
+  if(Year=="fullRun2"){
+    vector<double> runlumi;
+    vector<TString>Years={"2016","2017","2018"};
+    for(TString year: Years)runlumi.push_back(getintegratedlumiuptorun(1000000,year));
+    double lumi = 0.;
+    for(size_t i=0; i<3; ++i){
+      lumi += runlumi.at(i);
+      TLine *line = new TLine(lumi, c->GetUymin(), lumi, c->GetUymax());
+      line->SetLineColor(kViolet);
+      line->SetLineStyle(2);
+      line->Draw();
+    }
+  }
+
   //Drawing in a separate loop to ensure that the labels are drawn on top of the lines
   for (auto label : labels) {
     label->Draw("same");
@@ -633,24 +654,28 @@ void PixelUpdateLines(TCanvas *c, TString Year, bool showlumi, vector<int> pixel
  */
 
 double getintegratedlumiuptorun(int run, TString Year, double min) {
-  TGraph *scale = new TGraph((lumifileperyear(Year, "run")).Data());
-  int Nscale = scale->GetN();
-  double *xscale = scale->GetX();
-  double *yscale = scale->GetY();
-
   double lumi = min;
   int index = -1;
-  for (int j = 0; j < Nscale; j++) {
-    lumi += yscale[j];
-    if (run >= xscale[j]) {
-      index = j;
-      continue;
-    }
-  }
-  lumi = min;
-  for (int j = 0; j < index; j++)
-    lumi += yscale[j] / lumiFactor;
+  vector<TString>Years;
+  if(Year=="fullRun2")Years={"2016","2017","2018"};
+  else Years.push_back(Year);
+  for(TString year : Years){
+    TGraph *scale = new TGraph((lumifileperyear(year, "run")).Data());
+    int Nscale = scale->GetN();
+    double *xscale = scale->GetX();
+    double *yscale = scale->GetY();
 
+    for (int j = 0; j < Nscale; j++) {
+      lumi += yscale[j];
+      if (run >= xscale[j]) {
+	index = j;
+	continue;
+      }
+    }
+    lumi = min;
+    for (int j = 0; j < index; j++)
+      lumi += yscale[j] / lumiFactor;
+  }
   return lumi;
 }
 /*! \fn scalebylumi
@@ -711,46 +736,51 @@ void scalebylumi(TGraphErrors *g, vector<pair<int, double>> lumiIOVpairs) {
 vector<pair<int, double>> lumiperIOV(vector<int> IOVlist, TString Year) {
   size_t N = IOVlist.size();
   vector<pair<int, double>> lumiperIOV;
-  TGraph *scale = new TGraph((lumifileperyear(Year, "run")).Data());
-  size_t Nscale = scale->GetN();
-  double *xscale = scale->GetX();
-  double *yscale = scale->GetY();
-
-  size_t i = 0;
-  size_t index = 0;
-  while (i <= N) {
-    double run = 0;
-    double lumi = 0.;
-    if (i != N)
-      run = IOVlist.at(i);
-    else
-      run = 0;
-    for (size_t j = index; j < Nscale; j++) {
-      if (run == xscale[j]) {
-        index = j;
-        break;
-      } else
-        lumi += yscale[j];
+  vector<TString> Years;
+  if(Year=="fullRun2")Years={"2016","2017","2018"};
+  else Years.push_back(Year);
+  for(TString year : Years){
+    TGraph *scale = new TGraph((lumifileperyear(year, "run")).Data());
+    size_t Nscale = scale->GetN();
+    double *xscale = scale->GetX();
+    double *yscale = scale->GetY();
+    
+    size_t i = 0;
+    size_t index = 0;
+    while (i <= N) {
+      double run = 0;
+      double lumi = 0.;
+      if (i != N)
+	run = IOVlist.at(i);
+      else
+	run = 0;
+      for (size_t j = index; j < Nscale; j++) {
+	if (run == xscale[j]) {
+	  index = j;
+	  break;
+	} else
+	  lumi += yscale[j];
+      }
+      if (i == 0)
+	lumiperIOV.push_back(make_pair(0, lumi));
+      else
+	lumiperIOV.push_back(make_pair(IOVlist.at(i - 1), lumi));
+      ++i;
     }
-    if (i == 0)
-      lumiperIOV.push_back(make_pair(0, lumi));
-    else
-      lumiperIOV.push_back(make_pair(IOVlist.at(i - 1), lumi));
-    ++i;
-  }
-  //for debugging:
-  double lumiInput = 0;
-  double lumiOutput = 0.;
-  for (size_t j = 0; j < Nscale; j++)
-    lumiInput += yscale[j];
-  //cout << "Total lumi: " << lumiInput <<endl;
-  for (size_t j = 0; j < lumiperIOV.size(); j++)
-    lumiOutput += lumiperIOV.at(j).second;
-  //cout << "Total lumi saved for IOVs: " << lumiOutput <<endl;
-  if (abs(lumiInput - lumiOutput) > 0.5) {
-    cout << "ERROR: luminosity retrieved for IOVs does not match the one for the runs" << endl
-         << "Please check that all IOV first runs are part of the run-per-lumi file!" << endl;
-    exit(EXIT_FAILURE);
+    //for debugging:
+    double lumiInput = 0;
+    double lumiOutput = 0.;
+    for (size_t j = 0; j < Nscale; j++)
+      lumiInput += yscale[j];
+    //cout << "Total lumi: " << lumiInput <<endl;
+    for (size_t j = 0; j < lumiperIOV.size(); j++)
+      lumiOutput += lumiperIOV.at(j).second;
+    //cout << "Total lumi saved for IOVs: " << lumiOutput <<endl;
+    if (abs(lumiInput - lumiOutput) > 0.5) {
+      cout << "ERROR: luminosity retrieved for IOVs does not match the one for the runs" << endl
+	   << "Please check that all IOV first runs are part of the run-per-lumi file!" << endl;
+      exit(EXIT_FAILURE);
+    }
   }
   return lumiperIOV;
 }
@@ -1062,7 +1092,8 @@ int main(int argc, char *argv[]) {
                            321397, 321431, 321461, 321710, 321735, 321773, 321774, 321778, 321820, 321831, 321880,
                            321960, 322014, 322510, 322603, 323232, 323423, 323472, 323475, 323693, 323794, 323976,
                            324202, 324206, 324245, 324729, 324764, 324840, 324999, 325097, 325110};
-    vector<int> pixelupdateruns{316758, 317527, 317661, 317664, 318227, 320377};  //2018
+    vector<int> pixelupdateruns{271866, 276315,278271, 280928, 290543, 297281, 298653, 299443, 300389, 301046, 302131, 303790, 303998, 304911, 305898, 316758, 317527, 317661, 317664, 318227, 320377};  //full Run 2
+    //vector<int> pixelupdateruns{316758, 317527, 317661, 317664, 318227, 320377};  //2018
     //	vector<int> pixelupdateruns {290543, 297281, 298653, 299443, 300389, 301046, 302131, 303790, 303998, 304911, 305898};//2017
 
     cout << "WARNING: Running function with arguments specified in DMRtrends.cc" << endl
