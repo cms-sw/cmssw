@@ -51,10 +51,13 @@ private:
                    int& totalHits,
                    const TrackerTopology& ttopo,
                    const TransientTrackingRecHitBuilder& ttrhBuilder,
-                   const mkfit::LayerNumberConverter& lnc) const;
+                   const MkFitGeometry& mkFitGeom) const;
 
   bool passCCC(const SiStripRecHit2D& hit, const DetId hitId) const;
   bool passCCC(const SiPixelRecHit& hit, const DetId hitId) const;
+
+  void setDetails(mkfit::Hit& mhit, const SiPixelRecHit& hit, const DetId hitId, const int shortId) const;
+  void setDetails(mkfit::Hit& mhit, const SiStripRecHit2D& hit, const DetId hitId, const int shortId) const;
 
   mkfit::TrackVec convertSeeds(const edm::View<TrajectorySeed>& seeds,
                                const MkFitHitIndexMap& hitIndexMap,
@@ -72,6 +75,7 @@ private:
   edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhBuilderToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
+  edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   edm::EDPutTokenT<MkFitInputWrapper> putToken_;
   const float minGoodStripCharge_;
 };
@@ -87,6 +91,7 @@ MkFitInputConverter::MkFitInputConverter(edm::ParameterSet const& iConfig)
           iConfig.getParameter<edm::ESInputTag>("ttrhBuilder"))},
       ttopoToken_{esConsumes<TrackerTopology, TrackerTopologyRcd>()},
       mfToken_{esConsumes<MagneticField, IdealMagneticFieldRecord>()},
+      mkFitGeomToken_{esConsumes<MkFitGeometry, TrackerRecoGeometryRecord>()},
       putToken_{produces<MkFitInputWrapper>()},
       minGoodStripCharge_{static_cast<float>(
           iConfig.getParameter<edm::ParameterSet>("minGoodStripCharge").getParameter<double>("value"))} {}
@@ -111,18 +116,15 @@ void MkFitInputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const e
   // Then import hits
   const auto& ttrhBuilder = iSetup.getData(ttrhBuilderToken_);
   const auto& ttopo = iSetup.getData(ttopoToken_);
+  const auto& mkFitGeom = iSetup.getData(mkFitGeomToken_);
 
-  edm::ESHandle<MkFitGeometry> mkFitGeom;
-  iSetup.get<TrackerRecoGeometryRecord>().get(mkFitGeom);
-  const auto& lnc = mkFitGeom->layerNumberConverter();
-
-  std::vector<mkfit::HitVec> mkFitHits(lnc.nLayers());
+  std::vector<mkfit::HitVec> mkFitHits(mkFitGeom.layerNumberConverter().nLayers());
   MkFitHitIndexMap hitIndexMap;
   int totalHits = 0;  // I need to have a global hit index in order to have the hit remapping working?
   // Process strips first for better memory allocation pattern
-  convertHits(iEvent.get(stripRphiRecHitToken_), mkFitHits, hitIndexMap, totalHits, ttopo, ttrhBuilder, lnc);
-  convertHits(iEvent.get(stripStereoRecHitToken_), mkFitHits, hitIndexMap, totalHits, ttopo, ttrhBuilder, lnc);
-  convertHits(iEvent.get(pixelRecHitToken_), mkFitHits, hitIndexMap, totalHits, ttopo, ttrhBuilder, lnc);
+  convertHits(iEvent.get(stripRphiRecHitToken_), mkFitHits, hitIndexMap, totalHits, ttopo, ttrhBuilder, mkFitGeom);
+  convertHits(iEvent.get(stripStereoRecHitToken_), mkFitHits, hitIndexMap, totalHits, ttopo, ttrhBuilder, mkFitGeom);
+  convertHits(iEvent.get(pixelRecHitToken_), mkFitHits, hitIndexMap, totalHits, ttopo, ttrhBuilder, mkFitGeom);
 
   // Then import seeds
   auto mkFitSeeds = convertSeeds(iEvent.get(seedToken_), hitIndexMap, ttrhBuilder, iSetup.getData(mfToken_));
@@ -136,6 +138,22 @@ bool MkFitInputConverter::passCCC(const SiStripRecHit2D& hit, const DetId hitId)
 
 bool MkFitInputConverter::passCCC(const SiPixelRecHit& hit, const DetId hitId) const { return true; }
 
+void MkFitInputConverter::setDetails(mkfit::Hit& mhit,
+                                     const SiPixelRecHit& hit,
+                                     const DetId hitId,
+                                     const int shortId) const {
+  mhit.setupAsPixel(shortId, hit.cluster()->sizeX(), hit.cluster()->sizeY());
+}
+
+void MkFitInputConverter::setDetails(mkfit::Hit& mhit,
+                                     const SiStripRecHit2D& hit,
+                                     const DetId hitId,
+                                     const int shortId) const {
+  mhit.setupAsStrip(shortId,
+                    siStripClusterTools::chargePerCM(hitId, hit.firstClusterRef().stripCluster()),
+                    hit.cluster()->amplitudes().size());
+}
+
 template <typename HitCollection>
 void MkFitInputConverter::convertHits(const HitCollection& hits,
                                       std::vector<mkfit::HitVec>& mkFitHits,
@@ -143,7 +161,7 @@ void MkFitInputConverter::convertHits(const HitCollection& hits,
                                       int& totalHits,
                                       const TrackerTopology& ttopo,
                                       const TransientTrackingRecHitBuilder& ttrhBuilder,
-                                      const mkfit::LayerNumberConverter& lnc) const {
+                                      const MkFitGeometry& mkFitGeom) const {
   if (hits.empty())
     return;
   auto isPlusSide = [&ttopo](const DetId& detid) {
@@ -152,8 +170,8 @@ void MkFitInputConverter::convertHits(const HitCollection& hits,
 
   {
     const DetId detid{hits.ids().back()};
-    const auto ilay =
-        lnc.convertLayerNumber(detid.subdetId(), ttopo.layer(detid), false, ttopo.isStereo(detid), isPlusSide(detid));
+    const auto ilay = mkFitGeom.layerNumberConverter().convertLayerNumber(
+        detid.subdetId(), ttopo.layer(detid), false, ttopo.isStereo(detid), isPlusSide(detid));
     // Do initial reserves to minimize further memory allocations
     const auto& lastClusterRef = hits.data().back().firstClusterRef();
     hitIndexMap.resizeByClusterIndex(lastClusterRef.id(), lastClusterRef.index());
@@ -165,7 +183,8 @@ void MkFitInputConverter::convertHits(const HitCollection& hits,
     const auto subdet = detid.subdetId();
     const auto layer = ttopo.layer(detid);
     const auto isStereo = ttopo.isStereo(detid);
-    const auto ilay = lnc.convertLayerNumber(subdet, layer, false, isStereo, isPlusSide(detid));
+    const auto ilay =
+        mkFitGeom.layerNumberConverter().convertLayerNumber(subdet, layer, false, isStereo, isPlusSide(detid));
     hitIndexMap.increaseLayerSize(ilay, detset.size());  // to minimize memory allocations
 
     for (const auto& hit : detset) {
@@ -192,6 +211,7 @@ void MkFitInputConverter::convertHits(const HitCollection& hits,
                          MkFitHitIndexMap::MkFitHit{static_cast<int>(mkFitHits[ilay].size()), ilay},
                          &hit);
       mkFitHits[ilay].emplace_back(pos, err, totalHits);
+      setDetails(mkFitHits[ilay].back(), hit, detid, mkFitGeom.uniqueIdInLayer(detid.rawId()));
       ++totalHits;
     }
   }
