@@ -107,6 +107,7 @@ premix_stage2.toModify(theDigitizers,
 
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True
+theDigitizersValid.calotruth = cms.PSet( caloParticles )
 
 phase2_hgcal.toModify( theDigitizersValid,
                        calotruth = cms.PSet( caloParticles ) ) # Doesn't HGCal need these also without validation?
