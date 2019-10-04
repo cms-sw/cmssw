@@ -28,7 +28,7 @@ SiStripCluster::SiStripCluster(const SiStripDigiRange& range) : firstStrip_(rang
 float SiStripCluster::barycenter() const {
   int sumx = 0;
   int suma = 0;
-  auto asize = amplitudes_.size();
+  auto asize = size();
   for (auto i = 0U; i < asize; ++i) {
     sumx += i * amplitudes_[i];
     suma += amplitudes_[i];
