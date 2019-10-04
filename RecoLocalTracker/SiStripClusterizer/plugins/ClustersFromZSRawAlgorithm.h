@@ -11,12 +11,14 @@ public:
 
   using Det = StripClusterizerAlgorithm::Det;
 
-  template<typename OUT, bool WIDE_CLUS = false, bool NOISE_CUT=true>
+  template<typename OUT, bool CLUS_NOISE_CUT=true, bool STRIP_NOISE_CUT=true>
   void clustersFromZS(uint8_t const * data, int offset, int lenght, uint16_t stripOffset,
                       Det const & det, OUT & out) const {
 
     constexpr int clusterNoiseCutFactor = 4;  // 10^2/5^2 : 10 because noise is store *10; 5 because os a 5 sigma S/N cut
     constexpr int stripNoiseCutFactor = 5; // 10/2
+
+    uint8_t adc[128];
 
     auto sti = siStripClusterTools::sensorThicknessInverse(det.detId);
     int is=0;
@@ -36,11 +38,9 @@ public:
        // int sumCharge=0;
        int noise2=0;
        int clusSize=0;
-       std::vector<uint8_t> adc(clusFedSize);
        auto saveCluster = [&]() {
            // save cluster
-           adc.resize(clusSize);
-           if constexpr (NOISE_CUT) {
+           if constexpr (CLUS_NOISE_CUT) {
              // do not cut if extendable
              if (!extend && endStrip%128!=0  && clusterNoiseCutFactor*sumRaw*sumRaw < noise2) { 
                // loop may continue
@@ -51,28 +51,11 @@ public:
                return;
              }
            }
-           if constexpr (WIDE_CLUS) {
-             // if large remove tails
-             if (clusSize>5) {
-               auto peak = std::max_element(adc.begin(),adc.end());
-               auto lc=peak+2;
-               for (;lc<adc.end(); ++lc) if (*(lc-1) < *(lc)) break;
-               auto fc=peak-1;
-               for (;fc>adc.begin(); --fc) if (*(fc) < *(fc-1)) break;
-               if(lc<adc.end()) adc.erase(lc,adc.end());
-               if(fc>adc.begin()) { 
-                 firstStrip+=(fc-adc.begin()); 
-                 adc.erase(adc.begin(),fc); 
-                 extend=false;
-               }
-               clusSize=adc.size();
-             } // end
-           }  // end WC
            //
            endStrip = firstStrip+clusSize;
-           if (extend) out.back().extend(adc.begin(),adc.end());
+           if (extend) out.back().extend(adc,adc+clusSize);
            else if (endStrip%128==0 || sumRaw*weight*sti > m_clusterChargeCut)
-             out.push_back(std::move(SiStripCluster(firstStrip,std::move(adc))));
+             out.push_back(std::move(SiStripCluster(firstStrip,adc,adc+clusSize)));
            // loop may continue
            sumRaw=0;
            // sumCharge=0;
@@ -83,16 +66,19 @@ public:
       // loop over strips
       for (int ic=0; ic<clusFedSize; ++ic) {
         auto ladc = data[(offset++) ^ 7];
-        if constexpr (NOISE_CUT) {
+        if constexpr (STRIP_NOISE_CUT) {
           // uint16_t strip = firstFedStrip+ic;
           // int noise = det.rawNoise(strip);
           if (stripNoiseCutFactor*ladc<noise) ladc=0;
-          else  noise2 += noise*noise;  // cannot overflow
+          else  {
+            if constexpr (CLUS_NOISE_CUT) {
+              noise2 += noise*noise;  // cannot overflow
+            }
+          }
         }
         if (0==ladc) {
           if (clusSize>0) {
              saveCluster();
-             adc = std::vector<uint8_t>(clusFedSize-ic);
           }
           firstStrip = firstFedStrip + ic+1;
           extend=false;
