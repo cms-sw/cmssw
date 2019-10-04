@@ -51,7 +51,7 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
   for (const auto& ticl_cand : ticl_candidates) {
     const auto abs_pdg_id = std::abs(ticl_cand.pdgId());
     const auto charge = ticl_cand.charge();
-    const auto four_mom = ticl_cand.p4();
+    const auto& four_mom = ticl_cand.p4();
 
     reco::PFCandidate::ParticleType part_type;
     switch (abs_pdg_id) {

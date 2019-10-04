@@ -40,7 +40,7 @@ namespace ticl {
     event.getByToken(vertex_token_, vertex_h);
     auto vertex_coll = *vertex_h;
     reco::Vertex best_vertex;
-    if (vertex_coll.size()) {
+    if (!vertex_coll.empty()) {
       const auto& vertex = vertex_coll[0];
       if (vertex.isValid() && !(vertex.isFake())) {
         best_vertex = vertex;
