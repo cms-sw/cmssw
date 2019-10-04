@@ -7,11 +7,14 @@ import argparse
 from prettytable import PrettyTable
 from collections import defaultdict
 
-parser = argparse.ArgumentParser(description="Show Indices table in a DQMIO file. Last column (ME count) is computed like this: lastIndex - firstIndex + 1")
+parser = argparse.ArgumentParser(description="Shows Indices table in a DQMIO file. Last column (ME count) is computed like this: lastIndex - firstIndex + 1")
 
 parser.add_argument('filename', help='Name of local root file. For remote files, use edmCopyUtil first: `edmCopyUtil root://cms-xrd-global.cern.ch/<FILEPATH> .`')
 
 args = parser.parse_args()
+
+typeNames = ['Ints','Floats', 'Strings', 'TH1Fs','TH1Ss', 'TH1Ds',
+             'TH2Fs', 'TH2Ss', 'TH2Ds', 'TH3Fs', 'TProfiles','TProfile2Ds']
 
 f = uproot.open(args.filename)
 things = f.keys()
@@ -27,10 +30,8 @@ if 'Indices;1' in things:
   table.field_names = ['Run', 'Lumi', 'FirstIndex', 'LastIndex', 'Type', 'ME Count']
   
   for run, lumi, first, last, type in zip(runs, lumis, firstindex, lastindex, types):
-    table.add_row([run, lumi, first, last, type, int(last - first + 1)])
+    table.add_row([run, lumi, first, last, '%s (%s)' % (type, typeNames[type]), int(last - first + 1)])
 
   print(table)
 else:
   print("This does not look like DQMIO data.")
-
-
