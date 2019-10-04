@@ -9,12 +9,14 @@ from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process('PAT2',eras.Run2_2016)
 
+### Example how to check timing
 #process.Timing = cms.Service("Timing",
 #  summaryOnly = cms.untracked.bool(False),
 #  useJobReport = cms.untracked.bool(True)
 #)
 
-process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",ignoreTotal = cms.untracked.int32(1) ) 
+### Example how to check memory
+#process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",ignoreTotal = cms.untracked.int32(1) )
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -35,7 +37,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    'file:////afs/cern.ch/user/h/hinzmann/workspace/tmp/102D73A7-5B87-E611-936E-0CC47A1E0472.root',
+    '/store/relval/CMSSW_11_0_0_pre6/RelValTTbar_13/MINIAODSIM/PU25ns_110X_upgrade2018_realistic_v3-v1/20000/F38B9A9F-4B4B-3D4B-8C9D-9A9B945194EF.root',
     ),
     secondaryFileNames = cms.untracked.vstring(),
     skipEvents = cms.untracked.uint32(145)
@@ -73,6 +75,7 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
+### Pick a global tag that includes the desired JER-SFs
 process.GlobalTag = GlobalTag(process.GlobalTag, '102X_mcRun2_asymptotic_v7', '')
 
 # Path and EndPath definitions
@@ -80,29 +83,30 @@ process.MINIAODSIMoutput_step = cms.EndPath(process.MINIAODSIMoutput)
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
-from CondCore.DBCommon.CondDBSetup_cfi import *
 
-process.jer = cms.ESSource("PoolDBESSource",
-        CondDBSetup,
-        toGet = cms.VPSet(
-            # Resolution
-            cms.PSet(
-                record = cms.string('JetResolutionRcd'),
-                tag    = cms.string('JR_Autumn18_V7_MC_PtResolution_AK4PFchs'),
-                label  = cms.untracked.string('AK4PFchs_pt')
-                ),
-
-            # Scale factors
-            cms.PSet(
-                record = cms.string('JetResolutionScaleFactorRcd'),
-                tag    = cms.string('JR_Autumn18_V7_MC_SF_AK4PFchs'),
-                label  = cms.untracked.string('AK4PFchs')
-                ),
-            ),
-        connect = cms.string('sqlite:Autumn18_V7_MC.db')
-        )
-
-process.es_prefer_jer = cms.ESPrefer('PoolDBESSource', 'jer')
+### Example how to read the JER-SF from a db file
+#from CondCore.DBCommon.CondDBSetup_cfi import *
+#process.jer = cms.ESSource("PoolDBESSource",
+#        CondDBSetup,
+#        toGet = cms.VPSet(
+#            # Resolution
+#            cms.PSet(
+#                record = cms.string('JetResolutionRcd'),
+#                tag    = cms.string('JR_Autumn18_V7_MC_PtResolution_AK4PFchs'),
+#                label  = cms.untracked.string('AK4PFchs_pt')
+#                ),
+#
+#            # Scale factors
+#            cms.PSet(
+#                record = cms.string('JetResolutionScaleFactorRcd'),
+#                tag    = cms.string('JR_Autumn18_V7_MC_SF_AK4PFchs'),
+#                label  = cms.untracked.string('AK4PFchs')
+#                ),
+#            ),
+#        connect = cms.string('sqlite:Autumn18_V7_MC.db')
+#        )
+#
+#process.es_prefer_jer = cms.ESPrefer('PoolDBESSource', 'jer')
 
 process.slimmedJetsSmeared = cms.EDProducer('SmearedPATJetProducer',
        src = cms.InputTag('slimmedJets'),
