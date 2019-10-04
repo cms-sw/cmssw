@@ -148,12 +148,14 @@ DQMOuterTracker = cms.Sequence( DQMOfflineDCS *
 DQMOfflineTAU = cms.Sequence( produceDenomsData *
 				pfTauRunDQMValidation )
 
-DQMOfflineTrackerCommon = cms.Sequence( SiStripDQMTier0Common *
-                                siPixelOfflineDQM_source )
+DQMOfflineTrackerStrip = cms.Sequence( SiStripDQMTier0Common )
+
+DQMOfflineTrackerPixel = cms.Sequence( siPixelOfflineDQM_source )
 
 DQMOfflineCommon = cms.Sequence( DQMOfflineDCS *
                                  DQMMessageLogger *
-				 DQMOfflineTrackerCommon * 
+				 DQMOfflineTrackerStrip * 
+				 DQMOfflineTrackerPixel *
                                  DQMOfflineTracking *
                                  DQMOfflineTrigger *
                                  DQMOfflineBeam *
@@ -166,8 +168,7 @@ DQMOfflineCommonFakeHLT = cms.Sequence( DQMOfflineCommon )
 DQMOfflineCommonFakeHLT.remove( DQMOfflineTrigger )
 
 #MinBias/ZeroBias
-DQMOfflineTrackerMinBias = cms.Sequence( SiStripDQMTier0MinBias *
-                                 siPixelOfflineDQM_source )
+DQMOfflineTrackerStripMinBias = cms.Sequence( SiStripDQMTier0MinBias )
 
 DQMOfflineTrackingMinBias = cms.Sequence( TrackingDQMSourceTier0MinBias *
                                    DQMOfflineVertex *
@@ -176,7 +177,8 @@ DQMOfflineTrackingMinBias = cms.Sequence( TrackingDQMSourceTier0MinBias *
 
 DQMOfflineCommonSiStripZeroBias = cms.Sequence( DQMOfflineDCS *
                                  DQMMessageLogger *
-				 DQMOfflineTrackerMinBias *
+				 DQMOfflineTrackerStripMinBias *
+				 DQMOfflineTrackerPixel *
                                  DQMOfflineL1T *
                                  DQMOfflineTrigger *
                                  DQMOfflineBeam *
