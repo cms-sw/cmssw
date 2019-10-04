@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DUMP")
-process.load("Geometry.HGCalCommonData.testHGCalHEmixXML_cfi")
+process.load("Geometry.HGCalCommonData.testHGCalHEsilXML_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
@@ -20,7 +20,8 @@ process.add_(cms.ESProducer("TGeoMgrFromDdd",
         level   = cms.untracked.int32(14)
 ))
 
+
 process.dump = cms.EDAnalyzer("DumpSimGeometry",
-                              outputFileName = cms.untracked.string('HGCalHEmix.root'))
+                              outputFileName = cms.untracked.string('hgcalHEsilDDD.root'))
 
 process.p = cms.Path(process.dump)

@@ -21,6 +21,6 @@ process.add_(cms.ESProducer("TGeoMgrFromDdd",
 ))
 
 process.dump = cms.EDAnalyzer("DumpSimGeometry",
-                              outputFileName = cms.untracked.string('moduleAlgoDDD.root'))
+                              outputFileName = cms.untracked.string('hgcalModuleAlgoDDD.root'))
 
 process.p = cms.Path(process.dump)
