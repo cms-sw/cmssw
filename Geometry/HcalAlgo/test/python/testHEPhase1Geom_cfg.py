@@ -18,7 +18,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  outputFileName = cms.untracked.string('HEPhase1DD4Hep.root'),
+                                  outputFileName = cms.untracked.string('hePhase1DD4Hep.root'),
                                   DDDetector = cms.ESInputTag('','DDHCalHEPhase1')
                                   )
 
