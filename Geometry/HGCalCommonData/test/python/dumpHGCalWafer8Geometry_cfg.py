@@ -21,6 +21,6 @@ process.add_(cms.ESProducer("TGeoMgrFromDdd",
 ))
 
 process.dump = cms.EDAnalyzer("DumpSimGeometry",
-                              outputFileName = cms.untracked.string('wafer8DDD.root'))
+                              outputFileName = cms.untracked.string('hgcalWafer8DDD.root'))
 
 process.p = cms.Path(process.dump)

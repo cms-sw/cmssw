@@ -31,7 +31,6 @@
 
 #include <memory>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 
 class dso_hidden VirtualJetProducer : public edm::stream::EDProducer<> {
 protected:
@@ -71,12 +70,12 @@ public:
   static void fillDescriptionsFromVirtualJetProducer(edm::ParameterSetDescription& desc);
 
   // typedefs
-  typedef boost::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
-  typedef boost::shared_ptr<fastjet::JetDefinition::Plugin> PluginPtr;
-  typedef boost::shared_ptr<fastjet::JetDefinition> JetDefPtr;
-  typedef boost::shared_ptr<fastjet::GhostedAreaSpec> ActiveAreaSpecPtr;
-  typedef boost::shared_ptr<fastjet::AreaDefinition> AreaDefinitionPtr;
-  typedef boost::shared_ptr<fastjet::Selector> SelectorPtr;
+  typedef std::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
+  typedef std::shared_ptr<fastjet::JetDefinition::Plugin> PluginPtr;
+  typedef std::shared_ptr<fastjet::JetDefinition> JetDefPtr;
+  typedef std::shared_ptr<fastjet::GhostedAreaSpec> ActiveAreaSpecPtr;
+  typedef std::shared_ptr<fastjet::AreaDefinition> AreaDefinitionPtr;
+  typedef std::shared_ptr<fastjet::Selector> SelectorPtr;
 
   //
   // member functions
@@ -200,7 +199,7 @@ protected:
   std::string jetCollInstanceName_;  // instance name for output jet collection
   bool writeCompound_;               // write compound jets (i.e. jets of jets)
   bool writeJetsWithConst_;          // write jets with constituents
-  boost::shared_ptr<PileUpSubtractor> subtractor_;
+  std::shared_ptr<PileUpSubtractor> subtractor_;
 
   bool useDeterministicSeed_;  // If desired, use a deterministic seed to fastjet
   unsigned int minSeed_;       // minimum seed to use, useful for MC generation

@@ -1,11 +1,42 @@
-#include "TrackerTopologyEP.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+
+#include <memory>
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
+class TrackerTopologyEP : public edm::ESProducer {
+public:
+  TrackerTopologyEP(const edm::ParameterSet&);
+
+  using ReturnType = std::unique_ptr<TrackerTopology>;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  ReturnType produce(const TrackerTopologyRcd&);
+
+private:
+  void fillParameters(const PTrackerParameters&,
+                      TrackerTopology::PixelBarrelValues& pxbVals,
+                      TrackerTopology::PixelEndcapValues& pxfVals,
+                      TrackerTopology::TECValues& tecVals,
+                      TrackerTopology::TIBValues& tibVals,
+                      TrackerTopology::TIDValues& tidVals,
+                      TrackerTopology::TOBValues& tobVals);
+
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> token_;
+};
 
 TrackerTopologyEP::TrackerTopologyEP(const edm::ParameterSet& conf)
     : token_(setWhatProduced(this).consumesFrom<PTrackerParameters, PTrackerParametersRcd>(edm::ESInputTag())) {

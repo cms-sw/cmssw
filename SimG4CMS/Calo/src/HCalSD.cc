@@ -16,6 +16,7 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
+#include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -57,7 +58,8 @@ HCalSD::HCalSD(const std::string& name,
              manager,
              (float)(p.getParameter<edm::ParameterSet>("HCalSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")),
-      hcalConstants(nullptr),
+      hcalConstants_(nullptr),
+      hcalSimConstants_(nullptr),
       m_HBDarkening(nullptr),
       m_HEDarkening(nullptr),
       isHF(false),
@@ -130,6 +132,24 @@ HCalSD::HCalSD(const std::string& name,
                               << "Application of Fiducial Cut " << applyFidCut
                               << "Flag for test number|neutral density filter " << testNumber << " " << neutralDensity;
 
+  // Get pointers to HcalDDDConstant and HcalSimulationParameters
+  edm::ESHandle<HcalDDDSimConstants> hdc;
+  es.get<HcalSimNumberingRecord>().get(hdc);
+  if (hdc.isValid()) {
+    hcalConstants_ = hdc.product();
+  } else {
+    edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
+    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant\n";
+  }
+  edm::ESHandle<HcalDDDSimulationConstants> hdsc;
+  es.get<HcalSimNumberingRecord>().get(hdsc);
+  if (hdsc.isValid()) {
+    hcalSimConstants_ = hdsc.product();
+  } else {
+    edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimulationConstant";
+    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimulationConstant\n";
+  }
+
   HcalNumberingScheme* scheme;
   if (testNumber || forTBH2) {
     scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(forTBH2));
@@ -151,12 +171,12 @@ HCalSD::HCalSD(const std::string& name,
 
   if (useHF) {
     if (useParam) {
-      showerParam.reset(new HFShowerParam(name, *cpv, p));
+      showerParam.reset(new HFShowerParam(name, hcalConstants_, hcalSimConstants_->hcalsimpar(), p));
     } else {
       if (useShowerLibrary) {
-        showerLibrary.reset(new HFShowerLibrary(name, *cpv, p));
+        showerLibrary.reset(new HFShowerLibrary(name, hcalConstants_, hcalSimConstants_->hcalsimpar(), p));
       }
-      hfshower.reset(new HFShower(name, *cpv, p, 0));
+      hfshower.reset(new HFShower(name, hcalConstants_, hcalSimConstants_->hcalsimpar(), p, 0));
     }
 
     // HF volume names
@@ -170,8 +190,10 @@ HCalSD::HCalSD(const std::string& name,
     std::vector<double> temp = getDDDArray("Levels", sv0);
 
     unsigned int nhf = hfNames.size();
-    std::stringstream ss;
-    ss << "HCalSD: Names to be tested for " << attribute << " = " << value << " has " << nhf << " elements";
+#ifdef EDM_ML_DEBUG
+    std::stringstream ss0;
+    ss0 << "HCalSD: Names to be tested for " << attribute << " = " << value << " has " << nhf << " elements";
+#endif
     for (unsigned int i = 0; i < nhf; ++i) {
       G4String namv = hfNames[i];
       lv = nullptr;
@@ -184,10 +206,13 @@ HCalSD::HCalSD(const std::string& name,
       hfLV.push_back(lv);
       int level = static_cast<int>(temp[i]);
       hfLevels.push_back(level);
-      ss << "\n        HF[" << i << "] = " << namv << " LV " << hfLV[i] << " at level " << hfLevels[i];
+#ifdef EDM_ML_DEBUG
+      ss0 << "\n        HF[" << i << "] = " << namv << " LV " << hfLV[i] << " at level " << hfLevels[i];
+#endif
     }
-    edm::LogVerbatim("HcalSim") << ss.str();
-
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalSim") << ss0.str();
+#endif
     // HF Fibre volume names
     fillLogVolumeVector(attribute, "HFFibre", es, fibreLV, fibreNames);
     std::vector<G4String> tempNames;
@@ -232,17 +257,45 @@ HCalSD::HCalSD(const std::string& name,
     dodet = fv2.next();
   }
 
-  std::stringstream sss;
+#ifdef EDM_ML_DEBUG
+  std::stringstream ss1;
   for (unsigned int i = 0; i < matNames.size(); ++i) {
     if (i / 10 * 10 == i) {
-      sss << "\n";
+      ss1 << "\n";
     }
-    sss << "  " << matNames[i];
+    ss1 << "  " << matNames[i];
   }
-  edm::LogVerbatim("HcalSim") << "HCalSD: Material names for " << attribute << " = " << name << ":" << sss.str();
-
+  edm::LogVerbatim("HcalSim") << "HCalSD: Material names for " << attribute << " = " << name << ":" << ss1.str();
+#endif
   if (useLayerWt) {
     readWeightFromFile(file);
+  }
+  numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants_));
+
+  //Special Geometry parameters
+  gpar = hcalConstants_->getGparHF();
+#ifdef EDM_ML_DEBUG
+  std::stringstream ss2;
+  for (unsigned int ig = 0; ig < gpar.size(); ig++) {
+    ss2 << "\n         gpar[" << ig << "] = " << gpar[ig] / cm << " cm";
+  }
+  edm::LogVerbatim("HcalSim") << "Maximum depth for HF " << hcalConstants_->getMaxDepth(2) << gpar.size()
+                              << " gpar (cm)" << ss2.str();
+#endif
+
+  //Test Hcal Numbering Scheme
+  if (testNS_)
+    m_HcalTestNS.reset(new HcalTestNS(&es));
+
+  if (agingFlagHB) {
+    edm::ESHandle<HBHEDarkening> hdark;
+    es.get<HBHEDarkeningRecord>().get("HB", hdark);
+    m_HBDarkening = &*hdark;
+  }
+  if (agingFlagHE) {
+    edm::ESHandle<HBHEDarkening> hdark;
+    es.get<HBHEDarkeningRecord>().get("HE", hdark);
+    m_HEDarkening = &*hdark;
   }
 
   for (int i = 0; i < 9; ++i) {
@@ -314,8 +367,10 @@ void HCalSD::fillLogVolumeVector(const std::string& attribute,
   lvnames = getNames(fv);
 
   unsigned int nvol = lvnames.size();
-  std::stringstream ss;
-  ss << "HCalSD: " << nvol << " names to be tested for " << attribute << " <" << value << ">:";
+#ifdef EDM_ML_DEBUG
+  std::stringstream ss3;
+  ss3 << "HCalSD: " << nvol << " names to be tested for " << attribute << " <" << value << ">:";
+#endif
   for (unsigned int i = 0; i < nvol; ++i) {
     G4String namv = lvnames[i];
     lv = nullptr;
@@ -326,12 +381,16 @@ void HCalSD::fillLogVolumeVector(const std::string& attribute,
       }
     }
     lvvec.push_back(lv);
+#ifdef EDM_ML_DEBUG
     if (i / 10 * 10 == i) {
-      ss << "\n";
+      ss3 << "\n";
     }
-    ss << "  " << namv;
+    ss3 << "  " << namv;
+#endif
   }
-  edm::LogVerbatim("HcalSim") << ss.str();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalSim") << ss3.str();
+#endif
 }
 
 bool HCalSD::getFromLibrary(const G4Step* aStep) {
@@ -366,7 +425,7 @@ bool HCalSD::getFromLibrary(const G4Step* aStep) {
     if (useParam) {
       getFromParam(aStep, kill);
 #ifdef EDM_ML_DEBUG
-      G4String nameVolume = lv->GetName();
+      G4String nameVolume = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
       edm::LogVerbatim("HcalSim") << "HCalSD: " << getNumberOfHits() << " hits from parametrization in " << nameVolume
                                   << " for Track " << track->GetTrackID() << " ("
                                   << track->GetDefinition()->GetParticleName() << ")";
@@ -466,7 +525,7 @@ double HCalSD::getEnergyDeposit(const G4Step* aStep) {
                               << "  lay: " << lay - 2;
 #endif
   if (depth_ == 0 && (det == 1 || det == 2) && ((!testNumber) || neutralDensity))
-    weight_ = hcalConstants->getLayer0Wt(det, phi, z);
+    weight_ = hcalConstants_->getLayer0Wt(det, phi, z);
   if (useLayerWt) {
     G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
     weight_ = layerWeight(det + 2, hitPoint, depth_, lay);
@@ -542,56 +601,9 @@ void HCalSD::setNumberingScheme(HcalNumberingScheme* scheme) {
   }
 }
 
-void HCalSD::update(const BeginOfJob* job) {
-  const edm::EventSetup* es = (*job)();
-  edm::ESHandle<HcalDDDSimConstants> hdc;
-  es->get<HcalSimNumberingRecord>().get(hdc);
-  if (hdc.isValid()) {
-    hcalConstants = hdc.product();
-  } else {
-    edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
-    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant"
-                                              << "\n";
-  }
+void HCalSD::update(const BeginOfJob* job) {}
 
-  numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));
-
-  //Special Geometry parameters
-  gpar = hcalConstants->getGparHF();
-  std::stringstream sss;
-  for (unsigned int ig = 0; ig < gpar.size(); ig++) {
-    sss << "\n         gpar[" << ig << "] = " << gpar[ig] / cm << " cm";
-  }
-  edm::LogVerbatim("HcalSim") << "Maximum depth for HF " << hcalConstants->getMaxDepth(2) << gpar.size() << " gpar (cm)"
-                              << sss.str();
-  //Test Hcal Numbering Scheme
-  if (testNS_)
-    m_HcalTestNS.reset(new HcalTestNS(es));
-
-  if (agingFlagHB) {
-    edm::ESHandle<HBHEDarkening> hdark;
-    es->get<HBHEDarkeningRecord>().get("HB", hdark);
-    m_HBDarkening = &*hdark;
-  }
-  if (agingFlagHE) {
-    edm::ESHandle<HBHEDarkening> hdark;
-    es->get<HBHEDarkeningRecord>().get("HE", hdark);
-    m_HEDarkening = &*hdark;
-  }
-}
-
-void HCalSD::initRun() {
-  if (showerLibrary.get())
-    showerLibrary.get()->initRun(nullptr, hcalConstants);
-  if (showerParam.get())
-    showerParam.get()->initRun(hcalConstants);
-  if (hfshower.get())
-    hfshower.get()->initRun(hcalConstants);
-  if (showerPMT.get())
-    showerPMT.get()->initRun(hcalConstants);
-  if (showerBundle.get())
-    showerBundle.get()->initRun(hcalConstants);
-}
+void HCalSD::initRun() {}
 
 bool HCalSD::filterHit(CaloG4Hit* aHit, double time) {
   double threshold = 0;
@@ -832,7 +844,7 @@ void HCalSD::hitForFibre(const G4Step* aStep) {  // if not ParamShower
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalSim") << "HCalSD::hitForFibre " << hits.size() << " hits for " << GetName() << " of "
                               << primaryID << " with " << theTrack->GetDefinition()->GetParticleName() << " of "
-                              << preStepPoint->GetKineticEnergy() / GeV << " GeV in detector type " << det;
+                              << aStep->GetPreStepPoint()->GetKineticEnergy() / GeV << " GeV in detector type " << det;
 #endif
 
   for (unsigned int i = 0; i < hits.size(); ++i) {
@@ -864,7 +876,8 @@ void HCalSD::getFromParam(const G4Step* aStep, bool& isKilled) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalSim") << "HCalSD::getFromParam " << hits.size() << " hits for " << GetName() << " of "
                               << primaryID << " with " << aStep->GetTrack()->GetDefinition()->GetParticleName()
-                              << " of " << preStepPoint->GetKineticEnergy() / GeV << " GeV in detector type " << det;
+                              << " of " << aStep->GetPreStepPoint()->GetKineticEnergy() / GeV
+                              << " GeV in detector type " << det;
 #endif
   for (unsigned int i = 0; i < hits.size(); ++i) {
     G4ThreeVector hitPoint = hits[i].position;
@@ -1120,7 +1133,7 @@ void HCalSD::plotHF(const G4ThreeVector& hitPoint, bool emType) {
 void HCalSD::modifyDepth(HcalNumberingFromDDD::HcalID& id) {
   if (id.subdet == 4) {
     int ieta = (id.zside == 0) ? -id.etaR : id.etaR;
-    if (hcalConstants->maxHFDepth(ieta, id.phis) > 2) {
+    if (hcalConstants_->maxHFDepth(ieta, id.phis) > 2) {
       if (id.depth <= 2) {
         if (G4UniformRand() > 0.5)
           id.depth += 2;

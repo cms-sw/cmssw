@@ -143,7 +143,7 @@ def filesFromDASQuery(query,option="",s=None):
         if count!=0:
             print('Sleeping, then retrying DAS')
             time.sleep(100)
-        p = Popen('dasgoclient %s --query "%s"'%(option,query), stdout=PIPE,shell=True)
+        p = Popen('dasgoclient %s --query "%s"'%(option,query), stdout=PIPE,shell=True, universal_newlines=True)
         pipe=p.stdout.read()
         tupleP = os.waitpid(p.pid, 0)
         eC=tupleP[1]
@@ -899,7 +899,7 @@ class ConfigBuilder(object):
         if self._options.customise_commands:
             import string
             for com in self._options.customise_commands.split('\\n'):
-                com=string.lstrip(com)
+                com=com.lstrip()
                 self.executeAndRemember(com)
                 final_snippet +='\n'+com
 

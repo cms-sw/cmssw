@@ -379,13 +379,13 @@ private:
   edm::InputSource::ItemType m_nextItemType;
 
   size_t m_fileIndex;
-  size_t m_presentlyOpenFileIndex;
+  std::string m_presentlyOpenFileName;
   std::list<unsigned int>::iterator m_nextIndexItr;
   std::list<unsigned int>::iterator m_presentIndexItr;
   std::vector<RunLumiToRange> m_runlumiToRange;
   std::unique_ptr<TFile> m_file;
   std::vector<TTree*> m_trees;
-  std::vector<boost::shared_ptr<TreeReaderBase> > m_treeReaders;
+  std::vector<std::shared_ptr<TreeReaderBase> > m_treeReaders;
 
   std::list<unsigned int> m_orderedIndices;
   edm::ProcessHistoryID m_lastSeenReducedPHID;
@@ -438,9 +438,8 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
                 iPSet.getUntrackedParameter<std::string>("overrideCatalog")),
       m_nextItemType(edm::InputSource::IsFile),
       m_fileIndex(0),
-      m_presentlyOpenFileIndex(0),
       m_trees(kNIndicies, static_cast<TTree*>(nullptr)),
-      m_treeReaders(kNIndicies, boost::shared_ptr<TreeReaderBase>()),
+      m_treeReaders(kNIndicies, std::shared_ptr<TreeReaderBase>()),
       m_lastSeenReducedPHID(),
       m_lastSeenRun(0),
       m_lastSeenReducedPHID2(),
@@ -484,7 +483,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
 DQMRootSource::~DQMRootSource() {
   if (m_file.get() != nullptr && m_file->IsOpen()) {
     m_file->Close();
-    logFileAction("  Closed file ", m_catalog.fileNames()[m_presentlyOpenFileIndex].c_str());
+    logFileAction("  Closed file ", m_presentlyOpenFileName.c_str());
   }
 }
 
@@ -639,7 +638,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     ++m_presentIndexItr;
 
   edm::Service<edm::JobReport> jr;
-  m_jrToken = jr->inputFileOpened(m_catalog.fileNames()[m_fileIndex - 1],
+  m_jrToken = jr->inputFileOpened(m_presentlyOpenFileName,
                                   m_catalog.logicalFileNames()[m_fileIndex - 1],
                                   std::string(),
                                   std::string(),
@@ -671,7 +670,7 @@ void DQMRootSource::readElements() {
       ++m_presentIndexItr;
 
     if (runLumiRange.m_type != kNoTypesStored) {
-      boost::shared_ptr<TreeReaderBase> reader = m_treeReaders[runLumiRange.m_type];
+      std::shared_ptr<TreeReaderBase> reader = m_treeReaders[runLumiRange.m_type];
       ULong64_t index = runLumiRange.m_firstIndex;
       ULong64_t endIndex = runLumiRange.m_lastIndex + 1;
       for (; index != endIndex; ++index) {
@@ -755,21 +754,28 @@ void DQMRootSource::readNextItemType() {
 bool DQMRootSource::setupFile(unsigned int iIndex) {
   if (m_file.get() != nullptr && iIndex > 0) {
     m_file->Close();
-    logFileAction("  Closed file ", m_catalog.fileNames()[iIndex - 1].c_str());
+    logFileAction("  Closed file ", m_presentlyOpenFileName.c_str());
   }
   logFileAction("  Initiating request to open file ", m_catalog.fileNames()[iIndex].c_str());
-  m_presentlyOpenFileIndex = iIndex;
+
+  auto fallbackFileName = m_catalog.fallbackFileNames()[iIndex];
+  bool hasFallback = !fallbackFileName.empty() && fallbackFileName != m_catalog.fileNames()[iIndex];
+
+  m_presentlyOpenFileName.clear();
   m_file.reset();
+
   std::unique_ptr<TFile> newFile;
+  std::list<std::string> originalInfo;
   try {
     // ROOT's context management implicitly assumes that a file is opened and
     // closed on the same thread.  To avoid the problem, we declare a local
     // TContext object; when it goes out of scope, its destructor unregisters
     // the context, guaranteeing the context is unregistered in the same thread
     // it was registered in.
-    TDirectory::TContext contextEraser;
-    newFile = std::unique_ptr<TFile>(TFile::Open(m_catalog.fileNames()[iIndex].c_str()));
-
+    {
+      TDirectory::TContext contextEraser;
+      newFile = std::unique_ptr<TFile>(TFile::Open(m_catalog.fileNames()[iIndex].c_str()));
+    }
     //Since ROOT6, we can not propagate an exception through ROOT's plugin
     // system so we trap them and then pull from this function
     std::exception_ptr e = edm::threadLocalException::getException();
@@ -779,30 +785,91 @@ bool DQMRootSource::setupFile(unsigned int iIndex) {
     }
 
   } catch (cms::Exception const& e) {
-    if (!m_skipBadFiles) {
-      edm::Exception ex(edm::errors::FileOpenError, "", e);
-      ex.addContext("Opening DQM Root file");
-      ex << "\nInput file " << m_catalog.fileNames()[iIndex]
-         << " was not found, could not be opened, or is corrupted.\n";
-      throw ex;
+    if (!hasFallback) {
+      if (m_skipBadFiles) {
+        return false;
+      } else {
+        edm::Exception ex(edm::errors::FileOpenError, "", e);
+        ex.addContext("Opening DQM Root file");
+        ex << "\nInput file " << m_catalog.fileNames()[iIndex]
+           << " was not found, could not be opened, or is corrupted.\n";
+        throw ex;
+      }
     }
-    return false;
+    originalInfo = e.additionalInfo();  // save in case of fallback error
+    newFile.reset();
   }
-  if (not newFile->IsZombie()) {
-    logFileAction("  Successfully opened file ", m_catalog.fileNames()[iIndex].c_str());
+  if (newFile && not newFile->IsZombie()) {
+    m_presentlyOpenFileName = m_catalog.fileNames()[iIndex];
+    logFileAction("  Successfully opened file ", m_presentlyOpenFileName.c_str());
   } else {
-    if (!m_skipBadFiles) {
-      edm::Exception ex(edm::errors::FileOpenError);
-      ex << "Input file " << m_catalog.fileNames()[iIndex].c_str() << " could not be opened.\n";
-      ex.addContext("Opening DQM Root file");
-      throw ex;
+    if (!hasFallback) {
+      if (m_skipBadFiles) {
+        return false;
+      } else {
+        edm::Exception ex(edm::errors::FileOpenError);
+        ex << "Input file " << m_catalog.fileNames()[iIndex].c_str() << " could not be opened.\n";
+        ex.addContext("Opening DQM Root file");
+        throw ex;
+      }
     }
-    return false;
+    newFile.reset();
   }
+
+  if (!newFile && hasFallback) {
+    logFileAction("  Initiating request to open fallback file ", fallbackFileName.c_str());
+    try {
+      {
+        TDirectory::TContext contextEraser;
+        newFile = std::unique_ptr<TFile>(TFile::Open(fallbackFileName.c_str()));
+      }
+      std::exception_ptr e = edm::threadLocalException::getException();
+      if (e != std::exception_ptr()) {
+        edm::threadLocalException::setException(std::exception_ptr());
+        std::rethrow_exception(e);
+      }
+    } catch (cms::Exception const& e) {
+      if (m_skipBadFiles) {
+        return false;
+      } else {
+        edm::Exception ex(edm::errors::FileOpenError, "", e);
+        ex.addContext("Opening DQM Root file");
+        ex << "\nInput file " << m_catalog.fileNames()[iIndex] << " and fallback input file " << fallbackFileName
+           << " were not found, could not be opened, or are corrupted.\n";
+        for (auto const& s : originalInfo) {
+          ex.addAdditionalInfo(s);
+        }
+        throw ex;
+      }
+    }
+    if (not newFile->IsZombie()) {
+      m_presentlyOpenFileName = fallbackFileName;
+      logFileAction("  Successfully opened fallback file ", m_presentlyOpenFileName.c_str());
+    } else {
+      if (m_skipBadFiles) {
+        return false;
+      } else {
+        edm::Exception ex(edm::errors::FileOpenError);
+        ex << "Input file " << m_catalog.fileNames()[iIndex] << " and fallback input file " << fallbackFileName
+           << " could not be opened.\n";
+        ex.addContext("Opening DQM Root file");
+        for (auto const& s : originalInfo) {
+          ex.addAdditionalInfo(s);
+        }
+        throw ex;
+      }
+    }
+  }
+
   //Check file format version, which is encoded in the Title of the TFile
   if (0 != strcmp(newFile->GetTitle(), "1")) {
-    edm::Exception ex(edm::errors::FileReadError);
-    ex << "Input file " << m_catalog.fileNames()[iIndex].c_str() << " does not appear to be a DQM Root file.\n";
+    if (m_skipBadFiles) {
+      return false;
+    } else {
+      edm::Exception ex(edm::errors::FileReadError);
+      ex << "Input file " << m_presentlyOpenFileName << " does not appear to be a DQM Root file.\n";
+      throw ex;
+    }
   }
 
   //Get meta Data
@@ -810,7 +877,7 @@ bool DQMRootSource::setupFile(unsigned int iIndex) {
   if (nullptr == metaDir) {
     if (!m_skipBadFiles) {
       edm::Exception ex(edm::errors::FileReadError);
-      ex << "Input file " << m_catalog.fileNames()[iIndex].c_str()
+      ex << "Input file " << m_presentlyOpenFileName
          << " appears to be corrupted since it does not have the proper internal structure.\n"
             " Check to see if the file was closed properly.\n";
       ex.addContext("Opening DQM Root file");

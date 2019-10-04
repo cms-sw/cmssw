@@ -142,7 +142,7 @@ protected:
   /** Called at end of track building, to see if track should be kept */
   bool qualityFilter(const TempTrajectory& traj, bool inOut = false) const;
 
-  void addToResult(boost::shared_ptr<const TrajectorySeed> const& seed,
+  void addToResult(std::shared_ptr<const TrajectorySeed> const& seed,
                    TempTrajectory& traj,
                    TrajectoryContainer& result,
                    bool inOut = false) const;

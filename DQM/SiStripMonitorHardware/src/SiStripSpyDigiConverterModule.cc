@@ -2,7 +2,6 @@
 #include <memory>
 #include <vector>
 #include <utility>
-#include "boost/cstdint.hpp"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -169,5 +168,6 @@ namespace sistrip {
 }  // namespace sistrip
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include <cstdint>
 typedef sistrip::SpyDigiConverterModule SiStripSpyDigiConverterModule;
 DEFINE_FWK_MODULE(SiStripSpyDigiConverterModule);

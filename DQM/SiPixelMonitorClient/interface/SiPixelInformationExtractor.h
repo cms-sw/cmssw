@@ -26,12 +26,12 @@
 #include "TH2F.h"
 #include "TPaveText.h"
 
-#include <boost/cstdint.hpp>
 #include <fstream>
 #include <map>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 class SiPixelEDAClient;
 class SiPixelWebInterface;

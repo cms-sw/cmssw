@@ -8,8 +8,6 @@ Marco A. Harrendorf
 #include <memory>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include <HepMC/GenEvent.h>
 #include <HepMC/PdfInfo.h>
 #include <HepMC/IO_BaseClass.h>
@@ -70,7 +68,7 @@ protected:
   void createInputFile(const edm::ParameterSet &params);
 
 private:
-  boost::shared_ptr<ThePEG::RandomEngineGlue::Proxy> randomEngineGlueProxy_;
+  std::shared_ptr<ThePEG::RandomEngineGlue::Proxy> randomEngineGlueProxy_;
 
   const std::string dataLocation_;
   const std::string generator_;

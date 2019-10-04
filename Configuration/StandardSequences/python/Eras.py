@@ -66,7 +66,7 @@ class Eras (object):
                            'phase2_common', 'phase2_tracker',
                            'phase2_hgcal', 'phase2_muon', 'phase2_timing', 'phase2_hgcalV9', 'phase2_hfnose', 'phase2_hgcalV10', 'phase2_hgcalV11',
                            'phase2_timing_layer','phase2_timing_layer_tile','phase2_timing_layer_bar','phase2_hcal',
-                           'trackingLowPU', 'trackingPhase1', 'ctpps_2016', 'trackingPhase2PU140','highBetaStar_2018',
+                           'trackingLowPU', 'trackingPhase1', 'ctpps_2016', 'ctpps_2017', 'ctpps_2018', 'trackingPhase2PU140','highBetaStar_2018',
                            'tracker_apv_vfp30_2016', 'pf_badHcalMitigation', 'run2_miniAOD_80XLegacy','run2_miniAOD_94XFall17', 'run2_nanoAOD_92X',
                            'run2_nanoAOD_94XMiniAODv1', 'run2_nanoAOD_94XMiniAODv2', 'run2_nanoAOD_94X2016',
                            'run2_miniAOD_devel', 'run2_nanoAOD_102Xv1',

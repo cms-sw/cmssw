@@ -5,7 +5,6 @@
 
 #include <vector>
 #include <iostream>
-#include <boost/cstdint.hpp>
 
 class RPCMaskedStrips {
 public:

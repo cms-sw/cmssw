@@ -1,8 +1,8 @@
 #ifndef DATAFORMATS_HCALDIGI_HCALLASERDIGI_H
 #define DATAFORMATS_HCALDIGI_HCALLASERDIGI_H 1
 
-#include <boost/cstdint.hpp>
 #include <vector>
+#include <cstdint>
 
 class HcalLaserDigi {
 public:

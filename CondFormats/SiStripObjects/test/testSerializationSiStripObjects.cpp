@@ -5,6 +5,7 @@
 int main() {
   testSerialization<FedChannelConnection>();
   testSerialization<SiStripApvGain>();
+  testSerialization<SiStripApvSimulationParameters>();
   testSerialization<SiStripBackPlaneCorrection>();
   testSerialization<SiStripBadStrip>();
   testSerialization<SiStripBadStrip::DetRegistry>();

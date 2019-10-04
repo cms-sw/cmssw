@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 
@@ -28,7 +29,10 @@ class G4ParticleTable;
 class HFShowerLibrary {
 public:
   //Constructor and Destructor
-  HFShowerLibrary(const std::string &name, const DDCompactView &cpv, edm::ParameterSet const &p);
+  HFShowerLibrary(const std::string &name,
+                  const HcalDDDSimConstants *hcons,
+                  const HcalSimulationParameters *hps,
+                  edm::ParameterSet const &p);
   ~HFShowerLibrary();
 
 public:
@@ -39,7 +43,6 @@ public:
     double time;
   };
 
-  void initRun(G4ParticleTable *, const HcalDDDSimConstants *);
   std::vector<Hit> getHits(const G4Step *aStep, bool &ok, double weight, bool onlyLong = false);
   std::vector<Hit> fillHits(const G4ThreeVector &p,
                             const G4ThreeVector &v,
@@ -59,7 +62,8 @@ protected:
   void storePhoton(int j);
 
 private:
-  HFFibre *fibre;
+  const HcalDDDSimConstants *hcalConstant_;
+  std::unique_ptr<HFFibre> fibre_;
   TFile *hf;
   TBranch *emBranch, *hadBranch;
 

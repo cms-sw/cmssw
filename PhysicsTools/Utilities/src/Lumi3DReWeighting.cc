@@ -16,17 +16,18 @@
   \author Salvatore Rappoccio, modified by Mike Hildreth
   
 */
+#include "TFile.h"
+#include "TH1.h"
+#include "TH3.h"
 #include "TRandom1.h"
 #include "TRandom2.h"
 #include "TRandom3.h"
 #include "TStopwatch.h"
-#include "TH1.h"
-#include "TH3.h"
-#include "TFile.h"
-#include <iostream>
-#include <string>
 #include <algorithm>
-#include <boost/shared_ptr.hpp>
+#include <iostream>
+#include <memory>
+#include <string>
+
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -46,17 +47,17 @@ Lumi3DReWeighting::Lumi3DReWeighting(std::string generatedFile,
       GenHistName_(GenHistName),
       DataHistName_(DataHistName),
       weightFileName_(WeightOutputFile) {
-  generatedFile_ = boost::shared_ptr<TFile>(new TFile(generatedFileName_.c_str()));  //MC distribution
-  dataFile_ = boost::shared_ptr<TFile>(new TFile(dataFileName_.c_str()));            //Data distribution
+  generatedFile_ = std::make_shared<TFile>(generatedFileName_.c_str());  //MC distribution
+  dataFile_ = std::make_shared<TFile>(dataFileName_.c_str());            //Data distribution
 
-  boost::shared_ptr<TH1> Data_temp =
-      boost::shared_ptr<TH1>((static_cast<TH1 *>(dataFile_->Get(DataHistName_.c_str())->Clone())));
+  std::shared_ptr<TH1> Data_temp =
+      std::shared_ptr<TH1>((static_cast<TH1 *>(dataFile_->Get(DataHistName_.c_str())->Clone())));
 
-  boost::shared_ptr<TH1> MC_temp =
-      boost::shared_ptr<TH1>((static_cast<TH1 *>(generatedFile_->Get(GenHistName_.c_str())->Clone())));
+  std::shared_ptr<TH1> MC_temp =
+      std::shared_ptr<TH1>((static_cast<TH1 *>(generatedFile_->Get(GenHistName_.c_str())->Clone())));
 
-  MC_distr_ = boost::shared_ptr<TH1>((static_cast<TH1 *>(generatedFile_->Get(GenHistName_.c_str())->Clone())));
-  Data_distr_ = boost::shared_ptr<TH1>((static_cast<TH1 *>(dataFile_->Get(DataHistName_.c_str())->Clone())));
+  MC_distr_ = std::shared_ptr<TH1>((static_cast<TH1 *>(generatedFile_->Get(GenHistName_.c_str())->Clone())));
+  Data_distr_ = std::shared_ptr<TH1>((static_cast<TH1 *>(dataFile_->Get(DataHistName_.c_str())->Clone())));
 
   // MC * data/MC = data, so the weights are data/MC:
 
@@ -77,11 +78,11 @@ Lumi3DReWeighting::Lumi3DReWeighting(const std::vector<float> &MC_distr,
 
   Int_t NMCBins = MC_distr.size();
 
-  MC_distr_ = boost::shared_ptr<TH1>(new TH1F("MC_distr", "MC dist", NMCBins, 0., float(NMCBins)));
+  MC_distr_ = std::shared_ptr<TH1>(new TH1F("MC_distr", "MC dist", NMCBins, 0., float(NMCBins)));
 
   Int_t NDBins = Lumi_distr.size();
 
-  Data_distr_ = boost::shared_ptr<TH1>(new TH1F("Data_distr", "Data dist", NDBins, 0., float(NDBins)));
+  Data_distr_ = std::shared_ptr<TH1>(new TH1F("Data_distr", "Data dist", NDBins, 0., float(NDBins)));
 
   for (int ibin = 1; ibin < NMCBins + 1; ++ibin) {
     MC_distr_->SetBinContent(ibin, MC_distr[ibin - 1]);
@@ -166,17 +167,17 @@ void Lumi3DReWeighting::weight3D_set(std::string generatedFile,
   std::cout << " seting values: " << generatedFileName_ << " " << dataFileName_ << " " << GenHistName_ << " "
             << DataHistName_ << std::endl;
 
-  generatedFile_ = boost::shared_ptr<TFile>(new TFile(generatedFileName_.c_str()));  //MC distribution
-  dataFile_ = boost::shared_ptr<TFile>(new TFile(dataFileName_.c_str()));            //Data distribution
+  generatedFile_ = std::make_shared<TFile>(generatedFileName_.c_str());  //MC distribution
+  dataFile_ = std::make_shared<TFile>(dataFileName_.c_str());            //Data distribution
 
-  boost::shared_ptr<TH1> Data_temp =
-      boost::shared_ptr<TH1>((static_cast<TH1 *>(dataFile_->Get(DataHistName_.c_str())->Clone())));
+  std::shared_ptr<TH1> Data_temp =
+      std::shared_ptr<TH1>((static_cast<TH1 *>(dataFile_->Get(DataHistName_.c_str())->Clone())));
 
-  boost::shared_ptr<TH1> MC_temp =
-      boost::shared_ptr<TH1>((static_cast<TH1 *>(generatedFile_->Get(GenHistName_.c_str())->Clone())));
+  std::shared_ptr<TH1> MC_temp =
+      std::shared_ptr<TH1>((static_cast<TH1 *>(generatedFile_->Get(GenHistName_.c_str())->Clone())));
 
-  MC_distr_ = boost::shared_ptr<TH1>((static_cast<TH1 *>(generatedFile_->Get(GenHistName_.c_str())->Clone())));
-  Data_distr_ = boost::shared_ptr<TH1>((static_cast<TH1 *>(dataFile_->Get(DataHistName_.c_str())->Clone())));
+  MC_distr_ = std::shared_ptr<TH1>((static_cast<TH1 *>(generatedFile_->Get(GenHistName_.c_str())->Clone())));
+  Data_distr_ = std::shared_ptr<TH1>((static_cast<TH1 *>(dataFile_->Get(DataHistName_.c_str())->Clone())));
 
   // MC * data/MC = data, so the weights are data/MC:
 

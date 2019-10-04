@@ -61,7 +61,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "Randomize.hh"
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace CLHEP {
   class HepRandomEngine;

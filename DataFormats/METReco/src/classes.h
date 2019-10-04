@@ -3,7 +3,6 @@
 #include "Math/Polar3D.h"
 #include "Math/CylindricalEta3D.h"
 #include "Math/PxPyPzE4D.h"
-#include <boost/cstdint.hpp>
 #include <Rtypes.h>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/METReco/interface/METFwd.h"

@@ -26,7 +26,7 @@ public:
 void L1TMuonOverlapParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   edm::ESHandle<L1TMuonOverlapParams> handle1;
   evSetup.get<L1TMuonOverlapParamsRcd>().get(handle1);
-  boost::shared_ptr<L1TMuonOverlapParams> ptr1(new L1TMuonOverlapParams(*(handle1.product())));
+  std::shared_ptr<L1TMuonOverlapParams> ptr1(new L1TMuonOverlapParams(*(handle1.product())));
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {

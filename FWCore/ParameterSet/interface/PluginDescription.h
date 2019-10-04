@@ -153,18 +153,16 @@ namespace edm {
       using CreatedType = PluginDescriptionAdaptorBase<typename T::CreatedType>;
       using Factory = edmplugin::PluginFactory<CreatedType*()>;
 
-      std::stringstream ss;
-      ss << dfh.section() << "." << dfh.counter();
-      std::string newSection = ss.str();
+      {
+        std::stringstream ss;
+        ss << dfh.section() << "." << dfh.counter();
+        std::string newSection = ss.str();
 
-      printSpaces(os, indentation);
-      os << "Section " << newSection << " " << Factory::get()->category() << " Plugins description:\n";
-      if (!dfh.brief())
-        os << "\n";
-
-      DocFormatHelper new_dfh(dfh);
-      new_dfh.init();
-      new_dfh.setSection(newSection);
+        printSpaces(os, indentation);
+        os << "Section " << newSection << " " << Factory::get()->category() << " Plugins description:\n";
+        if (!dfh.brief())
+          os << "\n";
+      }
 
       //loop over all possible plugins
       unsigned int pluginCount = 0;

@@ -13,10 +13,10 @@
 //         Created:  Wed Mar 22 12:24:20 CET 2006
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include <boost/cstdint.hpp>
 #include <map>
 #include <string>
 #include <vector>
+#include <cstdint>
 class TrackerTopology;
 class SiStripDetCabling {
 public:

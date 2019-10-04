@@ -50,6 +50,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     PhysicsTablesDirectory = cms.untracked.string('PhysicsTables'),
     StorePhysicsTables = cms.untracked.bool(False),
     RestorePhysicsTables = cms.untracked.bool(False),
+    UseParametrisedEMPhysics = cms.untracked.bool(True),
     CheckGeometry = cms.untracked.bool(False),
     G4CheckOverlap = cms.untracked.PSet(
         OutputBaseName = cms.string('2017'),
@@ -481,7 +482,13 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         WaferAngles      = cms.untracked.vdouble(90.0,30.0),
         CheckID          = cms.untracked.bool(True),
     ),
-    TotemSD = cms.PSet(
+    TotemRPSD = cms.PSet(
+        Verbosity = cms.int32(0)
+    ),
+    PPSDiamondSD = cms.PSet(
+        Verbosity = cms.int32(0)
+    ),
+    PPSPixelSD = cms.PSet(
         Verbosity = cms.untracked.int32(0)
     ),
     ZdcSD = cms.PSet(

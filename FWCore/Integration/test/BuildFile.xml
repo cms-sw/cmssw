@@ -268,6 +268,11 @@
     <use   name="FWCore/ParameterSet"/>
     <use   name="FWCore/Framework"/>
   </library>
+  <library   file="ConcurrentIOVESSource.cc,ConcurrentIOVESProducer.cc,ConcurrentIOVAnalyzer.cc,GadgetRcd.cc,IOVTestInfo.cc,RunLumiESAnalyzer.cc,RunLumiESSource.cc,TestESSource.cc" name="ConcurrentIOVESSource">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/Integration"/>
+    <use   name="FWCore/Framework"/>
+  </library>
   <library   file="WhatsItESProducer.cc,WhatsIt.cc,Doodad.cc,GadgetRcd.cc" name="WhatsItESProducer">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/Framework"/>

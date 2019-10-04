@@ -23,7 +23,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class SiPixelDetInfoFileReader {
 public:

@@ -92,35 +92,25 @@ void PuppiAlgo::add(const PuppiCandidate &iParticle, const double &iVal, const u
   // In CMSSW we use the user_index to specify the index in the input collection, so I invented
   // a new mechanism using the fastjet UserInfo functionality. Of course, it's still just an integer
   // but that interface could be changed (or augmented) if desired / needed.
-  int puppi_register = iParticle.puppi_register();
-  if (puppi_register == std::numeric_limits<int>::lowest()) {
+  int puppi_id = iParticle.puppi_register();
+  if (puppi_id == std::numeric_limits<int>::lowest()) {
     throw cms::Exception("PuppiRegisterNotSet") << "The puppi register is not set. This must be set before use.\n";
   }
 
-  //// original code
-  // if(fCharged[iAlgo] && std::abs(puppi_register)  < 1) return;
-  // if(fCharged[iAlgo] && (std::abs(puppi_register) >=1 && std::abs(puppi_register) <=2)) fPupsPV.push_back(iVal);
-  //if(fCharged[iAlgo] && std::abs(puppi_register) < 3) return;
-  //// if used fCharged and not CHPU, just return
-  // fPups.push_back(iVal); //original
-  // fNCount[iAlgo]++;
-
   // added by Nhan -- for all eta regions, compute mean/RMS from the central charged PU
-  //std::cout << "std::abs(puppi_register) = " << std::abs(puppi_register) << std::endl;
-  if ((std::abs(iParticle.eta()) < fEtaMaxExtrap) && (std::abs(puppi_register) >= 3)) {
+  if ((std::abs(iParticle.eta()) < fEtaMaxExtrap) && (puppi_id == 2)) {
     fPups.push_back(iVal);
-    // fPupsPV.push_back(iVal);
     fNCount[iAlgo]++;
   }
   // for the low PU case, correction.  for checking that the PU-only median will be below the PV particles
-  if (std::abs(iParticle.eta()) < fEtaMaxExtrap && (std::abs(puppi_register) >= 1 && std::abs(puppi_register) <= 2))
+  if (std::abs(iParticle.eta()) < fEtaMaxExtrap && (puppi_id == 1))
     fPupsPV.push_back(iVal);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 //NHAN'S VERSION
-void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo, const double &iPVFrac) {
+void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo) {
   //std::cout << "fNCount[iAlgo] = " << fNCount[iAlgo] << std::endl;
   if (iAlgo >= fNAlgos)
     return;
