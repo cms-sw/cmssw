@@ -44,7 +44,7 @@ L1GctRegion::L1GctRegion(const unsigned et,
                          const unsigned iphi,
                          const int16_t bx)
     : L1CaloRegion(L1CaloRegion::makeGctJetRegion(
-          ((overFlow || et > kGctRegionMaxValue) ? kGctRegionMaxValue : (et & kGctRegionMaxValue)),
+          ((overFlow || et > kGctRegionMaxValue) ? (unsigned)kGctRegionMaxValue : (unsigned)(et & kGctRegionMaxValue)),
           (overFlow || et > kGctRegionMaxValue),
           fineGrain,
           ieta,

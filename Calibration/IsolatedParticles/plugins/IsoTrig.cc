@@ -644,7 +644,7 @@ void IsoTrig::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
                                  << mybxlumi;
   if (!triggerResults.isValid()) {
     edm::LogWarning("IsoTrack") << "Error! Can't get the product triggerResults";
-    //      boost::shared_ptr<cms::Exception> const & error = triggerResults.whyFailed();
+    //      std::shared_ptr<cms::Exception> const & error = triggerResults.whyFailed();
     //      edm::LogWarning(error->category()) << error->what();
   } else {
     std::vector<std::string> modules;

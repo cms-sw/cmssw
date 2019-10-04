@@ -3,10 +3,10 @@
 
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactoryBase.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include <boost/cstdint.hpp>
 #include "TH1.h"
 #include <string>
 #include <map>
+#include <cstdint>
 
 template <class T>
 class SummaryPlotFactory : public SummaryPlotFactoryBase {

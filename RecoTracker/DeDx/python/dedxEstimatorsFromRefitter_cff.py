@@ -34,4 +34,5 @@ dedxDiscrimSmi.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
 dedxDiscrimASmi.tracks=cms.InputTag("RefitterForDeDx")
 dedxDiscrimASmi.trajectoryTrackAssociation = cms.InputTag("RefitterForDeDx")
 
-doAlldEdXEstimators = cms.Sequence(RefitterForDeDx * (dedxTruncated40 + dedxHarmonic2 + dedxHitInfo) )
+doAlldEdXEstimatorsTask = cms.Task(RefitterForDeDx, dedxTruncated40, dedxHarmonic2, dedxHitInfo )
+doAlldEdXEstimators = cms.Sequence(doAlldEdXEstimatorsTask)

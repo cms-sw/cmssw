@@ -145,7 +145,7 @@ namespace cond {
 
     Session m_session;
     IOVProxy m_iov;
-    boost::shared_ptr<pimpl> m_data;
+    std::shared_ptr<pimpl> m_data;
   };
 
   class TestGTLoad : public cond::Utilities {

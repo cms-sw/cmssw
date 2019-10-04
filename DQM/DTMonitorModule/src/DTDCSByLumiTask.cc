@@ -93,8 +93,9 @@ void DTDCSByLumiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 }
 
 void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
-  if (DTHVRecordFound)
+  if (DTHVRecordFound) {
     context.get<DTHVStatusRcd>().get(hvStatus);
+  }
 
   vector<const DTLayer*>::const_iterator layersIt = theDTGeom->layers().begin();
   vector<const DTLayer*>::const_iterator layersEnd = theDTGeom->layers().end();
@@ -103,7 +104,6 @@ void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, co
     int wheel = (*layersIt)->id().wheel();
 
     int nWiresLayer = (*layersIt)->specificTopology().channels();
-
     hActiveUnits[wheel + 2]->Fill(1, nWiresLayer);  // CB first bin is # of layers
     int nActiveWires = nWiresLayer;
 

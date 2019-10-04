@@ -261,15 +261,17 @@ void TestRandomNumberServiceGlobal::analyze(edm::StreamID streamID,
   // Save the random numbers for the last event
   // This string gets overwritten on each event
   // and printed at endStream
-  std::ostringstream ss;
-  ss << moduleDescription().moduleLabel() << " ";
-  ss << engine.name() << " ";
-  ss << "Last event random numbers ";
-  ss << randomNumberEvent0_ << " ";
-  ss << randomNumberEvent1_ << " ";
-  ss << randomNumberEvent2_ << " ";
-  ss << randomNumberEvent3_ << "\n";
-  cache->lastEventRandomNumbers_ = ss.str();
+  {
+    std::ostringstream ss;
+    ss << moduleDescription().moduleLabel() << " ";
+    ss << engine.name() << " ";
+    ss << "Last event random numbers ";
+    ss << randomNumberEvent0_ << " ";
+    ss << randomNumberEvent1_ << " ";
+    ss << randomNumberEvent2_ << " ";
+    ss << randomNumberEvent3_ << "\n";
+    cache->lastEventRandomNumbers_ = ss.str();
+  }
 
   // Print the numbers to a file for each event
   if (nStreams_ > 1) {

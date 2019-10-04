@@ -57,7 +57,7 @@ public:
   inline ~HcalItemCollById() override {}
 
   // Modifier for the default item
-  inline void setDefault(std::unique_ptr<Item> f) { default_ = boost::shared_ptr<Item>(f.release()); }
+  inline void setDefault(std::unique_ptr<Item> f) { default_ = std::shared_ptr<Item>(f.release()); }
 
   // Size of the internal collection, not counting the default
   inline std::size_t size() const { return coll_.size(); }
@@ -117,7 +117,7 @@ protected:
 private:
   HcalItemColl<Item> coll_;
   HcalIndexLookup lookup_;
-  boost::shared_ptr<Item> default_;
+  std::shared_ptr<Item> default_;
   uint32_t transformCode_;
 
   friend class boost::serialization::access;

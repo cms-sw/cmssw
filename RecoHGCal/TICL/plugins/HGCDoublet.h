@@ -79,7 +79,15 @@ public:
                  const GlobalVector &refDir,
                  bool debug = false) const;
 
-  void findNtuplets(std::vector<HGCDoublet> &allDoublets, HGCntuplet &tmpNtuplet, int seedIndex);
+  void findNtuplets(std::vector<HGCDoublet> &allDoublets,
+                    HGCntuplet &tmpNtuplet,
+                    int seedIndex,
+                    const bool outInDFS,
+                    const unsigned int outInHops,
+                    const unsigned int maxOutInHops,
+                    std::vector<std::pair<unsigned int, unsigned int> > &outInToVisit);
+
+  void setVisited(bool visited) { alreadyVisited_ = visited; }
 
 private:
   const std::vector<reco::CaloCluster> *layerClusters_;

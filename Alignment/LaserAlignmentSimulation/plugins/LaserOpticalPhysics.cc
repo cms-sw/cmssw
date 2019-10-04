@@ -15,7 +15,6 @@
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 
-#include "G4DataQuestionaire.hh"
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4HadronElasticPhysics.hh"
@@ -25,7 +24,6 @@
 
 LaserOpticalPhysics::LaserOpticalPhysics(const edm::ParameterSet &p) : PhysicsList(p) {
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
-  G4DataQuestionaire it(photon);
   std::cout << "You are using the simulation engine: QGSP together with "
                "optical physics"
             << std::endl;

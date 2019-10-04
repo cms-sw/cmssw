@@ -8,11 +8,7 @@
 
 class GeometricDet;
 
-/**
- * Abstract Class to construct a Level in the hierarchy
- */
-
-class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
+class CmsTrackerLevelBuilderHelper {
 public:
   static bool subDetByType(const GeometricDet* a, const GeometricDet* b);
   static bool phiSortNP(const GeometricDet* a, const GeometricDet* b);  // NP** Phase2 BarrelEndcap
@@ -26,18 +22,25 @@ public:
   static double getPhiGluedModuleMirror(const GeometricDet* a);
   static bool isLessRModule(const GeometricDet* a, const GeometricDet* b);
   static bool isLessR(const GeometricDet* a, const GeometricDet* b);
+};
 
-  void build(DDFilteredView&, GeometricDet*, std::string) override;
+/**
+ * Abstract Class to construct a Level in the hierarchy
+ */
+template <class FilteredView>
+class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction<FilteredView> {
+public:
+  void build(FilteredView&, GeometricDet*, const std::string&) override;
   ~CmsTrackerLevelBuilder() override {}
 
 private:
-  virtual void buildComponent(DDFilteredView&, GeometricDet*, std::string) = 0;
+  virtual void buildComponent(FilteredView&, GeometricDet*, const std::string&) = 0;
 
 protected:
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
 
 private:
-  virtual void sortNS(DDFilteredView&, GeometricDet*) {}
+  virtual void sortNS(FilteredView&, GeometricDet*) {}
   CmsTrackerStringToEnum _CmsTrackerStringToEnum;
 };
 

@@ -23,6 +23,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #         he collapse: TTbar, TTbar PU, TTbar design
 #         ParkingBPH: TTbar
 #   2021 (ZMM, TTbar, ZEE, MinBias, TTbar PU, TTbar PU premix, ZEE PU, TTbar design)
+#        (TTbar trackingMkFit)
 #   2023 (TTbar, TTbar PU, TTbar PU premix)
 #   2024 (TTbar, TTbar PU, TTbar PU premix)
 numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009.0,10059.0,10071.0,
@@ -34,6 +35,7 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            10824.6,11024.6,11224.6,
            10824.8,
            11650.0,11634.0,11646.0,11640.0,11834.0,11834.99,11846.0,12024.0,
+           11634.7,
            12434.0,12634.0,12634.99,
            12834.0,13034.0,13034.99]
 for numWF in numWFIB:

@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 //#define mynsdebug0
 
 typedef float ElectrodNoise;

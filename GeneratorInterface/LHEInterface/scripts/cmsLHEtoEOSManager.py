@@ -29,7 +29,7 @@ def articleExist(artId):
 
     itExists = False
     theCommand = defaultEOSlistCommand+' '+defaultEOSRootPath
-    dirList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE)
+    dirList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE, universal_newlines=True)
     for line in dirList.stdout.readlines():
         if findXrdDir(line) == str(artId): 
             itExists = True
@@ -41,7 +41,7 @@ def lastArticle():
     artList = [0]
 
     theCommand = defaultEOSlistCommand+' '+defaultEOSRootPath
-    dirList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE)
+    dirList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE, universal_newlines=True)
     for line in dirList.stdout.readlines():
         try:
             if line.rstrip('\n') != '':
@@ -261,7 +261,7 @@ if __name__ == '__main__':
     elif options.artIdLi !=0:
         listPath = defaultEOSRootPath+'/'+str(options.artIdLi)
         theCommand = defaultEOSlistCommand+' '+listPath
-        exeList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE)
+        exeList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE, universal_newlines=True)
         for line in exeList.stdout.readlines():
             if findXrdDir(line) != None:
                 print(findXrdDir(line))

@@ -1,7 +1,8 @@
 #ifndef PhysicTools_Utilities_RootFunctionAdapter_h
 #define PhysicTools_Utilities_RootFunctionAdapter_h
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
+
 #include "PhysicsTools/Utilities/interface/RootVarsAdapter.h"
 
 namespace root {
@@ -11,7 +12,7 @@ namespace root {
     struct RootFunctionAdapter {
       RootFunctionAdapter() : f_(0) {}
       RootFunctionAdapter(F& f) : f_(&f) {}
-      void addParameter(const boost::shared_ptr<double>& par) { pars_.push_back(par); }
+      void addParameter(const std::shared_ptr<double>& par) { pars_.push_back(par); }
       void setParameters(const double* pars) {
         for (size_t i = 0; i < pars_.size(); ++i) {
           *pars_[i] = pars[i];
@@ -22,7 +23,7 @@ namespace root {
 
     private:
       F* f_;
-      std::vector<boost::shared_ptr<double> > pars_;
+      std::vector<std::shared_ptr<double> > pars_;
     };
 
   }  // namespace helper

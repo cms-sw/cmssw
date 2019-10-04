@@ -30,10 +30,11 @@ elPFIsoDepositNeutral.ExtractorPSet.DR_Veto = cms.double(0)
 elPFIsoDepositPU.ExtractorPSet.DR_Veto = cms.double(0)
 
 
-electronPFIsolationDepositsSequence = cms.Sequence(
-    elPFIsoDepositCharged+
-    elPFIsoDepositChargedAll+
-    elPFIsoDepositGamma+
-    elPFIsoDepositNeutral+
+electronPFIsolationDepositsTask = cms.Task(
+    elPFIsoDepositCharged,
+    elPFIsoDepositChargedAll,
+    elPFIsoDepositGamma,
+    elPFIsoDepositNeutral,
     elPFIsoDepositPU
     )
+electronPFIsolationDepositsSequence = cms.Sequence(electronPFIsolationDepositsTask)

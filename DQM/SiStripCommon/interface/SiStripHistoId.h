@@ -19,7 +19,7 @@
 //
 
 #include <string>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class TrackerTopology;
 class SiStripHistoId {

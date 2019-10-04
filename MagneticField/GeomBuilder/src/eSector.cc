@@ -1,25 +1,26 @@
-// #include "Utilities/Configuration/interface/Architecture.h"
-
 /*
  *  See header file for a description of this class.
  *
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/src/eSector.h"
+#include "eSector.h"
+#include "printUniqueNames.h"
 #include "Utilities/BinningTools/interface/ClusterizingHistogram.h"
 #include "MagneticField/Layers/interface/MagESector.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
+#include "Utilities/General/interface/precomputed_value_sort.h"
 
 #include <algorithm>
-#include "Utilities/General/interface/precomputed_value_sort.h"
+#include <iostream>
 
 using namespace SurfaceOrientation;
 using namespace std;
+using namespace magneticfield;
 
 // The ctor is in charge of finding layers inside the sector.
-MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin, handles::const_iterator end)
-    : theVolumes(begin, end), msector(nullptr) {
+eSector::eSector(handles::const_iterator begin, handles::const_iterator end, bool debugFlag)
+    : theVolumes(begin, end), msector(nullptr), debug(debugFlag) {
   //FIXME!!!
   //precomputed_value_sort(theVolumes.begin(), theVolumes.end(), ExtractAbsZ());
   precomputed_value_sort(theVolumes.begin(), theVolumes.end(), ExtractZ());
@@ -30,7 +31,7 @@ MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin, handles::c
   float zmax = theVolumes.back()->center().z() + resolution;
   ClusterizingHistogram hisZ(int((zmax - zmin) / resolution) + 1, zmin, zmax);
 
-  if (MagGeoBuilderFromDDD::debug)
+  if (debug)
     cout << "     Z layers: " << zmin << " " << zmax << endl;
 
   handles::const_iterator first = theVolumes.begin();
@@ -41,7 +42,7 @@ MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin, handles::c
   }
   vector<float> zClust = hisZ.clusterize(resolution);
 
-  if (MagGeoBuilderFromDDD::debug)
+  if (debug)
     cout << "     Found " << zClust.size() << " clusters in Z, "
          << " layers: " << endl;
 
@@ -52,18 +53,18 @@ MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin, handles::c
     float zSepar = (zClust[i] + zClust[i + 1]) / 2.f;
     while ((*separ)->center().z() < zSepar)
       ++separ;
-    if (MagGeoBuilderFromDDD::debug) {
+    if (debug) {
       cout << "     Layer at: " << zClust[i] << " elements: " << separ - layStart << " unique volumes: ";
-      volumeHandle::printUniqueNames(layStart, separ);
+      printUniqueNames(layStart, separ);
     }
 
     layers.push_back(eLayer(layStart, separ));
     layStart = separ;
   }
   {
-    if (MagGeoBuilderFromDDD::debug) {
+    if (debug) {
       cout << "     Layer at: " << zClust.back() << " elements: " << last - separ << " unique volumes: ";
-      volumeHandle::printUniqueNames(separ, last);
+      printUniqueNames(separ, last);
     }
     layers.push_back(eLayer(separ, last));
   }
@@ -71,9 +72,7 @@ MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin, handles::c
   // FIXME: Check that all layers have the same dz?.
 }
 
-MagGeoBuilderFromDDD::eSector::~eSector() {}
-
-MagESector* MagGeoBuilderFromDDD::eSector::buildMagESector() const {
+MagESector* eSector::buildMagESector() const {
   if (msector == nullptr) {
     vector<MagELayer*> mLayers;
     for (vector<eLayer>::const_iterator lay = layers.begin(); lay != layers.end(); ++lay) {

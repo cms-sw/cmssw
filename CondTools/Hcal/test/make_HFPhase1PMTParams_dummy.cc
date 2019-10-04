@@ -9,8 +9,8 @@ std::unique_ptr<HFPhase1PMTParams> make_HFPhase1PMTParams_dummy() {
   // Create "all pass" HFPhase1PMTData configuration
   HFPhase1PMTData::Cuts cuts;
 
-  cuts[HFPhase1PMTData::T_0_MIN] = boost::shared_ptr<AbsHcalFunctor>(new HcalConstFunctor(-FLT_MAX));
-  cuts[HFPhase1PMTData::T_0_MAX] = boost::shared_ptr<AbsHcalFunctor>(new HcalConstFunctor(FLT_MAX));
+  cuts[HFPhase1PMTData::T_0_MIN] = std::shared_ptr<AbsHcalFunctor>(new HcalConstFunctor(-FLT_MAX));
+  cuts[HFPhase1PMTData::T_0_MAX] = std::shared_ptr<AbsHcalFunctor>(new HcalConstFunctor(FLT_MAX));
   cuts[HFPhase1PMTData::T_1_MIN] = cuts[HFPhase1PMTData::T_0_MIN];
   cuts[HFPhase1PMTData::T_1_MAX] = cuts[HFPhase1PMTData::T_0_MAX];
   cuts[HFPhase1PMTData::ASYMM_MIN] = cuts[HFPhase1PMTData::T_0_MIN];

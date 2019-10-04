@@ -69,9 +69,9 @@ void TestCacheParser::testReadWrite() {
 
   const std::string match("pluginA.so AlphaClass Cat%One\npluginA.so BetaClass<Itl%> Cat%Two\n");
   {
-    std::stringstream s;
-    CacheParser::write(categoryToInfos, s);
-    CPPUNIT_ASSERT(match == s.str());
+    std::stringstream ss;
+    CacheParser::write(categoryToInfos, ss);
+    CPPUNIT_ASSERT(match == ss.str());
   }
 
   //check that the path is removed
@@ -84,19 +84,19 @@ void TestCacheParser::testReadWrite() {
   categoryToInfos["Cat Two"].push_back(info);
 
   {
-    std::stringstream s;
-    CacheParser::write(categoryToInfos, s);
-    CPPUNIT_ASSERT(match == s.str());
+    std::stringstream ss;
+    CacheParser::write(categoryToInfos, ss);
+    CPPUNIT_ASSERT(match == ss.str());
 
     std::map<std::string, std::vector<PluginInfo> > readValues;
-    CacheParser::read(s, "/enee/menee/minee/mo", readValues);
+    CacheParser::read(ss, "/enee/menee/minee/mo", readValues);
     CPPUNIT_ASSERT(categoryToInfos.size() == readValues.size());
 
     {
-      std::stringstream s;
-      CacheParser::write(readValues, s);
-      std::cout << s.str() << std::endl;
-      CPPUNIT_ASSERT(match == s.str());
+      std::stringstream ssFinalWrite;
+      CacheParser::write(readValues, ssFinalWrite);
+      std::cout << ssFinalWrite.str() << std::endl;
+      CPPUNIT_ASSERT(match == ssFinalWrite.str());
     }
   }
 }

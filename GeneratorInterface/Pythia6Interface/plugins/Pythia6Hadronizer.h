@@ -10,8 +10,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"

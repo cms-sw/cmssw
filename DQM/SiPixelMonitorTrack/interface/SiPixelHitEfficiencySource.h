@@ -14,8 +14,6 @@
 // Original Authors: Romain Rougny & Luca Mucibello
 //         Created: Mar Nov 10 13:29:00 CET 2009
 
-#include <boost/cstdint.hpp>
-
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelHitEfficiencyModule.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -40,6 +38,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include <cstdint>
 
 class SiPixelHitEfficiencySource : public DQMEDAnalyzer {
 public:

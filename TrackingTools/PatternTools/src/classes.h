@@ -5,7 +5,6 @@
 #include "Math/Cartesian3D.h"
 #include "Math/Polar3D.h"
 #include "Math/CylindricalEta3D.h"
-#include <boost/cstdint.hpp>
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -14,7 +13,7 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "boost/intrusive_ptr.hpp"
+
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/Common/interface/AssociationMap.h"

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DDForwardShieldTest")
+process = cms.Process("DDHFGeomTest")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.source = cms.Source("EmptySource")
@@ -18,7 +18,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  outputFileName = cms.untracked.string('HFDD4Hep.root'),
+                                  outputFileName = cms.untracked.string('hfDD4Hep.root'),
                                   DDDetector = cms.ESInputTag('','DDHCalHF')
                                   )
 

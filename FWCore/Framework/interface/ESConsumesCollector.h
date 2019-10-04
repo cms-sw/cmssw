@@ -44,9 +44,9 @@ namespace edm {
   class ESConsumesCollector {
   public:
     ESConsumesCollector() = delete;
-    ESConsumesCollector(ESConsumesCollector const&) = default;
+    ESConsumesCollector(ESConsumesCollector const&) = delete;
     ESConsumesCollector(ESConsumesCollector&&) = default;
-    ESConsumesCollector& operator=(ESConsumesCollector const&) = default;
+    ESConsumesCollector& operator=(ESConsumesCollector const&) = delete;
     ESConsumesCollector& operator=(ESConsumesCollector&&) = default;
 
     // ---------- member functions ---------------------------

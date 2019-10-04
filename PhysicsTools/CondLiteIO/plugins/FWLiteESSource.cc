@@ -37,6 +37,10 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 
 // forward declarations
+namespace edm {
+  class EventSetupImpl;
+}
+
 namespace {
   struct TypeID : public edm::TypeIDBase {
     explicit TypeID(const std::type_info& iInfo) : edm::TypeIDBase(iInfo) {}
@@ -61,7 +65,9 @@ namespace {
   public:
     FWLiteProxy(const TypeID& iTypeID, const fwlite::Record* iRecord) : m_type(iTypeID), m_record(iRecord) {}
 
-    const void* getImpl(const edm::eventsetup::EventSetupRecordImpl&, const edm::eventsetup::DataKey& iKey) override {
+    const void* getImpl(const edm::eventsetup::EventSetupRecordImpl&,
+                        const edm::eventsetup::DataKey& iKey,
+                        edm::EventSetupImpl const*) override {
       assert(iKey.type() == m_type);
 
       FWLiteESGenericHandle h(m_type);
@@ -84,80 +90,33 @@ namespace {
 class FWLiteESSource : public edm::eventsetup::DataProxyProvider, public edm::EventSetupRecordIntervalFinder {
 public:
   FWLiteESSource(edm::ParameterSet const& iPS);
+  FWLiteESSource(const FWLiteESSource&) = delete;
+  const FWLiteESSource& operator=(const FWLiteESSource&) = delete;
   ~FWLiteESSource() override;
 
-  // ---------- const member functions ---------------------
-
-  // ---------- static member functions --------------------
-
-  // ---------- member functions ---------------------------
-  void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
-                   const edm::ValidityInterval& iInterval) override;
+  using EventSetupRecordKey = edm::eventsetup::EventSetupRecordKey;
 
 private:
-  FWLiteESSource(const FWLiteESSource&) = delete;  // stop default
+  KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int iovIndex) override;
 
-  const FWLiteESSource& operator=(const FWLiteESSource&) = delete;  // stop default
-
-  void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey, KeyedProxies& aProxyList) override;
-
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
+  void setIntervalFor(const EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
   void delaySettingRecords() override;
 
   // ---------- member data --------------------------------
   std::unique_ptr<TFile> m_file;
   fwlite::EventSetup m_es;
-  std::map<edm::eventsetup::EventSetupRecordKey, fwlite::RecordID> m_keyToID;
+  std::map<EventSetupRecordKey, fwlite::RecordID> m_keyToID;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 FWLiteESSource::FWLiteESSource(edm::ParameterSet const& iPS)
     : m_file(TFile::Open(iPS.getParameter<std::string>("fileName").c_str())), m_es(m_file.get()) {}
 
-// FWLiteESSource::FWLiteESSource(const FWLiteESSource& rhs)
-// {
-//    // do actual copying here;
-// }
-
 FWLiteESSource::~FWLiteESSource() {}
 
-//
-// assignment operators
-//
-// const FWLiteESSource& FWLiteESSource::operator=(const FWLiteESSource& rhs)
-// {
-//   //An exception safe implementation is
-//   FWLiteESSource temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-void FWLiteESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
-                                 const edm::ValidityInterval& /*iInterval*/) {
-  invalidateProxies(iRecordType);
-}
-
-//
-// const member functions
-//
-void FWLiteESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey, KeyedProxies& aProxyList) {
+edm::eventsetup::DataProxyProvider::KeyedProxiesVector FWLiteESSource::registerProxies(
+    const EventSetupRecordKey& iRecordKey, unsigned int iovIndex) {
+  KeyedProxiesVector keyedProxiesVector;
   using edm::eventsetup::heterocontainer::HCTypeTag;
 
   fwlite::RecordID recID = m_keyToID[iRecordKey];
@@ -171,15 +130,16 @@ void FWLiteESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey&
     HCTypeTag tt = HCTypeTag::findType(it->first);
     if (tt != HCTypeTag()) {
       edm::eventsetup::DataKey dk(tt, edm::eventsetup::IdTags(it->second.c_str()));
-      aProxyList.push_back(std::make_pair(dk, std::make_shared<FWLiteProxy>(TypeID(tt.value()), &rec)));
+      keyedProxiesVector.emplace_back(dk, std::make_shared<FWLiteProxy>(TypeID(tt.value()), &rec));
     } else {
       LogDebug("UnknownESType") << "The type '" << it->first << "' is unknown in this job";
       std::cout << "    *****FAILED*****" << std::endl;
     }
   }
+  return keyedProxiesVector;
 }
 
-void FWLiteESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
+void FWLiteESSource::setIntervalFor(const EventSetupRecordKey& iKey,
                                     const edm::IOVSyncValue& iSync,
                                     edm::ValidityInterval& oIOV) {
   m_es.syncTo(iSync.eventID(), iSync.time());
@@ -200,16 +160,12 @@ void FWLiteESSource::delaySettingRecords() {
        ++it) {
     HCTypeTag t = HCTypeTag::findType(*it);
     if (t != HCTypeTag()) {
-      edm::eventsetup::EventSetupRecordKey key(t);
+      EventSetupRecordKey key(t);
       findingRecordWithKey(key);
       usingRecordWithKey(key);
       m_keyToID[key] = m_es.recordID(it->c_str());
     }
   }
 }
-
-//
-// static member functions
-//
 
 DEFINE_FWK_EVENTSETUP_SOURCE(FWLiteESSource);

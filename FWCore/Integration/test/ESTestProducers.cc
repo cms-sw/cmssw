@@ -1,13 +1,20 @@
+#include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/DataProxyTemplate.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Integration/interface/ESTestData.h"
 #include "FWCore/Integration/interface/ESTestRecords.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 
 #include <memory>
+#include <vector>
 
 namespace edmtest {
 
@@ -274,6 +281,66 @@ namespace edmtest {
     return std::make_unique<ESTestDataZ>(valueZ_);
   }
 
+  class TestDataProxyTemplateJ : public edm::eventsetup::DataProxyTemplate<ESTestRecordJ, ESTestDataJ> {
+  public:
+    TestDataProxyTemplateJ(std::vector<unsigned int> const* expectedCacheIds)
+        : testDataJ_(1), expectedCacheIds_(expectedCacheIds) {}
+
+  private:
+    const ESTestDataJ* make(const ESTestRecordJ& record, const edm::eventsetup::DataKey& key) override {
+      ESTestRecordK recordK = record.getRecord<ESTestRecordK>();
+      // Note that this test only reliably works when running with a
+      // single IOV at a time and a single stream. This test module
+      // should not be configured with expected values in other cases.
+      if (index_ < expectedCacheIds_->size() && recordK.cacheIdentifier() != expectedCacheIds_->at(index_)) {
+        throw cms::Exception("TestError") << "TestDataProxyTemplateJ::make, unexpected cacheIdentifier";
+      }
+      ++index_;
+      return &testDataJ_;
+    }
+
+    void invalidateCache() override {}
+
+    ESTestDataJ testDataJ_;
+    std::vector<unsigned> const* expectedCacheIds_;
+    unsigned int index_ = 0;
+  };
+
+  class ESTestDataProxyProviderJ : public edm::eventsetup::DataProxyProvider {
+  public:
+    ESTestDataProxyProviderJ(edm::ParameterSet const&);
+
+    static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+  private:
+    KeyedProxiesVector registerProxies(const edm::eventsetup::EventSetupRecordKey&, unsigned int iovIndex) override;
+
+    std::vector<std::shared_ptr<TestDataProxyTemplateJ>> proxies_;
+    std::vector<unsigned> expectedCacheIds_;
+  };
+
+  ESTestDataProxyProviderJ::ESTestDataProxyProviderJ(edm::ParameterSet const& pset)
+      : expectedCacheIds_(pset.getUntrackedParameter<std::vector<unsigned int>>("expectedCacheIds")) {
+    usingRecord<ESTestRecordJ>();
+  }
+
+  void ESTestDataProxyProviderJ::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    std::vector<unsigned int> emptyDefaultVector;
+    desc.addUntracked<std::vector<unsigned int>>("expectedCacheIds", emptyDefaultVector);
+    descriptions.addDefault(desc);
+  }
+
+  edm::eventsetup::DataProxyProvider::KeyedProxiesVector ESTestDataProxyProviderJ::registerProxies(
+      const edm::eventsetup::EventSetupRecordKey& iRecord, unsigned int iovIndex) {
+    KeyedProxiesVector keyedProxiesVector;
+    while (iovIndex >= proxies_.size()) {
+      proxies_.push_back(std::make_shared<TestDataProxyTemplateJ>(&expectedCacheIds_));
+    }
+    edm::eventsetup::DataKey dataKey(edm::eventsetup::DataKey::makeTypeTag<ESTestDataJ>(), "");
+    keyedProxiesVector.emplace_back(dataKey, proxies_[iovIndex]);
+    return keyedProxiesVector;
+  }
 }  // namespace edmtest
 
 using namespace edmtest;
@@ -290,3 +357,4 @@ DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerI);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerJ);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerK);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerAZ);
+DEFINE_FWK_EVENTSETUP_MODULE(ESTestDataProxyProviderJ);

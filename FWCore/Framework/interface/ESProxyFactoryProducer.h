@@ -76,19 +76,16 @@ namespace edm {
   class ESProxyFactoryProducer : public eventsetup::DataProxyProvider {
   public:
     ESProxyFactoryProducer();
+
+    ESProxyFactoryProducer(const ESProxyFactoryProducer&) = delete;
+    const ESProxyFactoryProducer& operator=(const ESProxyFactoryProducer&) = delete;
+
     ~ESProxyFactoryProducer() noexcept(false) override;
 
-    // ---------- const member functions ---------------------
-
-    // ---------- static member functions --------------------
-
-    // ---------- member functions ---------------------------
-    ///overrides DataProxyProvider method
-    void newInterval(const eventsetup::EventSetupRecordKey& iRecordType, const ValidityInterval& iInterval) override;
-
   protected:
-    ///override DataProxyProvider method
-    void registerProxies(const eventsetup::EventSetupRecordKey& iRecord, KeyedProxies& aProxyList) override;
+    using EventSetupRecordKey = eventsetup::EventSetupRecordKey;
+
+    KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int iovIndex) override;
 
     /** \param iFactory unique_ptr holding a new instance of a Factory
          \param iLabel extra string label used to get data (optional)
@@ -99,21 +96,16 @@ namespace edm {
     template <class TFactory>
     void registerFactory(std::unique_ptr<TFactory> iFactory, const std::string& iLabel = std::string()) {
       std::unique_ptr<eventsetup::ProxyFactoryBase> temp(iFactory.release());
-      registerFactoryWithKey(
-          eventsetup::EventSetupRecordKey::makeKey<typename TFactory::record_type>(), std::move(temp), iLabel);
+      registerFactoryWithKey(EventSetupRecordKey::makeKey<typename TFactory::RecordType>(), std::move(temp), iLabel);
     }
 
-    virtual void registerFactoryWithKey(const eventsetup::EventSetupRecordKey& iRecord,
+    virtual void registerFactoryWithKey(const EventSetupRecordKey& iRecord,
                                         std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
                                         const std::string& iLabel = std::string());
 
   private:
-    ESProxyFactoryProducer(const ESProxyFactoryProducer&) = delete;  // stop default
-
-    const ESProxyFactoryProducer& operator=(const ESProxyFactoryProducer&) = delete;  // stop default
-
     // ---------- member data --------------------------------
-    std::multimap<eventsetup::EventSetupRecordKey, eventsetup::FactoryInfo> record2Factories_;
+    std::multimap<EventSetupRecordKey, eventsetup::FactoryInfo> record2Factories_;
   };
 
 }  // namespace edm

@@ -5,7 +5,6 @@
 #include "DQM/SiStripCommissioningClients/interface/CalibrationHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include <boost/cstdint.hpp>
 #include <string>
 #include <map>
 

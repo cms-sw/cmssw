@@ -20,10 +20,8 @@ public:
   // const std::vector<double> puppiAlpha   () {return fAlpha;}
   const std::vector<double> &puppiAlphasMed() { return fAlphaMed; }
   const std::vector<double> &puppiAlphasRMS() { return fAlphaRMS; }
-  const std::vector<int> &recoToPup() const { return fRecoToPup; }
 
   int puppiNAlgos() { return fNAlgos; }
-  std::vector<PuppiCandidate> const &puppiParticles() const { return fPupParticles; }
 
 protected:
   double goodVar(PuppiCandidate const &iPart, std::vector<PuppiCandidate> const &iParts, int iOpt, const double iRCone);
@@ -46,13 +44,11 @@ protected:
   const std::vector<RecoObj> *fRecoParticles;
   std::vector<PuppiCandidate> fPFParticles;
   std::vector<PuppiCandidate> fChargedPV;
-  std::vector<PuppiCandidate> fPupParticles;
   std::vector<double> fWeights;
   std::vector<double> fVals;
   std::vector<double> fRawAlphas;
   std::vector<double> fAlphaMed;
   std::vector<double> fAlphaRMS;
-  std::vector<int> fRecoToPup;
 
   bool fApplyCHS;
   bool fInvert;

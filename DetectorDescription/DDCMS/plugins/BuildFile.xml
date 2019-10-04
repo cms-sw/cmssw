@@ -4,30 +4,20 @@
 <use name="dd4hep"/>
 <use name="DetectorDescription/DDCMS"/>
 
-<library name="DetectorDescriptionTestPlugins" file="DDTestVectors.cc,DDTestSpecPars.cc,DDTestSpecParsFilter.cc,DDTestDumpFile.cc,DDTestDumpGeometry.cc,DDTestNavigateGeometry.cc,DDTestCompactView.cc" >
+<library name="DetectorDescriptionTestPlugins" file="test/*.cc" >
   <use name="Geometry/Records"/>
   <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-<library name="DetectorDescriptionPlugins" file="DDCMSDetector.cc,DDDetectorESProducer.cc,DDVectorRegistryESProducer.cc,DDSpecParRegistryESProducer.cc,DDCompactViewESProducer.cc" >
+
+<library name="DetectorDescriptionPlugins" file="*.cc" >
   <use name="Geometry/Records"/>
+  <use name="MagneticField/Records"/>
   <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-<library name="DetectorDescriptionDD4HepPlugins" file="*.cc" >
-  <flags SKIP_FILES="DTGeometryESProducer.cc"/>
-  <flags SKIP_FILES="DDCompactViewESProducer.cc"/>
-  <flags SKIP_FILES="DDCMSDetector.cc"/>
-  <flags SKIP_FILES="DDTestCompactView.cc"/>
-  <flags SKIP_FILES="DDTestVectors.cc"/>
-  <flags SKIP_FILES="DDTestSpecPars.cc"/>
-  <flags SKIP_FILES="DDTestSpecParsFilter.cc"/>
-  <flags SKIP_FILES="DDTestDumpFile.cc"/>
-  <flags SKIP_FILES="DDTestDumpGeometry.cc"/>
-  <flags SKIP_FILES="DDTestNavigateGeometry.cc"/>
-  <flags SKIP_FILES="DDDetectorESProducer.cc"/>
-  <flags SKIP_FILES="DDVectorRegistryESProducer.cc"/>
-  <flags SKIP_FILES="DDSpecParRegistryESProducer.cc"/>
+
+<library name="DetectorDescriptionDD4HepPlugins" file="dd4hep/*.cc" >
   <use name="rootgeom"/>
   <flags DD4HEP_PLUGIN="1"/>
 </library>

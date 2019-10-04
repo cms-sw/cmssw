@@ -16,8 +16,7 @@
 //-----------------------------------------------------------------------------
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class SiPixelDbItem {
   typedef uint32_t PackedPixDbType;

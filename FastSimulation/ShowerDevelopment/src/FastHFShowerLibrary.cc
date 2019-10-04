@@ -14,8 +14,10 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimulationConstants.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -55,9 +57,13 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
   iSetup.get<HcalSimNumberingRecord>().get(hdc);
   hcalConstants = hdc.product();
 
+  edm::ESHandle<HcalDDDSimulationConstants> hdsc;
+  iSetup.get<HcalSimNumberingRecord>().get(hdsc);
+  const HcalDDDSimulationConstants* hsps = hdsc.product();
+
   std::string name = "HcalHits";
   numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));
-  hfshower.reset(new HFShowerLibrary(name, *cpv, fast));
+  hfshower.reset(new HFShowerLibrary(name, hcalConstants, hsps->hcalsimpar(), fast));
 
   //only one thread can be allowed to setup the G4 physics table.
   std::call_once(initializeOnce, []() {
@@ -67,8 +73,8 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
     G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
     partTable->SetReadiness();
   });
-  G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
-  hfshower->initRun(partTable, hcalConstants);  // init particle code
+  //G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
+  //hfshower->initRun(partTable, hcalConstants);  // init particle code
 }
 
 void FastHFShowerLibrary::SetRandom(const RandomEngineAndDistribution* rnd) {

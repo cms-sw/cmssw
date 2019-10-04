@@ -32,6 +32,8 @@ namespace cond {
 
 class CondDBESSource : public edm::eventsetup::DataProxyProvider, public edm::EventSetupRecordIntervalFinder {
 public:
+  using DataKey = edm::eventsetup::DataKey;
+  using EventSetupRecordKey = edm::eventsetup::EventSetupRecordKey;
   typedef std::shared_ptr<cond::DataProxyWrapperBase> ProxyP;
   typedef std::multimap<std::string, ProxyP> ProxyMap;
 
@@ -41,14 +43,9 @@ public:
   ~CondDBESSource() override;
 
 protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
+  void setIntervalFor(const EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
-  void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey, KeyedProxies& aProxyList) override;
-
-  void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
-                   const edm::ValidityInterval& iInterval) override;
+  KeyedProxiesVector registerProxies(const EventSetupRecordKey&, unsigned int iovIndex) override;
 
 private:
   // ----------member data ---------------------------

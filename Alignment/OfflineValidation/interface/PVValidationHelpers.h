@@ -8,15 +8,25 @@
 #include <utility>
 #include "TH1.h"
 
+#ifndef PLOTTING_MACRO
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#define COUT edm::LogWarning("PVValidationHelpers")
+#else
+#include <iostream>
+#define COUT std::cout << "PVValidationHelpers: "
+#endif
+
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 namespace PVValHelper {
 
+  const double max_eta_phase0 = 2.5;
+  const double max_eta_phase1 = 2.7;
+
   // helper logarithmic bin generator
 
   template <typename T, size_t N>
-  std::array<T, N + 1> makeLogBins(const T min, const T max) {
+  std::array<T, N + 1> makeLogBins(const T& min, const T& max) {
     const T minLog10 = std::log10(min);
     const T maxLog10 = std::log10(max);
     const T width = (maxLog10 - minLog10) / N;
@@ -78,7 +88,7 @@ namespace PVValHelper {
       if (range.find(std::make_pair(type, plot)) != range.end()) {
         return range[std::make_pair(type, plot)];
       } else {
-        edm::LogWarning("PVValidationHelpers") << "Trying to get range for non-existent combination " << std::endl;
+        COUT << "Trying to get range for non-existent combination " << std::endl;
         return std::make_pair(0., 0.);
       }
     }
@@ -87,8 +97,7 @@ namespace PVValHelper {
       if (range.find(std::make_pair(type, plot)) != range.end()) {
         return range[std::make_pair(type, plot)].first;
       } else {
-        edm::LogWarning("PVValidationHelpers")
-            << "Trying to get low end of range for non-existent combination " << std::endl;
+        COUT << "Trying to get low end of range for non-existent combination " << std::endl;
         return 0.;
       }
     }
@@ -97,8 +106,7 @@ namespace PVValHelper {
       if (range.find(std::make_pair(type, plot)) != range.end()) {
         return range[std::make_pair(type, plot)].second;
       } else {
-        edm::LogWarning("PVValidationHelpers")
-            << "Trying get high end of range for non-existent combination " << std::endl;
+        COUT << "Trying get high end of range for non-existent combination " << std::endl;
         return 0.;
       }
     }

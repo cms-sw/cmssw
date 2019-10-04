@@ -93,7 +93,7 @@ namespace evf {
     void start() {
       assert(!m_thread);
       token_ = edm::ServiceRegistry::instance().presentToken();
-      m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&EvFBuildingThrottle::dowork, this)));
+      m_thread = std::shared_ptr<boost::thread>(new boost::thread(boost::bind(&EvFBuildingThrottle::dowork, this)));
       std::cout << "throttle thread started - throttle on " << whatToThrottleOn_ << std::endl;
     }
     void stop() {
@@ -105,7 +105,7 @@ namespace evf {
     double highWaterMark_;
     double lowWaterMark_;
     std::atomic<bool> m_stoprequest;
-    boost::shared_ptr<boost::thread> m_thread;
+    std::shared_ptr<boost::thread> m_thread;
     boost::mutex lock_;
     std::string baseDir_;
     Directory whatToThrottleOn_;

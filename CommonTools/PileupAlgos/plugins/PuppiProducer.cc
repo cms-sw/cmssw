@@ -200,11 +200,9 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   fPuppiContainer->setNPV(npv);
 
   std::vector<double> lWeights;
-  std::vector<PuppiCandidate> lCandidates;
   if (!fUseExistingWeights) {
     //Compute the weights and get the particles
     lWeights = fPuppiContainer->puppiWeights();
-    lCandidates = fPuppiContainer->puppiParticles();
   } else {
     //Use the existing weights
     int lPackCtr = 0;
@@ -223,12 +221,6 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         }
       }
       lWeights.push_back(curpupweight);
-      PuppiCandidate curjet(curpupweight * lPack->px(),
-                            curpupweight * lPack->py(),
-                            curpupweight * lPack->pz(),
-                            curpupweight * lPack->energy());
-      curjet.set_user_index(lPackCtr);
-      lCandidates.push_back(curjet);
       lPackCtr++;
     }
   }
@@ -254,9 +246,9 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LorentzVectorCollection puppiP4s;
   std::vector<reco::CandidatePtr> values(hPFProduct->size());
 
-  int val = -1;
+  int iCand = -1;
   for (auto const& aCand : *hPFProduct) {
-    val++;
+    ++iCand;
     std::unique_ptr<pat::PackedCandidate> pCand;
     std::unique_ptr<reco::PFCandidate> pfCand;
     if (fUseExistingWeights || fClonePackedCands) {
@@ -269,33 +261,25 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       const reco::PFCandidate* cand = dynamic_cast<const reco::PFCandidate*>(&aCand);
       pfCand.reset(new reco::PFCandidate(cand ? *cand : reco::PFCandidate(aCand.charge(), aCand.p4(), id)));
     }
-    LorentzVector pVec;
 
-    //get an index to a pup in lCandidates: either fUseExistingWeights with no skips or get from fPuppiContainer
-    int iPuppiMatched = fUseExistingWeights ? val : fPuppiContainer->recoToPup()[val];
-    if (iPuppiMatched >= 0) {
-      auto const& puppiMatched = lCandidates[iPuppiMatched];
-      pVec.SetPxPyPzE(puppiMatched.px(), puppiMatched.py(), puppiMatched.pz(), puppiMatched.E());
-      if (fClonePackedCands && (!fUseExistingWeights)) {
-        if (fPuppiForLeptons)
-          pCand->setPuppiWeight(pCand->puppiWeight(), lWeights[iPuppiMatched]);
-        else
-          pCand->setPuppiWeight(lWeights[iPuppiMatched], pCand->puppiWeightNoLep());
-      }
-    } else {
-      pVec.SetPxPyPzE(0, 0, 0, 0);
-      if (fClonePackedCands && (!fUseExistingWeights)) {
-        pCand->setPuppiWeight(0, 0);
-      }
+    if (fClonePackedCands && (!fUseExistingWeights)) {
+      if (fPuppiForLeptons)
+        pCand->setPuppiWeight(pCand->puppiWeight(), lWeights[iCand]);
+      else
+        pCand->setPuppiWeight(lWeights[iCand], pCand->puppiWeightNoLep());
     }
-    puppiP4s.push_back(pVec);
+
+    puppiP4s.emplace_back(lWeights[iCand] * aCand.px(),
+                          lWeights[iCand] * aCand.py(),
+                          lWeights[iCand] * aCand.pz(),
+                          lWeights[iCand] * aCand.energy());
 
     if (fUseExistingWeights || fClonePackedCands) {
-      pCand->setP4(pVec);
+      pCand->setP4(puppiP4s.back());
       pCand->setSourceCandidatePtr(aCand.sourceCandidatePtr(0));
       fPackedPuppiCandidates->push_back(*pCand);
     } else {
-      pfCand->setP4(pVec);
+      pfCand->setP4(puppiP4s.back());
       pfCand->setSourceCandidatePtr(aCand.sourceCandidatePtr(0));
       fPuppiCandidates->push_back(*pfCand);
     }

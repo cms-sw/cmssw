@@ -194,7 +194,7 @@ private:
 
   void bookHistograms();
   // ----------member data ---------------------------
-  std::vector<boost::shared_ptr<CumulatorBase> > m_lumiCumulators;
+  std::vector<std::shared_ptr<CumulatorBase> > m_lumiCumulators;
   bool m_cumulateRuns;
   bool m_cumulateLumis;
   bool book_at_constructor_;
@@ -234,10 +234,10 @@ DummyHarvestingClient::DummyHarvestingClient(const edm::ParameterSet& iConfig)
     for (; it != ite; ++it) {
       switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
         case 1:
-          m_lumiCumulators.push_back(boost::shared_ptr<CumulatorBase>(new TH1FCumulator(*it, *dstore, folder, true)));
+          m_lumiCumulators.push_back(std::shared_ptr<CumulatorBase>(new TH1FCumulator(*it, *dstore, folder, true)));
           break;
         case 2:
-          m_lumiCumulators.push_back(boost::shared_ptr<CumulatorBase>(new TH2FCumulator(*it, *dstore, folder, true)));
+          m_lumiCumulators.push_back(std::shared_ptr<CumulatorBase>(new TH2FCumulator(*it, *dstore, folder, true)));
           break;
       }
     }
