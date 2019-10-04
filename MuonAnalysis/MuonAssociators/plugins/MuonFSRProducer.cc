@@ -34,24 +34,29 @@ public:
 
     pfcands_ {consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))},
     electrons_ {consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("slimmedElectrons"))},
-    muons_   {consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))},
+    muons_   {consumes<edm::View<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))},
     ptCut(iConfig.getParameter<double>("muonPtMin")),
     etaCut(iConfig.getParameter<double>("muonEtaMax")),
-    photonPtCut(iConfig.getParameter<double>("photonPtMin"))
+    photonPtCut(iConfig.getParameter<double>("photonPtMin")),
+    drEtCut(iConfig.getParameter<double>("deltaROverEt2Max")),
+    isoCut(iConfig.getParameter<double>("isolation"))
 	{
       
       produces<std::vector<pat::GenericParticle>>();
       produces<edm::Association<std::vector<pat::GenericParticle>>>();
+      produces<edm::ValueMap<int>>("fsrIndex");
 
     }
    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("packedPFCandidates")->setComment("packed pf candidates where to look for photons");
-    desc.add<edm::InputTag>("slimmedElectrons")->setComment("electrons to check for footprint");
-    desc.add<edm::InputTag>("muons")->setComment("collection of muons to correct for FSR ");
-    desc.add<double>("muonPtMin")->setComment("minimum pt of the muon to look for a near photon");
-    desc.add<double>("muonEtaMax")->setComment("max eta of the muon to look for a near photon");
-    desc.add<double>("photonPtMin")->setComment("minimum photon Pt");
+    desc.add<edm::InputTag>("packedPFCandidates",edm::InputTag("packedPFCandidates"))->setComment("packed pf candidates where to look for photons");
+    desc.add<edm::InputTag>("slimmedElectrons",edm::InputTag("slimmedElectrons"))->setComment("electrons to check for footprint");
+    desc.add<edm::InputTag>("muons",edm::InputTag("slimmedMuons"))->setComment("collection of muons to correct for FSR ");
+    desc.add<double>("muonPtMin",20.)->setComment("minimum pt of the muon to look for a near photon");
+    desc.add<double>("muonEtaMax",2.4)->setComment("max eta of the muon to look for a near photon");
+    desc.add<double>("photonPtMin",2.0)->setComment("minimum photon Pt");
+    desc.add<double>("deltaROverEt2Max",0.05)->setComment("max ratio of deltsR(mu,photon) over et2 of the photon");
+    desc.add<double>("isolation",2.0)->setComment("relative isolation cut");
 
     descriptions.add("MuonFSRProducer", desc);
   } 
@@ -68,30 +73,19 @@ private:
 				  const double & isoConeMax,
 				  const double & isoConeMin) const;
 
+// ----------member data ---------------------------
   const edm::EDGetTokenT<pat::PackedCandidateCollection> pfcands_;
   const edm::EDGetTokenT<pat::ElectronCollection> electrons_;
-  const edm::EDGetTokenT<pat::MuonCollection> muons_;
+  const edm::EDGetTokenT<edm::View<reco::Muon>> muons_;
   float ptCut;
   float etaCut;
   float photonPtCut;
+  float drEtCut;
+  float isoCut;
 
-// ----------member data ---------------------------
-
-  edm::EDGetTokenT<edm::ValueMap<float>> ptFSR_;
-  edm::EDGetTokenT<edm::ValueMap<float>> etaFSR_;
-  edm::EDGetTokenT<edm::ValueMap<float>> phiFSR_;
-  //edm::EDGetTokenT<edm::ValueMap<float>> relIso03FSR_;
 
 };
 
-// //
-// // constants, enums and typedefs
-// //
-
-
-// //
-// // static data member definitions
-// //
 void MuonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
   using namespace std;
@@ -100,7 +94,7 @@ void MuonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const 
   iEvent.getByToken(pfcands_, pfcands);
   edm::Handle<edm::View<reco::Muon>> muons;
   iEvent.getByToken(muons_, muons);
-  edm::Handle<edm::View<pat::Electron>> electrons;
+  edm::Handle<pat::ElectronCollection> electrons;
   iEvent.getByToken(electrons_, electrons);
 
   std::vector<int> muonMapping(muons->size(),-1);
@@ -170,17 +164,18 @@ void MuonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const 
 
       // use only isolated photons (very loose prelection can be tightened on analysis level)
       float photon_relIso03 = computeRelativeIsolation(pc,*pfcands,0.3,0.0001);
-      if(photon_relIso03 > 0.8) continue;
+      if(photon_relIso03 > isoCut) continue;
+      double metric = deltaR(muon->eta(),muon->phi(),pc.eta(),pc.phi())/(pc.pt()*pc.pt());
+      if(metric> drEtCut) continue;
       fsrPhotons->push_back(pat::GenericParticle(pc));
       fsrPhotons->back().addUserFloat("relIso03",photon_relIso03); // isolation, no CHS
       fsrPhotons->back().addUserCand("associatedMuon",reco::CandidatePtr(muons,muon-muons->begin()));
-      double metric = deltaR(muon->eta(),muon->phi(),pc.eta(),pc.phi())/(pc.pt()*pc.pt());
       fsrPhotons->back().addUserFloat("dROverEt2",metric); // dR/et2 to the closest muon
 
       // FSR photon defined as the one with minimum value of DeltaR/Et^2
       if(photonPosition == -1 or metric < distance_metric_min){
       	distance_metric_min = metric;
-      	photonPosition = fsrPhotons->size();
+      	photonPosition = fsrPhotons->size()-1;
       }
        
     }
@@ -193,6 +188,12 @@ void MuonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const 
   muon2photonFiller.insert(muons, muonMapping.begin(), muonMapping.end());
   muon2photonFiller.fill();
   iEvent.put(std::move(muon2photon));
+
+  std::unique_ptr<edm::ValueMap<int>> bareIdx(new edm::ValueMap<int>());
+  edm::ValueMap<int>::Filler fillerBareIdx(*bareIdx);
+  fillerBareIdx.insert(muons, muonMapping.begin(), muonMapping.end());
+  fillerBareIdx.fill();
+  iEvent.put(std::move(bareIdx),"fsrIndex");
 
 }
 
