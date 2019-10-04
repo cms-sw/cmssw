@@ -121,7 +121,7 @@ namespace edm {
       }
       auto const info = consumesInfos_[iIndex].get();
       for (size_t i = 0; i < info->size(); ++i) {
-        auto chooserBase = std::get<3>((*info)[i]).get();
+        auto chooserBase = (*info)[i].chooser_.get();
         if (chooserBase) {
           auto chooser = static_cast<eventsetup::impl::MayConsumeChooserBase<Record>*>(chooserBase);
           itemsToGetFromRecords_[iIndex][i] = chooser->makeChoice(iRecord);

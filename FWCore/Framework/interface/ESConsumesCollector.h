@@ -39,10 +39,21 @@
 #include <vector>
 #include <memory>
 namespace edm {
-  using ESConsumesInfo = std::vector<std::tuple<edm::eventsetup::EventSetupRecordKey,
-                                                edm::eventsetup::DataKey,
-                                                std::string,
-                                                std::unique_ptr<edm::eventsetup::impl::MayConsumeChooserCore>>>;
+  struct ESConsumesInfoEntry {
+    ESConsumesInfoEntry(edm::eventsetup::EventSetupRecordKey const& iRecord,
+                        edm::eventsetup::DataKey const& iProduct,
+                        std::string moduleLabel,
+                        std::unique_ptr<edm::eventsetup::impl::MayConsumeChooserCore> chooser)
+        : recordKey_{iRecord},
+          productKey_{iProduct},
+          moduleLabel_{std::move(moduleLabel)},
+          chooser_{std::move(chooser)} {}
+    edm::eventsetup::EventSetupRecordKey recordKey_;
+    edm::eventsetup::DataKey productKey_;
+    std::string moduleLabel_;
+    std::unique_ptr<edm::eventsetup::impl::MayConsumeChooserCore> chooser_;
+  };
+  using ESConsumesInfo = std::vector<ESConsumesInfoEntry>;
 
   class ESConsumesCollector {
   public:
@@ -63,7 +74,7 @@ namespace edm {
                                nullptr);
       //even though m_consumer may expand, the address for
       // name().value() remains the same since it is 'moved'.
-      return ESGetToken<Product, Record>{m_transitionID, index, std::get<1>(m_consumer->back()).name().value()};
+      return ESGetToken<Product, Record>{m_transitionID, index, m_consumer->back().productKey_.name().value()};
     }
 
     template <typename Product, typename Record>
@@ -74,7 +85,7 @@ namespace edm {
           EventSetupRecordKey::makeKey<Record>(), DataKey(DataKey::makeTypeTag<Product>(), ""), "", nullptr);
       //even though m_consumer may expand, the address for
       // name().value() remains the same since it is 'moved'.
-      return ESGetToken<Product, Record>{m_transitionID, index, std::get<1>(m_consumer->back()).name().value()};
+      return ESGetToken<Product, Record>{m_transitionID, index, m_consumer->back().productKey_.name().value()};
     }
 
     template <typename Product, typename Record>
@@ -107,7 +118,7 @@ namespace edm {
                                std::move(iCollector));
       //even though m_consumer may expand, the address for
       // name().value() remains the same since it is 'moved'.
-      return ESGetToken<Product, Record>{m_transitionID, index, std::get<1>(m_consumer->back()).name().value()};
+      return ESGetToken<Product, Record>{m_transitionID, index, m_consumer->back().productKey_.name().value()};
     }
 
   private:
