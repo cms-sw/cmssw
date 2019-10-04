@@ -2,6 +2,7 @@
 #define RecoTracker_MkFit_MkFitGeometry_h
 
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 namespace mkfit {
@@ -25,10 +26,12 @@ public:
 
   mkfit::LayerNumberConverter const& layerNumberConverter() const { return *lnc_; }
   const std::vector<const DetLayer*>& detLayers() const { return dets_; }
+  unsigned int uniqueIdInLayer(unsigned int detId) const { return detIdToShortId_.at(detId); }
 
 private:
   std::unique_ptr<mkfit::LayerNumberConverter> lnc_;  // for pimpl pattern
   std::vector<const DetLayer*> dets_;
+  std::unordered_map<unsigned int, unsigned int> detIdToShortId_;
 };
 
 #endif
