@@ -185,8 +185,6 @@ DQMHarvestOuterTracker = cms.Sequence(
                                  dqmFastTimerServiceClient
                                  )
 
-DQMHarvestLumi = cms.Sequence()
-
 DQMHarvestCTPPS = cms.Sequence(ctppsDQMHarvest)
 
 DQMHarvestMuon = cms.Sequence( dtClients *
