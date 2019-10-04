@@ -13,6 +13,8 @@
 namespace ticl {
   class TICLCandidate : public reco::LeafCandidate {
   public:
+    typedef Trackster::ParticleType ParticleType;
+
     TICLCandidate(Charge q, const LorentzVector& p4)
         : LeafCandidate(q, p4), time_(0.f), timeError_(-1.f), rawEnergy_(0.f) {}
 
@@ -40,17 +42,13 @@ namespace ticl {
 
     void setTracksters(const std::vector<edm::Ptr<Trackster> >& tracksters) { tracksters_ = tracksters; }
     void addTrackster(const edm::Ptr<Trackster>& trackster) { tracksters_.push_back(trackster); }
+    // convenience method to return the ID probability for a certain particle type
+    inline float id_probability(ParticleType type) const {
+      // probabilities are stored in the same order as defined in the ParticleType enum
+      return idProbabilities_[(int)type];
+    }
 
-    // convenience methods to return certain id probabilities
-    inline float photonProbability() const { return idProbabilities_[0]; }
-    inline float electronProbability() const { return idProbabilities_[1]; }
-    inline float muonProbability() const { return idProbabilities_[2]; }
-    inline float chargedHadronProbability() const { return idProbabilities_[3]; }
-    inline float neutralHadronProbability() const { return idProbabilities_[4]; }
-    inline float ambiguousProbability() const { return idProbabilities_[5]; }
-    inline float unknownProbability() const { return idProbabilities_[6]; }
-
-    void setIdProbabilities(const std::array<float, 7>& idProbs) { idProbabilities_ = idProbs; }
+    void setIdProbabilities(const std::array<float, 8>& idProbs) { idProbabilities_ = idProbs; }
 
   private:
     float time_;
@@ -64,7 +62,7 @@ namespace ticl {
     std::vector<edm::Ptr<Trackster> > tracksters_;
 
     // Since it contains multiple tracksters, duplicate the probability interface
-    std::array<float, 7> idProbabilities_;
+    std::array<float, 8> idProbabilities_;
   };
 }  // namespace ticl
 #endif
