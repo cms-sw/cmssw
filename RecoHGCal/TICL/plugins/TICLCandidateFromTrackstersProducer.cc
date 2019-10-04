@@ -33,6 +33,7 @@ private:
   std::vector<edm::EDGetTokenT<std::vector<Trackster>>> trackster_tokens_;
   std::unique_ptr<TracksterMomentumPluginBase> momentum_algo_;
   std::unique_ptr<TracksterTrackPluginBase> track_algo_;
+  float min_particle_prob_;
 };
 DEFINE_FWK_MODULE(TICLCandidateFromTrackstersProducer);
 
@@ -55,7 +56,8 @@ namespace {
   }
 }  // namespace
 
-TICLCandidateFromTrackstersProducer::TICLCandidateFromTrackstersProducer(const edm::ParameterSet& ps) {
+TICLCandidateFromTrackstersProducer::TICLCandidateFromTrackstersProducer(const edm::ParameterSet& ps)
+    : min_particle_prob_(ps.getParameter<double>("minParticleProbability")) {
   trackster_tokens_ =
       edm::vector_transform(ps.getParameter<std::vector<edm::InputTag>>("tracksterCollections"),
                             [this](edm::InputTag const& tag) { return consumes<std::vector<Trackster>>(tag); });
@@ -75,6 +77,7 @@ void TICLCandidateFromTrackstersProducer::fillDescriptions(edm::ConfigurationDes
   std::vector<edm::InputTag> source_vector{
       edm::InputTag("trackstersTrk"), edm::InputTag("trackstersMIP"), edm::InputTag("tracksters")};
   desc.add<std::vector<edm::InputTag>>("tracksterCollections", source_vector);
+  desc.add<double>("minParticleProbability", 0.);
 
   edm::ParameterSetDescription desc_momentum;
   desc_momentum.add<std::string>("plugin", "TracksterP4FromEnergySum");
@@ -95,30 +98,34 @@ void TICLCandidateFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
 
   std::vector<const Trackster*> trackster_ptrs;
 
+  // adds one TICLCandidate for each trackster that has a minimum particle probability
   for (auto& trackster_token : trackster_tokens_) {
     edm::Handle<std::vector<Trackster>> trackster_h;
     evt.getByToken(trackster_token, trackster_h);
-    size_t trackster_i = 0;
-    for (auto const& trackster : *trackster_h) {
+    for (size_t i_trackster = 0; i_trackster < trackster_h->size(); ++i_trackster) {
+      auto const& trackster = trackster_h->at(i_trackster);
+      auto id_prob_begin = std::begin(trackster.id_probabilities);
+      auto max_id_prob_it = std::max_element(id_prob_begin, std::end(trackster.id_probabilities));
+      float max_id_prob = *max_id_prob_it;
+      if (max_id_prob < min_particle_prob_)
+        continue;
+
       trackster_ptrs.push_back(&trackster);
-      result->emplace_back(edm::Ptr<ticl::Trackster>(trackster_h, trackster_i));
-      ++trackster_i;
+      result->emplace_back(edm::Ptr<ticl::Trackster>(trackster_h, i_trackster));
+      auto ticl_cand = result->back();
+      auto max_index = std::distance(id_prob_begin, max_id_prob_it);
+      auto pdg_id = pdg_id_from_idx(max_index);
+      ticl_cand.setPdgId(pdg_id);
     }
   }
 
-  // adds one TICLCandidate for each trackster
   momentum_algo_->setP4(trackster_ptrs, *result, evt);
   track_algo_->setTrack(trackster_ptrs, *result, evt);
 
+  // charge assignment
   for (size_t i = 0; i < result->size(); ++i) {
-    const auto& trackster = *trackster_ptrs[i];
     auto& ticl_cand = result->at(i);
-    auto id_prob_begin = trackster.id_probabilities.begin();
-
-    auto max_index = std::distance(id_prob_begin, std::max_element(id_prob_begin, trackster.id_probabilities.end()));
-    auto pdg_id = pdg_id_from_idx(max_index);
-    ticl_cand.setPdgId(pdg_id);
-
+    auto pdg_id = ticl_cand.pdgId();
     if (pdg_id == -11 || pdg_id == -13 || pdg_id == 211) {
       if (ticl_cand.trackPtr().isNonnull()) {
         auto charge = ticl_cand.trackPtr()->charge();
