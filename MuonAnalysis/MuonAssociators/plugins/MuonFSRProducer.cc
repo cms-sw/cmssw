@@ -50,7 +50,7 @@ public:
    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("packedPFCandidates",edm::InputTag("packedPFCandidates"))->setComment("packed pf candidates where to look for photons");
-    desc.add<edm::InputTag>("slimmedElectrons",edm::InputTag("slimmedElectrons"))->setComment("electrons to check for footprint");
+    desc.add<edm::InputTag>("slimmedElectrons",edm::InputTag("slimmedElectrons"))->setComment("electrons to check for footprint, the electron collection must have proper linking with the packedCandidate collection");
     desc.add<edm::InputTag>("muons",edm::InputTag("slimmedMuons"))->setComment("collection of muons to correct for FSR ");
     desc.add<double>("muonPtMin",20.)->setComment("minimum pt of the muon to look for a near photon");
     desc.add<double>("muonEtaMax",2.4)->setComment("max eta of the muon to look for a near photon");
@@ -108,7 +108,7 @@ void MuonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const 
     // minimum muon pT
     if (muon->pt() < ptCut) continue;
     // maximum muon eta
-    if (fabs(muon->eta() > etaCut)) continue;
+    if (abs(muon->eta()) > etaCut) continue;
 
     // for each muon, loop over all pf cadidates
     for(auto iter_pf = pfcands->begin(); iter_pf != pfcands->end(); iter_pf++){
@@ -117,50 +117,44 @@ void MuonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const 
       
       // consider only photons
       if (abs(pc.pdgId()) != 22) continue;
-      //cout<<"ID pass!"<<endl;
-
       // minimum pT cut
       if (pc.pt() < photonPtCut) continue;
-      //cout<<"pT pass!"<<endl;
 
       // eta requirements
       // if (fabs(pc.eta()) > 1.4442 and (fabs(pc.eta()) < 1.566)) continue;
-      if (fabs(pc.eta()) > 1.4 and (fabs(pc.eta()) < 1.6)) continue;
-      if (fabs(pc.eta()) > 2.5) continue;
-      //cout<<"ETA pass!"<<endl;
+      if (abs(pc.eta()) > 1.4 and (abs(pc.eta()) < 1.6)) continue;
+      if (abs(pc.eta()) > 2.5) continue;
 
       // 0.0001 < DeltaR(photon,muon) < 0.5 requirement
       double dRPhoMu = deltaR(muon->eta(),muon->phi(),pc.eta(),pc.phi());
       if(dRPhoMu < 0.0001) continue;
       if(dRPhoMu > 0.5) continue;
-      //cout<<"DeltaR pass!"<<endl;
 	 
       bool skipPhoton = false;
       bool closest = true;
 
       for (auto othermuon = muons->begin(); othermuon != muons->end(); ++othermuon){
-      	if (othermuon->pt() < ptCut or fabs(othermuon->eta() > etaCut)) continue;
-	double dRPhoMuOther = deltaR(othermuon->eta(), othermuon->phi(),pc.eta(),pc.phi());
-        if (dRPhoMuOther < dRPhoMu) closest = false;
+      	if (othermuon->pt() < ptCut or abs(othermuon->eta() > etaCut)) continue;
+	    double dRPhoMuOther = deltaR(othermuon->eta(), othermuon->phi(),pc.eta(),pc.phi());
+        if (dRPhoMuOther < dRPhoMu and muon!=othermuon) {closest = false; break; }
       }
+      if (!closest) continue;
       
       // Check that is not in footprint of an electron
       pat::PackedCandidateRef pfcandRef = pat::PackedCandidateRef(pfcands,iter_pf - pfcands->begin());
       
       for (auto electrons_iter = electrons->begin(); electrons_iter != electrons->end(); ++electrons_iter){
-	for(auto itr = electrons_iter->associatedPackedPFCandidates().begin(); itr != electrons_iter->associatedPackedPFCandidates().end(); ++itr)
-	  {
-	    if(itr->key() == pfcandRef.key()){
-	      skipPhoton = true;
+    	for(auto itr = electrons_iter->associatedPackedPFCandidates().begin(); itr != electrons_iter->associatedPackedPFCandidates().end(); ++itr) {
+	      if(itr->key() == pfcandRef.key()){
+	        skipPhoton = true;
+            break;
+	      }
 	    }
-	  }
+        if(skipPhoton) break;
       }
       
       if(skipPhoton) continue;
-      //cout<<"Bremsstrhalung pass!"<<endl;
 
-      if (!closest) continue;
-      //cout<<"muon association pass!"<<endl;
 
       // use only isolated photons (very loose prelection can be tightened on analysis level)
       float photon_relIso03 = computeRelativeIsolation(pc,*pfcands,0.3,0.0001);
