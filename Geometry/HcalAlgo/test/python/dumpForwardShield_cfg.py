@@ -23,7 +23,7 @@ process.add_(cms.ESProducer("TGeoMgrFromDdd",
 
 
 process.dump = cms.EDAnalyzer("DumpSimGeometry",
-                              outputFileName = cms.untracked.string('ForwardShieldDDD.root')
+                              outputFileName = cms.untracked.string('forwardShieldDDD.root')
 )
 
 process.p = cms.Path(process.dump)

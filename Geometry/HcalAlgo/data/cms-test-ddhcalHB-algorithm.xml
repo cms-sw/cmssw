@@ -26,6 +26,7 @@
     <Include ref="Geometry/HcalCommonData/data/hcalrotations.xml"/>
     <Include ref="Geometry/CMSCommonData/data/normal/cmsextent.xml"/>
     <Include ref="Geometry/HcalAlgo/test/data/cms.xml"/>
+    <Include ref="Geometry/HcalAlgo/test/data/world.xml"/>
     <Include ref="Geometry/HcalAlgo/test/data/caloBase.xml"/>
     <Include ref="Geometry/HcalAlgo/test/data/muonBase.xml"/>
     <Include ref="Geometry/HcalCommonData/data/hcalalgo.xml"/>
