@@ -25,7 +25,7 @@
   <class name="edm::Wrapper<std::vector<TICLSeedingRegion> >" />
 
   <class name="ticl::TICLCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="3131603709"/>
+   <version ClassVersion="3" checksum="3131603712"/>
   </class>
   <class name="std::vector<ticl::TICLCandidate>" />
   <class name="edm::Wrapper<ticl::TICLCandidate>" />
