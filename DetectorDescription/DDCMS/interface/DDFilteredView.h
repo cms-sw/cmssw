@@ -133,6 +133,10 @@ namespace cms {
     template <typename T>
     T get(const char*) const;
 
+    //! extract attribute value in SpecPar
+    template <typename T>
+    T get(const char*, const char*) const;
+
     std::string_view getString(const std::string&) const;
 
     //! return the stack of sibling numbers which indicates
