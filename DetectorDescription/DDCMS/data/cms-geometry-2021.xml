@@ -10,6 +10,7 @@
     <debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
+    <debug_specpars/>
     <debug_visattr/>
   </debug>
 
