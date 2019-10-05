@@ -93,14 +93,19 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     )
 
 from MuonAnalysis.MuonAssociators.MuonFSRProducer_cfi import MuonFSRProducer
-muonFSRProducer = MuonFSRProducer.clone(
+muonFSRphotons = MuonFSRProducer.clone(
   packedPFCandidates = cms.InputTag("packedPFCandidates"),
   slimmedElectrons = cms.InputTag("slimmedElectrons"),
   muons = cms.InputTag("linkedObjects","muons"),
 )
+from MuonAnalysis.MuonAssociators.MuonFSRAssociator_cfi import MuonFSRAssociator
+muonFSRassociation = MuonFSRAssociator.clone(
+    photons = cms.InputTag("muonFSRphotons"),
+    muons = cms.InputTag("linkedObjects","muons"),
+)
 
 fsrTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
-    src = cms.InputTag("muonFSRProducer"),
+    src = cms.InputTag("muonFSRphotons"),
     cut = cms.string(""), #we should not filter on cross linked collections
     name = cms.string("FsrPhoton"),
     doc  = cms.string("Final state radiation photons emitted by muons"),
@@ -164,7 +169,7 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     externalVariables = cms.PSet(
         mvaTTH = ExtVar(cms.InputTag("muonMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
         mvaLowPt = ExtVar(cms.InputTag("muonMVALowPt"),float, doc="Low pt muon ID score",precision=14),
-        fsrPhotonIdx = ExtVar(cms.InputTag("muonFSRProducer:fsrIndex"),int, doc="Index of the associated FSR photon"),
+        fsrPhotonIdx = ExtVar(cms.InputTag("muonFSRassociation:fsrIndex"),int, doc="Index of the associated FSR photon"),
     ),
 )
 
@@ -197,7 +202,7 @@ muonMCTable = cms.EDProducer("CandMCMatchTableProducer",
 
 muonSequence = cms.Sequence(isoForMu + ptRatioRelForMu + slimmedMuonsWithUserData + finalMuons + finalLooseMuons )
 muonMC = cms.Sequence(muonsMCMatchForTable + muonMCTable)
-muonTables = cms.Sequence(muonFSRProducer + muonMVATTH + muonMVALowPt + muonTable + fsrTable)
+muonTables = cms.Sequence(muonFSRphotons + muonFSRassociation + muonMVATTH + muonMVALowPt + muonTable + fsrTable)
 
 _withUpdate_sequence = muonSequence.copy()
 _withUpdate_sequence.replace(isoForMu, slimmedMuonsUpdated+isoForMu)
