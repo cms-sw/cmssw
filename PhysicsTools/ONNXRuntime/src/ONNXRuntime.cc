@@ -14,6 +14,7 @@
 
 namespace Ort {
 
+  // global variable `g_api` needs to be defined here to access the ONNXRuntime API
   const OrtApi* g_api = OrtGetApi(ORT_API_VERSION);
 
   ONNXRuntime::ONNXRuntime(const std::string& model_path, const SessionOptions* session_options) {
@@ -152,6 +153,8 @@ namespace Ort {
   }
 
   Env& ONNXRuntime::getEnv() {
+    // `env` cannot be const as the constructor of Ort::Session takes Env&.
+    // But the implementation of Env is thread-safe so it's fine.
     static Env env(ORT_LOGGING_LEVEL_WARNING, "onnxruntime");
     return env;
   }

@@ -1,6 +1,9 @@
 /*
  * ONNXRuntime.h
  *
+ * A convenience wrapper of the ONNXRuntime C++ API.
+ * Based on https://github.com/microsoft/onnxruntime/blob/master/csharp/test/Microsoft.ML.OnnxRuntime.EndToEndTests.Capi/CXX_Api_Sample.cpp.
+ *
  *  Created on: Jun 28, 2019
  *      Author: hqu
  */
