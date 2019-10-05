@@ -139,7 +139,7 @@ void DeepBoostedJetTagsONNXProducer::fillDescriptions(edm::ConfigurationDescript
   preprocessParams.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("preprocessParams", preprocessParams);
   desc.add<edm::FileInPath>("model_path",
-                            edm::FileInPath("RecoBTag/Combined/data/DeepBoostedJet/V01/full/resnet.onnx"));
+                            edm::FileInPath("RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet.onnx"));
   desc.add<std::vector<std::string>>("flav_names",
                                      std::vector<std::string>{
                                          "probTbcq",
