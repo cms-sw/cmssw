@@ -157,7 +157,6 @@ class SiStripClusterizerFromZSRaw final : public edm::stream::EDProducer<> {
 public:
   explicit SiStripClusterizerFromZSRaw(const edm::ParameterSet& conf)
     : productToken_(consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("ProductLabel"))),
-    clusterizer_(conf.getParameter<double>("ClusterChargeCut")),
     doAPVEmulatorCheck_(conf.getParameter<bool>("DoAPVEmulatorCheck")) 
   {
     produces<edmNew::DetSetVector<SiStripCluster> >();
@@ -169,7 +168,6 @@ public:
 
     desc.add<edm::InputTag>("ProductLabel", edm::InputTag("rawDataCollector"));
     desc.add<bool>("DoAPVEmulatorCheck",false);
-    desc.add<double>("ClusterChargeCut",1200);
 
     descriptions.add("SiStripClustersFromZSRawFacility", desc);
   }
