@@ -48,6 +48,7 @@ inline void ThreeThresholdAlgorithm::clusterizeDetUnit_(const digiDetSet& digis,
     ApvCleaner.clean(digis, scan, end);
   }
 
+  output.reserve(16);
   State state(det);
   while (scan != end) {
     while (scan != end && !candidateEnded(state, scan->strip()))
@@ -86,9 +87,9 @@ template <class T>
 inline void ThreeThresholdAlgorithm::endCandidate(State& state, T& out) const {
   if (candidateAccepted(state)) {
     applyGains(state);
-    appendBadNeighbors(state);
-    if (siStripClusterTools::chargePerCM(state.det().detId, state.ADCs.begin(), state.ADCs.end()) > minGoodCharge)
-      out.push_back(SiStripCluster(firstStrip(state), state.ADCs.begin(), state.ADCs.end()));
+    if (MaxAdjacentBad>0) appendBadNeighbors(state);
+    if (minGoodCharge<=0 || siStripClusterTools::chargePerCM(state.det().detId, state.ADCs.begin(), state.ADCs.end()) > minGoodCharge)
+      out.push_back(std::move(SiStripCluster(firstStrip(state), state.ADCs.begin(), state.ADCs.end())));
   }
   clearCandidate(state);
 }
@@ -106,7 +107,7 @@ inline void ThreeThresholdAlgorithm::applyGains(State& state) const {
     // if(adc > 255) throw InvalidChargeException( SiStripDigi(strip,adc) );
 #endif
     // if(adc > 253) continue; //saturated, do not scale
-    auto charge = int(float(adc) / state.det().gain(strip++) + 0.5f);  //adding 0.5 turns truncation into rounding
+    auto charge = int(float(adc)*state.det().weight(strip++) + 0.5f);  //adding 0.5 turns truncation into rounding
     if (adc < 254)
       adc = (charge > 1022 ? 255 : (charge > 253 ? 254 : charge));
   }
@@ -133,8 +134,6 @@ void ThreeThresholdAlgorithm::clusterizeDetUnit(const edmNew::DetSet<SiStripDigi
                                                 output_t::TSFastFiller& output) const {
   clusterizeDetUnit_(digis, output);
 }
-
-StripClusterizerAlgorithm::Det ThreeThresholdAlgorithm::stripByStripBegin(uint32_t id) const { return findDetId(id); }
 
 void ThreeThresholdAlgorithm::stripByStripAdd(State& state,
                                               uint16_t strip,

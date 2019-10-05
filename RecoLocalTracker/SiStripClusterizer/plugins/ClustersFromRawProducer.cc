@@ -129,8 +129,8 @@ namespace {
 
     bool legacy_;
     bool hybridZeroSuppressed_;
-
-#ifdef VIDEBUG
+// #define VISTAT
+#ifdef VISTAT
     struct Stat {
       Stat() : totDet(0), detReady(0), detSet(0), detAct(0), detNoZ(0), detAbrt(0), totClus(0) {}
       std::atomic<int> totDet;    // all dets
@@ -152,7 +152,7 @@ namespace {
     void incAbrt() const { stat.detAbrt++; }
     void incClus(int n) const { stat.totClus += n; }
     void printStat() const {
-      COUT << "VI clusters " << stat.totDet << ',' << stat.detReady << ',' << stat.detSet << ',' << stat.detAct << ','
+      std::cout << "VI clusters " << stat.totDet << ',' << stat.detReady << ',' << stat.detSet << ',' << stat.detAct << ','
            << stat.detNoZ << ',' << stat.detAbrt << ',' << stat.totClus << std::endl;
     }
 
@@ -265,7 +265,7 @@ void SiStripClusterizerFromRaw::run(const FEDRawDataCollection& rawColl, edmNew:
 
 namespace {
   template <typename OUT>
-  OUT unpackZS(const sistrip::FEDChannel& chan, sistrip::FEDReadoutMode mode, uint16_t stripOffset, OUT out) {
+  void unpackZS(const sistrip::FEDChannel& chan, sistrip::FEDReadoutMode mode, uint16_t stripOffset, OUT out) {
     using namespace sistrip;
     switch (mode) {
       case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
@@ -338,7 +338,6 @@ namespace {
       } break;
       default:;
     }
-    return out;
   }
 
   class StripByStripAdder {
@@ -384,7 +383,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
     StripClusterizerAlgorithm::State state(det);
 
     incSet();
-
+    record.reserve(16);
     // Loop over apv-pairs of det
     for (auto const conn : clusterizer.currentConnection(det)) {
       if
@@ -435,14 +434,12 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
       const sistrip::FEDLegacyReadoutMode lmode =
           legacy_ ? buffer->legacyReadoutMode() : sistrip::READOUT_MODE_LEGACY_INVALID;
 
-      if
-        LIKELY((!legacy_) && (mode > sistrip::READOUT_MODE_VIRGIN_RAW) && (mode < sistrip::READOUT_MODE_SPY) &&
+      if  LIKELY((!legacy_) && (mode > sistrip::READOUT_MODE_VIRGIN_RAW) && (mode < sistrip::READOUT_MODE_SPY) &&
                (mode != sistrip::READOUT_MODE_PROC_RAW)) {
           // ZS modes
           try {
             auto perStripAdder = StripByStripAdder(clusterizer, state, record);
-            if
-              LIKELY(!hybridZeroSuppressed_) { unpackZS(buffer->channel(fedCh), mode, ipair * 256, perStripAdder); }
+            if LIKELY(!hybridZeroSuppressed_) { unpackZS(buffer->channel(fedCh), mode, ipair * 256, perStripAdder); }
             else {
               const uint32_t id = conn->detId();
               edm::DetSet<SiStripDigi> unpDigis{id};

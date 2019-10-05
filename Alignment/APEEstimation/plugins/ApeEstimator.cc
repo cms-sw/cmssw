@@ -1621,8 +1621,8 @@ TrackStruct::HitParameterStruct ApeEstimator::fillHitVariables(const TrajectoryM
 
     const SiStripClusterInfo clusterInfo = SiStripClusterInfo(stripCluster, iSetup, rawId, std::string(""));
 
-    const std::vector<uint8_t>::const_iterator stripChargeL(clusterInfo.stripCharges().begin());
-    const std::vector<uint8_t>::const_iterator stripChargeR(--(clusterInfo.stripCharges().end()));
+    auto stripChargeL = clusterInfo.stripCharges().begin();
+    auto stripChargeR = clusterInfo.stripCharges().end()-1;
     const std::pair<uint16_t, uint16_t> stripChargeLR = std::make_pair(*stripChargeL, *stripChargeR);
 
     hitParams.chargeStrip = clusterInfo.charge();
