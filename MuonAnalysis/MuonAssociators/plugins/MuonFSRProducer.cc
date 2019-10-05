@@ -18,9 +18,7 @@
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/Common/interface/ValueMap.h"
 
-#include "DataFormats/Common/interface/Association.h"
 
 //
 // class declaration
@@ -43,8 +41,6 @@ public:
 	{
       
       produces<std::vector<pat::GenericParticle>>();
-      produces<edm::Association<std::vector<pat::GenericParticle>>>();
-      produces<edm::ValueMap<int>>("fsrIndex");
 
     }
    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -61,8 +57,6 @@ public:
     descriptions.add("MuonFSRProducer", desc);
   } 
   ~MuonFSRProducer() override {}
-  
-  //static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
   
@@ -97,11 +91,9 @@ void MuonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const 
   edm::Handle<pat::ElectronCollection> electrons;
   iEvent.getByToken(electrons_, electrons);
 
-  std::vector<int> muonMapping(muons->size(),-1);
   auto fsrPhotons = std::make_unique<std::vector<pat::GenericParticle>>();
   // loop over all muons
   for (auto muon = muons->begin(); muon != muons->end(); ++muon){
-
     
     int photonPosition = -1;
     double distance_metric_min = -1;
@@ -113,7 +105,6 @@ void MuonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const 
     // for each muon, loop over all pf cadidates
     for(auto iter_pf = pfcands->begin(); iter_pf != pfcands->end(); iter_pf++){
       auto const & pc = *iter_pf;
-
       
       // consider only photons
       if (abs(pc.pdgId()) != 22) continue;
@@ -121,7 +112,6 @@ void MuonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const 
       if (pc.pt() < photonPtCut) continue;
 
       // eta requirements
-      // if (fabs(pc.eta()) > 1.4442 and (fabs(pc.eta()) < 1.566)) continue;
       if (abs(pc.eta()) > 1.4 and (abs(pc.eta()) < 1.6)) continue;
       if (abs(pc.eta()) > 2.5) continue;
 
@@ -134,9 +124,9 @@ void MuonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const 
       bool closest = true;
 
       for (auto othermuon = muons->begin(); othermuon != muons->end(); ++othermuon){
-      	if (othermuon->pt() < ptCut or abs(othermuon->eta() > etaCut)) continue;
-	    double dRPhoMuOther = deltaR(othermuon->eta(), othermuon->phi(),pc.eta(),pc.phi());
-        if (dRPhoMuOther < dRPhoMu and muon!=othermuon) {closest = false; break; }
+      	if (othermuon->pt() < ptCut or abs(othermuon->eta()) > etaCut or muon==othermuon) continue;
+	double dRPhoMuOther = deltaR(othermuon->eta(), othermuon->phi(),pc.eta(),pc.phi());
+        if (dRPhoMuOther < dRPhoMu) {closest = false; break;}
       }
       if (!closest) continue;
       
@@ -145,11 +135,11 @@ void MuonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const 
       
       for (auto electrons_iter = electrons->begin(); electrons_iter != electrons->end(); ++electrons_iter){
     	for(auto itr = electrons_iter->associatedPackedPFCandidates().begin(); itr != electrons_iter->associatedPackedPFCandidates().end(); ++itr) {
-	      if(itr->key() == pfcandRef.key()){
-	        skipPhoton = true;
-            break;
-	      }
-	    }
+	  if(itr->key() == pfcandRef.key()){
+	    skipPhoton = true;
+	    break;
+	  }
+	}
         if(skipPhoton) break;
       }
       
@@ -173,21 +163,9 @@ void MuonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, const 
       }
        
     }
-    muonMapping[muon-muons->begin()] = photonPosition; 
   }
 
   edm::OrphanHandle<std::vector<pat::GenericParticle>> oh = iEvent.put(std::move(fsrPhotons));
-  auto muon2photon = std::make_unique<edm::Association<std::vector<pat::GenericParticle>>>(oh);
-  edm::Association<std::vector<pat::GenericParticle>>::Filler muon2photonFiller(*muon2photon);
-  muon2photonFiller.insert(muons, muonMapping.begin(), muonMapping.end());
-  muon2photonFiller.fill();
-  iEvent.put(std::move(muon2photon));
-
-  std::unique_ptr<edm::ValueMap<int>> bareIdx(new edm::ValueMap<int>());
-  edm::ValueMap<int>::Filler fillerBareIdx(*bareIdx);
-  fillerBareIdx.insert(muons, muonMapping.begin(), muonMapping.end());
-  fillerBareIdx.fill();
-  iEvent.put(std::move(bareIdx),"fsrIndex");
 
 }
 
