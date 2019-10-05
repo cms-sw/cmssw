@@ -120,7 +120,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     keyWG = alct.getKeyWG();
     bend = clct.getBend();
     thisLCT.setALCT(getBXShiftedALCT(alct));
-    thisLCT.setCLCT(clct);
+    thisLCT.setCLCT(getBXShiftedCLCT(clct));
     thisLCT.setGEM1(gem1);
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCTGEM);
   } else if (alct.isValid() and clct.isValid() and not gem1.isValid() and gem2.isValid()) {
@@ -131,7 +131,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     keyWG = alct.getKeyWG();
     bend = clct.getBend();
     thisLCT.setALCT(getBXShiftedALCT(alct));
-    thisLCT.setCLCT(clct);
+    thisLCT.setCLCT(getBXShiftedCLCT(clct));
     thisLCT.setGEM1(gem2.first());
     thisLCT.setGEM2(gem2.second());
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCT2GEM);
