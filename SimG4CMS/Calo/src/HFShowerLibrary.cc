@@ -113,7 +113,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
                                << "\n Maximum probability cut off " << probMax << "  Back propagation of light prob. "
                                << backProb;
 #endif
-  fibre_.reset(new HFFibre(name, hcalConstant_, hps, p));
+  fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
   photo = new HFShowerPhotonCollection;
 
   //Radius (minimum and maximum)
@@ -259,10 +259,10 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
       zv = std::abs(pos.z()) - gpar[4] - 0.5 * gpar[1];
       G4ThreeVector lpos = G4ThreeVector(pos.x(), pos.y(), zv);
 
-      zv = fibre_.get()->zShift(lpos, depth, 0);  // distance to PMT !
+      zv = fibre_->zShift(lpos, depth, 0);  // distance to PMT !
 
       double r = pos.perp();
-      double p = fibre_.get()->attLength(pe[i].lambda());
+      double p = fibre_->attLength(pe[i].lambda());
       double fi = pos.phi();
       if (fi < 0)
         fi += CLHEP::twopi;
@@ -298,12 +298,12 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
           zz <= gpar[4] + gpar[1] && r3 <= backProb && (depth != 2 || zz >= gpar[4] + gpar[0])) {
         oneHit.position = pos;
         oneHit.depth = depth;
-        oneHit.time = (tSlice + (pe[i].t()) + (fibre_.get()->tShift(lpos, depth, 1)));
+        oneHit.time = (tSlice + (pe[i].t()) + (fibre_->tShift(lpos, depth, 1)));
         hit.push_back(oneHit);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HFShower") << "HFShowerLibrary: Final Hit " << nHit << " position " << (hit[nHit].position)
                                      << " Depth " << (hit[nHit].depth) << " Time " << tSlice << ":" << pe[i].t() << ":"
-                                     << fibre_.get()->tShift(lpos, depth, 1) << ":" << (hit[nHit].time);
+                                     << fibre_->tShift(lpos, depth, 1) << ":" << (hit[nHit].time);
 #endif
         ++nHit;
       }
@@ -317,12 +317,12 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
         if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax && dfir > gpar[5]) {
           oneHit.position = pos;
           oneHit.depth = 2;
-          oneHit.time = (tSlice + (pe[i].t()) + (fibre_.get()->tShift(lpos, 2, 1)));
+          oneHit.time = (tSlice + (pe[i].t()) + (fibre_->tShift(lpos, 2, 1)));
           hit.push_back(oneHit);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HFShower") << "HFShowerLibrary: Final Hit " << nHit << " position " << (hit[nHit].position)
                                        << " Depth " << (hit[nHit].depth) << " Time " << tSlice << ":" << pe[i].t()
-                                       << ":" << fibre_.get()->tShift(lpos, 2, 1) << ":" << (hit[nHit].time);
+                                       << ":" << fibre_->tShift(lpos, 2, 1) << ":" << (hit[nHit].time);
 #endif
           ++nHit;
         }

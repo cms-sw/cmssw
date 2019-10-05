@@ -41,7 +41,7 @@ HFShowerPMT::HFShowerPMT(const std::string& name,
                                  << ii << "] = " << pmtFib2[ii];
   }
 #endif
-  cherenkov_.reset(new HFCherenkov(m_HF));
+  cherenkov_ = std::make_unique<HFCherenkov>(m_HF);
 
   // Special Geometry parameters
   rTable = hcalConstant_->getRTableHF();
@@ -88,7 +88,7 @@ double HFShowerPMT::getHits(const G4Step* aStep) {
     double beta = preStepPoint->GetBeta();
     G4ThreeVector pDir = aTrack->GetDynamicParticle()->GetMomentumDirection();
     G4ThreeVector localMom = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformAxis(pDir);
-    photons = cherenkov_.get()->computeNPEinPMT(particleDef, beta, localMom.x(), localMom.y(), localMom.z(), stepl);
+    photons = cherenkov_->computeNPEinPMT(particleDef, beta, localMom.x(), localMom.y(), localMom.z(), stepl);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HFShower") << "HFShowerPMT::getHits: for particle " << particleDef->GetParticleName() << " Step "
                                  << stepl << " Beta " << beta << " Direction " << pDir << " Local " << localMom
