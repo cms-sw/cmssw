@@ -71,7 +71,7 @@
    <Parameter name="InsideLevel" value="3" eval="true"/>
    <Parameter name="InsideLevel" value="3" eval="true"/>
    <Parameter name="FineCalorimeter" value="HGCal" eval="false"/>
-   <Parameter name="FineLevels" value="8" eval="true"/>
+   <Parameter name="FineLevels" value="4" eval="true"/>
   </SpecPar>
  </SpecParSection>
 </DDDefinition>
