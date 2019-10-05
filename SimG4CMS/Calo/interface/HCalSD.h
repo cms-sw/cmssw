@@ -17,7 +17,6 @@
 #include "SimG4CMS/Calo/interface/HcalTestNS.h"
 #include "CondFormats/HcalObjects/interface/HBHEDarkening.h"
 #include "SimG4CMS/Calo/interface/HFDarkening.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
@@ -56,16 +55,9 @@ protected:
   bool filterHit(CaloG4Hit*, double) override;
 
 private:
-  void fillLogVolumeVector(const std::string&,
-                           const std::string&,
-                           const edm::EventSetup&,
-                           std::vector<const G4LogicalVolume*>&,
-                           std::vector<G4String>&);
-
+  void fillLogVolumeVector(const std::string&, const std::vector<std::string>&, std::vector<const G4LogicalVolume*>&);
   uint32_t setDetUnitId(int, const G4ThreeVector&, int, int);
   uint32_t setDetUnitId(HcalNumberingFromDDD::HcalID& tmp);
-  std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&);
-  std::vector<G4String> getNames(DDFilteredView&);
   bool isItHF(const G4Step*);
   bool isItHF(const G4String&);
   bool isItFibre(const G4LogicalVolume*);
@@ -113,7 +105,9 @@ private:
   int depth_;
   std::vector<double> gpar;
   std::vector<int> hfLevels;
-  std::vector<G4String> hfNames, fibreNames, matNames;
+  std::vector<std::string> hfNames;
+  std::vector<std::string> fibreNames;
+  std::vector<std::string> matNames;
   std::vector<const G4Material*> materials;
   std::vector<const G4LogicalVolume*> hfLV, fibreLV, pmtLV, fibre1LV, fibre2LV;
   std::map<uint32_t, double> layerWeights;
