@@ -40,6 +40,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ESProductTag.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 #include "tbb/task_scheduler_init.h"
@@ -601,6 +602,42 @@ namespace {
     edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
   };
 
+  class SetMayConsumeProducer : public ESProducer {
+  public:
+    SetMayConsumeProducer(bool iSucceed) : succeed_(iSucceed) {
+      setWhatProduced(this, label(iSucceed))
+          .setMayConsume(
+              token_,
+              [iSucceed](auto& get, edm::ESTransientHandle<edm::eventsetup::test::DummyData> const& handle) {
+                if (iSucceed) {
+                  return get("", "");
+                }
+                return get.nothing();
+              },
+              edm::ESProductTag<edm::eventsetup::test::DummyData, DummyRecord>("", ""));
+    }
+    std::unique_ptr<edm::eventsetup::test::DummyData> produce(const DummyRecord& iRecord) {
+      CPPUNIT_ASSERT(succeed_ == token_.hasValidIndex());
+      auto const& data = iRecord.getHandle(token_);
+      CPPUNIT_ASSERT(data.isValid() == succeed_);
+      if (data.isValid()) {
+        return std::make_unique<edm::eventsetup::test::DummyData>(*data);
+      }
+      return std::make_unique<edm::eventsetup::test::DummyData>();
+    }
+
+  private:
+    static const char* label(bool iSucceed) noexcept {
+      if (iSucceed) {
+        return "setMayConsumeSucceed";
+      }
+      return "setMayConsumeFail";
+    }
+
+    edm::ESGetToken<edm::eventsetup::test::DummyData, DummyRecord> token_;
+    bool succeed_;
+  };
+
 }  // namespace
 
 void testEventsetup::getDataWithESGetTokenTest() {
@@ -664,6 +701,28 @@ void testEventsetup::getDataWithESGetTokenTest() {
       ps.registerIt();
       description.pid_ = ps.id();
       auto dummyProv = std::make_shared<SetConsumesProducer>();
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description("SetMayConsumeProducer", "setMayConsumeSuceed", false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "setMayConsumeSuceed");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<SetMayConsumeProducer>(true);
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description("SetMayConsumeProducer", "setMayConsumeFail", false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "setMayConsumeFail");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<SetMayConsumeProducer>(false);
       dummyProv->setDescription(description);
       dummyProv->setAppendToDataLabel(ps);
       provider.add(dummyProv);
@@ -736,6 +795,24 @@ void testEventsetup::getDataWithESGetTokenTest() {
       const DummyData& data = eventSetup.getData(consumer.m_token);
       CPPUNIT_ASSERT(kBad.value_ == data.value_);
     }
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("", "setMayConsumeFail")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{provider.eventSetupImpl(),
+                            static_cast<unsigned int>(edm::Transition::Event),
+                            consumer.esGetTokenIndices(edm::Transition::Event)};
+      CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), cms::Exception);
+    }
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("", "setMayConsumeSucceed")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{provider.eventSetupImpl(),
+                            static_cast<unsigned int>(edm::Transition::Event),
+                            consumer.esGetTokenIndices(edm::Transition::Event)};
+      const DummyData& data = eventSetup.getData(consumer.m_token);
+      CPPUNIT_ASSERT(kBad.value_ == data.value_);
+    }
+
   } catch (const cms::Exception& iException) {
     std::cout << "caught " << iException.explainSelf() << std::endl;
     throw;
