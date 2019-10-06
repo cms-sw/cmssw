@@ -60,6 +60,7 @@ namespace edm {
 
       void operator()(const TRecord& iRecord) {
         if (!wasCalledForThisRecord_) {
+          producer_->updateFromMayConsumes(id_, iRecord);
           decorator_.pre(iRecord);
           storeReturnedValues((producer_->*method_)(iRecord));
           wasCalledForThisRecord_ = true;
