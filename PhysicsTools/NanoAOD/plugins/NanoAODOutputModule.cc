@@ -38,6 +38,7 @@
 #include "DataFormats/NanoAOD/interface/UniqueString.h"
 #include "PhysicsTools/NanoAOD/plugins/TableOutputBranches.h"
 #include "PhysicsTools/NanoAOD/plugins/TriggerOutputBranches.h"
+#include "PhysicsTools/NanoAOD/plugins/EventStringOutputBranches.h"
 #include "PhysicsTools/NanoAOD/plugins/SummaryTableOutputBranches.h"
 
 #include <iostream>
@@ -118,6 +119,7 @@ private:
 
   std::vector<TableOutputBranches> m_tables;
   std::vector<TriggerOutputBranches> m_triggers;
+  std::vector<EventStringOutputBranches> m_evstrings;
 
   std::vector<SummaryTableOutputBranches> m_runTables;
 
@@ -196,6 +198,9 @@ void NanoAODOutputModule::write(edm::EventForOutput const& iEvent) {
   // fill triggers
   for (auto& t : m_triggers)
     t.fill(iEvent, *m_tree);
+  // fill event branches
+  for (auto& t : m_evstrings)
+    t.fill(iEvent, *m_tree);
   m_tree->Fill();
 
   m_processHistoryRegistry.registerProcessHistory(iEvent.processHistory());
@@ -266,6 +271,7 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
   /* Setup file structure here */
   m_tables.clear();
   m_triggers.clear();
+  m_evstrings.clear();
   m_runTables.clear();
   const auto& keeps = keptProducts();
   for (const auto& keep : keeps[edm::InEvent]) {
@@ -273,6 +279,9 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
       m_tables.emplace_back(keep.first, keep.second);
     else if (keep.first->className() == "edm::TriggerResults") {
       m_triggers.emplace_back(keep.first, keep.second);
+    } else if (keep.first->className() == "std::basic_string<char,std::char_traits<char> >" &&
+               keep.first->productInstanceName() == "genModel") {  // friendlyClassName == "String"
+      m_evstrings.emplace_back(keep.first, keep.second, true);     // update only at lumiBlock transitions
     } else
       throw cms::Exception("Configuration", "NanoAODOutputModule cannot handle class " + keep.first->className());
   }
@@ -353,6 +362,7 @@ void NanoAODOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descr
   const std::vector<std::string> keep = {"drop *",
                                          "keep nanoaodFlatTable_*Table_*_*",
                                          "keep edmTriggerResults_*_*_*",
+                                         "keep String_*_genModel_*",
                                          "keep nanoaodMergeableCounterTable_*Table_*_*",
                                          "keep nanoaodUniqueString_nanoMetadata_*_*"};
   edm::OutputModule::fillDescription(desc, keep);
