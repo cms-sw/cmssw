@@ -348,6 +348,8 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("puppiForLeptons", false);
   desc.add<bool>("UseDeltaZCut", true);
   desc.add<double>("DeltaZCut", 0.3);
+  desc.add<double>("PtMaxPhotons", 0.);
+  desc.add<double>("EtaMaxPhotons", 2.5);
   desc.add<double>("PtMaxNeutrals", 200.);
   desc.add<bool>("useExistingWeights", false);
   desc.add<bool>("useWeightsNoLep", false);
