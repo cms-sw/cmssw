@@ -59,10 +59,12 @@ private:
    */
   void setWord(uint32_t word, uint32_t mask, uint32_t pos) {
     if (word > mask)
-      word = mask;  // deal with saturation
+      word = mask;  // deal with saturation - should we throw ?
     //clear required bits
     const uint32_t masked_word = (word & mask) << pos;
-    value_ &= ~(masked_word);
+    //std::cout <<  "\t masked_word " << masked_word << std::endl;
+    value_ &= ~(mask << pos);
+    // std::cout <<  "\t value tmp " << value_ << std::endl;
     //now set the new value
     value_ |= (masked_word);
   }
