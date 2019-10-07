@@ -265,7 +265,7 @@ const map<TString, int> numberOfLayers(TString Year) {
  */
 
 TString lumifileperyear(TString Year, string RunOrIOV) {
-  TString LumiFile = getenv("CMSSW_BASE");
+  TString LumiFile = std::getenv("CMSSW_BASE");
   LumiFile += "/src/Alignment/OfflineValidation/data/lumiper";
   if (RunOrIOV != "run" && RunOrIOV != "IOV") {
     cout << "ERROR: Please specify \"run\" or \"IOV\" to retrieve the luminosity run by run or for each IOV" << endl;

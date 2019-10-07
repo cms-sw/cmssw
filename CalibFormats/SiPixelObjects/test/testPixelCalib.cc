@@ -23,7 +23,7 @@ int main(){
  
   //First lets do some tests of the PixelROCName class
 
-  //std::string path(getenv("XDAQ_ROOT"));
+  //std::string path(std::getenv("XDAQ_ROOT"));
   //path+="/pixel/PixelFEDInterface/test/";
   //PixelFEDCard card(path+"params_fed.dat");
 

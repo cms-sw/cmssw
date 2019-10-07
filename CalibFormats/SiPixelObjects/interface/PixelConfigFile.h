@@ -198,7 +198,7 @@ namespace pos{
       static std::string directory;
       static int first=1;
     
-      directory=getenv("PIXELCONFIGURATIONBASE");
+      directory=std::getenv("PIXELCONFIGURATIONBASE");
       std::string filename=directory+"/configurations.txt";
 /* Don't know who put this snippet of code here: this case is already contemplated in the 'else' of the 'if' statement below
       if(!first)
@@ -233,7 +233,7 @@ namespace pos{
     
       static PixelAliasList aliases;
     
-      directory=getenv("PIXELCONFIGURATIONBASE");
+      directory=std::getenv("PIXELCONFIGURATIONBASE");
       std::string filename=directory+"/aliases.txt";
 
       if (first) {
@@ -303,7 +303,7 @@ namespace pos{
       std::string strversion=s1.str();
 
       static std::string directory;
-      directory=getenv("PIXELCONFIGURATIONBASE");
+      directory=std::getenv("PIXELCONFIGURATIONBASE");
     
       std::string fullpath=directory+"/"+dir+"/"+strversion+"/";
     
@@ -359,7 +359,7 @@ namespace pos{
       std::string strversion=s1.str();
 
       static std::string directory;
-      directory=getenv("PIXELCONFIGURATIONBASE");
+      directory=std::getenv("PIXELCONFIGURATIONBASE");
     
       std::string fullpath=directory+"/"+dir+"/"+strversion+"/";
     
@@ -544,7 +544,7 @@ namespace pos{
       std::string strversion=s1.str();
 
       static std::string directory;
-      directory=getenv("PIXELCONFIGURATIONBASE");
+      directory=std::getenv("PIXELCONFIGURATIONBASE");
     
       std::string fullpath=directory+"/"+dir+"/"+strversion+"/";
     
@@ -677,7 +677,7 @@ namespace pos{
       std::string strversion=s1.str();
 
       static std::string directory;
-      directory=getenv("PIXELCONFIGURATIONBASE");
+      directory=std::getenv("PIXELCONFIGURATIONBASE");
     
       std::string fullpath=directory+"/"+dir+"/"+strversion+"/";
     
@@ -827,7 +827,7 @@ namespace pos{
     static int makeNewVersion(std::string path, std::string &dir){
       //std::cout << "[pos::PixelConfigFile::makeNewVersion()]\t\tInserting data on path:"<<path<<std::endl;
       struct stat stbuf;
-      std::string directory=getenv("PIXELCONFIGURATIONBASE");
+      std::string directory=std::getenv("PIXELCONFIGURATIONBASE");
       directory+="/";
       directory+=path;
       if (stat(directory.c_str(),&stbuf)!=0){

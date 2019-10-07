@@ -44,7 +44,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testLoading);
 
 void testLoading::setUp()
 {
-    dataPath = cmsswPath("/test/" + std::string(getenv("SCRAM_ARCH"))
+    dataPath = cmsswPath("/test/" + std::string(std::getenv("SCRAM_ARCH"))
         + "/" + boost::filesystem::unique_path().string());
 
     // create the graph

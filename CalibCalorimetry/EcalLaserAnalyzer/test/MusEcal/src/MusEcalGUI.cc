@@ -54,7 +54,7 @@ MusEcalGUI::MusEcalGUI( const TGWindow *p, UInt_t w, UInt_t h,
   _fChanPanel  = 0;
   _fLeafPanel  = 0;
   _fMultiVarPanel  = 0;
-  _psdir = TString(getenv("MEPSDIR"))+"/";
+  _psdir = TString(std::getenv("MEPSDIR"))+"/";
   
   // layouts and menus
   cout << "Setup main window" << endl;
@@ -2038,7 +2038,7 @@ MusEcalGUI::drawAPDAnim( int opt )
   MEPlotWindow* win_;
 
   // FIXME!!!!
-  TString fname_(getenv("MESTORE"));
+  TString fname_(std::getenv("MESTORE"));
   fname_ += "/EBGlobalHist.root";
   FILE *test;
   //  cout << fname_ << endl;
