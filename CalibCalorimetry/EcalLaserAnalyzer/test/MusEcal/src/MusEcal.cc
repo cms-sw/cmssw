@@ -620,9 +620,9 @@ MusEcal::histConfig()
   // if there is a config file, modify the specified histogram limits
   //
   
-  TString fileroot = TString( getenv("MECONFIG") );
+  TString fileroot = TString( std::getenv("MECONFIG") );
   fileroot += "/";
-  fileroot += TString( getenv("MEPERIOD") );
+  fileroot += TString( std::getenv("MEPERIOD") );
   TString ext_[2] = {"EB","EE"};
 
   for( int ii=0; ii<2; ii++ )

@@ -25,7 +25,7 @@ namespace pos{
 
     void writefile(){
 
-      std::string directory=getenv("PIXELCONFIGURATIONBASE");
+      std::string directory=std::getenv("PIXELCONFIGURATIONBASE");
 /*       directory+="/PixelConfigDataExamples/"; */
       directory+="/";
     

@@ -190,7 +190,7 @@ MECanvasHolder::ShowWelcome( bool image )
   gPad->Clear();
   if( image )
     {
-      TString imgpath = TString( getenv("MECONFIG") );
+      TString imgpath = TString( std::getenv("MECONFIG") );
       TImage *img = TImage::Open(imgpath+"/LVB.jpg");
       assert( img!=0 );
       //  img->SetConstRatio(0);

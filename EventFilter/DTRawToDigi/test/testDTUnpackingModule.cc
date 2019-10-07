@@ -20,7 +20,7 @@
 using namespace std;
 
 
-string releasetop(getenv("SCRAMRT_LOCALRT"));
+string releasetop(std::getenv("SCRAMRT_LOCALRT"));
 string testfileLocation= releasetop + "/src/EventFilter/DTRawToDigi/test/";
 
 class testDTUnpackingModule: public CppUnit::TestFixture {
@@ -36,7 +36,7 @@ public:
 
 
   void setUp(){
-    char * ret = getenv("SCRAMRT_LOCALRT");
+    char * ret = std::getenv("SCRAMRT_LOCALRT");
     if (!ret) {
       cerr<< "env variable SCRAMRT_LOCALRT not set, try eval `scramv1 runt -csh`"<< endl;
       exit(1);
