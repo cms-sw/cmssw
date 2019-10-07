@@ -78,7 +78,6 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   std::vector<double> lWeights;
-  std::vector<PuppiCandidate> lCandidates;
   if (!fUseExistingWeights) {
     //Fill the reco objects
     fRecoObjCollection.clear();
