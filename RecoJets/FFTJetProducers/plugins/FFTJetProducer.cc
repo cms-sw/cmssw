@@ -949,7 +949,7 @@ void FFTJetProducer::determinePileupDensityFromDB(const edm::Event& iEvent,
                                                   std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& density) {
   edm::ESHandle<FFTJetLookupTableSequence> h;
   StaticFFTJetLookupTableSequenceLoader::instance().load(iSetup, pileupTableRecord, h);
-  boost::shared_ptr<npstat::StorableMultivariateFunctor> f = (*h)[pileupTableCategory][pileupTableName];
+  std::shared_ptr<npstat::StorableMultivariateFunctor> f = (*h)[pileupTableCategory][pileupTableName];
 
   edm::Handle<reco::FFTJetPileupSummary> summary;
   iEvent.getByToken(input_pusummary_token_, summary);

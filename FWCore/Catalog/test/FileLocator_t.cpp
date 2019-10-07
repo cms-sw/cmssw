@@ -81,12 +81,12 @@ TEST_CASE("FileLocator", "[filelocator]") {
   SECTION("override") {
     edm::ServiceRegistry::Operate operate(tempToken);
 
-    std::string file_name("/src/FWCore/Catalog/test/override_catalog.xml");
-    std::string full_file_name = boost::filesystem::exists((CMSSW_BASE + file_name).c_str())
-                                     ? CMSSW_BASE + file_name
-                                     : CMSSW_RELEASE_BASE + file_name;
+    std::string override_file_name("/src/FWCore/Catalog/test/override_catalog.xml");
+    std::string override_full_file_name = boost::filesystem::exists((CMSSW_BASE + override_file_name).c_str())
+                                              ? CMSSW_BASE + override_file_name
+                                              : CMSSW_RELEASE_BASE + override_file_name;
 
-    edm::FileLocator fl(("trivialcatalog_file:" + full_file_name + "?protocol=override").c_str(), false);
+    edm::FileLocator fl(("trivialcatalog_file:" + override_full_file_name + "?protocol=override").c_str(), false);
 
     std::array<const char*, 8> lfn = {{"/store/group/bha/bho",
                                        "/bha/bho",

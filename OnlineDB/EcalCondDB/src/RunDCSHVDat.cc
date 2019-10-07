@@ -318,7 +318,12 @@ void RunDCSHVDat::fillTheMapByTime(
                           .tm_hour = static_cast<int>(hour),
                           .tm_mday = static_cast<int>(day),
                           .tm_mon = static_cast<int>(month),
-                          .tm_year = year - 1900};
+                          .tm_year = year - 1900,
+                          .tm_wday = 0,
+                          .tm_yday = 0,
+                          .tm_isdst = 0,
+                          .tm_gmtoff = 0,
+                          .tm_zone = nullptr};
       char tt_str[30] = {0};
       if (std::strftime(tt_str, sizeof(tt_str), "%F %T", &tt)) {
         sinceTm.setToString(std::string(tt_str));

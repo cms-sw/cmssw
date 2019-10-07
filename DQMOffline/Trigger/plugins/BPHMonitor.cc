@@ -592,7 +592,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           case 1:
 
             tnp_ = true;  // already filled hists for tnp method
-
+            [[fallthrough]];
           case 2:
 
             if ((Jpsi_) && (!Upsilon_))

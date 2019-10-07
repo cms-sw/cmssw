@@ -73,7 +73,7 @@ for year in upgradeKeys:
             # special workflows for tracker
             if (upgradeDatasetFromFragment[frag]=="TTbar_13" or upgradeDatasetFromFragment[frag]=="TTbar_14TeV") and not 'PU' in key and hasHarvest:
                 # skip ALCA and Nano
-                trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly']
+                trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly','trackingMkFit']
                 for tv in trackingVariations:
                     stepList[tv] = [s for s in stepList[tv] if (("ALCA" not in s) and ("Nano" not in s))]
                 workflows[numWF+upgradeSteps['trackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingOnly']]
@@ -82,6 +82,8 @@ for year in upgradeKeys:
                         workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
                 elif '2018' in key:
                     workflows[numWF+upgradeSteps['pixelTrackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['pixelTrackingOnly']]
+                elif '2021' in key:
+                    workflows[numWF+upgradeSteps['trackingMkFit']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingMkFit']]
 
             # special workflows for HGCAL/TICL
             if (upgradeDatasetFromFragment[frag]=="CloseByParticleGun") and ('2026' in key):
@@ -105,12 +107,19 @@ for year in upgradeKeys:
             if upgradeDatasetFromFragment[frag]=="TTbar_13" and '2018' in key:
                 workflows[numWF+upgradeSteps['ParkingBPH']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['ParkingBPH']]
 
-            # premixing stage1, only for NuGun
-            if upgradeDatasetFromFragment[frag]=="NuGun" and 'PU' in key and '2026' in key:
-                workflows[numWF+upgradeSteps['Premix']['offset']] = [upgradeDatasetFromFragment[frag], stepList['Premix']]
+            inclPremix = 'PU' in key
+            if inclPremix:
+                inclPremix = False
+                for y in ['2021', '2023', '2024', '2026']:
+                    if y in key:
+                        inclPremix = True
+                        continue
+            if inclPremix:
+                # premixing stage1, only for NuGun
+                if upgradeDatasetFromFragment[frag]=="NuGun":
+                    workflows[numWF+upgradeSteps['Premix']['offset']] = [upgradeDatasetFromFragment[frag], stepList['Premix']]
 
-            # premixing stage2, only for ttbar for time being
-            if 'PU' in key and '2026' in key and upgradeDatasetFromFragment[frag]=="TTbar_14TeV":
+                # premixing stage2
                 slist = []
                 for step in stepList['baseline']:
                     s = step
@@ -120,10 +129,16 @@ for year in upgradeKeys:
                 workflows[numWF+premixS2_offset] = [upgradeDatasetFromFragment[frag], slist]
 
                 # Combined stage1+stage2
+                def nano(s):
+                    if "Nano" in s:
+                        if "_" in s:
+                            return s.replace("_", "PUPRMXCombined_")
+                        return s+"PUPRMXCombined"
+                    return s
                 workflows[numWF+premixS1S2_offset] = [upgradeDatasetFromFragment[frag], # Signal fragment
                                                       [slist[0]] +                      # Start with signal generation
                                                       stepList['Premix'] +              # Premixing stage1
                                                       [slist[1].replace("PUPRMX", "PUPRMXCombined")] + # Premixing stage2, customized for the combined (defined in relval_steps.py)
-                                                      slist[2:]]                        # Remaining standard steps
+                                                      list(map(nano, slist[2:]))]             # Remaining standard steps
 
             numWF+=1

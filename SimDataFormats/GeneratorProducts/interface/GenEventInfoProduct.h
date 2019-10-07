@@ -88,7 +88,7 @@ class GenEventInfoProduct {
 	double			alphaQCD_, alphaQED_;
 
 	// optional PDF info
-	std::auto_ptr<PDF>	pdf_;
+	std::unique_ptr<PDF>	pdf_;
 
 	// If event was produced in bis, this contains
 	// the values that were used to define which

@@ -30,7 +30,6 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
   //Clear everything
   fPFParticles.resize(0);
   fChargedPV.resize(0);
-  fPupParticles.resize(0);
   fWeights.resize(0);
   fVals.resize(0);
   fRawAlphas.resize(0);
@@ -41,8 +40,6 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
   fPVFrac = 0.;
   fNPV = 1.;
   fRecoParticles = &iRecoObjects;
-  fRecoToPup.clear();
-  fRecoToPup.reserve(fRecoParticles->size());
   for (auto const &rParticle : *fRecoParticles) {
     PuppiCandidate curPseudoJet;
     // float nom = sqrt((rParticle.m)*(rParticle.m) + (rParticle.pt)*(rParticle.pt)*(cosh(rParticle.eta))*(cosh(rParticle.eta))) + (rParticle.pt)*sinh(rParticle.eta);//hacked
@@ -54,28 +51,16 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
       curPseudoJet.reset_PtYPhiM(0, 99., 0, 0);  //skipping may have been a better choice
     }
     //curPseudoJet.reset_PtYPhiM(rParticle.pt,rParticle.eta,rParticle.phi,rParticle.m);
-    int puppi_register = 0;
-    if (rParticle.id == 0 or rParticle.charge == 0)
-      puppi_register = 0;  // zero is neutral hadron
-    if (rParticle.id == 1 and rParticle.charge != 0)
-      puppi_register = rParticle.charge;  // from PV use the
-    if (rParticle.id == 2 and rParticle.charge != 0)
-      puppi_register = rParticle.charge + 5;  // from NPV use the charge as key +5 as key
-    curPseudoJet.set_info(puppi_register);
+    // fill puppi_register
+    curPseudoJet.set_info(rParticle.id);
     // fill vector of pseudojets for internal references
     fPFParticles.push_back(curPseudoJet);
     //Take Charged particles associated to PV
     if (std::abs(rParticle.id) == 1)
       fChargedPV.push_back(curPseudoJet);
-    if (std::abs(rParticle.id) >= 1)
-      fPVFrac += 1.;
     //if(rParticle.id == 3) _chargedNoPV.push_back(curPseudoJet);
     // if(fNPV < rParticle.vtxId) fNPV = rParticle.vtxId;
   }
-  if (fPVFrac != 0)
-    fPVFrac = double(fChargedPV.size()) / fPVFrac;
-  else
-    fPVFrac = 0;
 }
 PuppiContainer::~PuppiContainer() {}
 
@@ -194,7 +179,7 @@ void PuppiContainer::getRMSAvg(int iOpt,
     }
   }
   for (int i0 = 0; i0 < fNAlgos; i0++)
-    fPuppiAlgo[i0].computeMedRMS(iOpt, fPVFrac);
+    fPuppiAlgo[i0].computeMedRMS(iOpt);
 }
 //In fact takes the median not the average
 void PuppiContainer::getRawAlphas(int iOpt,
@@ -257,8 +242,6 @@ double PuppiContainer::getChi2FromdZ(double iDZ) {
 std::vector<double> const &PuppiContainer::puppiWeights() {
   int lNParticles = fRecoParticles->size();
 
-  fPupParticles.clear();
-  fPupParticles.reserve(lNParticles);
   fWeights.clear();
   fWeights.reserve(lNParticles);
   fVals.clear();
@@ -286,14 +269,12 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
     const auto &rParticle = (*fRecoParticles)[i0];
     int pPupId = getPuppiId(rParticle.pt, rParticle.eta);
     if (pPupId == -1) {
-      fWeights.push_back(pWeight);
+      fWeights.push_back(0);
       fAlphaMed.push_back(-10);
       fAlphaRMS.push_back(-10);
-      fRecoToPup.push_back(-1);
       continue;
-    } else {
-      fRecoToPup.push_back(fPupParticles.size());  //watch out: there should be no skips after this
     }
+
     // fill the p-values
     double pChi2 = 0;
     if (fUseExp) {
@@ -345,14 +326,6 @@ std::vector<double> const &PuppiContainer::puppiWeights() {
     // leave these lines in, in case want to move eventually to having no 1-to-1 correspondence between puppi and pf cands
     // if( std::abs(pWeight) < std::numeric_limits<double>::denorm_min() ) continue; // this line seems not to work like it's supposed to...
     // if(std::abs(pWeight) <= 0. ) continue;
-
-    //Produce
-    PuppiCandidate curjet(pWeight * fPFParticles[i0].px(),
-                          pWeight * fPFParticles[i0].py(),
-                          pWeight * fPFParticles[i0].pz(),
-                          pWeight * fPFParticles[i0].e());
-    curjet.set_user_index(i0);
-    fPupParticles.push_back(curjet);
   }
   return fWeights;
 }

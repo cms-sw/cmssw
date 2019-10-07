@@ -5,13 +5,14 @@
 
 #include <iosfwd>
 #include <vector>
+#include <memory>
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCVTMBHeaderFormat.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <boost/shared_ptr.hpp>
+
 #ifndef LOCAL_UNPACK
 #include <atomic>
 #endif
@@ -112,7 +113,7 @@ private:
   static std::atomic<bool> debug;
 #endif
 
-  boost::shared_ptr<CSCVTMBHeaderFormat> theHeaderFormat;
+  std::shared_ptr<CSCVTMBHeaderFormat> theHeaderFormat;
   int theFirmwareVersion;
 };
 

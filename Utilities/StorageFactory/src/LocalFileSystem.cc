@@ -441,7 +441,7 @@ std::pair<std::string, std::string> LocalFileSystem::findCachePath(const std::ve
     const char *path = inpath;
 
     if (*path == '$') {
-      char *p = getenv(path + 1);
+      char *p = std::getenv(path + 1);
       if (p && *p)
         path = p;
       else if (!strcmp(path, "$TMPDIR"))

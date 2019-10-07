@@ -6,6 +6,7 @@
 
 #include <array>
 #include <vector>
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 // A Trackster is a Direct Acyclic Graph created when
 // pattern recognition algorithms connect hits or
@@ -24,6 +25,33 @@ namespace ticl {
     // the first element is on the inner layer and
     // the outer element is on the outer layer.
     std::vector<std::array<unsigned int, 2> > edges;
+
+    edm::ProductID seedID;
+    int seedIndex;
+
+    // regressed energy
+    float regressed_energy;
+
+    // types considered by the particle identification
+    enum class ParticleType {
+      photon = 0,
+      electron,
+      muon,
+      neutral_pion,
+      charged_hadron,
+      neutral_hadron,
+      ambiguous,
+      unknown,
+    };
+
+    // trackster ID probabilities
+    std::array<float, 8> id_probabilities;
+
+    // convenience method to return the ID probability for a certain particle type
+    inline float id_probability(ParticleType type) const {
+      // probabilities are stored in the same order as defined in the ParticleType enum
+      return id_probabilities[(int)type];
+    }
   };
 }  // namespace ticl
 #endif

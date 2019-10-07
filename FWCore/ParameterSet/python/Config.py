@@ -215,6 +215,12 @@ class Process(object):
                               numberOfStreams = untracked.uint32(0),
                               numberOfConcurrentRuns = untracked.uint32(1),
                               numberOfConcurrentLuminosityBlocks = untracked.uint32(1),
+                              eventSetup = untracked.PSet(
+                                  numberOfConcurrentIOVs = untracked.uint32(1),
+                                  forceNumberOfConcurrentIOVs = untracked.PSet(
+                                      allowAnyLabel_ = required.untracked.uint32
+                                  )
+                              ),
                               wantSummary = untracked.bool(False),
                               fileMode = untracked.string('FULLMERGE'),
                               forceEventSetupCacheClearOnNewRun = untracked.bool(False),
@@ -1839,6 +1845,12 @@ process.options = cms.untracked.PSet(
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
     emptyRunLumiMode = cms.obsolete.untracked.string,
+    eventSetup = cms.untracked.PSet(
+        forceNumberOfConcurrentIOVs = cms.untracked.PSet(
+
+        ),
+        numberOfConcurrentIOVs = cms.untracked.uint32(1)
+    ),
     fileMode = cms.untracked.string('FULLMERGE'),
     forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
     makeTriggerResults = cms.obsolete.untracked.bool,

@@ -11,63 +11,26 @@
 //
 
 // system include files
-#include <cassert>
-#include <string>
-#include <exception>
+#include <sstream>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-#include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
-#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace edm {
   namespace eventsetup {
-    //
-    // constants, enums and typedefs
-    //
+
     typedef std::map<DataKey, const DataProxy*> Proxies;
-    //
-    // static data member definitions
-    //
 
-    //
-    // constructors and destructor
-    //
     EventSetupRecord::EventSetupRecord() {}
-
-    // EventSetupRecord::EventSetupRecord(const EventSetupRecord& rhs)
-    // {
-    //    // do actual copying here;
-    // }
 
     EventSetupRecord::~EventSetupRecord() {}
 
-    //
-    // assignment operators
-    //
-    // const EventSetupRecord& EventSetupRecord::operator=(const EventSetupRecord& rhs)
-    // {
-    //   //An exception safe implementation is
-    //   EventSetupRecord temp(rhs);
-    //   swap(rhs);
-    //
-    //   return *this;
-    // }
-
-    //
-    // member functions
-    //
-    //
-    // const member functions
-    //
-
     bool EventSetupRecord::doGet(const DataKey& aKey, bool aGetTransiently) const {
-      return impl_->doGet(aKey, aGetTransiently);
+      return impl_->doGet(aKey, eventSetupImpl_, aGetTransiently);
     }
 
     bool EventSetupRecord::wasGotten(const DataKey& aKey) const { return impl_->wasGotten(aKey); }
@@ -117,8 +80,24 @@ namespace edm {
       return std::make_exception_ptr(ex);
     }
 
-    //
-    // static member functions
-    //
+    void EventSetupRecord::throwWrongTransitionID() const {
+      cms::Exception ex("ESGetTokenWrongTransition");
+      ex << "The transition ID stored in the ESGetToken does not match the\n"
+         << "transition where the token is being used. The associated record\n"
+         << "type is: " << key().type().name() << "\n"
+         << "For producers, filters and analyzers this transition ID is\n"
+         << "set as a template parameter to the call to the esConsumes\n"
+         << "function that creates the token. Event is the default transition.\n"
+         << "Other possibilities are BeginRun, EndRun, BeginLuminosityBlock,\n"
+         << "or EndLuminosityBlock. You may need multiple tokens if you want to\n"
+         << "get the same data in multiple transitions. The transition ID has a\n"
+         << "different meaning in ESProducers. For ESProducers, the transition\n"
+         << "ID identifies the function that produces the EventSetup data (often\n"
+         << "there is one function named produce but there can be multiple\n"
+         << "functions with different names). For ESProducers, the ESGetToken\n"
+         << "must be used in the function associated with the ESConsumesCollector\n"
+         << "returned by the setWhatProduced function.";
+      throw ex;
+    }
   }  // namespace eventsetup
 }  // namespace edm

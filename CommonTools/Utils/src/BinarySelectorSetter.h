@@ -15,7 +15,6 @@
 #include "CommonTools/Utils/src/ExpressionStack.h"
 #include "CommonTools/Utils/src/BinarySelector.h"
 #include "CommonTools/Utils/interface/Exception.h"
-#include <boost/shared_ptr.hpp>
 
 namespace reco {
   namespace parser {
@@ -30,11 +29,11 @@ namespace reco {
         if (cmpStack_.empty())
           throw Exception(begin) << "Grammar error: empty comparator stack. Please contact developer."
                                  << "\"";
-        boost::shared_ptr<ExpressionBase> rhs = expStack_.back();
+        std::shared_ptr<ExpressionBase> rhs = expStack_.back();
         expStack_.pop_back();
-        boost::shared_ptr<ExpressionBase> lhs = expStack_.back();
+        std::shared_ptr<ExpressionBase> lhs = expStack_.back();
         expStack_.pop_back();
-        boost::shared_ptr<ComparisonBase> comp = cmpStack_.back();
+        std::shared_ptr<ComparisonBase> comp = cmpStack_.back();
         cmpStack_.pop_back();
 #ifdef BOOST_SPIRIT_DEBUG
         BOOST_SPIRIT_DEBUG_OUT << "pushing binary selector" << std::endl;

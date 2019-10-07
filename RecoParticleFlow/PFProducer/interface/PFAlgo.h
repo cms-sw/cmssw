@@ -122,6 +122,18 @@ public:
 private:
   void egammaFilters(const reco::PFBlockRef& blockref, std::vector<bool>& active, PFEGammaFilters const* pfegamma);
   void conversionAlgo(const edm::OwnVector<reco::PFBlockElement>& elements, std::vector<bool>& active);
+  bool checkAndReconstructSecondaryInteraction(const reco::PFBlockRef& blockref,
+                                               const edm::OwnVector<reco::PFBlockElement>& elements,
+                                               bool isActive,
+                                               int iElement);
+  bool checkHasDeadHcal(const std::multimap<double, unsigned>& hcalElems, const std::vector<bool>& deadArea);
+  void relinkTrackToHcal(const reco::PFBlock& block,
+                         std::multimap<double, unsigned>& ecalElems,
+                         std::multimap<double, unsigned>& hcalElems,
+                         const std::vector<bool>& active,
+                         reco::PFBlock::LinkData& linkData,
+                         unsigned int iTrack);
+  bool checkGoodTrackDeadHcal(const reco::TrackRef& trackRef, bool hasDeadHcal);
   void elementLoop(const reco::PFBlock& block,
                    reco::PFBlock::LinkData& linkData,
                    const edm::OwnVector<reco::PFBlockElement>& elements,

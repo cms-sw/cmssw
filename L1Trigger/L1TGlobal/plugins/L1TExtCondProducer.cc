@@ -8,7 +8,6 @@
 ///
 
 // system include files
-#include <boost/shared_ptr.hpp>
 
 // user include files
 
@@ -57,9 +56,9 @@ private:
 
   // ----------member data ---------------------------
   // unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
-  //boost::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
-  //boost::shared_ptr<const FirmwareVersion> m_fwv;
-  //boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
+  //std::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
+  //std::shared_ptr<const FirmwareVersion> m_fwv;
+  //std::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
 
   // BX parameters
   int bxFirst_;

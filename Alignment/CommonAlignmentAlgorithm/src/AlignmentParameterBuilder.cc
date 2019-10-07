@@ -183,7 +183,7 @@ bool AlignmentParameterBuilder::decodeParamSel(std::vector<char> &paramSelChar, 
     switch (paramSelChar[pos]) {
       default:
         anyNon01 = true;
-        // no break;
+        [[fallthrough]];
       case '1':
         result.push_back(true);
         break;

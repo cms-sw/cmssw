@@ -6,8 +6,8 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <boost/cstdint.hpp>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <cstdint>
 
 class TrackerTopology;
 

@@ -282,7 +282,7 @@ namespace edm {
     //returns true if an asynchronous stop was requested
     bool checkForAsyncStopRequest(StatusCode&);
 
-    void processEventWithLooper(EventPrincipal&);
+    void processEventWithLooper(EventPrincipal&, unsigned int iStreamIndex);
 
     std::shared_ptr<ProductRegistry const> preg() const { return get_underlying_safe(preg_); }
     std::shared_ptr<ProductRegistry>& preg() { return get_underlying_safe(preg_); }
@@ -316,7 +316,7 @@ namespace edm {
     InputSource::ItemType lastSourceTransition_;
     edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
-    edm::SerialTaskQueue iovQueue_;
+    edm::SerialTaskQueue queueWhichWaitsForIOVsToFinish_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ProcessContext processContext_;

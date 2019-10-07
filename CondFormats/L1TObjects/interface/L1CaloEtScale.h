@@ -22,9 +22,9 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <boost/cstdint.hpp>
 #include <vector>
 #include <ostream>
+#include <cstdint>
 
 class L1CaloEtScale {
 public:

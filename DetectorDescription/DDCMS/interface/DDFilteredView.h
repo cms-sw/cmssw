@@ -19,6 +19,7 @@
 //
 //
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
+#include "DetectorDescription/DDCMS/interface/DDSolidShapes.h"
 #include "DetectorDescription/DDCMS/interface/ExpandedNodes.h"
 #include "DetectorDescription/DDCMS/interface/Filter.h"
 #include <DD4hep/Volumes.h>
@@ -28,6 +29,7 @@
 namespace cms {
 
   class DDDetector;
+  class DDCompactView;
 
   using Volume = dd4hep::Volume;
   using PlacedVolume = dd4hep::PlacedVolume;
@@ -35,14 +37,20 @@ namespace cms {
   using Filter = cms::Filter;
   using Iterator = TGeoIterator;
   using Node = TGeoNode;
+  using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
+  using RotationMatrix = ROOT::Math::Rotation3D;
+  using DDFilter = std::string_view;
 
   class DDFilteredView {
   public:
+    using nav_type = std::vector<int>;
+
     DDFilteredView(const DDDetector*, const Volume);
+    DDFilteredView(const DDCompactView&, const DDFilter&);
     DDFilteredView() = delete;
 
     //! The numbering history of the current node
-    const ExpandedNodes& history() const { return nodes_; }
+    const ExpandedNodes& history();
 
     //! The physical volume of the current node
     const PlacedVolume volume() const;
@@ -50,9 +58,11 @@ namespace cms {
     //! The absolute translation of the current node
     // Return value is Double_t translation[3] with x, y, z elements.
     const Double_t* trans() const;
+    const Translation translation() const;
 
     //! The absolute rotation of the current node
     const Double_t* rot() const;
+    const RotationMatrix rotation() const;
     void rot(dd4hep::Rotation3D& matrixOut) const;
 
     //! User specific data
@@ -61,15 +71,11 @@ namespace cms {
     //! set the current node to the first child
     bool firstChild();
 
-    //! set the current node to the first sibling
-    bool firstSibling();
-
     //! set the current node to the next sibling
     bool nextSibling();
 
     //! set the current node to the next sub sibling
     bool sibling();
-    bool siblingNoCheck();
 
     //! count the number of children matching selection
     bool checkChild();
@@ -85,9 +91,6 @@ namespace cms {
 
     //! set current node to the parent node in the filtered tree
     void up();
-
-    //! pop current node
-    void unCheckNode();
 
     // Shape of current node
     bool isABox() const;
@@ -119,7 +122,26 @@ namespace cms {
     std::string_view materialName() const;
 
     //! extract shape parameters
-    std::vector<double> extractParameters() const;
+    const std::vector<double> parameters() const;
+
+    const DDSolidShape shape() const;
+
+    // Convert new DD4hep shape id to an old DD one
+    LegacySolidShape legacyShape(const cms::DDSolidShape shape) const;
+
+    //! extract attribute value
+    template <typename T>
+    T get(const char*) const;
+
+    //! extract attribute value in SpecPar
+    template <typename T>
+    T get(const char*, const char*) const;
+
+    std::string_view getString(const std::string&) const;
+
+    //! return the stack of sibling numbers which indicates
+    //  the current position in the DDFilteredView
+    nav_type navPos() const;
 
   private:
     bool accept(std::string_view);
@@ -127,12 +149,16 @@ namespace cms {
     bool addNode(Node* const);
     const TClass* getShape() const;
 
+    //! set the current node to the first sibling
+    bool firstSibling();
+
     ExpandedNodes nodes_;
     std::vector<Iterator> it_;
     std::vector<std::unique_ptr<Filter>> filters_;
     Filter* currentFilter_ = nullptr;
     Node* node_ = nullptr;
     const DDSpecParRegistry* registry_;
+    DDSpecParRefs refs_;
   };
 }  // namespace cms
 

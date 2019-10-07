@@ -85,7 +85,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const& conf,
 
   // Use LA-width from DB.
   // If both (this and from config) are false LA-width is calcuated from LA-offset
-  useLAWidthFromDB_ = conf.existsAs<bool>("useLAWidthFromDB") ? conf.getParameter<bool>("useLAWidthFromDB") : false;
+  useLAWidthFromDB_ = conf.getParameter<bool>("useLAWidthFromDB");
 
   // Use Alignment LA-offset in generic
   // (Experimental; leave commented out)
@@ -93,15 +93,9 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const& conf,
   //conf.getParameter<bool>("useLAAlignmentOffsets"):false;
 
   // Used only for testing
-  lAOffset_ = conf.existsAs<double>("lAOffset") ?  // fixed LA value
-                  conf.getParameter<double>("lAOffset")
-                                                : 0.0;
-  lAWidthBPix_ = conf.existsAs<double>("lAWidthBPix") ?  // fixed LA width
-                     conf.getParameter<double>("lAWidthBPix")
-                                                      : 0.0;
-  lAWidthFPix_ = conf.existsAs<double>("lAWidthFPix") ?  // fixed LA width
-                     conf.getParameter<double>("lAWidthFPix")
-                                                      : 0.0;
+  lAOffset_ = conf.getParameter<double>("lAOffset");
+  lAWidthBPix_ = conf.getParameter<double>("lAWidthBPix");
+  lAWidthFPix_ = conf.getParameter<double>("lAWidthFPix");
 
   // Use LA-offset from config, for testing only
   if (lAOffset_ > 0.0)
@@ -112,7 +106,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const& conf,
 
   // For Templates only
   // Compute the Lorentz shifts for this detector element for templates (from Alignment)
-  DoLorentz_ = conf.existsAs<bool>("DoLorentz") ? conf.getParameter<bool>("DoLorentz") : false;
+  DoLorentz_ = conf.getParameter<bool>("DoLorentz");
 
   LogDebug("PixelCPEBase") << " LA constants - " << lAOffset_ << " " << lAWidthBPix_ << " " << lAWidthFPix_
                            << endl;  //dk
@@ -466,4 +460,14 @@ SiPixelRecHitQuality::QualWordType PixelCPEBase::rawQualityWord(ClusterParam& th
   SiPixelRecHitQuality::thePacking.setHasFilledProb(theClusterParam.hasFilledProb_, qualWord);
 
   return qualWord;
+}
+
+void PixelCPEBase::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<bool>("LoadTemplatesFromDB", true);
+  desc.add<bool>("Alpha2Order", true);
+  desc.add<int>("ClusterProbComputationFlag", 0);
+  desc.add<bool>("useLAWidthFromDB", true);
+  desc.add<double>("lAOffset", 0.0);
+  desc.add<double>("lAWidthBPix", 0.0);
+  desc.add<double>("lAWidthFPix", 0.0);
 }

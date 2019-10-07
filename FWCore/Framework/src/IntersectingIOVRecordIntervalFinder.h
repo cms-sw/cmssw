@@ -33,23 +33,21 @@ namespace edm {
     class IntersectingIOVRecordIntervalFinder : public EventSetupRecordIntervalFinder {
     public:
       explicit IntersectingIOVRecordIntervalFinder(const EventSetupRecordKey&);
+      IntersectingIOVRecordIntervalFinder(const IntersectingIOVRecordIntervalFinder&) = delete;
+      const IntersectingIOVRecordIntervalFinder& operator=(const IntersectingIOVRecordIntervalFinder&) = delete;
       ~IntersectingIOVRecordIntervalFinder() override;
 
-      // ---------- const member functions ---------------------
-
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
       void swapFinders(std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>&);
 
     protected:
       void setIntervalFor(const EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) override;
 
     private:
-      IntersectingIOVRecordIntervalFinder(const IntersectingIOVRecordIntervalFinder&) = delete;  // stop default
+      void doResetInterval(const eventsetup::EventSetupRecordKey&) override;
 
-      const IntersectingIOVRecordIntervalFinder& operator=(const IntersectingIOVRecordIntervalFinder&) =
-          delete;  // stop default
+      bool isConcurrentFinder() const override;
+
+      bool isNonconcurrentAndIOVNeedsUpdate(const EventSetupRecordKey&, const IOVSyncValue&) const override;
 
       // ---------- member data --------------------------------
       std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>> finders_;

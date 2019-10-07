@@ -19,6 +19,7 @@ from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQM.HcalTasks.OfflineHarvestingSequence_pp import *
 from PhysicsTools.NanoAOD.nanoDQM_cff import *
 from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import *
+from DQM.CTPPS.ctppsDQM_cff import *
 
 DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              ecal_dqm_client_offline *
@@ -137,7 +138,7 @@ DQMHarvestOuterTracker = cms.Sequence(
 
 DQMHarvestLumi = cms.Sequence()
 
-DQMHarvestCTPPS = cms.Sequence()
+DQMHarvestCTPPS = cms.Sequence(ctppsDQMHarvest)
 
 DQMHarvestMuon = cms.Sequence( dtClients *
                                rpcTier0Client *

@@ -124,7 +124,7 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
   std::vector<ConcurrentMonitorElement> nhits_vs_eta, nPXBhits_vs_eta, nPXFhits_vs_eta, nPXLhits_vs_eta,
       nTIBhits_vs_eta, nTIDhits_vs_eta, nTOBhits_vs_eta, nTEChits_vs_eta, nSTRIPhits_vs_eta, nLayersWithMeas_vs_eta,
       nPXLlayersWithMeas_vs_eta, nSTRIPlayersWithMeas_vs_eta, nSTRIPlayersWith1dMeas_vs_eta,
-      nSTRIPlayersWith2dMeas_vs_eta;
+      nSTRIPlayersWith2dMeas_vs_eta, nMTDhits_vs_eta, nBTLhits_vs_eta, nETLhits_vs_eta;
 
   //---- second set of histograms (originally not used by the SeedGenerator)
   //1D
@@ -142,8 +142,9 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
   std::vector<ConcurrentMonitorElement> h_assochi2, h_assochi2_prob;
 
   //chi2 and # lost hits vs eta: to be used with doProfileX
-  std::vector<ConcurrentMonitorElement> chi2_vs_eta, nlosthits_vs_eta;
-  std::vector<ConcurrentMonitorElement> assoc_chi2_vs_eta, assoc_chi2prob_vs_eta;
+  std::vector<ConcurrentMonitorElement> chi2_vs_eta, chi2_vs_pt, nlosthits_vs_eta;
+  std::vector<ConcurrentMonitorElement> assoc_chi2_vs_eta, assoc_chi2_vs_pt, assoc_chi2prob_vs_eta,
+      assoc_chi2prob_vs_pt;
 
   //resolution of track params: to be used with fitslicesytool
   std::vector<ConcurrentMonitorElement> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
@@ -354,6 +355,7 @@ private:
   int nintMVA;
 
   const bool doSeedPlots_;
+  const bool doMTDPlots_;
 
   //
   double ptRes_rangeMin, ptRes_rangeMax;

@@ -29,7 +29,7 @@ detector segment (detID)
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class SiPixelRecHitModule {
 public:

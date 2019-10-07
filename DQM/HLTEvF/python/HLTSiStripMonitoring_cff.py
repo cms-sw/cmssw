@@ -15,7 +15,6 @@ hltESPDummyDetLayerGeometry = DummyDetLayerGeometry.clone(
 ##     make sure they are not already defined somewhereelse in the final configuration
 from RecoLocalTracker.SiPixelRecHits.PixelCPETemplateReco_cfi import templates
 hltESPPixelCPETemplateReco = templates.clone(
-  DoCosmics = cms.bool( False ),
   LoadTemplatesFromDB = cms.bool( True ),
   ComponentName = cms.string( "hltESPPixelCPETemplateReco" ),
   Alpha2Order = cms.bool( True ),
@@ -36,7 +35,6 @@ hltESPPixelCPEGeneric = PixelCPEGenericESProducer.clone(
   size_cutX = cms.double( 3.0 ),
   inflate_all_errors_no_trk_angle = cms.bool( False ),
   IrradiationBiasCorrection = cms.bool( False ),
-  TanLorentzAnglePerTesla = cms.double( 0.106 ),
   inflate_errors = cms.bool( False ),
   eff_charge_cut_lowX = cms.double( 0.0 ),
   eff_charge_cut_highY = cms.double( 1.0 ),
@@ -44,7 +42,6 @@ hltESPPixelCPEGeneric = PixelCPEGenericESProducer.clone(
   EdgeClusterErrorY = cms.double( 85.0 ),
   ComponentName = cms.string( "hltESPPixelCPEGeneric" ),
   eff_charge_cut_lowY = cms.double( 0.0 ),
-  PixelErrorParametrization = cms.string( "NOTcmsim" ),
   Alpha2Order = cms.bool( True )
 )
 

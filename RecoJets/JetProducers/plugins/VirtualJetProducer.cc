@@ -169,32 +169,32 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
   // - fastjet PU subtraction parameters (not yet considered)
   //
   if (jetAlgorithm_ == "Kt")
-    fjJetDefinition_ = JetDefPtr(new fastjet::JetDefinition(fastjet::kt_algorithm, rParam_));
+    fjJetDefinition_ = std::make_shared<fastjet::JetDefinition>(fastjet::kt_algorithm, rParam_);
 
   else if (jetAlgorithm_ == "CambridgeAachen")
-    fjJetDefinition_ = JetDefPtr(new fastjet::JetDefinition(fastjet::cambridge_algorithm, rParam_));
+    fjJetDefinition_ = std::make_shared<fastjet::JetDefinition>(fastjet::cambridge_algorithm, rParam_);
 
   else if (jetAlgorithm_ == "AntiKt")
-    fjJetDefinition_ = JetDefPtr(new fastjet::JetDefinition(fastjet::antikt_algorithm, rParam_));
+    fjJetDefinition_ = std::make_shared<fastjet::JetDefinition>(fastjet::antikt_algorithm, rParam_);
 
   else if (jetAlgorithm_ == "GeneralizedKt")
-    fjJetDefinition_ = JetDefPtr(new fastjet::JetDefinition(fastjet::genkt_algorithm, rParam_, -2));
+    fjJetDefinition_ = std::make_shared<fastjet::JetDefinition>(fastjet::genkt_algorithm, rParam_, -2);
 
   else if (jetAlgorithm_ == "SISCone") {
     fjPlugin_ = PluginPtr(new fastjet::SISConePlugin(rParam_, 0.75, 0, 0.0, false, fastjet::SISConePlugin::SM_pttilde));
-    fjJetDefinition_ = JetDefPtr(new fastjet::JetDefinition(&*fjPlugin_));
+    fjJetDefinition_ = std::make_shared<fastjet::JetDefinition>(&*fjPlugin_);
 
   } else if (jetAlgorithm_ == "IterativeCone") {
     fjPlugin_ = PluginPtr(new fastjet::CMSIterativeConePlugin(rParam_, 1.0));
-    fjJetDefinition_ = JetDefPtr(new fastjet::JetDefinition(&*fjPlugin_));
+    fjJetDefinition_ = std::make_shared<fastjet::JetDefinition>(&*fjPlugin_);
 
   } else if (jetAlgorithm_ == "CDFMidPoint") {
     fjPlugin_ = PluginPtr(new fastjet::CDFMidPointPlugin(rParam_, 0.75));
-    fjJetDefinition_ = JetDefPtr(new fastjet::JetDefinition(&*fjPlugin_));
+    fjJetDefinition_ = std::make_shared<fastjet::JetDefinition>(&*fjPlugin_);
 
   } else if (jetAlgorithm_ == "ATLASCone") {
     fjPlugin_ = PluginPtr(new fastjet::ATLASConePlugin(rParam_));
-    fjJetDefinition_ = JetDefPtr(new fastjet::JetDefinition(&*fjPlugin_));
+    fjJetDefinition_ = std::make_shared<fastjet::JetDefinition>(&*fjPlugin_);
 
   } else {
     throw cms::Exception("Invalid jetAlgorithm") << "Jet algorithm for VirtualJetProducer is invalid, Abort!\n";
@@ -206,9 +206,9 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
     if (puSubtractorName_.empty()) {
       LogWarning("VirtualJetProducer")
           << "Pile Up correction on; however, pile up type is not specified. Using default... \n";
-      subtractor_ = boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig, consumesCollector()));
+      subtractor_ = std::make_shared<PileUpSubtractor>(iConfig, consumesCollector());
     } else
-      subtractor_ = boost::shared_ptr<PileUpSubtractor>(
+      subtractor_ = std::shared_ptr<PileUpSubtractor>(
           PileUpSubtractorFactory::get()->create(puSubtractorName_, iConfig, consumesCollector()));
   }
 
@@ -220,16 +220,16 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 
   if (doAreaFastjet_ || doRhoFastjet_) {
     if (voronoiRfact_ <= 0) {
-      fjActiveArea_ = ActiveAreaSpecPtr(new fastjet::GhostedAreaSpec(ghostEtaMax_, activeAreaRepeats_, ghostArea_));
+      fjActiveArea_ = std::make_shared<fastjet::GhostedAreaSpec>(ghostEtaMax_, activeAreaRepeats_, ghostArea_);
 
       if (!useExplicitGhosts_) {
-        fjAreaDefinition_ = AreaDefinitionPtr(new fastjet::AreaDefinition(fastjet::active_area, *fjActiveArea_));
+        fjAreaDefinition_ = std::make_shared<fastjet::AreaDefinition>(fastjet::active_area, *fjActiveArea_);
       } else {
         fjAreaDefinition_ =
-            AreaDefinitionPtr(new fastjet::AreaDefinition(fastjet::active_area_explicit_ghosts, *fjActiveArea_));
+            std::make_shared<fastjet::AreaDefinition>(fastjet::active_area_explicit_ghosts, *fjActiveArea_);
       }
     }
-    fjSelector_ = SelectorPtr(new fastjet::Selector(fastjet::SelectorAbsRapMax(rhoEtaMax_)));
+    fjSelector_ = std::make_shared<fastjet::Selector>(fastjet::SelectorAbsRapMax(rhoEtaMax_));
   }
 
   if ((doFastJetNonUniform_) && (puCenters_.empty()))

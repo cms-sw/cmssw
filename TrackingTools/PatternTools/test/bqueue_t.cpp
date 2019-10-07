@@ -47,6 +47,15 @@ int main() {
   assert(cont.shared());
   assert(cont3.shared());
   verifySeq(cont3);
+  // copy assign
+  {
+    Cont cont_assign;
+    cont_assign = cont;
+    assert(cont.size() == cont_assign.size());
+    assert(cont.shared());
+    assert(cont_assign.shared());
+    verifySeq(cont_assign);
+  }
   // add
   cont.push_back(Cont::value_type(new int(10)));
   assert((*cont.back()) == 10);

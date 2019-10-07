@@ -2,7 +2,7 @@
 #define __PUSubtractor__
 
 #include <vector>
-#include "boost/shared_ptr.hpp"
+
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequenceArea.hh"
@@ -22,10 +22,10 @@
 
 class PileUpSubtractor {
 public:
-  typedef boost::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
-  typedef boost::shared_ptr<fastjet::GhostedAreaSpec> ActiveAreaSpecPtr;
-  typedef boost::shared_ptr<fastjet::RangeDefinition> RangeDefPtr;
-  typedef boost::shared_ptr<fastjet::JetDefinition> JetDefPtr;
+  typedef std::shared_ptr<fastjet::ClusterSequence> ClusterSequencePtr;
+  typedef std::shared_ptr<fastjet::GhostedAreaSpec> ActiveAreaSpecPtr;
+  typedef std::shared_ptr<fastjet::RangeDefinition> RangeDefPtr;
+  typedef std::shared_ptr<fastjet::JetDefinition> JetDefPtr;
 
   PileUpSubtractor(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
   virtual ~PileUpSubtractor() { ; }

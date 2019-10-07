@@ -58,6 +58,12 @@ process.intvecstdvecptr = cms.EDProducer("IntVecStdVectorPtrProducer",
                                       target = cms.InputTag('intvec')
                                       )
 
+process.intvecstdvecuniqptr = cms.EDProducer("UniqPtrIntVectorProducer",
+    count = cms.int32(9),
+    ivalue = cms.int32(11),
+    delta = cms.int32(1)
+)
+
 process.ovsimple = cms.EDProducer("OVSimpleProducer",
     size = cms.int32(7)
 )
@@ -87,5 +93,6 @@ process.p = cms.Path(process.simple +
                      process.intvecrefvec +
                      process.intvecreftbvec +
                      process.intvecptrvec +
-                     process.intvecstdvecptr)
+                     process.intvecstdvecptr +
+                     process.intvecstdvecuniqptr)
 process.e1 = cms.EndPath(process.testview)

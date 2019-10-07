@@ -27,6 +27,7 @@
 
 //--- For the configuration:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
@@ -127,6 +128,8 @@ public:
                const SiPixelLorentzAngle* lorentzAngleWidth,
                int flag = 0  // flag=0 for generic, =1 for templates
   );                         // NEW
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
   //--------------------------------------------------------------------------
   // Allow the magnetic field to be set/updated later.

@@ -95,6 +95,13 @@ DTDigitizer::DTDigitizer(const ParameterSet &conf_)
   // it uses a constant drift velocity and doesn't set any external delay
   IdealModel = conf_.getParameter<bool>("IdealModel");
 
+  // Flag to specify that we want digis in phase-2 units (25./30. ns)
+  // instead that the old units (25./32.)
+  if (conf_.getParameter<bool>("phase2Digis"))
+    base = 30;
+  else
+    base = 32;
+
   // Constant drift velocity needed by the above flag
   if (IdealModel)
     theConstVDrift = conf_.getParameter<double>("IdealModelConstantDriftVelocity");  // 55 um/ns
@@ -518,12 +525,12 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
       // Note that digi is constructed with a float value (in ns)
       int wireN = wireId.wire();
       digiN++;
-      digi = DTDigi(wireN, time, digiN);
+      digi = DTDigi(wireN, time, digiN, base);
 
       // Add association between THIS digi and the corresponding SimTrack
       unsigned int SimTrackId = (*hit).first->trackId();
       EncodedEventId evId = (*hit).first->eventId();
-      DTDigiSimLink digisimLink(wireN, digiN, time, SimTrackId, evId);
+      DTDigiSimLink digisimLink(wireN, digiN, time, SimTrackId, evId, base);
 
       if (debug) {
         LogPrint("DTDigitizer") << endl << "---- DTDigitizer ----" << endl;
@@ -534,20 +541,16 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
       }
 
       //************ 7D ***************
-      if (digi.countsTDC() < pow(2., 16)) {
-        DTLayerId layerID = wireId.layerId();  // taking the layer in which reside the wire
-        output.insertDigi(layerID, digi);      // ordering Digis by layer
-        outputLinks.insertDigi(layerID, digisimLink);
-        wakeTime = time + deadTime;
-        resolTime = time + LinksTimeWindow;
-      } else {
-        digiN--;
-      }
+      DTLayerId layerID = wireId.layerId();  // taking the layer of the wire
+      output.insertDigi(layerID, digi);      // ordering Digis by layer
+      outputLinks.insertDigi(layerID, digisimLink);
+      wakeTime = time + deadTime;
+      resolTime = time + LinksTimeWindow;
     } else if (MultipleLinks && time < resolTime) {
       int wireN = wireId.wire();
       unsigned int SimTrackId = (*hit).first->trackId();
       EncodedEventId evId = (*hit).first->eventId();
-      DTDigiSimLink digisimLink(wireN, digiN, time, SimTrackId, evId);
+      DTDigiSimLink digisimLink(wireN, digiN, time, SimTrackId, evId, base);
       DTLayerId layerID = wireId.layerId();
       outputLinks.insertDigi(layerID, digisimLink);
 

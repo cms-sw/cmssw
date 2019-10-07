@@ -1,0 +1,8 @@
+<use   name="CondCore/CondDB"/>
+<use   name="CondCore/Utilities"/>
+<use   name="CondFormats/Common"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Utilities"/>
+<use   name="CalibTracker/StandaloneTrackerTopology"/>
+<bin   file="testSiPixelPayloadInspector.cpp" name="testPixelPayloadInspector">
+</bin>

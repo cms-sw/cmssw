@@ -8,13 +8,14 @@
 /**
  * Classes which abuilds all the tracker substructures
  */
-class CmsTrackerSubStrctBuilder : public CmsTrackerLevelBuilder {
+template <class FilteredView>
+class CmsTrackerSubStrctBuilder : public CmsTrackerLevelBuilder<FilteredView> {
 public:
-  CmsTrackerSubStrctBuilder();
+  CmsTrackerSubStrctBuilder() {}
 
 private:
-  void sortNS(DDFilteredView&, GeometricDet*) override;
-  void buildComponent(DDFilteredView&, GeometricDet*, std::string) override;
+  void sortNS(FilteredView&, GeometricDet*) override;
+  void buildComponent(FilteredView&, GeometricDet*, const std::string&) override;
 };
 
 #endif

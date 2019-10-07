@@ -21,7 +21,6 @@
 #include <utility>
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "Alignment/Geners/interface/CompressedIO.hh"
 #include "Alignment/Geners/interface/StringArchive.hh"
@@ -40,7 +39,7 @@
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableRcd.h"
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableSequence.h"
 
-typedef boost::shared_ptr<npstat::StorableMultivariateFunctor> StorableFunctorPtr;
+typedef std::shared_ptr<npstat::StorableMultivariateFunctor> StorableFunctorPtr;
 
 static void insertLUTItem(FFTJetLookupTableSequence& seq,
                           StorableFunctorPtr fptr,

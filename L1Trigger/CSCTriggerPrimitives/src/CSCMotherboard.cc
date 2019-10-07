@@ -154,7 +154,7 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
       // correlated LCT to be formed.  Decision on whether to reject
       // non-complete LCTs (and if yes of which type) is made further
       // upstream.
-      if (clctProc->bestCLCT[bx_clct].isValid()) {
+      if (clctProc->getBestCLCT(bx_clct).isValid()) {
         // Look for ALCTs within the match-time window.  The window is
         // centered at the CLCT bx; therefore, we make an assumption
         // that anode and cathode hits are perfectly synchronized.  This
@@ -164,8 +164,8 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
         // need to access "full BX" words, which are not readily
         // available.
         bool is_matched = false;
-        const int bx_alct_start = bx_clct - match_trig_window_size / 2 + alctClctOffset_;
-        const int bx_alct_stop = bx_clct + match_trig_window_size / 2 + alctClctOffset_;
+        const int bx_alct_start = bx_clct - match_trig_window_size / 2;
+        const int bx_alct_stop = bx_clct + match_trig_window_size / 2;
 
         for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
           if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS)
@@ -173,14 +173,14 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
           // default: do not reuse ALCTs that were used with previous CLCTs
           if (drop_used_alcts && used_alct_mask[bx_alct])
             continue;
-          if (alctProc->bestALCT[bx_alct].isValid()) {
+          if (alctProc->getBestALCT(bx_alct).isValid()) {
             if (infoV > 1)
               LogTrace("CSCMotherboard") << "Successful CLCT-ALCT match: bx_clct = " << bx_clct << "; match window: ["
                                          << bx_alct_start << "; " << bx_alct_stop << "]; bx_alct = " << bx_alct;
-            correlateLCTs(alctProc->bestALCT[bx_alct],
-                          alctProc->secondALCT[bx_alct],
-                          clctProc->bestCLCT[bx_clct],
-                          clctProc->secondCLCT[bx_clct],
+            correlateLCTs(alctProc->getBestALCT(bx_alct),
+                          alctProc->getSecondALCT(bx_alct),
+                          clctProc->getBestCLCT(bx_clct),
+                          clctProc->getSecondCLCT(bx_clct),
                           CSCCorrelatedLCTDigi::CLCTALCT);
             used_alct_mask[bx_alct] += 1;
             is_matched = true;
@@ -193,12 +193,12 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
         if (!is_matched and clct_trig_enable) {
           if (infoV > 1)
             LogTrace("CSCMotherboard") << "Unsuccessful CLCT-ALCT match (CLCT only): bx_clct = " << bx_clct
-                                       << " first ALCT " << clctProc->bestCLCT[bx_clct] << "; match window: ["
+                                       << " first ALCT " << clctProc->getBestCLCT(bx_clct) << "; match window: ["
                                        << bx_alct_start << "; " << bx_alct_stop << "]";
-          correlateLCTs(alctProc->bestALCT[bx_clct],
-                        alctProc->secondALCT[bx_clct],
-                        clctProc->bestCLCT[bx_clct],
-                        clctProc->secondCLCT[bx_clct],
+          correlateLCTs(alctProc->getBestALCT(bx_clct),
+                        alctProc->getSecondALCT(bx_clct),
+                        clctProc->getBestCLCT(bx_clct),
+                        clctProc->getSecondCLCT(bx_clct),
                         CSCCorrelatedLCTDigi::CLCTONLY);
         }
       }
@@ -209,13 +209,13 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
       else {
         int bx_alct = bx_clct - match_trig_window_size / 2;
         if (bx_alct >= 0 && bx_alct > bx_alct_matched) {
-          if (alctProc->bestALCT[bx_alct].isValid() and alct_trig_enable) {
+          if (alctProc->getBestALCT(bx_alct).isValid() and alct_trig_enable) {
             if (infoV > 1)
               LogTrace("CSCMotherboard") << "Unsuccessful CLCT-ALCT match (ALCT only): bx_alct = " << bx_alct;
-            correlateLCTs(alctProc->bestALCT[bx_alct],
-                          alctProc->secondALCT[bx_alct],
-                          clctProc->bestCLCT[bx_clct],
-                          clctProc->secondCLCT[bx_clct],
+            correlateLCTs(alctProc->getBestALCT(bx_alct),
+                          alctProc->getSecondALCT(bx_alct),
+                          clctProc->getBestCLCT(bx_clct),
+                          clctProc->getSecondCLCT(bx_clct),
                           CSCCorrelatedLCTDigi::ALCTONLY);
           }
         }
@@ -234,7 +234,7 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
       // correlated LCT to be formed.  Decision on whether to reject
       // non-complete LCTs (and if yes of which type) is made further
       // upstream.
-      if (alctProc->bestALCT[bx_alct].isValid()) {
+      if (alctProc->getBestALCT(bx_alct).isValid()) {
         // Look for CLCTs within the match-time window.  The window is
         // centered at the ALCT bx; therefore, we make an assumption
         // that anode and cathode hits are perfectly synchronized.  This
@@ -244,8 +244,8 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
         // need to access "full BX" words, which are not readily
         // available.
         bool is_matched = false;
-        const int bx_clct_start = bx_alct - match_trig_window_size / 2 - alctClctOffset_;
-        const int bx_clct_stop = bx_alct + match_trig_window_size / 2 - alctClctOffset_;
+        const int bx_clct_start = bx_alct - match_trig_window_size / 2;
+        const int bx_clct_stop = bx_alct + match_trig_window_size / 2;
 
         for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++) {
           if (bx_clct < 0 || bx_clct >= CSCConstants::MAX_CLCT_TBINS)
@@ -253,14 +253,14 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
           // default: do not reuse CLCTs that were used with previous ALCTs
           if (drop_used_clcts && used_clct_mask[bx_clct])
             continue;
-          if (clctProc->bestCLCT[bx_clct].isValid()) {
+          if (clctProc->getBestCLCT(bx_clct).isValid()) {
             if (infoV > 1)
               LogTrace("CSCMotherboard") << "Successful ALCT-CLCT match: bx_alct = " << bx_alct << "; match window: ["
                                          << bx_clct_start << "; " << bx_clct_stop << "]; bx_clct = " << bx_clct;
-            correlateLCTs(alctProc->bestALCT[bx_alct],
-                          alctProc->secondALCT[bx_alct],
-                          clctProc->bestCLCT[bx_clct],
-                          clctProc->secondCLCT[bx_clct],
+            correlateLCTs(alctProc->getBestALCT(bx_alct),
+                          alctProc->getSecondALCT(bx_alct),
+                          clctProc->getBestCLCT(bx_clct),
+                          clctProc->getSecondCLCT(bx_clct),
                           CSCCorrelatedLCTDigi::ALCTCLCT);
             used_clct_mask[bx_clct] += 1;
             is_matched = true;
@@ -273,13 +273,13 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
         if (!is_matched) {
           if (infoV > 1)
             LogTrace("CSCMotherboard") << "Unsuccessful ALCT-CLCT match (ALCT only): bx_alct = " << bx_alct
-                                       << " first ALCT " << alctProc->bestALCT[bx_alct] << "; match window: ["
+                                       << " first ALCT " << alctProc->getBestALCT(bx_alct) << "; match window: ["
                                        << bx_clct_start << "; " << bx_clct_stop << "]";
           if (alct_trig_enable)
-            correlateLCTs(alctProc->bestALCT[bx_alct],
-                          alctProc->secondALCT[bx_alct],
-                          clctProc->bestCLCT[bx_alct],
-                          clctProc->secondCLCT[bx_alct],
+            correlateLCTs(alctProc->getBestALCT(bx_alct),
+                          alctProc->getSecondALCT(bx_alct),
+                          clctProc->getBestCLCT(bx_alct),
+                          clctProc->getSecondCLCT(bx_alct),
                           CSCCorrelatedLCTDigi::ALCTONLY);
         }
       }
@@ -290,13 +290,13 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
       else {
         int bx_clct = bx_alct - match_trig_window_size / 2;
         if (bx_clct >= 0 && bx_clct > bx_clct_matched) {
-          if (clctProc->bestCLCT[bx_clct].isValid() and clct_trig_enable) {
+          if (clctProc->getBestCLCT(bx_clct).isValid() and clct_trig_enable) {
             if (infoV > 1)
               LogTrace("CSCMotherboard") << "Unsuccessful ALCT-CLCT match (CLCT only): bx_clct = " << bx_clct;
-            correlateLCTs(alctProc->bestALCT[bx_alct],
-                          alctProc->secondALCT[bx_alct],
-                          clctProc->bestCLCT[bx_clct],
-                          clctProc->secondCLCT[bx_clct],
+            correlateLCTs(alctProc->getBestALCT(bx_alct),
+                          alctProc->getSecondALCT(bx_alct),
+                          clctProc->getBestCLCT(bx_clct),
+                          clctProc->getSecondCLCT(bx_clct),
                           CSCCorrelatedLCTDigi::CLCTONLY);
           }
         }
@@ -482,9 +482,9 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   CSCCorrelatedLCTDigi thisLCT(
       trknmb, 1, quality, aLCT.getKeyWG(), cLCT.getKeyStrip(), pattern, cLCT.getBend(), bx, 0, 0, 0, theTrigChamber);
   thisLCT.setType(type);
-  // make sure to shift the ALCT BX from 8 to 3!
+  // make sure to shift the ALCT BX from 8 to 3 and the CLCT BX from 8 to 7!
   thisLCT.setALCT(getBXShiftedALCT(aLCT));
-  thisLCT.setCLCT(cLCT);
+  thisLCT.setCLCT(getBXShiftedCLCT(cLCT));
   return thisLCT;
 }
 
@@ -637,4 +637,10 @@ CSCALCTDigi CSCMotherboard::getBXShiftedALCT(const CSCALCTDigi& aLCT) const {
   CSCALCTDigi aLCT_shifted = aLCT;
   aLCT_shifted.setBX(aLCT_shifted.getBX() - (CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size / 2));
   return aLCT_shifted;
+}
+
+CSCCLCTDigi CSCMotherboard::getBXShiftedCLCT(const CSCCLCTDigi& cLCT) const {
+  CSCCLCTDigi cLCT_shifted = cLCT;
+  cLCT_shifted.setBX(cLCT_shifted.getBX() - alctClctOffset_);
+  return cLCT_shifted;
 }

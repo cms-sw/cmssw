@@ -5,13 +5,16 @@
 #define __RecoHGCal_TICL_HGCGraph_H__
 
 #include <vector>
+
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
+#include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "HGCDoublet.h"
 
 class HGCGraph {
 public:
   void makeAndConnectDoublets(const TICLLayerTiles &h,
+                              const std::vector<TICLSeedingRegion> &regions,
                               int nEtaBins,
                               int nPhiBins,
                               const std::vector<reco::CaloCluster> &layerClusters,
@@ -28,7 +31,11 @@ public:
   bool areTimeCompatible(int innerIdx, int outerIdx, const edm::ValueMap<float> &layerClustersTime, float maxDeltaTime);
 
   std::vector<HGCDoublet> &getAllDoublets() { return allDoublets_; }
-  void findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets, const unsigned int minClustersPerNtuplet);
+  void findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
+                    std::vector<int> &seedIndices,
+                    const unsigned int minClustersPerNtuplet,
+                    const bool outInDFS,
+                    const unsigned int maxOutInHops);
   void clear() {
     allDoublets_.clear();
     theRootDoublets_.clear();

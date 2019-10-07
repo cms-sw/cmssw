@@ -186,16 +186,17 @@ Alignable *PedeReader::setParameter(unsigned int paramLabel,
     switch (bufLength) {
       case 5:  // global correlation
         if (userParams)
-          userParams->globalCor()[paramNum] = buf[4];  // no break
-      case 4:                                          // uncertainty
+          userParams->globalCor()[paramNum] = buf[4];
+        [[fallthrough]];
+      case 4:  // uncertainty
         if (userParams)
           userParams->sigma()[paramNum] = buf[3] / cmsToPede;
         covMat[paramNum][paramNum] = buf[3] * buf[3] / (cmsToPede * cmsToPede);
-        // no break;
+        [[fallthrough]];
       case 3:  // difference to start value
         if (userParams)
           userParams->diffBefore()[paramNum] = buf[2] / cmsToPede;
-        // no break
+        [[fallthrough]];
       case 2:
         params->setValid(true);
         parVec[paramNum] = buf[0] / cmsToPede * mySteerer.parameterSign();  // parameter
@@ -245,10 +246,11 @@ bool PedeReader::setCalibrationParameter(IntegratedCalibrationBase *calib,
   // FIXME: Should we attach MillePedeVariables to IntegratedCalibrationBase to store
   //        'other' results beyond value and error?
   switch (bufLength) {
-    case 5:                                        // buf[4]: global correlation - not treated yet FIXME // no break;
-    case 4:                                        // uncertainty
-      calib->setParameterError(paramNum, buf[3]);  // no break;
-    case 3:                                        // buf[2]: difference to start value - not treated yet // no break;
+    case 5:  // buf[4]: global correlation - not treated yet FIXME // no break;
+    case 4:  // uncertainty
+      calib->setParameterError(paramNum, buf[3]);
+      [[fallthrough]];
+    case 3:  // buf[2]: difference to start value - not treated yet
     case 2:
       if (bufLength == 2 && buf[1] >= 0.) {  // buf[1]: pre-sigma, < 0 means fixed
         edm::LogWarning("Alignment") << "@SUB=PedeReader::setCalibrationParameter"

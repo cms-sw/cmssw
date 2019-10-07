@@ -12,7 +12,6 @@
 #include <vector>
 #include <algorithm>
 #include <limits>
-#include <boost/shared_ptr.hpp>
 
 /** A class for detailed particle trajectory representation.
  *  It is used during trajectory building to "grow" a trajectory.
@@ -68,7 +67,7 @@ public:
    *  No check is made in the push method that measurements are
    *  added in the correct direction.
    */
-  Trajectory(const boost::shared_ptr<const TrajectorySeed>& seed, PropagationDirection dir)
+  Trajectory(const std::shared_ptr<const TrajectorySeed>& seed, PropagationDirection dir)
       : theSeed(seed), theDirection(dir), theDirectionValidity(true), theValid(true) {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -313,8 +312,8 @@ public:
   /// It doesn't reverse the forward and backward predicted states within each trajectory measurement
   void reverse();
 
-  const boost::shared_ptr<const TrajectorySeed>& sharedSeed() const { return theSeed; }
-  void setSharedSeed(const boost::shared_ptr<const TrajectorySeed>& seed) { theSeed = seed; }
+  const std::shared_ptr<const TrajectorySeed>& sharedSeed() const { return theSeed; }
+  void setSharedSeed(const std::shared_ptr<const TrajectorySeed>& seed) { theSeed = seed; }
 
   /// accessor to the delta phi angle betweem the directions of the two measurements on the last
   /// two layers crossed by the trajectory
@@ -342,7 +341,7 @@ private:
   bool badForCCC(const TrajectoryMeasurement& tm);
   void updateBadForCCC(float ccc_threshold);
 
-  boost::shared_ptr<const TrajectorySeed> theSeed;
+  std::shared_ptr<const TrajectorySeed> theSeed;
   edm::RefToBase<TrajectorySeed> seedRef_;
 
   DataContainer theData;

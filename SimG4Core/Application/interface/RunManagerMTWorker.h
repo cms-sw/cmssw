@@ -62,7 +62,7 @@ public:
   SimTrackManager* GetSimTrackManager();
   std::vector<SensitiveTkDetector*>& sensTkDetectors();
   std::vector<SensitiveCaloDetector*>& sensCaloDetectors();
-  std::vector<std::shared_ptr<SimProducer> > producers();
+  std::vector<std::shared_ptr<SimProducer> >& producers();
 
 private:
   void initializeTLS();

@@ -13,7 +13,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <string>
 #include <vector>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace pat {
   struct Flags {

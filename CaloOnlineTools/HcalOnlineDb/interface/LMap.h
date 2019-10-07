@@ -10,9 +10,7 @@
  Description: interface to the HCAL logical map
 
  Usage:
-    #include <boost/boost::shared_ptr.hpp>
-
-    boost::shared_ptr<LMap> the_map(new LMap);
+    std::shared_ptr<LMap> the_map(new LMap);
     the_map -> read( "your-accessor-string", "optional map type" );
 
 */
@@ -25,7 +23,6 @@
 #include <vector>
 #include <cstring>
 #include <fstream>
-#include <boost/shared_ptr.hpp>
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabase.hh"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -77,7 +74,7 @@ public:
 
 private:
   class impl;
-  boost::shared_ptr<impl> p_impl;
+  std::shared_ptr<impl> p_impl;
 };
 
 class EMap {
@@ -135,7 +132,7 @@ public:
   int test_read(std::string accessor, std::string type = "HBEF");
 
 private:
-  boost::shared_ptr<LMap> _lmap;
+  std::shared_ptr<LMap> _lmap;
 };
 
 class EMap_test {

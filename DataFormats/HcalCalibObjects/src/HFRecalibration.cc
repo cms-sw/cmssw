@@ -35,7 +35,7 @@ double HFRecalibration::getCorr(int ieta, int depth, double lumi) {
   switch (depth) {
     case 1:
       reCalFactor = (1 + HFParsAB[0][0][ieta] * sqrt(lumi) + HFParsAB[0][1][ieta] * lumi);
-
+      break;
     case 2:
       reCalFactor = (1 + HFParsAB[1][0][ieta] * sqrt(lumi) + HFParsAB[1][1][ieta] * lumi);
   }

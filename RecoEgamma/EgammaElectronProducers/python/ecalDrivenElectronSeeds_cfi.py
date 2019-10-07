@@ -98,6 +98,10 @@ phase2_hgcal.toModify(
     SeedConfiguration = dict( allowHGCal = True )
 )
 
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(ecalDrivenElectronSeeds.SeedConfiguration,
+                           LowPtThreshold =1.0,
+                           applyHOverECut = False) 
 
 # create ecal driven seeds for electron using HGCal Multiclusters
 ecalDrivenElectronSeedsFromMultiCl = ecalDrivenElectronSeeds.clone(

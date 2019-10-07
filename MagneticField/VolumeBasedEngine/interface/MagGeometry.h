@@ -9,7 +9,6 @@
 
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "MagneticField/Layers/src/MagBinFinders.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include <vector>
 #include <atomic>

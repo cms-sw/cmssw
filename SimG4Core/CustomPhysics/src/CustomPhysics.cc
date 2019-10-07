@@ -11,13 +11,10 @@
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
-#include "G4DataQuestionaire.hh"
 #include "G4HadronPhysicsFTFP_BERT.hh"
 #include "G4SystemOfUnits.hh"
 
 CustomPhysics::CustomPhysics(const edm::ParameterSet& p) : PhysicsList(p) {
-  G4DataQuestionaire it(photon);
-
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
   bool tracking = p.getParameter<bool>("TrackingCut");
   bool ssPhys = p.getUntrackedParameter<bool>("ExoticaPhysicsSS", false);

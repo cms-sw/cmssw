@@ -31,7 +31,6 @@ concurrent.futures
 h5py
 hep_ml
 histbook
-histogrammar
 html5lib
 hyperas
 hyperopt

@@ -3,37 +3,11 @@
 
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 
-// When old DD is eliminated, remove this include
-#include "DetectorDescription/Core/interface/DDSolidShapes.h"
-
 namespace cms {
-  namespace dd {
 
-    // When old DD is eliminated, uncomment this enum
-    /*
-      enum class DDSolidShape {
-        dd_not_init = 0,
-        ddbox = 1,
-        ddtubs = 2,
-        ddtrap = 3,
-        ddcons = 4,
-        ddpolycone_rz = 5,
-        ddpolyhedra_rz = 6,
-        ddpolycone_rrz = 7,
-        ddpolyhedra_rrz = 8,
-        ddtorus = 9,
-        ddunion = 10,
-        ddsubtraction = 11,
-        ddintersection = 12,
-        ddshapeless = 13,
-        ddpseudotrap = 14,
-        ddtrunctubs = 15,
-        ddsphere = 16,
-        ddellipticaltube = 17,
-        ddcuttubs = 18,
-        ddextrudedpolygon = 19,
-      };
-      */
+  enum class DDSolidShape;
+
+  namespace dd {
 
     DDSolidShape getCurrentShape(const cms::DDFilteredView &fview);
 

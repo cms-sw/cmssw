@@ -45,6 +45,8 @@ supportedBtagInfos = [
   , 'pfDeepDoubleXTagInfos'
     # DeepBoostedJet tag infos
   , 'pfDeepBoostedJetTagInfos'
+    # Pixel Cluster tag infos
+  , 'pixelClusterTagInfos'
   ]
 # extend for "internal use" in PAT/MINIAOD (renaming)
 supportedBtagInfos.append( 'caTopTagInfosPAT' )

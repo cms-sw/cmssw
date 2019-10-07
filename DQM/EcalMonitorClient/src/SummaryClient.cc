@@ -111,11 +111,11 @@ namespace ecaldqm {
 
       // Initialize individual Quality Summaries
       // NOTE: These represent quality over *cumulative* statistics
-      int integrity(sIntegrity ? sIntegrity->getBinContent(id) : kUnknown);
-      int presample(sPresample ? sPresample->getBinContent(id) : kUnknown);
-      int hotcell(sHotCell ? sHotCell->getBinContent(id) : kUnknown);
-      int timing(sTiming ? sTiming->getBinContent(id) : kUnknown);
-      int trigprim(sTriggerPrimitives ? sTriggerPrimitives->getBinContent(id) : kUnknown);
+      int integrity(sIntegrity ? (int)sIntegrity->getBinContent(id) : kUnknown);
+      int presample(sPresample ? (int)sPresample->getBinContent(id) : kUnknown);
+      int hotcell(sHotCell ? (int)sHotCell->getBinContent(id) : kUnknown);
+      int timing(sTiming ? (int)sTiming->getBinContent(id) : kUnknown);
+      int trigprim(sTriggerPrimitives ? (int)sTriggerPrimitives->getBinContent(id) : kUnknown);
       int rawdata(sRawData.getBinContent(id));
 
       double rawdataLS(sFEStatusErrMapByLumi.getBinContent(id));  // Includes FE=Disabled

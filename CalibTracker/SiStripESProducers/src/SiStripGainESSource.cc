@@ -3,7 +3,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
-#include "boost/cstdint.hpp"
 #include <iostream>
 
 using namespace sistrip;

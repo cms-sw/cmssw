@@ -7,7 +7,6 @@
 #ifndef FP420NumberingScheme_h
 #define FP420NumberingScheme_h
 
-#include <boost/cstdint.hpp>
 #include <map>
 
 class G4Step;

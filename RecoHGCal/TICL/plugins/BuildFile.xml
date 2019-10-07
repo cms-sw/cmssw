@@ -11,6 +11,10 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/MessageService"/>
 <use   name="Geometry/HGCalGeometry"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="TrackingTools/Records"/>
+<use   name="Geometry/Records"/>
+<use   name="PhysicsTools/TensorFlow"/>
 
 <library   file="*.cc" name="RecoHGCalTICLPlugins">
   <flags   EDM_PLUGIN="1"/>

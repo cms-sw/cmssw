@@ -262,7 +262,7 @@ namespace edm {
     bool found = rootFile()->readCurrentEvent(cache);
     if (!found) {
       rootFile()->setAtEventEntry(0);
-      bool found = rootFile()->readCurrentEvent(cache);
+      found = rootFile()->readCurrentEvent(cache);
       assert(found);
     }
     fileNameHash = lfnHash();
@@ -292,8 +292,8 @@ namespace edm {
       assert(found);
       int eventInLumi = CLHEP::RandFlat::shootInt(engine, eventsInLumi);
       for (int i = 0; i < eventInLumi; ++i) {
-        bool found = rootFile()->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
-        assert(found);
+        bool foundEventInLumi = rootFile()->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
+        assert(foundEventInLumi);
       }
     }
     assert(rootFile());
@@ -302,7 +302,7 @@ namespace edm {
       found = rootFile()->readCurrentEvent(cache);
     }
     if (!found) {
-      bool found = rootFile()->setEntryAtItem(id.run(), id.luminosityBlock(), 0);
+      found = rootFile()->setEntryAtItem(id.run(), id.luminosityBlock(), 0);
       if (!found) {
         return false;
       }

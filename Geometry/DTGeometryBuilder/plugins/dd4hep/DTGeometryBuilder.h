@@ -36,10 +36,10 @@ namespace cms {
     void buildGeometry(DDFilteredView&, DTGeometry&, const MuonNumbering&) const;
 
     /// create the chamber
-    DTChamber* buildChamber(const DDFilteredView&, const MuonNumbering&) const;
+    DTChamber* buildChamber(DDFilteredView&, const MuonNumbering&) const;
 
     /// create the SL
-    DTSuperLayer* buildSuperLayer(const DDFilteredView&, DTChamber*, const MuonNumbering&) const;
+    DTSuperLayer* buildSuperLayer(DDFilteredView&, DTChamber*, const MuonNumbering&) const;
 
     /// create the layer
     DTLayer* buildLayer(DDFilteredView&, DTSuperLayer*, const MuonNumbering&) const;

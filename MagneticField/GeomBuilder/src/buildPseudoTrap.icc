@@ -1,5 +1,6 @@
 /*
  *  Compute parameters for a pseudotrapezoid .
+ *  NOTE: The pseudotrapezoid is no longer needed or support for DD4hep.
  *  For pseudotraps the refPlane is parallel to beam line; transformation:
  *
  *  Global(for vol at pi/2)    Local 
@@ -10,42 +11,37 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &fv) {
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "Building PseudoTrap surfaces...: " << endl;
+void volumeHandle::buildPseudoTrap() {
+  LogTrace("magneticfield::volumeHandle") << "Building PseudoTrap surfaces...: ";
 
   DDPseudoTrap ptrap(solid);
 
-  double halfZ = ptrap.halfZ() / cm;
-  double x1 = ptrap.x1() / cm;
-  double x2 = ptrap.x2() / cm;
-  double y1 = ptrap.y1() / cm;
-  double y2 = ptrap.y2() / cm;
-  double radius = ptrap.radius() / cm;
+  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
+  // convertUnits should be defined appropriately.
+  double halfZ = convertUnits(ptrap.halfZ());
+  double x1 = convertUnits(ptrap.x1());
+  double x2 = convertUnits(ptrap.x2());
+  double y1 = convertUnits(ptrap.y1());
+  double y2 = convertUnits(ptrap.y2());
+  double radius = convertUnits(ptrap.radius());
   bool atMinusZ = ptrap.atMinusZ();
 
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "halfZ     " << halfZ << endl
-         << "x1        " << x1 << endl
-         << "x2        " << x2 << endl
-         << "y1        " << y1 << endl
-         << "y2        " << y2 << endl
-         << "radius    " << radius << endl
-         << "atMinusZ  " << atMinusZ << endl;
+  LogTrace("magneticfield::volumeHandle")
+      << "halfZ     " << halfZ << newln << "x1        " << x1 << newln << "x2        " << x2 << newln << "y1        "
+      << y1 << newln << "y2        " << y2 << newln << "radius    " << radius << newln << "atMinusZ  " << atMinusZ;
 
   // Just check assumptions on parameters...
   const double epsilon = 1e-5;
-  if (MagGeoBuilderFromDDD::debug) {
+  if (debug) {
     if (y1 - y2 > epsilon) {
-      cout << "*** WARNING: unexpected pseudotrapezoid parameters." << endl;
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: unexpected pseudotrapezoid parameters.";
     }
 
     // Check that volume is convex (no concave volume in current geometry...)
     if (radius * (atMinusZ ? -1. : +1) < 0.) {
-      cout << "*** WARNING: pseudotrapezoid is concave" << endl;
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pseudotrapezoid is concave";
     }
   }
-
   // CAVEAT: pseudotraps are rotated in a different way as traps,
   // since they have local Z along global R...
   GlobalVector planeXAxis = refPlane->toGlobal(LocalVector(1, 0, 0));
@@ -55,9 +51,9 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
   //FIXME assumption: here we do use the assumption on the orientation /
   //of local Z (see above)
   GlobalVector Rvol(refPlane->position().x(), refPlane->position().y(), refPlane->position().z());
-  theRN = fabs(planeZAxis.dot(Rvol));
+  theRN = std::abs(planeZAxis.dot(Rvol));
 
-  double fR = fabs(radius);
+  double fR = std::abs(radius);
   Sides cyl_side;
   Sides plane_side;
   if (atMinusZ) {
@@ -81,42 +77,41 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
   else
     rcheck = refPlane->toGlobal(LocalPoint(x2, 0., +halfZ)).perp();
 
-  if (MagGeoBuilderFromDDD::debug) {
-    if (fabs(rcheck - fR) > 100. * epsilon) {  //FIXME!
-      cout << setprecision(10);
-      cout << "*** WARNING: Cylinder surface not centered on beam axis " << rcheck << " " << fR << " "
-           << fabs(rcheck - fR) << endl;
-      cout << setprecision(6);
+  if (debug) {
+    if (std::abs(rcheck - fR) > 100. * epsilon) {  //FIXME!
+      std::stringstream formatOutput;
+      formatOutput << setprecision(10) << rcheck << " " << fR << " " << std::abs(rcheck - fR);
+      LogTrace("magneticfield::volumeHandle")
+          << "*** WARNING: Cylinder surface not centered on beam axis " << formatOutput.str();
     }
   }
 
-  if (MagGeoBuilderFromDDD::debug) {
-    cout << "RN           " << theRN << endl
-         << "pos_Rplane   " << pos_Rplane << " " << pos_Rplane.perp() << " " << pos_Rplane.phi() << endl
-         << "pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " " << pos_zplus.phi() << endl
-         << "pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " " << pos_zminus.phi() << endl
-         << "pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi() << endl
-         << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi() << endl;
+  if (debug) {
+    LogTrace("magneticfield::volumeHandle")
+        << "RN           " << theRN << newln << "pos_Rplane   " << pos_Rplane << " " << pos_Rplane.perp() << " "
+        << pos_Rplane.phi() << newln << "pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " "
+        << pos_zplus.phi() << newln << "pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " "
+        << pos_zminus.phi() << newln << "pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " "
+        << pos_phiplus.phi() << newln << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " "
+        << pos_phiminus.phi();
   }
 
   // Check ordering.
   if ((pos_Rplane.perp() < radius) == atMinusZ) {
-    cout << "*** WARNING: pos_outer < pos_inner for pseudotrapezoid" << endl;
+    LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner for pseudotrapezoid";
   }
   if (pos_zplus.z() < pos_zminus.z()) {
-    cout << "*** WARNING: pos_zplus < pos_zminus for pseudotrapezoid" << endl;
+    LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_zplus < pos_zminus for pseudotrapezoid";
   }
   if (Geom::Phi<float>(pos_phiplus.phi() - pos_phiminus.phi()) < 0.) {
-    cout << "*** WARNING: pos_phiplus < pos_phiminus for pseudotrapezoid" << endl;
+    LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_phiplus < pos_phiminus for pseudotrapezoid";
   }
 
   GlobalVector z_phiplus = (refPlane->toGlobal(LocalVector((x2 - x1) / 2., 0., halfZ))).unit();
   GlobalVector z_phiminus = (refPlane->toGlobal(LocalVector(-(x2 - x1) / 2., 0., halfZ))).unit();
 
-  if (MagGeoBuilderFromDDD::debug) {
-    cout << "z_phiplus " << z_phiplus << " " << z_phiplus.phi() << endl;
-    cout << "z_phiminus " << z_phiminus << " " << z_phiminus.phi() << endl;
-  }
+  LogTrace("magneticfield::volumeHandle") << "z_phiplus  " << z_phiplus << " " << z_phiplus.phi() << newln
+                                          << "z_phiminus " << z_phiminus << " " << z_phiminus.phi();
 
   Surface::RotationType rot_R(planeYAxis, planeXAxis);
   Surface::RotationType rot_Z(planeXAxis, planeZAxis);
@@ -132,17 +127,16 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
   surfaces[phiplus] = new Plane(pos_phiplus, rot_phiplus);
   surfaces[phiminus] = new Plane(pos_phiminus, rot_phiminus);
 
-  if (MagGeoBuilderFromDDD::debug) {
-    cout << "rot_R " << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)) << endl
-         << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << endl
-         << "rot_phi+ " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-         << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl
-         << "rot_phi- " << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-         << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl;
-  }
+  LogTrace("magneticfield::volumeHandle")
+      << "rot_R " << surfaces[plane_side]->toGlobal(LocalVector(0., 0., 1.)) << newln << "rot_Z "
+      << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << newln << "rot_phi+ "
+      << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
+      << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << newln << "rot_phi- "
+      << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
+      << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)).phi();
 
   // Save volume boundaries
-  double R1 = fabs(surfaces[plane_side]->toLocal(GlobalPoint(0, 0, 0)).z());
+  double R1 = std::abs(surfaces[plane_side]->toLocal(GlobalPoint(0, 0, 0)).z());
   theRMin = min(fR, R1);
   theRMax = max(fR, R1);
   // FIXME: use phi of middle plane of phiminus surface. Is not the absolute phimin!

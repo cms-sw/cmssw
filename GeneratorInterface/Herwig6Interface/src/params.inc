@@ -60,12 +60,12 @@ enum ParamTypes { kInt, kDouble, kLogical };
 
 struct ConfigParam {
   const char *name;
-  void *ptr;
-  ParamTypes type;
+  void *ptr = nullptr;
+  ParamTypes type = {};
   struct {
     unsigned short size;
     unsigned short offset;
-  } dim[3];
+  } dim[3] = {};
 } static const configParams[] = {PARM_N0(kDouble, hw6202, DXRCYL),
                                  PARM_N0(kDouble, hw6202, DXRSPH),
                                  PARM_N0(kDouble, hw6202, DXZMAX),

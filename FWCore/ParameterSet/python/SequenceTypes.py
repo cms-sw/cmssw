@@ -850,12 +850,15 @@ class ExpandVisitor(object):
         if isinstance(visitee,_UnarySequenceOperator):
             self.l[-1] = visitee
     def result(self):
-        # why doesn't (sum(self.l) work?
-        seq = self.l[0]
-        if len(self.l) > 1:
+        tsk = Task(*self.taskLeaves)
+        if len(self.l) > 0:
+            # why doesn't (sum(self.l) work?
+            seq = self.l[0]
             for el in self.l[1:]:
                 seq += el
-        return self._type(seq, Task(*self.taskLeaves))
+            return self._type(seq, tsk)
+        else:
+            return self._type(tsk)
     def resultString(self):
         sep = ''
         returnValue = ''
@@ -2017,6 +2020,14 @@ if __name__=="__main__":
             p2.visit(namesVisitor)
             self.assertEqual(l, ['m1', '!m2', 'm1', 'm2', '-m2', '!m1', 'm1', 'm2'])
             self.assertTrue(p2.dumpPython(None) == "cms.Path(process.m1+~process.m2+process.m1+process.m2+cms.ignore(process.m2)+~process.m1+process.m1+process.m2, cms.Task(process.m6, process.m7, process.m8, process.m9))\n")
+
+            t1 = Task(m1,m2,m3)
+            s1 = Sequence(t1)
+            s2 = s1.expandAndClone()
+            l[:] = []
+            s2.visit(namesVisitor)
+            self.assertEqual(l, [])
+            self.assertTrue(s2.dumpPython(None) == "cms.Sequence(cms.Task(process.m1, process.m2, process.m3))\n")
 
             t1 = Task(m1,m2)
             t2 = Task(m1,m3,t1)
