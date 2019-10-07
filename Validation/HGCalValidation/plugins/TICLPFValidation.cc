@@ -112,7 +112,7 @@ void TICLPFValidation::bookHistograms(DQMStore::ConcurrentBooker& ibook,
   ibook.setCurrentFolder(folder_ + "TICLPFCandidates/");
   histos[0].type_ = ibook.book1D("Type", "Type", 10, -0.5, 9.5);
   histos[0].vect_sum_pt_ = ibook.book1D("PtVectSum", "PtVectSum", 200, 0., 200.);
-  for (size_t type = reco::PFCandidate::h; type <= reco::PFCandidate::egamma_HF; type++) {
+  for (size_t type = reco::PFCandidate::X; type <= reco::PFCandidate::egamma_HF; type++) {
     ibook.setCurrentFolder(folder_ + "TICLPFCandidates/" + std::to_string(type));
     auto& histo = histos[type];
     histo.energy_ = ibook.book1D("Energy", "Energy", 250, 0., 250.);

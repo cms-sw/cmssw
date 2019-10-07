@@ -67,8 +67,11 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
       case 130:
         part_type = reco::PFCandidate::h0;
         break;
-      default:
+      case 211:
         part_type = reco::PFCandidate::h;
+        break;
+      default:
+        part_type = reco::PFCandidate::X;
     }
 
     candidates->emplace_back(charge, four_mom, part_type);
