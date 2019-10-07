@@ -172,7 +172,8 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         double dx = (PV0.x() - sv.vx()), dy = (PV0.y() - sv.vy()), dz = (PV0.z() - sv.vz());
         double pdotv = (dx * sv.px() + dy * sv.py() + dz * sv.pz()) / sv.p() / sqrt(dx * dx + dy * dy + dz * dz);
         pAngle.push_back(std::acos(pdotv));
-	Measurement1D d2d = vdistXY.distance(PV0, VertexState(RecoVertex::convertPos(sv.position()), RecoVertex::convertError(sv.error())));
+        Measurement1D d2d = vdistXY.distance(
+            PV0, VertexState(RecoVertex::convertPos(sv.position()), RecoVertex::convertError(sv.error())));
         dxy.push_back(d2d.value());
         dxySig.push_back(d2d.significance());
       }
