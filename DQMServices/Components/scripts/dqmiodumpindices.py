@@ -30,7 +30,11 @@ if 'Indices;1' in things:
   table.field_names = ['Run', 'Lumi', 'FirstIndex', 'LastIndex', 'Type', 'ME Count']
   
   for run, lumi, first, last, type in zip(runs, lumis, firstindex, lastindex, types):
-    table.add_row([run, lumi, first, last, '%s (%s)' % (type, typeNames[type]), int(last - first + 1)])
+    typeName = 'Unknown'
+    if type < len(typeNames):
+      typeName = typeNames[type]
+    
+    table.add_row([run, lumi, first, last, '%s (%s)' % (type, typeName), int(last - first + 1)])
 
   print(table)
 else:
