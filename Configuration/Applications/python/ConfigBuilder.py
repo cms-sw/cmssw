@@ -1971,8 +1971,7 @@ class ConfigBuilder(object):
 	    if (sequenceList[i]==postSequenceList[i]):
                 continue
             if (i!=0):
-		pathName='dqmofflineOnPAT_%d_step'%(i)
-		
+		pathName='dqmofflineOnPAT_%d_step'%(i)	
             setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
             self.schedule.append(getattr(self.process,pathName))
 
