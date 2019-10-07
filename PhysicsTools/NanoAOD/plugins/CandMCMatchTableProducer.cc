@@ -47,7 +47,7 @@ public:
             "5 = electron from b, 4 = electron from c, 3 = electron from light or unknown, 0 = unmatched";
         break;
       case MPhoton:
-        flavDoc_ = "1 = prompt photon, 13 = prompt electron, 0 = unknown or unmatched";
+        flavDoc_ = "1 = prompt photon, 11 = prompt electron, 0 = unknown or unmatched";
         break;
       case MTau:
         flavDoc_ =
@@ -117,7 +117,7 @@ public:
           if (match->isPromptFinalState() && match->pdgId() == 22)
             flav[i] = 1;  // prompt photon
           else if ((match->isPromptFinalState() || match->isDirectPromptTauDecayProductFinalState()) && abs(match->pdgId()) == 11)
-            flav[i] = 13; // prompt electron
+            flav[i] = 11; // prompt electron
           break;
         case MTau:
           // CV: assignment of status codes according to https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#MC_Matching
