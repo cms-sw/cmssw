@@ -251,22 +251,22 @@ void RPCChamberQuality::performeClientOperation(std::string MESufix, int region,
   meName.str("");
   meName << summaryDir_<<"/DeadChannelFraction_"<<MESufix;
   DEAD = igetter.get(meName.str());
-/*
+
   //ClusterSize
   meName.str("");
   meName<<summaryDir_<<"/ClusterSizeIn1Bin_"<<MESufix;
   CLS = igetter.get(meName.str());
-*/
+
   //NoisyStrips
   meName.str("");
   meName<<summaryDir_<<"/RPCNoisyStrips_"<<MESufix;
   NoisySt = igetter.get(meName.str());
-/*
+
   //Multiplicity
   meName.str("");
   meName<<summaryDir_<<"/NumberOfDigi_Mean_"<<MESufix;
   MULT = igetter.get(meName.str());
-*/
+
   //Asymetry
   meName.str("");
   meName<<summaryDir_<<"/AsymmetryLeftRight_"<<MESufix;

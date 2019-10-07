@@ -70,10 +70,10 @@ InputFile = cms.untracked.string('rfio:/castor/cern.ch/user/d/dlomidze/RPC/Globa
 ################# RPC Client Modules #######################
 process.RPCDeadChannelTest = DQMEDHarvester("RPCDeadChannelTest")
 process.RPCOccupancyTest = DQMEDHarvester("RPCOccupancyTest")
-#process.RPCClusterSizeTest = DQMEDHarvester("RPCClusterSizeTest")
+process.RPCClusterSizeTest = DQMEDHarvester("RPCClusterSizeTest")
 process.RPCChamberQuality = DQMEDHarvester("RPCChamberQuality")
 #process.RPCDCSDataSimulator = DQMEDHarvester("RPCDCSDataSimulator")
-#process.RPCMultiplicityTest = DQMEDHarvester("RPCMultiplicityTest")
+process.RPCMultiplicityTest = DQMEDHarvester("RPCMultiplicityTest")
 process.RPCOccupancyChipTest = DQMEDHarvester("RPCOccupancyChipTest");
 process.RPCNoisyStripTest = DQMEDHarvester("RPCNoisyStripTest");
 

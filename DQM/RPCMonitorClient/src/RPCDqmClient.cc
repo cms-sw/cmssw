@@ -6,8 +6,8 @@
 #include "DQM/RPCMonitorDigi/interface/utils.h"
 //include client headers
 #include "DQM/RPCMonitorClient/interface/RPCDeadChannelTest.h"
-//#include "DQM/RPCMonitorClient/interface/RPCMultiplicityTest.h"
-//#include "DQM/RPCMonitorClient/interface/RPCClusterSizeTest.h"
+#include "DQM/RPCMonitorClient/interface/RPCMultiplicityTest.h"
+#include "DQM/RPCMonitorClient/interface/RPCClusterSizeTest.h"
 #include "DQM/RPCMonitorClient/interface/RPCOccupancyTest.h"
 #include "DQM/RPCMonitorClient/interface/RPCNoisyStripTest.h"
 //Geometry
@@ -40,9 +40,9 @@ RPCDqmClient::RPCDqmClient(const edm::ParameterSet& parameters_) {
   prescaleGlobalFactor_ = parameters_.getUntrackedParameter<int>("DiagnosticGlobalPrescale", 5);
 
   //make default client list
-  //clientList_.push_back("RPCMultiplicityTest");
+  clientList_.push_back("RPCMultiplicityTest");
   clientList_.push_back("RPCDeadChannelTest");
-  //clientList_.push_back("RPCClusterSizeTest");
+  clientList_.push_back("RPCClusterSizeTest");
   clientList_ = parameters_.getUntrackedParameter<std::vector<std::string> >("RPCDqmClientList", clientList_);
 
   //get all the possible RPC DQM clients
@@ -199,20 +199,21 @@ void RPCDqmClient::getRPCdetId(const edm::EventSetup& eventSetup) {
 
 void RPCDqmClient::makeClientMap(const edm::ParameterSet& parameters_) {
   for (unsigned int i = 0; i < clientList_.size(); i++) {
-    //if (clientList_[i] == "RPCMultiplicityTest") {
-      //clientHisto_.push_back("Multiplicity");
+    if (clientList_[i] == "RPCMultiplicityTest") {
+      clientHisto_.push_back("Multiplicity");
       // clientTag_.push_back(rpcdqm::MULTIPLICITY);
-      //clientModules_.push_back(new RPCMultiplicityTest(parameters_));
-    //}
-    if (clientList_[i] == "RPCDeadChannelTest") {
+      clientModules_.push_back(new RPCMultiplicityTest(parameters_));
+    }
+    else if (clientList_[i] == "RPCDeadChannelTest") {
       clientHisto_.push_back("Occupancy");
       clientModules_.push_back(new RPCDeadChannelTest(parameters_));
       // clientTag_.push_back(rpcdqm::OCCUPANCY);
-    }  //else if ( clientList_[i] == "RPCClusterSizeTest" ){
-    //clientHisto_.push_back("ClusterSize");
-    //clientModules_.push_back( new RPCClusterSizeTest(parameters_));
-    // clientTag_.push_back(rpcdqm::CLUSTERSIZE);
-  //} 
+    }
+    else if ( clientList_[i] == "RPCClusterSizeTest" ){
+      clientHisto_.push_back("ClusterSize");
+      clientModules_.push_back( new RPCClusterSizeTest(parameters_));
+      // clientTag_.push_back(rpcdqm::CLUSTERSIZE);
+    } 
     else if (clientList_[i] == "RPCOccupancyTest") {
       clientHisto_.push_back("Occupancy");
       clientModules_.push_back(new RPCOccupancyTest(parameters_));
