@@ -214,7 +214,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
     theInitialSeedColl = nullptr;
   }
 
-  ElectronSeedCollection* seeds = new ElectronSeedCollection;
+  auto seeds = std::make_unique<ElectronSeedCollection>();
 
   // loop over barrel + endcap
   for (unsigned int i = 0; i < 2; i++) {
@@ -230,16 +230,15 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   }
 
   // store the accumulated result
-  std::unique_ptr<ElectronSeedCollection> pSeeds(seeds);
-  ElectronSeedCollection::iterator is;
-  for (is = pSeeds->begin(); is != pSeeds->end(); is++) {
-    edm::RefToBase<CaloCluster> caloCluster = is->caloCluster();
-    SuperClusterRef superCluster = caloCluster.castTo<SuperClusterRef>();
-    LogDebug("ElectronSeedProducer") << "new seed with " << (*is).nHits() << " hits"
-                                     << ", charge " << (*is).getCharge() << " and cluster energy "
+#ifdef EDM_ML_DEBUG
+  for (auto const& seed : *seeds) {
+    SuperClusterRef superCluster = seed.caloCluster().castTo<SuperClusterRef>();
+    LogDebug("ElectronSeedProducer") << "new seed with " << seed.nHits() << " hits"
+                                     << ", charge " << seed.getCharge() << " and cluster energy "
                                      << superCluster->energy() << " PID " << superCluster.id();
   }
-  e.put(std::move(pSeeds));
+#endif
+  e.put(std::move(seeds));
   if (fromTrackerSeeds_ && prefilteredSeeds_)
     delete theInitialSeedColl;
 }
