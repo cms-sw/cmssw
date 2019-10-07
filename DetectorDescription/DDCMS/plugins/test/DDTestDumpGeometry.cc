@@ -39,7 +39,7 @@ void DDTestDumpGeometry::analyze(const Event&, const EventSetup& iEventSetup) {
   ESTransientHandle<DDDetector> det;
   iEventSetup.get<GeometryFileRcd>().get(m_tag, det);
 
-  TGeoManager const& geom = det->description()->manager();
+  TGeoManager const& geom = det->manager();
 
   TGeoIterator next(geom.GetTopVolume());
   TGeoNode* node;
