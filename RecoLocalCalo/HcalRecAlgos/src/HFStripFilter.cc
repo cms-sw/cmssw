@@ -356,15 +356,16 @@ std::unique_ptr<HFStripFilter> HFStripFilter::parseParameterSet(const edm::Param
 edm::ParameterSetDescription HFStripFilter::fillDescription() {
   edm::ParameterSetDescription desc;
 
-  desc.add<double>("stripThreshold", 40.0);
-  desc.add<double>("maxThreshold", 100.0);
-  desc.add<double>("timeMax", 6.0);
-  desc.add<double>("maxStripTime", 10.0);
-  desc.add<double>("wedgeCut", 0.05);
-  desc.add<int>("seedHitIetaMax", 35);
-  desc.add<int>("gap", 2);
-  desc.add<int>("lstrips", 2);
-  desc.addUntracked<int>("verboseLevel", 0);
+  desc.add<double>("stripThreshold", 40.0)->setComment(" threshold to include hits into strips");
+  desc.add<double>("maxThreshold", 100.0)->setComment(" threshold for seed hits in the strips (depth1 and depth2)");
+  desc.add<double>("timeMax", 6.0)->setComment(" seed hits should have time < timeMax");
+  desc.add<double>("maxStripTime", 10.0)->setComment(" maximum time for hits in the strips");
+  desc.add<double>("wedgeCut", 0.05)->setComment(" the possible level of energy leak into adjacent wedges");
+  desc.add<int>("seedHitIetaMax", 35)->setComment(" maximum possible Ieta value for seed hit");
+  desc.add<int>("gap", 2)->setComment(" maximum distance between hits in the strip (along Ieta direction)");
+  desc.add<int>("lstrips", 2)->setComment(" at least one of strips in depth1 or depth2 is not less than lstrips");
+  desc.addUntracked<int>("verboseLevel", 0)
+      ->setComment(" verboseLevel for debugging printouts, should be > 20 to get output");
 
   return desc;
 }

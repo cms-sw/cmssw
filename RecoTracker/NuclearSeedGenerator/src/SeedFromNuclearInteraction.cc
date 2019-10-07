@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoTracker/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -14,9 +16,9 @@ SeedFromNuclearInteraction::SeedFromNuclearInteraction(const Propagator* prop,
                                                        const edm::ParameterSet& iConfig)
     : ptMin(iConfig.getParameter<double>("ptMin")), thePropagator(prop), theTrackerGeom(geom) {
   isValid_ = true;
-  initialTSOS_ = boost::shared_ptr<TrajectoryStateOnSurface>(new TrajectoryStateOnSurface());
-  updatedTSOS_ = boost::shared_ptr<TrajectoryStateOnSurface>(new TrajectoryStateOnSurface());
-  freeTS_ = boost::shared_ptr<FreeTrajectoryState>(new FreeTrajectoryState());
+  initialTSOS_ = std::make_shared<TrajectoryStateOnSurface>();
+  updatedTSOS_ = std::make_shared<TrajectoryStateOnSurface>();
+  freeTS_ = std::make_shared<FreeTrajectoryState>();
 }
 
 //----------------------------------------------------------------------

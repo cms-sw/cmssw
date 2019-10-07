@@ -3,9 +3,11 @@
 #include "DD4hep/Detector.h"
 #include "DD4hep/BasicGrammar.h"
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
+#include "DetectorDescription/DDCMS/interface/Filter.h"
 
 #include <TClass.h>
 
+#include <algorithm>
 #include <stdexcept>
 
 using namespace std;
@@ -61,6 +63,38 @@ dd4hep::Rotation3D cms::makeRotation3D(dd4hep::Rotation3D rotation, const std::s
   }
   return rotation;
 }
+
+namespace {
+
+  std::string& ltrim(std::string& str, const std::string& chars = "\t\n\v\f\r ") {
+    str.erase(0, str.find_first_not_of(chars));
+    return str;
+  }
+
+  std::string& rtrim(std::string& str, const std::string& chars = "\t\n\v\f\r ") {
+    str.erase(str.find_last_not_of(chars) + 1);
+    return str;
+  }
+
+  std::string& trimWhitespace(std::string& str, const std::string& chars = "\t\n\v\f\r ") {
+    return ltrim(rtrim(str, chars), chars);
+  }
+
+  std::string trimSVecWhitespace(std::string& str) {
+    std::string res;
+
+    vector<string_view> v = dd::split(str, ",");
+    for (auto& n : v) {
+      std::string ts{n.data(), n.size()};
+      trimWhitespace(ts);
+      res.append(ts).append(",");
+    };
+
+    res.erase(res.find_last_of(','));
+
+    return res;
+  }
+}  // namespace
 
 DDAlgoArguments::DDAlgoArguments(cms::DDParsingContext& ctxt, xml_h elt) : context(ctxt), element(elt) {
   name = xml_dim_t(element).nameStr();
@@ -159,8 +193,8 @@ namespace {
     int num = _toDouble(numValue);
     const BasicGrammar& gr = BasicGrammar::instance<vector<string> >();
 
+    val = trimSVecWhitespace(val);
     val = '[' + ns.realName(val) + ']';
-    val = remove_whitespace(val);
     int res = gr.fromString(&data, val);
     if (!res) {
       except(
@@ -229,6 +263,7 @@ namespace {
     }
     vector<T> data;
     val = remove_whitespace(val);
+
     if (!val.empty())
       val += ',';
     for (size_t idx = 0, idq = val.find(',', idx); idx != string::npos && idq != string::npos;

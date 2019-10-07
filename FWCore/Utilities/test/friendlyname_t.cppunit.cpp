@@ -33,6 +33,7 @@ void testfriendlyName::test() {
   typedef std::pair<std::string, std::string> Values;
   std::map<std::string, std::string> classToFriendly;
   classToFriendly.insert(Values("Foo", "Foo"));
+  classToFriendly.insert(Values("const Foo", "constFoo"));
   classToFriendly.insert(Values("bar::Foo", "barFoo"));
   classToFriendly.insert(Values("std::vector<Foo>", "Foos"));
   classToFriendly.insert(Values("std::vector<bar::Foo>", "barFoos"));
@@ -49,7 +50,31 @@ void testfriendlyName::test() {
   classToFriendly.insert(Values("std::__cxx11::vector<std::__cxx11::basic_string<char>>", "Strings"));
   classToFriendly.insert(Values("std::unique_ptr<Foo>", "FooUniquePtr"));
   classToFriendly.insert(Values("std::unique_ptr<bar::Foo>", "barFooUniquePtr"));
+  classToFriendly.insert(Values("std::unique_ptr<const Foo>", "constFooUniquePtr"));
+  classToFriendly.insert(Values("const std::unique_ptr<Foo>", "FooconstUniquePtr"));
+  classToFriendly.insert(Values("std::unique_ptr<Foo,std::default_delete<Foo>>", "FooUniquePtr"));
+  classToFriendly.insert(Values("std::unique_ptr<const Foo, std::default_delete<const Foo>>", "constFooUniquePtr"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::unique_ptr<Bar,std::default_delete<Bar>>,std::default_delete<std::unique_ptr<Bar,"
+             "std::default_delete<Bar>>>>",
+             "BarUniquePtrUniquePtr"));
   classToFriendly.insert(Values("std::vector<std::unique_ptr<bar::Foo>>", "barFooUniquePtrs"));
+  classToFriendly.insert(
+      Values("std::vector<std::unique_ptr<bar::Foo, std::default_delete<bar::Foo>>>", "barFooUniquePtrs"));
+  classToFriendly.insert(Values("std::vector<std::unique_ptr<const Foo>>", "constFooUniquePtrs"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::vector<std::unique_ptr<bar::Foo>>>", "barFooUniquePtrsUniquePtr"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::vector<std::unique_ptr<bar::Foo>>, "
+             "std::default_delete<std::vector<std::unique_ptr<bar::Foo>>>>",
+             "barFooUniquePtrsUniquePtr"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::vector<std::unique_ptr<bar::Foo, std::default_delete<bar::Foo>>>>",
+             "barFooUniquePtrsUniquePtr"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::vector<std::unique_ptr<bar::Foo, std::default_delete<bar::Foo>>>, "
+             "std::default_delete<std::vector<std::unique_ptr<bar::Foo, std::default_delete<bar::Foo>>>>>",
+             "barFooUniquePtrsUniquePtr"));
   classToFriendly.insert(Values("V<A,B>", "ABV"));
   classToFriendly.insert(Values("edm::ExtCollection<std::vector<reco::SuperCluster>,reco::SuperClusterRefProds>",
                                 "recoSuperClustersrecoSuperClusterRefProdsedmExtCollection"));
@@ -138,6 +163,11 @@ void testfriendlyName::test() {
              ">,edm::AssociationMap<edm::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,"
              "unsigned int> >::Find>",
              "recoBasicClustersToOnerecoClusterShapesAssociationRefs"));
+  classToFriendly.insert(
+      Values("edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster,edmNew::DetSetVector<"
+             "SiPixelCluster>::FindForDetSetVector> >",
+             "SiPixelClusteredmNewDetSetVectorSiPixelClusterSiPixelClusteredmNewDetSetVectorFindForDetSetVectoredmRefed"
+             "mNewDetSetVector"));
   classToFriendly.insert(
       Values("std::vector<std::pair<const pat::Muon *, TLorentzVector>>", "constpatMuonptrTLorentzVectorstdpairs"));
   classToFriendly.insert(Values("int[]", "intAs"));

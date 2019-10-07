@@ -403,7 +403,7 @@ private:
 
   TTree                        *outtree_;
   int                           t_ieta, t_iphi, t_nvtx;
-  double                        t_p;
+  double                        t_p, t_ediff;
   std::vector<double>           t_ene, t_enec, t_actln, t_charge;
   std::vector<int>              t_depth;
   
@@ -847,6 +847,7 @@ void HBHEMuonOfflineAnalyzer::Loop() {
       t_ieta          = etaHcal;
       t_iphi          = PHI;
       t_p             = p_of_muon->at(ml);
+      t_ediff         = hcal_3into3->at(ml) - hcal_1x1->at(ml);
       t_nvtx          = GoodVertex;
       if (p_of_muon->at(ml) > 20)  pcut = true;
       if (pt_of_muon->at(ml) > 20) ptcut = true;
@@ -1148,6 +1149,7 @@ void HBHEMuonOfflineAnalyzer::bookHistograms(const char* fname) {
   outtree_->Branch("t_iphi",      &t_iphi);
   outtree_->Branch("t_nvtx",      &t_nvtx);
   outtree_->Branch("t_p",         &t_p);
+  outtree_->Branch("t_ediff",     &t_ediff);
   outtree_->Branch("t_ene",       &t_ene);
   outtree_->Branch("t_enec",      &t_enec);
   outtree_->Branch("t_charge",    &t_charge);

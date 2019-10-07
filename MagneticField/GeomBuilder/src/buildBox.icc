@@ -4,14 +4,15 @@
  *  \author N. Amapane - INFN Torino
  */
 
-void MagGeoBuilderFromDDD::volumeHandle::buildBox(const DDExpandedView &fv) {
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "Building box surfaces...: " << endl;
+void volumeHandle::buildBox() {
+  LogTrace("magneticfield::volumeHandle") << "Building box surfaces...: ";
 
   DDBox box(solid);
-  double halfX = box.halfX() / cm;
-  double halfY = box.halfY() / cm;
-  double halfZ = box.halfZ() / cm;
+  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
+  // convertUnits should be defined appropriately.
+  double halfX = convertUnits(box.halfX());
+  double halfY = convertUnits(box.halfY());
+  double halfZ = convertUnits(box.halfZ());
 
   // Global vectors of the normals to X, Y, Z axes
   GlobalVector planeXAxis = refPlane->toGlobal(LocalVector(1, 0, 0));
@@ -39,9 +40,9 @@ void MagGeoBuilderFromDDD::volumeHandle::buildBox(const DDExpandedView &fv) {
   Surface::RotationType rot_phi;
   Surface::RotationType rot_Z = Surface::RotationType(planeXAxis, planeYAxis);
 
-  if (fabs(rnX) > fabs(rnY)) {
+  if (std::abs(rnX) > std::abs(rnY)) {
     // X is ~parallel to global R dir, Y is along +/- phi
-    theRN = fabs(rnX);
+    theRN = std::abs(rnX);
     if (rnX < 0) {
       halfX = -halfX;
       halfY = -halfY;
@@ -55,7 +56,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildBox(const DDExpandedView &fv) {
     rot_phi = Surface::RotationType(planeZAxis, planeXAxis);  // opposite to y axis
   } else {
     // Y is ~parallel to global R dir, X is along +/- phi
-    theRN = fabs(rnY);
+    theRN = std::abs(rnY);
     if (rnY < 0) {
       halfX = -halfX;
       halfY = -halfY;
@@ -69,28 +70,27 @@ void MagGeoBuilderFromDDD::volumeHandle::buildBox(const DDExpandedView &fv) {
     rot_phi = Surface::RotationType(planeZAxis, planeYAxis);  // opposite to x axis
   }
 
-  if (MagGeoBuilderFromDDD::debug)
-    cout << " halfX: " << halfX << " halfY: " << halfY << " halfZ: " << halfZ << endl
-         << "RN            " << theRN << endl;
+  LogTrace("magneticfield::volumeHandle")
+      << " halfX: " << halfX << "  halfY: " << halfY << "  halfZ: " << halfZ << "  RN: " << theRN;
 
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi() << endl
-         << "pos_inner    " << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi() << endl
-         << "pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " " << pos_zplus.phi() << endl
-         << "pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " " << pos_zminus.phi() << endl
-         << "pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi() << endl
-         << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi() << endl;
+  LogTrace("magneticfield::volumeHandle")
+      << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi() << newln << "pos_inner    "
+      << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi() << newln << "pos_zplus    " << pos_zplus << " "
+      << pos_zplus.perp() << " " << pos_zplus.phi() << newln << "pos_zminus   " << pos_zminus << " "
+      << pos_zminus.perp() << " " << pos_zminus.phi() << newln << "pos_phiplus  " << pos_phiplus << " "
+      << pos_phiplus.perp() << " " << pos_phiplus.phi() << newln << "pos_phiminus " << pos_phiminus << " "
+      << pos_phiminus.perp() << " " << pos_phiminus.phi();
 
   // Check ordering.
-  if (MagGeoBuilderFromDDD::debug) {
+  if (debug) {
     if (pos_outer.perp() < pos_inner.perp()) {
-      cout << "*** WARNING: pos_outer < pos_inner for box" << endl;
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner for box";
     }
     if (pos_zplus.z() < pos_zminus.z()) {
-      cout << "*** WARNING: pos_zplus < pos_zminus for box" << endl;
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_zplus < pos_zminus for box";
     }
     if (Geom::Phi<float>(pos_phiplus.phi() - pos_phiminus.phi()) < 0.) {
-      cout << "*** WARNING: pos_phiplus < pos_phiminus for box" << endl;
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_phiplus < pos_phiminus for box";
     }
   }
 
@@ -102,15 +102,13 @@ void MagGeoBuilderFromDDD::volumeHandle::buildBox(const DDExpandedView &fv) {
   surfaces[phiplus] = new Plane(pos_phiplus, rot_phi);
   surfaces[phiminus] = new Plane(pos_phiminus, rot_phi);
 
-  if (MagGeoBuilderFromDDD::debug) {
-    cout << "rot_R " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << endl
-         << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << endl
-         << "rot_phi " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << endl;
-  }
+  LogTrace("magneticfield::volumeHandle") << "rot_R   " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << newln
+                                          << "rot_Z   " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << newln
+                                          << "rot_phi " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.));
 
   // Save volume boundaries
-  theRMin = fabs(surfaces[inner]->toLocal(GlobalPoint(0, 0, 0)).z());
-  theRMax = fabs(surfaces[outer]->toLocal(GlobalPoint(0, 0, 0)).z());
+  theRMin = std::abs(surfaces[inner]->toLocal(GlobalPoint(0, 0, 0)).z());
+  theRMax = std::abs(surfaces[outer]->toLocal(GlobalPoint(0, 0, 0)).z());
   // FIXME: use phi of middle plane of phiminus surface. Is not the absolute phimin!
   thePhiMin = surfaces[phiminus]->position().phi();
 }

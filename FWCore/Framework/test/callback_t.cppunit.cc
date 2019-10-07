@@ -30,23 +30,19 @@ namespace callbacktest {
 
   struct Record {};
 
-  struct ConstPtrProd {
-    ConstPtrProd() : data_() {}
-    const Data* method(const Record&) {
-      ++data_.value_;
-      return &data_;
-    }
-    Data data_;
+  struct Base {
+    template <typename A, typename B>
+    void updateFromMayConsumes(A const&, B const&) {}
   };
 
-  struct UniquePtrProd {
+  struct UniquePtrProd : public Base {
     UniquePtrProd() : value_(0) {}
     std::unique_ptr<Data> method(const Record&) { return std::make_unique<Data>(++value_); }
 
     int value_;
   };
 
-  struct SharedPtrProd {
+  struct SharedPtrProd : public Base {
     SharedPtrProd() : ptr_(new Data()) {}
     std::shared_ptr<Data> method(const Record&) {
       ++ptr_->value_;
@@ -55,7 +51,7 @@ namespace callbacktest {
     std::shared_ptr<Data> ptr_;
   };
 
-  struct PtrProductsProd {
+  struct PtrProductsProd : public Base {
     PtrProductsProd() : data_(), double_() {}
     edm::ESProducts<std::shared_ptr<Data>, std::shared_ptr<Double>> method(const Record&) {
       using namespace edm::es;
@@ -102,8 +98,11 @@ void testCallback::uniquePtrTest() {
 
   UniquePtrCallback callback(&prod, &UniquePtrProd::method, 0);
   std::unique_ptr<Data> handle;
-
   callback.holdOntoPointer(&handle);
+
+  auto callback2 = std::unique_ptr<UniquePtrCallback>(callback.clone());
+  std::unique_ptr<Data> handle2;
+  callback2->holdOntoPointer(&handle2);
 
   Record record;
   callback.newRecordComing();
@@ -127,6 +126,21 @@ void testCallback::uniquePtrTest() {
   CPPUNIT_ASSERT(prod.value_ == 2);
   assert(0 != handle.get());
   CPPUNIT_ASSERT(prod.value_ == handle->value_);
+
+  (*callback2)(record);
+  CPPUNIT_ASSERT(handle2->value_ == 3);
+  CPPUNIT_ASSERT(handle->value_ == 2);
+
+  callback(record);
+  (*callback2)(record);
+  CPPUNIT_ASSERT(handle2->value_ == 3);
+  CPPUNIT_ASSERT(handle->value_ == 2);
+
+  callback2->newRecordComing();
+  callback(record);
+  (*callback2)(record);
+  CPPUNIT_ASSERT(handle2->value_ == 4);
+  CPPUNIT_ASSERT(handle->value_ == 2);
 }
 
 typedef Callback<SharedPtrProd, std::shared_ptr<Data>, Record> SharedPtrCallback;

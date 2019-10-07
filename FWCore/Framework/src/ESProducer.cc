@@ -55,32 +55,46 @@ namespace edm {
     itemsToGetFromRecords_.reserve(consumesInfos_.size());
     recordsUsedDuringGet_.reserve(consumesInfos_.size());
 
+    if (itemsToGetFromRecords_.size() == consumesInfos_.size()) {
+      return;
+    }
+
     for (auto& info : consumesInfos_) {
       auto& items = itemsToGetFromRecords_.emplace_back();
       items.reserve(info->size());
       auto& records = recordsUsedDuringGet_.emplace_back();
       records.reserve(info->size());
       for (auto& proxyInfo : *info) {
-        auto index = iProxyToIndices.indexInRecord(std::get<0>(proxyInfo), std::get<1>(proxyInfo));
-        if (index != eventsetup::ESRecordsToProxyIndices::missingProxyIndex()) {
-          if (not std::get<2>(proxyInfo).empty()) {
-            auto component = iProxyToIndices.component(std::get<0>(proxyInfo), std::get<1>(proxyInfo));
-            if (nullptr == component) {
-              index = eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
-            } else {
-              if (component->label_.empty()) {
-                if (component->type_ != std::get<2>(proxyInfo)) {
+        //check for mayConsumes
+        if (auto chooser = proxyInfo.chooser_.get()) {
+          auto tagGetter = iProxyToIndices.makeTagGetter(chooser->recordKey(), chooser->productType());
+          if (not tagGetter.hasNothingToGet()) {
+            records.push_back(iProxyToIndices.recordIndexFor(chooser->recordKey()));
+          }
+          chooser->setTagGetter(std::move(tagGetter));
+          items.push_back(eventsetup::ESRecordsToProxyIndices::missingProxyIndex());
+        } else {
+          auto index = iProxyToIndices.indexInRecord(proxyInfo.recordKey_, proxyInfo.productKey_);
+          if (index != eventsetup::ESRecordsToProxyIndices::missingProxyIndex()) {
+            if (not proxyInfo.moduleLabel_.empty()) {
+              auto component = iProxyToIndices.component(proxyInfo.recordKey_, proxyInfo.productKey_);
+              if (nullptr == component) {
+                index = eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
+              } else {
+                if (component->label_.empty()) {
+                  if (component->type_ != proxyInfo.moduleLabel_) {
+                    index = eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
+                  }
+                } else if (component->label_ != proxyInfo.moduleLabel_) {
                   index = eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
                 }
-              } else if (component->label_ != std::get<2>(proxyInfo)) {
-                index = eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
               }
             }
           }
-        }
-        items.push_back(index);
-        if (index != eventsetup::ESRecordsToProxyIndices::missingProxyIndex()) {
-          records.push_back(iProxyToIndices.recordIndexFor(std::get<0>(proxyInfo)));
+          items.push_back(index);
+          if (index != eventsetup::ESRecordsToProxyIndices::missingProxyIndex()) {
+            records.push_back(iProxyToIndices.recordIndexFor(proxyInfo.recordKey_));
+          }
         }
       }
     }

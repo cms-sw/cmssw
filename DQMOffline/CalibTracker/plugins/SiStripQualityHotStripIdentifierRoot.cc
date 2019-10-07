@@ -9,8 +9,9 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
 #include <sstream>
 
 #include "TH1F.h"
@@ -34,7 +35,6 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
       MeanNumberOfCluster(0),
       calibrationthreshold(iConfig.getUntrackedParameter<uint32_t>("CalibrationThreshold", 10000)) {
   dqmStore_ = edm::Service<DQMStore>().operator->();
-  dqmStore_->setVerbose(iConfig.getUntrackedParameter<uint32_t>("verbosity", 0));
 
   if (!filename.empty()) {
     edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " before opening file " << filename.c_str();
@@ -325,6 +325,6 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos() {
     LogDebug("SiStripQualityHotStripIdentifierRoot")
         << " [SiStripQualityHotStripIdentifierRoot::bookHistos] detid " << detid << std::endl;
 
-    ClusterPositionHistoMap[detid] = boost::shared_ptr<TH1F>(new TH1F(*(*iter)->getTH1F()));
+    ClusterPositionHistoMap[detid] = std::make_shared<TH1F>(*(*iter)->getTH1F());
   }
 }

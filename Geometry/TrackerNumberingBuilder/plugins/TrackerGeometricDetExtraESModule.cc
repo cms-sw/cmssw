@@ -1,33 +1,75 @@
-#include "Geometry/TrackerNumberingBuilder/plugins/TrackerGeometricDetExtraESModule.h"
-#include "Geometry/TrackerNumberingBuilder/plugins/DDDCmsTrackerContruction.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDetExtra.h"
+#include "Geometry/TrackerNumberingBuilder/plugins/DDDCmsTrackerContruction.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "ExtractStringFromDDD.h"
 #include "CondDBCmsTrackerConstruction.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-
 #include <memory>
+
+class TrackerGeometricDetExtraESModule : public edm::ESProducer {
+public:
+  TrackerGeometricDetExtraESModule(const edm::ParameterSet& p);
+
+  std::unique_ptr<std::vector<GeometricDetExtra> > produce(const IdealGeometryRecord&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void putOne(std::vector<GeometricDetExtra>& gde, const GeometricDet* gd, const DDExpandedView& ev, int lev);
+
+  edm::ESGetToken<GeometricDet, IdealGeometryRecord> geometricDetToken_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
+  edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepToken_;
+  edm::ESGetToken<PGeometricDetExtra, PGeometricDetExtraRcd> pgToken_;
+  const bool fromDDD_;
+  const bool fromDD4hep_;
+};
 
 using namespace edm;
 
 TrackerGeometricDetExtraESModule::TrackerGeometricDetExtraESModule(const edm::ParameterSet& p)
-    : fromDDD_(p.getParameter<bool>("fromDDD")) {
+    : fromDDD_(p.getParameter<bool>("fromDDD")), fromDD4hep_(p.getParameter<bool>("fromDD4hep")) {
   auto c = setWhatProduced(this);
   geometricDetToken_ = c.consumes<GeometricDet>(edm::ESInputTag());
   if (fromDDD_) {
     ddToken_ = c.consumes<DDCompactView>(edm::ESInputTag());
+  } else if (fromDD4hep_) {
+    dd4hepToken_ = c.consumes<cms::DDCompactView>(edm::ESInputTag());
   } else {
     pgToken_ = c.consumesFrom<PGeometricDetExtra, PGeometricDetExtraRcd>(edm::ESInputTag());
   }
+}
+
+void TrackerGeometricDetExtraESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription descDB;
+  descDB.add<bool>("fromDDD", false);
+  descDB.add<bool>("fromDD4hep", false);
+  descriptions.add("trackerNumberingExtraGeometryDB", descDB);
+
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("fromDDD", true);
+  desc.add<bool>("fromDD4hep", false);
+  descriptions.add("trackerNumberingExtraGeometry", desc);
+
+  edm::ParameterSetDescription descDD4hep;
+  descDD4hep.add<bool>("fromDDD", false);
+  descDD4hep.add<bool>("fromDD4hep", true);
+  descriptions.add("DD4hep_trackerNumberingExtraGeometry", descDD4hep);
 }
 
 std::unique_ptr<std::vector<GeometricDetExtra> > TrackerGeometricDetExtraESModule::produce(
@@ -121,6 +163,21 @@ std::unique_ptr<std::vector<GeometricDetExtra> > TrackerGeometricDetExtraESModul
       }  // level 2
       --lev;
     }
+  } else if (fromDD4hep_) {
+    // FIXME:
+    // traverse all components from the tracker down;
+    // read the DD if from DD
+    const GeometricDet* tracker = &(gd);
+    edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(dd4hepToken_);
+    edm::LogInfo("GeometricDetExtra") << " Top node is  " << tracker << " " << tracker->name() << std::endl;
+    edm::LogInfo("GeometricDetExtra") << "    radLength " << tracker->radLength() << "\n"
+                                      << "           xi " << tracker->xi() << "\n"
+                                      << " PixelROCRows " << tracker->pixROCRows() << "\n"
+                                      << "   PixROCCols " << tracker->pixROCCols() << "\n"
+                                      << "   PixelROC_X " << tracker->pixROCx() << "\n"
+                                      << "   PixelROC_Y " << tracker->pixROCy() << "\n"
+                                      << "TrackerStereoDetectors " << (tracker->stereo() ? "true" : "false") << "\n"
+                                      << "SiliconAPVNumber " << tracker->siliconAPVNum() << "\n";
   } else {
     // if it is not from the DD, then just get the GDE from ES and match w/ GD.
     PGeometricDetExtra const& pgde = iRecord.getRecord<PGeometricDetExtraRcd>().get(pgToken_);

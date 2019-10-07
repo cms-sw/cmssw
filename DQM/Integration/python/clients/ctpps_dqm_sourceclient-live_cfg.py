@@ -63,6 +63,7 @@ process.recoStep = cms.Sequence(
 
 process.dqmModules = cms.Sequence(
   process.ctppsDQM +
+  process.ctppsDQMHarvest +
   process.dqmEnv +
   process.dqmSaver
 )

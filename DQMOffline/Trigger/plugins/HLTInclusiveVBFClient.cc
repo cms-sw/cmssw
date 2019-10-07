@@ -18,12 +18,6 @@ HLTInclusiveVBFClient::HLTInclusiveVBFClient(const edm::ParameterSet& iConfig) :
   }
 
   //
-  if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
-    if (dbe_)
-      dbe_->setVerbose(0);
-  }
-
-  //
   debug_ = false;
   verbose_ = false;
 

@@ -13,4 +13,3 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitComparison.h"
-#include "boost/cstdint.hpp"

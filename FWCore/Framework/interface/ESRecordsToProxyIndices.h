@@ -20,13 +20,14 @@
 
 // system include files
 #include <limits>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/ESTagGetter.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 
-#include <vector>
 // forward declarations
 namespace edm::eventsetup {
   struct ComponentDescription;
@@ -40,6 +41,9 @@ namespace edm::eventsetup {
     ESProxyIndex indexInRecord(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
 
     ComponentDescription const* component(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
+
+    ///Returns ESTagGetter for all products matching the type iTT for record iRK
+    ESTagGetter makeTagGetter(EventSetupRecordKey const& iRK, TypeTag const& iTT) const;
 
     static constexpr ESProxyIndex missingProxyIndex() noexcept { return ESProxyIndex{std::numeric_limits<int>::max()}; }
     static constexpr ESRecordIndex missingRecordIndex() noexcept {

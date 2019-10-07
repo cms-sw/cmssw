@@ -3,8 +3,7 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-
-#include "RecoEgamma/ElectronIdentification/interface/EBEECutValues.h"
+#include "RecoEgamma/EgammaTools/interface/EBEECutValues.h"
 
 class GsfEleTrkPtIsoCut : public CutApplicatorBase {
 public:
@@ -45,5 +44,5 @@ CutApplicatorBase::result_type GsfEleTrkPtIsoCut::operator()(const reco::GsfElec
 
 double GsfEleTrkPtIsoCut::value(const reco::CandidatePtr& cand) const {
   reco::GsfElectronPtr ele(cand);
-  return ele->dr03TkSumPt();
+  return useHEEPIso_ ? ele->dr03TkSumPtHEEP() : ele->dr03TkSumPt();
 }

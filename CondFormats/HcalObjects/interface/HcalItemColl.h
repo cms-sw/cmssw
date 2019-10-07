@@ -22,7 +22,7 @@ public:
   typedef Item value_type;
 
   // The following method adds a new item to the collection
-  inline void push_back(std::unique_ptr<Item> ptr) { data_.push_back(boost::shared_ptr<Item>(ptr.release())); }
+  inline void push_back(std::unique_ptr<Item> ptr) { data_.push_back(std::shared_ptr<Item>(ptr.release())); }
 
   // Other modifiers
   inline void clear() { data_.clear(); }
@@ -57,7 +57,7 @@ public:
   inline bool operator!=(const HcalItemColl& r) const { return !(*this == r); }
 
 private:
-  std::vector<boost::shared_ptr<Item> > data_;
+  std::vector<std::shared_ptr<Item> > data_;
 
   friend class boost::serialization::access;
 

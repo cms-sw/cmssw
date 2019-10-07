@@ -29,7 +29,8 @@ public:
         minPixelHit_(cfg.getParameter<int>("minPixelHit")),
         minLayer_(cfg.getParameter<int>("minLayer")),
         min3DLayer_(cfg.getParameter<int>("min3DLayer")),
-        usePV_(false) {
+        usePV_(false),
+        invertRapidityCut_(cfg.getParameter<bool>("invertRapidityCut")) {
     const auto minPhi = cfg.getParameter<double>("minPhi");
     const auto maxPhi = cfg.getParameter<double>("maxPhi");
     if (minPhi >= maxPhi) {
@@ -114,14 +115,21 @@ public:
 
     const auto dphi = deltaPhi(t.phi(), meanPhi_);
 
+    auto etaOk = [&](const reco::Track& p) -> bool {
+      float eta = p.eta();
+      if (!invertRapidityCut_)
+        return (eta >= minRapidity_) && (eta <= maxRapidity_);
+      else
+        return (eta < minRapidity_ || eta > maxRapidity_);
+    };
+
     return ((algo_ok & quality_ok) && t.hitPattern().numberOfValidHits() >= minHit_ &&
             t.hitPattern().numberOfValidPixelHits() >= minPixelHit_ &&
             t.hitPattern().trackerLayersWithMeasurement() >= minLayer_ &&
             t.hitPattern().pixelLayersWithMeasurement() + t.hitPattern().numberOfValidStripLayersWithMonoAndStereo() >=
                 min3DLayer_ &&
-            fabs(t.pt()) >= ptMin_ && t.eta() >= minRapidity_ && t.eta() <= maxRapidity_ && dphi >= -rangePhi_ &&
-            dphi <= rangePhi_ && fabs(t.dxy(vertex)) <= tip_ && fabs(t.dsz(vertex)) <= lip_ &&
-            t.normalizedChi2() <= maxChi2_);
+            fabs(t.pt()) >= ptMin_ && etaOk(t) && dphi >= -rangePhi_ && dphi <= rangePhi_ &&
+            fabs(t.dxy(vertex)) <= tip_ && fabs(t.dsz(vertex)) <= lip_ && t.normalizedChi2() <= maxChi2_);
   }
 
 private:
@@ -138,6 +146,7 @@ private:
   int minLayer_;
   int min3DLayer_;
   bool usePV_;
+  bool invertRapidityCut_;
 
   edm::EDGetTokenT<reco::BeamSpot> bsSrcToken_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;

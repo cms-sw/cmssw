@@ -68,22 +68,3 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( muonlocalrecoTask , _run3_muonlocalrecoTask )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( muonlocalrecoTask , _phase2_muonlocalrecoTask )
-
-
-# RPC New Readout Validation
-from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
-_rpc_NewReadoutVal_muonlocalreco_with_2DSegmentsTask = muonlocalreco_with_2DSegmentsTask.copy()
-_rpc_NewReadoutVal_muonlocalrecoTask = muonlocalrecoTask.copy()
-_rpc_NewReadoutVal_muonlocalrecoT0SegTask = muonlocalrecoT0SegTask.copy()
-_rpc_NewReadoutVal_muonlocalreco_with_2DSegmentsTask.add(rpcNewRecHits)
-_rpc_NewReadoutVal_muonlocalrecoTask.add(rpcNewRecHits)
-_rpc_NewReadoutVal_muonlocalrecoT0SegTask.add(rpcNewRecHits)
-stage2L1Trigger_2017.toReplaceWith(muonlocalreco_with_2DSegmentsTask, _rpc_NewReadoutVal_muonlocalreco_with_2DSegmentsTask)
-stage2L1Trigger_2017.toReplaceWith(muonlocalrecoTask, _rpc_NewReadoutVal_muonlocalrecoTask)
-stage2L1Trigger_2017.toReplaceWith(muonlocalrecoT0SegTask, _rpc_NewReadoutVal_muonlocalrecoT0SegTask)
-
-from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(muonlocalreco_with_2DSegmentsTask, muonlocalreco_with_2DSegmentsTask.copyAndExclude([rpcNewRecHits]))
-fastSim.toReplaceWith(muonlocalrecoTask, muonlocalrecoTask.copyAndExclude([rpcNewRecHits]))
-fastSim.toReplaceWith(muonlocalrecoT0SegTask, muonlocalrecoT0SegTask.copyAndExclude([rpcNewRecHits]))
-

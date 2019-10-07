@@ -363,6 +363,9 @@ void HcalRecHitsAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     sprintf(histo, "HcalRecHitTask_energy_of_rechits_HB");
     meRecHitsEnergyHB = ibooker.book1DD(histo, histo, 2010, -10., 2000.);
 
+    sprintf(histo, "HcalRecHitTask_cleaned_energy_of_rechits_HB");
+    meRecHitsCleanedEnergyHB = ibooker.book1DD(histo, histo, 2010, -10., 2000.);
+
     sprintf(histo, "HcalRecHitTask_energy_of_rechits_M0_HB");
     meRecHitsEnergyHBM0 = ibooker.book1DD(histo, histo, 2010, -10., 2000.);
 
@@ -416,6 +419,9 @@ void HcalRecHitsAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
 
     sprintf(histo, "HcalRecHitTask_energy_of_rechits_HE");
     meRecHitsEnergyHE = ibooker.book1DD(histo, histo, 2010, -10., 2000.);
+
+    sprintf(histo, "HcalRecHitTask_cleaned_energy_of_rechits_HE");
+    meRecHitsCleanedEnergyHE = ibooker.book1DD(histo, histo, 2010, -10., 2000.);
 
     sprintf(histo, "HcalRecHitTask_energy_of_rechits_M0_HE");
     meRecHitsEnergyHEM0 = ibooker.book1DD(histo, histo, 2010, -10., 2000.);
@@ -486,6 +492,9 @@ void HcalRecHitsAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     sprintf(histo, "HcalRecHitTask_energy_of_rechits_HO");
     meRecHitsEnergyHO = ibooker.book1DD(histo, histo, 2010, -10., 2000.);
 
+    sprintf(histo, "HcalRecHitTask_cleaned_energy_of_rechits_HO");
+    meRecHitsCleanedEnergyHO = ibooker.book1DD(histo, histo, 2010, -10., 2000.);
+
     sprintf(histo, "HcalRecHitTask_timing_HO");
     meTimeHO = ibooker.book1DD(histo, histo, 70, -48., 92.);
 
@@ -512,6 +521,9 @@ void HcalRecHitsAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
 
     sprintf(histo, "HcalRecHitTask_energy_of_rechits_HF");
     meRecHitsEnergyHF = ibooker.book1DD(histo, histo, 2010, -10., 2000.);
+
+    sprintf(histo, "HcalRecHitTask_cleaned_energy_of_rechits_HF");
+    meRecHitsCleanedEnergyHF = ibooker.book1DD(histo, histo, 2010, -10., 2000.);
 
     sprintf(histo, "HcalRecHitTask_timing_HF");
     meTimeHF = ibooker.book1DD(histo, histo, 70, -48., 92.);
@@ -860,6 +872,7 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &c
         chi2_log10 = log10(chi2);
       double t = ctime[i];
       double depth = cdepth[i];
+      int sevlev = csevlev[i];
 
       bool isHEP17 = (sub == 2) && (iphi >= 63) && (iphi <= 66) && (ieta > 0) && (hep17_);
 
@@ -883,6 +896,9 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &c
       if (sub == 1 && (subdet_ == 1 || subdet_ == 5)) {
         meTimeHB->Fill(t);
         meRecHitsEnergyHB->Fill(en);
+        if (sevlev <= 9)
+          meRecHitsCleanedEnergyHB->Fill(en);
+
         meRecHitsEnergyHBM0->Fill(enM0);
         meRecHitsEnergyHBM3->Fill(enM3);
 
@@ -904,6 +920,9 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &c
         meTimeHE->Fill(t);
         if (!isHEP17) {
           meRecHitsEnergyHE->Fill(en);
+          if (sevlev <= 9)
+            meRecHitsCleanedEnergyHE->Fill(en);
+
           meRecHitsEnergyHEM0->Fill(enM0);
           meRecHitsEnergyHEM3->Fill(enM3);
         } else {
@@ -930,6 +949,8 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &c
       if (sub == 4 && (subdet_ == 4 || subdet_ == 5)) {
         meTimeHF->Fill(t);
         meRecHitsEnergyHF->Fill(en);
+        if (sevlev <= 9)
+          meRecHitsCleanedEnergyHF->Fill(en);
 
         meTE_Low_HF->Fill(en, t);
         meTE_HF->Fill(en, t);
@@ -939,6 +960,8 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &c
       if (sub == 3 && (subdet_ == 3 || subdet_ == 5)) {
         meTimeHO->Fill(t);
         meRecHitsEnergyHO->Fill(en);
+        if (sevlev <= 9)
+          meRecHitsCleanedEnergyHO->Fill(en);
 
         meTE_HO->Fill(en, t);
         meTE_High_HO->Fill(en, t);
@@ -981,6 +1004,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
   cz.clear();
   cstwd.clear();
   cauxstwd.clear();
+  csevlev.clear();
   hcalHBSevLvlVec.clear();
   hcalHESevLvlVec.clear();
   hcalHFSevLvlVec.clear();
@@ -1030,6 +1054,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
           cz.push_back(zc);
           cstwd.push_back(stwd);
           cauxstwd.push_back(auxstwd);
+          csevlev.push_back(severityLevel);
         }
       }
     }
@@ -1077,6 +1102,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
           cz.push_back(zc);
           cstwd.push_back(stwd);
           cauxstwd.push_back(auxstwd);
+          csevlev.push_back(severityLevel);
         }
       }
     }
@@ -1124,6 +1150,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
           cz.push_back(zc);
           cstwd.push_back(stwd);
           cauxstwd.push_back(auxstwd);
+          csevlev.push_back(severityLevel);
         }
       }
     }

@@ -6,28 +6,48 @@
  *  Changed by Viji Sundararajan on 28-Jun-05
  */
 #include <iostream>
+#include "cppunit/extensions/HelperMacros.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/test/DummyData.h"
+#include "FWCore/Framework/test/Dummy2Record.h"
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/Framework/test/DummyFinder.h"
+#include "FWCore/Framework/test/DepOn2Record.h"
 #include "FWCore/Framework/test/DepRecord.h"
-#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/src/EventSetupsController.h"
+#include "FWCore/Framework/interface/es_Label.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducts.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "cppunit/extensions/HelperMacros.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "tbb/task_scheduler_init.h"
+
+#include <memory>
+#include <optional>
+
 using edm::eventsetup::test::DummyData;
 using namespace edm::eventsetup;
 using edm::ESProducer;
 using edm::EventSetupRecordIntervalFinder;
 
 namespace {
+  edm::ParameterSet createDummyPset() {
+    edm::ParameterSet pset;
+    std::vector<std::string> emptyVStrings;
+    pset.addParameter<std::vector<std::string>>("@all_esprefers", emptyVStrings);
+    pset.addParameter<std::vector<std::string>>("@all_essources", emptyVStrings);
+    pset.addParameter<std::vector<std::string>>("@all_esmodules", emptyVStrings);
+    return pset;
+  }
   edm::ActivityRegistry activityRegistry;
-}
+}  // namespace
 
 class testEsproducer : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testEsproducer);
@@ -42,11 +62,12 @@ class testEsproducer : public CppUnit::TestFixture {
   CPPUNIT_TEST(labelTest);
   CPPUNIT_TEST_EXCEPTION(failMultipleRegistration, cms::Exception);
   CPPUNIT_TEST(forceCacheClearTest);
+  CPPUNIT_TEST(dataProxyProviderTest);
 
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
+  void setUp() { m_scheduler = std::make_unique<tbb::task_scheduler_init>(1); }
   void tearDown() {}
 
   void registerTest();
@@ -59,8 +80,11 @@ public:
   void labelTest();
   void failMultipleRegistration();
   void forceCacheClearTest();
+  void dataProxyProviderTest();
 
 private:
+  edm::propagate_const<std::unique_ptr<tbb::task_scheduler_init>> m_scheduler;
+
   class Test1Producer : public ESProducer {
   public:
     Test1Producer() { setWhatProduced(this); }
@@ -126,7 +150,7 @@ private:
   class LabelledProducer : public ESProducer {
   public:
     enum { kFi, kFum };
-    typedef edm::ESProducts<edm::es::L<DummyData, kFi>, edm::es::L<DummyData, kFum> > ReturnProducts;
+    typedef edm::ESProducts<edm::es::L<DummyData, kFi>, edm::es::L<DummyData, kFum>> ReturnProducts;
     LabelledProducer() {
       setWhatProduced(this, &LabelledProducer::produceMore, edm::es::label("fi", kFi)("fum", kFum));
       setWhatProduced(this, "foo");
@@ -160,15 +184,24 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEsproducer);
 void testEsproducer::registerTest() {
   Test1Producer testProd;
   EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
+  EventSetupRecordKey depRecordKey = EventSetupRecordKey::makeKey<DepRecord>();
+  testProd.createKeyedProxies(dummyRecordKey, 1);
   CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
-
+  CPPUNIT_ASSERT(!testProd.isUsingRecord(depRecordKey));
   const DataProxyProvider::KeyedProxies& keyedProxies = testProd.keyedProxies(dummyRecordKey);
 
   CPPUNIT_ASSERT(keyedProxies.size() == 1);
 }
 
 void testEsproducer::getFromTest() {
-  EventSetupProvider provider(&activityRegistry);
+  EventSetupsController controller;
+  edm::ParameterSet pset = createDummyPset();
+  EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+
+  // This manner of adding directly to the EventSetupProvider should work OK in tests
+  // unless there are multiple EventSetupProviders (the case with SubProcesses).
+  // Then there would be addition work to do to get things setup properly for the
+  // functions that check for module sharing between EventSetupProviders.
   provider.add(std::make_shared<Test1Producer>());
 
   auto pFinder = std::make_shared<DummyFinder>();
@@ -177,7 +210,8 @@ void testEsproducer::getFromTest() {
   for (int iTime = 1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-    const edm::EventSetup eventSetup{provider.eventSetupForInstance(edm::IOVSyncValue(time)), 0, nullptr};
+    controller.eventSetupForInstance(edm::IOVSyncValue(time));
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr);
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
@@ -186,7 +220,9 @@ void testEsproducer::getFromTest() {
 }
 
 void testEsproducer::getfromShareTest() {
-  EventSetupProvider provider(&activityRegistry);
+  EventSetupsController controller;
+  edm::ParameterSet pset = createDummyPset();
+  EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<ShareProducer>();
   provider.add(pProxyProv);
@@ -197,7 +233,8 @@ void testEsproducer::getfromShareTest() {
   for (int iTime = 1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-    const edm::EventSetup eventSetup{provider.eventSetupForInstance(edm::IOVSyncValue(time)), 0, nullptr};
+    controller.eventSetupForInstance(edm::IOVSyncValue(time));
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr);
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
@@ -206,7 +243,9 @@ void testEsproducer::getfromShareTest() {
 }
 
 void testEsproducer::getfromUniqueTest() {
-  EventSetupProvider provider(&activityRegistry);
+  EventSetupsController controller;
+  edm::ParameterSet pset = createDummyPset();
+  EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<UniqueProducer>();
   provider.add(pProxyProv);
@@ -217,7 +256,8 @@ void testEsproducer::getfromUniqueTest() {
   for (int iTime = 1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-    const edm::EventSetup eventSetup{provider.eventSetupForInstance(edm::IOVSyncValue(time)), 0, nullptr};
+    controller.eventSetupForInstance(edm::IOVSyncValue(time));
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr);
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
@@ -226,7 +266,10 @@ void testEsproducer::getfromUniqueTest() {
 }
 
 void testEsproducer::getfromOptionalTest() {
-  EventSetupProvider provider(&activityRegistry);
+  EventSetupsController controller;
+  edm::ParameterSet pset = createDummyPset();
+  EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+
   provider.add(std::make_shared<OptionalProducer>());
 
   auto pFinder = std::make_shared<DummyFinder>();
@@ -235,7 +278,8 @@ void testEsproducer::getfromOptionalTest() {
   for (int iTime = 1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-    const edm::EventSetup eventSetup{provider.eventSetupForInstance(edm::IOVSyncValue(time)), 0, nullptr};
+    controller.eventSetupForInstance(edm::IOVSyncValue(time));
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr);
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
@@ -245,7 +289,9 @@ void testEsproducer::getfromOptionalTest() {
 
 void testEsproducer::labelTest() {
   try {
-    EventSetupProvider provider(&activityRegistry);
+    EventSetupsController controller;
+    edm::ParameterSet pset = createDummyPset();
+    EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
     std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<LabelledProducer>();
     provider.add(pProxyProv);
@@ -256,7 +302,8 @@ void testEsproducer::labelTest() {
     for (int iTime = 1; iTime != 6; ++iTime) {
       const edm::Timestamp time(iTime);
       pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-      const edm::EventSetup eventSetup{provider.eventSetupForInstance(edm::IOVSyncValue(time)), 0, nullptr};
+      controller.eventSetupForInstance(edm::IOVSyncValue(time));
+      const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr);
       edm::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get("foo", pDummy);
       CPPUNIT_ASSERT(0 != pDummy.product());
@@ -301,7 +348,10 @@ private:
 };
 
 void testEsproducer::decoratorTest() {
-  EventSetupProvider provider(&activityRegistry);
+  EventSetupsController controller;
+  edm::ParameterSet pset = createDummyPset();
+  EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+
   provider.add(std::make_shared<DecoratorProducer>());
 
   auto pFinder = std::make_shared<DummyFinder>();
@@ -310,7 +360,8 @@ void testEsproducer::decoratorTest() {
   for (int iTime = 1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-    const edm::EventSetup eventSetup{provider.eventSetupForInstance(edm::IOVSyncValue(time)), 0, nullptr};
+    controller.eventSetupForInstance(edm::IOVSyncValue(time));
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr);
     edm::ESHandle<DummyData> pDummy;
 
     CPPUNIT_ASSERT(iTime - 1 == TestDecorator::s_pre);
@@ -341,7 +392,10 @@ private:
 };
 
 void testEsproducer::dependsOnTest() {
-  EventSetupProvider provider(&activityRegistry);
+  EventSetupsController controller;
+  edm::ParameterSet pset = createDummyPset();
+  EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+
   provider.add(std::make_shared<DepProducer>());
 
   auto pFinder = std::make_shared<DummyFinder>();
@@ -350,7 +404,8 @@ void testEsproducer::dependsOnTest() {
   for (int iTime = 1; iTime != 6; ++iTime) {
     const edm::Timestamp time(iTime);
     pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-    const edm::EventSetup eventSetup{provider.eventSetupForInstance(edm::IOVSyncValue(time)), 0, nullptr};
+    controller.eventSetupForInstance(edm::IOVSyncValue(time));
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr);
     edm::ESHandle<DummyData> pDummy;
 
     eventSetup.get<DepRecord>().get(pDummy);
@@ -362,7 +417,10 @@ void testEsproducer::dependsOnTest() {
 void testEsproducer::failMultipleRegistration() { MultiRegisterProducer dummy; }
 
 void testEsproducer::forceCacheClearTest() {
-  EventSetupProvider provider(&activityRegistry);
+  EventSetupsController controller;
+  edm::ParameterSet pset = createDummyPset();
+  EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+
   provider.add(std::make_shared<Test1Producer>());
 
   auto pFinder = std::make_shared<DummyFinder>();
@@ -370,7 +428,8 @@ void testEsproducer::forceCacheClearTest() {
 
   const edm::Timestamp time(1);
   pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-  const edm::EventSetup eventSetup{provider.eventSetupForInstance(edm::IOVSyncValue(time)), 0, nullptr};
+  controller.eventSetupForInstance(edm::IOVSyncValue(time));
+  const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr);
   {
     edm::ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
@@ -378,10 +437,263 @@ void testEsproducer::forceCacheClearTest() {
     CPPUNIT_ASSERT(1 == pDummy->value_);
   }
   provider.forceCacheClear();
+  controller.eventSetupForInstance(edm::IOVSyncValue(time));
   {
+    const edm::EventSetup eventSetup2(provider.eventSetupImpl(), 0, nullptr);
     edm::ESHandle<DummyData> pDummy;
-    eventSetup.get<DummyRecord>().get(pDummy);
+    eventSetup2.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
     CPPUNIT_ASSERT(2 == pDummy->value_);
   }
+}
+
+namespace {
+  class TestDataProxyProvider : public DataProxyProvider {
+  public:
+    TestDataProxyProvider();
+
+    class TestProxy : public DataProxy {
+    public:
+      void const* getImpl(EventSetupRecordImpl const&, DataKey const&, edm::EventSetupImpl const*) override {
+        return nullptr;
+      }
+      void invalidateCache() override {}
+    };
+
+    DataKey dataKeyDummy_0_;
+    DataKey dataKeyDummy2_0_;
+    DataKey dataKeyDummy2_1_;
+    DataKey dataKeyDummy2_2_;
+    DataKey dataKeyDep_0_;
+    DataKey dataKeyDep_1_;
+    std::shared_ptr<TestProxy> proxyDummy_0_0_;
+    std::shared_ptr<TestProxy> proxyDummy_0_1_;
+    std::shared_ptr<TestProxy> proxyDummy_0_2_;
+    std::shared_ptr<TestProxy> proxyDummy2_0_0_;
+    std::shared_ptr<TestProxy> proxyDummy2_1_0_;
+    std::shared_ptr<TestProxy> proxyDummy2_2_0_;
+    std::shared_ptr<TestProxy> proxyDep_0_0_;
+    std::shared_ptr<TestProxy> proxyDep_0_1_;
+    std::shared_ptr<TestProxy> proxyDep_1_0_;
+    std::shared_ptr<TestProxy> proxyDep_1_1_;
+
+  private:
+    KeyedProxiesVector registerProxies(const EventSetupRecordKey& recordKey, unsigned int iovIndex) override {
+      KeyedProxiesVector keyedProxiesVector;
+      if (recordKey == EventSetupRecordKey::makeKey<DummyRecord>()) {
+        if (iovIndex == 0) {
+          keyedProxiesVector.emplace_back(dataKeyDummy_0_, proxyDummy_0_0_);
+        } else if (iovIndex == 1) {
+          keyedProxiesVector.emplace_back(dataKeyDummy_0_, proxyDummy_0_1_);
+        } else if (iovIndex == 2) {
+          keyedProxiesVector.emplace_back(dataKeyDummy_0_, proxyDummy_0_2_);
+        }
+      } else if (recordKey == EventSetupRecordKey::makeKey<Dummy2Record>()) {
+        keyedProxiesVector.emplace_back(dataKeyDummy2_0_, proxyDummy2_0_0_);
+        keyedProxiesVector.emplace_back(dataKeyDummy2_1_, proxyDummy2_1_0_);
+        keyedProxiesVector.emplace_back(dataKeyDummy2_2_, proxyDummy2_2_0_);
+      } else if (recordKey == EventSetupRecordKey::makeKey<DepRecord>()) {
+        if (iovIndex == 0) {
+          keyedProxiesVector.emplace_back(dataKeyDep_0_, proxyDep_0_0_);
+          keyedProxiesVector.emplace_back(dataKeyDep_1_, proxyDep_1_0_);
+        } else if (iovIndex == 1) {
+          keyedProxiesVector.emplace_back(dataKeyDep_0_, proxyDep_0_1_);
+          keyedProxiesVector.emplace_back(dataKeyDep_1_, proxyDep_1_1_);
+        }
+      }
+      return keyedProxiesVector;
+    }
+  };
+
+  TestDataProxyProvider::TestDataProxyProvider()
+      : dataKeyDummy_0_(DataKey::makeTypeTag<DummyData>(), "Dummy_0"),
+        dataKeyDummy2_0_(DataKey::makeTypeTag<DummyData>(), "Dummy2_0"),
+        dataKeyDummy2_1_(DataKey::makeTypeTag<DummyData>(), "Dummy2_1"),
+        dataKeyDummy2_2_(DataKey::makeTypeTag<DummyData>(), "Dummy2_2"),
+        dataKeyDep_0_(DataKey::makeTypeTag<DummyData>(), "Dep_0"),
+        dataKeyDep_1_(DataKey::makeTypeTag<DummyData>(), "Dep_1"),
+        proxyDummy_0_0_(std::make_shared<TestProxy>()),
+        proxyDummy_0_1_(std::make_shared<TestProxy>()),
+        proxyDummy_0_2_(std::make_shared<TestProxy>()),
+        proxyDummy2_0_0_(std::make_shared<TestProxy>()),
+        proxyDummy2_1_0_(std::make_shared<TestProxy>()),
+        proxyDummy2_2_0_(std::make_shared<TestProxy>()),
+        proxyDep_0_0_(std::make_shared<TestProxy>()),
+        proxyDep_0_1_(std::make_shared<TestProxy>()),
+        proxyDep_1_0_(std::make_shared<TestProxy>()),
+        proxyDep_1_1_(std::make_shared<TestProxy>()) {
+    usingRecord<DummyRecord>();
+    usingRecord<Dummy2Record>();
+    usingRecord<DepRecord>();
+    usingRecord<DepOn2Record>();
+    usingRecord<DummyRecord>();
+    usingRecord<Dummy2Record>();
+    usingRecord<DepRecord>();
+    usingRecord<DepOn2Record>();
+  }
+}  // namespace
+
+void testEsproducer::dataProxyProviderTest() {
+  TestDataProxyProvider dataProxyProvider;
+  EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
+  EventSetupRecordKey dummy2RecordKey = EventSetupRecordKey::makeKey<Dummy2Record>();
+  EventSetupRecordKey depRecordKey = EventSetupRecordKey::makeKey<DepRecord>();
+  EventSetupRecordKey depOn2RecordKey = EventSetupRecordKey::makeKey<DepOn2Record>();
+  unsigned int nConcurrentIOVs = 3;
+  dataProxyProvider.createKeyedProxies(dummyRecordKey, nConcurrentIOVs);
+  CPPUNIT_ASSERT(dataProxyProvider.isUsingRecord(dummyRecordKey));
+  CPPUNIT_ASSERT(dataProxyProvider.isUsingRecord(dummy2RecordKey));
+  CPPUNIT_ASSERT(dataProxyProvider.isUsingRecord(depRecordKey));
+  CPPUNIT_ASSERT(dataProxyProvider.isUsingRecord(depOn2RecordKey));
+
+  std::set<EventSetupRecordKey> expectedKeys;
+  expectedKeys.insert(dummyRecordKey);
+  expectedKeys.insert(dummy2RecordKey);
+  expectedKeys.insert(depRecordKey);
+  expectedKeys.insert(depOn2RecordKey);
+
+  auto keys = dataProxyProvider.usingRecords();
+  CPPUNIT_ASSERT(keys == expectedKeys);
+
+  keys.clear();
+  dataProxyProvider.fillRecordsNotAllowingConcurrentIOVs(keys);
+  expectedKeys.clear();
+  expectedKeys.insert(dummy2RecordKey);
+  CPPUNIT_ASSERT(keys == expectedKeys);
+
+  nConcurrentIOVs = 1;
+  dataProxyProvider.createKeyedProxies(dummy2RecordKey, nConcurrentIOVs);
+  nConcurrentIOVs = 2;
+  dataProxyProvider.createKeyedProxies(depRecordKey, nConcurrentIOVs);
+  nConcurrentIOVs = 4;
+  dataProxyProvider.createKeyedProxies(depOn2RecordKey, nConcurrentIOVs);
+
+  DataProxyProvider::KeyedProxies& keyedProxies0 = dataProxyProvider.keyedProxies(dummyRecordKey, 0);
+  CPPUNIT_ASSERT(keyedProxies0.recordKey() == dummyRecordKey);
+  CPPUNIT_ASSERT(keyedProxies0.size() == 1);
+  {
+    auto it = keyedProxies0.begin();
+    auto itEnd = keyedProxies0.end();
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy_0_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy_0_0_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies1 = dataProxyProvider.keyedProxies(dummyRecordKey, 1);
+  CPPUNIT_ASSERT(keyedProxies1.recordKey() == dummyRecordKey);
+  CPPUNIT_ASSERT(keyedProxies1.size() == 1);
+  {
+    auto it = keyedProxies1.begin();
+    auto itEnd = keyedProxies1.end();
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy_0_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy_0_1_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies2 = dataProxyProvider.keyedProxies(dummyRecordKey, 2);
+  CPPUNIT_ASSERT(keyedProxies2.recordKey() == dummyRecordKey);
+  CPPUNIT_ASSERT(keyedProxies2.size() == 1);
+  {
+    auto it = keyedProxies2.begin();
+    auto itEnd = keyedProxies2.end();
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy_0_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy_0_2_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies3 = dataProxyProvider.keyedProxies(dummy2RecordKey, 0);
+  CPPUNIT_ASSERT(keyedProxies3.recordKey() == dummy2RecordKey);
+  CPPUNIT_ASSERT(keyedProxies3.size() == 3);
+  {
+    auto it = keyedProxies3.begin();
+    auto itEnd = keyedProxies3.end();
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy2_0_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy2_0_0_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy2_1_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy2_1_0_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDummy2_2_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDummy2_2_0_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies4 = dataProxyProvider.keyedProxies(depRecordKey, 0);
+  CPPUNIT_ASSERT(keyedProxies4.recordKey() == depRecordKey);
+  CPPUNIT_ASSERT(keyedProxies4.size() == 2);
+  {
+    auto it = keyedProxies4.begin();
+    auto itEnd = keyedProxies4.end();
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDep_0_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDep_0_0_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDep_1_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDep_1_0_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies5 = dataProxyProvider.keyedProxies(depRecordKey, 1);
+  CPPUNIT_ASSERT(keyedProxies5.recordKey() == depRecordKey);
+  CPPUNIT_ASSERT(keyedProxies5.size() == 2);
+  {
+    auto it = keyedProxies5.begin();
+    auto itEnd = keyedProxies5.end();
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDep_0_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDep_0_1_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(it.dataKey() == dataProxyProvider.dataKeyDep_1_);
+    CPPUNIT_ASSERT(it.dataProxy() == dataProxyProvider.proxyDep_1_1_.get());
+    CPPUNIT_ASSERT(it != itEnd);
+    ++it;
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies6 = dataProxyProvider.keyedProxies(depOn2RecordKey, 0);
+  CPPUNIT_ASSERT(keyedProxies6.recordKey() == depOn2RecordKey);
+  CPPUNIT_ASSERT(keyedProxies6.size() == 0);
+  {
+    auto it = keyedProxies6.begin();
+    auto itEnd = keyedProxies6.end();
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies7 = dataProxyProvider.keyedProxies(depOn2RecordKey, 1);
+  CPPUNIT_ASSERT(keyedProxies7.recordKey() == depOn2RecordKey);
+  CPPUNIT_ASSERT(keyedProxies7.size() == 0);
+  {
+    auto it = keyedProxies7.begin();
+    auto itEnd = keyedProxies7.end();
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies8 = dataProxyProvider.keyedProxies(depOn2RecordKey, 2);
+  CPPUNIT_ASSERT(keyedProxies8.recordKey() == depOn2RecordKey);
+  CPPUNIT_ASSERT(keyedProxies8.size() == 0);
+  {
+    auto it = keyedProxies8.begin();
+    auto itEnd = keyedProxies8.end();
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+  DataProxyProvider::KeyedProxies& keyedProxies9 = dataProxyProvider.keyedProxies(depOn2RecordKey, 3);
+  CPPUNIT_ASSERT(keyedProxies9.recordKey() == depOn2RecordKey);
+  CPPUNIT_ASSERT(keyedProxies9.size() == 0);
+  {
+    auto it = keyedProxies9.begin();
+    auto itEnd = keyedProxies9.end();
+    CPPUNIT_ASSERT(!(it != itEnd));
+  }
+
+  CPPUNIT_ASSERT(keyedProxies4.contains(dataProxyProvider.dataKeyDep_0_));
+  CPPUNIT_ASSERT(keyedProxies4.contains(dataProxyProvider.dataKeyDep_1_));
+  CPPUNIT_ASSERT(!keyedProxies4.contains(dataProxyProvider.dataKeyDummy_0_));
+
+  DataProxyProvider::KeyedProxies keyedProxies10(nullptr, 0);
+  CPPUNIT_ASSERT(keyedProxies10.unInitialized());
+  CPPUNIT_ASSERT(!keyedProxies0.unInitialized());
 }

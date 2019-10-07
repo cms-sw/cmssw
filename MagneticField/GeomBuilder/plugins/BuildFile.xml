@@ -7,3 +7,10 @@
 <library   file="*.cc" name="MagneticFieldGeomBuilderPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<library name="DD4hep_MagneticFieldGeomBuilderPlugins" file="dd4hep/*.cc">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+  <lib name="Geom"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

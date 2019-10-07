@@ -24,10 +24,10 @@ def runSelected(opt):
 
     # test for wrong input workflows
     if opt.testList:
-        definedWF = []
-        for dwf in mrd.workFlows: definedWF.append(dwf.numId)
-        for twf in opt.testList:
-            if twf not in definedWF: raise ValueError('Not defined workflow ', twf , ' requested')
+        definedSet = set([dwf.numId for dwf in mrd.workFlows])
+        testSet = set(opt.testList)
+        undefSet = testSet - definedSet
+        if len(undefSet)>0: raise ValueError('Undefined workflows: '+', '.join(map(str,list(undefSet))))
 
     ret = 0
     if opt.show:
@@ -273,7 +273,9 @@ if __name__ == '__main__':
     opt,args = parser.parse_args()
     if opt.IBEos:
       import os
-      from commands import getstatusoutput as run_cmd
+      try:from commands import getstatusoutput as run_cmd
+      except:from subprocess import getstatusoutput as run_cmd
+
       ibeos_cache = os.path.join(os.getenv("LOCALRT"), "ibeos_cache.txt")
       if not os.path.exists(ibeos_cache):
         err, out = run_cmd("curl -L -s -o %s https://raw.githubusercontent.com/cms-sw/cms-sw.github.io/master/das_queries/ibeos.txt" % ibeos_cache)

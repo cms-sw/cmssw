@@ -609,8 +609,6 @@ void CommissioningHistograms::remove(std::string pattern) {
     return;
   }
 
-  bei_->setVerbose(0);
-
   LogTrace(mlDqmClient_) << "[CommissioningHistograms::" << __func__ << "]"
                          << " Removing histograms...";
 
@@ -643,8 +641,6 @@ void CommissioningHistograms::remove(std::string pattern) {
 
   LogTrace(mlDqmClient_) << "[CommissioningHistograms::" << __func__ << "]"
                          << " Removed histograms!";
-
-  bei_->setVerbose(1);
 }
 
 // -----------------------------------------------------------------------------

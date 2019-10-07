@@ -16,6 +16,7 @@ trackingParticleRefSelector = cms.EDFilter("TrackingParticleRefSelector",
     minHit = cms.int32(0),
     minPhi = cms.double(-3.2),
     maxPhi = cms.double(3.2),
+    invertRapidityCut = cms.bool(False)
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2

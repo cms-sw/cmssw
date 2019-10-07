@@ -48,7 +48,8 @@ void GSFTrackImporter::importToBlock(const edm::Event& e, BlockElementImporterBa
         reco::SuperClusterRef scref = seedref->caloCluster().castTo<reco::SuperClusterRef>();
         if (scref.isNonnull()) {
           // explicitly veto HGCal super clusters
-          if (scref->seed()->seed().det() == DetId::Forward)
+          if (scref->seed()->seed().det() == DetId::HGCalEE || scref->seed()->seed().det() == DetId::HGCalHSi ||
+              scref->seed()->seed().det() == DetId::HGCalHSc || scref->seed()->seed().det() == DetId::Forward)
             continue;
           PFBlockElementSCEqual myEqual(scref);
           auto sc_elem = std::find_if(elems.begin(), SCs_end, myEqual);

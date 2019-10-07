@@ -1,9 +1,9 @@
+#include <memory>
+
 #include "RecoJets/JetAlgorithms/interface/SubJetAlgorithm.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "fastjet/ClusterSequenceArea.hh"
-
-#include "boost/shared_ptr.hpp"
 
 using namespace std;
 using namespace edm;
@@ -22,14 +22,14 @@ void SubJetAlgorithm::run(const vector<fastjet::PseudoJet>& cell_particles, vect
 
   // cluster the jets with the jet definition jetDef:
   // run algorithm
-  boost::shared_ptr<fastjet::ClusterSequence> fjClusterSeq;
+  std::shared_ptr<fastjet::ClusterSequence> fjClusterSeq;
   if (!doAreaFastjet_) {
-    fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>(new fastjet::ClusterSequence(cell_particles, pjetdef));
+    fjClusterSeq = std::make_shared<fastjet::ClusterSequence>(cell_particles, pjetdef);
   } else if (voronoiRfact_ <= 0) {
-    fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>(
+    fjClusterSeq = std::shared_ptr<fastjet::ClusterSequence>(
         new fastjet::ClusterSequenceActiveArea(cell_particles, pjetdef, *fjActiveArea_));
   } else {
-    fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>(
+    fjClusterSeq = std::shared_ptr<fastjet::ClusterSequence>(
         new fastjet::ClusterSequenceVoronoiArea(cell_particles, pjetdef, fastjet::VoronoiAreaSpec(voronoiRfact_)));
   }
 

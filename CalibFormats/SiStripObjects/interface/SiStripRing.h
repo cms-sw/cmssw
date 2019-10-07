@@ -4,8 +4,8 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripCcu.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include <boost/cstdint.hpp>
 #include <vector>
+#include <cstdint>
 
 /**
     \class SiStripRing

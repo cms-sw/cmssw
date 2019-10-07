@@ -22,7 +22,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "boost/cstdint.hpp"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <iostream>
 #include <string>

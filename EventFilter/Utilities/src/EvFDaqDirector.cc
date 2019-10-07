@@ -962,7 +962,6 @@ namespace evf {
       close(infile);
       infile = -1;
     }
-    //else lseek(infile,0,SEEK_SET);
 
     if (sz_read < 0) {
       edm::LogError("EvFDaqDirector") << "parseFRDFileHeader - unable to read " << rawSourcePath << " : "
@@ -989,6 +988,7 @@ namespace evf {
         return -1;
       } else {
         //no header, but valid file
+        lseek(infile, 0, SEEK_SET);
         rawHeaderSize = 0;
         lsFromHeader = 0;
         eventsFromHeader = -1;

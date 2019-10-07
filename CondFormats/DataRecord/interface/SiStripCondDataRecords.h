@@ -55,6 +55,10 @@ class SiStripClusterThresholdRcd : public edm::eventsetup::EventSetupRecordImple
 /*Record for the configuration object*/
 class SiStripConfObjectRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripConfObjectRcd> {};
 
+/*Record for the APV simulation parameters*/
+class SiStripApvSimulationParametersRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<SiStripApvSimulationParametersRcd> {};
+
 /*Records for upgrade */
 class Phase2TrackerCablingRcd : public edm::eventsetup::EventSetupRecordImplementation<Phase2TrackerCablingRcd> {};
 

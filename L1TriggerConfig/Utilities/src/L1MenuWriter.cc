@@ -36,7 +36,7 @@ void L1MenuWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSe
   else
     evSetup.get<L1TUtmTriggerMenuRcd>().get(handle1);
 
-  boost::shared_ptr<L1TUtmTriggerMenu> ptr1(new L1TUtmTriggerMenu(*(handle1.product())));
+  std::shared_ptr<L1TUtmTriggerMenu> ptr1(new L1TUtmTriggerMenu(*(handle1.product())));
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {

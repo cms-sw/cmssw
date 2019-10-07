@@ -81,6 +81,23 @@ public:
   int waferY() const { return (2 * waferV()); }
   std::pair<int, int> waferXY() const { return std::pair<int, int>(waferX(), waferY()); }
 
+  // get trigger cell u,v
+  int triggerCellU() const {
+    int N = (type() == HFNoseFine) ? HFNoseFineN : HFNoseCoarseN;
+    int NT = (type() == HFNoseFine) ? HFNoseFineTrigger : HFNoseCoarseTrigger;
+    return (cellU() >= N && cellV() >= N)
+               ? cellU() / NT
+               : ((cellU() < N && cellU() <= cellV()) ? cellU() / NT : (1 + (cellU() - (cellV() % NT + 1)) / NT));
+  }
+  int triggerCellV() const {
+    int N = (type() == HFNoseFine) ? HFNoseFineN : HFNoseCoarseN;
+    int NT = (type() == HFNoseFine) ? HFNoseFineTrigger : HFNoseCoarseTrigger;
+    return (cellU() >= N && cellV() >= N)
+               ? cellV() / NT
+               : ((cellU() < N && cellU() <= cellV()) ? ((cellV() - cellU()) / NT + cellU() / NT) : cellV() / NT);
+  }
+  std::pair<int, int> triggerCellUV() const { return std::pair<int, int>(triggerCellU(), triggerCellV()); }
+
   /// consistency check : no bits left => no overhead
   bool isEE() const { return (layer() <= kHFNoseLayerEEmax); }
   bool isHE() const { return (layer() > kHFNoseLayerEEmax); }

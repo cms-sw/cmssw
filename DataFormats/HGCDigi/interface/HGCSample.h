@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <ostream>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 /**
    @class HGCSample
@@ -31,8 +31,8 @@ public:
   void setToAValid(bool toaFired) { toaFired_ = toaFired; }
   void setData(uint16_t data) { setWord(data, kDataMask, kDataShift); }
   void set(bool thr, bool mode, uint16_t toa, uint16_t data) {
-    toa = (toa > kToAMask ? kToAMask : toa);
-    data = (data > kDataMask ? kDataMask : data);
+    toa = (toa > (uint16_t)kToAMask ? (uint16_t)kToAMask : toa);
+    data = (data > (uint16_t)kDataMask ? (uint16_t)kDataMask : data);
 
     value_ = (((uint32_t)thr & kThreshMask) << kThreshShift | ((uint32_t)mode & kModeMask) << kModeShift |
               ((uint32_t)toa & kToAMask) << kToAShift | ((uint32_t)data & kDataMask) << kDataShift);

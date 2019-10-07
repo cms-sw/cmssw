@@ -50,7 +50,6 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
     // book stuff needed for DQM
     dbe = nullptr;
     dbe = edm::Service<DQMStore>().operator->();
-    dbe->setVerbose(50);
   }
 }
 

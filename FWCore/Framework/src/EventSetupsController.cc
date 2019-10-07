@@ -11,24 +11,30 @@
 //
 
 #include "FWCore/Framework/src/EventSetupsController.h"
+
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetupProviderMaker.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/ParameterSetIDHolder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <algorithm>
 #include <iostream>
+#include <set>
 
 namespace edm {
   namespace eventsetup {
 
-    EventSetupsController::EventSetupsController() : mustFinishConfiguration_(true) {}
+    EventSetupsController::EventSetupsController() {}
 
     std::shared_ptr<EventSetupProvider> EventSetupsController::makeProvider(ParameterSet& iPSet,
-                                                                            ActivityRegistry* activityRegistry) {
+                                                                            ActivityRegistry* activityRegistry,
+                                                                            ParameterSet const* eventSetupPset) {
       // Makes an EventSetupProvider
       // Also parses the prefer information from ParameterSets and puts
       // it in a map that is stored in the EventSetupProvider
@@ -40,15 +46,26 @@ namespace edm {
       // EventSetupsController and in the EventSetupProvider
       fillEventSetupProvider(*this, *returnValue, iPSet);
 
+      numberOfConcurrentIOVs_.readConfigurationParameters(eventSetupPset);
+
       providers_.push_back(returnValue);
       return returnValue;
     }
 
+    void EventSetupsController::setMaxConcurrentIOVs(unsigned int nStreams, unsigned int nConcurrentLumis) {
+      numberOfConcurrentIOVs_.setMaxConcurrentIOVs(nStreams, nConcurrentLumis);
+    }
+
     void EventSetupsController::finishConfiguration() {
       if (mustFinishConfiguration_) {
-        std::for_each(providers_.begin(), providers_.end(), [](std::shared_ptr<EventSetupProvider> const& esp) {
-          esp->finishConfiguration();
-        });
+        for (auto& eventSetupProvider : providers_) {
+          numberOfConcurrentIOVs_.fillRecordsNotAllowingConcurrentIOVs(*eventSetupProvider);
+        }
+
+        for (auto& eventSetupProvider : providers_) {
+          eventSetupProvider->finishConfiguration(numberOfConcurrentIOVs_, hasNonconcurrentFinder_);
+        }
+
         // When the ESSources and ESProducers were constructed a first pass was
         // done which attempts to get component sharing between SubProcesses
         // correct, but in this pass only the configuration of the components
@@ -58,29 +75,106 @@ namespace edm {
         // also checked. The component sharing is appropriately fixed as necessary.
         checkESProducerSharing();
         clearComponents();
+
+        initializeEventSetupRecordIOVQueues();
+        numberOfConcurrentIOVs_.clear();
         mustFinishConfiguration_ = false;
       }
     }
-    void EventSetupsController::eventSetupForInstance(IOVSyncValue const& syncValue) {
+
+    void EventSetupsController::eventSetupForInstance(
+        IOVSyncValue const& syncValue,
+        WaitingTaskHolder const& taskToStartAfterIOVInit,
+        WaitingTaskList& endIOVWaitingTasks,
+        std::vector<std::shared_ptr<const EventSetupImpl>>& eventSetupImpls) {
       finishConfiguration();
-      std::for_each(providers_.begin(), providers_.end(), [&syncValue](std::shared_ptr<EventSetupProvider> const& esp) {
-        esp->eventSetupForInstance(syncValue);
-      });
+
+      bool newEventSetupImpl = false;
+      eventSetupImpls.clear();
+      eventSetupImpls.reserve(providers_.size());
+
+      // Note that unless there are one or more SubProcesses providers_ will only
+      // contain one element.
+
+      for (auto& eventSetupProvider : providers_) {
+        eventSetupProvider->setAllValidityIntervals(syncValue);
+      }
+
+      for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
+        // For a particular record, if the top level process or any SubProcess requires
+        // starting a new IOV, then we must start a new IOV for all of them. And we
+        // need to know whether this is needed at this point in time. This is
+        // recorded in the EventSetupRecordProviders.
+        eventSetupRecordIOVQueue->setNewIntervalForAnySubProcess();
+      }
+
+      for (auto& eventSetupProvider : providers_) {
+        // Decides whether we can reuse the existing EventSetupImpl and if we can
+        // returns it. If a new one is needed it will create it, although the pointers
+        // to the EventSetupRecordImpl's will not be set yet in the returned EventSetupImpl
+        // object.
+        eventSetupImpls.push_back(eventSetupProvider->eventSetupForInstance(syncValue, newEventSetupImpl));
+      }
+
+      for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
+        eventSetupRecordIOVQueue->checkForNewIOVs(taskToStartAfterIOVInit, endIOVWaitingTasks, newEventSetupImpl);
+      }
     }
 
-    void EventSetupsController::forceCacheClear() const {
-      std::for_each(providers_.begin(), providers_.end(), [](std::shared_ptr<EventSetupProvider> const& esp) {
-        esp->forceCacheClear();
-      });
-    }
+    void EventSetupsController::eventSetupForInstance(IOVSyncValue const& syncValue) {
+      // This function only supports use cases where the event setup
+      // system is used without multiple concurrent IOVs.
+      // At the time this comment is being written, this is used for
+      // run transitions and in unit test code. In the future,
+      // it may only be needed for unit tests. This function uses
+      // the other version of eventSetupForInstance that
+      // supports concurrent IOVs. To get this to work, a couple
+      // arguments to that function need dummy objects that do
+      // not serve any purpose in this context. We also need to
+      // add in a task to wait for the asynchronous initialization
+      // of IOVs to complete.
 
-    bool EventSetupsController::isWithinValidityInterval(IOVSyncValue const& syncValue) const {
-      for (auto const& provider : providers_) {
-        if (not provider->isWithinValidityInterval(syncValue)) {
-          return false;
+      auto waitUntilIOVInitializationCompletes = make_empty_waiting_task();
+      waitUntilIOVInitializationCompletes->increment_ref_count();
+
+      // These do nothing ...
+      WaitingTaskList dummyWaitingTaskList;
+      std::vector<std::shared_ptr<const EventSetupImpl>> dummyEventSetupImpls;
+
+      {
+        WaitingTaskHolder waitingTaskHolder(waitUntilIOVInitializationCompletes.get());
+
+        try {
+          // All the real work is done here.
+          eventSetupForInstance(syncValue, waitingTaskHolder, dummyWaitingTaskList, dummyEventSetupImpls);
+          dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
+        } catch (...) {
+          dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
+          waitingTaskHolder.doneWaiting(std::current_exception());
         }
       }
-      return true;
+      waitUntilIOVInitializationCompletes->wait_for_all();
+
+      if (waitUntilIOVInitializationCompletes->exceptionPtr() != nullptr) {
+        std::rethrow_exception(*(waitUntilIOVInitializationCompletes->exceptionPtr()));
+      }
+    }
+
+    bool EventSetupsController::doWeNeedToWaitForIOVsToFinish(IOVSyncValue const& syncValue) const {
+      if (hasNonconcurrentFinder()) {
+        for (auto& eventSetupProvider : providers_) {
+          if (eventSetupProvider->doWeNeedToWaitForIOVsToFinish(syncValue)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    void EventSetupsController::forceCacheClear() {
+      for (auto& eventSetupProvider : providers_) {
+        eventSetupProvider->forceCacheClear();
+      }
     }
 
     std::shared_ptr<DataProxyProvider> EventSetupsController::getESProducerAndRegisterProcess(
@@ -313,7 +407,7 @@ namespace edm {
         // But only for DataProxy's that are associated with
         // an ESProducer (not the ones associated with ESSource's
         // or EDLooper's)
-        std::map<EventSetupRecordKey, std::vector<ComponentDescription const*> > referencedESProducers;
+        std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>> referencedESProducers;
 
         // For each EventSetupProvider from a SubProcess, loop over the
         // EventSetupProviders from the preceding processes (the first
@@ -325,10 +419,29 @@ namespace edm {
 
         (*esProvider)->resetRecordToProxyPointers();
       }
-      esProvider = providers_.begin();
-      for (; esProvider != esProviderEnd; ++esProvider) {
-        (*esProvider)->clearInitializationData();
+      for (auto& eventSetupProvider : providers_) {
+        eventSetupProvider->clearInitializationData();
       }
     }
+
+    void EventSetupsController::initializeEventSetupRecordIOVQueues() {
+      std::set<EventSetupRecordKey> keys;
+      for (auto const& provider : providers_) {
+        provider->fillKeys(keys);
+      }
+
+      for (auto const& key : keys) {
+        eventSetupRecordIOVQueues_.push_back(
+            std::make_unique<EventSetupRecordIOVQueue>(numberOfConcurrentIOVs_.numberOfConcurrentIOVs(key)));
+        EventSetupRecordIOVQueue& iovQueue = *eventSetupRecordIOVQueues_.back();
+        for (auto& provider : providers_) {
+          EventSetupRecordProvider* recProvider = provider->tryToGetRecordProvider(key);
+          if (recProvider) {
+            iovQueue.addRecProvider(recProvider);
+          }
+        }
+      }
+    }
+
   }  // namespace eventsetup
 }  // namespace edm

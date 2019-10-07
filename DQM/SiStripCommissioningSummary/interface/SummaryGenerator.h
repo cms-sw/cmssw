@@ -2,10 +2,10 @@
 #define DQM_SiStripCommon_SummaryGenerator_H
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "boost/cstdint.hpp"
 #include <string>
 #include <vector>
 #include <map>
+#include <cstdint>
 
 class TH1;
 

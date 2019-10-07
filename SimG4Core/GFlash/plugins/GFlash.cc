@@ -11,14 +11,11 @@
 #include "G4NeutronTrackingCut.hh"
 #include "G4StoppingPhysics.hh"
 
-#include "G4DataQuestionaire.hh"
 #include "SimGeneral/GFlash/interface/GflashHistogram.h"
 
 #include <string>
 
 GFlash::GFlash(const edm::ParameterSet &p) : PhysicsList(p), thePar(p.getParameter<edm::ParameterSet>("GFlash")) {
-  G4DataQuestionaire it(photon);
-
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
   bool emPhys = p.getUntrackedParameter<bool>("EMPhysics", true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics", true);

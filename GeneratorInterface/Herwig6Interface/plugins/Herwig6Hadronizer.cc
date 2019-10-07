@@ -5,7 +5,7 @@
 #include <memory>
 #include <map>
 #include <set>
-#include <boost/shared_ptr.hpp>
+
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <HepMC/GenEvent.h>

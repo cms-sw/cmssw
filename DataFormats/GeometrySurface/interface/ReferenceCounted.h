@@ -30,8 +30,8 @@ class BasicReferenceCounted {
 public:
   BasicReferenceCounted() : referenceCount_(0) {}
   BasicReferenceCounted(const BasicReferenceCounted& /* iRHS */) : referenceCount_(0) {}
-  BasicReferenceCounted(BasicReferenceCounted&&) = default;
-  BasicReferenceCounted& operator=(BasicReferenceCounted&&) = default;
+  BasicReferenceCounted(BasicReferenceCounted&&) : referenceCount_(0) {}
+  BasicReferenceCounted& operator=(BasicReferenceCounted&&) { return *this; }
 
   BasicReferenceCounted& operator=(const BasicReferenceCounted&) { return *this; }
 

@@ -1,18 +1,16 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <debug>
+<!-- 
     <debug_shapes/>
     <debug_includes/>
     <debug_rotations/>
     <debug_includes/>
     <debug_volumes/>
     <debug_constants/>
-    <!-- debug_materials/ -->
     <debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
-
-<!-- 
     <debug_materials/>
     <debug_visattr/>
 -->
@@ -28,6 +26,7 @@
     <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcal.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/dd4hep/world.xml"/>
   </IncludeSection>
   
 </DDDefinition>

@@ -44,8 +44,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <boost/cstdint.hpp>
-
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
@@ -55,6 +53,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include <cstdint>
 
 class SiPixelClusterSource : public DQMEDAnalyzer {
 public:

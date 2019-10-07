@@ -222,7 +222,7 @@ int main() {
   si2.reset();
   sin.reset();
 
-  boost::shared_ptr<int> bsi1(pi1, deleter), bs2i1(pi1, deleter), bsi1b(pi1b, deleter), bsi2(pi2, deleter),
+  std::shared_ptr<int> bsi1(pi1, deleter), bs2i1(pi1, deleter), bsi1b(pi1b, deleter), bsi2(pi2, deleter),
       bsin(pin, deleter);
   same(bsi1, bsi1);
   same(bsi1, bs2i1);  // diff object, same addr (may happen since it is a shared_ptr)
