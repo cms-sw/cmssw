@@ -18,7 +18,7 @@ public:
     SiCellOpCharacteristics()
         : lnfluence(0.), fluence(0.), ileak(0.), cce(1.), noise(0.), mipfC(0), gain(0), mipADC(0), thrADC(0) {}
     double lnfluence, fluence, ileak, cce, noise, mipfC;
-    unsigned int gain, mipADC, thrADC, maxADC;
+    unsigned int gain, mipADC, thrADC;
   };
 
   HGCalSiNoiseMap();
