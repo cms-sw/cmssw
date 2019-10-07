@@ -50,7 +50,6 @@ FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet& iConfig,
                                                const MuonServiceProxy* service,
                                                edm::ConsumesCollector& iC)
     : theCategory("FastSimulation|Muons|FastTSGFromPropagation"),
-      theTkLayerMeasurements(),
       theTracker(),
       theNavigation(),
       theService(service),
@@ -104,7 +103,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon,
       if ((*inl == nullptr))
         break;
       //         if ( (inl != nls.end()-1 ) && ( (*inl)->subDetector() == GeomDetEnumerators::TEC ) && ( (*(inl+1))->subDetector() == GeomDetEnumerators::TOB ) ) continue;
-      alltm = findMeasurements_new(*inl, staState);
+      alltm = findMeasurements(*inl, staState);
       if ((!alltm.empty())) {
         LogTrace(theCategory) << "final compatible layer: " << ndesLayer;
         break;
@@ -373,7 +372,6 @@ void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
 
   if (theUpdateStateFlag) {
     iEvent.getByToken(theMeasurementTrackerEventToken_, theMeasTrackerEvent);
-    theTkLayerMeasurements = LayerMeasurements(*theMeasTracker, *theMeasTrackerEvent);
   }
 
   bool trackerGeomChanged = false;
@@ -447,7 +445,7 @@ void FastTSGFromPropagation::validMeasurements(std::vector<TrajectoryMeasurement
   return;
 }
 
-std::vector<TrajectoryMeasurement> FastTSGFromPropagation::findMeasurements_new(
+std::vector<TrajectoryMeasurement> FastTSGFromPropagation::findMeasurements(
     const DetLayer* nl, const TrajectoryStateOnSurface& staState) const {
   std::vector<TrajectoryMeasurement> result;
 
@@ -471,14 +469,6 @@ std::vector<TrajectoryMeasurement> FastTSGFromPropagation::findMeasurements_new(
     }
   }
 
-  return result;
-}
-
-std::vector<TrajectoryMeasurement> FastTSGFromPropagation::findMeasurements(
-    const DetLayer* nl, const TrajectoryStateOnSurface& staState) const {
-  std::vector<TrajectoryMeasurement> result =
-      tkLayerMeasurements()->measurements((*nl), staState, *propagator(), *estimator());
-  validMeasurements(result);
   return result;
 }
 
