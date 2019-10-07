@@ -10,6 +10,8 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <numeric>
+#include <functional>
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace Ort {
@@ -83,6 +85,9 @@ namespace Ort {
                                FloatArrays& input_values,
                                const std::vector<std::string>& output_names,
                                int64_t batch_size) const {
+    assert(input_names.size() == input_values.size());
+    assert(batch_size > 0);
+
     // create input tensor objects from data values
     std::vector<Value> input_tensors;
     auto memory_info = MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
@@ -94,6 +99,10 @@ namespace Ort {
       auto value = input_values.begin() + (iter - input_names.begin());
       auto input_dims = input_node_dims_.at(name);
       input_dims[0] = batch_size;
+      auto expected_len = std::accumulate(input_dims.begin(), input_dims.end(), 1, std::multiplies<int64_t>());
+      if (expected_len != (int64_t)value->size()) {
+        throw cms::Exception("RuntimeError") << "Input array " << name << " has a wrong size of " << value->size() << ", expected " << expected_len;
+      }
       auto input_tensor =
           Value::CreateTensor<float>(memory_info, value->data(), value->size(), input_dims.data(), input_dims.size());
       assert(input_tensor.IsTensor());
