@@ -1968,10 +1968,11 @@ class ConfigBuilder(object):
         pathName='dqmofflineOnPAT_step'
         for (i,sequence) in enumerate(postSequenceList):
 	    #Fix needed to avoid duplication of sequences not defined in autoDQM or without a PostDQM
-	    if (sequenceList[i]==postSequenceList[i]):
-                continue
+            if (sequenceList[i]==postSequenceList[i]):
+                      continue
             if (i!=0):
-		pathName='dqmofflineOnPAT_%d_step'%(i)	
+                pathName='dqmofflineOnPAT_%d_step'%(i)
+
             setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
             self.schedule.append(getattr(self.process,pathName))
 
