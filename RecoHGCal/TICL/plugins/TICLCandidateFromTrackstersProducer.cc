@@ -74,8 +74,10 @@ TICLCandidateFromTrackstersProducer::TICLCandidateFromTrackstersProducer(const e
 void TICLCandidateFromTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  std::vector<edm::InputTag> source_vector{
-      edm::InputTag("trackstersTrk"), edm::InputTag("trackstersMIP"), edm::InputTag("tracksters")};
+  std::vector<edm::InputTag> source_vector{edm::InputTag("trackstersTrk"),
+                                           edm::InputTag("trackstersMIP"),
+                                           edm::InputTag("trackstersEM"),
+                                           edm::InputTag("trackstersHAD")};
   desc.add<std::vector<edm::InputTag>>("tracksterCollections", source_vector);
   desc.add<double>("minParticleProbability", 0.);
 
@@ -111,8 +113,7 @@ void TICLCandidateFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
         continue;
 
       trackster_ptrs.push_back(&trackster);
-      result->emplace_back(edm::Ptr<ticl::Trackster>(trackster_h, i_trackster));
-      auto ticl_cand = result->back();
+      auto& ticl_cand = result->emplace_back(edm::Ptr<ticl::Trackster>(trackster_h, i_trackster));
       auto max_index = std::distance(id_prob_begin, max_id_prob_it);
       auto pdg_id = pdg_id_from_idx(max_index);
       ticl_cand.setPdgId(pdg_id);
