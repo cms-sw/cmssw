@@ -101,7 +101,8 @@ namespace Ort {
       input_dims[0] = batch_size;
       auto expected_len = std::accumulate(input_dims.begin(), input_dims.end(), 1, std::multiplies<int64_t>());
       if (expected_len != (int64_t)value->size()) {
-        throw cms::Exception("RuntimeError") << "Input array " << name << " has a wrong size of " << value->size() << ", expected " << expected_len;
+        throw cms::Exception("RuntimeError")
+            << "Input array " << name << " has a wrong size of " << value->size() << ", expected " << expected_len;
       }
       auto input_tensor =
           Value::CreateTensor<float>(memory_info, value->data(), value->size(), input_dims.data(), input_dims.size());
