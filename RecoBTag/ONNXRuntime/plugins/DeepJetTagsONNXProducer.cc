@@ -87,43 +87,44 @@ void DeepJetTagsONNXProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
 
-  // initialize output collection
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
   if (!tag_infos->empty()) {
+    // initialize output collection
     auto jet_ref = tag_infos->begin()->jet();
     auto ref2prod = edm::makeRefToBaseProdFrom(jet_ref, iEvent);
     for (std::size_t i = 0; i < flav_names_.size(); i++) {
       output_tags.emplace_back(std::make_unique<JetTagCollection>(ref2prod));
     }
+
+    // init data storage
+    data_.clear();
+    for (const auto& len : input_sizes_) {
+      data_.emplace_back(tag_infos->size() * len, 0);
+    }
+
+    // convert inputs
+    for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
+      const auto& taginfo = (*tag_infos)[jet_n];
+      make_inputs(jet_n, taginfo);
+    }
+
+    // run prediction
+    auto outputs = globalCache()->run(input_names_, data_, output_names_, tag_infos->size())[0];
+    assert(outputs.size() == flav_names_.size() * tag_infos->size());
+
+    // get the outputs
+    unsigned i_output = 0;
+    for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
+      const auto& jet_ref = tag_infos->at(jet_n).jet();
+      for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
+        (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
+        ++i_output;
+      }
+    }
   } else {
+    // create empty output collection
     for (std::size_t i = 0; i < flav_names_.size(); i++) {
       output_tags.emplace_back(std::make_unique<JetTagCollection>());
-    }
-  }
-
-  // init data storage
-  data_.clear();
-  for (const auto& len : input_sizes_) {
-    data_.emplace_back(tag_infos->size() * len, 0);
-  }
-
-  // convert inputs
-  for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-    const auto& taginfo = (*tag_infos)[jet_n];
-    make_inputs(jet_n, taginfo);
-  }
-
-  // run prediction
-  auto outputs = globalCache()->run(input_names_, data_, output_names_, tag_infos->size())[0];
-  assert(outputs.size() == flav_names_.size() * tag_infos->size());
-
-  // get the outputs
-  unsigned i_output = 0;
-  for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-    const auto& jet_ref = tag_infos->at(jet_n).jet();
-    for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
-      (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
-      ++i_output;
     }
   }
 
