@@ -1,5 +1,6 @@
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include <DD4hep/Detector.h>
+#include <DD4hep/DetectorTools.h>
 #include <DD4hep/Volumes.h>
 
 #include <iostream>
@@ -24,4 +25,26 @@ void DDDetector::process(const string& fileName) {
 dd4hep::Volume DDDetector::worldVolume() const {
   assert(m_description);
   return m_description->worldVolume();
+}
+
+dd4hep::PlacedVolume DDDetector::worldPlacement() const { return world().placement(); }
+
+dd4hep::DetElement DDDetector::world() const {
+  assert(m_description);
+  return m_description->world();
+}
+
+const dd4hep::Detector::HandleMap& DDDetector::detectors() const {
+  assert(m_description);
+  return m_description->detectors();
+}
+
+TGeoManager& DDDetector::manager() const {
+  assert(m_description);
+  return m_description->manager();
+}
+
+dd4hep::DetElement DDDetector::findElement(const std::string& path) const {
+  assert(m_description);
+  return dd4hep::detail::tools::findElement(*m_description, path);
 }
