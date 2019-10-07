@@ -98,6 +98,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('sip3d', 'sip3d', 20, 0, 20, '3D impact parameter significance wrt first PV, in cm'),
                 Plot1D('tightCharge', 'tightCharge', 3, -0.5, 2.5, 'Tight charge criteria (0:none, 1:isGsfScPixChargeConsistent, 2:isGsfCtfScPixChargeConsistent)'),
                 NoPlot('vidNestedWPBitmap'),
+                NoPlot('vidNestedWPBitmapHEEP'),
             )
         ),
         FatJet = cms.PSet(
@@ -443,6 +444,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('seedGain', 'seedGain', 12, 0.5, 12.5, 'Gain of the seed crystal'),
                 Plot1D('sieie', 'sieie', 20, 0, 0.05, 'sigma_IetaIeta of the supercluster, calculated with full 5x5 region'),
                 NoPlot('vidNestedWPBitmap'),
+                NoPlot('vidNestedWPBitmapHEEP'),
             )
         ),
         Pileup = cms.PSet(
