@@ -1964,6 +1964,18 @@ class ConfigBuilder(object):
                 #will get in the schedule, smoothly
                 getattr(self.process,pathName).insert(0,self.process.genstepfilter)
 
+
+        pathName='dqmofflineOnPAT_step'
+        for (i,sequence) in enumerate(postSequenceList):
+	    #Fix needed to avoid duplication of sequences not defined in autoDQM or without a PostDQM
+	    if (sequenceList[i]==postSequenceList[i]):
+		continue
+            if (i!=0):
+               	pathName='dqmofflineOnPAT_%d_step'%(i)
+ 
+            setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
+            self.schedule.append(getattr(self.process,pathName))
+
     def prepare_HARVESTING(self, sequence = None):
         """ Enrich the process with harvesting step """
         self.DQMSaverCFF='Configuration/StandardSequences/DQMSaver'+self._options.harvesting+'_cff'
