@@ -123,6 +123,7 @@ void HGCFEElectronics<DFr>::runTrivialShaper(
     //brute force saturation, maybe could to better with an exponential like saturation
     const uint32_t adc = std::floor(std::min(chargeColl[it], maxADC) / lsbADC);
     HGCSample newSample;
+    std::cout << "GF HGCFEElectronics - happily instantiating a HGCSample" << std::endl;
     newSample.set(adc > thrADC, false, 0, adc);
     dataFrame.setSample(it, newSample);
 
