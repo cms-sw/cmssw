@@ -1969,7 +1969,7 @@ class ConfigBuilder(object):
         for (i,sequence) in enumerate(postSequenceList):
 	    #Fix needed to avoid duplication of sequences not defined in autoDQM or without a PostDQM
 	    if (sequenceList[i]==postSequenceList[i]):
-		continue
+                continue
             if (i!=0):
 		pathName='dqmofflineOnPAT_%d_step'%(i)
 		
