@@ -88,7 +88,6 @@ void SeedingOTEDProducer::produce(edm::Event& event, const edm::EventSetup& es) 
 
   seedsWithVHs->shrink_to_fit();
   event.put(std::move(seedsWithVHs));
-
 }
 
 TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectionNew> VHs) {
@@ -116,7 +115,6 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
     float signZ = copysign(1.0, initialTSOS.globalPosition().z());
     float signPz = copysign(1.0, initialTSOS.globalMomentum().z());
 
-
     //set the direction of the propagator
     if (signZ * signPz > 0.0)
       searchingPropagator->setPropagationDirection(oppositeToMomentum);
@@ -124,11 +122,11 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
       searchingPropagator->setPropagationDirection(alongMomentum);
 
     if (searchingPropagator->propagationDirection() == alongMomentum)
-    if (searchingPropagator->propagationDirection() == oppositeToMomentum)
+      if (searchingPropagator->propagationDirection() == oppositeToMomentum)
 
-    //find vHits in layer 2
-    std::vector<TrajectoryMeasurement> measurementsL2 =
-        layerMeasurements->measurements(*barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator);
+        //find vHits in layer 2
+        std::vector<TrajectoryMeasurement> measurementsL2 =
+            layerMeasurements->measurements(*barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator);
 
     //other options
     //LayerMeasurements::SimpleHitContainer hits;
@@ -146,7 +144,6 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
       const DetLayer* barrelOTLayer1 = measurementTracker->geometricSearchTracker()->tobLayers().at(0);
 
       for (auto mL2 : measurementsL2) {
-
         const TrackingRecHit* hitL2 = mL2.recHit().get();
 
         //propagate to the L2 and update the TSOS
@@ -164,7 +161,6 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
 
         if (!measurementsL1.empty()) {
           for (auto mL1 : measurementsL1) {
-
             const TrackingRecHit* hitL1 = mL1.recHit().get();
 
             //propagate to the L1 and update the TSOS
@@ -199,7 +195,6 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
             result.push_back(ts);
           }
         }
-
       }
     }
   }
@@ -229,7 +224,6 @@ std::vector<VectorHit> SeedingOTEDProducer::collectVHsOnLayer(edm::Handle<Vector
       }
     }
   }
-
 
   return VHsOnLayer;
 }
@@ -325,7 +319,6 @@ TrajectorySeed SeedingOTEDProducer::createSeed(const TrajectoryStateOnSurface& t
                                                const edm::OwnVector<TrackingRecHit>& container,
                                                const DetId& id,
                                                const Propagator& prop) {
-
   PTrajectoryStateOnDet seedTSOS = trajectoryStateTransform::persistentState(tsos, id.rawId());
   return TrajectorySeed(seedTSOS, container, prop.propagationDirection());
 }
