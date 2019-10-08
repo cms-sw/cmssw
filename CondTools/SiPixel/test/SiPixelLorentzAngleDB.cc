@@ -4,7 +4,7 @@
 #include <fstream>
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondTools/SiPixel/test/SiPixelLorentzAngleDB.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
