@@ -13,7 +13,7 @@
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "RecoHGCal/TICL/interface/GlobalCache.h"
+#include "RecoHGCal/TICL/plugins/GlobalCache.h"
 
 namespace edm {
   class Event;
