@@ -577,6 +577,7 @@ public:
         desc.add<bool>("mem_mapped", false);
         desc.add<unsigned>("version", 2);
         desc.add<int>("debug_level", 0);
+        desc.add<bool>("disable_dxy_pca", false);
 
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
@@ -601,7 +602,8 @@ public:
         muons_token_(consumes<MuonCollection>(cfg.getParameter<edm::InputTag>("muons"))),
         rho_token_(consumes<double>(cfg.getParameter<edm::InputTag>("rho"))),
         version(cfg.getParameter<unsigned>("version")),
-        debug_level(cfg.getParameter<int>("debug_level"))
+        debug_level(cfg.getParameter<int>("debug_level")),
+        disable_dxy_pca_(cfg.getParameter<bool>("disable_dxy_pca"))
     {
         if(version == 1) {
             input_layer_ = cache_->getGraph().node(0).name();
@@ -907,9 +909,19 @@ private:
         get(dnn::neutralIsoPtSumdR03_over_dR05) = getValue(tau.tauID("neutralIsoPtSumdR03") / tau.tauID("neutralIsoPtSum"));
         get(dnn::photonPtSumOutsideSignalCone) = getValueNorm(tau.tauID("photonPtSumOutsideSignalConedR03"), 1.731f, 6.846f);
         get(dnn::puCorrPtSum) = getValueNorm(tau.tauID("puCorrPtSum"), 22.38f, 16.34f);
-        get(dnn::tau_dxy_pca_x) = getValueNorm(tau.dxy_PCA().x(), -0.0241f, 0.0074f);
-        get(dnn::tau_dxy_pca_y) = getValueNorm(tau.dxy_PCA().y(),0.0675f, 0.0128f);
-        get(dnn::tau_dxy_pca_z) = getValueNorm(tau.dxy_PCA().z(), 0.7973f, 3.456f);
+        // The global PCA coordinates were used as inputs during the NN training, but it was decided to disable
+        // them for the inference, because modeling of dxy_PCA in MC poorly describes the data, and x and y coordinates
+        // in data results outside of the expected 5 std. dev. input validity range. On the other hand,
+        // these coordinates are strongly era-dependent. Kept as comment to document what NN expects.
+	if (!disable_dxy_pca_) {
+	  get(dnn::tau_dxy_pca_x) = getValueNorm(tau.dxy_PCA().x(), -0.0241f, 0.0074f);
+	  get(dnn::tau_dxy_pca_y) = getValueNorm(tau.dxy_PCA().y(),0.0675f, 0.0128f);
+	  get(dnn::tau_dxy_pca_z) = getValueNorm(tau.dxy_PCA().z(), 0.7973f, 3.456f);
+	} else {
+	  get(dnn::tau_dxy_pca_x) = 0;
+	  get(dnn::tau_dxy_pca_y) = 0;
+	  get(dnn::tau_dxy_pca_z) = 0;
+	}
 
         const bool tau_dxy_valid = std::isnormal(tau.dxy()) && tau.dxy() > - 10 && std::isnormal(tau.dxy_error())
             && tau.dxy_error() > 0;
@@ -1687,6 +1699,7 @@ private:
     std::string input_layer_, output_layer_;
     const unsigned version;
     const int debug_level;
+    const bool disable_dxy_pca_;
     std::shared_ptr<tensorflow::Tensor> tauBlockTensor_;
     std::array<std::shared_ptr<tensorflow::Tensor>, 2> eGammaTensor_, muonTensor_, hadronsTensor_,
                                                        convTensor_, zeroOutputTensor_;
