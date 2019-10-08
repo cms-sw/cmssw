@@ -101,7 +101,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   siop.gain = gain;
   siop.mipfC = S;
   siop.mipADC = std::floor(S / lsbPerGain_[gain]);
-  siop.thrADC = std::floor(siop.mipADC / 2);
+  siop.thrADC = std::floor(S / 2. / lsbPerGain_[gain]);
 
   //build noise estimate
   double enc_s(encsParam_[gain][0] + encsParam_[gain][1] * cellCap + encsParam_[gain][2] * pow(cellCap, 2));
