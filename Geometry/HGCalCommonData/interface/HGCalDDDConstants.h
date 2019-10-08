@@ -175,7 +175,7 @@ private:
   bool isValidCell(int layindex, int wafer, int cell) const;
   bool isValidCell8(int lay, int waferU, int waferV, int cellU, int cellV, int type) const;
   bool waferInLayerTest(int wafer, int lay, bool full) const;
-  std::pair<double,double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug) const;
+  std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug) const;
 
   const double k_horizontalShift = 1.0;
   const float dPhiMin = 0.02;

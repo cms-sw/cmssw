@@ -568,15 +568,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int cell, int lay, int typ
   return std::make_pair(x, y);
 }
 
-std::pair<float, float> HGCalDDDConstants::locateCell(int lay,
-                                                      int waferU,
-                                                      int waferV,
-                                                      int cellU,
-                                                      int cellV,
-                                                      bool reco,
-                                                      bool all,
-                                                      bool debug) const {
-
+std::pair<float, float> HGCalDDDConstants::locateCell(
+    int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool debug) const {
   float x(0), y(0);
   int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
   auto itr = hgpar_->typesInLayers_.find(indx);
@@ -1455,8 +1448,8 @@ bool HGCalDDDConstants::isValidCell8(int lay, int waferU, int waferV, int cellU,
   int ll = lay - hgpar_->firstLayer_;
   bool result = ((rr >= hgpar_->rMinLayHex_[ll]) && (rr <= hgpar_->rMaxLayHex_[ll]));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Input " << lay << ":" << ll << ":" << waferU << ":" << waferV << ":" << cellU << ":" << cellV
-                                << " Position " << x << ":" << y << ":" << rr << " Compare Limits "
+  edm::LogVerbatim("HGCalGeom") << "Input " << lay << ":" << ll << ":" << waferU << ":" << waferV << ":" << cellU << ":"
+                                << cellV << " Position " << x << ":" << y << ":" << rr << " Compare Limits "
                                 << hgpar_->rMinLayHex_[ll] << ":" << hgpar_->rMaxLayHex_[ll] << " Flag " << result;
 #endif
   return result;
@@ -1480,15 +1473,15 @@ bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
   return in;
 }
 
-std::pair<double,double> HGCalDDDConstants::waferPosition(int lay,  
-							  int waferU, 
-							  int waferV, 
-							  bool reco, 
-							  bool 
+std::pair<double, double> HGCalDDDConstants::waferPosition(int lay,
+                                                           int waferU,
+                                                           int waferV,
+                                                           bool reco,
+                                                           bool
 #ifdef EDM_ML_DEBUG
-							  debug
+                                                               debug
 #endif
-							  ) const {
+                                                           ) const {
 
   int ll = lay - hgpar_->firstLayer_;
   double x = hgpar_->xLayerHex_[ll];
