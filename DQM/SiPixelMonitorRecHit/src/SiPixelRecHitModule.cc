@@ -21,7 +21,7 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "DataFormats/Common/interface/Handle.h"

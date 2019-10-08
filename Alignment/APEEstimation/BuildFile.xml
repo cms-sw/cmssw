@@ -23,7 +23,6 @@
 <use name="TrackingTools/TrajectoryState"/>
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/CommonTopologies"/>
-<use name="Geometry/TrackerGeometryBuilder"/>
 <use name="CondFormats/Alignment"/>
 <use name="RecoLocalTracker/SiStripClusterizer"/>
 <use name="RecoLocalTracker/SiStripRecHitConverter"/>

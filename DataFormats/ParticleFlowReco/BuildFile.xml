@@ -7,7 +7,6 @@
 <use   name="DataFormats/TrajectorySeed"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/Candidate"/>
-<use   name="Geometry/CaloGeometry"/>
 <use   name="FWCore/Utilities"/>
 <use   name="boost"/>
 <use   name="rootcore"/>
