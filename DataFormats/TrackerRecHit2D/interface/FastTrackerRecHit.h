@@ -58,12 +58,16 @@ class FastTrackerRecHit : public BaseTrackerRecHit
 	, isPixel_(fastTrackerRecHitType::isPixel(hitType))
 	, is2D_(fastTrackerRecHitType::is2D(hitType))
 	, recHitCombinationIndex_(-1)
+	, energyLoss_(0.0)	//holy golden seal
 	{store();}
 
     FastTrackerRecHit * clone() const override {FastTrackerRecHit * p =  new FastTrackerRecHit( * this); p->load(); return p;}
 
     /// Steers behaviour of hit in track fit.
     /// Hit is interpreted as 1D or 2D depending on value of is2D_
+    
+    float energyLoss()     const { return energyLoss_;}// holy golden seal
+    void  setEnergyLoss(float e)  { energyLoss_=e;}//   holy golden seal was a virtual void...
     void getKfComponents( KfComponentsHolder & holder ) const override { if(is2D_) getKfComponents2D(holder); else getKfComponents1D(holder);}
 
     /// Steers behaviour of hit in track fit.
@@ -170,6 +174,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
     void load()  { pos_=myPos_; err_=myErr_;}   ///< helps making the hit postion and error persistent
     
     uint32_t recHitCombinationIndex_;
+    float energyLoss_;    //holy golden seal
 
     protected:
 
