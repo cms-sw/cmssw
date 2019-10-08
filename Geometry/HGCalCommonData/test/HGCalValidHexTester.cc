@@ -73,20 +73,20 @@ HGCalValidHexTester::~HGCalValidHexTester() {}
 void HGCalValidHexTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const DetId::Detector det = (nameSense_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi;
   const HGCalDDDConstants& hgdc = iSetup.getData(dddToken_);
-  std::cout << nameDetector_ << " Layers = " << hgdc.layers(true) << " Sectors = " << hgdc.sectors()
-            << std::endl << std::endl;
+  std::cout << nameDetector_ << " Layers = " << hgdc.layers(true) << " Sectors = " << hgdc.sectors() << std::endl
+            << std::endl;
   for (unsigned int k = 0; k < layers_.size(); ++k) {
     int nCells = (types_[k] == 0) ? HGCSiliconDetId::HGCalFineN : HGCSiliconDetId::HGCalCoarseN;
     int ncell(0);
     for (int u = 0; u < 2 * nCells; ++u) {
       for (int v = 0; v < 2 * nCells; ++v) {
-	if (((v - u) < nCells) && (u - v) <= nCells) {
-	  std::string state = hgdc.isValidHex8(layers_[k],moduleU_[k], moduleV_[k], u, v) ? "within" : "outside of";
-	  std::cout << "Cell[" << k << "," << ncell << "] " 
-		    << HGCSiliconDetId(det, 1, types_[k], layers_[k], moduleU_[k], moduleV_[k], u, v)
-		    << " is " << state << " fiducial volume" << std::endl;
-	  ++ncell;
-	}
+        if (((v - u) < nCells) && (u - v) <= nCells) {
+          std::string state = hgdc.isValidHex8(layers_[k], moduleU_[k], moduleV_[k], u, v) ? "within" : "outside of";
+          std::cout << "Cell[" << k << "," << ncell << "] "
+                    << HGCSiliconDetId(det, 1, types_[k], layers_[k], moduleU_[k], moduleV_[k], u, v) << " is " << state
+                    << " fiducial volume" << std::endl;
+          ++ncell;
+        }
       }
     }
   }
