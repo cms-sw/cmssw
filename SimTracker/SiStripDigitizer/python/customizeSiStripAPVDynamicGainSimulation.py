@@ -16,7 +16,7 @@ def activateSiStripAPVDynamicGain(process):
         process.GlobalTag.toGet=cms.VPSet()
 
     process.GlobalTag.toGet.extend(cms.VPSet(cms.PSet(record = cms.string('SiStripApvSimulationParametersRcd'),
-                                                      tag = cms.string('SiStripApvSimulationParameters_2016preVFP_v0'),
+                                                      tag = cms.string('SiStripApvSimulationParameters_2016preVFP_v1'),
                                                       connect = cms.string('frontier://FrontierPrep/CMS_CONDITIONS'))
                                          )
                                    )            
