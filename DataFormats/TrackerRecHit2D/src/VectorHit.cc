@@ -214,7 +214,7 @@ std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const
                 pow(gPositionLower.y(), 2) * gPositionUpper.y() - gPositionLower.y() * pow(gPositionUpper.y(), 2);
 
     //radius of circle
-    double invRho2 = (2. * h1)/(r12 * r22 * h3);
+    double invRho2 = (2. * h1) / (r12 * r22 * h3);
     curvature = sqrt(invRho2);
 
     //center of circle
@@ -234,21 +234,25 @@ std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const
         jacobian[i][j] = 0.0;
       }
     }
-    double denom1 = 1./sqrt(r12 * r22 * h3);
-    double denom2 = 1./(pow(r12 * r22 * h3, 1.5)); 
+    double denom1 = 1. / sqrt(r12 * r22 * h3);
+    double denom2 = 1. / (pow(r12 * r22 * h3, 1.5));
     jacobian[0][0] = 1.0;  // dx1/dx1 dx1/dy1 dx2/dx1 dy2/dx1
     jacobian[1][1] = 1.0;  //dy1/dx1 dy1/dy1 dy2/dx1 dy2/dx1
     jacobian[2][0] =
-        (h1 * (2. * gPositionLower.x() * r22 * h3 + (2. * gPositionLower.x() - 2. * gPositionUpper.x()) * r12 * r22)) * denom2 -
-	(2. * gPositionUpper.y()) * denom1;  // dkappa/dx1
+        (h1 * (2. * gPositionLower.x() * r22 * h3 + (2. * gPositionLower.x() - 2. * gPositionUpper.x()) * r12 * r22)) *
+            denom2 -
+        (2. * gPositionUpper.y()) * denom1;  // dkappa/dx1
     jacobian[2][1] =
         (2. * gPositionUpper.x()) * denom1 +
-        (h1 * (2. * gPositionLower.y() * r22 * h3 + r12 * r22 * (2. * gPositionLower.y() - 2. * gPositionUpper.y()))) * denom2;  // dkappa/dy1
+        (h1 * (2. * gPositionLower.y() * r22 * h3 + r12 * r22 * (2. * gPositionLower.y() - 2. * gPositionUpper.y()))) *
+            denom2;  // dkappa/dy1
     jacobian[2][2] =
         (2. * gPositionLower.y()) * denom1 +
-        (h1 * (2. * gPositionUpper.x() * r12 * h3 - 2. * (gPositionLower.x() - gPositionUpper.x()) * r12 * r22)) * denom2;  // dkappa/dx2
+        (h1 * (2. * gPositionUpper.x() * r12 * h3 - 2. * (gPositionLower.x() - gPositionUpper.x()) * r12 * r22)) *
+            denom2;  // dkappa/dx2
     jacobian[2][3] =
-        (h1 * (2. * gPositionUpper.y() * r12 * h3 - r12 * r22 * 2. * (gPositionLower.y() - gPositionUpper.y()))) * denom2 -
+        (h1 * (2. * gPositionUpper.y() * r12 * h3 - r12 * r22 * 2. * (gPositionLower.y() - gPositionUpper.y()))) *
+            denom2 -
         (2. * gPositionLower.x()) * denom1;  // dkappa/dy2
 
     for (int i = 0; i < 4; i++) {
