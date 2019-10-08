@@ -343,7 +343,7 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog,
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
   std::vector<int> ntype(6, 0);
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.ddname() << " rout " << rout << " N " << N
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.ddname() << " rin:rout " << rin << ":" << rout << " zpos " << zpos << " N " << N
                                 << " for maximum u, v;  r " << r << " R " << R << " dy " << dy << " Shift "
                                 << xyoff.first << ":" << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_);
 #endif
