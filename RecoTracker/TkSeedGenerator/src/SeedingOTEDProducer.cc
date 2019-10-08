@@ -121,19 +121,15 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
     if (signZ * signPz < 0.0)
       searchingPropagator->setPropagationDirection(alongMomentum);
 
-    if (searchingPropagator->propagationDirection() == alongMomentum)
-      if (searchingPropagator->propagationDirection() == oppositeToMomentum)
 
-        //find vHits in layer 2
-        std::vector<TrajectoryMeasurement> measurementsL2 =
-            layerMeasurements->measurements(*barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator);
+    //find vHits in layer 2
+    std::vector<TrajectoryMeasurement> measurementsL2 =
+         layerMeasurements->measurements(*barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator);
 
     //other options
     //LayerMeasurements::SimpleHitContainer hits;
     //layerMeasurements->recHits(hits, *barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator);
     //auto && measurementsL2G = layerMeasurements->groupedMeasurements(*barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator);
-    std::vector<TrajectoryMeasurement> measurementsL2 =
-        layerMeasurements->measurements(*barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator);
 
     std::vector<TrajectoryMeasurement>::iterator measurementsL2end =
         std::remove_if(measurementsL2.begin(), measurementsL2.end(), isInvalid());
