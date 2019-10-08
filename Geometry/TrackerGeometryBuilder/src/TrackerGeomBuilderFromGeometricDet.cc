@@ -3,7 +3,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderForGluedDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
