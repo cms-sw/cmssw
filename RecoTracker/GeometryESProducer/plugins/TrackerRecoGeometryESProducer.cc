@@ -45,7 +45,6 @@ TrackerRecoGeometryESProducer::TrackerRecoGeometryESProducer(const edm::Paramete
   // See FastSimulation/Configuration/data/ for examples of cfi's.
   c.setConsumes(geomToken_, edm::ESInputTag("", p.getUntrackedParameter<std::string>("trackerGeometryLabel")));
   c.setConsumes(tTopToken_);
-  //_usePhase2Stacks = p.getParameter<bool>("usePhase2Stacks");
 }
 std::unique_ptr<GeometricSearchTracker> TrackerRecoGeometryESProducer::produce(
     const TrackerRecoGeometryRecord &iRecord) {

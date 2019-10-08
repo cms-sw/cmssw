@@ -45,7 +45,6 @@ namespace helper {
     } else if (hit_type == typeid(Phase2TrackerRecHit1D)) {
       //FIXME:: this is just temporary solution for phase2,
       //it is not really running in the phase2 tracking wf - yet...
-      //std::cout << "|   It is a Phase2TrackerRecHit1D hit !!" << std::endl;
       phase2OTClusterRecords_.push_back(
           Phase2OTClusterHitRecord(static_cast<Phase2TrackerRecHit1D &>(newHit), hits, index));
     } else if (hit_type == typeid(VectorHit)) {

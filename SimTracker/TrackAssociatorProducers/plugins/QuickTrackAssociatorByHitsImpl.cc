@@ -5,13 +5,6 @@
 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"

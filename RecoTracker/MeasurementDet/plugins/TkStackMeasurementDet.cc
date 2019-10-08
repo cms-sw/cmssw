@@ -27,10 +27,10 @@ TkStackMeasurementDet::RecHitContainer TkStackMeasurementDet::recHits(const Traj
   HitCollectorForRecHits collector( &fastGeomDet(), theMatcher, theCPE, result );
   collectRecHits(ts, collector);
 */
-  if (isEmpty(data.phase2OTData()) == true)
+  if (isEmpty(data.phase2OTData()))
     return result;
   LogTrace("MeasurementTracker") << " is not empty";
-  if (isActive(data) == false)
+  if (!isActive(data))
     return result;
   LogTrace("MeasurementTracker") << " and is active";
 

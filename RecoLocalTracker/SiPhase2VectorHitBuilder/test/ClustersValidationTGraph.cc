@@ -261,13 +261,11 @@ void Phase2TrackerClusterizerValidationTGraph::analyze(const edm::Event& event, 
       x_local = localPosClu.x();
       y_local = localPosClu.y();
       z_local = localPosClu.z();
-      std::cout << localPosClu << std::endl;
 
       Global3DPoint globalPosClu = geomDetUnit->surface().toGlobal(localPosClu);
       x_global = globalPosClu.x();
       y_global = globalPosClu.y();
       z_global = globalPosClu.z();
-      //std::cout << globalPosClu << std::endl;
 
       // Fill the position histograms
       trackerLayout_[0]->SetPoint(nClustersTot, globalPosClu.z(), globalPosClu.perp());
@@ -318,12 +316,7 @@ void Phase2TrackerClusterizerValidationTGraph::analyze(const edm::Event& event, 
                 ->column()));  // Here we have to use the old pixelToChannel function (not Phase2TrackerDigi but PixelDigi), change this when using new Digis
         unsigned int simTrackId(getSimTrackId(siphase2SimLinks, detId, channel));
         clusterSimTrackIds.push_back(simTrackId);
-        std::cout << channel << std::endl;
-        std::cout << simTrackId << std::endl;
-        std::cout << std::endl;
       }
-      unsigned int InnerChannel = clustIt->firstDigi().channel();
-      std::cout << InnerChannel << std::endl;
 
       /*
              // SimHits related variables
