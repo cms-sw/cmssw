@@ -27,3 +27,7 @@
   <flags   EDM_PLUGIN="1"/>
   <flags CXXFLAGS="-g3"/>
 </library>
+<library   file="DQMPixelCell.cc" name="DQMPixelCell">
+  <flags   EDM_PLUGIN="1"/>
+  <flags CXXFLAGS="-g3"/>
+</library>
