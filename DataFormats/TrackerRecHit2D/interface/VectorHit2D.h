@@ -1,5 +1,5 @@
-#ifndef TrackingRecHit_VectorHit2D_h
-#define TrackingRecHit_VectorHit2D_h
+#ifndef TrackerRecHit2D_VectorHit2D_h
+#define TrackerRecHit2D_VectorHit2D_h
 
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
