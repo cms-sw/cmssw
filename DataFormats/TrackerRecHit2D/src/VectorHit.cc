@@ -214,8 +214,8 @@ std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const
                 pow(gPositionLower.y(), 2) * gPositionUpper.y() - gPositionLower.y() * pow(gPositionUpper.y(), 2);
 
     //radius of circle
-    double rho = sqrt(r12 * r22 * h3) / (2. * h1);
-    curvature = 1. / rho;
+    double invRho2 = (2. * h1)/(r12 * r22 * h3);
+    curvature = sqrt(invRho2);
 
     //center of circle
     double xcentre = h5 / h2;
@@ -234,25 +234,22 @@ std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const
         jacobian[i][j] = 0.0;
       }
     }
-
+    double denom1 = 1./sqrt(r12 * r22 * h3);
+    double denom2 = 1./(pow(r12 * r22 * h3, 1.5)); 
     jacobian[0][0] = 1.0;  // dx1/dx1 dx1/dy1 dx2/dx1 dy2/dx1
     jacobian[1][1] = 1.0;  //dy1/dx1 dy1/dy1 dy2/dx1 dy2/dx1
     jacobian[2][0] =
-        (h1 * (2. * gPositionLower.x() * r22 * h3 + (2. * gPositionLower.x() - 2. * gPositionUpper.x()) * r12 * r22)) /
-            (pow(r12 * r22 * h3, 1.5)) -
-        (2. * gPositionUpper.y()) / sqrt(r12 * r22 * h3);  // dkappa/dx1
+        (h1 * (2. * gPositionLower.x() * r22 * h3 + (2. * gPositionLower.x() - 2. * gPositionUpper.x()) * r12 * r22)) * denom2 -
+	(2. * gPositionUpper.y()) * denom1;  // dkappa/dx1
     jacobian[2][1] =
-        (2. * gPositionUpper.x()) / sqrt(r12 * r22 * h3) +
-        (h1 * (2. * gPositionLower.y() * r22 * h3 + r12 * r22 * (2. * gPositionLower.y() - 2. * gPositionUpper.y()))) /
-            pow(r12 * r22 * h3, 1.5);  // dkappa/dy1
+        (2. * gPositionUpper.x()) * denom1 +
+        (h1 * (2. * gPositionLower.y() * r22 * h3 + r12 * r22 * (2. * gPositionLower.y() - 2. * gPositionUpper.y()))) * denom2;  // dkappa/dy1
     jacobian[2][2] =
-        (2. * gPositionLower.y()) / sqrt(r12 * r22 * h3) +
-        (h1 * (2. * gPositionUpper.x() * r12 * h3 - 2. * (gPositionLower.x() - gPositionUpper.x()) * r12 * r22)) /
-            pow(r12 * r22 * h3, 1.5);  // dkappa/dx2
+        (2. * gPositionLower.y()) * denom1 +
+        (h1 * (2. * gPositionUpper.x() * r12 * h3 - 2. * (gPositionLower.x() - gPositionUpper.x()) * r12 * r22)) * denom2;  // dkappa/dx2
     jacobian[2][3] =
-        (h1 * (2. * gPositionUpper.y() * r12 * h3 - r12 * r22 * 2. * (gPositionLower.y() - gPositionUpper.y()))) /
-            pow(r12 * r22 * h3, 1.5) -
-        (2. * gPositionLower.x()) / sqrt(r12 * r22 * h3);  // dkappa/dy2
+        (h1 * (2. * gPositionUpper.y() * r12 * h3 - r12 * r22 * 2. * (gPositionLower.y() - gPositionUpper.y()))) * denom2 -
+        (2. * gPositionLower.x()) * denom1;  // dkappa/dy2
 
     for (int i = 0; i < 4; i++) {
       jacobian[2][i] = -jacobian[2][i];
@@ -260,8 +257,8 @@ std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const
 
     AlgebraicVector2 M;
     //to compute phi at the cluster points
-    M[0] = (gPositionLower.y() - ycentre) / pow(rho, 2);   // dphi/dxcentre
-    M[1] = -(gPositionLower.x() - xcentre) / pow(rho, 2);  // dphi/dycentre
+    M[0] = (gPositionLower.y() - ycentre) * invRho2;   // dphi/dxcentre
+    M[1] = -(gPositionLower.x() - xcentre) * invRho2;  // dphi/dycentre
     //to compute phi at the origin
 
     AlgebraicROOTObject<2, 4>::Matrix K;
@@ -335,7 +332,6 @@ std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const
                      temp[3] * curvatureJacobian[3];
 
   } else {
-    std::cout << " straight line!" << std::endl;
     return std::make_pair(0.0, 0.0);
   }
 
