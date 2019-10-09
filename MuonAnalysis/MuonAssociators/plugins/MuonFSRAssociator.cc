@@ -42,7 +42,7 @@ public:
     desc.add<edm::InputTag>("photons")->setComment("FSR photon collection to associate with muons");
     desc.add<edm::InputTag>("muons")->setComment("collection of muons to associate with FSR photons");
 
-    descriptions.add("MuonFSRAssociator", desc);
+    descriptions.addWithDefaultLabel(desc);
   }
   ~MuonFSRAssociator() override {}
 
