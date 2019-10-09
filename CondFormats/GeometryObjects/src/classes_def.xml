@@ -167,14 +167,30 @@
    <field name="copiesInLayers_"  mapping="blob"/>
  </class>
  <class name="HcalSimulationParameters" class_version="0"> 
-   <field name="attenuationLength_"  mapping="blob"/>
-   <field name="lambdaLimits_"       mapping="blob"/>
-   <field name="shortFiberLength_"   mapping="blob"/>
-   <field name="longFiberLength_"    mapping="blob"/>
-   <field name="pmtRight_"           mapping="blob"/>
-   <field name="pmtFiberRight_"      mapping="blob"/>
-   <field name="pmtLeft_"            mapping="blob"/>
-   <field name="pmtFiberLeft_"       mapping="blob"/>
+   <field name="attenuationLength_"     mapping="blob"/>
+   <field name="lambdaLimits_"          mapping="blob"/>
+   <field name="shortFiberLength_"      mapping="blob"/>
+   <field name="longFiberLength_"       mapping="blob"/>
+   <field name="pmtRight_"              mapping="blob"/>
+   <field name="pmtFiberRight_"         mapping="blob"/>
+   <field name="pmtLeft_"               mapping="blob"/>
+   <field name="pmtFiberLeft_"          mapping="blob"/>
+   <field name="hfLevels_"              mapping="blob"/>
+   <field name="hfNames_"               mapping="blob"/>
+   <field name="hfFibreNames_"          mapping="blob"/>
+   <field name="hfPMTNames_"            mapping="blob"/>
+   <field name="hfFibreStraightNames_"  mapping="blob"/>
+   <field name="hfFibreConicalNames_"   mapping="blob"/>
+   <field name="hcalMaterialNames_"     mapping="blob"/>
+ </class>
+ <class name="CaloSimulationParameters" class_version="0"> 
+   <field name="caloNames_"             mapping="blob"/>
+   <field name="levels_"                mapping="blob"/>
+   <field name="neighbours_"            mapping="blob"/>
+   <field name="insideNames_"           mapping="blob"/>
+   <field name="insideLevel_"           mapping="blob"/>
+   <field name="fCaloNames_"            mapping="blob"/>
+   <field name="fLevels_"               mapping="blob"/>
  </class>
 
 </lcgdict> 
