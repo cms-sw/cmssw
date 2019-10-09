@@ -82,12 +82,28 @@ class DQMPixelCell : public DQMEDAnalyzer
         const PixelDigi & get_digi_from_channel_(int ch, const edm::DetSetVector<PixelDigi>::const_iterator & itdigis);
         
         // Get the sim track with trackId for given subdetector unit
-        const SimTrack & get_simtrack_from_index_(unsigned int idx, const edm::SimTrackContainer * simtracks);
+        const SimTrack * get_simtrack_from_id_(unsigned int tid, const edm::SimTrackContainer * simtracks);
 
+        // Get the set of simhits created by a track 
+        const edm::PSimHitContainer get_simhits_from_trackid_(
+                unsigned int tid, 
+                unsigned int detid_raw, 
+                const std::vector<const edm::PSimHitContainer*> & psimhits);
+
+        // Helper container to memoize the SimHits created by a track (Id) per event
+        // This should be cleared at the begining of the event
+        std::map<unsigned int,std::map<unsigned int,edm::PSimHitContainer>> m_tId_det_simhits_;
+
+        // Transform a given measurement points into the i-cell pixel frame
+        const std::pair<double,double> pixel_cell_transformation_(
+                const std::pair<double,double> & pos,
+                unsigned int icell,
+                const std::pair<double,double> & pitch);
 
         // Histograms:
         // HElper setup functions 
         MonitorElement * setupH1D_(DQMStore::IBooker& ibooker, const std::string & histoname);
+        MonitorElement * setupH2D_(DQMStore::IBooker& ibooker, const std::string & histoname);
         MonitorElement * setupH2D_(DQMStore::IBooker& ibooker, 
                 const std::string & histoname, 
                 const std::pair<double,double> & xranges, 
@@ -96,17 +112,26 @@ class DQMPixelCell : public DQMEDAnalyzer
                 const std::string & histoname, 
                 const std::pair<double,double> & xranges, 
                 const std::pair<double,double> & yranges);
+        // Whole CMS histos
+        MonitorElement * vME_track_XYMap_;
+        MonitorElement * vME_track_RZMap_;
         // Per detector unit plots
         std::map<int,MonitorElement *> vME_clsize1D_;
         std::map<int,MonitorElement *> vME_charge1D_;
         std::map<int,MonitorElement *> vME_track_dxdz_;
         std::map<int,MonitorElement *> vME_track_dydz_;
+        std::map<int,MonitorElement *> vME_track_dxdzAngle_;
+        std::map<int,MonitorElement *> vME_track_dydzAngle_;
+        std::map<int,MonitorElement *> vME_dx1D_;
+        std::map<int,MonitorElement *> vME_dy1D_;
         // --- cell efficiency per subdector , each element on the 
         //     vector 0: total, 1: 1x1, 2: 2x2, (3: 3x3, 4: 4x4)?
         std::map<int,std::vector<MonitorElement *>> vME_position_cell_;
         std::map<int,std::vector<MonitorElement *>> vME_eff_cell_;
         std::map<int,std::vector<MonitorElement *>> vME_clsize_cell_;
         std::map<int,std::vector<MonitorElement *>> vME_charge_cell_;
+        std::map<int,std::vector<MonitorElement *>> vME_dx_cell_;
+        std::map<int,std::vector<MonitorElement *>> vME_dy_cell_;
 
         // Map to take care of common and tedious
         //const std::vector<std::map<int,std::vector<MonitorElement *>>*> helperMap_;

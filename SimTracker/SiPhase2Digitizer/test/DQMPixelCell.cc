@@ -8,8 +8,6 @@
 //
 
 // CMSSW Framework 
-//#include "DQMServices/Core/interface/MonitorElement.h"
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -30,7 +28,7 @@
 #include "DQMPixelCell.h"
 
 
-double unit_um = 1e4; // [cm]
+const double unit_um = 1e-4; // [cm]
 
 using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
 
@@ -67,14 +65,18 @@ DQMPixelCell::~DQMPixelCell()
 //
 // -- DQM Begin Run
 //
-void DQMPixelCell::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::LogInfo("DQMPixelCell") << "Initialize DQMPixelCell ";
+void DQMPixelCell::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) 
+{
+    edm::LogInfo("DQMPixelCell") << "Initialize DQMPixelCell ";
 }
 //
 // -- Analyze
 //
 void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+    // First clear the memoizer
+    m_tId_det_simhits_.clear();
+
     // Get digis and the simhit links and the simhits
     edm::Handle<edm::DetSetVector<PixelDigiSimLink> > digiSimLinkHandle;
     iEvent.getByToken(digiSimLinkToken_, digiSimLinkHandle);
@@ -86,15 +88,19 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     
     // Vector of simHits
     // XXX : NOt like that, just an example
-    /*std::vector<const edm::PSimHitContainer*> simhits;
+    std::vector<const edm::PSimHitContainer*> simhits;
     simhits.reserve(simHitTokens_.size());
     for(const auto & sh_token: simHitTokens_)
     {
         edm::Handle<edm::PSimHitContainer> simHitHandle;
         iEvent.getByToken(sh_token, simHitHandle);
+        if(! simHitHandle.isValid())
+        {
+            continue;
+        }
         //const edm::PSimHitContainer * simhits = simHitHandle.product();
         simhits.push_back( simHitHandle.product() );
-    }*/
+    }
 
     // Get SimTrack
     edm::Handle<edm::SimTrackContainer> simTrackHandle;
@@ -152,7 +158,7 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             // FIXME: CHeck if there is any digi ... Should not
             //continue;
         }*/
-        //std::cout << "DETECTOR: " << tkDetUnit->type().name() << std::endl;
+//std::cout << "DETECTOR: " << tkDetUnit->type().name() << std::endl;
 
         // Loop over the simulated digi links, for each one get the track id, 
         // used to obtain the simhit, and the raw digi (via the channel)
@@ -170,248 +176,133 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             }
             // Create/update the list of channels created by this simtrack
             stracks_channels[dhsim.SimTrackId()].insert(current_channel);
-            
-            // Get The Sim tracks (once per simtrack)
-            // Obtain the dz/dx y dz/dy from the track?
-            const SimTrack & current_simtrack = get_simtrack_from_index_(dhsim.SimTrackId(),simtracks);
-            // Convert the momentum into the local frame in order to evaluate the incident
-            // angle, but first it needs to be converted into a GlobalVector
-            const GlobalVector cst_momentum(current_simtrack.momentum().x(),
-                    current_simtrack.momentum().y(),
-                    current_simtrack.momentum().z());
-            const LocalVector cst_m_local(dunit->surface().toLocal(cst_momentum));
-            vME_track_dxdz_[me_unit]->Fill(cst_m_local.x()/cst_m_local.z());
-            vME_track_dydz_[me_unit]->Fill(cst_m_local.y()/cst_m_local.z());
-
-            // Get the pixels col and row
-            //const auto current_pixel(PixelDigi::channelToPixel(current_channel));
-
-            // Get the SimTrack, i.e. the persistent version of a G4Track, corresponding
-            // to a SimHit --> Therefore the actual info is in the PSimHit
-            // XXX: Need to check the validity of the Id?
-//            const SimTrack & current_simtrack = (*simtracks)[dhsim.SimTrackId()];
-//            const GlobalPoint st_position(current_simtrack.trackerSurfacePosition().x(),
-//                    current_simtrack.trackerSurfacePosition().y(),
-//                    current_simtrack.trackerSurfacePosition().z());
-//            const GlobalVector st_momentum(current_simtrack.momentum().x(),
-//                    current_simtrack.momentum().y(),
-//                    current_simtrack.momentum().z());
-
-//std::cout << "---- # Found a sim link [channel:" << current_channel << "] track id:" 
-//    << dhsim.SimTrackId() << " -- Fraction of the track Eloss: " << dhsim.fraction() 
-//    << " At measurement position: " << current_pixel.first << " " << current_pixel.second 
-//    << " Local Position: " << tkDetUnit->specificTopology().localPosition(MeasurementPoint(current_pixel.first,current_pixel.second)) 
-//    << " Global Position: " << dunit->surface().toGlobal(
-//            tkDetUnit->specificTopology().localPosition(MeasurementPoint(current_pixel.first,current_pixel.second)) ) << std::endl;
-//std::cout << "------- Corresponding Simtrack id: " << dhsim.SimTrackId() << " which is a [PDG code]" 
-//    << current_simtrack.type() << "  : Global TrackerSurfacePosition: " << st_position << "" 
-//    << " momentum: " << st_momentum 
-//    << " /// Local position: " << dunit->surface().toLocal(st_position) 
-//    << "  (without using surface: " << dunit->toLocal(st_position) << " ) "
-//    << " local momentum: " << dunit->surface().toLocal(st_momentum) << std::endl;
-
-
-//            const PixelDigi * digi_linked = nullptr;
-            // Search for the digilink of the current channel
-//            for(const auto & dh: *it_digilink)
-//            {
-//
-//                if(dh.channel() == current_channel)
-//                {
-//                    digi_linked = &dh;
-//                    vME_eff_cell_[me_unit][0]->Fill(current_pixel.first,current_pixel.second,1.0);
-//                    // Efficiency
-//                    
-////std::cout << "    ---->>>> Found a digi in that channel [channel:" << digi_linked->channel() << std::endl;
-//                }
-//            }
-//            if(digi_linked == nullptr)
-//            {
-//                vME_eff_cell_[me_unit][0]->Fill(current_pixel.first,current_pixel.second,0.0);
-////std::cout << "   ------- ---->>>> NOT Found a digi in that channel [channel:" << channel << "]" << std::endl;
-//            } 
-//            const edm::DetSet<PixelDigi>::iterator dh = std::find(it_digilink->begin(),it_digilink->end(), 
-//                    [&channel] (const PixelDigi & dlink) -> bool
-//                    {
-//                        return true;
-//                        //return (channel == static_cast<int>(dlink->channel()));
-//                    });
-            //for(const auto & dh: *it_digilink)
-            //{
-            //}
-                //break;
-            //if(dh.channel() == static_cast<int>(dhsim.channel()))
-            //{
-            //}
         }
 
         // Fill  per detector histograms
         for(const auto & st_ch: stracks_channels)
         {
-            // Cluster size on the detector unit
-            vME_clsize1D_[me_unit]->Fill(st_ch.second.size());
+            // Cluster size on the detector unit, that's from the simdigi,
+            //vME_clsize1D_[me_unit]->Fill(st_ch.second.size());
+
+//std::cout << " -- Current trackId [" << st_ch.first << "] Created Digis: " << st_ch.second.size();
+            // FIXME :: What happens when the same track (probably secondaries which are
+            // associated to the mother track id) creates more than on digi?? So far 
+            // 1 track creates 1 cluster, but what about secondaries?
 
             // Get the total charge for this cluster size
+            // and obtain the center of the cluster using a charge-weighted mean
             int cluster_tot = 0;
+            int cluster_size = 0;
+            std::pair<double,double> cluster_position({0.0,0.0});
             for(const auto & ch: st_ch.second)
             {
                 const PixelDigi & current_digi = get_digi_from_channel_(ch,it_digis);
                 cluster_tot += current_digi.adc();
+                cluster_position.first  += current_digi.adc()*current_digi.row();
+                cluster_position.second += current_digi.adc()*current_digi.column();
+                ++cluster_size;
             }
+            vME_clsize1D_[me_unit]->Fill(cluster_size);
             vME_charge1D_[me_unit]->Fill(cluster_tot);
+
+            // mean weighted 
+            cluster_position.first  /= double(cluster_tot);
+            cluster_position.second /= double(cluster_tot);
+//std::cout << " ToT: " << cluster_tot << " <row>:" << cluster_position.first << " <col>:" << cluster_position.second ; 
             
-        }
-
-for(const auto & _kk: stracks_channels)
-{
- std::cout << "    ---> Track id: [" << _kk.first << "]  At channels: -->  ";
-     for(const auto & _ch: _kk.second)
-     {
-std::cout << " |row: "      << PixelDigi::channelToPixel(_ch).first << " col: "
-     << PixelDigi::channelToPixel(_ch).second << "| ";
-     }
-std::cout <<  " TOTAL cluster size: " <<  _kk.second.size() << std::endl;
-
-}
-    }
-
-    // Input digis loop
-    /*for(const auto & digi: *digis)
-    {
-        const DetId detId(digi.id);
-        // Just keep tracker digis
-        if(detId.det() != DetId::Detector::Tracker)
-        {
-            continue;
-        }
-        // And only pixels (Forward and barrel, Endcap??)`
-        if(detId.subdetId() != PixelSubdetector::PixelBarrel 
-                && detId.subdetId() != PixelSubdetector::PixelEndcap )
-        {
-            continue;
-        }
-
-        // ----------------------------
-        // Get the module where is the hit
-        const GeomDetUnit * geomDetUnit = tkGeom->idToDetUnit(detId);
-        const Phase2TrackerGeomDetUnit * tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(geomDetUnit);
-
-        const int layer = topo->layer(detId);
-        
-        // Get the relevant histo
-        const auto & me_unit = meUnit_(tkDetUnit->type().isBarrel(),layer,topo->side(detId));
-        // FIXME? Check the existence of this?
-
-        // Module topology
-        //const int nRows = tkDetUnit->specificTopology().nrows();
-        //const int nCols = tkDetUnit->specificTopology().ncolumns();
-        //const auto pitch = tkDetUnit->specificTopology().pitch();
-        
-        // Get the simlinks
-        const auto & it_digilink = simdigis->find(detId);        
-    
-        // Loop over the digis on the Detector unit.
-        for(const auto & dh: digi)
-        {
-            // Get local position
-            //const auto localpos = tkDetUnit->specificTopology().localPosition(MeasurementPoint(dh.row(),dh.column()));
-            // Fill positions of the digi 
-            vME_position_cell_[me_unit][0]->Fill(dh.row(),dh.column());
-            // Fill position of the cell (maybe inside a loop)
-            // --- Makes no sense --> as the the digi is charge in a pixel... 
-            //const double row_cell1    = dh.row()-int(dh.row()/double(pitch.first))*pitch.first;
-            //const double column_cell1 = dh.column()-int((dh.column()/pitch.second))*pitch.second;
-std::cout << "Pixel [" << dh.channel() << "] row: " << dh.row() << "  col:" << dh.column() << " tot: " << dh.adc() << " Search for a link..." << std::endl;
-//    << " -- " << int(dh.row()/double(pitch.first))*pitch.first << " -- " << row_cell1  
-//    << std::endl;
-            //vME_position_cell_[me_unit][1]->Fill(row_cell1,column_cell1);
-            //vME_position_cell_[me_unit][2]->Fill(2.0*row_cell1,2.0*column_cell1);
-            // -- Find the links if any
-            double __prob = 0.0;
-            for(const auto & dhsim: *it_digilink)
+            // Get The Sim tracks (once per simtrack)
+            // Obtain the dz/dx y dz/dy from the track?
+            const SimTrack * current_simtrack = get_simtrack_from_id_(st_ch.first,simtracks);
+            if(current_simtrack == nullptr)
             {
-                if(dh.channel() == static_cast<int>(dhsim.channel()))
+//std::cout << std::endl;
+                continue;
+            }
+            // Convert the momentum into the local frame in order to evaluate the incident
+            // angle, but first it needs to be converted into a GlobalVector
+            const GlobalVector cst_momentum(current_simtrack->momentum().x(),
+                    current_simtrack->momentum().y(),
+                    current_simtrack->momentum().z());
+            const LocalVector cst_m_local(dunit->surface().toLocal(cst_momentum));
+            // -- FIXME : One of the two: dxdz or dxdzAngle 
+            vME_track_dxdz_[me_unit]->Fill(cst_m_local.x()/cst_m_local.z());
+            vME_track_dxdzAngle_[me_unit]->Fill(std::atan2(cst_m_local.x(),cst_m_local.z()));
+            vME_track_dydz_[me_unit]->Fill(cst_m_local.y()/cst_m_local.z());
+            vME_track_dydzAngle_[me_unit]->Fill(std::atan2(cst_m_local.y(),cst_m_local.z()));
+
+            // See where the track enters into the tracker and fill its histos
+            const GlobalPoint cst_position(current_simtrack->trackerSurfacePosition().x(),
+                    current_simtrack->trackerSurfacePosition().y(),
+                    current_simtrack->trackerSurfacePosition().z());
+
+            vME_track_XYMap_->Fill(cst_position.x(),cst_position.y());
+            vME_track_RZMap_->Fill(cst_position.z(),std::hypot(cst_position.x(),cst_position.y()));
+
+            // -- Get the set of simulated hits from this trackid
+            const edm::PSimHitContainer current_psimhits = get_simhits_from_trackid_(st_ch.first,detId.rawId(),simhits);
+            // Use the SimHits as the MC-truth to evaluate the digis
+            //const auto current_pixel(PixelDigi::channelToPixel(ch));
+//std::cout << " SimHits.size: " << current_psimhits.size() ;
+
+            // FIXME> The same than a cluster: 1 track -> 1 cluster
+            std::pair<double,double> sim_cluster_position({0.0,0.0}); 
+            double eloss_total = 0.0; 
+            for(const auto & ps: current_psimhits)
+            {
+                // Compensate the row and column center
+                auto mp = tkDetUnit->specificTopology().measurementPosition(ps.localPosition())-MeasurementPoint(0.5,0.5);
+
+                sim_cluster_position.first  += mp.x()*ps.energyLoss();
+                sim_cluster_position.second += mp.y()*ps.energyLoss();
+                eloss_total += ps.energyLoss();
+//std::cout << " (detId.rawId: " << detId.rawId() << ")[- DetUnitId: " << ps.detUnitId() << " Entry Point: " << ps.entryPoint() << " Exit Point: " << ps.exitPoint() 
+//        << " Local Position row:" << mp.x() << " col: " << mp.y() << "  p_entry=" << ps.momentumAtEntry()
+//        << " Time of flight: " << ps.timeOfFlight() << "-]"; 
+            }
+            sim_cluster_position.first  /= eloss_total;
+            sim_cluster_position.second /= eloss_total;
+//std::cout << " ---> In summary: Eloss total:" << eloss_total 
+//<< " <row>: " << sim_cluster_position.first << " <col>:" << sim_cluster_position.second <<  std::endl;
+
+            // Efficiency --> It was found a cluster of digis?
+            const bool is_digi_present = (cluster_size > 0);
+
+            // Get topology info of the module sensor
+            //-const int n_rows = tkDetUnit->specificTopology().nrows();
+            //-const int n_cols = tkDetUnit->specificTopology().ncolumns();
+            const auto pitch = tkDetUnit->specificTopology().pitch();
+            // Residuals, convert them to longitud units (so far, in units of row, col)
+            const double dx_um = (sim_cluster_position.first-cluster_position.first)*pitch.first/unit_um;
+            const double dy_um = (sim_cluster_position.second-cluster_position.second)*pitch.second/unit_um;
+            if(is_digi_present)
+            {
+                vME_dx1D_[me_unit]->Fill(dx_um);
+                vME_dy1D_[me_unit]->Fill(dy_um);
+            }
+            // Histograms per cell
+            for(unsigned int i =1; i < vME_position_cell_[me_unit].size(); ++i)
+            {
+                // Convert to i-cell 
+                const std::pair<double,double> icell_simhit_cluster = pixel_cell_transformation_(sim_cluster_position,i,pitch);
+                // Efficiency? --> Any track id do not have a digi? Is there any cluster.size == 0?
+                vME_eff_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,is_digi_present);
+                if(is_digi_present)
                 {
-std::cout << " ##------> Found a sim link: " << dhsim.SimTrackId() << " -- " << dhsim.CFposition() 
-    << " -- " << dhsim.TofBin() << " -- "  << dhsim.fraction() << std::endl;
-                    __prob += dhsim.fraction();
-                    //break;
+                    // Convert to the i-cell
+                    //const std::pair<double,double> icell_digi_cluster   = pixel_cell_transformation_(cluster_position,i,pitch);
+                    // Residuals
+                    vME_dx_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,dx_um);
+                    vME_dy_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,dy_um);
+                    // Charge
+                    vME_charge_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,cluster_tot);
+                    // Cluster size
+                    vME_clsize_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,cluster_size);
                 }
             }
-std::cout << "           ----> TOTAL SUM of fraction:" << __prob << std::endl;
         }
-    }*/
-
-//      const GeomDetUnit* geomDetUnit = tkGeom->idToDetUnit(detId);
-//
-//      const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(geomDetUnit);
-//      int nColumns = tkDetUnit->specificTopology().ncolumns();
-//
-//      edm::LogInfo("DQMPixelCell") << " Det Id = " << rawid;
-//
-//      if (layer <= 3) {
-//        if (nColumns > 2)
-//          moduleType = "PSP_Modules";
-//        else
-//          moduleType = "PSS_Modules";
-//      } else
-//        moduleType = "2S_Modules";
-//
-//      std::map<std::string, DigiMEs>::iterator pos = detMEs.find(moduleType);
-//      if (pos != detMEs.end()) {
-//        DigiMEs local_mes = pos->second;
-//        int nDigi = 0;
-//        int row_last = -1;
-//        int col_last = -1;
-//        int nclus = 0;
-//        int width = 1;
-//        int position = 0;
-//        float dPhi = 9999.9;
-//        for (DetSet<Phase2TrackerDigi>::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
-//          int col = di->column();  // column
-//          int row = di->row();     // row
-//          MeasurementPoint mp(row + 0.5, col + 0.5);
-//          unsigned int channel = Phase2TrackerDigi::pixelToChannel(row, col);
-//          int tkIndx = matchedSimTrackIndex(digiSimLinkHandle, simTrackHandle, detId, channel);
-//
-//          if (geomDetUnit && tkIndx != -1)
-//            dPhi = reco::deltaPhi((*simTrackHandle)[tkIndx].momentum().phi(), geomDetUnit->position().phi());
-//
-//          nDigi++;
-//          edm::LogInfo("DQMPixelCell") << "  column " << col << " row " << row << std::endl;
-//          local_mes.PositionOfDigis->Fill(row + 1);
-//
-//          if (row_last == -1) {
-//            width = 1;
-//            position = row + 1;
-//            nclus++;
-//          } else {
-//            if (abs(row - row_last) == 1 && col == col_last) {
-//              position += row + 1;
-//              width++;
-//            } else {
-//              position /= width;
-//              fillClusterWidth(local_mes, dPhi, width);
-//              local_mes.ClusterPosition->Fill(position);
-//              width = 1;
-//              position = row + 1;
-//              nclus++;
-//            }
-//          }
-//          edm::LogInfo("DQMPixelCell") << " row " << row << " col " << col << " row_last " << row_last << " col_last "
-//                                    << col_last << " width " << width;
-//          row_last = row;
-//          col_last = col;
-//        }
-//        position /= width;
-//        fillClusterWidth(local_mes, dPhi, width);
-//        local_mes.ClusterPosition->Fill(position);
-//        local_mes.NumberOfClusters->Fill(nclus);
-//        local_mes.NumberOfDigis->Fill(nDigi);
-//      }
-//    }
-//  }
+    }
 }
+
 //
 // -- Book Histograms
 //
@@ -428,6 +319,12 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
     const TrackerTopology * topo = tTopoHandle.product();
 
     const std::string top_folder = config_.getParameter<std::string>("TopFolderName");
+
+    // Histograms independent of the subdetector units
+    ibooker.cd();
+    ibooker.setCurrentFolder(top_folder);
+    vME_track_XYMap_ = setupH2D_(ibooker,"TrackXY");
+    vME_track_RZMap_ = setupH2D_(ibooker,"TrackRZ");
 
     // Get all pixel subdetector, create histogram by layers
     // -- More granularity can be accomplished by modules (1 central + 5 modules: in z, 
@@ -483,17 +380,28 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
             //const double x_size = nrows*pitch.first;
             //const double y_size = ncols*pitch.second;
             
+
+            // And create the histos
+            // Per detector unit histos
+            vME_clsize1D_[me_unit] = setupH1D_(ibooker,"ClusterSize1D");
+            vME_charge1D_[me_unit] = setupH1D_(ibooker,"Charge1D");
+            vME_track_dxdz_[me_unit] = setupH1D_(ibooker,"TrackDxdz");
+            vME_track_dydz_[me_unit] = setupH1D_(ibooker,"TrackDydz");
+            vME_track_dxdzAngle_[me_unit] = setupH1D_(ibooker,"TrackAngleDxdz");
+            vME_track_dydzAngle_[me_unit] = setupH1D_(ibooker,"TrackAngleDydz");
+            vME_dx1D_[me_unit] = setupH1D_(ibooker,"Dx1D");
+            vME_dy1D_[me_unit] = setupH1D_(ibooker,"Dy1D");
+
+            // The histos per cell
             // Prepare the ranges: 0- whole sensor, 1- cell 1x1, 2-cell 2x2,
             const std::vector<std::pair<double,double>> xranges = {
                 std::make_pair<double,double>(0,nrows-1),
-                std::make_pair<double,double>(0,pitch.first),
-                std::make_pair<double,double>(0,2.0*pitch.first) };
+                std::make_pair<double,double>(0,pitch.first/unit_um),
+                std::make_pair<double,double>(0,2.0*pitch.first/unit_um) };
             const std::vector<std::pair<double,double>> yranges = {
                 std::make_pair<double,double>(0,ncols-1),
-                std::make_pair<double,double>(0,pitch.second),
-                std::make_pair<double,double>(0,2.0*pitch.second) };
-
-            // And create the histos
+                std::make_pair<double,double>(0,pitch.second/unit_um),
+                std::make_pair<double,double>(0,2.0*pitch.second/unit_um) };
             for(unsigned int i = 0; i < xranges.size(); ++i)
             {
                 // 
@@ -513,12 +421,15 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
                             "Charge_"+std::to_string(i),
                             xranges[i],
                             yranges[i]));
+                vME_dx_cell_[me_unit].push_back(setupProf2D_(ibooker,
+                            "Dx_"+std::to_string(i),
+                            xranges[i],
+                            yranges[i]));
+                vME_dy_cell_[me_unit].push_back(setupProf2D_(ibooker,
+                            "Dy_"+std::to_string(i),
+                            xranges[i],
+                            yranges[i]));
             }
-            // Per detector unit histos
-            vME_clsize1D_[me_unit] = setupH1D_(ibooker,"ClusterSize1D");
-            vME_charge1D_[me_unit] = setupH1D_(ibooker,"Charge1D");
-            vME_track_dxdz_[me_unit] = setupH1D_(ibooker,"TrackDxdz");
-            vME_track_dydz_[me_unit] = setupH1D_(ibooker,"TrackDydz");
 
 std::cout << "DQMPixelCell" << "Booking Histograms in: " << folder_name << std::endl; 
             edm::LogInfo("DQMPixelCell") << "Booking Histograms in: " << folder_name << std::endl; 
@@ -526,47 +437,6 @@ std::cout << "DQMPixelCell" << "Booking Histograms in: " << folder_name << std::
     }
 }
 
-/*int DQMPixelCell::matchedSimTrackIndex(edm::Handle<edm::DetSetVector<PixelDigiSimLink> >& linkHandle,
-                                    edm::Handle<edm::SimTrackContainer>& simTkHandle,
-                                    DetId detId,
-                                    unsigned int& channel) {
-  int simTrkIndx = -1;
-  unsigned int simTrkId = 0;
-  edm::DetSetVector<PixelDigiSimLink>::const_iterator isearch = linkHandle->find(detId);
-
-  if (isearch == linkHandle->end())
-    return simTrkIndx;
-
-  edm::DetSet<PixelDigiSimLink> link_detset = (*linkHandle)[detId];
-  // Loop over DigiSimLink in this det unit
-  for (edm::DetSet<PixelDigiSimLink>::const_iterator it = link_detset.data.begin(); it != link_detset.data.end();
-       it++) {
-    if (channel == it->channel()) {
-      simTrkId = it->SimTrackId();
-      break;
-    }
-  }
-  if (simTrkId == 0)
-    return simTrkIndx;
-  edm::SimTrackContainer sim_tracks = (*simTkHandle.product());
-  for (unsigned int itk = 0; itk < sim_tracks.size(); itk++) {
-    if (sim_tracks[itk].trackId() == simTrkId) {
-      simTrkIndx = itk;
-      break;
-    }
-  }
-  return simTrkIndx;
-}*/
-/*void DQMPixelCell::fillClusterWidth(DigiMEs& mes, float dphi, float width) {
-  for (unsigned int i = 0; i < phiValues.size(); i++) {
-    float angle_min = (phiValues[i] - 0.1) * std::acos(-1.0) / 180.0;
-    float angle_max = (phiValues[i] + 0.1) * std::acos(-1.0) / 180.0;
-    if (std::fabs(dphi) > angle_min && std::fabs(dphi) < angle_max) {
-      mes.ClusterWidths[i]->Fill(width);
-      break;
-    }
-  }
-}*/
 
 bool DQMPixelCell::isPixelSystem_(const GeomDetUnit * dunit) const
 {
@@ -595,6 +465,20 @@ DQMPixelCell::MonitorElement * DQMPixelCell::setupH1D_(DQMStore::IBooker& ibooke
             params.getParameter<int32_t>("Nxbins"),
             params.getParameter<double>("xmin"),
             params.getParameter<double>("xmax"));
+}
+
+DQMPixelCell::MonitorElement * DQMPixelCell::setupH2D_(DQMStore::IBooker& ibooker, 
+        const std::string & histoname)
+{
+    // Config need to have exactly the same histo name
+    edm::ParameterSet params = config_.getParameter<edm::ParameterSet>(histoname);
+    return ibooker.book2D(histoname,histoname,
+            params.getParameter<int32_t>("Nxbins"),
+            params.getParameter<double>("xmin"),
+            params.getParameter<double>("xmax"),
+            params.getParameter<int32_t>("Nybins"),
+            params.getParameter<double>("ymin"),
+            params.getParameter<double>("ymax"));
 }
 
 DQMPixelCell::MonitorElement * DQMPixelCell::setupH2D_(DQMStore::IBooker& ibooker, 
@@ -645,15 +529,63 @@ const PixelDigi & DQMPixelCell::get_digi_from_channel_(int ch,
     throw cms::Exception("Not found a PixelDigi") << " for the given channel: " << ch;
 }
 
-const SimTrack & DQMPixelCell::get_simtrack_from_index_(unsigned int idx, const edm::SimTrackContainer * st)
+const SimTrack * DQMPixelCell::get_simtrack_from_id_(unsigned int idx, const edm::SimTrackContainer * stc)
 {
-    if(idx >= st->size())
+    for(const auto & st: *stc)
     {
-        // The trackId is not the element of the SimTrackcontainer?
-        throw cms::Exception("Problem extracting the SimTrack!") << " No element with index: " << idx;
+        if(st.trackId() == idx)
+        {
+            return &st;
+        }
+    }
+    // Any simtrack correspond to this trackid index
+    //edm::LogWarning("DQMPixelCell::get_simtrack_from_id_")
+    edm::LogInfo("DQMPixelCell::get_simtrack_from_id_")
+        << "Not found any SimTrack with trackId: " << idx;
+    return nullptr;
+}
+
+const edm::PSimHitContainer DQMPixelCell::get_simhits_from_trackid_(
+        unsigned int tid, 
+        unsigned int detid_raw,
+        const std::vector<const edm::PSimHitContainer*> & psimhits)
+{
+    // It was already found?
+    if(m_tId_det_simhits_.find(tid) != m_tId_det_simhits_.end() )
+    {
+        // Note that if there were no simhits in detid_raw, now it
+        // is creating an empty std::vector<const edm::PSimHitContainer*>
+        return m_tId_det_simhits_[tid][detid_raw];
     }
 
-    return (*st)[idx];
+    // Otherwise, 
+    // Create the new map for the track
+    m_tId_det_simhits_[tid] = std::map<unsigned int,edm::PSimHitContainer>();
+    // and search for it, all the PsimHit found in all detectors 
+    // are going to be seeked once, therefore memoizing already
+    for(const auto * sh_c: psimhits)
+    {
+        for(const auto & sh: *sh_c)
+        {
+            if(sh.trackId() == tid)
+            {
+                m_tId_det_simhits_[tid][sh.detUnitId()].push_back(sh);
+            }
+        }
+    }
+    // And returning what was requested
+    return m_tId_det_simhits_[tid][detid_raw];
+}
+
+const std::pair<double,double> DQMPixelCell::pixel_cell_transformation_(
+        const std::pair<double,double> & pos,
+        unsigned int icell,
+        const std::pair<double,double> & pitch)
+{
+    const double xcell = (pos.first-int(pos.first))*icell*pitch.first;
+    const double ycell = (pos.second-int(pos.second))*icell*pitch.second;
+
+    return std::pair<double,double>({xcell,ycell});
 }
 
 //define this as a plug-in
