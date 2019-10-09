@@ -82,9 +82,8 @@ for year in upgradeKeys:
                         workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
                 elif '2018' in key:
                     for tv in trackingVariations:
-                        if not "pixelTrackingOnly" in tv:
-                            continue
-                        workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
+                        if "pixelTrackingOnly" in tv:
+                            workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
 
             # special workflows for HGCAL/TICL
             if (upgradeDatasetFromFragment[frag]=="CloseByParticleGun") and ('2026' in key):

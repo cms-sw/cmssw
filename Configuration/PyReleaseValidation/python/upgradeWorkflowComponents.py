@@ -167,12 +167,6 @@ upgradeSteps['pixelTrackingOnlyGPU'] = {
     'suffix' : '_pixelTrackingOnlyGPU',
     'offset' : 0.52,
 }
-upgradeSteps['Timing'] = {
-    'steps' : upgradeSteps['baseline']['steps'],
-    'PU' : upgradeSteps['baseline']['PU'],
-    'suffix' : '_Timing',
-    'offset' : 0.11,
-}
 upgradeSteps['ProdLike'] = {
     'steps' : [
         'RecoFullGlobal',
