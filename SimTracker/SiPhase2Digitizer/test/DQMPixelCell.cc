@@ -103,9 +103,9 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
     // Get SimTrack
-    edm::Handle<edm::SimTrackContainer> simTrackHandle;
+    /*edm::Handle<edm::SimTrackContainer> simTrackHandle;
     iEvent.getByToken(simTrackToken_, simTrackHandle);
-    const edm::SimTrackContainer * simtracks = simTrackHandle.product();
+    const edm::SimTrackContainer * simtracks = simTrackHandle.product();*/
     
     // Geometry description
     edm::ESWatcher<TrackerDigiGeometryRecord> tkDigiGeomWatcher;
@@ -174,137 +174,126 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                     continue;
                 }
             }
-            // Create/update the list of channels created by this simtrack
+            // Create/update the list of channels created by this 
+            // simtrack: remember primaries and secondaries share the same id
             stracks_channels[dhsim.SimTrackId()].insert(current_channel);
         }
 
         // Fill  per detector histograms
         for(const auto & st_ch: stracks_channels)
         {
-            // FIXME :: What happens when the same track (probably secondaries which are
-            // associated to the mother track id) creates more than on digi?? So far 
-            // 1 track creates 1 cluster, but what about secondaries?
-
-            // Get the total charge for this cluster size
-            // and obtain the center of the cluster using a charge-weighted mean
-            int cluster_tot = 0;
-            int cluster_size = 0;
-            std::pair<std::set<int>,std::set<int>> cluster_size_xy;
-            std::pair<double,double> cluster_position({0.0,0.0});
-            for(const auto & ch: st_ch.second)
-            {
-                const PixelDigi & current_digi = get_digi_from_channel_(ch,it_digis);
-                // fill the digi histograms
-                vME_digi_charge1D_[me_unit]->Fill(current_digi.adc());
-                // Get the position in the sensor local frame
-                const LocalPoint digi_local_pos(tkDetUnit->specificTopology().localPosition(
-                            MeasurementPoint(current_digi.row(),current_digi.column())
-                            ));
-                // And convert into global
-                const GlobalPoint digi_global_pos(dunit->surface().toGlobal(digi_local_pos));
-                // Fill the maps
-                vME_digi_XYMap_->Fill(digi_global_pos.x(),digi_global_pos.y());
-                vME_digi_RZMap_->Fill(digi_global_pos.z(),std::hypot(digi_global_pos.x(),digi_global_pos.y()));
-                vME_digi_charge1D_[me_unit]->Fill(current_digi.adc());
-
-                cluster_tot += current_digi.adc();
-                // Use the center of the pixel 
-                cluster_position.first  += current_digi.adc()*(current_digi.row()+0.5);
-                cluster_position.second += current_digi.adc()*(current_digi.column()+0.5);
-                // Size
-                cluster_size_xy.first.insert(current_digi.row());
-                cluster_size_xy.second.insert(current_digi.column());
-                ++cluster_size;
-            }
-            vME_clsize1D_[me_unit]->Fill(cluster_size);
-            vME_clsize1Dx_[me_unit]->Fill(cluster_size_xy.first.size());
-            vME_clsize1Dy_[me_unit]->Fill(cluster_size_xy.second.size());
-            vME_charge1D_[me_unit]->Fill(cluster_tot);
-
-            // mean weighted 
-            cluster_position.first  /= double(cluster_tot);
-            cluster_position.second /= double(cluster_tot);
-            
-            // Get The Sim tracks (once per simtrack)
-            // Obtain the dz/dx y dz/dy from the track?
-            const SimTrack * current_simtrack = get_simtrack_from_id_(st_ch.first,simtracks);
-            // Fill track momentum and position if present
-            if(current_simtrack != nullptr)
-            {
-                // See where the track enters into the tracker and fill its histos
-                // Note units are in mm (from Geant4?)
-                const GlobalPoint cst_position(current_simtrack->trackerSurfacePosition().x()*unit_mm,
-                        current_simtrack->trackerSurfacePosition().y()*unit_mm,
-                        current_simtrack->trackerSurfacePosition().z()*unit_mm);
-                vME_track_XYMap_->Fill(cst_position.x(),cst_position.y());
-                vME_track_RZMap_->Fill(cst_position.z(),std::hypot(cst_position.x(),cst_position.y()));
-                
-                // Convert the momentum into the local frame in order to evaluate the incident
-                // angle, but first needs to be converted into a GlobalVector
-                const GlobalVector cst_momentum(current_simtrack->momentum().x(),
-                        current_simtrack->momentum().y(),
-                        current_simtrack->momentum().z());
-                const LocalVector cst_m_local(dunit->surface().toLocal(cst_momentum));
-                // don't care about the entering direction 
-                vME_track_dxdzAngle_[me_unit]->Fill(std::atan2(cst_m_local.x(),std::fabs(cst_m_local.z())));
-                vME_track_dydzAngle_[me_unit]->Fill(std::atan2(cst_m_local.y(),std::fabs(cst_m_local.z())));
-
-            }
-
-            // -- Get the set of simulated hits from this trackid
+            // -- Get the set of simulated hits from this trackid. 
+            // -- Each Particle SimHit (PSimHit) is defining a particle passing through the detector unit
             const edm::PSimHitContainer current_psimhits = get_simhits_from_trackid_(st_ch.first,detId.rawId(),simhits);
-            // Use the SimHits as the MC-truth to evaluate the digis
             //const auto current_pixel(PixelDigi::channelToPixel(ch));
-
-            // FIXME> The same than a cluster: 1 track -> 1 cluster
-            std::pair<double,double> sim_cluster_position({0.0,0.0}); 
-            double eloss_total = 0.0; 
+            
+            // -- FIXME: Secondaries in the same pixel cell --> should be absorbed
             for(const auto & ps: current_psimhits)
             {
-                const auto mp = tkDetUnit->specificTopology().measurementPosition(ps.localPosition()); 
+                // Fill some sim histograms
+                const GlobalPoint tk_ep_gbl(dunit->surface().toGlobal(ps.entryPoint()));
+                vME_track_XYMap_->Fill(tk_ep_gbl.x(),tk_ep_gbl.y());
+                vME_track_RZMap_->Fill(tk_ep_gbl.z(),std::hypot(tk_ep_gbl.x(),tk_ep_gbl.y()));
+                vME_track_dxdzAngle_[me_unit]->Fill(ps.thetaAtEntry());
+                vME_track_dydzAngle_[me_unit]->Fill(ps.phiAtEntry());
+                
+                // Obtain the detected position of the sim particle: 
+                // the middle point between the entry and the exit
+                const auto psh_pos = tkDetUnit->specificTopology().measurementPosition(ps.localPosition()); 
 
-                sim_cluster_position.first  += mp.x()*ps.energyLoss();
-                sim_cluster_position.second += mp.y()*ps.energyLoss();
-                eloss_total += ps.energyLoss();
-            }
-            sim_cluster_position.first  /= eloss_total;
-            sim_cluster_position.second /= eloss_total;
+                // Build the digi MC-truth clusters by matching each Particle 
+                // sim hit position pixel cell. The matching condition:
+                //   - a digi is created by the i-PSimHit if PsimHit_{pixel}+-1
 
-            // Efficiency --> It was found a cluster of digis?
-            const bool is_digi_present = (cluster_size > 0);
+                // Get the total charge for this cluster size
+                // and obtain the center of the cluster using a charge-weighted mean
+                int cluster_tot = 0;
+                int cluster_size = 0;
+                std::pair<std::set<int>,std::set<int>> cluster_size_xy;
+                std::pair<double,double> cluster_position({0.0,0.0});
+                std::set<int> used_channel;
+                for(const auto & ch: st_ch.second)
+                {
+                    // Not re-using the digi
+                    if(used_channel.find(ch) != used_channel.end())
+                    {
+                        continue;
+                    }
+                    // Digi was created by the current psimhit?
+                    // Accepting +-1 pixel -- XXX: Actually the entryPoint-exitPoint 
+                    // could provide the extension of the cluster
+                    if( ! channel_iluminated_by_(psh_pos,ch,2.0) )
+                    {
+                        continue;
+                    }
+                    const PixelDigi & current_digi = get_digi_from_channel_(ch,it_digis);
+                    used_channel.insert(ch);
+                    // Fill the digi histograms
+                    vME_digi_charge1D_[me_unit]->Fill(current_digi.adc());
+                    // Fill maps: get the position in the sensor local frame to convert into global
+                    const LocalPoint digi_local_pos(tkDetUnit->specificTopology().localPosition(
+                                MeasurementPoint(current_digi.row(),current_digi.column())
+                                ));
+                    const GlobalPoint digi_global_pos(dunit->surface().toGlobal(digi_local_pos));
+                    vME_digi_XYMap_->Fill(digi_global_pos.x(),digi_global_pos.y());
+                    vME_digi_RZMap_->Fill(digi_global_pos.z(),std::hypot(digi_global_pos.x(),digi_global_pos.y()));
+                    // Create the MC-cluster
+                    cluster_tot += current_digi.adc();
+                    // Use the center of the pixel 
+                    cluster_position.first  += current_digi.adc()*(current_digi.row()+0.5);
+                    cluster_position.second += current_digi.adc()*(current_digi.column()+0.5);
+                    // Size
+                    cluster_size_xy.first.insert(current_digi.row());
+                    cluster_size_xy.second.insert(current_digi.column());
+                    ++cluster_size;
+                }
+                vME_clsize1D_[me_unit]->Fill(cluster_size);
+                vME_clsize1Dx_[me_unit]->Fill(cluster_size_xy.first.size());
+                vME_clsize1Dy_[me_unit]->Fill(cluster_size_xy.second.size());
+                vME_charge1D_[me_unit]->Fill(cluster_tot);
+                
+                // mean weighted 
+                cluster_position.first  /= double(cluster_tot);
+                cluster_position.second /= double(cluster_tot);
+                
+                // -- XXX Be careful, secondaries with already used the digis
+                //        are going the be lost (then lost on efficiency)
+                // Efficiency --> It was found a cluster of digis?
+                const bool is_digi_present = (cluster_size > 0);
 
-            // Get topology info of the module sensor
-            //-const int n_rows = tkDetUnit->specificTopology().nrows();
-            //-const int n_cols = tkDetUnit->specificTopology().ncolumns();
-            const auto pitch = tkDetUnit->specificTopology().pitch();
-            // Residuals, convert them to longitud units (so far, in units of row, col)
-            const double dx_um = (sim_cluster_position.first-cluster_position.first)*pitch.first/unit_um;
-            const double dy_um = (sim_cluster_position.second-cluster_position.second)*pitch.second/unit_um;
-            if(is_digi_present)
-            {
-                vME_dx1D_[me_unit]->Fill(dx_um);
-                vME_dy1D_[me_unit]->Fill(dy_um);
-            }
-            // Histograms per cell
-            for(unsigned int i =1; i < vME_position_cell_[me_unit].size(); ++i)
-            {
-                // Convert to i-cell 
-                const std::pair<double,double> icell_simhit_cluster = pixel_cell_transformation_(sim_cluster_position,i,pitch);
-                // Efficiency? --> Any track id do not have a digi? Is there any cluster.size == 0?
-                vME_eff_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,is_digi_present);
+                // Get topology info of the module sensor
+                //-const int n_rows = tkDetUnit->specificTopology().nrows();
+                //-const int n_cols = tkDetUnit->specificTopology().ncolumns();
+                const auto pitch = tkDetUnit->specificTopology().pitch();
+                // Residuals, convert them to longitud units (so far, in units of row, col)
+                const double dx_um = (psh_pos.x()-cluster_position.first)*pitch.first/unit_um;
+                const double dy_um = (psh_pos.y()-cluster_position.second)*pitch.second/unit_um;
                 if(is_digi_present)
                 {
-                    // Convert to the i-cell
-                    //const std::pair<double,double> icell_digi_cluster   = pixel_cell_transformation_(cluster_position,i,pitch);
-                    // Position
-                    vME_position_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um);
-                    // Residuals
-                    vME_dx_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,dx_um);
-                    vME_dy_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,dy_um);
-                    // Charge
-                    vME_charge_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,cluster_tot);
-                    // Cluster size
-                    vME_clsize_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,cluster_size);
+                    vME_dx1D_[me_unit]->Fill(dx_um);
+                    vME_dy1D_[me_unit]->Fill(dy_um);
+                }
+                // Histograms per cell
+                for(unsigned int i =1; i < vME_position_cell_[me_unit].size(); ++i)
+                {
+                    // Convert to i-cell 
+                    const std::pair<double,double> icell_simhit_cluster = pixel_cell_transformation_(psh_pos,i,pitch);
+                    // Efficiency? --> Any track id do not have a digi? Is there any cluster.size == 0?
+                    vME_eff_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,double(is_digi_present));
+                    if(is_digi_present)
+                    {
+                        // Convert to the i-cell
+                        //const std::pair<double,double> icell_digi_cluster   = pixel_cell_transformation_(cluster_position,i,pitch);
+                        // Position
+                        vME_position_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um);
+                        // Residuals
+                        vME_dx_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,dx_um);
+                        vME_dy_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,dy_um);
+                        // Charge
+                        vME_charge_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,cluster_tot);
+                        // Cluster size
+                        vME_clsize_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,cluster_size);
+                    }
                 }
             }
         }
@@ -607,6 +596,15 @@ const edm::PSimHitContainer DQMPixelCell::get_simhits_from_trackid_(
 }
 
 const std::pair<double,double> DQMPixelCell::pixel_cell_transformation_(
+        const MeasurementPoint & pos,
+        unsigned int icell,
+        const std::pair<double,double> & pitch)
+{
+    return pixel_cell_transformation_(std::pair<double,double>({pos.x(),pos.y()}),icell,pitch);
+}
+
+
+const std::pair<double,double> DQMPixelCell::pixel_cell_transformation_(
         const std::pair<double,double> & pos,
         unsigned int icell,
         const std::pair<double,double> & pitch)
@@ -617,6 +615,18 @@ const std::pair<double,double> DQMPixelCell::pixel_cell_transformation_(
 
     return std::pair<double,double>({xcell,ycell});
 }
+
+bool DQMPixelCell::channel_iluminated_by_(const MeasurementPoint & localpos,int channel, double tolerance) const
+{
+    const auto pos_channel(PixelDigi::channelToPixel(channel));
+    if( std::fabs(localpos.x()-pos_channel.first) <= tolerance 
+            && std::fabs(localpos.y()-pos_channel.second) <= tolerance )
+    {
+        return true;
+    }
+    return false;
+}
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(DQMPixelCell);
