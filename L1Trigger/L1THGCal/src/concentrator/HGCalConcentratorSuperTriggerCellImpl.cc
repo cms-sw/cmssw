@@ -2,10 +2,8 @@
 
 HGCalConcentratorSuperTriggerCellImpl::HGCalConcentratorSuperTriggerCellImpl(const edm::ParameterSet& conf)
     : fixedDataSizePerHGCROC_(conf.getParameter<bool>("fixedDataSizePerHGCROC")),
-      coarseTCmapping_(std::vector<unsigned>{HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
-                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
-                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
-                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_}),
+      coarsenTriggerCells_(conf.getParameter<bool>("coarsenTriggerCells")),
+      coarseTCmapping_(conf.getParameter<std::vector<unsigned>>("ctcSize")),
       superTCmapping_(conf.getParameter<std::vector<unsigned>>("stcSize")),
       calibration_(conf.getParameterSet("superTCCalibration")),
       vfeCompression_(conf.getParameterSet("superTCCompression")) {
@@ -49,7 +47,7 @@ void HGCalConcentratorSuperTriggerCellImpl::createAllTriggerCells(
 
     for (const auto& id : output_ids) {
       if (fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_ &&
-          id != superTCmapping_.getRepresentativeDetId(id)) {
+          id != coarseTCmapping_.getRepresentativeDetId(id)) {
         continue;
       }
 
@@ -110,7 +108,7 @@ void HGCalConcentratorSuperTriggerCellImpl::assignSuperTriggerCellEnergyAndPosit
   }
 
   GlobalPoint point;
-  if (fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_) {
+  if ((fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_) || coarsenTriggerCells_) {
     point = coarseTCmapping_.getCoarseTriggerCellPosition(coarseTCmapping_.getCoarseTriggerCellId(c.detId()));
   } else {
     point = triggerTools_.getTCPosition(c.detId());
@@ -131,7 +129,8 @@ void HGCalConcentratorSuperTriggerCellImpl::assignSuperTriggerCellEnergyAndPosit
   } else if (energyDivisionType_ == equalShare) {
     double denominator = fixedDataSizePerHGCROC_
                              ? double(kTriggerCellsForDivision_)
-                             : double(superTCmapping_.getConstituentTriggerCells(stc.getSTCId()).size());
+                             : double(superTCmapping_.getConstituentTriggerCells(stc.getSTCId()).size()) /
+                                   double(coarseTCmapping_.getConstituentTriggerCells(stc.getSTCId()).size());
 
     c.setHwPt(std::round(compressed_value / denominator));
     calibration_.calibrateInGeV(c);

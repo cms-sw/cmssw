@@ -35,6 +35,7 @@ private:
 
   HGCalTriggerTools triggerTools_;
   bool fixedDataSizePerHGCROC_;
+  bool coarsenTriggerCells_;
   HGCalCoarseTriggerCellMapping coarseTCmapping_;
   HGCalCoarseTriggerCellMapping superTCmapping_;
 
