@@ -20,7 +20,6 @@
 //#include "FWCore/ServiceRegistry/interface/Service.h"
 //#include "FWCore/Utilities/interface/InputTag.h"
 //#include "DataFormats/Math/interface/deltaPhi.h"
-//#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 //#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 //#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 //
@@ -99,6 +98,14 @@ class DQMPixelCell : public DQMEDAnalyzer
                 const std::pair<double,double> & pos,
                 unsigned int icell,
                 const std::pair<double,double> & pitch);
+        const std::pair<double,double> pixel_cell_transformation_(
+                const MeasurementPoint & pos,
+                unsigned int icell,
+                const std::pair<double,double> & pitch);
+
+        // Check if the given local position is close enough to the given channel,
+        // the "tolerance" argument is quantifying 'close enough' in a square
+        bool channel_iluminated_by_(const MeasurementPoint & localpos,int channel, double tolerance) const;
 
         // Histograms:
         // HElper setup functions 
