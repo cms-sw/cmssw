@@ -117,15 +117,20 @@ class DQMPixelCell : public DQMEDAnalyzer
         // Whole CMS histos
         MonitorElement * vME_track_XYMap_;
         MonitorElement * vME_track_RZMap_;
+        MonitorElement * vME_digi_XYMap_;
+        MonitorElement * vME_digi_RZMap_;
         // Per detector unit plots
         std::map<int,MonitorElement *> vME_clsize1D_;
+        std::map<int,MonitorElement *> vME_clsize1Dx_;
+        std::map<int,MonitorElement *> vME_clsize1Dy_;
         std::map<int,MonitorElement *> vME_charge1D_;
         std::map<int,MonitorElement *> vME_track_dxdz_;
         std::map<int,MonitorElement *> vME_track_dydz_;
         std::map<int,MonitorElement *> vME_track_dxdzAngle_;
         std::map<int,MonitorElement *> vME_track_dydzAngle_;
         std::map<int,MonitorElement *> vME_dx1D_;
-        std::map<int,MonitorElement *> vME_dy1D_;
+        std::map<int,MonitorElement *> vME_dy1D_;        
+        std::map<int,MonitorElement *> vME_digi_charge1D_;
         // --- cell efficiency per subdector , each element on the 
         //     vector 0: total, 1: 1x1, 2: 2x2, (3: 3x3, 4: 4x4)?
         std::map<int,std::vector<MonitorElement *>> vME_position_cell_;

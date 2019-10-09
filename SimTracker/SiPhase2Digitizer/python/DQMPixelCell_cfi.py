@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
-Nx=40
-Ny=40
+Nx=20
+Ny=20
 
 # PSet for the histos
 ClusterSize1D = cms.PSet(
@@ -15,6 +15,11 @@ Charge1D = cms.PSet(
     Nxbins = cms.int32(201),
     xmin = cms.double(-0.5),
     xmax = cms.double(199.5)
+    )
+DigiCharge1D = cms.PSet(
+    Nxbins = cms.int32(17),
+    xmin = cms.double(-0.5),
+    xmax = cms.double(16.5)
     )
 TrackAngleDxdz = cms.PSet(
     Nxbins = cms.int32(300),
@@ -39,18 +44,18 @@ Dy1D = cms.PSet(
 TrackXY = cms.PSet(
     Nxbins = cms.int32(1250),
     Nybins = cms.int32(1250),
-    xmin   = cms.double(-12500),
-    xmax   = cms.double(12500),
-    ymin   = cms.double(-12500),
-    ymax   = cms.double(12500)
+    xmin   = cms.double(-26.),
+    xmax   = cms.double(26.),
+    ymin   = cms.double(-26.),
+    ymax   = cms.double(26.)
     )
 TrackRZ = cms.PSet(
     Nxbins = cms.int32(3000),
     Nybins = cms.int32(1250),
-    xmin   = cms.double(-30000),
-    xmax   = cms.double(30000),
+    xmin   = cms.double(-300),
+    xmax   = cms.double(300),
     ymin   = cms.double(0),
-    ymax   = cms.double(12500)
+    ymax   = cms.double(26.)
     )
 Position = cms.PSet(
     Nxbins = cms.int32(Nx),
@@ -107,13 +112,18 @@ dqmcell = DQMEDAnalyzer('DQMPixelCell',
     GeometryType = cms.string('idealForDigi'),
 
     ClusterSize1D = ClusterSize1D.clone(),
+    ClusterSize1Dx = ClusterSize1D.clone(),
+    ClusterSize1Dy = ClusterSize1D.clone(),
     Charge1D = Charge1D.clone(),
     TrackAngleDxdz = TrackAngleDxdz.clone(),
     TrackAngleDydz = TrackAngleDydz.clone(),
     TrackXY = TrackXY.clone(),
     TrackRZ = TrackRZ.clone(),
+    DigiXY = TrackXY.clone(),
+    DigiRZ = TrackRZ.clone(),
     Dx1D = Dx1D.clone(),
     Dy1D = Dy1D.clone(),
+    DigiCharge1D = DigiCharge1D.clone(),
 
     Position_0 = Position.clone(),
     Position_1 = Position.clone(),
