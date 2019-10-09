@@ -96,7 +96,6 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
 
   //eta
 
-  std::cout << " digitizing eta " << NEtaBits << std::endl;
   ieta = digitize_Signed(rEta, NEtaBits, 0, valLSBEta);
 
   //z0
@@ -111,17 +110,14 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
     if (theChi2 < chi2Bins[ibin])
       break;
   }
-  std::cout << "chi2: " << theChi2 << " chi2 bin " << ichi2 << std::endl;
 
   //phi
-  std::cout << " digitizing phi " << std::endl;
   iphi = digitize_Signed(rPhi, NPhiBits, 0, valLSBPhi);
 
   //d0
   id0 = digitize_Signed(rD0, ND0Bits, 0, valLSBD0);
 
   //Rinv
-  std::cout << " digitizing Rinv " << std::endl;
   iRinv = digitize_Signed(theRinv, NCurvBits, 0, valLSBCurv);
 
   //bend chi2 - non-linear bins
@@ -310,18 +306,13 @@ unsigned int TTTrack_TrackWord::get_ispare() { return ispare; }
 
 unsigned int TTTrack_TrackWord::digitize_Signed(float var, unsigned int maxBit, unsigned int minBit, float lsb) {
   unsigned int nBits = (maxBit - minBit + 1);
-  std::cout << " input " << var << std::endl;
-  std::cout << " nBits " << nBits << " valLSB " << lsb << std::endl;
   unsigned int myVar = std::floor(fabs(var) / lsb);
   unsigned int maxVal = (1 << (nBits - 1)) - 1;
-  std::cout << " maxVal " << maxVal << std::endl;
   if (myVar > maxVal)
     myVar = maxVal;
   if (var < 0)
     myVar = (1 << nBits) - myVar;  // two's complement encoding
-  std::cout << " my var " << std::bitset<16>(myVar) << std::endl;
   unsigned int seg = myVar;
-  std::cout << " seg " << std::bitset<16>(seg) << std::endl;
   return seg;
 }
 
