@@ -1,10 +1,17 @@
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSiNoiseMap.h"
 
 //
-HGCalSiNoiseMap::HGCalSiNoiseMap() : encpScale_(840.), encCommonNoiseSub_(1.25), qe2fc_(1.60217646E-4) {
-  encsParam_.push_back({636., 15.6, 0.0328});  //q80fC
-  maxADCPerGain_.push_back(80.);
-  encsParam_.push_back({1045., 8.74, 0.0685});  //q160fC
+HGCalSiNoiseMap::HGCalSiNoiseMap() : 
+  encpScale_(840.), 
+  encCommonNoiseSub_(sqrt(1.20)), 
+  qe2fc_(1.60217646E-4),
+  ignoreFluence_(false),
+  ignoreCCE_(false),
+  ignoreNoise_(false) 
+{
+  encsParam_.push_back({636., 15.6, 0.0328});   // q80fC
+  maxADCPerGain_.push_back(80.);                // the num of fC (charge) which corresponds to the max ADC value
+  encsParam_.push_back({1045., 8.74, 0.0685});  // q160fC
   maxADCPerGain_.push_back(160.);
   encsParam_.push_back({1915., 2.79, 0.0878});  // q320fC
   maxADCPerGain_.push_back(320.);
@@ -38,9 +45,20 @@ HGCalSiNoiseMap::HGCalSiNoiseMap() : encpScale_(840.), encCommonNoiseSub_(1.25),
 }
 
 //
+void HGCalSiNoiseMap::setDoseMap(const std::string &fullpath,const unsigned int &algo){
+
+  //decode bits in the algo word
+  ignoreFluence_ = ((algo >> FLUENCE) & 0x1 );
+  ignoreCCE_     = ((algo >> CCE) & 0x1 );
+  ignoreNoise_   = ((algo >> NOISE) & 0x1 );
+
+  //call base class method
+  HGCalRadiationMap::setDoseMap(fullpath,algo);
+}
+
+//
 HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteristics(const HGCSiliconDetId &cellId,
                                                                                      GainRange_t gain,
-                                                                                     bool ignoreFluence,
                                                                                      int aimMIPtoADC) {
   SiCellOpCharacteristics siop;
 
@@ -55,7 +73,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
     return siop;
 
   //leakage current and CCE [muA]
-  if (ignoreFluence) {
+  if (ignoreFluence_) {
     siop.fluence = 0;
     siop.lnfluence = -1;
     siop.ileak = exp(ileakParam_[1]) * cellVol * unitToMicro_;
@@ -83,7 +101,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   }
 
   //reset if CCE is to be ignored
-  if(algo_==NOCCE || algo_==NOCCE_NONOISE) siop.cce=1.0;
+  if(ignoreCCE_) siop.cce=1.0;
 
   //determine the gain to apply accounting for cce
   double S(siop.cce * mipEqfC_[cellThick]);
@@ -113,7 +131,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   siop.noise = hypot(enc_p, enc_s* encCommonNoiseSub_ )  * qe2fc_;
   
   //reset if NOISE is to be ignored
-  if(algo_==NONOISE || algo_==NOCCE_NONOISE) siop.noise=0.0;
+  if(ignoreNoise_) siop.noise=0.0;
 
   return siop;
 }
