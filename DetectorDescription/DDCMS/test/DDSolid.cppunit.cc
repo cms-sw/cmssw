@@ -22,6 +22,7 @@ public:
   void setUp() override;
   void tearDown() override {}
   void checkDDSolid();
+
 private:
   string fileName_;
 };
@@ -35,27 +36,25 @@ void testDDSolid::setUp() {
 void testDDSolid::checkDDSolid() {
   unique_ptr<DDDetector> det = make_unique<DDDetector>("DUMMY", fileName_);
   DDFilteredView fview(det.get(), det->description()->worldVolume());
-  while(fview.next(0)) {
+  while (fview.next(0)) {
     std::string title(fview.solid()->GetTitle());
     std::string name(cms::dd::name(cms::DDSolidShapeMap, fview.shape()));
-    std::cout << fview.name() << " is a "
-	      << title << " == "
-	      << name << "\n";
+    std::cout << fview.name() << " is a " << title << " == " << name << "\n";
     CPPUNIT_ASSERT(title.compare(name) == 0);
-    
-    if(fview.isASubtraction()) {
+
+    if (fview.isASubtraction()) {
       DDSolid solid(fview.solid());
       auto solidA = solid.solidA();
       std::cout << "Solid A is a " << solidA->GetTitle() << "\n";
-      if(dd4hep::instanceOf<dd4hep::ConeSegment>(dd4hep::Solid(solidA))) {
-	cout << " is a ConeSegment:\n";
-	for( auto const& i : solidA.dimensions())
-	  cout << i << ", ";
+      if (dd4hep::instanceOf<dd4hep::ConeSegment>(dd4hep::Solid(solidA))) {
+        cout << " is a ConeSegment:\n";
+        for (auto const& i : solidA.dimensions())
+          cout << i << ", ";
       }
       cout << "\n";
       DDSolid a(solidA);
-      for( auto const& i : a.parameters())
-	cout << i << ", ";
+      for (auto const& i : a.parameters())
+        cout << i << ", ";
       cout << "\n";
     }
   }
