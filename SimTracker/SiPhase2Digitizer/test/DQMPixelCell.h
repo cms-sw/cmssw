@@ -102,14 +102,16 @@ class DQMPixelCell : public DQMEDAnalyzer
 
         // Histograms:
         // HElper setup functions 
-        MonitorElement * setupH1D_(DQMStore::IBooker& ibooker, const std::string & histoname);
-        MonitorElement * setupH2D_(DQMStore::IBooker& ibooker, const std::string & histoname);
+        MonitorElement * setupH1D_(DQMStore::IBooker& ibooker, const std::string & histoname, const std::string & title);
+        MonitorElement * setupH2D_(DQMStore::IBooker& ibooker, const std::string & histoname, const std::string & title);
         MonitorElement * setupH2D_(DQMStore::IBooker& ibooker, 
                 const std::string & histoname, 
+                const std::string & title, 
                 const std::pair<double,double> & xranges, 
                 const std::pair<double,double> & yranges);
         MonitorElement * setupProf2D_(DQMStore::IBooker& ibooker, 
                 const std::string & histoname, 
+                const std::string & title, 
                 const std::pair<double,double> & xranges, 
                 const std::pair<double,double> & yranges);
         // Whole CMS histos

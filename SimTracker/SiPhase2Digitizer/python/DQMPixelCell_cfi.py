@@ -16,16 +16,6 @@ Charge1D = cms.PSet(
     xmin = cms.double(-0.5),
     xmax = cms.double(199.5)
     )
-TrackDxdz = cms.PSet(
-    Nxbins = cms.int32(1000),
-    xmin = cms.double(-3.5),
-    xmax = cms.double(3.5)
-    )
-TrackDydz = cms.PSet(
-    Nxbins = cms.int32(1000),
-    xmin = cms.double(-3.5),
-    xmax = cms.double(3.5)
-    )
 TrackAngleDxdz = cms.PSet(
     Nxbins = cms.int32(300),
     xmin = cms.double(-1.58),
@@ -63,8 +53,8 @@ TrackRZ = cms.PSet(
     ymax   = cms.double(12500)
     )
 Position = cms.PSet(
-    Nxbins = cms.int32(300),
-    Nybins = cms.int32(300)
+    Nxbins = cms.int32(Nx),
+    Nybins = cms.int32(Ny)
     )
 Efficiency = cms.PSet(
     Nxbins = cms.int32(Nx),
@@ -118,8 +108,6 @@ dqmcell = DQMEDAnalyzer('DQMPixelCell',
 
     ClusterSize1D = ClusterSize1D.clone(),
     Charge1D = Charge1D.clone(),
-    TrackDxdz = TrackDxdz.clone(),
-    TrackDydz = TrackDydz.clone(),
     TrackAngleDxdz = TrackAngleDxdz.clone(),
     TrackAngleDydz = TrackAngleDydz.clone(),
     TrackXY = TrackXY.clone(),

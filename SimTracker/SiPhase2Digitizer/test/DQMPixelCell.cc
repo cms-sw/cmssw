@@ -38,8 +38,7 @@ DQMPixelCell::DQMPixelCell(const edm::ParameterSet& iConfig) :
     geomType_(iConfig.getParameter<std::string>("GeometryType")),
     //phiValues(iConfig.getParameter<std::vector<double> >("PhiAngles")),
     digiToken_(consumes<edm::DetSetVector<PixelDigi> >(
-                iConfig.getParameter<edm::InputTag>("PixelDigiSource"))
-            ),
+                iConfig.getParameter<edm::InputTag>("PixelDigiSource"))),
     digiSimLinkToken_(consumes<edm::DetSetVector<PixelDigiSimLink> >(
                 iConfig.getParameter<edm::InputTag>("PixelDigiSimSource"))),
     simTrackToken_(consumes<edm::SimTrackContainer>(
@@ -62,7 +61,7 @@ DQMPixelCell::~DQMPixelCell()
 {
     LogDebug("DQMPixelCell") << ">>> Destroy DQMPixelCell ";
 }
-//
+
 // -- DQM Begin Run
 //
 void DQMPixelCell::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) 
@@ -224,11 +223,8 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                     current_simtrack->momentum().y(),
                     current_simtrack->momentum().z());
             const LocalVector cst_m_local(dunit->surface().toLocal(cst_momentum));
-            // -- FIXME : One of the two: dxdz or dxdzAngle 
-            vME_track_dxdz_[me_unit]->Fill(cst_m_local.x()/cst_m_local.z());
-            vME_track_dxdzAngle_[me_unit]->Fill(std::atan2(cst_m_local.x(),cst_m_local.z()));
-            vME_track_dydz_[me_unit]->Fill(cst_m_local.y()/cst_m_local.z());
-            vME_track_dydzAngle_[me_unit]->Fill(std::atan2(cst_m_local.y(),cst_m_local.z()));
+            vME_track_dxdzAngle_[me_unit]->Fill(std::atan2(cst_m_local.z(),cst_m_local.x()));
+            vME_track_dydzAngle_[me_unit]->Fill(std::atan2(cst_m_local.z(),cst_m_local.y()));
 
             // See where the track enters into the tracker and fill its histos
             const GlobalPoint cst_position(current_simtrack->trackerSurfacePosition().x(),
@@ -290,6 +286,8 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                 {
                     // Convert to the i-cell
                     //const std::pair<double,double> icell_digi_cluster   = pixel_cell_transformation_(cluster_position,i,pitch);
+                    // Position
+                    vME_position_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um);
                     // Residuals
                     vME_dx_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,dx_um);
                     vME_dy_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,dy_um);
@@ -323,8 +321,10 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
     // Histograms independent of the subdetector units
     ibooker.cd();
     ibooker.setCurrentFolder(top_folder);
-    vME_track_XYMap_ = setupH2D_(ibooker,"TrackXY");
-    vME_track_RZMap_ = setupH2D_(ibooker,"TrackRZ");
+    vME_track_XYMap_ = setupH2D_(ibooker,"TrackXY",
+            "Track entering position in the tracker system;x [cm];y [cm];N_{tracksId}");
+    vME_track_RZMap_ = setupH2D_(ibooker,"TrackRZ",
+            "Track entering position in the tracker system;z [cm];r [cm];N_{tracksId}");
 
     // Get all pixel subdetector, create histogram by layers
     // -- More granularity can be accomplished by modules (1 central + 5 modules: in z, 
@@ -383,14 +383,16 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
 
             // And create the histos
             // Per detector unit histos
-            vME_clsize1D_[me_unit] = setupH1D_(ibooker,"ClusterSize1D");
-            vME_charge1D_[me_unit] = setupH1D_(ibooker,"Charge1D");
-            vME_track_dxdz_[me_unit] = setupH1D_(ibooker,"TrackDxdz");
-            vME_track_dydz_[me_unit] = setupH1D_(ibooker,"TrackDydz");
-            vME_track_dxdzAngle_[me_unit] = setupH1D_(ibooker,"TrackAngleDxdz");
-            vME_track_dydzAngle_[me_unit] = setupH1D_(ibooker,"TrackAngleDydz");
-            vME_dx1D_[me_unit] = setupH1D_(ibooker,"Dx1D");
-            vME_dy1D_[me_unit] = setupH1D_(ibooker,"Dy1D");
+            vME_clsize1D_[me_unit] = setupH1D_(ibooker,"ClusterSize1D","MC-truth cluster size;Cluster size;N_{clusters}");
+            vME_charge1D_[me_unit] = setupH1D_(ibooker,"Charge1D","MC-truth charge;Cluster charge [ToT];N_{clusters}");
+            vME_track_dxdzAngle_[me_unit] = setupH1D_(ibooker,"TrackAngleDxdz",
+                    "Angle between the track-momentum and detector surface (X-plane);#theta_{x} [rad];N_{tracks}");
+            vME_track_dydzAngle_[me_unit] = setupH1D_(ibooker,"TrackAngleDydz",
+                    "Angle between the track-momentum and detector surface (Y-plane);#theta_{y} [rad];N_{tracks}");
+            vME_dx1D_[me_unit] = setupH1D_(ibooker,"Dx1D",
+                    "MC-truth residuals;x^{cluster}_{simhit}-x^{cluster}_{digi} [#mum];N_{digi clusters}");
+            vME_dy1D_[me_unit] = setupH1D_(ibooker,"Dy1D",
+                    "MC-truth residuals;y^{cluster}_{simhit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
 
             // The histos per cell
             // Prepare the ranges: 0- whole sensor, 1- cell 1x1, 2-cell 2x2,
@@ -402,31 +404,37 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
                 std::make_pair<double,double>(0,ncols-1),
                 std::make_pair<double,double>(0,pitch.second/unit_um),
                 std::make_pair<double,double>(0,2.0*pitch.second/unit_um) };
-            for(unsigned int i = 0; i < xranges.size(); ++i)
+            for(unsigned int i = 1; i < xranges.size(); ++i)
             {
-                // 
+                const std::string cell("Cell "+std::to_string(i)+"x"+std::to_string(i)+": ");
                 vME_position_cell_[me_unit].push_back(setupH2D_(ibooker,
                             "Position_"+std::to_string(i),
+                            cell+"Digi cluster center (charge-weighted) position;x [#mum];y [#mum];N_{clusters}",
                             xranges[i],
                             yranges[i]));
                 vME_eff_cell_[me_unit].push_back(setupProf2D_(ibooker,
                             "Efficiency_"+std::to_string(i),
+                            cell+"MC-truth efficiency;x [#mum];y [#mum];<#varepsilon>",
                             xranges[i],
                             yranges[i]));
                 vME_clsize_cell_[me_unit].push_back(setupProf2D_(ibooker,
                             "ClusterSize_"+std::to_string(i),
+                            cell+"MC-truth cluster size;x [#mum];y [#mum];<Cluster size>",
                             xranges[i],
                             yranges[i]));
                 vME_charge_cell_[me_unit].push_back(setupProf2D_(ibooker,
                             "Charge_"+std::to_string(i),
+                            cell+"MC-truth charge;x [#mum];y [#mum];<Cluster size>",
                             xranges[i],
                             yranges[i]));
                 vME_dx_cell_[me_unit].push_back(setupProf2D_(ibooker,
                             "Dx_"+std::to_string(i),
+                            cell+"MC-truth residuals;x [#mum];y [#mum];<#Deltax [#mum]>",
                             xranges[i],
                             yranges[i]));
                 vME_dy_cell_[me_unit].push_back(setupProf2D_(ibooker,
                             "Dy_"+std::to_string(i),
+                            cell+"MC-truth residuals;x [#mum];y [#mum];<#Deltay [#mum]>",
                             xranges[i],
                             yranges[i]));
             }
@@ -457,22 +465,24 @@ int DQMPixelCell::meUnit_(bool isBarrel,int layer, int side) const
 }
 
 DQMPixelCell::MonitorElement * DQMPixelCell::setupH1D_(DQMStore::IBooker& ibooker, 
-        const std::string & histoname)
+        const std::string & histoname,
+        const std::string & title)
 {
     // Config need to have exactly the same histo name
     edm::ParameterSet params = config_.getParameter<edm::ParameterSet>(histoname);
-    return ibooker.book1D(histoname,histoname,
+    return ibooker.book1D(histoname,title,
             params.getParameter<int32_t>("Nxbins"),
             params.getParameter<double>("xmin"),
             params.getParameter<double>("xmax"));
 }
 
 DQMPixelCell::MonitorElement * DQMPixelCell::setupH2D_(DQMStore::IBooker& ibooker, 
-        const std::string & histoname)
+        const std::string & histoname,
+        const std::string & title)
 {
     // Config need to have exactly the same histo name
     edm::ParameterSet params = config_.getParameter<edm::ParameterSet>(histoname);
-    return ibooker.book2D(histoname,histoname,
+    return ibooker.book2D(histoname,title,
             params.getParameter<int32_t>("Nxbins"),
             params.getParameter<double>("xmin"),
             params.getParameter<double>("xmax"),
@@ -483,12 +493,13 @@ DQMPixelCell::MonitorElement * DQMPixelCell::setupH2D_(DQMStore::IBooker& ibooke
 
 DQMPixelCell::MonitorElement * DQMPixelCell::setupH2D_(DQMStore::IBooker& ibooker, 
         const std::string & histoname,
+        const std::string & title,
         const std::pair<double,double> & xranges, 
         const std::pair<double,double> & yranges)
 {
     // Config need to have exactly the same histo name
     edm::ParameterSet params = config_.getParameter<edm::ParameterSet>(histoname);
-    return ibooker.book2D(histoname,histoname,
+    return ibooker.book2D(histoname,title,
             params.getParameter<int32_t>("Nxbins"),
             xranges.first,
             xranges.second,
@@ -499,12 +510,13 @@ DQMPixelCell::MonitorElement * DQMPixelCell::setupH2D_(DQMStore::IBooker& ibooke
 
 DQMPixelCell::MonitorElement * DQMPixelCell::setupProf2D_(DQMStore::IBooker& ibooker, 
         const std::string & histoname,
+        const std::string & title,
         const std::pair<double,double> & xranges, 
         const std::pair<double,double> & yranges)
 {
     // Config need to have exactly the same histo name
     edm::ParameterSet params = config_.getParameter<edm::ParameterSet>(histoname);
-    return ibooker.bookProfile2D(histoname,histoname,
+    return ibooker.bookProfile2D(histoname,title,
             params.getParameter<int32_t>("Nxbins"),
             xranges.first,
             xranges.second,
@@ -582,8 +594,9 @@ const std::pair<double,double> DQMPixelCell::pixel_cell_transformation_(
         unsigned int icell,
         const std::pair<double,double> & pitch)
 {
-    const double xcell = (pos.first-int(pos.first))*icell*pitch.first;
-    const double ycell = (pos.second-int(pos.second))*icell*pitch.second;
+    // XXX - If icell == 0 -> get the nrow and ncol ?
+    const double xcell = std::fmod(pos.first,icell)*pitch.first;
+    const double ycell = std::fmod(pos.second,icell)*pitch.second;
 
     return std::pair<double,double>({xcell,ycell});
 }
