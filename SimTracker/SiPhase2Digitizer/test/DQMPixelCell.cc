@@ -23,12 +23,14 @@
 
 // system
 #include <algorithm>
+#include <set>
 
 // XXX - Be careful the relative position
 #include "DQMPixelCell.h"
 
 
 const double unit_um = 1e-4; // [cm]
+const double unit_mm = 1e-1; // [cm]
 
 using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
 
@@ -97,7 +99,6 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         {
             continue;
         }
-        //const edm::PSimHitContainer * simhits = simHitHandle.product();
         simhits.push_back( simHitHandle.product() );
     }
 
@@ -157,7 +158,7 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             // FIXME: CHeck if there is any digi ... Should not
             //continue;
         }*/
-//std::cout << "DETECTOR: " << tkDetUnit->type().name() << std::endl;
+        //std::cout << "DETECTOR: " << tkDetUnit->type().name() << std::endl;
 
         // Loop over the simulated digi links, for each one get the track id, 
         // used to obtain the simhit, and the raw digi (via the channel)
@@ -180,10 +181,6 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         // Fill  per detector histograms
         for(const auto & st_ch: stracks_channels)
         {
-            // Cluster size on the detector unit, that's from the simdigi,
-            //vME_clsize1D_[me_unit]->Fill(st_ch.second.size());
-
-//std::cout << " -- Current trackId [" << st_ch.first << "] Created Digis: " << st_ch.second.size();
             // FIXME :: What happens when the same track (probably secondaries which are
             // associated to the mother track id) creates more than on digi?? So far 
             // 1 track creates 1 cluster, but what about secondaries?
@@ -192,74 +189,86 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             // and obtain the center of the cluster using a charge-weighted mean
             int cluster_tot = 0;
             int cluster_size = 0;
+            std::pair<std::set<int>,std::set<int>> cluster_size_xy;
             std::pair<double,double> cluster_position({0.0,0.0});
             for(const auto & ch: st_ch.second)
             {
                 const PixelDigi & current_digi = get_digi_from_channel_(ch,it_digis);
+                // fill the digi histograms
+                vME_digi_charge1D_[me_unit]->Fill(current_digi.adc());
+                // Get the position in the sensor local frame
+                const LocalPoint digi_local_pos(tkDetUnit->specificTopology().localPosition(
+                            MeasurementPoint(current_digi.row(),current_digi.column())
+                            ));
+                // And convert into global
+                const GlobalPoint digi_global_pos(dunit->surface().toGlobal(digi_local_pos));
+                // Fill the maps
+                vME_digi_XYMap_->Fill(digi_global_pos.x(),digi_global_pos.y());
+                vME_digi_RZMap_->Fill(digi_global_pos.z(),std::hypot(digi_global_pos.x(),digi_global_pos.y()));
+                vME_digi_charge1D_[me_unit]->Fill(current_digi.adc());
+
                 cluster_tot += current_digi.adc();
-                cluster_position.first  += current_digi.adc()*current_digi.row();
-                cluster_position.second += current_digi.adc()*current_digi.column();
+                // Use the center of the pixel 
+                cluster_position.first  += current_digi.adc()*(current_digi.row()+0.5);
+                cluster_position.second += current_digi.adc()*(current_digi.column()+0.5);
+                // Size
+                cluster_size_xy.first.insert(current_digi.row());
+                cluster_size_xy.second.insert(current_digi.column());
                 ++cluster_size;
             }
             vME_clsize1D_[me_unit]->Fill(cluster_size);
+            vME_clsize1Dx_[me_unit]->Fill(cluster_size_xy.first.size());
+            vME_clsize1Dy_[me_unit]->Fill(cluster_size_xy.second.size());
             vME_charge1D_[me_unit]->Fill(cluster_tot);
 
             // mean weighted 
             cluster_position.first  /= double(cluster_tot);
             cluster_position.second /= double(cluster_tot);
-//std::cout << " ToT: " << cluster_tot << " <row>:" << cluster_position.first << " <col>:" << cluster_position.second ; 
             
             // Get The Sim tracks (once per simtrack)
             // Obtain the dz/dx y dz/dy from the track?
             const SimTrack * current_simtrack = get_simtrack_from_id_(st_ch.first,simtracks);
-            if(current_simtrack == nullptr)
+            // Fill track momentum and position if present
+            if(current_simtrack != nullptr)
             {
-//std::cout << std::endl;
-                continue;
+                // See where the track enters into the tracker and fill its histos
+                // Note units are in mm (from Geant4?)
+                const GlobalPoint cst_position(current_simtrack->trackerSurfacePosition().x()*unit_mm,
+                        current_simtrack->trackerSurfacePosition().y()*unit_mm,
+                        current_simtrack->trackerSurfacePosition().z()*unit_mm);
+                vME_track_XYMap_->Fill(cst_position.x(),cst_position.y());
+                vME_track_RZMap_->Fill(cst_position.z(),std::hypot(cst_position.x(),cst_position.y()));
+                
+                // Convert the momentum into the local frame in order to evaluate the incident
+                // angle, but first needs to be converted into a GlobalVector
+                const GlobalVector cst_momentum(current_simtrack->momentum().x(),
+                        current_simtrack->momentum().y(),
+                        current_simtrack->momentum().z());
+                const LocalVector cst_m_local(dunit->surface().toLocal(cst_momentum));
+                // don't care about the entering direction 
+                vME_track_dxdzAngle_[me_unit]->Fill(std::atan2(cst_m_local.x(),std::fabs(cst_m_local.z())));
+                vME_track_dydzAngle_[me_unit]->Fill(std::atan2(cst_m_local.y(),std::fabs(cst_m_local.z())));
+
             }
-            // Convert the momentum into the local frame in order to evaluate the incident
-            // angle, but first it needs to be converted into a GlobalVector
-            const GlobalVector cst_momentum(current_simtrack->momentum().x(),
-                    current_simtrack->momentum().y(),
-                    current_simtrack->momentum().z());
-            const LocalVector cst_m_local(dunit->surface().toLocal(cst_momentum));
-            // don't care about the entering direction 
-            vME_track_dxdzAngle_[me_unit]->Fill(std::atan2(cst_m_local.x(),std::fabs(cst_m_local.z())));
-            vME_track_dydzAngle_[me_unit]->Fill(std::atan2(cst_m_local.y(),std::fabs(cst_m_local.z())));
-
-            // See where the track enters into the tracker and fill its histos
-            const GlobalPoint cst_position(current_simtrack->trackerSurfacePosition().x(),
-                    current_simtrack->trackerSurfacePosition().y(),
-                    current_simtrack->trackerSurfacePosition().z());
-
-            vME_track_XYMap_->Fill(cst_position.x(),cst_position.y());
-            vME_track_RZMap_->Fill(cst_position.z(),std::hypot(cst_position.x(),cst_position.y()));
 
             // -- Get the set of simulated hits from this trackid
             const edm::PSimHitContainer current_psimhits = get_simhits_from_trackid_(st_ch.first,detId.rawId(),simhits);
             // Use the SimHits as the MC-truth to evaluate the digis
             //const auto current_pixel(PixelDigi::channelToPixel(ch));
-//std::cout << " SimHits.size: " << current_psimhits.size() ;
 
             // FIXME> The same than a cluster: 1 track -> 1 cluster
             std::pair<double,double> sim_cluster_position({0.0,0.0}); 
             double eloss_total = 0.0; 
             for(const auto & ps: current_psimhits)
             {
-                // Compensate the row and column center
-                auto mp = tkDetUnit->specificTopology().measurementPosition(ps.localPosition())-MeasurementPoint(0.5,0.5);
+                const auto mp = tkDetUnit->specificTopology().measurementPosition(ps.localPosition()); 
 
                 sim_cluster_position.first  += mp.x()*ps.energyLoss();
                 sim_cluster_position.second += mp.y()*ps.energyLoss();
                 eloss_total += ps.energyLoss();
-//std::cout << " (detId.rawId: " << detId.rawId() << ")[- DetUnitId: " << ps.detUnitId() << " Entry Point: " << ps.entryPoint() << " Exit Point: " << ps.exitPoint() 
-//        << " Local Position row:" << mp.x() << " col: " << mp.y() << "  p_entry=" << ps.momentumAtEntry()
-//        << " Time of flight: " << ps.timeOfFlight() << "-]"; 
             }
             sim_cluster_position.first  /= eloss_total;
             sim_cluster_position.second /= eloss_total;
-//std::cout << " ---> In summary: Eloss total:" << eloss_total 
-//<< " <row>: " << sim_cluster_position.first << " <col>:" << sim_cluster_position.second <<  std::endl;
 
             // Efficiency --> It was found a cluster of digis?
             const bool is_digi_present = (cluster_size > 0);
@@ -326,6 +335,10 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
             "Track entering position in the tracker system;x [cm];y [cm];N_{tracksId}");
     vME_track_RZMap_ = setupH2D_(ibooker,"TrackRZ",
             "Track entering position in the tracker system;z [cm];r [cm];N_{tracksId}");
+    vME_digi_XYMap_ = setupH2D_(ibooker,"DigiXY",
+            "Digi position;x [cm];y [cm];N_{digi}");
+    vME_digi_RZMap_ = setupH2D_(ibooker,"DigiRZ",
+            "Digi position;z [cm];r [cm];N_{digi}");
 
     // Get all pixel subdetector, create histogram by layers
     // -- More granularity can be accomplished by modules (1 central + 5 modules: in z, 
@@ -363,11 +376,11 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
                 cms::Exception("Tracker subdetector '") << dtype.subDetector() << "'"
                     << " malformed: does not belong to the Endcap neither the Barrel";
             }
-            folder_name += "_Layer"+std::to_string(layer);
+            folder_name += "/Layer"+std::to_string(layer);
 
             if(topo->side(detId))
             {
-                folder_name += "_Side"+std::to_string(topo->side(detId));
+                folder_name += "/Side"+std::to_string(topo->side(detId));
             }
             // Go the proper folder
             ibooker.cd();
@@ -385,6 +398,8 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
             // And create the histos
             // Per detector unit histos
             vME_clsize1D_[me_unit] = setupH1D_(ibooker,"ClusterSize1D","MC-truth cluster size;Cluster size;N_{clusters}");
+            vME_clsize1Dx_[me_unit] = setupH1D_(ibooker,"ClusterSize1Dx","MC-truth cluster size in X;Cluster size;N_{clusters}");
+            vME_clsize1Dy_[me_unit] = setupH1D_(ibooker,"ClusterSize1Dy","MC-truth cluster size in Y;Cluster size;N_{clusters}");
             vME_charge1D_[me_unit] = setupH1D_(ibooker,"Charge1D","MC-truth charge;Cluster charge [ToT];N_{clusters}");
             vME_track_dxdzAngle_[me_unit] = setupH1D_(ibooker,"TrackAngleDxdz",
                     "Angle between the track-momentum and detector surface (X-plane);#pi/2-#theta_{x} [rad];N_{tracks}");
@@ -394,6 +409,7 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
                     "MC-truth residuals;x^{cluster}_{simhit}-x^{cluster}_{digi} [#mum];N_{digi clusters}");
             vME_dy1D_[me_unit] = setupH1D_(ibooker,"Dy1D",
                     "MC-truth residuals;y^{cluster}_{simhit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
+            vME_digi_charge1D_[me_unit] = setupH1D_(ibooker,"DigiCharge1D","Digi charge;digi charge [ToT];N_{digi}");
 
             // The histos per cell
             // Prepare the ranges: 0- whole sensor, 1- cell 1x1, 2-cell 2x2,
