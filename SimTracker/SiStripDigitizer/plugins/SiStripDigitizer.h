@@ -9,6 +9,7 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 
 class TrackerTopology;
 
@@ -18,7 +19,6 @@ namespace CLHEP {
 
 namespace edm {
   class ConsumesCollector;
-  class ProducerBase;
   class Event;
   class EventSetup;
   class ParameterSet;
@@ -44,7 +44,7 @@ class TrackerGeometry;
  */
 class SiStripDigitizer : public DigiAccumulatorMixMod {
 public:
-  explicit SiStripDigitizer(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
+  explicit SiStripDigitizer(const edm::ParameterSet& conf, edm::ProducesCollector, edm::ConsumesCollector& iC);
 
   ~SiStripDigitizer() override;
 

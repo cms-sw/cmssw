@@ -2,6 +2,7 @@
 #define SimCalorimetry_EcalSimProducers_EcalDigiProducer_h
 
 #include "DataFormats/Math/interface/Error.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/APDShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
@@ -42,7 +43,6 @@ class PileUpEventPrincipal;
 
 namespace edm {
   class ConsumesCollector;
-  class ProducerBase;
   class Event;
   class EventSetup;
   template <typename T>
@@ -57,7 +57,7 @@ namespace CLHEP {
 
 class EcalDigiProducer : public DigiAccumulatorMixMod {
 public:
-  EcalDigiProducer(const edm::ParameterSet &params, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC);
+  EcalDigiProducer(const edm::ParameterSet &params, edm::ProducesCollector, edm::ConsumesCollector &iC);
   EcalDigiProducer(const edm::ParameterSet &params, edm::ConsumesCollector &iC);
   ~EcalDigiProducer() override;
 

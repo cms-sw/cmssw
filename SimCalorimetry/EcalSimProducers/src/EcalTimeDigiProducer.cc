@@ -21,7 +21,7 @@
 //#define ecal_time_debug 1
 
 EcalTimeDigiProducer::EcalTimeDigiProducer(const edm::ParameterSet &params,
-                                           edm::ProducerBase &mixMod,
+                                           edm::ProducesCollector producesCollector,
                                            edm::ConsumesCollector &sumes)
     : DigiAccumulatorMixMod(),
       m_EBdigiCollection(params.getParameter<std::string>("EBtimeDigiCollection")),
@@ -33,8 +33,8 @@ EcalTimeDigiProducer::EcalTimeDigiProducer(const edm::ParameterSet &params,
       m_timeLayerEB(params.getParameter<int>("timeLayerBarrel")),
       m_timeLayerEE(params.getParameter<int>("timeLayerEndcap")),
       m_Geometry(nullptr) {
-  mixMod.produces<EcalTimeDigiCollection>(m_EBdigiCollection);
-  mixMod.produces<EcalTimeDigiCollection>(m_EEdigiCollection);
+  producesCollector.produces<EcalTimeDigiCollection>(m_EBdigiCollection);
+  producesCollector.produces<EcalTimeDigiCollection>(m_EEdigiCollection);
 
   m_BarrelDigitizer = new EcalTimeMapDigitizer(EcalBarrel);
   m_EndcapDigitizer = new EcalTimeMapDigitizer(EcalEndcap);

@@ -107,7 +107,7 @@ namespace l1t {
     }
 
     prov_ = PackingSetupFactory::get()->make(config.getParameter<std::string>("Setup"));
-    prov_->registerProducts(*this);
+    prov_->registerProducts(producesCollector());
 
     slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader");
     slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer");

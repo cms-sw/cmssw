@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
@@ -35,7 +34,7 @@ namespace l1t {
       return res;
     }
 
-    void EMTFSetup::registerProducts(edm::stream::EDProducerBase& prod) {
+    void EMTFSetup::registerProducts(edm::ProducesCollector prod) {
       prod.produces<RegionalMuonCandBxCollection>();
       prod.produces<EMTFDaqOutCollection>();
       prod.produces<EMTFHitCollection>();
