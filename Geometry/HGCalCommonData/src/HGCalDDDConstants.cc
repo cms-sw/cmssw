@@ -1111,11 +1111,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
                                           int& cellV,
                                           int& celltype,
                                           double& wt,
-                                          bool
-#ifdef EDM_ML_DEBUG
-                                              debug
-#endif
-                                          ) const {
+                                          bool debug) const {
   int ll = layer - hgpar_->firstLayer_;
   double xx = HGCalParameters::k_ScaleFromDDD * x - hgpar_->xLayerHex_[ll];
   double yy = HGCalParameters::k_ScaleFromDDD * y - hgpar_->yLayerHex_[ll];
@@ -1147,16 +1143,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
     }
   }
   if (std::abs(waferU) <= hgpar_->waferUVMax_) {
-    cellHex(xx,
-            yy,
-            celltype,
-            cellU,
-            cellV
-#ifdef EDM_ML_DEBUG
-            ,
-            debug
-#endif
-    );
+    cellHex(xx, yy, celltype, cellU, cellV, debug);
     wt = ((celltype < 2) ? (hgpar_->cellThickness_[celltype] / hgpar_->waferThick_) : 1.0);
   } else {
     cellU = cellV = 2 * hgpar_->nCellsFine_;
@@ -1319,11 +1306,7 @@ void HGCalDDDConstants::cellHex(double xloc,
                                 int cellType,
                                 int& cellU,
                                 int& cellV,
-                                bool
-#ifdef EDM_ML_DEBUG
-                                    debug
-#endif
-                                ) const {
+                                bool debug) const {
   int N = (cellType == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
   double Rc = 2 * rmax_ / (3 * N);
   double rc = 0.5 * Rc * sqrt3_;
@@ -1335,11 +1318,9 @@ void HGCalDDDConstants::cellHex(double xloc,
   cv0 = std::max(0, std::min(cv0, 2 * N - 1));
   if (cv0 - cu0 >= N)
     cv0 = cu0 + N - 1;
-#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "cellHex: input " << xloc << ":" << yloc << ":" << cellType << " parameter " << rc
                                   << ":" << Rc << " u0 " << u0 << ":" << cu0 << " v0 " << v0 << ":" << cv0;
-#endif
   bool found(false);
   static const int shift[3] = {0, 1, -1};
   for (int i1 = 0; i1 < 3; ++i1) {
@@ -1352,13 +1333,11 @@ void HGCalDDDConstants::cellHex(double xloc,
         double yc = (2 * cellU - cellV - N) * rc;
         if ((std::abs(yloc - yc) <= rc) && (std::abs(xloc - xc) <= Rc) &&
             ((std::abs(xloc - xc) <= 0.5 * Rc) || (std::abs(yloc - yc) <= sqrt3_ * (Rc - std::abs(xloc - xc))))) {
-#ifdef EDM_ML_DEBUG
           if (debug)
             edm::LogVerbatim("HGCalGeom")
                 << "cellHex: local " << xc << ":" << yc << " difference " << std::abs(xloc - xc) << ":"
                 << std::abs(yloc - yc) << ":" << sqrt3_ * (Rc - std::abs(yloc - yc)) << " comparator " << rc << ":"
                 << Rc << " (u,v) = (" << cellU << "," << cellV << ")";
-#endif
           found = true;
           break;
         }
@@ -1477,20 +1456,14 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(int lay,
                                                            int waferU,
                                                            int waferV,
                                                            bool reco,
-                                                           bool
-#ifdef EDM_ML_DEBUG
-                                                               debug
-#endif
-                                                           ) const {
+                                                           bool debug) const {
 
   int ll = lay - hgpar_->firstLayer_;
   double x = hgpar_->xLayerHex_[ll];
   double y = hgpar_->yLayerHex_[ll];
-#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Shift " << hgpar_->xLayerHex_[ll] << ":"
                                   << hgpar_->yLayerHex_[ll];
-#endif
   if (!reco) {
     x *= HGCalParameters::k_ScaleToDDD;
     y *= HGCalParameters::k_ScaleToDDD;
@@ -1499,10 +1472,8 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(int lay,
   const auto& xy = waferPosition(waferU, waferV, reco);
   x += xy.first;
   y += xy.second;
-#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "With wafer " << x << ":" << y << ":" << xy.first << ":" << xy.second;
-#endif
   return std::make_pair(x, y);
 }
 
