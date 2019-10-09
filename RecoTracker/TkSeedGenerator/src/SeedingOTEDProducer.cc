@@ -121,10 +121,9 @@ TrajectorySeedCollection SeedingOTEDProducer::run(edm::Handle<VectorHitCollectio
     if (signZ * signPz < 0.0)
       searchingPropagator->setPropagationDirection(alongMomentum);
 
-
     //find vHits in layer 2
     std::vector<TrajectoryMeasurement> measurementsL2 =
-         layerMeasurements->measurements(*barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator);
+        layerMeasurements->measurements(*barrelOTLayer2, initialTSOS, *searchingPropagator, *estimator);
 
     //other options
     //LayerMeasurements::SimpleHitContainer hits;
