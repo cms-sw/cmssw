@@ -36,7 +36,7 @@ def customiseFor28110(process):
         if hasattr(producer, "dzPV"): delattr(producer, "dzPV")
         #
         # kill parameters that are moved to sub-psets
-        # PFEgammaFiltersParameters
+        # PFEGammaFiltersParameters
         if hasattr(producer, "electron_iso_pt"): delattr(producer, "electron_iso_pt")
         if hasattr(producer, "electron_iso_mva_barrel"): delattr(producer, "electron_iso_mva_barrel")
         if hasattr(producer, "electron_iso_mva_endcap"): delattr(producer, "electron_iso_mva_endcap")
