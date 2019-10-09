@@ -27,12 +27,13 @@
 #include <vector>
 
 namespace cms {
-  
+
   struct DDSolid {
     explicit DDSolid(dd4hep::Solid s) : solid_(s) {}
     dd4hep::Solid solid() const { return solid_; }
     dd4hep::Solid solidA() const;
     const std::vector<double> parameters() const;
+
   private:
     dd4hep::Solid solid_;
   };
@@ -120,11 +121,11 @@ namespace cms {
       return (dynamic_cast<Shape*>(currVol->GetShape()));
     }
 
-    template<class Shape>
-      bool isA() const {
+    template <class Shape>
+    bool isA() const {
       return dd4hep::instanceOf<Shape>(solid());
     }
-    
+
     dd4hep::Solid solid() const;
 
     // Name of current node

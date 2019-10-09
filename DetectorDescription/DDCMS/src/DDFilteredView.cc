@@ -13,12 +13,10 @@ using namespace edm;
 using namespace std;
 using namespace cms::dd;
 
-dd4hep::Solid
-DDSolid::solidA() const {
-  if(dd4hep::instanceOf<dd4hep::SubtractionSolid>(solid_) ||
-     dd4hep::instanceOf<dd4hep::UnionSolid>(solid_) ||
-     dd4hep::instanceOf<dd4hep::IntersectionSolid>(solid_)) {
-    const TGeoCompositeShape* sh = (const TGeoCompositeShape*) solid_.ptr();
+dd4hep::Solid DDSolid::solidA() const {
+  if (dd4hep::instanceOf<dd4hep::SubtractionSolid>(solid_) || dd4hep::instanceOf<dd4hep::UnionSolid>(solid_) ||
+      dd4hep::instanceOf<dd4hep::IntersectionSolid>(solid_)) {
+    const TGeoCompositeShape* sh = (const TGeoCompositeShape*)solid_.ptr();
     const TGeoBoolNode* boolean = sh->GetBoolNode();
     TGeoShape* solidA = boolean->GetLeftShape();
     return dd4hep::Solid(solidA);
@@ -26,9 +24,7 @@ DDSolid::solidA() const {
   return solid_;
 }
 
-const std::vector<double> DDSolid::parameters() const {
-  return solid().dimensions();
-}
+const std::vector<double> DDSolid::parameters() const { return solid().dimensions(); }
 
 DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume) : registry_(&det->specpars()) {
   it_.emplace_back(Iterator(volume));
@@ -455,29 +451,17 @@ const TClass* DDFilteredView::getShape() const {
   return (currVol->GetShape()->IsA());
 }
 
-bool DDFilteredView::isABox() const {
-  return isA<dd4hep::Box>();
-}
+bool DDFilteredView::isABox() const { return isA<dd4hep::Box>(); }
 
-bool DDFilteredView::isAConeSeg() const {
-  return isA<dd4hep::ConeSegment>();
-}
+bool DDFilteredView::isAConeSeg() const { return isA<dd4hep::ConeSegment>(); }
 
-bool DDFilteredView::isAPseudoTrap() const {
-  return isA<dd4hep::PseudoTrap>();
-}
+bool DDFilteredView::isAPseudoTrap() const { return isA<dd4hep::PseudoTrap>(); }
 
-bool DDFilteredView::isATrapezoid() const {
-  return isA<dd4hep::Trap>();
-}
+bool DDFilteredView::isATrapezoid() const { return isA<dd4hep::Trap>(); }
 
-bool DDFilteredView::isATruncTube() const {
-  return isA<dd4hep::TruncatedTube>();
-}
+bool DDFilteredView::isATruncTube() const { return isA<dd4hep::TruncatedTube>(); }
 
-bool DDFilteredView::isATubeSeg() const {
-  return isA<dd4hep::Tube>();
-}
+bool DDFilteredView::isATubeSeg() const { return isA<dd4hep::Tube>(); }
 
 bool DDFilteredView::isASubtraction() const {
   return (isA<dd4hep::SubtractionSolid>() && !isA<dd4hep::TruncatedTube>() && !isA<dd4hep::PseudoTrap>());
