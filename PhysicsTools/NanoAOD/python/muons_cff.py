@@ -93,14 +93,14 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
         weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
     )
 
-from MuonAnalysis.MuonAssociators.MuonFSRProducer_cfi import MuonFSRProducer
-muonFSRphotons = MuonFSRProducer.clone(
+from MuonAnalysis.MuonAssociators.muonFSRProducer_cfi import muonFSRProducer
+muonFSRphotons = muonFSRProducer.clone(
   packedPFCandidates = cms.InputTag("packedPFCandidates"),
   slimmedElectrons = cms.InputTag("slimmedElectrons"),
   muons = cms.InputTag("linkedObjects","muons"),
 )
-from MuonAnalysis.MuonAssociators.MuonFSRAssociator_cfi import MuonFSRAssociator
-muonFSRassociation = MuonFSRAssociator.clone(
+from MuonAnalysis.MuonAssociators.muonFSRAssociator_cfi import muonFSRAssociator
+muonFSRassociation = muonFSRAssociator.clone(
     photons = cms.InputTag("muonFSRphotons"),
     muons = cms.InputTag("linkedObjects","muons"),
 )
