@@ -2781,17 +2781,6 @@ steps['HARVESTUP15']={
     '--era' : 'Run2_2016',
     '--filetype':'DQM',
     }
-steps['NANOUP15']={
-    '--mc':'',
-    '--step':'NANO', # todo: remove UP from label
-    '--nThreads':'2',
-    '--conditions':'auto:run2_mc',
-    '--datatier':'NANOAODSIM',
-    '-n':'10',
-    '--eventcontent':'NANOEDMAODSIM',
-    '--filein':'file:step3_inMINIAODSIM.root',
-    '--era':'Run2_2016',
-    }
 steps['HARVESTUP15_L1TEgDQM']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM+@L1TEgamma'},steps['HARVESTUP15']])
 steps['HARVESTUP15_L1TMuDQM']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM+@L1TMuon'},steps['HARVESTUP15']])
 
@@ -2801,7 +2790,6 @@ steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 steps['HARVESTUP15_PU25_L1TEgDQM']=steps['HARVESTUP15_L1TEgDQM']
 steps['HARVESTUP15_PU25_L1TMuDQM']=steps['HARVESTUP15_L1TMuDQM']
 
-steps['NANOUP15_PU25']=steps['NANOUP15']
 
 steps['HARVESTUP15_PU50']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM','--era' : 'Run2_50ns'},steps['HARVESTUP15']])
 steps['HARVESTUP15_PU50_L1TEgDQM']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM+@L1TEgamma'},steps['HARVESTUP15_PU50']])
@@ -2999,7 +2987,14 @@ steps['NANOEDMMC2017_94XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_9
 steps['NANOEDMMC2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'}, steps['NANOEDMMC2017'] ])
 steps['NANOEDMMC2016_80X'] = merge([{'--conditions': 'auto:run2_mc', '--era': 'Run2_2016,run2_miniAOD_80XLegacy'}, steps['NANOEDMMC2017'] ])
 steps['NANOEDMMC2018_PROD'] = merge([{'--conditions': 'auto:phase1_2018_realistic', '--era': 'Run2_2018', '--filein':'file:step3_inMINIAODSIM.root'}, stepNanoEDMMCProd ])
-
+steps['NANOUP15'] = merge([{ '--conditions':'auto:run2_mc', '--era':'Run2_2016','-n':'10', '--filein':'file:step3_inMINIAODSIM.root','--nThreads':'2'}, stepNanoEDMMCProd ])
+steps['NANOUP15_PU25']=steps['NANOUP15']
+steps['NANOUP17'] = merge([{'--conditions':'auto:phase1_2017_realistic','--era': 'Run2_2017','-n':'10' ,'--filein':'file:step3_inMINIAODSIM.root', '--geometry':'DB:Extended', '--nThreads':'2'}, stepNanoEDMMCProd])
+steps['NANOUP15Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP15']])
+steps['NANOUP17Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP17']])
+steps['NANOUP18'] = merge([{'--conditions': 'auto:phase1_2018_realistic', '--era': 'Run2_2018','-n':'10', '--filein':'file:step3_inMINIAODSIM.root', '--nThreads':'2'}, stepNanoEDMMCProd ])
+steps['NANOUP18Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP18']])
+steps['NANOUP18ml']=merge([concurrentLumis,steps['NANOUP18']])
 steps['NANOEDM2017'] = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2017'}, stepNanoEDMData ])
 steps['NANOEDM2017_94XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'}, steps['NANOEDM2017'] ])
 steps['NANOEDM2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'}, steps['NANOEDM2017'] ])
