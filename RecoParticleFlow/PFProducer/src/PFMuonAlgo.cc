@@ -32,14 +32,11 @@ PFMuonAlgo::PFMuonAlgo(const edm::ParameterSet& iConfig, bool postMuonCleaning)
       pfAddedMuonCandidates_(std::make_unique<reco::PFCandidateCollection>()),
 
       maxDPtOPt_(getParameter<double>(iConfig, "maxDPtOPt", 1.0)),
-      minTrackerHits_(getParameter<int>(iConfig, "minTrackerHits", 8)),
-      minPixelHits_(getParameter<int>(iConfig, "minPixelHits", 1)),
       trackQuality_(reco::TrackBase::qualityByName(getParameter<std::string>(iConfig, "trackQuality", "highPurity"))),
       errorCompScale_(getParameter<double>(iConfig, "ptErrorScale", 4.0)),
       eventFractionCleaning_(getParameter<double>(iConfig, "eventFractionForCleaning", 0.75)),
-      dzPV_(getParameter<double>(iConfig, "dzPV", 0.2)),
-      postCleaning_(postMuonCleaning),  // disable by default (for HLT)
 
+      postCleaning_(postMuonCleaning),  // disable by default (for HLT)
       minPostCleaningPt_(getParameter<double>(iConfig, "minPtForPostCleaning", 20.)),
       eventFactorCosmics_(getParameter<double>(iConfig, "eventFactorForCosmics", 10.)),
       metSigForCleaning_(getParameter<double>(iConfig, "metSignificanceForCleaning", 3.)),
