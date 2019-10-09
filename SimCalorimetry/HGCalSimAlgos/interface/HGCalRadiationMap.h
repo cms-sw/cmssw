@@ -41,7 +41,7 @@ public:
 private:
   doseParametersMap readDosePars(const std::string &);
   
-  const unsigned int algo_;
+  unsigned int algo_;
   const HGCalGeometry *hgcalGeom_;
   const HGCalTopology *hgcalTopology_;
   const HGCalDDDConstants *hgcalDDD_;

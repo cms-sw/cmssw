@@ -14,7 +14,7 @@ class HGCalSiNoiseMap : public HGCalRadiationMap {
 public:
 
   enum GainRange_t { q80fC, q160fC, q320fC, AUTO };
-  enum NoiseMapAlgo_t { ALL, NOCCE, NONOISE, NOCCE_NONOISE };
+  enum NoiseMapAlgoBits_t { FLUENCE, CCE, NOISE };
 
 
   struct SiCellOpCharacteristics {
@@ -43,13 +43,18 @@ public:
     cceParam_.push_back(parsThick);  //300
   }
 
+
+  /**
+     @short overrides base class method with specifics for the configuration of the algo
+  */
+  void setDoseMap(const std::string &,const unsigned int &);
+
   /**
      @short returns the charge collection efficiency and noise
      if gain range is set to auto, it will find the most appropriate gain to put the mip peak close to 10 ADC counts
   */
   SiCellOpCharacteristics getSiCellOpCharacteristics(const HGCSiliconDetId &did,
                                                      GainRange_t gain = GainRange_t::AUTO,
-                                                     bool ignoreFluence = false,
                                                      int aimMIPtoADC = 10);
 
   std::vector<double> &getMipEqfC() { return mipEqfC_; }
@@ -86,6 +91,9 @@ private:
 
   //conversions
   const double unitToMicro_ = 1e6;
+
+  //flags used to disable specific components of the Si operation parameters
+  bool ignoreFluence_, ignoreCCE_, ignoreNoise_;
 };
 
 #endif
