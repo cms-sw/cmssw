@@ -295,7 +295,6 @@ void PFProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
   if (postMuonCleaning_) {
     auto& muAlgo = *pfAlgo_.getPFMuonAlgo();
-
     // Save cosmic cleaned muon candidates
     iEvent.put(muAlgo.transferCleanedCosmicCandidates(), "CleanedCosmicsMuons");
     // Save tracker/global cleaned muon candidates
@@ -422,17 +421,15 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
     edm::ParameterSetDescription psd_PFMuonAlgo;
     // Muon ID and post cleaning parameters
     psd_PFMuonAlgo.add<double>("maxDPtOPt", 1.0);
-    psd_PFMuonAlgo.add<int>("minTrackerHits", 8);
-    psd_PFMuonAlgo.add<int>("minPixelHits", 1);
     psd_PFMuonAlgo.add<std::string>("trackQuality", "highPurity");
-    psd_PFMuonAlgo.add<double>("dzPV", 0.2);
     psd_PFMuonAlgo.add<double>("ptErrorScale", 8.0);
+    psd_PFMuonAlgo.add<double>("eventFractionForCleaning", 0.5);
+
     psd_PFMuonAlgo.add<double>("minPtForPostCleaning", 20.0);
     psd_PFMuonAlgo.add<double>("eventFactorForCosmics", 10.0);
     psd_PFMuonAlgo.add<double>("metSignificanceForCleaning", 3.0);
     psd_PFMuonAlgo.add<double>("metSignificanceForRejection", 4.0);
     psd_PFMuonAlgo.add<double>("metFactorForCleaning", 4.0);
-    psd_PFMuonAlgo.add<double>("eventFractionForCleaning", 0.5);
     psd_PFMuonAlgo.add<double>("eventFractionForRejection", 0.8);
     psd_PFMuonAlgo.add<double>("metFactorForRejection", 4.0);
     psd_PFMuonAlgo.add<double>("metFactorForHighEta", 25.0);
