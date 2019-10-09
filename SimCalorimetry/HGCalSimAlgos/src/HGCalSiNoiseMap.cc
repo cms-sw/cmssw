@@ -82,6 +82,9 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
     siop.cce = std::max(0., siop.cce);
   }
 
+  //reset if CCE is to be ignored
+  if(algo_==NOCCE || algo_==NOCCE_NONOISE) siop.cce=1.0;
+
   //determine the gain to apply accounting for cce
   double S(siop.cce * mipEqfC_[cellThick]);
   if (gain == GainRange_t::AUTO) {
@@ -108,6 +111,9 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   double enc_s(encsParam_[gain][0] + encsParam_[gain][1] * cellCap + encsParam_[gain][2] * pow(cellCap, 2));
   double enc_p(encpScale_ * sqrt(siop.ileak));
   siop.noise = hypot(enc_p, enc_s* encCommonNoiseSub_ )  * qe2fc_;
+  
+  //reset if NOISE is to be ignored
+  if(algo_==NONOISE || algo_==NOCCE_NONOISE) siop.noise=0.0;
 
   return siop;
 }
