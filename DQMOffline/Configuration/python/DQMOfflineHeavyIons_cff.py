@@ -123,7 +123,7 @@ DQMOfflineHeavyIonsVertex = cms.Sequence( pvMonitor )
 
 DQMOfflineHeavyIonsBeam = cms.Sequence( alcaBeamMonitor )
 
-DQMOfflineHeavyIonsPhysics = cms.Sequence( dqmPhysics )
+DQMOfflineHeavyIonsPhysics = cms.Sequence( dqmPhysicsHI )
 
 DQMOfflineHeavyIonsPrePOG = cms.Sequence( DQMOfflineHeavyIonsMUO *
                                            DQMOfflineHeavyIonsTracking *
