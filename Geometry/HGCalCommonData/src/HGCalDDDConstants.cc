@@ -1301,12 +1301,7 @@ int HGCalDDDConstants::cellHex(
   return num;
 }
 
-void HGCalDDDConstants::cellHex(double xloc,
-                                double yloc,
-                                int cellType,
-                                int& cellU,
-                                int& cellV,
-                                bool debug) const {
+void HGCalDDDConstants::cellHex(double xloc, double yloc, int cellType, int& cellU, int& cellV, bool debug) const {
   int N = (cellType == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
   double Rc = 2 * rmax_ / (3 * N);
   double rc = 0.5 * Rc * sqrt3_;
@@ -1452,12 +1447,8 @@ bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
   return in;
 }
 
-std::pair<double, double> HGCalDDDConstants::waferPosition(int lay,
-                                                           int waferU,
-                                                           int waferV,
-                                                           bool reco,
-                                                           bool debug) const {
-
+std::pair<double, double> HGCalDDDConstants::waferPosition(
+    int lay, int waferU, int waferV, bool reco, bool debug) const {
   int ll = lay - hgpar_->firstLayer_;
   double x = hgpar_->xLayerHex_[ll];
   double y = hgpar_->yLayerHex_[ll];
