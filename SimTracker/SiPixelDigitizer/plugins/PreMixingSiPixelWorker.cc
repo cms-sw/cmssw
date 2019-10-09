@@ -1,11 +1,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
@@ -40,7 +40,7 @@
 
 class PreMixingSiPixelWorker : public PreMixingWorker {
 public:
-  PreMixingSiPixelWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC);
+  PreMixingSiPixelWorker(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector&& iC);
   ~PreMixingSiPixelWorker() override = default;
 
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
@@ -81,7 +81,7 @@ private:
 
 // Constructor
 PreMixingSiPixelWorker::PreMixingSiPixelWorker(const edm::ParameterSet& ps,
-                                               edm::ProducerBase& producer,
+                                               edm::ProducesCollector producesCollector,
                                                edm::ConsumesCollector&& iC)
     : digitizer_(ps), geometryType_(ps.getParameter<std::string>("PixGeometryType")) {
   // declare the products to produce
@@ -93,8 +93,8 @@ PreMixingSiPixelWorker::PreMixingSiPixelWorker(const edm::ParameterSet& ps,
   PixelDigiToken_ = iC.consumes<edm::DetSetVector<PixelDigi>>(pixeldigi_collectionSig_);
   PixelDigiPToken_ = iC.consumes<edm::DetSetVector<PixelDigi>>(pixeldigi_collectionPile_);
 
-  producer.produces<edm::DetSetVector<PixelDigi>>(PixelDigiCollectionDM_);
-  producer.produces<PixelFEDChannelCollection>(PixelDigiCollectionDM_);
+  producesCollector.produces<edm::DetSetVector<PixelDigi>>(PixelDigiCollectionDM_);
+  producesCollector.produces<PixelFEDChannelCollection>(PixelDigiCollectionDM_);
 
   // clear local storage for this event
   SiHitStorage_.clear();

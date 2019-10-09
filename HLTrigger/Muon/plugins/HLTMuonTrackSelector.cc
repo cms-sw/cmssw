@@ -16,7 +16,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 HLTMuonTrackSelector::HLTMuonTrackSelector(const edm::ParameterSet& iConfig)
-    : collectionCloner(*this, iConfig, true),
+    : collectionCloner(producesCollector(), iConfig, true),
       collectionClonerTokens(iConfig.getParameter<edm::InputTag>("track"), consumesCollector()),
       token_muon(consumes<vector<reco::Muon> >(iConfig.getParameter<edm::InputTag>("muon"))),
       token_originalMVAVals(consumes<MVACollection>(iConfig.getParameter<edm::InputTag>("originalMVAVals"))),

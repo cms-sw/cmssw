@@ -11,6 +11,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
@@ -129,8 +130,8 @@ namespace mtd_digitizer {
     typedef typename Traits::ElectronicsSim ElectronicsSim;
     typedef typename Traits::DigiCollection DigiCollection;
 
-    MTDDigitizer(const edm::ParameterSet& config, edm::ConsumesCollector& iC, edm::ProducerBase& parent)
-        : MTDDigitizerBase(config, iC, parent),
+    MTDDigitizer(const edm::ParameterSet& config, edm::ProducesCollector producesCollector, edm::ConsumesCollector& iC)
+        : MTDDigitizerBase(config, producesCollector, iC),
           geom_(nullptr),
           deviceSim_(config.getParameterSet("DeviceSimulation")),
           electronicsSim_(config.getParameterSet("ElectronicsSimulation")),

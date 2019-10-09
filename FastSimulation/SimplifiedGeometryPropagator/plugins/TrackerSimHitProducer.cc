@@ -3,6 +3,7 @@
 
 // framework
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/UniformEngine/interface/UniformMagneticField.h"
 
@@ -33,7 +34,6 @@
 // other
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "CondFormats/External/interface/DetID.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 
 ///////////////////////////////////////////////
 // Author: L. Vanelderen, S. Kurz
@@ -70,7 +70,7 @@ namespace fastsim {
                   const RandomEngineAndDistribution& random) override;
 
     //! Register the SimHit collection.
-    void registerProducts(edm::ProducerBase& producer) const override;
+    void registerProducts(edm::ProducesCollector) const override;
 
     //! Store the SimHit collection.
     void storeProducts(edm::Event& iEvent) override;
@@ -113,8 +113,8 @@ fastsim::TrackerSimHitProducer::TrackerSimHitProducer(const std::string& name, c
   doHitsFromInboundParticles_ = cfg.getParameter<bool>("doHitsFromInboundParticles");
 }
 
-void fastsim::TrackerSimHitProducer::registerProducts(edm::ProducerBase& producer) const {
-  producer.produces<edm::PSimHitContainer>("TrackerHits");
+void fastsim::TrackerSimHitProducer::registerProducts(edm::ProducesCollector producesCollector) const {
+  producesCollector.produces<edm::PSimHitContainer>("TrackerHits");
 }
 
 void fastsim::TrackerSimHitProducer::storeProducts(edm::Event& iEvent) {

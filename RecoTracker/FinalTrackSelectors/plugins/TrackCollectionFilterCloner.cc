@@ -77,7 +77,7 @@ namespace {
   }
 
   TrackCollectionFilterCloner::TrackCollectionFilterCloner(const edm::ParameterSet& iConfig)
-      : collectionCloner(*this, iConfig, true),
+      : collectionCloner(producesCollector(), iConfig, true),
         originalTrackSource_(iConfig.getParameter<edm::InputTag>("originalSource"), consumesCollector()),
         originalMVAValsToken_(consumes<MVACollection>(iConfig.getParameter<edm::InputTag>("originalMVAVals"))),
         originalQualValsToken_(

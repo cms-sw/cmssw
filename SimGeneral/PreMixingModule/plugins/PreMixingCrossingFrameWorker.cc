@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 #include "SimGeneral/PreMixingModule/interface/PreMixingWorker.h"
@@ -15,7 +15,7 @@ namespace edm {
   template <typename T>
   class PreMixingCrossingFrameWorker : public PreMixingWorker {
   public:
-    PreMixingCrossingFrameWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC);
+    PreMixingCrossingFrameWorker(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector&& iC);
     ~PreMixingCrossingFrameWorker() override = default;
 
     void initializeEvent(edm::Event const& iEvent, edm::EventSetup const& iSetup) override {}
@@ -36,14 +36,14 @@ namespace edm {
 
   template <typename T>
   PreMixingCrossingFrameWorker<T>::PreMixingCrossingFrameWorker(const edm::ParameterSet& ps,
-                                                                edm::ProducerBase& producer,
+                                                                edm::ProducesCollector producesCollector,
                                                                 edm::ConsumesCollector&& iC)
       : signalToken_(iC.consumes<CrossingFrame<T> >(ps.getParameter<edm::InputTag>("labelSig"))),
         pileupTag_(ps.getParameter<edm::InputTag>("pileInputTag")),
         collectionDM_(ps.getParameter<std::string>("collectionDM")) {
-    producer.produces<PCrossingFrame<T> >(
+    producesCollector.produces<PCrossingFrame<T> >(
         collectionDM_);  // TODO: this is needed only to store the pointed-to objects, do we really need it?
-    producer.produces<CrossingFrame<T> >(collectionDM_);
+    producesCollector.produces<CrossingFrame<T> >(collectionDM_);
   }
 
   template <typename T>

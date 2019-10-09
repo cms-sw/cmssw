@@ -3,6 +3,7 @@
 
 #include <map>
 
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "EventFilter/L1TRawToDigi/interface/Packer.h"
@@ -15,9 +16,6 @@ namespace edm {
   class ConsumesCollector;
   class Event;
   class ParameterSet;
-  namespace stream {
-    class EDProducerBase;
-  }
 }  // namespace edm
 
 namespace l1t {
@@ -31,7 +29,7 @@ namespace l1t {
     PackingSetup(){};
     virtual ~PackingSetup(){};
     virtual std::unique_ptr<PackerTokens> registerConsumes(const edm::ParameterSet&, edm::ConsumesCollector&) = 0;
-    virtual void registerProducts(edm::stream::EDProducerBase&) = 0;
+    virtual void registerProducts(edm::ProducesCollector) = 0;
 
     // Get a map of (amc #, board id) ↔ list of packing functions for a specific FED, FW combination
     virtual PackerMap getPackers(int fed, unsigned int fw) = 0;

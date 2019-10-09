@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
@@ -16,7 +16,7 @@
 
 class PreMixingCaloParticleWorker : public PreMixingWorker {
 public:
-  PreMixingCaloParticleWorker(const edm::ParameterSet &ps, edm::ProducerBase &producer, edm::ConsumesCollector &&iC);
+  PreMixingCaloParticleWorker(const edm::ParameterSet &ps, edm::ProducesCollector, edm::ConsumesCollector &&iC);
   ~PreMixingCaloParticleWorker() override = default;
 
   void initializeEvent(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
@@ -47,15 +47,15 @@ private:
 };
 
 PreMixingCaloParticleWorker::PreMixingCaloParticleWorker(const edm::ParameterSet &ps,
-                                                         edm::ProducerBase &producer,
+                                                         edm::ProducesCollector producesCollector,
                                                          edm::ConsumesCollector &&iC)
     : sigClusterToken_(iC.consumes<SimClusterCollection>(ps.getParameter<edm::InputTag>("labelSig"))),
       sigParticleToken_(iC.consumes<CaloParticleCollection>(ps.getParameter<edm::InputTag>("labelSig"))),
       sigEnergyToken_(iC.consumes<EnergyMap>(ps.getParameter<edm::InputTag>("labelSig"))),
       particlePileInputTag_(ps.getParameter<edm::InputTag>("pileInputTag")),
       particleCollectionDM_(ps.getParameter<std::string>("collectionDM")) {
-  producer.produces<SimClusterCollection>(particleCollectionDM_);
-  producer.produces<CaloParticleCollection>(particleCollectionDM_);
+  producesCollector.produces<SimClusterCollection>(particleCollectionDM_);
+  producesCollector.produces<CaloParticleCollection>(particleCollectionDM_);
 }
 
 void PreMixingCaloParticleWorker::initializeEvent(edm::Event const &iEvent, edm::EventSetup const &iSetup) {

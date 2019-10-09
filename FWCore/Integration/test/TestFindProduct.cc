@@ -39,7 +39,7 @@ namespace edmtest {
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
     void endRun(edm::Run const&, edm::EventSetup const&) override;
-    void endJob();
+    void endJob() override;
 
   private:
     std::vector<edm::InputTag> inputTags_;
