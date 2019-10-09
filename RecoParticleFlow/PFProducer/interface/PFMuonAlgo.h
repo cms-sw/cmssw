@@ -118,13 +118,13 @@ private:
   const reco::VertexCollection* vertices_;
 
   //Configurables
+  // for PFMuonAlgo::goodMuonTracks/muonTracks
   const double maxDPtOPt_;
-  const int minTrackerHits_;
-  const int minPixelHits_;
+  // for PFMuonAlgo::reconstructMuon
   const reco::TrackBase::TrackQuality trackQuality_;
   const double errorCompScale_;
   const double eventFractionCleaning_;
-  const double dzPV_;
+  // for postCleaning (postClean/addMissingMuons)
   const bool postCleaning_;
   const double minPostCleaningPt_;
   const double eventFactorCosmics_;
