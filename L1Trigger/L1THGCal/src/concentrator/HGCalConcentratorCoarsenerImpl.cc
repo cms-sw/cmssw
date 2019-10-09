@@ -2,10 +2,7 @@
 
 HGCalConcentratorCoarsenerImpl::HGCalConcentratorCoarsenerImpl(const edm::ParameterSet& conf)
     : fixedDataSizePerHGCROC_(conf.getParameter<bool>("fixedDataSizePerHGCROC")),
-      coarseTCmapping_(std::vector<unsigned>{HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
-                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
-                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
-                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_}),
+      coarseTCmapping_(conf.getParameter<std::vector<unsigned>>("ctcSize")),
       calibration_(conf.getParameterSet("superTCCalibration")),
       vfeCompression_(conf.getParameterSet("coarseTCCompression")) {}
 
@@ -57,10 +54,16 @@ void HGCalConcentratorCoarsenerImpl::coarsen(const std::vector<l1t::HGCalTrigger
 
   for (const auto& ctc : coarseTCs_) {
     l1t::HGCalTriggerCell triggerCell;
-    assignCoarseTriggerCellEnergy(triggerCell, ctc.second);
+
     uint32_t representativeId = coarseTCmapping_.getRepresentativeDetId(ctc.second.maxId);
     triggerCell.setDetId(representativeId);
+
     GlobalPoint point = coarseTCmapping_.getCoarseTriggerCellPosition(ctc.first);
+    math::PtEtaPhiMLorentzVector initial_p4(ctc.second.sumPt, point.eta(), point.phi(), 0);
+
+    triggerCell.setP4(initial_p4);
+    assignCoarseTriggerCellEnergy(triggerCell, ctc.second);
+
     math::PtEtaPhiMLorentzVector p4(triggerCell.pt(), point.eta(), point.phi(), 0);
     triggerCell.setPosition(point);
     triggerCell.setP4(p4);
