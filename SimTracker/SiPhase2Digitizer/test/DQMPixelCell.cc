@@ -223,8 +223,9 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                     current_simtrack->momentum().y(),
                     current_simtrack->momentum().z());
             const LocalVector cst_m_local(dunit->surface().toLocal(cst_momentum));
-            vME_track_dxdzAngle_[me_unit]->Fill(std::atan2(cst_m_local.z(),cst_m_local.x()));
-            vME_track_dydzAngle_[me_unit]->Fill(std::atan2(cst_m_local.z(),cst_m_local.y()));
+            // don't care about the entering direction 
+            vME_track_dxdzAngle_[me_unit]->Fill(std::atan2(cst_m_local.x(),std::fabs(cst_m_local.z())));
+            vME_track_dydzAngle_[me_unit]->Fill(std::atan2(cst_m_local.y(),std::fabs(cst_m_local.z())));
 
             // See where the track enters into the tracker and fill its histos
             const GlobalPoint cst_position(current_simtrack->trackerSurfacePosition().x(),
@@ -386,9 +387,9 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
             vME_clsize1D_[me_unit] = setupH1D_(ibooker,"ClusterSize1D","MC-truth cluster size;Cluster size;N_{clusters}");
             vME_charge1D_[me_unit] = setupH1D_(ibooker,"Charge1D","MC-truth charge;Cluster charge [ToT];N_{clusters}");
             vME_track_dxdzAngle_[me_unit] = setupH1D_(ibooker,"TrackAngleDxdz",
-                    "Angle between the track-momentum and detector surface (X-plane);#theta_{x} [rad];N_{tracks}");
+                    "Angle between the track-momentum and detector surface (X-plane);#pi/2-#theta_{x} [rad];N_{tracks}");
             vME_track_dydzAngle_[me_unit] = setupH1D_(ibooker,"TrackAngleDydz",
-                    "Angle between the track-momentum and detector surface (Y-plane);#theta_{y} [rad];N_{tracks}");
+                    "Angle between the track-momentum and detector surface (Y-plane);#pi/2-#theta_{y} [rad];N_{tracks}");
             vME_dx1D_[me_unit] = setupH1D_(ibooker,"Dx1D",
                     "MC-truth residuals;x^{cluster}_{simhit}-x^{cluster}_{digi} [#mum];N_{digi clusters}");
             vME_dy1D_[me_unit] = setupH1D_(ibooker,"Dy1D",
@@ -404,7 +405,7 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
                 std::make_pair<double,double>(0,ncols-1),
                 std::make_pair<double,double>(0,pitch.second/unit_um),
                 std::make_pair<double,double>(0,2.0*pitch.second/unit_um) };
-            for(unsigned int i = 1; i < xranges.size(); ++i)
+            for(unsigned int i = 0; i < xranges.size(); ++i)
             {
                 const std::string cell("Cell "+std::to_string(i)+"x"+std::to_string(i)+": ");
                 vME_position_cell_[me_unit].push_back(setupH2D_(ibooker,
