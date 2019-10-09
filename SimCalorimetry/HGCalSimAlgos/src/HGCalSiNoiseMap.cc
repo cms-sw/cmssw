@@ -79,6 +79,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
                                                        : (1. - cceParam_[cellThick][2] * siop.lnfluence) +
                                                              (cceParam_[cellThick][1] * cceParam_[cellThick][0] +
                                                               cceParam_[cellThick][2] * log(cceParam_[cellThick][0]));
+    siop.cce = std::max(0., siop.cce);
   }
 
   //determine the gain to apply accounting for cce
