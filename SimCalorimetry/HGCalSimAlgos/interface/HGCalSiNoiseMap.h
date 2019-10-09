@@ -12,7 +12,10 @@
 */
 class HGCalSiNoiseMap : public HGCalRadiationMap {
 public:
+
   enum GainRange_t { q80fC, q160fC, q320fC, AUTO };
+  enum NoiseMapAlgo_t { ALL, NOCCE, NONOISE, NOCCE_NONOISE };
+
 
   struct SiCellOpCharacteristics {
     SiCellOpCharacteristics()

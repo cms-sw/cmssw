@@ -33,9 +33,10 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
     const auto& noises =
         myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::vector<double>>("values");
     noise_fC_ = std::vector<float>(noises.begin(), noises.end());
-    scaleByDose_ = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<bool>("scaleByDose");
-    doseMapFile_ = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::string>("doseMap");
-    scal_.setDoseMap(doseMapFile_);
+    scaleByDose_        = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<bool>("scaleByDose");
+    int scaleByDoseAlgo = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<int>("scaleByDoseAlgo");
+    doseMapFile_        = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::string>("doseMap");
+    scal_.setDoseMap(doseMapFile_,scaleByDoseAlgo);
   } else {
     noise_fC_.resize(1, 1.f);
   }
