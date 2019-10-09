@@ -214,7 +214,7 @@ std::pair<double, double> VectorHit::curvatureORphi(std::string curvORphi) const
                 pow(gPositionLower.y(), 2) * gPositionUpper.y() - gPositionLower.y() * pow(gPositionUpper.y(), 2);
 
     //radius of circle
-    double invRho2 = (2. * h1) / (r12 * r22 * h3);
+    double invRho2 = (4. * h1 * h1) / (r12 * r22 * h3);
     curvature = sqrt(invRho2);
 
     //center of circle
