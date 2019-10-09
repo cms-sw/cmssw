@@ -54,7 +54,7 @@ public:
     desc.add<double>("deltaROverEt2Max", 0.05)->setComment("max ratio of deltsR(mu,photon) over et2 of the photon");
     desc.add<double>("isolation", 2.0)->setComment("relative isolation cut");
 
-    descriptions.add("MuonFSRProducer", desc);
+    descriptions.addWithDefaultLabel(desc);
   }
   ~MuonFSRProducer() override {}
 
