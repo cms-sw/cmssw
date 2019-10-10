@@ -38,19 +38,23 @@ private:
 DEFINE_FWK_MODULE(TICLCandidateFromTrackstersProducer);
 
 namespace {
-  int pdg_id_from_idx(size_t i) {
-    switch (i) {
-      case 0:
+  int pdg_id_from_particle_type(ticl::Trackster::ParticleType type) {
+    switch (type) {
+      case ticl::Trackster::ParticleType::photon:
         return 22;
-      case 1:
+      case ticl::Trackster::ParticleType::electron:
         // Pick IDs with positive charge so they can be reset with charge * id downstream
         return -11;
-      case 2:
+      case ticl::Trackster::ParticleType::muon:
         return -13;
-      case 3:
+      case ticl::Trackster::ParticleType::neutral_pion:
+        return 111;
+      case ticl::Trackster::ParticleType::charged_hadron:
         return 211;
-      case 4:
+      case ticl::Trackster::ParticleType::neutral_hadron:
         return 130;
+      default:
+        return 0;
     }
     return 0;
   }
@@ -115,7 +119,7 @@ void TICLCandidateFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
       trackster_ptrs.push_back(&trackster);
       auto& ticl_cand = result->emplace_back(edm::Ptr<ticl::Trackster>(trackster_h, i_trackster));
       auto max_index = std::distance(id_prob_begin, max_id_prob_it);
-      auto pdg_id = pdg_id_from_idx(max_index);
+      auto pdg_id = pdg_id_from_particle_type(static_cast<ticl::Trackster::ParticleType>(max_index));
       ticl_cand.setPdgId(pdg_id);
     }
   }

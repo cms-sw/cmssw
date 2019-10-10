@@ -12,7 +12,7 @@ namespace ticl {
   public:
     explicit TracksterP4FromEnergySum(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
     void setP4(const std::vector<const Trackster*>& tracksters,
-               std::vector<ticl::TICLCandidate>& ticl_cands,
+               std::vector<TICLCandidate>& ticl_cands,
                edm::Event& event) const override;
 
   private:
@@ -33,7 +33,7 @@ namespace ticl {
             ic.consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layerClusters"))) {}
 
   void TracksterP4FromEnergySum::setP4(const std::vector<const Trackster*>& tracksters,
-                                       std::vector<ticl::TICLCandidate>& ticl_cands,
+                                       std::vector<TICLCandidate>& ticl_cands,
                                        edm::Event& event) const {
     // Find best vertex
     edm::Handle<std::vector<reco::Vertex>> vertex_h;
@@ -70,7 +70,8 @@ namespace ticl {
     size_t counter = 0;
 
     for (auto idx : trackster.vertices) {
-      auto fraction = 1.f / trackster.vertex_multiplicity[counter++];
+      auto n_vertices = trackster.vertex_multiplicity[counter++];
+      auto fraction = n_vertices ? 1.f / n_vertices : 1.f;
       auto weight = calo_clusters[idx].energy() * fraction;
       energy += weight;
       barycentre[0] += calo_clusters[idx].x() * weight;
@@ -79,7 +80,7 @@ namespace ticl {
     }
     std::transform(
         std::begin(barycentre), std::end(barycentre), std::begin(barycentre), [&energy](double val) -> double {
-          return val / energy;
+          return energy >= 0. ? val / energy : val;
         });
 
     math::XYZVector direction(barycentre[0] - vertex.x(), barycentre[1] - vertex.y(), barycentre[2] - vertex.z());
