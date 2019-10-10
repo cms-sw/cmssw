@@ -91,8 +91,6 @@ elif(offlineTesting):
 #1 RAW-TO-DIGI 
 
 process.muRawToDigi = cms.Sequence(process.L1TRawToDigi +
-                                   process.siPixelDigis + 
-                                   process.siStripDigis +
                                    process.muonCSCDigis +
                                    process.muonDTDigis +
                                    process.muonRPCDigis +
@@ -100,13 +98,15 @@ process.muRawToDigi = cms.Sequence(process.L1TRawToDigi +
                                    process.muonGEMDigis)
                                    
 
-#3 STA+ GLOBAL RECO 
+
+#2 STA RECO
 
 ## From  cmssw/RecoMuon/Configuration/python/RecoMuonCosmics_cff.py 
 
-process.muGlobalreco = cms.Sequence(process.muontrackingforcosmics)
+process.muSTAreco = cms.Sequence(process.STAmuontrackingforcosmics)
 
-#--------------------------                                                                                                                     # Service                                                                                                                                       #--------------------------                                                                                                                      
+
+#--------------------------                                                                                                         # Service                                                                                                                           #--------------------------                                                                                                                      
 process.AdaptorConfig = cms.Service("AdaptorConfig")                                                                                            
 
 #--------------------------
@@ -139,7 +139,7 @@ process.muonDQM = cms.Sequence(process.muonCosmicMonitors)
 # Scheduling
 #--------------------------
 
-process.allReco = cms.Sequence(process.muRawToDigi*process.muGlobalreco)
+process.allReco = cms.Sequence(process.muRawToDigi*process.muSTAreco)
 
 
 process.allPaths = cms.Path(process.hltHighLevel * 
