@@ -137,7 +137,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
   //make a map detid-rechit
   // NB for the moment just host EE and FH hits
   // timing in digi for BH not implemented for now
-  std::unordered_map<uint32_t, std::pair<float, float>> hitmap;
+  std::unordered_map<uint32_t, const HGCRecHit*> hitmap;
 
   switch (algoId) {
     case reco::CaloCluster::hfnose:
@@ -150,7 +150,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
       evt.getByToken(hits_ee_token, ee_hits);
       algo->populate(*ee_hits);
       for (auto const& it : *ee_hits)
-        hitmap[it.detid().rawId()] = std::pair<float, float>(it.time(), it.signalOverSigmaNoise());
+        hitmap[it.detid().rawId()] = &(it);
       break;
     case reco::CaloCluster::hgcal_had:
       evt.getByToken(hits_fh_token, fh_hits);
@@ -158,7 +158,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
       if (fh_hits.isValid()) {
         algo->populate(*fh_hits);
         for (auto const& it : *fh_hits)
-          hitmap[it.detid().rawId()] = std::pair<float, float>(it.time(), it.signalOverSigmaNoise());
+          hitmap[it.detid().rawId()] = &(it);
       } else if (bh_hits.isValid()) {
         algo->populate(*bh_hits);
       }
@@ -167,12 +167,12 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
       evt.getByToken(hits_ee_token, ee_hits);
       algo->populate(*ee_hits);
       for (auto const& it : *ee_hits) {
-        hitmap[it.detid().rawId()] = std::pair<float, float>(it.time(), it.signalOverSigmaNoise());
+        hitmap[it.detid().rawId()] = &(it);
       }
       evt.getByToken(hits_fh_token, fh_hits);
       algo->populate(*fh_hits);
       for (auto const& it : *fh_hits) {
-        hitmap[it.detid().rawId()] = std::pair<float, float>(it.time(), it.signalOverSigmaNoise());
+        hitmap[it.detid().rawId()] = &(it);
       }
       evt.getByToken(hits_bh_token, bh_hits);
       algo->populate(*bh_hits);
@@ -214,11 +214,12 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
           continue;
 
         //time is computed wrt  0-25ns + offset and set to -1 if no time
-        float rhTime = finder->second.first;
+	const HGCRecHit *rechit = finder->second;
+        float rhTime = rechit->time();
         if (rhTime < 0.)
           continue;
         timeClhits.push_back(rhTime - timeOffset);
-	SoNClhits.push_back(finder->second.second);
+	SoNClhits.push_back(rechit->signalOverSigmaNoise());
       }
       if (timeClhits.size() >= 3){
 	std::string type = "hitSoN";
