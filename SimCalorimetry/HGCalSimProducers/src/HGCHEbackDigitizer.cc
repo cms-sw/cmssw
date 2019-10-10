@@ -19,7 +19,7 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitiz
   scaleBySipmArea_ = cfg.getParameter<bool>("scaleBySipmArea");
   sipmMapFile_ = cfg.getParameter<std::string>("sipmMap");
   scaleByDose_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<bool>("scaleByDose");
-  unsigned int scaleByDoseAlgo=cfg.getParameter<edm::ParameterSet>("noise").getParameter<bool>("scaleByDoseAlgo");
+  unsigned int scaleByDoseAlgo=cfg.getParameter<edm::ParameterSet>("noise").getParameter<uint32_t>("scaleByDoseAlgo");
   doseMapFile_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<std::string>("doseMap");
   noise_MIP_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("noise_MIP");
   thresholdFollowsMIP_ = cfg.getParameter<bool>("thresholdFollowsMIP");
