@@ -52,13 +52,15 @@ MkFitGeometry::MkFitGeometry(const TrackerGeometry& geom,
   }
 
   // Create "short id" aka "unique id within layer"
-  std::vector<unsigned int> idInLayer(lnc_->nLayers(), 0);
+  detIdToShortId_.resize(lnc_->nLayers());
   for (const auto& detId : geom.detIds()) {
     const auto ilay =
         lnc_->convertLayerNumber(detId.subdetId(), ttopo.layer(detId), false, ttopo.isStereo(detId), isPlusSide(detId));
-    detIdToShortId_[detId.rawId()] = idInLayer[ilay]++;
+    auto& map = detIdToShortId_[ilay];
+    const unsigned int ind = map.size();
     // Make sure the short id fits in the 12 bits...
-    assert(idInLayer[ilay] < (int)1 << 11);
+    assert(ind < (int)1 << 11);
+    map[detId.rawId()] = ind;
   }
 }
 

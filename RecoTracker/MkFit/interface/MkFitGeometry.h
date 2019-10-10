@@ -26,12 +26,12 @@ public:
 
   mkfit::LayerNumberConverter const& layerNumberConverter() const { return *lnc_; }
   const std::vector<const DetLayer*>& detLayers() const { return dets_; }
-  unsigned int uniqueIdInLayer(unsigned int detId) const { return detIdToShortId_.at(detId); }
+  unsigned int uniqueIdInLayer(int layer, unsigned int detId) const { return detIdToShortId_.at(layer).at(detId); }
 
 private:
   std::unique_ptr<mkfit::LayerNumberConverter> lnc_;  // for pimpl pattern
   std::vector<const DetLayer*> dets_;
-  std::unordered_map<unsigned int, unsigned int> detIdToShortId_;
+  std::vector<std::unordered_map<unsigned int, unsigned int>> detIdToShortId_;
 };
 
 #endif
