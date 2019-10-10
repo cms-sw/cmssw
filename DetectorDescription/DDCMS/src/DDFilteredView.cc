@@ -283,7 +283,7 @@ const std::vector<double> DDFilteredView::parameters() const {
   assert(node_);
   Volume currVol = node_->GetVolume();
   // Boolean shapes are a special case
-  if (isA<dd4hep::UnionSolid>()) {
+  if (currVol->GetShape()->IsA() == TGeoCompositeShape::Class()) {
     const TGeoCompositeShape* shape = static_cast<const TGeoCompositeShape*>(currVol->GetShape());
     const TGeoBoolNode* boolean = shape->GetBoolNode();
     while (boolean->GetLeftShape()->IsA() != TGeoBBox::Class()) {
