@@ -43,11 +43,10 @@ namespace hgcalsimclustertime {
   }
 
   //time-interval based on that ~210ps wide and with the highest number of hits
-  float fixSizeHighestDensity(std::vector<float>& time,
-			      std::vector<float> weight = std::vector<float>(),
-                              float deltaT = 0.210 /*time window in ns*/,
-                              float timeWidthBy = 0.5) {
-
+  std::pair<float,float> fixSizeHighestDensity(std::vector<float>& time,
+					       std::vector<float> weight = std::vector<float>(),
+					       float deltaT = 0.210, /*time window in ns*/
+					       float timeWidthBy = 0.5) {
 
     if(weight.size() == 0) weight.resize(time.size(), 1.);
 
@@ -83,7 +82,6 @@ namespace hgcalsimclustertime {
 
     // further adjust time width around the chosen one based on the hits density
     // proved to improve the resolution: get as many hits as possible provided they are close in time
-
     float HalfTimeDiff = timeW * timeWidthBy;
     float sum = 0.;
     float num = 0;
@@ -102,24 +100,25 @@ namespace hgcalsimclustertime {
       }
     }
 
-    if (num == 0)
-      return -99.;
-    return sum / num;
+    if (num == 0){
+      return std::pair<float, float>(-99., -1.);
+    }
+    return std::pair<float, float>(sum/num, 1./sqrt(num));
   }
 
 
-  float fixSizeHighestDensityResWeig(std::vector<float>& t,
-				     std::vector<float>& w,
-				     std::string& type,
-				     float deltaT = 0.210 /*time window in ns*/,
-				     float timeWidthBy = 0.5){
+  std::pair<float,float> fixSizeHighestDensityResWeig(std::vector<float>& t,
+						      std::vector<float>& w,
+						      std::string& type,
+						      float deltaT = 0.210 /*time window in ns*/,
+						      float timeWidthBy = 0.5){
 
 
-    //range is in GeV units
-    TF1* func = new TF1("func", timeResolution, 0.02, 1000., 2);
+    //range is in SoN units
+    TF1* func = new TF1("func", timeResolution, 2., 1000., 2);
     if(type == "test"){
       //time is in ns units
-      func->SetParameters(1., 0.02);
+      func->SetParameters(5., 0.02);
     }
 
     std::vector<float> weights;
@@ -134,6 +133,7 @@ namespace hgcalsimclustertime {
     }
 
     return fixSizeHighestDensity(t, weights, deltaT, timeWidthBy);
+
   }
 
 
