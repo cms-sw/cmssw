@@ -570,8 +570,8 @@ void CaloTruthAccumulator::accumulateEvent(
 
   std::cout  << " TRACKS" << std::endl;
   for (auto const& t : tracks) {
-    std::cout 
-        << " " << idx << "\t" << t.trackId() << "\t" << t << std::endl;
+    //std::cout 
+    //    << " " << idx << "\t" << t.trackId() << "\t" << t << std::endl;
     trackid_to_track_index[t.trackId()] = idx;
     idx++;
   }
@@ -607,7 +607,7 @@ void CaloTruthAccumulator::accumulateEvent(
   std::vector<int> collapsed_vertices(vertices.size(), 0);
   std::cout  << " VERTICES" << std::endl;
   for (auto const& v : vertices) {
-    std::cout  << " " << idx++ << "\t" << v << std::endl;
+    //std::cout  << " " << idx++ << "\t" << v << std::endl;
     if (v.parentIndex() != -1) {
       auto trk_idx = trackid_to_track_index[v.parentIndex()];
       auto origin_vtx = tracks[trk_idx].vertIndex();
