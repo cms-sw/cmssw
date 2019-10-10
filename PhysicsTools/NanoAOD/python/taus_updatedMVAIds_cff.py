@@ -398,7 +398,7 @@ patTauDiscriminationByVLooseElectronRejectionMVA62015 = patTauDiscriminationByVL
     key = cms.InputTag("patTauDiscriminationByElectronRejectionMVA62015Raw","category")
 )
 for m in patTauDiscriminationByVLooseElectronRejectionMVA62015.mapping:
-    m.cut = m.cut.value().replace(antiElectronDiscrMVA6_version, antiElectronDiscrMVA6v1_version).replace("VLoose", "WPEff99")
+    m.cut = m.cut.value().replace(antiElectronDiscrMVA6_version, antiElectronDiscrMVA6v1_version + "_gbr").replace("VLoose", "WPEff99")
 # Loose
 patTauDiscriminationByLooseElectronRejectionMVA62015 = patTauDiscriminationByVLooseElectronRejectionMVA62015.clone()
 for m in patTauDiscriminationByLooseElectronRejectionMVA62015.mapping:
