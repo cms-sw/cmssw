@@ -921,7 +921,6 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
             }
           }
           cPOnLayer[cpId][cpLayerId].energy += it_haf.second * hit->energy();
-          // We need to compress the hits and fractions in order to have a
           // reasonable score between CP and LC. Imagine, for example, that a
           // CP has detID X used by 2 SimClusters with different fractions. If
           // a single LC uses X with fraction 1 and is compared to the 2
@@ -1251,6 +1250,12 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
                                  << std::setw(15) << maxEnergyLCinCP << "\t" << std::setw(20) << CPEnergyFractionInLC
                                  << "\n";
 
+      float invCPEnergyWeight = 0.f;
+      for (auto const & haf : cPOnLayer[cpId][layerId].hits_and_fractions) {
+        invCPEnergyWeight += (haf.second * hitMap.at(haf.first)->energy())*
+           (haf.second * hitMap.at(haf.first)->energy());
+      }
+      invCPEnergyWeight = 1.f/invCPEnergyWeight;
       for (unsigned int i = 0; i < CPNumberOfHits; ++i) {
         auto& cp_hitDetId = cPOnLayer[cpId][layerId].hits_and_fractions[i].first;
         auto& cpFraction = cPOnLayer[cpId][layerId].hits_and_fractions[i].second;
@@ -1264,7 +1269,6 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
         auto itcheck = hitMap.find(cp_hitDetId);
         const HGCRecHit* hit = itcheck->second;
         float hitEnergyWeight = hit->energy() * hit->energy();
-        float invCPEnergyWeight = 1.f / (CPenergy * CPenergy);
         for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
           unsigned int layerClusterId = lcPair.first;
           float lcFraction = 0.f;
@@ -2178,7 +2182,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
       }
     }  //end of loop through layers
 
-    float invCPEnergyWeight = 1.f / (CPenergy * CPenergy);
+    float invCPEnergyWeight = cP[cpId].energy();
 
     //Loop through related multiclusters here
     for (unsigned int i = 0; i < cpId_mclId_related.size(); ++i) {
