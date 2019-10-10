@@ -862,8 +862,9 @@ reco::CandidatePtrVector Tau::signalCands() const {
     reco::CandidatePtrVector ret2;
     std::vector<std::pair<float, size_t> > pt_index;
     size_t index = 0;
-    ret2.reserve( signalChargedHadrCandPtrs_.size() + signalNeutralHadrCandPtrs_.size() + signalGammaCandPtrs_.size() );
-    pt_index.reserve( signalChargedHadrCandPtrs_.size() + signalNeutralHadrCandPtrs_.size() + signalGammaCandPtrs_.size() );
+    ret2.reserve(signalChargedHadrCandPtrs_.size() + signalNeutralHadrCandPtrs_.size() + signalGammaCandPtrs_.size());
+    pt_index.reserve(signalChargedHadrCandPtrs_.size() + signalNeutralHadrCandPtrs_.size() +
+                     signalGammaCandPtrs_.size());
 
     for (const auto& p : signalChargedHadrCandPtrs_) {
       ret2.push_back(p);
@@ -880,9 +881,7 @@ reco::CandidatePtrVector Tau::signalCands() const {
       pt_index.push_back(std::make_pair(p->pt(), index));
       index++;
     }
-    std::sort(pt_index.begin(),
-              pt_index.end(),
-	      std::greater<>());
+    std::sort(pt_index.begin(), pt_index.end(), std::greater<>());
     ret.reserve(pt_index.size());
     for (const auto& p : pt_index) {
       ret.push_back(ret2[p.second]);
@@ -946,8 +945,10 @@ reco::CandidatePtrVector Tau::isolationCands() const {
     /// the isolationCands pointers are not saved in miniAOD, so the collection is created dynamically by glueing together 3 sub-collection and re-ordering
     reco::CandidatePtrVector ret2;
     std::vector<std::pair<float, size_t> > pt_index;
-    ret2.reserve( isolationChargedHadrCandPtrs_.size() + isolationNeutralHadrCandPtrs_.size() + isolationGammaCandPtrs_.size() );
-    pt_index.reserve( isolationChargedHadrCandPtrs_.size() + isolationNeutralHadrCandPtrs_.size() + isolationGammaCandPtrs_.size() );
+    ret2.reserve(isolationChargedHadrCandPtrs_.size() + isolationNeutralHadrCandPtrs_.size() +
+                 isolationGammaCandPtrs_.size());
+    pt_index.reserve(isolationChargedHadrCandPtrs_.size() + isolationNeutralHadrCandPtrs_.size() +
+                     isolationGammaCandPtrs_.size());
     size_t index = 0;
     for (const auto& p : isolationChargedHadrCandPtrs_) {
       ret2.push_back(p);
@@ -964,9 +965,7 @@ reco::CandidatePtrVector Tau::isolationCands() const {
       pt_index.push_back(std::make_pair(p->pt(), index));
       index++;
     }
-    std::sort(pt_index.begin(),
-              pt_index.end(),
-	      std::greater<>());
+    std::sort(pt_index.begin(), pt_index.end(), std::greater<>());
     ret.reserve(pt_index.size());
     for (const auto& p : pt_index) {
       ret.push_back(ret2[p.second]);
