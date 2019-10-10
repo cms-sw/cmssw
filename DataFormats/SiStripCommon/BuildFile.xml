@@ -1,6 +1,5 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="DataFormats/Common"/>
-<use   name="boost"/>
 
 <export>
   <lib   name="1"/>
