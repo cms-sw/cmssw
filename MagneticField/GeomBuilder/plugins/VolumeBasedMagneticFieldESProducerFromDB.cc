@@ -67,7 +67,6 @@ namespace magneticfield {
     static std::string_view closerNominalLabel(float current);
 
     edm::ESGetToken<MagFieldConfig, MagFieldConfigRcd> mayGetConfigToken_;
-    edm::ESGetToken<RunInfo, RunInfoRcd> runInfo_;
     edm::ESGetToken<MagFieldConfig, MagFieldConfigRcd> knownFromParamConfigToken_;
 
     //NOTE: change of record since this MagFieldConfig was chosen based on data
@@ -100,7 +99,6 @@ VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFrom
     //we know exactly what we are going to get
     setWhatProduced(
         this, &VolumeBasedMagneticFieldESProducerFromDB::chooseConfigViaParameter, edm::es::Label(myConfigLabel))
-        .setConsumes(runInfo_)
         .setConsumes(knownFromParamConfigToken_, edm::ESInputTag(""s, std::string(closerNominalLabel(current_))));
   }
 
