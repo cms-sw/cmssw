@@ -53,11 +53,14 @@ private:
                    const TransientTrackingRecHitBuilder& ttrhBuilder,
                    const MkFitGeometry& mkFitGeom) const;
 
-  bool passCCC(const SiStripRecHit2D& hit, const DetId hitId) const;
-  bool passCCC(const SiPixelRecHit& hit, const DetId hitId) const;
+  float clusterCharge(const SiStripRecHit2D& hit, DetId hitId) const;
+  std::nullptr_t clusterCharge(const SiPixelRecHit& hit, DetId hitId) const;
 
-  void setDetails(mkfit::Hit& mhit, const SiPixelRecHit& hit, const DetId hitId, const int shortId) const;
-  void setDetails(mkfit::Hit& mhit, const SiStripRecHit2D& hit, const DetId hitId, const int shortId) const;
+  bool passCCC(float charge) const;
+  bool passCCC(std::nullptr_t) const;  //pixel
+
+  void setDetails(mkfit::Hit& mhit, const SiPixelCluster& cluster, const int shortId, std::nullptr_t) const;
+  void setDetails(mkfit::Hit& mhit, const SiStripCluster& cluster, const int shortId, float charge) const;
 
   mkfit::TrackVec convertSeeds(const edm::View<TrajectorySeed>& seeds,
                                const MkFitHitIndexMap& hitIndexMap,
@@ -132,26 +135,21 @@ void MkFitInputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const e
   iEvent.emplace(putToken_, std::move(hitIndexMap), std::move(mkFitHits), std::move(mkFitSeeds));
 }
 
-bool MkFitInputConverter::passCCC(const SiStripRecHit2D& hit, const DetId hitId) const {
-  return (siStripClusterTools::chargePerCM(hitId, hit.firstClusterRef().stripCluster()) > minGoodStripCharge_);
+float MkFitInputConverter::clusterCharge(const SiStripRecHit2D& hit, DetId hitId) const {
+  return siStripClusterTools::chargePerCM(hitId, hit.firstClusterRef().stripCluster());
+}
+std::nullptr_t MkFitInputConverter::clusterCharge(const SiPixelRecHit& hit, DetId hitId) const { return nullptr; }
+
+bool MkFitInputConverter::passCCC(float charge) const { return charge > minGoodStripCharge_; }
+
+bool MkFitInputConverter::passCCC(std::nullptr_t) const { return true; }
+
+void MkFitInputConverter::setDetails(mkfit::Hit& mhit, const SiPixelCluster& cluster, int shortId, std::nullptr_t) const {
+  mhit.setupAsPixel(shortId, cluster.sizeX(), cluster.sizeY());
 }
 
-bool MkFitInputConverter::passCCC(const SiPixelRecHit& hit, const DetId hitId) const { return true; }
-
-void MkFitInputConverter::setDetails(mkfit::Hit& mhit,
-                                     const SiPixelRecHit& hit,
-                                     const DetId hitId,
-                                     const int shortId) const {
-  mhit.setupAsPixel(shortId, hit.cluster()->sizeX(), hit.cluster()->sizeY());
-}
-
-void MkFitInputConverter::setDetails(mkfit::Hit& mhit,
-                                     const SiStripRecHit2D& hit,
-                                     const DetId hitId,
-                                     const int shortId) const {
-  mhit.setupAsStrip(shortId,
-                    siStripClusterTools::chargePerCM(hitId, hit.firstClusterRef().stripCluster()),
-                    hit.cluster()->amplitudes().size());
+void MkFitInputConverter::setDetails(mkfit::Hit& mhit, const SiStripCluster& cluster, int shortId, float charge) const {
+  mhit.setupAsStrip(shortId, charge, cluster.amplitudes().size());
 }
 
 template <typename HitCollection>
@@ -183,12 +181,14 @@ void MkFitInputConverter::convertHits(const HitCollection& hits,
     const auto subdet = detid.subdetId();
     const auto layer = ttopo.layer(detid);
     const auto isStereo = ttopo.isStereo(detid);
+    const auto uniqueIdInLayer = mkFitGeom.uniqueIdInLayer(detid.rawId());
     const auto ilay =
         mkFitGeom.layerNumberConverter().convertLayerNumber(subdet, layer, false, isStereo, isPlusSide(detid));
     hitIndexMap.increaseLayerSize(ilay, detset.size());  // to minimize memory allocations
 
     for (const auto& hit : detset) {
-      if (!passCCC(hit, detid))
+      const auto charge = clusterCharge(hit, detid);
+      if (!passCCC(charge))
         continue;
 
       const auto& gpos = hit.globalPosition();
@@ -211,7 +211,7 @@ void MkFitInputConverter::convertHits(const HitCollection& hits,
                          MkFitHitIndexMap::MkFitHit{static_cast<int>(mkFitHits[ilay].size()), ilay},
                          &hit);
       mkFitHits[ilay].emplace_back(pos, err, totalHits);
-      setDetails(mkFitHits[ilay].back(), hit, detid, mkFitGeom.uniqueIdInLayer(detid.rawId()));
+      setDetails(mkFitHits[ilay].back(), *(hit.cluster()), uniqueIdInLayer, charge);
       ++totalHits;
     }
   }
