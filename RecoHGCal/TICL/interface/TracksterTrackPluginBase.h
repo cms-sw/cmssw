@@ -19,7 +19,7 @@ namespace ticl {
     typedef reco::Candidate::LorentzVector LorentzVector;
     virtual ~TracksterTrackPluginBase() {}
     virtual void setTrack(const std::vector<const Trackster*>& tracksters,
-                          std::vector<ticl::TICLCandidate>& ticl_cands,
+                          std::vector<TICLCandidate>& ticl_cands,
                           edm::Event& event) const = 0;
   };
 }  // namespace ticl

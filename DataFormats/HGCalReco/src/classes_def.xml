@@ -24,10 +24,10 @@
   <class name="edm::Wrapper<TICLSeedingRegion>" />
   <class name="edm::Wrapper<std::vector<TICLSeedingRegion> >" />
 
-  <class name="ticl::TICLCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="3131603712"/>
+  <class name="TICLCandidate" ClassVersion="3">
+   <version ClassVersion="3" checksum="450468662"/>
   </class>
-  <class name="std::vector<ticl::TICLCandidate>" />
-  <class name="edm::Wrapper<ticl::TICLCandidate>" />
-  <class name="edm::Wrapper<std::vector<ticl::TICLCandidate> >" />
+  <class name="std::vector<TICLCandidate>" />
+  <class name="edm::Wrapper<TICLCandidate>" />
+  <class name="edm::Wrapper<std::vector<TICLCandidate> >" />
 </lcgdict>

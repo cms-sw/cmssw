@@ -24,13 +24,13 @@ public:
 
 private:
   // inputs
-  const edm::EDGetTokenT<edm::View<ticl::TICLCandidate>> ticl_candidates_;
+  const edm::EDGetTokenT<edm::View<TICLCandidate>> ticl_candidates_;
 };
 
 DEFINE_FWK_MODULE(PFTICLProducer);
 
 PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
-    : ticl_candidates_(consumes<edm::View<ticl::TICLCandidate>>(conf.getParameter<edm::InputTag>("ticlCandidateSrc"))) {
+    : ticl_candidates_(consumes<edm::View<TICLCandidate>>(conf.getParameter<edm::InputTag>("ticlCandidateSrc"))) {
   produces<reco::PFCandidateCollection>();
 }
 
@@ -42,7 +42,7 @@ void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 
 void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
   //get TICLCandidates
-  edm::Handle<edm::View<ticl::TICLCandidate>> ticl_cand_h;
+  edm::Handle<edm::View<TICLCandidate>> ticl_cand_h;
   evt.getByToken(ticl_candidates_, ticl_cand_h);
   const auto ticl_candidates = *ticl_cand_h;
 
@@ -70,6 +70,7 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
       case 211:
         part_type = reco::PFCandidate::h;
         break;
+      // default also handles neutral pions (111) for the time being (not yet foreseen in PFCandidate)
       default:
         part_type = reco::PFCandidate::X;
     }
