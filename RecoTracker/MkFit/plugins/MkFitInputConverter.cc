@@ -181,9 +181,9 @@ void MkFitInputConverter::convertHits(const HitCollection& hits,
     const auto subdet = detid.subdetId();
     const auto layer = ttopo.layer(detid);
     const auto isStereo = ttopo.isStereo(detid);
-    const auto uniqueIdInLayer = mkFitGeom.uniqueIdInLayer(detid.rawId());
     const auto ilay =
         mkFitGeom.layerNumberConverter().convertLayerNumber(subdet, layer, false, isStereo, isPlusSide(detid));
+    const auto uniqueIdInLayer = mkFitGeom.uniqueIdInLayer(ilay, detid.rawId());
     hitIndexMap.increaseLayerSize(ilay, detset.size());  // to minimize memory allocations
 
     for (const auto& hit : detset) {
