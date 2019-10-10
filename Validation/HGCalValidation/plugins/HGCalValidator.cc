@@ -28,12 +28,9 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
 
-  for (auto& itag : label) {
-    if (itag.label() == "hgcalLayerClusters") {
-      layerclusters_ = consumes<reco::CaloClusterCollection>(itag);
-    } else if (itag.label() == "hgcalMultiClusters") {
-      multiClusters_ = consumes<std::vector<reco::HGCalMultiCluster>>(itag);
-    }
+  layerclusters_ = consumes<reco::CaloClusterCollection>(label[0]);
+  if (label.size() > 1) {
+    multiClusters_ = consumes<std::vector<reco::HGCalMultiCluster>>(label[1]);
   }
 
   cpSelector = CaloParticleSelector(pset.getParameter<double>("ptMinCP"),
@@ -127,7 +124,7 @@ void HGCalValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook,
     }
 
     //Booking histograms concerning for hgcal multi clusters
-    if (domulticlustersPlots_ && algo.label() == "hgcalMultiClusters") {
+    if (domulticlustersPlots_ && www > 0) {
       histoProducerAlgo_->bookMultiClusterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
     }
 

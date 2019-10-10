@@ -13,9 +13,9 @@ hgcalValidator = cms.EDAnalyzer(
     ### reco input configuration ###
     #2dlayerclusters, pfclusters, multiclusters
     #label = cms.VInputTag(cms.InputTag("hgcalLayerClusters"), cms.InputTag("particleFlowClusterHGCal"), cms.InputTag("hgcalMultiClusters") ),
-    label = cms.VInputTag(cms.InputTag("hgcalLayerClusters"), cms.InputTag("hgcalMultiClusters") ),
-    
-    #General info on layers etc. 
+    label = cms.VInputTag(cms.InputTag("hgcalLayerClusters"), cms.InputTag("multiClustersFromTracksters", "MultiClustersFromTracksterByCA") ),
+
+    #General info on layers etc.
     SaveGeneralInfo = cms.untracked.bool(True),
     #CaloParticle related plots
     doCaloParticlePlots = cms.untracked.bool(True),
@@ -34,10 +34,10 @@ hgcalValidator = cms.EDAnalyzer(
     label_cp_fake = cms.InputTag("mix","MergedCaloTruth"),
 
     simVertices = cms.InputTag("g4SimHits"),
-    
+
     #Total number of layers of HGCal that we want to monitor
     #Could get this also from HGCalImagingAlgo::maxlayer but better to get it from here
-    totallayers_to_monitor = cms.int32(52),
+    totallayers_to_monitor = cms.int32(50),
     #Thicknesses we want to monitor. -1 is for scintillator
     thicknesses_to_monitor = cms.vint32(120,200,300,-1),
 
