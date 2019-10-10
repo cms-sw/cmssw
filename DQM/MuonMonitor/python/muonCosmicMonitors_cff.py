@@ -18,14 +18,8 @@ dqmInfoMuons = DQMEDAnalyzer('DQMEventInfo',
 )
 
 
-muonTrackCosmicAnalyzers= cms.Sequence(MonitorTrackSTACosmicMuons*
-                                       MonitorTrackTKCosmicMuons *
-                                       MonitorTrackGLBCosmicMuons)
+muonTrackCosmicAnalyzers= cms.Sequence(MonitorTrackSTACosmicMuons)
 
 
 muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers* 
                                   muonCosmicAnalyzer)
-
-
-
-
