@@ -166,7 +166,7 @@
    <field name="mode_"            mapping="blob"/>
    <field name="copiesInLayers_"  mapping="blob"/>
  </class>
- <class name="HcalSimulationParameters" class_version="0"> 
+ <class name="HcalSimulationParameters" class_version="1"> 
    <field name="attenuationLength_"     mapping="blob"/>
    <field name="lambdaLimits_"          mapping="blob"/>
    <field name="shortFiberLength_"      mapping="blob"/>
