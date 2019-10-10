@@ -17,7 +17,7 @@ public:
   CaloDDDSimulationConstants(const CaloSimulationParameters* cps);
   ~CaloDDDSimulationConstants();
 
-  const CaloSimulationParameters* claosimpar() const { return calospar_; }
+  const CaloSimulationParameters* caloSimPar() const { return calospar_; }
 
 private:
   const CaloSimulationParameters* calospar_;
