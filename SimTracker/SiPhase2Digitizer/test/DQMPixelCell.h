@@ -63,13 +63,6 @@ class DQMPixelCell : public DQMEDAnalyzer
         void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
         
     private:
-        // enumerate defining the different subdetectors
-        //int matchedSimTrackIndex(edm::Handle<edm::DetSetVector<PixelDigiSimLink> >& linkHandle,
-        //                   edm::Handle<edm::SimTrackContainer>& simTkHandle,
-        //                   DetId detId,
-        //                   unsigned int& channel);
-        //void fillClusterWidth(DigiMEs& mes, float dphi, float width)
-        //
         // GeomDet units belonging to the tracker pixel system (Barrel and endcap)
         bool isPixelSystem_(const GeomDet * detunit) const;
 
@@ -138,14 +131,16 @@ class DQMPixelCell : public DQMEDAnalyzer
         std::map<int,MonitorElement *> vME_dx1D_;
         std::map<int,MonitorElement *> vME_dy1D_;        
         std::map<int,MonitorElement *> vME_digi_charge1D_;
-        // --- cell efficiency per subdector , each element on the 
+        // --- cell histograms per subdector , each element on the 
         //     vector 0: total, 1: 1x1, 2: 2x2, (3: 3x3, 4: 4x4)?
+        std::map<int,std::vector<MonitorElement *>> vME_pshpos_cell_;
         std::map<int,std::vector<MonitorElement *>> vME_position_cell_;
         std::map<int,std::vector<MonitorElement *>> vME_eff_cell_;
         std::map<int,std::vector<MonitorElement *>> vME_clsize_cell_;
         std::map<int,std::vector<MonitorElement *>> vME_charge_cell_;
         std::map<int,std::vector<MonitorElement *>> vME_dx_cell_;
         std::map<int,std::vector<MonitorElement *>> vME_dy_cell_;
+        
 
         // Map to take care of common and tedious
         //const std::vector<std::map<int,std::vector<MonitorElement *>>*> helperMap_;

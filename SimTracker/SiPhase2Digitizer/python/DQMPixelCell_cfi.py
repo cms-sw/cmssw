@@ -64,32 +64,32 @@ Position = cms.PSet(
 Efficiency = cms.PSet(
     Nxbins = cms.int32(Nx),
     Nybins = cms.int32(Ny),
-    zmin   = cms.double(0.9),
-    zmax   = cms.double(1)
+    zmin   = cms.double(0),
+    zmax   = cms.double(0)
     )
 ClusterSize = cms.PSet(
     Nxbins = cms.int32(Nx),
     Nybins = cms.int32(Ny),
     zmin   = cms.double(0),
-    zmax   = cms.double(10)
+    zmax   = cms.double(0)
     )
 Charge = cms.PSet(
     Nxbins = cms.int32(Nx),
     Nybins = cms.int32(Ny),
     zmin   = cms.double(0),
-    zmax   = cms.double(20)
+    zmax   = cms.double(0)
     )
 Dx = cms.PSet(
     Nxbins = cms.int32(Nx),
     Nybins = cms.int32(Ny),
-    zmin   = cms.double(-50),
-    zmax   = cms.double(50)
+    zmin   = cms.double(0),
+    zmax   = cms.double(0)
     )
 Dy = cms.PSet(
     Nxbins = cms.int32(Nx),
     Nybins = cms.int32(Ny),
-    zmin   = cms.double(-150),
-    zmax   = cms.double(150)
+    zmin   = cms.double(0),
+    zmax   = cms.double(0)
     )
 
 dqmcell = DQMEDAnalyzer('DQMPixelCell',
@@ -128,6 +128,10 @@ dqmcell = DQMEDAnalyzer('DQMPixelCell',
     Position_0 = Position.clone(),
     Position_1 = Position.clone(),
     Position_2 = Position.clone(),
+    MatchedPosition_0 = Position.clone(),
+    MatchedPosition_1 = Position.clone(),
+    MatchedPosition_2 = Position.clone(),
+    
     
     Efficiency_0 = Efficiency.clone(),
     Efficiency_1 = Efficiency.clone(),

@@ -158,10 +158,12 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             // FIXME: CHeck if there is any digi ... Should not
             //continue;
         }*/
-        //std::cout << "DETECTOR: " << tkDetUnit->type().name() << std::endl;
+        //std::cout << "DETECTOR: " << tkDetUnit->type().name() << " ME UNIT: " << me_unit << std::endl;
 
-        // Loop over the simulated digi links, for each one get the track id, 
-        // used to obtain the simhit, and the raw digi (via the channel)
+        // Loop over the simulated digi links to obtain the list channels
+        // illuminated by each trackId. Use the trackIds to get the PSimHit 
+        // (the actual particle deposits per detector unit) and try to match them
+        // with the raw digi, using the channels associated with the trackIds
         std::map<unsigned int,std::set<int> > stracks_channels;
         for(const auto & dhsim: *it_simdigilink)
         {
@@ -175,11 +177,12 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                 }
             }
             // Create/update the list of channels created by this 
-            // simtrack: remember primaries and secondaries share the same id
+            // simtrackId: remember primaries and secondaries share the same id
             stracks_channels[dhsim.SimTrackId()].insert(current_channel);
         }
-
-        // Fill  per detector histograms
+        
+        // Loop over each trackId to get the list of PSimHits (i.e. the deposits created
+        // by the primary+secundaries)  
         for(const auto & st_ch: stracks_channels)
         {
             // -- Get the set of simulated hits from this trackid. 
@@ -187,7 +190,7 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             const edm::PSimHitContainer current_psimhits = get_simhits_from_trackid_(st_ch.first,detId.rawId(),simhits);
             //const auto current_pixel(PixelDigi::channelToPixel(ch));
             
-            // -- FIXME: Secondaries in the same pixel cell --> should be absorbed
+            // -- Loop over the PSimHits and match with the digi clusters
             for(const auto & ps: current_psimhits)
             {
                 // Fill some sim histograms
@@ -220,7 +223,7 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                         continue;
                     }
                     // Digi was created by the current psimhit?
-                    // Accepting +-1 pixel -- XXX: Actually the entryPoint-exitPoint 
+                    // Accepting +-2 pixel -- XXX: Actually the entryPoint-exitPoint 
                     // could provide the extension of the cluster
                     if( ! channel_iluminated_by_(psh_pos,ch,2.0) )
                     {
@@ -247,10 +250,10 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                     cluster_size_xy.second.insert(current_digi.column());
                     ++cluster_size;
                 }
+                // Be careful here, there is 1 entry per each simhit
                 vME_clsize1D_[me_unit]->Fill(cluster_size);
                 vME_clsize1Dx_[me_unit]->Fill(cluster_size_xy.first.size());
                 vME_clsize1Dy_[me_unit]->Fill(cluster_size_xy.second.size());
-                vME_charge1D_[me_unit]->Fill(cluster_tot);
                 
                 // mean weighted 
                 cluster_position.first  /= double(cluster_tot);
@@ -259,7 +262,7 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                 // -- XXX Be careful, secondaries with already used the digis
                 //        are going the be lost (then lost on efficiency)
                 // Efficiency --> It was found a cluster of digis?
-                const bool is_digi_present = (cluster_size > 0);
+                const bool is_cluster_present = (cluster_size > 0);
 
                 // Get topology info of the module sensor
                 //-const int n_rows = tkDetUnit->specificTopology().nrows();
@@ -268,31 +271,34 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                 // Residuals, convert them to longitud units (so far, in units of row, col)
                 const double dx_um = (psh_pos.x()-cluster_position.first)*pitch.first/unit_um;
                 const double dy_um = (psh_pos.y()-cluster_position.second)*pitch.second/unit_um;
-                if(is_digi_present)
+                if(is_cluster_present)
                 {
+                    vME_charge1D_[me_unit]->Fill(cluster_tot);
                     vME_dx1D_[me_unit]->Fill(dx_um);
                     vME_dy1D_[me_unit]->Fill(dy_um);
                 }
                 // Histograms per cell
                 for(unsigned int i =1; i < vME_position_cell_[me_unit].size(); ++i)
                 {
-                    // Convert to i-cell 
-                    const std::pair<double,double> icell_simhit_cluster = pixel_cell_transformation_(psh_pos,i,pitch);
-                    // Efficiency? --> Any track id do not have a digi? Is there any cluster.size == 0?
-                    vME_eff_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,double(is_digi_present));
-                    if(is_digi_present)
+                    // Convert the PSimHit center position to the IxI-cell 
+                    const std::pair<double,double> icell_psh = pixel_cell_transformation_(psh_pos,i,pitch);
+                    // Efficiency: (PSimHit matched to a digi-cluster)/PSimHit
+                    vME_eff_cell_[me_unit][i]->Fill(icell_psh.first/unit_um,icell_psh.second/unit_um,is_cluster_present);
+                    vME_pshpos_cell_[me_unit][i]->Fill(icell_psh.first/unit_um,icell_psh.second/unit_um);
+                    // Digi clusters related histoos
+                    if(is_cluster_present)
                     {
                         // Convert to the i-cell
                         //const std::pair<double,double> icell_digi_cluster   = pixel_cell_transformation_(cluster_position,i,pitch);
                         // Position
-                        vME_position_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um);
+                        vME_position_cell_[me_unit][i]->Fill(icell_psh.first/unit_um,icell_psh.second/unit_um);
                         // Residuals
-                        vME_dx_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,dx_um);
-                        vME_dy_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,dy_um);
+                        vME_dx_cell_[me_unit][i]->Fill(icell_psh.first/unit_um,icell_psh.second/unit_um,dx_um);
+                        vME_dy_cell_[me_unit][i]->Fill(icell_psh.first/unit_um,icell_psh.second/unit_um,dy_um);
                         // Charge
-                        vME_charge_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,cluster_tot);
+                        vME_charge_cell_[me_unit][i]->Fill(icell_psh.first/unit_um,icell_psh.second/unit_um,cluster_tot);
                         // Cluster size
-                        vME_clsize_cell_[me_unit][i]->Fill(icell_simhit_cluster.first/unit_um,icell_simhit_cluster.second/unit_um,cluster_size);
+                        vME_clsize_cell_[me_unit][i]->Fill(icell_psh.first/unit_um,icell_psh.second/unit_um,cluster_size);
                     }
                 }
             }
@@ -386,18 +392,18 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
 
             // And create the histos
             // Per detector unit histos
-            vME_clsize1D_[me_unit] = setupH1D_(ibooker,"ClusterSize1D","MC-truth cluster size;Cluster size;N_{clusters}");
-            vME_clsize1Dx_[me_unit] = setupH1D_(ibooker,"ClusterSize1Dx","MC-truth cluster size in X;Cluster size;N_{clusters}");
-            vME_clsize1Dy_[me_unit] = setupH1D_(ibooker,"ClusterSize1Dy","MC-truth cluster size in Y;Cluster size;N_{clusters}");
-            vME_charge1D_[me_unit] = setupH1D_(ibooker,"Charge1D","MC-truth charge;Cluster charge [ToT];N_{clusters}");
+            vME_clsize1D_[me_unit] = setupH1D_(ibooker,"ClusterSize1D","MC-truth DIGI cluster size;Cluster size;N_{clusters}");
+            vME_clsize1Dx_[me_unit] = setupH1D_(ibooker,"ClusterSize1Dx","MC-truth DIGI cluster size in X;Cluster size;N_{clusters}");
+            vME_clsize1Dy_[me_unit] = setupH1D_(ibooker,"ClusterSize1Dy","MC-truth DIGI cluster size in Y;Cluster size;N_{clusters}");
+            vME_charge1D_[me_unit] = setupH1D_(ibooker,"Charge1D","MC-truth DIGI cluster charge;Cluster charge [ToT];N_{clusters}");
             vME_track_dxdzAngle_[me_unit] = setupH1D_(ibooker,"TrackAngleDxdz",
                     "Angle between the track-momentum and detector surface (X-plane);#pi/2-#theta_{x} [rad];N_{tracks}");
             vME_track_dydzAngle_[me_unit] = setupH1D_(ibooker,"TrackAngleDydz",
                     "Angle between the track-momentum and detector surface (Y-plane);#pi/2-#theta_{y} [rad];N_{tracks}");
             vME_dx1D_[me_unit] = setupH1D_(ibooker,"Dx1D",
-                    "MC-truth residuals;x^{cluster}_{simhit}-x^{cluster}_{digi} [#mum];N_{digi clusters}");
+                    "MC-truth DIGI cluster residuals X;x_{PSimHit}-x^{cluster}_{digi} [#mum];N_{digi clusters}");
             vME_dy1D_[me_unit] = setupH1D_(ibooker,"Dy1D",
-                    "MC-truth residuals;y^{cluster}_{simhit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
+                    "MC-truth DIGI cluster residual Ys;y_{PSimHit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
             vME_digi_charge1D_[me_unit] = setupH1D_(ibooker,"DigiCharge1D","Digi charge;digi charge [ToT];N_{digi}");
 
             // The histos per cell
@@ -413,9 +419,14 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
             for(unsigned int i = 0; i < xranges.size(); ++i)
             {
                 const std::string cell("Cell "+std::to_string(i)+"x"+std::to_string(i)+": ");
-                vME_position_cell_[me_unit].push_back(setupH2D_(ibooker,
+                vME_pshpos_cell_[me_unit].push_back(setupH2D_(ibooker,
                             "Position_"+std::to_string(i),
-                            cell+"Digi cluster center (charge-weighted) position;x [#mum];y [#mum];N_{clusters}",
+                            cell+"PSimHit middle point position;x [#mum];y [#mum];N_{clusters}",
+                            xranges[i],
+                            yranges[i]));
+                vME_position_cell_[me_unit].push_back(setupH2D_(ibooker,
+                            "MatchedPosition_"+std::to_string(i),
+                            cell+"PSimHit matched to a DIGI cluster position ;x [#mum];y [#mum];N_{clusters}",
                             xranges[i],
                             yranges[i]));
                 vME_eff_cell_[me_unit].push_back(setupProf2D_(ibooker,
@@ -445,7 +456,7 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
                             yranges[i]));
             }
 
-std::cout << "DQMPixelCell" << "Booking Histograms in: " << folder_name << std::endl; 
+std::cout << "DQMPixelCell" << "Booking Histograms in: " << folder_name << " ME UNIT:" << me_unit << std::endl; 
             edm::LogInfo("DQMPixelCell") << "Booking Histograms in: " << folder_name << std::endl; 
         }
     }
