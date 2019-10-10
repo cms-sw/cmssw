@@ -74,32 +74,39 @@ namespace magneticfield {
     edm::ESGetToken<MagFieldConfig, IdealMagneticFieldRecord> chosenConfigToken_;
 
     edm::ESGetToken<FileBlob, MFGeometryFileRcd> mayConsumeBlobToken_;
-    const int current_;
     const bool debug_;
   };
 }  // namespace magneticfield
 
 VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig)
-    : current_(iConfig.getParameter<int>("valueOverride")),
-      debug_(iConfig.getUntrackedParameter<bool>("debugBuilder")) {
+    : debug_(iConfig.getUntrackedParameter<bool>("debugBuilder")) {
   std::string const myConfigLabel = "VBMFESChoice";
+
   //Based on configuration, pick algorithm to produce the proper MagFieldConfig with a specific label
-  if (current_ < 0) {
+  const int current = iConfig.getParameter<int>("valueOverride");
+  if (current < 0) {
     //We do not know what to get until we first read RunInfo
     setWhatProduced(
         this, &VolumeBasedMagneticFieldESProducerFromDB::chooseConfigAtRuntime, edm::es::Label(myConfigLabel))
         .setMayConsume(
             mayGetConfigToken_,
             [](auto const& iGet, edm::ESTransientHandle<RunInfo> iHandle) {
-              return iGet("", closerNominalLabel(iHandle->m_avg_current));
+              auto const label = closerNominalLabel(iHandle->m_avg_current);
+              edm::LogInfo("MagneticField|AutoMagneticField")
+                  << "Current :" << iHandle->m_avg_current
+                  << " (from RunInfo DB); using map configuration with label: " << label;
+              return iGet("", label);
             },
             edm::ESProductTag<RunInfo, RunInfoRcd>("", ""));
 
   } else {
     //we know exactly what we are going to get
+    auto const label = closerNominalLabel(current);
+    edm::LogInfo("MagneticField|AutoMagneticField")
+        << "Current :" << current << " (from valueOverride card); using map configuration with label: " << label;
     setWhatProduced(
         this, &VolumeBasedMagneticFieldESProducerFromDB::chooseConfigViaParameter, edm::es::Label(myConfigLabel))
-        .setConsumes(knownFromParamConfigToken_, edm::ESInputTag(""s, std::string(closerNominalLabel(current_))));
+        .setConsumes(knownFromParamConfigToken_, edm::ESInputTag(""s, std::string(label)));
   }
 
   auto const label = iConfig.getUntrackedParameter<std::string>("label");
@@ -142,6 +149,10 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce
 
   std::unique_ptr<MagneticField> paramField =
       ParametrizedMagneticFieldFactory::get(conf->slaveFieldVersion, conf->slaveFieldParameters);
+
+  edm::LogInfo("MagneticField|AutoMagneticField")
+      << "Version: " << conf->version << " geometryVersion: " << conf->geometryVersion
+      << " slaveFieldVersion: " << conf->slaveFieldVersion;
 
   if (conf->version == "parametrizedMagneticField") {
     // The map consist of only the parametrization in this case
