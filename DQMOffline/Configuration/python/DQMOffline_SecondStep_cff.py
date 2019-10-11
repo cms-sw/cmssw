@@ -103,6 +103,7 @@ DQMOffline_SecondStep_ExtraHLT = cms.Sequence( hltOfflineDQMClientExtra )
 
 DQMOffline_SecondStep_FakeHLT = cms.Sequence( DQMOffline_SecondStep )
 DQMOffline_SecondStep_FakeHLT.remove( HLTMonitoringClient )
+DQMOffline_SecondStep_FakeHLT.remove( DQMOffline_SecondStepTrigger )
 
 DQMOffline_SecondStep_PrePOGMC = cms.Sequence( bTagCollectorSequenceDATA )
 
@@ -152,8 +153,7 @@ DQMHarvestCommon = cms.Sequence( DQMMessageLoggerClientSeq *
                                 )
 
 DQMHarvestCommonFakeHLT = cms.Sequence( DQMHarvestCommon )
-DQMHarvestCommonFakeHLT.remove( triggerOfflineDQMClient )
-DQMHarvestCommonFakeHLT.remove( hltOfflineDQMClient )
+DQMHarvestCommonFakeHLT.remove( DQMHarvestTrigger )
 
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(
                                                DQMMessageLoggerClientSeq *
@@ -169,8 +169,7 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(
                                                )
 
 DQMHarvestCommonSiStripZeroBiasFakeHLT = cms.Sequence( DQMHarvestCommonSiStripZeroBias )
-DQMHarvestCommonSiStripZeroBiasFakeHLT.remove( triggerOfflineDQMClient )
-DQMHarvestCommonSiStripZeroBiasFakeHLT.remove( hltOfflineDQMClient )
+DQMHarvestCommonSiStripZeroBiasFakeHLT.remove( DQMHarvestTrigger )
 
 DQMHarvestTracking = cms.Sequence( TrackingOfflineDQMClient *
                                    dqmFastTimerServiceClient )

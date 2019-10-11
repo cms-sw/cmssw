@@ -83,6 +83,5 @@ DQMOfflineCosmics_SecondStep = cms.Sequence(
                                              DQMMessageLoggerClientSeq )
 
 DQMOfflineCosmics_SecondStep_FakeHLT = cms.Sequence(DQMOfflineCosmics_SecondStep ) 
-DQMOfflineCosmics_SecondStep_FakeHLT.remove( triggerOfflineDQMClient )
-DQMOfflineCosmics_SecondStep_FakeHLT.remove( hltOfflineDQMClient )
+DQMOfflineCosmics_SecondStep_FakeHLT.remove( DQMOfflineCosmics_SecondStepTrigger )
 
