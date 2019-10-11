@@ -485,7 +485,12 @@ def _getCMSFrontierConnectionString(database):
 def _getCMSSQLAlchemyConnectionString(technology,service,schema_name):
     if technology == 'frontier':
         import urllib
-        return '%s://@%s/%s' % ('oracle+frontier', urllib.parse.quote_plus(_getCMSFrontierConnectionString(service)), schema_name )
+        import sys
+        py3k = sys.version_info >= (3, 0)        
+        if py3k:
+            return '%s://@%s/%s' % ('oracle+frontier', urllib.parse.quote_plus(_getCMSFrontierConnectionString(service)), schema_name )
+        else:
+            return '%s://@%s/%s' % ('oracle+frontier', urllib.quote_plus(_getCMSFrontierConnectionString(service)), schema_name )
     elif technology == 'oracle':
         return '%s://%s@%s' % (technology, schema_name, service)
 
