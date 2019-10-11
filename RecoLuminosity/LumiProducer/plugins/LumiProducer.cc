@@ -258,7 +258,7 @@ LumiProducer::LumiProducer::LumiProducer(const edm::ParameterSet& iConfig)
         std::string url = (boost::filesystem::path("SITECONF") / boost::filesystem::path("local") /
                            boost::filesystem::path("JobConfig") / boost::filesystem::path("site-local-config.xml"))
                               .string();
-        char* tmp = getenv("CMS_PATH");
+        char* tmp = std::getenv("CMS_PATH");
         if (tmp) {
           m_siteconfpath = (boost::filesystem::path(tmp) / boost::filesystem::path(url)).string();
         }
