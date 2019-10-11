@@ -26,7 +26,7 @@
 #include <set>
 
 // XXX - Be careful the relative position
-#include "DQMPixelCell.h"
+#include "PixelTestBeamValidation.h"
 
 
 const double unit_um = 1e-4; // [cm]
@@ -35,7 +35,7 @@ const double unit_mm = 1e-1; // [cm]
 using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
 
 
-DQMPixelCell::DQMPixelCell(const edm::ParameterSet& iConfig) : 
+PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfig) : 
     config_(iConfig),
     geomType_(iConfig.getParameter<std::string>("GeometryType")),
     //phiValues(iConfig.getParameter<std::vector<double> >("PhiAngles")),
@@ -46,7 +46,7 @@ DQMPixelCell::DQMPixelCell(const edm::ParameterSet& iConfig) :
     simTrackToken_(consumes<edm::SimTrackContainer>(
                 iConfig.getParameter<edm::InputTag>("SimTrackSource"))) 
 {
-    LogDebug("DQMPixelCell") << ">>> Construct DQMPixelCell ";
+    LogDebug("PixelTestBeamValidation") << ">>> Construct PixelTestBeamValidation ";
     
     const std::vector<edm::InputTag> psimhit_v(config_.getParameter<std::vector<edm::InputTag>>("PSimHitSource"));
 
@@ -59,21 +59,21 @@ DQMPixelCell::DQMPixelCell(const edm::ParameterSet& iConfig) :
 //
 // destructor
 //
-DQMPixelCell::~DQMPixelCell() 
+PixelTestBeamValidation::~PixelTestBeamValidation() 
 {
-    LogDebug("DQMPixelCell") << ">>> Destroy DQMPixelCell ";
+    LogDebug("PixelTestBeamValidation") << ">>> Destroy PixelTestBeamValidation ";
 }
 
 // -- DQM Begin Run
 //
-void DQMPixelCell::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) 
+void PixelTestBeamValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) 
 {
-    edm::LogInfo("DQMPixelCell") << "Initialize DQMPixelCell ";
+    edm::LogInfo("PixelTestBeamValidation") << "Initialize PixelTestBeamValidation ";
 }
 //
 // -- Analyze
 //
-void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     // First clear the memoizer
     m_tId_det_simhits_.clear();
@@ -309,7 +309,7 @@ void DQMPixelCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 //
 // -- Book Histograms
 //
-void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) 
+void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) 
 {
     // Get Geometry to associate a folder to each Pixel subdetector
     edm::ESHandle<TrackerGeometry> geomHandle;
@@ -456,14 +456,14 @@ void DQMPixelCell::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
                             yranges[i]));
             }
 
-std::cout << "DQMPixelCell" << "Booking Histograms in: " << folder_name << " ME UNIT:" << me_unit << std::endl; 
-            edm::LogInfo("DQMPixelCell") << "Booking Histograms in: " << folder_name << std::endl; 
+std::cout << "PixelTestBeamValidation" << "Booking Histograms in: " << folder_name << " ME UNIT:" << me_unit << std::endl; 
+            edm::LogInfo("PixelTestBeamValidation") << "Booking Histograms in: " << folder_name << std::endl; 
         }
     }
 }
 
 
-bool DQMPixelCell::isPixelSystem_(const GeomDetUnit * dunit) const
+bool PixelTestBeamValidation::isPixelSystem_(const GeomDetUnit * dunit) const
 {
     const auto & dtype = dunit->type();
     if( ! dtype.isInnerTracker() || ! dtype.isTrackerPixel() )
@@ -474,14 +474,14 @@ bool DQMPixelCell::isPixelSystem_(const GeomDetUnit * dunit) const
 }
 
 // Helper functions to setup 
-int DQMPixelCell::meUnit_(bool isBarrel,int layer, int side) const
+int PixelTestBeamValidation::meUnit_(bool isBarrel,int layer, int side) const
 {
     // [isBarrel][layer][side]
     // [X][XXX][XX]
     return (static_cast<int>(isBarrel) << 6) | (layer << 3) | side;
 }
 
-DQMPixelCell::MonitorElement * DQMPixelCell::setupH1D_(DQMStore::IBooker& ibooker, 
+PixelTestBeamValidation::MonitorElement * PixelTestBeamValidation::setupH1D_(DQMStore::IBooker& ibooker, 
         const std::string & histoname,
         const std::string & title)
 {
@@ -493,7 +493,7 @@ DQMPixelCell::MonitorElement * DQMPixelCell::setupH1D_(DQMStore::IBooker& ibooke
             params.getParameter<double>("xmax"));
 }
 
-DQMPixelCell::MonitorElement * DQMPixelCell::setupH2D_(DQMStore::IBooker& ibooker, 
+PixelTestBeamValidation::MonitorElement * PixelTestBeamValidation::setupH2D_(DQMStore::IBooker& ibooker, 
         const std::string & histoname,
         const std::string & title)
 {
@@ -508,7 +508,7 @@ DQMPixelCell::MonitorElement * DQMPixelCell::setupH2D_(DQMStore::IBooker& ibooke
             params.getParameter<double>("ymax"));
 }
 
-DQMPixelCell::MonitorElement * DQMPixelCell::setupH2D_(DQMStore::IBooker& ibooker, 
+PixelTestBeamValidation::MonitorElement * PixelTestBeamValidation::setupH2D_(DQMStore::IBooker& ibooker, 
         const std::string & histoname,
         const std::string & title,
         const std::pair<double,double> & xranges, 
@@ -525,7 +525,7 @@ DQMPixelCell::MonitorElement * DQMPixelCell::setupH2D_(DQMStore::IBooker& ibooke
             yranges.second);
 }
 
-DQMPixelCell::MonitorElement * DQMPixelCell::setupProf2D_(DQMStore::IBooker& ibooker, 
+PixelTestBeamValidation::MonitorElement * PixelTestBeamValidation::setupProf2D_(DQMStore::IBooker& ibooker, 
         const std::string & histoname,
         const std::string & title,
         const std::pair<double,double> & xranges, 
@@ -544,7 +544,7 @@ DQMPixelCell::MonitorElement * DQMPixelCell::setupProf2D_(DQMStore::IBooker& ibo
             params.getParameter<double>("zmax"));
 }
 
-const PixelDigi & DQMPixelCell::get_digi_from_channel_(int ch, 
+const PixelDigi & PixelTestBeamValidation::get_digi_from_channel_(int ch, 
         const edm::DetSetVector<PixelDigi>::const_iterator & itdigis)
 {
     for(const auto & dh: *itdigis)
@@ -558,7 +558,7 @@ const PixelDigi & DQMPixelCell::get_digi_from_channel_(int ch,
     throw cms::Exception("Not found a PixelDigi") << " for the given channel: " << ch;
 }
 
-const SimTrack * DQMPixelCell::get_simtrack_from_id_(unsigned int idx, const edm::SimTrackContainer * stc)
+const SimTrack * PixelTestBeamValidation::get_simtrack_from_id_(unsigned int idx, const edm::SimTrackContainer * stc)
 {
     for(const auto & st: *stc)
     {
@@ -568,13 +568,13 @@ const SimTrack * DQMPixelCell::get_simtrack_from_id_(unsigned int idx, const edm
         }
     }
     // Any simtrack correspond to this trackid index
-    //edm::LogWarning("DQMPixelCell::get_simtrack_from_id_")
-    edm::LogInfo("DQMPixelCell::get_simtrack_from_id_")
+    //edm::LogWarning("PixelTestBeamValidation::get_simtrack_from_id_")
+    edm::LogInfo("PixelTestBeamValidation::get_simtrack_from_id_")
         << "Not found any SimTrack with trackId: " << idx;
     return nullptr;
 }
 
-const edm::PSimHitContainer DQMPixelCell::get_simhits_from_trackid_(
+const edm::PSimHitContainer PixelTestBeamValidation::get_simhits_from_trackid_(
         unsigned int tid, 
         unsigned int detid_raw,
         const std::vector<const edm::PSimHitContainer*> & psimhits)
@@ -606,7 +606,7 @@ const edm::PSimHitContainer DQMPixelCell::get_simhits_from_trackid_(
     return m_tId_det_simhits_[tid][detid_raw];
 }
 
-const std::pair<double,double> DQMPixelCell::pixel_cell_transformation_(
+const std::pair<double,double> PixelTestBeamValidation::pixel_cell_transformation_(
         const MeasurementPoint & pos,
         unsigned int icell,
         const std::pair<double,double> & pitch)
@@ -615,7 +615,7 @@ const std::pair<double,double> DQMPixelCell::pixel_cell_transformation_(
 }
 
 
-const std::pair<double,double> DQMPixelCell::pixel_cell_transformation_(
+const std::pair<double,double> PixelTestBeamValidation::pixel_cell_transformation_(
         const std::pair<double,double> & pos,
         unsigned int icell,
         const std::pair<double,double> & pitch)
@@ -627,7 +627,7 @@ const std::pair<double,double> DQMPixelCell::pixel_cell_transformation_(
     return std::pair<double,double>({xcell,ycell});
 }
 
-bool DQMPixelCell::channel_iluminated_by_(const MeasurementPoint & localpos,int channel, double tolerance) const
+bool PixelTestBeamValidation::channel_iluminated_by_(const MeasurementPoint & localpos,int channel, double tolerance) const
 {
     const auto pos_channel(PixelDigi::channelToPixel(channel));
     if( std::fabs(localpos.x()-pos_channel.first) <= tolerance 
@@ -640,4 +640,4 @@ bool DQMPixelCell::channel_iluminated_by_(const MeasurementPoint & localpos,int 
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(DQMPixelCell);
+DEFINE_FWK_MODULE(PixelTestBeamValidation);

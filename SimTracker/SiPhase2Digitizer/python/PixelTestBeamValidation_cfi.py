@@ -92,7 +92,7 @@ Dy = cms.PSet(
     zmax   = cms.double(0)
     )
 
-dqmcell = DQMEDAnalyzer('DQMPixelCell',
+dqmcell = DQMEDAnalyzer('PixelTestBeamValidation',
     TopFolderName = cms.string("PixelCell"),
     PixelDigiSource = cms.InputTag("simSiPixelDigis","Pixel"),
     PixelDigiSimSource = cms.InputTag("simSiPixelDigis", "Pixel"),

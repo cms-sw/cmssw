@@ -27,7 +27,7 @@
   <flags   EDM_PLUGIN="1"/>
   <flags CXXFLAGS="-g3"/>
 </library>
-<library   file="DQMPixelCell.cc" name="DQMPixelCell">
+<library   file="PixelTestBeamValidation.cc" name="PixelTestBeamValidation">
   <flags   EDM_PLUGIN="1"/>
   <flags CXXFLAGS="-g3"/>
 </library>
