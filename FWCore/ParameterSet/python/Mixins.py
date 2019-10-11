@@ -9,10 +9,12 @@ class _ConfigureComponent(object):
         return False
 
 class PrintOptions(object):
-    def __init__(self, indent = 0, deltaIndent = 4, process = True):
+    def __init__(self, indent = 0, deltaIndent = 4, process = True, targetDirectory = None, useSubdirectories = False):
         self.indent_= indent
         self.deltaIndent_ = deltaIndent
         self.isCfg = process
+        self.targetDirectory = targetDirectory
+        self.useSubdirectories = useSubdirectories
     def indentation(self):
         return ' '*self.indent_
     def indent(self):
