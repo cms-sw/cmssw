@@ -4,6 +4,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 import six
+import os
 from  .Options import Options
 options = Options()
 
@@ -816,14 +817,22 @@ class Process(object):
                 returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
         return returnValue
 
-    def _splitPythonList(self, d, options):
+    def _splitPythonList(self, subfolder, d, options):
         parts = DictTypes.SortedKeysDict()
         for name, item in d.items() if isinstance(d, DictTypes.SortedKeysDict) else sorted(d.items()):
+            code = ''
             dependencies = item.directDependencies()
-            parts[name] = '\n'.join('from ' + module + '_cfi import *' for module in dependencies)
+            for module_subfolder, module in dependencies:
+                module = module + '_cfi'
+                if options.useSubdirectories and module_subfolder:
+                    module = module_subfolder + '.' + module
+                if options.targetDirectory is not None:
+                    module = options.targetDirectory + '.' + module
+                code += 'from ' + module + ' import *\n'
             if dependencies:
-              parts[name] += '\n\n'
-            parts[name] += name + ' = ' + item.dumpPython(options)
+                code += '\n'
+            code += name + ' = ' + item.dumpPython(options)
+            parts[name] = subfolder, code
         return parts
 
     def _validateSequence(self, sequence, label):
@@ -907,10 +916,10 @@ class Process(object):
             result += value.dumpPythonAs(name,options)+'\n'
         return result
 
-    def _splitPython(self, d, options):
+    def _splitPython(self, subfolder, d, options):
         result = {}
         for name, value in sorted(six.iteritems(d)):
-            result[name] = value.dumpPythonAs(name,options)+'\n'
+            result[name] = subfolder, value.dumpPythonAs(name, options) + '\n'
         return result
 
     def dumpPython(self, options=PrintOptions()):
@@ -947,7 +956,7 @@ class Process(object):
         header += "\n\n"
         return header+result
 
-    def splitPython(self, options=PrintOptions()):
+    def splitPython(self, options = PrintOptions()):
         """return a map of names to python configuration fragments"""
         specialImportRegistry._reset()
         # extract individual fragments
@@ -959,39 +968,57 @@ class Process(object):
         result = 'process = cms.Process("' + self.__name + '")\n\n'
 
         if self.source_():
-            parts['source'] = 'source = ' + self.source_().dumpPython(options)
+            parts['source'] = None, 'source = ' + self.source_().dumpPython(options)
 
         if self.looper_():
-            parts['looper'] = 'looper = ' + self.looper_().dumpPython()
+            parts['looper'] = None, 'looper = ' + self.looper_().dumpPython()
 
-        parts.update(self._splitPythonList(self.psets, options))
-        parts.update(self._splitPythonList(self.vpsets, options))
+        parts.update(self._splitPythonList('psets', self.psets, options))
+        parts.update(self._splitPythonList('psets', self.vpsets, options))
         # FIXME
         #parts.update(self._splitPythonSubProcesses(self.subProcesses_(), options))
         if len(self.subProcesses_()):
           sys.stderr.write("error: subprocesses are not supported yet\n\n")
-        parts.update(self._splitPythonList(self.producers_(), options))
-        parts.update(self._splitPythonList(self.switchProducers_(), options))
-        parts.update(self._splitPythonList(self.filters_() , options))
-        parts.update(self._splitPythonList(self.analyzers_(), options))
-        parts.update(self._splitPythonList(self.outputModules_(), options))
-        parts.update(self._splitPythonList(self.services_(), options))
-        parts.update(self._splitPythonList(self.es_producers_(), options))
-        parts.update(self._splitPythonList(self.es_sources_(), options))
-        parts.update(self._splitPython(self.es_prefers_(), options))
-        parts.update(self._splitPythonList(self._itemsInDependencyOrder(self.tasks), options))
-        parts.update(self._splitPythonList(self._itemsInDependencyOrder(self.sequences), options))
-        parts.update(self._splitPythonList(self.paths_(), options))
-        parts.update(self._splitPythonList(self.endpaths_(), options))
-        parts.update(self._splitPythonList(self.aliases_(), options))
+        parts.update(self._splitPythonList('modules', self.producers_(), options))
+        parts.update(self._splitPythonList('modules', self.switchProducers_(), options))
+        parts.update(self._splitPythonList('modules', self.filters_() , options))
+        parts.update(self._splitPythonList('modules', self.analyzers_(), options))
+        parts.update(self._splitPythonList('modules', self.outputModules_(), options))
+        parts.update(self._splitPythonList('services', self.services_(), options))
+        parts.update(self._splitPythonList('eventsetup', self.es_producers_(), options))
+        parts.update(self._splitPythonList('eventsetup', self.es_sources_(), options))
+        parts.update(self._splitPython('eventsetup', self.es_prefers_(), options))
+        parts.update(self._splitPythonList('tasks', self._itemsInDependencyOrder(self.tasks), options))
+        parts.update(self._splitPythonList('sequences', self._itemsInDependencyOrder(self.sequences), options))
+        parts.update(self._splitPythonList('paths', self.paths_(), options))
+        parts.update(self._splitPythonList('paths', self.endpaths_(), options))
+        parts.update(self._splitPythonList('modules', self.aliases_(), options))
 
-        for name in parts:
-            result += 'process.load("' + name + '_cfi")\n'
-            with open(name + '_cfi.py', 'w') as f:
+        if options.targetDirectory is not None:
+            if not os.path.isdir(options.targetDirectory):
+                os.makedirs(options.targetDirectory)
+            open(options.targetDirectory + '/__init__.py', 'w').close()
+
+        if options.useSubdirectories:
+          for sub in 'psets', 'modules', 'services', 'eventsetup', 'tasks', 'sequences', 'paths':
+            if options.targetDirectory is not None:
+                sub = options.targetDirectory + '/' + sub
+            if not os.path.isdir(sub):
+                os.makedirs(sub)
+            open(sub + '/__init__.py', 'w').close()
+
+        for (name, (subfolder, code)) in six.iteritems(parts):
+            filename = name + '_cfi'
+            if options.useSubdirectories and subfolder:
+              filename = subfolder + '/' + filename
+            if options.targetDirectory is not None:
+              filename = options.targetDirectory + '/' + filename
+            result += 'process.load("%s")\n' % filename
+            with open('%s.py' % filename, 'w') as f:
               f.write(header + '\n\n')
-              f.write(parts[name])
+              f.write(code)
 
-        if not self.schedule_() == None:
+        if self.schedule_() is not None:
             result += 'process.schedule = ' + self.schedule.dumpPython(options)
 
         imports = specialImportRegistry.getSpecialImports()

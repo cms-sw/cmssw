@@ -178,10 +178,18 @@ class _SequenceCollection(_Sequenceable):
         return returnValue
 
     def directDependencies(self):
-        return [ item.label() for item in self._collection ]
-        #options = PrintOptions()
-        #options.isCfg = False
-        #return [ name for name in (item.dumpSequencePython(options) for item in self._collection) if name ]
+        dependencies = []
+        for item in self._collection:
+            if type(item).__name__ in ("EDFilter", "EDProducer", "EDAnalyzer", "OutputModule"):
+                t = 'modules'
+            elif type(item).__name__ in ("_SequenceIgnore", "_SequenceNegation"):
+                t = 'modules'
+            elif type(item).__name__ in ("Sequence"):
+                t = 'sequences'
+            else:
+                t = ''
+            dependencies.append((t, item.label()))
+        return dependencies
 
     def visitNode(self,visitor):
         for m in self._collection:
@@ -335,7 +343,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         if self._seq:
           result += self._seq.directDependencies()
         if self._tasks:
-          result += [ task.label() for task in self._tasks ]
+          result += [ ('tasks', task.label()) for task in self._tasks ]
         return result
 
     def moduleNames(self):
