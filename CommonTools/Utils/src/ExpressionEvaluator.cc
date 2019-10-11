@@ -38,13 +38,6 @@ namespace {
     system(rm.c_str());
   }
 
-  std::string patchArea() {
-    auto n1 = execSysCommand("pushd $CMSSW_BASE > /dev/null;scram tool tag cmssw CMSSW_BASE; popd > /dev/null");
-    n1.pop_back();
-    COUT << "base area " << n1 << std::endl;
-    return n1[0] == '/' ? n1 : std::string();
-  }
-
 }  // namespace
 
 namespace reco {
@@ -82,7 +75,7 @@ namespace reco {
           incDir = relDir + incDir;
         } else {
           // look in release is a patch area
-          auto paDir = patchArea();
+          auto paDir = edm::getEnvironmentVariable("CMSSW_FULL_RELEASE_BASE");
           if (paDir.empty())
             throw cms::Exception("ExpressionEvaluator", "error in opening patch area for " + baseDir);
           std::string file = paDir + incDir + pch + ".cxxflags";
