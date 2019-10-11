@@ -30,8 +30,12 @@ rm -rf $OUTDIR/{ramdisk,data,*.log}
 echo "Running test with index JSONs"
 CMDLINE_STARTBU="cmsRun startBU.py runNumber=101 fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=11 eventsPerLS=35 frdFileVersion=0"
 CMDLINE_STARTFU="cmsRun startFU.py runNumber=101 fffBaseDir=${OUTDIR}"
-${CMDLINE_STARTBU}  > out_1_bu.log 2>&1 || die "${CMDLINE_STARTBU}" $? $OUTDIR
-${CMDLINE_STARTFU}  > out_1_fu.log 2>&1 || die "${CMDLINE_STARTFU}" $? $OUTDIR
+#${CMDLINE_STARTBU} > out_1_bu.log 2>&1 || die "${CMDLINE_STARTBU}" $? $OUTDIR
+#${CMDLINE_STARTFU} > out_1_fu.log 2>&1 || die "${CMDLINE_STARTFU}" $? $OUTDIR
+
+${CMDLINE_STARTBU} || die "${CMDLINE_STARTBU}" $? $OUTDIR
+${CMDLINE_STARTFU} || die "${CMDLINE_STARTFU}" $? $OUTDIR
+
 
 rm -rf $OUTDIR/{ramdisk,data}
 
@@ -39,8 +43,12 @@ rm -rf $OUTDIR/{ramdisk,data}
 echo "Running test with FRD file header (no index JSONs)"
 CMDLINE_STARTBU="cmsRun startBU.py runNumber=101 fffBaseDir=${OUTDIR} maxLS=2 fedMeanSize=128 eventsPerFile=11 eventsPerLS=35 frdFileVersion=1"
 CMDLINE_STARTFU="cmsRun startFU.py runNumber=101 fffBaseDir=${OUTDIR}"
-${CMDLINE_STARTBU}  >> out_2_bu.log 2>&1 || die "${CMDLINE_STARTBU}" $? $OUTDIR
-${CMDLINE_STARTFU}  >> out_2_fu.log 2>&1 || die "${CMDLINE_STARTFU}" $? $OUTDIR
+#${CMDLINE_STARTBU}  > out_2_bu.log 2>&1 || die "${CMDLINE_STARTBU}" $? $OUTDIR
+#${CMDLINE_STARTFU}  > out_2_fu.log 2>&1 || die "${CMDLINE_STARTFU}" $? $OUTDIR
+
+${CMDLINE_STARTBU}  || die "${CMDLINE_STARTBU}" $? $OUTDIR
+${CMDLINE_STARTFU}  || die "${CMDLINE_STARTFU}" $? $OUTDIR
+
 
 #no failures, clean up everything including logs if there are no errors
 rm -rf $OUTDIR/{ramdisk,data,*.py,*.log}
