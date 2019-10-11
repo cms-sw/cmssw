@@ -304,7 +304,7 @@ caloDict = {
             'Geometry/HcalSimData/data/hf.xml',
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',
+            'Geometry/HGCalSimData/data/CaloUtil.xml',
             'Geometry/HGCalSimData/data/hgcsensv9.xml',
         ],
         4 : [
@@ -381,7 +381,7 @@ caloDict = {
             'Geometry/HcalSimData/data/hf.xml',
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',
+            'Geometry/HGCalSimData/data/CaloUtil.xml',
             'Geometry/HGCalSimData/data/hgcsensv9.xml',
             'Geometry/ForwardSimData/data/hfnosesens.xml',
         ],
