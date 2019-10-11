@@ -80,7 +80,7 @@ class Enum(object):
 
 # Utility functions
 def hash(data):
-    return hashlib.sha1(data).hexdigest()
+    return hashlib.sha1(data.encode('ascii')).hexdigest()
 
 
 # Constants
@@ -254,9 +254,9 @@ def getSchema(tp):
 class Tag:
     __tablename__       = 'TAG'
     columns             = { 'name': (sqlalchemy.String(name_length),_Col.pk), 
-                            'time_type': (sqlalchemy.Enum(*tuple(TimeType)),_Col.notNull),
+                            'time_type': (sqlalchemy.Enum((TimeType,)),_Col.notNull),
                             'object_type': (sqlalchemy.String(name_length),_Col.notNull),
-                            'synchronization': (sqlalchemy.Enum(*tuple(Synchronization)),_Col.notNull),
+                            'synchronization': (sqlalchemy.Enum((Synchronization,)),_Col.notNull),
                             'description': (sqlalchemy.String(description_length),_Col.notNull),
                             'last_validated_time':(sqlalchemy.BIGINT,_Col.notNull),
                             'end_of_validity':(sqlalchemy.BIGINT,_Col.notNull),
@@ -485,7 +485,7 @@ def _getCMSFrontierConnectionString(database):
 def _getCMSSQLAlchemyConnectionString(technology,service,schema_name):
     if technology == 'frontier':
         import urllib
-        return '%s://@%s/%s' % ('oracle+frontier', urllib.quote_plus(_getCMSFrontierConnectionString(service)), schema_name )
+        return '%s://@%s/%s' % ('oracle+frontier', urllib.parse.quote_plus(_getCMSFrontierConnectionString(service)), schema_name )
     elif technology == 'oracle':
         return '%s://%s@%s' % (technology, schema_name, service)
 
