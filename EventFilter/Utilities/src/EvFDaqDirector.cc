@@ -81,7 +81,7 @@ namespace evf {
     gethostname(hostname, 32);
     hostname_ = hostname;
 
-    char* fuLockPollIntervalPtr = getenv("FFF_LOCKPOLLINTERVAL");
+    char* fuLockPollIntervalPtr = std::getenv("FFF_LOCKPOLLINTERVAL");
     if (fuLockPollIntervalPtr) {
       try {
         fuLockPollInterval_ = boost::lexical_cast<unsigned int>(std::string(fuLockPollIntervalPtr));
@@ -93,7 +93,7 @@ namespace evf {
     }
 
     //override file service parameter if specified by environment
-    char* fileBrokerParamPtr = getenv("FFF_USEFILEBROKER");
+    char* fileBrokerParamPtr = std::getenv("FFF_USEFILEBROKER");
     if (fileBrokerParamPtr) {
       try {
         useFileBroker_ = (boost::lexical_cast<unsigned int>(std::string(fileBrokerParamPtr))) > 0;
@@ -122,7 +122,7 @@ namespace evf {
       }
     }
 
-    char* startFromLSPtr = getenv("FFF_STARTFROMLS");
+    char* startFromLSPtr = std::getenv("FFF_STARTFROMLS");
     if (startFromLSPtr) {
       try {
         startFromLS_ = boost::lexical_cast<unsigned int>(std::string(startFromLSPtr));
@@ -133,7 +133,7 @@ namespace evf {
     }
 
     //override file service parameter if specified by environment
-    char* fileBrokerUseLockParamPtr = getenv("FFF_FILEBROKERUSELOCALLOCK");
+    char* fileBrokerUseLockParamPtr = std::getenv("FFF_FILEBROKERUSELOCALLOCK");
     if (fileBrokerUseLockParamPtr) {
       try {
         fileBrokerUseLocalLock_ = (boost::lexical_cast<unsigned int>(std::string(fileBrokerUseLockParamPtr))) > 0;
@@ -276,9 +276,9 @@ namespace evf {
       else {
         //look in source directory if not present in ramdisk
         std::string defPathSuffix = "src/EventFilter/Utilities/plugins/budef.jsd";
-        defPath = std::string(getenv("CMSSW_BASE")) + "/" + defPathSuffix;
+        defPath = std::string(std::getenv("CMSSW_BASE")) + "/" + defPathSuffix;
         if (stat(defPath.c_str(), &statbuf)) {
-          defPath = std::string(getenv("CMSSW_RELEASE_BASE")) + "/" + defPathSuffix;
+          defPath = std::string(std::getenv("CMSSW_RELEASE_BASE")) + "/" + defPathSuffix;
           if (stat(defPath.c_str(), &statbuf)) {
             defPath = defPathSuffix;
           }
