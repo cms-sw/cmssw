@@ -1356,6 +1356,10 @@ class EDAlias(_ConfigureComponent,_Labelable,_Parameterizable):
             options.unindent()
         return '\n'.join(resultList)+'\n)'
 
+    # an EDAlias only references other modules by label, so it does not need their definition
+    def directDependencies(self):
+        return []
+
 if __name__ == "__main__":
 
     import unittest
