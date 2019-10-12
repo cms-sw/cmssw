@@ -1,4 +1,4 @@
-#include "Geometry/TrackerGeometryBuilder/interface/StackGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
 
 StackGeomDet::StackGeomDet(BoundPlane* sp,
                            const GeomDetUnit* lowerDet,

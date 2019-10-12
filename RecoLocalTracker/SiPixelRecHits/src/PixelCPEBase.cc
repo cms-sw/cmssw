@@ -5,9 +5,9 @@
 // change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 // Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/ProxyPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/ProxyPixelTopology.h"
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 

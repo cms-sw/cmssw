@@ -1,5 +1,5 @@
-#ifndef Geometry_TrackerTopology_ProxyPixelTopology_H
-#define Geometry_TrackerTopology_ProxyPixelTopology_H
+#ifndef Geometry_CommonTopologies_ProxyPixelTopology_H
+#define Geometry_CommonTopologies_ProxyPixelTopology_H
 
 /// ProxyStripTopology
 ///
@@ -21,7 +21,7 @@
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 
 class Plane;
 
