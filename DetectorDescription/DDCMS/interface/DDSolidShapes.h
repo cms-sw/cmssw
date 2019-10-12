@@ -78,14 +78,15 @@ namespace cms {
     ddellipticaltube = 15,
     ddcuttubs = 16,
     ddextrudedpolygon = 17,
+    ddtrd1 = 18,
   };
 
-  const std::array<const cms::dd::NameValuePair<DDSolidShape>, 18> DDSolidShapeMap{
+  const std::array<const cms::dd::NameValuePair<DDSolidShape>, 19> DDSolidShapeMap{
       {{DDSolidShape::dd_not_init, "Solid not initialized"},
        {DDSolidShape::ddbox, "Box"},
        {DDSolidShape::ddtubs, "Tube"},
-       {DDSolidShape::ddtrap, "Trapezoid"},
-       {DDSolidShape::ddcons, "Cone"},
+       {DDSolidShape::ddtrap, "Trap"},
+       {DDSolidShape::ddcons, "ConeSegment"},
        {DDSolidShape::ddpolycone, "Polycone"},
        {DDSolidShape::ddpolyhedra, "Polyhedra"},
        {DDSolidShape::ddtorus, "Torus"},
@@ -98,7 +99,8 @@ namespace cms {
        {DDSolidShape::ddsphere, "Sphere"},
        {DDSolidShape::ddellipticaltube, "EllipticalTube"},
        {DDSolidShape::ddcuttubs, "CutTube"},
-       {DDSolidShape::ddextrudedpolygon, "ExtrudedPolygon"}}};
+       {DDSolidShape::ddextrudedpolygon, "ExtrudedPolygon"},
+       {DDSolidShape::ddtrd1, "Trd1"}}};
 
   const std::array<const cms::dd::ValuePair<LegacySolidShape, cms::DDSolidShape>, 20> LegacySolidShapeMap{
       {{LegacySolidShape::dd_not_init, cms::DDSolidShape::dd_not_init},

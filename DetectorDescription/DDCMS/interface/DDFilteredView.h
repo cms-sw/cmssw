@@ -28,6 +28,16 @@
 
 namespace cms {
 
+  struct DDSolid {
+    explicit DDSolid(dd4hep::Solid s) : solid_(s) {}
+    dd4hep::Solid solid() const { return solid_; }
+    dd4hep::Solid solidA() const;
+    const std::vector<double> parameters() const;
+
+  private:
+    dd4hep::Solid solid_;
+  };
+
   class DDDetector;
   class DDCompactView;
 
@@ -99,15 +109,21 @@ namespace cms {
     bool isATrapezoid() const;
     bool isATruncTube() const;
     bool isATubeSeg() const;
+    bool isASubtraction() const;
 
     // Get shape pointer of current node.
     // Caller must check that current node matches desired type
     // before calling this function.
 
-    template <class T>
-    const T* getShapePtr() const {
+    template <class Shape>
+    const Shape* getShapePtr() const {
       Volume currVol = node_->GetVolume();
-      return (dynamic_cast<T*>(currVol->GetShape()));
+      return (dynamic_cast<Shape*>(currVol->GetShape()));
+    }
+
+    template <class Shape>
+    bool isA() const {
+      return dd4hep::instanceOf<Shape>(solid());
     }
 
     dd4hep::Solid solid() const;
@@ -124,7 +140,7 @@ namespace cms {
     //! extract shape parameters
     const std::vector<double> parameters() const;
 
-    const DDSolidShape shape() const;
+    const cms::DDSolidShape shape() const;
 
     // Convert new DD4hep shape id to an old DD one
     LegacySolidShape legacyShape(const cms::DDSolidShape shape) const;
