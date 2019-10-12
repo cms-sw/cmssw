@@ -1141,7 +1141,6 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid, 
   if (moduleswitchncluson) {
     hid = hidmanager.createHistoId("NumberOfClusters", "det", detid);
     mod_single.NumberOfClusters = bookME1D("TH1nClusters", hid.c_str(), ibooker);
-    ibooker.tag(mod_single.NumberOfClusters, detid);
     mod_single.NumberOfClusters->setAxisTitle("number of clusters in one detector module");
     mod_single.NumberOfClusters->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
@@ -1151,7 +1150,6 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid, 
     short total_nr_strips = SiStripDetCabling_->nApvPairs(detid) * 2 * 128;  // get correct # of avp pairs
     hid = hidmanager.createHistoId("ClusterPosition", "det", detid);
     mod_single.ClusterPosition = ibooker.book1D(hid, hid, total_nr_strips, 0.5, total_nr_strips + 0.5);
-    ibooker.tag(mod_single.ClusterPosition, detid);
     mod_single.ClusterPosition->setAxisTitle("cluster position [strip number +0.5]");
   }
 
@@ -1160,7 +1158,6 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid, 
     short total_nr_strips = SiStripDetCabling_->nApvPairs(detid) * 2 * 128;  // get correct # of avp pairs
     hid = hidmanager.createHistoId("ClusterDigiPosition", "det", detid);
     mod_single.ClusterDigiPosition = ibooker.book1D(hid, hid, total_nr_strips, 0.5, total_nr_strips + 0.5);
-    ibooker.tag(mod_single.ClusterDigiPosition, detid);
     mod_single.ClusterDigiPosition->setAxisTitle("digi in cluster position [strip number +0.5]");
   }
 
@@ -1168,7 +1165,6 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid, 
   if (moduleswitchcluswidthon) {
     hid = hidmanager.createHistoId("ClusterWidth", "det", detid);
     mod_single.ClusterWidth = bookME1D("TH1ClusterWidth", hid.c_str(), ibooker);
-    ibooker.tag(mod_single.ClusterWidth, detid);
     mod_single.ClusterWidth->setAxisTitle("cluster width [nr strips]");
   }
 
@@ -1176,7 +1172,6 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid, 
   if (moduleswitchcluschargeon) {
     hid = hidmanager.createHistoId("ClusterCharge", "det", detid);
     mod_single.ClusterCharge = bookME1D("TH1ClusterCharge", hid.c_str(), ibooker);
-    ibooker.tag(mod_single.ClusterCharge, detid);
     mod_single.ClusterCharge->setAxisTitle("cluster charge [ADC]");
   }
 
@@ -1184,7 +1179,6 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid, 
   if (moduleswitchclusnoiseon) {
     hid = hidmanager.createHistoId("ClusterNoise", "det", detid);
     mod_single.ClusterNoise = bookME1D("TH1ClusterNoise", hid.c_str(), ibooker);
-    ibooker.tag(mod_single.ClusterNoise, detid);
     mod_single.ClusterNoise->setAxisTitle("cluster noise");
   }
 
@@ -1192,7 +1186,6 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid, 
   if (moduleswitchclusstonon) {
     hid = hidmanager.createHistoId("ClusterSignalOverNoise", "det", detid);
     mod_single.ClusterSignalOverNoise = bookME1D("TH1ClusterStoN", hid.c_str(), ibooker);
-    ibooker.tag(mod_single.ClusterSignalOverNoise, detid);
     mod_single.ClusterSignalOverNoise->setAxisTitle("ratio of signal to noise for each cluster");
   }
 
@@ -1208,7 +1201,6 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid, 
                                                                  Parameters.getParameter<int32_t>("Nbiny"),
                                                                  Parameters.getParameter<double>("ymin"),
                                                                  Parameters.getParameter<double>("ymax"));
-    ibooker.tag(mod_single.ClusterSignalOverNoiseVsPos, detid);
     mod_single.ClusterSignalOverNoiseVsPos->setAxisTitle("pos");
   }
 
@@ -1216,7 +1208,6 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid, 
   if (moduleswitchlocaloccupancy) {
     hid = hidmanager.createHistoId("ClusterLocalOccupancy", "det", detid);
     mod_single.ModuleLocalOccupancy = bookME1D("TH1ModuleLocalOccupancy", hid.c_str(), ibooker);
-    ibooker.tag(mod_single.ModuleLocalOccupancy, detid);
     mod_single.ModuleLocalOccupancy->setAxisTitle("module local occupancy [% of clusterized strips]");
   }
 
@@ -1224,7 +1215,6 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid, 
   if (moduleswitchnrclusterizedstrip) {
     hid = hidmanager.createHistoId("NrOfClusterizedStrips", "det", detid);
     mod_single.NrOfClusterizedStrips = bookME1D("TH1NrOfClusterizedStrips", hid.c_str(), ibooker);
-    ibooker.tag(mod_single.NrOfClusterizedStrips, detid);
     mod_single.NrOfClusterizedStrips->setAxisTitle("number of clusterized strips");
   }
 
@@ -1243,7 +1233,6 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single, uint32_t detid, 
                                                          Parameters.getParameter<int32_t>("Nbinsy"),
                                                          Parameters.getParameter<double>("ymin"),
                                                          Parameters.getParameter<double>("ymax"));
-    ibooker.tag(mod_single.Module_ClusWidthVsAmpTH2, detid);
     mod_single.Module_ClusWidthVsAmpTH2->setAxisTitle("Amplitudes (integrated ADC counts)", 1);
     mod_single.Module_ClusWidthVsAmpTH2->setAxisTitle("Cluster widths", 2);
   }
