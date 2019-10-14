@@ -5,7 +5,7 @@
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 VectorHitBuilderAlgorithmBase::VectorHitBuilderAlgorithmBase(const edm::ParameterSet& conf)
     : nMaxVHforeachStack(conf.getParameter<int>("maxVectorHitsInAStack")),
