@@ -6,7 +6,6 @@ from operator import attrgetter,itemgetter
 import sys
 from collections import defaultdict
 import six
-from functools import cmp_to_key
 #----------------------------------------------
 def printHelp():
     s = '''
