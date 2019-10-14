@@ -6,7 +6,6 @@ from operator import attrgetter,itemgetter
 import sys
 from collections import defaultdict
 import six
-
 #----------------------------------------------
 def printHelp():
     s = '''
@@ -422,9 +421,7 @@ def printStalledModulesInOrder(stalledModules):
         t.sort(reverse=True)
         priorities.append((name,sum(t),t))
 
-    def sumSort(i,j):
-        return cmp(i[1],j[1])
-    priorities.sort(cmp=sumSort, reverse=True)
+    priorities.sort(key=lambda a: a[1], reverse=True)
 
     nameColumn = "Stalled Module"
     maxNameSize = max(maxNameSize, len(nameColumn))
