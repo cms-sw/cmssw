@@ -169,23 +169,6 @@ void MuonTrackAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
   }
 }
 
-void MuonTrackAnalyzer::dqmEndRun(DQMStore::IBooker &ibooker) {
-  LogInfo("MuonTrackAnalyzer") << "Number of Sim tracks: " << numberOfSimTracks;
-
-  LogInfo("MuonTrackAnalyzer") << "Number of Reco tracks: " << numberOfRecTracks;
-
-  if (doTracksAnalysis) {
-    double eff = hRecoTracksPCA->computeEfficiency(hSimTracks, ibooker);
-    LogInfo("MuonTrackAnalyzer") << " *Track Efficiency* = " << eff << "%";
-  }
-
-  if (doSeedsAnalysis) {
-    double eff = hRecoSeedInner->computeEfficiency(hSimTracks, ibooker);
-    LogInfo("MuonTrackAnalyzer") << " *Seed Efficiency* = " << eff << "%";
-  }
-  if (!out.empty() && dbe_)
-    dbe_->save(out);
-}
 void MuonTrackAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) {
   LogDebug("MuonTrackAnalyzer") << "Run: " << event.id().run() << " Event: " << event.id().event();
 

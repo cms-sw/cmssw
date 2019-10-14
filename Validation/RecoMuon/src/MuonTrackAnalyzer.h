@@ -70,8 +70,6 @@ public:
                      const edm::EventSetup &eventSetup,
                      edm::Handle<edm::SimTrackContainer> simTracks);
 
-  using DQMEDAnalyzer::endRun;
-  void dqmEndRun(DQMStore::IBooker &ibooker);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 protected:
