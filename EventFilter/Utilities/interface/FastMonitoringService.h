@@ -15,7 +15,7 @@
 #include <boost/thread.hpp>
 
 #include "EventFilter/Utilities/interface/MicroStateService.h"
-#include "EventFilter/Utilities/interface/FastMonitoringThread.h"
+//#include "EventFilter/Utilities/interface/FastMonitoringThread.h"
 
 #include <string>
 #include <vector>
@@ -54,72 +54,103 @@ namespace edm {
 
 namespace evf {
 
-  template <typename T>
-  struct ContainableAtomic {
-    ContainableAtomic() : m_value{} {}
-    ContainableAtomic(T iValue) : m_value(iValue) {}
-    ContainableAtomic(ContainableAtomic<T> const& iOther) : m_value(iOther.m_value.load()) {}
-    ContainableAtomic<T>& operator=(const void* iValue) {
-      m_value.store(iValue, std::memory_order_relaxed);
-      return *this;
-    }
-    operator T() { return m_value.load(std::memory_order_relaxed); }
+  class FastMonitoringThread;
 
-    std::atomic<T> m_value;
-  };
+  namespace FastMonState {
+
+    enum Macrostate {
+      sInit = 0,
+      sJobReady,
+      sRunGiven,
+      sRunning,
+      sStopping,
+      sShuttingDown,
+      sDone,
+      sJobEnded,
+      sError,
+      sErrorEnded,
+      sEnd,
+      sInvalid,
+      MCOUNT
+    };
+
+    enum InputState {
+      inIgnore = 0,
+      inInit,
+      inWaitInput,
+      inNewLumi,
+      inNewLumiBusyEndingLS,
+      inNewLumiIdleEndingLS,
+      inRunEnd,
+      inProcessingFile,
+      inWaitChunk,
+      inChunkReceived,
+      inChecksumEvent,
+      inCachedEvent,
+      inReadEvent,
+      inReadCleanup,
+      inNoRequest,
+      inNoRequestWithIdleThreads,
+      inNoRequestWithGlobalEoL,
+      inNoRequestWithEoLThreads,
+      //supervisor thread and worker threads state
+      inSupFileLimit,
+      inSupWaitFreeChunk,
+      inSupWaitFreeChunkCopying,
+      inSupWaitFreeThread,
+      inSupWaitFreeThreadCopying,
+      inSupBusy,
+      inSupLockPolling,
+      inSupLockPollingCopying,
+      inSupNoFile,
+      inSupNewFile,
+      inSupNewFileWaitThreadCopying,
+      inSupNewFileWaitThread,
+      inSupNewFileWaitChunkCopying,
+      inSupNewFileWaitChunk,
+      //combined with inWaitInput
+      inWaitInput_fileLimit,
+      inWaitInput_waitFreeChunk,
+      inWaitInput_waitFreeChunkCopying,
+      inWaitInput_waitFreeThread,
+      inWaitInput_waitFreeThreadCopying,
+      inWaitInput_busy,
+      inWaitInput_lockPolling,
+      inWaitInput_lockPollingCopying,
+      inWaitInput_runEnd,
+      inWaitInput_noFile,
+      inWaitInput_newFile,
+      inWaitInput_newFileWaitThreadCopying,
+      inWaitInput_newFileWaitThread,
+      inWaitInput_newFileWaitChunkCopying,
+      inWaitInput_newFileWaitChunk,
+      //combined with inWaitChunk
+      inWaitChunk_fileLimit,
+      inWaitChunk_waitFreeChunk,
+      inWaitChunk_waitFreeChunkCopying,
+      inWaitChunk_waitFreeThread,
+      inWaitChunk_waitFreeThreadCopying,
+      inWaitChunk_busy,
+      inWaitChunk_lockPolling,
+      inWaitChunk_lockPollingCopying,
+      inWaitChunk_runEnd,
+      inWaitChunk_noFile,
+      inWaitChunk_newFile,
+      inWaitChunk_newFileWaitThreadCopying,
+      inWaitChunk_newFileWaitThread,
+      inWaitChunk_newFileWaitChunkCopying,
+      inWaitChunk_newFileWaitChunk,
+      inCOUNT
+    };
+  }//namespace FastMonStates
+
 
   class FastMonitoringService : public MicroStateService {
-    struct Encoding {
-      Encoding(unsigned int res) : reserved_(res), current_(reserved_), currentReserved_(0) {
-        if (reserved_)
-          dummiesForReserved_ = new edm::ModuleDescription[reserved_];
-        //	  completeReservedWithDummies();
-      }
-      ~Encoding() {
-        if (reserved_)
-          delete[] dummiesForReserved_;
-      }
-      //trick: only encode state when sending it over (i.e. every sec)
-      int encode(const void* add) {
-        std::unordered_map<const void*, int>::const_iterator it = quickReference_.find(add);
-        return (it != quickReference_.end()) ? (*it).second : 0;
-      }
-      const void* decode(unsigned int index) { return decoder_[index]; }
-      void fillReserved(const void* add, unsigned int i) {
-        //	  translation_[*name]=current_;
-        quickReference_[add] = i;
-        if (decoder_.size() <= i)
-          decoder_.push_back(add);
-        else
-          decoder_[currentReserved_] = add;
-      }
-      void updateReserved(const void* add) {
-        fillReserved(add, currentReserved_);
-        currentReserved_++;
-      }
-      void completeReservedWithDummies() {
-        for (unsigned int i = currentReserved_; i < reserved_; i++)
-          fillReserved(dummiesForReserved_ + i, i);
-      }
-      void update(const void* add) {
-        //	  translation_[*name]=current_;
-        quickReference_[add] = current_;
-        decoder_.push_back(add);
-        current_++;
-      }
-      unsigned int vecsize() { return decoder_.size(); }
-      std::unordered_map<const void*, int> quickReference_;
-      std::vector<const void*> decoder_;
-      unsigned int reserved_;
-      int current_;
-      int currentReserved_;
-      edm::ModuleDescription* dummiesForReserved_;
-    };
 
   public:
     // the names of the states - some of them are never reached in an online app
-    static const std::string macroStateNames[FastMonitoringThread::MCOUNT];
-    static const std::string inputStateNames[FastMonitoringThread::inCOUNT];
+    static const std::string macroStateNames[FastMonState::MCOUNT];
+    static const std::string inputStateNames[FastMonState::inCOUNT];
     // Reserved names for microstates
     // moved into base class in EventFilter/Utilities for compatibility with MicroStateServiceClassic
     static const std::string nopath_;
@@ -178,63 +209,26 @@ namespace evf {
     }
     std::string getRunDirName() const { return runDirectory_.stem().string(); }
     void setInputSource(FedRawDataInputSource* inputSource) { inputSource_ = inputSource; }
-    void setInState(FastMonitoringThread::InputState inputState) { inputState_ = inputState; }
-    void setInStateSup(FastMonitoringThread::InputState inputState) { inputSupervisorState_ = inputState; }
+    void setInState(FastMonState::InputState inputState) { inputState_ = inputState; }
+    void setInStateSup(FastMonState::InputState inputState) { inputSupervisorState_ = inputState; }
 
   private:
     void doSnapshot(const unsigned int ls, const bool isGlobalEOL);
 
-    void doStreamEOLSnapshot(const unsigned int ls, const unsigned int streamID) {
+    //void doStreamEOLSnapshot(const unsigned int ls, const unsigned int streamID) {
       //pick up only event count here
-      fmt_.jsonMonitor_->snapStreamAtomic(ls, streamID);
-    }
+    //  fmt_->jsonMonitor_->snapStreamAtomic(ls, streamID);
+    //}
 
-    void dowork() {  // the function to be called in the thread. Thread completes when function returns.
-      monInit_.exchange(true, std::memory_order_acquire);
-      while (!fmt_.m_stoprequest) {
-        edm::LogInfo("FastMonitoringService")
-            << "Current states: Ms=" << fmt_.m_data.fastMacrostateJ_.value()
-            << " ms=" << encPath_[0].encode(ministate_[0]) << " us=" << encModule_.encode(microstate_[0])
-            << " is=" << inputStateNames[inputState_] << " iss=" << inputStateNames[inputSupervisorState_] << std::endl;
-
-        {
-          std::lock_guard<std::mutex> lock(fmt_.monlock_);
-
-          doSnapshot(lastGlobalLumi_, false);
-
-          if (fastMonIntervals_ && (snapCounter_ % fastMonIntervals_) == 0) {
-            if (filePerFwkStream_) {
-              std::vector<std::string> CSVv;
-              for (unsigned int i = 0; i < nStreams_; i++) {
-                CSVv.push_back(fmt_.jsonMonitor_->getCSVString((int)i));
-              }
-              fmt_.monlock_.unlock();
-              for (unsigned int i = 0; i < nStreams_; i++) {
-                if (!CSVv[i].empty())
-                  fmt_.jsonMonitor_->outputCSV(fastPathList_[i], CSVv[i]);
-              }
-            } else {
-              std::string CSV = fmt_.jsonMonitor_->getCSVString();
-              //release mutex before writing out fast path file
-              fmt_.monlock_.unlock();
-              if (!CSV.empty())
-                fmt_.jsonMonitor_->outputCSV(fastPath_, CSV);
-            }
-          }
-
-          snapCounter_++;
-        }
-        ::sleep(sleepTime_);
-      }
-    }
+    void snapshotRunner();
 
     //the actual monitoring thread is held by a separate class object for ease of maintenance
-    FastMonitoringThread fmt_;
-    Encoding encModule_;
-    std::vector<Encoding> encPath_;
+    std::shared_ptr<FastMonitoringThread> fmt_;
+    //Encoding encModule_;
+    //std::vector<Encoding> encPath_;
     FedRawDataInputSource* inputSource_ = nullptr;
-    std::atomic<FastMonitoringThread::InputState> inputState_{FastMonitoringThread::InputState::inInit};
-    std::atomic<FastMonitoringThread::InputState> inputSupervisorState_{FastMonitoringThread::InputState::inInit};
+    std::atomic<FastMonState::InputState> inputState_{FastMonState::InputState::inInit};
+    std::atomic<FastMonState::InputState> inputSupervisorState_{FastMonState::InputState::inInit};
 
     unsigned int nStreams_;
     unsigned int nThreads_;
@@ -255,12 +249,11 @@ namespace evf {
     unsigned int lumiFromSource_;
 
     //global state
-    std::atomic<FastMonitoringThread::Macrostate> macrostate_;
 
     //per stream
-    std::vector<ContainableAtomic<const void*>> ministate_;
-    std::vector<ContainableAtomic<const void*>> microstate_;
-    std::vector<ContainableAtomic<const void*>> threadMicrostate_;
+    //std::vector<ContainableAtomic<const void*>> ministate_;
+    //std::vector<ContainableAtomic<const void*>> microstate_;
+    //std::vector<ContainableAtomic<const void*>> threadMicrostate_;
 
     //variables measuring source statistics (global)
     //unordered_map is not used because of very few elements stored concurrently
@@ -280,7 +273,6 @@ namespace evf {
 
     std::vector<unsigned long> firstEventId_;
     std::vector<std::atomic<bool>*> collectedPathList_;
-    std::vector<ContainableAtomic<unsigned int>> eventCountForPathInit_;
     std::vector<bool> pathNamesReady_;
 
     std::filesystem::path workingDirectory_, runDirectory_;
