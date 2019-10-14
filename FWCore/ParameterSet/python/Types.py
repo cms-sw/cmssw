@@ -1144,6 +1144,9 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
             pset.insertContentsInto(newparameterset)
             parametersets.append(newparameterset)
         parameterSet.addVPSet(self.isTracked(), myname, parametersets)
+    # XXX FIXME handle refToPSet
+    def directDependencies(self):
+        return []
     def __repr__(self):
         return self.dumpPython()
 
