@@ -24,9 +24,9 @@ hgcalValidator = cms.EDAnalyzer(
     #Multi Cluster related plots
     domulticlustersPlots = cms.untracked.bool(True),
 
-    #The cumulative material budget in front of each layer. To be more specific, it 
-    #is the material budget just in front of the active material (not including it). 
-    #This file is created using the official material budget code. 
+    #The cumulative material budget in front of each layer. To be more specific, it
+    #is the material budget just in front of the active material (not including it).
+    #This file is created using the official material budget code.
     cummatbudinxo = cms.FileInPath('Validation/HGCalValidation/data/D28.cumulative.xo'),
 
     ### sim input configuration ###
