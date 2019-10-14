@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import sys
 
 from builtins import range
 from .Mixins import _ConfigureComponent, PrintOptions
@@ -178,30 +179,7 @@ class _SequenceCollection(_Sequenceable):
         return returnValue
 
     def directDependencies(self):
-        dependencies = []
-        for item in self._collection:
-            # skip null items
-            if item is None:
-                continue
-            # EDFilter, EDProducer, EDAnalyzer, OutputModule
-            # should check for Modules._Module, but that doesn't seem to work
-            elif isinstance(item, _SequenceLeaf):
-                t = 'modules'
-            # cms.ignore(module), ~(module)
-            elif isinstance(item, (_SequenceIgnore, _SequenceNegation)):
-                t = 'modules'
-            # labeled cms.Sequence
-            elif isinstance(item, Sequence):
-                t = 'sequences'
-            # SequencePlaceholder do not add an explicit dependency
-            elif isinstance(item, SequencePlaceholder):
-                continue
-            # unsupported elements
-            else:
-                sys.stderr.write("Warning: found an unsupported element '%s' in Sequence '%s'\n" % (str(item), self.label()))
-                continue
-            dependencies.append((t, item.label()))
-        return dependencies
+        return findDirectDependencies(self, self._collection)
 
     def visitNode(self,visitor):
         for m in self._collection:
@@ -231,6 +209,44 @@ class _SequenceCollection(_Sequenceable):
             self._collection = [ i for i in self._collection if i is not None]
         return didReplace
 
+
+def findDirectDependencies(element, collection):
+    dependencies = []
+    for item in collection:
+        # skip null items
+        if item is None:
+            continue
+        # EDFilter, EDProducer, EDAnalyzer, OutputModule
+        # should check for Modules._Module, but that doesn't seem to work
+        elif isinstance(item, _SequenceLeaf):
+            t = 'modules'
+        # cms.ignore(module), ~(module)
+        elif isinstance(item, (_SequenceIgnore, _SequenceNegation)):
+            if isinstance(item._operand, _SequenceCollection):
+                dependencies += item.directDependencies()
+                continue
+            t = 'modules'
+        # cms.Sequence
+        elif isinstance(item, Sequence):
+            if not item.hasLabel_():
+                dependencies += item.directDependencies()
+                continue
+            t = 'sequences'
+        # cms.Task
+        elif isinstance(item, Task):
+            if not item.hasLabel_():
+                dependencies += item.directDependencies()
+                continue
+            t = 'tasks'
+        # SequencePlaceholder and TaskPlaceholder do not add an explicit dependency
+        elif isinstance(item, (SequencePlaceholder, TaskPlaceholder)):
+            continue
+        # unsupported elements
+        else:
+            sys.stderr.write("Warning: unsupported element '%s' in %s '%s'\n" % (str(item), type(element).__name__, element.label_()))
+            continue
+        dependencies.append((t, item.label_()))
+    return dependencies
 
 
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
@@ -355,7 +371,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         if self._seq:
           result += self._seq.directDependencies()
         if self._tasks:
-          result += [ ('tasks', task.label()) for task in self._tasks ]
+          result += findDirectDependencies(self, self._tasks)
         return result
 
     def moduleNames(self):
@@ -548,6 +564,10 @@ class _UnarySequenceOperator(_BooleanLogicSequenceable):
         self._operand.visitNode(visitor)
     def decoration(self):
         self._operand.decoration()
+    def directDependencies(self):
+        return self._operand.directDependencies()
+    def label_(self):
+        return self._operand.label_()
 
 
 class _SequenceNegation(_UnarySequenceOperator):
@@ -1413,30 +1433,7 @@ class Task(_ConfigureComponent, _Labelable) :
         return "cms.Task(" + s + ")"
 
     def directDependencies(self):
-        dependencies = []
-        for item in self._collection:
-            # skip null items
-            if item is None:
-                continue
-            # EDFilter, EDProducer, EDAnalyzer, OutputModule
-            # should check for Modules._Module, but that doesn't seem to work
-            elif isinstance(item, _SequenceLeaf):
-                t = 'modules'
-            # cms.ignore(module), ~(module)
-            elif isinstance(item, (_SequenceIgnore, _SequenceNegation)):
-                t = 'modules'
-            # labeled cms.Task
-            elif isinstance(item, Task):
-                t = 'tasks'
-            # TaskPlaceholder do not add an explicit dependency
-            elif isinstance(item, TaskPlaceholder):
-                continue
-            # unsupported elements
-            else:
-                sys.stderr.write("Warning: found an unsupported element '%s' in Task '%s'\n" % (str(item), self.label()))
-                continue
-            dependencies.append((t, item.label()))
-        return dependencies
+        return findDirectDependencies(self, self._collection)
 
     def _isTaskComponent(self):
         return True
