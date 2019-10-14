@@ -12,11 +12,18 @@ sys.path.append(os.getcwd())
 parser = argparse.ArgumentParser(description="Expand python configuration")
 parser.add_argument("filename",
                     help="Python configuration file")
+parser.add_argument("--prune", action="store_true",
+                    help="Prune the configuration before printing it")
+parser.add_argument("--pruneVerbose", action="store_true",
+                    help="With --prune, be verbose on what is pruned")
 
 options = parser.parse_args()
 handle = open(options.filename, 'r')
 cfo = imp.load_source("pycfg", options.filename, handle)
 cmsProcess = cfo.process
 handle.close()
+
+if options.prune:
+    cmsProcess.prune(options.pruneVerbose)
 
 print(cmsProcess.dumpPython())
