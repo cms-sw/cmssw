@@ -51,5 +51,16 @@ args.file.close()
 options = PrintOptions()
 options.useSubdirectories = args.subdirectories
 options.targetDirectory = args.output_directory
-args.output.write(process.splitPython(options))
+
+files = process.splitPython(options)
+for fn, c in files.iteritems():
+  if fn == '-':
+    continue
+  d = os.path.dirname(fn)
+  if d and not os.path.isdir(d):
+    os.makedirs(d)
+  with open(fn, 'w') as f:
+    f.write(c)
+
+args.output.write(files['-'])
 args.output.close()
