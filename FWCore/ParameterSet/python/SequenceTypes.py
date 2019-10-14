@@ -180,14 +180,26 @@ class _SequenceCollection(_Sequenceable):
     def directDependencies(self):
         dependencies = []
         for item in self._collection:
-            if type(item).__name__ in ("EDFilter", "EDProducer", "EDAnalyzer", "OutputModule"):
+            # skip null items
+            if item is None:
+                continue
+            # EDFilter, EDProducer, EDAnalyzer, OutputModule
+            # should check for Modules._Module, but that doesn't seem to work
+            elif isinstance(item, _SequenceLeaf):
                 t = 'modules'
-            elif type(item).__name__ in ("_SequenceIgnore", "_SequenceNegation"):
+            # cms.ignore(module), ~(module)
+            elif isinstance(item, (_SequenceIgnore, _SequenceNegation)):
                 t = 'modules'
-            elif type(item).__name__ in ("Sequence"):
+            # labeled cms.Sequence
+            elif isinstance(item, Sequence):
                 t = 'sequences'
+            # SequencePlaceholder do not add an explicit dependency
+            elif isinstance(item, SequencePlaceholder):
+                continue
+            # unsupported elements
             else:
-                t = ''
+                sys.stderr.write("Warning: found an unsupported element '%s' in Sequence '%s'\n" % (str(item), self.label()))
+                continue
             dependencies.append((t, item.label()))
         return dependencies
 
@@ -1399,6 +1411,32 @@ class Task(_ConfigureComponent, _Labelable) :
         if len(taskContents) > 255:
             return "cms.Task(*[" + s + "])"
         return "cms.Task(" + s + ")"
+
+    def directDependencies(self):
+        dependencies = []
+        for item in self._collection:
+            # skip null items
+            if item is None:
+                continue
+            # EDFilter, EDProducer, EDAnalyzer, OutputModule
+            # should check for Modules._Module, but that doesn't seem to work
+            elif isinstance(item, _SequenceLeaf):
+                t = 'modules'
+            # cms.ignore(module), ~(module)
+            elif isinstance(item, (_SequenceIgnore, _SequenceNegation)):
+                t = 'modules'
+            # labeled cms.Task
+            elif isinstance(item, Task):
+                t = 'tasks'
+            # TaskPlaceholder do not add an explicit dependency
+            elif isinstance(item, TaskPlaceholder):
+                continue
+            # unsupported elements
+            else:
+                sys.stderr.write("Warning: found an unsupported element '%s' in Task '%s'\n" % (str(item), self.label()))
+                continue
+            dependencies.append((t, item.label()))
+        return dependencies
 
     def _isTaskComponent(self):
         return True
