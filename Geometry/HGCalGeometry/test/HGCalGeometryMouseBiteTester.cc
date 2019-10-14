@@ -60,19 +60,19 @@ void HGCalGeometryMouseBiteTester::analyze(const edm::Event&, const edm::EventSe
   int types[] = {0, 1};
   for (int type : types) {
     int ncell = (type == 0) ? HGCSiliconDetId::HGCalFineN : HGCSiliconDetId::HGCalCoarseN;
-    std::cout << "zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV << " type " << type 
-	      << " cells " << ncell << std::endl;
+    std::cout << "zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV << " type " << type
+              << " cells " << ncell << std::endl;
     for (int u = 0; u < 2 * ncell; ++u) {
       for (int v = 0; v < 2 * ncell; ++v) {
         if (((v - u) < ncell) && ((u - v) <= ncell)) {
-	  if (det == DetId::Forward) {
-	    HFNoseDetId id(zside, type, layer, waferU, waferV, u, v);
-	    std::cout << "ID: " << id << " with exclude flag " << bite->exclude(id) << std::endl;
-	  } else {
-	    HGCSiliconDetId id(det, zside, type, layer, waferU, waferV, u, v);
-	    std::cout << "ID: " << id << " with exclude flag " << bite->exclude(id) << std::endl;
-	  }
-	}
+          if (det == DetId::Forward) {
+            HFNoseDetId id(zside, type, layer, waferU, waferV, u, v);
+            std::cout << "ID: " << id << " with exclude flag " << bite->exclude(id) << std::endl;
+          } else {
+            HGCSiliconDetId id(det, zside, type, layer, waferU, waferV, u, v);
+            std::cout << "ID: " << id << " with exclude flag " << bite->exclude(id) << std::endl;
+          }
+        }
       }
     }
   }

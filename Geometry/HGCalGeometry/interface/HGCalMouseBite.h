@@ -12,15 +12,16 @@
 
 class HGCalMouseBite {
 public:
-  HGCalMouseBite(const HGCalDDDConstants& hgc, bool waferRotate=false);
+  HGCalMouseBite(const HGCalDDDConstants& hgc, bool waferRotate = false);
   template <class T>
-    bool exclude(const T& id) {
+  bool exclude(const T& id) {
     int iuv = (100 * id.cellU() + id.cellV());
-    bool check = ((id.type() == 0) ? (std::find(rejectFine_.begin(), rejectFine_.end(), iuv) != rejectFine_.end()) :
-		  (std::find(rejectCoarse_.begin(), rejectCoarse_.end(), iuv) != rejectCoarse_.end()));
+    bool check =
+        ((id.type() == 0) ? (std::find(rejectFine_.begin(), rejectFine_.end(), iuv) != rejectFine_.end())
+                          : (std::find(rejectCoarse_.begin(), rejectCoarse_.end(), iuv) != rejectCoarse_.end()));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "HGCalMouseBite:: DetId " << id << " is checked to be in the list of masked ID's with flag "
-				  << check;
+    edm::LogVerbatim("HGCalGeom") << "HGCalMouseBite:: DetId " << id
+                                  << " is checked to be in the list of masked ID's with flag " << check;
 #endif
     return check;
   }
