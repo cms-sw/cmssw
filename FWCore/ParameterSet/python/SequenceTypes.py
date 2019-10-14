@@ -226,6 +226,10 @@ def findDirectDependencies(element, collection):
                 dependencies += item.directDependencies()
                 continue
             t = 'modules'
+        # _SequenceCollection
+        elif isinstance(item, _SequenceCollection):
+            dependencies += item.directDependencies()
+            continue
         # cms.Sequence
         elif isinstance(item, Sequence):
             if not item.hasLabel_():
