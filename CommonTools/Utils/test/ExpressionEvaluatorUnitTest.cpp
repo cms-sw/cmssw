@@ -74,10 +74,10 @@ int main() {
 
   // stress test
   std::atomic<int> j(0);
-#pragma omp parallel num_threads(8)
+#pragma omp parallel num_threads(2)
   {
     reco::genericExpression<bool, int, int> const* acut = nullptr;
-    for (int i = 0; i < 200; ++i) {
+    for (int i = 0; i < 20; ++i) {
       acut = reco_expressionEvaluator("CommonTools/Utils", SINGLE_ARG(reco::genericExpression<bool, int, int>), cut);
       (*acut)(2, 7);
       std::cerr << j++ << ',';
