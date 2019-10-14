@@ -19,7 +19,7 @@
 
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
