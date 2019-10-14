@@ -1,6 +1,7 @@
 <export>
   <lib   name="1"/>
 </export>
+<use   name="DataFormats/GeometryCommonDetAlgo"/>
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/DetId"/>
 <use   name="FWCore/Utilities"/>
