@@ -422,8 +422,6 @@ def printStalledModulesInOrder(stalledModules):
         t.sort(reverse=True)
         priorities.append((name,sum(t),t))
 
-    def sumSort(i,j):
-        return cmp(i[1],j[1])
     priorities.sort(key=lambda a: a[1], reverse=True)
 
     nameColumn = "Stalled Module"
