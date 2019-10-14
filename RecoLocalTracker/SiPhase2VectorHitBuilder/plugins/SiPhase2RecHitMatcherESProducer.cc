@@ -15,30 +15,33 @@ public:
   SiPhase2RecHitMatcherESProducer(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   std::shared_ptr<VectorHitBuilderEDProducer> produce(const TkPhase2OTCPERecord&);
-  edm::ESGetToken<TrackerGeometry, TkPhase2OTCPERecord> tGeomToken_;
-  edm::ESGetToken<TrackerTopology, TkPhase2OTCPERecord> tTopoToken_;
 
 private:
   std::string name_;
+  std::shared_ptr<VectorHitBuilderEDProducer> matcher_;
   edm::ParameterSet pset_;
 };
 
 SiPhase2RecHitMatcherESProducer::SiPhase2RecHitMatcherESProducer(const edm::ParameterSet& p) {
   name_ = p.getParameter<std::string>("ComponentName");
   pset_ = p;
-  auto cc = setWhatProduced(this, name_);
-  tGeomToken_ = cc.consumes<TrackerGeometry>();
-  tTopoToken_ = cc.consumes<TrackerTopology>();
+  setWhatProduced(this, name_);
 }
 
 std::shared_ptr<VectorHitBuilderEDProducer> SiPhase2RecHitMatcherESProducer::produce(
     const TkPhase2OTCPERecord& iRecord) {
-//  if (name_ == "SiPhase2VectorHitMatcher") {
-    std::shared_ptr<VectorHitBuilderEDProducer> matcher_ = std::make_shared<VectorHitBuilderEDProducer>(pset_);
+  if (name_ == "SiPhase2VectorHitMatcher") {
+    matcher_ = std::make_shared<VectorHitBuilderEDProducer>(pset_);
 
-    matcher_->algo()->initTkGeom(iRecord.getHandle(tGeomToken_));
-    matcher_->algo()->initTkTopo(iRecord.getHandle(tTopoToken_));
-//  }
+    edm::ESHandle<TrackerGeometry> tGeomHandle;
+    edm::ESHandle<TrackerTopology> tTopoHandle;
+
+    iRecord.getRecord<TrackerDigiGeometryRecord>().get(tGeomHandle);
+    iRecord.getRecord<TrackerTopologyRcd>().get(tTopoHandle);
+
+    matcher_->algo()->initTkGeom(tGeomHandle);
+    matcher_->algo()->initTkTopo(tTopoHandle);
+  }
   return matcher_;
 }
 
@@ -71,7 +74,7 @@ void SiPhase2RecHitMatcherESProducer::fillDescriptions(edm::ConfigurationDescrip
                                     0.1,
                                     0.1,
                                 });
-  descriptions.add("siPhase2RecHitMatcherESProducer", desc);
+  descriptions.add("SiPhase2RecHitMatcherESProducer", desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPhase2RecHitMatcherESProducer);
