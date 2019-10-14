@@ -1057,7 +1057,7 @@ class Process(object):
         """ Remove clutter from the process that we think is unnecessary:
         tracked PSets, VPSets and unused modules and sequences. If a Schedule has been set, then Paths and EndPaths
         not in the schedule will also be removed, along with an modules and sequences used only by
-        those removed Paths and EndPaths."""
+        those removed Paths and EndPaths. The keepUnresolvedSequencePlaceholders keeps also unresolved TaskPlaceholders."""
 # need to update this to only prune psets not on refToPSets
 # but for now, remove the delattr
 #        for name in self.psets_():
@@ -1087,23 +1087,32 @@ class Process(object):
         unneededModules.update(self._pruneModules(self.switchProducers_(), usedModules))
         unneededModules.update(self._pruneModules(self.filters_(), usedModules))
         unneededModules.update(self._pruneModules(self.analyzers_(), usedModules))
-        #remove sequences that do not appear in remaining paths and endpaths
+        #remove sequences and tasks that do not appear in remaining paths and endpaths
         seqs = list()
+        tasks = list()
         sv = SequenceVisitor(seqs)
+        tv = TaskVisitor(tasks)
         for p in six.itervalues(self.paths):
             p.visit(sv)
+            p.visit(tv)
         for p in six.itervalues(self.endpaths):
             p.visit(sv)
-        keepSeqSet = set(( s for s in seqs if s.hasLabel_()))
-        availableSeqs = set(six.itervalues(self.sequences))
-        unneededSeqs = availableSeqs-keepSeqSet
-        unneededSeqLabels = []
-        for s in unneededSeqs:
-            unneededSeqLabels.append(s.label_())
-            delattr(self,s.label_())
+            p.visit(tv)
+        def removeUnneeded(seqOrTasks, allSequencesOrTasks):
+            _keepSet = set(( s for s in seqOrTasks if s.hasLabel_()))
+            _availableSet = set(six.itervalues(allSequencesOrTasks))
+            _unneededSet = _availableSet-_keepSet
+            _unneededLabels = []
+            for s in _unneededSet:
+                _unneededLabels.append(s.label_())
+                delattr(self,s.label_())
+            return _unneededLabels
+        unneededSeqLabels = removeUnneeded(seqs, self.sequences)
+        unneededTaskLabels = removeUnneeded(tasks, self.tasks)
         if verbose:
             print("prune removed the following:")
             print("  modules:"+",".join(unneededModules))
+            print("  tasks:"+",".join(unneededTaskLabels))
             print("  sequences:"+",".join(unneededSeqLabels))
             print("  paths/endpaths:"+",".join(unneededPaths))
     def _pruneModules(self, d, scheduledNames):
@@ -2779,8 +2788,12 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.b = EDAnalyzer("YourAnalyzer")
             p.c = EDAnalyzer("OurAnalyzer")
             p.d = EDAnalyzer("OurAnalyzer")
+            p.e = EDProducer("MyProducer")
+            p.f = EDProducer("YourProducer")
             p.s = Sequence(p.d)
-            p.path1 = Path(p.a)
+            p.t1 = Task(p.e)
+            p.t2 = Task(p.f)
+            p.path1 = Path(p.a, p.t1)
             p.path2 = Path(p.b)
             self.assert_(p.schedule is None)
             pths = p.paths
@@ -2796,7 +2809,10 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assert_(hasattr(p, 'b'))
             self.assert_(not hasattr(p, 'c'))
             self.assert_(not hasattr(p, 'd'))
+            self.assert_(hasattr(p, 'e'))
             self.assert_(not hasattr(p, 's'))
+            self.assert_(hasattr(p, 't1'))
+            self.assert_(not hasattr(p, 't2'))
             self.assert_(hasattr(p, 'path1'))
             self.assert_(hasattr(p, 'path2'))
 #            self.assert_(not hasattr(p, 'pset1'))
@@ -2856,6 +2872,27 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assert_(hasattr(p, 's'))
             self.assert_(hasattr(p, 'pth'))
             self.assertEqual(p.s.dumpPython(),'cms.Sequence(cms.SequencePlaceholder("a")+process.b)\n')
+            #test TaskPlaceholder
+            p = Process("test")
+            p.a = EDProducer("MyProducer")
+            p.b = EDProducer("YourProducer")
+            p.s = Task(TaskPlaceholder("a"),p.b)
+            p.pth = Path(p.s)
+            p.prune()
+            self.assert_(hasattr(p, 'a'))
+            self.assert_(hasattr(p, 'b'))
+            self.assert_(hasattr(p, 's'))
+            self.assert_(hasattr(p, 'pth'))
+            #test unresolved SequencePlaceholder
+            p = Process("test")
+            p.b = EDProducer("YourAnalyzer")
+            p.s = Task(TaskPlaceholder("a"),p.b)
+            p.pth = Path(p.s)
+            p.prune(keepUnresolvedSequencePlaceholders=True)
+            self.assert_(hasattr(p, 'b'))
+            self.assert_(hasattr(p, 's'))
+            self.assert_(hasattr(p, 'pth'))
+            self.assertEqual(p.s.dumpPython(),'cms.Task(cms.TaskPlaceholder("a"), process.b)\n')
         def testTaskPlaceholder(self):
             p = Process("test")
             p.a = EDProducer("ma")
