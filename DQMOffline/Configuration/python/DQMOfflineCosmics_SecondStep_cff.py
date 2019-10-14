@@ -67,7 +67,6 @@ DQMOfflineCosmics_SecondStep_PrePOG = cms.Sequence( DQMOfflineCosmics_SecondStep
                                                     DQMOfflineCosmics_SecondStepMUO *
                                                     DQMOfflineCosmics_SecondStepEGamma *
                                                     DQMOfflineCosmics_SecondStepL1T *
-                                                    DQMOfflineCosmics_SecondStepTrigger *
                                                     DQMOfflineCosmics_SecondStepJetMET 
                                                     )
 
@@ -80,6 +79,7 @@ DQMOfflineCosmics_SecondStepPOG = cms.Sequence(
 DQMOfflineCosmics_SecondStep = cms.Sequence( 
                                              DQMOfflineCosmics_SecondStep_PreDPG *
                                              DQMOfflineCosmics_SecondStep_PrePOG *
+					     DQMOfflineCosmics_SecondStepTrigger *
                                              DQMMessageLoggerClientSeq )
 
 DQMOfflineCosmics_SecondStep_FakeHLT = cms.Sequence(DQMOfflineCosmics_SecondStep ) 
