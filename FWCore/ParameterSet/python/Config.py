@@ -1010,15 +1010,16 @@ class Process(object):
         for (name, (subfolder, code)) in six.iteritems(parts):
             filename = name + '_cfi'
             if options.useSubdirectories and subfolder:
-              filename = subfolder + '/' + filename
+                filename = subfolder + '/' + filename
             if options.targetDirectory is not None:
-              filename = options.targetDirectory + '/' + filename
+                filename = options.targetDirectory + '/' + filename
             result += 'process.load("%s")\n' % filename
             with open('%s.py' % filename, 'w') as f:
               f.write(header + '\n\n')
               f.write(code)
 
         if self.schedule_() is not None:
+            options.isCfg = True
             result += 'process.schedule = ' + self.schedule.dumpPython(options)
 
         imports = specialImportRegistry.getSpecialImports()
