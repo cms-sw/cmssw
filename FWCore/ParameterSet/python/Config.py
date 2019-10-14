@@ -957,21 +957,22 @@ class Process(object):
         return header+result
 
     def splitPython(self, options = PrintOptions()):
-        """return a map of names to python configuration fragments"""
+        """return a map of file names to python configuration fragments"""
         specialImportRegistry._reset()
         # extract individual fragments
         options.isCfg = False
         header = "import FWCore.ParameterSet.Config as cms"
         result = ''
         parts = {}
+        files = {}
 
         result = 'process = cms.Process("' + self.__name + '")\n\n'
 
         if self.source_():
-            parts['source'] = None, 'source = ' + self.source_().dumpPython(options)
+            parts['source'] = (None, 'source = ' + self.source_().dumpPython(options))
 
         if self.looper_():
-            parts['looper'] = None, 'looper = ' + self.looper_().dumpPython()
+            parts['looper'] = (None, 'looper = ' + self.looper_().dumpPython())
 
         parts.update(self._splitPythonList('psets', self.psets, options))
         parts.update(self._splitPythonList('psets', self.vpsets, options))
@@ -995,17 +996,13 @@ class Process(object):
         parts.update(self._splitPythonList('modules', self.aliases_(), options))
 
         if options.targetDirectory is not None:
-            if not os.path.isdir(options.targetDirectory):
-                os.makedirs(options.targetDirectory)
-            open(options.targetDirectory + '/__init__.py', 'w').close()
+            files[options.targetDirectory + '/__init__.py'] = ''
 
         if options.useSubdirectories:
           for sub in 'psets', 'modules', 'services', 'eventsetup', 'tasks', 'sequences', 'paths':
             if options.targetDirectory is not None:
                 sub = options.targetDirectory + '/' + sub
-            if not os.path.isdir(sub):
-                os.makedirs(sub)
-            open(sub + '/__init__.py', 'w').close()
+            files[sub + '/__init__.py'] = ''
 
         for (name, (subfolder, code)) in six.iteritems(parts):
             filename = name + '_cfi'
@@ -1014,9 +1011,7 @@ class Process(object):
             if options.targetDirectory is not None:
                 filename = options.targetDirectory + '/' + filename
             result += 'process.load("%s")\n' % filename
-            with open('%s.py' % filename, 'w') as f:
-              f.write(header + '\n\n')
-              f.write(code)
+            files[filename + '.py'] = header + '\n\n' + code
 
         if self.schedule_() is not None:
             options.isCfg = True
@@ -1024,9 +1019,9 @@ class Process(object):
 
         imports = specialImportRegistry.getSpecialImports()
         if len(imports) > 0:
-            header += "\n" + "\n".join(imports)
-        header += "\n\n"
-        return header+result
+            header += '\n' + '\n'.join(imports)
+        files['-'] = header + '\n\n' + result
+        return files
 
     def _replaceInSequences(self, label, new):
         old = getattr(self,label)
