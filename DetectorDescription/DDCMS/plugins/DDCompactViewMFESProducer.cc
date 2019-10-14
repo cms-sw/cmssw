@@ -24,7 +24,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DD4hep/Detector.h"
@@ -61,7 +61,7 @@ void DDCompactViewMFESProducer::fillDescriptions(edm::ConfigurationDescriptions&
 
 DDCompactViewMFESProducer::ReturnType DDCompactViewMFESProducer::produce(const IdealMagneticFieldRecord& iRecord) {
   edm::ESHandle<DDDetector> det;
-  iRecord.getRecord<GeometryFileRcd>().get(m_label, det);
+  iRecord.get(m_label, det);
 
   auto product = std::make_unique<DDCompactView>(*det);
   return product;
