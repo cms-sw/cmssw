@@ -1010,7 +1010,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
    
    // If the sideloading is turned on, xtemp_ and ytemp_ are already set to what they need to be.
    // So we'll just exit.
-   if ( entry_sideloaded_ == nullptr ) {
+   if ( entry_sideloaded_ != nullptr ) {
      success_ = true;
      return success_ ;
    }
