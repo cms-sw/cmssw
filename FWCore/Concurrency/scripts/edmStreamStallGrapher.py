@@ -424,7 +424,7 @@ def printStalledModulesInOrder(stalledModules):
 
     def sumSort(i,j):
         return cmp(i[1],j[1])
-    priorities.sort(key=cmp_to_key(sumSort), reverse=True)
+    priorities.sort(key=lambda a: a[1], reverse=True)
 
     nameColumn = "Stalled Module"
     maxNameSize = max(maxNameSize, len(nameColumn))
