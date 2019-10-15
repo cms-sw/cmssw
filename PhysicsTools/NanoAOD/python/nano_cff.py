@@ -316,12 +316,6 @@ def nanoAOD_customizeData(process):
     process = nanoAOD_recalibrateMETs(process,isData=True)
     for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(process, lambda p: nanoAOD_runMETfixEE2017(p,isData=True))
-    process.unpackedPatTrigger.triggerResults = "TriggerResults::reHLT"
-    (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(
-        unpackedPatTrigger,
-        triggerResults = "TriggerResults::HLT"
-    )
-
     return process
 
 def nanoAOD_customizeMC(process):
