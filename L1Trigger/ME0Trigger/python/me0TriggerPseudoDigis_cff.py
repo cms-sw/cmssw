@@ -32,5 +32,8 @@ me0TriggerPseudoDigiTask = cms.Task(
     simMuonME0PseudoReDigisCoarse,
     me0RecHitsCoarse,
     me0TriggerPseudoDigis,
+    ## need to run the standard ME0 RECO sequence for converted triggers
+    me0RecHits,
+    me0Segments,
     me0TriggerConvertedPseudoDigis
 )
