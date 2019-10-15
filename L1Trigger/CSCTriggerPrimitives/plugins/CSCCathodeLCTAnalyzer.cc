@@ -123,9 +123,9 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(const CSCCLCTDigi& c
     int max_pattern_strips, layer, strip;
     max_pattern_strips = CSCConstants::MAX_HALFSTRIPS_IN_PATTERN;
     for (int i_strip = 0; i_strip < max_pattern_strips; i_strip++) {
-      layer = CSCPatternBank::clct_pattern2007[clct_pattern][i_strip];
+      layer = CSCPatternBank::clct_pattern[clct_pattern][i_strip];
       if (layer == i_layer) {
-        strip = clct_keystrip + key_stagger + CSCPatternBank::clct_pattern2007_offset[i_strip];
+        strip = clct_keystrip + key_stagger + CSCPatternBank::clct_pattern_offset[i_strip];
         if (strip >= 0 && strip < CSCConstants::NUM_HALF_STRIPS) {
           digiId = hfstripDigis[strip];
           // halfstripDigis contains the digi numbers

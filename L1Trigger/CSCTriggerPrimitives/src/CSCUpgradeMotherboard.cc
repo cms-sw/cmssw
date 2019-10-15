@@ -117,8 +117,8 @@ void CSCUpgradeMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCCo
   // ALCT centric matching
   for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {
     if (alctProc->getBestALCT(bx_alct).isValid()) {
-      const int bx_clct_start(bx_alct - match_trig_window_size / 2);
-      const int bx_clct_stop(bx_alct + match_trig_window_size / 2);
+      const int bx_clct_start(bx_alct - match_trig_window_size / 2 - alctClctOffset_);
+      const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - alctClctOffset_);
 
       if (debug_matching) {
         LogTrace("CSCUpgradeMotherboard")

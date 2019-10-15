@@ -678,7 +678,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
             //ptn_trig = true;
             keystrip_data[ilct][CLCT_PATTERN] = best_pid[best_hs];
             keystrip_data[ilct][CLCT_BEND] =
-                CSCPatternBank::clct_pattern2007[best_pid[best_hs]][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
+                CSCPatternBank::clct_pattern[best_pid[best_hs]][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
             // Remove stagger if any.
             keystrip_data[ilct][CLCT_STRIP] = best_hs - stagger[CSCConstants::KEY_CLCT_LAYER - 1];
             keystrip_data[ilct][CLCT_BX] = first_bx;
@@ -834,7 +834,7 @@ bool CSCCathodeLCTProcessor::preTrigger(
 
           // write each pre-trigger to output
           nPreTriggers++;
-          const int bend = CSCPatternBank::clct_pattern2007[best_pid[hstrip]][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
+          const int bend = CSCPatternBank::clct_pattern[best_pid[hstrip]][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
           const int halfstrip = hstrip % CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
           const int cfeb = hstrip / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
           thePreTriggerDigis.push_back(CSCCLCTPreTriggerDigi(
@@ -900,9 +900,9 @@ bool CSCCathodeLCTProcessor::patternFinding(
       // Loop over halfstrips in trigger pattern mask and calculate the
       // "absolute" halfstrip number for each.
       for (int strip_num = 0; strip_num < CSCConstants::MAX_HALFSTRIPS_IN_PATTERN; strip_num++) {
-        int this_layer = CSCPatternBank::clct_pattern2007[pid][strip_num];
+        int this_layer = CSCPatternBank::clct_pattern[pid][strip_num];
         if (this_layer >= 0 && this_layer < CSCConstants::NUM_LAYERS) {
-          int this_strip = CSCPatternBank::clct_pattern2007_offset[strip_num] + key_hstrip;
+          int this_strip = CSCPatternBank::clct_pattern_offset[strip_num] + key_hstrip;
           if (this_strip >= 0 && this_strip < nStrips) {
             if (infoV > 3)
               LogTrace("CSCCathodeLCTProcessor")

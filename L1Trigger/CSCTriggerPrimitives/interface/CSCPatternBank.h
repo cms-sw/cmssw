@@ -33,8 +33,10 @@ public:
   // Pattern[i][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN] contains bend direction.
   // Bend of 0 is right/straight and bend of 1 is left.
   // Pattern[i][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN+1] contains pattern maximum width
-  static const int clct_pattern2007_offset[CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
-  static const int clct_pattern2007[CSCConstants::NUM_CLCT_PATTERNS][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN + 2];
+  static const int clct_pattern[CSCConstants::NUM_CLCT_PATTERNS][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN + 2];
+
+  // half strip offsets per layer for each half strip in the pattern envelope
+  static const int clct_pattern_offset[CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
 };
 
 #endif
