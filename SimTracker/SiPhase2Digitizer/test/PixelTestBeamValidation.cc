@@ -23,7 +23,6 @@
 
 // system
 #include <algorithm>
-#include <set>
 
 // XXX - Be careful the relative position
 #include "PixelTestBeamValidation.h"
@@ -32,6 +31,8 @@
 const double unit_um = 1e-4; // [cm]
 const double unit_mm = 1e-1; // [cm]
 
+const double unit_degree = 0.017453292519943295; // [rad]
+
 using Phase2TrackerGeomDetUnit = PixelGeomDetUnit;
 
 
@@ -39,6 +40,8 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
     config_(iConfig),
     geomType_(iConfig.getParameter<std::string>("GeometryType")),
     //phiValues(iConfig.getParameter<std::vector<double> >("PhiAngles")),
+    tracksEntryAngleX_(iConfig.getUntrackedParameter<std::vector<double>>("TracksEntryAngleX",std::vector<double>())),
+    tracksEntryAngleY_(iConfig.getUntrackedParameter<std::vector<double>>("TracksEntryAngleY",std::vector<double>())),
     digiToken_(consumes<edm::DetSetVector<PixelDigi> >(
                 iConfig.getParameter<edm::InputTag>("PixelDigiSource"))),
     digiSimLinkToken_(consumes<edm::DetSetVector<PixelDigiSimLink> >(
@@ -53,6 +56,60 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
     for(const auto & itag: psimhit_v)
     {
         simHitTokens_.push_back(consumes<edm::PSimHitContainer>(itag));
+    }
+
+    // Parse the entry angles parameters 
+    // helper map to de
+    std::map<std::string,std::vector<double>* > prov_ref_m;
+    // Get the range of entry angles for the tracks on the detector surfaces, if any
+    if(tracksEntryAngleX_.size() != 0)
+    {
+        prov_ref_m["X"] = &tracksEntryAngleX_;
+    }
+    if(tracksEntryAngleY_.size() != 0)
+    {
+        prov_ref_m["Y"] = &tracksEntryAngleY_;
+    }
+
+    // translation from string to int
+    std::map<std::string, unsigned int> conversor({ {"X",0}, {"Y",1} });
+    
+    // For each range vector do some consistency checks
+    for(const auto & label_v: prov_ref_m)
+    {
+        // If provided 2
+        if(label_v.second->size() == 2)
+        {
+            // Just order the ranges, lower index the minimum 
+            std::sort(label_v.second->begin(), label_v.second->end());
+        }
+        else if(label_v.second->size() == 1)
+        {
+            // Create the range with  a +- 1 deg
+            label_v.second->push_back((*label_v.second)[0]+1.*unit_degree);
+            (*label_v.second)[0] -= 1.*unit_degree;
+        }
+        else
+        {
+            // Not valid, 
+            throw cms::Exception("Configuration") 
+                << "Setup TrackEntryAngle parameters"
+                << "Invalid number of elements in 'TracksEntryAngle" 
+                << label_v.first << ".size()' = "
+                << label_v.second->size() << ". Valid sizes are 1 or 2.";
+        }
+        active_entry_angles_[conversor[label_v.first]] = std::pair<double,double>({(*label_v.second)[0],(*label_v.second)[1]}); 
+    }
+
+    if(prov_ref_m.size() != 0)
+    {
+        // The algorithm is defined in the implementation of _check_input_angles_
+        use_this_track_= std::bind(&PixelTestBeamValidation::_check_input_angles_,this, std::placeholders::_1);
+    }
+    else
+    {
+        // There is no requiremnt, so always process it
+        use_this_track_ = [] (const PSimHit *) -> bool { return true; };
     }
 }
 
@@ -75,8 +132,9 @@ void PixelTestBeamValidation::dqmBeginRun(const edm::Run& iRun, const edm::Event
 //
 void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-    // First clear the memoizer
+    // First clear the memoizers
     m_tId_det_simhits_.clear();
+    m_illuminated_pixels_.clear();
 
     // Get digis and the simhit links and the simhits
     edm::Handle<edm::DetSetVector<PixelDigiSimLink> > digiSimLinkHandle;
@@ -187,22 +245,27 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
         {
             // -- Get the set of simulated hits from this trackid. 
             // -- Each Particle SimHit (PSimHit) is defining a particle passing through the detector unit
-            const edm::PSimHitContainer current_psimhits = get_simhits_from_trackid_(st_ch.first,detId.rawId(),simhits);
+            const std::vector<const PSimHit*> current_psimhits = get_simhits_from_trackid_(st_ch.first,detId.rawId(),simhits);
             //const auto current_pixel(PixelDigi::channelToPixel(ch));
             
             // -- Loop over the PSimHits and match with the digi clusters
-            for(const auto & ps: current_psimhits)
+            for(const auto * ps: current_psimhits)
             {
+                // Check user conditions to accept the hits
+//                if( ! use_this_track_(&ps) )
+//                {
+//                    continue;
+//                }
                 // Fill some sim histograms
-                const GlobalPoint tk_ep_gbl(dunit->surface().toGlobal(ps.entryPoint()));
+                const GlobalPoint tk_ep_gbl(dunit->surface().toGlobal(ps->entryPoint()));
                 vME_track_XYMap_->Fill(tk_ep_gbl.x(),tk_ep_gbl.y());
                 vME_track_RZMap_->Fill(tk_ep_gbl.z(),std::hypot(tk_ep_gbl.x(),tk_ep_gbl.y()));
-                vME_track_dxdzAngle_[me_unit]->Fill(ps.thetaAtEntry());
-                vME_track_dydzAngle_[me_unit]->Fill(ps.phiAtEntry());
+                vME_track_dxdzAngle_[me_unit]->Fill(ps->thetaAtEntry());
+                vME_track_dydzAngle_[me_unit]->Fill(ps->phiAtEntry());
                 
                 // Obtain the detected position of the sim particle: 
                 // the middle point between the entry and the exit
-                const auto psh_pos = tkDetUnit->specificTopology().measurementPosition(ps.localPosition()); 
+                const auto psh_pos = tkDetUnit->specificTopology().measurementPosition(ps->localPosition()); 
 
                 // Build the digi MC-truth clusters by matching each Particle 
                 // sim hit position pixel cell. The matching condition:
@@ -222,10 +285,11 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
                     {
                         continue;
                     }
-                    // Digi was created by the current psimhit?
+                    // Digi was created by the current psimhit? 
                     // Accepting +-2 pixel -- XXX: Actually the entryPoint-exitPoint 
                     // could provide the extension of the cluster
-                    if( ! channel_iluminated_by_(psh_pos,ch,2.0) )
+                    //if( ! channel_iluminated_by_(psh_pos,ch,2.0) )
+                    if( ! channel_iluminated_by_(*ps,ch,tkDetUnit) )
                     {
                         continue;
                     }
@@ -368,8 +432,8 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
             }
             else
             {
-                cms::Exception("Tracker subdetector '") << dtype.subDetector() << "'"
-                    << " malformed: does not belong to the Endcap neither the Barrel";
+                cms::Exception("Geometry") << "Tracker subdetector '" << dtype.subDetector() 
+                    << "' malformed: does not belong to the Endcap neither the Barrel";
             }
             folder_name += "/Layer"+std::to_string(layer);
 
@@ -555,7 +619,7 @@ const PixelDigi & PixelTestBeamValidation::get_digi_from_channel_(int ch,
         }
     }
     // MAke sense not to find a digi?
-    throw cms::Exception("Not found a PixelDigi") << " for the given channel: " << ch;
+    throw cms::Exception("DIGI Pixel Validation") << "Not found a PixelDig for the given channel: " << ch;
 }
 
 const SimTrack * PixelTestBeamValidation::get_simtrack_from_id_(unsigned int idx, const edm::SimTrackContainer * stc)
@@ -574,7 +638,7 @@ const SimTrack * PixelTestBeamValidation::get_simtrack_from_id_(unsigned int idx
     return nullptr;
 }
 
-const edm::PSimHitContainer PixelTestBeamValidation::get_simhits_from_trackid_(
+const std::vector<const PSimHit *> PixelTestBeamValidation::get_simhits_from_trackid_(
         unsigned int tid, 
         unsigned int detid_raw,
         const std::vector<const edm::PSimHitContainer*> & psimhits)
@@ -589,7 +653,7 @@ const edm::PSimHitContainer PixelTestBeamValidation::get_simhits_from_trackid_(
 
     // Otherwise, 
     // Create the new map for the track
-    m_tId_det_simhits_[tid] = std::map<unsigned int,edm::PSimHitContainer>();
+    m_tId_det_simhits_[tid] = std::map<unsigned int,std::vector<const PSimHit*>>();
     // and search for it, all the PsimHit found in all detectors 
     // are going to be seeked once, therefore memoizing already
     for(const auto * sh_c: psimhits)
@@ -598,7 +662,7 @@ const edm::PSimHitContainer PixelTestBeamValidation::get_simhits_from_trackid_(
         {
             if(sh.trackId() == tid)
             {
-                m_tId_det_simhits_[tid][sh.detUnitId()].push_back(sh);
+                m_tId_det_simhits_[tid][sh.detUnitId()].push_back(&sh);
             }
         }
     }
@@ -627,15 +691,95 @@ const std::pair<double,double> PixelTestBeamValidation::pixel_cell_transformatio
     return std::pair<double,double>({xcell,ycell});
 }
 
-bool PixelTestBeamValidation::channel_iluminated_by_(const MeasurementPoint & localpos,int channel, double tolerance) const
+//bool PixelTestBeamValidation::channel_iluminated_by_(const MeasurementPoint & localpos,int channel, double tolerance) const
+//{
+//    const auto pos_channel(PixelDigi::channelToPixel(channel));
+//    if( std::fabs(localpos.x()-pos_channel.first) <= tolerance 
+//            && std::fabs(localpos.y()-pos_channel.second) <= tolerance )
+//    {
+//        return true;
+//    }
+//    return false;
+//}
+
+bool PixelTestBeamValidation::channel_iluminated_by_(const PSimHit & ps, int channel, const PixelGeomDetUnit * tkDetUnit)
 {
+    // Get the list of pixels illuminated by the PSimHit
+    const auto pixel_list = get_illuminated_pixels_(ps,tkDetUnit);
+    // Get the digi position
     const auto pos_channel(PixelDigi::channelToPixel(channel));
-    if( std::fabs(localpos.x()-pos_channel.first) <= tolerance 
-            && std::fabs(localpos.y()-pos_channel.second) <= tolerance )
+
+    for(const auto & px_py: pixel_list)
     {
-        return true;
+        if( px_py.first == pos_channel.first 
+                && px_py.second == pos_channel.second )
+        {
+            return true;
+        }
     }
     return false;
+}
+
+std::set<std::pair<int,int> > PixelTestBeamValidation::get_illuminated_pixels_(const PSimHit & ps, const PixelGeomDetUnit * tkDetUnit)
+{
+    auto ps_key = reinterpret_cast<std::uintptr_t>(&ps);
+
+    //  -- Check if was already memoized
+    if(m_illuminated_pixels_.find(ps_key) != m_illuminated_pixels_.end()) 
+    {
+        return m_illuminated_pixels_[ps_key];
+    }
+
+    // Get the entry point - exit point position
+    const double min_x = std::min(ps.entryPoint().x(),ps.exitPoint().x());
+    const double min_y = std::min(ps.entryPoint().y(),ps.exitPoint().y());
+    const double max_x = std::max(ps.entryPoint().x(),ps.exitPoint().x());
+    const double max_y = std::max(ps.entryPoint().y(),ps.exitPoint().y());
+    // Get the position in readout units for each point
+    const auto min_pos = tkDetUnit->specificTopology().measurementPosition(LocalPoint(min_x,min_y)); 
+    const auto max_pos = tkDetUnit->specificTopology().measurementPosition(LocalPoint(max_x,max_y)); 
+    // Count how many cells has passed. Use the most conservative rounding: 
+    // round for maximums and int (floor) for minimums
+    //const int ncells_x = std::round(max_pos.x())-std::floor(min_pos.x());
+    //const int ncells_y = std::round(max_pos.y())-std::floor(min_pos.y());
+
+
+//std::cout << "ENTRANDO --- PSimHit (" << ps_key << ") entry point: " << ps.entryPoint() << " exitPoint: " << ps.exitPoint()
+//  << " Entry (pixel units): " << min_pos 
+//  << " Exit  (pixel units): " << max_pos << ")" 
+//  << " ILLUMINATED PIXELS: "; 
+    
+    std::set<std::pair<int,int>> illuminated_pixels;
+    for(unsigned int px = std::floor(min_pos.x()); px <= std::round(max_pos.x()); ++px)
+    {
+        for(unsigned int py = std::floor(min_pos.y()); py <= std::round(max_pos.y()); ++py)
+        {
+//std::cout << " [" << px << "," << py << "]";
+            illuminated_pixels.insert(std::pair<int,int>(px,py));
+        }
+    }
+//std::cout << " TOTAL PIXELS: " << illuminated_pixels.size() << std::endl;
+    // Memoize, and return what expected.
+    m_illuminated_pixels_[ps_key] = illuminated_pixels;
+    return m_illuminated_pixels_[ps_key];
+}
+
+bool PixelTestBeamValidation::_check_input_angles_(const PSimHit * psimhit)
+{
+    // Create a vector to check against the range map where 
+    // X axis is in the key 0, Y axis in the key 1 
+    const std::vector<double> theta_phi({psimhit->thetaAtEntry(),psimhit->phiAtEntry()});
+    
+    for(const auto & axis_ranges: active_entry_angles_)
+    {
+        if(axis_ranges.second.first < theta_phi[axis_ranges.first] 
+                || axis_ranges.second.second > theta_phi[axis_ranges.first] )
+        {
+            return false;
+        }
+    }
+    return true;
+
 }
 
 

@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
-Nx=20
-Ny=20
+Nx=40
+Ny=40
 
 # PSet for the histos
 ClusterSize1D = cms.PSet(
@@ -93,6 +93,8 @@ Dy = cms.PSet(
     )
 
 dqmcell = DQMEDAnalyzer('PixelTestBeamValidation',
+    TracksEntryAngleX = cms.untracked.vdouble(0.0),
+    TracksEntryAngleY = cms.untracked.vdouble(0.0),
     TopFolderName = cms.string("PixelCell"),
     PixelDigiSource = cms.InputTag("simSiPixelDigis","Pixel"),
     PixelDigiSimSource = cms.InputTag("simSiPixelDigis", "Pixel"),
