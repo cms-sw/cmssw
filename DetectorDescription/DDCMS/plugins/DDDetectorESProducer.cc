@@ -67,14 +67,15 @@ DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
       rootDDName_(iConfig.getParameter<string>("rootDDName")),
       label_(iConfig.getParameter<string>("label")) {
   if (rootDDName_ == "MagneticFieldVolumes:MAGF" || rootDDName_ == "cmsMagneticField:MAGF") {
-    setWhatProduced(
-		    this, &DDDetectorESProducer::produceMagField, edm::es::Label(iConfig.getParameter<std::string>("@module_label")));
-     findingRecord<IdealMagneticFieldRecord>();
+    setWhatProduced(this,
+                    &DDDetectorESProducer::produceMagField,
+                    edm::es::Label(iConfig.getParameter<std::string>("@module_label")));
+    findingRecord<IdealMagneticFieldRecord>();
   } else {
-  setWhatProduced(
-         this, &DDDetectorESProducer::produceGeom, edm::es::Label(iConfig.getParameter<std::string>("@module_label")));
-     findingRecord<IdealGeometryRecord>();
-   }
+    setWhatProduced(
+        this, &DDDetectorESProducer::produceGeom, edm::es::Label(iConfig.getParameter<std::string>("@module_label")));
+    findingRecord<IdealGeometryRecord>();
+  }
 }
 
 DDDetectorESProducer::~DDDetectorESProducer() {}
