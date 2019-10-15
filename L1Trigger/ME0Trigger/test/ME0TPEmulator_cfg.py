@@ -38,8 +38,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
-process.load('L1Trigger/ME0Trigger/me0TriggerPseudoDigis_cfi')
-process.me0TriggerPseudoDigis.info = 3
+process.load('L1Trigger.ME0Trigger.me0TriggerConvertedPseudoDigis_cfi')
+process.me0TriggerConvertedPseudoDigis.info = 3
 
 
 # ======
@@ -52,5 +52,5 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 # Scheduler path
 # ==============
-process.p = cms.Path(process.me0TriggerPseudoDigis)
+process.p = cms.Path(process.me0TriggerConvertedPseudoDigis)
 process.out = cms.EndPath(process.output)
