@@ -218,7 +218,7 @@ private:
   const GeometricSearchTracker* theGeometricSearchTracker;
   const MeasurementTrackerEvent* theTrackerEvent;
   const MeasurementTracker* theTracker;
-  LayerMeasurements theLayerMeasurements;
+  std::unique_ptr<LayerMeasurements> theLayerMeasurements;
   const MagneticField* theMagField;
   const TrackerGeometry* theTrackerGeometry;
 

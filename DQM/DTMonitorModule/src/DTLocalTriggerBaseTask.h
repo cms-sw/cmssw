@@ -70,13 +70,7 @@ private:
                      std::vector<L1MuDTChambPhDigi> const* phOutTrigs,
                      std::vector<L1MuDTChambThDigi> const* thTrigs);
 
-  /// Run analysis on ROS data
-  void runDDUAnalysis(edm::Handle<DTLocalTriggerCollection>& trigsDDU);
-
-  /// Run analysis on ROS data
-  void runDDUvsTMAnalysis();
-
-  /// Get the Top folder (different between Physics and TP and TM/DDU)
+  /// Get the Top folder (different between Physics and TP and TM)
   std::string& topFolder(std::string const& type) { return baseFolder[type == "TM"]; }
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
@@ -99,9 +93,7 @@ private:
   bool tpMode;
   bool detailedAnalysis;
   bool processTM;
-  bool processDDU;
 
-  int targetBXDDU;
   int targetBXTM;
   int bestAccRange;
 

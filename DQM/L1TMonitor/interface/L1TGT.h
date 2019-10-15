@@ -171,8 +171,8 @@ private:
   /// histogram folder for L1 GT plots
   std::string m_histFolder;
 
-  boost::uint64_t preGps_;
-  boost::uint64_t preOrb_;
+  uint64_t preGps_;
+  uint64_t preOrb_;
 
   std::string algoBitToName[128];
   std::string techBitToName[64];

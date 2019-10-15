@@ -10,7 +10,6 @@
 #define FP420G4Hit_h
 
 #include "G4VHit.hh"
-#include <boost/cstdint.hpp>
 #include <iostream>
 
 #include "G4Step.hh"

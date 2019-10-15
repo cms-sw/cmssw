@@ -8,8 +8,8 @@
 // Constructors --
 //----------------
 
-GEMCoPadProcessor::GEMCoPadProcessor(unsigned endcap, unsigned station, unsigned chamber, const edm::ParameterSet& copad)
-    : theEndcap(endcap), theStation(station), theChamber(chamber) {
+GEMCoPadProcessor::GEMCoPadProcessor(unsigned region, unsigned station, unsigned chamber, const edm::ParameterSet& copad)
+    : theRegion(region), theStation(station), theChamber(chamber) {
   // Verbosity level, set to 0 (no print) by default.
   infoV = copad.getParameter<unsigned int>("verbosity");
   maxDeltaPad_ = copad.getParameter<unsigned int>("maxDeltaPad");
@@ -17,7 +17,7 @@ GEMCoPadProcessor::GEMCoPadProcessor(unsigned endcap, unsigned station, unsigned
   maxDeltaBX_ = copad.getParameter<unsigned int>("maxDeltaBX");
 }
 
-GEMCoPadProcessor::GEMCoPadProcessor() : theEndcap(1), theStation(1), theChamber(1) {
+GEMCoPadProcessor::GEMCoPadProcessor() : theRegion(1), theStation(1), theChamber(1) {
   infoV = 0;
   maxDeltaPad_ = 0;
   maxDeltaRoll_ = 0;
@@ -27,14 +27,12 @@ GEMCoPadProcessor::GEMCoPadProcessor() : theEndcap(1), theStation(1), theChamber
 void GEMCoPadProcessor::clear() { gemCoPadV.clear(); }
 
 std::vector<GEMCoPadDigi> GEMCoPadProcessor::run(const GEMPadDigiCollection* in_pads) {
-  const int region((theEndcap == 1) ? 1 : -1);
-
   // Build coincidences
   for (auto det_range = in_pads->begin(); det_range != in_pads->end(); ++det_range) {
     const GEMDetId& id = (*det_range).first;
 
     // same chamber (no restriction on the roll number)
-    if (id.region() != region or id.station() != theStation or id.chamber() != theChamber)
+    if (id.region() != theRegion or id.station() != theStation or id.chamber() != theChamber)
       continue;
 
     // all coincidences detIDs will have layer=1

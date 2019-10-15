@@ -64,9 +64,9 @@ DDSpecParRegistryESProducer::ReturnType DDSpecParRegistryESProducer::produce(con
   edm::ESHandle<DDDetector> det;
   iRecord.getRecord<GeometryFileRcd>().get(m_label, det);
 
-  const DDSpecParRegistry* registry = det->description()->extension<DDSpecParRegistry>();
+  const DDSpecParRegistry& registry = det->specpars();
   auto product = std::make_unique<DDSpecParRegistry>();
-  product->specpars.insert(registry->specpars.begin(), registry->specpars.end());
+  product->specpars.insert(registry.specpars.begin(), registry.specpars.end());
   return product;
 }
 

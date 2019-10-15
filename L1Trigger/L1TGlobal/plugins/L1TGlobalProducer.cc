@@ -10,8 +10,6 @@
 #include <iomanip>
 #include <algorithm>
 
-#include <boost/cstdint.hpp>
-
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -498,9 +496,9 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
   // fill in emulator the same bunch crossing (12 bits - hardwired number of bits...)
   // and the same local bunch crossing for all boards
   int bxCross = iEvent.bunchCrossing();
-  boost::uint16_t bxCrossHw = 0;
+  uint16_t bxCrossHw = 0;
   if ((bxCross & 0xFFF) == bxCross) {
-    bxCrossHw = static_cast<boost::uint16_t>(bxCross);
+    bxCrossHw = static_cast<uint16_t>(bxCross);
   } else {
     bxCrossHw = 0;  // Bx number too large, set to 0!
     if (m_verbosity) {
@@ -645,4 +643,5 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 //define this as a plug-in
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include <cstdint>
 DEFINE_FWK_MODULE(L1TGlobalProducer);

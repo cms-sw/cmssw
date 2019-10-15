@@ -22,8 +22,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 
 //   base class
@@ -31,6 +29,7 @@
 //
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <cstdint>
 
 // forward declarations
 
@@ -208,7 +207,7 @@ namespace l1t {
   // check if a bit with a given number is set in a mask
   template <class Type1>
   const bool ConditionEvaluation::checkBit(const Type1& mask, const unsigned int bitNumber) const {
-    boost::uint64_t oneBit = 1ULL;
+    uint64_t oneBit = 1ULL;
 
     if (bitNumber >= (sizeof(oneBit) * 8)) {
       if (m_verbosity) {

@@ -44,7 +44,7 @@ void DDTestDumpFile::analyze(const Event&, const EventSetup& iEventSetup) {
   ESTransientHandle<DDDetector> det;
   iEventSetup.get<GeometryFileRcd>().get(m_label, det);
 
-  TGeoManager& geom = det->description()->manager();
+  TGeoManager& geom = det->manager();
 
   int level = 1 + geom.GetTopVolume()->CountNodes(100, 3);
 

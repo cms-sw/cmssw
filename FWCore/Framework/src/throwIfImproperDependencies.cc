@@ -394,8 +394,8 @@ namespace {
                 continue;
               }
               bool alreadyAdvanced = false;
-              for (auto index : pathIndicies) {
-                if (index == out) {
+              for (auto pathIndex : pathIndicies) {
+                if (pathIndex == out) {
                   //we must have skipped over the module so the earlier worry about the
                   // module being called on the path was wrong
                   auto toErase = it;
@@ -404,7 +404,7 @@ namespace {
                   pathToModulesWhichMustAppearLater.erase(toErase);
                   break;
                 }
-                if (index == moduleIDToCheck) {
+                if (pathIndex == moduleIDToCheck) {
                   //module still earlier on the path
                   break;
                 }
@@ -435,12 +435,12 @@ namespace {
                 //we left this path so we now need to see if the module 'out'
                 // is on this path ahead of the module 'in'
                 bool foundOut = false;
-                for (auto index : m_pathIndexToModuleIndexOrder[seenPath]) {
-                  if (index == out) {
+                for (auto seenPathIndex : m_pathIndexToModuleIndexOrder[seenPath]) {
+                  if (seenPathIndex == out) {
                     foundOut = true;
                     pathsToWatch.push_back(seenPath);
                   }
-                  if (index == lastOut) {
+                  if (seenPathIndex == lastOut) {
                     if (not foundOut) {
                       atLeastOnePathFailed = true;
                     }

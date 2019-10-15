@@ -1,7 +1,10 @@
 #ifndef DataFormats_ForwardDetId_HGCSiliconDetIdToROC_H
 #define DataFormats_ForwardDetId_HGCSiliconDetIdToROC_H 1
 
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseTriggerDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include <iostream>
 #include <map>
 #include <utility>
@@ -14,6 +17,15 @@ public:
   HGCSiliconDetIdToROC();
 
   int getROCNumber(HGCalTriggerDetId const& id) const {
+    return getROCNumber(id.triggerCellU(), id.triggerCellV(), id.type());
+  }
+  int getROCNumber(HGCSiliconDetId const& id) const {
+    return getROCNumber(id.triggerCellU(), id.triggerCellV(), id.type());
+  }
+  int getROCNumber(HFNoseDetId const& id) const {
+    return getROCNumber(id.triggerCellU(), id.triggerCellV(), id.type());
+  }
+  int getROCNumber(HFNoseTriggerDetId const& id) const {
     return getROCNumber(id.triggerCellU(), id.triggerCellV(), id.type());
   }
   int getROCNumber(int triggerCellU, int triggerCellV, int type) const;

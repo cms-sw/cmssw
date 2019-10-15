@@ -1,10 +1,10 @@
 #ifndef DataFormats_RPCDigi_DataRecord_H
 #define DataFormats_RPCDigi_DataRecord_H
 
-#include <boost/cstdint.hpp>
 #include <string>
 #include <bitset>
 #include <sstream>
+#include <cstdint>
 
 namespace rpcrawtodigi {
   class DataRecord {
