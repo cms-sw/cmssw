@@ -59,7 +59,7 @@ private:
   // Linear search (for debug purposes only)
   MagVolume const* findVolume1(const GlobalPoint& gp, double tolerance = 0.) const;
 
-  bool inBarrel(const GlobalPoint& gp) const;
+  bool inBarrel(float R, float Z) const;
 
   mutable std::atomic<MagVolume const*> lastVolume;  // Cache last volume found
 
@@ -75,5 +75,6 @@ private:
 
   bool cacheLastVolume;
   int geometryVersion;
+  float R1, R2, Z0, Z1, Z2;
 };
 #endif

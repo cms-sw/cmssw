@@ -68,6 +68,31 @@ MagGeometry::MagGeometry(int geomVersion,
   int nEBins = theESectors.size();
   if (nEBins > 0)
     theEndcapBinFinder = new PeriodicBinFinderInPhi<float>(theESectors.front()->minPhi() + Geom::pi() / nEBins, nEBins);
+
+  // Compute barrel dimensions based on geometry version
+  switch (geomVersion >= 120812 ? 0 : (geomVersion >= 90812 ? 1 : 2)) {
+    case 0:
+      R1 = 172.400f;
+      R2 = 308.735f;
+      Z0 = 350.000f;
+      Z1 = 633.290f;
+      Z2 = 662.010f;
+      break;
+    case 1:
+      R1 = 172.400f;
+      R2 = 308.755f;
+      Z0 = 350.000f;
+      Z1 = 633.890f;
+      Z2 = 662.010f;
+      break;
+    case 2:
+      R1 = 172.400f;
+      R2 = 308.755f;
+      Z0 = 350.000f;
+      Z1 = 633.290f;
+      Z2 = 661.010f;
+      break;
+  }
 }
 
 MagGeometry::~MagGeometry() {
@@ -110,7 +135,11 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
   MagVolume6Faces const* found = nullptr;
 
   int errCnt = 0;
-  if (inBarrel(gp)) {  // Barrel
+
+  float R = gp.perp();
+  float Z = fabs(gp.z());
+
+  if (inBarrel(R, Z)) {  // Barrel
     for (vector<MagVolume6Faces const*>::const_iterator v = theBVolumes.begin(); v != theBVolumes.end(); ++v) {
       if ((*v) == nullptr) {  //FIXME: remove this check
         cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume for barrel not set" << endl;
@@ -155,8 +184,11 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
   }
 
   MagVolume const* result = nullptr;
-  if (inBarrel(gp)) {  // Barrel
-    double R = gp.perp();
+
+  float R = gp.perp();
+  float Z = fabs(gp.z());
+
+  if (inBarrel(R, Z)) {  // Barrel
     int bin = theBarrelBinFinder->binIndex(R);
 
     // Search up to 3 layers inwards. This may happen for very thin layers.
@@ -198,16 +230,7 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
   return result;
 }
 
-bool MagGeometry::inBarrel(const GlobalPoint& gp) const {
-  float Z = fabs(gp.z());
-  float R = gp.perp();
-
+bool MagGeometry::inBarrel(float R, float Z) const {
   // FIXME: Get these dimensions from the builder.
-  if (geometryVersion >= 120812) {
-    return (Z < 350. || (R > 172.4 && Z < 633.29) || (R > 308.735 && Z < 662.01));
-  } else if (geometryVersion >= 90812) {  // FIXME no longer supported
-    return (Z < 350. || (R > 172.4 && Z < 633.89) || (R > 308.755 && Z < 662.01));
-  } else {  // versions 71212, 90322
-    return (Z < 350. || (R > 172.4 && Z < 633.29) || (R > 308.755 && Z < 661.01));
-  }
+  return ((Z < Z0) || (Z < Z1 && R > R1) || (Z < Z2 && R > R2));
 }
