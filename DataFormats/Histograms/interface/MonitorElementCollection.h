@@ -20,8 +20,6 @@
  (DQMRootOutputModule and DQMRootSource), so persistent=false would be ok for
  this class. However, if we can get EDM IO cheaply, it could be useful to 
  handle corner cases like MEtoEDM more cleanly.
- TODO: We use persistent=false now, since ROOT really wants to be able to copy
- things (which is not compatible with unique_ptr and mutex).
 
  Usage: This product should only be handled by the DQMStore, which provides 
  access to the MEs inside. The DQMStore will wrap the MonitorElementData in
@@ -39,14 +37,13 @@
 //         Created:  2018-05-02
 //
 //
-#include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
-#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <cstdint>
 #include <cassert>
 #include <vector>
 #include <string>
-#include <mutex>
 #include <regex>
 
 #include "TH1.h"
@@ -77,46 +74,20 @@ struct MonitorElementData {
     TPROFILE2D = 0x41
   };
 
-  // Which window of time the ME is supposed to cover. How much data is actually
-  // covered is tracked separately; these values define when things should be
-  // merged.
+  // Which window of time the ME is supposed to cover. 
   // There is space for a granularity level between runs and lumisections,
   // maybe blocks of 10LS or some fixed number of events or integrated
   // luminosity. We also want to be able to change the granularity centrally
-  // depending on the use case. That is what the DEFAULT is for, and it should
+  // depending on the use case. That is what the default is for, and it should
   // be used unless some specific granularity is really required.
-  // We'll also need to switch the DEFAULT to JOB for multi-run harvesting.
-  enum Scope { JOB = 1, RUN = 2, LUMI = 3, DEFAULT = RUN };
+  // We'll also need to switch the default to JOB for multi-run harvesting.
+  enum Scope { JOB = 1, RUN = 2, LUMI = 3 /*, BLOCK = 4 */};
 
   // The main ME data. We don't keep references/QTest results, instead we use
   // only the fields stored in DQMIO files.
   struct Value {
-    // The lock protects the data while filling. There is no point in having it
-    // here except for convenience.
-    // "mutable" to allow thread-safe "Fill" to change it without a const-cast
-    // const-casting would be more logically correct, but risks UB.
-    // TODO: It should be ok to use a TH1 value here, but we'd have to template
-    // TODO: ConcurrentME used a tbb::spin_lock, check if we can do that here as
-    // well (dependencies!)
-    // TODO: This really, really, should be unique_ptr. But ROOT wants to copy it
-    // for serialization.
-    // TODO: The lock_ should of course not be serialized.
-  private:
-    mutable Scalar scalar_;
-    mutable std::unique_ptr<TH1> object_;
-    mutable std::mutex lock_;
-
-  public:
-    // To access the data, including for initializing it, make a
-    // MonitorElementData::Value::Access instance and use its fields. It should
-    // hold the lock as long as it exists.
-    struct Access {
-      std::scoped_lock<std::mutex> lock;
-      Scalar& scalar;
-      std::unique_ptr<TH1>& object;
-      Access(MonitorElementData::Value const& value)
-          : lock(value.lock_), scalar(value.scalar_), object(value.object_){};
-    };
+    Scalar scalar_;
+    edm::propagate_const<std::unique_ptr<TH1>> object_;
   };
 
   struct Path {
@@ -183,13 +154,8 @@ struct MonitorElementData {
   struct Key {
     Path path_;
 
-    // The range from the first to the last event that actually went into this
-    // histogram. When merging, we extend this range; merging overlapping but not
-    // identical ranges should probably be an error, see the Mergable Products
-    // discussion: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePerRunAndPerLumiBlockData#Merging_Run_and_Luminosity_Block
-    // We could also keep event numbers, to make it easier to see if there is
-    // double counting for debugging.
-    edm::LuminosityBlockRange coveredrange_;
+    // Run number (and optionally lumi number) that the ME belongs to.
+    edm::LuminosityBlockID id_;
     Scope scope_;
     Kind kind_;
 
@@ -198,10 +164,8 @@ struct MonitorElementData {
         return std::make_tuple(k.path_.getDirname(),
                                k.path_.getObjectname(),
                                k.scope_,
-                               k.coveredrange_.startRun(),
-                               k.coveredrange_.startLumi(),
-                               k.coveredrange_.endRun(),
-                               k.coveredrange_.endLumi());
+                               k.id_.run(),
+                               k.id_.luminosityBlock());
       };
 
       return makeKeyTuple(*this) < makeKeyTuple(other);
@@ -215,25 +179,34 @@ struct MonitorElementData {
   Value value_;
 };
 
-// TODO: We should not use edm::OwnVector once we can, then this can go away
-struct FakeMEDataClone {
-  static MonitorElementData* clone(MonitorElementData const&) {
-    assert(!"This is to make EDM happy.");
-    return nullptr;
-  };
-};
-
 // For now, no additional (meta-)data is needed apart from the MEs themselves.
 // The framework will take care of tracking the plugin and LS/run that the MEs
 // belong to.
-// TODO: move away from OwnVector once we can.
-// TODO: what about mergeProduct? Maybe we need a class here, after all.
-using MonitorElementCollection = edm::OwnVector<const MonitorElementData, FakeMEDataClone>;
 
 // Only to hold the mergeProduct placeholder for now.
-class MonitorElementCollectionHelper {
+class MonitorElementCollection {
+  std::vector<std::unique_ptr<const MonitorElementData>> data_;
 public:
+  void push_back(std::unique_ptr<const MonitorElementData>&& value) {
+    // enforce ordering
+    assert(data_.size() == 0 || data_[data_.size() - 1] <= value); 
+    data_.push_back(std::move(value));
+  }
+
+  void swap(MonitorElementCollection& other) {
+    data_.swap(other.data_);
+  }
+
+  auto begin() const {
+    return data_.begin();
+  }
+
+  auto end() const {
+    return data_.end();
+  }
+
   bool mergeProduct(MonitorElementCollection const& product) {
+    // discussion: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePerRunAndPerLumiBlockData#Merging_Run_and_Luminosity_Block
     assert(!"Not implemented yet.");
     return false;
     // Things to decide:
