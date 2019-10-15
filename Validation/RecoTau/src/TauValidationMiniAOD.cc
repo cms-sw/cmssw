@@ -100,20 +100,20 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   decayModeTemp =
       ibooker.book1D("tau_decayMode", "tau_decayMode", decayModeHinfo.nbins, decayModeHinfo.min, decayModeHinfo.max);
   byDeepTau2017v2p1VSerawTemp = ibooker.book1D("tau_byDeepTau2017v2p1VSeraw",
-                                             "tau_byDeepTau2017v2p1VSeraw",
-                                             byDeepTau2017v2p1VSerawHinfo.nbins,
-                                             byDeepTau2017v2p1VSerawHinfo.min,
-                                             byDeepTau2017v2p1VSerawHinfo.max);
+                                               "tau_byDeepTau2017v2p1VSeraw",
+                                               byDeepTau2017v2p1VSerawHinfo.nbins,
+                                               byDeepTau2017v2p1VSerawHinfo.min,
+                                               byDeepTau2017v2p1VSerawHinfo.max);
   byDeepTau2017v2p1VSjetrawTemp = ibooker.book1D("tau_byDeepTau2017v2p1VSjetraw",
-                                               "tau_byDeepTau2017v2p1VSjetraw",
-                                               byDeepTau2017v2p1VSjetrawHinfo.nbins,
-                                               byDeepTau2017v2p1VSjetrawHinfo.min,
-                                               byDeepTau2017v2p1VSjetrawHinfo.max);
+                                                 "tau_byDeepTau2017v2p1VSjetraw",
+                                                 byDeepTau2017v2p1VSjetrawHinfo.nbins,
+                                                 byDeepTau2017v2p1VSjetrawHinfo.min,
+                                                 byDeepTau2017v2p1VSjetrawHinfo.max);
   byDeepTau2017v2p1VSmurawTemp = ibooker.book1D("tau_byDeepTau2017v2p1VSmuraw",
-                                              "tau_byDeepTau2017v2p1VSmuraw",
-                                              byDeepTau2017v2p1VSmurawHinfo.nbins,
-                                              byDeepTau2017v2p1VSmurawHinfo.min,
-                                              byDeepTau2017v2p1VSmurawHinfo.max);
+                                                "tau_byDeepTau2017v2p1VSmuraw",
+                                                byDeepTau2017v2p1VSmurawHinfo.nbins,
+                                                byDeepTau2017v2p1VSmurawHinfo.min,
+                                                byDeepTau2017v2p1VSmurawHinfo.max);
   ptMap.insert(std::make_pair("", ptTemp));
   etaMap.insert(std::make_pair("", etaTemp));
   phiMap.insert(std::make_pair("", phiTemp));
