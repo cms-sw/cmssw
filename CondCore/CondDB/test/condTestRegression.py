@@ -139,7 +139,7 @@ class CondRegressionTester(object):
             self.dbList['%s [%s]'%(rel,arch)] = dbName
 
         cmd ="scram -a %s list -c %s | grep '\\b%s\\b' | head -1 | sed 's|.* ||'" %(arch,rel,rel)
-        out =check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        out =check_output(cmd, shell=True, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         ind = out.find( arch )
         if ind == -1:
             raise Exception('Could not locate the reference release %s with "%s" [ got %s ]' %(rel,cmd,out))
@@ -154,7 +154,7 @@ class CondRegressionTester(object):
 
         try:
             #opening a process with a clean environment ( to avoid to inherit scram variables )
-            res = check_output(cmd, shell=True, env={}, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            res = check_output(cmd, shell=True, universal_newlines=True, env={}, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         except Exception as e:
             self.log( rel, arch, readOrWrite, str(e) )
             raise e
@@ -190,7 +190,7 @@ class CondRegressionTester(object):
         cmd += '%s %s sqlite_file:///%s/%s ' % (executable, readOrWrite, self.dbDir, dbName)
 
         try:
-            res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            res = check_output(cmd, shell=True, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         except Exception as e:
             self.log( self.rel, self.arch, readOrWrite, str(e) )
             raise e
