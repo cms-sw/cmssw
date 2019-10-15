@@ -169,8 +169,6 @@ void HLXMonitor::SetupHists(DQMStore::IBooker &iBooker) {
     Set2Above[iWedge] =
         iBooker.book1D("Set2_Above", "HF+ Wedge " + wedgeNum.str() + ": Above Threshold 2 - Set 2", NBINS, XMIN, XMAX);
     ETSum[iWedge] = iBooker.book1D("ETSum", "HF+ Wedge " + wedgeNum.str() + ": Transverse Energy", NBINS, XMIN, XMAX);
-
-    iBooker.tagContents(monitorName_ + "/HFPlus/Wedge" + tempStreamer.str(), iWedge + 1);
   }
 
   if (NUM_HLX > 17) {
@@ -197,8 +195,6 @@ void HLXMonitor::SetupHists(DQMStore::IBooker &iBooker) {
       Set2Above[iWedge] = iBooker.book1D(
           "Set2_Above", "HF- Wedge " + wedgeNum.str() + ": Above Threshold 2 - Set 2", NBINS, XMIN, XMAX);
       ETSum[iWedge] = iBooker.book1D("ETSum", "HF- Wedge " + wedgeNum.str() + ": Transverse Energy", NBINS, XMIN, XMAX);
-
-      iBooker.tagContents(monitorName_ + "/HFMinus/Wedge" + tempStreamer.str(), iWedge + 1);
     }
   }
 

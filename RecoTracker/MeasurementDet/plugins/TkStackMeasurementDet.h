@@ -4,7 +4,7 @@
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "TkPhase2OTMeasurementDet.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/StackGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 
 #include "FWCore/Utilities/interface/Visibility.h"

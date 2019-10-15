@@ -1,9 +1,9 @@
-#ifndef Geometry_TrackerGeometryBuilder_PixelGeomDetUnit_H
-#define Geometry_TrackerGeometryBuilder_PixelGeomDetUnit_H
+#ifndef Geometry_CommonDetUnit_PixelGeomDetUnit_H
+#define Geometry_CommonDetUnit_PixelGeomDetUnit_H
 
 #include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/TrackerGeometryBuilder/interface/ProxyPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/ProxyPixelTopology.h"
 
 class PixelGeomDetType;
 class PixelTopology;
@@ -46,7 +46,7 @@ public:
   bool isLeaf() const override { return true; }
 
 private:
-  /// set the SurfaceDeformation for this StripGeomDetUnit to proxy topology.
+  /// set the SurfaceDeformation for this StripGeomDet to proxy topology.
   void setSurfaceDeformation(const SurfaceDeformation* deformation) override;
 
   std::unique_ptr<ProxyPixelTopology> theTopology;

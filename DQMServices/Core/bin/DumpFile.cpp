@@ -204,8 +204,8 @@ int main(int argc, char **argv) {
         getMEInfo(store, me, info);
         std::cout << "ME STYLE=" << info.style << " RUN=" << info.runnr << " DATASET='" << dataset << "' STEP='" << step
                   << "' SYSTEM='" << info.system << "' CATEGORY='" << info.category << "' KIND='"
-                  << kindToName(me.kind()) << "' TAG=" << me.getTag() << " FLAGS=0x" << std::hex << me.flags()
-                  << std::dec << " NAME='" << info.name << "' DATA='" << hexlify(info.data) << "'\n";
+                  << kindToName(me.kind()) << " FLAGS=0x" << std::hex << me.flags() << std::dec << " NAME='"
+                  << info.name << "' DATA='" << hexlify(info.data) << "'\n";
       }
     } catch (std::exception &e) {
       std::cerr << "*** FAILED TO READ FILE " << argv[arg] << ":\n" << e.what() << std::endl;

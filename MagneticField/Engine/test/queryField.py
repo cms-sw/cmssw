@@ -36,8 +36,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag,'auto:phase1_2017_realistic', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
-process.load("MagneticField.Engine.autoMagneticFieldProducer_cfi")
-process.AutoMagneticFieldESProducer.valueOverride = 18000
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.VolumeBasedMagneticFieldESProducer.valueOverride = 18000
 
 
 ### Set scaling factors
