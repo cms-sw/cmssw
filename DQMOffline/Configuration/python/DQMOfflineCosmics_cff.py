@@ -64,10 +64,10 @@ DQMOfflineCosmicsPhysics = cms.Sequence( dqmPhysicsCosmics )
 
 DQMOfflineCosmicsPrePOG = cms.Sequence( DQMOfflineCosmicsTracking *
                                         DQMOfflineCosmicsMUO *
-                                        DQMOfflineCosmicsJetMET *
-                                        DQMOfflineCosmicsEGamma *
-                                        DQMOfflineCosmicsTrigger *
-					DQMOfflineCosmicsPhysics
+#                                        DQMOfflineCosmicsJetMET *
+#                                        DQMOfflineCosmicsEGamma *
+                                        DQMOfflineCosmicsTrigger 
+#					DQMOfflineCosmicsPhysics
                                         )
 
 DQMOfflineCosmicsPOG = cms.Sequence( DQMOfflineCosmicsPrePOG *
