@@ -58,8 +58,10 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
         simHitTokens_.push_back(consumes<edm::PSimHitContainer>(itag));
     }
 
-    // Parse the entry angles parameters 
-    // helper map to de
+    // Parse the entry angles parameter. Remember the angles are defined in 
+    // radians and defined as 0 when perpendicular to the detector plane
+    // ---------------------------------------------------------------------
+    // Helper map to build up the active entry angles
     std::map<std::string,std::vector<double>* > prov_ref_m;
     // Get the range of entry angles for the tracks on the detector surfaces, if any
     if(tracksEntryAngleX_.size() != 0)
@@ -252,10 +254,10 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
             for(const auto * ps: current_psimhits)
             {
                 // Check user conditions to accept the hits
-//                if( ! use_this_track_(&ps) )
-//                {
-//                    continue;
-//                }
+                if( ! use_this_track_(ps) )
+                {
+                    continue;
+                }
                 // Fill some sim histograms
                 const GlobalPoint tk_ep_gbl(dunit->surface().toGlobal(ps->entryPoint()));
                 vME_track_XYMap_->Fill(tk_ep_gbl.x(),tk_ep_gbl.y());
@@ -772,8 +774,8 @@ bool PixelTestBeamValidation::_check_input_angles_(const PSimHit * psimhit)
     
     for(const auto & axis_ranges: active_entry_angles_)
     {
-        if(axis_ranges.second.first < theta_phi[axis_ranges.first] 
-                || axis_ranges.second.second > theta_phi[axis_ranges.first] )
+        if(axis_ranges.second.first > theta_phi[axis_ranges.first] 
+                || axis_ranges.second.second < theta_phi[axis_ranges.first] )
         {
             return false;
         }
