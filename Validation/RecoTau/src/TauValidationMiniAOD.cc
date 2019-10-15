@@ -35,7 +35,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
                                           edm::Run const& iRun,
                                           edm::EventSetup const& /* iSetup */) {
   MonitorElement *ptTemp, *etaTemp, *phiTemp, *massTemp, *decayModeFindingTemp, *decayModeTemp,
-      *byDeepTau2017v2VSerawTemp, *byDeepTau2017v2VSjetrawTemp, *byDeepTau2017v2VSmurawTemp, *summaryTemp;
+      *byDeepTau2017v2p1VSerawTemp, *byDeepTau2017v2p1VSjetrawTemp, *byDeepTau2017v2p1VSmurawTemp, *summaryTemp;
   ibooker.setCurrentFolder("RecoTauV/miniAODValidation" + extensionName_);
 
   //summary plots
@@ -76,17 +76,17 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   histoInfo decayModeHinfo = (histoSettings_.exists("decayMode"))
                                  ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("decayMode"))
                                  : histoInfo(11, -0.5, 10.5);
-  histoInfo byDeepTau2017v2VSerawHinfo =
-      (histoSettings_.exists("byDeepTau2017v2VSeraw"))
-          ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2017v2VSeraw"))
+  histoInfo byDeepTau2017v2p1VSerawHinfo =
+      (histoSettings_.exists("byDeepTau2017v2p1VSeraw"))
+          ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2017v2p1VSeraw"))
           : histoInfo(200, 0., 1.);
-  histoInfo byDeepTau2017v2VSjetrawHinfo =
-      (histoSettings_.exists("byDeepTau2017v2VSjetraw"))
-          ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2017v2VSjetraw"))
+  histoInfo byDeepTau2017v2p1VSjetrawHinfo =
+      (histoSettings_.exists("byDeepTau2017v2p1VSjetraw"))
+          ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2017v2p1VSjetraw"))
           : histoInfo(200, 0., 1.);
-  histoInfo byDeepTau2017v2VSmurawHinfo =
-      (histoSettings_.exists("byDeepTau2017v2VSmuraw"))
-          ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2017v2VSmuraw"))
+  histoInfo byDeepTau2017v2p1VSmurawHinfo =
+      (histoSettings_.exists("byDeepTau2017v2p1VSmuraw"))
+          ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2017v2p1VSmuraw"))
           : histoInfo(200, 0., 1.);
   ptTemp = ibooker.book1D("tau_pt", "tau_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
   etaTemp = ibooker.book1D("tau_eta", "tau_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
@@ -99,30 +99,30 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
                                         decayModeFindingHinfo.max);
   decayModeTemp =
       ibooker.book1D("tau_decayMode", "tau_decayMode", decayModeHinfo.nbins, decayModeHinfo.min, decayModeHinfo.max);
-  byDeepTau2017v2VSerawTemp = ibooker.book1D("tau_byDeepTau2017v2VSeraw",
-                                             "tau_byDeepTau2017v2VSeraw",
-                                             byDeepTau2017v2VSerawHinfo.nbins,
-                                             byDeepTau2017v2VSerawHinfo.min,
-                                             byDeepTau2017v2VSerawHinfo.max);
-  byDeepTau2017v2VSjetrawTemp = ibooker.book1D("tau_byDeepTau2017v2VSjetraw",
-                                               "tau_byDeepTau2017v2VSjetraw",
-                                               byDeepTau2017v2VSjetrawHinfo.nbins,
-                                               byDeepTau2017v2VSjetrawHinfo.min,
-                                               byDeepTau2017v2VSjetrawHinfo.max);
-  byDeepTau2017v2VSmurawTemp = ibooker.book1D("tau_byDeepTau2017v2VSmuraw",
-                                              "tau_byDeepTau2017v2VSmuraw",
-                                              byDeepTau2017v2VSmurawHinfo.nbins,
-                                              byDeepTau2017v2VSmurawHinfo.min,
-                                              byDeepTau2017v2VSmurawHinfo.max);
+  byDeepTau2017v2p1VSerawTemp = ibooker.book1D("tau_byDeepTau2017v2p1VSeraw",
+                                             "tau_byDeepTau2017v2p1VSeraw",
+                                             byDeepTau2017v2p1VSerawHinfo.nbins,
+                                             byDeepTau2017v2p1VSerawHinfo.min,
+                                             byDeepTau2017v2p1VSerawHinfo.max);
+  byDeepTau2017v2p1VSjetrawTemp = ibooker.book1D("tau_byDeepTau2017v2p1VSjetraw",
+                                               "tau_byDeepTau2017v2p1VSjetraw",
+                                               byDeepTau2017v2p1VSjetrawHinfo.nbins,
+                                               byDeepTau2017v2p1VSjetrawHinfo.min,
+                                               byDeepTau2017v2p1VSjetrawHinfo.max);
+  byDeepTau2017v2p1VSmurawTemp = ibooker.book1D("tau_byDeepTau2017v2p1VSmuraw",
+                                              "tau_byDeepTau2017v2p1VSmuraw",
+                                              byDeepTau2017v2p1VSmurawHinfo.nbins,
+                                              byDeepTau2017v2p1VSmurawHinfo.min,
+                                              byDeepTau2017v2p1VSmurawHinfo.max);
   ptMap.insert(std::make_pair("", ptTemp));
   etaMap.insert(std::make_pair("", etaTemp));
   phiMap.insert(std::make_pair("", phiTemp));
   massMap.insert(std::make_pair("", massTemp));
   decayModeFindingMap.insert(std::make_pair("", decayModeFindingTemp));
   decayModeMap.insert(std::make_pair("", decayModeTemp));
-  byDeepTau2017v2VSerawMap.insert(std::make_pair("", byDeepTau2017v2VSerawTemp));
-  byDeepTau2017v2VSjetrawMap.insert(std::make_pair("", byDeepTau2017v2VSjetrawTemp));
-  byDeepTau2017v2VSmurawMap.insert(std::make_pair("", byDeepTau2017v2VSmurawTemp));
+  byDeepTau2017v2p1VSerawMap.insert(std::make_pair("", byDeepTau2017v2p1VSerawTemp));
+  byDeepTau2017v2p1VSjetrawMap.insert(std::make_pair("", byDeepTau2017v2p1VSjetrawTemp));
+  byDeepTau2017v2p1VSmurawMap.insert(std::make_pair("", byDeepTau2017v2p1VSmurawTemp));
 }
 
 void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -163,12 +163,12 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
       decayModeMap.find("")->second->Fill(matchedTau->decayMode());
       if (matchedTau->isTauIDAvailable("decayModeFinding"))
         decayModeFindingMap.find("")->second->Fill(matchedTau->tauID("decayModeFinding"));
-      if (matchedTau->isTauIDAvailable("byDeepTau2017v2VSeraw"))
-        byDeepTau2017v2VSerawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2017v2VSeraw"));
-      if (matchedTau->isTauIDAvailable("byDeepTau2017v2VSjetraw"))
-        byDeepTau2017v2VSjetrawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2017v2VSjetraw"));
-      if (matchedTau->isTauIDAvailable("byDeepTau2017v2VSmuraw"))
-        byDeepTau2017v2VSmurawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2017v2VSmuraw"));
+      if (matchedTau->isTauIDAvailable("byDeepTau2017v2p1VSeraw"))
+        byDeepTau2017v2p1VSerawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2017v2p1VSeraw"));
+      if (matchedTau->isTauIDAvailable("byDeepTau2017v2p1VSjetraw"))
+        byDeepTau2017v2p1VSjetrawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2017v2p1VSjetraw"));
+      if (matchedTau->isTauIDAvailable("byDeepTau2017v2p1VSmuraw"))
+        byDeepTau2017v2p1VSmurawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2017v2p1VSmuraw"));
       int j = 0;
       for (const auto& it : discriminators_) {
         string currentDiscriminator = it.getParameter<string>("discriminator");
