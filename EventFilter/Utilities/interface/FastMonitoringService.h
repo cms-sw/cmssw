@@ -12,10 +12,7 @@
 
 #include <filesystem>
 
-#include <boost/thread.hpp>
-
 #include "EventFilter/Utilities/interface/MicroStateService.h"
-//#include "EventFilter/Utilities/interface/FastMonitoringThread.h"
 
 #include <string>
 #include <vector>
@@ -28,7 +25,6 @@
   this is an evolution of the MicroStateService intended to be run standalone in cmsRun or similar
   As such, it has to independently create a monitoring thread and run it in each forked process, which needs 
   to be arranged following the standard CMSSW procedure.
-  We try to use boost threads for uniformity with the rest of the framework, even if they suck a bit.
   A legenda for use by the monitoring process in the DAQ needs to be generated as soon as convenient - since 
   no access to the EventProcessor is granted, this needs to wait until after beginJob is executed.
   At the same time, we try to spare time in the monitoring by avoiding even a single string lookup and using the 
@@ -57,6 +53,20 @@ namespace evf {
   class FastMonitoringThread;
 
   namespace FastMonState {
+
+    enum Microstate {
+      mInvalid = 0,
+      mIdle,
+      mFwkOvhSrc,
+      mFwkOvhMod,
+      mFwkEoL,
+      mInput,
+      mDqm,
+      mBoL,
+      mEoL,
+      mGlobEoL,
+      mCOUNT
+    };
 
     enum Macrostate {
       sInit = 0,
@@ -149,10 +159,10 @@ namespace evf {
 
   public:
     // the names of the states - some of them are never reached in an online app
+    static const edm::ModuleDescription reservedMicroStateNames[FastMonState::mCOUNT];
     static const std::string macroStateNames[FastMonState::MCOUNT];
     static const std::string inputStateNames[FastMonState::inCOUNT];
     // Reserved names for microstates
-    // moved into base class in EventFilter/Utilities for compatibility with MicroStateServiceClassic
     static const std::string nopath_;
     FastMonitoringService(const edm::ParameterSet&, edm::ActivityRegistry&);
     ~FastMonitoringService() override;
@@ -192,8 +202,8 @@ namespace evf {
     void setExceptionDetected(unsigned int ls);
 
     //this is still needed for use in special functions like DQM which are in turn framework services
-    void setMicroState(MicroStateService::Microstate) override;
-    void setMicroState(edm::StreamID, MicroStateService::Microstate) override;
+    void setMicroState(FastMonState::Microstate);
+    void setMicroState(edm::StreamID, FastMonState::Microstate);
 
     void accumulateFileSize(unsigned int lumi, unsigned long fileSize);
     void startedLookingForFile();

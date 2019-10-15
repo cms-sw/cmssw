@@ -1,11 +1,7 @@
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/interface/FastMonitoringThread.h"
-#include <iostream>
 
 #include "FWCore/Framework/interface/Event.h"
-#include <iomanip>
-#include <sys/time.h>
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
@@ -19,14 +15,33 @@
 
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-using namespace jsoncollector;
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include <iostream>
+#include <iomanip>
+#include <sys/time.h>
+
+
+using namespace jsoncollector;
+
 constexpr double throughputFactor() { return (1000000) / double(1024 * 1024); }
 
 namespace evf {
+
+  const edm::ModuleDescription FastMonitoringService::reservedMicroStateNames[FastMonState::mCOUNT] = {
+      edm::ModuleDescription("Dummy", "Invalid"),
+      edm::ModuleDescription("Dummy", "Idle"),
+      edm::ModuleDescription("Dummy", "FwkOvhSrc"),
+      edm::ModuleDescription("Dummy", "FwkOvhMod"),//set post produce, analyze or filter
+      edm::ModuleDescription("Dummy", "FwkEoL"),
+      edm::ModuleDescription("Dummy", "Input"),
+      edm::ModuleDescription("Dummy", "DQM"),
+      edm::ModuleDescription("Dummy", "BoL"),
+      edm::ModuleDescription("Dummy", "EoL"),
+      edm::ModuleDescription("Dummy", "GlobalEoL")};
+
 
   const std::string FastMonitoringService::macroStateNames[FastMonState::MCOUNT] = {"Init",
                                                                                             "JobReady",
@@ -292,13 +307,13 @@ namespace evf {
 
     fmt_->m_data.macrostate_ = FastMonState::sInit;
 
-    for (unsigned int i = 0; i < (mCOUNT); i++)
+    for (unsigned int i = 0; i < (FastMonState::mCOUNT); i++)
       fmt_->m_data.encModule_.updateReserved(static_cast<const void*>(reservedMicroStateNames + i));
     fmt_->m_data.encModule_.completeReservedWithDummies();
 
     for (unsigned int i = 0; i < nStreams_; i++) {
       fmt_->m_data.ministate_.emplace_back(&nopath_);
-      fmt_->m_data.microstate_.emplace_back(&reservedMicroStateNames[mInvalid]);
+      fmt_->m_data.microstate_.emplace_back(&reservedMicroStateNames[FastMonState::mInvalid]);
 
       //for synchronization
       streamCounterUpdating_.push_back(new std::atomic<bool>(false));
@@ -549,11 +564,11 @@ namespace evf {
     *(fmt_->m_data.processed_[sid]) = 0;
 
     fmt_->m_data.ministate_[sid] = &nopath_;
-    fmt_->m_data.microstate_[sid] = &reservedMicroStateNames[mBoL];
+    fmt_->m_data.microstate_[sid] = &reservedMicroStateNames[FastMonState::mBoL];
   }
 
   void FastMonitoringService::postStreamBeginLumi(edm::StreamContext const& sc) {
-    fmt_->m_data.microstate_[sc.streamID().value()] = &reservedMicroStateNames[mIdle];
+    fmt_->m_data.microstate_[sc.streamID().value()] = &reservedMicroStateNames[FastMonState::mIdle];
   }
 
   void FastMonitoringService::preStreamEndLumi(edm::StreamContext const& sc) {
@@ -565,10 +580,10 @@ namespace evf {
     fmt_->jsonMonitor_->snapStreamAtomic(sc.eventID().luminosityBlock(), sid);
     //reset this in case stream does not get notified of next lumi (we keep processed events only)
     fmt_->m_data.ministate_[sid] = &nopath_;
-    fmt_->m_data.microstate_[sid] = &reservedMicroStateNames[mEoL];
+    fmt_->m_data.microstate_[sid] = &reservedMicroStateNames[FastMonState::mEoL];
   }
   void FastMonitoringService::postStreamEndLumi(edm::StreamContext const& sc) {
-    fmt_->m_data.microstate_[sc.streamID().value()] = &reservedMicroStateNames[mFwkEoL];
+    fmt_->m_data.microstate_[sc.streamID().value()] = &reservedMicroStateNames[FastMonState::mFwkEoL];
   }
 
   void FastMonitoringService::prePathEvent(edm::StreamContext const& sc, edm::PathContext const& pc) {
@@ -602,7 +617,7 @@ namespace evf {
   void FastMonitoringService::preEvent(edm::StreamContext const& sc) {}
 
   void FastMonitoringService::postEvent(edm::StreamContext const& sc) {
-    fmt_->m_data.microstate_[sc.streamID()] = &reservedMicroStateNames[mIdle];
+    fmt_->m_data.microstate_[sc.streamID()] = &reservedMicroStateNames[FastMonState::mIdle];
 
     fmt_->m_data.ministate_[sc.streamID()] = &nopath_;
 
@@ -616,11 +631,11 @@ namespace evf {
   }
 
   void FastMonitoringService::preSourceEvent(edm::StreamID sid) {
-    fmt_->m_data.microstate_[sid.value()] = &reservedMicroStateNames[mInput];
+    fmt_->m_data.microstate_[sid.value()] = &reservedMicroStateNames[FastMonState::mInput];
   }
 
   void FastMonitoringService::postSourceEvent(edm::StreamID sid) {
-    fmt_->m_data.microstate_[sid.value()] = &reservedMicroStateNames[mFwkOvhSrc];
+    fmt_->m_data.microstate_[sid.value()] = &reservedMicroStateNames[FastMonState::mFwkOvhSrc];
   }
 
   void FastMonitoringService::preModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
@@ -629,20 +644,20 @@ namespace evf {
 
   void FastMonitoringService::postModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
     //microstate_[sc.streamID().value()] = (void*)(mcc.moduleDescription());
-    fmt_->m_data.microstate_[sc.streamID().value()] = &reservedMicroStateNames[mFwkOvhMod];
+    fmt_->m_data.microstate_[sc.streamID().value()] = &reservedMicroStateNames[FastMonState::mFwkOvhMod];
   }
 
   //FUNCTIONS CALLED FROM OUTSIDE
 
   //this is for old-fashioned service that is not thread safe and can block other streams
   //(we assume the worst case - everything is blocked)
-  void FastMonitoringService::setMicroState(MicroStateService::Microstate m) {
+  void FastMonitoringService::setMicroState(FastMonState::Microstate m) {
     for (unsigned int i = 0; i < nStreams_; i++)
       fmt_->m_data.microstate_[i] = &reservedMicroStateNames[m];
   }
 
   //this is for services that are multithreading-enabled or rarely blocks other streams
-  void FastMonitoringService::setMicroState(edm::StreamID sid, MicroStateService::Microstate m) {
+  void FastMonitoringService::setMicroState(edm::StreamID sid, FastMonState::Microstate m) {
     fmt_->m_data.microstate_[sid] = &reservedMicroStateNames[m];
   }
 
@@ -916,10 +931,10 @@ namespace evf {
     } else if (inputState_ == FastMonState::inNoRequest) {
       inputStatePerThread = true;
       for (unsigned int i = 0; i < nStreams_; i++) {
-        if (microstateCopy[i] == &reservedMicroStateNames[mIdle])
+        if (microstateCopy[i] == &reservedMicroStateNames[FastMonState::mIdle])
           fmt_->m_data.inputState_[i] = FastMonState::inNoRequestWithIdleThreads;
-        else if (microstateCopy[i] == &reservedMicroStateNames[mEoL] ||
-                 microstateCopy[i] == &reservedMicroStateNames[mFwkEoL])
+        else if (microstateCopy[i] == &reservedMicroStateNames[FastMonState::mEoL] ||
+                 microstateCopy[i] == &reservedMicroStateNames[FastMonState::mFwkEoL])
           fmt_->m_data.inputState_[i] = FastMonState::inNoRequestWithEoLThreads;
         else
           fmt_->m_data.inputState_[i] = FastMonState::inNoRequest;
@@ -927,8 +942,8 @@ namespace evf {
     } else if (inputState_ == FastMonState::inNewLumi) {
       inputStatePerThread = true;
       for (unsigned int i = 0; i < nStreams_; i++) {
-        if (microstateCopy[i] == &reservedMicroStateNames[mEoL] ||
-            microstateCopy[i] == &reservedMicroStateNames[mFwkEoL])
+        if (microstateCopy[i] == &reservedMicroStateNames[FastMonState::mEoL] ||
+            microstateCopy[i] == &reservedMicroStateNames[FastMonState::mFwkEoL])
           fmt_->m_data.inputState_[i] = FastMonState::inNewLumi;
       }
     } else
@@ -944,5 +959,11 @@ namespace evf {
     } else
       fmt_->jsonMonitor_->snap(ls);
   }
+
+  //compatibility
+  MicroStateService::MicroStateService(const edm::ParameterSet& iPS, edm::ActivityRegistry& reg) {}
+
+  MicroStateService::~MicroStateService() {}
+
 
 }  //end namespace evf
