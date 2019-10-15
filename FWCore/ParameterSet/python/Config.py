@@ -827,7 +827,10 @@ class Process(object):
                 if options.useSubdirectories and module_subfolder:
                     module = module_subfolder + '.' + module
                 if options.targetDirectory is not None:
-                    module = options.targetDirectory + '.' + module
+                    if options.useSubdirectories and subfolder:
+                      module = '..' + module
+                    else:
+                      module = '.' + module
                 code += 'from ' + module + ' import *\n'
             if dependencies:
                 code += '\n'
