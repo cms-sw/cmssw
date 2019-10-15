@@ -39,8 +39,7 @@ MagGeometry::MagGeometry(int geomVersion,
                          const std::vector<MagESector const*>& tes,
                          const std::vector<MagVolume6Faces const*>& tbv,
                          const std::vector<MagVolume6Faces const*>& tev)
-    : lastVolume(nullptr),
-      theBLayers(tbl),
+    : theBLayers(tbl),
       theESectors(tes),
       theBVolumes(tbv),
       theEVolumes(tev),
@@ -177,13 +176,12 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
 
 // Use hierarchical structure for fast lookup.
 MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance) const {
-  // Check volume cache
-  auto lastVolumeCheck = lastVolume.load(std::memory_order_acquire);
-  if (lastVolumeCheck != nullptr && lastVolumeCheck->inside(gp)) {
-    return lastVolumeCheck;
-  }
+  static thread_local MagVolume const* lastVolume = nullptr;
 
-  MagVolume const* result = nullptr;
+  MagVolume const* result = lastVolume;
+
+  if (result && result->inside(gp))
+    return result;
 
   float R = gp.perp();
   float Z = fabs(gp.z());
@@ -225,7 +223,7 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
   }
 
   if (cacheLastVolume)
-    lastVolume.store(result, std::memory_order_release);
+    lastVolume = result;
 
   return result;
 }

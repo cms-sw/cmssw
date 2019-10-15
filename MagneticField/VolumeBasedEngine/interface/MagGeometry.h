@@ -61,8 +61,6 @@ private:
 
   bool inBarrel(float R, float Z) const;
 
-  mutable std::atomic<MagVolume const*> lastVolume;  // Cache last volume found
-
   std::vector<MagBLayer const*> theBLayers;
   std::vector<MagESector const*> theESectors;
 
