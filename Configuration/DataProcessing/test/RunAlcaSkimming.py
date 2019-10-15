@@ -68,7 +68,7 @@ class RunAlcaSkimming:
 
         process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
-        pklFile = open("RunAlcaSkimmingCfg.pkl", "w")
+        pklFile = open("RunAlcaSkimmingCfg.pkl", "wb")
         psetFile = open("RunAlcaSkimmingCfg.py", "w")
         try:
             pickle.dump(process, pklFile)

@@ -78,7 +78,7 @@ class RunAlcaHarvesting:
         process.source.fileNames.append(self.inputLFN)
 
 
-        pklFile = open("RunAlcaHarvestingCfg.pkl", "w")
+        pklFile = open("RunAlcaHarvestingCfg.pkl", "wb")
         psetFile = open("RunAlcaHarvestingCfg.py", "w")
         try:
             pickle.dump(process, pklFile)

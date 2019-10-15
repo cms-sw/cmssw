@@ -110,7 +110,7 @@ class RunVisualizationProcessing:
 
         process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
-        pklFile = open("RunVisualizationProcessingCfg.pkl", "w")
+        pklFile = open("RunVisualizationProcessingCfg.pkl", "wb")
         psetFile = open("RunVisualizationProcessingCfg.py", "w")
         try:
             pickle.dump(process, pklFile)
