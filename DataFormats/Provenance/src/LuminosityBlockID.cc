@@ -6,12 +6,12 @@ namespace edm {
 
   static unsigned int const shift = 8 * sizeof(unsigned int);
 
-  LuminosityBlockID::LuminosityBlockID(boost::uint64_t id)
+  LuminosityBlockID::LuminosityBlockID(uint64_t id)
       : run_(static_cast<RunNumber_t>(id >> shift)),
         luminosityBlock_(static_cast<LuminosityBlockNumber_t>(std::numeric_limits<unsigned int>::max() & id)) {}
 
-  boost::uint64_t LuminosityBlockID::value() const {
-    boost::uint64_t id = run_;
+  uint64_t LuminosityBlockID::value() const {
+    uint64_t id = run_;
     id = id << shift;
     id += luminosityBlock_;
     return id;

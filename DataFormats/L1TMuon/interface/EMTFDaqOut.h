@@ -4,7 +4,6 @@
 #define __l1t_EMTF_output_h__
 
 #include <vector>
-#include <boost/cstdint.hpp>  // For uint64_t and other types. Also found in DataFormats/L1Trigger/src/classes.h
 
 #include "EMTF/AMC13Header.h"
 #include "EMTF/MTF7Header.h"
@@ -16,6 +15,7 @@
 #include "EMTF/EventTrailer.h"
 #include "EMTF/MTF7Trailer.h"
 #include "EMTF/AMC13Trailer.h"
+#include <cstdint>
 
 // All comments below apply equally to classes in EMTF/ directory - AWB 28.01.16
 

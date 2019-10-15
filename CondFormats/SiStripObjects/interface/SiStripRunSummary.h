@@ -6,7 +6,6 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <boost/cstdint.hpp>
 
 class SiStripRunSummary {
 public:

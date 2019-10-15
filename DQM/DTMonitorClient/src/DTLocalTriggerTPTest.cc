@@ -33,7 +33,6 @@ using namespace std;
 DTLocalTriggerTPTest::DTLocalTriggerTPTest(const edm::ParameterSet& ps) {
   setConfig(ps, "DTLocalTriggerTP");
   baseFolderTM = "DT/11-LocalTriggerTP-TM/";
-  baseFolderDDU = "DT/12-LocalTriggerTP-DDU/";
 
   bookingdone = false;
 }
@@ -83,7 +82,7 @@ void DTLocalTriggerTPTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMSt
           for (int sect = 1; sect <= 12; ++sect) {
             DTChamberId chId(wh, stat, sect);
 
-            // Perform TM/DDU common plot analysis (Phi ones)
+            // Perform TM common plot analysis (Phi ones)
             TH2F* BXvsQual = getHisto<TH2F>(igetter.get(getMEName("BXvsQual_In", "LocalTriggerPhiIn", chId)));
             if (BXvsQual) {
               if (BXvsQual->GetEntries() > 1) {

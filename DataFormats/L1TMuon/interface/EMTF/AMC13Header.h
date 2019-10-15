@@ -4,7 +4,7 @@
 #define __l1t_emtf_AMC13Header_h__
 
 #include <vector>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace l1t {
   namespace emtf {

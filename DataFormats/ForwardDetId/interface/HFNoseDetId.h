@@ -43,6 +43,7 @@ public:
 
   /** Converter for a geometry cell id */
   HFNoseDetId geometryCell() const { return HFNoseDetId(zside(), 0, layer(), waferU(), waferV(), 0, 0); }
+  HFNoseDetId moduleId() const { return HFNoseDetId(zside(), type(), layer(), waferU(), waferV(), 0, 0); }
 
   /// get the type
   int type() const { return (id_ >> kHFNoseTypeOffset) & kHFNoseTypeMask; }

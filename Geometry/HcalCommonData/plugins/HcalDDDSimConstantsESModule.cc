@@ -20,9 +20,12 @@
 
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include <FWCore/Framework/interface/ESProducer.h>
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <Geometry/HcalCommonData/interface/HcalDDDSimConstants.h>
 #include <Geometry/Records/interface/HcalSimNumberingRecord.h>
+
+//#define EDM_ML_DEBUG
 
 class HcalDDDSimConstantsESModule : public edm::ESProducer {
 public:
@@ -38,8 +41,13 @@ private:
   edm::ESGetToken<HcalParameters, HcalParametersRcd> parToken_;
 };
 
-HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet&)
-    : parToken_{setWhatProduced(this).consumesFrom<HcalParameters, HcalParametersRcd>(edm::ESInputTag{})} {}
+HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet&) {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalGeom") << "constructing HcalDDDSimConstantsESModule";
+#endif
+  auto cc = setWhatProduced(this);
+  parToken_ = cc.consumesFrom<HcalParameters, HcalParametersRcd>(edm::ESInputTag{});
+}
 
 void HcalDDDSimConstantsESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

@@ -302,36 +302,37 @@ namespace {
 }  // namespace
 
 void testPtr::getTest() {
-  typedef std::vector<IntValue> IntCollection;
-  auto ptr = std::make_unique<IntCollection>();
+  {
+    typedef std::vector<IntValue> IntCollection;
+    auto ptr = std::make_unique<IntCollection>();
 
-  ptr->push_back(0);
-  ptr->push_back(1);
+    ptr->push_back(0);
+    ptr->push_back(1);
 
-  edm::Wrapper<IntCollection> wrapper(std::move(ptr));
-  TestGetter tester;
-  tester.hold_ = &wrapper;
+    edm::Wrapper<IntCollection> wrapper(std::move(ptr));
+    TestGetter tester;
+    tester.hold_ = &wrapper;
 
-  ProductID const pid(1, 1);
+    ProductID const pid(1, 1);
 
-  IntCollection const* wptr = dynamic_cast<IntCollection const*>(wrapper.product());
+    IntCollection const* wptr = dynamic_cast<IntCollection const*>(wrapper.product());
 
-  OrphanHandle<IntCollection> handle(wptr, pid);
+    OrphanHandle<IntCollection> handle(wptr, pid);
 
-  Ptr<IntValue> ref0(pid, 0, &tester);
-  CPPUNIT_ASSERT(!ref0.hasProductCache());
+    Ptr<IntValue> ref0(pid, 0, &tester);
+    CPPUNIT_ASSERT(!ref0.hasProductCache());
 
-  Ptr<IntValue> ref1(pid, 1, &tester);
+    Ptr<IntValue> ref1(pid, 1, &tester);
 
-  Ptr<IntValue> ref2(pid, 1, &tester);
+    Ptr<IntValue> ref2(pid, 1, &tester);
 
-  CPPUNIT_ASSERT(ref0.isAvailable());
-  CPPUNIT_ASSERT(0 == ref0->value_);
-  CPPUNIT_ASSERT(ref0.hasProductCache());
-  CPPUNIT_ASSERT(1 == ref1->value_);
-  CPPUNIT_ASSERT(1 == ref2->value_);
-  CPPUNIT_ASSERT(1 == (*ref1).value_);
-
+    CPPUNIT_ASSERT(ref0.isAvailable());
+    CPPUNIT_ASSERT(0 == ref0->value_);
+    CPPUNIT_ASSERT(ref0.hasProductCache());
+    CPPUNIT_ASSERT(1 == ref1->value_);
+    CPPUNIT_ASSERT(1 == ref2->value_);
+    CPPUNIT_ASSERT(1 == (*ref1).value_);
+  }
   {
     typedef std::vector<IntValue2> SDCollection;
     auto ptr = std::make_unique<SDCollection>();

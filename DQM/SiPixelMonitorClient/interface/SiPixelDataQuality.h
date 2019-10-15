@@ -25,7 +25,6 @@
 #include "TH2F.h"
 #include "TPaveText.h"
 
-#include <boost/cstdint.hpp>
 #include <fstream>
 #include <map>
 #include <sstream>

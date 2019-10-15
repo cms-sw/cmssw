@@ -28,13 +28,6 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
   // get hold of back-end interface
   dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
-  if (dbe_) {
-    if (verbose_) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
 
   if (dbe_) {
     if (verbose_)

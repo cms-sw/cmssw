@@ -143,7 +143,7 @@ def filesFromDASQuery(query,option="",s=None):
         if count!=0:
             print('Sleeping, then retrying DAS')
             time.sleep(100)
-        p = Popen('dasgoclient %s --query "%s"'%(option,query), stdout=PIPE,shell=True)
+        p = Popen('dasgoclient %s --query "%s"'%(option,query), stdout=PIPE,shell=True, universal_newlines=True)
         pipe=p.stdout.read()
         tupleP = os.waitpid(p.pid, 0)
         eC=tupleP[1]
@@ -899,7 +899,7 @@ class ConfigBuilder(object):
         if self._options.customise_commands:
             import string
             for com in self._options.customise_commands.split('\\n'):
-                com=string.lstrip(com)
+                com=com.lstrip()
                 self.executeAndRemember(com)
                 final_snippet +='\n'+com
 
@@ -1964,8 +1964,12 @@ class ConfigBuilder(object):
                 #will get in the schedule, smoothly
                 getattr(self.process,pathName).insert(0,self.process.genstepfilter)
 
+
         pathName='dqmofflineOnPAT_step'
         for (i,sequence) in enumerate(postSequenceList):
+	    #Fix needed to avoid duplication of sequences not defined in autoDQM or without a PostDQM
+            if (sequenceList[i]==postSequenceList[i]):
+                      continue
             if (i!=0):
                 pathName='dqmofflineOnPAT_%d_step'%(i)
 
