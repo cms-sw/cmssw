@@ -110,7 +110,7 @@ class RunExpressProcessing:
 
         process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
-        pklFile = open("RunExpressProcessingCfg.pkl", "w")
+        pklFile = open("RunExpressProcessingCfg.pkl", "wb")
         psetFile = open("RunExpressProcessingCfg.py", "w")
         try:
             pickle.dump(process, pklFile)

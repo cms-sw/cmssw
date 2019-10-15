@@ -74,7 +74,7 @@ class RunDQMHarvesting:
         process.source.fileNames.append(self.inputLFN)
 
 
-        pklFile = open("RunDQMHarvestingCfg.pkl", "w")
+        pklFile = open("RunDQMHarvestingCfg.pkl", "wb")
         psetFile = open("RunDQMHarvestingCfg.py", "w")
         try:
             pickle.dump(process, pklFile)
