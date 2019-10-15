@@ -32,7 +32,7 @@
 using namespace std;
 using namespace cms;
 
-class DDCompactViewMFESProducer : public edm::ESProducer {
+class DDCompactViewMFESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   DDCompactViewMFESProducer(const edm::ParameterSet&);
   ~DDCompactViewMFESProducer() override;
@@ -43,6 +43,10 @@ public:
 
   ReturnType produce(const IdealMagneticFieldRecord&);
 
+protected:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+		      const edm::IOVSyncValue &,
+		      edm::ValidityInterval &) override;
 private:
   const string m_label;
 };
@@ -50,6 +54,7 @@ private:
 DDCompactViewMFESProducer::DDCompactViewMFESProducer(const edm::ParameterSet& iConfig)
     : m_label(iConfig.getParameter<std::string>("appendToDataLabel")) {
   setWhatProduced(this);
+  findingRecord<IdealMagneticFieldRecord>();
 }
 
 DDCompactViewMFESProducer::~DDCompactViewMFESProducer() {}
@@ -65,6 +70,14 @@ DDCompactViewMFESProducer::ReturnType DDCompactViewMFESProducer::produce(const I
 
   auto product = std::make_unique<DDCompactView>(*det);
   return product;
+}
+
+void
+DDCompactViewMFESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+					const edm::IOVSyncValue &iosv,
+					edm::ValidityInterval &oValidity) {
+  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
+  oValidity = infinity;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(DDCompactViewMFESProducer);
