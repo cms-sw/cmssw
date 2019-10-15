@@ -68,7 +68,7 @@ private:
                             float hoe1,
                             float hoe2,
                             reco::BeamSpot const& beamSpot,
-                            std::vector<reco::Vertex> const* vertices_,
+                            std::vector<reco::Vertex> const* vertices,
                             reco::ElectronSeedCollection& out);
 
   const bool dynamicPhiRoad_;
