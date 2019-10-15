@@ -24,9 +24,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlob.h"
+#include "CondFormats/DataRecord/interface/MFGeometryFileRcd.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
 
@@ -42,7 +44,9 @@ public:
   using ReturnType = unique_ptr<DDDetector>;
   using Detector = dd4hep::Detector;
 
-  ReturnType produce(const IdealGeometryRecord&);
+  ReturnType produceGeom(const IdealGeometryRecord&);
+  ReturnType produceMagField(const IdealMagneticFieldRecord&);
+  ReturnType produce();
   static void fillDescriptions(ConfigurationDescriptions&);
 
 protected:
@@ -62,8 +66,15 @@ DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
       confGeomXMLFiles_(iConfig.getParameter<FileInPath>("confGeomXMLFiles").fullPath()),
       rootDDName_(iConfig.getParameter<string>("rootDDName")),
       label_(iConfig.getParameter<string>("label")) {
-  setWhatProduced(this);
-  findingRecord<IdealGeometryRecord>();
+  if (rootDDName_ == "MagneticFieldVolumes:MAGF" || rootDDName_ == "cmsMagneticField:MAGF") {
+    setWhatProduced(
+		    this, &DDDetectorESProducer::produceMagField, edm::es::Label(iConfig.getParameter<std::string>("@module_label")));
+     findingRecord<IdealMagneticFieldRecord>();
+  } else {
+  setWhatProduced(
+         this, &DDDetectorESProducer::produceGeom, edm::es::Label(iConfig.getParameter<std::string>("@module_label")));
+     findingRecord<IdealGeometryRecord>();
+   }
 }
 
 DDDetectorESProducer::~DDDetectorESProducer() {}
@@ -90,7 +101,20 @@ void DDDetectorESProducer::setIntervalFor(const eventsetup::EventSetupRecordKey&
   oInterval = ValidityInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());  //infinite
 }
 
-DDDetectorESProducer::ReturnType DDDetectorESProducer::produce(const IdealGeometryRecord& iRecord) {
+DDDetectorESProducer::ReturnType DDDetectorESProducer::produceMagField(const IdealMagneticFieldRecord& iRecord) {
+  LogVerbatim("Geometry") << "DDDetectorESProducer::Produce MF " << appendToDataLabel_;
+  if (fromDB_) {
+    edm::ESTransientHandle<FileBlob> gdd;
+    iRecord.getRecord<MFGeometryFileRcd>().get(label_, gdd);
+    unique_ptr<vector<unsigned char> > tb = (*gdd).getUncompressedBlob();
+
+    return make_unique<cms::DDDetector>(label_, string(tb->begin(), tb->end()), true);
+  } else {
+    return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_);
+  }
+}
+
+DDDetectorESProducer::ReturnType DDDetectorESProducer::produceGeom(const IdealGeometryRecord& iRecord) {
   LogVerbatim("Geometry") << "DDDetectorESProducer::Produce " << appendToDataLabel_;
   if (fromDB_) {
     edm::ESTransientHandle<FileBlob> gdd;
@@ -101,6 +125,11 @@ DDDetectorESProducer::ReturnType DDDetectorESProducer::produce(const IdealGeomet
   } else {
     return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_);
   }
+}
+
+DDDetectorESProducer::ReturnType DDDetectorESProducer::produce() {
+  LogVerbatim("Geometry") << "DDDetectorESProducer::Produce " << appendToDataLabel_;
+  return make_unique<DDDetector>(appendToDataLabel_, confGeomXMLFiles_);
 }
 
 DEFINE_FWK_EVENTSETUP_SOURCE(DDDetectorESProducer);
