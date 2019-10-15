@@ -43,14 +43,20 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 // system
+#include <string>
+#include <set>
 #include <vector>
 #include <map>
-//#include <memory>
+#include <functional>
+#include <cstdint>
+//#inclu de <memory>
 //#include <cmath>
 //
 
 //class MonitorElement;
 class GeomDet;
+class PSimHit;
+class PixelGeomDetUnit;
 
 class PixelTestBeamValidation : public DQMEDAnalyzer 
 {
@@ -77,14 +83,16 @@ class PixelTestBeamValidation : public DQMEDAnalyzer
         const SimTrack * get_simtrack_from_id_(unsigned int tid, const edm::SimTrackContainer * simtracks);
 
         // Get the set of simhits created by a track 
-        const edm::PSimHitContainer get_simhits_from_trackid_(
+        const std::vector<const PSimHit*>  get_simhits_from_trackid_(
                 unsigned int tid, 
                 unsigned int detid_raw, 
                 const std::vector<const edm::PSimHitContainer*> & psimhits);
 
         // Helper container to memoize the SimHits created by a track (Id) per event
         // This should be cleared at the begining of the event
-        std::map<unsigned int,std::map<unsigned int,edm::PSimHitContainer>> m_tId_det_simhits_;
+        // Note that the PSimHit needs to store the pointer, as the 
+        // memoizer functions present ar
+        std::map<unsigned int,std::map<unsigned int,std::vector<const PSimHit *>>> m_tId_det_simhits_;
 
         // Transform a given measurement points into the i-cell pixel frame
         const std::pair<double,double> pixel_cell_transformation_(
@@ -98,7 +106,25 @@ class PixelTestBeamValidation : public DQMEDAnalyzer
 
         // Check if the given local position is close enough to the given channel,
         // the "tolerance" argument is quantifying 'close enough' in a square
-        bool channel_iluminated_by_(const MeasurementPoint & localpos,int channel, double tolerance) const;
+        //bool channel_iluminated_by_(const MeasurementPoint & localpos,int channel, double tolerance) const;
+        bool channel_iluminated_by_(const PSimHit & localpos,int channel, const PixelGeomDetUnit * tkDet);
+        
+        // The list of pixels illuminated by the PSimHit
+        std::set<std::pair<int,int> > get_illuminated_pixels_(const PSimHit & ps, const PixelGeomDetUnit * tkDetUnit);
+
+        // General function container to decide if a hit has to be processed or not
+        // depending the user request (check constructor and _check_input_angles method
+        // for implementation details, as the real algorithm is created in there)
+        std::function<bool (const PSimHit *)> use_this_track_;
+
+        // The actual algorithm to check if a track entered a detector
+        // within a given angles (to be used by use_this_track_ if needed, not
+        // intended to be directly called)
+        bool _check_input_angles_(const PSimHit * ps);
+
+        // Helper member ot track the list of pixels illuminated by 
+        // the PSimHit (see definition of illuminate in get_illuminated_pixels_)
+        std::map<std::uintptr_t,std::set<std::pair<int,int> > > m_illuminated_pixels_;
 
         // Histograms:
         // HElper setup functions 
@@ -149,6 +175,12 @@ class PixelTestBeamValidation : public DQMEDAnalyzer
         edm::ParameterSet config_;
         // Geometry to use
         std::string geomType_;
+
+        // The tracks entry angle to accept (if any)
+        std::vector<double> tracksEntryAngleX_;
+        std::vector<double> tracksEntryAngleY_;
+        // The actual angles already parsed (0- x aix, 1- y axis)
+        std::map<unsigned int,std::pair<double,double>> active_entry_angles_;
         
         //std::vector<double> phiValues;
         // EDM token for the input collections 
