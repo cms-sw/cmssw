@@ -1,5 +1,5 @@
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
 
 VectorHit::VectorHit(const VectorHit& vh)
     : BaseTrackerRecHit(*vh.det(), trackerHitRTTI::vector),

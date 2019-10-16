@@ -2,7 +2,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 #include "RecoLocalTracker/SiPhase2VectorHitBuilder/test/VectorHitsValidation.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
