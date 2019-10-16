@@ -26,8 +26,9 @@ DQMOfflineHeavyIonsEcal = cms.Sequence( ecal_dqm_source_offline *
 
 DQMOfflineHeavyIonsHcal = cms.Sequence( hcalOfflineSourceSequence )
 
-DQMOfflineHeavyIonsTracker = cms.Sequence( SiStripDQMTier0_hi *
-				  siPixelOfflineDQM_heavyions_source )
+DQMOfflineHeavyIonsTrackerStrip = cms.Sequence( SiStripDQMTier0_hi )
+
+DQMOfflineHeavyIonsTrackerPixel = cms.Sequence( siPixelOfflineDQM_heavyions_source )
 
 DQMOfflineHeavyIonsMuonDPG = cms.Sequence( dtSources *
                                   rpcTier0Source *
@@ -37,7 +38,8 @@ DQMOfflineHeavyIonsPreDPG = cms.Sequence( DQMOfflineHeavyIonsDCS *
 					  DQMOfflineHeavyIonsL1T *
 					  DQMOfflineHeavyIonsEcal *
 					  DQMOfflineHeavyIonsHcal *
-					  DQMOfflineHeavyIonsTracker *
+					  DQMOfflineHeavyIonsTrackerStrip *
+                                          DQMOfflineHeavyIonsTrackerPixel *
 					  DQMOfflineHeavyIonsMuonDPG )
 
 DQMOfflineHeavyIonsDPG = cms.Sequence( DQMOfflineHeavyIonsPreDPG *

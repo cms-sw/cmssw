@@ -21,8 +21,9 @@ DQMOfflineCosmicsEcal = cms.Sequence( ecal_dqm_source_offline *
 
 DQMOfflineCosmicsHcal = cms.Sequence( hcalOfflineSourceSequence )
 
-DQMOfflineCosmicsTracker = cms.Sequence( SiStripDQMTier0 *
-				  siPixelOfflineDQM_cosmics_source )
+DQMOfflineCosmicsTrackerStrip = cms.Sequence( SiStripDQMTier0 )
+
+DQMOfflineCosmicsTrackerPixel = cms.Sequence( siPixelOfflineDQM_cosmics_source )
 
 DQMOfflineCosmicsMuonDPG = cms.Sequence( dtSourcesCosmics *
                                   rpcTier0Source *
@@ -33,7 +34,8 @@ DQMOfflineCosmicsCASTOR = cms.Sequence( castorSources )
 DQMOfflineCosmicsPreDPG = cms.Sequence( DQMOfflineCosmicsDCS *
                                         DQMOfflineCosmicsEcal *
                                         DQMOfflineCosmicsHcal *
-                                        DQMOfflineCosmicsTracker *
+                                        DQMOfflineCosmicsTrackerStrip *
+                                        DQMOfflineCosmicsTrackerPixel * 
 					DQMOfflineCosmicsMuonDPG *
                                         DQMOfflineCosmicsCASTOR 
 					)
@@ -64,6 +66,8 @@ DQMOfflineCosmicsPhysics = cms.Sequence( dqmPhysicsCosmics )
 
 DQMOfflineCosmicsPrePOG = cms.Sequence( DQMOfflineCosmicsTracking *
                                         DQMOfflineCosmicsMUO *
+# Following modules removed since they produce empty histograms 
+# and are not used in DC
 #                                        DQMOfflineCosmicsJetMET *
 #                                        DQMOfflineCosmicsEGamma *
                                         DQMOfflineCosmicsTrigger 
