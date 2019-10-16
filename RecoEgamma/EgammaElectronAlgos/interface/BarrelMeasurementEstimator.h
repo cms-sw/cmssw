@@ -20,16 +20,13 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
-
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
-
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 #include <utility>
 
-class BarrelMeasurementEstimator : public MeasurementEstimator {
+class BarrelMeasurementEstimator {
 public:
-  BarrelMeasurementEstimator() {}
   BarrelMeasurementEstimator(float phiMin, float phiMax, float zMin, float zMax)
       : thePhiMin(phiMin), thePhiMax(phiMax), theZMin(zMin), theZMax(zMax) {}
 
@@ -42,18 +39,9 @@ public:
     theZMax = zmax;
   }
 
-  // zero value indicates incompatible ts - hit pair
-  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts, const TrackingRecHit& hit) const override;
-  virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts, const GlobalPoint& gp) const;
-  virtual std::pair<bool, double> estimate(const GlobalPoint& vprim,
-                                           const TrajectoryStateOnSurface& ts,
-                                           const GlobalPoint& gp) const;
-  bool estimate(const TrajectoryStateOnSurface& ts, const BoundPlane& plane) const override;
-
-  BarrelMeasurementEstimator* clone() const override { return new BarrelMeasurementEstimator(*this); }
-
-  MeasurementEstimator::Local2DVector maximalLocalDisplacement(const TrajectoryStateOnSurface& ts,
-                                                               const BoundPlane& plane) const override;
+  bool estimate(const GlobalPoint& vprim,
+                const TrajectoryStateOnSurface& ts,
+                const GlobalPoint& gp) const;
 
 private:
   float thePhiMin;
