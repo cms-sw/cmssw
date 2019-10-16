@@ -67,13 +67,12 @@ private:
   void seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster,
                             float hoe1,
                             float hoe2,
+                            reco::BeamSpot const& beamSpot,
+                            std::vector<reco::Vertex> const* vertices,
                             reco::ElectronSeedCollection& out);
 
   const bool dynamicPhiRoad_;
-  edm::Handle<std::vector<reco::Vertex> > vertices_;
   const edm::EDGetTokenT<std::vector<reco::Vertex> > verticesTag_;
-
-  edm::Handle<reco::BeamSpot> beamSpot_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
 
   const float lowPtThresh_;
@@ -93,26 +92,12 @@ private:
 
   edm::ESHandle<MagneticField> magField_;
   edm::ESHandle<TrackerGeometry> trackerGeometry_;
-  KFUpdator updator_;
   std::unique_ptr<PropagatorWithMaterial> propagator_;
-
-  const MeasurementTracker* measurementTracker_;
-  const edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventTag_;
-
-  const NavigationSchool* navigationSchool_;
-
-  const edm::EventSetup* setup_;
-
-  PRecHitContainer recHits_;
-  PTrajectoryStateOnDet pts_;
 
   // keep cacheIds to get records only when necessary
   unsigned long long cacheIDMagField_ = 0;
-  unsigned long long cacheIDNavSchool_ = 0;
   unsigned long long cacheIDCkfComp_ = 0;
   unsigned long long cacheIDTrkGeom_ = 0;
-
-  const std::string measurementTrackerName_;
 
   const bool useRecoVertex_;
 

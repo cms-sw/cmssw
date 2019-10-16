@@ -6,7 +6,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "RecoEgamma/EgammaElectronProducers/interface/LowPtGsfElectronSeedHeavyObjectCache.h"
+
+#include "LowPtGsfElectronSeedHeavyObjectCache.h"
 
 #include <string>
 
