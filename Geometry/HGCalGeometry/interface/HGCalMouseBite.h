@@ -16,9 +16,8 @@ public:
   template <class T>
   bool exclude(const T& id) {
     int iuv = (100 * id.cellU() + id.cellV());
-    bool check =
-      ((id.type() == 0) ? (std::binary_search(rejectFine_.begin(), rejectFine_.end(), iuv))
-       : (std::binary_search(rejectCoarse_.begin(), rejectCoarse_.end(), iuv)));
+    bool check = ((id.type() == 0) ? (std::binary_search(rejectFine_.begin(), rejectFine_.end(), iuv))
+                                   : (std::binary_search(rejectCoarse_.begin(), rejectCoarse_.end(), iuv)));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalMouseBite:: DetId " << id
                                   << " is checked to be in the list of masked ID's with flag " << check;

@@ -19,8 +19,8 @@ HGCalMouseBite::HGCalMouseBite(const HGCalDDDConstants& hgc, const bool rot) {
     edm::LogVerbatim("HGCalGeom") << "Creating HGCMosueBite with cut at " << cut << " along " << angle.size()
                                   << " axes in wafers of size " << wafersize;
     for (unsigned int k = 0; k < angle.size(); ++k)
-      edm::LogVerbatim("HGCalGeom") << "Axis[" << k << "] " << convertRadToDeg(angle[k]) << " with projections " 
-				    << projXY[k].first << ":" << projXY[k].second;
+      edm::LogVerbatim("HGCalGeom") << "Axis[" << k << "] " << convertRadToDeg(angle[k]) << " with projections "
+                                    << projXY[k].first << ":" << projXY[k].second;
 #endif
     static const double sqrt3 = std::sqrt(3.0);
     int nf(HGCSiliconDetId::HGCalFineN);
