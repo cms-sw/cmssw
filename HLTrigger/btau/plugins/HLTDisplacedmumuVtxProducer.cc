@@ -183,7 +183,7 @@ void HLTDisplacedmumuVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
 }
 
 bool HLTDisplacedmumuVtxProducer::checkPreviousCand(const TrackRef& trackref,
-                                                    vector<RecoChargedCandidateRef>& refVect) {
+                                                    const vector<RecoChargedCandidateRef>& refVect) const {
   bool ok = false;
   for (auto& i : refVect) {
     if (i->get<TrackRef>() == trackref) {

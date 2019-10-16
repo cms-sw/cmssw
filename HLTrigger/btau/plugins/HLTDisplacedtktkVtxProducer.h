@@ -40,7 +40,7 @@ public:
   virtual void endJob();
 
 private:
-  bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);
+  bool checkPreviousCand(const reco::TrackRef& trackref, const std::vector<reco::RecoChargedCandidateRef>& ref2) const;
 
   const edm::InputTag srcTag_;
   const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> srcToken_;
