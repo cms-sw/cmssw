@@ -514,7 +514,7 @@ namespace dqm::legacy {
     };
     void runQTests();
   };
-}
+}  // namespace dqm::legacy
 namespace dqm::harvesting {
   typedef dqm::legacy::MonitorElement MonitorElement;
 }

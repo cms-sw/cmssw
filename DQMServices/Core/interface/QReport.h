@@ -42,8 +42,8 @@ public:
 private:
   friend class QCriterion;
   friend class dqm::legacy::MonitorElement;  // for running the quality test
-  friend class dqm::impl::MonitorElement;  // for running the quality test
-  friend class dqm::dqmstoreimpl::DQMStore;        // for setting QReport parameters after receiving report
+  friend class dqm::impl::MonitorElement;    // for running the quality test
+  friend class dqm::dqmstoreimpl::DQMStore;  // for setting QReport parameters after receiving report
 
   QReport(DQMNet::QValue *value, QCriterion *qc) : qvalue_(value), qcriterion_(qc) {}
 
