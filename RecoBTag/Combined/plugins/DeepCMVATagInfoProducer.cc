@@ -174,10 +174,10 @@ void DeepCMVATagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
     //if jetPt larger than cMVAPtThreshold_ --> default these taggers for easier SF measurements
     if ((nnInfo.jet().get())->pt() < cMVAPtThreshold_) {
-      vars.insert(reco::btau::Jet_SoftMu, !(isinf(softmu_discr)) ? softmu_discr : -0.2, true);
-      vars.insert(reco::btau::Jet_SoftEl, !(isinf(softel_discr)) ? softel_discr : -0.2, true);
-      vars.insert(reco::btau::Jet_JBP, !(isinf(jpb_discr)) ? jpb_discr : -0.2, true);
-      vars.insert(reco::btau::Jet_JP, !(isinf(jp_discr)) ? jp_discr : -0.2, true);
+      vars.insert(reco::btau::Jet_SoftMu, !(std::isinf(softmu_discr)) ? softmu_discr : -0.2, true);
+      vars.insert(reco::btau::Jet_SoftEl, !(std::isinf(softel_discr)) ? softel_discr : -0.2, true);
+      vars.insert(reco::btau::Jet_JBP, !(std::isinf(jpb_discr)) ? jpb_discr : -0.2, true);
+      vars.insert(reco::btau::Jet_JP, !(std::isinf(jp_discr)) ? jp_discr : -0.2, true);
     }
 
     vars.finalize();
