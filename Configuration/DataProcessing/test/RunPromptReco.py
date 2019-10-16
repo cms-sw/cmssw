@@ -122,7 +122,7 @@ class RunPromptReco:
         pklFile = open("RunPromptRecoCfg.pkl", "wb")
         psetFile = open("RunPromptRecoCfg.py", "w")
         try:
-            pickle.dump(process, pklFile)
+            pickle.dump(process, pklFile, protocol=0)
             psetFile.write("import FWCore.ParameterSet.Config as cms\n")
             psetFile.write("import pickle\n")
             psetFile.write("handle = open('RunPromptRecoCfg.pkl','rb')\n")
