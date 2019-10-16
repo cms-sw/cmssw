@@ -281,6 +281,11 @@ double HGCalDDDConstants::distFromEdgeHex(double x, double y, double z) const {
   // Input x, y in Geant4 unit and transformed to CMSSW standard
   double xx = HGCalParameters::k_ScaleFromDDD * x;
   double yy = HGCalParameters::k_ScaleFromDDD * y;
+  if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
+    int ll = layerIndex(getLayer(z, false), false);
+    xx -= hgpar_->xLayerHex_[ll];
+    yy -= hgpar_->yLayerHex_[ll];
+  }
   int sizew = (int)(hgpar_->waferPosX_.size());
   int wafer = sizew;
   // Transform to the local coordinate frame of the wafer first
@@ -1196,19 +1201,25 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(int wafer, bool reco)
   return std::make_pair(xx, yy);
 }
 
-std::pair<double, double> HGCalDDDConstants::waferPosition(int waferU, int waferV, bool reco) const {
-  double xx(0), yy(0);
-  int indx = HGCalWaferIndex::waferIndex(0, waferU, waferV);
-  auto itr = hgpar_->wafersInLayers_.find(indx);
-  if (itr != hgpar_->wafersInLayers_.end()) {
-    xx = hgpar_->waferPosX_[itr->second];
-    yy = hgpar_->waferPosY_[itr->second];
-  }
+std::pair<double, double> HGCalDDDConstants::waferPosition(
+    int lay, int waferU, int waferV, bool reco, bool debug) const {
+  int ll = lay - hgpar_->firstLayer_;
+  double x = hgpar_->xLayerHex_[ll];
+  double y = hgpar_->yLayerHex_[ll];
+  if (debug)
+    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Shift " << hgpar_->xLayerHex_[ll] << ":"
+                                  << hgpar_->yLayerHex_[ll];
   if (!reco) {
-    xx *= HGCalParameters::k_ScaleToDDD;
-    yy *= HGCalParameters::k_ScaleToDDD;
+    x *= HGCalParameters::k_ScaleToDDD;
+    y *= HGCalParameters::k_ScaleToDDD;
   }
-  return std::make_pair(xx, yy);
+
+  const auto& xy = waferPosition(waferU, waferV, reco);
+  x += xy.first;
+  y += xy.second;
+  if (debug)
+    edm::LogVerbatim("HGCalGeom") << "With wafer " << x << ":" << y << ":" << xy.first << ":" << xy.second;
+  return std::make_pair(x, y);
 }
 
 int HGCalDDDConstants::waferType(DetId const& id) const {
@@ -1447,25 +1458,19 @@ bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
   return in;
 }
 
-std::pair<double, double> HGCalDDDConstants::waferPosition(
-    int lay, int waferU, int waferV, bool reco, bool debug) const {
-  int ll = lay - hgpar_->firstLayer_;
-  double x = hgpar_->xLayerHex_[ll];
-  double y = hgpar_->yLayerHex_[ll];
-  if (debug)
-    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Shift " << hgpar_->xLayerHex_[ll] << ":"
-                                  << hgpar_->yLayerHex_[ll];
-  if (!reco) {
-    x *= HGCalParameters::k_ScaleToDDD;
-    y *= HGCalParameters::k_ScaleToDDD;
+std::pair<double, double> HGCalDDDConstants::waferPosition(int waferU, int waferV, bool reco) const {
+  double xx(0), yy(0);
+  int indx = HGCalWaferIndex::waferIndex(0, waferU, waferV);
+  auto itr = hgpar_->wafersInLayers_.find(indx);
+  if (itr != hgpar_->wafersInLayers_.end()) {
+    xx = hgpar_->waferPosX_[itr->second];
+    yy = hgpar_->waferPosY_[itr->second];
   }
-
-  const auto& xy = waferPosition(waferU, waferV, reco);
-  x += xy.first;
-  y += xy.second;
-  if (debug)
-    edm::LogVerbatim("HGCalGeom") << "With wafer " << x << ":" << y << ":" << xy.first << ":" << xy.second;
-  return std::make_pair(x, y);
+  if (!reco) {
+    xx *= HGCalParameters::k_ScaleToDDD;
+    yy *= HGCalParameters::k_ScaleToDDD;
+  }
+  return std::make_pair(xx, yy);
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"
