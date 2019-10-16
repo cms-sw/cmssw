@@ -8,12 +8,82 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+#include "TrackingTools/DetLayers/interface/rangesIntersect.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+#include "TrackingTools/DetLayers/interface/rangesIntersect.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <typeinfo>
 #include <bitset>
 
+namespace std {
+  template <>
+  struct hash<std::pair<const GeomDet *, GlobalPoint> > {
+    std::size_t operator()(const std::pair<const GeomDet *, GlobalPoint> &g) const {
+      auto h1 = std::hash<unsigned long long>()((unsigned long long)g.first);
+      unsigned long long k;
+      memcpy(&k, &g.second, sizeof(k));
+      auto h2 = std::hash<unsigned long long>()(k);
+      return h1 ^ (h2 << 1);
+    }
+  };
+}  // namespace std
+
 using namespace reco;
 using namespace std;
+
+bool PixelHitMatcher::ForwardMeasurementEstimator::operator()(const GlobalPoint &vprim,
+                                                              const TrajectoryStateOnSurface &absolute_ts,
+                                                              const GlobalPoint &absolute_gp) const {
+  GlobalVector ts = absolute_ts.globalParameters().position() - vprim;
+  GlobalVector gp = absolute_gp - vprim;
+
+  float rDiff = gp.perp() - ts.perp();
+  float rMin = theRMin;
+  float rMax = theRMax;
+  float myZ = gp.z();
+  if ((std::abs(myZ) > 70.f) & (std::abs(myZ) < 170.f)) {
+    rMin = theRMinI;
+    rMax = theRMaxI;
+  }
+
+  if ((rDiff >= rMax) | (rDiff <= rMin))
+    return false;
+
+  float phiDiff = normalizedPhi(gp.barePhi() - ts.barePhi());
+
+  return (phiDiff < thePhiMax) & (phiDiff > thePhiMin);
+}
+
+bool PixelHitMatcher::BarrelMeasurementEstimator::operator()(const GlobalPoint &vprim,
+                                                             const TrajectoryStateOnSurface &absolute_ts,
+                                                             const GlobalPoint &absolute_gp) const {
+  GlobalVector ts = absolute_ts.globalParameters().position() - vprim;
+  GlobalVector gp = absolute_gp - vprim;
+
+  float myZ = gp.z();
+  float zDiff = myZ - ts.z();
+  float myZmax = theZMax;
+  float myZmin = theZMin;
+  if ((std::abs(myZ) < 30.f) & (gp.perp() > 8.f)) {
+    myZmax = 0.09f;
+    myZmin = -0.09f;
+  }
+
+  if ((zDiff >= myZmax) | (zDiff <= myZmin))
+    return false;
+
+  float phiDiff = normalizedPhi(gp.barePhi() - ts.barePhi());
+
+  return (phiDiff < thePhiMax) & (phiDiff > thePhiMin);
+}
 
 PixelHitMatcher::PixelHitMatcher(float phi1min,
                                  float phi1max,
@@ -29,30 +99,33 @@ PixelHitMatcher::PixelHitMatcher(float phi1min,
                                  float rMaxI,
                                  bool useRecoVertex)
     :  //zmin1 and zmax1 are dummy at this moment, set from beamspot later
-      meas1stBLayer(phi1min, phi1max, 0., 0.),
-      meas2ndBLayer(phi2minB, phi2maxB, z2minB, z2maxB),
-      meas1stFLayer(phi1min, phi1max, 0., 0.),
-      meas2ndFLayer(phi2minF, phi2maxF, r2minF, r2maxF),
+      meas1stBLayer{phi1min, phi1max, 0., 0.},
+      meas2ndBLayer{phi2minB, phi2maxB, z2minB, z2maxB},
+      meas1stFLayer{phi1min, phi1max, 0., 0., rMinI, rMaxI},
+      meas2ndFLayer{phi2minF, phi2maxF, r2minF, r2maxF, rMinI, rMaxI},
       prop1stLayer(nullptr),
       prop2ndLayer(nullptr),
-      useRecoVertex_(useRecoVertex) {
-  meas1stFLayer.setRRangeI(rMinI, rMaxI);
-  meas2ndFLayer.setRRangeI(rMinI, rMaxI);
-}
+      useRecoVertex_(useRecoVertex) {}
 
 void PixelHitMatcher::set1stLayer(float dummyphi1min, float dummyphi1max) {
-  meas1stBLayer.setPhiRange(dummyphi1min, dummyphi1max);
-  meas1stFLayer.setPhiRange(dummyphi1min, dummyphi1max);
+  meas1stBLayer.thePhiMin = dummyphi1min;
+  meas1stBLayer.thePhiMax = dummyphi1max;
+  meas1stFLayer.thePhiMin = dummyphi1min;
+  meas1stFLayer.thePhiMax = dummyphi1max;
 }
 
 void PixelHitMatcher::set1stLayerZRange(float zmin1, float zmax1) {
-  meas1stBLayer.setZRange(zmin1, zmax1);
-  meas1stFLayer.setRRange(zmin1, zmax1);
+  meas1stBLayer.theZMin = zmin1;
+  meas1stBLayer.theZMax = zmax1;
+  meas1stFLayer.theRMin = zmin1;
+  meas1stFLayer.theRMax = zmax1;
 }
 
 void PixelHitMatcher::set2ndLayer(float dummyphi2minB, float dummyphi2maxB, float dummyphi2minF, float dummyphi2maxF) {
-  meas2ndBLayer.setPhiRange(dummyphi2minB, dummyphi2maxB);
-  meas2ndFLayer.setPhiRange(dummyphi2minF, dummyphi2maxF);
+  meas2ndBLayer.thePhiMin = dummyphi2minB;
+  meas2ndBLayer.thePhiMax = dummyphi2maxB;
+  meas2ndFLayer.thePhiMin = dummyphi2minF;
+  meas2ndFLayer.thePhiMax = dummyphi2maxF;
 }
 
 void PixelHitMatcher::setES(const MagneticField *magField, const TrackerGeometry *trackerGeometry) {
@@ -138,8 +211,7 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
 
         if (!tsos1->isValid())
           continue;
-        bool est = (id1.subdetId() % 2 ? meas1stBLayer.estimate(vprim, *tsos1, hit1Pos)
-                                                          : meas1stFLayer.estimate(vprim, *tsos1, hit1Pos));
+        bool est = id1.subdetId() % 2 ? meas1stBLayer(vprim, *tsos1, hit1Pos) : meas1stFLayer(vprim, *tsos1, hit1Pos);
         if (!est)
           continue;
         EleRelPointPair pp1(hit1Pos, tsos1->globalParameters().position(), vprim);
@@ -185,8 +257,8 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
           if (!tsos2->isValid())
             continue;
           const GlobalPoint &hit2Pos = hitGpMap[idx2];
-          bool est2 = (id2.subdetId() % 2 ? meas2ndBLayer.estimate(vertex, *tsos2, hit2Pos)
-                                                             : meas2ndFLayer.estimate(vertex, *tsos2, hit2Pos));
+          bool est2 =
+              id2.subdetId() % 2 ? meas2ndBLayer(vertex, *tsos2, hit2Pos) : meas2ndFLayer(vertex, *tsos2, hit2Pos);
           if (est2) {
             EleRelPointPair pp2(hit2Pos, tsos2->globalParameters().position(), vertex);
             const int subDet2 = id2.subdetId();
