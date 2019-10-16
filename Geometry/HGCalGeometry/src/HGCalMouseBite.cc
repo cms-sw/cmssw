@@ -8,19 +8,19 @@ HGCalMouseBite::HGCalMouseBite(const HGCalDDDConstants& hgc, const bool rot) {
   bool modeUV =
       ((hgc.geomMode() == HGCalGeometryMode::Hexagon8) || (hgc.geomMode() == HGCalGeometryMode::Hexagon8Full));
   if (modeUV) {
-    const std::vector<double> angle = {90.0, 30.0};
+    const std::vector<double> angle = {90._deg, 30._deg};
     std::vector<std::pair<double, double> > projXY;
     for (auto ang : angle)
-      projXY.emplace_back(std::make_pair(cos(convertDegToRad(ang)), sin(convertDegToRad(ang))));
+      projXY.emplace_back(std::make_pair(cos(ang), sin(ang)));
     const double mousebite(hgc.mouseBite(true));
     const double wafersize(hgc.waferSize(true));
-    double cut = wafersize * tan(convertDegToRad(angle[1])) - mousebite;
+    double cut = wafersize * tan(angle[1]) - mousebite;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Creating HGCMosueBite with cut at " << cut << " along " << angle.size()
                                   << " axes in wafers of size " << wafersize;
     for (unsigned int k = 0; k < angle.size(); ++k)
-      edm::LogVerbatim("HGCalGeom") << "Axis[" << k << "] " << angle[k] << " with projections " << projXY[k].first
-                                    << ":" << projXY[k].second;
+      edm::LogVerbatim("HGCalGeom") << "Axis[" << k << "] " << convertRadToDeg(angle[k]) << " with projections " 
+				    << projXY[k].first << ":" << projXY[k].second;
 #endif
     static const double sqrt3 = std::sqrt(3.0);
     int nf(HGCSiliconDetId::HGCalFineN);
