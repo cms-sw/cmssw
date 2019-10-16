@@ -20,6 +20,10 @@ from SimCalorimetry.Configuration.SimCalorimetry_cff import *
 #
 from SimMuon.Configuration.SimMuon_cff import *
 #
+# PPS Digis
+# returns sequence "ctppsDigi"
+from SimPPS.Configuration.SimPPS_cff import *
+#
 # TrackingParticle Producer is now part of the mixing module, so
 # it is no longer run here.
 #
@@ -29,7 +33,7 @@ from SimGeneral.Configuration.SimGeneral_cff import *
 from Configuration.StandardSequences.Generator_cff import *
 from GeneratorInterface.Core.generatorSmeared_cfi import *
 
-doAllDigiTask = cms.Task(generatorSmeared, calDigiTask, muonDigiTask)
+doAllDigiTask = cms.Task(generatorSmeared, calDigiTask, muonDigiTask, ctppsDigiTask)
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 # premixing stage2 runs muon digis after PreMixingModule (configured in DataMixerPreMix_cff)
 premix_stage2.toReplaceWith(doAllDigiTask, doAllDigiTask.copyAndExclude([muonDigiTask]))
@@ -79,5 +83,3 @@ def _modifyEnableHcalHardcode( theProcess ):
 
 from Configuration.Eras.Modifier_hcalHardcodeConditions_cff import hcalHardcodeConditions
 modifyEnableHcalHardcode_ = hcalHardcodeConditions.makeProcessModifier( _modifyEnableHcalHardcode )
-
-
