@@ -6,9 +6,9 @@ autoCond = {
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
     'run1_mc'           :   '110X_mcRun1_realistic_v2',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   '110X_mcRun1_HeavyIon_v1',
+    'run1_mc_hi'        :   '110X_mcRun1_HeavyIon_v2',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'        :   '110X_mcRun1_pA_v1',
+    'run1_mc_pa'        :   '110X_mcRun1_pA_v2',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
     'run2_mc_50ns'      :   '110X_mcRun2_startup_v2',
     # GlobalTag for MC production (L1 Trigger Stage1) with starup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
@@ -20,9 +20,9 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
     'run2_mc_cosmics'   :   '110X_mcRun2cosmics_startup_deco_v2',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   '110X_mcRun2_HeavyIon_v1',
+    'run2_mc_hi'        :   '110X_mcRun2_HeavyIon_v2',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
-    'run2_mc_pa'        :   '110X_mcRun2_pA_v2',
+    'run2_mc_pa'        :   '110X_mcRun2_pA_v3',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '110X_dataRun2_v8',
     # GlobalTag for Run2 data reprocessing
@@ -33,7 +33,7 @@ autoCond = {
     'run2_data_promptlike_HEfail' : '110X_dataRun2_PromptLike_HEfail_v7',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
     'run2_data_promptlike'    : '110X_dataRun2_PromptLike_v7',
-    'run2_data_promptlike_hi' : '110X_dataRun2_PromptLike_HI_v6',
+    'run2_data_promptlike_hi' : '110X_dataRun2_PromptLike_HI_v7',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '101X_dataRun2_HLT_frozen_v9',
     # GlobalTag for Run2 HLT: it points to the online GT
@@ -58,7 +58,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
     'phase1_2018_realistic'    :  '110X_upgrade2018_realistic_v6',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector for Heavy Ion
-    'phase1_2018_realistic_hi' :  '110X_upgrade2018_realistic_HI_v4',
+    'phase1_2018_realistic_hi' :  '110X_upgrade2018_realistic_HI_v5',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
     'phase1_2018_realistic_HEfail' :  '110X_upgrade2018_realistic_HEfail_v6',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
