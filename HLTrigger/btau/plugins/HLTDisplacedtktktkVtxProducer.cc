@@ -280,7 +280,7 @@ void HLTDisplacedtktktkVtxProducer::produce(edm::Event& iEvent, const edm::Event
 }
 
 bool HLTDisplacedtktktkVtxProducer::checkPreviousCand(const TrackRef& trackref,
-                                                      vector<RecoChargedCandidateRef>& refVect) {
+                                                      const vector<RecoChargedCandidateRef>& refVect) const {
   bool ok = false;
   for (auto& i : refVect) {
     if (i->get<TrackRef>() == trackref) {
