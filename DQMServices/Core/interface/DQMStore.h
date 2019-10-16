@@ -67,7 +67,7 @@ class DQMFileSaver;
 class MEtoEDMConverter;
 
 namespace dqm::dqmstoreimpl {
-  // dqmstoreimpl is a different namespace from dqm::impl, so we can globally 
+  // dqmstoreimpl is a different namespace from dqm::impl, so we can globally
   // change the ME subtype here
   typedef dqm::legacy::MonitorElement MonitorElement;
 
@@ -96,7 +96,7 @@ namespace dqm::dqmstoreimpl {
 
   class DQMStore {
   public:
-    // legacy exposes the biggest API and implicitly converts to reco and 
+    // legacy exposes the biggest API and implicitly converts to reco and
     // harvesting, with reduced APIs.
 
     enum SaveReferenceTag { SaveWithoutReference, SaveWithReference, SaveWithReferenceForQTest };
@@ -843,7 +843,7 @@ namespace dqm::dqmstoreimpl {
     friend MEtoEDMConverter;
   };
 
-}  // namespace dqm::impl
+}  // namespace dqm::dqmstoreimpl
 
 // These will become distinct classes in the future.
 namespace dqm::legacy {

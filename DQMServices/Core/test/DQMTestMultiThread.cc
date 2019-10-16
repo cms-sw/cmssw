@@ -51,8 +51,8 @@ void DQMTestMultiThread::dumpMe(MonitorElement const &me, bool printStat /* = fa
   std::cout << "Run: " << me.run() << " Lumi: " << me.lumi() << " LumiFlag: " << me.getLumiFlag()
             << " moduleId: " << me.moduleId() << " fullpathname: " << me.getPathname();
   if (printStat)
-    std::cout << " Mean: " << me.getMean() << " RMS: " << me.getRMS()
-              << " Entries: " << std::setprecision(9) << me.getEntries();
+    std::cout << " Mean: " << me.getMean() << " RMS: " << me.getRMS() << " Entries: " << std::setprecision(9)
+              << me.getEntries();
   std::cout << std::endl;
 }
 

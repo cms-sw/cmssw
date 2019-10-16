@@ -1403,4 +1403,4 @@ namespace dqm::legacy {
     // Update QReport statistics.
     updateQReportStats();
   }
-}
+}  // namespace dqm::legacy
