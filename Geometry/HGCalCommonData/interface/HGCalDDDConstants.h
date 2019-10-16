@@ -137,7 +137,7 @@ public:
   int waferMax() const { return waferMax_[1]; }
   int waferMin() const { return waferMax_[0]; }
   std::pair<double, double> waferPosition(int wafer, bool reco) const;
-  std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug=false) const;
+  std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug = false) const;
   double waferSepar(bool reco) const {
     return (reco ? hgpar_->sensorSeparation_ : HGCalParameters::k_ScaleToDDD * hgpar_->sensorSeparation_);
   }
