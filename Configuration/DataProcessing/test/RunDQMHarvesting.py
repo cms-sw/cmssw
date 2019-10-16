@@ -77,7 +77,7 @@ class RunDQMHarvesting:
         pklFile = open("RunDQMHarvestingCfg.pkl", "wb")
         psetFile = open("RunDQMHarvestingCfg.py", "w")
         try:
-            pickle.dump(process, pklFile)
+            pickle.dump(process, pklFile, protocol=0)
             psetFile.write("import FWCore.ParameterSet.Config as cms\n")
             psetFile.write("import pickle\n")
             psetFile.write("handle = open('RunDQMHarvestingCfg.pkl','rb')\n")

@@ -113,7 +113,7 @@ class RunVisualizationProcessing:
         pklFile = open("RunVisualizationProcessingCfg.pkl", "wb")
         psetFile = open("RunVisualizationProcessingCfg.py", "w")
         try:
-            pickle.dump(process, pklFile)
+            pickle.dump(process, pklFile, protocol=0)
             psetFile.write("import FWCore.ParameterSet.Config as cms\n")
             psetFile.write("import pickle\n")
             psetFile.write("handle = open('RunVisualizationProcessingCfg.pkl','rb')\n")
