@@ -2027,7 +2027,7 @@ if __name__=="__main__":
             l[:] = []
             s2.visit(namesVisitor)
             self.assertEqual(l, [])
-            self.assertTrue(s2.dumpPython(None) == "cms.Sequence(cms.Task(process.m1, process.m2, process.m3))\n")
+            self.assertTrue(s2.dumpPython() == "cms.Sequence(cms.Task(process.m1, process.m2, process.m3))\n")
 
             t1 = Task(m1,m2)
             t2 = Task(m1,m3,t1)
