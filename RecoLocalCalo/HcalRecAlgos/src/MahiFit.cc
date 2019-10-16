@@ -351,8 +351,6 @@ void MahiFit::nnls() const {
   double wmax = 0.0;
   double threshold = nnlsThresh_;
 
-  nnlsWork_.nP = 0;
-
   while (true) {
     if (iter > 0 || nnlsWork_.nP == 0) {
       if (nnlsWork_.nP == std::min(npulse, nsamples))
@@ -655,6 +653,7 @@ void MahiFit::resetWorkspace() const {
   nnlsWork_.tsOffset = 0;
   nnlsWork_.bxOffset = 0;
   nnlsWork_.maxoffset = 0;
+  nnlsWork_.nP = 0;
 
   // NOT SURE THIS IS NEEDED
   nnlsWork_.amplitudes.setZero();
