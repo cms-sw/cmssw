@@ -138,9 +138,9 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
 
         if (!tsos1->isValid())
           continue;
-        std::pair<bool, double> est = (id1.subdetId() % 2 ? meas1stBLayer.estimate(vprim, *tsos1, hit1Pos)
+        bool est = (id1.subdetId() % 2 ? meas1stBLayer.estimate(vprim, *tsos1, hit1Pos)
                                                           : meas1stFLayer.estimate(vprim, *tsos1, hit1Pos));
-        if (!est.first)
+        if (!est)
           continue;
         EleRelPointPair pp1(hit1Pos, tsos1->globalParameters().position(), vprim);
         const math::XYZPoint relHit1Pos(hit1Pos - vprim), relTSOSPos(tsos1->globalParameters().position() - vprim);
@@ -185,9 +185,9 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
           if (!tsos2->isValid())
             continue;
           const GlobalPoint &hit2Pos = hitGpMap[idx2];
-          std::pair<bool, double> est2 = (id2.subdetId() % 2 ? meas2ndBLayer.estimate(vertex, *tsos2, hit2Pos)
+          bool est2 = (id2.subdetId() % 2 ? meas2ndBLayer.estimate(vertex, *tsos2, hit2Pos)
                                                              : meas2ndFLayer.estimate(vertex, *tsos2, hit2Pos));
-          if (est2.first) {
+          if (est2) {
             EleRelPointPair pp2(hit2Pos, tsos2->globalParameters().position(), vertex);
             const int subDet2 = id2.subdetId();
             const float dRz2 = (subDet2 % 2 == 1) ? pp2.dZ() : pp2.dPerp();

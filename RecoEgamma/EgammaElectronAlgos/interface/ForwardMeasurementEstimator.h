@@ -23,9 +23,8 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include <utility>
 
-class ForwardMeasurementEstimator : public MeasurementEstimator {
+class ForwardMeasurementEstimator {
 public:
-  ForwardMeasurementEstimator() {}
   ForwardMeasurementEstimator(float phiMin, float phiMax, float rMin, float rMax)
       : thePhiMin(phiMin), thePhiMax(phiMax), theRMin(rMin), theRMax(rMax) {}
 
@@ -42,18 +41,9 @@ public:
     theRMaxI = rmax;
   }
 
-  // zero value indicates incompatible ts - hit pair
-  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts, const TrackingRecHit& hit) const override;
-  virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts, const GlobalPoint& gp) const;
-  virtual std::pair<bool, double> estimate(const GlobalPoint& vprim,
-                                           const TrajectoryStateOnSurface& ts,
-                                           const GlobalPoint& gp) const;
-  bool estimate(const TrajectoryStateOnSurface& ts, const BoundPlane& plane) const override;
-
-  ForwardMeasurementEstimator* clone() const override { return new ForwardMeasurementEstimator(*this); }
-
-  MeasurementEstimator::Local2DVector maximalLocalDisplacement(const TrajectoryStateOnSurface& ts,
-                                                               const BoundPlane& plane) const override;
+  bool estimate(const GlobalPoint& vprim,
+                const TrajectoryStateOnSurface& ts,
+                const GlobalPoint& gp) const;
 
 private:
   float thePhiMin;
