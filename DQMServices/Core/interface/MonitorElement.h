@@ -47,25 +47,21 @@ namespace dqm::impl {
 
   struct Access {
     std::unique_lock<dqmmutex> guard_;
-    MonitorElementData::Key const& key;
-    MonitorElementData::Value const& value;
+    MonitorElementData::Key const &key;
+    MonitorElementData::Value const &value;
   };
   // TODO: can this be the same type, just const?
   struct AccessMut {
     std::unique_lock<dqmmutex> guard_;
-    MonitorElementData::Key const& key;
-    MonitorElementData::Value& value;
+    MonitorElementData::Key const &key;
+    MonitorElementData::Value &value;
   };
 
   struct MutableMonitorElementData {
     MonitorElementData data_;
     dqmmutex lock_;
-    Access access() {
-      return Access{std::unique_lock<dqmmutex>(lock_), data_.key_, data_.value_};
-    }
-    AccessMut accessMut() {
-      return AccessMut{std::unique_lock<dqmmutex>(lock_), data_.key_, data_.value_};
-    }
+    Access access() { return Access{std::unique_lock<dqmmutex>(lock_), data_.key_, data_.value_}; }
+    AccessMut accessMut() { return AccessMut{std::unique_lock<dqmmutex>(lock_), data_.key_, data_.value_}; }
   };
 
   /** The base class for all MonitorElements (ME) */
@@ -77,14 +73,13 @@ namespace dqm::impl {
     using Scalar = MonitorElementData::Scalar;
     using Kind = MonitorElementData::Kind;
 
-
   private:
-    DQMNet::CoreObject data_;        //< Core object information.
+    DQMNet::CoreObject data_;  //< Core object information.
     // TODO: we only use the ::Value part so far.
     // Still using the full thing to remain compatible with the new ME implementation.
-    
-    std::atomic<MonitorElementData const*> frozen_; // only set if this ME is in a product already
-    std::atomic<MutableMonitorElementData*> mutable_; // only set if there is a mutable copy of this ME
+
+    std::atomic<MonitorElementData const *> frozen_;    // only set if this ME is in a product already
+    std::atomic<MutableMonitorElementData *> mutable_;  // only set if there is a mutable copy of this ME
     /** 
      * To do anything to the MEs data, one needs to obtain an access object.
      * This object will contain the lock guard if one is needed. We differentiate
@@ -106,11 +101,11 @@ namespace dqm::impl {
       if (mut) {
         // if there is a mutable object, that is the truth, and we take a lock.
         return mut->access();
-      } // else
+      }  // else
       auto frozen = frozen_.load();
       if (frozen) {
         // in case of an immutable object read from edm products, create an
-        // access object without lock. 
+        // access object without lock.
         return Access{std::unique_lock<dqmmutex>(), frozen->key_, frozen->value_};
       }
       // else
@@ -126,24 +121,24 @@ namespace dqm::impl {
       if (mut) {
         // if there is a mutable object, that is the truth, and we take a lock.
         return mut->accessMut();
-      } // else
+      }  // else
       auto frozen = frozen_.load();
       if (!frozen) {
         throw cms::Exception("LogicError") << "MonitorElement not backed by any data!";
       }
       // in case of an immutable object read from edm products, attempt to
       // make a clone.
-      MutableMonitorElementData* clone = new MutableMonitorElementData();
+      MutableMonitorElementData *clone = new MutableMonitorElementData();
       clone->data_.key_ = frozen->key_;
       clone->data_.value_.scalar_ = frozen->value_.scalar_;
       if (frozen->value_.object_) {
         // Clone() the TH1
-        clone->data_.value_.object_ = std::unique_ptr<TH1>(static_cast<TH1*>(frozen->value_.object_->Clone()));
+        clone->data_.value_.object_ = std::unique_ptr<TH1>(static_cast<TH1 *>(frozen->value_.object_->Clone()));
       }
 
       // now try to set our clone, and see if it was still needed (sb. else
       // might have made a clone already!)
-      MutableMonitorElementData* existing = nullptr;
+      MutableMonitorElementData *existing = nullptr;
       bool ok = mutable_.compare_exchange_strong(existing, clone);
       if (!ok) {
         // somebody else made a clone already, it is now in existing
@@ -153,7 +148,7 @@ namespace dqm::impl {
         // we won the race, and our clone is the real one now.
         return clone->accessMut();
       }
-      // in either case, if somebody destroyed the mutable object between us 
+      // in either case, if somebody destroyed the mutable object between us
       // getting the pointer and us locking it, we are screwed. We have to rely
       // on edm and the DQM code to make sure we only turn mutable objects into
       // products once all processing is done (logically, this is safe).
@@ -237,7 +232,8 @@ namespace dqm::impl {
     };
 
   protected:
-    void doFill(int64_t x) ;
+    void doFill(int64_t x);
+
   public:
     void Fill(long long x) {
       fits_in_int64_t<long long>();
@@ -281,12 +277,12 @@ namespace dqm::impl {
     }
 
     void Fill(float x) { Fill(static_cast<double>(x)); }
-    void Fill(double x) ;
-    void Fill(std::string& value) ;
+    void Fill(double x);
+    void Fill(std::string &value);
 
-    void Fill(double x, double yw) ;
-    void Fill(double x, double y, double zw) ;
-    void Fill(double x, double y, double z, double w) ;
+    void Fill(double x, double yw);
+    void Fill(double x, double y, double zw);
+    void Fill(double x, double y, double z, double w);
     DQM_DEPRECATED
     void ShiftFillLast(double y, double ye = 0., int32_t xscale = 1);
 
@@ -299,7 +295,7 @@ namespace dqm::impl {
     std::string tagString() const;
     std::string tagLabelString() const;
     std::string effLabelString() const;
-    std::string qualityTagString(const DQMNet::QValue& qv) const;
+    std::string qualityTagString(const DQMNet::QValue &qv) const;
 
     /// true if at least of one of the quality tests returned an error
     bool hasError() const { return data_.flags & DQMNet::DQM_PROP_REPORT_ERROR; }
@@ -315,15 +311,15 @@ namespace dqm::impl {
     bool isEfficiency() const { return data_.flags & DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
 
     /// get QReport corresponding to <qtname> (null pointer if QReport does not exist)
-    const QReport* getQReport(const std::string& qtname) const;
+    const QReport *getQReport(const std::string &qtname) const;
     /// get map of QReports
-    std::vector<QReport*> getQReports() const;
+    std::vector<QReport *> getQReports() const;
     /// get warnings from last set of quality tests
-    std::vector<QReport*> getQWarnings() const;
+    std::vector<QReport *> getQWarnings() const;
     /// get errors from last set of quality tests
-    std::vector<QReport*> getQErrors() const;
+    std::vector<QReport *> getQErrors() const;
     /// from last set of quality tests
-    std::vector<QReport*> getQOthers() const;
+    std::vector<QReport *> getQOthers() const;
 
     /// run all quality tests
     void runQTests();
@@ -358,18 +354,18 @@ namespace dqm::impl {
     virtual void setBinError(int binx, int biny, int binz, double error);
     virtual void setBinEntries(int bin, double nentries);
     virtual void setEntries(double nentries);
-    virtual void setBinLabel(int bin, const std::string& label, int axis = 1) ;
+    virtual void setBinLabel(int bin, const std::string &label, int axis = 1);
     virtual void setAxisRange(double xmin, double xmax, int axis = 1);
-    virtual void setAxisTitle(const std::string& title, int axis = 1);
+    virtual void setAxisTitle(const std::string &title, int axis = 1);
     virtual void setAxisTimeDisplay(int value, int axis = 1);
-    virtual void setAxisTimeFormat(const char* format = "", int axis = 1);
-    virtual void setTitle(const std::string& title);
+    virtual void setAxisTimeFormat(const char *format = "", int axis = 1);
+    virtual void setTitle(const std::string &title);
     // --- Operations that origianted in ConcurrentME ---
-    virtual void setXTitle(std::string const& title) ;
-    virtual void setYTitle(std::string const& title) ;
-    virtual void enableSumw2() ;
-    virtual void disableAlphanumeric() ;
-    virtual void setOption(const char* option) ;
+    virtual void setXTitle(std::string const &title);
+    virtual void setYTitle(std::string const &title);
+    virtual void enableSumw2();
+    virtual void disableAlphanumeric();
+    virtual void setOption(const char *option);
 
     // new operations to reduce usage of getTH*
     virtual double getAxisMin(int axis = 1) const;
@@ -384,29 +380,29 @@ namespace dqm::impl {
     virtual void setStatOverflows(unsigned int value);
 
     // these should be non-const, since they are potentially not thread-safe
-    virtual TObject const* getRootObject() const;
-    virtual TH1* getTH1() ;
-    virtual TH1F* getTH1F() ;
-    virtual TH1S* getTH1S() ;
-    virtual TH1D* getTH1D() ;
-    virtual TH2F* getTH2F() ;
-    virtual TH2S* getTH2S() ;
-    virtual TH2D* getTH2D() ;
-    virtual TH3F* getTH3F() ;
-    virtual TProfile* getTProfile() ;
-    virtual TProfile2D* getTProfile2D() ;
+    virtual TObject const *getRootObject() const;
+    virtual TH1 *getTH1();
+    virtual TH1F *getTH1F();
+    virtual TH1S *getTH1S();
+    virtual TH1D *getTH1D();
+    virtual TH2F *getTH2F();
+    virtual TH2S *getTH2S();
+    virtual TH2D *getTH2D();
+    virtual TH3F *getTH3F();
+    virtual TProfile *getTProfile();
+    virtual TProfile2D *getTProfile2D();
 
   public:
     virtual int64_t getIntValue() const;
     virtual double getFloatValue() const;
-    virtual const std::string& getStringValue() const;
+    virtual const std::string &getStringValue() const;
     void packScalarData(std::string &into, const char *prefix) const;
     void packQualityData(std::string &into) const;
 
   private:
     void incompatible(const char *func) const;
-    TH1 const* accessRootObject(Access const& access, const char *func, int reqdim) const;
-    TH1 *accessRootObject(AccessMut const&, const char *func, int reqdim) const;
+    TH1 const *accessRootObject(Access const &access, const char *func, int reqdim) const;
+    TH1 *accessRootObject(AccessMut const &, const char *func, int reqdim) const;
 
     void setAxisTimeOffset(double toffset, const char *option = "local", int axis = 1);
 
@@ -433,8 +429,8 @@ namespace dqm::impl {
     /// until method is called with flag = false again
     void setAccumulate(bool /* flag */) { data_.flags |= DQMNet::DQM_PROP_ACCUMULATE; }
 
-    TAxis const* getAxis(Access const& access, const char *func, int axis) const;
-    TAxis *getAxis(AccessMut const& access, const char *func, int axis) const;
+    TAxis const *getAxis(Access const &access, const char *func, int axis) const;
+    TAxis *getAxis(AccessMut const &access, const char *func, int axis) const;
 
     // ------------ Operations for MEs that are normally never reset ---------
   private:

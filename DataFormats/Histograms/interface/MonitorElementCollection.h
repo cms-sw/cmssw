@@ -74,14 +74,14 @@ struct MonitorElementData {
     TPROFILE2D = 0x41
   };
 
-  // Which window of time the ME is supposed to cover. 
+  // Which window of time the ME is supposed to cover.
   // There is space for a granularity level between runs and lumisections,
   // maybe blocks of 10LS or some fixed number of events or integrated
   // luminosity. We also want to be able to change the granularity centrally
   // depending on the use case. That is what the default is for, and it should
   // be used unless some specific granularity is really required.
   // We'll also need to switch the default to JOB for multi-run harvesting.
-  enum Scope { JOB = 1, RUN = 2, LUMI = 3 /*, BLOCK = 4 */};
+  enum Scope { JOB = 1, RUN = 2, LUMI = 3 /*, BLOCK = 4 */ };
 
   // The main ME data. We don't keep references/QTest results, instead we use
   // only the fields stored in DQMIO files.
@@ -161,11 +161,8 @@ struct MonitorElementData {
 
     bool operator<(Key const& other) const {
       auto makeKeyTuple = [](Key const& k) {
-        return std::make_tuple(k.path_.getDirname(),
-                               k.path_.getObjectname(),
-                               k.scope_,
-                               k.id_.run(),
-                               k.id_.luminosityBlock());
+        return std::make_tuple(
+            k.path_.getDirname(), k.path_.getObjectname(), k.scope_, k.id_.run(), k.id_.luminosityBlock());
       };
 
       return makeKeyTuple(*this) < makeKeyTuple(other);
@@ -186,24 +183,19 @@ struct MonitorElementData {
 // Only to hold the mergeProduct placeholder for now.
 class MonitorElementCollection {
   std::vector<std::unique_ptr<const MonitorElementData>> data_;
+
 public:
   void push_back(std::unique_ptr<const MonitorElementData>&& value) {
     // enforce ordering
-    assert(data_.size() == 0 || data_[data_.size() - 1] <= value); 
+    assert(data_.size() == 0 || data_[data_.size() - 1] <= value);
     data_.push_back(std::move(value));
   }
 
-  void swap(MonitorElementCollection& other) {
-    data_.swap(other.data_);
-  }
+  void swap(MonitorElementCollection& other) { data_.swap(other.data_); }
 
-  auto begin() const {
-    return data_.begin();
-  }
+  auto begin() const { return data_.begin(); }
 
-  auto end() const {
-    return data_.end();
-  }
+  auto end() const { return data_.end(); }
 
   bool mergeProduct(MonitorElementCollection const& product) {
     // discussion: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePerRunAndPerLumiBlockData#Merging_Run_and_Luminosity_Block
