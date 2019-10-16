@@ -30,5 +30,4 @@ process.RECOSIMoutput.outputCommands = cms.untracked.vstring('drop *',
 #from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = autoCond[os.environ['TEST_GLOBAL_AUTOCOND']]
 
-process.dumpPython(None)
-
+process.dumpPython()
