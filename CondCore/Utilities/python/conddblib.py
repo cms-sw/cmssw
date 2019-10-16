@@ -145,11 +145,11 @@ class Synchronization(enum.Enum):
     offline    = 'offline'
 
 class TimeType(enum.Enum):
-    run  = 'Run'
-    time = 'Time'
-    lumi = 'Lumi'
-    hash = 'Hash'
-    user = 'User'
+    Run  = 'Run'
+    Time = 'Time'
+    Lumi = 'Lumi'
+    Hash = 'Hash'
+    User = 'User'
 
 
 # Schema definition
