@@ -7,7 +7,7 @@ RPixDetDigitizerTask=cms.Task(RPixDetDigitizer)
 RPSiDetDigitizerTask=cms.Task(RPSiDetDigitizer)
 
 ctppsDigiTask = cms.Task()
-ctppsDigi = cms.Sequence(ctppsDigiTask)
+#ctppsDigi = cms.Sequence(ctppsDigiTask)
 
 # add PPS 2016 digi modules
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
