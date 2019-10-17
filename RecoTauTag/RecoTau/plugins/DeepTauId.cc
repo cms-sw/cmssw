@@ -892,7 +892,7 @@ public:
         muonTensor_[is_inner]->flat<float>().setZero();
         hadronsTensor_[is_inner]->flat<float>().setZero();
 
-        setCellConvFeatures(*zeroOutputTensor_[is_inner], getPartialPredictions(1, is_inner), 0, 0, 0);
+        setCellConvFeatures(*zeroOutputTensor_[is_inner], getPartialPredictions(is_inner), 0, 0, 0);
       }
     } else {
       throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
@@ -1083,7 +1083,7 @@ private:
     }
   }
 
-  tensorflow::Tensor getPartialPredictions(unsigned batch_size, bool is_inner) {
+  tensorflow::Tensor getPartialPredictions(bool is_inner) {
     std::vector<tensorflow::Tensor> pred_vector;
     if (is_inner) {
       tensorflow::run(&(cache_->getSession("inner")),
@@ -1149,7 +1149,7 @@ private:
       }
     }
 
-    const auto predTensor = getPartialPredictions(grid.num_valid_cells(), is_inner);
+    const auto predTensor = getPartialPredictions(is_inner);
 
     idx = 0;
     for (int eta = -grid.maxEtaIndex(); eta <= grid.maxEtaIndex(); ++eta) {
