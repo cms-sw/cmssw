@@ -1,7 +1,7 @@
 // system include files
 #include <memory>
 
-#include "Validation/Performance/test/SimDigiDumper.h"
+#include "SimGeneral/Debugging/test/SimDigiDumper.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
