@@ -158,14 +158,14 @@ private:
   float chiSq;
   float arrivalTime;
 
-  float p1Energy; //SOI-1 charge
-  float p2Energy; //SOI-2 charge
-  float p3Energy; //SOI-3 charge
-  float n1Energy; //SOI+1 charge
-  float n2Energy; //SOI+2 charge
-  float n3Energy; //SOI+3 charge
-  float n4Energy; //SOI+4 charge
-  float pedEnergy; //pedestal charge
+  float p1Energy;   //SOI-1 charge
+  float p2Energy;   //SOI-2 charge
+  float p3Energy;   //SOI-3 charge
+  float n1Energy;   //SOI+1 charge
+  float n2Energy;   //SOI+2 charge
+  float n3Energy;   //SOI+3 charge
+  float n4Energy;   //SOI+4 charge
+  float pedEnergy;  //pedestal charge
 
   float count[10];    //TS value 0-9
   float inputTS[10];  //input TS samples
@@ -254,15 +254,15 @@ void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     mahi_->setPulseShapeTemplate(
         theHcalPulseShapes_.getShape(hci.recoShape()), hci.hasTimeInfo(), hcalTimeSlewDelay, hci.nSamples());
     MahiDebugInfo mdi;
-    // initialize energies so that the values in the previous iteration are not stored 
-    mdi.mahiEnergy=0;
-    mdi.p1Energy=0;
-    mdi.p2Energy=0;
-    mdi.p3Energy=0;
-    mdi.n1Energy=0;
-    mdi.n2Energy=0;
-    mdi.n3Energy=0;
-    mdi.n4Energy=0;
+    // initialize energies so that the values in the previous iteration are not stored
+    mdi.mahiEnergy = 0;
+    mdi.p1Energy = 0;
+    mdi.p2Energy = 0;
+    mdi.p3Energy = 0;
+    mdi.n1Energy = 0;
+    mdi.n2Energy = 0;
+    mdi.n3Energy = 0;
+    mdi.n4Energy = 0;
     mahi->phase1Debug(hci, mdi);
 
     nSamples = mdi.nSamples;
@@ -277,38 +277,38 @@ void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     mahiEnergy = mdi.mahiEnergy;
     chiSq = mdi.chiSq;
     arrivalTime = mdi.arrivalTime;
-    p1Energy=mdi.p1Energy;
-    p2Energy=mdi.p2Energy;
-    p3Energy=mdi.p3Energy;
-    n1Energy=mdi.n1Energy;
-    n2Energy=mdi.n2Energy;
-    n3Energy=mdi.n3Energy;
-    n4Energy=mdi.n4Energy;
+    p1Energy = mdi.p1Energy;
+    p2Energy = mdi.p2Energy;
+    p3Energy = mdi.p3Energy;
+    n1Energy = mdi.n1Energy;
+    n2Energy = mdi.n2Energy;
+    n3Energy = mdi.n3Energy;
+    n4Energy = mdi.n4Energy;
     pedEnergy = mdi.pedEnergy;
 
     mahiEnergy *= hbminusCorrectionFactor(detid, run, mahiEnergy, isRealData);
-    p1Energy   *= hbminusCorrectionFactor(detid, run, p1Energy, isRealData);
-    p2Energy   *= hbminusCorrectionFactor(detid, run, p2Energy, isRealData);
-    p3Energy   *= hbminusCorrectionFactor(detid, run, p3Energy, isRealData);
-    n1Energy   *= hbminusCorrectionFactor(detid, run, n1Energy, isRealData);
-    n2Energy   *= hbminusCorrectionFactor(detid, run, n2Energy, isRealData);
-    n3Energy   *= hbminusCorrectionFactor(detid, run, n3Energy, isRealData);
-    n4Energy   *= hbminusCorrectionFactor(detid, run, n4Energy, isRealData);
-    pedEnergy  *= hbminusCorrectionFactor(detid, run, pedEnergy, isRealData);
+    p1Energy *= hbminusCorrectionFactor(detid, run, p1Energy, isRealData);
+    p2Energy *= hbminusCorrectionFactor(detid, run, p2Energy, isRealData);
+    p3Energy *= hbminusCorrectionFactor(detid, run, p3Energy, isRealData);
+    n1Energy *= hbminusCorrectionFactor(detid, run, n1Energy, isRealData);
+    n2Energy *= hbminusCorrectionFactor(detid, run, n2Energy, isRealData);
+    n3Energy *= hbminusCorrectionFactor(detid, run, n3Energy, isRealData);
+    n4Energy *= hbminusCorrectionFactor(detid, run, n4Energy, isRealData);
+    pedEnergy *= hbminusCorrectionFactor(detid, run, pedEnergy, isRealData);
 
     for (int i = 0; i < nSamples; i++) {
       count[i] = mdi.count[i];
       inputTS[i] = mdi.inputTS[i];
       inputTDC[i] = mdi.inputTDC[i];
       itPulse[i] = mdi.itPulse[i];
-      p1Pulse[i]=mdi.p1Pulse[i];
-      p2Pulse[i]=mdi.p2Pulse[i];
-      p3Pulse[i]=mdi.p3Pulse[i];
-      n1Pulse[i]=mdi.n1Pulse[i];
-      n2Pulse[i]=mdi.n2Pulse[i];
-      n3Pulse[i]=mdi.n3Pulse[i];
-      n4Pulse[i]=mdi.n4Pulse[i];
-      
+      p1Pulse[i] = mdi.p1Pulse[i];
+      p2Pulse[i] = mdi.p2Pulse[i];
+      p3Pulse[i] = mdi.p3Pulse[i];
+      n1Pulse[i] = mdi.n1Pulse[i];
+      n2Pulse[i] = mdi.n2Pulse[i];
+      n3Pulse[i] = mdi.n3Pulse[i];
+      n4Pulse[i] = mdi.n4Pulse[i];
+
       inNoiseADC[i] = mdi.inNoiseADC[i];
       inNoiseDC[i] = mdi.inNoiseDC[i];
       inNoisePhoto[i] = mdi.inNoisePhoto[i];
@@ -342,51 +342,51 @@ float MahiDebugger::hbminusCorrectionFactor(const HcalDetId& cell,
 void MahiDebugger::beginJob() {
   outTree = FileService->make<TTree>("HcalTree", "HcalTree");
 
-  outTree->Branch("run",      &run,       "run/I");
-  outTree->Branch("evt",      &evt,       "evt/I");
-  outTree->Branch("ls",       &ls,        "ls/I");
-  outTree->Branch("nBxTrain", &nBxTrain,  "nBxTrain/I");
+  outTree->Branch("run", &run, "run/I");
+  outTree->Branch("evt", &evt, "evt/I");
+  outTree->Branch("ls", &ls, "ls/I");
+  outTree->Branch("nBxTrain", &nBxTrain, "nBxTrain/I");
 
-  outTree->Branch("ieta",     &ieta,      "ieta/I");
-  outTree->Branch("iphi",     &iphi,      "iphi/I");
-  outTree->Branch("depth",    &depth,     "depth/I");
-  outTree->Branch("nSamples", &nSamples,  "nSamples/I");
-  outTree->Branch("soi",      &soi,       "soi/I");
+  outTree->Branch("ieta", &ieta, "ieta/I");
+  outTree->Branch("iphi", &iphi, "iphi/I");
+  outTree->Branch("depth", &depth, "depth/I");
+  outTree->Branch("nSamples", &nSamples, "nSamples/I");
+  outTree->Branch("soi", &soi, "soi/I");
 
-  outTree->Branch("inTimeConst",    &inTimeConst,   "inTimeConst/F");
-  outTree->Branch("inDarkCurrent",  &inDarkCurrent, "inDarkCurrent/F");
-  outTree->Branch("inPedAvg",       &inPedAvg,      "inPedAvg/F");
-  outTree->Branch("inGain",         &inGain,        "inGain/F");
+  outTree->Branch("inTimeConst", &inTimeConst, "inTimeConst/F");
+  outTree->Branch("inDarkCurrent", &inDarkCurrent, "inDarkCurrent/F");
+  outTree->Branch("inPedAvg", &inPedAvg, "inPedAvg/F");
+  outTree->Branch("inGain", &inGain, "inGain/F");
 
-  outTree->Branch("use8",         &use8,        "use8/B");
-  outTree->Branch("mahiEnergy",   &mahiEnergy,  "mahiEnergy/F");
-  outTree->Branch("chiSq",        &chiSq,       "chiSq/F");
-  outTree->Branch("arrivalTime",  &arrivalTime, "arrivalTime/F");
-  outTree->Branch("p1Energy",     &p1Energy,    "p1Energy/F");
-  outTree->Branch("p2Energy",     &p2Energy,    "p2Energy/F");
-  outTree->Branch("p3Energy",     &p3Energy,    "p3Energy/F");
-  outTree->Branch("n1Energy",     &n1Energy,    "n1Energy/F");
-  outTree->Branch("n2Energy",     &n2Energy,    "n2Energy/F");
-  outTree->Branch("n3Energy",     &n3Energy,    "n3Energy/F");
-  outTree->Branch("n4Energy",     &n4Energy,    "n4Energy/F");
-  outTree->Branch("pedEnergy",    &pedEnergy,   "pedEnergy/F");
-  outTree->Branch("count",        &count,       "count[10]/F");
-  outTree->Branch("inputTS",      &inputTS,     "inputTS[10]/F");
-  outTree->Branch("inputTDC",     &inputTDC,    "inputTDC[10]/I");
-  outTree->Branch("itPulse",      &itPulse,     "itPulse[10]/F");
-  outTree->Branch("p1Pulse",      &p1Pulse,     "p1Pulse[10]/F");
-  outTree->Branch("p2Pulse",      &p2Pulse,     "p2Pulse[10]/F");
-  outTree->Branch("p3Pulse",      &p3Pulse,     "p3Pulse[10]/F");
-  outTree->Branch("n1Pulse",      &n1Pulse,     "n1Pulse[10]/F");
-  outTree->Branch("n2Pulse",      &n2Pulse,     "n2Pulse[10]/F");
-  outTree->Branch("n3Pulse",      &n3Pulse,     "n3Pulse[10]/F");
-  outTree->Branch("n4Pulse",      &n4Pulse,     "n4Pulse[10]/F");
+  outTree->Branch("use8", &use8, "use8/B");
+  outTree->Branch("mahiEnergy", &mahiEnergy, "mahiEnergy/F");
+  outTree->Branch("chiSq", &chiSq, "chiSq/F");
+  outTree->Branch("arrivalTime", &arrivalTime, "arrivalTime/F");
+  outTree->Branch("p1Energy", &p1Energy, "p1Energy/F");
+  outTree->Branch("p2Energy", &p2Energy, "p2Energy/F");
+  outTree->Branch("p3Energy", &p3Energy, "p3Energy/F");
+  outTree->Branch("n1Energy", &n1Energy, "n1Energy/F");
+  outTree->Branch("n2Energy", &n2Energy, "n2Energy/F");
+  outTree->Branch("n3Energy", &n3Energy, "n3Energy/F");
+  outTree->Branch("n4Energy", &n4Energy, "n4Energy/F");
+  outTree->Branch("pedEnergy", &pedEnergy, "pedEnergy/F");
+  outTree->Branch("count", &count, "count[10]/F");
+  outTree->Branch("inputTS", &inputTS, "inputTS[10]/F");
+  outTree->Branch("inputTDC", &inputTDC, "inputTDC[10]/I");
+  outTree->Branch("itPulse", &itPulse, "itPulse[10]/F");
+  outTree->Branch("p1Pulse", &p1Pulse, "p1Pulse[10]/F");
+  outTree->Branch("p2Pulse", &p2Pulse, "p2Pulse[10]/F");
+  outTree->Branch("p3Pulse", &p3Pulse, "p3Pulse[10]/F");
+  outTree->Branch("n1Pulse", &n1Pulse, "n1Pulse[10]/F");
+  outTree->Branch("n2Pulse", &n2Pulse, "n2Pulse[10]/F");
+  outTree->Branch("n3Pulse", &n3Pulse, "n3Pulse[10]/F");
+  outTree->Branch("n4Pulse", &n4Pulse, "n4Pulse[10]/F");
 
-  outTree->Branch("inNoiseADC",   &inNoiseADC,  "inNoiseADC[10]/F");
-  outTree->Branch("inNoiseDC",    &inNoiseDC,   "inNoiseDC[10]/F");
-  outTree->Branch("inNoisePhoto", &inNoisePhoto,"inNoisePhoto[10]/F");
-  outTree->Branch("inPedestal",   &inPedestal,  "inPedestal[10]/F");
-  outTree->Branch("totalUCNoise", &totalUCNoise,"totalUCNoise[10]/F");
+  outTree->Branch("inNoiseADC", &inNoiseADC, "inNoiseADC[10]/F");
+  outTree->Branch("inNoiseDC", &inNoiseDC, "inNoiseDC[10]/F");
+  outTree->Branch("inNoisePhoto", &inNoisePhoto, "inNoisePhoto[10]/F");
+  outTree->Branch("inPedestal", &inPedestal, "inPedestal[10]/F");
+  outTree->Branch("totalUCNoise", &totalUCNoise, "totalUCNoise[10]/F");
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
