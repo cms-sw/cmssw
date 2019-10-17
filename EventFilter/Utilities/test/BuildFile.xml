@@ -1,5 +1,5 @@
+<use   name="FWCore/Framework"/>
 <library   file="*.cc" name="EventFilterUtilitiesTest">
-  <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/Utilities"/>
