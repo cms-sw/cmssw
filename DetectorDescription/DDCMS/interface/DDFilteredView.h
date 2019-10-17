@@ -56,7 +56,7 @@ namespace cms {
     using nav_type = std::vector<int>;
 
     DDFilteredView(const DDDetector*, const Volume);
-    DDFilteredView(const DDCompactView&, const DDFilter&);
+    DDFilteredView(const DDCompactView&, const DDFilter& = "");
     DDFilteredView() = delete;
 
     //! The numbering history of the current node
