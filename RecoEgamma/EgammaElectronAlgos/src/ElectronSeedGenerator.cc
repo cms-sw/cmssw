@@ -70,38 +70,38 @@ namespace {
       if ((seed.caloCluster().key() == resItr->caloCluster().key()) && (seed.hitsMask() == resItr->hitsMask()) &&
           equivalent(seed, *resItr)) {
         if (positron) {
-          if (resItr->dRz2Pos() == std::numeric_limits<float>::infinity() &&
-              resItr->dRz2() != std::numeric_limits<float>::infinity()) {
+          if (resItr->dRZPos(1) == std::numeric_limits<float>::infinity() &&
+              resItr->dRZNeg(1) != std::numeric_limits<float>::infinity()) {
             resItr->setPosAttributes(info->dRz2, info->dPhi2, info->dRz1, info->dPhi1);
-            seed.setNegAttributes(resItr->dRz2(), resItr->dPhi2(), resItr->dRz1(), resItr->dPhi1());
+            seed.setNegAttributes(resItr->dRZNeg(1), resItr->dPhiNeg(1), resItr->dRZNeg(0), resItr->dPhiNeg(0));
             break;
           } else {
-            if (resItr->dRz2Pos() != std::numeric_limits<float>::infinity()) {
-              if (resItr->dRz2Pos() != seed.dRz2Pos()) {
+            if (resItr->dRZPos(1) != std::numeric_limits<float>::infinity()) {
+              if (resItr->dRZPos(1) != seed.dRZPos(1)) {
                 edm::LogWarning("ElectronSeedGenerator|BadValue")
                     << "this similar old seed already has another dRz2Pos"
                     << "\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: " << (unsigned int)resItr->hitsMask() << "/"
-                    << resItr->dRz2() << "/" << resItr->dPhi2() << "/" << resItr->dRz2Pos() << "/" << resItr->dPhi2Pos()
+                    << resItr->dRZNeg(1) << "/" << resItr->dPhiNeg(1) << "/" << resItr->dRZPos(1) << "/" << resItr->dPhiPos(1)
                     << "\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: " << (unsigned int)seed.hitsMask() << "/"
-                    << seed.dRz2() << "/" << seed.dPhi2() << "/" << seed.dRz2Pos() << "/" << seed.dPhi2Pos();
+                    << seed.dRZNeg(1) << "/" << seed.dPhiNeg(1) << "/" << seed.dRZPos(1) << "/" << seed.dPhiPos(1);
               }
             }
           }
         } else {
-          if (resItr->dRz2() == std::numeric_limits<float>::infinity() &&
-              resItr->dRz2Pos() != std::numeric_limits<float>::infinity()) {
+          if (resItr->dRZNeg(1) == std::numeric_limits<float>::infinity() &&
+              resItr->dRZPos(1) != std::numeric_limits<float>::infinity()) {
             resItr->setNegAttributes(info->dRz2, info->dPhi2, info->dRz1, info->dPhi1);
-            seed.setPosAttributes(resItr->dRz2Pos(), resItr->dPhi2Pos(), resItr->dRz1Pos(), resItr->dPhi1Pos());
+            seed.setPosAttributes(resItr->dRZPos(1), resItr->dPhiPos(1), resItr->dRZPos(0), resItr->dPhiPos(0));
             break;
           } else {
-            if (resItr->dRz2() != std::numeric_limits<float>::infinity()) {
-              if (resItr->dRz2() != seed.dRz2()) {
+            if (resItr->dRZNeg(1) != std::numeric_limits<float>::infinity()) {
+              if (resItr->dRZNeg(1) != seed.dRZNeg(1)) {
                 edm::LogWarning("ElectronSeedGenerator|BadValue")
                     << "this old seed already has another dRz2"
                     << "\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: " << (unsigned int)resItr->hitsMask() << "/"
-                    << resItr->dRz2() << "/" << resItr->dPhi2() << "/" << resItr->dRz2Pos() << "/" << resItr->dPhi2Pos()
+                    << resItr->dRZNeg(1) << "/" << resItr->dPhiNeg(1) << "/" << resItr->dRZPos(1) << "/" << resItr->dPhiPos(1)
                     << "\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: " << (unsigned int)seed.hitsMask() << "/"
-                    << seed.dRz2() << "/" << seed.dPhi2() << "/" << seed.dRz2Pos() << "/" << seed.dPhi2Pos();
+                    << seed.dRZNeg(1) << "/" << seed.dPhiNeg(1) << "/" << seed.dRZPos(1) << "/" << seed.dPhiPos(1);
               }
             }
           }
