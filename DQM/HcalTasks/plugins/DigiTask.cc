@@ -705,7 +705,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
     _cCapid_BadvsFEDvsLSmod60.book(ib, _subsystem, "BadvsLSmod60");
   }
   for (int i = 0; i < 4; ++i) {
-    constexpr unsigned int kSize = 16;
+    constexpr unsigned int kSize = 32;
     char aux[kSize];
     snprintf(aux, kSize, "%d_uTCA", i);
     _cCapidMinusBXmod4_CrateSlotuTCA[i].book(ib, _subsystem, aux);
