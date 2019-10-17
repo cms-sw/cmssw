@@ -31,6 +31,7 @@ validationHarvesting = cms.Path(postValidation*hltpostvalidation*postValidation_
 _validationHarvesting_fastsim = validationHarvesting.copy()
 for _entry in [hltpostvalidation]:
     _validationHarvesting_fastsim.remove(_entry)
+_validationHarvesting_fastsim.remove(hltpostvalidation)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(validationHarvesting,_validationHarvesting_fastsim)
 
