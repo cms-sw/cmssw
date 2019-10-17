@@ -235,7 +235,7 @@ namespace {
   }
 };  // namespace
 
-GsfElectronBaseProducer::GsfElectronBaseProducer(const edm::ParameterSet& cfg, const gsfAlgoHelpers::HeavyObjectCache*)
+GsfElectronBaseProducer::GsfElectronBaseProducer(const edm::ParameterSet& cfg, const GsfElectronAlgo::HeavyObjectCache*)
     : cutsCfg_(makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselection"))),
       cutsCfgPflow_(makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselectionPflow"))),
       ecalSeedingParametersChecked_(false),

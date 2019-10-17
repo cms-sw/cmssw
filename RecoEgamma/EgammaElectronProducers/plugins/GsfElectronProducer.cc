@@ -22,7 +22,7 @@
 
 using namespace reco;
 
-GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const gsfAlgoHelpers::HeavyObjectCache* hoc)
+GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const GsfElectronAlgo::HeavyObjectCache* hoc)
     : GsfElectronBaseProducer(cfg, hoc), pfTranslatorParametersChecked_(false) {}
 
 reco::GsfElectronCollection GsfElectronProducer::clonePreviousElectrons(edm::Event const& event) const {

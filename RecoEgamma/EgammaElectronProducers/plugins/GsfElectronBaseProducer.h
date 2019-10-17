@@ -3,7 +3,6 @@
 #define GsfElectronBaseProducer_h
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgoHeavyObjectCache.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -24,18 +23,18 @@ namespace edm {
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-class GsfElectronBaseProducer : public edm::stream::EDProducer<edm::GlobalCache<gsfAlgoHelpers::HeavyObjectCache>> {
+class GsfElectronBaseProducer : public edm::stream::EDProducer<edm::GlobalCache<GsfElectronAlgo::HeavyObjectCache>> {
 public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-  explicit GsfElectronBaseProducer(const edm::ParameterSet&, const gsfAlgoHelpers::HeavyObjectCache*);
+  explicit GsfElectronBaseProducer(const edm::ParameterSet&, const GsfElectronAlgo::HeavyObjectCache*);
   ~GsfElectronBaseProducer() override;
 
-  static std::unique_ptr<gsfAlgoHelpers::HeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& conf) {
-    return std::make_unique<gsfAlgoHelpers::HeavyObjectCache>(conf);
+  static std::unique_ptr<GsfElectronAlgo::HeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& conf) {
+    return std::make_unique<GsfElectronAlgo::HeavyObjectCache>(conf);
   }
 
-  static void globalEndJob(gsfAlgoHelpers::HeavyObjectCache const*) {}
+  static void globalEndJob(GsfElectronAlgo::HeavyObjectCache const*) {}
 
   // ------------ method called to produce the data  ------------
   void produce(edm::Event& event, const edm::EventSetup& setup) override {
