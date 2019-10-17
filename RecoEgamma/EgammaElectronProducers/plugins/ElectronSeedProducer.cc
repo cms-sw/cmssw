@@ -266,15 +266,14 @@ SuperClusterRefVector ElectronSeedProducer::filterClusters(
 
 void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>(
-      "endcapSuperClusters",
-      edm::InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALEndcapWithPreshower"));
+  desc.add<edm::InputTag>("endcapSuperClusters",
+                          {"particleFlowSuperClusterECAL", "particleFlowSuperClusterECALEndcapWithPreshower"});
   {
-    edm::ParameterSetDescription psd0, psd1, psd2, psd3, psd4;
+    edm::ParameterSetDescription psd0, psd1, psd2, psd3;
     psd1.add<unsigned int>("maxElement", 0);
-    psd1.add<std::string>("ComponentName", std::string("StandardHitPairGenerator"));
+    psd1.add<std::string>("ComponentName", "StandardHitPairGenerator");
     psd1.addUntracked<int>("useOnDemandTracker", 0);
-    psd1.add<edm::InputTag>("SeedingLayers", edm::InputTag("hltMixedLayerPairs"));
+    psd1.add<edm::InputTag>("SeedingLayers", {"hltMixedLayerPairs"});
     psd0.add<edm::ParameterSetDescription>("OrderedHitsFactoryPSet", psd1);
 
     psd2.add<double>("deltaPhiRegion", 0.4);
@@ -283,78 +282,96 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
     psd2.add<double>("deltaEtaRegion", 0.1);
     psd2.add<double>("ptMin", 1.5);
     psd2.add<double>("originRadius", 0.2);
-    psd2.add<edm::InputTag>("VertexProducer", edm::InputTag("dummyVertices"));
+    psd2.add<edm::InputTag>("VertexProducer", {"dummyVertices"});
     psd0.add<edm::ParameterSetDescription>("RegionPSet", psd2);
 
-    psd0.add<double>("PhiMax2B", 0.002);
-    psd0.add<double>("hOverEPtMin", 0.0);
-    psd0.add<double>("PhiMax2F", 0.003);
-    psd0.add<bool>("searchInTIDTEC", true);
-    psd0.add<double>("pPhiMax1", 0.125);
-    psd0.add<double>("HighPtThreshold", 35.0);
-    psd0.add<double>("r2MinF", -0.15);
+    // steering
+    psd0.add<bool>("fromTrackerSeeds", true);
+    psd0.add<edm::InputTag>("initialSeeds", {""});  //keep for be compatibility
+    psd0.add<std::vector<edm::InputTag>>("initialSeedsVector", {});
+    psd0.add<bool>("preFilteredSeeds", false);
+    psd0.add<bool>("useRecoVertex", false);
+    psd0.add<edm::InputTag>("vertices", {"offlinePrimaryVerticesWithBS"});
+    psd0.add<edm::InputTag>("beamSpot", {"offlineBeamSpot"});
+    psd0.add<bool>("dynamicPhiRoad", true);
+    psd0.add<bool>("searchInTIDTEC", true);  // possibility to inhibit extended forward coverage
+
+    // specify where to get the hits from
+    psd0.add<std::string>("measurementTrackerName", "");
+    psd0.add<edm::InputTag>("measurementTrackerEvent", {"MeasurementTrackerEvent"});
+
+    // SC filtering
+    psd0.add<double>("SCEtCut", 0.0);
+
+    // H/E
+    psd0.add<bool>("applyHOverECut", true);
+    psd0.add<double>("hOverEConeSize", 0.15);
+    psd0.add<double>("maxHOverEBarrel", 0.15);
+    psd0.add<double>("maxHOverEEndcaps", 0.15);
     psd0.add<double>("maxHBarrel", 0.0);
+    psd0.add<double>("maxHEndcaps", 0.0);
+
+    // H/E rechits
+    psd0.add<edm::InputTag>("hcalRecHits", {"hbhereco"});  // OBSOLETE
+    psd0.add<double>("hOverEHBMinE", 0.7);                 // OBSOLETE
+    psd0.add<double>("hOverEHFMinE", 0.8);                 // OBSOLETE
+
+    // H/E towers
+    psd0.add<edm::InputTag>("hcalTowers", {"towerMaker"});
+    psd0.add<double>("hOverEPtMin", 0.0);
+
+    // H/E equivalent for HGCal
+    psd0.add<bool>("allowHGCal", false);
+    edm::ParameterSetDescription psd4;
+    psd4.add<edm::InputTag>("HGCEEInput", {"HGCalRecHit", "HGCEERecHits"});
+    psd4.add<edm::InputTag>("HGCFHInput", {"HGCalRecHit", "HGCHEFRecHits"});
+    psd4.add<edm::InputTag>("HGCBHInput", {"HGCalRecHit", "HGCHEBRecHits"});
+    psd0.add<edm::ParameterSetDescription>("HGCalConfig", psd4);
+
+    // r/z windows
+    psd0.add<double>("nSigmasDeltaZ1", 5.0);      // in case beam spot is used for the matching
+    psd0.add<double>("deltaZ1WithVertex", 25.0);  // in case reco vertex is used for the matching
+    psd0.add<double>("z2MinB", -0.09);
+    psd0.add<double>("z2MaxB", 0.09);
+    psd0.add<double>("r2MinF", -0.15);
+    psd0.add<double>("r2MaxF", 0.15);
+    psd0.add<double>("rMinI", -0.2);  // intermediate region SC in EB and 2nd hits in PXF
+    psd0.add<double>("rMaxI", 0.2);   // intermediate region SC in EB and 2nd hits in PXF
+
+    // phi windows (dynamic)
+    psd0.add<double>("LowPtThreshold", 5.0);
+    psd0.add<double>("HighPtThreshold", 35.0);
+    psd0.add<double>("SizeWindowENeg", 0.675);
     psd0.add<double>("DeltaPhi1Low", 0.23);
     psd0.add<double>("DeltaPhi1High", 0.08);
-    psd0.add<double>("ePhiMin1", -0.125);
-    psd0.add<edm::InputTag>("hcalTowers", edm::InputTag("towerMaker"));
-    psd0.add<double>("LowPtThreshold", 5.0);
-    psd0.add<double>("maxHOverEBarrel", 0.15);
-    psd0.add<bool>("dynamicPhiRoad", true);
-    psd0.add<double>("ePhiMax1", 0.075);
-    psd0.add<std::string>("measurementTrackerName", "");
-    psd0.add<double>("SizeWindowENeg", 0.675);
-    psd0.add<double>("nSigmasDeltaZ1", 5.0);
-    psd0.add<double>("rMaxI", 0.2);
-    psd0.add<double>("maxHEndcaps", 0.0);
-    psd0.add<bool>("preFilteredSeeds", false);
-    psd0.add<double>("r2MaxF", 0.15);
-    psd0.add<double>("hOverEConeSize", 0.15);
-    psd0.add<double>("pPhiMin1", -0.075);
-    psd0.add<edm::InputTag>("initialSeeds", edm::InputTag(""));  //keep for be compatibility
-    psd0.add<std::vector<edm::InputTag>>("initialSeedsVector", {{"newCombinedSeeds"}});
-    psd0.add<double>("deltaZ1WithVertex", 25.0);
-    psd0.add<double>("SCEtCut", 0.0);
-    psd0.add<double>("z2MaxB", 0.09);
-    psd0.add<bool>("fromTrackerSeeds", true);
-    psd0.add<edm::InputTag>("hcalRecHits", edm::InputTag("hbhereco"));
-    psd0.add<double>("z2MinB", -0.09);
-    psd0.add<double>("rMinI", -0.2);
-    psd0.add<double>("maxHOverEEndcaps", 0.15);
-    psd0.add<double>("hOverEHBMinE", 0.7);
-    psd0.add<bool>("useRecoVertex", false);
-    psd0.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
-    psd0.add<edm::InputTag>("measurementTrackerEvent", edm::InputTag("MeasurementTrackerEvent"));
-    psd0.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVerticesWithBS"));
-    psd0.add<bool>("applyHOverECut", true);
-    psd0.add<double>("DeltaPhi2F", 0.012);
-    psd0.add<double>("PhiMin2F", -0.003);
-    psd0.add<double>("hOverEHFMinE", 0.8);
     psd0.add<double>("DeltaPhi2B", 0.008);
-    psd0.add<double>("PhiMin2B", -0.002);
-    psd0.add<bool>("allowHGCal", false);
+    psd0.add<double>("DeltaPhi2F", 0.012);
 
-    psd3.add<std::string>("ComponentName", std::string("SeedFromConsecutiveHitsCreator"));
-    psd3.add<std::string>("propagator", std::string("PropagatorWithMaterial"));
+    // phi windows (non dynamic, overwritten in case dynamic is selected)
+    psd0.add<double>("ePhiMin1", -0.125);
+    psd0.add<double>("ePhiMax1", 0.075);
+    psd0.add<double>("pPhiMin1", -0.075);
+    psd0.add<double>("pPhiMax1", 0.125);
+    psd0.add<double>("PhiMin2B", -0.002);
+    psd0.add<double>("PhiMax2B", 0.002);
+    psd0.add<double>("PhiMin2F", -0.003);
+    psd0.add<double>("PhiMax2F", 0.003);
+
+    psd3.add<std::string>("ComponentName", "SeedFromConsecutiveHitsCreator");
+    psd3.add<std::string>("propagator", "PropagatorWithMaterial");
     psd3.add<double>("SeedMomentumForBOFF", 5.0);
     psd3.add<double>("OriginTransverseErrorMultiplier", 1.0);
     psd3.add<double>("MinOneOverPtError", 1.0);
-    psd3.add<std::string>("magneticField", std::string(""));
-    psd3.add<std::string>("TTRHBuilder", std::string("WithTrackAngle"));
+    psd3.add<std::string>("magneticField", "");
+    psd3.add<std::string>("TTRHBuilder", "WithTrackAngle");
     psd3.add<bool>("forceKinematicWithRegionDirection", false);
-
-    psd4.add<edm::InputTag>("HGCEEInput", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
-    psd4.add<edm::InputTag>("HGCFHInput", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
-    psd4.add<edm::InputTag>("HGCBHInput", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
-
-    psd0.add<edm::ParameterSetDescription>("HGCalConfig", psd4);
 
     psd0.add<edm::ParameterSetDescription>("SeedCreatorPSet", psd3);
 
     desc.add<edm::ParameterSetDescription>("SeedConfiguration", psd0);
   }
   desc.add<edm::InputTag>("barrelSuperClusters",
-                          edm::InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALBarrel"));
+                          {"particleFlowSuperClusterECAL", "particleFlowSuperClusterECALBarrel"});
   descriptions.add("ecalDrivenElectronSeeds", desc);
 }
 
