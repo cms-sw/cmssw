@@ -66,40 +66,40 @@ namespace {
     } else {
       seed.setNegAttributes(info->dRz2, info->dPhi2, info->dRz1, info->dPhi1);
     }
-    for (auto resItr = out.begin(); resItr != out.end(); ++resItr) {
-      if ((seed.caloCluster().key() == resItr->caloCluster().key()) && (seed.hitsMask() == resItr->hitsMask()) &&
-          equivalent(seed, *resItr)) {
+    for (auto &res : out) {
+      if ((seed.caloCluster().key() == res.caloCluster().key()) && (seed.hitsMask() == res.hitsMask()) &&
+          equivalent(seed, res)) {
         if (positron) {
-          if (resItr->dRZPos(1) == std::numeric_limits<float>::infinity() &&
-              resItr->dRZNeg(1) != std::numeric_limits<float>::infinity()) {
-            resItr->setPosAttributes(info->dRz2, info->dPhi2, info->dRz1, info->dPhi1);
-            seed.setNegAttributes(resItr->dRZNeg(1), resItr->dPhiNeg(1), resItr->dRZNeg(0), resItr->dPhiNeg(0));
+          if (res.dRZPos(1) == std::numeric_limits<float>::infinity() &&
+              res.dRZNeg(1) != std::numeric_limits<float>::infinity()) {
+            res.setPosAttributes(info->dRz2, info->dPhi2, info->dRz1, info->dPhi1);
+            seed.setNegAttributes(res.dRZNeg(1), res.dPhiNeg(1), res.dRZNeg(0), res.dPhiNeg(0));
             break;
           } else {
-            if (resItr->dRZPos(1) != std::numeric_limits<float>::infinity()) {
-              if (resItr->dRZPos(1) != seed.dRZPos(1)) {
+            if (res.dRZPos(1) != std::numeric_limits<float>::infinity()) {
+              if (res.dRZPos(1) != seed.dRZPos(1)) {
                 edm::LogWarning("ElectronSeedGenerator|BadValue")
                     << "this similar old seed already has another dRz2Pos"
-                    << "\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: " << (unsigned int)resItr->hitsMask() << "/"
-                    << resItr->dRZNeg(1) << "/" << resItr->dPhiNeg(1) << "/" << resItr->dRZPos(1) << "/" << resItr->dPhiPos(1)
+                    << "\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: " << (unsigned int)res.hitsMask() << "/"
+                    << res.dRZNeg(1) << "/" << res.dPhiNeg(1) << "/" << res.dRZPos(1) << "/" << res.dPhiPos(1)
                     << "\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: " << (unsigned int)seed.hitsMask() << "/"
                     << seed.dRZNeg(1) << "/" << seed.dPhiNeg(1) << "/" << seed.dRZPos(1) << "/" << seed.dPhiPos(1);
               }
             }
           }
         } else {
-          if (resItr->dRZNeg(1) == std::numeric_limits<float>::infinity() &&
-              resItr->dRZPos(1) != std::numeric_limits<float>::infinity()) {
-            resItr->setNegAttributes(info->dRz2, info->dPhi2, info->dRz1, info->dPhi1);
-            seed.setPosAttributes(resItr->dRZPos(1), resItr->dPhiPos(1), resItr->dRZPos(0), resItr->dPhiPos(0));
+          if (res.dRZNeg(1) == std::numeric_limits<float>::infinity() &&
+              res.dRZPos(1) != std::numeric_limits<float>::infinity()) {
+            res.setNegAttributes(info->dRz2, info->dPhi2, info->dRz1, info->dPhi1);
+            seed.setPosAttributes(res.dRZPos(1), res.dPhiPos(1), res.dRZPos(0), res.dPhiPos(0));
             break;
           } else {
-            if (resItr->dRZNeg(1) != std::numeric_limits<float>::infinity()) {
-              if (resItr->dRZNeg(1) != seed.dRZNeg(1)) {
+            if (res.dRZNeg(1) != std::numeric_limits<float>::infinity()) {
+              if (res.dRZNeg(1) != seed.dRZNeg(1)) {
                 edm::LogWarning("ElectronSeedGenerator|BadValue")
                     << "this old seed already has another dRz2"
-                    << "\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: " << (unsigned int)resItr->hitsMask() << "/"
-                    << resItr->dRZNeg(1) << "/" << resItr->dPhiNeg(1) << "/" << resItr->dRZPos(1) << "/" << resItr->dPhiPos(1)
+                    << "\nold seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: " << (unsigned int)res.hitsMask() << "/"
+                    << res.dRZNeg(1) << "/" << res.dPhiNeg(1) << "/" << res.dRZPos(1) << "/" << res.dPhiPos(1)
                     << "\nnew seed mask/dRz2/dPhi2/dRz2Pos/dPhi2Pos: " << (unsigned int)seed.hitsMask() << "/"
                     << seed.dRZNeg(1) << "/" << seed.dPhiNeg(1) << "/" << seed.dRZPos(1) << "/" << seed.dPhiPos(1);
               }
