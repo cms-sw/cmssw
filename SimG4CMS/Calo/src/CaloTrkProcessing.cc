@@ -62,19 +62,21 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
     edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->insideLevel_.size() << " entries for insideLevel:";
     for (unsigned int i = 0; i < csp->insideLevel_.size(); i++)
       edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->insideLevel_[i];
-    edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->fCaloNames_.size() << " entries for fineCalorimeterNames:";
+    edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->fCaloNames_.size()
+                                << " entries for fineCalorimeterNames:";
     for (unsigned int i = 0; i < csp->fCaloNames_.size(); i++)
-    edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->fCaloNames_[i];
-    edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->fLevels_.size() << " entries for fineCalorimeterLevels:";
+      edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->fCaloNames_[i];
+    edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->fLevels_.size()
+                                << " entries for fineCalorimeterLevels:";
     for (unsigned int i = 0; i < csp->fLevels_.size(); i++)
       edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->fLevels_[i];
-#endif  
+#endif
 
     if (csp->caloNames_.size() < csp->neighbours_.size()) {
       edm::LogError("CaloSim") << "CaloTrkProcessing: # of Calorimeter bins " << csp->caloNames_.size()
-			       << " does not match with " << csp->neighbours_.size() << " ==> illegal ";
+                               << " does not match with " << csp->neighbours_.size() << " ==> illegal ";
       throw cms::Exception("Unknown", "CaloTrkProcessing")
-        << "Calorimeter array size does not match with size of neighbours\n";
+          << "Calorimeter array size does not match with size of neighbours\n";
     }
 
     const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
@@ -84,42 +86,43 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       G4LogicalVolume* lv = nullptr;
       G4String name = static_cast<G4String>(csp->caloNames_[i]);
       for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-	if ((*lvcite)->GetName() == name) {
-	  lv = (*lvcite);
-	  break;
-	}
+        if ((*lvcite)->GetName() == name) {
+          lv = (*lvcite);
+          break;
+        }
       }
       if (lv != nullptr) {
-	CaloTrkProcessing::Detector detector;
-	detector.name = name;
-	detector.lv = lv;
-	detector.level = csp->levels_[i];
-	if (istart + csp->neighbours_[i] > static_cast<int>(csp->insideNames_.size())) {
-	  edm::LogError("CaloSim") << "CaloTrkProcessing: # of InsideNames bins " << csp->insideNames_.size()
-				   << " too few compaerd to " << istart + csp->neighbours_[i] << " requested ==> illegal ";
-	  throw cms::Exception("Unknown", "CaloTrkProcessing")
-            << "InsideNames array size does not match with list of neighbours\n";
-	}
-	std::vector<std::string> inside;
-	std::vector<G4LogicalVolume*> insideLV;
-	std::vector<int> insideLevels;
-	for (int k = 0; k < csp->neighbours_[i]; k++) {
-	  lv = nullptr;
-	  name = static_cast<G4String>(csp->insideNames_[istart + k]);
-	  for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-	    if ((*lvcite)->GetName() == name) {
-	      lv = (*lvcite);
-	      break;
-	    }
-	  }
-	  inside.push_back(name);
-	  insideLV.push_back(lv);
-	  insideLevels.push_back(csp->insideLevel_[istart + k]);
-	}
-	detector.fromDets = inside;
-	detector.fromDetL = insideLV;
-	detector.fromLevels = insideLevels;
-	detectors_.emplace_back(detector);
+        CaloTrkProcessing::Detector detector;
+        detector.name = name;
+        detector.lv = lv;
+        detector.level = csp->levels_[i];
+        if (istart + csp->neighbours_[i] > static_cast<int>(csp->insideNames_.size())) {
+          edm::LogError("CaloSim") << "CaloTrkProcessing: # of InsideNames bins " << csp->insideNames_.size()
+                                   << " too few compaerd to " << istart + csp->neighbours_[i]
+                                   << " requested ==> illegal ";
+          throw cms::Exception("Unknown", "CaloTrkProcessing")
+              << "InsideNames array size does not match with list of neighbours\n";
+        }
+        std::vector<std::string> inside;
+        std::vector<G4LogicalVolume*> insideLV;
+        std::vector<int> insideLevels;
+        for (int k = 0; k < csp->neighbours_[i]; k++) {
+          lv = nullptr;
+          name = static_cast<G4String>(csp->insideNames_[istart + k]);
+          for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+            if ((*lvcite)->GetName() == name) {
+              lv = (*lvcite);
+              break;
+            }
+          }
+          inside.push_back(name);
+          insideLV.push_back(lv);
+          insideLevels.push_back(csp->insideLevel_[istart + k]);
+        }
+        detector.fromDets = inside;
+        detector.fromDetL = insideLV;
+        detector.fromLevels = insideLevels;
+        detectors_.emplace_back(detector);
       }
       istart += csp->neighbours_[i];
     }
@@ -128,20 +131,20 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       G4LogicalVolume* lv = nullptr;
       G4String name = static_cast<G4String>(csp->fCaloNames_[i]);
       for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-	if ((*lvcite)->GetName() == name) {
-	  lv = (*lvcite);
-	  break;
-	}
+        if ((*lvcite)->GetName() == name) {
+          lv = (*lvcite);
+          break;
+        }
       }
       if (lv != nullptr) {
-	CaloTrkProcessing::Detector detector;
-	detector.name = name;
-	detector.lv = lv;
-	detector.level = csp->fLevels_[i];
-	detector.fromDets.clear();
-	detector.fromDetL.clear();
-	detector.fromLevels.clear();
-	fineDetectors_.emplace_back(detector);
+        CaloTrkProcessing::Detector detector;
+        detector.name = name;
+        detector.lv = lv;
+        detector.level = csp->fLevels_[i];
+        detector.fromDets.clear();
+        detector.fromDetL.clear();
+        detector.fromLevels.clear();
+        fineDetectors_.emplace_back(detector);
       }
     }
   } else {
@@ -152,11 +155,11 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: with " << detectors_.size() << " calorimetric volumes";
   for (unsigned int i = 0; i < detectors_.size(); i++) {
     edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Calorimeter volume " << i << " " << detectors_[i].name << " LV "
-				<< detectors_[i].lv << " at level " << detectors_[i].level << " with "
-				<< detectors_[i].fromDets.size() << " neighbours";
+                                << detectors_[i].lv << " at level " << detectors_[i].level << " with "
+                                << detectors_[i].fromDets.size() << " neighbours";
     for (unsigned int k = 0; k < detectors_[i].fromDets.size(); k++)
       edm::LogVerbatim("CaloSim") << "                   Element " << k << " " << detectors_[i].fromDets[k] << " LV "
-				  << detectors_[i].fromDetL[k] << " at level " << detectors_[i].fromLevels[k];
+                                  << detectors_[i].fromDetL[k] << " at level " << detectors_[i].fromLevels[k];
   }
 
   doFineCalo_ = !(fineDetectors_.empty());
