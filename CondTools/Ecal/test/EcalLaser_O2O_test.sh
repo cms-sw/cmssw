@@ -5,3 +5,4 @@ ret=$?
 conddb --db EcalLaserAPDPNRatios_prompt_v2_O2OTEST.db list EcalLaserAPDPNRatios_prompt_v2
 echo "return code is $ret"
 exit $ret
+

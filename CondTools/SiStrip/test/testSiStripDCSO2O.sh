@@ -16,3 +16,4 @@ conddb --yes copy SiStripDetVOff_1hourDelay_v1_Validation --destdb $outputdir/Si
 SiStripDCSPopCon.py --delay 1 --destTags SiStripDetVOff_1hourDelay_v1_Validation --destDb None --inputTag SiStripDetVOff_1hourDelay_v1_Validation --sourceDb oracle://cms_omds_adg/CMS_TRK_R --condDbRead sqlite:///$outputdir/SiStripDetVOff_1hourDelay_O2OTEST.db --no-upload || die "Failure running SiStripDCSPopCon.py" $?
 # check if new IOV is produced
 conddb --db $outputdir/SiStripDetVOff_1.db list SiStripDetVOff_1hourDelay_v1_Validation || die "No new IOV produced" $?
+

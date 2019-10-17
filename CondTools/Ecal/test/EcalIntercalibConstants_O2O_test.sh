@@ -9,3 +9,4 @@ ret=$?
 conddb --db EcalIntercalibConstants_V1_hlt_O2OTEST.db list EcalIntercalibConstants_V1_hlt
 echo "return code is $ret"
 exit $ret
+
