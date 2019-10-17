@@ -15,6 +15,8 @@ public:
       : BlockElementImporterBase(conf, sumes),
         src_(sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("source"))),
         muons_(sumes.consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
+	trackQuality_(
+	  (conf.existsAs<std::string>("trackQuality")) ? conf.getParameter<std::string>("trackQuality") : trackQuality_ = "highPurity"),
         DPtovPtCut_(conf.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
         NHitCut_(conf.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
         useIterTracking_(conf.getParameter<bool>("useIterativeTracking")),
@@ -31,10 +33,10 @@ private:
 
   edm::EDGetTokenT<reco::PFRecTrackCollection> src_;
   edm::EDGetTokenT<reco::MuonCollection> muons_;
+  std::string trackQuality_;
   const std::vector<double> DPtovPtCut_;
   const std::vector<unsigned> NHitCut_;
   const bool useIterTracking_, cleanBadConvBrems_, debug_;
-
   std::unique_ptr<PFMuonAlgo> pfmu_;
 };
 
@@ -63,7 +65,7 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
         if (trkel->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) && cRef.empty() && dvRef.isNull() &&
             v0Ref.isNull()) {
           // if the Pt resolution is bad we kill this element
-          if (!PFTrackAlgoTools::goodPtResolution(trkel->trackRef(), DPtovPtCut_, NHitCut_, useIterTracking_, debug_)) {
+          if (!PFTrackAlgoTools::goodPtResolution(trkel->trackRef(), DPtovPtCut_, NHitCut_, useIterTracking_, debug_, trackQuality_)) {
             itr = elems.erase(itr);
             continue;
           }
@@ -115,7 +117,7 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
                               (pfmu_->hasValidTrack(muonref, false) && PFMuonAlgo::isMuon(muonref)));
     }
     if (thisIsAPotentialMuon ||
-        PFTrackAlgoTools::goodPtResolution(pftrackref->trackRef(), DPtovPtCut_, NHitCut_, useIterTracking_, debug_)) {
+        PFTrackAlgoTools::goodPtResolution(pftrackref->trackRef(), DPtovPtCut_, NHitCut_, useIterTracking_, debug_, trackQuality_)) {
       trkElem = new reco::PFBlockElementTrack(pftrackref);
       if (thisIsAPotentialMuon && debug_) {
         std::cout << "Potential Muon P " << pftrackref->trackRef()->p() << " pt " << pftrackref->trackRef()->p()
