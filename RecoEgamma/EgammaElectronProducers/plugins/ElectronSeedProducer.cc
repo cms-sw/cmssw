@@ -40,10 +40,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  reco::SuperClusterRefVector filterClusters(const reco::BeamSpot& bs,
-                                             const edm::Handle<reco::SuperClusterCollection>& superClusters,
-                                             std::vector<float>& hoe1s,
-                                             std::vector<float>& hoe2s) const;
+  reco::SuperClusterRefVector filterClusters(math::XYZPoint const& beamSpotPosition,
+                                             const edm::Handle<reco::SuperClusterCollection>& superClusters) const;
 
   edm::EDGetTokenT<reco::SuperClusterCollection> superClusters_[2];
   std::vector<edm::EDGetTokenT<TrajectorySeedCollection>> initialSeeds_;
@@ -60,7 +58,6 @@ private:
   double maxHEndcaps_;
   double SCEtCut_;
 
-  bool fromTrackerSeeds_;
   bool prefilteredSeeds_;
 
   bool allowHGCal_;
@@ -82,7 +79,6 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& iConfig) {
   }
 
   SCEtCut_ = conf.getParameter<double>("SCEtCut");
-  fromTrackerSeeds_ = conf.getParameter<bool>("fromTrackerSeeds");
   prefilteredSeeds_ = conf.getParameter<bool>("preFilteredSeeds");
 
   auto theconsumes = consumesCollector();
@@ -119,8 +115,6 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& iConfig) {
   ElectronSeedGenerator::Tokens esg_tokens;
   esg_tokens.token_bs = beamSpotTag_;
   esg_tokens.token_vtx = mayConsume<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertices"));
-  esg_tokens.token_measTrkEvt =
-      consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("measurementTrackerEvent"));
 
   matcher_ = std::make_unique<ElectronSeedGenerator>(conf, esg_tokens);
 
@@ -166,35 +160,30 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   matcher_->setupES(iSetup);
 
   // get initial TrajectorySeeds if necessary
-  if (fromTrackerSeeds_) {
-    if (!prefilteredSeeds_) {
-      initialSeedCollections.clear();
-      for (auto const& seeds : initialSeeds_) {
-        initialSeedCollections.push_back(&e.get(seeds));
-      }
-    } else {
-      initialSeedCollections.clear();  //reset later
-      initialSeedCollectionPtr = std::make_unique<TrajectorySeedCollection>();
+  if (!prefilteredSeeds_) {
+    initialSeedCollections.clear();
+    for (auto const& seeds : initialSeeds_) {
+      initialSeedCollections.push_back(&e.get(seeds));
     }
   } else {
-    // not needed in this case
-    initialSeedCollections.clear();
+    initialSeedCollections.clear();  //reset later
+    initialSeedCollectionPtr = std::make_unique<TrajectorySeedCollection>();
   }
 
   auto seeds = std::make_unique<ElectronSeedCollection>();
+  auto const& beamSportPosition = e.get(beamSpotTag_).position();
 
   // loop over barrel + endcap
   for (unsigned int i = 0; i < 2; i++) {
-    std::vector<float> hoe1s, hoe2s;
-    auto clusterRefs = filterClusters(e.get(beamSpotTag_), e.getHandle(superClusters_[i]), hoe1s, hoe2s);
-    if (fromTrackerSeeds_ && prefilteredSeeds_) {
+    auto clusterRefs = filterClusters(beamSportPosition, e.getHandle(superClusters_[i]));
+    if (prefilteredSeeds_) {
       for (auto const& sclRef : clusterRefs) {
         seedFilter_->seeds(e, iSetup, sclRef, initialSeedCollectionPtr.get());
         initialSeedCollections.push_back(initialSeedCollectionPtr.get());
         LogDebug("ElectronSeedProducer") << "Number of Seeds: " << initialSeedCollections.back()->size();
       }
     }
-    matcher_->run(e, iSetup, clusterRefs, hoe1s, hoe2s, initialSeedCollections, *seeds);
+    matcher_->run(e, iSetup, clusterRefs, initialSeedCollections, *seeds);
   }
 
   // store the accumulated result
@@ -216,24 +205,17 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 //===============================
 
 SuperClusterRefVector ElectronSeedProducer::filterClusters(
-    const reco::BeamSpot& bs,
-    const edm::Handle<reco::SuperClusterCollection>& superClusters,
-    std::vector<float>& hoe1s,
-    std::vector<float>& hoe2s) const {
+    math::XYZPoint const& beamSpotPosition, const edm::Handle<reco::SuperClusterCollection>& superClusters) const {
   SuperClusterRefVector sclRefs;
 
   for (unsigned int i = 0; i < superClusters->size(); ++i) {
     auto const& scl = (*superClusters)[i];
-    double sclEta = EleRelPoint(scl.position(), bs.position()).eta();
+    double sclEta = EleRelPoint(scl.position(), beamSpotPosition).eta();
     if (scl.energy() / cosh(sclEta) > SCEtCut_) {
-      double had1, had2, had, scle;
-
-      bool hoeVeto = false;
       if (applyHOverECut_) {
-        had1 = hcalHelper_->hcalESumDepth1(scl);
-        had2 = hcalHelper_->hcalESumDepth2(scl);
-        had = had1 + had2;
-        scle = scl.energy();
+        bool hoeVeto = false;
+        double had = hcalHelper_->hcalESumDepth1(scl) + hcalHelper_->hcalESumDepth2(scl);
+        double scle = scl.energy();
         int det_group = scl.seed()->hitsAndFractions()[0].first.det();
         int detector = scl.seed()->hitsAndFractions()[0].first.subdetId();
         if (detector == EcalBarrel && (had < maxHBarrel_ || had / scle < maxHOverEBarrel_))
@@ -242,19 +224,13 @@ SuperClusterRefVector ElectronSeedProducer::filterClusters(
           hoeVeto = true;
         else if (allowHGCal_ && EcalTools::isHGCalDet((DetId::Detector)det_group)) {
           float had_fraction = hgcClusterTools_->getClusterHadronFraction(*(scl.seed()));
-          had1 = had_fraction * scl.seed()->energy();
-          had2 = 0.;
           hoeVeto = (had_fraction >= 0.f && had_fraction < maxHOverEEndcaps_);
         }
         if (hoeVeto) {
-          sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters, i));
-          hoe1s.push_back(had1 / scle);
-          hoe2s.push_back(had2 / scle);
+          sclRefs.push_back({superClusters, i});
         }
       } else {
-        sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters, i));
-        hoe1s.push_back(std::numeric_limits<float>::infinity());
-        hoe2s.push_back(std::numeric_limits<float>::infinity());
+        sclRefs.push_back({superClusters, i});
       }
     }
   }
@@ -270,10 +246,8 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
                           {"particleFlowSuperClusterECAL", "particleFlowSuperClusterECALEndcapWithPreshower"});
   {
     edm::ParameterSetDescription psd0, psd1, psd2, psd3;
-    psd1.add<unsigned int>("maxElement", 0);
     psd1.add<std::string>("ComponentName", "StandardHitPairGenerator");
     psd1.addUntracked<int>("useOnDemandTracker", 0);
-    psd1.add<edm::InputTag>("SeedingLayers", {"hltMixedLayerPairs"});
     psd0.add<edm::ParameterSetDescription>("OrderedHitsFactoryPSet", psd1);
 
     psd2.add<double>("deltaPhiRegion", 0.4);
@@ -286,7 +260,6 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
     psd0.add<edm::ParameterSetDescription>("RegionPSet", psd2);
 
     // steering
-    psd0.add<bool>("fromTrackerSeeds", true);
     psd0.add<edm::InputTag>("initialSeeds", {""});  //keep for be compatibility
     psd0.add<std::vector<edm::InputTag>>("initialSeedsVector", {});
     psd0.add<bool>("preFilteredSeeds", false);
@@ -294,10 +267,8 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
     psd0.add<edm::InputTag>("vertices", {"offlinePrimaryVerticesWithBS"});
     psd0.add<edm::InputTag>("beamSpot", {"offlineBeamSpot"});
     psd0.add<bool>("dynamicPhiRoad", true);
-    psd0.add<bool>("searchInTIDTEC", true);  // possibility to inhibit extended forward coverage
 
     // specify where to get the hits from
-    psd0.add<std::string>("measurementTrackerName", "");
     psd0.add<edm::InputTag>("measurementTrackerEvent", {"MeasurementTrackerEvent"});
 
     // SC filtering
