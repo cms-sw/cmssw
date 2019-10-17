@@ -114,8 +114,6 @@ namespace {
 
   void seedsFromTrajectorySeeds(const std::vector<SeedWithInfo> &pixelSeeds,
                                 const reco::ElectronSeed::CaloClusterRef &cluster,
-                                float hoe1,
-                                float hoe2,
                                 reco::ElectronSeedCollection &out,
                                 bool positron) {
     if (!pixelSeeds.empty()) {
@@ -182,12 +180,7 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, cons
                        pset.getParameter<double>("r2MaxF"),
                        pset.getParameter<double>("rMinI"),
                        pset.getParameter<double>("rMaxI"),
-                       useRecoVertex_) {
-  if (!pset.getParameter<bool>("fromTrackerSeeds")) {
-    throw cms::Exception("NotSupported")
-        << "Setting the fromTrackerSeeds parameter in ElectronSeedGenerator to True is not supported anymore.\n";
-  }
-}
+                       useRecoVertex_) {}
 
 void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
   // get records if necessary (called once per event)
@@ -215,8 +208,6 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
 void ElectronSeedGenerator::run(edm::Event &e,
                                 const edm::EventSetup &setup,
                                 const reco::SuperClusterRefVector &sclRefs,
-                                const std::vector<float> &hoe1s,
-                                const std::vector<float> &hoe2s,
                                 const std::vector<const TrajectorySeedCollection *> &seedsV,
                                 reco::ElectronSeedCollection &out) {
   initialSeedCollectionVector_ = &seedsV;
@@ -232,7 +223,7 @@ void ElectronSeedGenerator::run(edm::Event &e,
   for (unsigned int i = 0; i < sclRefs.size(); ++i) {
     // Find the seeds
     LogDebug("ElectronSeedGenerator") << "new cluster, calling seedsFromThisCluster";
-    seedsFromThisCluster(sclRefs[i], hoe1s[i], hoe2s[i], beamSpot, vertices, out);
+    seedsFromThisCluster(sclRefs[i], beamSpot, vertices, out);
   }
 
   LogDebug("ElectronSeedGenerator") << ": For event " << e.id();
@@ -241,8 +232,6 @@ void ElectronSeedGenerator::run(edm::Event &e,
 }
 
 void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster,
-                                                 float hoe1,
-                                                 float hoe2,
                                                  reco::BeamSpot const &beamSpot,
                                                  std::vector<reco::Vertex> const *vertices,
                                                  reco::ElectronSeedCollection &out) {
@@ -294,10 +283,10 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
 
     // try electron
     auto elePixelSeeds = electronMatcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
-    seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, hoe1, hoe2, out, false);
+    seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, out, false);
     // try positron
     auto posPixelSeeds = positronMatcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
-    seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, hoe1, hoe2, out, true);
+    seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, out, true);
 
   } else if (vertices)  // here we use the reco vertices
   {
@@ -320,10 +309,10 @@ void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterColl
 
       // try electron
       auto elePixelSeeds = electronMatcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, -1.);
-      seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, hoe1, hoe2, out, false);
+      seedsFromTrajectorySeeds(elePixelSeeds, caloCluster, out, false);
       // try positron
       auto posPixelSeeds = positronMatcher_(*initialSeedCollectionVector_, clusterPos, vertexPos, clusterEnergy, 1.);
-      seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, hoe1, hoe2, out, true);
+      seedsFromTrajectorySeeds(posPixelSeeds, caloCluster, out, true);
     }
   }
 }
