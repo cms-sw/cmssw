@@ -61,12 +61,6 @@ void HLTDisplacedmumumuVtxProducer::fillDescriptions(edm::ConfigurationDescripti
   descriptions.add("hltDisplacedmumumuVtxProducer", desc);
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void HLTDisplacedmumumuVtxProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HLTDisplacedmumumuVtxProducer::endJob() {}
-
 // ------------ method called on each new Event  ------------
 void HLTDisplacedmumumuVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   double const MuMass = 0.106;
