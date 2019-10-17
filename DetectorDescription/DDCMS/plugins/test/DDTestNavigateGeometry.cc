@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "Geometry/Records/interface/DDVectorRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
@@ -55,7 +55,7 @@ void DDTestNavigateGeometry::analyze(const Event&, const EventSetup& iEventSetup
     }
   });
 
-  const GeometryFileRcd& ddRecord = iEventSetup.get<GeometryFileRcd>();
+  const auto& ddRecord = iEventSetup.get<IdealGeometryRecord>();
   ESTransientHandle<DDDetector> det;
   ddRecord.get(m_tag, det);
 
