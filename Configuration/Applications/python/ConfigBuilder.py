@@ -92,7 +92,7 @@ defaultOptions.nConcurrentLumis = '1'
 def dumpPython(process,name):
     theObject = getattr(process,name)
     if isinstance(theObject,cms.Path) or isinstance(theObject,cms.EndPath) or isinstance(theObject,cms.Sequence):
-        return "process."+name+" = " + theObject.dumpPython("process")
+        return "process."+name+" = " + theObject.dumpPython()
     elif isinstance(theObject,_Module) or isinstance(theObject,cms.ESProducer):
         return "process."+name+" = " + theObject.dumpPython()+"\n"
     else:
