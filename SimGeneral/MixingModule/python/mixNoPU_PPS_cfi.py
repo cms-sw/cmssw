@@ -13,8 +13,6 @@ from SimGeneral.MixingModule.castorDigitizer_cfi import *
 from SimGeneral.MixingModule.trackingTruthProducer_cfi import *
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer, HGCAL_noise_fC, HGCAL_noise_heback, HGCAL_chargeCollectionEfficiencies, HGCAL_noises
 
-import FWCore.ParameterSet.Config as cms
-
 mix = cms.EDProducer("MixingModule",
     digitizers = cms.PSet(),
     LabelPlayback = cms.string(''),
