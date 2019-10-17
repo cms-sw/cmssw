@@ -32,9 +32,7 @@ public:
   explicit HLTDisplacedmumumuVtxProducer(const edm::ParameterSet&);
   ~HLTDisplacedmumumuVtxProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  virtual void beginJob();
   void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob();
 
 private:
   bool checkPreviousCand(const reco::TrackRef& trackref, const std::vector<reco::RecoChargedCandidateRef>& ref2) const;
