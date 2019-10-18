@@ -154,7 +154,7 @@ namespace spu {
     /////////////////////////////////////////////
     /////////////// BUG FIX FOR MPI /////////////
     /////////////////////////////////////////////
-    const char *tmpdir = getenv("TMPDIR");
+    const char *tmpdir = std::getenv("TMPDIR");
     if (tmpdir && (strlen(tmpdir) > 50)) {
       setenv("TMPDIR", "/tmp", true);
     }

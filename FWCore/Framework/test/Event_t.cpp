@@ -706,7 +706,6 @@ void testEvent::getByLabel() {
   CPPUNIT_ASSERT(h->value == 4);
 
   {
-    handle_t h;
     edm::EventBase* baseEvent = currentEvent_.get();
     CPPUNIT_ASSERT(baseEvent->getByLabel(inputTag, h));
     CPPUNIT_ASSERT(h->value == 200);

@@ -3,11 +3,11 @@
 
 #include <vector>
 #include <stdexcept>
-#include <boost/cstdint.hpp>
 
 #include "OnlineDB/EcalCondDB/interface/IDataItem.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
+#include <cstdint>
 
 class RunTTErrorsDat : public IDataItem {
 public:

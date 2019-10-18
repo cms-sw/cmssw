@@ -6,12 +6,13 @@ using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
 template <class DFr>
-HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) : scaleByDose_(false) {
+HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
+    : scaleByDose_(false), NoiseMean_(0.0), NoiseStd_(1.0) {
   bxTime_ = ps.getParameter<double>("bxTime");
   myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
+  NoiseGeneration_Method_ = ps.getParameter<bool>("NoiseGeneration_Method");
   doTimeSamples_ = myCfg_.getParameter<bool>("doTimeSamples");
   thresholdFollowsMIP_ = myCfg_.getParameter<bool>("thresholdFollowsMIP");
-
   if (myCfg_.exists("keV2fC"))
     keV2fC_ = myCfg_.getParameter<double>("keV2fC");
   else
@@ -51,6 +52,18 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) : scaleByDo
   edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
   myFEelectronics_ = std::unique_ptr<HGCFEElectronics<DFr>>(new HGCFEElectronics<DFr>(feCfg));
   myFEelectronics_->SetNoiseValues(noise_fC_);
+  RandNoiseGenerationFlag_ = 0;
+}
+
+template <class DFr>
+void HGCDigitizerBase<DFr>::GenerateGaussianNoise(CLHEP::HepRandomEngine* engine,
+                                                  const double NoiseMean,
+                                                  const double NoiseStd) {
+  for (size_t i = 0; i < NoiseArrayLength_; i++) {
+    for (size_t j = 0; j < samplesize_; j++) {
+      GaussianNoiseArray_[i][j] = CLHEP::RandGaussQ::shoot(engine, NoiseMean, NoiseStd);
+    }
+  }
 }
 
 template <class DFr>
@@ -62,6 +75,12 @@ void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiCo
                                 CLHEP::HepRandomEngine* engine) {
   if (scaleByDose_)
     scal_.setGeometry(theGeom);
+  if (NoiseGeneration_Method_ == true) {
+    if (RandNoiseGenerationFlag_ == false) {
+      GenerateGaussianNoise(engine, NoiseMean_, NoiseStd_);
+      RandNoiseGenerationFlag_ = true;
+    }
+  }
   if (digitizationType == 0)
     runSimple(digiColl, simData, theGeom, validIds, engine);
   else
@@ -80,14 +99,20 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
   HGCCellInfo zeroData;
   zeroData.hit_info[0].fill(0.f);  //accumulated energy
   zeroData.hit_info[1].fill(0.f);  //time-of-flight
-
+  std::array<double, samplesize_> cellNoiseArray;
+  for (size_t i = 0; i < samplesize_; i++)
+    cellNoiseArray[i] = 0.0;
   for (const auto& id : validIds) {
     chargeColl.fill(0.f);
     toa.fill(0.f);
     HGCSimHitDataAccumulator::iterator it = simData.find(id);
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
+    if (NoiseGeneration_Method_ == true) {
+      size_t hash_index = (CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_ - 1)) + id) % NoiseArrayLength_;
 
+      cellNoiseArray = GaussianNoiseArray_[hash_index];
+    }
     //set the noise,cce, LSB and threshold to be used
     float cce(1.f), noiseWidth(0.f), lsbADC(-1.f), maxADC(-1.f);
     uint32_t thrADC(std::floor(myFEelectronics_->getTargetMipValue() / 2));
@@ -122,7 +147,11 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
         toa[i] = cell.hit_info[1][i] / rawCharge;
 
       //final charge estimation
-      float noise = CLHEP::RandGaussQ::shoot(engine, 0.0, noiseWidth);
+      float noise;
+      if (NoiseGeneration_Method_ == true)
+        noise = (float)cellNoiseArray[i] * noiseWidth;
+      else
+        noise = CLHEP::RandGaussQ::shoot(engine, cellNoiseArray[i], noiseWidth);
       float totalCharge(rawCharge * cce + noise);
       if (totalCharge < 0.f)
         totalCharge = 0.f;
@@ -131,7 +160,8 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
 
     //run the shaper to create a new data frame
     DFr rawDataFrame(id);
-    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, engine, thrADC, lsbADC, maxADC, cell.thickness);
+    int thickness = cell.thickness > 0 ? cell.thickness : 1;
+    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, engine, thrADC, lsbADC, maxADC, thickness);
 
     //update the output according to the final shape
     updateOutput(coll, rawDataFrame);

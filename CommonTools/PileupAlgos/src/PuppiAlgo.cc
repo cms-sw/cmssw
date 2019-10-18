@@ -1,5 +1,4 @@
 #include "CommonTools/PileupAlgos/interface/PuppiAlgo.h"
-#include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Math/QuantFuncMathCore.h"
 #include "Math/SpecFuncMathCore.h"
@@ -7,16 +6,16 @@
 #include "TMath.h"
 
 PuppiAlgo::PuppiAlgo(edm::ParameterSet &iConfig) {
-  fEtaMin = iConfig.getParameter<std::vector<double> >("etaMin");
-  fEtaMax = iConfig.getParameter<std::vector<double> >("etaMax");
-  fPtMin = iConfig.getParameter<std::vector<double> >("ptMin");
-  fNeutralPtMin = iConfig.getParameter<std::vector<double> >("MinNeutralPt");         // Weighted Neutral Pt Cut
-  fNeutralPtSlope = iConfig.getParameter<std::vector<double> >("MinNeutralPtSlope");  // Slope vs #pv
-  fRMSEtaSF = iConfig.getParameter<std::vector<double> >("RMSEtaSF");
-  fMedEtaSF = iConfig.getParameter<std::vector<double> >("MedEtaSF");
+  fEtaMin = iConfig.getParameter<std::vector<double>>("etaMin");
+  fEtaMax = iConfig.getParameter<std::vector<double>>("etaMax");
+  fPtMin = iConfig.getParameter<std::vector<double>>("ptMin");
+  fNeutralPtMin = iConfig.getParameter<std::vector<double>>("MinNeutralPt");         // Weighted Neutral Pt Cut
+  fNeutralPtSlope = iConfig.getParameter<std::vector<double>>("MinNeutralPtSlope");  // Slope vs #pv
+  fRMSEtaSF = iConfig.getParameter<std::vector<double>>("RMSEtaSF");
+  fMedEtaSF = iConfig.getParameter<std::vector<double>>("MedEtaSF");
   fEtaMaxExtrap = iConfig.getParameter<double>("EtaMaxExtrap");
 
-  std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("puppiAlgos");
+  std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet>>("puppiAlgos");
   fNAlgos = lAlgos.size();
   //Uber Configurable Puppi
   std::vector<double> tmprms;
@@ -92,35 +91,25 @@ void PuppiAlgo::add(const PuppiCandidate &iParticle, const double &iVal, const u
   // In CMSSW we use the user_index to specify the index in the input collection, so I invented
   // a new mechanism using the fastjet UserInfo functionality. Of course, it's still just an integer
   // but that interface could be changed (or augmented) if desired / needed.
-  int puppi_register = iParticle.puppi_register();
-  if (puppi_register == std::numeric_limits<int>::lowest()) {
+  int puppi_id = iParticle.puppi_register();
+  if (puppi_id == std::numeric_limits<int>::lowest()) {
     throw cms::Exception("PuppiRegisterNotSet") << "The puppi register is not set. This must be set before use.\n";
   }
 
-  //// original code
-  // if(fCharged[iAlgo] && std::abs(puppi_register)  < 1) return;
-  // if(fCharged[iAlgo] && (std::abs(puppi_register) >=1 && std::abs(puppi_register) <=2)) fPupsPV.push_back(iVal);
-  //if(fCharged[iAlgo] && std::abs(puppi_register) < 3) return;
-  //// if used fCharged and not CHPU, just return
-  // fPups.push_back(iVal); //original
-  // fNCount[iAlgo]++;
-
   // added by Nhan -- for all eta regions, compute mean/RMS from the central charged PU
-  //std::cout << "std::abs(puppi_register) = " << std::abs(puppi_register) << std::endl;
-  if ((std::abs(iParticle.eta()) < fEtaMaxExtrap) && (std::abs(puppi_register) >= 3)) {
+  if ((std::abs(iParticle.eta()) < fEtaMaxExtrap) && (puppi_id == 2)) {
     fPups.push_back(iVal);
-    // fPupsPV.push_back(iVal);
     fNCount[iAlgo]++;
   }
   // for the low PU case, correction.  for checking that the PU-only median will be below the PV particles
-  if (std::abs(iParticle.eta()) < fEtaMaxExtrap && (std::abs(puppi_register) >= 1 && std::abs(puppi_register) <= 2))
+  if (std::abs(iParticle.eta()) < fEtaMaxExtrap && (puppi_id == 1))
     fPupsPV.push_back(iVal);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 //NHAN'S VERSION
-void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo, const double &iPVFrac) {
+void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo) {
   //std::cout << "fNCount[iAlgo] = " << fNCount[iAlgo] << std::endl;
   if (iAlgo >= fNAlgos)
     return;
@@ -225,4 +214,49 @@ double PuppiAlgo::compute(std::vector<double> const &iVals, double iChi2) const 
   //Top it off with the last calc
   lPVal *= ROOT::Math::chisquared_cdf(lVal, lNDOF);
   return lPVal;
+}
+// ------------------------------------------------------------------------------------------
+void PuppiAlgo::fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc) {
+  edm::ParameterSetDescription puppialgos;
+  puppialgos.add<int>("algoId", 5);
+  puppialgos.add<bool>("useCharged", false);
+  puppialgos.add<bool>("applyLowPUCorr", false);
+  puppialgos.add<int>("combOpt", 5);
+  puppialgos.add<double>("cone", .4);
+  puppialgos.add<double>("rmsPtMin", .1);
+  puppialgos.add<double>("rmsScaleFactor", 1.0);
+  std::vector<edm::ParameterSet> VPSetPuppiAlgos;
+  edm::ParameterSet puppiset;
+  puppiset.addParameter<int>("algoId", 5);
+  puppiset.addParameter<bool>("useCharged", false);
+  puppiset.addParameter<bool>("applyLowPUCorr", false);
+  puppiset.addParameter<int>("combOpt", 5);
+  puppiset.addParameter<double>("cone", .4);
+  puppiset.addParameter<double>("rmsPtMin", .1);
+  puppiset.addParameter<double>("rmsScaleFactor", 1.0);
+  VPSetPuppiAlgos.push_back(puppiset);
+
+  edm::ParameterSetDescription algos;
+  algos.addVPSet("puppiAlgos", puppialgos, VPSetPuppiAlgos);
+  std::vector<edm::ParameterSet> VPSetAlgos;
+  edm::ParameterSet algosset;
+  algos.add<std::vector<double>>("etaMin", {0.});
+  algos.add<std::vector<double>>("etaMax", {2.5});
+  algos.add<std::vector<double>>("ptMin", {0.});
+  algos.add<std::vector<double>>("MinNeutralPt", {0.2});
+  algos.add<std::vector<double>>("MinNeutralPtSlope", {0.015});
+  algos.add<std::vector<double>>("RMSEtaSF", {1.0});
+  algos.add<std::vector<double>>("MedEtaSF", {1.0});
+  algos.add<double>("EtaMaxExtrap", 2.0);
+  algosset.addParameter<std::vector<double>>("etaMin", {0.});
+  algosset.addParameter<std::vector<double>>("etaMax", {2.5});
+  algosset.addParameter<std::vector<double>>("ptMin", {0.});
+  algosset.addParameter<std::vector<double>>("MinNeutralPt", {0.2});
+  algosset.addParameter<std::vector<double>>("MinNeutralPtSlope", {0.015});
+  algosset.addParameter<std::vector<double>>("RMSEtaSF", {1.0});
+  algosset.addParameter<std::vector<double>>("MedEtaSF", {1.0});
+  algosset.addParameter<double>("EtaMaxExtrap", 2.0);
+  algosset.addParameter<std::vector<edm::ParameterSet>>("puppiAlgos", VPSetPuppiAlgos);
+  VPSetAlgos.push_back(algosset);
+  desc.addVPSet("algos", algos, VPSetAlgos);
 }

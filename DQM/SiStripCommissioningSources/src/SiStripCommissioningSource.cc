@@ -31,7 +31,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <boost/cstdint.hpp>
 #include <ctime>
 #include <iomanip>
 #include <memory>
@@ -46,6 +45,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/unistd.h>
+#include <cstdint>
 
 using namespace sistrip;
 
@@ -137,7 +137,6 @@ void SiStripCommissioningSource::beginRun(edm::Run const& run, const edm::EventS
   edm::LogInfo(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]"
                              << " DQMStore service: " << dqm_;
   dqm(__func__);
-  dqm()->setVerbose(0);
 
   // ---------- Base directory ----------
 
@@ -225,8 +224,8 @@ void SiStripCommissioningSource::endJob() {
   // Retrieve SCRATCH directory
   std::string scratch = "SCRATCH";  //@@ remove trailing slash!!!
   std::string dir = "";
-  if (getenv(scratch.c_str()) != nullptr) {
-    dir = getenv(scratch.c_str());
+  if (std::getenv(scratch.c_str()) != nullptr) {
+    dir = std::getenv(scratch.c_str());
   }
 
   // Add directory path

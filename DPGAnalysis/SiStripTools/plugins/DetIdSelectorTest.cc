@@ -38,7 +38,7 @@
 
 #include "Geometry/TrackerNumberingBuilder/interface/utils.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"

@@ -14,12 +14,11 @@
 #ifndef SiPixelMonitorTrack_SiPixelTrackResidualModule_h
 #define SiPixelMonitorTrack_SiPixelTrackResidualModule_h
 
-#include <boost/cstdint.hpp>
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include <cstdint>
 
 namespace edm {
   class EventSetup;

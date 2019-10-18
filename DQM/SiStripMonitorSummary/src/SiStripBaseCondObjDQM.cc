@@ -501,7 +501,6 @@ void SiStripBaseCondObjDQM::bookProfileMEs(SiStripBaseCondObjDQM::ModMEs &CondOb
   CondObj_ME.ProfileDistr = dqmStore_->book1D(hProfile_Name, hProfile, hProfile_NchX, hProfile_LowX, hProfile_HighX);
   CondObj_ME.ProfileDistr->setAxisTitle(hProfile_xTitle, 1);
   CondObj_ME.ProfileDistr->setAxisTitle(hProfile_yTitle, 2);
-  dqmStore_->tag(CondObj_ME.ProfileDistr, detId_);
 }
 // -----
 
@@ -537,7 +536,6 @@ void SiStripBaseCondObjDQM::bookCumulMEs(SiStripBaseCondObjDQM::ModMEs &CondObj_
   CondObj_ME.CumulDistr = dqmStore_->book1D(hCumul_name, hCumul_title, hCumul_NchX, hCumul_LowX, hCumul_HighX);
   CondObj_ME.CumulDistr->setAxisTitle(hCumul_xTitle, 1);
   CondObj_ME.CumulDistr->setAxisTitle(hCumul_yTitle, 2);
-  dqmStore_->tag(CondObj_ME.CumulDistr, detId_);
 }
 // ----
 
@@ -764,8 +762,6 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs 
 
     // -----
 
-    dqmStore_->tag(CondObj_ME.SummaryOfProfileDistr, layer_);
-
   }  // if "lorentzangle"
 }
 // ----
@@ -826,8 +822,6 @@ void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs &C
 
   CondObj_ME.SummaryOfCumulDistr->setAxisTitle(hSummaryOfCumul_xTitle, 1);
   CondObj_ME.SummaryOfCumulDistr->setAxisTitle(hSummaryOfCumul_yTitle, 2);
-
-  dqmStore_->tag(CondObj_ME.SummaryOfCumulDistr, layer_);
 }
 // -----
 
@@ -912,8 +906,6 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs &CondOb
       CondObj_ME.SummaryDistr->setBinLabel(iBin, sameLayerDetIds_Name);
   }
   // -----
-
-  dqmStore_->tag(CondObj_ME.SummaryDistr, layer_);
 }
 
 //==========================================================

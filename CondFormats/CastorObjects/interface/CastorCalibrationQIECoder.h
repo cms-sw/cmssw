@@ -12,7 +12,7 @@ $Id
 
 #include <vector>
 #include <algorithm>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class CastorCalibrationQIECoder {
 public:

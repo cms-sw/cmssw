@@ -52,8 +52,6 @@ private:
   bool verbose_;
   std::string dirname_;
   std::string processname_;
-  std::string pathname_;
-  std::string filtername_;
 
   std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
 
@@ -125,18 +123,18 @@ private:
   public:
     ~PathInfo() override = default;
     ;
-    PathInfo(int prescaleUsed,
-             std::string pathName,
-             std::string filterName,
-             std::string processName,
-             size_t type,
-             std::string triggerType)
+    PathInfo(const int prescaleUsed,
+             const std::string& pathName,
+             const std::string& filterName,
+             const std::string& processName,
+             const int type,
+             const std::string& triggerType)
         : prescaleUsed_(prescaleUsed),
-          pathName_(std::move(pathName)),
-          filterName_(std::move(filterName)),
-          processName_(std::move(processName)),
+          pathName_(pathName),
+          filterName_(filterName),
+          processName_(processName),
           objectType_(type),
-          triggerType_(std::move(triggerType)) {}
+          triggerType_(triggerType) {}
 
     const std::string getLabel() const { return filterName_; }
     void setLabel(std::string labelName) { filterName_ = std::move(labelName); }

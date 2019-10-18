@@ -1,8 +1,8 @@
 #ifndef DataFormats_SiStripDigi_SiStripDigi_H
 #define DataFormats_SiStripDigi_SiStripDigi_H
 
-#include "boost/cstdint.hpp"
 #include <iosfwd>
+#include <cstdint>
 
 /**  
      @brief A Digi for the silicon strip detector, containing both

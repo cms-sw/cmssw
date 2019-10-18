@@ -40,7 +40,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
                               "8*filter('*OverlapFilterIsoEle*PFTau*') + " \
                               "16*filter('hltEle*Ele*CaloIdLTrackIdLIsoVL*Filter') + " \
                               "32*filter('hltMu*TrkIsoVVL*Ele*CaloIdLTrackIdLIsoVL*Filter*')  + " \
-                              "64*filter('*OverlapFilterIsoEle*PFTau*') + " \
+                              "64*filter('hltOverlapFilterIsoEle*PFTau*') + " \
                               "128*filter('hltEle*Ele*Ele*CaloIdLTrackIdLDphiLeg*Filter') + " \
                               "256*max(filter('hltL3fL1Mu*DoubleEG*Filtered*'),filter('hltMu*DiEle*CaloIdLTrackIdLElectronleg*Filter')) + " \
                               "512*max(filter('hltL3fL1DoubleMu*EG*Filter*'),filter('hltDiMu*Ele*CaloIdLTrackIdLElectronleg*Filter')) + " \
