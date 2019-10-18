@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
@@ -88,8 +89,7 @@ muonMVALowPt = muonMVATTH.clone(
     name = cms.string("muonMVALowPt"),
 )
 
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify(muonMVATTH,
+run2_muon_2016.toModify(muonMVATTH,
         weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
     )
 

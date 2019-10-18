@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run2_egamma_2016_cff import run2_egamma_2016
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
@@ -340,8 +341,7 @@ electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
         LepGood_mvaFall17V2noIso = cms.string("userFloat('mvaFall17V2noIso')"),
     )
 )
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-  modifier.toModify(electronMVATTH,
+run2_egamma_2016.toModify(electronMVATTH,
     weightFile = "PhysicsTools/NanoAOD/data/el_BDTG_2016.weights.xml",
 )
 
