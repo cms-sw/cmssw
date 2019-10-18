@@ -237,11 +237,10 @@ namespace PFTrackAlgoTools {
                         const std::vector<double>& DPtovPtCut,
                         const std::vector<unsigned>& NHitCut,
                         bool useIterTracking,
-                        bool debug,
-			std::string trackQuality) {
-    
+                        reco::TrackBase::TrackQuality trackQuality,
+                        bool debug) {
     //check quality of tracks
-    if(!trackref->quality(reco::TrackBase::qualityByName(trackQuality)))
+    if (!trackref->quality(trackQuality))
       return false;
 
     const double p = trackref->p();

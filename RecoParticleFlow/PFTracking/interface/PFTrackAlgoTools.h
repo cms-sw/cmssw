@@ -18,6 +18,6 @@ namespace PFTrackAlgoTools {
                         const std::vector<double>& DPtovPtCut,
                         const std::vector<unsigned>& NHitCut,
                         bool useIterTracking,
-                        bool debug = false,
-			std::string trackQuality = "highPurity");
+                        const reco::TrackBase::TrackQuality trackQuality = reco::TrackBase::qualityByName("highPurity"),
+                        bool debug = false);
 }  // namespace PFTrackAlgoTools
