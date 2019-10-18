@@ -32,7 +32,7 @@ BeamConditionsMonitor::BeamConditionsMonitor(const ParameterSet& ps) : countEvt_
 
   dbe_ = Service<DQMStore>().operator->();
 
-  if (monitorName_ != "")
+  if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
 }
 

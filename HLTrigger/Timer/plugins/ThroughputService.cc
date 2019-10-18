@@ -59,10 +59,10 @@ void ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc) {
       booker.setCurrentFolder(m_dqm_path);
       m_sourced_events = booker.book1D("throughput_sourced", "Throughput (sourced events)", bins, 0., range);
       m_sourced_events->setXTitle("time [s]");
-      m_sourced_events->setYTitle(y_axis_title.c_str());
+      m_sourced_events->setYTitle(y_axis_title);
       m_retired_events = booker.book1D("throughput_retired", "Throughput (retired events)", bins, 0., range);
       m_retired_events->setXTitle("time [s]");
-      m_retired_events->setYTitle(y_axis_title.c_str());
+      m_retired_events->setYTitle(y_axis_title);
     };
 
     // book MonitorElement's for this run
