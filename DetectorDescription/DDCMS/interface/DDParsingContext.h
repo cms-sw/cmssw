@@ -42,23 +42,23 @@ namespace cms {
 
     template <class TYPE>
     struct BooleanShape {
-    BooleanShape(const std::string& aName, const std::string& bName, dd4hep::Transform3D t)
-	: firstSolidName(aName),
-	  secondSolidName(bName),
-	  transform(t) {}
-      
+      BooleanShape(const std::string& aName, const std::string& bName, dd4hep::Transform3D t)
+          : firstSolidName(aName), secondSolidName(bName), transform(t) {}
+
       const std::string firstSolidName;
       const std::string secondSolidName;
       dd4hep::Transform3D transform;
-      
+
       dd4hep::Solid make(dd4hep::Solid firstSolid, dd4hep::Solid secondSolid) {
-	return TYPE(firstSolid, secondSolid, transform);
+        return TYPE(firstSolid, secondSolid, transform);
       }
     };
 
-    std::map<std::string, std::variant<BooleanShape<dd4hep::UnionSolid>,
-      BooleanShape<dd4hep::SubtractionSolid>,
-      BooleanShape<dd4hep::IntersectionSolid>>> unresolvedShapes;
+    std::map<std::string,
+             std::variant<BooleanShape<dd4hep::UnionSolid>,
+                          BooleanShape<dd4hep::SubtractionSolid>,
+                          BooleanShape<dd4hep::IntersectionSolid>>>
+        unresolvedShapes;
 
     bool geo_inited = false;
 
