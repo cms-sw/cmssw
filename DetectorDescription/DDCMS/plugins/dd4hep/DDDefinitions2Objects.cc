@@ -48,7 +48,7 @@ namespace dd4hep {
 
     class ConstantsSection;
     class DDLConstant;
-    
+
     struct DDRegistry {
       tbb::concurrent_vector<xml::Document> includes;
       tbb::concurrent_unordered_map<std::string, std::string> unresolvedConst, allConst, originalConst;
@@ -1010,18 +1010,18 @@ static void convert_boolean(cms::DDParsingContext* context, xml_h element) {
            "+++ BooleanSolid: %s Left: %-32s Right: %-32s",
            nam.c_str(),
            ((solids[0].ptr() == nullptr) ? solidName[0].c_str() : solids[0]->GetName()),
-	   ((solids[1].ptr() == nullptr) ? solidName[1].c_str() : solids[1]->GetName()));
+           ((solids[1].ptr() == nullptr) ? solidName[1].c_str() : solids[1]->GetName()));
 
   if (solids[0].isValid() && solids[1].isValid()) {
     Transform3D trafo;
     Converter<DDLTransform3D>(*context->description, context, &trafo)(element);
     boolean = TYPE(solids[0], solids[1], trafo);
-  }
-  else {
+  } else {
     // Register it for later processing
     Transform3D trafo;
     Converter<DDLTransform3D>(*context->description, context, &trafo)(element);
-    ns.context()->unresolvedShapes.emplace(nam, DDParsingContext::BooleanShape<TYPE>(solidName[0], solidName[1], trafo));
+    ns.context()->unresolvedShapes.emplace(nam,
+                                           DDParsingContext::BooleanShape<TYPE>(solidName[0], solidName[1], trafo));
   }
   if (!boolean.isValid()) {
     // Delay processing the shape
@@ -1884,21 +1884,22 @@ static long load_dddefinition(Detector& det, xml_h element) {
       // component shapes
 
       while (!context.unresolvedShapes.empty()) {
-	for (auto& it : context.unresolvedShapes) {
-	  auto const& name = it.first;
-	  auto const& aname = std::visit([](auto&& arg) -> std::string { return arg.firstSolidName;}, it.second);
-	  auto const& bname = std::visit([](auto&& arg) -> std::string { return arg.secondSolidName;}, it.second);
+        for (auto& it : context.unresolvedShapes) {
+          auto const& name = it.first;
+          auto const& aname = std::visit([](auto&& arg) -> std::string { return arg.firstSolidName; }, it.second);
+          auto const& bname = std::visit([](auto&& arg) -> std::string { return arg.secondSolidName; }, it.second);
 
-	  auto const& ait = context.shapes.find(aname);
-	  if(ait->second.isValid()) {
-	    auto const& bit = context.shapes.find(bname);
-	    if(bit->second.isValid()) {
-	      dd4hep::Solid shape = std::visit([&ait, &bit](auto&& arg) -> dd4hep::Solid { return arg.make(ait->second, bit->second);}, it.second);
-	      context.shapes[name] = shape;
-	      context.unresolvedShapes.erase(name);
-	    }
-	  }
-	}
+          auto const& ait = context.shapes.find(aname);
+          if (ait->second.isValid()) {
+            auto const& bit = context.shapes.find(bname);
+            if (bit->second.isValid()) {
+              dd4hep::Solid shape = std::visit(
+                  [&ait, &bit](auto&& arg) -> dd4hep::Solid { return arg.make(ait->second, bit->second); }, it.second);
+              context.shapes[name] = shape;
+              context.unresolvedShapes.erase(name);
+            }
+          }
+        }
       }
     }
     xml_coll_t(dddef, DD_CMU(LogicalPartSection)).for_each(Converter<LogicalPartSection>(det, &context));
@@ -1915,13 +1916,13 @@ static long load_dddefinition(Detector& det, xml_h element) {
   if (close_geometry) {
     Volume wv = det.worldVolume();
     Volume geomv = ns.volume("cms:OCMS", false);
-    if(geomv.isValid())
+    if (geomv.isValid())
       wv.placeVolume(geomv, 1);
     Volume mfv = ns.volume("cmsMagneticField:MAGF", false);
-    if(mfv.isValid())
+    if (mfv.isValid())
       wv.placeVolume(mfv, 1);
     Volume mfv1 = ns.volume("MagneticFieldVolumes:MAGF", false);
-    if(mfv1.isValid())
+    if (mfv1.isValid())
       wv.placeVolume(mfv1, 1);
 
     det.endDocument();
