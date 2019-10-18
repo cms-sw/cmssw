@@ -18,7 +18,6 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
@@ -37,8 +36,8 @@
 
 //#define FAKEFRAMEROTATION
 
-static TrackerG4SimHitNumberingScheme& numberingScheme(const DDCompactView& cpv, const GeometricDet& det) {
-  static thread_local TrackerG4SimHitNumberingScheme s_scheme(cpv, det);
+static TrackerG4SimHitNumberingScheme& numberingScheme(const GeometricDet& det) {
+  static thread_local TrackerG4SimHitNumberingScheme s_scheme(det);
   return s_scheme;
 }
 
@@ -357,10 +356,7 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfJob* i) {
   const edm::EventSetup* es = (*i)();
   es->get<IdealGeometryRecord>().get(pDD);
 
-  edm::ESTransientHandle<DDCompactView> pView;
-  es->get<IdealGeometryRecord>().get(pView);
-
-  theNumberingScheme = &(numberingScheme(*pView, *pDD));
+  theNumberingScheme = &(numberingScheme(*pDD));
 }
 
 void TkAccumulatingSensitiveDetector::clearHits() {

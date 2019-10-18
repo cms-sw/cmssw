@@ -1287,7 +1287,7 @@ void CSCAnodeLCTProcessor::dumpDigis(
 
 // Returns vector of read-out ALCTs, if any.  Starts with the vector of
 // all found ALCTs and selects the ones in the read-out time window.
-std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() {
+std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() const {
   std::vector<CSCALCTDigi> tmpV;
 
   // The number of LCT bins in the read-out is given by the
@@ -1361,7 +1361,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() {
 }
 
 // Returns vector of all found ALCTs, if any.  Used in ALCT-CLCT matching.
-std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() {
+std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() const {
   std::vector<CSCALCTDigi> tmpV;
   for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
     if (bestALCT[bx].isValid())
@@ -1371,6 +1371,10 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() {
   }
   return tmpV;
 }
+
+CSCALCTDigi CSCAnodeLCTProcessor::getBestALCT(int bx) const { return bestALCT[bx]; }
+
+CSCALCTDigi CSCAnodeLCTProcessor::getSecondALCT(int bx) const { return secondALCT[bx]; }
 
 ////////////////////////////////////////////////////////////////////////
 ////////////////////////////Test Routines///////////////////////////////

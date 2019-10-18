@@ -4,7 +4,6 @@
 #ifdef SiStripMonitorHardware_BuildEventMatchingCode
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "boost/cstdint.hpp"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -184,6 +183,7 @@ namespace sistrip {
 }  // namespace sistrip
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include <cstdint>
 typedef sistrip::SpyEventMatcherModule SiStripSpyEventMatcherModule;
 DEFINE_FWK_MODULE(SiStripSpyEventMatcherModule);
 

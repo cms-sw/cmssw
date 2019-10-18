@@ -114,7 +114,6 @@ void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker &ibooker,
     hid = hidmanager.createHistoId("StripQualityFromCondDB", "det", detid);
 
     det_me = ibooker.book1D(hid, hid, nStrip, 0.5, nStrip + 0.5);
-    ibooker.tag(det_me, detid);
     det_me->setAxisTitle("Strip Number", 1);
     det_me->setAxisTitle("Quality Flag from CondDB ", 2);
     QualityMEs.insert(std::make_pair(detid, det_me));

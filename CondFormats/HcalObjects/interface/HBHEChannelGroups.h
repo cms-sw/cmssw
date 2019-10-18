@@ -3,11 +3,11 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "boost/cstdint.hpp"
 #include "boost/serialization/access.hpp"
 #include "boost/serialization/vector.hpp"
 
 #include "CondFormats/HcalObjects/interface/HBHELinearMap.h"
+#include <cstdint>
 
 class HBHEChannelGroups {
 public:

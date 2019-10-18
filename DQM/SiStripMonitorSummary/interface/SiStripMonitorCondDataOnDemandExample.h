@@ -21,7 +21,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "boost/cstdint.hpp"
 #include <iostream>
 #include <string>
 #include <vector>

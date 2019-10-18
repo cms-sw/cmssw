@@ -1,0 +1,8 @@
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="mkfit"/>
+<use name="rootcore"/>
+<export>
+  <lib name="RecoTrackerMkFit"/>
+</export>

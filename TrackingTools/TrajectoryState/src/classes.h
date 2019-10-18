@@ -5,7 +5,6 @@
 #include "Math/Cartesian3D.h"
 #include "Math/Polar3D.h"
 #include "Math/CylindricalEta3D.h"
-#include <boost/cstdint.hpp>
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"

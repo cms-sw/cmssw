@@ -655,6 +655,10 @@
   <class name="std::vector<std::pair<pat::TauRef, float> >" />
   <class name="edm::RefProd<std::vector<pat::Tau> >"/>
 
+  <class name="edm::RefProd<std::vector<pat::GenericParticle>>" />
+  <class name="edm::Association<std::vector<pat::GenericParticle>>" />
+  <class name="edm::Wrapper<edm::Association<std::vector<pat::GenericParticle>> >" />
+
   </selection>
  <exclusion>
  </exclusion>

@@ -1,11 +1,10 @@
+#include <cstdint>
 #ifndef SimDataFormats_HcalTestBeamNumbering_h
 #define SimDataFormats_HcalTestBeamNumbering_h
 ///////////////////////////////////////////////////////////////////////////////
 // File: HcalTestBeamNumbering.h
 // Description: Numbering scheme for high granularity calorimeter (SIM step)
 ///////////////////////////////////////////////////////////////////////////////
-
-#include <boost/cstdint.hpp>
 
 class HcalTestBeamNumbering {
 public:

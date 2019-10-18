@@ -19,8 +19,8 @@
 //         Created:  Wed Feb 22 16:07:51 CET 2006
 //
 
-#include <boost/cstdint.hpp>
 #include <string>
+#include <cstdint>
 
 class SiPixelHistogramId {
 public:
