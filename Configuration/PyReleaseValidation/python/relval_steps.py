@@ -1736,6 +1736,14 @@ steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXLOCALUP15_PU25']=merge([digiPremixLocalPileupUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
 steps['DIGIPRMXUP17_PU25']=merge([digiPremixUp2017Defaults25ns])
+steps['DIGIPRMXUP17_PU25_RD']=merge([digiPremixUp2017Defaults25ns,
+                                     {
+                                       #'--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC')\""
+                                         
+                                       '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosMCRcd'),  tag = cms.string('EcalLaserAPDPNRatios_UL_2017_mc'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) )\""
+                                     }
+                                     ])
+
 steps['DIGIPRMXLOCALUP17_PU25']=merge([digiPremixLocalPileupUp2017Defaults25ns])
 steps['DIGIPRMXUP18_PU25']=merge([digiPremixUp2018Defaults25ns])
 steps['DIGIPRMXLOCALUP18_PU25']=merge([digiPremixLocalPileupUp2018Defaults25ns])
