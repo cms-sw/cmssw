@@ -53,7 +53,6 @@ struct MahiNnlsWorkspace {
   PulseVector aTbVec;  // A-transpose b (vector)
 
   SampleDecompLLT covDecomp;
-  PulseDecompLDLT pulseDecomp;
 };
 
 struct MahiDebugInfo {
@@ -130,13 +129,13 @@ public:
 private:
   double minimize() const;
   void onePulseMinimize() const;
-  void updateCov() const;
+  void updateCov(const SampleMatrix & invCovMat) const;
   void updatePulseShape(double itQ,
                         FullSampleVector& pulseShape,
                         FullSampleVector& pulseDeriv,
                         FullSampleMatrix& pulseCov) const;
 
-  float calculateArrivalTime() const;
+  float calculateArrivalTime(unsigned int iBX) const;
   double calculateChiSq() const;
   void nnls() const;
   void resetWorkspace() const;
@@ -163,6 +162,7 @@ private:
   bool applyTimeSlew_;
   HcalTimeSlew::BiasSetting slewFlavor_;
   float tsDelay1GeV_ = 0.f;
+  float norm_ = 1.f;
 
   bool calculateArrivalTime_;
   float meanTime_;
