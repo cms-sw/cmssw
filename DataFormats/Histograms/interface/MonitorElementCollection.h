@@ -187,7 +187,7 @@ class MonitorElementCollection {
 public:
   void push_back(std::unique_ptr<const MonitorElementData>&& value) {
     // enforce ordering
-    assert(data_.size() == 0 || data_[data_.size() - 1] <= value);
+    assert(data_.empty() || data_[data_.size() - 1] <= value);
     data_.push_back(std::move(value));
   }
 

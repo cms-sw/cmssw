@@ -345,21 +345,21 @@ void FastTimerService::PlotsPerElement::book(dqm::reco::DQMStore::IBooker& booke
   time_thread_ =
       booker.book1D(name + " time_thread", title + " processing time (cpu)", time_bins, 0., ranges.time_range);
   time_thread_->setXTitle("processing time [ms]");
-  time_thread_->setYTitle(y_title_ms.c_str());
+  time_thread_->setYTitle(y_title_ms);
 
   time_real_ = booker.book1D(name + " time_real", title + " processing time (real)", time_bins, 0., ranges.time_range);
   time_real_->setXTitle("processing time [ms]");
-  time_real_->setYTitle(y_title_ms.c_str());
+  time_real_->setYTitle(y_title_ms);
 
   if (memory_usage::is_available()) {
     allocated_ = booker.book1D(name + " allocated", title + " allocated memory", mem_bins, 0., ranges.memory_range);
     allocated_->setXTitle("memory [kB]");
-    allocated_->setYTitle(y_title_kB.c_str());
+    allocated_->setYTitle(y_title_kB);
 
     deallocated_ =
         booker.book1D(name + " deallocated", title + " deallocated memory", mem_bins, 0., ranges.memory_range);
     deallocated_->setXTitle("memory [kB]");
-    deallocated_->setYTitle(y_title_kB.c_str());
+    deallocated_->setYTitle(y_title_kB);
   }
 
   if (not byls)
