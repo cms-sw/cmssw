@@ -1009,8 +1009,8 @@ static void convert_boolean(cms::DDParsingContext* context, xml_h element) {
            "DD4CMS",
            "+++ BooleanSolid: %s Left: %-32s Right: %-32s",
            nam.c_str(),
-           ((solids[0].ptr() == nullptr) ? solidName[0] : solids[0]->GetName()),
-	   ((solids[1].ptr() == nullptr) ? solidName[1] : solids[1]->GetName()));
+           ((solids[0].ptr() == nullptr) ? solidName[0].c_str() : solids[0]->GetName()),
+	   ((solids[1].ptr() == nullptr) ? solidName[1].c_str() : solids[1]->GetName()));
 
   if (solids[0].isValid() && solids[1].isValid()) {
     Transform3D trafo;
