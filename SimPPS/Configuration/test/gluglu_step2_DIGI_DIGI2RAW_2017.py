@@ -6,7 +6,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
-process = cms.Process('DIGI2RAW',eras.Run2_2017, eras.pps_2017)
+process = cms.Process('DIGI2RAW',eras.Run2_2017, eras.ctpps_2017)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
