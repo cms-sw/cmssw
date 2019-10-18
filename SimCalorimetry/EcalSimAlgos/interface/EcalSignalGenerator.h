@@ -101,7 +101,7 @@ public:
     // FIXME: is this workaround of using "run" really needed or "time" can be used in MC generation as well?
     //        check with generation experts
     //
-    const edm::TimeValue_t eventTimeValue = theEvent->run(); 
+    const edm::TimeValue_t eventTimeValue = theEvent->run();
     //---- NB: this is a trick. Since the time dependent MC 
     //         will be based on "run" (and lumisection)
     //         to identify the IOV.
