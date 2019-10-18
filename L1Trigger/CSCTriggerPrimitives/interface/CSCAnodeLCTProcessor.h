@@ -36,6 +36,7 @@
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigi.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 
@@ -76,6 +77,9 @@ public:
   /** Returns vector of all found ALCTs, if any. */
   std::vector<CSCALCTDigi> getALCTs();
 
+  /** read out pre-ALCTs */
+  std::vector<CSCALCTPreTriggerDigi> preTriggerDigis() const { return thePreTriggerDigis; }
+
   /** Pre-defined patterns. */
   static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
   static const int pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
@@ -106,6 +110,8 @@ protected:
   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
 
   std::vector<CSCALCTDigi> lct_list;
+
+  std::vector<CSCALCTPreTriggerDigi> thePreTriggerDigis;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;

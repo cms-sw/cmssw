@@ -615,6 +615,8 @@ bool CSCAnodeLCTProcessor::pulseExtension(
 }
 
 bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
+  int nPreTriggers = 0;
+
   unsigned int layers_hit;
   bool hit_layer[CSCConstants::NUM_LAYERS];
   int this_layer, this_wire;
@@ -657,6 +659,10 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
                   LogTrace("CSCAnodeLCTProcessor") << "Pretrigger was satisfied for wire: " << key_wire
                                                    << " pattern: " << i_pattern << " bx_time: " << bx_time;
                 }
+                // make a new pre-trigger
+                nPreTriggers++;
+                thePreTriggerDigis.emplace_back(
+                    CSCALCTPreTriggerDigi(1, layers_hit - 3, 0, 0, this_wire, bx_time, nPreTriggers));
                 return true;
               }
             }

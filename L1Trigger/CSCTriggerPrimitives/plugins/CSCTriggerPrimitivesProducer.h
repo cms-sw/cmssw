@@ -74,6 +74,9 @@ private:
   // switch to for enabling checking against the list of bad chambers
   bool checkBadChambers_;
 
+  // Write out pre-triggers
+  bool savePreTriggers_;
+
   // switch to enable the integrated local triggers in ME11 and ME21
   bool runME11ILT_;
   bool runME21ILT_;
