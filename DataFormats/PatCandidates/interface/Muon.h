@@ -28,6 +28,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
 #include "DataFormats/MuonReco/interface/MuonSimInfo.h"
+#include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 
 // Define typedefs for convenience
 namespace pat {
@@ -124,6 +125,9 @@ namespace pat {
       void embedTpfmsMuon();
       /// embed reference to the above dyt Track
       void embedDytMuon();
+
+      // add extra timing information
+      void readExtraTimerInfo(const reco::MuonTimeExtra& t);
 
       // ---- PF specific methods ----
       /// reference to the source IsolatedPFCandidates
@@ -280,9 +284,16 @@ namespace pat {
       float lowptMvaValue() const { return lowptMvaValue_; }
       void  setLowPtMvaValue(float lowptmva){ lowptMvaValue_ = lowptmva; }
 
+
       /// Soft Muon MVA
       float softMvaValue() const { return softMvaValue_; }
       void  setSoftMvaValue(float softmva){ softMvaValue_ = softmva; }
+
+      /// Inverse beta
+      void setInverseBeta(const float iBeta) { inverseBeta_ = iBeta; };
+      void setInverseBetaErr(const float iBetaErr) { inverseBetaErr_ = iBetaErr; };
+      float inverseBeta() const { return inverseBeta_; };
+      float inverseBetaErr() const { return inverseBetaErr_; };
 
       /// MC matching information
       reco::MuonSimType simType() const { return simType_; }
@@ -319,7 +330,7 @@ namespace pat {
       void setSimEta(float eta){ simEta_ = eta;}
       void setSimPhi(float phi){ simPhi_ = phi;}
       void setSimMatchQuality(float quality){ simMatchQuality_ = quality;}
-      
+
       /// Trigger information
       const pat::TriggerObjectStandAlone* l1Object(const size_t idx=0)  const { 
 	return triggerObjectMatchByType(trigger::TriggerL1Mu,idx);
@@ -407,6 +418,10 @@ namespace pat {
       float mvaValue_;
       float lowptMvaValue_;
       float softMvaValue_;
+      
+      /// Inverse beta
+      float inverseBeta_;
+      float inverseBetaErr_;
 
       /// MC matching information
       reco::MuonSimType simType_;

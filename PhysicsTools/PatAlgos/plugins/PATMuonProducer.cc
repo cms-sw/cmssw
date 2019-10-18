@@ -108,6 +108,11 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
   embedPickyMuon_ = iConfig.getParameter<bool>("embedPickyMuon");
   embedTpfmsMuon_ = iConfig.getParameter<bool>("embedTpfmsMuon");
   embedDytMuon_ = iConfig.getParameter<bool>("embedDytMuon");
+  // embedding of inverse beta variable information
+  addInverseBeta_ = iConfig.getParameter<bool>("addInverseBeta");
+  if (addInverseBeta_) {
+    muonTimeExtraToken_ = consumes<edm::ValueMap<reco::MuonTimeExtra>>(iConfig.getParameter<edm::InputTag>("sourceMuonTimeExtra"));
+  }
   // Monte Carlo matching
   addGenMatch_ = iConfig.getParameter<bool>("addGenMatch");
   if (addGenMatch_) {
@@ -515,6 +520,12 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       iEvent.getByToken(pfMuonToken_, pfMuons);
     }
 
+    edm::Handle<edm::ValueMap<reco::MuonTimeExtra>> muonsTimeExtra;
+    if (addInverseBeta_) {
+      // get MuonTimerExtra value map
+      iEvent.getByToken(muonTimeExtraToken_, muonsTimeExtra);
+    }
+
     for (edm::View<reco::Muon>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
       // construct the Muon from the ref -> save ref to original object
       unsigned int idx = itMuon - muons->begin();
@@ -604,6 +615,9 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
           }
         }
+      }
+      if (addInverseBeta_) {
+        aMuon.readExtraTimerInfo((*muonsTimeExtra)[muonRef]);
       }
       // MC info
       aMuon.initSimInfo();
@@ -961,6 +975,10 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   iDesc.add<bool>("useParticleFlow", false)->setComment("whether to use particle flow or not");
   iDesc.add<bool>("embedPFCandidate", false)->setComment("embed external particle flow object");
   iDesc.add<bool>("embedPfEcalEnergy", true)->setComment("add ecal energy as reconstructed by PF");
+
+  // inverse beta computation
+  iDesc.add<bool>("addInverseBeta", true)->setComment("add combined inverse beta");
+  iDesc.add<edm::InputTag>("sourceInverseBeta", edm::InputTag("muons","combined"))->setComment("source of inverse beta values");
 
   // MC matching configurables
   iDesc.add<bool>("addGenMatch", true)->setComment("add MC matching");
