@@ -17,7 +17,6 @@ options.register ('buBaseDir',
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "BU base directory")
 
-
 options.register ('fuBaseDir',
                   'data', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -29,7 +28,6 @@ options.register ('fffBaseDir',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "FFF base directory")
-
 
 options.register ('numThreads',
                   2, # default value
@@ -55,45 +53,43 @@ process.maxEvents = cms.untracked.PSet(
 
 process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(options.numThreads),
-    numberOfStreams = cms.untracked.uint32(options.numFwkStreams)
+    numberOfStreams = cms.untracked.uint32(options.numFwkStreams),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(2)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(threshold = cms.untracked.string( "INFO" )),
-    destinations = cms.untracked.vstring( 'cout' ))
+    destinations = cms.untracked.vstring( 'cout' )
+)
 
 process.FastMonitoringService = cms.Service("FastMonitoringService",
-    sleepTime = cms.untracked.int32(1),
-    microstateDefPath = cms.untracked.string( cmsswbase+'/src/EventFilter/Utilities/plugins/microstatedef.jsd'),
-    fastMicrostateDefPath = cms.untracked.string( cmsswbase+'/src/EventFilter/Utilities/plugins/microstatedeffast.jsd'),
-    fastName = cms.untracked.string( 'fastmoni' ),
-    slowName = cms.untracked.string( 'slowmoni' ))
+    sleepTime = cms.untracked.int32(1)
+)
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
-    useFileService = cms.untracked.bool(False),
+    useFileBroker = cms.bool(False),
     fileServiceHost = cms.untracked.string("htcp40.cern.ch"),
-    runNumber = cms.untracked.uint32(options.runNumber),
-    baseDir = cms.untracked.string(options.fffBaseDir +"/"+options.fuBaseDir),
-    buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
+    runNumber = cms.uint32(options.runNumber),
+    baseDir = cms.string(options.fffBaseDir+"/"+options.fuBaseDir),
+    buBaseDir = cms.string(options.fffBaseDir+"/"+options.buBaseDir),
     directorIsBu = cms.untracked.bool(False),
-    testModeNoBuilderUnit = cms.untracked.bool(False))
+    fileBrokerHost_ = cms.string("")
+)
 
 try:
-  os.makedirs(options.fuBaseDir+"/run"+str(options.runNumber).zfill(6))
+  os.makedirs(options.fffBaseDir+"/"+options.fuBaseDir+"/run"+str(options.runNumber).zfill(6))
 except Exception as ex:
   print(str(ex))
   pass
 
 process.source = cms.Source("FedRawDataInputSource",
-    runNumber = cms.untracked.uint32(options.runNumber),
     getLSFromFilename = cms.untracked.bool(True),
-    testModeNoBuilderUnit = cms.untracked.bool(False),
-    verifyAdler32 = cms.untracked.bool(True),
     verifyChecksum = cms.untracked.bool(True),
     useL1EventID = cms.untracked.bool(True),
-    eventChunkSize = cms.untracked.uint32(16),
+    eventChunkSize = cms.untracked.uint32(8),
+    eventChunkBlock = cms.untracked.uint32(8),
     numBuffers = cms.untracked.uint32(2),
-    eventChunkBlock = cms.untracked.uint32(1)
-    )
+    maxBufferedFiles = cms.untracked.uint32(2)
+)
 
 process.PrescaleService = cms.Service( "PrescaleService",
                                        forceDefault = cms.bool( False ),
@@ -143,10 +139,45 @@ process.streamD = cms.OutputModule("EventStreamFileWriter",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
 )
 
+process.hltJson = cms.EDAnalyzer("HLTriggerJSONMonitoring")
+
+process.DQMStore = cms.Service( "DQMStore",
+    referenceFileName = cms.untracked.string( "" ),
+    verbose = cms.untracked.int32( 0 ),
+    collateHistograms = cms.untracked.bool( False ),
+    enableMultiThread = cms.untracked.bool( True ),
+    forceResetOnBeginLumi = cms.untracked.bool( False ),
+    saveByLumi = cms.untracked.bool( False ),
+    LSbasedMode = cms.untracked.bool( True ),
+    verboseQT = cms.untracked.int32( 0 )
+)
+
+process.hltDQMFileSaver = cms.EDAnalyzer( "DQMFileSaver",
+    runIsComplete = cms.untracked.bool( False ),
+    referenceHandling = cms.untracked.string( "all" ),
+    producer = cms.untracked.string( "DQM" ),
+    forceRunNumber = cms.untracked.int32( -1 ),
+    saveByRun = cms.untracked.int32( 1 ),
+    saveAtJobEnd = cms.untracked.bool( False ),
+    saveByLumiSection = cms.untracked.int32( 1 ),
+    version = cms.untracked.int32( 1 ),
+    referenceRequireStatus = cms.untracked.int32( 100 ),
+    convention = cms.untracked.string( "FilterUnit" ),
+    dirName = cms.untracked.string( "." ),
+    fileFormat = cms.untracked.string( "PB" )
+)
+
+process.daqHistoTest = cms.EDAnalyzer("DaqTestHistograms",
+    numberOfHistograms = cms.untracked.uint32(50),
+    lumisectionRange =  cms.untracked.uint32(20)
+)
+
 process.ep = cms.EndPath(
   process.streamA
   + process.streamB
   + process.streamC
 # + process.streamD
+  + process.hltJson
+  + process.daqHistoTest
+  + process.hltDQMFileSaver
 )
-

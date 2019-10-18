@@ -1687,13 +1687,13 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
     if (!readAOD_) {  // track extra does not exist in AOD
       edm::RefToBase<TrajectorySeed> seed = gsfIter->gsfTrack()->extra()->seedRef();
       ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>();
-      h_ele_seed_dphi2_->Fill(elseed->dPhi2());
-      h_ele_seed_dphi2VsEta_->Fill(gsfIter->eta(), elseed->dPhi2());
-      h_ele_seed_dphi2VsPt_->Fill(gsfIter->pt(), elseed->dPhi2());
-      h_ele_seed_drz2_->Fill(elseed->dRz2());
-      h_ele_seed_drz2VsEta_->Fill(gsfIter->eta(), elseed->dRz2());
-      h_ele_seed_drz2VsPt_->Fill(gsfIter->pt(), elseed->dRz2());
-      h_ele_seed_subdet2_->Fill(elseed->subDet2());
+      h_ele_seed_dphi2_->Fill(elseed->dPhiNeg(1));
+      h_ele_seed_dphi2VsEta_->Fill(gsfIter->eta(), elseed->dPhiNeg(1));
+      h_ele_seed_dphi2VsPt_->Fill(gsfIter->pt(), elseed->dPhiNeg(1));
+      h_ele_seed_drz2_->Fill(elseed->dRZNeg(1));
+      h_ele_seed_drz2VsEta_->Fill(gsfIter->eta(), elseed->dRZNeg(1));
+      h_ele_seed_drz2VsPt_->Fill(gsfIter->pt(), elseed->dRZNeg(1));
+      h_ele_seed_subdet2_->Fill(elseed->subDet(1));
     }
     // match distributions
     h_ele_EoP->Fill(gsfIter->eSuperClusterOverP());
