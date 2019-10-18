@@ -291,11 +291,11 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
         if (not found) {
           edge_status = boost::add_edge(module->id(), previous->id(), m_graph);
           auto const &edge = edge_status.first;
-          auto &attributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
-          attributes["style"] = "dashed";
+          auto &edgeAttributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
+          edgeAttributes["style"] = "dashed";
           // highlight the arrow between highlighted nodes
           if (highlighted(module->moduleLabel()) and highlighted(previous->moduleLabel()))
-            attributes["color"] = "darkgreen";
+            edgeAttributes["color"] = "darkgreen";
         }
       }
       previous = module;
@@ -315,11 +315,11 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
         if (not found) {
           edge_status = boost::add_edge(module->id(), previous->id(), m_graph);
           auto const &edge = edge_status.first;
-          auto &attributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
-          attributes["style"] = "dashed";
+          auto &edgeAttributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
+          edgeAttributes["style"] = "dashed";
           // highlight the arrow between highlighted nodes
           if (highlighted(module->moduleLabel()) and highlighted(previous->moduleLabel()))
-            attributes["color"] = "darkgreen";
+            edgeAttributes["color"] = "darkgreen";
         }
       }
       previous = module;

@@ -421,12 +421,6 @@ namespace dqm::impl {
 
   std::string const& DQMStore::IBooker::pwd() { return owner_->pwd(); }
 
-  void DQMStore::IBooker::tag(MonitorElement* me, unsigned int const tag) { owner_->tag(me, tag); }
-
-  void DQMStore::IBooker::tagContents(std::string const& path, unsigned int const myTag) {
-    owner_->tagContents(path, myTag);
-  }
-
   //IGetter methods
   std::vector<MonitorElement*> DQMStore::IGetter::getAllContents(std::string const& path,
                                                                  uint32_t const run /* = 0 */,
@@ -1696,68 +1690,6 @@ namespace dqm::impl {
   //////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////
-  /// tag ME as <myTag> (myTag > 0)
-  void DQMStore::tag(MonitorElement* me, unsigned int const myTag) {
-    if (!myTag)
-      raiseDQMError("DQMStore",
-                    "Attempt to tag monitor element '%s'"
-                    " with a zero tag",
-                    me->getFullname().c_str());
-    if ((me->data_.flags & DQMNet::DQM_PROP_TAGGED) && myTag != me->data_.tag)
-      raiseDQMError("DQMStore",
-                    "Attempt to tag monitor element '%s'"
-                    " twice with multiple tags",
-                    me->getFullname().c_str());
-
-    me->data_.tag = myTag;
-    me->data_.flags |= DQMNet::DQM_PROP_TAGGED;
-  }
-
-  /// tag ME specified by full pathname (e.g. "my/long/dir/my_histo")
-  void DQMStore::tag(std::string const& path, unsigned int const myTag) {
-    std::string dir;
-    std::string name;
-    splitPath(dir, name, path);
-
-    if (MonitorElement* me = findObject(0, 0, 0, dir, name))
-      tag(me, myTag);
-    else
-      raiseDQMError("DQMStore",
-                    "Attempt to tag non-existent monitor element"
-                    " '%s' with tag %u",
-                    path.c_str(),
-                    myTag);
-  }
-
-  /// tag all children of folder (does NOT include subfolders)
-  void DQMStore::tagContents(std::string const& path, unsigned int const myTag) {
-    MonitorElement proto(&path, std::string());
-    auto e = data_.end();
-    auto i = data_.lower_bound(proto);
-    for (; i != e && path == *i->data_.dirname; ++i)
-      tag(const_cast<MonitorElement*>(&*i), myTag);
-  }
-
-  /// tag all children of folder, including all subfolders and their children;
-  /// path must be an exact path name
-  void DQMStore::tagAllContents(std::string const& path, unsigned int const myTag) {
-    std::string clean;
-    std::string const* cleaned = nullptr;
-    cleanTrailingSlashes(path, clean, cleaned);
-    MonitorElement proto(cleaned, std::string());
-
-    // FIXME: WILDCARDS? Old one supported them, but nobody seemed to use them.
-    auto e = data_.end();
-    auto i = data_.lower_bound(proto);
-    while (i != e && isSubdirectory(*cleaned, *i->data_.dirname)) {
-      tag(const_cast<MonitorElement*>(&*i), myTag);
-      ++i;
-    }
-  }
-
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
   /// get list of subdirectories of current directory
   std::vector<std::string> DQMStore::getSubdirs() const {
     std::vector<std::string> result;
@@ -1811,17 +1743,6 @@ namespace dqm::impl {
     return (mepos == data_.end() ? nullptr : const_cast<MonitorElement*>(&*mepos));
   }
 
-  /// get all MonitorElements tagged as <tag>
-  std::vector<MonitorElement*> DQMStore::get(unsigned int const tag) const {
-    // FIXME: Use reverse map [tag -> path] / [tag -> dir]?
-    std::vector<MonitorElement*> result;
-    for (auto const& me : data_) {
-      if ((me.data_.flags & DQMNet::DQM_PROP_TAGGED) && me.data_.tag == tag)
-        result.push_back(const_cast<MonitorElement*>(&me));
-    }
-    return result;
-  }
-
   /// get vector with all children of folder
   /// (does NOT include contents of subfolders)
   std::vector<MonitorElement*> DQMStore::getContents(std::string const& path) const {
@@ -1835,23 +1756,6 @@ namespace dqm::impl {
     auto i = data_.lower_bound(proto);
     for (; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i)
       if (*cleaned == *i->data_.dirname)
-        result.push_back(const_cast<MonitorElement*>(&*i));
-
-    return result;
-  }
-
-  /// same as above for tagged MonitorElements
-  std::vector<MonitorElement*> DQMStore::getContents(std::string const& path, unsigned int const tag) const {
-    std::string clean;
-    std::string const* cleaned = nullptr;
-    cleanTrailingSlashes(path, clean, cleaned);
-    MonitorElement proto(cleaned, std::string());
-
-    std::vector<MonitorElement*> result;
-    auto e = data_.end();
-    auto i = data_.lower_bound(proto);
-    for (; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i)
-      if (*cleaned == *i->data_.dirname && (i->data_.flags & DQMNet::DQM_PROP_TAGGED) && i->data_.tag == tag)
         result.push_back(const_cast<MonitorElement*>(&*i));
 
     return result;
@@ -2332,21 +2236,7 @@ namespace dqm::impl {
         }
         me->setEfficiencyFlag();
       } else if (kind == "t") {
-        MonitorElement* me = findObject(0, 0, 0, dir, label);
-        if (!me) {
-          std::cout << "*** DQMStore: WARNING: no monitor element '" << label << "' in directory '" << dir
-                    << "' for a tag\n";
-          return false;
-        }
-        errno = 0;
-        char* endp = nullptr;
-        unsigned long val = strtoul(value.c_str(), &endp, 10);
-        if ((val == 0 && errno) || *endp || val > ~uint32_t(0)) {
-          std::cout << "*** DQMStore: WARNING: cannot restore tag '" << value << "' for monitor element '" << label
-                    << "' in directory '" << dir << "' - invalid value\n";
-          return false;
-        }
-        tag(me, val);
+        // ignore tags.
       } else if (kind == "qr") {
         // Handle qreports, but skip them while reading in references.
         if (!isSubdirectory(s_referenceDirName, dir)) {

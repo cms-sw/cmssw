@@ -19,6 +19,7 @@ Calorimeters:
 Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
 * M3: same as M2 with change to the number of iRPC strips from 192 to 96 as in TDR
+* M4: same as M3 but no Overlaps inside the Muon System and MB4Shields completed
 
 Fast Timing system:
 * I5: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat
@@ -31,6 +32,7 @@ The script also handles the common and forward elements of the geometry:
 * O3: O2 + changes due to modified CALO region due to changes in the Endcap part
 * F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
 * F3: same as F2 but changes due to HFNose
+* O4: same of O3 but no Overlaps inside the Muon System 
 
 Several detector combinations have been generated:
 * D35 = T6+C4+M2+I5+O2+F2 
@@ -41,5 +43,6 @@ Several detector combinations have been generated:
 * D46 = T15+C9+M3+I10+O3+F2
 * D47 = T15+C10+M3+I10+O3+F3
 * D48 = T16+C9+M3+I10+O3+F2
+* D49 = T15+C9+M4+I10+O4+F2
 
 D35 is the baseline for the MTD TDR, and D41 is the baseline for the L1T TDR.

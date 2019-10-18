@@ -27,8 +27,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/cstdint.hpp>
-
 // if hash map is used
 
 #include <ext/hash_map>

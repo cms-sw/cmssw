@@ -24,11 +24,11 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
-#include "boost/cstdint.hpp"
 #include <memory>
 #include <vector>
 #include <string>
 #include <typeinfo>
+#include <cstdint>
 
 class SiStripFecCabling;
 class SiStripDetCabling;

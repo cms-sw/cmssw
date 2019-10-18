@@ -4,7 +4,7 @@
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineService.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

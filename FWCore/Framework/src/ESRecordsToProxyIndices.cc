@@ -16,6 +16,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 
 //
 // constants, enums and typedefs
@@ -89,6 +90,37 @@ namespace edm::eventsetup {
       return nullptr;
     }
     return components_[std::distance(dataKeys_.begin(), itDK)];
+  }
+
+  ESTagGetter ESRecordsToProxyIndices::makeTagGetter(EventSetupRecordKey const& iRK, TypeTag const& iTT) const {
+    auto recIndex = recordIndexFor(iRK);
+    if (recIndex == missingRecordIndex()) {
+      return ESTagGetter();
+    }
+
+    auto const beginIndex = recordOffsets_[recIndex.value()];
+    auto const endIndex = recordOffsets_[recIndex.value() + 1];
+    auto keyIndex = beginIndex;
+
+    std::vector<ESTagGetter::Info> returnValue;
+    returnValue.reserve(endIndex - beginIndex);
+    bool foundFirstIndex = false;
+    while (keyIndex < endIndex) {
+      if (dataKeys_[keyIndex].type() != iTT) {
+        if (foundFirstIndex) {
+          //we are now past any further matches
+          break;
+        }
+      } else {
+        foundFirstIndex = true;
+        returnValue.emplace_back(
+            keyIndex - beginIndex,
+            dataKeys_[keyIndex].name().value(),
+            components_[keyIndex] ? std::string_view(components_[keyIndex]->label_) : std::string_view());
+      }
+      ++keyIndex;
+    }
+    return returnValue;
   }
 
 }  // namespace edm::eventsetup

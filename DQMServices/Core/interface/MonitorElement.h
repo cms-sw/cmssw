@@ -370,16 +370,6 @@ namespace dqm::impl {
       return scalar_.str;
     }
 
-    DQMNet::TagList getTags() const  // DEPRECATED
-    {
-      DQMNet::TagList tags;
-      if (data_.flags & DQMNet::DQM_PROP_TAGGED)
-        tags.push_back(data_.tag);
-      return tags;
-    }
-
-    const uint32_t getTag() const { return data_.tag; }
-
     const uint32_t run() const { return data_.run; }
     const uint32_t lumi() const { return data_.lumi; }
     const uint32_t moduleId() const { return data_.moduleId; }

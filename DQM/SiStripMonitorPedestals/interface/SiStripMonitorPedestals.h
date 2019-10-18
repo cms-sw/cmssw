@@ -43,10 +43,10 @@
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-#include "boost/cstdint.hpp"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <iomanip>
 #include <string>
+#include <cstdint>
 
 class ApvAnalysisFactory;
 class SiStripDetCabling;

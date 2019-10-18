@@ -25,7 +25,6 @@ class MagVolume6Faces;
 namespace magneticfield {
   class VolumeBasedMagneticFieldESProducer;
   class VolumeBasedMagneticFieldESProducerFromDB;
-  class AutoMagneticFieldESProducer;
   class BaseVolumeHandle;  // Needs to be public to share code with DD4hep
   using handles = std::vector<BaseVolumeHandle*>;
 }  // namespace magneticfield
@@ -68,7 +67,6 @@ private:
   friend class MagGeometry;
   friend class magneticfield::VolumeBasedMagneticFieldESProducer;
   friend class magneticfield::VolumeBasedMagneticFieldESProducerFromDB;
-  friend class magneticfield::AutoMagneticFieldESProducer;
 
   std::vector<MagVolume6Faces*> barrelVolumes() const;
   std::vector<MagVolume6Faces*> endcapVolumes() const;

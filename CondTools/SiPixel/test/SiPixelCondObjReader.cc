@@ -2,7 +2,7 @@
 
 #include "CondTools/SiPixel/test/SiPixelCondObjReader.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

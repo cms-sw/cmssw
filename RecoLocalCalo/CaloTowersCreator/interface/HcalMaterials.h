@@ -2,7 +2,6 @@
 #define HcalMaterials_h
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include <boost/cstdint.hpp>
 #include <vector>
 // place to implement a real working class for material corrections
 

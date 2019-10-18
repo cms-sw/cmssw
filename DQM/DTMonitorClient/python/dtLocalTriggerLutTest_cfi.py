@@ -7,7 +7,7 @@ triggerLutTest = DQMEDHarvester("DTLocalTriggerLutTest",
     # run in online environment
     runOnline = cms.untracked.bool(True),
     # kind of trigger data processed by DTLocalTriggerTask
-    hwSources = cms.untracked.vstring('TM','DDU'),
+    hwSources = cms.untracked.vstring('TM'),
     # false if DTLocalTriggerTask used LTC digis
     localrun = cms.untracked.bool(True),
     # enable/disable correlation plot tests
@@ -15,7 +15,4 @@ triggerLutTest = DQMEDHarvester("DTLocalTriggerLutTest",
     # root folder for booking of histograms
     folderRoot = cms.untracked.string('')
 )
-
-from Configuration.Eras.Modifier_run2_common_cff import run2_common
-run2_common.toModify( triggerLutTest, hwSources = cms.untracked.vstring('TM'))
 

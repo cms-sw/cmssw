@@ -124,7 +124,7 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
   std::vector<ConcurrentMonitorElement> nhits_vs_eta, nPXBhits_vs_eta, nPXFhits_vs_eta, nPXLhits_vs_eta,
       nTIBhits_vs_eta, nTIDhits_vs_eta, nTOBhits_vs_eta, nTEChits_vs_eta, nSTRIPhits_vs_eta, nLayersWithMeas_vs_eta,
       nPXLlayersWithMeas_vs_eta, nSTRIPlayersWithMeas_vs_eta, nSTRIPlayersWith1dMeas_vs_eta,
-      nSTRIPlayersWith2dMeas_vs_eta;
+      nSTRIPlayersWith2dMeas_vs_eta, nMTDhits_vs_eta, nBTLhits_vs_eta, nETLhits_vs_eta;
 
   //---- second set of histograms (originally not used by the SeedGenerator)
   //1D
@@ -355,6 +355,7 @@ private:
   int nintMVA;
 
   const bool doSeedPlots_;
+  const bool doMTDPlots_;
 
   //
   double ptRes_rangeMin, ptRes_rangeMax;

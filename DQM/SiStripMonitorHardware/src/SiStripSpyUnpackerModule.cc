@@ -35,7 +35,7 @@
 #include <memory>
 #include <utility>
 #include <string>
-#include "boost/cstdint.hpp"
+#include <cstdint>
 
 namespace sistrip {
   class SpyUnpacker;

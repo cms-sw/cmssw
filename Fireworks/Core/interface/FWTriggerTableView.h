@@ -13,11 +13,7 @@
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWStringParameter.h"
 
-#define BOOST_NO_INITIALIZER_LISTS
-// without this #define, genreflex chokes on std::initializer_list
-// at least when buildig from tarball in SLC5 with the default gcc4.1.2
 #include <boost/unordered_map.hpp>
-#undef BOOST_NO_INITIALIZER_LISTS
 
 // forward declarations
 class TGFrame;

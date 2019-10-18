@@ -12,10 +12,10 @@ import Geometry.CaloEventSetup.caloTowerConstituents_cfi
 CaloTowerConstituentsMapBuilder = Geometry.CaloEventSetup.caloTowerConstituents_cfi.caloTowerConstituents.clone()
 CaloTowerConstituentsMapBuilder.MapFile = "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz"
 
-particleFlowReco = cms.Sequence(
-    ckftracks*
-    trackerDrivenElectronSeeds*
-    particleFlowBlock*
+particleFlowRecoTask = cms.Task(
+    ckftracksTask,
+    trackerDrivenElectronSeeds,
+    particleFlowBlock,
     particleFlowTmp
     )
-
+particleFlowReco = cms.Sequence(particleFlowRecoTask)

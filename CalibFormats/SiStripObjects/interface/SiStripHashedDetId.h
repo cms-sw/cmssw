@@ -4,9 +4,9 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include <algorithm>
-#include <boost/cstdint.hpp>
 #include <iomanip>
 #include <vector>
+#include <cstdint>
 
 class SiStripHashedDetId;
 std::ostream &operator<<(std::ostream &os, const SiStripHashedDetId &);

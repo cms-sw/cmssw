@@ -8,8 +8,8 @@ cscmap1::cscmap1() noexcept(false) {
   std::string db_user;
   std::string db_pass;
   env = oracle::occi::Environment::createEnvironment(oracle::occi::Environment::DEFAULT);
-  char *c_user = ::getenv("CSCMAP_AUTH_USER");
-  char *c_pass = ::getenv("CSCMAP_AUTH_PASSWORD");
+  char *c_user = std::getenv("CSCMAP_AUTH_USER");
+  char *c_pass = std::getenv("CSCMAP_AUTH_PASSWORD");
   db_user = std::string(c_user);
   db_pass = std::string(c_pass);
   con = env->createConnection(db_user, db_pass, "cms_orcoff_prod");

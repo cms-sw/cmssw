@@ -236,9 +236,9 @@ namespace edm {
               } else {
                 bool productMadeAtEnd = false;
                 //Need to know if the product from this processes is added at end of transition
-                for (unsigned int i = 0; i < matchingHolders.size(); ++i) {
-                  if ((not ambiguous[i]) and ProductResolverIndexInvalid != matchingHolders[i] and
-                      productResolvers_[matchingHolders[i]]->branchDescription().availableOnlyAtEndTransition()) {
+                for (unsigned int j = 0; j < matchingHolders.size(); ++j) {
+                  if ((not ambiguous[j]) and ProductResolverIndexInvalid != matchingHolders[j] and
+                      productResolvers_[matchingHolders[j]]->branchDescription().availableOnlyAtEndTransition()) {
                     productMadeAtEnd = true;
                     break;
                   }
@@ -445,11 +445,13 @@ namespace edm {
       // The current process might be needed but not be in the process
       // history if all the products produced in the current process are
       // transient.
-      auto nameIter =
-          std::find(lookupProcessNames.begin(), lookupProcessNames.end(), processConfiguration_->processName());
-      if (nameIter != lookupProcessNames.end()) {
-        lookupProcessOrder_.at(k) = nameIter - lookupProcessNames.begin();
-        ++k;
+      {
+        auto nameIterCurrentProcess =
+            std::find(lookupProcessNames.begin(), lookupProcessNames.end(), processConfiguration_->processName());
+        if (nameIterCurrentProcess != lookupProcessNames.end()) {
+          lookupProcessOrder_.at(k) = nameIterCurrentProcess - lookupProcessNames.begin();
+          ++k;
+        }
       }
 
       // We just looked for the current process so skip it if

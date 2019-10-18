@@ -628,7 +628,7 @@ void GsfElectronAlgo::setCutBasedPreselectionFlag(GsfElectron& ele, const reco::
     if (elseed.isNull()) {
       throw cms::Exception("GsfElectronAlgo|NotElectronSeed") << "The GsfTrack seed is not an ElectronSeed ?!";
     } else {
-      if (elseed->subDet2() == 6)
+      if (elseed->subDet(1) == 6)
         return;
     }
   }
@@ -976,12 +976,12 @@ void GsfElectronAlgo::setPixelMatchInfomation(reco::GsfElectron& ele) {
   } else {
     if (elseed.isNull()) {
     } else {
-      sd1 = elseed->subDet1();
-      sd2 = elseed->subDet2();
-      dPhi1 = (ele.charge() > 0) ? elseed->dPhi1Pos() : elseed->dPhi1();
-      dPhi2 = (ele.charge() > 0) ? elseed->dPhi2Pos() : elseed->dPhi2();
-      dRz1 = (ele.charge() > 0) ? elseed->dRz1Pos() : elseed->dRz1();
-      dRz2 = (ele.charge() > 0) ? elseed->dRz2Pos() : elseed->dRz2();
+      sd1 = elseed->subDet(0);
+      sd2 = elseed->subDet(1);
+      dPhi1 = (ele.charge() > 0) ? elseed->dPhiPos(0) : elseed->dPhiNeg(0);
+      dPhi2 = (ele.charge() > 0) ? elseed->dPhiPos(1) : elseed->dPhiNeg(1);
+      dRz1 = (ele.charge() > 0) ? elseed->dRZPos(0) : elseed->dRZNeg(0);
+      dRz2 = (ele.charge() > 0) ? elseed->dRZPos(1) : elseed->dRZNeg(1);
     }
   }
   ele.setPixelMatchSubdetectors(sd1, sd2);

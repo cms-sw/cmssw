@@ -18,8 +18,8 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESProductTag.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -33,49 +33,54 @@ using namespace edm;
 class SiPixelTemplateDBObjectESProducer : public edm::ESProducer {
 public:
   SiPixelTemplateDBObjectESProducer(const edm::ParameterSet& iConfig);
-  ~SiPixelTemplateDBObjectESProducer() override;
   std::shared_ptr<const SiPixelTemplateDBObject> produce(const SiPixelTemplateDBObjectESProducerRcd&);
+
+private:
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectRcd> templateToken_;
 };
 
 SiPixelTemplateDBObjectESProducer::SiPixelTemplateDBObjectESProducer(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this);
+  setWhatProduced(this)
+      .setMayConsume(
+          templateToken_,
+          [](const auto& get, edm::ESTransientHandle<MagneticField> iMagfield) {
+            const GlobalPoint center(0.0, 0.0, 0.0);
+            const float theMagField = iMagfield->inTesla(center).mag();
+            if (theMagField >= -0.1 && theMagField < 1.0)
+              return get("", "0T");
+            else if (theMagField >= 1.0 && theMagField < 2.5)
+              return get("", "2T");
+            else if (theMagField >= 2.5 && theMagField < 3.25)
+              return get("", "3T");
+            else if (theMagField >= 3.25 && theMagField < 3.65)
+              return get("", "35T");
+            else if (theMagField >= 3.9 && theMagField < 4.1)
+              return get("", "4T");
+            else {
+              if (theMagField >= 4.1 || theMagField < -0.1)
+                edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixelTemplate")
+                    << "Magnetic field is " << theMagField;
+              //return get("", "3.8T");
+              return get("", "");
+            }
+          },
+          edm::ESProductTag<MagneticField, IdealMagneticFieldRecord>("", ""))
+      .setConsumes(magfieldToken_);
 }
-
-SiPixelTemplateDBObjectESProducer::~SiPixelTemplateDBObjectESProducer() {}
 
 std::shared_ptr<const SiPixelTemplateDBObject> SiPixelTemplateDBObjectESProducer::produce(
     const SiPixelTemplateDBObjectESProducerRcd& iRecord) {
-  ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
+  const GlobalPoint center(0.0, 0.0, 0.0);
+  const float theMagField = iRecord.get(magfieldToken_).inTesla(center).mag();
 
-  GlobalPoint center(0.0, 0.0, 0.0);
-  float theMagField = magfield.product()->inTesla(center).mag();
+  const auto& dbobject = iRecord.get(templateToken_);
 
-  std::string label = "";
-
-  if (theMagField >= -0.1 && theMagField < 1.0)
-    label = "0T";
-  else if (theMagField >= 1.0 && theMagField < 2.5)
-    label = "2T";
-  else if (theMagField >= 2.5 && theMagField < 3.25)
-    label = "3T";
-  else if (theMagField >= 3.25 && theMagField < 3.65)
-    label = "35T";
-  else if (theMagField >= 3.9 && theMagField < 4.1)
-    label = "4T";
-  else {
-    //label = "3.8T";
-    if (theMagField >= 4.1 || theMagField < -0.1)
-      edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixelTemplate") << "Magnetic field is " << theMagField;
-  }
-  ESHandle<SiPixelTemplateDBObject> dbobject;
-  iRecord.getRecord<SiPixelTemplateDBObjectRcd>().get(label, dbobject);
-
-  if (std::fabs(theMagField - dbobject->sVector()[22]) > 0.1)
+  if (std::fabs(theMagField - dbobject.sVector()[22]) > 0.1)
     edm::LogWarning("UnexpectedMagneticFieldUsingNonIdealPixelTemplate")
-        << "Magnetic field is " << theMagField << " Template Magnetic field is " << dbobject->sVector()[22];
+        << "Magnetic field is " << theMagField << " Template Magnetic field is " << dbobject.sVector()[22];
 
-  return std::shared_ptr<const SiPixelTemplateDBObject>(&(*dbobject), edm::do_nothing_deleter());
+  return std::shared_ptr<const SiPixelTemplateDBObject>(&dbobject, edm::do_nothing_deleter());
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPixelTemplateDBObjectESProducer);

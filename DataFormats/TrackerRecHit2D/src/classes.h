@@ -5,7 +5,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1DCollection.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
-#include <boost/cstdint.hpp>
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"

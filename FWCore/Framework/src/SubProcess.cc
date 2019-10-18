@@ -468,7 +468,7 @@ namespace edm {
           if (iExcept) {
             task.doneWaiting(*iExcept);
           } else {
-            ServiceRegistry::Operate operate(serviceToken_);
+            ServiceRegistry::Operate operateWriteRun(serviceToken_);
             for (auto& s : subProcesses_) {
               s.writeRunAsync(task, childPhID, runNumber, mergeableRunProductMetadata);
             }
@@ -547,7 +547,7 @@ namespace edm {
           if (iExcept) {
             task.doneWaiting(*iExcept);
           } else {
-            ServiceRegistry::Operate operate(serviceToken_);
+            ServiceRegistry::Operate operateWriteLumi(serviceToken_);
             for (auto& s : subProcesses_) {
               s.writeLumiAsync(task, *l);
             }

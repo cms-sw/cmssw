@@ -14,6 +14,7 @@
 #define L1_TRACK_TRIGGER_TRACK_FORMAT_H
 
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -21,29 +22,45 @@
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 
 template <typename T>
-class TTTrack {
+class TTTrack : public TTTrack_TrackWord {
 private:
   /// Data members
   std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > > theStubRefs;
-  GlobalVector theMomentum4Par;
-  GlobalVector theMomentum5Par;
-  GlobalPoint thePOCA4Par;
-  GlobalPoint thePOCA5Par;
-  double theRInv4Par;
-  double theRInv5Par;
-  unsigned int theSector;
-  unsigned int theWedge;
-  double theStubPtConsistency4Par;
-  double theStubPtConsistency5Par;
-  double theChi24Par;
-  double theChi25Par;
-  bool valid4ParFit;
-  bool valid5ParFit;
+  GlobalVector theMomentum;
+  GlobalPoint thePOCA;
+  double theRInv;
+  double thePhi;
+  double theTanL;
+  double theEta;
+  double theD0;
+  double theZ0;
+  unsigned int thePhiSector;
+  double theStubPtConsistency;
+  double theChi2;
+  unsigned int NumFitPars;
+  unsigned int theHitPattern;
+  float an_MVA_Value;
+  float another_MVA_Value;
+  int theTrackSeed;
+  double theBField;  // needed for unpacking
+  static constexpr unsigned int Npars4 = 4;
+  static constexpr unsigned int Npars5 = 5;
+  static constexpr float MagConstant = 0.3;
 
 public:
   /// Constructors
   TTTrack();
   TTTrack(std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > > aStubs);
+
+  TTTrack(double aRinv,
+          double aphi,
+          double aeta,
+          double az0,
+          double ad0,
+          double aChi2,
+          unsigned int aHitpattern,
+          unsigned int nPar,
+          double Bfield);
 
   /// Destructor
   ~TTTrack();
@@ -56,51 +73,58 @@ public:
   }
 
   /// Track momentum
-  GlobalVector getMomentum(unsigned int nPar = 4) const;
-  void setMomentum(GlobalVector aMomentum, unsigned int nPar = 5);
+  GlobalVector momentum() const;
+  GlobalVector getMomentum(unsigned int npar = Npars4) const;
 
   /// Track curvature
-  double getRInv(unsigned int nPar = 4) const;
-  void setRInv(double aRInv, unsigned int nPar = 5);
+  double rInv() const;
+  double getRInv(unsigned int npar = Npars4) const;
+
+  /// Track phi
+  double phi() const;
+
+  /// Track tanL
+  double tanL() const;
+
+  /// Track d0
+  double d0() const;
+
+  /// Track z0
+  double z0() const;
+
+  /// Track eta
+  double eta() const;
 
   /// POCA
-  GlobalPoint getPOCA(unsigned int nPar = 4) const;
-  void setPOCA(GlobalPoint aPOCA, unsigned int nPar = 5);
+  GlobalPoint POCA() const;
+  GlobalPoint getPOCA(unsigned int npar = Npars4) const;
 
-  /// Sector
-  unsigned int getSector() const { return theSector; }
-  void setSector(unsigned int aSector) { theSector = aSector; }
-  unsigned int getWedge() const { return theWedge; }
-  void setWedge(unsigned int aWedge) { theWedge = aWedge; }
+  /// Phi Sector
+  unsigned int PhiSector() const { return thePhiSector; }
+  unsigned int getSector() const { return thePhiSector; }
+  void setPhiSector(unsigned int aSector) { thePhiSector = aSector; }
+
+  /// Track seeding (for debugging)
+  unsigned int TrackSeed() const { return theTrackSeed; }
+  void setTrackSeed(int aSeed) { theTrackSeed = aSeed; }
 
   /// Chi2
-  double getChi2(unsigned int nPar = 4) const;
-  double getChi2Red(unsigned int nPar = 4) const;
-  void setChi2(double aChi2, unsigned int nPar = 5);
+  double chi2() const;
+  double chi2Red() const;
+  double getChi2(unsigned int npar = 4) const;
+  double getChi2Red(unsigned int npar = 4) const;
 
   /// Stub Pt consistency
-  double getStubPtConsistency(unsigned int nPar = 4) const;
-  void setStubPtConsistency(double aPtConsistency, unsigned int nPar = 5);
+  double getStubPtConsistency(unsigned int npar = 4) const;
+  void setStubPtConsistency(double aPtConsistency);
 
-  void setFitParNo(unsigned int aFitParNo) { return; }
+  void setFitParNo(unsigned int aFitParNo);
 
-  /*
-    /// Superstrip
-    /// Here to prepare inclusion of AM L1 Track finding
-    uint32_t getSuperStrip() const { return 0; }
-*/
-  /// Duplicate identification
-  bool isTheSameAs(TTTrack<T> aTrack) const;
-
-  /// Additional quality criteria
-  bool hasStubInBarrel(unsigned int aLayer) const;
+  void setTrackWordBits();
+  void testTrackWordBits();
 
   /// Information
   std::string print(unsigned int i = 0) const;
-
-private:
-  bool checkValidArgs(unsigned int nPar) const;
-  bool checkValidArgsForSet(unsigned int nPar) const;
 
 };  /// Close class
 
@@ -115,40 +139,54 @@ private:
 template <typename T>
 TTTrack<T>::TTTrack() {
   theStubRefs.clear();
-  theMomentum4Par = GlobalVector(0.0, 0.0, 0.0);
-  theMomentum5Par = GlobalVector(0.0, 0.0, 0.0);
-  theRInv4Par = 0.0;
-  theRInv5Par = 0.0;
-  thePOCA4Par = GlobalPoint(0.0, 0.0, 0.0);
-  thePOCA5Par = GlobalPoint(0.0, 0.0, 0.0);
-  theSector = 0;
-  theWedge = 0;
-  theChi24Par = 0.0;
-  theChi25Par = 0.0;
-  theStubPtConsistency4Par = 0.0;
-  theStubPtConsistency5Par = 0.0;
-  valid4ParFit = false;
-  valid5ParFit = false;
+  theMomentum = GlobalVector(0.0, 0.0, 0.0);
+  theRInv = 0.0;
+  thePOCA = GlobalPoint(0.0, 0.0, 0.0);
+  thePhiSector = 0;
+  theTrackSeed = 0;
+  theChi2 = 0.0;
+  theStubPtConsistency = 0.0;
+  NumFitPars = 0;
 }
 
 /// Another Constructor
 template <typename T>
 TTTrack<T>::TTTrack(std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > > aStubs) {
   theStubRefs = aStubs;
-  theMomentum4Par = GlobalVector(0.0, 0.0, 0.0);
-  theMomentum5Par = GlobalVector(0.0, 0.0, 0.0);
-  theRInv4Par = 0.0;
-  theRInv5Par = 0.0;
-  thePOCA4Par = GlobalPoint(0.0, 0.0, 0.0);
-  thePOCA5Par = GlobalPoint(0.0, 0.0, 0.0);
-  theSector = 0;
-  theWedge = 0;
-  theChi24Par = 0.0;
-  theChi25Par = 0.0;
-  theStubPtConsistency4Par = 0.0;
-  theStubPtConsistency5Par = 0.0;
-  valid4ParFit = false;
-  valid5ParFit = false;
+  theMomentum = GlobalVector(0.0, 0.0, 0.0);
+  theRInv = 0.0;
+  thePOCA = GlobalPoint(0.0, 0.0, 0.0);
+  thePhiSector = 0;
+  theTrackSeed = 0;
+  theChi2 = 0.0;
+  theStubPtConsistency = 0.0;
+  NumFitPars = 0;
+}
+
+/// Meant to be default constructor
+template <typename T>
+TTTrack<T>::TTTrack(double aRinv,
+                    double aphi,
+                    double aeta,
+                    double az0,
+                    double ad0,
+                    double aChi2,
+                    unsigned int aHitPattern,
+                    unsigned int nPar,
+                    double aBfield) {
+  theStubRefs.clear();
+  double thePT = MagConstant * aRinv * aBfield;
+  theMomentum = GlobalVector(GlobalVector::Cylindrical(thePT, aphi, thePT * sinh(aeta)));
+  theRInv = aRinv;
+  thePOCA = GlobalPoint(ad0 * cos(aphi), ad0 * sin(aphi), az0);
+  thePhiSector = 0;  // must be set externally
+  theTrackSeed = 0;  // must be set externally
+  theChi2 = aChi2;
+  theStubPtConsistency = 0.0;  // must be set externally
+  NumFitPars = nPar;
+  theHitPattern = aHitPattern;
+  theBField = aBfield;
+  // should probably fill the momentum vectur
 }
 
 /// Destructor
@@ -156,227 +194,179 @@ template <typename T>
 TTTrack<T>::~TTTrack() {}
 
 template <typename T>
-void TTTrack<T>::setMomentum(GlobalVector aMomentum, unsigned int nPar) {
-  if (!checkValidArgsForSet(nPar))
-    return;
-
-  if (nPar == 4) {
-    valid4ParFit = true;
-    theMomentum4Par = aMomentum;
-  }
-
-  if (nPar == 5) {
-    valid5ParFit = true;
-    theMomentum5Par = aMomentum;
-  }
+void TTTrack<T>::setFitParNo(unsigned int nPar) {
+  NumFitPars = nPar;
 
   return;
 }
 
+// Note that these calls return the floating point values.  If a TTTrack is made with only ditized values,
+// the unpacked values must come from the TTTrack_Trackword member functions.
+
 template <typename T>
-GlobalVector TTTrack<T>::getMomentum(unsigned int nPar) const {
-  if (!checkValidArgs(nPar))
+GlobalVector TTTrack<T>::momentum() const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return theMomentum;
+  } else
     return GlobalVector(0.0, 0.0, 0.0);
-
-  if (nPar == 4) {
-    return theMomentum4Par;
-  }
-
-  if (nPar == 5) {
-    return theMomentum5Par;
-  }
-
-  return GlobalVector(0.0, 0.0, 0.0);
 }
 
 template <typename T>
-void TTTrack<T>::setRInv(double aRInv, unsigned int nPar) {
-  if (!checkValidArgsForSet(nPar))
-    return;
-
-  if (nPar == 4) {
-    valid4ParFit = true;
-    theRInv4Par = aRInv;
-  }
-
-  if (nPar == 5) {
-    valid5ParFit = true;
-    theRInv5Par = aRInv;
-  }
-
-  return;
+GlobalVector TTTrack<T>::getMomentum(unsigned int npar) const {
+  return momentum();
 }
 
 template <typename T>
-double TTTrack<T>::getRInv(unsigned int nPar) const {
-  if (!checkValidArgs(nPar))
+double TTTrack<T>::rInv() const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return theRInv;
+  } else
     return 0.0;
-
-  if (nPar == 4) {
-    return theRInv4Par;
-  }
-
-  if (nPar == 5) {
-    return theRInv5Par;
-  }
-
-  return 0.0;
 }
 
 template <typename T>
-void TTTrack<T>::setPOCA(GlobalPoint aPOCA, unsigned int nPar) {
-  if (!checkValidArgsForSet(nPar))
-    return;
+double TTTrack<T>::getRInv(unsigned int npar) const {  //backwards compatibility
 
-  if (nPar == 4) {
-    valid4ParFit = true;
-    thePOCA4Par = aPOCA;
-  }
-
-  if (nPar == 5) {
-    valid5ParFit = true;
-    thePOCA5Par = aPOCA;
-  }
-
-  return;
+  return rInv();
 }
 
 template <typename T>
-GlobalPoint TTTrack<T>::getPOCA(unsigned int nPar) const {
-  if (!checkValidArgs(nPar))
+double TTTrack<T>::tanL() const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return theTanL;
+  } else
+    return 0.0;
+}
+
+template <typename T>
+double TTTrack<T>::eta() const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return theEta;
+  } else
+    return 0.0;
+}
+
+template <typename T>
+double TTTrack<T>::phi() const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return thePhi;
+  } else
+    return 0.0;
+}
+
+template <typename T>
+double TTTrack<T>::d0() const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return theD0;
+  } else
+    return 0.0;
+}
+
+template <typename T>
+double TTTrack<T>::z0() const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return theZ0;
+  } else
+    return 0.0;
+}
+
+template <typename T>
+GlobalPoint TTTrack<T>::POCA() const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return thePOCA;
+  } else
     return GlobalPoint(0.0, 0.0, 0.0);
+}
 
-  if (nPar == 4) {
-    return thePOCA4Par;
-  }
-
-  if (nPar == 5) {
-    return thePOCA5Par;
-  }
-
-  return GlobalPoint(0.0, 0.0, 0.0);
+template <typename T>
+GlobalPoint TTTrack<T>::getPOCA(unsigned int npar) const  //backwards compatibility
+{
+  return POCA();
 }
 
 /// Chi2
 template <typename T>
-void TTTrack<T>::setChi2(double aChi2, unsigned int nPar) {
-  if (!checkValidArgsForSet(nPar))
-    return;
-
-  if (nPar == 4) {
-    valid4ParFit = true;
-    theChi24Par = aChi2;
-  }
-
-  if (nPar == 5) {
-    valid5ParFit = true;
-    theChi25Par = aChi2;
-  }
-
-  return;
-}
-
-/// Chi2
-template <typename T>
-double TTTrack<T>::getChi2(unsigned int nPar) const {
-  if (!checkValidArgs(nPar))
+double TTTrack<T>::chi2() const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return theChi2;
+  } else
     return 0.0;
+}
 
-  if (nPar == 4) {
-    return theChi24Par;
-  }
-
-  if (nPar == 5) {
-    return theChi25Par;
-  }
-
-  return 0.0;
+template <typename T>
+double TTTrack<T>::getChi2(unsigned int npar) const  //backwards compatibility
+{
+  return chi2();
 }
 
 /// Chi2 reduced
 template <typename T>
-double TTTrack<T>::getChi2Red(unsigned int nPar) const {
-  if (!checkValidArgs(nPar))
+double TTTrack<T>::chi2Red() const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return theChi2 / (2 * theStubRefs.size() - NumFitPars);
+  } else
     return 0.0;
+}
 
-  if (nPar == 4) {
-    return theChi24Par / (2 * theStubRefs.size() - 4);
-  }
-
-  if (nPar == 5) {
-    return theChi25Par / (2 * theStubRefs.size() - 5);
-  }
-
-  return 0.0;
+template <typename T>
+double TTTrack<T>::getChi2Red(unsigned int npar) const  //backwards compatibility
+{
+  return chi2Red();
 }
 
 /// StubPtConsistency
 template <typename T>
-void TTTrack<T>::setStubPtConsistency(double aStubPtConsistency, unsigned int nPar) {
-  if (!checkValidArgsForSet(nPar))
-    return;
-
-  if (nPar == 4) {
-    valid4ParFit = true;
-    theStubPtConsistency4Par = aStubPtConsistency;
-  }
-
-  if (nPar == 5) {
-    valid5ParFit = true;
-    theStubPtConsistency5Par = aStubPtConsistency;
-  }
+void TTTrack<T>::setStubPtConsistency(double aStubPtConsistency) {
+  theStubPtConsistency = aStubPtConsistency;
 
   return;
 }
 
 /// StubPtConsistency
 template <typename T>
-double TTTrack<T>::getStubPtConsistency(unsigned int nPar) const {
-  if (!checkValidArgs(nPar))
+double TTTrack<T>::getStubPtConsistency(unsigned int npar) const {
+  if (NumFitPars == Npars5 || NumFitPars == Npars4) {
+    return theStubPtConsistency;
+  } else
     return 0.0;
-
-  if (nPar == 4) {
-    return theStubPtConsistency4Par;
-  }
-
-  if (nPar == 5) {
-    return theStubPtConsistency5Par;
-  }
-
-  return 0.0;
 }
 
-/// Duplicate identification
+/// Set bits in 96-bit Track word
 template <typename T>
-bool TTTrack<T>::isTheSameAs(TTTrack<T> aTrack) const {
-  /// Take the other stubs
-  std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > > otherStubRefs = aTrack.getStubRefs();
-
-  /// Count shared stubs
-  unsigned int nShared = 0;
-  for (unsigned int i = 0; i < theStubRefs.size() && nShared < 2; i++) {
-    for (unsigned int j = 0; j < otherStubRefs.size() && nShared < 2; j++) {
-      if (theStubRefs.at(i) == otherStubRefs.at(j)) {
-        nShared++;
-      }
-    }
+void TTTrack<T>::setTrackWordBits() {
+  if (!(NumFitPars == Npars4 || NumFitPars == Npars5)) {
+    edm::LogError("TTTrack") << " setTrackWordBits method is called with NumFitPars=" << NumFitPars
+                             << " only possible values are 4/5" << std::endl;
+    return;
   }
 
-  /// Same track if 2 shared stubs
-  return (nShared > 1);
+  unsigned int sparebits = 0;
+
+  // missing conversion of global phi to difference from sector center phi
+
+  setTrackWord(theMomentum, thePOCA, theRInv, theChi2, theStubPtConsistency, theHitPattern, sparebits);
+
+  return;
 }
 
-/// Quality criteria: does it have a Stub in a specific Barrel Layer?
+/// Test bits in 96-bit Track word
 template <typename T>
-bool TTTrack<T>::hasStubInBarrel(unsigned int aLayer) const {
-  for (unsigned int i = 0; i < theStubRefs.size(); i++) {
-    DetId detid = theStubRefs.at(i)->getDetId();
-    if (detid.subdetId() == StripSubdetector::TOB) {
-      return true;
-    }
-  }
+void TTTrack<T>::testTrackWordBits() {
+  //  float rPhi = theMomentum.phi();  // this needs to be phi relative to center of sector ****
+  //float rEta = theMomentum.eta();
+  //float rZ0 = thePOCA.z();
+  //float rD0 = thePOCA.perp();
 
-  return false;
+  //this is meant for debugging only.
+
+  //std::cout << " phi " << rPhi << " " << get_iphi() << std::endl;
+  //std::cout << " eta " << rEta << " " << get_ieta() << std::endl;
+  //std::cout << " Z0 " << rZ0 << " " << get_iz0() << std::endl;
+  //std::cout << " D0 " << rD0 << " " << get_id0() << std::endl;
+  //std::cout << " Rinv " << theRInv << " " << get_iRinv() << std::endl;
+  //std::cout << " chi2 " << theChi2 << " " << get_ichi2() << std::endl;
+
+  return;
 }
 
 /// Information
@@ -399,39 +389,6 @@ std::string TTTrack<T>::print(unsigned int i) const {
   }
 
   return output.str();
-}
-
-template <typename T>
-bool TTTrack<T>::checkValidArgs(unsigned int nPar) const {
-  if (!(nPar == 4 || nPar == 5)) {
-    edm::LogError("TTTrack") << " A getter method was called with nPar = " << nPar
-                             << " but only authorized values are 4 and 5" << std::endl;
-    return false;
-  }
-
-  if ((nPar == 4) && !valid4ParFit) {
-    edm::LogError("TTTrack") << " You try to get info with nPar=" << nPar
-                             << " but no valid 4 parameter fit info is present, use 5 instead" << std::endl;
-    return false;
-  }
-
-  if ((nPar == 5) && !valid5ParFit) {
-    edm::LogError("TTTrack") << " You try to get info with nPar=" << nPar
-                             << " but no valid 5 parameter fit info is present, use 4 instead" << std::endl;
-    return false;
-  }
-
-  return true;
-}
-template <typename T>
-bool TTTrack<T>::checkValidArgsForSet(unsigned int nPar) const {
-  if (!(nPar == 4 || nPar == 5)) {
-    edm::LogError("TTTrack") << " A setter method is called with nPar=" << nPar << " only possible values are 4/5"
-                             << std::endl;
-    return false;
-  }
-
-  return true;
 }
 
 template <typename T>

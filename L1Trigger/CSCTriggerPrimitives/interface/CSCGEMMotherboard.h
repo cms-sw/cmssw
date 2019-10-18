@@ -134,8 +134,11 @@ protected:
   // use this function when the best matching copads are not clear yet
   // the template is ALCT or CLCT
   template <class T>
-  void correlateLCTsGEM(
-      T& best, T& second, const GEMCoPadDigiIds& coPads, CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2) const;
+  void correlateLCTsGEM(const T& best,
+                        const T& second,
+                        const GEMCoPadDigiIds& coPads,
+                        CSCCorrelatedLCTDigi& lct1,
+                        CSCCorrelatedLCTDigi& lct2) const;
 
   // correlate ALCTs/CLCTs with their best matching GEM copads
   // the template is ALCT or CLCT
@@ -444,11 +447,14 @@ S CSCGEMMotherboard::bestMatchingPad(const CSCALCTDigi& alct1, const CSCCLCTDigi
 }
 
 template <class T>
-void CSCGEMMotherboard::correlateLCTsGEM(T& bestLCT,
-                                         T& secondLCT,
+void CSCGEMMotherboard::correlateLCTsGEM(const T& bLCT,
+                                         const T& sLCT,
                                          const GEMCoPadDigiIds& coPads,
                                          CSCCorrelatedLCTDigi& lct1,
                                          CSCCorrelatedLCTDigi& lct2) const {
+  T bestLCT = bLCT;
+  T secondLCT = sLCT;
+
   // Check which LCTs are valid
   bool bestValid = bestLCT.isValid();
   bool secondValid = secondLCT.isValid();
