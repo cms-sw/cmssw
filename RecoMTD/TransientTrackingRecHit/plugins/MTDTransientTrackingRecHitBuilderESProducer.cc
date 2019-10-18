@@ -15,10 +15,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 #include "FWCore/Framework/interface/ESProducer.h"
-
-namespace edm {
-  class ParameterSet;
-}
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 class TransientRecHitRecord;
 
@@ -33,8 +30,8 @@ public:
   // Operations
   std::unique_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord&);
 
-protected:
 private:
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geomToken_;
 };
 
 using namespace edm;
@@ -42,15 +39,12 @@ using namespace std;
 
 MTDTransientTrackingRecHitBuilderESProducer::MTDTransientTrackingRecHitBuilderESProducer(
     const ParameterSet& parameterSet) {
-  setWhatProduced(this, parameterSet.getParameter<string>("ComponentName"));
+  setWhatProduced(this, parameterSet.getParameter<string>("ComponentName")).setConsumes(geomToken_);
 }
 
 std::unique_ptr<TransientTrackingRecHitBuilder> MTDTransientTrackingRecHitBuilderESProducer::produce(
     const TransientRecHitRecord& iRecord) {
-  ESHandle<GlobalTrackingGeometry> trackingGeometry;
-  iRecord.getRecord<GlobalTrackingGeometryRecord>().get(trackingGeometry);
-
-  return std::make_unique<MTDTransientTrackingRecHitBuilder>(trackingGeometry);
+  return std::make_unique<MTDTransientTrackingRecHitBuilder>(iRecord.getHandle(geomToken_));
 }
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
