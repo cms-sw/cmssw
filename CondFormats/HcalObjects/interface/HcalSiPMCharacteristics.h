@@ -6,7 +6,6 @@
 #include <vector>
 #include <set>
 #include <algorithm>
-#include <boost/cstdint.hpp>
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
 #endif

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <debug> 
-    <debug_rotations/>
+    <!--debug_rotations/>
     <debug_materials/>
     <debug_shapes/>
     <debug_volumes/>
@@ -10,11 +10,12 @@
     <debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
-    <debug_visattr/>
+    <debug_specpars/>
+    <debug_visattr/-->
   </debug>
 
-  <DisabledAlgo  name="track:DDCutTubsFromPoints"/>
-  <DisabledAlgo  name="track:DDTOBRadCableAlgo"/>
+  <!--DisabledAlgo  name="track:DDCutTubsFromPoints"/>
+  <DisabledAlgo  name="track:DDTOBRadCableAlgo"/-->
   
   <open_geometry/>
   <close_geometry/>

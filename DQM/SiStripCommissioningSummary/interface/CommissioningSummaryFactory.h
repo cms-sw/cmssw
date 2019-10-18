@@ -3,8 +3,8 @@
 
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactoryBase.h"
-#include <boost/cstdint.hpp>
 #include <map>
+#include <cstdint>
 
 class CommissioningAnalysis;
 

@@ -1,13 +1,13 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripFEDBufferGenerator_H
 #define EventFilter_SiStripRawToDigi_SiStripFEDBufferGenerator_H
 
-#include "boost/cstdint.hpp"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include <vector>
 #include <list>
 #include <utility>
 #include <memory>
+#include <cstdint>
 
 namespace sistrip {
 

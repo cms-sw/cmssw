@@ -50,7 +50,6 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
     // book stuff needed for DQM
     dbe = nullptr;
     dbe = edm::Service<DQMStore>().operator->();
-    dbe->setVerbose(50);
   }
 }
 
@@ -58,9 +57,9 @@ RivetAnalyzer::~RivetAnalyzer() {}
 
 void RivetAnalyzer::beginJob() {
   //set the environment, very ugly but rivet is monolithic when it comes to paths
-  char* cmsswbase = getenv("CMSSW_BASE");
-  char* cmsswrelease = getenv("CMSSW_RELEASE_BASE");
-  if (!getenv("RIVET_REF_PATH")) {
+  char* cmsswbase = std::getenv("CMSSW_BASE");
+  char* cmsswrelease = std::getenv("CMSSW_RELEASE_BASE");
+  if (!std::getenv("RIVET_REF_PATH")) {
     const std::string rivetref = "RIVET_REF_PATH=" + string(cmsswbase) +
                                  "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) +
                                  "/src/GeneratorInterface/RivetInterface/data";
@@ -68,7 +67,7 @@ void RivetAnalyzer::beginJob() {
     putenv(rivetrefCstr);
     free(rivetrefCstr);
   }
-  if (!getenv("RIVET_INFO_PATH")) {
+  if (!std::getenv("RIVET_INFO_PATH")) {
     const std::string rivetinfo = "RIVET_INFO_PATH=" + string(cmsswbase) +
                                   "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) +
                                   "/src/GeneratorInterface/RivetInterface/data";

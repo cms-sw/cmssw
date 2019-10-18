@@ -47,28 +47,46 @@ from RecoTracker.FinalTrackSelectors.CTFFinalTrackSelectorP5_cff import *
 ckfTrackCandidatesP5LHCNavigation    = ckfTrackCandidatesP5.clone(NavigationSchool = cms.string('SimpleNavigationSchool'))
 ctfWithMaterialTracksP5LHCNavigation = ctfWithMaterialTracksCosmics.clone(src = cms.InputTag("ckfTrackCandidatesP5LHCNavigation"))
 
-ctftracksP5 = cms.Sequence(combinatorialcosmicseedinglayersP5+combinatorialcosmicseedfinderP5*
-                           simpleCosmicBONSeedingLayers*simpleCosmicBONSeeds*combinedP5SeedsForCTF*
-                           ckfTrackCandidatesP5*ctfWithMaterialTracksCosmics*ctfWithMaterialTracksP5+
-                           ckfTrackCandidatesP5LHCNavigation*ctfWithMaterialTracksP5LHCNavigation)
-
+ctftracksP5Task = cms.Task(combinatorialcosmicseedinglayersP5Task,
+                                  combinatorialcosmicseedfinderP5,
+                                  simpleCosmicBONSeedingLayers,
+                                  simpleCosmicBONSeeds,
+                                  combinedP5SeedsForCTF,
+                                  ckfTrackCandidatesP5,
+                                  ctfWithMaterialTracksCosmics,
+                                  ctfWithMaterialTracksP5,
+                                  ckfTrackCandidatesP5LHCNavigation,
+                                  ctfWithMaterialTracksP5LHCNavigation)
+ctftracksP5 = cms.Sequence(ctftracksP5Task)
 
 from RecoTracker.FinalTrackSelectors.cosmicTrackSplitter_cfi import *
 cosmicTrackSplitter.tjTkAssociationMapTag = 'cosmictrackfinderCosmics'
 cosmicTrackSplitter.tracks = 'cosmictrackfinderCosmics'
 splittedTracksP5 = cosmictrackfinderCosmics.clone(src = cms.InputTag("cosmicTrackSplitter"))
     
-cosmictracksP5 = cms.Sequence(cosmicseedfinderP5*cosmicCandidateFinderP5*cosmictrackfinderCosmics*cosmictrackfinderP5*cosmicTrackSplitter*splittedTracksP5)
-
+cosmictracksP5Task = cms.Task(cosmicseedfinderP5,
+                                  cosmicCandidateFinderP5,
+                                  cosmictrackfinderCosmics,
+                                  cosmictrackfinderP5,
+                                  cosmicTrackSplitter,
+                                  splittedTracksP5)
+cosmictracksP5 = cms.Sequence(cosmictracksP5Task)
 
 #Top/Bottom tracks NEW
 from RecoTracker.Configuration.RecoTrackerTopBottom_cff import *
-trackerCosmics_TopBot = cms.Sequence((trackerlocalrecoTop*tracksP5Top)+(trackerlocalrecoBottom*tracksP5Bottom))
-
+trackerCosmics_TopBotTask = cms.Task(trackerlocalrecoTopTask,
+                                            tracksP5TopTask,
+                                            trackerlocalrecoBottomTask,
+                                            tracksP5BottomTask)
+trackerCosmics_TopBot = cms.Sequence(trackerCosmics_TopBotTask)
 #dEdX reconstruction
 from RecoTracker.DeDx.dedxEstimators_Cosmics_cff import *
 # (SK) keep rstracks commented out in case of resurrection
-tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*doAllCosmicdEdXEstimators*siPixelClusterShapeCache)
+tracksP5Task = cms.Task(cosmictracksP5Task,
+                            ctftracksP5Task,
+                            doAllCosmicdEdXEstimatorsTask,
+                            siPixelClusterShapeCache)
+tracksP5 = cms.Sequence(tracksP5Task)
 tracksP5_wodEdX = tracksP5.copy()
 tracksP5_wodEdX.remove(doAllCosmicdEdXEstimators)
 

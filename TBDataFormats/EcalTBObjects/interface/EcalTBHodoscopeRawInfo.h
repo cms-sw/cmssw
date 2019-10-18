@@ -2,7 +2,6 @@
 #define DIGIECAL_ECALTBHODOSCOPERAWINFO_H 1
 
 #include <ostream>
-#include <boost/cstdint.hpp>
 
 /** \class EcalTBHodoscopeRawInfo
  *  Simple container for plane RawHits 

@@ -78,7 +78,7 @@ SerialTaskQueue::TaskBase* SerialTaskQueue::pickNextTask() {
       //was a new entry added after we called 'try_pop' but before we did the clear?
       expect = false;
       if (not m_tasks.empty() and m_taskChosen.compare_exchange_strong(expect, true)) {
-        TaskBase* t = nullptr;
+        t = nullptr;
         if (m_tasks.try_pop(t)) {
           return t;
         }

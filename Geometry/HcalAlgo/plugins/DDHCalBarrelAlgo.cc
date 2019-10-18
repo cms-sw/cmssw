@@ -12,7 +12,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -22,6 +22,9 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
+
+//#define EDM_ML_DEBUG
+using namespace cms_units::operators;
 
 class DDHCalBarrelAlgo : public DDAlgorithm {
 public:
@@ -245,9 +248,6 @@ private:
   std::string idNameSpace;  //Namespace of this and ALL sub-parts
   int idOffset;             // Geant4 ID's...    = 3000;
 };
-
-//#define EDM_ML_DEBUG
-using namespace geant_units::operators;
 
 DDHCalBarrelAlgo::DDHCalBarrelAlgo()
     : theta(0),

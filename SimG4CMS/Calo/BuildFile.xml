@@ -6,6 +6,7 @@
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/ForwardDetId"/>
 <use   name="DataFormats/Math"/>
+<use   name="CondFormats/GeometryObjects"/>
 <use   name="CondFormats/HcalObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="SimDataFormats/SimHitMaker"/>

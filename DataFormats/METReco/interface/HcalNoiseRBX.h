@@ -13,8 +13,6 @@
 //
 //
 
-#include "boost/array.hpp"
-
 #include "DataFormats/METReco/interface/HcalNoiseHPD.h"
 
 namespace reco {

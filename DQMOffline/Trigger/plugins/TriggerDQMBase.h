@@ -1,5 +1,5 @@
-#ifndef DQMOffline_Trigger_TriggerDQMBase_H
-#define DQMOffline_Trigger_TriggerDQMBase_H
+#ifndef DQMOffline_Trigger_TriggerDQMBase_h
+#define DQMOffline_Trigger_TriggerDQMBase_h
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -10,9 +10,7 @@ public:
   typedef dqm::legacy::DQMStore DQMStore;
 
   TriggerDQMBase() = default;
-  ;
   virtual ~TriggerDQMBase() = default;
-  ;
 
   struct MEbinning {
     unsigned nbins;
@@ -20,9 +18,16 @@ public:
     double xmax;
   };
 
-  struct ObjME {
+  class ObjME {
+  public:
+    ObjME() {}
+    virtual ~ObjME() {}
+
     MonitorElement* numerator = nullptr;
     MonitorElement* denominator = nullptr;
+
+    template <typename... Args>
+    void fill(const bool pass_num, Args... args);
   };
 
   static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
@@ -73,4 +78,15 @@ protected:
 private:
 };  //class
 
-#endif  //DQMOffline_Trigger_TriggerDQMBase_H
+template <typename... Args>
+void TriggerDQMBase::ObjME::fill(const bool fill_num, Args... args) {
+  if (denominator) {
+    denominator->Fill(args...);
+  }
+
+  if (fill_num and numerator) {
+    numerator->Fill(args...);
+  }
+}
+
+#endif  //DQMOffline_Trigger_TriggerDQMBase_h

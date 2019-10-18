@@ -86,9 +86,9 @@ int do_work(int argc, char* argv[], char** env) {
   std::cout << "Current directory is: " << currentPath.string() << '\n';
   // It is unclear about which of these environment variables should
   // be used.
-  char const* topdir = getenv("SCRAMRT_LOCALRT");
+  char const* topdir = std::getenv("SCRAMRT_LOCALRT");
   if (!topdir)
-    topdir = getenv("LOCALRT");
+    topdir = std::getenv("LOCALRT");
   try {
     if (!edm::untaintString(topdir, goodDirectory)) {
       std::cerr << "Invalid top directory '" << topdir << "'" << std::endl;
@@ -100,7 +100,7 @@ int do_work(int argc, char* argv[], char** env) {
     return -1;
   }
 
-  char const* arch = getenv("SCRAM_ARCH");
+  char const* arch = std::getenv("SCRAM_ARCH");
 
   if (!arch) {
     // Try to synthesize SCRAM_ARCH value.
@@ -114,7 +114,7 @@ int do_work(int argc, char* argv[], char** env) {
       std::cerr << "SCRAM_ARCH not set and attempt to set it failed\n";
       return -1;
     }
-    arch = getenv("SCRAM_ARCH");
+    arch = std::getenv("SCRAM_ARCH");
   }
 
   int rc = 0;
