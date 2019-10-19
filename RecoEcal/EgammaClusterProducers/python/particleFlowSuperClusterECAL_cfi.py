@@ -40,7 +40,8 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
        uncertaintyKeyEE = cms.string('pfscecal_EEUncertainty_offline_v2'),
        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
-       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
+       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
+       applySigmaIetaIphiBug = cms.bool(True)
        ),
 
     #threshold for final SuperCluster Et
@@ -115,7 +116,8 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
        uncertaintyKeyEE = cms.string('pfscecal_EEUncertainty_offline_v2'),
        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
-       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
+       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
+       applySigmaIetaIphiBug = cms.bool(True)
        ),
        
     #threshold for final SuperCluster Et
@@ -159,3 +161,14 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toModify(particleFlowSuperClusterECAL, useDynamicDPhiWindow = False)
 pp_on_AA_2018.toModify(particleFlowSuperClusterECAL, phiwidth_SuperClusterBarrel = 0.20)
 pp_on_AA_2018.toModify(particleFlowSuperClusterECAL, phiwidth_SuperClusterEndcap = 0.20)
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(particleFlowSuperClusterECAL,
+                           thresh_SCEt = 1.0,
+                           thresh_PFClusterSeedBarrel = 0.5,
+                           thresh_PFClusterSeedEndcap = 0.5)
+
+#light by light uses 106X regressions in which this bug was fixed so no 
+#longer needs to be emulated
+egamma_lowPt_exclusive.toModify(particleFlowSuperClusterECAL.regressionConfig,
+                                applySigmaIetaIphiBug = False)

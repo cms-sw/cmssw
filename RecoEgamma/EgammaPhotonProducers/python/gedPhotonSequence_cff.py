@@ -29,5 +29,10 @@ gedPhotons.pfECALClusIsolation = cms.InputTag("photonEcalPFClusterIsolationProdu
 gedPhotons.pfHCALClusIsolation = cms.InputTag("photonHcalPFClusterIsolationProducer")
 gedPhotonSequence    = cms.Sequence(gedPhotons)
 
-
-
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(gedPhotons,
+                           minSCEtBarrel = 1.0,
+                           minSCEtEndcap = 1.0)
+egamma_lowPt_exclusive.toModify(gedPhotonsTmp,
+                           minSCEtBarrel = 1.0,
+                           minSCEtEndcap = 1.0)

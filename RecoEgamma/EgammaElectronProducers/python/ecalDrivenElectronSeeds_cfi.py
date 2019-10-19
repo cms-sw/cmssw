@@ -38,7 +38,6 @@ phase2_hgcal.toModify(
     SeedConfiguration = dict( allowHGCal = True )
 )
 
-
 # create ecal driven seeds for electron using HGCal Multiclusters
 ecalDrivenElectronSeedsFromMultiCl = ecalDrivenElectronSeeds.clone(
   endcapSuperClusters = 'particleFlowSuperClusterHGCalFromMultiCl')

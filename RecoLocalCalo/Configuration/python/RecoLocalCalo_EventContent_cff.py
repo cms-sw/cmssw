@@ -87,3 +87,13 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
                                                                      'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*'
                                                                      ])
                   )
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify( RecoLocalCaloAOD,
+    outputCommands = RecoLocalCaloAOD.outputCommands + ['keep *_towerMaker_*_*',
+						        'keep *_zdcreco_*_*',
+                                                        'keep ZDCDataFramesSorted_hcalDigis_*_*',
+                                                        'keep ZDCDataFramesSorted_castorDigis_*_*',
+                                                        'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*'])
+
+

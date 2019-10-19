@@ -138,12 +138,22 @@ particleFlowBlock = cms.EDProducer(
         )          
 )
 
+for imp in particleFlowBlock.elementImporters:
+  if imp.importerName.value() == "SuperClusterImporter":
+    _scImporter = imp
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(_scImporter,
+                                minSuperClusterPt = 1.0,
+                                minPTforBypass = 0.0)
+
 def _findIndicesByModule(name):
    ret = []
    for i, pset in enumerate(particleFlowBlock.elementImporters):
         if pset.importerName.value() == name:
             ret.append(i)
    return ret
+
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 # kill tracks in the HGCal
@@ -190,3 +200,4 @@ phase2_timing.toModify(
     particleFlowBlock,
     elementImporters = _addTiming
 )
+
