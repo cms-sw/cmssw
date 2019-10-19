@@ -40,11 +40,4 @@
     <Include ref='Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml'/>
   </IncludeSection>
-  
-  <PosPartSection label="">
-    <PosPart copyNumber="1">
-      <rParent name=":world_volume"/>
-      <rChild name="cms:OCMS"/>
-    </PosPart>
-  </PosPartSection>
 </DDDefinition>
