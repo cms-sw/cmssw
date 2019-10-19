@@ -1,26 +1,29 @@
 #! /usr/bin/env python
 
-from optparse import OptionParser
+from __future__ import print_function
 import sys
 import os 
 import imp
+import argparse
 
 # make the behaviour of 'cmsRun file.py' and 'edmConfigDump file.py' more consistent
 sys.path.append(os.getcwd())
 
-parser = OptionParser()
-parser.usage = "%prog <file> : expand this python configuration"
+parser = argparse.ArgumentParser(description="Expand python configuration")
+parser.add_argument("filename",
+                    help="Python configuration file")
+parser.add_argument("--prune", action="store_true",
+                    help="Prune the configuration before printing it")
+parser.add_argument("--pruneVerbose", action="store_true",
+                    help="With --prune, be verbose on what is pruned")
 
-(options,args) = parser.parse_args()
-
-if len(args)!=1:
-    parser.print_help()
-    sys.exit(1)
-
-filename = args[0]
-handle = open(filename, 'r')
-cfo = imp.load_source("pycfg", filename, handle)
+options = parser.parse_args()
+handle = open(options.filename, 'r')
+cfo = imp.load_source("pycfg", options.filename, handle)
 cmsProcess = cfo.process
 handle.close()
 
-print cmsProcess.dumpPython()
+if options.prune:
+    cmsProcess.prune(options.pruneVerbose)
+
+print(cmsProcess.dumpPython())
