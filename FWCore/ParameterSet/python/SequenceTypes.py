@@ -665,6 +665,9 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
             if visitor.result():
                 return True
         return visitor.result()
+    def tasks(self):
+        """Returns the list of Tasks (that may contain other Tasks) that are associated directly to the Schedule."""
+        return self._tasks
     def dumpPython(self, options=PrintOptions()):
         pathNames = ['process.'+p.label_() for p in self]
         if pathNames:
