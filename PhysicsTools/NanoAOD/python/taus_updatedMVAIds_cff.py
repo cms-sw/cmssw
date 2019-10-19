@@ -4,10 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # Used only in some eras
 from RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi import *
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
-from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
-from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
 
 ### MVAIso 2017v2
 ## DBoldDM
@@ -433,8 +431,7 @@ _patTauDiscriminationByElectronRejection2015Seq = cms.Sequence(
     +patTauDiscriminationByVTightElectronRejectionMVA62015
 )
 patTauDiscriminationByElectronRejectionSeq = _patTauDiscriminationByElectronRejection2015Seq.copy()
-for era in [run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1]:
-    era.toReplaceWith(patTauDiscriminationByElectronRejectionSeq,
+(~run2_miniAOD_80XLegacy).toReplaceWith(patTauDiscriminationByElectronRejectionSeq,
                       _patTauDiscriminationByElectronRejection2018Seq)
 
 
@@ -548,8 +545,7 @@ _tauIDSourcesWithAntiE2015 = cms.PSet(
     _antiETauIDSources2015
 )
 slimmedTausUpdated.tauIDSources=_tauIDSourcesWithAntiE2015
-for era in [run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1]:
-    era.toModify(slimmedTausUpdated,
+(~run2_miniAOD_80XLegacy).toModify(slimmedTausUpdated,
                  tauIDSources = _tauIDSourcesWithAntiE2018
     )
 
