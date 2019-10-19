@@ -256,12 +256,4 @@
     <Include ref="DetectorDescription/DDCMS/data/trackertob.xml"/>
 
   </IncludeSection>
-
-  <PosPartSection label="">
-    <PosPart copyNumber="2">
-	<rParent name=":world_volume"/>
-	<rChild name="tracker:Tracker"/>
-   </PosPart>
-  </PosPartSection>
-
 </DDDefinition>
