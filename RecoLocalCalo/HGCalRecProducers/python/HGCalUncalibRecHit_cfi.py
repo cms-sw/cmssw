@@ -77,4 +77,4 @@ phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toModify( HGCalUncalibRecHit.HGCHFNoseConfig , isSiFE = True )
-
+phase2_hfnose.toModify( HGCalUncalibRecHit.HGCHFNoseConfig , fCPerMIP = fCPerMIP_v9 )
