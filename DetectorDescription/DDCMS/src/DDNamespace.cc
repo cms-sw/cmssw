@@ -144,9 +144,6 @@ const dd4hep::Rotation3D& DDNamespace::rotation(const string& nam) const {
     if (i != m_context->rotations.end())
       return (*i).second;
   }
-  for (const auto& r : m_context->rotations) {
-    cout << r.first << endl;
-  }
   throw runtime_error("Unknown rotation identifier:" + nam);
 }
 
@@ -207,7 +204,10 @@ dd4hep::Solid DDNamespace::addSolidNS(const string& name, dd4hep::Solid solid) c
                    solid->IsA()->GetName(),
                    name.c_str());
 
-  m_context->shapes.emplace(name, solid.setName(name));
+  auto shape = m_context->shapes.emplace(name, solid.setName(name));
+  if (!shape.second) {
+    m_context->shapes[name] = solid.setName(name);
+  }
 
   return solid;
 }
@@ -232,7 +232,9 @@ dd4hep::Solid DDNamespace::solid(const string& nam) const {
   i = m_context->shapes.find(nam);
   if (i != m_context->shapes.end())
     return (*i).second;
-  throw runtime_error("Unknown shape identifier:" + nam);
+  // Register a temporary shape
+  auto tmpShape = m_context->shapes.emplace(nam, dd4hep::Solid(nullptr));
+  return (*tmpShape.first).second;
 }
 
 std::vector<double> DDNamespace::vecDbl(const std::string& name) const {

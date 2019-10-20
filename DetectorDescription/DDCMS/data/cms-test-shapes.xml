@@ -36,7 +36,6 @@
     <Include ref="DetectorDescription/DDCMS/data/testAlgorithm.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/materials.xml"/>
   </IncludeSection>
-  
   <PosPartSection label="">
     <PosPart copyNumber="2">
       <rParent name=":world_volume"/>
