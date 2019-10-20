@@ -238,12 +238,10 @@
         <Include ref="Geometry/TrackerCommonData/data/v2/trackerbulkhead.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/trackerother.xml"/>
   </IncludeSection>
-
   <PosPartSection label="">
     <PosPart copyNumber="2">
-	<rParent name=":world_volume"/>
-	<rChild name="tracker:Tracker"/>
-   </PosPart>
+      <rParent name=":world_volume"/>
+      <rChild name="tracker:Tracker"/>
+    </PosPart>
   </PosPartSection>
-
-</DDDefinition>
+ </DDDefinition>

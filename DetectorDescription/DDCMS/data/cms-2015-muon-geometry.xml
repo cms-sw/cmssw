@@ -61,11 +61,4 @@
     <Include ref='Geometry/MuonSimData/data/muonSens.xml'/>
     <Include ref='DetectorDescription/DDCMS/data/trackerParameters.xml'/>
   </IncludeSection>
-  
-  <PosPartSection label="">
-    <PosPart copyNumber="1">
-      <rParent name=":world_volume"/>
-      <rChild name="cms:OCMS"/>
-    </PosPart>
-  </PosPartSection>
 </DDDefinition>
