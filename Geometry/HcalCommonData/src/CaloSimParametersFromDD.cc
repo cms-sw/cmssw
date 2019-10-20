@@ -12,7 +12,8 @@
 
 bool CaloSimParametersFromDD::build(const DDCompactView* cpv, CaloSimulationParameters& php) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "Inside CaloSimParametersFromDD::build(const DDCompactView*, CaloSimulationParameters&)";
+  edm::LogVerbatim("HCalGeom")
+      << "Inside CaloSimParametersFromDD::build(const DDCompactView*, CaloSimulationParameters&)";
 #endif
   // Get the names
   std::string attribute = "ReadOutName";
@@ -21,7 +22,7 @@ bool CaloSimParametersFromDD::build(const DDCompactView* cpv, CaloSimulationPara
   DDFilteredView fv(*cpv, filter);
   fv.firstChild();
   DDsvalues_type sv(fv.mergedSpecifics());
-  
+
   php.caloNames_ = getNames("Calorimeter", sv, false);
   php.levels_ = getNumbers("Levels", sv, false);
   php.neighbours_ = getNumbers("Neighbours", sv, false);
@@ -35,7 +36,8 @@ bool CaloSimParametersFromDD::build(const DDCompactView* cpv, CaloSimulationPara
 
 bool CaloSimParametersFromDD::build(const cms::DDCompactView* cpv, CaloSimulationParameters& php) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "Inside CaloSimParametersFromDD::build(const cms::DDCompactView*, CaloSimulationParameters&)";
+  edm::LogVerbatim("HCalGeom")
+      << "Inside CaloSimParametersFromDD::build(const cms::DDCompactView*, CaloSimulationParameters&)";
 #endif
   // Get the names
   cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
@@ -50,9 +52,7 @@ bool CaloSimParametersFromDD::build(const cms::DDCompactView* cpv, CaloSimulatio
   return this->buildParameters(php);
 }
 
-
 bool CaloSimParametersFromDD::buildParameters(const CaloSimulationParameters& php) {
-
 #ifdef EDM_ML_DEBUG
   myPrint("Calorimeter", php.caloNames_);
   myPrint("Levels", php.levels_);
