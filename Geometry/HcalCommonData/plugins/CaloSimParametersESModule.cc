@@ -13,7 +13,7 @@
 
 #include <memory>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class CaloSimParametersESModule : public edm::ESProducer {
 public:

@@ -8,7 +8,7 @@
 #include <iostream>
 #include <iomanip>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 bool CaloSimParametersFromDD::build(const DDCompactView* cpv, CaloSimulationParameters& php) {
 #ifdef EDM_ML_DEBUG
