@@ -3,6 +3,7 @@
 <use   name="DataFormats/Common"/>
 <use   name="CondFormats/HIObjects"/>
 <use   name="CondFormats/DataRecord"/>
+<use   name="DataFormats/Candidate"/>
 <export>
   <lib   name="1"/>
 </export>
