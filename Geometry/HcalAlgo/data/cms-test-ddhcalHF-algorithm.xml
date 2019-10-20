@@ -30,6 +30,10 @@
     <Include ref="Geometry/HcalAlgo/test/data/muonBase.xml"/>
     <Include ref="Geometry/HcalCommonData/data/hcalforwardalgo.xml"/>
     <Include ref="Geometry/HcalCommonData/data/hcalforwardfibre.xml"/>
+    <Include ref="Geometry/HcalSimData/data/hf.xml"/>
+    <Include ref="Geometry/HcalSimData/data/hfpmt.xml"/>
+    <Include ref="Geometry/HcalSimData/data/hffibrebundle.xml"/>
+    <Include ref="Geometry/HcalSimData/data/CaloUtil.xml"/>
   </IncludeSection>
   
 </DDDefinition>

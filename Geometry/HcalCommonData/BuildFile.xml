@@ -1,5 +1,7 @@
 <use   name="DetectorDescription/Core"/>
+<use   name="DetectorDescription/DDCMS"/>
 <use   name="DataFormats/HcalDetId"/>
+<use   name="dd4hep"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>
