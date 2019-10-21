@@ -81,7 +81,6 @@ oldo = process._Process__outputmodules["FEVToutput"]
 del process._Process__outputmodules["FEVToutput"]
 
 process.FEVToutput = cms.OutputModule("JsonWritingTimeoutPoolOutputModule",
-#    SelectEvents = oldo.SelectEvents,
     splitLevel = oldo.splitLevel,
     outputCommands = oldo.outputCommands,
     fileName = oldo.fileName,
@@ -91,6 +90,9 @@ process.FEVToutput = cms.OutputModule("JsonWritingTimeoutPoolOutputModule",
     # output path must exist!
     outputPath = cms.untracked.string(outDir),
 )
+
+if hasattr(oldo, 'SelectEvents'):
+    process.FEVToutput.SelectEvents = oldo.SelectEvents
 
 process.DQMMonitoringService = cms.Service("DQMMonitoringService")
 
