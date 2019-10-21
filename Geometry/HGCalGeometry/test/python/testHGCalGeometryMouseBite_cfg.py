@@ -1,17 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
-process = cms.Process("PROD",Phase2C4)
-
+process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2026D35Reco_cff")
-process.load('Configuration.StandardSequences.MagneticField_cff')
-process.load('TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff')
+
+process.load("Configuration.Geometry.GeometryExtended2026D47Reco_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Geometry.HGCalGeometry.hgcalTestNeighbor_cfi')
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.categories.append('HGCalGeom')
@@ -40,6 +33,19 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
+process.prodEE = cms.EDAnalyzer("HGCalGeometryMouseBiteTester",
+                                NameSense     = cms.string("HGCalEESensitive"),
+                                NameDevice    = cms.string("HGCal EE"),
+)
 
-#process.p1 = cms.Path(process.generator*process.hgcalEETestNeighbor)
-process.p1 = cms.Path(process.generator*process.hgcalEETestNeighbor*process.hgcalHEFTestNeighbor*process.hgcalHEBTestNeighbor)
+process.prodHEF = process.prodEE.clone(
+    NameSense  = "HGCalHESiliconSensitive",
+    NameDevice = "HGCal HE Front"
+)
+
+process.prodHFN = process.prodEE.clone(
+    NameSense  = "HGCalHFNoseSensitive",
+    NameDevice = "HGCal HF Nose"
+)
+
+process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF*process.prodHFN)
