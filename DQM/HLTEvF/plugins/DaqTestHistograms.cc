@@ -15,7 +15,7 @@ namespace {
 
   struct RunBasedHistograms {
     // overall event count and event types
-    dqm::reco::MonitorElement * events_processed;
+    dqm::reco::MonitorElement *events_processed;
     std::vector<dqm::reco::MonitorElement *> element_array;
 
     RunBasedHistograms()
