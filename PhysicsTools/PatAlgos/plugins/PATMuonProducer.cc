@@ -111,7 +111,8 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
   // embedding of inverse beta variable information
   addInverseBeta_ = iConfig.getParameter<bool>("addInverseBeta");
   if (addInverseBeta_) {
-    muonTimeExtraToken_ = consumes<edm::ValueMap<reco::MuonTimeExtra>>(iConfig.getParameter<edm::InputTag>("sourceMuonTimeExtra"));
+    muonTimeExtraToken_ =
+        consumes<edm::ValueMap<reco::MuonTimeExtra>>(iConfig.getParameter<edm::InputTag>("sourceMuonTimeExtra"));
   }
   // Monte Carlo matching
   addGenMatch_ = iConfig.getParameter<bool>("addGenMatch");
@@ -978,7 +979,8 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
 
   // inverse beta computation
   iDesc.add<bool>("addInverseBeta", true)->setComment("add combined inverse beta");
-  iDesc.add<edm::InputTag>("sourceInverseBeta", edm::InputTag("muons","combined"))->setComment("source of inverse beta values");
+  iDesc.add<edm::InputTag>("sourceInverseBeta", edm::InputTag("muons", "combined"))
+      ->setComment("source of inverse beta values");
 
   // MC matching configurables
   iDesc.add<bool>("addGenMatch", true)->setComment("add MC matching");
