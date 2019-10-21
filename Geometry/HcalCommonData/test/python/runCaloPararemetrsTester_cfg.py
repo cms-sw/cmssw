@@ -12,9 +12,12 @@ if hasattr(process,'MessageLogger'):
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/HcalAlgo/data/cms-test-ddhcalHF-algorithm.xml'),
-                                            appendToDataLabel = cms.string('DDHCalHF')
+                                            appendToDataLabel = cms.string('CMS')
                                             )
 
+process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
+                                                 appendToDataLabel = cms.string('CMS')
+)
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
