@@ -77,27 +77,14 @@ struct MahiDebugInfo {
   float mahiEnergy;
   float chiSq;
   float arrivalTime;
-
-  float p1Energy;
-  float p2Energy;
-  float p3Energy;
-  float n1Energy;
-  float n2Energy;
-  float n3Energy;
-  float n4Energy;
   float pedEnergy;
+  float ootEnergy[7];
 
   float count[MaxSVSize];
   float inputTS[MaxSVSize];
   int inputTDC[MaxSVSize];
   float itPulse[MaxSVSize];
-  float p1Pulse[MaxSVSize];
-  float p2Pulse[MaxSVSize];
-  float p3Pulse[MaxSVSize];
-  float n1Pulse[MaxSVSize];
-  float n2Pulse[MaxSVSize];
-  float n3Pulse[MaxSVSize];
-  float n4Pulse[MaxSVSize];
+  float ootPulse[7][MaxSVSize];
 };
 
 class MahiFit {

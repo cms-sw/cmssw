@@ -544,48 +544,16 @@ void MahiFit::phase1Debug(const HBHEChannelInfo& channelData, MahiDebugInfo& mdi
         mdi.itPulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
       }
     } else if (nnlsWork_.bxs.coeff(iBX) == pedestalBX_) {
+      mdi.pedEnergy = 0;
       mdi.pedEnergy = nnlsWork_.ampVec.coeff(iBX);
-    } else if (nnlsWork_.bxs.coeff(iBX) == -1) {
-      mdi.p1Energy = 0;
-      mdi.p1Energy = nnlsWork_.ampVec.coeff(iBX);
+    } else if (nnlsWork_.bxs.coeff(iBX)<8) {
+      int ootIndex = nnlsWork_.bxs.coeff(iBX);
+      if(ootIndex>0) ootIndex+=2;
+      else ootIndex+=3;
+      mdi.ootEnergy[ootIndex] = 0;
+      mdi.ootEnergy[ootIndex] = nnlsWork_.ampVec.coeff(iBX);
       for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
-        mdi.p1Pulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
-      }
-    } else if (nnlsWork_.bxs.coeff(iBX) == 1) {
-      mdi.n1Energy = 0;
-      mdi.n1Energy = nnlsWork_.ampVec.coeff(iBX);
-      for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
-        mdi.n1Pulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
-      }
-    } else if (nnlsWork_.bxs.coeff(iBX) == -2) {
-      mdi.p2Energy = 0;
-      mdi.p2Energy = nnlsWork_.ampVec.coeff(iBX);
-      for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
-        mdi.p2Pulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
-      }
-    } else if (nnlsWork_.bxs.coeff(iBX) == 2) {
-      mdi.n2Energy = 0;
-      mdi.n2Energy = nnlsWork_.ampVec.coeff(iBX);
-      for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
-        mdi.n2Pulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
-      }
-    } else if (nnlsWork_.bxs.coeff(iBX) == -3) {
-      mdi.p3Energy = 0;
-      mdi.p3Energy = nnlsWork_.ampVec.coeff(iBX);
-      for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
-        mdi.p3Pulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
-      }
-    } else if (nnlsWork_.bxs.coeff(iBX) == 3) {
-      mdi.n3Energy = 0;
-      mdi.n3Energy = nnlsWork_.ampVec.coeff(iBX);
-      for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
-        mdi.n3Pulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
-      }
-    } else if (nnlsWork_.bxs.coeff(iBX) == 4) {
-      mdi.n4Energy = 0;
-      mdi.n4Energy = nnlsWork_.ampVec.coeff(iBX);
-      for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
-        mdi.n4Pulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
+        mdi.ootPulse[ootIndex][iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
       }
     }
   }
