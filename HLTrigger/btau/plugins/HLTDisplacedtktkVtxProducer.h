@@ -35,12 +35,10 @@ public:
   explicit HLTDisplacedtktkVtxProducer(const edm::ParameterSet&);
   ~HLTDisplacedtktkVtxProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  virtual void beginJob();
   void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob();
 
 private:
-  bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);
+  bool checkPreviousCand(const reco::TrackRef& trackref, const std::vector<reco::RecoChargedCandidateRef>& ref2) const;
 
   const edm::InputTag srcTag_;
   const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> srcToken_;

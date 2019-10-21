@@ -13,41 +13,40 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 #include <vector>
 
 namespace edm {
   class ConfigurationDescriptions;
 }
 
-class HLTDisplacedmumumuVtxProducer : public edm::EDProducer {
+class HLTDisplacedmumumuVtxProducer : public edm::global::EDProducer<> {
 public:
   explicit HLTDisplacedmumumuVtxProducer(const edm::ParameterSet&);
   ~HLTDisplacedmumumuVtxProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);
+  bool checkPreviousCand(const reco::TrackRef& trackref, const std::vector<reco::RecoChargedCandidateRef>& ref2) const;
 
-  edm::InputTag srcTag_;
-  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> srcToken_;
-  edm::InputTag previousCandTag_;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
-  double maxEta_;
-  double minPt_;
-  double minPtTriplet_;
-  double minInvMass_;
-  double maxInvMass_;
-  int chargeOpt_;
+  const edm::InputTag srcTag_;
+  const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> srcToken_;
+  const edm::InputTag previousCandTag_;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
+  const double maxEta_;
+  const double minPt_;
+  const double minPtTriplet_;
+  const double minInvMass_;
+  const double maxInvMass_;
+  const int chargeOpt_;
 };
 
 #endif
