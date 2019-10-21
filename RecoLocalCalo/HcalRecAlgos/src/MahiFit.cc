@@ -546,10 +546,12 @@ void MahiFit::phase1Debug(const HBHEChannelInfo& channelData, MahiDebugInfo& mdi
     } else if (nnlsWork_.bxs.coeff(iBX) == pedestalBX_) {
       mdi.pedEnergy = 0;
       mdi.pedEnergy = nnlsWork_.ampVec.coeff(iBX);
-    } else if (nnlsWork_.bxs.coeff(iBX)<8) {
+    } else if (nnlsWork_.bxs.coeff(iBX) < 8) {
       int ootIndex = nnlsWork_.bxs.coeff(iBX);
-      if(ootIndex>0) ootIndex+=2;
-      else ootIndex+=3;
+      if (ootIndex > 0)
+        ootIndex += 2;
+      else
+        ootIndex += 3;
       mdi.ootEnergy[ootIndex] = 0;
       mdi.ootEnergy[ootIndex] = nnlsWork_.ampVec.coeff(iBX);
       for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
