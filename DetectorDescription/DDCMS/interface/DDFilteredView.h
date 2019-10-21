@@ -123,7 +123,7 @@ namespace cms {
 
     template <class Shape>
     bool isA() const {
-      return dd4hep::instanceOf<Shape>(solid());
+      return dd4hep::isA<Shape>(solid());
     }
 
     dd4hep::Solid solid() const;
