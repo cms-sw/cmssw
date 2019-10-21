@@ -9,16 +9,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 
 namespace {
 
   struct RunBasedHistograms {
     // overall event count and event types
-    ConcurrentMonitorElement events_processed;
-    std::vector<ConcurrentMonitorElement> element_array;
+    dqm::reco::MonitorElement * events_processed;
+    std::vector<dqm::reco::MonitorElement *> element_array;
 
     RunBasedHistograms()
         :  // overall event count and event types
@@ -36,7 +34,7 @@ public:
 
 private:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &, RunBasedHistograms &) const override;
-  void bookHistograms(DQMStore::ConcurrentBooker &,
+  void bookHistograms(DQMStore::IBooker &,
                       edm::Run const &,
                       edm::EventSetup const &,
                       RunBasedHistograms &) const override;
@@ -65,11 +63,11 @@ DaqTestHistograms::DaqTestHistograms(edm::ParameterSet const &config)
 void DaqTestHistograms::dqmBeginRun(edm::Run const &run,
                                     edm::EventSetup const &setup,
                                     RunBasedHistograms &histograms) const {
-  histograms.events_processed.reset();
+  histograms.events_processed->Reset();
   histograms.element_array.resize(m_num_histograms);
 }
 
-void DaqTestHistograms::bookHistograms(DQMStore::ConcurrentBooker &booker,
+void DaqTestHistograms::bookHistograms(DQMStore::IBooker &booker,
                                        edm::Run const &run,
                                        edm::EventSetup const &setup,
                                        RunBasedHistograms &histograms) const {
@@ -92,9 +90,9 @@ void DaqTestHistograms::dqmAnalyze(edm::Event const &event,
                                    RunBasedHistograms const &histograms) const {
   unsigned int lumisection = event.luminosityBlock();
 
-  histograms.events_processed.fill(lumisection);
+  histograms.events_processed->Fill(lumisection);
   for (size_t i = 0; i < histograms.element_array.size(); i++) {
-    histograms.element_array[i].fill(lumisection);
+    histograms.element_array[i]->Fill(lumisection);
   }
 }
 
