@@ -158,13 +158,13 @@ private:
   float chiSq;
   float arrivalTime;
 
-  float ootEnergy[7];   //OOT charge
-  float pedEnergy;  //pedestal charge
+  float ootEnergy[7];  //OOT charge
+  float pedEnergy;     //pedestal charge
 
-  float count[10];    //TS value 0-9
-  float inputTS[10];  //input TS samples
-  int inputTDC[10];   //input TS samples
-  float itPulse[10];  //SOI pulse shape
+  float count[10];        //TS value 0-9
+  float inputTS[10];      //input TS samples
+  int inputTDC[10];       //input TS samples
+  float itPulse[10];      //SOI pulse shape
   float ootPulse[7][10];  //OOT pulse shape
 };
 
@@ -244,7 +244,8 @@ void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     MahiDebugInfo mdi;
     // initialize energies so that the values in the previous iteration are not stored
     mdi.mahiEnergy = 0;
-    for(unsigned int ioot=0; ioot<7; ioot++) mdi.ootEnergy[ioot] = 0;
+    for (unsigned int ioot = 0; ioot < 7; ioot++)
+      mdi.ootEnergy[ioot] = 0;
     mahi->phase1Debug(hci, mdi);
 
     nSamples = mdi.nSamples;
@@ -260,7 +261,7 @@ void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     arrivalTime = mdi.arrivalTime;
     mahiEnergy = mdi.mahiEnergy;
     mahiEnergy *= hbminusCorrectionFactor(detid, run, mahiEnergy, isRealData);
-    for(unsigned int ioot=0; ioot<7; ioot++) { 
+    for (unsigned int ioot = 0; ioot < 7; ioot++) {
       ootEnergy[ioot] = mdi.ootEnergy[ioot];
       ootEnergy[ioot] *= hbminusCorrectionFactor(detid, run, ootEnergy[ioot], isRealData);
     }
@@ -272,7 +273,8 @@ void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       inputTS[i] = mdi.inputTS[i];
       inputTDC[i] = mdi.inputTDC[i];
       itPulse[i] = mdi.itPulse[i];
-      for(unsigned int ioot=0; ioot<7; ioot++) ootPulse[ioot][i] = mdi.ootPulse[ioot][i];
+      for (unsigned int ioot = 0; ioot < 7; ioot++)
+        ootPulse[ioot][i] = mdi.ootPulse[ioot][i];
 
       inNoiseADC[i] = mdi.inNoiseADC[i];
       inNoiseDC[i] = mdi.inNoiseDC[i];
