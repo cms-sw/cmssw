@@ -421,11 +421,10 @@ void Muon::embedDytMuon() {
 }
 
 /// Add extra timing information
-void Muon::readExtraTimerInfo(const reco::MuonTimeExtra& t){
-  inverseBeta_    = t.inverseBeta();
+void Muon::readExtraTimerInfo(const reco::MuonTimeExtra& t) {
+  inverseBeta_ = t.inverseBeta();
   inverseBetaErr_ = t.inverseBetaErr();
 }
-
 
 /// embed the IsolatedPFCandidate pointed to by pfCandidateRef_
 void Muon::embedPFCandidate() {
