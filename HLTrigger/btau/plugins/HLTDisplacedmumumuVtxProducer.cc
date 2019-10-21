@@ -62,7 +62,7 @@ void HLTDisplacedmumumuVtxProducer::fillDescriptions(edm::ConfigurationDescripti
 }
 
 // ------------ method called on each new Event  ------------
-void HLTDisplacedmumumuVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void HLTDisplacedmumumuVtxProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   double const MuMass = 0.106;
   double const MuMass2 = MuMass * MuMass;
 
