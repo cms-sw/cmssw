@@ -270,39 +270,6 @@ void SiStripHistoPlotter::getProjection(MonitorElement* me, TH1F* tp) {
   }
 }
 //
-// -- create static plots
-//
-void SiStripHistoPlotter::createStaticPlot(MonitorElement* me, const std::string& file_name) {
-  TH1* hist1 = me->getTH1();
-  auto canvas = new TCanvas("TKCanvas", "TKCanvas", 600, 400);
-  if (hist1) {
-    TText tTitle;
-    tTitle.SetTextFont(64);
-    tTitle.SetTextSizePixels(20);
-
-    setDrawingOption(hist1);
-    hist1->Draw();
-    std::string name = hist1->GetName();
-    if (me->getRefRootObject()) {
-      TH1* hist1_ref = me->getRefTH1();
-      if (hist1_ref) {
-        hist1_ref->SetLineColor(3);
-        hist1_ref->SetMarkerColor(3);
-        if (name.find("Summary") != std::string::npos)
-          hist1_ref->Draw("same");
-        else
-          hist1_ref->DrawNormalized("same", hist1->GetEntries());
-      }
-    }
-  }
-  canvas->Update();
-  std::string command = "rm -f " + file_name;
-  gSystem->Exec(command.c_str());
-  canvas->Print(file_name.c_str(), "png");
-  canvas->Clear();
-  delete canvas;
-}
-//
 // -- Set New CondDB Plot
 //
 void SiStripHistoPlotter::setNewCondDBPlot(std::string const& path,
