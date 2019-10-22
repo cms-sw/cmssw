@@ -65,7 +65,9 @@ public:
                       const double EBs25notCont,
                       const double EEs25notCont,
                       const double peToABarrel,
-                      const double peToAEndcap)
+                      const double peToAEndcap,
+                      const bool   timeDependent = false
+                     )
       : EcalBaseSignalGenerator(), theEvent(nullptr), theEventPrincipal(nullptr), theInputTag(inputTag), tok_(t) {
     EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
     theDefaultGains[2] = defaultRatios->gain6Over1();
@@ -74,6 +76,7 @@ public:
     m_EEs25notCont = EEs25notCont;
     m_peToABarrel = peToABarrel;
     m_peToAEndcap = peToAEndcap;
+    m_timeDependent = timeDependent;
   }
 
   ~EcalSignalGenerator() override {}
@@ -91,46 +94,48 @@ public:
     m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * MAXADC * m_EBs25notCont;
     m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * MAXADC * m_EEs25notCont;
 
-    //----
-    // Ecal LaserCorrection Constants for laser correction ratio
-    edm::ESHandle<EcalLaserDbService> laser;
-    eventSetup->get<EcalLaserDbRecord>().get(laser);
-
-    //
-    // FIXME: is this workaround of using "run" really needed or "time" can be used in MC generation as well?
-    //        check with generation experts
-    //
-    const edm::TimeValue_t eventTimeValue = theEvent->run();
-    //---- NB: this is a trick. Since the time dependent MC
-    //         will be based on "run" (and lumisection)
-    //         to identify the IOV.
-    //         The "time" defined here as "run"
-    //         will have to match in the generation of the tag
-    //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
-    //
-    m_iTime = eventTimeValue;
-
-    m_lasercals = laser.product();
-
-    //
-    // the "prime" is exactly the same as the usual laser service, BUT
-    // it has only 1 IOV, so that effectively you are dividing IOV_n / IOV_0
-    // NB: in the creation of the tag make sure the "prime" (MC) tag is prepared properly!
-    // NB again: if many IOVs also in "MC" tag, then fancy things could be perfomed ... left for the future
-    //
-    edm::ESHandle<EcalLaserDbService> laser_prime;
-    eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
-    //     const edm::TimeValue_t eventTimeValue = event.time().value();
-    m_lasercals_prime = laser_prime.product();
-
-    //clear the laser cache for each event time
-    //     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
-    //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
-    //     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
-    m_valueLCCache_LC.clear();
-    m_valueLCCache_LC_prime.clear();  //--- also the "prime" ... yes
-    //----
-
+    if (m_timeDependent) {
+      //----
+      // Ecal LaserCorrection Constants for laser correction ratio
+      edm::ESHandle<EcalLaserDbService> laser;
+      eventSetup->get<EcalLaserDbRecord>().get(laser);
+      
+      //
+      // FIXME: is this workaround of using "run" really needed or "time" can be used in MC generation as well?
+      //        check with generation experts
+      //
+      const edm::TimeValue_t eventTimeValue = theEvent->run();
+      //---- NB: this is a trick. Since the time dependent MC
+      //         will be based on "run" (and lumisection)
+      //         to identify the IOV.
+      //         The "time" defined here as "run"
+      //         will have to match in the generation of the tag
+      //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
+      //
+      m_iTime = eventTimeValue;
+      
+      m_lasercals = laser.product();
+      
+      //
+      // the "prime" is exactly the same as the usual laser service, BUT
+      // it has only 1 IOV, so that effectively you are dividing IOV_n / IOV_0
+      // NB: in the creation of the tag make sure the "prime" (MC) tag is prepared properly!
+      // NB again: if many IOVs also in "MC" tag, then fancy things could be perfomed ... left for the future
+      //
+      edm::ESHandle<EcalLaserDbService> laser_prime;
+      eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
+      //     const edm::TimeValue_t eventTimeValue = event.time().value();
+      m_lasercals_prime = laser_prime.product();
+      
+      //clear the laser cache for each event time
+      //     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
+      //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
+      //     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
+      m_valueLCCache_LC.clear();
+      m_valueLCCache_LC_prime.clear();  //--- also the "prime" ... yes
+      //----
+    }
+    
     //ES
     eventSetup->get<ESGainRcd>().get(hesgain);
     eventSetup->get<ESMIPToGeVConstantRcd>().get(hesMIPToGeV);
@@ -162,45 +167,47 @@ public:
     m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * MAXADC * m_EBs25notCont;
     m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * MAXADC * m_EEs25notCont;
 
-    //----
-    // Ecal LaserCorrection Constants for laser correction ratio
-    edm::ESHandle<EcalLaserDbService> laser;
-    eventSetup->get<EcalLaserDbRecord>().get(laser);
-    edm::TimeValue_t eventTimeValue = 0;
-    if (theEventPrincipal) {
-      //       eventTimeValue = theEventPrincipal->time().value();
-      //
-      // FIXME: is this workaround of using "run" really needed or "time" can be used in MC generation as well?
-      //        check with generation experts
-      //
-      eventTimeValue = theEventPrincipal->run();
-      //---- NB: this is a trick. Since the time dependent MC
-      //         will be based on "run" (and lumisection)
-      //         to identify the IOV.
-      //         The "time" defined here as "run"
-      //         will have to match in the generation of the tag
-      //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
-      //
-    } else {
-      edm::LogError("EcalSignalGenerator") << " theEventPrincipal not defined??? " << std::endl;
+    if (m_timeDependent) {
+      //----
+      // Ecal LaserCorrection Constants for laser correction ratio
+      edm::ESHandle<EcalLaserDbService> laser;
+      eventSetup->get<EcalLaserDbRecord>().get(laser);
+      edm::TimeValue_t eventTimeValue = 0;
+      if (theEventPrincipal) {
+        //       eventTimeValue = theEventPrincipal->time().value();
+        //
+        // FIXME: is this workaround of using "run" really needed or "time" can be used in MC generation as well?
+        //        check with generation experts
+        //
+        eventTimeValue = theEventPrincipal->run();
+        //---- NB: this is a trick. Since the time dependent MC
+        //         will be based on "run" (and lumisection)
+        //         to identify the IOV.
+        //         The "time" defined here as "run"
+        //         will have to match in the generation of the tag
+        //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
+        //
+      } else {
+        edm::LogError("EcalSignalGenerator") << " theEventPrincipal not defined??? " << std::endl;
+      }
+      m_iTime = eventTimeValue;
+      m_lasercals = laser.product();
+      //     std::cout << " ---> EcalSignalGenerator() : initializeEvent() :: eventTimeValue = " << eventTimeValue << std::endl;
+      
+      edm::ESHandle<EcalLaserDbService> laser_prime;
+      eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
+      //     const edm::TimeValue_t eventTimeValue = event.time().value();
+      m_lasercals_prime = laser_prime.product();
+      
+      //clear the laser cache for each event time
+      //     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
+      //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
+      //     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
+      m_valueLCCache_LC.clear();
+      m_valueLCCache_LC_prime.clear();  //--- also the "prime" ... yes
+      //----
     }
-    m_iTime = eventTimeValue;
-    m_lasercals = laser.product();
-    //     std::cout << " ---> EcalSignalGenerator() : initializeEvent() :: eventTimeValue = " << eventTimeValue << std::endl;
-
-    edm::ESHandle<EcalLaserDbService> laser_prime;
-    eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
-    //     const edm::TimeValue_t eventTimeValue = event.time().value();
-    m_lasercals_prime = laser_prime.product();
-
-    //clear the laser cache for each event time
-    //     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
-    //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
-    //     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
-    m_valueLCCache_LC.clear();
-    m_valueLCCache_LC_prime.clear();  //--- also the "prime" ... yes
-    //----
-
+    
     //ES
     eventSetup->get<ESGainRcd>().get(hesgain);
     eventSetup->get<ESMIPToGeVConstantRcd>().get(hesMIPToGeV);
@@ -342,6 +349,7 @@ private:
   const EcalADCToGeVConstant* agc;
   const EcalIntercalibConstantsMC* ical;
 
+  bool m_timeDependent;
   edm::TimeValue_t m_iTime;
   CalibCache m_valueLCCache_LC;
   CalibCache m_valueLCCache_LC_prime;
