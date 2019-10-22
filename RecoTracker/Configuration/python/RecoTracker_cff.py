@@ -32,5 +32,6 @@ from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
 trackingGlobalReco = cms.Sequence(ckftracks*trackExtrapolator)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-_fastSim_trackingGlobalReco = cms.Sequence(trackExtrapolator)
+ckftracks_fast = cms.Sequence(doAlldEdXEstimators)
+_fastSim_trackingGlobalReco = cms.Sequence(ckftracks_fast*trackExtrapolator)
 fastSim.toReplaceWith(trackingGlobalReco,_fastSim_trackingGlobalReco)
