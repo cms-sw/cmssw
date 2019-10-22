@@ -168,8 +168,9 @@ process.hltHighLevel.throw =  cms.bool(False)
 # DQM monitor modules
 #----------------------------- 
 
-process.load("DQM.MuonMonitor.muonCosmicMonitors_cff")
-process.muonDQM = cms.Sequence(process.muonCosmicMonitors)
+process.load("DQM.MuonMonitor.muonCosmicAnalyzer_cff")
+process.muonDQM = cms.Sequence(process.muonCosmicAnalyzer)
+
 
 #--------------------------
 # Scheduling
