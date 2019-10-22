@@ -50,7 +50,7 @@ private:
   // ----------member data ---------------------------
 
   std::vector<EventWithHistoryFilter> ehfilters_;
-  bool debu_;
+  const bool debu_;
 };
 
 //
