@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_11_0_0/HIon --type HIon
 
-# /dev/CMSSW_11_0_0/HIon/V9 (CMSSW_11_0_0_pre9)
+# /dev/CMSSW_11_0_0/HIon/V10 (CMSSW_11_0_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_0_0/HIon/V9')
+  tableName = cms.string('/dev/CMSSW_11_0_0/HIon/V10')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -12043,7 +12043,7 @@ fragment.hltParticleFlowClusterHCAL = cms.EDProducer( "PFMultiDepthClusterProduc
         algoName = cms.string( "Basic2DGenericPFlowPositionCalc" ),
         minFractionInCalc = cms.double( 1.0E-9 ),
         logWeightDenominatorByDetector = cms.VPSet( 
-          cms.PSet(  depths = cms.vuint32( 1, 2, 3, 4 ),
+          cms.PSet(  depths = cms.vint32( 1, 2, 3, 4 ),
             detector = cms.string( "HCAL_BARREL1" ),
             logWeightDenominator = cms.vdouble( 0.1, 0.2, 0.3, 0.3 )
           ),
