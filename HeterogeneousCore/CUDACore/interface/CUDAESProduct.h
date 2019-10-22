@@ -2,6 +2,7 @@
 #define HeterogeneousCore_CUDACore_CUDAESProduct_h
 
 #include <atomic>
+#include <cassert>
 #include <vector>
 
 #include <cuda/api_wrappers.h>
@@ -52,7 +53,7 @@ public:
           // the device. Set the 'filled' for all subsequent calls and
           // return the value
           auto should_be_false = data.m_filled.exchange(true);
-          assert(!should_be_false);
+          assert(not should_be_false);
           data.m_fillingStream = nullptr;
         } else if (data.m_fillingStream != cudaStream.id()) {
           // Filling is still going on. For other CUDA stream, add
