@@ -43,6 +43,7 @@ process.dqmEnv.subSystemFolder = 'Muons'
 process.dqmSaver.tag = 'Muons'
 ##?? process.dqmSaver.backupLumiCount = 30
 
+process.dqmSaver.path = '.'
 
 process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver)   
 
@@ -84,7 +85,7 @@ elif(offlineTesting):
 
 
 
-#------------------------------------                                                                                                           
+#------------------------------------                                                                                              
 # Cosmic muons reconstruction modules
 #------------------------------------
 
@@ -127,12 +128,12 @@ process.hltHighLevel.andOr = cms.bool(True)
 process.hltHighLevel.throw =  cms.bool(False)
 
 
-#-----------------------------                                                                                                                  
+#-----------------------------                                                                                                     
 # DQM monitor modules
 #----------------------------- 
 
-process.load("DQM.MuonMonitor.muonCosmicMonitors_cff")
-process.muonDQM = cms.Sequence(process.muonCosmicMonitors)
+process.load("DQM.MuonMonitor.muonCosmicAnalyzer_cff")
+process.muonDQM = cms.Sequence(process.muonCosmicAnalyzer)
 
 
 #--------------------------
@@ -154,7 +155,3 @@ from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
 
-#--------------------------
-# Service
-#--------------------------
-#process.AdaptorConfig = cms.Service("AdaptorConfig")
