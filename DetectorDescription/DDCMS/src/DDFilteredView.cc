@@ -14,8 +14,8 @@ using namespace std;
 using namespace cms::dd;
 
 dd4hep::Solid DDSolid::solidA() const {
-  if (dd4hep::instanceOf<dd4hep::SubtractionSolid>(solid_) || dd4hep::instanceOf<dd4hep::UnionSolid>(solid_) ||
-      dd4hep::instanceOf<dd4hep::IntersectionSolid>(solid_)) {
+  if (dd4hep::isA<dd4hep::SubtractionSolid>(solid_) || dd4hep::isA<dd4hep::UnionSolid>(solid_) ||
+      dd4hep::isA<dd4hep::IntersectionSolid>(solid_)) {
     const TGeoCompositeShape* sh = (const TGeoCompositeShape*)solid_.ptr();
     const TGeoBoolNode* boolean = sh->GetBoolNode();
     TGeoShape* solidA = boolean->GetLeftShape();
