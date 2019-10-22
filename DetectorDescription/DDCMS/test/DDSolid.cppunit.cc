@@ -46,7 +46,7 @@ void testDDSolid::checkDDSolid() {
       DDSolid solid(fview.solid());
       auto solidA = solid.solidA();
       std::cout << "Solid A is a " << solidA->GetTitle() << "\n";
-      if (dd4hep::instanceOf<dd4hep::ConeSegment>(dd4hep::Solid(solidA))) {
+      if (dd4hep::isA<dd4hep::ConeSegment>(dd4hep::Solid(solidA))) {
         cout << " is a ConeSegment:\n";
         for (auto const& i : solidA.dimensions())
           cout << i << ", ";

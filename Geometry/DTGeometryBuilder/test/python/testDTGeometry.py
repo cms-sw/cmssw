@@ -10,7 +10,7 @@ process.maxEvents = cms.untracked.PSet(
 process.MessageLogger = cms.Service(
     "MessageLogger",
     statistics = cms.untracked.vstring('cout', 'dtGeometry'),
-    categories = cms.untracked.vstring('Geometry'),
+    categories = cms.untracked.vstring('DTGeometryTest'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
@@ -30,7 +30,7 @@ process.MessageLogger = cms.Service(
             limit = cms.untracked.int32(0)
             ),
         threshold = cms.untracked.string('INFO'),
-        Geometry = cms.untracked.PSet(
+        DTGeometryTest = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
             )
         ),
