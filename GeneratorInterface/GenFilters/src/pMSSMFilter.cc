@@ -101,35 +101,35 @@ bool pMSSMFilter::filter(edm::Event& evt, const edm::EventSetup& params) {
       continue;
     }
     if (gp.isLastCopy()) {
-      if (abs(gp.pdgId()) == 13) {
-        if (gp.pt() > muPtCut_ && abs(gp.eta()) < muEtaCut_) {
+      if (fabs(gp.pdgId()) == 13) {
+        if (gp.pt() > muPtCut_ && fabs(gp.eta()) < muEtaCut_) {
           return true;
         }
-        if (gp.pt() > loosemuPtCut_ && abs(gp.eta()) < muEtaCut_) {
+        if (gp.pt() > loosemuPtCut_ && fabs(gp.eta()) < muEtaCut_) {
           loosemu_ += 1;
         }
       }
-      if (abs(gp.pdgId()) == 11) {
-        if (gp.pt() > elPtCut_ && abs(gp.eta()) < elEtaCut_) {
+      if (fabs(gp.pdgId()) == 11) {
+        if (gp.pt() > elPtCut_ && fabs(gp.eta()) < elEtaCut_) {
           return true;
         }
-        if (gp.pt() > looseelPtCut_ && abs(gp.eta()) < elEtaCut_) {
+        if (gp.pt() > looseelPtCut_ && fabs(gp.eta()) < elEtaCut_) {
           looseel_ += 1;
         }
       }
-      if (abs(gp.pdgId()) == 22) {
-        if (gp.pt() > gammaPtCut_ && abs(gp.eta()) < gammaEtaCut_) {
+      if (fabs(gp.pdgId()) == 22) {
+        if (gp.pt() > gammaPtCut_ && fabs(gp.eta()) < gammaEtaCut_) {
           return true;
         }
-        if (gp.pt() > loosegammaPtCut_ && abs(gp.eta()) < gammaEtaCut_) {
+        if (gp.pt() > loosegammaPtCut_ && fabs(gp.eta()) < gammaEtaCut_) {
           loosegamma_ += 1;
         } else {
-          if (gp.pt() > veryloosegammaPtCut_ && abs(gp.eta()) < gammaEtaCut_) {
+          if (gp.pt() > veryloosegammaPtCut_ && fabs(gp.eta()) < gammaEtaCut_) {
             veryloosegamma_ += 1;
           }
         }
       }
-      if (abs(gp.pdgId()) == 1000024) {
+      if (fabs(gp.pdgId()) == 1000024) {
         if (gp.numberOfDaughters() > 0) {
           decaylength = sqrt(pow(gp.vx() - gp.daughter(0)->vx(), 2) + pow(gp.vy() - gp.daughter(0)->vy(), 2));
           if (decaylength > 300) {
@@ -151,7 +151,7 @@ bool pMSSMFilter::filter(edm::Event& evt, const edm::EventSetup& params) {
   for (std::vector<reco::GenJet>::const_iterator it = generatedJets->begin(); it != generatedJets->end(); ++it) {
     const reco::GenJet& gjet = *it;
     //Add GenJet pt to genHT if GenJet complies with given HT definition
-    if (gjet.pt() > jetPtCut_ && abs(gjet.eta()) < jetEtaCut_) {
+    if (gjet.pt() > jetPtCut_ && fabs(gjet.eta()) < jetEtaCut_) {
       genHT += gjet.pt();
     }
   }
