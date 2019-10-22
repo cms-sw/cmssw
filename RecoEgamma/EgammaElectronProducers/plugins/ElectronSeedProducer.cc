@@ -282,11 +282,6 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
     psd0.add<double>("maxHBarrel", 0.0);
     psd0.add<double>("maxHEndcaps", 0.0);
 
-    // H/E rechits
-    psd0.add<edm::InputTag>("hcalRecHits", {"hbhereco"});  // OBSOLETE
-    psd0.add<double>("hOverEHBMinE", 0.7);                 // OBSOLETE
-    psd0.add<double>("hOverEHFMinE", 0.8);                 // OBSOLETE
-
     // H/E towers
     psd0.add<edm::InputTag>("hcalTowers", {"towerMaker"});
     psd0.add<double>("hOverEPtMin", 0.0);
