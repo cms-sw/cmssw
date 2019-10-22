@@ -30,7 +30,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
-
 #include <vector>
 #include <map>
 #include "TLorentzVector.h"
