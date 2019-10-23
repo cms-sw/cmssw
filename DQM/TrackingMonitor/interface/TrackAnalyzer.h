@@ -39,9 +39,7 @@ public:
 
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track);
 
-  void doSoftReset(DQMStore* dqmStore_);
   void doReset();
-  void undoSoftReset(DQMStore* dqmStore_);
   void setLumiFlag();
   // Compute and locally store the number of Good vertices found
   // in the event. This information is used as X-axis value in

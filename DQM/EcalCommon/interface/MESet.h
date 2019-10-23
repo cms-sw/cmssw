@@ -97,8 +97,6 @@ namespace ecaldqm {
     virtual bool isVariableBinning() const { return false; }
     virtual MonitorElement const *getME(unsigned _iME) const { return (_iME < mes_.size() ? mes_[_iME] : nullptr); }
     virtual MonitorElement *getME(unsigned _iME) { return (_iME < mes_.size() ? mes_[_iME] : nullptr); }
-    virtual void softReset();
-    virtual void recoverStats();
 
     std::string formPath(PathReplacements const &) const;
 

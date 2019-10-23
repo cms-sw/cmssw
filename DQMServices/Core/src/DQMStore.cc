@@ -2977,29 +2977,6 @@ namespace dqm::dqmstoreimpl {
   //////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////
-  /// reset contents (does not erase contents permanently)
-  /// (makes copy of current contents; will be subtracted from future contents)
-  void DQMStore::softReset(MonitorElement* me) {
-    if (me)
-      me->softReset();
-  }
-
-  // reverts action of softReset
-  void DQMStore::disableSoftReset(MonitorElement* me) {
-    if (me)
-      me->disableSoftReset();
-  }
-
-  /// if true, will accumulate ME contents (over many periods)
-  /// until method is called with flag = false again
-  void DQMStore::setAccumulate(MonitorElement* me, bool const flag) {
-    if (me)
-      me->setAccumulate(flag);
-  }
-
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
   void DQMStore::showDirStructure() const {
     std::vector<std::string> contents;
     getContents(contents);

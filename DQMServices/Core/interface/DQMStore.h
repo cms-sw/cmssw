@@ -506,10 +506,6 @@ namespace dqm::dqmstoreimpl {
     std::vector<MonitorElement*> getContents(std::string const& path) const;
     void getContents(std::vector<std::string>& into, bool showContents = true) const;
 
-    // ---------------------- softReset methods -------------------------------
-    void softReset(MonitorElement* me);
-    void disableSoftReset(MonitorElement* me);
-
     // ---------------------- Public deleting ---------------------------------
     void rmdir(std::string const& fullpath);
     void removeContents();
@@ -649,9 +645,6 @@ namespace dqm::dqmstoreimpl {
     static void collate3D(MonitorElement* me, TH3F* h, unsigned verbose);
     static void collateProfile(MonitorElement* me, TProfile* h, unsigned verbose);
     static void collateProfile2D(MonitorElement* me, TProfile2D* h, unsigned verbose);
-
-    // --- Operations on MEs that are normally reset at end of monitoring cycle ---
-    void setAccumulate(MonitorElement* me, bool flag);
 
     void print_trace(std::string const& dir, std::string const& name);
 

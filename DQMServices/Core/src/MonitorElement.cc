@@ -946,143 +946,6 @@ namespace dqm::impl {
     return access.value.scalar_.str;
   }
 
-  // ------------ Operations for MEs that are normally never reset ---------
-
-  /// reset contents (does not erase contents permanently)
-  /// (makes copy of current contents; will be subtracted from future contents)
-  void MonitorElement::softReset() {
-    update();
-
-    // Create the reference object the first time this is called.
-    // On subsequent calls accumulate the current value to the
-    // reference, and then reset the current value.  This way the
-    // future contents will have the reference "subtracted".
-    if (kind() == Kind::TH1F) {
-      auto *orig = static_cast<TH1F *>(getTH1());
-      auto *r = static_cast<TH1F *>(refvalue_);
-      if (!r) {
-        refvalue_ = r = (TH1F *)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-        r->SetDirectory(nullptr);
-        r->Reset();
-      }
-
-      r->Add(orig);
-      orig->Reset();
-    } else if (kind() == Kind::TH1S) {
-      auto *orig = static_cast<TH1S *>(getTH1());
-      auto *r = static_cast<TH1S *>(refvalue_);
-      if (!r) {
-        refvalue_ = r = (TH1S *)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-        r->SetDirectory(nullptr);
-        r->Reset();
-      }
-
-      r->Add(orig);
-      orig->Reset();
-    } else if (kind() == Kind::TH1D) {
-      auto *orig = static_cast<TH1D *>(getTH1());
-      auto *r = static_cast<TH1D *>(refvalue_);
-      if (!r) {
-        refvalue_ = r = (TH1D *)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-        r->SetDirectory(nullptr);
-        r->Reset();
-      }
-
-      r->Add(orig);
-      orig->Reset();
-    } else if (kind() == Kind::TH2F) {
-      auto *orig = static_cast<TH2F *>(getTH1());
-      auto *r = static_cast<TH2F *>(refvalue_);
-      if (!r) {
-        refvalue_ = r = (TH2F *)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-        r->SetDirectory(nullptr);
-        r->Reset();
-      }
-
-      r->Add(orig);
-      orig->Reset();
-    } else if (kind() == Kind::TH2S) {
-      auto *orig = static_cast<TH2S *>(getTH1());
-      auto *r = static_cast<TH2S *>(refvalue_);
-      if (!r) {
-        refvalue_ = r = (TH2S *)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-        r->SetDirectory(nullptr);
-        r->Reset();
-      }
-
-      r->Add(orig);
-      orig->Reset();
-    } else if (kind() == Kind::TH2D) {
-      auto *orig = static_cast<TH2D *>(getTH1());
-      auto *r = static_cast<TH2D *>(refvalue_);
-      if (!r) {
-        refvalue_ = r = (TH2D *)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-        r->SetDirectory(nullptr);
-        r->Reset();
-      }
-
-      r->Add(orig);
-      orig->Reset();
-    } else if (kind() == Kind::TH3F) {
-      auto *orig = static_cast<TH3F *>(getTH1());
-      auto *r = static_cast<TH3F *>(refvalue_);
-      if (!r) {
-        refvalue_ = r = (TH3F *)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-        r->SetDirectory(nullptr);
-        r->Reset();
-      }
-
-      r->Add(orig);
-      orig->Reset();
-    } else if (kind() == Kind::TPROFILE) {
-      auto *orig = static_cast<TProfile *>(getTH1());
-      auto *r = static_cast<TProfile *>(refvalue_);
-      if (!r) {
-        refvalue_ = r = (TProfile *)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-        r->SetDirectory(nullptr);
-        r->Reset();
-      }
-
-      addProfiles(r, orig, r, 1, 1);
-      orig->Reset();
-    } else if (kind() == Kind::TPROFILE2D) {
-      auto *orig = static_cast<TProfile2D *>(getTH1());
-      auto *r = static_cast<TProfile2D *>(refvalue_);
-      if (!r) {
-        refvalue_ = r = (TProfile2D *)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-        r->SetDirectory(nullptr);
-        r->Reset();
-      }
-
-      addProfiles(r, orig, r, 1, 1);
-      orig->Reset();
-    } else
-      incompatible(__PRETTY_FUNCTION__);
-  }
-
-  /// reverts action of softReset
-  void MonitorElement::disableSoftReset() {
-    if (refvalue_) {
-      if (kind() == Kind::TH1F || kind() == Kind::TH1S || kind() == Kind::TH1D || kind() == Kind::TH2F ||
-          kind() == Kind::TH2S || kind() == Kind::TH2D || kind() == Kind::TH3F) {
-        auto *orig = getTH1();
-        orig->Add(refvalue_);
-      } else if (kind() == Kind::TPROFILE) {
-        auto *orig = static_cast<TProfile *>(getTH1());
-        auto *r = static_cast<TProfile *>(refvalue_);
-        addProfiles(orig, r, orig, 1, 1);
-      } else if (kind() == Kind::TPROFILE2D) {
-        auto *orig = static_cast<TProfile2D *>(getTH1());
-        auto *r = static_cast<TProfile2D *>(refvalue_);
-        addProfiles(orig, r, orig, 1, 1);
-      } else
-        incompatible(__PRETTY_FUNCTION__);
-
-      delete refvalue_;
-      refvalue_ = nullptr;
-    }
-  }
-
   // implementation: Giuseppe.Della-Ricca@ts.infn.it
   // Can be called with sum = h1 or sum = h2
   void MonitorElement::addProfiles(TProfile *h1, TProfile *h2, TProfile *sum, float c1, float c2) {
@@ -1180,7 +1043,7 @@ namespace dqm::impl {
   void MonitorElement::copyFunctions(TH1 *from, TH1 *to) {
     // will copy functions only if local-copy and original-object are equal
     // (ie. no soft-resetting or accumulating is enabled)
-    if (isSoftResetEnabled() || isAccumulateEnabled())
+    if (isAccumulateEnabled())
       return;
 
     update();
@@ -1214,26 +1077,7 @@ namespace dqm::impl {
     if (!isAccumulateEnabled())
       orig->Reset();
 
-    if (isSoftResetEnabled()) {
-      if (kind() == Kind::TH1F || kind() == Kind::TH1S || kind() == Kind::TH1D || kind() == Kind::TH2F ||
-          kind() == Kind::TH2S || kind() == Kind::TH2D || kind() == Kind::TH3F)
-        // subtract "reference"
-        orig->Add(from, refvalue_, 1, -1);
-      else if (kind() == Kind::TPROFILE)
-        // subtract "reference"
-        addProfiles(
-            static_cast<TProfile *>(from), static_cast<TProfile *>(refvalue_), static_cast<TProfile *>(orig), 1, -1);
-      else if (kind() == Kind::TPROFILE2D)
-        // subtract "reference"
-        addProfiles(static_cast<TProfile2D *>(from),
-                    static_cast<TProfile2D *>(refvalue_),
-                    static_cast<TProfile2D *>(orig),
-                    1,
-                    -1);
-      else
-        incompatible(__PRETTY_FUNCTION__);
-    } else
-      orig->Add(from);
+    orig->Add(from);
 
     copyFunctions(from, orig);
   }
