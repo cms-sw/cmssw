@@ -563,10 +563,8 @@ void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &e
       TotemRPDetId plId_U(rpId);
       plId_U.setPlane(1);
 
-      double rp_x =
-          (geometry->sensor(plId_V)->translation().x() + geometry->sensor(plId_U)->translation().x()) / 2.;
-      double rp_y =
-          (geometry->sensor(plId_V)->translation().y() + geometry->sensor(plId_U)->translation().y()) / 2.;
+      double rp_x = (geometry->sensor(plId_V)->translation().x() + geometry->sensor(plId_U)->translation().x()) / 2.;
+      double rp_y = (geometry->sensor(plId_V)->translation().y() + geometry->sensor(plId_U)->translation().y()) / 2.;
 
       // mean read-out direction of U and V planes
       CLHEP::Hep3Vector rod_U = geometry->localToGlobalDirection(plId_U, CLHEP::Hep3Vector(0., 1., 0.));

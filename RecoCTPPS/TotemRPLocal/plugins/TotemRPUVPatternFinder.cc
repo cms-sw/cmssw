@@ -269,8 +269,7 @@ void TotemRPUVPatternFinder::produce(edm::Event &event, const edm::EventSetup &e
 
         LogVerbatim("TotemRPUVPatternFinder")
             << "\t\t\tproj = " << ((p.projection() == TotemRPUVPattern::projU) ? "U" : "V") << ", a = " << p.a()
-            << ", b = " << p.b() << ", w = " << p.w() << ", fittable = " << p.fittable()
-            << ", hits = " << n_hits;
+            << ", b = " << p.b() << ", w = " << p.w() << ", fittable = " << p.fittable() << ", hits = " << n_hits;
       }
     }
   }

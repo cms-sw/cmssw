@@ -132,12 +132,11 @@ inline bool operator<(const TotemTimingDigi& one, const TotemTimingDigi& other) 
 
 inline std::ostream& operator<<(std::ostream& os, const TotemTimingDigi& digi) {
   return os << "TotemTimingDigi:"
-            << "\nHardwareId:\t" << std::hex << digi.hardwareId() << "\nDB: " << std::dec
-            << digi.hardwareBoardId() << "\tSampic: " << digi.hardwareSampicId()
-            << "\tChannel: " << digi.hardwareChannelId() << "\nFPGATimestamp:\t" << std::dec
-            << digi.fpgaTimestamp() << "\nTimestampA:\t" << std::dec << digi.timestampA() << "\nTimestampB:\t"
-            << std::dec << digi.timestampB() << "\nCellInfo:\t" << std::hex << digi.cellInfo()
-            << "\nNumberOfSamples:\t" << std::dec << digi.numberOfSamples() << std::endl
+            << "\nHardwareId:\t" << std::hex << digi.hardwareId() << "\nDB: " << std::dec << digi.hardwareBoardId()
+            << "\tSampic: " << digi.hardwareSampicId() << "\tChannel: " << digi.hardwareChannelId()
+            << "\nFPGATimestamp:\t" << std::dec << digi.fpgaTimestamp() << "\nTimestampA:\t" << std::dec
+            << digi.timestampA() << "\nTimestampB:\t" << std::dec << digi.timestampB() << "\nCellInfo:\t" << std::hex
+            << digi.cellInfo() << "\nNumberOfSamples:\t" << std::dec << digi.numberOfSamples() << std::endl
             << digi.eventInfo() << std::endl;
 }
 

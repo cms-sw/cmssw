@@ -26,8 +26,8 @@ float TotemTimingConversions::timeOfFirstSample(const TotemTimingDigi& digi) con
   unsigned int timestamp =
       (digi.cellInfo() <= SAMPIC_MAX_NUMBER_OF_SAMPLES / 2) ? digi.timestampA() : digi.timestampB();
 
-  int cell0TimeClock = timestamp + ((digi.fpgaTimestamp() - timestamp) & CELL0_MASK) -
-                       digi.eventInfo().l1ATimestamp() + digi.eventInfo().l1ALatency();
+  int cell0TimeClock = timestamp + ((digi.fpgaTimestamp() - timestamp) & CELL0_MASK) - digi.eventInfo().l1ATimestamp() +
+                       digi.eventInfo().l1ALatency();
 
   // time of first cell
   float cell0TimeInstant = SAMPIC_MAX_NUMBER_OF_SAMPLES * SAMPIC_SAMPLING_PERIOD_NS * cell0TimeClock;

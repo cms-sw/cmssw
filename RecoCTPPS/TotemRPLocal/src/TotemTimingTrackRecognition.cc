@@ -63,8 +63,7 @@ int TotemTimingTrackRecognition::produceTracks(edm::DetSet<TotemTimingLocalTrack
     for (const auto& xTrack : xPartTracks) {
       for (const auto& yTrack : yPartTracks) {
         math::XYZPoint position(xTrack.x0(), yTrack.y0(), 0.5f * (hitRange.zBegin + hitRange.zEnd));
-        math::XYZPoint positionSigma(
-            xTrack.x0Sigma(), yTrack.y0Sigma(), 0.5f * (hitRange.zEnd - hitRange.zBegin));
+        math::XYZPoint positionSigma(xTrack.x0Sigma(), yTrack.y0Sigma(), 0.5f * (hitRange.zEnd - hitRange.zBegin));
 
         TotemTimingLocalTrack newTrack(position, positionSigma, 0., 0.);
 

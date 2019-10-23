@@ -115,21 +115,33 @@ public:
   }
 
   inline float x0() const { return track_params_vector_[(unsigned int)TrackPar::x0]; }
-  inline float x0Sigma() const { return sqrt(par_covariance_matrix_[(unsigned int)TrackPar::x0][(unsigned int)TrackPar::x0]); }
-  inline float x0Variance() const { return par_covariance_matrix_[(unsigned int)TrackPar::x0][(unsigned int)TrackPar::x0]; }
+  inline float x0Sigma() const {
+    return sqrt(par_covariance_matrix_[(unsigned int)TrackPar::x0][(unsigned int)TrackPar::x0]);
+  }
+  inline float x0Variance() const {
+    return par_covariance_matrix_[(unsigned int)TrackPar::x0][(unsigned int)TrackPar::x0];
+  }
 
   inline float y0() const { return track_params_vector_[(unsigned int)TrackPar::y0]; }
-  inline float y0Sigma() const { return sqrt(par_covariance_matrix_[(unsigned int)TrackPar::y0][(unsigned int)TrackPar::y0]); }
-  inline float y0Variance() const { return par_covariance_matrix_[(unsigned int)TrackPar::y0][(unsigned int)TrackPar::y0]; }
+  inline float y0Sigma() const {
+    return sqrt(par_covariance_matrix_[(unsigned int)TrackPar::y0][(unsigned int)TrackPar::y0]);
+  }
+  inline float y0Variance() const {
+    return par_covariance_matrix_[(unsigned int)TrackPar::y0][(unsigned int)TrackPar::y0];
+  }
 
   inline float z0() const { return z0_; }
   inline void setZ0(float z0) { z0_ = z0; }
 
   inline float tx() const { return track_params_vector_[(unsigned int)TrackPar::tx]; }
-  inline float txSigma() const { return sqrt(par_covariance_matrix_[(unsigned int)TrackPar::tx][(unsigned int)TrackPar::tx]); }
+  inline float txSigma() const {
+    return sqrt(par_covariance_matrix_[(unsigned int)TrackPar::tx][(unsigned int)TrackPar::tx]);
+  }
 
   inline float ty() const { return track_params_vector_[(unsigned int)TrackPar::ty]; }
-  inline float tySigma() const { return sqrt(par_covariance_matrix_[(unsigned int)TrackPar::ty][(unsigned int)TrackPar::ty]); }
+  inline float tySigma() const {
+    return sqrt(par_covariance_matrix_[(unsigned int)TrackPar::ty][(unsigned int)TrackPar::ty]);
+  }
 
   inline GlobalVector directionVector() const {
     GlobalVector vect(tx(), ty(), 1);
@@ -154,13 +166,15 @@ public:
   /// returns the point from which the track is passing by at the selected z
   inline GlobalPoint trackPoint(float z) const {
     float delta_z = z - z0_;
-    return GlobalPoint(track_params_vector_[(unsigned int)TrackPar::x0] + track_params_vector_[(unsigned int)TrackPar::tx] * delta_z,
-                       track_params_vector_[(unsigned int)TrackPar::y0] + track_params_vector_[(unsigned int)TrackPar::ty] * delta_z,
-                       z);
+    return GlobalPoint(
+        track_params_vector_[(unsigned int)TrackPar::x0] + track_params_vector_[(unsigned int)TrackPar::tx] * delta_z,
+        track_params_vector_[(unsigned int)TrackPar::y0] + track_params_vector_[(unsigned int)TrackPar::ty] * delta_z,
+        z);
   }
 
   inline GlobalPoint trackCentrePoint() {
-    return GlobalPoint(track_params_vector_[(unsigned int)TrackPar::x0], track_params_vector_[(unsigned int)TrackPar::y0], z0_);
+    return GlobalPoint(
+        track_params_vector_[(unsigned int)TrackPar::x0], track_params_vector_[(unsigned int)TrackPar::y0], z0_);
   }
 
   AlgebraicSymMatrix22 trackPointInterpolationCovariance(float z) const;
