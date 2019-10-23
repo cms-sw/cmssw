@@ -77,7 +77,7 @@ HGCalTrackCollectionProducer::HGCalTrackCollectionProducer(const edm::ParameterS
       debug_(iConfig.getParameter<bool>("debug")),
       trackQuality_((iConfig.existsAs<std::string>("trackQuality"))
                         ? reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("trackQuality"))
-                        : reco::TrackBase::qualityByName("highPurity")),
+                        : reco::TrackBase::highPurity),
       DPtovPtCut_(iConfig.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
       NHitCut_(iConfig.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
       useIterTracking_(iConfig.getParameter<bool>("useIterativeTracking")) {
