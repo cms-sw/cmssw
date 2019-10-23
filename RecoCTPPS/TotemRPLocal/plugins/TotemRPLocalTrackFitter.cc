@@ -151,7 +151,7 @@ void TotemRPLocalTrackFitter::produce(edm::Event &e, const edm::EventSetup &setu
     }
 
     // run fit
-    double z0 = geometry->getRPTranslation(rpId).z();
+    double z0 = geometry->rpTranslation(rpId).z();
 
     TotemRPLocalTrack track;
     fitter_.fitTrack(hits, z0, *geometry, track);

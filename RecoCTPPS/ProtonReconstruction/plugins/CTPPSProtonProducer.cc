@@ -339,8 +339,8 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
             const auto &tr_i = hTracks->at(i);
             const auto &tr_j = hTracks->at(j);
 
-            const double z_i = hGeometry->getRPTranslation(tr_i.rpId()).z();
-            const double z_j = hGeometry->getRPTranslation(tr_j.rpId()).z();
+            const double z_i = hGeometry->rpTranslation(tr_i.rpId()).z();
+            const double z_j = hGeometry->rpTranslation(tr_j.rpId()).z();
 
             for (const auto &ti : timingSelection[arm_it.first]) {
               const auto &tr_ti = hTracks->at(ti);
@@ -350,7 +350,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
                 continue;
 
               // interpolation from tracking RPs
-              const double z_ti = -hGeometry->getRPTranslation(tr_ti.rpId())
+              const double z_ti = -hGeometry->rpTranslation(tr_ti.rpId())
                                        .z();  // the minus sign fixes a bug in the diamond geometry
               const double f_i = (z_ti - z_j) / (z_i - z_j), f_j = (z_i - z_ti) / (z_i - z_j);
               const double x_inter = f_i * tr_i.x() + f_j * tr_j.x();

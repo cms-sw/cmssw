@@ -62,7 +62,7 @@ void RPixRoadFinder::findPattern() {
       if (verbosity_ > 2)
         edm::LogInfo("RPixRoadFinder") << "Hits = " << ds_rh2.data.size();
 
-      DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->getSensor(myid)->rotation();
+      DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->sensor(myid)->rotation();
       AlgebraicMatrix33 theRotationTMatrix;
       theRotationMatrix.GetComponents(theRotationTMatrix(0, 0),
                                       theRotationTMatrix(0, 1),

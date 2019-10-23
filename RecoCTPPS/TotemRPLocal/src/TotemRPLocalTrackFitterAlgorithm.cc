@@ -32,7 +32,7 @@ TotemRPLocalTrackFitterAlgorithm::RPDetCoordinateAlgebraObjs
 TotemRPLocalTrackFitterAlgorithm::prepareReconstAlgebraData(unsigned int det_id, const CTPPSGeometry &tot_rp_geom) {
   RPDetCoordinateAlgebraObjs det_algebra_obj;
 
-  det_algebra_obj.centre_of_det_global_position_ = convert3vector(tot_rp_geom.getSensorTranslation(det_id));
+  det_algebra_obj.centre_of_det_global_position_ = convert3vector(tot_rp_geom.sensorTranslation(det_id));
 
   HepMC::ThreeVector rp_topology_stripaxis = rp_topology_.GetStripReadoutAxisDir();
   CLHEP::Hep3Vector rp_topology_stripaxis_clhep;

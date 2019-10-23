@@ -44,7 +44,7 @@ bool channelAlignedWithTrack(const CTPPSGeometry* geom,
                              const CTPPSDiamondDetId& detid,
                              const CTPPSDiamondLocalTrack& localTrack,
                              const float tolerance = 1) {
-  const DetGeomDesc* det = geom->getSensor(detid);
+  const DetGeomDesc* det = geom->sensor(detid);
   const float x_pos = det->translation().x(),
               x_width = 2.0 * det->params().at(0);  // parameters stand for half the size
   return ((x_pos + 0.5 * x_width > localTrack.x0() - localTrack.x0Sigma() - tolerance &&
@@ -512,13 +512,13 @@ void CTPPSDiamondDQMSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
   iSetup.get<VeryForwardRealGeometryRecord>().get(geometry_);
   const CTPPSGeometry* geom = geometry_.product();
   const CTPPSDiamondDetId detid(0, CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID, 0, 0);
-  const DetGeomDesc* det = geom->getSensor(detid);
+  const DetGeomDesc* det = geom->sensor(detid);
   horizontalShiftOfDiamond_ = det->translation().x() - det->params().at(0);
 
   // Rough alignement of pixel detector for diamond thomography
   const CTPPSPixelDetId pixid(0, CTPPS_PIXEL_STATION_ID, CTPPS_FAR_RP_ID, 0);
   if (iRun.run() > 300000) {  //Pixel installed
-    det = geom->getSensor(pixid);
+    det = geom->sensor(pixid);
     horizontalShiftBwDiamondPixels_ = det->translation().x() - det->params().at(0) - horizontalShiftOfDiamond_ - 1;
   }
 }
