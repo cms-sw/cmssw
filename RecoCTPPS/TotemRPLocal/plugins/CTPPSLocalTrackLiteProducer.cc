@@ -107,8 +107,7 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event &iEvent, const edm::EventSe
         float roundedTxSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.txSigma());
         float roundedTy = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.ty());
         float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.tySigma());
-        float roundedChiSquaredOverNDF =
-            MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.chiSquaredOverNDF());
+        float roundedChiSquaredOverNDF = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.chiSquaredOverNDF());
 
         pOut->emplace_back(rpId,  // detector info
                                   // spatial info

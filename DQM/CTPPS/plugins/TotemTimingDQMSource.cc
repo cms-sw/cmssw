@@ -574,8 +574,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
         for (unsigned short i = 0; i < samplesForNoise_; ++i)
           channelPlots_[detId].noiseSamples->Fill(SAMPIC_ADC_V * digi.sampleAt(i));
 
-        unsigned int cellOfMax =
-            std::max_element(digi.samplesBegin(), digi.samplesEnd()) - digi.samplesBegin();
+        unsigned int cellOfMax = std::max_element(digi.samplesBegin(), digi.samplesEnd()) - digi.samplesBegin();
         channelPlots_[detId].cellOfMax->Fill((int)cellOfMax);
 
         if (timeOfPreviousEvent_ != 0)
@@ -686,21 +685,17 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
             double rp_x = 0;
             double rp_y = 0;
             try {
-              rp_x =
-                  (geometry->sensor(plId_V)->translation().x() + geometry->sensor(plId_U)->translation().x()) / 2;
-              rp_y =
-                  (geometry->sensor(plId_V)->translation().y() + geometry->sensor(plId_U)->translation().y()) / 2;
+              rp_x = (geometry->sensor(plId_V)->translation().x() + geometry->sensor(plId_U)->translation().x()) / 2;
+              rp_y = (geometry->sensor(plId_V)->translation().y() + geometry->sensor(plId_U)->translation().y()) / 2;
             } catch (const cms::Exception &) {
               continue;
             }
 
             for (const auto &striplt : ds) {
               if (striplt.isValid() && stripId.arm() == detId.arm()) {
-                if (striplt.tx() > maximumStripAngleForTomography_ ||
-                    striplt.ty() > maximumStripAngleForTomography_)
+                if (striplt.tx() > maximumStripAngleForTomography_ || striplt.ty() > maximumStripAngleForTomography_)
                   continue;
-                if (striplt.tx() < minimumStripAngleForTomography_ ||
-                    striplt.ty() < minimumStripAngleForTomography_)
+                if (striplt.tx() < minimumStripAngleForTomography_ || striplt.ty() < minimumStripAngleForTomography_)
                   continue;
                 if (stripId.rp() - detId.rp() == (TOTEM_STRIP_MAX_RP_ID - TOTEM_TIMING_BOT_RP_ID)) {
                   double x = striplt.x0() - rp_x;
