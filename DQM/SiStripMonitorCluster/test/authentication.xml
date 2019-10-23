@@ -1,9 +1,0 @@
-<?xml version="1.0" ?>
-<connectionlist>
-
-<connection name="sqlite_file:sistripcabling.db">
-  <parameter name="user" value="me" />
-  <parameter name="password" value="mypass" />
-</connection>
-
-</connectionlist>

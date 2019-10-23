@@ -1,5 +1,0 @@
-#! /bin/bash
-cd /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/ispy-files/data
-rm latest_CRUZET.ig latest_MWGR.ig
-ln -s `ls 2009-CRUZET/*.ig -l | tail -n 1 | awk '{print $9}'` latest_CRUZET.ig
-ln -s `ls 2009-MWGR/*/*.ig -l | tail -n 1 | awk '{print $9}'` latest_MWGR.ig

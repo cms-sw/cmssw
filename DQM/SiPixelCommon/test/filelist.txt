@@ -1,2 +1,0 @@
-/castor/cern.ch/cms/store/TAC/PIXEL/P5/GainCalibration_39_63033.root
-/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/498/22957003-566D-DD11-994B-001617C3B654.root
