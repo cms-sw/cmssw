@@ -47,14 +47,14 @@ void RPixRoadFinder::findPattern() {
   for (const auto& ds_rh2 : *hitVector_) {
     const auto myid = CTPPSPixelDetId(ds_rh2.id);
     for (const auto& it_rh : ds_rh2.data) {
-      CLHEP::Hep3Vector localV(it_rh.getPoint().x(), it_rh.getPoint().y(), it_rh.getPoint().z());
+      CLHEP::Hep3Vector localV(it_rh.point().x(), it_rh.point().y(), it_rh.point().z());
       CLHEP::Hep3Vector globalV = geometry_->localToGlobal(ds_rh2.id, localV);
       math::Error<3>::type localError;
-      localError[0][0] = it_rh.getError().xx();
-      localError[0][1] = it_rh.getError().xy();
+      localError[0][0] = it_rh.error().xx();
+      localError[0][1] = it_rh.error().xy();
       localError[0][2] = 0.;
-      localError[1][0] = it_rh.getError().xy();
-      localError[1][1] = it_rh.getError().yy();
+      localError[1][0] = it_rh.error().xy();
+      localError[1][1] = it_rh.error().yy();
       localError[1][2] = 0.;
       localError[2][0] = 0.;
       localError[2][1] = 0.;

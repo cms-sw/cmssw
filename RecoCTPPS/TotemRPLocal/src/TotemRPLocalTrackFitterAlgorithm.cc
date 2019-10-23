@@ -109,11 +109,11 @@ bool TotemRPLocalTrackFitterAlgorithm::fitTrack(const edm::DetSetVector<TotemRPR
     double delta_z = alg_obj->centre_of_det_global_position_.Z() - z_0;
     H(i, 2) = alg_obj->readout_direction_.X() * delta_z;
     H(i, 3) = alg_obj->readout_direction_.Y() * delta_z;
-    double var = applicable_hits[i].hit->getSigma();
+    double var = applicable_hits[i].hit->sigma();
     var *= var;
     V[i] = var;
     V_inv[i] = 1.0 / var;
-    U[i] = applicable_hits[i].hit->getPosition() - alg_obj->rec_u_0_;
+    U[i] = applicable_hits[i].hit->position() - alg_obj->rec_u_0_;
   }
 
   TMatrixD H_T_V_inv(TMatrixD::kTransposed, H);
@@ -141,10 +141,10 @@ bool TotemRPLocalTrackFitterAlgorithm::fitTrack(const edm::DetSetVector<TotemRPR
     RPDetCoordinateAlgebraObjs *alg_obj = applicable_hits[i].alg;
     TVector2 readout_dir = alg_obj->readout_direction_;
     double det_z = alg_obj->centre_of_det_global_position_.Z();
-    double sigma_str = applicable_hits[i].hit->getSigma();
+    double sigma_str = applicable_hits[i].hit->sigma();
     double sigma_str_2 = sigma_str * sigma_str;
-    TVector2 fited_det_xy_point = fitted_track.getTrackPoint(det_z);
-    double U_readout = applicable_hits[i].hit->getPosition() - alg_obj->rec_u_0_;
+    TVector2 fited_det_xy_point = fitted_track.trackPoint(det_z);
+    double U_readout = applicable_hits[i].hit->position() - alg_obj->rec_u_0_;
     double U_fited = (readout_dir *= fited_det_xy_point);
     double residual = U_fited - U_readout;
     TMatrixD V_T_Cov_X_Y(1, 2);
