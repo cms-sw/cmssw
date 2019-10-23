@@ -85,7 +85,7 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 stage2L1Trigger.toReplaceWith(SimL1TMuonTask, cms.Task(SimL1TMuonCommonTask, simTwinMuxDigis, simBmtfDigis, simEmtfDigis, simOmtfDigis, simGmtCaloSumDigis, simGmtStage2Digis))
 
 ## GEM TPs
-from L1Trigger.L1TGEM.simMuonGEMDigis_cff import *
+from L1Trigger.L1TGEM.simGEMDigis_cff import *
 _run3_SimL1TMuonTask = SimL1TMuonTask.copy()
 _run3_SimL1TMuonTask.add(simMuonGEMPadTask)
 
