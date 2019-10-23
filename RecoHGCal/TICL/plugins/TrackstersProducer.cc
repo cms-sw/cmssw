@@ -20,8 +20,8 @@
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 
-#include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
-#include "RecoHGCal/TICL/interface/GlobalCache.h"
+#include "RecoHGCal/TICL/plugins/PatternRecognitionAlgoBase.h"
+#include "RecoHGCal/TICL/plugins/GlobalCache.h"
 #include "PatternRecognitionbyCA.h"
 #include "PatternRecognitionbyMultiClusters.h"
 
