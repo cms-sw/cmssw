@@ -13,14 +13,14 @@ namespace pixelgpudetails {
 
 // TODO: since this has more information than just cabling map, maybe we should invent a better name?
 struct SiPixelFedCablingMapGPU {
-  unsigned int fed[pixelgpudetails::MAX_SIZE] alignas(128);
-  unsigned int link[pixelgpudetails::MAX_SIZE] alignas(128);
-  unsigned int roc[pixelgpudetails::MAX_SIZE] alignas(128);
-  unsigned int RawId[pixelgpudetails::MAX_SIZE] alignas(128);
-  unsigned int rocInDet[pixelgpudetails::MAX_SIZE] alignas(128);
-  unsigned int moduleId[pixelgpudetails::MAX_SIZE] alignas(128);
-  unsigned char badRocs[pixelgpudetails::MAX_SIZE] alignas(128);
-  unsigned int size = 0;
+  alignas(128) unsigned int fed[pixelgpudetails::MAX_SIZE];
+  alignas(128) unsigned int link[pixelgpudetails::MAX_SIZE];
+  alignas(128) unsigned int roc[pixelgpudetails::MAX_SIZE];
+  alignas(128) unsigned int RawId[pixelgpudetails::MAX_SIZE];
+  alignas(128) unsigned int rocInDet[pixelgpudetails::MAX_SIZE];
+  alignas(128) unsigned int moduleId[pixelgpudetails::MAX_SIZE];
+  alignas(128) unsigned char badRocs[pixelgpudetails::MAX_SIZE];
+  alignas(128) unsigned int size = 0;
 };
 
 #endif

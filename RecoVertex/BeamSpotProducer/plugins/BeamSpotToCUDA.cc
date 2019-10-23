@@ -32,7 +32,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  std::unique_ptr<BSHost> beginStream(edm::StreamID) const {
+  std::unique_ptr<BSHost> beginStream(edm::StreamID) const override {
     edm::Service<CUDAService> cs;
     if (cs->enabled()) {
       return std::make_unique<BSHost>();

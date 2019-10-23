@@ -348,8 +348,8 @@ void EcalUncalibRecHitProducerGPU::acquire(edm::Event const& event,
                              configParameters_,
                              ctx.stream());
 
-  ebRecHits_ = std::move(std::make_unique<ecal::UncalibratedRecHit<ecal::Tag::soa>>());
-  eeRecHits_ = std::move(std::make_unique<ecal::UncalibratedRecHit<ecal::Tag::soa>>());
+  ebRecHits_ = std::make_unique<ecal::UncalibratedRecHit<ecal::Tag::soa>>();
+  eeRecHits_ = std::make_unique<ecal::UncalibratedRecHit<ecal::Tag::soa>>();
 
   if (shouldTransferToHost_) {
     // allocate for the result while kernels are running

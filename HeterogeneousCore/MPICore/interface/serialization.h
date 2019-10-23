@@ -26,9 +26,9 @@ namespace io {
     unique_buffer(std::unique_ptr<std::byte>&& data, size_t size);
 
     // default copy and move constructors and assignment operators
-    unique_buffer(unique_buffer const&) = default;
+    unique_buffer(unique_buffer const&) = delete;
     unique_buffer(unique_buffer&&) = default;
-    unique_buffer& operator=(unique_buffer const&) = default;
+    unique_buffer& operator=(unique_buffer const&) = delete;
     unique_buffer& operator=(unique_buffer&&) = default;
 
     // default destructor, releasing the owned memory

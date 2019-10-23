@@ -1,5 +1,5 @@
 #ifndef RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDoubletsAlgos_h
-#define RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDoupletsAlgos_h
+#define RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDoubletsAlgos_h
 
 #include <algorithm>
 #include <cmath>

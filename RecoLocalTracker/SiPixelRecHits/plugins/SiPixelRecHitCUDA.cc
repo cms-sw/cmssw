@@ -96,10 +96,9 @@ void SiPixelRecHitCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, cons
   iEvent.getByToken(tBeamSpot, hbs);
   auto const& bs = ctx.get(*hbs);
 
-  ctx.emplace(
-      iEvent,
-      tokenHit_,
-      std::move(gpuAlgo_.makeHitsAsync(digis, clusters, bs, fcpe->getGPUProductAsync(ctx.stream()), ctx.stream())));
+  ctx.emplace(iEvent,
+              tokenHit_,
+              gpuAlgo_.makeHitsAsync(digis, clusters, bs, fcpe->getGPUProductAsync(ctx.stream()), ctx.stream()));
 }
 
 DEFINE_FWK_MODULE(SiPixelRecHitCUDA);

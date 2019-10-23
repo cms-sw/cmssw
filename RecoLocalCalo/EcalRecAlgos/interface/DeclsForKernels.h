@@ -26,10 +26,10 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeBiasCorrectionsGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
 
-class EcalPulseShape;
+struct EcalPulseShape;
 class EcalSampleMask;
 class EcalTimeBiasCorrections;
-class EcalPulseCovariance;
+struct EcalPulseCovariance;
 class EcalDigiCollection;
 class EcalXtalGroupId;
 class EcalSamplesCorrelation;
