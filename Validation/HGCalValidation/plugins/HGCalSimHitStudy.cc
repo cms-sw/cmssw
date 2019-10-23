@@ -74,8 +74,8 @@ private:
   const std::vector<std::string> nameDetectors_, caloHitSources_;
   const double rmin_, rmax_, zmin_, zmax_;
   const double etamin_, etamax_;
-  const int nbinR_, nbinZ_, nbinEta_, verbosity_;
-  const bool ifNose_;
+  const int nbinR_, nbinZ_, nbinEta_, nLayers_, verbosity_;
+  const bool ifNose_, ifLayer_;
   std::vector<const HGCalDDDConstants*> hgcons_;
   const HcalDDDRecConstants* hcons_;
   std::vector<bool> heRebuild_;
@@ -83,7 +83,7 @@ private:
   std::vector<int> layers_, layerFront_;
 
   //histogram related stuff
-  std::vector<TH2D*> h_RZ_, h_EtaPhi_, h_EtFiZp_, h_EtFiZm_;
+  std::vector<TH2D*> h_RZ_, h_EtaPhi_, h_EtFiZp_, h_EtFiZm_, h_XY_;
   std::vector<TH1D*> h_E_, h_T_, h_LayerZp_, h_LayerZm_;
   std::vector<TH1D*> h_W1_, h_W2_, h_C1_, h_C2_, h_Ly_;
 };
@@ -100,8 +100,10 @@ HGCalSimHitStudy::HGCalSimHitStudy(const edm::ParameterSet& iConfig)
       nbinR_(iConfig.getUntrackedParameter<int>("nBinR", 300)),
       nbinZ_(iConfig.getUntrackedParameter<int>("nBinZ", 300)),
       nbinEta_(iConfig.getUntrackedParameter<int>("nBinEta", 200)),
+      nLayers_(iConfig.getUntrackedParameter<int>("layers", 50)),
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
-      ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)) {
+      ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)), 
+      ifLayer_(iConfig.getUntrackedParameter<bool>("ifLayer", false)) {
   usesResource(TFileService::kSharedResource);
 
   for (auto const& name : nameDetectors_) {
@@ -130,8 +132,10 @@ void HGCalSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.addUntracked<int>("nBinR", 300);
   desc.addUntracked<int>("nBinZ", 300);
   desc.addUntracked<int>("nBinEta", 200);
+  desc.addUntracked<int>("layers", 50);
   desc.addUntracked<int>("verbosity", 0);
   desc.addUntracked<bool>("ifNose", false);
+  desc.addUntracked<bool>("ifLayer", false);
   descriptions.add("hgcalSimHitStudy", desc);
 }
 
@@ -274,8 +278,13 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
     //Fill in histograms
     h_RZ_[0]->Fill(std::abs(gcoord.z()), gcoord.rho());
     h_RZ_[ih + 1]->Fill(std::abs(gcoord.z()), gcoord.rho());
-    h_EtaPhi_[0]->Fill(std::abs(hinfo.eta), hinfo.phi);
-    h_EtaPhi_[ih + 1]->Fill(std::abs(hinfo.eta), hinfo.phi);
+    if (ifLayer_) {
+      if (hinfo.layer <= static_cast<int>(h_XY_.size()))
+	h_XY_[hinfo.layer-1]->Fill(gcoord.x(), gcoord.y());
+    } else {
+      h_EtaPhi_[0]->Fill(std::abs(hinfo.eta), hinfo.phi);
+      h_EtaPhi_[ih + 1]->Fill(std::abs(hinfo.eta), hinfo.phi);
+    }
     h_Ly_[ih]->Fill(layer);
     h_W1_[ih]->Fill(sector);
     h_C1_[ih]->Fill(cell);
@@ -295,13 +304,17 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
     h_T_[0]->Fill(hinfo.time);
     h_T_[ih + 1]->Fill(hinfo.time);
     if (hinfo.eta > 0) {
-      h_EtFiZp_[0]->Fill(std::abs(hinfo.eta), hinfo.phi, hinfo.energy);
-      h_EtFiZp_[ih + 1]->Fill(std::abs(hinfo.eta), hinfo.phi, hinfo.energy);
+      if (!ifLayer_) {
+	h_EtFiZp_[0]->Fill(std::abs(hinfo.eta), hinfo.phi, hinfo.energy);
+	h_EtFiZp_[ih + 1]->Fill(std::abs(hinfo.eta), hinfo.phi, hinfo.energy);
+      }
       h_LayerZp_[0]->Fill(hinfo.layer, hinfo.energy);
       h_LayerZp_[ih + 1]->Fill(hinfo.layer, hinfo.energy);
     } else {
-      h_EtFiZm_[0]->Fill(std::abs(hinfo.eta), hinfo.phi, hinfo.energy);
-      h_EtFiZm_[ih + 1]->Fill(std::abs(hinfo.eta), hinfo.phi, hinfo.energy);
+      if (!ifLayer_) {
+	h_EtFiZm_[0]->Fill(std::abs(hinfo.eta), hinfo.phi, hinfo.energy);
+	h_EtFiZm_[ih + 1]->Fill(std::abs(hinfo.eta), hinfo.phi, hinfo.energy);
+      }
       h_LayerZm_[0]->Fill(hinfo.layer, hinfo.energy);
       h_LayerZm_[ih + 1]->Fill(hinfo.layer, hinfo.energy);
     }
@@ -350,39 +363,52 @@ void HGCalSimHitStudy::beginJob() {
     }
     h_RZ_.emplace_back(
         fs->make<TH2D>(name.str().c_str(), title.str().c_str(), nbinZ_, zmin_, zmax_, nbinR_, rmin_, rmax_));
-    name.str("");
-    title.str("");
-    if (ih == 0) {
-      name << "EtaPhi_AllDetectors";
-      title << "#phi vs #eta for All Detectors";
+    if (ifLayer_) {
+      if (ih == 0) {
+	for (int ly = 0; ly < nLayers_; ++ly) {
+	  name.str("");
+	  title.str("");
+	  name << "XY_L" << (ly + 1);
+	  title << "Y vs X at Layer " << (ly + 1);
+	  h_XY_.emplace_back(
+        fs->make<TH2D>(name.str().c_str(), title.str().c_str(), nbinR_, -rmax_, rmax_, nbinR_, -rmax_, rmax_));
+	}
+      }
     } else {
-      name << "EtaPhi_" << nameDetectors_[ih - 1];
-      title << "#phi vs #eta for " << nameDetectors_[ih - 1];
-    }
-    h_EtaPhi_.emplace_back(
+      name.str("");
+      title.str("");
+      if (ih == 0) {
+	name << "EtaPhi_AllDetectors";
+	title << "#phi vs #eta for All Detectors";
+      } else {
+	name << "EtaPhi_" << nameDetectors_[ih - 1];
+	title << "#phi vs #eta for " << nameDetectors_[ih - 1];
+      }
+      h_EtaPhi_.emplace_back(
         fs->make<TH2D>(name.str().c_str(), title.str().c_str(), nbinEta_, etamin_, etamax_, 200, -M_PI, M_PI));
-    name.str("");
-    title.str("");
-    if (ih == 0) {
-      name << "EtFiZp_AllDetectors";
-      title << "#phi vs #eta (+z) for All Detectors";
-    } else {
-      name << "EtFiZp_" << nameDetectors_[ih - 1];
-      title << "#phi vs #eta (+z) for " << nameDetectors_[ih - 1];
-    }
-    h_EtFiZp_.emplace_back(
+      name.str("");
+      title.str("");
+      if (ih == 0) {
+	name << "EtFiZp_AllDetectors";
+	title << "#phi vs #eta (+z) for All Detectors";
+      } else {
+	name << "EtFiZp_" << nameDetectors_[ih - 1];
+	title << "#phi vs #eta (+z) for " << nameDetectors_[ih - 1];
+      }
+      h_EtFiZp_.emplace_back(
         fs->make<TH2D>(name.str().c_str(), title.str().c_str(), nbinEta_, etamin_, etamax_, 200, -M_PI, M_PI));
-    name.str("");
-    title.str("");
-    if (ih == 0) {
-      name << "EtFiZm_AllDetectors";
-      title << "#phi vs #eta (-z) for All Detectors";
-    } else {
-      name << "EtFiZm_" << nameDetectors_[ih - 1];
-      title << "#phi vs #eta (-z) for " << nameDetectors_[ih - 1];
-    }
-    h_EtFiZm_.emplace_back(
+      name.str("");
+      title.str("");
+      if (ih == 0) {
+	name << "EtFiZm_AllDetectors";
+	title << "#phi vs #eta (-z) for All Detectors";
+      } else {
+	name << "EtFiZm_" << nameDetectors_[ih - 1];
+	title << "#phi vs #eta (-z) for " << nameDetectors_[ih - 1];
+      }
+      h_EtFiZm_.emplace_back(
         fs->make<TH2D>(name.str().c_str(), title.str().c_str(), nbinEta_, etamin_, etamax_, 200, -M_PI, M_PI));
+    }
     name.str("");
     title.str("");
     if (ih == 0) {
