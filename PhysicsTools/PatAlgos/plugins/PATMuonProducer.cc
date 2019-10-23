@@ -618,7 +618,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
       }
       if (addInverseBeta_) {
-        aMuon.readExtraTimerInfo((*muonsTimeExtra)[muonRef]);
+        aMuon.readTimeExtra((*muonsTimeExtra)[muonRef]);
       }
       // MC info
       aMuon.initSimInfo();
