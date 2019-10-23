@@ -183,7 +183,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
     // Decaying hadrons are now in the list, and so are their muon daughter
     // Ignore the hadrons here.
     int pid = mySimTrack.type(); 
-    if ( abs(pid) != 13 ) continue;
+    if ( abs(pid) != 13 && abs(pid) != 1000024) continue;
 
     double t0 = 0;
     GlobalPoint initialPosition;

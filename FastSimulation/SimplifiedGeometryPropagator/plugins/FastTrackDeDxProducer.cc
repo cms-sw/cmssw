@@ -248,8 +248,12 @@ void FastTrackDeDxProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
 void FastTrackDeDxProducer::processHit(const FastTrackerRecHit &recHit, float trackMomentum, float& cosine, reco::DeDxHitCollection& dedxHits, int& NClusterSaturating){
 
+  if (!recHit.isValid()) return;
 
-  if(!recHit.isValid())return;
+  auto const& thit = static_cast<BaseTrackerRecHit const&>(recHit);
+  if (!thit.isValid()) return;
+
+    if (!thit.hasPositionAndError()) return;
 
   if(recHit.isPixel()){
     if(!usePixel) return;
