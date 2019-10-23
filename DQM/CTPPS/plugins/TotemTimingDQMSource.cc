@@ -536,7 +536,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
 
         potPlots_[detId_pot].digiDistribution->Fill(detId.plane(), detId.channel());
 
-        for (auto it = digi.getSamplesBegin(); it != digi.getSamplesEnd(); ++it)
+        for (auto it = digi.samplesBegin(); it != digi.samplesEnd(); ++it)
           potPlots_[detId_pot].dataSamplesRaw->Fill(*it);
 
         float boardId = digi.getEventInfo().getHardwareBoardId() + 0.5 * digi.getEventInfo().getHardwareSampicId();
@@ -569,13 +569,13 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
       if (channelPlots_.find(detId) != channelPlots_.end()) {
         channelPlots_[detId].activityPerBX->Fill(event.bunchCrossing());
 
-        for (auto it = digi.getSamplesBegin(); it != digi.getSamplesEnd(); ++it)
+        for (auto it = digi.samplesBegin(); it != digi.samplesEnd(); ++it)
           channelPlots_[detId].dataSamplesRaw->Fill(*it);
         for (unsigned short i = 0; i < samplesForNoise_; ++i)
-          channelPlots_[detId].noiseSamples->Fill(SAMPIC_ADC_V * digi.getSampleAt(i));
+          channelPlots_[detId].noiseSamples->Fill(SAMPIC_ADC_V * digi.sampleAt(i));
 
         unsigned int cellOfMax =
-            std::max_element(digi.getSamplesBegin(), digi.getSamplesEnd()) - digi.getSamplesBegin();
+            std::max_element(digi.samplesBegin(), digi.samplesEnd()) - digi.samplesBegin();
         channelPlots_[detId].cellOfMax->Fill((int)cellOfMax);
 
         if (timeOfPreviousEvent_ != 0)
@@ -597,45 +597,45 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
 
     for (const auto &rechit : rechits) {
       if (potPlots_.find(detId_pot) != potPlots_.end()) {
-        potPlots_[detId_pot].amplitude->Fill(rechit.getAmplitude());
+        potPlots_[detId_pot].amplitude->Fill(rechit.amplitude());
 
         TH2F *hitHistoTmp = potPlots_[detId_pot].hitDistribution2d->getTH2F();
         TAxis *hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
-        float yCorrected = rechit.getY();
+        float yCorrected = rechit.y();
         yCorrected += (detId.rp() == TOTEM_TIMING_TOP_RP_ID) ? verticalShiftTop_ : verticalShiftBot_;
         float x_shift = detId.plane();
-        x_shift += (rechit.getX() > 2) ? 0.25 : 0;
-        int startBin = hitHistoTmpYAxis->FindBin(yCorrected - 0.5 * rechit.getYWidth());
-        int numOfBins = rechit.getYWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+        x_shift += (rechit.x() > 2) ? 0.25 : 0;
+        int startBin = hitHistoTmpYAxis->FindBin(yCorrected - 0.5 * rechit.yWidth());
+        int numOfBins = rechit.yWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i) {
-          potPlots_[detId_pot].hitDistribution2d->Fill(detId.plane() + 0.25 * (rechit.getX() > 2),
+          potPlots_[detId_pot].hitDistribution2d->Fill(detId.plane() + 0.25 * (rechit.x() > 2),
                                                        hitHistoTmpYAxis->GetBinCenter(startBin + i));
           potPlots_[detId_pot].hitDistribution2d_lumisection->Fill(x_shift,
                                                                    hitHistoTmpYAxis->GetBinCenter(startBin + i));
         }
 
         //All plots with Time
-        if (rechit.getT() != TotemTimingRecHit::NO_T_AVAILABLE) {
+        if (rechit.t() != TotemTimingRecHit::NO_T_AVAILABLE) {
           for (int i = 0; i < numOfBins; ++i)
-            potPlots_[detId_pot].hitDistribution2dWithTime->Fill(detId.plane() + 0.25 * (rechit.getX() > 2),
+            potPlots_[detId_pot].hitDistribution2dWithTime->Fill(detId.plane() + 0.25 * (rechit.x() > 2),
                                                                  hitHistoTmpYAxis->GetBinCenter(startBin + i));
 
-          potPlots_[detId_pot].recHitTime->Fill(rechit.getT());
+          potPlots_[detId_pot].recHitTime->Fill(rechit.t());
           potPlots_[detId_pot].planesWithTimeSet.insert(detId.plane());
 
           // Plane Plots
           if (planePlots_.find(detId_plane) != planePlots_.end()) {
             // Visualization tricks
-            float x_shift = (rechit.getX() > 2) ? 15 : 0;
+            float x_shift = (rechit.x() > 2) ? 15 : 0;
             TH1F *hitProfileHistoTmp = planePlots_[detId_plane].hitProfile->getTH1F();
-            int numOfBins = rechit.getYWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+            int numOfBins = rechit.yWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
             if (detId.rp() == TOTEM_TIMING_TOP_RP_ID) {
-              float yCorrected = rechit.getY() + verticalShiftTop_ - 0.5 * rechit.getYWidth() + x_shift;
+              float yCorrected = rechit.y() + verticalShiftTop_ - 0.5 * rechit.yWidth() + x_shift;
               int startBin = hitProfileHistoTmp->FindBin(yCorrected);
               for (int i = 0; i < numOfBins; ++i)
                 hitProfileHistoTmp->Fill(hitProfileHistoTmp->GetBinCenter(startBin + i));
             } else {
-              float yCorrected = rechit.getY() + verticalShiftBot_ + 0.5 * rechit.getYWidth() + (15 - x_shift);
+              float yCorrected = rechit.y() + verticalShiftBot_ + 0.5 * rechit.yWidth() + (15 - x_shift);
               int startBin = hitProfileHistoTmp->FindBin(yCorrected);
               int totBins = hitProfileHistoTmp->GetNbinsX();
               for (int i = 0; i < numOfBins; ++i)
@@ -649,10 +649,10 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
           }
 
           if (channelPlots_.find(detId) != channelPlots_.end()) {
-            potPlots_[detId_pot].tirggerCellTime->Fill(rechit.getSampicThresholdTime());
-            channelPlots_[detId].tirggerCellTime->Fill(rechit.getSampicThresholdTime());
-            channelPlots_[detId].recHitTime->Fill(rechit.getT());
-            channelPlots_[detId].amplitude->Fill(rechit.getAmplitude());
+            potPlots_[detId_pot].tirggerCellTime->Fill(rechit.sampicThresholdTime());
+            channelPlots_[detId].tirggerCellTime->Fill(rechit.sampicThresholdTime());
+            channelPlots_[detId].recHitTime->Fill(rechit.t());
+            channelPlots_[detId].amplitude->Fill(rechit.amplitude());
           }
         }
       }
@@ -672,7 +672,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
     float y_shift = (detId.rp() == TOTEM_TIMING_TOP_RP_ID) ? 20 : 5;
 
     for (const auto &rechit : rechits) {
-      if (rechit.getT() != TotemTimingRecHit::NO_T_AVAILABLE && potPlots_.find(detId_pot) != potPlots_.end() &&
+      if (rechit.t() != TotemTimingRecHit::NO_T_AVAILABLE && potPlots_.find(detId_pot) != potPlots_.end() &&
           planePlots_.find(detId_plane) != planePlots_.end() && channelPlots_.find(detId) != channelPlots_.end()) {
         if (stripTracks.isValid()) {
           for (const auto &ds : *stripTracks) {
@@ -696,15 +696,15 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
 
             for (const auto &striplt : ds) {
               if (striplt.isValid() && stripId.arm() == detId.arm()) {
-                if (striplt.getTx() > maximumStripAngleForTomography_ ||
-                    striplt.getTy() > maximumStripAngleForTomography_)
+                if (striplt.tx() > maximumStripAngleForTomography_ ||
+                    striplt.ty() > maximumStripAngleForTomography_)
                   continue;
-                if (striplt.getTx() < minimumStripAngleForTomography_ ||
-                    striplt.getTy() < minimumStripAngleForTomography_)
+                if (striplt.tx() < minimumStripAngleForTomography_ ||
+                    striplt.ty() < minimumStripAngleForTomography_)
                   continue;
                 if (stripId.rp() - detId.rp() == (TOTEM_STRIP_MAX_RP_ID - TOTEM_TIMING_BOT_RP_ID)) {
-                  double x = striplt.getX0() - rp_x;
-                  double y = striplt.getY0() - rp_y;
+                  double x = striplt.x0() - rp_x;
+                  double y = striplt.y0() - rp_y;
                   if (stripId.station() == TOTEM_STATION_210) {
                     potPlots_[detId_pot].stripTomography210->Fill(x + detId.plane() * 50, y + y_shift);
                     channelPlots_[detId].stripTomography210->Fill(x, y + y_shift);

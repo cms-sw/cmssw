@@ -47,12 +47,12 @@ bool channelAlignedWithTrack(const CTPPSGeometry* geom,
   const DetGeomDesc* det = geom->getSensor(detid);
   const float x_pos = det->translation().x(),
               x_width = 2.0 * det->params().at(0);  // parameters stand for half the size
-  return ((x_pos + 0.5 * x_width > localTrack.getX0() - localTrack.getX0Sigma() - tolerance &&
-           x_pos + 0.5 * x_width < localTrack.getX0() + localTrack.getX0Sigma() + tolerance) ||
-          (x_pos - 0.5 * x_width > localTrack.getX0() - localTrack.getX0Sigma() - tolerance &&
-           x_pos - 0.5 * x_width < localTrack.getX0() + localTrack.getX0Sigma() + tolerance) ||
-          (x_pos - 0.5 * x_width < localTrack.getX0() - localTrack.getX0Sigma() - tolerance &&
-           x_pos + 0.5 * x_width > localTrack.getX0() + localTrack.getX0Sigma() + tolerance));
+  return ((x_pos + 0.5 * x_width > localTrack.x0() - localTrack.x0Sigma() - tolerance &&
+           x_pos + 0.5 * x_width < localTrack.x0() + localTrack.x0Sigma() + tolerance) ||
+          (x_pos - 0.5 * x_width > localTrack.x0() - localTrack.x0Sigma() - tolerance &&
+           x_pos - 0.5 * x_width < localTrack.x0() + localTrack.x0Sigma() + tolerance) ||
+          (x_pos - 0.5 * x_width < localTrack.x0() - localTrack.x0Sigma() - tolerance &&
+           x_pos + 0.5 * x_width > localTrack.x0() + localTrack.x0Sigma() + tolerance));
 }
 
 namespace dds {
@@ -727,67 +727,67 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
     for (const auto& rechit : rechits) {
       planes_inclusive[detId_pot].insert(detId.plane());
-      if (excludeMultipleHits_ && rechit.getMultipleHits() > 0)
+      if (excludeMultipleHits_ && rechit.multipleHits() > 0)
         continue;
-      if (rechit.getToT() != 0 && centralOOT_ != -999 && rechit.getOOTIndex() == centralOOT_)
+      if (rechit.toT() != 0 && centralOOT_ != -999 && rechit.ootIndex() == centralOOT_)
         planes[detId_pot].insert(detId.plane());
 
       if (potPlots_.find(detId_pot) == potPlots_.end())
         continue;
 
       float UFSDShift = 0.0;
-      if (rechit.getYWidth() < 3)
+      if (rechit.yWidth() < 3)
         UFSDShift = 0.5;  // Display trick for UFSD that have 2 pixels with same X
 
-      if (rechit.getToT() != 0 && centralOOT_ != -999 && rechit.getOOTIndex() == centralOOT_) {
+      if (rechit.toT() != 0 && centralOOT_ != -999 && rechit.ootIndex() == centralOOT_) {
         TH2F* hitHistoTmp = potPlots_[detId_pot].hitDistribution2d->getTH2F();
         TAxis* hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
-        int startBin = hitHistoTmpYAxis->FindBin(rechit.getX() - horizontalShiftOfDiamond_ - 0.5 * rechit.getXWidth());
-        int numOfBins = rechit.getXWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+        int startBin = hitHistoTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
+        int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i) {
           hitHistoTmp->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
         }
 
         hitHistoTmp = lumiCache->hitDistribution2dMap[detId_pot].get();
         hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
-        startBin = hitHistoTmpYAxis->FindBin(rechit.getX() - horizontalShiftOfDiamond_ - 0.5 * rechit.getXWidth());
-        numOfBins = rechit.getXWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+        startBin = hitHistoTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
+        numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i) {
           hitHistoTmp->Fill(detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin + i));
         }
       }
 
-      if (rechit.getToT() != 0) {
+      if (rechit.toT() != 0) {
         // Both
-        potPlots_[detId_pot].leadingEdgeCumulative_both->Fill(rechit.getT() + 25 * rechit.getOOTIndex());
-        potPlots_[detId_pot].timeOverThresholdCumulativePot->Fill(rechit.getToT());
+        potPlots_[detId_pot].leadingEdgeCumulative_both->Fill(rechit.t() + 25 * rechit.ootIndex());
+        potPlots_[detId_pot].timeOverThresholdCumulativePot->Fill(rechit.toT());
 
         TH2F* hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT->getTH2F();
         TAxis* hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
         int startBin =
-            hitHistoOOTTmpYAxis->FindBin(rechit.getX() - horizontalShiftOfDiamond_ - 0.5 * rechit.getXWidth());
-        int numOfBins = rechit.getXWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+            hitHistoOOTTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
+        int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i) {
-          hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.getOOTIndex(),
+          hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.ootIndex(),
                                hitHistoOOTTmpYAxis->GetBinCenter(startBin + i));
         }
       } else {
-        if (rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING) {
+        if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING) {
           // Only leading
           TH2F* hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT_le->getTH2F();
           TAxis* hitHistoOOTTmpYAxis = hitHistoOOTTmp->GetYaxis();
           int startBin =
-              hitHistoOOTTmpYAxis->FindBin(rechit.getX() - horizontalShiftOfDiamond_ - 0.5 * rechit.getXWidth());
-          int numOfBins = rechit.getXWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+              hitHistoOOTTmpYAxis->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
+          int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
           for (int i = 0; i < numOfBins; ++i) {
-            hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.getOOTIndex(),
+            hitHistoOOTTmp->Fill(detId.plane() + 0.25 * rechit.ootIndex(),
                                  hitHistoOOTTmpYAxis->GetBinCenter(startBin + i));
           }
         }
       }
-      if (rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING &&
-          potPlots_[detId_pot].activity_per_bx.count(rechit.getOOTIndex()) > 0)
-        potPlots_[detId_pot].activity_per_bx.at(rechit.getOOTIndex())->Fill(event.bunchCrossing());
+      if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING &&
+          potPlots_[detId_pot].activity_per_bx.count(rechit.ootIndex()) > 0)
+        potPlots_[detId_pot].activity_per_bx.at(rechit.ootIndex())->Fill(event.bunchCrossing());
     }
   }
 
@@ -806,25 +806,25 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
     for (const auto& track : tracks) {
       if (!track.isValid())
         continue;
-      if (track.getOOTIndex() == CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING)
+      if (track.ootIndex() == CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING)
         continue;
-      if (excludeMultipleHits_ && track.getMultipleHits() > 0)
+      if (excludeMultipleHits_ && track.multipleHits() > 0)
         continue;
       if (potPlots_.find(detId_pot) == potPlots_.end())
         continue;
 
       TH2F* trackHistoOOTTmp = potPlots_[detId_pot].trackDistributionOOT->getTH2F();
       TAxis* trackHistoOOTTmpYAxis = trackHistoOOTTmp->GetYaxis();
-      int startBin = trackHistoOOTTmpYAxis->FindBin(track.getX0() - horizontalShiftOfDiamond_ - track.getX0Sigma());
-      int numOfBins = 2 * track.getX0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+      int startBin = trackHistoOOTTmpYAxis->FindBin(track.x0() - horizontalShiftOfDiamond_ - track.x0Sigma());
+      int numOfBins = 2 * track.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
       for (int i = 0; i < numOfBins; ++i) {
-        trackHistoOOTTmp->Fill(track.getOOTIndex(), trackHistoOOTTmpYAxis->GetBinCenter(startBin + i));
+        trackHistoOOTTmp->Fill(track.ootIndex(), trackHistoOOTTmpYAxis->GetBinCenter(startBin + i));
       }
 
-      if (centralOOT_ != -999 && track.getOOTIndex() == centralOOT_) {
+      if (centralOOT_ != -999 && track.ootIndex() == centralOOT_) {
         TH1F* trackHistoInTimeTmp = potPlots_[detId_pot].trackDistribution->getTH1F();
-        int startBin = trackHistoInTimeTmp->FindBin(track.getX0() - horizontalShiftOfDiamond_ - track.getX0Sigma());
-        int numOfBins = 2 * track.getX0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+        int startBin = trackHistoInTimeTmp->FindBin(track.x0() - horizontalShiftOfDiamond_ - track.x0Sigma());
+        int numOfBins = 2 * track.x0Sigma() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
         for (int i = 0; i < numOfBins; ++i) {
           trackHistoInTimeTmp->Fill(trackHistoInTimeTmp->GetBinCenter(startBin + i));
         }
@@ -893,9 +893,9 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
     detId_pot.setChannel(0);
     const CTPPSDiamondDetId detId(rechits.detId());
     for (const auto& rechit : rechits) {
-      if (excludeMultipleHits_ && rechit.getMultipleHits() > 0)
+      if (excludeMultipleHits_ && rechit.multipleHits() > 0)
         continue;
-      if (rechit.getToT() == 0)
+      if (rechit.toT() == 0)
         continue;
       if (!pixelTracks.isValid())
         continue;
@@ -910,12 +910,12 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
           continue;
         for (const auto& lt : ds) {
           if (lt.isValid() && pixId.arm() == detId_pot.arm()) {
-            if (rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && rechit.getOOTIndex() >= 0 &&
-                potPlots_[detId_pot].pixelTomographyAll.count(rechit.getOOTIndex()) > 0 &&
-                lt.getX0() - horizontalShiftBwDiamondPixels_ < 24)
+            if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && rechit.ootIndex() >= 0 &&
+                potPlots_[detId_pot].pixelTomographyAll.count(rechit.ootIndex()) > 0 &&
+                lt.x0() - horizontalShiftBwDiamondPixels_ < 24)
               potPlots_[detId_pot]
-                  .pixelTomographyAll.at(rechit.getOOTIndex())
-                  ->Fill(lt.getX0() - horizontalShiftBwDiamondPixels_ + 25 * detId.plane(), lt.getY0());
+                  .pixelTomographyAll.at(rechit.ootIndex())
+                  ->Fill(lt.x0() - horizontalShiftBwDiamondPixels_ + 25 * detId.plane(), lt.y0());
           }
         }
       }
@@ -982,15 +982,15 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
     CTPPSDiamondDetId detId_plane(rechits.detId());
     detId_plane.setChannel(0);
     for (const auto& rechit : rechits) {
-      if (excludeMultipleHits_ && rechit.getMultipleHits() > 0)
+      if (excludeMultipleHits_ && rechit.multipleHits() > 0)
         continue;
-      if (rechit.getToT() == 0)
+      if (rechit.toT() == 0)
         continue;
       if (planePlots_.find(detId_plane) != planePlots_.end()) {
-        if (centralOOT_ != -999 && rechit.getOOTIndex() == centralOOT_) {
+        if (centralOOT_ != -999 && rechit.ootIndex() == centralOOT_) {
           TH1F* hitHistoTmp = planePlots_[detId_plane].hitProfile->getTH1F();
-          int startBin = hitHistoTmp->FindBin(rechit.getX() - horizontalShiftOfDiamond_ - 0.5 * rechit.getXWidth());
-          int numOfBins = rechit.getXWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
+          int startBin = hitHistoTmp->FindBin(rechit.x() - horizontalShiftOfDiamond_ - 0.5 * rechit.xWidth());
+          int numOfBins = rechit.xWidth() * INV_DISPLAY_RESOLUTION_FOR_HITS_MM;
           for (int i = 0; i < numOfBins; ++i) {
             hitHistoTmp->Fill(hitHistoTmp->GetBinCenter(startBin + i));
           }
@@ -1010,31 +1010,31 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       if (lt.isValid()) {
         // For efficieny
         CTPPSDiamondDetId detId_pot(pixId.arm(), CTPPS_DIAMOND_STATION_ID, CTPPS_DIAMOND_RP_ID);
-        potPlots_[detId_pot].pixelTracksMap.Fill(lt.getX0() - horizontalShiftBwDiamondPixels_, lt.getY0());
+        potPlots_[detId_pot].pixelTracksMap.Fill(lt.x0() - horizontalShiftBwDiamondPixels_, lt.y0());
 
         std::set<CTPPSDiamondDetId> planesWitHits_set;
         for (const auto& rechits : *diamondRecHits) {
           CTPPSDiamondDetId detId_plane(rechits.detId());
           detId_plane.setChannel(0);
           for (const auto& rechit : rechits) {
-            if (excludeMultipleHits_ && rechit.getMultipleHits() > 0)
+            if (excludeMultipleHits_ && rechit.multipleHits() > 0)
               continue;
-            if (rechit.getOOTIndex() == CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING || rechit.getToT() == 0)
+            if (rechit.ootIndex() == CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING || rechit.toT() == 0)
               continue;
             if (planePlots_.find(detId_plane) == planePlots_.end())
               continue;
-            if (pixId.arm() == detId_plane.arm() && lt.getX0() - horizontalShiftBwDiamondPixels_ < 24) {
+            if (pixId.arm() == detId_plane.arm() && lt.x0() - horizontalShiftBwDiamondPixels_ < 24) {
               planePlots_[detId_plane].pixelTomography_far->Fill(
-                  lt.getX0() - horizontalShiftBwDiamondPixels_ + 25 * rechit.getOOTIndex(), lt.getY0());
-              if (centralOOT_ != -999 && rechit.getOOTIndex() == centralOOT_)
+                  lt.x0() - horizontalShiftBwDiamondPixels_ + 25 * rechit.ootIndex(), lt.y0());
+              if (centralOOT_ != -999 && rechit.ootIndex() == centralOOT_)
                 planesWitHits_set.insert(detId_plane);
             }
           }
         }
 
         for (auto& planeId : planesWitHits_set)
-          planePlots_[planeId].pixelTracksMapWithDiamonds.Fill(lt.getX0() - horizontalShiftBwDiamondPixels_,
-                                                               lt.getY0());
+          planePlots_[planeId].pixelTracksMapWithDiamonds.Fill(lt.x0() - horizontalShiftBwDiamondPixels_,
+                                                               lt.y0());
       }
     }
   }
@@ -1084,19 +1084,19 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   for (const auto& rechits : *diamondRecHits) {
     CTPPSDiamondDetId detId(rechits.detId());
     for (const auto& rechit : rechits) {
-      if (excludeMultipleHits_ && rechit.getMultipleHits() > 0)
+      if (excludeMultipleHits_ && rechit.multipleHits() > 0)
         continue;
       if (channelPlots_.find(detId) != channelPlots_.end()) {
-        if (rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && rechit.getToT() != 0) {
-          channelPlots_[detId].leadingEdgeCumulative_both->Fill(rechit.getT() + 25 * rechit.getOOTIndex());
-          channelPlots_[detId].TimeOverThresholdCumulativePerChannel->Fill(rechit.getToT());
+        if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && rechit.toT() != 0) {
+          channelPlots_[detId].leadingEdgeCumulative_both->Fill(rechit.t() + 25 * rechit.ootIndex());
+          channelPlots_[detId].TimeOverThresholdCumulativePerChannel->Fill(rechit.toT());
         }
         ++(lumiCache->hitsCounterMap[detId]);
       }
 
-      if (rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING &&
-          channelPlots_[detId].activity_per_bx.count(rechit.getOOTIndex()) > 0)
-        channelPlots_[detId].activity_per_bx.at(rechit.getOOTIndex())->Fill(event.bunchCrossing());
+      if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING &&
+          channelPlots_[detId].activity_per_bx.count(rechit.ootIndex()) > 0)
+        channelPlots_[detId].activity_per_bx.at(rechit.ootIndex())->Fill(event.bunchCrossing());
     }
   }
 
@@ -1104,9 +1104,9 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   for (const auto& rechits : *diamondRecHits) {
     const CTPPSDiamondDetId detId(rechits.detId());
     for (const auto& rechit : rechits) {
-      if (excludeMultipleHits_ && rechit.getMultipleHits() > 0)
+      if (excludeMultipleHits_ && rechit.multipleHits() > 0)
         continue;
-      if (rechit.getOOTIndex() == CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING || rechit.getToT() == 0)
+      if (rechit.ootIndex() == CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING || rechit.toT() == 0)
         continue;
       if (!pixelTracks.isValid())
         continue;
@@ -1120,9 +1120,9 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         if (ds.size() > 1)
           continue;
         for (const auto& lt : ds) {
-          if (lt.isValid() && pixId.arm() == detId.arm() && lt.getX0() - horizontalShiftBwDiamondPixels_ < 24)
+          if (lt.isValid() && pixId.arm() == detId.arm() && lt.x0() - horizontalShiftBwDiamondPixels_ < 24)
             channelPlots_[detId].pixelTomography_far->Fill(
-                lt.getX0() - horizontalShiftBwDiamondPixels_ + 25 * rechit.getOOTIndex(), lt.getY0());
+                lt.x0() - horizontalShiftBwDiamondPixels_ + 25 * rechit.ootIndex(), lt.y0());
         }
       }
     }
