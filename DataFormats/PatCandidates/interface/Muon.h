@@ -129,7 +129,9 @@ namespace pat {
     void embedDytMuon();
 
     // add extra timing information
-    void readExtraTimerInfo(const reco::MuonTimeExtra& t);
+    /// 1/beta for prompt particle hypothesis
+    /// (time is constraint to the bunch crossing time)
+    void readTimeExtra(const reco::MuonTimeExtra& t);
 
     // ---- PF specific methods ----
     /// reference to the source IsolatedPFCandidates
@@ -293,10 +295,8 @@ namespace pat {
     void setSoftMvaValue(float softmva) { softMvaValue_ = softmva; }
 
     /// Inverse beta
-    void setInverseBeta(const float iBeta) { inverseBeta_ = iBeta; };
-    void setInverseBetaErr(const float iBetaErr) { inverseBetaErr_ = iBetaErr; };
-    float inverseBeta() const { return inverseBeta_; };
-    float inverseBetaErr() const { return inverseBetaErr_; };
+    float inverseBeta() const { return inverseBeta_; }
+    float inverseBetaErr() const { return inverseBetaErr_; }
 
     /// MC matching information
     reco::MuonSimType simType() const { return simType_; }
