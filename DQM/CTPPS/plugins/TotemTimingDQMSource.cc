@@ -539,12 +539,12 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
         for (auto it = digi.samplesBegin(); it != digi.samplesEnd(); ++it)
           potPlots_[detId_pot].dataSamplesRaw->Fill(*it);
 
-        float boardId = digi.getEventInfo().getHardwareBoardId() + 0.5 * digi.getEventInfo().getHardwareSampicId();
-        potPlots_[detId_pot].digiSent->Fill(boardId, digi.getHardwareChannelId());
-        if (boardSet.find(digi.getEventInfo().getHardwareId()) == boardSet.end()) {
+        float boardId = digi.eventInfo().hardwareBoardId() + 0.5 * digi.eventInfo().hardwareSampicId();
+        potPlots_[detId_pot].digiSent->Fill(boardId, digi.hardwareChannelId());
+        if (boardSet.find(digi.eventInfo().hardwareId()) == boardSet.end()) {
           // This guarantees that every board is counted only once
-          boardSet.insert(digi.getEventInfo().getHardwareId());
-          std::bitset<16> chMap(digi.getEventInfo().getChannelMap());
+          boardSet.insert(digi.eventInfo().hardwareId());
+          std::bitset<16> chMap(digi.eventInfo().channelMap());
           for (int i = 0; i < 16; ++i) {
             if (chMap.test(i)) {
               potPlots_[detId_pot].digiAll->Fill(boardId, i);
