@@ -21,9 +21,25 @@
   <class name="std::vector<TotemRPRecHit>"/>
   <class name="std::vector<const TotemRPRecHit*>"/>
 
-  <class name="TotemRPUVPattern" ClassVersion="2">
+  <class name="TotemRPUVPattern" ClassVersion="3">
     <version ClassVersion="2" checksum="3530058029"/>
+    <version ClassVersion="3" checksum="1693481125"/>
   </class>
+  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="double a" target="a_">
+  <![CDATA[ a_ = onfile.a;]]>
+  </ioread>
+  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="double b" target="b_">
+  <![CDATA[ b_ = onfile.b;]]>
+  </ioread>
+  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="double w" target="w_">
+  <![CDATA[ w_ = onfile.w;]]>
+  </ioread>
+  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="bool fittable" target="fittable_">
+  <![CDATA[ fittable_ = onfile.fittable;]]>
+  </ioread>
+  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="edm::DetSetVector<TotemRPRecHit> hits" target="hits_">
+  <![CDATA[ hits_ = onfile.hits;]]>
+  </ioread>
   <class name="edm::DetSet<TotemRPUVPattern>"/>
   <class name="std::vector<TotemRPUVPattern>"/>
   <class name="std::vector<edm::DetSet<TotemRPUVPattern> >"/>
@@ -143,7 +159,7 @@
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelRecHit> >"/>
 
   <class name="CTPPSPixelLocalTrack" ClassVersion="4">
-    <version ClassVersion="3" checksum="4150373475"/>    
+    <version ClassVersion="3" checksum="4150373475"/>
     <version ClassVersion="4" checksum="298693321"/>
   </class>
   <ioread sourceClass = "CTPPSPixelLocalTrack" version="[3]" targetClass="CTPPSPixelLocalTrack" source="int numberOfPointUsedForFit_" target="numberOfPointsUsedForFit_">
@@ -164,7 +180,7 @@
 <!-- common objects -->
 
   <class name="CTPPSLocalTrackLite" ClassVersion="4">
-    <version ClassVersion="3" checksum="3838813906"/>    
+    <version ClassVersion="3" checksum="3838813906"/>
     <version ClassVersion="4" checksum="2435718827"/>
   </class>
   <class name="std::vector<CTPPSLocalTrackLite>"/>
