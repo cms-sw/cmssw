@@ -171,7 +171,7 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event &iEvent, const edm::EventSe
                            // reconstruction info
                            0.,
                            CTPPSpixelLocalTrackReconstructionInfo::invalid,
-                           trk.planesNumber(),
+                           trk.numberOfPlanes(),
                            // timing info
                            roundedT,
                            roundedTSigma);

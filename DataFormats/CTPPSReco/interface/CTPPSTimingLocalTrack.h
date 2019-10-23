@@ -37,8 +37,8 @@ public:
   inline float z0() const { return pos0_.z(); }
   inline float z0Sigma() const { return pos0_sigma_.z(); }
 
-  inline int hitsNumber() const { return num_hits_; }
-  inline int planesNumber() const { return num_planes_; }
+  inline int numberOfHits() const { return num_hits_; }
+  inline int numberOfPlanes() const { return num_planes_; }
 
   //--- spatial set'ters
 
