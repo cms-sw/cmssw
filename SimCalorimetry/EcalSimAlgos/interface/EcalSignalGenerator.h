@@ -45,7 +45,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 namespace edm {
   class ModuleCallingContext;
 }
@@ -66,8 +65,7 @@ public:
                       const double EEs25notCont,
                       const double peToABarrel,
                       const double peToAEndcap,
-                      const bool   timeDependent = false
-                     )
+                      const bool timeDependent = false)
       : EcalBaseSignalGenerator(), theEvent(nullptr), theEventPrincipal(nullptr), theInputTag(inputTag), tok_(t) {
     EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
     theDefaultGains[2] = defaultRatios->gain6Over1();
@@ -99,7 +97,7 @@ public:
       // Ecal LaserCorrection Constants for laser correction ratio
       edm::ESHandle<EcalLaserDbService> laser;
       eventSetup->get<EcalLaserDbRecord>().get(laser);
-      
+
       //
       // FIXME: is this workaround of using "run" really needed or "time" can be used in MC generation as well?
       //        check with generation experts
@@ -113,9 +111,9 @@ public:
       //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
       //
       m_iTime = eventTimeValue;
-      
+
       m_lasercals = laser.product();
-      
+
       //
       // the "prime" is exactly the same as the usual laser service, BUT
       // it has only 1 IOV, so that effectively you are dividing IOV_n / IOV_0
@@ -126,7 +124,7 @@ public:
       eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
       //     const edm::TimeValue_t eventTimeValue = event.time().value();
       m_lasercals_prime = laser_prime.product();
-      
+
       //clear the laser cache for each event time
       //     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
       //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
@@ -135,7 +133,7 @@ public:
       m_valueLCCache_LC_prime.clear();  //--- also the "prime" ... yes
       //----
     }
-    
+
     //ES
     eventSetup->get<ESGainRcd>().get(hesgain);
     eventSetup->get<ESMIPToGeVConstantRcd>().get(hesMIPToGeV);
@@ -193,12 +191,12 @@ public:
       m_iTime = eventTimeValue;
       m_lasercals = laser.product();
       //     std::cout << " ---> EcalSignalGenerator() : initializeEvent() :: eventTimeValue = " << eventTimeValue << std::endl;
-      
+
       edm::ESHandle<EcalLaserDbService> laser_prime;
       eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
       //     const edm::TimeValue_t eventTimeValue = event.time().value();
       m_lasercals_prime = laser_prime.product();
-      
+
       //clear the laser cache for each event time
       //     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
       //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
@@ -207,7 +205,7 @@ public:
       m_valueLCCache_LC_prime.clear();  //--- also the "prime" ... yes
       //----
     }
-    
+
     //ES
     eventSetup->get<ESGainRcd>().get(hesgain);
     eventSetup->get<ESMIPToGeVConstantRcd>().get(hesMIPToGeV);
