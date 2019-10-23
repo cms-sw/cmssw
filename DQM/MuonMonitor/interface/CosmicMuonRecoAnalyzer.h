@@ -24,42 +24,40 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 
-
 class CosmicMuonRecoAnalyzer : public DQMEDAnalyzer {
- public:
-
+public:
   /// Constructor
   CosmicMuonRecoAnalyzer(const edm::ParameterSet&);
-  
+
   /// Destructor
   ~CosmicMuonRecoAnalyzer() override;
 
   /// Inizialize parameters for histo binning
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
- 
- private:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
+private:
   // ----------member data ---------------------------
-  MuonServiceProxy *theService;
+  MuonServiceProxy* theService;
   edm::ParameterSet parameters;
- 
-  edm::EDGetTokenT<edm::View<reco::Track> >   theMuonCollectionLabel_;
 
-   //histo binning parameters
+  edm::EDGetTokenT<edm::View<reco::Track> > theMuonCollectionLabel_;
 
-  int  hitsBin;
+  //histo binning parameters
+
+  int hitsBin;
   int hitsMin;
-  int  hitsMax;
+  int hitsMax;
 
-   int nTrkBin;
+  int nTrkBin;
   int nTrkMax;
-    int nTrkMin;
+  int nTrkMin;
 
   int etaBin;
   double etaMin;
@@ -89,7 +87,6 @@ class CosmicMuonRecoAnalyzer : public DQMEDAnalyzer {
   double pResMin;
   double pResMax;
 
-
   // sta muon
   MonitorElement* nTracksSta;
 
@@ -108,7 +105,6 @@ class CosmicMuonRecoAnalyzer : public DQMEDAnalyzer {
   MonitorElement* phiVsetaStaTrack;
   MonitorElement* nValidHitsStaTrack_eta;
   MonitorElement* nValidHitsStaTrack_phi;
-
 
   std::string theFolder;
 };
