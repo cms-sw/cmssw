@@ -1,5 +1,8 @@
 #include "DQM/MuonMonitor/interface/CosmicMuonRecoAnalyzer.h"
 
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -171,3 +174,5 @@ void CosmicMuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
 
   nTracksSta->Fill(nTracks_);
 }
+
+DEFINE_FWK_MODULE(CosmicMuonRecoAnalyzer);
