@@ -4,7 +4,6 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
-#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
@@ -14,6 +13,8 @@
 
 #include <string>
 #include "TMath.h"
+#include "TList.h"
+
 using namespace std;
 using namespace edm;
 
