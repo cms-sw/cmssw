@@ -55,9 +55,9 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
       }
     }
   }
-  
+
   double value_LC_prime = 1.;
-  
+
   if (m_timeDependent) {
     if (detId.subdetId() != 3) {
       auto cache = m_valueLCCache_LC_prime.find(detId);
@@ -153,7 +153,7 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
   // correction facotr for premixed sample: ratio of laser corrections
   float correction_factor_for_premixed_sample_transparency = 1.0;
   double value_LC = 1.;
-  
+
   if (m_timeDependent) {
     if (detId.subdetId() != 3) {
       auto cache = m_valueLCCache_LC.find(detId);
@@ -165,7 +165,7 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
       }
     }
   }
-  
+
   double value_LC_prime = 1.;
   if (m_timeDependent) {
     if (detId.subdetId() != 3) {
@@ -178,7 +178,7 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
       }
     }
   }
-  
+
   correction_factor_for_premixed_sample_transparency = value_LC_prime / value_LC;
   //
   // LC' /  LC  (see formula)
