@@ -39,8 +39,8 @@ public:
         clusterSizeRow_(rowsize),
         clusterSizeCol_(colsize) {}
 
-  inline LocalPoint getPoint() const { return thePoint_; }
-  inline LocalError getError() const { return theError_; }
+  inline LocalPoint point() const { return thePoint_; }
+  inline LocalError error() const { return theError_; }
 
   inline bool isOnEdge() const { return isOnEdge_; }
   inline bool hasBadPixels() const { return hasBadPixels_; }
@@ -69,6 +69,6 @@ private:
   unsigned int clusterSizeCol_;
 };
 
-inline bool operator<(CTPPSPixelRecHit& a, CTPPSPixelRecHit& b) { return (a.getPoint().mag() < b.getPoint().mag()); };
+inline bool operator<(CTPPSPixelRecHit& a, CTPPSPixelRecHit& b) { return (a.point().mag() < b.point().mag()); };
 
 #endif
