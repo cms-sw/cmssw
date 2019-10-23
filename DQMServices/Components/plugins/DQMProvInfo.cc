@@ -240,6 +240,9 @@ void DQMProvInfo::beginLuminosityBlock(const edm::LuminosityBlock& l,
   for (int vbin = 1; vbin <= MAX_DCS_VBINS; vbin++) {
     dcsBits_[vbin] = false;
   }
+  // Boolean that tells the analyse method that we encountered the first real
+  // dcs info
+  foundFirstDcsBits_ = false;
 }
 
 void DQMProvInfo::analyze(const edm::Event& event, const edm::EventSetup& c) {
