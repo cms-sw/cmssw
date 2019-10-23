@@ -2444,14 +2444,6 @@ void TrackAnalyzer::setLumiFlag() {
     NumberOfRecHitsPerTrack_lumiFlag->setLumiFlag();
 }
 //
-// -- Apply SoftReset
-//
-void TrackAnalyzer::doSoftReset(DQMStore* dqmStore_) {
-  TkParameterMEs tkmes;
-  dqmStore_->softReset(Chi2oNDF);
-  dqmStore_->softReset(NumberOfRecHitsPerTrack);
-}
-//
 // -- Apply Reset
 //
 void TrackAnalyzer::doReset() {
@@ -2460,12 +2452,4 @@ void TrackAnalyzer::doReset() {
     Chi2oNDF_lumiFlag->Reset();
   if (NumberOfRecHitsPerTrack_lumiFlag)
     NumberOfRecHitsPerTrack_lumiFlag->Reset();
-}
-//
-// -- Remove SoftReset
-//
-void TrackAnalyzer::undoSoftReset(DQMStore* dqmStore_) {
-  TkParameterMEs tkmes;
-  dqmStore_->disableSoftReset(Chi2oNDF);
-  dqmStore_->disableSoftReset(NumberOfRecHitsPerTrack);
 }

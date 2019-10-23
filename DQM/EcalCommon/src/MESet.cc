@@ -243,26 +243,6 @@ namespace ecaldqm {
     return false;
   }
 
-  void MESet::softReset() {
-    if (!active_)
-      return;
-
-    DQMStore &store(*edm::Service<DQMStore>());
-
-    for (unsigned iME(0); iME < mes_.size(); ++iME)
-      store.softReset(mes_[iME]);
-  }
-
-  void MESet::recoverStats() {
-    if (!active_)
-      return;
-
-    DQMStore &store(*edm::Service<DQMStore>());
-
-    for (unsigned iME(0); iME < mes_.size(); ++iME)
-      store.disableSoftReset(mes_[iME]);
-  }
-
   void MESet::fill_(unsigned _iME, int _bin, double _w) {
     if (kind_ == MonitorElement::Kind::REAL)
       return;

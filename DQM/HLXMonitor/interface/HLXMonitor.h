@@ -65,8 +65,6 @@ private:
   void FillReportSummary();
   void FillEventInfo(const LUMI_SECTION &, const edm::Event &e);
 
-  void ResetAll();
-
   void EndRun();
 
   double getUTCtime(timeval *a, timeval *b = nullptr);
@@ -234,8 +232,6 @@ private:
   unsigned int set2BelowIndex;
   unsigned int set2BetweenIndex;
   unsigned int set2AboveIndex;
-
-  bool ResetAtNewRun;
 
   std::string eventInfoFolderHLX_;
   std::string eventInfoFolder_;
