@@ -18,7 +18,7 @@ public:
         muons_(sumes.consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
         trackQuality_((conf.existsAs<std::string>("trackQuality"))
                           ? reco::TrackBase::qualityByName(conf.getParameter<std::string>("trackQuality"))
-                          : reco::TrackBase::qualityByName("highPurity")),
+                          : reco::TrackBase::highPurity),
         DPtovPtCut_(conf.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
         NHitCut_(conf.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
         useIterTracking_(conf.getParameter<bool>("useIterativeTracking")),
