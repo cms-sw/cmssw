@@ -280,18 +280,18 @@ void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &e
 
     for (auto &s : ds) {
       if (s.isMissing()) {
-        plots.vfat_problem->Fill(plNum, s.getChipPosition());
-        plots.vfat_missing->Fill(plNum, s.getChipPosition());
+        plots.vfat_problem->Fill(plNum, s.chipPosition());
+        plots.vfat_missing->Fill(plNum, s.chipPosition());
       }
 
       if (s.isECProgressError() || s.isBCProgressError()) {
-        plots.vfat_problem->Fill(plNum, s.getChipPosition());
-        plots.vfat_ec_bc_error->Fill(plNum, s.getChipPosition());
+        plots.vfat_problem->Fill(plNum, s.chipPosition());
+        plots.vfat_ec_bc_error->Fill(plNum, s.chipPosition());
       }
 
       if (s.isIDMismatch() || s.isFootprintError() || s.isCRCError()) {
-        plots.vfat_problem->Fill(plNum, s.getChipPosition());
-        plots.vfat_corruption->Fill(plNum, s.getChipPosition());
+        plots.vfat_problem->Fill(plNum, s.chipPosition());
+        plots.vfat_corruption->Fill(plNum, s.chipPosition());
       }
     }
   }
@@ -309,7 +309,7 @@ void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &e
     auto &plots = plIt->second;
 
     for (DetSet<TotemRPDigi>::const_iterator dit = it->begin(); dit != it->end(); ++dit)
-      plots.digi_profile_cumulative->Fill(dit->getStripNumber());
+      plots.digi_profile_cumulative->Fill(dit->stripNumber());
   }
 
   // cluster plots
@@ -595,7 +595,7 @@ void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &e
 
     set<unsigned int> sectors;
     for (const auto &d : dp) {
-      unsigned int sector = d.getStripNumber() / 32;
+      unsigned int sector = d.stripNumber() / 32;
       sectors.insert(sector);
     }
 

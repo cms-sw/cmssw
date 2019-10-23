@@ -356,7 +356,7 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker, unsigned i
   HPTDCErrorFlags_2D = ibooker.book2D("HPTDC Errors", title + " HPTDC Errors", 16, -0.5, 16.5, 9, -0.5, 8.5);
   for (unsigned short error_index = 1; error_index < 16; ++error_index)
     HPTDCErrorFlags_2D->getTH2F()->GetXaxis()->SetBinLabel(error_index,
-                                                           HPTDCErrorFlags::getHPTDCErrorName(error_index - 1).c_str());
+                                                           HPTDCErrorFlags::hptdcErrorName(error_index - 1).c_str());
   HPTDCErrorFlags_2D->getTH2F()->GetXaxis()->SetBinLabel(16, "Wrong EC");
 
   int tmpIndex = 0;
@@ -442,7 +442,7 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, un
   HPTDCErrorFlags = ibooker.book1D("hptdc_Errors", title + " HPTDC Errors", 16, -0.5, 16.5);
   for (unsigned short error_index = 1; error_index < 16; ++error_index)
     HPTDCErrorFlags->getTH1F()->GetXaxis()->SetBinLabel(error_index,
-                                                        HPTDCErrorFlags::getHPTDCErrorName(error_index - 1).c_str());
+                                                        HPTDCErrorFlags::hptdcErrorName(error_index - 1).c_str());
   HPTDCErrorFlags->getTH1F()->GetXaxis()->SetBinLabel(16, "MH  (%)");
 
   leadingEdgeCumulative_both =
@@ -628,36 +628,36 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       if (potPlots_.find(detId_pot) == potPlots_.end())
         continue;
       //Leading without trailing investigation
-      if (digi.getLeadingEdge() != 0 || digi.getTrailingEdge() != 0) {
+      if (digi.leadingEdge() != 0 || digi.trailingEdge() != 0) {
         ++(potPlots_[detId_pot].HitCounter);
-        if (digi.getLeadingEdge() != 0) {
-          potPlots_[detId_pot].leadingEdgeCumulative_all->Fill(HPTDC_BIN_WIDTH_NS * digi.getLeadingEdge());
+        if (digi.leadingEdge() != 0) {
+          potPlots_[detId_pot].leadingEdgeCumulative_all->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
         }
-        if (digi.getLeadingEdge() != 0 && digi.getTrailingEdge() == 0) {
+        if (digi.leadingEdge() != 0 && digi.trailingEdge() == 0) {
           ++(potPlots_[detId_pot].LeadingOnlyCounter);
-          potPlots_[detId_pot].leadingEdgeCumulative_le->Fill(HPTDC_BIN_WIDTH_NS * digi.getLeadingEdge());
+          potPlots_[detId_pot].leadingEdgeCumulative_le->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
         }
-        if (digi.getLeadingEdge() == 0 && digi.getTrailingEdge() != 0) {
+        if (digi.leadingEdge() == 0 && digi.trailingEdge() != 0) {
           ++(potPlots_[detId_pot].TrailingOnlyCounter);
-          potPlots_[detId_pot].trailingEdgeCumulative_te->Fill(HPTDC_BIN_WIDTH_NS * digi.getTrailingEdge());
+          potPlots_[detId_pot].trailingEdgeCumulative_te->Fill(HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
         }
-        if (digi.getLeadingEdge() != 0 && digi.getTrailingEdge() != 0) {
+        if (digi.leadingEdge() != 0 && digi.trailingEdge() != 0) {
           ++(potPlots_[detId_pot].CompleteCounter);
-          potPlots_[detId_pot].leadingTrailingCorrelationPot->Fill(HPTDC_BIN_WIDTH_NS * digi.getLeadingEdge(),
-                                                                   HPTDC_BIN_WIDTH_NS * digi.getTrailingEdge());
+          potPlots_[detId_pot].leadingTrailingCorrelationPot->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge(),
+                                                                   HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
         }
       }
 
       // HPTDC Errors
-      const HPTDCErrorFlags hptdcErrors = digi.getHPTDCErrorFlags();
+      const HPTDCErrorFlags hptdcErrors = digi.hptdcErrorFlags();
       if (detId.channel() == 6 || detId.channel() == 7)  // ch6 for HPTDC 0 and ch7 for HPTDC 1
       {
         int verticalIndex = 2 * detId.plane() + (detId.channel() - 6);
         for (unsigned short hptdcErrorIndex = 1; hptdcErrorIndex < 16; ++hptdcErrorIndex)
-          if (hptdcErrors.getErrorId(hptdcErrorIndex - 1))
+          if (hptdcErrors.errorId(hptdcErrorIndex - 1))
             potPlots_[detId_pot].HPTDCErrorFlags_2D->Fill(hptdcErrorIndex, verticalIndex);
       }
-      if (digi.getMultipleHit())
+      if (digi.multipleHit())
         ++(potPlots_[detId_pot].MHCounter);
     }
   }
@@ -678,35 +678,35 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
       // Check Event Number
       for (const auto& optorx : *fedInfo) {
-        if (detId.arm() == 1 && optorx.getFEDId() == CTPPS_FED_ID_56) {
-          potPlots_[detId_pot].ECCheck->Fill((int)((optorx.getLV1() & 0xFF) - ((unsigned int)status.getEC() & 0xFF)) &
+        if (detId.arm() == 1 && optorx.fedId() == CTPPS_FED_ID_56) {
+          potPlots_[detId_pot].ECCheck->Fill((int)((optorx.lv1() & 0xFF) - ((unsigned int)status.ec() & 0xFF)) &
                                              0xFF);
-          if ((static_cast<int>((optorx.getLV1() & 0xFF) - status.getEC()) != EC_difference_56_) &&
-              (static_cast<uint8_t>((optorx.getLV1() & 0xFF) - status.getEC()) < 128))
+          if ((static_cast<int>((optorx.lv1() & 0xFF) - status.ec()) != EC_difference_56_) &&
+              (static_cast<uint8_t>((optorx.lv1() & 0xFF) - status.ec()) < 128))
             EC_difference_56_ =
-                static_cast<int>(optorx.getLV1() & 0xFF) - (static_cast<unsigned int>(status.getEC()) & 0xFF);
+                static_cast<int>(optorx.lv1() & 0xFF) - (static_cast<unsigned int>(status.ec()) & 0xFF);
           if (EC_difference_56_ != 1 && EC_difference_56_ != -500 && std::abs(EC_difference_56_) < 127) {
             if (detId.channel() == 6 || detId.channel() == 7)
               potPlots_[detId_pot].HPTDCErrorFlags_2D->Fill(16, 2 * detId.plane() + (detId.channel() - 6));
             if (verbosity_)
               edm::LogProblem("CTPPSDiamondDQMSource")
-                  << "FED " << CTPPS_FED_ID_56 << ": ECError at EV: 0x" << std::hex << optorx.getLV1()
-                  << "\t\tVFAT EC: 0x" << static_cast<unsigned int>(status.getEC()) << "\twith ID: " << std::dec
+                  << "FED " << CTPPS_FED_ID_56 << ": ECError at EV: 0x" << std::hex << optorx.lv1()
+                  << "\t\tVFAT EC: 0x" << static_cast<unsigned int>(status.ec()) << "\twith ID: " << std::dec
                   << detId << "\tdiff: " << EC_difference_56_;
           }
-        } else if (detId.arm() == 0 && optorx.getFEDId() == CTPPS_FED_ID_45) {
-          potPlots_[detId_pot].ECCheck->Fill((int)((optorx.getLV1() & 0xFF) - status.getEC()) & 0xFF);
-          if ((static_cast<int>((optorx.getLV1() & 0xFF) - status.getEC()) != EC_difference_45_) &&
-              (static_cast<uint8_t>((optorx.getLV1() & 0xFF) - status.getEC()) < 128))
+        } else if (detId.arm() == 0 && optorx.fedId() == CTPPS_FED_ID_45) {
+          potPlots_[detId_pot].ECCheck->Fill((int)((optorx.lv1() & 0xFF) - status.ec()) & 0xFF);
+          if ((static_cast<int>((optorx.lv1() & 0xFF) - status.ec()) != EC_difference_45_) &&
+              (static_cast<uint8_t>((optorx.lv1() & 0xFF) - status.ec()) < 128))
             EC_difference_45_ =
-                static_cast<int>(optorx.getLV1() & 0xFF) - (static_cast<unsigned int>(status.getEC()) & 0xFF);
+                static_cast<int>(optorx.lv1() & 0xFF) - (static_cast<unsigned int>(status.ec()) & 0xFF);
           if (EC_difference_45_ != 1 && EC_difference_45_ != -500 && std::abs(EC_difference_45_) < 127) {
             if (detId.channel() == 6 || detId.channel() == 7)
               potPlots_[detId_pot].HPTDCErrorFlags_2D->Fill(16, 2 * detId.plane() + (detId.channel() - 6));
             if (verbosity_)
               edm::LogProblem("CTPPSDiamondDQMSource")
-                  << "FED " << CTPPS_FED_ID_45 << ": ECError at EV: 0x" << std::hex << optorx.getLV1()
-                  << "\t\tVFAT EC: 0x" << static_cast<unsigned int>(status.getEC()) << "\twith ID: " << std::dec
+                  << "FED " << CTPPS_FED_ID_45 << ": ECError at EV: 0x" << std::hex << optorx.lv1()
+                  << "\t\tVFAT EC: 0x" << static_cast<unsigned int>(status.ec()) << "\twith ID: " << std::dec
                   << detId << "\tdiff: " << EC_difference_45_;
           }
         }
@@ -933,14 +933,14 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
   //     detId_pot.setPlane( 0 );
   //     detId_pot.setChannel( 0 );
   //     for ( const auto& digi : digis ) {
-  //       if ( digi.getLeadingEdge() != 0 )  {
+  //       if ( digi.leadingEdge() != 0 )  {
   //         if ( detId.plane() == 1 ) {
-  //           potPlots_[detId_pot].clock_Digi1_le->Fill( HPTDC_BIN_WIDTH_NS * digi.getLeadingEdge() );
-  //           potPlots_[detId_pot].clock_Digi1_te->Fill( HPTDC_BIN_WIDTH_NS * digi.getTrailingEdge() );
+  //           potPlots_[detId_pot].clock_Digi1_le->Fill( HPTDC_BIN_WIDTH_NS * digi.leadingEdge() );
+  //           potPlots_[detId_pot].clock_Digi1_te->Fill( HPTDC_BIN_WIDTH_NS * digi.trailingEdge() );
   //         }
   //         if ( detId.plane() == 3 ) {
-  //           potPlots_[detId_pot].clock_Digi3_le->Fill( HPTDC_BIN_WIDTH_NS * digi.getLeadingEdge() );
-  //           potPlots_[detId_pot].clock_Digi3_te->Fill( HPTDC_BIN_WIDTH_NS * digi.getTrailingEdge() );
+  //           potPlots_[detId_pot].clock_Digi3_le->Fill( HPTDC_BIN_WIDTH_NS * digi.leadingEdge() );
+  //           potPlots_[detId_pot].clock_Digi3_te->Fill( HPTDC_BIN_WIDTH_NS * digi.trailingEdge() );
   //         }
   //       }
   //     }
@@ -963,7 +963,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       if (planePlots_.find(detId_plane) == planePlots_.end())
         continue;
 
-      if (digi.getLeadingEdge() != 0) {
+      if (digi.leadingEdge() != 0) {
         planePlots_[detId_plane].digiProfileCumulativePerPlane->Fill(detId.channel());
         if (channelsPerPlane.find(detId_plane) != channelsPerPlane.end())
           channelsPerPlane[detId_plane]++;
@@ -1051,28 +1051,28 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         continue;
       if (channelPlots_.find(detId) != channelPlots_.end()) {
         // HPTDC Errors
-        const HPTDCErrorFlags hptdcErrors = digi.getHPTDCErrorFlags();
+        const HPTDCErrorFlags hptdcErrors = digi.hptdcErrorFlags();
         for (unsigned short hptdcErrorIndex = 1; hptdcErrorIndex < 16; ++hptdcErrorIndex)
-          if (hptdcErrors.getErrorId(hptdcErrorIndex - 1))
+          if (hptdcErrors.errorId(hptdcErrorIndex - 1))
             channelPlots_[detId].HPTDCErrorFlags->Fill(hptdcErrorIndex);
-        if (digi.getMultipleHit())
+        if (digi.multipleHit())
           ++(channelPlots_[detId].MHCounter);
 
         // Check dropped trailing edges
-        if (digi.getLeadingEdge() != 0 || digi.getTrailingEdge() != 0) {
+        if (digi.leadingEdge() != 0 || digi.trailingEdge() != 0) {
           ++(channelPlots_[detId].HitCounter);
-          if (digi.getLeadingEdge() != 0 && digi.getTrailingEdge() == 0) {
+          if (digi.leadingEdge() != 0 && digi.trailingEdge() == 0) {
             ++(channelPlots_[detId].LeadingOnlyCounter);
-            channelPlots_[detId].leadingEdgeCumulative_le->Fill(HPTDC_BIN_WIDTH_NS * digi.getLeadingEdge());
+            channelPlots_[detId].leadingEdgeCumulative_le->Fill(HPTDC_BIN_WIDTH_NS * digi.leadingEdge());
           }
-          if (digi.getLeadingEdge() == 0 && digi.getTrailingEdge() != 0) {
+          if (digi.leadingEdge() == 0 && digi.trailingEdge() != 0) {
             ++(channelPlots_[detId].TrailingOnlyCounter);
-            channelPlots_[detId].trailingEdgeCumulative_te->Fill(HPTDC_BIN_WIDTH_NS * digi.getTrailingEdge());
+            channelPlots_[detId].trailingEdgeCumulative_te->Fill(HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
           }
-          if (digi.getLeadingEdge() != 0 && digi.getTrailingEdge() != 0) {
+          if (digi.leadingEdge() != 0 && digi.trailingEdge() != 0) {
             ++(channelPlots_[detId].CompleteCounter);
             channelPlots_[detId].LeadingTrailingCorrelationPerChannel->Fill(
-                HPTDC_BIN_WIDTH_NS * digi.getLeadingEdge(), HPTDC_BIN_WIDTH_NS * digi.getTrailingEdge());
+                HPTDC_BIN_WIDTH_NS * digi.leadingEdge(), HPTDC_BIN_WIDTH_NS * digi.trailingEdge());
           }
         }
       }
