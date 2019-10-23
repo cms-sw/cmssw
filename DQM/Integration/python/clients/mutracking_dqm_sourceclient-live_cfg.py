@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
 process = cms.Process("MUTRKDQM", Run2_2018_pp_on_AA)
 
-live=False
+live=True
 offlineTesting=not live
 
 
