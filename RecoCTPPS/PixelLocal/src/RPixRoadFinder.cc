@@ -98,7 +98,7 @@ void RPixRoadFinder::findPattern() {
     while (it_gh2 != temp_all_hits.end()) {
       bool same_pot = false;
       CTPPSPixelDetId tmpGh2Id = CTPPSPixelDetId(it_gh2->detId);
-      if (currDet.getRPId() == tmpGh2Id.getRPId())
+      if (currDet.rpId() == tmpGh2Id.rpId())
         same_pot = true;
       CLHEP::Hep3Vector subtraction = currPoint - it_gh2->globalPoint;
 
