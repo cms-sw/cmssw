@@ -1,5 +1,5 @@
 /** \file
- * 
+ *
  *
  * \author Seyed Mohsen Etesami
  */
@@ -16,8 +16,8 @@ CTPPSDiamondDigi::CTPPSDiamondDigi() : ledgt(0), tedgt(0), threvolt(0), mhit(fal
 
 // Comparison
 bool CTPPSDiamondDigi::operator==(const CTPPSDiamondDigi& digi) const {
-  if (ledgt != digi.getLeadingEdge() || tedgt != digi.getTrailingEdge() || threvolt != digi.getThresholdVoltage() ||
-      mhit != digi.getMultipleHit() || hptdcerror.getErrorFlag() != digi.getHPTDCErrorFlags().getErrorFlag())
+  if (ledgt != digi.leadingEdge() || tedgt != digi.trailingEdge() || threvolt != digi.thresholdVoltage() ||
+      mhit != digi.multipleHit() || hptdcerror.errorFlag() != digi.hptdcErrorFlags().errorFlag())
     return false;
   else
     return true;
