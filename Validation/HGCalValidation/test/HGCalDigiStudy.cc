@@ -172,7 +172,7 @@ void HGCalDigiStudy::beginJob() {
       hname << "XY_L" << (ly + 1);
       title << "Y vs X at Layer " << (ly + 1);
       h_XY_.emplace_back(
-        fs->make<TH2D>(hname.str().c_str(), title.str().c_str(), nbinR_, -rmax_, rmax_, nbinR_, -rmax_, rmax_));
+          fs->make<TH2D>(hname.str().c_str(), title.str().c_str(), nbinR_, -rmax_, rmax_, nbinR_, -rmax_, rmax_));
     }
   } else {
     hname.str("");
@@ -461,7 +461,7 @@ void HGCalDigiStudy::digiValidation(const T1& detId, const T2* geom, int layer, 
   h_RZ_->Fill(std::abs(hinfo.z), hinfo.r);
   if (ifLayer_) {
     if (layer <= static_cast<int>(h_XY_.size()))
-      h_XY_[layer-1]->Fill(gcoord.x(), gcoord.y());
+      h_XY_[layer - 1]->Fill(gcoord.x(), gcoord.y());
   } else {
     h_EtaPhi_->Fill(hinfo.eta, hinfo.phi);
   }
