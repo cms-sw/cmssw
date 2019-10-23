@@ -1041,11 +1041,6 @@ namespace dqm::impl {
   }
 
   void MonitorElement::copyFunctions(TH1 *from, TH1 *to) {
-    // will copy functions only if local-copy and original-object are equal
-    // (ie. no soft-resetting or accumulating is enabled)
-    if (isAccumulateEnabled())
-      return;
-
     update();
     TList *fromf = from->GetListOfFunctions();
     TList *tof = to->GetListOfFunctions();
@@ -1073,9 +1068,6 @@ namespace dqm::impl {
     TH1 *orig = getTH1();
     if (orig->GetTitle() != from->GetTitle())
       orig->SetTitle(from->GetTitle());
-
-    if (!isAccumulateEnabled())
-      orig->Reset();
 
     orig->Add(from);
 
