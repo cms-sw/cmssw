@@ -554,7 +554,6 @@ namespace dqm::dqmstoreimpl {
     int useQTestByMatch(std::string const& pattern, std::string const& qtname);
     void runQTests();
     int getStatus(std::string const& path = "") const;
-    void scaleElements();
 
   private:
     // ---------------- Navigation -----------------------
