@@ -232,18 +232,18 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       for (unsigned int idx = 0; idx < hTracks->size(); ++idx) {
         const auto &tr = hTracks->at(idx);
 
-        if (tr.getTx() < localAngleXMin_ || tr.getTx() > localAngleXMax_ || tr.getTy() < localAngleYMin_ ||
-            tr.getTy() > localAngleYMax_)
+        if (tr.tx() < localAngleXMin_ || tr.tx() > localAngleXMax_ || tr.ty() < localAngleYMin_ ||
+            tr.ty() > localAngleYMax_)
           continue;
 
-        const CTPPSDetId rpId(tr.getRPId());
+        const CTPPSDetId rpId(tr.rpId());
 
         if (verbosity_)
           ssLog << "\t"
-                << "[" << idx << "] " << tr.getRPId() << " (" << (rpId.arm() * 100 + rpId.station() * 10 + rpId.rp())
+                << "[" << idx << "] " << tr.rpId() << " (" << (rpId.arm() * 100 + rpId.station() * 10 + rpId.rp())
                 << "): "
-                << "x=" << tr.getX() << " +- " << tr.getXUnc() << " mm, "
-                << "y=" << tr.getY() << " +- " << tr.getYUnc() << " mm" << std::endl;
+                << "x=" << tr.x() << " +- " << tr.xUnc() << " mm, "
+                << "y=" << tr.y() << " +- " << tr.yUnc() << " mm" << std::endl;
 
         const bool trackerRP =
             (rpId.subdetId() == CTPPSDetId::sdTrackingStrip || rpId.subdetId() == CTPPSDetId::sdTrackingPixel);
@@ -277,7 +277,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
         //    - PPS did not use more than 2 tracking RPs per arm -> algorithms are tuned to this
         std::set<unsigned int> rpIds;
         for (const auto &idx : indices)
-          rpIds.insert(hTracks->at(idx).getRPId());
+          rpIds.insert(hTracks->at(idx).rpId());
 
         // do multi-RP reco if chosen
         if (doMultiRPReconstruction_ && rpIds.size() == 2) {
@@ -295,14 +295,14 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
               const auto &pr_i = singleRPResultsIndexed[i];
               const auto &pr_j = singleRPResultsIndexed[j];
 
-              if (tr_i.getRPId() == tr_j.getRPId())
+              if (tr_i.rpId() == tr_j.rpId())
                 continue;
 
               bool matching = true;
 
-              if (ac.x_cut_apply && std::abs(tr_i.getX() - tr_j.getX()) > ac.x_cut_value)
+              if (ac.x_cut_apply && std::abs(tr_i.x() - tr_j.x()) > ac.x_cut_value)
                 matching = false;
-              if (ac.y_cut_apply && std::abs(tr_i.getY() - tr_j.getY()) > ac.y_cut_value)
+              if (ac.y_cut_apply && std::abs(tr_i.y() - tr_j.y()) > ac.y_cut_value)
                 matching = false;
               if (ac.xi_cut_apply && std::abs(pr_i.xi() - pr_j.xi()) > ac.xi_cut_value)
                 matching = false;
@@ -322,7 +322,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
           std::map<unsigned int, unsigned int> timing_RP_track_multiplicity;
           for (const auto &ti : timingSelection[arm_it.first]) {
             const auto &tr = hTracks->at(ti);
-            timing_RP_track_multiplicity[tr.getRPId()]++;
+            timing_RP_track_multiplicity[tr.rpId()]++;
           }
 
           // associate tracking-RP pairs with timing-RP tracks
@@ -339,32 +339,32 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
             const auto &tr_i = hTracks->at(i);
             const auto &tr_j = hTracks->at(j);
 
-            const double z_i = hGeometry->getRPTranslation(tr_i.getRPId()).z();
-            const double z_j = hGeometry->getRPTranslation(tr_j.getRPId()).z();
+            const double z_i = hGeometry->getRPTranslation(tr_i.rpId()).z();
+            const double z_j = hGeometry->getRPTranslation(tr_j.rpId()).z();
 
             for (const auto &ti : timingSelection[arm_it.first]) {
               const auto &tr_ti = hTracks->at(ti);
 
               // skip if timing RP saturated (high track multiplicity)
-              if (timing_RP_track_multiplicity[tr_ti.getRPId()] > max_n_timing_tracks_)
+              if (timing_RP_track_multiplicity[tr_ti.rpId()] > max_n_timing_tracks_)
                 continue;
 
               // interpolation from tracking RPs
-              const double z_ti = -hGeometry->getRPTranslation(tr_ti.getRPId())
+              const double z_ti = -hGeometry->getRPTranslation(tr_ti.rpId())
                                        .z();  // the minus sign fixes a bug in the diamond geometry
               const double f_i = (z_ti - z_j) / (z_i - z_j), f_j = (z_i - z_ti) / (z_i - z_j);
-              const double x_inter = f_i * tr_i.getX() + f_j * tr_j.getX();
+              const double x_inter = f_i * tr_i.x() + f_j * tr_j.x();
               const double x_inter_unc_sq =
-                  f_i * f_i * tr_i.getXUnc() * tr_i.getXUnc() + f_j * f_j * tr_j.getXUnc() * tr_j.getXUnc();
+                  f_i * f_i * tr_i.xUnc() * tr_i.xUnc() + f_j * f_j * tr_j.xUnc() * tr_j.xUnc();
 
-              const double de_x = tr_ti.getX() - x_inter;
-              const double de_x_unc = sqrt(tr_ti.getXUnc() * tr_ti.getXUnc() + x_inter_unc_sq);
+              const double de_x = tr_ti.x() - x_inter;
+              const double de_x_unc = sqrt(tr_ti.xUnc() * tr_ti.xUnc() + x_inter_unc_sq);
 
               const bool matching = (std::abs(de_x) <= de_x_unc);
 
               if (verbosity_)
                 ssLog << "ti=" << ti << ", i=" << i << ", j=" << j << " | z_ti=" << z_ti << ", z_i=" << z_i
-                      << ", z_j=" << z_j << " | x_ti=" << tr_ti.getX() << ", x_inter=" << x_inter << ", de_x=" << de_x
+                      << ", z_j=" << z_j << " | x_ti=" << tr_ti.x() << ", x_inter=" << x_inter << ", de_x=" << de_x
                       << ", de_x_unc=" << de_x_unc << ", matching=" << matching << std::endl;
 
               if (!matching)
@@ -407,10 +407,10 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
                 ssLog << ti << ", ";
 
               const auto &tr = hTracks->at(ti);
-              const double t_unc = tr.getTimeUnc();
+              const double t_unc = tr.timeUnc();
               const double w = (t_unc > 0.) ? 1. / t_unc / t_unc : 1.;
               sw += w;
-              swt += w * tr.getTime();
+              swt += w * tr.time();
             }
 
             float time = 0., time_unc = 0.;

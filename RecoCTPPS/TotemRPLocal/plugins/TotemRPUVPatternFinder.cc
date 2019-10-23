@@ -1,8 +1,8 @@
 /****************************************************************************
 *
 * This is a part of TOTEM offline software.
-* Authors: 
-*   Jan Kašpar (jan.kaspar@gmail.com) 
+* Authors:
+*   Jan Kašpar (jan.kaspar@gmail.com)
 *
 ****************************************************************************/
 
@@ -143,13 +143,13 @@ void TotemRPUVPatternFinder::recognizeAndSelect(TotemRPUVPattern::ProjectionType
     p.setFittable(true);
 
     set<unsigned int> planes;
-    for (const auto &ds : p.getHits())
+    for (const auto &ds : p.hits())
       planes.insert(TotemRPDetId(ds.detId()).plane());
 
     if (planes.size() < planes_required)
       p.setFittable(false);
 
-    if (fabs(p.getA()) > max_a_toFit)
+    if (fabs(p.a()) > max_a_toFit)
       p.setFittable(false);
 
     patterns.push_back(p);
@@ -264,12 +264,12 @@ void TotemRPUVPatternFinder::produce(edm::Event &event, const edm::EventSetup &e
       LogVerbatim("TotemRPUVPatternFinder") << "\t\tpatterns:";
       for (const auto &p : patterns) {
         unsigned int n_hits = 0;
-        for (auto &hds : p.getHits())
+        for (auto &hds : p.hits())
           n_hits += hds.size();
 
         LogVerbatim("TotemRPUVPatternFinder")
-            << "\t\t\tproj = " << ((p.getProjection() == TotemRPUVPattern::projU) ? "U" : "V") << ", a = " << p.getA()
-            << ", b = " << p.getB() << ", w = " << p.getW() << ", fittable = " << p.getFittable()
+            << "\t\t\tproj = " << ((p.projection() == TotemRPUVPattern::projU) ? "U" : "V") << ", a = " << p.a()
+            << ", b = " << p.b() << ", w = " << p.w() << ", fittable = " << p.fittable()
             << ", hits = " << n_hits;
       }
     }
