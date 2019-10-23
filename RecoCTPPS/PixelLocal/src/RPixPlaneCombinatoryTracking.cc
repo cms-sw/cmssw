@@ -310,7 +310,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
         math::Vector<3>::type maxGlobalPointDistance(
             maximumXLocalDistanceFromTrack_, maximumYLocalDistanceFromTrack_, 0.);
 
-        DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->getSensor(tmpPlaneId)->rotation();
+        DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->sensor(tmpPlaneId)->rotation();
         AlgebraicMatrix33 tmpPlaneRotationMatrixMap;
         theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap(0, 0),
                                         tmpPlaneRotationMatrixMap(0, 1),
@@ -607,7 +607,7 @@ bool RPixPlaneCombinatoryTracking::calculatePointOnDetector(CTPPSPixelLocalTrack
   math::Vector<3>::type pointOnPlane(tmpPointOnPlane.x(), tmpPointOnPlane.y(), tmpPointOnPlane.z());
   math::Vector<3>::type planeUnitVector(0., 0., 1.);
 
-  DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->getSensor(planeId)->rotation();
+  DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->sensor(planeId)->rotation();
   AlgebraicMatrix33 tmpPlaneRotationMatrixMap;
   theRotationMatrix.GetComponents(tmpPlaneRotationMatrixMap(0, 0),
                                   tmpPlaneRotationMatrixMap(0, 1),

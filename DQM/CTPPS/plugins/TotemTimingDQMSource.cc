@@ -430,11 +430,11 @@ void TotemTimingDQMSource::dqmBeginRun(const edm::Run &iRun, const edm::EventSet
   verticalShiftTop_ = 0;
   verticalShiftBot_ = 0;
   {
-    const DetGeomDesc *det_top = geom->getSensorNoThrow(detid_top);
+    const DetGeomDesc *det_top = geom->sensorNoThrow(detid_top);
     if (det_top) {
       verticalShiftTop_ = det_top->translation().y() + det_top->params().at(1);
     }
-    const DetGeomDesc *det_bot = geom->getSensorNoThrow(detid_bot);
+    const DetGeomDesc *det_bot = geom->sensorNoThrow(detid_bot);
     if (det_bot)
       verticalShiftBot_ = det_bot->translation().y() + det_bot->params().at(1);
   }
@@ -687,9 +687,9 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
             double rp_y = 0;
             try {
               rp_x =
-                  (geometry->getSensor(plId_V)->translation().x() + geometry->getSensor(plId_U)->translation().x()) / 2;
+                  (geometry->sensor(plId_V)->translation().x() + geometry->sensor(plId_U)->translation().x()) / 2;
               rp_y =
-                  (geometry->getSensor(plId_V)->translation().y() + geometry->getSensor(plId_U)->translation().y()) / 2;
+                  (geometry->sensor(plId_V)->translation().y() + geometry->sensor(plId_U)->translation().y()) / 2;
             } catch (const cms::Exception &) {
               continue;
             }

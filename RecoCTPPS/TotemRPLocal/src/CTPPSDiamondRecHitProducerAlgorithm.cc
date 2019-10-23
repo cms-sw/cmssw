@@ -30,7 +30,7 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
       continue;
 
     // retrieve the geometry element associated to this DetID
-    const DetGeomDesc* det = geom.getSensor(detid);
+    const DetGeomDesc* det = geom.sensor(detid);
 
     const float x_pos = det->translation().x(), y_pos = det->translation().y();
     float z_pos = 0.;

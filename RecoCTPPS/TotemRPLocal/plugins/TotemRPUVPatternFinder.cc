@@ -253,7 +253,7 @@ void TotemRPUVPatternFinder::produce(edm::Event &event, const edm::EventSetup &e
     DetSet<TotemRPUVPattern> &patterns = patternsVector.find_or_insert(rpId);
 
     // "typical" z0 for the RP
-    double z0 = geometry->getRP(rpId)->translation().z();
+    double z0 = geometry->rp(rpId)->translation().z();
 
     // u then v recognition
     recognizeAndSelect(TotemRPUVPattern::projU, z0, threshold_U, minPlanesPerProjectionToFit_U, data.hits_U, patterns);
