@@ -246,8 +246,8 @@ void HGCalRecHitStudy::recHitValidation(DetId& detId, int layer, const T1* geom,
   float globalz = global.z();
   h_RZ_->Fill(std::abs(globalz), global.perp());
   if (ifLayer_) {
-    if ((layer-firstLayer_) <= static_cast<int>(h_XY_.size()))
-      h_XY_[layer-firstLayer_]->Fill(std::abs(globalx), std::abs(globaly));
+    if ((layer - firstLayer_) <= static_cast<int>(h_XY_.size()))
+      h_XY_[layer - firstLayer_]->Fill(std::abs(globalx), std::abs(globaly));
   } else {
     h_EtaPhi_->Fill(std::abs(global.eta()), global.phi());
   }
