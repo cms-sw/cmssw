@@ -101,10 +101,7 @@ void MEtoEDMConverter::globalEndRun(edm::Run const& iRun, const edm::EventSetup&
 
 void MEtoEDMConverter::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup) {
   DQMStore* store = edm::Service<DQMStore>().operator->();
-  store->meBookerGetter([&](DQMStore::IBooker& b, DQMStore::IGetter& g) {
-    store->scaleElements();
-    putData(g, iRun, false, iRun.run(), 0);
-  });
+  store->meBookerGetter([&](DQMStore::IBooker& b, DQMStore::IGetter& g) { putData(g, iRun, false, iRun.run(), 0); });
 }
 
 std::shared_ptr<meedm::Void> MEtoEDMConverter::globalBeginLuminosityBlock(edm::LuminosityBlock const&,
