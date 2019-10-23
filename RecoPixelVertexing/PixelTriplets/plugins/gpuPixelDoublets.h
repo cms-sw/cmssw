@@ -1,5 +1,5 @@
 #ifndef RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDoublets_h
-#define RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDouplets_h
+#define RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDoublets_h
 
 #include "RecoPixelVertexing/PixelTriplets/plugins/gpuPixelDoubletsAlgos.h"
 

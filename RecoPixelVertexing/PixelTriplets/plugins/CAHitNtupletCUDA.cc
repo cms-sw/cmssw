@@ -74,7 +74,7 @@ void CAHitNtupletCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const
     CUDAScopedContextProduce ctx{*hHits};
     auto const& hits = ctx.get(*hHits);
 
-    ctx.emplace(iEvent, tokenTrackGPU_, std::move(gpuAlgo_.makeTuplesAsync(hits, bf, ctx.stream())));
+    ctx.emplace(iEvent, tokenTrackGPU_, gpuAlgo_.makeTuplesAsync(hits, bf, ctx.stream()));
   } else {
     auto const& hits = iEvent.get(tokenHitCPU_);
     iEvent.emplace(tokenTrackCPU_, gpuAlgo_.makeTuples(hits, bf));
