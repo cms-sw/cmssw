@@ -52,7 +52,7 @@ private:
 
   // variables needed for copied goodPtResolution function
   // need to go back and figure out sensible values
-  bool debug_;
+
   const reco::TrackBase::TrackQuality trackQuality_;
   const std::vector<double> DPtovPtCut_;
   const std::vector<unsigned> NHitCut_;
@@ -74,7 +74,6 @@ private:
 
 HGCalTrackCollectionProducer::HGCalTrackCollectionProducer(const edm::ParameterSet& iConfig)
     : src_(consumes<edm::View<reco::PFRecTrack> >(iConfig.getParameter<edm::InputTag>("src"))),
-      debug_(iConfig.getParameter<bool>("debug")),
       trackQuality_((iConfig.existsAs<std::string>("trackQuality"))
                         ? reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("trackQuality"))
                         : reco::TrackBase::highPurity),
@@ -138,8 +137,8 @@ void HGCalTrackCollectionProducer::produce(edm::Event& evt, const edm::EventSetu
 
   for (unsigned int i = 0; i < tracks.size(); i++) {
     const auto track = tracks.ptrAt(i);
-    bool isGood = PFTrackAlgoTools::goodPtResolution(
-        track->trackRef(), DPtovPtCut_, NHitCut_, useIterTracking_, trackQuality_, debug_);
+    bool isGood =
+        PFTrackAlgoTools::goodPtResolution(track->trackRef(), DPtovPtCut_, NHitCut_, useIterTracking_, trackQuality_);
     LogDebug("HGCalTrackCollectionProducer") << "HGCalTrackCollectionProducer Track number " << i
                                              << " has a goodPtResolution result of " << isGood << std::endl;
     if (!isGood)
