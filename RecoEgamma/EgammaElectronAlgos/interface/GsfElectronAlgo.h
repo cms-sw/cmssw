@@ -59,14 +59,13 @@ public:
     std::unique_ptr<const ElectronMVAEstimator> iElectronMVAEstimator;
   };
 
-  struct InputTagsConfiguration {
+  struct Tokens {
     edm::EDGetTokenT<reco::GsfElectronCollection> previousGsfElectrons;
     edm::EDGetTokenT<reco::GsfElectronCollection> pflowGsfElectronsTag;
     edm::EDGetTokenT<reco::GsfElectronCoreCollection> gsfElectronCores;
     edm::EDGetTokenT<CaloTowerCollection> hcalTowersTag;
     edm::EDGetTokenT<reco::SuperClusterCollection> barrelSuperClusters;
     edm::EDGetTokenT<reco::SuperClusterCollection> endcapSuperClusters;
-    //edm::EDGetTokenT tracks ;
     edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollection;
     edm::EDGetTokenT<EcalRecHitCollection> endcapRecHitCollection;
     edm::EDGetTokenT<reco::ElectronSeedCollection> seedsTag;
@@ -75,10 +74,6 @@ public:
     edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksTag;
     edm::EDGetTokenT<reco::VertexCollection> vtxCollectionTag;
     edm::EDGetTokenT<reco::ConversionCollection> conversions;
-
-    //IsoVals (PF and EcalDriven)
-    edm::ParameterSet pfIsoVals;
-    edm::ParameterSet edIsoVals;
   };
 
   struct StrategyConfiguration {
@@ -187,7 +182,7 @@ public:
     bool useNumCrystals;
   };
 
-  GsfElectronAlgo(const InputTagsConfiguration&,
+  GsfElectronAlgo(const Tokens&,
                   const StrategyConfiguration&,
                   const CutsConfiguration& cutsCfg,
                   const CutsConfiguration& cutsCfgPflow,
@@ -195,8 +190,8 @@ public:
                   const ElectronHcalHelper::Configuration& hcalCfgPflow,
                   const IsolationConfiguration&,
                   const EcalRecHitsConfiguration&,
-                  std::unique_ptr<EcalClusterFunctionBaseClass> superClusterErrorFunction,
-                  std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction,
+                  std::unique_ptr<EcalClusterFunctionBaseClass>&& superClusterErrorFunction,
+                  std::unique_ptr<EcalClusterFunctionBaseClass>&& crackCorrectionFunction,
                   const RegressionHelper::Configuration& regCfg,
                   const edm::ParameterSet& tkIsol03Cfg,
                   const edm::ParameterSet& tkIsol04Cfg,
@@ -215,7 +210,7 @@ private:
 
   struct Configuration {
     // configurables
-    const InputTagsConfiguration input;
+    const Tokens tokens;
     const StrategyConfiguration strategy;
     const CutsConfiguration cuts;
     const CutsConfiguration cutsPflow;
@@ -243,15 +238,13 @@ private:
   void setCutBasedPreselectionFlag(reco::GsfElectron& ele, const reco::BeamSpot&) const;
 
   template <bool full5x5>
-  void calculateShowerShape(const reco::SuperClusterRef&,
-                            ElectronHcalHelper const& hcalHelper,
-                            reco::GsfElectron::ShowerShape&,
-                            EventData const& eventData,
-                            CaloTopology const& topology,
-                            CaloGeometry const& geometry) const;
-  void calculateSaturationInfo(const reco::SuperClusterRef&,
-                               reco::GsfElectron::SaturationInfo&,
-                               EventData const& eventData) const;
+  reco::GsfElectron::ShowerShape calculateShowerShape(const reco::SuperClusterRef&,
+                                                      ElectronHcalHelper const& hcalHelper,
+                                                      EventData const& eventData,
+                                                      CaloTopology const& topology,
+                                                      CaloGeometry const& geometry) const;
+  reco::GsfElectron::SaturationInfo calculateSaturationInfo(const reco::SuperClusterRef&,
+                                                            EventData const& eventData) const;
 
   // Pixel match variables
   void setPixelMatchInfomation(reco::GsfElectron&) const;
