@@ -130,8 +130,8 @@ double ProtonReconstructionAlgorithm::ChiSquareCalculator::operator()(const doub
     const double y = k_out.y - oit->second.y0;
 
     // calculate chi^2 contributions, convert track data mm --> cm
-    const double x_diff_norm = (x - track->x() * 1E-1) / (track->yUnc() * 1E-1);
-    const double y_diff_norm = (y - track->x() * 1E-1) / (track->yUnc() * 1E-1);
+    const double x_diff_norm = (x - track->x() * 1E-1) / (track->xUnc() * 1E-1);
+    const double y_diff_norm = (y - track->y() * 1E-1) / (track->yUnc() * 1E-1);
 
     // increase chi^2
     s2 += x_diff_norm * x_diff_norm + y_diff_norm * y_diff_norm;
