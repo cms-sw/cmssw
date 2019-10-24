@@ -135,8 +135,6 @@ private:
 
   void makeAllPlots(DQMStore::IBooker&, DQMStore::IGetter&);
 
-  void removeMEIfBooked(const std::string& meName, DQMStore::IGetter& igetter);
-
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5, 27, 0)
 
 #else
