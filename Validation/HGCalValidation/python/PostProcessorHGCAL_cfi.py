@@ -23,16 +23,16 @@ postProcessorHGCALlayerclusters= DQMEDHarvester('DQMGenericClient',
     verbose = cms.untracked.uint32(4))
 
 eff_multiclusters = ["effic_eta 'MultiCluster Efficiency vs #eta' Num_CaloParticle_Eta Denom_CaloParticle_Eta"]
-eff_multiclusters.extend(["effic_phi 'MultiCluster Efficiency vs #phi ' Num_CaloParticle_Phi Denom_CaloParticle_Phi"])
-eff_multiclusters.extend(["duplicate_eta 'MultiCluster Duplicate(Split) Rate vs #eta ' NumDup_CaloParticle_Eta Denom_CaloParticle_Eta"])
-eff_multiclusters.extend(["duplicate_phi 'MultiCluster Duplicate(Split) Rate vs #phi ' NumDup_CaloParticle_Phi Denom_CaloParticle_Phi"])
-eff_multiclusters.extend(["fake_eta 'MultiCluster Fake Rate vs #eta ' Num_MultiCluster_Eta Denom_MultiCluster_Eta fake"])
-eff_multiclusters.extend(["fake_phi 'MultiCluster Fake Rate vs #phi ' Num_MultiCluster_Phi Denom_MultiCluster_Phi fake"])
-eff_multiclusters.extend(["merge_eta 'MultiCluster Merge Rate vs #eta ' NumMerge_MultiCluster_Eta Denom_MultiCluster_Eta"])
-eff_multiclusters.extend(["merge_phi 'MultiCluster Merge Rate vs #phi ' NumMerge_MultiCluster_Phi Denom_MultiCluster_Phi"])
+eff_multiclusters.extend(["effic_phi 'MultiCluster Efficiency vs #phi' Num_CaloParticle_Phi Denom_CaloParticle_Phi"])
+eff_multiclusters.extend(["duplicate_eta 'MultiCluster Duplicate(Split) Rate vs #eta' NumDup_MultiCluster_Eta Denom_MultiCluster_Eta"])
+eff_multiclusters.extend(["duplicate_phi 'MultiCluster Duplicate(Split) Rate vs #phi' NumDup_MultiCluster_Phi Denom_MultiCluster_Phi"])
+eff_multiclusters.extend(["fake_eta 'MultiCluster Fake Rate vs #eta' Num_MultiCluster_Eta Denom_MultiCluster_Eta fake"])
+eff_multiclusters.extend(["fake_phi 'MultiCluster Fake Rate vs #phi' Num_MultiCluster_Phi Denom_MultiCluster_Phi fake"])
+eff_multiclusters.extend(["merge_eta 'MultiCluster Merge Rate vs #eta' NumMerge_MultiCluster_Eta Denom_MultiCluster_Eta"])
+eff_multiclusters.extend(["merge_phi 'MultiCluster Merge Rate vs #phi' NumMerge_MultiCluster_Phi Denom_MultiCluster_Phi"])
 
 postProcessorHGCALmulticlusters = DQMEDHarvester('DQMGenericClient',
-subDirs = cms.untracked.vstring('HGCAL/HGCalValidator/hgcalMultiClusters/', 'HGCAL/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA/'),
+subDirs = cms.untracked.vstring('HGCAL/HGCalValidator/hgcalMultiClusters/', 'HGCAL/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA/'),
 efficiency = cms.vstring(eff_multiclusters),
 resolution = cms.vstring(),
 cumulativeDists = cms.untracked.vstring(),

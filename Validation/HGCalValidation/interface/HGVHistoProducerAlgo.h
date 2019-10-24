@@ -122,8 +122,8 @@ struct HGVHistoProducerAlgoHistograms {
   ConcurrentMonitorElement h_denom_multicl_phi;
   ConcurrentMonitorElement h_num_caloparticle_eta;
   ConcurrentMonitorElement h_num_caloparticle_phi;
-  ConcurrentMonitorElement h_numDup_caloparticle_eta;
-  ConcurrentMonitorElement h_numDup_caloparticle_phi;
+  ConcurrentMonitorElement h_numDup_multicl_eta;
+  ConcurrentMonitorElement h_numDup_multicl_phi;
   ConcurrentMonitorElement h_denom_caloparticle_eta;
   ConcurrentMonitorElement h_denom_caloparticle_phi;
   ConcurrentMonitorElement h_cellAssociation;

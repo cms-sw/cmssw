@@ -14,8 +14,8 @@ using namespace std;
 //configuration parameter for the HGCAL associator.
 const double ScoreCutLCtoCP_ = 0.1;
 const double ScoreCutCPtoLC_ = 0.1;
-const double ScoreCutMCLtoCP_ = 0.2;
-const double ScoreCutCPtoMCL_ = 0.2;
+const double ScoreCutMCLtoCPFakeMerge_ = 0.6;
+const double ScoreCutCPtoMCLDup_ = 0.2;
 
 HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
     :  //parameters for eta
@@ -675,14 +675,15 @@ void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::ConcurrentBooker& ib
                         maxMCLSharedEneFrac_);
   histograms.h_num_caloparticle_eta =
       ibook.book1D("Num_CaloParticle_Eta", "Num CaloParticle Eta per Multi Cluster", nintEta_, minEta_, maxEta_);
-  histograms.h_numDup_caloparticle_eta = ibook.book1D(
-      "NumDup_CaloParticle_Eta", "Num Duplicate CaloParticle Eta per Multi Cluster", nintEta_, minEta_, maxEta_);
+  histograms.h_numDup_multicl_eta = ibook.book1D(
+      "NumDup_MultiCluster_Eta", "Num Duplicate MultiCl vs Eta", nintEta_, minEta_, maxEta_);
   histograms.h_denom_caloparticle_eta =
       ibook.book1D("Denom_CaloParticle_Eta", "Denom CaloParticle Eta per Multi Cluster", nintEta_, minEta_, maxEta_);
   histograms.h_num_caloparticle_phi =
       ibook.book1D("Num_CaloParticle_Phi", "Num CaloParticle Phi per Multi Cluster", nintPhi_, minPhi_, maxPhi_);
-  histograms.h_numDup_caloparticle_phi = ibook.book1D(
-      "NumDup_CaloParticle_Phi", "Num Duplicate CaloParticle Phi per Multi Cluster", nintPhi_, minPhi_, maxPhi_);
+  histograms.h_numDup_multicl_phi = ibook.book1D(
+      "NumDup_MultiCluster_Phi", "Num Duplicate MultiCl vs Phi", nintPhi_, minPhi_, maxPhi_);
+
   histograms.h_denom_caloparticle_phi =
       ibook.book1D("Denom_CaloParticle_Phi", "Denom CaloParticle Phi per Multi Cluster", nintPhi_, minPhi_, maxPhi_);
 
@@ -1672,6 +1673,8 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
 
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToCaloParticleId_Map;
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInMultiCluster>> detIdToMultiClusterId_Map;
+  std::vector<int> tracksters_fakemerge(nMultiClusters, 0);
+  std::vector<int> tracksters_duplicate(nMultiClusters, 0);
 
   // this contains the ids of the caloparticles contributing with at least one hit to the multi cluster and the reconstruction error
   //cpsInLayerCluster[multicluster][CPids]
@@ -2019,6 +2022,8 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
                                  << "\t score \t-1"
                                  << "\n";
 
+    auto score = std::min_element(std::begin(cpsInMultiCluster[mclId]), std::end(cpsInMultiCluster[mclId]),
+        [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
     for (auto& cpPair : cpsInMultiCluster[mclId]) {
       // LogDebug("HGCalValidator") << "multiCluster Id: \t" << mclId
       // 			   << "\t CP id: \t" << cpPair.first
@@ -2026,11 +2031,13 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
       // 			   << "\n";
       LogDebug("HGCalValidator") << "multiCluster Id: \t" << mclId << "\t CP id: \t" << cpPair.first << "\t score \t"
                                  << cpPair.second << std::endl;
-      histograms.h_score_multicl2caloparticle.fill(cpPair.second);
-      if (contimulti[mclId]) {
-        histograms.h_score_contimulticl2caloparticle.fill(cpPair.second);
-      } else {
-        histograms.h_score_noncontimulticl2caloparticle.fill(cpPair.second);
+      if (cpPair.first == score->first) {
+        histograms.h_score_multicl2caloparticle.fill(score->second);
+        if (contimulti[mclId]) {
+          histograms.h_score_contimulticl2caloparticle.fill(score->second);
+        } else {
+          histograms.h_score_noncontimulticl2caloparticle.fill(score->second);
+        }
       }
       float sharedeneCPallLayers = 0.;
       //Loop through all layers
@@ -2039,46 +2046,25 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
         sharedeneCPallLayers += cp_linked.first;
       }  //end of loop through layers
       LogDebug("HGCalValidator") << "sharedeneCPallLayers " << sharedeneCPallLayers << std::endl;
-      histograms.h_sharedenergy_multicl2caloparticle.fill(sharedeneCPallLayers / multiClusters[mclId].energy());
-      histograms.h_energy_vs_score_multicl2caloparticle.fill(cpPair.second,
-                                                             sharedeneCPallLayers / multiClusters[mclId].energy());
-      if (contimulti[mclId]) {
-        histograms.h_energy_vs_score_contimulticl2caloparticle.fill(
-            cpPair.second, sharedeneCPallLayers / multiClusters[mclId].energy());
-      } else {
-        histograms.h_energy_vs_score_noncontimulticl2caloparticle.fill(
-            cpPair.second, sharedeneCPallLayers / multiClusters[mclId].energy());
+      if (cpPair.first == score->first) {
+        histograms.h_sharedenergy_multicl2caloparticle.fill(sharedeneCPallLayers / multiClusters[mclId].energy());
+        histograms.h_energy_vs_score_multicl2caloparticle.fill(score->second,
+            sharedeneCPallLayers / multiClusters[mclId].energy());
+        if (contimulti[mclId]) {
+          histograms.h_energy_vs_score_contimulticl2caloparticle.fill(
+              score->second, sharedeneCPallLayers / multiClusters[mclId].energy());
+        } else {
+          histograms.h_energy_vs_score_noncontimulticl2caloparticle.fill(
+              score->second, sharedeneCPallLayers / multiClusters[mclId].energy());
+        }
       }
     }
 
-    auto assoc = std::count_if(std::begin(cpsInMultiCluster[mclId]),
-                               std::end(cpsInMultiCluster[mclId]),
-                               [](const auto& obj) { return obj.second < ScoreCutMCLtoCP_; });
-    if (assoc) {
-      histograms.h_num_multicl_eta.fill(multiClusters[mclId].eta());
-      histograms.h_num_multicl_phi.fill(multiClusters[mclId].phi());
-      if (assoc > 1) {
-        histograms.h_numMerge_multicl_eta.fill(multiClusters[mclId].eta());
-        histograms.h_numMerge_multicl_phi.fill(multiClusters[mclId].phi());
-      }
-      auto best = std::min_element(std::begin(cpsInMultiCluster[mclId]),
-                                   std::end(cpsInMultiCluster[mclId]),
-                                   [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
+    auto assocFakeMerge = std::count_if(std::begin(cpsInMultiCluster[mclId]),
+        std::end(cpsInMultiCluster[mclId]),
+        [](const auto& obj) { return obj.second < ScoreCutMCLtoCPFakeMerge_; });
+    tracksters_fakemerge[mclId] = assocFakeMerge;
 
-      //This is the shared energy taking the best caloparticle in each layer
-      float sharedeneCPallLayers = 0.;
-      //Loop through all layers
-      for (unsigned int j = 0; j < layers * 2; ++j) {
-        auto const& best_cp_linked = cPOnLayer[best->first][j].layerClusterIdToEnergyAndScore[mclId];
-        sharedeneCPallLayers += best_cp_linked.first;
-      }  //end of loop through layers
-      histograms.h_sharedenergy_multicl2caloparticle_vs_eta.fill(multiClusters[mclId].eta(),
-                                                                 sharedeneCPallLayers / multiClusters[mclId].energy());
-      histograms.h_sharedenergy_multicl2caloparticle_vs_phi.fill(multiClusters[mclId].phi(),
-                                                                 sharedeneCPallLayers / multiClusters[mclId].energy());
-    }
-    histograms.h_denom_multicl_eta.fill(multiClusters[mclId].eta());
-    histograms.h_denom_multicl_phi.fill(multiClusters[mclId].phi());
 
   }  //end of loop through multiclusters
 
@@ -2241,15 +2227,19 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
 
     }  //end of loop through multiclusters
 
-    auto assoc = std::count_if(
-        std::begin(score3d[cpId]), std::end(score3d[cpId]), [](const auto& obj) { return obj < ScoreCutCPtoMCL_; });
-    if (assoc) {
+
+    auto is_assoc = [&] (const auto& v) -> bool  {
+      return v < ScoreCutCPtoMCLDup_;
+    };
+
+    auto assocDup = std::count_if(
+        std::begin(score3d[cpId]),
+        std::end(score3d[cpId]),
+        is_assoc);
+
+    if (assocDup > 0) {
       histograms.h_num_caloparticle_eta.fill(cP[cpId].g4Tracks()[0].momentum().eta());
       histograms.h_num_caloparticle_phi.fill(cP[cpId].g4Tracks()[0].momentum().phi());
-      if (assoc > 1) {
-        histograms.h_numDup_caloparticle_eta.fill(cP[cpId].g4Tracks()[0].momentum().eta());
-        histograms.h_numDup_caloparticle_phi.fill(cP[cpId].g4Tracks()[0].momentum().phi());
-      }
       auto best = std::min_element(std::begin(score3d[cpId]), std::end(score3d[cpId]));
       auto bestmclId = std::distance(std::begin(score3d[cpId]), best);
 
@@ -2258,10 +2248,55 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
       histograms.h_sharedenergy_caloparticle2multicl_vs_phi.fill(cP[cpId].g4Tracks()[0].momentum().phi(),
                                                                  multiClusters[bestmclId].energy() / CPenergy);
     }
+    if (assocDup >= 2) {
+      auto match = std::find_if(
+          std::begin(score3d[cpId]),
+          std::end(score3d[cpId]),
+          is_assoc);
+      while (match != score3d[cpId].end()) {
+        tracksters_duplicate[std::distance(
+            std::begin(score3d[cpId]), match)] = 1;
+            match = std::find_if(std::next(match), std::end(score3d[cpId]), is_assoc);
+      }
+    }
     histograms.h_denom_caloparticle_eta.fill(cP[cpId].g4Tracks()[0].momentum().eta());
     histograms.h_denom_caloparticle_phi.fill(cP[cpId].g4Tracks()[0].momentum().phi());
-
   }  //end of loop through caloparticles
+
+  for (unsigned int mclId = 0; mclId < nMultiClusters; ++mclId) {
+    auto assocFakeMerge = tracksters_fakemerge[mclId];
+    auto assocDuplicate = tracksters_duplicate[mclId];
+    if (assocDuplicate) {
+        histograms.h_numDup_multicl_eta.fill(multiClusters[mclId].eta());
+        histograms.h_numDup_multicl_phi.fill(multiClusters[mclId].phi());
+    } else {
+      if (assocFakeMerge > 0) {
+        histograms.h_num_multicl_eta.fill(multiClusters[mclId].eta());
+        histograms.h_num_multicl_phi.fill(multiClusters[mclId].phi());
+        auto best = std::min_element(std::begin(cpsInMultiCluster[mclId]),
+            std::end(cpsInMultiCluster[mclId]),
+            [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
+
+        //This is the shared energy taking the best caloparticle in each layer
+        float sharedeneCPallLayers = 0.;
+        //Loop through all layers
+        for (unsigned int j = 0; j < layers * 2; ++j) {
+          auto const& best_cp_linked = cPOnLayer[best->first][j].layerClusterIdToEnergyAndScore[mclId];
+          sharedeneCPallLayers += best_cp_linked.first;
+        }  //end of loop through layers
+        histograms.h_sharedenergy_multicl2caloparticle_vs_eta.fill(multiClusters[mclId].eta(),
+            sharedeneCPallLayers / multiClusters[mclId].energy());
+        histograms.h_sharedenergy_multicl2caloparticle_vs_phi.fill(multiClusters[mclId].phi(),
+            sharedeneCPallLayers / multiClusters[mclId].energy());
+      }
+      if (assocFakeMerge >= 2) {
+        histograms.h_numMerge_multicl_eta.fill(multiClusters[mclId].eta());
+        histograms.h_numMerge_multicl_phi.fill(multiClusters[mclId].phi());
+      }
+    }
+    histograms.h_denom_multicl_eta.fill(multiClusters[mclId].eta());
+    histograms.h_denom_multicl_phi.fill(multiClusters[mclId].phi());
+  }
 }
 
 void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histograms,
