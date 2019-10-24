@@ -219,7 +219,7 @@ void SUSY_HLT_DoubleMuon_Hadronic::analyze(edm::Event const &e, edm::EventSetup 
   }
 }
 
-void SUSY_HLT_DoubleMuon_Hadronic::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SUSY_HLT_DoubleMuon_Hadronic::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   edm::LogInfo("SUSY_HLT_DoubleMuon_Hadronic") << "SUSY_HLT_DoubleMuon_Hadronic::endRun" << std::endl;
 }
 

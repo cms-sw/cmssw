@@ -111,7 +111,7 @@ void SUSY_HLT_Muon_BJet::analyze(edm::Event const &e, edm::EventSetup const &eSe
   }
 }
 
-void SUSY_HLT_Muon_BJet::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SUSY_HLT_Muon_BJet::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   edm::LogInfo("SUSY_HLT_Muon_BJet") << "SUSY_HLT_Muon_BJet::endRun" << std::endl;
 }
 

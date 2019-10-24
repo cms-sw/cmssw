@@ -109,8 +109,8 @@ public:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// Finish up a run
-  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
-  //  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+  //  void dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   // Fill MonitorElements
   void fillMESet(const edm::Event&,
                  std::string,

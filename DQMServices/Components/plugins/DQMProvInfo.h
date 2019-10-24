@@ -8,7 +8,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/ServiceRegistry/interface/Service.h>
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 #include <DQMServices/Core/interface/DQMStore.h>
 
 #include <DataFormats/Scalers/interface/DcsStatus.h>
@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-class DQMProvInfo : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DQMProvInfo : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   // Constructor
   DQMProvInfo(const edm::ParameterSet& ps);

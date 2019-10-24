@@ -179,7 +179,7 @@ void SiStripMonitorQuality::analyze(edm::Event const &iEvent, edm::EventSetup co
 //
 // -- End Run
 //
-void SiStripMonitorQuality::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SiStripMonitorQuality::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if (outputMEsInRootFile) {

@@ -2240,7 +2240,7 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 }
 
 // ***********************************************************
-void JetAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
+void JetAnalyzer::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
 
 // ***********************************************************
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

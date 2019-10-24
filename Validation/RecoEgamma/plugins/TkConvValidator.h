@@ -55,7 +55,7 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(edm::Run const& r, edm::EventSetup const& theEventSetup) override;
-  void endRun(edm::Run const& r, edm::EventSetup const& es) override;
+  void dqmEndRun(edm::Run const& r, edm::EventSetup const& es) override;
   void endJob() override;
 
 private:
