@@ -115,7 +115,7 @@ void SiPixelStatusHarvester::bookHistograms(DQMStore::IBooker& iBooker,
 void SiPixelStatusHarvester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup) {
+void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   // tracker geometry and cabling map to convert offline row/column (module) to online row/column
   edm::ESHandle<TrackerGeometry> tmpTkGeometry;
   iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometry);
@@ -660,7 +660,7 @@ bool SiPixelStatusHarvester::equal(SiPixelQuality* a, SiPixelQuality* b) {
 void SiPixelStatusHarvester::constructTag(std::map<int, SiPixelQuality*> siPixelQualityTag,
                                           edm::Service<cond::service::PoolDBOutputService>& poolDbService,
                                           std::string tagName,
-                                          edm::Run& iRun) {
+                                          edm::Run const& iRun) {
   for (std::map<int, SiPixelQuality*>::iterator qIt = siPixelQualityTag.begin(); qIt != siPixelQualityTag.end();
        ++qIt) {
     edm::LuminosityBlockID lu(iRun.id().run(), qIt->first);

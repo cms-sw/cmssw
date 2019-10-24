@@ -22,7 +22,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
@@ -34,7 +34,7 @@
 
 class DTTimeEvolutionHisto;
 
-class DTScalerInfoTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTScalerInfoTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   friend class DTMonitorModule;
 
 public:
