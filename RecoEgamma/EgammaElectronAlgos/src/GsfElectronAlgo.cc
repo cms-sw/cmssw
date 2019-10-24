@@ -39,6 +39,17 @@
 using namespace edm;
 using namespace reco;
 
+GsfElectronAlgo::HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& conf) {
+  // soft electron MVA
+  SoftElectronMVAEstimator::Configuration sconfig;
+  sconfig.vweightsfiles = conf.getParameter<std::vector<std::string> >("SoftElecMVAFilesString");
+  sElectronMVAEstimator.reset(new SoftElectronMVAEstimator(sconfig));
+  // isolated electron MVA
+  ElectronMVAEstimator::Configuration iconfig;
+  iconfig.vweightsfiles = conf.getParameter<std::vector<std::string> >("ElecMVAFilesString");
+  iElectronMVAEstimator.reset(new ElectronMVAEstimator(iconfig));
+}
+
 GsfElectronAlgo::EventSetupData::EventSetupData()
     : cacheIDGeom(0),
       cacheIDTopo(0),
@@ -489,7 +500,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event) 
 void GsfElectronAlgo::completeElectrons(reco::GsfElectronCollection& electrons,
                                         edm::Event const& event,
                                         edm::EventSetup const& eventSetup,
-                                        const gsfAlgoHelpers::HeavyObjectCache* hoc) {
+                                        const GsfElectronAlgo::HeavyObjectCache* hoc) {
   checkSetup(eventSetup);
   auto eventData = beginEvent(event);
 
@@ -645,7 +656,7 @@ void GsfElectronAlgo::setCutBasedPreselectionFlag(GsfElectron& ele, const reco::
 void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                                      ElectronData& electronData,
                                      EventData& eventData,
-                                     const gsfAlgoHelpers::HeavyObjectCache* hoc) {
+                                     const GsfElectronAlgo::HeavyObjectCache* hoc) {
   // eventually check ctf track
   if (generalData_.strategyCfg.ctfTracksCheck && electronData.ctfTrackRef.isNull()) {
     electronData.ctfTrackRef =

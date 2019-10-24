@@ -44,7 +44,6 @@ public:
   struct Tokens {
     edm::EDGetTokenT<std::vector<reco::Vertex> > token_vtx;
     edm::EDGetTokenT<reco::BeamSpot> token_bs;
-    edm::EDGetTokenT<MeasurementTrackerEvent> token_measTrkEvt;
   };
 
   typedef edm::OwnVector<TrackingRecHit> PRecHitContainer;
@@ -58,15 +57,11 @@ public:
   void run(edm::Event&,
            const edm::EventSetup& setup,
            const reco::SuperClusterRefVector&,
-           const std::vector<float>& hoe1s,
-           const std::vector<float>& hoe2s,
            const std::vector<const TrajectorySeedCollection*>& seedsV,
            reco::ElectronSeedCollection&);
 
 private:
   void seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster,
-                            float hoe1,
-                            float hoe2,
                             reco::BeamSpot const& beamSpot,
                             std::vector<reco::Vertex> const* vertices,
                             reco::ElectronSeedCollection& out);
