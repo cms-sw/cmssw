@@ -129,8 +129,6 @@ namespace pat {
     void embedDytMuon();
 
     // add extra timing information
-    /// 1/beta for prompt particle hypothesis
-    /// (time is constraint to the bunch crossing time)
     void readTimeExtra(const reco::MuonTimeExtra& t);
 
     // ---- PF specific methods ----
@@ -294,7 +292,8 @@ namespace pat {
     float softMvaValue() const { return softMvaValue_; }
     void setSoftMvaValue(float softmva) { softMvaValue_ = softmva; }
 
-    /// Inverse beta
+    // 1/beta for prompt particle hypothesis
+    /// (time is constraint to the bunch crossing time)
     float inverseBeta() const { return inverseBeta_; }
     float inverseBetaErr() const { return inverseBetaErr_; }
 
