@@ -477,24 +477,6 @@ void TrackerOfflineValidationSummary::fillTree(TTree& tree,
       treeMem.histNameNormY = h->GetName();
     }
 
-    // Delete module level hists if set in cfg
-    const bool removeModuleLevelHists(parSet_.getParameter<bool>("removeModuleLevelHists"));
-    if (removeModuleLevelHists) {
-      dbe_->setCurrentFolder("");
-      if (it->second.ResHisto)
-        dbe_->removeElement(histDir + "/" + it->second.ResHisto->GetName());
-      if (it->second.NormResHisto)
-        dbe_->removeElement(histDir + "/" + it->second.NormResHisto->GetName());
-      if (it->second.ResXprimeHisto)
-        dbe_->removeElement(histDir + "/" + it->second.ResXprimeHisto->GetName());
-      if (it->second.NormResXprimeHisto)
-        dbe_->removeElement(histDir + "/" + it->second.NormResXprimeHisto->GetName());
-      if (it->second.ResYprimeHisto)
-        dbe_->removeElement(histDir + "/" + it->second.ResYprimeHisto->GetName());
-      if (it->second.NormResYprimeHisto)
-        dbe_->removeElement(histDir + "/" + it->second.NormResYprimeHisto->GetName());
-    }
-
     tree.Fill();
   }
 }
