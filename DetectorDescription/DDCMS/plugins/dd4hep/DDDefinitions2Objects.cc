@@ -616,11 +616,20 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
       string fracname = ns.realName(xfrac_mat.nameStr());
 
       TGeoMaterial* frac_mat = mgr.GetMaterial(fracname.c_str());
+      if (frac_mat == nullptr)  // Try to find it within this namespace
+        frac_mat = mgr.GetMaterial(ns.prepend(fracname).c_str());
       if (frac_mat) {
         mix->AddElement(frac_mat, fraction);
         continue;
       }
-      printout(WARNING, "DD4CMS", "+++ Composite material \"%s\" not present!", fracname.c_str());
+
+      printout(WARNING,
+               "DD4CMS",
+               "+++ Composite material \"%s\" [nor \"%s\"] not present! [delay resolution]",
+               fracname.c_str(),
+               ns.prepend(fracname).c_str());
+      ns.context()->unresolvedMaterials[nam].emplace_back(
+          cms::DDParsingContext::CompositeMaterial(ns.prepend(fracname), fraction));
     }
     mix->SetRadLen(0e0);
     /// Create medium from the material
@@ -1839,6 +1848,47 @@ static long load_dddefinition(Detector& det, xml_h element) {
     for (xml::Document d : res.includes) {
       print_doc((doc = d).root());
       xml_coll_t(d.root(), DD_CMU(MaterialSection)).for_each(Converter<MaterialSection>(det, &context));
+    }
+    {
+      printout(context.debug_materials ? ALWAYS : DEBUG,
+               "DD4CMS",
+               "+++ RESOLVING %ld unknown material constituents.....",
+               context.unresolvedMaterials.size());
+
+      // Resolve referenced materials (if any)
+
+      while (!context.unresolvedMaterials.empty()) {
+        for (auto& it : context.unresolvedMaterials) {
+          auto const& name = it.first;
+          std::vector<bool> valid;
+          printout(context.debug_materials ? ALWAYS : DEBUG,
+                   "DD4CMS",
+                   "+++ [%06ld] ----------  %s",
+                   context.unresolvedMaterials.size(),
+                   name.c_str());
+
+          auto mat = ns.material(name);
+          for (auto& mit : it.second) {
+            printout(context.debug_materials ? ALWAYS : DEBUG,
+                     "DD4CMS",
+                     "+++           component  %-48s Fraction: %.6f",
+                     mit.name.c_str(),
+                     mit.fraction);
+            auto fmat = ns.material(mit.name);
+            if (nullptr != fmat.ptr()) {
+              if (mat.ptr()->GetMaterial()->IsMixture()) {
+                valid.emplace_back(true);
+                static_cast<TGeoMixture*>(mat.ptr()->GetMaterial())->AddElement(fmat.ptr()->GetMaterial(), mit.fraction);
+              }
+            }
+          }
+          // All components are resolved
+          if (valid.size() == it.second.size())
+            context.unresolvedMaterials.erase(name);
+        }
+        // Do it again if there are unresolved
+        // materials left after this pass
+      }
     }
     if (open_geometry) {
       context.geo_inited = true;
