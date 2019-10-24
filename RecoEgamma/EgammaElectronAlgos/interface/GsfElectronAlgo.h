@@ -213,12 +213,7 @@ public:
 private:
   // internal structures
 
-  //===================================================================
-  // GsfElectronAlgo::GeneralData
-  //===================================================================
-
-  // general data and helpers
-  struct GeneralData {
+  struct Configuration {
     // configurables
     const InputTagsConfiguration input;
     const StrategyConfiguration strategy;
@@ -228,87 +223,8 @@ private:
     const EcalRecHitsConfiguration recHits;
   };
 
-  //===================================================================
-  // GsfElectronAlgo::EventData
-  //===================================================================
-
-  struct EventData {
-    // utilities
-    void retreiveOriginalTrackCollections(const reco::TrackRef&, const reco::GsfTrackRef&);
-
-    // general
-    edm::Event const* event;
-    const reco::BeamSpot* beamspot;
-
-    // input collections
-    edm::Handle<reco::GsfElectronCollection> previousElectrons;
-    edm::Handle<reco::GsfElectronCollection> pflowElectrons;
-    edm::Handle<reco::GsfElectronCoreCollection> coreElectrons;
-    edm::Handle<EcalRecHitCollection> barrelRecHits;
-    edm::Handle<EcalRecHitCollection> endcapRecHits;
-    edm::Handle<reco::TrackCollection> currentCtfTracks;
-    edm::Handle<reco::ElectronSeedCollection> seeds;
-    edm::Handle<reco::GsfPFRecTrackCollection> gsfPfRecTracks;
-    edm::Handle<reco::VertexCollection> vertices;
-    edm::Handle<reco::ConversionCollection> conversions;
-
-    // isolation helpers
-    EgammaTowerIsolation hadDepth1Isolation03, hadDepth1Isolation04;
-    EgammaTowerIsolation hadDepth2Isolation03, hadDepth2Isolation04;
-    EgammaTowerIsolation hadDepth1Isolation03Bc, hadDepth1Isolation04Bc;
-    EgammaTowerIsolation hadDepth2Isolation03Bc, hadDepth2Isolation04Bc;
-    EgammaRecHitIsolation ecalBarrelIsol03, ecalBarrelIsol04;
-    EgammaRecHitIsolation ecalEndcapIsol03, ecalEndcapIsol04;
-
-    //Isolation Value Maps for PF and EcalDriven electrons
-    typedef std::vector<edm::Handle<edm::ValueMap<double> > > IsolationValueMaps;
-    IsolationValueMaps pfIsolationValues;
-    IsolationValueMaps edIsolationValues;
-
-    edm::Handle<reco::TrackCollection> originalCtfTracks;
-    edm::Handle<reco::GsfTrackCollection> originalGsfTracks;
-
-    bool originalCtfTrackCollectionRetreived = false;
-    bool originalGsfTrackCollectionRetreived = false;
-  };
-
-  //===================================================================
-  // GsfElectronAlgo::ElectronData
-  //===================================================================
-
-  struct ElectronData {
-    // Refs to subproducts
-    const reco::GsfElectronCoreRef coreRef;
-    const reco::GsfTrackRef gsfTrackRef;
-    const reco::SuperClusterRef superClusterRef;
-    reco::TrackRef ctfTrackRef;
-    float shFracInnerHits;
-    const reco::BeamSpot beamSpot;
-
-    // constructors
-    ElectronData(const reco::GsfElectronCoreRef& core, const reco::BeamSpot& bs);
-
-    // utilities
-    void computeCharge(int& charge, reco::GsfElectron::ChargeInfo& info);
-    reco::CaloClusterPtr getEleBasicCluster(MultiTrajectoryStateTransform const&);
-    bool calculateTSOS(MultiTrajectoryStateTransform const&, GsfConstraintAtVertex const&);
-    void calculateMode();
-    reco::Candidate::LorentzVector calculateMomentum();
-
-    // TSOS
-    TrajectoryStateOnSurface innTSOS;
-    TrajectoryStateOnSurface outTSOS;
-    TrajectoryStateOnSurface vtxTSOS;
-    TrajectoryStateOnSurface sclTSOS;
-    TrajectoryStateOnSurface seedTSOS;
-    TrajectoryStateOnSurface eleTSOS;
-    TrajectoryStateOnSurface constrainedVtxTSOS;
-
-    // mode
-    GlobalVector innMom, seedMom, eleMom, sclMom, vtxMom, outMom;
-    GlobalPoint innPos, seedPos, elePos, sclPos, vtxPos, outPos;
-    GlobalVector vtxMomWithConstraint;
-  };
+  struct EventData;
+  struct ElectronData;
 
   void checkSetup(edm::EventSetup const& eventSetup);
   EventData beginEvent(edm::Event const& event,
@@ -324,8 +240,7 @@ private:
                       double magneticFieldInTesla,
                       const HeavyObjectCache*);
 
-  void setMVAepiBasedPreselectionFlag(reco::GsfElectron& ele);
-  void setCutBasedPreselectionFlag(reco::GsfElectron& ele, const reco::BeamSpot&);
+  void setCutBasedPreselectionFlag(reco::GsfElectron& ele, const reco::BeamSpot&) const;
 
   template <bool full5x5>
   void calculateShowerShape(const reco::SuperClusterRef&,
@@ -333,19 +248,16 @@ private:
                             reco::GsfElectron::ShowerShape&,
                             EventData const& eventData,
                             CaloTopology const& topology,
-                            CaloGeometry const& geometry);
+                            CaloGeometry const& geometry) const;
   void calculateSaturationInfo(const reco::SuperClusterRef&,
                                reco::GsfElectron::SaturationInfo&,
-                               EventData const& eventData);
-
-  // associations
-  const reco::SuperClusterRef getTrSuperCluster(const reco::GsfTrackRef& trackRef);
+                               EventData const& eventData) const;
 
   // Pixel match variables
-  void setPixelMatchInfomation(reco::GsfElectron&);
+  void setPixelMatchInfomation(reco::GsfElectron&) const;
 
   // constant class members
-  const GeneralData cfg_;
+  const Configuration cfg_;
 
   const EleTkIsolFromCands tkIsol03Calc_;
   const EleTkIsolFromCands tkIsol04Calc_;
