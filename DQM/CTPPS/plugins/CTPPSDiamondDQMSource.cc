@@ -756,7 +756,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
 
       if (rechit.toT() != 0) {
         // Both
-        potPlots_[detId_pot].leadingEdgeCumulative_both->Fill(rechit.t() + 25 * rechit.ootIndex());
+        potPlots_[detId_pot].leadingEdgeCumulative_both->Fill(rechit.time() + 25 * rechit.ootIndex());
         potPlots_[detId_pot].timeOverThresholdCumulativePot->Fill(rechit.toT());
 
         TH2F* hitHistoOOTTmp = potPlots_[detId_pot].hitDistribution2dOOT->getTH2F();
@@ -1082,7 +1082,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         continue;
       if (channelPlots_.find(detId) != channelPlots_.end()) {
         if (rechit.ootIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && rechit.toT() != 0) {
-          channelPlots_[detId].leadingEdgeCumulative_both->Fill(rechit.t() + 25 * rechit.ootIndex());
+          channelPlots_[detId].leadingEdgeCumulative_both->Fill(rechit.time() + 25 * rechit.ootIndex());
           channelPlots_[detId].TimeOverThresholdCumulativePerChannel->Fill(rechit.toT());
         }
         ++(lumiCache->hitsCounterMap[detId]);

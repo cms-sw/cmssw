@@ -55,13 +55,13 @@ public:
 
   //--- temporal get'ters
 
-  inline float t() const { return t_; }
-  inline float tSigma() const { return t_sigma_; }
+  inline float time() const { return t_; }
+  inline float timeSigma() const { return t_sigma_; }
 
   //--- temporal set'ters
 
-  inline void setT(float t) { t_ = t; }
-  inline void setTSigma(float t_sigma) { t_sigma_ = t_sigma; }
+  inline void setTime(float t) { t_ = t; }
+  inline void setTimeSigma(float t_sigma) { t_sigma_ = t_sigma; }
 
 private:
   //--- spatial information

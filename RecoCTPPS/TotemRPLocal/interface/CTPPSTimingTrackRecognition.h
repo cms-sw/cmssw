@@ -235,7 +235,7 @@ inline bool CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::timeEval(const Hi
     if (hit.tPrecision() <= 0.)
       continue;
     const float weight = std::pow(hit.tPrecision(), -2);
-    mean_num += weight * hit.t();
+    mean_num += weight * hit.time();
     mean_denom += weight;
     valid_hits = true;  // at least one valid hit to account for
   }

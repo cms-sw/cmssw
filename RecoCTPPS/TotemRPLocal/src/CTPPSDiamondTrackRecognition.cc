@@ -83,8 +83,8 @@ int CTPPSDiamondTrackRecognition::produceTracks(edm::DetSet<CTPPSDiamondLocalTra
       float mean_time = 0.f, time_sigma = 0.f;
       bool valid_hits = timeEval(componentHits, mean_time, time_sigma);
       newTrack.setValid(valid_hits);
-      newTrack.setT(mean_time);
-      newTrack.setTSigma(time_sigma);
+      newTrack.setTime(mean_time);
+      newTrack.setTimeSigma(time_sigma);
 
       tracks.push_back(newTrack);
     }

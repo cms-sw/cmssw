@@ -35,8 +35,8 @@ public:
   inline void setZWidth(float zWidth) { zWidth_ = zWidth; }
   inline float zWidth() const { return zWidth_; }
 
-  inline void setT(float t) { t_ = t; }
-  inline float t() const { return t_; }
+  inline void setTime(float t) { t_ = t; }
+  inline float time() const { return t_; }
 
 protected:
   float x_, xWidth_;
@@ -49,7 +49,7 @@ protected:
 
 inline bool operator<(const CTPPSTimingRecHit &l, const CTPPSTimingRecHit &r) {
   // only sort by leading edge time
-  return (l.t() < r.t());
+  return (l.time() < r.time());
 }
 
 #endif

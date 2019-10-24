@@ -51,9 +51,9 @@ bool CTPPSTimingLocalTrack::containsHit(const CTPPSTimingRecHit& recHit, float t
 
 bool operator<(const CTPPSTimingLocalTrack& lhs, const CTPPSTimingLocalTrack& rhs) {
   // start to sort by temporal coordinate
-  if (lhs.t() < rhs.t())
+  if (lhs.time() < rhs.time())
     return true;
-  if (lhs.t() > rhs.t())
+  if (lhs.time() > rhs.time())
     return false;
   // then sort by x-position
   if (lhs.x0() < rhs.x0())
