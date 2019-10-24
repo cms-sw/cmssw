@@ -125,7 +125,6 @@ process.MessageLogger.cerr.TopDiLeptonOfflineDQM = cms.untracked.PSet(limit = cm
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
-process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)  ## line added to avoid crash when changing run number
 
 
 ## path definitions

@@ -18,7 +18,7 @@
 using namespace lat;
 
 MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet)
-    : fName(""), verbosity(0), frequency(0), deleteAfterCopy(false) {
+    : fName(""), verbosity(0), frequency(0) {
   std::string MsgLoggerCat = "MEtoEDMConverter_MEtoEDMConverter";
 
   // get information from parameter set
@@ -26,7 +26,6 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet)
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity", 0);
   frequency = iPSet.getUntrackedParameter<int>("Frequency", 50);
   path = iPSet.getUntrackedParameter<std::string>("MEPathToSave");
-  deleteAfterCopy = iPSet.getUntrackedParameter<bool>("deleteAfterCopy", false);
   enableMultiThread_ = false;
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -288,12 +287,6 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
         continue;
     }
 
-    if (!iLumiOnly) {
-      // remove ME after copy to EDM is done.
-      if (deleteAfterCopy) {
-        iGetter.removeElement(me->getPathname(), me->getName());
-      }
-    }
   }  // end loop through monitor elements
 
   std::string sName;
