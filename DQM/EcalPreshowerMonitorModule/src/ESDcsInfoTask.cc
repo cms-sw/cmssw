@@ -47,8 +47,7 @@ void ESDcsInfoTask::beginJob(void) {
   }
 }
 
-void ESDcsInfoTask::endJob(void) {
-}
+void ESDcsInfoTask::endJob(void) {}
 
 void ESDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) {
   this->reset();

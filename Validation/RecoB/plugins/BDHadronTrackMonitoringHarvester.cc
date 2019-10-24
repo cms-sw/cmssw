@@ -170,7 +170,6 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker &ibook, DQMSt
     nTrk_relative_dusgjet->setBinContent(i + 1, mean_dusgjets[i] / meanAll_dusgjets);
     nTrk_std_dusgjet->setBinContent(i + 1, std_dusgjets[i]);
   }
-
 }
 
 // define this as a plug-in

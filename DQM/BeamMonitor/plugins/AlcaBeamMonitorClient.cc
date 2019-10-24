@@ -63,8 +63,7 @@ AlcaBeamMonitorClient::~AlcaBeamMonitorClient() {}
 void AlcaBeamMonitorClient::beginJob() {}
 
 //----------------------------------------------------------------------------------------------------------------------
-void AlcaBeamMonitorClient::beginRun(const edm::Run& r, const EventSetup& context) {
-}
+void AlcaBeamMonitorClient::beginRun(const edm::Run& r, const EventSetup& context) {}
 
 //----------------------------------------------------------------------------------------------------------------------
 

@@ -17,8 +17,7 @@
 
 using namespace lat;
 
-MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet)
-    : fName(""), verbosity(0), frequency(0) {
+MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), verbosity(0), frequency(0) {
   std::string MsgLoggerCat = "MEtoEDMConverter_MEtoEDMConverter";
 
   // get information from parameter set

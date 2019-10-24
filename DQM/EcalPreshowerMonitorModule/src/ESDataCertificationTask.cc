@@ -52,8 +52,7 @@ void ESDataCertificationTask::beginJob(void) {
   }
 }
 
-void ESDataCertificationTask::endJob(void) {
-}
+void ESDataCertificationTask::endJob(void) {}
 
 void ESDataCertificationTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
                                                    const edm::EventSetup& iSetup) {

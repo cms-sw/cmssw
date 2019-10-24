@@ -40,7 +40,6 @@ private:
 
   std::string prefixME_;
 
-
   bool mergeRuns_;
 
   edm::EDGetTokenT<DcsStatusCollection> dcsStatustoken_;
