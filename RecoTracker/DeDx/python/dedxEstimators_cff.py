@@ -92,6 +92,6 @@ dedxDiscrimASmi.estimator = cms.string('asmirnovDiscrim')
 
 doAlldEdXEstimators = cms.Sequence(dedxTruncated40 + dedxHarmonic2 + dedxPixelHarmonic2 + dedxPixelAndStripHarmonic2T085 + dedxHitInfo)
 
-doFastdEdXEstimators = cms.Sequence(dedxHarmonic2, dedxPixelHarmonic2)
+doFastdEdXEstimators = cms.Sequence(dedxHarmonic2 + dedxPixelHarmonic2)
 
 fastSim.toReplaceWith(doAlldEdXEstimators, doFastdEdXEstimators)
