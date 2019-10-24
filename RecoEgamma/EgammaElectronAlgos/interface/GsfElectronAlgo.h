@@ -220,19 +220,12 @@ private:
   // general data and helpers
   struct GeneralData {
     // configurables
-    const InputTagsConfiguration inputCfg;
-    const StrategyConfiguration strategyCfg;
-    const CutsConfiguration cutsCfg;
-    const CutsConfiguration cutsCfgPflow;
-    const IsolationConfiguration isoCfg;
-    const EcalRecHitsConfiguration recHitsCfg;
-
-    // additional configuration and helpers
-    ElectronHcalHelper hcalHelper;
-    ElectronHcalHelper hcalHelperPflow;
-    std::unique_ptr<EcalClusterFunctionBaseClass> superClusterErrorFunction;
-    std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction;
-    RegressionHelper regHelper;
+    const InputTagsConfiguration input;
+    const StrategyConfiguration strategy;
+    const CutsConfiguration cuts;
+    const CutsConfiguration cutsPflow;
+    const IsolationConfiguration iso;
+    const EcalRecHitsConfiguration recHits;
   };
 
   //===================================================================
@@ -317,19 +310,6 @@ private:
     GlobalVector vtxMomWithConstraint;
   };
 
-  GeneralData generalData_;
-
-  EleTkIsolFromCands tkIsol03Calc_;
-  EleTkIsolFromCands tkIsol04Calc_;
-  EleTkIsolFromCands tkIsolHEEP03Calc_;
-  EleTkIsolFromCands tkIsolHEEP04Calc_;
-
-  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
-  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
-  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
-  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
-  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSeveretyLevelAlgoToken_;
-
   void checkSetup(edm::EventSetup const& eventSetup);
   EventData beginEvent(edm::Event const& event,
                        CaloGeometry const& caloGeometry,
@@ -363,6 +343,27 @@ private:
 
   // Pixel match variables
   void setPixelMatchInfomation(reco::GsfElectron&);
+
+  // constant class members
+  const GeneralData cfg_;
+
+  const EleTkIsolFromCands tkIsol03Calc_;
+  const EleTkIsolFromCands tkIsol04Calc_;
+  const EleTkIsolFromCands tkIsolHEEP03Calc_;
+  const EleTkIsolFromCands tkIsolHEEP04Calc_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSeveretyLevelAlgoToken_;
+
+  // additional configuration and helpers
+  ElectronHcalHelper hcalHelper_;
+  ElectronHcalHelper hcalHelperPflow_;
+  std::unique_ptr<EcalClusterFunctionBaseClass> superClusterErrorFunction_;
+  std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction_;
+  RegressionHelper regHelper_;
 };
 
 #endif  // GsfElectronAlgo_H
