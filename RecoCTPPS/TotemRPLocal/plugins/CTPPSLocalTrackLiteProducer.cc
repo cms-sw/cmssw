@@ -145,7 +145,7 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event &iEvent, const edm::EventSe
         if (!trk.isValid())
           continue;
 
-        const float abs_time = trk.t() + trk.ootIndex() * HPTDC_TIME_SLICE_WIDTH;
+        const float abs_time = trk.time() + trk.ootIndex() * HPTDC_TIME_SLICE_WIDTH;
         if (abs_time < timingTrackTMin_ || abs_time > timingTrackTMax_)
           continue;
 
@@ -154,7 +154,7 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event &iEvent, const edm::EventSe
         float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.y0());
         float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.y0Sigma());
         float roundedT = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(abs_time);
-        float roundedTSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.tSigma());
+        float roundedTSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.timeSigma());
 
         pOut->emplace_back(rpId,  // detector info
                                   // spatial info

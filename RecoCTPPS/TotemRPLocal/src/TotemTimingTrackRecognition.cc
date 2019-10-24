@@ -18,7 +18,7 @@ TotemTimingTrackRecognition::TotemTimingTrackRecognition(const edm::ParameterSet
 //----------------------------------------------------------------------------------------------------
 
 void TotemTimingTrackRecognition::addHit(const TotemTimingRecHit& recHit) {
-  if (recHit.t() != TotemTimingRecHit::NO_T_AVAILABLE)
+  if (recHit.time() != TotemTimingRecHit::NO_T_AVAILABLE)
     hitVectorMap_[0].emplace_back(recHit);
 }
 
@@ -77,8 +77,8 @@ int TotemTimingTrackRecognition::produceTracks(edm::DetSet<TotemTimingLocalTrack
         float mean_time = 0.f, time_sigma = 0.f;
         bool valid_hits = timeEval(componentHits, mean_time, time_sigma);
         newTrack.setValid(valid_hits);
-        newTrack.setT(mean_time);
-        newTrack.setTSigma(time_sigma);
+        newTrack.setTime(mean_time);
+        newTrack.setTimeSigma(time_sigma);
         // in a next iteration, we will be setting validity / numHits / numPlanes
         tracks.push_back(newTrack);
       }

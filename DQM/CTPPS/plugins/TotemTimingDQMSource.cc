@@ -614,12 +614,12 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
         }
 
         //All plots with Time
-        if (rechit.t() != TotemTimingRecHit::NO_T_AVAILABLE) {
+        if (rechit.time() != TotemTimingRecHit::NO_T_AVAILABLE) {
           for (int i = 0; i < numOfBins; ++i)
             potPlots_[detId_pot].hitDistribution2dWithTime->Fill(detId.plane() + 0.25 * (rechit.x() > 2),
                                                                  hitHistoTmpYAxis->GetBinCenter(startBin + i));
 
-          potPlots_[detId_pot].recHitTime->Fill(rechit.t());
+          potPlots_[detId_pot].recHitTime->Fill(rechit.time());
           potPlots_[detId_pot].planesWithTimeSet.insert(detId.plane());
 
           // Plane Plots
@@ -650,7 +650,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
           if (channelPlots_.find(detId) != channelPlots_.end()) {
             potPlots_[detId_pot].tirggerCellTime->Fill(rechit.sampicThresholdTime());
             channelPlots_[detId].tirggerCellTime->Fill(rechit.sampicThresholdTime());
-            channelPlots_[detId].recHitTime->Fill(rechit.t());
+            channelPlots_[detId].recHitTime->Fill(rechit.time());
             channelPlots_[detId].amplitude->Fill(rechit.amplitude());
           }
         }
@@ -671,7 +671,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event, const edm::EventSetu
     float y_shift = (detId.rp() == TOTEM_TIMING_TOP_RP_ID) ? 20 : 5;
 
     for (const auto &rechit : rechits) {
-      if (rechit.t() != TotemTimingRecHit::NO_T_AVAILABLE && potPlots_.find(detId_pot) != potPlots_.end() &&
+      if (rechit.time() != TotemTimingRecHit::NO_T_AVAILABLE && potPlots_.find(detId_pot) != potPlots_.end() &&
           planePlots_.find(detId_plane) != planePlots_.end() && channelPlots_.find(detId) != channelPlots_.end()) {
         if (stripTracks.isValid()) {
           for (const auto &ds : *stripTracks) {
