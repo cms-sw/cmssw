@@ -1,9 +1,10 @@
-#include <cuda/api_wrappers.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
+#include <cuda/api_wrappers.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 #include "TestHeterogeneousEDProducerGPUHelpers.h"
 
 //
@@ -86,7 +87,7 @@ int TestAcceleratorServiceProducerGPUHelpers_simple_kernel(int input) {
   cudaCheck(cudaGetLastError());
   /*
     // doesn't work with header-only?
-  cuda::launch(vectorAdd, {blocksPerGrid, threadsPerBlock},
+  cudautils::launch(vectorAdd, {blocksPerGrid, threadsPerBlock},
                d_a.get(), d_b.get(), d_c.get(), NUM_VALUES);
   */
 

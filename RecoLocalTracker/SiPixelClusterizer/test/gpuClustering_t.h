@@ -13,6 +13,7 @@
 #include <cuda/api_wrappers.h>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 #endif
 
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
@@ -263,7 +264,7 @@ int main(void) {
     std::cout << "CUDA countModules kernel launch with " << blocksPerGrid << " blocks of " << threadsPerBlock
               << " threads\n";
 
-    cuda::launch(countModules, {blocksPerGrid, threadsPerBlock}, d_id.get(), d_moduleStart.get(), d_clus.get(), n);
+    cudautils::launch(countModules, {blocksPerGrid, threadsPerBlock}, d_id.get(), d_moduleStart.get(), d_clus.get(), n);
 
     blocksPerGrid = MaxNumModules;  //nModules;
 
@@ -272,7 +273,7 @@ int main(void) {
 
     cuda::memory::device::zero(d_clusInModule.get(), MaxNumModules * sizeof(uint32_t));
 
-    cuda::launch(findClus,
+    cudautils::launch(findClus,
                  {blocksPerGrid, threadsPerBlock},
                  d_id.get(),
                  d_x.get(),
@@ -300,7 +301,7 @@ int main(void) {
     if (ncl != std::accumulate(nclus, nclus + MaxNumModules, 0))
       std::cout << "ERROR!!!!! wrong number of cluster found" << std::endl;
 
-    cuda::launch(clusterChargeCut,
+    cudautils::launch(clusterChargeCut,
                  {blocksPerGrid, threadsPerBlock},
                  d_id.get(),
                  d_adc.get(),

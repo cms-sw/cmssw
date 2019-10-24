@@ -30,6 +30,7 @@ end
 
 #include "DataFormats/Math/interface/approx_atan2.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 
 constexpr float xmin = -100.001;  // avoid 0
 constexpr float incr = 0.04;
@@ -80,7 +81,7 @@ void go() {
   std::cout << "CUDA kernel 'diff' launch with " << blocksPerGrid.x << " blocks of " << threadsPerBlock.y
             << " threads\n";
 
-  cuda::launch(diffAtan<DEGREE>, {blocksPerGrid, threadsPerBlock}, diff_d.get());
+  cudautils::launch(diffAtan<DEGREE>, {blocksPerGrid, threadsPerBlock}, diff_d.get());
 
   cuda::memory::copy(diffs, diff_d.get(), 3 * 4);
   delta += (std::chrono::high_resolution_clock::now() - start);

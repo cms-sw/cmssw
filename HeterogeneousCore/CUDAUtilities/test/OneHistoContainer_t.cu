@@ -8,6 +8,7 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 
 template <typename T, int NBINS, int S, int DELTA>
 __global__ void mykernel(T const* __restrict__ v, uint32_t N) {
@@ -132,7 +133,7 @@ void go() {
     assert(v);
     cuda::memory::copy(v_d.get(), v, N * sizeof(T));
     assert(v_d.get());
-    cuda::launch(mykernel<T, NBINS, S, DELTA>, {1, 256}, v_d.get(), N);
+    cudautils::launch(mykernel<T, NBINS, S, DELTA>, {1, 256}, v_d.get(), N);
   }
 }
 

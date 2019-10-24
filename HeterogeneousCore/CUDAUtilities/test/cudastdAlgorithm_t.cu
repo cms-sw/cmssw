@@ -5,6 +5,7 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudastdAlgorithm.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 
 __global__ void testBinaryFind() {
   int data[] = {1, 1, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6};
@@ -31,7 +32,7 @@ void wrapper() {
 
   auto current_device = cuda::device::current::get();
 
-  cuda::launch(testBinaryFind, {32, 64});
+  cudautils::launch(testBinaryFind, {32, 64});
 }
 
 int main() {

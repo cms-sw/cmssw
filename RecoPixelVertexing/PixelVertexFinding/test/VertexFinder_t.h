@@ -7,6 +7,7 @@
 #include <cuda/api_wrappers.h>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 #ifdef USE_DBSCAN
 #include "RecoPixelVertexing/PixelVertexFinding/src/gpuClusterTracksDBSCAN.h"
 #define CLUSTERIZE clusterTracksDBSCAN
@@ -153,13 +154,13 @@ int main() {
       cudaCheck(cudaGetLastError());
       cudaDeviceSynchronize();
 
-      cuda::launch(CLUSTERIZE, {1, 512 + 256}, onGPU_d.get(), ws_d.get(), kk, par[0], par[1], par[2]);
+      cudautils::launch(CLUSTERIZE, {1, 512 + 256}, onGPU_d.get(), ws_d.get(), kk, par[0], par[1], par[2]);
       print<<<1, 1, 0, 0>>>(onGPU_d.get(), ws_d.get());
 
       cudaCheck(cudaGetLastError());
       cudaDeviceSynchronize();
 
-      cuda::launch(fitVertices, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
+      cudautils::launch(fitVertices, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
       cudaCheck(cudaGetLastError());
       cuda::memory::copy(&nv, LOC_ONGPU(nvFinal), sizeof(uint32_t));
 
@@ -221,7 +222,7 @@ int main() {
       }
 
 #ifdef __CUDACC__
-      cuda::launch(fitVertices, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
+      cudautils::launch(fitVertices, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
       cuda::memory::copy(&nv, LOC_ONGPU(nvFinal), sizeof(uint32_t));
       cuda::memory::copy(nn, LOC_ONGPU(ndof), nv * sizeof(int32_t));
       cuda::memory::copy(chi2, LOC_ONGPU(chi2), nv * sizeof(float));
@@ -241,7 +242,7 @@ int main() {
 
 #ifdef __CUDACC__
       // one vertex per block!!!
-      cuda::launch(splitVertices, {1024, 64}, onGPU_d.get(), ws_d.get(), 9.f);
+      cudautils::launch(splitVertices, {1024, 64}, onGPU_d.get(), ws_d.get(), 9.f);
       cuda::memory::copy(&nv, LOC_WS(nvIntermediate), sizeof(uint32_t));
 #else
       gridDim.x = 1024;  // nv ????
@@ -254,10 +255,10 @@ int main() {
       std::cout << "after split " << nv << std::endl;
 
 #ifdef __CUDACC__
-      cuda::launch(fitVertices, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 5000.f);
+      cudautils::launch(fitVertices, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 5000.f);
       cudaCheck(cudaGetLastError());
 
-      cuda::launch(sortByPt2, {1, 256}, onGPU_d.get(), ws_d.get());
+      cudautils::launch(sortByPt2, {1, 256}, onGPU_d.get(), ws_d.get());
       cudaCheck(cudaGetLastError());
       cuda::memory::copy(&nv, LOC_ONGPU(nvFinal), sizeof(uint32_t));
 #else

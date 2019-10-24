@@ -17,6 +17,7 @@
 
 #include "DataFormats/Math/interface/choleskyInversion.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 
 constexpr int stride() { return 5 * 1024; }
 template <int DIM>
@@ -146,9 +147,9 @@ void go(bool soa) {
     delta -= (std::chrono::high_resolution_clock::now() - start);
 
     if (soa)
-      cuda::launch(invertSOA<DIM>, {blocksPerGrid, threadsPerBlock}, m_d.get(), SIZE);
+      cudautils::launch(invertSOA<DIM>, {blocksPerGrid, threadsPerBlock}, m_d.get(), SIZE);
     else
-      cuda::launch(invert<MX, DIM>, {blocksPerGrid, threadsPerBlock}, (MX *)(m_d.get()), SIZE);
+      cudautils::launch(invert<MX, DIM>, {blocksPerGrid, threadsPerBlock}, (MX *)(m_d.get()), SIZE);
 
     cuda::memory::copy(&mm, m_d.get(), stride() * sizeof(MX));
     delta += (std::chrono::high_resolution_clock::now() - start);
@@ -160,7 +161,7 @@ void go(bool soa) {
       delta1 -= (std::chrono::high_resolution_clock::now() - start);
 
 #ifndef DOPROF
-      cuda::launch(invertSeq<MX, DIM>, {blocksPerGrid, threadsPerBlock}, (MX *)(m_d.get()), SIZE);
+      cudautils::launch(invertSeq<MX, DIM>, {blocksPerGrid, threadsPerBlock}, (MX *)(m_d.get()), SIZE);
 
       cuda::memory::copy(&mm, m_d.get(), stride() * sizeof(MX));
 #endif

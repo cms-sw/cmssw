@@ -10,8 +10,9 @@
 
 #include <cuda/api_wrappers.h>
 
-#include "HeterogeneousCore/CUDAUtilities/interface/radixSort.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/radixSort.h"
 
 template <typename T>
 struct RS {
@@ -112,10 +113,10 @@ void go(bool useShared) {
     delta -= (std::chrono::high_resolution_clock::now() - start);
     constexpr int MaxSize = 256 * 32;
     if (useShared)
-      cuda::launch(
+      cudautils::launch(
           radixSortMultiWrapper<U, NS>, {blocks, ntXBl, MaxSize * 2}, v_d.get(), ind_d.get(), off_d.get(), nullptr);
     else
-      cuda::launch(radixSortMultiWrapper2<U, NS>, {blocks, ntXBl}, v_d.get(), ind_d.get(), off_d.get(), ws_d.get());
+      cudautils::launch(radixSortMultiWrapper2<U, NS>, {blocks, ntXBl}, v_d.get(), ind_d.get(), off_d.get(), ws_d.get());
 
     if (i == 0)
       std::cout << "done for " << offsets[blocks] << std::endl;

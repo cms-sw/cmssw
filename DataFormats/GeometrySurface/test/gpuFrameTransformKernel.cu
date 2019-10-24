@@ -2,9 +2,8 @@
 #include <iostream>
 #include <iomanip>
 
-#include "cuda/api_wrappers.h"
-
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 
 __global__ void toGlobal(SOAFrame<float> const* frame,
                          float const* xl,
@@ -37,5 +36,5 @@ void toGlobalWrapper(SOAFrame<float> const* frame,
   std::cout << "CUDA toGlobal kernel launch with " << blocksPerGrid << " blocks of " << threadsPerBlock << " threads"
             << std::endl;
 
-  cuda::launch(toGlobal, {blocksPerGrid, threadsPerBlock}, frame, xl, yl, x, y, z, le, ge, n);
+  cudautils::launch(toGlobal, {blocksPerGrid, threadsPerBlock}, frame, xl, yl, x, y, z, le, ge, n);
 }
