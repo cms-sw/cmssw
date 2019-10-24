@@ -13,6 +13,7 @@
 
 #include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
 #include "Validation/MuonGEMDigis/interface/GEMPadDigiValidation.h"
+ #include "Validation/MuonGEMDigis/interface/GEMPadDigiClusterValidation.h"
 #include "Validation/MuonGEMDigis/interface/GEMCoPadDigiValidation.h"
 #include <TEfficiency.h>
 #include <TGraphAsymmErrors.h>

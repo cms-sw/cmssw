@@ -238,6 +238,13 @@ GEMDigiMatcher::detIdsPad(int gem_type) const
 
 
 std::set<unsigned int>
+GEMDigiMatcher::detIdsCluster(int gem_type) const
+{
+  return selectDetIds(detid_to_clusters_, gem_type);
+}
+
+
+std::set<unsigned int>
 GEMDigiMatcher::chamberIdsDigi(int gem_type) const
 {
   return selectDetIds(chamber_to_digis_, gem_type);
@@ -252,6 +259,13 @@ GEMDigiMatcher::chamberIdsPad(int gem_type) const
 
 
 std::set<unsigned int>
+GEMDigiMatcher::chamberIdsCluster(int gem_type) const
+{
+  return selectDetIds(chamber_to_clusters_, gem_type);
+}
+
+
+std::set<unsigned int>
 GEMDigiMatcher::superChamberIdsDigi(int gem_type) const
 {
   return selectDetIds(superchamber_to_digis_, gem_type);
@@ -262,6 +276,13 @@ std::set<unsigned int>
 GEMDigiMatcher::superChamberIdsPad(int gem_type) const
 {
   return selectDetIds(superchamber_to_pads_, gem_type);
+}
+
+
+std::set<unsigned int>
+GEMDigiMatcher::superChamberIdsCluster(int gem_type) const
+{
+  return selectDetIds(superchamber_to_clusters_, gem_type);
 }
 
 
@@ -317,6 +338,30 @@ GEMDigiMatcher::padsInSuperChamber(unsigned int detid) const
 {
   if (superchamber_to_pads_.find(detid) == superchamber_to_pads_.end()) return no_gem_pads_;
   return superchamber_to_pads_.at(detid);
+}
+
+
+const GEMPadDigiClusterContainer&
+GEMDigiMatcher::clustersInDetId(unsigned int detid) const
+{
+  if (detid_to_clusters_.find(detid) == detid_to_clusters_.end()) return no_gem_clusters_;
+  return detid_to_clusters_.at(detid);
+}
+
+
+const GEMPadDigiClusterContainer&
+GEMDigiMatcher::clustersInChamber(unsigned int detid) const
+{
+  if (chamber_to_clusters_.find(detid) == chamber_to_clusters_.end()) return no_gem_clusters_;
+  return chamber_to_clusters_.at(detid);
+}
+
+
+const GEMPadDigiClusterContainer&
+GEMDigiMatcher::clustersInSuperChamber(unsigned int detid) const
+{
+  if (superchamber_to_clusters_.find(detid) == superchamber_to_clusters_.end()) return no_gem_clusters_;
+  return superchamber_to_clusters_.at(detid);
 }
 
 

@@ -33,11 +33,13 @@ class GEMDigiTrackMatch : public GEMTrackMatch
   MonitorElement* dg_eta[4][3];
   MonitorElement* dg_sh_eta[4][3];
   MonitorElement* pad_eta[4][3];
+  MonitorElement *cluster_eta[4][3];
   MonitorElement* copad_eta[4][3];
 
   MonitorElement* dg_phi[4][3][3];
   MonitorElement* dg_sh_phi[4][3][3];
   MonitorElement* pad_phi[4][3][3];
+  MonitorElement *cluster_phi[4][3][3];
   MonitorElement* copad_phi[4][3][3];
 
   edm::ESHandle<GEMGeometry> hGeom;
