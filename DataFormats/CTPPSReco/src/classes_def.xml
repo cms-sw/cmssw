@@ -162,9 +162,8 @@
     <version ClassVersion="3" checksum="4150373475"/>
     <version ClassVersion="4" checksum="298693321"/>
   </class>
-  <ioread sourceClass = "CTPPSPixelLocalTrack" version="[3]" targetClass="CTPPSPixelLocalTrack" source="int numberOfPointUsedForFit" target="numberOfPointsUsedForFit_">
-  <![CDATA[numberOfPointsUsedForFit_ = onfile.numberOfPointUsedForFit;
-  ]]>
+  <ioread sourceClass="CTPPSPixelLocalTrack" version="[3]" targetClass="CTPPSPixelLocalTrack" source="int numberOfPointUsedForFit_" target="numberOfPointsUsedForFit_">
+  <![CDATA[numberOfPointsUsedForFit_ = onfile.numberOfPointUsedForFit_;]]>
   </ioread>
   <class name="edm::DetSet<CTPPSPixelLocalTrack>"/>
   <class name="std::vector<CTPPSPixelLocalTrack>"/>
