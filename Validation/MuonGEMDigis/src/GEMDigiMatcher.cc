@@ -319,7 +319,7 @@ int GEMDigiMatcher::nLayersWithDigisInSuperChamber(unsigned int detid) const {
     // get the digis in this chamber
     const auto& digis = digisInChamber(ch_id.rawId());
     // at least one digi in this layer!
-    if (digis.size() > 0) {
+    if (!digis.empty()) {
       layers.insert(iLayer);
     }
   }
@@ -334,7 +334,7 @@ int GEMDigiMatcher::nLayersWithPadsInSuperChamber(unsigned int detid) const {
     // get the pads in this chamber
     const auto& pads = padsInChamber(ch_id.rawId());
     // at least one digi in this layer!
-    if (pads.size() > 0) {
+    if (!pads.empty()) {
       layers.insert(iLayer);
     }
   }
