@@ -23,6 +23,7 @@
 <use name="DQMServices/Core"/>
 <use name="rootcore"/>
 <use name="Validation/MuonGEMHits"/>
+<use name="Validation/MuonHits"/>
 <export>
 <lib name="1"/>
 </export>

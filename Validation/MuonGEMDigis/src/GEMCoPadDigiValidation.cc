@@ -74,7 +74,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker &ibooker,
             nPads = npadsGE21;
           name_prefix = getSuffixName(re, st);
           label_prefix = getSuffixTitle(re, st);
-          theCSCCoPad_phipad[region_num][station_num] =
+          theGEMCoPad_phipad[region_num][station_num] =
               ibooker.book2D(("copad_dg_phipad" + name_prefix).c_str(),
                              ("Digi occupancy: " + label_prefix + "; phi [rad]; Pad number").c_str(),
                              280,
@@ -83,28 +83,28 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker &ibooker,
                              nPads / 2,
                              0,
                              nPads);
-          theCSCCoPad[region_num][station_num] =
+          theGEMCoPad[region_num][station_num] =
               ibooker.book1D(("copad_dg" + name_prefix).c_str(),
                              ("Digi occupancy per pad number: " + label_prefix + ";Pad number; entries").c_str(),
                              nPads,
                              0.5,
                              nPads + 0.5);
-          theCSCCoPad_bx[region_num][station_num] =
+          theGEMCoPad_bx[region_num][station_num] =
               ibooker.book1D(("copad_dg_bx" + name_prefix).c_str(),
                              ("Bunch crossing: " + label_prefix + "; bunch crossing ; entries").c_str(),
                              11,
                              -5.5,
                              5.5);
-          theCSCCoPad_zr[region_num][station_num] =
+          theGEMCoPad_zr[region_num][station_num] =
               BookHistZR(ibooker, "copad_dg", "CoPad Digi", region_num, station_num);
-          theCSCCoPad_xy[region_num][station_num] =
+          theGEMCoPad_xy[region_num][station_num] =
               BookHistXY(ibooker, "copad_dg", "CoPad Digi", region_num, station_num);
           TString xy_name = TString::Format("copad_dg_xy%s_odd", name_prefix.c_str());
           TString xy_title = TString::Format("Digi XY occupancy %s at odd chambers", label_prefix.c_str());
-          theCSCCoPad_xy_ch[xy_name.Hash()] = ibooker.book2D(xy_name, xy_title, 360, -360, 360, 360, -360, 360);
+          theGEMCoPad_xy_ch[xy_name.Hash()] = ibooker.book2D(xy_name, xy_title, 360, -360, 360, 360, -360, 360);
           xy_name = TString::Format("copad_dg_xy%s_even", name_prefix.c_str());
           xy_title = TString::Format("Digi XY occupancy %s at even chambers", label_prefix.c_str());
-          theCSCCoPad_xy_ch[xy_name.Hash()] = ibooker.book2D(xy_name, xy_title, 360, -360, 360, 360, -360, 360);
+          theGEMCoPad_xy_ch[xy_name.Hash()] = ibooker.book2D(xy_name, xy_title, 360, -360, 360, 360, -360, 360);
         }
       }
     }
@@ -207,13 +207,13 @@ void GEMCoPadDigiValidation::analyze(const edm::Event &e, const edm::EventSetup 
 
       // Fill detail plots.
       if (detailPlot_) {
-        theCSCCoPad_xy[region_num][station_num]->Fill(g_x, g_y);
-        theCSCCoPad_phipad[region_num][station_num]->Fill(g_phi, pad1);
-        theCSCCoPad[region_num][station_num]->Fill(pad1);
-        theCSCCoPad_bx[region_num][station_num]->Fill(bx1);
-        theCSCCoPad_bx[region_num][station_num]->Fill(bx2);
-        theCSCCoPad_zr[region_num][station_num]->Fill(g_z1, g_r1);
-        theCSCCoPad_zr[region_num][station_num]->Fill(g_z2, g_r2);
+        theGEMCoPad_xy[region_num][station_num]->Fill(g_x, g_y);
+        theGEMCoPad_phipad[region_num][station_num]->Fill(g_phi, pad1);
+        theGEMCoPad[region_num][station_num]->Fill(pad1);
+        theGEMCoPad_bx[region_num][station_num]->Fill(bx1);
+        theGEMCoPad_bx[region_num][station_num]->Fill(bx2);
+        theGEMCoPad_zr[region_num][station_num]->Fill(g_z1, g_r1);
+        theGEMCoPad_zr[region_num][station_num]->Fill(g_z2, g_r2);
         std::string name_prefix = getSuffixName(re, st);
         TString hname;
         if (chamber % 2 == 0) {
@@ -221,7 +221,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event &e, const edm::EventSetup 
         } else {
           hname = TString::Format("copad_dg_xy%s_odd", name_prefix.c_str());
         }
-        theCSCCoPad_xy_ch[hname.Hash()]->Fill(g_x, g_y);
+        theGEMCoPad_xy_ch[hname.Hash()]->Fill(g_x, g_y);
       }
     }
   }
