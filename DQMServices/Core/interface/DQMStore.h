@@ -247,12 +247,6 @@ namespace dqm::dqmstoreimpl {
         return owner_->getContents(std::forward<Args>(args)...);
       }
 
-      // for the supported syntaxes, see the declarations of DQMStore::removeElement
-      template <typename... Args>
-      void removeElement(Args&&... args) {
-        return owner_->removeElement(std::forward<Args>(args)...);
-      }
-
       std::vector<MonitorElement*> getAllContents(std::string const& path, uint32_t runNumber = 0, uint32_t lumi = 0);
       MonitorElement* get(std::string const& path);
 
@@ -505,13 +499,6 @@ namespace dqm::dqmstoreimpl {
     MonitorElement* get(std::string const& path) const;
     std::vector<MonitorElement*> getContents(std::string const& path) const;
     void getContents(std::vector<std::string>& into, bool showContents = true) const;
-
-    // ---------------------- Public deleting ---------------------------------
-    void rmdir(std::string const& fullpath);
-    void removeContents();
-    void removeContents(std::string const& dir);
-    void removeElement(std::string const& name);
-    void removeElement(std::string const& dir, std::string const& name, bool warning = true);
 
     // ------------------------------------------------------------------------
     // ---------------------- public I/O --------------------------------------
