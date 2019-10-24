@@ -6,8 +6,8 @@ GEMPadDigiClusterValidation::GEMPadDigiClusterValidation(const edm::ParameterSet
   detailPlot_ = cfg.getParameter<bool>("detailPlot");
 }
 void GEMPadDigiClusterValidation::bookHistograms(DQMStore::IBooker &ibooker,
-                                          edm::Run const &Run,
-                                          edm::EventSetup const &iSetup) {
+                                                 edm::Run const &Run,
+                                                 edm::EventSetup const &iSetup) {
   const GEMGeometry *GEMGeometry_ = initGeometry(iSetup);
   if (GEMGeometry_ == nullptr)
     return;

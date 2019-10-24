@@ -11,20 +11,16 @@
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 #include "Validation/MuonGEMDigis/interface/GEMDigiMatcher.h"
 
-
-class GEMDigiTrackMatch : public GEMTrackMatch
-{
-
- public:
+class GEMDigiTrackMatch : public GEMTrackMatch {
+public:
   explicit GEMDigiTrackMatch(const edm::ParameterSet& ps);
   ~GEMDigiTrackMatch() override;
 
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   void analyze(const edm::Event& e, const edm::EventSetup&) override;
 
- private:
-
+private:
   std::unique_ptr<GEMDigiMatcher> gemDigiMatcher_;
 
   MonitorElement* track_eta[3];
@@ -33,13 +29,13 @@ class GEMDigiTrackMatch : public GEMTrackMatch
   MonitorElement* dg_eta[4][3];
   MonitorElement* dg_sh_eta[4][3];
   MonitorElement* pad_eta[4][3];
-  MonitorElement *cluster_eta[4][3];
+  MonitorElement* cluster_eta[4][3];
   MonitorElement* copad_eta[4][3];
 
   MonitorElement* dg_phi[4][3][3];
   MonitorElement* dg_sh_phi[4][3][3];
   MonitorElement* pad_phi[4][3][3];
-  MonitorElement *cluster_phi[4][3][3];
+  MonitorElement* cluster_phi[4][3][3];
   MonitorElement* copad_phi[4][3][3];
 
   edm::ESHandle<GEMGeometry> hGeom;

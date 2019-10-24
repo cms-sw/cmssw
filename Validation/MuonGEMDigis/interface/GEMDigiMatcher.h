@@ -25,12 +25,10 @@ typedef std::vector<GEMPadDigi> GEMPadDigiContainer;
 typedef std::vector<GEMPadDigiCluster> GEMPadDigiClusterContainer;
 typedef std::vector<GEMCoPadDigi> GEMCoPadDigiContainer;
 
-class GEMDigiMatcher
-{
+class GEMDigiMatcher {
 public:
-
   // constructor
-  GEMDigiMatcher(edm::ParameterSet const& iPS, edm::ConsumesCollector && iC);
+  GEMDigiMatcher(edm::ParameterSet const& iPS, edm::ConsumesCollector&& iC);
 
   // destructor
   ~GEMDigiMatcher() {}
@@ -90,8 +88,8 @@ public:
   std::set<int> stripNumbersInDetId(unsigned int) const;
   std::set<int> padNumbersInDetId(unsigned int) const;
 
-  int extrapolateHsfromGEMPad(unsigned int , int) const;
-  int extrapolateHsfromGEMStrip(unsigned int , int) const;
+  int extrapolateHsfromGEMPad(unsigned int, int) const;
+  int extrapolateHsfromGEMStrip(unsigned int, int) const;
 
   // what unique partitions numbers with digis from this simtrack?
   std::set<int> partitionNumbers() const;
@@ -101,10 +99,9 @@ public:
   GlobalPoint getGlobalPointPad(unsigned int rawId, const GEMPadDigi& tp) const;
 
   // get the GEMSimHitMatcher
-  std::shared_ptr<GEMSimHitMatcher> muonSimHitMatcher() {return muonSimHitMatcher_;}
+  std::shared_ptr<GEMSimHitMatcher> muonSimHitMatcher() { return muonSimHitMatcher_; }
 
 private:
-
   void matchDigisToSimTrack(const GEMDigiCollection&);
   void matchPadsToSimTrack(const GEMPadDigiCollection&);
   void matchClustersToSimTrack(const GEMPadDigiClusterCollection&);
@@ -161,16 +158,14 @@ private:
 };
 
 template <class T>
-std::set<unsigned int> GEMDigiMatcher::selectDetIds(const T &digis, int gem_type) const
-{
+std::set<unsigned int> GEMDigiMatcher::selectDetIds(const T& digis, int gem_type) const {
   std::set<unsigned int> result;
-  for (const auto& p: digis)
-  {
+  for (const auto& p : digis) {
     const auto& id = p.first;
-    if (gem_type > 0)
-    {
+    if (gem_type > 0) {
       GEMDetId detId(id);
-      if (MuonHitHelper::toGEMType(detId.station(),detId.ring()) != gem_type) continue;
+      if (MuonHitHelper::toGEMType(detId.station(), detId.ring()) != gem_type)
+        continue;
     }
     result.insert(p.first);
   }
