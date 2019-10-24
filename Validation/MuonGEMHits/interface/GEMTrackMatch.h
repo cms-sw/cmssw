@@ -26,12 +26,15 @@ struct MySimTrack {
   Char_t gem_sh_layer1, gem_sh_layer2;
   Char_t gem_dg_layer1, gem_dg_layer2;
   Char_t gem_pad_layer1, gem_pad_layer2;
+  Char_t gem_cluster_layer1, gem_cluster_layer2;
   Char_t has_gem_dg_l1, has_gem_dg_l2;
   Char_t has_gem_pad_l1, has_gem_pad_l2;
+  Char_t has_gem_cluster_l1, has_gem_cluster_l2;
   Char_t has_gem_sh_l1, has_gem_sh_l2;
   bool gem_sh[3][2];
   bool gem_dg[3][2];
   bool gem_pad[3][2];
+  bool gem_cluster[3][2];
   bool gem_rh[3][2];
   bool hitOdd[3];
   bool hitEven[3];
