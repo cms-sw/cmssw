@@ -1,0 +1,12 @@
+<library name="CalibPPSTimingCalibrationPlugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+  <!--<use name="FWCore/Framework"/>
+  <use name="CondFormats/DataRecord"/>
+  <use name="DataFormats/CTPPSDetId"/>
+  <use name="CondFormats/RunInfo"/>-->
+  <use name="xerces-c"/>
+  <use name="DQMServices/Core"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="CondCore/DBOutputService"/>
+  <use name="CondFormats/CTPPSReadoutObjects"/>
+</library>
