@@ -55,15 +55,15 @@ void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker, c
 {
   iBooker.cd();
   iBooker.setCurrentFolder(dqmDir_);
+  std::string ch_name;
   for (unsigned short arm = 0; arm < 2; ++arm) {
     for (unsigned short st = 0; st < 2; ++st) {
       for (unsigned short pl = 0; pl < 4; ++pl) {
         for (unsigned short ch = 0; ch < 12; ++ch) {
           const CTPPSDiamondDetId detid(arm, st, 0, pl, ch); //FIXME RP?
-          const char* name = Form("arm%d_st%d_pl%d_ch%d", arm, st, pl, ch);
-          const char* title = Form("Arm %d - Station %d - Plane %d - Channel %d", arm, st, pl, ch);
-          m_h_t_[detid.rawId()] = iBooker.book1D(Form("h_t_%s", name), Form("%s;t (ns);Entries", name), 1200, -60., 60.);
-          m_h2_t_vs_tot_[detid.rawId()] = iBooker.book2D(Form("h2_tvstot_%s", name), Form("%s;ToT (ns);t (ns)", title), 240, 0., 60., 450, -20., 25.);
+          detid.channelName(ch_name);
+          m_h_t_[detid.rawId()] = iBooker.book1D(Form("h_t_%s", ch_name.c_str()), Form("%s;t (ns);Entries", ch_name.c_str()), 1200, -60., 60.);
+          m_h2_t_vs_tot_[detid.rawId()] = iBooker.book2D(Form("h2_tvstot_%s", ch_name.c_str()), Form("%s;ToT (ns);t (ns)", ch_name.c_str()), 240, 0., 60., 450, -20., 25.);
         } // loop over channels
       } // loop over arms
     } // loop over stations
