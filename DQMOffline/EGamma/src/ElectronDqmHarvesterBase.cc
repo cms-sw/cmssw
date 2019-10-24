@@ -132,11 +132,7 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::get(DQMStore
 }
 
 void ElectronDqmHarvesterBase::remove(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, const std::string &name) {
-  const std::string *fullName = find(iGetter, name);
-  if (fullName) {
-    iBooker.setCurrentFolder(inputInternalPath_);
-    iGetter.removeElement(*fullName);
-  }
+  // TODO: remove no longer supported in DQMStore.
 }
 
 ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1andDivide(DQMStore::IBooker &iBooker,

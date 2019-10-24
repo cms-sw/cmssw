@@ -1076,12 +1076,7 @@ void SiStripCommissioningSource::clearTasks() {
 // ----------------------------------------------------------------------------
 //
 void SiStripCommissioningSource::remove() {
-  dqm()->cd();
-  dqm()->removeContents();
-
-  if (dqm()->dirExists(sistrip::root_)) {
-    dqm()->rmdir(sistrip::root_);
-  }
+  // TODO: remove no longer supported in DQMStore.
 }
 
 // -----------------------------------------------------------------------------
