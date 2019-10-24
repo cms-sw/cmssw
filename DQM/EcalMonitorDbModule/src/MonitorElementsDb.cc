@@ -99,9 +99,7 @@ MonitorElementsDb::~MonitorElementsDb() { delete parser_; }
 
 void MonitorElementsDb::beginJob(void) { ievt_ = 0; }
 
-void MonitorElementsDb::endJob(void) {
-  std::cout << "MonitorElementsDb: analyzed " << ievt_ << " events" << std::endl;
-}
+void MonitorElementsDb::endJob(void) { std::cout << "MonitorElementsDb: analyzed " << ievt_ << " events" << std::endl; }
 
 void MonitorElementsDb::analyze(const edm::Event &e, const edm::EventSetup &c, coral::ISessionProxy *session) {
   ievt_++;

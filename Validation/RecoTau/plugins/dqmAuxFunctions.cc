@@ -182,7 +182,6 @@ void dqmCopyRecursively(dqm::legacy::DQMStore& dqmStore,
 
     dqmCopyRecursively(dqmStore, inputDirName_full, outputDirName_full, scaleFactor, mode, rmInputDirectory);
   }
-
 }
 
 //

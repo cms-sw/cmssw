@@ -97,8 +97,7 @@ void ESDaqInfoTask::beginJob(void) {
   }
 }
 
-void ESDaqInfoTask::endJob(void) {
-}
+void ESDaqInfoTask::endJob(void) {}
 
 void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) {
   this->reset();
