@@ -30,7 +30,7 @@ void RPCDcsInfo::analyze(const edm::Event& e, const edm::EventSetup& c) {
   return;
 }
 
-void RPCDcsInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
+void RPCDcsInfo::dqmEndLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
   // int nlumi = l.id().luminosityBlock();
 
   // fill dcs vs lumi

@@ -51,7 +51,7 @@ private:
   //      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void endRun(const edm::Run &, const edm::EventSetup &) override;
+  void dqmEndRun(const edm::Run &, const edm::EventSetup &) override;
 
   void computeEfficiencyEta(MonitorElement *, MonitorElement *recoTH2, MonitorElement *simTH2);
   void computeEfficiencyPt(MonitorElement *, MonitorElement *recoTH2, MonitorElement *simTH2);

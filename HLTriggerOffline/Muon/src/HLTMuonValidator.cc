@@ -42,7 +42,7 @@ private:
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void endRun(const edm::Run &, const edm::EventSetup &) override;
+  void dqmEndRun(const edm::Run &, const edm::EventSetup &) override;
 
   // Extra Methods
   std::vector<std::string> moduleLabels(std::string);
@@ -181,7 +181,7 @@ void HLTMuonValidator::analyze(const Event &iEvent, const EventSetup &iSetup) {
   }
 }
 
-void HLTMuonValidator::endRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
+void HLTMuonValidator::dqmEndRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   // vector<HLTMuonPlotter>::iterator iter;
   // for (iter = analyzers_.begin(); iter != analyzers_.end(); ++iter) {
   //   iter->endRun(iRun, iSetup);

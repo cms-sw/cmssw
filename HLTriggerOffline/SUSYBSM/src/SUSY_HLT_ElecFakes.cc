@@ -101,7 +101,7 @@ void SUSY_HLT_ElecFakes::analyze(edm::Event const &e, edm::EventSetup const &eSe
   }
 }
 
-void SUSY_HLT_ElecFakes::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SUSY_HLT_ElecFakes::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   edm::LogInfo("SUSY_HLT_ElecFakes") << "SUSY_HLT_ElecFakes::endRun" << std::endl;
 }
 

@@ -90,7 +90,7 @@ QcdLowPtDQM::QcdLowPtDQM(const ParameterSet &parameters)
   }
 
   // This used to be at the end of the beginJob,
-  // hence before any of the beginRun operations
+  // hence before any of the dqmBeginRun operations
   // So this now is placed at the end of the constructor
   yieldAlphaHistogram(pixLayers_);
 }
@@ -946,7 +946,7 @@ void QcdLowPtDQM::globalEndLuminosityBlock(const LuminosityBlock &l, const Event
              hdNdEtaTrklets23_);
 }
 
-void QcdLowPtDQM::endRun(const Run &, const EventSetup &) {
+void QcdLowPtDQM::dqmEndRun(const Run &, const EventSetup &) {
   // End run, cleanup.
   for (size_t i = 0; i < NsigTracklets12_.size(); ++i) {
     NsigTracklets12_.at(i)->Reset();
