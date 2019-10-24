@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <debug> 
-    <!--debug_rotations/>
+    <!--debug_rotations/-->
     <debug_materials/>
 
-    <debug_shapes/>
+    <!--debug_shapes/>
     <debug_volumes/>
     <debug_constants/>
     <debug_includes/>
@@ -24,21 +24,6 @@
     <Constant name="Air"     value="materials:Air"     type="string"/>
     <Constant name="Vacuum"  value="materials:Vacuum"  type="string"/>
   </ConstantsSection>
-  <ConstantsSection label="servicescylinderb.xml" eval="true">
-	<Constant name="zero" value="0.0*fm"/>
-  </ConstantsSection>
-  <ConstantsSection label="servicescylinderf.xml" eval="true">
-	<Constant name="zero" value="0.0*fm"/>
-  </ConstantsSection>
-
-  <DisabledAlgo  name="track:DDTOBRadCableAlgo"/>
-  <ConstantsSection label="pixfwd" eval="true">
-        <Constant name="AnchorZ" value="0.*mm"/>
-        <Constant name="ZPixelForward" value="325.*mm"/>
-  </ConstantsSection>
-  <ConstantsSection label="tracker.xml" eval="true">
-	<Constant name="BackPlaneDz" value="0.015*mm"/>
-  </ConstantsSection>
 
   <IncludeSection>
     <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
@@ -55,7 +40,15 @@
     <Include ref="Geometry/CMSCommonData/data/cavernData/2017/v1/cavernData.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/Run2/trackermaterial.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibtidcommonmaterial.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibmaterial.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tidmaterial.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tobmaterial.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tecmaterial.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarmaterial.xml"/> 
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdMaterials.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/Run2/tracker.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/pixfwdCommon.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdCylinder.xml"/> 
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdDisks.xml"/> 
@@ -69,7 +62,6 @@
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeInnerZminus.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeOuterZplus.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeOuterZminus.xml"/>
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarmaterial.xml"/> 
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarladder.xml"/> 
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull0.xml"/> 
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull1.xml"/> 
@@ -83,28 +75,26 @@
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbar.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/Run2/trackerpatchpannel.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/Run2/trackerpixelnose.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibtidcommonmaterial.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibmaterial.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibmodpar.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibmodule0.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibmodule0a.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibmodule0b.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibmodule2.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstringpar.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring0ll.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring0lr.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring0ul.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring0ur.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring0.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring1ll.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring1lr.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring1ul.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring1ur.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring1.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring2ll.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring2lr.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring2ul.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tibstring2ur.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibmodpar.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibmodule0.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibmodule0a.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibmodule0b.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibmodule2.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstringpar.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring0ll.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring0lr.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring0ul.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring0ur.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring0.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring1ll.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring1lr.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring1ul.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring1ur.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring1.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring2ll.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring2lr.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring2ul.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/tibstring2ur.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tibstring2.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tibstring3ll.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tibstring3lr.xml"/>
@@ -117,7 +107,6 @@
         <Include ref="Geometry/TrackerCommonData/data/tiblayer2.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tiblayer3.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tib.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tidmaterial.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tidmodpar.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tidmodule0.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tidmodule0r.xml"/>
@@ -140,9 +129,8 @@
         <Include ref="Geometry/TrackerCommonData/data/tibtidservices.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tibtidservicesf.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tibtidservicesb.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tobmaterial.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tobmodpar.xml"/>
-    <Include ref="Geometry/TrackerCommonData/data/tobmodule0.xml"/>
+	<Include ref="Geometry/TrackerCommonData/data/tobmodule0.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tobmodule2.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tobmodule4.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tobrodpar.xml"/>
@@ -168,7 +156,6 @@
         <Include ref="Geometry/TrackerCommonData/data/tobrod5h.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tobrod5.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/v2/tob.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/tecmaterial.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tecmodpar.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tecmodule0.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tecmodule0r.xml"/>
@@ -226,8 +213,6 @@
         <Include ref="Geometry/TrackerCommonData/data/tecservices.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tecbackplate.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/tec.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/Run2/trackermaterial.xml"/>
-        <Include ref="Geometry/TrackerCommonData/data/Run2/tracker.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/trackerpixbar.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/PhaseI/trackerpixfwd.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/trackertibtidservices.xml"/>
@@ -238,10 +223,4 @@
         <Include ref="Geometry/TrackerCommonData/data/v2/trackerbulkhead.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/trackerother.xml"/>
   </IncludeSection>
-  <PosPartSection label="">
-    <PosPart copyNumber="2">
-      <rParent name=":world_volume"/>
-      <rChild name="tracker:Tracker"/>
-    </PosPart>
-  </PosPartSection>
  </DDDefinition>
