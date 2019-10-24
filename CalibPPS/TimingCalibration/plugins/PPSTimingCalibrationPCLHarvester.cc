@@ -52,6 +52,15 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
   // fill the DB object record
   PPSTimingCalibration calib;
 
+  for (unsigned short arm = 0; arm < 2; ++arm) {
+    for (unsigned short st = 0; st < 2; ++st) {
+      for (unsigned short pl = 0; pl < 4; ++pl) {
+        for (unsigned short ch = 0; ch < 12; ++ch) {
+        } // loop over channels
+      } // loop over arms
+    } // loop over stations
+  } // loop over arms
+
   // write the object
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (!poolDbService.isAvailable())
@@ -63,12 +72,9 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
 
 void PPSTimingCalibrationPCLHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  /*desc.add<edm::FileInPath>("calibrationFile", edm::FileInPath())
-      ->setComment("file with SAMPIC calibrations, ADC and INL; if empty or corrupted, no calibration will be applied");
-  desc.add<unsigned int>("subDetector", (unsigned int)PPSTimingCalibrationESSource::DetectorType::INVALID)
-      ->setComment("type of sub-detector for which the calibrations are provided");*/
-
-  descriptions.add("ppsTimingCalibrationPCLHarvester", desc);
+  desc.add<std::string>("dqmDir", "AlCaReco/PPSTimingCalibrationPCL")
+    ->setComment("output path for the various DQM plots");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(PPSTimingCalibrationPCLHarvester);
