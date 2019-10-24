@@ -253,8 +253,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer(const edm::ParameterSet& cfg, c
       consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("endcapRecHitCollectionTag"));
   pfMVA_ = consumes<edm::ValueMap<float>>(cfg.getParameter<edm::InputTag>("pfMvaTag"));
   inputCfg_.ctfTracks = consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>("ctfTracksTag"));
-  inputCfg_.seedsTag = consumes<reco::ElectronSeedCollection>(
-      cfg.getParameter<edm::InputTag>("seedsTag"));  // used to check config consistency with seeding
+  // used to check config consistency with seeding
+  inputCfg_.seedsTag = consumes<reco::ElectronSeedCollection>(cfg.getParameter<edm::InputTag>("seedsTag"));
   inputCfg_.beamSpotTag = consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpotTag"));
   inputCfg_.gsfPfRecTracksTag =
       consumes<reco::GsfPFRecTrackCollection>(cfg.getParameter<edm::InputTag>("gsfPfRecTracksTag"));
@@ -263,16 +263,14 @@ GsfElectronBaseProducer::GsfElectronBaseProducer(const edm::ParameterSet& cfg, c
     inputCfg_.conversions = consumes<reco::ConversionCollection>(cfg.getParameter<edm::InputTag>("conversionsTag"));
 
   if (cfg.getParameter<bool>("useIsolationValues")) {
-    inputCfg_.pfIsoVals = cfg.getParameter<edm::ParameterSet>("pfIsolationValues");
-    for (const std::string& name : inputCfg_.pfIsoVals.getParameterNamesForType<edm::InputTag>()) {
-      edm::InputTag tag = inputCfg_.pfIsoVals.getParameter<edm::InputTag>(name);
-      mayConsume<edm::ValueMap<double>>(tag);
+    pfIsoVals_ = cfg.getParameter<edm::ParameterSet>("pfIsolationValues");
+    for (const std::string& name : pfIsoVals_.getParameterNamesForType<edm::InputTag>()) {
+      mayConsume<edm::ValueMap<double>>(pfIsoVals_.getParameter<edm::InputTag>(name));
     }
 
-    inputCfg_.edIsoVals = cfg.getParameter<edm::ParameterSet>("edIsolationValues");
-    for (const std::string& name : inputCfg_.edIsoVals.getParameterNamesForType<edm::InputTag>()) {
-      edm::InputTag tag = inputCfg_.edIsoVals.getParameter<edm::InputTag>(name);
-      mayConsume<edm::ValueMap<double>>(tag);
+    edIsoVals_ = cfg.getParameter<edm::ParameterSet>("edIsolationValues");
+    for (const std::string& name : edIsoVals_.getParameterNamesForType<edm::InputTag>()) {
+      mayConsume<edm::ValueMap<double>>(edIsoVals_.getParameter<edm::InputTag>(name));
     }
   }
 
@@ -316,18 +314,14 @@ GsfElectronBaseProducer::GsfElectronBaseProducer(const edm::ParameterSet& cfg, c
 
   // Ecal rec hits configuration
   GsfElectronAlgo::EcalRecHitsConfiguration recHitsCfg;
-  const std::vector<std::string> flagnamesbarrel =
-      cfg.getParameter<std::vector<std::string>>("recHitFlagsToBeExcludedBarrel");
+  auto const& flagnamesbarrel = cfg.getParameter<std::vector<std::string>>("recHitFlagsToBeExcludedBarrel");
   recHitsCfg.recHitFlagsToBeExcludedBarrel = StringToEnumValue<EcalRecHit::Flags>(flagnamesbarrel);
-  const std::vector<std::string> flagnamesendcaps =
-      cfg.getParameter<std::vector<std::string>>("recHitFlagsToBeExcludedEndcaps");
+  auto const& flagnamesendcaps = cfg.getParameter<std::vector<std::string>>("recHitFlagsToBeExcludedEndcaps");
   recHitsCfg.recHitFlagsToBeExcludedEndcaps = StringToEnumValue<EcalRecHit::Flags>(flagnamesendcaps);
-  const std::vector<std::string> severitynamesbarrel =
-      cfg.getParameter<std::vector<std::string>>("recHitSeverityToBeExcludedBarrel");
+  auto const& severitynamesbarrel = cfg.getParameter<std::vector<std::string>>("recHitSeverityToBeExcludedBarrel");
   recHitsCfg.recHitSeverityToBeExcludedBarrel =
       StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesbarrel);
-  const std::vector<std::string> severitynamesendcaps =
-      cfg.getParameter<std::vector<std::string>>("recHitSeverityToBeExcludedEndcaps");
+  auto const& severitynamesendcaps = cfg.getParameter<std::vector<std::string>>("recHitSeverityToBeExcludedEndcaps");
   recHitsCfg.recHitSeverityToBeExcludedEndcaps =
       StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesendcaps);
   //recHitsCfg.severityLevelCut = cfg.getParameter<int>("severityLevelCut") ;

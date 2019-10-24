@@ -38,11 +38,11 @@ using namespace reco;
 GsfElectronAlgo::HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& conf) {
   // soft electron MVA
   SoftElectronMVAEstimator::Configuration sconfig;
-  sconfig.vweightsfiles = conf.getParameter<std::vector<std::string> >("SoftElecMVAFilesString");
+  sconfig.vweightsfiles = conf.getParameter<std::vector<std::string>>("SoftElecMVAFilesString");
   sElectronMVAEstimator.reset(new SoftElectronMVAEstimator(sconfig));
   // isolated electron MVA
   ElectronMVAEstimator::Configuration iconfig;
-  iconfig.vweightsfiles = conf.getParameter<std::vector<std::string> >("ElecMVAFilesString");
+  iconfig.vweightsfiles = conf.getParameter<std::vector<std::string>>("ElecMVAFilesString");
   iElectronMVAEstimator.reset(new ElectronMVAEstimator(iconfig));
 }
 
@@ -79,7 +79,7 @@ struct GsfElectronAlgo::EventData {
   EgammaRecHitIsolation ecalEndcapIsol03, ecalEndcapIsol04;
 
   //Isolation Value Maps for PF and EcalDriven electrons
-  typedef std::vector<edm::Handle<edm::ValueMap<double> > > IsolationValueMaps;
+  typedef std::vector<edm::Handle<edm::ValueMap<double>>> IsolationValueMaps;
   IsolationValueMaps pfIsolationValues;
   IsolationValueMaps edIsolationValues;
 
@@ -259,9 +259,10 @@ Candidate::LorentzVector GsfElectronAlgo::ElectronData::calculateMomentum() {
       vtxMom.x() * scale, vtxMom.y() * scale, vtxMom.z() * scale, superClusterRef->energy());
 }
 
-void GsfElectronAlgo::calculateSaturationInfo(const reco::SuperClusterRef& theClus,
-                                              reco::GsfElectron::SaturationInfo& si,
-                                              EventData const& eventData) const {
+reco::GsfElectron::SaturationInfo GsfElectronAlgo::calculateSaturationInfo(const reco::SuperClusterRef& theClus,
+                                                                           EventData const& eventData) const {
+  reco::GsfElectron::SaturationInfo si;
+
   const reco::CaloCluster& seedCluster = *(theClus->seed());
   DetId seedXtalId = seedCluster.seed();
   int detector = seedXtalId.subdetId();
@@ -285,16 +286,18 @@ void GsfElectronAlgo::calculateSaturationInfo(const reco::SuperClusterRef& theCl
   }
   si.nSaturatedXtals = nSaturatedXtals;
   si.isSeedSaturated = isSeedSaturated;
+
+  return si;
 }
 
 template <bool full5x5>
-void GsfElectronAlgo::calculateShowerShape(const reco::SuperClusterRef& theClus,
-                                           ElectronHcalHelper const& hcalHelper,
-                                           reco::GsfElectron::ShowerShape& showerShape,
-                                           EventData const& eventData,
-                                           CaloTopology const& topology,
-                                           CaloGeometry const& geometry) const {
+reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco::SuperClusterRef& theClus,
+                                                                     ElectronHcalHelper const& hcalHelper,
+                                                                     EventData const& eventData,
+                                                                     CaloTopology const& topology,
+                                                                     CaloGeometry const& geometry) const {
   using ClusterTools = EcalClusterToolsT<full5x5>;
+  reco::GsfElectron::ShowerShape showerShape;
 
   const reco::CaloCluster& seedCluster = *(theClus->seed());
   // temporary, till CaloCluster->seed() is made available
@@ -357,13 +360,15 @@ void GsfElectronAlgo::calculateShowerShape(const reco::SuperClusterRef& theClus,
   showerShape.e2x5Right = ClusterTools::e2x5Right(seedCluster, recHits, &topology);
   showerShape.e2x5Top = ClusterTools::e2x5Top(seedCluster, recHits, &topology);
   showerShape.e2x5Bottom = ClusterTools::e2x5Bottom(seedCluster, recHits, &topology);
+
+  return showerShape;
 }
 
 //===================================================================
 // GsfElectronAlgo
 //===================================================================
 
-GsfElectronAlgo::GsfElectronAlgo(const InputTagsConfiguration& input,
+GsfElectronAlgo::GsfElectronAlgo(const Tokens& input,
                                  const StrategyConfiguration& strategy,
                                  const CutsConfiguration& cuts,
                                  const CutsConfiguration& cutsPflow,
@@ -371,8 +376,8 @@ GsfElectronAlgo::GsfElectronAlgo(const InputTagsConfiguration& input,
                                  const ElectronHcalHelper::Configuration& hcalPflow,
                                  const IsolationConfiguration& iso,
                                  const EcalRecHitsConfiguration& recHits,
-                                 std::unique_ptr<EcalClusterFunctionBaseClass> superClusterErrorFunction,
-                                 std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction,
+                                 std::unique_ptr<EcalClusterFunctionBaseClass>&& superClusterErrorFunction,
+                                 std::unique_ptr<EcalClusterFunctionBaseClass>&& crackCorrectionFunction,
                                  const RegressionHelper::Configuration& reg,
                                  const edm::ParameterSet& tkIsol03,
                                  const edm::ParameterSet& tkIsol04,
@@ -391,8 +396,9 @@ GsfElectronAlgo::GsfElectronAlgo(const InputTagsConfiguration& input,
       ecalSeveretyLevelAlgoToken_{cc.esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()},
       hcalHelper_{hcal},
       hcalHelperPflow_{hcalPflow},
-      superClusterErrorFunction_{std::move(superClusterErrorFunction)},
-      crackCorrectionFunction_{std::move(crackCorrectionFunction)},
+      superClusterErrorFunction_{
+          std::forward<std::unique_ptr<EcalClusterFunctionBaseClass>>(superClusterErrorFunction)},
+      crackCorrectionFunction_{std::forward<std::unique_ptr<EcalClusterFunctionBaseClass>>(crackCorrectionFunction)},
       regHelper_{reg}
 
 {}
@@ -418,7 +424,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
   hcalHelper_.readEvent(event);
   hcalHelperPflow_.readEvent(event);
 
-  auto const& towers = event.get(cfg_.input.hcalTowersTag);
+  auto const& towers = event.get(cfg_.tokens.hcalTowersTag);
 
   // Isolation algos
   float egHcalIsoConeSizeOutSmall = 0.3, egHcalIsoConeSizeOutLarge = 0.4;
@@ -431,23 +437,23 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
   float egIsoPtMinEndcap = cfg_.iso.etMinEndcaps, egIsoEMinEndcap = cfg_.iso.eMinEndcaps,
         egIsoConeSizeInEndcap = cfg_.iso.intRadiusEcalEndcaps;
 
-  auto barrelRecHits = event.getHandle(cfg_.input.barrelRecHitCollection);
-  auto endcapRecHits = event.getHandle(cfg_.input.endcapRecHitCollection);
+  auto barrelRecHits = event.getHandle(cfg_.tokens.barrelRecHitCollection);
+  auto endcapRecHits = event.getHandle(cfg_.tokens.endcapRecHitCollection);
 
   EventData eventData{
       .event = &event,
-      .beamspot = &event.get(cfg_.input.beamSpotTag),
-      .previousElectrons = event.getHandle(cfg_.input.previousGsfElectrons),
-      .pflowElectrons = event.getHandle(cfg_.input.pflowGsfElectronsTag),
-      .coreElectrons = event.getHandle(cfg_.input.gsfElectronCores),
+      .beamspot = &event.get(cfg_.tokens.beamSpotTag),
+      .previousElectrons = event.getHandle(cfg_.tokens.previousGsfElectrons),
+      .pflowElectrons = event.getHandle(cfg_.tokens.pflowGsfElectronsTag),
+      .coreElectrons = event.getHandle(cfg_.tokens.gsfElectronCores),
       .barrelRecHits = barrelRecHits,
       .endcapRecHits = endcapRecHits,
-      .currentCtfTracks = event.getHandle(cfg_.input.ctfTracks),
-      .seeds = event.getHandle(cfg_.input.seedsTag),
-      .gsfPfRecTracks = cfg_.strategy.useGsfPfRecTracks ? event.getHandle(cfg_.input.gsfPfRecTracksTag)
+      .currentCtfTracks = event.getHandle(cfg_.tokens.ctfTracks),
+      .seeds = event.getHandle(cfg_.tokens.seedsTag),
+      .gsfPfRecTracks = cfg_.strategy.useGsfPfRecTracks ? event.getHandle(cfg_.tokens.gsfPfRecTracksTag)
                                                         : edm::Handle<reco::GsfPFRecTrackCollection>{},
-      .vertices = event.getHandle(cfg_.input.vtxCollectionTag),
-      .conversions = cfg_.strategy.fillConvVtxFitProb ? event.getHandle(cfg_.input.conversions)
+      .vertices = event.getHandle(cfg_.tokens.vtxCollectionTag),
+      .conversions = cfg_.strategy.fillConvVtxFitProb ? event.getHandle(cfg_.tokens.conversions)
                                                       : edm::Handle<reco::ConversionCollection>(),
       .hadDepth1Isolation03 =
           EgammaTowerIsolation(egHcalIsoConeSizeOutSmall, egHcalIsoConeSizeIn, egHcalIsoPtMin, egHcalDepth1, &towers),
@@ -829,8 +835,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   // SaturationInfo
   //====================================================
 
-  reco::GsfElectron::SaturationInfo saturationInfo;
-  calculateSaturationInfo(electronData.superClusterRef, saturationInfo, eventData);
+  auto saturationInfo = calculateSaturationInfo(electronData.superClusterRef, eventData);
 
   //====================================================
   // ShowerShape
@@ -841,9 +846,9 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
     const bool pflow = !(electronData.coreRef->ecalDrivenSeed());
     auto const& hcalHelper = pflow ? hcalHelperPflow_ : hcalHelper_;
-    calculateShowerShape<false>(electronData.superClusterRef, hcalHelper, showerShape, eventData, topology, geometry);
-    calculateShowerShape<true>(
-        electronData.superClusterRef, hcalHelper, full5x5_showerShape, eventData, topology, geometry);
+    showerShape = calculateShowerShape<false>(electronData.superClusterRef, hcalHelper, eventData, topology, geometry);
+    full5x5_showerShape =
+        calculateShowerShape<true>(electronData.superClusterRef, hcalHelper, eventData, topology, geometry);
   }
 
   //====================================================
