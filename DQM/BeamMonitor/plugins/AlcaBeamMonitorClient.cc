@@ -64,27 +64,6 @@ void AlcaBeamMonitorClient::beginJob() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitorClient::beginRun(const edm::Run& r, const EventSetup& context) {
-  for (HistosContainer::iterator itM = histosMap_.begin(); itM != histosMap_.end(); itM++) {
-    for (map<string, map<string, MonitorElement*> >::iterator itMM = itM->second.begin(); itMM != itM->second.end();
-         itMM++) {
-      if (itMM->first != "run") {
-        for (map<string, MonitorElement*>::iterator itMMM = itMM->second.begin(); itMMM != itMM->second.end();
-             itMMM++) {
-          if (itMMM->second != nullptr) {
-            if (itMM->first == "lumi") {
-              dbe_->removeElement(monitorName_ + "Debug", itMMM->second->getName());
-            } else if (itMM->first == "validation") {
-              dbe_->removeElement(monitorName_ + "Validation", itMMM->second->getName());
-            } else {
-              LogInfo("AlcaBeamMonitorClient") << "Unrecognized category " << itMM->first;
-              // assert(0);
-            }
-            itMMM->second = nullptr;
-          }
-        }
-      }
-    }
-  }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
