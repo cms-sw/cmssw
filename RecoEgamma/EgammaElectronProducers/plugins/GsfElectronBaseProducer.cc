@@ -372,7 +372,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer(const edm::ParameterSet& cfg, c
       cfg.getParameter<edm::ParameterSet>("trkIsol03Cfg"),
       cfg.getParameter<edm::ParameterSet>("trkIsol04Cfg"),
       cfg.getParameter<edm::ParameterSet>("trkIsolHEEP03Cfg"),
-      cfg.getParameter<edm::ParameterSet>("trkIsolHEEP04Cfg"));
+      cfg.getParameter<edm::ParameterSet>("trkIsolHEEP04Cfg"),
+      consumesCollector());
 }
 
 GsfElectronBaseProducer::~GsfElectronBaseProducer() = default;

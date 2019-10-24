@@ -1,6 +1,11 @@
 #ifndef GsfElectronAlgo_H
 #define GsfElectronAlgo_H
 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -196,9 +201,8 @@ public:
                   const edm::ParameterSet& tkIsol03Cfg,
                   const edm::ParameterSet& tkIsol04Cfg,
                   const edm::ParameterSet& tkIsolHEEP03Cfg,
-                  const edm::ParameterSet& tkIsolHEEP04Cfg
-
-  );
+                  const edm::ParameterSet& tkIsolHEEP04Cfg,
+                  edm::ConsumesCollector&& cc);
 
   // main methods
   void completeElectrons(reco::GsfElectronCollection& electrons,  // do not redo cloned electrons done previously
@@ -229,29 +233,6 @@ private:
     std::unique_ptr<EcalClusterFunctionBaseClass> superClusterErrorFunction;
     std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction;
     RegressionHelper regHelper;
-  };
-
-  //===================================================================
-  // GsfElectronAlgo::EventSetupData
-  //===================================================================
-
-  struct EventSetupData {
-    EventSetupData();
-
-    unsigned long long cacheIDGeom;
-    unsigned long long cacheIDTopo;
-    unsigned long long cacheIDTDGeom;
-    unsigned long long cacheIDMagField;
-    unsigned long long cacheSevLevel;
-
-    edm::ESHandle<MagneticField> magField;
-    edm::ESHandle<CaloGeometry> caloGeom;
-    edm::ESHandle<CaloTopology> caloTopo;
-    edm::ESHandle<TrackerGeometry> trackerHandle;
-    edm::ESHandle<EcalSeverityLevelAlgo> sevLevel;
-
-    std::unique_ptr<const MultiTrajectoryStateTransform> mtsTransform;
-    std::unique_ptr<GsfConstraintAtVertex> constraintAtVtx;
   };
 
   //===================================================================
@@ -337,19 +318,30 @@ private:
   };
 
   GeneralData generalData_;
-  EventSetupData eventSetupData_;
 
   EleTkIsolFromCands tkIsol03Calc_;
   EleTkIsolFromCands tkIsol04Calc_;
   EleTkIsolFromCands tkIsolHEEP03Calc_;
   EleTkIsolFromCands tkIsolHEEP04Calc_;
 
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSeveretyLevelAlgoToken_;
+
   void checkSetup(edm::EventSetup const& eventSetup);
-  EventData beginEvent(edm::Event const& event);
+  EventData beginEvent(edm::Event const& event,
+                       CaloGeometry const& caloGeometry,
+                       EcalSeverityLevelAlgo const& ecalSeveretyLevelAlgo);
 
   void createElectron(reco::GsfElectronCollection& electrons,
                       ElectronData& electronData,
                       EventData& eventData,
+                      CaloTopology const& topology,
+                      CaloGeometry const& geometry,
+                      MultiTrajectoryStateTransform const& mtsTransform,
+                      double magneticFieldInTesla,
                       const HeavyObjectCache*);
 
   void setMVAepiBasedPreselectionFlag(reco::GsfElectron& ele);
@@ -359,7 +351,9 @@ private:
   void calculateShowerShape(const reco::SuperClusterRef&,
                             ElectronHcalHelper const& hcalHelper,
                             reco::GsfElectron::ShowerShape&,
-                            EventData const& eventData);
+                            EventData const& eventData,
+                            CaloTopology const& topology,
+                            CaloGeometry const& geometry);
   void calculateSaturationInfo(const reco::SuperClusterRef&,
                                reco::GsfElectron::SaturationInfo&,
                                EventData const& eventData);
