@@ -93,8 +93,4 @@ dedxDiscrimASmi.estimator = cms.string('asmirnovDiscrim')
 doAlldEdXEstimatorsTask = cms.Task(dedxTruncated40 , dedxHarmonic2 , dedxPixelHarmonic2 , dedxPixelAndStripHarmonic2T085 , dedxHitInfo)
 doAlldEdXEstimators = cms.Sequence(doAlldEdXEstimatorsTask)
 
-doFastdEdXEstimatorsTask = cms.Task(dedxHarmonic2, dedxPixelHarmonic2)
-doFastdEdXEstimators = cms.Sequence(doFastdEdXEstimatorsTask)
-
-fastSim.toReplaceWith(doAlldEdXEstimatorsTask, doFastdEdXEstimatorsTask)
-fastSim.toReplaceWith(doAlldEdXEstimators, doFastdEdXEstimators)
+fastSim.toReplaceWith(doAlldEdXEstimatorsTask, cms.Task(dedxHarmonic2, dedxPixelHarmonic2))
