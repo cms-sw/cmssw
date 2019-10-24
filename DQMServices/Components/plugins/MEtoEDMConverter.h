@@ -87,7 +87,6 @@ private:
   std::string fName;
   int verbosity;
   int frequency;
-  bool deleteAfterCopy;
   bool enableMultiThread_;
   std::string path;
 

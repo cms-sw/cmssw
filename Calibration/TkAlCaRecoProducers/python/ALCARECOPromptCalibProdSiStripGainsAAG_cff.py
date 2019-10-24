@@ -98,7 +98,6 @@ MEtoEDMConvertSiStripGainsAAG = cms.EDProducer("MEtoEDMConverter",
                                             # 2 provide more detailed output
                                             Frequency = cms.untracked.int32(50),
                                             MEPathToSave = cms.untracked.string('AlCaReco/SiStripGainsAAG'),
-                                            deleteAfterCopy = cms.untracked.bool(True)
 )
 
 # The actual sequence
