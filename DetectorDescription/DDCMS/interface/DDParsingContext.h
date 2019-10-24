@@ -61,8 +61,7 @@ namespace cms {
         unresolvedShapes;
 
     struct CompositeMaterial {
-      CompositeMaterial(const std::string& n, double f) : name(n), fraction(f) {
-      }
+      CompositeMaterial(const std::string& n, double f) : name(n), fraction(f) {}
 
       const std::string name;
       double fraction;
