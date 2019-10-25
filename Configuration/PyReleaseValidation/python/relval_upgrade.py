@@ -21,6 +21,10 @@ for year in upgradeKeys:
     for i,key in enumerate(upgradeKeys[year]):
         numWF=numWFAll[year][i]
         for frag,info in six.iteritems(upgradeFragments):
+            # phase2-specific fragments are skipped in phase1
+            if ("CE_E" in frag or "CE_H" in frag) and year==2017:
+                numWF += 1
+                continue
             stepList={}
             for specialType in upgradeWFs.keys():
                 stepList[specialType] = []
