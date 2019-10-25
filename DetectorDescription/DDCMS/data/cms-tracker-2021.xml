@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <debug> 
-    <debug_rotations/>
+    <!--debug_rotations/>
     <debug_materials/>
 
     <debug_shapes/>
@@ -11,7 +11,7 @@
     <debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
-    <debug_visattr/>
+    <debug_visattr/-->
   </debug>
   <open_geometry/>
   <close_geometry/>
@@ -238,12 +238,10 @@
         <Include ref="Geometry/TrackerCommonData/data/v2/trackerbulkhead.xml"/>
         <Include ref="Geometry/TrackerCommonData/data/trackerother.xml"/>
   </IncludeSection>
-
   <PosPartSection label="">
     <PosPart copyNumber="2">
-	<rParent name=":world_volume"/>
-	<rChild name="tracker:Tracker"/>
-   </PosPart>
+      <rParent name=":world_volume"/>
+      <rChild name="tracker:Tracker"/>
+    </PosPart>
   </PosPartSection>
-
-</DDDefinition>
+ </DDDefinition>

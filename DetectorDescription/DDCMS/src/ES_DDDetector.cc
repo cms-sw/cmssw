@@ -4,7 +4,6 @@
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 
 using namespace cms;

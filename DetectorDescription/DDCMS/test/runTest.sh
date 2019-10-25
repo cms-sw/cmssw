@@ -22,6 +22,8 @@ F17=${LOCAL_TEST_DIR}/python/testMuonNumbering.py
 F18=${LOCAL_TEST_DIR}/python/testDDHGCalCellAlgorithm.py
 F19=${LOCAL_TEST_DIR}/python/testDDCompactView.py
 F20=${LOCAL_TEST_DIR}/python/testDDGEMAngularAlgorithm.py
+F21=${LOCAL_TEST_DIR}/python/testGeometry2021.py
+F22=${LOCAL_TEST_DIR}/python/testGeometry2021FromDB.py
 
 echo " testing DetectorDescription/DDCMS"
 
@@ -68,3 +70,7 @@ echo "===== Test \"cmsRun testDDCompactView.py\" ===="
 (cmsRun $F19) || die "Failure using cmsRun $F19" $?
 echo "===== Test \"cmsRun testDDGEMAngularAlgorithm.py\" ===="
 (cmsRun $F20) || die "Failure using cmsRun $F20" $?
+echo "===== Test \"cmsRun testGeometry2021.py\" ===="
+(cmsRun $F21) || die "Failure using cmsRun $F21" $?
+echo "===== Test \"cmsRun testGeometry2021FromDB.py\" ===="
+(cmsRun $F22) || die "Failure using cmsRun $F22" $?

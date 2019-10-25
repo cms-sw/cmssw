@@ -133,8 +133,8 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const& ps)
   // in the release area then in the local directory.  It is also possible to
   // override those locations by using the displayConfigurationFilename and
   // geometryFilename in the parameterset.
-  const char* releaseBase = getenv("CMSSW_RELEASE_BASE");
-  const char* workarea = getenv("CMSSW_BASE");
+  const char* releaseBase = std::getenv("CMSSW_RELEASE_BASE");
+  const char* workarea = std::getenv("CMSSW_BASE");
   std::string displayConfigRelFilename = "/src/Fireworks/FWInterface/macros/ffw.fwc";
   std::string geometryRelFilename = "/src/Fireworks/FWInterface/data/cmsGeom10.root";
 

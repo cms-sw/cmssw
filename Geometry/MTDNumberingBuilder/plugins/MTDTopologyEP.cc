@@ -41,14 +41,12 @@ void MTDTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& description
 
 MTDTopologyEP::ReturnType MTDTopologyEP::produce(const MTDTopologyRcd& iRecord) {
   edm::LogInfo("MTDTopologyEP") << "MTDTopologyEP::produce(const MTDTopologyRcd& iRecord)";
-  edm::ESHandle<PMTDParameters> ptp;
-  iRecord.getRecord<PMTDParametersRcd>().get(ptp);
 
   int mtdTopologyMode;
   MTDTopology::BTLValues btlVals;
   MTDTopology::ETLValues etlVals;
 
-  fillParameters(*ptp, mtdTopologyMode, btlVals, etlVals);
+  fillParameters(iRecord.get(token_), mtdTopologyMode, btlVals, etlVals);
 
   return std::make_unique<MTDTopology>(mtdTopologyMode, btlVals, etlVals);
 }

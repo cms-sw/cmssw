@@ -53,23 +53,3 @@ void ScoutingTestAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
     m_jetEtaPhi->Fill(calojet.eta(), calojet.phi());
   }
 }
-
-/* Method called at the end of the Run. Ideal to finalise stuff within the
- * DQM infrastructure, which is entirely Run based. */
-void ScoutingTestAnalyzer::endRun(edm::Run const &, edm::EventSetup const &) {
-  std::string collection_name = m_pfJetsCollectionTag.label();
-  /* This function is specific of this class and allows us to make a
-   * projection in one line
-   * The following code form the original TestAnalyser tried to book histograms
-   * in the endRun step. This is not allowed anymore.
-   * Since this is just a test class, there is no point in trying to fix the
-   * impossible. The profileX and profileY methods are only used in this test
-   * class anyway.
-   * */
-  ////profileX(m_jetEtaPhi,
-  ////    collection_name+" Jets #eta (projection)",
-  ////    "#eta^{Jet}");
-  ////profileY(m_jetEtaPhi,
-  ////    collection_name+" Jets phi (projection)",
-  ////    "#phi^{Jet}");
-}

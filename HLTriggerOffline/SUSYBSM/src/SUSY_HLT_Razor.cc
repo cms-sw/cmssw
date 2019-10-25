@@ -218,7 +218,7 @@ void SUSY_HLT_Razor::analyze(edm::Event const &e, edm::EventSetup const &eSetup)
   }
 }
 
-void SUSY_HLT_Razor::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SUSY_HLT_Razor::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   edm::LogInfo("SUSY_HLT_Razor") << "SUSY_HLT_Razor::endRun" << std::endl;
 }
 

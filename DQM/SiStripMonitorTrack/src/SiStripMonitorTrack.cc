@@ -424,27 +424,21 @@ void SiStripMonitorTrack::bookModMEs(DQMStore::IBooker& ibooker, const uint32_t 
     // Cluster Width
     theModMEs.ClusterWidth =
         bookME1D(ibooker, "TH1ClusterWidth", hidmanager.createHistoId("ClusterWidth_OnTrack", name, id).c_str());
-    ibooker.tag(theModMEs.ClusterWidth, id);
     // Cluster Gain
     theModMEs.ClusterGain =
         bookME1D(ibooker, "TH1ClusterGain", hidmanager.createHistoId("ClusterGain", name, id).c_str());
-    ibooker.tag(theModMEs.ClusterGain, id);
     // Cluster Charge
     theModMEs.ClusterCharge =
         bookME1D(ibooker, "TH1ClusterCharge", hidmanager.createHistoId("ClusterCharge_OnTrack", name, id).c_str());
-    ibooker.tag(theModMEs.ClusterCharge, id);
     // Cluster Charge Raw (no gain )
     theModMEs.ClusterChargeRaw = bookME1D(
         ibooker, "TH1ClusterChargeRaw", hidmanager.createHistoId("ClusterChargeRaw_OnTrack", name, id).c_str());
-    ibooker.tag(theModMEs.ClusterChargeRaw, id);
     // Cluster Charge Corrected
     theModMEs.ClusterChargeCorr = bookME1D(
         ibooker, "TH1ClusterChargeCorr", hidmanager.createHistoId("ClusterChargeCorr_OnTrack", name, id).c_str());
-    ibooker.tag(theModMEs.ClusterChargeCorr, id);
     // Cluster StoN Corrected
     theModMEs.ClusterStoNCorr = bookME1D(
         ibooker, "TH1ClusterStoNCorrMod", hidmanager.createHistoId("ClusterStoNCorr_OnTrack", name, id).c_str());
-    ibooker.tag(theModMEs.ClusterStoNCorr, id);
     // Cluster Position
     short total_nr_strips = SiStripDetCabling_->nApvPairs(id) * 2 * 128;
     theModMEs.ClusterPos = ibooker.book1D(hidmanager.createHistoId("ClusterPosition_OnTrack", name, id).c_str(),
@@ -452,19 +446,15 @@ void SiStripMonitorTrack::bookModMEs(DQMStore::IBooker& ibooker, const uint32_t 
                                           total_nr_strips,
                                           0.5,
                                           total_nr_strips + 0.5);
-    ibooker.tag(theModMEs.ClusterPos, id);
     // Cluster PGV
     theModMEs.ClusterPGV =
         bookMEProfile(ibooker, "TProfileClusterPGV", hidmanager.createHistoId("PGV_OnTrack", name, id).c_str());
-    ibooker.tag(theModMEs.ClusterPGV, id);
     // Cluster Charge per cm
     theModMEs.ClusterChargePerCMfromTrack = bookME1D(
         ibooker, "TH1ClusterChargePerCM", hidmanager.createHistoId("ClusterChargePerCMfromTrack", name, id).c_str());
-    ibooker.tag(theModMEs.ClusterChargePerCMfromTrack, id);
 
     theModMEs.ClusterChargePerCMfromOrigin = bookME1D(
         ibooker, "TH1ClusterChargePerCM", hidmanager.createHistoId("ClusterChargePerCMfromOrigin", name, id).c_str());
-    ibooker.tag(theModMEs.ClusterChargePerCMfromOrigin, id);
 
     ModMEsMap[hid] = theModMEs;
   }

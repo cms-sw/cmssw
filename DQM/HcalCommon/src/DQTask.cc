@@ -81,7 +81,7 @@ namespace hcaldqm {
     this->_resetMonitors(f100LS);
   }
 
-  void DQTask::beginLuminosityBlock(edm::LuminosityBlock const &lb, edm::EventSetup const &es) {
+  void DQTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const &lb, edm::EventSetup const &es) {
     _currentLS = lb.luminosityBlock();
     this->_resetMonitors(f1LS);
 
@@ -113,7 +113,7 @@ namespace hcaldqm {
     }
   }
 
-  void DQTask::endLuminosityBlock(edm::LuminosityBlock const &lb, edm::EventSetup const &es) { _procLSs++; }
+  void DQTask::dqmEndLuminosityBlock(edm::LuminosityBlock const &lb, edm::EventSetup const &es) { _procLSs++; }
 
   void DQTask::_resetMonitors(UpdateFreq uf) {
     //	reset per event

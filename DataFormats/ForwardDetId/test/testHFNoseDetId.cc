@@ -1,5 +1,6 @@
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetIdToModule.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -128,6 +129,8 @@ void testTriggerCell(int type) {
             }
           }
           std::cout << "Trigger Cell: " << idt << " obtained from cell (" << error[ok] << ")" << std::endl;
+          std::cout << "Check " << idt << " from rawId " << HGCalTriggerDetId(idt.rawId()) << " from DetId "
+                    << HGCalTriggerDetId(DetId(idt.rawId())) << std::endl;
           ++ntot;
           if (ok == 0)
             ++nerror;

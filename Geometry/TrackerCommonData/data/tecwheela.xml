@@ -3,7 +3,7 @@
 	<ConstantsSection label="tecwheela.xml" eval="true">
 		<Constant name="zero" value="0.0*fm"/>
 		<Constant name="FixSuppRmax" value="[tecpetal0:PetalContRmin]+            [tecwheel:FixSuppR]"/>
-		<Constant name="FixSuppW" value="2*[tecwheel:FixSuppA]/([FixSuppRmax]*[FixSuppRmax]-[tecpetal0:PetalContRmin]*[tecpetal0:PetalContRmin])"/>
+		<Constant name="FixSuppW" value="2*mm*[tecwheel:FixSuppA]/([FixSuppRmax]*[FixSuppRmax]-[tecpetal0:PetalContRmin]*[tecpetal0:PetalContRmin])"/>
 		<!-- calculate the width to fit the area at this specific radius! thus the volume will be constant!-->
 		<Constant name="CableL" value="([tecwheel:CableRmax]-[tecring0:Rin])"/>
 		<Constant name="CableR" value="([tecwheel:CableRmax]+[tecring0:Rin])/2"/>
@@ -12,7 +12,7 @@
 		<Tubs name="TECWheelA" rMin="[tecpetal0:PetalContRmin]" rMax="[tecwheel:WheelRmax]" dz="[tecwheel:WheelT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
 		<Tubs name="TECWheelDiskA" rMin="[tecpetal0:PetalContRmin]" rMax="[tecwheel:WheelRmax]" dz="[tecwheel:DiskT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
 		<Tubs name="TECWheelNomexA" rMin="[tecpetal0:PetalContRmin]" rMax="[tecwheel:NomexRmax]" dz="[tecwheel:NomexT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
-		<Tubs name="TECFixSupportA" rMin="[tecpetal0:PetalContRmin]" rMax="[FixSuppRmax]" dz="[tecwheel:FixSuppT]/2" startPhi="-0.137754002*rad" deltaPhi="0.275508004*rad"/>
+		<Tubs name="TECFixSupportA" rMin="[tecpetal0:PetalContRmin]" rMax="[FixSuppRmax]" dz="[tecwheel:FixSuppT]/2" startPhi="-[FixSuppW]/2" deltaPhi="[FixSuppW]"/>
 		<Tubs name="TECOptConnectorA" rMin="[tecwheel:OptConnRmin]" rMax="[tecwheel:OptConnRmax]" dz="[tecwheel:OptConnT1]/2" startPhi="-[tecwheel:OptConnW]/2" deltaPhi="[tecwheel:OptConnW]"/>
 	</SolidSection>
 	<LogicalPartSection label="tecwheela.xml">

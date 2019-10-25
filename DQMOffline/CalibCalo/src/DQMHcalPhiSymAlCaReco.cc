@@ -439,7 +439,7 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
 
 //--------------------------------------------------------
 //--------------------------------------------------------
-void DQMHcalPhiSymAlCaReco::endRun(const Run &r, const EventSetup &context) {
+void DQMHcalPhiSymAlCaReco::dqmEndRun(const Run &r, const EventSetup &context) {
   // Keep Variances
   if (eventCounter_ > 0) {
     for (int k = 0; k <= hiDistr_x_nbin_; k++) {

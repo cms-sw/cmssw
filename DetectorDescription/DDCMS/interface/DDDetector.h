@@ -16,7 +16,7 @@ namespace cms {
     using PlacedVolume = dd4hep::PlacedVolume;
     using Volume = dd4hep::Volume;
 
-    explicit DDDetector(const std::string&, const std::string&);
+    explicit DDDetector(const std::string&, const std::string&, bool bigXML = false);
     DDDetector() = delete;
 
     DDVectorsMap const& vectors() const { return m_vectors; }
@@ -47,6 +47,7 @@ namespace cms {
 
   private:
     void process(const std::string&);
+    void processXML(const std::string&);
 
     Detector* m_description = nullptr;
     DDVectorsMap m_vectors;
