@@ -409,6 +409,38 @@ upgradeWFs['TICLFullReco'].step3 = {
     '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations_withReco'
 }
 
+# common operations for aging workflows
+class UpgradeWorkflowAging(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Digi' in step or 'Reco' in step:
+            stepDict[stepName][k] = merge([{'--customise': 'SLHCUpgradeSimulations/Configuration/aging.customise_aging_'+self.lumi}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2026' in key
+# define several of them
+upgradeWFs['Aging1000'] = UpgradeWorkflowAging(
+    steps =  [
+        'DigiFull',
+        'DigiFullTrigger',
+        'RecoFullLocal',
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    PU =  [
+        'DigiFull',
+        'DigiFullTrigger',
+        'RecoFullLocal',
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    suffix = 'Aging1000',
+    offset = 0.101,
+)
+upgradeWFs['Aging1000'].lumi = '1000'
+upgradeWFs['Aging3000'] = deepcopy(upgradeWFs['Aging1000'])
+upgradeWFs['Aging3000'].suffix = 'Aging3000'
+upgradeWFs['Aging3000'].offset = 0.103
+upgradeWFs['Aging3000'].lumi = '3000'
+
 # for premix, just use base class to store information
 # actual operations happen in relval_steps.py and relval_upgrade.py
 upgradeWFs['Premix'] = UpgradeWorkflow(

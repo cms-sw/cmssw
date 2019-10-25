@@ -18,6 +18,7 @@ numWFIB.extend([20434.0,20434.1]) #2026D41 w/ special tracking and timing workfl
 numWFIB.extend([20661.97]) # 2026D41 premixing stage1 (NuGun+PU)
 numWFIB.extend([20634.99]) # 2026D41 premixing combined stage1+stage2 (ttbar+PU)
 numWFIB.extend([20434.21,20634.21]) #2026D41 prodlike, prodlike PU
+numWFIB.extend([20434.103]) #2026D41 aging
 numWFIB.extend([20493.52]) #2026D41+TICL
 numWFIB.extend([20834.0]) #2026D43
 numWFIB.extend([21234.0]) #2026D44
