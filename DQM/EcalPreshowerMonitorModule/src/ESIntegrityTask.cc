@@ -70,7 +70,7 @@ void ESIntegrityTask::dqmEndRun(const Run& r, const EventSetup& c) {
     for (int i = 0; i < 2; ++i) {
       for (int j = 0; j < 2; ++j) {
         if (meDIErrors_[i][j]) {
-          dqmStore->disableSoftReset(meDIErrors_[i][j]);
+          //dqmStore->disableSoftReset(meDIErrors_[i][j]);
         }
       }
     }
@@ -85,7 +85,7 @@ void ESIntegrityTask::dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumi, 
     for (int i = 0; i < 2; ++i) {
       for (int j = 0; j < 2; ++j) {
         if (meDIErrors_[i][j]) {
-          dqmStore->softReset(meDIErrors_[i][j]);
+          //dqmStore->softReset(meDIErrors_[i][j]);
         }
       }
     }
