@@ -128,6 +128,11 @@ def TICL_iterations_withReco(process):
       process.trackstersHAD,
       process.multiClustersFromTrackstersHAD)
   process.schedule.associate(process.TICL_Task)
+
+  if getattr(process,'hgcalValidator'):
+    process.hgcalValidator.label = [cms.InputTag("hgcalLayerClusters"),
+        cms.InputTag("multiClustersFromTrackstersEM", "MultiClustersFromTracksterByCA")]
+    process.hgcalValidator.domulticlustersPlots = True
   return process
 
 

@@ -13,8 +13,7 @@ hgcalValidator = cms.EDAnalyzer(
     ### reco input configuration ###
     #2dlayerclusters, pfclusters, multiclusters
     #label = cms.VInputTag(cms.InputTag("hgcalLayerClusters"), cms.InputTag("particleFlowClusterHGCal"), cms.InputTag("hgcalMultiClusters") ),
-    label = cms.VInputTag(cms.InputTag("hgcalLayerClusters"),
-      cms.InputTag("multiClustersFromTrackstersEM", "MultiClustersFromTracksterByCA") ),
+    label = cms.VInputTag(cms.InputTag("hgcalLayerClusters")),
 
     #General info on layers etc.
     SaveGeneralInfo = cms.untracked.bool(True),
@@ -23,7 +22,7 @@ hgcalValidator = cms.EDAnalyzer(
     #Layer Cluster related plots
     dolayerclustersPlots = cms.untracked.bool(True),
     #Multi Cluster related plots
-    domulticlustersPlots = cms.untracked.bool(True),
+    domulticlustersPlots = cms.untracked.bool(False),
 
     #The cumulative material budget in front of each layer. To be more specific, it
     #is the material budget just in front of the active material (not including it).
@@ -38,7 +37,7 @@ hgcalValidator = cms.EDAnalyzer(
 
     #Total number of layers of HGCal that we want to monitor
     #Could get this also from HGCalImagingAlgo::maxlayer but better to get it from here
-    totallayers_to_monitor = cms.int32(50),
+    totallayers_to_monitor = cms.int32(52),
     #Thicknesses we want to monitor. -1 is for scintillator
     thicknesses_to_monitor = cms.vint32(120,200,300,-1),
 
