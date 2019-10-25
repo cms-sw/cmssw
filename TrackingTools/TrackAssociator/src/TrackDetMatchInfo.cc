@@ -353,7 +353,7 @@ DetId TrackDetMatchInfo::findMaxDeposition(EnergyType type) {
           id = (*hit)->id();
         }
       }
-    }
+    } break;
     default:
       throw cms::Exception("FatalError")
           << "Maximal energy deposition: unkown or not implemented energy type requested, type:" << type;
