@@ -41,7 +41,6 @@
 //-------------------
 // Initializations --
 //-------------------
-cond::persistency::KeyList* DTUserKeyedConfigHandler::keyList = nullptr;
 
 //----------------
 // Constructors --
