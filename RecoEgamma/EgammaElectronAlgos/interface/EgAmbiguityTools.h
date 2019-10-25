@@ -7,7 +7,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-namespace EgAmbiguityTools {
+namespace electronAlgos {
   // for clusters
   float sharedEnergy(reco::CaloCluster const& clu1,
                      reco::CaloCluster const& clu2,
@@ -26,6 +26,6 @@ namespace EgAmbiguityTools {
   bool isBetter(reco::GsfElectron const&, reco::GsfElectron const&);
   bool isInnerMost(reco::GsfElectron const&, reco::GsfElectron const&);
 
-}  // namespace EgAmbiguityTools
+}  // namespace electronAlgos
 
 #endif

@@ -11,7 +11,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-namespace EgAmbiguityTools {
+namespace electronAlgos {
 
   bool isBetter(reco::GsfElectron const& e1, reco::GsfElectron const& e2) {
     return (std::abs(e1.eSuperClusterOverP() - 1) < std::abs(e2.eSuperClusterOverP() - 1));
@@ -177,4 +177,4 @@ namespace EgAmbiguityTools {
     return energyShared;
   }
 
-}  // namespace EgAmbiguityTools
+}  // namespace electronAlgos

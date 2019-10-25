@@ -4,8 +4,6 @@
 #include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateTransform.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 /****************************************************************************
  *
  * Class based E-p combination for the final electron momentum. It relies on
@@ -22,20 +20,9 @@
  *
  ****************************************************************************/
 
-void ElectronMomentumCorrector::correct(reco::GsfElectron& electron, TrajectoryStateOnSurface& vtxTsos) {
-  if (electron.p4Error(reco::GsfElectron::P4_COMBINATION) != 999.) {
-    edm::LogWarning("ElectronMomentumCorrector::correct") << "already done";
-    return;
-  }
-
-  //math::XYZTLorentzVector newMomentum = electron.p4() ; // default
+electronAlgos::ElectronMomentum electronAlgos::correctMomentum(reco::GsfElectron const& electron,
+                                                               TrajectoryStateOnSurface const& vtxTsos) {
   int elClass = electron.classification();
-
-  // irrelevant classification
-  if ((elClass <= reco::GsfElectron::UNKNOWN) || (elClass > reco::GsfElectron::GAP)) {
-    edm::LogWarning("ElectronMomentumCorrector::correct") << "unexpected classification";
-    return;
-  }
 
   //=======================================================================================
   // cluster energy
@@ -117,39 +104,6 @@ void ElectronMomentumCorrector::correct(reco::GsfElectron& electron, TrajectoryS
                              (scEnergy * errorTrackMomentum / trackMomentum / trackMomentum) *
                                  (scEnergy * errorTrackMomentum / trackMomentum / trackMomentum));
 
-    //    if ( eOverP  > 1 + 2.5*errorEOverP )
-    //     {
-    //      finalMomentum = scEnergy; finalMomentumError = errorEnergy;
-    //      if ((elClass==reco::GsfElectron::GOLDEN) && electron.isEB() && (eOverP<1.15))
-    //        {
-    //          if (scEnergy<15) {finalMomentum = trackMomentum ; finalMomentumError = errorTrackMomentum;}
-    //        }
-    //     }
-    //    else if ( eOverP < 1 - 2.5*errorEOverP )
-    //     {
-    //      finalMomentum = scEnergy; finalMomentumError = errorEnergy;
-    //      if (elClass==reco::GsfElectron::SHOWERING)
-    //       {
-    //	      if (electron.isEB())
-    //	       {
-    //		      if (scEnergy<18)
-    //		       { finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum; }
-    //	       }
-    //	      else if (electron.isEE())
-    //	       {
-    //          if (scEnergy<13)
-    //           {finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum;}
-    //	       }
-    //	      else
-    //	       { edm::LogWarning("ElectronMomentumCorrector::correct")<<"nor barrel neither endcap electron ?!" ; }
-    //	     }
-    //	    else if (electron.isGap())
-    //	     {
-    //	      if (scEnergy<60)
-    //	       { finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum ; }
-    //	     }
-    //      }
-
     bool eleIsNotInCombination = false;
     if ((eOverP > 1 + 2.5 * errorEOverP) || (eOverP < 1 - 2.5 * errorEOverP) || (eOverP < 0.8) || (eOverP > 1.3)) {
       eleIsNotInCombination = true;
@@ -216,5 +170,5 @@ void ElectronMomentumCorrector::correct(reco::GsfElectron& electron, TrajectoryS
                                                                 oldMomentum.z() * finalMomentum / oldMomentum.t(),
                                                                 finalMomentum);
 
-  electron.correctMomentum(newMomentum, errorTrackMomentum, finalMomentumError);
+  return {newMomentum, errorTrackMomentum, finalMomentumError};
 }
