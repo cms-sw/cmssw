@@ -20,7 +20,7 @@ def makeStepName(key,frag,step,suffix):
 for year in upgradeKeys:
     for i,key in enumerate(upgradeKeys[year]):
         numWF=numWFAll[year][i]
-        for frag in upgradeFragments:
+        for frag,info in six.iteritems(upgradeFragments):
             stepList={}
             for specialType in upgradeWFs.keys():
                 stepList[specialType] = []
@@ -62,7 +62,7 @@ for year in upgradeKeys:
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,''))
 
             for specialType,specialWF in six.iteritems(upgradeWFs):
-                specialWF.workflow(workflows, numWF, upgradeDatasetFromFragment[frag], stepList[specialType], key, hasHarvest)
+                specialWF.workflow(workflows, numWF, info.dataset, stepList[specialType], key, hasHarvest)
 
             inclPremix = 'PU' in key
             if inclPremix:
@@ -73,8 +73,8 @@ for year in upgradeKeys:
                         continue
             if inclPremix:
                 # premixing stage1, only for NuGun
-                if upgradeDatasetFromFragment[frag]=="NuGun":
-                    workflows[numWF+upgradeWFs['Premix'].offset] = [upgradeDatasetFromFragment[frag], stepList['Premix']]
+                if info.dataset=="NuGun":
+                    workflows[numWF+upgradeWFs['Premix'].offset] = [info.dataset, stepList['Premix']]
 
                 # premixing stage2
                 slist = []
@@ -83,7 +83,7 @@ for year in upgradeKeys:
                     if "Digi" in step or "Reco" in step:
                         s = s.replace("PU", "PUPRMX", 1)
                     slist.append(s)
-                workflows[numWF+upgradeWFs['premixS2'].offset] = [upgradeDatasetFromFragment[frag], slist]
+                workflows[numWF+upgradeWFs['premixS2'].offset] = [info.dataset, slist]
 
                 # Combined stage1+stage2
                 def nano(s):
@@ -92,7 +92,7 @@ for year in upgradeKeys:
                             return s.replace("_", "PUPRMXCombined_")
                         return s+"PUPRMXCombined"
                     return s
-                workflows[numWF+upgradeWFs['premixS1S2'].offset] = [upgradeDatasetFromFragment[frag], # Signal fragment
+                workflows[numWF+upgradeWFs['premixS1S2'].offset] = [info.dataset, # Signal fragment
                                                       [slist[0]] +                      # Start with signal generation
                                                       stepList['Premix'] +              # Premixing stage1
                                                       [slist[1].replace("PUPRMX", "PUPRMXCombined")] + # Premixing stage2, customized for the combined (defined in relval_steps.py)
