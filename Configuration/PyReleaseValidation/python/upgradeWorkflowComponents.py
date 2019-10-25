@@ -506,26 +506,11 @@ upgradeProperties[2017] = {
     },
 }
 
-upgradeProperties[2017]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
-upgradeProperties[2017]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
-upgradeProperties[2017]['2017DesignPU'] = deepcopy(upgradeProperties[2017]['2017Design'])
-upgradeProperties[2017]['2017DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
-
-upgradeProperties[2017]['2018PU'] = deepcopy(upgradeProperties[2017]['2018'])
-upgradeProperties[2017]['2018PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
-upgradeProperties[2017]['2018DesignPU'] = deepcopy(upgradeProperties[2017]['2018Design'])
-upgradeProperties[2017]['2018DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
-
-upgradeProperties[2017]['2021PU'] = deepcopy(upgradeProperties[2017]['2021'])
-upgradeProperties[2017]['2021PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
-upgradeProperties[2017]['2021DesignPU'] = deepcopy(upgradeProperties[2017]['2021Design'])
-upgradeProperties[2017]['2021DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
-
-upgradeProperties[2017]['2023PU'] = deepcopy(upgradeProperties[2017]['2023'])
-upgradeProperties[2017]['2023PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
-
-upgradeProperties[2017]['2024PU'] = deepcopy(upgradeProperties[2017]['2024'])
-upgradeProperties[2017]['2024PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
+# standard PU sequences
+for key in list(upgradeProperties[2017].keys()):
+    upgradeProperties[2017][key+'PU'] = deepcopy(upgradeProperties[2017][key])
+    upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'] + \
+                                                     ['NanoFull'] if 'design' not in key else []
 
 upgradeProperties[2026] = {
     '2026D35' : {
