@@ -89,7 +89,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 
 #process.load('Configuration.Geometry.GeometryExtended2016Reco_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 #XXX process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 #XXX process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')
 #XXX process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC_cfi')
