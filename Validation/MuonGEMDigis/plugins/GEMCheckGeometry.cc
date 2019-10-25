@@ -49,11 +49,11 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
     theStdPlots.insert(std::map<UInt_t, MonitorElement *>::value_type(name.Hash(), temp_me));
   }
 
-  for (auto region : GEMGeometry_->regions())
-    for (auto station : region->stations())
-      for (auto ring : station->rings())
-        for (auto sch : ring->superChambers())
-          for (auto ch : sch->chambers())
+  for (auto region : GEMGeometry_->regions()) {
+    for (auto station : region->stations()) {
+      for (auto ring : station->rings()) {
+        for (auto sch : ring->superChambers()) {
+          for (auto ch : sch->chambers()) {
             for (auto roll : ch->etaPartitions()) {
               const StripTopology *topology(&(roll->specificTopology()));
               auto parameters(roll->specs()->parameters());
@@ -84,6 +84,11 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
                 }
               }
             }
+          }
+        }
+      }
+    }
+  }
 }
 
 GEMCheckGeometry::~GEMCheckGeometry() {}
