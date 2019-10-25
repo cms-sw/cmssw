@@ -37,19 +37,19 @@ hiGeneralAndRegitMuTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.
     makeReKeyedSeeds = cms.untracked.bool(False)
     )
 
-hiRegitMuTracking = cms.Sequence(hiRegitMuClusterCheck
-                                 *hiRegitMuonInitialStep
-                                 *hiRegitMuonPixelPairStep
-                                 *hiRegitMuonMixedTripletStep
-                                 *hiRegitMuonPixelLessStep
-                                 *hiRegitMuonDetachedTripletStep
-                                 *hiRegitMuonSeededStep
+hiRegitMuTrackingTask = cms.Task(hiRegitMuClusterCheck
+                                 ,hiRegitMuonInitialStepTask
+                                 ,hiRegitMuonPixelPairStepTask
+                                 ,hiRegitMuonMixedTripletStepTask
+                                 ,hiRegitMuonPixelLessStepTask
+                                 ,hiRegitMuonDetachedTripletStepTask
+                                 ,hiRegitMuonSeededStepTask
                                  )
+hiRegitMuTracking = cms.Sequence(hiRegitMuTrackingTask)
 
 # Standalone muons
 from RecoMuon.Configuration.RecoMuonPPonly_cff import *
 
-
-hiRegitMuTrackingAndSta = cms.Sequence(standalonemuontracking
-      *hiRegitMuTracking)
-
+hiRegitMuTrackingAndStaTask = cms.Task(standalonemuontracking
+      ,hiRegitMuTracking)
+hiRegitMuTrackingAndSta = cms.Sequence(hiRegitMuTrackingAndStaTask)

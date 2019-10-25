@@ -7,5 +7,5 @@ conversions.bcBarrelCollection = cms.InputTag("cosmicBasicClusters","CosmicBarre
 conversions.bcEndcapCollection = cms.InputTag("cosmicBasicClusters","CosmicEndcapBasicClusters")
 conversions.recoverOneTrackCase =  cms.bool(False)
 
-
-cosmicConversionSequence = cms.Sequence(conversionSequence)
+cosmicConversionTask = cms.Task(conversionTask)
+cosmicConversionSequence = cms.Sequence(cosmicConversionTask)

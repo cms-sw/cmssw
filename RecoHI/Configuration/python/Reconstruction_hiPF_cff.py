@@ -91,20 +91,24 @@ particleFlow.Muons = cms.InputTag("muons","hiMuons1stStep2muonsMap")
 
 
 # local reco must run before electrons (RecoHI/HiEgammaAlgos), due to PF integration
-hiParticleFlowLocalReco = cms.Sequence(particleFlowCluster)
+hiParticleFlowLocalRecoTask = cms.Task(particleFlowClusterTask)
+hiParticleFlowLocalReco = cms.Sequence(hiParticleFlowLocalRecoTask)
 
-particleFlowTmpSeq = cms.Sequence(particleFlowTmp)
+particleFlowTmpTask = cms.Task(particleFlowTmp)
+particleFlowTmpSeq = cms.Sequence(particleFlowTmpTask)
 
 #PF Reco runs after electrons
-hiParticleFlowReco = cms.Sequence( pfGsfElectronMVASelectionSequence
-                                   * particleFlowBlock
-                                   * particleFlowEGammaFull
-                                   * photonIsolationHIProducerGED
-                                   * particleFlowTmpSeq
-                                   * fixedGridRhoFastjetAllTmp
-                                   * particleFlowTmpPtrs
-                                   * particleFlowEGammaFinal
-                                   * pfParticleSelectionSequence
+hiParticleFlowRecoTask = cms.Task( pfGsfElectronMVASelectionTask
+                                   , particleFlowBlock
+                                   , particleFlowEGammaFullTask
+                                   , photonIsolationHIProducerGED
+                                   , particleFlowTmpTask
+                                   , fixedGridRhoFastjetAllTmp
+                                   , particleFlowTmpPtrs
+                                   , particleFlowEGammaFinalTask
+                                   , pfParticleSelectionTask
                                    )
+hiParticleFlowReco = cms.Sequence(hiParticleFlowRecoTask)
 
-particleFlowLinks = cms.Sequence( particleFlow*particleFlowPtrs*chargedHadronPFTrackIsolation*particleBasedIsolationSequence)
+particleFlowLinksTask = cms.Task( particleFlow,particleFlowPtrs,chargedHadronPFTrackIsolation,particleBasedIsolationTask)
+particleFlowLinks = cms.Sequence(particleFlowLinksTask)

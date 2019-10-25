@@ -94,10 +94,10 @@ hiRegitPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMult
     ) #end of vpset
     ) #end of clone  
 
-hiRegitPixelPairStep = cms.Sequence(hiRegitPixelPairStepClusters*
-                                    hiRegitPixelPairStepSeedLayers*
-                                    hiRegitPixelPairStepSeeds*
-                                    hiRegitPixelPairStepTrackCandidates*
-                                    hiRegitPixelPairStepTracks*
+hiRegitPixelPairStepTask = cms.Task(hiRegitPixelPairStepClusters,
+                                    hiRegitPixelPairStepSeedLayers,
+                                    hiRegitPixelPairStepSeeds,
+                                    hiRegitPixelPairStepTrackCandidates,
+                                    hiRegitPixelPairStepTracks,
                                     hiRegitPixelPairStepSelector)
-
+hiRegitPixelPairStep = cms.Sequence(hiRegitPixelPairStepTask)

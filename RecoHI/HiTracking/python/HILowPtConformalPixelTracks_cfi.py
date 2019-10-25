@@ -124,25 +124,23 @@ phase1Pixel.toModify(hiConformalPixelTracks,
     SeedingHitSets = "hiConformalPixelTracksPhase1HitQuadrupletsCA",
 )
 
-
-
-
-hiConformalPixelTracksSequence = cms.Sequence(
-    hiTrackingRegionWithVertex +
-    hiConformalPixelTracksHitDoublets +
-    hiConformalPixelTracksHitTriplets +
-    pixelFitterByConformalMappingAndLine +
-    hiConformalPixelFilter +
+hiConformalPixelTracksTask = cms.Task(
+    hiTrackingRegionWithVertex ,
+    hiConformalPixelTracksHitDoublets ,
+    hiConformalPixelTracksHitTriplets ,
+    pixelFitterByConformalMappingAndLine ,
+    hiConformalPixelFilter ,
     hiConformalPixelTracks
 )
+hiConformalPixelTracksSequence = cms.Sequence(hiConformalPixelTracksTask)
 
-hiConformalPixelTracksSequencePhase1 = cms.Sequence(
-    hiConformalPixelTracksPhase1TrackingRegions +
-    hiConformalPixelTracksPhase1SeedLayers +
-    hiConformalPixelTracksPhase1HitDoubletsCA +
-    hiConformalPixelTracksPhase1HitQuadrupletsCA +
-    pixelFitterByConformalMappingAndLine +
-    hiConformalPixelTracksPhase1Filter +
+hiConformalPixelTracksTaskPhase1 = cms.Task(
+    hiConformalPixelTracksPhase1TrackingRegions ,
+    hiConformalPixelTracksPhase1SeedLayers ,
+    hiConformalPixelTracksPhase1HitDoubletsCA ,
+    hiConformalPixelTracksPhase1HitQuadrupletsCA ,
+    pixelFitterByConformalMappingAndLine ,
+    hiConformalPixelTracksPhase1Filter ,
     hiConformalPixelTracks
 )
-
+hiConformalPixelTracksSequencePhase1 = cms.Sequence(hiConformalPixelTracksTaskPhase1)

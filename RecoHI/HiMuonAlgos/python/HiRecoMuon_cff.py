@@ -53,7 +53,8 @@ muons.FillSelectorMaps = cms.bool(False)
 muons.FillShoweringInfo = cms.bool(False)
 muons.FillCosmicsIdMap = cms.bool(False)
 muons.vertices = cms.InputTag("hiSelectedVertex")
-muonRecoHighLevelPbPb = cms.Sequence(muons)
+muonRecoHighLevelPbPbTask = cms.Task(muons)
+muonRecoHighLevelPbPb = cms.Sequence(muonRecoHighLevelPbPbTask)
 
 # HI muon sequence (passed to RecoHI.Configuration.Reconstruction_HI_cff)
 

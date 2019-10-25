@@ -47,20 +47,31 @@ remuonShowerInformation.muonCollection        = "remuons"
 
 # replace the new names
 
-remuonIdProducerSequence = cms.Sequence(reglbTrackQual*remuons*remuonEcalDetIds*remuonShowerInformation)
-remuIsoDeposits_muons    = cms.Sequence(remuIsoDepositTk+remuIsoDepositCalByAssociatorTowers+remuIsoDepositJets)
-remuIsolation_muons      = cms.Sequence(remuIsoDeposits_muons)
-remuIsolation            = cms.Sequence(remuIsolation_muons)
+remuonIdProducerTask     = cms.Task(reglbTrackQual,remuons,remuonEcalDetIds,remuonShowerInformation)
+remuonIdProducerSequence = cms.Sequence(remuonIdProducerTask)
+
+remuIsoDeposits_muonsTask= cms.Task(remuIsoDepositTk,remuIsoDepositCalByAssociatorTowers,remuIsoDepositJets)
+remuIsoDeposits_muons    = cms.Sequence(remuIsoDeposits_muonsTask)
+
+remuIsolation_muonsTask  = cms.Task(remuIsoDeposits_muonsTask)
+
+remuIsolationTask            = cms.Task(remuIsolation_muonsTask)
+remuIsolation            = cms.Sequence(remuIsolationTask)
 #run this if there are no STA muons in events
-muontracking                        = cms.Sequence(standAloneMuonSeeds * standAloneMuons * hiRegitMuTracking * reglobalMuons)
+muontrackingTask                    = cms.Task(standAloneMuonSeedsTask , standAloneMuons , hiRegitMuTracking , reglobalMuons)
+muontracking                        = cms.Sequence(muontrackingTask)
 
 #the default setting assumes the STA is already in the event
-muontracking_re                     = cms.Sequence(hiRegitMuTracking * reglobalMuons)
-muontracking_with_TeVRefinement_re  = cms.Sequence(muontracking_re * retevMuons)
-
-muonreco_re                         = cms.Sequence(muontracking_re * remuonIdProducerSequence)
-muonrecowith_TeVRefinemen_re        = cms.Sequence(muontracking_with_TeVRefinement_re * remuonIdProducerSequence)
-muonreco_plus_isolation_re          = cms.Sequence(muonrecowith_TeVRefinemen_re * remuIsolation)
+muontracking_reTask                 = cms.Task(hiRegitMuTracking , reglobalMuons)
+muontracking_re                     = cms.Sequence(muontracking_reTask)
+muontracking_with_TeVRefinement_reTask  = cms.Task(muontracking_re , retevMuons)
+muontracking_with_TeVRefinement_re  = cms.Sequence(muontracking_with_TeVRefinement_reTask)
+muonreco_reTask                     = cms.Task(muontracking_reTask , remuonIdProducerTask)
+muonreco_re                         = cms.Sequence(muonreco_reTask)
+muonrecowith_TeVRefinemen_reTask    = cms.Task(muontracking_with_TeVRefinement_reTask , remuonIdProducerTask)
+muonrecowith_TeVRefinemen_re        = cms.Sequence(muonrecowith_TeVRefinemen_reTask)
+muonreco_plus_isolation_reTask      = cms.Task(muonrecowith_TeVRefinemen_reTask , remuIsolationTask)
+muonreco_plus_isolation_re          = cms.Sequence(muonreco_plus_isolation_reTask)
 
 reMuonTrackRecoPbPb                 = cms.Sequence(muontracking_re)
 # HI muon sequence (passed to RecoHI.Configuration.Reconstruction_HI_cff)
