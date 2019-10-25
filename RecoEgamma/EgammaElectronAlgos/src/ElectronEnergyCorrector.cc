@@ -16,19 +16,25 @@
  *
  ****************************************************************************/
 
-void ElectronEnergyCorrector::classBasedParameterizationUncertainty(reco::GsfElectron& electron) {
-  EnergyUncertaintyElectronSpecific uncertainty;
-  double energyError = 999.;
-  double ecalEnergy = electron.correctedEcalEnergy();
-  double eleEta = electron.superCluster()->eta();
-  double brem = electron.superCluster()->etaWidth() / electron.superCluster()->phiWidth();
-  energyError = uncertainty.computeElectronEnergyUncertainty(electron.classification(), eleEta, brem, ecalEnergy);
-  electron.setCorrectedEcalEnergyError(energyError);
-}
+float fEta(float energy, float eta, int algorithm);
+float fBremEta(float sigmaPhiSigmaEta, float eta, int algorithm, reco::GsfElectron::Classification cl);
+float fEt(float ET, int algorithm, reco::GsfElectron::Classification cl);
+float fEnergy(float E, int algorithm, reco::GsfElectron::Classification cl);
+double fEtaBarrelGood(double scEta);
+double fEtaBarrelBad(double scEta);
+double fEtaEndcapGood(double scEta);
+double fEtaEndcapBad(double scEta);
 
 float energyError(float E, float* par) { return sqrt(pow(par[0] / sqrt(E), 2) + pow(par[1] / E, 2) + pow(par[2], 2)); }
 
-void ElectronEnergyCorrector::simpleParameterizationUncertainty(reco::GsfElectron& electron) {
+double electronAlgos::classBasedParameterizationUncertainty(reco::GsfElectron const& electron) {
+  double ecalEnergy = electron.correctedEcalEnergy();
+  double eleEta = electron.superCluster()->eta();
+  double brem = electron.superCluster()->etaWidth() / electron.superCluster()->phiWidth();
+  return electronAlgos::computeEnergyUncertainty(electron.classification(), eleEta, brem, ecalEnergy);
+}
+
+double electronAlgos::simpleParameterizationUncertainty(reco::GsfElectron const& electron) {
   double error = 999.;
   double ecalEnergy = electron.correctedEcalEnergy();
 
@@ -43,20 +49,13 @@ void ElectronEnergyCorrector::simpleParameterizationUncertainty(reco::GsfElectro
         << "nor barrel neither endcap electron !";
   }
 
-  electron.setCorrectedEcalEnergyError(error);
+  return error;
 }
 
-void ElectronEnergyCorrector::classBasedParameterizationEnergy(reco::GsfElectron& electron, const reco::BeamSpot& bs) {
-  if (electron.isEcalEnergyCorrected()) {
-    edm::LogWarning("ElectronEnergyCorrector::classBasedParameterizationEnergy") << "already done";
-    return;
-  }
-
-  reco::GsfElectron::Classification elClass = electron.classification();
-  if ((elClass <= reco::GsfElectron::UNKNOWN) || (elClass > reco::GsfElectron::GAP)) {
-    edm::LogWarning("ElectronEnergyCorrector::classBasedParameterizationEnergy") << "unexpected classification";
-    return;
-  }
+float electronAlgos::classBasedParameterizationEnergy(reco::GsfElectron const& electron,
+                                                      reco::BeamSpot const& bs,
+                                                      EcalClusterFunctionBaseClass const& crackCorrectionFunction) {
+  auto elClass = electron.classification();
 
   // new corrections from N. Chanon et al., taken from EcalClusterCorrectionObjectSpecific.cc
   float corr = 1.;
@@ -101,13 +100,12 @@ void ElectronEnergyCorrector::classBasedParameterizationEnergy(reco::GsfElectron
        cIt != electron.superCluster()->clustersEnd();
        ++cIt) {
     const reco::CaloClusterPtr cc = *cIt;
-    crackcor *= (electron.superCluster()->rawEnergy() + cc->energy() * (crackCorrectionFunction_->getValue(*cc) - 1.)) /
+    crackcor *= (electron.superCluster()->rawEnergy() + cc->energy() * (crackCorrectionFunction.getValue(*cc) - 1.)) /
                 electron.superCluster()->rawEnergy();
   }
   newEnergy *= crackcor;
 
-  // register final value
-  electron.setCorrectedEcalEnergy(newEnergy);
+  return newEnergy;
 }
 
 // main correction function
@@ -115,7 +113,7 @@ void ElectronEnergyCorrector::classBasedParameterizationEnergy(reco::GsfElectron
 // this is to prepare for class based corrections, for the time being the parameters are the same as for the SC corrections
 // code fully duplicated here, to be improved; electron means algorithm==0 and mode==0
 
-float ElectronEnergyCorrector::fEta(float energy, float eta, int algorithm) const {
+float fEta(float energy, float eta, int algorithm) {
   // corrections for electrons
   if (algorithm != 0) {
     edm::LogWarning("ElectronEnergyCorrector::fEta") << "algorithm should be 0 for electrons !";
@@ -145,10 +143,7 @@ float ElectronEnergyCorrector::fEta(float energy, float eta, int algorithm) cons
   return correctedEnergy;
 }
 
-float ElectronEnergyCorrector::fBremEta(float sigmaPhiSigmaEta,
-                                        float eta,
-                                        int algorithm,
-                                        reco::GsfElectron::Classification cl) const {
+float fBremEta(float sigmaPhiSigmaEta, float eta, int algorithm, reco::GsfElectron::Classification cl) {
   // corrections for electrons
   if (algorithm != 0) {
     edm::LogWarning("ElectronEnergyCorrector::fBremEta") << "algorithm should be 0 for electrons !";
@@ -282,7 +277,7 @@ float ElectronEnergyCorrector::fBremEta(float sigmaPhiSigmaEta,
   return 1.;
 }
 
-float ElectronEnergyCorrector::fEt(float ET, int algorithm, reco::GsfElectron::Classification cl) const {
+float fEt(float ET, int algorithm, reco::GsfElectron::Classification cl) {
   if (algorithm == 0)  //Electrons EB
   {
     const float parClassIndep[5] = {0.97213, 0.999528, 5.61192e-06, 0.0143269, -17.1776};
@@ -330,7 +325,7 @@ float ElectronEnergyCorrector::fEt(float ET, int algorithm, reco::GsfElectron::C
   return 1.;
 }
 
-float ElectronEnergyCorrector::fEnergy(float E, int algorithm, reco::GsfElectron::Classification cl) const {
+float fEnergy(float E, int algorithm, reco::GsfElectron::Classification cl) {
   if (algorithm == 0)  // Electrons EB
   {
     return 1.;
@@ -361,7 +356,7 @@ float ElectronEnergyCorrector::fEnergy(float E, int algorithm, reco::GsfElectron
 //
 //==========================================================================
 
-double ElectronEnergyCorrector::fEtaBarrelGood(double scEta) const {
+double fEtaBarrelGood(double scEta) {
   // f(eta) for the first 3 classes (0, 10 and 20) (estimated from 1Mevt single e sample)
   // Ivica's new corrections 01/06
   float p0 = 1.00149e+00;
@@ -373,7 +368,7 @@ double ElectronEnergyCorrector::fEtaBarrelGood(double scEta) const {
   return p0 + p1 * x + p2 * x * x + p3 * x * x * x + p4 * x * x * x * x;
 }
 
-double ElectronEnergyCorrector::fEtaBarrelBad(double scEta) const {
+double fEtaBarrelBad(double scEta) {
   // f(eta) for the class = 30 (estimated from 1Mevt single e sample)
   // Ivica's new corrections 01/06
   float p0 = 9.99063e-01;
@@ -385,7 +380,7 @@ double ElectronEnergyCorrector::fEtaBarrelBad(double scEta) const {
   return p0 + p1 * x + p2 * x * x + p3 * x * x * x + p4 * x * x * x * x;
 }
 
-double ElectronEnergyCorrector::fEtaEndcapGood(double scEta) const {
+double fEtaEndcapGood(double scEta) {
   // f(eta) for the first 3 classes (100, 110 and 120)
   // Ivica's new corrections 01/06
   float p0 = -8.51093e-01;
@@ -397,7 +392,7 @@ double ElectronEnergyCorrector::fEtaEndcapGood(double scEta) const {
   return p0 + p1 * x + p2 * x * x + p3 * x * x * x + p4 * x * x * x * x;
 }
 
-double ElectronEnergyCorrector::fEtaEndcapBad(double scEta) const {
+double fEtaEndcapBad(double scEta) {
   // f(eta) for the class = 130-134
   // Ivica's new corrections 01/06
   float p0 = -4.25221e+00;

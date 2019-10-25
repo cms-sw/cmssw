@@ -462,9 +462,9 @@ void GsfElectronBaseProducer::setAmbiguityData(reco::GsfElectronCollection& elec
   auto const& endcapRecHits = event.get(inputCfg_.endcapRecHitCollection);
 
   if (strategyCfg_.ambSortingStrategy == 0) {
-    std::sort(electrons.begin(), electrons.end(), EgAmbiguityTools::isBetter);
+    std::sort(electrons.begin(), electrons.end(), electronAlgos::isBetter);
   } else if (strategyCfg_.ambSortingStrategy == 1) {
-    std::sort(electrons.begin(), electrons.end(), EgAmbiguityTools::isInnerMost);
+    std::sort(electrons.begin(), electrons.end(), electronAlgos::isInnerMost);
   } else {
     throw cms::Exception("GsfElectronAlgo|UnknownAmbiguitySortingStrategy")
         << "value of strategyCfg_.ambSortingStrategy is : " << strategyCfg_.ambSortingStrategy;
@@ -523,12 +523,11 @@ void GsfElectronBaseProducer::setAmbiguityData(reco::GsfElectronCollection& elec
         } else if (strategyCfg_.ambClustersOverlapStrategy == 1) {
           float eMin = 1.;
           float threshold = eMin * cosh(EleRelPoint(scRef1->position(), beamspot.position()).eta());
-          sameCluster =
-              ((EgAmbiguityTools::sharedEnergy(*eleClu1, *eleClu2, barrelRecHits, endcapRecHits) >= threshold) ||
-               (EgAmbiguityTools::sharedEnergy(*scRef1->seed(), *eleClu2, barrelRecHits, endcapRecHits) >= threshold) ||
-               (EgAmbiguityTools::sharedEnergy(*eleClu1, *scRef2->seed(), barrelRecHits, endcapRecHits) >= threshold) ||
-               (EgAmbiguityTools::sharedEnergy(*scRef1->seed(), *scRef2->seed(), barrelRecHits, endcapRecHits) >=
-                threshold));
+          using electronAlgos::sharedEnergy;
+          sameCluster = ((sharedEnergy(*eleClu1, *eleClu2, barrelRecHits, endcapRecHits) >= threshold) ||
+                         (sharedEnergy(*scRef1->seed(), *eleClu2, barrelRecHits, endcapRecHits) >= threshold) ||
+                         (sharedEnergy(*eleClu1, *scRef2->seed(), barrelRecHits, endcapRecHits) >= threshold) ||
+                         (sharedEnergy(*scRef1->seed(), *scRef2->seed(), barrelRecHits, endcapRecHits) >= threshold));
         } else {
           throw cms::Exception("GsfElectronAlgo|UnknownAmbiguityClustersOverlapStrategy")
               << "value of strategyCfg_.ambClustersOverlapStrategy is : " << strategyCfg_.ambClustersOverlapStrategy;

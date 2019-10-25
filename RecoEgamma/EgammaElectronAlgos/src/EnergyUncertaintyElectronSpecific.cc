@@ -1,34 +1,6 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/EnergyUncertaintyElectronSpecific.h"
-#include "TMath.h"
 
-#include <iostream>
-
-EnergyUncertaintyElectronSpecific::EnergyUncertaintyElectronSpecific() {}
-
-EnergyUncertaintyElectronSpecific::~EnergyUncertaintyElectronSpecific() {}
-
-void EnergyUncertaintyElectronSpecific::init(const edm::EventSetup& theEventSetup) {}
-
-double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty(reco::GsfElectron::Classification c,
-                                                                           double eta,
-                                                                           double brem,
-                                                                           double energy) {
-  if (c == reco::GsfElectron::GOLDEN)
-    return computeElectronEnergyUncertainty_golden(eta, brem, energy);
-  if (c == reco::GsfElectron::BIGBREM)
-    return computeElectronEnergyUncertainty_bigbrem(eta, brem, energy);
-  if (c == reco::GsfElectron::SHOWERING)
-    return computeElectronEnergyUncertainty_showering(eta, brem, energy);
-  if (c == reco::GsfElectron::BADTRACK)
-    return computeElectronEnergyUncertainty_badtrack(eta, brem, energy);
-  if (c == reco::GsfElectron::GAP)
-    return computeElectronEnergyUncertainty_cracks(eta, brem, energy);
-  throw cms::Exception("GsfElectronAlgo|InternalError") << "unknown classification";
-}
-
-double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_golden(double eta,
-                                                                                  double brem,
-                                                                                  double energy) {
+double computeEnergyUncertaintyGolden(double eta, double brem, double energy) {
   double et = energy / cosh(eta);
 
   constexpr int nBinsEta = 5;
@@ -92,12 +64,12 @@ double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_golde
     iBremSl = nBinsBrem - 1;
 
   if (iEtaSl == -1) {
-    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeElectronEnergyUncertainty_golden";
+    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeEnergyUncertaintyGolden";
     return 0;
   }
 
   if (iBremSl == -1) {
-    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeElectronEnergyUncertainty_golden";
+    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeEnergyUncertaintyGolden";
     return 0;
   }
 
@@ -113,9 +85,7 @@ double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_golde
   return (uncertainty * energy);
 }
 
-double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_bigbrem(double eta,
-                                                                                   double brem,
-                                                                                   double energy) {
+double computeEnergyUncertaintyBigbrem(double eta, double brem, double energy) {
   const double et = energy / cosh(eta);
 
   constexpr int nBinsEta = 4;
@@ -154,12 +124,12 @@ double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_bigbr
     iBremSl = nBinsBrem - 1;
 
   if (iEtaSl == -1) {
-    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeElectronEnergyUncertainty_bigbrem";
+    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeEnergyUncertaintyBigbrem";
     return 0;
   }
 
   if (iBremSl == -1) {
-    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeElectronEnergyUncertainty_bigbrem";
+    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeEnergyUncertaintyBigbrem";
     return 0;
   }
 
@@ -177,9 +147,7 @@ double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_bigbr
 
   return (uncertainty * energy);
 }
-double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_badtrack(double eta,
-                                                                                    double brem,
-                                                                                    double energy) {
+double computeEnergyUncertaintyBadTrack(double eta, double brem, double energy) {
   const double et = energy / cosh(eta);
 
   constexpr int nBinsEta = 4;
@@ -218,12 +186,12 @@ double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_badtr
     iBremSl = nBinsBrem - 1;
 
   if (iEtaSl == -1) {
-    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeElectronEnergyUncertainty_badtrack";
+    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeEnergyUncertaintyBadTrack";
     return 0;
   }
 
   if (iBremSl == -1) {
-    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeElectronEnergyUncertainty_badtrack";
+    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeEnergyUncertaintyBadTrack";
     return 0;
   }
 
@@ -242,9 +210,7 @@ double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_badtr
   return (uncertainty * energy);
 }
 
-double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_showering(double eta,
-                                                                                     double brem,
-                                                                                     double energy) {
+double computeEnergyUncertaintyShowering(double eta, double brem, double energy) {
   const double et = energy / cosh(eta);
 
   constexpr int nBinsEta = 4;
@@ -307,12 +273,12 @@ double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_showe
     iBremSl = nBinsBrem - 1;
 
   if (iEtaSl == -1) {
-    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeElectronEnergyUncertainty_showering";
+    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeEnergyUncertaintyShowering";
     return 0;
   }
 
   if (iBremSl == -1) {
-    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeElectronEnergyUncertainty_showering";
+    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeEnergyUncertaintyShowering";
     return 0;
   }
 
@@ -331,9 +297,7 @@ double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_showe
   return (uncertainty * energy);
 }
 
-double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_cracks(double eta,
-                                                                                  double brem,
-                                                                                  double energy) {
+double computeEnergyUncertaintyCracks(double eta, double brem, double energy) {
   const double et = energy / cosh(eta);
 
   constexpr int nBinsEta = 5;
@@ -407,12 +371,12 @@ double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_crack
     iBremSl = nBinsBrem - 1;
 
   if (iEtaSl == -1) {
-    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeElectronEnergyUncertainty_cracks";
+    edm::LogError("BadRange") << "Bad eta value: " << eta << " in computeEnergyUncertaintyCracks";
     return 0;
   }
 
   if (iBremSl == -1) {
-    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeElectronEnergyUncertainty_cracks";
+    edm::LogError("BadRange") << "Bad brem value: " << brem << " in computeEnergyUncertaintyCracks";
     return 0;
   }
 
@@ -426,4 +390,21 @@ double EnergyUncertaintyElectronSpecific::computeElectronEnergyUncertainty_crack
     uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl] / (et - par2[iEtaSl][iBremSl]);
 
   return (uncertainty * energy);
+}
+
+double electronAlgos::computeEnergyUncertainty(reco::GsfElectron::Classification c,
+                                               double eta,
+                                               double brem,
+                                               double energy) {
+  if (c == reco::GsfElectron::GOLDEN)
+    return computeEnergyUncertaintyGolden(eta, brem, energy);
+  if (c == reco::GsfElectron::BIGBREM)
+    return computeEnergyUncertaintyBigbrem(eta, brem, energy);
+  if (c == reco::GsfElectron::SHOWERING)
+    return computeEnergyUncertaintyShowering(eta, brem, energy);
+  if (c == reco::GsfElectron::BADTRACK)
+    return computeEnergyUncertaintyBadTrack(eta, brem, energy);
+  if (c == reco::GsfElectron::GAP)
+    return computeEnergyUncertaintyCracks(eta, brem, energy);
+  throw cms::Exception("GsfElectronAlgo|InternalError") << "unknown classification";
 }
