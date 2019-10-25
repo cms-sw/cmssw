@@ -373,6 +373,11 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTCon
   if (ccb_conf.configKeyMap().size() != 250)  // check the number of chambers!!!
     return -1;
 
+  // This const_cast and usage of KeyList is a problem
+  // that will need to be addressed in the future.
+  // I'm not fixing now, because I want to finish what I am
+  // fixing. One thing at a time. (This was already in the
+  // the DTKeyedConfigCache which copied to make this file)
   auto &keyList = const_cast<cond::persistency::KeyList &>(keyRecord.get(m_keyListToken));
 
   // read data from CCBConfig
@@ -418,11 +423,6 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTCon
       // create strings list
       std::vector<std::string> list;
 
-      // This const_cast and usage of KeyList is a problem
-      // that will need to be addressed in the future.
-      // I'm not fixing now, because I want to finish what I am
-      // fixing. One thing at a time. (This was already in the
-      // the DTKeyedConfigCache which copied to make this file)
       cfgCache.getData(keyList, id, list);
 
       // loop over strings
