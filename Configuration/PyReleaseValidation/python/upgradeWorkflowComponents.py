@@ -436,7 +436,7 @@ offsets = [specialWF.offset for specialType,specialWF in six.iteritems(upgradeWF
 seen = set()
 dups = set(x for x in offsets if x in seen or seen.add(x))
 if len(dups)>0:
-    raise ValueError("Duplicate special workflow offsets not allowed: "+','.join(list(dups)))
+    raise ValueError("Duplicate special workflow offsets not allowed: "+','.join([str(x) for x in dups]))
 
 upgradeProperties = {}
 
