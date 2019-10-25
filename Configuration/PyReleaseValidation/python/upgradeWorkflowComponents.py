@@ -275,7 +275,7 @@ upgradeWFs['trackingMkFit'].step3 = {
 class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step:
-            stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'GEN-SIM-RECO', '--eventcontent':'FEVTDEBUGHLT'}, stepDict[step][k]])
+            stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'AODSIM', '--eventcontent':'AODSIM'}, stepDict[step][k]])
         elif 'MiniAOD' in step:
             # the separate miniAOD step is used here
             stepDict[stepName][k] = deepcopy(stepDict[step][k])
