@@ -231,19 +231,20 @@ hiLowPtTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.tra
 
 # Final sequence
 
-hiLowPtTripletStep = cms.Sequence(hiLowPtTripletStepClusters*
-                                        hiLowPtTripletStepSeedLayers*
-                                        hiLowPtTripletStepTrackingRegions*
-                                        hiLowPtTripletStepTracksHitDoublets*
-                                        hiLowPtTripletStepTracksHitTriplets*
-                                        pixelFitterByHelixProjections*
-                                        hiLowPtTripletStepPixelTracksFilter*
-                                        hiLowPtTripletStepPixelTracks*hiLowPtTripletStepSeeds*
-                                        hiLowPtTripletStepTrackCandidates*
-                                        hiLowPtTripletStepTracks*
-                                        hiLowPtTripletStepSelector*
+hiLowPtTripletStepTask = cms.Task(hiLowPtTripletStepClusters,
+                                        hiLowPtTripletStepSeedLayers,
+                                        hiLowPtTripletStepTrackingRegions,
+                                        hiLowPtTripletStepTracksHitDoublets,
+                                        hiLowPtTripletStepTracksHitTriplets,
+                                        pixelFitterByHelixProjections,
+                                        hiLowPtTripletStepPixelTracksFilter,
+                                        hiLowPtTripletStepPixelTracks,hiLowPtTripletStepSeeds,
+                                        hiLowPtTripletStepTrackCandidates,
+                                        hiLowPtTripletStepTracks,
+                                        hiLowPtTripletStepSelector,
                                         hiLowPtTripletStepQual
                                         )
+hiLowPtTripletStep = cms.Sequence(hiLowPtTripletStepTask)
 hiLowPtTripletStep_Phase1 = hiLowPtTripletStep.copy()
 hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitDoublets, hiLowPtTripletStepTracksHitDoubletsCA)
 hiLowPtTripletStep_Phase1.replace(hiLowPtTripletStepTracksHitTriplets, hiLowPtTripletStepTracksHitTripletsCA)

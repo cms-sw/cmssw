@@ -88,9 +88,10 @@ hiGeneralAndPixelTracks = trackListMerger.clone(
     makeReKeyedSeeds = cms.untracked.bool(False)
     )
 
-hiMergedConformalPixelTracking = cms.Sequence(
-    hiConformalPixelTracksSequence
-    *hiPixelOnlyStepSelector
-    *hiHighPtStepSelector
-    *hiGeneralAndPixelTracks
+hiMergedConformalPixelTrackingTask = cms.Task(
+    hiConformalPixelTracksTask
+    ,hiPixelOnlyStepSelector
+    ,hiHighPtStepSelector
+    ,hiGeneralAndPixelTracks
     )
+hiMergedConformalPixelTracking = cms.Sequence(hiMergedConformalPixelTrackingTask)

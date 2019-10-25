@@ -91,11 +91,10 @@ hiRegitInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiT
     ) #end of clone  
 
 
-hiRegitInitialStep = cms.Sequence(hiGeneralTrackFilter*
-                                  hiRegitInitialStepClusters*
-                                  hiRegitInitialStepSeeds*
-                                  hiRegitInitialStepTrackCandidates*
-                                  hiRegitInitialStepTracks*
+hiRegitInitialStepTask = cms.Task(hiGeneralTrackFilter,
+                                  hiRegitInitialStepClusters,
+                                  hiRegitInitialStepSeeds,
+                                  hiRegitInitialStepTrackCandidates,
+                                  hiRegitInitialStepTracks,
                                   hiRegitInitialStepSelector)
-
-
+hiRegitInitialStep = cms.Sequence(hiRegitInitialStepTask)

@@ -169,18 +169,21 @@ trackingPhase1.toModify(hiRegitMuonSeededTracksOutInSelector, trackSelectors= cm
          ) #end of vpset
 )
 
-hiRegitMuonSeededStepCore = cms.Sequence(
-      hiRegitMuonSeededSeedsInOut + hiRegitMuonSeededTrackCandidatesInOut + hiRegitMuonSeededTracksInOut +
-      hiRegitMuonSeededSeedsOutIn + hiRegitMuonSeededTrackCandidatesOutIn + hiRegitMuonSeededTracksOutIn 
+hiRegitMuonSeededStepCoreTask = cms.Task(
+      hiRegitMuonSeededSeedsInOut , hiRegitMuonSeededTrackCandidatesInOut , hiRegitMuonSeededTracksInOut ,
+      hiRegitMuonSeededSeedsOutIn , hiRegitMuonSeededTrackCandidatesOutIn , hiRegitMuonSeededTracksOutIn 
       )
-hiRegitMuonSeededStepExtra = cms.Sequence(
-      hiRegitMuonSeededTracksInOutSelector +
+hiRegitMuonSeededStepCore = cms.Sequence(hiRegitMuonSeededStepCoreTask)
+hiRegitMuonSeededStepExtraTask = cms.Task(
+      hiRegitMuonSeededTracksInOutSelector ,
       hiRegitMuonSeededTracksOutInSelector
       )
+hiRegitMuonSeededStepExtra = cms.Sequence(hiRegitMuonSeededStepExtraTask)
 
-hiRegitMuonSeededStep = cms.Sequence(
-      hiEarlyGeneralTracks +
-      hiEarlyMuons +
-      hiRegitMuonSeededStepCore +
+hiRegitMuonSeededStepTask = cms.Task(
+      hiEarlyGeneralTracks ,
+      hiEarlyMuons ,
+      hiRegitMuonSeededStepCore ,
       hiRegitMuonSeededStepExtra 
       )
+hiRegitMuonSeededStep = cms.Sequence(hiRegitMuonSeededStepTask)

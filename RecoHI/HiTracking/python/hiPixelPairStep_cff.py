@@ -216,12 +216,13 @@ trackingPhase1.toModify(hiPixelPairStepSelector, trackSelectors= cms.VPSet(
 
 
 # Final sequence
-hiPixelPairStep = cms.Sequence(hiPixelPairClusters*
-                               hiPixelPairSeedLayers*
-                               hiPixelPairSeeds*
-                               hiPixelPairTrackCandidates*
-                               hiPixelPairGlobalPrimTracks*
+hiPixelPairStepTask = cms.Task(hiPixelPairClusters,
+                               hiPixelPairSeedLayers,
+                               hiPixelPairSeeds,
+                               hiPixelPairTrackCandidates,
+                               hiPixelPairGlobalPrimTracks,
                                hiPixelPairStepSelector)
+hiPixelPairStep = cms.Sequence(hiPixelPairStepTask)
 hiPixelPairStep_Phase1 = hiPixelPairStep.copy()
 hiPixelPairStep_Phase1.replace(hiPixelPairSeeds,hiPixelPairStepTrackingRegionPhase1*hiPixelPairStepHitDoubletsPhase1*hiPixelPairStepSeedsPhase1)
 trackingPhase1.toReplaceWith(hiPixelPairStep, hiPixelPairStep_Phase1)
