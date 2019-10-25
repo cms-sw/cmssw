@@ -515,7 +515,7 @@ upgradeProperties[2017] = {
 for key in list(upgradeProperties[2017].keys()):
     upgradeProperties[2017][key+'PU'] = deepcopy(upgradeProperties[2017][key])
     upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'] + \
-                                                     ['NanoFull'] if 'design' not in key else []
+                                                     (['NanoFull'] if 'Design' not in key else [])
 
 upgradeProperties[2026] = {
     '2026D35' : {
