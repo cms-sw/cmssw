@@ -3,12 +3,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Validation/MuonCSCDigis/src/CSCALCTDigiValidation.h"
-#include "Validation/MuonCSCDigis/src/CSCCLCTDigiValidation.h"
-#include "Validation/MuonCSCDigis/src/CSCComparatorDigiValidation.h"
-#include "Validation/MuonCSCDigis/src/CSCDigiValidation.h"
-#include "Validation/MuonCSCDigis/src/CSCStripDigiValidation.h"
-#include "Validation/MuonCSCDigis/src/CSCWireDigiValidation.h"
+#include "Validation/MuonCSCDigis/interface/CSCALCTDigiValidation.h"
+#include "Validation/MuonCSCDigis/interface/CSCCLCTDigiValidation.h"
+#include "Validation/MuonCSCDigis/interface/CSCComparatorDigiValidation.h"
+#include "Validation/MuonCSCDigis/plugins/CSCDigiValidation.h"
+#include "Validation/MuonCSCDigis/interface/CSCStripDigiValidation.h"
+#include "Validation/MuonCSCDigis/interface/CSCWireDigiValidation.h"
 #include <iostream>
 
 CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
@@ -20,15 +20,13 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
       theComparatorDigiValidation(nullptr),
       theALCTDigiValidation(nullptr),
       theCLCTDigiValidation(nullptr) {
-  theStripDigiValidation =
-      new CSCStripDigiValidation(ps.getParameter<edm::InputTag>("stripDigiTag"), consumesCollector());
-  theWireDigiValidation =
-      new CSCWireDigiValidation(ps.getParameter<edm::InputTag>("wireDigiTag"), consumesCollector(), doSim_);
-  theComparatorDigiValidation = new CSCComparatorDigiValidation(ps.getParameter<edm::InputTag>("comparatorDigiTag"),
-                                                                ps.getParameter<edm::InputTag>("stripDigiTag"),
-                                                                consumesCollector());
-  theALCTDigiValidation = new CSCALCTDigiValidation(ps.getParameter<edm::InputTag>("alctDigiTag"), consumesCollector());
-  theCLCTDigiValidation = new CSCCLCTDigiValidation(ps.getParameter<edm::InputTag>("clctDigiTag"), consumesCollector());
+  theStripDigiValidation.reset(new CSCStripDigiValidation(ps.getParameter<edm::InputTag>("stripDigiTag"), consumesCollector()));
+  theWireDigiValidation.reset(new CSCWireDigiValidation(ps.getParameter<edm::InputTag>("wireDigiTag"), consumesCollector(), doSim_));
+  theComparatorDigiValidation.reset(new CSCComparatorDigiValidation(ps.getParameter<edm::InputTag>("comparatorDigiTag"),
+                                                                    ps.getParameter<edm::InputTag>("stripDigiTag"),
+                                                                    consumesCollector()));
+  theALCTDigiValidation.reset(new CSCALCTDigiValidation(ps.getParameter<edm::InputTag>("alctDigiTag"), consumesCollector()));
+  theCLCTDigiValidation.reset(new CSCCLCTDigiValidation(ps.getParameter<edm::InputTag>("clctDigiTag"), consumesCollector()));
 
   if (doSim_) {
     theStripDigiValidation->setSimHitMap(&theSimHitMap);
@@ -37,12 +35,8 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
   }
 }
 
-CSCDigiValidation::~CSCDigiValidation() {
-  delete theStripDigiValidation;
-  delete theWireDigiValidation;
-  delete theComparatorDigiValidation;
-  delete theALCTDigiValidation;
-  delete theCLCTDigiValidation;
+CSCDigiValidation::~CSCDigiValidation()
+{
 }
 
 void CSCDigiValidation::bookHistograms(DQMStore::IBooker &iBooker,

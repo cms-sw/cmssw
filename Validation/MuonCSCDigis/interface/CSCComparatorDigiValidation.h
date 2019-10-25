@@ -1,5 +1,5 @@
-#ifndef CSCComparatorDigiValidation_H
-#define CSCComparatorDigiValidation_H
+#ifndef Validation_MuonCSCDigis_CSCComparatorDigiValidation_H
+#define Validation_MuonCSCDigis_CSCComparatorDigiValidation_H
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
