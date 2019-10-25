@@ -91,11 +91,11 @@ class UpgradeWorkflow(object):
             stepNamePmx = step + 'PUPRMX' + self.suffix
             stepDict[stepNamePmx] = {}
             stepDict[stepNamePmx+'Combined'] = {}
-    def setup(self, stepDict, k, properties, extraSteps):
+    def setup(self, stepDict, k, properties):
         for step in self.steps:
             stepName = step + self.suffix
-            self.setup_(step, stepName, stepDict, k, properties, extraSteps)
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
+            self.setup_(step, stepName, stepDict, k, properties)
+    def setup_(self, step, stepName, stepDict, k, properties):
         pass
     def workflow(self, workflows, num, fragment, stepList, key, hasHarvest):
         if self.condition(fragment, stepList, key, hasHarvest):
@@ -107,7 +107,7 @@ class UpgradeWorkflow(object):
 upgradeWFs = OrderedDict()
 
 class UpgradeWorkflow_baseline(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
+    def setup_(self, step, stepName, stepDict, k, properties):
         cust=properties.get('Custom', None)
         era=properties.get('Era', None)
         if cust is not None: stepDict[stepName][k]['--customise']=cust
@@ -159,8 +159,8 @@ class UpgradeWorkflowTracking(UpgradeWorkflow):
         return True
 
 class UpgradeWorkflow_trackingOnly(UpgradeWorkflowTracking):
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
-        if 'Reco' in step: stepDict[stepName][k] = merge([extraSteps['step3_trackingOnly'], stepDict[step][k]])
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
 upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
     steps = [
@@ -173,9 +173,16 @@ upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
     suffix = '_trackingOnly',
     offset = 0.1,
 )
+upgradeWFs['trackingOnly'].step3 = {
+    '-s': 'RAW2DIGI,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM',
+    '--datatier':'GEN-SIM-RECO,DQMIO',
+    '--eventcontent':'RECOSIM,DQM',
+}
+# used outside of upgrade WFs
+step3_trackingOnly = upgradeWFs['trackingOnly'].step3
 
 class UpgradeWorkflow_trackingRun2(UpgradeWorkflowTracking):
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
+    def setup_(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step and stepDict[step][k]['--era']=='Run2_2017':
             stepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
@@ -190,9 +197,9 @@ upgradeWFs['trackingRun2'] = UpgradeWorkflow_trackingRun2(
 )
 
 class UpgradeWorkflow_trackingOnlyRun2(UpgradeWorkflowTracking):
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
+    def setup_(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step and stepDict[step][k]['--era']=='Run2_2017':
-            stepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, extraSteps['step3_trackingOnly'], stepDict[step][k]])
+            stepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
         return '2017' in key
@@ -205,9 +212,10 @@ upgradeWFs['trackingOnlyRun2'] = UpgradeWorkflow_trackingOnlyRun2(
     suffix = '_trackingOnlyRun2',
     offset = 0.3,
 )
+upgradeWFs['trackingOnlyRun2'].step3 = upgradeWFs['trackingOnly'].step3
 
 class UpgradeWorkflow_trackingLowPU(UpgradeWorkflowTracking):
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
+    def setup_(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step and stepDict[step][k]['--era']=='Run2_2017':
             stepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingLowPU'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
@@ -222,8 +230,8 @@ upgradeWFs['trackingLowPU'] = UpgradeWorkflow_trackingLowPU(
 )
 
 class UpgradeWorkflow_pixelTrackingOnly(UpgradeWorkflowTracking):
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
-        if 'Reco' in step: stepDict[stepName][k] = merge([extraSteps['step3_pixelTrackingOnly'], stepDict[step][k]])
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
         return '2017' in key or '2018' in key
@@ -238,10 +246,15 @@ upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
     suffix = '_pixelTrackingOnly',
     offset = 0.5,
 )
+upgradeWFs['pixelTrackingOnly'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+}
 
 class UpgradeWorkflow_trackingMkFit(UpgradeWorkflowTracking):
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
-        if 'Reco' in step: stepDict[stepName][k] = merge([extraSteps['step3_trackingMkFit'], stepDict[step][k]])
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
         return '2017' in key or '2021' in key
 upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
@@ -253,9 +266,12 @@ upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
     suffix = '_trackingMkFit',
     offset = 0.7,
 )
+upgradeWFs['trackingMkFit'].step3 = {
+    '--customise': 'RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepToMkFit'
+}
 
 class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
+    def setup_(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step:
             stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'GEN-SIM-RECO', '--eventcontent':'FEVTDEBUGHLT'}, stepDict[step][k]])
         elif 'MiniAOD' in step:
@@ -282,7 +298,7 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
 )
 
 class UpgradeWorkflow_Neutron(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
+    def setup_(self, step, stepName, stepDict, k, properties):
         if 'GenSim' in step:
             custNew = "SimG4Core/Application/NeutronBGforMuonsXS_cff.customise"
         else:
@@ -314,7 +330,7 @@ upgradeWFs['Neutron'].neutronKeys = [x for x in upgradeKeys[2026] if 'PU' not in
 upgradeWFs['Neutron'].neutronFrags = ['ZMM_14','MinBias_14TeV']
 
 class UpgradeWorkflow_heCollapse(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
+    def setup_(self, step, stepName, stepDict, k, properties):
         stepDict[stepName][k] = merge([{'--procModifiers': 'run2_HECollapse_2018'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_13" and '2018' in key
@@ -336,7 +352,7 @@ upgradeWFs['heCollapse'] = UpgradeWorkflow_heCollapse(
 )
 
 class UpgradeWorkflow_ParkingBPH(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
+    def setup_(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step and 'Run2_2018' in stepDict[step][k]['--era']:
             stepDict[stepName][k] = merge([{'--era': 'Run2_2018,bParking'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
@@ -351,8 +367,8 @@ upgradeWFs['ParkingBPH'] = UpgradeWorkflow_ParkingBPH(
 )
 
 class UpgradeWorkflow_TICLOnly(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
-        if 'Reco' in step: stepDict[stepName][k] = merge([extraSteps['step3_TICLOnly'], stepDict[step][k]])
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         result = (fragment=="CloseByParticleGun") and ('2026' in key)
         if result: stepList = [s for s in stepList if ("HARVEST" not in s)]
@@ -366,10 +382,13 @@ upgradeWFs['TICLOnly'] = UpgradeWorkflow_TICLOnly(
     suffix = '_TICLOnly',
     offset = 0.51,
 )
+upgradeWFs['TICLOnly'].step3 = {
+    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations'
+}
 
 class UpgradeWorkflow_TICLFullReco(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties, extraSteps):
-        if 'Reco' in step: stepDict[stepName][k] = merge([extraSteps['step3_TICLFullReco'], stepDict[step][k]])
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return (fragment=="CloseByParticleGun") and ('2026' in key)
 upgradeWFs['TICLFullReco'] = UpgradeWorkflow_TICLFullReco(
@@ -381,6 +400,9 @@ upgradeWFs['TICLFullReco'] = UpgradeWorkflow_TICLFullReco(
     suffix = '_TICLFullReco',
     offset = 0.52,
 )
+upgradeWFs['TICLFullReco'].step3 = {
+    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations_withReco'
+}
 
 # for premix, just use base class to store information
 # actual operations happen in relval_steps.py and relval_upgrade.py
