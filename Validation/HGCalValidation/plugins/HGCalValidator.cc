@@ -219,7 +219,6 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(layerclusters_, clusterHandle);
   const reco::CaloClusterCollection& clusters = *clusterHandle;
 
-
   //Density
   edm::Handle<Density> densityHandle;
   event.getByToken(density_, densityHandle);
