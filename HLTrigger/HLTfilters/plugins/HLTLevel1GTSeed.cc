@@ -1372,7 +1372,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event& iEvent, trigger::TriggerFilterObj
               includeTauJet = false;
             }
           }
-
+            [[fallthrough]];
           case HfRingEtSums: {
             if (includeIsoTauJet) {
               edm::Handle<l1extra::L1JetParticleCollection> l1IsoTauJet;
