@@ -1,5 +1,5 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
+#include "Validation/MuonGEMDigis/plugins/GEMStripDigiValidation.h"
 
 #include <TMath.h>
 #include <iomanip>

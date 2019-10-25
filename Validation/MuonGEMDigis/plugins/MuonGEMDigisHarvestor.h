@@ -10,10 +10,10 @@
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-#include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
-#include "Validation/MuonGEMDigis/interface/GEMPadDigiValidation.h"
-#include "Validation/MuonGEMDigis/interface/GEMPadDigiClusterValidation.h"
-#include "Validation/MuonGEMDigis/interface/GEMCoPadDigiValidation.h"
+#include "Validation/MuonGEMDigis/plugins/GEMStripDigiValidation.h"
+#include "Validation/MuonGEMDigis/plugins/GEMPadDigiValidation.h"
+#include "Validation/MuonGEMDigis/plugins/GEMPadDigiClusterValidation.h"
+#include "Validation/MuonGEMDigis/plugins/GEMCoPadDigiValidation.h"
 #include <TEfficiency.h>
 #include <TGraphAsymmErrors.h>
 #include <TProfile.h>

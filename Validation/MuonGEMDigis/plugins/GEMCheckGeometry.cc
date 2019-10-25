@@ -1,15 +1,15 @@
-#include "Validation/MuonGEMDigis/plugins/GEMCheckGeometry.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "Validation/MuonGEMDigis/plugins/GEMCheckGeometry.h"
 
 #include <iomanip>
 
-GEMCheckGeometry::GEMCheckGeometry(const edm::ParameterSet& gc) {
+GEMCheckGeometry::GEMCheckGeometry(const edm::ParameterSet &gc) {
   GE11PhiBegin_ = gc.getUntrackedParameter<double>("GE11PhiBegin", -5.);
   GE11PhiStep_ = gc.getUntrackedParameter<double>("GE11PhiStep", 10);
   minPhi_ = gc.getUntrackedParameter<double>("minPhi", -180.);
@@ -17,16 +17,16 @@ GEMCheckGeometry::GEMCheckGeometry(const edm::ParameterSet& gc) {
   detailPlot_ = gc.getParameter<bool>("detailPlot");
 }
 
-void GEMCheckGeometry::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& Run, edm::EventSetup const& iSetup) {
+void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &Run, edm::EventSetup const &iSetup) {
   if (!detailPlot_)
     return;
-  const GEMGeometry* GEMGeometry_;
+  const GEMGeometry *GEMGeometry_;
 
   try {
     edm::ESHandle<GEMGeometry> hGeom;
     iSetup.get<MuonGeometryRecord>().get(hGeom);
     GEMGeometry_ = &*hGeom;
-  } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+  } catch (edm::eventsetup::NoProxyException<GEMGeometry> &e) {
     edm::LogError("MuonGEMGeometry") << "+++ Error : GEM geometry  is unavailable on event loop. +++\n";
     return;
   }
@@ -46,7 +46,7 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const
     temp_me->setBinLabel(6, "St2,La1_odd", 2);
     temp_me->setBinLabel(7, "St2,La2_even", 2);
     temp_me->setBinLabel(8, "St2,La2_odd", 2);
-    theStdPlots.insert(std::map<UInt_t, MonitorElement*>::value_type(name.Hash(), temp_me));
+    theStdPlots.insert(std::map<UInt_t, MonitorElement *>::value_type(name.Hash(), temp_me));
   }
 
   for (auto region : GEMGeometry_->regions())
@@ -55,16 +55,16 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const
         for (auto sch : ring->superChambers())
           for (auto ch : sch->chambers())
             for (auto roll : ch->etaPartitions()) {
-              const StripTopology* topology(&(roll->specificTopology()));
+              const StripTopology *topology(&(roll->specificTopology()));
               auto parameters(roll->specs()->parameters());
               float nStrips(parameters[3]);
               for (int strip = 0; strip <= nStrips; strip++) {
                 LocalPoint lEdge(topology->localPosition(strip));
-                //double x = roll->toGlobal(lEdge).x();
+                // double x = roll->toGlobal(lEdge).x();
 
-                //double y = roll->toGlobal(lEdge).y();
-                //double z = roll->toGlobal(lEdge).z();
-                //double eta = roll->toGlobal(lEdge).eta();
+                // double y = roll->toGlobal(lEdge).y();
+                // double z = roll->toGlobal(lEdge).z();
+                // double eta = roll->toGlobal(lEdge).eta();
                 double phi = roll->toGlobal(lEdge).phi().degrees();
 
                 GEMDetId id(roll->id());
@@ -72,7 +72,7 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const
                 int station_idx = id.station();
                 int chamber_idx = id.chamber();
                 int layer_idx = id.layer();
-                //int roll_idx = id.roll();
+                // int roll_idx = id.roll();
                 int value = (station_idx - 1) * 4 + (layer_idx - 1) * 2 + (chamber_idx % 2) + 1;
 
                 if (region_idx == 1) {
@@ -88,4 +88,4 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const
 
 GEMCheckGeometry::~GEMCheckGeometry() {}
 
-void GEMCheckGeometry::analyze(const edm::Event& e, const edm::EventSetup&) {}
+void GEMCheckGeometry::analyze(const edm::Event &e, const edm::EventSetup &) {}

@@ -1,4 +1,4 @@
-#include "Validation/MuonGEMDigis/interface/GEMPadDigiValidation.h"
+#include "Validation/MuonGEMDigis/plugins/GEMPadDigiValidation.h"
 #include <TMath.h>
 
 GEMPadDigiValidation::GEMPadDigiValidation(const edm::ParameterSet &cfg) : GEMBaseValidation(cfg) {

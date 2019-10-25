@@ -6,7 +6,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <TMath.h>
 #include <TH1F.h>
-#include "Validation/MuonGEMDigis/interface/GEMDigiTrackMatch.h"
+#include "Validation/MuonGEMDigis/plugins/GEMDigiTrackMatch.h"
 #include "Validation/MuonGEMHits/interface/GEMDetLabel.h"
 
 using namespace std;
