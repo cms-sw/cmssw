@@ -153,7 +153,9 @@ class UpgradeWorkflowTracking(UpgradeWorkflow):
         result = (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and not 'PU' in key and hasHarvest and self.condition_(fragment, stepList, key, hasHarvest)
         if result:
             # skip ALCA and Nano
-            stepList = [s for s in stepList if (("ALCA" not in s) and ("Nano" not in s))]
+            skipList = [s for s in stepList if (("ALCA" in s) or ("Nano" in s))]
+            for skip in skipList:
+                stepList.remove(skip)
         return result
     def condition_(self, fragment, stepList, key, hasHarvest):
         return True
@@ -371,7 +373,10 @@ class UpgradeWorkflow_TICLOnly(UpgradeWorkflow):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         result = (fragment=="CloseByParticleGun") and ('2026' in key)
-        if result: stepList = [s for s in stepList if ("HARVEST" not in s)]
+        if result:
+            skipList = [s for s in stepList if ("HARVEST" in s)]
+            for skip in skipList:
+                stepList.remove(skip)
         return result
 upgradeWFs['TICLOnly'] = UpgradeWorkflow_TICLOnly(
     steps = [
