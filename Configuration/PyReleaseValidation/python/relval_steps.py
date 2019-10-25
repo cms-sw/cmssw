@@ -4,6 +4,7 @@ import six
 
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
+from .upgradeWorkflowComponents import step3_trackingOnly
 
 concurrentLumis = {'--nStreams':         4,
                    '--nConcurrentLumis': 2,
@@ -2109,32 +2110,13 @@ step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                   '--era'          :'Run2_2016'
                   }
 
-step3_trackingOnly = {
-    '-s': 'RAW2DIGI,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM',
-    '--datatier':'GEN-SIM-RECO,DQMIO',
-    '--eventcontent':'RECOSIM,DQM',
-}
-step3_pixelTrackingOnly = {
-    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
-    '--datatier': 'GEN-SIM-RECO,DQMIO',
-    '--eventcontent': 'RECOSIM,DQM',
-}
 step3_trackingLowPU = {
     '--era': 'Run2_2016_trackingLowPU'
-}
-step3_trackingMkFit = {
-    '--customise': 'RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepToMkFit'
 }
 step3_HIPM = {
     '--era': 'Run2_2016_HIPM'
 }
 step3Up2015Defaults_trackingOnly = merge([step3_trackingOnly, remove(step3Up2015Defaults, "--runUnscheduled")])
-step3_TICLOnly = {
-    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations'
-}
-step3_TICLFullReco = {
-    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations_withReco'
-}
 
 # mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
 #unSchOverrides={'--runUnscheduled':'','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM','--eventcontent':'RECOSIM,MINIAODSIM,DQM','--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO'}
@@ -3108,13 +3090,6 @@ for ds in defaultDataSets:
 upgradeStepDict={}
 for specialType,specialWF in six.iteritems(upgradeWFs):
 	specialWF.init(upgradeStepDict)
-extraSteps = {
-    "step3_trackingOnly" : step3_trackingOnly,
-    "step3_pixelTrackingOnly" : step3_pixelTrackingOnly,
-    "step3_trackingMkFit" : step3_trackingMkFit,
-    "step3_TICLOnly" : step3_TICLOnly,
-    "step3_TICLFullReco" : step3_TICLFullReco,
-}
 
 # just make all combinations - yes, some will be nonsense.. but then these are not used unless specified above
 # collapse upgradeKeys using list comprehension
@@ -3253,7 +3228,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
     # setup baseline and variations
     for specialType,specialWF in six.iteritems(upgradeWFs):
-        specialWF.setup(upgradeStepDict, k, upgradeProperties[year][k], extraSteps)
+        specialWF.setup(upgradeStepDict, k, upgradeProperties[year][k])
 
     # setup PU
     if k2 in PUDataSets:
