@@ -867,4 +867,4 @@ int ZdcSimHitStudy::FillHitValHist(int side, int section, int channel, double en
   return 0;
 }
 
-void ZdcSimHitStudy::endRun(const edm::Run &run, const edm::EventSetup &c) {}
+void ZdcSimHitStudy::dqmEndRun(const edm::Run &run, const edm::EventSetup &c) {}

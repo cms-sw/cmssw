@@ -17,13 +17,13 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 //
 // class declaration
 //
 
-class BeamSpotProblemMonitor : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class BeamSpotProblemMonitor : public DQMOneLumiEDAnalyzer<> {
 public:
   explicit BeamSpotProblemMonitor(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -34,10 +34,10 @@ protected:
   // BeginRun
   void bookHistograms(DQMStore::IBooker& i, const edm::Run& r, const edm::EventSetup& c) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
+  void dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
   // EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void dqmEndRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   void fillPlots(int&, int&, int);

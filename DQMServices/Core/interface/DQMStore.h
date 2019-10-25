@@ -219,8 +219,6 @@ namespace dqm::impl {
       void setCurrentFolder(std::string const& fullpath);
       void goUp();
       std::string const& pwd();
-      void tag(MonitorElement*, unsigned int);
-      void tagContents(std::string const&, unsigned int);
 
       IBooker() = delete;
       IBooker(IBooker const&) = delete;
@@ -618,22 +616,13 @@ namespace dqm::impl {
     MonitorElement* bookProfile2D(char_string const& name, TProfile2D* h);
 
     //-------------------------------------------------------------------------
-    // ---------------------- public tagging ----------------------------------
-    void tag(MonitorElement* me, unsigned int myTag);
-    void tag(std::string const& path, unsigned int myTag);
-    void tagContents(std::string const& path, unsigned int myTag);
-    void tagAllContents(std::string const& path, unsigned int myTag);
-
-    //-------------------------------------------------------------------------
     // ---------------------- public ME getters -------------------------------
     std::vector<std::string> getSubdirs() const;
     std::vector<std::string> getMEs() const;
     bool containsAnyMonitorable(std::string const& path) const;
 
     MonitorElement* get(std::string const& path) const;
-    std::vector<MonitorElement*> get(unsigned int tag) const;
     std::vector<MonitorElement*> getContents(std::string const& path) const;
-    std::vector<MonitorElement*> getContents(std::string const& path, unsigned int tag) const;
     void getContents(std::vector<std::string>& into, bool showContents = true) const;
 
     // ---------------------- softReset methods -------------------------------

@@ -16,9 +16,15 @@ public:
   typedef PixelRecoRange<float> Range;
 
   struct DataX0 {
-    DataX0(const MSLayersKeeper* al = nullptr) : hasX0(false), allLayers(al) {}
+    DataX0(const MSLayersKeeper* al = nullptr) : hasX0(false), hasFSlope(false), allLayers(al) {}
     DataX0(float ax0, float asX0D, float aCotTheta)
-        : hasX0(true), hasFSlope(false), x0(ax0), sumX0D(asX0D), cotTheta(aCotTheta), allLayers(nullptr) {}
+        : hasX0(true),
+          hasFSlope(false),
+          x0(ax0),
+          sumX0D(asX0D),
+          cotTheta(aCotTheta),
+          slopeSumX0D(0.),
+          allLayers(nullptr) {}
     void setForwardSumX0DSlope(float aSlope) {
       hasFSlope = true;
       slopeSumX0D = aSlope;

@@ -52,21 +52,21 @@
 
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 //
 // Class declaration
 //
 
-class SiStripFEDMonitorPlugin : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class SiStripFEDMonitorPlugin : public DQMOneLumiEDAnalyzer<> {
 public:
   explicit SiStripFEDMonitorPlugin(const edm::ParameterSet&);
   ~SiStripFEDMonitorPlugin() override;
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
+  void dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   //update the cabling if necessary
@@ -465,12 +465,13 @@ void SiStripFEDMonitorPlugin::bookHistograms(DQMStore::IBooker& ibooker,
     fedHists_.bookAllFEDHistograms(ibooker, fullDebugMode_);
 }
 
-void SiStripFEDMonitorPlugin::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-                                                   const edm::EventSetup& context) {
+void SiStripFEDMonitorPlugin::dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+                                                      const edm::EventSetup& context) {
   fedErrors_.initialiseLumiBlock();
 }
 
-void SiStripFEDMonitorPlugin::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
+void SiStripFEDMonitorPlugin::dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+                                                    const edm::EventSetup& context) {
   fedHists_.fillLumiHistograms(fedErrors_.getLumiErrors());
 }
 

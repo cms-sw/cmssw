@@ -573,7 +573,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
 //
 // -- End Run
 //
-void HiggsDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
+void HiggsDQM::dqmEndRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   //  cout<<"Entering HiggsDQM::endRun: "<<endl;
 
   // edm::LogVerbatim ("HiggsDQM") <<"[HiggsDQM]: End of Run, saving  DQM output

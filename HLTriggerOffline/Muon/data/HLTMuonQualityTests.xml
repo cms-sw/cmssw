@@ -1,12 +1,5 @@
 <TESTSCONFIGURATION>
 
-<QTEST name="KolmogorovQTest0.3">
-        <TYPE>Comp2RefKolmogorov</TYPE>	
-	<PARAM name="testparam">0</PARAM>
-	<PARAM name="error">0.3</PARAM>
-	<PARAM name="warning">0.3</PARAM>
-</QTEST>
-
 <QTEST name="ContentsAbove0.8" activate="true">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">0.80</PARAM>
@@ -19,18 +12,6 @@
         <PARAM name="minEntries">0</PARAM>
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
-
-<LINK name="HLT/Muon/Distributions/*/*EffEta*">
-	<TestName activate="true">KolmogorovQTest0.3</TestName>
-</LINK>
-
-<LINK name="HLT/Muon/Distributions/*/*EffPhi*">
-	<TestName activate="true">KolmogorovQTest0.3</TestName>
-</LINK>
-
-<LINK name="HLT/Muon/Distributions/*/*TurnOn*">
-	<TestName activate="true">KolmogorovQTest0.3</TestName>
-</LINK>
 
 <LINK name="HLT/Muon/Summary/Efficiency_Summary">
 	<TestName activate="true">ContentsAbove0.8</TestName>

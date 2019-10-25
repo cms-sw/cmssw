@@ -266,7 +266,7 @@ void MuonToTrackingParticleAssociatorEDProducer::produce(edm::Event &iEvent, con
   gemtruth_.reset(new GEMHitAssociator(iEvent, iSetup, config_));
 
   MuonAssociatorByHitsHelper::Resources resources = {
-      tTopo, trackertruth_.get(), csctruth_.get(), dttruth_.get(), rpctruth_.get(), gemtruth_.get()};
+      tTopo, trackertruth_.get(), csctruth_.get(), dttruth_.get(), rpctruth_.get(), gemtruth_.get(), {}};
 
   if (diagnostics_) {
     diagnostics_->read(iEvent);

@@ -234,9 +234,6 @@ namespace {
         } else {
           mergeWithElement(element, m_buffer);
         }
-        if (0 != m_tag) {
-          iStore.tag(element, m_tag);
-        }
       } catch (cms::Exception& e) {
         e.addContext(std::string("While reading element ") + *m_fullName);
         e.raise();
@@ -275,9 +272,6 @@ namespace {
         }
       } else {
         mergeWithElement(element, m_buffer);
-      }
-      if (0 != m_tag) {
-        iStore.tag(element, m_tag);
       }
       return element;
     }

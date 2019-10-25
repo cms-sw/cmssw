@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <cassert>
 
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"

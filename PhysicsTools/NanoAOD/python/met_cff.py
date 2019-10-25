@@ -111,6 +111,6 @@ metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTable + tkMetTable + chsMetTable)
 _withFixEE2017_sequence = cms.Sequence(metTables.copy() + metFixEE2017Table)
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toReplaceWith(metTables,_withFixEE2017_sequence)
+    modifier.toReplaceWith(metTables,_withFixEE2017_sequence) # only in old miniAOD, the new ones will come from the UL rereco
 metMC = cms.Sequence( metMCTable )
 

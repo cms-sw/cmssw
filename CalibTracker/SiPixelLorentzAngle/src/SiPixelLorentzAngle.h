@@ -24,7 +24,7 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include <Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h>
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include <TROOT.h>

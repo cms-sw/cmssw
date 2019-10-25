@@ -21,7 +21,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
@@ -30,7 +30,7 @@
 class DTGeometry;
 class DTHVStatus;
 
-class DTDCSByLumiTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class DTDCSByLumiTask : public DQMOneLumiEDAnalyzer<> {
 public:
   /// Constructor
   DTDCSByLumiTask(const edm::ParameterSet& ps);
@@ -46,10 +46,10 @@ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   /// By Lumi DCS DB Operation
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
 
   /// By Lumi DCS DB Operation
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;

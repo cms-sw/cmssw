@@ -34,7 +34,7 @@ namespace cond {
 
     inline std::string currentCMSSWVersion() {
       std::string version("");
-      const char* envVersion = ::getenv("CMSSW_VERSION");
+      const char* envVersion = std::getenv("CMSSW_VERSION");
       if (envVersion) {
         version += envVersion;
       }
@@ -43,7 +43,7 @@ namespace cond {
 
     inline std::string currentArchitecture() {
       std::string arch("");
-      const char* archEnv = ::getenv("SCRAM_ARCH");
+      const char* archEnv = std::getenv("SCRAM_ARCH");
       if (archEnv) {
         arch += archEnv;
       }

@@ -554,7 +554,7 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup) {
   }
 }
 
-void LepHTMonitor::endRun(const edm::Run &run, const edm::EventSetup &eSetup) {
+void LepHTMonitor::dqmEndRun(const edm::Run &run, const edm::EventSetup &eSetup) {
   edm::LogInfo("LepHTMonitor") << "LepHTMonitor::endRun\n";
 }
 

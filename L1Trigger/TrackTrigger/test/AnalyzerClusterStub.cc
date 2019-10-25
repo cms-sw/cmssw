@@ -24,7 +24,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include <TH1D.h>
 #include <TH2D.h>
