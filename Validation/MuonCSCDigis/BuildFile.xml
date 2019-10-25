@@ -9,7 +9,12 @@
 <use   name="Geometry/Records"/>
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimDataFormats/TrackingHit"/>
-<use   name="SimMuon/MCTruth"/> 
+<use   name="SimMuon/MCTruth"/>
+<use   name="Geometry/GEMGeometry"/>
+<use   name="DataFormats/GEMDigi"/>
+<use   name="Validation/MuonGEMDigis"/>
+<use   name="Validation/MuonHits"/>
+<use   name="DataFormats/MuonDetId"/>
 <export>
   <lib   name="1"/>
 </export>

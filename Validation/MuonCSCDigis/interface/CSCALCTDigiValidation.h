@@ -1,5 +1,5 @@
-#ifndef CSCALCTDigiValidation_H
-#define CSCALCTDigiValidation_H
+#ifndef Validation_MuonCSCDigis_CSCALCTDigiValidation_H
+#define Validation_MuonCSCDigis_CSCALCTDigiValidation_H
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 

@@ -1,5 +1,5 @@
-#ifndef CSCStripDigiValidation_H
-#define CSCStripDigiValidation_H
+#ifndef Validation_MuonCSCDigis_CSCStripDigiValidation_H
+#define Validation_MuonCSCDigis_CSCStripDigiValidation_H
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
