@@ -164,11 +164,12 @@ electronAlgos::ElectronMomentum electronAlgos::correctMomentum(reco::GsfElectron
   // final set
   //=======================================================================================
 
-  math::XYZTLorentzVector oldMomentum = electron.p4();
-  math::XYZTLorentzVector newMomentum = math::XYZTLorentzVector(oldMomentum.x() * finalMomentum / oldMomentum.t(),
-                                                                oldMomentum.y() * finalMomentum / oldMomentum.t(),
-                                                                oldMomentum.z() * finalMomentum / oldMomentum.t(),
-                                                                finalMomentum);
+  auto const& oldMomentum = electron.p4();
 
-  return {newMomentum, errorTrackMomentum, finalMomentumError};
+  return {{oldMomentum.x() * finalMomentum / oldMomentum.t(),
+           oldMomentum.y() * finalMomentum / oldMomentum.t(),
+           oldMomentum.z() * finalMomentum / oldMomentum.t(),
+           finalMomentum},
+          errorTrackMomentum,
+          finalMomentumError};
 }
