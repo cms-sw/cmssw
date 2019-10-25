@@ -509,7 +509,6 @@ void DTKeyedConfigHandler::chkConfigList() {
   coral::ICursor& brickConfigCursor = brickConfigQuery->execute();
   DTKeyedConfig* brickData = nullptr;
   std::vector<int> missingList;
-  std::vector<unsigned long long> checkedKeys;
   while (brickConfigCursor.next()) {
     const coral::AttributeList& row = brickConfigCursor.currentRow();
     int brickConfigId = row["BRKID"].data<int>();
@@ -526,11 +525,9 @@ void DTKeyedConfigHandler::chkConfigList() {
       continue;
     std::string brickConfigName = row["BRKNAME"].data<std::string>();
     std::cout << "brick " << brickConfigId << " : " << brickConfigName << std::endl;
-    checkedKeys.push_back(brickConfigId);
     bool brickFound = false;
     try {
-      keyList->load(checkedKeys);
-      std::shared_ptr<DTKeyedConfig> brickCheck = keyList->get<DTKeyedConfig>(0);
+      std::shared_ptr<DTKeyedConfig> brickCheck = keyList->getUsingKey<DTKeyedConfig>(brickConfigId);
       if (brickCheck.get())
         brickFound = (brickCheck->getId() == brickConfigId);
     } catch (std::exception const&) {
@@ -539,9 +536,7 @@ void DTKeyedConfigHandler::chkConfigList() {
       std::cout << "brick " << brickConfigId << " missing, copy request" << std::endl;
       missingList.push_back(brickConfigId);
     }
-    checkedKeys.clear();
   }
-  keyList->load(checkedKeys);
 
   std::vector<int>::const_iterator brickIter = missingList.begin();
   std::vector<int>::const_iterator brickIend = missingList.end();

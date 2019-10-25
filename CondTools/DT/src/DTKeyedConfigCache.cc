@@ -75,13 +75,10 @@ int DTKeyedConfigCache::get(cond::persistency::KeyList& keyList, int cfgId, cons
     }
   }
 
-  std::vector<unsigned long long> checkedKeys;
   std::shared_ptr<DTKeyedConfig> kBrick;
-  checkedKeys.push_back(cfgId);
   bool brickFound = false;
   try {
-    keyList.load(checkedKeys);
-    kBrick = keyList.get<DTKeyedConfig>(0);
+    kBrick = keyList.getUsingKey<DTKeyedConfig>(cfgId);
     if (kBrick.get())
       brickFound = (kBrick->getId() == cfgId);
   } catch (std::exception const& e) {

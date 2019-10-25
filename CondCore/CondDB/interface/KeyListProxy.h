@@ -42,7 +42,7 @@ namespace cond {
     protected:
       void loadPayload() override {
         super::loadPayload();
-        m_keyList.load(super::operator()());
+        m_keyList.setKeys(super::operator()());
       }
 
     private:
