@@ -41,7 +41,7 @@ struct L1TriggerJSONMonitoringData {
     std::vector<unsigned int> l1tAcceptCalibration;  // number of "calibration" events accepted by each L1 trigger
     std::vector<unsigned int> l1tAcceptRandom;       // number of "random" events accepted by each L1 trigger
     std::vector<unsigned int> tcdsAccept;  // number of "physics", "calibration", "random" and other event types
-    int prescaleIndex;                     // prescale column index
+    int prescaleIndex = {};                // prescale column index
   };
 
   // variables initialised for each run
