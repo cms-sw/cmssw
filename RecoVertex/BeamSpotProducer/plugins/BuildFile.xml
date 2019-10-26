@@ -19,7 +19,6 @@
   <use name="HeterogeneousCore/CUDACore"/>
   <use name="HeterogeneousCore/CUDAServices"/>
   <use name="cuda"/>
-  <use name="cuda-api-wrappers"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="BeamSpotOnlineProducer.cc" name="BeamSpotOnlineProducer">

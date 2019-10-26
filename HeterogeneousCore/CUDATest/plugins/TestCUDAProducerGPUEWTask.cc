@@ -75,7 +75,7 @@ void TestCUDAProducerGPUEWTask::acquire(const edm::Event& iEvent,
   // Mimick the need to transfer some of the GPU data back to CPU to
   // be used for something within this module, or to be put in the
   // event.
-  cuda::memory::async::copy(hostData_.get(), devicePtr_.get() + 10, sizeof(float), ctx.stream().id());
+  cuda::memory::async::copy(hostData_.get(), devicePtr_.get() + 10, sizeof(float), ctx.stream());
 
   // Push a task to run addSimpleWork() after the asynchronous work
   // (and acquire()) has finished instead of produce()
@@ -94,7 +94,7 @@ void TestCUDAProducerGPUEWTask::addSimpleWork(edm::EventNumber_t eventID,
     edm::LogVerbatim("TestCUDAProducerGPUEWTask")
         << label_ << " TestCUDAProducerGPUEWTask::addSimpleWork begin event " << eventID << " stream " << streamID
         << " 10th element " << *hostData_ << " not satisfied, queueing more work";
-    cuda::memory::async::copy(hostData_.get(), devicePtr_.get() + 10, sizeof(float), ctx.stream().id());
+    cuda::memory::async::copy(hostData_.get(), devicePtr_.get() + 10, sizeof(float), ctx.stream());
 
     ctx.pushNextTask([eventID, streamID, this](CUDAScopedContextTask ctx) { addSimpleWork(eventID, streamID, ctx); });
     gpuAlgo_.runSimpleAlgo(devicePtr_.get(), ctx.stream());

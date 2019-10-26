@@ -3,7 +3,7 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
-#include <cuda/api_wrappers.h>
+#include <cuda_runtime.h>
 
 class BeamSpotCUDA {
 public:
@@ -21,7 +21,7 @@ public:
   };
 
   BeamSpotCUDA() = default;
-  BeamSpotCUDA(Data const* data_h, cuda::stream_t<>& stream);
+  BeamSpotCUDA(Data const* data_h, cudaStream_t stream);
 
   Data const* data() const { return data_d_.get(); }
 

@@ -5,7 +5,6 @@
 <use   name="CondFormats/EcalObjects"/>
 <use   name="HeterogeneousCore/CUDACore"/>
 <use   name="HeterogeneousCore/CUDAUtilities"/>
-<use   name="cuda-api-wrappers"/>
 <use   name="cuda"/>
 <export>
   <lib   name="1"/>

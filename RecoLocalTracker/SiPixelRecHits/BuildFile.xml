@@ -13,7 +13,6 @@
 <use   name="vdt_headers"/>
 
 <use   name="cuda"/>
-<use   name="cuda-api-wrappers"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 
 <export>

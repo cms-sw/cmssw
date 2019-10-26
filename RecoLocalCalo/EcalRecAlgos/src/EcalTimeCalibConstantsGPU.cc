@@ -11,9 +11,9 @@ EcalTimeCalibConstantsGPU::Product::~Product() {
   cudaCheck(cudaFree(values));
 }
 
-EcalTimeCalibConstantsGPU::Product const& EcalTimeCalibConstantsGPU::getProduct(cuda::stream_t<>& cudaStream) const {
+EcalTimeCalibConstantsGPU::Product const& EcalTimeCalibConstantsGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](EcalTimeCalibConstantsGPU::Product& product, cuda::stream_t<>& cudaStream) {
+      cudaStream, [this](EcalTimeCalibConstantsGPU::Product& product, cudaStream_t cudaStream) {
         // malloc
         cudaCheck(
             cudaMalloc((void**)&product.values, (this->valuesEB_.size() + this->valuesEE_.size()) * sizeof(float)));
@@ -26,12 +26,12 @@ EcalTimeCalibConstantsGPU::Product const& EcalTimeCalibConstantsGPU::getProduct(
                                   this->valuesEB_.data(),
                                   this->valuesEB_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.values + offset,
                                   this->valuesEE_.data(),
                                   this->valuesEE_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
       });
 
   return product;

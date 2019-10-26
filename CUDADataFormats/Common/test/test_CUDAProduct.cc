@@ -43,7 +43,7 @@ TEST_CASE("Use of CUDAProduct template", "[CUDACore]") {
     SECTION("Construct from CUDAScopedContext") {
       REQUIRE(data.isValid());
       REQUIRE(data.device() == defaultDevice);
-      REQUIRE(data.stream().id() == ctx.stream().id());
+      REQUIRE(data.stream() == ctx.stream());
       REQUIRE(data.event() != nullptr);
     }
 

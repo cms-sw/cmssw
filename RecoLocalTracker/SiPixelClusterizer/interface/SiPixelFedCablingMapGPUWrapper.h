@@ -6,7 +6,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelFedCablingMapGPU.h"
 
-#include <cuda/api_wrappers.h>
+#include <cuda_runtime.h>
 
 #include <set>
 
@@ -25,12 +25,12 @@ public:
   bool hasQuality() const { return hasQuality_; }
 
   // returns pointer to GPU memory
-  const SiPixelFedCablingMapGPU *getGPUProductAsync(cuda::stream_t<> &cudaStream) const;
+  const SiPixelFedCablingMapGPU *getGPUProductAsync(cudaStream_t cudaStream) const;
 
   // returns pointer to GPU memory
-  const unsigned char *getModToUnpAllAsync(cuda::stream_t<> &cudaStream) const;
+  const unsigned char *getModToUnpAllAsync(cudaStream_t cudaStream) const;
   cudautils::device::unique_ptr<unsigned char[]> getModToUnpRegionalAsync(std::set<unsigned int> const &modules,
-                                                                          cuda::stream_t<> &cudaStream) const;
+                                                                          cudaStream_t cudaStream) const;
 
 private:
   const SiPixelFedCablingMap *cablingMap_;

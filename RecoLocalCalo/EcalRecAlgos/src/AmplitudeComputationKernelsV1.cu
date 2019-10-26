@@ -331,22 +331,22 @@ namespace ecal {
                                   EventDataForScratchGPU& scratch,
                                   ConditionsProducts const& conditions,
                                   ConfigurationParameters const& configParameters,
-                                  cuda::stream_t<>& cudaStream) {
+                                  cudaStream_t cudaStream) {
         unsigned int totalChannels = eventInputCPU.ebDigis.size() + eventInputCPU.eeDigis.size();
         //    unsigned int threads_min = conf.threads.x;
         // TODO: configure from python
         unsigned int threads_min = configParameters.kernelMinimizeThreads[0];
         unsigned int blocks_min = threads_min > totalChannels ? 1 : (totalChannels + threads_min - 1) / threads_min;
-        kernel_minimize<<<blocks_min, threads_min, 0, cudaStream.id()>>>(scratch.noisecov,
-                                                                         scratch.pulse_covariances,
-                                                                         scratch.activeBXs,
-                                                                         scratch.samples,
-                                                                         (SampleVector*)eventOutputGPU.amplitudesAll,
-                                                                         scratch.pulse_matrix,
-                                                                         eventOutputGPU.chi2,
-                                                                         scratch.acState,
-                                                                         totalChannels,
-                                                                         50);
+        kernel_minimize<<<blocks_min, threads_min, 0, cudaStream>>>(scratch.noisecov,
+                                                                    scratch.pulse_covariances,
+                                                                    scratch.activeBXs,
+                                                                    scratch.samples,
+                                                                    (SampleVector*)eventOutputGPU.amplitudesAll,
+                                                                    scratch.pulse_matrix,
+                                                                    eventOutputGPU.chi2,
+                                                                    scratch.acState,
+                                                                    totalChannels,
+                                                                    50);
         cudaCheck(cudaGetLastError());
 
         //
@@ -357,7 +357,7 @@ namespace ecal {
         unsigned int blocksPermute =
             threadsPermute > 10 * totalChannels ? 1 : (10 * totalChannels + threadsPermute - 1) / threadsPermute;
         int bytesPermute = threadsPermute * sizeof(SampleVector::Scalar);
-        kernel_permute_results<<<blocksPermute, threadsPermute, bytesPermute, cudaStream.id()>>>(
+        kernel_permute_results<<<blocksPermute, threadsPermute, bytesPermute, cudaStream>>>(
             (SampleVector*)eventOutputGPU.amplitudesAll,
             scratch.activeBXs,
             eventOutputGPU.amplitude,

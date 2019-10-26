@@ -14,7 +14,6 @@
 <use   name="cuda"/>
 <use   name="CUDADataFormats/EcalRecHitSoA"/>
 <use   name="HeterogeneousCore/CUDAUtilities"/>
-<use   name="cuda-api-wrappers"/>
 <use   name="HeterogeneousCore/CUDACore"/>
 
 <export>

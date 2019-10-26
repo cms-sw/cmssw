@@ -179,7 +179,7 @@ namespace pixelgpudetails {
                            bool useQualityInfo,
                            bool includeErrors,
                            bool debug,
-                           cuda::stream_t<>& stream);
+                           cudaStream_t stream);
 
     std::pair<SiPixelDigisCUDA, SiPixelClustersCUDA> getResults() {
       digis_d.setNModulesDigis(nModules_Clusters_h[0], nDigis);

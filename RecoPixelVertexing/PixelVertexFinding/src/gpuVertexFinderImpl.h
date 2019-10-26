@@ -46,7 +46,7 @@ namespace gpuVertexFinder {
   }
 
 #ifdef __CUDACC__
-  ZVertexHeterogeneous Producer::makeAsync(cuda::stream_t<>& stream, TkSoA const* tksoa, float ptMin) const {
+  ZVertexHeterogeneous Producer::makeAsync(cudaStream_t stream, TkSoA const* tksoa, float ptMin) const {
     // std::cout << "producing Vertices on GPU" << std::endl;
     ZVertexHeterogeneous vertices(cudautils::make_device_unique<ZVertexSoA>(stream));
 #else
@@ -65,10 +65,10 @@ namespace gpuVertexFinder {
 #endif
 
 #ifdef __CUDACC__
-    init<<<1, 1, 0, stream.id()>>>(soa, ws_d.get());
+    init<<<1, 1, 0, stream>>>(soa, ws_d.get());
     auto blockSize = 128;
     auto numberOfBlocks = (TkSoA::stride() + blockSize - 1) / blockSize;
-    loadTracks<<<numberOfBlocks, blockSize, 0, stream.id()>>>(tksoa, soa, ws_d.get(), ptMin);
+    loadTracks<<<numberOfBlocks, blockSize, 0, stream>>>(tksoa, soa, ws_d.get(), ptMin);
     cudaCheck(cudaGetLastError());
 #else
     cudaCompat::resetGrid();
@@ -78,14 +78,14 @@ namespace gpuVertexFinder {
 
 #ifdef __CUDACC__
     if (useDensity_) {
-      clusterTracksByDensity<<<1, 1024 - 256, 0, stream.id()>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
+      clusterTracksByDensity<<<1, 1024 - 256, 0, stream>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
     } else if (useDBSCAN_) {
-      clusterTracksDBSCAN<<<1, 1024 - 256, 0, stream.id()>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
+      clusterTracksDBSCAN<<<1, 1024 - 256, 0, stream>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
     } else if (useIterative_) {
-      clusterTracksIterative<<<1, 1024 - 256, 0, stream.id()>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
+      clusterTracksIterative<<<1, 1024 - 256, 0, stream>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
     }
     cudaCheck(cudaGetLastError());
-    fitVertices<<<1, 1024 - 256, 0, stream.id()>>>(soa, ws_d.get(), 50.);
+    fitVertices<<<1, 1024 - 256, 0, stream>>>(soa, ws_d.get(), 50.);
     cudaCheck(cudaGetLastError());
 #else
     if (useDensity_) {
@@ -101,12 +101,12 @@ namespace gpuVertexFinder {
 
 #ifdef __CUDACC__
     // one block per vertex...
-    splitVertices<<<1024, 128, 0, stream.id()>>>(soa, ws_d.get(), 9.f);
+    splitVertices<<<1024, 128, 0, stream>>>(soa, ws_d.get(), 9.f);
     cudaCheck(cudaGetLastError());
-    fitVertices<<<1, 1024 - 256, 0, stream.id()>>>(soa, ws_d.get(), 5000.);
+    fitVertices<<<1, 1024 - 256, 0, stream>>>(soa, ws_d.get(), 5000.);
     cudaCheck(cudaGetLastError());
 
-    sortByPt2<<<1, 256, 0, stream.id()>>>(soa, ws_d.get());
+    sortByPt2<<<1, 256, 0, stream>>>(soa, ws_d.get());
     cudaCheck(cudaGetLastError());
 #else
     for (blockIdx.x = 0; blockIdx.x < 1024; ++blockIdx.x) {

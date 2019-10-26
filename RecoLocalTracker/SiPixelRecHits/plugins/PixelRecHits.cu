@@ -38,7 +38,7 @@ namespace pixelgpudetails {
                                                            SiPixelClustersCUDA const& clusters_d,
                                                            BeamSpotCUDA const& bs_d,
                                                            pixelCPEforGPU::ParamsOnGPU const* cpeParams,
-                                                           cuda::stream_t<>& stream) const {
+                                                           cudaStream_t stream) const {
     auto nHits = clusters_d.nClusters();
     TrackingRecHit2DCUDA hits_d(nHits, cpeParams, clusters_d.clusModuleStart(), stream);
 
@@ -49,7 +49,7 @@ namespace pixelgpudetails {
     std::cout << "launching getHits kernel for " << blocks << " blocks" << std::endl;
 #endif
     if (blocks)  // protect from empty events
-      gpuPixelRecHits::getHits<<<blocks, threadsPerBlock, 0, stream.id()>>>(
+      gpuPixelRecHits::getHits<<<blocks, threadsPerBlock, 0, stream>>>(
           cpeParams, bs_d.data(), digis_d.view(), digis_d.nDigis(), clusters_d.view(), hits_d.view());
     cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
@@ -59,7 +59,7 @@ namespace pixelgpudetails {
 
     // assuming full warp of threads is better than a smaller number...
     if (nHits) {
-      setHitsLayerStart<<<1, 32, 0, stream.id()>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
+      setHitsLayerStart<<<1, 32, 0, stream>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
       cudaCheck(cudaGetLastError());
     }
 
@@ -71,7 +71,7 @@ namespace pixelgpudetails {
     if (nHits) {
       auto hws = cudautils::make_device_unique<uint8_t[]>(TrackingRecHit2DSOAView::Hist::wsSize(), stream);
       cudautils::fillManyFromVector(
-          hits_d.phiBinner(), hws.get(), 10, hits_d.iphi(), hits_d.hitsLayerStart(), nHits, 256, stream.id());
+          hits_d.phiBinner(), hws.get(), 10, hits_d.iphi(), hits_d.hitsLayerStart(), nHits, 256, stream);
       cudaCheck(cudaGetLastError());
     }
 

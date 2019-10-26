@@ -1,13 +1,14 @@
 #include "catch.hpp"
 
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 TEST_CASE("device_unique_ptr", "[cudaMemTools]") {
   exitSansCUDADevices();
 
-  auto current_device = cuda::device::current::get();
-  auto stream = current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream);
+  cudaStream_t stream;
+  cudaCheck(cudaStreamCreate(&stream));
 
   SECTION("Single element") {
     auto ptr = cudautils::make_device_unique<int>(stream);
@@ -17,7 +18,7 @@ TEST_CASE("device_unique_ptr", "[cudaMemTools]") {
   SECTION("Reset") {
     auto ptr = cudautils::make_device_unique<int>(stream);
     REQUIRE(ptr != nullptr);
-    stream.synchronize();
+    cudaCheck(cudaStreamSynchronize(stream));
 
     ptr.reset();
     REQUIRE(ptr.get() == nullptr);
@@ -34,4 +35,6 @@ TEST_CASE("device_unique_ptr", "[cudaMemTools]") {
     ptr.reset();
     REQUIRE_THROWS(ptr = cudautils::make_device_unique<char[]>(maxSize + 1, stream));
   }
+
+  cudaCheck(cudaStreamDestroy(stream));
 }

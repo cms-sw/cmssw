@@ -11,9 +11,9 @@ EcalPulseCovariancesGPU::Product::~Product() {
   cudaCheck(cudaFree(values));
 }
 
-EcalPulseCovariancesGPU::Product const& EcalPulseCovariancesGPU::getProduct(cuda::stream_t<>& cudaStream) const {
+EcalPulseCovariancesGPU::Product const& EcalPulseCovariancesGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](EcalPulseCovariancesGPU::Product& product, cuda::stream_t<>& cudaStream) {
+      cudaStream, [this](EcalPulseCovariancesGPU::Product& product, cudaStream_t cudaStream) {
         // malloc
         cudaCheck(cudaMalloc((void**)&product.values,
                              (this->valuesEE_.size() + this->valuesEB_.size()) * sizeof(EcalPulseCovariance)));
@@ -26,14 +26,14 @@ EcalPulseCovariancesGPU::Product const& EcalPulseCovariancesGPU::getProduct(cuda
                                   this->valuesEB_.data(),
                                   this->valuesEB_.size() * sizeof(EcalPulseCovariance),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
 
         // transfer ee starting at values + offset
         cudaCheck(cudaMemcpyAsync(product.values + offset,
                                   this->valuesEE_.data(),
                                   this->valuesEE_.size() * sizeof(EcalPulseCovariance),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
       });
 
   return product;

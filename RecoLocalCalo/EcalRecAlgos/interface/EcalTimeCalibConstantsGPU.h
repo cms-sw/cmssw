@@ -8,7 +8,7 @@
 #include "HeterogeneousCore/CUDACore/interface/CUDAESProduct.h"
 #endif
 
-#include <cuda/api_wrappers.h>
+#include <cuda_runtime.h>
 
 class EcalTimeCalibConstantsGPU {
 public:
@@ -25,7 +25,7 @@ public:
   ~EcalTimeCalibConstantsGPU() = default;
 
   // get device pointers
-  Product const& getProduct(cuda::stream_t<>&) const;
+  Product const& getProduct(cudaStream_t) const;
 
   // TODO: do this centrally
   // get offset for hashes. equals number of barrel items

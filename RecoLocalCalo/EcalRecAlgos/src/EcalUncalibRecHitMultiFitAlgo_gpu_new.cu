@@ -34,7 +34,7 @@ namespace ecal {
                     EventDataForScratchGPU& scratch,
                     ConditionsProducts const& conditions,
                     ConfigurationParameters const& configParameters,
-                    cuda::stream_t<>& cudaStream) {
+                    cudaStream_t cudaStream) {
       using digis_type = std::vector<uint16_t>;
       using dids_type = std::vector<uint32_t>;
       // accodring to the cpu setup  //----> hardcoded
@@ -67,23 +67,23 @@ namespace ecal {
                                 eventInputCPU.ebDigis.data().data(),
                                 eventInputCPU.ebDigis.data().size() * sizeof(digis_type::value_type),
                                 cudaMemcpyHostToDevice,
-                                cudaStream.id()));
+                                cudaStream));
       cudaCheck(cudaMemcpyAsync(eventInputGPU.digis + eventInputCPU.ebDigis.data().size(),
                                 eventInputCPU.eeDigis.data().data(),
                                 eventInputCPU.eeDigis.data().size() * sizeof(digis_type::value_type),
                                 cudaMemcpyHostToDevice,
-                                cudaStream.id()));
+                                cudaStream));
 
       cudaCheck(cudaMemcpyAsync(eventInputGPU.ids,
                                 eventInputCPU.ebDigis.ids().data(),
                                 eventInputCPU.ebDigis.ids().size() * sizeof(dids_type::value_type),
                                 cudaMemcpyHostToDevice,
-                                cudaStream.id()));
+                                cudaStream));
       cudaCheck(cudaMemcpyAsync(eventInputGPU.ids + eventInputCPU.ebDigis.ids().size(),
                                 eventInputCPU.eeDigis.ids().data(),
                                 eventInputCPU.eeDigis.ids().size() * sizeof(dids_type::value_type),
                                 cudaMemcpyHostToDevice,
-                                cudaStream.id()));
+                                cudaStream));
 
       //
       // 1d preparation kernel
@@ -93,7 +93,7 @@ namespace ecal {
       unsigned int blocks_1d = threads_1d > 10 * totalChannels ? 1 : (totalChannels * 10 + threads_1d - 1) / threads_1d;
       int shared_bytes = nchannels_per_block * EcalDataFrame::MAXSAMPLES *
                          (sizeof(bool) + sizeof(bool) + sizeof(bool) + sizeof(bool) + sizeof(char) + sizeof(bool));
-      kernel_prep_1d_and_initialize<<<blocks_1d, threads_1d, shared_bytes, cudaStream.id()>>>(
+      kernel_prep_1d_and_initialize<<<blocks_1d, threads_1d, shared_bytes, cudaStream>>>(
           conditions.pulseShapes.values,
           eventInputGPU.digis,
           eventInputGPU.ids,
@@ -126,29 +126,28 @@ namespace ecal {
       //
       int blocks_2d = totalChannels;
       dim3 threads_2d{10, 10};
-      kernel_prep_2d<<<blocks_2d, threads_2d, 0, cudaStream.id()>>>(
-          conditions.pulseCovariances.values,
-          scratch.pulse_covariances,
-          scratch.gainsNoise,
-          eventInputGPU.ids,
-          conditions.pedestals.rms_x12,
-          conditions.pedestals.rms_x6,
-          conditions.pedestals.rms_x1,
-          conditions.gainRatios.gain12Over6,
-          conditions.gainRatios.gain6Over1,
-          conditions.samplesCorrelation.EBG12SamplesCorrelation,
-          conditions.samplesCorrelation.EBG6SamplesCorrelation,
-          conditions.samplesCorrelation.EBG1SamplesCorrelation,
-          conditions.samplesCorrelation.EEG12SamplesCorrelation,
-          conditions.samplesCorrelation.EEG6SamplesCorrelation,
-          conditions.samplesCorrelation.EEG1SamplesCorrelation,
-          scratch.noisecov,
-          scratch.pulse_matrix,
-          conditions.pulseShapes.values,
-          scratch.hasSwitchToGain6,
-          scratch.hasSwitchToGain1,
-          scratch.isSaturated,
-          offsetForHashes);
+      kernel_prep_2d<<<blocks_2d, threads_2d, 0, cudaStream>>>(conditions.pulseCovariances.values,
+                                                               scratch.pulse_covariances,
+                                                               scratch.gainsNoise,
+                                                               eventInputGPU.ids,
+                                                               conditions.pedestals.rms_x12,
+                                                               conditions.pedestals.rms_x6,
+                                                               conditions.pedestals.rms_x1,
+                                                               conditions.gainRatios.gain12Over6,
+                                                               conditions.gainRatios.gain6Over1,
+                                                               conditions.samplesCorrelation.EBG12SamplesCorrelation,
+                                                               conditions.samplesCorrelation.EBG6SamplesCorrelation,
+                                                               conditions.samplesCorrelation.EBG1SamplesCorrelation,
+                                                               conditions.samplesCorrelation.EEG12SamplesCorrelation,
+                                                               conditions.samplesCorrelation.EEG6SamplesCorrelation,
+                                                               conditions.samplesCorrelation.EEG1SamplesCorrelation,
+                                                               scratch.noisecov,
+                                                               scratch.pulse_matrix,
+                                                               conditions.pulseShapes.values,
+                                                               scratch.hasSwitchToGain6,
+                                                               scratch.hasSwitchToGain1,
+                                                               scratch.isSaturated,
+                                                               offsetForHashes);
       cudaCheck(cudaGetLastError());
 
       // run minimization kernels
@@ -163,7 +162,7 @@ namespace ecal {
         unsigned int threads_time_init = threads_1d;
         unsigned int blocks_time_init = blocks_1d;
         int sharedBytesInit = 2 * threads_time_init * sizeof(SampleVector::Scalar);
-        kernel_time_computation_init<<<blocks_time_init, threads_time_init, sharedBytesInit, cudaStream.id()>>>(
+        kernel_time_computation_init<<<blocks_time_init, threads_time_init, sharedBytesInit, cudaStream>>>(
             eventInputGPU.digis,
             eventInputGPU.ids,
             conditions.pedestals.rms_x12,
@@ -196,7 +195,7 @@ namespace ecal {
             threadsFixMGPA > 10 * eventInputCPU.ebDigis.size()
                 ? 1
                 : (10 * eventInputCPU.ebDigis.size() + threadsFixMGPA - 1) / threadsFixMGPA;
-        kernel_time_compute_fixMGPAslew<<<blocksFixMGPA, threadsFixMGPA, 0, cudaStream.id()>>>(
+        kernel_time_compute_fixMGPAslew<<<blocksFixMGPA, threadsFixMGPA, 0, cudaStream>>>(
             eventInputGPU.digis,
             scratch.sample_values,
             scratch.sample_value_errors,
@@ -211,7 +210,7 @@ namespace ecal {
         int sharedBytes = EcalDataFrame::MAXSAMPLES * nchannels_per_block * 4 * sizeof(SampleVector::Scalar);
         auto const threads_nullhypot = threads_1d;
         auto const blocks_nullhypot = blocks_1d;
-        kernel_time_compute_nullhypot<<<blocks_nullhypot, threads_nullhypot, sharedBytes, cudaStream.id()>>>(
+        kernel_time_compute_nullhypot<<<blocks_nullhypot, threads_nullhypot, sharedBytes, cudaStream>>>(
             scratch.sample_values,
             scratch.sample_value_errors,
             scratch.useless_sample_values,
@@ -227,7 +226,7 @@ namespace ecal {
                                             ? 1
                                             : (totalChannels * 45 + threads_makeratio - 1) / threads_makeratio;
         int sharedBytesMakeRatio = 5 * threads_makeratio * sizeof(SampleVector::Scalar);
-        kernel_time_compute_makeratio<<<blocks_makeratio, threads_makeratio, sharedBytesMakeRatio, cudaStream.id()>>>(
+        kernel_time_compute_makeratio<<<blocks_makeratio, threads_makeratio, sharedBytesMakeRatio, cudaStream>>>(
             scratch.sample_values,
             scratch.sample_value_errors,
             eventInputGPU.ids,
@@ -262,25 +261,25 @@ namespace ecal {
         kernel_time_compute_findamplchi2_and_finish<<<blocks_findamplchi2,
                                                       threads_findamplchi2,
                                                       sharedBytesFindAmplChi2,
-                                                      cudaStream.id()>>>(scratch.sample_values,
-                                                                         scratch.sample_value_errors,
-                                                                         eventInputGPU.ids,
-                                                                         scratch.useless_sample_values,
-                                                                         scratch.tMaxAlphaBetas,
-                                                                         scratch.tMaxErrorAlphaBetas,
-                                                                         scratch.accTimeMax,
-                                                                         scratch.accTimeWgt,
-                                                                         configParameters.amplitudeFitParametersEB,
-                                                                         configParameters.amplitudeFitParametersEE,
-                                                                         scratch.sumAAsNullHypot,
-                                                                         scratch.sum0sNullHypot,
-                                                                         scratch.chi2sNullHypot,
-                                                                         scratch.tcState,
-                                                                         scratch.ampMaxAlphaBeta,
-                                                                         scratch.ampMaxError,
-                                                                         scratch.timeMax,
-                                                                         scratch.timeError,
-                                                                         totalChannels);
+                                                      cudaStream>>>(scratch.sample_values,
+                                                                    scratch.sample_value_errors,
+                                                                    eventInputGPU.ids,
+                                                                    scratch.useless_sample_values,
+                                                                    scratch.tMaxAlphaBetas,
+                                                                    scratch.tMaxErrorAlphaBetas,
+                                                                    scratch.accTimeMax,
+                                                                    scratch.accTimeWgt,
+                                                                    configParameters.amplitudeFitParametersEB,
+                                                                    configParameters.amplitudeFitParametersEE,
+                                                                    scratch.sumAAsNullHypot,
+                                                                    scratch.sum0sNullHypot,
+                                                                    scratch.chi2sNullHypot,
+                                                                    scratch.tcState,
+                                                                    scratch.ampMaxAlphaBeta,
+                                                                    scratch.ampMaxError,
+                                                                    scratch.timeMax,
+                                                                    scratch.timeError,
+                                                                    totalChannels);
         cudaCheck(cudaGetLastError());
 
         //
@@ -289,7 +288,7 @@ namespace ecal {
         auto const threads_timecorr = 32;
         auto const blocks_timecorr =
             threads_timecorr > totalChannels ? 1 : (totalChannels + threads_timecorr - 1) / threads_timecorr;
-        kernel_time_correction_and_finalize<<<blocks_timecorr, threads_timecorr, 0, cudaStream.id()>>>(
+        kernel_time_correction_and_finalize<<<blocks_timecorr, threads_timecorr, 0, cudaStream>>>(
             eventOutputGPU.amplitude,
             eventInputGPU.digis,
             eventInputGPU.ids,

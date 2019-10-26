@@ -3,15 +3,14 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-
-#include <cuda/api_wrappers.h>
-
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
+
+#include <cuda_runtime.h>
 
 class SiPixelClustersCUDA {
 public:
   SiPixelClustersCUDA() = default;
-  explicit SiPixelClustersCUDA(size_t maxClusters, cuda::stream_t<> &stream);
+  explicit SiPixelClustersCUDA(size_t maxClusters, cudaStream_t stream);
   ~SiPixelClustersCUDA() = default;
 
   SiPixelClustersCUDA(const SiPixelClustersCUDA &) = delete;

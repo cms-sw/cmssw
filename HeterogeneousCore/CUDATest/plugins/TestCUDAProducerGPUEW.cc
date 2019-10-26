@@ -67,7 +67,7 @@ void TestCUDAProducerGPUEW::acquire(const edm::Event& iEvent,
   // Mimick the need to transfer some of the GPU data back to CPU to
   // be used for something within this module, or to be put in the
   // event.
-  cuda::memory::async::copy(hostData_.get(), devicePtr_.get() + 10, sizeof(float), ctx.stream().id());
+  cuda::memory::async::copy(hostData_.get(), devicePtr_.get() + 10, sizeof(float), ctx.stream());
 
   edm::LogVerbatim("TestCUDAProducerGPUEW") << label_ << " TestCUDAProducerGPUEW::acquire end event "
                                             << iEvent.id().event() << " stream " << iEvent.streamID();

@@ -4,6 +4,8 @@
 
 #include "getCachingDeviceAllocator.h"
 
+#include <cuda/api_wrappers.h>
+
 #include <limits>
 
 namespace {
@@ -12,15 +14,14 @@ namespace {
 }
 
 namespace cudautils {
-  void *allocate_device(int dev, size_t nbytes, cuda::stream_t<> &stream) {
+  void *allocate_device(int dev, size_t nbytes, cudaStream_t stream) {
     void *ptr = nullptr;
     if constexpr (cudautils::allocator::useCaching) {
       if (UNLIKELY(nbytes > maxAllocationSize)) {
         throw std::runtime_error("Tried to allocate " + std::to_string(nbytes) +
                                  " bytes, but the allocator maximum is " + std::to_string(maxAllocationSize));
       }
-      cuda::throw_if_error(
-          cudautils::allocator::getCachingDeviceAllocator().DeviceAllocate(dev, &ptr, nbytes, stream.id()));
+      cuda::throw_if_error(cudautils::allocator::getCachingDeviceAllocator().DeviceAllocate(dev, &ptr, nbytes, stream));
     } else {
       cuda::device::current::scoped_override_t<> setDeviceForThisScope(dev);
       cuda::throw_if_error(cudaMalloc(&ptr, nbytes));

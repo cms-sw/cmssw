@@ -161,7 +161,7 @@ void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& 
 
 PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecHit2DCUDA const& hits_d,
                                                                     float bfield,
-                                                                    cuda::stream_t<>& stream) const {
+                                                                    cudaStream_t stream) const {
   PixelTrackHeterogeneous tracks(cudautils::make_device_unique<pixelTrack::TrackSoA>(stream));
 
   auto* soa = tracks.get();
@@ -174,32 +174,31 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecH
   fitter.allocateOnGPU(&(soa->hitIndices), kernels.tupleMultiplicity(), soa);
 
   kernels.buildDoublets(hits_d, stream);
-  kernels.launchKernels(hits_d, soa, stream.id());
-  kernels.fillHitDetIndices(hits_d.view(), soa, stream.id());  // in principle needed only if Hits not "available"
+  kernels.launchKernels(hits_d, soa, stream);
+  kernels.fillHitDetIndices(hits_d.view(), soa, stream);  // in principle needed only if Hits not "available"
   if (m_params.useRiemannFit_) {
     fitter.launchRiemannKernels(hits_d.view(), hits_d.nHits(), CAConstants::maxNumberOfQuadruplets(), stream);
   } else {
     fitter.launchBrokenLineKernels(hits_d.view(), hits_d.nHits(), CAConstants::maxNumberOfQuadruplets(), stream);
   }
-  kernels.classifyTuples(hits_d, soa, stream.id());
+  kernels.classifyTuples(hits_d, soa, stream);
 
   return tracks;
 }
 
 PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DCPU const& hits_d, float bfield) const {
   PixelTrackHeterogeneous tracks(std::make_unique<pixelTrack::TrackSoA>());
-  auto dummyStream = cuda::stream::wrap(0, 0, false);
 
   auto* soa = tracks.get();
   assert(soa);
 
   CAHitNtupletGeneratorKernelsCPU kernels(m_params);
   kernels.counters_ = m_counters;
-  kernels.allocateOnGPU(dummyStream);
+  kernels.allocateOnGPU(nullptr);
 
-  kernels.buildDoublets(hits_d, dummyStream);
-  kernels.launchKernels(hits_d, soa, dummyStream.id());
-  kernels.fillHitDetIndices(hits_d.view(), soa, dummyStream.id());  // in principle needed only if Hits not "available"
+  kernels.buildDoublets(hits_d, nullptr);
+  kernels.launchKernels(hits_d, soa, nullptr);
+  kernels.fillHitDetIndices(hits_d.view(), soa, nullptr);  // in principle needed only if Hits not "available"
 
   if (0 == hits_d.nHits())
     return tracks;
@@ -214,7 +213,7 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DC
     fitter.launchBrokenLineKernelsOnCPU(hits_d.view(), hits_d.nHits(), CAConstants::maxNumberOfQuadruplets());
   }
 
-  kernels.classifyTuples(hits_d, soa, dummyStream.id());
+  kernels.classifyTuples(hits_d, soa, nullptr);
 
   return tracks;
 }

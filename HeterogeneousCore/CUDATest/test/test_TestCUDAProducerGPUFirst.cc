@@ -6,6 +6,7 @@
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
 #include "HeterogeneousCore/CUDATest/interface/CUDAThing.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include <iostream>
 
@@ -73,11 +74,11 @@ process.moduleToTest(process.toTest)
     REQUIRE(data != nullptr);
 
     float firstElements[10];
-    cuda::memory::async::copy(firstElements, data, sizeof(float) * 10, prod->stream().id());
+    cuda::memory::async::copy(firstElements, data, sizeof(float) * 10, prod->stream());
 
     std::cout << "Synchronizing with CUDA stream" << std::endl;
     auto stream = prod->stream();
-    stream.synchronize();
+    cudaCheck(cudaStreamSynchronize(stream));
     std::cout << "Synchronized" << std::endl;
     REQUIRE(firstElements[0] == 0.f);
     REQUIRE(firstElements[1] == 1.f);

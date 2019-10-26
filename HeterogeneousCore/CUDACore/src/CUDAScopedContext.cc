@@ -5,8 +5,37 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/CUDAEventCache.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/CUDAStreamCache.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include "chooseCUDADevice.h"
+
+namespace {
+  struct CallbackData {
+    edm::WaitingTaskWithArenaHolder holder;
+    int device;
+  };
+
+  void CUDART_CB cudaScopedContextCallback(cudaStream_t streamId, cudaError_t status, void* data) {
+    std::unique_ptr<CallbackData> guard{reinterpret_cast<CallbackData*>(data)};
+    edm::WaitingTaskWithArenaHolder& waitingTaskHolder = guard->holder;
+    int device = guard->device;
+    if (status == cudaSuccess) {
+      LogTrace("CUDAScopedContext") << " GPU kernel finished (in callback) device " << device << " CUDA stream "
+                                    << streamId;
+      waitingTaskHolder.doneWaiting(nullptr);
+    } else {
+      // wrap the exception in a try-catch block to let GDB "catch throw" break on it
+      try {
+        auto error = cudaGetErrorName(status);
+        auto message = cudaGetErrorString(status);
+        throw cms::Exception("CUDAError") << "Callback of CUDA stream " << streamId << " in device " << device
+                                          << " error " << error << ": " << message;
+      } catch (cms::Exception&) {
+        waitingTaskHolder.doneWaiting(std::current_exception());
+      }
+    }
+  }
+}  // namespace
 
 namespace impl {
   CUDAScopedContextBase::CUDAScopedContextBase(edm::StreamID streamID)
@@ -29,16 +58,16 @@ namespace impl {
   ////////////////////
 
   void CUDAScopedContextGetterBase::synchronizeStreams(int dataDevice,
-                                                       const cuda::stream_t<>& dataStream,
+                                                       cudaStream_t dataStream,
                                                        bool available,
-                                                       const cuda::event_t* dataEvent) {
+                                                       cudaEvent_t dataEvent) {
     if (dataDevice != device()) {
       // Eventually replace with prefetch to current device (assuming unified memory works)
       // If we won't go to unified memory, need to figure out something else...
       throw cms::Exception("LogicError") << "Handling data from multiple devices is not yet supported";
     }
 
-    if (dataStream.id() != stream().id()) {
+    if (dataStream != stream()) {
       // Different streams, need to synchronize
       if (not available) {
         // Event not yet occurred, so need to add synchronization
@@ -46,31 +75,15 @@ namespace impl {
         // wait for an event, so all subsequent work in the stream
         // will run only after the event has "occurred" (i.e. data
         // product became available).
-        auto ret = cudaStreamWaitEvent(stream().id(), dataEvent->id(), 0);
+        auto ret = cudaStreamWaitEvent(stream(), dataEvent, 0);
         cuda::throw_if_error(ret, "Failed to make a stream to wait for an event");
       }
     }
   }
 
-  void CUDAScopedContextHolderHelper::enqueueCallback(int device, cuda::stream_t<>& stream) {
-    stream.enqueue.callback(
-        [device, waitingTaskHolder = waitingTaskHolder_](cuda::stream::id_t streamId, cuda::status_t status) mutable {
-          if (cuda::is_success(status)) {
-            LogTrace("CUDAScopedContext")
-                << " GPU kernel finished (in callback) device " << device << " CUDA stream " << streamId;
-            waitingTaskHolder.doneWaiting(nullptr);
-          } else {
-            // wrap the exception in a try-catch block to let GDB "catch throw" break on it
-            try {
-              auto error = cudaGetErrorName(status);
-              auto message = cudaGetErrorString(status);
-              throw cms::Exception("CUDAError") << "Callback of CUDA stream " << streamId << " in device " << device
-                                                << " error " << error << ": " << message;
-            } catch (cms::Exception&) {
-              waitingTaskHolder.doneWaiting(std::current_exception());
-            }
-          }
-        });
+  void CUDAScopedContextHolderHelper::enqueueCallback(int device, cudaStream_t stream) {
+    cudaCheck(
+        cudaStreamAddCallback(stream, cudaScopedContextCallback, new CallbackData{waitingTaskHolder_, device}, 0));
   }
 }  // namespace impl
 
@@ -93,14 +106,24 @@ void CUDAScopedContextAcquire::throwNoState() {
 
 CUDAScopedContextProduce::~CUDAScopedContextProduce() {
   if (event_) {
-    event_->record(stream().id());
+    event_->record(stream());
   }
 }
 
 void CUDAScopedContextProduce::createEventIfStreamBusy() {
-  if (event_ or stream().is_clear()) {
+  if (event_) {
     return;
   }
+  auto ret = cudaStreamQuery(stream());
+  if (ret == cudaSuccess) {
+    return;
+  }
+  if (ret != cudaErrorNotReady) {
+    // cudaErrorNotReady indicates that the stream is busy, and thus
+    // is not an error
+    cudaCheck(ret);
+  }
+
   event_ = cudautils::getCUDAEventCache().getCUDAEvent();
 }
 

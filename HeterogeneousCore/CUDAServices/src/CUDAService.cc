@@ -87,13 +87,15 @@ constexpr unsigned int getCudaCoresPerSM(unsigned int major, unsigned int minor)
 namespace {
   template <template <typename> typename UniquePtr, typename Allocate>
   void preallocate(Allocate allocate, const std::vector<unsigned int>& bufferSizes) {
-    auto current_device = cuda::device::current::get();
-    auto stream = current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream);
+    if (bufferSizes.empty())
+      return;
+
+    auto streamPtr = cudautils::getCUDAStreamCache().getCUDAStream();
 
     std::vector<UniquePtr<char[]> > buffers;
     buffers.reserve(bufferSizes.size());
     for (auto size : bufferSizes) {
-      buffers.push_back(allocate(size, stream));
+      buffers.push_back(allocate(size, streamPtr->id()));
     }
   }
 
@@ -103,7 +105,7 @@ namespace {
     for (int i = 0; i < numberOfDevices; ++i) {
       cudaCheck(cudaSetDevice(i));
       preallocate<cudautils::device::unique_ptr>(
-          [&](size_t size, cuda::stream_t<>& stream) { return cudautils::make_device_unique<char[]>(size, stream); },
+          [&](size_t size, cudaStream_t stream) { return cudautils::make_device_unique<char[]>(size, stream); },
           bufferSizes);
     }
     cudaCheck(cudaSetDevice(device));
@@ -111,7 +113,7 @@ namespace {
 
   void hostPreallocate(const std::vector<unsigned int>& bufferSizes) {
     preallocate<cudautils::host::unique_ptr>(
-        [&](size_t size, cuda::stream_t<>& stream) { return cudautils::make_host_unique<char[]>(size, stream); },
+        [&](size_t size, cudaStream_t stream) { return cudautils::make_host_unique<char[]>(size, stream); },
         bufferSizes);
   }
 }  // namespace

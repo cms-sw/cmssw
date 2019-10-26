@@ -2,7 +2,7 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/SiPixelRawData"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
-<use name="cuda-api-wrappers"/>
+<use name="cuda"/>
 <use name="rootcore"/>
 
 <export>

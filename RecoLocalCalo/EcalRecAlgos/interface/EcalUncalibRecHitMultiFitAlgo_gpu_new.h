@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <cuda.h>
+#include <cuda_runtime.h>
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/DeclsForKernels.h"
 
@@ -16,7 +16,7 @@ namespace ecal {
                     EventDataForScratchGPU&,
                     ConditionsProducts const&,
                     ConfigurationParameters const&,
-                    cuda::stream_t<>&);
+                    cudaStream_t);
 
   }
 }  // namespace ecal

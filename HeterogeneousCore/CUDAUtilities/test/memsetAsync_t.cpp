@@ -3,14 +3,15 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/memsetAsync.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 TEST_CASE("memsetAsync", "[cudaMemTools]") {
   exitSansCUDADevices();
 
-  auto current_device = cuda::device::current::get();
-  auto stream = current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream);
+  cudaStream_t stream;
+  cudaCheck(cudaStreamCreate(&stream));
 
   SECTION("Single element") {
     auto host_orig = cudautils::make_host_unique<int>(stream);
@@ -21,7 +22,7 @@ TEST_CASE("memsetAsync", "[cudaMemTools]") {
     cudautils::copyAsync(device, host_orig, stream);
     cudautils::memsetAsync(device, 0, stream);
     cudautils::copyAsync(host, device, stream);
-    stream.synchronize();
+    cudaCheck(cudaStreamSynchronize(stream));
 
     REQUIRE(*host == 0);
   }
@@ -39,10 +40,12 @@ TEST_CASE("memsetAsync", "[cudaMemTools]") {
     cudautils::copyAsync(device, host_orig, N, stream);
     cudautils::memsetAsync(device, 0, N, stream);
     cudautils::copyAsync(host, device, N, stream);
-    stream.synchronize();
+    cudaCheck(cudaStreamSynchronize(stream));
 
     for (int i = 0; i < N; ++i) {
       CHECK(host[i] == 0);
     }
   }
+
+  cudaCheck(cudaStreamDestroy(stream));
 }

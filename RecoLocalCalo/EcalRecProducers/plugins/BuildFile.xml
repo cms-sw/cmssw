@@ -16,7 +16,6 @@
 <use   name="CUDADataFormats/EcalRecHitSoA"/>
 <use   name="HeterogeneousCore/CUDACore"/>
 <use   name="HeterogeneousCore/CUDAUtilities"/>
-<use   name="cuda-api-wrappers"/>
 <use   name="cuda"/>
 <library   file="*.cc" name="RecoLocalCaloEcalRecProducersPlugins">
   <flags   EDM_PLUGIN="1"/>

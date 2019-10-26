@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/eventIsOccurred.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 #include "test_CUDAScopedContextKernels.h"
@@ -31,7 +32,7 @@ namespace {
   std::unique_ptr<CUDAProduct<int*>> produce(int device, int* d, int* h) {
     auto ctx = cudatest::TestCUDAScopedContext::make(device, true);
 
-    cuda::memory::async::copy(d, h, sizeof(int), ctx.stream().id());
+    cuda::memory::async::copy(d, h, sizeof(int), ctx.stream());
     testCUDAScopedContextKernels_single(d, ctx.stream());
     return ctx.wrap(d);
   }
@@ -50,7 +51,7 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
       std::unique_ptr<CUDAProduct<int>> dataPtr = ctx.wrap(10);
       REQUIRE(dataPtr.get() != nullptr);
       REQUIRE(dataPtr->device() == ctx.device());
-      REQUIRE(dataPtr->stream().id() == ctx.stream().id());
+      REQUIRE(dataPtr->stream() == ctx.stream());
     }
 
     SECTION("Construct from from CUDAProduct<T>") {
@@ -59,12 +60,12 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
 
       CUDAScopedContextProduce ctx2{data};
       REQUIRE(cuda::device::current::get().id() == data.device());
-      REQUIRE(ctx2.stream().id() == data.stream().id());
+      REQUIRE(ctx2.stream() == data.stream());
 
       // Second use of a product should lead to new stream
       CUDAScopedContextProduce ctx3{data};
       REQUIRE(cuda::device::current::get().id() == data.device());
-      REQUIRE(ctx3.stream().id() != data.stream().id());
+      REQUIRE(ctx3.stream() != data.stream());
     }
 
     SECTION("Storing state in CUDAContextState") {
@@ -80,7 +81,7 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
       {  // produce
         CUDAScopedContextProduce ctx2{ctxstate};
         REQUIRE(cuda::device::current::get().id() == ctx.device());
-        REQUIRE(ctx2.stream().id() == ctx.stream().id());
+        REQUIRE(ctx2.stream() == ctx.stream());
       }
     }
 
@@ -98,7 +99,7 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
       auto d_a2 = cuda::memory::device::make_unique<int>(current_device);
       auto wprod2 = produce(defaultDevice, d_a2.get(), &h_a2);
 
-      REQUIRE(wprod1->stream().id() != wprod2->stream().id());
+      REQUIRE(wprod1->stream() != wprod2->stream());
 
       // Mimick a third producer "joining" the two streams
       CUDAScopedContextProduce ctx2{*wprod1};
@@ -108,16 +109,16 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
 
       auto d_a3 = cuda::memory::device::make_unique<int>(current_device);
       testCUDAScopedContextKernels_join(prod1, prod2, d_a3.get(), ctx2.stream());
-      ctx2.stream().synchronize();
+      cudaCheck(cudaStreamSynchronize(ctx2.stream()));
       REQUIRE(wprod2->isAvailable());
-      REQUIRE(wprod2->event()->has_occurred());
+      REQUIRE(cudautils::eventIsOccurred(wprod2->event()));
 
       h_a1 = 0;
       h_a2 = 0;
       int h_a3 = 0;
-      cuda::memory::async::copy(&h_a1, d_a1.get(), sizeof(int), ctx.stream().id());
-      cuda::memory::async::copy(&h_a2, d_a2.get(), sizeof(int), ctx.stream().id());
-      cuda::memory::async::copy(&h_a3, d_a3.get(), sizeof(int), ctx.stream().id());
+      cuda::memory::async::copy(&h_a1, d_a1.get(), sizeof(int), ctx.stream());
+      cuda::memory::async::copy(&h_a2, d_a2.get(), sizeof(int), ctx.stream());
+      cuda::memory::async::copy(&h_a3, d_a3.get(), sizeof(int), ctx.stream());
 
       REQUIRE(h_a1 == 2);
       REQUIRE(h_a2 == 4);

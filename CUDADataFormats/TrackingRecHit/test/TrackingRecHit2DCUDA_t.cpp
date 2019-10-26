@@ -1,6 +1,7 @@
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 namespace testTrackingRecHit2D {
 
@@ -11,13 +12,18 @@ namespace testTrackingRecHit2D {
 int main() {
   exitSansCUDADevices();
 
-  auto current_device = cuda::device::current::get();
-  auto stream = current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream);
+  cudaStream_t stream;
+  cudaCheck(cudaStreamCreate(&stream));
 
-  auto nHits = 200;
-  TrackingRecHit2DCUDA tkhit(nHits, nullptr, nullptr, stream);
+  // inner scope to deallocate memory before destroying the stream
+  {
+    auto nHits = 200;
+    TrackingRecHit2DCUDA tkhit(nHits, nullptr, nullptr, stream);
 
-  testTrackingRecHit2D::runKernels(tkhit.view());
+    testTrackingRecHit2D::runKernels(tkhit.view());
+  }
+
+  cudaCheck(cudaStreamDestroy(stream));
 
   return 0;
 }

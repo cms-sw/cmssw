@@ -36,11 +36,17 @@ public:
 
   int device() const { return device_; }
 
-  const cuda::stream_t<>& stream() const { return *stream_; }
-  cuda::stream_t<>& stream() { return *stream_; }
+  // cudaStream_t is a pointer to a thread-safe object, for which a
+  // mutable access is needed even if the CUDAScopedContext itself
+  // would be const. Therefore it is ok to return a non-const
+  // pointer from a const method here.
+  cudaStream_t stream() const { return stream_->id(); }
 
-  const cuda::event_t* event() const { return event_.get(); }
-  cuda::event_t* event() { return event_.get(); }
+  // cudaEvent_t is a pointer to a thread-safe object, for which a
+  // mutable access is needed even if the CUDAScopedContext itself
+  // would be const. Therefore it is ok to return a non-const
+  // pointer from a const method here.
+  cudaEvent_t event() const { return event_ ? event_->id() : nullptr; }
 
 protected:
   explicit CUDAProductBase(int device, std::shared_ptr<cuda::stream_t<>> stream)

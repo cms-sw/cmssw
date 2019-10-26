@@ -20,7 +20,7 @@ namespace ecal {
                                   EventDataForScratchGPU& scratch,
                                   ConditionsProducts const& conditions,
                                   ConfigurationParameters const& configParameters,
-                                  cuda::stream_t<>& cudaStream);
+                                  cudaStream_t cudaStream);
 
     }
 

@@ -35,10 +35,10 @@ public:
   auto *operator-> () { return get(); }
 
   // in reality valid only for GPU version...
-  cudautils::host::unique_ptr<T> toHostAsync(cuda::stream_t<> &stream) const {
+  cudautils::host::unique_ptr<T> toHostAsync(cudaStream_t stream) const {
     assert(dm_ptr);
     auto ret = cudautils::make_host_unique<T>(stream);
-    cudaCheck(cudaMemcpyAsync(ret.get(), dm_ptr.get(), sizeof(T), cudaMemcpyDefault, stream.id()));
+    cudaCheck(cudaMemcpyAsync(ret.get(), dm_ptr.get(), sizeof(T), cudaMemcpyDefault, stream));
     return ret;
   }
 
@@ -56,27 +56,27 @@ namespace cudaCompat {
     using unique_ptr = cudautils::device::unique_ptr<T>;
 
     template <typename T>
-    static auto make_unique(cuda::stream_t<> &stream) {
+    static auto make_unique(cudaStream_t stream) {
       return cudautils::make_device_unique<T>(stream);
     }
 
     template <typename T>
-    static auto make_unique(size_t size, cuda::stream_t<> &stream) {
+    static auto make_unique(size_t size, cudaStream_t stream) {
       return cudautils::make_device_unique<T>(size, stream);
     }
 
     template <typename T>
-    static auto make_host_unique(cuda::stream_t<> &stream) {
+    static auto make_host_unique(cudaStream_t stream) {
       return cudautils::make_host_unique<T>(stream);
     }
 
     template <typename T>
-    static auto make_device_unique(cuda::stream_t<> &stream) {
+    static auto make_device_unique(cudaStream_t stream) {
       return cudautils::make_device_unique<T>(stream);
     }
 
     template <typename T>
-    static auto make_device_unique(size_t size, cuda::stream_t<> &stream) {
+    static auto make_device_unique(size_t size, cudaStream_t stream) {
       return cudautils::make_device_unique<T>(size, stream);
     }
   };
@@ -86,22 +86,22 @@ namespace cudaCompat {
     using unique_ptr = cudautils::host::unique_ptr<T>;
 
     template <typename T>
-    static auto make_unique(cuda::stream_t<> &stream) {
+    static auto make_unique(cudaStream_t stream) {
       return cudautils::make_host_unique<T>(stream);
     }
 
     template <typename T>
-    static auto make_host_unique(cuda::stream_t<> &stream) {
+    static auto make_host_unique(cudaStream_t stream) {
       return cudautils::make_host_unique<T>(stream);
     }
 
     template <typename T>
-    static auto make_device_unique(cuda::stream_t<> &stream) {
+    static auto make_device_unique(cudaStream_t stream) {
       return cudautils::make_device_unique<T>(stream);
     }
 
     template <typename T>
-    static auto make_device_unique(size_t size, cuda::stream_t<> &stream) {
+    static auto make_device_unique(size_t size, cudaStream_t stream) {
       return cudautils::make_device_unique<T>(size, stream);
     }
   };
@@ -111,27 +111,27 @@ namespace cudaCompat {
     using unique_ptr = std::unique_ptr<T>;
 
     template <typename T>
-    static auto make_unique(cuda::stream_t<> &) {
+    static auto make_unique(cudaStream_t) {
       return std::make_unique<T>();
     }
 
     template <typename T>
-    static auto make_unique(size_t size, cuda::stream_t<> &) {
+    static auto make_unique(size_t size, cudaStream_t) {
       return std::make_unique<T>(size);
     }
 
     template <typename T>
-    static auto make_host_unique(cuda::stream_t<> &) {
+    static auto make_host_unique(cudaStream_t) {
       return std::make_unique<T>();
     }
 
     template <typename T>
-    static auto make_device_unique(cuda::stream_t<> &) {
+    static auto make_device_unique(cudaStream_t) {
       return std::make_unique<T>();
     }
 
     template <typename T>
-    static auto make_device_unique(size_t size, cuda::stream_t<> &) {
+    static auto make_device_unique(size_t size, cudaStream_t) {
       return std::make_unique<T>(size);
     }
   };
@@ -151,28 +151,28 @@ public:
   HeterogeneousSoAImpl &operator=(HeterogeneousSoAImpl &&) = default;
 
   explicit HeterogeneousSoAImpl(unique_ptr<T> &&p) : m_ptr(std::move(p)) {}
-  explicit HeterogeneousSoAImpl(cuda::stream_t<> &stream);
+  explicit HeterogeneousSoAImpl(cudaStream_t stream);
 
   T const *get() const { return m_ptr.get(); }
 
   T *get() { return m_ptr.get(); }
 
-  cudautils::host::unique_ptr<T> toHostAsync(cuda::stream_t<> &stream) const;
+  cudautils::host::unique_ptr<T> toHostAsync(cudaStream_t stream) const;
 
 private:
   unique_ptr<T> m_ptr;  //!
 };
 
 template <typename T, typename Traits>
-HeterogeneousSoAImpl<T, Traits>::HeterogeneousSoAImpl(cuda::stream_t<> &stream) {
+HeterogeneousSoAImpl<T, Traits>::HeterogeneousSoAImpl(cudaStream_t stream) {
   m_ptr = Traits::template make_unique<T>(stream);
 }
 
 // in reality valid only for GPU version...
 template <typename T, typename Traits>
-cudautils::host::unique_ptr<T> HeterogeneousSoAImpl<T, Traits>::toHostAsync(cuda::stream_t<> &stream) const {
+cudautils::host::unique_ptr<T> HeterogeneousSoAImpl<T, Traits>::toHostAsync(cudaStream_t stream) const {
   auto ret = cudautils::make_host_unique<T>(stream);
-  cudaCheck(cudaMemcpyAsync(ret.get(), get(), sizeof(T), cudaMemcpyDefault, stream.id()));
+  cudaCheck(cudaMemcpyAsync(ret.get(), get(), sizeof(T), cudaMemcpyDefault, stream));
   return ret;
 }
 

@@ -4,9 +4,9 @@
 
 template <>
 #ifdef __CUDACC__
-void CAHitNtupletGeneratorKernelsGPU::allocateOnGPU(cuda::stream_t<>& stream) {
+void CAHitNtupletGeneratorKernelsGPU::allocateOnGPU(cudaStream_t stream) {
 #else
-void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(cuda::stream_t<>& stream) {
+void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(cudaStream_t stream) {
 #endif
   //////////////////////////////////////////////////////////
   // ALLOCATIONS FOR THE INTERMEDIATE RESULTS (STAYS ON WORKER)
@@ -42,10 +42,10 @@ void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(cuda::stream_t<>& stream) {
       constexpr
 #endif
       (std::is_same<Traits, cudaCompat::GPUTraits>::value) {
-    cudaCheck(cudaMemsetAsync(device_nCells_, 0, sizeof(uint32_t), stream.id()));
+    cudaCheck(cudaMemsetAsync(device_nCells_, 0, sizeof(uint32_t), stream));
   } else {
     *device_nCells_ = 0;
   }
-  cudautils::launchZero(device_tupleMultiplicity_.get(), stream.id());
-  cudautils::launchZero(device_hitToTuple_.get(), stream.id());  // we may wish to keep it in the edm...
+  cudautils::launchZero(device_tupleMultiplicity_.get(), stream);
+  cudautils::launchZero(device_hitToTuple_.get(), stream);  // we may wish to keep it in the edm...
 }

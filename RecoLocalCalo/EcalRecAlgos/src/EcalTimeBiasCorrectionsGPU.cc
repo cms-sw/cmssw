@@ -17,9 +17,9 @@ EcalTimeBiasCorrectionsGPU::Product::~Product() {
   cudaCheck(cudaFree(EETimeCorrShiftBins));
 }
 
-EcalTimeBiasCorrectionsGPU::Product const& EcalTimeBiasCorrectionsGPU::getProduct(cuda::stream_t<>& cudaStream) const {
+EcalTimeBiasCorrectionsGPU::Product const& EcalTimeBiasCorrectionsGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](EcalTimeBiasCorrectionsGPU::Product& product, cuda::stream_t<>& cudaStream) {
+      cudaStream, [this](EcalTimeBiasCorrectionsGPU::Product& product, cudaStream_t cudaStream) {
         // to get the size of vectors later on
         // should be removed and host conditions' objects used directly
         product.EBTimeCorrAmplitudeBinsSize = this->EBTimeCorrAmplitudeBins_.size();
@@ -37,22 +37,22 @@ EcalTimeBiasCorrectionsGPU::Product const& EcalTimeBiasCorrectionsGPU::getProduc
                                   this->EBTimeCorrAmplitudeBins_.data(),
                                   this->EBTimeCorrAmplitudeBins_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.EBTimeCorrShiftBins,
                                   this->EBTimeCorrShiftBins_.data(),
                                   this->EBTimeCorrShiftBins_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.EETimeCorrAmplitudeBins,
                                   this->EETimeCorrAmplitudeBins_.data(),
                                   this->EETimeCorrAmplitudeBins_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.EETimeCorrShiftBins,
                                   this->EETimeCorrShiftBins_.data(),
                                   this->EETimeCorrShiftBins_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
       });
 
   return product;

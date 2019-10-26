@@ -589,7 +589,7 @@ cudautils::host::unique_ptr<float[]>   host_buffer   = cudautils::make_host_uniq
 ```
 
 in the `acquire()` and `produce()` functions. The same
-`cuda::stream_t<>` object that is used for transfers and kernels
+`cudaStream_t` object that is used for transfers and kernels
 should be passed to the allocator.
 
 The allocator is based on `cub::CachingDeviceAllocator`. The memory is
@@ -928,7 +928,7 @@ public:
   ~ESProductExampleCUDAWrapper();
 
   // Function to return the actual payload on the memory of the current device
-  ESProductExampleCUDA const *getGPUProductAsync(cuda::stream_t<>& stream) const;
+  ESProductExampleCUDA const *getGPUProductAsync(cudaStream_t stream) const;
 
 private:
   // Holds the data in pinned CPU memory
@@ -956,14 +956,14 @@ ESProductExampleCUDAWrapper::ESProductExampleCUDAWrapper(ESProductExample const&
   // fill someData_ and size_ from cpuProduct
 }
 
-ESProductExampleCUDA const *ESProductExampleCUDAWrapper::getGPUProductAsync(cuda::stream_t<>& stream) const {
+ESProductExampleCUDA const *ESProductExampleCUDAWrapper::getGPUProductAsync(cudaStream_t stream) const {
   // CUDAESProduct<T> essentially holds an array of GPUData objects,
   // one per device. If the data have already been transferred to the
   // current device (or the transfer has been queued), the helper just
   // returns a reference to that GPUData object. Otherwise, i.e. data are
   // not yet on the current device, the helper calls the lambda to do the
   // necessary memory allocations and to queue the transfers.
-  auto const& data = gpuData_.dataForCurrentDeviceAsync(stream, [this](GPUData& data, cuda::stream_t<>& stream) {
+  auto const& data = gpuData_.dataForCurrentDeviceAsync(stream, [this](GPUData& data, cudaStream_t stream) {
     // Allocate memory. Currently this can be with the CUDA API,
     // sometime we'll migrate to the caching allocator. Assumption is
     // that IOV changes are rare enough that adding global synchronization
@@ -982,9 +982,9 @@ ESProductExampleCUDA const *ESProductExampleCUDAWrapper::getGPUProductAsync(cuda
 
 
     // Transfer the payload, first the array(s) ...
-    cudaCheck(cudaMemcpyAsync(data.esproductHost->someData, this->someData, sizeof(float)*NUM_ELEMENTS, cudaMemcpyDefault, stream.id()));
+    cudaCheck(cudaMemcpyAsync(data.esproductHost->someData, this->someData, sizeof(float)*NUM_ELEMENTS, cudaMemcpyDefault, stream));
     // ... and then the payload object
-    cudaCheck(cudaMemcpyAsync(data.esproductDevice, data.esproduceHost, sizeof(ESProductExampleCUDA), cudaMemcpyDefault, stream.id()));
+    cudaCheck(cudaMemcpyAsync(data.esproductDevice, data.esproduceHost, sizeof(ESProductExampleCUDA), cudaMemcpyDefault, stream));
 });
 
   // Returns the payload object on the memory of the current device

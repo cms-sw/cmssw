@@ -9,7 +9,7 @@
 <use   name="MagneticField/VolumeBasedEngine"/>
 <use   name="HeterogeneousCore/CUDACore"/>
 <use   name="boost"/>
-<use   name="cuda-api-wrappers"/>
+<use   name="cuda"/>
 <export>
   <lib   name="1"/>
 </export>

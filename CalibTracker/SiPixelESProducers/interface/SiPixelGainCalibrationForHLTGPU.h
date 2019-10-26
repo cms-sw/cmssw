@@ -16,7 +16,7 @@ public:
   explicit SiPixelGainCalibrationForHLTGPU(const SiPixelGainCalibrationForHLT &gains, const TrackerGeometry &geom);
   ~SiPixelGainCalibrationForHLTGPU();
 
-  const SiPixelGainForHLTonGPU *getGPUProductAsync(cuda::stream_t<> &cudaStream) const;
+  const SiPixelGainForHLTonGPU *getGPUProductAsync(cudaStream_t cudaStream) const;
   const SiPixelGainForHLTonGPU *getCPUProduct() const { return gainForHLTonHost_; }
   const SiPixelGainCalibrationForHLT *getOriginalProduct() { return gains_; }
 

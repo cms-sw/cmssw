@@ -23,8 +23,11 @@ namespace impl {
   public:
     int device() const { return currentDevice_; }
 
-    cuda::stream_t<>& stream() { return *stream_; }
-    const cuda::stream_t<>& stream() const { return *stream_; }
+    // cudaStream_t is a pointer to a thread-safe object, for which a
+    // mutable access is needed even if the CUDAScopedContext itself
+    // would be const. Therefore it is ok to return a non-const
+    // pointer from a const method here.
+    cudaStream_t stream() const { return stream_->id(); }
     const std::shared_ptr<cuda::stream_t<>>& streamPtr() const { return stream_; }
 
   protected:
@@ -59,10 +62,7 @@ namespace impl {
     template <typename... Args>
     CUDAScopedContextGetterBase(Args&&... args) : CUDAScopedContextBase(std::forward<Args>(args)...) {}
 
-    void synchronizeStreams(int dataDevice,
-                            const cuda::stream_t<>& dataStream,
-                            bool available,
-                            const cuda::event_t* dataEvent);
+    void synchronizeStreams(int dataDevice, cudaStream_t dataStream, bool available, cudaEvent_t dataEvent);
   };
 
   class CUDAScopedContextHolderHelper {
@@ -77,7 +77,7 @@ namespace impl {
       waitingTaskHolder_ = std::move(waitingTaskHolder);
     }
 
-    void enqueueCallback(int device, cuda::stream_t<>& stream);
+    void enqueueCallback(int device, cudaStream_t stream);
 
   private:
     edm::WaitingTaskWithArenaHolder waitingTaskHolder_;

@@ -5,6 +5,8 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "CachingDeviceAllocator.h"
 
+#include <cuda/api_wrappers.h>
+
 #include <iomanip>
 
 namespace cudautils {

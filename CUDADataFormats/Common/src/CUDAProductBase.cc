@@ -1,4 +1,5 @@
 #include "CUDADataFormats/Common/interface/CUDAProductBase.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/eventIsOccurred.h"
 
 bool CUDAProductBase::isAvailable() const {
   // In absence of event, the product was available already at the end
@@ -6,5 +7,5 @@ bool CUDAProductBase::isAvailable() const {
   if (not event_) {
     return true;
   }
-  return event_->has_occurred();
+  return cudautils::eventIsOccurred(event_->id());
 }

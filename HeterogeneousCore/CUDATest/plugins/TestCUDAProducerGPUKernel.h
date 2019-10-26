@@ -3,7 +3,7 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
-#include <cuda/api_wrappers.h>
+#include <cuda_runtime.h>
 
 /**
  * This class models the actual CUDA implementation of an algorithm.
@@ -22,14 +22,14 @@ public:
   ~TestCUDAProducerGPUKernel() = default;
 
   // returns (owning) pointer to device memory
-  cudautils::device::unique_ptr<float[]> runAlgo(const std::string& label, cuda::stream_t<>& stream) const {
+  cudautils::device::unique_ptr<float[]> runAlgo(const std::string& label, cudaStream_t stream) const {
     return runAlgo(label, nullptr, stream);
   }
   cudautils::device::unique_ptr<float[]> runAlgo(const std::string& label,
                                                  const float* d_input,
-                                                 cuda::stream_t<>& stream) const;
+                                                 cudaStream_t stream) const;
 
-  void runSimpleAlgo(float* d_data, cuda::stream_t<>& stream) const;
+  void runSimpleAlgo(float* d_data, cudaStream_t stream) const;
 };
 
 #endif

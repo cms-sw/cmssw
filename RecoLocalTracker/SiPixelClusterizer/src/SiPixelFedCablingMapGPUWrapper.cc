@@ -102,33 +102,33 @@ SiPixelFedCablingMapGPUWrapper::SiPixelFedCablingMapGPUWrapper(SiPixelFedCabling
 
 SiPixelFedCablingMapGPUWrapper::~SiPixelFedCablingMapGPUWrapper() { cudaCheck(cudaFreeHost(cablingMapHost)); }
 
-const SiPixelFedCablingMapGPU* SiPixelFedCablingMapGPUWrapper::getGPUProductAsync(cuda::stream_t<>& cudaStream) const {
-  const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cuda::stream_t<>& stream) {
+const SiPixelFedCablingMapGPU* SiPixelFedCablingMapGPUWrapper::getGPUProductAsync(cudaStream_t cudaStream) const {
+  const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cudaStream_t stream) {
     // allocate
     cudaCheck(cudaMalloc(&data.cablingMapDevice, sizeof(SiPixelFedCablingMapGPU)));
 
     // transfer
     cudaCheck(cudaMemcpyAsync(
-        data.cablingMapDevice, this->cablingMapHost, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyDefault, stream.id()));
+        data.cablingMapDevice, this->cablingMapHost, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyDefault, stream));
   });
   return data.cablingMapDevice;
 }
 
-const unsigned char* SiPixelFedCablingMapGPUWrapper::getModToUnpAllAsync(cuda::stream_t<>& cudaStream) const {
+const unsigned char* SiPixelFedCablingMapGPUWrapper::getModToUnpAllAsync(cudaStream_t cudaStream) const {
   const auto& data =
-      modToUnp_.dataForCurrentDeviceAsync(cudaStream, [this](ModulesToUnpack& data, cuda::stream_t<>& stream) {
+      modToUnp_.dataForCurrentDeviceAsync(cudaStream, [this](ModulesToUnpack& data, cudaStream_t stream) {
         cudaCheck(cudaMalloc((void**)&data.modToUnpDefault, pixelgpudetails::MAX_SIZE_BYTE_BOOL));
         cudaCheck(cudaMemcpyAsync(data.modToUnpDefault,
                                   this->modToUnpDefault.data(),
                                   this->modToUnpDefault.size() * sizeof(unsigned char),
                                   cudaMemcpyDefault,
-                                  stream.id()));
+                                  stream));
       });
   return data.modToUnpDefault;
 }
 
 cudautils::device::unique_ptr<unsigned char[]> SiPixelFedCablingMapGPUWrapper::getModToUnpRegionalAsync(
-    std::set<unsigned int> const& modules, cuda::stream_t<>& cudaStream) const {
+    std::set<unsigned int> const& modules, cudaStream_t cudaStream) const {
   auto modToUnpDevice = cudautils::make_device_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
   auto modToUnpHost = cudautils::make_host_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
 
@@ -157,7 +157,7 @@ cudautils::device::unique_ptr<unsigned char[]> SiPixelFedCablingMapGPUWrapper::g
   }
 
   cuda::memory::async::copy(
-      modToUnpDevice.get(), modToUnpHost.get(), pixelgpudetails::MAX_SIZE * sizeof(unsigned char), cudaStream.id());
+      modToUnpDevice.get(), modToUnpHost.get(), pixelgpudetails::MAX_SIZE * sizeof(unsigned char), cudaStream);
   return modToUnpDevice;
 }
 

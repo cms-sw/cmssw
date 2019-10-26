@@ -40,7 +40,7 @@ TestCUDAAnalyzerGPU::TestCUDAAnalyzerGPU(const edm::ParameterSet& iConfig)
   edm::Service<CUDAService> cs;
   if (cs->enabled()) {
     auto streamPtr = cudautils::getCUDAStreamCache().getCUDAStream();
-    gpuAlgo_ = std::make_unique<TestCUDAAnalyzerGPUKernel>(*streamPtr);
+    gpuAlgo_ = std::make_unique<TestCUDAAnalyzerGPUKernel>(streamPtr->id());
   }
 }
 
@@ -70,7 +70,7 @@ void TestCUDAAnalyzerGPU::endJob() {
   edm::LogVerbatim("TestCUDAAnalyzerGPU") << label_ << " TestCUDAAnalyzerGPU::endJob begin";
 
   auto streamPtr = cudautils::getCUDAStreamCache().getCUDAStream();
-  auto value = gpuAlgo_->value(*streamPtr);
+  auto value = gpuAlgo_->value(streamPtr->id());
   edm::LogVerbatim("TestCUDAAnalyzerGPU") << label_ << "  accumulated value " << value;
   assert(minValue_ <= value && value <= maxValue_);
 

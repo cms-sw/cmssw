@@ -84,23 +84,23 @@ SiPixelGainCalibrationForHLTGPU::GPUData::~GPUData() {
   cudaCheck(cudaFree(gainDataOnGPU));
 }
 
-const SiPixelGainForHLTonGPU* SiPixelGainCalibrationForHLTGPU::getGPUProductAsync(cuda::stream_t<>& cudaStream) const {
-  const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cuda::stream_t<>& stream) {
+const SiPixelGainForHLTonGPU* SiPixelGainCalibrationForHLTGPU::getGPUProductAsync(cudaStream_t cudaStream) const {
+  const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cudaStream_t stream) {
     cudaCheck(cudaMalloc((void**)&data.gainForHLTonGPU, sizeof(SiPixelGainForHLTonGPU)));
     cudaCheck(
         cudaMalloc((void**)&data.gainDataOnGPU,
                    this->gains_->data().size()));  // TODO: this could be changed to cuda::memory::device::unique_ptr<>
     // gains.data().data() is used also for non-GPU code, we cannot allocate it on aligned and write-combined memory
     cudaCheck(cudaMemcpyAsync(
-        data.gainDataOnGPU, this->gains_->data().data(), this->gains_->data().size(), cudaMemcpyDefault, stream.id()));
+        data.gainDataOnGPU, this->gains_->data().data(), this->gains_->data().size(), cudaMemcpyDefault, stream));
 
     cudaCheck(cudaMemcpyAsync(
-        data.gainForHLTonGPU, this->gainForHLTonHost_, sizeof(SiPixelGainForHLTonGPU), cudaMemcpyDefault, stream.id()));
+        data.gainForHLTonGPU, this->gainForHLTonHost_, sizeof(SiPixelGainForHLTonGPU), cudaMemcpyDefault, stream));
     cudaCheck(cudaMemcpyAsync(&(data.gainForHLTonGPU->v_pedestals),
                               &(data.gainDataOnGPU),
                               sizeof(SiPixelGainForHLTonGPU_DecodingStructure*),
                               cudaMemcpyDefault,
-                              stream.id()));
+                              stream));
   });
   return data.gainForHLTonGPU;
 }
