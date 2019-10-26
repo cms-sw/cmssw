@@ -3,14 +3,14 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-
-#include <cuda/api_wrappers.h>
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
+
+#include <cuda_runtime.h>
 
 class SiPixelDigisCUDA {
 public:
   SiPixelDigisCUDA() = default;
-  explicit SiPixelDigisCUDA(size_t maxFedWords, cuda::stream_t<> &stream);
+  explicit SiPixelDigisCUDA(size_t maxFedWords, cudaStream_t stream);
   ~SiPixelDigisCUDA() = default;
 
   SiPixelDigisCUDA(const SiPixelDigisCUDA &) = delete;
@@ -50,10 +50,10 @@ public:
   uint32_t const *c_pdigi() const { return pdigi_d.get(); }
   uint32_t const *c_rawIdArr() const { return rawIdArr_d.get(); }
 
-  cudautils::host::unique_ptr<uint16_t[]> adcToHostAsync(cuda::stream_t<> &stream) const;
-  cudautils::host::unique_ptr<int32_t[]> clusToHostAsync(cuda::stream_t<> &stream) const;
-  cudautils::host::unique_ptr<uint32_t[]> pdigiToHostAsync(cuda::stream_t<> &stream) const;
-  cudautils::host::unique_ptr<uint32_t[]> rawIdArrToHostAsync(cuda::stream_t<> &stream) const;
+  cudautils::host::unique_ptr<uint16_t[]> adcToHostAsync(cudaStream_t stream) const;
+  cudautils::host::unique_ptr<int32_t[]> clusToHostAsync(cudaStream_t stream) const;
+  cudautils::host::unique_ptr<uint32_t[]> pdigiToHostAsync(cudaStream_t stream) const;
+  cudautils::host::unique_ptr<uint32_t[]> rawIdArrToHostAsync(cudaStream_t stream) const;
 
   class DeviceConstView {
   public:

@@ -17,7 +17,7 @@ public:
   explicit TrackingRecHit2DHeterogeneous(uint32_t nHits,
                                          pixelCPEforGPU::ParamsOnGPU const* cpeParams,
                                          uint32_t const* hitsModuleStart,
-                                         cuda::stream_t<>& stream);
+                                         cudaStream_t stream);
 
   ~TrackingRecHit2DHeterogeneous() = default;
 
@@ -37,9 +37,9 @@ public:
   auto iphi() { return m_iphi; }
 
   // only the local coord and detector index
-  cudautils::host::unique_ptr<float[]> localCoordToHostAsync(cuda::stream_t<>& stream) const;
-  cudautils::host::unique_ptr<uint16_t[]> detIndexToHostAsync(cuda::stream_t<>& stream) const;
-  cudautils::host::unique_ptr<uint32_t[]> hitsModuleStartToHostAsync(cuda::stream_t<>& stream) const;
+  cudautils::host::unique_ptr<float[]> localCoordToHostAsync(cudaStream_t stream) const;
+  cudautils::host::unique_ptr<uint16_t[]> detIndexToHostAsync(cudaStream_t stream) const;
+  cudautils::host::unique_ptr<uint32_t[]> hitsModuleStartToHostAsync(cudaStream_t stream) const;
 
 private:
   static constexpr uint32_t n16 = 4;
@@ -71,7 +71,7 @@ template <typename Traits>
 TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(uint32_t nHits,
                                                                      pixelCPEforGPU::ParamsOnGPU const* cpeParams,
                                                                      uint32_t const* hitsModuleStart,
-                                                                     cuda::stream_t<>& stream)
+                                                                     cudaStream_t stream)
     : m_nHits(nHits), m_hitsModuleStart(hitsModuleStart) {
   auto view = Traits::template make_host_unique<TrackingRecHit2DSOAView>(stream);
 
