@@ -70,8 +70,8 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const& conf,
   };
 }
 
-const pixelCPEforGPU::ParamsOnGPU* PixelCPEFast::getGPUProductAsync(cuda::stream_t<>& cudaStream) const {
-  const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cuda::stream_t<>& stream) {
+const pixelCPEforGPU::ParamsOnGPU* PixelCPEFast::getGPUProductAsync(cudaStream_t cudaStream) const {
+  const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cudaStream_t stream) {
     // and now copy to device...
     cudaCheck(cudaMalloc((void**)&data.h_paramsOnGPU.m_commonParams, sizeof(pixelCPEforGPU::CommonParams)));
     cudaCheck(cudaMalloc((void**)&data.h_paramsOnGPU.m_detParams,
@@ -81,27 +81,27 @@ const pixelCPEforGPU::ParamsOnGPU* PixelCPEFast::getGPUProductAsync(cuda::stream
     cudaCheck(cudaMalloc((void**)&data.d_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU)));
 
     cudaCheck(cudaMemcpyAsync(
-        data.d_paramsOnGPU, &data.h_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU), cudaMemcpyDefault, stream.id()));
+        data.d_paramsOnGPU, &data.h_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU), cudaMemcpyDefault, stream));
     cudaCheck(cudaMemcpyAsync((void*)data.h_paramsOnGPU.m_commonParams,
                               &this->m_commonParamsGPU,
                               sizeof(pixelCPEforGPU::CommonParams),
                               cudaMemcpyDefault,
-                              stream.id()));
+                              stream));
     cudaCheck(cudaMemcpyAsync((void*)data.h_paramsOnGPU.m_averageGeometry,
                               &this->m_averageGeometry,
                               sizeof(pixelCPEforGPU::AverageGeometry),
                               cudaMemcpyDefault,
-                              stream.id()));
+                              stream));
     cudaCheck(cudaMemcpyAsync((void*)data.h_paramsOnGPU.m_layerGeometry,
                               &this->m_layerGeometry,
                               sizeof(pixelCPEforGPU::LayerGeometry),
                               cudaMemcpyDefault,
-                              stream.id()));
+                              stream));
     cudaCheck(cudaMemcpyAsync((void*)data.h_paramsOnGPU.m_detParams,
                               this->m_detParamsGPU.data(),
                               this->m_detParamsGPU.size() * sizeof(pixelCPEforGPU::DetParams),
                               cudaMemcpyDefault,
-                              stream.id()));
+                              stream));
   });
   return data.d_paramsOnGPU;
 }
