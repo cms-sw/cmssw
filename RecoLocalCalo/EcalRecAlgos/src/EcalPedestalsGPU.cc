@@ -44,9 +44,9 @@ EcalPedestalsGPU::Product::~Product() {
   cudaCheck(cudaFree(rms_x1));
 }
 
-EcalPedestalsGPU::Product const& EcalPedestalsGPU::getProduct(cuda::stream_t<>& cudaStream) const {
+EcalPedestalsGPU::Product const& EcalPedestalsGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](EcalPedestalsGPU::Product& product, cuda::stream_t<>& cudaStream) {
+      cudaStream, [this](EcalPedestalsGPU::Product& product, cudaStream_t cudaStream) {
         // malloc
         cudaCheck(cudaMalloc((void**)&product.mean_x12, this->mean_x12_.size() * sizeof(float)));
         cudaCheck(cudaMalloc((void**)&product.rms_x12, this->mean_x12_.size() * sizeof(float)));
@@ -60,32 +60,32 @@ EcalPedestalsGPU::Product const& EcalPedestalsGPU::getProduct(cuda::stream_t<>& 
                                   this->mean_x12_.data(),
                                   this->mean_x12_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.rms_x12,
                                   this->rms_x12_.data(),
                                   this->rms_x12_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.mean_x6,
                                   this->mean_x6_.data(),
                                   this->mean_x6_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.rms_x6,
                                   this->rms_x6_.data(),
                                   this->rms_x6_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.mean_x1,
                                   this->mean_x1_.data(),
                                   this->mean_x1_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.rms_x1,
                                   this->rms_x1_.data(),
                                   this->rms_x1_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
       });
 
   return product;

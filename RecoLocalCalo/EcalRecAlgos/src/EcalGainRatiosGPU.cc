@@ -27,9 +27,9 @@ EcalGainRatiosGPU::Product::~Product() {
   cudaCheck(cudaFree(gain6Over1));
 }
 
-EcalGainRatiosGPU::Product const& EcalGainRatiosGPU::getProduct(cuda::stream_t<>& cudaStream) const {
+EcalGainRatiosGPU::Product const& EcalGainRatiosGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](EcalGainRatiosGPU::Product& product, cuda::stream_t<>& cudaStream) {
+      cudaStream, [this](EcalGainRatiosGPU::Product& product, cudaStream_t cudaStream) {
         // malloc
         cudaCheck(cudaMalloc((void**)&product.gain12Over6, this->gain12Over6_.size() * sizeof(float)));
         cudaCheck(cudaMalloc((void**)&product.gain6Over1, this->gain6Over1_.size() * sizeof(float)));
@@ -38,12 +38,12 @@ EcalGainRatiosGPU::Product const& EcalGainRatiosGPU::getProduct(cuda::stream_t<>
                                   this->gain12Over6_.data(),
                                   this->gain12Over6_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.gain6Over1,
                                   this->gain6Over1_.data(),
                                   this->gain6Over1_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
       });
 
   return product;
