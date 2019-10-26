@@ -21,9 +21,9 @@ EcalSamplesCorrelationGPU::Product::~Product() {
   cudaCheck(cudaFree(EEG1SamplesCorrelation));
 }
 
-EcalSamplesCorrelationGPU::Product const& EcalSamplesCorrelationGPU::getProduct(cuda::stream_t<>& cudaStream) const {
+EcalSamplesCorrelationGPU::Product const& EcalSamplesCorrelationGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](EcalSamplesCorrelationGPU::Product& product, cuda::stream_t<>& cudaStream) {
+      cudaStream, [this](EcalSamplesCorrelationGPU::Product& product, cudaStream_t cudaStream) {
         // malloc
         cudaCheck(cudaMalloc((void**)&product.EBG12SamplesCorrelation,
                              this->EBG12SamplesCorrelation_.size() * sizeof(double)));
@@ -42,32 +42,32 @@ EcalSamplesCorrelationGPU::Product const& EcalSamplesCorrelationGPU::getProduct(
                                   this->EBG12SamplesCorrelation_.data(),
                                   this->EBG12SamplesCorrelation_.size() * sizeof(double),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.EBG6SamplesCorrelation,
                                   this->EBG6SamplesCorrelation_.data(),
                                   this->EBG6SamplesCorrelation_.size() * sizeof(double),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.EBG1SamplesCorrelation,
                                   this->EBG1SamplesCorrelation_.data(),
                                   this->EBG1SamplesCorrelation_.size() * sizeof(double),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.EEG12SamplesCorrelation,
                                   this->EEG12SamplesCorrelation_.data(),
                                   this->EEG12SamplesCorrelation_.size() * sizeof(double),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.EEG6SamplesCorrelation,
                                   this->EEG6SamplesCorrelation_.data(),
                                   this->EEG6SamplesCorrelation_.size() * sizeof(double),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.EEG1SamplesCorrelation,
                                   this->EEG1SamplesCorrelation_.data(),
                                   this->EEG1SamplesCorrelation_.size() * sizeof(double),
                                   cudaMemcpyHostToDevice,
-                                  cudaStream.id()));
+                                  cudaStream));
       });
 
   return product;
