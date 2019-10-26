@@ -147,7 +147,7 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
 }
 
 template <>
-void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cuda::stream_t<> &stream) {
+void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStream_t stream) {
   auto nhits = hh.nHits();
 
 #ifdef NTUPLE_DEBUG
@@ -166,12 +166,12 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cuda::s
     int threadsPerBlock = 128;
     // at least one block!
     int blocks = (std::max(1U, nhits) + threadsPerBlock - 1) / threadsPerBlock;
-    gpuPixelDoublets::initDoublets<<<blocks, threadsPerBlock, 0, stream.id()>>>(device_isOuterHitOfCell_.get(),
-                                                                                nhits,
-                                                                                device_theCellNeighbors_,
-                                                                                device_theCellNeighborsContainer_.get(),
-                                                                                device_theCellTracks_,
-                                                                                device_theCellTracksContainer_.get());
+    gpuPixelDoublets::initDoublets<<<blocks, threadsPerBlock, 0, stream>>>(device_isOuterHitOfCell_.get(),
+                                                                           nhits,
+                                                                           device_theCellNeighbors_,
+                                                                           device_theCellNeighborsContainer_.get(),
+                                                                           device_theCellTracks_,
+                                                                           device_theCellTracksContainer_.get());
     cudaCheck(cudaGetLastError());
   }
 
@@ -199,18 +199,18 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cuda::s
   int blocks = (2 * nhits + threadsPerBlock - 1) / threadsPerBlock;
   dim3 blks(1, blocks, 1);
   dim3 thrs(stride, threadsPerBlock, 1);
-  gpuPixelDoublets::getDoubletsFromHisto<<<blks, thrs, 0, stream.id()>>>(device_theCells_.get(),
-                                                                         device_nCells_,
-                                                                         device_theCellNeighbors_,
-                                                                         device_theCellTracks_,
-                                                                         hh.view(),
-                                                                         device_isOuterHitOfCell_.get(),
-                                                                         nActualPairs,
-                                                                         m_params.idealConditions_,
-                                                                         m_params.doClusterCut_,
-                                                                         m_params.doZCut_,
-                                                                         m_params.doPhiCut_,
-                                                                         m_params.maxNumberOfDoublets_);
+  gpuPixelDoublets::getDoubletsFromHisto<<<blks, thrs, 0, stream>>>(device_theCells_.get(),
+                                                                    device_nCells_,
+                                                                    device_theCellNeighbors_,
+                                                                    device_theCellTracks_,
+                                                                    hh.view(),
+                                                                    device_isOuterHitOfCell_.get(),
+                                                                    nActualPairs,
+                                                                    m_params.idealConditions_,
+                                                                    m_params.doClusterCut_,
+                                                                    m_params.doZCut_,
+                                                                    m_params.doPhiCut_,
+                                                                    m_params.maxNumberOfDoublets_);
   cudaCheck(cudaGetLastError());
 
 #ifdef GPU_DEBUG
