@@ -1,5 +1,4 @@
 <use name="cuda"/>
-<use name="cuda-api-wrappers"/>
 <use name="ofast-flag"/>
 <use name="CommonTools/RecoAlgos"/>
 <use name="FWCore/Framework"/>
