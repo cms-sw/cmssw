@@ -1,4 +1,4 @@
-<use name="cuda-api-wrappers"/>
+<use name="cuda"/>
 <use name="rootcore"/>
 <use name="DataFormats/Common"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
