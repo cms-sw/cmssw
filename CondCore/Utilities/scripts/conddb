@@ -93,7 +93,7 @@ def _identify_object(session, objtype, name):
     global_tag = _exists(session, GlobalTag.name, name)
     payload_hash = _get_payload_full_hash(session, name, check = False)
 
-    count = len(filter(None, [tag, global_tag, payload_hash]))
+    count = len([x for x in  filter(None, [tag, global_tag, payload_hash])])
     if count > 1:
         raise Exception('There is more than one object named %s in the database.' % name)
     if count == 0:
