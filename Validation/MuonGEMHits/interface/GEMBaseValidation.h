@@ -1,5 +1,5 @@
-#ifndef GEMBaseValidation_H
-#define GEMBaseValidation_H
+#ifndef Validation_MuonGEMHits_GEMBaseValidation_H
+#define Validation_MuonGEMHits_GEMBaseValidation_H
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
