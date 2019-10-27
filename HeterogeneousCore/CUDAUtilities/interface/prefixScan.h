@@ -139,7 +139,7 @@ __global__ void multiBlockPrefixScan(T const* __restrict__ ci, T* __restrict__ c
   __shared__ bool isLastBlockDone;
   if (0 == threadIdx.x) {
     auto value = atomicAdd(pc, 1);  // block counter
-    isLastBlockDone = (value == (gridDim.x - 1));
+    isLastBlockDone = (value == (int(gridDim.x) - 1));
   }
 
   __syncthreads();
@@ -151,7 +151,7 @@ __global__ void multiBlockPrefixScan(T const* __restrict__ ci, T* __restrict__ c
 
   // let's get the partial sums from each block
   __shared__ T psum[1024];
-  for (int i = threadIdx.x; i < gridDim.x; i += blockDim.x) {
+  for (int i = threadIdx.x, ni = gridDim.x; i<ni; i += blockDim.x) {
     auto j = 1024 * i + 1023;
     psum[i] = (j < size) ? co[j] : T(0);
   }

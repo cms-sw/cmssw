@@ -221,7 +221,7 @@ int main() {
 
   // now the inverse map (actually this is the direct....)
   AtomicPairCounter* dc_d;
-  AtomicPairCounter dc;
+  AtomicPairCounter dc(0);
 
 #ifdef __CUDACC__
   cudaMalloc(&dc_d, sizeof(AtomicPairCounter));
@@ -246,7 +246,7 @@ int main() {
   verifyBulk(a_d.get(), dc_d);
   memcpy(&la, a_d.get(), sizeof(Assoc));
 
-  AtomicPairCounter sdc;
+  AtomicPairCounter sdc(0);
   fillBulk(&sdc, v_d, sa_d.get(), N);
   cudautils::finalizeBulk(&sdc, sa_d.get());
   verifyBulk(sa_d.get(), &sdc);
