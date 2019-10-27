@@ -1,7 +1,6 @@
 #ifndef SimG4CMS_CaloTrkProcessing_H
 #define SimG4CMS_CaloTrkProcessing_H
 
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
@@ -50,8 +49,6 @@ private:
 
   void update(const BeginOfEvent* evt) override;
   void update(const G4Step*) override;
-  std::vector<std::string> getNames(G4String, const DDsvalues_type&, bool);
-  std::vector<double> getNumbers(G4String, const DDsvalues_type&, bool);
   int isItCalo(const G4VTouchable*, const std::vector<Detector>&);
   int isItInside(const G4VTouchable*, int, int);
 
