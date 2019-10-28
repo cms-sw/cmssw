@@ -29,7 +29,7 @@ echo " testing DetectorDescription/DDCMS"
 
 export tmpdir=${LOCAL_TMP_DIR:-/tmp}
 echo "===== Test \"python UnitsCheck.py cms.xml\" ===="
-python ${LOCAL_TEST_DIR}/python/UnitsCheck.py ${LOCAL_TEST_DIR}/data/cms.xml
+python ${LOCAL_TEST_DIR}/python/UnitsCheck.py ${LOCAL_TEST_DIR}/data/mf.xml
 echo "===== Test \"cmsRun dump.py\" ===="
 (cmsRun $F1) || die "Failure using cmsRun $F1" $?
 echo "===== Test \"cmsRun dumpDDShapes.py\" ===="
