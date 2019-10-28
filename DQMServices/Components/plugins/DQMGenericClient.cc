@@ -12,13 +12,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 
 #include <TH1.h>
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TClass.h>
 #include <TString.h>
 #include <TPRegexp.h>
+#include <TDirectory.h>
 #include <TEfficiency.h>
 
 #include <set>
@@ -28,6 +29,8 @@
 #include <climits>
 #include <boost/tokenizer.hpp>
 
+using namespace std;
+using namespace edm;
 
 class DQMGenericClient : public DQMEDHarvester {
 public:
@@ -141,11 +144,93 @@ private:
   void makeAllPlots(DQMStore::IBooker&, DQMStore::IGetter&);
 
   void removeMEIfBooked(const std::string& meName, DQMStore::IGetter& igetter);
-
 };
 
-using namespace std;
-using namespace edm;
+class FitSlicesYTool {
+public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  FitSlicesYTool(MonitorElement* me) {
+    const bool oldAddDir = TH1::AddDirectoryStatus();
+    TH1::AddDirectory(true);
+    // ... create your hists
+    TH2F* h = me->getTH2F();
+    h->FitSlicesY(nullptr, 0, -1, 0, "QNR SERIAL");
+    string name(h->GetName());
+    h0 = (TH1*)gDirectory->Get((name + "_0").c_str());
+    h1 = (TH1*)gDirectory->Get((name + "_1").c_str());
+    h2 = (TH1*)gDirectory->Get((name + "_2").c_str());
+    h3 = (TH1*)gDirectory->Get((name + "_chi2").c_str());
+    TH1::AddDirectory(oldAddDir);
+  }
+
+  /// Destructor
+  ~FitSlicesYTool() {
+    delete h0;
+    delete h1;
+    delete h2;
+    delete h3;
+  }
+  /// Fill the ME with the mean value of the gaussian fit in each slice
+  void getFittedMean(MonitorElement* me) {
+    if (!(h1 && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
+    if (h1->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h1->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h1->GetBinContent(bin + 1));
+        //       me->setBinEntries(bin+1, 1.);
+      }
+    } else {
+      throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
+    }
+  }
+  /// Fill the ME with the sigma value of the gaussian fit in each slice
+  void getFittedSigma(MonitorElement* me) {
+    if (!(h2 && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
+    if (h2->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h2->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h2->GetBinContent(bin + 1));
+        //       me->setBinEntries(bin+1, 1.);
+      }
+    } else {
+      throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
+    }
+  }
+  /// Fill the ME with the mean value (with error) of the gaussian fit in each slice
+  void getFittedMeanWithError(MonitorElement* me) {
+    if (!(h1 && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
+    if (h1->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h1->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h1->GetBinContent(bin + 1));
+        //       me->setBinEntries(bin+1, 1.);
+        me->setBinError(bin + 1, h1->GetBinError(bin + 1));
+      }
+    } else {
+      throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
+    }
+  }
+  /// Fill the ME with the sigma value (with error) of the gaussian fit in each slice
+  void getFittedSigmaWithError(MonitorElement* me) {
+    if (!(h2 && me))
+      throw cms::Exception("FitSlicesYTool") << "Pointer =0 : h1=" << h1 << " me=" << me;
+    if (h2->GetNbinsX() == me->getNbinsX()) {
+      for (int bin = 0; bin != h2->GetNbinsX(); bin++) {
+        me->setBinContent(bin + 1, h2->GetBinContent(bin + 1));
+        //       me->setBinEntries(bin+1, 1.);
+        me->setBinError(bin + 1, h2->GetBinError(bin + 1));
+      }
+    } else {
+      throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
+    }
+  }
+
+private:
+  TH1* h0;
+  TH1* h1;
+  TH1* h2;
+  TH1* h3;
+};
 
 typedef DQMGenericClient::MonitorElement ME;
 
