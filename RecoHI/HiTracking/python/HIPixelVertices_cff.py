@@ -24,5 +24,5 @@ hiPixelVerticesTask = cms.Task(hiPixelClusterVertex
                                 , hiPixelMedianVertex 
                                 , hiSelectedProtoTracks 
                                 , hiPixelAdaptiveVertex
-                                , bestHiVertex )
+                                , bestHiVertexTask )
 hiPixelVertices = cms.Sequence(hiPixelVerticesTask)

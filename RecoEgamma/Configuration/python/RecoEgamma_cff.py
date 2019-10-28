@@ -24,9 +24,9 @@ egammaGlobalRecoTask = cms.Task(electronGsfTrackingTask,conversionTrackTask,allC
 egammaGlobalReco = cms.Sequence(egammaGlobalRecoTask)
 # this might be historical: not sure why we do this
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-_fastSim_egammaGlobalReco = egammaGlobalReco.copy()
-_fastSim_egammaGlobalReco.replace(conversionTrackTask,conversionTrackTaskNoEcalSeeded)
-fastSim.toReplaceWith(egammaGlobalRecoTask, _fastSim_egammaGlobalReco)
+_fastSim_egammaGlobalRecoTask = egammaGlobalRecoTask.copy()
+_fastSim_egammaGlobalRecoTask.replace(conversionTrackTask,conversionTrackTaskNoEcalSeeded)
+fastSim.toReplaceWith(egammaGlobalRecoTask, _fastSim_egammaGlobalRecoTask)
 
 egammarecoTask = cms.Task(gsfElectronTask,conversionTask,photonTask)
 egammareco = cms.Sequence(egammarecoTask)
@@ -70,7 +70,7 @@ from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHI
 from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducerppGED
 from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducerppIsland
 
-_egammaHighLevelRecoPostPF_HITask = egammaHighLevelRecoPostPF.copy()
+_egammaHighLevelRecoPostPF_HITask = egammaHighLevelRecoPostPFTask.copy()
 _egammaHighLevelRecoPostPF_HITask.add(photonIsolationHIProducerpp)
 _egammaHighLevelRecoPostPF_HITask.add(photonIsolationHIProducerppGED)
 _egammaHighLevelRecoPostPF_HITask.add(photonIsolationHIProducerppIsland)
