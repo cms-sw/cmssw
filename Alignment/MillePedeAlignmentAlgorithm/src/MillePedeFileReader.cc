@@ -46,13 +46,15 @@ void MillePedeFileReader ::readMillePedeEndFile() {
     std::string trash;
     if (line.find("-1") != std::string::npos) {
       getline(endFile, line);
+      exitMessage_ = line;
       std::istringstream iss(line);
       iss >> exitCode_ >> trash;
-      edm::LogInfo("MillePedeFileReader") << " Pede exit code is: " << exitCode_ << std::endl;
+      edm::LogInfo("MillePedeFileReader") << " Pede exit code is: " << exitCode_ << " (" << exitMessage_ << ")" << std::endl;
     } else {
+      exitMessage_ = line;
       std::istringstream iss(line);
       iss >> exitCode_ >> trash;
-      edm::LogInfo("MillePedeFileReader") << " Pede exit code is:" << exitCode_ << std::endl;
+      edm::LogInfo("MillePedeFileReader") << " Pede exit code is: " << exitCode_ << " (" << exitMessage_ << ")"<< std::endl;
     }
   } else {
     edm::LogError("MillePedeFileReader") << "Could not read millepede end-file.";
@@ -191,18 +193,23 @@ void MillePedeFileReader ::readMillePedeResultFile() {
           edm::LogWarning("MillePedeFileReader") << "Aborting payload creation."
                                                  << " Exceeding maximum thresholds for movement: " << std::abs(ObsMove)
                                                  << " for" << detLabel << "(" << coord << ")";
+          updateBits_.set(0);
           vetoUpdateDB_ = true;
           continue;
 
         } else if (std::abs(ObsMove) > cutoffs_[detLabel][alignableIndex]) {
+          updateBits_.set(1);
+
           if (std::abs(ObsErr) > errors_[detLabel][alignableIndex]) {
             edm::LogWarning("MillePedeFileReader") << "Aborting payload creation."
                                                    << " Exceeding maximum thresholds for error: " << std::abs(ObsErr)
                                                    << " for" << detLabel << "(" << coord << ")";
+            updateBits_.set(2);
             vetoUpdateDB_ = true;
             continue;
           } else {
             if (std::abs(ObsMove / ObsErr) < significances_[detLabel][alignableIndex]) {
+              updateBits_.set(3);
               continue;
             }
           }
