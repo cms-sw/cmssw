@@ -116,6 +116,7 @@ private:
   double dR(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
   double trackP(const reco::Track*, const edm::Handle<reco::GenParticleCollection>&);
   double rhoh(const edm::Handle<CaloTowerCollection>&);
+  double eThreshold(const DetId& id, const CaloGeometry* geo) const;
   void storeEnergy(int indx,
                    const HcalRespCorrs* respCorrs,
                    const std::vector<DetId>& ids,
@@ -138,7 +139,7 @@ private:
   const double hcalScale_, eIsolate1_, eIsolate2_;
   const double pTrackLow_, pTrackHigh_;
   const int prescaleLow_, prescaleHigh_;
-  const int useRaw_, dataType_, mode_;
+  const int useRaw_, dataType_;
   const bool ignoreTrigger_, useL1Trigger_;
   const bool unCorrect_, collapseDepth_;
   const double hitEthrEB_, hitEthrEE0_, hitEthrEE1_;
@@ -214,7 +215,6 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
       prescaleHigh_(iConfig.getParameter<int>("prescaleHigh")),
       useRaw_(iConfig.getUntrackedParameter<int>("useRaw", 0)),
       dataType_(iConfig.getUntrackedParameter<int>("dataType", 0)),
-      mode_(iConfig.getUntrackedParameter<int>("outMode", 11)),
       ignoreTrigger_(iConfig.getUntrackedParameter<bool>("ignoreTriggers", false)),
       useL1Trigger_(iConfig.getUntrackedParameter<bool>("useL1Trigger", false)),
       unCorrect_(iConfig.getUntrackedParameter<bool>("unCorrect", false)),
@@ -316,8 +316,8 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
       << "\t hcalScale_ " << hcalScale_ << "\n\t momentumLow_ " << pTrackLow_ << "\t prescaleLow_ " << prescaleLow_
       << "\t momentumHigh_ " << pTrackHigh_ << "\t prescaleHigh_ " << prescaleHigh_ << "\n\t useRaw_ " << useRaw_
       << "\t ignoreTrigger_ " << ignoreTrigger_ << "\n\t useL1Trigegr_ " << useL1Trigger_ << "\t dataType_      "
-      << dataType_ << "\t mode_          " << mode_ << "\t unCorrect_     " << unCorrect_ << "\t collapseDepth_ "
-      << collapseDepth_ << "\t L1TrigName_    " << l1TrigName_ << "\nThreshold for EB " << hitEthrEB_ << " EE "
+      << dataType_ << "\t unCorrect_     " << unCorrect_ << "\t collapseDepth_ " << collapseDepth_ 
+      << "\t L1TrigName_    " << l1TrigName_ << "\nThreshold for EB " << hitEthrEB_ << " EE "
       << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
       << hitEthrEEHi_;
   edm::LogVerbatim("HcalIsoTrack") << "Process " << processName_ << " L1Filter:" << l1Filter_
@@ -683,14 +683,12 @@ void HcalIsoTrkAnalyzer::beginJob() {
   tree->Branch("t_nVtx", &t_nVtx, "t_nVtx/I");
   tree->Branch("t_nTrk", &t_nTrk, "t_nTrk/I");
   tree->Branch("t_goodPV", &t_goodPV, "t_goodPV/I");
-  if (((mode_ / 10) % 10) == 1) {
-    tree->Branch("t_l1pt", &t_l1pt, "t_l1pt/D");
-    tree->Branch("t_l1eta", &t_l1eta, "t_l1eta/D");
-    tree->Branch("t_l1phi", &t_l1phi, "t_l1phi/D");
-    tree->Branch("t_l3pt", &t_l3pt, "t_l3pt/D");
-    tree->Branch("t_l3eta", &t_l3eta, "t_l3eta/D");
-    tree->Branch("t_l3phi", &t_l3phi, "t_l3phi/D");
-  }
+  tree->Branch("t_l1pt", &t_l1pt, "t_l1pt/D");
+  tree->Branch("t_l1eta", &t_l1eta, "t_l1eta/D");
+  tree->Branch("t_l1phi", &t_l1phi, "t_l1phi/D");
+  tree->Branch("t_l3pt", &t_l3pt, "t_l3pt/D");
+  tree->Branch("t_l3eta", &t_l3eta, "t_l3eta/D");
+  tree->Branch("t_l3phi", &t_l3phi, "t_l3phi/D");
   tree->Branch("t_p", &t_p, "t_p/D");
   tree->Branch("t_pt", &t_pt, "t_pt/D");
   tree->Branch("t_phi", &t_phi, "t_phi/D");
@@ -724,15 +722,12 @@ void HcalIsoTrkAnalyzer::beginJob() {
   t_trgbits = new std::vector<bool>();
   tree->Branch("t_DetIds", "std::vector<unsigned int>", &t_DetIds);
   tree->Branch("t_HitEnergies", "std::vector<double>", &t_HitEnergies);
-  if (((mode_ / 10) % 10) == 1) {
-    tree->Branch("t_trgbits", "std::vector<bool>", &t_trgbits);
-  }
-  if ((mode_ % 10) == 1) {
-    tree->Branch("t_DetIds1", "std::vector<unsigned int>", &t_DetIds1);
-    tree->Branch("t_DetIds3", "std::vector<unsigned int>", &t_DetIds3);
-    tree->Branch("t_HitEnergies1", "std::vector<double>", &t_HitEnergies1);
-    tree->Branch("t_HitEnergies3", "std::vector<double>", &t_HitEnergies3);
-  }
+  tree->Branch("t_trgbits", "std::vector<bool>", &t_trgbits);
+  tree->Branch("t_DetIds1", "std::vector<unsigned int>", &t_DetIds1);
+  tree->Branch("t_DetIds3", "std::vector<unsigned int>", &t_DetIds3);
+  tree->Branch("t_HitEnergies1", "std::vector<double>", &t_HitEnergies1);
+  tree->Branch("t_HitEnergies3", "std::vector<double>", &t_HitEnergies3);
+
   tree2 = fs->make<TTree>("EventInfo", "Event Information");
 
   tree2->Branch("t_RunNo", &t_RunNo, "t_RunNo/i");
@@ -870,7 +865,6 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.addUntracked<bool>("useL1Trigger", false);
   desc.addUntracked<double>("hcalScale", 1.0);
   desc.addUntracked<int>("dataType", 0);
-  desc.addUntracked<int>("outMode", 11);
   desc.addUntracked<bool>("unCorrect", false);
   desc.addUntracked<bool>("collapseDepth", false);
   desc.addUntracked<std::string>("l1TrigName", "L1_SingleJet60");
@@ -969,17 +963,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                  eHit);
       double eEcal(0);
       for (unsigned int k = 0; k < eIds.size(); ++k) {
-        const GlobalPoint& pos = geo->getPosition(eIds[k]);
-        double eta = std::abs(pos.eta());
-        double eThr(hitEthrEB_);
-        if (eIds[k].subdetId() != EcalBarrel) {
-          eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-          if (eThr < hitEthrEELo_)
-            eThr = hitEthrEELo_;
-          else if (eThr > hitEthrEEHi_)
-            eThr = hitEthrEEHi_;
-        }
-        if (eHit[k] > eThr)
+        if (eHit[k] > eThreshold(eIds[k], geo))
           eEcal += eHit[k];
       }
 #ifdef EDM_ML_DEBUG
@@ -1001,17 +985,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                   eHit2);
       double eEcal2(0);
       for (unsigned int k = 0; k < eIds2.size(); ++k) {
-        const GlobalPoint& pos = geo->getPosition(eIds2[k]);
-        double eta = std::abs(pos.eta());
-        double eThr(hitEthrEB_);
-        if (eIds2[k].subdetId() != EcalBarrel) {
-          eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-          if (eThr < hitEthrEELo_)
-            eThr = hitEthrEELo_;
-          else if (eThr > hitEthrEEHi_)
-            eThr = hitEthrEEHi_;
-        }
-        if (eHit2[k] > eThr)
+        if (eHit2[k] > eThreshold(eIds2[k], geo))
           eEcal2 += eHit2[k];
       }
 #ifdef EDM_ML_DEBUG
@@ -1033,17 +1007,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                   eHit3);
       double eEcal3(0);
       for (unsigned int k = 0; k < eIds3.size(); ++k) {
-        const GlobalPoint& pos = geo->getPosition(eIds3[k]);
-        double eta = std::abs(pos.eta());
-        double eThr(hitEthrEB_);
-        if (eIds3[k].subdetId() != EcalBarrel) {
-          eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-          if (eThr < hitEthrEELo_)
-            eThr = hitEthrEELo_;
-          else if (eThr > hitEthrEEHi_)
-            eThr = hitEthrEEHi_;
-        }
-        if (eHit3[k] > eThr)
+        if (eHit3[k] > eThreshold(eIds3[k], geo))
           eEcal3 += eHit3[k];
       }
 #ifdef EDM_ML_DEBUG
@@ -1065,17 +1029,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                   eHit4);
       double eEcal4(0);
       for (unsigned int k = 0; k < eIds4.size(); ++k) {
-        const GlobalPoint& pos = geo->getPosition(eIds4[k]);
-        double eta = std::abs(pos.eta());
-        double eThr(hitEthrEB_);
-        if (eIds4[k].subdetId() != EcalBarrel) {
-          eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-          if (eThr < hitEthrEELo_)
-            eThr = hitEthrEELo_;
-          else if (eThr > hitEthrEEHi_)
-            eThr = hitEthrEEHi_;
-        }
-        if (eHit4[k] > eThr)
+        if (eHit4[k] > eThreshold(eIds4[k], geo))
           eEcal4 += eHit4[k];
       }
 #ifdef EDM_ML_DEBUG
@@ -1097,17 +1051,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                   eHit5);
       double eEcal5(0);
       for (unsigned int k = 0; k < eIds5.size(); ++k) {
-        const GlobalPoint& pos = geo->getPosition(eIds5[k]);
-        double eta = std::abs(pos.eta());
-        double eThr(hitEthrEB_);
-        if (eIds5[k].subdetId() != EcalBarrel) {
-          eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-          if (eThr < hitEthrEELo_)
-            eThr = hitEthrEELo_;
-          else if (eThr > hitEthrEEHi_)
-            eThr = hitEthrEEHi_;
-        }
-        if (eHit5[k] > eThr)
+        if (eHit5[k] > eThreshold(eIds5[k], geo))
           eEcal5 += eHit5[k];
       }
 #ifdef EDM_ML_DEBUG
@@ -1332,6 +1276,20 @@ double HcalIsoTrkAnalyzer::rhoh(const edm::Handle<CaloTowerCollection>& tower) {
   edm::LogVerbatim("HcalIsoTrack") << "Rho " << evt_smdq << ":" << rhoh;
 #endif
   return rhoh;
+}
+
+double HcalIsoTrkAnalyzer::eThreshold(const DetId& id, const CaloGeometry* geo) const {
+  const GlobalPoint& pos = geo->getPosition(id);
+  double eta = std::abs(pos.eta());
+  double eThr(hitEthrEB_);
+  if (id.subdetId() != EcalBarrel) {
+    eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+    if (eThr < hitEthrEELo_)
+      eThr = hitEthrEELo_;
+    else if (eThr > hitEthrEEHi_)
+      eThr = hitEthrEEHi_;
+  }
+  return eThr;
 }
 
 void HcalIsoTrkAnalyzer::storeEnergy(int indx,
