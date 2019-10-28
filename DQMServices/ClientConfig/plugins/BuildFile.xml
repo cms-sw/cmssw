@@ -1,6 +1,0 @@
-<use   name="root"/>
-<use   name="DQMServices/Core"/>
-<use   name="DQMServices/ClientConfig"/>
-<library   file="*.cc" name="DQMServicesClientConfigPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

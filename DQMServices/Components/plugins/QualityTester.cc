@@ -1,25 +1,84 @@
 /*
  * \file QualityTester.cc
  *
+ * Helping EDAnalyzer running the quality tests for clients when:
+ * - they receive ME data from the SM 
+ * - they are run together with the producers (standalone mode)
+ *
  * \author M. Zanetti - CERN PH
  *
  */
 
-#include "DQMServices/Components/interface/QualityTester.h"
-#include "DQMServices/ClientConfig/interface/QTestHandle.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
+#include "CondFormats/Common/interface/FileBlob.h"
+#include "CondFormats/DataRecord/interface/DQMXMLFileRcd.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/ClientConfig/interface/QTestHandle.h"
+
+#include <cmath>
 #include <memory>
+#include <string>
 #include <cstdio>
 #include <sstream>
-#include <cmath>
+#include <iostream>
+
+#include "boost/scoped_ptr.hpp"
 
 using namespace edm;
 using namespace std;
+
+class QualityTester : public edm::EDAnalyzer {
+public:
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+
+  /// Constructor
+  QualityTester(const edm::ParameterSet& ps);
+
+  /// Destructor
+  ~QualityTester() override;
+
+protected:
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
+  /// perform the actual quality tests
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void endJob() override;
+
+private:
+  void performTests();
+
+  int nEvents;
+  int prescaleFactor;
+  bool getQualityTestsFromFile;
+  std::string Label;
+  bool testInEventloop;
+  bool qtestOnEndRun;
+  bool qtestOnEndJob;
+  bool qtestOnEndLumi;
+  std::string reportThreshold;
+  bool verboseQT;
+
+  DQMStore* bei;
+
+  QTestHandle* qtHandler;
+};
+
 
 QualityTester::QualityTester(const ParameterSet& ps) {
   prescaleFactor = ps.getUntrackedParameter<int>("prescaleFactor", 1);
