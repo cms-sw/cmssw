@@ -134,7 +134,7 @@ private:
 
   //////////////////////////////////////////////////////
   static const int depthMax_ = 7;
-  TTree *tree_;
+  TTree* tree_;
   unsigned int runNumber_, eventNumber_, goodVertex_;
   std::vector<bool> mediumMuon_;
   std::vector<double> ptGlob_, etaGlob_, phiGlob_, energyMuon_, pMuon_;
@@ -395,13 +395,33 @@ void HcalHBHEMuonHighEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::E
     edm::LogVerbatim("HBHEMuon") << "Total of " << hcal_ieta_.size() << " propagated points";
     for (unsigned int i = 0; i < hcal_ieta_.size(); ++i)
       edm::LogVerbatim("HBHEMuon") << "[" << i << "] ieta/iphi for entry to "
-				   << "HCAL has value of " << hcal_ieta_[i] << ":" << hcal_iphi_[i];
-    if ((verbosity_/100)%10 > 0) {
-      edm::LogVerbatim("HBHEMuon") << "Sizes:: ptGlob:" << ptGlob_.size() << " etaGlob:" << etaGlob_.size() << " phiGlob:" << phiGlob_.size() << " energyMuon:" << energyMuon_.size() << " pMuon:" << pMuon_.size() << " mediumMuon: " << mediumMuon_.size() << " isolation:" << isolationR04_.size() << ":" << isolationR03_.size() << " e|h|ho energy: " << ecalEnergy_.size() << ":" << hcalEnergy_.size() << ":" << hoEnergy_.size();
-      edm::LogVerbatim("HBHEMuon") << "        matchedId:" << matchedId_.size() << " hcalHot:" << hcalHot_.size() << " 3x3|1x1 energy:" << ecal3x3Energy_.size() << ":" << hcal1x1Energy_.size() << " detId:" << ecalDetId_.size() << ":" << hcalDetId_.size() << ":" << ehcalDetId_.size() << " eta|phi:" << hcal_ieta_.size() << ":" << hcal_iphi_.size();
-      edm::LogVerbatim("HBHEMuon") << "        activeLength:" << hcalActiveLength_.size() << ":" <<  hcalActiveLengthHot_.size() << " emaxNearP:" << emaxNearP_.size() << " trackDz: " << trackDz_.size() << " tracks:" << trackLayerCrossed_.size() << ":" << trackOuterHit_.size() << ":" << trackMissedInnerHits_.size() << ":" << trackMissedOuterHits_.size();
+                                   << "HCAL has value of " << hcal_ieta_[i] << ":" << hcal_iphi_[i];
+    if ((verbosity_ / 100) % 10 > 0) {
+      edm::LogVerbatim("HBHEMuon") << "Sizes:: ptGlob:" << ptGlob_.size() << " etaGlob:" << etaGlob_.size()
+                                   << " phiGlob:" << phiGlob_.size() << " energyMuon:" << energyMuon_.size()
+                                   << " pMuon:" << pMuon_.size() << " mediumMuon: " << mediumMuon_.size()
+                                   << " isolation:" << isolationR04_.size() << ":" << isolationR03_.size()
+                                   << " e|h|ho energy: " << ecalEnergy_.size() << ":" << hcalEnergy_.size() << ":"
+                                   << hoEnergy_.size();
+      edm::LogVerbatim("HBHEMuon") << "        matchedId:" << matchedId_.size() << " hcalHot:" << hcalHot_.size()
+                                   << " 3x3|1x1 energy:" << ecal3x3Energy_.size() << ":" << hcal1x1Energy_.size()
+                                   << " detId:" << ecalDetId_.size() << ":" << hcalDetId_.size() << ":"
+                                   << ehcalDetId_.size() << " eta|phi:" << hcal_ieta_.size() << ":"
+                                   << hcal_iphi_.size();
+      edm::LogVerbatim("HBHEMuon") << "        activeLength:" << hcalActiveLength_.size() << ":"
+                                   << hcalActiveLengthHot_.size() << " emaxNearP:" << emaxNearP_.size()
+                                   << " trackDz: " << trackDz_.size() << " tracks:" << trackLayerCrossed_.size() << ":"
+                                   << trackOuterHit_.size() << ":" << trackMissedInnerHits_.size() << ":"
+                                   << trackMissedOuterHits_.size();
       for (unsigned int i = 0; i < depthMax_; ++i)
-	edm::LogVerbatim("HBHEMuon") << "Depth " << i << " Energy|Length|EnergyHot|LengthHot|Charge|ChargeBG|EnergyCorr|EnergyHotCorr|Match|MatchHot:" << hcalDepthEnergy_[i].size() << ":" << hcalDepthActiveLength_[i].size() << ":" << hcalDepthEnergyHot_[i].size() << ":" << hcalDepthActiveLengthHot_[i].size() << ":" << hcalDepthChargeHot_[i].size() << ":" << hcalDepthChargeHotBG_[i].size() << ":" << hcalDepthEnergyCorr_[i].size() << ":" << hcalDepthEnergyHotCorr_[i].size() << ":" << hcalDepthMatch_[i].size() << ":" << hcalDepthMatchHot_[i].size();
+        edm::LogVerbatim("HBHEMuon")
+            << "Depth " << i
+            << " Energy|Length|EnergyHot|LengthHot|Charge|ChargeBG|EnergyCorr|EnergyHotCorr|Match|MatchHot:"
+            << hcalDepthEnergy_[i].size() << ":" << hcalDepthActiveLength_[i].size() << ":"
+            << hcalDepthEnergyHot_[i].size() << ":" << hcalDepthActiveLengthHot_[i].size() << ":"
+            << hcalDepthChargeHot_[i].size() << ":" << hcalDepthChargeHotBG_[i].size() << ":"
+            << hcalDepthEnergyCorr_[i].size() << ":" << hcalDepthEnergyHotCorr_[i].size() << ":"
+            << hcalDepthMatch_[i].size() << ":" << hcalDepthMatchHot_[i].size();
     }
 #endif
     tree_->Fill();
@@ -418,13 +438,13 @@ void HcalHBHEMuonHighEtaAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup
   actHB = hdc_->getThickActive(0);
   actHE = hdc_->getThickActive(1);
 #ifdef EDM_ML_DEBUG
-  if (verbosity_%10 > 0) {
+  if (verbosity_ % 10 > 0) {
     unsigned int k1(0), k2(0);
     edm::LogVerbatim("HBHEMuon") << actHB.size() << " Active Length for HB";
     for (const auto& act : actHB) {
       edm::LogVerbatim("HBHEMuon") << "[" << k1 << "] ieta " << act.ieta << " depth " << act.depth << " zside "
-				   << act.zside << " type " << act.stype << " phi " << act.iphis.size() << ":"
-				   << act.iphis[0] << " L " << act.thick;
+                                   << act.zside << " type " << act.stype << " phi " << act.iphis.size() << ":"
+                                   << act.iphis[0] << " L " << act.thick;
       HcalDetId hcid1(HcalBarrel, (act.ieta) * (act.zside), act.iphis[0], act.depth);
       HcalDetId hcid2 = mergedDepth_ ? hdc_->mergedDepthDetId(hcid1) : hcid1;
       edm::LogVerbatim("HBHEMuon") << hcid1 << " | " << hcid2 << " L " << activeLength(DetId(hcid2));
@@ -433,8 +453,8 @@ void HcalHBHEMuonHighEtaAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup
     edm::LogVerbatim("HBHEMuon") << actHE.size() << " Active Length for HE";
     for (const auto& act : actHE) {
       edm::LogVerbatim("HBHEMuon") << "[" << k2 << "] ieta " << act.ieta << " depth " << act.depth << " zside "
-				   << act.zside << " type " << act.stype << " phi " << act.iphis.size() << ":"
-				   << act.iphis[0] << " L " << act.thick;
+                                   << act.zside << " type " << act.stype << " phi " << act.iphis.size() << ":"
+                                   << act.iphis[0] << " L " << act.thick;
       HcalDetId hcid1(HcalEndcap, (act.ieta) * (act.zside), act.iphis[0], act.depth);
       HcalDetId hcid2 = mergedDepth_ ? hdc_->mergedDepthDetId(hcid1) : hcid1;
       edm::LogVerbatim("HBHEMuon") << hcid1 << " | " << hcid2 << " L " << activeLength(DetId(hcid2));
@@ -488,7 +508,7 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeMuon(const edm::Event& iEvent, math::XY
             ptGlob_.emplace_back((RecMuon)->pt());
             etaGlob_.emplace_back(RecMuon->eta());
             phiGlob_.emplace_back(RecMuon->phi());
-	    energyMuon_.push_back(RecMuon->energy());
+            energyMuon_.push_back(RecMuon->energy());
             pMuon_.emplace_back(RecMuon->p());
             bool mediumMuon = (((RecMuon->isPFMuon()) && (RecMuon->isGlobalMuon() || RecMuon->isTrackerMuon())) &&
                                (RecMuon->innerTrack()->validFraction() > 0.49));
@@ -520,8 +540,13 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeMuon(const edm::Event& iEvent, math::XY
             hcalEnergy_.emplace_back(RecMuon->calEnergy().hadS9);
             hoEnergy_.emplace_back(RecMuon->calEnergy().hoS9);
 #ifdef EDM_ML_DEBUG
-	    if ((verbosity_/100)%10 > 0) 
-	      edm::LogVerbatim("HBHEMuon") << "Muon[" << ptGlob_.size() << "] pt:eta:phi:p " << ptGlob_.back() << ":" << etaGlob_.back() << ":" << phiGlob_.back() << ":" << energyMuon_.back() << ":" << pMuon_.back() << ":" << " Medium:i3:i4 " << mediumMuon_.back() << ":" << isolationR03_.back() << ":" << isolationR04_.back() << ":" << " Energy EC:HC:HO " << ecalEnergy_.back() << ":" << hcalEnergy_.back() << ":" << hoEnergy_.back();
+            if ((verbosity_ / 100) % 10 > 0)
+              edm::LogVerbatim("HBHEMuon")
+                  << "Muon[" << ptGlob_.size() << "] pt:eta:phi:p " << ptGlob_.back() << ":" << etaGlob_.back() << ":"
+                  << phiGlob_.back() << ":" << energyMuon_.back() << ":" << pMuon_.back() << ":"
+                  << " Medium:i3:i4 " << mediumMuon_.back() << ":" << isolationR03_.back() << ":"
+                  << isolationR04_.back() << ":"
+                  << " Energy EC:HC:HO " << ecalEnergy_.back() << ":" << hcalEnergy_.back() << ":" << hoEnergy_.back();
 #endif
           }
         }
@@ -611,19 +636,19 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
                                                         false);
         eEcal = e3x3.first;
 #ifdef EDM_ML_DEBUG
-	if (verbosity_%10 > 0)
-	  edm::LogVerbatim("HBHEMuon") << "Propagate Track to ECAL: " << e3x3.second << ":" << trackID.okECAL << " E "
-				       << eEcal;
+        if (verbosity_ % 10 > 0)
+          edm::LogVerbatim("HBHEMuon") << "Propagate Track to ECAL: " << e3x3.second << ":" << trackID.okECAL << " E "
+                                       << eEcal;
 #endif
-	
+
         DetId closestCell(trackID.detIdHCAL);
         HcalDetId hcidt(closestCell.rawId());
         if ((hcidt.ieta() == check.ieta()) && (hcidt.iphi() == check.iphi()))
           tmpmatch = true;
 #ifdef EDM_ML_DEBUG
-	if (verbosity_%10 > 0)
-	  edm::LogVerbatim("HBHEMuon") << "Front " << hcidt << " Back " << info.first << ":" << check << " Match "
-				       << tmpmatch;
+        if (verbosity_ % 10 > 0)
+          edm::LogVerbatim("HBHEMuon") << "Front " << hcidt << " Back " << info.first << ":" << check << " Match "
+                                       << tmpmatch;
 #endif
 
         HcalSubdetector subdet = hcidt.subdet();
@@ -682,10 +707,10 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
                 if (corr != 0)
                   ene /= corr;
 #ifdef EDM_ML_DEBUG
-		if (verbosity_%10 > 0) {
-		  HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc_->mergedDepthDetId(hcid0) : hcid0;
-		  edm::LogVerbatim("HBHEMuon") << hcid0 << ":" << id << " Corr " << corr;
-		}
+                if (verbosity_ % 10 > 0) {
+                  HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc_->mergedDepthDetId(hcid0) : hcid0;
+                  edm::LogVerbatim("HBHEMuon") << hcid0 << ":" << id << " Corr " << corr;
+                }
 #endif
               }
               int depth = ehdepth[i].second - 1;
@@ -699,19 +724,19 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
               activeLengthTot += actL;
               matchDepth[depth] = (matchDepth[depth] && tmpC);
 #ifdef EDM_ML_DEBUG
-	      if ((verbosity_/10)%10 > 0)
-		edm::LogVerbatim("HBHEMuon")
-		  << hcid0 << " E " << ene << ":" << enec << " L " << actL << " Match " << tmpC;
+              if ((verbosity_ / 10) % 10 > 0)
+                edm::LogVerbatim("HBHEMuon")
+                    << hcid0 << " E " << ene << ":" << enec << " L " << actL << " Match " << tmpC;
 #endif
             }
           }
         }
 #ifdef EDM_ML_DEBUG
-	if ((verbosity_/10)%10 > 0) {
-	  edm::LogVerbatim("HBHEMuon") << hcidt << " Match " << tmpmatch << " Depths " << ehdepth.size();
-	  for (unsigned int k = 0; k < ehdepth.size(); ++k)
-	    edm::LogVerbatim("HBHEMuon") << " [" << k << ":" << ehdepth[k].second << "] " << matchDepth[k];
-	}
+        if ((verbosity_ / 10) % 10 > 0) {
+          edm::LogVerbatim("HBHEMuon") << hcidt << " Match " << tmpmatch << " Depths " << ehdepth.size();
+          for (unsigned int k = 0; k < ehdepth.size(); ++k)
+            edm::LogVerbatim("HBHEMuon") << " [" << k << ":" << ehdepth[k].second << "] " << matchDepth[k];
+        }
 #endif
         HcalDetId hotCell;
         spr::eHCALmatrix(geo, theHBHETopology_, closestCell, hbhe_, 1, 1, hotCell, false, useRaw_, false);
@@ -758,10 +783,11 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
                   if (corr != 0)
                     ene /= corr;
 #ifdef EDM_ML_DEBUG
-		  if (verbosity_%10 > 0) {
-		    HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc_->mergedDepthDetId(hcid0) : hcid0;
-		    edm::LogVerbatim("HBHEMuon") << hcid0 << ":" << id << " Corr " << corr << " E " << ene << ":" << enec;
-		  }
+                  if (verbosity_ % 10 > 0) {
+                    HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc_->mergedDepthDetId(hcid0) : hcid0;
+                    edm::LogVerbatim("HBHEMuon")
+                        << hcid0 << ":" << id << " Corr " << corr << " E " << ene << ":" << enec;
+                  }
 #endif
                 }
                 if (getCharge_) {
@@ -769,8 +795,8 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
                   if (gain != 0)
                     chg /= gain;
 #ifdef EDM_ML_DEBUG
-		  if (verbosity_%10 > 0)
-		    edm::LogVerbatim("HBHEMuon") << hcid0 << " Gain " << gain << " C " << chg;
+                  if (verbosity_ % 10 > 0)
+                    edm::LogVerbatim("HBHEMuon") << hcid0 << " Gain " << gain << " C " << chg;
 #endif
                 }
                 int depth = ehdepth[i].second - 1;
@@ -785,9 +811,9 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
                 activeLengthHotTot += actL;
                 matchDepthHot[depth] = (matchDepthHot[depth] && tmpC);
 #ifdef EDM_ML_DEBUG
-		if ((verbosity_/10)%10 > 0)
-		  edm::LogVerbatim("HBHEMuon") << hcid0 << " depth " << depth << " E " << ene << ":" << enec << " C "
-					       << chg << " L " << actL << " Match " << tmpC;
+                if ((verbosity_ / 10) % 10 > 0)
+                  edm::LogVerbatim("HBHEMuon") << hcid0 << " depth " << depth << " E " << ene << ":" << enec << " C "
+                                               << chg << " L " << actL << " Match " << tmpC;
 #endif
               }
             }
@@ -824,12 +850,23 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeTracks(const reco::Track* pTrack,
         hcalHot_.emplace_back(isHot);
         hcalActiveLengthHot_.emplace_back(activeLengthHotTot);
 #ifdef EDM_ML_DEBUG
-	if ((verbosity_/100)%10 > 0) {
-	  edm::LogVerbatim("HBHEMuon") << "Track " << std::hex << ecalDetId_.back() << ":" << hcalDetId_.back() << ":" << ehcalDetId_.back() << std::dec << ":" << emaxNearP_.back() << ":" << matchedId_.back() << ":" << ecal3x3Energy_.back() << ":" << hcal1x1Energy_.back() << ":" << hcal_ieta_.back() << ":" << hcal_iphi_.back() << ":" << hcalActiveLength_.back() << ":" << hcalHot_.back() << ":" << hcalActiveLengthHot_.back();
-	  for (int i = 0; i < maxDepth_; ++i) {
-	    edm::LogVerbatim("HBHEMuon") << "Depth[" << i << "] " << hcalDepthEnergy_[i].back() << ":" << hcalDepthActiveLength_[i].back() << ":" << hcalDepthEnergyHot_[i].back() << ":" << hcalDepthActiveLengthHot_[i].back() << ":" << hcalDepthEnergyCorr_[i].back() << ":" << hcalDepthEnergyHotCorr_[i].back() << ":" << hcalDepthChargeHot_[i].back() << ":" << hcalDepthChargeHotBG_[i].back() << ":" << hcalDepthMatch_[i].back() << ":" << hcalDepthMatchHot_[i].back();
-	  }
-	}
+        if ((verbosity_ / 100) % 10 > 0) {
+          edm::LogVerbatim("HBHEMuon") << "Track " << std::hex << ecalDetId_.back() << ":" << hcalDetId_.back() << ":"
+                                       << ehcalDetId_.back() << std::dec << ":" << emaxNearP_.back() << ":"
+                                       << matchedId_.back() << ":" << ecal3x3Energy_.back() << ":"
+                                       << hcal1x1Energy_.back() << ":" << hcal_ieta_.back() << ":" << hcal_iphi_.back()
+                                       << ":" << hcalActiveLength_.back() << ":" << hcalHot_.back() << ":"
+                                       << hcalActiveLengthHot_.back();
+          for (int i = 0; i < maxDepth_; ++i) {
+            edm::LogVerbatim("HBHEMuon") << "Depth[" << i << "] " << hcalDepthEnergy_[i].back() << ":"
+                                         << hcalDepthActiveLength_[i].back() << ":" << hcalDepthEnergyHot_[i].back()
+                                         << ":" << hcalDepthActiveLengthHot_[i].back() << ":"
+                                         << hcalDepthEnergyCorr_[i].back() << ":" << hcalDepthEnergyHotCorr_[i].back()
+                                         << ":" << hcalDepthChargeHot_[i].back() << ":"
+                                         << hcalDepthChargeHotBG_[i].back() << ":" << hcalDepthMatch_[i].back() << ":"
+                                         << hcalDepthMatchHot_[i].back();
+          }
+        }
 #endif
         fillTrackParameters(pTrack, leadPV);
       }
@@ -971,9 +1008,9 @@ int HcalHBHEMuonHighEtaAnalyzer::depth16HE(int ieta, int iphi) {
   if (isItPlan1_ && (!isItPreRecHit_))
     depth = 3;
 #ifdef EDM_ML_DEBUG
-  if (verbosity_%10 > 0) 
+  if (verbosity_ % 10 > 0)
     edm::LogVerbatim("HBHEMuon") << "Plan1 " << isItPlan1_ << " PreRecHit " << isItPreRecHit_ << " phi " << iphi
-				 << " depth " << depth;
+                                 << " depth " << depth;
 #endif
   return depth;
 }
