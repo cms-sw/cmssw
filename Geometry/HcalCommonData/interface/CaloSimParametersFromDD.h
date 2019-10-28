@@ -11,11 +11,11 @@
 class DDFilteredView;
 class CaloSimulationParameters;
 
-template <typename T> 
+template <typename T>
 void myPrint(std::string value, const std::vector<T>& vec) {
   edm::LogVerbatim("HCalGeom") << "CaloSimParametersFromDD: " << vec.size() << " entries for " << value << ":";
   unsigned int i(0);
-  for ( const auto& e : vec ) {
+  for (const auto& e : vec) {
     edm::LogVerbatim("HCalGeom") << " (" << i << ") " << e;
     ++i;
   }
