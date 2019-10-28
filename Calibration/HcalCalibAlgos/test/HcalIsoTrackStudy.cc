@@ -323,28 +323,23 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
                                      << edm::InputTag(modnam, labelHBHE_, prdnam) << " " << labelTower_;
   }
 
-  edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n"
-                                   << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality "
-                                   << theTrackQuality_ << "\t minQuality " << selectionParameter_.minQuality
-                                   << "\t maxDxyPV " << selectionParameter_.maxDxyPV << "\t maxDzPV "
-                                   << selectionParameter_.maxDzPV << "\t maxChi2 " << selectionParameter_.maxChi2
-                                   << "\t maxDpOverP " << selectionParameter_.maxDpOverP << "\t minOuterHit "
-                                   << selectionParameter_.minOuterHit << "\t minLayerCrossed "
-                                   << selectionParameter_.minLayerCrossed << "\t maxInMiss "
-                                   << selectionParameter_.maxInMiss << "\t maxOutMiss "
-                                   << selectionParameter_.maxOutMiss << "\t a_coneR " << a_coneR_ << ":" << a_coneR1_
-                                   << ":" << a_coneR2_ << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR " << a_mipR_
-                                   << "\n pTrackMin_ " << pTrackMin_ << "\t eEcalMax_ " << eEcalMax_
-                                   << "\t maxRestrictionP_ " << maxRestrictionP_ << "\t slopeRestrictionP_ "
-                                   << slopeRestrictionP_ << "\t eIsolateStrong_ " << eIsolate1_ << "\t eIsolateSoft_ "
-                                   << eIsolate2_ << "\t hcalScale_ " << hcalScale_ << "\n\t momentumLow_ " << pTrackLow_
-                                   << "\t prescaleLow_ " << prescaleLow_ << "\t momentumHigh_ " << pTrackHigh_
-                                   << "\t prescaleHigh_ " << prescaleHigh_ << "\n\t useRaw_ " << useRaw_
-                                   << "\t ignoreTrigger_ " << ignoreTrigger_ << "\n\t useL1Trigegr_ " << useL1Trigger_
-                                   << "\t dataType_      " << dataType_ << "\t unCorrect_     " << unCorrect_ 
-				   << "\t collapseDepth_ " << collapseDepth_ << "\t L1TrigName_    " << l1TrigName_
-				   << "\nThreshold for EB " << hitEthrEB_ << " EE "  << hitEthrEE0_ << ":" << hitEthrEE1_ 
-				   << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_;
+  edm::LogVerbatim("HcalIsoTrack")
+      << "Parameters read from config file \n"
+      << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality " << theTrackQuality_ << "\t minQuality "
+      << selectionParameter_.minQuality << "\t maxDxyPV " << selectionParameter_.maxDxyPV << "\t maxDzPV "
+      << selectionParameter_.maxDzPV << "\t maxChi2 " << selectionParameter_.maxChi2 << "\t maxDpOverP "
+      << selectionParameter_.maxDpOverP << "\t minOuterHit " << selectionParameter_.minOuterHit << "\t minLayerCrossed "
+      << selectionParameter_.minLayerCrossed << "\t maxInMiss " << selectionParameter_.maxInMiss << "\t maxOutMiss "
+      << selectionParameter_.maxOutMiss << "\t a_coneR " << a_coneR_ << ":" << a_coneR1_ << ":" << a_coneR2_
+      << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR " << a_mipR_ << "\n pTrackMin_ " << pTrackMin_ << "\t eEcalMax_ "
+      << eEcalMax_ << "\t maxRestrictionP_ " << maxRestrictionP_ << "\t slopeRestrictionP_ " << slopeRestrictionP_
+      << "\t eIsolateStrong_ " << eIsolate1_ << "\t eIsolateSoft_ " << eIsolate2_ << "\t hcalScale_ " << hcalScale_
+      << "\n\t momentumLow_ " << pTrackLow_ << "\t prescaleLow_ " << prescaleLow_ << "\t momentumHigh_ " << pTrackHigh_
+      << "\t prescaleHigh_ " << prescaleHigh_ << "\n\t useRaw_ " << useRaw_ << "\t ignoreTrigger_ " << ignoreTrigger_
+      << "\n\t useL1Trigegr_ " << useL1Trigger_ << "\t dataType_      " << dataType_ << "\t unCorrect_     "
+      << unCorrect_ << "\t collapseDepth_ " << collapseDepth_ << "\t L1TrigName_    " << l1TrigName_
+      << "\nThreshold for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
+      << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_;
   edm::LogVerbatim("HcalIsoTrack") << "Process " << processName_ << " L1Filter:" << l1Filter_
                                    << " L2Filter:" << l2Filter_ << " L3Filter:" << l3Filter_;
   for (unsigned int k = 0; k < trigNames_.size(); ++k) {
