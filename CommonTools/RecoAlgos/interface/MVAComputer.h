@@ -7,24 +7,23 @@
 
 #include <TMVA/Reader.h>
 
-class MVAComputer
-{       
+class MVAComputer {
 public:
-    typedef std::vector<std::tuple<std::string, float> > mva_variables;
-    
-    //--ctros---
-    MVAComputer() {};
-    MVAComputer(mva_variables* vars, std::string weights_file);
+  typedef std::vector<std::tuple<std::string, float> > mva_variables;
 
-    //---dtor---
-    ~MVAComputer() {};
+  //--ctros---
+  MVAComputer(){};
+  MVAComputer(mva_variables* vars, std::string weights_file);
 
-    //---getters---
-    float operator() ();
-    MVAComputer& operator= (MVAComputer&& other);
-    
+  //---dtor---
+  ~MVAComputer(){};
+
+  //---getters---
+  float operator()();
+  MVAComputer& operator=(MVAComputer&& other);
+
 private:
-    std::unique_ptr<TMVA::Reader> reader_;
-    mva_variables*                vars_;    
+  std::unique_ptr<TMVA::Reader> reader_;
+  mva_variables* vars_;
 };
 #endif

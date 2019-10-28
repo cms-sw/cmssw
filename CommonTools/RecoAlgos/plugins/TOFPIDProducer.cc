@@ -56,62 +56,58 @@ private:
   double fixedT0Error_;
 };
 
-
-  
-TOFPIDProducer::TOFPIDProducer(const ParameterSet& iConfig) :
-  tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracksSrc"))),
-  t0Token_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("t0Src"))),
-  tmtdToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("tmtdSrc"))),
-  sigmat0Token_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("sigmat0Src"))),
-  sigmatmtdToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("sigmatmtdSrc"))),
-  pathLengthToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("pathLengthSrc"))),
-  pToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("pSrc"))),
-  vtxsToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxsSrc"))),
-  vtxMaxSigmaT_(iConfig.getParameter<double>("vtxMaxSigmaT")),
-  maxDz_(iConfig.getParameter<double>("maxDz")),
-  maxDtSignificance_(iConfig.getParameter<double>("maxDtSignificance")),
-  minProbHeavy_(iConfig.getParameter<double>("minProbHeavy")),
-  fixedT0Error_(iConfig.getParameter<double>("fixedT0Error"))
-  {  
-  produces<edm::ValueMap<float> >(t0Name);
-  produces<edm::ValueMap<float> >(sigmat0Name);
-  produces<edm::ValueMap<float> >(t0safeName);
-  produces<edm::ValueMap<float> >(sigmat0safeName);
-  produces<edm::ValueMap<float> >(probPiName); 
-  produces<edm::ValueMap<float> >(probKName);
-  produces<edm::ValueMap<float> >(probPName);
+TOFPIDProducer::TOFPIDProducer(const ParameterSet& iConfig)
+    : tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracksSrc"))),
+      t0Token_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("t0Src"))),
+      tmtdToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("tmtdSrc"))),
+      sigmat0Token_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmat0Src"))),
+      sigmatmtdToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmatmtdSrc"))),
+      pathLengthToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pathLengthSrc"))),
+      pToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pSrc"))),
+      vtxsToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxsSrc"))),
+      vtxMaxSigmaT_(iConfig.getParameter<double>("vtxMaxSigmaT")),
+      maxDz_(iConfig.getParameter<double>("maxDz")),
+      maxDtSignificance_(iConfig.getParameter<double>("maxDtSignificance")),
+      minProbHeavy_(iConfig.getParameter<double>("minProbHeavy")),
+      fixedT0Error_(iConfig.getParameter<double>("fixedT0Error")) {
+  produces<edm::ValueMap<float>>(t0Name);
+  produces<edm::ValueMap<float>>(sigmat0Name);
+  produces<edm::ValueMap<float>>(t0safeName);
+  produces<edm::ValueMap<float>>(sigmat0safeName);
+  produces<edm::ValueMap<float>>(probPiName);
+  produces<edm::ValueMap<float>>(probKName);
+  produces<edm::ValueMap<float>>(probPName);
 }
 
 // Configuration descriptions
 void TOFPIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("tracksSrc", edm::InputTag("generalTracks"))->
-    setComment("Input tracks collection");
-  desc.add<edm::InputTag>("t0Src", edm::InputTag("trackExtenderWithMTD:generalTrackt0"))->
-    setComment("Input ValueMap for track time at beamline");
-  desc.add<edm::InputTag>("tmtdSrc", edm::InputTag("trackExtenderWithMTD:generalTracktmtd"))->
-    setComment("Input ValueMap for track time at MTD");
-  desc.add<edm::InputTag>("sigmat0Src", edm::InputTag("trackExtenderWithMTD:generalTracksigmat0"))->
-    setComment("Input ValueMap for track time uncertainty at beamline");
-  desc.add<edm::InputTag>("sigmatmtdSrc", edm::InputTag("trackExtenderWithMTD:generalTracksigmatmtd"))->
-    setComment("Input ValueMap for track time uncertainty at MTD");
-  desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD:generalTrackPathLength"))->
-    setComment("Input ValueMap for track path lengh from beamline to MTD");
-  desc.add<edm::InputTag>("pSrc", edm::InputTag("trackExtenderWithMTD:generalTrackp"))->
-    setComment("Input ValueMap for track momentum magnitude (normally from refit with MTD hits)");
-  desc.add<edm::InputTag>("vtxsSrc", edm::InputTag("unsortedOfflinePrimaryVertices4DnoPID"))->
-    setComment("Input primary vertex collection");
-  desc.add<double>("vtxMaxSigmaT", 0.025)->
-    setComment("Maximum primary vertex time uncertainty for use in particle id [ns]");
-  desc.add<double>("maxDz", 0.1)->
-    setComment("Maximum distance in z for track-primary vertex association for particle id [cm]");
-  desc.add<double>("maxDtSignificance", 5.0)->
-    setComment("Maximum distance in time (normalized by uncertainty) for track-primary vertex association for particle id");
-  desc.add<double>("minProbHeavy", 0.75)->
-    setComment("Minimum probability for a particle to be a kaon or proton before reassigning the timestamp");
-  desc.add<double>("fixedT0Error", 0.)->
-    setComment("Use a fixed T0 uncertainty [ns]");
-    
+  desc.add<edm::InputTag>("tracksSrc", edm::InputTag("generalTracks"))->setComment("Input tracks collection");
+  desc.add<edm::InputTag>("t0Src", edm::InputTag("trackExtenderWithMTD:generalTrackt0"))
+      ->setComment("Input ValueMap for track time at beamline");
+  desc.add<edm::InputTag>("tmtdSrc", edm::InputTag("trackExtenderWithMTD:generalTracktmtd"))
+      ->setComment("Input ValueMap for track time at MTD");
+  desc.add<edm::InputTag>("sigmat0Src", edm::InputTag("trackExtenderWithMTD:generalTracksigmat0"))
+      ->setComment("Input ValueMap for track time uncertainty at beamline");
+  desc.add<edm::InputTag>("sigmatmtdSrc", edm::InputTag("trackExtenderWithMTD:generalTracksigmatmtd"))
+      ->setComment("Input ValueMap for track time uncertainty at MTD");
+  desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD:generalTrackPathLength"))
+      ->setComment("Input ValueMap for track path lengh from beamline to MTD");
+  desc.add<edm::InputTag>("pSrc", edm::InputTag("trackExtenderWithMTD:generalTrackp"))
+      ->setComment("Input ValueMap for track momentum magnitude (normally from refit with MTD hits)");
+  desc.add<edm::InputTag>("vtxsSrc", edm::InputTag("unsortedOfflinePrimaryVertices4DnoPID"))
+      ->setComment("Input primary vertex collection");
+  desc.add<double>("vtxMaxSigmaT", 0.025)
+      ->setComment("Maximum primary vertex time uncertainty for use in particle id [ns]");
+  desc.add<double>("maxDz", 0.1)
+      ->setComment("Maximum distance in z for track-primary vertex association for particle id [cm]");
+  desc.add<double>("maxDtSignificance", 5.0)
+      ->setComment(
+          "Maximum distance in time (normalized by uncertainty) for track-primary vertex association for particle id");
+  desc.add<double>("minProbHeavy", 0.75)
+      ->setComment("Minimum probability for a particle to be a kaon or proton before reassigning the timestamp");
+  desc.add<double>("fixedT0Error", 0.)->setComment("Use a fixed T0 uncertainty [ns]");
+
   descriptions.add("tofPIDProducer", desc);
 }
 
@@ -181,7 +177,7 @@ void TOFPIDProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
     float t0 = t0In[trackref];
     float t0safe = t0;
     float sigmat0safe = sigmat0In[trackref];
-    float sigmatmtd = (sigmatmtdIn[trackref] > 0. && fixedT0Error_>0.) ? fixedT0Error_ : sigmatmtdIn[trackref]; 
+    float sigmatmtd = (sigmatmtdIn[trackref] > 0. && fixedT0Error_ > 0.) ? fixedT0Error_ : sigmatmtdIn[trackref];
     float sigmat0 = sigmatmtd;
 
     float prob_pi = -1.;
