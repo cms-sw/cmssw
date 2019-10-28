@@ -13,6 +13,28 @@
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
 #include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
 
+struct mpPCLresults {
+private:
+  bool m_isDBUpdated;
+  bool m_isDBUpdateVetoed;
+  int m_nRecords;
+  int m_exitCode;
+
+public:
+  mpPCLresults(bool isDBUpdated, bool isDBUpdateVetoed, int nRecords, int exitCode)
+      : m_isDBUpdated(isDBUpdated), m_isDBUpdateVetoed(isDBUpdateVetoed), m_nRecords(nRecords), m_exitCode(exitCode) {}
+
+  const bool getDBUpdated() { return m_isDBUpdated; }
+  const bool getDBVetoed() { return m_isDBUpdateVetoed; }
+  const int getNRecords() { return m_nRecords; }
+  const int getExitCode() { return m_exitCode; }
+
+  void print() {
+    std::cout << " is DB updated: " << m_isDBUpdated << " is DB update vetoed: " << m_isDBUpdateVetoed
+              << " nRecords: " << m_nRecords << " exitCode: " << m_exitCode << std::endl;
+  }
+};
+
 class MillePedeFileReader {
   //========================== PUBLIC METHODS ==================================
 public:  //====================================================================
@@ -42,6 +64,8 @@ public:  //====================================================================
 
   const AlignPCLThresholds::threshold_map getThresholdMap() const { return theThresholds_.get()->getThreshold_Map(); }
 
+  const mpPCLresults getResults() const { return mpPCLresults(updateDB_, vetoUpdateDB_, Nrec_, exitCode_); }
+
 private:
   //========================= PRIVATE ENUMS ====================================
   //============================================================================
@@ -59,6 +83,7 @@ private:
   //========================= PRIVATE METHODS ==================================
   //============================================================================
 
+  void readMillePedeEndFile();
   void readMillePedeLogFile();
   void readMillePedeResultFile();
   PclHLS getHLS(const Alignable*);
@@ -74,6 +99,7 @@ private:
   const std::shared_ptr<const AlignPCLThresholds> theThresholds_;
 
   // file-names
+  const std::string millePedeEndFile_;
   const std::string millePedeLogFile_;
   const std::string millePedeResFile_;
 
@@ -88,6 +114,7 @@ private:
   bool updateDB_{false};
   bool vetoUpdateDB_{false};
   int Nrec_{0};
+  int exitCode_{-1};
 
   std::array<double, 6> Xobs_ = {{0., 0., 0., 0., 0., 0.}};
   std::array<double, 6> XobsErr_ = {{0., 0., 0., 0., 0., 0.}};
