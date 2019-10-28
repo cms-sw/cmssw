@@ -50,6 +50,8 @@ private:  //===================================================================
 
   void bookHistograms(DQMStore::IBooker&);
 
+  void fillStatusHisto(MonitorElement* statusHisto);
+
   void fillExpertHistos();
 
   void fillExpertHisto(MonitorElement* histo,
@@ -81,6 +83,8 @@ private:  //===================================================================
   MonitorElement* h_yRot;
   MonitorElement* h_zPos;
   MonitorElement* h_zRot;
+
+  MonitorElement* statusResults;
 };
 
 // define this as a plug-in

@@ -20,10 +20,12 @@ MillePedeFileReader ::MillePedeFileReader(const edm::ParameterSet& config,
                                           const std::shared_ptr<const AlignPCLThresholds>& theThresholds)
     : pedeLabeler_(pedeLabeler),
       theThresholds_(theThresholds),
+      millePedeEndFile_(config.getParameter<std::string>("millePedeEndFile")),
       millePedeLogFile_(config.getParameter<std::string>("millePedeLogFile")),
       millePedeResFile_(config.getParameter<std::string>("millePedeResFile")) {}
 
 void MillePedeFileReader ::read() {
+  readMillePedeEndFile();
   readMillePedeLogFile();
   readMillePedeResultFile();
 }
@@ -33,6 +35,29 @@ bool MillePedeFileReader ::storeAlignments() { return (updateDB_ && !vetoUpdateD
 //=============================================================================
 //===   PRIVATE METHOD IMPLEMENTATION                                       ===
 //=============================================================================
+void MillePedeFileReader ::readMillePedeEndFile() {
+  std::ifstream endFile;
+  endFile.open(millePedeEndFile_.c_str());
+
+  if (endFile.is_open()) {
+    edm::LogInfo("MillePedeFileReader") << "Reading millepede end-file";
+    std::string line;
+    getline(endFile, line);
+    std::string trash;
+    if (line.find("-1") != std::string::npos) {
+      getline(endFile, line);
+      std::istringstream iss(line);
+      iss >> exitCode_ >> trash;
+      edm::LogInfo("MillePedeFileReader") << " Pede exit code is: " << exitCode_ << std::endl;
+    } else {
+      std::istringstream iss(line);
+      iss >> exitCode_ >> trash;
+      edm::LogInfo("MillePedeFileReader") << " Pede exit code is:" << exitCode_ << std::endl;
+    }
+  } else {
+    edm::LogError("MillePedeFileReader") << "Could not read millepede end-file.";
+  }
+}
 
 void MillePedeFileReader ::readMillePedeLogFile() {
   std::ifstream logFile;

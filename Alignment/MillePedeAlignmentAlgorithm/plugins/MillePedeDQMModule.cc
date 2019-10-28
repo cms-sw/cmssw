@@ -52,6 +52,8 @@ void MillePedeDQMModule ::bookHistograms(DQMStore::IBooker& booker) {
   h_zPos = booker.book1D("Zpos", "Alignment fit #DeltaZ;;#mum", 36, 0., 36.);
   h_zRot = booker.book1D("Zrot", "Alignment fit #Delta#theta_{Z};;#murad", 36, 0., 36.);
 
+  statusResults = booker.book2D("statusResults", "Status of pede minimization;;", 4, 0., 4., 1, 0., 1.);
+
   booker.cd();
 }
 
@@ -64,6 +66,7 @@ void MillePedeDQMModule ::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter
                                        << "Try to read MillePede results before initializing MillePedeFileReader";
   }
   fillExpertHistos();
+  fillStatusHisto(statusResults);
 }
 
 //=============================================================================
@@ -104,6 +107,20 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
 
   mpReader_ = std::make_unique<MillePedeFileReader>(
       mpReaderConfig_, pedeLabeler, std::shared_ptr<const AlignPCLThresholds>(myThresholds));
+}
+
+void MillePedeDQMModule ::fillStatusHisto(MonitorElement* statusHisto) {
+  TH2F* histo_status = statusHisto->getTH2F();
+  auto theResults = mpReader_->getResults();
+  theResults.print();
+  histo_status->SetBinContent(1, 1, theResults.getDBUpdated());
+  histo_status->GetXaxis()->SetBinLabel(1, "is DB updated?");
+  histo_status->SetBinContent(2, 1, theResults.getDBVetoed());
+  histo_status->GetXaxis()->SetBinLabel(2, "is DB update vetoed?");
+  histo_status->SetBinContent(3, 1, theResults.getNRecords());
+  histo_status->GetXaxis()->SetBinLabel(3, "n. records");
+  histo_status->SetBinContent(4, 1, theResults.getExitCode());
+  histo_status->GetXaxis()->SetBinLabel(4, "pede exit code");
 }
 
 void MillePedeDQMModule ::fillExpertHistos() {
