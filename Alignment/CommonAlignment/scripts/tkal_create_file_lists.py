@@ -12,7 +12,10 @@ import math
 import bisect
 import random
 import signal
-import cPickle
+if sys.version_info[0]>2:
+  import _pickle as cPickle
+else:
+  import cPickle
 import difflib
 import argparse
 import functools
@@ -363,14 +366,14 @@ class FileListCreator(object):
         for d in self._datasets: print_msg("\t"+d)
         print_msg("This may take a while...")
 
-        result = pool.map_async(get_events_per_dataset, self._datasets).get(sys.maxsize)
+        result = pool.map_async(get_events_per_dataset, self._datasets).get(3600)
         self._events_in_dataset = sum(result)
 
-        result = pool.map_async(get_max_run, self._datasets).get(sys.maxsize)
+        result = pool.map_async(get_max_run, self._datasets).get(3600)
         self._max_run = max(result)
 
-        result = sum(pool.map_async(get_file_info, self._datasets).get(sys.maxint), [])
-        files = pool.map_async(_make_file_info, result).get(sys.maxint)
+        result = sum(pool.map_async(get_file_info, self._datasets).get(3600), [])
+        files = pool.map_async(_make_file_info, result).get(3600)
         self._file_info = sorted(fileinfo for fileinfo in files)
 
         self.rereco = any(len(fileinfo.runs)>1 for fileinfo in self._file_info)
