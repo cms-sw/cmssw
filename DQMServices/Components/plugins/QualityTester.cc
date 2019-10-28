@@ -179,3 +179,5 @@ void QualityTester::performTests() {
     std::cout << std::endl;
   }
 }
+
+DEFINE_FWK_MODULE(QualityTester);
