@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "CondFormats/GeometryObjects/interface/CaloSimulationParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include <DetectorDescription/DDCMS/interface/DDCompactView.h>
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "Geometry/HcalCommonData/interface/CaloSimParametersFromDD.h"

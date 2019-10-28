@@ -4,7 +4,7 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
-#include <DetectorDescription/DDCMS/interface/DDFilteredView.h>
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include <iostream>
 #include <iomanip>
 
