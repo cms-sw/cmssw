@@ -22,6 +22,10 @@ from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
+from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+from Configuration.Eras.Modifier_run2_tau_ul_2016_cff import run2_tau_ul_2016
+from Configuration.Eras.Modifier_run2_tau_ul_2018_cff import run2_tau_ul_2018
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -94,6 +98,7 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016: # to be updated wh
 
 genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
     genEvent = cms.InputTag("generator"),
+    genLumiInfoHeader = cms.InputTag("generator"),
     lheInfo = cms.VInputTag(cms.InputTag("externalLHEProducer"), cms.InputTag("source")),
     preferredPDFs = cms.VPSet( # see https://lhapdf.hepforge.org/pdfsets.html
         cms.PSet( name = cms.string("PDF4LHC15_nnlo_30_pdfas"), lhaid = cms.uint32(91400) ),
@@ -138,6 +143,17 @@ nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnl
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
     modifier.toModify(extraFlagsTable, variables= cms.PSet())
     modifier.toModify(extraFlagsTable, variables = dict(Flag_ecalBadCalibFilterV2 = ExtVar(cms.InputTag("ecalBadCalibFilterNanoTagger"), bool, doc = "Bad ECAL calib flag (updated xtal list)")))
+
+# modifier which adds new tauIDs (currently only deepTauId2017v2p1 is being added)
+import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
+def nanoAOD_addTauIds(process):
+    updatedTauName = "slimmedTausUpdated"
+    tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False, updatedTauName = updatedTauName,
+            toKeep = [ "deepTau2017v2p1" ])
+    tauIdEmbedder.runTauID()
+    process.patTauMVAIDsSeq.insert(process.patTauMVAIDsSeq.index(getattr(process, updatedTauName)),
+                                   process.rerunMvaIsolationSequence)
+    return process
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
@@ -225,7 +241,10 @@ def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet, addDeepDoubleX
         _btagDiscriminators += pfDeepBoostedJetTagsAll
     if addDeepDoubleX: 
         print("Updating process to run DeepDoubleX on datasets before 104X")
-        _btagDiscriminators += ['pfMassIndependentDeepDoubleBvLJetTags:probHbb', 'pfMassIndependentDeepDoubleCvLJetTags:probHcc', 'pfMassIndependentDeepDoubleCvBJetTags:probHcc']
+        _btagDiscriminators += ['pfDeepDoubleBvLJetTags:probHbb', \
+            'pfDeepDoubleCvLJetTags:probHcc', \
+            'pfDeepDoubleCvBJetTags:probHcc', \
+            'pfMassIndependentDeepDoubleBvLJetTags:probHbb', 'pfMassIndependentDeepDoubleCvLJetTags:probHcc', 'pfMassIndependentDeepDoubleCvBJetTags:probHcc']
     if len(_btagDiscriminators)==0: return process
     print("Will recalculate the following discriminators on AK8 jets: "+", ".join(_btagDiscriminators))
     updateJetCollection(
@@ -281,6 +300,15 @@ def nanoAOD_customizeCommon(process):
                                      addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
                                      addDeepDoubleX=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleX_switch,
                                      jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
+    addTauIds_switch = cms.PSet(
+        nanoAOD_addTauIds_switch = cms.untracked.bool(True)
+    )
+    run2_miniAOD_80XLegacy.toModify(addTauIds_switch, nanoAOD_addTauIds_switch = cms.untracked.bool(False))
+    (run2_miniAOD_devel | run2_tau_ul_2016 | run2_tau_ul_2018) & \
+    (~(run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1)).toModify(addTauIds_switch,
+                                                                                                                                           nanoAOD_addTauIds_switch = cms.untracked.bool(False))
+    if addTauIds_switch.nanoAOD_addTauIds_switch:
+        process = nanoAOD_addTauIds(process)
     return process
 
 def nanoAOD_customizeData(process):
@@ -288,12 +316,6 @@ def nanoAOD_customizeData(process):
     process = nanoAOD_recalibrateMETs(process,isData=True)
     for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
         modifier.toModify(process, lambda p: nanoAOD_runMETfixEE2017(p,isData=True))
-    process.unpackedPatTrigger.triggerResults = "TriggerResults::reHLT"
-    (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(
-        unpackedPatTrigger,
-        triggerResults = "TriggerResults::HLT"
-    )
-
     return process
 
 def nanoAOD_customizeMC(process):

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
@@ -33,6 +34,7 @@ ptRatioRelForMu = cms.EDProducer("MuonJetVarProducer",
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
 run2_miniAOD_80XLegacy.toModify(ptRatioRelForMu, srcLep = "slimmedMuonsUpdated")
+
 
 slimmedMuonsWithUserData = cms.EDProducer("PATMuonUserDataEmbedder",
      src = cms.InputTag("slimmedMuons"),
@@ -87,10 +89,34 @@ muonMVALowPt = muonMVATTH.clone(
     name = cms.string("muonMVALowPt"),
 )
 
-
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify(muonMVATTH,
+run2_muon_2016.toModify(muonMVATTH,
         weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG_2016.weights.xml",
+    )
+
+from MuonAnalysis.MuonAssociators.muonFSRProducer_cfi import muonFSRProducer
+muonFSRphotons = muonFSRProducer.clone(
+  packedPFCandidates = cms.InputTag("packedPFCandidates"),
+  slimmedElectrons = cms.InputTag("slimmedElectrons"),
+  muons = cms.InputTag("linkedObjects","muons"),
+)
+from MuonAnalysis.MuonAssociators.muonFSRAssociator_cfi import muonFSRAssociator
+muonFSRassociation = muonFSRAssociator.clone(
+    photons = cms.InputTag("muonFSRphotons"),
+    muons = cms.InputTag("linkedObjects","muons"),
+)
+
+fsrTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = cms.InputTag("muonFSRphotons"),
+    cut = cms.string(""), #we should not filter on cross linked collections
+    name = cms.string("FsrPhoton"),
+    doc  = cms.string("Final state radiation photons emitted by muons"),
+    singleton = cms.bool(False), # the number of entries is variable
+    extension = cms.bool(False), # this is the main table for the muons
+    variables = cms.PSet(P3Vars,
+        relIso03 = Var("userFloat('relIso03')",float,doc="relative isolation in a 0.3 cone without CHS"),
+        dROverEt2 = Var("userFloat('dROverEt2')",float,doc="deltaR to associated muon divided by photon et2"),
+        muonIdx = Var("?hasUserCand('associatedMuon')?userCand('associatedMuon').key():-1",int, doc="index of associated muon")
+        )
     )
 
 muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
@@ -145,6 +171,7 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     externalVariables = cms.PSet(
         mvaTTH = ExtVar(cms.InputTag("muonMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
         mvaLowPt = ExtVar(cms.InputTag("muonMVALowPt"),float, doc="Low pt muon ID score",precision=14),
+        fsrPhotonIdx = ExtVar(cms.InputTag("muonFSRassociation:fsrIndex"),int, doc="Index of the associated FSR photon"),
     ),
 )
 
@@ -176,9 +203,9 @@ muonMCTable = cms.EDProducer("CandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 muons"),
 )
 
-muonSequence = cms.Sequence(isoForMu + ptRatioRelForMu + slimmedMuonsWithUserData + finalMuons + finalLooseMuons)
+muonSequence = cms.Sequence(isoForMu + ptRatioRelForMu + slimmedMuonsWithUserData + finalMuons + finalLooseMuons )
 muonMC = cms.Sequence(muonsMCMatchForTable + muonMCTable)
-muonTables = cms.Sequence(muonMVATTH + muonMVALowPt + muonTable)
+muonTables = cms.Sequence(muonFSRphotons + muonFSRassociation + muonMVATTH + muonMVALowPt + muonTable + fsrTable)
 
 _withUpdate_sequence = muonSequence.copy()
 _withUpdate_sequence.replace(isoForMu, slimmedMuonsUpdated+isoForMu)
