@@ -130,14 +130,14 @@ void GEMRecHitTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 
     FillWithTrigger(track_eta, fabs(track_.eta));
-    FillWithTrigger(track_phi, fabs(track_.eta), track_.phi, track_.hitOdd, track_.hitEven);
+    //FillWithTrigger(track_phi, fabs(track_.eta), track_.phi, track_.hitOdd, track_.hitEven);
 
     FillWithTrigger(rh_sh_eta, track_.gem_sh, fabs(track_.eta));
     FillWithTrigger(rh_eta, track_.gem_rh, fabs(track_.eta));
 
     // Separate station.
 
-    FillWithTrigger(rh_sh_phi, track_.gem_sh, fabs(track_.eta), track_.phi, track_.hitOdd, track_.hitEven);
-    FillWithTrigger(rh_phi, track_.gem_rh, fabs(track_.eta), track_.phi, track_.hitOdd, track_.hitEven);
+    // FillWithTrigger(rh_sh_phi, track_.gem_sh, fabs(track_.eta), track_.phi, track_.hitOdd, track_.hitEven);
+    // FillWithTrigger(rh_phi, track_.gem_rh, fabs(track_.eta), track_.phi, track_.hitOdd, track_.hitEven);
   }
 }
