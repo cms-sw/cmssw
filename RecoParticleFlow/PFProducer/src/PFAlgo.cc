@@ -24,7 +24,7 @@ PFAlgo::PFAlgo(double nSigmaECAL,
       thepfEnergyCalibrationHF_(thepfEnergyCalibrationHF),
       connector_() {
   const edm::ParameterSet pfMuonAlgoParams = pset.getParameter<edm::ParameterSet>("PFMuonAlgoParameters");
-  bool postMuonCleaning = pset.existsAs<bool>("postMuonCleaning") ? pset.getParameter<bool>("postMuonCleaning") : false;
+  bool postMuonCleaning = pset.getParameter<bool>("postMuonCleaning");
   pfmu_ = std::make_unique<PFMuonAlgo>(pfMuonAlgoParams, postMuonCleaning);
 
   // Muon parameters
