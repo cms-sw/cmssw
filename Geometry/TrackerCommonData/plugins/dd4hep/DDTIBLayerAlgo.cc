@@ -406,40 +406,38 @@ static long algorithm(Detector& /* description */,
     Volume dohmCarrier = ns.addVolumeNS(Volume(name, solid, ns.material(dohmCarrierMaterial)));
     int primReplica = 0;
     int auxReplica = 0;
-#if 0
-    for ( size_t i = 0; i < placeDohm*dohmList.size(); i++ )   {
-      double phi   = (std::abs(dohmList[i])+0.5-1.)*dphi;
-      double phix  = phi + 90_deg;
-      double theta = 90_deg;
-      double phiy  = phix + 90._deg;
-      dohmRotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
 
-      int    dohmReplica = 0;
+    for (size_t i = 0; i < placeDohm * dohmList.size(); i++) {
+      double phi = (std::abs(dohmList[i]) + 0.5 - 1.) * dphi;
+      double phix = phi + 90_deg;
+      double phideg = convertRadToDeg(phix);
+      if (phideg != 0) {
+        double theta = 90_deg;
+        double phiy = phix + 90._deg;
+        dohmRotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
+      }
+      int dohmReplica = 0;
       double dohmZ = 0.;
       Volume dohm;
 
-      if(dohmList[i]<0.) {
+      if (dohmList[i] < 0.) {
         // Place a Auxiliary DOHM
-        dohm  = ns.volume(dohmAuxName);
-        dohmZ = dohmCarrierDz - 0.5*dohmAuxL - dohmtoMF;
+        dohm = ns.volume(dohmAuxName);
+        dohmZ = dohmCarrierDz - 0.5 * dohmAuxL - dohmtoMF;
         primReplica++;
         dohmReplica = primReplica;
       } else {
         // Place a Primary DOHM
         dohm = ns.volume(dohmPrimName);
-        dohmZ = dohmCarrierDz - 0.5*dohmPrimL - dohmtoMF;
+        dohmZ = dohmCarrierDz - 0.5 * dohmPrimL - dohmtoMF;
         auxReplica++;
         dohmReplica = auxReplica;
       }
-      Position dohmTrasl(dohmR*cos(phi), dohmR*sin(phi), dohmZ);
-      pv = dohmCarrier.placeVolume(dohm,dohmReplica,Transform3D(dohmRotation,dohmTrasl));
+      Position dohmTrasl(dohmR * cos(phi), dohmR * sin(phi), dohmZ);
+      pv = dohmCarrier.placeVolume(dohm, dohmReplica, Transform3D(dohmRotation, dohmTrasl));
       LogPosition(pv);
     }
-#else
-    if (placeDohm || primReplica || auxReplica || dohmR > 0e0) {
-    }  // Avoid warnings
-    edm::LogWarning("TIBGeom") << "DOOHM placement sucks for Geant4. ERASED!";
-#endif
+
     pv = layer.placeVolume(dohmCarrier, dohmCarrierReplica, Transform3D(rotation, tran));
     LogPosition(pv);
   }

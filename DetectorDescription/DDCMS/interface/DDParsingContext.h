@@ -60,6 +60,15 @@ namespace cms {
                           BooleanShape<dd4hep::IntersectionSolid>>>
         unresolvedShapes;
 
+    struct CompositeMaterial {
+      CompositeMaterial(const std::string& n, double f) : name(n), fraction(f) {}
+
+      const std::string name;
+      double fraction;
+    };
+
+    std::map<std::string, std::vector<CompositeMaterial>> unresolvedMaterials;
+
     bool geo_inited = false;
 
     // Debug flags
