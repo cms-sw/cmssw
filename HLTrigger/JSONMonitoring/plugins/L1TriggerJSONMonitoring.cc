@@ -34,14 +34,15 @@
 
 struct L1TriggerJSONMonitoringData {
   // variables accumulated event by event in each stream
+  static constexpr const int kPrescaleUndefined = -2;
   struct stream {
-    unsigned int processed;                          // number of events processed
+    unsigned int processed = 0;                      // number of events processed
     std::vector<unsigned int> l1tAccept;             // number of events accepted by each L1 trigger
     std::vector<unsigned int> l1tAcceptPhysics;      // number of "physics" events accepted by each L1 trigger
     std::vector<unsigned int> l1tAcceptCalibration;  // number of "calibration" events accepted by each L1 trigger
     std::vector<unsigned int> l1tAcceptRandom;       // number of "random" events accepted by each L1 trigger
-    std::vector<unsigned int> tcdsAccept;  // number of "physics", "calibration", "random" and other event types
-    int prescaleIndex = kPrescaleUndefined;          // prescale column index
+    std::vector<unsigned int> tcdsAccept;    // number of "physics", "calibration", "random" and other event types
+    int prescaleIndex = kPrescaleUndefined;  // prescale column index
   };
 
   // variables initialised for each run
@@ -61,7 +62,7 @@ struct L1TriggerJSONMonitoringData {
         l1tAcceptCalibration;                             // number of "calibration" events accepted by each L1 trigger
     jsoncollector::HistoJ<unsigned int> l1tAcceptRandom;  // number of "random" events accepted by each L1 trigger
     jsoncollector::HistoJ<unsigned int> tcdsAccept;  // number of "physics", "calibration", "random" and other event types
-    int prescaleIndex;                               // prescale column index
+    int prescaleIndex = kPrescaleUndefined;          // prescale column index
   };
 };
 
