@@ -96,7 +96,6 @@ process.muRawToDigi = cms.Sequence(process.L1TRawToDigi +
                                    process.muonCSCDigis +
                                    process.muonDTDigis +
                                    process.muonRPCDigis +
-                                   process.muonRPCNewDigis +
                                    process.muonGEMDigis)
                                    
 
