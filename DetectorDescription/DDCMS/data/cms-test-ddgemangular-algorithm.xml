@@ -30,7 +30,7 @@
   </ConstantsSection>
 
   <IncludeSection>
-    <Include ref='Geometry/CMSCommonData/data/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2015/v1/materials.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/v2/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernData/2017/v1/cavernData.xml'/>
