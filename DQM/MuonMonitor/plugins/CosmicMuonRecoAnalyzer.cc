@@ -33,7 +33,6 @@
 using namespace std;
 using namespace edm;
 
-
 class CosmicMuonRecoAnalyzer : public DQMEDAnalyzer {
 public:
   /// Constructor
@@ -112,7 +111,6 @@ private:
 
   std::string theFolder;
 };
-
 
 CosmicMuonRecoAnalyzer::CosmicMuonRecoAnalyzer(const edm::ParameterSet& pSet) {
   parameters = pSet;
