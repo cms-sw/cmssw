@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DQMServices/ClientConfig/interface/DQMGenericClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <set>
 #include <string>
@@ -14,6 +13,9 @@ class DQMRivetClient : public edm::EDAnalyzer {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
+  struct NormOption {
+    std::string name, normHistName;
+  };
 
   DQMRivetClient(const edm::ParameterSet& pset);
   ~DQMRivetClient() override{};
@@ -49,7 +51,7 @@ private:
   std::vector<std::string> subDirs_;
   std::string outputFileName_;
 
-  std::vector<DQMGenericClient::NormOption> normOptions_;
+  std::vector<NormOption> normOptions_;
   std::vector<LumiOption> lumiOptions_;
   std::vector<ScaleFactorOption> scaleOptions_;
 };
