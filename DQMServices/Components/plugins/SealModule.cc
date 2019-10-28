@@ -4,8 +4,6 @@
 // The module providing event information
 #include "DQMEventInfo.h"
 DEFINE_FWK_MODULE(DQMEventInfo);
-#include "DQMServices/Components/interface/QualityTester.h"
-DEFINE_FWK_MODULE(QualityTester);
 #include "DQMFileSaver.h"
 DEFINE_FWK_MODULE(DQMFileSaver);
 #include "DQMFEDIntegrityClient.h"
