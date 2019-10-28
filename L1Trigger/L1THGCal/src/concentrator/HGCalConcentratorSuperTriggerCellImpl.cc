@@ -127,10 +127,17 @@ void HGCalConcentratorSuperTriggerCellImpl::assignSuperTriggerCellEnergyAndPosit
           << "Trigger Cell with detId not equal to the maximum of the superTriggerCell found";
     }
   } else if (energyDivisionType_ == equalShare) {
-    double denominator = fixedDataSizePerHGCROC_
-                             ? double(kTriggerCellsForDivision_)
-                             : double(superTCmapping_.getConstituentTriggerCells(stc.getSTCId()).size()) /
-                                   double(coarseTCmapping_.getConstituentTriggerCells(stc.getSTCId()).size());
+    double coarseTriggerCellSize =
+        coarsenTriggerCells_
+            ? double(
+                  coarseTCmapping_.getConstituentTriggerCells(coarseTCmapping_.getCoarseTriggerCellId(stc.getMaxId()))
+                      .size())
+            : 1.;
+
+    double denominator =
+        fixedDataSizePerHGCROC_
+            ? double(kTriggerCellsForDivision_)
+            : double(superTCmapping_.getConstituentTriggerCells(stc.getSTCId()).size()) / coarseTriggerCellSize;
 
     c.setHwPt(std::round(compressed_value / denominator));
     calibration_.calibrateInGeV(c);
