@@ -33,7 +33,7 @@
   <IncludeSection>
     <Include ref="DetectorDescription/DDCMS/data/testDDHGCalCellAlgorithm.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/testDDHGCalWafer8Algorithm.xml"/>
-    <Include ref="DetectorDescription/DDCMS/data/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2015/v1/materials.xml"/>
   </IncludeSection>
   
 </DDDefinition>
