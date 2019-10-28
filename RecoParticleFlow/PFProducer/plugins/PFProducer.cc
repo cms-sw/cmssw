@@ -343,72 +343,9 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<bool>("useProtectionsForJetMET", true);  // Propagated to PFEGammaFilters
 
   // For PFEGammaFilters
-  {
-    edm::ParameterSetDescription psd_PFEgammaFilters;
-
-    // Electron selection cuts
-    psd_PFEgammaFilters.add<double>("electron_iso_pt", 10.0);
-    psd_PFEgammaFilters.add<double>("electron_iso_mva_barrel", -0.1875);
-    psd_PFEgammaFilters.add<double>("electron_iso_mva_endcap", -0.1075);
-    psd_PFEgammaFilters.add<double>("electron_iso_combIso_barrel", 10.0);
-    psd_PFEgammaFilters.add<double>("electron_iso_combIso_endcap", 10.0);
-    psd_PFEgammaFilters.add<double>("electron_noniso_mvaCut", -0.1);
-    psd_PFEgammaFilters.add<unsigned int>("electron_missinghits", 1);
-    psd_PFEgammaFilters.add<double>("electron_ecalDrivenHademPreselCut", 0.15);
-    psd_PFEgammaFilters.add<double>("electron_maxElePtForOnlyMVAPresel", 50.0);
-    {
-      edm::ParameterSetDescription psd_elecProtctionsJME;
-      psd_elecProtctionsJME.add<double>("maxNtracks", 3.0);  // max tracks pointing at Ele cluster
-      psd_elecProtctionsJME.add<double>("maxHcalE", 10.0);
-      psd_elecProtctionsJME.add<double>("maxTrackPOverEele", 1.0);
-      psd_elecProtctionsJME.add<double>("maxE", 50.0);  // for dphi cut
-      psd_elecProtctionsJME.add<double>("maxEleHcalEOverEcalE", 0.1);
-      psd_elecProtctionsJME.add<double>("maxEcalEOverPRes", 0.2);
-      psd_elecProtctionsJME.add<double>("maxEeleOverPoutRes", 0.5);
-      psd_elecProtctionsJME.add<double>("maxHcalEOverP", 1.0);
-      psd_elecProtctionsJME.add<double>("maxHcalEOverEcalE", 0.1);
-      psd_elecProtctionsJME.add<double>("maxEcalEOverP_1", 0.5);  //pion rejection
-      psd_elecProtctionsJME.add<double>("maxEcalEOverP_2", 0.2);  //weird events
-      psd_elecProtctionsJME.add<double>("maxEeleOverPout", 0.2);
-      psd_elecProtctionsJME.add<double>("maxDPhiIN", 0.1);
-      psd_PFEgammaFilters.add<edm::ParameterSetDescription>("electron_protectionsForJetMET", psd_elecProtctionsJME);
-    }
-    {
-      edm::ParameterSetDescription psd_elecProtectionsBadHcal;
-      psd_elecProtectionsBadHcal.add<bool>("enableProtections", false);
-      psd_elecProtectionsBadHcal.add<std::vector<double>>("full5x5_sigmaIetaIeta",  // EB, EE; 94Xv2 cut-based medium id
-                                                          {0.0106, 0.0387});
-      psd_elecProtectionsBadHcal.add<std::vector<double>>("eInvPInv", {0.184, 0.0721});
-      psd_elecProtectionsBadHcal.add<std::vector<double>>("dEta",  // relax factor 2 to be safer against misalignment
-                                                          {0.0032 * 2, 0.00632 * 2});
-      psd_elecProtectionsBadHcal.add<std::vector<double>>("dPhi", {0.0547, 0.0394});
-      psd_PFEgammaFilters.add<edm::ParameterSetDescription>("electron_protectionsForBadHcal",
-                                                            psd_elecProtectionsBadHcal);
-    }
-
-    // Photon selection cuts
-    psd_PFEgammaFilters.add<double>("photon_MinEt", 10.0);
-    psd_PFEgammaFilters.add<double>("photon_combIso", 10.0);
-    psd_PFEgammaFilters.add<double>("photon_HoE", 0.05);
-    psd_PFEgammaFilters.add<double>("photon_SigmaiEtaiEta_barrel", 0.0125);
-    psd_PFEgammaFilters.add<double>("photon_SigmaiEtaiEta_endcap", 0.034);
-    {
-      edm::ParameterSetDescription psd_photonProtectionsJME;
-      psd_photonProtectionsJME.add<double>("sumPtTrackIso", 4.0);
-      psd_photonProtectionsJME.add<double>("sumPtTrackIsoSlope", 0.001);
-      psd_PFEgammaFilters.add<edm::ParameterSetDescription>("photon_protectionsForJetMET", psd_photonProtectionsJME);
-    }
-    {
-      edm::ParameterSetDescription psd_photonProtectionsBadHcal;
-      psd_photonProtectionsBadHcal.add<double>("solidConeTrkIsoSlope", 0.3);
-      psd_photonProtectionsBadHcal.add<bool>("enableProtections", false);
-      psd_photonProtectionsBadHcal.add<double>("solidConeTrkIsoOffset", 10.0);
-      psd_PFEgammaFilters.add<edm::ParameterSetDescription>("photon_protectionsForBadHcal",
-                                                            psd_photonProtectionsBadHcal);
-    }
-
-    desc.add<edm::ParameterSetDescription>("PFEGammaFiltersParameters", psd_PFEgammaFilters);
-  }
+  edm::ParameterSetDescription psd_PFEGammaFilters;
+  PFEGammaFilters::fillPSetDescription(psd_PFEGammaFilters);
+  desc.add<edm::ParameterSetDescription>("PFEGammaFiltersParameters", psd_PFEGammaFilters);
 
   // Treatment of muons :
   // Expected energy in ECAL and HCAL, and RMS
@@ -417,31 +354,9 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<std::vector<double>>("muon_HO", {0.9, 0.9});
 
   // For PFMuonAlgo
-  {
-    edm::ParameterSetDescription psd_PFMuonAlgo;
-    // Muon ID and post cleaning parameters
-    psd_PFMuonAlgo.add<double>("maxDPtOPt", 1.0);
-    psd_PFMuonAlgo.add<std::string>("trackQuality", "highPurity");
-    psd_PFMuonAlgo.add<double>("ptErrorScale", 8.0);
-    psd_PFMuonAlgo.add<double>("eventFractionForCleaning", 0.5);
-
-    psd_PFMuonAlgo.add<double>("minPtForPostCleaning", 20.0);
-    psd_PFMuonAlgo.add<double>("eventFactorForCosmics", 10.0);
-    psd_PFMuonAlgo.add<double>("metSignificanceForCleaning", 3.0);
-    psd_PFMuonAlgo.add<double>("metSignificanceForRejection", 4.0);
-    psd_PFMuonAlgo.add<double>("metFactorForCleaning", 4.0);
-    psd_PFMuonAlgo.add<double>("eventFractionForRejection", 0.8);
-    psd_PFMuonAlgo.add<double>("metFactorForRejection", 4.0);
-    psd_PFMuonAlgo.add<double>("metFactorForHighEta", 25.0);
-    psd_PFMuonAlgo.add<double>("ptFactorForHighEta", 2.0);
-    psd_PFMuonAlgo.add<double>("metFactorForFakes", 4.0);
-    psd_PFMuonAlgo.add<double>("minMomentumForPunchThrough", 100.0);
-    psd_PFMuonAlgo.add<double>("minEnergyForPunchThrough", 100.0);
-    psd_PFMuonAlgo.add<double>("punchThroughFactor", 3.0);
-    psd_PFMuonAlgo.add<double>("punchThroughMETFactor", 4.0);
-    psd_PFMuonAlgo.add<double>("cosmicRejectionDistance", 1.0);
-    desc.add<edm::ParameterSetDescription>("PFMuonAlgoParameters", psd_PFMuonAlgo);
-  }
+  edm::ParameterSetDescription psd_PFMuonAlgo;
+  PFEGammaFilters::fillPSetDescription(psd_PFMuonAlgo);
+  desc.add<edm::ParameterSetDescription>("PFMuonAlgoParameters", psd_PFMuonAlgo);
 
   // Input displaced vertices
   // It is strongly adviced to keep usePFNuclearInteractions = bCorrect
@@ -453,45 +368,41 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<bool>("usePFDecays", false);
 
   desc.add<double>("dptRel_DispVtx", 10.0);
-  {
-    edm::ParameterSetDescription psd_CandConnector;
-    psd_CandConnector.add<bool>("bCorrect", true);
-    psd_CandConnector.add<bool>("bCalibPrimary", true);
-    psd_CandConnector.add<double>("dptRel_PrimaryTrack", 10.0);
-    psd_CandConnector.add<double>("dptRel_MergedTrack", 5.0);
-    psd_CandConnector.add<double>("ptErrorSecondary", 1.0);
-    psd_CandConnector.add<std::vector<double>>("nuclCalibFactors", {0.8, 0.15, 0.5, 0.5, 0.05});
-    desc.add<edm::ParameterSetDescription>("iCfgCandConnector", psd_CandConnector);
-  }
+
+  // PFCandConnector
+  edm::ParameterSetDescription psd_CandConnector;
+  PFCandConnector::fillPSetDescription(psd_CandConnector);
+  desc.add<edm::ParameterSetDescription>("iCfgCandConnector", psd_CandConnector);
 
   // Treatment of potential fake tracks
-  // Number of sigmas for fake track detection
-  desc.add<double>("nsigma_TRACK", 1.0);
-  // Absolute pt error to detect fake tracks in the first three iterations
-  // dont forget to modify also ptErrorSecondary if you modify this parameter
-  desc.add<double>("pt_Error", 1.0);
-  // Factors to be applied in the four and fifth steps to the pt error
-  desc.add<std::vector<double>>("factors_45", {10.0, 100.0});
+  desc.add<double>("nsigma_TRACK", 1.0)->setComment("Number of sigmas for fake track detection");
+  // pt_Error: dont forget to modify also ptErrorSecondary if you modify this parameter
+  desc.add<double>("pt_Error", 1.0)
+      ->setComment("Absolute pt error to detect fake tracks in the first three iterations");
+  desc.add<std::vector<double>>("factors_45", {10.0, 100.0})
+      ->setComment("Factors to be applied in the four and fifth steps to the pt error");
 
   // Treatment of tracks in region of bad HCal
-  desc.add<double>("goodTrackDeadHcal_ptErrRel", 0.2);  // trackRef->ptError()/trackRef->pt() < X
-  desc.add<double>("goodTrackDeadHcal_chi2n", 5);       // trackRef->normalizedChi2() < X
-  desc.add<unsigned int>("goodTrackDeadHcal_layers",
-                         4);                           // trackRef->hitPattern().trackerLayersWithMeasurement() >= X
-  desc.add<double>("goodTrackDeadHcal_validFr", 0.5);  // trackRef->validFraction() > X
-  desc.add<double>("goodTrackDeadHcal_dxy", 0.5);      // [cm] abs(trackRef->dxy(primaryVertex_.position())) < X
+  desc.add<double>("goodTrackDeadHcal_ptErrRel", 0.2)->setComment("trackRef->ptError()/trackRef->pt() < X");
+  desc.add<double>("goodTrackDeadHcal_chi2n", 5)->setComment("trackRef->normalizedChi2() < X");
+  desc.add<unsigned int>("goodTrackDeadHcal_layers", 4)
+      ->setComment("trackRef->hitPattern().trackerLayersWithMeasurement() >= X");
+  desc.add<double>("goodTrackDeadHcal_validFr", 0.5)->setComment("trackRef->validFraction() > X");
+  desc.add<double>("goodTrackDeadHcal_dxy", 0.5)->setComment("abs(trackRef->dxy(primaryVertex_.position())) < X [cm]");
 
-  desc.add<double>("goodPixelTrackDeadHcal_minEta", 2.3);    // abs(trackRef->eta()) > X
-  desc.add<double>("goodPixelTrackDeadHcal_maxPt", 50.0);    // trackRef->ptError()/trackRef->pt() < X
-  desc.add<double>("goodPixelTrackDeadHcal_ptErrRel", 1.0);  // trackRef->ptError()/trackRef->pt() < X
-  desc.add<double>("goodPixelTrackDeadHcal_chi2n", 2);       // trackRef->normalizedChi2() < X
-  desc.add<int>(
-      "goodPixelTrackDeadHcal_maxLost3Hit",
-      0);  // max missing outer hits for a track with 3 valid pixel layers (can set to -1 to reject all these tracks)
-  desc.add<int>("goodPixelTrackDeadHcal_maxLost4Hit",
-                1);  // max missing outer hits for a track with >= 4 valid pixel layers
-  desc.add<double>("goodPixelTrackDeadHcal_dxy", 0.02);  // [cm] abs(trackRef->dxy(primaryVertex_.position())) < X
-  desc.add<double>("goodPixelTrackDeadHcal_dz", 0.05);   // [cm] abs(trackRef->dz(primaryVertex_.position())) < X
+  desc.add<double>("goodPixelTrackDeadHcal_minEta", 2.3)->setComment("abs(trackRef->eta()) > X");
+  desc.add<double>("goodPixelTrackDeadHcal_maxPt", 50.0)->setComment("trackRef->ptError()/trackRef->pt() < X");
+  desc.add<double>("goodPixelTrackDeadHcal_ptErrRel", 1.0)->setComment("trackRef->ptError()/trackRef->pt() < X");
+  desc.add<double>("goodPixelTrackDeadHcal_chi2n", 2)->setComment("trackRef->normalizedChi2() < X");
+  desc.add<int>("goodPixelTrackDeadHcal_maxLost3Hit", 0)
+      ->setComment(
+          "max missing outer hits for a track with 3 valid pixel layers (can set to -1 to reject all these tracks)");
+  desc.add<int>("goodPixelTrackDeadHcal_maxLost4Hit", 1)
+      ->setComment("max missing outer hits for a track with >= 4 valid pixel layers");
+  desc.add<double>("goodPixelTrackDeadHcal_dxy", 0.02)
+      ->setComment("abs(trackRef->dxy(primaryVertex_.position())) < X [cm] ");
+  desc.add<double>("goodPixelTrackDeadHcal_dz", 0.05)
+      ->setComment("abs(trackRef->dz(primaryVertex_.position())) < X [cm]");
 
   // number of sigmas for neutral energy detection
   desc.add<double>("pf_nsigma_ECAL", 0.0);
@@ -505,20 +416,20 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<bool>("postHFCleaning", false);
   {
     edm::ParameterSetDescription psd_PFHFCleaning;
-    // Clean only objects with pt larger than this value
-    psd_PFHFCleaning.add<double>("minHFCleaningPt", 5.0);
-    // Clean only if the initial MET/sqrt(sumet) is larger than this value
-    psd_PFHFCleaning.add<double>("maxSignificance", 2.5);
-    // Clean only if the final MET/sqrt(sumet) is smaller than this value
-    psd_PFHFCleaning.add<double>("minSignificance", 2.5);
-    // Clean only if the significance reduction is larger than this value
-    psd_PFHFCleaning.add<double>("minSignificanceReduction", 1.4);
-    // Clean only if the MET and the to-be-cleaned object satisfy this DeltaPhi * Pt cut
+    psd_PFHFCleaning.add<double>("minHFCleaningPt", 5.0)
+        ->setComment("Clean only objects with pt larger than this value");
+    psd_PFHFCleaning.add<double>("maxSignificance", 2.5)
+        ->setComment("Clean only if the initial MET/sqrt(sumet) is larger than this value");
+    psd_PFHFCleaning.add<double>("minSignificance", 2.5)
+        ->setComment("Clean only if the final MET/sqrt(sumet) is smaller than this value");
+    psd_PFHFCleaning.add<double>("minSignificanceReduction", 1.4)
+        ->setComment("Clean only if the significance reduction is larger than this value");
+    psd_PFHFCleaning.add<double>("maxDeltaPhiPt", 7.0)
+        ->setComment("Clean only if the MET and the to-be-cleaned object satisfy this DeltaPhi * Pt cut");
     // (the MET angular resoution is in 1/MET)
-    psd_PFHFCleaning.add<double>("maxDeltaPhiPt", 7.0);
-    // Clean only if the MET relative reduction from the to-be-cleaned object
-    // is larger than this value
-    psd_PFHFCleaning.add<double>("minDeltaMet", 0.4);  //
+    psd_PFHFCleaning.add<double>("minDeltaMet", 0.4)
+        ->setComment(
+            "Clean only if the MET relative reduction from the to-be-cleaned object is larger than this value");
     desc.add<edm::ParameterSetDescription>("PFHFCleaningParameters", psd_PFHFCleaning);
   }
 

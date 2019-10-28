@@ -404,3 +404,64 @@ bool PFEGammaFilters::passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron&
   } else
     return passCutBased || passMVA;
 }
+
+void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  // Electron selection cuts
+  iDesc.add<double>("electron_iso_pt", 10.0);
+  iDesc.add<double>("electron_iso_mva_barrel", -0.1875);
+  iDesc.add<double>("electron_iso_mva_endcap", -0.1075);
+  iDesc.add<double>("electron_iso_combIso_barrel", 10.0);
+  iDesc.add<double>("electron_iso_combIso_endcap", 10.0);
+  iDesc.add<double>("electron_noniso_mvaCut", -0.1);
+  iDesc.add<unsigned int>("electron_missinghits", 1);
+  iDesc.add<double>("electron_ecalDrivenHademPreselCut", 0.15);
+  iDesc.add<double>("electron_maxElePtForOnlyMVAPresel", 50.0);
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<double>("maxNtracks", 3.0)->setComment("Max tracks pointing at Ele cluster");
+    psd.add<double>("maxHcalE", 10.0);
+    psd.add<double>("maxTrackPOverEele", 1.0);
+    psd.add<double>("maxE", 50.0)->setComment("Above this maxE, consider dphi(SC,track) cut");
+    psd.add<double>("maxEleHcalEOverEcalE", 0.1);
+    psd.add<double>("maxEcalEOverPRes", 0.2);
+    psd.add<double>("maxEeleOverPoutRes", 0.5);
+    psd.add<double>("maxHcalEOverP", 1.0);
+    psd.add<double>("maxHcalEOverEcalE", 0.1);
+    psd.add<double>("maxEcalEOverP_1", 0.5)->setComment("E(SC)/P cut - pion rejection");
+    psd.add<double>("maxEcalEOverP_2", 0.2)->setComment("E(SC)/P cut - weird ele rejection");
+    psd.add<double>("maxEeleOverPout", 0.2);
+    psd.add<double>("maxDPhiIN", 0.1)->setComment("Above this dphi(SC,track) and maxE, considered not safe");
+    iDesc.add<edm::ParameterSetDescription>("electron_protectionsForJetMET", psd);
+  }
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<bool>("enableProtections", false);
+    psd.add<std::vector<double>>("full5x5_sigmaIetaIeta",  // EB, EE; 94Xv2 cut-based medium id
+                                 {0.0106, 0.0387});
+    psd.add<std::vector<double>>("eInvPInv", {0.184, 0.0721});
+    psd.add<std::vector<double>>("dEta",  // relax factor 2 to be safer against misalignment
+                                 {0.0032 * 2, 0.00632 * 2});
+    psd.add<std::vector<double>>("dPhi", {0.0547, 0.0394});
+    iDesc.add<edm::ParameterSetDescription>("electron_protectionsForBadHcal", psd);
+  }
+
+  // Photon selection cuts
+  iDesc.add<double>("photon_MinEt", 10.0);
+  iDesc.add<double>("photon_combIso", 10.0);
+  iDesc.add<double>("photon_HoE", 0.05);
+  iDesc.add<double>("photon_SigmaiEtaiEta_barrel", 0.0125);
+  iDesc.add<double>("photon_SigmaiEtaiEta_endcap", 0.034);
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<double>("sumPtTrackIso", 4.0);
+    psd.add<double>("sumPtTrackIsoSlope", 0.001);
+    iDesc.add<edm::ParameterSetDescription>("photon_protectionsForJetMET", psd);
+  }
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<double>("solidConeTrkIsoSlope", 0.3);
+    psd.add<bool>("enableProtections", false);
+    psd.add<double>("solidConeTrkIsoOffset", 10.0);
+    iDesc.add<edm::ParameterSetDescription>("photon_protectionsForBadHcal", psd);
+  }
+}
