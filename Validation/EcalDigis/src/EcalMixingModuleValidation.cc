@@ -673,6 +673,7 @@ void EcalMixingModuleValidation::findPedestal(const DetId& detId, int gainId, do
     switch (gainId) {
       case 0:
         ped = item.mean_x1;
+        break;
       case 1:
         ped = item.mean_x12;
         break;
