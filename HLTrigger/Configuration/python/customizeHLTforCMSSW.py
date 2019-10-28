@@ -27,61 +27,66 @@ def customiseFor28110(process):
         if hasattr(producer, "iCfgCandConnector"):
             pset = getattr(producer, "iCfgCandConnector")
             delattr(pset,'bCalibSecondary')
-        if hasattr(producer, "algoType"): delattr(producer, "algoType")
-        if hasattr(producer, "isolatedElectronID_mvaWeightFile"): delattr(producer, "isolatedElectronID_mvaWeightFile")
-        if hasattr(producer, "pf_electronID_mvaWeightFile"): delattr(producer, "pf_electronID_mvaWeightFile")
-        if hasattr(producer, "pf_electron_output_col"): delattr(producer, "pf_electron_output_col")
-        if hasattr(producer, "minTrackerHits"): delattr(producer, "minTrackerHits")
-        if hasattr(producer, "minPixelHits"): delattr(producer, "minPixelHits")
-        if hasattr(producer, "dzPV"): delattr(producer, "dzPV")
+        toDelete=['algoType',
+                  'isolatedElectronID_mvaWeightFile',
+                  'pf_electronID_mvaWeightFile',
+                  'pf_electron_output_col',
+                  'minTrackerHits',
+                  'minPixelHits',
+                  'dzPV']
         #
         # kill parameters that are moved to sub-psets
         # PFEGammaFiltersParameters
-        if hasattr(producer, "electron_iso_pt"): delattr(producer, "electron_iso_pt")
-        if hasattr(producer, "electron_iso_mva_barrel"): delattr(producer, "electron_iso_mva_barrel")
-        if hasattr(producer, "electron_iso_mva_endcap"): delattr(producer, "electron_iso_mva_endcap")
-        if hasattr(producer, "electron_iso_combIso_barrel"): delattr(producer, "electron_iso_combIso_barrel")
-        if hasattr(producer, "electron_iso_combIso_endcap"): delattr(producer, "electron_iso_combIso_endcap")
-        if hasattr(producer, "electron_noniso_mvaCut"): delattr(producer, "electron_noniso_mvaCut")
-        if hasattr(producer, "electron_missinghits"): delattr(producer, "electron_missinghits")
-        if hasattr(producer, "electron_ecalDrivenHademPreselCut"): delattr(producer, "electron_ecalDrivenHademPreselCut")
-        if hasattr(producer, "electron_maxElePtForOnlyMVAPresel"): delattr(producer, "electron_maxElePtForOnlyMVAPresel")
-        if hasattr(producer, "electron_protectionsForJetMET"): delattr(producer, "electron_protectionsForJetMET")
-        if hasattr(producer, "electron_protectionsForBadHcal"): delattr(producer, "electron_protectionsForBadHcal")
-        if hasattr(producer, "photon_MinEt"): delattr(producer, "photon_MinEt")
-        if hasattr(producer, "photon_combIso"): delattr(producer, "photon_combIso")
-        if hasattr(producer, "photon_HoE"): delattr(producer, "photon_HoE")
-        if hasattr(producer, "photon_SigmaiEtaiEta_barrel"): delattr(producer, "photon_SigmaiEtaiEta_barrel")
-        if hasattr(producer, "photon_SigmaiEtaiEta_endcap"): delattr(producer, "photon_SigmaiEtaiEta_endcap")
-        if hasattr(producer, "photon_protectionsForJetMET"): delattr(producer, "photon_protectionsForJetMET")
-        if hasattr(producer, "photon_protectionsForBadHcal"): delattr(producer, "photon_protectionsForBadHcal")
+        toDelete.extend(['electron_iso_pt',
+                         'electron_iso_mva_barrel',
+                         'electron_iso_mva_endcap',
+                         'electron_iso_combIso_barrel',
+                         'electron_iso_combIso_endcap',
+                         'electron_noniso_mvaCut',
+                         'electron_missinghits',
+                         'electron_ecalDrivenHademPreselCut',
+                         'electron_maxElePtForOnlyMVAPresel',
+                         'electron_protectionsForJetMET',
+                         'electron_protectionsForBadHcal',
+                         'photon_MinEt',
+                         'photon_combIso',
+                         'photon_HoE',
+                         'photon_SigmaiEtaiEta_barrel',
+                         'photon_SigmaiEtaiEta_endcap',
+                         'photon_protectionsForJetMET',
+                         'photon_protectionsForBadHcal'
+                         ])
         # PFMuonAlgoParameters
-        if hasattr(producer, "maxDPtOPt"): delattr(producer, "maxDPtOPt")
-        if hasattr(producer, "trackQuality"): delattr(producer, "trackQuality")
-        if hasattr(producer, "ptErrorScale"): delattr(producer, "ptErrorScale")
-        if hasattr(producer, "eventFractionForCleaning"): delattr(producer, "eventFractionForCleaning")
-        if hasattr(producer, "minPtForPostCleaning"): delattr(producer, "minPtForPostCleaning")
-        if hasattr(producer, "eventFactorForCosmics"): delattr(producer, "eventFactorForCosmics")
-        if hasattr(producer, "metSignificanceForCleaning"): delattr(producer, "metSignificanceForCleaning")
-        if hasattr(producer, "metSignificanceForRejection"): delattr(producer, "metSignificanceForRejection")
-        if hasattr(producer, "metFactorForCleaning"): delattr(producer, "metFactorForCleaning")
-        if hasattr(producer, "eventFractionForRejection"): delattr(producer, "eventFractionForRejection")
-        if hasattr(producer, "metFactorForRejection"): delattr(producer, "metFactorForRejection")
-        if hasattr(producer, "metFactorForHighEta"): delattr(producer, "metFactorForHighEta")
-        if hasattr(producer, "ptFactorForHighEta"): delattr(producer, "ptFactorForHighEta")
-        if hasattr(producer, "metFactorForFakes"): delattr(producer, "metFactorForFakes")
-        if hasattr(producer, "minMomentumForPunchThrough"): delattr(producer, "minMomentumForPunchThrough")
-        if hasattr(producer, "minEnergyForPunchThrough"): delattr(producer, "minEnergyForPunchThrough")
-        if hasattr(producer, "punchThroughFactor"): delattr(producer, "punchThroughFactor")
-        if hasattr(producer, "punchThroughMETFactor"): delattr(producer, "punchThroughMETFactor")
-        if hasattr(producer, "cosmicRejectionDistance"): delattr(producer, "cosmicRejectionDistance")
+        toDelete.extend(['maxDPtOPt',
+                         'trackQuality',
+                         'ptErrorScale',
+                         'eventFractionForCleaning',
+                         'minPtForPostCleaning',
+                         'eventFactorForCosmics',
+                         'metSignificanceForCleaning',
+                         'metSignificanceForRejection',
+                         'metFactorForCleaning',
+                         'eventFractionForRejection',
+                         'metFactorForRejection',
+                         'metFactorForHighEta',
+                         'ptFactorForHighEta',
+                         'metFactorForFakes',
+                         'minMomentumForPunchThrough',
+                         'minEnergyForPunchThrough',
+                         'punchThroughFactor',
+                         'punchThroughMETFactor',
+                         'cosmicRejectionDistance'])
         # Post HF cleaning
-        if hasattr(producer, "minHFCleaningPt"): delattr(producer, "minHFCleaningPt")
-        if hasattr(producer, "maxSignificance"): delattr(producer, "maxSignificance")
-        if hasattr(producer, "minSignificance"): delattr(producer, "minSignificance")
-        if hasattr(producer, "minSignificanceReduction"): delattr(producer, "minSignificanceReduction")
-        if hasattr(producer, "maxDeltaPhiPt"): delattr(producer, "maxDeltaPhiPt")
-        if hasattr(producer, "minDeltaMet"): delattr(producer, "minDeltaMet")
+        toDelete.extend(['minHFCleaningPt',
+                         'maxSignificance',
+                         'minSignificance',
+                         'minSignificanceReduction',
+                         'maxDeltaPhiPt',
+                         'minDeltaMet'])
+        #
+        # Actually kill them
+        for att in toDelete:
+            if (hasattr(producer, att)): delattr(producer, att)
         #
     return process
 
