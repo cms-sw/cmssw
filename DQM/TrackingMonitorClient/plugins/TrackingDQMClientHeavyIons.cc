@@ -1,7 +1,6 @@
 
 #include "DQM/TrackingMonitorClient/plugins/TrackingDQMClientHeavyIons.h"
 
-#include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

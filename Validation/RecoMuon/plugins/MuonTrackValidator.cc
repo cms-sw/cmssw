@@ -1,5 +1,4 @@
 #include "Validation/RecoMuon/plugins/MuonTrackValidator.h"
-#include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
