@@ -157,7 +157,6 @@ void GEMStripDigiValidation::analyze(const edm::Event &e, const edm::EventSetup 
 
       GlobalPoint gp = surface.toGlobal(lp);
       Float_t g_r = (Float_t)gp.perp();
-      // Float_t g_eta = (Float_t) gp.eta();
       Float_t g_phi = (Float_t)gp.phi();
       Float_t g_x = (Float_t)gp.x();
       Float_t g_y = (Float_t)gp.y();

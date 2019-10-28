@@ -1,7 +1,6 @@
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include <memory>
 using namespace std;
@@ -127,14 +126,12 @@ GEMBaseValidation::MonitorElement* GEMBaseValidation::getDCEta(DQMStore::IBooker
     return nullptr;
   }
 
-  //  int nXbins = station->rings().front()->nSuperChambers()*2; //Fine for the complete geometry, but not for the Slice Test geometry
   int nXbins = 72;  //Maximum number of chambers is for GE1/1
   int nYbins = station->rings().front()->superChambers().front()->chambers().front()->nEtaPartitions();
 
   TH2F* dcEta_temp = new TH2F(title, histname, nXbins, 0, nXbins, nYbins, 1, nYbins + 1);
   int idx = 0;
 
-  //  for(unsigned int sCh = 1; sCh <= station->superChambers().size(); sCh++){
   for (unsigned int sCh = 1; sCh <= 36; sCh++) {
     for (unsigned int Ch = 1; Ch <= 2; Ch++) {
       idx++;

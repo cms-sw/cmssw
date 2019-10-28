@@ -184,6 +184,3 @@ void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGet
       LogDebug("MuonGEMDigisHarvestor") << "Can not find eta or phi of all track";
   }
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(MuonGEMDigisHarvestor);

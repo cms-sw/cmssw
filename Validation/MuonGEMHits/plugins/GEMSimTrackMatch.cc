@@ -1,4 +1,4 @@
-#include "Validation/MuonGEMHits/interface/GEMSimTrackMatch.h"
+#include "Validation/MuonGEMHits/plugins/GEMSimTrackMatch.h"
 #include "Validation/MuonGEMHits/interface/GEMDetLabel.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -82,7 +82,6 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if (!simhits.isValid() || !sim_tracks.isValid() || !sim_vertices.isValid())
     return;
 
-  //const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
   const edm::SimTrackContainer& sim_trks = *sim_tracks.product();
 
   if (detailPlot_) {

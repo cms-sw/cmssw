@@ -113,10 +113,6 @@ std::pair<double, double> GEMTrackMatch::getEtaRange(int station, int chamber) {
     float height2(parameters2[2]);
     LocalPoint lTop1(0., height1, 0.);
     GlobalPoint gTop1(bSurface1.toGlobal(lTop1));
-    //LocalPoint lBottom1( 0., -height1, 0.);
-    //GlobalPoint gBottom1(bSurface1.toGlobal(lBottom1));
-    //LocalPoint lTop2( 0., height2, 0.);
-    //GlobalPoint gTop2(bSurface2.toGlobal(lTop2));
     LocalPoint lBottom2(0., -height2, 0.);
     GlobalPoint gBottom2(bSurface2.toGlobal(lBottom2));
     double eta1 = fabs(gTop1.eta()) - 0.01;

@@ -1,4 +1,4 @@
-#include "Validation/MuonGEMHits/interface/GEMHitsValidation.h"
+#include "Validation/MuonGEMHits/plugins/GEMHitsValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"

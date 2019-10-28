@@ -10,7 +10,6 @@
 
 */
 
-
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -29,12 +28,10 @@
 typedef std::vector<GEMRecHit> GEMRecHitContainer;
 
 class GEMGeometry;
-class GEMRecHitMatcher
-{
+class GEMRecHitMatcher {
 public:
-
   // constructor
-  GEMRecHitMatcher(edm::ParameterSet const& iPS, edm::ConsumesCollector && iC);
+  GEMRecHitMatcher(edm::ParameterSet const& iPS, edm::ConsumesCollector&& iC);
 
   // destructor
   ~GEMRecHitMatcher() {}
@@ -55,7 +52,7 @@ public:
   std::set<unsigned int> superChamberIds() const;
 
   // GEM recHits from a particular partition, chamber or superchamber
-  const GEMRecHitContainer& recHits() const {return recHits_;}
+  const GEMRecHitContainer& recHits() const { return recHits_; }
   const GEMRecHitContainer& recHitsInDetId(unsigned int) const;
   const GEMRecHitContainer& recHitsInChamber(unsigned int) const;
   const GEMRecHitContainer& recHitsInSuperChamber(unsigned int) const;
@@ -89,7 +86,6 @@ public:
   bool areGEMRecHitSame(const GEMRecHit& l, const GEMRecHit& r) const;
 
 private:
-
   void matchRecHitsToSimTrack(const GEMRecHitCollection& recHits);
 
   edm::EDGetTokenT<GEMRecHitCollection> gemRecHitToken_;

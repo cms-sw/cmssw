@@ -1,5 +1,5 @@
-#ifndef Validation_GEMSimTrackMatch_H
-#define Validation_GEMSimTrackMatch_H
+#ifndef Validation_MuonGEMHits_GEMSimTrackMatch_H
+#define Validation_MuonGEMHits_GEMSimTrackMatch_H
 
 #include "Validation/MuonGEMHits/interface/GEMTrackMatch.h"
 #include "Validation/MuonGEMHits/interface/SimHitMatcher.h"
@@ -16,9 +16,6 @@ private:
   MonitorElement* track_phi[3][3];
   MonitorElement* sh_eta[4][3];
   MonitorElement* sh_phi[4][3][3];
-  // Local X, Local Y plots are not ready
-  //MonitorElement* gem_lx[3][2];
-  //MonitorElement* gem_ly[3][2];
   bool detailPlot_;
 };
 

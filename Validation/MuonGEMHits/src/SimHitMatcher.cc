@@ -147,7 +147,6 @@ void SimHitMatcher::matchSimHitsToSimTrack(std::vector<unsigned int> track_ids, 
     GEMDetId id(d);
     auto hits = hitsInDetId(d);
     auto roll = gem_geo_.etaPartition(id);
-    //int max_npads = roll->npads();
     set<int> pads;
     for (auto& h : hits) {
       LocalPoint lp = h.entryPoint();

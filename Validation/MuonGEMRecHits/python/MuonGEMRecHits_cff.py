@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-from Validation.MuonGEMRecHits.gemRecHitPSet import gemRecHit
+from Validation.MuonHits.muonSimHitMatcherPSet import muonSimHitMatcherPSet
+from Validation.MuonGEMDigis.muonGEMDigiPSet import muonGEMDigiPSet
+from Validation.MuonGEMRecHits.muonGEMRecHitPSet import gemRecHit
 
 gemRecHitsValidation = DQMEDAnalyzer('GEMRecHitsValidation',
     verboseSimHit = cms.untracked.int32(1),
@@ -16,12 +18,20 @@ gemRecHitsValidation = DQMEDAnalyzer('GEMRecHitsValidation',
 
 gemRecHitTrackValidation = DQMEDAnalyzer('GEMRecHitTrackMatch',
   # GEM RecHit matching:
+  simTrack = muonSimHitMatcherPSet.simTrack,
+  simVertex = muonSimHitMatcherPSet.simVertex,
+  gemSimHit = muonSimHitMatcherPSet.gemSimHit,
+  gemStripDigi = muonGEMDigiPSet.gemStripDigi,
+  gemPadDigi = muonGEMDigiPSet.gemPadDigi,
+  gemPadCluster = muonGEMDigiPSet.gemPadCluster,
+  gemCoPadDigi = muonGEMDigiPSet.gemCoPadDigi,
   gemRecHit = gemRecHit,
   simTrackCollection = cms.InputTag('g4SimHits'),
   simVertexCollection = cms.InputTag('g4SimHits'),
   gemMinPt = cms.untracked.double(5.0),
   gemMinEta = cms.untracked.double(1.55),
   gemMaxEta = cms.untracked.double(2.45),
+  detailPlot = cms.bool(False),
 )
 
-gemLocalRecoValidation = cms.Sequence( gemRecHitsValidation+gemRecHitTrackValidation )
+gemLocalRecoValidation = cms.Sequence(gemRecHitsValidation + gemRecHitTrackValidation)

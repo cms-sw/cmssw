@@ -144,6 +144,3 @@ void MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGett
     }
   }
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(MuonGEMHitsHarvestor);
