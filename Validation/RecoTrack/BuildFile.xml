@@ -1,4 +1,3 @@
-<use   name="DQMServices/ClientConfig"/>
 <use   name="DQMServices/Core"/>
 <use   name="SimDataFormats/TrackingAnalysis"/>
 <use   name="DataFormats/TrackReco"/>

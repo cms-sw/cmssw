@@ -1,9 +1,3 @@
-<!--
-find doc and examles in
-DQMServices/ClientConfig/test 
-https://twiki.cern.ch/twiki/bin/view/CMS/DQMQualityTests
--->
-
 <TESTSCONFIGURATION>
 
 <QTEST name="efficiencyCheckL1">

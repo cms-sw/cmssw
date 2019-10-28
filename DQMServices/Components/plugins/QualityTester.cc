@@ -25,7 +25,6 @@
 #include "CondFormats/DataRecord/interface/DQMXMLFileRcd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/ClientConfig/interface/QTestHandle.h"
 
 #include <cmath>
 #include <memory>
@@ -78,7 +77,6 @@ private:
 
   QTestHandle* qtHandler;
 };
-
 
 QualityTester::QualityTester(const ParameterSet& ps) {
   prescaleFactor = ps.getUntrackedParameter<int>("prescaleFactor", 1);

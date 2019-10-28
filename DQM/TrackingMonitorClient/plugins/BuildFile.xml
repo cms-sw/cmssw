@@ -1,7 +1,6 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Framework"/>
 <use   name="EventFilter/Utilities"/>
-<use   name="DQMServices/ClientConfig"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="CondFormats/DataRecord"/>

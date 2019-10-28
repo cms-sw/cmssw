@@ -24,7 +24,6 @@
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="SimTracker/TrackHistory"/>
-<use   name="DQMServices/ClientConfig"/>
 <use   name="DQM/SiStripCommon"/>
 <use   name="CalibTracker/Records"/>
 <use   name="CommonTools/TriggerUtils"/>

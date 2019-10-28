@@ -161,8 +161,7 @@ void DQMRivetClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   for (set<string>::const_iterator iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
     const string& dirName = *iSubDir;
-    for (vector<NormOption>::const_iterator normOption = normOptions_.begin();
-         normOption != normOptions_.end();
+    for (vector<NormOption>::const_iterator normOption = normOptions_.begin(); normOption != normOptions_.end();
          ++normOption) {
       normalizeToIntegral(dirName, normOption->name, normOption->normHistName);
     }

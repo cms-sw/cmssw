@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-from DQMServices.ClientConfig.genericClientPSetHelper_cff import *
-
 rpcRecHitSimRecoClient = DQMEDHarvester("RPCRecHitValidClient",
     subDir = cms.string("RPC/RPCRecHitV/SimVsReco"),
 )
