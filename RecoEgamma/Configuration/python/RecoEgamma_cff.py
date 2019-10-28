@@ -36,13 +36,13 @@ egammaHighLevelRecoPrePF = cms.Sequence(egammaHighLevelRecoPrePFTask)
 fastSim.toReplaceWith(egammarecoTask, egammarecoTask.copyAndExclude([conversionTask]))
 fastSim.toReplaceWith(egammaHighLevelRecoPrePFTask,egammaHighLevelRecoPrePFTask.copyAndExclude([uncleanedOnlyElectronTask,conversionTask]))
 
-#egammaHighLevelRecoPostPF = cms.Sequence(gsfElectronMergingSequence*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence*hfEMClusteringSequence)
+#egammaHighLevelRecoPostPF = cms.Sequence(gsfElectronMergingSequence*interestingEgammaIsoDetIdsTask*photonIDSequence*eIdSequence*hfEMClusteringSequence)
 #adding new gedGsfElectronSequence and gedPhotonSequence :
-#egammaHighLevelRecoPostPF = cms.Sequence(gsfElectronMergingSequence*gedGsfElectronSequence*interestingEgammaIsoDetIds*gedPhotonSequence*photonIDSequence*eIdSequence*hfEMClusteringSequence)
-egammaHighLevelRecoPostPFTask = cms.Task(interestingEgammaIsoDetIds,egmIsolationTask,photonIDTask,photonIDTaskGED,eIdTask,hfEMClusteringTask)
+#egammaHighLevelRecoPostPF = cms.Sequence(gsfElectronMergingSequence*gedGsfElectronSequence*interestingEgammaIsoDetIdsTask*gedPhotonSequence*photonIDSequence*eIdSequence*hfEMClusteringSequence)
+egammaHighLevelRecoPostPFTask = cms.Task(interestingEgammaIsoDetIdsTask,egmIsolationTask,photonIDTask,photonIDTaskGED,eIdTask,hfEMClusteringTask)
 egammaHighLevelRecoPostPF = cms.Sequence(egammaHighLevelRecoPostPFTask)
 
-egammarecoFullTask = cms.Task(egammarecoTask,interestingEgammaIsoDetIds,egmIsolationTask,photonIDTask,eIdTask,hfEMClusteringTask)
+egammarecoFullTask = cms.Task(egammarecoTask,interestingEgammaIsoDetIdsTask,egmIsolationTask,photonIDTask,eIdTask,hfEMClusteringTask)
 egammarecoFull = cms.Sequence(egammarecoFullTask)
 egammarecoWithIDTask = cms.Task(egammarecoTask,photonIDTask,eIdTask)
 egammarecoWithID = cms.Sequence(egammarecoWithIDTask)
@@ -57,7 +57,7 @@ egammareco_withPhotonID = cms.Sequence(egammareco_withPhotonIDTask)
 egammareco_withElectronIDTask = cms.Task(egammarecoTask,eIdTask)
 egammareco_withElectronID = cms.Sequence(egammareco_withElectronIDTask)
 
-egammarecoFull_woHFElectronsTask = cms.Task(egammarecoTask,interestingEgammaIsoDetIds,photonIDTask,eIdTask)
+egammarecoFull_woHFElectronsTask = cms.Task(egammarecoTask,interestingEgammaIsoDetIdsTask,photonIDTask,eIdTask)
 egammarecoFull_woHFElectrons = cms.Sequence(egammarecoFull_woHFElectronsTask)
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016

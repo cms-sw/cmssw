@@ -32,7 +32,7 @@ from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import siPixelRecHits
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import MeasurementTrackerEvent
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 hiInitialJetCoreClusterSplittingTask = cms.Task(
-                                hiPixelVerticesPreSplitting
+                                hiPixelVerticesPreSplittingTask
                                 , hiCaloTowerForTrkPreSplitting
                                 , hiAkPu4CaloJetsForTrkPreSplitting
 				, hiAkPu4CaloJetsCorrectedPreSplitting
