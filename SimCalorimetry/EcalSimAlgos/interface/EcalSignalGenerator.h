@@ -122,15 +122,12 @@ public:
       //
       edm::ESHandle<EcalLaserDbService> laser_prime;
       eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
-      //     const edm::TimeValue_t eventTimeValue = event.time().value();
       m_lasercals_prime = laser_prime.product();
 
-      //clear the laser cache for each event time
-      //     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
-      //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
-      //     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
-      m_valueLCCache_LC.clear();
-      m_valueLCCache_LC_prime.clear();  //--- also the "prime" ... yes
+      //clear the laser cache for each event time     
+      CalibCache().swap(m_valueLCCache_LC);
+      CalibCache().swap(m_valueLCCache_LC_prime); //--- also the "prime" ... yes
+      
       //----
     }
 
@@ -190,19 +187,14 @@ public:
       }
       m_iTime = eventTimeValue;
       m_lasercals = laser.product();
-      //     std::cout << " ---> EcalSignalGenerator() : initializeEvent() :: eventTimeValue = " << eventTimeValue << std::endl;
 
       edm::ESHandle<EcalLaserDbService> laser_prime;
       eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
-      //     const edm::TimeValue_t eventTimeValue = event.time().value();
       m_lasercals_prime = laser_prime.product();
 
       //clear the laser cache for each event time
-      //     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
-      //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
-      //     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
-      m_valueLCCache_LC.clear();
-      m_valueLCCache_LC_prime.clear();  //--- also the "prime" ... yes
+      CalibCache().swap(m_valueLCCache_LC);
+      CalibCache().swap(m_valueLCCache_LC_prime); //--- also the "prime" ... yes
       //----
     }
 

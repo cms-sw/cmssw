@@ -45,7 +45,7 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
   float correction_factor_for_premixed_sample_transparency = 1.0;
   double value_LC = 1.;
   if (m_timeDependent) {
-    if (detId.subdetId() != 3) {
+    if (detId.subdetId() != EcalSubdetector::EcalPreshower) {
       auto cache = m_valueLCCache_LC.find(detId);
       if (cache != m_valueLCCache_LC.end()) {
         value_LC = cache->second;
@@ -59,7 +59,7 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
   double value_LC_prime = 1.;
 
   if (m_timeDependent) {
-    if (detId.subdetId() != 3) {
+    if (detId.subdetId() != EcalSubdetector::EcalPreshower) {
       auto cache = m_valueLCCache_LC_prime.find(detId);
       if (cache != m_valueLCCache_LC_prime.end()) {
         value_LC_prime = cache->second;
@@ -74,8 +74,6 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
   //
   // LC' /  LC  (see formula)
   //
-
-  //   std::cout << " EcalSignalGenerator<EBDigitizerTraits>::samplesInPE :: correction_factor_for_premixed_sample_transparency = " << correction_factor_for_premixed_sample_transparency << std::endl;
 
   for (int isample = 0; isample < digi.size(); ++isample) {
     int gainId = digi[isample].gainId();
@@ -155,7 +153,7 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
   double value_LC = 1.;
 
   if (m_timeDependent) {
-    if (detId.subdetId() != 3) {
+    if (detId.subdetId() != EcalSubdetector::EcalPreshower) {
       auto cache = m_valueLCCache_LC.find(detId);
       if (cache != m_valueLCCache_LC.end()) {
         value_LC = cache->second;
@@ -168,7 +166,7 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
 
   double value_LC_prime = 1.;
   if (m_timeDependent) {
-    if (detId.subdetId() != 3) {
+    if (detId.subdetId() != EcalSubdetector::EcalPreshower) {
       auto cache = m_valueLCCache_LC_prime.find(detId);
       if (cache != m_valueLCCache_LC_prime.end()) {
         value_LC_prime = cache->second;
@@ -183,8 +181,6 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
   //
   // LC' /  LC  (see formula)
   //
-
-  //   std::cout << " EcalSignalGenerator<EEDigitizerTraits>::samplesInPE :: correction_factor_for_premixed_sample_transparency = " << correction_factor_for_premixed_sample_transparency << std::endl;
 
   for (int isample = 0; isample < digi.size(); ++isample) {
     int gainId = digi[isample].gainId();

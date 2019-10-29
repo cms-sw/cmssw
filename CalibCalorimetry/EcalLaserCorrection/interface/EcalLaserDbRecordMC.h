@@ -7,14 +7,11 @@
 
 #include "boost/mpl/vector.hpp"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-// #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
 #include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosMCRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
-
-// class EcalLaserDbRecordMC : public edm::eventsetup::EventSetupRecordImplementation<EcalLaserDbRecordMC> {};
 
 class EcalLaserDbRecordMC
     : public edm::eventsetup::DependentRecordImplementation<EcalLaserDbRecordMC,
