@@ -43,12 +43,9 @@ private:
   edm::ESGetToken<EcalLaserAPDPNRatiosRef, EcalLaserAPDPNRatiosRefRcd> apdpnRefToken_;
   edm::ESGetToken<EcalLaserAPDPNRatios, EcalLaserAPDPNRatiosMCRcd> apdpnToken_;
   edm::ESGetToken<EcalLinearCorrections, EcalLinearCorrectionsRcd> linearToken_;
-
 };
 
-EcalLaserCorrectionServiceMC::EcalLaserCorrectionServiceMC(const edm::ParameterSet& fConfig)
-    : ESProducer()
-{
+EcalLaserCorrectionServiceMC::EcalLaserCorrectionServiceMC(const edm::ParameterSet& fConfig) : ESProducer() {
   // the following line is needed to tell the framework what
   // data is being produced
   // setWhatProduced (this, (dependsOn (&EcalLaserCorrectionServiceMC::apdpnCallback)));
@@ -60,11 +57,9 @@ EcalLaserCorrectionServiceMC::EcalLaserCorrectionServiceMC(const edm::ParameterS
       .setConsumes(linearToken_);
 
   //now do what ever other initialization is needed
-
 }
 
-EcalLaserCorrectionServiceMC::~EcalLaserCorrectionServiceMC() {
-}
+EcalLaserCorrectionServiceMC::~EcalLaserCorrectionServiceMC() {}
 
 //
 // member functions

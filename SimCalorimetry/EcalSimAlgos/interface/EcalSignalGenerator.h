@@ -124,10 +124,10 @@ public:
       eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
       m_lasercals_prime = laser_prime.product();
 
-      //clear the laser cache for each event time     
+      //clear the laser cache for each event time
       CalibCache().swap(m_valueLCCache_LC);
-      CalibCache().swap(m_valueLCCache_LC_prime); //--- also the "prime" ... yes
-      
+      CalibCache().swap(m_valueLCCache_LC_prime);  //--- also the "prime" ... yes
+
       //----
     }
 
@@ -194,7 +194,7 @@ public:
 
       //clear the laser cache for each event time
       CalibCache().swap(m_valueLCCache_LC);
-      CalibCache().swap(m_valueLCCache_LC_prime); //--- also the "prime" ... yes
+      CalibCache().swap(m_valueLCCache_LC_prime);  //--- also the "prime" ... yes
       //----
     }
 
