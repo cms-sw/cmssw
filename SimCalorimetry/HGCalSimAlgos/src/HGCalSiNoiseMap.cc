@@ -3,7 +3,7 @@
 //
 HGCalSiNoiseMap::HGCalSiNoiseMap() : 
   encpScale_(840.), 
-  encCommonNoiseSub_(sqrt(1.20)), 
+  encCommonNoiseSub_(sqrt(1.25)), 
   qe2fc_(1.60217646E-4),
   ignoreFluence_(false),
   ignoreCCE_(false),
