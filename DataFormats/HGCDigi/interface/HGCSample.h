@@ -21,7 +21,6 @@ public:
   /**
      @short CTOR
   */
-
  HGCSample() : value_(0) { }
  HGCSample(uint32_t value) : value_(value) { }
  HGCSample(const HGCSample& o) : value_(o.value_) { }
@@ -29,7 +28,6 @@ public:
   /**
      @short setters
   */
-
   void setThreshold(bool thr)     { setWord(thr, kThreshMask, kThreshShift); }
   void setMode(bool mode)         { setWord(mode, kModeMask, kModeShift); }
   void setGain(uint16_t gain)     { setWord(gain, kGainMask, kToGainShift); }
