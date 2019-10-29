@@ -831,11 +831,10 @@ namespace sistrip {
     return *this;
   }
 
- inline   FEDReadoutMode TrackerSpecialHeader::readoutMode() const {
+  inline FEDReadoutMode TrackerSpecialHeader::readoutMode() const {
     auto mode = trackerEventTypeNibble() & 0xF;
-    return (mode==0) ? READOUT_MODE_INVALID : FEDReadoutMode(mode);
+    return (mode == 0) ? READOUT_MODE_INVALID : FEDReadoutMode(mode);
   }
-
 
   //FEDStatusRegister
 

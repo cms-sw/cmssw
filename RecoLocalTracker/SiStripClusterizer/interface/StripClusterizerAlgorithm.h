@@ -26,8 +26,8 @@ public:
     bool valid() const { return ind != invalidI; }
     uint16_t rawNoise(const uint16_t strip) const { return SiStripNoises::getRawNoise(strip, noiseRange); }
     float noise(const uint16_t strip) const { return SiStripNoises::getNoise(strip, noiseRange); }
-    float weight(const uint16_t strip) const { return m_weight[strip/128];}
-    uint16_t aveNoise(const uint16_t strip) const { return m_noise[strip/128];}
+    float weight(const uint16_t strip) const { return m_weight[strip / 128]; }
+    uint16_t aveNoise(const uint16_t strip) const { return m_noise[strip / 128]; }
     bool bad(const uint16_t strip) const { return quality->IsStripBad(qualityRange, strip); }
     bool allBadBetween(uint16_t L, const uint16_t& R) const {
       while (++L < R && bad(L)) {
@@ -67,7 +67,7 @@ public:
   virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const {}
 
   //HLT stripByStrip interface
-  Det const & stripByStripBegin(uint32_t id) const {return findDetId(id);}
+  Det const& stripByStripBegin(uint32_t id) const { return findDetId(id); }
 
   virtual void addFed(Det const& det,
                       sistrip::FEDZSChannelUnpacker& unpacker,
@@ -90,7 +90,7 @@ public:
 
   SiStripDetCabling const* cabling() const { return theCabling; }
   std::vector<uint32_t> const& allDetIds() const { return detIds; }
-  auto const & allDets() const { return dets;}
+  auto const& allDets() const { return dets; }
 
   std::vector<const FedChannelConnection*> const& currentConnection(const Det& det) const {
     return connections[det.ind];
@@ -99,14 +99,13 @@ public:
 protected:
   StripClusterizerAlgorithm() : qualityLabel(""), noise_cache_id(0), gain_cache_id(0), quality_cache_id(0) {}
 
-  Det const & findDetId(const uint32_t) const;
+  Det const& findDetId(const uint32_t) const;
   bool isModuleBad(const uint32_t& id) const { return qualityHandle->IsModuleBad(id); }
   bool isModuleUsable(const uint32_t& id) const { return qualityHandle->IsModuleUsable(id); }
 
   std::string qualityLabel;
 
 private:
- 
   void fillDets();
 
   template <class T>

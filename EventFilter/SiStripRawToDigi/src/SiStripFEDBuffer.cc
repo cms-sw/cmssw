@@ -68,8 +68,7 @@ namespace sistrip {
     }
   }
 
-  inline
-  void FEDBuffer::findChannels() {
+  inline void FEDBuffer::findChannels() {
     //set min length to 2 for ZSLite, 7 for ZS and 3 for raw
     uint16_t minLength;
     switch (readoutMode()) {

@@ -1,7 +1,6 @@
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
-
 SiStripCluster::SiStripCluster(const SiStripDigiRange& range) : firstStrip_(range.first->strip()), error_x(-99999.9) {
   std::vector<uint8_t> v;
   v.reserve(range.second - range.first);
@@ -22,8 +21,6 @@ SiStripCluster::SiStripCluster(const SiStripDigiRange& range) : firstStrip_(rang
   }
   amplitudes_ = v;
 }
-
-
 
 float SiStripCluster::barycenter() const {
   int sumx = 0;

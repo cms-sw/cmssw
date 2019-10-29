@@ -87,8 +87,10 @@ template <class T>
 inline void ThreeThresholdAlgorithm::endCandidate(State& state, T& out) const {
   if (candidateAccepted(state)) {
     applyGains(state);
-    if (MaxAdjacentBad>0) appendBadNeighbors(state);
-    if (minGoodCharge<=0 || siStripClusterTools::chargePerCM(state.det().detId, state.ADCs.begin(), state.ADCs.end()) > minGoodCharge)
+    if (MaxAdjacentBad > 0)
+      appendBadNeighbors(state);
+    if (minGoodCharge <= 0 ||
+        siStripClusterTools::chargePerCM(state.det().detId, state.ADCs.begin(), state.ADCs.end()) > minGoodCharge)
       out.push_back(std::move(SiStripCluster(firstStrip(state), state.ADCs.begin(), state.ADCs.end())));
   }
   clearCandidate(state);
@@ -107,7 +109,7 @@ inline void ThreeThresholdAlgorithm::applyGains(State& state) const {
     // if(adc > 255) throw InvalidChargeException( SiStripDigi(strip,adc) );
 #endif
     // if(adc > 253) continue; //saturated, do not scale
-    auto charge = int(float(adc)*state.det().weight(strip++) + 0.5f);  //adding 0.5 turns truncation into rounding
+    auto charge = int(float(adc) * state.det().weight(strip++) + 0.5f);  //adding 0.5 turns truncation into rounding
     if (adc < 254)
       adc = (charge > 1022 ? 255 : (charge > 253 ? 254 : charge));
   }

@@ -158,17 +158,17 @@ void StripClusterizerAlgorithm::initialize(const edm::EventSetup& es) {
     }
     fillDets();
     COUT << "dets " << dets.size() << std::endl;
-
   }
 }
 
-StripClusterizerAlgorithm::Det const & StripClusterizerAlgorithm::findDetId(const uint32_t id) const {
+StripClusterizerAlgorithm::Det const& StripClusterizerAlgorithm::findDetId(const uint32_t id) const {
   auto b = detIds.begin();
   auto e = detIds.end();
   auto p = std::lower_bound(b, e, id);
   if (p == e || id != (*p)) {
 #ifdef NOT_ON_MONTECARLO
-    edm::LogWarning("StripClusterizerAlgorithm") << "id " << id << " not connected. this is impossible on data " << std::endl;
+    edm::LogWarning("StripClusterizerAlgorithm")
+        << "id " << id << " not connected. this is impossible on data " << std::endl;
 #endif
     static const Det dummy = Det();
     return dummy;
@@ -178,9 +178,9 @@ StripClusterizerAlgorithm::Det const & StripClusterizerAlgorithm::findDetId(cons
 
 void StripClusterizerAlgorithm::fillDets() {
   dets.resize(detIds.size());
-  for (int i=0, ni=detIds.size(); i<ni; ++i) {
+  for (int i = 0, ni = detIds.size(); i < ni; ++i) {
     auto id = detIds[i];
-    auto & det = dets[i];
+    auto& det = dets[i];
     det.ind = i;
     det.detId = id;
     det.noiseRange = noiseHandle->getRangeByPos(indices[det.ind].ni);
@@ -189,22 +189,25 @@ void StripClusterizerAlgorithm::fillDets() {
 
     // fill "weight"
     auto gainRange = gainHandle->getRangeByPos(indices[det.ind].gi);
-    int s = gainRange.second-gainRange.first;
-    assert(s==4 || s==6);
-    for (int ic=0; ic<s; ++ic)
-      det.m_weight[ic] = 1.f/(*(gainRange.first+ic));
+    int s = gainRange.second - gainRange.first;
+    assert(s == 4 || s == 6);
+    for (int ic = 0; ic < s; ++ic)
+      det.m_weight[ic] = 1.f / (*(gainRange.first + ic));
     // fill average noise"
-    for (int ic=0; ic<s; ++ic) {
-      auto fs=128*ic;
-      auto ns=0;
+    for (int ic = 0; ic < s; ++ic) {
+      auto fs = 128 * ic;
+      auto ns = 0;
       int an = 0;
-      for (auto is=fs;is<fs+128; ++is) {
+      for (auto is = fs; is < fs + 128; ++is) {
         auto n = det.rawNoise(is);
-        if (n>0 && n<500) {an+=n; ++ns;}
+        if (n > 0 && n < 500) {
+          an += n;
+          ++ns;
+        }
       }
-      det.m_noise[ic] = ns>0 ?  (an+ns/2)/ns : 0;
-      assert(det.m_noise[ic]<500);
-    }  
+      det.m_noise[ic] = ns > 0 ? (an + ns / 2) / ns : 0;
+      assert(det.m_noise[ic] < 500);
+    }
 
 #ifdef EDM_ML_DEBUG
     assert(detIds[det.ind] == det.detId);

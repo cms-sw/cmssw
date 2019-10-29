@@ -229,11 +229,11 @@ inline void FedChannelConnection::fedSlot(uint16_t& fed_slot) { fedSlot_ = fed_s
 
 inline uint16_t FedChannelConnection::apvPairNumber() const {
   if (apv0_ == 32 || apv1_ == 33) {
-      return 0;
+    return 0;
   } else if (apv0_ == 34 || apv1_ == 35) {
-      return 1;
-  } else { // if (apv0_ == 36 || apv1_ == 37) {
-      return nApvPairs_-1;
+    return 1;
+  } else {  // if (apv0_ == 36 || apv1_ == 37) {
+    return nApvPairs_ - 1;
   }
 }
 
