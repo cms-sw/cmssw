@@ -602,4 +602,4 @@ bool DTKeyedConfigHandler::sameConfigList(const std::vector<DTConfigKey>& cfgl, 
   return true;
 }
 
-void DTKeyedConfigHandler::setList(cond::persistency::KeyList* list) { keyList = list; }
+void DTKeyedConfigHandler::setList(const cond::persistency::KeyList* list) { keyList = list; }

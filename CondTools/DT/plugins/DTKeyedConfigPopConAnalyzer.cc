@@ -29,7 +29,7 @@ public:
       if (kelem.get())
         std::cout << kelem->getId() << std::endl;
     }
-    source().setList(const_cast<cond::persistency::KeyList*>(&kl));
+    source().setList(&kl);
   }
 
 private:

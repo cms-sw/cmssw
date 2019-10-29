@@ -36,7 +36,7 @@ namespace cond {
       s.transaction().commit();
     }
 
-    std::pair<std::string, std::pair<cond::Binary, cond::Binary> > KeyList::loadFromDB(unsigned long long key) {
+    std::pair<std::string, std::pair<cond::Binary, cond::Binary> > KeyList::loadFromDB(unsigned long long key) const {
       std::pair<std::string, std::pair<cond::Binary, cond::Binary> > item;
       if (key == 0) {
         return item;
