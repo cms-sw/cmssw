@@ -13,7 +13,7 @@
 class HGCSample {
 public:
   enum HGCSampleMasks  { kThreshMask  = 0x1, kModeMask  = 0x1, kGainMask    = 0x3,   kToAMask  = 0x3ff, kDataMask  = 0x3ff };
-  enum HGCSampleShifts { kThreshShift = 31,  kModeShift = 30,  kToGainShift = 21,    kToAShift = 11,    kDataShift = 0 };
+  enum HGCSampleShifts { kThreshShift = 31,  kModeShift = 30,  kToGainShift = 20,    kToAShift = 10,    kDataShift = 0 };
 
   /**
      @short CTOR
@@ -70,8 +70,10 @@ private:
      @short wrapper to reset words at a given position
    */
   void setWord(uint32_t word, uint32_t mask, uint32_t pos) {
-    if (word > mask)
-      word = mask;  // deal with saturation - should we throw ?
+
+    word = ( mask > word  ?  word : mask );
+    // deal with saturation: should we throw ?
+
     //clear required bits
     // std::cout <<  "word: " << word << "  mask: " << mask <<  " pos: " << pos << std::endl;
     const uint32_t masked_word = (word & mask) << pos;
