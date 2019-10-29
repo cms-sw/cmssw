@@ -2,7 +2,8 @@
  
 import FWCore.ParameterSet.Config as cms
 
-l1EmulatorObjHTMQualityTests = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+l1EmulatorObjHTMQualityTests = DQMQualityTester(
     qtList=cms.untracked.FileInPath('DQM/L1TMonitorClient/data/L1EmulatorObjHTMQualityTests.xml'),
     QualityTestPrescaler=cms.untracked.int32(1),
     getQualityTestsFromFile=cms.untracked.bool(True),

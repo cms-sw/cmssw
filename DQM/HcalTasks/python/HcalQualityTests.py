@@ -2,7 +2,8 @@
  
 import FWCore.ParameterSet.Config as cms
 
-hcalQualityTests = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+hcalQualityTests = DQMQualityTester(
     qtList=cms.untracked.FileInPath('DQM/HcalTasks/data/HcalQualityTests.xml'),
     QualityTestPrescaler=cms.untracked.int32(1),
     getQualityTestsFromFile=cms.untracked.bool(True),

@@ -114,7 +114,8 @@ process.tracking_FirstStep  = cms.Sequence(    process.siPixelDigis*
 
 #--pixel tracking ends here-----
 
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
                                  qtList = cms.untracked.FileInPath('DQM/BeamMonitor/test/BeamSpotAvailableTest.xml'),
                                  prescaleFactor = cms.untracked.int32(1),                               
                                  testInEventloop = cms.untracked.bool(False),
