@@ -125,7 +125,7 @@ foreach gtag ( MC DATA )
   else if ( ($1 == fake) || ($1 == FAKE) ) then
     set tables = ( Fake Fake1 Fake2 )
   else if ( ($1 == frozen) || ($1 == FROZEN) ) then
-    set tables = ( Fake Fake1 Fake2 )
+    set tables = ( Fake Fake1 Fake2 2018 )
   else
     set tables = ( $1 )
   endif
@@ -183,6 +183,19 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimGRun2
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp2016
+      set Custom = " "
+      set L1REPACK = L1REPACK:Full
+      set DIGI = DIGI:pdigi
+    else if ( $table == 2018 ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:2018
+      set GTAG = ${BASE2}_2018
+      set RTAG = ${BASE2RD}_2018
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun3
+      set InputLHCRaw = $InputLHCRawGRun3
+      set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi
