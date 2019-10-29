@@ -71,7 +71,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class HcalHBHEMuonHighEtaAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
@@ -134,7 +134,7 @@ private:
 
   //////////////////////////////////////////////////////
   static const int depthMax_ = 7;
-  TTree* tree_;
+  TTree *tree_;
   unsigned int runNumber_, eventNumber_, goodVertex_;
   std::vector<bool> mediumMuon_;
   std::vector<double> ptGlob_, etaGlob_, phiGlob_, energyMuon_, pMuon_;
@@ -279,7 +279,7 @@ void HcalHBHEMuonHighEtaAnalyzer::fillDescriptions(edm::ConfigurationDescription
 // ------------ method called once each job just before starting event loop  ------------
 void HcalHBHEMuonHighEtaAnalyzer::beginJob() {
   edm::Service<TFileService> fs;
-  TTree* tree_ = fs->make<TTree>("HBHEMuonHighEta", "HBHEMuonHighEta");
+  tree_ = fs->make<TTree>("HBHEMuonHighEta", "HBHEMuonHighEta");
   tree_->Branch("pt_of_muon", &ptGlob_);
   tree_->Branch("eta_of_muon", &etaGlob_);
   tree_->Branch("phi_of_muon", &phiGlob_);
