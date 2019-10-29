@@ -39,4 +39,6 @@ void proof_thing2_sel()
   
   //This makes the actual processing happen
   c.Process( "tfwliteselectortest::ThingsTSelector2" );
+
+  myProof->Close("S");
 }
