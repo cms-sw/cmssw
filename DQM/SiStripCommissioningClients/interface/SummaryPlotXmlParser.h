@@ -3,13 +3,14 @@
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlot.h"
-#include "DQMServices/ClientConfig/interface/DQMParserBase.h"
-#include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 #include <map>
+
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 class SummaryPlotXmlParser;
 
@@ -22,15 +23,12 @@ std::ostream& operator<<(std::ostream&, const SummaryPlotXmlParser&);
     
     @brief Parses the "summary plot" xml configuration file
 */
-class SummaryPlotXmlParser : public DQMParserBase {
+class SummaryPlotXmlParser {
 public:
   // ---------- Co(de)nstructors and consts ----------
 
   /** Default constructor. */
   SummaryPlotXmlParser();
-
-  /** Default destructor. */
-  ~SummaryPlotXmlParser() override { ; }
 
   // ---------- Public interface ----------
 
@@ -49,18 +47,6 @@ private:
   /** Container holding the SummaryPlot objects. */
   std::map<sistrip::RunType, std::vector<SummaryPlot> > plots_;
 
-  // RunType tags and attributes
-  static const std::string rootTag_;
-  static const std::string runTypeTag_;
-  static const std::string runTypeAttr_;
-
-  // SummaryPlot tags and attributes
-  static const std::string summaryPlotTag_;
-  static const std::string monitorableAttr_;
-  static const std::string presentationAttr_;
-  static const std::string viewAttr_;
-  static const std::string levelAttr_;
-  static const std::string granularityAttr_;
 };
 
 #endif  // DQM_SiStripCommissioningClients_SummaryPlotXmlParser_H
