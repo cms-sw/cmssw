@@ -55,12 +55,12 @@ public:
      @short getters
   */
   uint32_t raw() const { return value_; }
-  bool     threshold() const { return ((value_ >> kThreshShift) & kThreshMask); }
-  bool     mode() const { return ((value_ >> kModeShift) & kModeMask); }
-  uint32_t gain() const { return ((value_ >> kToGainShift) & kGainMask); }
-  uint32_t toa() const { return ((value_ >> kToAShift) & kToAMask); }
-  uint32_t data() const { return ((value_ >> kDataShift) & kDataMask); }
-  bool     getToAValid() const { return ((value_ >> kToAValidShift) & kToAValidMask); }
+  bool     threshold() const { return getWord(kThreshMask, kThreshShift); }
+  bool     mode() const { return getWord(kModeMask, kModeShift); }
+  uint32_t gain() const { return getWord(kGainMask, kToGainShift); }
+  uint32_t toa() const { return getWord(kToAMask, kToAShift); }
+  uint32_t data() const { return getWord(kDataMask, kDataShift); }
+  bool     getToAValid() const { return getWord(kToAValidMask, kToAValidShift); }
   uint32_t operator()() { return value_; }
 
 
@@ -68,24 +68,24 @@ private:
   /**
      @short wrapper to reset words at a given position
    */
-  void setWord(uint32_t word, uint32_t mask, uint32_t pos) {
+  void setWord(uint32_t word, uint32_t mask, uint32_t shift) {
 
     // deal with saturation: set to mask 
     // should we throw ?
     word = ( mask > word  ?  word : mask );
 
     // mask (not strictly needed) and shift
-    const uint32_t masked_word = (word & mask) << pos;
+    const uint32_t masked_word = (word & mask) << shift;
 
-    //clear to 0  bits which will be set
-    value_ &= ~(mask << pos);
+    //clear to 0  bits which will be set by word
+    value_ &= ~(mask << shift);
 
     //now set bits
     value_ |= (masked_word);
   }
 
-  uint32_t getWord(uint32_t mask, uint32_t pos) {
-    return ((value_ >> pos) & mask);
+  uint32_t getWord(uint32_t mask, uint32_t shift) const {
+    return ((value_ >> shift) & mask);
   }
 
   // a 32-bit word
