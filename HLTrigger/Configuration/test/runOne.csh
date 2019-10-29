@@ -23,7 +23,7 @@ else if ( ($2 == full) || ($2 == FULL) ) then
 else if ( ($2 == fake) || ($2 == FAKE) ) then
   set tables = ( Fake Fake1 Fake2 )
 else if ( ($2 == frozen) || ($2 == FROZEN) ) then
-  set tables = ( Fake Fake1 Fake2 )
+  set tables = ( Fake Fake1 Fake2 2018 )
 else
   set tables = ( $2 )
 endif
