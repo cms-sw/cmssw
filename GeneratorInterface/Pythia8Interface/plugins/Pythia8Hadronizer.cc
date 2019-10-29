@@ -11,7 +11,7 @@
 #include "Pythia8/Pythia.h"
 #include "Pythia8Plugins/HepMC2.h"
 
-#include "Vincia/Vincia.h"
+#include "Pythia8/Vincia.h"
 #include "Dire/Dire.h"
 
 using namespace Pythia8;
@@ -93,7 +93,7 @@ public:
   std::unique_ptr<GenLumiInfoHeader> getGenLumiInfoHeader() const override;
 
 private:
-  std::unique_ptr<Vincia::VinciaPlugin> fvincia;
+  std::unique_ptr<Pythia8::VinciaPlugin> fvincia;
   std::unique_ptr<Pythia8::Dire> fDire;
 
   void doSetRandomEngine(CLHEP::HepRandomEngine *v) override { p8SetRandomEngine(v); }
@@ -306,7 +306,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
 
   if (params.exists("VinciaPlugin")) {
     fMasterGen.reset(new Pythia);
-    fvincia.reset(new Vincia::VinciaPlugin(fMasterGen.get()));
+    fvincia.reset(new Pythia8::VinciaPlugin(fMasterGen.get()));
   }
   if (params.exists("DirePlugin")) {
     fMasterGen.reset(new Pythia);
@@ -723,7 +723,7 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize() {
     //Make sure the base weight comes first
     event()->weights()[0] *= fDire->weightsPtr->getShowerWeight("base");
 
-    map<string, double>::iterator it;
+    unordered_map<string, double>::iterator it;
     for (it = fDire->weightsPtr->getShowerWeights()->begin(); it != fDire->weightsPtr->getShowerWeights()->end();
          it++) {
       if (it->first == "base")
@@ -958,7 +958,7 @@ std::unique_ptr<GenLumiInfoHeader> Pythia8Hadronizer::getGenLumiInfoHeader() con
     //Make sure the base weight comes first
     genLumiInfoHeader->weightNames().push_back("base");
 
-    map<string, double>::iterator it;
+    unordered_map<string, double>::iterator it;
     for (it = fDire->weightsPtr->getShowerWeights()->begin(); it != fDire->weightsPtr->getShowerWeights()->end();
          it++) {
       if (it->first == "base")
