@@ -17,7 +17,10 @@ namespace impl {
 class CUDAProductBase {
 public:
   CUDAProductBase() = default;  // Needed only for ROOT dictionary generation
+  ~CUDAProductBase();
 
+  CUDAProductBase(const CUDAProductBase&) = delete;
+  CUDAProductBase& operator=(const CUDAProductBase&) = delete;
   CUDAProductBase(CUDAProductBase&& other)
       : stream_{std::move(other.stream_)},
         event_{std::move(other.event_)},
