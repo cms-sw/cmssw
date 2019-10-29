@@ -151,7 +151,7 @@ __global__ void multiBlockPrefixScan(T const* __restrict__ ci, T* __restrict__ c
 
   // let's get the partial sums from each block
   __shared__ T psum[1024];
-  for (int i = threadIdx.x, ni = gridDim.x; i<ni; i += blockDim.x) {
+  for (int i = threadIdx.x, ni = gridDim.x; i < ni; i += blockDim.x) {
     auto j = 1024 * i + 1023;
     psum[i] = (j < size) ? co[j] : T(0);
   }

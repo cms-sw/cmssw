@@ -1,3 +1,4 @@
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/AtomicPairCounter.h"
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
@@ -39,24 +40,24 @@ __global__ void verify(AtomicPairCounter const *dc, uint32_t const *ind, uint32_
 #include <iostream>
 int main() {
   AtomicPairCounter *dc_d;
-  cudaMalloc(&dc_d, sizeof(AtomicPairCounter));
-  cudaMemset(dc_d, 0, sizeof(AtomicPairCounter));
+  cudaCheck(cudaMalloc(&dc_d, sizeof(AtomicPairCounter)));
+  cudaCheck(cudaMemset(dc_d, 0, sizeof(AtomicPairCounter)));
 
   std::cout << "size " << sizeof(AtomicPairCounter) << std::endl;
 
   constexpr uint32_t N = 20000;
   constexpr uint32_t M = N * 6;
   uint32_t *n_d, *m_d;
-  cudaMalloc(&n_d, N * sizeof(int));
+  cudaCheck(cudaMalloc(&n_d, N * sizeof(int)));
   // cudaMemset(n_d, 0, N*sizeof(int));
-  cudaMalloc(&m_d, M * sizeof(int));
+  cudaCheck(cudaMalloc(&m_d, M * sizeof(int)));
 
   update<<<2000, 512>>>(dc_d, n_d, m_d, 10000);
   finalize<<<1, 1>>>(dc_d, n_d, m_d, 10000);
   verify<<<2000, 512>>>(dc_d, n_d, m_d, 10000);
 
   AtomicPairCounter dc;
-  cudaMemcpy(&dc, dc_d, sizeof(AtomicPairCounter), cudaMemcpyDeviceToHost);
+  cudaCheck(cudaMemcpy(&dc, dc_d, sizeof(AtomicPairCounter), cudaMemcpyDeviceToHost));
 
   std::cout << dc.get().n << ' ' << dc.get().m << std::endl;
 

@@ -2,6 +2,7 @@
 
 #include <cub/cub.cuh>
 
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
@@ -107,9 +108,9 @@ int main() {
     uint32_t *d_out1;
     uint32_t *d_out2;
 
-    cudaMalloc(&d_in, num_items * sizeof(uint32_t));
-    cudaMalloc(&d_out1, num_items * sizeof(uint32_t));
-    cudaMalloc(&d_out2, num_items * sizeof(uint32_t));
+    cudaCheck(cudaMalloc(&d_in, num_items * sizeof(uint32_t)));
+    cudaCheck(cudaMalloc(&d_out1, num_items * sizeof(uint32_t)));
+    cudaCheck(cudaMalloc(&d_out2, num_items * sizeof(uint32_t)));
 
     auto nthreads = 256;
     auto nblocks = (num_items + nthreads - 1) / nthreads;
@@ -118,8 +119,8 @@ int main() {
 
     // the block counter
     int32_t *d_pc;
-    cudaMalloc(&d_pc, sizeof(int32_t));
-    cudaMemset(d_pc, 0, 4);
+    cudaCheck(cudaMalloc(&d_pc, sizeof(int32_t)));
+    cudaCheck(cudaMemset(d_pc, 0, 4));
 
     nthreads = 1024;
     nblocks = (num_items + nthreads - 1) / nthreads;
@@ -139,7 +140,7 @@ int main() {
     // Allocate temporary storage for inclusive prefix sum
     // fake larger ws already available
     temp_storage_bytes *= 8;
-    cudaMalloc(&d_temp_storage, temp_storage_bytes);
+    cudaCheck(cudaMalloc(&d_temp_storage, temp_storage_bytes));
     std::cout << "temp storage " << temp_storage_bytes << std::endl;
     // Run inclusive prefix sum
     CubDebugExit(cub::DeviceScan::InclusiveSum(d_temp_storage, temp_storage_bytes, d_in, d_out2, num_items));

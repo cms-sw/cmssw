@@ -69,7 +69,7 @@ cudautils::device::unique_ptr<float[]> TestCUDAProducerGPUKernel::runAlgo(const 
   // First make the sanity check
   if (d_input != nullptr) {
     auto h_check = std::make_unique<float[]>(NUM_VALUES);
-    cuda::memory::copy(h_check.get(), d_input, NUM_VALUES * sizeof(float));
+    cudaCheck(cudaMemcpy(h_check.get(), d_input, NUM_VALUES * sizeof(float), cudaMemcpyDeviceToHost));
     for (int i = 0; i < NUM_VALUES; ++i) {
       if (h_check[i] != i) {
         throw cms::Exception("Assert") << "Sanity check on element " << i << " failed, expected " << i << " got "
@@ -89,8 +89,8 @@ cudautils::device::unique_ptr<float[]> TestCUDAProducerGPUKernel::runAlgo(const 
   auto d_a = cudautils::make_device_unique<float[]>(NUM_VALUES, stream);
   auto d_b = cudautils::make_device_unique<float[]>(NUM_VALUES, stream);
 
-  cuda::memory::async::copy(d_a.get(), h_a.get(), NUM_VALUES * sizeof(float), stream);
-  cuda::memory::async::copy(d_b.get(), h_b.get(), NUM_VALUES * sizeof(float), stream);
+  cudaCheck(cudaMemcpyAsync(d_a.get(), h_a.get(), NUM_VALUES * sizeof(float), cudaMemcpyHostToDevice, stream));
+  cudaCheck(cudaMemcpyAsync(d_b.get(), h_b.get(), NUM_VALUES * sizeof(float), cudaMemcpyHostToDevice, stream));
 
   int threadsPerBlock{32};
   int blocksPerGrid = (NUM_VALUES + threadsPerBlock - 1) / threadsPerBlock;

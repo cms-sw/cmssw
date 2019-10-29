@@ -7,6 +7,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAContextState.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
@@ -67,8 +68,8 @@ void TestCUDAProducerGPUEW::acquire(const edm::Event& iEvent,
   // Mimick the need to transfer some of the GPU data back to CPU to
   // be used for something within this module, or to be put in the
   // event.
-  cuda::memory::async::copy(hostData_.get(), devicePtr_.get() + 10, sizeof(float), ctx.stream());
-
+  cudaCheck(
+      cudaMemcpyAsync(hostData_.get(), devicePtr_.get() + 10, sizeof(float), cudaMemcpyDeviceToHost, ctx.stream()));
   edm::LogVerbatim("TestCUDAProducerGPUEW") << label_ << " TestCUDAProducerGPUEW::acquire end event "
                                             << iEvent.id().event() << " stream " << iEvent.streamID();
 }

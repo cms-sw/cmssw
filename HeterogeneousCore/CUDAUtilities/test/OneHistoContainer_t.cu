@@ -6,6 +6,7 @@
 
 #include <cuda/api_wrappers.h>
 
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
@@ -131,7 +132,7 @@ void go() {
 
     assert(v_d.get());
     assert(v);
-    cuda::memory::copy(v_d.get(), v, N * sizeof(T));
+    cudaCheck(cudaMemcpy(v_d.get(), v, N * sizeof(T), cudaMemcpyHostToDevice));
     assert(v_d.get());
     cudautils::launch(mykernel<T, NBINS, S, DELTA>, {1, 256}, v_d.get(), N);
   }

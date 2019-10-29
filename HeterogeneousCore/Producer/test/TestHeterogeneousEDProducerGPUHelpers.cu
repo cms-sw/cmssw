@@ -77,8 +77,8 @@ int TestAcceleratorServiceProducerGPUHelpers_simple_kernel(int input) {
   auto d_b = cuda::memory::device::make_unique<int[]>(current_device, NUM_VALUES);
   auto d_c = cuda::memory::device::make_unique<int[]>(current_device, NUM_VALUES);
 
-  cuda::memory::async::copy(d_a.get(), h_a.get(), NUM_VALUES * sizeof(int), stream.id());
-  cuda::memory::async::copy(d_b.get(), h_b.get(), NUM_VALUES * sizeof(int), stream.id());
+  cudaCheck(cudaMemcpyAsync(d_a.get(), h_a.get(), NUM_VALUES * sizeof(int), cudaMemcpyHostToDevice, stream.id()));
+  cudaCheck(cudaMemcpyAsync(d_b.get(), h_b.get(), NUM_VALUES * sizeof(int), cudaMemcpyHostToDevice, stream.id()));
 
   int threadsPerBlock{256};
   int blocksPerGrid = (NUM_VALUES + threadsPerBlock - 1) / threadsPerBlock;
@@ -91,7 +91,7 @@ int TestAcceleratorServiceProducerGPUHelpers_simple_kernel(int input) {
                d_a.get(), d_b.get(), d_c.get(), NUM_VALUES);
   */
 
-  cuda::memory::async::copy(h_c.get(), d_c.get(), NUM_VALUES * sizeof(int), stream.id());
+  cudaCheck(cudaMemcpyAsync(h_c.get(), d_c.get(), NUM_VALUES * sizeof(int), cudaMemcpyDeviceToHost, stream.id()));
 
   stream.synchronize();
 
@@ -124,7 +124,7 @@ TestHeterogeneousEDProducerGPUTask::ResultType TestHeterogeneousEDProducerGPUTas
   // First make the sanity check
   if (inputArrays.first != nullptr) {
     auto h_check = std::make_unique<float[]>(NUM_VALUES);
-    cuda::memory::copy(h_check.get(), inputArrays.first, NUM_VALUES * sizeof(float));
+    cudaCheck(cudaMemcpy(h_check.get(), inputArrays.first, NUM_VALUES * sizeof(float), cudaMemcpyDeviceToHost));
     for (int i = 0; i < NUM_VALUES; ++i) {
       if (h_check[i] != i) {
         throw cms::Exception("Assert") << "Sanity check on element " << i << " failed, expected " << i << " got "
@@ -146,8 +146,8 @@ TestHeterogeneousEDProducerGPUTask::ResultType TestHeterogeneousEDProducerGPUTas
   }
 
   // Create stream
-  cuda::memory::async::copy(d_a.get(), h_a.get(), NUM_VALUES * sizeof(float), stream.id());
-  cuda::memory::async::copy(d_b.get(), h_b.get(), NUM_VALUES * sizeof(float), stream.id());
+  cudaCheck(cudaMemcpyAsync(d_a.get(), h_a.get(), NUM_VALUES * sizeof(float), cudaMemcpyHostToDevice, stream.id()));
+  cudaCheck(cudaMemcpyAsync(d_b.get(), h_b.get(), NUM_VALUES * sizeof(float), cudaMemcpyHostToDevice, stream.id()));
 
   int threadsPerBlock{32};
   int blocksPerGrid = (NUM_VALUES + threadsPerBlock - 1) / threadsPerBlock;
@@ -195,7 +195,7 @@ void TestHeterogeneousEDProducerGPUTask::release(const std::string &label, cuda:
 
 int TestHeterogeneousEDProducerGPUTask::getResult(const ResultTypeRaw &d_ac, cuda::stream_t<> &stream) {
   auto h_c = cuda::memory::host::make_unique<float[]>(NUM_VALUES);
-  cuda::memory::async::copy(h_c.get(), d_ac.second, NUM_VALUES * sizeof(int), stream.id());
+  cudaCheck(cudaMemcpyAsync(h_c.get(), d_ac.second, NUM_VALUES * sizeof(int), cudaMemcpyDeviceToHost, stream.id()));
   stream.synchronize();
 
   float ret = 0;

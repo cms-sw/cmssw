@@ -10,6 +10,7 @@
 
 #include <cuda/api_wrappers.h>
 
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
@@ -73,7 +74,7 @@ int main(void) {
 
   // auto d_sf = cuda::memory::device::make_unique<SFrame[]>(current_device, 1);
   auto d_sf = cuda::memory::device::make_unique<char[]>(current_device, sizeof(SFrame));
-  cuda::memory::copy(d_sf.get(), &sf1, sizeof(SFrame));
+  cudaCheck(cudaMemcpy(d_sf.get(), &sf1, sizeof(SFrame), cudaMemcpyHostToDevice));
 
   for (auto i = 0U; i < size; ++i) {
     xl[i] = yl[i] = 0.1f * float(i) - float(size / 2);
@@ -84,9 +85,9 @@ int main(void) {
   std::random_shuffle(xl, xl + size);
   std::random_shuffle(yl, yl + size);
 
-  cuda::memory::copy(d_xl.get(), xl, size32);
-  cuda::memory::copy(d_yl.get(), yl, size32);
-  cuda::memory::copy(d_le.get(), le, 3 * size32);
+  cudaCheck(cudaMemcpy(d_xl.get(), xl, size32, cudaMemcpyHostToDevice));
+  cudaCheck(cudaMemcpy(d_yl.get(), yl, size32, cudaMemcpyHostToDevice));
+  cudaCheck(cudaMemcpy(d_le.get(), le, 3 * size32, cudaMemcpyHostToDevice));
 
   toGlobalWrapper((SFrame const *)(d_sf.get()),
                   d_xl.get(),
@@ -97,11 +98,10 @@ int main(void) {
                   d_le.get(),
                   d_ge.get(),
                   size);
-
-  cuda::memory::copy(x, d_x.get(), size32);
-  cuda::memory::copy(y, d_y.get(), size32);
-  cuda::memory::copy(z, d_z.get(), size32);
-  cuda::memory::copy(ge, d_ge.get(), 6 * size32);
+  cudaCheck(cudaMemcpy(x, d_x.get(), size32, cudaMemcpyDeviceToHost));
+  cudaCheck(cudaMemcpy(y, d_y.get(), size32, cudaMemcpyDeviceToHost));
+  cudaCheck(cudaMemcpy(z, d_z.get(), size32, cudaMemcpyDeviceToHost));
+  cudaCheck(cudaMemcpy(ge, d_ge.get(), 6 * size32, cudaMemcpyDeviceToHost));
 
   float eps = 0.;
   for (auto i = 0U; i < size; ++i) {

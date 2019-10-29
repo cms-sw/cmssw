@@ -62,7 +62,7 @@ namespace cudautils {
   ) {
     uint32_t *off = (uint32_t *)((char *)(h) + offsetof(Histo, off));
 #ifdef __CUDACC__
-    cudaMemsetAsync(off, 0, 4 * Histo::totbins(), stream);
+    cudaCheck(cudaMemsetAsync(off, 0, 4 * Histo::totbins(), stream));
 #else
     ::memset(off, 0, 4 * Histo::totbins());
 #endif

@@ -6,6 +6,7 @@
 
 #include <cuda/api_wrappers.h>
 
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
@@ -26,7 +27,7 @@ void go() {
   T v[N];
   auto v_d = cuda::memory::device::make_unique<T[]>(current_device, N);
 
-  cuda::memory::copy(v_d.get(), v, N * sizeof(T));
+  cudaCheck(cudaMemcpy(v_d.get(), v, N * sizeof(T), cudaMemcpyHostToDevice));
 
   constexpr uint32_t nParts = 10;
   constexpr uint32_t partSize = N / nParts;
@@ -65,7 +66,7 @@ void go() {
       offsets[10] = 3297 + offsets[9];
     }
 
-    cuda::memory::copy(off_d.get(), offsets, 4 * (nParts + 1));
+    cudaCheck(cudaMemcpy(off_d.get(), offsets, 4 * (nParts + 1), cudaMemcpyHostToDevice));
 
     for (long long j = 0; j < N; j++)
       v[j] = rgen(eng);
@@ -75,11 +76,10 @@ void go() {
         v[j] = sizeof(T) == 1 ? 22 : 3456;
     }
 
-    cuda::memory::copy(v_d.get(), v, N * sizeof(T));
+    cudaCheck(cudaMemcpy(v_d.get(), v, N * sizeof(T), cudaMemcpyHostToDevice));
 
     cudautils::fillManyFromVector(h_d.get(), ws_d.get(), nParts, v_d.get(), off_d.get(), offsets[10], 256, 0);
-
-    cuda::memory::copy(&h, h_d.get(), sizeof(Hist));
+    cudaCheck(cudaMemcpy(&h, h_d.get(), sizeof(Hist), cudaMemcpyDeviceToHost));
     assert(0 == h.off[0]);
     assert(offsets[10] == h.size());
 

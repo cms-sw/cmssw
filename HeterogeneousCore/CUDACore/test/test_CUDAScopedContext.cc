@@ -31,8 +31,7 @@ namespace cudatest {
 namespace {
   std::unique_ptr<CUDAProduct<int*>> produce(int device, int* d, int* h) {
     auto ctx = cudatest::TestCUDAScopedContext::make(device, true);
-
-    cuda::memory::async::copy(d, h, sizeof(int), ctx.stream());
+    cudaCheck(cudaMemcpyAsync(d, h, sizeof(int), cudaMemcpyHostToDevice, ctx.stream()));
     testCUDAScopedContextKernels_single(d, ctx.stream());
     return ctx.wrap(d);
   }
@@ -116,9 +115,10 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
       h_a1 = 0;
       h_a2 = 0;
       int h_a3 = 0;
-      cuda::memory::async::copy(&h_a1, d_a1.get(), sizeof(int), ctx.stream());
-      cuda::memory::async::copy(&h_a2, d_a2.get(), sizeof(int), ctx.stream());
-      cuda::memory::async::copy(&h_a3, d_a3.get(), sizeof(int), ctx.stream());
+
+      cudaCheck(cudaMemcpyAsync(&h_a1, d_a1.get(), sizeof(int), cudaMemcpyDeviceToHost, ctx.stream()));
+      cudaCheck(cudaMemcpyAsync(&h_a2, d_a2.get(), sizeof(int), cudaMemcpyDeviceToHost, ctx.stream()));
+      cudaCheck(cudaMemcpyAsync(&h_a3, d_a3.get(), sizeof(int), cudaMemcpyDeviceToHost, ctx.stream()));
 
       REQUIRE(h_a1 == 2);
       REQUIRE(h_a2 == 4);

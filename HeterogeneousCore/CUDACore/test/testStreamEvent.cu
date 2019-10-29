@@ -12,6 +12,7 @@
 
 #include <cuda_runtime.h>
 
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 
 namespace {
@@ -39,8 +40,8 @@ int main() {
   cudaStream_t stream1, stream2;
   cudaEvent_t event1, event2;
 
-  cudaMalloc(&dev_points1, ARRAY_SIZE * sizeof(float));
-  cudaMallocHost(&host_points1, ARRAY_SIZE * sizeof(float));
+  cudaCheck(cudaMalloc(&dev_points1, ARRAY_SIZE * sizeof(float)));
+  cudaCheck(cudaMallocHost(&host_points1, ARRAY_SIZE * sizeof(float)));
   cudaStreamCreateWithFlags(&stream1, cudaStreamNonBlocking);
   cudaStreamCreateWithFlags(&stream2, cudaStreamNonBlocking);
   cudaEventCreate(&event1);
@@ -50,7 +51,7 @@ int main() {
     host_points1[j] = static_cast<float>(j);
   }
 
-  cudaMemcpyAsync(dev_points1, host_points1, ARRAY_SIZE * sizeof(float), cudaMemcpyHostToDevice, stream1);
+  cudaCheck(cudaMemcpyAsync(dev_points1, host_points1, ARRAY_SIZE * sizeof(float), cudaMemcpyHostToDevice, stream1));
   kernel_looping<<<1, 16, 0, stream1>>>(dev_points1, ARRAY_SIZE);
   if (debug)
     std::cout << "Kernel launched on stream1" << std::endl;

@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
 #include "HeterogeneousCore/CUDATest/interface/CUDAThing.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
@@ -58,8 +59,11 @@ void TestCUDAProducerGPUtoCPU::acquire(const edm::Event& iEvent,
 
   buffer_ = cudautils::make_host_unique<float[]>(TestCUDAProducerGPUKernel::NUM_VALUES, ctx.stream());
   // Enqueue async copy, continue in produce once finished
-  cuda::memory::async::copy(
-      buffer_.get(), device.get(), TestCUDAProducerGPUKernel::NUM_VALUES * sizeof(float), ctx.stream());
+  cudaCheck(cudaMemcpyAsync(buffer_.get(),
+                            device.get(),
+                            TestCUDAProducerGPUKernel::NUM_VALUES * sizeof(float),
+                            cudaMemcpyDeviceToHost,
+                            ctx.stream()));
 
   edm::LogVerbatim("TestCUDAProducerGPUtoCPU") << label_ << " TestCUDAProducerGPUtoCPU::acquire end event "
                                                << iEvent.id().event() << " stream " << iEvent.streamID();
