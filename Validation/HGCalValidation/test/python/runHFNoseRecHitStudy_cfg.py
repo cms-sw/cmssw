@@ -33,7 +33,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Validation.HGCalValidation.hfnoseRecHitStudy_cfi')
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hfnRecHitD31tt.root'),
+                                   fileName = cms.string('hfnRecHitD44tt.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
