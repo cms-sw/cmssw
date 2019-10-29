@@ -23,11 +23,11 @@ from Validation.HcalRecHits.HLTHcalRecHitParam_cfi import *
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
 from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
-from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
 #from DQMOffline.Trigger.MuonTrigRateAnalyzer_cfi import *
+
 # online dqm:
 from DQMOffline.Trigger.HLTMonTau_cfi import *
- 
+
 # additional producer sequence prior to hltvalidation
 # to evacuate producers/filters from the EndPath
 hltassociation = cms.Sequence(
@@ -46,11 +46,11 @@ from DQMOffline.Trigger.HCALMonitoring_cff import *
 hltvalidationCommon = cms.Sequence(
     hcalMonitoringSequence
 )
-hltvalidationWithMC    = cms.Sequence(
+
+hltvalidationWithMC = cms.Sequence(
     HLTMuonVal
     +HLTTauVal
     +egammaValidationSequence
-    +topHLTriggerOfflineDQM ## why is this here ?!?! (it is DQM !)
     +topHLTriggerValidation
     +heavyFlavorValidationSequence
     +HLTJetMETValSeq
@@ -62,7 +62,8 @@ hltvalidationWithMC    = cms.Sequence(
     +hltbtagValidationSequence #too noisy for now
     +hltHCALdigisAnalyzer+hltHCALRecoAnalyzer+hltHCALNoiseRates # HCAL
 )
-hltvalidationWithData  = cms.Sequence(
+
+hltvalidationWithData = cms.Sequence(
 )
 
 hltvalidation = cms.Sequence(
@@ -87,25 +88,24 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
     e.toReplaceWith(hltvalidation, hltvalidation.copyAndExclude([HiggsValidationSequence]))
 
-
 hltvalidation_preprod = cms.Sequence(
   HLTTauVal
   +heavyFlavorValidationSequence
   +HLTSusyExoValSeq
- #+HiggsValidationSequence
-  )
+# +HiggsValidationSequence
+)
 
 hltvalidation_prod = cms.Sequence(
-  )
+)
 
 trigdqm_forValidation = cms.Sequence(
     hltMonTauReco+HLTTauDQMOffline
     +egHLTOffDQMSource
-    )
+)
 
 hltvalidation_withDQM = cms.Sequence(
     hltvalidation
     +trigdqm_forValidation
-    )
+)
 
     
