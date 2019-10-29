@@ -5,8 +5,7 @@
 
 using namespace sistrip;
 
-SummaryPlotXmlParser::SummaryPlotXmlParser() {
-}
+SummaryPlotXmlParser::SummaryPlotXmlParser() {}
 
 // -----------------------------------------------------------------------------
 //

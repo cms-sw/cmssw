@@ -1284,5 +1284,4 @@ void DQMGenericClient::removeMEIfBooked(const std::string& meName, DQMStore::IGe
 
 DEFINE_FWK_MODULE(DQMGenericClient);
 
-
 /* vim:set ts=2 sts=2 sw=2 expandtab: */

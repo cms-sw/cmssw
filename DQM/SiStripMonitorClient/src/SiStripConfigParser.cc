@@ -16,12 +16,8 @@ void SiStripConfigParser::getDocument(std::string filepath) {
 
 // -- Get List of MEs for the summary plot and the
 //
-bool SiStripConfigParser::getMENamesForSummary(std::map<std::string, std::string>& me_names) {
-  return false;
-}
+bool SiStripConfigParser::getMENamesForSummary(std::map<std::string, std::string>& me_names) { return false; }
 //
 // -- Get List of MEs for the summary plot and the
 //
-bool SiStripConfigParser::getFrequencyForSummary(int& u_freq) {
-  return false;
-}
+bool SiStripConfigParser::getFrequencyForSummary(int& u_freq) { return false; }

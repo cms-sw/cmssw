@@ -46,7 +46,6 @@ private:
 
   /** Container holding the SummaryPlot objects. */
   std::map<sistrip::RunType, std::vector<SummaryPlot> > plots_;
-
 };
 
 #endif  // DQM_SiStripCommissioningClients_SummaryPlotXmlParser_H

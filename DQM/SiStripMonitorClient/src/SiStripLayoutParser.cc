@@ -15,6 +15,4 @@ void SiStripLayoutParser::getDocument(std::string filepath) {
 //
 // -- Get list of Layouts for ME groups
 //
-bool SiStripLayoutParser::getAllLayouts(std::map<std::string, std::vector<std::string> >& layouts) {
-  return false;
-}
+bool SiStripLayoutParser::getAllLayouts(std::map<std::string, std::vector<std::string> >& layouts) { return false; }

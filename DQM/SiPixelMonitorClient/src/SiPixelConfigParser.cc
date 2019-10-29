@@ -20,30 +20,20 @@ void SiPixelConfigParser::getDocument(std::string filename) {
 //
 // -- Read ME list for the TrackerMap
 //
-bool SiPixelConfigParser::getMENamesForTrackerMap(string &tkmap_name, vector<string> &me_names) {
-  return false;
-}
+bool SiPixelConfigParser::getMENamesForTrackerMap(string &tkmap_name, vector<string> &me_names) { return false; }
 //
 // -- Read Update Frequency for the TrackerMap
 //
-bool SiPixelConfigParser::getFrequencyForTrackerMap(int &u_freq) {
-  return false;
-}
+bool SiPixelConfigParser::getFrequencyForTrackerMap(int &u_freq) { return false; }
 //
 // -- Get List of MEs for the module tree plots:
 //
-bool SiPixelConfigParser::getMENamesForTree(string &structure_name, vector<string> &me_names) {
-  return false;
-}
+bool SiPixelConfigParser::getMENamesForTree(string &structure_name, vector<string> &me_names) { return false; }
 //
 // -- Get List of MEs for the summary plot and the
 //
-bool SiPixelConfigParser::getMENamesForBarrelSummary(string &structure_name, vector<string> &me_names) {
-  return false;
-}
-bool SiPixelConfigParser::getMENamesForEndcapSummary(string &structure_name, vector<string> &me_names) {
-  return false;
-}
+bool SiPixelConfigParser::getMENamesForBarrelSummary(string &structure_name, vector<string> &me_names) { return false; }
+bool SiPixelConfigParser::getMENamesForEndcapSummary(string &structure_name, vector<string> &me_names) { return false; }
 
 bool SiPixelConfigParser::getMENamesForFEDErrorSummary(string &structure_name, vector<string> &me_names) {
   return false;
@@ -51,13 +41,9 @@ bool SiPixelConfigParser::getMENamesForFEDErrorSummary(string &structure_name, v
 ////
 // -- Get List of MEs for the summary plot and the
 //
-bool SiPixelConfigParser::getFrequencyForBarrelSummary(int &u_freq) {
-  return false;
-}
+bool SiPixelConfigParser::getFrequencyForBarrelSummary(int &u_freq) { return false; }
 
-bool SiPixelConfigParser::getFrequencyForEndcapSummary(int &u_freq) {
-  return false;
-}
+bool SiPixelConfigParser::getFrequencyForEndcapSummary(int &u_freq) { return false; }
 
 bool SiPixelConfigParser::getMENamesForGrandBarrelSummary(string &structure_name, vector<string> &me_names) {
   return false;
@@ -67,22 +53,12 @@ bool SiPixelConfigParser::getMENamesForGrandEndcapSummary(string &structure_name
   return false;
 }
 
-bool SiPixelConfigParser::getFrequencyForGrandBarrelSummary(int &u_freq) {
-  return false;
-}
+bool SiPixelConfigParser::getFrequencyForGrandBarrelSummary(int &u_freq) { return false; }
 
-bool SiPixelConfigParser::getFrequencyForGrandEndcapSummary(int &u_freq) {
-  return false;
-}
+bool SiPixelConfigParser::getFrequencyForGrandEndcapSummary(int &u_freq) { return false; }
 
-bool SiPixelConfigParser::getMessageLimitForQTests(int &u_freq) {
-  return false;
-}
+bool SiPixelConfigParser::getMessageLimitForQTests(int &u_freq) { return false; }
 
-bool SiPixelConfigParser::getSourceType(int &u_freq) {
-  return false;
-}
+bool SiPixelConfigParser::getSourceType(int &u_freq) { return false; }
 
-bool SiPixelConfigParser::getCalibType(int &u_freq) {
-  return false;
-}
+bool SiPixelConfigParser::getCalibType(int &u_freq) { return false; }
