@@ -80,7 +80,6 @@ public:
   /// (not relevant for all quality tests!)
   virtual std::vector<DQMChannel> getBadChannels() const { return std::vector<DQMChannel>(); }
 
-protected:
   QCriterion(std::string qtname) {
     qtname_ = std::move(qtname);
     init();
@@ -90,6 +89,7 @@ protected:
 
   virtual ~QCriterion() = default;
 
+protected:
   virtual float runTest(const MonitorElement *me);
   /// set algorithm name
   void setAlgoName(std::string name) { algoName_ = std::move(name); }
