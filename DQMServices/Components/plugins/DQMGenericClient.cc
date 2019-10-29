@@ -7,7 +7,7 @@
  *  \author Junghwan Goh - SungKyunKwan University
  */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -1281,5 +1281,8 @@ void DQMGenericClient::removeMEIfBooked(const std::string& meName, DQMStore::IGe
     igetter.removeElement(meName);
   }
 }
+
+DEFINE_FWK_MODULE(DQMGenericClient);
+
 
 /* vim:set ts=2 sts=2 sw=2 expandtab: */
