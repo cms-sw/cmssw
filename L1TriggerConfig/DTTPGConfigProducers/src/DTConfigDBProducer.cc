@@ -93,6 +93,7 @@ private:
   edm::ESGetToken<DTTPGParameters, DTTPGParametersRcd> m_dttpgParamsToken;
   edm::ESGetToken<DTT0, DTT0Rcd> m_t0iToken;
   edm::ESGetToken<DTCCBConfig, DTCCBConfigRcd> m_ccb_confToken;
+  edm::ESGetToken<cond::persistency::KeyList, DTKeyedConfigListRcd> m_keyListToken;
 
   // debug flags
   bool m_debugDB;
@@ -142,7 +143,7 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet &p) {
   m_UseT0 = p.getParameter<bool>("UseT0");  // CB check for a better way to do it
 
   if (not cfgConfig) {
-    cc.setConsumes(m_dttpgParamsToken).setConsumes(m_ccb_confToken);
+    cc.setConsumes(m_dttpgParamsToken).setConsumes(m_ccb_confToken).setConsumes(m_keyListToken);
     if (m_UseT0) {
       cc.setConsumes(m_t0iToken);
     }
@@ -372,6 +373,13 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTCon
   if (ccb_conf.configKeyMap().size() != 250)  // check the number of chambers!!!
     return -1;
 
+  // This const_cast and usage of KeyList is a problem
+  // that will need to be addressed in the future.
+  // I'm not fixing now, because I want to finish what I am
+  // fixing. One thing at a time. (This was already in the
+  // the DTKeyedConfigCache which copied to make this file)
+  auto &keyList = const_cast<cond::persistency::KeyList &>(keyRecord.get(m_keyListToken));
+
   // read data from CCBConfig
   while (iter != iend) {
     // 110628 SV moved here from constructor, to check config consistency for
@@ -414,7 +422,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTCon
 
       // create strings list
       std::vector<std::string> list;
-      cfgCache.getData(keyRecord, id, list);
+
+      cfgCache.getData(keyList, id, list);
 
       // loop over strings
       std::vector<std::string>::const_iterator s_iter = list.begin();
