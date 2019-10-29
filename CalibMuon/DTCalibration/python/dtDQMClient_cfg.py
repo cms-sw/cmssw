@@ -52,7 +52,8 @@ process.eventInfoProvider = cms.EDFilter("EventCoordinatesSource",
     eventInfoFolder = cms.untracked.string('EventInfo/')
 )
 
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('CalibMuon/DTCalibration/data/QualityTests_ttrig.xml')
 )

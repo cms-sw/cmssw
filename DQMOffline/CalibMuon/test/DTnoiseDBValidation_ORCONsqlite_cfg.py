@@ -83,7 +83,8 @@ process.dtNoiseAnalyzer = cms.EDAnalyzer("DTnoiseDBValidation",
     labelDB = cms.untracked.string('noiseToValidate')
 )
 
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests.xml')
 )

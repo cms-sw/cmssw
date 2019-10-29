@@ -26,7 +26,8 @@ siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
 )
 
 # clone and modify modules
-siStripQTesterHI = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+siStripQTesterHI = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_tier0_heavyions.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     getQualityTestsFromFile = cms.untracked.bool(True)

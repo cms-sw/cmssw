@@ -130,7 +130,8 @@ process.TrackMon_ckf.AlgoName = 'CKFTk'
 #--------------------------
 # Quality Test
 #--------------------------
-process.stripQTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.stripQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml'),
     prescaleFactor = cms.untracked.int32(3),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -138,7 +139,8 @@ process.stripQTester = cms.EDAnalyzer("QualityTester",
     qtestOnEndRun = cms.untracked.bool(True)
 )
 
-process.trackingQTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.trackingQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml'),
     prescaleFactor = cms.untracked.int32(3),
     getQualityTestsFromFile = cms.untracked.bool(True),

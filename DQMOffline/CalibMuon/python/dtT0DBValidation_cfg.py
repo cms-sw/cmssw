@@ -75,7 +75,8 @@ process.dtT0Analyzer = cms.EDAnalyzer("DTt0DBValidation",
     #OutputFileName = cms.untracked.string('t0DBValidation_DT_t0_cosmic2009_V01_express.root')
 )
 
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     prescaleFactor = cms.untracked.int32(1),
     reportThreshold = cms.untracked.string('black'),
     qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests.xml')

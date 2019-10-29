@@ -19,7 +19,8 @@ from  DQM.RPCMonitorClient.RPCEfficiencyShiftHisto_cfi import *
 from  DQM.RPCMonitorClient.RPCEfficiencyPerRingLayer_cfi import *
 
 
-qTesterRPC = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+qTesterRPC = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
     prescaleFactor = cms.untracked.int32(20)
 )

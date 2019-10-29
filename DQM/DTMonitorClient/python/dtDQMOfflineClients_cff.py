@@ -14,7 +14,8 @@ blockedROChannelTest.offlineMode = True;
 from DQM.DTMonitorClient.ALCARECODTCalibSynchDQMClient_cff import *
 
 
-dtQualityTests = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+dtQualityTests = DQMQualityTester(
                          #reportThreshold = cms.untracked.string('red'),
                          prescaleFactor = cms.untracked.int32(1),
                          qtList = cms.untracked.FileInPath('DQM/DTMonitorClient/test/QualityTests.xml'),

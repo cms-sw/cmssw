@@ -121,7 +121,8 @@ process.rpcEventSummaryMerger = process.rpcEventSummary.clone()
 process.rpcEventSummaryMerger.RecHitTypeFolder = cms.untracked.string("AllHitsMerger")
 
 ################# Quality Tests #################
-process.qTesterRPC = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTesterRPC = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
     prescaleFactor = cms.untracked.int32(5),
     qtestOnEndLumi = cms.untracked.bool(True),
