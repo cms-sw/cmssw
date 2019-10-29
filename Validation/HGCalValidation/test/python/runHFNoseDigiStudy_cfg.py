@@ -29,7 +29,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hfnDigi.root'),
+                                   fileName = cms.string('hfnDigiD44tt.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
