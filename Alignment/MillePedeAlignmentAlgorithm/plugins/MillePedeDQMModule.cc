@@ -69,8 +69,8 @@ void MillePedeDQMModule ::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter
   auto theResults = mpReader_->getResults();
 
   booker.cd();
-  booker.setCurrentFolder("AlCaReco/SiPixelAli/");
-  exitCodes = booker.bookString("PedeExitCode",theResults.getExitMessage());
+  booker.setCurrentFolder("AlCa.co/SiPixelAli/");
+  exitCodes. booker.bookString("PedeExitCode", theResults.getExitMessage());
   booker.cd();
 }
 
