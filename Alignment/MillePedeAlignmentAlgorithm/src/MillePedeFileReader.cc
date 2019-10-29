@@ -49,12 +49,14 @@ void MillePedeFileReader ::readMillePedeEndFile() {
       exitMessage_ = line;
       std::istringstream iss(line);
       iss >> exitCode_ >> trash;
-      edm::LogInfo("MillePedeFileReader") << " Pede exit code is: " << exitCode_ << " (" << exitMessage_ << ")" << std::endl;
+      edm::LogInfo("MillePedeFileReader")
+          << " Pede exit code is: " << exitCode_ << " (" << exitMessage_ << ")" << std::endl;
     } else {
       exitMessage_ = line;
       std::istringstream iss(line);
       iss >> exitCode_ >> trash;
-      edm::LogInfo("MillePedeFileReader") << " Pede exit code is: " << exitCode_ << " (" << exitMessage_ << ")"<< std::endl;
+      edm::LogInfo("MillePedeFileReader")
+          << " Pede exit code is: " << exitCode_ << " (" << exitMessage_ << ")" << std::endl;
     }
   } else {
     edm::LogError("MillePedeFileReader") << "Could not read millepede end-file.";

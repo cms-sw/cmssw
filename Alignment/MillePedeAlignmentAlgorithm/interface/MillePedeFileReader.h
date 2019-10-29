@@ -48,7 +48,8 @@ public:
 
   void print() {
     std::cout << " is DB updated: " << m_isDBUpdated << " is DB update vetoed: " << m_isDBUpdateVetoed
-              << " nRecords: " << m_nRecords << " exitCode: " << m_exitCode << " (" << m_exitMessage << ")" <<std::endl;
+              << " nRecords: " << m_nRecords << " exitCode: " << m_exitCode << " (" << m_exitMessage << ")"
+              << std::endl;
   }
 };
 
