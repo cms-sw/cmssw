@@ -13,18 +13,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-#include "CondFormats/Common/interface/FileBlob.h"
-#include "CondFormats/DataRecord/interface/DQMXMLFileRcd.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <cmath>
 #include <memory>
@@ -33,12 +27,7 @@
 #include <sstream>
 #include <iostream>
 
-#include "boost/scoped_ptr.hpp"
-
-using namespace edm;
-using namespace std;
-
-class QualityTester : public edm::EDAnalyzer {
+class QualityTester : public DQMEDHarvester {
 public:
   typedef dqm::harvesting::DQMStore DQMStore;
   typedef dqm::harvesting::MonitorElement MonitorElement;
@@ -50,14 +39,16 @@ public:
   ~QualityTester() override;
 
 protected:
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  // not called for Harvester for now, might enable that later.
+  void analyze(const edm::Event& e, const edm::EventSetup& c) /* override */;
 
   /// perform the actual quality tests
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c) override;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker&,
+                             DQMStore::IGetter&,
+                             edm::LuminosityBlock const& lumiSeg,
+                             edm::EventSetup const& c) override;
   void endRun(const edm::Run& r, const edm::EventSetup& c) override;
-  void endJob() override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
 private:
   void performTests();
@@ -75,14 +66,15 @@ private:
 
   DQMStore* bei;
 
-  QTestHandle* qtHandler;
+  void configureTests(std::string const& file);
+  void attachTests();
 };
 
-QualityTester::QualityTester(const ParameterSet& ps) {
+QualityTester::QualityTester(const edm::ParameterSet& ps) {
   prescaleFactor = ps.getUntrackedParameter<int>("prescaleFactor", 1);
   getQualityTestsFromFile = ps.getUntrackedParameter<bool>("getQualityTestsFromFile", true);
-  Label = ps.getUntrackedParameter<string>("label", "");
-  reportThreshold = ps.getUntrackedParameter<string>("reportThreshold", "");
+  Label = ps.getUntrackedParameter<std::string>("label", "");
+  reportThreshold = ps.getUntrackedParameter<std::string>("reportThreshold", "");
   testInEventloop = ps.getUntrackedParameter<bool>("testInEventloop", false);
   qtestOnEndRun = ps.getUntrackedParameter<bool>("qtestOnEndRun", true);
   qtestOnEndJob = ps.getUntrackedParameter<bool>("qtestOnEndJob", false);
@@ -91,78 +83,60 @@ QualityTester::QualityTester(const ParameterSet& ps) {
 
   bei = &*edm::Service<DQMStore>();
 
-  qtHandler = new QTestHandle;
-
-  // if you use this module, it's non-sense not to provide the QualityTests.xml
   if (getQualityTestsFromFile) {
     edm::FileInPath qtlist = ps.getUntrackedParameter<edm::FileInPath>("qtList");
-    qtHandler->configureTests(FileInPath(qtlist).fullPath(), bei);
+    configureTests(qtlist.fullPath());
+  } else {
+    assert(!"Reading from DB no longer supported.");
   }
 
   nEvents = 0;
 }
 
-void QualityTester::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
-  // if getQualityTestsFromFile is False, it means that the end-user wants them from the Database
-  if (!getQualityTestsFromFile) {
-    edm::eventsetup::EventSetupRecordKey recordKey(
-        edm::eventsetup::EventSetupRecordKey::TypeTag::findType("DQMXMLFileRcd"));
-    if (recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
-      throw cms::Exception("Record not found") << "Record \"DQMXMLFileRcd"
-                                               << "\" does not exist!" << std::endl;
-    }
-    //     std::cout << "Reading XML from Database" << std::endl ;
-    edm::ESHandle<FileBlob> xmlfile;
-    iSetup.get<DQMXMLFileRcd>().get(Label, xmlfile);
-    std::unique_ptr<std::vector<unsigned char> > vc((*xmlfile).getUncompressedBlob());
-    std::string xmlstr = "";
-    for (unsigned char& it : *vc) {
-      xmlstr += it;
-    }
-
-    qtHandler->configureTests(xmlstr, bei, true);
-  }
-}
-
-QualityTester::~QualityTester() { delete qtHandler; }
+QualityTester::~QualityTester() {}
 
 void QualityTester::analyze(const edm::Event& e, const edm::EventSetup& c) {
   if (testInEventloop) {
     nEvents++;
-    if (getQualityTestsFromFile && prescaleFactor > 0 && nEvents % prescaleFactor == 0) {
+    if (prescaleFactor > 0 && nEvents % prescaleFactor == 0) {
       performTests();
     }
   }
 }
 
-void QualityTester::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+void QualityTester::dqmEndLuminosityBlock(DQMStore::IBooker&,
+                                          DQMStore::IGetter&,
+                                          edm::LuminosityBlock const& lumiSeg,
+                                          edm::EventSetup const& context) {
   if (!testInEventloop && qtestOnEndLumi) {
-    if (getQualityTestsFromFile && prescaleFactor > 0 && lumiSeg.id().luminosityBlock() % prescaleFactor == 0) {
+    if (prescaleFactor > 0 && lumiSeg.id().luminosityBlock() % prescaleFactor == 0) {
       performTests();
     }
   }
 }
 
-void QualityTester::endRun(const Run& r, const EventSetup& context) {
+void QualityTester::endRun(const edm::Run& r, const edm::EventSetup& context) {
   if (qtestOnEndRun)
     performTests();
 }
 
-void QualityTester::endJob() {
+void QualityTester::dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) {
   if (qtestOnEndJob)
     performTests();
 }
 
 void QualityTester::performTests() {
   // done here because new ME can appear while processing data
-  qtHandler->attachTests(bei, verboseQT);
+  attachTests();
 
   edm::LogVerbatim("QualityTester") << "Running the Quality Test";
 
-  bei->runQTests();
+  // TODO: runQTests() on each ME
 
   if (!reportThreshold.empty()) {
-    std::map<std::string, std::vector<std::string> > theAlarms = qtHandler->checkDetailedQTStatus(bei);
+    // map {red, orange, black} -> [QReport message, ...]
+    std::map<std::string, std::vector<std::string> > theAlarms;
+    // populate from MEs hasError, hasWarning, hasOther
 
     for (auto& theAlarm : theAlarms) {
       const std::string& alarmType = theAlarm.first;
@@ -179,5 +153,9 @@ void QualityTester::performTests() {
     std::cout << std::endl;
   }
 }
+
+void QualityTester::configureTests(std::string const& file) {}
+
+void QualityTester::attachTests() {}
 
 DEFINE_FWK_MODULE(QualityTester);
