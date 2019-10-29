@@ -479,7 +479,6 @@ void HcalHBHEMuonHighEtaAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup
     const CaloGeometry* geo = pG.product();
     const HcalGeometry* gHcal = (const HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
     const std::vector<DetId>& ids = gHcal->getValidDetIds(DetId::Hcal, 0);
-#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HBHEMuon") << "\nTable of Correction Factors for Run " << iRun.run() << "\n";
     for (auto const& id : ids) {
       if ((id.det() == DetId::Hcal) && ((id.subdetId() == HcalBarrel) || (id.subdetId() == HcalEndcap))) {
@@ -487,7 +486,6 @@ void HcalHBHEMuonHighEtaAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup
                                      << (respCorrs_->getValues(id))->getValue();
       }
     }
-#endif
   }
 }
 
