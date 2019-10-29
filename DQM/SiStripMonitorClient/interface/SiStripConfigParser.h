@@ -8,19 +8,17 @@
  *  \author Suchandra Dutta
   */
 
-#include "DQMServices/ClientConfig/interface/DQMParserBase.h"
 #include <vector>
 #include <fstream>
 #include <string>
 #include <map>
 
-class SiStripConfigParser : public DQMParserBase {
+class SiStripConfigParser {
 public:
   // Constructor
   SiStripConfigParser();
 
-  // Destructor
-  ~SiStripConfigParser() override;
+  void getDocument(std::string filepath);
 
   // get List of MEs for TrackerMap
   bool getMENamesForSummary(std::map<std::string, std::string>& me_names);
