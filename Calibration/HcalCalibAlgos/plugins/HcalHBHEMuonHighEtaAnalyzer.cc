@@ -134,7 +134,7 @@ private:
 
   //////////////////////////////////////////////////////
   static const int depthMax_ = 7;
-  TTree *tree_;
+  TTree* tree_;
   unsigned int runNumber_, eventNumber_, goodVertex_;
   std::vector<bool> mediumMuon_;
   std::vector<double> ptGlob_, etaGlob_, phiGlob_, energyMuon_, pMuon_;
