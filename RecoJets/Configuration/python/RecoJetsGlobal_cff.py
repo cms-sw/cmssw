@@ -35,7 +35,7 @@ _jetHighLevelReco_pATask.add(pACentrality)
 pA_2016.toReplaceWith(jetHighLevelRecoTask, _jetHighLevelReco_pATask)
 
 _jetGlobalReco_HITask = cms.Task(recoJetsHITask,recoJetIdsTask)
-_jetGlobalReco_HI = cms.Sequence(jetGlobalReco_HITask)
+_jetGlobalReco_HI = cms.Sequence(_jetGlobalReco_HITask)
 _jetHighLevelReco_HITask = cms.Task(recoPFJetsHITask,jetCorrectorsForRecoTask,recoJetAssociationsTask)
 _jetHighLevelReco_HI = cms.Sequence(_jetHighLevelReco_HITask)
 
