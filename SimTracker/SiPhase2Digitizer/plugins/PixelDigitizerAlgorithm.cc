@@ -136,7 +136,7 @@ void PixelDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetUnit* pix
   const float pitch_second = 0.0100;
   // 0.5 um tolerance when comparing the pitch to accommodate the small changes in different TK geometrie (temporary fix)
   const double pitch_tolerance(0.0005);
- 
+
   if (abs(topol->pitch().first - pitch_first) > pitch_tolerance ||
       abs(topol->pitch().second - pitch_second) > pitch_tolerance)
     return;
