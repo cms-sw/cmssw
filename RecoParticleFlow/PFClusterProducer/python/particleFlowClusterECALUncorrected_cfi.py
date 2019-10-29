@@ -34,6 +34,19 @@ _spikeAndDoubleSpikeCleaner_ECAL = cms.PSet(
     )
 )
 
+#flag cleaning to mark hits not to be used for seeding
+_spikeAndDoubleSpikeCleaner_ECAL = cms.PSet(
+    algoName = cms.string("FlagsCleanerECAL"),    
+    cleaningByDetector = cms.VPSet(
+    cms.PSet( detector = cms.string("ECAL_BARREL"),
+              RecHitFlagsToBeExcluded= cms.vstring('kNeighboursRecovered'),
+              ),
+    cms.PSet( detector = cms.string("ECAL_ENDCAP"),
+              RecHitFlagsToBeExcluded= cms.vstring('kNeighboursRecovered'),
+              )
+    )
+)
+
 #seeding
 _localMaxSeeds_ECAL = cms.PSet(
     algoName = cms.string("LocalMaximumSeedFinder"),
@@ -119,6 +132,7 @@ particleFlowClusterECALUncorrected = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitECAL"),
     recHitCleaners = cms.VPSet(),
+    flagCleaners = cms.VPSet(),
     seedFinder = _localMaxSeeds_ECAL,
     initialClusteringStep = _topoClusterizer_ECAL,
     pfClusterBuilder = _pfClusterizer_ECAL,
