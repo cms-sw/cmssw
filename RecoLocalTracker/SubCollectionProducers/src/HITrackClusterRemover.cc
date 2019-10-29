@@ -319,7 +319,7 @@ void HITrackClusterRemover::process(OmniClusterRef const &ocluster, SiStripDetId
     return;
   if (!fromTrack) {
     int clusCharge = 0;
-    for (std::vector<uint8_t>::const_iterator iAmp = cluster->amplitudes().begin(); iAmp != cluster->amplitudes().end();
+    for (auto iAmp = cluster->amplitudes().begin(); iAmp != cluster->amplitudes().end();
          ++iAmp) {
       clusCharge += *iAmp;
     }
