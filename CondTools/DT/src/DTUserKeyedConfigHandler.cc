@@ -424,4 +424,4 @@ bool DTUserKeyedConfigHandler::userDiscardedKey(int key) {
   return true;
 }
 
-void DTUserKeyedConfigHandler::setList(cond::persistency::KeyList* list) { keyList = list; }
+void DTUserKeyedConfigHandler::setList(const cond::persistency::KeyList* list) { keyList = list; }

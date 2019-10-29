@@ -25,7 +25,7 @@ public:
       if (kentry.get())
         std::cout << kentry->getId() << std::endl;
     }
-    source().setList(const_cast<cond::persistency::KeyList*>(&kl));
+    source().setList(&kl);
   }
 
 private:

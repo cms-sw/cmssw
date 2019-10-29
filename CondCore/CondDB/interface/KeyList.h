@@ -54,7 +54,7 @@ namespace cond {
       /** Retrieve the item associated with the key directly from the DB.
           The function is non-const since it is not thread-safe. */
       template <typename T>
-      std::shared_ptr<T> getUsingKey(unsigned long long key) {
+      std::shared_ptr<T> getUsingKey(unsigned long long key) const {
         auto item = loadFromDB(key);
         return deserialize<T>(item.first, item.second.first, item.second.second);
       }
@@ -63,9 +63,9 @@ namespace cond {
       size_t size() const { return m_data.size(); }
 
     private:
-      std::pair<std::string, std::pair<cond::Binary, cond::Binary>> loadFromDB(unsigned long long key);
-      // the db session
-      IOVProxy m_proxy;
+      std::pair<std::string, std::pair<cond::Binary, cond::Binary>> loadFromDB(unsigned long long key) const;
+      // the db session, protected by a mutex
+      mutable IOVProxy m_proxy;
       // the key selection:
       std::vector<unsigned long long> m_keys;
       std::vector<std::pair<std::string, std::pair<cond::Binary, cond::Binary>>> m_data;

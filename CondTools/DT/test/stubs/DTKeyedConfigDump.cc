@@ -47,7 +47,7 @@ namespace edmtest {
     const DTKeyedConfig** allBricks = new const DTKeyedConfig*[100000];
     int nBricks = 0;
 
-    auto& keyList = const_cast<cond::persistency::KeyList&>(context.getData(keyListToken_));
+    auto const& keyList = context.getData(keyListToken_);
     // loop over chambers
     DTCCBConfig::ccb_config_map configKeys(conf.configKeyMap());
     DTCCBConfig::ccb_config_iterator iter = configKeys.begin();

@@ -59,7 +59,7 @@ void DTKeyedConfigDBDump::analyze(const edm::Event& e, const edm::EventSetup& c)
   c.get<DTKeyedConfigListRcd>().get(klh);
   std::cout << "got context" << std::endl;
   cond::persistency::KeyList const& kl = *klh.product();
-  cond::persistency::KeyList* kp = const_cast<cond::persistency::KeyList*>(&kl);
+  cond::persistency::KeyList const* kp = &kl;
   std::cout << "now load and get" << std::endl;
   auto pkc = kp->getUsingKey<DTKeyedConfig>(999999999);
   std::cout << "now check" << std::endl;
