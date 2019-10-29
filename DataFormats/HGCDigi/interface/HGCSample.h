@@ -36,18 +36,13 @@ public:
 
   // GF: why do we not use setWord for this case ??
   void set(bool thr, bool mode, uint16_t gain, uint16_t toa, uint16_t data) {
-
-    // std::cout << "GF HGCSample - in the set method " << std::endl;
-    gain = (gain > (uint16_t)kGainMask ? (uint16_t)kGainMask : gain);
-    toa = (toa > (uint16_t)kToAMask ? (uint16_t)kToAMask : toa);
-    data = (data > (uint16_t)kDataMask ? (uint16_t)kDataMask : data);
-
-    value_ = (((uint32_t)thr  & kThreshMask) << kThreshShift |
-	      ((uint32_t)mode & kModeMask)   << kModeShift   |
-              ((uint32_t)gain & kGainMask)   << kToGainShift |
-              ((uint32_t)toa  & kToAMask)    << kToAShift    |
-	      ((uint32_t)data & kDataMask)   << kDataShift);
+    setThreshold(thr);
+    setMode(mode);
+    setGain(gain);
+    setToA(toa);
+    setData(data);
   }
+
   void print(std::ostream& out = std::cout) {
     out << "THR: " << threshold() << " Mode: " << mode() << " ToA: " << toa() << " Data: " << data() << " Raw=0x"
         << std::hex << raw() << std::dec << std::endl;
@@ -71,16 +66,20 @@ private:
    */
   void setWord(uint32_t word, uint32_t mask, uint32_t pos) {
 
+    // deal with saturation: set to mask 
+    // should we throw ?
     word = ( mask > word  ?  word : mask );
-    // deal with saturation: should we throw ?
-
-    //clear required bits
     // std::cout <<  "word: " << word << "  mask: " << mask <<  " pos: " << pos << std::endl;
+
+    // mask (not strictly needed) and shift
     const uint32_t masked_word = (word & mask) << pos;
     //std::cout <<  "\t masked_word " << masked_word << std::endl;
+
+    //clear to 0  bits which will be set
     value_ &= ~(mask << pos);
     // std::cout <<  "\t value tmp " << value_ << std::endl;
-    //now set the new value
+
+    //now set bits
     value_ |= (masked_word);
     //std::cout <<  "\t value " << value_ << std::endl;
   }
