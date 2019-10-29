@@ -12,30 +12,41 @@
 
 class HGCSample {
 public:
-  enum HGCSampleMasks { kThreshMask = 0x1, kModeMask = 0x1, kToAMask = 0x3ff, kDataMask = 0xfff };
-  enum HGCSampleShifts { kThreshShift = 31, kModeShift = 30, kToAShift = 13, kDataShift = 0 };
+  enum HGCSampleMasks  { kThreshMask  = 0x1, kModeMask  = 0x1, kGainMask    = 0x3,   kToAMask  = 0x3ff, kDataMask  = 0xfff };
+  enum HGCSampleShifts { kThreshShift = 31,  kModeShift = 30,  kToGainShift = 23,    kToAShift = 13,    kDataShift = 0 };
 
   /**
      @short CTOR
    */
-  HGCSample() : value_(0), toaFired_(false) {}
-  HGCSample(uint32_t value) : value_(value), toaFired_(false) {}
-  HGCSample(const HGCSample& o) : value_(o.value_), toaFired_(o.toaFired_) {}
+ HGCSample() : value_(0), toaFired_(false) { /* std::cout << "GF HGCSample const 1" << std::endl; */ }
+ HGCSample(uint32_t value) : value_(value), toaFired_(false) { /* std::cout << "GF HGCSample const 1" << std::endl;  */ }
+ HGCSample(const HGCSample& o) : value_(o.value_), toaFired_(o.toaFired_) { /* std::cout << "GF HGCSample const 1" << std::endl;  */ }
 
   /**
      @short setters
    */
+
+  // GF indentation
   void setThreshold(bool thr) { setWord(thr, kThreshMask, kThreshShift); }
   void setMode(bool mode) { setWord(mode, kModeMask, kModeShift); }
+  void setGain(uint16_t gain) { setWord(gain, kGainMask, kToGainShift); }
   void setToA(uint16_t toa) { setWord(toa, kToAMask, kToAShift); }
   void setToAValid(bool toaFired) { toaFired_ = toaFired; }
   void setData(uint16_t data) { setWord(data, kDataMask, kDataShift); }
-  void set(bool thr, bool mode, uint16_t toa, uint16_t data) {
+
+  // GF: why do we not use setWord for this case ??
+  void set(bool thr, bool mode, uint16_t gain, uint16_t toa, uint16_t data) {
+
+    // std::cout << "GF HGCSample - in the set method " << std::endl;
+    gain = (gain > (uint16_t)kGainMask ? (uint16_t)kGainMask : gain);
     toa = (toa > (uint16_t)kToAMask ? (uint16_t)kToAMask : toa);
     data = (data > (uint16_t)kDataMask ? (uint16_t)kDataMask : data);
 
-    value_ = (((uint32_t)thr & kThreshMask) << kThreshShift | ((uint32_t)mode & kModeMask) << kModeShift |
-              ((uint32_t)toa & kToAMask) << kToAShift | ((uint32_t)data & kDataMask) << kDataShift);
+    value_ = (((uint32_t)thr  & kThreshMask) << kThreshShift |
+	      ((uint32_t)mode & kModeMask)   << kModeShift   |
+              ((uint32_t)gain & kGainMask)   << kToGainShift |
+              ((uint32_t)toa  & kToAMask)    << kToAShift    |
+	      ((uint32_t)data & kDataMask)   << kDataShift);
   }
   void print(std::ostream& out = std::cout) {
     out << "THR: " << threshold() << " Mode: " << mode() << " ToA: " << toa() << " Data: " << data() << " Raw=0x"
@@ -46,9 +57,10 @@ public:
      @short getters
   */
   uint32_t raw() const { return value_; }
-  bool threshold() const { return ((value_ >> kThreshShift) & kThreshMask); }
-  bool mode() const { return ((value_ >> kModeShift) & kModeMask); }
-  bool getToAValid() const { return toaFired_; }
+  bool     threshold() const { return ((value_ >> kThreshShift) & kThreshMask); }
+  bool     mode() const { return ((value_ >> kModeShift) & kModeMask); }
+  bool     getToAValid() const { return toaFired_; }
+  uint32_t gain() const { return ((value_ >> kToGainShift) & kGainMask); }
   uint32_t toa() const { return ((value_ >> kToAShift) & kToAMask); }
   uint32_t data() const { return ((value_ >> kDataShift) & kDataMask); }
   uint32_t operator()() { return value_; }
@@ -59,12 +71,16 @@ private:
    */
   void setWord(uint32_t word, uint32_t mask, uint32_t pos) {
     if (word > mask)
-      word = mask;  // deal with saturation
+      word = mask;  // deal with saturation - should we throw ?
     //clear required bits
+    // std::cout <<  "word: " << word << "  mask: " << mask <<  " pos: " << pos << std::endl;
     const uint32_t masked_word = (word & mask) << pos;
-    value_ &= ~(masked_word);
+    //std::cout <<  "\t masked_word " << masked_word << std::endl;
+    value_ &= ~(mask << pos);
+    // std::cout <<  "\t value tmp " << value_ << std::endl;
     //now set the new value
     value_ |= (masked_word);
+    //std::cout <<  "\t value " << value_ << std::endl;
   }
 
   // a 32-bit word

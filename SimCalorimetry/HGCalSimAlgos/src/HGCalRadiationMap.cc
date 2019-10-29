@@ -3,7 +3,10 @@
 #include <fstream>
 
 //
-void HGCalRadiationMap::setDoseMap(const std::string& fullpath) { doseMap_ = readDosePars(fullpath); }
+void HGCalRadiationMap::setDoseMap(const std::string& fullpath,const unsigned int &algo) { 
+  doseMap_ = readDosePars(fullpath); 
+  algo_ = algo;
+}
 
 //
 void HGCalRadiationMap::setGeometry(const CaloSubdetectorGeometry* geom) {

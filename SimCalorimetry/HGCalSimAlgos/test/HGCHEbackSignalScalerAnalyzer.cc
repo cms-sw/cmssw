@@ -167,7 +167,7 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
 
   //instantiate scaler
   HGCalSciNoiseMap scal;
-  scal.setDoseMap(doseMap_);
+  scal.setDoseMap(doseMap_,0);
   scal.setSipmMap(sipmMap_);
   scal.setGeometry(gHGCal_);
 
