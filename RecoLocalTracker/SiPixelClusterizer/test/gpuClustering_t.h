@@ -12,6 +12,7 @@
 #ifdef __CUDACC__
 #include <cuda/api_wrappers.h>
 
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 #endif
@@ -252,12 +253,12 @@ int main(void) {
     size_t size16 = n * sizeof(unsigned short);
     // size_t size8 = n * sizeof(uint8_t);
 
-    cuda::memory::copy(d_moduleStart.get(), &nModules, sizeof(uint32_t));
+    cudaCheck(cudaMemcpy(d_moduleStart.get(), &nModules, sizeof(uint32_t), cudaMemcpyHostToDevice));
 
-    cuda::memory::copy(d_id.get(), h_id.get(), size16);
-    cuda::memory::copy(d_x.get(), h_x.get(), size16);
-    cuda::memory::copy(d_y.get(), h_y.get(), size16);
-    cuda::memory::copy(d_adc.get(), h_adc.get(), size16);
+    cudaCheck(cudaMemcpy(d_id.get(), h_id.get(), size16, cudaMemcpyHostToDevice));
+    cudaCheck(cudaMemcpy(d_x.get(), h_x.get(), size16, cudaMemcpyHostToDevice));
+    cudaCheck(cudaMemcpy(d_y.get(), h_y.get(), size16, cudaMemcpyHostToDevice));
+    cudaCheck(cudaMemcpy(d_adc.get(), h_adc.get(), size16, cudaMemcpyHostToDevice));
     // Launch CUDA Kernels
     int threadsPerBlock = (kkk == 5) ? 512 : ((kkk == 3) ? 128 : 256);
     int blocksPerGrid = (numElements + threadsPerBlock - 1) / threadsPerBlock;
@@ -270,26 +271,23 @@ int main(void) {
 
     std::cout << "CUDA findModules kernel launch with " << blocksPerGrid << " blocks of " << threadsPerBlock
               << " threads\n";
-
-    cuda::memory::device::zero(d_clusInModule.get(), MaxNumModules * sizeof(uint32_t));
+    cudaCheck(cudaMemset(d_clusInModule.get(), 0, MaxNumModules * sizeof(uint32_t)));
 
     cudautils::launch(findClus,
-                 {blocksPerGrid, threadsPerBlock},
-                 d_id.get(),
-                 d_x.get(),
-                 d_y.get(),
-                 d_moduleStart.get(),
-                 d_clusInModule.get(),
-                 d_moduleId.get(),
-                 d_clus.get(),
-                 n);
+                      {blocksPerGrid, threadsPerBlock},
+                      d_id.get(),
+                      d_x.get(),
+                      d_y.get(),
+                      d_moduleStart.get(),
+                      d_clusInModule.get(),
+                      d_moduleId.get(),
+                      d_clus.get(),
+                      n);
     cudaDeviceSynchronize();
-
-    cuda::memory::copy(&nModules, d_moduleStart.get(), sizeof(uint32_t));
+    cudaCheck(cudaMemcpy(&nModules, d_moduleStart.get(), sizeof(uint32_t), cudaMemcpyDeviceToHost));
 
     uint32_t nclus[MaxNumModules], moduleId[nModules];
-
-    cuda::memory::copy(&nclus, d_clusInModule.get(), MaxNumModules * sizeof(uint32_t));
+    cudaCheck(cudaMemcpy(&nclus, d_clusInModule.get(), MaxNumModules * sizeof(uint32_t), cudaMemcpyDeviceToHost));
 
     std::cout << "before charge cut found " << std::accumulate(nclus, nclus + MaxNumModules, 0) << " clusters"
               << std::endl;
@@ -302,14 +300,14 @@ int main(void) {
       std::cout << "ERROR!!!!! wrong number of cluster found" << std::endl;
 
     cudautils::launch(clusterChargeCut,
-                 {blocksPerGrid, threadsPerBlock},
-                 d_id.get(),
-                 d_adc.get(),
-                 d_moduleStart.get(),
-                 d_clusInModule.get(),
-                 d_moduleId.get(),
-                 d_clus.get(),
-                 n);
+                      {blocksPerGrid, threadsPerBlock},
+                      d_id.get(),
+                      d_adc.get(),
+                      d_moduleStart.get(),
+                      d_clusInModule.get(),
+                      d_moduleId.get(),
+                      d_clus.get(),
+                      n);
 
     cudaDeviceSynchronize();
 #else
@@ -354,10 +352,10 @@ int main(void) {
     std::cout << "found " << nModules << " Modules active" << std::endl;
 
 #ifdef __CUDACC__
-    cuda::memory::copy(h_id.get(), d_id.get(), size16);
-    cuda::memory::copy(h_clus.get(), d_clus.get(), size32);
-    cuda::memory::copy(&nclus, d_clusInModule.get(), MaxNumModules * sizeof(uint32_t));
-    cuda::memory::copy(&moduleId, d_moduleId.get(), nModules * sizeof(uint32_t));
+    cudaCheck(cudaMemcpy(h_id.get(), d_id.get(), size16, cudaMemcpyDeviceToHost));
+    cudaCheck(cudaMemcpy(h_clus.get(), d_clus.get(), size32, cudaMemcpyDeviceToHost));
+    cudaCheck(cudaMemcpy(&nclus, d_clusInModule.get(), MaxNumModules * sizeof(uint32_t), cudaMemcpyDeviceToHost));
+    cudaCheck(cudaMemcpy(&moduleId, d_moduleId.get(), nModules * sizeof(uint32_t), cudaMemcpyDeviceToHost));
 #endif
 
     std::set<unsigned int> clids;
