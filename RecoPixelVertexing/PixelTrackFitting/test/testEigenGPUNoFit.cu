@@ -73,18 +73,19 @@ void testMultiply() {
   Eigen::Matrix<double, row1, col2> *multiply_resultGPU = nullptr;
   Eigen::Matrix<double, row1, col2> *multiply_resultGPUret = new Eigen::Matrix<double, row1, col2>();
 
-  cudaMalloc((void **)&JGPU, sizeof(Eigen::Matrix<double, row1, col1>));
-  cudaMalloc((void **)&CGPU, sizeof(Eigen::Matrix<double, row2, col2>));
-  cudaMalloc((void **)&multiply_resultGPU, sizeof(Eigen::Matrix<double, row1, col2>));
-  cudaMemcpy(JGPU, &J, sizeof(Eigen::Matrix<double, row1, col1>), cudaMemcpyHostToDevice);
-  cudaMemcpy(CGPU, &C, sizeof(Eigen::Matrix<double, row2, col2>), cudaMemcpyHostToDevice);
-  cudaMemcpy(multiply_resultGPU, &multiply_result, sizeof(Eigen::Matrix<double, row1, col2>), cudaMemcpyHostToDevice);
+  cudaCheck(cudaMalloc((void **)&JGPU, sizeof(Eigen::Matrix<double, row1, col1>)));
+  cudaCheck(cudaMalloc((void **)&CGPU, sizeof(Eigen::Matrix<double, row2, col2>)));
+  cudaCheck(cudaMalloc((void **)&multiply_resultGPU, sizeof(Eigen::Matrix<double, row1, col2>)));
+  cudaCheck(cudaMemcpy(JGPU, &J, sizeof(Eigen::Matrix<double, row1, col1>), cudaMemcpyHostToDevice));
+  cudaCheck(cudaMemcpy(CGPU, &C, sizeof(Eigen::Matrix<double, row2, col2>), cudaMemcpyHostToDevice));
+  cudaCheck(cudaMemcpy(
+      multiply_resultGPU, &multiply_result, sizeof(Eigen::Matrix<double, row1, col2>), cudaMemcpyHostToDevice));
 
   kernelMultiply<<<1, 1>>>(JGPU, CGPU, multiply_resultGPU);
   cudaDeviceSynchronize();
 
-  cudaMemcpy(
-      multiply_resultGPUret, multiply_resultGPU, sizeof(Eigen::Matrix<double, row1, col2>), cudaMemcpyDeviceToHost);
+  cudaCheck(cudaMemcpy(
+      multiply_resultGPUret, multiply_resultGPU, sizeof(Eigen::Matrix<double, row1, col2>), cudaMemcpyDeviceToHost));
   printIt(multiply_resultGPUret);
   assert(isEqualFuzzy(multiply_result, (*multiply_resultGPUret)));
 }
@@ -104,14 +105,14 @@ void testInverse3x3() {
   std::cout << "Here is the matrix m:" << std::endl << m << std::endl;
   std::cout << "Its inverse is:" << std::endl << m.inverse() << std::endl;
 #endif
-  cudaMalloc((void **)&mGPU, sizeof(Matrix3d));
-  cudaMalloc((void **)&mGPUret, sizeof(Matrix3d));
-  cudaMemcpy(mGPU, &m, sizeof(Matrix3d), cudaMemcpyHostToDevice);
+  cudaCheck(cudaMalloc((void **)&mGPU, sizeof(Matrix3d)));
+  cudaCheck(cudaMalloc((void **)&mGPUret, sizeof(Matrix3d)));
+  cudaCheck(cudaMemcpy(mGPU, &m, sizeof(Matrix3d), cudaMemcpyHostToDevice));
 
   kernelInverse3x3<<<1, 1>>>(mGPU, mGPUret);
   cudaDeviceSynchronize();
 
-  cudaMemcpy(mCPUret, mGPUret, sizeof(Matrix3d), cudaMemcpyDeviceToHost);
+  cudaCheck(cudaMemcpy(mCPUret, mGPUret, sizeof(Matrix3d), cudaMemcpyDeviceToHost));
 #if TEST_DEBUG
   std::cout << "Its GPU inverse is:" << std::endl << (*mCPUret) << std::endl;
 #endif
@@ -133,14 +134,14 @@ void testInverse4x4() {
   std::cout << "Here is the matrix m:" << std::endl << m << std::endl;
   std::cout << "Its inverse is:" << std::endl << m.inverse() << std::endl;
 #endif
-  cudaMalloc((void **)&mGPU, sizeof(Matrix4d));
-  cudaMalloc((void **)&mGPUret, sizeof(Matrix4d));
-  cudaMemcpy(mGPU, &m, sizeof(Matrix4d), cudaMemcpyHostToDevice);
+  cudaCheck(cudaMalloc((void **)&mGPU, sizeof(Matrix4d)));
+  cudaCheck(cudaMalloc((void **)&mGPUret, sizeof(Matrix4d)));
+  cudaCheck(cudaMemcpy(mGPU, &m, sizeof(Matrix4d), cudaMemcpyHostToDevice));
 
   kernelInverse4x4<<<1, 1>>>(mGPU, mGPUret);
   cudaDeviceSynchronize();
 
-  cudaMemcpy(mCPUret, mGPUret, sizeof(Matrix4d), cudaMemcpyDeviceToHost);
+  cudaCheck(cudaMemcpy(mCPUret, mGPUret, sizeof(Matrix4d), cudaMemcpyDeviceToHost));
 #if TEST_DEBUG
   std::cout << "Its GPU inverse is:" << std::endl << (*mCPUret) << std::endl;
 #endif
@@ -162,14 +163,14 @@ void testInverse5x5() {
   std::cout << "Here is the matrix m:" << std::endl << m << std::endl;
   std::cout << "Its inverse is:" << std::endl << m.inverse() << std::endl;
 #endif
-  cudaMalloc((void **)&mGPU, sizeof(Matrix5d));
-  cudaMalloc((void **)&mGPUret, sizeof(Matrix5d));
-  cudaMemcpy(mGPU, &m, sizeof(Matrix5d), cudaMemcpyHostToDevice);
+  cudaCheck(cudaMalloc((void **)&mGPU, sizeof(Matrix5d)));
+  cudaCheck(cudaMalloc((void **)&mGPUret, sizeof(Matrix5d)));
+  cudaCheck(cudaMemcpy(mGPU, &m, sizeof(Matrix5d), cudaMemcpyHostToDevice));
 
   kernelInverse5x5<<<1, 1>>>(mGPU, mGPUret);
   cudaDeviceSynchronize();
 
-  cudaMemcpy(mCPUret, mGPUret, sizeof(Matrix5d), cudaMemcpyDeviceToHost);
+  cudaCheck(cudaMemcpy(mCPUret, mGPUret, sizeof(Matrix5d), cudaMemcpyDeviceToHost));
 #if TEST_DEBUG
   std::cout << "Its GPU inverse is:" << std::endl << (*mCPUret) << std::endl;
 #endif
@@ -195,15 +196,16 @@ void testEigenvalues() {
   std::cout << "The eigenvalues of M are:" << std::endl << (*ret) << std::endl;
   std::cout << "*************************\n\n" << std::endl;
 #endif
-  cudaMalloc((void **)&m_gpu, sizeof(Matrix3d));
-  cudaMalloc((void **)&ret_gpu, sizeof(Eigen::SelfAdjointEigenSolver<Matrix3d>::RealVectorType));
-  cudaMemcpy(m_gpu, &m, sizeof(Matrix3d), cudaMemcpyHostToDevice);
+  cudaCheck(cudaMalloc((void **)&m_gpu, sizeof(Matrix3d)));
+  cudaCheck(cudaMalloc((void **)&ret_gpu, sizeof(Eigen::SelfAdjointEigenSolver<Matrix3d>::RealVectorType)));
+  cudaCheck(cudaMemcpy(m_gpu, &m, sizeof(Matrix3d), cudaMemcpyHostToDevice));
 
   kernel<<<1, 1>>>(m_gpu, ret_gpu);
   cudaDeviceSynchronize();
 
-  cudaMemcpy(mgpudebug, m_gpu, sizeof(Matrix3d), cudaMemcpyDeviceToHost);
-  cudaMemcpy(ret1, ret_gpu, sizeof(Eigen::SelfAdjointEigenSolver<Matrix3d>::RealVectorType), cudaMemcpyDeviceToHost);
+  cudaCheck(cudaMemcpy(mgpudebug, m_gpu, sizeof(Matrix3d), cudaMemcpyDeviceToHost));
+  cudaCheck(cudaMemcpy(
+      ret1, ret_gpu, sizeof(Eigen::SelfAdjointEigenSolver<Matrix3d>::RealVectorType), cudaMemcpyDeviceToHost));
 #if TEST_DEBUG
   std::cout << "GPU Generated Matrix M 3x3:\n" << (*mgpudebug) << std::endl;
   std::cout << "GPU The eigenvalues of M are:" << std::endl << (*ret1) << std::endl;
