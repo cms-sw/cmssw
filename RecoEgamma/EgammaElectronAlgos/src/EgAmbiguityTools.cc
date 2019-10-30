@@ -17,7 +17,7 @@ namespace egamma {
     return (std::abs(e1.eSuperClusterOverP() - 1) < std::abs(e2.eSuperClusterOverP() - 1));
   }
 
-  bool isInnerMostElectron(reco::GsfElectron const& e1, reco::GsfElectron const& e2) {
+  bool isInnermostElectron(reco::GsfElectron const& e1, reco::GsfElectron const& e2) {
     // retreive first valid hit
     int gsfHitCounter1 = 0;
     for (auto const& elHit : e1.gsfTrack()->recHits()) {
