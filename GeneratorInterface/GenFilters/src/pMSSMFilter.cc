@@ -57,7 +57,7 @@ private:
   //Member data
   edm::EDGetTokenT<reco::GenParticleCollection> token_;
   edm::EDGetTokenT<reco::GenJetCollection> token2_;
-  double muPtCut_, muEtaCut_, elPtCut_, elEtaCut_, gammaPtCut_, gammaEtaCut_, loosemuPtCut_, looseelPtCut_,
+  double muPtCut_, muEtaCut_, tauPtCut_, tauEtaCut_, elPtCut_, elEtaCut_, gammaPtCut_, gammaEtaCut_, loosemuPtCut_, looseelPtCut_,
       loosegammaPtCut_, veryloosegammaPtCut_, jetPtCut_, jetEtaCut_, genHTcut_;
 };
 
@@ -67,6 +67,8 @@ pMSSMFilter::pMSSMFilter(const edm::ParameterSet& params)
       token2_(consumes<reco::GenJetCollection>(params.getParameter<edm::InputTag>("jetsrc"))),
       muPtCut_(params.getParameter<double>("muPtCut")),
       muEtaCut_(params.getParameter<double>("muEtaCut")),
+      tauPtCut_(params.getParameter<double>("tauPtCut")),
+      tauEtaCut_(params.getParameter<double>("tauEtaCut")),
       elPtCut_(params.getParameter<double>("elPtCut")),
       elEtaCut_(params.getParameter<double>("elEtaCut")),
       gammaPtCut_(params.getParameter<double>("gammaPtCut")),
@@ -97,10 +99,12 @@ bool pMSSMFilter::filter(edm::Event& evt, const edm::EventSetup& params) {
   float decaylength;
   for (std::vector<reco::GenParticle>::const_iterator it = gps->begin(); it != gps->end(); ++it) {
     const reco::GenParticle& gp = *it;
-    if (gp.status() != 1) {
-      continue;
-    }
     if (gp.isLastCopy()) {
+      if (fabs(gp.pdgId()) == 15) {
+        if (gp.pt() > tauPtCut_ && fabs(gp.eta()) < tauEtaCut_) {
+          return true;
+        }
+      }
       if (fabs(gp.pdgId()) == 13) {
         if (gp.pt() > muPtCut_ && fabs(gp.eta()) < muEtaCut_) {
           return true;
