@@ -1,0 +1,15 @@
+<use   name="DataFormats/MuonDetId"/>
+<use   name="DataFormats/GEMDigi"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Utilities"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/GEMGeometry"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="Utilities/General"/>
+<library   file="GEMPadDigiReader.cc" name="GEMPadDigiReader">
+  <flags   EDM_PLUGIN="1"/>
+</library>

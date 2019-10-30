@@ -1,4 +1,4 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimMuon.GEMDigitizer.simMuonGEMPadDigiClustersDef_cfi import *
+from L1Trigger.L1TGEM.simMuonGEMPadDigiClustersDef_cfi import *
 simMuonGEMPadDigiClusters = simMuonGEMPadDigiClustersDef.clone()
