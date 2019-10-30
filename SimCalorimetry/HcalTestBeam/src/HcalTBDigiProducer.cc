@@ -20,7 +20,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
-                                       edm::ProducerBase &mixMod,
+                                       edm::ProducesCollector producesCollector,
                                        edm::ConsumesCollector &iC)
     : theParameterMap(new HcalTBSimParameterMap(ps)),
       theHcalShape(new HcalShape()),
@@ -37,8 +37,8 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
       theHOHits(),
       thisPhaseShift(0) {
   std::string const instance("simHcalDigis");
-  mixMod.produces<HBHEDigiCollection>(instance);
-  mixMod.produces<HODigiCollection>(instance);
+  producesCollector.produces<HBHEDigiCollection>(instance);
+  producesCollector.produces<HODigiCollection>(instance);
   iC.consumes<std::vector<PCaloHit>>(edm::InputTag("g4SimHits", "HcalHits"));
 
   DetId detId(DetId::Hcal, 1);
