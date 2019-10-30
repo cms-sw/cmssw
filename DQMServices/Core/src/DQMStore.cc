@@ -1,7 +1,6 @@
 #include "DQMServices/Core/interface/Standalone.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/QReport.h"
-#include "DQMServices/Core/interface/QTest.h"
 #include "DQMServices/Core/src/ROOTFilePB.pb.h"
 #include "DQMServices/Core/src/DQMError.h"
 #include "classlib/utils/RegexpMatch.h"
@@ -107,16 +106,6 @@ namespace dqm::impl {
     if (!path.empty())
       path += '/';
     path += name;
-  }
-
-  template <class T>
-  QCriterion* makeQCriterion(std::string const& qtname) {
-    return new T{qtname};
-  }
-
-  template <class T>
-  void initQCriterion(std::map<std::string, QCriterion* (*)(std::string const&)>& m) {
-    m[T::getAlgoName()] = &makeQCriterion<T>;
   }
 
   /////////////////////////////////////////////////////////////
@@ -706,13 +695,7 @@ namespace dqm::impl {
 
   DQMStore::DQMStore(edm::ParameterSet const& pset) { initializeFrom(pset); }
 
-  DQMStore::~DQMStore() {
-    for (auto& qtest : qtests_)
-      delete qtest.second;
-
-    for (auto& qtestspec : qtestspecs_)
-      delete qtestspec.first;
-  }
+  DQMStore::~DQMStore() {}
 
   void DQMStore::initializeFrom(edm::ParameterSet const& pset) {
     makeDirectory("");
@@ -748,17 +731,6 @@ namespace dqm::impl {
       std::cout << "DQMStore: using reference file '" << ref << "'\n";
       readFile(ref, true, "", s_referenceDirName, StripRunDirs, false);
     }
-
-    initQCriterion<ContentsXRange>(qalgos_);
-    initQCriterion<ContentsYRange>(qalgos_);
-    initQCriterion<MeanWithinExpected>(qalgos_);
-    initQCriterion<DeadChannel>(qalgos_);
-    initQCriterion<NoisyChannel>(qalgos_);
-    initQCriterion<ContentSigma>(qalgos_);
-    initQCriterion<ContentsWithinExpected>(qalgos_);
-    initQCriterion<CompareToMedian>(qalgos_);
-    initQCriterion<CompareLastFilledBin>(qalgos_);
-    initQCriterion<CheckVariance>(qalgos_);
 
     scaleFlag_ = pset.getUntrackedParameter<double>("ScalingFlag", 0.0);
     if (verbose_ > 0)
@@ -1224,12 +1196,6 @@ namespace dqm::impl {
         proto.setLumiFlag();  // default to per-lumi mode for all non-legacy MEs.
       }
       me = const_cast<MonitorElement&>(*data_.insert(std::move(proto)).first).initialise((MonitorElement::Kind)kind, h);
-
-      // Initialise quality test information.
-      for (auto const& q : qtestspecs_) {
-        if (q.first->match(path))
-          me->addQReport(q.second);
-      }
 
       // If we just booked a (plain) MonitorElement, and there is a reference
       // MonitorElement with the same name, link the two together.
@@ -2272,7 +2238,7 @@ namespace dqm::impl {
             return false;
           }
 
-          me->addQReport(qv, /* FIXME: getQTest(qv.qtname)? */ nullptr);
+          me->addQReport(qv);
         }
       } else {
         std::cout << "*** DQMStore: WARNING: cannot extract object '" << obj->GetName() << "' of type '"
@@ -3081,121 +3047,6 @@ namespace dqm::impl {
       std::cout << "DQMStore: WARNING: attempt to remove non-existent"
                 << " monitor element '" << name << "' in '" << dir << "'\n";
     }
-  }
-
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////
-  /// get QCriterion corresponding to <qtname>
-  /// (null pointer if QCriterion does not exist)
-  QCriterion* DQMStore::getQCriterion(std::string const& qtname) const {
-    auto i = qtests_.find(qtname);
-    auto e = qtests_.end();
-    return (i == e ? nullptr : i->second);
-  }
-
-  /// create quality test with unique name <qtname> (analogous to ME name);
-  /// quality test can then be attached to ME with useQTest method
-  /// (<algo_name> must match one of known algorithms)
-  QCriterion* DQMStore::createQTest(std::string const& algoname, std::string const& qtname) {
-    if (qtests_.count(qtname))
-      raiseDQMError("DQMStore", "Attempt to create duplicate quality test '%s'", qtname.c_str());
-
-    auto i = qalgos_.find(algoname);
-    if (i == qalgos_.end())
-      raiseDQMError("DQMStore",
-                    "Cannot create a quality test using unknown"
-                    " algorithm '%s'",
-                    algoname.c_str());
-
-    QCriterion* qc = i->second(qtname);
-    qc->setVerbose(verboseQT_);
-
-    qtests_[qtname] = qc;
-    return qc;
-  }
-
-  /// attach quality test <qtname> to directory contents
-  /// (need exact pathname without wildcards, e.g. A/B/C);
-  void DQMStore::useQTest(std::string const& dir, std::string const& qtname) {
-    // Clean the path
-    std::string clean;
-    std::string const* cleaned = nullptr;
-    cleanTrailingSlashes(dir, clean, cleaned);
-
-    // Validate the path.
-    if (cleaned->find_first_not_of(s_safe) != std::string::npos)
-      raiseDQMError("DQMStore",
-                    "Monitor element path name '%s'"
-                    " uses unacceptable characters",
-                    cleaned->c_str());
-
-    // Redirect to the pattern match version.
-    useQTestByMatch(*cleaned + "/*", qtname);
-  }
-
-  /// attach quality test <qc> to monitor elements matching <pattern>.
-  int DQMStore::useQTestByMatch(std::string const& pattern, std::string const& qtname) {
-    QCriterion* qc = getQCriterion(qtname);
-    if (!qc)
-      raiseDQMError("DQMStore", "Cannot apply non-existent quality test '%s'", qtname.c_str());
-
-    auto* fm = new fastmatch(pattern);
-
-    // Record the test for future reference.
-    QTestSpec qts(fm, qc);
-    qtestspecs_.push_back(qts);
-
-    // Apply the quality test.
-    std::string path;
-    int cases = 0;
-    for (auto const& me : data_) {
-      path.clear();
-      mergePath(path, *me.data_.dirname, me.data_.objname);
-      if (fm->match(path)) {
-        ++cases;
-        const_cast<MonitorElement&>(me).addQReport(qts.second);
-      }
-    }
-
-    //return the number of matched cases
-    return cases;
-  }
-  /// run quality tests (also finds updated contents in last monitoring cycle,
-  /// including newly added content)
-  void DQMStore::runQTests() {
-    if (verbose_ > 0)
-      std::cout << "DQMStore: running runQTests() with reset = " << (reset_ ? "true" : "false") << std::endl;
-
-    // Apply quality tests to each monitor element, skipping references.
-    for (auto const& me : data_)
-      if (!isSubdirectory(s_referenceDirName, *me.data_.dirname))
-        const_cast<MonitorElement&>(me).runQTests();
-
-    reset_ = false;
-  }
-
-  /// get "global" folder <path> status (one of:STATUS_OK, WARNING, ERROR, OTHER);
-  /// returns most sever error, where ERROR > WARNING > OTHER > STATUS_OK;
-  /// see Core/interface/QTestStatus.h for details on "OTHER"
-  int DQMStore::getStatus(std::string const& path /* = "" */) const {
-    std::string clean;
-    std::string const* cleaned = nullptr;
-    cleanTrailingSlashes(path, clean, cleaned);
-
-    int status = dqm::qstatus::STATUS_OK;
-    for (auto const& me : data_) {
-      if (!cleaned->empty() && !isSubdirectory(*cleaned, *me.data_.dirname))
-        continue;
-
-      if (me.hasError())
-        return dqm::qstatus::ERROR;
-      else if (me.hasWarning())
-        status = dqm::qstatus::WARNING;
-      else if (status < dqm::qstatus::WARNING && me.hasOtherReport())
-        status = dqm::qstatus::OTHER;
-    }
-    return status;
   }
 
   //////////////////////////////////////////////////////////////////////

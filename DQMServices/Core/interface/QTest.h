@@ -95,7 +95,6 @@ protected:
   void setAlgoName(std::string name) { algoName_ = std::move(name); }
 
   float runTest(const MonitorElement *me, QReport &qr, DQMNet::QValue &qv) {
-    assert(qr.qcriterion_ == this);
     assert(qv.qtname == qtname_);
 
     prob_ = runTest(me);  // this runTest goes to SimpleTest derivates

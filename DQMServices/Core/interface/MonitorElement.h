@@ -28,7 +28,6 @@
 #define DQM_ROOT_METHODS 1
 #endif
 
-class QCriterion;
 class DQMService;
 
 // tag for a special constructor, see below
@@ -232,9 +231,6 @@ namespace dqm::impl {
     /// from last set of quality tests
     std::vector<QReport *> getQOthers() const;
 
-    /// run all quality tests
-    void runQTests();
-
   private:
     void doFill(int64_t x);
     void incompatible(const char *func) const;
@@ -326,8 +322,7 @@ namespace dqm::impl {
 
     // --- Operations on MEs that are normally reset at end of monitoring cycle ---
     void getQReport(bool create, const std::string &qtname, QReport *&qr, DQMNet::QValue *&qv);
-    void addQReport(const DQMNet::QValue &desc, QCriterion *qc);
-    void addQReport(QCriterion *qc);
+    void addQReport(const DQMNet::QValue &desc);
     void updateQReportStats();
 
   public:

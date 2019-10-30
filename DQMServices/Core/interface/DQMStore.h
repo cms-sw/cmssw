@@ -39,7 +39,6 @@ namespace dqmstorepb {
   class ROOTFilePB_Histo;
 }  // namespace dqmstorepb
 
-class QCriterion;
 class TFile;
 class TBufferFile;
 class TObject;
@@ -665,14 +664,6 @@ namespace dqm::impl {
     // ---------------------- Public check options -----------------------------
     bool isCollate() const;
 
-    // -------------------------------------------------------------------------
-    // ---------------------- Quality Test methods -----------------------------
-    QCriterion* getQCriterion(std::string const& qtname) const;
-    QCriterion* createQTest(std::string const& algoname, std::string const& qtname);
-    void useQTest(std::string const& dir, std::string const& qtname);
-    int useQTestByMatch(std::string const& pattern, std::string const& qtname);
-    void runQTests();
-    int getStatus(std::string const& path = "") const;
     void scaleElements();
 
   private:
@@ -777,11 +768,7 @@ namespace dqm::impl {
 
     //-------------------------------------------------------------------------------
     //-------------------------------------------------------------------------------
-    using QTestSpec = std::pair<fastmatch*, QCriterion*>;
-    using QTestSpecs = std::list<QTestSpec>;
     using MEMap = std::set<MonitorElement>;
-    using QCMap = std::map<std::string, QCriterion*>;
-    using QAMap = std::map<std::string, QCriterion* (*)(std::string const&)>;
 
     // ------------------------ private I/O helpers ------------------------------
     void saveMonitorElementToPB(MonitorElement const& me, dqmstorepb::ROOTFilePB& file);
@@ -822,10 +809,6 @@ namespace dqm::impl {
     std::string pwd_{};
     MEMap data_;
     std::set<std::string> dirs_;
-
-    QCMap qtests_;
-    QAMap qalgos_;
-    QTestSpecs qtestspecs_;
 
     std::mutex book_mutex_;
 
