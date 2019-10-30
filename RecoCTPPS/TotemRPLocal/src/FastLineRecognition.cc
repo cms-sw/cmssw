@@ -1,8 +1,8 @@
 /****************************************************************************
 *
 * This is a part of TOTEM offline software.
-* Authors: 
-*   Jan Kašpar (jan.kaspar@gmail.com) 
+* Authors:
+*   Jan Kašpar (jan.kaspar@gmail.com)
 *
 ****************************************************************************/
 
@@ -72,7 +72,7 @@ FastLineRecognition::GeomData FastLineRecognition::getGeomData(unsigned int id) 
 
   // calculate it
   CLHEP::Hep3Vector d = geometry->localToGlobalDirection(id, CLHEP::Hep3Vector(0., 1., 0.));
-  DetGeomDesc::Translation c = geometry->getSensor(TotemRPDetId(id))->translation();
+  DetGeomDesc::Translation c = geometry->sensor(TotemRPDetId(id))->translation();
   GeomData gd;
   gd.z = c.z();
   gd.s = d.x() * c.x() + d.y() * c.y();
@@ -97,9 +97,9 @@ void FastLineRecognition::getPatterns(const DetSetVector<TotemRPRecHit> &input,
       const TotemRPRecHit *hit = &h;
       const GeomData &gd = getGeomData(detId);
 
-      double p = hit->getPosition() + gd.s;
+      double p = hit->position() + gd.s;
       double z = gd.z - z0;
-      double w = sigma0 / hit->getSigma();
+      double w = sigma0 / hit->sigma();
 
       points.push_back(Point(detId, hit, p, z, w));
     }

@@ -1,9 +1,9 @@
 /****************************************************************************
  *
  * This is a part of TOTEM offline software.
- * Authors: 
+ * Authors:
  *	Hubert Niewiadomski
- *	Jan Kašpar (jan.kaspar@gmail.com) 
+ *	Jan Kašpar (jan.kaspar@gmail.com)
  *
  ****************************************************************************/
 
@@ -59,7 +59,7 @@ public:
 
   //-------------------- id getters for higher-level objects --------------------
 
-  TotemRPDetId getPlaneId() const { return TotemRPDetId(rawId() & (~lowMaskPlane)); }
+  TotemRPDetId planeId() const { return TotemRPDetId(rawId() & (~lowMaskPlane)); }
 
   //-------------------- strip orientation methods --------------------
 
@@ -70,9 +70,9 @@ public:
   //-------------------- conversions to the obsolete decimal representation --------------------
   // NOTE: only for backward compatibility, do not use otherwise!
 
-  inline uint32_t getRPDecimalId() const { return rp() + station() * 10 + arm() * 100; }
+  inline uint32_t rpDecimalId() const { return rp() + station() * 10 + arm() * 100; }
 
-  inline uint32_t getPlaneDecimalId() const { return plane() + getRPDecimalId() * 10; }
+  inline uint32_t planeDecimalId() const { return plane() + rpDecimalId() * 10; }
 
   //-------------------- name methods --------------------
 

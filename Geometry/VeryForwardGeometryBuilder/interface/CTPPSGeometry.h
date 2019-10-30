@@ -58,12 +58,12 @@ public:
 
   ///\brief returns geometry of a detector
   /// performs necessary checks, returns NULL if fails
-  const DetGeomDesc* getSensor(unsigned int id) const;
-  const DetGeomDesc* getSensorNoThrow(unsigned int id) const noexcept;
+  const DetGeomDesc* sensor(unsigned int id) const;
+  const DetGeomDesc* sensorNoThrow(unsigned int id) const noexcept;
 
   /// returns geometry of a RP box
-  const DetGeomDesc* getRP(unsigned int id) const;
-  const DetGeomDesc* getRPNoThrow(unsigned int id) const noexcept;
+  const DetGeomDesc* rp(unsigned int id) const;
+  const DetGeomDesc* rpNoThrow(unsigned int id) const noexcept;
 
   //----- objects iterators
 
@@ -96,20 +96,20 @@ public:
 
   /// returns translation (position) of a detector
   /// \param id sensor id
-  CLHEP::Hep3Vector getSensorTranslation(unsigned int id) const;
+  CLHEP::Hep3Vector sensorTranslation(unsigned int id) const;
 
   /// returns position of a RP box
   /// \param id RP id
-  CLHEP::Hep3Vector getRPTranslation(unsigned int id) const;
+  CLHEP::Hep3Vector rpTranslation(unsigned int id) const;
 
   /// after checks returns set of station ids corresponding to the given arm id
-  const std::set<unsigned int>& getStationsInArm(unsigned int) const;
+  const std::set<unsigned int>& stationsInArm(unsigned int) const;
 
   /// after checks returns set of RP ids corresponding to the given station id
-  const std::set<unsigned int>& getRPsInStation(unsigned int) const;
+  const std::set<unsigned int>& rpsInStation(unsigned int) const;
 
   /// after checks returns set of sensor ids corresponding to the given RP id
-  const std::set<unsigned int>& getSensorsInRP(unsigned int) const;
+  const std::set<unsigned int>& sensorsInRP(unsigned int) const;
 
 protected:
   /// map: sensor id --> DetGeomDesc
