@@ -42,7 +42,7 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
     float x_width = 0.f, y_width = 0.f, z_width = 0.f;
 
     // retrieve the geometry element associated to this DetID ( if present )
-    const DetGeomDesc* det = geom.getSensorNoThrow(detid);
+    const DetGeomDesc* det = geom.sensorNoThrow(detid);
 
     if (det) {
       x_pos = det->translation().x();

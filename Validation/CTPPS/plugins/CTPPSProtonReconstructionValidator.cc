@@ -97,7 +97,7 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
       continue;
 
     for (const auto& tr : pr.contributingLocalTracks()) {
-      CTPPSDetId rpId(tr->getRPId());
+      CTPPSDetId rpId(tr->rpId());
       unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
 
       auto it = hOpticalFunctions->find(rpId);
@@ -111,8 +111,8 @@ void CTPPSProtonReconstructionValidator::analyze(const edm::Event& iEvent, const
       LHCInterpolatedOpticalFunctionsSet::Kinematics k_out;
       it->second.transport(k_in, k_out);
 
-      const double de_x = (k_out.x - k_out_beam.x) * 10. - tr->getX();  // conversions: cm --> mm
-      const double de_y = (k_out.y - k_out_beam.y) * 10. - tr->getY();  // conversions: cm --> mm
+      const double de_x = (k_out.x - k_out_beam.x) * 10. - tr->x();  // conversions: cm --> mm
+      const double de_y = (k_out.y - k_out_beam.y) * 10. - tr->y();  // conversions: cm --> mm
 
       rp_plots_[rpDecId].fill(de_x, de_y);
     }

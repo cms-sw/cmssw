@@ -47,14 +47,14 @@ void RPixRoadFinder::findPattern() {
   for (const auto& ds_rh2 : *hitVector_) {
     const auto myid = CTPPSPixelDetId(ds_rh2.id);
     for (const auto& it_rh : ds_rh2.data) {
-      CLHEP::Hep3Vector localV(it_rh.getPoint().x(), it_rh.getPoint().y(), it_rh.getPoint().z());
+      CLHEP::Hep3Vector localV(it_rh.point().x(), it_rh.point().y(), it_rh.point().z());
       CLHEP::Hep3Vector globalV = geometry_->localToGlobal(ds_rh2.id, localV);
       math::Error<3>::type localError;
-      localError[0][0] = it_rh.getError().xx();
-      localError[0][1] = it_rh.getError().xy();
+      localError[0][0] = it_rh.error().xx();
+      localError[0][1] = it_rh.error().xy();
       localError[0][2] = 0.;
-      localError[1][0] = it_rh.getError().xy();
-      localError[1][1] = it_rh.getError().yy();
+      localError[1][0] = it_rh.error().xy();
+      localError[1][1] = it_rh.error().yy();
       localError[1][2] = 0.;
       localError[2][0] = 0.;
       localError[2][1] = 0.;
@@ -62,7 +62,7 @@ void RPixRoadFinder::findPattern() {
       if (verbosity_ > 2)
         edm::LogInfo("RPixRoadFinder") << "Hits = " << ds_rh2.data.size();
 
-      DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->getSensor(myid)->rotation();
+      DetGeomDesc::RotationMatrix theRotationMatrix = geometry_->sensor(myid)->rotation();
       AlgebraicMatrix33 theRotationTMatrix;
       theRotationMatrix.GetComponents(theRotationTMatrix(0, 0),
                                       theRotationTMatrix(0, 1),
@@ -98,7 +98,7 @@ void RPixRoadFinder::findPattern() {
     while (it_gh2 != temp_all_hits.end()) {
       bool same_pot = false;
       CTPPSPixelDetId tmpGh2Id = CTPPSPixelDetId(it_gh2->detId);
-      if (currDet.getRPId() == tmpGh2Id.getRPId())
+      if (currDet.rpId() == tmpGh2Id.rpId())
         same_pot = true;
       CLHEP::Hep3Vector subtraction = currPoint - it_gh2->globalPoint;
 
