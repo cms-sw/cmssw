@@ -177,7 +177,8 @@ RecoToSimCollection MuonAssociatorByHits::associateRecoToSim(
   // GEM hit association
   GEMHitAssociator gemtruth(*e, *setup, conf_);
 
-  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth};
+  MuonAssociatorByHitsHelper::Resources resources = {
+      tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
 
   if (diagnostics_) {
     resources.diagnostics_ = [this, e](const TrackHitsCollection &hC, const TrackingParticleCollection &pC) {
@@ -224,7 +225,8 @@ SimToRecoCollection MuonAssociatorByHits::associateSimToReco(
   // GEM hit association
   GEMHitAssociator gemtruth(*e, *setup, conf_);
 
-  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth};
+  MuonAssociatorByHitsHelper::Resources resources = {
+      tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth, {}};
 
   auto bareAssoc = helper_.associateSimToRecoIndices(tH, TPCollectionH, resources);
   for (auto it = bareAssoc.begin(), ed = bareAssoc.end(); it != ed; ++it) {

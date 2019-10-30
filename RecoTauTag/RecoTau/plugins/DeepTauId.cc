@@ -787,6 +787,7 @@ namespace {
              getCellIndex(deltaPhi, maxDeltaPhi(), cellSizePhi, cellIndex.phi);
     }
 
+    size_t num_valid_cells() const { return cells.size(); }
     Cell& operator[](const CellIndex& cellIndex) { return cells[cellIndex]; }
     const Cell& at(const CellIndex& cellIndex) const { return cells.at(cellIndex); }
     size_t count(const CellIndex& cellIndex) const { return cells.count(cellIndex); }
@@ -866,31 +867,32 @@ public:
         throw cms::Exception("DeepTauId")
             << "number of inputs does not match the expected inputs for the given version";
     } else if (version == 2) {
-      tauBlockTensor_ = std::make_shared<tensorflow::Tensor>(
+      tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
           tensorflow::DT_FLOAT, tensorflow::TensorShape{1, dnn_inputs_2017_v2::TauBlockInputs::NumberOfInputs});
       for (size_t n = 0; n < 2; ++n) {
         const bool is_inner = n == 0;
         const auto n_cells =
             is_inner ? dnn_inputs_2017_v2::number_of_inner_cell : dnn_inputs_2017_v2::number_of_outer_cell;
-        eGammaTensor_[is_inner] = std::make_shared<tensorflow::Tensor>(
+        eGammaTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT,
             tensorflow::TensorShape{1, 1, 1, dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs});
-        muonTensor_[is_inner] = std::make_shared<tensorflow::Tensor>(
+        muonTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT,
             tensorflow::TensorShape{1, 1, 1, dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs});
-        hadronsTensor_[is_inner] = std::make_shared<tensorflow::Tensor>(
+        hadronsTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT,
             tensorflow::TensorShape{1, 1, 1, dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs});
-        convTensor_[is_inner] = std::make_shared<tensorflow::Tensor>(
+        convTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT,
             tensorflow::TensorShape{1, n_cells, n_cells, dnn_inputs_2017_v2::number_of_conv_features});
-        zeroOutputTensor_[is_inner] = std::make_shared<tensorflow::Tensor>(
+        zeroOutputTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT, tensorflow::TensorShape{1, 1, 1, dnn_inputs_2017_v2::number_of_conv_features});
 
         eGammaTensor_[is_inner]->flat<float>().setZero();
         muonTensor_[is_inner]->flat<float>().setZero();
         hadronsTensor_[is_inner]->flat<float>().setZero();
-        getPartialPredictions(*zeroOutputTensor_[is_inner], is_inner, 0, 0);
+
+        setCellConvFeatures(*zeroOutputTensor_[is_inner], getPartialPredictions(is_inner), 0, 0, 0);
       }
     } else {
       throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
@@ -1081,7 +1083,7 @@ private:
     }
   }
 
-  void getPartialPredictions(tensorflow::Tensor& convTensor, bool is_inner, int eta_index, int phi_index) {
+  tensorflow::Tensor getPartialPredictions(bool is_inner) {
     std::vector<tensorflow::Tensor> pred_vector;
     if (is_inner) {
       tensorflow::run(&(cache_->getSession("inner")),
@@ -1102,7 +1104,7 @@ private:
                       {"outer_all_dropout_4/Identity"},
                       &pred_vector);
     }
-    setCellConvFeatures(convTensor, pred_vector.at(0), eta_index, phi_index);
+    return pred_vector.at(0);
   }
 
   void createConvFeatures(const TauType& tau,
@@ -1114,6 +1116,42 @@ private:
                           const CellGrid& grid,
                           bool is_inner) {
     tensorflow::Tensor& convTensor = *convTensor_.at(is_inner);
+
+    eGammaTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
+        tensorflow::DT_FLOAT,
+        tensorflow::TensorShape{
+            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs});
+    muonTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
+        tensorflow::DT_FLOAT,
+        tensorflow::TensorShape{
+            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs});
+    hadronsTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
+        tensorflow::DT_FLOAT,
+        tensorflow::TensorShape{
+            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs});
+
+    eGammaTensor_[is_inner]->flat<float>().setZero();
+    muonTensor_[is_inner]->flat<float>().setZero();
+    hadronsTensor_[is_inner]->flat<float>().setZero();
+
+    unsigned idx = 0;
+    for (int eta = -grid.maxEtaIndex(); eta <= grid.maxEtaIndex(); ++eta) {
+      for (int phi = -grid.maxPhiIndex(); phi <= grid.maxPhiIndex(); ++phi) {
+        const CellIndex cell_index{eta, phi};
+        const auto cell_iter = grid.find(cell_index);
+        if (cell_iter != grid.end()) {
+          const Cell& cell = cell_iter->second;
+          createEgammaBlockInputs(idx, tau, pv, rho, electrons, pfCands, cell, is_inner);
+          createMuonBlockInputs(idx, tau, pv, rho, muons, pfCands, cell, is_inner);
+          createHadronsBlockInputs(idx, tau, pv, rho, pfCands, cell, is_inner);
+          idx += 1;
+        }
+      }
+    }
+
+    const auto predTensor = getPartialPredictions(is_inner);
+
+    idx = 0;
     for (int eta = -grid.maxEtaIndex(); eta <= grid.maxEtaIndex(); ++eta) {
       for (int phi = -grid.maxPhiIndex(); phi <= grid.maxPhiIndex(); ++phi) {
         const CellIndex cell_index{eta, phi};
@@ -1122,13 +1160,10 @@ private:
 
         const auto cell_iter = grid.find(cell_index);
         if (cell_iter != grid.end()) {
-          const Cell& cell = cell_iter->second;
-          createEgammaBlockInputs(tau, pv, rho, electrons, pfCands, cell, is_inner);
-          createMuonBlockInputs(tau, pv, rho, muons, pfCands, cell, is_inner);
-          createHadronsBlockInputs(tau, pv, rho, pfCands, cell, is_inner);
-          getPartialPredictions(convTensor, is_inner, eta_index, phi_index);
+          setCellConvFeatures(convTensor, predTensor, idx, eta_index, phi_index);
+          idx += 1;
         } else {
-          setCellConvFeatures(convTensor, *zeroOutputTensor_[is_inner], eta_index, phi_index);
+          setCellConvFeatures(convTensor, *zeroOutputTensor_[is_inner], 0, eta_index, phi_index);
         }
       }
     }
@@ -1136,10 +1171,11 @@ private:
 
   void setCellConvFeatures(tensorflow::Tensor& convTensor,
                            const tensorflow::Tensor& features,
+                           unsigned batch_idx,
                            int eta_index,
                            int phi_index) {
     for (int n = 0; n < dnn_inputs_2017_v2::number_of_conv_features; ++n)
-      convTensor.tensor<float, 4>()(0, eta_index, phi_index, n) = features.tensor<float, 4>()(0, 0, 0, n);
+      convTensor.tensor<float, 4>()(0, eta_index, phi_index, n) = features.tensor<float, 4>()(batch_idx, 0, 0, n);
   }
 
   void createTauBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho) {
@@ -1241,7 +1277,8 @@ private:
     checkInputs(inputs, "tau_block", dnn::NumberOfInputs);
   }
 
-  void createEgammaBlockInputs(const TauType& tau,
+  void createEgammaBlockInputs(unsigned idx,
+                               const TauType& tau,
                                const reco::Vertex& pv,
                                double rho,
                                const pat::ElectronCollection& electrons,
@@ -1251,9 +1288,8 @@ private:
     namespace dnn = dnn_inputs_2017_v2::EgammaBlockInputs;
 
     tensorflow::Tensor& inputs = *eGammaTensor_.at(is_inner);
-    inputs.flat<float>().setZero();
 
-    const auto& get = [&](int var_index) -> float& { return inputs.tensor<float, 4>()(0, 0, 0, var_index); };
+    const auto& get = [&](int var_index) -> float& { return inputs.tensor<float, 4>()(idx, 0, 0, var_index); };
 
     const bool valid_index_pf_ele = cell_map.count(CellObjectType::PfCand_electron);
     const bool valid_index_pf_gamma = cell_map.count(CellObjectType::PfCand_gamma);
@@ -1460,7 +1496,8 @@ private:
     checkInputs(inputs, is_inner ? "egamma_inner_block" : "egamma_outer_block", dnn::NumberOfInputs);
   }
 
-  void createMuonBlockInputs(const TauType& tau,
+  void createMuonBlockInputs(unsigned idx,
+                             const TauType& tau,
                              const reco::Vertex& pv,
                              double rho,
                              const pat::MuonCollection& muons,
@@ -1470,9 +1507,8 @@ private:
     namespace dnn = dnn_inputs_2017_v2::MuonBlockInputs;
 
     tensorflow::Tensor& inputs = *muonTensor_.at(is_inner);
-    inputs.flat<float>().setZero();
 
-    const auto& get = [&](int var_index) -> float& { return inputs.tensor<float, 4>()(0, 0, 0, var_index); };
+    const auto& get = [&](int var_index) -> float& { return inputs.tensor<float, 4>()(idx, 0, 0, var_index); };
 
     const bool valid_index_pf_muon = cell_map.count(CellObjectType::PfCand_muon);
     const bool valid_index_muon = cell_map.count(CellObjectType::Muon);
@@ -1600,7 +1636,8 @@ private:
     checkInputs(inputs, is_inner ? "muon_inner_block" : "muon_outer_block", dnn::NumberOfInputs);
   }
 
-  void createHadronsBlockInputs(const TauType& tau,
+  void createHadronsBlockInputs(unsigned idx,
+                                const TauType& tau,
                                 const reco::Vertex& pv,
                                 double rho,
                                 const pat::PackedCandidateCollection& pfCands,
@@ -1609,9 +1646,8 @@ private:
     namespace dnn = dnn_inputs_2017_v2::HadronBlockInputs;
 
     tensorflow::Tensor& inputs = *hadronsTensor_.at(is_inner);
-    inputs.flat<float>().setZero();
 
-    const auto& get = [&](int var_index) -> float& { return inputs.tensor<float, 4>()(0, 0, 0, var_index); };
+    const auto& get = [&](int var_index) -> float& { return inputs.tensor<float, 4>()(idx, 0, 0, var_index); };
 
     const bool valid_chH = cell_map.count(CellObjectType::PfCand_chargedHadron);
     const bool valid_nH = cell_map.count(CellObjectType::PfCand_neutralHadron);
@@ -2061,8 +2097,8 @@ private:
   const unsigned version;
   const int debug_level;
   const bool disable_dxy_pca_;
-  std::shared_ptr<tensorflow::Tensor> tauBlockTensor_;
-  std::array<std::shared_ptr<tensorflow::Tensor>, 2> eGammaTensor_, muonTensor_, hadronsTensor_, convTensor_,
+  std::unique_ptr<tensorflow::Tensor> tauBlockTensor_;
+  std::array<std::unique_ptr<tensorflow::Tensor>, 2> eGammaTensor_, muonTensor_, hadronsTensor_, convTensor_,
       zeroOutputTensor_;
 };
 

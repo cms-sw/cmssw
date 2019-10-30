@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("Configuration.Geometry.GeometryExtended2023D41Reco_cff")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023D41XML_cfi")
+process.load("Configuration.Geometry.GeometryExtended2026D41Reco_cff")
+#process.load("Geometry.HGCalCommonData.testHGCV8XML_cfi")
 #process.load("Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi")
 #process.load("Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi")
 #process.load("Geometry.CaloEventSetup.HGCalV6Topology_cfi")

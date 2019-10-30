@@ -6,7 +6,7 @@
 # Tracking
 #
 
-from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
+from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cff import *
 uncleanedOnlyElectronSeeds = ecalDrivenElectronSeeds.clone(
     barrelSuperClusters = cms.InputTag("uncleanedOnlyCorrectedHybridSuperClusters"),
     endcapSuperClusters = cms.InputTag("uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower")

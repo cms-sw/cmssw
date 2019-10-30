@@ -343,18 +343,6 @@ namespace dqm::impl {
     TProfile *getTProfile() const;
     TProfile2D *getTProfile2D() const;
 
-    TObject *getRefRootObject() const;
-    TH1 *getRefTH1() const;
-    TH1F *getRefTH1F() const;
-    TH1S *getRefTH1S() const;
-    TH1D *getRefTH1D() const;
-    TH2F *getRefTH2F() const;
-    TH2S *getRefTH2S() const;
-    TH2D *getRefTH2D() const;
-    TH3F *getRefTH3F() const;
-    TProfile *getRefTProfile() const;
-    TProfile2D *getRefTProfile2D() const;
-
     int64_t getIntValue() const {
       assert(kind() == Kind::INT);
       return scalar_.num;
@@ -369,16 +357,6 @@ namespace dqm::impl {
       assert(kind() == Kind::STRING);
       return scalar_.str;
     }
-
-    DQMNet::TagList getTags() const  // DEPRECATED
-    {
-      DQMNet::TagList tags;
-      if (data_.flags & DQMNet::DQM_PROP_TAGGED)
-        tags.push_back(data_.tag);
-      return tags;
-    }
-
-    const uint32_t getTag() const { return data_.tag; }
 
     const uint32_t run() const { return data_.run; }
     const uint32_t lumi() const { return data_.lumi; }

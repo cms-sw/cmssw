@@ -9,10 +9,10 @@ class _ConfigureComponent(object):
         return False
 
 class PrintOptions(object):
-    def __init__(self):
-        self.indent_= 0
-        self.deltaIndent_ = 4
-        self.isCfg = True
+    def __init__(self, indent = 0, deltaIndent = 4, process = True):
+        self.indent_= indent
+        self.deltaIndent_ = deltaIndent
+        self.isCfg = process
     def indentation(self):
         return ' '*self.indent_
     def indent(self):

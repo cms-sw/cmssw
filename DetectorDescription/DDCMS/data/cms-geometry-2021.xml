@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <debug> 
-    <debug_rotations/>
+    <!--debug_rotations/>
     <debug_materials/>
     <debug_shapes/>
     <debug_volumes/>
@@ -11,11 +11,11 @@
     <debug_placements/>
     <debug_algorithms/>
     <debug_specpars/>
-    <debug_visattr/>
+    <debug_visattr/-->
   </debug>
 
-  <DisabledAlgo  name="track:DDCutTubsFromPoints"/>
-  <DisabledAlgo  name="track:DDTOBRadCableAlgo"/>
+  <!--DisabledAlgo  name="track:DDCutTubsFromPoints"/>
+  <DisabledAlgo  name="track:DDTOBRadCableAlgo"/-->
   
   <open_geometry/>
   <close_geometry/>
@@ -307,12 +307,4 @@
     <Include ref='Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml'/>
     <Include ref='Geometry/CMSCommonData/data/FieldParameters.xml'/>
   </IncludeSection>
-  
-  <PosPartSection label="">
-    <PosPart copyNumber="2">
-	<rParent name=":world_volume"/>
-	<rChild name="cms:OCMS"/>
-   </PosPart>
-  </PosPartSection>
-
 </DDDefinition>

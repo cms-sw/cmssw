@@ -12,7 +12,7 @@
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 
 #include "DQM/RPCMonitorClient/interface/RPCLinkSynchroStat.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 namespace edm {
@@ -21,7 +21,7 @@ namespace edm {
   class Run;
 }  // namespace edm
 
-class RPCMonitorLinkSynchro : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class RPCMonitorLinkSynchro : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit RPCMonitorLinkSynchro(const edm::ParameterSet& cfg);
   ~RPCMonitorLinkSynchro() override;

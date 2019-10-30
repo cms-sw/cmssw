@@ -27,7 +27,7 @@
 
   <IncludeSection>
     <Include ref="DetectorDescription/DDCMS/data/testDDCutTubsFromPointsAlgorithm.xml"/>
-    <Include ref="DetectorDescription/DDCMS/data/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2015/v1/materials.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdSupportRingParameters.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/pixfwdCommon.xml"/>
   </IncludeSection>

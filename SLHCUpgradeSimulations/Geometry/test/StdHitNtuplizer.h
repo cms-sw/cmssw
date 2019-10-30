@@ -21,8 +21,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 //#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 

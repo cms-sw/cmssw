@@ -46,6 +46,20 @@ dedxHarmonic2 = cms.EDProducer("DeDxEstimatorProducer",
     calibrationPath = cms.string(""),
 )
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+
+# explicit python dependency
+import FastSimulation.SimplifiedGeometryPropagator.FastTrackDeDxProducer_cfi
+
+# do this before defining dedxPixelHarmonic2 so it automatically comes out right
+fastSim.toReplaceWith(dedxHarmonic2,
+    FastSimulation.SimplifiedGeometryPropagator.FastTrackDeDxProducer_cfi.FastTrackDeDxProducer.clone(
+        ShapeTest = False,
+        simHit2RecHitMap = cms.InputTag("fastMatchedTrackerRecHits","simHit2RecHitMap"),
+        simHits = cms.InputTag("fastSimProducer","TrackerHits"),
+    )
+)
+
 dedxPixelHarmonic2 = dedxHarmonic2.clone(UseStrip = False, UsePixel = True)
 
 dedxPixelAndStripHarmonic2T085 = dedxHarmonic2.clone(
@@ -78,3 +92,5 @@ dedxDiscrimASmi.estimator = cms.string('asmirnovDiscrim')
 
 doAlldEdXEstimatorsTask = cms.Task(dedxTruncated40 , dedxHarmonic2 , dedxPixelHarmonic2 , dedxPixelAndStripHarmonic2T085 , dedxHitInfo)
 doAlldEdXEstimators = cms.Sequence(doAlldEdXEstimatorsTask)
+
+fastSim.toReplaceWith(doAlldEdXEstimatorsTask, cms.Task(dedxHarmonic2, dedxPixelHarmonic2))
