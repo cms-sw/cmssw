@@ -1,6 +1,12 @@
-#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterLocalContCorrection.h"
-#include "TVector2.h"
-#include "TMath.h"
+/** \class EcalClusterLocalContCorrection
+  *  Function to correct em object energy for energy not contained in a 5x5 crystal area in the calorimeter
+  *
+  *  $Id: EcalClusterLocalContCorrection.h
+  *  $Date:
+  *  $Revision:
+  *  \author Federico Ferri, CEA Saclay, November 2008
+  */
+
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
@@ -13,19 +19,72 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-
-//////From DummyHepMCAnalyzer.cc:
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "TVector2.h"
+#include "TMath.h"
+
 #include <iostream>
+
+class EcalClusterLocalContCorrection : public EcalClusterFunctionBaseClass {
+public:
+  EcalClusterLocalContCorrection();
+  EcalClusterLocalContCorrection(const edm::ParameterSet &){};
+  ~EcalClusterLocalContCorrection() override;
+
+  // get/set explicit methods for parameters
+  const EcalClusterLocalContCorrParameters *getParameters() const { return params_; }
+  // check initialization
+  void checkInit() const;
+
+  // compute the correction
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override;
+  float getValue(const reco::SuperCluster &, const int mode) const override;
+
+  // set parameters
+  void init(const edm::EventSetup &es) override;
+
+private:
+  edm::ESHandle<EcalClusterLocalContCorrParameters> esParams_;
+  const EcalClusterLocalContCorrParameters *params_;
+  const edm::EventSetup *es_;  //needed to access the ECAL geometry
+};
+
 using namespace std;
 using namespace edm;
 
-float EcalClusterLocalContCorrection::getValue(const reco::BasicCluster& basicCluster,
-                                               const EcalRecHitCollection& recHit) const {
+EcalClusterLocalContCorrection::EcalClusterLocalContCorrection() {}
+
+EcalClusterLocalContCorrection::~EcalClusterLocalContCorrection() {}
+
+void EcalClusterLocalContCorrection::init(const edm::EventSetup &es) {
+  es.get<EcalClusterLocalContCorrParametersRcd>().get(esParams_);
+  params_ = esParams_.product();
+  es_ = &es;  //needed to access the ECAL geometry
+}
+
+void EcalClusterLocalContCorrection::checkInit() const {
+  if (!params_) {
+    // non-initialized function parameters: throw exception
+    throw cms::Exception("EcalClusterLocalContCorrection::checkInit()")
+        << "Trying to access an uninitialized crack correction function.\n"
+           "Please call `init( edm::EventSetup &)' before any use of the function.\n";
+  }
+}
+
+float EcalClusterLocalContCorrection::getValue(const reco::BasicCluster &basicCluster,
+                                               const EcalRecHitCollection &recHit) const {
   checkInit();
   // private member params_ = EcalClusterLocalContCorrectionParameters
   // (see in CondFormats/EcalObjects/interface)
@@ -38,7 +97,7 @@ float EcalClusterLocalContCorrection::getValue(const reco::BasicCluster& basicCl
   return 1;
 }
 
-float EcalClusterLocalContCorrection::getValue(const reco::SuperCluster& superCluster, const int mode) const {
+float EcalClusterLocalContCorrection::getValue(const reco::SuperCluster &superCluster, const int mode) const {
   checkInit();
 
   //correction factor to be returned, and to be calculated in this present function:
@@ -51,7 +110,7 @@ float EcalClusterLocalContCorrection::getValue(const reco::SuperCluster& superCl
 
   //Beware: The user should make sure it only uses this correction factor for unconverted photons (or not breming electrons)
 
-  const reco::CaloClusterPtr& seedbclus = superCluster.seed();
+  const reco::CaloClusterPtr &seedbclus = superCluster.seed();
 
   //If not barrel, return 1:
   if (TMath::Abs(seedbclus->eta()) > 1.4442)
@@ -60,7 +119,7 @@ float EcalClusterLocalContCorrection::getValue(const reco::SuperCluster& superCl
   edm::ESHandle<CaloGeometry> pG;
   es_->get<CaloGeometryRecord>().get(pG);
 
-  const CaloSubdetectorGeometry* geom = pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);  //EcalBarrel = 1
+  const CaloSubdetectorGeometry *geom = pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);  //EcalBarrel = 1
 
   const math::XYZPoint position_ = seedbclus->position();
   double Theta = -position_.theta() + 0.5 * TMath::Pi();
