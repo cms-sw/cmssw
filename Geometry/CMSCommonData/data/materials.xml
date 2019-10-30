@@ -1204,15 +1204,15 @@
   <!--Phase1 BPIX micro-twisted pairs boundle material as defined by L. Caminada-->
   <CompositeMaterial name="micro_twisted_power_cable" density="3.639*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.36933">
-      <rMaterial name="trackermaterial:T_Copper"/>
+      <rMaterial name="materials:Copper"/>
     </MaterialFraction>
     <MaterialFraction fraction="0.63067">
-      <rMaterial name="trackermaterial:T_Aluminium"/>
+      <rMaterial name="materials:Aluminium"/>
     </MaterialFraction>
   </CompositeMaterial>
   <CompositeMaterial name="micro_twisted_boundle_1" density="2.93382*g/cm3" symbol=" " method="mixture by weight"> <!--for L1-->
    <MaterialFraction fraction="0.04631">
-    <rMaterial name="trackermaterial:T_Copper"/>
+    <rMaterial name="materials:Copper"/>
    </MaterialFraction>
    <MaterialFraction fraction="0.95369">
     <rMaterial name="materials:micro_twisted_power_cable"/>
@@ -1220,7 +1220,7 @@
   </CompositeMaterial>
   <CompositeMaterial name="micro_twisted_boundle_2" density="2.91735*g/cm3" symbol=" " method="mixture by weight"> <!--for L2,3,4-->
    <MaterialFraction fraction="0.04964">
-    <rMaterial name="trackermaterial:T_Copper"/>
+    <rMaterial name="materials:Copper"/>
    </MaterialFraction>
    <MaterialFraction fraction="0.95036">
     <rMaterial name="materials:micro_twisted_power_cable"/>
