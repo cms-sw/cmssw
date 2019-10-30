@@ -39,4 +39,4 @@
 <LINK name="*TrackParameters/GeneralProperties/TrackPt_ImpactPoint_GenTk">
   <TestName activate="true">XrangeWithin:TrackPt</TestName>
 </LINK>
-</TESTCONFIGURATION>
+</TESTSCONFIGURATION>

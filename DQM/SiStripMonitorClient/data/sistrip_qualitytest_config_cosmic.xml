@@ -188,4 +188,4 @@
 <LINK name="*TrackParameters/GeneralProperties/Chi2oNDF_CKFTk">
   <TestName activate="true">XrangeWithin:Chi2overDoF</TestName>
 </LINK>
-</TESTCONFIGURATION>
+</TESTSCONFIGURATION>
