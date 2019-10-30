@@ -1,11 +1,10 @@
 /*
  * \file QualityTester.cc
  *
- * Helping EDAnalyzer running the quality tests for clients when:
- * - they receive ME data from the SM 
- * - they are run together with the producers (standalone mode)
- *
- * \author M. Zanetti - CERN PH
+ * Harvesting module that applies Quality Tests to MonitorElements.
+ * Which tests are run an be configured using an XML-based configuration.
+ * \author Marcel Schneider 
+ * based on M. Zanetti's older module.
  *
  */
 
@@ -31,6 +30,8 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
+#include <fnmatch.h>
+
 class QualityTester : public DQMEDHarvester {
 public:
   /// Constructor
@@ -48,11 +49,12 @@ protected:
                              DQMStore::IGetter&,
                              edm::LuminosityBlock const& lumiSeg,
                              edm::EventSetup const& c) override;
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  // not usable for harvesting right now.
+  //void endRun(const edm::Run& r, const edm::EventSetup& c) override;
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
 private:
-  void performTests();
+  void performTests(DQMStore::IGetter& igetter);
 
   int nEvents;
   int prescaleFactor;
@@ -65,8 +67,6 @@ private:
   std::string reportThreshold;
   bool verboseQT;
 
-  DQMStore* bei;
-
   // this vector holds and owns all the QTest objects. mostly for memory management.
   std::vector<std::unique_ptr<QCriterion>> qtestobjects;
   // we use this structure to check which tests to run on which MEs. The first
@@ -76,7 +76,6 @@ private:
   std::vector<std::pair<std::string, QCriterion*>> qtestpatterns;
 
   void configureTests(std::string const& file);
-  void attachTests();
   std::unique_ptr<QCriterion> makeQCriterion(boost::property_tree::ptree const& config);
 };
 
@@ -90,8 +89,6 @@ QualityTester::QualityTester(const edm::ParameterSet& ps) {
   qtestOnEndJob = ps.getUntrackedParameter<bool>("qtestOnEndJob", false);
   qtestOnEndLumi = ps.getUntrackedParameter<bool>("qtestOnEndLumi", false);
   verboseQT = ps.getUntrackedParameter<bool>("verboseQT", true);
-
-  bei = &*edm::Service<DQMStore>();
 
   if (getQualityTestsFromFile) {
     edm::FileInPath qtlist = ps.getUntrackedParameter<edm::FileInPath>("qtList");
@@ -109,51 +106,82 @@ void QualityTester::analyze(const edm::Event& e, const edm::EventSetup& c) {
   if (testInEventloop) {
     nEvents++;
     if (prescaleFactor > 0 && nEvents % prescaleFactor == 0) {
-      performTests();
+      //performTests();
     }
   }
 }
 
 void QualityTester::dqmEndLuminosityBlock(DQMStore::IBooker&,
-                                          DQMStore::IGetter&,
+                                          DQMStore::IGetter& igetter,
                                           edm::LuminosityBlock const& lumiSeg,
                                           edm::EventSetup const& context) {
   if (!testInEventloop && qtestOnEndLumi) {
     if (prescaleFactor > 0 && lumiSeg.id().luminosityBlock() % prescaleFactor == 0) {
-      performTests();
+      performTests(igetter);
     }
   }
 }
 
-void QualityTester::endRun(const edm::Run& r, const edm::EventSetup& context) {
-  if (qtestOnEndRun)
-    performTests();
-}
-
-void QualityTester::dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) {
+void QualityTester::dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter& igetter) {
   if (qtestOnEndJob)
-    performTests();
+    performTests(igetter);
 }
 
-void QualityTester::performTests() {
-  // done here because new ME can appear while processing data
-  attachTests();
-
+void QualityTester::performTests(DQMStore::IGetter& igetter) {
   edm::LogVerbatim("QualityTester") << "Running the Quality Test";
 
-  // TODO: runQTests() on each ME
-  // for (auto& kv : this->qtests) {
-  //   std::cout << "+++ Qtest " << kv.first << " " << kv.second.qtest.get() <<  "\n";
-  //   for (auto& p : kv.second.pathpatterns) {
-  //     std::cout << "   +++ at " << p << "\n";
-  //   }
-  // }
+  auto mes = igetter.getAllContents("");
+
+  for (auto me : mes) {
+    std::string name = me->getFullname();
+    for (auto& kv : this->qtestpatterns) {
+      std::string& pattern = kv.first;
+      QCriterion* qtest = kv.second;
+      int match = fnmatch(pattern.c_str(), name.c_str(), FNM_PATHNAME);
+      if (match == FNM_NOMATCH)
+        continue;
+      if (match != 0)
+        throw cms::Exception("QualityTester")
+            << "Something went wrong with fnmatch: pattern = '" << pattern << "' and string = '" << name << "'";
+
+      // name matched, apply test.
+      // Using the classic ME API for now.
+      QReport* qr;
+      DQMNet::QValue* qv;
+      me->getQReport(/* create */ true, qtest->getName(), qr, qv);
+      assert(qtest);  // null might be valid, maybe replace with if
+      qtest->runTest(me, *qr, *qv);
+    }
+  }
 
   if (!reportThreshold.empty()) {
     // map {red, orange, black} -> [QReport message, ...]
     std::map<std::string, std::vector<std::string>> theAlarms;
     // populate from MEs hasError, hasWarning, hasOther
+    for (auto me : mes) {
+      // TODO: This logic is rather broken and suppresses errors when there
+      // are warnings (or suppresses both when there are others. But this is
+      // how it always was, and we keep it for now for compatibility.
+      std::vector<QReport*> report;
+      std::string colour;
+      if (me->hasError()) {
+        colour = "red";
+        report = me->getQErrors();
+      }
+      if (me->hasWarning()) {
+        colour = "orange";
+        report = me->getQWarnings();
+      }
+      if (me->hasOtherReport()) {
+        colour = "black";
+        report = me->getQOthers();
+      }
+      for (auto r : report) {
+        theAlarms[colour].push_back(r->getMessage());
+      }
+    }
 
+    // writes to stdout, because it alyways wrote to stdout.
     for (auto& theAlarm : theAlarms) {
       const std::string& alarmType = theAlarm.first;
       const std::vector<std::string>& msgs = theAlarm.second;
@@ -370,7 +398,5 @@ void QualityTester::configureTests(std::string const& file) {
   // we could sort the patterns here to allow more performant matching
   // (using a suffix-array to handle the "*" in the beginning)
 }
-
-void QualityTester::attachTests() {}
 
 DEFINE_FWK_MODULE(QualityTester);
