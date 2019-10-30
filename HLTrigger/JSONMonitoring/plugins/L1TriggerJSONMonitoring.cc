@@ -33,8 +33,10 @@
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 
 struct L1TriggerJSONMonitoringData {
-  // variables accumulated event by event in each stream
+  // special values for prescale index checks
   static constexpr const int kPrescaleUndefined = -2;
+  static constexpr const int kPrescaleConflict = -1;
+  // variables accumulated event by event in each stream
   struct stream {
     unsigned int processed = 0;                      // number of events processed
     std::vector<unsigned int> l1tAccept;             // number of events accepted by each L1 trigger
@@ -141,10 +143,6 @@ private:
       "",               // 14 - reserved
       ""                // 15 - reserved
   }};
-
-  // special values for prescale index checks
-  static constexpr const int kPrescaleUndefined = -2;
-  static constexpr const int kPrescaleConflict = -1;
 
   static constexpr const char* streamName_ = "streamL1Rates";
 
@@ -267,14 +265,14 @@ void L1TriggerJSONMonitoring::analyze(edm::StreamID sid, edm::Event const& event
 
   // check for conflicting values in the prescale column index, and store it
   int prescaleIndex = results.getPreScColumn();
-  if (stream.prescaleIndex == kPrescaleUndefined) {
+  if (stream.prescaleIndex == L1TriggerJSONMonitoringData::kPrescaleUndefined) {
     stream.prescaleIndex = prescaleIndex;
-  } else if (stream.prescaleIndex == kPrescaleConflict) {
+  } else if (stream.prescaleIndex == L1TriggerJSONMonitoringData::kPrescaleConflict) {
     // do nothing
   } else if (stream.prescaleIndex != prescaleIndex) {
     edm::LogWarning("L1TriggerJSONMonitoring") << "Prescale index changed from " << stream.prescaleIndex << " to "
                                                << prescaleIndex << " inside lumisection " << event.luminosityBlock();
-    stream.prescaleIndex = kPrescaleConflict;
+    stream.prescaleIndex = L1TriggerJSONMonitoringData::kPrescaleConflict;
   }
 }
 
@@ -303,7 +301,7 @@ std::shared_ptr<L1TriggerJSONMonitoringData::lumisection> L1TriggerJSONMonitorin
     lumidata->l1tAcceptRandom.update(0);
   for (unsigned int i = 0; i < tcdsTriggerTypes_.size(); ++i)
     lumidata->tcdsAccept.update(0);
-  lumidata->prescaleIndex = kPrescaleUndefined;
+  lumidata->prescaleIndex = L1TriggerJSONMonitoringData::kPrescaleUndefined;
 
   return lumidata;
 }
@@ -321,7 +319,7 @@ void L1TriggerJSONMonitoring::streamBeginLuminosityBlock(edm::StreamID sid,
   stream.l1tAcceptCalibration.assign(GlobalAlgBlk::maxPhysicsTriggers, 0);
   stream.l1tAcceptRandom.assign(GlobalAlgBlk::maxPhysicsTriggers, 0);
   stream.tcdsAccept.assign(tcdsTriggerTypes_.size(), 0);
-  stream.prescaleIndex = kPrescaleUndefined;
+  stream.prescaleIndex = L1TriggerJSONMonitoringData::kPrescaleUndefined;
 }
 
 // called when a Stream has finished processing a LuminosityBlock, after streamEndLuminosityBlock
@@ -342,10 +340,10 @@ void L1TriggerJSONMonitoring::streamEndLuminosityBlockSummary(edm::StreamID sid,
     lumidata->tcdsAccept.value()[i] += stream.tcdsAccept[i];
 
   // check for conflicting values in the prescale column index
-  if (lumidata->prescaleIndex == kPrescaleUndefined)
+  if (lumidata->prescaleIndex == L1TriggerJSONMonitoringData::kPrescaleUndefined)
     lumidata->prescaleIndex = stream.prescaleIndex;
   else if (lumidata->prescaleIndex != stream.prescaleIndex)
-    lumidata->prescaleIndex = kPrescaleConflict;
+    lumidata->prescaleIndex = L1TriggerJSONMonitoringData::kPrescaleConflict;
 }
 
 // called after the streamEndLuminosityBlockSummary method for all Streams have finished processing a given LuminosityBlock
