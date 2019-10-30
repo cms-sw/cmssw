@@ -43,7 +43,7 @@ RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps,
   // transform shift and rotation to the local coordinate frame
   ESHandle<CTPPSGeometry> geom;
   iSetup.get<VeryForwardRealGeometryRecord>().get(geom);
-  const DetGeomDesc *g = geom->getSensor(detId_);
+  const DetGeomDesc *g = geom->sensor(detId_);
   const DDRotationMatrix &R_l = g->rotation();
   rotation_ = R_l.Inverse() * R_m.Inverse() * R_l;
   shift_ = R_l.Inverse() * R_m.Inverse() * S_m;

@@ -1,5 +1,5 @@
-#ifndef SimMuon_GEMDigitizer_GEMPadDigiProducer_h
-#define SimMuon_GEMDigitizer_GEMPadDigiProducer_h
+#ifndef L1Trigger_L1TGEM_GEMPadDigiProducer_h
+#define L1Trigger_L1TGEM_GEMPadDigiProducer_h
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

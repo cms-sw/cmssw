@@ -87,13 +87,14 @@ def TICL_iterations_withReco(process):
   )
 
   process.trackstersEM = trackstersProducer.clone(
+      max_out_in_hops = 4,
       original_mask = "trackstersMIP",
       filtered_mask = cms.InputTag("filteredLayerClusters", "algo8"),
       seeding_regions = "ticlSeedingGlobal",
-      missing_layers = 2,
+      missing_layers = 1,
       min_clusters_per_ntuplet = 10,
-      min_cos_theta = 0.94, # ~20 degrees
-      min_cos_pointing = 0.7
+      min_cos_theta = 0.984, # ~10 degrees
+      min_cos_pointing = 0.9 # ~26 degrees
   )
 
   process.multiClustersFromTrackstersEM = multiClustersFromTrackstersProducer.clone(
@@ -138,9 +139,15 @@ def TICL_iterations_withReco(process):
       process.pfTICLProducer)
 
   process.schedule.associate(process.TICL_Task)
+
   process.ticlPFValidation = ticlPFValidation
   process.hgcalValidation.insert(-1, process.ticlPFValidation)
-
+  
+  if getattr(process,'hgcalValidator'):
+    process.hgcalValidator.label = [cms.InputTag("hgcalLayerClusters"),
+        cms.InputTag("multiClustersFromTrackstersEM", "MultiClustersFromTracksterByCA")]
+    process.hgcalValidator.domulticlustersPlots = True
+    
   return process
 
 
