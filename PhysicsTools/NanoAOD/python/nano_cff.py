@@ -304,8 +304,8 @@ def nanoAOD_customizeCommon(process):
         nanoAOD_addTauIds_switch = cms.untracked.bool(True)
     )
     run2_miniAOD_80XLegacy.toModify(addTauIds_switch, nanoAOD_addTauIds_switch = cms.untracked.bool(False))
-    (run2_miniAOD_devel | run2_tau_ul_2016 | run2_tau_ul_2018) & \
-    (~(run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1)).toModify(addTauIds_switch,
+    ((run2_miniAOD_devel | run2_tau_ul_2016 | run2_tau_ul_2018) & \
+    (~(run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1))).toModify(addTauIds_switch,
                                                                                                                                            nanoAOD_addTauIds_switch = cms.untracked.bool(False))
     if addTauIds_switch.nanoAOD_addTauIds_switch:
         process = nanoAOD_addTauIds(process)
