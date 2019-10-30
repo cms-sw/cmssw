@@ -71,6 +71,7 @@ namespace cond {
       std::unique_ptr<IIOVSchema> iovSchemaHandle;
       std::unique_ptr<IGTSchema> gtSchemaHandle;
       std::unique_ptr<IRunInfoSchema> runInfoSchemaHandle;
+
     private:
       std::recursive_mutex transactionMutex;
       std::unique_lock<std::recursive_mutex> transactionLock;
