@@ -1,5 +1,5 @@
-#ifndef SimMuon_GEMDigitizer_GEMPadDigiClusterProducer_h
-#define SimMuon_GEMDigitizer_GEMPadDigiClusterProducer_h
+#ifndef L1Trigger_L1TGEM_GEMPadDigiClusterProducer_h
+#define L1Trigger_L1TGEM_GEMPadDigiClusterProducer_h
 
 /**
  *  \class ME0PadDigiClusterProducer

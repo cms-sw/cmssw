@@ -128,6 +128,17 @@ def _appendHGCalDigis(obj):
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(L1TriggerFEVTDEBUG, func=_appendHGCalDigis)
 
+# adding GEM trigger primitives
+def _appendGEMDigis(obj):
+    l1GEMDigis = [
+        'keep *_simMuonGEMPadDigis_*_*',
+        'keep *_simMuonGEMPadDigiClusters_*_*',
+        ]
+    obj.outputCommands += l1GEMDigis
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify(L1TriggerFEVTDEBUG, func=_appendGEMDigis)
+
 # adding ME0 pseudo trigger stubs
 def _appendME0PseudoStubs(obj):
     l1ME0PseudoStubs = [
