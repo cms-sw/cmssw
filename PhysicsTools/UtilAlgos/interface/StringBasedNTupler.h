@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EDFilter.h"
-#include <FWCore/Framework/interface/ProducerBase.h>
+#include "FWCore/Framework/interface/ProducesCollector.h"
 
 //#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -285,7 +285,7 @@ public:
     }
   }
 
-  uint registerleaves(edm::ProducerBase* producer) override {
+  uint registerleaves(edm::ProducesCollector producesCollector) override {
     uint nLeaves = 0;
 
     if (useTFileService_) {
@@ -346,13 +346,13 @@ public:
       for (; iB != iB_end; ++iB) {
         //the index. should produce it only once
         // a simple uint for the index
-        producer->produces<uint>(iB->first).setBranchAlias(iB->first);
+        producesCollector.produces<uint>(iB->first).setBranchAlias(iB->first);
         std::vector<TreeBranch>::iterator iL = iB->second.begin();
         std::vector<TreeBranch>::iterator iL_end = iB->second.end();
         for (; iL != iL_end; ++iL) {
           TreeBranch& b = *iL;
           //a vector of float for each leave
-          producer->produces<std::vector<float> >(b.branchName()).setBranchAlias(b.branchAlias());
+          producesCollector.produces<std::vector<float> >(b.branchName()).setBranchAlias(b.branchAlias());
           nLeaves++;
         }
       }

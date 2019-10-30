@@ -1,10 +1,10 @@
 #ifndef FastTimingSimProducers_FastTimingCommon_FTLDigitizerBase_h
 #define FastTimingSimProducers_FastTimingCommon_FTLDigitizerBase_h
 
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -29,7 +29,9 @@ class PileUpEventPrincipal;
 
 class FTLDigitizerBase {
 public:
-  FTLDigitizerBase(const edm::ParameterSet& config, edm::ConsumesCollector& iC, edm::ProducerBase& parent)
+  FTLDigitizerBase(const edm::ParameterSet& config,
+                   edm::ProducesCollector producesCollector,
+                   edm::ConsumesCollector& iC)
       : inputSimHits_(config.getParameter<edm::InputTag>("inputSimHits")),
         digiCollection_(config.getParameter<std::string>("digiCollectionTag")),
         mySubDet_(FastTime),
@@ -37,7 +39,7 @@ public:
         refSpeed_(0.1 * CLHEP::c_light),
         name_(config.getParameter<std::string>("digitizerName")) {
     iC.consumes<std::vector<PSimHit> >(inputSimHits_);
-    parent.produces<FTLDigiCollection>(digiCollection_);
+    producesCollector.produces<FTLDigiCollection>(digiCollection_);
   }
 
   virtual ~FTLDigitizerBase() {}
@@ -85,7 +87,7 @@ private:
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 typedef edmplugin::PluginFactory<FTLDigitizerBase*(
-    const edm::ParameterSet&, edm::ConsumesCollector&, edm::ProducerBase&)>
+    const edm::ParameterSet&, edm::ProducesCollector, edm::ConsumesCollector&)>
     FTLDigitizerFactory;
 
 #endif

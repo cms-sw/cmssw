@@ -1,9 +1,9 @@
 #ifndef SimCalorimetry_HGCSimProducers_HGCDigiProducer_h
 #define SimCalorimetry_HGCSimProducers_HGCDigiProducer_h
 
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizer.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 
 #include <vector>
 
@@ -22,7 +22,7 @@ namespace CLHEP {
 
 class HGCDigiProducer : public DigiAccumulatorMixMod {
 public:
-  HGCDigiProducer(edm::ParameterSet const& pset, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
+  HGCDigiProducer(edm::ParameterSet const& pset, edm::ProducesCollector, edm::ConsumesCollector& iC);
   HGCDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC);
 
   void initializeEvent(edm::Event const&, edm::EventSetup const&) override;

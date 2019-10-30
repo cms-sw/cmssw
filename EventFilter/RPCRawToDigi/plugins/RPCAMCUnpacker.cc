@@ -2,8 +2,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-RPCAMCUnpacker::RPCAMCUnpacker(edm::stream::EDProducerBase& producer, edm::ParameterSet const& config) {}
-
+RPCAMCUnpacker::RPCAMCUnpacker(edm::ParameterSet const&, edm::ProducesCollector) {}
 RPCAMCUnpacker::~RPCAMCUnpacker() {}
 
 void RPCAMCUnpacker::fillDescription(edm::ParameterSetDescription& desc) {
