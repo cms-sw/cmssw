@@ -169,14 +169,16 @@ void TrackingMaterialProducer::update(const BeginOfTrack* event) {
   //restrict the outher radius to eta 3.3 since there is HGCAL shadowing
   //restrict the innner radius to eta 4 since it's non projective
 
-  if (isHFNose && track->GetTrackStatus() != fStopAndKill && fabs(track->GetMomentum().eta()) > 3.3 && fabs(track->GetMomentum().eta()) < 4) {
-    if(track->GetMomentum().eta() > 0.){
-      outVolumeZpositionTxt << "Polyethylene " << m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0 <<std::endl;
-    } else if (track->GetMomentum().eta() <= 0.){
-      outVolumeZpositionTxt << "Polyethylene " << - m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0 <<std::endl;
+  if (isHFNose && track->GetTrackStatus() != fStopAndKill && fabs(track->GetMomentum().eta()) > 3.3 &&
+      fabs(track->GetMomentum().eta()) < 4) {
+    if (track->GetMomentum().eta() > 0.) {
+      outVolumeZpositionTxt << "Polyethylene " << m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
+                            << std::endl;
+    } else if (track->GetMomentum().eta() <= 0.) {
+      outVolumeZpositionTxt << "Polyethylene " << -m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
+                            << std::endl;
     }
   }
-
 }
 
 bool TrackingMaterialProducer::isSelectedFast(const G4TouchableHistory* touchable) {
