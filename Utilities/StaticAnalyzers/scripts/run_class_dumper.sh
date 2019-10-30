@@ -36,4 +36,5 @@ sort -u getparam-dumper.txt.unsorted | awk '{print $0"\n"}' >getparam-dumper.txt
 cat classes.txt.inherits classes.txt.dumperft classes.txt.dumperct | grep -e"^class" | grep -v \'\' | sort -u >classes.txt
 rm *.txt.*unsorted
 classname-blmflt.py
+bloom_filter_generator bloom.bin classnames.txt
 cp -pv $LOCALRT/tmp/bloom.bin $LOCALRT/src/Utilities/StaticAnalyzers/scripts/bloom.bin
