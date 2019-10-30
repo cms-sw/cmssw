@@ -1,4 +1,4 @@
-#include <RecoMTD/DetLayers/src/ETLDetLayerGeometryBuilder.h>
+#include "ETLDetLayerGeometryBuilder.h"
 
 #include <RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h>
 #include <RecoMTD/DetLayers/interface/MTDDetRing.h>
