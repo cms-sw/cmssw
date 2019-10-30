@@ -315,6 +315,9 @@ namespace dqm::impl {
     const QReport *getQReport(const std::string &qtname) const;
     /// get map of QReports
     std::vector<QReport *> getQReports() const;
+    /// access QReport, potentially adding it.
+    void getQReport(bool create, const std::string &qtname, QReport *&qr, DQMNet::QValue *&qv);
+
     /// get warnings from last set of quality tests
     std::vector<QReport *> getQWarnings() const;
     /// get errors from last set of quality tests
@@ -426,7 +429,6 @@ namespace dqm::impl {
     void copyFrom(TH1 *from);
 
     // --- Operations on MEs that are normally reset at end of monitoring cycle ---
-    void getQReport(bool create, const std::string &qtname, QReport *&qr, DQMNet::QValue *&qv);
     void addQReport(const DQMNet::QValue &desc);
     void updateQReportStats();
 

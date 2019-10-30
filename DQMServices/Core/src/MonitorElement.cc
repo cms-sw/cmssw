@@ -1096,6 +1096,7 @@ namespace dqm::impl {
       q.qtname = qtname;
       q.message = "NO_MESSAGE_ASSIGNED";
       q.algorithm = "UNKNOWN_ALGORITHM";
+      qreports_[pos].qvalue_ = &q;
     }
 
     qr = &qreports_[pos];

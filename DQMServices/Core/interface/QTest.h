@@ -93,11 +93,6 @@ public:
   static const float WARNING_PROB_THRESHOLD;
   static const float ERROR_PROB_THRESHOLD;
 
-protected:
-  virtual float runTest(const MonitorElement *me);
-  /// set algorithm name
-  void setAlgoName(std::string name) { algoName_ = std::move(name); }
-
   float runTest(const MonitorElement *me, QReport &qr, DQMNet::QValue &qv) {
     assert(qv.qtname == qtname_);
 
@@ -127,6 +122,12 @@ protected:
 
     return prob_;
   }
+
+protected:
+  /// set algorithm name
+  void setAlgoName(std::string name) { algoName_ = std::move(name); }
+
+  virtual float runTest(const MonitorElement *me);
 
   /// set message after test has run
   virtual void setMessage() = 0;
