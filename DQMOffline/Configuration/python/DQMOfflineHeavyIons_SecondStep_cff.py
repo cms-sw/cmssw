@@ -5,26 +5,40 @@ from DQMServices.Components.DQMDcsInfoClient_cfi import *
 from DQMServices.Components.DQMFastTimerServiceClient_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_client_offline_cff import *
+from DQM.EcalPreshowerMonitorClient.es_dqm_client_offline_cff import *
 from DQM.SiStripMonitorClient.SiStripClientConfig_Tier0_HeavyIons_cff import *
 from DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff import *
+from DQM.HcalTasks.OfflineHarvestingSequence_hi import *
 from DQM.DTMonitorClient.dtDQMOfflineClients_cff import *
 from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 from DQM.CSCMonitorModule.csc_dqm_offlineclient_collisions_cff import *
-from DQM.EcalPreshowerMonitorClient.es_dqm_client_offline_cff import *
-from DQM.BeamMonitor.AlcaBeamMonitorClient_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
-from DQM.HcalTasks.OfflineHarvestingSequence_hi import *
 
-DQMOfflineHeavyIons_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
-                                                      ecal_dqm_client_offline *
-                                                      SiStripOfflineDQMClientHI *
-                                                      PixelOfflineDQMClientWithDataCertificationHI *
-                                                      hcalOfflineHarvesting *
-                                                      dtClients *
+DQMOfflineHeavyIons_SecondStepDCS = cms.Sequence( dqmDcsInfoClient )
+
+DQMOfflineHeavyIons_SecondStepEcal = cms.Sequence( ecal_dqm_client_offline *
+						    es_dqm_client_offline )
+
+DQMOfflineHeavyIons_SecondStepTrackerStrip = cms.Sequence( SiStripOfflineDQMClientHI )
+
+DQMOfflineHeavyIons_SecondStepTrackerPixel = cms.Sequence( PixelOfflineDQMClientWithDataCertificationHI )
+
+DQMOfflineHeavyIons_SecondStepHcal = cms.Sequence( hcalOfflineHarvesting )
+
+DQMOfflineHeavyIons_SecondStepMuonDPG = cms.Sequence(  dtClients *
                                                       rpcTier0Client *
-                                                      cscOfflineCollisionsClients *
-                                                      es_dqm_client_offline *
-                                                      dqmFEDIntegrityClient )
+                                                      cscOfflineCollisionsClients )
+
+DQMOfflineHeavyIons_SecondStepFED = cms.Sequence( dqmFEDIntegrityClient )
+
+DQMOfflineHeavyIons_SecondStep_PreDPG = cms.Sequence( DQMOfflineHeavyIons_SecondStepDCS *
+						      DQMOfflineHeavyIons_SecondStepEcal *
+                                                      DQMOfflineHeavyIons_SecondStepTrackerStrip *
+                                                      DQMOfflineHeavyIons_SecondStepTrackerPixel *
+                                                      DQMOfflineHeavyIons_SecondStepHcal *
+                                                      DQMOfflineHeavyIons_SecondStepMuonDPG *
+                                                      DQMOfflineHeavyIons_SecondStepFED 
+							)
 
 DQMOfflineHeavyIons_SecondStepDPG = cms.Sequence(
                                          DQMOfflineHeavyIons_SecondStep_PreDPG *
@@ -36,13 +50,23 @@ from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
 from DQM.TrackingMonitorClient.TrackingDQMClientHeavyIons_cfi import *
+from DQM.BeamMonitor.AlcaBeamMonitorClient_cff import *
 
-DQMOfflineHeavyIons_SecondStep_PrePOG = cms.Sequence( muonQualityTests 
-                                                      * photonOfflineDQMClient
-                                                      * triggerOfflineDQMClient 
-                                                      * hltOfflineDQMClient
-                                                      * alcaBeamMonitorClient
-                                                      * hiTrackingDqmClientHeavyIons
+DQMOfflineHeavyIons_SecondStepMUO = cms.Sequence( muonQualityTests )
+
+DQMOfflineHeavyIons_SecondStepEGamma = cms.Sequence( photonOfflineDQMClient )
+
+DQMOfflineHeavyIons_SecondStepTrigger  = cms.Sequence( triggerOfflineDQMClient *
+							hltOfflineDQMClient )
+DQMOfflineHeavyIons_SecondStepBeam = cms.Sequence( alcaBeamMonitorClient )
+
+DQMOfflineHeavyIons_SecondStepTracking = cms.Sequence( hiTrackingDqmClientHeavyIons )
+
+DQMOfflineHeavyIons_SecondStep_PrePOG = cms.Sequence( DQMOfflineHeavyIons_SecondStepMUO * 
+                                                      DQMOfflineHeavyIons_SecondStepEGamma *
+                                                      DQMOfflineHeavyIons_SecondStepTrigger *
+                                                      DQMOfflineHeavyIons_SecondStepBeam *
+						      DQMOfflineHeavyIons_SecondStepTracking
                                                       )
 
 DQMOfflineHeavyIons_SecondStepPOG = cms.Sequence(
