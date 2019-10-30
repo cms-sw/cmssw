@@ -8,7 +8,6 @@ from HLTriggerOffline.JetMET.Validation.HLTJetMETValidation_cff import *
 #from HLTriggerOffline.special.hltAlCaVal_cff import *
 from HLTriggerOffline.SUSYBSM.SusyExoValidation_cff import *
 from HLTriggerOffline.Higgs.HiggsValidation_cff import *
-from HLTriggerOffline.Top.topHLTValidation_cff import *
 from HLTriggerOffline.B2G.b2gHLTValidation_cff import *
 from HLTriggerOffline.Exotica.ExoticaValidation_cff import *
 from HLTriggerOffline.SMP.SMPValidation_cff import *
@@ -51,7 +50,6 @@ hltvalidationWithMC = cms.Sequence(
     HLTMuonVal
     +HLTTauVal
     +egammaValidationSequence
-    +topHLTriggerValidation
     +heavyFlavorValidationSequence
     +HLTJetMETValSeq
     +HLTSusyExoValSeq
