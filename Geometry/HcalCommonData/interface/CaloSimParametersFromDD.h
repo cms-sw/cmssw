@@ -23,7 +23,7 @@ void myPrint(std::string value, const std::vector<T>& vec) {
 
 class CaloSimParametersFromDD {
 public:
-  CaloSimParametersFromDD() {}
+  CaloSimParametersFromDD() = default;
   virtual ~CaloSimParametersFromDD() {}
 
   bool build(const DDCompactView*, CaloSimulationParameters&);
