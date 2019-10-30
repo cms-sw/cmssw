@@ -8,6 +8,7 @@
 
 /*** core framework functionality ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /*** Alignment ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
@@ -47,9 +48,9 @@ public:
   const std::string getExitMessage() { return m_exitMessage; }
 
   void print() {
-    std::cout << " is DB updated: " << m_isDBUpdated << " is DB update vetoed: " << m_isDBUpdateVetoed
-              << " nRecords: " << m_nRecords << " exitCode: " << m_exitCode << " (" << m_exitMessage << ")"
-              << std::endl;
+    edm::LogInfo("MillePedeFileReader") << " is DB updated: " << m_isDBUpdated
+                                        << " is DB update vetoed: " << m_isDBUpdateVetoed << " nRecords: " << m_nRecords
+                                        << " exitCode: " << m_exitCode << " (" << m_exitMessage << ")" << std::endl;
   }
 };
 
