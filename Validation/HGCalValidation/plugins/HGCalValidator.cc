@@ -28,12 +28,9 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
 
-  for (auto& itag : label) {
-    if (itag.label() == "hgcalLayerClusters") {
-      layerclusters_ = consumes<reco::CaloClusterCollection>(itag);
-    } else if (itag.label() == "hgcalMultiClusters") {
-      multiClusters_ = consumes<std::vector<reco::HGCalMultiCluster>>(itag);
-    }
+  layerclusters_ = consumes<reco::CaloClusterCollection>(label[0]);
+  if (label.size() > 1) {
+    multiClusters_ = consumes<std::vector<reco::HGCalMultiCluster>>(label[1]);
   }
 
   cpSelector = CaloParticleSelector(pset.getParameter<double>("ptMinCP"),
@@ -127,7 +124,7 @@ void HGCalValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook,
     }
 
     //Booking histograms concerning for hgcal multi clusters
-    if (domulticlustersPlots_ && algo.label() == "hgcalMultiClusters") {
+    if (domulticlustersPlots_ && www > 0) {
       histoProducerAlgo_->bookMultiClusterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
     }
 
@@ -222,11 +219,6 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(layerclusters_, clusterHandle);
   const reco::CaloClusterCollection& clusters = *clusterHandle;
 
-  //Multiclusters
-  edm::Handle<std::vector<reco::HGCalMultiCluster>> multiClusterHandle;
-  event.getByToken(multiClusters_, multiClusterHandle);
-  const std::vector<reco::HGCalMultiCluster>& multiClusters = *multiClusterHandle;
-
   //Density
   edm::Handle<Density> densityHandle;
   event.getByToken(density_, densityHandle);
@@ -253,21 +245,14 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   }
 
   if (domulticlustersPlots_) {
+    //Multiclusters
+    edm::Handle<std::vector<reco::HGCalMultiCluster>> multiClusterHandle;
+    event.getByToken(multiClusters_, multiClusterHandle);
+    const std::vector<reco::HGCalMultiCluster>& multiClusters = *multiClusterHandle;
     w++;
     histoProducerAlgo_->fill_multi_cluster_histos(
         histograms.histoProducerAlgo, w, multiClusters, caloParticles, cPIndices, hitMap, totallayers_to_monitor_);
   }
-
-  //General Info
-  for (auto& itag : label) {
-    if (itag.label() == "hgcalLayerClusters") {
-      LogTrace("HGCalValidator") << "\n# of layer clusters with " << itag.process() << ":" << itag.label() << ":"
-                                 << itag.instance() << ": " << clusters.size() << "\n";
-    } else if (itag.label() == "hgcalMultiClusters") {
-      LogTrace("HGCalValidator") << "\n# of multi clusters with " << itag.process() << ":" << itag.label() << ":"
-                                 << itag.instance() << ": " << multiClusters.size() << "\n";
-    }
-  }  //end of loop over input labels
 }
 
 void HGCalValidator::fillHitMap(std::map<DetId, const HGCRecHit*>& hitMap,

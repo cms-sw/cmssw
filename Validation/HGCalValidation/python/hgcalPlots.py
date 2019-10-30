@@ -2248,6 +2248,9 @@ hgcalMultiClustersPlotter = Plotter()
 # [A] Score of CaloParticles wrt Multi Clusters
 hgcalMultiClustersPlotter.append("ScoreCaloParticlesToMultiClusters", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
             ], PlotFolder(
             _score_caloparticle_to_multiclusters,
             loopSubFolders=False,
@@ -2256,6 +2259,9 @@ hgcalMultiClustersPlotter.append("ScoreCaloParticlesToMultiClusters", [
 # [B] Score of MultiClusters wrt CaloParticles
 hgcalMultiClustersPlotter.append("ScoreMultiClustersToCaloParticles", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
             ], PlotFolder(
             _score_multicluster_to_caloparticles,
             loopSubFolders=False,
@@ -2264,6 +2270,9 @@ hgcalMultiClustersPlotter.append("ScoreMultiClustersToCaloParticles", [
 # [C] Shared Energy between CaloParticle and MultiClusters
 hgcalMultiClustersPlotter.append("SharedEnergy", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
             ], PlotFolder(
             _sharedEnergy_caloparticle_to_multicluster,
             loopSubFolders=False,
@@ -2272,6 +2281,9 @@ hgcalMultiClustersPlotter.append("SharedEnergy", [
 # [C2] Shared Energy between MultiClusters and CaloParticle
 hgcalMultiClustersPlotter.append("SharedEnergy", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
             ], PlotFolder(
             _sharedEnergy_multicluster_to_caloparticle,
             loopSubFolders=False,
@@ -2280,6 +2292,9 @@ hgcalMultiClustersPlotter.append("SharedEnergy", [
 # [D] Cell Association per Multi
 hgcalMultiClustersPlotter.append("CellAssociation_per_multicluster", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
             ], PlotFolder(
             _cell_association_multi,
             loopSubFolders=False,
@@ -2288,6 +2303,9 @@ hgcalMultiClustersPlotter.append("CellAssociation_per_multicluster", [
 # z-
 hgcalMultiClustersPlotter.append("CellAssociation_zminus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
             ], PlotFolder(
             _cell_association_table_zminus,
             loopSubFolders=False,
@@ -2296,6 +2314,9 @@ hgcalMultiClustersPlotter.append("CellAssociation_zminus", [
 # z+
 hgcalMultiClustersPlotter.append("CellAssociation_zplus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
             ], PlotFolder(
             _cell_association_table_zplus,
             loopSubFolders=False,
@@ -2304,6 +2325,9 @@ hgcalMultiClustersPlotter.append("CellAssociation_zplus", [
 # [E] Efficiency Plots
 hgcalMultiClustersPlotter.append("Efficiencies", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
             ], PlotFolder(
             _efficiencies,
             loopSubFolders=False,
@@ -2312,6 +2336,9 @@ hgcalMultiClustersPlotter.append("Efficiencies", [
 # [F] Duplicate Plots
 hgcalMultiClustersPlotter.append("Duplicates", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
             ], PlotFolder(
             _duplicates,
             loopSubFolders=False,
@@ -2320,6 +2347,9 @@ hgcalMultiClustersPlotter.append("Duplicates", [
 # [G] Fake Rate Plots
 hgcalMultiClustersPlotter.append("FakeRate", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
             ], PlotFolder(
             _fakes,
             loopSubFolders=False,
@@ -2328,6 +2358,9 @@ hgcalMultiClustersPlotter.append("FakeRate", [
 # [H] Merge Rate Plots
 hgcalMultiClustersPlotter.append("MergeRate", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
             ], PlotFolder(
             _merges,
             loopSubFolders=False,
@@ -2336,6 +2369,9 @@ hgcalMultiClustersPlotter.append("MergeRate", [
 # [I] Energy vs Score 2D plots CP to MCL and MCL to CP
 hgcalMultiClustersPlotter.append("Energy_vs_Score_CP2MCL_MCL2CP", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
             ], PlotFolder(
             #_energyscore_cp2mcl_mcl2cp,
             _energyscore_cp2mcl,
@@ -2347,6 +2383,9 @@ hgcalMultiClustersPlotter.append("Energy_vs_Score_CP2MCL_MCL2CP", [
 # [J] Energy vs Score 2D plots MCL to CP
 hgcalMultiClustersPlotter.append("Energy_vs_Score_MCL2CP", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
             ], PlotFolder(
             _energyscore_mcl2cp,
             _energyscore_contimcl2cp,
@@ -2357,6 +2396,9 @@ hgcalMultiClustersPlotter.append("Energy_vs_Score_MCL2CP", [
 #[K] Number of multiclusters per event.
 hgcalMultiClustersPlotter.append("NumberofMultiClusters_All_Contiguous_NonContiguous", [
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
         ], PlotFolder(
         _totmulticlusternum,
         _contmulticlusternum,
@@ -2368,6 +2410,9 @@ hgcalMultiClustersPlotter.append("NumberofMultiClusters_All_Contiguous_NonContig
 #[L] total number of layer clusters in multicluster per event and per layer
 hgcalMultiClustersPlotter.append("NumberofLayerClustersinMultiClusterPerEventAndPerLayer", [
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
         ], PlotFolder(
         _clusternum_in_multicluster,
         _clusternum_in_multicluster_vs_layer,
@@ -2384,6 +2429,9 @@ hgcalMultiClustersPlotter.append("NumberofLayerClustersinMultiClusterPerEventAnd
 #[M] For each multicluster: pt, eta, phi, energy, x, y, z.
 hgcalMultiClustersPlotter.append("MultiClustersPtEtaPhiEneXYZ", [
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
         ], PlotFolder(
         _multicluster_pt,
         _multicluster_eta,
@@ -2399,6 +2447,9 @@ hgcalMultiClustersPlotter.append("MultiClustersPtEtaPhiEneXYZ", [
 #[N] Multicluster first, last, total number of layers
 hgcalMultiClustersPlotter.append("NumberofMultiClusters_First_Last_NLayers", [
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
         ], PlotFolder(
         _multicluster_firstlayer,
         _multicluster_lastlayer,
@@ -2410,6 +2461,9 @@ hgcalMultiClustersPlotter.append("NumberofMultiClusters_First_Last_NLayers", [
 #[O] Multiplicity of layer clusters in multicluster
 hgcalMultiClustersPlotter.append("Multiplicity", [
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
         ], PlotFolder(
         _multiplicityOfLCinMCL,
         _multiplicityOfLCinMCL_vs_layerclusterenergy,
@@ -2422,6 +2476,9 @@ hgcalMultiClustersPlotter.append("Multiplicity", [
 #and the number of events are different in zplus and zminus
 hgcalMultiClustersPlotter.append("Multiplicity", [
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
         ], PlotFolder(
         _multiplicityOfLCinMCL_vs_layercluster_zminus,
         loopSubFolders=False,
@@ -2431,6 +2488,9 @@ hgcalMultiClustersPlotter.append("Multiplicity", [
 
 hgcalMultiClustersPlotter.append("Multiplicity", [
         "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTracksters_MultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
+        "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA"
         ], PlotFolder(
         _multiplicityOfLCinMCL_vs_layercluster_zplus,
         loopSubFolders=False,
