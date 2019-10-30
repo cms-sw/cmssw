@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
 
   // init static values
   uint32_t adc      = 124;
-  uint32_t gain     = 1;
+  uint32_t gain     = 15;
   uint32_t thrADC   = 900;
   bool     thr      = adc > thrADC;
   uint32_t toa      = 0;
@@ -44,9 +44,9 @@ int main(int argc, char** argv) {
     {
       // randomise all inputs, if chosen at the command line
       if(generateRandomValues){
-	adc       = rand() %1024;
+	adc       = rand() %4096;
 	toa       = rand() %1024;
-	gain      = rand() %4;
+	gain      = rand() %16;
 	mode      = rand() %2;
 	thr       = rand() %2;
 	toaFired  = rand() %2;
@@ -66,8 +66,8 @@ int main(int argc, char** argv) {
       assert( thr      == aSample.threshold() );
       assert( toaFired == aSample.getToAValid() );
 
-      // std::cout << aSample.raw() << "\t" << thr << "\t" << mode  << "\t" << toaFired 
-      // << "\t" << gain << "\t" << toa << "\t" << adc << std::endl;
+      std::cout << aSample.raw() << "\t" << thr << "\t" << mode  << "\t" << toaFired 
+		<< "\t" << gain << "\t" << toa << "\t" << adc << std::endl;
 
       HGCSample ASample;
       ASample.setThreshold(thr);

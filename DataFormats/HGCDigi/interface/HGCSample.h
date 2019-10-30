@@ -14,9 +14,9 @@ class HGCSample {
 
 public:
   enum HGCSampleMasks  { kThreshMask  = 0x1,   kModeMask  = 0x1,   kToAValidMask  = 0x1,
-			 kGainMask    = 0x3,   kToAMask   = 0x3ff, kDataMask      = 0x3ff };
+			 kGainMask    = 0xf,   kToAMask   = 0x3ff, kDataMask      = 0xfff };
   enum HGCSampleShifts { kThreshShift = 31,    kModeShift = 30,    kToAValidShift = 29,
-			 kToGainShift = 20,    kToAShift  = 10,    kDataShift     = 0 };
+			 kToGainShift = 22,    kToAShift  = 12,    kDataShift     = 0 };
 
   /**
      @short CTOR
