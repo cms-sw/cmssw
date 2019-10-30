@@ -1,6 +1,5 @@
 #define __STDC_FORMAT_MACROS 1
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/QTest.h"
 #include "DQMServices/Core/src/DQMError.h"
 #include "TClass.h"
 #include "TMath.h"
@@ -1089,7 +1088,7 @@ namespace dqm::impl {
       return;
     else if (pos == end) {
       data_.qreports.emplace_back();
-      qreports_.push_back(QReport(nullptr, nullptr));
+      qreports_.push_back(QReport(nullptr));
 
       DQMNet::QValue &q = data_.qreports.back();
       q.code = dqm::qstatus::DID_NOT_RUN;
@@ -1104,22 +1103,11 @@ namespace dqm::impl {
   }
 
   /// Add quality report, from DQMStore.
-  void MonitorElement::addQReport(const DQMNet::QValue &desc, QCriterion *qc) {
+  void MonitorElement::addQReport(const DQMNet::QValue &desc) {
     QReport *qr;
     DQMNet::QValue *qv;
     getQReport(true, desc.qtname, qr, qv);
-    qr->qcriterion_ = qc;
     *qv = desc;
-    update();
-  }
-
-  void MonitorElement::addQReport(QCriterion *qc) {
-    QReport *qr;
-    DQMNet::QValue *qv;
-    getQReport(true, qc->getName(), qr, qv);
-    qv->code = dqm::qstatus::DID_NOT_RUN;
-    qv->message = "NO_MESSAGE_ASSIGNED";
-    qr->qcriterion_ = qc;
     update();
   }
 
