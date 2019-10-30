@@ -10,8 +10,9 @@ DigiConverterFP420::DigiConverterFP420(float in, int verbosity) {
   electronperADC = in;
   verbos = verbosity;
 
-  const int defaultBits = 10;
-  const int largestBits = 30;
+  constexpr int defaultBits = 10;
+  constexpr int largestBits = 30;
+  constexpr unsigned int allOne = ~0;
 
   // example is in SiStrips:
   // static SimpleConfigurable<int>
@@ -21,7 +22,7 @@ DigiConverterFP420::DigiConverterFP420(float in, int verbosity) {
   if (adcBits > largestBits || adcBits < 1)
     adcBits = largestBits;
 
-  theMaxADC = ~(~0 << adcBits);
+  theMaxADC = ~(allOne << adcBits);
   //      std::cout << "theMaxADC= "<< theMaxADC  << std::endl; // = 1023
   if (verbos > 0) {
     std::cout << " ***DigiConverterFP420: constructor" << std::endl;

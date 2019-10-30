@@ -14,15 +14,7 @@ muonSourcesQualityTests = cms.EDAnalyzer("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/QualityTests1.xml')
 )
-muonComp2RefQualityTests = cms.EDAnalyzer("QualityTester",
-    prescaleFactor = cms.untracked.int32(1),
-    qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/Mu_Comp2RefChi2.xml')
-)
 
-muonComp2RefKolmoQualityTests = cms.EDAnalyzer("QualityTester",
-    prescaleFactor = cms.untracked.int32(1),
-    qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/Mu_Comp2RefKolmogorov.xml')
-)
 muonClientsQualityTests = cms.EDAnalyzer("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/QualityTests2.xml')
@@ -34,8 +26,6 @@ cosmicMuonQualityTests = cms.Sequence(ClientTrackEfficiencyTkTracks*
                                       muTrackResidualsTest*
                                       muRecoTest*
                                       muonClientsQualityTests*
-                                      muonComp2RefQualityTests*
-                                      muonComp2RefKolmoQualityTests*
                                       muonCosmicTestSummary)
 
 muonQualityTests = cms.Sequence(muonSourcesQualityTests*
@@ -45,8 +35,6 @@ muonQualityTests = cms.Sequence(muonSourcesQualityTests*
                                 effPlotterTight*
                                 muRecoTest*
                                 muonClientsQualityTests*
-                                muonComp2RefQualityTests*
-                                muonComp2RefKolmoQualityTests*
                                 muonTestSummary)
 
 muonQualityTests_miniAOD = cms.Sequence(muonSourcesQualityTests*
@@ -56,8 +44,6 @@ muonQualityTests_miniAOD = cms.Sequence(muonSourcesQualityTests*
                                         effPlotterTightMiniAOD*
                                         muRecoTest*
                                         muonClientsQualityTests*
-                                        muonComp2RefQualityTests*
-                                        muonComp2RefKolmoQualityTests*
                                         muonTestSummary*
                                         triggerMatchEffPlotterTightMiniAOD)
 

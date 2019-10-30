@@ -13,14 +13,6 @@
 
 //#include "DQMServices/Core/interface/DQMStore.h"
 
-class Comp2RefChi2;
-using Comp2RefChi2ROOT = Comp2RefChi2;
-class Comp2Ref2DChi2;
-using Comp2Ref2DChi2ROOT = Comp2Ref2DChi2;
-class Comp2RefKolmogorov;
-using Comp2RefKolmogorovROOT = Comp2RefKolmogorov;
-class Comp2RefEqualH;
-using Comp2RefEqualHROOT = Comp2RefEqualH;
 class ContentsXRange;
 using ContentsXRangeROOT = ContentsXRange;
 class ContentsYRange;
@@ -184,67 +176,6 @@ protected:
 //===============================================================//
 //========= Classes for particular QUALITY TESTS ================//
 //===============================================================//
-
-//===================== Comp2RefEqualH ===================//
-//== Algorithm for comparing equality of histograms ==//
-class Comp2RefEqualH : public SimpleTest {
-public:
-  Comp2RefEqualH(const std::string &name) : SimpleTest(name, true) { setAlgoName(getAlgoName()); }
-  static std::string getAlgoName() { return "Comp2RefEqualH"; }
-  float runTest(const MonitorElement *me) override;
-};
-
-//===================== Comp2RefChi2 ===================//
-// comparison to reference using the  chi^2 algorithm
-class Comp2RefChi2 : public SimpleTest {
-public:
-  Comp2RefChi2(const std::string &name) : SimpleTest(name) { setAlgoName(getAlgoName()); }
-  static std::string getAlgoName() { return "Comp2RefChi2"; }
-  float runTest(const MonitorElement *me) override;
-
-protected:
-  void setMessage() override {
-    std::ostringstream message;
-    message << "chi2/Ndof = " << chi2_ << "/" << Ndof_ << ", minimum needed statistics = " << minEntries_
-            << " warning threshold = " << this->warningProb_ << " error threshold = " << this->errorProb_;
-    message_ = message.str();
-  }
-
-  // # of degrees of freedom and chi^2 for test
-  int Ndof_;
-  double chi2_;
-};
-
-//===================== Comp2Ref2DChi2 =================//
-// comparison to reference using the 2D chi^2 algorithm
-class Comp2Ref2DChi2 : public SimpleTest {
-public:
-  Comp2Ref2DChi2(const std::string &name) : SimpleTest(name) { setAlgoName(getAlgoName()); }
-  static std::string getAlgoName() { return "Comp2Ref2DChi2"; }
-  float runTest(const MonitorElement *me) override;
-
-protected:
-  void setMessage() override {
-    std::ostringstream message;
-    message << "chi2/Ndof = " << chi2_ << "/" << Ndof_ << ", minimum needed statistics = " << minEntries_
-            << " warning threshold = " << this->warningProb_ << " error threshold = " << this->errorProb_;
-    message_ = message.str();
-  }
-
-  // # of degrees of freedom and chi^2 for test
-  int Ndof_;
-  double chi2_;
-};
-
-//===================== Comp2RefKolmogorov ===================//
-/// Comparison to reference using the  Kolmogorov algorithm
-class Comp2RefKolmogorov : public SimpleTest {
-public:
-  Comp2RefKolmogorov(const std::string &name) : SimpleTest(name) { setAlgoName(getAlgoName()); }
-  static std::string getAlgoName() { return "Comp2RefKolmogorov"; }
-
-  float runTest(const MonitorElement *me) override;
-};
 
 //==================== ContentsXRange =========================//
 //== Check that histogram contents are between [Xmin, Xmax] ==//

@@ -7,30 +7,40 @@
 */
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
-#include <FWCore/Utilities/interface/Exception.h>
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCCompDetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
+#include <iomanip>
 #include <iostream>
+
 using namespace std;
 
 class testRPCDetId : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testRPCDetId);
   CPPUNIT_TEST(testOne);
+  CPPUNIT_TEST(testGasId);
   CPPUNIT_TEST(testFail);
   CPPUNIT_TEST(testMemberOperators);
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
+  void setUp();
   void tearDown() {}
 
   void testOne();
+  void testGasId();
   void testFail();
   void testMemberOperators();
+
+private:
+  RPCCompDetId rpcgasid_;
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testRPCDetId);
+
+void testRPCDetId::setUp() { rpcgasid_ = RPCCompDetId("WM2_S04_RB4R", 0); }
 
 void testRPCDetId::testOne() {
   for (int region = RPCDetId::minRegionId; region <= RPCDetId::maxRegionId; ++region) {
@@ -63,6 +73,26 @@ void testRPCDetId::testOne() {
                 CPPUNIT_ASSERT(detid == anotherId);
               }
   }
+}
+
+void testRPCDetId::testGasId() {
+  std::cout << rpcgasid_ << " rawid = " << rpcgasid_.rawId() << std::endl;
+  std::cout << "Region = " << rpcgasid_.region() << std::endl;
+  std::cout << "Ring or Wheel = " << rpcgasid_.ring() << " - Wheel = " << rpcgasid_.wheel() << std::endl;
+  std::cout << "Station or Disk = " << rpcgasid_.station() << " - Disk = " << rpcgasid_.disk() << std::endl;
+  std::cout << "Sector = " << rpcgasid_.sector() << std::endl;
+  std::cout << "Layer = " << rpcgasid_.layer() << std::endl;
+  std::cout << "SubSector = " << rpcgasid_.subsector() << std::endl;
+  std::cout << std::setw(100) << std::setfill('-') << std::endl;
+  std::cout << "ok" << std::endl;
+  RPCCompDetId check(rpcgasid_.rawId());
+  std::cout << check << " rawid = " << check.rawId() << std::endl;
+  std::cout << "Region = " << check.region() << std::endl;
+  std::cout << "Ring or Wheel = " << check.ring() << " - Wheel = " << check.wheel() << std::endl;
+  std::cout << "Station or Disk = " << check.station() << " - Disk = " << check.disk() << std::endl;
+  std::cout << "Sector = " << check.sector() << std::endl;
+  std::cout << "Layer = " << check.layer() << std::endl;
+  std::cout << "SubSector = " << check.subsector() << std::endl;
 }
 
 void testRPCDetId::testFail() {

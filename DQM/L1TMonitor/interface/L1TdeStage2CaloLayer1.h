@@ -19,14 +19,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-class L1TdeStage2CaloLayer1 : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class L1TdeStage2CaloLayer1 : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   L1TdeStage2CaloLayer1(const edm::ParameterSet &ps);
   ~L1TdeStage2CaloLayer1() override;

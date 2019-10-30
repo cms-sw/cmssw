@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiModule.h"
 
@@ -41,10 +41,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
-
-class SiPixelDigiSource : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class SiPixelDigiSource : public DQMOneLumiEDAnalyzer<> {
 public:
   explicit SiPixelDigiSource(const edm::ParameterSet& conf);
   ~SiPixelDigiSource() override;
@@ -55,8 +54,8 @@ public:
   void dqmBeginRun(const edm::Run&, edm::EventSetup const&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   virtual void buildStructure(edm::EventSetup const&);
   virtual void bookMEs(DQMStore::IBooker&, const edm::EventSetup& iSetup);

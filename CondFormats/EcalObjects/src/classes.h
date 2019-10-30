@@ -1,4 +1,3 @@
-#include <boost/cstdint.hpp>
 
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 #include "CondFormats/EcalObjects/interface/EcalCondTowerObjectContainer.h"
@@ -65,6 +64,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
 #include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
+#include <cstdint>
 
 namespace CondFormats_EcalObjects {
   struct dictionary {

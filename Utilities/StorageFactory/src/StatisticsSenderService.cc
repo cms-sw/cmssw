@@ -143,9 +143,9 @@ StatisticsSenderService::StatisticsSenderService(edm::ParameterSet const & /*pse
 }
 
 const char *StatisticsSenderService::getJobID() {
-  const char *id = getenv(JOB_UNIQUE_ID_ENV);
+  const char *id = std::getenv(JOB_UNIQUE_ID_ENV);
   // Dashboard developers requested that we migrate to this environment variable.
-  return id ? id : getenv(JOB_UNIQUE_ID_ENV_V2);
+  return id ? id : std::getenv(JOB_UNIQUE_ID_ENV_V2);
 }
 
 void StatisticsSenderService::setCurrentServer(const std::string &servername) {
@@ -373,7 +373,7 @@ static bool getX509SubjectFromFile(const std::string &filename, std::string &res
 }
 
 bool StatisticsSenderService::getX509Subject(std::string &result) {
-  char *filename = getenv("X509_USER_PROXY");
+  char *filename = std::getenv("X509_USER_PROXY");
   if (filename && getX509SubjectFromFile(filename, result)) {
     return true;
   }

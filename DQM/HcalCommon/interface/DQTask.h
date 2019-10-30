@@ -14,7 +14,7 @@
 
 namespace hcaldqm {
   enum UpdateFreq { fEvent = 0, f1LS = 1, f10LS = 2, f50LS = 3, f100LS = 4, nUpdateFreq = 5 };
-  class DQTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements>, public DQModule {
+  class DQTask : public DQMOneLumiEDAnalyzer<>, public DQModule {
   public:
     //	constructor
     DQTask(edm::ParameterSet const &);
@@ -24,8 +24,8 @@ namespace hcaldqm {
     void analyze(edm::Event const &, edm::EventSetup const &) override;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-    void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
-    void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
+    void dqmBeginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
+    void dqmEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
   protected:
     // protected funcs

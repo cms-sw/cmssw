@@ -7,15 +7,11 @@
     <debug_includes/>
     <debug_volumes/>
     <debug_constants/>
-    <!-- debug_materials/ -->
     <debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
-
-<!-- 
     <debug_materials/>
     <debug_visattr/>
--->
   </debug>
   
   <open_geometry/>
@@ -31,17 +27,15 @@
   </ConstantsSection>
 
   <IncludeSection>
-    <!-- Include ref="Geometry/CMSCommonData/materials.xml"/ -->
-    <Include ref="DetectorDescription/DDCMS/data/trackerParameters.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/testMaterials.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/testLogicalParts.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/testRotations.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/testSolids.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/testPosParts.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/testAlgorithm.xml"/>
-    <Include ref="DetectorDescription/DDCMS/data/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2015/v1/materials.xml"/>
   </IncludeSection>
-  
   <PosPartSection label="">
     <PosPart copyNumber="2">
       <rParent name=":world_volume"/>

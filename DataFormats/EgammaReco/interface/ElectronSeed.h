@@ -111,22 +111,6 @@ namespace reco {
     int layerOrDiskNr(size_t hitNr) const { return getVal(hitNr, &PMVars::layerOrDiskNr); }
     int nrLayersAlongTraj() const { return nrLayersAlongTraj_; }
 
-    //redundant, backwards compatible function names
-    //to be cleaned up asap
-    //no new code should use them
-    //they were created as time is short and there is less risk having
-    //the functions here rather than adapting all the function call to them in other
-    //CMSSW code
-    float dPhi1() const { return dPhiNeg(0); }
-    float dPhi1Pos() const { return dPhiPos(0); }
-    float dPhi2() const { return dPhiNeg(1); }
-    float dPhi2Pos() const { return dPhiPos(1); }
-    float dRz1() const { return dRZNeg(0); }
-    float dRz1Pos() const { return dRZPos(0); }
-    float dRz2() const { return dRZNeg(1); }
-    float dRz2Pos() const { return dRZPos(1); }
-    int subDet1() const { return subDet(0); }
-    int subDet2() const { return subDet(1); }
     unsigned int hitsMask() const;
     void initTwoHitSeed(const unsigned char hitMask);
     void setNegAttributes(const float dRZ2 = std::numeric_limits<float>::infinity(),

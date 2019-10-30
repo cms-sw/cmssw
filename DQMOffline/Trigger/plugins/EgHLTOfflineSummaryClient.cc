@@ -22,9 +22,6 @@ EgHLTOfflineSummaryClient::EgHLTOfflineSummaryClient(const edm::ParameterSet& iC
     edm::LogError("EgHLTOfflineSummaryClient")
         << "unable to get DQMStore service, no summary histograms will be produced";
   } else {
-    if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
-      dbe_->setVerbose(0);
-    }
     dbe_->setCurrentFolder(dirName_);
   }
 

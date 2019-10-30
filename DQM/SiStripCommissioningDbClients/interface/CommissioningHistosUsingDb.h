@@ -6,9 +6,9 @@
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "boost/range/iterator_range.hpp"
-#include <boost/cstdint.hpp>
 #include <string>
 #include <map>
+#include <cstdint>
 
 class SiStripConfigDb;
 class SiStripFedCabling;

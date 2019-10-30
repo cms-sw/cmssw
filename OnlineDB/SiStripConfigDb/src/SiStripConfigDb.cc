@@ -259,8 +259,8 @@ void SiStripConfigDb::usingDatabase() {
   // Check TNS_ADMIN environmental variable
   std::string pattern = "TNS_ADMIN";
   std::string tns_admin = "/afs/cern.ch/project/oracle/admin";
-  if (getenv(pattern.c_str()) != nullptr) {
-    tns_admin = getenv(pattern.c_str());
+  if (std::getenv(pattern.c_str()) != nullptr) {
+    tns_admin = std::getenv(pattern.c_str());
     edm::LogVerbatim(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]"
                                   << " TNS_ADMIN is set to: \"" << tns_admin << "\"";
   } else {
@@ -358,10 +358,10 @@ void SiStripConfigDb::usingDatabase() {
 
   // Retrieve partition name from ENV_CMS_TK_PARTITION env. var. and override .cfg value
   std::string partition = "ENV_CMS_TK_PARTITION";
-  if (getenv(partition.c_str()) != nullptr) {
+  if (std::getenv(partition.c_str()) != nullptr) {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " Setting \"partitions\" to \"" << getenv(partition.c_str())
+       << " Setting \"partitions\" to \"" << std::getenv(partition.c_str())
        << "\" using 'ENV_CMS_TK_PARTITION' environmental variable";
     if (!dbParams_.partitionNames().empty()) {
       ss << " (Overwriting existing value of \"" << dbParams_.partitionNames(dbParams_.partitionNames())
@@ -370,7 +370,7 @@ void SiStripConfigDb::usingDatabase() {
     edm::LogVerbatim(mlConfigDb_) << ss.str() << std::endl;
 
     // Build partitions from env. var.
-    std::vector<std::string> partitions = dbParams_.partitionNames(getenv(partition.c_str()));
+    std::vector<std::string> partitions = dbParams_.partitionNames(std::getenv(partition.c_str()));
     if (!partitions.empty()) {
       dbParams_.clearPartitions();
       std::vector<std::string>::iterator ii = partitions.begin();

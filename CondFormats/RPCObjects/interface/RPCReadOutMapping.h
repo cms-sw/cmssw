@@ -12,11 +12,11 @@
 #include <vector>
 #include <utility>
 #include <string>
-#include <boost/cstdint.hpp>
 
 #include "CondFormats/RPCObjects/interface/DccSpec.h"
 #include "CondFormats/RPCObjects/interface/LinkBoardElectronicIndex.h"
 #include "CondFormats/RPCObjects/interface/LinkBoardPackedStrip.h"
+#include <cstdint>
 class LinkBoardSpec;
 
 class RPCReadOutMapping {

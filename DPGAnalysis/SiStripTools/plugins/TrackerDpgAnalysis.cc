@@ -58,7 +58,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <Geometry/CommonTopologies/interface/Topology.h>
 #include <Geometry/CommonTopologies/interface/StripTopology.h>
-#include <Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h>
 #include <Geometry/CommonTopologies/interface/PixelTopology.h>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -1445,7 +1445,9 @@ std::string TrackerDpgAnalysis::toStringName(uint32_t rawid, const TrackerTopolo
       }
       break;
     }
-    default: { output << "UNKNOWN"; }
+    default: {
+      output << "UNKNOWN";
+    }
   }
   out = output.str();
   return out;

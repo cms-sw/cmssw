@@ -32,7 +32,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/SiPixelMonitorRawData/interface/SiPixelRawDataErrorModule.h"
@@ -47,10 +47,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <cstdint>
 
-#include <boost/cstdint.hpp>
-
-class SiPixelRawDataErrorSource : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class SiPixelRawDataErrorSource : public DQMOneLumiEDAnalyzer<> {
 public:
   explicit SiPixelRawDataErrorSource(const edm::ParameterSet &conf);
   ~SiPixelRawDataErrorSource() override;

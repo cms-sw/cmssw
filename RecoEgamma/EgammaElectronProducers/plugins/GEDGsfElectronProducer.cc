@@ -27,7 +27,7 @@
 using namespace reco;
 
 GEDGsfElectronProducer::GEDGsfElectronProducer(const edm::ParameterSet& cfg,
-                                               const gsfAlgoHelpers::HeavyObjectCache* hoc)
+                                               const GsfElectronAlgo::HeavyObjectCache* hoc)
     : GsfElectronBaseProducer(cfg, hoc),
       egmPFCandidateCollection_(
           consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("egmPFCandidatesTag"))) {
@@ -126,7 +126,7 @@ void GEDGsfElectronProducer::matchWithPFCandidates(edm::Event& event) {
 }
 
 void GEDGsfElectronProducer::setMVAOutputs(reco::GsfElectronCollection& electrons,
-                                           const gsfAlgoHelpers::HeavyObjectCache* hoc,
+                                           const GsfElectronAlgo::HeavyObjectCache* hoc,
                                            const std::map<reco::GsfTrackRef, reco::GsfElectron::MvaOutput>& mvaOutputs,
                                            reco::VertexCollection const& vertices) const {
   for (auto el = electrons.begin(); el != electrons.end(); el++) {

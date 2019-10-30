@@ -3,7 +3,7 @@
 // Description: Geometry factory class for HGCal (Mix)
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -26,7 +26,7 @@
 #include <vector>
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
+using namespace cms_units::operators;
 
 class DDHGCalHEAlgo : public DDAlgorithm {
 public:
@@ -543,9 +543,9 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog,
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
   std::vector<int> ntype(6, 0);
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog.ddname() << " rout " << rout << " N " << N
-                                << " for maximum u, v Offset; Shift " << xyoff.first << ":" << xyoff.second
-                                << " WaferSize " << (waferSize_ + waferSepar_);
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog.ddname() << " rin:rout " << rin << ":" << rout << " zpos "
+                                << zpos << " N " << N << " for maximum u, v Offset; Shift " << xyoff.first << ":"
+                                << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_);
 #endif
   for (int u = -N; u <= N; ++u) {
     int iu = std::abs(u);

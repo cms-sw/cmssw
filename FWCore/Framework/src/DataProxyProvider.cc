@@ -13,6 +13,7 @@
 // system include files
 #include <algorithm>
 #include <cassert>
+#include <cstring>
 #include <limits>
 
 // user include files
@@ -40,7 +41,8 @@ namespace edm {
       return dataProxyContainer_->perRecordInfos_[recordIndex_].recordKey_;
     }
 
-    void DataProxyProvider::KeyedProxies::insert(std::vector<std::pair<DataKey, std::shared_ptr<DataProxy>>>&& proxies) {
+    void DataProxyProvider::KeyedProxies::insert(std::vector<std::pair<DataKey, std::shared_ptr<DataProxy>>>&& proxies,
+                                                 std::string const& appendToDataLabel) {
       PerRecordInfo& perRecordInfo = dataProxyContainer_->perRecordInfos_[recordIndex_];
       if (perRecordInfo.indexToDataKeys_ == kInvalidIndex) {
         perRecordInfo.nDataKeys_ = proxies.size();
@@ -52,7 +54,15 @@ namespace edm {
         assert(perRecordInfo.nDataKeys_ == proxies.size());
         unsigned index = 0;
         for (auto const& it : proxies) {
-          assert(it.first == dataProxyContainer_->dataKeys_[perRecordInfo.indexToDataKeys_ + index]);
+          if (appendToDataLabel.empty()) {
+            assert(it.first == dataProxyContainer_->dataKeys_[perRecordInfo.indexToDataKeys_ + index]);
+          } else {
+            assert(it.first.type() == dataProxyContainer_->dataKeys_[perRecordInfo.indexToDataKeys_ + index].type());
+            auto lengthDataLabel = std::strlen(it.first.name().value());
+            assert(std::strncmp(it.first.name().value(),
+                                dataProxyContainer_->dataKeys_[perRecordInfo.indexToDataKeys_ + index].name().value(),
+                                lengthDataLabel) == 0);
+          }
           ++index;
         }
       }
@@ -186,7 +196,7 @@ namespace edm {
         //delayed registration
         std::vector<std::pair<DataKey, std::shared_ptr<DataProxy>>> keyedProxiesVector =
             registerProxies(iRecordKey, iovIndex);
-        keyedProxies.insert(std::move(keyedProxiesVector));
+        keyedProxies.insert(std::move(keyedProxiesVector), appendToDataLabel_);
 
         bool mustChangeLabels = (!appendToDataLabel_.empty());
         for (auto keyedProxy : keyedProxies) {

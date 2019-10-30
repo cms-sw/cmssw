@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("HcalParametersTest")
+process = cms.Process("HcalSimNumberingTest")
 
 #process.load('Geometry.HcalCommonData.testPhase1GeometryXML_cfi')
-#process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cfi')
-#process.load('Geometry.HcalCommonData.hcalParameters_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D41_cff')
+#process.load('Geometry.HcalCommonData.hcalSimulationParameters_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:

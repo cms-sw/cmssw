@@ -39,6 +39,17 @@
 using namespace edm;
 using namespace reco;
 
+GsfElectronAlgo::HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& conf) {
+  // soft electron MVA
+  SoftElectronMVAEstimator::Configuration sconfig;
+  sconfig.vweightsfiles = conf.getParameter<std::vector<std::string> >("SoftElecMVAFilesString");
+  sElectronMVAEstimator.reset(new SoftElectronMVAEstimator(sconfig));
+  // isolated electron MVA
+  ElectronMVAEstimator::Configuration iconfig;
+  iconfig.vweightsfiles = conf.getParameter<std::vector<std::string> >("ElecMVAFilesString");
+  iElectronMVAEstimator.reset(new ElectronMVAEstimator(iconfig));
+}
+
 GsfElectronAlgo::EventSetupData::EventSetupData()
     : cacheIDGeom(0),
       cacheIDTopo(0),
@@ -489,7 +500,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event) 
 void GsfElectronAlgo::completeElectrons(reco::GsfElectronCollection& electrons,
                                         edm::Event const& event,
                                         edm::EventSetup const& eventSetup,
-                                        const gsfAlgoHelpers::HeavyObjectCache* hoc) {
+                                        const GsfElectronAlgo::HeavyObjectCache* hoc) {
   checkSetup(eventSetup);
   auto eventData = beginEvent(event);
 
@@ -628,7 +639,7 @@ void GsfElectronAlgo::setCutBasedPreselectionFlag(GsfElectron& ele, const reco::
     if (elseed.isNull()) {
       throw cms::Exception("GsfElectronAlgo|NotElectronSeed") << "The GsfTrack seed is not an ElectronSeed ?!";
     } else {
-      if (elseed->subDet2() == 6)
+      if (elseed->subDet(1) == 6)
         return;
     }
   }
@@ -645,7 +656,7 @@ void GsfElectronAlgo::setCutBasedPreselectionFlag(GsfElectron& ele, const reco::
 void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                                      ElectronData& electronData,
                                      EventData& eventData,
-                                     const gsfAlgoHelpers::HeavyObjectCache* hoc) {
+                                     const GsfElectronAlgo::HeavyObjectCache* hoc) {
   // eventually check ctf track
   if (generalData_.strategyCfg.ctfTracksCheck && electronData.ctfTrackRef.isNull()) {
     electronData.ctfTrackRef =
@@ -976,12 +987,12 @@ void GsfElectronAlgo::setPixelMatchInfomation(reco::GsfElectron& ele) {
   } else {
     if (elseed.isNull()) {
     } else {
-      sd1 = elseed->subDet1();
-      sd2 = elseed->subDet2();
-      dPhi1 = (ele.charge() > 0) ? elseed->dPhi1Pos() : elseed->dPhi1();
-      dPhi2 = (ele.charge() > 0) ? elseed->dPhi2Pos() : elseed->dPhi2();
-      dRz1 = (ele.charge() > 0) ? elseed->dRz1Pos() : elseed->dRz1();
-      dRz2 = (ele.charge() > 0) ? elseed->dRz2Pos() : elseed->dRz2();
+      sd1 = elseed->subDet(0);
+      sd2 = elseed->subDet(1);
+      dPhi1 = (ele.charge() > 0) ? elseed->dPhiPos(0) : elseed->dPhiNeg(0);
+      dPhi2 = (ele.charge() > 0) ? elseed->dPhiPos(1) : elseed->dPhiNeg(1);
+      dRz1 = (ele.charge() > 0) ? elseed->dRZPos(0) : elseed->dRZNeg(0);
+      dRz2 = (ele.charge() > 0) ? elseed->dRZPos(1) : elseed->dRZNeg(1);
     }
   }
   ele.setPixelMatchSubdetectors(sd1, sd2);
