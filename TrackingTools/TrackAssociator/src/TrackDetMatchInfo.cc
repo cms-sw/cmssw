@@ -329,7 +329,8 @@ DetId TrackDetMatchInfo::findMaxDeposition(EnergyType type) {
     } break;
     case TowerTotal:
     case TowerEcal:
-    case TowerHcal: {
+    case TowerHcal:
+    case TowerHO: {
       for (std::vector<const CaloTower*>::const_iterator hit = towers.begin(); hit != towers.end(); hit++) {
         double energy = 0;
         switch (type) {
