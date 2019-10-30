@@ -36,7 +36,6 @@
 #include <sys/time.h>
 #include <tbb/spin_mutex.h>
 
-class QCriterion;
 class DQMService;
 namespace dqm::dqmstoreimpl {
   class DQMStore;
@@ -323,9 +322,6 @@ namespace dqm::impl {
     /// from last set of quality tests
     std::vector<QReport *> getQOthers() const;
 
-    /// run all quality tests
-    void runQTests();
-
     // const and data-independent -- safe
     virtual int getNbinsX() const;
     virtual int getNbinsY() const;
@@ -431,8 +427,7 @@ namespace dqm::impl {
 
     // --- Operations on MEs that are normally reset at end of monitoring cycle ---
     void getQReport(bool create, const std::string &qtname, QReport *&qr, DQMNet::QValue *&qv);
-    void addQReport(const DQMNet::QValue &desc, QCriterion *qc);
-    void addQReport(QCriterion *qc);
+    void addQReport(const DQMNet::QValue &desc);
     void updateQReportStats();
 
   public:

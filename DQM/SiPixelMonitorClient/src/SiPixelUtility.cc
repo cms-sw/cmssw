@@ -164,28 +164,6 @@ int SiPixelUtility::computeErrorCode(int status) {
   return code;
 }
 
-int SiPixelUtility::computeErrorCode(DQMStore *bei, string &module_path) {
-  int status = bei->getStatus(module_path);
-
-  int code = -1;
-  switch (status) {
-    case dqm::qstatus::STATUS_OK:
-      code = 0;
-      break;
-    case dqm::qstatus::INSUF_STAT:
-      code = 1;
-      break;
-    case dqm::qstatus::WARNING:
-      code = 2;
-      break;
-    case dqm::qstatus::ERROR:
-      code = 3;
-      break;
-  }  // end of switch
-
-  return code;
-}
-
 int SiPixelUtility::computeHistoBin(string &module_path) {
   int module_bin = 0;
 
