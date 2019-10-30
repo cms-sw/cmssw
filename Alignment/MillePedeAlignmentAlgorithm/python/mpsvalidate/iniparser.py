@@ -5,7 +5,7 @@
 # parseParameter will override the config values.
 ##
 
-import ConfigParser
+import configparser as ConfigParser
 import logging
 import os
 
