@@ -81,7 +81,7 @@ public:
     bool pureTrackerDrivenEcalErrorFromSimpleParameterization;
     // ambiguity solving
     bool applyAmbResolution;              // if not true, ambiguity solving is not applied
-    unsigned ambSortingStrategy;          // 0:isBetter, 1:isInnerMost
+    unsigned ambSortingStrategy;          // 0:isBetter, 1:isInnermost
     unsigned ambClustersOverlapStrategy;  // 0:sc adresses, 1:bc shared energy
     // if true, trackerDriven electrons are added
     bool addPflowElectrons;

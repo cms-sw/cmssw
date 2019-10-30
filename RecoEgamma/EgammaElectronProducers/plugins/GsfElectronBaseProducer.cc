@@ -464,7 +464,7 @@ void GsfElectronBaseProducer::setAmbiguityData(reco::GsfElectronCollection& elec
   if (strategyCfg_.ambSortingStrategy == 0) {
     std::sort(electrons.begin(), electrons.end(), egamma::isBetterElectron);
   } else if (strategyCfg_.ambSortingStrategy == 1) {
-    std::sort(electrons.begin(), electrons.end(), egamma::isInnerMostElectron);
+    std::sort(electrons.begin(), electrons.end(), egamma::isInnermostElectron);
   } else {
     throw cms::Exception("GsfElectronAlgo|UnknownAmbiguitySortingStrategy")
         << "value of strategyCfg_.ambSortingStrategy is : " << strategyCfg_.ambSortingStrategy;

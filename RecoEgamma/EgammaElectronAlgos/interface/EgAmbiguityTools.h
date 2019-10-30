@@ -24,7 +24,7 @@ namespace egamma {
 
   // electrons comparison
   bool isBetterElectron(reco::GsfElectron const&, reco::GsfElectron const&);
-  bool isInnerMostElectron(reco::GsfElectron const&, reco::GsfElectron const&);
+  bool isInnermostElectron(reco::GsfElectron const&, reco::GsfElectron const&);
 
 }  // namespace egamma
 
