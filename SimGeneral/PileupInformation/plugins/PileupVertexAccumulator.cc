@@ -63,7 +63,7 @@
 
 namespace cms {
   PileupVertexAccumulator::PileupVertexAccumulator(const edm::ParameterSet& iConfig,
-                                                   edm::ProducerBase& mixMod,
+                                                   edm::ProducesCollector producesCollector,
                                                    edm::ConsumesCollector& iC)
       : Mtag_(iConfig.getParameter<edm::InputTag>("vtxTag")),
         fallbackMtag_(iConfig.getParameter<edm::InputTag>("vtxFallbackTag")),
@@ -72,7 +72,7 @@ namespace cms {
 
     const std::string alias("PileupVertexAccum");
 
-    mixMod.produces<PileupVertexContent>().setBranchAlias(alias);
+    producesCollector.produces<PileupVertexContent>().setBranchAlias(alias);
 
     iC.consumes<edm::HepMCProduct>(Mtag_);
     iC.mayConsume<edm::HepMCProduct>(fallbackMtag_);

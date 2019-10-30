@@ -8,6 +8,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 
 #include <sstream>
 
@@ -100,4 +101,7 @@ namespace edm {
       }
     }
   }
+
+  ProducesCollector ProducerBase::producesCollector() { return ProducesCollector{this}; }
+
 }  // namespace edm
