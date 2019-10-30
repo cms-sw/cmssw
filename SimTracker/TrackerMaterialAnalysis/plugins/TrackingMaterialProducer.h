@@ -65,7 +65,7 @@ private:
   TProfile* radLen_vs_eta_;
   bool isHGCal;
   bool isHFNose;
-  std::ofstream outVolumeZpositionTxt; 
+  std::ofstream outVolumeZpositionTxt;
 };
 
 #endif  // TrackingMaterialProducer_h

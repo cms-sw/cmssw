@@ -35,7 +35,7 @@ MaterialAccountingGroup::MaterialAccountingGroup(const std::string& name, const 
     namevalue = DDValue("TrackingMaterialGroup", name);
   } else if (TString(name.c_str()).Contains("HGCal")) {
     namevalue = DDValue("Volume", name);
-  } else if ( TString(name.c_str()).Contains( "HFNose")) {
+  } else if (TString(name.c_str()).Contains("HFNose")) {
     namevalue = DDValue("Volume", name);
   } else {
     LogTrace("MaterialAccountingGroup") << name << std::endl;
