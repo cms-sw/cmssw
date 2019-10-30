@@ -89,6 +89,10 @@ public:
 
   virtual ~QCriterion() = default;
 
+  /// default "probability" values for setting warnings & errors when running tests
+  static const float WARNING_PROB_THRESHOLD;
+  static const float ERROR_PROB_THRESHOLD;
+
 protected:
   virtual float runTest(const MonitorElement *me);
   /// set algorithm name
@@ -137,10 +141,6 @@ protected:
   int verbose_;
 
 private:
-  /// default "probability" values for setting warnings & errors when running tests
-  static const float WARNING_PROB_THRESHOLD;
-  static const float ERROR_PROB_THRESHOLD;
-
   /// for creating and deleting class instances
   friend class dqm::impl::DQMStore;
   /// for running the test
