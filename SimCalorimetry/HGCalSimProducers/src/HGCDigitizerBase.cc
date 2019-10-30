@@ -33,9 +33,10 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps)
     const auto& noises =
         myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::vector<double>>("values");
     noise_fC_ = std::vector<float>(noises.begin(), noises.end());
-    scaleByDose_ = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<bool>("scaleByDose");
-    doseMapFile_ = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::string>("doseMap");
-    scal_.setDoseMap(doseMapFile_);
+    scaleByDose_        = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<bool>("scaleByDose");
+    int scaleByDoseAlgo = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<uint32_t>("scaleByDoseAlgo");
+    doseMapFile_        = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::string>("doseMap");
+    scal_.setDoseMap(doseMapFile_,scaleByDoseAlgo);
   } else {
     noise_fC_.resize(1, 1.f);
   }
@@ -115,20 +116,25 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     }
     //set the noise,cce, LSB and threshold to be used
     float cce(1.f), noiseWidth(0.f), lsbADC(-1.f), maxADC(-1.f);
+    // half the target mip value is the specification for ZS threshold
     uint32_t thrADC(std::floor(myFEelectronics_->getTargetMipValue() / 2));
+    uint32_t gainIdx = 0;
     if (scaleByDose_) {
       HGCSiliconDetId detId(id);
       HGCalSiNoiseMap::SiCellOpCharacteristics siop =
-          scal_.getSiCellOpCharacteristics(detId, HGCalSiNoiseMap::AUTO, false, myFEelectronics_->getTargetMipValue());
+          scal_.getSiCellOpCharacteristics(detId, HGCalSiNoiseMap::AUTO, myFEelectronics_->getTargetMipValue());
       cce = siop.cce;
       noiseWidth = siop.noise;
       lsbADC = scal_.getLSBPerGain()[(HGCalSiNoiseMap::GainRange_t)siop.gain];
       maxADC = scal_.getMaxADCPerGain()[(HGCalSiNoiseMap::GainRange_t)siop.gain];
+      gainIdx = siop.gain;
+
       if (thresholdFollowsMIP_)
         thrADC = siop.thrADC;
     } else if (noise_fC_[cell.thickness - 1] != 0) {
       //this is kept for legacy compatibility with the TDR simulation
       //probably should simply be removed in a future iteration
+      //note that in this legacy case, gainIdx is kept at 0, fixed
       cce = (cce_.empty() ? 1.f : cce_[cell.thickness - 1]);
       noiseWidth = cell.size * noise_fC_[cell.thickness - 1];
       thrADC =
@@ -161,7 +167,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     //run the shaper to create a new data frame
     DFr rawDataFrame(id);
     int thickness = cell.thickness > 0 ? cell.thickness : 1;
-    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, engine, thrADC, lsbADC, maxADC, thickness);
+    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, engine, thrADC, lsbADC, gainIdx, maxADC, thickness);
 
     //update the output according to the final shape
     updateOutput(coll, rawDataFrame);
