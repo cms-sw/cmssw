@@ -53,6 +53,9 @@ void MillePedeDQMModule ::bookHistograms(DQMStore::IBooker& booker) {
   h_zRot = booker.book1D("Zrot", "Alignment fit #Delta#theta_{Z};;#murad", 36, 0., 36.);
 
   statusResults = booker.book2D("statusResults", "Status of SiPixelAli PCL workflow;;", 6, 0., 6., 1, 0., 1.);
+  binariesAvalaible = booker.bookInt("BinariesFound");
+  exitCode = booker.bookString("PedeExitCode", "");
+
   booker.cd();
 }
 
@@ -66,12 +69,10 @@ void MillePedeDQMModule ::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter
   }
   fillExpertHistos();
   fillStatusHisto(statusResults);
+  binariesAvalaible->Fill(mpReader_->binariesAmount());
   auto theResults = mpReader_->getResults();
-
-  booker.cd();
-  booker.setCurrentFolder("AlCa.co/SiPixelAli/");
-  exitCodes. booker.bookString("PedeExitCode", theResults.getExitMessage());
-  booker.cd();
+  std::string exitCodeStr = theResults.getExitMessage();
+  exitCode->Fill(exitCodeStr);
 }
 
 //=============================================================================

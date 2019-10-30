@@ -85,7 +85,8 @@ private:  //===================================================================
   MonitorElement* h_zRot;
 
   MonitorElement* statusResults;
-  MonitorElement* exitCodes;
+  MonitorElement* binariesAvalaible;
+  MonitorElement* exitCode;
 };
 
 // define this as a plug-in

@@ -60,6 +60,7 @@ void MillePedeFileReader ::readMillePedeEndFile() {
     }
   } else {
     edm::LogError("MillePedeFileReader") << "Could not read millepede end-file.";
+    exitMessage_ = "no exit code found";
   }
 }
 
@@ -73,6 +74,7 @@ void MillePedeFileReader ::readMillePedeLogFile() {
 
     while (getline(logFile, line)) {
       std::string Nrec_string = "NREC =";
+      std::string Binaries_string = "C_binary";
 
       if (line.find(Nrec_string) != std::string::npos) {
         std::istringstream iss(line);
@@ -85,8 +87,11 @@ void MillePedeFileReader ::readMillePedeLogFile() {
           updateDB_ = false;
         }
       }
-    }
 
+      if (line.find(Binaries_string) != std::string::npos) {
+        binariesAmount_ += 1;
+      }
+    }
   } else {
     edm::LogError("MillePedeFileReader") << "Could not read millepede log-file.";
 
