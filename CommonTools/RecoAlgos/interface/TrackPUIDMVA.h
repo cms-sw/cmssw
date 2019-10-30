@@ -7,7 +7,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-#include "CommonTools/RecoAlgos/interface/MVAComputer.h"
+#include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
 
 class TrackPUIDMVA {
 public:
@@ -26,11 +26,11 @@ public:
                    edm::ValueMap<float>& etl_chi2s,
                    edm::ValueMap<float>& etl_time_chi2s,
                    edm::ValueMap<float>& tmtds,
-                   edm::ValueMap<float>& trk_lengths);
+                   edm::ValueMap<float>& trk_lengths) const;
 
 private:
-  MVAComputer::mva_variables vars_;
-  MVAComputer mva_;
+  std::vector<std::string> vars_, spec_vars_;
+  std::unique_ptr<TMVAEvaluator> mva_;
 };
 
 #endif

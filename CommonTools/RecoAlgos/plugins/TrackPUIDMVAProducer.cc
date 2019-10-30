@@ -12,8 +12,6 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include "CommonTools/RecoAlgos/interface/TrackPUIDMVA.h"
 
@@ -84,7 +82,7 @@ void TrackPUIDMVAProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD", "pathLength"))
       ->setComment("MTD PathLength value Map");
   desc.add<edm::FileInPath>("trackPUID_mtdQualBDT_weights_file",
-                            edm::FileInPath("CommonTools/RecoAlgos/data/clf4D_MTDquality_bo.xml"))
+                            edm::FileInPath("CommonTools/RecoAlgos/data/clf4D_MTDquality_bo.xml.gz"))
       ->setComment("Track PUID 4D BDT weights");
   descriptions.add("trackPUIDMVAProducer", desc);
 }

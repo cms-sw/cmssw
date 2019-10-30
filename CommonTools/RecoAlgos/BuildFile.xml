@@ -14,10 +14,8 @@
 <use   name="TrackingTools/Records"/>
 <use   name="TrackingTools/IPTools"/>
 <use   name="TrackingTools/TransientTrack"/>
+<use   name="CommonTools/MVAUtils"/>
 <use   name="fastjet"/>
-<use   name="root"/>
-<use   name="roottmva"/>
-
 
 <export>
   <lib   name="1"/>
