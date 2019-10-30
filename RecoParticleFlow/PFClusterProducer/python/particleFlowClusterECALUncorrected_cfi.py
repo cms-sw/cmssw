@@ -132,7 +132,7 @@ particleFlowClusterECALUncorrected = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitECAL"),
     recHitCleaners = cms.VPSet(),
-    flagCleaners = cms.VPSet(),
+    seedCleaners = cms.VPSet(_spikeAndDoubleSpikeCleaner_ECAL),
     seedFinder = _localMaxSeeds_ECAL,
     initialClusteringStep = _topoClusterizer_ECAL,
     pfClusterBuilder = _pfClusterizer_ECAL,
