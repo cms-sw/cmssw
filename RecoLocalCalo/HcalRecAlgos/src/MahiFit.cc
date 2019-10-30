@@ -545,7 +545,7 @@ void MahiFit::phase1Debug(const HBHEChannelInfo& channelData, MahiDebugInfo& mdi
       }
     } else if (nnlsWork_.bxs.coeff(iBX) == pedestalBX_) {
       mdi.pedEnergy = nnlsWork_.ampVec.coeff(iBX);
-    } else if (nnlsWork_.bxs.coeff(iBX)>=-3 && nnlsWork_.bxs.coeff(iBX) <= 4) {
+    } else if (nnlsWork_.bxs.coeff(iBX) >= -3 && nnlsWork_.bxs.coeff(iBX) <= 4) {
       int ootIndex = nnlsWork_.bxs.coeff(iBX);
       if (ootIndex > 0)
         ootIndex += 2;
