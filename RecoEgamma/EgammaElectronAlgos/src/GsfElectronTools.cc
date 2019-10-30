@@ -6,7 +6,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronTools.h"
 
-namespace electronAlgos {
+namespace egamma {
 
   using namespace reco;
 
@@ -98,4 +98,4 @@ namespace electronAlgos {
     return make_pair(ctfTrackRef, maxFracShared);
   }
 
-}  // namespace electronAlgos
+}  // namespace egamma

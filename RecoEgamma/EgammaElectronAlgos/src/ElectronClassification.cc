@@ -9,7 +9,7 @@
 
 using namespace reco;
 
-GsfElectron::Classification electronAlgos::classify(GsfElectron const& electron) {
+GsfElectron::Classification egamma::classifyElectron(GsfElectron const& electron) {
   if (!electron.isEB() && !electron.isEE()) {
     edm::LogWarning("") << "ElectronClassification::init(): Undefined electron, eta = " << electron.eta() << "!!!!";
     return GsfElectron::UNKNOWN;

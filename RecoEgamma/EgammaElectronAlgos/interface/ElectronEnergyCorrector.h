@@ -7,14 +7,14 @@
 
 class EcalClusterFunctionBaseClass;
 
-namespace electronAlgos {
+namespace egamma {
 
-  float classBasedParameterizationEnergy(reco::GsfElectron const &,
-                                         reco::BeamSpot const &,
-                                         EcalClusterFunctionBaseClass const &crackCorrectionFunction);
-  double classBasedParameterizationUncertainty(reco::GsfElectron const &);
-  double simpleParameterizationUncertainty(reco::GsfElectron const &);
+  float classBasedElectronEnergy(reco::GsfElectron const &,
+                                 reco::BeamSpot const &,
+                                 EcalClusterFunctionBaseClass const &crackCorrectionFunction);
+  double classBasedElectronEnergyUncertainty(reco::GsfElectron const &);
+  double simpleElectronEnergyUncertainty(reco::GsfElectron const &);
 
-}  // namespace electronAlgos
+}  // namespace egamma
 
 #endif

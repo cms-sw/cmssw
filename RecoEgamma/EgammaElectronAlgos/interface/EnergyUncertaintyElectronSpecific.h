@@ -9,9 +9,9 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-namespace electronAlgos {
+namespace egamma {
 
-  double computeEnergyUncertainty(reco::GsfElectron::Classification c, double eta, double brem, double energy);
+  double electronEnergyUncertainty(reco::GsfElectron::Classification c, double eta, double brem, double energy);
 
 }
 

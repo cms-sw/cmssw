@@ -268,14 +268,14 @@ namespace {
 
 }  // namespace
 
-double electronAlgos::classBasedParameterizationUncertainty(reco::GsfElectron const& electron) {
+double egamma::classBasedElectronEnergyUncertainty(reco::GsfElectron const& electron) {
   double ecalEnergy = electron.correctedEcalEnergy();
   double eleEta = electron.superCluster()->eta();
   double brem = electron.superCluster()->etaWidth() / electron.superCluster()->phiWidth();
-  return electronAlgos::computeEnergyUncertainty(electron.classification(), eleEta, brem, ecalEnergy);
+  return egamma::electronEnergyUncertainty(electron.classification(), eleEta, brem, ecalEnergy);
 }
 
-double electronAlgos::simpleParameterizationUncertainty(reco::GsfElectron const& electron) {
+double egamma::simpleElectronEnergyUncertainty(reco::GsfElectron const& electron) {
   double error = 999.;
   double ecalEnergy = electron.correctedEcalEnergy();
 
@@ -293,9 +293,9 @@ double electronAlgos::simpleParameterizationUncertainty(reco::GsfElectron const&
   return error;
 }
 
-float electronAlgos::classBasedParameterizationEnergy(reco::GsfElectron const& electron,
-                                                      reco::BeamSpot const& bs,
-                                                      EcalClusterFunctionBaseClass const& crackCorrectionFunction) {
+float egamma::classBasedElectronEnergy(reco::GsfElectron const& electron,
+                                       reco::BeamSpot const& bs,
+                                       EcalClusterFunctionBaseClass const& crackCorrectionFunction) {
   auto elClass = electron.classification();
 
   // new corrections from N. Chanon et al., taken from EcalClusterCorrectionObjectSpecific.cc
