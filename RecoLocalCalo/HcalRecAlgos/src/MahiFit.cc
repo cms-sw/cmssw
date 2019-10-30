@@ -547,15 +547,15 @@ void MahiFit::phase1Debug(const HBHEChannelInfo& channelData, MahiDebugInfo& mdi
       }
     } else if (nnlsWork_.bxs.coeff(iBX) == pedestalBX_) {
       mdi.pedEnergy = nnlsWork_.ampVec.coeff(iBX);
-    } else if (nnlsWork_.bxs.coeff(iBX) == -1) {
-      mdi.pEnergy = nnlsWork_.ampVec.coeff(iBX);
+    } else if (nnlsWork_.bxs.coeff(iBX)>=-3 && nnlsWork_.bxs.coeff(iBX) <= 4) {
+      int ootIndex = nnlsWork_.bxs.coeff(iBX);
+      if (ootIndex > 0)
+        ootIndex += 2;
+      else
+        ootIndex += 3;
+      mdi.ootEnergy[ootIndex] = nnlsWork_.ampVec.coeff(iBX);
       for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
-        mdi.pPulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
-      }
-    } else if (nnlsWork_.bxs.coeff(iBX) == 1) {
-      mdi.nEnergy = nnlsWork_.ampVec.coeff(iBX);
-      for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
-        mdi.nPulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
+        mdi.ootPulse[ootIndex][iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
       }
     }
   }
