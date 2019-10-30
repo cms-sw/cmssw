@@ -57,8 +57,8 @@ private:
   //Member data
   edm::EDGetTokenT<reco::GenParticleCollection> token_;
   edm::EDGetTokenT<reco::GenJetCollection> token2_;
-  double muPtCut_, muEtaCut_, tauPtCut_, tauEtaCut_, elPtCut_, elEtaCut_, gammaPtCut_, gammaEtaCut_, loosemuPtCut_, looseelPtCut_,
-      loosegammaPtCut_, veryloosegammaPtCut_, jetPtCut_, jetEtaCut_, genHTcut_;
+  double muPtCut_, muEtaCut_, tauPtCut_, tauEtaCut_, elPtCut_, elEtaCut_, gammaPtCut_, gammaEtaCut_, loosemuPtCut_,
+      looseelPtCut_, loosegammaPtCut_, veryloosegammaPtCut_, jetPtCut_, jetEtaCut_, genHTcut_;
 };
 
 //Constructor
