@@ -1,8 +1,10 @@
 from __future__ import absolute_import
 from .MatrixUtil import *
+import six
 
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
+from .upgradeWorkflowComponents import step3_trackingOnly
 
 concurrentLumis = {'--nStreams':         4,
                    '--nConcurrentLumis': 2,
@@ -2108,32 +2110,13 @@ step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                   '--era'          :'Run2_2016'
                   }
 
-step3_trackingOnly = {
-    '-s': 'RAW2DIGI,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM',
-    '--datatier':'GEN-SIM-RECO,DQMIO',
-    '--eventcontent':'RECOSIM,DQM',
-}
-step3_pixelTrackingOnly = {
-    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
-    '--datatier': 'GEN-SIM-RECO,DQMIO',
-    '--eventcontent': 'RECOSIM,DQM',
-}
 step3_trackingLowPU = {
     '--era': 'Run2_2016_trackingLowPU'
-}
-step3_trackingMkFit = {
-    '--customise': 'RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepToMkFit'
 }
 step3_HIPM = {
     '--era': 'Run2_2016_HIPM'
 }
 step3Up2015Defaults_trackingOnly = merge([step3_trackingOnly, remove(step3Up2015Defaults, "--runUnscheduled")])
-step3_TICLOnly = {
-    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations'
-}
-step3_TICLFullReco = {
-    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations_withReco'
-}
 
 # mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
 #unSchOverrides={'--runUnscheduled':'','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM','--eventcontent':'RECOSIM,MINIAODSIM,DQM','--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO'}
@@ -3105,16 +3088,8 @@ for ds in defaultDataSets:
 
 
 upgradeStepDict={}
-for stepType in upgradeSteps.keys():
-    for step in upgradeSteps[stepType]['steps']:
-        stepName = step+upgradeSteps[stepType]['suffix']
-        upgradeStepDict[stepName]={}
-    for step in upgradeSteps[stepType]['PU']:
-        stepName = step+'PU'+upgradeSteps[stepType]['suffix']
-        upgradeStepDict[stepName]={}
-        stepNamePmx = step+'PUPRMX'+upgradeSteps[stepType]['suffix']
-        upgradeStepDict[stepNamePmx]={}
-        upgradeStepDict[stepNamePmx+'Combined']={}
+for specialType,specialWF in six.iteritems(upgradeWFs):
+	specialWF.init(upgradeStepDict)
 
 # just make all combinations - yes, some will be nonsense.. but then these are not used unless specified above
 # collapse upgradeKeys using list comprehension
@@ -3125,8 +3100,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     geom=upgradeProperties[year][k]['Geom']
     gt=upgradeProperties[year][k]['GT']
     hltversion=upgradeProperties[year][k].get('HLTmenu')
-    cust=upgradeProperties[year][k].get('Custom', None)
-    era=upgradeProperties[year][k].get('Era', None)
     beamspot=upgradeProperties[year][k].get('BeamSpot', None)
 
     # setup baseline steps
@@ -3249,87 +3222,13 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--datatier':'NANOAODSIM',
                                       '-n':'10',
                                       '--eventcontent':'NANOEDMAODSIM',
-				      '--filein':'file:step3_inMINIAODSIM.root',
+                                      '--filein':'file:step3_inMINIAODSIM.root',
                                       '--geometry' : geom
                                       }
 
-
-    # setup baseline customizations and PU
-    for step in upgradeSteps['baseline']['steps']:
-        if cust is not None: upgradeStepDict[step][k]['--customise']=cust
-        if era is not None: upgradeStepDict[step][k]['--era']=era
-
-    # setup variations (manually)
-
-    for step in upgradeSteps['trackingOnly']['steps']:
-        stepName = step + upgradeSteps['trackingOnly']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_trackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['pixelTrackingOnly']['steps']:
-        stepName = step + upgradeSteps['pixelTrackingOnly']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_pixelTrackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['trackingRun2']['steps']:
-        stepName = step + upgradeSteps['trackingRun2']['suffix']
-        if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
-            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['trackingOnlyRun2']['steps']:
-        stepName = step + upgradeSteps['trackingOnlyRun2']['suffix']
-        if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
-            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, step3_trackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['trackingLowPU']['steps']:
-        stepName = step + upgradeSteps['trackingLowPU']['suffix']
-        if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
-            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingLowPU'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['trackingMkFit']['steps']:
-        stepName = step + upgradeSteps['trackingMkFit']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_trackingMkFit, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['Neutron']['steps']:
-        if 'GenSim' in step:
-            custNew = "SimG4Core/Application/NeutronBGforMuonsXS_cff.customise"
-        else:
-            custNew = "SLHCUpgradeSimulations/Configuration/customise_mixing.customise_Mix_LongLived_Neutrons"
-        stepName = step + upgradeSteps['Neutron']['suffix']
-        upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
-        if '--customise' in upgradeStepDict[stepName][k].keys():
-            upgradeStepDict[stepName][k]['--customise'] += ","+custNew
-        else:
-            upgradeStepDict[stepName][k]['--customise'] = custNew
-
-    for step in upgradeSteps['heCollapse']['steps']:
-        stepName = step + upgradeSteps['heCollapse']['suffix']
-        upgradeStepDict[stepName][k] = merge([{'--procModifiers': 'run2_HECollapse_2018'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['ProdLike']['steps']:
-        stepName = step + upgradeSteps['ProdLike']['suffix']
-        if 'Reco' in step:
-            upgradeStepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'GEN-SIM-RECO', '--eventcontent':'FEVTDEBUGHLT'}, upgradeStepDict[step][k]])
-        elif 'MiniAOD' in step:
-            # the separate miniAOD step is used here
-            upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
-        if 'HARVEST' in step:
-            # remove step
-            upgradeStepDict[stepName][k] = None
-
-    for step in upgradeSteps['ParkingBPH']['steps']:
-        stepName = step + upgradeSteps['ParkingBPH']['suffix']
-        if 'Reco' in step and 'Run2_2018' in upgradeStepDict[step][k]['--era']:
-            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2018,bParking'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['TICLOnly']['steps']:
-        stepName = step + upgradeSteps['TICLOnly']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_TICLOnly, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['TICLFullReco']['steps']:
-        stepName = step + upgradeSteps['TICLFullReco']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_TICLFullReco, upgradeStepDict[step][k]])
+    # setup baseline and variations
+    for specialType,specialWF in six.iteritems(upgradeWFs):
+        specialWF.setup(upgradeStepDict, k, upgradeProperties[year][k])
 
     # setup PU
     if k2 in PUDataSets:
@@ -3340,25 +3239,25 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         # It is a complete overkill to define premixing step for
         # each generator fragment, but let's worry about
         # simplification later
-        for step in upgradeSteps['baseline']['steps']:
+        for step in upgradeWFs['baseline'].steps:
             if "GenSim" in step:
-                stepName = step + upgradeSteps['baseline']['suffix']
-                stepNamePmx = step.replace('GenSim', 'Premix') + 'PU' + upgradeSteps['Premix']['suffix']
+                stepNamePmx = step.replace('GenSim', 'Premix') + 'PU' + upgradeWFs['Premix'].suffix
                 d = merge([{'-s'            : 'GEN,SIM,DIGI:pdigi_valid',
                             '--datatier'    : 'PREMIX',
                             '--eventcontent': 'PREMIX',
                             '--procModifiers': 'premix_stage1',
                            },
-                           PUDataSets[k2],upgradeStepDict[stepName][k]])
+                           PUDataSets[k2],upgradeStepDict[step][k]])
                 upgradeStepDict[stepNamePmx][k] = d
 
-        for stepType in upgradeSteps.keys():
-            if "Premix" in stepType:
+        for specialType,specialWF in six.iteritems(upgradeWFs):
+            if "Premix" in specialType:
                 # Premix stage1 is already set above, and there are no non-PU steps so has to be ignored here
                 continue
-            for step in upgradeSteps[stepType]['PU']:
-                stepName = step + upgradeSteps[stepType]['suffix']
-                stepNamePU = step + 'PU' + upgradeSteps[stepType]['suffix']
+            for step in specialWF.PU:
+                stepName = step + specialWF.suffix
+                stepNamePU = step + 'PU' + specialWF.suffix
+                stepNamePUpmx = step + 'PUPRMX' + specialWF.suffix
                 if upgradeStepDict[stepName][k] is None:
                     upgradeStepDict[stepNamePU][k] = None
                 else:
@@ -3366,7 +3265,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
                 # Setup premixing stage2
                 if "Digi" in step or "Reco" in step:
-                    stepNamePUpmx = step + 'PUPRMX' + upgradeSteps[stepType]['suffix']
                     d = merge([upgradeStepDict[stepName][k]])
                     if "Digi" in step:
                         tmpsteps = []
@@ -3396,13 +3294,12 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                         m = re.search("step(?P<ind>\d+)_", filein)
                         if m:
                             d["--filein"] = filein.replace(m.group(), "step%d_"%(int(m.group("ind"))+1))
-                    stepNamePUpmx = step + 'PUPRMX' + upgradeSteps[stepType]['suffix']
                     upgradeStepDict[stepNamePUpmx+"Combined"][k] = d
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
    if 'Sim' in step or 'Premix' in step:
-        for frag in upgradeFragments:
-            howMuch=howMuches[frag]
+        for frag,info in six.iteritems(upgradeFragments):
+            howMuch=info.howMuch
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
                 k=frag[:-4]+'_'+key+'_'+step
                 if (step in upgradeStepDict or step.replace("PUPRMX", "PU")) and key in upgradeStepDict[step]:
@@ -3412,7 +3309,7 @@ for step in upgradeStepDict.keys():
                     #so please be careful
                     s=frag[:-4]+'_'+key
                     if 'FastSim' not in k and 'Premix' not in step and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '': # exclude upgradeKeys without input dataset
-                        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+upgradeDatasetFromFragment[frag]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key
