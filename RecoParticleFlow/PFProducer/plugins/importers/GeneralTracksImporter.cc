@@ -23,9 +23,10 @@ public:
         NHitCut_(conf.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
         useIterTracking_(conf.getParameter<bool>("useIterativeTracking")),
         cleanBadConvBrems_(
-			   conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false) {
-    bool postMuonCleaning = conf.existsAs<bool>("postMuonCleaning") ? conf.getParameter<bool>("postMuonCleaning") : false;
-    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo(conf,postMuonCleaning));
+            conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false) {
+    bool postMuonCleaning =
+        conf.existsAs<bool>("postMuonCleaning") ? conf.getParameter<bool>("postMuonCleaning") : false;
+    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo(conf, postMuonCleaning));
   }
 
   void importToBlock(const edm::Event&, ElementList&) const override;
