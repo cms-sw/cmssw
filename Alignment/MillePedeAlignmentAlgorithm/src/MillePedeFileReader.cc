@@ -5,9 +5,6 @@
 #include <cmath>  // include floating-point std::abs functions
 #include <fstream>
 
-/*** core framework functionality ***/
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 /*** Alignment ***/
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
