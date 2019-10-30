@@ -1,7 +1,49 @@
-#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterEnergyUncertaintyObjectSpecific.h"
+/** \class EcalClusterEnergyUncertainty
+  *  Function that provides uncertainty on supercluster energy measurement
+  *  Available numbers: total effective uncertainty (in GeV)
+  *                     assymetric uncertainties (positive and negative)
+  *
+  *  $Id: EcalClusterEnergyUncertainty.h
+  *  $Date:
+  *  $Revision:
+  *  \author Nicolas Chanon, December 2011
+  */
+
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "TMath.h"
 
-float EcalClusterEnergyUncertaintyObjectSpecific::getValue(const reco::SuperCluster& superCluster,
+class EcalClusterEnergyUncertaintyObjectSpecific : public EcalClusterFunctionBaseClass {
+public:
+  EcalClusterEnergyUncertaintyObjectSpecific();
+  EcalClusterEnergyUncertaintyObjectSpecific(const edm::ParameterSet &){};
+  ~EcalClusterEnergyUncertaintyObjectSpecific() override;
+
+  // check initialization
+  void checkInit() const;
+
+  // compute the correction
+  float getValue(const reco::SuperCluster &, const int mode) const override;
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override { return 0.; };
+
+  // set parameters
+  void init(const edm::EventSetup &es) override;
+};
+
+EcalClusterEnergyUncertaintyObjectSpecific::EcalClusterEnergyUncertaintyObjectSpecific() {}
+
+EcalClusterEnergyUncertaintyObjectSpecific::~EcalClusterEnergyUncertaintyObjectSpecific() {}
+
+void EcalClusterEnergyUncertaintyObjectSpecific::init(const edm::EventSetup &es) {}
+
+void EcalClusterEnergyUncertaintyObjectSpecific::checkInit() const {}
+
+float EcalClusterEnergyUncertaintyObjectSpecific::getValue(const reco::SuperCluster &superCluster,
                                                            const int mode) const {
   checkInit();
 

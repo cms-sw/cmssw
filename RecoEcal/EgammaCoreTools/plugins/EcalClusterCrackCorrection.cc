@@ -1,6 +1,12 @@
-#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrection.h"
-#include "TVector2.h"
-#include "TMath.h"
+/** \class EcalClusterCrackCorrection
+  *  Function to correct cluster for cracks in the calorimeter
+  *
+  *  $Id: EcalClusterCrackCorrection.h
+  *  $Date:
+  *  $Revision:
+  *  \author Federico Ferri, CEA Saclay, November 2008
+  */
+
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
@@ -13,24 +19,58 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-
-//////From DummyHepMCAnalyzer.cc:
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
+
+#include "TVector2.h"
+#include "TMath.h"
+
 #include <iostream>
 
-float EcalClusterCrackCorrection::getValue(const reco::BasicCluster& basicCluster,
-                                           const EcalRecHitCollection& recHit) const {
+class EcalClusterCrackCorrection : public EcalClusterFunctionBaseClass {
+public:
+  EcalClusterCrackCorrection();
+  EcalClusterCrackCorrection(const edm::ParameterSet &){};
+  ~EcalClusterCrackCorrection() override;
+
+  // get/set explicit methods for parameters
+  const EcalClusterCrackCorrParameters *getParameters() const { return params_; }
+  // check initialization
+  void checkInit() const;
+
+  // compute the correction
+  float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const override;
+  float getValue(const reco::SuperCluster &, const int mode) const override;
+
+  float getValue(const reco::CaloCluster &) const override;
+
+  // set parameters
+  void init(const edm::EventSetup &es) override;
+
+protected:
+  edm::ESHandle<EcalClusterCrackCorrParameters> esParams_;
+  const EcalClusterCrackCorrParameters *params_;
+  const edm::EventSetup *es_;  //needed to access the ECAL geometry
+};
+
+float EcalClusterCrackCorrection::getValue(const reco::BasicCluster &basicCluster,
+                                           const EcalRecHitCollection &recHit) const {
   //this is a dummy function, could be deleted in mother classes and here
   checkInit();
 
   // private member params_ = EcalClusterCrackCorrectionParameters
   // (see in CondFormats/EcalObjects/interface)
   EcalFunctionParameters::const_iterator it;
-  std::cout << "[[EcalClusterCrackCorrectionBaseClass::getValue]] " << params_->params().size() << " parameters:";
+  std::cout << "[[EcalClusterCrackCorrection::getValue]] " << params_->params().size() << " parameters:";
   for (it = params_->params().begin(); it != params_->params().end(); ++it) {
     std::cout << " " << *it;
   }
@@ -38,7 +78,35 @@ float EcalClusterCrackCorrection::getValue(const reco::BasicCluster& basicCluste
   return 1;
 }
 
-float EcalClusterCrackCorrection::getValue(const reco::CaloCluster& seedbclus) const {
+EcalClusterCrackCorrection::EcalClusterCrackCorrection() : params_(nullptr) {}
+
+EcalClusterCrackCorrection::~EcalClusterCrackCorrection() {}
+
+void EcalClusterCrackCorrection::init(const edm::EventSetup &es) {
+  es.get<EcalClusterCrackCorrParametersRcd>().get(esParams_);
+  params_ = esParams_.product();
+  es_ = &es;  //needed to access the ECAL geometry
+
+  //// check if parameters are retrieved correctly
+  //EcalClusterCrackCorrParameters::const_iterator it;
+  //std::cout << "[[EcalClusterCrackCorrection::init]] "
+  //        << params_->size() << " parameters:";
+  //for ( it = params_->begin(); it != params_->end(); ++it ) {
+  //        std::cout << " " << *it;
+  //}
+  //std::cout << "\n";
+}
+
+void EcalClusterCrackCorrection::checkInit() const {
+  if (!params_) {
+    // non initialized function parameters: throw exception
+    throw cms::Exception("EcalClusterCrackCorrection::checkInit()")
+        << "Trying to access an uninitialized crack correction function.\n"
+           "Please call `init( edm::EventSetup &)' before any use of the function.\n";
+  }
+}
+
+float EcalClusterCrackCorrection::getValue(const reco::CaloCluster &seedbclus) const {
   checkInit();
 
   //correction factor to be returned, and to be calculated in this present function:
@@ -60,9 +128,9 @@ float EcalClusterCrackCorrection::getValue(const reco::CaloCluster& seedbclus) c
   edm::ESHandle<CaloGeometry> pG;
   es_->get<CaloGeometryRecord>().get(pG);
 
-  const CaloSubdetectorGeometry* geom = pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);  //EcalBarrel = 1
+  const CaloSubdetectorGeometry *geom = pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);  //EcalBarrel = 1
 
-  const math::XYZPoint& position_ = seedbclus.position();
+  const math::XYZPoint &position_ = seedbclus.position();
   double Theta = -position_.theta() + 0.5 * TMath::Pi();
   double Eta = position_.eta();
   double Phi = TVector2::Phi_mpi_pi(position_.phi());
@@ -169,7 +237,7 @@ float EcalClusterCrackCorrection::getValue(const reco::CaloCluster& seedbclus) c
   return correction_factor;
 }
 
-float EcalClusterCrackCorrection::getValue(const reco::SuperCluster& superCluster, const int mode) const {
+float EcalClusterCrackCorrection::getValue(const reco::SuperCluster &superCluster, const int mode) const {
   checkInit();
 
   //********************************************************************************************************************//

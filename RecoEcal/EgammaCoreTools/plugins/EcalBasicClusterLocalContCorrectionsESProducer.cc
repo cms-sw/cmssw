@@ -1,20 +1,36 @@
 // -*- C++ -*-
+//
+// Package:    EcalBasicClusterLocalContCorrectionsESProducer
+// Class:      EcalBasicClusterLocalContCorrectionsESProducer
+//
+/**\class EcalBasicClusterLocalContCorrectionsESProducer EcalBasicClusterLocalContCorrectionsESProducer.h User/EcalBasicClusterLocalContCorrectionsESProducer/interface/EcalBasicClusterLocalContCorrectionsESProducer.h
 
-// system include files
-#include <memory>
+ Description: Trivial ESProducer to provide EventSetup with (hard coded)
+              shower containment corrections
+
+     
+ \author  Stefano Argiro
+         Created:  Mon Mar  5 08:39:12 CET 2007
+*/
+
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
-// user include files
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-//#include "CalibCalorimetry/EcalCorrectionModules/interface/EcalBasicClusterLocalContCorrectionsESProducer.h"
-#include "RecoEcal/EgammaCoreTools/plugins/EcalBasicClusterLocalContCorrectionsESProducer.h"
 
-EcalBasicClusterLocalContCorrectionsESProducer::EcalBasicClusterLocalContCorrectionsESProducer(
-    const edm::ParameterSet& iConfig) {
-  setWhatProduced(this);
-}
+#include <memory>
 
-EcalBasicClusterLocalContCorrectionsESProducer::~EcalBasicClusterLocalContCorrectionsESProducer() {}
+class EcalBasicClusterLocalContCorrectionsESProducer : public edm::ESProducer {
+public:
+  EcalBasicClusterLocalContCorrectionsESProducer(const edm::ParameterSet&) { setWhatProduced(this); }
+  ~EcalBasicClusterLocalContCorrectionsESProducer() override {}
+
+  typedef std::unique_ptr<EcalClusterLocalContCorrParameters> ReturnType;
+
+  ReturnType produce(const EcalClusterLocalContCorrParametersRcd&);
+};
 
 //
 // member functions
