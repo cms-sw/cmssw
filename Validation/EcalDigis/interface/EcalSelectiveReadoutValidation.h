@@ -48,7 +48,7 @@ protected:
   /// Analyzes the event.
   void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void dqmEndRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   ///distinguishes barral and endcap of ECAL.

@@ -720,12 +720,12 @@ namespace edm {
     }
 
     void SimpleMemoryCheck::preModule(StreamContext const& iStreamContext, ModuleCallingContext const& iModuleContext) {
-      bool expected = false;
-      if (measurementUnderway_.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
+      bool expectedMeasurementUnderway = false;
+      if (measurementUnderway_.compare_exchange_strong(expectedMeasurementUnderway, true, std::memory_order_acq_rel)) {
         std::shared_ptr<void> guard(
             nullptr, [this](void const*) { measurementUnderway_.store(false, std::memory_order_release); });
-        bool expected = false;
-        if (moduleMeasurementUnderway_.compare_exchange_strong(expected, true)) {
+        bool expectedModuleMeasurementUnderway = false;
+        if (moduleMeasurementUnderway_.compare_exchange_strong(expectedModuleMeasurementUnderway, true)) {
           update();
           // changelog 2
           moduleEntryVsize_ = current_->vsize;
@@ -753,11 +753,11 @@ namespace edm {
             (iStreamContext.streamID().value() == moduleStreamID_.load(std::memory_order_acquire)) and
             (iModuleContext.moduleDescription()->id() == moduleID_.load(std::memory_order_acquire))) {
           //Need to release our module measurement lock
-          std::shared_ptr<void> guard(
+          std::shared_ptr<void> guardModuleMeasurementUnderway(
               nullptr, [this](void const*) { moduleMeasurementUnderway_.store(false, std::memory_order_release); });
           bool expected = false;
           if (measurementUnderway_.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
-            std::shared_ptr<void> guard(
+            std::shared_ptr<void> guardMeasurementUnderway(
                 nullptr, [this](void const*) { measurementUnderway_.store(false, std::memory_order_release); });
             if (oncePerEventMode_) {
               update();

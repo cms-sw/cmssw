@@ -137,7 +137,7 @@ public:
   /// Method called once per event
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   /// Method called at the end of the event loop
-  //   void endRun(edm::Run const&, edm::EventSetup const&) override;
+  //   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
   void bookHistograms(DQMEDAnalyzer::DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:

@@ -217,8 +217,8 @@ void L1GtBoard::setGtInputPsbChannels(const std::map<int, std::vector<L1GtObject
 }
 
 // get the board ID
-const boost::uint16_t L1GtBoard::gtBoardId() const {
-  boost::uint16_t boardIdValue = 0;
+const uint16_t L1GtBoard::gtBoardId() const {
+  uint16_t boardIdValue = 0;
 
   if (m_gtBoardType == GTFE) {
     boardIdValue = boardIdValue | m_gtBoardSlot;
@@ -265,7 +265,7 @@ std::string L1GtBoard::gtBoardName() const {
 
 /// print board
 void L1GtBoard::print(std::ostream& myCout) const {
-  boost::uint16_t boardId = gtBoardId();
+  uint16_t boardId = gtBoardId();
   std::string boardName = gtBoardName();
 
   myCout << "Board ID:                        " << std::hex << boardId << std::dec << std::endl
@@ -432,7 +432,9 @@ void L1GtBoard::print(std::ostream& myCout) const {
         }
 
         break;
-        default: { myCout << " ERROR: Unknown type " << (*itObj); } break;
+        default: {
+          myCout << " ERROR: Unknown type " << (*itObj);
+        } break;
       }
     }
   }

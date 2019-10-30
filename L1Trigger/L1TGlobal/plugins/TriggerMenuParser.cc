@@ -30,8 +30,6 @@
 #include <iomanip>
 #include <cmath>
 
-#include <boost/cstdint.hpp>
-
 #include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -45,6 +43,7 @@
 #include "tmEventSetup/esCut.hh"
 #include "tmEventSetup/esScale.hh"
 #include "tmGrammar/Algorithm.hh"
+#include <cstdint>
 
 // constructor
 l1t::TriggerMenuParser::TriggerMenuParser()
@@ -1026,7 +1025,7 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
   MuonTemplate::CorrelationParameter corrParameter;
 
   // need at least two values for deltaPhi
-  std::vector<boost::uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
+  std::vector<uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
   tmpValues.reserve(nrObj);
 
   if (int(condMu.getObjects().size()) != nrObj) {
@@ -1251,7 +1250,7 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
   MuonTemplate::CorrelationParameter corrParameter;
 
   // need at least two values for deltaPhi
-  std::vector<boost::uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
+  std::vector<uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
   tmpValues.reserve(nrObj);
 
   // BLW TO DO: How do we deal with these in the new format
@@ -1541,7 +1540,7 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo, unsig
   CaloTemplate::CorrelationParameter corrParameter;
 
   // need at least one value for deltaPhiRange
-  std::vector<boost::uint64_t> tmpValues((nrObj > 1) ? nrObj : 1);
+  std::vector<uint64_t> tmpValues((nrObj > 1) ? nrObj : 1);
   tmpValues.reserve(nrObj);
 
   if (int(condCalo.getObjects().size()) != nrObj) {
@@ -1552,8 +1551,8 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo, unsig
   }
 
   //    std::string str_condCalo = "";
-  //    boost::uint64_t tempUIntH, tempUIntL;
-  //    boost::uint64_t dst;
+  //    uint64_t tempUIntH, tempUIntL;
+  //    uint64_t dst;
   int cnt = 0;
 
   // BLW TO DO: These needs to the added to the object rather than the whole condition.
@@ -1783,7 +1782,7 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
   CaloTemplate::CorrelationParameter corrParameter;
 
   // need at least one value for deltaPhiRange
-  std::vector<boost::uint64_t> tmpValues((nrObj > 1) ? nrObj : 1);
+  std::vector<uint64_t> tmpValues((nrObj > 1) ? nrObj : 1);
   tmpValues.reserve(nrObj);
 
   // BLW TO DO: These needs to the added to the object rather than the whole condition.
@@ -2642,7 +2641,9 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
         case esObjectType::Tau: {
           objType[jj] = gtTau;
         } break;
-        default: { } break; }
+        default: {
+        } break;
+      }
       condCateg[jj] = CondCalo;
 
     } else if (object.getType() == esObjectType::ETM || object.getType() == esObjectType::ETMHF ||
@@ -2666,7 +2667,9 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
         case esObjectType::TOWERCOUNT: {
           objType[jj] = GlobalObject::gtTowerCount;
         } break;
-        default: { } break; }
+        default: {
+        } break;
+      }
       condCateg[jj] = CondEnergySum;
 
     } else {
@@ -2928,7 +2931,9 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(const tmeventset
         case esObjectType::Tau: {
           objType[jj] = gtTau;
         } break;
-        default: { } break; }
+        default: {
+        } break;
+      }
       condCateg[jj] = CondCalo;
 
     } else if (object.getType() == esObjectType::ETM || object.getType() == esObjectType::ETMHF ||
@@ -2952,7 +2957,9 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(const tmeventset
         case esObjectType::TOWERCOUNT: {
           objType[jj] = GlobalObject::gtTowerCount;
         } break;
-        default: { } break; }
+        default: {
+        } break;
+      }
       condCateg[jj] = CondEnergySum;
 
     } else {

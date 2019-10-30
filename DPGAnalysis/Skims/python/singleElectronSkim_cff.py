@@ -77,7 +77,7 @@ singleRecoElectronPt1Filter = cms.EDFilter("GsfElectronRefSelector",
 #                               minNumber = cms.uint32(1)
 #                               )
 
-#from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
+#from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cff import *
 
 #ecalDrivenElectronSeeds.SCEtCut = cms.double(1.0)
 #ecalDrivenElectronSeeds.applyHOverECut = cms.bool(False)

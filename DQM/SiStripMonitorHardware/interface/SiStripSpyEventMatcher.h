@@ -8,12 +8,12 @@
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "boost/cstdint.hpp"
 
 #include <set>
 #include <map>
 #include <memory>
 #include <vector>
+#include <cstdint>
 
 //forward declarations
 class FEDRawDataCollection;

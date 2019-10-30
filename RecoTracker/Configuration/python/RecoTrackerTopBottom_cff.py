@@ -34,9 +34,19 @@ topBottomClusterInfoProducerBottom = topBottomClusterInfoProducer.clone(
     stripStereoHitsNew = cms.InputTag("siStripMatchedRecHitsBottom","stereoRecHit"),
     pixelHitsNew = cms.InputTag("siPixelRecHitsBottom")
 )
-###LOCAL RECO SEQUENCE
-trackerlocalrecoTop = cms.Sequence(((siPixelClustersTop*siPixelRecHitsTop)+(siStripClustersTop*siStripMatchedRecHitsTop))*topBottomClusterInfoProducerTop)
-trackerlocalrecoBottom = cms.Sequence(((siPixelClustersBottom*siPixelRecHitsBottom)+(siStripClustersBottom*siStripMatchedRecHitsBottom))*topBottomClusterInfoProducerBottom)
+###LOCAL RECO TASK and SEQUENCE
+trackerlocalrecoTopTask = cms.Task(siPixelClustersTop,
+                                          siPixelRecHitsTop,
+                                          siStripClustersTop,
+                                          siStripMatchedRecHitsTop,
+                                          topBottomClusterInfoProducerTop)
+trackerlocalrecoTop = cms.Sequence(trackerlocalrecoTopTask)
+trackerlocalrecoBottomTask = cms.Task(siPixelClustersBottom,
+                                          siPixelRecHitsBottom,
+                                          siStripClustersBottom,
+                                          siStripMatchedRecHitsBottom,
+                                          topBottomClusterInfoProducerBottom)
+trackerlocalrecoBottom = cms.Sequence(trackerlocalrecoBottomTask)
 
 ###CKF TOP
 combinatorialcosmicseedingtripletsP5Top = copy.deepcopy(combinatorialcosmicseedingtripletsP5)
@@ -101,11 +111,17 @@ ctfWithMaterialTracksP5Top = copy.deepcopy(ctfWithMaterialTracksCosmics)
 ctfWithMaterialTracksP5Top.src    = 'ckfTrackCandidatesP5Top'
 ctfWithMaterialTracksP5Top.Fitter = 'FittingSmootherRKP5'
 ctfWithMaterialTracksP5Top.clusterRemovalInfo = "topBottomClusterInfoProducerTop"
-ctftracksP5Top = cms.Sequence(combinatorialcosmicseedingtripletsP5Top*combinatorialcosmicseedingpairsTOBP5Top*
-                              combinatorialcosmicseedingpairsTECposP5Top*combinatorialcosmicseedingpairsTECnegP5Top*
-                              combinatorialcosmicseedfinderP5Top*simpleCosmicBONSeedingLayersTop*simpleCosmicBONSeedsTop*
-                                       combinedP5SeedsForCTFTop*ckfTrackCandidatesP5Top*
-                                       ctfWithMaterialTracksP5Top)
+ctftracksP5TopTask = cms.Task(combinatorialcosmicseedingtripletsP5Top,
+                              combinatorialcosmicseedingpairsTOBP5Top,
+                              combinatorialcosmicseedingpairsTECposP5Top,
+                              combinatorialcosmicseedingpairsTECnegP5Top,
+                              combinatorialcosmicseedfinderP5Top,
+                              simpleCosmicBONSeedingLayersTop,
+                              simpleCosmicBONSeedsTop,
+                              combinedP5SeedsForCTFTop,
+                              ckfTrackCandidatesP5Top,
+                              ctfWithMaterialTracksP5Top)
+ctftracksP5Top = cms.Sequence(ctftracksP5TopTask)
 
 
 ###CKF BOTTOM
@@ -177,11 +193,17 @@ ctfWithMaterialTracksP5Bottom = copy.deepcopy(ctfWithMaterialTracksCosmics)
 ctfWithMaterialTracksP5Bottom.src    = 'ckfTrackCandidatesP5Bottom'
 ctfWithMaterialTracksP5Bottom.Fitter = 'FittingSmootherRKP5'
 ctfWithMaterialTracksP5Bottom.clusterRemovalInfo = "topBottomClusterInfoProducerBottom"
-ctftracksP5Bottom = cms.Sequence(combinatorialcosmicseedingtripletsP5Bottom*combinatorialcosmicseedingpairsTOBP5Bottom*
-                                 combinatorialcosmicseedingpairsTECposP5Bottom*combinatorialcosmicseedingpairsTECnegP5Bottom*
-                                 combinatorialcosmicseedfinderP5Bottom*simpleCosmicBONSeedingLayersBottom*simpleCosmicBONSeedsBottom*
-                                       combinedP5SeedsForCTFBottom*ckfTrackCandidatesP5Bottom*
-                                       ctfWithMaterialTracksP5Bottom)
+ctftracksP5BottomTask = cms.Task(combinatorialcosmicseedingtripletsP5Bottom,
+                                 combinatorialcosmicseedingpairsTOBP5Bottom,
+                                 combinatorialcosmicseedingpairsTECposP5Bottom,
+                                 combinatorialcosmicseedingpairsTECnegP5Bottom,
+                                 combinatorialcosmicseedfinderP5Bottom,
+                                 simpleCosmicBONSeedingLayersBottom,
+                                 simpleCosmicBONSeedsBottom,
+                                 combinedP5SeedsForCTFBottom,
+                                 ckfTrackCandidatesP5Bottom,
+                                 ctfWithMaterialTracksP5Bottom)
+ctftracksP5Bottom = cms.Sequence(ctftracksP5BottomTask)
 
 #COSMIC TOP
 cosmicseedfinderP5Top       = copy.deepcopy(cosmicseedfinderP5)
@@ -202,7 +224,10 @@ cosmicCandidateFinderP5Top.matchedRecHits = cms.InputTag("siStripMatchedRecHitsT
 cosmicCandidateFinderP5Top.rphirecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
 cosmictrackfinderP5Top.src = 'cosmicCandidateFinderP5Top'
 cosmictrackfinderP5Top.clusterRemovalInfo = "topBottomClusterInfoProducerTop"
-cosmictracksP5Top = cms.Sequence(cosmicseedfinderP5Top*cosmicCandidateFinderP5Top*cosmictrackfinderP5Top)
+cosmictracksP5TopTask = cms.Task(cosmicseedfinderP5Top,
+                                 cosmicCandidateFinderP5Top,
+                                 cosmictrackfinderP5Top)
+cosmictracksP5Top = cms.Sequence(cosmictracksP5TopTask)
 
 #COSMIC BOTTOM
 cosmicseedfinderP5Bottom       = copy.deepcopy(cosmicseedfinderP5)
@@ -223,12 +248,16 @@ cosmicCandidateFinderP5Bottom.matchedRecHits = cms.InputTag("siStripMatchedRecHi
 cosmicCandidateFinderP5Bottom.rphirecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
 cosmictrackfinderP5Bottom.src = 'cosmicCandidateFinderP5Bottom'
 cosmictrackfinderP5Bottom.clusterRemovalInfo = "topBottomClusterInfoProducerBottom"
-cosmictracksP5Bottom = cms.Sequence(cosmicseedfinderP5Bottom*cosmicCandidateFinderP5Bottom*cosmictrackfinderP5Bottom)
-
+cosmictracksP5BottomTask = cms.Task(cosmicseedfinderP5Bottom,
+                                    cosmicCandidateFinderP5Bottom,
+                                    cosmictrackfinderP5Bottom)
+cosmictracksP5Bottom = cms.Sequence(cosmictracksP5BottomTask)
 
 #TOP SEQUENCE
 # (SK) keep rstracks commented out in case of resurrection
-tracksP5Top = cms.Sequence(ctftracksP5Top+cosmictracksP5Top)
+tracksP5TopTask = cms.Task(ctftracksP5TopTask, cosmictracksP5TopTask)
+tracksP5Top = cms.Sequence(tracksP5TopTask)
 #BOTTOM SEQUENCE
 # (SK) keep rstracks commented out in case of resurrection
-tracksP5Bottom = cms.Sequence(ctftracksP5Bottom+cosmictracksP5Bottom)
+tracksP5BottomTask = cms.Task(ctftracksP5BottomTask, cosmictracksP5BottomTask)
+tracksP5Bottom = cms.Sequence(tracksP5BottomTask)

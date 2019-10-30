@@ -18,10 +18,10 @@ trackingMonitorClientHLT = cms.Sequence(
 # EGM tracking
 trackingForElectronsEffFromHitPatternHLT = trackingEffFromHitPattern.clone()
 trackingForElectronsEffFromHitPatternHLT.subDirs = cms.untracked.vstring(
-   "HLT/EG/Tracking/GSF/HitEffFromHitPattern*",
-   "HLT/EG/Tracking/pixelTracks/HitEffFromHitPattern*",
-   "HLT/EG/Tracking/iter0HP/HitEffFromHitPattern*",
-   "HLT/EG/Tracking/iter2Merged/HitEffFromHitPattern*"
+   "HLT/EGM/Tracking/GSF/HitEffFromHitPattern*",
+   "HLT/EGM/Tracking/pixelTracks/HitEffFromHitPattern*",
+   "HLT/EGM/Tracking/iter0HP/HitEffFromHitPattern*",
+   "HLT/EGM/Tracking/iter2Merged/HitEffFromHitPattern*"
 )
 
 # Sequence

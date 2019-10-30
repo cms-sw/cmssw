@@ -1,17 +1,3 @@
 <TESTSCONFIGURATION>
 
-<QTEST name="equalToRef">
-    <TYPE>Comp2RefEqualH</TYPE> 
-    <PARAM name="testparam">0</PARAM>
-    <PARAM name="error">0.30</PARAM>
-    <PARAM name="warning">0.70</PARAM>
-</QTEST>
-
-<LINK name="Physics/NanoAODDQM/*/*">
-    <TestName activate="true">equalToRef</TestName>
-</LINK>
-<LINK name="Physics/NanoAODDQM/*/*/*">
-    <TestName activate="true">equalToRef</TestName>
-</LINK>
-
 </TESTSCONFIGURATION>

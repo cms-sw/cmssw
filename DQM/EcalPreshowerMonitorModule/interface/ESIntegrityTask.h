@@ -6,10 +6,10 @@
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class ESIntegrityTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class ESIntegrityTask : public DQMOneLumiEDAnalyzer<> {
 public:
   ESIntegrityTask(const edm::ParameterSet& ps);
   ~ESIntegrityTask() override {}
@@ -24,13 +24,13 @@ protected:
   void endJob(void) override;
 
   /// EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void dqmEndRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   /// Begin Lumi
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
+  void dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
 
   /// End Lumi
-  void endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
 
   /// Calculate Data Integrity Fraction
   void calculateDIFraction(void);

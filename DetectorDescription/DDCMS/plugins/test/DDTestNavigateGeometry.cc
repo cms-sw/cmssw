@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "Geometry/Records/interface/DDVectorRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
@@ -55,18 +55,16 @@ void DDTestNavigateGeometry::analyze(const Event&, const EventSetup& iEventSetup
     }
   });
 
-  const GeometryFileRcd& ddRecord = iEventSetup.get<GeometryFileRcd>();
-  ESTransientHandle<DDDetector> ddd;
-  ddRecord.get(m_tag, ddd);
+  const auto& ddRecord = iEventSetup.get<IdealGeometryRecord>();
+  ESTransientHandle<DDDetector> det;
+  ddRecord.get(m_tag, det);
 
-  const dd4hep::Detector& detector = *ddd->description();
-
-  DetElement startDetEl, world = detector.world();
+  DetElement startDetEl, world = det->world();
   LogVerbatim("Geometry") << "World placement path " << world.placementPath() << ", path " << world.path();
   PlacedVolume startPVol = world.placement();
   if (!m_detElementPath.empty()) {
     LogVerbatim("Geometry") << "Det element path is " << m_detElementPath;
-    startDetEl = dd4hep::detail::tools::findElement(detector, m_detElementPath);
+    startDetEl = det->findElement(m_detElementPath);
     if (startDetEl.isValid())
       LogVerbatim("Geometry") << "Found starting DetElement!\n";
   } else if (!m_placedVolPath.empty()) {

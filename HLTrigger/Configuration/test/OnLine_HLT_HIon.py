@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_11_0_0/HIon --type HIon --unprescale --process HLTHIon --globaltag auto:run2_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_11_0_0/HIon/V6 (CMSSW_11_0_0_pre7)
+# /dev/CMSSW_11_0_0/HIon/V8 (CMSSW_11_0_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_0_0/HIon/V6')
+  tableName = cms.string('/dev/CMSSW_11_0_0/HIon/V8')
 )
 
 process.transferSystem = cms.PSet( 
@@ -4517,6 +4517,7 @@ process.TrackerDigiGeometryESModule = cms.ESProducer( "TrackerDigiGeometryESModu
   alignmentsLabel = cms.string( "" )
 )
 process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
+  fromDD4hep = cms.bool( False ),
   appendToDataLabel = cms.string( "" ),
   fromDDD = cms.bool( False )
 )

@@ -5,7 +5,7 @@
 #define RecoHGCal_TICL_SeedingRegionByTracks_h
 #include <memory>  // unique_ptr
 #include <string>
-#include "RecoHGCal/TICL/interface/SeedingRegionAlgoBase.h"
+#include "RecoHGCal/TICL/plugins/SeedingRegionAlgoBase.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"

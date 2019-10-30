@@ -253,27 +253,26 @@ void LimitedTaskQueue_test::stressTest() {
 
     std::atomic<bool> waitToStart{true};
     {
-      auto j =
-          edm::make_functor_task(tbb::task::allocate_root(), [&queue, &waitToStart, pWaitTask, &count, &nRunningTasks] {
-            //gcc 4.7 doesn't preserve the 'atomic' nature of waitToStart in the loop
-            while (waitToStart.load()) {
-              __sync_synchronize();
-            };
-            std::shared_ptr<tbb::task> guard{pWaitTask, [](tbb::task* iTask) { iTask->decrement_ref_count(); }};
-            for (unsigned int i = 0; i < nTasks; ++i) {
-              pWaitTask->increment_ref_count();
-              queue.push([&count, pWaitTask, &nRunningTasks] {
-                std::shared_ptr<tbb::task> guard{pWaitTask, [](tbb::task* iTask) { iTask->decrement_ref_count(); }};
-                auto nrt = nRunningTasks++;
-                if (nrt >= kMax) {
-                  std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;
-                }
-                CPPUNIT_ASSERT(nrt < kMax);
-                ++count;
-                --nRunningTasks;
-              });
+      auto j = edm::make_functor_task(tbb::task::allocate_root(), [&queue, &waitToStart, pWaitTask, &count, &nRunningTasks] {
+        //gcc 4.7 doesn't preserve the 'atomic' nature of waitToStart in the loop
+        while (waitToStart.load()) {
+          __sync_synchronize();
+        };
+        std::shared_ptr<tbb::task> guard{pWaitTask, [](tbb::task* iTask) { iTask->decrement_ref_count(); }};
+        for (unsigned int i = 0; i < nTasks; ++i) {
+          pWaitTask->increment_ref_count();
+          queue.push([&count, pWaitTask, &nRunningTasks] {
+            std::shared_ptr<tbb::task> guardAgain{pWaitTask, [](tbb::task* iTask) { iTask->decrement_ref_count(); }};
+            auto nrt = nRunningTasks++;
+            if (nrt >= kMax) {
+              std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;
             }
+            CPPUNIT_ASSERT(nrt < kMax);
+            ++count;
+            --nRunningTasks;
           });
+        }
+      });
       tbb::task::enqueue(*j);
 
       waitToStart = false;

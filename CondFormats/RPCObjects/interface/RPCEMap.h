@@ -9,7 +9,6 @@
 #include <utility>
 #include <string>
 #include <iostream>
-#include <boost/cstdint.hpp>
 
 class RPCEMap {
 public:

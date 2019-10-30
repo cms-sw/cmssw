@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 '''CMS Conditions DB command-line tool.
 '''
+from __future__ import print_function
 
 import argparse
 import datetime
@@ -63,7 +64,7 @@ def _dump_payload(session, payload, loadonly):
         filter(Payload.hash == payload).\
         one()[0]
     logging.info('Loading %spayload %s of length %s ...', '' if loadonly else 'and dumping ', payload, len(data))
-    print 'Data (TODO: Replace with the call to the actual compiled C++ tool):', repr(data)
+    print('Data (TODO: Replace with the call to the actual compiled C++ tool):', repr(data))
 
 
 def _identify_object(session, objtype, name):
@@ -79,7 +80,7 @@ def _identify_object(session, objtype, name):
                 raise Exception('There is no tag named %s in the database.' % name)
         elif objtype == 'gt':
             if not _exists(session, GlobalTag.name, name):
-	        # raise Exception('There is no global tag named %s in the database.' % name)
+                # raise Exception('There is no global tag named %s in the database.' % name)
                 logging.info('There is no global tag table in the database.')
         elif objtype == 'payload':
             # In the case of a payload, check and also return the full hash
@@ -92,7 +93,7 @@ def _identify_object(session, objtype, name):
     global_tag = _exists(session, GlobalTag.name, name)
     payload_hash = _get_payload_full_hash(session, name, check = False)
 
-    count = len(filter(None, [tag, global_tag, payload_hash]))
+    count = len([x for x in  filter(None, [tag, global_tag, payload_hash])])
     if count > 1:
         raise Exception('There is more than one object named %s in the database.' % name)
     if count == 0:
@@ -164,8 +165,8 @@ def _exists(session, primary_key, value):
     ret = None
     try: 
         ret = session.query(primary_key).\
-    	    filter(primary_key == value).\
-    	    count() != 0
+            filter(primary_key == value).\
+            count() != 0
     except sqlalchemy.exc.OperationalError:
         pass
 
@@ -353,14 +354,14 @@ class Colors(object):
 
     def __init__(self, args):
 
-    	if ( stat.S_ISFIFO(os.fstat(sys.stdout.fileno()).st_mode)  or  # we are running in a pipe
+        if ( stat.S_ISFIFO(os.fstat(sys.stdout.fileno()).st_mode)  or  # we are running in a pipe
              args.nocolors ):
-	     self.noColors()
+            self.noColors()
 
     def noColors(self):
-       for member in dir(self):
-           if not member.startswith('_'):
-               setattr(self, member, '')
+        for member in dir(self):
+            if not member.startswith('_'):
+                setattr(self, member, '')
 
 colors = None
 
@@ -371,10 +372,10 @@ def output(args, string, *parameters, **kwargs):
 
     output_file = kwargs.get('output_file', sys.stdout)
 
-    print >>output_file, string % parameters + colors.end,
+    print(string % parameters + colors.end, end=' ', file=output_file)
 
     if kwargs.get('newline', True):
-        print >>output_file
+        print(file=output_file)
 
 
 def _strip_colors(args, string):
@@ -594,7 +595,7 @@ def search(args):
         ['Payload', 'Object Type', 'Version', 'Insertion Time', 'Size'],
         filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, None, size],
     )
-   
+
     try:
         GlobalTag = session.get_dbtype(conddb.GlobalTag)
         output_table(args,
@@ -609,9 +610,9 @@ def search(args):
                 all(),
             ['Global Tag', 'Release', 'Insertion Time', 'Description'],
             filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, _ilike_or_regexp_highlight_filter],
-    	 )
+         )
     except sqlalchemy.exc.OperationalError:
-    	 sys.stderr.write("No table for GlobalTags found in DB.\n\n")
+        sys.stderr.write("No table for GlobalTags found in DB.\n\n")
 
 
 def _inserted_before(_IOV,timestamp):
@@ -656,10 +657,10 @@ def _since_filter(time_type):
     each 32-bit wide. The filter returns a string with both numbers, split.
     '''
 
-    if time_type == conddb.TimeType.time:
+    if time_type == conddb.TimeType.Time:
         return lambda since: '%s (%s)' % (_convertTimeType(since), since)
 
-    if time_type == conddb.TimeType.lumi:
+    if time_type == conddb.TimeType.Lumi:
         return lambda since: '%s : %5s (%s)' % (_high(since), _low(since), since)
 
     return lambda since: since
@@ -688,7 +689,7 @@ def _get_prompt_fcsr( session, timeType ):
                                   tier0proxy, False )
         try:
             fcsr = t0DataSvc.getFirstSafeRun()
-        except ValueError, e:
+        except ValueError as e:
             logging.error('ValueError for firstConditionSafeRun from Tier-0 %s ' % (str(e),) )
             # We got an answer but it is invalid. So far this usually means
             # "None" which is not JSON, when the Tier0 is stopped.
@@ -697,7 +698,7 @@ def _get_prompt_fcsr( session, timeType ):
             # Impossible to get anything from the server after retries,
             # i.e. unreachable, so no data.
             raise Exception('Tier-0 is unreachable, i.e. no firstConditionSafeRun')
-    except Exception, e:
+    except Exception as e:
         raise Exception('Error setting up Tier-0 data service: %s' %str(e))
     ret = _convert_time( session, timeType, fcsr )
     if timeType == 'Run':
@@ -833,7 +834,7 @@ class pcl_synchro_policy( object ):
             logging.error('%s IOV(s) with since less than the tier0 FCSR (%s) have been discarded.' %(nlate,self.fcsr) ) 
             ret = False
         return ret, new_iovs
-         
+
 class mc_synchro_policy( object ):
     def __init__(self, session1, session2, timeType, destTag):
         self.lastFrozenSince = _get_last_frozen_since( session2, destTag ) 
@@ -876,7 +877,7 @@ class offline_synchro_policy( object ):
 class no_synchro_policy( object ):
     def __init__(self, session1=None, session2=None, timeType=None, destTag=None):
         pass
-    
+
     def validate( self, iovs ):
         return True, iovs
 
@@ -907,7 +908,7 @@ def listGTsForTag_(args):
     GlobalTagMap = session.get_dbtype(conddb.GlobalTagMap)
     output_table(args,
         session.query(GlobalTagMap.global_tag_name, GlobalTagMap.tag_name, GlobalTagMap.record, GlobalTagMap.label).\
-	    filter(GlobalTagMap.tag_name == args.name).\
+            filter(GlobalTagMap.tag_name == args.name).\
             order_by(GlobalTagMap.global_tag_name).\
             all(),
         ['GT_name', 'Tag_name', 'record', 'label'],
@@ -970,12 +971,12 @@ def list_(args):
             time_type = session.query(Tag.time_type).\
                 filter(Tag.name == name).\
                 scalar()
-	
-	    sinceLabel = 'Since: Run '
-	    if time_type == conddb.TimeType.time:
-	        sinceLabel = 'Since: UTC          (timestamp)'
-	    if time_type == conddb.TimeType.lumi:
-	        sinceLabel = '  Run  : Lumi  (rawSince)'
+
+            sinceLabel = 'Since: Run '
+            if time_type == conddb.TimeType.Time:
+                sinceLabel = 'Since: UTC          (timestamp)'
+            if time_type == conddb.TimeType.Lumi:
+                sinceLabel = '  Run  : Lumi  (rawSince)'
 
             output_table(args,
                 session.query(IOV.since, IOV.insertion_time, IOV.payload_hash, Payload.object_type).\
@@ -993,12 +994,12 @@ def list_(args):
                 filters = [_since_filter(time_type), None, None, None],
             )
 
-	try:
+        try:
             is_global_tag = _exists(session, GlobalTag.name, name)
             if is_global_tag:
                 if args.long:
                     _output_list_object(args, session.query(GlobalTag).get(name))
-	    
+
                 output_table(args,
                     session.query(GlobalTagMap.record, GlobalTagMap.label, GlobalTagMap.tag_name).\
                         filter(GlobalTagMap.global_tag_name == name).\
@@ -1006,7 +1007,7 @@ def list_(args):
                         all(),
                     ['Record', 'Label', 'Tag'],
                 )
-	except sqlalchemy.exc.OperationalError:
+        except sqlalchemy.exc.OperationalError:
             sys.stderr.write("No table for GlobalTags found in DB.\n\n")
 
 
@@ -1180,18 +1181,18 @@ def convertRunToTimes( session, fromRun, toRun ):
         toLumi = toRun<<32|0x1
 
     timeMap = { 'from' : {
-    	      		    'hash' : None,
-    	      		    'run'  : fromRun,
-			    'time' : fromTime, # the time we get may be a bit delayed (7-10 sec according to Salvatore)
-			    'lumi' : fromLumi,
-    	      		  },
-    	        'to'  : {
-    	      		    'hash' : None,
-			    'run'  : toRun,
-			    'time' : toTime, # the time we get may be a bit delayed (7-10 sec according to Salvatore)
-			    'lumi' : toLumi,
-    	      		  } 
-	      }
+                            'hash' : None,
+                            'run'  : fromRun,
+                            'time' : fromTime, # the time we get may be a bit delayed (7-10 sec according to Salvatore)
+                            'lumi' : fromLumi,
+                          },
+                'to'  : {
+                            'hash' : None,
+                            'run'  : toRun,
+                            'time' : toTime, # the time we get may be a bit delayed (7-10 sec according to Salvatore)
+                            'lumi' : toLumi,
+                          } 
+              }
 
     logging.debug("convertRunToTimes> start: %s stop %s \n    timeMap: %s " % (fromRun, toRun, str(timeMap)))
 
@@ -1246,12 +1247,12 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
     tag['modification_time'] = copyTime
 
     if timeMap:
-       fromIOV = timeMap['from'][ tag['time_type'].lower().strip() ]
-       toIOV   = timeMap['to'] [ tag['time_type'].lower().strip() ]
+        fromIOV = timeMap['from'][ tag['time_type'].lower().strip() ]
+        toIOV   = timeMap['to'] [ tag['time_type'].lower().strip() ]
 
     if fromIOV is None:
         fromIOV = 1
-    
+
     selectStr = 'from since=%s' %fromIOV
     if toIOV is not None:
         selectStr += ' to since=%s' %toIOV
@@ -1259,7 +1260,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         selectStr += ' selecting insertion time < %s' %args.snapshot
 
     logging.info('Copying tag %s to %s %s', str_db_object(args.db, first), str_db_object(args.destdb, second), selectStr)
-  
+
     query = session2.query(Tag2).filter(Tag2.name == second )
     destExists = False
     destPayloadType = None
@@ -1343,7 +1344,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         query = query.order_by(IOV1.since, IOV1.insertion_time.desc())
         for iov in query:
             iov = _rawdict(iov)
- 
+
             # In the first IOV of the tag we need to use the starting point given
             # by the user, instead of the one coming from the source tag; unless
             # the starting point was before any IOV: in such case, up to the first
@@ -1353,7 +1354,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             if prev_iov is not None and iov['since'] == prev_iov:
                 iov['since'] = fromIOV
             since = iov['since']
- 
+
             if since not in iovs.keys():
             # for a given since, only the most recent will be added.
                 iovs[since] = iov['payload_hash']
@@ -1371,10 +1372,10 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             converter = run_to_timestamp( conddb.getSessionOnMasterDB( session1, session2 ) )
             iovs = converter.convertIovs( iovs )
 
-         # making the list of the payloads to export...         
+        # making the list of the payloads to export...         
         for since in iovs.keys():
             hashes.add( iovs[since] )
-           
+
         logging.debug('%s iov(s) to copy with %s payload(s)' %(len(iovs),len(hashes)))
     else:
         query = query.order_by(IOV1.since.desc(), IOV1.insertion_time.desc())
@@ -1430,7 +1431,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         logging.info('No extra iovs required for overriding the existing ones with the new ones.')
     for k,v in extraiovs.items():
         iovs[k] = extraiovs[k]
-    
+
     # Copy the set of IOVs collected        
     session2.merge(Tag2(name=second,modification_time=copyTime))
     minIov = None
@@ -1506,7 +1507,7 @@ def copy(args):
         if args.o2oTest:
             if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override or args.nosynchro or args.convertTime:
                 raise Exception('Cannot execute the copy for the o2o test with the options from, to, override, nosynchro, snapshot or convertTime.')
- 
+
         try:
             ret, niovs = _copy_tag(args, copyTime, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
             if niovs!=0:
@@ -1533,7 +1534,7 @@ def copy(args):
 
         # 'from' is a keyword!
         session = conddb.getSessionOnMasterDB( session1, session2 )
-	timeMap = convertRunToTimes(session, getattr(args, 'from'), args.to)
+        timeMap = convertRunToTimes(session, getattr(args, 'from'), args.to)
 
         logging.info('Copying global tag %s to %s ...', str_db_object(args.db, args.first), str_db_object(args.destdb, args.second))
 
@@ -1873,7 +1874,7 @@ def edit(args):
             logging.debug('size of modified table: %s - unique (since+timestamp) entries: %s' %(sizeNew,sizeUnique))
             if sizeNew != sizeUnique:
                 raise Exception('Duplicated since.')
-           
+
             _confirm_changes(args)
             note = '-'
             if args.force:
@@ -1884,7 +1885,7 @@ def edit(args):
             if len(deleted):
                 if len(action): action += ', '
                 action += '%s iov(s) deleted' %len(deleted)
-       
+
             # Use session.delete() instead of bulk delete to let SQLAlchemy use UPDATE
             # (since we may disable DELETE in Oracle for the tables)
             for since, insertion_time, _ in deleted:
@@ -2050,31 +2051,31 @@ def dump(args):
 
     xmlProcessor = None
     if args.format == 'xml':
-       xmlProcessor = cond2xml.CondXmlProcessor(conddb)
+        xmlProcessor = cond2xml.CondXmlProcessor(conddb)
 
     if args.type == 'payload':
-       if args.format == 'xml':
-          xmlProcessor.payload2xml(session, name, args.destfile)
-       else:
-       	  _dump_payload(session, name, args.loadonly)
+        if args.format == 'xml':
+            xmlProcessor.payload2xml(session, name, args.destfile)
+        else:
+            _dump_payload(session, name, args.loadonly)
 
     elif args.type == 'tag':
         for payload, in session.query(IOV.payload_hash).\
             filter(IOV.tag_name == name).\
             distinct():
-		if args.format == 'xml':
-          	   xmlProcessor.payload2xml(session, payload)
-       		else:
-            	   _dump_payload(session, payload, args.loadonly)
+            if args.format == 'xml':
+                xmlProcessor.payload2xml(session, payload)
+            else:
+                _dump_payload(session, payload, args.loadonly)
 
     elif args.type == 'gt' and _exists(session, conddb.GlobalTag.name, name) != None:
         for payload, in session.query(IOV.payload_hash).\
             filter(GlobalTagMap.global_tag_name == name, IOV.tag_name == GlobalTagMap.tag_name).\
             distinct():
-		if args.format == 'xml':
-          	   xmlProcessor.payload2xml(session, payload)
-       		else:
-	   	   _dump_payload(session, payload, args.loadonly)
+            if args.format == 'xml':
+                xmlProcessor.payload2xml(session, payload)
+            else:
+                _dump_payload(session, payload, args.loadonly)
 
     if xmlProcessor: del xmlProcessor
 
@@ -2106,7 +2107,7 @@ def fromTimestamp_( args ):
         print('%s' %sdt)
     else:
         output(args,"String date time for timestamp %s: '%s'" %(args.timestamp, sdt))
-    
+
 def main():
     '''Entry point.
     '''
@@ -2237,19 +2238,18 @@ def main():
     parser_fromTimestamp.set_defaults(func=fromTimestamp_)
 
     args = parser.parse_args()
-
     logging.basicConfig(
         format = '[%(asctime)s] %(levelname)s: %(message)s',
-        level = logging.DEBUG if args.verbose >= 1 else logging.INFO,
+        level = logging.DEBUG if args.verbose is not None and args.verbose >= 1 else logging.INFO,
     )
 
     colors = Colors(args)
 
     if args.noLimit:
-       args.limit = None
-       logging.info("noLimit specified, setting limit to %s" % str(args.limit))
+        args.limit = None
+        logging.info("noLimit specified, setting limit to %s" % str(args.limit))
 
-    if args.verbose >= 1:
+    if args.verbose is not None and args.verbose >= 1:
         # Include the traceback
         return args.func(args)
     else:

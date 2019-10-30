@@ -14,7 +14,6 @@ $Revision: 1.16 $
 
 #include <vector>
 #include <algorithm>
-#include <boost/cstdint.hpp>
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -22,6 +21,7 @@ $Revision: 1.16 $
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+#include <cstdint>
 
 //forward declaration
 namespace HcalElectronicsMapAddons {

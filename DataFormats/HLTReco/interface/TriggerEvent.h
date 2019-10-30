@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/traits.h"
 #include <string>
 #include <vector>
+#include <cassert>
 
 namespace trigger {
 

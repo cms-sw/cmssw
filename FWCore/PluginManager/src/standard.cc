@@ -22,9 +22,9 @@ namespace edmplugin {
       PluginManager::Config returnValue;
 
 #ifdef __APPLE__
-      const char* path = getenv("DYLD_FALLBACK_LIBRARY_PATH");
+      const char* path = std::getenv("DYLD_FALLBACK_LIBRARY_PATH");
 #else
-      const char* path = getenv("LD_LIBRARY_PATH");
+      const char* path = std::getenv("LD_LIBRARY_PATH");
 #endif
       if (!path)
         path = "";

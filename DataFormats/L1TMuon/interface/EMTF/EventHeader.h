@@ -1,9 +1,8 @@
+#include <cstdint>
 // Class for Event Record Header
 
 #ifndef __l1t_emtf_EventHeader_h__
 #define __l1t_emtf_EventHeader_h__
-
-#include <boost/cstdint.hpp>
 
 namespace l1t {
   namespace emtf {

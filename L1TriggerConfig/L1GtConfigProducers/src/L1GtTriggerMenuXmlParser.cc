@@ -23,8 +23,6 @@
 #include <fstream>
 #include <iomanip>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 // base class
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtXmlParserTags.h"
@@ -35,6 +33,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "Utilities/Xerces/interface/Xerces.h"
+#include <cstdint>
 
 // constructor
 L1GtTriggerMenuXmlParser::L1GtTriggerMenuXmlParser()
@@ -448,7 +447,7 @@ std::string L1GtTriggerMenuXmlParser::getXMLTextValue(XERCES_CPP_NAMESPACE::DOMN
 }
 
 /**
- * hexString2UInt128 converts an up to 128 bit hexadecimal string to two boost::uint64_t
+ * hexString2UInt128 converts an up to 128 bit hexadecimal string to two uint64_t
  *
  * @param hex The string to be converted.
  * @param dstL The target for the lower 64 bit.
@@ -457,9 +456,7 @@ std::string L1GtTriggerMenuXmlParser::getXMLTextValue(XERCES_CPP_NAMESPACE::DOMN
  * @return true if conversion succeeded, false if an error occurred.
  */
 
-bool L1GtTriggerMenuXmlParser::hexString2UInt128(const std::string& hexString,
-                                                 boost::uint64_t& dstL,
-                                                 boost::uint64_t& dstH) {
+bool L1GtTriggerMenuXmlParser::hexString2UInt128(const std::string& hexString, uint64_t& dstL, uint64_t& dstH) {
   // string to determine start of hex value, do not ignore leading zeros
   static const std::string valid_hex_start("0123456789ABCDEFabcdef");
 
@@ -499,7 +496,7 @@ bool L1GtTriggerMenuXmlParser::hexString2UInt128(const std::string& hexString,
 
   // convert lower 64bit
   char* endPtr = (char*)tempStrL.c_str();
-  boost::uint64_t tempUIntL = strtoull(tempStrL.c_str(), &endPtr, 16);
+  uint64_t tempUIntL = strtoull(tempStrL.c_str(), &endPtr, 16);
 
   if (*endPtr != 0) {
     LogDebug("L1GtTriggerMenuXmlParser") << "Unable to convert " << tempStr << " to hex." << std::endl;
@@ -509,7 +506,7 @@ bool L1GtTriggerMenuXmlParser::hexString2UInt128(const std::string& hexString,
 
   // convert higher64 bit
   endPtr = (char*)tempStrH.c_str();
-  boost::uint64_t tempUIntH = strtoull(tempStrH.c_str(), &endPtr, 16);
+  uint64_t tempUIntH = strtoull(tempStrH.c_str(), &endPtr, 16);
 
   if (*endPtr != 0) {
     LogDebug("L1GtTriggerMenuXmlParser") << "Unable to convert " << tempStr << " to hex." << std::endl;
@@ -534,15 +531,15 @@ bool L1GtTriggerMenuXmlParser::hexString2UInt128(const std::string& hexString,
  */
 
 bool L1GtTriggerMenuXmlParser::getXMLHexTextValue128(XERCES_CPP_NAMESPACE::DOMNode* node,
-                                                     boost::uint64_t& dstL,
-                                                     boost::uint64_t& dstH) {
+                                                     uint64_t& dstL,
+                                                     uint64_t& dstH) {
   if (node == nullptr) {
     LogDebug("L1GtTriggerMenuXmlParser") << "node == 0 in " << __PRETTY_FUNCTION__ << std::endl;
 
     return false;
   }
 
-  boost::uint64_t tempUIntH, tempUIntL;
+  uint64_t tempUIntH, tempUIntL;
 
   std::string tempStr = getXMLTextValue(node);
   if (!hexString2UInt128(tempStr, tempUIntL, tempUIntH)) {
@@ -566,9 +563,9 @@ bool L1GtTriggerMenuXmlParser::getXMLHexTextValue128(XERCES_CPP_NAMESPACE::DOMNo
  *
  */
 
-bool L1GtTriggerMenuXmlParser::getXMLHexTextValue(XERCES_CPP_NAMESPACE::DOMNode* node, boost::uint64_t& dst) {
-  boost::uint64_t dummyH;    // dummy for eventual higher 64bit
-  boost::uint64_t tempUInt;  // temporary unsigned integer
+bool L1GtTriggerMenuXmlParser::getXMLHexTextValue(XERCES_CPP_NAMESPACE::DOMNode* node, uint64_t& dst) {
+  uint64_t dummyH;    // dummy for eventual higher 64bit
+  uint64_t tempUInt;  // temporary unsigned integer
 
   if (!getXMLHexTextValue128(node, tempUInt, dummyH)) {
     return false;
@@ -639,7 +636,7 @@ bool L1GtTriggerMenuXmlParser::countConditionChildMaxBits(XERCES_CPP_NAMESPACE::
 
   // do the hex conversion
 
-  boost::uint64_t maxBitsL, maxBitsH;
+  uint64_t maxBitsL, maxBitsH;
   if (!hexString2UInt128(maxString, maxBitsL, maxBitsH)) {
     return false;
   }
@@ -698,7 +695,7 @@ bool L1GtTriggerMenuXmlParser::countConditionChildMaxBits(XERCES_CPP_NAMESPACE::
  * @param node The xml node of the condition.
  * @param childName The name of the child the values should be extracted from.
  * @param num The number of values needed.
- * @param dst A pointer to a vector of boost::uint64_t where the results are written.
+ * @param dst A pointer to a vector of uint64_t where the results are written.
  *
  * @return true if succeeded. false if an error occurred or not enough values found.
  */
@@ -706,7 +703,7 @@ bool L1GtTriggerMenuXmlParser::countConditionChildMaxBits(XERCES_CPP_NAMESPACE::
 bool L1GtTriggerMenuXmlParser::getConditionChildValues(XERCES_CPP_NAMESPACE::DOMNode* node,
                                                        const std::string& childName,
                                                        unsigned int num,
-                                                       std::vector<boost::uint64_t>& dst) {
+                                                       std::vector<uint64_t>& dst) {
   XERCES_CPP_NAMESPACE_USE
 
   if (node == nullptr) {
@@ -1286,7 +1283,7 @@ bool L1GtTriggerMenuXmlParser::parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node,
   L1GtMuonTemplate::CorrelationParameter corrParameter;
 
   // need at least two values for deltaPhi
-  std::vector<boost::uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
+  std::vector<uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
 
   // get ptHighThreshold values and fill into structure
   if (!getConditionChildValues(node, m_xmlTagPtHighThreshold, nrObj, tmpValues)) {
@@ -1566,7 +1563,7 @@ bool L1GtTriggerMenuXmlParser::parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node,
   L1GtCaloTemplate::CorrelationParameter corrParameter;
 
   // need at least one value for deltaPhiRange
-  std::vector<boost::uint64_t> tmpValues((nrObj > 1) ? nrObj : 1);
+  std::vector<uint64_t> tmpValues((nrObj > 1) ? nrObj : 1);
 
   // get etThreshold values and fill into structure
   if (!getConditionChildValues(node, m_xmlTagEtThreshold, nrObj, tmpValues)) {
@@ -1763,7 +1760,7 @@ bool L1GtTriggerMenuXmlParser::parseEnergySum(XERCES_CPP_NAMESPACE::DOMNode* nod
   std::vector<L1GtEnergySumTemplate::ObjectParameter> objParameter(nrObj);
 
   // need at least two values for phi
-  std::vector<boost::uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
+  std::vector<uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
 
   // get etThreshold values and fill into structure
   if (!getConditionChildValues(node, m_xmlTagEtThreshold, nrObj, tmpValues)) {
@@ -1946,7 +1943,7 @@ bool L1GtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* nod
   objParameter[0].countIndex = static_cast<unsigned int>(typeInt);
 
   // get count threshold values and fill into structure
-  std::vector<boost::uint64_t> tmpValues(nrObj);
+  std::vector<uint64_t> tmpValues(nrObj);
 
   if (!getConditionChildValues(node, m_xmlTagCountThreshold, nrObj, tmpValues)) {
     return false;
@@ -2172,7 +2169,7 @@ bool L1GtTriggerMenuXmlParser::parseHfBitCounts(XERCES_CPP_NAMESPACE::DOMNode* n
   objParameter[0].countIndex = static_cast<unsigned int>(typeInt);
 
   // get count threshold values and fill into structure
-  std::vector<boost::uint64_t> tmpValues(nrObj);
+  std::vector<uint64_t> tmpValues(nrObj);
 
   if (!getConditionChildValues(node, m_xmlTagCountThreshold, nrObj, tmpValues)) {
     return false;
@@ -2292,7 +2289,7 @@ bool L1GtTriggerMenuXmlParser::parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOMNode* 
   objParameter[0].etSumIndex = static_cast<unsigned int>(typeInt);
 
   // get ET sum threshold values and fill into structure
-  std::vector<boost::uint64_t> tmpValues(nrObj);
+  std::vector<uint64_t> tmpValues(nrObj);
 
   if (!getConditionChildValues(node, m_xmlTagEtThreshold, nrObj, tmpValues)) {
     return false;
@@ -2646,7 +2643,7 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(XERCES_CPP_NAMESPACE::DOMNode* n
 
   // temporary storage of the parameters
   L1GtCorrelationTemplate::CorrelationParameter corrParameter;
-  std::vector<boost::uint64_t> tmpValues(nrObj);
+  std::vector<uint64_t> tmpValues(nrObj);
 
   // get deltaEtaRange
   //    if ( !getConditionChildValues(node, m_xmlTagDeltaEta, 1, tmpValues) ) {

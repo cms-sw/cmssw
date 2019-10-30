@@ -15,8 +15,8 @@ gedPhotonsTmp.candidateP4type = cms.string("fromEcalEnergy")
 del gedPhotonsTmp.regressionConfig
 gedPhotonsTmp.outputPhotonCollection = cms.string("")
 gedPhotonsTmp.reconstructionStep = cms.string("tmp")
-gedPhotonSequenceTmp = cms.Sequence(gedPhotonCore+gedPhotonsTmp)
-
+gedPhotonTaskTmp = cms.Task(gedPhotonCore, gedPhotonsTmp)
+gedPhotonSequenceTmp = cms.Sequence(gedPhotonTaskTmp)
 
 gedPhotons = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone()
 gedPhotons.photonProducer = cms.InputTag("gedPhotonsTmp")
@@ -33,8 +33,8 @@ gedPhotons.pfIsolCfg = cms.PSet(
     chargedHadronPFPVIso = cms.InputTag("egmPhotonIsolationCITK:h+-DR030-"),
     )
     
-
-gedPhotonSequence    = cms.Sequence(gedPhotons)
+gedPhotonTask    = cms.Task(gedPhotons)
+gedPhotonSequence    = cms.Sequence(gedPhotonTask)
 
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
 egamma_lowPt_exclusive.toModify(gedPhotons,

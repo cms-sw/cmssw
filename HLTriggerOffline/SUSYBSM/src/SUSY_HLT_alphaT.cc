@@ -235,7 +235,7 @@ void SUSY_HLT_alphaT::analyze(edm::Event const &e, edm::EventSetup const &eSetup
   }
 }
 
-void SUSY_HLT_alphaT::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SUSY_HLT_alphaT::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   edm::LogInfo("SUSY_HLT_alphaT") << "SUSY_HLT_alphaT::endRun" << std::endl;
 }
 

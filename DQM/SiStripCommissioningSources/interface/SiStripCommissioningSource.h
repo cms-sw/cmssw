@@ -14,10 +14,10 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <boost/cstdint.hpp>
 #include <string>
 #include <vector>
 #include <map>
+#include <cstdint>
 
 class CommissioningTask;
 class FedChannelConnection;

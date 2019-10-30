@@ -10,8 +10,7 @@ $Date: 2007/12/10 18:37:06 $
 $Revision: 1.5 $
 */
 #include "CondFormats/Serialization/interface/Serializable.h"
-
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class HcalGainWidth {
 public:

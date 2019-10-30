@@ -455,6 +455,7 @@ void Comparator::Draw(TH1 *h0, TH1 *h1, Mode mode) {
   switch (mode) {
     case SCALE:
       h1_->Scale(h0_->GetEntries() / h1_->GetEntries());
+      break;
     case NORMAL:
       if (s0_)
         Styles::FormatHisto(h0_, s0_);
@@ -524,6 +525,7 @@ void Comparator::Draw(TH1 *h0, TH1 *h1, Mode mode) {
       if (s0_)
         Styles::FormatHisto(h0_, s0_);
       h0_->Draw();
+      break;
     default:
       break;
   }
