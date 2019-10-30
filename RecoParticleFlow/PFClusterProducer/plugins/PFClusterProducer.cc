@@ -22,10 +22,10 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf)
     _cleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(cleanerName, conf));
   }
 
-  const edm::VParameterSet& flagcleanerConfs = conf.getParameterSetVector("flagCleaners");
-  for (const auto& conf : cleanerConfs) {
-      const std::string& cleanerName = conf.getParameter<std::string>("algoName");
-      _flagcleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(cleanerName, conf));
+  const edm::VParameterSet& seedcleanerConfs = conf.getParameterSetVector("seedCleaners");
+  for (const auto& conf : seedcleanerConfs) {
+      const std::string& seedcleanerName = conf.getParameter<std::string>("algoName");
+      _seedcleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(seedcleanerName, conf));
   }
   
   edm::ConsumesCollector sumes = consumesCollector();
@@ -86,10 +86,9 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     cleaner->clean(rechits, mask);
   }
 
-  // no seeding on hits with certain flags, e.g. recovered
-  
+  // no seeding on these hits 
   std::vector<bool> seedmask= mask;
-  for (const auto& cleaner : _flagcleaners) {
+  for (const auto& cleaner : _seedcleaners) {
     cleaner->clean(rechits, seedmask);
   }
   

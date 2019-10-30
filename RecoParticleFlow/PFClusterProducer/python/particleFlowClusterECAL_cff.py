@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cfi import particleFlowClusterECAL
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALUncorrected_cfi import particleFlowClusterECAL
 particleFlowClusterECAL.energyCorrector.applyMVACorrections = True
 particleFlowClusterECAL.energyCorrector.maxPtForMVAEvaluation = 90.
 
