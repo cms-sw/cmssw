@@ -85,6 +85,6 @@ hiPixel3PrimTracksTask = cms.Task(
 hiPixel3PrimTracksSequence = cms.Sequence(hiPixel3PrimTracksTask)
 #phase 1 changes
 hiPixel3PrimTracksTask_Phase1 = hiPixel3PrimTracksTask.copy()
-hiPixel3PrimTracksTask_Phase1.replace(hiPixel3PrimTracksHitDoublets,hiPixelLayerQuadruplets,hiPixel3PrimTracksHitDoubletsCA)
+hiPixel3PrimTracksTask_Phase1.replace(hiPixel3PrimTracksHitDoublets, cms.Task(hiPixelLayerQuadruplets,hiPixel3PrimTracksHitDoubletsCA) )
 hiPixel3PrimTracksTask_Phase1.replace(hiPixel3PrimTracksHitTriplets,hiPixel3PrimTracksHitQuadrupletsCA)
 trackingPhase1.toReplaceWith(hiPixel3PrimTracksTask,hiPixel3PrimTracksTask_Phase1)
