@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <debug>
-    <debug_shapes/>
-    <!--debug_includes/>
+    <!--debug_shapes/>
+    <debug_includes/>
     <debug_rotations/>
-    <debug_includes/-->
+    <debug_includes/>
     <debug_volumes/>
-    <!--debug_constants/-->
+    <debug_constants/>
     <debug_materials/>
-    <!--debug_namespaces/>
+    <debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
     <debug_visattr/>
@@ -29,7 +29,7 @@
   </ConstantsSection>
 
   <IncludeSection>
-    <Include ref='Geometry/CMSCommonData/data/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2015/v1/materials.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cms.xml'/>
@@ -59,13 +59,5 @@
     <Include ref='Geometry/DTGeometryBuilder/data/dtSpecsFilter/2021/v1/dtSpecsFilter.xml'/>
     <Include ref='Geometry/MuonSimData/data/muonProdCuts/2021/v2/muonProdCuts.xml'/>
     <Include ref='Geometry/MuonSimData/data/muonSens.xml'/>
-    <Include ref='DetectorDescription/DDCMS/data/trackerParameters.xml'/>
   </IncludeSection>
-  
-  <PosPartSection label="">
-    <PosPart copyNumber="1">
-      <rParent name=":world_volume"/>
-      <rChild name="cms:OCMS"/>
-    </PosPart>
-  </PosPartSection>
 </DDDefinition>

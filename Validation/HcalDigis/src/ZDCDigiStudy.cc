@@ -361,7 +361,7 @@ void ZDCDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 ////////////////////////////////////////////////////////////////////
 
-void ZDCDigiStudy::endRun(const edm::Run& run, const edm::EventSetup& c) {
+void ZDCDigiStudy::dqmEndRun(const edm::Run& run, const edm::EventSetup& c) {
   int nevents =
       (meZdcPHAD1fCvsTS->getTH1F())
           ->GetBinContent(

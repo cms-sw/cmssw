@@ -38,12 +38,12 @@ namespace evf {
   const std::vector<std::string> EvFDaqDirector::MergeTypeNames_ = {"", "DAT", "PB", "JSNDATA"};
 
   EvFDaqDirector::EvFDaqDirector(const edm::ParameterSet& pset, edm::ActivityRegistry& reg)
-      : base_dir_(pset.getUntrackedParameter<std::string>("baseDir", ".")),
-        bu_base_dir_(pset.getUntrackedParameter<std::string>("buBaseDir", ".")),
+      : base_dir_(pset.getParameter<std::string>("baseDir")),
+        bu_base_dir_(pset.getParameter<std::string>("buBaseDir")),
         directorBu_(pset.getUntrackedParameter<bool>("directorIsBu", false)),
-        run_(pset.getUntrackedParameter<unsigned int>("runNumber", 0)),
-        useFileBroker_(pset.getUntrackedParameter<bool>("useFileBroker", false)),
-        fileBrokerHost_(pset.getUntrackedParameter<std::string>("fileBrokerHost", "")),
+        run_(pset.getParameter<unsigned int>("runNumber")),
+        useFileBroker_(pset.getParameter<bool>("useFileBroker")),
+        fileBrokerHost_(pset.getParameter<std::string>("fileBrokerHost")),
         fileBrokerPort_(pset.getUntrackedParameter<std::string>("fileBrokerPort", "8080")),
         fileBrokerKeepAlive_(pset.getUntrackedParameter<bool>("fileBrokerKeepAlive", true)),
         fileBrokerUseLocalLock_(pset.getUntrackedParameter<bool>("fileBrokerUseLocalLock", true)),
@@ -81,7 +81,7 @@ namespace evf {
     gethostname(hostname, 32);
     hostname_ = hostname;
 
-    char* fuLockPollIntervalPtr = getenv("FFF_LOCKPOLLINTERVAL");
+    char* fuLockPollIntervalPtr = std::getenv("FFF_LOCKPOLLINTERVAL");
     if (fuLockPollIntervalPtr) {
       try {
         fuLockPollInterval_ = boost::lexical_cast<unsigned int>(std::string(fuLockPollIntervalPtr));
@@ -93,7 +93,7 @@ namespace evf {
     }
 
     //override file service parameter if specified by environment
-    char* fileBrokerParamPtr = getenv("FFF_USEFILEBROKER");
+    char* fileBrokerParamPtr = std::getenv("FFF_USEFILEBROKER");
     if (fileBrokerParamPtr) {
       try {
         useFileBroker_ = (boost::lexical_cast<unsigned int>(std::string(fileBrokerParamPtr))) > 0;
@@ -122,7 +122,7 @@ namespace evf {
       }
     }
 
-    char* startFromLSPtr = getenv("FFF_STARTFROMLS");
+    char* startFromLSPtr = std::getenv("FFF_STARTFROMLS");
     if (startFromLSPtr) {
       try {
         startFromLS_ = boost::lexical_cast<unsigned int>(std::string(startFromLSPtr));
@@ -133,7 +133,7 @@ namespace evf {
     }
 
     //override file service parameter if specified by environment
-    char* fileBrokerUseLockParamPtr = getenv("FFF_FILEBROKERUSELOCALLOCK");
+    char* fileBrokerUseLockParamPtr = std::getenv("FFF_FILEBROKERUSELOCALLOCK");
     if (fileBrokerUseLockParamPtr) {
       try {
         fileBrokerUseLocalLock_ = (boost::lexical_cast<unsigned int>(std::string(fileBrokerUseLockParamPtr))) > 0;
@@ -276,9 +276,9 @@ namespace evf {
       else {
         //look in source directory if not present in ramdisk
         std::string defPathSuffix = "src/EventFilter/Utilities/plugins/budef.jsd";
-        defPath = std::string(getenv("CMSSW_BASE")) + "/" + defPathSuffix;
+        defPath = std::string(std::getenv("CMSSW_BASE")) + "/" + defPathSuffix;
         if (stat(defPath.c_str(), &statbuf)) {
-          defPath = std::string(getenv("CMSSW_RELEASE_BASE")) + "/" + defPathSuffix;
+          defPath = std::string(std::getenv("CMSSW_RELEASE_BASE")) + "/" + defPathSuffix;
           if (stat(defPath.c_str(), &statbuf)) {
             defPath = defPathSuffix;
           }
@@ -320,12 +320,12 @@ namespace evf {
     edm::ParameterSetDescription desc;
     desc.setComment(
         "Service used for file locking arbitration and for propagating information between other EvF components");
-    desc.addUntracked<std::string>("baseDir", ".")->setComment("Local base directory for run output");
-    desc.addUntracked<std::string>("buBaseDir", ".")->setComment("BU base ramdisk directory ");
-    desc.addUntracked<unsigned int>("runNumber", 0)->setComment("Run Number in ramdisk to open");
-    desc.addUntracked<bool>("useFileBroker", false)
+    desc.add<std::string>("baseDir", ".")->setComment("Local base directory for run output");
+    desc.add<std::string>("buBaseDir", ".")->setComment("BU base ramdisk directory ");
+    desc.add<unsigned int>("runNumber", 0)->setComment("Run Number in ramdisk to open");
+    desc.add<bool>("useFileBroker", false)
         ->setComment("Use BU file service to grab input data instead of NFS file locking");
-    desc.addUntracked<std::string>("fileBrokerHost", "")->setComment("BU file service host");
+    desc.add<std::string>("fileBrokerHost", "")->setComment("BU file service host");
     desc.addUntracked<std::string>("fileBrokerPort", "8080")->setComment("BU file service port");
     desc.addUntracked<bool>("fileBrokerKeepAlive", true)
         ->setComment("Use keep alive to avoid using large number of sockets");

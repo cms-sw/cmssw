@@ -31,7 +31,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include <ctime>
@@ -379,7 +379,7 @@ void PixelLumiDQM::bookHistograms(DQMStore::IBooker &ibooker,
 void PixelLumiDQM::dqmBeginRun(edm::Run const &, edm::EventSetup const &) {}
 
 // ------------ Method called when ending the processing of a run.  ------------
-void PixelLumiDQM::endRun(edm::Run const &, edm::EventSetup const &) {}
+void PixelLumiDQM::dqmEndRun(edm::Run const &, edm::EventSetup const &) {}
 
 // ------------ Method called when starting to process a luminosity block.
 // ------------

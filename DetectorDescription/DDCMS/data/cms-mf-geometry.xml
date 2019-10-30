@@ -27,13 +27,6 @@
     <Include ref='DetectorDescription/DDCMS/data/cmsMagneticField.xml'/>
     <Include ref='MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_1.xml'/>
     <Include ref='MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_2.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2015/v1/materials.xml'/>
   </IncludeSection>
-  
-  <PosPartSection label="">
-    <PosPart copyNumber="2">
-      <rParent name=":world_volume"/>
-      <rChild name="cms:MCMS"/>
-    </PosPart>
-  </PosPartSection>
 </DDDefinition>

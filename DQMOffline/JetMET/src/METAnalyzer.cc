@@ -1326,7 +1326,7 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 }
 
 // ***********************************************************
-void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void METAnalyzer::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   //
   //--- Check the time length of the Run from the lumi section plots
 

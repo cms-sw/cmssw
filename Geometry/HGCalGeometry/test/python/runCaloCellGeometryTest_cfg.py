@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CaloCellGeometryTest")
 
-process.load("Configuration.Geometry.GeometryExtended2023D31_cff")
-process.load("Configuration.Geometry.GeometryExtended2023D31Reco_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D35_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D35Reco_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
