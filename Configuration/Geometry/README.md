@@ -14,7 +14,7 @@ Calorimeters:
 * C6: HGCal (v9) + HFNose + Phase2 HCAL and EB
 * C8: HGCal (v10 post TDR HGCal Geometry) + Phase2 HCAL and EB + Tracker cables in calorimeter region
 * C9: HGCal (v11 post TDR HGCal Geometry same as C8 + corner centering for HE part)
-* C10: HGCal (as in C6 but with corrected wafer size) + HFNose with correted wafer size + Phase2 HCAL and EB
+* C10: HGCal (as in C9) + HFNose with correted wafer size + Phase2 HCAL and EB
 
 Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
