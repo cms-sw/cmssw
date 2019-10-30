@@ -74,10 +74,13 @@ public:
   //Operator used to sort the hits while performing the matching step at the MTD
   inline bool operator<(const MTDHitMatchingInfo& m2) const {
     //only for good matching in time use estChi2, otherwise use mostly time compatibility
-    if (timeChi2 < 10 && m2.timeChi2 < 10)
-      return chi2(3.) < m2.chi2(3.);
+    constexpr double chi2_cut = 10.;
+    constexpr double low_weight = 3.;
+    constexpr double high_weight = 8.;
+    if (timeChi2 < chi2_cut && m2.timeChi2 < chi2_cut)
+      return chi2(low_weight) < m2.chi2(low_weight);
     else
-      return chi2(8.) < m2.chi2(8.);
+      return chi2(high_weight) < m2.chi2(high_weight);
   }
 
   inline double chi2(float timeWeight = 1.) const { return estChi2 + timeWeight * timeChi2; }
@@ -380,10 +383,11 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   }
 
   double vtxTime = 0.;
+  constexpr double simVtxSmear = 0.008;  //assign 8ps resolution from reco studies
   if (useVertex_) {
     if (useSimVertex_ && genPV) {
-      vtxTime = genPV->position().t() * 1E9;                         //convert to ns
-      std::normal_distribution<double> vtx_smearer(vtxTime, 0.008);  //assign 8ps resolution from reco studies
+      vtxTime = genPV->position().t() * CLHEP::second;  //convert to ns
+      std::normal_distribution<double> vtx_smearer(vtxTime, simVtxSmear);
       vtxTime = vtx_smearer(randomGenerator_);
     } else if (PV)
       vtxTime = PV->t();  //already in ns
@@ -664,8 +668,9 @@ namespace {
         prob_p = rawprob_p * normprob;
 
         double prob_heavy = 1. - prob_pi;
+        constexpr double heavy_threshold = 0.75;
 
-        if (prob_heavy > 0.75) {
+        if (prob_heavy > heavy_threshold) {
           if (chi2_k < chi2_p) {
             dt_best = (tmtd - dt_k - t_vtx);
             dtchi2_best = chi2_k;
@@ -759,8 +764,14 @@ namespace {
               double tot_pl = pathlength + std::abs(pl.second);  //
               double t_vtx = useVtxConstraint ? vtxTime : 0.;
               double t_vtx_err = useVtxConstraint ? 0.008 : 0.18;  //should use beam spot in the future
-              TrackTofPidInfo tof(
-                  p.mag2(), tot_pl, itr->time(), 0.035, t_vtx, t_vtx_err, false);  //put hit error by hand for the moment
+              constexpr double t_res_manual = 0.035;
+              TrackTofPidInfo tof(p.mag2(),
+                                  tot_pl,
+                                  itr->time(),
+                                  t_res_manual,
+                                  t_vtx,
+                                  t_vtx_err,
+                                  false);  //put hit error by hand for the moment
               MTDHitMatchingInfo mi;
               mi.hit = &(*itr);
               mi.estChi2 = est.second;
