@@ -397,19 +397,18 @@ namespace {
 
 }  // namespace
 
-double electronAlgos::computeEnergyUncertainty(reco::GsfElectron::Classification c,
-                                               double eta,
-                                               double brem,
-                                               double energy) {
-  if (c == reco::GsfElectron::GOLDEN)
+using reco::GsfElectron;
+
+double egamma::electronEnergyUncertainty(GsfElectron::Classification c, double eta, double brem, double energy) {
+  if (c == GsfElectron::GOLDEN)
     return computeEnergyUncertaintyGolden(eta, brem, energy);
-  if (c == reco::GsfElectron::BIGBREM)
+  if (c == GsfElectron::BIGBREM)
     return computeEnergyUncertaintyBigbrem(eta, brem, energy);
-  if (c == reco::GsfElectron::SHOWERING)
+  if (c == GsfElectron::SHOWERING)
     return computeEnergyUncertaintyShowering(eta, brem, energy);
-  if (c == reco::GsfElectron::BADTRACK)
+  if (c == GsfElectron::BADTRACK)
     return computeEnergyUncertaintyBadTrack(eta, brem, energy);
-  if (c == reco::GsfElectron::GAP)
+  if (c == GsfElectron::GAP)
     return computeEnergyUncertaintyCracks(eta, brem, energy);
   throw cms::Exception("GsfElectronAlgo|InternalError") << "unknown classification";
 }

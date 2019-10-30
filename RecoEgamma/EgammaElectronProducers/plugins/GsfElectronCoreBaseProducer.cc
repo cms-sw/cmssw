@@ -46,6 +46,6 @@ void GsfElectronCoreBaseProducer::initEvent(edm::Event& event, const edm::EventS
 void GsfElectronCoreBaseProducer::fillElectronCore(reco::GsfElectronCore* eleCore) {
   const GsfTrackRef& gsfTrackRef = eleCore->gsfTrack();
 
-  std::pair<TrackRef, float> ctfpair = electronAlgos::getClosestCtfToGsf(gsfTrackRef, ctfTracksH_);
+  std::pair<TrackRef, float> ctfpair = egamma::getClosestCtfToGsf(gsfTrackRef, ctfTracksH_);
   eleCore->setCtfTrack(ctfpair.first, ctfpair.second);
 }

@@ -9,8 +9,8 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-namespace electronAlgos {
-  reco::GsfElectron::Classification classify(reco::GsfElectron const&);
+namespace egamma {
+  reco::GsfElectron::Classification classifyElectron(reco::GsfElectron const&);
 }
 
 #endif

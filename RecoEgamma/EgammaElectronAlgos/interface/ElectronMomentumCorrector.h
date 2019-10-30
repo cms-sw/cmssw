@@ -12,7 +12,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-namespace electronAlgos {
+namespace egamma {
 
   struct ElectronMomentum {
     const math::XYZTLorentzVector momentum;
@@ -20,7 +20,7 @@ namespace electronAlgos {
     const float finalError;
   };
 
-  ElectronMomentum correctMomentum(reco::GsfElectron const&, TrajectoryStateOnSurface const&);
-}  // namespace electronAlgos
+  ElectronMomentum correctElectronMomentum(reco::GsfElectron const&, TrajectoryStateOnSurface const&);
+}  // namespace egamma
 
 #endif

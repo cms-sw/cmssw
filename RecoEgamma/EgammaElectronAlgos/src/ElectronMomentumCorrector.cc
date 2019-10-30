@@ -20,8 +20,8 @@
  *
  ****************************************************************************/
 
-electronAlgos::ElectronMomentum electronAlgos::correctMomentum(reco::GsfElectron const& electron,
-                                                               TrajectoryStateOnSurface const& vtxTsos) {
+egamma::ElectronMomentum egamma::correctElectronMomentum(reco::GsfElectron const& electron,
+                                                         TrajectoryStateOnSurface const& vtxTsos) {
   int elClass = electron.classification();
 
   //=======================================================================================
