@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_11_0_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run2_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_11_0_0/PRef/V8 (CMSSW_11_0_0_pre9)
+# /dev/CMSSW_11_0_0/PRef/V10 (CMSSW_11_0_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_0_0/PRef/V8')
+  tableName = cms.string('/dev/CMSSW_11_0_0/PRef/V10')
 )
 
 process.transferSystem = cms.PSet( 
@@ -5979,13 +5979,13 @@ process.hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     saveQIE11DataTags = cms.untracked.vstring(  ),
     firstSample = cms.int32( 0 )
 )
-process.hltHbhePhase1Reco = cms.EDProducer( "HBHEPhase1Reconstructor",
+process.hltHbhereco = cms.EDProducer( "HBHEPhase1Reconstructor",
     tsFromDB = cms.bool( False ),
-    setPulseShapeFlagsQIE8 = cms.bool( True ),
-    use8ts = cms.bool( False ),
+    setPulseShapeFlagsQIE8 = cms.bool( False ),
+    use8ts = cms.bool( True ),
     digiLabelQIE11 = cms.InputTag( "hltHcalDigis" ),
     saveDroppedInfos = cms.bool( False ),
-    setNoiseFlagsQIE8 = cms.bool( True ),
+    setNoiseFlagsQIE8 = cms.bool( False ),
     saveEffectivePedestal = cms.bool( True ),
     digiLabelQIE8 = cms.InputTag( "hltHcalDigis" ),
     sipmQTSShift = cms.int32( 0 ),
@@ -6036,7 +6036,7 @@ process.hltHbhePhase1Reco = cms.EDProducer( "HBHEPhase1Reconstructor",
     ),
     setNegativeFlagsQIE8 = cms.bool( False ),
     setNegativeFlagsQIE11 = cms.bool( False ),
-    processQIE8 = cms.bool( True ),
+    processQIE8 = cms.bool( False ),
     algorithm = cms.PSet( 
       ts4Thresh = cms.double( 0.0 ),
       meanTime = cms.double( 0.0 ),
@@ -6065,14 +6065,15 @@ process.hltHbhePhase1Reco = cms.EDProducer( "HBHEPhase1Reconstructor",
       timeMin = cms.double( -12.5 ),
       useM3 = cms.bool( False ),
       chiSqSwitch = cms.double( 15.0 ),
-      dynamicPed = cms.bool( True ),
+      dynamicPed = cms.bool( False ),
       tdcTimeShift = cms.double( 0.0 ),
       correctionPhaseNS = cms.double( 6.0 ),
       firstSampleShift = cms.int32( 0 ),
-      activeBXs = cms.vint32( -1, 0, 1 ),
+      activeBXs = cms.vint32( -3, -2, -1, 0, 1, 2, 3, 4 ),
       ts4chi2 = cms.vdouble( 15.0, 15.0 ),
       timeMax = cms.double( 12.5 ),
-      Class = cms.string( "SimpleHBHEPhase1Algo" )
+      Class = cms.string( "SimpleHBHEPhase1Algo" ),
+      calculateArrivalTime = cms.bool( False )
     ),
     setLegacyFlagsQIE8 = cms.bool( False ),
     sipmQNTStoSum = cms.int32( 3 ),
@@ -6081,12 +6082,6 @@ process.hltHbhePhase1Reco = cms.EDProducer( "HBHEPhase1Reconstructor",
     setNoiseFlagsQIE11 = cms.bool( False ),
     dropZSmarkedPassed = cms.bool( True ),
     recoParamsFromDB = cms.bool( True )
-)
-process.hltHbhereco = cms.EDProducer( "HBHEPlan1Combiner",
-    hbheInput = cms.InputTag( "hltHbhePhase1Reco" ),
-    usePlan1Mode = cms.bool( True ),
-    ignorePlan1Topology = cms.bool( False ),
-    algorithm = cms.PSet(  Class = cms.string( "SimplePlan1RechitCombiner" ) )
 )
 process.hltHfprereco = cms.EDProducer( "HFPreReconstructor",
     soiShift = cms.int32( 0 ),
@@ -6195,12 +6190,12 @@ process.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     UseEtEBTreshold = cms.bool( False ),
     hfInput = cms.InputTag( "hltHfreco" ),
     AllowMissingInputs = cms.bool( False ),
-    HEDThreshold1 = cms.double( 0.8 ),
+    HEDThreshold1 = cms.double( 0.1 ),
     MomEEDepth = cms.double( 0.0 ),
     EESumThreshold = cms.double( 0.45 ),
     HBGrid = cms.vdouble(  ),
     HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
-    HBThreshold = cms.double( 0.7 ),
+    HBThreshold = cms.double( 0.3 ),
     EcalSeveritiesToBeUsedInBadTowers = cms.vstring(  ),
     UseEcalRecoveredHits = cms.bool( False ),
     MomConstrMethod = cms.int32( 1 ),
@@ -6216,27 +6211,27 @@ process.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     HBWeights = cms.vdouble(  ),
     HF1Weight = cms.double( 1.0 ),
     missingHcalRescaleFactorForEcal = cms.double( 0.0 ),
-    HESThreshold1 = cms.double( 0.8 ),
+    HESThreshold1 = cms.double( 0.1 ),
     HEDWeights = cms.vdouble(  ),
     EBWeight = cms.double( 1.0 ),
     HF1Grid = cms.vdouble(  ),
     EBWeights = cms.vdouble(  ),
     HOWeight = cms.double( 1.0E-99 ),
     HESWeight = cms.double( 1.0 ),
-    HESThreshold = cms.double( 0.8 ),
+    HESThreshold = cms.double( 0.2 ),
     hbheInput = cms.InputTag( "hltHbhereco" ),
     HF2Weight = cms.double( 1.0 ),
-    HBThreshold1 = cms.double( 0.7 ),
+    HBThreshold1 = cms.double( 0.1 ),
     HF2Threshold = cms.double( 0.85 ),
     HcalAcceptSeverityLevel = cms.uint32( 9 ),
-    HBThreshold2 = cms.double( 0.7 ),
+    HBThreshold2 = cms.double( 0.2 ),
     EEThreshold = cms.double( 0.3 ),
     HOThresholdPlus1 = cms.double( 3.5 ),
     HOThresholdPlus2 = cms.double( 3.5 ),
     HF1Weights = cms.vdouble(  ),
     hoInput = cms.InputTag( "hltHoreco" ),
     HF1Threshold = cms.double( 0.5 ),
-    HcalPhase = cms.int32( 0 ),
+    HcalPhase = cms.int32( 1 ),
     HESGrid = cms.vdouble(  ),
     EcutTower = cms.double( -1000.0 ),
     UseRejectedRecoveredEcalHits = cms.bool( False ),
@@ -6248,7 +6243,7 @@ process.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
       'kBad' ),
     HEDWeight = cms.double( 1.0 ),
     UseSymEETreshold = cms.bool( False ),
-    HEDThreshold = cms.double( 0.8 ),
+    HEDThreshold = cms.double( 0.2 ),
     UseRejectedHitsOnly = cms.bool( False ),
     EBThreshold = cms.double( 0.07 ),
     HEDGrid = cms.vdouble(  ),
@@ -11656,7 +11651,7 @@ process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtStage2Digis + process
 process.HLTBeamSpot = cms.Sequence( process.hltScalersRawToDigi + process.hltOnlineBeamSpot )
 process.HLTBeginSequence = cms.Sequence( process.hltTriggerType + process.HLTL1UnpackerSequence + process.HLTBeamSpot )
 process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence( process.hltEcalDigis + process.hltEcalUncalibRecHit + process.hltEcalDetIdToBeRecovered + process.hltEcalRecHit )
-process.HLTDoLocalHcalSequence = cms.Sequence( process.hltHcalDigis + process.hltHbhePhase1Reco + process.hltHbhereco + process.hltHfprereco + process.hltHfreco + process.hltHoreco )
+process.HLTDoLocalHcalSequence = cms.Sequence( process.hltHcalDigis + process.hltHbhereco + process.hltHfprereco + process.hltHfreco + process.hltHoreco )
 process.HLTDoCaloSequencePF = cms.Sequence( process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + process.HLTDoLocalHcalSequence + process.hltTowerMakerForAll )
 process.HLTAK4CaloJetsPrePFRecoSequence = cms.Sequence( process.HLTDoCaloSequencePF + process.hltAK4CaloJetsPF )
 process.HLTPreAK4PFJetsRecoSequence = cms.Sequence( process.HLTAK4CaloJetsPrePFRecoSequence + process.hltAK4CaloJetsPFEt5 )
