@@ -82,6 +82,8 @@ public:  //====================================================================
 
   const AlignPCLThresholds::threshold_map getThresholdMap() const { return theThresholds_.get()->getThreshold_Map(); }
 
+  const int binariesAmount() const { return binariesAmount_; }
+
   const mpPCLresults getResults() const {
     return mpPCLresults(updateDB_, vetoUpdateDB_, Nrec_, exitCode_, exitMessage_, updateBits_);
   }
@@ -140,6 +142,9 @@ private:
   // 3rd bit: exceeds maximum errors
   // 4th bit: is below the significance
   std::bitset<4> updateBits_;
+
+  // pede binaries available
+  int binariesAmount_{0};
 
   int Nrec_{0};
   int exitCode_{-1};
