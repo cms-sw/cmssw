@@ -13,7 +13,7 @@
 bool EcalSimParametersFromDD::build(const DDCompactView* cpv, const std::string& name, EcalSimulationParameters& php) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalGeom")
-    << "Inside EcalSimParametersFromDD::build(const DDCompactView*, const std::string&, EcalSimulationParameters&)";
+      << "Inside EcalSimParametersFromDD::build(const DDCompactView*, const std::string&, EcalSimulationParameters&)";
 #endif
   // Get the filtered view
   std::string attribute = "ReadOutName";
@@ -50,7 +50,7 @@ bool EcalSimParametersFromDD::build(const DDCompactView* cpv, const std::string&
     php.ncrys_ = 0;
   else
     php.ncrys_ = static_cast<int>(tempD[0]);
-   tempD = getDDDArray("nmods", sv);
+  tempD = getDDDArray("nmods", sv);
   if (tempD.empty())
     php.nmods_ = 0;
   else
@@ -82,10 +82,12 @@ bool EcalSimParametersFromDD::build(const DDCompactView* cpv, const std::string&
   return this->buildParameters(php);
 }
 
-bool EcalSimParametersFromDD::build(const cms::DDCompactView* cpv, const std::string& name, EcalSimulationParameters& php) {
+bool EcalSimParametersFromDD::build(const cms::DDCompactView* cpv,
+                                    const std::string& name,
+                                    EcalSimulationParameters& php) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom")
-    << "Inside EcalSimParametersFromDD::build(const cms::DDCompactView*, const std::string, EcalSimulationParameters&)";
+  edm::LogVerbatim("EcalGeom") << "Inside EcalSimParametersFromDD::build(const cms::DDCompactView*, const std::string, "
+                                  "EcalSimulationParameters&)";
 #endif
   // Get the filtered view
   std::string attribute = "ReadOutName";
@@ -93,13 +95,13 @@ bool EcalSimParametersFromDD::build(const cms::DDCompactView* cpv, const std::st
 
   //First the specpars
   char specName[10];
-  if (name == "EcalHitsEE") 
-    sprintf (specName, "ecal_ee");
+  if (name == "EcalHitsEE")
+    sprintf(specName, "ecal_ee");
   else if (name == "EcalHitsES")
-    sprintf (specName, "ecal_sf");
+    sprintf(specName, "ecal_sf");
   else
-    sprintf (specName, "ecal_eb");
-  
+    sprintf(specName, "ecal_eb");
+
   php.useWeight_ = true;
   std::vector<double> tempD = fv.get<std::vector<double> >(specName, "EnergyWeight");
   if (!tempD.empty()) {
@@ -147,7 +149,7 @@ bool EcalSimParametersFromDD::build(const cms::DDCompactView* cpv, const std::st
   //Then the logical volumes
   cms::DDSpecParRefs refs;
   const cms::DDSpecParRegistry& mypar = cpv->specpars();
-   mypar.filter(refs, attribute, name);
+  mypar.filter(refs, attribute, name);
   fv.mergedSpecifics(refs);
   bool dodet = fv.firstChild();
   while (dodet) {
@@ -166,9 +168,13 @@ bool EcalSimParametersFromDD::build(const cms::DDCompactView* cpv, const std::st
 
 bool EcalSimParametersFromDD::buildParameters(const EcalSimulationParameters& php) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << "EcalSimParametersFromDD:: nxtalEta:" << php.nxtalEta_ << " nxtalPhi:" << php.nxtalPhi_ << " phiBaskets:" << php.phiBaskets_ << " ncrys:" << php.ncrys_ << " nmods: " << php.nmods_ << " useWeight:" << php.useWeight_ << " DeothNames:" << php.depth1Name_ << ":" << php.depth2Name_;
+  edm::LogVerbatim("EcalGeom") << "EcalSimParametersFromDD:: nxtalEta:" << php.nxtalEta_
+                               << " nxtalPhi:" << php.nxtalPhi_ << " phiBaskets:" << php.phiBaskets_
+                               << " ncrys:" << php.ncrys_ << " nmods: " << php.nmods_ << " useWeight:" << php.useWeight_
+                               << " DeothNames:" << php.depth1Name_ << ":" << php.depth2Name_;
   myPrint("etaBaskets", php.etaBaskets_);
-  edm::LogVerbatim("EcalGeom") << "EcalSimParametersFromDD:: " << php.lvNames_.size() << " lvNames, " << php.matNames_.size() << " matNames and " << php.dzs_.size() << "dzs";
+  edm::LogVerbatim("EcalGeom") << "EcalSimParametersFromDD:: " << php.lvNames_.size() << " lvNames, "
+                               << php.matNames_.size() << " matNames and " << php.dzs_.size() << "dzs";
 #endif
 
   return true;

@@ -284,8 +284,8 @@ uint16_t ECalSD::getRadiationLength(const G4StepPoint* hitPoint, const G4Logical
     G4ThreeVector localPoint = setToLocal(hitPoint->GetPosition(), hitPoint->GetTouchable());
     edm::LogVerbatim("EcalSim") << lv->GetName() << " Global " << hitPoint->GetPosition() << ":"
                                 << (hitPoint->GetPosition()).rho() << " Local " << localPoint << " Crystal Length "
-                                << crystalLength << " Radl " << radl << " crystalDepth " << crystalDepth << " Index " << thisX0 << " : "
-                                << getLayerIDForTimeSim();
+                                << crystalLength << " Radl " << radl << " crystalDepth " << crystalDepth << " Index "
+                                << thisX0 << " : " << getLayerIDForTimeSim();
 #endif
   }
   return thisX0;
