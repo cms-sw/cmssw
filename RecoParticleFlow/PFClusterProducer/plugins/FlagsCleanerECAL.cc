@@ -28,10 +28,7 @@ void FlagsCleanerECAL::clean(const edm::Handle<reco::PFRecHitCollection>& input,
 bool FlagsCleanerECAL::checkFlags(const reco::PFRecHit& hit){
 
     for (auto flag : v_chstatus_excl_) {  // check if one of the flags is up
-
-        std::cout<< " Flagbits " << hit.getFlags() << std::endl;
-        if (hit.getFlags() & (0x1 << flag)) return true;
-        
+        if (hit.getFlags() & (0x1 << flag)) return true;        
     }
     return false;
 }    
