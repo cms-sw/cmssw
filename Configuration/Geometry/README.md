@@ -14,7 +14,7 @@ Calorimeters:
 * C6: HGCal (v9) + HFNose + Phase2 HCAL and EB
 * C8: HGCal (v10 post TDR HGCal Geometry) + Phase2 HCAL and EB + Tracker cables in calorimeter region
 * C9: HGCal (v11 post TDR HGCal Geometry same as C8 + corner centering for HE part)
-* C10: HGCal (as in C9) + HFNose with correted wafer size + Phase2 HCAL and EB
+* C10: HGCal (as in C9) + HFNose with corrected wafer size + Phase2 HCAL and EB
 
 Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
@@ -41,7 +41,7 @@ Several detector combinations have been generated:
 * D44 = T14+C6+M3+I7+O2+F3
 * D45 = T15+C8+M3+I10+O3+F2
 * D46 = T15+C9+M3+I10+O3+F2
-* D47 = T14+C10+M3+I7+O2+F3
+* D47 = T15+C10+M3+I10+O3+F3
 * D48 = T16+C9+M3+I10+O3+F2
 * D49 = T15+C9+M4+I10+O4+F2
 
