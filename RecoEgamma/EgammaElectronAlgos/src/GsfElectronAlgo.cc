@@ -659,8 +659,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                                      const GsfElectronAlgo::HeavyObjectCache* hoc) {
   // eventually check ctf track
   if (generalData_.strategyCfg.ctfTracksCheck && electronData.ctfTrackRef.isNull()) {
-    electronData.ctfTrackRef =
-        gsfElectronTools::getClosestCtfToGsf(electronData.gsfTrackRef, eventData.currentCtfTracks).first;
+    electronData.ctfTrackRef = egamma::getClosestCtfToGsf(electronData.gsfTrackRef, eventData.currentCtfTracks).first;
   }
 
   // charge ID
@@ -884,11 +883,15 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   // classification and corrections
   //====================================================
   // classification
-  ElectronClassification theClassifier;
-  theClassifier.classify(ele);
-  theClassifier.refineWithPflow(ele);
+  const auto elClass = egamma::classifyElectron(ele);
+  ele.setClassification(elClass);
+
+  bool unexpectedClassification = elClass == GsfElectron::UNKNOWN || elClass > GsfElectron::GAP;
+  if (unexpectedClassification) {
+    edm::LogWarning("GsfElectronAlgo") << "unexpected classification";
+  }
+
   // ecal energy
-  ElectronEnergyCorrector theEnCorrector(generalData_.crackCorrectionFunction.get());
   if (generalData_.strategyCfg.useEcalRegression)  // new
   {
     generalData_.regHelper.applyEcalRegression(
@@ -897,15 +900,20 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   {
     if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
       if (ele.core()->ecalDrivenSeed()) {
-        if (generalData_.strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization) {
-          theEnCorrector.classBasedParameterizationEnergy(ele, *eventData.beamspot);
+        if (generalData_.strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization && !unexpectedClassification) {
+          if (ele.isEcalEnergyCorrected()) {
+            edm::LogWarning("ElectronEnergyCorrector::classBasedElectronEnergy") << "already done";
+          } else {
+            ele.setCorrectedEcalEnergy(
+                egamma::classBasedElectronEnergy(ele, *eventData.beamspot, *generalData_.crackCorrectionFunction));
+          }
         }
         if (generalData_.strategyCfg.ecalDrivenEcalErrorFromClassBasedParameterization) {
-          theEnCorrector.classBasedParameterizationUncertainty(ele);
+          ele.setCorrectedEcalEnergyError(egamma::classBasedElectronEnergyUncertainty(ele));
         }
       } else {
         if (generalData_.strategyCfg.pureTrackerDrivenEcalErrorFromSimpleParameterization) {
-          theEnCorrector.simpleParameterizationUncertainty(ele);
+          ele.setCorrectedEcalEnergyError(egamma::simpleElectronEnergyUncertainty(ele));
         }
       }
     }
@@ -913,9 +921,13 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
 
   // momentum
   // Keep the default correction running first. The track momentum error is computed in there
-  if (ele.core()->ecalDrivenSeed()) {
-    ElectronMomentumCorrector theMomCorrector;
-    theMomCorrector.correct(ele, electronData.vtxTSOS);
+  if (ele.core()->ecalDrivenSeed() && !unexpectedClassification) {
+    if (ele.p4Error(reco::GsfElectron::P4_COMBINATION) != 999.) {
+      edm::LogWarning("ElectronMomentumCorrector::correct") << "already done";
+    } else {
+      auto p = egamma::correctElectronMomentum(ele, electronData.vtxTSOS);
+      ele.correctMomentum(p.momentum, p.trackError, p.finalError);
+    }
   }
   if (generalData_.strategyCfg.useCombinationRegression)  // new
   {
