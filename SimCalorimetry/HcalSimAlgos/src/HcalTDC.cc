@@ -2,7 +2,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "CLHEP/Random/RandGaussQ.h"
 
 
@@ -81,7 +80,7 @@ void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame & digi) const {
     digi.setSample(ibin, digi[ibin].adc(), packedTDC, digi[ibin].soi());
 
     /*if ( hasTDCValues) {
-	if(digi.hcaldetid().ieta()==1&&digi.hcaldetid().iphi()==1){
+	if(HcalDetId(hcaldetid()).ieta()==1&&HcalDetId(hcaldetid()).iphi()==1){
             std::cout << " Depth: " << digi.hcaldetid().depth() 
 		<< " sample: " << ibin << " adc: " << digi[ibin].adc() 
 		<< " capid: " << digi[ibin].capid() 

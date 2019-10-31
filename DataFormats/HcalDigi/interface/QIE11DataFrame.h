@@ -65,7 +65,6 @@ public:
 
   /// Get the detector id
   constexpr DetId detid() const { return DetId(m_data.id()); }
-  constexpr HcalDetId hcaldetid() const { return HcalDetId(m_data.id()); } 
   constexpr edm::DataFrame::id_type id() const { return m_data.id(); }
   /// more accessors
   constexpr edm::DataFrame::size_type size() const { return m_data.size(); }
