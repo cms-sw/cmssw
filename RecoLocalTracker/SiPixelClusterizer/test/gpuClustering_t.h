@@ -12,6 +12,7 @@
 #ifdef __CUDACC__
 #include <cuda/api_wrappers.h>
 
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
@@ -44,17 +45,14 @@ int main(void) {
 
 #ifdef __CUDACC__
   auto current_device = cuda::device::current::get();
-  auto d_id = cuda::memory::device::make_unique<uint16_t[]>(current_device, numElements);
-  auto d_x = cuda::memory::device::make_unique<uint16_t[]>(current_device, numElements);
-  auto d_y = cuda::memory::device::make_unique<uint16_t[]>(current_device, numElements);
-  auto d_adc = cuda::memory::device::make_unique<uint16_t[]>(current_device, numElements);
-
-  auto d_clus = cuda::memory::device::make_unique<int[]>(current_device, numElements);
-
-  auto d_moduleStart = cuda::memory::device::make_unique<uint32_t[]>(current_device, MaxNumModules + 1);
-
-  auto d_clusInModule = cuda::memory::device::make_unique<uint32_t[]>(current_device, MaxNumModules);
-  auto d_moduleId = cuda::memory::device::make_unique<uint32_t[]>(current_device, MaxNumModules);
+  auto d_id = cudautils::make_device_unique<uint16_t[]>(numElements, nullptr);
+  auto d_x = cudautils::make_device_unique<uint16_t[]>(numElements, nullptr);
+  auto d_y = cudautils::make_device_unique<uint16_t[]>(numElements, nullptr);
+  auto d_adc = cudautils::make_device_unique<uint16_t[]>(numElements, nullptr);
+  auto d_clus = cudautils::make_device_unique<int[]>(numElements, nullptr);
+  auto d_moduleStart = cudautils::make_device_unique<uint32_t[]>(MaxNumModules + 1, nullptr);
+  auto d_clusInModule = cudautils::make_device_unique<uint32_t[]>(MaxNumModules, nullptr);
+  auto d_moduleId = cudautils::make_device_unique<uint32_t[]>(MaxNumModules, nullptr);
 #else
 
   auto h_moduleStart = std::make_unique<uint32_t[]>(MaxNumModules + 1);
