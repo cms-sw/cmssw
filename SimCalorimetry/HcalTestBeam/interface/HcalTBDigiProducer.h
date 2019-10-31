@@ -17,6 +17,7 @@
 #include "SimCalorimetry/HcalTestBeam/interface/HcalTBSimParameterMap.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
 
 #include <string>
 #include <vector>
@@ -62,6 +63,7 @@ private:
   typedef CaloTDigitizer<HODigitizerTraits> HODigitizer;
 
   HcalTBSimParameterMap *theParameterMap;
+  HcalSimParameterMap *paraMap;
   CaloVShape *theHcalShape;
   CaloVShape *theHcalIntegratedShape;
 
