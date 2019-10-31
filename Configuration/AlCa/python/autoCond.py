@@ -66,15 +66,15 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in PEAK mode
     'phase1_2018_cosmics_peak' :   '110X_upgrade2018cosmics_realistic_peak_v5',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2021
-    'phase1_2021_design'       : '110X_mcRun3_2021_design_v4', # GT containing design conditions for Phase1 2021
+    'phase1_2021_design'       : '110X_mcRun3_2021_design_v5', # GT containing design conditions for Phase1 2021
     # GlobalTag for MC production with realistic conditions for Phase1 2021
-    'phase1_2021_realistic'    : '110X_mcRun3_2021_realistic_v4', # GT containing realistic conditions for Phase1 2021
+    'phase1_2021_realistic'    : '110X_mcRun3_2021_realistic_v5', # GT containing realistic conditions for Phase1 2021
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2021,  Strip tracker in DECO mode
-    'phase1_2021_cosmics'      : '110X_mcRun3_2021cosmics_realistic_deco_v2',
+    'phase1_2021_cosmics'      : '110X_mcRun3_2021cosmics_realistic_deco_v3',
     # GlobalTag for MC production with realistic conditions for Phase1 2023
-    'phase1_2023_realistic'    : '110X_mcRun3_2023_realistic_v4', # GT containing realistic conditions for Phase1 2023
+    'phase1_2023_realistic'    : '110X_mcRun3_2023_realistic_v5', # GT containing realistic conditions for Phase1 2023
     # GlobalTag for MC production with realistic conditions for Phase1 2024
-    'phase1_2024_realistic'    : '110X_mcRun3_2024_realistic_v4', # GT containing realistic conditions for Phase1 2024
+    'phase1_2024_realistic'    : '110X_mcRun3_2024_realistic_v5', # GT containing realistic conditions for Phase1 2024
     # GlobalTag for MC production with realistic conditions for Phase2
     'phase2_realistic'         : '110X_mcRun4_realistic_v2'
 }
