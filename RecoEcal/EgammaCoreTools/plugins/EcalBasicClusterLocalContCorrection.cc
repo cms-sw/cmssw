@@ -35,8 +35,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
-#include <iostream>
-
 class EcalBasicClusterLocalContCorrection : public EcalClusterFunctionBaseClass {
 public:
   EcalBasicClusterLocalContCorrection();

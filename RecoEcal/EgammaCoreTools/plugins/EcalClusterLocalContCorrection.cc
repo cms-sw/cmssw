@@ -35,8 +35,6 @@
 #include "TVector2.h"
 #include "TMath.h"
 
-#include <iostream>
-
 class EcalClusterLocalContCorrection : public EcalClusterFunctionBaseClass {
 public:
   EcalClusterLocalContCorrection();

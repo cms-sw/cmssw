@@ -20,8 +20,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-#include <memory>
-
 class EcalBasicClusterLocalContCorrectionsESProducer : public edm::ESProducer {
 public:
   EcalBasicClusterLocalContCorrectionsESProducer(const edm::ParameterSet&) { setWhatProduced(this); }

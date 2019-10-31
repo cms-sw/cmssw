@@ -34,8 +34,6 @@
 #include "TVector2.h"
 #include "TMath.h"
 
-#include <iostream>
-
 class EcalClusterCrackCorrection : public EcalClusterFunctionBaseClass {
 public:
   EcalClusterCrackCorrection();
