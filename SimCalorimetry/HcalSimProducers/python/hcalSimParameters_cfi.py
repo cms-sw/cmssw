@@ -21,6 +21,7 @@ hcalSimParameters = cms.PSet(
         timePhase = cms.double(14.0),
         doSiPMSmearing = cms.bool(False),
         sipmTau = cms.double(0.),
+        threshold_currentTDC = cms.double(18.7),
     ),
     hf2 = cms.PSet(
         readoutFrameSize = cms.int32(4),
@@ -33,6 +34,7 @@ hcalSimParameters = cms.PSet(
         timePhase = cms.double(13.0),
         doSiPMSmearing = cms.bool(False),
         sipmTau = cms.double(0.),
+        threshold_currentTDC = cms.double(18.7),
     ),
     ho = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -50,6 +52,7 @@ hcalSimParameters = cms.PSet(
         siPMCode = cms.int32(2),
         doSiPMSmearing = cms.bool(False),
         sipmTau = cms.double(5.),
+        threshold_currentTDC = cms.double(18.7),
     ),
     hb = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -67,6 +70,7 @@ hcalSimParameters = cms.PSet(
         timeSmearing = cms.bool(True),
         doSiPMSmearing = cms.bool(False),
         sipmTau = cms.double(0.),
+        threshold_currentTDC = cms.double(18.7),
     ),
     he = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -83,6 +87,7 @@ hcalSimParameters = cms.PSet(
         timeSmearing = cms.bool(True),
         doSiPMSmearing = cms.bool(False),
         sipmTau = cms.double(0.),
+        threshold_currentTDC = cms.double(18.7),
     ),
     zdc = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -95,6 +100,7 @@ hcalSimParameters = cms.PSet(
         timePhase = cms.double(-4.0),
         doSiPMSmearing = cms.bool(False),
         sipmTau = cms.double(0.),
+        threshold_currentTDC = cms.double(18.7),
     ),
 )
 

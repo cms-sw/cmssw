@@ -118,7 +118,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
       int presamples = qiedf.presamples();
 
       /* Defining a custom index that will encode only
-	 the information about the crate and slot of a 
+	 the information about the crate and slot of a
 	 given channel:   crate: bits 0-7
 	 slot:  bits 8-12 */
 
@@ -143,6 +143,9 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
       int slotId = eid.slot();
       int uhtrIndex = ((slotId & 0xF) << 8) | (crateId & 0xFF);
       int presamples = qiedf.presamples();
+
+      //   convert to hb qie data if hb
+      if (HcalDetId(detid.rawId()).subdet() == HcalSubdetector::HcalBarrel) qiedf = convertHB2HE(qiedf);
 
       if (!uhtrs.exist(uhtrIndex)) {
         uhtrs.newUHTR(uhtrIndex, presamples);
