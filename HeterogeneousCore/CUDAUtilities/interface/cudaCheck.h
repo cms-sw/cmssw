@@ -1,21 +1,25 @@
 #ifndef HeterogeneousCore_CUDAUtilities_cudaCheck_h
 #define HeterogeneousCore_CUDAUtilities_cudaCheck_h
 
+// C++ standard headers
 #include <iostream>
 #include <sstream>
+
+// CUDA headers
 #include <cuda.h>
 #include <cuda_runtime.h>
 
 namespace {
 
-  inline void printCudaErrorMessage(
+  [[noreturn]] inline void abortOnCudaError(
       const char* file, int line, const char* cmd, const char* error, const char* message) {
     std::ostringstream out;
     out << "\n";
     out << file << ", line " << line << ":\n";
     out << "cudaCheck(" << cmd << ");\n";
     out << error << ": " << message << "\n";
-    std::cerr << out.rdbuf() << std::endl;
+    std::cerr << out.str() << std::flush;
+    abort();
   }
 
 }  // namespace
@@ -28,8 +32,7 @@ inline bool cudaCheck_(const char* file, int line, const char* cmd, CUresult res
   const char* message;
   cuGetErrorName(result, &error);
   cuGetErrorString(result, &message);
-  printCudaErrorMessage(file, line, cmd, error, message);
-  abort();
+  abortOnCudaError(file, line, cmd, error, message);
   return false;
 }
 
@@ -39,8 +42,7 @@ inline bool cudaCheck_(const char* file, int line, const char* cmd, cudaError_t 
 
   const char* error = cudaGetErrorName(result);
   const char* message = cudaGetErrorString(result);
-  printCudaErrorMessage(file, line, cmd, error, message);
-  abort();
+  abortOnCudaError(file, line, cmd, error, message);
   return false;
 }
 
