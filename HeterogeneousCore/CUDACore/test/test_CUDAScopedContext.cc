@@ -4,6 +4,7 @@
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/eventIsOccurred.h"
@@ -90,12 +91,12 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
 
       // Mimick a producer on the first CUDA stream
       int h_a1 = 1;
-      auto d_a1 = cuda::memory::device::make_unique<int>(current_device);
+      auto d_a1 = cudautils::make_device_unique<int>(nullptr);
       auto wprod1 = produce(defaultDevice, d_a1.get(), &h_a1);
 
       // Mimick a producer on the second CUDA stream
       int h_a2 = 2;
-      auto d_a2 = cuda::memory::device::make_unique<int>(current_device);
+      auto d_a2 = cudautils::make_device_unique<int>(nullptr);
       auto wprod2 = produce(defaultDevice, d_a2.get(), &h_a2);
 
       REQUIRE(wprod1->stream() != wprod2->stream());
@@ -106,7 +107,7 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
       auto prod1 = ctx2.get(*wprod1);
       auto prod2 = ctx2.get(*wprod2);
 
-      auto d_a3 = cuda::memory::device::make_unique<int>(current_device);
+      auto d_a3 = cudautils::make_device_unique<int>(nullptr);
       testCUDAScopedContextKernels_join(prod1, prod2, d_a3.get(), ctx2.stream());
       cudaCheck(cudaStreamSynchronize(ctx2.stream()));
       REQUIRE(wprod2->isAvailable());

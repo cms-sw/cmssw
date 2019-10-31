@@ -3,6 +3,8 @@
 #include <cuda/api_wrappers.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 #include "TestHeterogeneousEDProducerGPUHelpers.h"
@@ -64,18 +66,18 @@ int TestAcceleratorServiceProducerGPUHelpers_simple_kernel(int input) {
   auto current_device = cuda::device::current::get();
   auto stream = current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream);
 
-  auto h_a = cuda::memory::host::make_unique<int[]>(NUM_VALUES);
-  auto h_b = cuda::memory::host::make_unique<int[]>(NUM_VALUES);
-  auto h_c = cuda::memory::host::make_unique<int[]>(NUM_VALUES);
+  auto h_a = cudautils::make_host_unique<int[]>(NUM_VALUES, nullptr);
+  auto h_b = cudautils::make_host_unique<int[]>(NUM_VALUES, nullptr);
+  auto h_c = cudautils::make_host_unique<int[]>(NUM_VALUES, nullptr);
 
   for (auto i = 0; i < NUM_VALUES; i++) {
     h_a[i] = input + i;
     h_b[i] = i * i;
   }
 
-  auto d_a = cuda::memory::device::make_unique<int[]>(current_device, NUM_VALUES);
-  auto d_b = cuda::memory::device::make_unique<int[]>(current_device, NUM_VALUES);
-  auto d_c = cuda::memory::device::make_unique<int[]>(current_device, NUM_VALUES);
+  auto d_a = cudautils::make_device_unique<int[]>(NUM_VALUES, nullptr);
+  auto d_b = cudautils::make_device_unique<int[]>(NUM_VALUES, nullptr);
+  auto d_c = cudautils::make_device_unique<int[]>(NUM_VALUES, nullptr);
 
   cudaCheck(cudaMemcpyAsync(d_a.get(), h_a.get(), NUM_VALUES * sizeof(int), cudaMemcpyHostToDevice, stream.id()));
   cudaCheck(cudaMemcpyAsync(d_b.get(), h_b.get(), NUM_VALUES * sizeof(int), cudaMemcpyHostToDevice, stream.id()));
@@ -108,15 +110,14 @@ namespace {
 }
 
 TestHeterogeneousEDProducerGPUTask::TestHeterogeneousEDProducerGPUTask() {
-  h_a = cuda::memory::host::make_unique<float[]>(NUM_VALUES);
-  h_b = cuda::memory::host::make_unique<float[]>(NUM_VALUES);
+  h_a = cudautils::make_host_unique<float[]>(NUM_VALUES, nullptr);
+  h_b = cudautils::make_host_unique<float[]>(NUM_VALUES, nullptr);
 
   auto current_device = cuda::device::current::get();
-  d_b = cuda::memory::device::make_unique<float[]>(current_device, NUM_VALUES);
-
-  d_ma = cuda::memory::device::make_unique<float[]>(current_device, NUM_VALUES * NUM_VALUES);
-  d_mb = cuda::memory::device::make_unique<float[]>(current_device, NUM_VALUES * NUM_VALUES);
-  d_mc = cuda::memory::device::make_unique<float[]>(current_device, NUM_VALUES * NUM_VALUES);
+  d_b = cudautils::make_device_unique<float[]>(NUM_VALUES, nullptr);
+  d_ma = cudautils::make_device_unique<float[]>(NUM_VALUES * NUM_VALUES, nullptr);
+  d_mb = cudautils::make_device_unique<float[]>(NUM_VALUES * NUM_VALUES, nullptr);
+  d_mc = cudautils::make_device_unique<float[]>(NUM_VALUES * NUM_VALUES, nullptr);
 }
 
 TestHeterogeneousEDProducerGPUTask::ResultType TestHeterogeneousEDProducerGPUTask::runAlgo(
@@ -139,10 +140,10 @@ TestHeterogeneousEDProducerGPUTask::ResultType TestHeterogeneousEDProducerGPUTas
   }
 
   auto current_device = cuda::device::current::get();
-  auto d_a = cuda::memory::device::make_unique<float[]>(current_device, NUM_VALUES);
-  auto d_c = cuda::memory::device::make_unique<float[]>(current_device, NUM_VALUES);
+  auto d_a = cudautils::make_device_unique<float[]>(NUM_VALUES, nullptr);
+  auto d_c = cudautils::make_device_unique<float[]>(NUM_VALUES, nullptr);
   if (inputArrays.second != nullptr) {
-    d_d = cuda::memory::device::make_unique<float[]>(current_device, NUM_VALUES);
+    d_d = cudautils::make_device_unique<float[]>(NUM_VALUES, nullptr);
   }
 
   // Create stream
@@ -194,7 +195,7 @@ void TestHeterogeneousEDProducerGPUTask::release(const std::string &label, cuda:
 }
 
 int TestHeterogeneousEDProducerGPUTask::getResult(const ResultTypeRaw &d_ac, cuda::stream_t<> &stream) {
-  auto h_c = cuda::memory::host::make_unique<float[]>(NUM_VALUES);
+  auto h_c = cudautils::make_device_unique<float[]>(NUM_VALUES, nullptr);
   cudaCheck(cudaMemcpyAsync(h_c.get(), d_ac.second, NUM_VALUES * sizeof(int), cudaMemcpyDeviceToHost, stream.id()));
   stream.synchronize();
 

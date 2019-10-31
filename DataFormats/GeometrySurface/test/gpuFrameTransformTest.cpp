@@ -9,7 +9,7 @@
 #include <numeric>
 
 #include <cuda/api_wrappers.h>
-
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
@@ -51,15 +51,15 @@ int main(void) {
   float ge[6 * size];
 
   auto current_device = cuda::device::current::get();
-  auto d_xl = cuda::memory::device::make_unique<float[]>(current_device, size);
-  auto d_yl = cuda::memory::device::make_unique<float[]>(current_device, size);
+  auto d_xl = cudautils::make_device_unique<float[]>(size, nullptr);
+  auto d_yl = cudautils::make_device_unique<float[]>(size, nullptr);
 
-  auto d_x = cuda::memory::device::make_unique<float[]>(current_device, size);
-  auto d_y = cuda::memory::device::make_unique<float[]>(current_device, size);
-  auto d_z = cuda::memory::device::make_unique<float[]>(current_device, size);
+  auto d_x = cudautils::make_device_unique<float[]>(size, nullptr);
+  auto d_y = cudautils::make_device_unique<float[]>(size, nullptr);
+  auto d_z = cudautils::make_device_unique<float[]>(size, nullptr);
 
-  auto d_le = cuda::memory::device::make_unique<float[]>(current_device, 3 * size);
-  auto d_ge = cuda::memory::device::make_unique<float[]>(current_device, 6 * size);
+  auto d_le = cudautils::make_device_unique<float[]>(3 * size, nullptr);
+  auto d_ge = cudautils::make_device_unique<float[]>(6 * size, nullptr);
 
   double a = 0.01;
   double ca = std::cos(a);
@@ -73,7 +73,7 @@ int main(void) {
   SFrame sf1(f1.position().x(), f1.position().y(), f1.position().z(), f1.rotation());
 
   // auto d_sf = cuda::memory::device::make_unique<SFrame[]>(current_device, 1);
-  auto d_sf = cuda::memory::device::make_unique<char[]>(current_device, sizeof(SFrame));
+  auto d_sf = cudautils::make_device_unique<char[]>(sizeof(SFrame), nullptr);
   cudaCheck(cudaMemcpy(d_sf.get(), &sf1, sizeof(SFrame), cudaMemcpyHostToDevice));
 
   for (auto i = 0U; i < size; ++i) {

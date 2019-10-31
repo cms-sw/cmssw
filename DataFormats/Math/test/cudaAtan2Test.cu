@@ -29,6 +29,7 @@ end
 #include "cuda/api_wrappers.h"
 
 #include "DataFormats/Math/interface/approx_atan2.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
@@ -70,7 +71,7 @@ void go() {
   // atan2
   delta -= (std::chrono::high_resolution_clock::now() - start);
 
-  auto diff_d = cuda::memory::device::make_unique<int[]>(current_device, 3);
+  auto diff_d = cudautils::make_device_unique<int[]>(3, nullptr);
 
   int diffs[3];
   cudaCheck(cudaMemset(diff_d.get(), 0, 3 * 4));

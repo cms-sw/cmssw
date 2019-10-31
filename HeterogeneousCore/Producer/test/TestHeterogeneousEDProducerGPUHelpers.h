@@ -3,6 +3,9 @@
 
 #include <cuda/api_wrappers.h>
 
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+
 #include <functional>
 #include <memory>
 #include <string>
@@ -15,7 +18,7 @@ public:
   TestHeterogeneousEDProducerGPUTask();
   ~TestHeterogeneousEDProducerGPUTask() = default;
 
-  using Ptr = cuda::memory::device::unique_ptr<float[]>;
+  using Ptr = cudautils::device::unique_ptr<float[]>;
   using PtrRaw = Ptr::pointer;
 
   using ResultType = std::pair<Ptr, Ptr>;
@@ -30,15 +33,15 @@ private:
   std::unique_ptr<cuda::stream_t<>> streamPtr;
 
   // stored for the job duration
-  cuda::memory::host::unique_ptr<float[]> h_a;
-  cuda::memory::host::unique_ptr<float[]> h_b;
-  cuda::memory::device::unique_ptr<float[]> d_b;
-  cuda::memory::device::unique_ptr<float[]> d_ma;
-  cuda::memory::device::unique_ptr<float[]> d_mb;
-  cuda::memory::device::unique_ptr<float[]> d_mc;
+  cudautils::host::unique_ptr<float[]> h_a;
+  cudautils::host::unique_ptr<float[]> h_b;
+  cudautils::device::unique_ptr<float[]> d_b;
+  cudautils::device::unique_ptr<float[]> d_ma;
+  cudautils::device::unique_ptr<float[]> d_mb;
+  cudautils::device::unique_ptr<float[]> d_mc;
 
   // temporary storage, need to be somewhere to allow async execution
-  cuda::memory::device::unique_ptr<float[]> d_d;
+  cudautils::device::unique_ptr<float[]> d_d;
 };
 
 #endif

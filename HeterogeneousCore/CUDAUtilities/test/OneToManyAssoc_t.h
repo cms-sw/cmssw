@@ -8,6 +8,7 @@
 
 #ifdef __CUDACC__
 #include <cuda/api_wrappers.h>
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #endif
@@ -165,11 +166,11 @@ int main() {
   std::cout << "filled with " << n << " elements " << double(ave) / n << ' ' << imax << ' ' << nz << std::endl;
 
 #ifdef __CUDACC__
-  auto v_d = cuda::memory::device::make_unique<std::array<uint16_t, 4>[]>(current_device, N);
+  auto v_d = cudautils::make_device_unique<std::array<uint16_t, 4>[]>(N, nullptr);
   assert(v_d.get());
-  auto a_d = cuda::memory::device::make_unique<Assoc[]>(current_device, 1);
-  auto sa_d = cuda::memory::device::make_unique<SmallAssoc[]>(current_device, 1);
-  auto ws_d = cuda::memory::device::make_unique<uint8_t[]>(current_device, Assoc::wsSize());
+  auto a_d = cudautils::make_device_unique<Assoc[]>(1, nullptr);
+  auto sa_d = cudautils::make_device_unique<SmallAssoc[]>(1, nullptr);
+  auto ws_d = cudautils::make_device_unique<uint8_t[]>(Assoc::wsSize(), nullptr);
 
   cudaCheck(cudaMemcpy(v_d.get(), tr.data(), N * sizeof(std::array<uint16_t, 4>), cudaMemcpyHostToDevice));
 #else
@@ -272,8 +273,8 @@ int main() {
 
   // here verify use of block local counters
 #ifdef __CUDACC__
-  auto m1_d = cuda::memory::device::make_unique<Multiplicity[]>(current_device, 1);
-  auto m2_d = cuda::memory::device::make_unique<Multiplicity[]>(current_device, 1);
+  auto m1_d = cudautils::make_device_unique<Multiplicity[]>(1, nullptr);
+  auto m2_d = cudautils::make_device_unique<Multiplicity[]>(1, nullptr);
 #else
   auto m1_d = std::make_unique<Multiplicity>();
   auto m2_d = std::make_unique<Multiplicity>();

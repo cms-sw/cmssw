@@ -6,6 +6,7 @@
 
 #include <cuda/api_wrappers.h>
 
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
@@ -115,7 +116,7 @@ void go() {
   constexpr int N = 12000;
   T v[N];
 
-  auto v_d = cuda::memory::device::make_unique<T[]>(current_device, N);
+  auto v_d = cudautils::make_device_unique<T[]>(N, nullptr);
   assert(v_d.get());
 
   using Hist = HistoContainer<T, NBINS, N, S>;

@@ -39,6 +39,7 @@ end
 #include "DataFormats/Math/interface/approx_log.h"
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
@@ -103,9 +104,9 @@ void go() {
   std::generate(h_B.get(), h_B.get() + numElements, [&]() { return rgen(eng); });
 
   delta -= (std::chrono::high_resolution_clock::now() - start);
-  auto d_A = cuda::memory::device::make_unique<float[]>(current_device, numElements);
-  auto d_B = cuda::memory::device::make_unique<float[]>(current_device, numElements);
-  auto d_C = cuda::memory::device::make_unique<float[]>(current_device, numElements);
+  auto d_A = cudautils::make_device_unique<float[]>(numElements, nullptr);
+  auto d_B = cudautils::make_device_unique<float[]>(numElements, nullptr);
+  auto d_C = cudautils::make_device_unique<float[]>(numElements, nullptr);
 
   cudaCheck(cudaMemcpy(d_A.get(), h_A.get(), size, cudaMemcpyHostToDevice));
   cudaCheck(cudaMemcpy(d_B.get(), h_B.get(), size, cudaMemcpyHostToDevice));

@@ -6,6 +6,7 @@
 
 #include <cuda/api_wrappers.h>
 
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
@@ -25,7 +26,7 @@ void go() {
 
   constexpr int N = 12000;
   T v[N];
-  auto v_d = cuda::memory::device::make_unique<T[]>(current_device, N);
+  auto v_d = cudautils::make_device_unique<T[]>(N, nullptr);
 
   cudaCheck(cudaMemcpy(v_d.get(), v, N * sizeof(T), cudaMemcpyHostToDevice));
 
@@ -39,11 +40,10 @@ void go() {
             << (std::numeric_limits<T>::max() - std::numeric_limits<T>::min()) / Hist::nbins() << std::endl;
 
   Hist h;
+  auto h_d = cudautils::make_device_unique<Hist[]>(1, nullptr);
+  auto ws_d = cudautils::make_device_unique<uint8_t[]>(Hist::wsSize(), nullptr);
 
-  auto h_d = cuda::memory::device::make_unique<Hist[]>(current_device, 1);
-  auto ws_d = cuda::memory::device::make_unique<uint8_t[]>(current_device, Hist::wsSize());
-
-  auto off_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, nParts + 1);
+  auto off_d = cudautils::make_device_unique<uint32_t[]>(nParts + 1, nullptr);
 
   for (int it = 0; it < 5; ++it) {
     offsets[0] = 0;

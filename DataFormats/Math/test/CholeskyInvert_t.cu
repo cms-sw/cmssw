@@ -16,6 +16,7 @@
 #include <cuda/api_wrappers.h>
 
 #include "DataFormats/Math/interface/choleskyInversion.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
@@ -132,7 +133,7 @@ void go(bool soa) {
 
   std::cout << mm[SIZE / 2](1, 1) << std::endl;
 
-  auto m_d = cuda::memory::device::make_unique<double[]>(current_device, DIM * DIM * stride());
+  auto m_d = cudautils::make_device_unique<double[]>(DIM * DIM * stride(), nullptr);
   cudaCheck(cudaMemcpy(m_d.get(), (double const *)(mm), stride() * sizeof(MX), cudaMemcpyHostToDevice));
 
   constexpr int NKK =

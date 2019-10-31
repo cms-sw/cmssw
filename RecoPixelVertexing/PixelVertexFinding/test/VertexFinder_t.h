@@ -98,8 +98,8 @@ int main() {
 
   auto current_device = cuda::device::current::get();
 
-  auto onGPU_d = cuda::memory::device::make_unique<ZVertices[]>(current_device, 1);
-  auto ws_d = cuda::memory::device::make_unique<WorkSpace[]>(current_device, 1);
+  auto onGPU_d = cudautils::make_device_unique<ZVertices[]>(1, nullptr);
+  auto ws_d = cudautils::make_device_unique<WorkSpace[]>(1, nullptr);
 #else
   auto onGPU_d = std::make_unique<ZVertices>();
   auto ws_d = std::make_unique<WorkSpace>();

@@ -10,6 +10,7 @@
 
 #include <cuda/api_wrappers.h>
 
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
@@ -98,10 +99,10 @@ void go(bool useShared) {
 
     std::random_shuffle(v, v + N);
 
-    auto v_d = cuda::memory::device::make_unique<U[]>(current_device, N);
-    auto ind_d = cuda::memory::device::make_unique<uint16_t[]>(current_device, N);
-    auto ws_d = cuda::memory::device::make_unique<uint16_t[]>(current_device, N);
-    auto off_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, blocks + 1);
+    auto v_d = cudautils::make_device_unique<U[]>(N, nullptr);
+    auto ind_d = cudautils::make_device_unique<uint16_t[]>(N, nullptr);
+    auto ws_d = cudautils::make_device_unique<uint16_t[]>(N, nullptr);
+    auto off_d = cudautils::make_device_unique<uint32_t[]>(blocks + 1, nullptr);
 
     cudaCheck(cudaMemcpy(v_d.get(), v, N * sizeof(T), cudaMemcpyHostToDevice));
     cudaCheck(cudaMemcpy(off_d.get(), offsets, 4 * (blocks + 1), cudaMemcpyHostToDevice));
