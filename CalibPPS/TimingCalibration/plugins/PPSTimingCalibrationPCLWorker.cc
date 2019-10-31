@@ -87,7 +87,7 @@ void PPSTimingCalibrationPCLWorker::analyze(const edm::Event& iEvent, const edm:
       continue;
     }
     for (const auto& digi : ds_digis) {
-      const int t_lead = digi.getLeadingEdge(), t_trail = digi.getTrailingEdge();
+      const int t_lead = digi.leadingEdge(), t_trail = digi.trailingEdge();
       // skip invalid digis
       if (t_lead == 0 && t_trail == 0)
         continue;
