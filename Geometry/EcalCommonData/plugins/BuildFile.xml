@@ -1,6 +1,10 @@
 <library   file="*.cc" name="GeometryEcalCommonDataPlugins">
   <use   name="DetectorDescription/Core"/>
+  <use   name="DetectorDescription/DDCMS"/>
   <use   name="Geometry/EcalCommonData"/>
+  <use   name="Geometry/Records"/>
+  <use   name="Geometry/EcalCommonData"/>
+  <use   name="CondFormats/GeometryObjects"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 

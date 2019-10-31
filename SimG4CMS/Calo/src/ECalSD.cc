@@ -250,13 +250,13 @@ uint16_t ECalSD::getDepth(const G4Step* aStep) {
   crystalLength = (ite == xtalLMap.end()) ? 230.0 : std::abs(ite->second);
   crystalDepth = (ite == xtalLMap.end()) ? 0.0 : (std::abs(0.5 * (ite->second) + currentLocalPoint.z()));
   depth = any(useDepth1, lv) ? 1 : (any(useDepth2, lv) ? 2 : 0);
-
+  uint16_t depth1(0), depth2(0);
   if (storeRL) {
-    uint16_t depth1 = (ite == xtalLMap.end()) ? 0 : (((ite->second) >= 0) ? 0 : PCaloHit::kEcalDepthRefz);
-    uint16_t depth2 = getRadiationLength(hitPoint, lv);
+    depth1 = (ite == xtalLMap.end()) ? 0 : (((ite->second) >= 0) ? 0 : PCaloHit::kEcalDepthRefz);
+    depth2 = getRadiationLength(hitPoint, lv);
     depth |= (((depth2 & PCaloHit::kEcalDepthMask) << PCaloHit::kEcalDepthOffset) | depth1);
   } else if (storeLayerTimeSim) {
-    uint16_t depth2 = getLayerIDForTimeSim();
+    depth2 = getLayerIDForTimeSim();
     depth |= ((depth2 & PCaloHit::kEcalDepthMask) << PCaloHit::kEcalDepthOffset);
   }
 #ifdef EDM_ML_DEBUG
@@ -281,9 +281,10 @@ uint16_t ECalSD::getRadiationLength(const G4StepPoint* hitPoint, const G4Logical
     g2L_[kk]->Fill(rz, thisX0);
 #endif
 #ifdef EDM_ML_DEBUG
+    G4ThreeVector localPoint = setToLocal(hitPoint->GetPosition(), hitPoint->GetTouchable());
     edm::LogVerbatim("EcalSim") << lv->GetName() << " Global " << hitPoint->GetPosition() << ":"
                                 << (hitPoint->GetPosition()).rho() << " Local " << localPoint << " Crystal Length "
-                                << crlength << " Radl " << radl << " DetZ " << detz << " Index " << thisX0 << " : "
+                                << crystalLength << " Radl " << radl << " crystalDepth " << crystalDepth << " Index " << thisX0 << " : "
                                 << getLayerIDForTimeSim();
 #endif
   }
