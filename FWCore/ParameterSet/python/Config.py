@@ -4,6 +4,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 import six
+import os
 from  .Options import Options
 options = Options()
 
@@ -713,11 +714,13 @@ class Process(object):
         for name,item in items:
             returnValue +=options.indentation()+typeName+' '+name+' = '+item.dumpConfig(options)
         return returnValue
+
     def _dumpConfigUnnamedList(self,items,typeName,options):
         returnValue = ''
         for name,item in items:
             returnValue +=options.indentation()+typeName+' = '+item.dumpConfig(options)
         return returnValue
+
     def _dumpConfigOptionallyNamedList(self,items,typeName,options):
         returnValue = ''
         for name,item in items:
@@ -725,6 +728,7 @@ class Process(object):
                 name = ''
             returnValue +=options.indentation()+typeName+' '+name+' = '+item.dumpConfig(options)
         return returnValue
+
     def dumpConfig(self, options=PrintOptions()):
         """return a string containing the equivalent process defined using the old configuration language"""
         config = "process "+self.__name+" = {\n"
@@ -790,16 +794,19 @@ class Process(object):
         config += "}\n"
         options.unindent()
         return config
+
     def _dumpConfigESPrefers(self, options):
         result = ''
         for item in six.itervalues(self.es_prefers_()):
             result +=options.indentation()+'es_prefer '+item.targetLabel_()+' = '+item.dumpConfig(options)
         return result
+
     def _dumpPythonSubProcesses(self, l, options):
         returnValue = ''
         for item in l:
             returnValue += item.dumpPython(options)+'\n\n'
         return returnValue
+
     def _dumpPythonList(self, d, options):
         returnValue = ''
         if isinstance(d, DictTypes.SortedKeysDict):
@@ -809,6 +816,28 @@ class Process(object):
             for name,item in sorted(d.items()):
                 returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
         return returnValue
+
+    def _splitPythonList(self, subfolder, d, options):
+        parts = DictTypes.SortedKeysDict()
+        for name, item in d.items() if isinstance(d, DictTypes.SortedKeysDict) else sorted(d.items()):
+            code = ''
+            dependencies = item.directDependencies()
+            for module_subfolder, module in dependencies:
+                module = module + '_cfi'
+                if options.useSubdirectories and module_subfolder:
+                    module = module_subfolder + '.' + module
+                if options.targetDirectory is not None:
+                    if options.useSubdirectories and subfolder:
+                      module = '..' + module
+                    else:
+                      module = '.' + module
+                code += 'from ' + module + ' import *\n'
+            if dependencies:
+                code += '\n'
+            code += name + ' = ' + item.dumpPython(options)
+            parts[name] = subfolder, code
+        return parts
+
     def _validateSequence(self, sequence, label):
         # See if every module has been inserted into the process
         try:
@@ -817,6 +846,7 @@ class Process(object):
             sequence.visit(visitor)
         except:
             raise RuntimeError("An entry in sequence "+label + ' has no label')
+
     def _validateTask(self, task, label):
         # See if every module and service has been inserted into the process
         try:
@@ -825,6 +855,7 @@ class Process(object):
             task.visit(visitor)
         except:
             raise RuntimeError("An entry in task " + label + ' has not been attached to the process')
+
     def _itemsInDependencyOrder(self, processDictionaryOfItems):
         # The items can be Sequences or Tasks and the input
         # argument should either be the dictionary of sequences
@@ -881,11 +912,19 @@ class Process(object):
                         while deps2.count(label):
                             deps2.remove(label)
         return returnValue
+
     def _dumpPython(self, d, options):
         result = ''
         for name, value in sorted(six.iteritems(d)):
             result += value.dumpPythonAs(name,options)+'\n'
         return result
+
+    def _splitPython(self, subfolder, d, options):
+        result = {}
+        for name, value in sorted(six.iteritems(d)):
+            result[name] = subfolder, value.dumpPythonAs(name, options) + '\n'
+        return result
+
     def dumpPython(self, options=PrintOptions()):
         """return a string containing the equivalent process defined using python"""
         specialImportRegistry._reset()
@@ -919,6 +958,74 @@ class Process(object):
             header += "\n" + "\n".join(imports)
         header += "\n\n"
         return header+result
+
+    def splitPython(self, options = PrintOptions()):
+        """return a map of file names to python configuration fragments"""
+        specialImportRegistry._reset()
+        # extract individual fragments
+        options.isCfg = False
+        header = "import FWCore.ParameterSet.Config as cms"
+        result = ''
+        parts = {}
+        files = {}
+
+        result = 'process = cms.Process("' + self.__name + '")\n\n'
+
+        if self.source_():
+            parts['source'] = (None, 'source = ' + self.source_().dumpPython(options))
+
+        if self.looper_():
+            parts['looper'] = (None, 'looper = ' + self.looper_().dumpPython())
+
+        parts.update(self._splitPythonList('psets', self.psets, options))
+        parts.update(self._splitPythonList('psets', self.vpsets, options))
+        # FIXME
+        #parts.update(self._splitPythonSubProcesses(self.subProcesses_(), options))
+        if len(self.subProcesses_()):
+          sys.stderr.write("error: subprocesses are not supported yet\n\n")
+        parts.update(self._splitPythonList('modules', self.producers_(), options))
+        parts.update(self._splitPythonList('modules', self.switchProducers_(), options))
+        parts.update(self._splitPythonList('modules', self.filters_() , options))
+        parts.update(self._splitPythonList('modules', self.analyzers_(), options))
+        parts.update(self._splitPythonList('modules', self.outputModules_(), options))
+        parts.update(self._splitPythonList('services', self.services_(), options))
+        parts.update(self._splitPythonList('eventsetup', self.es_producers_(), options))
+        parts.update(self._splitPythonList('eventsetup', self.es_sources_(), options))
+        parts.update(self._splitPython('eventsetup', self.es_prefers_(), options))
+        parts.update(self._splitPythonList('tasks', self._itemsInDependencyOrder(self.tasks), options))
+        parts.update(self._splitPythonList('sequences', self._itemsInDependencyOrder(self.sequences), options))
+        parts.update(self._splitPythonList('paths', self.paths_(), options))
+        parts.update(self._splitPythonList('paths', self.endpaths_(), options))
+        parts.update(self._splitPythonList('modules', self.aliases_(), options))
+
+        if options.targetDirectory is not None:
+            files[options.targetDirectory + '/__init__.py'] = ''
+
+        if options.useSubdirectories:
+          for sub in 'psets', 'modules', 'services', 'eventsetup', 'tasks', 'sequences', 'paths':
+            if options.targetDirectory is not None:
+                sub = options.targetDirectory + '/' + sub
+            files[sub + '/__init__.py'] = ''
+
+        for (name, (subfolder, code)) in six.iteritems(parts):
+            filename = name + '_cfi'
+            if options.useSubdirectories and subfolder:
+                filename = subfolder + '/' + filename
+            if options.targetDirectory is not None:
+                filename = options.targetDirectory + '/' + filename
+            result += 'process.load("%s")\n' % filename
+            files[filename + '.py'] = header + '\n\n' + code
+
+        if self.schedule_() is not None:
+            options.isCfg = True
+            result += 'process.schedule = ' + self.schedule.dumpPython(options)
+
+        imports = specialImportRegistry.getSpecialImports()
+        if len(imports) > 0:
+            header += '\n' + '\n'.join(imports)
+        files['-'] = header + '\n\n' + result
+        return files
+
     def _replaceInSequences(self, label, new):
         old = getattr(self,label)
         #TODO - replace by iterator concatenation
@@ -1341,7 +1448,7 @@ class SubProcess(_Unlabelable):
         self.__process = process
         self.__SelectEvents = SelectEvents
         self.__outputCommands = outputCommands
-    def dumpPython(self,options=PrintOptions()):
+    def dumpPython(self, options=PrintOptions()):
         out = "parentProcess"+str(hash(self))+" = process\n"
         out += self.__process.dumpPython()
         out += "childProcess = process\n"

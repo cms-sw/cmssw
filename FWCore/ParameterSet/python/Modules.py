@@ -359,6 +359,10 @@ class SwitchProducer(EDProducer):
         result += "\n)\n"
         return result
 
+    def directDependencies(self):
+        # XXX FIXME handle SwitchProducer dependencies
+        return []
+
     def nameInProcessDesc_(self, myname):
         return myname
     def moduleLabel_(self, myname):
