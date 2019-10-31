@@ -154,8 +154,8 @@ void TrackingMaterialProducer::update(const BeginOfTrack* event) {
   //This can be found by running
   //Geometry/HGCalCommonData/test/testHGCalParameters_cfg.py
   //on the geometry under study and looking for zFront print out.
-  if (isHGCal && track->GetTrackStatus() != fStopAndKill && fabs(track->GetMomentum().eta()) > 2.0 &&
-      fabs(track->GetMomentum().eta()) < 2.4) {
+  if (isHGCal && track->GetTrackStatus() != fStopAndKill && fabs(track->GetMomentum().eta()) > outherHGCalEta &&
+      fabs(track->GetMomentum().eta()) < innerHGCalEta) {
     if (track->GetMomentum().eta() > 0.) {
       outVolumeZpositionTxt << "StainlessSteel " << m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
                             << std::endl;
@@ -169,8 +169,8 @@ void TrackingMaterialProducer::update(const BeginOfTrack* event) {
   //restrict the outher radius to eta 3.3 since there is HGCAL shadowing
   //restrict the innner radius to eta 4 since it's non projective
 
-  if (isHFNose && track->GetTrackStatus() != fStopAndKill && fabs(track->GetMomentum().eta()) > 3.3 &&
-      fabs(track->GetMomentum().eta()) < 4) {
+  if (isHFNose && track->GetTrackStatus() != fStopAndKill && fabs(track->GetMomentum().eta()) > outherHFnoseEta &&
+      fabs(track->GetMomentum().eta()) < innerHFnoseEta) {
     if (track->GetMomentum().eta() > 0.) {
       outVolumeZpositionTxt << "Polyethylene " << m_hgcalzfront << " " << 0 << " " << 0 << " " << 0 << " " << 0
                             << std::endl;
@@ -222,8 +222,8 @@ void TrackingMaterialProducer::update(const G4Step* step) {
     //A step never spans across boundaries: geometry or physics define the end points
     //If the step is limited by a boundary, the post-step point stands on the
     //boundary and it logically belongs to the next volume.
-    if (postPoint->GetStepStatus() == fGeomBoundary && fabs(postPoint->GetMomentum().eta()) > 2.0 &&
-        fabs(postPoint->GetMomentum().eta()) < 2.4) {
+    if (postPoint->GetStepStatus() == fGeomBoundary && fabs(postPoint->GetMomentum().eta()) > outherHGCalEta &&
+        fabs(postPoint->GetMomentum().eta()) < innerHGCalEta) {
       //Post point position is the low z edge of the new volume, or the upper for the prepoint volume.
       //So, premat - postz - posteta - postR - premattotalenergylossEtable - premattotalenergylossEfull
       //Observe the two zeros at the end which in the past where set to emCalculator.GetDEDX and
@@ -234,8 +234,8 @@ void TrackingMaterialProducer::update(const G4Step* step) {
                             << std::endl;
     }
 
-    if (postPoint->GetStepStatus() == fGeomBoundary && fabs(postPoint->GetMomentum().eta()) > 3.3 &&
-        fabs(postPoint->GetMomentum().eta()) < 4.) {
+    if (postPoint->GetStepStatus() == fGeomBoundary && fabs(postPoint->GetMomentum().eta()) > outherHFnoseEta &&
+        fabs(postPoint->GetMomentum().eta()) < innerHFnoseEta) {
       outVolumeZpositionTxt << prePoint->GetMaterial()->GetName() << " " << postPos.z() << " "
                             << postPoint->GetMomentum().eta() << " "
                             << sqrt(postPos.x() * postPos.x() + postPos.y() * postPos.y()) << " " << 0 << " " << 0
