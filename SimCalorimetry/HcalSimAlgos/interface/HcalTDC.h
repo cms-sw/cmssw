@@ -6,6 +6,7 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTDCParameters.h"
 #include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 class HcalDbService;
 
