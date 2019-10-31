@@ -30,9 +30,8 @@ private:
   const std::string name_;
 };
 
-EcalSimParametersESModule::EcalSimParametersESModule(const edm::ParameterSet& ps) : 
-  fromDD4Hep_(ps.getParameter<bool>("fromDD4Hep")),
-  name_(ps.getParameter<std::string>("name")) {
+EcalSimParametersESModule::EcalSimParametersESModule(const edm::ParameterSet& ps)
+    : fromDD4Hep_(ps.getParameter<bool>("fromDD4Hep")), name_(ps.getParameter<std::string>("name")) {
   auto cc = setWhatProduced(this, name_);
   cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
   cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());

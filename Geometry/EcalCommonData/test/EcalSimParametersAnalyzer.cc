@@ -19,7 +19,8 @@ private:
   std::string name_;
 };
 
-EcalSimParametersAnalyzer::EcalSimParametersAnalyzer(const edm::ParameterSet& ic) : name_(ic.getUntrackedParameter<std::string>("name")) {
+EcalSimParametersAnalyzer::EcalSimParametersAnalyzer(const edm::ParameterSet& ic)
+    : name_(ic.getUntrackedParameter<std::string>("name")) {
   simparToken_ = esConsumes<EcalSimulationParameters, IdealGeometryRecord>(edm::ESInputTag{"", name_});
 }
 
@@ -50,7 +51,8 @@ void EcalSimParametersAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm:
       std::cout << it << ", ";
       ++kount;
       if (kount == 8) {
-	std::cout << "\n"; kount = 0;
+        std::cout << "\n";
+        kount = 0;
       }
     }
     kount = 0;
@@ -59,7 +61,8 @@ void EcalSimParametersAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm:
       std::cout << it << ", ";
       ++kount;
       if (kount == 7) {
-	std::cout << "\n"; kount = 0;
+        std::cout << "\n";
+        kount = 0;
       }
     }
     kount = 0;
@@ -68,7 +71,8 @@ void EcalSimParametersAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm:
       std::cout << it << ", ";
       ++kount;
       if (kount == 20) {
-	std::cout << "\n"; kount = 0;
+        std::cout << "\n";
+        kount = 0;
       }
     }
     std::cout << std::endl;
