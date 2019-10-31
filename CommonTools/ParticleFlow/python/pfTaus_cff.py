@@ -125,6 +125,7 @@ pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVer
 
 pfTausPreSequence = cms.Sequence(
     pfJetTracksAssociatorAtVertex +
+    recoTauAK4PFJets08Region +
     pfTauPileUpVertices +
     pfTauTagInfoProducer
 )
