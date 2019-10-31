@@ -65,6 +65,7 @@ public:
 
   /// Get the detector id
   constexpr DetId detid() const { return DetId(m_data.id()); }
+  constexpr HcalDetId hcaldetid() const { return HcalDetId(m_data.id()); } 
   constexpr edm::DataFrame::id_type id() const { return m_data.id(); }
   /// more accessors
   constexpr edm::DataFrame::size_type size() const { return m_data.size(); }
@@ -99,6 +100,13 @@ public:
   }
   /// get the sample
   constexpr inline Sample operator[](edm::DataFrame::size_type i) const { return Sample(m_data, i + HEADER_WORDS); }
+
+  // set flavor
+  constexpr void setFlavor(int flavor) {
+    m_data[0] &= 0x9FFF; // inversion of flavor mask
+    m_data[0] |= ((flavor&MASK_FLAVOR) << OFFSET_FLAVOR);
+  }
+
   constexpr void setCapid0(int cap0) {
     if (flavor() == FLAVOR_HB) {
       for (int i = 0; i < samples(); i++) {

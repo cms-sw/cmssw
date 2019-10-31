@@ -46,7 +46,8 @@ HcalSimParameters::HcalSimParameters(const edm::ParameterSet& p)
       theSamplingFactors(p.getParameter<std::vector<double> >("samplingFactors")),
       theSiPMSmearing(p.getParameter<bool>("doSiPMSmearing")),
       doTimeSmear_(p.getParameter<bool>("timeSmearing")),
-      theSiPMTau(p.getParameter<double>("sipmTau")) {
+      theSiPMTau(p.getParameter<double>("sipmTau")),
+      threshold_currentTDC_(p.getParameter<double>("threshold_currentTDC")) {
   defaultTimeSmearing();
 
   edm::LogInfo("HcalSimParameters:") << " doSiPMsmearing    = " << theSiPMSmearing;
