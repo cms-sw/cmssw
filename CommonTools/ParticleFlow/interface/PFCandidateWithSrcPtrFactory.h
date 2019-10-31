@@ -20,7 +20,7 @@ namespace reco {
 
       if (input.backPtr().isAvailable())
         output.setSourceCandidatePtr(input.backPtr());
-      else //we are in a job where the original collection is gone
+      else  //we are in a job where the original collection is gone
         output.setSourceCandidatePtr(input.ptr());
       return output;
     }
