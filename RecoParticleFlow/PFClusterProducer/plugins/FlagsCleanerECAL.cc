@@ -3,13 +3,12 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
 
+
 FlagsCleanerECAL::FlagsCleanerECAL(const edm::ParameterSet& conf):RecHitTopologicalCleanerBase(conf){
-    
    
     const std::vector<std::string> flagnames = conf.getParameter<std::vector<std::string> >("RecHitFlagsToBeExcluded");
     v_chstatus_excl_=StringToEnumValue<EcalRecHit::Flags>(flagnames);
-   
-
+    
 }
 
 void FlagsCleanerECAL::clean(const edm::Handle<reco::PFRecHitCollection>& input, std::vector<bool>& mask){
