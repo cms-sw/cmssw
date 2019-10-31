@@ -56,7 +56,7 @@ edm::ParameterSetDescription TrajSeedMatcher::makePSetDescription() {
   edm::ParameterSetDescription desc;
   desc.add<bool>("useRecoVertex", false);
   desc.add<bool>("enableHitSkipping", false);
-  desc.add<bool>("requireExactMatchCount", false);
+  desc.add<bool>("requireExactMatchCount", true);
   desc.add<std::string>("navSchool", "SimpleNavigationSchool");
   desc.add<std::string>("detLayerGeom", "hltESPGlobalDetLayerGeometry");
   desc.add<std::vector<int> >("minNrHitsValidLayerBins", {4});
