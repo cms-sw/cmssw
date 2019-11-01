@@ -1,40 +1,13 @@
+#include "RecoEgamma/EgammaElectronAlgos/interface/utils.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h"
+
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
-#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "TrackingTools/DetLayers/interface/rangesIntersect.h"
-#include "DataFormats/GeometryVector/interface/VectorUtil.h"
-#include "DataFormats/Math/interface/normalizedPhi.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
-#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "TrackingTools/DetLayers/interface/rangesIntersect.h"
-#include "DataFormats/GeometryVector/interface/VectorUtil.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "DataFormats/Math/interface/normalizedPhi.h"
-
-#include <typeinfo>
-#include <bitset>
-
-namespace std {
-  template <>
-  struct hash<std::pair<const GeomDet *, GlobalPoint> > {
-    std::size_t operator()(const std::pair<const GeomDet *, GlobalPoint> &g) const {
-      auto h1 = std::hash<unsigned long long>()((unsigned long long)g.first);
-      unsigned long long k;
-      memcpy(&k, &g.second, sizeof(k));
-      auto h2 = std::hash<unsigned long long>()(k);
-      return h1 ^ (h2 << 1);
-    }
-  };
-}  // namespace std
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 using namespace reco;
 using namespace std;
@@ -154,8 +127,7 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
   for (auto const sc : seedsV)
     allSeedsSize += sc->size();
 
-  std::unordered_map<std::pair<const GeomDet *, GlobalPoint>, TrajectoryStateOnSurface> mapTsos2Fast;
-  mapTsos2Fast.reserve(allSeedsSize);
+  IntGlobalPointPairUnorderedMap<TrajectoryStateOnSurface> mapTsos2Fast(allSeedsSize);
 
   auto ndets = theTrackerGeometry->dets().size();
 
@@ -245,7 +217,7 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
           auto idx2 = std::distance(hits.first, it2);
           const DetId id2 = it2->geographicalId();
           const GeomDet *geomdet2 = it2->det();
-          const std::pair<const GeomDet *, GlobalPoint> det_key(geomdet2, hit1Pos);
+          const auto det_key = std::make_pair(geomdet2->gdetIndex(), hit1Pos);
           const TrajectoryStateOnSurface *tsos2;
           auto tsos2_itr = mapTsos2Fast.find(det_key);
           if (tsos2_itr != mapTsos2Fast.end()) {
