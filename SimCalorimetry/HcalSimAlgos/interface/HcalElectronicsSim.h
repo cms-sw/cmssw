@@ -24,7 +24,10 @@ namespace CLHEP {
 
 class HcalElectronicsSim {
 public:
-  HcalElectronicsSim(const HcalSimParameterMap* parameterMap, HcalAmplifier* amplifier, const HcalCoderFactory* coderFactory, bool PreMix);
+  HcalElectronicsSim(const HcalSimParameterMap* parameterMap,
+                     HcalAmplifier* amplifier,
+                     const HcalCoderFactory* coderFactory,
+                     bool PreMix);
   ~HcalElectronicsSim();
 
   void setDbService(const HcalDbService* service);

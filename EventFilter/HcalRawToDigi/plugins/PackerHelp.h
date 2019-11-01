@@ -129,7 +129,7 @@ namespace QIE11HeaderSpec0 {
   static const int MASK_FLAVOR = 0x7;
   static const int OFFSET_HEADER_BIT = 15;
   static const int MASK_HEADER_BIT = 0x1;
-}  // namespace QIE11HeaderSpec
+}  // namespace QIE11HeaderSpec0
 
 namespace QIE11HeaderSpec3 {
   static const int OFFSET_FIBERCHAN = 0;
@@ -144,7 +144,7 @@ namespace QIE11HeaderSpec3 {
   static const int MASK_FLAVOR = 0x7;
   static const int OFFSET_HEADER_BIT = 15;
   static const int MASK_HEADER_BIT = 0x1;
-}
+}  // namespace QIE11HeaderSpec3
 
 namespace TPHeaderSpec {
   static const int OFFSET_TOWER = 0;
@@ -418,14 +418,18 @@ public:
 
     int fiber = eid.fiberIndex();
     int fiberchan = eid.fiberChanId();
-  // capacitor id for the first sample
+    // capacitor id for the first sample
 
     // Flavor is added
 
     int flavor = qiedf[0].flavor();
     int capid0;
-    if (qiedf.samples() == 0) capid0=0;
-    if (flavor == 3) capid0 = qiedf[1].capid(); else capid0 = qiedf[0].capid();
+    if (qiedf.samples() == 0)
+      capid0 = 0;
+    if (flavor == 3)
+      capid0 = qiedf[1].capid();
+    else
+      capid0 = qiedf[0].capid();
 
     // adding only cases for flavor 3
 
@@ -625,37 +629,42 @@ public:
 
 // converts HE QIE digies to HB data format
 
-  QIE11DataFrame convertHB2HE(QIE11DataFrame qiehe) {
-    QIE11DataFrame qiehb = qiehe;
-    int adc_, tdc_, capid_;
-    bool soi_;
-    int is=0;
+QIE11DataFrame convertHB2HE(QIE11DataFrame qiehe) {
+  QIE11DataFrame qiehb = qiehe;
+  int adc_, tdc_, capid_;
+  bool soi_;
+  int is = 0;
 
-    //  flavor for HB digies is hardcoded here
-    static const int hbflavor = 3;
+  //  flavor for HB digies is hardcoded here
+  static const int hbflavor = 3;
 
-    //  iterator over samples
-    for (edm::DataFrame::const_iterator it = qiehe.begin(); it != qiehe.end(); ++it) {
-      if (it == qiehe.begin()) continue;
-      adc_ = qiehe[is].adc();
-      tdc_ = qiehe[is].tdc();
-      soi_ = qiehe[is].soi();
+  //  iterator over samples
+  for (edm::DataFrame::const_iterator it = qiehe.begin(); it != qiehe.end(); ++it) {
+    if (it == qiehe.begin())
+      continue;
+    adc_ = qiehe[is].adc();
+    tdc_ = qiehe[is].tdc();
+    soi_ = qiehe[is].soi();
 
-      if(tdc_>=0&&tdc_<=24) tdc_=0;
-      else if(tdc_>=25&&tdc_<=49) tdc_=1;
-      else if(tdc_==63) tdc_=2;
-      else if(tdc_==62) tdc_=3;
+    if (tdc_ >= 0 && tdc_ <= 24)
+      tdc_ = 0;
+    else if (tdc_ >= 25 && tdc_ <= 49)
+      tdc_ = 1;
+    else if (tdc_ == 63)
+      tdc_ = 2;
+    else if (tdc_ == 62)
+      tdc_ = 3;
 
-      qiehb.setSample(is,adc_,tdc_,soi_);
-      is++;
-    };
+    qiehb.setSample(is, adc_, tdc_, soi_);
+    is++;
+  };
 
-    // puting flavor is safe here because flavor is stored in the same bits for all flavors
-    qiehb.setFlavor(hbflavor);
-    capid_ = qiehe[0].capid();
-    qiehb.setCapid0(capid_);
+  // puting flavor is safe here because flavor is stored in the same bits for all flavors
+  qiehb.setFlavor(hbflavor);
+  capid_ = qiehe[0].capid();
+  qiehb.setCapid0(capid_);
 
-    return qiehb;
-  }
+  return qiehb;
+}
 
 #endif

@@ -10,7 +10,10 @@
 #include "CLHEP/Random/RandFlat.h"
 #include <cmath>
 
-HcalElectronicsSim::HcalElectronicsSim(const HcalSimParameterMap* parameterMap, HcalAmplifier* amplifier, const HcalCoderFactory* coderFactory, bool PreMixing)
+HcalElectronicsSim::HcalElectronicsSim(const HcalSimParameterMap* parameterMap,
+                                       HcalAmplifier* amplifier,
+                                       const HcalCoderFactory* coderFactory,
+                                       bool PreMixing)
     : theParameterMap(parameterMap),
       theAmplifier(amplifier),
       theCoderFactory(coderFactory),
@@ -140,7 +143,7 @@ void HcalElectronicsSim::analogToDigital(
 void HcalElectronicsSim::analogToDigital(
     CLHEP::HepRandomEngine* engine, CaloSamples& lf, QIE11DataFrame& result, double preMixFactor, unsigned preMixBits) {
   analogToDigitalImpl(engine, lf, result, preMixFactor, preMixBits);
-  if (!PreMixDigis) { 
+  if (!PreMixDigis) {
     const HcalSimParameters& pars = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(lf.id()));
     HcalTDC theTDC((pars.threshold_currentTDC()));
     theTDC.timing(lf, result);

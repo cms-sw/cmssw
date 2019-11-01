@@ -4,25 +4,21 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
+HcalTDC::HcalTDC(double threshold_currentTDC)
+    : theTDCParameters(), theDbService(nullptr), threshold_currentTDC_(threshold_currentTDC), lsb(3.74) {}
 
-HcalTDC::HcalTDC(double threshold_currentTDC) : theTDCParameters(), 
-					      theDbService(nullptr),
-					      threshold_currentTDC_(threshold_currentTDC),
-					      lsb(3.74) {}
-
-HcalTDC::~HcalTDC() {
-}
+HcalTDC::~HcalTDC() {}
 
 //template <class Digi>
-void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame & digi) const {
-
+void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame& digi) const {
   float const TDC_Threshold(getThreshold());
   bool risingReady(true);
   int tdcBins = theTDCParameters.nbins();
-  bool hasTDCValues=true;
-  if (lf.preciseSize()==0 ) hasTDCValues=false;
+  bool hasTDCValues = true;
+  if (lf.preciseSize() == 0)
+    hasTDCValues = false;
 
-  //std::cout << "TDC threshold: " << TDC_Threshold << std::endl; 
+  //std::cout << "TDC threshold: " << TDC_Threshold << std::endl;
 
   for (int ibin = 0; ibin < lf.size(); ++ibin) {
     /*
@@ -39,40 +35,40 @@ void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame & digi) const {
     TDC_FallingEdge=62.
     */
     // special codes
-    int TDC_RisingEdge = (risingReady) ? 
-      theTDCParameters.noTransitionCode() :
-      theTDCParameters.alreadyTransitionCode();
+    int TDC_RisingEdge = (risingReady) ? theTDCParameters.noTransitionCode() : theTDCParameters.alreadyTransitionCode();
     int preciseBegin = ibin * tdcBins;
     int preciseEnd = preciseBegin + tdcBins;
 
-    if ( hasTDCValues) {
-      for(int i = preciseBegin; i < preciseEnd; ++i) { //find the TDC time value in each TS 
+    if (hasTDCValues) {
+      for (int i = preciseBegin; i < preciseEnd; ++i) {  //find the TDC time value in each TS
 
-    	  //std::cout << " preciseBin: " << i << " preciseAt(i): " << lf.preciseAt(i) << std::endl;
+        //std::cout << " preciseBin: " << i << " preciseAt(i): " << lf.preciseAt(i) << std::endl;
 
-          if( (!risingReady) && (i==preciseBegin) && (i!=0) ) {
-	    if( ((lf.preciseAt(i+1) - lf.preciseAt(i-1)) > TDC_Threshold) ){
-	      TDC_RisingEdge = theTDCParameters.alreadyTransitionCode();
-              break;
-            } else risingReady = true;
+        if ((!risingReady) && (i == preciseBegin) && (i != 0)) {
+          if (((lf.preciseAt(i + 1) - lf.preciseAt(i - 1)) > TDC_Threshold)) {
+            TDC_RisingEdge = theTDCParameters.alreadyTransitionCode();
+            break;
+          } else
+            risingReady = true;
+        }
+
+        if (risingReady) {
+          if (i != 399 && i != 0 && (lf.preciseAt(i + 1) - lf.preciseAt(i - 1)) > TDC_Threshold) {
+            risingReady = false;
+            TDC_RisingEdge = i - preciseBegin;
+          } else if (i == 0 && (lf.preciseAt(i + 1) - lf.preciseAt(i)) / 0.5 > TDC_Threshold) {
+            risingReady = false;
+            TDC_RisingEdge = i - preciseBegin;
+          } else if (i == (preciseEnd - 1))
+            TDC_RisingEdge = theTDCParameters.noTransitionCode();
+        }
+
+        if ((!risingReady) && (i == (preciseEnd - 1)) && (i != 399)) {
+          if (((lf.preciseAt(i + 1) - lf.preciseAt(i - 1)) < TDC_Threshold)) {
+            risingReady = true;
           }
-
-          if(risingReady){
-            if( i!=399 && i!=0 && (lf.preciseAt(i+1) - lf.preciseAt(i-1)) > TDC_Threshold){
-	      risingReady = false;
-	      TDC_RisingEdge = i-preciseBegin;
-            } else if(i==0 && (lf.preciseAt(i+1) - lf.preciseAt(i))/0.5 > TDC_Threshold){
-              risingReady = false;
-              TDC_RisingEdge = i-preciseBegin;
-            } else if(i==(preciseEnd-1)) TDC_RisingEdge = theTDCParameters.noTransitionCode();
-          }
-
-          if( (!risingReady) && (i==(preciseEnd-1)) && (i!=399) ){
-            if( ((lf.preciseAt(i+1) - lf.preciseAt(i-1)) < TDC_Threshold) ) {
-              risingReady = true;
-            } 
-          }
-      } //end of looping precise bins
+        }
+      }  //end of looping precise bins
     }
 
     // change packing to allow for special codes
@@ -92,9 +88,7 @@ void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame & digi) const {
 		<< std::endl;
         }
     }*/
-  } // loop over bunch crossing bins
+  }  // loop over bunch crossing bins
 }
 
-void HcalTDC::setDbService(const HcalDbService * service) {
-  theDbService = service;
-}
+void HcalTDC::setDbService(const HcalDbService* service) { theDbService = service; }
