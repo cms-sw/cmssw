@@ -109,6 +109,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   }
 
   //determine the gain to apply accounting for cce
+  //move computation to ROC level (one day)
   double S(siop.cce * mipEqfC_[cellThick]);
   if (gain == GainRange_t::AUTO) {
     double desiredLSB(S / aimMIPtoADC);
@@ -120,8 +121,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
     if (gainIdx == 1)
       gain = HGCalSiNoiseMap::q160fC;
     if (gainIdx == 2)
-      gain = HGCalSiNoiseMap::q320fC;
-    // move computation to ROC level (one day)
+      gain = HGCalSiNoiseMap::q320fC;    
   }
 
   //fill in the parameters of the struct
