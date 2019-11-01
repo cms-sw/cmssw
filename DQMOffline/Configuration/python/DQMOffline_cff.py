@@ -19,6 +19,8 @@ from DQM.CTPPS.ctppsDQM_cff import *
 
 DQMNone = cms.Sequence()
 
+DQMMessageLoggerSeq = cms.Sequence( DQMMessageLogger )
+
 DQMOfflineDCS = cms.Sequence( dqmDcsInfo )
 
 # L1 trigger sequences
