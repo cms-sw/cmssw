@@ -12,14 +12,14 @@
 <test name="testNumExpr" command="testNumExpr.py"/>
 <test name="testTables" command="testTables.py"/>
 
-<test name="testDownhill" command="testDownhill.sh"/>
 <test name="testXGBoost_and_sklearn" command="testXGBoost_and_sklearn.py"/>
 
-<test name="testhep_ml" command="testhep_ml.sh"/>
 <test name="testUncertainties" command="testUncertainties.py"/>
-<test name="testImports" command="imports.sh"/>
-<test name="testTheano" command="testTheano.sh"/>
 <test name="testJupyter" command="testJupyter.sh"/>
+
+<test name="testDownhill" command="testTheano.sh testDownhill.py"/>
+<test name="testTheano"   command="testTheano.sh testTheano.py"/>
+<test name="testhep_ml"   command="testTheano.sh testhep_ml.py"/>
 
 
 <bin name="test_PyMVA" file="test_PyMVA.cpp">
@@ -40,3 +40,128 @@
 <iftool name="py2-cx-oracle">
   <test name="testCxOracle" command="python -c 'import cx_Oracle'"/>
 </iftool>
+<test name="import-jinja2"   command="python -c 'import jinja2'"/>
+<test name="import-keras" command="python -c 'import keras'"/>
+<test name="import-markupsafe" command="python -c 'import markupsafe'"/>
+<test name="import-yaml" command="python -c 'import yaml'"/>
+<test name="import-pygments" command="python -c 'import pygments'"/>
+<test name="import-appdirs" command="python -c 'import appdirs'"/>
+<test name="import-argparse" command="python -c 'import argparse'"/>
+<test name="import-autopep8" command="python -c 'import autopep8'"/>
+<test name="import-avro" command="python -c 'import avro'"/>
+<test name="import-backports_abc" command="python -c 'import backports_abc'"/>
+<test name="import-backports.lzma" command="python -c 'import backports.lzma'"/>
+<test name="import-backports.ssl_match_hostname" command="python -c 'import backports.ssl_match_hostname'"/>
+<test name="import-bleach" command="python -c 'import bleach'"/>
+<test name="import-bottleneck" command="python -c 'import bottleneck'"/>
+<test name="import-certifi" command="python -c 'import certifi'"/>
+<test name="import-chardet" command="python -c 'import chardet'"/>
+<test name="import-cjson" command="python -c 'import cjson'"/>
+<test name="import-click" command="python -c 'import click'"/>
+<test name="import-climate" command="python -c 'import climate'"/>
+<test name="import-cycler" command="python -c 'import cycler'"/>
+<test name="import-cython" command="python -c 'import cython'"/>
+<test name="import-decorator" command="python -c 'import decorator'"/>
+<test name="import-docopt" command="python -c 'import docopt'"/>
+<test name="import-downhill" command="python -c 'import downhill'"/>
+<test name="import-dxr" command="python -c 'import dxr'"/>
+<test name="import-enum" command="python -c 'import enum'"/>
+<test name="import-flake8" command="python -c 'import flake8'"/>
+<test name="import-funcsigs" command="python -c 'import funcsigs'"/>
+<test name="import-future" command="python -c 'import future'"/>
+<test name="import-concurrent.futures" command="python -c 'import concurrent.futures'"/>
+<test name="import-h5py" command="python -c 'import h5py'"/>
+<test name="import-hep_ml" command="python -c 'import hep_ml'"/>
+<test name="import-histbook" command="python -c 'import histbook'"/>
+<test name="import-html5lib" command="python -c 'import html5lib'"/>
+<test name="import-hyperas" command="python -c 'import hyperas'"/>
+<test name="import-hyperopt" command="python -c 'import hyperopt'"/>
+<test name="import-idna" command="python -c 'import idna'"/>
+<test name="import-ipykernel" command="python -c 'import ipykernel'"/>
+<test name="import-ipython_genutils" command="python -c 'import ipython_genutils'"/>
+<test name="import-ipywidgets" command="python -c 'import ipywidgets'"/>
+<test name="import-jinja2" command="python -c 'import jinja2'"/>
+<test name="import-jsonpickle" command="python -c 'import jsonpickle'"/>
+<test name="import-jsonschema" command="python -c 'import jsonschema'"/>
+<test name="import-jupyter" command="python -c 'import jupyter'"/>
+<test name="import-jupyter_client" command="python -c 'import jupyter_client'"/>
+<test name="import-jupyter_console" command="python -c 'import jupyter_console'"/>
+<test name="import-jupyter_core" command="python -c 'import jupyter_core'"/>
+<test name="import-matplotlib" command="python -c 'import matplotlib'"/>
+<test name="import-mistune" command="python -c 'import mistune'"/>
+<test name="import-mock" command="python -c 'import mock'"/>
+<test name="import-mpmath" command="python -c 'import mpmath'"/>
+<test name="import-nbformat" command="python -c 'import nbformat'"/>
+<test name="import-networkx" command="python -c 'import networkx'"/>
+<test name="import-nose" command="python -c 'import nose'"/>
+<test name="import-notebook" command="python -c 'import notebook'"/>
+<test name="import-numexpr" command="python -c 'import numexpr'"/>
+<test name="import-numpy" command="python -c 'import numpy'"/>
+<test name="import-oamap" command="python -c 'import oamap'"/>
+<test name="import-ordereddict" command="python -c 'import ordereddict'"/>
+<test name="import-packaging" command="python -c 'import packaging'"/>
+<test name="import-pandas" command="python -c 'import pandas'"/>
+<test name="import-pandocfilters" command="python -c 'import pandocfilters'"/>
+<test name="import-parsimonious" command="python -c 'import parsimonious'"/>
+<test name="import-pathlib2" command="python -c 'import pathlib2'"/>
+<test name="import-pbr" command="python -c 'import pbr'"/>
+<test name="import-pexpect" command="python -c 'import pexpect'"/>
+<test name="import-pickleshare" command="python -c 'import pickleshare'"/>
+<test name="import-pip" command="python -c 'import pip'"/>
+<test name="import-pkgconfig" command="python -c 'import pkgconfig'"/>
+<test name="import-plac" command="python -c 'import plac'"/>
+<test name="import-prettytable" command="python -c 'import prettytable'"/>
+<test name="import-google.protobuf" command="python -c 'import google.protobuf'"/>
+<test name="import-prwlock" command="python -c 'import prwlock'"/>
+<test name="import-psutil" command="python -c 'import psutil'"/>
+<test name="import-ptyprocess" command="python -c 'import ptyprocess'"/>
+<test name="import-pybind11" command="python -c 'import pybind11'"/>
+<test name="import-pycodestyle" command="python -c 'import pycodestyle'"/>
+<test name="import-pycurl" command="python -c 'import pycurl'"/>
+<test name="import-pyparsing" command="python -c 'import pyparsing'"/>
+<test name="import-sqlite3" command="python -c 'import sqlite3'"/>
+<test name="import-pytz" command="python -c 'import pytz'"/>
+<test name="import-zmq" command="python -c 'import zmq'"/>
+<test name="import-qtconsole" command="python -c 'import qtconsole'"/>
+<test name="import-rep" command="python -c 'import rep'"/>
+<test name="import-requests" command="python -c 'import requests'"/>
+<test name="import-root_numpy" command="python -c 'import root_numpy'"/>
+<test name="import-root_pandas" command="python -c 'import root_pandas'"/>
+<test name="import-rootpy" command="python -c 'import rootpy'"/>
+<test name="import-scandir" command="python -c 'import scandir'"/>
+<test name="import-schema" command="python -c 'import schema'"/>
+<test name="import-sklearn" command="python -c 'import sklearn'"/>
+<test name="import-scipy" command="python -c 'import scipy'"/>
+<test name="import-seaborn" command="python -c 'import seaborn'"/>
+<test name="import-send2trash" command="python -c 'import send2trash'"/>
+<test name="import-backports.shutil_get_terminal_size" command="python -c 'import backports.shutil_get_terminal_size'"/>
+<test name="import-simplegeneric" command="python -c 'import simplegeneric'"/>
+<test name="import-singledispatch" command="python -c 'import singledispatch'"/>
+<test name="import-six" command="python -c 'import six'"/>
+<test name="import-sqlalchemy" command="python -c 'import sqlalchemy'"/>
+<test name="import-sympy" command="python -c 'import sympy'"/>
+<test name="import-tables" command="python -c 'import tables'"/>
+<test name="import-tensorflow" command="python -c 'import tensorflow'"/>
+<test name="import-terminado" command="python -c 'import terminado'"/>
+<test name="import-testpath" command="python -c 'import testpath'"/>
+<test name="import-theanets" command="python -c 'import theanets'"/>
+<test name="import-tornado" command="python -c 'import tornado'"/>
+<test name="import-tqdm" command="python -c 'import tqdm'"/>
+<test name="import-traitlets" command="python -c 'import traitlets'"/>
+<test name="import-uncertainties" command="python -c 'import uncertainties'"/>
+<test name="import-uproot" command="python -c 'import uproot'"/>
+<test name="import-urllib3" command="python -c 'import urllib3'"/>
+<test name="import-virtualenv" command="python -c 'import virtualenv'"/>
+<test name="import-wcwidth" command="python -c 'import wcwidth'"/>
+<test name="import-webencodings" command="python -c 'import webencodings'"/>
+<test name="import-werkzeug" command="python -c 'import werkzeug'"/>
+<test name="import-widgetsnbextension" command="python -c 'import widgetsnbextension'"/>
+<test name="import-xgboost" command="python -c 'import xgboost'"/>
+<test name="import-h5py_cache" command="python -c 'import h5py_cache'"/>
+<test name="import-google" command="python -c 'import google'"/>
+<test name="import-lxml" command="python -c 'import lxml'"/>
+<test name="import-bs4" command="python -c 'import bs4'"/>
+<test name="run-flawfinder" command="flawfinder -h"/>
+<test name="run-ipython" command="ipython -h"/>
+<test name="run-pylint" command="python2 $(shell which pylint) -h"/>
+<test name="run-pylint3" command="python3 $(shell which pylint3) -h"/>

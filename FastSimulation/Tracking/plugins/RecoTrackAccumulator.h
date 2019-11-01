@@ -16,6 +16,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -26,13 +27,12 @@ namespace edm {
   class ConsumesCollector;
   template <typename T>
   class Handle;
-  class ProducerBase;
   class StreamID;
 }  // namespace edm
 
 class RecoTrackAccumulator : public DigiAccumulatorMixMod {
 public:
-  explicit RecoTrackAccumulator(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
+  explicit RecoTrackAccumulator(const edm::ParameterSet& conf, edm::ProducesCollector, edm::ConsumesCollector& iC);
   ~RecoTrackAccumulator() override;
 
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;

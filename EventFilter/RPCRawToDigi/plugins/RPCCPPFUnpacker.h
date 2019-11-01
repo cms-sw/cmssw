@@ -6,6 +6,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 
 #include "CondFormats/DataRecord/interface/RPCCPPFLinkMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCAMCLinkMap.h"
@@ -21,7 +22,7 @@ class RPCAMCLinkCounters;
 
 class RPCCPPFUnpacker : public RPCAMCUnpacker {
 public:
-  RPCCPPFUnpacker(edm::stream::EDProducerBase& producer, edm::ParameterSet const& config);
+  RPCCPPFUnpacker(edm::ParameterSet const&, edm::ProducesCollector);
 
   void beginRun(edm::Run const& run, edm::EventSetup const& setup) override;
   void produce(edm::Event& event,

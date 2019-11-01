@@ -1,23 +1,24 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigiProducer.h"
 
-HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const &pset, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC)
+HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const &pset,
+                                   edm::ProducesCollector producesCollector,
+                                   edm::ConsumesCollector &iC)
     : DigiAccumulatorMixMod(), theDigitizer_(pset, iC) {
-  mixMod.produces<HBHEDigiCollection>();
-  mixMod.produces<HODigiCollection>();
-  mixMod.produces<HFDigiCollection>();
-  mixMod.produces<ZDCDigiCollection>();
-  mixMod.produces<QIE10DigiCollection>("HFQIE10DigiCollection");
-  mixMod.produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
+  producesCollector.produces<HBHEDigiCollection>();
+  producesCollector.produces<HODigiCollection>();
+  producesCollector.produces<HFDigiCollection>();
+  producesCollector.produces<ZDCDigiCollection>();
+  producesCollector.produces<QIE10DigiCollection>("HFQIE10DigiCollection");
+  producesCollector.produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
   if (pset.getParameter<bool>("debugCaloSamples")) {
-    mixMod.produces<CaloSamplesCollection>("HcalSamples");
+    producesCollector.produces<CaloSamplesCollection>("HcalSamples");
   }
   if (pset.getParameter<bool>("injectTestHits")) {
-    mixMod.produces<edm::PCaloHitContainer>("HcalHits");
+    producesCollector.produces<edm::PCaloHitContainer>("HcalHits");
   }
 }
 
