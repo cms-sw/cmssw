@@ -56,7 +56,9 @@ protected:
   double fNeutralMinPt;
   double fNeutralSlope;
   double fPuppiWeightCut;
-  double fPtMax;
+  double fPtMaxPhotons;
+  double fEtaMaxPhotons;
+  double fPtMaxNeutrals;
   int fNAlgos;
   int fNPV;
   double fPVFrac;
