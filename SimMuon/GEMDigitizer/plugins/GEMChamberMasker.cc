@@ -18,8 +18,6 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "CondFormats/RecoMuonObjects/interface/MuonSystemAging.h"
 #include "CondFormats/DataRecord/interface/MuonSystemAgingRcd.h"
