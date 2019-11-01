@@ -11,6 +11,7 @@ from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClusters
 filteredLayerClustersTrk = _filteredLayerClustersProducer.clone(
   clusterFilter = "ClusterFilterByAlgo",
   algo_number = 8,
+  LayerClustersInputMask = 'trackstersEM',
   iteration_label = "Trk"
 )
 
@@ -18,6 +19,7 @@ filteredLayerClustersTrk = _filteredLayerClustersProducer.clone(
 
 trackstersTrk = _trackstersProducer.clone(
   filtered_mask = cms.InputTag("filteredLayerClustersTrk", "Trk"),
+  original_mask = 'trackstersEM',
   seeding_regions = "ticlSeedingTrk",
   missing_layers = 3,
   min_clusters_per_ntuplet = 5,

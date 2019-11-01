@@ -10,16 +10,17 @@ from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClusters
 
 filteredLayerClustersHAD = _filteredLayerClustersProducer.clone(
     clusterFilter = "ClusterFilterByAlgoAndSize",
-    min_cluster_size = 2,
+    min_cluster_size = 2, # inclusive
     algo_number = 8,
     iteration_label = "HAD",
-    LayerClustersInputMask = "trackstersMIP"
+    LayerClustersInputMask = "trackstersTrk"
 )
 
 # CA - PATTERN RECOGNITION
 
 trackstersHAD = _trackstersProducer.clone(
     filtered_mask = cms.InputTag("filteredLayerClustersHAD", "HAD"),
+    original_mask = 'trackstersTrk',
     seeding_regions = "ticlSeedingGlobal",
     missing_layers = 2,
     min_clusters_per_ntuplet = 10,
