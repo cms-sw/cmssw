@@ -41,16 +41,13 @@ public:
   ~QualityTester() override;
 
 protected:
-  // not called for Harvester for now, might enable that later.
-  void analyze(const edm::Event& e, const edm::EventSetup& c) /* override */;
-
   /// perform the actual quality tests
+  void dqmAnalyze(DQMStore::IBooker&, DQMStore::IGetter&, const edm::Event& e, const edm::EventSetup& c) override;
   void dqmEndLuminosityBlock(DQMStore::IBooker&,
                              DQMStore::IGetter&,
                              edm::LuminosityBlock const& lumiSeg,
                              edm::EventSetup const& c) override;
-  // not usable for harvesting right now.
-  //void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void dqmEndRun(DQMStore::IBooker&, DQMStore::IGetter&, const edm::Run& r, const edm::EventSetup& c) override;
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
 private:
@@ -86,7 +83,7 @@ QualityTester::QualityTester(const edm::ParameterSet& ps) {
   reportThreshold = ps.getUntrackedParameter<std::string>("reportThreshold", "");
   testInEventloop = ps.getUntrackedParameter<bool>("testInEventloop", false);
   qtestOnEndRun = ps.getUntrackedParameter<bool>("qtestOnEndRun", true);
-  qtestOnEndJob = ps.getUntrackedParameter<bool>("qtestOnEndJob", false);
+  qtestOnEndJob = ps.getUntrackedParameter<bool>("qtestOnEndJob", true);
   qtestOnEndLumi = ps.getUntrackedParameter<bool>("qtestOnEndLumi", false);
   verboseQT = ps.getUntrackedParameter<bool>("verboseQT", true);
 
@@ -102,11 +99,14 @@ QualityTester::QualityTester(const edm::ParameterSet& ps) {
 
 QualityTester::~QualityTester() {}
 
-void QualityTester::analyze(const edm::Event& e, const edm::EventSetup& c) {
+void QualityTester::dqmAnalyze(DQMStore::IBooker&,
+                               DQMStore::IGetter& igetter,
+                               const edm::Event& e,
+                               const edm::EventSetup& c) {
   if (testInEventloop) {
     nEvents++;
     if (prescaleFactor > 0 && nEvents % prescaleFactor == 0) {
-      //performTests();
+      performTests(igetter);
     }
   }
 }
@@ -120,6 +120,14 @@ void QualityTester::dqmEndLuminosityBlock(DQMStore::IBooker&,
       performTests(igetter);
     }
   }
+}
+
+void QualityTester::dqmEndRun(DQMStore::IBooker&,
+                              DQMStore::IGetter& igetter,
+                              edm::Run const& run,
+                              edm::EventSetup const& context) {
+  if (qtestOnEndRun)
+    performTests(igetter);
 }
 
 void QualityTester::dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter& igetter) {
@@ -137,7 +145,7 @@ void QualityTester::performTests(DQMStore::IGetter& igetter) {
     for (auto& kv : this->qtestpatterns) {
       std::string& pattern = kv.first;
       QCriterion* qtest = kv.second;
-      int match = fnmatch(pattern.c_str(), name.c_str(), FNM_PATHNAME);
+      int match = fnmatch(pattern.c_str(), name.c_str(), 0);
       if (match == FNM_NOMATCH)
         continue;
       if (match != 0)
@@ -150,6 +158,8 @@ void QualityTester::performTests(DQMStore::IGetter& igetter) {
       DQMNet::QValue* qv;
       me->getQReport(/* create */ true, qtest->getName(), qr, qv);
       assert(qtest);  // null might be valid, maybe replace with if
+      assert(qr);
+      assert(qv);
       qtest->runTest(me, *qr, *qv);
     }
   }
