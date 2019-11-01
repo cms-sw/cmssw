@@ -25,7 +25,7 @@
 namespace edm::eventsetup {
   ESRecordsToProxyIndices::ESRecordsToProxyIndices(std::vector<EventSetupRecordKey> iRecords)
       : recordKeys_{std::move(iRecords)} {
-    assert(std::is_sorted(iRecords.begin(), iRecords.end()));
+    assert(std::is_sorted(recordKeys_.begin(), recordKeys_.end()));
     recordOffsets_.reserve(recordKeys_.size() + 1);
     recordOffsets_.push_back(0);
   }
