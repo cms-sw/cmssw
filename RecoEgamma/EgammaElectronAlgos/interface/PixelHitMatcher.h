@@ -20,34 +20,15 @@
 //
 //
 
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-
-#include "CLHEP/Vector/ThreeVector.h"
-#include <vector>
-#include <unordered_map>
-#include <limits>
-#include <utility>
 
 /** Class to match an ECAL cluster to the pixel hits.
  *  Two compatible hits in the pixel layers are required.
  */
 
-class MeasurementTracker;
 class TrackerGeometry;
+class MagneticField;
 
 struct SeedWithInfo {
   const TrajectorySeed seed;
