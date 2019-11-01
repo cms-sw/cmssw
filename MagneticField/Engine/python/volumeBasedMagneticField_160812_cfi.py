@@ -2,7 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 
 # This cfi contains everything needed to use the VolumeBased magnetic
-# field engine version 160812
+# field engine version 160812.
+#
+# PLEASE DO NOT USE THIS DIRECTLY
+# Always use the standard sequence Configuration.StandardSequences.MagneticField_cff
 
 magfield = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml', 
