@@ -61,14 +61,8 @@ void HLTDisplacedmumuVtxProducer::fillDescriptions(edm::ConfigurationDescription
   descriptions.add("hltDisplacedmumuVtxProducer", desc);
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void HLTDisplacedmumuVtxProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HLTDisplacedmumuVtxProducer::endJob() {}
-
 // ------------ method called on each new Event  ------------
-void HLTDisplacedmumuVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void HLTDisplacedmumuVtxProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   double const MuMass = 0.106;
   double const MuMass2 = MuMass * MuMass;
 
@@ -183,7 +177,7 @@ void HLTDisplacedmumuVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
 }
 
 bool HLTDisplacedmumuVtxProducer::checkPreviousCand(const TrackRef& trackref,
-                                                    vector<RecoChargedCandidateRef>& refVect) {
+                                                    const vector<RecoChargedCandidateRef>& refVect) const {
   bool ok = false;
   for (auto& i : refVect) {
     if (i->get<TrackRef>() == trackref) {

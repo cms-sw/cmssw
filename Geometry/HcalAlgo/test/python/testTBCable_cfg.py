@@ -18,7 +18,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  outputFileName = cms.untracked.string('TBCableDD4Hep.root'),
+                                  outputFileName = cms.untracked.string('tbCableDD4Hep.root'),
                                   DDDetector = cms.ESInputTag('','DDHCalTBCable')
                                   )
 

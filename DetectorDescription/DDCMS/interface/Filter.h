@@ -28,7 +28,7 @@ namespace cms {
     std::vector<std::string_view> keys;
     std::unique_ptr<Filter> next;
     struct Filter* up;
-    const DDSpecPar* spec;
+    const DDSpecPar* spec = nullptr;
   };
 
   namespace dd {

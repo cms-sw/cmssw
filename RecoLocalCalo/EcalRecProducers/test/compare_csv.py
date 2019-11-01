@@ -1,6 +1,5 @@
 from __future__ import print_function
 import sys
-import exceptions
 
 def compare(fn1, fn2):
     f1, f2 = open(fn1, "r"), open(fn2, "r")
@@ -22,7 +21,7 @@ def compare(fn1, fn2):
                 diff.append((diff_f, k1, k2, "l1: " + l1, "l2: " + l2, ))
 
                 print("diffrence[f%d]: %s -> %s" % (i, k1, k2))
-            except exceptions.ValueError:
+            except ValueError:
                 print("non float-type difference[f%d]: %s -> %s" % (i, k1, k2))
 
     for key, item in sorted(diff_cols.items()):

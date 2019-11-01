@@ -23,7 +23,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
@@ -49,7 +49,7 @@ typedef std::array<std::array<std::array<const L1MuDTChambThDigi*, 15>, 5>, 6> D
 typedef std::array<std::array<std::array<const DTLocalTrigger*, 15>, 5>, 6> DTArr3LocalTrigger;
 typedef std::array<std::array<std::array<int, 2>, 13>, 6> DTArr3mapInt;
 
-class DTLocalTriggerTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTLocalTriggerTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   friend class DTMonitorModule;
 
 public:
@@ -81,14 +81,8 @@ protected:
   /// Run analysis on TM data
   void runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs, std::vector<L1MuDTChambThDigi> const* thTrigs);
 
-  /// Run analysis on ROS data
-  void runDDUAnalysis(edm::Handle<DTLocalTriggerCollection>& trigsDDU);
-
   /// Run analysis using DT 4D segments
   void runSegmentAnalysis(edm::Handle<DTRecSegment4DCollection>& segments4D);
-
-  /// Run analysis on ROS data
-  void runDDUvsTMAnalysis(std::string& trigsrc);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
@@ -100,8 +94,8 @@ protected:
   /// Get the L1A source
   void triggerSource(const edm::Event& e);
 
-  /// Get the Top folder (different between Physics and TP and TM/DDU)
-  std::string& topFolder(bool isTM) { return isTM ? baseFolderTM : baseFolderDDU; }
+  /// Get the Top folder (different between Physics and TP and TM)
+  std::string& topFolder() { return baseFolderTM; }
 
   const int wheelArrayShift = 3;
 
@@ -112,22 +106,18 @@ private:
   edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
   edm::EDGetTokenT<LTCDigiCollection> ltcDigiCollectionToken_;
 
-  bool useTM, useDDU, useSEG;
+  bool useTM, useSEG;
   std::string trigsrc;
   int nevents;
   bool tpMode;
   std::string baseFolderTM;
-  std::string baseFolderDDU;
   bool doTMTheta;
   bool detailedAnalysis;
 
   DTArr3int phcode_best;
-  DTArr3int dduphcode_best;
   DTArr3int thcode_best;
-  DTArr3int dduthcode_best;
   DTArr3mapInt mapDTTF;
   DTArr3PhDigi iphbest;
-  DTArr3LocalTrigger iphbestddu;
   DTArr3ThDigi ithbest;
   bool track_ok[6][5][15];
 

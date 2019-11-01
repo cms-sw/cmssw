@@ -17,7 +17,6 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/PxPyPzE4D.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include <boost/cstdint.hpp>
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"

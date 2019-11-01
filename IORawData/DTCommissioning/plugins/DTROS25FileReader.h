@@ -18,7 +18,7 @@
 
 #include <ostream>
 #include <fstream>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class DTROS25FileReader : public edm::EDProducer {
 public:

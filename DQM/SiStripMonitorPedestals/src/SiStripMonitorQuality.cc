@@ -114,7 +114,6 @@ void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker &ibooker,
     hid = hidmanager.createHistoId("StripQualityFromCondDB", "det", detid);
 
     det_me = ibooker.book1D(hid, hid, nStrip, 0.5, nStrip + 0.5);
-    ibooker.tag(det_me, detid);
     det_me->setAxisTitle("Strip Number", 1);
     det_me->setAxisTitle("Quality Flag from CondDB ", 2);
     QualityMEs.insert(std::make_pair(detid, det_me));
@@ -180,7 +179,7 @@ void SiStripMonitorQuality::analyze(edm::Event const &iEvent, edm::EventSetup co
 //
 // -- End Run
 //
-void SiStripMonitorQuality::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SiStripMonitorQuality::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if (outputMEsInRootFile) {

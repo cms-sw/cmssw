@@ -1,13 +1,13 @@
 #ifndef L1GCTJET_H_
 #define L1GCTJET_H_
 
-#include <boost/cstdint.hpp>  //for uint16_t
 #include <functional>
 #include <vector>
 #include <ostream>
 #include <memory>
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
+#include <cstdint>
 
 /*!
  * \author Jim Brooke & Robert Frazier

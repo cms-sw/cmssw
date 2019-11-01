@@ -1,7 +1,6 @@
 #ifndef SimG4CMS_CaloTrkProcessing_H
 #define SimG4CMS_CaloTrkProcessing_H
 
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
@@ -38,13 +37,6 @@ public:
   void fillHits(edm::PCaloHitContainer&, const std::string&) override {}
 
 private:
-  void update(const BeginOfEvent* evt) override;
-  void update(const G4Step*) override;
-  std::vector<std::string> getNames(G4String, const DDsvalues_type&);
-  std::vector<double> getNumbers(G4String, const DDsvalues_type&);
-  int isItCalo(const G4VTouchable*);
-  int isItInside(const G4VTouchable*, int, int);
-
   struct Detector {
     Detector() {}
     std::string name;
@@ -55,16 +47,20 @@ private:
     std::vector<int> fromLevels;
   };
 
+  void update(const BeginOfEvent* evt) override;
+  void update(const G4Step*) override;
+  int isItCalo(const G4VTouchable*, const std::vector<Detector>&);
+  int isItInside(const G4VTouchable*, int, int);
+
   // Utilities to get detector levels during a step
   int detLevels(const G4VTouchable*) const;
   G4LogicalVolume* detLV(const G4VTouchable*, int) const;
   void detectorLevel(const G4VTouchable*, int&, int*, G4String*) const;
 
-  bool testBeam, putHistory;
-  double eMin;
-  int lastTrackID;
-  std::vector<Detector> detectors;
-  const SimTrackManager* m_trackManager;
+  bool testBeam_, putHistory_, doFineCalo_;
+  double eMin_, eMinFine_, eMinFinePhoton_;
+  int lastTrackID_;
+  std::vector<Detector> detectors_, fineDetectors_;
 };
 
 #endif

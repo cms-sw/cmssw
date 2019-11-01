@@ -131,7 +131,7 @@ void SUSY_HLT_PhotonHT::analyze(edm::Event const &e, edm::EventSetup const &eSet
   }
 }
 
-void SUSY_HLT_PhotonHT::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SUSY_HLT_PhotonHT::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   edm::LogInfo("SUSY_HLT_PhotonHT") << "SUSY_HLT_PhotonHT::endRun" << std::endl;
 }
 

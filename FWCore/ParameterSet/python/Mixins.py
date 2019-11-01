@@ -9,10 +9,12 @@ class _ConfigureComponent(object):
         return False
 
 class PrintOptions(object):
-    def __init__(self):
-        self.indent_= 0
-        self.deltaIndent_ = 4
-        self.isCfg = True
+    def __init__(self, indent = 0, deltaIndent = 4, process = True, targetDirectory = None, useSubdirectories = False):
+        self.indent_= indent
+        self.deltaIndent_ = deltaIndent
+        self.isCfg = process
+        self.targetDirectory = targetDirectory
+        self.useSubdirectories = useSubdirectories
     def indentation(self):
         return ' '*self.indent_
     def indent(self):
@@ -452,6 +454,9 @@ class _TypedParameterizable(_Parameterizable):
                             params[name] = getattr(default,name)
                         return params
         return None
+
+    def directDependencies(self):
+        return []
     
     def dumpConfig(self, options=PrintOptions()):
         config = self.__type +' { \n'
@@ -534,7 +539,10 @@ class _Labelable(object):
     def dumpSequenceConfig(self):
         return str(self.__label)
     def dumpSequencePython(self, options=PrintOptions()):
-        return 'process.'+str(self.__label)
+        if options.isCfg:
+            return 'process.'+str(self.__label)
+        else:
+            return str(self.__label)
     def _findDependencies(self,knownDeps,presentDeps):
         #print 'in labelled'
         myDeps=knownDeps.get(self.label_(),None)
@@ -665,6 +673,8 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
             result +=' ) '
         result += ')'
         return result            
+    def directDependencies(self):
+        return []
     @staticmethod
     def _itemsFromStrings(strings,converter):
         return (converter(x).value() for x in strings)

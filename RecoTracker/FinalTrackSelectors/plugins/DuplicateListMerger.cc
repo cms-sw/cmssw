@@ -101,7 +101,7 @@ namespace {
   }
 
   DuplicateListMerger::DuplicateListMerger(const edm::ParameterSet& iPara)
-      : collectionCloner(*this, iPara, true),
+      : collectionCloner(producesCollector(), iPara, true),
         mergedTrackSource_(iPara.getParameter<edm::InputTag>("mergedSource"), consumesCollector()),
         originalTrackSource_(iPara.getParameter<edm::InputTag>("originalSource"), consumesCollector()),
         priorityName_(iPara.getParameter<std::string>("trackAlgoPriorityOrder")) {

@@ -27,7 +27,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgoHeavyObjectCache.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/RegressionHelper.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
@@ -48,6 +47,13 @@
 
 class GsfElectronAlgo {
 public:
+  class HeavyObjectCache {
+  public:
+    HeavyObjectCache(const edm::ParameterSet&);
+    std::unique_ptr<const SoftElectronMVAEstimator> sElectronMVAEstimator;
+    std::unique_ptr<const ElectronMVAEstimator> iElectronMVAEstimator;
+  };
+
   struct InputTagsConfiguration {
     edm::EDGetTokenT<reco::GsfElectronCollection> previousGsfElectrons;
     edm::EDGetTokenT<reco::GsfElectronCollection> pflowGsfElectronsTag;
@@ -81,7 +87,7 @@ public:
     bool pureTrackerDrivenEcalErrorFromSimpleParameterization;
     // ambiguity solving
     bool applyAmbResolution;              // if not true, ambiguity solving is not applied
-    unsigned ambSortingStrategy;          // 0:isBetter, 1:isInnerMost
+    unsigned ambSortingStrategy;          // 0:isBetter, 1:isInnermost
     unsigned ambClustersOverlapStrategy;  // 0:sc adresses, 1:bc shared energy
     // if true, trackerDriven electrons are added
     bool addPflowElectrons;
@@ -198,7 +204,7 @@ public:
   void completeElectrons(reco::GsfElectronCollection& electrons,  // do not redo cloned electrons done previously
                          edm::Event const& event,
                          edm::EventSetup const& eventSetup,
-                         const gsfAlgoHelpers::HeavyObjectCache* hoc);
+                         const HeavyObjectCache* hoc);
 
 private:
   // internal structures
@@ -344,7 +350,7 @@ private:
   void createElectron(reco::GsfElectronCollection& electrons,
                       ElectronData& electronData,
                       EventData& eventData,
-                      const gsfAlgoHelpers::HeavyObjectCache*);
+                      const HeavyObjectCache*);
 
   void setMVAepiBasedPreselectionFlag(reco::GsfElectron& ele);
   void setCutBasedPreselectionFlag(reco::GsfElectron& ele, const reco::BeamSpot&);

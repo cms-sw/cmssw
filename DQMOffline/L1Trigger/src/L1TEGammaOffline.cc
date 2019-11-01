@@ -571,7 +571,7 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
 //
 // -------------------------------------- endRun --------------------------------------------
 //
-void L1TEGammaOffline::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
+void L1TEGammaOffline::dqmEndRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::endRun" << std::endl;
 }
 

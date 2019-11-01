@@ -18,6 +18,7 @@ numWFIB.extend([20434.0,20434.1]) #2026D41 w/ special tracking and timing workfl
 numWFIB.extend([20661.97]) # 2026D41 premixing stage1 (NuGun+PU)
 numWFIB.extend([20634.99]) # 2026D41 premixing combined stage1+stage2 (ttbar+PU)
 numWFIB.extend([20434.21,20634.21]) #2026D41 prodlike, prodlike PU
+numWFIB.extend([20434.103]) #2026D41 aging
 numWFIB.extend([20493.52]) #2026D41+TICL
 numWFIB.extend([20834.0]) #2026D43
 numWFIB.extend([21234.0]) #2026D44
@@ -25,5 +26,7 @@ numWFIB.extend([21634.0]) #2026D45
 numWFIB.extend([22034.0]) #2026D46
 numWFIB.extend([22434.0]) #2026D47
 numWFIB.extend([22834.0]) #2026D48
+numWFIB.extend([23234.0]) #2026D49
+
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]

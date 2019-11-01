@@ -78,7 +78,8 @@ namespace edm {
 
         EventSetupRecordKey const& recordKey() const;
 
-        void insert(std::vector<std::pair<DataKey, std::shared_ptr<DataProxy>>>&&);
+        void insert(std::vector<std::pair<DataKey, std::shared_ptr<DataProxy>>>&&,
+                    std::string const& appendToDataLabel);
 
         bool contains(DataKey const& dataKey) const;
 

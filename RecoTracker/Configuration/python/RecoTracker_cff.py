@@ -18,19 +18,24 @@ from RecoTracker.Configuration.RecoTrackerBHM_cff import *
 #special sequences, such as pixel-less
 from RecoTracker.Configuration.RecoTrackerNotStandard_cff import *
 
-ckftracks_woBH = cms.Sequence(iterTracking*electronSeedsSeq*doAlldEdXEstimators)
-ckftracks = ckftracks_woBH.copy() #+ beamhaloTracksSeq) # temporarily out, takes too much resources
+ckftracks_woBHTask = cms.Task(iterTrackingTask,
+                              electronSeedsSeqTask,
+                              doAlldEdXEstimatorsTask)
+ckftracks_woBH = cms.Sequence(ckftracks_woBHTask)
+ckftracksTask = ckftracks_woBHTask.copy() #+ beamhaloTracksSeq) # temporarily out, takes too much resources
+ckftracks = cms.Sequence(ckftracksTask) 
 
-ckftracks_wodEdX = ckftracks.copy()
-ckftracks_wodEdX.remove(doAlldEdXEstimators)
+ckftracks_wodEdXTask = ckftracksTask.copy()
+ckftracks_wodEdXTask.remove(doAlldEdXEstimatorsTask)
+ckftracks_wodEdX = cms.Sequence(ckftracks_wodEdXTask)
 
-
-ckftracks_plus_pixelless = cms.Sequence(ckftracks*ctfTracksPixelLess)
+ckftracks_plus_pixellessTask = cms.Task(ckftracksTask, ctfTracksPixelLessTask)
+ckftracks_plus_pixelless = cms.Sequence(ckftracks_plus_pixellessTask)
 
 
 from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
-trackingGlobalReco = cms.Sequence(ckftracks*trackExtrapolator)
+trackingGlobalRecoTask = cms.Task(ckftracksTask, trackExtrapolator)
+trackingGlobalReco = cms.Sequence(trackingGlobalRecoTask)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-_fastSim_trackingGlobalReco = cms.Sequence(trackExtrapolator)
-fastSim.toReplaceWith(trackingGlobalReco,_fastSim_trackingGlobalReco)
+fastSim.toReplaceWith(trackingGlobalRecoTask, cms.Task(doAlldEdXEstimatorsTask, trackExtrapolator))

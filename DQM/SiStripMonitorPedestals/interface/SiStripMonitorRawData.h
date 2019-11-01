@@ -37,11 +37,11 @@
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-#include "boost/cstdint.hpp"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 class SiStripDetCabling;
 
@@ -52,7 +52,7 @@ public:
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void endRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
+  void dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
   void endJob() override;
 
 private:

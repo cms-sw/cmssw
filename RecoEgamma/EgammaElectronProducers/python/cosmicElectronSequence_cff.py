@@ -11,7 +11,7 @@ from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 
 # module to produce electron seeds
-from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
+from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cff import *
 from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
 
 

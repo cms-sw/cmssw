@@ -28,10 +28,10 @@ public:
   //--- temporal set'ters
 
   inline void setOOTIndex(int i) { ts_index_ = i; }
-  inline int getOOTIndex() const { return ts_index_; }
+  inline int ootIndex() const { return ts_index_; }
 
   inline void setMultipleHits(int i) { mh_ = i; }
-  inline int getMultipleHits() const { return mh_; }
+  inline int multipleHits() const { return mh_; }
 
 private:
   /// Time slice index

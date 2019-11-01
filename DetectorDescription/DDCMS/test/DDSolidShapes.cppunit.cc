@@ -26,7 +26,7 @@ private:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testDDSolidShapes);
 
-void testDDSolidShapes::setUp() { solidName_ = "Trapezoid"; }
+void testDDSolidShapes::setUp() { solidName_ = "Trap"; }
 
 void testDDSolidShapes::checkDDSolidShapes() {
   cms::DDSolidShape shape = cms::dd::value(cms::DDSolidShapeMap, solidName_);

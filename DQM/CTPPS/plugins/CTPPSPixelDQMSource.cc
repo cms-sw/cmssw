@@ -38,7 +38,7 @@ protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
-  void endRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
+  void dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
 
 private:
   unsigned int verbosity;
@@ -250,9 +250,9 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
       ID.setStation(stn);
       string stnd, stnTitle;
 
-      CTPPSDetId(ID.getStationId()).stationName(stnd, CTPPSDetId::nPath);
-      CTPPSDetId(ID.getStationId()).stationName(stnTitle, CTPPSDetId::nFull);
-      CTPPSDetId(ID.getStationId()).stationName(stnTitleShort, CTPPSDetId::nShort);
+      CTPPSDetId(ID.stationId()).stationName(stnd, CTPPSDetId::nPath);
+      CTPPSDetId(ID.stationId()).stationName(stnTitle, CTPPSDetId::nFull);
+      CTPPSDetId(ID.stationId()).stationName(stnTitleShort, CTPPSDetId::nShort);
 
       ibooker.setCurrentFolder(stnd);
       //--------- RPots ---
@@ -260,7 +260,7 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
       for (int rp = RPn_first; rp < RPn_last; rp++) {  // only installed pixel pots
         ID.setRP(rp);
         string rpd, rpTitle;
-        CTPPSDetId(ID.getRPId()).rpName(rpTitle, CTPPSDetId::nShort);
+        CTPPSDetId(ID.rpId()).rpName(rpTitle, CTPPSDetId::nShort);
         string rpBinName = armTitleShort + "_" + stnTitleShort + "_" + rpTitle;
         yah1st->SetBinLabel(getRPglobalBin(arm, stn), rpBinName.c_str());
         xah1trk->SetBinLabel(getRPglobalBin(arm, stn), rpBinName.c_str());
@@ -271,8 +271,8 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
         int indexP = getRPindex(arm, stn, rp);
         RPindexValid[indexP] = 1;
 
-        CTPPSDetId(ID.getRPId()).rpName(rpTitle, CTPPSDetId::nFull);
-        CTPPSDetId(ID.getRPId()).rpName(rpd, CTPPSDetId::nPath);
+        CTPPSDetId(ID.rpId()).rpName(rpTitle, CTPPSDetId::nFull);
+        CTPPSDetId(ID.rpId()).rpName(rpd, CTPPSDetId::nPath);
 
         ibooker.setCurrentFolder(rpd);
 
@@ -450,15 +450,15 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
 
       for (DetSet<CTPPSPixelLocalTrack>::const_iterator dit = ds_tr.begin(); dit != ds_tr.end(); ++dit) {
         ++pixRPTracks[rpInd];
-        int nh_tr = (dit->getNDF() + TrackFitDimension) / 2;
+        int nh_tr = (dit->ndf() + TrackFitDimension) / 2;
         for (int i = 0; i <= NplaneMAX; i++) {
           if (i == nh_tr)
             htrackHits[rpInd]->Fill(nh_tr, 1.);
           else
             htrackHits[rpInd]->Fill(i, 0.);
         }
-        float x0 = dit->getX0();
-        float y0 = dit->getY0();
+        float x0 = dit->x0();
+        float y0 = dit->y0();
         h2trackXY0[rpInd]->Fill(x0, y0);
         if (x0_MAX < x0)
           x0_MAX = x0;
@@ -640,7 +640,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
 }
 
 //-----------------------------------------------------------------------------
-void CTPPSPixelDQMSource::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void CTPPSPixelDQMSource::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   if (!verbosity)
     return;
   LogPrint("CTPPSPixelDQMSource") << "end of Run " << run.run() << ": " << nEvents << " events\n"

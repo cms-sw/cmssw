@@ -10,11 +10,12 @@ pfSelectedElectrons = cms.EDFilter(
     cut = cms.string("abs(pdgId())==11")
 )
 
-pfBasedElectronIsoSequence = cms.Sequence(
-    pfParticleSelectionSequence +
-    pfSelectedElectrons +
-    electronPFIsolationDepositsSequence +
-    electronPFIsolationValuesSequence
+pfBasedElectronIsoTask = cms.Task(
+    pfParticleSelectionTask,
+    pfSelectedElectrons,
+    electronPFIsolationDepositsTask,
+    electronPFIsolationValuesTask
     )
+pfBasedElectronIsoSequence = cms.Sequence(pfBasedElectronIsoTask)
 
 #COLIN: is this file used in RECO? in PF2PAT? same for photons. 

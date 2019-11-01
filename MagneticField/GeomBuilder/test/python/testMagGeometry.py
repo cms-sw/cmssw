@@ -39,10 +39,9 @@ process.ParametrizedMagneticFieldProducer = cms.ESProducer("ParametrizedMagnetic
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-mf-geometry.xml'),
+                                            rootDDName = cms.string('cmsMagneticField:MAGF'),
                                             appendToDataLabel = cms.string('magfield')
                                             )
-
-                                              # version = cms.string('grid_160812_3_8t'),
 
 process.MagneticFieldESProducer = cms.ESProducer("DD4hep_VolumeBasedMagneticFieldESProducer",
                                               DDDetector = cms.ESInputTag('', 'magfield'),

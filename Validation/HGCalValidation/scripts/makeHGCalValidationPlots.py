@@ -29,7 +29,7 @@ def main(opts):
     if opts.collection=="hgcalLayerClusters":
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
 	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
-    elif opts.collection=="hgcalMultiClusters":
+    elif opts.collection in ["hgcalMultiClusters", "multiClustersFromTrackstersMIP", "multiClustersFromTracksters", "multiClustersFromTrackstersTrk"]:
         hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
     elif opts.collection=="hitValidation":
@@ -86,8 +86,8 @@ if __name__ == "__main__":
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
     parser.add_argument("--verbose", action="store_true",
                         help="Be verbose")
-    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hgcalMultiClusters", "hitValidation", "all"], default="all",
-                        help="Choose output plots collections: hgcalLayerCluster, hgcalMultiClusters, hitValidation, all")    
+    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hgcalMultiClusters", "hitValidation", "all", "multiClustersFromTrackstersMIP", "multiClustersFromTracksters", "multiClustersFromTrackstersTrk"], default="all",
+                        help="Choose output plots collections: hgcalLayerCluster, hgcalMultiClusters, hitValidation, all")
 
     opts = parser.parse_args()
 

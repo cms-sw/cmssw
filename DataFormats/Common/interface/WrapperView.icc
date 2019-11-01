@@ -11,7 +11,7 @@ Code from Wrapper.h supporting Views
 #include "DataFormats/Common/interface/fwd_setPtr.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "boost/mpl/if.hpp"
+#include <type_traits>
 
 namespace edm {
 
@@ -35,7 +35,7 @@ namespace edm {
   inline void Wrapper<T>::do_fillView(ProductID const& id,
                                       std::vector<void const*>& pointers,
                                       FillViewHelperVector& helpers) const {
-    typename boost::mpl::if_c<has_fillView<T>::value, DoFillView<T>, DoNotFillView<T> >::type maybe_filler;
+    typename std::conditional<has_fillView<T>::value, DoFillView<T>, DoNotFillView<T> >::type maybe_filler;
     maybe_filler(obj, id, pointers, helpers);
   }
 
@@ -67,7 +67,7 @@ namespace edm {
 
   template <typename T>
   inline void Wrapper<T>::do_setPtr(std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) const {
-    typename boost::mpl::if_c<has_setPtr<T>::value, DoSetPtr<T>, DoNotSetPtr<T> >::type maybe_filler;
+    typename std::conditional<has_setPtr<T>::value, DoSetPtr<T>, DoNotSetPtr<T> >::type maybe_filler;
     maybe_filler(this->obj, iToType, iIndex, oPtr);
   }
 
@@ -75,7 +75,7 @@ namespace edm {
   void Wrapper<T>::do_fillPtrVector(std::type_info const& iToType,
                                     std::vector<unsigned long> const& iIndices,
                                     std::vector<void const*>& oPtr) const {
-    typename boost::mpl::if_c<has_setPtr<T>::value, DoSetPtr<T>, DoNotSetPtr<T> >::type maybe_filler;
+    typename std::conditional<has_setPtr<T>::value, DoSetPtr<T>, DoNotSetPtr<T> >::type maybe_filler;
     maybe_filler(this->obj, iToType, iIndices, oPtr);
   }
 }  // namespace edm

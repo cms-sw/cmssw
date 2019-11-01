@@ -5,12 +5,11 @@
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
-
-#include "FWCore/Framework/interface/ProducerBase.h"
 
 #include <vector>
 
@@ -31,7 +30,7 @@ namespace edm {
 
 class EcalTimeDigiProducer : public DigiAccumulatorMixMod {
 public:
-  EcalTimeDigiProducer(const edm::ParameterSet &params, edm::ProducerBase &mixMod, edm::ConsumesCollector &);
+  EcalTimeDigiProducer(const edm::ParameterSet &params, edm::ProducesCollector, edm::ConsumesCollector &);
   ~EcalTimeDigiProducer() override;
 
   void initializeEvent(edm::Event const &e, edm::EventSetup const &c) override;

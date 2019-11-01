@@ -147,7 +147,7 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
   produces<edm::SimVertexContainer>();
   // products of interaction models, i.e. simHits
   for (auto& interactionModel : interactionModels_) {
-    interactionModel->registerProducts(*this);
+    interactionModel->registerProducts(producesCollector());
   }
   produces<edm::PCaloHitContainer>("EcalHitsEB");
   produces<edm::PCaloHitContainer>("EcalHitsEE");

@@ -1,8 +1,10 @@
 from __future__ import absolute_import
 from .MatrixUtil import *
+import six
 
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
+from .upgradeWorkflowComponents import step3_trackingOnly
 
 concurrentLumis = {'--nStreams':         4,
                    '--nConcurrentLumis': 2,
@@ -1576,6 +1578,8 @@ step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2016'
                   }
 step2Upg2015Defaults50ns = merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval50ns','--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},step2Upg2015Defaults])
 
+step2Upg2015DefaultsAPVSimu = merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},step2Upg2015Defaults])
+
 #for 2017
 step2Upg2017Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2017',
                  '--conditions'  :'auto:phase1_2017_realistic',
@@ -1598,8 +1602,12 @@ step2Upg2018Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2018'
 
 
 steps['DIGIUP15']=merge([step2Upg2015Defaults])
+steps['DIGIUP15APVSimu']=merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},step2Upg2015Defaults])
+
 steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2016','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2015Defaults])
 steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
+steps['DIGIUP15APVSimu_PU25']=merge([PU25,step2Upg2015DefaultsAPVSimu])
+
 steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults50ns])
 steps['DIGIUP17']=merge([step2Upg2017Defaults])
 steps['DIGIUP18']=merge([step2Upg2018Defaults])
@@ -1659,6 +1667,7 @@ premixUp2015Defaults = {
     '--procModifiers':'premix_stage1',
     '--era'         : 'Run2_2016' # temporary replacement for premix; to be brought back to customisePostLS1 *EDIT - This comment possibly no longer relevant with switch to eras
 }
+
 premixUp2015Defaults50ns = merge([{'--conditions':'auto:run2_mc_50ns'},
                                   {'--era':'Run2_50ns'},
                                   premixUp2015Defaults])
@@ -1731,9 +1740,11 @@ digiPremixUp2018Defaults25ns = {
 digiPremixLocalPileupUp2018Defaults25ns = merge([digiPremixLocalPileup,
                                                  digiPremixUp2018Defaults25ns])
 
-
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15APVSimu_PU25']=merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXLOCALUP15_PU25']=merge([digiPremixLocalPileupUp2015Defaults25ns])
+steps['DIGIPRMXLOCALUP15APVSimu_PU25']=merge([{'--customise': 'SimTracker/SiStripDigitizer/customizeSiStripAPVDynamicGainSimulation.activateSiStripAPVDynamicGain'},digiPremixLocalPileupUp2015Defaults25ns])
+
 steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
 steps['DIGIPRMXUP17_PU25']=merge([digiPremixUp2017Defaults25ns])
 steps['DIGIPRMXLOCALUP17_PU25']=merge([digiPremixLocalPileupUp2017Defaults25ns])
@@ -2099,16 +2110,6 @@ step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                   '--era'          :'Run2_2016'
                   }
 
-step3_trackingOnly = {
-    '-s': 'RAW2DIGI,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM',
-    '--datatier':'GEN-SIM-RECO,DQMIO',
-    '--eventcontent':'RECOSIM,DQM',
-}
-step3_pixelTrackingOnly = {
-    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
-    '--datatier': 'GEN-SIM-RECO,DQMIO',
-    '--eventcontent': 'RECOSIM,DQM',
-}
 step3_trackingLowPU = {
     '--era': 'Run2_2016_trackingLowPU'
 }
@@ -2116,12 +2117,6 @@ step3_HIPM = {
     '--era': 'Run2_2016_HIPM'
 }
 step3Up2015Defaults_trackingOnly = merge([step3_trackingOnly, remove(step3Up2015Defaults, "--runUnscheduled")])
-step3_TICLOnly = {
-    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations'
-}
-step3_TICLFullReco = {
-    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations_withReco'
-}
 
 # mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
 #unSchOverrides={'--runUnscheduled':'','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM','--eventcontent':'RECOSIM,MINIAODSIM,DQM','--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO'}
@@ -2312,6 +2307,7 @@ steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+
 steps['RECOPU1']=merge([PU,steps['RECO']])
 steps['RECOPU2']=merge([PU2,steps['RECO']])
 steps['RECOUP15_PU25']=merge([PU25,step3Up2015Defaults])
+steps['RECOUP15_PU25_HIPM']=merge([step3_HIPM,steps['RECOUP15_PU25']])
 steps['RECOUP15_PU25_L1TEgDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TEgamma'},steps['RECOUP15_PU25']])
 steps['RECOUP15_PU25_L1TMuDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'},steps['RECOUP15_PU25']])
 steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
@@ -2331,6 +2327,8 @@ steps['RECOUP15_PU25HS']=merge([PU25HS,step3Up2015Defaults])
 steps['RECOPRMXUP15_PU25']=merge([
         {'--era':'Run2_2016','--procModifiers':'premix_stage2'}, # temporary replacement for premix; to be brought back to customisePostLS1; DataMixer customize for rerouting inputs to mixed data.
         step3Up2015Defaults])
+steps['RECOPRMXUP15_HIPM_PU25']=merge([step3_HIPM,steps['RECOPRMXUP15_PU25']])
+
 steps['RECOPRMXUP15_PU50']=merge([
         {'--era':'Run2_50ns','--procModifiers':'premix_stage2'},
         step3Up2015Defaults50ns])
@@ -2723,12 +2721,13 @@ steps['HARVESTCOS_UP21']={'-s'          :'HARVESTING:dqmHarvesting',
                           '--era' : 'Run3'
                           }
 
-steps['HARVESTFS']={'-s':'HARVESTING:validationHarvesting',
+steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
                    '--conditions':'auto:run1_mc',
                    '--mc':'',
                     '--fast':'',
                     '--filetype':'DQM',
                    '--scenario':'pp'}
+
 steps['HARVESTHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                                                            '--filein':'file:step3_inDQM.root', 
                                                            '--mc':'',
@@ -2774,6 +2773,7 @@ steps['HARVESTMINUP15']=merge([{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHa
 steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 steps['HARVESTUP15_PU25_L1TEgDQM']=steps['HARVESTUP15_L1TEgDQM']
 steps['HARVESTUP15_PU25_L1TMuDQM']=steps['HARVESTUP15_L1TMuDQM']
+
 
 steps['HARVESTUP15_PU50']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM','--era' : 'Run2_50ns'},steps['HARVESTUP15']])
 steps['HARVESTUP15_PU50_L1TEgDQM']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM+@L1TEgamma'},steps['HARVESTUP15_PU50']])
@@ -2971,7 +2971,14 @@ steps['NANOEDMMC2017_94XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_9
 steps['NANOEDMMC2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'}, steps['NANOEDMMC2017'] ])
 steps['NANOEDMMC2016_80X'] = merge([{'--conditions': 'auto:run2_mc', '--era': 'Run2_2016,run2_miniAOD_80XLegacy'}, steps['NANOEDMMC2017'] ])
 steps['NANOEDMMC2018_PROD'] = merge([{'--conditions': 'auto:phase1_2018_realistic', '--era': 'Run2_2018', '--filein':'file:step3_inMINIAODSIM.root'}, stepNanoEDMMCProd ])
-
+steps['NANOUP15'] = merge([{ '--conditions':'auto:run2_mc', '--era':'Run2_2016','-n':'10', '--filein':'file:step3_inMINIAODSIM.root','--nThreads':'2'}, stepNanoEDMMCProd ])
+steps['NANOUP15_PU25']=steps['NANOUP15']
+steps['NANOUP17'] = merge([{'--conditions':'auto:phase1_2017_realistic','--era': 'Run2_2017','-n':'10' ,'--filein':'file:step3_inMINIAODSIM.root', '--geometry':'DB:Extended', '--nThreads':'2'}, stepNanoEDMMCProd])
+steps['NANOUP15Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP15']])
+steps['NANOUP17Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP17']])
+steps['NANOUP18'] = merge([{'--conditions': 'auto:phase1_2018_realistic', '--era': 'Run2_2018','-n':'10', '--filein':'file:step3_inMINIAODSIM.root', '--nThreads':'2'}, stepNanoEDMMCProd ])
+steps['NANOUP18Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP18']])
+steps['NANOUP18ml']=merge([concurrentLumis,steps['NANOUP18']])
 steps['NANOEDM2017'] = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2017'}, stepNanoEDMData ])
 steps['NANOEDM2017_94XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'}, steps['NANOEDM2017'] ])
 steps['NANOEDM2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'}, steps['NANOEDM2017'] ])
@@ -3044,9 +3051,9 @@ defaultDataSets['2024']='CMSSW_10_6_1-106X_mcRun3_2021_realistic_v1_rsb-v'
 defaultDataSets['2026D35']='CMSSW_10_4_0_mtd3-103X_upgrade2023_realistic_v2_2023D35noPU_2-v'
 defaultDataSets['2026D41']='CMSSW_10_6_0_patch2-106X_upgrade2023_realistic_v3_2023D41noPU-v'
 
-keys=defaultDataSets.keys()
-for key in keys:
-  defaultDataSets[key+'PU']=defaultDataSets[key]
+puDataSets = {}
+for key, value in defaultDataSets.items(): puDataSets[key+'PU'] = value
+defaultDataSets.update(puDataSets)
 
 # sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
 versionOverrides={'BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_2017':'2','HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_2017':'2','RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV_pythia8_2017':'2','WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_2017':'2','DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_2017':'2','TenE_E_0_200_pythia8_2017':'2','TenE_E_0_200_pythia8_2017PU':'2', 'TenTau_E_15_500_pythia8_2018':'2','PhotonJet_Pt_10_13TeV_TuneCUETP8M1_2018':'2','Wjet_Pt_80_120_13TeV_TuneCUETP8M1_2018':'2'}
@@ -3064,15 +3071,15 @@ PUDataSets={}
 for ds in defaultDataSets:
     key='MinBias_14TeV_pythia8_TuneCUETP8M1'+'_'+ds
     name=baseDataSetReleaseBetter[key]
-    if '2017' in name:
+    if '2017' in ds:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    elif '2018' in name:
+    elif '2018' in ds:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    elif '2021' in name:
+    elif '2021' in ds:
       PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
-    elif 'postLS2' in name:
+    elif 'postLS2' in ds:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    elif '2026' in name:
+    elif '2026' in ds:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_200_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
     else:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
@@ -3082,16 +3089,8 @@ for ds in defaultDataSets:
 
 
 upgradeStepDict={}
-for stepType in upgradeSteps.keys():
-    for step in upgradeSteps[stepType]['steps']:
-        stepName = step+upgradeSteps[stepType]['suffix']
-        upgradeStepDict[stepName]={}
-    for step in upgradeSteps[stepType]['PU']:
-        stepName = step+'PU'+upgradeSteps[stepType]['suffix']
-        upgradeStepDict[stepName]={}
-        stepNamePmx = step+'PUPRMX'+upgradeSteps[stepType]['suffix']
-        upgradeStepDict[stepNamePmx]={}
-        upgradeStepDict[stepNamePmx+'Combined']={}
+for specialType,specialWF in six.iteritems(upgradeWFs):
+	specialWF.init(upgradeStepDict)
 
 # just make all combinations - yes, some will be nonsense.. but then these are not used unless specified above
 # collapse upgradeKeys using list comprehension
@@ -3102,8 +3101,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     geom=upgradeProperties[year][k]['Geom']
     gt=upgradeProperties[year][k]['GT']
     hltversion=upgradeProperties[year][k].get('HLTmenu')
-    cust=upgradeProperties[year][k].get('Custom', None)
-    era=upgradeProperties[year][k].get('Era', None)
     beamspot=upgradeProperties[year][k].get('BeamSpot', None)
 
     # setup baseline steps
@@ -3226,83 +3223,13 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--datatier':'NANOAODSIM',
                                       '-n':'10',
                                       '--eventcontent':'NANOEDMAODSIM',
-				      '--filein':'file:step3_inMINIAODSIM.root',
+                                      '--filein':'file:step3_inMINIAODSIM.root',
                                       '--geometry' : geom
                                       }
 
-
-    # setup baseline customizations and PU
-    for step in upgradeSteps['baseline']['steps']:
-        if cust is not None: upgradeStepDict[step][k]['--customise']=cust
-        if era is not None: upgradeStepDict[step][k]['--era']=era
-
-    # setup variations (manually)
-
-    for step in upgradeSteps['trackingOnly']['steps']:
-        stepName = step + upgradeSteps['trackingOnly']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_trackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['pixelTrackingOnly']['steps']:
-        stepName = step + upgradeSteps['pixelTrackingOnly']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_pixelTrackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['trackingRun2']['steps']:
-        stepName = step + upgradeSteps['trackingRun2']['suffix']
-        if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
-            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['trackingOnlyRun2']['steps']:
-        stepName = step + upgradeSteps['trackingOnlyRun2']['suffix']
-        if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
-            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingRun2'}, step3_trackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['trackingLowPU']['steps']:
-        stepName = step + upgradeSteps['trackingLowPU']['suffix']
-        if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
-            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingLowPU'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['Neutron']['steps']:
-        if 'GenSim' in step:
-            custNew = "SimG4Core/Application/NeutronBGforMuonsXS_cff.customise"
-        else:
-            custNew = "SLHCUpgradeSimulations/Configuration/customise_mixing.customise_Mix_LongLived_Neutrons"
-        stepName = step + upgradeSteps['Neutron']['suffix']
-        upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
-        if '--customise' in upgradeStepDict[stepName][k].keys():
-            upgradeStepDict[stepName][k]['--customise'] += ","+custNew
-        else:
-            upgradeStepDict[stepName][k]['--customise'] = custNew
-
-    for step in upgradeSteps['heCollapse']['steps']:
-        stepName = step + upgradeSteps['heCollapse']['suffix']
-        upgradeStepDict[stepName][k] = merge([{'--procModifiers': 'run2_HECollapse_2018'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['ProdLike']['steps']:
-        stepName = step + upgradeSteps['ProdLike']['suffix']
-        if 'Reco' in step:
-            upgradeStepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,RECOSIM', '--datatier':'GEN-SIM-RECO', '--eventcontent':'FEVTDEBUGHLT'}, upgradeStepDict[step][k]])
-        elif 'MiniAOD' in step:
-            # the separate miniAOD step is used here
-            upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
-        if 'HARVEST' in step:
-            # remove step
-            upgradeStepDict[stepName][k] = None
-
-    for step in upgradeSteps['ParkingBPH']['steps']:
-        stepName = step + upgradeSteps['ParkingBPH']['suffix']
-        if 'Reco' in step and 'Run2_2018' in upgradeStepDict[step][k]['--era']:
-            upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2018,bParking'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['TICLOnly']['steps']:
-        stepName = step + upgradeSteps['TICLOnly']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_TICLOnly, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['TICLFullReco']['steps']:
-        stepName = step + upgradeSteps['TICLFullReco']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_TICLFullReco, upgradeStepDict[step][k]])
+    # setup baseline and variations
+    for specialType,specialWF in six.iteritems(upgradeWFs):
+        specialWF.setup(upgradeStepDict, k, upgradeProperties[year][k])
 
     # setup PU
     if k2 in PUDataSets:
@@ -3313,25 +3240,25 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         # It is a complete overkill to define premixing step for
         # each generator fragment, but let's worry about
         # simplification later
-        for step in upgradeSteps['baseline']['steps']:
+        for step in upgradeWFs['baseline'].steps:
             if "GenSim" in step:
-                stepName = step + upgradeSteps['baseline']['suffix']
-                stepNamePmx = step.replace('GenSim', 'Premix') + 'PU' + upgradeSteps['Premix']['suffix']
+                stepNamePmx = step.replace('GenSim', 'Premix') + 'PU' + upgradeWFs['Premix'].suffix
                 d = merge([{'-s'            : 'GEN,SIM,DIGI:pdigi_valid',
                             '--datatier'    : 'PREMIX',
                             '--eventcontent': 'PREMIX',
                             '--procModifiers': 'premix_stage1',
                            },
-                           PUDataSets[k2],upgradeStepDict[stepName][k]])
+                           PUDataSets[k2],upgradeStepDict[step][k]])
                 upgradeStepDict[stepNamePmx][k] = d
 
-        for stepType in upgradeSteps.keys():
-            if "Premix" in stepType:
+        for specialType,specialWF in six.iteritems(upgradeWFs):
+            if "Premix" in specialType:
                 # Premix stage1 is already set above, and there are no non-PU steps so has to be ignored here
                 continue
-            for step in upgradeSteps[stepType]['PU']:
-                stepName = step + upgradeSteps[stepType]['suffix']
-                stepNamePU = step + 'PU' + upgradeSteps[stepType]['suffix']
+            for step in specialWF.PU:
+                stepName = step + specialWF.suffix
+                stepNamePU = step + 'PU' + specialWF.suffix
+                stepNamePUpmx = step + 'PUPRMX' + specialWF.suffix
                 if upgradeStepDict[stepName][k] is None:
                     upgradeStepDict[stepNamePU][k] = None
                 else:
@@ -3339,7 +3266,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
                 # Setup premixing stage2
                 if "Digi" in step or "Reco" in step:
-                    stepNamePUpmx = step + 'PUPRMX' + upgradeSteps[stepType]['suffix']
                     d = merge([upgradeStepDict[stepName][k]])
                     if "Digi" in step:
                         tmpsteps = []
@@ -3369,13 +3295,12 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                         m = re.search("step(?P<ind>\d+)_", filein)
                         if m:
                             d["--filein"] = filein.replace(m.group(), "step%d_"%(int(m.group("ind"))+1))
-                    stepNamePUpmx = step + 'PUPRMX' + upgradeSteps[stepType]['suffix']
                     upgradeStepDict[stepNamePUpmx+"Combined"][k] = d
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
    if 'Sim' in step or 'Premix' in step:
-        for frag in upgradeFragments:
-            howMuch=howMuches[frag]
+        for frag,info in six.iteritems(upgradeFragments):
+            howMuch=info.howMuch
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
                 k=frag[:-4]+'_'+key+'_'+step
                 if (step in upgradeStepDict or step.replace("PUPRMX", "PU")) and key in upgradeStepDict[step]:
@@ -3385,7 +3310,7 @@ for step in upgradeStepDict.keys():
                     #so please be careful
                     s=frag[:-4]+'_'+key
                     if 'FastSim' not in k and 'Premix' not in step and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '': # exclude upgradeKeys without input dataset
-                        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+upgradeDatasetFromFragment[frag]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key

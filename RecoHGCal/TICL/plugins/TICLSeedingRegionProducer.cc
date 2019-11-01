@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "RecoHGCal/TICL/interface/SeedingRegionAlgoBase.h"
+#include "RecoHGCal/TICL/plugins/SeedingRegionAlgoBase.h"
 #include "SeedingRegionByTracks.h"
 #include "SeedingRegionGlobal.h"
 
