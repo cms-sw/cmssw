@@ -14,8 +14,8 @@ ticlPFTask = cms.Task(ticlCandidateFromTrackstersProducer, pfTICLProducer)
 
 iterTICLTask = cms.Task(ticlLayerTileTask
     ,MIPStepTask
-    ,TrkStepTask
     ,EMStepTask
+    ,TrkStepTask
     ,HADStepTask
     ,ticlPFTask
     )
