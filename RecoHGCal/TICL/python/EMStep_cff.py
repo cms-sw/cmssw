@@ -20,10 +20,13 @@ filteredLayerClustersEM = _filteredLayerClustersProducer.clone(
 trackstersEM = _trackstersProducer.clone(
     filtered_mask = cms.InputTag("filteredLayerClustersEM", "EM"),
     seeding_regions = "ticlSeedingGlobal",
-    missing_layers = 2,
+    filter_on_categories = [0, 1],
+    pid_threshold = 0.8,
+    max_out_in_hops = 4,
+    missing_layers = 1,
     min_clusters_per_ntuplet = 10,
-    min_cos_theta = 0.94, # ~20 degrees
-    min_cos_pointing = 0.7
+    min_cos_theta = 0.984, # ~10 degrees
+    min_cos_pointing = 0.9 # ~26 degrees
 )
 
 # MULTICLUSTERS
