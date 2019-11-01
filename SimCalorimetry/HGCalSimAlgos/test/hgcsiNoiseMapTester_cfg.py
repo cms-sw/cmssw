@@ -21,16 +21,16 @@ process.source = cms.Source("EmptySource")
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCAL_ileakParam_toUse, HGCAL_cceParams_toUse
 process.plotter_eol = cms.EDAnalyzer("HGCSiNoiseMapAnalyzer",
                                      doseMap            = cms.string( options.doseMap ),
+                                     doseMapAlgo        = cms.uint32(0),
                                      ileakParam         = HGCAL_ileakParam_toUse,
                                      cceParams          = HGCAL_cceParams_toUse,
                                      aimMIPtoADC        = cms.int32(10),
-                                     ignoreGainSettings = cms.bool(False),
-                                     ignoreFluence      = cms.bool(False)
+                                     ignoreGainSettings = cms.bool(False)
                                  )
 
 process.plotter_eol_nogain = process.plotter_eol.clone( ignoreGainSettings = cms.bool(True) )
 
-process.plotter_start = process.plotter_eol.clone( ignoreFluence = cms.bool(True) )
+process.plotter_start = process.plotter_eol.clone( doseMapAlgo=cms.uint32(3) )
 
 
 process.TFileService = cms.Service("TFileService",
