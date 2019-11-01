@@ -324,10 +324,10 @@ for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigiti
 #function to set noise to aged HGCal
 endOfLifeCCEs = [0.5, 0.5, 0.7]
 endOfLifeNoises = [2400.0,2250.0,1750.0]
-def HGCal_setEndOfLifeNoise(process):
+def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0):
     """includes all effects from radiation and gain choice"""
-    process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0)
-    process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=0)
+    process=HGCal_setRealisticNoiseSi(process,byDose=byDose,byDoseAlgo=byDoseAlgo)
+    process=HGCal_setRealisticNoiseSci(process,byDose=byDose,byDoseAlgo=byDoseAlgo)
     return process
 
 def HGCal_setRealisticStartupNoise(process):
