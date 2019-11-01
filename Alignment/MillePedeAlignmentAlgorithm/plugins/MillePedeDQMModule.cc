@@ -52,6 +52,10 @@ void MillePedeDQMModule ::bookHistograms(DQMStore::IBooker& booker) {
   h_zPos = booker.book1D("Zpos", "Alignment fit #DeltaZ;;#mum", 36, 0., 36.);
   h_zRot = booker.book1D("Zrot", "Alignment fit #Delta#theta_{Z};;#murad", 36, 0., 36.);
 
+  statusResults = booker.book2D("statusResults", "Status of SiPixelAli PCL workflow;;", 6, 0., 6., 1, 0., 1.);
+  binariesAvalaible = booker.bookInt("BinariesFound");
+  exitCode = booker.bookString("PedeExitCode", "");
+
   booker.cd();
 }
 
@@ -64,6 +68,11 @@ void MillePedeDQMModule ::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter
                                        << "Try to read MillePede results before initializing MillePedeFileReader";
   }
   fillExpertHistos();
+  fillStatusHisto(statusResults);
+  binariesAvalaible->Fill(mpReader_->binariesAmount());
+  auto theResults = mpReader_->getResults();
+  std::string exitCodeStr = theResults.getExitMessage();
+  exitCode->Fill(exitCodeStr);
 }
 
 //=============================================================================
@@ -104,6 +113,24 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
 
   mpReader_ = std::make_unique<MillePedeFileReader>(
       mpReaderConfig_, pedeLabeler, std::shared_ptr<const AlignPCLThresholds>(myThresholds));
+}
+
+void MillePedeDQMModule ::fillStatusHisto(MonitorElement* statusHisto) {
+  TH2F* histo_status = statusHisto->getTH2F();
+  auto theResults = mpReader_->getResults();
+  theResults.print();
+  histo_status->SetBinContent(1, 1, theResults.getDBUpdated());
+  histo_status->GetXaxis()->SetBinLabel(1, "DB updated");
+  histo_status->SetBinContent(2, 1, theResults.exceedsCutoffs());
+  histo_status->GetXaxis()->SetBinLabel(2, "significant movement");
+  histo_status->SetBinContent(3, 1, theResults.getDBVetoed());
+  histo_status->GetXaxis()->SetBinLabel(3, "DB update vetoed");
+  histo_status->SetBinContent(4, 1, !theResults.exceedsThresholds());
+  histo_status->GetXaxis()->SetBinLabel(4, "within max movement");
+  histo_status->SetBinContent(5, 1, !theResults.exceedsMaxError());
+  histo_status->GetXaxis()->SetBinLabel(5, "within max error");
+  histo_status->SetBinContent(6, 1, !theResults.belowSignificance());
+  histo_status->GetXaxis()->SetBinLabel(6, "above significance");
 }
 
 void MillePedeDQMModule ::fillExpertHistos() {
