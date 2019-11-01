@@ -58,7 +58,7 @@ private:
   std::map<std::pair<DetId::Detector, int>, TProfile *> detCCEVsFluence_;
 
   int aimMIPtoADC_;
-  bool ignoreFluence_, ignoreGainSettings_;
+  bool ignoreGainSettings_;
 
   const int plotMargin_ = 20;
 };
@@ -70,6 +70,7 @@ HGCSiNoiseMapAnalyzer::HGCSiNoiseMapAnalyzer(const edm::ParameterSet &iConfig) {
 
   //configure the dose map
   std::string doseMapURL(iConfig.getParameter<std::string>("doseMap"));
+  unsigned int doseMapAlgo(iConfig.getParameter<unsigned int>("doseMapAlgo"));
   std::vector<double> ileakParam(
       iConfig.getParameter<edm::ParameterSet>("ileakParam").template getParameter<std::vector<double>>("ileakParam"));
   std::vector<double> cceParamFine(
@@ -80,17 +81,16 @@ HGCSiNoiseMapAnalyzer::HGCSiNoiseMapAnalyzer(const edm::ParameterSet &iConfig) {
       iConfig.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamThick"));
 
   noiseMaps_[DetId::HGCalEE] = std::unique_ptr<HGCalSiNoiseMap>(new HGCalSiNoiseMap);
-  noiseMaps_[DetId::HGCalEE]->setDoseMap(doseMapURL);
+  noiseMaps_[DetId::HGCalEE]->setDoseMap(doseMapURL,doseMapAlgo);
   noiseMaps_[DetId::HGCalEE]->setIleakParam(ileakParam);
   noiseMaps_[DetId::HGCalEE]->setCceParam(cceParamFine, cceParamThin, cceParamThick);
 
   noiseMaps_[DetId::HGCalHSi] = std::unique_ptr<HGCalSiNoiseMap>(new HGCalSiNoiseMap);
-  noiseMaps_[DetId::HGCalHSi]->setDoseMap(doseMapURL);
+  noiseMaps_[DetId::HGCalHSi]->setDoseMap(doseMapURL,doseMapAlgo);
   noiseMaps_[DetId::HGCalHSi]->setIleakParam(ileakParam);
   noiseMaps_[DetId::HGCalHSi]->setCceParam(cceParamFine, cceParamThin, cceParamThick);
 
   aimMIPtoADC_ = iConfig.getParameter<int>("aimMIPtoADC");
-  ignoreFluence_ = iConfig.getParameter<bool>("ignoreFluence");
   ignoreGainSettings_ = iConfig.getParameter<bool>("ignoreGainSettings");
 }
 
@@ -176,7 +176,7 @@ void HGCSiNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
       if (ignoreGainSettings_)
         gainToSet = HGCalSiNoiseMap::q80fC;
       HGCalSiNoiseMap::SiCellOpCharacteristics siop =
-          noiseMaps_[d]->getSiCellOpCharacteristics(id, gainToSet, ignoreFluence_, aimMIPtoADC_);
+          noiseMaps_[d]->getSiCellOpCharacteristics(id, gainToSet, aimMIPtoADC_);
 
       //fill histos (layer,radius)
       detN_[d]->Fill(layer, r, 1);

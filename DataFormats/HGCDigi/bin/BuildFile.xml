@@ -1,0 +1,3 @@
+<use name="DataFormats/HGCDigi" />
+<bin   name="HGCSampleTest" file="HGCSampleTest.cpp">
+</bin>
