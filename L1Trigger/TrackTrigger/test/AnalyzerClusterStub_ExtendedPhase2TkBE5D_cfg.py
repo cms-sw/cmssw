@@ -33,9 +33,7 @@ process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')
 #################################################################################################
 # load the magnetic field
 #################################################################################################
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
-#process.load('Configuration.StandardSequences.MagneticField_40T_cff')
-#------------------process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 #################################################################################################
 # define the source and maximum number of events to generate and simulate
