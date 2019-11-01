@@ -1,4 +1,4 @@
-// -*- mode: c++ -*- 
+// -*- mode: c++ -*-
 #ifndef HcalSimAlgos_HcalTDC_h
 #define HcalSimAlgos_HcalTDC_h
 
@@ -15,17 +15,16 @@ namespace CLHEP {
 }
 
 class HcalTDC {
-
 public:
   HcalTDC(double threshold_currentTDC = 0.);
   ~HcalTDC();
 
   /// adds timing information to the digi
   /// template <class Digi>
-  void timing(const CaloSamples & lf, QIE11DataFrame & digi) const;
+  void timing(const CaloSamples& lf, QIE11DataFrame& digi) const;
 
   /// the Producer will probably update this every event
-  void setDbService(const HcalDbService * service);
+  void setDbService(const HcalDbService* service);
 
   void setThresholdDAC(unsigned int DAC) { theDAC = DAC; }
   unsigned int getThresholdDAC() { return theDAC; }
@@ -33,7 +32,7 @@ public:
 
 private:
   HcalTDCParameters theTDCParameters;
-  const HcalDbService * theDbService;
+  const HcalDbService* theDbService;
 
   unsigned int theDAC;
   double threshold_currentTDC_;

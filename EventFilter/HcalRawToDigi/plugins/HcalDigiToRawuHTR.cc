@@ -145,7 +145,8 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
       int presamples = qiedf.presamples();
 
       //   convert to hb qie data if hb
-      if (HcalDetId(detid.rawId()).subdet() == HcalSubdetector::HcalBarrel) qiedf = convertHB2HE(qiedf);
+      if (HcalDetId(detid.rawId()).subdet() == HcalSubdetector::HcalBarrel)
+        qiedf = convertHB2HE(qiedf);
 
       if (!uhtrs.exist(uhtrIndex)) {
         uhtrs.newUHTR(uhtrIndex, presamples);

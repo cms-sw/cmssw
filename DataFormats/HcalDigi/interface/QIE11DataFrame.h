@@ -102,8 +102,8 @@ public:
 
   // set flavor
   constexpr void setFlavor(int flavor) {
-    m_data[0] &= 0x9FFF; // inversion of flavor mask
-    m_data[0] |= ((flavor&MASK_FLAVOR) << OFFSET_FLAVOR);
+    m_data[0] &= 0x9FFF;  // inversion of flavor mask
+    m_data[0] |= ((flavor & MASK_FLAVOR) << OFFSET_FLAVOR);
   }
 
   constexpr void setCapid0(int cap0) {
