@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetEntry.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 #include "FWCore/Utilities/interface/atomic_value_ptr.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <iosfwd>
 #include <string>
@@ -55,7 +56,7 @@ namespace edm {
 
   private:
     bool tracked_;
-    mutable atomic_value_ptr<std::vector<ParameterSet> > theVPSet_;
+    CMS_THREAD_SAFE mutable atomic_value_ptr<std::vector<ParameterSet> > theVPSet_;
     value_ptr<std::vector<ParameterSetID> > theIDs_;
   };
 }  // namespace edm
