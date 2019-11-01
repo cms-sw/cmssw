@@ -22,13 +22,15 @@ constexpr float TrajSeedMatcher::kElectronMass_;
 
 TrajSeedMatcher::TrajSeedMatcher(const edm::ParameterSet& pset)
     : cacheIDMagField_(0),
+      paramMagFieldLabel_(pset.getParameter<std::string>("paramMagField")),
+      navSchoolLabel_(pset.getParameter<std::string>("navSchool")),
+      detLayerGeomLabel_(pset.getParameter<std::string>("detLayerGeom")),
+      useRecoVertex_(pset.getParameter<bool>("useRecoVertex")),
+      enableHitSkipping_(pset.getParameter<bool>("enableHitSkipping")),
+      requireExactMatchCount_(pset.getParameter<bool>("requireExactMatchCount")),
+      useParamMagFieldIfDefined_(pset.getParameter<bool>("useParamMagFieldIfDefined")),
       minNrHits_(pset.getParameter<std::vector<unsigned int> >("minNrHits")),
       minNrHitsValidLayerBins_(pset.getParameter<std::vector<int> >("minNrHitsValidLayerBins")) {
-  useRecoVertex_ = pset.getParameter<bool>("useRecoVertex");
-  enableHitSkipping_ = pset.getParameter<bool>("enableHitSkipping");
-  requireExactMatchCount_ = pset.getParameter<bool>("requireExactMatchCount");
-  navSchoolLabel_ = pset.getParameter<std::string>("navSchool");
-  detLayerGeomLabel_ = pset.getParameter<std::string>("detLayerGeom");
   const auto cutsPSets = pset.getParameter<std::vector<edm::ParameterSet> >("matchingCuts");
   for (const auto& cutPSet : cutsPSets) {
     int version = cutPSet.getParameter<int>("version");
@@ -57,6 +59,8 @@ edm::ParameterSetDescription TrajSeedMatcher::makePSetDescription() {
   desc.add<bool>("useRecoVertex", false);
   desc.add<bool>("enableHitSkipping", false);
   desc.add<bool>("requireExactMatchCount", true);
+  desc.add<bool>("useParamMagFieldIfDefined", true);
+  desc.add<std::string>("paramMagField", "ParabolicMf");
   desc.add<std::string>("navSchool", "SimpleNavigationSchool");
   desc.add<std::string>("detLayerGeom", "hltESPGlobalDetLayerGeometry");
   desc.add<std::vector<int> >("minNrHitsValidLayerBins", {4});
@@ -93,6 +97,8 @@ edm::ParameterSetDescription TrajSeedMatcher::makePSetDescription() {
 void TrajSeedMatcher::doEventSetup(const edm::EventSetup& iSetup) {
   if (cacheIDMagField_ != iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier()) {
     iSetup.get<IdealMagneticFieldRecord>().get(magField_);
+    if (useParamMagFieldIfDefined_)
+      iSetup.get<IdealMagneticFieldRecord>().get(paramMagFieldLabel_, magFieldParam_);
     cacheIDMagField_ = iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier();
     forwardPropagator_ = std::make_unique<PropagatorWithMaterial>(alongMomentum, kElectronMass_, &*(magField_));
     backwardPropagator_ = std::make_unique<PropagatorWithMaterial>(oppositeToMomentum, kElectronMass_, &*(magField_));
@@ -113,9 +119,14 @@ std::vector<TrajSeedMatcher::SeedWithInfo> TrajSeedMatcher::compatibleSeeds(cons
   clearCache();
 
   std::vector<SeedWithInfo> matchedSeeds;
+
+  //these are super expensive functions
+  TrajectoryStateOnSurface scTrajStateOnSurfNeg = makeTrajStateOnSurface(candPos, vprim, energy, -1);
+  TrajectoryStateOnSurface scTrajStateOnSurfPos = makeTrajStateOnSurface(candPos, vprim, energy, 1);
+
   for (const auto& seed : seeds) {
-    std::vector<SCHitMatch> matchedHitsNeg = processSeed(seed, candPos, vprim, energy, -1);
-    std::vector<SCHitMatch> matchedHitsPos = processSeed(seed, candPos, vprim, energy, +1);
+    std::vector<SCHitMatch> matchedHitsNeg = processSeed(seed, candPos, vprim, energy, scTrajStateOnSurfNeg);
+    std::vector<SCHitMatch> matchedHitsPos = processSeed(seed, candPos, vprim, energy, scTrajStateOnSurfPos);
 
     int nrValidLayersPos = 0;
     int nrValidLayersNeg = 0;
@@ -147,14 +158,12 @@ std::vector<TrajSeedMatcher::SCHitMatch> TrajSeedMatcher::processSeed(const Traj
                                                                       const GlobalPoint& candPos,
                                                                       const GlobalPoint& vprim,
                                                                       const float energy,
-                                                                      const int charge) {
+                                                                      const TrajectoryStateOnSurface& initialTrajState) {
+  //next try passing these variables in once...
   const float candEta = candPos.eta();
   const float candEt = energy * std::sin(candPos.theta());
+  const int charge = initialTrajState.charge();
 
-  FreeTrajectoryState trajStateFromVtx = FTSFromVertexToPointFactory::get(*magField_, candPos, vprim, energy, charge);
-  PerpendicularBoundPlaneBuilder bpb;
-  TrajectoryStateOnSurface initialTrajState(trajStateFromVtx,
-                                            *bpb(trajStateFromVtx.position(), trajStateFromVtx.momentum()));
   std::vector<SCHitMatch> matchedHits;
   FreeTrajectoryState firstHitFreeTraj;
   GlobalPoint prevHitPos;
@@ -170,7 +179,8 @@ std::vector<TrajSeedMatcher::SCHitMatch> TrajSeedMatcher::processSeed(const Traj
         //now we can figure out the z vertex
         double zVertex = useRecoVertex_ ? vprim.z() : getZVtxFromExtrapolation(vprim, firstHit.hitPos(), candPos);
         vertex = GlobalPoint(vprim.x(), vprim.y(), zVertex);
-        firstHitFreeTraj = FTSFromVertexToPointFactory::get(*magField_, firstHit.hitPos(), vertex, energy, charge);
+        firstHitFreeTraj =
+            FTSFromVertexToPointFactory::get(getMagField(firstHit.hitPos()), firstHit.hitPos(), vertex, energy, charge);
         prevHitPos = firstHit.hitPos();
       }
     } else {  // All subsequent hits are handled the same
@@ -245,6 +255,15 @@ const TrajectoryStateOnSurface& TrajSeedMatcher::getTrajStateFromPoint(const Tra
   }
 }
 
+TrajectoryStateOnSurface TrajSeedMatcher::makeTrajStateOnSurface(const GlobalPoint& pos,
+                                                                 const GlobalPoint& vtx,
+                                                                 const float energy,
+                                                                 const int charge) const {
+  FreeTrajectoryState freeTS = FTSFromVertexToPointFactory::get(getMagField(pos), pos, vtx, energy, charge);
+  PerpendicularBoundPlaneBuilder bpb;
+  return TrajectoryStateOnSurface(freeTS, *bpb(freeTS.position(), freeTS.momentum()));
+}
+
 TrajSeedMatcher::SCHitMatch TrajSeedMatcher::matchFirstHit(const TrajectorySeed& seed,
                                                            const TrajectoryStateOnSurface& initialState,
                                                            const GlobalPoint& vtxPos,
@@ -305,7 +324,7 @@ int TrajSeedMatcher::getNrValidLayersAlongTraj(const SCHitMatch& hit1,
   GlobalPoint vertex(vprim.x(), vprim.y(), zVertex);
 
   FreeTrajectoryState firstHitFreeTraj =
-      FTSFromVertexToPointFactory::get(*magField_, hit1.hitPos(), vertex, energy, charge);
+      FTSFromVertexToPointFactory::get(getMagField(hit1.hitPos()), hit1.hitPos(), vertex, energy, charge);
   const TrajectoryStateOnSurface& secondHitTraj =
       getTrajStateFromPoint(*hit2.hit(), firstHitFreeTraj, hit1.hitPos(), *forwardPropagator_);
   return getNrValidLayersAlongTraj(hit2.hit()->geographicalId(), secondHitTraj);
