@@ -10,12 +10,12 @@
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
 //
 
-#include "Fireworks/Geometry/interface/TGeoMgrFromDdd.h"
-
+#include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -46,16 +46,64 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <cmath>
 
+class TGeoMgrFromDdd : public edm::ESProducer {
+public:
+  TGeoMgrFromDdd(const edm::ParameterSet&);
+  TGeoMgrFromDdd(const TGeoMgrFromDdd&) = delete;
+  const TGeoMgrFromDdd& operator=(const TGeoMgrFromDdd&) = delete;
+
+  using ReturnType = std::unique_ptr<TGeoManager>;
+
+  // ---------- const member functions ---------------------
+
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+
+  ReturnType produce(const DisplayGeomRecord&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+private:
+  TGeoManager* createManager(int level);
+
+  TGeoShape* createShape(const std::string& iName, const DDSolid& iSolid);
+  TGeoVolume* createVolume(const std::string& iName, const DDSolid& iSolid, const DDMaterial& iMaterial);
+  TGeoMaterial* createMaterial(const DDMaterial& iMaterial);
+
+  // ---------- member data --------------------------------
+
+  const int m_level;
+  const bool m_verbose;
+  const bool m_fullname;
+  std::string m_TGeoName;
+  std::string m_TGeoTitle;
+
+  std::map<std::string, TGeoShape*> nameToShape_;
+  std::map<std::string, TGeoVolume*> nameToVolume_;
+  std::map<std::string, TGeoMaterial*> nameToMaterial_;
+  std::map<std::string, TGeoMedium*> nameToMedium_;
+
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> viewToken_;
+};
+
 TGeoMgrFromDdd::TGeoMgrFromDdd(const edm::ParameterSet& pset)
-    : m_level(pset.getUntrackedParameter<int>("level", 10)),
-      m_verbose(pset.getUntrackedParameter<bool>("verbose", false)),
-      m_fullname(pset.getUntrackedParameter<bool>("fullName", true)) {
+    : m_level(pset.getUntrackedParameter<int>("level")),
+      m_verbose(pset.getUntrackedParameter<bool>("verbose")),
+      m_fullname(pset.getUntrackedParameter<bool>("fullName")) {
   // The following line is needed to tell the framework what data is
   // being produced.
-  setWhatProduced(this);
+  setWhatProduced(this).setConsumes(viewToken_);
 }
 
-TGeoMgrFromDdd::~TGeoMgrFromDdd(void) {}
+void TGeoMgrFromDdd::fillDescriptions(edm::ConfigurationDescriptions& conf) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<int>("level", 10)->setComment("How deep into the geometry hierarchy should the conversion go.");
+  desc.addUntracked<bool>("verbose", false);
+  desc.addUntracked<bool>("fullName", true)->setComment("use fillname() instead of name() when generating node names");
+
+  conf.add("TGeoMgrFromDdd", desc);
+}
 
 //==============================================================================
 // Local helpers
@@ -81,8 +129,7 @@ namespace {
 TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord) {
   using namespace edm;
 
-  ESTransientHandle<DDCompactView> viewH;
-  iRecord.getRecord<IdealGeometryRecord>().get(viewH);
+  ESTransientHandle<DDCompactView> viewH = iRecord.getTransientHandle(viewToken_);
 
   if (!viewH.isValid()) {
     return std::unique_ptr<TGeoManager>();
@@ -592,3 +639,4 @@ TGeoMaterial* TGeoMgrFromDdd::createMaterial(const DDMaterial& iMaterial) {
 //
 // static member functions
 //
+DEFINE_FWK_EVENTSETUP_MODULE(TGeoMgrFromDdd);
