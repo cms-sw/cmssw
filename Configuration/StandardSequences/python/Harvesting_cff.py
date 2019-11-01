@@ -31,6 +31,7 @@ validationHarvesting = cms.Path(postValidation*hltpostvalidation*postValidation_
 _validationHarvesting_fastsim = validationHarvesting.copy()
 for _entry in [hltpostvalidation]:
     _validationHarvesting_fastsim.remove(_entry)
+_validationHarvesting_fastsim.remove(hltpostvalidation)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(validationHarvesting,_validationHarvesting_fastsim)
 
@@ -42,6 +43,7 @@ validationpreprodHarvesting = cms.Path(postValidation_preprod*hltpostvalidation_
 _validationpreprodHarvesting_fastsim = validationpreprodHarvesting.copy()
 for _entry in [hltpostvalidation_preprod]:
     _validationpreprodHarvesting_fastsim.remove(_entry)
+_validationpreprodHarvesting_fastsim.remove(_validationpreprodHarvesting_fastsim)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(validationpreprodHarvesting,_validationpreprodHarvesting_fastsim)
 
@@ -52,7 +54,8 @@ validationprodHarvesting = cms.Path(hltpostvalidation_prod*postValidation_gen)
 
 # to be removed in subsequent request
 # kept to avoid too many extra github signatures
-validationHarvestingFS = validationHarvesting.copy()
+validationHarvestingFS = validationHarvestingNoHLT.copy()
+validationHarvestingFS.remove(runTauEff) #requires miniAOD Validation
 
 validationHarvestingHI = cms.Path(postValidationHI)
 #validationHarvestingHI = cms.Sequence(postValidationHI)

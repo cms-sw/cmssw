@@ -20,7 +20,7 @@
 
 // Geometry
 /// #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"  // Keep... needed if we backport to CMSSW_9
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"

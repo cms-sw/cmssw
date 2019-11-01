@@ -40,13 +40,13 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 //
 // class declaration
 //
 
-class L1TGT : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class L1TGT : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   // constructor
   L1TGT(const edm::ParameterSet& ps);
@@ -171,8 +171,8 @@ private:
   /// histogram folder for L1 GT plots
   std::string m_histFolder;
 
-  boost::uint64_t preGps_;
-  boost::uint64_t preOrb_;
+  uint64_t preGps_;
+  uint64_t preOrb_;
 
   std::string algoBitToName[128];
   std::string techBitToName[64];

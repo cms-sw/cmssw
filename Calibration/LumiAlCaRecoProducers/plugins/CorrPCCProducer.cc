@@ -15,6 +15,7 @@ ________________________________________________________________**/
 #include <iostream>
 #include <map>
 #include <utility>
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Luminosity/interface/LumiCorrections.h"
 #include "CondFormats/DataRecord/interface/LumiCorrectionsRcd.h"
@@ -45,10 +46,7 @@ ________________________________________________________________**/
 #include "TGraphErrors.h"
 #include "TFile.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-class CorrPCCProducer : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class CorrPCCProducer : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit CorrPCCProducer(const edm::ParameterSet&);
   ~CorrPCCProducer() override;
@@ -56,8 +54,8 @@ public:
 private:
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
-  void endRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) final;
-  void endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSetup) final;
+  void dqmEndRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) final;
+  void dqmEndRunProduce(const edm::Run& runSeg, const edm::EventSetup& iSetup);
   void endJob() final;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
@@ -384,10 +382,13 @@ void CorrPCCProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, co
 }
 
 //--------------------------------------------------------------------------------------------------
-void CorrPCCProducer::endRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) {}
+void CorrPCCProducer::dqmEndRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) {
+  // TODO: why was this code not put here in the first place?
+  dqmEndRunProduce(runSeg, iSetup);
+}
 
 //--------------------------------------------------------------------------------------------------
-void CorrPCCProducer::endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSetup) {
+void CorrPCCProducer::dqmEndRunProduce(edm::Run const& runSeg, const edm::EventSetup& iSetup) {
   if (lumiSections.empty()) {
     return;
   }

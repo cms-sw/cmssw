@@ -154,7 +154,7 @@ void BxTiming::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm:
     for (int i = 0; i < nttype_; i++) {
       lbl.clear();
       lbl += "BxOccyGtTrigType";
-      char *ii = new char[10];
+      char *ii = new char[16];
       std::sprintf(ii, "%d", i + 1);
       lbl += ii;
       hBxOccyGtTrigType[i] = ibooker.book1D(lbl.data(), lbl.data(), norb_ + 1, -0.5, norb_ + 0.5);
@@ -237,7 +237,7 @@ void BxTiming::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm:
     hBxOccyGtTrigType[i]->setAxisTitle("bx", 1);
     lbl.clear();
     lbl += "GT occupancy for trigger type ";
-    char *ii = new char[10];
+    char *ii = new char[16];
     std::sprintf(ii, "%d", i + 1);
     lbl += ii;
     hBxOccyGtTrigType[i]->setAxisTitle(lbl, 2);

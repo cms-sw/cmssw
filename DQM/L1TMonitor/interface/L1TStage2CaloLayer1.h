@@ -19,7 +19,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -77,7 +77,7 @@ namespace ComparisonHelper {
   }
 }  // namespace ComparisonHelper
 
-class L1TStage2CaloLayer1 : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class L1TStage2CaloLayer1 : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   L1TStage2CaloLayer1(const edm::ParameterSet &ps);
   ~L1TStage2CaloLayer1() override;

@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_11_0_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run2_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_11_0_0/PIon/V6 (CMSSW_11_0_0_pre7)
+# /dev/CMSSW_11_0_0/PIon/V10 (CMSSW_11_0_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_0_0/PIon/V6')
+  tableName = cms.string('/dev/CMSSW_11_0_0/PIon/V10')
 )
 
 process.transferSystem = cms.PSet( 
@@ -3988,6 +3988,7 @@ process.TrackerDigiGeometryESModule = cms.ESProducer( "TrackerDigiGeometryESModu
   alignmentsLabel = cms.string( "" )
 )
 process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
+  fromDD4hep = cms.bool( False ),
   appendToDataLabel = cms.string( "" ),
   fromDDD = cms.bool( False )
 )

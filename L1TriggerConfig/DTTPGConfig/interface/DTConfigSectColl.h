@@ -29,7 +29,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h"
-#include "boost/cstdint.hpp"
 
 //              ---------------------
 //              -- Class Interface --

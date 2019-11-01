@@ -33,7 +33,9 @@ Muon::Muon()
       jetPtRel_(0),
       mvaValue_(0),
       lowptMvaValue_(0),
-      softMvaValue_(0) {
+      softMvaValue_(0),
+      inverseBeta_(0),
+      inverseBetaErr_(0) {
   initImpactParameters();
   initSimInfo();
 }
@@ -62,7 +64,9 @@ Muon::Muon(const reco::Muon& aMuon)
       jetPtRel_(0),
       mvaValue_(0),
       lowptMvaValue_(0),
-      softMvaValue_(0) {
+      softMvaValue_(0),
+      inverseBeta_(0),
+      inverseBetaErr_(0) {
   initImpactParameters();
   initSimInfo();
 }
@@ -414,6 +418,12 @@ void Muon::embedDytMuon() {
     dytMuon_.push_back(*tk);
     embeddedDytMuon_ = true;
   }
+}
+
+/// Add extra timing information
+void Muon::readTimeExtra(const reco::MuonTimeExtra& t) {
+  inverseBeta_ = t.inverseBeta();
+  inverseBetaErr_ = t.inverseBetaErr();
 }
 
 /// embed the IsolatedPFCandidate pointed to by pfCandidateRef_

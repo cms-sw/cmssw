@@ -43,10 +43,10 @@
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-#include "boost/cstdint.hpp"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <iomanip>
 #include <string>
+#include <cstdint>
 
 class ApvAnalysisFactory;
 class SiStripDetCabling;
@@ -57,7 +57,7 @@ public:
   ~SiStripMonitorPedestals() override;
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void endRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
+  void dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
   void endJob() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 

@@ -8,7 +8,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/CaloHit/interface/CaloHit.h"
 
-#include <boost/cstdint.hpp>
 #include <string>
 #include <vector>
 #include <memory>

@@ -229,7 +229,7 @@ void SUSY_HLT_DoubleEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup c
   }
 }
 
-void SUSY_HLT_DoubleEle_Hadronic::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+void SUSY_HLT_DoubleEle_Hadronic::dqmEndRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   edm::LogInfo("SUSY_HLT_DoubleEle_Hadronic") << "SUSY_HLT_DoubleEle_Hadronic::endRun" << std::endl;
 }
 

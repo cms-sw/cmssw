@@ -1435,9 +1435,9 @@ void BeamMonitor::RestartFitting() {
 }
 
 //-------------------------------------------------------
-void BeamMonitor::endRun(const Run& r, const EventSetup& context) {
+void BeamMonitor::dqmEndRun(const Run& r, const EventSetup& context) {
   if (debug_)
-    edm::LogInfo("BeamMonitor") << "endRun:: Clearing all the Maps " << endl;
+    edm::LogInfo("BeamMonitor") << "dqmEndRun:: Clearing all the Maps " << endl;
   //Clear all the Maps here
   mapPVx.clear();
   mapPVy.clear();

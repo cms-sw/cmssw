@@ -111,8 +111,8 @@ void L1GtDataEmulAnalyzer::compareGTFE(const edm::Event& iEvent,
   m_myCoutStream.clear();
 
   // get BoardId value
-  const boost::uint16_t boardIdData = gtfeBlockData.boardId();
-  const boost::uint16_t boardIdEmul = gtfeBlockEmul.boardId();
+  const uint16_t boardIdData = gtfeBlockData.boardId();
+  const uint16_t boardIdEmul = gtfeBlockEmul.boardId();
 
   if (boardIdData == boardIdEmul) {
     m_myCoutStream << "\nData and emulated GTFE boardId identical.";
@@ -131,8 +131,8 @@ void L1GtDataEmulAnalyzer::compareGTFE(const edm::Event& iEvent,
   }
 
   /// get record length: 3 bx for standard, 5 bx for debug
-  const boost::uint16_t recordLengthData = gtfeBlockData.recordLength();
-  const boost::uint16_t recordLengthEmul = gtfeBlockEmul.recordLength();
+  const uint16_t recordLengthData = gtfeBlockData.recordLength();
+  const uint16_t recordLengthEmul = gtfeBlockEmul.recordLength();
 
   if (recordLengthData == recordLengthEmul) {
     m_myCoutStream << "\nData and emulated GTFE recordLength identical.";
@@ -148,8 +148,8 @@ void L1GtDataEmulAnalyzer::compareGTFE(const edm::Event& iEvent,
   }
 
   /// get bunch cross number as counted in the GTFE board
-  const boost::uint16_t bxNrData = gtfeBlockData.bxNr();
-  const boost::uint16_t bxNrEmul = gtfeBlockEmul.bxNr();
+  const uint16_t bxNrData = gtfeBlockData.bxNr();
+  const uint16_t bxNrEmul = gtfeBlockEmul.bxNr();
 
   if (bxNrData == bxNrEmul) {
     m_myCoutStream << "\nData and emulated GTFE bxNr identical.";
@@ -165,8 +165,8 @@ void L1GtDataEmulAnalyzer::compareGTFE(const edm::Event& iEvent,
   }
 
   /// get setup version
-  const boost::uint32_t setupVersionData = gtfeBlockData.setupVersion();
-  const boost::uint32_t setupVersionEmul = gtfeBlockEmul.setupVersion();
+  const uint32_t setupVersionData = gtfeBlockData.setupVersion();
+  const uint32_t setupVersionEmul = gtfeBlockEmul.setupVersion();
 
   if (setupVersionData == setupVersionEmul) {
     m_myCoutStream << "\nData and emulated GTFE setupVersion identical.";
@@ -182,8 +182,8 @@ void L1GtDataEmulAnalyzer::compareGTFE(const edm::Event& iEvent,
   }
 
   /// get boards contributing to EVM respectively DAQ record
-  const boost::uint16_t activeBoardsData = gtfeBlockData.activeBoards();
-  const boost::uint16_t activeBoardsEmul = gtfeBlockEmul.activeBoards();
+  const uint16_t activeBoardsData = gtfeBlockData.activeBoards();
+  const uint16_t activeBoardsEmul = gtfeBlockEmul.activeBoards();
 
   if (activeBoardsData == activeBoardsEmul) {
     m_myCoutStream << "\nData and emulated GTFE activeBoards identical.";
@@ -202,8 +202,8 @@ void L1GtDataEmulAnalyzer::compareGTFE(const edm::Event& iEvent,
   }
 
   /// get total number of L1A sent since start of run
-  const boost::uint32_t totalTriggerNrData = gtfeBlockData.totalTriggerNr();
-  const boost::uint32_t totalTriggerNrEmul = gtfeBlockEmul.totalTriggerNr();
+  const uint32_t totalTriggerNrData = gtfeBlockData.totalTriggerNr();
+  const uint32_t totalTriggerNrEmul = gtfeBlockEmul.totalTriggerNr();
 
   if (totalTriggerNrData == totalTriggerNrEmul) {
     m_myCoutStream << "\nData and emulated GTFE totalTriggerNr identical.";
@@ -353,8 +353,8 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
   }
 
   // get BoardId value
-  const boost::uint16_t boardIdData = fdlBlockData.boardId();
-  const boost::uint16_t boardIdEmul = fdlBlockEmul.boardId();
+  const uint16_t boardIdData = fdlBlockData.boardId();
+  const uint16_t boardIdEmul = fdlBlockEmul.boardId();
 
   if (boardIdData == boardIdEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated FDL boardId identical.";
@@ -382,8 +382,8 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
   m_myCoutStream.clear();
 
   // get BxNr - bunch cross number of the actual bx
-  const boost::uint16_t bxNrData = fdlBlockData.bxNr();
-  const boost::uint16_t bxNrEmul = fdlBlockEmul.bxNr();
+  const uint16_t bxNrData = fdlBlockData.bxNr();
+  const uint16_t bxNrEmul = fdlBlockEmul.bxNr();
 
   if (bxNrData == bxNrEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated FDL bxNr identical.";
@@ -408,8 +408,8 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
   m_myCoutStream.clear();
 
   // get event number since last L1 reset generated in FDL
-  const boost::uint32_t eventNrData = fdlBlockData.eventNr();
-  const boost::uint32_t eventNrEmul = fdlBlockEmul.eventNr();
+  const uint32_t eventNrData = fdlBlockData.eventNr();
+  const uint32_t eventNrEmul = fdlBlockEmul.eventNr();
 
   if (eventNrData == eventNrEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated FDL eventNr identical.";
@@ -679,8 +679,8 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
   }
 
   // get  NoAlgo
-  const boost::uint16_t noAlgoData = fdlBlockData.noAlgo();
-  const boost::uint16_t noAlgoEmul = fdlBlockEmul.noAlgo();
+  const uint16_t noAlgoData = fdlBlockData.noAlgo();
+  const uint16_t noAlgoEmul = fdlBlockEmul.noAlgo();
 
   if (noAlgoData == noAlgoEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated FDL noAlgo identical.";
@@ -701,8 +701,8 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
   }
 
   // get  "Final OR" bits
-  const boost::uint16_t finalORData = fdlBlockData.finalOR();
-  const boost::uint16_t finalOREmul = fdlBlockEmul.finalOR();
+  const uint16_t finalORData = fdlBlockData.finalOR();
+  const uint16_t finalOREmul = fdlBlockEmul.finalOR();
 
   if (finalORData == finalOREmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated FDL finalOR identical.";
@@ -748,8 +748,8 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
   }
 
   // get  local bunch cross number of the actual bx
-  const boost::uint16_t localBxNrData = fdlBlockData.localBxNr();
-  const boost::uint16_t localBxNrEmul = fdlBlockEmul.localBxNr();
+  const uint16_t localBxNrData = fdlBlockData.localBxNr();
+  const uint16_t localBxNrEmul = fdlBlockEmul.localBxNr();
 
   if (localBxNrData == localBxNrEmul) {
     m_myCoutStream << "\n" << recString << " Data and emulated FDL localBxNr identical.";
@@ -799,8 +799,8 @@ void L1GtDataEmulAnalyzer::comparePSB(const edm::Event& iEvent,
   m_myCoutStream.clear();
 
   // get BoardId value
-  const boost::uint16_t boardIdData = psbBlockData.boardId();
-  const boost::uint16_t boardIdEmul = psbBlockEmul.boardId();
+  const uint16_t boardIdData = psbBlockData.boardId();
+  const uint16_t boardIdEmul = psbBlockEmul.boardId();
 
   if (boardIdData == boardIdEmul) {
     m_myCoutStream << "\nData and emulated PSB boardId identical.";
@@ -834,8 +834,8 @@ void L1GtDataEmulAnalyzer::comparePSB(const edm::Event& iEvent,
   }
 
   // get BxNr - bunch cross number of the actual bx
-  const boost::uint16_t bxNrData = psbBlockData.bxNr();
-  const boost::uint16_t bxNrEmul = psbBlockEmul.bxNr();
+  const uint16_t bxNrData = psbBlockData.bxNr();
+  const uint16_t bxNrEmul = psbBlockEmul.bxNr();
 
   if (bxNrData == bxNrEmul) {
     m_myCoutStream << "\nData and emulated PSB bxNr identical.";
@@ -850,8 +850,8 @@ void L1GtDataEmulAnalyzer::comparePSB(const edm::Event& iEvent,
   }
 
   // get event number since last L1 reset generated in FDL
-  const boost::uint32_t eventNrData = psbBlockData.eventNr();
-  const boost::uint32_t eventNrEmul = psbBlockEmul.eventNr();
+  const uint32_t eventNrData = psbBlockData.eventNr();
+  const uint32_t eventNrEmul = psbBlockEmul.eventNr();
 
   if (eventNrData == eventNrEmul) {
     m_myCoutStream << "\nData and emulated PSB eventNr identical.";
@@ -866,8 +866,8 @@ void L1GtDataEmulAnalyzer::comparePSB(const edm::Event& iEvent,
   }
 
   /// get/set A_DATA_CH_IA
-  boost::uint16_t valData;
-  boost::uint16_t valEmul;
+  uint16_t valData;
+  uint16_t valEmul;
 
   for (int iA = 0; iA < psbBlockData.NumberAData; ++iA) {
     valData = psbBlockData.aData(iA);
@@ -911,8 +911,8 @@ void L1GtDataEmulAnalyzer::comparePSB(const edm::Event& iEvent,
   }
 
   // get  local bunch cross number of the actual bx
-  const boost::uint16_t localBxNrData = psbBlockData.localBxNr();
-  const boost::uint16_t localBxNrEmul = psbBlockEmul.localBxNr();
+  const uint16_t localBxNrData = psbBlockData.localBxNr();
+  const uint16_t localBxNrEmul = psbBlockEmul.localBxNr();
 
   if (localBxNrData == localBxNrEmul) {
     m_myCoutStream << "\nData and emulated PSB localBxNr identical.";
@@ -1028,7 +1028,7 @@ void L1GtDataEmulAnalyzer::compareDaqRecord(const edm::Event& iEvent, const edm:
   // in unpacker: every PSB in all BxInEvent
   for (int iPsb = 0; iPsb < gtPsbVectorDataSize; ++iPsb) {
     const L1GtPsbWord& psbBlockData = gtPsbVectorData[iPsb];
-    const boost::uint16_t boardIdData = psbBlockData.boardId();
+    const uint16_t boardIdData = psbBlockData.boardId();
     const int bxInEventData = psbBlockData.bxInEvent();
 
     // search the corresponding PSB in the emulated record using the
@@ -1038,7 +1038,7 @@ void L1GtDataEmulAnalyzer::compareDaqRecord(const edm::Event& iEvent, const edm:
 
     for (int iPsbF = 0; iPsbF < gtPsbVectorEmulSize; ++iPsbF) {
       const L1GtPsbWord& psbBlockEmul = gtPsbVectorEmul[iPsbF];
-      const boost::uint16_t boardIdEmul = psbBlockEmul.boardId();
+      const uint16_t boardIdEmul = psbBlockEmul.boardId();
       const int bxInEventEmul = psbBlockEmul.bxInEvent();
 
       if ((boardIdEmul == boardIdData) && (bxInEventData == bxInEventEmul)) {

@@ -61,16 +61,15 @@ bool areEquivalent(const MEtoEDM<T>& iLHS, const MEtoEDM<T>& iRHS) {
 void TestMEtoEDMFormat::testMergeInt64() {
   MEtoEDM<long long> empty(0);
 
-  MEtoEDM<long long>::TagList tList;
   MEtoEDM<long long> full(3);
-  full.putMEtoEdmObject("a", tList, 1);
-  full.putMEtoEdmObject("b", tList, 2);
-  full.putMEtoEdmObject("c", tList, 3);
+  full.putMEtoEdmObject("a", 1);
+  full.putMEtoEdmObject("b", 2);
+  full.putMEtoEdmObject("c", 3);
 
   MEtoEDM<long long> fullReordered(3);
-  fullReordered.putMEtoEdmObject("b", tList, 2);
-  fullReordered.putMEtoEdmObject("a", tList, 1);
-  fullReordered.putMEtoEdmObject("c", tList, 3);
+  fullReordered.putMEtoEdmObject("b", 2);
+  fullReordered.putMEtoEdmObject("a", 1);
+  fullReordered.putMEtoEdmObject("c", 3);
 
   MEtoEDM<long long> toMerge(full);
 
@@ -89,27 +88,27 @@ void TestMEtoEDMFormat::testMergeInt64() {
   CPPUNIT_ASSERT(areEquivalent(toMerge3, full));
 
   MEtoEDM<long long> part1(2);
-  part1.putMEtoEdmObject("a", tList, 1);
-  part1.putMEtoEdmObject("b", tList, 2);
+  part1.putMEtoEdmObject("a", 1);
+  part1.putMEtoEdmObject("b", 2);
   MEtoEDM<long long> part2(1);
-  part2.putMEtoEdmObject("c", tList, 3);
+  part2.putMEtoEdmObject("c", 3);
   part1.mergeProduct(part2);
   CPPUNIT_ASSERT(areEquivalent(part1, full));
 
   MEtoEDM<long long> specials1(3);
-  specials1.putMEtoEdmObject("EventInfo/processedEvents", tList, 1);
-  specials1.putMEtoEdmObject("EventInfo/iEvent", tList, 2);
-  specials1.putMEtoEdmObject("EventInfo/iLumiSection", tList, 3);
+  specials1.putMEtoEdmObject("EventInfo/processedEvents", 1);
+  specials1.putMEtoEdmObject("EventInfo/iEvent", 2);
+  specials1.putMEtoEdmObject("EventInfo/iLumiSection", 3);
 
   MEtoEDM<long long> specials2(3);
-  specials2.putMEtoEdmObject("EventInfo/processedEvents", tList, 1);
-  specials2.putMEtoEdmObject("EventInfo/iEvent", tList, 3);
-  specials2.putMEtoEdmObject("EventInfo/iLumiSection", tList, 2);
+  specials2.putMEtoEdmObject("EventInfo/processedEvents", 1);
+  specials2.putMEtoEdmObject("EventInfo/iEvent", 3);
+  specials2.putMEtoEdmObject("EventInfo/iLumiSection", 2);
 
   MEtoEDM<long long> specialsTotal(3);
-  specialsTotal.putMEtoEdmObject("EventInfo/processedEvents", tList, 2);
-  specialsTotal.putMEtoEdmObject("EventInfo/iEvent", tList, 3);
-  specialsTotal.putMEtoEdmObject("EventInfo/iLumiSection", tList, 3);
+  specialsTotal.putMEtoEdmObject("EventInfo/processedEvents", 2);
+  specialsTotal.putMEtoEdmObject("EventInfo/iEvent", 3);
+  specialsTotal.putMEtoEdmObject("EventInfo/iLumiSection", 3);
   specials1.mergeProduct(specials2);
   CPPUNIT_ASSERT(areEquivalent(specials1, specialsTotal));
 }
@@ -117,16 +116,15 @@ void TestMEtoEDMFormat::testMergeInt64() {
 void TestMEtoEDMFormat::testMergeDouble() {
   MEtoEDM<double> empty(0);
 
-  MEtoEDM<double>::TagList tList;
   MEtoEDM<double> full(3);
-  full.putMEtoEdmObject("a", tList, 1);
-  full.putMEtoEdmObject("b", tList, 2);
-  full.putMEtoEdmObject("c", tList, 3);
+  full.putMEtoEdmObject("a", 1);
+  full.putMEtoEdmObject("b", 2);
+  full.putMEtoEdmObject("c", 3);
 
   MEtoEDM<double> fullReordered(3);
-  fullReordered.putMEtoEdmObject("b", tList, 2);
-  fullReordered.putMEtoEdmObject("a", tList, 1);
-  fullReordered.putMEtoEdmObject("c", tList, 3);
+  fullReordered.putMEtoEdmObject("b", 2);
+  fullReordered.putMEtoEdmObject("a", 1);
+  fullReordered.putMEtoEdmObject("c", 3);
 
   MEtoEDM<double> toMerge(full);
 
@@ -145,10 +143,10 @@ void TestMEtoEDMFormat::testMergeDouble() {
   CPPUNIT_ASSERT(areEquivalent(toMerge3, full));
 
   MEtoEDM<double> part1(2);
-  part1.putMEtoEdmObject("a", tList, 1);
-  part1.putMEtoEdmObject("b", tList, 2);
+  part1.putMEtoEdmObject("a", 1);
+  part1.putMEtoEdmObject("b", 2);
   MEtoEDM<double> part2(1);
-  part2.putMEtoEdmObject("c", tList, 3);
+  part2.putMEtoEdmObject("c", 3);
   part1.mergeProduct(part2);
   CPPUNIT_ASSERT(areEquivalent(part1, full));
 }
@@ -163,16 +161,15 @@ bool operator!=(const TString& iLHS, const TString& iRHS) {
 void TestMEtoEDMFormat::testMergeTString() {
   MEtoEDM<TString> empty(0);
 
-  MEtoEDM<TString>::TagList tList;
   MEtoEDM<TString> full(3);
-  full.putMEtoEdmObject("a", tList, "1");
-  full.putMEtoEdmObject("b", tList, "2");
-  full.putMEtoEdmObject("c", tList, "3");
+  full.putMEtoEdmObject("a", "1");
+  full.putMEtoEdmObject("b", "2");
+  full.putMEtoEdmObject("c", "3");
 
   MEtoEDM<TString> fullReordered(3);
-  fullReordered.putMEtoEdmObject("b", tList, "2");
-  fullReordered.putMEtoEdmObject("a", tList, "1");
-  fullReordered.putMEtoEdmObject("c", tList, "3");
+  fullReordered.putMEtoEdmObject("b", "2");
+  fullReordered.putMEtoEdmObject("a", "1");
+  fullReordered.putMEtoEdmObject("c", "3");
 
   MEtoEDM<TString> toMerge(full);
 
@@ -191,10 +188,10 @@ void TestMEtoEDMFormat::testMergeTString() {
   CPPUNIT_ASSERT(areEquivalent(toMerge3, full));
 
   MEtoEDM<TString> part1(2);
-  part1.putMEtoEdmObject("a", tList, "1");
-  part1.putMEtoEdmObject("b", tList, "2");
+  part1.putMEtoEdmObject("a", "1");
+  part1.putMEtoEdmObject("b", "2");
   MEtoEDM<TString> part2(1);
-  part2.putMEtoEdmObject("c", tList, "3");
+  part2.putMEtoEdmObject("c", "3");
   part1.mergeProduct(part2);
   CPPUNIT_ASSERT(areEquivalent(part1, full));
 }
@@ -236,21 +233,20 @@ namespace {
 void TestMEtoEDMFormat::testMergeT() {
   MEtoEDM<Dummy> empty(0);
 
-  MEtoEDM<Dummy>::TagList tList;
   MEtoEDM<Dummy> full(3);
-  full.putMEtoEdmObject("a", tList, 1);
-  full.putMEtoEdmObject("b", tList, 2);
-  full.putMEtoEdmObject("c", tList, 3);
+  full.putMEtoEdmObject("a", 1);
+  full.putMEtoEdmObject("b", 2);
+  full.putMEtoEdmObject("c", 3);
 
   MEtoEDM<Dummy> fullReordered(3);
-  fullReordered.putMEtoEdmObject("b", tList, 2);
-  fullReordered.putMEtoEdmObject("a", tList, 1);
-  fullReordered.putMEtoEdmObject("c", tList, 3);
+  fullReordered.putMEtoEdmObject("b", 2);
+  fullReordered.putMEtoEdmObject("a", 1);
+  fullReordered.putMEtoEdmObject("c", 3);
 
   MEtoEDM<Dummy> doubleFull(3);
-  doubleFull.putMEtoEdmObject("a", tList, 2 * 1);
-  doubleFull.putMEtoEdmObject("b", tList, 2 * 2);
-  doubleFull.putMEtoEdmObject("c", tList, 2 * 3);
+  doubleFull.putMEtoEdmObject("a", 2 * 1);
+  doubleFull.putMEtoEdmObject("b", 2 * 2);
+  doubleFull.putMEtoEdmObject("c", 2 * 3);
 
   MEtoEDM<Dummy> toMerge(full);
 
@@ -269,10 +265,10 @@ void TestMEtoEDMFormat::testMergeT() {
   CPPUNIT_ASSERT(areEquivalent(toMerge3, doubleFull));
 
   MEtoEDM<Dummy> part1(2);
-  part1.putMEtoEdmObject("a", tList, 1);
-  part1.putMEtoEdmObject("b", tList, 2);
+  part1.putMEtoEdmObject("a", 1);
+  part1.putMEtoEdmObject("b", 2);
   MEtoEDM<Dummy> part2(1);
-  part2.putMEtoEdmObject("c", tList, 3);
+  part2.putMEtoEdmObject("c", 3);
   part1.mergeProduct(part2);
   CPPUNIT_ASSERT(areEquivalent(part1, full));
 }

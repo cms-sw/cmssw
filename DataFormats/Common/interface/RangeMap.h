@@ -116,8 +116,8 @@ namespace edm {
       assert(i == map_.end());
       pairType& p = map_[id];
       p.first = collection_.size();
-      for (CI i = begin; i != end; ++i)
-        collection_.push_back(P::clone(*i));
+      for (CI ii = begin; ii != end; ++ii)
+        collection_.push_back(P::clone(*ii));
       p.second = collection_.size();
     }
     /// return number of contained object

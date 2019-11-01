@@ -39,6 +39,17 @@
 using namespace edm;
 using namespace reco;
 
+GsfElectronAlgo::HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& conf) {
+  // soft electron MVA
+  SoftElectronMVAEstimator::Configuration sconfig;
+  sconfig.vweightsfiles = conf.getParameter<std::vector<std::string> >("SoftElecMVAFilesString");
+  sElectronMVAEstimator.reset(new SoftElectronMVAEstimator(sconfig));
+  // isolated electron MVA
+  ElectronMVAEstimator::Configuration iconfig;
+  iconfig.vweightsfiles = conf.getParameter<std::vector<std::string> >("ElecMVAFilesString");
+  iElectronMVAEstimator.reset(new ElectronMVAEstimator(iconfig));
+}
+
 GsfElectronAlgo::EventSetupData::EventSetupData()
     : cacheIDGeom(0),
       cacheIDTopo(0),
@@ -489,7 +500,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event) 
 void GsfElectronAlgo::completeElectrons(reco::GsfElectronCollection& electrons,
                                         edm::Event const& event,
                                         edm::EventSetup const& eventSetup,
-                                        const gsfAlgoHelpers::HeavyObjectCache* hoc) {
+                                        const GsfElectronAlgo::HeavyObjectCache* hoc) {
   checkSetup(eventSetup);
   auto eventData = beginEvent(event);
 
@@ -628,7 +639,7 @@ void GsfElectronAlgo::setCutBasedPreselectionFlag(GsfElectron& ele, const reco::
     if (elseed.isNull()) {
       throw cms::Exception("GsfElectronAlgo|NotElectronSeed") << "The GsfTrack seed is not an ElectronSeed ?!";
     } else {
-      if (elseed->subDet2() == 6)
+      if (elseed->subDet(1) == 6)
         return;
     }
   }
@@ -645,11 +656,10 @@ void GsfElectronAlgo::setCutBasedPreselectionFlag(GsfElectron& ele, const reco::
 void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                                      ElectronData& electronData,
                                      EventData& eventData,
-                                     const gsfAlgoHelpers::HeavyObjectCache* hoc) {
+                                     const GsfElectronAlgo::HeavyObjectCache* hoc) {
   // eventually check ctf track
   if (generalData_.strategyCfg.ctfTracksCheck && electronData.ctfTrackRef.isNull()) {
-    electronData.ctfTrackRef =
-        gsfElectronTools::getClosestCtfToGsf(electronData.gsfTrackRef, eventData.currentCtfTracks).first;
+    electronData.ctfTrackRef = egamma::getClosestCtfToGsf(electronData.gsfTrackRef, eventData.currentCtfTracks).first;
   }
 
   // charge ID
@@ -873,11 +883,15 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   // classification and corrections
   //====================================================
   // classification
-  ElectronClassification theClassifier;
-  theClassifier.classify(ele);
-  theClassifier.refineWithPflow(ele);
+  const auto elClass = egamma::classifyElectron(ele);
+  ele.setClassification(elClass);
+
+  bool unexpectedClassification = elClass == GsfElectron::UNKNOWN || elClass > GsfElectron::GAP;
+  if (unexpectedClassification) {
+    edm::LogWarning("GsfElectronAlgo") << "unexpected classification";
+  }
+
   // ecal energy
-  ElectronEnergyCorrector theEnCorrector(generalData_.crackCorrectionFunction.get());
   if (generalData_.strategyCfg.useEcalRegression)  // new
   {
     generalData_.regHelper.applyEcalRegression(
@@ -886,15 +900,20 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   {
     if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
       if (ele.core()->ecalDrivenSeed()) {
-        if (generalData_.strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization) {
-          theEnCorrector.classBasedParameterizationEnergy(ele, *eventData.beamspot);
+        if (generalData_.strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization && !unexpectedClassification) {
+          if (ele.isEcalEnergyCorrected()) {
+            edm::LogWarning("ElectronEnergyCorrector::classBasedElectronEnergy") << "already done";
+          } else {
+            ele.setCorrectedEcalEnergy(
+                egamma::classBasedElectronEnergy(ele, *eventData.beamspot, *generalData_.crackCorrectionFunction));
+          }
         }
         if (generalData_.strategyCfg.ecalDrivenEcalErrorFromClassBasedParameterization) {
-          theEnCorrector.classBasedParameterizationUncertainty(ele);
+          ele.setCorrectedEcalEnergyError(egamma::classBasedElectronEnergyUncertainty(ele));
         }
       } else {
         if (generalData_.strategyCfg.pureTrackerDrivenEcalErrorFromSimpleParameterization) {
-          theEnCorrector.simpleParameterizationUncertainty(ele);
+          ele.setCorrectedEcalEnergyError(egamma::simpleElectronEnergyUncertainty(ele));
         }
       }
     }
@@ -902,9 +921,13 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
 
   // momentum
   // Keep the default correction running first. The track momentum error is computed in there
-  if (ele.core()->ecalDrivenSeed()) {
-    ElectronMomentumCorrector theMomCorrector;
-    theMomCorrector.correct(ele, electronData.vtxTSOS);
+  if (ele.core()->ecalDrivenSeed() && !unexpectedClassification) {
+    if (ele.p4Error(reco::GsfElectron::P4_COMBINATION) != 999.) {
+      edm::LogWarning("ElectronMomentumCorrector::correct") << "already done";
+    } else {
+      auto p = egamma::correctElectronMomentum(ele, electronData.vtxTSOS);
+      ele.correctMomentum(p.momentum, p.trackError, p.finalError);
+    }
   }
   if (generalData_.strategyCfg.useCombinationRegression)  // new
   {
@@ -976,12 +999,12 @@ void GsfElectronAlgo::setPixelMatchInfomation(reco::GsfElectron& ele) {
   } else {
     if (elseed.isNull()) {
     } else {
-      sd1 = elseed->subDet1();
-      sd2 = elseed->subDet2();
-      dPhi1 = (ele.charge() > 0) ? elseed->dPhi1Pos() : elseed->dPhi1();
-      dPhi2 = (ele.charge() > 0) ? elseed->dPhi2Pos() : elseed->dPhi2();
-      dRz1 = (ele.charge() > 0) ? elseed->dRz1Pos() : elseed->dRz1();
-      dRz2 = (ele.charge() > 0) ? elseed->dRz2Pos() : elseed->dRz2();
+      sd1 = elseed->subDet(0);
+      sd2 = elseed->subDet(1);
+      dPhi1 = (ele.charge() > 0) ? elseed->dPhiPos(0) : elseed->dPhiNeg(0);
+      dPhi2 = (ele.charge() > 0) ? elseed->dPhiPos(1) : elseed->dPhiNeg(1);
+      dRz1 = (ele.charge() > 0) ? elseed->dRZPos(0) : elseed->dRZNeg(0);
+      dRz2 = (ele.charge() > 0) ? elseed->dRZPos(1) : elseed->dRZNeg(1);
     }
   }
   ele.setPixelMatchSubdetectors(sd1, sd2);

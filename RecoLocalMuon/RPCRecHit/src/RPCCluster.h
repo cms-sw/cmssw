@@ -1,6 +1,6 @@
+#include <cstdint>
 #ifndef RecoLocalMuon_RPCCluster_h
 #define RecoLocalMuon_RPCCluster_h
-#include <boost/cstdint.hpp>
 class RPCCluster {
 public:
   RPCCluster();

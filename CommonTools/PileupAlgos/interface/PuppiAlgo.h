@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CommonTools/PileupAlgos/interface/PuppiCandidate.h"
 #include <vector>
 
@@ -10,11 +11,12 @@ class PuppiAlgo {
 public:
   PuppiAlgo(edm::ParameterSet &iConfig);
   ~PuppiAlgo();
+  static void fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc);
   //Computing Mean and RMS
   void reset();
   void fixAlgoEtaBin(int i_eta);
   void add(const PuppiCandidate &iParticle, const double &iVal, const unsigned int iAlgo);
-  void computeMedRMS(const unsigned int &iAlgo, const double &iPVFrac);
+  void computeMedRMS(const unsigned int &iAlgo);
   //Get the Weight
   double compute(std::vector<double> const &iVals, double iChi2) const;
   const std::vector<float> &alphas() { return fPups; }

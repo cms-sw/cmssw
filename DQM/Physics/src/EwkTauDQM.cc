@@ -52,7 +52,7 @@ void EwkTauDQM::analyze(const edm::Event& evt, const edm::EventSetup& es) {
   muTauHistManager_->fillHistograms(evt, es);
 }
 
-void EwkTauDQM::endRun(const edm::Run&, const edm::EventSetup&) {
+void EwkTauDQM::dqmEndRun(const edm::Run&, const edm::EventSetup&) {
   elecTauHistManager_->finalizeHistograms();
   muTauHistManager_->finalizeHistograms();
 }

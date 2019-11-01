@@ -60,7 +60,7 @@ void Basic2DGenericPFlowPositionCalc::calculateAndSetPositionActual(reco::PFClus
   }
 
   bool resGiven = bool(_timeResolutionCalcBarrel) & bool(_timeResolutionCalcEndcap);
-  LHit mySeed = {nullptr};
+  LHit mySeed = {};
   for (auto const& rhf : hits) {
     const reco::PFRecHit& refhit = *rhf.hit;
     if (refhit.detId() == cluster.seed())

@@ -1,7 +1,6 @@
 #ifndef RPCOBJECTS_RPCDIGISIMLINK_H
 #define RPCOBJECTS_RPCDIGISIMLINK_H
 
-#include "boost/cstdint.hpp"
 #include <map>
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"

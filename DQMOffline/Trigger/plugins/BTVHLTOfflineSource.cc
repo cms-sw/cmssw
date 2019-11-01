@@ -86,16 +86,11 @@ void BTVHLTOfflineSource::dqmBeginRun(const edm::Run& run, const edm::EventSetup
   }
 
   for (unsigned int i = 0; i != hltConfig_.size(); ++i) {
-    pathname_ = hltConfig_.triggerName(i);
-    filtername_ = "dummy";
-    unsigned int usedPrescale = 1;
-    unsigned int objectType = 0;
-    std::string triggerType = "";
+    const auto& pathname = hltConfig_.triggerName(i);
 
     for (auto& custompathnamepair : custompathnamepairs_) {
-      if (pathname_.find(custompathnamepair.first) != std::string::npos) {
-        triggerType = custompathnamepair.second;
-        hltPathsAll_.push_back(PathInfo(usedPrescale, pathname_, "dummy", processname_, objectType, triggerType));
+      if (pathname.find(custompathnamepair.first) != std::string::npos) {
+        hltPathsAll_.push_back(PathInfo(1, pathname, "dummy", processname_, 0, custompathnamepair.second));
       }
     }
   }
@@ -318,7 +313,6 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 void BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& c) {
   iBooker.setCurrentFolder(dirname_);
   for (auto& v : hltPathsAll_) {
-    //
     std::string trgPathName = HLTConfigProvider::removeVersion(v.getPath());
     std::string subdirName = dirname_ + "/" + trgPathName + v.getTriggerType();
     std::string trigPath = "(" + trgPathName + ")";

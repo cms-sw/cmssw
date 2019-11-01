@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
@@ -52,7 +51,7 @@ namespace l1t {
       return res;
     }
 
-    void CaloLayer1Setup::registerProducts(edm::stream::EDProducerBase& prod) {
+    void CaloLayer1Setup::registerProducts(edm::ProducesCollector prod) {
       prod.produces<EcalTrigPrimDigiCollection>();
       prod.produces<HcalTrigPrimDigiCollection>();
       prod.produces<L1CaloRegionCollection>();

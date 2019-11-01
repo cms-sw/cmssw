@@ -341,8 +341,8 @@ namespace edm {
         }
         TypeID typeID(desc.unwrappedType().typeInfo());
 
-        auto iter = containedTypeMap.find(typeID);
-        bool alreadySawThisType = (iter != containedTypeMap.end());
+        auto iterContainedType = containedTypeMap.find(typeID);
+        bool alreadySawThisType = (iterContainedType != containedTypeMap.end());
 
         if (!desc.produced() && !alreadySawThisType) {
           if (!checkDictionary(missingDictionaries, desc.wrappedName(), desc.wrappedType())) {
@@ -356,7 +356,7 @@ namespace edm {
 
         TypeID containedTypeID;
         if (alreadySawThisType) {
-          containedTypeID = iter->second;
+          containedTypeID = iterContainedType->second;
         } else {
           containedTypeID = productholderindexhelper::getContainedTypeFromWrapper(wrappedTypeID, typeID.className());
         }
@@ -376,8 +376,8 @@ namespace edm {
           }
 
           if (hasContainedType) {
-            auto iter = containedTypeToBaseTypesMap.find(containedTypeID);
-            if (iter == containedTypeToBaseTypesMap.end()) {
+            auto iterBaseTypes = containedTypeToBaseTypesMap.find(containedTypeID);
+            if (iterBaseTypes == containedTypeToBaseTypesMap.end()) {
               std::vector<TypeWithDict> baseTypes;
               if (!public_base_classes(missingDictionaries, containedTypeID, baseTypes)) {
                 branchNamesForMissing.emplace_back(desc.branchName());
@@ -388,9 +388,9 @@ namespace edm {
                 }
                 continue;
               }
-              iter = containedTypeToBaseTypesMap.insert(std::make_pair(containedTypeID, baseTypes)).first;
+              iterBaseTypes = containedTypeToBaseTypesMap.insert(std::make_pair(containedTypeID, baseTypes)).first;
             }
-            baseTypesOfContainedType = &iter->second;
+            baseTypesOfContainedType = &iterBaseTypes->second;
           }
 
           // Do this after the dictionary checks of constituents so the list of branch names for missing types
@@ -398,9 +398,9 @@ namespace edm {
           containedTypeMap.emplace(typeID, containedTypeID);
         } else {
           if (hasContainedType) {
-            auto iter = containedTypeToBaseTypesMap.find(containedTypeID);
-            if (iter != containedTypeToBaseTypesMap.end()) {
-              baseTypesOfContainedType = &iter->second;
+            auto iterBaseTypes = containedTypeToBaseTypesMap.find(containedTypeID);
+            if (iterBaseTypes != containedTypeToBaseTypesMap.end()) {
+              baseTypesOfContainedType = &iterBaseTypes->second;
             }
           }
         }

@@ -924,172 +924,200 @@ namespace testParameterSetDescription {
   // ---------------------------------------------------------------------------------
 
   void testAllowedLabels() {
-    edm::ParameterSetDescription psetDesc1;
-    std::unique_ptr<edm::ParameterDescriptionNode> node1(
-        std::make_unique<edm::AllowedLabelsDescription<int>>("allowedLabels", true));
-
-    edm::ParameterSet pset1;
-
-    edm::ParameterSet pset2;
-    std::vector<std::string> labels;
-    pset2.addParameter<std::vector<std::string>>("allowedLabels", labels);
-
-    assert(node1->exists(pset1) == false);
-    assert(node1->partiallyExists(pset1) == false);
-    assert(node1->howManyXORSubNodesExist(pset1) == 0);
-
-    assert(node1->exists(pset2) == true);
-    assert(node1->partiallyExists(pset2) == true);
-    assert(node1->howManyXORSubNodesExist(pset2) == 1);
-
-    // One of the labels cannot already exist in the description
-    edm::ParameterSetDescription psetDesc2;
-    psetDesc2.add<unsigned>("x1", 1U);
-    std::unique_ptr<edm::ParameterDescriptionNode> node2(
-        std::make_unique<edm::AllowedLabelsDescription<int>>("x1", true));
-
-    try {
-      psetDesc2.addNode(std::move(node2));
-      assert(0);
-    } catch (edm::Exception const&) { /* There should be an exception */
-    }
-
-    // A type used in a wildcard should not be the same as a type
-    // used for another parameter node
-    edm::ParameterSetDescription psetDesc3;
-    psetDesc3.addWildcard<std::vector<std::string>>("*");
-    std::unique_ptr<edm::ParameterDescriptionNode> node3(
-        std::make_unique<edm::AllowedLabelsDescription<int>>("x1", true));
-    try {
-      psetDesc3.addNode(std::move(node3));
-      assert(0);
-    } catch (edm::Exception const&) { /* There should be an exception */
-    }
-
-    edm::ParameterSetDescription psetDesc4;
-    psetDesc4.labelsFrom<edm::ParameterSetDescription>("allowedLabelsA");
-
-    edm::ParameterSet psetA;
-    edm::ParameterSet psetB;
-    psetB.addParameter<int>("x", 1);
-
-    psetA.addParameter<edm::ParameterSet>("setB", psetB);
-
-    // setB is an illegal parameter
-    try {
-      psetDesc4.validate(psetA);
-      assert(0);
-    } catch (edm::Exception const&) { /* There should be an exception */
-    }
-
-    std::vector<std::string> labels1;
-    labels1.push_back(std::string("setB"));
-    psetA.addParameter<std::vector<std::string>>("allowedLabelsA", labels1);
-
-    // Now setB should be an allowed parameter
-    psetDesc4.validate(psetA);
-
-    // Above it did not validate the contents of the nested ParameterSet
-    // because a description was not passed to the labelsFrom function.
-
-    edm::ParameterSetDescription psetDesc5;
-    psetDesc5.labelsFrom<edm::ParameterSetDescription>("allowedLabelsA", edm::ParameterSetDescription());
-    // Now it should fail because the description says the contained ParameterSet
-    // should be empty, but it has parameter "x"
-    try {
-      psetDesc5.validate(psetA);
-      assert(0);
-    } catch (edm::Exception const&) { /* There should be an exception */
-    }
-
-    // Now include "x" in the description and it should once again pass validation
-    edm::ParameterSetDescription psetDesc6;
-    edm::ParameterSetDescription psetDesc7;
-    psetDesc7.add<int>("x", 1);
-    psetDesc6.labelsFrom<edm::ParameterSetDescription>("allowedLabelsA", psetDesc7);
-    psetDesc6.validate(psetA);
-
-    // A minor variation, repeat with a string argument
-    edm::ParameterSetDescription psetDesc8;
-    edm::ParameterSetDescription psetDesc9;
-    edm::ParameterSetDescription psetDesc10;
-    psetDesc8.labelsFrom<edm::ParameterSetDescription>(std::string("allowedLabelsA"));
-    psetDesc9.labelsFrom<edm::ParameterSetDescription>(std::string("allowedLabelsA"), edm::ParameterSetDescription());
-    psetDesc10.labelsFrom<edm::ParameterSetDescription>(std::string("allowedLabelsA"), psetDesc7);
-    psetDesc8.validate(psetA);
-    try {
-      psetDesc9.validate(psetA);
-      assert(0);
-    } catch (edm::Exception const&) { /* There should be an exception */
-    }
-    psetDesc10.validate(psetA);
-
-    // Now repeat what was done above with the variations
-    // necessary to test the vector<ParameterSet> case
     {
-      edm::ParameterSetDescription psetDesc14;
-      psetDesc14.labelsFrom<std::vector<edm::ParameterSet>>("allowedLabelsC");
+      std::unique_ptr<edm::ParameterDescriptionNode> node(
+          std::make_unique<edm::AllowedLabelsDescription<int>>("allowedLabels", true));
 
-      edm::ParameterSet psetC;
-      edm::ParameterSet psetD;
-      psetD.addParameter<int>("y", 1);
+      const edm::ParameterSet emptyPset;
 
-      std::vector<edm::ParameterSet> vpset;
-      vpset.push_back(psetD);
-      vpset.push_back(psetD);
+      edm::ParameterSet pset;
+      std::vector<std::string> labels;
+      pset.addParameter<std::vector<std::string>>("allowedLabels", labels);
 
-      psetC.addParameter<std::vector<edm::ParameterSet>>("vSetD", vpset);
+      assert(node->exists(emptyPset) == false);
+      assert(node->partiallyExists(emptyPset) == false);
+      assert(node->howManyXORSubNodesExist(emptyPset) == 0);
 
-      // vSetD is an illegal parameter
+      assert(node->exists(pset) == true);
+      assert(node->partiallyExists(pset) == true);
+      assert(node->howManyXORSubNodesExist(pset) == 1);
+    }
+
+    {
+      // One of the labels cannot already exist in the description
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.add<unsigned>("x1", 1U);
+      std::unique_ptr<edm::ParameterDescriptionNode> node(
+          std::make_unique<edm::AllowedLabelsDescription<int>>("x1", true));
+
       try {
-        psetDesc14.validate(psetC);
+        psetDesc.addNode(std::move(node));
         assert(0);
       } catch (edm::Exception const&) { /* There should be an exception */
       }
+    }
 
-      std::vector<std::string> labels1;
-      labels1.push_back(std::string("vSetD"));
-      psetC.addParameter<std::vector<std::string>>("allowedLabelsC", labels1);
+    {
+      // A type used in a wildcard should not be the same as a type
+      // used for another parameter node
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.addWildcard<std::vector<std::string>>("*");
+      std::unique_ptr<edm::ParameterDescriptionNode> node(
+          std::make_unique<edm::AllowedLabelsDescription<int>>("x1", true));
+      try {
+        psetDesc.addNode(std::move(node));
+        assert(0);
+      } catch (edm::Exception const&) { /* There should be an exception */
+      }
+    }
+    {
+      edm::ParameterSet pset;
+      edm::ParameterSet nestedPset;
+      nestedPset.addParameter<int>("x", 1);
+      pset.addParameter<edm::ParameterSet>("nestedPset", nestedPset);
 
-      // Now vSetB should be an allowed parameter
-      psetDesc14.validate(psetC);
+      {
+        edm::ParameterSetDescription psetDesc;
+        psetDesc.labelsFrom<edm::ParameterSetDescription>("allowedLabelsA");
+
+        // nestedPset is an illegal parameter
+        try {
+          psetDesc.validate(pset);
+          assert(0);
+        } catch (edm::Exception const&) { /* There should be an exception */
+        }
+
+        std::vector<std::string> labels;
+        labels.push_back(std::string("nestedPset"));
+        pset.addParameter<std::vector<std::string>>("allowedLabelsA", labels);
+
+        // Now nestedPset should be an allowed parameter
+        psetDesc.validate(pset);
+      }
 
       // Above it did not validate the contents of the nested ParameterSet
       // because a description was not passed to the labelsFrom function.
 
-      edm::ParameterSetDescription psetDesc15;
-      psetDesc15.labelsFrom<std::vector<edm::ParameterSet>>("allowedLabelsC", edm::ParameterSetDescription());
-      // Now it should fail because the description says the contained vector<ParameterSet>
-      // should have empty ParameterSets, but they have parameter "y"
-      try {
-        psetDesc15.validate(psetC);
-        assert(0);
-      } catch (edm::Exception const&) { /* There should be an exception */
+      {
+        edm::ParameterSetDescription psetDesc;
+        psetDesc.labelsFrom<edm::ParameterSetDescription>("allowedLabelsA", edm::ParameterSetDescription());
+        // Now it should fail because the description says the nested ParameterSet
+        // should be empty, but it has parameter "x"
+        try {
+          psetDesc.validate(pset);
+          assert(0);
+        } catch (edm::Exception const&) { /* There should be an exception */
+        }
+      }
+
+      // Now include "x" in the description and it should once again pass validation
+      edm::ParameterSetDescription nestedPsetDesc;
+      nestedPsetDesc.add<int>("x", 1);
+
+      {
+        edm::ParameterSetDescription psetDesc;
+        psetDesc.labelsFrom<edm::ParameterSetDescription>("allowedLabelsA", nestedPsetDesc);
+        psetDesc.validate(pset);
+      }
+      // Minor variations, repeat with a string argument
+      {
+        edm::ParameterSetDescription psetDesc;
+        psetDesc.labelsFrom<edm::ParameterSetDescription>(std::string("allowedLabelsA"));
+        psetDesc.validate(pset);
+      }
+      {
+        edm::ParameterSetDescription psetDesc;
+        psetDesc.labelsFrom<edm::ParameterSetDescription>(std::string("allowedLabelsA"),
+                                                          edm::ParameterSetDescription());
+        try {
+          psetDesc.validate(pset);
+          assert(0);
+        } catch (edm::Exception const&) { /* There should be an exception */
+        }
+      }
+      {
+        edm::ParameterSetDescription psetDesc;
+        psetDesc.labelsFrom<edm::ParameterSetDescription>(std::string("allowedLabelsA"), nestedPsetDesc);
+        psetDesc.validate(pset);
+      }
+    }
+    // Now repeat what was done above with the variations
+    // necessary to test the vector<ParameterSet> case
+    {
+      edm::ParameterSet pset;
+
+      edm::ParameterSet elementOfVPset;
+      elementOfVPset.addParameter<int>("y", 1);
+      std::vector<edm::ParameterSet> vpset;
+      vpset.push_back(elementOfVPset);
+      vpset.push_back(elementOfVPset);
+
+      pset.addParameter<std::vector<edm::ParameterSet>>("nestedVPSet", vpset);
+
+      {
+        edm::ParameterSetDescription psetDesc;
+        psetDesc.labelsFrom<std::vector<edm::ParameterSet>>("allowedLabelsC");
+
+        // nestedVPSet is an illegal parameter
+        try {
+          psetDesc.validate(pset);
+          assert(0);
+        } catch (edm::Exception const&) { /* There should be an exception */
+        }
+
+        std::vector<std::string> labels;
+        labels.push_back(std::string("nestedVPSet"));
+        pset.addParameter<std::vector<std::string>>("allowedLabelsC", labels);
+
+        // Now nestedVPSet should be an allowed parameter
+        psetDesc.validate(pset);
+      }
+      // Above it did not validate the contents of the nested vector<ParameterSet>
+      // because a description was not passed to the labelsFrom function.
+
+      {
+        edm::ParameterSetDescription psetDesc;
+        psetDesc.labelsFrom<std::vector<edm::ParameterSet>>("allowedLabelsC", edm::ParameterSetDescription());
+        // Now it should fail because the description says the contained vector<ParameterSet>
+        // should have empty ParameterSets, but the ParameterSets have parameter "y"
+        try {
+          psetDesc.validate(pset);
+          assert(0);
+        } catch (edm::Exception const&) { /* There should be an exception */
+        }
       }
 
       // Now include "y" in the description and it should once again pass validation
-      edm::ParameterSetDescription psetDesc6;
-      edm::ParameterSetDescription psetDesc7;
-      psetDesc7.add<int>("y", 1);
+      edm::ParameterSetDescription nestedPSetDesc;
+      nestedPSetDesc.add<int>("y", 1);
 
-      psetDesc6.labelsFrom<std::vector<edm::ParameterSet>>("allowedLabelsC", psetDesc7);
-      psetDesc6.validate(psetC);
-
-      // A minor variation, repeat with a string argument
-      edm::ParameterSetDescription psetDesc18;
-      edm::ParameterSetDescription psetDesc19;
-      edm::ParameterSetDescription psetDesc20;
-      psetDesc18.labelsFrom<std::vector<edm::ParameterSet>>(std::string("allowedLabelsC"));
-      psetDesc19.labelsFrom<std::vector<edm::ParameterSet>>(std::string("allowedLabelsC"),
-                                                            edm::ParameterSetDescription());
-      psetDesc20.labelsFrom<std::vector<edm::ParameterSet>>(std::string("allowedLabelsC"), psetDesc7);
-      psetDesc18.validate(psetC);
-      try {
-        psetDesc19.validate(psetC);
-        assert(0);
-      } catch (edm::Exception const&) { /* There should be an exception */
+      {
+        edm::ParameterSetDescription psetDesc;
+        psetDesc.labelsFrom<std::vector<edm::ParameterSet>>("allowedLabelsC", nestedPSetDesc);
+        psetDesc.validate(pset);
       }
-      psetDesc20.validate(psetC);
+
+      // Minor variations, repeat with a string argument
+      {
+        edm::ParameterSetDescription psetDesc;
+        psetDesc.labelsFrom<std::vector<edm::ParameterSet>>(std::string("allowedLabelsC"));
+        psetDesc.validate(pset);
+      }
+      {
+        edm::ParameterSetDescription psetDesc;
+        psetDesc.labelsFrom<std::vector<edm::ParameterSet>>(std::string("allowedLabelsC"),
+                                                            edm::ParameterSetDescription());
+        try {
+          psetDesc.validate(pset);
+          assert(0);
+        } catch (edm::Exception const&) { /* There should be an exception */
+        }
+      }
+      {
+        edm::ParameterSetDescription psetDesc;
+        psetDesc.labelsFrom<std::vector<edm::ParameterSet>>(std::string("allowedLabelsC"), nestedPSetDesc);
+        psetDesc.validate(pset);
+      }
     }
   }
   // ---------------------------------------------------------------------------------
@@ -1600,20 +1628,20 @@ int main(int, char**) try {
   testDescriptions.push_back(psetDesc);
   testDescriptions.push_back(psetDesc);
 
-  for (int i = 0; i < 3; ++i) {
+  for (int ii = 0; ii < 3; ++ii) {
     edm::ParameterSetDescription nestLevel2;
 
     // for the first test do not put a parameter in the description
     // so there will be an extra parameter in the ParameterSet and
     // validation should fail.
-    if (i > 0)
+    if (ii > 0)
       nestLevel2.add<int>("intLevel2a", 1);
 
     // for the next test validation should pass
 
     // For the last test add an extra required parameter in the
     // description that is not in the ParameterSet.
-    if (i == 2)
+    if (ii == 2)
       nestLevel2.add<int>("intLevel2extra", 11);
 
     nestLevel2.addUntracked<int>("intLevel2b", 1);
@@ -1626,7 +1654,7 @@ int main(int, char**) try {
     nestLevel1.add<int>("intLevel1a", 1);
     nestLevel1.add<edm::ParameterSetDescription>("nestLevel1b", nestLevel2);
 
-    testDescriptions[i].addVPSetUntracked("nestLevel0", nestLevel1);
+    testDescriptions[ii].addVPSetUntracked("nestLevel0", nestLevel1);
   }
 
   // Now run the validation and make sure we get the expected results

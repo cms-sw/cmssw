@@ -275,7 +275,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEv
       if (rec_pr.method() == reco::ForwardProton::ReconstructionMethod::singleRP) {
         meth_idx = 0;
 
-        CTPPSDetId rpId((*rec_pr.contributingLocalTracks().begin())->getRPId());
+        CTPPSDetId rpId((*rec_pr.contributingLocalTracks().begin())->rpId());
         idx = 100 * rpId.arm() + 10 * rpId.station() + rpId.rp();
       }
 

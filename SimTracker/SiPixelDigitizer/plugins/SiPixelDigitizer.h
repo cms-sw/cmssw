@@ -20,11 +20,11 @@
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
 namespace edm {
   class ConsumesCollector;
-  class ProducerBase;
   class Event;
   class EventSetup;
   class ParameterSet;
@@ -47,7 +47,7 @@ namespace CLHEP {
 namespace cms {
   class SiPixelDigitizer : public DigiAccumulatorMixMod {
   public:
-    explicit SiPixelDigitizer(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
+    explicit SiPixelDigitizer(const edm::ParameterSet& conf, edm::ProducesCollector, edm::ConsumesCollector& iC);
 
     ~SiPixelDigitizer() override;
 

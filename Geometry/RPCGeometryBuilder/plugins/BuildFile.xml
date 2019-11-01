@@ -1,11 +1,25 @@
+<use name="CondFormats/AlignmentRecord"/>
+<use name="CondFormats/Alignment"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/GeometryObjects"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
 <use name="Geometry/MuonNumbering"/>
 <use name="Geometry/Records"/>
-<use name="Geometry/RPCGeometry"/>
-<use name="Geometry/RPCGeometryBuilder"/>
-<use name="CondFormats/GeometryObjects"/>
+
+<library name="RPCGeometryPlugins" file="RPCGeometryESModule.cc">
 <use name="DetectorDescription/Core"/>
-<library file="RPCGeometryESModule.cc"> 
-  <flags EDM_PLUGIN="1"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="Geometry/RPCGeometry"/>
+<use name="dd4hep"/>
+<lib name="Geom"/>
+<use name="Geometry/RPCGeometryBuilder"/>
+<flags EDM_PLUGIN="1"/>
 </library>
 
-
+<library name="RPCGeometryValidationPlugins" file="RPCGeometryValidate.cc">
+  <use name="Fireworks/Core"/>
+  <use name="Geometry/RPCGeometry"/>
+  <use name="rootgeom"/>
+  <flags EDM_PLUGIN="1"/>
+</library> 

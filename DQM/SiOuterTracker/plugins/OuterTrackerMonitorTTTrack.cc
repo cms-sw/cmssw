@@ -74,13 +74,12 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
     int nBarrelStubs = 0;
     int nECStubs = 0;
 
-    double track_d0 = sqrt(tempTrackPtr->getPOCA().x() * tempTrackPtr->getPOCA().x() +
-                           tempTrackPtr->getPOCA().y() * tempTrackPtr->getPOCA().y());
-    double trackChi2 = tempTrackPtr->getChi2();
-    double trackChi2R = tempTrackPtr->getChi2Red();
+    double track_d0 = tempTrackPtr->d0();
+    double trackChi2 = tempTrackPtr->chi2();
+    double trackChi2R = tempTrackPtr->chi2Red();
 
     Track_NStubs->Fill(nStubs);
-    Track_Eta_NStubs->Fill(tempTrackPtr->getMomentum().eta(), nStubs);
+    Track_Eta_NStubs->Fill(tempTrackPtr->eta(), nStubs);
 
     std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
         theStubs = iterTTTrack.getStubRefs();
@@ -116,34 +115,34 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
     if (nStubs >= HQNStubs_ && trackChi2R <= HQChi2dof_) {
       numHQTracks++;
 
-      Track_HQ_Pt->Fill(tempTrackPtr->getMomentum().perp());
-      Track_HQ_Eta->Fill(tempTrackPtr->getMomentum().eta());
-      Track_HQ_Phi->Fill(tempTrackPtr->getMomentum().phi());
-      Track_HQ_VtxZ->Fill(tempTrackPtr->getPOCA().z());
+      Track_HQ_Pt->Fill(tempTrackPtr->getMomentum(4).perp());  //4 for now for backwards compatibility
+      Track_HQ_Eta->Fill(tempTrackPtr->eta());
+      Track_HQ_Phi->Fill(tempTrackPtr->phi());
+      Track_HQ_VtxZ->Fill(tempTrackPtr->z0());
       Track_HQ_Chi2->Fill(trackChi2);
       Track_HQ_Chi2Red->Fill(trackChi2R);
       Track_HQ_D0->Fill(track_d0);
       Track_HQ_Chi2Red_NStubs->Fill(nStubs, trackChi2R);
-      Track_HQ_Chi2Red_Eta->Fill(tempTrackPtr->getMomentum().eta(), trackChi2R);
-      Track_HQ_Eta_BarrelStubs->Fill(tempTrackPtr->getMomentum().eta(), nBarrelStubs);
-      Track_HQ_Eta_ECStubs->Fill(tempTrackPtr->getMomentum().eta(), nECStubs);
+      Track_HQ_Chi2Red_Eta->Fill(tempTrackPtr->eta(), trackChi2R);
+      Track_HQ_Eta_BarrelStubs->Fill(tempTrackPtr->eta(), nBarrelStubs);
+      Track_HQ_Eta_ECStubs->Fill(tempTrackPtr->eta(), nECStubs);
       Track_HQ_Chi2_Probability->Fill(ChiSquaredProbability(trackChi2, nStubs));
     }
 
     // LQ: now defined as all tracks (including HQ tracks)
     numLQTracks++;
 
-    Track_LQ_Pt->Fill(tempTrackPtr->getMomentum().perp());
-    Track_LQ_Eta->Fill(tempTrackPtr->getMomentum().eta());
-    Track_LQ_Phi->Fill(tempTrackPtr->getMomentum().phi());
-    Track_LQ_VtxZ->Fill(tempTrackPtr->getPOCA().z());
+    Track_LQ_Pt->Fill(tempTrackPtr->getMomentum(4).perp());
+    Track_LQ_Eta->Fill(tempTrackPtr->eta());
+    Track_LQ_Phi->Fill(tempTrackPtr->phi());
+    Track_LQ_VtxZ->Fill(tempTrackPtr->z0());
     Track_LQ_Chi2->Fill(trackChi2);
     Track_LQ_Chi2Red->Fill(trackChi2R);
     Track_LQ_D0->Fill(track_d0);
     Track_LQ_Chi2Red_NStubs->Fill(nStubs, trackChi2R);
-    Track_LQ_Chi2Red_Eta->Fill(tempTrackPtr->getMomentum().eta(), trackChi2R);
-    Track_LQ_Eta_BarrelStubs->Fill(tempTrackPtr->getMomentum().eta(), nBarrelStubs);
-    Track_LQ_Eta_ECStubs->Fill(tempTrackPtr->getMomentum().eta(), nECStubs);
+    Track_LQ_Chi2Red_Eta->Fill(tempTrackPtr->eta(), trackChi2R);
+    Track_LQ_Eta_BarrelStubs->Fill(tempTrackPtr->eta(), nBarrelStubs);
+    Track_LQ_Eta_ECStubs->Fill(tempTrackPtr->eta(), nECStubs);
     Track_LQ_Chi2_Probability->Fill(ChiSquaredProbability(trackChi2, nStubs));
 
   }  // End of loop over TTTracks
