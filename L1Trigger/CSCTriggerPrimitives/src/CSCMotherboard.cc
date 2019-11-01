@@ -164,8 +164,8 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
         // need to access "full BX" words, which are not readily
         // available.
         bool is_matched = false;
-        const int bx_alct_start = bx_clct - match_trig_window_size / 2;
-        const int bx_alct_stop = bx_clct + match_trig_window_size / 2;
+        const int bx_alct_start = bx_clct - match_trig_window_size / 2 + alctClctOffset_;
+        const int bx_alct_stop = bx_clct + match_trig_window_size / 2 + alctClctOffset_;
 
         for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
           if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS)
@@ -244,8 +244,8 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
         // need to access "full BX" words, which are not readily
         // available.
         bool is_matched = false;
-        const int bx_clct_start = bx_alct - match_trig_window_size / 2;
-        const int bx_clct_stop = bx_alct + match_trig_window_size / 2;
+        const int bx_clct_start = bx_alct - match_trig_window_size / 2 - alctClctOffset_;
+        const int bx_clct_stop = bx_alct + match_trig_window_size / 2 - alctClctOffset_;
 
         for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++) {
           if (bx_clct < 0 || bx_clct >= CSCConstants::MAX_CLCT_TBINS)

@@ -106,8 +106,8 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   // ALCT-centric matching
   for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {
     if (alctProc->getBestALCT(bx_alct).isValid()) {
-      const int bx_clct_start(bx_alct - match_trig_window_size / 2);
-      const int bx_clct_stop(bx_alct + match_trig_window_size / 2);
+      const int bx_clct_start(bx_alct - match_trig_window_size / 2 - alctClctOffset_);
+      const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - alctClctOffset_);
       const int bx_copad_start(bx_alct - maxDeltaBXCoPad_);
       const int bx_copad_stop(bx_alct + maxDeltaBXCoPad_);
 
@@ -292,8 +292,8 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       auto coPads(coPads_[bx_alct]);
       if (!coPads.empty()) {
         // keep it simple for the time being, only consider the first copad
-        const int bx_clct_start(bx_alct - match_trig_window_size / 2);
-        const int bx_clct_stop(bx_alct + match_trig_window_size / 2);
+        const int bx_clct_start(bx_alct - match_trig_window_size / 2 - alctClctOffset_);
+        const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - alctClctOffset_);
 
         // matching in ME1b
         if (buildLCTfromCLCTandGEM_ME1b_) {

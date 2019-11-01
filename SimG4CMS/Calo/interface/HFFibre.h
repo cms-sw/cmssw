@@ -5,7 +5,6 @@
 // Description: Calculates attenuation length
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"

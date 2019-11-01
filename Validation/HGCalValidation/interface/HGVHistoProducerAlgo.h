@@ -122,8 +122,8 @@ struct HGVHistoProducerAlgoHistograms {
   ConcurrentMonitorElement h_denom_multicl_phi;
   ConcurrentMonitorElement h_num_caloparticle_eta;
   ConcurrentMonitorElement h_num_caloparticle_phi;
-  ConcurrentMonitorElement h_numDup_caloparticle_eta;
-  ConcurrentMonitorElement h_numDup_caloparticle_phi;
+  ConcurrentMonitorElement h_numDup_multicl_eta;
+  ConcurrentMonitorElement h_numDup_multicl_phi;
   ConcurrentMonitorElement h_denom_caloparticle_eta;
   ConcurrentMonitorElement h_denom_caloparticle_phi;
   ConcurrentMonitorElement h_cellAssociation;
@@ -232,7 +232,7 @@ public:
 
   struct caloParticleOnLayer {
     unsigned int caloParticleId;
-    float energy = 0;
+    float energy = 0.f;
     std::vector<std::pair<DetId, float>> hits_and_fractions;
     std::unordered_map<int, std::pair<float, float>> layerClusterIdToEnergyAndScore;
   };

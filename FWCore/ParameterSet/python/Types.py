@@ -827,6 +827,9 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         return config
     def dumpPython(self, options=PrintOptions()):
         return self.pythonTypeName()+"(\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
+    # XXX FIXME handle refToPSet
+    def directDependencies(self):
+        return []
     def clone(self, **params):
         myparams = self.parameters_()
         _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
@@ -1141,6 +1144,9 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
             pset.insertContentsInto(newparameterset)
             parametersets.append(newparameterset)
         parameterSet.addVPSet(self.isTracked(), myname, parametersets)
+    # XXX FIXME handle refToPSet
+    def directDependencies(self):
+        return []
     def __repr__(self):
         return self.dumpPython()
 
@@ -1352,6 +1358,10 @@ class EDAlias(_ConfigureComponent,_Labelable,_Parameterizable):
             resultList.append(options.indentation()+name+' = '+param.dumpPython(options))
             options.unindent()
         return '\n'.join(resultList)+'\n)'
+
+    # an EDAlias only references other modules by label, so it does not need their definition
+    def directDependencies(self):
+        return []
 
 if __name__ == "__main__":
 

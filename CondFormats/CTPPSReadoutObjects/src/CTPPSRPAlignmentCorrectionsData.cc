@@ -50,7 +50,7 @@ CTPPSRPAlignmentCorrectionData CTPPSRPAlignmentCorrectionsData::getFullSensorCor
   CTPPSRPAlignmentCorrectionData align_corr;
 
   // try to get alignment correction of the full RP
-  auto rpIt = rps_.find(CTPPSDetId(id).getRPId());
+  auto rpIt = rps_.find(CTPPSDetId(id).rpId());
   if (rpIt != rps_.end())
     align_corr = rpIt->second;
 

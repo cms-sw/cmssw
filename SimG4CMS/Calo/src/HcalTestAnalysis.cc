@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"

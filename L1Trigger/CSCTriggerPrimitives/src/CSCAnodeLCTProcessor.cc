@@ -1,48 +1,6 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
 #include <set>
 
-//-----------------
-// Static variables
-//-----------------
-
-/* This is the pattern envelope, which is used to define the collision
-   patterns A and B.
-   pattern_envelope[0][i]=layer;
-   pattern_envelope[1+MEposition][i]=key_wire offset. */
-const int CSCAnodeLCTProcessor::pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN] = {
-    //Layer
-    {0, 0, 0, 1, 1, 2, 3, 3, 4, 4, 4, 5, 5, 5},
-
-    //Keywire offset for ME1 and ME2
-    {-2, -1, 0, -1, 0, 0, 0, 1, 0, 1, 2, 0, 1, 2},
-
-    //Keywire offset for ME3 and ME4
-    {2, 1, 0, 1, 0, 0, 0, -1, 0, -1, -2, 0, -1, -2}};
-
-// Since the test beams in 2003, both collision patterns are "completely
-// open".  This is our current default.
-const int CSCAnodeLCTProcessor::pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN] =
-    {
-        // Accelerator pattern
-        {0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0},
-
-        // Collision pattern A
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-
-        // Collision pattern B
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
-
-// Special option for narrow pattern for ring 1 stations
-const int CSCAnodeLCTProcessor::pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN] = {
-    // Accelerator pattern
-    {0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0},
-
-    // Collision pattern A
-    {0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0},
-
-    // Collision pattern B
-    {0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0}};
-
 // Default values of configuration parameters.
 const unsigned int CSCAnodeLCTProcessor::def_fifo_tbins = 16;
 const unsigned int CSCAnodeLCTProcessor::def_fifo_pretrig = 10;
@@ -152,9 +110,9 @@ void CSCAnodeLCTProcessor::loadPatternMask() {
   // Load appropriate pattern mask.
   for (int i_patt = 0; i_patt < CSCConstants::NUM_ALCT_PATTERNS; i_patt++) {
     for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
-      pattern_mask[i_patt][i_wire] = pattern_mask_open[i_patt][i_wire];
+      pattern_mask[i_patt][i_wire] = CSCPatternBank::alct_pattern_mask_open[i_patt][i_wire];
       if (narrow_mask_r1 && (theRing == 1 || theRing == 4))
-        pattern_mask[i_patt][i_wire] = pattern_mask_r1[i_patt][i_wire];
+        pattern_mask[i_patt][i_wire] = CSCPatternBank::alct_pattern_mask_r1[i_patt][i_wire];
     }
   }
 }
@@ -638,8 +596,8 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
 
       for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
         if (pattern_mask[i_pattern][i_wire] != 0) {
-          this_layer = pattern_envelope[0][i_wire];
-          this_wire = pattern_envelope[1 + MESelection][i_wire] + key_wire;
+          this_layer = CSCPatternBank::alct_pattern_envelope[i_wire];
+          this_wire = CSCPatternBank::alct_keywire_offset[MESelection][i_wire] + key_wire;
           if ((this_wire >= 0) && (this_wire < numWireGroups)) {
             // Perform bit operation to see if pulse is 1 at a certain bx_time.
             if (((pulse[this_layer][this_wire] >> bx_time) & 1) == 1) {
@@ -693,8 +651,8 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 
     for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
       if (pattern_mask[i_pattern][i_wire] != 0) {
-        this_layer = pattern_envelope[0][i_wire];
-        delta_wire = pattern_envelope[1 + MESelection][i_wire];
+        this_layer = CSCPatternBank::alct_pattern_envelope[i_wire];
+        delta_wire = CSCPatternBank::alct_keywire_offset[MESelection][i_wire];
         this_wire = delta_wire + key_wire;
         if ((this_wire >= 0) && (this_wire < numWireGroups)) {
           // Wait a drift_delay time later and look for layers hit in
@@ -1392,8 +1350,8 @@ void CSCAnodeLCTProcessor::showPatterns(const int key_wire) {
     for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
       if (pattern_mask[i_pattern][i_wire] != 0) {
         std::ostringstream strstrm_pulse;
-        int this_layer = pattern_envelope[0][i_wire];
-        int this_wire = pattern_envelope[1 + MESelection][i_wire] + key_wire;
+        int this_layer = CSCPatternBank::alct_pattern_envelope[i_wire];
+        int this_wire = CSCPatternBank::alct_keywire_offset[MESelection][i_wire] + key_wire;
         if (this_wire >= 0 && this_wire < numWireGroups) {
           for (int i = 1; i <= 32; i++) {
             strstrm_pulse << ((pulse[this_layer][this_wire] >> (32 - i)) & 1);

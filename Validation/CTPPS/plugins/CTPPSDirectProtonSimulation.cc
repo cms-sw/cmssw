@@ -343,7 +343,7 @@ void CTPPSDirectProtonSimulation::processProton(const HepMC::GenVertex* in_vtx,
       continue;
 
     // loop over all sensors in the RP
-    for (const auto& detIdInt : geometry.getSensorsInRP(rpId)) {
+    for (const auto& detIdInt : geometry.sensorsInRP(rpId)) {
       CTPPSDetId detId(detIdInt);
 
       // determine the track impact point (in global coordinates)

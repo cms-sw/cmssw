@@ -28,7 +28,7 @@ namespace {
   class TrackCollectionMerger final : public edm::global::EDProducer<> {
   public:
     explicit TrackCollectionMerger(const edm::ParameterSet& conf)
-        : collectionCloner(*this, conf, true),
+        : collectionCloner(producesCollector(), conf, true),
           priorityName_(conf.getParameter<std::string>("trackAlgoPriorityOrder")),
           m_foundHitBonus(conf.getParameter<double>("foundHitBonus")),
           m_lostHitPenalty(conf.getParameter<double>("lostHitPenalty")),

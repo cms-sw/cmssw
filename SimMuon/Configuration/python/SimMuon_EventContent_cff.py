@@ -54,18 +54,14 @@ SimMuonPREMIX = cms.PSet(
 )
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
-run2_GEM_2017.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonGEMDigis_*_*',
-                                                                                              'keep *_simMuonGEMPadDigis_*_*',
-                                                                                              'keep *_simMuonGEMPadDigiClusters_*_*'] )
+run2_GEM_2017.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonGEMDigis_*_*'] )
 run2_GEM_2017.toModify( SimMuonRAW, outputCommands = SimMuonRAW.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
 run2_GEM_2017.toModify( SimMuonRECO, outputCommands = SimMuonRECO.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
 run2_GEM_2017.toModify( SimMuonPREMIX, outputCommands = SimMuonPREMIX.outputCommands + ['keep *_mix_g4SimHitsMuonGEMHits_*'] )
 
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-run3_GEM.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonGEMDigis_*_*',
-                                                                                         'keep *_simMuonGEMPadDigis_*_*',
-                                                                                         'keep *_simMuonGEMPadDigiClusters_*_*'] )
+run3_GEM.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonGEMDigis_*_*'] )
 run3_GEM.toModify( SimMuonRAW, outputCommands = SimMuonRAW.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
 run3_GEM.toModify( SimMuonRECO, outputCommands = SimMuonRECO.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
 run3_GEM.toModify( SimMuonPREMIX, outputCommands = SimMuonPREMIX.outputCommands + ['keep *_mix_g4SimHitsMuonGEMHits_*'] )

@@ -20,6 +20,7 @@ EDProducts into an Event.
 namespace edm {
   class BranchDescription;
   class ModuleDescription;
+  class ProducesCollector;
   class ProductRegistry;
   class Event;
   class LuminosityBlock;
@@ -72,7 +73,6 @@ namespace edm {
 
     void registerProducts(ProducerBase*, ProductRegistry*, ModuleDescription const&);
 
-    using ProductRegistryHelper::produces;
     using ProductRegistryHelper::recordProvenanceList;
     using ProductRegistryHelper::typeLabelList;
 
@@ -93,6 +93,10 @@ namespace edm {
     std::vector<edm::ProductResolverIndex> const& putTokenIndexToProductResolverIndex() const {
       return putTokenToResolverIndex_;
     }
+
+  protected:
+    ProducesCollector producesCollector();
+    using ProductRegistryHelper::produces;
 
   private:
     friend class EDProducer;

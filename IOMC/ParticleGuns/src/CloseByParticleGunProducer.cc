@@ -85,7 +85,11 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     int PartID = particles[ip];
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
     double mass = PData->mass().value();
-    double mom = sqrt(fEn * fEn - mass * mass);
+    double mom2 = fEn * fEn - mass * mass;
+    double mom = 0.;
+    if (mom2 > 0.) {
+      mom = sqrt(mom2);
+    }
     double px = 0.;
     double py = 0.;
     double pz = mom;

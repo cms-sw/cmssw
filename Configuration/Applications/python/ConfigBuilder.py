@@ -1915,7 +1915,7 @@ class ConfigBuilder(object):
 
 
     def expandMapping(self,seqList,mapping,index=None):
-        maxLevel=20
+        maxLevel=25
         level=0
         while '@' in repr(seqList) and level<maxLevel:
             level+=1
