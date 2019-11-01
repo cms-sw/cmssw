@@ -1,4 +1,4 @@
-#include <RecoMTD/DetLayers/src/BTLDetLayerGeometryBuilder.h>
+#include "BTLDetLayerGeometryBuilder.h"
 
 #include <DataFormats/ForwardDetId/interface/BTLDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
