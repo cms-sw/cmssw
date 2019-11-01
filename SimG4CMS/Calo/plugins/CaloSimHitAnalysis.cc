@@ -72,7 +72,7 @@ private:
 
   static constexpr int nCalo_ = 6;
   TH1F *h_hit_[nCalo_], *h_time_[nCalo_], *h_edep_[nCalo_], *h_edepT_[nCalo_];
-  TH1F *h_edep1_[nCalo_], *h_edepT1_[nCalo_];
+  TH1F *h_timeT_[nCalo_], *h_edep1_[nCalo_], *h_edepT1_[nCalo_];
   TH1F *h_edepEM_[nCalo_], *h_edepHad_[nCalo_], *h_rr_[nCalo_], *h_zz_[nCalo_];
   TH1F *h_eta_[nCalo_], *h_phi_[nCalo_], *h_etot_[nCalo_], *h_etotg_[nCalo_];
   TH2F *h_rz_, *h_rz1_, *h_etaphi_;
@@ -124,9 +124,13 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
     h_time_[i] = tfile->make<TH1F>(name, title, 100, 0., 200.);
     h_time_[i]->GetXaxis()->SetTitle(title);
     h_time_[i]->GetYaxis()->SetTitle("Hits");
-    double ymax = 0.1;
-    if (i > 1)
-      ymax = 0.01;
+    sprintf(name, "TimeT%d", i);
+    sprintf(title, "Time of each hit (ns) in %s", dets[i].c_str());
+    h_timeT_[i] = tfile->make<TH1F>(name, title, 100, 0., 200.);
+    h_timeT_[i]->GetXaxis()->SetTitle(title);
+    h_timeT_[i]->GetYaxis()->SetTitle("Hits");
+    double ymax = (i > 1) ? 0.01 : 0.1;
+    double ymx0 = (i > 1) ? 0.0025 : 0.025;
     sprintf(name, "Edep%d", i);
     sprintf(title, "Energy deposit (GeV) in %s", dets[i].c_str());
     h_edep_[i] = tfile->make<TH1F>(name, title, 100, 0., ymax);
@@ -134,17 +138,17 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
     h_edep_[i]->GetYaxis()->SetTitle("Hits");
     sprintf(name, "EdepT%d", i);
     sprintf(title, "Energy deposit (GeV) of each hit in %s", dets[i].c_str());
-    h_edepT_[i] = tfile->make<TH1F>(name, title, 100, 0., ymax);
+    h_edepT_[i] = tfile->make<TH1F>(name, title, 100, 0., ymx0);
     h_edepT_[i]->GetXaxis()->SetTitle(title);
     h_edepT_[i]->GetYaxis()->SetTitle("Hits");
     sprintf(name, "EdepEM%d", i);
     sprintf(title, "Energy deposit (GeV) by EM particles in %s", dets[i].c_str());
-    h_edepEM_[i] = tfile->make<TH1F>(name, title, 100, 0., ymax);
+    h_edepEM_[i] = tfile->make<TH1F>(name, title, 100, 0., ymx0);
     h_edepEM_[i]->GetXaxis()->SetTitle(title);
     h_edepEM_[i]->GetYaxis()->SetTitle("Hits");
     sprintf(name, "EdepHad%d", i);
     sprintf(title, "Energy deposit (GeV) by hadrons in %s", dets[i].c_str());
-    h_edepHad_[i] = tfile->make<TH1F>(name, title, 100, 0., ymax);
+    h_edepHad_[i] = tfile->make<TH1F>(name, title, 100, 0., ymx0);
     h_edepHad_[i]->GetXaxis()->SetTitle(title);
     h_edepHad_[i]->GetYaxis()->SetTitle("Hits");
     sprintf(name, "Edep15%d", i);
@@ -154,7 +158,7 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
     h_edep1_[i]->GetYaxis()->SetTitle("Hits");
     sprintf(name, "EdepT15%d", i);
     sprintf(title, "Energy deposit (GeV) of each hit for T > %4.0f in %s", tCut_, dets[i].c_str());
-    h_edepT1_[i] = tfile->make<TH1F>(name, title, 100, 0., ymax);
+    h_edepT1_[i] = tfile->make<TH1F>(name, title, 100, 0., ymx0);
     h_edepT1_[i]->GetXaxis()->SetTitle(title);
     h_edepT1_[i]->GetYaxis()->SetTitle("Hits");
     ymax = (i > 1) ? 1.0 : maxEnergy_;
@@ -348,6 +352,7 @@ void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
       else
         ((itr->second).second) += edep;
       h_edepT_[idx]->Fill(edep);
+      h_timeT_[idx]->Fill(time);
       if (edepEM > 0)
         h_edepEM_[idx]->Fill(edepEM);
       if (edepHad > 0)
