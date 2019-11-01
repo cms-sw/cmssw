@@ -9,7 +9,7 @@ public:
         phi(0),
         m(0),
         id(0),
-        pfType(-1),
+        pdgId(-1),
         vtxId(-1),
         trkChi2(0),
         vtxChi2(0),
@@ -25,7 +25,7 @@ public:
 
   float pt, eta, phi, m, rapidity;  // kinematics
   int id;
-  int pfType;
+  int pdgId;
   int vtxId;          // Vertex Id from Vertex Collection
   float trkChi2;      // Track Chi2
   float vtxChi2;      // Vertex Chi2
