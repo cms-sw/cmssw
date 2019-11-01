@@ -42,14 +42,17 @@ public:
   static void globalEndJob(TrackstersCache*);
 
 private:
-  edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
-  edm::EDGetTokenT<std::vector<float>> filtered_layerclusters_mask_token_;
-  edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
-  edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
-  edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
-  edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seeding_regions_token_;
-
   std::unique_ptr<PatternRecognitionAlgoBase> myAlgo_;
+
+  const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
+  const edm::EDGetTokenT<std::vector<float>> filtered_layerclusters_mask_token_;
+  const edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> clustersTime_token_;
+  const edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
+  const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seeding_regions_token_;
+  const std::vector<int> filter_on_categories_;
+  const double pid_threshold_;
+
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
 
@@ -73,15 +76,15 @@ void TrackstersProducer::globalEndJob(TrackstersCache* cache) {
 }
 
 TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const TrackstersCache* cache)
-    : myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps, cache)) {
-  clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"));
-  filtered_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"));
-  original_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"));
-  clustersTime_token_ =
-      consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("time_layerclusters"));
-  layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
-  seeding_regions_token_ = consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"));
-
+    : myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps, cache)),
+    clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
+    filtered_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"))),
+    original_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"))),
+    clustersTime_token_(consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("time_layerclusters"))),
+    layer_clusters_tiles_token_(consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"))),
+    seeding_regions_token_(consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"))),
+    filter_on_categories_(ps.getParameter<std::vector<int>>("filter_on_categories")),
+    pid_threshold_(ps.getParameter<double>("pid_threshold")) {
   produces<std::vector<Trackster>>();
   produces<std::vector<float>>();  // Mask to be applied at the next iteration
 }
@@ -95,6 +98,8 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("time_layerclusters", edm::InputTag("hgcalLayerClusters", "timeLayerCluster"));
   desc.add<edm::InputTag>("layer_clusters_tiles", edm::InputTag("ticlLayerTileProducer"));
   desc.add<edm::InputTag>("seeding_regions", edm::InputTag("ticlSeedingRegionProducer"));
+  desc.add<std::vector<int>>("filter_on_categories", {0});
+  desc.add<double>("pid_threshold", 0.); // make default such that no filtering is applied
   desc.add<int>("algo_verbosity", 0);
   desc.add<double>("min_cos_theta", 0.915);
   desc.add<double>("min_cos_pointing", -1.);
@@ -146,6 +151,25 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   std::copy(std::begin(*original_layerclusters_mask_h),
             std::end(*original_layerclusters_mask_h),
             std::back_inserter(*output_mask));
+
+  // Filter results based on PID criteria.
+  // We want to **keep** tracksters whose cumulative
+  // probability summed up over the selected categories
+  // is greater than the chosen threshold. Therefore
+  // the filtering function should **discard** all
+  // tracksters **below** the threshold.
+  auto filter_on_pids = [&](Trackster & t)->bool {
+    auto cumulative_prob = 0.;
+    for (auto index : filter_on_categories_) {
+      cumulative_prob += t.id_probabilities[index];
+    }
+    return cumulative_prob <= pid_threshold_;
+  };
+
+  // Actually filter results and shrink size to fit
+  result->erase(std::remove_if(result->begin(),
+        result->end(), filter_on_pids), result->end());
+
   // Mask the used elements, accordingly
   for (auto const& trackster : *result) {
     for (auto const v : trackster.vertices) {
