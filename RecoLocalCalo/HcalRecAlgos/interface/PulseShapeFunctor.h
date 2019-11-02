@@ -9,7 +9,7 @@ namespace HcalConst {
   constexpr int maxPSshapeBin = 256;
   constexpr int nsPerBX = 25;
   constexpr float iniTimeShift = 92.5f;
-  constexpr double invertnsPerBx = 0.04;
+  constexpr float invertnsPerBx = 0.04f;
   constexpr int shiftTS = 4;
 
 }  // namespace HcalConst
