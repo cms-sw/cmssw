@@ -55,8 +55,6 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
                                              const HcalRecoParam* params,
                                              const HcalCalibrations& calibs,
                                              const bool isData) {
-  HBHERecHit rh;
-
   const HcalDetId channelId(info.id());
 
   // Calculate "Method 0" quantities
@@ -111,6 +109,8 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
   }
 
   // Finally, construct the rechit
+  HBHERecHit rh;
+
   float rhE = m0E;
   float rht = m0t;
   float rhX = -1.f;
