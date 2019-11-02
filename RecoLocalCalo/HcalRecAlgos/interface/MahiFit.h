@@ -127,16 +127,16 @@ public:
   const HcalTimeSlew* hcalTimeSlewDelay_ = nullptr;
 
 private:
-  double minimize() const;
+  const float minimize() const;
   void onePulseMinimize() const;
   void updateCov(const SampleMatrix & invCovMat) const;
-  void updatePulseShape(double itQ,
+  void updatePulseShape(const float itQ,
                         FullSampleVector& pulseShape,
                         FullSampleVector& pulseDeriv,
                         FullSampleMatrix& pulseCov) const;
 
   float calculateArrivalTime(unsigned int iBX) const;
-  double calculateChiSq() const;
+  float calculateChiSq() const;
   void nnls() const;
   void resetWorkspace() const;
 
