@@ -59,4 +59,3 @@ muonRecoHighLevelPbPb = cms.Sequence(muonRecoHighLevelPbPbTask)
 # HI muon sequence (passed to RecoHI.Configuration.Reconstruction_HI_cff)
 
 muonRecoPbPb = cms.Sequence(muonreco_plus_isolation_PbPbTask)
-

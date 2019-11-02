@@ -152,4 +152,3 @@ hiRegitMuonPixelLessStepTask = cms.Task(hiRegitMuPixelLessStepClusters,
                                         hiRegitMuPixelLessStepSelector)
 hiRegitMuonPixelLessStep = cms.Sequence(hiRegitMuonPixelLessStepTask)
 
-

@@ -50,6 +50,6 @@ hiRegitMuTracking = cms.Sequence(hiRegitMuTrackingTask)
 # Standalone muons
 from RecoMuon.Configuration.RecoMuonPPonly_cff import *
 
-hiRegitMuTrackingAndStaTask = cms.Task(standalonemuontracking
-      ,hiRegitMuTracking)
+hiRegitMuTrackingAndStaTask = cms.Task(standalonemuontrackingTask
+                                 ,hiRegitMuTrackingTask)
 hiRegitMuTrackingAndSta = cms.Sequence(hiRegitMuTrackingAndStaTask)

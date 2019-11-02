@@ -45,7 +45,7 @@ from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
 pfTrackElec.applyGsfTrackCleaning = cms.bool(True)
 pfTrackElec.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
 
-hiElectronTask = cms.Task(electronGsfTrackingHi ,                                 
+hiElectronTask = cms.Task(electronGsfTrackingHiTask ,   
                                   pfTrack ,
                                   pfTrackElec ,
                                   gsfEcalDrivenElectronTask 

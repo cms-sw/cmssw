@@ -183,7 +183,7 @@ hiRegitMuonSeededStepExtra = cms.Sequence(hiRegitMuonSeededStepExtraTask)
 hiRegitMuonSeededStepTask = cms.Task(
       hiEarlyGeneralTracks ,
       hiEarlyMuons ,
-      hiRegitMuonSeededStepCore ,
-      hiRegitMuonSeededStepExtra 
+      hiRegitMuonSeededStepCoreTask ,
+      hiRegitMuonSeededStepExtraTask 
       )
 hiRegitMuonSeededStep = cms.Sequence(hiRegitMuonSeededStepTask)
