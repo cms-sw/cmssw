@@ -17,14 +17,11 @@ namespace reco {
   public:
     reco::PFCandidate operator()(edm::FwdPtr<reco::PFCandidate> const& input) const {
       reco::PFCandidate output(*input);
-      /* really, what's the point in this ? The one below should be enough
-      //and the one loop here is a torture of converting Ptr<PFCandidate> to Ptr<Candidate> and back
-      for ( unsigned int isource = 0; isource < input->numberOfSourceCandidatePtrs(); ++isource ) {
-	edm::Ptr<reco::PFCandidate> ptr (input->sourceCandidatePtr(isource) );
-	output.setSourceCandidatePtr( ptr );
-      }
-      */
-      output.setSourceCandidatePtr(input.backPtr());
+
+      if (input.backPtr().isAvailable())
+        output.setSourceCandidatePtr(input.backPtr());
+      else  //we are in a job where the original collection is gone
+        output.setSourceCandidatePtr(input.ptr());
       return output;
     }
   };
