@@ -197,6 +197,7 @@ void PFEGammaProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       switch (elements[0].type()) {
         case reco::PFBlockElement::SC:
           edm::LogError("PFEGammaProducer") << "PFBLOCKALGO BUG!!!! Found a SuperCluster in a block by itself!";
+          break;
         case reco::PFBlockElement::PS1:
         case reco::PFBlockElement::PS2:
         case reco::PFBlockElement::ECAL:
