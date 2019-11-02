@@ -39,11 +39,14 @@ pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVer
 
 # Clone tau producer
 pfTausProducer = hpsPFTauProducer.clone()
-pfTausCombiner = combinatoricRecoTaus.clone()
-pfTausCombiner.jetSrc= cms.InputTag("ak4PFJets")
-pfTausCombiner.piZeroSrc= "pfJetsLegacyHPSPiZeros"
-pfTausCombiner.chargedHadronSrc='pfTauPFJetsRecoTauChargedHadrons'
-pfTausCombiner.modifiers[3].pfTauTagInfoSrc=cms.InputTag("pfTauTagInfoProducer")
+pfTausCombiner = combinatoricRecoTaus.clone(
+    jetSrc = "ak4PFJets",
+    piZeroSrc = "pfJetsLegacyHPSPiZeros",
+    chargedHadronSrc = "pfTauPFJetsRecoTauChargedHadrons"
+)
+for mod in pfTausCombiner.modifiers:
+    if mod.name == "TTIworkaround": mod.pfTauTagInfoSrc = "pfTauTagInfoProducer"
+
 pfTausSelectionDiscriminator = hpsSelectionDiscriminator.clone()
 pfTausSelectionDiscriminator.PFTauProducer = cms.InputTag("pfTausCombiner")
 pfTausProducerSansRefs = hpsPFTauProducerSansRefs.clone()
@@ -125,6 +128,7 @@ pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVer
 
 pfTausPreSequence = cms.Sequence(
     pfJetTracksAssociatorAtVertex +
+    recoTauAK4PFJets08Region +
     pfTauPileUpVertices +
     pfTauTagInfoProducer
 )
