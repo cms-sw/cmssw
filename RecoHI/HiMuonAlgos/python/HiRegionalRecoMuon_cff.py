@@ -58,13 +58,13 @@ remuIsolation_muonsTask  = cms.Task(remuIsoDeposits_muonsTask)
 remuIsolationTask            = cms.Task(remuIsolation_muonsTask)
 remuIsolation            = cms.Sequence(remuIsolationTask)
 #run this if there are no STA muons in events
-muontrackingTask                    = cms.Task(standAloneMuonSeedsTask , standAloneMuons , hiRegitMuTracking , reglobalMuons)
+muontrackingTask                    = cms.Task(standAloneMuonSeedsTask , standAloneMuons , hiRegitMuTrackingTask , reglobalMuons)
 muontracking                        = cms.Sequence(muontrackingTask)
 
 #the default setting assumes the STA is already in the event
-muontracking_reTask                 = cms.Task(hiRegitMuTracking , reglobalMuons)
+muontracking_reTask                 = cms.Task(hiRegitMuTrackingTask , reglobalMuons)
 muontracking_re                     = cms.Sequence(muontracking_reTask)
-muontracking_with_TeVRefinement_reTask  = cms.Task(muontracking_re , retevMuons)
+muontracking_with_TeVRefinement_reTask  = cms.Task(muontracking_reTask , retevMuons)
 muontracking_with_TeVRefinement_re  = cms.Sequence(muontracking_with_TeVRefinement_reTask)
 muonreco_reTask                     = cms.Task(muontracking_reTask , remuonIdProducerTask)
 muonreco_re                         = cms.Sequence(muonreco_reTask)
@@ -73,6 +73,6 @@ muonrecowith_TeVRefinemen_re        = cms.Sequence(muonrecowith_TeVRefinemen_reT
 muonreco_plus_isolation_reTask      = cms.Task(muonrecowith_TeVRefinemen_reTask , remuIsolationTask)
 muonreco_plus_isolation_re          = cms.Sequence(muonreco_plus_isolation_reTask)
 
-reMuonTrackRecoPbPb                 = cms.Sequence(muontracking_re)
+reMuonTrackRecoPbPb                 = cms.Sequence(muontracking_reTask)
 # HI muon sequence (passed to RecoHI.Configuration.Reconstruction_HI_cff)
-regionalMuonRecoPbPb                      = cms.Sequence(muonreco_plus_isolation_re)
+regionalMuonRecoPbPb                      = cms.Sequence(muonreco_plus_isolation_reTask)

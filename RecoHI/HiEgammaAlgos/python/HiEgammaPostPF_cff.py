@@ -12,5 +12,5 @@ eidLoose.verticesCollection = "hiSelectedVertex"
 eidTight.verticesCollection = "hiSelectedVertex"
 hfRecoEcalCandidate.VertexCollection = "hiSelectedVertex"
 
-egammaHighLevelRecoPostPFTask = cms.Task(interestingEgammaIsoDetIds,egmIsolationTask,photonIDTask,photonIDTaskGED,eIdTask,hfEMClusteringTask)
+egammaHighLevelRecoPostPFTask = cms.Task(interestingEgammaIsoDetIdsTask,egmIsolationTask,photonIDTask,photonIDTaskGED,eIdTask,hfEMClusteringTask)
 egammaHighLevelRecoPostPF = cms.Sequence(egammaHighLevelRecoPostPFTask)
