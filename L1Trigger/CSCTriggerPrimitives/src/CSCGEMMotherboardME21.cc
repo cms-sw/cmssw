@@ -87,7 +87,6 @@ void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
   retrieveGEMPads(gemPads, gemId);
   retrieveGEMCoPads();
 
-  const bool hasPads(!pads_.empty());
   const bool hasCoPads(!coPads_.empty());
 
   // ALCT centric matching
