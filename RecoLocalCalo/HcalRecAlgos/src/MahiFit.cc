@@ -68,7 +68,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     auto const pedWidth = channelData.tsPedestalWidth(iTS);
 
     //Photostatistics
-    auto const noisePhoto = (amplitude > pedWidth) ? std::sqrt(amplitude * channelData.fcByPE()) : 0;
+    auto const noisePhoto = (amplitude > pedWidth) ? std::sqrt(amplitude * channelData.fcByPE()) : 0.f;
 
     //Total uncertainty from all sources
     nnlsWork_.noiseTerms.coeffRef(iTS) = noiseADC * noiseADC + noisePhoto * noisePhoto + pedWidth * pedWidth;
@@ -172,7 +172,7 @@ void MahiFit::doFit(std::array<float, 3>& correctedOutput, int nbx) const {
     }
   }
 
-  double chiSq = minimize();
+  const float chiSq = minimize();
 
   bool foundintime = false;
   unsigned int ipulseintime = 0;
@@ -200,7 +200,7 @@ void MahiFit::doFit(std::array<float, 3>& correctedOutput, int nbx) const {
   }
 }
 
-double MahiFit::minimize() const {
+const float MahiFit::minimize() const {
   nnlsWork_.invcovp.setZero(nnlsWork_.tsSize, nnlsWork_.nPulseTot);
   nnlsWork_.ampVec.setZero(nnlsWork_.nPulseTot);
 
@@ -220,8 +220,8 @@ double MahiFit::minimize() const {
       onePulseMinimize();
     }
 
-    double newChiSq = calculateChiSq();
-    double deltaChiSq = newChiSq - chiSq;
+    const float newChiSq = calculateChiSq();
+    const float deltaChiSq = newChiSq - chiSq;
 
     if (newChiSq == oldChiSq && newChiSq < chiSq) {
       break;
@@ -236,14 +236,14 @@ double MahiFit::minimize() const {
   return chiSq;
 }
 
-void MahiFit::updatePulseShape(double itQ,
+void MahiFit::updatePulseShape(const float itQ,
                                FullSampleVector& pulseShape,
                                FullSampleVector& pulseDeriv,
                                FullSampleMatrix& pulseCov) const {
   float t0 = meanTime_;
 
   if (applyTimeSlew_) {
-    if (itQ <= 1.0)
+    if (itQ <= 1.f)
       t0 += tsDelay1GeV_;
     else
       t0 += hcalTimeSlewDelay_->delay(float(itQ), slewFlavor_);
@@ -282,7 +282,7 @@ void MahiFit::updatePulseShape(double itQ,
 
   for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
     for (unsigned int jTS = 0; jTS < iTS + 1; ++jTS) {
-      double tmp = 0.5 * (pulseP[iTS + delta] * pulseP[jTS + delta] + pulseM[iTS + delta] * pulseM[jTS + delta]);
+      float const tmp = 0.5 * (pulseP[iTS + delta] * pulseP[jTS + delta] + pulseM[iTS + delta] * pulseM[jTS + delta]);
 
       pulseCov(jTS + nnlsWork_.maxoffset, iTS + nnlsWork_.maxoffset) = tmp;
       if (iTS != jTS)
@@ -346,8 +346,8 @@ void MahiFit::nnls() const {
 
   int iter = 0;
   Index idxwmax = 0;
-  double wmax = 0.0;
-  double threshold = nnlsThresh_;
+  float wmax = 0.0f;
+  float threshold = nnlsThresh_;
 
   while (true) {
     if (iter > 0 || nnlsWork_.nP == 0) {
@@ -361,7 +361,7 @@ void MahiFit::nnls() const {
       updateWork = nnlsWork_.aTbVec - nnlsWork_.aTaMat * nnlsWork_.ampVec;
 
       Index idxwmaxprev = idxwmax;
-      double wmaxprev = wmax;
+      float wmaxprev = wmax;
       wmax = updateWork.tail(nActive).maxCoeff(&idxwmax);
 
       if (wmax < threshold || (idxwmax == idxwmaxprev && wmax == wmaxprev)) {
@@ -386,7 +386,7 @@ void MahiFit::nnls() const {
       solveSubmatrix(nnlsWork_.aTaMat, nnlsWork_.aTbVec, ampvecpermtest, nnlsWork_.nP);
 
       //check solution
-      if (ampvecpermtest.head(nnlsWork_.nP).minCoeff() > 0.) {
+      if (ampvecpermtest.head(nnlsWork_.nP).minCoeff() > 0.f) {
 	nnlsWork_.ampVec.head(nnlsWork_.nP) = ampvecpermtest.head(nnlsWork_.nP);
 	break;
       }
@@ -395,11 +395,11 @@ void MahiFit::nnls() const {
       Index minratioidx = 0;
 
       // no realizable optimization here (because it autovectorizes!)
-      double minratio = std::numeric_limits<double>::max();
+      float minratio = std::numeric_limits<float>::max();
       for (unsigned int ipulse = 0; ipulse < nnlsWork_.nP; ++ipulse) {
-        if (ampvecpermtest.coeff(ipulse) <= 0.) {
-          const double c_ampvec = nnlsWork_.ampVec.coeff(ipulse);
-          const double ratio = c_ampvec / (c_ampvec - ampvecpermtest.coeff(ipulse));
+        if (ampvecpermtest.coeff(ipulse) <= 0.f) {
+          const float c_ampvec = nnlsWork_.ampVec.coeff(ipulse);
+          const float ratio = c_ampvec / (c_ampvec - ampvecpermtest.coeff(ipulse));
           if (ratio < minratio) {
             minratio = ratio;
             minratioidx = ipulse;
@@ -410,7 +410,7 @@ void MahiFit::nnls() const {
           minratio * (ampvecpermtest.head(nnlsWork_.nP) - nnlsWork_.ampVec.head(nnlsWork_.nP));
 
       //avoid numerical problems with later ==0. check
-      nnlsWork_.ampVec.coeffRef(minratioidx) = 0.;
+      nnlsWork_.ampVec.coeffRef(minratioidx) = 0.f;
 
       nnlsConstrainParameter(minratioidx);
     }
@@ -429,13 +429,13 @@ void MahiFit::onePulseMinimize() const {
 
   nnlsWork_.invcovp = nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.pulseMat);
 
-  double aTaCoeff = (nnlsWork_.invcovp.transpose() * nnlsWork_.invcovp).coeff(0);
-  double aTbCoeff = (nnlsWork_.invcovp.transpose() * (nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.amplitudes))).coeff(0);
+  float aTaCoeff = (nnlsWork_.invcovp.transpose() * nnlsWork_.invcovp).coeff(0);
+  float aTbCoeff = (nnlsWork_.invcovp.transpose() * (nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.amplitudes))).coeff(0);
 
-  nnlsWork_.ampVec.coeffRef(0) = std::max(0., aTbCoeff / aTaCoeff);
+  nnlsWork_.ampVec.coeffRef(0) = std::max(0.f, aTbCoeff / aTaCoeff);
 }
 
-double MahiFit::calculateChiSq() const {
+float MahiFit::calculateChiSq() const {
   return (nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.pulseMat * nnlsWork_.ampVec - nnlsWork_.amplitudes))
       .squaredNorm();
 }
@@ -559,43 +559,43 @@ void MahiFit::solveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& 
   using namespace Eigen;
   switch (nP) {  // pulse matrix is always square.
     case 10: {
-      Matrix<double, 10, 10> temp = mat;
+      Matrix<float, 10, 10> temp = mat;
       outvec.head<10>() = temp.ldlt().solve(invec.head<10>());
     } break;
     case 9: {
-      Matrix<double, 9, 9> temp = mat.topLeftCorner<9, 9>();
+      Matrix<float, 9, 9> temp = mat.topLeftCorner<9, 9>();
       outvec.head<9>() = temp.ldlt().solve(invec.head<9>());
     } break;
     case 8: {
-      Matrix<double, 8, 8> temp = mat.topLeftCorner<8, 8>();
+      Matrix<float, 8, 8> temp = mat.topLeftCorner<8, 8>();
       outvec.head<8>() = temp.ldlt().solve(invec.head<8>());
     } break;
     case 7: {
-      Matrix<double, 7, 7> temp = mat.topLeftCorner<7, 7>();
+      Matrix<float, 7, 7> temp = mat.topLeftCorner<7, 7>();
       outvec.head<7>() = temp.ldlt().solve(invec.head<7>());
     } break;
     case 6: {
-      Matrix<double, 6, 6> temp = mat.topLeftCorner<6, 6>();
+      Matrix<float, 6, 6> temp = mat.topLeftCorner<6, 6>();
       outvec.head<6>() = temp.ldlt().solve(invec.head<6>());
     } break;
     case 5: {
-      Matrix<double, 5, 5> temp = mat.topLeftCorner<5, 5>();
+      Matrix<float, 5, 5> temp = mat.topLeftCorner<5, 5>();
       outvec.head<5>() = temp.ldlt().solve(invec.head<5>());
     } break;
     case 4: {
-      Matrix<double, 4, 4> temp = mat.topLeftCorner<4, 4>();
+      Matrix<float, 4, 4> temp = mat.topLeftCorner<4, 4>();
       outvec.head<4>() = temp.ldlt().solve(invec.head<4>());
     } break;
     case 3: {
-      Matrix<double, 3, 3> temp = mat.topLeftCorner<3, 3>();
+      Matrix<float, 3, 3> temp = mat.topLeftCorner<3, 3>();
       outvec.head<3>() = temp.ldlt().solve(invec.head<3>());
     } break;
     case 2: {
-      Matrix<double, 2, 2> temp = mat.topLeftCorner<2, 2>();
+      Matrix<float, 2, 2> temp = mat.topLeftCorner<2, 2>();
       outvec.head<2>() = temp.ldlt().solve(invec.head<2>());
     } break;
     case 1: {
-      Matrix<double, 1, 1> temp = mat.topLeftCorner<1, 1>();
+      Matrix<float, 1, 1> temp = mat.topLeftCorner<1, 1>();
       outvec.head<1>() = temp.ldlt().solve(invec.head<1>());
     } break;
     default:
