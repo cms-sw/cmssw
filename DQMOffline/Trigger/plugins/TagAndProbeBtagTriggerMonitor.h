@@ -10,49 +10,35 @@
 
 #include <string>
 #include <vector>
-#include <map>
 
-#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
-#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-
-//DataFormats
-
-//
-// class declaration
-//
-
 class TagAndProbeBtagTriggerMonitor : public DQMEDAnalyzer {
-public:
+
+ public:
   TagAndProbeBtagTriggerMonitor(const edm::ParameterSet&);
-  ~TagAndProbeBtagTriggerMonitor() override;
+  ~TagAndProbeBtagTriggerMonitor() throw() override;
 
-protected:
-  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
-private:
-  std::string folderName_;
+ private:
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
+
   std::string processname_;
   std::string triggerobjbtag_;
 
@@ -92,9 +78,7 @@ private:
   MonitorElement* discr_offline_btag_jet1_;
   MonitorElement* discr_offline_btag_jet2_;
 
-  GenericTriggerEventFlag* genTriggerEventFlag_;  // tag & probe: trigger flag for num and den
-
-  HLTConfigProvider hltConfig_;
+  std::unique_ptr<GenericTriggerEventFlag> genTriggerEventFlag_;  // tag & probe: trigger flag for num and den
 };
 
-#endif  // DQMOffline_Trigger_TagAndProbeBtagTriggerMonitor_H
+#endif

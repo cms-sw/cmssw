@@ -7,22 +7,19 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-//DataFormats
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -36,79 +33,25 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
-class GenericTriggerEventFlag;
+class PhotonMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 
-struct MEbinning {
-  unsigned int nbins;
-  double xmin;
-  double xmax;
-};
+ public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
 
-struct PhotonME {
-  dqm::reco::MonitorElement* numerator;
-  dqm::reco::MonitorElement* denominator;
-};
-//
-// class declaration
-//
-
-class PhotonMonitor : public DQMEDAnalyzer {
-public:
   PhotonMonitor(const edm::ParameterSet&);
-  ~PhotonMonitor() override;
+  ~PhotonMonitor() throw() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
-  static void fillHistoLSPSetDescription(edm::ParameterSetDescription& pset);
 
-protected:
+ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void bookME(DQMStore::IBooker&,
-              PhotonME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              unsigned int nbins,
-              double xmin,
-              double xmax);
-  void bookME(DQMStore::IBooker&,
-              PhotonME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              const std::vector<double>& binningX);
-  void bookME(DQMStore::IBooker&,
-              PhotonME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              unsigned int nbinsX,
-              double xmin,
-              double xmax,
-              double ymin,
-              double ymax);
-  void bookME(DQMStore::IBooker&,
-              PhotonME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              unsigned int nbinsX,
-              double xmin,
-              double xmax,
-              unsigned int nbinsY,
-              double ymin,
-              double ymax);
-  void bookME(DQMStore::IBooker&,
-              PhotonME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              const std::vector<double>& binningX,
-              const std::vector<double>& binningY);
-  void setTitle(PhotonME& me, const std::string& titleX, const std::string& titleY);
-
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
-private:
-  static MEbinning getHistoPSet(edm::ParameterSet const& pset);
-  static MEbinning getHistoLSPSet(edm::ParameterSet const& pset);
+ private:
+  const std::string folderName_;
 
-  std::string folderName_;
-  std::string histoSuffix_;
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
 
   edm::EDGetTokenT<reco::PFMETCollection> metToken_;
   edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
@@ -121,23 +64,23 @@ private:
   MEbinning photon_binning_;
   MEbinning ls_binning_;
 
-  PhotonME subphotonEtaME_;
-  PhotonME subphotonME_;
-  PhotonME subphotonPhiME_;
-  PhotonME subphotonME_variableBinning_;
-  PhotonME subphotonEtaPhiME_;
-  PhotonME subphotonr9ME_;
-  PhotonME subphotonHoverEME_;
-  PhotonME diphotonMassME_;
+  ObjME subphotonEtaME_;
+  ObjME subphotonME_;
+  ObjME subphotonPhiME_;
+  ObjME subphotonME_variableBinning_;
+  ObjME subphotonEtaPhiME_;
+  ObjME subphotonr9ME_;
+  ObjME subphotonHoverEME_;
+  ObjME diphotonMassME_;
 
-  PhotonME photonEtaME_;
-  PhotonME photonME_;
-  PhotonME photonPhiME_;
-  PhotonME photonME_variableBinning_;
-  PhotonME photonVsLS_;
-  PhotonME photonEtaPhiME_;
-  PhotonME photonr9ME_;
-  PhotonME photonHoverEME_;
+  ObjME photonEtaME_;
+  ObjME photonME_;
+  ObjME photonPhiME_;
+  ObjME photonME_variableBinning_;
+  ObjME photonVsLS_;
+  ObjME photonEtaPhiME_;
+  ObjME photonr9ME_;
+  ObjME photonHoverEME_;
 
   double MAX_PHI1 = 3.2;
   unsigned int N_PHI1 = 64;
@@ -156,9 +99,6 @@ private:
   double MIN_hoe = 0;
   const MEbinning hoe_binning_{N_r9, MIN_hoe, MAX_hoe};
 
-  //  GenericTriggerEventFlag* num_genTriggerEventFlag_;
-  //GenericTriggerEventFlag* den_genTriggerEventFlag_;
-
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
 
@@ -171,4 +111,4 @@ private:
   unsigned int nelectrons_;
 };
 
-#endif  // PhotonMonitor_H
+#endif

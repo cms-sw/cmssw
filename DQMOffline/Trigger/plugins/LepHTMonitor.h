@@ -1,66 +1,48 @@
 #ifndef DQMOffline_Trigger_LepHTMonitor_h
 #define DQMOffline_Trigger_LepHTMonitor_h
 
-//event
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-//DQM
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
-
-//Electron
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-
-//Muon
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-
-//MET
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
-
-//Jets
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-
-//Trigger
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
-//Vertices
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
-//Conversions
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
-
-//Beam spot
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-class GenericTriggerEventFlag;
+class LepHTMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 
-class LepHTMonitor : public DQMEDAnalyzer {
-public:
+ public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+
   LepHTMonitor(const edm::ParameterSet& ps);
-  ~LepHTMonitor() override;
+  ~LepHTMonitor() throw() override;
 
-protected:
+ protected:
   void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event& e, const edm::EventSetup& eSetup) override;
 
-private:
-  //variables from config file
+ private:
   edm::InputTag theElectronTag_;
   edm::EDGetTokenT<edm::View<reco::GsfElectron> > theElectronCollection_;
   edm::InputTag theElectronVIDTag_;
@@ -73,18 +55,21 @@ private:
   edm::EDGetTokenT<reco::PFJetCollection> thePfJetCollection_;
   edm::InputTag theJetTagTag_;
   edm::EDGetTokenT<reco::JetTagCollection> theJetTagCollection_;
-
   edm::InputTag theVertexCollectionTag_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexCollection_;
   edm::InputTag theConversionCollectionTag_;
   edm::EDGetTokenT<reco::ConversionCollection> theConversionCollection_;
   edm::InputTag theBeamSpotTag_;
   edm::EDGetTokenT<reco::BeamSpot> theBeamSpot_;
+
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_lep_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_HT_genTriggerEventFlag_;
 
-  std::string folderName_;
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
 
   int muonIDlevel_;
 
@@ -130,4 +115,4 @@ private:
   MonitorElement* h_NPVTurnOn_den_;
 };
 
-#endif  // ! DQMOffline_Trigger_LepHTMonitor_h
+#endif

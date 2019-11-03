@@ -5,29 +5,14 @@
 #include <vector>
 #include <map>
 
-#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
-
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-// DataFormats
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -40,14 +25,9 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-class GenericTriggerEventFlag;
-
-//
-// class declaration
-//
-
 class METplusTrackMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
-public:
+
+ public:
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
@@ -55,17 +35,17 @@ public:
   ~METplusTrackMonitor() noexcept(true) override {}
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-protected:
+ protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
 
-private:
-  bool getHLTObj(const edm::Handle<trigger::TriggerEvent> &trigSummary,
-                 const edm::InputTag &filterTag,
-                 trigger::TriggerObject &obj) const;
+ private:
+  bool getHLTObj(const edm::Handle<trigger::TriggerEvent> &trigSummary, const edm::InputTag &filterTag, trigger::TriggerObject &obj) const;
 
-  std::string folderName_;
-  std::string histoSuffix_;
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
 
   edm::EDGetTokenT<reco::CaloMETCollection> metToken_;
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
@@ -116,4 +96,4 @@ private:
   double maxMatchDeltaR_;
 };
 
-#endif  // DQMOFFLINE_TRIGGER_METPLUSTRACKMONITOR_H
+#endif

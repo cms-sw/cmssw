@@ -3,115 +3,46 @@
 
 #include <string>
 #include <vector>
-#include <map>
 
-#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-//DataFormats
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-class GenericTriggerEventFlag;
+class MuonMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 
-struct MEbinning {
-  unsigned int nbins;
-  double xmin;
-  double xmax;
-};
+ public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
 
-struct MuonME {
-  dqm::reco::MonitorElement* numerator;
-  dqm::reco::MonitorElement* denominator;
-};
-//
-// class declaration
-//
-
-class MuonMonitor : public DQMEDAnalyzer {
-public:
   MuonMonitor(const edm::ParameterSet&);
-  ~MuonMonitor() override;
+  ~MuonMonitor() throw() override;
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
-  static void fillHistoLSPSetDescription(edm::ParameterSetDescription& pset);
 
-protected:
+ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void bookME(DQMStore::IBooker&,
-              MuonME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              int nbins,
-              double xmin,
-              double xmax);
-  void bookME(DQMStore::IBooker&,
-              MuonME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              const std::vector<double>& binningX);
-  void bookME(DQMStore::IBooker&,
-              MuonME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              int nbinsX,
-              double xmin,
-              double xmax,
-              double ymin,
-              double ymax);
-  void bookME(DQMStore::IBooker&,
-              MuonME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              int nbinsX,
-              double xmin,
-              double xmax,
-              int nbinsY,
-              double ymin,
-              double ymax);
-  void bookME(DQMStore::IBooker&,
-              MuonME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              const std::vector<double>& binningX,
-              const std::vector<double>& binningY);
-  void setTitle(MuonME& me, const std::string& titleX, const std::string& titleY);
-
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
-private:
-  static MEbinning getHistoPSet(edm::ParameterSet const& pset);
-  static MEbinning getHistoLSPSet(edm::ParameterSet const& pset);
+ private:
+  const std::string folderName_;
 
-  std::string folderName_;
-  std::string histoSuffix_;
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
 
   edm::EDGetTokenT<reco::PFMETCollection> metToken_;
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
@@ -139,19 +70,19 @@ private:
   std::vector<double> muEta_variable_binning_2D_;
   std::vector<double> eleEta_variable_binning_2D_;
 
-  MuonME muonME_;
-  MuonME muonEtaME_;
-  MuonME muonPhiME_;
-  MuonME muonME_variableBinning_;
-  MuonME muonVsLS_;
-  MuonME muonEtaPhiME_;
-  MuonME muondxy_;
-  MuonME muondz_;
-  MuonME muonEtaME_variableBinning_;
-  MuonME eleME_variableBinning_;
-  MuonME eleEtaME_;
-  MuonME eleEta_muEta_;
-  MuonME elePt_muPt_;
+  ObjME muonME_;
+  ObjME muonEtaME_;
+  ObjME muonPhiME_;
+  ObjME muonME_variableBinning_;
+  ObjME muonVsLS_;
+  ObjME muonEtaPhiME_;
+  ObjME muondxy_;
+  ObjME muondz_;
+  ObjME muonEtaME_variableBinning_;
+  ObjME eleME_variableBinning_;
+  ObjME eleEtaME_;
+  ObjME eleEta_muEta_;
+  ObjME elePt_muPt_;
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
@@ -159,9 +90,9 @@ private:
   StringCutObjectSelector<reco::MET, true> metSelection_;
   StringCutObjectSelector<reco::Muon, true> muonSelection_;
   StringCutObjectSelector<reco::GsfElectron, true> eleSelection_;
-  unsigned int njets_;
+
   unsigned int nmuons_;
   unsigned int nelectrons_;
 };
 
-#endif  // DQMOffline_Trigger_MuonMonitor_h
+#endif

@@ -1,11 +1,11 @@
 #include "DQMOffline/Trigger/plugins/DiDispStaMuonMonitor.h"
-
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DiDispStaMuonMonitor::DiDispStaMuonMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
       muonToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       muonPt_variable_binning_(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("muonPtBinning")),
@@ -28,266 +28,115 @@ DiDispStaMuonMonitor::DiDispStaMuonMonitor(const edm::ParameterSet& iConfig)
       muonSelectionPt_(iConfig.getParameter<edm::ParameterSet>("muonSelection").getParameter<std::string>("pt")),
       muonSelectionDxy_(iConfig.getParameter<edm::ParameterSet>("muonSelection").getParameter<std::string>("dxy")),
       nmuons_(iConfig.getParameter<unsigned int>("nmuons")) {
-  muonPtME_.numerator = nullptr;
-  muonPtME_.denominator = nullptr;
-  muonPtNoDxyCutME_.numerator = nullptr;
-  muonPtNoDxyCutME_.denominator = nullptr;
-  muonPtME_variableBinning_.numerator = nullptr;
-  muonPtME_variableBinning_.denominator = nullptr;
-  muonPtVsLS_.numerator = nullptr;
-  muonPtVsLS_.denominator = nullptr;
-  muonEtaME_.numerator = nullptr;
-  muonEtaME_.denominator = nullptr;
-  muonPhiME_.numerator = nullptr;
-  muonPhiME_.denominator = nullptr;
-  muonDxyME_.numerator = nullptr;
-  muonDxyME_.denominator = nullptr;
-
-  subMuonPtME_.numerator = nullptr;
-  subMuonPtME_.denominator = nullptr;
-  subMuonPtME_variableBinning_.numerator = nullptr;
-  subMuonPtME_variableBinning_.denominator = nullptr;
-  subMuonEtaME_.numerator = nullptr;
-  subMuonEtaME_.denominator = nullptr;
-  subMuonPhiME_.numerator = nullptr;
-  subMuonPhiME_.denominator = nullptr;
-  subMuonDxyME_.numerator = nullptr;
-  subMuonDxyME_.denominator = nullptr;
 }
 
-DiDispStaMuonMonitor::~DiDispStaMuonMonitor() = default;
+DiDispStaMuonMonitor::~DiDispStaMuonMonitor() throw() {
 
-DiDispStaMuonMonitor::MEbinning DiDispStaMuonMonitor::getHistoPSet(const edm::ParameterSet& pset) {
-  return MEbinning{
-      pset.getParameter<unsigned int>("nbins"),
-      pset.getParameter<double>("xmin"),
-      pset.getParameter<double>("xmax"),
-  };
+  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
+  if(den_genTriggerEventFlag_){ den_genTriggerEventFlag_.reset(); }
 }
 
-DiDispStaMuonMonitor::MEbinning DiDispStaMuonMonitor::getHistoLSPSet(const edm::ParameterSet& pset) {
-  return MEbinning{pset.getParameter<unsigned int>("nbins"), 0., double(pset.getParameter<unsigned int>("nbins"))};
-}
+void DiDispStaMuonMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
 
-void DiDispStaMuonMonitor::setTitle(DiDispStaMuonME& me,
-                                    const std::string& titleX,
-                                    const std::string& titleY,
-                                    bool bookDen) {
-  me.numerator->setAxisTitle(titleX, 1);
-  me.numerator->setAxisTitle(titleY, 2);
-  if (bookDen) {
-    me.denominator->setAxisTitle(titleX, 1);
-    me.denominator->setAxisTitle(titleY, 2);
+  // Initialize the GenericTriggerEventFlag
+  if(num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()){ num_genTriggerEventFlag_->initRun(iRun, iSetup); }
+  if(den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()){ den_genTriggerEventFlag_->initRun(iRun, iSetup); }
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                       den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
+                       den_genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
   }
-}
 
-void DiDispStaMuonMonitor::bookME(DQMStore::IBooker& ibooker,
-                                  DiDispStaMuonME& me,
-                                  const std::string& histname,
-                                  const std::string& histtitle,
-                                  int nbins,
-                                  double min,
-                                  double max) {
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, min, max);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, min, max);
-}
-void DiDispStaMuonMonitor::bookME(DQMStore::IBooker& ibooker,
-                                  DiDispStaMuonME& me,
-                                  const std::string& histname,
-                                  const std::string& histtitle,
-                                  const std::vector<double>& binning) {
-  int nbins = binning.size() - 1;
-  std::vector<float> fbinning(binning.begin(), binning.end());
-  float* arr = &fbinning[0];
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, arr);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, arr);
-}
-void DiDispStaMuonMonitor::bookME(DQMStore::IBooker& ibooker,
-                                  DiDispStaMuonME& me,
-                                  const std::string& histname,
-                                  const std::string& histtitle,
-                                  int nbinsX,
-                                  double xmin,
-                                  double xmax,
-                                  double ymin,
-                                  double ymax,
-                                  bool bookDen) {
-  me.numerator =
-      ibooker.bookProfile(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, ymin, ymax);
-  if (bookDen)
-    me.denominator =
-        ibooker.bookProfile(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, ymin, ymax);
-}
-void DiDispStaMuonMonitor::bookME(DQMStore::IBooker& ibooker,
-                                  DiDispStaMuonME& me,
-                                  const std::string& histname,
-                                  const std::string& histtitle,
-                                  int nbinsX,
-                                  double xmin,
-                                  double xmax,
-                                  int nbinsY,
-                                  double ymin,
-                                  double ymax) {
-  me.numerator =
-      ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-  me.denominator =
-      ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-}
-void DiDispStaMuonMonitor::bookME(DQMStore::IBooker& ibooker,
-                                  DiDispStaMuonME& me,
-                                  const std::string& histname,
-                                  const std::string& histtitle,
-                                  const std::vector<double>& binningX,
-                                  const std::vector<double>& binningY) {
-  int nbinsX = binningX.size() - 1;
-  std::vector<float> fbinningX(binningX.begin(), binningX.end());
-  float* arrX = &fbinningX[0];
-  int nbinsY = binningY.size() - 1;
-  std::vector<float> fbinningY(binningY.begin(), binningY.end());
-  float* arrY = &fbinningY[0];
-
-  me.numerator = ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, arrX, nbinsY, arrY);
-  me.denominator = ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, arrX, nbinsY, arrY);
-}
-
-void DiDispStaMuonMonitor::bookHistograms(DQMStore::IBooker& ibooker,
-                                          edm::Run const& iRun,
-                                          edm::EventSetup const& iSetup) {
   std::string histname, histtitle;
-  bool bookDen;
+
 
   std::string currentFolder = folderName_;
   ibooker.setCurrentFolder(currentFolder);
 
   histname = "muonPt";
   histtitle = "muonPt";
-  bookDen = true;
+
   bookME(ibooker, muonPtME_, histname, histtitle, muonPt_binning_.nbins, muonPt_binning_.xmin, muonPt_binning_.xmax);
-  setTitle(muonPtME_, "DisplacedStandAlone Muon p_{T} [GeV]", "Events / [GeV]", bookDen);
+  setMETitle(muonPtME_, "DisplacedStandAlone Muon p_{T} [GeV]", "Events / [GeV]");
 
   histname = "muonPtNoDxyCut";
   histtitle = "muonPtNoDxyCut";
-  bookDen = true;
-  bookME(ibooker,
-         muonPtNoDxyCutME_,
-         histname,
-         histtitle,
-         muonPt_binning_.nbins,
-         muonPt_binning_.xmin,
-         muonPt_binning_.xmax);
-  setTitle(muonPtNoDxyCutME_, "DisplacedStandAlone Muon p_{T} [GeV] without Dxy cut", "Events / [GeV]", bookDen);
+  bookME(ibooker, muonPtNoDxyCutME_, histname, histtitle, muonPt_binning_.nbins, muonPt_binning_.xmin, muonPt_binning_.xmax);
+  setMETitle(muonPtNoDxyCutME_, "DisplacedStandAlone Muon p_{T} [GeV] without Dxy cut", "Events / [GeV]");
 
   histname = "muonPt_variable";
   histtitle = "muonPt";
-  bookDen = true;
   bookME(ibooker, muonPtME_variableBinning_, histname, histtitle, muonPt_variable_binning_);
-  setTitle(muonPtME_variableBinning_, "DisplacedStandAlone Muon p_{T} [GeV]", "Events / [GeV]", bookDen);
+  setMETitle(muonPtME_variableBinning_, "DisplacedStandAlone Muon p_{T} [GeV]", "Events / [GeV]");
 
   histname = "muonPtVsLS";
   histtitle = "muonPt vs LS";
-  bookDen = true;
-  bookME(ibooker,
-         muonPtVsLS_,
-         histname,
-         histtitle,
-         ls_binning_.nbins,
-         ls_binning_.xmin,
-         ls_binning_.xmax,
-         muonPt_binning_.xmin,
-         muonPt_binning_.xmax,
-         bookDen);
-  setTitle(muonPtVsLS_, "LS", "DisplacedStandAlone Muon p_{T} [GeV]", bookDen);
+  bookME(ibooker, muonPtVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, muonPt_binning_.xmin, muonPt_binning_.xmax);
+  setMETitle(muonPtVsLS_, "LS", "DisplacedStandAlone Muon p_{T} [GeV]");
 
   histname = "muonEta";
   histtitle = "muonEta";
-  bookDen = true;
-  bookME(
-      ibooker, muonEtaME_, histname, histtitle, muonEta_binning_.nbins, muonEta_binning_.xmin, muonEta_binning_.xmax);
-  setTitle(muonEtaME_, "DisplacedStandAlone Muon #eta", "Events", bookDen);
+  bookME(ibooker, muonEtaME_, histname, histtitle, muonEta_binning_.nbins, muonEta_binning_.xmin, muonEta_binning_.xmax);
+  setMETitle(muonEtaME_, "DisplacedStandAlone Muon #eta", "Events");
 
   histname = "muonPhi";
   histtitle = "muonPhi";
-  bookDen = true;
-  bookME(
-      ibooker, muonPhiME_, histname, histtitle, muonPhi_binning_.nbins, muonPhi_binning_.xmin, muonPhi_binning_.xmax);
-  setTitle(muonPhiME_, "DisplacedStandAlone Muon #phi", "Events", bookDen);
+  bookME(ibooker, muonPhiME_, histname, histtitle, muonPhi_binning_.nbins, muonPhi_binning_.xmin, muonPhi_binning_.xmax);
+  setMETitle(muonPhiME_, "DisplacedStandAlone Muon #phi", "Events");
 
   histname = "muonDxy";
   histtitle = "muonDxy";
-  bookDen = true;
-  bookME(
-      ibooker, muonDxyME_, histname, histtitle, muonDxy_binning_.nbins, muonDxy_binning_.xmin, muonDxy_binning_.xmax);
-  setTitle(muonDxyME_, "DisplacedStandAlone Muon #dxy", "Events", bookDen);
-
-  //-----------------------
-  //                      |
-  //-----------------------
+  bookME(ibooker, muonDxyME_, histname, histtitle, muonDxy_binning_.nbins, muonDxy_binning_.xmin, muonDxy_binning_.xmax);
+  setMETitle(muonDxyME_, "DisplacedStandAlone Muon #dxy", "Events");
 
   if (nmuons_ > 1) {
+
     histname = "subMuonPt";
     histtitle = "subMuonPt";
-    bookDen = true;
-    bookME(
-        ibooker, subMuonPtME_, histname, histtitle, muonPt_binning_.nbins, muonPt_binning_.xmin, muonPt_binning_.xmax);
-    setTitle(subMuonPtME_, "Subleading DisplacedStandAlone Muon p_{T} [GeV]", "Events / [GeV]", bookDen);
+    bookME(ibooker, subMuonPtME_, histname, histtitle, muonPt_binning_.nbins, muonPt_binning_.xmin, muonPt_binning_.xmax);
+    setMETitle(subMuonPtME_, "Subleading DisplacedStandAlone Muon p_{T} [GeV]", "Events / [GeV]");
 
     histname = "subMuonPt_variable";
     histtitle = "subMuonPt";
-    bookDen = true;
     bookME(ibooker, subMuonPtME_variableBinning_, histname, histtitle, muonPt_variable_binning_);
-    setTitle(
-        subMuonPtME_variableBinning_, "Subleading DisplacedStandAlone Muon p_{T} [GeV]", "Events / [GeV]", bookDen);
+    setMETitle(subMuonPtME_variableBinning_, "Subleading DisplacedStandAlone Muon p_{T} [GeV]", "Events / [GeV]");
 
     histname = "subMuonEta";
     histtitle = "subMuonEta";
-    bookDen = true;
-    bookME(ibooker,
-           subMuonEtaME_,
-           histname,
-           histtitle,
-           muonEta_binning_.nbins,
-           muonEta_binning_.xmin,
-           muonEta_binning_.xmax);
-    setTitle(subMuonEtaME_, "Subleading DisplacedStandAlone Muon #eta", "Events", bookDen);
+    bookME(ibooker, subMuonEtaME_, histname, histtitle, muonEta_binning_.nbins, muonEta_binning_.xmin, muonEta_binning_.xmax);
+    setMETitle(subMuonEtaME_, "Subleading DisplacedStandAlone Muon #eta", "Events");
 
     histname = "subMuonPhi";
     histtitle = "subMuonPhi";
-    bookDen = true;
-    bookME(ibooker,
-           subMuonPhiME_,
-           histname,
-           histtitle,
-           muonPhi_binning_.nbins,
-           muonPhi_binning_.xmin,
-           muonPhi_binning_.xmax);
-    setTitle(subMuonPhiME_, "Subleading DisplacedStandAlone Muon #phi", "Events", bookDen);
+    bookME(ibooker, subMuonPhiME_, histname, histtitle, muonPhi_binning_.nbins, muonPhi_binning_.xmin, muonPhi_binning_.xmax);
+    setMETitle(subMuonPhiME_, "Subleading DisplacedStandAlone Muon #phi", "Events");
 
     histname = "subMuonDxy";
     histtitle = "subMuonDxy";
-    bookDen = true;
-    bookME(ibooker,
-           subMuonDxyME_,
-           histname,
-           histtitle,
-           muonDxy_binning_.nbins,
-           muonDxy_binning_.xmin,
-           muonDxy_binning_.xmax);
-    setTitle(subMuonDxyME_, "Subleading DisplacedStandAlone Muon #dxy", "Events", bookDen);
+    bookME(ibooker, subMuonDxyME_, histname, histtitle, muonDxy_binning_.nbins, muonDxy_binning_.xmin, muonDxy_binning_.xmax);
+    setMETitle(subMuonDxyME_, "Subleading DisplacedStandAlone Muon #dxy", "Events");
   }
-
-  // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
-    den_genTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
 void DiDispStaMuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
     return;
 
-  int ls = iEvent.id().luminosityBlock();
+  const int ls = iEvent.id().luminosityBlock();
 
   edm::Handle<reco::TrackCollection> DSAHandle;
   iEvent.getByToken(muonToken_, DSAHandle);
@@ -392,19 +241,10 @@ void DiDispStaMuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup con
   }
 }
 
-void DiDispStaMuonMonitor::fillHistoPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<unsigned int>("nbins", 200);
-  pset.add<double>("xmin", -0.5);
-  pset.add<double>("xmax", 19999.5);
-}
-
-void DiDispStaMuonMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<unsigned int>("nbins", 2000);
-}
-
 void DiDispStaMuonMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/EXO/DiDispStaMuon");
+  desc.add<bool>("requireValidHLTPaths", false);
 
   desc.add<edm::InputTag>("muons", edm::InputTag("displacedStandAloneMuons"));
   desc.add<unsigned int>("nmuons", 2);
@@ -457,5 +297,4 @@ void DiDispStaMuonMonitor::fillDescriptions(edm::ConfigurationDescriptions& desc
   descriptions.add("DiDispStaMuonMonitoring", desc);
 }
 
-// Define this as a plug-in
 DEFINE_FWK_MODULE(DiDispStaMuonMonitor);

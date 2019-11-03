@@ -14,50 +14,35 @@
 #include <vector>
 #include <map>
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-
-//DataFormats
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-
-//Hemispheres
 #include "HLTrigger/JetMET/interface/HLTRHemisphere.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "TLorentzVector.h"
 
-class GenericTriggerEventFlag;
+class RazorMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 
-struct RazorME {
-  dqm::reco::MonitorElement* numerator;
-  dqm::reco::MonitorElement* denominator;
-};
-//
-// class declaration
-//
+ public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
 
-class RazorMonitor : public DQMEDAnalyzer {
-public:
   RazorMonitor(const edm::ParameterSet&);
-  ~RazorMonitor() override;
+  ~RazorMonitor() throw() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   static double CalcMR(const math::XYZTLorentzVector& ja, const math::XYZTLorentzVector& jb);
@@ -66,52 +51,15 @@ public:
                       const math::XYZTLorentzVector& jb,
                       const edm::Handle<std::vector<reco::PFMET> >& met);
 
-protected:
+ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void bookME(DQMStore::IBooker&,
-              RazorME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              int nbins,
-              double xmin,
-              double xmax);
-  void bookME(DQMStore::IBooker&,
-              RazorME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              const std::vector<double>& binningX);
-  void bookME(DQMStore::IBooker&,
-              RazorME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              int nbinsX,
-              double xmin,
-              double xmax,
-              double ymin,
-              double ymax);
-  void bookME(DQMStore::IBooker&,
-              RazorME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              int nbinsX,
-              double xmin,
-              double xmax,
-              int nbinsY,
-              double ymin,
-              double ymax);
-  void bookME(DQMStore::IBooker&,
-              RazorME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              const std::vector<double>& binningX,
-              const std::vector<double>& binningY);
-  void setMETitle(RazorME& me, const std::string& titleX, const std::string& titleY);
-
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
-private:
-  std::string folderName_;
-  std::string histoSuffix_;
+ private:
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
 
   edm::EDGetTokenT<reco::PFMETCollection> metToken_;
   edm::EDGetTokenT<reco::PFJetCollection> jetToken_;
@@ -121,10 +69,10 @@ private:
   std::vector<double> mr_binning_;
   std::vector<double> dphiR_binning_;
 
-  RazorME MR_ME_;
-  RazorME Rsq_ME_;
-  RazorME dPhiR_ME_;
-  RazorME MRVsRsq_ME_;
+  ObjME MR_ME_;
+  ObjME Rsq_ME_;
+  ObjME dPhiR_ME_;
+  ObjME MRVsRsq_ME_;
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;

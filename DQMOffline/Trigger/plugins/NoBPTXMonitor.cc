@@ -1,11 +1,11 @@
 #include "DQMOffline/Trigger/plugins/NoBPTXMonitor.h"
-
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 NoBPTXMonitor::NoBPTXMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
       jetToken_(consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
       muonToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       jetE_variable_binning_(
@@ -36,394 +36,153 @@ NoBPTXMonitor::NoBPTXMonitor(const edm::ParameterSet& iConfig)
       muonSelection_(iConfig.getParameter<std::string>("muonSelection")),
       njets_(iConfig.getParameter<unsigned int>("njets")),
       nmuons_(iConfig.getParameter<unsigned int>("nmuons")) {
-  jetENoBPTX_.numerator = nullptr;
-  jetENoBPTX_.denominator = nullptr;
-  jetENoBPTX_variableBinning_.numerator = nullptr;
-  jetENoBPTX_variableBinning_.denominator = nullptr;
-  jetEVsLS_.numerator = nullptr;
-  jetEVsLS_.denominator = nullptr;
-  jetEVsBX_.numerator = nullptr;
-  jetEtaNoBPTX_.numerator = nullptr;
-  jetEtaNoBPTX_.denominator = nullptr;
-  jetEtaVsLS_.numerator = nullptr;
-  jetEtaVsBX_.numerator = nullptr;
-  jetPhiNoBPTX_.numerator = nullptr;
-  jetPhiNoBPTX_.denominator = nullptr;
-  jetPhiVsLS_.numerator = nullptr;
-  jetPhiVsBX_.numerator = nullptr;
-
-  muonPtNoBPTX_.numerator = nullptr;
-  muonPtNoBPTX_.denominator = nullptr;
-  muonPtNoBPTX_variableBinning_.numerator = nullptr;
-  muonPtNoBPTX_variableBinning_.denominator = nullptr;
-  muonPtVsLS_.numerator = nullptr;
-  muonPtVsBX_.numerator = nullptr;
-  muonEtaNoBPTX_.numerator = nullptr;
-  muonEtaNoBPTX_.denominator = nullptr;
-  muonEtaVsLS_.numerator = nullptr;
-  muonEtaVsBX_.numerator = nullptr;
-  muonPhiNoBPTX_.numerator = nullptr;
-  muonPhiNoBPTX_.denominator = nullptr;
-  muonPhiVsLS_.numerator = nullptr;
-  muonPhiVsBX_.numerator = nullptr;
 }
 
-NoBPTXMonitor::~NoBPTXMonitor() = default;
+NoBPTXMonitor::~NoBPTXMonitor() throw() {
 
-NoBPTXMonitor::NoBPTXbinning NoBPTXMonitor::getHistoPSet(const edm::ParameterSet& pset) {
-  return NoBPTXbinning{
-      pset.getParameter<unsigned int>("nbins"),
-      pset.getParameter<double>("xmin"),
-      pset.getParameter<double>("xmax"),
-  };
-}
-
-NoBPTXMonitor::NoBPTXbinning NoBPTXMonitor::getHistoLSPSet(const edm::ParameterSet& pset) {
-  return NoBPTXbinning{pset.getParameter<unsigned int>("nbins"), 0., double(pset.getParameter<unsigned int>("nbins"))};
-}
-
-void NoBPTXMonitor::setNoBPTXTitle(NoBPTXME& me, const std::string& titleX, const std::string& titleY, bool bookDen) {
-  me.numerator->setAxisTitle(titleX, 1);
-  me.numerator->setAxisTitle(titleY, 2);
-  if (bookDen) {
-    me.denominator->setAxisTitle(titleX, 1);
-    me.denominator->setAxisTitle(titleY, 2);
-  }
-}
-
-void NoBPTXMonitor::bookNoBPTX(DQMStore::IBooker& ibooker,
-                               NoBPTXME& me,
-                               const std::string& histname,
-                               const std::string& histtitle,
-                               int nbins,
-                               double min,
-                               double max) {
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, min, max);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, min, max);
-}
-void NoBPTXMonitor::bookNoBPTX(DQMStore::IBooker& ibooker,
-                               NoBPTXME& me,
-                               const std::string& histname,
-                               const std::string& histtitle,
-                               const std::vector<double>& binning) {
-  int nbins = binning.size() - 1;
-  std::vector<float> fbinning(binning.begin(), binning.end());
-  float* arr = &fbinning[0];
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, arr);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, arr);
-}
-void NoBPTXMonitor::bookNoBPTX(DQMStore::IBooker& ibooker,
-                               NoBPTXME& me,
-                               const std::string& histname,
-                               const std::string& histtitle,
-                               int nbinsX,
-                               double xmin,
-                               double xmax,
-                               double ymin,
-                               double ymax,
-                               bool bookDen) {
-  me.numerator =
-      ibooker.bookProfile(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, ymin, ymax);
-  if (bookDen)
-    me.denominator =
-        ibooker.bookProfile(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, ymin, ymax);
-}
-void NoBPTXMonitor::bookNoBPTX(DQMStore::IBooker& ibooker,
-                               NoBPTXME& me,
-                               const std::string& histname,
-                               const std::string& histtitle,
-                               int nbinsX,
-                               double xmin,
-                               double xmax,
-                               int nbinsY,
-                               double ymin,
-                               double ymax) {
-  me.numerator =
-      ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-  me.denominator =
-      ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-}
-void NoBPTXMonitor::bookNoBPTX(DQMStore::IBooker& ibooker,
-                               NoBPTXME& me,
-                               const std::string& histname,
-                               const std::string& histtitle,
-                               const std::vector<double>& binningX,
-                               const std::vector<double>& binningY) {
-  int nbinsX = binningX.size() - 1;
-  std::vector<float> fbinningX(binningX.begin(), binningX.end());
-  float* arrX = &fbinningX[0];
-  int nbinsY = binningY.size() - 1;
-  std::vector<float> fbinningY(binningY.begin(), binningY.end());
-  float* arrY = &fbinningY[0];
-
-  me.numerator = ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, arrX, nbinsY, arrY);
-  me.denominator = ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, arrX, nbinsY, arrY);
+  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
+  if(den_genTriggerEventFlag_){ den_genTriggerEventFlag_.reset(); }
 }
 
 void NoBPTXMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  std::string histname, histtitle;
-  bool bookDen;
-
-  std::string currentFolder = folderName_;
-  ibooker.setCurrentFolder(currentFolder);
-
-  histname = "jetE";
-  histtitle = "jetE";
-  bookDen = true;
-  bookNoBPTX(ibooker, jetENoBPTX_, histname, histtitle, jetE_binning_.nbins, jetE_binning_.xmin, jetE_binning_.xmax);
-  setNoBPTXTitle(jetENoBPTX_, "Jet E [GeV]", "Events / [GeV]", bookDen);
-
-  histname = "jetE_variable";
-  histtitle = "jetE";
-  bookDen = true;
-  bookNoBPTX(ibooker, jetENoBPTX_variableBinning_, histname, histtitle, jetE_variable_binning_);
-  setNoBPTXTitle(jetENoBPTX_variableBinning_, "Jet E [GeV]", "Events / [GeV]", bookDen);
-
-  histname = "jetEVsLS";
-  histtitle = "jetE vs LS";
-  bookDen = true;
-  bookNoBPTX(ibooker,
-             jetEVsLS_,
-             histname,
-             histtitle,
-             ls_binning_.nbins,
-             ls_binning_.xmin,
-             ls_binning_.xmax,
-             jetE_binning_.xmin,
-             jetE_binning_.xmax,
-             bookDen);
-  setNoBPTXTitle(jetEVsLS_, "LS", "Jet E [GeV]", bookDen);
-
-  histname = "jetEVsBX";
-  histtitle = "jetE vs BX";
-  bookDen = false;
-  bookNoBPTX(ibooker,
-             jetEVsBX_,
-             histname,
-             histtitle,
-             bx_binning_.nbins,
-             bx_binning_.xmin,
-             bx_binning_.xmax,
-             jetE_binning_.xmin,
-             jetE_binning_.xmax,
-             bookDen);
-  setNoBPTXTitle(jetEVsBX_, "BX", "Jet E [GeV]", bookDen);
-
-  histname = "jetEta";
-  histtitle = "jetEta";
-  bookDen = true;
-  bookNoBPTX(
-      ibooker, jetEtaNoBPTX_, histname, histtitle, jetEta_binning_.nbins, jetEta_binning_.xmin, jetEta_binning_.xmax);
-  setNoBPTXTitle(jetEtaNoBPTX_, "Jet #eta", "Events", bookDen);
-
-  histname = "jetEtaVsLS";
-  histtitle = "jetEta vs LS";
-  bookDen = false;
-  bookNoBPTX(ibooker,
-             jetEtaVsLS_,
-             histname,
-             histtitle,
-             ls_binning_.nbins,
-             ls_binning_.xmin,
-             ls_binning_.xmax,
-             jetEta_binning_.xmin,
-             jetEta_binning_.xmax,
-             bookDen);
-  setNoBPTXTitle(jetEtaVsLS_, "LS", "Jet #eta", bookDen);
-
-  histname = "jetEtaVsBX";
-  histtitle = "jetEta vs BX";
-  bookDen = false;
-  bookNoBPTX(ibooker,
-             jetEtaVsBX_,
-             histname,
-             histtitle,
-             bx_binning_.nbins,
-             bx_binning_.xmin,
-             bx_binning_.xmax,
-             jetEta_binning_.xmin,
-             jetEta_binning_.xmax,
-             bookDen);
-  setNoBPTXTitle(jetEtaVsBX_, "BX", "Jet #eta", bookDen);
-
-  histname = "jetPhi";
-  histtitle = "jetPhi";
-  bookDen = true;
-  bookNoBPTX(
-      ibooker, jetPhiNoBPTX_, histname, histtitle, jetPhi_binning_.nbins, jetPhi_binning_.xmin, jetPhi_binning_.xmax);
-  setNoBPTXTitle(jetPhiNoBPTX_, "Jet #phi", "Events", bookDen);
-
-  histname = "jetPhiVsLS";
-  histtitle = "jetPhi vs LS";
-  bookDen = false;
-  bookNoBPTX(ibooker,
-             jetPhiVsLS_,
-             histname,
-             histtitle,
-             ls_binning_.nbins,
-             ls_binning_.xmin,
-             ls_binning_.xmax,
-             jetPhi_binning_.xmin,
-             jetPhi_binning_.xmax,
-             bookDen);
-  setNoBPTXTitle(jetPhiVsLS_, "LS", "Jet #phi", bookDen);
-
-  histname = "jetPhiVsBX";
-  histtitle = "jetPhi vs BX";
-  bookDen = false;
-  bookNoBPTX(ibooker,
-             jetPhiVsBX_,
-             histname,
-             histtitle,
-             bx_binning_.nbins,
-             bx_binning_.xmin,
-             bx_binning_.xmax,
-             jetPhi_binning_.xmin,
-             jetPhi_binning_.xmax,
-             bookDen);
-  setNoBPTXTitle(jetPhiVsBX_, "BX", "Jet #phi", bookDen);
-
-  histname = "muonPt";
-  histtitle = "muonPt";
-  bookDen = true;
-  bookNoBPTX(
-      ibooker, muonPtNoBPTX_, histname, histtitle, muonPt_binning_.nbins, muonPt_binning_.xmin, muonPt_binning_.xmax);
-  setNoBPTXTitle(muonPtNoBPTX_, "DisplacedStandAlone Muon p_{T} [GeV]", "Events / [GeV]", bookDen);
-
-  histname = "muonPt_variable";
-  histtitle = "muonPt";
-  bookDen = true;
-  bookNoBPTX(ibooker, muonPtNoBPTX_variableBinning_, histname, histtitle, muonPt_variable_binning_);
-  setNoBPTXTitle(muonPtNoBPTX_variableBinning_, "DisplacedStandAlone Muon p_{T} [GeV]", "Events / [GeV]", bookDen);
-
-  histname = "muonPtVsLS";
-  histtitle = "muonPt vs LS";
-  bookDen = false;
-  bookNoBPTX(ibooker,
-             muonPtVsLS_,
-             histname,
-             histtitle,
-             ls_binning_.nbins,
-             ls_binning_.xmin,
-             ls_binning_.xmax,
-             muonPt_binning_.xmin,
-             muonPt_binning_.xmax,
-             bookDen);
-  setNoBPTXTitle(muonPtVsLS_, "LS", "DisplacedStandAlone Muon p_{T} [GeV]", bookDen);
-
-  histname = "muonPtVsBX";
-  histtitle = "muonPt vs BX";
-  bookDen = false;
-  bookNoBPTX(ibooker,
-             muonPtVsBX_,
-             histname,
-             histtitle,
-             bx_binning_.nbins,
-             bx_binning_.xmin,
-             bx_binning_.xmax,
-             muonPt_binning_.xmin,
-             muonPt_binning_.xmax,
-             bookDen);
-  setNoBPTXTitle(muonPtVsBX_, "BX", "DisplacedStandAlone Muon p_{T} [GeV]", bookDen);
-
-  histname = "muonEta";
-  histtitle = "muonEta";
-  bookDen = true;
-  bookNoBPTX(ibooker,
-             muonEtaNoBPTX_,
-             histname,
-             histtitle,
-             muonEta_binning_.nbins,
-             muonEta_binning_.xmin,
-             muonEta_binning_.xmax);
-  setNoBPTXTitle(muonEtaNoBPTX_, "DisplacedStandAlone Muon #eta", "Events", bookDen);
-
-  histname = "muonEtaVsLS";
-  histtitle = "muonEta vs LS";
-  bookDen = false;
-  bookNoBPTX(ibooker,
-             muonEtaVsLS_,
-             histname,
-             histtitle,
-             ls_binning_.nbins,
-             ls_binning_.xmin,
-             ls_binning_.xmax,
-             muonEta_binning_.xmin,
-             muonEta_binning_.xmax,
-             bookDen);
-  setNoBPTXTitle(muonEtaVsLS_, "LS", "DisplacedStandAlone Muon #eta", bookDen);
-
-  histname = "muonEtaVsBX";
-  histtitle = "muonEta vs BX";
-  bookDen = false;
-  bookNoBPTX(ibooker,
-             muonEtaVsBX_,
-             histname,
-             histtitle,
-             bx_binning_.nbins,
-             bx_binning_.xmin,
-             bx_binning_.xmax,
-             muonEta_binning_.xmin,
-             muonEta_binning_.xmax,
-             bookDen);
-  setNoBPTXTitle(muonEtaVsBX_, "BX", "DisplacedStandAlone Muon #eta", bookDen);
-
-  histname = "muonPhi";
-  histtitle = "muonPhi";
-  bookDen = true;
-  bookNoBPTX(ibooker,
-             muonPhiNoBPTX_,
-             histname,
-             histtitle,
-             muonPhi_binning_.nbins,
-             muonPhi_binning_.xmin,
-             muonPhi_binning_.xmax);
-  setNoBPTXTitle(muonPhiNoBPTX_, "DisplacedStandAlone Muon #phi", "Events", bookDen);
-
-  histname = "muonPhiVsLS";
-  histtitle = "muonPhi vs LS";
-  bookDen = false;
-  bookNoBPTX(ibooker,
-             muonPhiVsLS_,
-             histname,
-             histtitle,
-             ls_binning_.nbins,
-             ls_binning_.xmin,
-             ls_binning_.xmax,
-             muonPhi_binning_.xmin,
-             muonPhi_binning_.xmax,
-             bookDen);
-  setNoBPTXTitle(muonPhiVsLS_, "LS", "DisplacedStandAlone Muon #phi", bookDen);
-
-  histname = "muonPhiVsBX";
-  histtitle = "muonPhi vs BX";
-  bookDen = false;
-  bookNoBPTX(ibooker,
-             muonPhiVsBX_,
-             histname,
-             histtitle,
-             bx_binning_.nbins,
-             bx_binning_.xmin,
-             bx_binning_.xmax,
-             muonPhi_binning_.xmin,
-             muonPhi_binning_.xmax,
-             bookDen);
-  setNoBPTXTitle(muonPhiVsBX_, "BX", "DisplacedStandAlone Muon #phi", bookDen);
 
   // Initialize the GenericTriggerEventFlag
   if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
     num_genTriggerEventFlag_->initRun(iRun, iSetup);
   if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
     den_genTriggerEventFlag_->initRun(iRun, iSetup);
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                       den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
+                       den_genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
+  std::string histname, histtitle;
+
+  std::string currentFolder = folderName_;
+  ibooker.setCurrentFolder(currentFolder);
+
+  histname = "jetE";
+  histtitle = "jetE";
+  bookME(ibooker, jetENoBPTX_, histname, histtitle, jetE_binning_.nbins, jetE_binning_.xmin, jetE_binning_.xmax);
+  setMETitle(jetENoBPTX_, "Jet E [GeV]", "Events / [GeV]");
+
+  histname = "jetE_variable";
+  histtitle = "jetE";
+  bookME(ibooker, jetENoBPTX_variableBinning_, histname, histtitle, jetE_variable_binning_);
+  setMETitle(jetENoBPTX_variableBinning_, "Jet E [GeV]", "Events / [GeV]");
+
+  histname = "jetEVsLS";
+  histtitle = "jetE vs LS";
+  bookME(ibooker, jetEVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, jetE_binning_.xmin, jetE_binning_.xmax);
+  setMETitle(jetEVsLS_, "LS", "Jet E [GeV]");
+
+  histname = "jetEVsBX";
+  histtitle = "jetE vs BX";
+  bookME(ibooker, jetEVsBX_, histname, histtitle, bx_binning_.nbins, bx_binning_.xmin, bx_binning_.xmax, jetE_binning_.xmin, jetE_binning_.xmax);
+  setMETitle(jetEVsBX_, "BX", "Jet E [GeV]");
+
+  histname = "jetEta";
+  histtitle = "jetEta";
+  bookME(ibooker, jetEtaNoBPTX_, histname, histtitle, jetEta_binning_.nbins, jetEta_binning_.xmin, jetEta_binning_.xmax);
+  setMETitle(jetEtaNoBPTX_, "Jet #eta", "Events");
+
+  histname = "jetEtaVsLS";
+  histtitle = "jetEta vs LS";
+  bookME(ibooker, jetEtaVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, jetEta_binning_.xmin, jetEta_binning_.xmax);
+  setMETitle(jetEtaVsLS_, "LS", "Jet #eta");
+
+  histname = "jetEtaVsBX";
+  histtitle = "jetEta vs BX";
+  bookME(ibooker, jetEtaVsBX_, histname, histtitle, bx_binning_.nbins, bx_binning_.xmin, bx_binning_.xmax, jetEta_binning_.xmin, jetEta_binning_.xmax);
+  setMETitle(jetEtaVsBX_, "BX", "Jet #eta");
+
+  histname = "jetPhi";
+  histtitle = "jetPhi";
+  bookME(ibooker, jetPhiNoBPTX_, histname, histtitle, jetPhi_binning_.nbins, jetPhi_binning_.xmin, jetPhi_binning_.xmax);
+  setMETitle(jetPhiNoBPTX_, "Jet #phi", "Events");
+
+  histname = "jetPhiVsLS";
+  histtitle = "jetPhi vs LS";
+  bookME(ibooker, jetPhiVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, jetPhi_binning_.xmin, jetPhi_binning_.xmax);
+  setMETitle(jetPhiVsLS_, "LS", "Jet #phi");
+
+  histname = "jetPhiVsBX";
+  histtitle = "jetPhi vs BX";
+  bookME(ibooker, jetPhiVsBX_, histname, histtitle, bx_binning_.nbins, bx_binning_.xmin, bx_binning_.xmax, jetPhi_binning_.xmin, jetPhi_binning_.xmax);
+  setMETitle(jetPhiVsBX_, "BX", "Jet #phi");
+
+  histname = "muonPt";
+  histtitle = "muonPt";
+  bookME(ibooker, muonPtNoBPTX_, histname, histtitle, muonPt_binning_.nbins, muonPt_binning_.xmin, muonPt_binning_.xmax);
+  setMETitle(muonPtNoBPTX_, "DisplacedStandAlone Muon p_{T} [GeV]", "Events / [GeV]");
+
+  histname = "muonPt_variable";
+  histtitle = "muonPt";
+  bookME(ibooker, muonPtNoBPTX_variableBinning_, histname, histtitle, muonPt_variable_binning_);
+  setMETitle(muonPtNoBPTX_variableBinning_, "DisplacedStandAlone Muon p_{T} [GeV]", "Events / [GeV]");
+
+  histname = "muonPtVsLS";
+  histtitle = "muonPt vs LS";
+  bookME(ibooker, muonPtVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, muonPt_binning_.xmin, muonPt_binning_.xmax);
+  setMETitle(muonPtVsLS_, "LS", "DisplacedStandAlone Muon p_{T} [GeV]");
+
+  histname = "muonPtVsBX";
+  histtitle = "muonPt vs BX";
+  bookME(ibooker, muonPtVsBX_, histname, histtitle, bx_binning_.nbins, bx_binning_.xmin, bx_binning_.xmax, muonPt_binning_.xmin, muonPt_binning_.xmax);
+  setMETitle(muonPtVsBX_, "BX", "DisplacedStandAlone Muon p_{T} [GeV]");
+
+  histname = "muonEta";
+  histtitle = "muonEta";
+  bookME(ibooker, muonEtaNoBPTX_, histname, histtitle, muonEta_binning_.nbins, muonEta_binning_.xmin, muonEta_binning_.xmax);
+  setMETitle(muonEtaNoBPTX_, "DisplacedStandAlone Muon #eta", "Events");
+
+  histname = "muonEtaVsLS";
+  histtitle = "muonEta vs LS";
+  bookME(ibooker, muonEtaVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, muonEta_binning_.xmin, muonEta_binning_.xmax);
+  setMETitle(muonEtaVsLS_, "LS", "DisplacedStandAlone Muon #eta");
+
+  histname = "muonEtaVsBX";
+  histtitle = "muonEta vs BX";
+  bookME(ibooker, muonEtaVsBX_, histname, histtitle, bx_binning_.nbins, bx_binning_.xmin, bx_binning_.xmax, muonEta_binning_.xmin, muonEta_binning_.xmax);
+  setMETitle(muonEtaVsBX_, "BX", "DisplacedStandAlone Muon #eta");
+
+  histname = "muonPhi";
+  histtitle = "muonPhi";
+  bookME(ibooker, muonPhiNoBPTX_, histname, histtitle, muonPhi_binning_.nbins, muonPhi_binning_.xmin, muonPhi_binning_.xmax);
+  setMETitle(muonPhiNoBPTX_, "DisplacedStandAlone Muon #phi", "Events");
+
+  histname = "muonPhiVsLS";
+  histtitle = "muonPhi vs LS";
+  bookME(ibooker, muonPhiVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, muonPhi_binning_.xmin, muonPhi_binning_.xmax);
+  setMETitle(muonPhiVsLS_, "LS", "DisplacedStandAlone Muon #phi");
+
+  histname = "muonPhiVsBX";
+  histtitle = "muonPhi vs BX";
+  bookME(ibooker, muonPhiVsBX_, histname, histtitle, bx_binning_.nbins, bx_binning_.xmin, bx_binning_.xmax, muonPhi_binning_.xmin, muonPhi_binning_.xmax);
+  setMETitle(muonPhiVsBX_, "BX", "DisplacedStandAlone Muon #phi");
 }
 
 void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
     return;
 
-  int ls = iEvent.id().luminosityBlock();
-  int bx = iEvent.bunchCrossing();
+  const int ls = iEvent.id().luminosityBlock();
+  const int bx = iEvent.bunchCrossing();
 
   edm::Handle<reco::CaloJetCollection> jetHandle;
   iEvent.getByToken(jetToken_, jetHandle);
@@ -501,19 +260,11 @@ void NoBPTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   muonPhiVsBX_.numerator->Fill(bx, muonPhi);
 }
 
-void NoBPTXMonitor::fillHistoPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<unsigned int>("nbins", 200);
-  pset.add<double>("xmin", -0.5);
-  pset.add<double>("xmax", 19999.5);
-}
-
-void NoBPTXMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<unsigned int>("nbins", 2000);
-}
-
 void NoBPTXMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/NoBPTX");
+  desc.add<bool>("requireValidHLTPaths", false);
 
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4CaloJets"));
   desc.add<edm::InputTag>("muons", edm::InputTag("displacedStandAloneMuons"));

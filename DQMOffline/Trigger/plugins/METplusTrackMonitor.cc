@@ -1,20 +1,13 @@
 #include "DQMOffline/Trigger/plugins/METplusTrackMonitor.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
-
-#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
-
 METplusTrackMonitor::METplusTrackMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
       metToken_(consumes<reco::CaloMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
       muonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       jetToken_(consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
@@ -50,37 +43,31 @@ METplusTrackMonitor::METplusTrackMonitor(const edm::ParameterSet& iConfig)
       leadJetEtaCut_(iConfig.getParameter<double>("leadJetEtaCut")),
       requireLeadMatched_(iConfig.getParameter<bool>("requireLeadMatched")),
       maxMatchDeltaR_(iConfig.getParameter<double>("maxMatchDeltaR")) {
-  metME_variableBinning_.numerator = nullptr;
-  metME_variableBinning_.denominator = nullptr;
-  metVsLS_.numerator = nullptr;
-  metVsLS_.denominator = nullptr;
-  metPhiME_.numerator = nullptr;
-  metPhiME_.denominator = nullptr;
-  deltaphimetj1ME_.numerator = nullptr;
-  deltaphimetj1ME_.denominator = nullptr;
-  metVsHltMet_.numerator = nullptr;       // numerator only, only available from passed filter
-  metVsHltMetClean_.numerator = nullptr;  // numerator only, only available from passed filter
-
-  muonPtME_variableBinning_.numerator = nullptr;
-  muonPtME_variableBinning_.denominator = nullptr;
-  muonPtVsLS_.numerator = nullptr;
-  muonPtVsLS_.denominator = nullptr;
-  deltaphimetmuonME_.numerator = nullptr;
-  deltaphimetmuonME_.denominator = nullptr;
-  muonEtaVsPhi_.numerator = nullptr;
-  muonEtaVsPhi_.denominator = nullptr;
 }
 
-void METplusTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker,
-                                         edm::Run const& iRun,
-                                         edm::EventSetup const& iSetup) {
+void METplusTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+
+  // Initialize the GenericTriggerEventFlag
+  if(num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()){ num_genTriggerEventFlag_->initRun(iRun, iSetup); }
+  if(den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()){ den_genTriggerEventFlag_->initRun(iRun, iSetup); }
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                       den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
+                       den_genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_;
   ibooker.setCurrentFolder(currentFolder);
 
   // MET leg histograms
-
   histname = "met_variable";
   histtitle = "CaloMET";
   bookME(ibooker, metME_variableBinning_, histname, histtitle, met_variable_binning_);
@@ -88,15 +75,7 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 
   histname = "metVsLS";
   histtitle = "CaloMET vs LS";
-  bookME(ibooker,
-         metVsLS_,
-         histname,
-         histtitle,
-         ls_binning_.nbins,
-         ls_binning_.xmin,
-         ls_binning_.xmax,
-         met_binning_.xmin,
-         met_binning_.xmax);
+  bookME(ibooker, metVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, met_binning_.xmin, met_binning_.xmax);
   setMETitle(metVsLS_, "LS", "CaloMET [GeV]");
 
   histname = "metPhi";
@@ -111,30 +90,12 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 
   histname = "metVsHltMet";
   histtitle = "CaloMET vs hltMet";
-  bookME(ibooker,
-         metVsHltMet_,
-         histname,
-         histtitle,
-         met_binning_.nbins,
-         met_binning_.xmin,
-         met_binning_.xmax,
-         met_binning_.nbins,
-         met_binning_.xmin,
-         met_binning_.xmax);
+  bookME(ibooker, metVsHltMet_, histname, histtitle, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax);
   setMETitle(metVsHltMet_, "hltMet (online) [GeV]", "CaloMET (offline) [GeV]");
 
   histname = "metVsHltMetClean";
   histtitle = "CaloMET vs hltMetClean";
-  bookME(ibooker,
-         metVsHltMetClean_,
-         histname,
-         histtitle,
-         met_binning_.nbins,
-         met_binning_.xmin,
-         met_binning_.xmax,
-         met_binning_.nbins,
-         met_binning_.xmin,
-         met_binning_.xmax);
+  bookME(ibooker, metVsHltMetClean_, histname, histtitle, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax);
   setMETitle(metVsHltMetClean_, "hltMetClean (online) [GeV]", "CaloMET (offline) [GeV]");
 
   // Track leg histograms
@@ -156,39 +117,23 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 
   histname = "muonEtaVsPhi";
   histtitle = "Muon eta vs phi";
-  bookME(ibooker,
-         muonEtaVsPhi_,
-         histname,
-         histtitle,
-         phi_binning_.nbins,
-         phi_binning_.xmin,
-         phi_binning_.xmax,
-         eta_binning_.nbins,
-         eta_binning_.xmin,
-         eta_binning_.xmax);
+  bookME(ibooker, muonEtaVsPhi_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax);
   setMETitle(muonEtaVsPhi_, "Muon #phi", "Muon #eta");
 
   histname = "muonPtVsLS";
   histtitle = "Muon PT vs LS";
-  bookME(ibooker,
-         muonPtVsLS_,
-         histname,
-         histtitle,
-         ls_binning_.nbins,
-         ls_binning_.xmin,
-         ls_binning_.xmax,
-         pt_binning_.xmin,
-         pt_binning_.xmax);
+  bookME(ibooker, muonPtVsLS_, histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, pt_binning_.xmin, pt_binning_.xmax);
   setMETitle(muonPtVsLS_, "LS", "Muon p_{T} [GeV]");
-
-  // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
-    den_genTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
 void METplusTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
     return;
@@ -315,9 +260,32 @@ void METplusTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup cons
   muonEtaVsPhi_.numerator->Fill(leadMuonPhi, leadMuonEta);
 }
 
+bool METplusTrackMonitor::getHLTObj(const edm::Handle<trigger::TriggerEvent>& trigSummary, const edm::InputTag& filterTag, trigger::TriggerObject& obj) const {
+
+  double leadingPt = -1.0;
+
+  size_t filterIndex = trigSummary->filterIndex(filterTag);
+  trigger::TriggerObjectCollection triggerObjects = trigSummary->getObjects();
+
+  if (!(filterIndex >= trigSummary->sizeFilters())) {
+    const trigger::Keys& keys = trigSummary->filterKeys(filterIndex);
+    for (unsigned short key : keys) {
+      trigger::TriggerObject foundObject = triggerObjects[key];
+      if (foundObject.pt() > leadingPt) {
+        obj = foundObject;
+        leadingPt = obj.pt();
+      }
+    }
+  }
+
+  return (leadingPt > 0.0);
+}
+
 void METplusTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/MET");
+  desc.add<bool>("requireValidHLTPaths", false);
 
   desc.add<edm::InputTag>("met", edm::InputTag("caloMet"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
@@ -387,28 +355,4 @@ void METplusTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.add("metPlusTrackMonitoring", desc);
 }
 
-bool METplusTrackMonitor::getHLTObj(const edm::Handle<trigger::TriggerEvent>& trigSummary,
-                                    const edm::InputTag& filterTag,
-                                    trigger::TriggerObject& obj) const {
-  double leadingPt = -1.0;
-
-  size_t filterIndex = trigSummary->filterIndex(filterTag);
-  trigger::TriggerObjectCollection triggerObjects = trigSummary->getObjects();
-
-  if (!(filterIndex >= trigSummary->sizeFilters())) {
-    const trigger::Keys& keys = trigSummary->filterKeys(filterIndex);
-    for (unsigned short key : keys) {
-      trigger::TriggerObject foundObject = triggerObjects[key];
-      if (foundObject.pt() > leadingPt) {
-        obj = foundObject;
-        leadingPt = obj.pt();
-      }
-    }
-  }
-
-  return (leadingPt > 0.0);
-}
-
-// Define this as a plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(METplusTrackMonitor);
