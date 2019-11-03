@@ -25,8 +25,9 @@ trackstersEM = _trackstersProducer.clone(
     max_out_in_hops = 4,
     missing_layers = 1,
     min_clusters_per_ntuplet = 10,
-    min_cos_theta = 0.984, # ~10 degrees
-    min_cos_pointing = 0.9 # ~26 degrees
+    min_cos_theta = 0.978,  # ~12 degrees
+    min_cos_pointing = 0.9, # ~25 degrees
+    max_delta_time = 0.12
 )
 
 # MULTICLUSTERS
