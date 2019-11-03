@@ -1,7 +1,11 @@
 #include "DQMOffline/Trigger/plugins/Tau3MuMonitor.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 Tau3MuMonitor::Tau3MuMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
       tauToken_(mayConsume<reco::CompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
       pt_binning_(
           getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("ptPSet"))),
@@ -13,34 +17,27 @@ Tau3MuMonitor::Tau3MuMonitor(const edm::ParameterSet& iConfig)
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("massPSet"))),
       genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("GenericTriggerEventPSet"), consumesCollector(), *this)) {
-  // initialise histograms to null
-  tau1DPt_ = nullptr;
-  tau1DEta_ = nullptr;
-  tau1DPhi_ = nullptr;
-  tau1DMass_ = nullptr;
-  tau2DEtaPhi_ = nullptr;
 }
 
-Tau3MuMonitor::~Tau3MuMonitor() = default;
+Tau3MuMonitor::~Tau3MuMonitor() throw() {
 
-// shape the content of a "histogram PSet"
-void Tau3MuMonitor::fillHistoPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<unsigned int>("nbins");
-  pset.add<double>("xmin");
-  pset.add<double>("xmax");
+  if(genTriggerEventFlag_){ genTriggerEventFlag_.reset(); }
 }
 
-// read the information packed into an "histogram PSet"
-MEbinning Tau3MuMonitor::getHistoPSet(edm::ParameterSet pset) {
-  return MEbinning{
-      pset.getParameter<unsigned int>("nbins"),
-      pset.getParameter<double>("xmin"),
-      pset.getParameter<double>("xmax"),
-  };
-}
-
-// book histograms
 void Tau3MuMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+
+  // Initialize the GenericTriggerEventFlag
+  if(genTriggerEventFlag_ && genTriggerEventFlag_->on()){ genTriggerEventFlag_->initRun(iRun, iSetup); }
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (genTriggerEventFlag_ && genTriggerEventFlag_->on() && genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   std::string histname;
 
   std::string currentFolder = folderName_;
@@ -82,20 +79,23 @@ void Tau3MuMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& i
                                 phi_binning_.xmax);
   tau2DEtaPhi_->setAxisTitle("3-#mu #eta", 1);
   tau2DEtaPhi_->setAxisTitle("3-#mu #phi", 2);
-
-  // Initialize the GenericTriggerEventFlag
-  if (genTriggerEventFlag_ && genTriggerEventFlag_->on())
-    genTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
 void Tau3MuMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   // require the trigger to be fired
   if (genTriggerEventFlag_->on() && !genTriggerEventFlag_->accept(iEvent, iSetup))
     return;
 
   // check if the previous event failed because of missing tau3mu collection.
   // Return silently, a warning must have been issued already at this point
-  if (!validProduct_)
+  if (not validProduct_)
     return;
 
   // get ahold of the tau(3mu) collection
@@ -103,7 +103,8 @@ void Tau3MuMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
   iEvent.getByToken(tauToken_, tauHandle);
 
   // if the handle is not valid issue a warning (only for the forst occurrency)
-  if (!tauHandle.isValid()) {
+  if (not tauHandle.isValid()) {
+
     edm::LogWarning("ProductNotValid") << "Tau3Mu trigger product not valid";
     validProduct_ = false;
     return;
@@ -111,6 +112,7 @@ void Tau3MuMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 
   // loop and fill
   for (auto const& itau : *tauHandle) {
+
     tau1DPt_->Fill(itau.pt());
     tau1DEta_->Fill(itau.eta());
     tau1DPhi_->Fill(itau.phi());
@@ -121,17 +123,17 @@ void Tau3MuMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSe
 
 void Tau3MuMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  //
   desc.add<std::string>("FolderName", "HLT/BPH/");
-  //
+  desc.add<bool>("requireValidHLTPaths", false);
+
   desc.add<edm::InputTag>("taus", edm::InputTag("hltTauPt10MuPts511Mass1p2to2p3Iso", "Taus"));
-  //
+
   edm::ParameterSetDescription histoPSet;
   edm::ParameterSetDescription ptPSet;
   edm::ParameterSetDescription etaPSet;
   edm::ParameterSetDescription phiPSet;
   edm::ParameterSetDescription massPSet;
-  fillHistoPSetDescription(ptPSet);  // order matters: this must come before the PSets are added
+  fillHistoPSetDescription(ptPSet);
   fillHistoPSetDescription(etaPSet);
   fillHistoPSetDescription(phiPSet);
   fillHistoPSetDescription(massPSet);
@@ -140,7 +142,7 @@ void Tau3MuMonitor::fillDescriptions(edm::ConfigurationDescriptions& description
   histoPSet.add<edm::ParameterSetDescription>("phiPSet", phiPSet);
   histoPSet.add<edm::ParameterSetDescription>("massPSet", massPSet);
   desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
-  //
+
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
   genericTriggerEventPSet.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi"));
@@ -155,10 +157,8 @@ void Tau3MuMonitor::fillDescriptions(edm::ConfigurationDescriptions& description
   genericTriggerEventPSet.add<bool>("errorReplyHlt", false);
   genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 0);
   desc.add<edm::ParameterSetDescription>("GenericTriggerEventPSet", genericTriggerEventPSet);
-  //
+
   descriptions.add("tau3muMonitoring", desc);
 }
 
-// Define this as a plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(Tau3MuMonitor);

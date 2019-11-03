@@ -1,30 +1,21 @@
 #include "DQMOffline/Trigger/plugins/JetDQM.h"
-#include "DataFormats/Math/interface/deltaR.h"
+//#include "DataFormats/Math/interface/deltaR.h"
 
 JetDQM::JetDQM() = default;
 
 JetDQM::~JetDQM() = default;
 
-void JetDQM::initialise(const edm::ParameterSet& iConfig) {
-  jetpt_variable_binning_ =
-      iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetptBinning");
-  jet1pt_variable_binning_ =
-      iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jet1ptBinning");
-  jet2pt_variable_binning_ =
-      iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jet2ptBinning");
-  mjj_variable_binning_ =
-      iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("mjjBinning");
+void JetDQM::initialise(const edm::ParameterSet& iConfig){
 
-  jeteta_binning_ =
-      getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetetaPSet"));
-  detajj_binning_ =
-      getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("detajjPSet"));
-  dphijj_binning_ =
-      getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dphijjPSet"));
-  mindphijmet_binning_ = getHistoPSet(
-      iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("mindphijmetPSet"));
-  ls_binning_ =
-      getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetlsPSet"));
+  jetpt_variable_binning_ = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetptBinning");
+  jet1pt_variable_binning_ = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jet1ptBinning");
+  jet2pt_variable_binning_ = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jet2ptBinning");
+  mjj_variable_binning_ = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("mjjBinning");
+  jeteta_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetetaPSet"));
+  detajj_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("detajjPSet"));
+  dphijj_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dphijjPSet"));
+  mindphijmet_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("mindphijmetPSet"));
+  ls_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetlsPSet"));
 }
 
 void JetDQM::bookHistograms(DQMStore::IBooker& ibooker) {
@@ -128,10 +119,7 @@ void JetDQM::bookHistograms(DQMStore::IBooker& ibooker) {
   setMETitle(mindphijmetVsLS_, "LS", "min#Delta#phi(jets,MET)");
 }
 
-void JetDQM::fillHistograms(const std::vector<reco::PFJet>& jets,
-                            const reco::PFMET& pfmet,
-                            const int& ls,
-                            const bool passCond) {
+void JetDQM::fillHistograms(const std::vector<reco::PFJet>& jets, const reco::PFMET& pfmet, const int ls, const bool passCond) {
   // filling histograms (denominator)
   if (!jets.empty()) {
     double eta1 = jets[0].eta();

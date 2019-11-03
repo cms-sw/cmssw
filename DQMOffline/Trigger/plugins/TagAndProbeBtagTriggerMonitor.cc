@@ -1,21 +1,13 @@
-#include <cmath>
-
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-
+#include "DQMOffline/Trigger/plugins/TagAndProbeBtagTriggerMonitor.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "DQMOffline/Trigger/plugins/TagAndProbeBtagTriggerMonitor.h"
+TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor(const edm::ParameterSet& iConfig)
+  : folderName_(iConfig.getParameter<std::string>("dirname")),
+    requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+    hltPathsAreValid_(false) {
 
-//#include "TLorentzVector.h"
-
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
-
-TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor(const edm::ParameterSet& iConfig) {
-  folderName_ = iConfig.getParameter<std::string>("dirname");
   processname_ = iConfig.getParameter<std::string>("processname");
   triggerobjbtag_ = iConfig.getParameter<std::string>("triggerobjbtag");
   jetPtmin_ = iConfig.getParameter<double>("jetPtMin");
@@ -25,8 +17,8 @@ TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor(const edm::Paramete
   triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummary");
   triggerSummaryToken_ = consumes<trigger::TriggerEvent>(triggerSummaryLabel_);
   offlineBtagToken_ = consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("offlineBtag"));
-  genTriggerEventFlag_ = new GenericTriggerEventFlag(
-      iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this);
+
+  genTriggerEventFlag_.reset(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this));
 
   jetPtbins_ = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetPt");
   jetEtabins_ = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetEta");
@@ -34,14 +26,26 @@ TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor(const edm::Paramete
   jetBtagbins_ = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetBtag");
 }
 
-TagAndProbeBtagTriggerMonitor::~TagAndProbeBtagTriggerMonitor() {
-  if (genTriggerEventFlag_)
-    delete genTriggerEventFlag_;
+TagAndProbeBtagTriggerMonitor::~TagAndProbeBtagTriggerMonitor() throw() {
+
+  if (genTriggerEventFlag_){ genTriggerEventFlag_.reset(); }
 }
 
-void TagAndProbeBtagTriggerMonitor::bookHistograms(DQMStore::IBooker& ibooker,
-                                                   edm::Run const& iRun,
-                                                   edm::EventSetup const& iSetup) {
+void TagAndProbeBtagTriggerMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+
+  // Initialize the GenericTriggerEventFlag
+  if (genTriggerEventFlag_ && genTriggerEventFlag_->on())
+    genTriggerEventFlag_->initRun(iRun, iSetup);
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (genTriggerEventFlag_ && genTriggerEventFlag_->on() && genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   std::string currentFolder = folderName_;
   ibooker.setCurrentFolder(currentFolder);
 
@@ -80,14 +84,16 @@ void TagAndProbeBtagTriggerMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 
   discr_offline_btag_jet1_ = ibooker.book1D("discr_offline_btag_jet1", "discr_offline_btag_jet1", btagnbins, btagbins);
   discr_offline_btag_jet2_ = ibooker.book1D("discr_offline_btag_jet2", "discr_offline_btag_jet2", btagnbins, btagbins);
-
-  // Initialize the GenericTriggerEventFlag
-  if (genTriggerEventFlag_ && genTriggerEventFlag_->on())
-    genTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
 void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-  //    bool accept = false;
+
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   bool match1 = false;
   bool match2 = false;
 
@@ -160,12 +166,10 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
               eta_phi_probe_match_->Fill(jet2.eta(), jet2.phi());
             }
           }
-        }  // offline jets btag
-      }    // offline jets kinematic selection
-    }      // at least two offline jets
-  }        // accept trigger
+        }
+      }
+    }
+  }
 }
 
-// Define this as a plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(TagAndProbeBtagTriggerMonitor);

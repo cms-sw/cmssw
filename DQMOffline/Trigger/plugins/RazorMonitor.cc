@@ -9,19 +9,17 @@
 // -----------------------------
 
 #include "DQMOffline/Trigger/plugins/RazorMonitor.h"
-
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
+#include <TVector3.h>
 
 RazorMonitor::RazorMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
       metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
       jetToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
+      theHemispheres_(consumes<std::vector<math::XYZTLorentzVector> >(iConfig.getParameter<edm::InputTag>("hemispheres"))),
       rsq_binning_(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("rsqBins")),
       mr_binning_(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("mrBins")),
       dphiR_binning_(
@@ -34,97 +32,35 @@ RazorMonitor::RazorMonitor(const edm::ParameterSet& iConfig)
       jetSelection_(iConfig.getParameter<std::string>("jetSelection")),
       njets_(iConfig.getParameter<unsigned int>("njets")),
       rsqCut_(iConfig.getParameter<double>("rsqCut")),
-      mrCut_(iConfig.getParameter<double>("mrCut")) {
-  theHemispheres_ = consumes<std::vector<math::XYZTLorentzVector> >(iConfig.getParameter<edm::InputTag>("hemispheres"));
-
-  MR_ME_.numerator = nullptr;
-  MR_ME_.denominator = nullptr;
-  Rsq_ME_.numerator = nullptr;
-  Rsq_ME_.denominator = nullptr;
-  dPhiR_ME_.numerator = nullptr;
-  dPhiR_ME_.denominator = nullptr;
-
-  MRVsRsq_ME_.numerator = nullptr;
-  MRVsRsq_ME_.denominator = nullptr;
+      mrCut_(iConfig.getParameter<double>("mrCut"))
+{
 }
 
-RazorMonitor::~RazorMonitor() = default;
+RazorMonitor::~RazorMonitor() throw() {
 
-void RazorMonitor::setMETitle(RazorME& me, const std::string& titleX, const std::string& titleY) {
-  me.numerator->setAxisTitle(titleX, 1);
-  me.numerator->setAxisTitle(titleY, 2);
-  me.denominator->setAxisTitle(titleX, 1);
-  me.denominator->setAxisTitle(titleY, 2);
-}
-
-void RazorMonitor::bookME(DQMStore::IBooker& ibooker,
-                          RazorME& me,
-                          const std::string& histname,
-                          const std::string& histtitle,
-                          int nbins,
-                          double min,
-                          double max) {
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, min, max);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, min, max);
-}
-void RazorMonitor::bookME(DQMStore::IBooker& ibooker,
-                          RazorME& me,
-                          const std::string& histname,
-                          const std::string& histtitle,
-                          const std::vector<double>& binning) {
-  int nbins = binning.size() - 1;
-  std::vector<float> fbinning(binning.begin(), binning.end());
-  float* arr = &fbinning[0];
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, arr);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, arr);
-}
-void RazorMonitor::bookME(DQMStore::IBooker& ibooker,
-                          RazorME& me,
-                          const std::string& histname,
-                          const std::string& histtitle,
-                          int nbinsX,
-                          double xmin,
-                          double xmax,
-                          double ymin,
-                          double ymax) {
-  me.numerator =
-      ibooker.bookProfile(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, ymin, ymax);
-  me.denominator =
-      ibooker.bookProfile(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, ymin, ymax);
-}
-void RazorMonitor::bookME(DQMStore::IBooker& ibooker,
-                          RazorME& me,
-                          const std::string& histname,
-                          const std::string& histtitle,
-                          int nbinsX,
-                          double xmin,
-                          double xmax,
-                          int nbinsY,
-                          double ymin,
-                          double ymax) {
-  me.numerator =
-      ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-  me.denominator =
-      ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-}
-void RazorMonitor::bookME(DQMStore::IBooker& ibooker,
-                          RazorME& me,
-                          const std::string& histname,
-                          const std::string& histtitle,
-                          const std::vector<double>& binningX,
-                          const std::vector<double>& binningY) {
-  int nbinsX = binningX.size() - 1;
-  std::vector<float> fbinningX(binningX.begin(), binningX.end());
-  float* arrX = &fbinningX[0];
-  int nbinsY = binningY.size() - 1;
-  std::vector<float> fbinningY(binningY.begin(), binningY.end());
-  float* arrY = &fbinningY[0];
-
-  me.numerator = ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, arrX, nbinsY, arrY);
-  me.denominator = ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, arrX, nbinsY, arrY);
+  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
+  if(den_genTriggerEventFlag_){ den_genTriggerEventFlag_.reset(); }
 }
 
 void RazorMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+
+  // Initialize the GenericTriggerEventFlag
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                       den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
+                       den_genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_;
@@ -153,17 +89,16 @@ void RazorMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
   histtitle = "PF MR vs PF Rsq";
   bookME(ibooker, MRVsRsq_ME_, histname, histtitle, mr_binning_, rsq_binning_);
   setMETitle(MRVsRsq_ME_, "M_{R} [GeV]", "R^{2}");
-
-  // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
-    den_genTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
     return;
@@ -267,6 +202,7 @@ void RazorMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
 void RazorMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/SUSY/Razor");
+  desc.add<bool>("requireValidHLTPaths", false);
 
   desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
@@ -351,5 +287,4 @@ double RazorMonitor::CalcR(double MR,
 }
 
 // Define this as a plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(RazorMonitor);

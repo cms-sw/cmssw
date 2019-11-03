@@ -1,124 +1,46 @@
 #include "DQMOffline/Trigger/plugins/JetMonitor.h"
-
-#include <utility>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQM/TrackingMonitor/interface/GetLumi.h"
-
-#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 JetMonitor::JetMonitor(const edm::ParameterSet& iConfig)
-    : num_genTriggerEventFlag_(new GenericTriggerEventFlag(
-          iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this)),
-      den_genTriggerEventFlag_(new GenericTriggerEventFlag(
-          iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this)) {
-  folderName_ = iConfig.getParameter<std::string>("FolderName");
-  jetSrc_ = mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jetSrc"));  //jet
-  jetpT_variable_binning_ =
-      iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetptBinning");
-  jetpT_binning =
-      getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetPSet"));
-  jetptThr_binning_ = getHistoPSet(
-      iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetPtThrPSet"));
-  ls_binning_ =
-      getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lsPSet"));
-
-  ptcut_ = iConfig.getParameter<double>("ptcut");  // for HLT Jet
-  isPFJetTrig = iConfig.getParameter<bool>("ispfjettrg");
-  isCaloJetTrig = iConfig.getParameter<bool>("iscalojettrg");
+  : folderName_(iConfig.getParameter<std::string>("FolderName"))
+  , requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths"))
+  , hltPathsAreValid_(false)
+  , ptcut_(iConfig.getParameter<double>("ptcut"))
+  , isPFJetTrig(iConfig.getParameter<bool>("ispfjettrg"))
+  , isCaloJetTrig(iConfig.getParameter<bool>("iscalojettrg"))
+  , jetSrc_(mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jetSrc")))
+  , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this))
+  , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this))
+  , jetpt_binning_(getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetPSet")))
+  , jetptThr_binning_(getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("jetPtThrPSet")))
+  , ls_binning_(getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lsPSet")))
+{
 }
 
-JetMonitor::~JetMonitor() = default;
+JetMonitor::~JetMonitor() throw() {
 
-JetMonitor::MEbinning JetMonitor::getHistoPSet(const edm::ParameterSet& pset) {
-  return JetMonitor::MEbinning{
-      pset.getParameter<unsigned int>("nbins"),
-      pset.getParameter<double>("xmin"),
-      pset.getParameter<double>("xmax"),
-  };
-}
-
-JetMonitor::MEbinning JetMonitor::getHistoLSPSet(const edm::ParameterSet& pset) {
-  return JetMonitor::MEbinning{
-      pset.getParameter<unsigned int>("nbins"), 0., double(pset.getParameter<unsigned int>("nbins"))};
-}
-
-void JetMonitor::setMETitle(JetME& me, const std::string& titleX, const std::string& titleY) {
-  me.numerator->setAxisTitle(titleX, 1);
-  me.numerator->setAxisTitle(titleY, 2);
-  me.denominator->setAxisTitle(titleX, 1);
-  me.denominator->setAxisTitle(titleY, 2);
-}
-void JetMonitor::bookME(DQMStore::IBooker& ibooker,
-                        JetME& me,
-                        std::string& histname,
-                        std::string& histtitle,
-                        unsigned int nbins,
-                        double min,
-                        double max) {
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, min, max);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, min, max);
-}
-void JetMonitor::bookME(
-    DQMStore::IBooker& ibooker, JetME& me, std::string& histname, std::string& histtitle, std::vector<double> binning) {
-  int nbins = binning.size() - 1;
-  std::vector<float> fbinning(binning.begin(), binning.end());
-  float* arr = &fbinning[0];
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, arr);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, arr);
-}
-void JetMonitor::bookME(DQMStore::IBooker& ibooker,
-                        JetME& me,
-                        std::string& histname,
-                        std::string& histtitle,
-                        int nbinsX,
-                        double xmin,
-                        double xmax,
-                        double ymin,
-                        double ymax) {
-  me.numerator =
-      ibooker.bookProfile(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, ymin, ymax);
-  me.denominator =
-      ibooker.bookProfile(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, ymin, ymax);
-}
-void JetMonitor::bookME(DQMStore::IBooker& ibooker,
-                        JetME& me,
-                        std::string& histname,
-                        std::string& histtitle,
-                        int nbinsX,
-                        double xmin,
-                        double xmax,
-                        int nbinsY,
-                        double ymin,
-                        double ymax) {
-  me.numerator =
-      ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-  me.denominator =
-      ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-}
-void JetMonitor::bookME(DQMStore::IBooker& ibooker,
-                        JetME& me,
-                        std::string& histname,
-                        std::string& histtitle,
-                        std::vector<double> binningX,
-                        std::vector<double> binningY) {
-  int nbinsX = binningX.size() - 1;
-  std::vector<float> fbinningX(binningX.begin(), binningX.end());
-  float* arrX = &fbinningX[0];
-  int nbinsY = binningY.size() - 1;
-  std::vector<float> fbinningY(binningY.begin(), binningY.end());
-  float* arrY = &fbinningY[0];
-
-  me.numerator = ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, arrX, nbinsY, arrY);
-  me.denominator = ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, arrX, nbinsY, arrY);
+  if(num_genTriggerEventFlag_){ num_genTriggerEventFlag_.reset(); }
+  if(den_genTriggerEventFlag_){ den_genTriggerEventFlag_.reset(); }
 }
 
 void JetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+
+  // Initialize the GenericTriggerEventFlag
+  if(num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()){ num_genTriggerEventFlag_->initRun(iRun, iSetup); }
+  if(den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()){ den_genTriggerEventFlag_->initRun(iRun, iSetup); }
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                       den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
+                       den_genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   std::string histname, histtitle;
   std::string hist_obtag = "";
   std::string histtitle_obtag = "";
@@ -259,30 +181,22 @@ void JetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
          eta_binning_hep17_.xmin,
          eta_binning_hep17_.xmax);
   setMETitle(jetHEM17_AbsEta_, histtitle_obtag + " |#eta|", "events / |#eta|");
-
-  // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
-    den_genTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DataFormats/Math/interface/deltaR.h"  // For Delta R
 void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
     return;
-  //  edm::Handle<reco::PFJetCollection> pfjetHandle;
-  //  iEvent.getByToken( pfjetToken_, pfjetHandle );
 
-  //  edm::Handle<reco::CaloJetCollection> calojetHandle;
-  //  iEvent.getByToken( calojetToken_, calojetHandle );
+  const int ls = iEvent.id().luminosityBlock();
 
-  int ls = iEvent.id().luminosityBlock();
   v_jetpt.clear();
   v_jeteta.clear();
   v_jetphi.clear();
@@ -400,72 +314,6 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   }
 }
 
-void JetMonitor::fillHistoPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<unsigned int>("nbins");
-  pset.add<double>("xmin");
-  pset.add<double>("xmax");
-}
-
-void JetMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<unsigned int>("nbins", 2500);
-  pset.add<double>("xmin", 0.);
-  pset.add<double>("xmax", 2500.);
-}
-
-void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<std::string>("FolderName", "HLT/Jet");
-
-  desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
-  //  desc.add<edm::InputTag>( "pfjets",     edm::InputTag("ak4PFJetsCHS") );
-  //  desc.add<edm::InputTag>( "calojets",     edm::InputTag("ak4CaloJets") );
-  desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJetsCHS"));
-  desc.add<edm::InputTag>("electrons", edm::InputTag("gedGsfElectrons"));
-  desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
-  desc.add<int>("njets", 0);
-  desc.add<int>("nelectrons", 0);
-  desc.add<double>("ptcut", 20);
-  desc.add<bool>("ispfjettrg", true);
-  desc.add<bool>("iscalojettrg", false);
-
-  edm::ParameterSetDescription genericTriggerEventPSet;
-  genericTriggerEventPSet.add<bool>("andOr");
-  genericTriggerEventPSet.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi"));
-  genericTriggerEventPSet.add<std::vector<int> >("dcsPartitions", {});
-  genericTriggerEventPSet.add<bool>("andOrDcs", false);
-  genericTriggerEventPSet.add<bool>("errorReplyDcs", true);
-  genericTriggerEventPSet.add<std::string>("dbLabel", "");
-  genericTriggerEventPSet.add<bool>("andOrHlt", true);
-  genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT"));
-  genericTriggerEventPSet.add<std::vector<std::string> >("hltPaths", {});
-  //  genericTriggerEventPSet.add<std::string>("hltDBKey","");
-  genericTriggerEventPSet.add<bool>("errorReplyHlt", false);
-  genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 1);
-
-  desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
-  desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
-
-  edm::ParameterSetDescription histoPSet;
-  edm::ParameterSetDescription jetPSet;
-  edm::ParameterSetDescription jetPtThrPSet;
-  fillHistoPSetDescription(jetPSet);
-  fillHistoPSetDescription(jetPtThrPSet);
-  histoPSet.add<edm::ParameterSetDescription>("jetPSet", jetPSet);
-  histoPSet.add<edm::ParameterSetDescription>("jetPtThrPSet", jetPtThrPSet);
-  std::vector<double> bins = {
-      0.,   20.,  40.,  60.,  80.,  90.,  100., 110., 120., 130., 140., 150., 160.,
-      170., 180., 190., 200., 220., 240., 260., 280., 300., 350., 400., 450., 1000.};  // Jet pT Binning
-  histoPSet.add<std::vector<double> >("jetptBinning", bins);
-
-  edm::ParameterSetDescription lsPSet;
-  fillHistoLSPSetDescription(lsPSet);
-  histoPSet.add<edm::ParameterSetDescription>("lsPSet", lsPSet);
-
-  desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
-
-  descriptions.add("jetMonitoring", desc);
-}
-
 bool JetMonitor::isBarrel(double eta) {
   bool output = false;
   if (fabs(eta) <= 1.3)
@@ -473,13 +321,13 @@ bool JetMonitor::isBarrel(double eta) {
   return output;
 }
 
-//------------------------------------------------------------------------//
 bool JetMonitor::isEndCapM(double eta) {
   bool output = false;
   if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta < 0))
     output = true;  // (mia) this magic number should come from some file in CMSSW !!!
   return output;
 }
+
 /// For Hcal Endcap Plus Area
 bool JetMonitor::isEndCapP(double eta) {
   bool output = false;
@@ -488,6 +336,7 @@ bool JetMonitor::isEndCapP(double eta) {
     output = true;  // (mia) this magic number should come from some file in CMSSW !!!
   return output;
 }
+
 /// For Hcal Forward Plus Area
 bool JetMonitor::isForward(double eta) {
   bool output = false;
@@ -495,6 +344,7 @@ bool JetMonitor::isForward(double eta) {
     output = true;
   return output;
 }
+
 /// For Hcal HEP17 Area
 bool JetMonitor::isHEP17(double eta, double phi) {
   bool output = false;
@@ -504,6 +354,7 @@ bool JetMonitor::isHEP17(double eta, double phi) {
   }  // (mia) this magic number should come from some file in CMSSW !!!
   return output;
 }
+
 /// For Hcal HEM17 Area
 bool JetMonitor::isHEM17(double eta, double phi) {
   bool output = false;
@@ -512,6 +363,7 @@ bool JetMonitor::isHEM17(double eta, double phi) {
   }  // (mia) this magic number should come from some file in CMSSW !!!
   return output;
 }
+
 /// For Hcal HEP18 Area
 bool JetMonitor::isHEP18(double eta, double phi) {
   bool output = false;
@@ -521,27 +373,8 @@ bool JetMonitor::isHEP18(double eta, double phi) {
   }  // (mia) this magic number should come from some file in CMSSW !!!
   return output;
 }
-/*void JetMonitor::AutoNullPtr(JetME* a_me,const int len_){
-   for (int i =0; i < len_; ++i)
-   {
-      a_me[i].denominator = nullptr;
-      a_me[i].numerator = nullptr;
-   }
-}*/
-void JetMonitor::FillME(JetME* a_me,
-                        double pt_,
-                        double phi_,
-                        double eta_,
-                        int ls_,
-                        const std::string& denu,
-                        bool doPhi,
-                        bool doEta,
-                        bool doEtaPhi,
-                        bool doVsLS) {
-  std::string isDeno = "";
-  isDeno = denu;
-  std::string DenoOrNume = "";
-  DenoOrNume = denu;
+
+void JetMonitor::FillME(ObjME* a_me, const double pt_, const double phi_, const double eta_, const int ls_, const std::string& DenoOrNume, const bool doPhi, const bool doEta, const bool doEtaPhi, const bool doVsLS){
 
   if (DenoOrNume == "denominator") {
     // index 0 = pt, 1 = ptThreshold , 2 = pt vs ls , 3 = phi, 4 = eta,
@@ -575,22 +408,13 @@ void JetMonitor::FillME(JetME* a_me,
     edm::LogWarning("JetMonitor") << "CHECK OUT denu option in FillME !!! DenoOrNume ? : " << DenoOrNume << std::endl;
   }
 }
-void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker,
-                           JetME* a_me,
-                           const int len_,
-                           const std::string& h_Name,
-                           const std::string& h_Title,
-                           const std::string& h_subOptName,
-                           std::string h_suOptTitle,
-                           bool doPhi,
-                           bool doEta,
-                           bool doEtaPhi,
-                           bool doVsLS) {
+
+void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker, ObjME* a_me, const int len_, const std::string& h_Name, const std::string& h_Title, const std::string& h_subOptName, const std::string& h_suOptTitle, const bool doPhi, const bool doEta, const bool doEtaPhi, const bool doVsLS) {
+
   std::string hName = h_Name;
   std::string hTitle = h_Title;
   std::string hSubN = "";
-  std::string hSubT = "";
-  hSubT = std::move(h_suOptTitle);
+  const std::string hSubT = h_suOptTitle;
 
   int nbin_phi = jet_phi_binning_.nbins;
   double maxbin_phi = jet_phi_binning_.xmax;
@@ -633,7 +457,7 @@ void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker,
   }
   hName = h_Name + "pT" + hSubN;
   hTitle = h_Title + " pT " + hSubT;
-  bookME(Ibooker, a_me[0], hName, hTitle, jetpT_binning.nbins, jetpT_binning.xmin, jetpT_binning.xmax);
+  bookME(Ibooker, a_me[0], hName, hTitle, jetpt_binning_.nbins, jetpt_binning_.xmin, jetpt_binning_.xmax);
   setMETitle(a_me[0], h_Title + " pT [GeV]", "events / [GeV]");
 
   hName = h_Name + "pT_pTThresh" + hSubN;
@@ -651,8 +475,8 @@ void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker,
            ls_binning_.nbins,
            ls_binning_.xmin,
            ls_binning_.xmax,
-           jetpT_binning.xmin,
-           jetpT_binning.xmax);
+           jetpt_binning_.xmin,
+           jetpt_binning_.xmax);
     setMETitle(a_me[2], "LS", h_Title + "pT [GeV]");
   }
 
@@ -687,12 +511,57 @@ void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker,
            nbin_eta,
            minbin_eta,
            maxbin_eta,
-           jetpT_binning.nbins,
-           jetpT_binning.xmin,
-           jetpT_binning.xmax);
+           jetpt_binning_.nbins,
+           jetpt_binning_.xmin,
+           jetpt_binning_.xmax);
     setMETitle(a_me[6], h_Title + " #eta", "Leading Jet pT [GeV]");
   }
 }
-// Define this as a plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
+
+void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
+
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("FolderName", "HLT/Jet");
+  desc.add<bool>("requireValidHLTPaths", false);
+
+  desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJetsCHS"));
+  desc.add<double>("ptcut", 20);
+  desc.add<bool>("ispfjettrg", true);
+  desc.add<bool>("iscalojettrg", false);
+
+  edm::ParameterSetDescription genericTriggerEventPSet;
+  genericTriggerEventPSet.add<bool>("andOr");
+  genericTriggerEventPSet.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi"));
+  genericTriggerEventPSet.add<std::vector<int> >("dcsPartitions", {});
+  genericTriggerEventPSet.add<bool>("andOrDcs", false);
+  genericTriggerEventPSet.add<bool>("errorReplyDcs", true);
+  genericTriggerEventPSet.add<std::string>("dbLabel", "");
+  genericTriggerEventPSet.add<bool>("andOrHlt", true);
+  genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT"));
+  genericTriggerEventPSet.add<std::vector<std::string> >("hltPaths", {});
+  genericTriggerEventPSet.add<std::string>("hltDBKey","");
+  genericTriggerEventPSet.add<bool>("errorReplyHlt", false);
+  genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 1);
+
+  desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
+  desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
+
+  edm::ParameterSetDescription histoPSet;
+  edm::ParameterSetDescription jetPSet;
+  edm::ParameterSetDescription jetPtThrPSet;
+  fillHistoPSetDescription(jetPSet);
+  fillHistoPSetDescription(jetPtThrPSet);
+  histoPSet.add<edm::ParameterSetDescription>("jetPSet", jetPSet);
+  histoPSet.add<edm::ParameterSetDescription>("jetPtThrPSet", jetPtThrPSet);
+  histoPSet.add<std::vector<double> >("jetptBinning", {0., 20., 40., 60., 80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 240., 260., 280., 300., 350., 400., 450., 1000.});
+
+  edm::ParameterSetDescription lsPSet;
+  fillHistoLSPSetDescription(lsPSet);
+  histoPSet.add<edm::ParameterSetDescription>("lsPSet", lsPSet);
+
+  desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
+
+  descriptions.add("jetMonitoring", desc);
+}
+
 DEFINE_FWK_MODULE(JetMonitor);

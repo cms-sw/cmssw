@@ -22,36 +22,29 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
-#include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 class BTVHLTOfflineSource : public DQMEDAnalyzer {
-public:
+
+ public:
   explicit BTVHLTOfflineSource(const edm::ParameterSet&);
   ~BTVHLTOfflineSource() override;
 
-private:
+ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const& run, edm::EventSetup const& c) override;
   void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
 
-  bool verbose_;
   std::string dirname_;
   std::string processname_;
+  bool verbose_;
 
   std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
 
@@ -78,51 +71,26 @@ private:
   edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenCalo_;
   edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenPf_;
 
-  edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosCalo;
-  edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosPf;
-
-  // edm::EDGetTokenT<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > >
-  //      caloTagInfosToken_;
-  // edm::EDGetTokenT<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > >
-  //      pfTagInfosToken_;
-
-  edm::Handle<std::vector<reco::TemplatedSecondaryVertexTagInfo<
-      reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,
-                                     reco::Track,
-                                     edm::refhelper::FindUsingAdvance<std::vector<reco::Track>, reco::Track> >,
-                      reco::JTATagInfo>,
-      reco::Vertex> > >
-      caloTagInfos;
-  edm::Handle<std::vector<reco::TemplatedSecondaryVertexTagInfo<
-      reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,
-                                     reco::Track,
-                                     edm::refhelper::FindUsingAdvance<std::vector<reco::Track>, reco::Track> >,
-                      reco::JTATagInfo>,
-      reco::Vertex> > >
-      pfTagInfos;
-
   edm::EDGetTokenT<reco::JetTagCollection> caloTagsToken_;
   edm::EDGetTokenT<reco::JetTagCollection> pfTagsToken_;
   edm::Handle<reco::JetTagCollection> caloTags;
   edm::Handle<reco::JetTagCollection> pfTags;
 
   HLTConfigProvider hltConfig_;
-  edm::Handle<edm::TriggerResults> triggerResults_;
-  edm::TriggerNames triggerNames_;
-  edm::Handle<trigger::TriggerEvent> triggerObj_;
 
   class PathInfo : public TriggerDQMBase {
+
+   public:
     PathInfo()
         : prescaleUsed_(-1),
           pathName_("unset"),
           filterName_("unset"),
           processName_("unset"),
           objectType_(-1),
-          triggerType_("unset"){};
+          triggerType_("unset") {}
 
-  public:
     ~PathInfo() override = default;
-    ;
+
     PathInfo(const int prescaleUsed,
              const std::string& pathName,
              const std::string& filterName,
@@ -168,7 +136,7 @@ private:
     // MonitorElement*  n_pixel_hits_;
     // MonitorElement*  n_total_hits_;
 
-  private:
+   private:
     int prescaleUsed_;
     std::string pathName_;
     std::string filterName_;
@@ -178,10 +146,13 @@ private:
   };
 
   class PathInfoCollection : public std::vector<PathInfo> {
-  public:
+
+   public:
     PathInfoCollection() : std::vector<PathInfo>(){};
     std::vector<PathInfo>::iterator find(const std::string& pathName) { return std::find(begin(), end(), pathName); }
   };
+
   PathInfoCollection hltPathsAll_;
 };
+
 #endif

@@ -8,22 +8,19 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-//DataFormats
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -36,85 +33,28 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-class GenericTriggerEventFlag;
+class METMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 
-//
-// class declaration
-//
+ public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
 
-class METMonitor : public DQMEDAnalyzer {
-public:
-  struct MEbinning {
-    unsigned nbins;
-    double xmin;
-    double xmax;
-  };
-
-  struct METME {
-    MonitorElement* numerator = nullptr;
-    MonitorElement* denominator = nullptr;
-  };
-
-public:
   METMonitor(const edm::ParameterSet&);
-  ~METMonitor() override;
+  ~METMonitor() throw() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
-  static void fillHistoLSPSetDescription(edm::ParameterSetDescription& pset);
 
-protected:
+ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void bookME(DQMStore::IBooker&,
-              METME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              int nbins,
-              double xmin,
-              double xmax);
-  void bookME(DQMStore::IBooker&,
-              METME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              const std::vector<double>& binningX);
-  void bookME(DQMStore::IBooker&,
-              METME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              int nbinsX,
-              double xmin,
-              double xmax,
-              double ymin,
-              double ymax);
-  void bookME(DQMStore::IBooker&,
-              METME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              int nbinsX,
-              double xmin,
-              double xmax,
-              int nbinsY,
-              double ymin,
-              double ymax);
-  void bookME(DQMStore::IBooker&,
-              METME& me,
-              const std::string& histname,
-              const std::string& histtitle,
-              const std::vector<double>& binningX,
-              const std::vector<double>& binningY);
-  void setMETitle(METME& me, const std::string& titleX, const std::string& titleY);
-
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
-private:
-  static MEbinning getHistoPSet(const edm::ParameterSet& pset);
-  static MEbinning getHistoLSPSet(const edm::ParameterSet& pset);
+ private:
+  const std::string folderName_;
 
-  std::string folderName_;
-  std::string histoSuffix_;
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
 
   edm::InputTag metInputTag_;
   edm::InputTag jetInputTag_;
@@ -132,12 +72,12 @@ private:
   MEbinning met_binning_;
   MEbinning ls_binning_;
 
-  METME metME_;
-  METME metME_variableBinning_;
-  METME metVsLS_;
-  METME metPhiME_;
-  METME deltaphimetj1ME_;
-  METME deltaphij1j2ME_;
+  ObjME metME_;
+  ObjME metME_variableBinning_;
+  ObjME metVsLS_;
+  ObjME metPhiME_;
+  ObjME deltaphimetj1ME_;
+  ObjME deltaphij1j2ME_;
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
@@ -158,4 +98,4 @@ private:
   std::vector<bool> warningPrinted4token_;
 };
 
-#endif  // METMONITOR_H
+#endif

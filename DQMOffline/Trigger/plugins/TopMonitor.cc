@@ -56,7 +56,7 @@ class TopMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
   typedef std::map<edm::RefToBase<reco::Jet>, float, JetRefCompare> JetTagMap;
 
  private:
-  std::string folderName_;
+  const std::string folderName_;
 
   const bool requireValidHLTPaths_;
   bool hltPathsAreValid_;

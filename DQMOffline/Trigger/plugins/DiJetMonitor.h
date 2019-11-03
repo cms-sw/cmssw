@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -22,10 +22,8 @@
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-//DataFormats
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -40,22 +38,17 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
-class GenericTriggerEventFlag;
-
-//
-// class declaration
-//
-
 class DiJetMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
-public:
+
+ public:
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
   DiJetMonitor(const edm::ParameterSet &);
-  ~DiJetMonitor() throw() override{};
+  ~DiJetMonitor() throw() override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-protected:
+ protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
   bool dijet_selection(double eta_1,
@@ -68,14 +61,16 @@ protected:
                        int &probe_id,
                        int Event);
 
-private:
-  std::string folderName_;
-  std::string histoSuffix_;
+ private:
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
 
   edm::EDGetTokenT<reco::PFMETCollection> metToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection> muoToken_;
-  edm::EDGetTokenT<reco::PFJetCollection> dijetSrc_;  // test for Jet
+  edm::EDGetTokenT<reco::PFJetCollection> dijetSrc_; // test for Jet
 
   MEbinning dijetpt_binning_;
   MEbinning dijetptThr_binning_;
@@ -118,4 +113,4 @@ private:
   MEbinning asy_binning{N_asy, MIN_asy, MAX_asy};
 };
 
-#endif  // DIJETMETMONITOR_H
+#endif
