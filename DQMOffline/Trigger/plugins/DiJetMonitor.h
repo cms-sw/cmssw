@@ -18,7 +18,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
-#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
+#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
