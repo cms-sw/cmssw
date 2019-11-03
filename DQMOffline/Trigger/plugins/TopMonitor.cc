@@ -27,7 +27,7 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
+#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
 
 #include <string>
 #include <vector>

@@ -38,7 +38,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
-#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
+#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
 #include "DQMOffline/Trigger/plugins/METDQM.h"
 #include "DQMOffline/Trigger/plugins/JetDQM.h"
 #include "DQMOffline/Trigger/plugins/HTDQM.h"

@@ -4,7 +4,7 @@
 #include <vector>
 #include "TLorentzVector.h"
 
-#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
+#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/JetReco/interface/PFJet.h"

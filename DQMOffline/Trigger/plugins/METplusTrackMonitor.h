@@ -22,7 +22,7 @@
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
 
-#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
+#include "DQMOffline/Trigger/interface/TriggerDQMBase.h"
 
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
