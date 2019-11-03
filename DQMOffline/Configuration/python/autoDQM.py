@@ -1,18 +1,18 @@
 autoDQM = { 'common': ['@dcs+DQMMessageLoggerSeq+@strip+@pixel+@tracking+@L1TMon+@hlt+@beam+@castor+@physics+@tau',
                         'PostDQMOffline',
-                        '@dcs+DQMMessageLoggerSeq+@strip+@pixel+@tracking+@L1TMon+@hlt+@beam+@fed+@tau+dqmFastTimerServiceClient'],
+                        '@dcs+DQMMessageLoggerClientSeq+@strip+@pixel+@tracking+@L1TMon+@hlt+@beam+@fed+@tau+dqmFastTimerServiceClient'],
 
             'commonFakeHLT': ['@dcs+DQMMessageLoggerSeq+@strip+@pixel+@tracking+@L1TMon+@beam+@castor+@physics+@tau',
                         'PostDQMOffline',
-                        '@dcs+DQMMessageLoggerSeq+@strip+@pixel+@tracking+@L1TMon+@beam+@fed+@tau+dqmFastTimerServiceClient'],
+                        '@dcs+DQMMessageLoggerClientSeq+@strip+@pixel+@tracking+@L1TMon+@beam+@fed+@tau+dqmFastTimerServiceClient'],
 
-            'commonSiStripZeroBias': ['@dcs+DQMMessageLoggerSeq+@stripZeroBias+@pixel+@tracking+@L1TMon+@hlt+@beam+@castor+@physics',
+            'commonSiStripZeroBias': ['@dcs+DQMMessageLoggerSeq+DQMOfflineCommonSiStripZeroBias+@tracking+@L1TMon+@hlt+@beam+@castor+@physics',
                                       'PostDQMOffline',
-                                      '@dcs+DQMMessageLoggerSeq+@strip+@pixel+@tracking+@L1TMon+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
+                                      '@dcs+DQMMessageLoggerClientSeq+DQMHarvestCommonSiStripZeroBias+@tracking+@L1TMon+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
 
-            'commonSiStripZeroBiasFakeHLT': ['@dcs+DQMMessageLoggerSeq+@stripZeroBias+@pixel+@tracking+@L1TMon+@beam+@castor+@physics',
+            'commonSiStripZeroBiasFakeHLT': ['@dcs+DQMMessageLoggerSeq+DQMOfflineCommonSiStripZeroBiasFakeHLT+@tracking+@L1TMon+@beam+@castor+@physics',
                                       'PostDQMOffline',
-                                      '@dcs+DQMMessageLoggerSeq+@strip+@pixel+@tracking+@L1TMon+@beam+@fed+dqmFastTimerServiceClient'],
+                                      '@dcs+DQMMessageLoggerClientSeq+DQMHarvestCommonSiStripZeroBiasFakeHLT+@tracking+@L1TMon+@beam+@fed+dqmFastTimerServiceClient'],
 
             'trackingOnlyDQM': ['DQMOfflineTracking',
                                 'PostDQMOffline',
@@ -167,7 +167,7 @@ autoDQM = { 'common': ['@dcs+DQMMessageLoggerSeq+@strip+@pixel+@tracking+@L1TMon
                             'dqmHarvesting'],
 #            'standardDQM': ['@dcs+DQMMessageLoggerSeq+@ecal+@hcal+@hcal2+@strip+@pixel+@castor+@ctpps+@muon+@tracking+@jetmet+@egamma+@L1TMon+@hlt+@btag+@beam+@physics+@HLTMon',
 #                            'PostDQMOffline',
-#                            '@dcs+DQMMessageLoggerSeq+@ecal+@hcal+@hcal2+@strip+@pixel+@fed+@muon+@tracking+@jetmet+@egamma+@L1TMon+@hlt+@btag+@beam+@HLTMon'],
+#                            '@dcs+DQMMessageLoggerClientSeq+@ecal+@hcal+@hcal2+@strip+@pixel+@fed+@muon+@tracking+@jetmet+@egamma+@L1TMon+@hlt+@btag+@beam+@HLTMon'],
 
             'ExtraHLT': ['DQMOfflineExtraHLT',
                          'PostDQMOffline',
@@ -178,7 +178,7 @@ autoDQM = { 'common': ['@dcs+DQMMessageLoggerSeq+@strip+@pixel+@tracking+@L1TMon
                                    'dqmHarvestingFakeHLT'],
 #            'standardDQMFakeHLT': ['@dcs+DQMMessageLoggerSeq+@ecal+@hcal+@hcal2+@strip+@pixel+@castor+@ctpps+@muon+@tracking+@jetmet+@egamma+@L1TMon+@btag+@beam+@physics',
 #                                   'PostDQMOffline',
-#                                   '@dcs+DQMMessageLoggerSeq+@ecal+@hcal+@hcal2+@strip+@pixel+@fed+@muon+@tracking+@jetmet+@egamma+@L1TMon+@btag+@beam'],
+#                                   '@dcs+DQMMessageLoggerClientSeq+@ecal+@hcal+@hcal2+@strip+@pixel+@fed+@muon+@tracking+@jetmet+@egamma+@L1TMon+@btag+@beam'],
 
             'standardDQMHIFakeHLT': ['DQMOfflineHeavyIonsFakeHLT',
                                    'PostDQMOfflineHI',
