@@ -22,10 +22,13 @@ trackstersHAD = _trackstersProducer.clone(
     filtered_mask = cms.InputTag("filteredLayerClustersHAD", "HAD"),
     original_mask = 'trackstersTrk',
     seeding_regions = "ticlSeedingGlobal",
+    # For the moment we mask everything w/o requirements since we are last
+#    filter_on_categories = [5], # filter neutral hadrons
+#    pid_threshold = 0.7,
     missing_layers = 2,
     min_clusters_per_ntuplet = 10,
-    min_cos_theta = 0.8,
-    min_cos_pointing = 0.7
+    min_cos_theta = 0.866,    # ~30 degrees
+    min_cos_pointing = 0.866, # ~30 degrees
     )
 
 # MULTICLUSTERS
