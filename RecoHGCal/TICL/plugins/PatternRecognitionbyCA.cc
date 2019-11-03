@@ -242,7 +242,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
         float *features = &input.tensor<float, 4>()(i, j, seenClusters[j], 0);
 
         // fill features
-        *(features++) = float(cluster.eta());
+        *(features++) = float(std::abs(cluster.eta()));
         *(features++) = float(cluster.phi());
         *features = float(cluster.energy());
 
