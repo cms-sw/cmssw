@@ -132,7 +132,7 @@ bool HGCGraph::areTimeCompatible(int innerIdx,
   float timeOut = layerClustersTime.get(outerIdx).first;
   float timeOutE = layerClustersTime.get(outerIdx).second;
 
-  return (timeIn == -99 || timeOut == -99 ||
+  return (timeIn == -99. || timeOut == -99. ||
           std::abs(timeIn - timeOut) < maxDeltaTime * sqrt(timeInE * timeInE + timeOutE * timeOutE));
 }
 
