@@ -273,7 +273,7 @@ bjetNN= cms.EDProducer("BJetEnergyRegressionMVA",
     svsrc = cms.InputTag("slimmedSecondaryVertices"),
     rhosrc = cms.InputTag("fixedGridRhoFastjetAll"),
 
-    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/breg_training_2017.pb"),
+    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/breg_training_2018.pb"),
     name = cms.string("JetRegNN"),
     isClassifier = cms.bool(False),
     variablesOrder = cms.vstring(["Jet_pt","Jet_eta","rho","Jet_mt","Jet_leadTrackPt","Jet_leptonPtRel","Jet_leptonDeltaR","Jet_neHEF",
@@ -314,9 +314,10 @@ bjetNN= cms.EDProducer("BJetEnergyRegressionMVA",
      inputTensorName = cms.string("ffwd_inp"),
      outputTensorName = cms.string("ffwd_out/BiasAdd"),
      outputNames = cms.vstring(["corr","res"]),
-     outputFormulas = cms.vstring(["at(0)*0.28225210309028625+1.055067777633667","0.5*(at(2)-at(1))*0.28225210309028625"]),
+     outputFormulas = cms.vstring(["at(0)*0.27912887930870056+1.0545977354049683","0.5*(at(2)-at(1))*0.27912887930870056"]),
      nThreads = cms.uint32(1),
      singleThreadPool = cms.string("no_threads"),
+
 )
 
 
@@ -418,8 +419,6 @@ run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, n2b1 = None)
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, n3b1 = None)
 run2_jme_2016.toModify( fatJetTable.variables, jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"))
 
-run2_miniAOD_80XLegacy.toModify( bjetNN, weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/breg_training_2016.pb") )
-run2_miniAOD_80XLegacy.toModify( bjetNN,outputFormulas = cms.vstring(["at(0)*0.31976690888404846+1.047176718711853","0.5*(at(2)-at(1))*0.31976690888404846"]))
 run2_jme_2016.toModify( bjetNN, weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/breg_training_2016.pb") )
 run2_jme_2016.toModify( bjetNN,outputFormulas = cms.vstring(["at(0)*0.31976690888404846+1.047176718711853","0.5*(at(2)-at(1))*0.31976690888404846"]))
 
