@@ -40,6 +40,8 @@ upgradeKeys[2026] = [
     '2026D47PU',
     '2026D48',
     '2026D48PU',
+    '2026D49',
+    '2026D49PU',
 ]
 
 # pre-generation of WF numbers
@@ -211,6 +213,15 @@ upgradeSteps['heCollapse'] = {
     ],
     'suffix' : '_heCollapse',
     'offset' : 0.6,
+}
+upgradeSteps['trackingMkFit'] = {
+    'steps' : [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_trackingMkFit',
+    'offset' : 0.7,
 }
 upgradeSteps['ParkingBPH'] = {
     'steps' : [
@@ -394,6 +405,13 @@ upgradeProperties[2026] = {
     },
     '2026D48' : {
         'Geom' : 'Extended2026D48',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T15',
+        'Era' : 'Phase2C9_timing_layer_bar',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2026D49' : {
+        'Geom' : 'Extended2026D49',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T15',
         'Era' : 'Phase2C9_timing_layer_bar',
