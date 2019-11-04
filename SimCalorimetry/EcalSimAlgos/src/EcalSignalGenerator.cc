@@ -42,7 +42,7 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
   CaloSamples result(detId, digi.size());
 
   // correction factor for premixed sample: ratio of laser corrections
-  float correction_factor_for_premixed_sample_transparency = 1.0;
+  double correction_factor_for_premixed_sample_transparency = 1.0;
   double value_LC = 1.;
   if (m_timeDependent) {
     if (detId.subdetId() != EcalSubdetector::EcalPreshower) {
@@ -149,7 +149,7 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
   CaloSamples result(detId, digi.size());
 
   // correction facotr for premixed sample: ratio of laser corrections
-  float correction_factor_for_premixed_sample_transparency = 1.0;
+  double correction_factor_for_premixed_sample_transparency = 1.0;
   double value_LC = 1.;
 
   if (m_timeDependent) {
