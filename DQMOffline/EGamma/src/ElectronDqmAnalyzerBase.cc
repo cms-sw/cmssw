@@ -66,10 +66,10 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1(DQMStor
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, lowX, highX);
   if (!titleX.empty()) {
-    me->setAxisTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
-    me->setAxisTitle(titleY.c_str(), 2);
+    me->setAxisTitle(titleY, 2);
   }
   if (TString(option) != "") {
     me->setOption(option);
@@ -94,10 +94,10 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1withSumw
   if (me->getTH1F()->GetSumw2N() == 0)
     me->enableSumw2();
   if (!titleX.empty()) {
-    me->setAxisTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
-    me->setAxisTitle(titleY.c_str(), 2);
+    me->setAxisTitle(titleY, 2);
   }
   if (TString(option) != "") {
     me->setOption(option);
@@ -123,10 +123,10 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2(DQMStor
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book2D(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
   if (!titleX.empty()) {
-    me->setAxisTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
-    me->setAxisTitle(titleY.c_str(), 2);
+    me->setAxisTitle(titleY, 2);
   }
   if (TString(option) != "") {
     me->setOption(option);
@@ -154,10 +154,10 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2withSumw
   if (me->getTH2F()->GetSumw2N() == 0)
     me->enableSumw2();
   if (!titleX.empty()) {
-    me->setAxisTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
-    me->setAxisTitle(titleY.c_str(), 2);
+    me->setAxisTitle(titleY, 2);
   }
   if (TString(option) != "") {
     me->setOption(option);
@@ -185,7 +185,7 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookP1(DQMStor
     me->getTProfile()->GetXaxis()->SetTitle(titleX.c_str());
   }
   if (!titleY.empty()) {
-    me->setAxisTitle(titleY.c_str(), 2);
+    me->setAxisTitle(titleY, 2);
   }
   if (TString(option) != "") {
     me->getTProfile()->SetOption(option);

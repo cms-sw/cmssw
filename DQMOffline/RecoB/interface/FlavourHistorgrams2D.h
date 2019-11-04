@@ -829,7 +829,7 @@ void FlavourHistograms2D<T, G>::plot(TPad *theCanvas /* = 0 */) {
     markerStyle[3] = 23;
   }
 
-  histo[0]->setAxisTitle(theBaseNameDescription.c_str());
+  histo[0]->setAxisTitle(theBaseNameDescription);
   histo[0]->getTH2F()->GetYaxis()->SetTitle("Arbitrary Units");
   histo[0]->getTH2F()->GetYaxis()->SetTitleOffset(1.25);
 
