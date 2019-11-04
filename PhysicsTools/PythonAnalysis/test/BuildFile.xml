@@ -40,6 +40,7 @@
 <iftool name="py2-cx-oracle">
   <test name="testCxOracle" command="python -c 'import cx_Oracle'"/>
 </iftool>
+
 <test name="import-jinja2"   command="python -c 'import jinja2'"/>
 <test name="import-keras" command="python -c 'import keras'"/>
 <test name="import-markupsafe" command="python -c 'import markupsafe'"/>
@@ -56,7 +57,7 @@
 <test name="import-bottleneck" command="python -c 'import bottleneck'"/>
 <test name="import-certifi" command="python -c 'import certifi'"/>
 <test name="import-chardet" command="python -c 'import chardet'"/>
-<test name="import-cjson" command="python -c 'import cjson'"/>
+<test name="import-cjson" command="python2 -c 'import cjson'"/>
 <test name="import-click" command="python -c 'import click'"/>
 <test name="import-climate" command="python -c 'import climate'"/>
 <test name="import-cycler" command="python -c 'import cycler'"/>
@@ -98,7 +99,7 @@
 <test name="import-numexpr" command="python -c 'import numexpr'"/>
 <test name="import-numpy" command="python -c 'import numpy'"/>
 <test name="import-oamap" command="python -c 'import oamap'"/>
-<test name="import-ordereddict" command="python -c 'import ordereddict'"/>
+<test name="import-ordereddict" command="python2 -c 'import ordereddict'"/>
 <test name="import-packaging" command="python -c 'import packaging'"/>
 <test name="import-pandas" command="python -c 'import pandas'"/>
 <test name="import-pandocfilters" command="python -c 'import pandocfilters'"/>
@@ -162,6 +163,7 @@
 <test name="import-lxml" command="python -c 'import lxml'"/>
 <test name="import-bs4" command="python -c 'import bs4'"/>
 <test name="run-flawfinder" command="flawfinder -h"/>
-<test name="run-ipython" command="ipython -h"/>
+<test name="run-ipython" command="python2 $(which ipython) -h"/>
+<test name="run-ipython3" command="python3 $(which ipython3) -h"/>
 <test name="run-pylint" command="python2 $(shell which pylint) -h"/>
 <test name="run-pylint3" command="python3 $(shell which pylint3) -h"/>
