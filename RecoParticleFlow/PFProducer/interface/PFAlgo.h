@@ -84,13 +84,7 @@ public:
                             const edm::ValueMap<reco::GsfElectronRef>& valueMapGedElectrons,
                             const edm::ValueMap<reco::PhotonRef>& valueMapGedPhotons);
 
-  void setPostHFCleaningParameters(bool postHFCleaning,
-                                   double minHFCleaningPt,
-                                   double minSignificance,
-                                   double maxSignificance,
-                                   double minSignificanceReduction,
-                                   double maxDeltaPhiPt,
-                                   double minDeltaMet);
+  void setPostHFCleaningParameters(bool postHFCleaning, const edm::ParameterSet& pfHFCleaningParams);
 
   void setDisplacedVerticesParameters(bool rejectTracks_Bad,
                                       bool rejectTracks_Step45,

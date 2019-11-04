@@ -25,7 +25,9 @@ public:
         useIterTracking_(conf.getParameter<bool>("useIterativeTracking")),
         cleanBadConvBrems_(
             conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false) {
-    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo(conf));
+    bool postMuonCleaning =
+        conf.existsAs<bool>("postMuonCleaning") ? conf.getParameter<bool>("postMuonCleaning") : false;
+    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo(conf, postMuonCleaning));
   }
 
   void importToBlock(const edm::Event&, ElementList&) const override;
