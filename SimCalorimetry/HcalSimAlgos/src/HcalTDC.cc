@@ -76,18 +76,19 @@ void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame& digi) const {
     digi.setSample(ibin, digi[ibin].adc(), packedTDC, digi[ibin].soi());
 
     /*if ( hasTDCValues) {
-	if(HcalDetId(hcaldetid()).ieta()==1&&HcalDetId(hcaldetid()).iphi()==1){
-            std::cout << " Depth: " << digi.hcaldetid().depth() 
+	if(HcalDetId(digi.detid()).ieta()==1&&HcalDetId(digi.detid()).iphi()==1){
+            std::cout << " Depth: " << HcalDetId(digi.detid()).depth() 
 		<< " sample: " << ibin << " adc: " << digi[ibin].adc() 
 		<< " capid: " << digi[ibin].capid() 
 		<< " risingEdge: " << TDC_RisingEdge 
 		<< " packedTDC: " << packedTDC 
 		<< " tdc: " << digi[ibin].tdc() 
 		<< " flavor(HE=0/HB=3): " << digi.flavor() 
-		<< " SubDet(HE=2/HB=1): " << digi.hcaldetid().subdet() 
+		<< " SubDet(HE=2/HB=1): " << HcalDetId(digi.detid()).subdet() 
 		<< std::endl;
         }
     }*/
+    // if(HcalDetId(digi.detid()).ieta()==1&&HcalDetId(digi.detid()).iphi()==1) std::cout<<digi<<std::endl;
   }  // loop over bunch crossing bins
 }
 

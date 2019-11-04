@@ -420,35 +420,26 @@ public:
     int fiberchan = eid.fiberChanId();
     // capacitor id for the first sample
 
-    // Flavor is added
-
     int flavor = qiedf[0].flavor();
     int capid0;
     if (qiedf.samples() == 0)
       capid0 = 0;
-    if (flavor == 3)
-      capid0 = qiedf[1].capid();
-    else
+    else if (flavor == 3) {
+      header |= (fiberchan & QIE11HeaderSpec3::MASK_FIBERCHAN) << QIE11HeaderSpec3::OFFSET_FIBERCHAN;
+      header |= (fiber & QIE11HeaderSpec3::MASK_FIBER) << QIE11HeaderSpec3::OFFSET_FIBER;
+      header |= (0x0 & QIE11HeaderSpec3::MASK_MP) << QIE11HeaderSpec3::OFFSET_MP;
+      header |= (0x0 & QIE11HeaderSpec3::MASK_LINKERROR) << QIE11HeaderSpec3::OFFSET_LINKERROR;
+      header |= (flavor & QIE11HeaderSpec3::MASK_FLAVOR) << QIE11HeaderSpec3::OFFSET_FLAVOR;  //flavor
+      header |= (0x1 & QIE11HeaderSpec3::MASK_HEADER_BIT) << QIE11HeaderSpec3::OFFSET_HEADER_BIT;
+    } else {
       capid0 = qiedf[0].capid();
-
-    // adding only cases for flavor 3
-
-    switch (flavor) {
-      case 0:
-        header |= (fiberchan & QIE11HeaderSpec0::MASK_FIBERCHAN) << QIE11HeaderSpec0::OFFSET_FIBERCHAN;
-        header |= (fiber & QIE11HeaderSpec0::MASK_FIBER) << QIE11HeaderSpec0::OFFSET_FIBER;
-        header |= (capid0 & QIE11HeaderSpec0::MASK_CAPID) << QIE11HeaderSpec0::OFFSET_CAPID;
-        header |= (0x0 & QIE11HeaderSpec0::MASK_FIBERERR) << QIE11HeaderSpec0::OFFSET_FIBERERR;
-        header |= (flavor & QIE11HeaderSpec0::MASK_FLAVOR) << QIE11HeaderSpec0::OFFSET_FLAVOR;  //flavor
-        header |= (0x1 & QIE11HeaderSpec0::MASK_HEADER_BIT) << QIE11HeaderSpec0::OFFSET_HEADER_BIT;
-      case 3:
-        header |= (fiberchan & QIE11HeaderSpec3::MASK_FIBERCHAN) << QIE11HeaderSpec3::OFFSET_FIBERCHAN;
-        header |= (fiber & QIE11HeaderSpec3::MASK_FIBER) << QIE11HeaderSpec3::OFFSET_FIBER;
-        header |= (0x0 & QIE11HeaderSpec3::MASK_MP) << QIE11HeaderSpec3::OFFSET_MP;
-        header |= (0x0 & QIE11HeaderSpec3::MASK_LINKERROR) << QIE11HeaderSpec3::OFFSET_LINKERROR;
-        header |= (flavor & QIE11HeaderSpec3::MASK_FLAVOR) << QIE11HeaderSpec3::OFFSET_FLAVOR;  //flavor
-        header |= (0x1 & QIE11HeaderSpec3::MASK_HEADER_BIT) << QIE11HeaderSpec3::OFFSET_HEADER_BIT;
-    };
+      header |= (fiberchan & QIE11HeaderSpec0::MASK_FIBERCHAN) << QIE11HeaderSpec0::OFFSET_FIBERCHAN;
+      header |= (fiber & QIE11HeaderSpec0::MASK_FIBER) << QIE11HeaderSpec0::OFFSET_FIBER;
+      header |= (capid0 & QIE11HeaderSpec0::MASK_CAPID) << QIE11HeaderSpec0::OFFSET_CAPID;
+      header |= (0x0 & QIE11HeaderSpec0::MASK_FIBERERR) << QIE11HeaderSpec0::OFFSET_FIBERERR;
+      header |= (flavor & QIE11HeaderSpec0::MASK_FLAVOR) << QIE11HeaderSpec0::OFFSET_FLAVOR;  //flavor
+      header |= (0x1 & QIE11HeaderSpec0::MASK_HEADER_BIT) << QIE11HeaderSpec0::OFFSET_HEADER_BIT;
+    }
 
     return header;
   }
@@ -629,10 +620,10 @@ public:
 
 // converts HE QIE digies to HB data format
 
-QIE11DataFrame convertHB2HE(QIE11DataFrame qiehe) {
+QIE11DataFrame convertHB(QIE11DataFrame qiehe) {
   QIE11DataFrame qiehb = qiehe;
-  int adc_, tdc_, capid_;
-  bool soi_;
+  int adc, tdc, capid;
+  bool soi;
   int is = 0;
 
   //  flavor for HB digies is hardcoded here
@@ -642,27 +633,27 @@ QIE11DataFrame convertHB2HE(QIE11DataFrame qiehe) {
   for (edm::DataFrame::const_iterator it = qiehe.begin(); it != qiehe.end(); ++it) {
     if (it == qiehe.begin())
       continue;
-    adc_ = qiehe[is].adc();
-    tdc_ = qiehe[is].tdc();
-    soi_ = qiehe[is].soi();
+    adc = qiehe[is].adc();
+    tdc = qiehe[is].tdc();
+    soi = qiehe[is].soi();
 
-    if (tdc_ >= 0 && tdc_ <= 24)
-      tdc_ = 0;
-    else if (tdc_ >= 25 && tdc_ <= 49)
-      tdc_ = 1;
-    else if (tdc_ == 63)
-      tdc_ = 2;
-    else if (tdc_ == 62)
-      tdc_ = 3;
+    if (tdc >= 0 && tdc <= 24)
+      tdc = 0;
+    else if (tdc >= 25 && tdc <= 49)
+      tdc = 1;
+    else if (tdc == 63)
+      tdc = 2;
+    else if (tdc == 62)
+      tdc = 3;
 
-    qiehb.setSample(is, adc_, tdc_, soi_);
+    qiehb.setSample(is, adc, tdc, soi);
     is++;
   };
 
   // puting flavor is safe here because flavor is stored in the same bits for all flavors
   qiehb.setFlavor(hbflavor);
-  capid_ = qiehe[0].capid();
-  qiehb.setCapid0(capid_);
+  capid = qiehe[0].capid();
+  qiehb.setCapid0(capid);
 
   return qiehb;
 }
