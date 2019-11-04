@@ -355,8 +355,7 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker, unsigned i
 
   HPTDCErrorFlags_2D = ibooker.book2D("HPTDC Errors", title + " HPTDC Errors", 16, -0.5, 16.5, 9, -0.5, 8.5);
   for (unsigned short error_index = 1; error_index < 16; ++error_index)
-    HPTDCErrorFlags_2D->setBinLabel(error_index,
-                                                           HPTDCErrorFlags::hptdcErrorName(error_index - 1).c_str());
+    HPTDCErrorFlags_2D->setBinLabel(error_index, HPTDCErrorFlags::hptdcErrorName(error_index - 1).c_str());
   HPTDCErrorFlags_2D->setBinLabel(16, "Wrong EC");
 
   int tmpIndex = 0;
@@ -441,8 +440,7 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, un
 
   HPTDCErrorFlags = ibooker.book1D("hptdc_Errors", title + " HPTDC Errors", 16, -0.5, 16.5);
   for (unsigned short error_index = 1; error_index < 16; ++error_index)
-    HPTDCErrorFlags->setBinLabel(error_index,
-                                                        HPTDCErrorFlags::hptdcErrorName(error_index - 1).c_str());
+    HPTDCErrorFlags->setBinLabel(error_index, HPTDCErrorFlags::hptdcErrorName(error_index - 1).c_str());
   HPTDCErrorFlags->setBinLabel(16, "MH  (%)");
 
   leadingEdgeCumulative_both =

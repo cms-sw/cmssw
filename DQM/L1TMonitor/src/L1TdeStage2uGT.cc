@@ -201,28 +201,20 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
     htitle = "uGT Data/Emulator Mismatches --" + bxn.str();
     m_SummaryHistograms[hname] = ibooker.book1D(hname, htitle, NSummaryColumns, 0., double(NSummaryColumns));
     m_SummaryHistograms[hname]->setAxisTitle("Events", /* axis */ 2);
-    m_SummaryHistograms[hname]->setBinLabel(1 + NInitalMismatchDataNoEmul,
-                                                                   "Data, NoEmul -- Initial Decisions");
-    m_SummaryHistograms[hname]->setBinLabel(1 + NInitalMismatchEmulNoData,
-                                                                   "Emulator, No Data -- Initial Decisions");
-    m_SummaryHistograms[hname]->setBinLabel(1 + NFinalMismatchDataNoEmul,
-                                                                   "Data, NoEmul -- Final Decisions");
-    m_SummaryHistograms[hname]->setBinLabel(1 + NFinalMismatchEmulNoData,
-                                                                   "Emulator, No Data -- Final Decisions");
+    m_SummaryHistograms[hname]->setBinLabel(1 + NInitalMismatchDataNoEmul, "Data, NoEmul -- Initial Decisions");
+    m_SummaryHistograms[hname]->setBinLabel(1 + NInitalMismatchEmulNoData, "Emulator, No Data -- Initial Decisions");
+    m_SummaryHistograms[hname]->setBinLabel(1 + NFinalMismatchDataNoEmul, "Data, NoEmul -- Final Decisions");
+    m_SummaryHistograms[hname]->setBinLabel(1 + NFinalMismatchEmulNoData, "Emulator, No Data -- Final Decisions");
 
     if (i == 0) {
       hname = "normalizationHisto";
       htitle = "Normalization histogram for uGT Data/Emulator Mismatches ratios";
       m_normalizationHisto = ibooker.book1D(hname, htitle, NSummaryColumns, 0., double(NSummaryColumns));
       m_normalizationHisto->setAxisTitle("Events", /* axis */ 2);
-      m_normalizationHisto->setBinLabel(1 + NInitalMismatchDataNoEmul,
-                                                               "Data, NoEmul -- Initial Decisions");
-      m_normalizationHisto->setBinLabel(1 + NInitalMismatchEmulNoData,
-                                                               "Emulator, No Data -- Initial Decisions");
-      m_normalizationHisto->setBinLabel(1 + NFinalMismatchDataNoEmul,
-                                                               "Data, NoEmul -- Final Decisions");
-      m_normalizationHisto->setBinLabel(1 + NFinalMismatchEmulNoData,
-                                                               "Emulator, No Data -- Final Decisions");
+      m_normalizationHisto->setBinLabel(1 + NInitalMismatchDataNoEmul, "Data, NoEmul -- Initial Decisions");
+      m_normalizationHisto->setBinLabel(1 + NInitalMismatchEmulNoData, "Emulator, No Data -- Initial Decisions");
+      m_normalizationHisto->setBinLabel(1 + NFinalMismatchDataNoEmul, "Data, NoEmul -- Final Decisions");
+      m_normalizationHisto->setBinLabel(1 + NFinalMismatchEmulNoData, "Emulator, No Data -- Final Decisions");
     }
 
     // book initial decisions histograms
