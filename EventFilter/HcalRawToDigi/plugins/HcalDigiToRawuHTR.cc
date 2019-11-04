@@ -146,12 +146,13 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
 
       //   convert to hb qie data if hb
       if (HcalDetId(detid.rawId()).subdet() == HcalSubdetector::HcalBarrel)
-        qiedf = convertHB2HE(qiedf);
+        qiedf = convertHB(qiedf);
 
       if (!uhtrs.exist(uhtrIndex)) {
         uhtrs.newUHTR(uhtrIndex, presamples);
       }
       uhtrs.addChannel(uhtrIndex, qiedf, readoutMap, _verbosity);
+      // if(HcalDetId(qiedf.detid()).ieta()==1&&HcalDetId(qiedf.detid()).iphi()==1) std::cout<<qiedf<<std::endl;
     }
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - -
