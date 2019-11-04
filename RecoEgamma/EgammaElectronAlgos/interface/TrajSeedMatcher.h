@@ -33,8 +33,7 @@
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "TrackingTools/RecoGeometry/interface/GlobalDetLayerGeometry.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-
-#include <unordered_map>
+#include "RecoEgamma/EgammaElectronAlgos/interface/utils.h"
 
 namespace edm {
   class EventSetup;
@@ -45,23 +44,6 @@ namespace edm {
 
 class FreeTrajectoryState;
 class TrackingRecHit;
-
-//stolen from PixelHitMatcher
-//decide if its evil or not later
-//actually I think the answer is, yes, yes its evil
-//maybe replace with less evil?
-namespace std {
-  template <>
-  struct hash<std::pair<int, GlobalPoint> > {
-    std::size_t operator()(const std::pair<int, GlobalPoint>& g) const {
-      auto h1 = std::hash<unsigned long long>()((unsigned long long)g.first);
-      unsigned long long k;
-      memcpy(&k, &g.second, sizeof(k));
-      auto h2 = std::hash<unsigned long long>()(k);
-      return h1 ^ (h2 << 1);
-    }
-  };
-}  // namespace std
 
 class TrajSeedMatcher {
 public:
@@ -290,8 +272,8 @@ private:
   std::unordered_map<int, TrajectoryStateOnSurface> trajStateFromVtxPosChargeCache_;
   std::unordered_map<int, TrajectoryStateOnSurface> trajStateFromVtxNegChargeCache_;
 
-  std::unordered_map<std::pair<int, GlobalPoint>, TrajectoryStateOnSurface> trajStateFromPointPosChargeCache_;
-  std::unordered_map<std::pair<int, GlobalPoint>, TrajectoryStateOnSurface> trajStateFromPointNegChargeCache_;
+  IntGlobalPointPairUnorderedMap<TrajectoryStateOnSurface> trajStateFromPointPosChargeCache_;
+  IntGlobalPointPairUnorderedMap<TrajectoryStateOnSurface> trajStateFromPointNegChargeCache_;
 };
 
 #endif
