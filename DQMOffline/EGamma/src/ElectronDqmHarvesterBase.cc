@@ -203,7 +203,7 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1(DQMSt
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, lowX, highX);
   if (!titleX.empty()) {
-    me->setAxisTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
     me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str());
@@ -230,7 +230,7 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1withSu
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, lowX, highX);
   me->enableSumw2();
   if (!titleX.empty()) {
-    me->setAxisTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
     me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str());
@@ -259,7 +259,7 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH2(DQMSt
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book2D(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
   if (!titleX.empty()) {
-    me->setAxisTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
     me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str());
@@ -289,7 +289,7 @@ ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH2withSu
   MonitorElement *me = iBooker.book2D(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
   me->enableSumw2();
   if (!titleX.empty()) {
-    me->setAxisTitle(titleX.c_str());
+    me->setAxisTitle(titleX);
   }
   if (!titleY.empty()) {
     me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str());

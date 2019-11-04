@@ -192,10 +192,10 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
     static const boost::regex prefix(current_path + "/path ");
     std::string path = boost::regex_replace(subsubdir, prefix, "");
 
-    paths_time->setBinLabel(ibin, path.c_str());
-    paths_thread->setBinLabel(ibin, path.c_str());
-    paths_allocated->setBinLabel(ibin, path.c_str());
-    paths_deallocated->setBinLabel(ibin, path.c_str());
+    paths_time->setBinLabel(ibin, path);
+    paths_thread->setBinLabel(ibin, path);
+    paths_allocated->setBinLabel(ibin, path);
+    paths_deallocated->setBinLabel(ibin, path);
 
     if ((me = getter.get(subsubdir + "/path time_real"))) {
       mean = me->getMean();
