@@ -163,7 +163,7 @@
 <test name="import-lxml" command="python -c 'import lxml'"/>
 <test name="import-bs4" command="python -c 'import bs4'"/>
 <test name="run-flawfinder" command="flawfinder -h"/>
-<test name="run-ipython" command="python2 $(which ipython) -h"/>
-<test name="run-ipython3" command="python3 $(which ipython3) -h"/>
+<test name="run-ipython" command="python2 $(shell which ipython) -h"/>
+<test name="run-ipython3" command="python3 $(shell which ipython3) -h"/>
 <test name="run-pylint" command="python2 $(shell which pylint) -h"/>
 <test name="run-pylint3" command="python3 $(shell which pylint3) -h"/>
