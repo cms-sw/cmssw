@@ -54,7 +54,7 @@ protected:
   uint32_t rangeMatch_;
   uint32_t rangeMask_;
 
-  std::vector<double> rcorr_, rnosecorr_;
+  std::vector<double> rcorr_, rcorrNose_;
   std::vector<float> weights_, weightsNose_;
   std::unique_ptr<HGCalRecHitSimpleAlgo> rechitMaker_;
   std::unique_ptr<hgcal::RecHitTools> tools_;
