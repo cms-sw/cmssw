@@ -1204,7 +1204,9 @@ class SimpleSample:
         return [t[0] for t in self._fileLegends]
 
     def legendLabels(self):
-        return [t[1] for t in self._fileLegends]
+#        return [t[1] for t in self._fileLegends]
+        return ["CloseByParticles_" + t[1][t[1].find("Delta_"):t[1].find("_20190918")].replace("p",".").replace("Delta_","#DeltaR").replace("_nPart1","") for t in self._fileLegends]
+
 
     def fastsim(self):
         # No need to emulate the release validation fastsim behaviour here
