@@ -14,6 +14,13 @@
 <library   file="BeamSpotProducer.cc" name="BeamSpotProducer">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="BeamSpotToCUDA.cc" name="BeamSpotToCUDA">
+  <use name="CUDADataFormats/BeamSpot"/>
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="HeterogeneousCore/CUDAServices"/>
+  <use name="cuda"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="BeamSpotOnlineProducer.cc" name="BeamSpotOnlineProducer">
   <flags   EDM_PLUGIN="1"/>
   <use name="DataFormats/L1GlobalTrigger"/>

@@ -5,7 +5,7 @@ from  Configuration.PyReleaseValidation.relval_steps import *
 # here only define the workflows as a combination of the steps defined above:
 workflows = Matrix()
 
-# each workflow defines a name and a list of steps to be done. 
+# each workflow defines a name and a list of steps to be done.
 # if no explicit name/label given for the workflow (first arg),
 # the name of step1 will be used
 
@@ -28,13 +28,13 @@ for year in upgradeKeys:
             for stepType in upgradeSteps.keys():
                 stepList[stepType] = []
             hasHarvest = False
-            for step in upgradeProperties[year][key]['ScenToRun']:                    
+            for step in upgradeProperties[year][key]['ScenToRun']:
                 stepMaker = makeStepName
                 if 'Sim' in step:
                     if 'HLBeamSpotFull' in step and '14TeV' in frag:
                         step = 'GenSimHLBeamSpotFull14'
                     stepMaker = makeStepNameSim
-                
+
                 if 'HARVEST' in step: hasHarvest = True
 
                 for stepType in upgradeSteps.keys():
@@ -73,7 +73,7 @@ for year in upgradeKeys:
             # special workflows for tracker
             if (upgradeDatasetFromFragment[frag]=="TTbar_13" or upgradeDatasetFromFragment[frag]=="TTbar_14TeV") and not 'PU' in key and hasHarvest:
                 # skip ALCA and Nano
-                trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly','trackingMkFit']
+                trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly','pixelTrackingOnlyNtupleFit','pixelTrackingOnlyGPU','trackingMkFit']
                 for tv in trackingVariations:
                     stepList[tv] = [s for s in stepList[tv] if (("ALCA" not in s) and ("Nano" not in s))]
                 workflows[numWF+upgradeSteps['trackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingOnly']]
@@ -81,8 +81,13 @@ for year in upgradeKeys:
                     for tv in trackingVariations[1:]:
                         workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
                 elif '2018' in key:
-                    workflows[numWF+upgradeSteps['pixelTrackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['pixelTrackingOnly']]
+                    for tv in trackingVariations:
+                        if "pixelTrackingOnly" in tv:
+                            workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
                 elif '2021' in key:
+                    for tv in trackingVariations:
+                        if "pixelTrackingOnly" in tv:
+                            workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
                     workflows[numWF+upgradeSteps['trackingMkFit']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingMkFit']]
 
             # special workflows for HGCAL/TICL
@@ -139,6 +144,6 @@ for year in upgradeKeys:
                                                       [slist[0]] +                      # Start with signal generation
                                                       stepList['Premix'] +              # Premixing stage1
                                                       [slist[1].replace("PUPRMX", "PUPRMXCombined")] + # Premixing stage2, customized for the combined (defined in relval_steps.py)
-                                                      list(map(nano, slist[2:]))]             # Remaining standard steps
+                                                      list(map(nano, slist[2:]))]       # Remaining standard steps
 
             numWF+=1

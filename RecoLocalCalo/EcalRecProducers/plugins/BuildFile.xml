@@ -13,6 +13,10 @@
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/MessageService"/>
+<use   name="CUDADataFormats/EcalRecHitSoA"/>
+<use   name="HeterogeneousCore/CUDACore"/>
+<use   name="HeterogeneousCore/CUDAUtilities"/>
+<use   name="cuda"/>
 <library   file="*.cc" name="RecoLocalCaloEcalRecProducersPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

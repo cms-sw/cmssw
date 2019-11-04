@@ -16,7 +16,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
     src = 'siPixelClustersPreSplitting'
-    )
+)
 
 # Global  reco
 from RecoEcal.Configuration.RecoEcal_cff import *
@@ -199,9 +199,9 @@ logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstru
 reconstruction_trackingOnly = cms.Sequence(localreco*globalreco_tracking)
 reconstruction_pixelTrackingOnly = cms.Sequence(
     pixeltrackerlocalreco*
-    offlineBeamSpot*
     siPixelClusterShapeCachePreSplitting*
-    recopixelvertexing
+    recopixelvertexing,
+    offlineBeamSpotTask
 )
 
 #need a fully expanded sequence copy

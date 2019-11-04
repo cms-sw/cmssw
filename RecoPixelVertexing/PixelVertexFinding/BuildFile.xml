@@ -16,4 +16,9 @@
 <use name="RecoLocalTracker/Records"/>
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use name="DataFormats/TrackerRecHit2D"/>
+<use name="CUDADataFormats/Vertex"/>
 
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="HeterogeneousCore/Producer"/>
+<use name="HeterogeneousCore/Product"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>

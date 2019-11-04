@@ -29,6 +29,10 @@ end
 #include "cuda/api_wrappers.h"
 
 #include "DataFormats/Math/interface/approx_atan2.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 
 constexpr float xmin = -100.001;  // avoid 0
 constexpr float incr = 0.04;
@@ -67,10 +71,10 @@ void go() {
   // atan2
   delta -= (std::chrono::high_resolution_clock::now() - start);
 
-  auto diff_d = cuda::memory::device::make_unique<int[]>(current_device, 3);
+  auto diff_d = cudautils::make_device_unique<int[]>(3, nullptr);
 
   int diffs[3];
-  cuda::memory::device::zero(diff_d.get(), 3 * 4);
+  cudaCheck(cudaMemset(diff_d.get(), 0, 3 * 4));
 
   // Launch the diff CUDA Kernel
   dim3 threadsPerBlock(32, 32, 1);
@@ -79,9 +83,9 @@ void go() {
   std::cout << "CUDA kernel 'diff' launch with " << blocksPerGrid.x << " blocks of " << threadsPerBlock.y
             << " threads\n";
 
-  cuda::launch(diffAtan<DEGREE>, {blocksPerGrid, threadsPerBlock}, diff_d.get());
+  cudautils::launch(diffAtan<DEGREE>, {blocksPerGrid, threadsPerBlock}, diff_d.get());
 
-  cuda::memory::copy(diffs, diff_d.get(), 3 * 4);
+  cudaCheck(cudaMemcpy(diffs, diff_d.get(), 3 * 4, cudaMemcpyDeviceToHost));
   delta += (std::chrono::high_resolution_clock::now() - start);
 
   float mdiff = diffs[0] * 1.e-7;
@@ -95,18 +99,7 @@ void go() {
 }
 
 int main() {
-  int count = 0;
-  auto status = cudaGetDeviceCount(&count);
-  if (status != cudaSuccess) {
-    std::cerr << "Failed to initialise the CUDA runtime, the test will be skipped."
-              << "\n";
-    exit(EXIT_SUCCESS);
-  }
-  if (count == 0) {
-    std::cerr << "No CUDA devices on this system, the test will be skipped."
-              << "\n";
-    exit(EXIT_SUCCESS);
-  }
+  exitSansCUDADevices();
 
   try {
     go<3>();
