@@ -64,6 +64,12 @@ def agedHGCal(process,algo=0):
     process = HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=algo)
     return process
 
+def realisticHGCalStartup(process):
+    from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCal_setRealisticStartupNoise
+    process = HGCal_setRealisticStartupNoise(process)
+    return process
+
+
 # needs lumi to set proper ZS thresholds (tbd)
 def ageSiPM(process,turnon,lumi):
     process.es_hardcode.hbUpgrade.doRadiationDamage = turnon
