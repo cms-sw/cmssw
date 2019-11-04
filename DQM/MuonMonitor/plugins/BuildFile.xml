@@ -12,5 +12,4 @@
 <use   name="CondFormats/CSCObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CommonTools/TriggerUtils"/>
-<use name="DQM/MuonMonitor"/>
 </library>
