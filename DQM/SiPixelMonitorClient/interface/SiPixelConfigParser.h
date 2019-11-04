@@ -41,6 +41,7 @@ public:
   bool getCalibType(int &u_freq);
 
 private:
+  boost::property_tree::ptree config_;
 };
 
 #endif
