@@ -240,6 +240,8 @@ void TrackingMaterialAnalyser::split(MaterialAccountingTrack& track) {
         break;
 
       case UNDEFINED:
+        [[fallthrough]];
+
       default:
         // throw something
         throw edm::Exception(edm::errors::LogicError) << "Invalid SplitMode";
