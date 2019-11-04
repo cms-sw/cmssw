@@ -116,8 +116,9 @@ public:
         case MPhoton:
           if (match->isPromptFinalState() && match->pdgId() == 22)
             flav[i] = 1;  // prompt photon
-          else if ((match->isPromptFinalState() || match->isDirectPromptTauDecayProductFinalState()) && abs(match->pdgId()) == 11)
-            flav[i] = 11; // prompt electron
+          else if ((match->isPromptFinalState() || match->isDirectPromptTauDecayProductFinalState()) &&
+                   abs(match->pdgId()) == 11)
+            flav[i] = 11;  // prompt electron
           break;
         case MTau:
           // CV: assignment of status codes according to https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#MC_Matching
