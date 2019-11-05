@@ -87,7 +87,7 @@ if __name__ == "__main__":
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
     parser.add_argument("--verbose", action="store_true", default = False,
                         help="Be verbose")
-    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hgcalMultiClusters", , "multiClustersFromTrackstersMIP", "multiClustersFromTrackstersTrk", "multiClustersFromTrackstersEM", "multiClustersFromTrackstersHAD", "hitValidation", "all"], default="hgcalLayerClusters",
+    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hgcalMultiClusters", "multiClustersFromTrackstersMIP", "multiClustersFromTrackstersTrk", "multiClustersFromTrackstersEM", "multiClustersFromTrackstersHAD", "hitValidation", "all"], default="hgcalLayerClusters",
                         help="Choose output plots collections: hgcalLayerCluster, hgcalMultiClusters, multiClustersFromTrackstersMIP, multiClustersFromTrackstersTrk, multiClustersFromTrackstersEM, multiClustersFromTrackstersHAD, hitValidation, all")    
 
     opts = parser.parse_args()
