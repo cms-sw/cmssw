@@ -11,5 +11,4 @@ typedef float EcalPFSeedingThreshold;
 typedef EcalFloatCondObjectContainer EcalPFSeedingThresholdsMap;
 typedef EcalPFSeedingThresholdsMap EcalPFSeedingThresholds;
 
-
 #endif
