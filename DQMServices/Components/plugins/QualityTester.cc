@@ -83,7 +83,7 @@ QualityTester::QualityTester(const edm::ParameterSet& ps) {
   reportThreshold = ps.getUntrackedParameter<std::string>("reportThreshold", "");
   testInEventloop = ps.getUntrackedParameter<bool>("testInEventloop", false);
   qtestOnEndRun = ps.getUntrackedParameter<bool>("qtestOnEndRun", true);
-  qtestOnEndJob = ps.getUntrackedParameter<bool>("qtestOnEndJob", true);
+  qtestOnEndJob = ps.getUntrackedParameter<bool>("qtestOnEndJob", false);
   qtestOnEndLumi = ps.getUntrackedParameter<bool>("qtestOnEndLumi", false);
   verboseQT = ps.getUntrackedParameter<bool>("verboseQT", true);
 
