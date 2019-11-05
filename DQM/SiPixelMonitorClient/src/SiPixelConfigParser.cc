@@ -14,8 +14,6 @@ SiPixelConfigParser::SiPixelConfigParser() {
 }
 
 void SiPixelConfigParser::getDocument(std::string filename) {
-  //TODO: implement new parser using property_tree
-
   boost::property_tree::ptree xml;
   boost::property_tree::read_xml(filename, xml);
 

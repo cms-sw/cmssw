@@ -13,6 +13,9 @@
 #include <string>
 #include <map>
 
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+
 class SiStripConfigParser {
 public:
   // Constructor
@@ -25,6 +28,7 @@ public:
   bool getFrequencyForSummary(int& u_freq);
 
 private:
+  boost::property_tree::ptree config_;
 };
 
 #endif
