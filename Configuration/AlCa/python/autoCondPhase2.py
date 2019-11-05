@@ -25,9 +25,9 @@ allTags["LAWidth"] = {
 }
 
 allTags["LAfromAlignment"] = {
-    'T6'  : ( ','.join( [ 'SiPixelLorentzAngle_phase2_T6_mc_forWidthEmpty'  ,SiPixelLARecord,connectionString, "forWidth", "2019-11-05 20:00:00.000"] ), ),  # uH=0.0/T (not in use)
-    'T14' : ( ','.join( [ 'SiPixelLorentzAngle_phase2_T14_mc_forWidthEmpty' ,SiPixelLARecord,connectionString, "forWidth", "2019-11-05 20:00:00.000"] ), ),  # uH=0.0/T (not in use)
-    'T15' : ( ','.join( [ 'SiPixelLorentzAngle_phase2_T15_mc_forWidthEmpty' ,SiPixelLARecord,connectionString, "forWidth", "2019-11-05 20:00:00.000"] ), ),  # uH=0.0/T (not in use)
+    'T6'  : ( ','.join( [ 'SiPixelLorentzAngle_phase2_T6_mc_forWidthEmpty'  ,SiPixelLARecord,connectionString, "fromAlignment", "2019-11-05 20:00:00.000"] ), ),  # uH=0.0/T (not in use)
+    'T14' : ( ','.join( [ 'SiPixelLorentzAngle_phase2_T14_mc_forWidthEmpty' ,SiPixelLARecord,connectionString, "fromAlignment", "2019-11-05 20:00:00.000"] ), ),  # uH=0.0/T (not in use)
+    'T15' : ( ','.join( [ 'SiPixelLorentzAngle_phase2_T15_mc_forWidthEmpty' ,SiPixelLARecord,connectionString, "fromAlignment", "2019-11-05 20:00:00.000"] ), ),  # uH=0.0/T (not in use)
 }
 
 allTags["SimLA"] = {
