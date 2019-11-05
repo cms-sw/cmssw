@@ -20,8 +20,7 @@
   <close_geometry/>
 
   <IncludeSection>
-    <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
-    <Include ref="Geometry/TrackerCommonData/data/trackermaterial.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
     <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
     <Include ref="Geometry/HcalCommonData/data/hcalrotations.xml"/>
     <Include ref="Geometry/CMSCommonData/data/eta3/etaMax.xml"/>
