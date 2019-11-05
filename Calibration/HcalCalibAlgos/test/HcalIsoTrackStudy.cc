@@ -83,7 +83,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class HcalIsoTrackStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
@@ -155,11 +155,12 @@ private:
   const double hcalScale_, eIsolate1_, eIsolate2_;
   const double pTrackLow_, pTrackHigh_;
   const int prescaleLow_, prescaleHigh_;
-  const int useRaw_, dataType_, mode_;
+  const int useRaw_, dataType_;
   const bool ignoreTrigger_, useL1Trigger_;
   const bool unCorrect_, collapseDepth_;
   const double hitEthrEB_, hitEthrEE0_, hitEthrEE1_;
   const double hitEthrEE2_, hitEthrEE3_;
+  const double hitEthrEELo_, hitEthrEEHi_;
   const edm::InputTag triggerEvent_, theTriggerResultsLabel_;
   const std::string labelGenTrack_, labelRecVtx_, labelEB_;
   const std::string labelEE_, labelHBHE_, labelTower_, l1TrigName_;
@@ -232,7 +233,6 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
       prescaleHigh_(iConfig.getParameter<int>("prescaleHigh")),
       useRaw_(iConfig.getUntrackedParameter<int>("useRaw", 0)),
       dataType_(iConfig.getUntrackedParameter<int>("dataType", 0)),
-      mode_(iConfig.getUntrackedParameter<int>("outMode", 11)),
       ignoreTrigger_(iConfig.getUntrackedParameter<bool>("ignoreTriggers", false)),
       useL1Trigger_(iConfig.getUntrackedParameter<bool>("useL1Trigger", false)),
       unCorrect_(iConfig.getUntrackedParameter<bool>("unCorrect", false)),
@@ -242,6 +242,8 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
       hitEthrEE1_(iConfig.getParameter<double>("EEHitEnergyThreshold1")),
       hitEthrEE2_(iConfig.getParameter<double>("EEHitEnergyThreshold2")),
       hitEthrEE3_(iConfig.getParameter<double>("EEHitEnergyThreshold3")),
+      hitEthrEELo_(iConfig.getParameter<double>("EEHitEnergyThresholdLow")),
+      hitEthrEEHi_(iConfig.getParameter<double>("EEHitEnergyThresholdHigh")),
       triggerEvent_(iConfig.getParameter<edm::InputTag>("labelTriggerEvent")),
       theTriggerResultsLabel_(iConfig.getParameter<edm::InputTag>("labelTriggerResult")),
       labelGenTrack_(iConfig.getParameter<std::string>("labelTrack")),
@@ -254,7 +256,7 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
       matrixECAL_(iConfig.getUntrackedParameter<int>("matrixECAL", 5)),
       matrixHCAL_(iConfig.getUntrackedParameter<int>("matrixHCAL", 3)),
       mapR_(iConfig.getUntrackedParameter<double>("mapRadius", 34.98)),
-      get2Ddist_(iConfig.getUntrackedParameter<double>("get2Ddist", false)),
+      get2Ddist_(iConfig.getUntrackedParameter<bool>("get2Ddist", false)),
       nRun_(0),
       nLow_(0),
       nHigh_(0),
@@ -321,27 +323,23 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
                                      << edm::InputTag(modnam, labelHBHE_, prdnam) << " " << labelTower_;
   }
 
-  edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n"
-                                   << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality "
-                                   << theTrackQuality_ << "\t minQuality " << selectionParameter_.minQuality
-                                   << "\t maxDxyPV " << selectionParameter_.maxDxyPV << "\t maxDzPV "
-                                   << selectionParameter_.maxDzPV << "\t maxChi2 " << selectionParameter_.maxChi2
-                                   << "\t maxDpOverP " << selectionParameter_.maxDpOverP << "\t minOuterHit "
-                                   << selectionParameter_.minOuterHit << "\t minLayerCrossed "
-                                   << selectionParameter_.minLayerCrossed << "\t maxInMiss "
-                                   << selectionParameter_.maxInMiss << "\t maxOutMiss "
-                                   << selectionParameter_.maxOutMiss << "\t a_coneR " << a_coneR_ << ":" << a_coneR1_
-                                   << ":" << a_coneR2_ << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR " << a_mipR_
-                                   << "\n pTrackMin_ " << pTrackMin_ << "\t eEcalMax_ " << eEcalMax_
-                                   << "\t maxRestrictionP_ " << maxRestrictionP_ << "\t slopeRestrictionP_ "
-                                   << slopeRestrictionP_ << "\t eIsolateStrong_ " << eIsolate1_ << "\t eIsolateSoft_ "
-                                   << eIsolate2_ << "\t hcalScale_ " << hcalScale_ << "\n\t momentumLow_ " << pTrackLow_
-                                   << "\t prescaleLow_ " << prescaleLow_ << "\t momentumHigh_ " << pTrackHigh_
-                                   << "\t prescaleHigh_ " << prescaleHigh_ << "\n\t useRaw_ " << useRaw_
-                                   << "\t ignoreTrigger_ " << ignoreTrigger_ << "\n\t useL1Trigegr_ " << useL1Trigger_
-                                   << "\t dataType_      " << dataType_ << "\t mode_          " << mode_
-                                   << "\t unCorrect_     " << unCorrect_ << "\t collapseDepth_ " << collapseDepth_
-                                   << "\t L1TrigName_    " << l1TrigName_;
+  edm::LogVerbatim("HcalIsoTrack")
+      << "Parameters read from config file \n"
+      << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality " << theTrackQuality_ << "\t minQuality "
+      << selectionParameter_.minQuality << "\t maxDxyPV " << selectionParameter_.maxDxyPV << "\t maxDzPV "
+      << selectionParameter_.maxDzPV << "\t maxChi2 " << selectionParameter_.maxChi2 << "\t maxDpOverP "
+      << selectionParameter_.maxDpOverP << "\t minOuterHit " << selectionParameter_.minOuterHit << "\t minLayerCrossed "
+      << selectionParameter_.minLayerCrossed << "\t maxInMiss " << selectionParameter_.maxInMiss << "\t maxOutMiss "
+      << selectionParameter_.maxOutMiss << "\t a_coneR " << a_coneR_ << ":" << a_coneR1_ << ":" << a_coneR2_
+      << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR " << a_mipR_ << "\n pTrackMin_ " << pTrackMin_ << "\t eEcalMax_ "
+      << eEcalMax_ << "\t maxRestrictionP_ " << maxRestrictionP_ << "\t slopeRestrictionP_ " << slopeRestrictionP_
+      << "\t eIsolateStrong_ " << eIsolate1_ << "\t eIsolateSoft_ " << eIsolate2_ << "\t hcalScale_ " << hcalScale_
+      << "\n\t momentumLow_ " << pTrackLow_ << "\t prescaleLow_ " << prescaleLow_ << "\t momentumHigh_ " << pTrackHigh_
+      << "\t prescaleHigh_ " << prescaleHigh_ << "\n\t useRaw_ " << useRaw_ << "\t ignoreTrigger_ " << ignoreTrigger_
+      << "\n\t useL1Trigegr_ " << useL1Trigger_ << "\t dataType_      " << dataType_ << "\t unCorrect_     "
+      << unCorrect_ << "\t collapseDepth_ " << collapseDepth_ << "\t L1TrigName_    " << l1TrigName_
+      << "\nThreshold for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
+      << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_;
   edm::LogVerbatim("HcalIsoTrack") << "Process " << processName_ << " L1Filter:" << l1Filter_
                                    << " L2Filter:" << l2Filter_ << " L3Filter:" << l3Filter_;
   for (unsigned int k = 0; k < trigNames_.size(); ++k) {
@@ -694,7 +692,7 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
 }
 
 void HcalIsoTrackStudy::beginJob() {
-  tree = fs->make<TTree>("CalibTree", "CalibTree");
+  tree = fs->make<TTree>("CalibTreeExtended", "CalibTreeExtended");
 
   tree->Branch("t_Run", &t_Run, "t_Run/I");
   tree->Branch("t_Event", &t_Event, "t_Event/I");
@@ -705,14 +703,12 @@ void HcalIsoTrackStudy::beginJob() {
   tree->Branch("t_nVtx", &t_nVtx, "t_nVtx/I");
   tree->Branch("t_nTrk", &t_nTrk, "t_nTrk/I");
   tree->Branch("t_goodPV", &t_goodPV, "t_goodPV/I");
-  if (((mode_ / 10) % 10) == 1) {
-    tree->Branch("t_l1pt", &t_l1pt, "t_l1pt/D");
-    tree->Branch("t_l1eta", &t_l1eta, "t_l1eta/D");
-    tree->Branch("t_l1phi", &t_l1phi, "t_l1phi/D");
-    tree->Branch("t_l3pt", &t_l3pt, "t_l3pt/D");
-    tree->Branch("t_l3eta", &t_l3eta, "t_l3eta/D");
-    tree->Branch("t_l3phi", &t_l3phi, "t_l3phi/D");
-  }
+  tree->Branch("t_l1pt", &t_l1pt, "t_l1pt/D");
+  tree->Branch("t_l1eta", &t_l1eta, "t_l1eta/D");
+  tree->Branch("t_l1phi", &t_l1phi, "t_l1phi/D");
+  tree->Branch("t_l3pt", &t_l3pt, "t_l3pt/D");
+  tree->Branch("t_l3eta", &t_l3eta, "t_l3eta/D");
+  tree->Branch("t_l3phi", &t_l3phi, "t_l3phi/D");
   tree->Branch("t_p", &t_p, "t_p/D");
   tree->Branch("t_pt", &t_pt, "t_pt/D");
   tree->Branch("t_phi", &t_phi, "t_phi/D");
@@ -759,23 +755,19 @@ void HcalIsoTrackStudy::beginJob() {
   t_trgbits = new std::vector<bool>();
   tree->Branch("t_DetIds", "std::vector<unsigned int>", &t_DetIds);
   tree->Branch("t_HitEnergies", "std::vector<double>", &t_HitEnergies);
-  if (((mode_ / 10) % 10) == 1) {
-    tree->Branch("t_trgbits", "std::vector<bool>", &t_trgbits);
-  }
-  if ((mode_ % 10) == 1) {
-    tree->Branch("t_DetIds1", "std::vector<unsigned int>", &t_DetIds1);
-    tree->Branch("t_HitEnergies1", "std::vector<double>", &t_HitEnergies1);
-    tree->Branch("t_DetIds3", "std::vector<unsigned int>", &t_DetIds3);
-    tree->Branch("t_HitEnergies3", "std::vector<double>", &t_HitEnergies3);
-    tree->Branch("t_DetIdEC", "std::vector<unsigned int>", &t_DetIdEC);
-    tree->Branch("t_HitEnergyEC", "std::vector<double>", &t_HitEnergyEC);
-    tree->Branch("t_HitDistEC", "std::vector<double>", &t_HitDistEC);
-    tree->Branch("t_DetIdHC", "std::vector<unsigned int>", &t_DetIdHC);
-    tree->Branch("t_HitEnergyHC", "std::vector<double>", &t_HitEnergyHC);
-    tree->Branch("t_HitDistHC", "std::vector<double>", &t_HitDistHC);
-  }
-  tree2 = fs->make<TTree>("EventInfo", "Event Information");
+  tree->Branch("t_trgbits", "std::vector<bool>", &t_trgbits);
+  tree->Branch("t_DetIds1", "std::vector<unsigned int>", &t_DetIds1);
+  tree->Branch("t_HitEnergies1", "std::vector<double>", &t_HitEnergies1);
+  tree->Branch("t_DetIds3", "std::vector<unsigned int>", &t_DetIds3);
+  tree->Branch("t_HitEnergies3", "std::vector<double>", &t_HitEnergies3);
+  tree->Branch("t_DetIdEC", "std::vector<unsigned int>", &t_DetIdEC);
+  tree->Branch("t_HitEnergyEC", "std::vector<double>", &t_HitEnergyEC);
+  tree->Branch("t_HitDistEC", "std::vector<double>", &t_HitDistEC);
+  tree->Branch("t_DetIdHC", "std::vector<unsigned int>", &t_DetIdHC);
+  tree->Branch("t_HitEnergyHC", "std::vector<double>", &t_HitEnergyHC);
+  tree->Branch("t_HitDistHC", "std::vector<double>", &t_HitDistHC);
 
+  tree2 = fs->make<TTree>("EventInfo", "Event Information");
   tree2->Branch("t_RunNo", &t_RunNo, "t_RunNo/i");
   tree2->Branch("t_EventNo", &t_EventNo, "t_EventNo/i");
   tree2->Branch("t_Tracks", &t_Tracks, "t_Tracks/I");
@@ -874,11 +866,13 @@ void HcalIsoTrackStudy::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<double>("isolationEnergyTight", 2.0);
   desc.add<double>("isolationEnergyLoose", 10.0);
   // energy thershold for ECAL (from Egamma group)
-  desc.add<double>("EBHitEnergyThreshold", 0.10);
-  desc.add<double>("EEHitEnergyThreshold0", -41.0664);
-  desc.add<double>("EEHitEnergyThreshold1", 68.7950);
-  desc.add<double>("EEHitEnergyThreshold2", -38.1483);
-  desc.add<double>("EEHitEnergyThreshold3", 7.04303);
+  desc.add<double>("EBHitEnergyThreshold", 0.08);
+  desc.add<double>("EEHitEnergyThreshold0", 0.30);
+  desc.add<double>("EEHitEnergyThreshold1", 0.00);
+  desc.add<double>("EEHitEnergyThreshold2", 0.00);
+  desc.add<double>("EEHitEnergyThreshold3", 0.00);
+  desc.add<double>("EEHitEnergyThresholdLow", 0.30);
+  desc.add<double>("EEHitEnergyThresholdHigh", 0.30);
   // prescale factors
   desc.add<double>("momentumLow", 40.0);
   desc.add<double>("momentumHigh", 60.0);
@@ -905,7 +899,6 @@ void HcalIsoTrackStudy::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addUntracked<bool>("useL1Trigger", false);
   desc.addUntracked<double>("hcalScale", 1.0);
   desc.addUntracked<int>("dataType", 0);
-  desc.addUntracked<int>("outMode", 11);
   desc.addUntracked<bool>("unCorrect", false);
   desc.addUntracked<bool>("collapseDepth", false);
   desc.addUntracked<std::string>("l1TrigName", "L1_SingleJet60");
@@ -1009,9 +1002,14 @@ std::array<int, 3> HcalIsoTrackStudy::fillTree(std::vector<math::XYZTLorentzVect
       for (unsigned int k = 0; k < eIds.size(); ++k) {
         const GlobalPoint& pos = geo->getPosition(eIds[k]);
         double eta = std::abs(pos.eta());
-        double eThr = (eIds[k].subdetId() == EcalBarrel)
-                          ? hitEthrEB_
-                          : (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+        double eThr(hitEthrEB_);
+        if (eIds[k].subdetId() != EcalBarrel) {
+          eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+          if (eThr < hitEthrEELo_)
+            eThr = hitEthrEELo_;
+          else if (eThr > hitEthrEEHi_)
+            eThr = hitEthrEEHi_;
+        }
         if (eHit[k] > eThr)
           eEcal += eHit[k];
       }
