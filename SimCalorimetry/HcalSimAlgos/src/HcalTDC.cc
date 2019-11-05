@@ -42,8 +42,6 @@ void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame& digi) const {
     if (hasTDCValues) {
       for (int i = preciseBegin; i < preciseEnd; ++i) {  //find the TDC time value in each TS
 
-        //std::cout << " preciseBin: " << i << " preciseAt(i): " << lf.preciseAt(i) << std::endl;
-
         if ((!risingReady) && (i == preciseBegin) && (i != 0)) {
           if (((lf.preciseAt(i + 1) - lf.preciseAt(i - 1)) > TDC_Threshold)) {
             TDC_RisingEdge = theTDCParameters.alreadyTransitionCode();
@@ -75,20 +73,6 @@ void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame& digi) const {
     int packedTDC = TDC_RisingEdge;
     digi.setSample(ibin, digi[ibin].adc(), packedTDC, digi[ibin].soi());
 
-    /*if ( hasTDCValues) {
-	if(HcalDetId(digi.detid()).ieta()==1&&HcalDetId(digi.detid()).iphi()==1){
-            std::cout << " Depth: " << HcalDetId(digi.detid()).depth() 
-		<< " sample: " << ibin << " adc: " << digi[ibin].adc() 
-		<< " capid: " << digi[ibin].capid() 
-		<< " risingEdge: " << TDC_RisingEdge 
-		<< " packedTDC: " << packedTDC 
-		<< " tdc: " << digi[ibin].tdc() 
-		<< " flavor(HE=0/HB=3): " << digi.flavor() 
-		<< " SubDet(HE=2/HB=1): " << HcalDetId(digi.detid()).subdet() 
-		<< std::endl;
-        }
-    }*/
-    // if(HcalDetId(digi.detid()).ieta()==1&&HcalDetId(digi.detid()).iphi()==1) std::cout<<digi<<std::endl;
   }  // loop over bunch crossing bins
 }
 
