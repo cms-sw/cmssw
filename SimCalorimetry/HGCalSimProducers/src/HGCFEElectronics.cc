@@ -104,8 +104,7 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
 //
 template <class DFr>
 void HGCFEElectronics<DFr>::runTrivialShaper(
-					     DFr& dataFrame, HGCSimHitData& chargeColl, uint32_t thrADC, 
-					     float lsbADC, uint32_t gainIdx, float maxADC) {
+    DFr& dataFrame, HGCSimHitData& chargeColl, uint32_t thrADC, float lsbADC, uint32_t gainIdx, float maxADC) {
   bool debug(false);
 
 #ifdef EDM_ML_DEBUG
@@ -141,8 +140,7 @@ void HGCFEElectronics<DFr>::runTrivialShaper(
 //
 template <class DFr>
 void HGCFEElectronics<DFr>::runSimpleShaper(
-					    DFr& dataFrame, HGCSimHitData& chargeColl, uint32_t thrADC, 
-					    float lsbADC, uint32_t gainIdx, float maxADC) {
+    DFr& dataFrame, HGCSimHitData& chargeColl, uint32_t thrADC, float lsbADC, uint32_t gainIdx, float maxADC) {
   //convolute with pulse shape to compute new ADCs
   newCharge.fill(0.f);
   bool debug(false);
@@ -200,7 +198,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
                                              CLHEP::HepRandomEngine* engine,
                                              uint32_t thrADC,
                                              float lsbADC,
-					     uint32_t gainIdx,
+                                             uint32_t gainIdx,
                                              float maxADC,
                                              int thickness) {
   busyFlags.fill(false);

@@ -26,11 +26,11 @@ public:
   typedef std::map<std::pair<int, int>, DoseParameters> doseParametersMap;
 
   void setGeometry(const CaloSubdetectorGeometry *);
-  void setDoseMap(const std::string &,const unsigned int &);
+  void setDoseMap(const std::string &, const unsigned int &);
 
   double getDoseValue(const int, const int, const radiiVec &, bool logVal = false);
   double getFluenceValue(const int, const int, const radiiVec &, bool logVal = false);
- 
+
   const unsigned int &algo() { return algo_; }
   const HGCalGeometry *geom() { return hgcalGeom_; }
   const HGCalTopology *topo() { return hgcalTopology_; }
@@ -40,7 +40,7 @@ public:
 
 private:
   doseParametersMap readDosePars(const std::string &);
-  
+
   unsigned int algo_;
   const HGCalGeometry *hgcalGeom_;
   const HGCalTopology *hgcalTopology_;
