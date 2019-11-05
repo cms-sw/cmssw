@@ -1,6 +1,6 @@
 #include "DataFormats/HGCDigi/interface/HGCSample.h"
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include <string>
 
 // run for instance with:
