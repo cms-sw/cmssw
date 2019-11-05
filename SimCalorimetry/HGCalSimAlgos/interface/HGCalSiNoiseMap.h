@@ -12,10 +12,8 @@
 */
 class HGCalSiNoiseMap : public HGCalRadiationMap {
 public:
-
   enum GainRange_t { q80fC, q160fC, q320fC, AUTO };
   enum NoiseMapAlgoBits_t { FLUENCE, CCE, NOISE };
-
 
   struct SiCellOpCharacteristics {
     SiCellOpCharacteristics()
@@ -43,11 +41,10 @@ public:
     cceParam_.push_back(parsThick);  //300
   }
 
-
   /**
      @short overrides base class method with specifics for the configuration of the algo
   */
-  void setDoseMap(const std::string &,const unsigned int &);
+  void setDoseMap(const std::string &, const unsigned int &);
 
   /**
      @short returns the charge collection efficiency and noise
