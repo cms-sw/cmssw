@@ -890,6 +890,7 @@
       <MaterialFraction fraction="5.8635e-05">
         <rMaterial name="mtdMaterial:mtdtkLayout_TEDD_Steel"/>
       </MaterialFraction>
-    </MaterialSection>
+    </CompositeMaterial>
+  </MaterialSection>
 
 </DDDefinition>
