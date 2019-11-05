@@ -18,8 +18,6 @@ void HcalTDC::timing(const CaloSamples& lf, QIE11DataFrame& digi) const {
   if (lf.preciseSize() == 0)
     hasTDCValues = false;
 
-  //std::cout << "TDC threshold: " << TDC_Threshold << std::endl;
-
   for (int ibin = 0; ibin < lf.size(); ++ibin) {
     /*
     If in a given 25ns bunch/time sample, the pulse is above
