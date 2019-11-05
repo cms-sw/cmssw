@@ -597,7 +597,7 @@ caloDict = {
             'Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml',
             'Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml',
             'Geometry/HGCalCommonData/data/hgcalCons/v11/hgcalCons.xml',
-            'Geometry/ForwardCommonData/data/hfnose/v1/hfnose.xml',
+            'Geometry/ForwardCommonData/data/hfnose/v2/hfnose.xml',
             'Geometry/ForwardCommonData/data/hfnoseWafer/v1/hfnoseWafer.xml',
             'Geometry/ForwardCommonData/data/hfnoseCell/v1/hfnoseCell.xml',
             'Geometry/ForwardCommonData/data/hfnoseCons/v1/hfnoseCons.xml',
