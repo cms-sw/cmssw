@@ -273,8 +273,10 @@ std::unique_ptr<QCriterion> QualityTester::makeQCriterion(boost::property_tree::
                         test->setUseEmptyBins(config.get<bool>("useEmptyBins"));
                         test->setMinimumEntries(config.get<int>("minEntries"));
                         test->setMeanTolerance(config.get<float>("toleranceMean"));
-                        test->setMeanRange(config.get<double>("minMean"), config.get<double>("maxMean"));
-                        test->setRMSRange(config.get<double>("minRMS"), config.get<double>("maxRMS"));
+                        if (config.get<double>("minMean", 0) || config.get<double>("maxMean", 0))
+                          test->setMeanRange(config.get<double>("minMean"), config.get<double>("maxMean"));
+                        if (config.get<double>("minRMS", 0) || config.get<double>("maxRMS", 0))
+                          test->setRMSRange(config.get<double>("minRMS"), config.get<double>("maxRMS"));
                         return test;
                       }},
                      {ContentsXRange::getAlgoName(),
