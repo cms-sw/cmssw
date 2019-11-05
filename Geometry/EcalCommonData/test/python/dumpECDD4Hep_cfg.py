@@ -13,7 +13,7 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.categories.append('EcalGeom')
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/EcalCommonData/data/dd4hep/cms-ecal-geometry.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/EcalCommonData/data/dd4hep/cms-ecal-geometry-dump.xml'),
                                             appendToDataLabel = cms.string('DDEcal')
                                             )
 

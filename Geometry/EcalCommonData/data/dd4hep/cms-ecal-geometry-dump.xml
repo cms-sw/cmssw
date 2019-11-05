@@ -62,6 +62,5 @@
     <Include ref='Geometry/EcalCommonData/data/eefixed.xml'/>
     <Include ref='Geometry/EcalCommonData/data/escon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/esalgo/2021/v1/esalgo.xml'/>
-    <Include ref='Geometry/EcalSimData/data/ecalsens.xml'/>
   </IncludeSection>
 </DDDefinition>
