@@ -1858,7 +1858,7 @@ static long load_dddefinition(Detector& det, xml_h element) {
       // Resolve referenced materials (if any)
 
       while (!context.unresolvedMaterials.empty()) {
-        for (auto it = context.unresolvedMaterials.begin(); it != context.unresolvedMaterials.end(); ) {
+        for (auto it = context.unresolvedMaterials.begin(); it != context.unresolvedMaterials.end();) {
           auto const& name = it->first;
           std::vector<bool> valid;
 
@@ -1886,8 +1886,8 @@ static long load_dddefinition(Detector& det, xml_h element) {
           // All components are resolved
           if (valid.size() == it->second.size())
             it = context.unresolvedMaterials.erase(it);
-	  else
-	    ++it;
+          else
+            ++it;
         }
         // Do it again if there are unresolved
         // materials left after this pass
@@ -1937,7 +1937,7 @@ static long load_dddefinition(Detector& det, xml_h element) {
       // component shapes
 
       while (!context.unresolvedShapes.empty()) {
-        for (auto it = context.unresolvedShapes.begin(); it != context.unresolvedShapes.end(); ) {
+        for (auto it = context.unresolvedShapes.begin(); it != context.unresolvedShapes.end();) {
           auto const& name = it->first;
           auto const& aname = std::visit([](auto&& arg) -> std::string { return arg.firstSolidName; }, it->second);
           auto const& bname = std::visit([](auto&& arg) -> std::string { return arg.secondSolidName; }, it->second);
@@ -1951,9 +1951,9 @@ static long load_dddefinition(Detector& det, xml_h element) {
               context.shapes[name] = shape;
               it = context.unresolvedShapes.erase(it);
             } else
-	      ++it;
+              ++it;
           } else
-	    ++it;
+            ++it;
         }
       }
     }
