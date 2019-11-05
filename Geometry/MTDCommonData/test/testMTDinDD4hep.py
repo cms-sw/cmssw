@@ -12,9 +12,13 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             appendToDataLabel = cms.string('MTD')
 )
 
+process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
+                                                     appendToDataLabel = cms.string('MTD')
+)
+
 process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
                                                  appendToDataLabel = cms.string('MTD')
-                                                )
+)
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
@@ -22,7 +26,7 @@ process.testBTL = cms.EDAnalyzer("DD4hep_TestMTDNumbering",
                                  DDDetector = cms.ESInputTag('','MTD'), 
                                  outFileName = cms.untracked.string('BTL'),
                                  numNodesToDump = cms.untracked.uint32(0),
-                                 ddTopNodeName = cms.untracked.string('btl:BarrelTimingLayer'),
+                                 ddTopNodeName = cms.untracked.string('BarrelTimingLayer'),
                                  theLayout = cms.untracked.uint32(1)
                                 ) 
 
