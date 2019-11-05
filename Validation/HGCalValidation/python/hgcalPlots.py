@@ -1346,8 +1346,6 @@ _cell_association_table = PlotGroup("cellAssociation_table", [
         Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(0,maxlayerzm)
         ], ncols=8 )
 
-_cell_association_multi = PlotGroup("cellAssociation_multi", [ Plot("cellAssociation", xtitle="", **_common_assoc) ] )
-
 _common_eff = {"stat": False, "legend": False}
 _effplots = [Plot("effic_eta", xtitle="", **_common_eff)]
 _effplots.extend([Plot("effic_phi", xtitle="", **_common_eff)])
@@ -2282,42 +2280,6 @@ hgcalMultiClustersPlotter.append("SharedEnergy_MCL2CP", [
             _sharedEnergy_multicluster_to_caloparticle,
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="SharedEnergyMultiClusterToCaloParticle"))
-
-# [D] Cell Association per Multi
-hgcalMultiClustersPlotter.append("CellAssociation_per_multicluster", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-             ], PlotFolder(
-            _cell_association_multi,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="CellAssociation_per_multicluster"))
-
-# z-
-hgcalMultiClustersPlotter.append("CellAssociation_zminus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-             ], PlotFolder(
-            _cell_association_table_zminus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="CellAssociation_zminus"))
-
-# z+
-hgcalMultiClustersPlotter.append("CellAssociation_zplus", [
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersMIP_MIPMultiClustersFromTracksterByCA",
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersTrk_TrkMultiClustersFromTracksterByCA",
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersEM_MultiClustersFromTracksterByCA",
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/multiClustersFromTrackstersHAD_MultiClustersFromTracksterByCA",
-            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
-             ], PlotFolder(
-            _cell_association_table_zplus,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="CellAssociation_zplus"))
 
 # [E] Efficiency Plots
 hgcalMultiClustersPlotter.append("Efficiencies", [
