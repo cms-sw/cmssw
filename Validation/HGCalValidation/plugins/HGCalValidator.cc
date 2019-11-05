@@ -257,11 +257,11 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   // ##############################################
   for (unsigned int wml = 0; wml < label_mclTokens.size(); wml++) {
 
-    edm::Handle<std::vector<reco::HGCalMultiCluster>> multiClusterHandle;
-    event.getByToken(label_mclTokens[wml], multiClusterHandle);
-    const std::vector<reco::HGCalMultiCluster>& multiClusters = *multiClusterHandle;
-
     if (domulticlustersPlots_) {
+      edm::Handle<std::vector<reco::HGCalMultiCluster>> multiClusterHandle;
+      event.getByToken(label_mclTokens[wml], multiClusterHandle);
+      const std::vector<reco::HGCalMultiCluster>& multiClusters = *multiClusterHandle;
+
       histoProducerAlgo_->fill_multi_cluster_histos(histograms.histoProducerAlgo, 
 						    wml, 
 						    multiClusters, 
@@ -269,10 +269,11 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 						    cPIndices, 
 						    hitMap, 
 						    totallayers_to_monitor_);
+
+      //General Info on multiclusters
+      LogTrace("HGCalValidator") << "\n# of multi clusters with " << label_mcl[wml].process() << ":" << label_mcl[wml].label() << ":"
+				 << label_mcl[wml].instance() << ": " << multiClusters.size() << "\n";
     }
-    //General Info on multiclusters
-    LogTrace("HGCalValidator") << "\n# of multi clusters with " << label_mcl[wml].process() << ":" << label_mcl[wml].label() << ":"
-			       << label_mcl[wml].instance() << ": " << multiClusters.size() << "\n";
   }  //end of loop over multicluster input labels
 
 }
