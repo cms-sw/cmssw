@@ -1,15 +1,16 @@
-<library file="*.cc" name="DQMMuonMonitorPlugins">
-<flags   EDM_PLUGIN="1"/>  
-<use   name="DQMServices/Core"/>
-<use   name="DQMServices/Components"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="DataFormats/MuonReco"/>
-<use   name="RecoMuon/TrackingTools"/>
-<use   name="DataFormats/FEDRawData"/>
-<use   name="DataFormats/CSCRecHit"/>
-<use   name="DataFormats/DTRecHit"/>
-<use   name="CondFormats/DTObjects"/>
-<use   name="CondFormats/CSCObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CommonTools/TriggerUtils"/>
+<library name="DQMMuonMonitorPlugins" file="*.cc">
+ <use name="DQMServices/Core"/>
+ <use name="DataFormats/Common"/>
+ <use name="DataFormats/MuonReco"/>
+ <use name="DataFormats/TrackReco"/>
+ <use name="FWCore/Framework"/>
+ <use name="FWCore/MessageLogger"/>
+ <use name="FWCore/ParameterSet"/>
+ <use name="FWCore/PluginManager"/>
+ <use name="FWCore/ServiceRegistry"/>
+ <use name="FWCore/Utilities"/>
+ <use name="RecoMuon/TrackingTools"/>
+ <use name="boost_system"/>
+ <use name="roofitcore"/>
+ <flags EDM_PLUGIN="1"/>
 </library>
