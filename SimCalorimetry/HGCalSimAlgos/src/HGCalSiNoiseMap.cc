@@ -9,17 +9,18 @@ HGCalSiNoiseMap::HGCalSiNoiseMap() :
   ignoreCCE_(false),
   ignoreNoise_(false) 
 {
-  encsParam_.push_back({636., 15.6, 0.0328});   // q80fC
-  maxADCPerGain_.push_back(80.);                // the num of fC (charge) which corresponds to the max ADC value
+  encsParam_.push_back({636., 15.6, 0.0328});   // q80fC: II order polynomial coefficients
+  chargeAtFullScaleADCPerGain_.push_back(80.);  //        the num of fC (charge) which corresponds to the max ADC value
   encsParam_.push_back({1045., 8.74, 0.0685});  // q160fC
-  maxADCPerGain_.push_back(160.);
+  chargeAtFullScaleADCPerGain_.push_back(160.);
   encsParam_.push_back({1915., 2.79, 0.0878});  // q320fC
-  maxADCPerGain_.push_back(320.);
-
-  for (auto i : maxADCPerGain_)
+  chargeAtFullScaleADCPerGain_.push_back(320.);
+  
+  // adc has 10 bits -> 1024 counts at max ( >0 baseline to be handled)
+  for (auto i : chargeAtFullScaleADCPerGain_)
     lsbPerGain_.push_back(i / 1024.);
 
-  //fine
+  //fine sensors: 120 mum -  67: MPV of charge[number of e-]/mum for a mip in silicon; srouce PDG
   const double mipEqfC_120 = 120. * 67. * qe2fc_;
   mipEqfC_.push_back(mipEqfC_120);
   const double cellCapacitance_120 = 50;
@@ -27,7 +28,7 @@ HGCalSiNoiseMap::HGCalSiNoiseMap() :
   const double cellVolume_120 = 0.52 * (120.e-4);
   cellVolume_.push_back(cellVolume_120);
 
-  //thin
+  //thin sensors: 200 mum
   const double mipEqfC_200 = 200. * 70. * qe2fc_;
   mipEqfC_.push_back(mipEqfC_200);
   const double cellCapacitance_200 = 65;
@@ -35,7 +36,7 @@ HGCalSiNoiseMap::HGCalSiNoiseMap() :
   const double cellVolume_200 = 1.18 * (200.e-4);
   cellVolume_.push_back(cellVolume_200);
 
-  //thick
+  //thick sensors: 300 mum
   const double mipEqfC_300 = 300. * 73. * qe2fc_;
   mipEqfC_.push_back(mipEqfC_300);
   const double cellCapacitance_300 = 45;
@@ -65,7 +66,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   SiCellOpCharacteristics siop;
 
   //decode cell properties
-  int layer(cellId.layer());
+  int          layer(cellId.layer());
   unsigned int cellThick = cellId.type();
   double cellCap(cellCapacitance_[cellThick]);
   double cellVol(cellVolume_[cellThick]);
@@ -87,7 +88,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
         cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
     double radius2 = std::pow(xy.first, 2) + std::pow(xy.second, 2);  //in cm
 
-    double radius = sqrt(radius2);
+    double radius  = sqrt(radius2);
     double radius3 = radius * radius2;
     double radius4 = pow(radius2, 2);
     radiiVec radii{{radius, radius2, radius3, radius4, 0., 0., 0., 0.}};
@@ -100,6 +101,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
     }
     else{
       //lin+log parametrization
+      //cceParam_ are parameters as defined in equation (2) of DN-19-045
       siop.cce = siop.fluence <= cceParam_[cellThick][0] ? 1. + cceParam_[cellThick][1] * siop.fluence
                                                          : (1. - cceParam_[cellThick][2] * siop.lnfluence) +
                                                            (cceParam_[cellThick][1] * cceParam_[cellThick][0] +
@@ -134,7 +136,9 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   if(ignoreNoise_) {
     siop.noise=0.0;
   }else {
-    double enc_s(encsParam_[gain][0] + encsParam_[gain][1] * cellCap + encsParam_[gain][2] * pow(cellCap, 2));
+    double enc_s(encsParam_[gain][0] +
+		 encsParam_[gain][1] * cellCap + 
+		 encsParam_[gain][2] * pow(cellCap, 2));
     double enc_p(encpScale_ * sqrt(siop.ileak));
     siop.noise = hypot(enc_p, enc_s* encCommonNoiseSub_ )  * qe2fc_;
   }
