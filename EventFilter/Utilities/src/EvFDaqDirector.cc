@@ -38,21 +38,22 @@ namespace evf {
   const std::vector<std::string> EvFDaqDirector::MergeTypeNames_ = {"", "DAT", "PB", "JSNDATA"};
 
   EvFDaqDirector::EvFDaqDirector(const edm::ParameterSet& pset, edm::ActivityRegistry& reg)
-      : base_dir_(pset.getParameter<std::string>("baseDir")),
-        bu_base_dir_(pset.getParameter<std::string>("buBaseDir")),
-        directorBu_(pset.getUntrackedParameter<bool>("directorIsBu", false)),
-        run_(pset.getParameter<unsigned int>("runNumber")),
-        useFileBroker_(pset.getParameter<bool>("useFileBroker")),
-        fileBrokerHost_(pset.getParameter<std::string>("fileBrokerHost")),
+      : base_dir_(pset.getUntrackedParameter<std::string>("baseDir")),
+        bu_base_dir_(pset.getUntrackedParameter<std::string>("buBaseDir")),
+        run_(pset.getUntrackedParameter<unsigned int>("runNumber")),
+        useFileBroker_(pset.getUntrackedParameter<bool>("useFileBroker")),
+        fileBrokerHostFromCfg_(pset.getUntrackedParameter<bool>("fileBrokerHostFromCfg",true)),
+        fileBrokerHost_(pset.getUntrackedParameter<std::string>("fileBrokerHost")),
         fileBrokerPort_(pset.getUntrackedParameter<std::string>("fileBrokerPort", "8080")),
         fileBrokerKeepAlive_(pset.getUntrackedParameter<bool>("fileBrokerKeepAlive", true)),
         fileBrokerUseLocalLock_(pset.getUntrackedParameter<bool>("fileBrokerUseLocalLock", true)),
+        fuLockPollInterval_(pset.getUntrackedParameter<unsigned int>("fuLockPollInterval", 2000)),
         outputAdler32Recheck_(pset.getUntrackedParameter<bool>("outputAdler32Recheck", false)),
         requireTSPSet_(pset.getUntrackedParameter<bool>("requireTransfersPSet", false)),
         selectedTransferMode_(pset.getUntrackedParameter<std::string>("selectedTransferMode", "")),
+        mergeTypePset_(pset.getUntrackedParameter<std::string>("mergingPset", "")),
+        directorBU_(pset.getUntrackedParameter<bool>("directorIsBU", false)),
         hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory", "")),
-        fuLockPollInterval_(pset.getUntrackedParameter<unsigned int>("fuLockPollInterval", 2000)),
-        mergeTypePset_(pset.getUntrackedParameter<std::string>("mergeTypePset", "")),
         hostname_(""),
         bu_readlock_fd_(-1),
         bu_writelock_fd_(-1),
@@ -103,23 +104,25 @@ namespace evf {
       }
     }
     if (useFileBroker_) {
-      if (fileBrokerHost_.empty()) {
+      if (fileBrokerHostFromCfg_) {
         //find BU data address from hltd configuration
+        fileBrokerHost_=std::string();
         struct stat buf;
         if (stat("/etc/appliance/bus.config", &buf) == 0) {
           std::ifstream busconfig("/etc/appliance/bus.config", std::ifstream::in);
           std::getline(busconfig, fileBrokerHost_);
         }
+        if (fileBrokerHost_.empty())
+            throw cms::Exception("EvFDaqDirector") << "No file service or BU data address information";
       }
-      if (!fileBrokerHost_.empty()) {
-        resolver_ = std::make_unique<boost::asio::ip::tcp::resolver>(io_service_);
-        query_ =
-            std::make_unique<boost::asio::ip::tcp::resolver::query>(fileBrokerHost_, fileBrokerPort_);  //default port
-        endpoint_iterator_ = std::make_unique<boost::asio::ip::tcp::resolver::iterator>(resolver_->resolve(*query_));
-        socket_ = std::make_unique<boost::asio::ip::tcp::socket>(io_service_);
-      } else {
-        throw cms::Exception("EvFDaqDirector") << "No file service or BU data address information";
-      }
+      else if (fileBrokerHost_.empty())
+        throw cms::Exception("EvFDaqDirector") << "fileBrokerHostFromCfg must be set to true if no fileBrokerHost is given";
+
+      resolver_ = std::make_unique<boost::asio::ip::tcp::resolver>(io_service_);
+      query_ =
+          std::make_unique<boost::asio::ip::tcp::resolver::query>(fileBrokerHost_, fileBrokerPort_);
+      endpoint_iterator_ = std::make_unique<boost::asio::ip::tcp::resolver::iterator>(resolver_->resolve(*query_));
+      socket_ = std::make_unique<boost::asio::ip::tcp::socket>(io_service_);
     }
 
     char* startFromLSPtr = std::getenv("FFF_STARTFROMLS");
@@ -173,7 +176,7 @@ namespace evf {
     }
 
     //create fu-local.lock in run open dir
-    if (!directorBu_) {
+    if (!directorBU_) {
       createRunOpendirMaybe();
       std::string fulocal_lock_ = getRunOpenDirPath() + "/fu-local.lock";
       fulocal_rwlock_fd_ =
@@ -193,7 +196,7 @@ namespace evf {
 
     //bu_run_dir: for FU, for which the base dir is local and the BU is remote, it is expected to be there
     //for BU, it is created at this point
-    if (directorBu_) {
+    if (directorBU_) {
       bu_run_dir_ = base_dir_ + "/" + run_string_;
       std::string bulockfile = bu_run_dir_ + "/bu.lock";
       fulockfile_ = bu_run_dir_ + "/fu.lock";
@@ -268,7 +271,7 @@ namespace evf {
     sstp << stopFilePath_ << "_pid" << pid_;
     stopFilePathPid_ = sstp.str();
 
-    if (!directorBu_) {
+    if (!directorBU_) {
       std::string defPath = bu_run_dir_ + "/jsd/rawData.jsd";
       struct stat statbuf;
       if (!stat(defPath.c_str(), &statbuf))
@@ -320,28 +323,32 @@ namespace evf {
     edm::ParameterSetDescription desc;
     desc.setComment(
         "Service used for file locking arbitration and for propagating information between other EvF components");
-    desc.add<std::string>("baseDir", ".")->setComment("Local base directory for run output");
-    desc.add<std::string>("buBaseDir", ".")->setComment("BU base ramdisk directory ");
-    desc.add<unsigned int>("runNumber", 0)->setComment("Run Number in ramdisk to open");
-    desc.add<bool>("useFileBroker", false)
+    desc.addUntracked<std::string>("baseDir", ".")->setComment("Local base directory for run output");
+    desc.addUntracked<std::string>("buBaseDir", ".")->setComment("BU base ramdisk directory ");
+    desc.addUntracked<unsigned int>("runNumber", 0)->setComment("Run Number in ramdisk to open");
+    desc.addUntracked<bool>("useFileBroker", false)
         ->setComment("Use BU file service to grab input data instead of NFS file locking");
-    desc.add<std::string>("fileBrokerHost", "")->setComment("BU file service host");
+    desc.addUntracked<bool>("fileBrokerHostFromCfg",true)
+        ->setComment("Allow service to discover BU address from hltd configuration");
+    desc.addUntracked<std::string>("fileBrokerHost")->setComment("BU file service host.");
     desc.addUntracked<std::string>("fileBrokerPort", "8080")->setComment("BU file service port");
     desc.addUntracked<bool>("fileBrokerKeepAlive", true)
         ->setComment("Use keep alive to avoid using large number of sockets");
     desc.addUntracked<bool>("fileBrokerUseLocalLock", true)
         ->setComment("Use local lock file to synchronize appearance of index and EoLS file markers for hltd");
+    desc.addUntracked<unsigned int>("fuLockPollInterval", 2000)
+        ->setComment("Lock polling interval in microseconds for the input directory file lock");
     desc.addUntracked<bool>("outputAdler32Recheck", false)
         ->setComment("Check Adler32 of per-process output files while micro-merging");
     desc.addUntracked<bool>("requireTransfersPSet", false)
         ->setComment("Require complete transferSystem PSet in the process configuration");
     desc.addUntracked<std::string>("selectedTransferMode", "")
         ->setComment("Selected transfer mode (choice in Lvl0 propagated as Python parameter");
-    desc.addUntracked<unsigned int>("fuLockPollInterval", 2000)
-        ->setComment("Lock polling interval in microseconds for the input directory file lock");
+    desc.addUntracked<bool>("directorIsBU",false)->setComment("BU director mode used for testing");
+    desc.addUntracked<std::string>("hltSourceDirectory", "")
+        ->setComment("BU director mode source directory");
     desc.addUntracked<std::string>("mergingPset", "")
         ->setComment("Name of merging PSet to look for merging type definitions for streams");
-    desc.setAllowAnything();
     descriptions.add("EvFDaqDirector", desc);
   }
 
@@ -363,7 +370,7 @@ namespace evf {
   void EvFDaqDirector::postEndRun(edm::GlobalContext const& globalContext) {
     close(bu_readlock_fd_);
     close(bu_writelock_fd_);
-    if (directorBu_) {
+    if (directorBU_) {
       std::string filename = bu_run_dir_ + "/bu.lock";
       removeFile(filename);
     }

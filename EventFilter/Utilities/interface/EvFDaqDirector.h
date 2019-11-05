@@ -189,20 +189,22 @@ namespace evf {
 
     std::string base_dir_;
     std::string bu_base_dir_;
-    bool directorBu_;
     unsigned int run_;
     bool useFileBroker_;
+    bool fileBrokerHostFromCfg_;
     std::string fileBrokerHost_;
     std::string fileBrokerPort_;
     bool fileBrokerKeepAlive_;
     bool fileBrokerUseLocalLock_;
-    unsigned int startFromLS_ = 1;
+    unsigned int fuLockPollInterval_;
     bool outputAdler32Recheck_;
     bool requireTSPSet_;
     std::string selectedTransferMode_;
-    std::string hltSourceDirectory_;
-    unsigned int fuLockPollInterval_;
     std::string mergeTypePset_;
+    bool directorBU_;
+    std::string hltSourceDirectory_;
+
+    unsigned int startFromLS_ = 1;
 
     std::string hostname_;
     std::string run_string_;
