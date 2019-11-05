@@ -123,14 +123,19 @@ SiStripSimBlock = cms.PSet(
     apv_rate                   = cms.double( 66.2 ),
     apv_mVPerQ                 = cms.double( 5.5 ),
     apvfCPerElectron           = cms.double( 1.602e-4 ),
-    fracOfEventsToSimAPV       = cms.double( 0.5376 ),
+    fracOfEventsToSimAPV       = cms.double( 0.5376 ),   # 53% of luminosity is affected by APV saturation
 )
+
+# activate APV simulation for 2016 Strip detector (UL 2016)
+from Configuration.Eras.Modifier_strips_vfp30_2016_cff import strips_vfp30_2016
+strips_vfp30_2016.toModify(SiStripSimBlock,includeAPVSimulation=True)
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toModify(SiStripSimBlock,
     Noise = False,
     PreMixingMode = True,
     FedAlgorithm = 5, # special ZS mode: accept adc>0
+    includeAPVSimulation = False # APV simulation is off for premix stage1
 )
 
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
