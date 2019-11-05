@@ -22,11 +22,12 @@ trackstersTrk = _trackstersProducer.clone(
   original_mask = 'trackstersEM',
   seeding_regions = "ticlSeedingTrk",
   filter_on_categories = [2, 4], # filter muons and charged hadrons
-  pid_threshold = 0.7,
-  missing_layers = 3,
+  pid_threshold = 0.0,
+  missing_layers = 5,
   min_clusters_per_ntuplet = 10,
   min_cos_theta = 0.978, # ~12 degrees
-  min_cos_pointing = 0.866
+  min_cos_pointing = 0.866,
+  max_delta_time = -1.
 )
 
 # MULTICLUSTERS
