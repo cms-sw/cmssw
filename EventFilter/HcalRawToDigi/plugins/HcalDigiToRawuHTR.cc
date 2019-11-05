@@ -152,7 +152,6 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
         uhtrs.newUHTR(uhtrIndex, presamples);
       }
       uhtrs.addChannel(uhtrIndex, qiedf, readoutMap, _verbosity);
-      // if(HcalDetId(qiedf.detid()).ieta()==1&&HcalDetId(qiedf.detid()).iphi()==1) std::cout<<qiedf<<std::endl;
     }
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - -
