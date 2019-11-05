@@ -10,6 +10,16 @@
 
 //#define EDM_ML_DEBUG
 
+template <typename T>
+void myPrint(std::string value, const std::vector<T>& vec) {
+  edm::LogVerbatim("HCalGeom") << "EcalSimParametersFromDD: " << vec.size() << " entries for " << value << ":";
+  unsigned int i(0);
+  for (const auto& e : vec) {
+    edm::LogVerbatim("HCalGeom") << " (" << i << ") " << e;
+    ++i;
+  }
+}
+
 bool EcalSimParametersFromDD::build(const DDCompactView* cpv, const std::string& name, EcalSimulationParameters& php) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalGeom")

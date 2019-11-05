@@ -11,16 +11,6 @@
 class DDFilteredView;
 class EcalSimulationParameters;
 
-template <typename T>
-void myPrint(std::string value, const std::vector<T>& vec) {
-  edm::LogVerbatim("HCalGeom") << "EcalSimParametersFromDD: " << vec.size() << " entries for " << value << ":";
-  unsigned int i(0);
-  for (const auto& e : vec) {
-    edm::LogVerbatim("HCalGeom") << " (" << i << ") " << e;
-    ++i;
-  }
-}
-
 class EcalSimParametersFromDD {
 public:
   EcalSimParametersFromDD() = default;
