@@ -1,16 +1,10 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuonEnergy.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackBase.h"
 
-#include <memory>
-#include <fstream>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -22,13 +16,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <string>
-#include "TMath.h"
-#include "TList.h"
 
 using namespace std;
 using namespace edm;
@@ -241,8 +229,6 @@ void CosmicMuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
 
   for (edm::View<reco::Track>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
     nTracks_++;
-
-    //Needed for MVA soft muon
 
     // get the track using only the mu spectrometer data
 
