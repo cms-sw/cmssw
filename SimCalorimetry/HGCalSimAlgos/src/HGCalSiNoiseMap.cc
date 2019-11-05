@@ -1,12 +1,19 @@
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSiNoiseMap.h"
 
 //
-HGCalSiNoiseMap::HGCalSiNoiseMap() : encpScale_(840.), encCommonNoiseSub_(sqrt(1.25)), qe2fc_(1.60217646E-4) {
-  encsParam_.push_back({636., 15.6, 0.0328});  //q80fC
-  maxADCPerGain_.push_back(80.);
-  encsParam_.push_back({1045., 8.74, 0.0685});  //q160fC
+HGCalSiNoiseMap::HGCalSiNoiseMap() : 
+  encpScale_(840.), 
+  encCommonNoiseSub_(sqrt(1.25)), 
+  qe2fc_(1.60217646E-4),
+  ignoreFluence_(false),
+  ignoreCCE_(false),
+  ignoreNoise_(false) 
+{
+  encsParam_.push_back({636., 15.6, 0.0328});   // q80fC
+  maxADCPerGain_.push_back(80.);                // the num of fC (charge) which corresponds to the max ADC value
+  encsParam_.push_back({1045., 8.74, 0.0685});  // q160fC
   maxADCPerGain_.push_back(160.);
-  encsParam_.push_back({1915., 2.79, 0.0878});  //q320fC
+  encsParam_.push_back({1915., 2.79, 0.0878});  // q320fC
   maxADCPerGain_.push_back(320.);
 
   for (auto i : maxADCPerGain_)
@@ -38,9 +45,22 @@ HGCalSiNoiseMap::HGCalSiNoiseMap() : encpScale_(840.), encCommonNoiseSub_(sqrt(1
 }
 
 //
+void HGCalSiNoiseMap::setDoseMap(const std::string &fullpath,const unsigned int &algo){
+
+  //decode bits in the algo word
+  ignoreFluence_ = ((algo >> FLUENCE) & 0x1 );
+  ignoreCCE_     = ((algo >> CCE) & 0x1 );
+  ignoreNoise_   = ((algo >> NOISE) & 0x1 );
+
+  //call base class method
+  HGCalRadiationMap::setDoseMap(fullpath,algo);
+}
+
+
+
+//
 HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteristics(const HGCSiliconDetId &cellId,
                                                                                      GainRange_t gain,
-                                                                                     bool ignoreFluence,
                                                                                      int aimMIPtoADC) {
   SiCellOpCharacteristics siop;
 
@@ -50,17 +70,18 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   double cellCap(cellCapacitance_[cellThick]);
   double cellVol(cellVolume_[cellThick]);
 
-  //get fluence
-  if (getDoseMap().empty())
-    return siop;
-
   //leakage current and CCE [muA]
-  if (ignoreFluence) {
+  if (ignoreFluence_) {
     siop.fluence = 0;
     siop.lnfluence = -1;
     siop.ileak = exp(ileakParam_[1]) * cellVol * unitToMicro_;
     siop.cce = 1;
   } else {
+
+    if (getDoseMap().empty()) {
+      throw cms::Exception("BadConfiguration") << " Fluence is required but no DoseMap has been passed to HGCalSiNoiseMap";return siop;
+    }
+    
     //compute the radius here
     auto xy(ddd()->locateCell(
         cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
@@ -74,14 +95,21 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
     siop.lnfluence = log(siop.fluence);
     siop.ileak = exp(ileakParam_[0] * siop.lnfluence + ileakParam_[1]) * cellVol * unitToMicro_;
 
-    //lin+log parametrization
-    siop.cce = siop.fluence <= cceParam_[cellThick][0] ? 1. + cceParam_[cellThick][1] * siop.fluence
-                                                       : (1. - cceParam_[cellThick][2] * siop.lnfluence) +
-                                                             (cceParam_[cellThick][1] * cceParam_[cellThick][0] +
-                                                              cceParam_[cellThick][2] * log(cceParam_[cellThick][0]));
+    if(ignoreCCE_) {
+      siop.cce=1.0;
+    }
+    else{
+      //lin+log parametrization
+      siop.cce = siop.fluence <= cceParam_[cellThick][0] ? 1. + cceParam_[cellThick][1] * siop.fluence
+                                                         : (1. - cceParam_[cellThick][2] * siop.lnfluence) +
+                                                           (cceParam_[cellThick][1] * cceParam_[cellThick][0] +
+                                                            cceParam_[cellThick][2] * log(cceParam_[cellThick][0]));
+      siop.cce = std::max(0., siop.cce);
+    }
   }
 
   //determine the gain to apply accounting for cce
+  //move computation to ROC level (one day)
   double S(siop.cce * mipEqfC_[cellThick]);
   if (gain == GainRange_t::AUTO) {
     double desiredLSB(S / aimMIPtoADC);
@@ -93,19 +121,23 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
     if (gainIdx == 1)
       gain = HGCalSiNoiseMap::q160fC;
     if (gainIdx == 2)
-      gain = HGCalSiNoiseMap::q320fC;
+      gain = HGCalSiNoiseMap::q320fC;    
   }
 
   //fill in the parameters of the struct
   siop.gain = gain;
   siop.mipfC = S;
   siop.mipADC = std::floor(S / lsbPerGain_[gain]);
-  siop.thrADC = std::floor(siop.mipADC / 2);
+  siop.thrADC = std::floor(S / 2. / lsbPerGain_[gain]);
 
   //build noise estimate
-  double enc_s(encsParam_[gain][0] + encsParam_[gain][1] * cellCap + encsParam_[gain][2] * pow(cellCap, 2));
-  double enc_p(encpScale_ * sqrt(siop.ileak));
-  siop.noise = hypot(enc_p, enc_s) * encCommonNoiseSub_ * qe2fc_;
+  if(ignoreNoise_) {
+    siop.noise=0.0;
+  }else {
+    double enc_s(encsParam_[gain][0] + encsParam_[gain][1] * cellCap + encsParam_[gain][2] * pow(cellCap, 2));
+    double enc_p(encpScale_ * sqrt(siop.ileak));
+    siop.noise = hypot(enc_p, enc_s* encCommonNoiseSub_ )  * qe2fc_;
+  }
 
   return siop;
 }
