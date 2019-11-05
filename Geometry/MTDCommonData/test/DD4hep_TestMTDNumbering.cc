@@ -15,6 +15,7 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 
 #include "Geometry/MTDCommonData/interface/MTDBaseNumber.h"
@@ -24,7 +25,7 @@
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 using namespace cms;
 
@@ -88,57 +89,43 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
     edm::LogWarning("DD4hep_TestMTDNumbering") << "NO label found pDD.description() returned false.";
   }
 
-  //  checkMTD(*pDD, fname_, nNodes_, ddTopNodeName_);
+  checkMTD(*pDD, fname_, nNodes_, ddTopNodeName_);
 }
 
 void DD4hep_TestMTDNumbering::checkMTD(const DDCompactView& cpv, std::string fname, int nVols, std::string ddtop_) {
   fname = "dump" + fname;
 
   DDFilteredView fv(cpv);
+  fv.next(0);
+  edm::LogInfo("DD4hep_TestMTDNumbering") << fv.name();
 
-  edm::LogInfo("DD4hep_TestMTDNumbering") << "Top Most LogicalPart = " << fv.name();
+  std::ofstream dump(fname.c_str());
+  bool notReachedDepth(true);
 
-//   using nav_type = DDFilteredView::nav_type;
-//   using id_type = std::map<nav_type, int>;
-//   id_type idMap;
-//   int id = 0;
-//   std::ofstream dump(fname.c_str());
-//   bool notReachedDepth(true);
+  bool write = false;
+  bool isBarrel = true;
 
-//   bool write = false;
-//   bool isBarrel = true;
-//   size_t limit = 0;
+  do {
 
-//   do {
-//     nav_type pos = fv.navPos();
-//     idMap[pos] = id;
+    if (fv.name() == "BarrelTimingLayer") {
+      isBarrel = true;
+#ifdef EDM_ML_DEBUG
+      edm::LogInfo("DD4hep_TestMTDNumbering") << "isBarrel = " << isBarrel;
+#endif
+    } else if (fv.name() == "EndcapTimingLayer") {
+      isBarrel = false;
+#ifdef EDM_ML_DEBUG
+      edm::LogInfo("DD4hep_TestMTDNumbering") << "isBarrel = " << isBarrel;
+#endif
+    }
+    if ( fv.name() == ddtop_ ) { write = true; }
 
-//     size_t num = fv.geoHistory().size();
+    // Actions for MTD volumes: searchg for sensitive detectors
 
-//     if (num <= limit) {
-//       write = false;
-//     }
-//     if (fv.geoHistory()[num - 1].logicalPart().name() == "btl:BarrelTimingLayer") {
-//       isBarrel = true;
-//       limit = num;
-//       write = true;
-// #ifdef EDM_ML_DEBUG
-//       edm::LogInfo("DD4hep_TestMTDNumbering") << "isBarrel = " << isBarrel;
-// #endif
-//     } else if (fv.geoHistory()[num - 1].logicalPart().name() == "etl:EndcapTimingLayer") {
-//       isBarrel = false;
-//       limit = num;
-//       write = true;
-// #ifdef EDM_ML_DEBUG
-//       edm::LogInfo("DD4hep_TestMTDNumbering") << "isBarrel = " << isBarrel;
-// #endif
-//     }
-
-//     // Actions for MTD volumes: searchg for sensitive detectors
-
-//     if (write && fv.geoHistory()[limit - 1].logicalPart().name() == ddtop_) {
-//       dump << " - " << fv.geoHistory();
-//       dump << "\n";
+    std::cout << fv.name() << " " << fv.navPos().size() << std::endl;
+    if (write) {
+      dump << " - " << fv.name() << " " << fv.navPos().size();
+      dump << "\n";
 
 //       bool isSens = false;
 
@@ -187,15 +174,15 @@ void DD4hep_TestMTDNumbering::checkMTD(const DDCompactView& cpv, std::string fna
 //           ETLDetId theId(etlNS_.getUnitID(thisN_));
 //           dump << theId;
 //         }
-//         dump << "\n";
+      dump << "\n";
 //       }
-//     }
+    }
 //     ++id;
 //     if (nVols != 0 && id > nVols)
 //       notReachedDepth = false;
-//   } while (fv.next() && notReachedDepth);
-//   dump << std::flush;
-//   dump.close();
+  } while (fv.next(0) && notReachedDepth);
+   dump << std::flush;
+   dump.close();
 }
 
 // void DD4hep_TestMTDNumbering::theBaseNumber(const DDGeoHistory& gh) {
