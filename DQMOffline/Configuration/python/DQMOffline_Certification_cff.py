@@ -45,5 +45,9 @@ phase1Pixel.toReplaceWith(DQMCertCommon, DQMCertCommon.copyAndExclude([ # FIXME
     sipixelCertification # segfaults when included
 ]))
 
+phase1Pixel.toReplaceWith(DQMCertTrackerPixel, DQMCertTrackerPixel.copyAndExclude([ # FIXME
+    sipixelCertification # segfaults when included
+]))
+
 DQMCertCommonFakeHLT = cms.Sequence( DQMCertCommon )
 DQMCertCommonFakeHLT.remove( dqmOfflineTriggerCert )
