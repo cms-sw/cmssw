@@ -129,16 +129,22 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
 
   theCoderFactory = std::make_unique<HcalCoderFactory>(HcalCoderFactory::DB);
 
-  theHBHEElectronicsSim = std::make_unique<HcalElectronicsSim>(theHBHEAmplifier.get(), theCoderFactory.get(), PreMix1);
-  theHFElectronicsSim = std::make_unique<HcalElectronicsSim>(theHFAmplifier.get(), theCoderFactory.get(), PreMix1);
-  theHOElectronicsSim = std::make_unique<HcalElectronicsSim>(theHOAmplifier.get(), theCoderFactory.get(), PreMix1);
-  theZDCElectronicsSim = std::make_unique<HcalElectronicsSim>(theZDCAmplifier.get(), theCoderFactory.get(), PreMix1);
+  theHBHEElectronicsSim =
+      std::make_unique<HcalElectronicsSim>(&theParameterMap, theHBHEAmplifier.get(), theCoderFactory.get(), PreMix1);
+  theHFElectronicsSim =
+      std::make_unique<HcalElectronicsSim>(&theParameterMap, theHFAmplifier.get(), theCoderFactory.get(), PreMix1);
+  theHOElectronicsSim =
+      std::make_unique<HcalElectronicsSim>(&theParameterMap, theHOAmplifier.get(), theCoderFactory.get(), PreMix1);
+  theZDCElectronicsSim =
+      std::make_unique<HcalElectronicsSim>(&theParameterMap, theZDCAmplifier.get(), theCoderFactory.get(), PreMix1);
   theHFQIE10ElectronicsSim =
-      std::make_unique<HcalElectronicsSim>(theHFQIE10Amplifier.get(),
+      std::make_unique<HcalElectronicsSim>(&theParameterMap,
+                                           theHFQIE10Amplifier.get(),
                                            theCoderFactory.get(),
                                            PreMix1);  // should this use a different coder factory?
   theHBHEQIE11ElectronicsSim =
-      std::make_unique<HcalElectronicsSim>(theHBHEQIE11Amplifier.get(),
+      std::make_unique<HcalElectronicsSim>(&theParameterMap,
+                                           theHBHEQIE11Amplifier.get(),
                                            theCoderFactory.get(),
                                            PreMix1);  // should this use a different coder factory?
 
