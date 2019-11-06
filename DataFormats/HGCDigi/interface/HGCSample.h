@@ -65,9 +65,9 @@ public:
   uint32_t raw() const { return value_; }
   bool threshold() const { return getWord(kThreshMask, kThreshShift); }
   bool mode() const { return getWord(kModeMask, kModeShift); }
-  uint32_t gain() const { return getWord(kGainMask, kToGainShift); }
-  uint32_t toa() const { return getWord(kToAMask, kToAShift); }
-  uint32_t data() const { return getWord(kDataMask, kDataShift); }
+  uint16_t gain() const { return getWord(kGainMask, kToGainShift); }
+  uint16_t toa() const { return getWord(kToAMask, kToAShift); }
+  uint16_t data() const { return getWord(kDataMask, kDataShift); }
   bool getToAValid() const { return getWord(kToAValidMask, kToAValidShift); }
   uint32_t operator()() { return value_; }
 
@@ -75,10 +75,7 @@ private:
   /**
      @short wrapper to reset words at a given position
   */
-  void setWord(uint32_t word, uint32_t mask, uint32_t shift) {
-    // deal with saturation: set to mask
-    // should we throw ?
-    word = (mask > word ? word : mask);
+  void setWord(uint16_t word, HGCSampleMasks mask, HGCSampleShifts shift) {
 
     // mask (not strictly needed) and shift
     const uint32_t masked_word = (word & mask) << shift;
@@ -90,7 +87,7 @@ private:
     value_ |= (masked_word);
   }
 
-  uint32_t getWord(uint32_t mask, uint32_t shift) const { return ((value_ >> shift) & mask); }
+  uint32_t getWord(HGCSampleMasks mask, HGCSampleShifts shift) const { return ((value_ >> shift) & mask); }
 
   // a 32-bit word
   uint32_t value_;
