@@ -21,27 +21,27 @@ HGCalSiNoiseMap::HGCalSiNoiseMap()
 
   //fine sensors: 120 mum -  67: MPV of charge[number of e-]/mum for a mip in silicon; srouce PDG
   const double mipEqfC_120 = 120. * 67. * qe2fc_;
-  mipEqfC_.push_back(mipEqfC_120);
+  mipEqfC_[0] = mipEqfC_120;
   const double cellCapacitance_120 = 50;
-  cellCapacitance_.push_back(cellCapacitance_120);
+  cellCapacitance_[0] = cellCapacitance_120;
   const double cellVolume_120 = 0.52 * (120.e-4);
-  cellVolume_.push_back(cellVolume_120);
+  cellVolume_[0] = cellVolume_120;
 
   //thin sensors: 200 mum
   const double mipEqfC_200 = 200. * 70. * qe2fc_;
-  mipEqfC_.push_back(mipEqfC_200);
+  mipEqfC_[1] = mipEqfC_200;
   const double cellCapacitance_200 = 65;
-  cellCapacitance_.push_back(cellCapacitance_200);
+  cellCapacitance_[1] = cellCapacitance_200;
   const double cellVolume_200 = 1.18 * (200.e-4);
-  cellVolume_.push_back(cellVolume_200);
+  cellVolume_[1] = cellVolume_200;
 
   //thick sensors: 300 mum
   const double mipEqfC_300 = 300. * 73. * qe2fc_;
-  mipEqfC_.push_back(mipEqfC_300);
+  mipEqfC_[2] = mipEqfC_300;
   const double cellCapacitance_300 = 45;
-  cellCapacitance_.push_back(cellCapacitance_300);
+  cellCapacitance_[2] = cellCapacitance_300;
   const double cellVolume_300 = 1.18 * (300.e-4);
-  cellVolume_.push_back(cellVolume_300);
+  cellVolume_[2] = cellVolume_300;
 }
 
 //
