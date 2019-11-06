@@ -9,6 +9,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTDC.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 
 class HBHEDataFrame;
 class HODataFrame;
@@ -23,7 +24,10 @@ namespace CLHEP {
 
 class HcalElectronicsSim {
 public:
-  HcalElectronicsSim(HcalAmplifier* amplifier, const HcalCoderFactory* coderFactory, bool PreMix);
+  HcalElectronicsSim(const HcalSimParameterMap* parameterMap,
+                     HcalAmplifier* amplifier,
+                     const HcalCoderFactory* coderFactory,
+                     bool PreMix);
   ~HcalElectronicsSim();
 
   void setDbService(const HcalDbService* service);
@@ -73,6 +77,7 @@ private:
   template <class Digi>
   void premix(CaloSamples& frame, Digi& result, double preMixFactor, unsigned preMixBits);
 
+  const HcalSimParameterMap* theParameterMap;
   HcalAmplifier* theAmplifier;
   const HcalCoderFactory* theCoderFactory;
   HcalTDC theTDC;
