@@ -11,15 +11,11 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 
 class EcalClusterEnergyCorrection : public EcalClusterFunctionBaseClass {
 public:
-  EcalClusterEnergyCorrection();
   EcalClusterEnergyCorrection(const edm::ParameterSet &){};
-  ~EcalClusterEnergyCorrection() override;
 
   // get/set explicit methods for parameters
   const EcalClusterEnergyCorrectionParameters *getParameters() const { return params_; }
@@ -243,10 +239,6 @@ float EcalClusterEnergyCorrection::getValue(const reco::SuperCluster &superClust
     return 0;
   }
 }
-
-EcalClusterEnergyCorrection::EcalClusterEnergyCorrection() {}
-
-EcalClusterEnergyCorrection::~EcalClusterEnergyCorrection() {}
 
 void EcalClusterEnergyCorrection::init(const edm::EventSetup &es) {
   es.get<EcalClusterEnergyCorrectionParametersRcd>().get(esParams_);
