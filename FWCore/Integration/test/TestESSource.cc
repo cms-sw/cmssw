@@ -92,7 +92,7 @@ namespace edmtest {
     }
     testESSource_->busyWait("getImpl");
     ESTestRecordI record;
-    record.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl);
+    record.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, true);
 
     edm::ValidityInterval iov = record.validityInterval();
     edm::LogAbsolute("TestESSoureTestProxy")
