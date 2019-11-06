@@ -8,7 +8,6 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -18,7 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/QTest.h"
 
 #include <cmath>
@@ -33,43 +32,7 @@
 
 #include <fnmatch.h>
 
-class DQMLegacyEDAnalyzer : public edm::EDAnalyzer {
-public:
-  typedef dqm::harvesting::DQMStore DQMStore;
-  typedef dqm::harvesting::MonitorElement MonitorElement;
-  virtual ~DQMLegacyEDAnalyzer();
-
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) final {
-    edm::Service<DQMStore>()->meBookerGetter([this, &lumi, &es](DQMStore::IBooker& b, DQMStore::IGetter& g) {
-      this->dqmEndLuminosityBlock(b, g, lumi, es);
-    });
-  };
-  void endRun(edm::Run const& run, edm::EventSetup const& es) override {
-    edm::Service<DQMStore>()->meBookerGetter(
-        [this, &run, &es](DQMStore::IBooker& b, DQMStore::IGetter& g) { this->dqmEndRun(b, g, run, es); });
-  };
-  void endJob() final {
-    edm::Service<DQMStore>()->meBookerGetter(
-        [this](DQMStore::IBooker& b, DQMStore::IGetter& g) { this->dqmEndJob(b, g); });
-  };
-  void analyze(edm::Event const& ev, edm::EventSetup const& es) final {
-    edm::Service<DQMStore>()->meBookerGetter(
-        [this, &ev, &es](DQMStore::IBooker& b, DQMStore::IGetter& g) { this->dqmAnalyze(b, g, ev, es); });
-  }
-
-protected:
-  virtual void dqmAnalyze(DQMStore::IBooker&, DQMStore::IGetter&, const edm::Event& e, const edm::EventSetup& c){};
-  virtual void dqmEndLuminosityBlock(DQMStore::IBooker&,
-                                     DQMStore::IGetter&,
-                                     edm::LuminosityBlock const& lumiSeg,
-                                     edm::EventSetup const& c){};
-  virtual void dqmEndRun(DQMStore::IBooker&, DQMStore::IGetter&, const edm::Run& r, const edm::EventSetup& c){};
-  virtual void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&){};
-};
-
-DQMLegacyEDAnalyzer::~DQMLegacyEDAnalyzer(){};
-
-class QualityTester : public DQMLegacyEDAnalyzer {
+class QualityTester : public DQMEDHarvester {
 public:
   /// Constructor
   QualityTester(const edm::ParameterSet& ps);
@@ -113,7 +76,7 @@ private:
   std::unique_ptr<QCriterion> makeQCriterion(boost::property_tree::ptree const& config);
 };
 
-QualityTester::QualityTester(const edm::ParameterSet& ps) {
+QualityTester::QualityTester(const edm::ParameterSet& ps) : DQMEDHarvester(ps) {
   prescaleFactor = ps.getUntrackedParameter<int>("prescaleFactor", 1);
   getQualityTestsFromFile = ps.getUntrackedParameter<bool>("getQualityTestsFromFile", true);
   Label = ps.getUntrackedParameter<std::string>("label", "");
