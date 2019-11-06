@@ -70,7 +70,7 @@ namespace edm {
 
       const EDProducer& operator=(const EDProducer&) = delete;  // stop default
 
-      void doAcquire_(Event const& ev, EventSetup const& es, WaitingTaskWithArenaHolder& holder) override final {
+      void doAcquire_(Event const& ev, EventSetup const& es, WaitingTaskWithArenaHolder& holder) final {
         doAcquireIfNeeded(this, ev, es, holder);
       }
 
