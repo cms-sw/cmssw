@@ -11,16 +11,12 @@
 
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 
 class EcalClusterEnergyUncertainty : public EcalClusterFunctionBaseClass {
 public:
-  EcalClusterEnergyUncertainty();
   EcalClusterEnergyUncertainty(const edm::ParameterSet &){};
-  ~EcalClusterEnergyUncertainty() override;
 
   // get/set explicit methods for parameters
   const EcalClusterEnergyUncertaintyParameters *getParameters() const { return params_; }
@@ -38,10 +34,6 @@ private:
   edm::ESHandle<EcalClusterEnergyUncertaintyParameters> esParams_;
   const EcalClusterEnergyUncertaintyParameters *params_;
 };
-
-EcalClusterEnergyUncertainty::EcalClusterEnergyUncertainty() {}
-
-EcalClusterEnergyUncertainty::~EcalClusterEnergyUncertainty() {}
 
 void EcalClusterEnergyUncertainty::init(const edm::EventSetup &es) {
   es.get<EcalClusterEnergyUncertaintyParametersRcd>().get(esParams_);
