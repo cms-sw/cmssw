@@ -55,9 +55,9 @@ public:
                                                      GainRange_t gain = GainRange_t::AUTO,
                                                      int aimMIPtoADC = 10);
 
-  std::array<double,3> &getMipEqfC() { return mipEqfC_; }
-  std::array<double,3> &getCellCapacitance() { return cellCapacitance_; }
-  std::array<double,3> &getCellVolume() { return cellVolume_; }
+  std::array<double, 3> &getMipEqfC() { return mipEqfC_; }
+  std::array<double, 3> &getCellCapacitance() { return cellCapacitance_; }
+  std::array<double, 3> &getCellVolume() { return cellVolume_; }
   std::vector<std::vector<double> > &getCCEParam() { return cceParam_; }
   std::vector<double> &getIleakParam() { return ileakParam_; }
   std::vector<std::vector<double> > &getENCsParam() { return encsParam_; }
@@ -66,7 +66,7 @@ public:
 
 private:
   //vector of three params, per sensor type: 0:120 [mum], 1:200, 2:300
-  std::array<double,3> mipEqfC_, cellCapacitance_, cellVolume_;
+  std::array<double, 3> mipEqfC_, cellCapacitance_, cellVolume_;
   std::vector<std::vector<double> > cceParam_;
 
   //leakage current/volume vs fluence
